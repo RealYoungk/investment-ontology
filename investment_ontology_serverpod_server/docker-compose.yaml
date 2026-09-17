@@ -1,0 +1,44 @@
+services:
+  # Development services
+  postgres:
+    image: ghcr.io/serverpod/postgres:16
+    ports:
+      - "8090:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: investment_ontology_serverpod
+      POSTGRES_PASSWORD: "NRc8Vw6GPWj47BCuektFWeHEALC1siy8"
+    volumes:
+      - investment_ontology_serverpod_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:6.2.6
+    ports:
+      - "8091:6379"
+    command: redis-server --requirepass "NwyVZ-OUu4fLD6wNacjOvX1YNSo_4T5s"
+    environment:
+      - REDIS_REPLICATION_MODE=master
+
+  # Test services
+  postgres_test:
+    image: ghcr.io/serverpod/postgres:16
+    ports:
+      - "9090:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: investment_ontology_serverpod_test
+      POSTGRES_PASSWORD: "L3KJIsnYmp9SZlA1zXcE4VCHu4XH8lBR"
+    volumes:
+      - investment_ontology_serverpod_test_data:/var/lib/postgresql/data
+
+  redis_test:
+    image: redis:6.2.6
+    ports:
+      - "9091:6379"
+    command: redis-server --requirepass "HwEU4oizAZsUicVzFDqr1d46ApJUMb4Q"
+    environment:
+      - REDIS_REPLICATION_MODE=master
+
+volumes:
+  investment_ontology_serverpod_data:
+  investment_ontology_serverpod_test_data:

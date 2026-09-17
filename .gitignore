@@ -1,99 +1,49 @@
+# Files and directories created by pub
+.dart_tool/
+.packages
+
+# Pubspec overrides
+pubspec_overrides.yaml
+
+# Agents
+.dart_skills/
+.agents/
+.claude/
+.gemini/
+.cursor/
+.vscode/mcp.json
+.codex/
+.mcp.json
+
+# Serverpod Cloud CLI
+.scloud/
+
 # ===== OS =====
 .DS_Store
 .AppleDouble
 .LSOverride
-Icon?
 ._*
-.Spotlight-V100
-.Trashes
 Thumbs.db
 Desktop.ini
 
 # ===== Editors / IDE =====
 .idea/
 *.iml
-*.ipr
-*.iws
-.vscode/*
-!.vscode/settings.json
-!.vscode/extensions.json
-!.vscode/launch.json
 *.swp
 *.swo
 *~
-.history/
 
 # ===== Env / secrets =====
 .env
 .env.*
 !.env.example
 *.pem
-*.key
 *.jks
 *.keystore
 key.properties
-
-# ===== Serverpod =====
-# DB/Redis passwords & service-account keys (keep out of git)
 **/config/passwords.yaml
 **/config/firebase_service_account_key.json
 **/config/google_client_secret.json
-# Local Docker data (if bind-mounted)
-**/.docker-data/
 
-# ===== Dart / Flutter =====
-.dart_tool/
-.packages
-.pub-cache/
-.pub/
-build/
-coverage/
-pubspec_overrides.yaml
-.flutter-plugins
-.flutter-plugins-dependencies
-.metadata.local
-*.symbols
-*.map.json
-app.*.symbols
-app.*.map.json
-.fvm/flutter_sdk
-doc/api/
-
-# Android
-**/android/.gradle/
-**/android/captures/
-**/android/local.properties
-**/android/**/GeneratedPluginRegistrant.java
-**/android/app/debug/
-**/android/app/profile/
-**/android/app/release/
-
-# iOS / macOS
-**/ios/Pods/
-**/ios/.symlinks/
-**/ios/Flutter/Generated.xcconfig
-**/ios/Flutter/ephemeral/
-**/ios/Flutter/flutter_export_environment.sh
-**/ios/Runner/GeneratedPluginRegistrant.*
-**/macos/Pods/
-**/macos/Flutter/ephemeral/
-**/macos/Flutter/GeneratedPluginRegistrant.swift
-xcuserdata/
-*.xcuserstate
-DerivedData/
-
-# Linux / Windows desktop
-**/linux/flutter/ephemeral/
-**/windows/flutter/ephemeral/
-
-# Web
-**/web/flutter_service_worker.js
-
-# ===== Logs / temp =====
+# ===== Logs =====
 *.log
-tmp/
-temp/
-*.tmp
-
-# ===== Claude Code (local only) =====
-.claude/settings.local.json
