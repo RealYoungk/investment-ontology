@@ -1,4 +1,4 @@
-### 한국표준산업분류(KSIC) 항목.
+### 한국표준산업분류(KSIC) 항목. 개정 차수마다 따로 둔다.
 class: Industry
 table: industry
 fields:
@@ -8,9 +8,11 @@ fields:
   ### 1 대분류, 2 중분류, 3 소분류, 4 세분류, 5 세세분류
   level: int
   parentCode: String?
-  ### 예: "KSIC 10"
+  ### 예: "KSIC 11"
   revision: String
+  ### 통계청 고시 자료
+  sourceId: int?, relation(parent=source, onDelete=SetNull)
 indexes:
-  industry_code_idx:
-    fields: code
+  industry_revision_code_idx:
+    fields: revision, code
     unique: true

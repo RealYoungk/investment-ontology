@@ -1,0 +1,13 @@
+### DART 업종코드가 어느 KSIC 개정 차수를 따르는지 판정한 결과.
+class: IndustryRevisionCheck
+fields:
+  ### 화면에 업종명을 보여줄 때 쓰는 차수 (예: "KSIC 11")
+  revision: String
+  ### 판정에 쓴 서로 다른 업종코드 수
+  distinctCodes: int
+  ### 이 차수 분류표에 없는 업종코드
+  unmatchedCodes: List<String>
+  ### 이 차수에만 있는 코드 중 실제로 쓰인 것 (판정 근거)
+  evidenceCodes: List<String>
+  ### 근거 코드로 차수를 확정했는지. false면 두 차수 모두 맞아서 최신 차수를 기본으로 씀
+  confirmed: bool

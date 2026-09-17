@@ -2,6 +2,7 @@ import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
 import '../ingest/company_master_sync.dart';
+import '../ingest/ksic_revision.dart';
 
 /// 상장사 조회.
 class CompanyEndpoint extends Endpoint {
@@ -27,11 +28,20 @@ class CompanyEndpoint extends Endpoint {
       where: (t) => t.kind.equals(CompanyMasterSync.kind),
       orderBy: (t) => t.startedAt.desc(),
     );
+    final lastFull = await CompanyMasterSync.lastFullRefresh(session);
+    final revision = await KsicRevision.current(session);
     return Overview(
       totalListed: byMarket.fold(0, (sum, f) => sum + f.count),
       byMarket: byMarket,
-      bySection: await _facet(session, column: 'sectionCode'),
+      bySection: await _facet(
+        session,
+        column: 'sectionCode',
+        revision: revision.revision,
+      ),
       lastJob: lastJob,
+      lastFullRefreshAt: lastFull?.finishedAt,
+      nextFullRefreshAt: CompanyMasterSync.nextFullRefreshAt(lastFull),
+      industryRevision: revision,
     );
   }
 
@@ -40,11 +50,12 @@ class CompanyEndpoint extends Endpoint {
     Session session,
     String sectionCode, {
     Market? market,
-  }) => _facet(
+  }) async => _facet(
     session,
     column: 'divisionCode',
     sectionCode: sectionCode,
     market: market,
+    revision: (await KsicRevision.current(session)).revision,
   );
 
   Future<CompanyPage> list(
@@ -95,9 +106,13 @@ class CompanyEndpoint extends Endpoint {
       limit: limit,
     );
 
-    final names = await _industryNames(session, {
-      for (final c in rows) ...[?c.industryCode, ?c.sectionCode],
-    });
+    final names = await _industryNames(
+      session,
+      (await KsicRevision.current(session)).revision,
+      {
+        for (final c in rows) ...[?c.industryCode, ?c.sectionCode],
+      },
+    );
     return CompanyPage(
       total: total,
       items: [
@@ -133,10 +148,12 @@ class CompanyEndpoint extends Endpoint {
         ?company.sectionCode,
         for (var len = 2; len <= code.length; len++) code.substring(0, len),
       ];
+      final revision = (await KsicRevision.current(session)).revision;
       final found = {
         for (final i in await Industry.db.find(
           session,
-          where: (t) => t.code.inSet(codes.toSet()),
+          where: (t) =>
+              t.revision.equals(revision) & t.code.inSet(codes.toSet()),
         ))
           i.code: i,
       };
@@ -162,6 +179,7 @@ class CompanyEndpoint extends Endpoint {
   Future<List<FacetCount>> _facet(
     Session session, {
     required String column,
+    required String revision,
     String? sectionCode,
     Market? market,
   }) async {
@@ -185,7 +203,7 @@ class CompanyEndpoint extends Endpoint {
           n: row.toColumnMap()['n'] as int,
         ),
     ];
-    final names = await _industryNames(session, {
+    final names = await _industryNames(session, revision, {
       for (final c in counts) c.code,
     });
     return [
@@ -196,12 +214,13 @@ class CompanyEndpoint extends Endpoint {
 
   Future<Map<String, String>> _industryNames(
     Session session,
+    String revision,
     Set<String> codes,
   ) async {
     if (codes.isEmpty) return {};
     final rows = await Industry.db.find(
       session,
-      where: (t) => t.code.inSet(codes),
+      where: (t) => t.revision.equals(revision) & t.code.inSet(codes),
     );
     return {for (final i in rows) i.code: i.name};
   }

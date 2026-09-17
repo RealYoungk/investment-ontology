@@ -1,4 +1,5 @@
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/ingest/ksic_revision.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/ingest/ksic_seeder.dart';
 import 'package:test/test.dart';
 
@@ -9,6 +10,7 @@ void main() {
     setUp(() async {
       final session = sessionBuilder.build();
       await KsicSeeder.seed(session);
+      await KsicRevision.invalidate(session);
       Company company(
         String corpCode,
         String name,
@@ -53,7 +55,7 @@ void main() {
     test('list는 이름·종목코드로 검색하고 업종명을 붙인다', () async {
       final byName = await endpoints.company.list(sessionBuilder, query: '삼성');
       expect(byName.total, 1);
-      expect(byName.items.single.industryName, '통신 및 방송장비 제조업');
+      expect(byName.items.single.industryName, '통신 및 방송 장비 제조업');
       expect(byName.items.single.sectionName, '제조업');
 
       final byCode = await endpoints.company.list(
@@ -86,6 +88,34 @@ void main() {
     test('divisions는 대분류 안의 중분류별 수를 준다', () async {
       final divisions = await endpoints.company.divisions(sessionBuilder, 'C');
       expect({for (final d in divisions) d.code: d.count}, {'26': 2, '28': 1});
+    });
+
+    test('근거 코드가 없으면 최신 차수(11차) 이름을 쓴다', () async {
+      final overview = await endpoints.company.overview(sessionBuilder);
+      expect(overview.industryRevision!.revision, 'KSIC 11');
+      expect(overview.industryRevision!.confirmed, isFalse);
+    });
+
+    test('10차에만 있는 코드가 쓰이면 10차 이름으로 보여준다', () async {
+      final session = sessionBuilder.build();
+      await Company.db.insertRow(
+        session,
+        Company(
+          corpCode: '00000300',
+          name: '시계회사',
+          market: Market.kosdaq,
+          industryCode: '274',
+          sectionCode: 'C',
+          divisionCode: '27',
+        ),
+      );
+      await KsicRevision.invalidate(session);
+
+      final overview = await endpoints.company.overview(sessionBuilder);
+      expect(overview.industryRevision!.revision, 'KSIC 10');
+      expect(overview.industryRevision!.evidenceCodes, ['274']);
+      final page = await endpoints.company.list(sessionBuilder, query: '삼성');
+      expect(page.items.single.industryName, '통신 및 방송장비 제조업');
     });
 
     test('detail은 KSIC 경로를 대분류부터 준다', () async {

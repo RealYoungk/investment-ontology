@@ -4,6 +4,7 @@ import '../../generated/protocol.dart';
 import '../dart/dart_client.dart';
 import '../dart/dart_values.dart';
 import 'company_changes.dart';
+import 'ksic_revision.dart';
 import 'ksic_seeder.dart';
 
 /// DART 고유번호 목록 + 기업개황으로 상장사 마스터를 채운다.
@@ -11,6 +12,31 @@ class CompanyMasterSync {
   CompanyMasterSync(this.session, this.dart, this.jobId);
 
   static const kind = 'company_master';
+
+  /// DART 변경일에 반영되지 않는 개황 변경을 놓치지 않도록 이 주기마다 전체를 다시 받는다.
+  static const fullRefreshInterval = Duration(days: 30);
+
+  /// 마지막으로 성공한 전체 갱신 작업.
+  static Future<IngestJob?> lastFullRefresh(Session session) =>
+      IngestJob.db.findFirstRow(
+        session,
+        where: (t) =>
+            t.kind.equals(kind) &
+            t.fullRefresh.equals(true) &
+            t.status.equals(IngestStatus.succeeded),
+        orderBy: (t) => t.finishedAt.desc(),
+      );
+
+  /// 다음 전체 갱신 예정 시각. 한 번도 안 했으면 null (= 바로 필요).
+  static DateTime? nextFullRefreshAt(IngestJob? lastFull) {
+    final at = lastFull?.finishedAt;
+    return at?.add(fullRefreshInterval);
+  }
+
+  static Future<bool> isFullRefreshDue(Session session) async {
+    final next = nextFullRefreshAt(await lastFullRefresh(session));
+    return next == null || !DateTime.now().toUtc().isBefore(next);
+  }
 
   /// DART는 분당 과다 호출 시 IP를 차단한다. 초당 약 5건으로 제한.
   static const _callInterval = Duration(milliseconds: 200);
@@ -98,7 +124,7 @@ class CompanyMasterSync {
           apiCalls: dart.calls,
           finishedAt: DateTime.now().toUtc(),
           message: failures.isEmpty
-              ? '대상 ${targets.length}건 (고유번호 중 종목코드 보유 ${withStock.length}건)'
+              ? '${force ? '전체 갱신' : '변경분'} 대상 ${targets.length}건 (고유번호 중 종목코드 보유 ${withStock.length}건)'
               : '실패 예시: ${failures.join(' / ')}',
         ),
       );
@@ -112,6 +138,7 @@ class CompanyMasterSync {
       await fail(session, jobId, '$e', apiCalls: dart.calls);
     } finally {
       dart.close();
+      await KsicRevision.invalidate(session);
     }
   }
 
