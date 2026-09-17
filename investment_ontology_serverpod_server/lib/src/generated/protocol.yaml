@@ -16,6 +16,9 @@ company:
   - divisions:
   - list:
   - detail:
+financial:
+  - summary:
+  - report:
 ingest:
   - startCompanyMaster:
   - startFinancials:
@@ -23,3 +26,5 @@ ingest:
   - cancel:
   - latest:
   - latestOf:
+market:
+  - industryTreemap:
