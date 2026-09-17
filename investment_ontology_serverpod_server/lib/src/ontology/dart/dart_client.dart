@@ -4,6 +4,8 @@ import 'package:archive/archive.dart';
 import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart';
 
+import 'dart_values.dart';
+
 /// DART OpenAPI (https://opendart.fss.or.kr) 호출 오류.
 class DartApiException implements Exception {
   DartApiException(this.status, this.message);
@@ -18,6 +20,7 @@ class DartApiException implements Exception {
     '011', // 사용할 수 없는 키
     '012', // 접근할 수 없는 IP
     '020', // 요청 제한 초과
+    '021', // 조회 가능한 회사 개수 초과
     '800', // 시스템 점검
     '901', // 개인정보 보유기간 만료 계정
   }.contains(status);
@@ -38,7 +41,7 @@ class DartCorpCode {
   final String corpCode;
   final String corpName;
   final String? stockCode;
-  final String? modifyDate;
+  final DateTime? modifyDate;
 }
 
 class DartClient {
@@ -75,16 +78,14 @@ class DartClient {
     );
     final doc = XmlDocument.parse(utf8.decode(file.content));
     return doc.findAllElements('list').map((e) {
-      String? text(String name) {
-        final v = e.getElement(name)?.innerText.trim();
-        return (v == null || v.isEmpty) ? null : v;
-      }
+      String? text(String name) =>
+          DartValues.text(e.getElement(name)?.innerText);
 
       return DartCorpCode(
         corpCode: text('corp_code')!,
         corpName: text('corp_name') ?? '',
         stockCode: text('stock_code'),
-        modifyDate: text('modify_date'),
+        modifyDate: DartValues.ymd(text('modify_date')),
       );
     }).toList();
   }
@@ -127,10 +128,15 @@ class DartClient {
       final json = jsonDecode(body) as Map<String, dynamic>;
       throw DartApiException('${json['status']}', '${json['message']}');
     } on FormatException {
+      // JSON이 아니면 XML 오류 응답.
+    }
+    try {
       final doc = XmlDocument.parse(body);
       final status = doc.findAllElements('status').firstOrNull?.innerText;
       final message = doc.findAllElements('message').firstOrNull?.innerText;
       throw DartApiException(status ?? 'unknown', message ?? body);
+    } on XmlException {
+      throw DartApiException('parse', 'corpCode.xml 응답을 해석할 수 없음');
     }
   }
 

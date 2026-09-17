@@ -24,12 +24,12 @@ fields:
   sectionCode: String?
   ### KSIC 중분류 (2자리), industryCode에서 파생
   divisionCode: String?
-  ### 설립일 YYYYMMDD (원문)
-  establishedDate: String?
+  ### 설립일 (UTC 자정). 원천 값이 유효한 날짜가 아니면 null
+  establishedDate: DateTime?
   ### 결산월 (1~12)
   fiscalMonth: int?
-  ### corpCode.xml의 modify_date (YYYYMMDD)
-  dartModifiedDate: String?
+  ### corpCode.xml의 modify_date (UTC 자정)
+  dartModifiedDate: DateTime?
   profileSourceId: int?, relation(parent=source, onDelete=SetNull)
   profileUpdatedAt: DateTime?
 indexes:

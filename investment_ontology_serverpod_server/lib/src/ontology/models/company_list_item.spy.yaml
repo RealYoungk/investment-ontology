@@ -11,4 +11,4 @@ fields:
   sectionName: String?
   ceoName: String?
   fiscalMonth: int?
-  establishedDate: String?
+  establishedDate: DateTime?

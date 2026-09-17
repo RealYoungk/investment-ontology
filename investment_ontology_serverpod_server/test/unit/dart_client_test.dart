@@ -31,6 +31,7 @@ void main() {
       expect(codes, hasLength(2));
       expect(codes.first.corpCode, '00126380');
       expect(codes.first.stockCode, '005930');
+      expect(codes.first.modifyDate, DateTime.utc(2026, 1, 1));
       expect(codes.last.stockCode, isNull);
     });
 
