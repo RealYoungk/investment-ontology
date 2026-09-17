@@ -41,7 +41,7 @@ abstract class CompanyListItem
     String? sectionName,
     String? ceoName,
     int? fiscalMonth,
-    String? establishedDate,
+    DateTime? establishedDate,
   }) = _CompanyListItemImpl;
 
   factory CompanyListItem.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -58,7 +58,11 @@ abstract class CompanyListItem
       sectionName: jsonSerialization['sectionName'] as String?,
       ceoName: jsonSerialization['ceoName'] as String?,
       fiscalMonth: jsonSerialization['fiscalMonth'] as int?,
-      establishedDate: jsonSerialization['establishedDate'] as String?,
+      establishedDate: jsonSerialization['establishedDate'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(
+              jsonSerialization['establishedDate'],
+            ),
     );
   }
 
@@ -82,7 +86,7 @@ abstract class CompanyListItem
 
   int? fiscalMonth;
 
-  String? establishedDate;
+  DateTime? establishedDate;
 
   /// Returns a shallow copy of this [CompanyListItem]
   /// with some or all fields replaced by the given arguments.
@@ -98,7 +102,7 @@ abstract class CompanyListItem
     String? sectionName,
     String? ceoName,
     int? fiscalMonth,
-    String? establishedDate,
+    DateTime? establishedDate,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -114,7 +118,7 @@ abstract class CompanyListItem
       if (sectionName != null) 'sectionName': sectionName,
       if (ceoName != null) 'ceoName': ceoName,
       if (fiscalMonth != null) 'fiscalMonth': fiscalMonth,
-      if (establishedDate != null) 'establishedDate': establishedDate,
+      if (establishedDate != null) 'establishedDate': establishedDate?.toJson(),
     };
   }
 
@@ -132,7 +136,7 @@ abstract class CompanyListItem
       if (sectionName != null) 'sectionName': sectionName,
       if (ceoName != null) 'ceoName': ceoName,
       if (fiscalMonth != null) 'fiscalMonth': fiscalMonth,
-      if (establishedDate != null) 'establishedDate': establishedDate,
+      if (establishedDate != null) 'establishedDate': establishedDate?.toJson(),
     };
   }
 
@@ -156,7 +160,7 @@ class _CompanyListItemImpl extends CompanyListItem {
     String? sectionName,
     String? ceoName,
     int? fiscalMonth,
-    String? establishedDate,
+    DateTime? establishedDate,
   }) : super._(
          corpCode: corpCode,
          name: name,
@@ -199,7 +203,7 @@ class _CompanyListItemImpl extends CompanyListItem {
       sectionName: sectionName is String? ? sectionName : this.sectionName,
       ceoName: ceoName is String? ? ceoName : this.ceoName,
       fiscalMonth: fiscalMonth is int? ? fiscalMonth : this.fiscalMonth,
-      establishedDate: establishedDate is String?
+      establishedDate: establishedDate is DateTime?
           ? establishedDate
           : this.establishedDate,
     );

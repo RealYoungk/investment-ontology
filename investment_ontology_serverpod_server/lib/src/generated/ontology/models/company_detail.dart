@@ -14,6 +14,7 @@ import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart
     as _i4yshtjp;
 import 'package:serverpod/serverpod.dart' as _is;
 import '../../ontology/models/company.dart' as _it2dbo0u;
+import '../../ontology/models/company_change.dart' as _igec0di4;
 import '../../ontology/models/industry.dart' as _ichk09h6;
 import '../../ontology/models/source.dart' as _i5ra8lvy;
 
@@ -23,12 +24,14 @@ abstract class CompanyDetail
     required this.company,
     required this.industryPath,
     this.profileSource,
+    required this.changes,
   });
 
   factory CompanyDetail({
     required _it2dbo0u.Company company,
     required List<_ichk09h6.Industry> industryPath,
     _i5ra8lvy.Source? profileSource,
+    required List<_igec0di4.CompanyChange> changes,
   }) = _CompanyDetailImpl;
 
   factory CompanyDetail.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -44,6 +47,9 @@ abstract class CompanyDetail
           : _i4yshtjp.Protocol().deserialize<_i5ra8lvy.Source>(
               jsonSerialization['profileSource'],
             ),
+      changes: _i4yshtjp.Protocol().deserialize<List<_igec0di4.CompanyChange>>(
+        jsonSerialization['changes'],
+      ),
     );
   }
 
@@ -54,6 +60,9 @@ abstract class CompanyDetail
 
   _i5ra8lvy.Source? profileSource;
 
+  /// 최근 변경 이력 (최신순)
+  List<_igec0di4.CompanyChange> changes;
+
   /// Returns a shallow copy of this [CompanyDetail]
   /// with some or all fields replaced by the given arguments.
   @_is.useResult
@@ -61,6 +70,7 @@ abstract class CompanyDetail
     _it2dbo0u.Company? company,
     List<_ichk09h6.Industry>? industryPath,
     _i5ra8lvy.Source? profileSource,
+    List<_igec0di4.CompanyChange>? changes,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -69,6 +79,7 @@ abstract class CompanyDetail
       'company': company.toJson(),
       'industryPath': industryPath.toJson(valueToJson: (v) => v.toJson()),
       if (profileSource != null) 'profileSource': profileSource?.toJson(),
+      'changes': changes.toJson(valueToJson: (v) => v.toJson()),
     };
   }
 
@@ -82,6 +93,7 @@ abstract class CompanyDetail
       ),
       if (profileSource != null)
         'profileSource': profileSource?.toJsonForProtocol(),
+      'changes': changes.toJson(valueToJson: (v) => v.toJsonForProtocol()),
     };
   }
 
@@ -98,10 +110,12 @@ class _CompanyDetailImpl extends CompanyDetail {
     required _it2dbo0u.Company company,
     required List<_ichk09h6.Industry> industryPath,
     _i5ra8lvy.Source? profileSource,
+    required List<_igec0di4.CompanyChange> changes,
   }) : super._(
          company: company,
          industryPath: industryPath,
          profileSource: profileSource,
+         changes: changes,
        );
 
   /// Returns a shallow copy of this [CompanyDetail]
@@ -112,6 +126,7 @@ class _CompanyDetailImpl extends CompanyDetail {
     _it2dbo0u.Company? company,
     List<_ichk09h6.Industry>? industryPath,
     Object? profileSource = _Undefined,
+    List<_igec0di4.CompanyChange>? changes,
   }) {
     return CompanyDetail(
       company: company ?? this.company.copyWith(),
@@ -120,6 +135,7 @@ class _CompanyDetailImpl extends CompanyDetail {
       profileSource: profileSource is _i5ra8lvy.Source?
           ? profileSource
           : this.profileSource?.copyWith(),
+      changes: changes ?? this.changes.map((e0) => e0.copyWith()).toList(),
     );
   }
 }

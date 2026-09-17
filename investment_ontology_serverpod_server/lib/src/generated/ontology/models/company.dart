@@ -59,9 +59,9 @@ abstract class Company
     String? industryCode,
     String? sectionCode,
     String? divisionCode,
-    String? establishedDate,
+    DateTime? establishedDate,
     int? fiscalMonth,
-    String? dartModifiedDate,
+    DateTime? dartModifiedDate,
     int? profileSourceId,
     DateTime? profileUpdatedAt,
   }) = _CompanyImpl;
@@ -87,9 +87,17 @@ abstract class Company
       industryCode: jsonSerialization['industryCode'] as String?,
       sectionCode: jsonSerialization['sectionCode'] as String?,
       divisionCode: jsonSerialization['divisionCode'] as String?,
-      establishedDate: jsonSerialization['establishedDate'] as String?,
+      establishedDate: jsonSerialization['establishedDate'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(
+              jsonSerialization['establishedDate'],
+            ),
       fiscalMonth: jsonSerialization['fiscalMonth'] as int?,
-      dartModifiedDate: jsonSerialization['dartModifiedDate'] as String?,
+      dartModifiedDate: jsonSerialization['dartModifiedDate'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(
+              jsonSerialization['dartModifiedDate'],
+            ),
       profileSourceId: jsonSerialization['profileSourceId'] as int?,
       profileUpdatedAt: jsonSerialization['profileUpdatedAt'] == null
           ? null
@@ -144,14 +152,14 @@ abstract class Company
   /// KSIC 중분류 (2자리), industryCode에서 파생
   String? divisionCode;
 
-  /// 설립일 YYYYMMDD (원문)
-  String? establishedDate;
+  /// 설립일 (UTC 자정). 원천 값이 유효한 날짜가 아니면 null
+  DateTime? establishedDate;
 
   /// 결산월 (1~12)
   int? fiscalMonth;
 
-  /// corpCode.xml의 modify_date (YYYYMMDD)
-  String? dartModifiedDate;
+  /// corpCode.xml의 modify_date (UTC 자정)
+  DateTime? dartModifiedDate;
 
   int? profileSourceId;
 
@@ -181,9 +189,9 @@ abstract class Company
     String? industryCode,
     String? sectionCode,
     String? divisionCode,
-    String? establishedDate,
+    DateTime? establishedDate,
     int? fiscalMonth,
-    String? dartModifiedDate,
+    DateTime? dartModifiedDate,
     int? profileSourceId,
     DateTime? profileUpdatedAt,
   });
@@ -208,9 +216,10 @@ abstract class Company
       if (industryCode != null) 'industryCode': industryCode,
       if (sectionCode != null) 'sectionCode': sectionCode,
       if (divisionCode != null) 'divisionCode': divisionCode,
-      if (establishedDate != null) 'establishedDate': establishedDate,
+      if (establishedDate != null) 'establishedDate': establishedDate?.toJson(),
       if (fiscalMonth != null) 'fiscalMonth': fiscalMonth,
-      if (dartModifiedDate != null) 'dartModifiedDate': dartModifiedDate,
+      if (dartModifiedDate != null)
+        'dartModifiedDate': dartModifiedDate?.toJson(),
       if (profileSourceId != null) 'profileSourceId': profileSourceId,
       if (profileUpdatedAt != null)
         'profileUpdatedAt': profileUpdatedAt?.toJson(),
@@ -238,9 +247,10 @@ abstract class Company
       if (industryCode != null) 'industryCode': industryCode,
       if (sectionCode != null) 'sectionCode': sectionCode,
       if (divisionCode != null) 'divisionCode': divisionCode,
-      if (establishedDate != null) 'establishedDate': establishedDate,
+      if (establishedDate != null) 'establishedDate': establishedDate?.toJson(),
       if (fiscalMonth != null) 'fiscalMonth': fiscalMonth,
-      if (dartModifiedDate != null) 'dartModifiedDate': dartModifiedDate,
+      if (dartModifiedDate != null)
+        'dartModifiedDate': dartModifiedDate?.toJson(),
       if (profileSourceId != null) 'profileSourceId': profileSourceId,
       if (profileUpdatedAt != null)
         'profileUpdatedAt': profileUpdatedAt?.toJson(),
@@ -296,9 +306,9 @@ class _CompanyImpl extends Company {
     String? industryCode,
     String? sectionCode,
     String? divisionCode,
-    String? establishedDate,
+    DateTime? establishedDate,
     int? fiscalMonth,
-    String? dartModifiedDate,
+    DateTime? dartModifiedDate,
     int? profileSourceId,
     DateTime? profileUpdatedAt,
   }) : super._(
@@ -372,11 +382,11 @@ class _CompanyImpl extends Company {
       industryCode: industryCode is String? ? industryCode : this.industryCode,
       sectionCode: sectionCode is String? ? sectionCode : this.sectionCode,
       divisionCode: divisionCode is String? ? divisionCode : this.divisionCode,
-      establishedDate: establishedDate is String?
+      establishedDate: establishedDate is DateTime?
           ? establishedDate
           : this.establishedDate,
       fiscalMonth: fiscalMonth is int? ? fiscalMonth : this.fiscalMonth,
-      dartModifiedDate: dartModifiedDate is String?
+      dartModifiedDate: dartModifiedDate is DateTime?
           ? dartModifiedDate
           : this.dartModifiedDate,
       profileSourceId: profileSourceId is int?
@@ -476,7 +486,7 @@ class CompanyUpdateTable extends _is.UpdateTable<CompanyTable> {
         value,
       );
 
-  _is.ColumnValue<String, String> establishedDate(String? value) =>
+  _is.ColumnValue<DateTime, DateTime> establishedDate(DateTime? value) =>
       _is.ColumnValue(
         table.establishedDate,
         value,
@@ -487,7 +497,7 @@ class CompanyUpdateTable extends _is.UpdateTable<CompanyTable> {
     value,
   );
 
-  _is.ColumnValue<String, String> dartModifiedDate(String? value) =>
+  _is.ColumnValue<DateTime, DateTime> dartModifiedDate(DateTime? value) =>
       _is.ColumnValue(
         table.dartModifiedDate,
         value,
@@ -573,7 +583,7 @@ class CompanyTable extends _is.Table<int?> {
       'divisionCode',
       this,
     );
-    establishedDate = _is.ColumnString(
+    establishedDate = _is.ColumnDateTime(
       'establishedDate',
       this,
     );
@@ -581,7 +591,7 @@ class CompanyTable extends _is.Table<int?> {
       'fiscalMonth',
       this,
     );
-    dartModifiedDate = _is.ColumnString(
+    dartModifiedDate = _is.ColumnDateTime(
       'dartModifiedDate',
       this,
     );
@@ -635,14 +645,14 @@ class CompanyTable extends _is.Table<int?> {
   /// KSIC 중분류 (2자리), industryCode에서 파생
   late final _is.ColumnString divisionCode;
 
-  /// 설립일 YYYYMMDD (원문)
-  late final _is.ColumnString establishedDate;
+  /// 설립일 (UTC 자정). 원천 값이 유효한 날짜가 아니면 null
+  late final _is.ColumnDateTime establishedDate;
 
   /// 결산월 (1~12)
   late final _is.ColumnInt fiscalMonth;
 
-  /// corpCode.xml의 modify_date (YYYYMMDD)
-  late final _is.ColumnString dartModifiedDate;
+  /// corpCode.xml의 modify_date (UTC 자정)
+  late final _is.ColumnDateTime dartModifiedDate;
 
   late final _is.ColumnInt profileSourceId;
 

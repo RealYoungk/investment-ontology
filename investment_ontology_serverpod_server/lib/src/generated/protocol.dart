@@ -23,10 +23,12 @@ import 'future_calls_generated_models/company_master_future_call_run_model.dart'
     as _i8298vau;
 import 'greetings/greeting.dart' as _izw8z7ou;
 import 'ontology/models/company.dart' as _ipen255x;
+import 'ontology/models/company_change.dart' as _isfozywu;
 import 'ontology/models/company_detail.dart' as _ire9jjud;
 import 'ontology/models/company_list_item.dart' as _i0csqxj4;
 import 'ontology/models/company_page.dart' as _iaj9eyri;
 import 'ontology/models/company_sort.dart' as _ia2izjbq;
+import 'ontology/models/dart_corp_status.dart' as _ir49pw6i;
 import 'ontology/models/exceptions.dart' as _iqc95j34;
 import 'ontology/models/facet_count.dart' as _iqbvehdv;
 import 'ontology/models/industry.dart' as _i3hzx3f1;
@@ -38,10 +40,12 @@ import 'ontology/models/source.dart' as _icm1zoh2;
 import 'ontology/models/source_kind.dart' as _itk5lja3;
 export 'greetings/greeting.dart';
 export 'ontology/models/company.dart';
+export 'ontology/models/company_change.dart';
 export 'ontology/models/company_detail.dart';
 export 'ontology/models/company_list_item.dart';
 export 'ontology/models/company_page.dart';
 export 'ontology/models/company_sort.dart';
+export 'ontology/models/dart_corp_status.dart';
 export 'ontology/models/exceptions.dart';
 export 'ontology/models/facet_count.dart';
 export 'ontology/models/industry.dart';
@@ -171,9 +175,9 @@ class Protocol extends _is.DatabaseSerializationManager {
         ),
         _isp.ColumnDefinition(
           name: 'establishedDate',
-          columnType: _isp.ColumnType.text,
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
           isNullable: true,
-          dartType: 'String?',
+          dartType: 'DateTime?',
         ),
         _isp.ColumnDefinition(
           name: 'fiscalMonth',
@@ -183,9 +187,9 @@ class Protocol extends _is.DatabaseSerializationManager {
         ),
         _isp.ColumnDefinition(
           name: 'dartModifiedDate',
-          columnType: _isp.ColumnType.text,
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
           isNullable: true,
-          dartType: 'String?',
+          dartType: 'DateTime?',
         ),
         _isp.ColumnDefinition(
           name: 'profileSourceId',
@@ -267,6 +271,155 @@ class Protocol extends _is.DatabaseSerializationManager {
           ],
           type: 'btree',
           isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'company_change',
+      dartName: 'CompanyChange',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'companyId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'field',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'oldValue',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'newValue',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'sourceId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'changedAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'company_change_fk_0',
+          columns: ['companyId'],
+          referenceTable: 'company',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.cascade,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'company_change_fk_1',
+          columns: ['sourceId'],
+          referenceTable: 'source',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.setNull,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'company_change_company_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'companyId',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'changedAt',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'dart_corp_status',
+      dartName: 'DartCorpStatus',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'corpCode',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'corpCls',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'modifiedDate',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'checkedAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'dart_corp_status_corp_code_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'corpCode',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
           isPrimary: false,
         ),
       ],
@@ -524,6 +677,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _ipen255x.Company) {
       return _ipen255x.Company.fromJson(data) as T;
     }
+    if (t == _isfozywu.CompanyChange) {
+      return _isfozywu.CompanyChange.fromJson(data) as T;
+    }
     if (t == _ire9jjud.CompanyDetail) {
       return _ire9jjud.CompanyDetail.fromJson(data) as T;
     }
@@ -535,6 +691,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (t == _ia2izjbq.CompanySort) {
       return _ia2izjbq.CompanySort.fromJson(data) as T;
+    }
+    if (t == _ir49pw6i.DartCorpStatus) {
+      return _ir49pw6i.DartCorpStatus.fromJson(data) as T;
     }
     if (t == _iqc95j34.IngestException) {
       return _iqc95j34.IngestException.fromJson(data) as T;
@@ -575,6 +734,10 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _is.getType<_ipen255x.Company?>()) {
       return (data != null ? _ipen255x.Company.fromJson(data) : null) as T;
     }
+    if (t == _is.getType<_isfozywu.CompanyChange?>()) {
+      return (data != null ? _isfozywu.CompanyChange.fromJson(data) : null)
+          as T;
+    }
     if (t == _is.getType<_ire9jjud.CompanyDetail?>()) {
       return (data != null ? _ire9jjud.CompanyDetail.fromJson(data) : null)
           as T;
@@ -588,6 +751,10 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (t == _is.getType<_ia2izjbq.CompanySort?>()) {
       return (data != null ? _ia2izjbq.CompanySort.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_ir49pw6i.DartCorpStatus?>()) {
+      return (data != null ? _ir49pw6i.DartCorpStatus.fromJson(data) : null)
+          as T;
     }
     if (t == _is.getType<_iqc95j34.IngestException?>()) {
       return (data != null ? _iqc95j34.IngestException.fromJson(data) : null)
@@ -620,6 +787,12 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == List<_i3hzx3f1.Industry>) {
       return (data as List)
               .map((e) => deserialize<_i3hzx3f1.Industry>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_isfozywu.CompanyChange>) {
+      return (data as List)
+              .map((e) => deserialize<_isfozywu.CompanyChange>(e))
               .toList()
           as T;
     }
@@ -659,10 +832,12 @@ class Protocol extends _is.DatabaseSerializationManager {
         'CompanyMasterFutureCallRunModel',
       _izw8z7ou.Greeting => 'Greeting',
       _ipen255x.Company => 'Company',
+      _isfozywu.CompanyChange => 'CompanyChange',
       _ire9jjud.CompanyDetail => 'CompanyDetail',
       _i0csqxj4.CompanyListItem => 'CompanyListItem',
       _iaj9eyri.CompanyPage => 'CompanyPage',
       _ia2izjbq.CompanySort => 'CompanySort',
+      _ir49pw6i.DartCorpStatus => 'DartCorpStatus',
       _iqc95j34.IngestException => 'IngestException',
       _iqbvehdv.FacetCount => 'FacetCount',
       _i3hzx3f1.Industry => 'Industry',
@@ -695,6 +870,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'Greeting';
       case _ipen255x.Company():
         return 'Company';
+      case _isfozywu.CompanyChange():
+        return 'CompanyChange';
       case _ire9jjud.CompanyDetail():
         return 'CompanyDetail';
       case _i0csqxj4.CompanyListItem():
@@ -703,6 +880,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'CompanyPage';
       case _ia2izjbq.CompanySort():
         return 'CompanySort';
+      case _ir49pw6i.DartCorpStatus():
+        return 'DartCorpStatus';
       case _iqc95j34.IngestException():
         return 'IngestException';
       case _iqbvehdv.FacetCount():
@@ -758,6 +937,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (dataClassName == 'Company') {
       return deserialize<_ipen255x.Company>(data['data']);
     }
+    if (dataClassName == 'CompanyChange') {
+      return deserialize<_isfozywu.CompanyChange>(data['data']);
+    }
     if (dataClassName == 'CompanyDetail') {
       return deserialize<_ire9jjud.CompanyDetail>(data['data']);
     }
@@ -769,6 +951,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'CompanySort') {
       return deserialize<_ia2izjbq.CompanySort>(data['data']);
+    }
+    if (dataClassName == 'DartCorpStatus') {
+      return deserialize<_ir49pw6i.DartCorpStatus>(data['data']);
     }
     if (dataClassName == 'IngestException') {
       return deserialize<_iqc95j34.IngestException>(data['data']);
@@ -846,6 +1031,10 @@ class Protocol extends _is.DatabaseSerializationManager {
     switch (t) {
       case _ipen255x.Company:
         return _ipen255x.Company.t;
+      case _isfozywu.CompanyChange:
+        return _isfozywu.CompanyChange.t;
+      case _ir49pw6i.DartCorpStatus:
+        return _ir49pw6i.DartCorpStatus.t;
       case _i3hzx3f1.Industry:
         return _i3hzx3f1.Industry.t;
       case _iay1heal.IngestJob:

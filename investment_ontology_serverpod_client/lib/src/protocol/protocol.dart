@@ -20,10 +20,12 @@ import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
 import 'greetings/greeting.dart' as _izw8z7ou;
 import 'ontology/models/company.dart' as _ipen255x;
+import 'ontology/models/company_change.dart' as _isfozywu;
 import 'ontology/models/company_detail.dart' as _ire9jjud;
 import 'ontology/models/company_list_item.dart' as _i0csqxj4;
 import 'ontology/models/company_page.dart' as _iaj9eyri;
 import 'ontology/models/company_sort.dart' as _ia2izjbq;
+import 'ontology/models/dart_corp_status.dart' as _ir49pw6i;
 import 'ontology/models/exceptions.dart' as _iqc95j34;
 import 'ontology/models/facet_count.dart' as _iqbvehdv;
 import 'ontology/models/industry.dart' as _i3hzx3f1;
@@ -35,10 +37,12 @@ import 'ontology/models/source.dart' as _icm1zoh2;
 import 'ontology/models/source_kind.dart' as _itk5lja3;
 export 'greetings/greeting.dart';
 export 'ontology/models/company.dart';
+export 'ontology/models/company_change.dart';
 export 'ontology/models/company_detail.dart';
 export 'ontology/models/company_list_item.dart';
 export 'ontology/models/company_page.dart';
 export 'ontology/models/company_sort.dart';
+export 'ontology/models/dart_corp_status.dart';
 export 'ontology/models/exceptions.dart';
 export 'ontology/models/facet_count.dart';
 export 'ontology/models/industry.dart';
@@ -90,6 +94,9 @@ class Protocol extends _isc.SerializationManager {
     if (t == _ipen255x.Company) {
       return _ipen255x.Company.fromJson(data) as T;
     }
+    if (t == _isfozywu.CompanyChange) {
+      return _isfozywu.CompanyChange.fromJson(data) as T;
+    }
     if (t == _ire9jjud.CompanyDetail) {
       return _ire9jjud.CompanyDetail.fromJson(data) as T;
     }
@@ -101,6 +108,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _ia2izjbq.CompanySort) {
       return _ia2izjbq.CompanySort.fromJson(data) as T;
+    }
+    if (t == _ir49pw6i.DartCorpStatus) {
+      return _ir49pw6i.DartCorpStatus.fromJson(data) as T;
     }
     if (t == _iqc95j34.IngestException) {
       return _iqc95j34.IngestException.fromJson(data) as T;
@@ -135,6 +145,10 @@ class Protocol extends _isc.SerializationManager {
     if (t == _isc.getType<_ipen255x.Company?>()) {
       return (data != null ? _ipen255x.Company.fromJson(data) : null) as T;
     }
+    if (t == _isc.getType<_isfozywu.CompanyChange?>()) {
+      return (data != null ? _isfozywu.CompanyChange.fromJson(data) : null)
+          as T;
+    }
     if (t == _isc.getType<_ire9jjud.CompanyDetail?>()) {
       return (data != null ? _ire9jjud.CompanyDetail.fromJson(data) : null)
           as T;
@@ -148,6 +162,10 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _isc.getType<_ia2izjbq.CompanySort?>()) {
       return (data != null ? _ia2izjbq.CompanySort.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_ir49pw6i.DartCorpStatus?>()) {
+      return (data != null ? _ir49pw6i.DartCorpStatus.fromJson(data) : null)
+          as T;
     }
     if (t == _isc.getType<_iqc95j34.IngestException?>()) {
       return (data != null ? _iqc95j34.IngestException.fromJson(data) : null)
@@ -183,6 +201,12 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_isfozywu.CompanyChange>) {
+      return (data as List)
+              .map((e) => deserialize<_isfozywu.CompanyChange>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_i0csqxj4.CompanyListItem>) {
       return (data as List)
               .map((e) => deserialize<_i0csqxj4.CompanyListItem>(e))
@@ -214,10 +238,12 @@ class Protocol extends _isc.SerializationManager {
     return switch (type) {
       _izw8z7ou.Greeting => 'Greeting',
       _ipen255x.Company => 'Company',
+      _isfozywu.CompanyChange => 'CompanyChange',
       _ire9jjud.CompanyDetail => 'CompanyDetail',
       _i0csqxj4.CompanyListItem => 'CompanyListItem',
       _iaj9eyri.CompanyPage => 'CompanyPage',
       _ia2izjbq.CompanySort => 'CompanySort',
+      _ir49pw6i.DartCorpStatus => 'DartCorpStatus',
       _iqc95j34.IngestException => 'IngestException',
       _iqbvehdv.FacetCount => 'FacetCount',
       _i3hzx3f1.Industry => 'Industry',
@@ -248,6 +274,8 @@ class Protocol extends _isc.SerializationManager {
         return 'Greeting';
       case _ipen255x.Company():
         return 'Company';
+      case _isfozywu.CompanyChange():
+        return 'CompanyChange';
       case _ire9jjud.CompanyDetail():
         return 'CompanyDetail';
       case _i0csqxj4.CompanyListItem():
@@ -256,6 +284,8 @@ class Protocol extends _isc.SerializationManager {
         return 'CompanyPage';
       case _ia2izjbq.CompanySort():
         return 'CompanySort';
+      case _ir49pw6i.DartCorpStatus():
+        return 'DartCorpStatus';
       case _iqc95j34.IngestException():
         return 'IngestException';
       case _iqbvehdv.FacetCount():
@@ -302,6 +332,9 @@ class Protocol extends _isc.SerializationManager {
     if (dataClassName == 'Company') {
       return deserialize<_ipen255x.Company>(data['data']);
     }
+    if (dataClassName == 'CompanyChange') {
+      return deserialize<_isfozywu.CompanyChange>(data['data']);
+    }
     if (dataClassName == 'CompanyDetail') {
       return deserialize<_ire9jjud.CompanyDetail>(data['data']);
     }
@@ -313,6 +346,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'CompanySort') {
       return deserialize<_ia2izjbq.CompanySort>(data['data']);
+    }
+    if (dataClassName == 'DartCorpStatus') {
+      return deserialize<_ir49pw6i.DartCorpStatus>(data['data']);
     }
     if (dataClassName == 'IngestException') {
       return deserialize<_iqc95j34.IngestException>(data['data']);
