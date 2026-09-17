@@ -4,3 +4,5 @@ fields:
   ### 대분류 → 해당 코드까지의 KSIC 경로
   industryPath: List<Industry>
   profileSource: Source?
+  ### 최근 변경 이력 (최신순)
+  changes: List<CompanyChange>

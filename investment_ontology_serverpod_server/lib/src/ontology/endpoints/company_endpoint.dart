@@ -150,6 +150,12 @@ class CompanyEndpoint extends Endpoint {
       profileSource: sourceId == null
           ? null
           : await Source.db.findById(session, sourceId),
+      changes: await CompanyChange.db.find(
+        session,
+        where: (t) => t.companyId.equals(company.id!),
+        orderByList: (t) => [t.changedAt.desc(), t.field.asc()],
+        limit: 50,
+      ),
     );
   }
 
