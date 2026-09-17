@@ -61,7 +61,7 @@ Current state (phase 1 — listed-company master):
   - `ingest/` — `CompanyMasterSync` (run as `CompanyMasterFutureCall`; incremental by DART change date, full refresh every 30 days), `KsicSeeder` (loads both KSIC 10 and 11 from `assets/ksic/`), `KsicRevision` (decides which KSIC revision DART's industry codes follow, from codes unique to one revision; cached, invalidated after each sync).
   - `tool/ksic/` — reproducible extraction of the KSIC assets from the official 국가데이터처 notices. Never hand-edit `assets/ksic/*.json`.
   - `endpoints/` — `company` (overview, divisions, list, detail) and `ingest` (startCompanyMaster, cancel, latest).
-- The DART API key is read from `session.passwords['dartApiKey']` (`config/passwords.yaml` under `shared:`, or `SERVERPOD_PASSWORD_dartApiKey`).
+- The DART API key is read by `dart/dart_api_key.dart`: `session.passwords['dartApiKey']` (`config/passwords.yaml` under `shared:`, or `SERVERPOD_PASSWORD_dartApiKey`), falling back to the `DART_API_KEY` environment variable.
 - No authentication: local single-user use only. Add auth before deploying anywhere public.
 - Source values are normalized to the schema's types at the ingest boundary (`dart/dart_values.dart`); invalid values become null. Re-fetches record field-level diffs in `CompanyChange` (`ingest/company_changes.dart`).
 - Flutter UI:

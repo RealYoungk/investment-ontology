@@ -2,6 +2,7 @@ import 'package:serverpod/serverpod.dart';
 
 import '../../generated/future_calls.dart';
 import '../../generated/protocol.dart';
+import '../dart/dart_api_key.dart';
 import '../ingest/company_master_sync.dart';
 
 /// 외부 원천 수집 제어.
@@ -19,12 +20,12 @@ class IngestEndpoint extends Endpoint {
     Session session, {
     bool? force,
   }) async {
-    final key = session.passwords['dartApiKey'];
-    if (key == null || key.isEmpty) {
+    if (DartApiKey.read(session) == null) {
       throw IngestException(
         message:
-            'DART API 키가 없습니다. config/passwords.yaml의 shared: 아래에 '
-            'dartApiKey를 추가하고 서버를 재시작하세요.',
+            'DART API 키가 없습니다. 환경변수 ${DartApiKey.envName}를 설정하거나 '
+            'config/passwords.yaml의 shared: 아래에 dartApiKey를 추가하고 '
+            '서버를 재시작하세요.',
       );
     }
 
