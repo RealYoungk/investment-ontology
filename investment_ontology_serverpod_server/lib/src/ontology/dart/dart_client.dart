@@ -45,8 +45,8 @@ class DartCorpCode {
 }
 
 /// `list.json`의 공시 한 건.
-class DartFiling {
-  DartFiling({
+class DartFilingItem {
+  DartFilingItem({
     required this.corpCode,
     required this.corpName,
     required this.stockCode,
@@ -76,7 +76,7 @@ class DartFilingPage {
   final int page;
   final int totalPages;
   final int totalCount;
-  final List<DartFiling> items;
+  final List<DartFilingItem> items;
 }
 
 class DartClient {
@@ -201,7 +201,7 @@ class DartClient {
         for (final e in list.cast<Map<String, dynamic>>())
           if (DartValues.text(e['corp_code']) != null &&
               DartValues.text(e['rcept_no']) != null)
-            DartFiling(
+            DartFilingItem(
               corpCode: DartValues.text(e['corp_code'])!,
               corpName: DartValues.text(e['corp_name']) ?? '',
               stockCode: DartValues.text(e['stock_code']),

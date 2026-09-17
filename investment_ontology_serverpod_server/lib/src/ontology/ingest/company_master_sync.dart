@@ -5,6 +5,7 @@ import '../dart/dart_client.dart';
 import '../dart/dart_values.dart';
 import 'api_call_budget.dart';
 import 'company_changes.dart';
+import 'ingest_jobs.dart';
 import 'ksic_revision.dart';
 import 'ksic_seeder.dart';
 
@@ -152,19 +153,7 @@ class CompanyMasterSync {
     int jobId,
     String message, {
     int? apiCalls,
-  }) async {
-    final job = await IngestJob.db.findById(session, jobId);
-    if (job == null) return;
-    await IngestJob.db.updateRow(
-      session,
-      job.copyWith(
-        status: IngestStatus.failed,
-        apiCalls: apiCalls ?? job.apiCalls,
-        finishedAt: DateTime.now().toUtc(),
-        message: message,
-      ),
-    );
-  }
+  }) => IngestJobs.fail(session, jobId, message, apiCalls: apiCalls);
 
   /// 기업개황을 다시 받아야 하는지.
   ///
@@ -299,16 +288,7 @@ class CompanyMasterSync {
     });
   }
 
-  Future<bool> _isCancelled() async {
-    final j = await IngestJob.db.findById(session, jobId);
-    return j?.status == IngestStatus.cancelled;
-  }
+  Future<bool> _isCancelled() => IngestJobs.isCancelled(session, jobId);
 
-  Future<IngestJob> _save(IngestJob job) async {
-    // 취소 요청은 덮어쓰지 않는다.
-    if (job.status == IngestStatus.running && await _isCancelled()) {
-      job = job.copyWith(status: IngestStatus.cancelled);
-    }
-    return IngestJob.db.updateRow(session, job);
-  }
+  Future<IngestJob> _save(IngestJob job) => IngestJobs.save(session, job);
 }

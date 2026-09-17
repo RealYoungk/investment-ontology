@@ -1,0 +1,477 @@
+import 'package:serverpod/serverpod.dart';
+
+import '../../generated/protocol.dart';
+import '../dart/dart_client.dart';
+import '../dart/dart_report_name.dart';
+import '../dart/dart_values.dart';
+import 'api_call_budget.dart';
+import 'financial_rows.dart';
+import 'ingest_jobs.dart';
+
+/// DART 정기보고서의 전체 재무제표를 수집한다.
+///
+/// 1. 공시 목록(`list.json`)에서 상장사 정기보고서를 찾아 [DartFiling] 장부에 넣는다.
+/// 2. 받지 않은 보고서를 최신순으로 연결·별도 각각 `fnlttSinglAcntAll`로 받는다.
+/// 3. 정정공시면 새 보고서·사실을 추가하고 이전 것은 supersededBy로 잇는다.
+///
+/// DART 일일 한도를 다른 수집과 나눠 쓰므로 [dailyBudget]에 닿으면 멈추고
+/// [scheduleResume]으로 다음 날 이어서 받는다.
+class FinancialFactsSync {
+  FinancialFactsSync(
+    this.session,
+    this.dart,
+    this.jobId, {
+    this.dailyBudget = ApiCallBudget.dartFinancialBudget,
+    this.callInterval = const Duration(milliseconds: 200),
+    this.scheduleResume,
+    DateTime Function()? clock,
+  }) : _clock = clock ?? DateTime.now;
+
+  static const kind = 'financial_facts';
+
+  /// 공시별 실패 허용 횟수. 넘으면 다시 시도하지 않는다.
+  static const maxAttempts = 3;
+
+  /// DART는 회사를 지정하지 않은 공시 검색을 3개월 이내로 제한한다.
+  static const scanWindow = Duration(days: 90);
+
+  /// 이미 훑은 구간도 이만큼 겹쳐 다시 본다 (늦게 반영되는 공시 대비).
+  static const scanOverlap = Duration(days: 7);
+
+  static const _progressEvery = 20;
+
+  /// 사업보고서는 최근 3개 사업연도.
+  static int firstAnnualYear(DateTime now) => now.year - 3;
+
+  /// 분기·반기보고서는 전전년도부터.
+  static int firstInterimYear(DateTime now) => now.year - 2;
+
+  static const _listedMarkets = {Market.kospi, Market.kosdaq, Market.konex};
+
+  final Session session;
+  final DartClient dart;
+  final int jobId;
+  final int dailyBudget;
+  final Duration callInterval;
+
+  /// 한도 소진 시 이어받기를 예약한다. null이면 예약하지 않는다.
+  final Future<void> Function(DateTime at)? scheduleResume;
+
+  final DateTime Function() _clock;
+  late final _meter = ApiCallMeter(ApiProvider.dart, () => dart.calls);
+
+  /// 이번 작업에서 쓸 수 있는 호출 수.
+  late int _allowance;
+  bool _budgetExhausted = false;
+
+  bool get _hasAllowance {
+    if (dart.calls >= _allowance) _budgetExhausted = true;
+    return !_budgetExhausted;
+  }
+
+  Future<void> run() async {
+    var job = (await IngestJob.db.findById(session, jobId))!;
+    var discovered = 0, stored = 0, failed = 0, processed = 0;
+    try {
+      final now = _clock().toUtc();
+      _allowance =
+          dailyBudget -
+          await ApiCallBudget.usedToday(session, ApiProvider.dart, now: now);
+
+      final companies = {
+        for (final c in await Company.db.find(
+          session,
+          where: (t) => t.market.inSet(_listedMarkets),
+        ))
+          c.corpCode: c,
+      };
+
+      discovered = await _scan(companies, now);
+
+      final targets = await DartFiling.db.find(
+        session,
+        where: (t) =>
+            t.reportCode.notEquals(null) &
+            t.companyId.notEquals(null) &
+            t.attempts.between(0, maxAttempts - 1) &
+            (_needsFetch(t.consolidatedStatus) | _needsFetch(t.separateStatus)),
+        orderByList: (t) => [t.receivedDate.desc(), t.rceptNo.desc()],
+      );
+      final byId = {for (final c in companies.values) c.id!: c};
+      job = await IngestJobs.save(session, job.copyWith(total: targets.length));
+
+      for (final filing in targets) {
+        if (processed % _progressEvery == 0 &&
+            await IngestJobs.isCancelled(session, jobId)) {
+          job = job.copyWith(status: IngestStatus.cancelled);
+          break;
+        }
+        if (!_hasAllowance) break;
+        final company = byId[filing.companyId];
+        if (company == null) {
+          processed++;
+          continue;
+        }
+        final result = await _fetchFiling(filing, company);
+        stored += result.stored;
+        if (result.failed) failed++;
+        processed++;
+        if (_budgetExhausted) break;
+        if (processed % _progressEvery == 0) {
+          await _meter.flush(session);
+          job = await IngestJobs.save(
+            session,
+            job.copyWith(
+              processed: processed,
+              updated: stored,
+              failed: failed,
+              apiCalls: dart.calls,
+            ),
+          );
+        }
+      }
+
+      final remaining = await DartFiling.db.count(
+        session,
+        where: (t) =>
+            t.reportCode.notEquals(null) &
+            t.companyId.notEquals(null) &
+            t.attempts.between(0, maxAttempts - 1) &
+            (_needsFetch(t.consolidatedStatus) | _needsFetch(t.separateStatus)),
+      );
+      final cancelled = job.status == IngestStatus.cancelled;
+      var message = '새 공시 $discovered건, 저장한 재무제표 $stored벌, 남은 공시 $remaining건';
+      if (_budgetExhausted && remaining > 0 && !cancelled) {
+        final at = ApiCallBudget.nextKstMidnight(
+          now,
+        ).add(const Duration(minutes: 10));
+        await scheduleResume?.call(at);
+        message +=
+            ' · 일일 호출 예산($dailyBudget건) 소진, '
+            '${scheduleResume != null ? '다음 날 이어서 받음' : '다음 실행에서 이어서 받음'}';
+      }
+      await IngestJobs.save(
+        session,
+        job.copyWith(
+          status: cancelled ? IngestStatus.cancelled : IngestStatus.succeeded,
+          processed: processed,
+          updated: stored,
+          failed: failed,
+          apiCalls: dart.calls,
+          finishedAt: DateTime.now().toUtc(),
+          message: message,
+        ),
+      );
+    } catch (e, st) {
+      session.log(
+        '재무 수집 실패',
+        level: LogLevel.error,
+        exception: e,
+        stackTrace: st,
+      );
+      await IngestJobs.fail(session, jobId, '$e', apiCalls: dart.calls);
+    } finally {
+      await _meter.flush(session);
+      dart.close();
+    }
+  }
+
+  static Expression _needsFetch(ColumnEnum<FilingFetchStatus> status) =>
+      status.equals(FilingFetchStatus.pending) |
+      status.equals(FilingFetchStatus.failed);
+
+  /// 공시 목록을 훑어 새 정기보고서를 장부에 넣는다. 넣은 건수를 돌려준다.
+  Future<int> _scan(Map<String, Company> companies, DateTime now) async {
+    final last = await DartFiling.db.findFirstRow(
+      session,
+      where: (t) => t.receivedDate.notEquals(null),
+      orderBy: (t) => t.receivedDate.desc(),
+    );
+    final today = DateTime.utc(now.year, now.month, now.day);
+    final earliest = DateTime.utc(firstInterimYear(now), 1, 1);
+    var from = last?.receivedDate?.subtract(scanOverlap) ?? earliest;
+    if (from.isBefore(earliest)) from = earliest;
+
+    var inserted = 0;
+    while (!from.isAfter(today)) {
+      var to = from.add(scanWindow);
+      if (to.isAfter(today)) to = today;
+      var page = 1;
+      while (true) {
+        if (!_hasAllowance) return inserted;
+        final result = await _callDart(
+          () => dart.fetchFilings(from: from, to: to, page: page),
+        );
+        inserted += await _record(result.items, companies, now);
+        if (page >= result.totalPages) break;
+        page++;
+      }
+      from = to.add(const Duration(days: 1));
+    }
+    return inserted;
+  }
+
+  Future<int> _record(
+    List<DartFilingItem> items,
+    Map<String, Company> companies,
+    DateTime now,
+  ) async {
+    if (items.isEmpty) return 0;
+    final known = {
+      for (final f in await DartFiling.db.find(
+        session,
+        where: (t) => t.rceptNo.inSet({for (final i in items) i.rceptNo}),
+      ))
+        f.rceptNo,
+    };
+    final rows = <DartFiling>[];
+    for (final item in items) {
+      final company = companies[item.corpCode];
+      if (company == null || !known.add(item.rceptNo)) continue;
+      final name = DartReportName.parse(item.reportName);
+      if (name == null) continue;
+      final resolved = name.resolve(company.fiscalMonth);
+      final code = FinancialCodes.reportCodeFromDart(resolved?.reportCode);
+      if (resolved != null) {
+        final firstYear = code == FinancialReportCode.annual
+            ? firstAnnualYear(now)
+            : firstInterimYear(now);
+        if (resolved.bsnsYear < firstYear) continue;
+      } else if (name.periodYear < firstInterimYear(now)) {
+        continue;
+      }
+      final status = code == null
+          ? FilingFetchStatus.unsupported
+          : FilingFetchStatus.pending;
+      rows.add(
+        DartFiling(
+          rceptNo: item.rceptNo,
+          corpCode: item.corpCode,
+          companyId: company.id,
+          reportName: item.reportName,
+          receivedDate: item.rceptDate,
+          bsnsYear: resolved?.bsnsYear,
+          reportCode: code,
+          consolidatedStatus: status,
+          separateStatus: status,
+          discoveredAt: now,
+        ),
+      );
+    }
+    if (rows.isNotEmpty) await DartFiling.db.insert(session, rows);
+    return rows.length;
+  }
+
+  /// 공시 하나의 연결·별도 재무제표를 받는다. 새로 저장한 벌 수와 실패 여부.
+  Future<({int stored, bool failed})> _fetchFiling(
+    DartFiling filing,
+    Company company,
+  ) async {
+    var next = filing;
+    var stored = 0;
+    var failed = false;
+    for (final div in FsDiv.values) {
+      final status = div == FsDiv.consolidated
+          ? next.consolidatedStatus
+          : next.separateStatus;
+      if (status != FilingFetchStatus.pending &&
+          status != FilingFetchStatus.failed) {
+        continue;
+      }
+      if (!_hasAllowance) break;
+
+      FilingFetchStatus result;
+      String? error;
+      try {
+        final rows = await _callDart(
+          () => dart.fetchFinancialStatements(
+            corpCode: company.corpCode,
+            bsnsYear: filing.bsnsYear!,
+            reportCode: FinancialCodes.reportCodeToDart(filing.reportCode!),
+            fsDiv: FinancialCodes.fsDivToDart(div),
+          ),
+        );
+        final saved = await _store(filing, company, div, rows);
+        result = saved.status;
+        if (saved.inserted) stored++;
+      } on DartApiException catch (e) {
+        if (e.status == _limitExceeded) {
+          _budgetExhausted = true;
+          break;
+        }
+        if (e.isFatal) rethrow;
+        result = FilingFetchStatus.failed;
+        error = '${FinancialCodes.fsDivName(div)}: $e';
+        failed = true;
+        session.log(
+          '재무제표 실패 ${company.corpCode} ${filing.rceptNo}: $e',
+          level: LogLevel.warning,
+        );
+      }
+      next = next.copyWith(
+        consolidatedStatus: div == FsDiv.consolidated ? result : null,
+        separateStatus: div == FsDiv.separate ? result : null,
+      );
+      // 생성된 copyWith는 nullable 필드에 null을 넘기면 지우므로, 실패일 때만 넘긴다.
+      if (error != null) {
+        next = next.copyWith(attempts: next.attempts + 1, lastError: error);
+      }
+    }
+    if (!identical(next, filing)) {
+      await DartFiling.db.updateRow(
+        session,
+        next.copyWith(checkedAt: DateTime.now().toUtc()),
+      );
+    }
+    return (stored: stored, failed: failed);
+  }
+
+  /// DART 요청 제한 초과.
+  static const _limitExceeded = '020';
+
+  /// 한 번에 넣는 사실 행 수 (PostgreSQL 파라미터 수 제한 대비).
+  static const _insertChunk = 1000;
+
+  /// 응답을 저장한다. 같은 접수번호·구분을 이미 저장했으면 넣지 않는다.
+  Future<({FilingFetchStatus status, bool inserted})> _store(
+    DartFiling filing,
+    Company company,
+    FsDiv div,
+    List<Map<String, dynamic>>? rows,
+  ) async {
+    if (rows == null || rows.isEmpty) {
+      return (status: FilingFetchStatus.noData, inserted: false);
+    }
+    final rceptNos = {
+      for (final r in rows) ?DartValues.text(r['rcept_no']),
+    };
+    if (rceptNos.length != 1) {
+      throw DartApiException('parse', '응답 접수번호가 하나가 아님: $rceptNos');
+    }
+    final rceptNo = rceptNos.single;
+    // 공시 목록은 최종 보고서만 주므로, 응답은 그 공시이거나 그 뒤의 정정이어야 한다.
+    // 더 이전 접수번호면 사업연도·보고서 코드 판정이 어긋난 것이다.
+    if (rceptNo.compareTo(filing.rceptNo) < 0) {
+      throw DartApiException(
+        'mismatch',
+        '응답 접수번호 $rceptNo가 공시 ${filing.rceptNo}보다 이전',
+      );
+    }
+    final existing = await FinancialReport.db.findFirstRow(
+      session,
+      where: (t) => t.rceptNo.equals(rceptNo) & t.fsDiv.equals(div),
+    );
+    if (existing != null) {
+      return (status: FilingFetchStatus.stored, inserted: false);
+    }
+
+    final reportName = rceptNo == filing.rceptNo
+        ? filing.reportName
+        : (await DartFiling.db.findFirstRow(
+                session,
+                where: (t) => t.rceptNo.equals(rceptNo),
+              ))?.reportName ??
+              filing.reportName;
+    final now = DateTime.now().toUtc();
+    final bsnsYear = filing.bsnsYear!;
+    final reportCode = filing.reportCode!;
+
+    await session.db.transaction((tx) async {
+      final source = await Source.db.insertRow(
+        session,
+        Source(
+          kind: SourceKind.dartReport,
+          title:
+              'DART 전체 재무제표 (fnlttSinglAcntAll) · $reportName · '
+              '${FinancialCodes.fsDivName(div)}',
+          reference: rceptNo,
+          url: DartClient.filingViewerUrl(rceptNo).toString(),
+          retrievedAt: now,
+        ),
+        transaction: tx,
+      );
+      final converted = FinancialRows.toFacts(
+        rows,
+        reportId: 0,
+        companyId: company.id!,
+        bsnsYear: bsnsYear,
+        reportCode: reportCode,
+        fsDiv: div,
+        sourceId: source.id!,
+      );
+      final report = await FinancialReport.db.insertRow(
+        session,
+        FinancialReport(
+          companyId: company.id!,
+          rceptNo: rceptNo,
+          fsDiv: div,
+          bsnsYear: bsnsYear,
+          reportCode: reportCode,
+          reportName: reportName,
+          // 접수번호 앞 8자리가 접수일이다.
+          receivedDate: DartValues.ymd(rceptNo.substring(0, 8)),
+          factCount: converted.facts.length,
+          invalidAmountCount: converted.invalidAmounts,
+          sourceId: source.id!,
+          fetchedAt: now,
+        ),
+        transaction: tx,
+      );
+      final inserted = <FinancialFact>[];
+      final facts = [
+        for (final f in converted.facts) f.copyWith(reportId: report.id),
+      ];
+      for (var i = 0; i < facts.length; i += _insertChunk) {
+        inserted.addAll(
+          await FinancialFact.db.insert(
+            session,
+            facts.sublist(i, (i + _insertChunk).clamp(0, facts.length)),
+            transaction: tx,
+          ),
+        );
+      }
+
+      final previous = await FinancialReport.db.find(
+        session,
+        where: (t) =>
+            t.companyId.equals(company.id!) &
+            t.bsnsYear.equals(bsnsYear) &
+            t.reportCode.equals(reportCode) &
+            t.fsDiv.equals(div) &
+            t.supersededById.equals(null) &
+            t.id.notEquals(report.id!),
+        transaction: tx,
+      );
+      for (final prev in previous) {
+        if (prev.rceptNo.compareTo(rceptNo) >= 0) continue;
+        await FinancialReport.db.updateRow(
+          session,
+          prev.copyWith(supersededById: report.id),
+          transaction: tx,
+        );
+        final oldFacts = await FinancialFact.db.find(
+          session,
+          where: (t) => t.reportId.equals(prev.id!),
+          transaction: tx,
+        );
+        final links = FinancialRows.supersessions(oldFacts, inserted);
+        final updates = [
+          for (final f in oldFacts)
+            if (links[f.id] != null) f.copyWith(supersededById: links[f.id]),
+        ];
+        if (updates.isNotEmpty) {
+          await FinancialFact.db.update(session, updates, transaction: tx);
+        }
+      }
+    });
+    return (status: FilingFetchStatus.stored, inserted: true);
+  }
+
+  Future<T> _callDart<T>(Future<T> Function() call) async {
+    try {
+      return await call();
+    } finally {
+      await Future<void>.delayed(callInterval);
+    }
+  }
+}
