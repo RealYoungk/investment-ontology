@@ -12,7 +12,7 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _is;
 
-/// 한국표준산업분류(KSIC) 항목.
+/// 한국표준산업분류(KSIC) 항목. 개정 차수마다 따로 둔다.
 abstract class Industry
     implements _is.TableRow<int?>, _is.ProtocolSerialization {
   Industry._({
@@ -22,6 +22,7 @@ abstract class Industry
     required this.level,
     this.parentCode,
     required this.revision,
+    this.sourceId,
   });
 
   factory Industry({
@@ -31,6 +32,7 @@ abstract class Industry
     required int level,
     String? parentCode,
     required String revision,
+    int? sourceId,
   }) = _IndustryImpl;
 
   factory Industry.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -41,6 +43,7 @@ abstract class Industry
       level: jsonSerialization['level'] as int,
       parentCode: jsonSerialization['parentCode'] as String?,
       revision: jsonSerialization['revision'] as String,
+      sourceId: jsonSerialization['sourceId'] as int?,
     );
   }
 
@@ -61,8 +64,11 @@ abstract class Industry
 
   String? parentCode;
 
-  /// 예: "KSIC 10"
+  /// 예: "KSIC 11"
   String revision;
+
+  /// 통계청 고시 자료
+  int? sourceId;
 
   @override
   _is.Table<int?> get table => t;
@@ -77,6 +83,7 @@ abstract class Industry
     int? level,
     String? parentCode,
     String? revision,
+    int? sourceId,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -88,6 +95,7 @@ abstract class Industry
       'level': level,
       if (parentCode != null) 'parentCode': parentCode,
       'revision': revision,
+      if (sourceId != null) 'sourceId': sourceId,
     };
   }
 
@@ -101,6 +109,7 @@ abstract class Industry
       'level': level,
       if (parentCode != null) 'parentCode': parentCode,
       'revision': revision,
+      if (sourceId != null) 'sourceId': sourceId,
     };
   }
 
@@ -142,6 +151,7 @@ class _IndustryImpl extends Industry {
     required int level,
     String? parentCode,
     required String revision,
+    int? sourceId,
   }) : super._(
          id: id,
          code: code,
@@ -149,6 +159,7 @@ class _IndustryImpl extends Industry {
          level: level,
          parentCode: parentCode,
          revision: revision,
+         sourceId: sourceId,
        );
 
   /// Returns a shallow copy of this [Industry]
@@ -162,6 +173,7 @@ class _IndustryImpl extends Industry {
     int? level,
     Object? parentCode = _Undefined,
     String? revision,
+    Object? sourceId = _Undefined,
   }) {
     return Industry(
       id: id is int? ? id : this.id,
@@ -170,6 +182,7 @@ class _IndustryImpl extends Industry {
       level: level ?? this.level,
       parentCode: parentCode is String? ? parentCode : this.parentCode,
       revision: revision ?? this.revision,
+      sourceId: sourceId is int? ? sourceId : this.sourceId,
     );
   }
 }
@@ -201,6 +214,11 @@ class IndustryUpdateTable extends _is.UpdateTable<IndustryTable> {
     table.revision,
     value,
   );
+
+  _is.ColumnValue<int, int> sourceId(int? value) => _is.ColumnValue(
+    table.sourceId,
+    value,
+  );
 }
 
 class IndustryTable extends _is.Table<int?> {
@@ -226,6 +244,10 @@ class IndustryTable extends _is.Table<int?> {
       'revision',
       this,
     );
+    sourceId = _is.ColumnInt(
+      'sourceId',
+      this,
+    );
   }
 
   late final IndustryUpdateTable updateTable;
@@ -240,8 +262,11 @@ class IndustryTable extends _is.Table<int?> {
 
   late final _is.ColumnString parentCode;
 
-  /// 예: "KSIC 10"
+  /// 예: "KSIC 11"
   late final _is.ColumnString revision;
+
+  /// 통계청 고시 자료
+  late final _is.ColumnInt sourceId;
 
   @override
   List<_is.Column> get columns => [
@@ -251,6 +276,7 @@ class IndustryTable extends _is.Table<int?> {
     level,
     parentCode,
     revision,
+    sourceId,
   ];
 }
 

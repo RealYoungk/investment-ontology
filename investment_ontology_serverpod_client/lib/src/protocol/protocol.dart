@@ -29,6 +29,7 @@ import 'ontology/models/dart_corp_status.dart' as _ir49pw6i;
 import 'ontology/models/exceptions.dart' as _iqc95j34;
 import 'ontology/models/facet_count.dart' as _iqbvehdv;
 import 'ontology/models/industry.dart' as _i3hzx3f1;
+import 'ontology/models/industry_revision_check.dart' as _i25uuckt;
 import 'ontology/models/ingest_job.dart' as _iay1heal;
 import 'ontology/models/ingest_status.dart' as _imojj26x;
 import 'ontology/models/market.dart' as _iyzzhewo;
@@ -46,6 +47,7 @@ export 'ontology/models/dart_corp_status.dart';
 export 'ontology/models/exceptions.dart';
 export 'ontology/models/facet_count.dart';
 export 'ontology/models/industry.dart';
+export 'ontology/models/industry_revision_check.dart';
 export 'ontology/models/ingest_job.dart';
 export 'ontology/models/ingest_status.dart';
 export 'ontology/models/market.dart';
@@ -121,6 +123,9 @@ class Protocol extends _isc.SerializationManager {
     if (t == _i3hzx3f1.Industry) {
       return _i3hzx3f1.Industry.fromJson(data) as T;
     }
+    if (t == _i25uuckt.IndustryRevisionCheck) {
+      return _i25uuckt.IndustryRevisionCheck.fromJson(data) as T;
+    }
     if (t == _iay1heal.IngestJob) {
       return _iay1heal.IngestJob.fromJson(data) as T;
     }
@@ -177,6 +182,12 @@ class Protocol extends _isc.SerializationManager {
     if (t == _isc.getType<_i3hzx3f1.Industry?>()) {
       return (data != null ? _i3hzx3f1.Industry.fromJson(data) : null) as T;
     }
+    if (t == _isc.getType<_i25uuckt.IndustryRevisionCheck?>()) {
+      return (data != null
+              ? _i25uuckt.IndustryRevisionCheck.fromJson(data)
+              : null)
+          as T;
+    }
     if (t == _isc.getType<_iay1heal.IngestJob?>()) {
       return (data != null ? _iay1heal.IngestJob.fromJson(data) : null) as T;
     }
@@ -213,6 +224,9 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
+    if (t == List<String>) {
+      return (data as List).map((e) => deserialize<String>(e)).toList() as T;
+    }
     if (t == List<_iqbvehdv.FacetCount>) {
       return (data as List)
               .map((e) => deserialize<_iqbvehdv.FacetCount>(e))
@@ -247,6 +261,7 @@ class Protocol extends _isc.SerializationManager {
       _iqc95j34.IngestException => 'IngestException',
       _iqbvehdv.FacetCount => 'FacetCount',
       _i3hzx3f1.Industry => 'Industry',
+      _i25uuckt.IndustryRevisionCheck => 'IndustryRevisionCheck',
       _iay1heal.IngestJob => 'IngestJob',
       _imojj26x.IngestStatus => 'IngestStatus',
       _iyzzhewo.Market => 'Market',
@@ -292,6 +307,8 @@ class Protocol extends _isc.SerializationManager {
         return 'FacetCount';
       case _i3hzx3f1.Industry():
         return 'Industry';
+      case _i25uuckt.IndustryRevisionCheck():
+        return 'IndustryRevisionCheck';
       case _iay1heal.IngestJob():
         return 'IngestJob';
       case _imojj26x.IngestStatus():
@@ -358,6 +375,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'Industry') {
       return deserialize<_i3hzx3f1.Industry>(data['data']);
+    }
+    if (dataClassName == 'IndustryRevisionCheck') {
+      return deserialize<_i25uuckt.IndustryRevisionCheck>(data['data']);
     }
     if (dataClassName == 'IngestJob') {
       return deserialize<_iay1heal.IngestJob>(data['data']);

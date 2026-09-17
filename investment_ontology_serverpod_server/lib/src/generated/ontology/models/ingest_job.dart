@@ -27,12 +27,14 @@ abstract class IngestJob
     int? updated,
     int? failed,
     int? apiCalls,
+    bool? fullRefresh,
     this.message,
   }) : total = total ?? 0,
        processed = processed ?? 0,
        updated = updated ?? 0,
        failed = failed ?? 0,
-       apiCalls = apiCalls ?? 0;
+       apiCalls = apiCalls ?? 0,
+       fullRefresh = fullRefresh ?? false;
 
   factory IngestJob({
     int? id,
@@ -45,6 +47,7 @@ abstract class IngestJob
     int? updated,
     int? failed,
     int? apiCalls,
+    bool? fullRefresh,
     String? message,
   }) = _IngestJobImpl;
 
@@ -66,6 +69,9 @@ abstract class IngestJob
       updated: jsonSerialization['updated'] as int?,
       failed: jsonSerialization['failed'] as int?,
       apiCalls: jsonSerialization['apiCalls'] as int?,
+      fullRefresh: jsonSerialization['fullRefresh'] == null
+          ? null
+          : _is.BoolJsonExtension.fromJson(jsonSerialization['fullRefresh']),
       message: jsonSerialization['message'] as String?,
     );
   }
@@ -96,6 +102,9 @@ abstract class IngestJob
 
   int apiCalls;
 
+  /// 변경일과 관계없이 모든 기업을 다시 받은 작업인지
+  bool fullRefresh;
+
   String? message;
 
   @override
@@ -115,6 +124,7 @@ abstract class IngestJob
     int? updated,
     int? failed,
     int? apiCalls,
+    bool? fullRefresh,
     String? message,
   });
   @override
@@ -131,6 +141,7 @@ abstract class IngestJob
       'updated': updated,
       'failed': failed,
       'apiCalls': apiCalls,
+      'fullRefresh': fullRefresh,
       if (message != null) 'message': message,
     };
   }
@@ -149,6 +160,7 @@ abstract class IngestJob
       'updated': updated,
       'failed': failed,
       'apiCalls': apiCalls,
+      'fullRefresh': fullRefresh,
       if (message != null) 'message': message,
     };
   }
@@ -195,6 +207,7 @@ class _IngestJobImpl extends IngestJob {
     int? updated,
     int? failed,
     int? apiCalls,
+    bool? fullRefresh,
     String? message,
   }) : super._(
          id: id,
@@ -207,6 +220,7 @@ class _IngestJobImpl extends IngestJob {
          updated: updated,
          failed: failed,
          apiCalls: apiCalls,
+         fullRefresh: fullRefresh,
          message: message,
        );
 
@@ -225,6 +239,7 @@ class _IngestJobImpl extends IngestJob {
     int? updated,
     int? failed,
     int? apiCalls,
+    bool? fullRefresh,
     Object? message = _Undefined,
   }) {
     return IngestJob(
@@ -238,6 +253,7 @@ class _IngestJobImpl extends IngestJob {
       updated: updated ?? this.updated,
       failed: failed ?? this.failed,
       apiCalls: apiCalls ?? this.apiCalls,
+      fullRefresh: fullRefresh ?? this.fullRefresh,
       message: message is String? ? message : this.message,
     );
   }
@@ -295,6 +311,11 @@ class IngestJobUpdateTable extends _is.UpdateTable<IngestJobTable> {
     value,
   );
 
+  _is.ColumnValue<bool, bool> fullRefresh(bool value) => _is.ColumnValue(
+    table.fullRefresh,
+    value,
+  );
+
   _is.ColumnValue<String, String> message(String? value) => _is.ColumnValue(
     table.message,
     value,
@@ -346,6 +367,11 @@ class IngestJobTable extends _is.Table<int?> {
       this,
       hasDefault: true,
     );
+    fullRefresh = _is.ColumnBool(
+      'fullRefresh',
+      this,
+      hasDefault: true,
+    );
     message = _is.ColumnString(
       'message',
       this,
@@ -373,6 +399,9 @@ class IngestJobTable extends _is.Table<int?> {
 
   late final _is.ColumnInt apiCalls;
 
+  /// 변경일과 관계없이 모든 기업을 다시 받은 작업인지
+  late final _is.ColumnBool fullRefresh;
+
   late final _is.ColumnString message;
 
   @override
@@ -387,6 +416,7 @@ class IngestJobTable extends _is.Table<int?> {
     updated,
     failed,
     apiCalls,
+    fullRefresh,
     message,
   ];
 }

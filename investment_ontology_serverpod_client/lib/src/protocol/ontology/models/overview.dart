@@ -14,6 +14,7 @@ import 'package:investment_ontology_serverpod_client/src/protocol/protocol.dart'
     as _ilkzeueu;
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
 import '../../ontology/models/facet_count.dart' as _icav4sge;
+import '../../ontology/models/industry_revision_check.dart' as _ixu13ifg;
 import '../../ontology/models/ingest_job.dart' as _iwr40u3f;
 
 abstract class Overview
@@ -23,6 +24,9 @@ abstract class Overview
     required this.byMarket,
     required this.bySection,
     this.lastJob,
+    this.lastFullRefreshAt,
+    this.nextFullRefreshAt,
+    this.industryRevision,
   });
 
   factory Overview({
@@ -30,6 +34,9 @@ abstract class Overview
     required List<_icav4sge.FacetCount> byMarket,
     required List<_icav4sge.FacetCount> bySection,
     _iwr40u3f.IngestJob? lastJob,
+    DateTime? lastFullRefreshAt,
+    DateTime? nextFullRefreshAt,
+    _ixu13ifg.IndustryRevisionCheck? industryRevision,
   }) = _OverviewImpl;
 
   factory Overview.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -46,6 +53,21 @@ abstract class Overview
           : _ilkzeueu.Protocol().deserialize<_iwr40u3f.IngestJob>(
               jsonSerialization['lastJob'],
             ),
+      lastFullRefreshAt: jsonSerialization['lastFullRefreshAt'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(
+              jsonSerialization['lastFullRefreshAt'],
+            ),
+      nextFullRefreshAt: jsonSerialization['nextFullRefreshAt'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(
+              jsonSerialization['nextFullRefreshAt'],
+            ),
+      industryRevision: jsonSerialization['industryRevision'] == null
+          ? null
+          : _ilkzeueu.Protocol().deserialize<_ixu13ifg.IndustryRevisionCheck>(
+              jsonSerialization['industryRevision'],
+            ),
     );
   }
 
@@ -57,6 +79,15 @@ abstract class Overview
 
   _iwr40u3f.IngestJob? lastJob;
 
+  /// 마지막으로 성공한 전체 갱신 시각
+  DateTime? lastFullRefreshAt;
+
+  /// 이 시각 이후 첫 수집은 자동으로 전체 갱신
+  DateTime? nextFullRefreshAt;
+
+  /// 업종명 표시에 쓰는 KSIC 차수 판정
+  _ixu13ifg.IndustryRevisionCheck? industryRevision;
+
   /// Returns a shallow copy of this [Overview]
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
@@ -65,6 +96,9 @@ abstract class Overview
     List<_icav4sge.FacetCount>? byMarket,
     List<_icav4sge.FacetCount>? bySection,
     _iwr40u3f.IngestJob? lastJob,
+    DateTime? lastFullRefreshAt,
+    DateTime? nextFullRefreshAt,
+    _ixu13ifg.IndustryRevisionCheck? industryRevision,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -74,6 +108,12 @@ abstract class Overview
       'byMarket': byMarket.toJson(valueToJson: (v) => v.toJson()),
       'bySection': bySection.toJson(valueToJson: (v) => v.toJson()),
       if (lastJob != null) 'lastJob': lastJob?.toJson(),
+      if (lastFullRefreshAt != null)
+        'lastFullRefreshAt': lastFullRefreshAt?.toJson(),
+      if (nextFullRefreshAt != null)
+        'nextFullRefreshAt': nextFullRefreshAt?.toJson(),
+      if (industryRevision != null)
+        'industryRevision': industryRevision?.toJson(),
     };
   }
 
@@ -85,6 +125,12 @@ abstract class Overview
       'byMarket': byMarket.toJson(valueToJson: (v) => v.toJsonForProtocol()),
       'bySection': bySection.toJson(valueToJson: (v) => v.toJsonForProtocol()),
       if (lastJob != null) 'lastJob': lastJob?.toJsonForProtocol(),
+      if (lastFullRefreshAt != null)
+        'lastFullRefreshAt': lastFullRefreshAt?.toJson(),
+      if (nextFullRefreshAt != null)
+        'nextFullRefreshAt': nextFullRefreshAt?.toJson(),
+      if (industryRevision != null)
+        'industryRevision': industryRevision?.toJsonForProtocol(),
     };
   }
 
@@ -102,11 +148,17 @@ class _OverviewImpl extends Overview {
     required List<_icav4sge.FacetCount> byMarket,
     required List<_icav4sge.FacetCount> bySection,
     _iwr40u3f.IngestJob? lastJob,
+    DateTime? lastFullRefreshAt,
+    DateTime? nextFullRefreshAt,
+    _ixu13ifg.IndustryRevisionCheck? industryRevision,
   }) : super._(
          totalListed: totalListed,
          byMarket: byMarket,
          bySection: bySection,
          lastJob: lastJob,
+         lastFullRefreshAt: lastFullRefreshAt,
+         nextFullRefreshAt: nextFullRefreshAt,
+         industryRevision: industryRevision,
        );
 
   /// Returns a shallow copy of this [Overview]
@@ -118,6 +170,9 @@ class _OverviewImpl extends Overview {
     List<_icav4sge.FacetCount>? byMarket,
     List<_icav4sge.FacetCount>? bySection,
     Object? lastJob = _Undefined,
+    Object? lastFullRefreshAt = _Undefined,
+    Object? nextFullRefreshAt = _Undefined,
+    Object? industryRevision = _Undefined,
   }) {
     return Overview(
       totalListed: totalListed ?? this.totalListed,
@@ -127,6 +182,15 @@ class _OverviewImpl extends Overview {
       lastJob: lastJob is _iwr40u3f.IngestJob?
           ? lastJob
           : this.lastJob?.copyWith(),
+      lastFullRefreshAt: lastFullRefreshAt is DateTime?
+          ? lastFullRefreshAt
+          : this.lastFullRefreshAt,
+      nextFullRefreshAt: nextFullRefreshAt is DateTime?
+          ? nextFullRefreshAt
+          : this.nextFullRefreshAt,
+      industryRevision: industryRevision is _ixu13ifg.IndustryRevisionCheck?
+          ? industryRevision
+          : this.industryRevision?.copyWith(),
     );
   }
 }

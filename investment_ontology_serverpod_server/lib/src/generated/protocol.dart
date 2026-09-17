@@ -32,6 +32,7 @@ import 'ontology/models/dart_corp_status.dart' as _ir49pw6i;
 import 'ontology/models/exceptions.dart' as _iqc95j34;
 import 'ontology/models/facet_count.dart' as _iqbvehdv;
 import 'ontology/models/industry.dart' as _i3hzx3f1;
+import 'ontology/models/industry_revision_check.dart' as _i25uuckt;
 import 'ontology/models/ingest_job.dart' as _iay1heal;
 import 'ontology/models/ingest_status.dart' as _imojj26x;
 import 'ontology/models/market.dart' as _iyzzhewo;
@@ -49,6 +50,7 @@ export 'ontology/models/dart_corp_status.dart';
 export 'ontology/models/exceptions.dart';
 export 'ontology/models/facet_count.dart';
 export 'ontology/models/industry.dart';
+export 'ontology/models/industry_revision_check.dart';
 export 'ontology/models/ingest_job.dart';
 export 'ontology/models/ingest_status.dart';
 export 'ontology/models/market.dart';
@@ -468,13 +470,34 @@ class Protocol extends _is.DatabaseSerializationManager {
           isNullable: false,
           dartType: 'String',
         ),
+        _isp.ColumnDefinition(
+          name: 'sourceId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
       ],
-      foreignKeys: [],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'industry_fk_0',
+          columns: ['sourceId'],
+          referenceTable: 'source',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.setNull,
+          matchType: null,
+        ),
+      ],
       indexes: [
         _isp.IndexDefinition(
-          indexName: 'industry_code_idx',
+          indexName: 'industry_revision_code_idx',
           tableSpace: null,
           elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'revision',
+            ),
             _isp.IndexElementDefinition(
               type: _isp.IndexElementDefinitionType.column,
               definition: 'code',
@@ -558,6 +581,13 @@ class Protocol extends _is.DatabaseSerializationManager {
           isNullable: false,
           dartType: 'int',
           columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
+          name: 'fullRefresh',
+          columnType: _isp.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'false',
         ),
         _isp.ColumnDefinition(
           name: 'message',
@@ -704,6 +734,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _i3hzx3f1.Industry) {
       return _i3hzx3f1.Industry.fromJson(data) as T;
     }
+    if (t == _i25uuckt.IndustryRevisionCheck) {
+      return _i25uuckt.IndustryRevisionCheck.fromJson(data) as T;
+    }
     if (t == _iay1heal.IngestJob) {
       return _iay1heal.IngestJob.fromJson(data) as T;
     }
@@ -766,6 +799,12 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _is.getType<_i3hzx3f1.Industry?>()) {
       return (data != null ? _i3hzx3f1.Industry.fromJson(data) : null) as T;
     }
+    if (t == _is.getType<_i25uuckt.IndustryRevisionCheck?>()) {
+      return (data != null
+              ? _i25uuckt.IndustryRevisionCheck.fromJson(data)
+              : null)
+          as T;
+    }
     if (t == _is.getType<_iay1heal.IngestJob?>()) {
       return (data != null ? _iay1heal.IngestJob.fromJson(data) : null) as T;
     }
@@ -801,6 +840,9 @@ class Protocol extends _is.DatabaseSerializationManager {
               .map((e) => deserialize<_i0csqxj4.CompanyListItem>(e))
               .toList()
           as T;
+    }
+    if (t == List<String>) {
+      return (data as List).map((e) => deserialize<String>(e)).toList() as T;
     }
     if (t == List<_iqbvehdv.FacetCount>) {
       return (data as List)
@@ -841,6 +883,7 @@ class Protocol extends _is.DatabaseSerializationManager {
       _iqc95j34.IngestException => 'IngestException',
       _iqbvehdv.FacetCount => 'FacetCount',
       _i3hzx3f1.Industry => 'Industry',
+      _i25uuckt.IndustryRevisionCheck => 'IndustryRevisionCheck',
       _iay1heal.IngestJob => 'IngestJob',
       _imojj26x.IngestStatus => 'IngestStatus',
       _iyzzhewo.Market => 'Market',
@@ -888,6 +931,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'FacetCount';
       case _i3hzx3f1.Industry():
         return 'Industry';
+      case _i25uuckt.IndustryRevisionCheck():
+        return 'IndustryRevisionCheck';
       case _iay1heal.IngestJob():
         return 'IngestJob';
       case _imojj26x.IngestStatus():
@@ -963,6 +1008,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'Industry') {
       return deserialize<_i3hzx3f1.Industry>(data['data']);
+    }
+    if (dataClassName == 'IndustryRevisionCheck') {
+      return deserialize<_i25uuckt.IndustryRevisionCheck>(data['data']);
     }
     if (dataClassName == 'IngestJob') {
       return deserialize<_iay1heal.IngestJob>(data['data']);

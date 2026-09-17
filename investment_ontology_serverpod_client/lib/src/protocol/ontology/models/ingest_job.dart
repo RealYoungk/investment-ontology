@@ -27,12 +27,14 @@ abstract class IngestJob
     int? updated,
     int? failed,
     int? apiCalls,
+    bool? fullRefresh,
     this.message,
   }) : total = total ?? 0,
        processed = processed ?? 0,
        updated = updated ?? 0,
        failed = failed ?? 0,
-       apiCalls = apiCalls ?? 0;
+       apiCalls = apiCalls ?? 0,
+       fullRefresh = fullRefresh ?? false;
 
   factory IngestJob({
     int? id,
@@ -45,6 +47,7 @@ abstract class IngestJob
     int? updated,
     int? failed,
     int? apiCalls,
+    bool? fullRefresh,
     String? message,
   }) = _IngestJobImpl;
 
@@ -68,6 +71,9 @@ abstract class IngestJob
       updated: jsonSerialization['updated'] as int?,
       failed: jsonSerialization['failed'] as int?,
       apiCalls: jsonSerialization['apiCalls'] as int?,
+      fullRefresh: jsonSerialization['fullRefresh'] == null
+          ? null
+          : _isc.BoolJsonExtension.fromJson(jsonSerialization['fullRefresh']),
       message: jsonSerialization['message'] as String?,
     );
   }
@@ -96,6 +102,9 @@ abstract class IngestJob
 
   int apiCalls;
 
+  /// 변경일과 관계없이 모든 기업을 다시 받은 작업인지
+  bool fullRefresh;
+
   String? message;
 
   /// Returns a shallow copy of this [IngestJob]
@@ -112,6 +121,7 @@ abstract class IngestJob
     int? updated,
     int? failed,
     int? apiCalls,
+    bool? fullRefresh,
     String? message,
   });
   @override
@@ -128,6 +138,7 @@ abstract class IngestJob
       'updated': updated,
       'failed': failed,
       'apiCalls': apiCalls,
+      'fullRefresh': fullRefresh,
       if (message != null) 'message': message,
     };
   }
@@ -146,6 +157,7 @@ abstract class IngestJob
       'updated': updated,
       'failed': failed,
       'apiCalls': apiCalls,
+      'fullRefresh': fullRefresh,
       if (message != null) 'message': message,
     };
   }
@@ -170,6 +182,7 @@ class _IngestJobImpl extends IngestJob {
     int? updated,
     int? failed,
     int? apiCalls,
+    bool? fullRefresh,
     String? message,
   }) : super._(
          id: id,
@@ -182,6 +195,7 @@ class _IngestJobImpl extends IngestJob {
          updated: updated,
          failed: failed,
          apiCalls: apiCalls,
+         fullRefresh: fullRefresh,
          message: message,
        );
 
@@ -200,6 +214,7 @@ class _IngestJobImpl extends IngestJob {
     int? updated,
     int? failed,
     int? apiCalls,
+    bool? fullRefresh,
     Object? message = _Undefined,
   }) {
     return IngestJob(
@@ -213,6 +228,7 @@ class _IngestJobImpl extends IngestJob {
       updated: updated ?? this.updated,
       failed: failed ?? this.failed,
       apiCalls: apiCalls ?? this.apiCalls,
+      fullRefresh: fullRefresh ?? this.fullRefresh,
       message: message is String? ? message : this.message,
     );
   }

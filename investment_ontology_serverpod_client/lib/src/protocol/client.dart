@@ -349,7 +349,8 @@ class EndpointIngest extends _isc.EndpointRef {
 
   /// 상장사 마스터 수집 시작. 이미 실행 중이면 그 작업을 돌려준다.
   ///
-  /// [force]가 false면 DART 변경일이 바뀐 기업만 다시 받는다.
+  /// 평소에는 DART 변경일이 바뀐 기업만 다시 받는다. [force]이거나 마지막 전체
+  /// 갱신 후 [CompanyMasterSync.fullRefreshInterval]이 지났으면 전체를 다시 받는다.
   _ida.Future<_i1paap7y.IngestJob> startCompanyMaster({bool? force}) =>
       caller.callServerEndpoint<_i1paap7y.IngestJob>(
         'ingest',
