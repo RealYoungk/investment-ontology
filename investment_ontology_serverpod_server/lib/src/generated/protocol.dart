@@ -700,6 +700,12 @@ class Protocol extends _is.DatabaseSerializationManager {
           columnDefault: 'serial',
         ),
         _isp.ColumnDefinition(
+          name: 'scannedFrom',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
           name: 'scannedThrough',
           columnType: _isp.ColumnType.timestampWithoutTimeZone,
           isNullable: false,
