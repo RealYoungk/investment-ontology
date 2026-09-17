@@ -18,7 +18,7 @@ class MarketSnapshotSync {
     this.client,
     this.jobId, {
     this.dailyBudget = 9000,
-    this.backfillYears = 3,
+    this.backfillYears = 5,
     this.backfillFrom,
     this.callInterval = const Duration(milliseconds: 100),
     this.scheduleResume,

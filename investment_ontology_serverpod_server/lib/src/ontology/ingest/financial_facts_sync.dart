@@ -42,11 +42,14 @@ class FinancialFactsSync {
 
   static const _progressEvery = 20;
 
-  /// 사업보고서는 최근 3개 사업연도.
-  static int firstAnnualYear(DateTime now) => now.year - 3;
+  /// 수집하는 햇수.
+  static const historyYears = 5;
 
-  /// 분기·반기보고서는 전전년도부터.
-  static int firstInterimYear(DateTime now) => now.year - 2;
+  /// 사업보고서는 최근 5개 사업연도 (2026년이면 FY2021~2025).
+  static int firstAnnualYear(DateTime now) => now.year - historyYears;
+
+  /// 분기·반기보고서는 올해를 포함한 5개 사업연도 (2026년이면 FY2022~2026).
+  static int firstInterimYear(DateTime now) => now.year - historyYears + 1;
 
   static const _listedMarkets = {Market.kospi, Market.kosdaq, Market.konex};
 
@@ -218,7 +221,10 @@ class FinancialFactsSync {
     }
 
     final cursor = await DartFilingScan.db.findFirstRow(session);
-    var from = cursor?.scannedThrough.subtract(scanOverlap) ?? earliest;
+    // 수집 범위가 넓어져 커서가 덮지 않는 과거가 생기면 처음부터 다시 훑는다.
+    final covers =
+        cursor?.scannedFrom != null && !earliest.isBefore(cursor!.scannedFrom!);
+    var from = covers ? cursor.scannedThrough.subtract(scanOverlap) : earliest;
     if (from.isBefore(earliest)) from = earliest;
 
     var inserted = 0;
@@ -248,28 +254,27 @@ class FinancialFactsSync {
         if (page >= result.totalPages) break;
         page++;
       }
-      await _saveCursor(cursor?.id, to);
+      await _saveCursor(covers ? cursor.scannedFrom! : earliest, to);
       from = to.add(const Duration(days: 1));
     }
     return inserted;
   }
 
-  Future<void> _saveCursor(int? id, DateTime scannedThrough) async {
+  Future<void> _saveCursor(
+    DateTime scannedFrom,
+    DateTime scannedThrough,
+  ) async {
     final row = DartFilingScan(
-      id: id,
+      scannedFrom: scannedFrom,
       scannedThrough: scannedThrough,
       updatedAt: DateTime.now().toUtc(),
     );
-    if (id == null) {
-      final existing = await DartFilingScan.db.findFirstRow(session);
-      if (existing == null) {
-        await DartFilingScan.db.insertRow(session, row);
-        return;
-      }
+    final existing = await DartFilingScan.db.findFirstRow(session);
+    if (existing == null) {
+      await DartFilingScan.db.insertRow(session, row);
+    } else {
       await DartFilingScan.db.updateRow(session, row.copyWith(id: existing.id));
-      return;
     }
-    await DartFilingScan.db.updateRow(session, row);
   }
 
   /// 기업 하나의 공시 목록. 회사를 지정하면 기간 제한이 없다.

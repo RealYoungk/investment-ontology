@@ -275,7 +275,7 @@ void main() {
         clock: () => now,
       ).run();
 
-      expect(ranges.first.$1, '20240101');
+      expect(ranges.first.$1, '20220101', reason: '분기·반기 5개 사업연도 = FY2022부터');
       expect(ranges.last.$2, '20260917');
       for (final (from, to) in ranges) {
         final f = DateTime.parse(from);
@@ -322,6 +322,38 @@ void main() {
       await runSync();
       expect(dart.listCalls, lessThan(fullScanCalls));
       expect(dart.listCalls, 1, reason: '커서 7일 전부터 오늘까지 한 구간');
+    });
+
+    test('수집 범위가 넓어져 커서가 과거를 덮지 않으면 처음부터 다시 훑는다', () async {
+      // 3년 범위일 때 남은 커서: 2024-01-01부터 오늘까지 훑음.
+      await DartFilingScan.db.insertRow(
+        session,
+        DartFilingScan(
+          scannedFrom: DateTime.utc(2024, 1, 1),
+          scannedThrough: DateTime.utc(2026, 9, 17),
+          updatedAt: DateTime.utc(2026, 9, 17),
+        ),
+      );
+      dart.filings.add((
+        corp: '00000001',
+        name: '사업보고서 (2021.12)',
+        rcept: '20220310000008',
+        date: '20220310',
+      ));
+
+      await runSync();
+
+      expect(
+        (await DartFiling.db.find(session)).map((f) => f.rceptNo),
+        contains('20220310000008'),
+      );
+      final cursor = (await DartFilingScan.db.findFirstRow(session))!;
+      expect(cursor.scannedFrom, DateTime.utc(2022, 1, 1));
+      expect(cursor.scannedThrough, DateTime.utc(2026, 9, 17));
+
+      dart.listCalls = 0;
+      await runSync();
+      expect(dart.listCalls, 1, reason: '다시 덮였으니 커서 7일 전부터만');
     });
 
     test('다시 돌리면 받은 공시는 호출하지 않는다', () async {
@@ -457,7 +489,7 @@ void main() {
         ))
         ..add((
           corp: '00000001',
-          name: '[기재정정]사업보고서 (2022.12)',
+          name: '[기재정정]사업보고서 (2020.12)',
           rcept: '20260201000004',
           date: '20260201',
         ))
