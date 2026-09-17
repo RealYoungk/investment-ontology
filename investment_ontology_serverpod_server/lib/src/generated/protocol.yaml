@@ -11,3 +11,12 @@ jwtRefresh:
   - refreshAccessToken:
 greeting:
   - hello:
+company:
+  - overview:
+  - divisions:
+  - list:
+  - detail:
+ingest:
+  - startCompanyMaster:
+  - cancel:
+  - latest:

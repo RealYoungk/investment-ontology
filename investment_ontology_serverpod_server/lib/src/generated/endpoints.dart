@@ -10,6 +10,12 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:investment_ontology_serverpod_server/src/generated/future_calls.dart'
+    as _i4o8e4lj;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_sort.dart'
+    as _iosqhah1;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/market.dart'
+    as _iyonaxpd;
 import 'package:serverpod/serverpod.dart' as _is;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _iacs;
@@ -18,6 +24,9 @@ import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
 import '../auth/email_idp_endpoint.dart' as _iuc1hd5t;
 import '../auth/jwt_refresh_endpoint.dart' as _inwq3ztq;
 import '../greetings/greeting_endpoint.dart' as _il624ik7;
+import '../ontology/endpoints/company_endpoint.dart' as _itnisr3u;
+import '../ontology/endpoints/ingest_endpoint.dart' as _icbircc0;
+export 'future_calls.dart' show ServerpodFutureCallsGetter;
 
 class Endpoints extends _is.EndpointDispatch {
   @override
@@ -39,6 +48,18 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'greeting',
+          null,
+        ),
+      'company': _itnisr3u.CompanyEndpoint()
+        ..initialize(
+          server,
+          'company',
+          null,
+        ),
+      'ingest': _icbircc0.IngestEndpoint()
+        ..initialize(
+          server,
+          'ingest',
           null,
         ),
     };
@@ -273,9 +294,183 @@ class Endpoints extends _is.EndpointDispatch {
         ),
       },
     );
+    connectors['company'] = _is.EndpointConnector(
+      name: 'company',
+      endpoint: endpoints['company']!,
+      methodConnectors: {
+        'overview': _is.MethodConnector(
+          name: 'overview',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['company'] as _itnisr3u.CompanyEndpoint)
+                  .overview(session),
+        ),
+        'divisions': _is.MethodConnector(
+          name: 'divisions',
+          params: {
+            'sectionCode': _is.ParameterDescription(
+              name: 'sectionCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'market': _is.ParameterDescription(
+              name: 'market',
+              type: _is.getType<_iyonaxpd.Market?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['company'] as _itnisr3u.CompanyEndpoint).divisions(
+                    session,
+                    params['sectionCode'],
+                    market: params['market'],
+                  ),
+        ),
+        'list': _is.MethodConnector(
+          name: 'list',
+          params: {
+            'query': _is.ParameterDescription(
+              name: 'query',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
+            'market': _is.ParameterDescription(
+              name: 'market',
+              type: _is.getType<_iyonaxpd.Market?>(),
+              nullable: true,
+            ),
+            'sectionCode': _is.ParameterDescription(
+              name: 'sectionCode',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
+            'divisionCode': _is.ParameterDescription(
+              name: 'divisionCode',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
+            'sort': _is.ParameterDescription(
+              name: 'sort',
+              type: _is.getType<_iosqhah1.CompanySort?>(),
+              nullable: true,
+            ),
+            'offset': _is.ParameterDescription(
+              name: 'offset',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
+            'limit': _is.ParameterDescription(
+              name: 'limit',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['company'] as _itnisr3u.CompanyEndpoint).list(
+                    session,
+                    query: params['query'],
+                    market: params['market'],
+                    sectionCode: params['sectionCode'],
+                    divisionCode: params['divisionCode'],
+                    sort: params['sort'],
+                    offset: params['offset'],
+                    limit: params['limit'],
+                  ),
+        ),
+        'detail': _is.MethodConnector(
+          name: 'detail',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['company'] as _itnisr3u.CompanyEndpoint).detail(
+                    session,
+                    params['corpCode'],
+                  ),
+        ),
+      },
+    );
+    connectors['ingest'] = _is.EndpointConnector(
+      name: 'ingest',
+      endpoint: endpoints['ingest']!,
+      methodConnectors: {
+        'startCompanyMaster': _is.MethodConnector(
+          name: 'startCompanyMaster',
+          params: {
+            'force': _is.ParameterDescription(
+              name: 'force',
+              type: _is.getType<bool?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['ingest'] as _icbircc0.IngestEndpoint)
+                  .startCompanyMaster(
+                    session,
+                    force: params['force'],
+                  ),
+        ),
+        'cancel': _is.MethodConnector(
+          name: 'cancel',
+          params: {
+            'jobId': _is.ParameterDescription(
+              name: 'jobId',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['ingest'] as _icbircc0.IngestEndpoint).cancel(
+                    session,
+                    params['jobId'],
+                  ),
+        ),
+        'latest': _is.MethodConnector(
+          name: 'latest',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['ingest'] as _icbircc0.IngestEndpoint)
+                  .latest(session),
+        ),
+      },
+    );
     modules['serverpod_auth_idp'] = _iais.Endpoints()
       ..initializeEndpoints(server);
     modules['serverpod_auth_core'] = _iacs.Endpoints()
       ..initializeEndpoints(server);
+  }
+
+  @override
+  _is.FutureCallDispatch? get futureCalls {
+    return _i4o8e4lj.FutureCalls();
   }
 }

@@ -13,8 +13,26 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _ida;
 import 'dart:io' as _idi;
+import 'package:investment_ontology_serverpod_server/src/generated/future_calls.dart'
+    as _i4o8e4lj;
+import 'package:investment_ontology_serverpod_server/src/generated/future_calls_generated_models/company_master_future_call_run_model.dart'
+    as _i5djsspn;
 import 'package:investment_ontology_serverpod_server/src/generated/greetings/greeting.dart'
     as _isd101g2;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_detail.dart'
+    as _iws6mlcl;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_page.dart'
+    as _i23npuz6;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_sort.dart'
+    as _iosqhah1;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/facet_count.dart'
+    as _iee4t190;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/ingest_job.dart'
+    as _idt86amb;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/market.dart'
+    as _iyonaxpd;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/overview.dart'
+    as _i5enxcw4;
 import 'package:serverpod/serverpod.dart' as _is;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _iacs;
@@ -147,11 +165,17 @@ void withServerpod(
 }
 
 class TestEndpoints {
+  late final futureCalls = _FutureCalls();
+
   late final _EmailIdpEndpoint emailIdp;
 
   late final _JwtRefreshEndpoint jwtRefresh;
 
   late final _GreetingEndpoint greeting;
+
+  late final _CompanyEndpoint company;
+
+  late final _IngestEndpoint ingest;
 }
 
 class _InternalTestEndpoints extends TestEndpoints
@@ -173,7 +197,19 @@ class _InternalTestEndpoints extends TestEndpoints
       endpoints,
       serializationManager,
     );
+    company = _CompanyEndpoint(
+      endpoints,
+      serializationManager,
+    );
+    ingest = _IngestEndpoint(
+      endpoints,
+      serializationManager,
+    );
   }
+}
+
+class _FutureCalls {
+  late final companyMaster = _CompanyMasterFutureCall();
 }
 
 class _EmailIdpEndpoint {
@@ -533,5 +569,283 @@ class _GreetingEndpoint {
         await _localUniqueSession.close();
       }
     });
+  }
+}
+
+class _CompanyEndpoint {
+  _CompanyEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _is.EndpointDispatch _endpointDispatch;
+
+  final _is.SerializationManager _serializationManager;
+
+  _ida.Future<_i5enxcw4.Overview> overview(
+    _ist.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'company',
+            method: 'overview',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'company',
+          methodName: 'overview',
+          parameters: _ist.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_i5enxcw4.Overview>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<List<_iee4t190.FacetCount>> divisions(
+    _ist.TestSessionBuilder sessionBuilder,
+    String sectionCode, {
+    _iyonaxpd.Market? market,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'company',
+            method: 'divisions',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'company',
+          methodName: 'divisions',
+          parameters: _ist.testObjectToJson({
+            'sectionCode': sectionCode,
+            'market': market,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_iee4t190.FacetCount>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_i23npuz6.CompanyPage> list(
+    _ist.TestSessionBuilder sessionBuilder, {
+    String? query,
+    _iyonaxpd.Market? market,
+    String? sectionCode,
+    String? divisionCode,
+    _iosqhah1.CompanySort? sort,
+    int? offset,
+    int? limit,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'company',
+            method: 'list',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'company',
+          methodName: 'list',
+          parameters: _ist.testObjectToJson({
+            'query': query,
+            'market': market,
+            'sectionCode': sectionCode,
+            'divisionCode': divisionCode,
+            'sort': sort,
+            'offset': offset,
+            'limit': limit,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_i23npuz6.CompanyPage>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_iws6mlcl.CompanyDetail?> detail(
+    _ist.TestSessionBuilder sessionBuilder,
+    String corpCode,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'company',
+            method: 'detail',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'company',
+          methodName: 'detail',
+          parameters: _ist.testObjectToJson({'corpCode': corpCode}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_iws6mlcl.CompanyDetail?>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
+class _IngestEndpoint {
+  _IngestEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _is.EndpointDispatch _endpointDispatch;
+
+  final _is.SerializationManager _serializationManager;
+
+  _ida.Future<_idt86amb.IngestJob> startCompanyMaster(
+    _ist.TestSessionBuilder sessionBuilder, {
+    bool? force,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'ingest',
+            method: 'startCompanyMaster',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'ingest',
+          methodName: 'startCompanyMaster',
+          parameters: _ist.testObjectToJson({'force': force}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_idt86amb.IngestJob>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_idt86amb.IngestJob?> cancel(
+    _ist.TestSessionBuilder sessionBuilder,
+    int jobId,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'ingest',
+            method: 'cancel',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'ingest',
+          methodName: 'cancel',
+          parameters: _ist.testObjectToJson({'jobId': jobId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_idt86amb.IngestJob?>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_idt86amb.IngestJob?> latest(
+    _ist.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'ingest',
+            method: 'latest',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'ingest',
+          methodName: 'latest',
+          parameters: _ist.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_idt86amb.IngestJob?>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
+class _CompanyMasterFutureCall {
+  Future<void> run(
+    _ist.TestSessionBuilder sessionBuilder,
+    int jobId,
+    bool force,
+  ) async {
+    var object = _i5djsspn.CompanyMasterFutureCallRunModel(
+      jobId: jobId,
+      force: force,
+    );
+    var _localUniqueSession =
+        (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild();
+    try {
+      await _i4o8e4lj.CompanyMasterRunFutureCall().invoke(
+        _localUniqueSession,
+        object,
+      );
+    } finally {
+      await _localUniqueSession.close();
+    }
   }
 }

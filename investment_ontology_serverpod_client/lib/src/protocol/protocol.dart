@@ -11,13 +11,43 @@
 // ignore_for_file: dead_code, unnecessary_type_check
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/facet_count.dart'
+    as _icfgas7c;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _iacc;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
     as _iaic;
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
 import 'greetings/greeting.dart' as _izw8z7ou;
+import 'ontology/models/company.dart' as _ipen255x;
+import 'ontology/models/company_detail.dart' as _ire9jjud;
+import 'ontology/models/company_list_item.dart' as _i0csqxj4;
+import 'ontology/models/company_page.dart' as _iaj9eyri;
+import 'ontology/models/company_sort.dart' as _ia2izjbq;
+import 'ontology/models/exceptions.dart' as _iqc95j34;
+import 'ontology/models/facet_count.dart' as _iqbvehdv;
+import 'ontology/models/industry.dart' as _i3hzx3f1;
+import 'ontology/models/ingest_job.dart' as _iay1heal;
+import 'ontology/models/ingest_status.dart' as _imojj26x;
+import 'ontology/models/market.dart' as _iyzzhewo;
+import 'ontology/models/overview.dart' as _iz31wbgv;
+import 'ontology/models/source.dart' as _icm1zoh2;
+import 'ontology/models/source_kind.dart' as _itk5lja3;
 export 'greetings/greeting.dart';
+export 'ontology/models/company.dart';
+export 'ontology/models/company_detail.dart';
+export 'ontology/models/company_list_item.dart';
+export 'ontology/models/company_page.dart';
+export 'ontology/models/company_sort.dart';
+export 'ontology/models/exceptions.dart';
+export 'ontology/models/facet_count.dart';
+export 'ontology/models/industry.dart';
+export 'ontology/models/ingest_job.dart';
+export 'ontology/models/ingest_status.dart';
+export 'ontology/models/market.dart';
+export 'ontology/models/overview.dart';
+export 'ontology/models/source.dart';
+export 'ontology/models/source_kind.dart';
 export 'client.dart';
 
 class Protocol extends _isc.SerializationManager {
@@ -57,8 +87,119 @@ class Protocol extends _isc.SerializationManager {
     if (t == _izw8z7ou.Greeting) {
       return _izw8z7ou.Greeting.fromJson(data) as T;
     }
+    if (t == _ipen255x.Company) {
+      return _ipen255x.Company.fromJson(data) as T;
+    }
+    if (t == _ire9jjud.CompanyDetail) {
+      return _ire9jjud.CompanyDetail.fromJson(data) as T;
+    }
+    if (t == _i0csqxj4.CompanyListItem) {
+      return _i0csqxj4.CompanyListItem.fromJson(data) as T;
+    }
+    if (t == _iaj9eyri.CompanyPage) {
+      return _iaj9eyri.CompanyPage.fromJson(data) as T;
+    }
+    if (t == _ia2izjbq.CompanySort) {
+      return _ia2izjbq.CompanySort.fromJson(data) as T;
+    }
+    if (t == _iqc95j34.IngestException) {
+      return _iqc95j34.IngestException.fromJson(data) as T;
+    }
+    if (t == _iqbvehdv.FacetCount) {
+      return _iqbvehdv.FacetCount.fromJson(data) as T;
+    }
+    if (t == _i3hzx3f1.Industry) {
+      return _i3hzx3f1.Industry.fromJson(data) as T;
+    }
+    if (t == _iay1heal.IngestJob) {
+      return _iay1heal.IngestJob.fromJson(data) as T;
+    }
+    if (t == _imojj26x.IngestStatus) {
+      return _imojj26x.IngestStatus.fromJson(data) as T;
+    }
+    if (t == _iyzzhewo.Market) {
+      return _iyzzhewo.Market.fromJson(data) as T;
+    }
+    if (t == _iz31wbgv.Overview) {
+      return _iz31wbgv.Overview.fromJson(data) as T;
+    }
+    if (t == _icm1zoh2.Source) {
+      return _icm1zoh2.Source.fromJson(data) as T;
+    }
+    if (t == _itk5lja3.SourceKind) {
+      return _itk5lja3.SourceKind.fromJson(data) as T;
+    }
     if (t == _isc.getType<_izw8z7ou.Greeting?>()) {
       return (data != null ? _izw8z7ou.Greeting.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_ipen255x.Company?>()) {
+      return (data != null ? _ipen255x.Company.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_ire9jjud.CompanyDetail?>()) {
+      return (data != null ? _ire9jjud.CompanyDetail.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_i0csqxj4.CompanyListItem?>()) {
+      return (data != null ? _i0csqxj4.CompanyListItem.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_iaj9eyri.CompanyPage?>()) {
+      return (data != null ? _iaj9eyri.CompanyPage.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_ia2izjbq.CompanySort?>()) {
+      return (data != null ? _ia2izjbq.CompanySort.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_iqc95j34.IngestException?>()) {
+      return (data != null ? _iqc95j34.IngestException.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_iqbvehdv.FacetCount?>()) {
+      return (data != null ? _iqbvehdv.FacetCount.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_i3hzx3f1.Industry?>()) {
+      return (data != null ? _i3hzx3f1.Industry.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_iay1heal.IngestJob?>()) {
+      return (data != null ? _iay1heal.IngestJob.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_imojj26x.IngestStatus?>()) {
+      return (data != null ? _imojj26x.IngestStatus.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_iyzzhewo.Market?>()) {
+      return (data != null ? _iyzzhewo.Market.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_iz31wbgv.Overview?>()) {
+      return (data != null ? _iz31wbgv.Overview.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_icm1zoh2.Source?>()) {
+      return (data != null ? _icm1zoh2.Source.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_itk5lja3.SourceKind?>()) {
+      return (data != null ? _itk5lja3.SourceKind.fromJson(data) : null) as T;
+    }
+    if (t == List<_i3hzx3f1.Industry>) {
+      return (data as List)
+              .map((e) => deserialize<_i3hzx3f1.Industry>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i0csqxj4.CompanyListItem>) {
+      return (data as List)
+              .map((e) => deserialize<_i0csqxj4.CompanyListItem>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_iqbvehdv.FacetCount>) {
+      return (data as List)
+              .map((e) => deserialize<_iqbvehdv.FacetCount>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_icfgas7c.FacetCount>) {
+      return (data as List)
+              .map((e) => deserialize<_icfgas7c.FacetCount>(e))
+              .toList()
+          as T;
     }
     try {
       return _iaic.Protocol().deserialize<T>(data, t);
@@ -72,6 +213,20 @@ class Protocol extends _isc.SerializationManager {
   static String? getClassNameForType(Type type) {
     return switch (type) {
       _izw8z7ou.Greeting => 'Greeting',
+      _ipen255x.Company => 'Company',
+      _ire9jjud.CompanyDetail => 'CompanyDetail',
+      _i0csqxj4.CompanyListItem => 'CompanyListItem',
+      _iaj9eyri.CompanyPage => 'CompanyPage',
+      _ia2izjbq.CompanySort => 'CompanySort',
+      _iqc95j34.IngestException => 'IngestException',
+      _iqbvehdv.FacetCount => 'FacetCount',
+      _i3hzx3f1.Industry => 'Industry',
+      _iay1heal.IngestJob => 'IngestJob',
+      _imojj26x.IngestStatus => 'IngestStatus',
+      _iyzzhewo.Market => 'Market',
+      _iz31wbgv.Overview => 'Overview',
+      _icm1zoh2.Source => 'Source',
+      _itk5lja3.SourceKind => 'SourceKind',
       _ => null,
     };
   }
@@ -91,6 +246,34 @@ class Protocol extends _isc.SerializationManager {
     switch (data) {
       case _izw8z7ou.Greeting():
         return 'Greeting';
+      case _ipen255x.Company():
+        return 'Company';
+      case _ire9jjud.CompanyDetail():
+        return 'CompanyDetail';
+      case _i0csqxj4.CompanyListItem():
+        return 'CompanyListItem';
+      case _iaj9eyri.CompanyPage():
+        return 'CompanyPage';
+      case _ia2izjbq.CompanySort():
+        return 'CompanySort';
+      case _iqc95j34.IngestException():
+        return 'IngestException';
+      case _iqbvehdv.FacetCount():
+        return 'FacetCount';
+      case _i3hzx3f1.Industry():
+        return 'Industry';
+      case _iay1heal.IngestJob():
+        return 'IngestJob';
+      case _imojj26x.IngestStatus():
+        return 'IngestStatus';
+      case _iyzzhewo.Market():
+        return 'Market';
+      case _iz31wbgv.Overview():
+        return 'Overview';
+      case _icm1zoh2.Source():
+        return 'Source';
+      case _itk5lja3.SourceKind():
+        return 'SourceKind';
     }
     className = _iaic.Protocol().getClassNameForObject(data);
     if (className != null) {
@@ -115,6 +298,48 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'Greeting') {
       return deserialize<_izw8z7ou.Greeting>(data['data']);
+    }
+    if (dataClassName == 'Company') {
+      return deserialize<_ipen255x.Company>(data['data']);
+    }
+    if (dataClassName == 'CompanyDetail') {
+      return deserialize<_ire9jjud.CompanyDetail>(data['data']);
+    }
+    if (dataClassName == 'CompanyListItem') {
+      return deserialize<_i0csqxj4.CompanyListItem>(data['data']);
+    }
+    if (dataClassName == 'CompanyPage') {
+      return deserialize<_iaj9eyri.CompanyPage>(data['data']);
+    }
+    if (dataClassName == 'CompanySort') {
+      return deserialize<_ia2izjbq.CompanySort>(data['data']);
+    }
+    if (dataClassName == 'IngestException') {
+      return deserialize<_iqc95j34.IngestException>(data['data']);
+    }
+    if (dataClassName == 'FacetCount') {
+      return deserialize<_iqbvehdv.FacetCount>(data['data']);
+    }
+    if (dataClassName == 'Industry') {
+      return deserialize<_i3hzx3f1.Industry>(data['data']);
+    }
+    if (dataClassName == 'IngestJob') {
+      return deserialize<_iay1heal.IngestJob>(data['data']);
+    }
+    if (dataClassName == 'IngestStatus') {
+      return deserialize<_imojj26x.IngestStatus>(data['data']);
+    }
+    if (dataClassName == 'Market') {
+      return deserialize<_iyzzhewo.Market>(data['data']);
+    }
+    if (dataClassName == 'Overview') {
+      return deserialize<_iz31wbgv.Overview>(data['data']);
+    }
+    if (dataClassName == 'Source') {
+      return deserialize<_icm1zoh2.Source>(data['data']);
+    }
+    if (dataClassName == 'SourceKind') {
+      return deserialize<_itk5lja3.SourceKind>(data['data']);
     }
     if (dataClassName.startsWith('serverpod_auth_idp.')) {
       data['className'] = dataClassName.substring(19);
