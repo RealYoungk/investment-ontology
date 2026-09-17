@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'client.dart';
-import 'screens/ledger/ledger_screen.dart';
-import 'theme/ledger_theme.dart';
+import 'design/app_theme.dart';
+import 'design/brands/ledger_brand.dart';
+import 'features/company_ledger/company_ledger_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,10 +17,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: '투자 온톨로지 · 상장사 원장',
+      title: '투자 온톨로지',
       debugShowCheckedModeBanner: false,
-      theme: buildLedgerTheme(),
-      home: const LedgerScreen(),
+      // 리브랜딩: 새 AppBrand를 만들어 여기만 바꾼다.
+      theme: buildAppTheme(ledgerBrand),
+      home: const CompanyLedgerPage(),
     );
   }
 }
