@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -29,10 +31,60 @@ class _FinancialSectionState extends State<FinancialSection> {
   _Period _period = _Period.annual;
   String? _openMetric;
 
+  bool _fetching = false;
+  String? _fetchMessage;
+
   @override
   void initState() {
     super.initState();
     _load();
+  }
+
+  /// 이 기업의 정기보고서만 찾아 바로 받는다. 끝나면 다시 불러온다.
+  Future<void> _fetchCompany() async {
+    setState(() {
+      _fetching = true;
+      _fetchMessage = null;
+    });
+    try {
+      var job = await client.ingest.startFinancials(corpCode: widget.corpCode);
+      while (job.status == IngestStatus.running && mounted) {
+        await Future<void>.delayed(const Duration(seconds: 2));
+        job = await client.ingest.latestOf(job.kind) ?? job;
+      }
+      if (!mounted) return;
+      setState(() => _fetchMessage = job.message);
+      await _load();
+    } on IngestException catch (e) {
+      if (mounted) setState(() => _fetchMessage = e.message);
+    } catch (e) {
+      if (mounted) setState(() => _fetchMessage = '$e');
+    } finally {
+      if (mounted) setState(() => _fetching = false);
+    }
+  }
+
+  Widget _fetchButton(BuildContext context, CompanyFinancials? data) {
+    final c = context.colors;
+    final t = context.typo;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Tooltip(
+          message:
+              '이 기업의 정기보고서만 DART에서 찾아 연결·별도 재무제표를 받습니다 '
+              '(보고서당 호출 2회). 전체 재무 수집이 돌고 있으면 그 작업이 끝난 뒤에 할 수 있습니다.',
+          child: AppButton(
+            label: _fetching ? '받는 중…' : '이 기업 재무 지금 받기',
+            onPressed: _fetching ? null : _fetchCompany,
+          ),
+        ),
+        if (_fetchMessage != null) ...[
+          const SizedBox(height: AppSpace.xs),
+          Text(_fetchMessage!, style: t.body(12, color: c.textMuted)),
+        ],
+      ],
+    );
   }
 
   Future<void> _load() async {
@@ -76,6 +128,14 @@ class _FinancialSectionState extends State<FinancialSection> {
             : '정기보고서 ${formatCount(data.filingCount)}건 중 '
                   '${formatCount(data.pendingFilingCount)}건을 아직 받지 않았습니다.',
         style: t.body(13, color: c.textMuted),
+      );
+      body = Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          body,
+          const SizedBox(height: AppSpace.sm),
+          _fetchButton(context, data),
+        ],
       );
     } else {
       body = _content(context, FinancialView(data));
@@ -154,12 +214,15 @@ class _FinancialSectionState extends State<FinancialSection> {
           )
         else
           _TrendCharts(points: points),
-        if (data.pendingFilingCount > 0) ...[
+        if (data.pendingFilingCount > 0 || data.filingCount == 0) ...[
           const SizedBox(height: AppSpace.sm),
-          Text(
-            '정기보고서 ${formatCount(data.pendingFilingCount)}건은 아직 받지 않았습니다.',
-            style: t.body(12, color: c.textMuted),
-          ),
+          if (data.pendingFilingCount > 0)
+            Text(
+              '정기보고서 ${formatCount(data.pendingFilingCount)}건은 아직 받지 않았습니다.',
+              style: t.body(12, color: c.textMuted),
+            ),
+          const SizedBox(height: AppSpace.xs),
+          _fetchButton(context, data),
         ],
         const SizedBox(height: AppSpace.lg),
         _Sources(view: view, latest: latest),
