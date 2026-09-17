@@ -9,6 +9,7 @@ import '../formatters.dart';
 class IndustryDistribution extends StatelessWidget {
   const IndustryDistribution({
     super.key,
+    required this.revision,
     required this.sections,
     required this.divisions,
     required this.selectedSection,
@@ -20,6 +21,8 @@ class IndustryDistribution extends StatelessWidget {
   /// 범례에 이름까지 보여줄 상위 대분류 수.
   static const _legendCount = 8;
 
+  /// 업종명에 쓴 KSIC 차수 판정.
+  final IndustryRevisionCheck? revision;
   final List<FacetCount> sections;
   final List<FacetCount> divisions;
   final String? selectedSection;
@@ -43,6 +46,10 @@ class IndustryDistribution extends StatelessWidget {
             style: context.typo.body(12, color: c.textMuted),
           ),
         ),
+        if (revision != null) ...[
+          const SizedBox(height: AppSpace.xs),
+          _RevisionNote(check: revision!),
+        ],
         const SizedBox(height: 10),
         SizedBox(
           height: 44,
@@ -304,6 +311,32 @@ class _DivisionItem extends StatelessWidget {
           const SizedBox(width: 10),
           Text(formatCount(facet.count), style: t.numeric(12.5)),
         ],
+      ),
+    );
+  }
+}
+
+/// 업종명이 KSIC 몇 차 기준인지와 판정 근거.
+class _RevisionNote extends StatelessWidget {
+  const _RevisionNote({required this.check});
+
+  final IndustryRevisionCheck check;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final basis = check.confirmed
+        ? '확인됨 (이 차수에만 있는 코드 ${check.evidenceCodes.join(', ')} 사용)'
+        : '추정 — 차수를 가를 코드가 아직 없어 최신 차수 적용';
+    final unmatched = check.unmatchedCodes.isEmpty
+        ? ''
+        : ' · 분류표에 없는 코드 ${check.unmatchedCodes.length}개: '
+              '${check.unmatchedCodes.take(5).join(', ')}';
+    return Text(
+      '업종명 기준 ${check.revision} · $basis$unmatched',
+      style: context.typo.body(
+        12,
+        color: check.unmatchedCodes.isEmpty ? c.textMuted : c.accent,
       ),
     );
   }

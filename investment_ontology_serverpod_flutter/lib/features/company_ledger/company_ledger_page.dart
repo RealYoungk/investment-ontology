@@ -220,6 +220,7 @@ class _CompanyLedgerPageState extends State<CompanyLedgerPage> {
               children: [
                 IngestStatusBar(
                   lastJob: overview?.lastJob,
+                  nextFullRefreshAt: overview?.nextFullRefreshAt,
                   onFinished: _refreshAll,
                 ),
                 const SizedBox(height: 28),
@@ -234,6 +235,7 @@ class _CompanyLedgerPageState extends State<CompanyLedgerPage> {
                 const SizedBox(height: AppSpace.xxl),
                 if (overview != null && overview.bySection.isNotEmpty)
                   IndustryDistribution(
+                    revision: overview.industryRevision,
                     sections: overview.bySection,
                     divisions: _divisions,
                     selectedSection: _section,

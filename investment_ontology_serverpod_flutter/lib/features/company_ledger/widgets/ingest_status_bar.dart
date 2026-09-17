@@ -13,10 +13,14 @@ class IngestStatusBar extends StatefulWidget {
   const IngestStatusBar({
     super.key,
     required this.lastJob,
+    required this.nextFullRefreshAt,
     required this.onFinished,
   });
 
   final IngestJob? lastJob;
+
+  /// 이 시각 이후 첫 수집은 서버가 자동으로 전체 갱신한다. null이면 다음 수집이 전체 갱신.
+  final DateTime? nextFullRefreshAt;
 
   /// 수집이 끝났을 때 (목록·집계 새로고침용).
   final Future<void> Function() onFinished;
@@ -140,6 +144,16 @@ class _IngestStatusBarState extends State<IngestStatusBar> {
                 _statusText(job),
                 style: context.typo.body(13, color: c.textSecondary),
               ),
+              if (!_running)
+                Tooltip(
+                  message:
+                      '평소에는 DART 변경일이 바뀐 기업만 받고, 30일마다 전체를 다시 받아 '
+                      '변경일에 반영되지 않은 변경을 바로잡습니다.',
+                  child: Text(
+                    _fullRefreshText(widget.nextFullRefreshAt),
+                    style: context.typo.body(12.5, color: c.textMuted),
+                  ),
+                ),
               if (_running)
                 AppButton(
                   label: '취소',
@@ -152,9 +166,10 @@ class _IngestStatusBarState extends State<IngestStatusBar> {
                   variant: AppButtonVariant.primary,
                   onPressed: _starting ? null : _start,
                 ),
-                if (job?.status == IngestStatus.succeeded)
+                if (job?.status == IngestStatus.succeeded &&
+                    widget.nextFullRefreshAt != null)
                   Tooltip(
-                    message: '변경일과 관계없이 모든 기업의 개황을 다시 받습니다 (호출 약 4,000건).',
+                    message: '변경일과 관계없이 모든 기업의 개황을 지금 다시 받습니다 (호출 약 4,000건).',
                     child: AppButton(
                       label: '전체 다시 받기',
                       variant: AppButtonVariant.link,
@@ -186,6 +201,13 @@ class _IngestStatusBarState extends State<IngestStatusBar> {
     };
   }
 
+  static String _fullRefreshText(DateTime? next) {
+    if (next == null || !next.isAfter(DateTime.now())) {
+      return '다음 수집은 전체 갱신';
+    }
+    return '전체 갱신 예정 ${formatDate(next.toLocal())} 이후';
+  }
+
   static String _statusText(IngestJob? job) {
     if (job == null) return '아직 수집한 적이 없습니다';
     final counts =
@@ -193,7 +215,8 @@ class _IngestStatusBarState extends State<IngestStatusBar> {
         '갱신 ${formatCount(job.updated)} · 실패 ${formatCount(job.failed)} · '
         'API ${formatCount(job.apiCalls)}회';
     return switch (job.status) {
-      IngestStatus.running => '수집 중 — $counts',
+      IngestStatus.running =>
+        '${job.fullRefresh ? '전체 갱신' : '변경분 수집'} 중 — $counts',
       IngestStatus.succeeded =>
         '최근 수집 ${formatDateTime(job.finishedAt ?? job.startedAt)} — $counts',
       IngestStatus.failed => '수집 실패 — ${job.message ?? ''}',
