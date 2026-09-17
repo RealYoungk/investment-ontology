@@ -26,6 +26,12 @@ final ledgerBrand = AppBrand(
     marketKospi: Color(0xFF17140F),
     marketKosdaq: Color(0xFFC8401A),
     marketKonex: Color(0xFF8A7B5E),
+    // 표면 #FAF7F0 기준 dataviz 검증 통과 (명도·채도·색각 구분·대비).
+    chartSeries1: Color(0xFF2F6DA8),
+    chartSeries2: Color(0xFFC8401A),
+    chartGrid: Color(0xFFE3DCCD),
+    chartTile: Color(0xFFDCE5EE),
+    chartTileHover: Color(0xFFBFD1E3),
   ),
   typography: AppTypography(
     displayBase: GoogleFonts.nanumMyeongjo(

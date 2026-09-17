@@ -21,6 +21,11 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.marketKospi,
     required this.marketKosdaq,
     required this.marketKonex,
+    required this.chartSeries1,
+    required this.chartSeries2,
+    required this.chartGrid,
+    required this.chartTile,
+    required this.chartTileHover,
   });
 
   /// 페이지 바탕.
@@ -56,6 +61,18 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color marketKosdaq;
   final Color marketKonex;
 
+  /// 차트 범주색. 순서대로 쓰고 순위에 따라 바꾸지 않는다.
+  /// 브랜드를 바꾸면 dataviz 검증기로 표면색 대비·색각 구분을 다시 확인한다.
+  final Color chartSeries1;
+  final Color chartSeries2;
+
+  /// 차트 격자·축 (표면에서 한 단계 떨어진 회색).
+  final Color chartGrid;
+
+  /// 트리맵 타일과 오버 상태 (한 색상의 옅은 단계).
+  final Color chartTile;
+  final Color chartTileHover;
+
   @override
   AppColors copyWith() => this;
 
@@ -81,6 +98,11 @@ class AppColors extends ThemeExtension<AppColors> {
       marketKospi: l(marketKospi, other.marketKospi),
       marketKosdaq: l(marketKosdaq, other.marketKosdaq),
       marketKonex: l(marketKonex, other.marketKonex),
+      chartSeries1: l(chartSeries1, other.chartSeries1),
+      chartSeries2: l(chartSeries2, other.chartSeries2),
+      chartGrid: l(chartGrid, other.chartGrid),
+      chartTile: l(chartTile, other.chartTile),
+      chartTileHover: l(chartTileHover, other.chartTileHover),
     );
   }
 }
