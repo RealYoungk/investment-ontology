@@ -1,0 +1,7 @@
+# Serverpod 생성 코드 — GitHub PR diff에서 기본 접힘
+investment_ontology_serverpod_server/lib/src/generated/** linguist-generated=true
+investment_ontology_serverpod_server/test/integration/test_tools/** linguist-generated=true
+investment_ontology_serverpod_server/migrations/** linguist-generated=true
+investment_ontology_serverpod_client/lib/src/protocol/** linguist-generated=true
+investment_ontology_serverpod_server/assets/ksic/*.json linguist-generated=true
+pubspec.lock linguist-generated=true

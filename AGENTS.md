@@ -47,4 +47,19 @@ If the user asks you to test the app:
 
 The app is launched from `investment_ontology_serverpod_flutter/lib/driver.dart`, which starts the Flutter driver extension with text entry emulation turned off so the app stays usable by hand. To let the driver type, set `enableTextEntryEmulation: true` there and `hot_restart` the app.
 
-IMPORTANT: After building the first version of the app, update this AGENTS.md file with information about the app we're building. KEEP the info about the MCP server and the checklist. Remove this paragraph.
+## About this app: 투자 온톨로지
+
+A single-user tool for building an investment ontology of Korean listed companies and exploring it visually (Flutter Web). Design doc: `docs/ontology-design.md`.
+
+Principles: numbers come only from primary sources (DART OpenAPI, KRX); every fact carries a `Source`; AI is used only to extract relations from text, with evidence and human review.
+
+Current state (phase 1 — listed-company master):
+
+- Server code lives in `investment_ontology_serverpod_server/lib/src/ontology/`:
+  - `models/` — `Company` (key: DART `corpCode`), `Industry` (KSIC 10), `Source`, `IngestJob`, view DTOs.
+  - `dart/dart_client.dart` — DART OpenAPI client (`corpCode.xml`, `company.json`), throttled to ~5 calls/s.
+  - `ingest/` — `CompanyMasterSync` (run as `CompanyMasterFutureCall`), `KsicSeeder` (loads `assets/ksic/ksic_10.json`).
+  - `endpoints/` — `company` (overview, divisions, list, detail) and `ingest` (startCompanyMaster, cancel, latest).
+- The DART API key is read from `session.passwords['dartApiKey']` (`config/passwords.yaml` under `shared:`, or `SERVERPOD_PASSWORD_dartApiKey`).
+- No authentication: local single-user use only. Add auth before deploying anywhere public.
+- Flutter UI: `investment_ontology_serverpod_flutter/lib/screens/ledger/` ("상장사 원장"), theme in `lib/theme/ledger_theme.dart`.
