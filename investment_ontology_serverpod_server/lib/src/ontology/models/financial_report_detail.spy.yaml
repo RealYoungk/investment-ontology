@@ -1,0 +1,8 @@
+### 재무 보고서 원문 표: 보고서의 모든 사실과 같은 기간의 정정 이력.
+class: FinancialReportDetail
+fields:
+  report: FinancialReport
+  source: Source?
+  facts: List<FinancialFact>
+  ### 같은 기업·기간·연결구분의 보고서 (접수번호 순, 이 보고서 포함)
+  history: List<FinancialReport>

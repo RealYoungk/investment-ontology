@@ -1,0 +1,11 @@
+### 화면에 쓰는 핵심 계정 값 하나. 원천 사실(FinancialFact)의 값을 그대로 옮긴다.
+class: FinancialLine
+fields:
+  ### 화면 키 (revenue, operatingIncome, netIncome, ...)
+  key: String
+  factId: int
+  statement: FinancialStatementKind
+  accountId: String?
+  accountName: String
+  amount: BigInt?
+  cumulativeAmount: BigInt?

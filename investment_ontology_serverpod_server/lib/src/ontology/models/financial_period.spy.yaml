@@ -1,0 +1,14 @@
+### 한 보고 기간(사업연도 × 보고서 코드)의 현재 보고서와 핵심 계정.
+class: FinancialPeriod
+fields:
+  bsnsYear: int
+  reportCode: FinancialReportCode
+  reportId: int
+  rceptNo: String
+  reportName: String
+  receivedDate: DateTime?
+  ### 예: "제 57 기", "제 58 기 반기"
+  periodName: String?
+  ### 정정으로 대체된 이전 보고서 수
+  supersededCount: int
+  lines: List<FinancialLine>

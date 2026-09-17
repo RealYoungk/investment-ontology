@@ -1,0 +1,11 @@
+### 시가총액 트리맵 노드: 업종(대·중분류) 또는 기업.
+class: MarketCapNode
+fields:
+  ### KSIC 코드 또는 기업 corpCode
+  code: String
+  name: String
+  marketCap: BigInt
+  companyCount: int
+  ### 기업 노드의 시장
+  market: Market?
+  children: List<MarketCapNode>
