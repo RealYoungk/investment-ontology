@@ -29,7 +29,10 @@ jobs:
         run: flutter pub get
 
       - name: Install Serverpod CLI
-        run: dart install serverpod_cli $VERSION
+        # `dart install`은 PATH에 없는 폴더에 설치하므로 설치 경로를 PATH에 추가한다.
+        run: |
+          dart install serverpod_cli $VERSION | tee install.log
+          dirname "$(sed -n 's/^Installed: //p' install.log)" >> "$GITHUB_PATH"
 
       - name: Run Serverpod generator
         working-directory: investment_ontology_serverpod_server
