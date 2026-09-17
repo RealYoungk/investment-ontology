@@ -3,9 +3,11 @@ import 'package:serverpod/serverpod.dart';
 import '../../generated/future_calls.dart';
 import '../../generated/protocol.dart';
 import '../dart/dart_api_key.dart';
+import '../data_go_kr/data_go_kr_service_key.dart';
 import '../ingest/company_master_sync.dart';
 import '../ingest/financial_facts_sync.dart';
 import '../ingest/ingest_jobs.dart';
+import '../ingest/market_snapshot_sync.dart';
 
 /// 외부 원천 수집 제어.
 ///
@@ -54,6 +56,26 @@ class IngestEndpoint extends Endpoint {
     return job;
   }
 
+  /// 시세 수집 시작. 이미 실행 중이면 그 작업을 돌려준다.
+  ///
+  /// 받지 않은 평일 기준일을 최신순으로 받고(처음에는 3년), 가장 최근 기준일의
+  /// 상장종목 정보로 종목을 기업에 잇는다.
+  Future<IngestJob> startMarketSnapshot(Session session) async {
+    if (DataGoKrServiceKey.read(session) == null) {
+      throw IngestException(
+        message: DataGoKrServiceKey.secret.missingMessage('공공데이터포털 서비스'),
+      );
+    }
+    final running = await IngestJobs.running(session, MarketSnapshotSync.kind);
+    if (running != null) return running;
+    final job = (await IngestJobs.start(session, MarketSnapshotSync.kind))!;
+    await session.serverpod.futureCalls
+        .callWithDelay(Duration.zero)
+        .marketSnapshot
+        .run(job.id!);
+    return job;
+  }
+
   Future<IngestJob?> cancel(Session session, int jobId) async {
     final job = await IngestJob.db.findById(session, jobId);
     if (job == null || job.status != IngestStatus.running) return job;
@@ -70,17 +92,14 @@ class IngestEndpoint extends Endpoint {
   Future<IngestJob?> latest(Session session) =>
       IngestJobs.latest(session, CompanyMasterSync.kind);
 
-  /// [kind]의 최근 작업 (`company_master`, `financial_facts`).
+  /// [kind]의 최근 작업 (`company_master`, `financial_facts`, `market_snapshot`).
   Future<IngestJob?> latestOf(Session session, String kind) =>
       IngestJobs.latest(session, kind);
 
   static void _requireDartKey(Session session) {
     if (DartApiKey.read(session) == null) {
       throw IngestException(
-        message:
-            'DART API 키가 없습니다. 환경변수 ${DartApiKey.envName}를 설정하거나 '
-            'config/passwords.yaml의 shared: 아래에 dartApiKey를 추가하고 '
-            '서버를 재시작하세요.',
+        message: DartApiKey.secret.missingMessage('DART API'),
       );
     }
   }
