@@ -29,6 +29,25 @@ void main() {
       expect(DartValues.month('0'), isNull);
       expect(DartValues.month(null), isNull);
     });
+
+    test('amount: 원 단위 정수만 BigInt로', () {
+      expect(
+        DartValues.amount('566942110000000'),
+        BigInt.parse('566942110000000'),
+      );
+      expect(DartValues.amount('-1,234'), BigInt.from(-1234));
+      expect(DartValues.amount('0'), BigInt.zero);
+      expect(DartValues.amount(''), isNull);
+      expect(DartValues.amount('-'), isNull);
+      expect(DartValues.amount('12.5'), isNull, reason: '소수는 추측하지 않는다');
+      expect(DartValues.amount(null), isNull);
+      expect(DartValues.isInvalidAmount('12.5'), isTrue);
+      expect(DartValues.isInvalidAmount(''), isFalse);
+    });
+
+    test('formatYmd', () {
+      expect(DartValues.formatYmd(DateTime.utc(2026, 3, 1)), '20260301');
+    });
   });
 
   group('CompanyChanges.diff', () {

@@ -3,6 +3,7 @@ import 'package:serverpod/serverpod.dart';
 import '../../generated/protocol.dart';
 import '../dart/dart_client.dart';
 import '../dart/dart_values.dart';
+import 'api_call_budget.dart';
 import 'company_changes.dart';
 import 'ksic_revision.dart';
 import 'ksic_seeder.dart';
@@ -45,6 +46,7 @@ class CompanyMasterSync {
   final Session session;
   final DartClient dart;
   final int jobId;
+  late final _meter = ApiCallMeter(ApiProvider.dart, () => dart.calls);
 
   Future<void> run({required bool force}) async {
     var job = (await IngestJob.db.findById(session, jobId))!;
@@ -101,6 +103,7 @@ class CompanyMasterSync {
         }
         processed++;
         if (processed % _progressEvery == 0) {
+          await _meter.flush(session);
           job = await _save(
             job.copyWith(
               processed: processed,
@@ -137,6 +140,7 @@ class CompanyMasterSync {
       );
       await fail(session, jobId, '$e', apiCalls: dart.calls);
     } finally {
+      await _meter.flush(session);
       dart.close();
       await KsicRevision.invalidate(session);
     }

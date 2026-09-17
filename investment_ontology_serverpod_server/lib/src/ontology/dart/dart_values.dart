@@ -24,9 +24,26 @@ abstract final class DartValues {
     return date;
   }
 
+  /// UTC 자정 날짜 → `YYYYMMDD`.
+  static String formatYmd(DateTime date) =>
+      '${date.year.toString().padLeft(4, '0')}'
+      '${date.month.toString().padLeft(2, '0')}'
+      '${date.day.toString().padLeft(2, '0')}';
+
   /// 결산월 `12` → 12. 1~12가 아니면 null.
   static int? month(Object? value) {
     final m = int.tryParse(text(value) ?? '');
     return (m != null && m >= 1 && m <= 12) ? m : null;
   }
+
+  /// 원 단위 금액 `"-1,234"` → BigInt. 정수가 아니거나 비어 있으면 null.
+  static BigInt? amount(Object? value) {
+    final v = text(value)?.replaceAll(',', '');
+    if (v == null || !RegExp(r'^-?\d+$').hasMatch(v)) return null;
+    return BigInt.parse(v);
+  }
+
+  /// 원천 값이 있는데 [amount]로 바꿀 수 없는지. 정규화에서 버려진 값을 세는 데 쓴다.
+  static bool isInvalidAmount(Object? value) =>
+      text(value) != null && amount(value) == null;
 }

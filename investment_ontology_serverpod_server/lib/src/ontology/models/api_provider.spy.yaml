@@ -1,0 +1,7 @@
+### 호출 한도를 관리하는 외부 API 제공자.
+enum: ApiProvider
+values:
+  ### DART OpenAPI (키당 일일 약 20,000건)
+  - dart
+  ### 공공데이터포털 (서비스별 일일 한도, 개발계정 10,000건)
+  - dataGoKr
