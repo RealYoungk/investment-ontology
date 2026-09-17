@@ -6,8 +6,10 @@ import 'package:investment_ontology_serverpod_client/investment_ontology_serverp
 import '../../client.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
+import '../market_map/market_cap_treemap_section.dart';
 import 'widgets/company_card.dart';
 import 'widgets/company_table.dart';
+import 'widgets/data_sync_panel.dart';
 import 'widgets/industry_distribution.dart';
 import 'widgets/ingest_status_bar.dart';
 import 'widgets/market_summary.dart';
@@ -38,6 +40,9 @@ class _CompanyLedgerPageState extends State<CompanyLedgerPage> {
   String _query = '';
   int _offset = 0;
   String? _selected;
+
+  /// 재무·시세 수집이 끝날 때마다 올려 트리맵·기업 카드를 다시 불러온다.
+  int _dataVersion = 0;
 
   final _searchController = TextEditingController();
   Timer? _debounce;
@@ -198,7 +203,7 @@ class _CompanyLedgerPageState extends State<CompanyLedgerPage> {
                 minWidth: _detailWidth,
                 maxWidth: _detailWidth,
                 child: CompanyCard(
-                  key: ValueKey(selected),
+                  key: ValueKey('$selected-$_dataVersion'),
                   corpCode: selected,
                   onClose: () => setState(() => _selected = null),
                 ),
@@ -222,6 +227,9 @@ class _CompanyLedgerPageState extends State<CompanyLedgerPage> {
                   lastJob: overview?.lastJob,
                   nextFullRefreshAt: overview?.nextFullRefreshAt,
                   onFinished: _refreshAll,
+                ),
+                DataSyncPanel(
+                  onFinished: () async => setState(() => _dataVersion++),
                 ),
                 const SizedBox(height: 28),
                 MarketSummary(
@@ -249,6 +257,13 @@ class _CompanyLedgerPageState extends State<CompanyLedgerPage> {
                       () => _division = _division == code ? null : code,
                     ),
                   ),
+                const SizedBox(height: AppSpace.xxl),
+                MarketCapTreemapSection(
+                  key: ValueKey('treemap-$_dataVersion'),
+                  market: _market,
+                  onSelectCompany: (corpCode) =>
+                      _openCompany(corpCode, wide: wide),
+                ),
                 const SizedBox(height: 28),
                 _buildToolbar(),
                 const SizedBox(height: AppSpace.md),
