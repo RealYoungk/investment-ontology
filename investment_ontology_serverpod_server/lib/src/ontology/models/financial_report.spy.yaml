@@ -1,0 +1,25 @@
+### 재무 보고서: 공시 1건의 연결 또는 별도 재무제표 한 벌. FinancialFact를 묶는다.
+### 정정공시로 대체되면 지우지 않고 supersededBy로 새 보고서를 가리킨다.
+class: FinancialReport
+table: financial_report
+fields:
+  companyId: int, relation(parent=company, onDelete=Restrict)
+  ### 재무 API 응답의 접수번호. 이 숫자들이 실린 공시
+  rceptNo: String
+  fsDiv: FsDiv
+  bsnsYear: int
+  reportCode: FinancialReportCode
+  reportName: String
+  receivedDate: DateTime?
+  factCount: int
+  ### 원천 값이 있었지만 원 단위 정수가 아니어서 비워 둔 금액 수
+  invalidAmountCount: int, default=0
+  sourceId: int, relation(parent=source, onDelete=Restrict)
+  supersededById: int?, relation(parent=financial_report, onDelete=SetNull)
+  fetchedAt: DateTime
+indexes:
+  financial_report_rcept_no_idx:
+    fields: rceptNo, fsDiv
+    unique: true
+  financial_report_period_idx:
+    fields: companyId, bsnsYear, reportCode, fsDiv

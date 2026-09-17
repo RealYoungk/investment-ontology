@@ -1,0 +1,40 @@
+### 재무 수치 한 칸. DART fnlttSinglAcntAll 응답 한 행의 금액 열을 모두 담는다.
+### 금액은 원 단위 정수. 비교 기간 값(전기·전전기)도 같은 공시에 실린 값이다.
+class: FinancialFact
+table: financial_fact
+fields:
+  reportId: int, relation(parent=financial_report, onDelete=Restrict)
+  # 조회용으로 보고서 속성을 함께 둔다.
+  companyId: int
+  bsnsYear: int
+  reportCode: FinancialReportCode
+  fsDiv: FsDiv
+  statement: FinancialStatementKind
+  ### XBRL 계정 ID (예: ifrs-full_Revenue). 표준계정코드를 쓰지 않은 계정은 null
+  accountId: String?
+  accountName: String
+  ### 자본변동표의 자본 구성요소 등 (원문 그대로)
+  accountDetail: String?
+  ord: int?
+  ### 당기 (thstrm_nm / thstrm_amount / thstrm_add_amount)
+  periodName: String?
+  amount: BigInt?
+  cumulativeAmount: BigInt?
+  ### 전기 (frmtrm_nm / frmtrm_amount / frmtrm_add_amount)
+  priorPeriodName: String?
+  priorAmount: BigInt?
+  priorCumulativeAmount: BigInt?
+  ### 전기 동분기 (frmtrm_q_nm / frmtrm_q_amount)
+  priorQuarterName: String?
+  priorQuarterAmount: BigInt?
+  ### 전전기 (bfefrmtrm_nm / bfefrmtrm_amount)
+  beforePriorPeriodName: String?
+  beforePriorAmount: BigInt?
+  currency: String?
+  sourceId: int, relation(parent=source, onDelete=Restrict)
+  supersededById: int?, relation(parent=financial_fact, onDelete=SetNull)
+indexes:
+  financial_fact_series_idx:
+    fields: companyId, statement, accountId, bsnsYear, reportCode
+  financial_fact_report_idx:
+    fields: reportId
