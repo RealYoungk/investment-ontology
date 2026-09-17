@@ -1,0 +1,6 @@
+class: Overview
+fields:
+  totalListed: int
+  byMarket: List<FacetCount>
+  bySection: List<FacetCount>
+  lastJob: IngestJob?

@@ -1,0 +1,6 @@
+### 분류별 기업 수.
+class: FacetCount
+fields:
+  code: String
+  name: String
+  count: int

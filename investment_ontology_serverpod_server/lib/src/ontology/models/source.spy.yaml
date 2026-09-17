@@ -1,0 +1,11 @@
+### 사실(수치·관계)의 출처. 출처 없는 사실은 저장하지 않는다.
+class: Source
+table: source
+fields:
+  kind: SourceKind
+  ### 예: "DART 기업개황 (company.json)"
+  title: String
+  ### 공시 접수번호, corp_code 등 원천에서의 식별자
+  reference: String?
+  url: String?
+  retrievedAt: DateTime

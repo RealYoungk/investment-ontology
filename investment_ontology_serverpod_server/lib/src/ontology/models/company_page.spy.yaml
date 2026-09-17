@@ -1,0 +1,4 @@
+class: CompanyPage
+fields:
+  items: List<CompanyListItem>
+  total: int

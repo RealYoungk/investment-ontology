@@ -1,0 +1,14 @@
+### 목록 화면용 기업 요약.
+class: CompanyListItem
+fields:
+  corpCode: String
+  name: String
+  stockCode: String?
+  market: Market?
+  industryCode: String?
+  industryName: String?
+  sectionCode: String?
+  sectionName: String?
+  ceoName: String?
+  fiscalMonth: int?
+  establishedDate: String?

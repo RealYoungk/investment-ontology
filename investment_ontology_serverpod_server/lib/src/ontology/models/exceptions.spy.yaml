@@ -1,0 +1,4 @@
+### 사용자에게 보여줄 수 있는 수집 오류.
+exception: IngestException
+fields:
+  message: String

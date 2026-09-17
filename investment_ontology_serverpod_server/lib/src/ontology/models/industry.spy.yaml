@@ -1,0 +1,16 @@
+### 한국표준산업분류(KSIC) 항목.
+class: Industry
+table: industry
+fields:
+  ### A~U (대분류) 또는 2~5자리 숫자
+  code: String
+  name: String
+  ### 1 대분류, 2 중분류, 3 소분류, 4 세분류, 5 세세분류
+  level: int
+  parentCode: String?
+  ### 예: "KSIC 10"
+  revision: String
+indexes:
+  industry_code_idx:
+    fields: code
+    unique: true

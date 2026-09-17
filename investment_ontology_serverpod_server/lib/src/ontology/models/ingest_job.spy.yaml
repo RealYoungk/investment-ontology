@@ -1,0 +1,18 @@
+### 외부 원천 수집 작업 기록.
+class: IngestJob
+table: ingest_job
+fields:
+  ### 예: "company_master"
+  kind: String
+  status: IngestStatus
+  startedAt: DateTime
+  finishedAt: DateTime?
+  total: int, default=0
+  processed: int, default=0
+  updated: int, default=0
+  failed: int, default=0
+  apiCalls: int, default=0
+  message: String?
+indexes:
+  ingest_job_kind_idx:
+    fields: kind, startedAt
