@@ -31,8 +31,15 @@ import 'ontology/models/company_list_item.dart' as _i0csqxj4;
 import 'ontology/models/company_page.dart' as _iaj9eyri;
 import 'ontology/models/company_sort.dart' as _ia2izjbq;
 import 'ontology/models/dart_corp_status.dart' as _ir49pw6i;
+import 'ontology/models/dart_filing.dart' as _itki3qdq;
 import 'ontology/models/exceptions.dart' as _iqc95j34;
 import 'ontology/models/facet_count.dart' as _iqbvehdv;
+import 'ontology/models/filing_fetch_status.dart' as _i167q75d;
+import 'ontology/models/financial_fact.dart' as _igykxm42;
+import 'ontology/models/financial_report.dart' as _i1qwjg2x;
+import 'ontology/models/financial_report_code.dart' as _idwohplt;
+import 'ontology/models/financial_statement_kind.dart' as _im4itn08;
+import 'ontology/models/fs_div.dart' as _i906z99z;
 import 'ontology/models/industry.dart' as _i3hzx3f1;
 import 'ontology/models/industry_revision_check.dart' as _i25uuckt;
 import 'ontology/models/ingest_job.dart' as _iay1heal;
@@ -51,8 +58,15 @@ export 'ontology/models/company_list_item.dart';
 export 'ontology/models/company_page.dart';
 export 'ontology/models/company_sort.dart';
 export 'ontology/models/dart_corp_status.dart';
+export 'ontology/models/dart_filing.dart';
 export 'ontology/models/exceptions.dart';
 export 'ontology/models/facet_count.dart';
+export 'ontology/models/filing_fetch_status.dart';
+export 'ontology/models/financial_fact.dart';
+export 'ontology/models/financial_report.dart';
+export 'ontology/models/financial_report_code.dart';
+export 'ontology/models/financial_statement_kind.dart';
+export 'ontology/models/fs_div.dart';
 export 'ontology/models/industry.dart';
 export 'ontology/models/industry_revision_check.dart';
 export 'ontology/models/ingest_job.dart';
@@ -487,6 +501,557 @@ class Protocol extends _is.DatabaseSerializationManager {
       managed: true,
     ),
     _isp.TableDefinition(
+      name: 'dart_filing',
+      dartName: 'DartFiling',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'rceptNo',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'corpCode',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'companyId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'reportName',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'receivedDate',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'bsnsYear',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'reportCode',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'protocol:FinancialReportCode?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'consolidatedStatus',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:FilingFetchStatus',
+        ),
+        _isp.ColumnDefinition(
+          name: 'separateStatus',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:FilingFetchStatus',
+        ),
+        _isp.ColumnDefinition(
+          name: 'attempts',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
+          name: 'lastError',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'discoveredAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: 'checkedAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'dart_filing_fk_0',
+          columns: ['companyId'],
+          referenceTable: 'company',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.setNull,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'dart_filing_rcept_no_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'rceptNo',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'dart_filing_company_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'companyId',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'bsnsYear',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'reportCode',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'dart_filing_received_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'receivedDate',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'financial_fact',
+      dartName: 'FinancialFact',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'reportId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'companyId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'bsnsYear',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'reportCode',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:FinancialReportCode',
+        ),
+        _isp.ColumnDefinition(
+          name: 'fsDiv',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:FsDiv',
+        ),
+        _isp.ColumnDefinition(
+          name: 'statement',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:FinancialStatementKind',
+        ),
+        _isp.ColumnDefinition(
+          name: 'accountId',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'accountName',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'accountDetail',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'ord',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'periodName',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'amount',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'BigInt?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'cumulativeAmount',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'BigInt?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'priorPeriodName',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'priorAmount',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'BigInt?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'priorCumulativeAmount',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'BigInt?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'priorQuarterName',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'priorQuarterAmount',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'BigInt?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'beforePriorPeriodName',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'beforePriorAmount',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'BigInt?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'currency',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'sourceId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'supersededById',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'financial_fact_fk_0',
+          columns: ['reportId'],
+          referenceTable: 'financial_report',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'financial_fact_fk_1',
+          columns: ['sourceId'],
+          referenceTable: 'source',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'financial_fact_fk_2',
+          columns: ['supersededById'],
+          referenceTable: 'financial_fact',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.setNull,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'financial_fact_series_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'companyId',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'statement',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'accountId',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'bsnsYear',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'reportCode',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'financial_fact_report_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'reportId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'financial_report',
+      dartName: 'FinancialReport',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'companyId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'rceptNo',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'fsDiv',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:FsDiv',
+        ),
+        _isp.ColumnDefinition(
+          name: 'bsnsYear',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'reportCode',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:FinancialReportCode',
+        ),
+        _isp.ColumnDefinition(
+          name: 'reportName',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'receivedDate',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'factCount',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'invalidAmountCount',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
+          name: 'sourceId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'supersededById',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'fetchedAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'financial_report_fk_0',
+          columns: ['companyId'],
+          referenceTable: 'company',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'financial_report_fk_1',
+          columns: ['sourceId'],
+          referenceTable: 'source',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'financial_report_fk_2',
+          columns: ['supersededById'],
+          referenceTable: 'financial_report',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.setNull,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'financial_report_rcept_no_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'rceptNo',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'fsDiv',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'financial_report_period_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'companyId',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'bsnsYear',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'reportCode',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'fsDiv',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
       name: 'industry',
       dartName: 'Industry',
       schema: 'public',
@@ -790,11 +1355,32 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _ir49pw6i.DartCorpStatus) {
       return _ir49pw6i.DartCorpStatus.fromJson(data) as T;
     }
+    if (t == _itki3qdq.DartFiling) {
+      return _itki3qdq.DartFiling.fromJson(data) as T;
+    }
     if (t == _iqc95j34.IngestException) {
       return _iqc95j34.IngestException.fromJson(data) as T;
     }
     if (t == _iqbvehdv.FacetCount) {
       return _iqbvehdv.FacetCount.fromJson(data) as T;
+    }
+    if (t == _i167q75d.FilingFetchStatus) {
+      return _i167q75d.FilingFetchStatus.fromJson(data) as T;
+    }
+    if (t == _igykxm42.FinancialFact) {
+      return _igykxm42.FinancialFact.fromJson(data) as T;
+    }
+    if (t == _i1qwjg2x.FinancialReport) {
+      return _i1qwjg2x.FinancialReport.fromJson(data) as T;
+    }
+    if (t == _idwohplt.FinancialReportCode) {
+      return _idwohplt.FinancialReportCode.fromJson(data) as T;
+    }
+    if (t == _im4itn08.FinancialStatementKind) {
+      return _im4itn08.FinancialStatementKind.fromJson(data) as T;
+    }
+    if (t == _i906z99z.FsDiv) {
+      return _i906z99z.FsDiv.fromJson(data) as T;
     }
     if (t == _i3hzx3f1.Industry) {
       return _i3hzx3f1.Industry.fromJson(data) as T;
@@ -860,12 +1446,42 @@ class Protocol extends _is.DatabaseSerializationManager {
       return (data != null ? _ir49pw6i.DartCorpStatus.fromJson(data) : null)
           as T;
     }
+    if (t == _is.getType<_itki3qdq.DartFiling?>()) {
+      return (data != null ? _itki3qdq.DartFiling.fromJson(data) : null) as T;
+    }
     if (t == _is.getType<_iqc95j34.IngestException?>()) {
       return (data != null ? _iqc95j34.IngestException.fromJson(data) : null)
           as T;
     }
     if (t == _is.getType<_iqbvehdv.FacetCount?>()) {
       return (data != null ? _iqbvehdv.FacetCount.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_i167q75d.FilingFetchStatus?>()) {
+      return (data != null ? _i167q75d.FilingFetchStatus.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_igykxm42.FinancialFact?>()) {
+      return (data != null ? _igykxm42.FinancialFact.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_i1qwjg2x.FinancialReport?>()) {
+      return (data != null ? _i1qwjg2x.FinancialReport.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_idwohplt.FinancialReportCode?>()) {
+      return (data != null
+              ? _idwohplt.FinancialReportCode.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _is.getType<_im4itn08.FinancialStatementKind?>()) {
+      return (data != null
+              ? _im4itn08.FinancialStatementKind.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _is.getType<_i906z99z.FsDiv?>()) {
+      return (data != null ? _i906z99z.FsDiv.fromJson(data) : null) as T;
     }
     if (t == _is.getType<_i3hzx3f1.Industry?>()) {
       return (data != null ? _i3hzx3f1.Industry.fromJson(data) : null) as T;
@@ -953,8 +1569,15 @@ class Protocol extends _is.DatabaseSerializationManager {
       _iaj9eyri.CompanyPage => 'CompanyPage',
       _ia2izjbq.CompanySort => 'CompanySort',
       _ir49pw6i.DartCorpStatus => 'DartCorpStatus',
+      _itki3qdq.DartFiling => 'DartFiling',
       _iqc95j34.IngestException => 'IngestException',
       _iqbvehdv.FacetCount => 'FacetCount',
+      _i167q75d.FilingFetchStatus => 'FilingFetchStatus',
+      _igykxm42.FinancialFact => 'FinancialFact',
+      _i1qwjg2x.FinancialReport => 'FinancialReport',
+      _idwohplt.FinancialReportCode => 'FinancialReportCode',
+      _im4itn08.FinancialStatementKind => 'FinancialStatementKind',
+      _i906z99z.FsDiv => 'FsDiv',
       _i3hzx3f1.Industry => 'Industry',
       _i25uuckt.IndustryRevisionCheck => 'IndustryRevisionCheck',
       _iay1heal.IngestJob => 'IngestJob',
@@ -1002,10 +1625,24 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'CompanySort';
       case _ir49pw6i.DartCorpStatus():
         return 'DartCorpStatus';
+      case _itki3qdq.DartFiling():
+        return 'DartFiling';
       case _iqc95j34.IngestException():
         return 'IngestException';
       case _iqbvehdv.FacetCount():
         return 'FacetCount';
+      case _i167q75d.FilingFetchStatus():
+        return 'FilingFetchStatus';
+      case _igykxm42.FinancialFact():
+        return 'FinancialFact';
+      case _i1qwjg2x.FinancialReport():
+        return 'FinancialReport';
+      case _idwohplt.FinancialReportCode():
+        return 'FinancialReportCode';
+      case _im4itn08.FinancialStatementKind():
+        return 'FinancialStatementKind';
+      case _i906z99z.FsDiv():
+        return 'FsDiv';
       case _i3hzx3f1.Industry():
         return 'Industry';
       case _i25uuckt.IndustryRevisionCheck():
@@ -1083,11 +1720,32 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (dataClassName == 'DartCorpStatus') {
       return deserialize<_ir49pw6i.DartCorpStatus>(data['data']);
     }
+    if (dataClassName == 'DartFiling') {
+      return deserialize<_itki3qdq.DartFiling>(data['data']);
+    }
     if (dataClassName == 'IngestException') {
       return deserialize<_iqc95j34.IngestException>(data['data']);
     }
     if (dataClassName == 'FacetCount') {
       return deserialize<_iqbvehdv.FacetCount>(data['data']);
+    }
+    if (dataClassName == 'FilingFetchStatus') {
+      return deserialize<_i167q75d.FilingFetchStatus>(data['data']);
+    }
+    if (dataClassName == 'FinancialFact') {
+      return deserialize<_igykxm42.FinancialFact>(data['data']);
+    }
+    if (dataClassName == 'FinancialReport') {
+      return deserialize<_i1qwjg2x.FinancialReport>(data['data']);
+    }
+    if (dataClassName == 'FinancialReportCode') {
+      return deserialize<_idwohplt.FinancialReportCode>(data['data']);
+    }
+    if (dataClassName == 'FinancialStatementKind') {
+      return deserialize<_im4itn08.FinancialStatementKind>(data['data']);
+    }
+    if (dataClassName == 'FsDiv') {
+      return deserialize<_i906z99z.FsDiv>(data['data']);
     }
     if (dataClassName == 'Industry') {
       return deserialize<_i3hzx3f1.Industry>(data['data']);
@@ -1168,6 +1826,12 @@ class Protocol extends _is.DatabaseSerializationManager {
         return _isfozywu.CompanyChange.t;
       case _ir49pw6i.DartCorpStatus:
         return _ir49pw6i.DartCorpStatus.t;
+      case _itki3qdq.DartFiling:
+        return _itki3qdq.DartFiling.t;
+      case _igykxm42.FinancialFact:
+        return _igykxm42.FinancialFact.t;
+      case _i1qwjg2x.FinancialReport:
+        return _i1qwjg2x.FinancialReport.t;
       case _i3hzx3f1.Industry:
         return _i3hzx3f1.Industry.t;
       case _iay1heal.IngestJob:

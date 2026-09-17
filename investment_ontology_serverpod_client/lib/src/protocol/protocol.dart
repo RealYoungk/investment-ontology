@@ -28,8 +28,15 @@ import 'ontology/models/company_list_item.dart' as _i0csqxj4;
 import 'ontology/models/company_page.dart' as _iaj9eyri;
 import 'ontology/models/company_sort.dart' as _ia2izjbq;
 import 'ontology/models/dart_corp_status.dart' as _ir49pw6i;
+import 'ontology/models/dart_filing.dart' as _itki3qdq;
 import 'ontology/models/exceptions.dart' as _iqc95j34;
 import 'ontology/models/facet_count.dart' as _iqbvehdv;
+import 'ontology/models/filing_fetch_status.dart' as _i167q75d;
+import 'ontology/models/financial_fact.dart' as _igykxm42;
+import 'ontology/models/financial_report.dart' as _i1qwjg2x;
+import 'ontology/models/financial_report_code.dart' as _idwohplt;
+import 'ontology/models/financial_statement_kind.dart' as _im4itn08;
+import 'ontology/models/fs_div.dart' as _i906z99z;
 import 'ontology/models/industry.dart' as _i3hzx3f1;
 import 'ontology/models/industry_revision_check.dart' as _i25uuckt;
 import 'ontology/models/ingest_job.dart' as _iay1heal;
@@ -48,8 +55,15 @@ export 'ontology/models/company_list_item.dart';
 export 'ontology/models/company_page.dart';
 export 'ontology/models/company_sort.dart';
 export 'ontology/models/dart_corp_status.dart';
+export 'ontology/models/dart_filing.dart';
 export 'ontology/models/exceptions.dart';
 export 'ontology/models/facet_count.dart';
+export 'ontology/models/filing_fetch_status.dart';
+export 'ontology/models/financial_fact.dart';
+export 'ontology/models/financial_report.dart';
+export 'ontology/models/financial_report_code.dart';
+export 'ontology/models/financial_statement_kind.dart';
+export 'ontology/models/fs_div.dart';
 export 'ontology/models/industry.dart';
 export 'ontology/models/industry_revision_check.dart';
 export 'ontology/models/ingest_job.dart';
@@ -124,11 +138,32 @@ class Protocol extends _isc.SerializationManager {
     if (t == _ir49pw6i.DartCorpStatus) {
       return _ir49pw6i.DartCorpStatus.fromJson(data) as T;
     }
+    if (t == _itki3qdq.DartFiling) {
+      return _itki3qdq.DartFiling.fromJson(data) as T;
+    }
     if (t == _iqc95j34.IngestException) {
       return _iqc95j34.IngestException.fromJson(data) as T;
     }
     if (t == _iqbvehdv.FacetCount) {
       return _iqbvehdv.FacetCount.fromJson(data) as T;
+    }
+    if (t == _i167q75d.FilingFetchStatus) {
+      return _i167q75d.FilingFetchStatus.fromJson(data) as T;
+    }
+    if (t == _igykxm42.FinancialFact) {
+      return _igykxm42.FinancialFact.fromJson(data) as T;
+    }
+    if (t == _i1qwjg2x.FinancialReport) {
+      return _i1qwjg2x.FinancialReport.fromJson(data) as T;
+    }
+    if (t == _idwohplt.FinancialReportCode) {
+      return _idwohplt.FinancialReportCode.fromJson(data) as T;
+    }
+    if (t == _im4itn08.FinancialStatementKind) {
+      return _im4itn08.FinancialStatementKind.fromJson(data) as T;
+    }
+    if (t == _i906z99z.FsDiv) {
+      return _i906z99z.FsDiv.fromJson(data) as T;
     }
     if (t == _i3hzx3f1.Industry) {
       return _i3hzx3f1.Industry.fromJson(data) as T;
@@ -188,12 +223,42 @@ class Protocol extends _isc.SerializationManager {
       return (data != null ? _ir49pw6i.DartCorpStatus.fromJson(data) : null)
           as T;
     }
+    if (t == _isc.getType<_itki3qdq.DartFiling?>()) {
+      return (data != null ? _itki3qdq.DartFiling.fromJson(data) : null) as T;
+    }
     if (t == _isc.getType<_iqc95j34.IngestException?>()) {
       return (data != null ? _iqc95j34.IngestException.fromJson(data) : null)
           as T;
     }
     if (t == _isc.getType<_iqbvehdv.FacetCount?>()) {
       return (data != null ? _iqbvehdv.FacetCount.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_i167q75d.FilingFetchStatus?>()) {
+      return (data != null ? _i167q75d.FilingFetchStatus.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_igykxm42.FinancialFact?>()) {
+      return (data != null ? _igykxm42.FinancialFact.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_i1qwjg2x.FinancialReport?>()) {
+      return (data != null ? _i1qwjg2x.FinancialReport.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_idwohplt.FinancialReportCode?>()) {
+      return (data != null
+              ? _idwohplt.FinancialReportCode.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _isc.getType<_im4itn08.FinancialStatementKind?>()) {
+      return (data != null
+              ? _im4itn08.FinancialStatementKind.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _isc.getType<_i906z99z.FsDiv?>()) {
+      return (data != null ? _i906z99z.FsDiv.fromJson(data) : null) as T;
     }
     if (t == _isc.getType<_i3hzx3f1.Industry?>()) {
       return (data != null ? _i3hzx3f1.Industry.fromJson(data) : null) as T;
@@ -276,8 +341,15 @@ class Protocol extends _isc.SerializationManager {
       _iaj9eyri.CompanyPage => 'CompanyPage',
       _ia2izjbq.CompanySort => 'CompanySort',
       _ir49pw6i.DartCorpStatus => 'DartCorpStatus',
+      _itki3qdq.DartFiling => 'DartFiling',
       _iqc95j34.IngestException => 'IngestException',
       _iqbvehdv.FacetCount => 'FacetCount',
+      _i167q75d.FilingFetchStatus => 'FilingFetchStatus',
+      _igykxm42.FinancialFact => 'FinancialFact',
+      _i1qwjg2x.FinancialReport => 'FinancialReport',
+      _idwohplt.FinancialReportCode => 'FinancialReportCode',
+      _im4itn08.FinancialStatementKind => 'FinancialStatementKind',
+      _i906z99z.FsDiv => 'FsDiv',
       _i3hzx3f1.Industry => 'Industry',
       _i25uuckt.IndustryRevisionCheck => 'IndustryRevisionCheck',
       _iay1heal.IngestJob => 'IngestJob',
@@ -323,10 +395,24 @@ class Protocol extends _isc.SerializationManager {
         return 'CompanySort';
       case _ir49pw6i.DartCorpStatus():
         return 'DartCorpStatus';
+      case _itki3qdq.DartFiling():
+        return 'DartFiling';
       case _iqc95j34.IngestException():
         return 'IngestException';
       case _iqbvehdv.FacetCount():
         return 'FacetCount';
+      case _i167q75d.FilingFetchStatus():
+        return 'FilingFetchStatus';
+      case _igykxm42.FinancialFact():
+        return 'FinancialFact';
+      case _i1qwjg2x.FinancialReport():
+        return 'FinancialReport';
+      case _idwohplt.FinancialReportCode():
+        return 'FinancialReportCode';
+      case _im4itn08.FinancialStatementKind():
+        return 'FinancialStatementKind';
+      case _i906z99z.FsDiv():
+        return 'FsDiv';
       case _i3hzx3f1.Industry():
         return 'Industry';
       case _i25uuckt.IndustryRevisionCheck():
@@ -395,11 +481,32 @@ class Protocol extends _isc.SerializationManager {
     if (dataClassName == 'DartCorpStatus') {
       return deserialize<_ir49pw6i.DartCorpStatus>(data['data']);
     }
+    if (dataClassName == 'DartFiling') {
+      return deserialize<_itki3qdq.DartFiling>(data['data']);
+    }
     if (dataClassName == 'IngestException') {
       return deserialize<_iqc95j34.IngestException>(data['data']);
     }
     if (dataClassName == 'FacetCount') {
       return deserialize<_iqbvehdv.FacetCount>(data['data']);
+    }
+    if (dataClassName == 'FilingFetchStatus') {
+      return deserialize<_i167q75d.FilingFetchStatus>(data['data']);
+    }
+    if (dataClassName == 'FinancialFact') {
+      return deserialize<_igykxm42.FinancialFact>(data['data']);
+    }
+    if (dataClassName == 'FinancialReport') {
+      return deserialize<_i1qwjg2x.FinancialReport>(data['data']);
+    }
+    if (dataClassName == 'FinancialReportCode') {
+      return deserialize<_idwohplt.FinancialReportCode>(data['data']);
+    }
+    if (dataClassName == 'FinancialStatementKind') {
+      return deserialize<_im4itn08.FinancialStatementKind>(data['data']);
+    }
+    if (dataClassName == 'FsDiv') {
+      return deserialize<_i906z99z.FsDiv>(data['data']);
     }
     if (dataClassName == 'Industry') {
       return deserialize<_i3hzx3f1.Industry>(data['data']);
