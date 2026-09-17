@@ -1,0 +1,6 @@
+enum: IngestStatus
+values:
+  - running
+  - succeeded
+  - failed
+  - cancelled

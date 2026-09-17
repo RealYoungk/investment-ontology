@@ -14,6 +14,20 @@ import 'dart:async' as _ida;
 import 'package:http/http.dart' as _i85jenna;
 import 'package:investment_ontology_serverpod_client/src/protocol/greetings/greeting.dart'
     as _iqvwj7cf;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_detail.dart'
+    as _ig9j925g;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_page.dart'
+    as _itgpgg86;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_sort.dart'
+    as _i35nawlu;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/facet_count.dart'
+    as _icfgas7c;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ingest_job.dart'
+    as _i1paap7y;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/market.dart'
+    as _iamn97sz;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/overview.dart'
+    as _iqnrnt8q;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _iacc;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
@@ -264,6 +278,101 @@ class EndpointGreeting extends _isc.EndpointRef {
       );
 }
 
+/// 상장사 조회.
+/// {@category Endpoint}
+class EndpointCompany extends _isc.EndpointRef {
+  EndpointCompany(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'company';
+
+  /// 시장·대분류별 상장사 수와 최근 수집 작업.
+  _ida.Future<_iqnrnt8q.Overview> overview() =>
+      caller.callServerEndpoint<_iqnrnt8q.Overview>(
+        'company',
+        'overview',
+        {},
+      );
+
+  /// 대분류 안의 중분류별 상장사 수.
+  _ida.Future<List<_icfgas7c.FacetCount>> divisions(
+    String sectionCode, {
+    _iamn97sz.Market? market,
+  }) => caller.callServerEndpoint<List<_icfgas7c.FacetCount>>(
+    'company',
+    'divisions',
+    {
+      'sectionCode': sectionCode,
+      'market': market,
+    },
+  );
+
+  _ida.Future<_itgpgg86.CompanyPage> list({
+    String? query,
+    _iamn97sz.Market? market,
+    String? sectionCode,
+    String? divisionCode,
+    _i35nawlu.CompanySort? sort,
+    int? offset,
+    int? limit,
+  }) => caller.callServerEndpoint<_itgpgg86.CompanyPage>(
+    'company',
+    'list',
+    {
+      'query': query,
+      'market': market,
+      'sectionCode': sectionCode,
+      'divisionCode': divisionCode,
+      'sort': sort,
+      'offset': offset,
+      'limit': limit,
+    },
+  );
+
+  _ida.Future<_ig9j925g.CompanyDetail?> detail(String corpCode) =>
+      caller.callServerEndpoint<_ig9j925g.CompanyDetail?>(
+        'company',
+        'detail',
+        {'corpCode': corpCode},
+      );
+}
+
+/// 외부 원천 수집 제어.
+///
+/// 1인 로컬 사용 전제라 인증이 없다. 외부에 배포하기 전에 인증을 붙여야 한다.
+/// {@category Endpoint}
+class EndpointIngest extends _isc.EndpointRef {
+  EndpointIngest(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'ingest';
+
+  /// 상장사 마스터 수집 시작. 이미 실행 중이면 그 작업을 돌려준다.
+  ///
+  /// 평소에는 DART 변경일이 바뀐 기업만 다시 받는다. [force]이거나 마지막 전체
+  /// 갱신 후 [CompanyMasterSync.fullRefreshInterval]이 지났으면 전체를 다시 받는다.
+  _ida.Future<_i1paap7y.IngestJob> startCompanyMaster({bool? force}) =>
+      caller.callServerEndpoint<_i1paap7y.IngestJob>(
+        'ingest',
+        'startCompanyMaster',
+        {'force': force},
+      );
+
+  _ida.Future<_i1paap7y.IngestJob?> cancel(int jobId) =>
+      caller.callServerEndpoint<_i1paap7y.IngestJob?>(
+        'ingest',
+        'cancel',
+        {'jobId': jobId},
+      );
+
+  _ida.Future<_i1paap7y.IngestJob?> latest() =>
+      caller.callServerEndpoint<_i1paap7y.IngestJob?>(
+        'ingest',
+        'latest',
+        {},
+      );
+}
+
 class Modules {
   Modules(Client client) {
     serverpod_auth_idp = _iaic.Caller(client);
@@ -305,6 +414,8 @@ class Client extends _isc.ServerpodClientShared {
     emailIdp = EndpointEmailIdp(this);
     jwtRefresh = EndpointJwtRefresh(this);
     greeting = EndpointGreeting(this);
+    company = EndpointCompany(this);
+    ingest = EndpointIngest(this);
     modules = Modules(this);
   }
 
@@ -314,6 +425,10 @@ class Client extends _isc.ServerpodClientShared {
 
   late final EndpointGreeting greeting;
 
+  late final EndpointCompany company;
+
+  late final EndpointIngest ingest;
+
   late final Modules modules;
 
   @override
@@ -321,6 +436,8 @@ class Client extends _isc.ServerpodClientShared {
     'emailIdp': emailIdp,
     'jwtRefresh': jwtRefresh,
     'greeting': greeting,
+    'company': company,
+    'ingest': ingest,
   };
 
   @override

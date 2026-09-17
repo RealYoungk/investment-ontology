@@ -1,0 +1,5 @@
+enum: CompanySort
+values:
+  - name
+  - stockCode
+  - establishedDate

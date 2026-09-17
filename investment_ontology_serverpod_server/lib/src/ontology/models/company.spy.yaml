@@ -1,0 +1,44 @@
+### 기업. 식별자는 DART 고유번호(corp_code, 8자리).
+class: Company
+table: company
+fields:
+  corpCode: String
+  name: String
+  nameEng: String?
+  stockName: String?
+  ### 단축 종목코드 (6자리)
+  stockCode: String?
+  market: Market?
+  ceoName: String?
+  ### 법인등록번호
+  jurirNo: String?
+  ### 사업자등록번호
+  bizrNo: String?
+  address: String?
+  homepageUrl: String?
+  irUrl: String?
+  phone: String?
+  ### KSIC 코드 (DART induty_code 원문)
+  industryCode: String?
+  ### KSIC 대분류 (A~U), industryCode에서 파생
+  sectionCode: String?
+  ### KSIC 중분류 (2자리), industryCode에서 파생
+  divisionCode: String?
+  ### 설립일 (UTC 자정). 원천 값이 유효한 날짜가 아니면 null
+  establishedDate: DateTime?
+  ### 결산월 (1~12)
+  fiscalMonth: int?
+  ### corpCode.xml의 modify_date (UTC 자정)
+  dartModifiedDate: DateTime?
+  profileSourceId: int?, relation(parent=source, onDelete=SetNull)
+  profileUpdatedAt: DateTime?
+indexes:
+  company_corp_code_idx:
+    fields: corpCode
+    unique: true
+  company_stock_code_idx:
+    fields: stockCode
+  company_market_idx:
+    fields: market
+  company_section_idx:
+    fields: sectionCode, divisionCode

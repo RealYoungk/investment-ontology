@@ -1,0 +1,12 @@
+class: Overview
+fields:
+  totalListed: int
+  byMarket: List<FacetCount>
+  bySection: List<FacetCount>
+  lastJob: IngestJob?
+  ### 마지막으로 성공한 전체 갱신 시각
+  lastFullRefreshAt: DateTime?
+  ### 이 시각 이후 첫 수집은 자동으로 전체 갱신
+  nextFullRefreshAt: DateTime?
+  ### 업종명 표시에 쓰는 KSIC 차수 판정
+  industryRevision: IndustryRevisionCheck?

@@ -1,0 +1,11 @@
+### DART `corp_cls` 기준 시장 구분.
+enum: Market
+values:
+  ### 유가증권시장 (Y)
+  - kospi
+  ### 코스닥 (K)
+  - kosdaq
+  ### 코넥스 (N)
+  - konex
+  ### 기타 — 상장폐지 등 (E)
+  - other

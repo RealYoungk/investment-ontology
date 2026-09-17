@@ -47,4 +47,24 @@ If the user asks you to test the app:
 
 The app is launched from `investment_ontology_serverpod_flutter/lib/driver.dart`, which starts the Flutter driver extension with text entry emulation turned off so the app stays usable by hand. To let the driver type, set `enableTextEntryEmulation: true` there and `hot_restart` the app.
 
-IMPORTANT: After building the first version of the app, update this AGENTS.md file with information about the app we're building. KEEP the info about the MCP server and the checklist. Remove this paragraph.
+## About this app: 투자 온톨로지
+
+A single-user tool for building an investment ontology of Korean listed companies and exploring it visually (Flutter Web). Design doc: `docs/ontology-design.md`.
+
+Principles: numbers come only from primary sources (DART OpenAPI, KRX); every fact carries a `Source`; AI is used only to extract relations from text, with evidence and human review.
+
+Current state (phase 1 — listed-company master):
+
+- Server code lives in `investment_ontology_serverpod_server/lib/src/ontology/`:
+  - `models/` — `Company` (key: DART `corpCode`), `Industry` (KSIC 10), `Source`, `IngestJob`, view DTOs.
+  - `dart/dart_client.dart` — DART OpenAPI client (`corpCode.xml`, `company.json`), throttled to ~5 calls/s.
+  - `ingest/` — `CompanyMasterSync` (run as `CompanyMasterFutureCall`; incremental by DART change date, full refresh every 30 days), `KsicSeeder` (loads both KSIC 10 and 11 from `assets/ksic/`), `KsicRevision` (decides which KSIC revision DART's industry codes follow, from codes unique to one revision; cached, invalidated after each sync).
+  - `tool/ksic/` — reproducible extraction of the KSIC assets from the official 국가데이터처 notices. Never hand-edit `assets/ksic/*.json`.
+  - `endpoints/` — `company` (overview, divisions, list, detail) and `ingest` (startCompanyMaster, cancel, latest).
+- The DART API key is read by `dart/dart_api_key.dart`: `session.passwords['dartApiKey']` (`config/passwords.yaml` under `shared:`, or `SERVERPOD_PASSWORD_dartApiKey`), falling back to the `DART_API_KEY` environment variable.
+- No authentication: local single-user use only. Add auth before deploying anywhere public.
+- Source values are normalized to the schema's types at the ingest boundary (`dart/dart_values.dart`); invalid values become null. Re-fetches record field-level diffs in `CompanyChange` (`ingest/company_changes.dart`).
+- Flutter UI:
+  - `lib/design/` — design system. `tokens.dart` (semantic `AppColors`/`AppTypography`/`AppShape` theme extensions, `AppSpace`, `AppMotion`; read via `context.colors` / `context.typo` / `context.shape`), `components/` (reusable widgets), `brands/` (concrete colors and fonts), `app_theme.dart`.
+  - `lib/features/<feature>/` — screens. Use only tokens and components: never hard-code colors (`Color(0x…)`, `Colors.*`) or fonts here. `test/design_boundary_test.dart` enforces this. Rebranding = add a brand in `design/brands/` and switch it in `main.dart`.
+  - `lib/features/company_ledger/` — "상장사 원장" (listed-company ledger).
