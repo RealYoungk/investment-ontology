@@ -19,6 +19,8 @@ import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
     as _iaic;
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
 import 'greetings/greeting.dart' as _izw8z7ou;
+import 'ontology/models/api_call_usage.dart' as _i3e42he1;
+import 'ontology/models/api_provider.dart' as _i82zif2r;
 import 'ontology/models/company.dart' as _ipen255x;
 import 'ontology/models/company_change.dart' as _isfozywu;
 import 'ontology/models/company_detail.dart' as _ire9jjud;
@@ -37,6 +39,8 @@ import 'ontology/models/overview.dart' as _iz31wbgv;
 import 'ontology/models/source.dart' as _icm1zoh2;
 import 'ontology/models/source_kind.dart' as _itk5lja3;
 export 'greetings/greeting.dart';
+export 'ontology/models/api_call_usage.dart';
+export 'ontology/models/api_provider.dart';
 export 'ontology/models/company.dart';
 export 'ontology/models/company_change.dart';
 export 'ontology/models/company_detail.dart';
@@ -93,6 +97,12 @@ class Protocol extends _isc.SerializationManager {
     if (t == _izw8z7ou.Greeting) {
       return _izw8z7ou.Greeting.fromJson(data) as T;
     }
+    if (t == _i3e42he1.ApiCallUsage) {
+      return _i3e42he1.ApiCallUsage.fromJson(data) as T;
+    }
+    if (t == _i82zif2r.ApiProvider) {
+      return _i82zif2r.ApiProvider.fromJson(data) as T;
+    }
     if (t == _ipen255x.Company) {
       return _ipen255x.Company.fromJson(data) as T;
     }
@@ -146,6 +156,12 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _isc.getType<_izw8z7ou.Greeting?>()) {
       return (data != null ? _izw8z7ou.Greeting.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_i3e42he1.ApiCallUsage?>()) {
+      return (data != null ? _i3e42he1.ApiCallUsage.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_i82zif2r.ApiProvider?>()) {
+      return (data != null ? _i82zif2r.ApiProvider.fromJson(data) : null) as T;
     }
     if (t == _isc.getType<_ipen255x.Company?>()) {
       return (data != null ? _ipen255x.Company.fromJson(data) : null) as T;
@@ -251,6 +267,8 @@ class Protocol extends _isc.SerializationManager {
   static String? getClassNameForType(Type type) {
     return switch (type) {
       _izw8z7ou.Greeting => 'Greeting',
+      _i3e42he1.ApiCallUsage => 'ApiCallUsage',
+      _i82zif2r.ApiProvider => 'ApiProvider',
       _ipen255x.Company => 'Company',
       _isfozywu.CompanyChange => 'CompanyChange',
       _ire9jjud.CompanyDetail => 'CompanyDetail',
@@ -287,6 +305,10 @@ class Protocol extends _isc.SerializationManager {
     switch (data) {
       case _izw8z7ou.Greeting():
         return 'Greeting';
+      case _i3e42he1.ApiCallUsage():
+        return 'ApiCallUsage';
+      case _i82zif2r.ApiProvider():
+        return 'ApiProvider';
       case _ipen255x.Company():
         return 'Company';
       case _isfozywu.CompanyChange():
@@ -345,6 +367,12 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'Greeting') {
       return deserialize<_izw8z7ou.Greeting>(data['data']);
+    }
+    if (dataClassName == 'ApiCallUsage') {
+      return deserialize<_i3e42he1.ApiCallUsage>(data['data']);
+    }
+    if (dataClassName == 'ApiProvider') {
+      return deserialize<_i82zif2r.ApiProvider>(data['data']);
     }
     if (dataClassName == 'Company') {
       return deserialize<_ipen255x.Company>(data['data']);
