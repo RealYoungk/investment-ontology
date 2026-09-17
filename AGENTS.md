@@ -62,4 +62,8 @@ Current state (phase 1 — listed-company master):
   - `endpoints/` — `company` (overview, divisions, list, detail) and `ingest` (startCompanyMaster, cancel, latest).
 - The DART API key is read from `session.passwords['dartApiKey']` (`config/passwords.yaml` under `shared:`, or `SERVERPOD_PASSWORD_dartApiKey`).
 - No authentication: local single-user use only. Add auth before deploying anywhere public.
-- Flutter UI: `investment_ontology_serverpod_flutter/lib/screens/ledger/` ("상장사 원장"), theme in `lib/theme/ledger_theme.dart`.
+- Source values are normalized to the schema's types at the ingest boundary (`dart/dart_values.dart`); invalid values become null. Re-fetches record field-level diffs in `CompanyChange` (`ingest/company_changes.dart`).
+- Flutter UI:
+  - `lib/design/` — design system. `tokens.dart` (semantic `AppColors`/`AppTypography`/`AppShape` theme extensions, `AppSpace`, `AppMotion`; read via `context.colors` / `context.typo` / `context.shape`), `components/` (reusable widgets), `brands/` (concrete colors and fonts), `app_theme.dart`.
+  - `lib/features/<feature>/` — screens. Use only tokens and components: never hard-code colors (`Color(0x…)`, `Colors.*`) or fonts here. `test/design_boundary_test.dart` enforces this. Rebranding = add a brand in `design/brands/` and switch it in `main.dart`.
+  - `lib/features/company_ledger/` — "상장사 원장" (listed-company ledger).
