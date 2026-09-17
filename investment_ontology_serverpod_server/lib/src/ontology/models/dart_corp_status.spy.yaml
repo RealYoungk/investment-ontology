@@ -1,0 +1,14 @@
+### 수집 장부: 종목코드를 가진 DART 고유번호마다 마지막으로 확인한 상장 구분.
+### 온톨로지 엔티티가 아니라, 상장폐지 기업을 매번 다시 조회하지 않기 위한 기록이다.
+class: DartCorpStatus
+table: dart_corp_status
+fields:
+  corpCode: String
+  ### company.json의 corp_cls (Y/K/N/E)
+  corpCls: String
+  modifiedDate: DateTime?
+  checkedAt: DateTime
+indexes:
+  dart_corp_status_corp_code_idx:
+    fields: corpCode
+    unique: true
