@@ -23,6 +23,8 @@ import 'future_calls_generated_models/company_master_future_call_run_model.dart'
     as _i8298vau;
 import 'future_calls_generated_models/financial_facts_future_call_run_model.dart'
     as _ijwdvc26;
+import 'future_calls_generated_models/market_snapshot_future_call_run_model.dart'
+    as _i7jjkv72;
 import 'greetings/greeting.dart' as _izw8z7ou;
 import 'ontology/models/api_call_usage.dart' as _i3e42he1;
 import 'ontology/models/api_provider.dart' as _i82zif2r;
@@ -47,7 +49,10 @@ import 'ontology/models/industry_revision_check.dart' as _i25uuckt;
 import 'ontology/models/ingest_job.dart' as _iay1heal;
 import 'ontology/models/ingest_status.dart' as _imojj26x;
 import 'ontology/models/market.dart' as _iyzzhewo;
+import 'ontology/models/market_snapshot.dart' as _ibhowe7d;
+import 'ontology/models/market_snapshot_day.dart' as _i3renazk;
 import 'ontology/models/overview.dart' as _iz31wbgv;
+import 'ontology/models/security.dart' as _ilujots3;
 import 'ontology/models/source.dart' as _icm1zoh2;
 import 'ontology/models/source_kind.dart' as _itk5lja3;
 export 'greetings/greeting.dart';
@@ -74,7 +79,10 @@ export 'ontology/models/industry_revision_check.dart';
 export 'ontology/models/ingest_job.dart';
 export 'ontology/models/ingest_status.dart';
 export 'ontology/models/market.dart';
+export 'ontology/models/market_snapshot.dart';
+export 'ontology/models/market_snapshot_day.dart';
 export 'ontology/models/overview.dart';
+export 'ontology/models/security.dart';
 export 'ontology/models/source.dart';
 export 'ontology/models/source_kind.dart';
 
@@ -1245,6 +1253,348 @@ class Protocol extends _is.DatabaseSerializationManager {
       managed: true,
     ),
     _isp.TableDefinition(
+      name: 'market_snapshot',
+      dartName: 'MarketSnapshot',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'securityId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'baseDate',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: 'closePrice',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'BigInt?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'change',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'BigInt?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'openPrice',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'BigInt?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'highPrice',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'BigInt?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'lowPrice',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'BigInt?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'volume',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'BigInt?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'tradingValue',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'BigInt?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'listedShares',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'BigInt?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'marketCap',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'BigInt?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'sourceId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'market_snapshot_fk_0',
+          columns: ['securityId'],
+          referenceTable: 'security',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'market_snapshot_fk_1',
+          columns: ['sourceId'],
+          referenceTable: 'source',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'market_snapshot_security_date_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'securityId',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'baseDate',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'market_snapshot_date_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'baseDate',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'market_snapshot_day',
+      dartName: 'MarketSnapshotDay',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'baseDate',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: 'rowCount',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'sourceId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'fetchedAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'market_snapshot_day_fk_0',
+          columns: ['sourceId'],
+          referenceTable: 'source',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.setNull,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'market_snapshot_day_date_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'baseDate',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'security',
+      dartName: 'Security',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'isinCode',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'shortCode',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'name',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'market',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'protocol:Market?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'crno',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'corpName',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'companyId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'lastSeenDate',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: 'sourceId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'security_fk_0',
+          columns: ['companyId'],
+          referenceTable: 'company',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.setNull,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'security_fk_1',
+          columns: ['sourceId'],
+          referenceTable: 'source',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.setNull,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'security_isin_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'isinCode',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'security_short_code_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'shortCode',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'security_company_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'companyId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
       name: 'source',
       dartName: 'Source',
       schema: 'public',
@@ -1330,6 +1680,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _ijwdvc26.FinancialFactsFutureCallRunModel) {
       return _ijwdvc26.FinancialFactsFutureCallRunModel.fromJson(data) as T;
     }
+    if (t == _i7jjkv72.MarketSnapshotFutureCallRunModel) {
+      return _i7jjkv72.MarketSnapshotFutureCallRunModel.fromJson(data) as T;
+    }
     if (t == _izw8z7ou.Greeting) {
       return _izw8z7ou.Greeting.fromJson(data) as T;
     }
@@ -1402,8 +1755,17 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _iyzzhewo.Market) {
       return _iyzzhewo.Market.fromJson(data) as T;
     }
+    if (t == _ibhowe7d.MarketSnapshot) {
+      return _ibhowe7d.MarketSnapshot.fromJson(data) as T;
+    }
+    if (t == _i3renazk.MarketSnapshotDay) {
+      return _i3renazk.MarketSnapshotDay.fromJson(data) as T;
+    }
     if (t == _iz31wbgv.Overview) {
       return _iz31wbgv.Overview.fromJson(data) as T;
+    }
+    if (t == _ilujots3.Security) {
+      return _ilujots3.Security.fromJson(data) as T;
     }
     if (t == _icm1zoh2.Source) {
       return _icm1zoh2.Source.fromJson(data) as T;
@@ -1420,6 +1782,12 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _is.getType<_ijwdvc26.FinancialFactsFutureCallRunModel?>()) {
       return (data != null
               ? _ijwdvc26.FinancialFactsFutureCallRunModel.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _is.getType<_i7jjkv72.MarketSnapshotFutureCallRunModel?>()) {
+      return (data != null
+              ? _i7jjkv72.MarketSnapshotFutureCallRunModel.fromJson(data)
               : null)
           as T;
     }
@@ -1512,8 +1880,19 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _is.getType<_iyzzhewo.Market?>()) {
       return (data != null ? _iyzzhewo.Market.fromJson(data) : null) as T;
     }
+    if (t == _is.getType<_ibhowe7d.MarketSnapshot?>()) {
+      return (data != null ? _ibhowe7d.MarketSnapshot.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_i3renazk.MarketSnapshotDay?>()) {
+      return (data != null ? _i3renazk.MarketSnapshotDay.fromJson(data) : null)
+          as T;
+    }
     if (t == _is.getType<_iz31wbgv.Overview?>()) {
       return (data != null ? _iz31wbgv.Overview.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_ilujots3.Security?>()) {
+      return (data != null ? _ilujots3.Security.fromJson(data) : null) as T;
     }
     if (t == _is.getType<_icm1zoh2.Source?>()) {
       return (data != null ? _icm1zoh2.Source.fromJson(data) : null) as T;
@@ -1572,6 +1951,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         'CompanyMasterFutureCallRunModel',
       _ijwdvc26.FinancialFactsFutureCallRunModel =>
         'FinancialFactsFutureCallRunModel',
+      _i7jjkv72.MarketSnapshotFutureCallRunModel =>
+        'MarketSnapshotFutureCallRunModel',
       _izw8z7ou.Greeting => 'Greeting',
       _i3e42he1.ApiCallUsage => 'ApiCallUsage',
       _i82zif2r.ApiProvider => 'ApiProvider',
@@ -1596,7 +1977,10 @@ class Protocol extends _is.DatabaseSerializationManager {
       _iay1heal.IngestJob => 'IngestJob',
       _imojj26x.IngestStatus => 'IngestStatus',
       _iyzzhewo.Market => 'Market',
+      _ibhowe7d.MarketSnapshot => 'MarketSnapshot',
+      _i3renazk.MarketSnapshotDay => 'MarketSnapshotDay',
       _iz31wbgv.Overview => 'Overview',
+      _ilujots3.Security => 'Security',
       _icm1zoh2.Source => 'Source',
       _itk5lja3.SourceKind => 'SourceKind',
       _ => null,
@@ -1620,6 +2004,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'CompanyMasterFutureCallRunModel';
       case _ijwdvc26.FinancialFactsFutureCallRunModel():
         return 'FinancialFactsFutureCallRunModel';
+      case _i7jjkv72.MarketSnapshotFutureCallRunModel():
+        return 'MarketSnapshotFutureCallRunModel';
       case _izw8z7ou.Greeting():
         return 'Greeting';
       case _i3e42he1.ApiCallUsage():
@@ -1668,8 +2054,14 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'IngestStatus';
       case _iyzzhewo.Market():
         return 'Market';
+      case _ibhowe7d.MarketSnapshot():
+        return 'MarketSnapshot';
+      case _i3renazk.MarketSnapshotDay():
+        return 'MarketSnapshotDay';
       case _iz31wbgv.Overview():
         return 'Overview';
+      case _ilujots3.Security():
+        return 'Security';
       case _icm1zoh2.Source():
         return 'Source';
       case _itk5lja3.SourceKind():
@@ -1707,6 +2099,11 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'FinancialFactsFutureCallRunModel') {
       return deserialize<_ijwdvc26.FinancialFactsFutureCallRunModel>(
+        data['data'],
+      );
+    }
+    if (dataClassName == 'MarketSnapshotFutureCallRunModel') {
+      return deserialize<_i7jjkv72.MarketSnapshotFutureCallRunModel>(
         data['data'],
       );
     }
@@ -1782,8 +2179,17 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (dataClassName == 'Market') {
       return deserialize<_iyzzhewo.Market>(data['data']);
     }
+    if (dataClassName == 'MarketSnapshot') {
+      return deserialize<_ibhowe7d.MarketSnapshot>(data['data']);
+    }
+    if (dataClassName == 'MarketSnapshotDay') {
+      return deserialize<_i3renazk.MarketSnapshotDay>(data['data']);
+    }
     if (dataClassName == 'Overview') {
       return deserialize<_iz31wbgv.Overview>(data['data']);
+    }
+    if (dataClassName == 'Security') {
+      return deserialize<_ilujots3.Security>(data['data']);
     }
     if (dataClassName == 'Source') {
       return deserialize<_icm1zoh2.Source>(data['data']);
@@ -1856,6 +2262,12 @@ class Protocol extends _is.DatabaseSerializationManager {
         return _i3hzx3f1.Industry.t;
       case _iay1heal.IngestJob:
         return _iay1heal.IngestJob.t;
+      case _ibhowe7d.MarketSnapshot:
+        return _ibhowe7d.MarketSnapshot.t;
+      case _i3renazk.MarketSnapshotDay:
+        return _i3renazk.MarketSnapshotDay.t;
+      case _ilujots3.Security:
+        return _ilujots3.Security.t;
       case _icm1zoh2.Source:
         return _icm1zoh2.Source.t;
     }

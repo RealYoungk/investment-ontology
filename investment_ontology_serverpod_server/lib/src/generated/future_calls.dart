@@ -16,10 +16,13 @@ import 'package:clock/clock.dart' as _io0w16m8;
 import 'package:serverpod/serverpod.dart' as _is;
 import '../ontology/ingest/company_master_future_call.dart' as _iouuus1c;
 import '../ontology/ingest/financial_facts_future_call.dart' as _iqtu3y45;
+import '../ontology/ingest/market_snapshot_future_call.dart' as _i3rk8q0z;
 import 'future_calls_generated_models/company_master_future_call_run_model.dart'
     as _i8298vau;
 import 'future_calls_generated_models/financial_facts_future_call_run_model.dart'
     as _ijwdvc26;
+import 'future_calls_generated_models/market_snapshot_future_call_run_model.dart'
+    as _i7jjkv72;
 
 /// Invokes a future call.
 typedef _InvokeFutureCall =
@@ -66,6 +69,8 @@ class FutureCalls extends _is.FutureCallDispatch<_FutureCallRef> {
       'CompanyMasterRunFutureCall': CompanyMasterRunFutureCall(),
       'FinancialFactsRunFutureCall': FinancialFactsRunFutureCall(),
       'FinancialFactsResumeFutureCall': FinancialFactsResumeFutureCall(),
+      'MarketSnapshotRunFutureCall': MarketSnapshotRunFutureCall(),
+      'MarketSnapshotResumeFutureCall': MarketSnapshotResumeFutureCall(),
     };
     _futureCallManager = futureCallManager;
     _serverId = serverId;
@@ -193,6 +198,10 @@ class _FutureCallRef {
   late final financialFacts = _FinancialFactsFutureCallDispatcher(
     _invokeFutureCall,
   );
+
+  late final marketSnapshot = _MarketSnapshotFutureCallDispatcher(
+    _invokeFutureCall,
+  );
 }
 
 class _CompanyMasterFutureCallDispatcher {
@@ -231,6 +240,27 @@ class _FinancialFactsFutureCallDispatcher {
   Future<void> resume() {
     return _invokeFutureCall(
       'FinancialFactsResumeFutureCall',
+      null,
+    );
+  }
+}
+
+class _MarketSnapshotFutureCallDispatcher {
+  _MarketSnapshotFutureCallDispatcher(this._invokeFutureCall);
+
+  final _InvokeFutureCall _invokeFutureCall;
+
+  Future<void> run(int jobId) {
+    var object = _i7jjkv72.MarketSnapshotFutureCallRunModel(jobId: jobId);
+    return _invokeFutureCall(
+      'MarketSnapshotRunFutureCall',
+      object,
+    );
+  }
+
+  Future<void> resume() {
+    return _invokeFutureCall(
+      'MarketSnapshotResumeFutureCall',
       null,
     );
   }
@@ -282,5 +312,35 @@ class FinancialFactsResumeFutureCall extends _is.FutureCall
     _is.SerializableModel? object,
   ) async {
     await _iqtu3y45.FinancialFactsFutureCall().resume(session);
+  }
+}
+
+class MarketSnapshotRunFutureCall
+    extends _is.FutureCall<_i7jjkv72.MarketSnapshotFutureCallRunModel>
+    implements
+        _is.InvokableFutureCall<_i7jjkv72.MarketSnapshotFutureCallRunModel> {
+  @override
+  _ida.Future<void> invoke(
+    _is.Session session,
+    _i7jjkv72.MarketSnapshotFutureCallRunModel? object,
+  ) async {
+    if (object != null) {
+      await _i3rk8q0z.MarketSnapshotFutureCall().run(
+        session,
+        object.jobId,
+      );
+    }
+  }
+}
+
+/// 일일 호출 예산을 다 써서 멈춘 수집을 이어서 받는다.
+class MarketSnapshotResumeFutureCall extends _is.FutureCall
+    implements _is.InvokableFutureCall {
+  @override
+  _ida.Future<void> invoke(
+    _is.Session session,
+    _is.SerializableModel? object,
+  ) async {
+    await _i3rk8q0z.MarketSnapshotFutureCall().resume(session);
   }
 }

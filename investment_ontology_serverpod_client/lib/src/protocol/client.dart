@@ -369,6 +369,17 @@ class EndpointIngest extends _isc.EndpointRef {
         {},
       );
 
+  /// 시세 수집 시작. 이미 실행 중이면 그 작업을 돌려준다.
+  ///
+  /// 받지 않은 평일 기준일을 최신순으로 받고(처음에는 3년), 가장 최근 기준일의
+  /// 상장종목 정보로 종목을 기업에 잇는다.
+  _ida.Future<_i1paap7y.IngestJob> startMarketSnapshot() =>
+      caller.callServerEndpoint<_i1paap7y.IngestJob>(
+        'ingest',
+        'startMarketSnapshot',
+        {},
+      );
+
   _ida.Future<_i1paap7y.IngestJob?> cancel(int jobId) =>
       caller.callServerEndpoint<_i1paap7y.IngestJob?>(
         'ingest',
@@ -383,7 +394,7 @@ class EndpointIngest extends _isc.EndpointRef {
         {},
       );
 
-  /// [kind]의 최근 작업 (`company_master`, `financial_facts`).
+  /// [kind]의 최근 작업 (`company_master`, `financial_facts`, `market_snapshot`).
   _ida.Future<_i1paap7y.IngestJob?> latestOf(String kind) =>
       caller.callServerEndpoint<_i1paap7y.IngestJob?>(
         'ingest',

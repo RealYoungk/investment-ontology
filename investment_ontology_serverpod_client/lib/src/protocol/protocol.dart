@@ -42,7 +42,10 @@ import 'ontology/models/industry_revision_check.dart' as _i25uuckt;
 import 'ontology/models/ingest_job.dart' as _iay1heal;
 import 'ontology/models/ingest_status.dart' as _imojj26x;
 import 'ontology/models/market.dart' as _iyzzhewo;
+import 'ontology/models/market_snapshot.dart' as _ibhowe7d;
+import 'ontology/models/market_snapshot_day.dart' as _i3renazk;
 import 'ontology/models/overview.dart' as _iz31wbgv;
+import 'ontology/models/security.dart' as _ilujots3;
 import 'ontology/models/source.dart' as _icm1zoh2;
 import 'ontology/models/source_kind.dart' as _itk5lja3;
 export 'greetings/greeting.dart';
@@ -69,7 +72,10 @@ export 'ontology/models/industry_revision_check.dart';
 export 'ontology/models/ingest_job.dart';
 export 'ontology/models/ingest_status.dart';
 export 'ontology/models/market.dart';
+export 'ontology/models/market_snapshot.dart';
+export 'ontology/models/market_snapshot_day.dart';
 export 'ontology/models/overview.dart';
+export 'ontology/models/security.dart';
 export 'ontology/models/source.dart';
 export 'ontology/models/source_kind.dart';
 export 'client.dart';
@@ -180,8 +186,17 @@ class Protocol extends _isc.SerializationManager {
     if (t == _iyzzhewo.Market) {
       return _iyzzhewo.Market.fromJson(data) as T;
     }
+    if (t == _ibhowe7d.MarketSnapshot) {
+      return _ibhowe7d.MarketSnapshot.fromJson(data) as T;
+    }
+    if (t == _i3renazk.MarketSnapshotDay) {
+      return _i3renazk.MarketSnapshotDay.fromJson(data) as T;
+    }
     if (t == _iz31wbgv.Overview) {
       return _iz31wbgv.Overview.fromJson(data) as T;
+    }
+    if (t == _ilujots3.Security) {
+      return _ilujots3.Security.fromJson(data) as T;
     }
     if (t == _icm1zoh2.Source) {
       return _icm1zoh2.Source.fromJson(data) as T;
@@ -278,8 +293,19 @@ class Protocol extends _isc.SerializationManager {
     if (t == _isc.getType<_iyzzhewo.Market?>()) {
       return (data != null ? _iyzzhewo.Market.fromJson(data) : null) as T;
     }
+    if (t == _isc.getType<_ibhowe7d.MarketSnapshot?>()) {
+      return (data != null ? _ibhowe7d.MarketSnapshot.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_i3renazk.MarketSnapshotDay?>()) {
+      return (data != null ? _i3renazk.MarketSnapshotDay.fromJson(data) : null)
+          as T;
+    }
     if (t == _isc.getType<_iz31wbgv.Overview?>()) {
       return (data != null ? _iz31wbgv.Overview.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_ilujots3.Security?>()) {
+      return (data != null ? _ilujots3.Security.fromJson(data) : null) as T;
     }
     if (t == _isc.getType<_icm1zoh2.Source?>()) {
       return (data != null ? _icm1zoh2.Source.fromJson(data) : null) as T;
@@ -355,7 +381,10 @@ class Protocol extends _isc.SerializationManager {
       _iay1heal.IngestJob => 'IngestJob',
       _imojj26x.IngestStatus => 'IngestStatus',
       _iyzzhewo.Market => 'Market',
+      _ibhowe7d.MarketSnapshot => 'MarketSnapshot',
+      _i3renazk.MarketSnapshotDay => 'MarketSnapshotDay',
       _iz31wbgv.Overview => 'Overview',
+      _ilujots3.Security => 'Security',
       _icm1zoh2.Source => 'Source',
       _itk5lja3.SourceKind => 'SourceKind',
       _ => null,
@@ -423,8 +452,14 @@ class Protocol extends _isc.SerializationManager {
         return 'IngestStatus';
       case _iyzzhewo.Market():
         return 'Market';
+      case _ibhowe7d.MarketSnapshot():
+        return 'MarketSnapshot';
+      case _i3renazk.MarketSnapshotDay():
+        return 'MarketSnapshotDay';
       case _iz31wbgv.Overview():
         return 'Overview';
+      case _ilujots3.Security():
+        return 'Security';
       case _icm1zoh2.Source():
         return 'Source';
       case _itk5lja3.SourceKind():
@@ -523,8 +558,17 @@ class Protocol extends _isc.SerializationManager {
     if (dataClassName == 'Market') {
       return deserialize<_iyzzhewo.Market>(data['data']);
     }
+    if (dataClassName == 'MarketSnapshot') {
+      return deserialize<_ibhowe7d.MarketSnapshot>(data['data']);
+    }
+    if (dataClassName == 'MarketSnapshotDay') {
+      return deserialize<_i3renazk.MarketSnapshotDay>(data['data']);
+    }
     if (dataClassName == 'Overview') {
       return deserialize<_iz31wbgv.Overview>(data['data']);
+    }
+    if (dataClassName == 'Security') {
+      return deserialize<_ilujots3.Security>(data['data']);
     }
     if (dataClassName == 'Source') {
       return deserialize<_icm1zoh2.Source>(data['data']);

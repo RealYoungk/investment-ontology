@@ -442,6 +442,16 @@ class Endpoints extends _is.EndpointDispatch {
               ) async => (endpoints['ingest'] as _icbircc0.IngestEndpoint)
                   .startFinancials(session),
         ),
+        'startMarketSnapshot': _is.MethodConnector(
+          name: 'startMarketSnapshot',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['ingest'] as _icbircc0.IngestEndpoint)
+                  .startMarketSnapshot(session),
+        ),
         'cancel': _is.MethodConnector(
           name: 'cancel',
           params: {

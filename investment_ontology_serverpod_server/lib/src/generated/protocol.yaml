@@ -19,6 +19,7 @@ company:
 ingest:
   - startCompanyMaster:
   - startFinancials:
+  - startMarketSnapshot:
   - cancel:
   - latest:
   - latestOf:
