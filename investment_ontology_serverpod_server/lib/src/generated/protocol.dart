@@ -21,6 +21,8 @@ import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
     as _iais;
 import 'future_calls_generated_models/company_master_future_call_run_model.dart'
     as _i8298vau;
+import 'future_calls_generated_models/financial_facts_future_call_run_company_model.dart'
+    as _in9ocduk;
 import 'future_calls_generated_models/financial_facts_future_call_run_model.dart'
     as _ijwdvc26;
 import 'future_calls_generated_models/market_snapshot_future_call_run_model.dart'
@@ -38,6 +40,7 @@ import 'ontology/models/company_page.dart' as _iaj9eyri;
 import 'ontology/models/company_sort.dart' as _ia2izjbq;
 import 'ontology/models/dart_corp_status.dart' as _ir49pw6i;
 import 'ontology/models/dart_filing.dart' as _itki3qdq;
+import 'ontology/models/dart_filing_scan.dart' as _ixr5w3gq;
 import 'ontology/models/exceptions.dart' as _iqc95j34;
 import 'ontology/models/facet_count.dart' as _iqbvehdv;
 import 'ontology/models/filing_fetch_status.dart' as _i167q75d;
@@ -76,6 +79,7 @@ export 'ontology/models/company_page.dart';
 export 'ontology/models/company_sort.dart';
 export 'ontology/models/dart_corp_status.dart';
 export 'ontology/models/dart_filing.dart';
+export 'ontology/models/dart_filing_scan.dart';
 export 'ontology/models/exceptions.dart';
 export 'ontology/models/facet_count.dart';
 export 'ontology/models/filing_fetch_status.dart';
@@ -680,6 +684,36 @@ class Protocol extends _is.DatabaseSerializationManager {
           isPrimary: false,
         ),
       ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'dart_filing_scan',
+      dartName: 'DartFilingScan',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'scannedThrough',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updatedAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [],
       managed: true,
     ),
     _isp.TableDefinition(
@@ -1693,6 +1727,10 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _i8298vau.CompanyMasterFutureCallRunModel) {
       return _i8298vau.CompanyMasterFutureCallRunModel.fromJson(data) as T;
     }
+    if (t == _in9ocduk.FinancialFactsFutureCallRunCompanyModel) {
+      return _in9ocduk.FinancialFactsFutureCallRunCompanyModel.fromJson(data)
+          as T;
+    }
     if (t == _ijwdvc26.FinancialFactsFutureCallRunModel) {
       return _ijwdvc26.FinancialFactsFutureCallRunModel.fromJson(data) as T;
     }
@@ -1737,6 +1775,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (t == _itki3qdq.DartFiling) {
       return _itki3qdq.DartFiling.fromJson(data) as T;
+    }
+    if (t == _ixr5w3gq.DartFilingScan) {
+      return _ixr5w3gq.DartFilingScan.fromJson(data) as T;
     }
     if (t == _iqc95j34.IngestException) {
       return _iqc95j34.IngestException.fromJson(data) as T;
@@ -1819,6 +1860,13 @@ class Protocol extends _is.DatabaseSerializationManager {
               : null)
           as T;
     }
+    if (t ==
+        _is.getType<_in9ocduk.FinancialFactsFutureCallRunCompanyModel?>()) {
+      return (data != null
+              ? _in9ocduk.FinancialFactsFutureCallRunCompanyModel.fromJson(data)
+              : null)
+          as T;
+    }
     if (t == _is.getType<_ijwdvc26.FinancialFactsFutureCallRunModel?>()) {
       return (data != null
               ? _ijwdvc26.FinancialFactsFutureCallRunModel.fromJson(data)
@@ -1875,6 +1923,10 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (t == _is.getType<_itki3qdq.DartFiling?>()) {
       return (data != null ? _itki3qdq.DartFiling.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_ixr5w3gq.DartFilingScan?>()) {
+      return (data != null ? _ixr5w3gq.DartFilingScan.fromJson(data) : null)
+          as T;
     }
     if (t == _is.getType<_iqc95j34.IngestException?>()) {
       return (data != null ? _iqc95j34.IngestException.fromJson(data) : null)
@@ -2063,6 +2115,8 @@ class Protocol extends _is.DatabaseSerializationManager {
     return switch (type) {
       _i8298vau.CompanyMasterFutureCallRunModel =>
         'CompanyMasterFutureCallRunModel',
+      _in9ocduk.FinancialFactsFutureCallRunCompanyModel =>
+        'FinancialFactsFutureCallRunCompanyModel',
       _ijwdvc26.FinancialFactsFutureCallRunModel =>
         'FinancialFactsFutureCallRunModel',
       _i7jjkv72.MarketSnapshotFutureCallRunModel =>
@@ -2080,6 +2134,7 @@ class Protocol extends _is.DatabaseSerializationManager {
       _ia2izjbq.CompanySort => 'CompanySort',
       _ir49pw6i.DartCorpStatus => 'DartCorpStatus',
       _itki3qdq.DartFiling => 'DartFiling',
+      _ixr5w3gq.DartFilingScan => 'DartFilingScan',
       _iqc95j34.IngestException => 'IngestException',
       _iqbvehdv.FacetCount => 'FacetCount',
       _i167q75d.FilingFetchStatus => 'FilingFetchStatus',
@@ -2124,6 +2179,8 @@ class Protocol extends _is.DatabaseSerializationManager {
     switch (data) {
       case _i8298vau.CompanyMasterFutureCallRunModel():
         return 'CompanyMasterFutureCallRunModel';
+      case _in9ocduk.FinancialFactsFutureCallRunCompanyModel():
+        return 'FinancialFactsFutureCallRunCompanyModel';
       case _ijwdvc26.FinancialFactsFutureCallRunModel():
         return 'FinancialFactsFutureCallRunModel';
       case _i7jjkv72.MarketSnapshotFutureCallRunModel():
@@ -2154,6 +2211,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'DartCorpStatus';
       case _itki3qdq.DartFiling():
         return 'DartFiling';
+      case _ixr5w3gq.DartFilingScan():
+        return 'DartFilingScan';
       case _iqc95j34.IngestException():
         return 'IngestException';
       case _iqbvehdv.FacetCount():
@@ -2235,6 +2294,11 @@ class Protocol extends _is.DatabaseSerializationManager {
         data['data'],
       );
     }
+    if (dataClassName == 'FinancialFactsFutureCallRunCompanyModel') {
+      return deserialize<_in9ocduk.FinancialFactsFutureCallRunCompanyModel>(
+        data['data'],
+      );
+    }
     if (dataClassName == 'FinancialFactsFutureCallRunModel') {
       return deserialize<_ijwdvc26.FinancialFactsFutureCallRunModel>(
         data['data'],
@@ -2283,6 +2347,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'DartFiling') {
       return deserialize<_itki3qdq.DartFiling>(data['data']);
+    }
+    if (dataClassName == 'DartFilingScan') {
+      return deserialize<_ixr5w3gq.DartFilingScan>(data['data']);
     }
     if (dataClassName == 'IngestException') {
       return deserialize<_iqc95j34.IngestException>(data['data']);
@@ -2416,6 +2483,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return _ir49pw6i.DartCorpStatus.t;
       case _itki3qdq.DartFiling:
         return _itki3qdq.DartFiling.t;
+      case _ixr5w3gq.DartFilingScan:
+        return _ixr5w3gq.DartFilingScan.t;
       case _igykxm42.FinancialFact:
         return _igykxm42.FinancialFact.t;
       case _i1qwjg2x.FinancialReport:

@@ -19,6 +19,8 @@ import '../ontology/ingest/financial_facts_future_call.dart' as _iqtu3y45;
 import '../ontology/ingest/market_snapshot_future_call.dart' as _i3rk8q0z;
 import 'future_calls_generated_models/company_master_future_call_run_model.dart'
     as _i8298vau;
+import 'future_calls_generated_models/financial_facts_future_call_run_company_model.dart'
+    as _in9ocduk;
 import 'future_calls_generated_models/financial_facts_future_call_run_model.dart'
     as _ijwdvc26;
 import 'future_calls_generated_models/market_snapshot_future_call_run_model.dart'
@@ -68,6 +70,8 @@ class FutureCalls extends _is.FutureCallDispatch<_FutureCallRef> {
     var registeredFutureCalls = <String, _is.InvokableFutureCall>{
       'CompanyMasterRunFutureCall': CompanyMasterRunFutureCall(),
       'FinancialFactsRunFutureCall': FinancialFactsRunFutureCall(),
+      'FinancialFactsRunCompanyFutureCall':
+          FinancialFactsRunCompanyFutureCall(),
       'FinancialFactsResumeFutureCall': FinancialFactsResumeFutureCall(),
       'MarketSnapshotRunFutureCall': MarketSnapshotRunFutureCall(),
       'MarketSnapshotResumeFutureCall': MarketSnapshotResumeFutureCall(),
@@ -237,6 +241,20 @@ class _FinancialFactsFutureCallDispatcher {
     );
   }
 
+  Future<void> runCompany(
+    int jobId,
+    String corpCode,
+  ) {
+    var object = _in9ocduk.FinancialFactsFutureCallRunCompanyModel(
+      jobId: jobId,
+      corpCode: corpCode,
+    );
+    return _invokeFutureCall(
+      'FinancialFactsRunCompanyFutureCall',
+      object,
+    );
+  }
+
   Future<void> resume() {
     return _invokeFutureCall(
       'FinancialFactsResumeFutureCall',
@@ -298,6 +316,28 @@ class FinancialFactsRunFutureCall
       await _iqtu3y45.FinancialFactsFutureCall().run(
         session,
         object.jobId,
+      );
+    }
+  }
+}
+
+/// 기업 하나의 정기보고서만 찾아 받는다.
+class FinancialFactsRunCompanyFutureCall
+    extends _is.FutureCall<_in9ocduk.FinancialFactsFutureCallRunCompanyModel>
+    implements
+        _is.InvokableFutureCall<
+          _in9ocduk.FinancialFactsFutureCallRunCompanyModel
+        > {
+  @override
+  _ida.Future<void> invoke(
+    _is.Session session,
+    _in9ocduk.FinancialFactsFutureCallRunCompanyModel? object,
+  ) async {
+    if (object != null) {
+      await _iqtu3y45.FinancialFactsFutureCall().runCompany(
+        session,
+        object.jobId,
+        object.corpCode,
       );
     }
   }

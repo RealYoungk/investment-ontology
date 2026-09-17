@@ -31,6 +31,7 @@ import 'ontology/models/company_page.dart' as _iaj9eyri;
 import 'ontology/models/company_sort.dart' as _ia2izjbq;
 import 'ontology/models/dart_corp_status.dart' as _ir49pw6i;
 import 'ontology/models/dart_filing.dart' as _itki3qdq;
+import 'ontology/models/dart_filing_scan.dart' as _ixr5w3gq;
 import 'ontology/models/exceptions.dart' as _iqc95j34;
 import 'ontology/models/facet_count.dart' as _iqbvehdv;
 import 'ontology/models/filing_fetch_status.dart' as _i167q75d;
@@ -69,6 +70,7 @@ export 'ontology/models/company_page.dart';
 export 'ontology/models/company_sort.dart';
 export 'ontology/models/dart_corp_status.dart';
 export 'ontology/models/dart_filing.dart';
+export 'ontology/models/dart_filing_scan.dart';
 export 'ontology/models/exceptions.dart';
 export 'ontology/models/facet_count.dart';
 export 'ontology/models/filing_fetch_status.dart';
@@ -168,6 +170,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _itki3qdq.DartFiling) {
       return _itki3qdq.DartFiling.fromJson(data) as T;
+    }
+    if (t == _ixr5w3gq.DartFilingScan) {
+      return _ixr5w3gq.DartFilingScan.fromJson(data) as T;
     }
     if (t == _iqc95j34.IngestException) {
       return _iqc95j34.IngestException.fromJson(data) as T;
@@ -288,6 +293,10 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _isc.getType<_itki3qdq.DartFiling?>()) {
       return (data != null ? _itki3qdq.DartFiling.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_ixr5w3gq.DartFilingScan?>()) {
+      return (data != null ? _ixr5w3gq.DartFilingScan.fromJson(data) : null)
+          as T;
     }
     if (t == _isc.getType<_iqc95j34.IngestException?>()) {
       return (data != null ? _iqc95j34.IngestException.fromJson(data) : null)
@@ -484,6 +493,7 @@ class Protocol extends _isc.SerializationManager {
       _ia2izjbq.CompanySort => 'CompanySort',
       _ir49pw6i.DartCorpStatus => 'DartCorpStatus',
       _itki3qdq.DartFiling => 'DartFiling',
+      _ixr5w3gq.DartFilingScan => 'DartFilingScan',
       _iqc95j34.IngestException => 'IngestException',
       _iqbvehdv.FacetCount => 'FacetCount',
       _i167q75d.FilingFetchStatus => 'FilingFetchStatus',
@@ -552,6 +562,8 @@ class Protocol extends _isc.SerializationManager {
         return 'DartCorpStatus';
       case _itki3qdq.DartFiling():
         return 'DartFiling';
+      case _ixr5w3gq.DartFilingScan():
+        return 'DartFilingScan';
       case _iqc95j34.IngestException():
         return 'IngestException';
       case _iqbvehdv.FacetCount():
@@ -662,6 +674,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'DartFiling') {
       return deserialize<_itki3qdq.DartFiling>(data['data']);
+    }
+    if (dataClassName == 'DartFilingScan') {
+      return deserialize<_ixr5w3gq.DartFilingScan>(data['data']);
     }
     if (dataClassName == 'IngestException') {
       return deserialize<_iqc95j34.IngestException>(data['data']);

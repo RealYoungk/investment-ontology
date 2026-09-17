@@ -17,6 +17,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/future_calls.
     as _i4o8e4lj;
 import 'package:investment_ontology_serverpod_server/src/generated/future_calls_generated_models/company_master_future_call_run_model.dart'
     as _i5djsspn;
+import 'package:investment_ontology_serverpod_server/src/generated/future_calls_generated_models/financial_facts_future_call_run_company_model.dart'
+    as _iks5abhc;
 import 'package:investment_ontology_serverpod_server/src/generated/future_calls_generated_models/financial_facts_future_call_run_model.dart'
     as _iqf3b55q;
 import 'package:investment_ontology_serverpod_server/src/generated/future_calls_generated_models/market_snapshot_future_call_run_model.dart'
@@ -871,8 +873,9 @@ class _IngestEndpoint {
   }
 
   _ida.Future<_idt86amb.IngestJob> startFinancials(
-    _ist.TestSessionBuilder sessionBuilder,
-  ) async {
+    _ist.TestSessionBuilder sessionBuilder, {
+    String? corpCode,
+  }) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
           (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
@@ -884,7 +887,7 @@ class _IngestEndpoint {
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'ingest',
           methodName: 'startFinancials',
-          parameters: _ist.testObjectToJson({}),
+          parameters: _ist.testObjectToJson({'corpCode': corpCode}),
           serializationManager: _serializationManager,
         );
         var _localReturnValue =
@@ -1102,6 +1105,27 @@ class _FinancialFactsFutureCall {
         (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild();
     try {
       await _i4o8e4lj.FinancialFactsRunFutureCall().invoke(
+        _localUniqueSession,
+        object,
+      );
+    } finally {
+      await _localUniqueSession.close();
+    }
+  }
+
+  Future<void> runCompany(
+    _ist.TestSessionBuilder sessionBuilder,
+    int jobId,
+    String corpCode,
+  ) async {
+    var object = _iks5abhc.FinancialFactsFutureCallRunCompanyModel(
+      jobId: jobId,
+      corpCode: corpCode,
+    );
+    var _localUniqueSession =
+        (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild();
+    try {
+      await _i4o8e4lj.FinancialFactsRunCompanyFutureCall().invoke(
         _localUniqueSession,
         object,
       );
