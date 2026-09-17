@@ -18,5 +18,7 @@ company:
   - detail:
 ingest:
   - startCompanyMaster:
+  - startFinancials:
   - cancel:
   - latest:
+  - latestOf:

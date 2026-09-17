@@ -21,6 +21,8 @@ import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
     as _iais;
 import 'future_calls_generated_models/company_master_future_call_run_model.dart'
     as _i8298vau;
+import 'future_calls_generated_models/financial_facts_future_call_run_model.dart'
+    as _ijwdvc26;
 import 'greetings/greeting.dart' as _izw8z7ou;
 import 'ontology/models/api_call_usage.dart' as _i3e42he1;
 import 'ontology/models/api_provider.dart' as _i82zif2r;
@@ -1325,6 +1327,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _i8298vau.CompanyMasterFutureCallRunModel) {
       return _i8298vau.CompanyMasterFutureCallRunModel.fromJson(data) as T;
     }
+    if (t == _ijwdvc26.FinancialFactsFutureCallRunModel) {
+      return _ijwdvc26.FinancialFactsFutureCallRunModel.fromJson(data) as T;
+    }
     if (t == _izw8z7ou.Greeting) {
       return _izw8z7ou.Greeting.fromJson(data) as T;
     }
@@ -1409,6 +1414,12 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _is.getType<_i8298vau.CompanyMasterFutureCallRunModel?>()) {
       return (data != null
               ? _i8298vau.CompanyMasterFutureCallRunModel.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _is.getType<_ijwdvc26.FinancialFactsFutureCallRunModel?>()) {
+      return (data != null
+              ? _ijwdvc26.FinancialFactsFutureCallRunModel.fromJson(data)
               : null)
           as T;
     }
@@ -1559,6 +1570,8 @@ class Protocol extends _is.DatabaseSerializationManager {
     return switch (type) {
       _i8298vau.CompanyMasterFutureCallRunModel =>
         'CompanyMasterFutureCallRunModel',
+      _ijwdvc26.FinancialFactsFutureCallRunModel =>
+        'FinancialFactsFutureCallRunModel',
       _izw8z7ou.Greeting => 'Greeting',
       _i3e42he1.ApiCallUsage => 'ApiCallUsage',
       _i82zif2r.ApiProvider => 'ApiProvider',
@@ -1605,6 +1618,8 @@ class Protocol extends _is.DatabaseSerializationManager {
     switch (data) {
       case _i8298vau.CompanyMasterFutureCallRunModel():
         return 'CompanyMasterFutureCallRunModel';
+      case _ijwdvc26.FinancialFactsFutureCallRunModel():
+        return 'FinancialFactsFutureCallRunModel';
       case _izw8z7ou.Greeting():
         return 'Greeting';
       case _i3e42he1.ApiCallUsage():
@@ -1687,6 +1702,11 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'CompanyMasterFutureCallRunModel') {
       return deserialize<_i8298vau.CompanyMasterFutureCallRunModel>(
+        data['data'],
+      );
+    }
+    if (dataClassName == 'FinancialFactsFutureCallRunModel') {
+      return deserialize<_ijwdvc26.FinancialFactsFutureCallRunModel>(
         data['data'],
       );
     }

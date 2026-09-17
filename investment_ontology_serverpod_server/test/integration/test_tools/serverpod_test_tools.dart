@@ -17,6 +17,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/future_calls.
     as _i4o8e4lj;
 import 'package:investment_ontology_serverpod_server/src/generated/future_calls_generated_models/company_master_future_call_run_model.dart'
     as _i5djsspn;
+import 'package:investment_ontology_serverpod_server/src/generated/future_calls_generated_models/financial_facts_future_call_run_model.dart'
+    as _iqf3b55q;
 import 'package:investment_ontology_serverpod_server/src/generated/greetings/greeting.dart'
     as _isd101g2;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_detail.dart'
@@ -210,6 +212,8 @@ class _InternalTestEndpoints extends TestEndpoints
 
 class _FutureCalls {
   late final companyMaster = _CompanyMasterFutureCall();
+
+  late final financialFacts = _FinancialFactsFutureCall();
 }
 
 class _EmailIdpEndpoint {
@@ -765,6 +769,36 @@ class _IngestEndpoint {
     });
   }
 
+  _ida.Future<_idt86amb.IngestJob> startFinancials(
+    _ist.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'ingest',
+            method: 'startFinancials',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'ingest',
+          methodName: 'startFinancials',
+          parameters: _ist.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_idt86amb.IngestJob>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
   _ida.Future<_idt86amb.IngestJob?> cancel(
     _ist.TestSessionBuilder sessionBuilder,
     int jobId,
@@ -825,6 +859,37 @@ class _IngestEndpoint {
       }
     });
   }
+
+  _ida.Future<_idt86amb.IngestJob?> latestOf(
+    _ist.TestSessionBuilder sessionBuilder,
+    String kind,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'ingest',
+            method: 'latestOf',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'ingest',
+          methodName: 'latestOf',
+          parameters: _ist.testObjectToJson({'kind': kind}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_idt86amb.IngestJob?>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
 }
 
 class _CompanyMasterFutureCall {
@@ -843,6 +908,38 @@ class _CompanyMasterFutureCall {
       await _i4o8e4lj.CompanyMasterRunFutureCall().invoke(
         _localUniqueSession,
         object,
+      );
+    } finally {
+      await _localUniqueSession.close();
+    }
+  }
+}
+
+class _FinancialFactsFutureCall {
+  Future<void> run(
+    _ist.TestSessionBuilder sessionBuilder,
+    int jobId,
+  ) async {
+    var object = _iqf3b55q.FinancialFactsFutureCallRunModel(jobId: jobId);
+    var _localUniqueSession =
+        (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild();
+    try {
+      await _i4o8e4lj.FinancialFactsRunFutureCall().invoke(
+        _localUniqueSession,
+        object,
+      );
+    } finally {
+      await _localUniqueSession.close();
+    }
+  }
+
+  Future<void> resume(_ist.TestSessionBuilder sessionBuilder) async {
+    var _localUniqueSession =
+        (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild();
+    try {
+      await _i4o8e4lj.FinancialFactsResumeFutureCall().invoke(
+        _localUniqueSession,
+        null,
       );
     } finally {
       await _localUniqueSession.close();

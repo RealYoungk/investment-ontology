@@ -432,6 +432,16 @@ class Endpoints extends _is.EndpointDispatch {
                     force: params['force'],
                   ),
         ),
+        'startFinancials': _is.MethodConnector(
+          name: 'startFinancials',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['ingest'] as _icbircc0.IngestEndpoint)
+                  .startFinancials(session),
+        ),
         'cancel': _is.MethodConnector(
           name: 'cancel',
           params: {
@@ -460,6 +470,25 @@ class Endpoints extends _is.EndpointDispatch {
                 Map<String, dynamic> params,
               ) async => (endpoints['ingest'] as _icbircc0.IngestEndpoint)
                   .latest(session),
+        ),
+        'latestOf': _is.MethodConnector(
+          name: 'latestOf',
+          params: {
+            'kind': _is.ParameterDescription(
+              name: 'kind',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['ingest'] as _icbircc0.IngestEndpoint).latestOf(
+                    session,
+                    params['kind'],
+                  ),
         ),
       },
     );

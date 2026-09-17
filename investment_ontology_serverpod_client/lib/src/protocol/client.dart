@@ -358,6 +358,17 @@ class EndpointIngest extends _isc.EndpointRef {
         {'force': force},
       );
 
+  /// 재무제표 수집 시작. 이미 실행 중이면 그 작업을 돌려준다.
+  ///
+  /// 공시 목록에서 새 정기보고서를 찾고, 받지 않은 보고서를 최신순으로 받는다.
+  /// DART 일일 호출 예산을 다 쓰면 멈추고 다음 날 이어서 받는다.
+  _ida.Future<_i1paap7y.IngestJob> startFinancials() =>
+      caller.callServerEndpoint<_i1paap7y.IngestJob>(
+        'ingest',
+        'startFinancials',
+        {},
+      );
+
   _ida.Future<_i1paap7y.IngestJob?> cancel(int jobId) =>
       caller.callServerEndpoint<_i1paap7y.IngestJob?>(
         'ingest',
@@ -370,6 +381,14 @@ class EndpointIngest extends _isc.EndpointRef {
         'ingest',
         'latest',
         {},
+      );
+
+  /// [kind]의 최근 작업 (`company_master`, `financial_facts`).
+  _ida.Future<_i1paap7y.IngestJob?> latestOf(String kind) =>
+      caller.callServerEndpoint<_i1paap7y.IngestJob?>(
+        'ingest',
+        'latestOf',
+        {'kind': kind},
       );
 }
 
