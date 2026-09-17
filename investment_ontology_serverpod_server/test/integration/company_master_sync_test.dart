@@ -171,6 +171,42 @@ void main() {
       expect((await Company.db.find(session)).single.establishedDate, isNull);
     });
 
+    test('전체 갱신은 한 번도 안 했거나 30일이 지나면 필요', () async {
+      expect(await CompanyMasterSync.isFullRefreshDue(session), isTrue);
+
+      Future<void> fullJob(DateTime finishedAt) => IngestJob.db.insertRow(
+        session,
+        IngestJob(
+          kind: CompanyMasterSync.kind,
+          status: IngestStatus.succeeded,
+          startedAt: finishedAt,
+          finishedAt: finishedAt,
+          fullRefresh: true,
+        ),
+      );
+      final now = DateTime.now().toUtc();
+      await fullJob(now.subtract(const Duration(days: 31)));
+      expect(await CompanyMasterSync.isFullRefreshDue(session), isTrue);
+
+      await fullJob(now.subtract(const Duration(days: 3)));
+      expect(await CompanyMasterSync.isFullRefreshDue(session), isFalse);
+    });
+
+    test('실패한 전체 갱신은 주기 계산에 넣지 않는다', () async {
+      final now = DateTime.now().toUtc();
+      await IngestJob.db.insertRow(
+        session,
+        IngestJob(
+          kind: CompanyMasterSync.kind,
+          status: IngestStatus.failed,
+          startedAt: now,
+          finishedAt: now,
+          fullRefresh: true,
+        ),
+      );
+      expect(await CompanyMasterSync.isFullRefreshDue(session), isTrue);
+    });
+
     test('치명적 오류면 작업을 실패로 끝낸다', () async {
       final job = await IngestJob.db.insertRow(
         session,

@@ -13,7 +13,8 @@ class IngestEndpoint extends Endpoint {
 
   /// 상장사 마스터 수집 시작. 이미 실행 중이면 그 작업을 돌려준다.
   ///
-  /// [force]가 false면 DART 변경일이 바뀐 기업만 다시 받는다.
+  /// 평소에는 DART 변경일이 바뀐 기업만 다시 받는다. [force]이거나 마지막 전체
+  /// 갱신 후 [CompanyMasterSync.fullRefreshInterval]이 지났으면 전체를 다시 받는다.
   Future<IngestJob> startCompanyMaster(
     Session session, {
     bool? force,
@@ -30,18 +31,21 @@ class IngestEndpoint extends Endpoint {
     final running = await _running(session);
     if (running != null) return running;
 
+    final full =
+        (force ?? false) || await CompanyMasterSync.isFullRefreshDue(session);
     final job = await IngestJob.db.insertRow(
       session,
       IngestJob(
         kind: CompanyMasterSync.kind,
         status: IngestStatus.running,
         startedAt: DateTime.now().toUtc(),
+        fullRefresh: full,
       ),
     );
     await session.serverpod.futureCalls
         .callWithDelay(Duration.zero)
         .companyMaster
-        .run(job.id!, force ?? false);
+        .run(job.id!, full);
     return job;
   }
 

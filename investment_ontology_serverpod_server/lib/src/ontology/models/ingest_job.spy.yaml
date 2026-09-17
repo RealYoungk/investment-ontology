@@ -12,6 +12,8 @@ fields:
   updated: int, default=0
   failed: int, default=0
   apiCalls: int, default=0
+  ### 변경일과 관계없이 모든 기업을 다시 받은 작업인지
+  fullRefresh: bool, default=false
   message: String?
 indexes:
   ingest_job_kind_idx:
