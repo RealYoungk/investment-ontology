@@ -1,14 +1,12 @@
 import 'package:serverpod/serverpod.dart';
 
-import '../../generated/future_calls.dart';
 import '../data_go_kr/data_go_kr_client.dart';
 import '../data_go_kr/data_go_kr_service_key.dart';
 import 'ingest_jobs.dart';
+import 'ingest_schedule.dart';
 import 'market_snapshot_sync.dart';
 
 class MarketSnapshotFutureCall extends FutureCall {
-  static const resumeIdentifier = 'market_snapshot_resume';
-
   Future<void> run(Session session, int jobId) async {
     final key = DataGoKrServiceKey.read(session);
     if (key == null) {
@@ -19,13 +17,7 @@ class MarketSnapshotFutureCall extends FutureCall {
       session,
       DataGoKrClient(key),
       jobId,
-      scheduleResume: (at) async {
-        await session.serverpod.futureCalls.cancel(resumeIdentifier);
-        await session.serverpod.futureCalls
-            .callAtTime(at, identifier: resumeIdentifier)
-            .marketSnapshot
-            .resume();
-      },
+      scheduleResume: (at) => IngestSchedule.marketSnapshotResume(session, at),
     ).run();
   }
 

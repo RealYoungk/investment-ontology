@@ -1,0 +1,8 @@
+### 수집 장부: 전체 공시 목록(list.json)을 어느 접수일까지 훑었는지. 한 행만 둔다.
+### 기업 하나만 받는 수집은 이 커서를 움직이지 않는다.
+class: DartFilingScan
+table: dart_filing_scan
+fields:
+  ### 이 날짜(UTC 자정)까지의 구간을 끝까지 훑었다
+  scannedThrough: DateTime
+  updatedAt: DateTime

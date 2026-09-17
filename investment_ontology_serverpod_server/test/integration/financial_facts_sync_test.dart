@@ -45,7 +45,8 @@ class FakeDart {
         final items = [
           for (final f in filings)
             if (f.date.compareTo(q['bgn_de']!) >= 0 &&
-                f.date.compareTo(q['end_de']!) <= 0)
+                f.date.compareTo(q['end_de']!) <= 0 &&
+                (q['corp_code'] == null || q['corp_code'] == f.corp))
               {
                 'corp_code': f.corp,
                 'corp_name': f.corp,
@@ -97,6 +98,9 @@ Map<String, String> row(
   String? prior,
 }) => {
   'rcept_no': rcept,
+  'corp_code': '00000001',
+  'bsns_year': '2025',
+  'reprt_code': '11011',
   'sj_div': sjDiv,
   'account_id': accountId,
   'account_nm': name,
@@ -117,7 +121,10 @@ void main() {
     final now = DateTime.utc(2026, 9, 17, 3);
     final resumes = <DateTime>[];
 
-    Future<IngestJob> runSync({int dailyBudget = 18000}) async {
+    Future<IngestJob> runSync({
+      int dailyBudget = 18000,
+      String? corpCode,
+    }) async {
       final job = await IngestJob.db.insertRow(
         session,
         IngestJob(
@@ -133,6 +140,7 @@ void main() {
         dailyBudget: dailyBudget,
         callInterval: Duration.zero,
         clock: () => now,
+        corpCode: corpCode,
         scheduleResume: (at) async => resumes.add(at),
       ).run();
       return (await IngestJob.db.findById(session, job.id!))!;
@@ -232,6 +240,90 @@ void main() {
       expect(facts.every((f) => f.sourceId == report.sourceId), isTrue);
     });
 
+    test('공시 목록은 달력 3개월을 넘지 않는 구간으로 나눠 조회한다', () async {
+      final ranges = <(String, String)>[];
+      final base = dart.client();
+      final recording = DartClient(
+        'key',
+        httpClient: MockClient((req) async {
+          if (req.url.path.endsWith('list.json')) {
+            ranges.add((
+              req.url.queryParameters['bgn_de']!,
+              req.url.queryParameters['end_de']!,
+            ));
+          }
+          return http.Response.bytes(
+            utf8.encode('{"status":"013","message":"없음"}'),
+            200,
+          );
+        }),
+      );
+      base.close();
+      final job = await IngestJob.db.insertRow(
+        session,
+        IngestJob(
+          kind: FinancialFactsSync.kind,
+          status: IngestStatus.running,
+          startedAt: DateTime.now().toUtc(),
+        ),
+      );
+      await FinancialFactsSync(
+        session,
+        recording,
+        job.id!,
+        callInterval: Duration.zero,
+        clock: () => now,
+      ).run();
+
+      expect(ranges.first.$1, '20240101');
+      expect(ranges.last.$2, '20260917');
+      for (final (from, to) in ranges) {
+        final f = DateTime.parse(from);
+        final t = DateTime.parse(to);
+        final limit = DateTime.utc(f.year, f.month + 3, f.day);
+        expect(t.isBefore(limit), isTrue, reason: '$from~$to');
+      }
+    });
+
+    test('전체 스캔은 커서 이후만 다시 훑고, 기업 하나 수집은 커서를 움직이지 않는다', () async {
+      await company('00000002');
+      dart.filings.add((
+        corp: '00000002',
+        name: '사업보고서 (2025.12)',
+        rcept: '20260311000007',
+        date: '20260311',
+      ));
+
+      final single = await runSync(corpCode: '00000002');
+
+      expect(single.message, startsWith('00000002: '));
+      expect(await DartFilingScan.db.count(session), 0);
+      expect(dart.financialCalls, [
+        '00000002|2025|11011|CFS',
+        '00000002|2025|11011|OFS',
+      ]);
+      expect(
+        (await DartFiling.db.find(session)).map((f) => f.corpCode),
+        ['00000002'],
+        reason: '다른 기업 공시는 장부에 넣지 않는다',
+      );
+
+      dart.listCalls = 0;
+      await runSync();
+      final cursor = (await DartFilingScan.db.findFirstRow(session))!;
+      expect(cursor.scannedThrough, DateTime.utc(2026, 9, 17));
+      expect(
+        {for (final f in await DartFiling.db.find(session)) f.corpCode},
+        {'00000001', '00000002'},
+      );
+      final fullScanCalls = dart.listCalls;
+
+      dart.listCalls = 0;
+      await runSync();
+      expect(dart.listCalls, lessThan(fullScanCalls));
+      expect(dart.listCalls, 1, reason: '커서 7일 전부터 오늘까지 한 구간');
+    });
+
     test('다시 돌리면 받은 공시는 호출하지 않는다', () async {
       await runSync();
       dart.financialCalls.clear();
@@ -248,19 +340,19 @@ void main() {
       dart.filings.add((
         corp: '00000001',
         name: '[기재정정]사업보고서 (2025.12)',
-        rcept: '20260630000002',
-        date: '20260630',
+        rcept: '20260915000002',
+        date: '20260915',
       ));
       dart.setRows('00000001', 2025, '11011', 'CFS', [
         row(
-          '20260630000002',
+          '20260915000002',
           'BS',
           'ifrs-full_Assets',
           '자산총계',
           '566942110000001',
         ),
         row(
-          '20260630000002',
+          '20260915000002',
           'IS',
           'dart_OperatingIncomeLoss',
           '영업이익',
@@ -317,9 +409,12 @@ void main() {
       expect(dart.financialCalls, isEmpty);
     });
 
-    test('응답 접수번호가 공시보다 이전이면 판정 오류로 저장하지 않는다', () async {
+    test('응답의 회사·사업연도·보고서 코드가 요청과 다르면 저장하지 않는다', () async {
       dart.setRows('00000001', 2025, '11011', 'CFS', [
-        row('20250310000009', 'BS', 'ifrs-full_Assets', '자산총계', '1'),
+        {
+          ...row('20260310000001', 'BS', 'ifrs-full_Assets', '자산총계', '1'),
+          'bsns_year': '2024',
+        },
       ]);
 
       await runSync();
@@ -328,6 +423,27 @@ void main() {
       final filing = (await DartFiling.db.find(session)).single;
       expect(filing.consolidatedStatus, FilingFetchStatus.failed);
       expect(filing.lastError, contains('mismatch'));
+    });
+
+    test('재무제표가 안 바뀐 정정(첨부추가)은 이전 접수번호로, 표시를 뗀 이름으로 저장한다', () async {
+      dart.filings
+        ..clear()
+        ..add((
+          corp: '00000001',
+          name: '[첨부추가]사업보고서 (2025.12)',
+          rcept: '20260320000009',
+          date: '20260320',
+        ));
+
+      await runSync();
+
+      final report = (await FinancialReport.db.find(session)).single;
+      expect(report.rceptNo, '20260310000001');
+      expect(report.reportName, '사업보고서 (2025.12)');
+      expect(
+        (await DartFiling.db.find(session)).single.consolidatedStatus,
+        FilingFetchStatus.stored,
+      );
     });
 
     test('판정할 수 없는 보고서는 받지 않고, 범위 밖 사업연도는 장부에 넣지 않는다', () async {
@@ -382,6 +498,10 @@ void main() {
         where: (t) => t.id.notEquals(null),
       );
       await ApiCallUsage.db.deleteWhere(
+        session,
+        where: (t) => t.id.notEquals(null),
+      );
+      await DartFilingScan.db.deleteWhere(
         session,
         where: (t) => t.id.notEquals(null),
       );

@@ -1,12 +1,12 @@
 import 'package:serverpod/serverpod.dart';
 
-import '../../generated/future_calls.dart';
 import '../../generated/protocol.dart';
 import '../dart/dart_api_key.dart';
 import '../data_go_kr/data_go_kr_service_key.dart';
 import '../ingest/company_master_sync.dart';
 import '../ingest/financial_facts_sync.dart';
 import '../ingest/ingest_jobs.dart';
+import '../ingest/ingest_schedule.dart';
 import '../ingest/market_snapshot_sync.dart';
 
 /// 외부 원천 수집 제어.
@@ -33,10 +33,7 @@ class IngestEndpoint extends Endpoint {
       CompanyMasterSync.kind,
       fullRefresh: full,
     ))!;
-    await session.serverpod.futureCalls
-        .callWithDelay(Duration.zero)
-        .companyMaster
-        .run(job.id!, full);
+    await IngestSchedule.companyMasterNow(session, job.id!, full);
     return job;
   }
 
@@ -44,15 +41,17 @@ class IngestEndpoint extends Endpoint {
   ///
   /// 공시 목록에서 새 정기보고서를 찾고, 받지 않은 보고서를 최신순으로 받는다.
   /// DART 일일 호출 예산을 다 쓰면 멈추고 다음 날 이어서 받는다.
-  Future<IngestJob> startFinancials(Session session) async {
+  /// [corpCode]를 주면 그 기업의 정기보고서만 찾아 바로 받는다.
+  Future<IngestJob> startFinancials(Session session, {String? corpCode}) async {
     _requireDartKey(session);
     final running = await IngestJobs.running(session, FinancialFactsSync.kind);
     if (running != null) return running;
     final job = (await IngestJobs.start(session, FinancialFactsSync.kind))!;
-    await session.serverpod.futureCalls
-        .callWithDelay(Duration.zero)
-        .financialFacts
-        .run(job.id!);
+    if (corpCode == null) {
+      await IngestSchedule.financialsNow(session, job.id!);
+    } else {
+      await IngestSchedule.financialsForCompanyNow(session, job.id!, corpCode);
+    }
     return job;
   }
 
@@ -69,10 +68,7 @@ class IngestEndpoint extends Endpoint {
     final running = await IngestJobs.running(session, MarketSnapshotSync.kind);
     if (running != null) return running;
     final job = (await IngestJobs.start(session, MarketSnapshotSync.kind))!;
-    await session.serverpod.futureCalls
-        .callWithDelay(Duration.zero)
-        .marketSnapshot
-        .run(job.id!);
+    await IngestSchedule.marketSnapshotNow(session, job.id!);
     return job;
   }
 

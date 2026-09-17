@@ -24,6 +24,7 @@ class FinancialFactsSync {
     this.dailyBudget = ApiCallBudget.dartFinancialBudget,
     this.callInterval = const Duration(milliseconds: 200),
     this.scheduleResume,
+    this.corpCode,
     DateTime Function()? clock,
   }) : _clock = clock ?? DateTime.now;
 
@@ -32,8 +33,9 @@ class FinancialFactsSync {
   /// 공시별 실패 허용 횟수. 넘으면 다시 시도하지 않는다.
   static const maxAttempts = 3;
 
-  /// DART는 회사를 지정하지 않은 공시 검색을 3개월 이내로 제한한다.
-  static const scanWindow = Duration(days: 90);
+  /// DART는 회사를 지정하지 않은 공시 검색을 3개월 이내로 제한한다. 달력 기준이라
+  /// 2월이 끼면 90일도 넘치므로(오류 100) 어느 달에서 시작해도 3개월 안인 85일로 자른다.
+  static const scanWindow = Duration(days: 85);
 
   /// 이미 훑은 구간도 이만큼 겹쳐 다시 본다 (늦게 반영되는 공시 대비).
   static const scanOverlap = Duration(days: 7);
@@ -53,6 +55,9 @@ class FinancialFactsSync {
   final int jobId;
   final int dailyBudget;
   final Duration callInterval;
+
+  /// 지정하면 이 기업의 정기보고서만 찾아 받는다. 전체 스캔 커서는 움직이지 않는다.
+  final String? corpCode;
 
   /// 한도 소진 시 이어받기를 예약한다. null이면 예약하지 않는다.
   final Future<void> Function(DateTime at)? scheduleResume;
@@ -81,22 +86,38 @@ class FinancialFactsSync {
       final companies = {
         for (final c in await Company.db.find(
           session,
-          where: (t) => t.market.inSet(_listedMarkets),
+          where: (t) {
+            final listed = t.market.inSet(_listedMarkets);
+            final code = corpCode;
+            return code == null ? listed : listed & t.corpCode.equals(code);
+          },
         ))
           c.corpCode: c,
       };
+      final only = corpCode == null ? null : companies[corpCode];
+      if (corpCode != null && only == null) {
+        throw StateError('상장사 원장에 없는 기업: $corpCode');
+      }
 
-      discovered = await _scan(companies, now);
+      discovered = await _scan(companies, now, job);
+      if (await IngestJobs.isCancelled(session, jobId)) {
+        job = job.copyWith(status: IngestStatus.cancelled);
+      }
 
-      final targets = await DartFiling.db.find(
-        session,
-        where: (t) =>
-            t.reportCode.notEquals(null) &
-            t.companyId.notEquals(null) &
-            t.attempts.between(0, maxAttempts - 1) &
-            (_needsFetch(t.consolidatedStatus) | _needsFetch(t.separateStatus)),
-        orderByList: (t) => [t.receivedDate.desc(), t.rceptNo.desc()],
-      );
+      final targets = job.status == IngestStatus.cancelled
+          ? const <DartFiling>[]
+          : await DartFiling.db.find(
+              session,
+              where: (t) =>
+                  t.reportCode.notEquals(null) &
+                  (only == null
+                      ? t.companyId.notEquals(null)
+                      : t.companyId.equals(only.id!)) &
+                  t.attempts.between(0, maxAttempts - 1) &
+                  (_needsFetch(t.consolidatedStatus) |
+                      _needsFetch(t.separateStatus)),
+              orderByList: (t) => [t.receivedDate.desc(), t.rceptNo.desc()],
+            );
       final byId = {for (final c in companies.values) c.id!: c};
       job = await IngestJobs.save(session, job.copyWith(total: targets.length));
 
@@ -135,13 +156,16 @@ class FinancialFactsSync {
         session,
         where: (t) =>
             t.reportCode.notEquals(null) &
-            t.companyId.notEquals(null) &
+            (only == null
+                ? t.companyId.notEquals(null)
+                : t.companyId.equals(only.id!)) &
             t.attempts.between(0, maxAttempts - 1) &
             (_needsFetch(t.consolidatedStatus) | _needsFetch(t.separateStatus)),
       );
       final cancelled = job.status == IngestStatus.cancelled;
       var message = '새 공시 $discovered건, 저장한 재무제표 $stored벌, 남은 공시 $remaining건';
-      if (_budgetExhausted && remaining > 0 && !cancelled) {
+      if (only != null) message = '${only.name}: $message';
+      if (_budgetExhausted && remaining > 0 && !cancelled && only == null) {
         final at = ApiCallBudget.nextKstMidnight(
           now,
         ).add(const Duration(minutes: 10));
@@ -181,15 +205,20 @@ class FinancialFactsSync {
       status.equals(FilingFetchStatus.failed);
 
   /// 공시 목록을 훑어 새 정기보고서를 장부에 넣는다. 넣은 건수를 돌려준다.
-  Future<int> _scan(Map<String, Company> companies, DateTime now) async {
-    final last = await DartFiling.db.findFirstRow(
-      session,
-      where: (t) => t.receivedDate.notEquals(null),
-      orderBy: (t) => t.receivedDate.desc(),
-    );
+  Future<int> _scan(
+    Map<String, Company> companies,
+    DateTime now,
+    IngestJob job,
+  ) async {
     final today = DateTime.utc(now.year, now.month, now.day);
     final earliest = DateTime.utc(firstInterimYear(now), 1, 1);
-    var from = last?.receivedDate?.subtract(scanOverlap) ?? earliest;
+    final code = corpCode;
+    if (code != null) {
+      return _scanCompany(code, companies, now, earliest, today);
+    }
+
+    final cursor = await DartFilingScan.db.findFirstRow(session);
+    var from = cursor?.scannedThrough.subtract(scanOverlap) ?? earliest;
     if (from.isBefore(earliest)) from = earliest;
 
     var inserted = 0;
@@ -203,12 +232,63 @@ class FinancialFactsSync {
           () => dart.fetchFilings(from: from, to: to, page: page),
         );
         inserted += await _record(result.items, companies, now);
+        if (page % 5 == 1) {
+          await _meter.flush(session);
+          job = await IngestJobs.save(
+            session,
+            job.copyWith(
+              apiCalls: dart.calls,
+              message:
+                  '공시 목록 확인 중: ${DartValues.formatYmd(from)}~${DartValues.formatYmd(to)} '
+                  '$page/${result.totalPages}쪽, 새 정기보고서 $inserted건',
+            ),
+          );
+          if (job.status == IngestStatus.cancelled) return inserted;
+        }
         if (page >= result.totalPages) break;
         page++;
       }
+      await _saveCursor(cursor?.id, to);
       from = to.add(const Duration(days: 1));
     }
     return inserted;
+  }
+
+  Future<void> _saveCursor(int? id, DateTime scannedThrough) async {
+    final row = DartFilingScan(
+      id: id,
+      scannedThrough: scannedThrough,
+      updatedAt: DateTime.now().toUtc(),
+    );
+    if (id == null) {
+      final existing = await DartFilingScan.db.findFirstRow(session);
+      if (existing == null) {
+        await DartFilingScan.db.insertRow(session, row);
+        return;
+      }
+      await DartFilingScan.db.updateRow(session, row.copyWith(id: existing.id));
+      return;
+    }
+    await DartFilingScan.db.updateRow(session, row);
+  }
+
+  /// 기업 하나의 공시 목록. 회사를 지정하면 기간 제한이 없다.
+  Future<int> _scanCompany(
+    String code,
+    Map<String, Company> companies,
+    DateTime now,
+    DateTime from,
+    DateTime to,
+  ) async {
+    var inserted = 0;
+    for (var page = 1; ; page++) {
+      if (!_hasAllowance) return inserted;
+      final result = await _callDart(
+        () => dart.fetchFilings(from: from, to: to, page: page, corpCode: code),
+      );
+      inserted += await _record(result.items, companies, now);
+      if (page >= result.totalPages) return inserted;
+    }
   }
 
   Future<int> _record(
@@ -349,13 +429,21 @@ class FinancialFactsSync {
       throw DartApiException('parse', '응답 접수번호가 하나가 아님: $rceptNos');
     }
     final rceptNo = rceptNos.single;
-    // 공시 목록은 최종 보고서만 주므로, 응답은 그 공시이거나 그 뒤의 정정이어야 한다.
-    // 더 이전 접수번호면 사업연도·보고서 코드 판정이 어긋난 것이다.
-    if (rceptNo.compareTo(filing.rceptNo) < 0) {
-      throw DartApiException(
-        'mismatch',
-        '응답 접수번호 $rceptNo가 공시 ${filing.rceptNo}보다 이전',
+    // 사업연도·보고서 코드 판정이 어긋나면 다른 기간의 재무가 온다. 응답의 회사·연도·코드로 확인한다.
+    final expected = (
+      company.corpCode,
+      '${filing.bsnsYear}',
+      FinancialCodes.reportCodeToDart(filing.reportCode!),
+    );
+    for (final r in rows) {
+      final actual = (
+        DartValues.text(r['corp_code']) ?? expected.$1,
+        DartValues.text(r['bsns_year']) ?? expected.$2,
+        DartValues.text(r['reprt_code']) ?? expected.$3,
       );
+      if (actual != expected) {
+        throw DartApiException('mismatch', '요청 $expected와 응답 $actual이 다름');
+      }
     }
     final existing = await FinancialReport.db.findFirstRow(
       session,
@@ -365,13 +453,15 @@ class FinancialFactsSync {
       return (status: FilingFetchStatus.stored, inserted: false);
     }
 
+    // 첨부추가 등 재무제표가 바뀌지 않은 정정이면 응답은 이전 접수번호를 준다.
+    // 목록은 최종 보고서만 주므로 그 이름에서 [기재정정] 같은 표시를 떼어 쓴다.
     final reportName = rceptNo == filing.rceptNo
         ? filing.reportName
         : (await DartFiling.db.findFirstRow(
                 session,
                 where: (t) => t.rceptNo.equals(rceptNo),
               ))?.reportName ??
-              filing.reportName;
+              filing.reportName.replaceFirst(RegExp(r'^(\[[^\]]+\]\s*)+'), '');
     final now = DateTime.now().toUtc();
     final bsnsYear = filing.bsnsYear!;
     final reportCode = filing.reportCode!;
