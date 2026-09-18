@@ -78,7 +78,12 @@ class FinancialFactsSync {
   }
 
   Future<void> run() async {
-    var job = (await IngestJob.db.findById(session, jobId))!;
+    final claimed = await IngestJobs.claim(session, jobId);
+    if (claimed == null) {
+      dart.close();
+      return;
+    }
+    var job = claimed;
     var discovered = 0, stored = 0, failed = 0, processed = 0;
     try {
       final now = _clock().toUtc();

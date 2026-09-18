@@ -89,7 +89,12 @@ class MarketSnapshotSync {
       RegExp(r'^KR7[0-9A-Z]{9}$').hasMatch(isin) ? isin.substring(3, 8) : null;
 
   Future<void> run() async {
-    var job = (await IngestJob.db.findById(session, jobId))!;
+    final claimed = await IngestJobs.claim(session, jobId);
+    if (claimed == null) {
+      client.close();
+      return;
+    }
+    var job = claimed;
     var processed = 0, stored = 0, failed = 0;
     final failures = <String>[];
     try {

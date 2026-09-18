@@ -24,17 +24,25 @@ abstract final class IngestSchedule {
 
   /// 서버가 켜질 때 부른다.
   ///
-  /// 1. 이전 서버와 함께 끊긴 수집 작업을 정리한다.
-  /// 2. 끊긴 재무·시세 수집은 바로 이어받기를 예약한다 (기업마스터는 수동).
+  /// 1. 이전 서버와 함께 끊긴 수집 작업을 정리한다. Serverpod가 다시 실행할 작업은 둔다.
+  /// 2. 다시 실행되지 않는 재무·시세 수집은 바로 이어받기를 예약한다 (기업마스터는 수동).
   /// 3. 매일 자동 수집 예약이 없으면 건다.
   static Future<void> onServerStart(Session session) async {
-    final interrupted = await IngestJobs.recoverInterrupted(session);
+    final r = await IngestJobs.recoverInterrupted(session);
     final soon = DateTime.now().toUtc().add(const Duration(seconds: 10));
-    if (interrupted.contains(FinancialFactsSync.kind)) {
-      await financialsResume(session, soon);
-    }
-    if (interrupted.contains(MarketSnapshotSync.kind)) {
-      await marketSnapshotResume(session, soon);
+    for (final (kind, resumeId, resume) in [
+      (FinancialFactsSync.kind, financialsResumeId, financialsResume),
+      (MarketSnapshotSync.kind, marketSnapshotResumeId, marketSnapshotResume),
+    ]) {
+      if (r.orphaned.contains(kind)) {
+        await resume(session, soon);
+      } else if (r.rerunning.contains(kind)) {
+        // Serverpod가 끊긴 작업을 다시 실행하므로 남아 있는 이어받기 예약은 겹친다.
+        await sp.FutureCallEntry.db.deleteWhere(
+          session,
+          where: (t) => t.identifier.equals(resumeId),
+        );
+      }
     }
     await ensureDaily(session);
   }

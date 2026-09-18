@@ -86,5 +86,73 @@ void main() {
         reason: '끊기지 않은 시세는 예약하지 않는다',
       );
     });
+
+    test('Serverpod가 다시 실행할 끊긴 작업은 두고, 남은 이어받기 예약은 지운다', () async {
+      final job = await IngestJob.db.insertRow(
+        session,
+        IngestJob(
+          kind: FinancialFactsSync.kind,
+          status: IngestStatus.running,
+          startedAt: DateTime.now().toUtc().subtract(const Duration(hours: 1)),
+        ),
+      );
+      final past = DateTime.now().toUtc().subtract(const Duration(minutes: 5));
+      await sp.FutureCallEntry.db.insert(session, [
+        // 끊긴 실행: 서버가 켜지면 Serverpod가 다시 실행한다.
+        sp.FutureCallEntry(
+          name: 'FinancialFactsRunFutureCall',
+          time: past,
+          serverId: 'test',
+        ),
+        // 지난번에 걸어 둔 이어받기: 위 실행과 겹친다.
+        sp.FutureCallEntry(
+          name: 'FinancialFactsResumeFutureCall',
+          time: past,
+          serverId: 'test',
+          identifier: IngestSchedule.financialsResumeId,
+        ),
+      ]);
+
+      await IngestSchedule.onServerStart(session);
+
+      expect(
+        (await IngestJob.db.findById(session, job.id!))!.status,
+        IngestStatus.running,
+      );
+      expect(
+        await sp.FutureCallEntry.db.count(
+          session,
+          where: (t) => t.identifier.equals(IngestSchedule.financialsResumeId),
+        ),
+        0,
+      );
+    });
+
+    test('다시 실행되는 작업은 실행 중으로 되돌리고, 취소된 작업은 실행하지 않는다', () async {
+      final failed = await IngestJob.db.insertRow(
+        session,
+        IngestJob(
+          kind: FinancialFactsSync.kind,
+          status: IngestStatus.failed,
+          startedAt: DateTime.now().toUtc(),
+          finishedAt: DateTime.now().toUtc(),
+          message: '서버가 꺼지며 중단됨',
+        ),
+      );
+      final cancelled = await IngestJob.db.insertRow(
+        session,
+        IngestJob(
+          kind: FinancialFactsSync.kind,
+          status: IngestStatus.cancelled,
+          startedAt: DateTime.now().toUtc(),
+        ),
+      );
+
+      final revived = (await IngestJobs.claim(session, failed.id!))!;
+      expect(revived.status, IngestStatus.running);
+      expect(revived.finishedAt, isNull);
+      expect(revived.message, isNull);
+      expect(await IngestJobs.claim(session, cancelled.id!), isNull);
+    });
   });
 }

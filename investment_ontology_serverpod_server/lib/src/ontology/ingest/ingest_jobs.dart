@@ -1,5 +1,7 @@
 import 'package:serverpod/serverpod.dart';
 
+import 'package:serverpod/protocol.dart' as sp;
+
 import '../../generated/protocol.dart';
 
 /// 수집 작업(IngestJob) 공통 처리.
@@ -31,15 +33,64 @@ abstract final class IngestJobs {
     return null;
   }
 
+  /// 작업을 실행하기 직전에 부른다. 실행하지 말아야 하면 null.
+  ///
+  /// Serverpod는 서버가 꺼지며 끊긴 FutureCall을 다음에 켜질 때 다시 실행한다. 그래서 같은
+  /// 작업이 다시 실행될 수 있다. 사용자가 취소한 작업이면 실행하지 않고, 아니면 실행 중으로
+  /// 되돌린다 (받은 것은 장부에 남아 있어 이어서 받는다).
+  static Future<IngestJob?> claim(Session session, int jobId) async {
+    final job = await IngestJob.db.findById(session, jobId);
+    if (job == null || job.status == IngestStatus.cancelled) return null;
+    if (job.status == IngestStatus.running) return job;
+    return IngestJob.db.updateRow(
+      session,
+      job.copyWith(
+        status: IngestStatus.running,
+        finishedAt: null,
+        message: null,
+      ),
+    );
+  }
+
+  /// 수집 종류 → FutureCall 이름 앞부분 (생성된 이름은 `<앞부분><메서드>FutureCall`).
+  static const _futureCallPrefixes = {
+    'financial_facts': 'FinancialFacts',
+    'market_snapshot': 'MarketSnapshot',
+    'company_master': 'CompanyMaster',
+  };
+
   /// 서버가 켜질 때 부른다. 수집은 서버 프로세스 안에서만 돌므로, 이때 "실행 중"으로
-  /// 남은 작업은 이전 서버와 함께 끊긴 것이다. 실패로 정리하고 그 종류들을 돌려준다.
-  static Future<Set<String>> recoverInterrupted(Session session) async {
+  /// 남은 작업은 이전 서버와 함께 끊긴 것이다.
+  ///
+  /// 실행 시각이 지난 FutureCall이 남아 있는 종류는 Serverpod가 다시 실행하므로 그대로 둔다
+  /// ([claim]이 실행 중으로 되돌린다). 그런 예약이 없는 작업만 실패로 정리하고, 그 종류를
+  /// 돌려준다 (호출한 쪽이 이어받기를 예약한다).
+  static Future<({Set<String> orphaned, Set<String> rerunning})>
+  recoverInterrupted(Session session) async {
     final jobs = await IngestJob.db.find(
       session,
       where: (t) => t.status.equals(IngestStatus.running),
     );
     final now = DateTime.now().toUtc();
+    final overdue = [
+      for (final e in await sp.FutureCallEntry.db.find(
+        session,
+        where: (t) => t.time <= now,
+      ))
+        e.name,
+    ];
+    bool willRerun(String kind) {
+      final prefix = _futureCallPrefixes[kind];
+      return prefix != null && overdue.any((n) => n.startsWith(prefix));
+    }
+
+    final orphaned = <String>{}, rerunning = <String>{};
     for (final job in jobs) {
+      if (willRerun(job.kind)) {
+        rerunning.add(job.kind);
+        continue;
+      }
+      orphaned.add(job.kind);
       await IngestJob.db.updateRow(
         session,
         job.copyWith(
@@ -51,7 +102,7 @@ abstract final class IngestJobs {
         ),
       );
     }
-    return {for (final j in jobs) j.kind};
+    return (orphaned: orphaned, rerunning: rerunning);
   }
 
   /// 새 작업을 만든다. 이미 실행 중이면 null.

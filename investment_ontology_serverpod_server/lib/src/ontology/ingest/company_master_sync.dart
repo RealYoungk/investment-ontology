@@ -50,7 +50,12 @@ class CompanyMasterSync {
   late final _meter = ApiCallMeter(ApiProvider.dart, () => dart.calls);
 
   Future<void> run({required bool force}) async {
-    var job = (await IngestJob.db.findById(session, jobId))!;
+    final claimed = await IngestJobs.claim(session, jobId);
+    if (claimed == null) {
+      dart.close();
+      return;
+    }
+    var job = claimed;
     try {
       await KsicSeeder.seed(session);
 
