@@ -70,7 +70,10 @@ class _JobRow extends StatefulWidget {
 }
 
 class _JobRowState extends State<_JobRow> {
-  static const _pollInterval = Duration(seconds: 3);
+  /// 수집 중일 때와 쉬고 있을 때의 상태 확인 간격. 예약·이어받기로 서버가 스스로 수집을
+  /// 시작하기도 하므로 쉬고 있을 때도 가끔 확인한다.
+  static const _runningInterval = Duration(seconds: 3);
+  static const _idleInterval = Duration(seconds: 15);
 
   IngestJob? _job;
   String? _error;
@@ -96,21 +99,29 @@ class _JobRowState extends State<_JobRow> {
       final job = await client.ingest.latestOf(widget.kind);
       if (!mounted) return;
       final wasRunning = _running;
+      final before = _job;
       setState(() => _job = job);
       _syncPolling();
-      if (wasRunning && !_running) await widget.onFinished();
+      // 수집이 끝났거나, 보지 못한 사이에 다른 수집이 돌고 끝났으면 화면을 새로 고친다.
+      final finishedUnseen =
+          before != null && job != null && job.id != before.id && !_running;
+      if ((wasRunning && !_running) || finishedUnseen) {
+        await widget.onFinished();
+      }
     } catch (_) {
       // 일시적인 연결 오류는 다음 폴링에서 다시 시도.
     }
   }
 
+  /// 지금 걸린 타이머의 간격. 상태가 바뀌면 간격에 맞게 다시 건다.
+  Duration? _pollEvery;
+
   void _syncPolling() {
-    if (_running && _poll == null) {
-      _poll = Timer.periodic(_pollInterval, (_) => _refresh());
-    } else if (!_running) {
-      _poll?.cancel();
-      _poll = null;
-    }
+    final every = _running ? _runningInterval : _idleInterval;
+    if (_poll != null && _pollEvery == every) return;
+    _poll?.cancel();
+    _pollEvery = every;
+    _poll = Timer.periodic(every, (_) => _refresh());
   }
 
   Future<void> _start() async {
