@@ -104,10 +104,18 @@ void main() {
                 TreemapItem(
                   id: 'C/26',
                   label: '전자부품',
+                  detail: '53.2%',
                   value: 50,
                   tooltip: '26',
                 ),
                 TreemapItem(id: 'C/21', label: '의약품', value: 20, tooltip: '21'),
+                TreemapItem(
+                  id: 'C/99',
+                  label: '아주 긴 이름의 좁은 세부 업종',
+                  detail: '9.9%',
+                  value: 1,
+                  tooltip: '99',
+                ),
               ],
             ),
             TreemapItem(
@@ -137,6 +145,12 @@ void main() {
     );
     expect(tester.takeException(), isNull);
     expect(find.text('전자부품'), findsOneWidget);
+    expect(find.text('53.2%'), findsOneWidget);
+    expect(
+      find.text('9.9%'),
+      findsNothing,
+      reason: '이름이 안 들어가는 좁은 칸은 비중도 쓰지 않는다',
+    );
 
     await tester.tap(find.text('전자부품'));
     expect(tapped?.id, 'C/26');

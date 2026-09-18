@@ -214,14 +214,11 @@ class AppTreemap<T> extends StatelessWidget {
               padding: const EdgeInsets.all(5),
               alignment: Alignment.topLeft,
               child: inner.width > 36 && inner.height > 20
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _FittedLabel(text: item.label, style: labelStyle),
-                        if (item.detail != null && inner.height > 40)
-                          _FittedLabel(text: item.detail!, style: detailStyle),
-                      ],
+                  ? _FittedLabel(
+                      text: item.label,
+                      style: labelStyle,
+                      detail: inner.height > 40 ? item.detail : null,
+                      detailStyle: detailStyle,
                     )
                   : null,
             ),
@@ -233,26 +230,83 @@ class AppTreemap<T> extends StatelessWidget {
 }
 
 /// 한 줄에 다 들어갈 때만 글자를 쓴다. 잘린 글자는 보여주지 않는다.
-class _FittedLabel extends StatelessWidget {
-  const _FittedLabel({required this.text, required this.style});
+///
+/// [detail](비중 등)은 이름이 들어갈 때만 쓴다. 이름 없이 숫자만 남으면 무엇의 값인지 알 수 없다.
+class _FittedLabel extends StatefulWidget {
+  const _FittedLabel({
+    required this.text,
+    required this.style,
+    this.detail,
+    this.detailStyle,
+  });
 
   final String text;
   final TextStyle style;
+  final String? detail;
+  final TextStyle? detailStyle;
+
+  @override
+  State<_FittedLabel> createState() => _FittedLabelState();
+}
+
+class _FittedLabelState extends State<_FittedLabel> {
+  /// 잰 폭에 곱하는 여유.
+  static const _safety = 1.05;
+
+  @override
+  void initState() {
+    super.initState();
+    // 웹 글꼴은 늦게 로드된다. 로드되면 폭이 바뀌므로 다시 잰다.
+    PaintingBinding.instance.systemFonts.addListener(_fontsChanged);
+  }
+
+  @override
+  void dispose() {
+    PaintingBinding.instance.systemFonts.removeListener(_fontsChanged);
+    super.dispose();
+  }
+
+  void _fontsChanged() {
+    if (mounted) setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final painter = TextPainter(
-          text: TextSpan(text: text, style: style),
-          maxLines: 1,
-          textDirection: TextDirection.ltr,
-          textScaler: MediaQuery.textScalerOf(context),
-        )..layout();
-        if (painter.width > constraints.maxWidth) {
-          return const SizedBox.shrink();
+        final scaler = MediaQuery.textScalerOf(context);
+        final base = DefaultTextStyle.of(context).style;
+        bool fits(String s, TextStyle? st) {
+          // Text 위젯처럼 기본 글꼴 설정을 합쳐서 잰다.
+          final painter = TextPainter(
+            text: TextSpan(text: s, style: base.merge(st)),
+            maxLines: 1,
+            textDirection: TextDirection.ltr,
+            textScaler: scaler,
+          )..layout();
+          final fit = painter.width * _safety <= constraints.maxWidth;
+          painter.dispose();
+          return fit;
         }
-        return Text(text, style: style, maxLines: 1, softWrap: false);
+
+        final w = widget;
+        if (!fits(w.text, w.style)) return const SizedBox.shrink();
+        final d = w.detail;
+        final label = Text(
+          w.text,
+          style: w.style,
+          maxLines: 1,
+          softWrap: false,
+        );
+        if (d == null || !fits(d, w.detailStyle)) return label;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            label,
+            Text(d, style: w.detailStyle, maxLines: 1, softWrap: false),
+          ],
+        );
       },
     );
   }
