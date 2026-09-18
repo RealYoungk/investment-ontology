@@ -1,4 +1,4 @@
-### 종목. 식별자는 ISIN. 발행 기업은 KRX상장종목정보의 법인등록번호(crno)로 Company.jurirNo와 잇는다.
+### 종목. 식별자는 ISIN. 발행 기업은 법인등록번호 → DART 종목코드 → ISIN 발행체 코드 순서로 잇는다.
 class: Security
 table: security
 fields:
@@ -12,6 +12,8 @@ fields:
   ### KRX상장종목정보의 법인명
   corpName: String?
   companyId: int?, relation(parent=company, onDelete=SetNull)
+  ### companyId를 정한 근거
+  linkBasis: SecurityLinkBasis?
   ### 시세나 상장종목 목록에서 마지막으로 확인한 기준일 (UTC 자정)
   lastSeenDate: DateTime
   ### 종목 정보(이름·시장·법인)의 마지막 출처

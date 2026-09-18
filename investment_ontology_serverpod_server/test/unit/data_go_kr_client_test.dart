@@ -50,7 +50,10 @@ void main() {
         onRequest: (req) => url = req.url,
       ).fetchStockPrices(DateTime.utc(2026, 9, 16));
 
-      expect(url.path, endsWith('getStockPriceInfo'));
+      expect(
+        url.path,
+        endsWith('GetStockSecuritiesInfoService_V2/getStockPriceInfo_V2'),
+      );
       expect(url.queryParameters['serviceKey'], 'dec/key+==');
       expect(url.queryParameters['basDt'], '20260916');
       expect(url.queryParameters['resultType'], 'json');
@@ -82,6 +85,20 @@ void main() {
         throwsA(
           isA<DataGoKrApiException>()
               .having((e) => e.code, 'code', '30')
+              .having((e) => e.isFatal, 'isFatal', isTrue),
+        ),
+      );
+    });
+
+    test('주소·키 오류가 JSON(OpenAPI_ServiceResponse)으로 와도 치명적 오류', () async {
+      await expectLater(
+        client(
+          '{"OpenAPI_ServiceResponse":{"cmmMsgHeader":{"errMsg":"NO_OPENAPI_SERVICE_ERROR",'
+          '"returnAuthMsg":"해당 오픈API 서비스가 없거나 폐기됨","returnReasonCode":"12"}}}',
+        ).fetchStockPrices(DateTime.utc(2026, 9, 16)),
+        throwsA(
+          isA<DataGoKrApiException>()
+              .having((e) => e.code, 'code', '12')
               .having((e) => e.isFatal, 'isFatal', isTrue),
         ),
       );

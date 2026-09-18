@@ -78,10 +78,15 @@ class MarketSnapshotSync {
     return RegExp(r'^A[0-9A-Z]{6}$').hasMatch(v) ? v.substring(1) : v;
   }
 
+  /// 숫자만 남긴다. 비었거나 0뿐이면(외국 기업의 법인등록번호 `0000000000000`) null.
   static String? digits(String? v) {
     final d = v?.replaceAll(RegExp(r'\D'), '');
-    return (d == null || d.isEmpty) ? null : d;
+    return (d == null || d.isEmpty || RegExp(r'^0+$').hasMatch(d)) ? null : d;
   }
+
+  /// ISIN의 발행체 코드. 국내 주식 ISIN은 `KR7` + 발행체 5자리 + 종목 구분 + … 이다.
+  static String? isinIssuer(String isin) =>
+      RegExp(r'^KR7[0-9A-Z]{9}$').hasMatch(isin) ? isin.substring(3, 8) : null;
 
   Future<void> run() async {
     var job = (await IngestJob.db.findById(session, jobId))!;
@@ -265,7 +270,7 @@ class MarketSnapshotSync {
         session,
         Source(
           kind: SourceKind.dataGoKrApi,
-          title: '공공데이터포털 금융위원회_주식시세정보 (getStockPriceInfo) $ymd',
+          title: '공공데이터포털 금융위원회_주식시세정보 (getStockPriceInfo_V2) $ymd',
           reference: ymd,
           url: DataGoKrClient.publicUrl(
             DataGoKrClient.stockPricePath,
@@ -372,6 +377,68 @@ class MarketSnapshotSync {
     });
   }
 
+  /// 법인등록번호로 잇지 못한 종목을 DART 종목코드, 그다음 ISIN 발행체 코드로 잇는다.
+  ///
+  /// 상장종목정보에는 우선주가 없어(2026-09-16 기준 시세 2,871종목 중 115종목) 법인등록번호가
+  /// 없다. 같은 발행체 코드의 종목이 이미 한 기업에 연결되어 있을 때만 그 기업으로 잇는다.
+  Future<void> _linkRemaining(
+    Map<String, Security> securities,
+    Map<String, int> byStockCode, {
+    required Transaction transaction,
+  }) async {
+    final updates = <String, Security>{};
+    void link(Security s, int companyId, SecurityLinkBasis basis) {
+      final next = s.copyWith(companyId: companyId, linkBasis: basis);
+      updates[s.isinCode] = next;
+      securities[s.isinCode] = next;
+    }
+
+    for (final s in securities.values.toList()) {
+      if (s.companyId != null && s.linkBasis == SecurityLinkBasis.crno) {
+        continue;
+      }
+      final byCode = byStockCode[s.shortCode];
+      if (byCode != null &&
+          (s.companyId != byCode ||
+              s.linkBasis != SecurityLinkBasis.dartStockCode)) {
+        link(s, byCode, SecurityLinkBasis.dartStockCode);
+      }
+    }
+
+    final issuers = <String, Set<int>>{};
+    for (final s in securities.values) {
+      final issuer = isinIssuer(s.isinCode);
+      final basis = s.linkBasis;
+      if (issuer == null || s.companyId == null) continue;
+      if (basis != SecurityLinkBasis.crno &&
+          basis != SecurityLinkBasis.dartStockCode) {
+        continue;
+      }
+      (issuers[issuer] ??= {}).add(s.companyId!);
+    }
+    for (final s in securities.values.toList()) {
+      if (s.linkBasis == SecurityLinkBasis.crno ||
+          s.linkBasis == SecurityLinkBasis.dartStockCode) {
+        continue;
+      }
+      final candidates = issuers[isinIssuer(s.isinCode)];
+      // 한 발행체 코드가 여러 기업에 걸리면 추측하지 않는다.
+      if (candidates != null && candidates.length == 1) {
+        if (s.companyId != candidates.single ||
+            s.linkBasis != SecurityLinkBasis.isinIssuer) {
+          link(s, candidates.single, SecurityLinkBasis.isinIssuer);
+        }
+      }
+    }
+    if (updates.isNotEmpty) {
+      await Security.db.update(
+        session,
+        updates.values.toList(),
+        transaction: transaction,
+      );
+    }
+  }
+
   /// 상장종목 목록으로 종목의 법인등록번호와 기업을 잇는다. 기업에 이어진 종목 수.
   Future<int> _refreshListing(
     DateTime date,
@@ -382,12 +449,17 @@ class MarketSnapshotSync {
     );
     if (items == null || items.isEmpty) return 0;
 
+    final listed = await Company.db.find(
+      session,
+      where: (t) => t.market.inSet({Market.kospi, Market.kosdaq, Market.konex}),
+    );
     final companies = <String, int>{
-      for (final c in await Company.db.find(
-        session,
-        where: (t) => t.jurirNo.notEquals(null),
-      ))
+      for (final c in listed)
         if (digits(c.jurirNo) != null) digits(c.jurirNo)!: c.id!,
+    };
+    final byStockCode = <String, int>{
+      for (final c in listed)
+        if (c.stockCode != null) c.stockCode!: c.id!,
     };
     final ymd = DartValues.formatYmd(date);
     return session.db.transaction((tx) async {
@@ -395,7 +467,7 @@ class MarketSnapshotSync {
         session,
         Source(
           kind: SourceKind.dataGoKrApi,
-          title: '공공데이터포털 금융위원회_KRX상장종목정보 (getItemInfo) $ymd',
+          title: '공공데이터포털 금융위원회_KRX상장종목정보 (getItemInfo_V2) $ymd',
           reference: ymd,
           url: DataGoKrClient.publicUrl(
             DataGoKrClient.listedItemPath,
@@ -414,6 +486,7 @@ class MarketSnapshotSync {
         final crno = digits(DartValues.text(item['crno']));
         final corpName = DartValues.text(item['corpNm']);
         final companyId = crno == null ? null : companies[crno];
+        final basis = companyId == null ? null : SecurityLinkBasis.crno;
         final current = securities[isin];
         if (current == null) {
           inserts.add(
@@ -425,19 +498,22 @@ class MarketSnapshotSync {
               crno: crno,
               corpName: corpName,
               companyId: companyId,
+              linkBasis: basis,
               lastSeenDate: date,
               sourceId: source.id,
             ),
           );
         } else if (current.crno != crno ||
             current.corpName != corpName ||
-            current.companyId != companyId) {
+            current.companyId != companyId ||
+            current.linkBasis != basis) {
           // nullable 필드는 copyWith에 null을 넘기면 지워진다. 원천에 없으면 비우는 게 맞다.
           updates.add(
             current.copyWith(
               crno: crno,
               corpName: corpName,
               companyId: companyId,
+              linkBasis: basis,
               sourceId: source.id,
             ),
           );
@@ -461,6 +537,7 @@ class MarketSnapshotSync {
           securities[s.isinCode] = s;
         }
       }
+      await _linkRemaining(securities, byStockCode, transaction: tx);
       return securities.values.where((s) => s.companyId != null).length;
     });
   }

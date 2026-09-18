@@ -54,10 +54,12 @@ class DataGoKrClient {
   DataGoKrClient(this.serviceKey, {http.Client? httpClient})
     : _http = httpClient ?? http.Client();
 
-  static const baseUrl = 'https://apis.data.go.kr/1160100/service';
+  static const baseUrl = 'https://apis.data.go.kr/1160100';
+
+  /// 2026년 현재 활용신청되는 V2 주소. V2가 없는 옛 주소는 오류 12(서비스 없음)를 준다.
   static const stockPricePath =
-      'GetStockSecuritiesInfoService/getStockPriceInfo';
-  static const listedItemPath = 'GetKrxListedInfoService/getItemInfo';
+      'GetStockSecuritiesInfoService_V2/getStockPriceInfo_V2';
+  static const listedItemPath = 'GetKrxListedInfoService_V2/getItemInfo_V2';
 
   /// 페이지당 행 수.
   static const pageSize = 1000;
@@ -111,6 +113,15 @@ class DataGoKrClient {
     } on FormatException {
       // 키·한도 오류는 resultType과 관계없이 XML로 온다.
       _throwFromXml(path, text);
+    }
+    // 키·주소 오류는 JSON으로 와도 `OpenAPI_ServiceResponse` 형식이다.
+    final gateway = json['OpenAPI_ServiceResponse'] as Map<String, dynamic>?;
+    if (gateway != null) {
+      final header = gateway['cmmMsgHeader'] as Map<String, dynamic>?;
+      throw DataGoKrApiException(
+        '${header?['returnReasonCode'] ?? 'parse'}',
+        '${header?['errMsg'] ?? ''} ${header?['returnAuthMsg'] ?? ''}'.trim(),
+      );
     }
     final response = json['response'] as Map<String, dynamic>?;
     final header = response?['header'] as Map<String, dynamic>?;

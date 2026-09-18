@@ -23,7 +23,7 @@ class FakeDataGoKr {
     httpClient: MockClient((req) async {
       final q = req.url.queryParameters;
       final date = q['basDt']!;
-      final isPrice = req.url.path.endsWith('getStockPriceInfo');
+      final isPrice = req.url.path.endsWith('getStockPriceInfo_V2');
       (isPrice ? priceCalls : listedCalls).add(date);
       if (errorBody != null) {
         return http.Response.bytes(utf8.encode(errorBody!), 200);
@@ -172,6 +172,66 @@ void main() {
         (await MarketSnapshotDay.db.find(session)).single.rowCount,
         2,
       );
+    });
+
+    test('상장종목정보에 없는 우선주는 ISIN 발행체 코드로, 외국 기업은 DART 종목코드로 잇는다', () async {
+      final foreign = await Company.db.insertRow(
+        session,
+        Company(
+          corpCode: '01160512',
+          name: '헝셩그룹',
+          market: Market.kosdaq,
+          stockCode: '900270',
+        ),
+      );
+      api.prices['20260916'] = [
+        price('KR7005930003', '005930', '삼성전자'),
+        price('KR7005931001', '005935', '삼성전자우', cap: '40000000000000'),
+        price(
+          'HK0000214814',
+          '900270',
+          '헝셩그룹',
+          market: 'KOSDAQ',
+          cap: '31119196640',
+        ),
+        // 발행체 코드가 연결된 종목과 겹치지 않는 우선주는 잇지 않는다.
+        price('KR7999991009', '999995', '모르는우', cap: '1000'),
+      ];
+      api.listed['20260916'] = [
+        {
+          'srtnCd': 'A005930',
+          'isinCd': 'KR7005930003',
+          'itmsNm': '삼성전자',
+          'mrktCtg': 'KOSPI',
+          'crno': '1301110006246',
+          'corpNm': '삼성전자(주)',
+        },
+        {
+          'srtnCd': 'A900270',
+          'isinCd': 'HK0000214814',
+          'itmsNm': '헝셩그룹',
+          'mrktCtg': 'KOSDAQ',
+          'crno': '0000000000000',
+          'corpNm': '헝셩그룹유한회사',
+        },
+      ];
+
+      await runSync();
+
+      final samsung = (await Company.db.findFirstRow(
+        session,
+        where: (t) => t.corpCode.equals('00126380'),
+      ))!;
+      final byCode = {
+        for (final s in await Security.db.find(session)) s.shortCode: s,
+      };
+      expect(byCode['005930']!.linkBasis, SecurityLinkBasis.crno);
+      expect(byCode['005935']!.companyId, samsung.id);
+      expect(byCode['005935']!.linkBasis, SecurityLinkBasis.isinIssuer);
+      expect(byCode['900270']!.crno, isNull, reason: '0뿐인 법인등록번호는 없는 값');
+      expect(byCode['900270']!.companyId, foreign.id);
+      expect(byCode['900270']!.linkBasis, SecurityLinkBasis.dartStockCode);
+      expect(byCode['999995']!.companyId, isNull);
     });
 
     test('주말은 건너뛰고, 휴장일은 기록하되 게시 전일 수 있는 최근 빈 날은 다시 본다', () async {
