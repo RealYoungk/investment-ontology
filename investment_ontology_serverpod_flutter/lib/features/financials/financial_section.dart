@@ -73,7 +73,7 @@ class _FinancialSectionState extends State<FinancialSection> {
         Tooltip(
           message:
               '이 기업의 정기보고서만 DART에서 찾아 연결·별도 재무제표를 받습니다 '
-              '(보고서당 호출 2회). 전체 재무 수집이 돌고 있으면 그 작업이 끝난 뒤에 할 수 있습니다.',
+              '(보고서당 호출 2회). 전체 재무 수집이 돌고 있어도 함께 받습니다.',
           child: AppButton(
             label: _fetching ? '받는 중…' : '이 기업 재무 지금 받기',
             onPressed: _fetching ? null : _fetchCompany,
