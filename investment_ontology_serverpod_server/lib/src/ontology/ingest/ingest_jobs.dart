@@ -4,8 +4,10 @@ import '../../generated/protocol.dart';
 
 /// 수집 작업(IngestJob) 공통 처리.
 abstract final class IngestJobs {
-  /// 서버 재시작 등으로 멈춘 작업을 실행 중으로 보지 않는 기준.
-  static const staleAfter = Duration(hours: 3);
+  /// 이보다 오래된 "실행 중" 작업은 멈춘 것으로 본다. 서버 재시작으로 끊긴 작업은
+  /// [recoverInterrupted]가 정리하므로 이것은 마지막 안전장치다. 하루 호출 예산을
+  /// 다 쓰는 재무 수집이 2시간 넘게 걸릴 수 있어 넉넉히 둔다.
+  static const staleAfter = Duration(hours: 12);
 
   /// [kind]의 실행 중인 작업. 오래 응답이 없으면 실패로 정리하고 null.
   static Future<IngestJob?> running(Session session, String kind) async {
@@ -27,6 +29,29 @@ abstract final class IngestJobs {
       ),
     );
     return null;
+  }
+
+  /// 서버가 켜질 때 부른다. 수집은 서버 프로세스 안에서만 돌므로, 이때 "실행 중"으로
+  /// 남은 작업은 이전 서버와 함께 끊긴 것이다. 실패로 정리하고 그 종류들을 돌려준다.
+  static Future<Set<String>> recoverInterrupted(Session session) async {
+    final jobs = await IngestJob.db.find(
+      session,
+      where: (t) => t.status.equals(IngestStatus.running),
+    );
+    final now = DateTime.now().toUtc();
+    for (final job in jobs) {
+      await IngestJob.db.updateRow(
+        session,
+        job.copyWith(
+          status: IngestStatus.failed,
+          finishedAt: now,
+          message:
+              '서버가 꺼지며 중단됨 (${job.processed}/${job.total} 처리, '
+              '호출 ${job.apiCalls}회). 받은 것은 저장되어 있고 이어서 받습니다.',
+        ),
+      );
+    }
+    return {for (final j in jobs) j.kind};
   }
 
   /// 새 작업을 만든다. 이미 실행 중이면 null.

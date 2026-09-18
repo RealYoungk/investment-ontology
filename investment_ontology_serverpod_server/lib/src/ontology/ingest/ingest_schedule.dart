@@ -2,6 +2,9 @@ import 'package:serverpod/protocol.dart' as sp;
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/future_calls.dart';
+import 'financial_facts_sync.dart';
+import 'ingest_jobs.dart';
+import 'market_snapshot_sync.dart';
 
 /// 수집 FutureCall 예약.
 ///
@@ -18,6 +21,23 @@ abstract final class IngestSchedule {
 
   /// 매일 18:30 KST(09:30 UTC) 재무. 백필 중이면 하루 예산만큼 이어서, 끝나면 새 공시만 받는다.
   static const financialsDailyCron = '30 9 * * *';
+
+  /// 서버가 켜질 때 부른다.
+  ///
+  /// 1. 이전 서버와 함께 끊긴 수집 작업을 정리한다.
+  /// 2. 끊긴 재무·시세 수집은 바로 이어받기를 예약한다 (기업마스터는 수동).
+  /// 3. 매일 자동 수집 예약이 없으면 건다.
+  static Future<void> onServerStart(Session session) async {
+    final interrupted = await IngestJobs.recoverInterrupted(session);
+    final soon = DateTime.now().toUtc().add(const Duration(seconds: 10));
+    if (interrupted.contains(FinancialFactsSync.kind)) {
+      await financialsResume(session, soon);
+    }
+    if (interrupted.contains(MarketSnapshotSync.kind)) {
+      await marketSnapshotResume(session, soon);
+    }
+    await ensureDaily(session);
+  }
 
   /// 매일 자동 수집 예약이 없으면 건다. 서버가 켜질 때마다 부른다.
   ///

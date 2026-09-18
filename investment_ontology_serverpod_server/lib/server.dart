@@ -104,10 +104,10 @@ void run(List<String> args) async {
   // Start the server.
   await pod.start();
 
-  // 시세·재무를 매일 자동으로 받도록 예약한다 (이미 있으면 그대로).
+  // 끊긴 수집을 정리·이어받고, 시세·재무 매일 자동 수집을 예약한다.
   final session = await pod.createSession(enableLogging: false);
   try {
-    await IngestSchedule.ensureDaily(session);
+    await IngestSchedule.onServerStart(session);
   } finally {
     await session.close();
   }

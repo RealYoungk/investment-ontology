@@ -1,3 +1,6 @@
+import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/ingest/financial_facts_sync.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/ingest/ingest_jobs.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/ingest/ingest_schedule.dart';
 import 'package:serverpod/protocol.dart' as sp;
 import 'package:serverpod/serverpod.dart';
@@ -37,6 +40,51 @@ void main() {
       expect(market.time.toUtc().hour, 9, reason: '18:00 KST = 09:00 UTC');
       expect(market.time.toUtc().minute, 0);
       expect(market.time.isAfter(DateTime.now().toUtc()), isTrue);
+    });
+
+    test('서버가 켜지면 끊긴 작업을 정리하고 재무는 바로 이어받기를 예약한다', () async {
+      final job = await IngestJob.db.insertRow(
+        session,
+        IngestJob(
+          kind: FinancialFactsSync.kind,
+          status: IngestStatus.running,
+          startedAt: DateTime.now().toUtc().subtract(
+            const Duration(minutes: 30),
+          ),
+          total: 45550,
+          processed: 180,
+          apiCalls: 973,
+        ),
+      );
+
+      await IngestSchedule.onServerStart(session);
+
+      final after = (await IngestJob.db.findById(session, job.id!))!;
+      expect(after.status, IngestStatus.failed);
+      expect(after.message, contains('180/45550'));
+      expect(
+        await IngestJobs.running(session, FinancialFactsSync.kind),
+        isNull,
+        reason: '새 수집을 막지 않는다',
+      );
+      final resume = await sp.FutureCallEntry.db.find(
+        session,
+        where: (t) => t.identifier.equals(IngestSchedule.financialsResumeId),
+      );
+      expect(resume, hasLength(1));
+      expect(
+        resume.single.time.difference(DateTime.now().toUtc()).inMinutes,
+        lessThan(1),
+      );
+      expect(
+        await sp.FutureCallEntry.db.count(
+          session,
+          where: (t) =>
+              t.identifier.equals(IngestSchedule.marketSnapshotResumeId),
+        ),
+        0,
+        reason: '끊기지 않은 시세는 예약하지 않는다',
+      );
     });
   });
 }
