@@ -63,6 +63,7 @@ import 'ontology/models/market_snapshot.dart' as _ibhowe7d;
 import 'ontology/models/market_snapshot_day.dart' as _i3renazk;
 import 'ontology/models/overview.dart' as _iz31wbgv;
 import 'ontology/models/security.dart' as _ilujots3;
+import 'ontology/models/security_link_basis.dart' as _ic799xum;
 import 'ontology/models/security_quote.dart' as _ionn6cq2;
 import 'ontology/models/source.dart' as _icm1zoh2;
 import 'ontology/models/source_kind.dart' as _itk5lja3;
@@ -102,6 +103,7 @@ export 'ontology/models/market_snapshot.dart';
 export 'ontology/models/market_snapshot_day.dart';
 export 'ontology/models/overview.dart';
 export 'ontology/models/security.dart';
+export 'ontology/models/security_link_basis.dart';
 export 'ontology/models/security_quote.dart';
 export 'ontology/models/source.dart';
 export 'ontology/models/source_kind.dart';
@@ -1573,6 +1575,12 @@ class Protocol extends _is.DatabaseSerializationManager {
           dartType: 'int?',
         ),
         _isp.ColumnDefinition(
+          name: 'linkBasis',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'protocol:SecurityLinkBasis?',
+        ),
+        _isp.ColumnDefinition(
           name: 'lastSeenDate',
           columnType: _isp.ColumnType.timestampWithoutTimeZone,
           isNullable: false,
@@ -1851,6 +1859,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _ilujots3.Security) {
       return _ilujots3.Security.fromJson(data) as T;
     }
+    if (t == _ic799xum.SecurityLinkBasis) {
+      return _ic799xum.SecurityLinkBasis.fromJson(data) as T;
+    }
     if (t == _ionn6cq2.SecurityQuote) {
       return _ionn6cq2.SecurityQuote.fromJson(data) as T;
     }
@@ -2022,6 +2033,10 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _is.getType<_ilujots3.Security?>()) {
       return (data != null ? _ilujots3.Security.fromJson(data) : null) as T;
     }
+    if (t == _is.getType<_ic799xum.SecurityLinkBasis?>()) {
+      return (data != null ? _ic799xum.SecurityLinkBasis.fromJson(data) : null)
+          as T;
+    }
     if (t == _is.getType<_ionn6cq2.SecurityQuote?>()) {
       return (data != null ? _ionn6cq2.SecurityQuote.fromJson(data) : null)
           as T;
@@ -2163,6 +2178,7 @@ class Protocol extends _is.DatabaseSerializationManager {
       _i3renazk.MarketSnapshotDay => 'MarketSnapshotDay',
       _iz31wbgv.Overview => 'Overview',
       _ilujots3.Security => 'Security',
+      _ic799xum.SecurityLinkBasis => 'SecurityLinkBasis',
       _ionn6cq2.SecurityQuote => 'SecurityQuote',
       _icm1zoh2.Source => 'Source',
       _itk5lja3.SourceKind => 'SourceKind',
@@ -2263,6 +2279,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'Overview';
       case _ilujots3.Security():
         return 'Security';
+      case _ic799xum.SecurityLinkBasis():
+        return 'SecurityLinkBasis';
       case _ionn6cq2.SecurityQuote():
         return 'SecurityQuote';
       case _icm1zoh2.Source():
@@ -2422,6 +2440,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'Security') {
       return deserialize<_ilujots3.Security>(data['data']);
+    }
+    if (dataClassName == 'SecurityLinkBasis') {
+      return deserialize<_ic799xum.SecurityLinkBasis>(data['data']);
     }
     if (dataClassName == 'SecurityQuote') {
       return deserialize<_ionn6cq2.SecurityQuote>(data['data']);

@@ -12,8 +12,9 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
 import '../../ontology/models/market.dart' as _igwiku5p;
+import '../../ontology/models/security_link_basis.dart' as _ipb681z0;
 
-/// 종목. 식별자는 ISIN. 발행 기업은 KRX상장종목정보의 법인등록번호(crno)로 Company.jurirNo와 잇는다.
+/// 종목. 식별자는 ISIN. 발행 기업은 법인등록번호 → DART 종목코드 → ISIN 발행체 코드 순서로 잇는다.
 abstract class Security
     implements _isc.SerializableModel, _isc.ProtocolSerialization {
   Security._({
@@ -25,6 +26,7 @@ abstract class Security
     this.crno,
     this.corpName,
     this.companyId,
+    this.linkBasis,
     required this.lastSeenDate,
     this.sourceId,
   });
@@ -38,6 +40,7 @@ abstract class Security
     String? crno,
     String? corpName,
     int? companyId,
+    _ipb681z0.SecurityLinkBasis? linkBasis,
     required DateTime lastSeenDate,
     int? sourceId,
   }) = _SecurityImpl;
@@ -54,6 +57,11 @@ abstract class Security
       crno: jsonSerialization['crno'] as String?,
       corpName: jsonSerialization['corpName'] as String?,
       companyId: jsonSerialization['companyId'] as int?,
+      linkBasis: jsonSerialization['linkBasis'] == null
+          ? null
+          : _ipb681z0.SecurityLinkBasis.fromJson(
+              (jsonSerialization['linkBasis'] as String),
+            ),
       lastSeenDate: _isc.DateTimeJsonExtension.fromJson(
         jsonSerialization['lastSeenDate'],
       ),
@@ -83,6 +91,9 @@ abstract class Security
 
   int? companyId;
 
+  /// companyId를 정한 근거
+  _ipb681z0.SecurityLinkBasis? linkBasis;
+
   /// 시세나 상장종목 목록에서 마지막으로 확인한 기준일 (UTC 자정)
   DateTime lastSeenDate;
 
@@ -101,6 +112,7 @@ abstract class Security
     String? crno,
     String? corpName,
     int? companyId,
+    _ipb681z0.SecurityLinkBasis? linkBasis,
     DateTime? lastSeenDate,
     int? sourceId,
   });
@@ -116,6 +128,7 @@ abstract class Security
       if (crno != null) 'crno': crno,
       if (corpName != null) 'corpName': corpName,
       if (companyId != null) 'companyId': companyId,
+      if (linkBasis != null) 'linkBasis': linkBasis?.toJson(),
       'lastSeenDate': lastSeenDate.toJson(),
       if (sourceId != null) 'sourceId': sourceId,
     };
@@ -133,6 +146,7 @@ abstract class Security
       if (crno != null) 'crno': crno,
       if (corpName != null) 'corpName': corpName,
       if (companyId != null) 'companyId': companyId,
+      if (linkBasis != null) 'linkBasis': linkBasis?.toJson(),
       'lastSeenDate': lastSeenDate.toJson(),
       if (sourceId != null) 'sourceId': sourceId,
     };
@@ -156,6 +170,7 @@ class _SecurityImpl extends Security {
     String? crno,
     String? corpName,
     int? companyId,
+    _ipb681z0.SecurityLinkBasis? linkBasis,
     required DateTime lastSeenDate,
     int? sourceId,
   }) : super._(
@@ -167,6 +182,7 @@ class _SecurityImpl extends Security {
          crno: crno,
          corpName: corpName,
          companyId: companyId,
+         linkBasis: linkBasis,
          lastSeenDate: lastSeenDate,
          sourceId: sourceId,
        );
@@ -184,6 +200,7 @@ class _SecurityImpl extends Security {
     Object? crno = _Undefined,
     Object? corpName = _Undefined,
     Object? companyId = _Undefined,
+    Object? linkBasis = _Undefined,
     DateTime? lastSeenDate,
     Object? sourceId = _Undefined,
   }) {
@@ -196,6 +213,9 @@ class _SecurityImpl extends Security {
       crno: crno is String? ? crno : this.crno,
       corpName: corpName is String? ? corpName : this.corpName,
       companyId: companyId is int? ? companyId : this.companyId,
+      linkBasis: linkBasis is _ipb681z0.SecurityLinkBasis?
+          ? linkBasis
+          : this.linkBasis,
       lastSeenDate: lastSeenDate ?? this.lastSeenDate,
       sourceId: sourceId is int? ? sourceId : this.sourceId,
     );
