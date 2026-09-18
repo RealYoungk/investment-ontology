@@ -27,7 +27,8 @@ class DataSyncPanel extends StatelessWidget {
           description:
               'DART 공시 목록에서 상장사 정기보고서를 찾아 연결·별도 전체 재무제표를 받습니다. '
               '사업보고서·분기·반기보고서 모두 최근 5개 사업연도. '
-              'DART 일일 호출 18,000건까지 쓰고 나머지는 다음 날 이어서 받습니다.',
+              'DART 일일 호출 18,000건까지 쓰고 나머지는 다음 날 이어서 받습니다. '
+              '서버가 켜져 있으면 매일 18:30에 자동으로 수집합니다.',
           start: client.ingest.startFinancials,
           onFinished: onFinished,
         ),
@@ -37,7 +38,8 @@ class DataSyncPanel extends StatelessWidget {
           action: '시세 수집',
           description:
               '공공데이터포털 금융위원회 주식시세정보로 받지 않은 평일의 전 종목 시세를 받고 '
-              '(처음에는 5년), 최근 기준일의 상장종목 정보로 종목을 기업에 연결합니다.',
+              '(처음에는 5년), 최근 기준일의 상장종목 정보로 종목을 기업에 연결합니다. '
+              '서버가 켜져 있으면 매일 18:00에 자동으로 수집합니다.',
           start: client.ingest.startMarketSnapshot,
           onFinished: onFinished,
         ),

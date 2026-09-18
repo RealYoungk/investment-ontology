@@ -1,3 +1,4 @@
+import 'package:serverpod/protocol.dart' as sp;
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/future_calls.dart';
@@ -8,6 +9,45 @@ import '../../generated/future_calls.dart';
 /// 파일이 생성 코드를 직접 참조하면, 생성기가 그 파일을 분석하다 실패했을 때 FutureCall
 /// 자체를 빼 버려 참조하던 생성 코드가 다시 생기지 않는 순환에 빠진다.
 abstract final class IngestSchedule {
+  /// 매일 자동 수집 예약 식별자.
+  static const marketSnapshotDailyId = 'market_snapshot_daily';
+  static const financialsDailyId = 'financial_facts_daily';
+
+  /// 매일 18:00 KST(09:00 UTC) 시세. 전날 시세가 오후에 올라오므로 저녁에 받는다.
+  static const marketSnapshotDailyCron = '0 9 * * *';
+
+  /// 매일 18:30 KST(09:30 UTC) 재무. 백필 중이면 하루 예산만큼 이어서, 끝나면 새 공시만 받는다.
+  static const financialsDailyCron = '30 9 * * *';
+
+  /// 매일 자동 수집 예약이 없으면 건다. 서버가 켜질 때마다 부른다.
+  ///
+  /// 이미 있으면 그대로 둔다. 서버가 꺼져 있는 동안 지난 예약은 다시 켜질 때 한 번
+  /// 실행되고 다음 날로 넘어가므로, 지우고 다시 걸면 그 한 번을 놓친다.
+  /// 실행은 `resume`이라 같은 종류의 수집이 돌고 있으면 건너뛴다.
+  static Future<void> ensureDaily(Session session) async {
+    if (!await _scheduled(session, marketSnapshotDailyId)) {
+      await session.serverpod.futureCalls
+          .callRecurring(identifier: marketSnapshotDailyId)
+          .cron(marketSnapshotDailyCron)
+          .marketSnapshot
+          .resume();
+    }
+    if (!await _scheduled(session, financialsDailyId)) {
+      await session.serverpod.futureCalls
+          .callRecurring(identifier: financialsDailyId)
+          .cron(financialsDailyCron)
+          .financialFacts
+          .resume();
+    }
+  }
+
+  static Future<bool> _scheduled(Session session, String identifier) async =>
+      await sp.FutureCallEntry.db.count(
+        session,
+        where: (t) => t.identifier.equals(identifier),
+      ) >
+      0;
+
   /// 이어받기 예약 식별자. 같은 예약이 쌓이지 않도록 하나만 둔다.
   static const financialsResumeId = 'financial_facts_resume';
   static const marketSnapshotResumeId = 'market_snapshot_resume';
