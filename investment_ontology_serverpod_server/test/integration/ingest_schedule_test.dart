@@ -103,6 +103,7 @@ void main() {
           name: 'FinancialFactsRunFutureCall',
           time: past,
           serverId: 'test',
+          serializedObject: '{"jobId":${job.id}}',
         ),
         // 지난번에 걸어 둔 이어받기: 위 실행과 겹친다.
         sp.FutureCallEntry(
@@ -153,6 +154,42 @@ void main() {
       expect(revived.finishedAt, isNull);
       expect(revived.message, isNull);
       expect(await IngestJobs.claim(session, cancelled.id!), isNull);
+    });
+
+    test('기한 지난 매일·이어받기 예약만 있으면 끊긴 작업의 재실행으로 보지 않는다', () async {
+      // 정상 종료로 실행 예약이 지워진 뒤, 꺼져 있는 동안 18:30 매일 예약이 지난 경우.
+      final job = await IngestJob.db.insertRow(
+        session,
+        IngestJob(
+          kind: FinancialFactsSync.kind,
+          status: IngestStatus.running,
+          startedAt: DateTime.now().toUtc().subtract(const Duration(hours: 3)),
+        ),
+      );
+      await sp.FutureCallEntry.db.insertRow(
+        session,
+        sp.FutureCallEntry(
+          name: 'FinancialFactsResumeFutureCall',
+          time: DateTime.now().toUtc().subtract(const Duration(hours: 1)),
+          serverId: 'test',
+          identifier: IngestSchedule.financialsDailyId,
+        ),
+      );
+
+      await IngestSchedule.onServerStart(session);
+
+      expect(
+        (await IngestJob.db.findById(session, job.id!))!.status,
+        IngestStatus.failed,
+        reason: '죽은 작업이 새 수집을 막지 않게 정리한다',
+      );
+      expect(
+        await sp.FutureCallEntry.db.count(
+          session,
+          where: (t) => t.identifier.equals(IngestSchedule.financialsResumeId),
+        ),
+        1,
+      );
     });
   });
 }

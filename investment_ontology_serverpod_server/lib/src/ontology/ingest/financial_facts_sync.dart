@@ -30,7 +30,10 @@ class FinancialFactsSync {
 
   static const kind = 'financial_facts';
 
-  /// 공시별 실패 허용 횟수. 넘으면 다시 시도하지 않는다.
+  /// 기업 하나만 받는 수집. 전체 수집과 따로 세어 백필 중에도 돌 수 있다.
+  static const companyKind = 'financial_facts_company';
+
+  /// 공시별 실패 허용 횟수(실행 횟수 기준). 넘으면 다시 시도하지 않는다.
   static const maxAttempts = 3;
 
   /// DART는 회사를 지정하지 않은 공시 검색을 3개월 이내로 제한한다. 달력 기준이라
@@ -348,8 +351,23 @@ class FinancialFactsSync {
         ),
       );
     }
-    if (rows.isNotEmpty) await DartFiling.db.insert(session, rows);
-    return rows.length;
+    if (rows.isEmpty) return 0;
+    try {
+      await DartFiling.db.insert(session, rows);
+      return rows.length;
+    } on DatabaseUniqueViolationException {
+      // 다른 수집이 같은 공시를 먼저 넣었다. 하나씩 넣으며 이미 있는 것은 건너뛴다.
+      var inserted = 0;
+      for (final row in rows) {
+        try {
+          await DartFiling.db.insertRow(session, row);
+          inserted++;
+        } on DatabaseUniqueViolationException {
+          continue;
+        }
+      }
+      return inserted;
+    }
   }
 
   /// 공시 하나의 연결·별도 재무제표를 받는다. 새로 저장한 벌 수와 실패 여부.
@@ -403,10 +421,10 @@ class FinancialFactsSync {
         separateStatus: div == FsDiv.separate ? result : null,
       );
       // 생성된 copyWith는 nullable 필드에 null을 넘기면 지우므로, 실패일 때만 넘긴다.
-      if (error != null) {
-        next = next.copyWith(attempts: next.attempts + 1, lastError: error);
-      }
+      if (error != null) next = next.copyWith(lastError: error);
     }
+    // 실패 횟수는 연결·별도를 합쳐 한 번 실행에 공시당 1회만 센다.
+    if (failed) next = next.copyWith(attempts: filing.attempts + 1);
     if (!identical(next, filing)) {
       await DartFiling.db.updateRow(
         session,
@@ -472,10 +490,26 @@ class FinancialFactsSync {
                 where: (t) => t.rceptNo.equals(rceptNo),
               ))?.reportName ??
               filing.reportName.replaceFirst(RegExp(r'^(\[[^\]]+\]\s*)+'), '');
+    try {
+      await _insert(filing, company, div, rows, rceptNo, reportName);
+    } on DatabaseUniqueViolationException {
+      // 전체 수집과 기업 하나 수집이 같은 보고서를 동시에 저장하면 늦은 쪽이 여기로 온다.
+      return (status: FilingFetchStatus.stored, inserted: false);
+    }
+    return (status: FilingFetchStatus.stored, inserted: true);
+  }
+
+  Future<void> _insert(
+    DartFiling filing,
+    Company company,
+    FsDiv div,
+    List<Map<String, dynamic>> rows,
+    String rceptNo,
+    String reportName,
+  ) async {
     final now = DateTime.now().toUtc();
     final bsnsYear = filing.bsnsYear!;
     final reportCode = filing.reportCode!;
-
     await session.db.transaction((tx) async {
       final source = await Source.db.insertRow(
         session,
@@ -564,7 +598,6 @@ class FinancialFactsSync {
         }
       }
     });
-    return (status: FilingFetchStatus.stored, inserted: true);
   }
 
   Future<T> _callDart<T>(Future<T> Function() call) async {

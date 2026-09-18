@@ -441,6 +441,24 @@ void main() {
       expect(dart.financialCalls, isEmpty);
     });
 
+    test('연결·별도가 모두 실패해도 실패 횟수는 한 번 실행에 1씩 오른다', () async {
+      dart.statements[FakeDart.key('00000001', 2025, '11011', 'CFS')] = '';
+      dart.statements[FakeDart.key('00000001', 2025, '11011', 'OFS')] = '';
+
+      await runSync();
+      expect((await DartFiling.db.find(session)).single.attempts, 1);
+      await runSync();
+      expect((await DartFiling.db.find(session)).single.attempts, 2);
+
+      dart.financialCalls.clear();
+      await runSync();
+      expect(
+        dart.financialCalls,
+        hasLength(2),
+        reason: '세 번째 실행에서도 연결·별도를 모두 다시 시도한다',
+      );
+    });
+
     test('응답의 회사·사업연도·보고서 코드가 요청과 다르면 저장하지 않는다', () async {
       dart.setRows('00000001', 2025, '11011', 'CFS', [
         {

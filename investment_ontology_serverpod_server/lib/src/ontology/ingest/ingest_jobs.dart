@@ -1,5 +1,7 @@
 import 'package:serverpod/serverpod.dart';
 
+import 'dart:convert';
+
 import 'package:serverpod/protocol.dart' as sp;
 
 import '../../generated/protocol.dart';
@@ -55,16 +57,33 @@ abstract final class IngestJobs {
   /// 수집 종류 → FutureCall 이름 앞부분 (생성된 이름은 `<앞부분><메서드>FutureCall`).
   static const _futureCallPrefixes = {
     'financial_facts': 'FinancialFacts',
+    'financial_facts_company': 'FinancialFacts',
     'market_snapshot': 'MarketSnapshot',
     'company_master': 'CompanyMaster',
   };
 
+  /// FutureCall 예약이 [jobId] 작업을 실행하는 것인지. `run(jobId)`·`runCompany(jobId, …)`는
+  /// 인자를 `{"jobId": …}`로 저장한다. 매일·이어받기 예약(`resume`)은 인자가 없어 해당하지 않는다.
+  static bool _runsJob(sp.FutureCallEntry entry, IngestJob job) {
+    final prefix = _futureCallPrefixes[job.kind];
+    final data = entry.serializedObject;
+    if (prefix == null || data == null || !entry.name.startsWith(prefix)) {
+      return false;
+    }
+    try {
+      final json = jsonDecode(data);
+      return json is Map && json['jobId'] == job.id;
+    } on FormatException {
+      return false;
+    }
+  }
+
   /// 서버가 켜질 때 부른다. 수집은 서버 프로세스 안에서만 돌므로, 이때 "실행 중"으로
   /// 남은 작업은 이전 서버와 함께 끊긴 것이다.
   ///
-  /// 실행 시각이 지난 FutureCall이 남아 있는 종류는 Serverpod가 다시 실행하므로 그대로 둔다
-  /// ([claim]이 실행 중으로 되돌린다). 그런 예약이 없는 작업만 실패로 정리하고, 그 종류를
-  /// 돌려준다 (호출한 쪽이 이어받기를 예약한다).
+  /// 그 작업을 실행하던 FutureCall이 남아 있으면(갑자기 꺼진 경우) Serverpod가 다시 실행하므로
+  /// 그대로 둔다 ([claim]이 실행 중으로 되돌린다). 남아 있지 않으면(정상 종료로 지워진 경우)
+  /// 실패로 정리하고 그 종류를 돌려준다 (호출한 쪽이 이어받기를 예약한다).
   static Future<({Set<String> orphaned, Set<String> rerunning})>
   recoverInterrupted(Session session) async {
     final jobs = await IngestJob.db.find(
@@ -72,21 +91,12 @@ abstract final class IngestJobs {
       where: (t) => t.status.equals(IngestStatus.running),
     );
     final now = DateTime.now().toUtc();
-    final overdue = [
-      for (final e in await sp.FutureCallEntry.db.find(
-        session,
-        where: (t) => t.time <= now,
-      ))
-        e.name,
-    ];
-    bool willRerun(String kind) {
-      final prefix = _futureCallPrefixes[kind];
-      return prefix != null && overdue.any((n) => n.startsWith(prefix));
-    }
+    final entries = await sp.FutureCallEntry.db.find(session);
+    bool willRerun(IngestJob job) => entries.any((e) => _runsJob(e, job));
 
     final orphaned = <String>{}, rerunning = <String>{};
     for (final job in jobs) {
-      if (willRerun(job.kind)) {
+      if (willRerun(job)) {
         rerunning.add(job.kind);
         continue;
       }
