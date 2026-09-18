@@ -402,7 +402,7 @@ class EndpointIngest extends _isc.EndpointRef {
   ///
   /// 공시 목록에서 새 정기보고서를 찾고, 받지 않은 보고서를 최신순으로 받는다.
   /// DART 일일 호출 예산을 다 쓰면 멈추고 다음 날 이어서 받는다.
-  /// [corpCode]를 주면 그 기업의 정기보고서만 찾아 바로 받는다.
+  /// [corpCode]를 주면 그 기업의 정기보고서만 찾아 바로 받는다. 전체 수집이 돌고 있어도 된다.
   _ida.Future<_i1paap7y.IngestJob> startFinancials({String? corpCode}) =>
       caller.callServerEndpoint<_i1paap7y.IngestJob>(
         'ingest',
