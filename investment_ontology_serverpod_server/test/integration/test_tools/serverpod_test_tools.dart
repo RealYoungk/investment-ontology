@@ -16,6 +16,8 @@ import 'dart:io' as _idi;
 
 import 'package:investment_ontology_serverpod_server/src/generated/future_calls.dart'
     as _i4o8e4lj;
+import 'package:investment_ontology_serverpod_server/src/generated/future_calls_generated_models/ai_extraction_future_call_run_model.dart'
+    as _i7nmjhom;
 import 'package:investment_ontology_serverpod_server/src/generated/future_calls_generated_models/company_master_future_call_run_model.dart'
     as _i5djsspn;
 import 'package:investment_ontology_serverpod_server/src/generated/future_calls_generated_models/disclosure_future_call_run_company_model.dart'
@@ -30,6 +32,10 @@ import 'package:investment_ontology_serverpod_server/src/generated/future_calls_
     as _i0e4uq1b;
 import 'package:investment_ontology_serverpod_server/src/generated/greetings/greeting.dart'
     as _isd101g2;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/ai_extraction.dart'
+    as _i5zcz6ng;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/ai_status.dart'
+    as _iabynv8u;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/business_content.dart'
     as _i01bb80a;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_detail.dart'
@@ -62,10 +68,20 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _iyonaxpd;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/market_cap_treemap.dart'
     as _i5mpfst8;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/ontology_relation.dart'
+    as _i5x2f28w;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/overview.dart'
     as _i5enxcw4;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/person_profile.dart'
     as _inwk3hxk;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/relation_predicate.dart'
+    as _iw7mt1ku;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/relation_status.dart'
+    as _iy39k7od;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/review_item.dart'
+    as _ip1s5ejx;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/review_page.dart'
+    as _icif05qz;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/shareholder_return.dart'
     as _iokqvrbx;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/theme_detail.dart'
@@ -214,6 +230,8 @@ class TestEndpoints {
 
   late final _GreetingEndpoint greeting;
 
+  late final _AiEndpoint ai;
+
   late final _CompanyEndpoint company;
 
   late final _DisclosureEndpoint disclosure;
@@ -225,6 +243,8 @@ class TestEndpoints {
   late final _IngestEndpoint ingest;
 
   late final _MarketEndpoint market;
+
+  late final _ReviewEndpoint review;
 
   late final _ThemeEndpoint theme;
 }
@@ -245,6 +265,10 @@ class _InternalTestEndpoints extends TestEndpoints
       serializationManager,
     );
     greeting = _GreetingEndpoint(
+      endpoints,
+      serializationManager,
+    );
+    ai = _AiEndpoint(
       endpoints,
       serializationManager,
     );
@@ -272,6 +296,10 @@ class _InternalTestEndpoints extends TestEndpoints
       endpoints,
       serializationManager,
     );
+    review = _ReviewEndpoint(
+      endpoints,
+      serializationManager,
+    );
     theme = _ThemeEndpoint(
       endpoints,
       serializationManager,
@@ -280,6 +308,8 @@ class _InternalTestEndpoints extends TestEndpoints
 }
 
 class _FutureCalls {
+  late final aiExtraction = _AiExtractionFutureCall();
+
   late final companyMaster = _CompanyMasterFutureCall();
 
   late final disclosure = _DisclosureFutureCall();
@@ -621,6 +651,103 @@ class _GreetingEndpoint {
           _localUniqueSession,
           _localCallContext.arguments,
         ) as _ida.Future<_isd101g2.Greeting>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
+class _AiEndpoint {
+  _AiEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _is.EndpointDispatch _endpointDispatch;
+
+  final _is.SerializationManager _serializationManager;
+
+  _ida.Future<_iabynv8u.AiStatus> status(
+    _ist.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'ai',
+            method: 'status',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'ai',
+          methodName: 'status',
+          parameters: _ist.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue = await (_localCallContext.method.call(
+          _localUniqueSession,
+          _localCallContext.arguments,
+        ) as _ida.Future<_iabynv8u.AiStatus>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_i5zcz6ng.AiExtraction> extractCompany(
+    _ist.TestSessionBuilder sessionBuilder,
+    String corpCode,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'ai',
+            method: 'extractCompany',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'ai',
+          methodName: 'extractCompany',
+          parameters: _ist.testObjectToJson({'corpCode': corpCode}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue = await (_localCallContext.method.call(
+          _localUniqueSession,
+          _localCallContext.arguments,
+        ) as _ida.Future<_i5zcz6ng.AiExtraction>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_idt86amb.IngestJob> startBatch(
+    _ist.TestSessionBuilder sessionBuilder, {
+    int? limit,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'ai',
+            method: 'startBatch',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'ai',
+          methodName: 'startBatch',
+          parameters: _ist.testObjectToJson({'limit': limit}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue = await (_localCallContext.method.call(
+          _localUniqueSession,
+          _localCallContext.arguments,
+        ) as _ida.Future<_idt86amb.IngestJob>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1373,6 +1500,116 @@ class _MarketEndpoint {
   }
 }
 
+class _ReviewEndpoint {
+  _ReviewEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _is.EndpointDispatch _endpointDispatch;
+
+  final _is.SerializationManager _serializationManager;
+
+  _ida.Future<_icif05qz.ReviewPage> list(
+    _ist.TestSessionBuilder sessionBuilder, {
+    _iy39k7od.RelationStatus? status,
+    _iw7mt1ku.RelationPredicate? predicate,
+    int? offset,
+    int? limit,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'review',
+            method: 'list',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'review',
+          methodName: 'list',
+          parameters: _ist.testObjectToJson({
+            'status': status,
+            'predicate': predicate,
+            'offset': offset,
+            'limit': limit,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue = await (_localCallContext.method.call(
+          _localUniqueSession,
+          _localCallContext.arguments,
+        ) as _ida.Future<_icif05qz.ReviewPage>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_i5x2f28w.OntologyRelation?> decide(
+    _ist.TestSessionBuilder sessionBuilder,
+    int relationId,
+    bool approve,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'review',
+            method: 'decide',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'review',
+          methodName: 'decide',
+          parameters: _ist.testObjectToJson({
+            'relationId': relationId,
+            'approve': approve,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue = await (_localCallContext.method.call(
+          _localUniqueSession,
+          _localCallContext.arguments,
+        ) as _ida.Future<_i5x2f28w.OntologyRelation?>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<List<_ip1s5ejx.ReviewItem>> forCompany(
+    _ist.TestSessionBuilder sessionBuilder,
+    String corpCode,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'review',
+            method: 'forCompany',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'review',
+          methodName: 'forCompany',
+          parameters: _ist.testObjectToJson({'corpCode': corpCode}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue = await (_localCallContext.method.call(
+          _localUniqueSession,
+          _localCallContext.arguments,
+        ) as _ida.Future<List<_ip1s5ejx.ReviewItem>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
 class _ThemeEndpoint {
   _ThemeEndpoint(
     this._endpointDispatch,
@@ -1632,6 +1869,29 @@ class _ThemeEndpoint {
         await _localUniqueSession.close();
       }
     });
+  }
+}
+
+class _AiExtractionFutureCall {
+  Future<void> run(
+    _ist.TestSessionBuilder sessionBuilder,
+    int jobId,
+    int limit,
+  ) async {
+    var object = _i7nmjhom.AiExtractionFutureCallRunModel(
+      jobId: jobId,
+      limit: limit,
+    );
+    var _localUniqueSession =
+        (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild();
+    try {
+      await _i4o8e4lj.AiExtractionRunFutureCall().invoke(
+        _localUniqueSession,
+        object,
+      );
+    } finally {
+      await _localUniqueSession.close();
+    }
   }
 }
 

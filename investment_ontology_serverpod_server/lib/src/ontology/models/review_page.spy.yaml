@@ -1,0 +1,7 @@
+class: ReviewPage
+fields:
+  items: List<ReviewItem>
+  total: int
+  draftCount: int
+  verifiedCount: int
+  rejectedCount: int

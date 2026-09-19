@@ -17,6 +17,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _icfgas7c;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/investment_theme.dart'
     as _izhmhfon;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/review_item.dart'
+    as _ihqozc6p;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/theme_summary.dart'
     as _ihj01hrs;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
@@ -25,6 +27,8 @@ import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
     as _iaic;
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
 import 'greetings/greeting.dart' as _izw8z7ou;
+import 'ontology/models/ai_extraction.dart' as _idjojx8t;
+import 'ontology/models/ai_status.dart' as _i7c6k6qa;
 import 'ontology/models/api_call_usage.dart' as _i3e42he1;
 import 'ontology/models/api_provider.dart' as _i82zif2r;
 import 'ontology/models/business_content.dart' as _ik6lqqsr;
@@ -87,6 +91,8 @@ import 'ontology/models/relation_fact_kind.dart' as _iy288i3j;
 import 'ontology/models/relation_origin.dart' as _id1oen7t;
 import 'ontology/models/relation_predicate.dart' as _idal2dwe;
 import 'ontology/models/relation_status.dart' as _ih00v9tp;
+import 'ontology/models/review_item.dart' as _i6uduqoi;
+import 'ontology/models/review_page.dart' as _i22wlf7g;
 import 'ontology/models/security.dart' as _ilujots3;
 import 'ontology/models/security_link_basis.dart' as _ic799xum;
 import 'ontology/models/security_quote.dart' as _ionn6cq2;
@@ -101,6 +107,8 @@ import 'ontology/models/theme_member_view.dart' as _irah5hi6;
 import 'ontology/models/theme_summary.dart' as _i4ynus9k;
 import 'ontology/models/treasury_stock_entry.dart' as _injn1qca;
 export 'greetings/greeting.dart';
+export 'ontology/models/ai_extraction.dart';
+export 'ontology/models/ai_status.dart';
 export 'ontology/models/api_call_usage.dart';
 export 'ontology/models/api_provider.dart';
 export 'ontology/models/business_content.dart';
@@ -163,6 +171,8 @@ export 'ontology/models/relation_fact_kind.dart';
 export 'ontology/models/relation_origin.dart';
 export 'ontology/models/relation_predicate.dart';
 export 'ontology/models/relation_status.dart';
+export 'ontology/models/review_item.dart';
+export 'ontology/models/review_page.dart';
 export 'ontology/models/security.dart';
 export 'ontology/models/security_link_basis.dart';
 export 'ontology/models/security_quote.dart';
@@ -214,6 +224,12 @@ class Protocol extends _isc.SerializationManager {
 
     if (t == _izw8z7ou.Greeting) {
       return _izw8z7ou.Greeting.fromJson(data) as T;
+    }
+    if (t == _idjojx8t.AiExtraction) {
+      return _idjojx8t.AiExtraction.fromJson(data) as T;
+    }
+    if (t == _i7c6k6qa.AiStatus) {
+      return _i7c6k6qa.AiStatus.fromJson(data) as T;
     }
     if (t == _i3e42he1.ApiCallUsage) {
       return _i3e42he1.ApiCallUsage.fromJson(data) as T;
@@ -401,6 +417,12 @@ class Protocol extends _isc.SerializationManager {
     if (t == _ih00v9tp.RelationStatus) {
       return _ih00v9tp.RelationStatus.fromJson(data) as T;
     }
+    if (t == _i6uduqoi.ReviewItem) {
+      return _i6uduqoi.ReviewItem.fromJson(data) as T;
+    }
+    if (t == _i22wlf7g.ReviewPage) {
+      return _i22wlf7g.ReviewPage.fromJson(data) as T;
+    }
     if (t == _ilujots3.Security) {
       return _ilujots3.Security.fromJson(data) as T;
     }
@@ -442,6 +464,12 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _isc.getType<_izw8z7ou.Greeting?>()) {
       return (data != null ? _izw8z7ou.Greeting.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_idjojx8t.AiExtraction?>()) {
+      return (data != null ? _idjojx8t.AiExtraction.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_i7c6k6qa.AiStatus?>()) {
+      return (data != null ? _i7c6k6qa.AiStatus.fromJson(data) : null) as T;
     }
     if (t == _isc.getType<_i3e42he1.ApiCallUsage?>()) {
       return (data != null ? _i3e42he1.ApiCallUsage.fromJson(data) : null) as T;
@@ -690,6 +718,12 @@ class Protocol extends _isc.SerializationManager {
       return (data != null ? _ih00v9tp.RelationStatus.fromJson(data) : null)
           as T;
     }
+    if (t == _isc.getType<_i6uduqoi.ReviewItem?>()) {
+      return (data != null ? _i6uduqoi.ReviewItem.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_i22wlf7g.ReviewPage?>()) {
+      return (data != null ? _i22wlf7g.ReviewPage.fromJson(data) : null) as T;
+    }
     if (t == _isc.getType<_ilujots3.Security?>()) {
       return (data != null ? _ilujots3.Security.fromJson(data) : null) as T;
     }
@@ -869,6 +903,12 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_i6uduqoi.ReviewItem>) {
+      return (data as List)
+              .map((e) => deserialize<_i6uduqoi.ReviewItem>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_ith4ion6.DividendEntry>) {
       return (data as List)
               .map((e) => deserialize<_ith4ion6.DividendEntry>(e))
@@ -905,6 +945,12 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_ihqozc6p.ReviewItem>) {
+      return (data as List)
+              .map((e) => deserialize<_ihqozc6p.ReviewItem>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_ihj01hrs.ThemeSummary>) {
       return (data as List)
               .map((e) => deserialize<_ihj01hrs.ThemeSummary>(e))
@@ -929,6 +975,8 @@ class Protocol extends _isc.SerializationManager {
   static String? getClassNameForType(Type type) {
     return switch (type) {
       _izw8z7ou.Greeting => 'Greeting',
+      _idjojx8t.AiExtraction => 'AiExtraction',
+      _i7c6k6qa.AiStatus => 'AiStatus',
       _i3e42he1.ApiCallUsage => 'ApiCallUsage',
       _i82zif2r.ApiProvider => 'ApiProvider',
       _ik6lqqsr.BusinessContent => 'BusinessContent',
@@ -991,6 +1039,8 @@ class Protocol extends _isc.SerializationManager {
       _id1oen7t.RelationOrigin => 'RelationOrigin',
       _idal2dwe.RelationPredicate => 'RelationPredicate',
       _ih00v9tp.RelationStatus => 'RelationStatus',
+      _i6uduqoi.ReviewItem => 'ReviewItem',
+      _i22wlf7g.ReviewPage => 'ReviewPage',
       _ilujots3.Security => 'Security',
       _ic799xum.SecurityLinkBasis => 'SecurityLinkBasis',
       _ionn6cq2.SecurityQuote => 'SecurityQuote',
@@ -1023,6 +1073,10 @@ class Protocol extends _isc.SerializationManager {
     switch (data) {
       case _izw8z7ou.Greeting():
         return 'Greeting';
+      case _idjojx8t.AiExtraction():
+        return 'AiExtraction';
+      case _i7c6k6qa.AiStatus():
+        return 'AiStatus';
       case _i3e42he1.ApiCallUsage():
         return 'ApiCallUsage';
       case _i82zif2r.ApiProvider():
@@ -1147,6 +1201,10 @@ class Protocol extends _isc.SerializationManager {
         return 'RelationPredicate';
       case _ih00v9tp.RelationStatus():
         return 'RelationStatus';
+      case _i6uduqoi.ReviewItem():
+        return 'ReviewItem';
+      case _i22wlf7g.ReviewPage():
+        return 'ReviewPage';
       case _ilujots3.Security():
         return 'Security';
       case _ic799xum.SecurityLinkBasis():
@@ -1197,6 +1255,12 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'Greeting') {
       return deserialize<_izw8z7ou.Greeting>(data['data']);
+    }
+    if (dataClassName == 'AiExtraction') {
+      return deserialize<_idjojx8t.AiExtraction>(data['data']);
+    }
+    if (dataClassName == 'AiStatus') {
+      return deserialize<_i7c6k6qa.AiStatus>(data['data']);
     }
     if (dataClassName == 'ApiCallUsage') {
       return deserialize<_i3e42he1.ApiCallUsage>(data['data']);
@@ -1383,6 +1447,12 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'RelationStatus') {
       return deserialize<_ih00v9tp.RelationStatus>(data['data']);
+    }
+    if (dataClassName == 'ReviewItem') {
+      return deserialize<_i6uduqoi.ReviewItem>(data['data']);
+    }
+    if (dataClassName == 'ReviewPage') {
+      return deserialize<_i22wlf7g.ReviewPage>(data['data']);
     }
     if (dataClassName == 'Security') {
       return deserialize<_ilujots3.Security>(data['data']);

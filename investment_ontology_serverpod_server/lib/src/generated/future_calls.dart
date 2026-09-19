@@ -14,10 +14,13 @@
 import 'dart:async' as _ida;
 import 'package:clock/clock.dart' as _io0w16m8;
 import 'package:serverpod/serverpod.dart' as _is;
+import '../ontology/ai/ai_extraction_future_call.dart' as _ifdlgs52;
 import '../ontology/ingest/company_master_future_call.dart' as _iouuus1c;
 import '../ontology/ingest/disclosure_future_call.dart' as _itvp2mss;
 import '../ontology/ingest/financial_facts_future_call.dart' as _iqtu3y45;
 import '../ontology/ingest/market_snapshot_future_call.dart' as _i3rk8q0z;
+import 'future_calls_generated_models/ai_extraction_future_call_run_model.dart'
+    as _iskveedf;
 import 'future_calls_generated_models/company_master_future_call_run_model.dart'
     as _i8298vau;
 import 'future_calls_generated_models/disclosure_future_call_run_company_model.dart'
@@ -73,6 +76,7 @@ class FutureCalls extends _is.FutureCallDispatch<_FutureCallRef> {
     String serverId,
   ) {
     var registeredFutureCalls = <String, _is.InvokableFutureCall>{
+      'AiExtractionRunFutureCall': AiExtractionRunFutureCall(),
       'CompanyMasterRunFutureCall': CompanyMasterRunFutureCall(),
       'DisclosureRunFutureCall': DisclosureRunFutureCall(),
       'DisclosureRunCompanyFutureCall': DisclosureRunCompanyFutureCall(),
@@ -203,6 +207,10 @@ class _FutureCallRef {
 
   final _InvokeFutureCall _invokeFutureCall;
 
+  late final aiExtraction = _AiExtractionFutureCallDispatcher(
+    _invokeFutureCall,
+  );
+
   late final companyMaster = _CompanyMasterFutureCallDispatcher(
     _invokeFutureCall,
   );
@@ -216,6 +224,26 @@ class _FutureCallRef {
   late final marketSnapshot = _MarketSnapshotFutureCallDispatcher(
     _invokeFutureCall,
   );
+}
+
+class _AiExtractionFutureCallDispatcher {
+  _AiExtractionFutureCallDispatcher(this._invokeFutureCall);
+
+  final _InvokeFutureCall _invokeFutureCall;
+
+  Future<void> run(
+    int jobId,
+    int limit,
+  ) {
+    var object = _iskveedf.AiExtractionFutureCallRunModel(
+      jobId: jobId,
+      limit: limit,
+    );
+    return _invokeFutureCall(
+      'AiExtractionRunFutureCall',
+      object,
+    );
+  }
 }
 
 class _CompanyMasterFutureCallDispatcher {
@@ -326,6 +354,25 @@ class _MarketSnapshotFutureCallDispatcher {
       'MarketSnapshotResumeFutureCall',
       null,
     );
+  }
+}
+
+class AiExtractionRunFutureCall
+    extends _is.FutureCall<_iskveedf.AiExtractionFutureCallRunModel>
+    implements
+        _is.InvokableFutureCall<_iskveedf.AiExtractionFutureCallRunModel> {
+  @override
+  _ida.Future<void> invoke(
+    _is.Session session,
+    _iskveedf.AiExtractionFutureCallRunModel? object,
+  ) async {
+    if (object != null) {
+      await _ifdlgs52.AiExtractionFutureCall().run(
+        session,
+        object.jobId,
+        object.limit,
+      );
+    }
   }
 }
 

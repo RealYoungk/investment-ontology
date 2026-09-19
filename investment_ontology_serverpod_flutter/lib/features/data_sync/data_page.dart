@@ -3,6 +3,7 @@ import 'package:investment_ontology_serverpod_client/investment_ontology_serverp
 
 import '../../app/ingest_monitor.dart';
 import '../../client.dart';
+import '../common/formatters.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
 import 'widgets/ingest_job_row.dart';
@@ -109,6 +110,16 @@ class _DataPageState extends State<DataPage> {
         const _RebuildLinks(),
         const SizedBox(height: AppSpace.section),
         const _Source(
+          title: 'AI 관계 추출 · Anthropic (4단계)',
+          description:
+              '받아 둔 사업보고서 "사업의 내용"을 AI가 읽고 제품·공급(원재료 매입처·주요 매출처)·경쟁 관계를 '
+              '뽑습니다. 근거 인용이 원문에 그대로 없으면 버리고, 남은 것은 모두 검수 대기로 두어 '
+              '검수 화면에서 승인해야 확정됩니다. Anthropic API 키가 있어야 돌고 호출 비용이 듭니다 '
+              '(자동으로 돌지 않음).',
+        ),
+        const _AiExtraction(),
+        const SizedBox(height: AppSpace.section),
+        const _Source(
           title: '시세 · 공공데이터포털 금융위원회',
           description:
               '주식시세정보로 받지 않은 평일의 전 종목 시세를 받고(처음에는 5년), 최근 '
@@ -191,6 +202,79 @@ class _RebuildLinksState extends State<_RebuildLinks> {
         ),
         if (_message != null)
           Text(_message!, style: t.body(12, color: c.textMuted)),
+      ],
+    );
+  }
+}
+
+/// AI 관계 추출 상태와 일괄 실행.
+class _AiExtraction extends StatefulWidget {
+  const _AiExtraction();
+
+  @override
+  State<_AiExtraction> createState() => _AiExtractionState();
+}
+
+class _AiExtractionState extends State<_AiExtraction> {
+  AiStatus? _status;
+  int _limit = 20;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final s = await client.ai.status();
+      if (mounted) setState(() => _status = s);
+    } catch (_) {}
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    final s = _status;
+    if (s == null) return const LinearProgressIndicator(minHeight: 2);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          '사업의 내용을 받은 기업 ${formatCount(s.documentCompanies)}곳 중 '
+          '${formatCount(s.extractedCompanies)}곳 추출 · 검수 대기 ${formatCount(s.draftCount)} · '
+          '승인 ${formatCount(s.verifiedCount)} · 거절 ${formatCount(s.rejectedCount)} · 모델 ${s.model}',
+          style: t.body(13, color: c.textSecondary),
+        ),
+        const SizedBox(height: AppSpace.sm),
+        if (!s.keyConfigured)
+          AppNotice(
+            message:
+                'Anthropic API 키가 없어 추출할 수 없습니다. 환경변수 ANTHROPIC_API_KEY를 설정하거나 '
+                'config/passwords.yaml의 shared: 아래에 anthropicApiKey를 넣고 서버를 다시 시작하세요.',
+          )
+        else ...[
+          Wrap(
+            spacing: AppSpace.md,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              AppToggleGroup<int>(
+                label: '이번에 읽을 기업 수',
+                value: _limit,
+                options: const {5: '5', 20: '20', 100: '100', 500: '500'},
+                onChanged: (v) => setState(() => _limit = v),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpace.sm),
+          IngestJobRow(
+            kind: 'ai_extraction',
+            label: 'AI 추출',
+            action: '관계 추출 시작',
+            start: () => client.ai.startBatch(limit: _limit),
+          ),
+        ],
       ],
     );
   }

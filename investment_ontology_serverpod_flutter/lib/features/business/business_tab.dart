@@ -6,6 +6,7 @@ import '../../client.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
 import '../common/formatters.dart';
+import '../review/review_page.dart';
 
 /// 글을 문단과 표(' | '로 이은 줄이 이어진 묶음)로 나눈다.
 List<({bool table, List<String> lines})> businessBlocks(String text) {
@@ -127,7 +128,9 @@ class _BusinessTabState extends State<BusinessTab> {
               ),
           ],
         ),
-        const SizedBox(height: AppSpace.xs),
+        const SizedBox(height: AppSpace.md),
+        _AiRelations(corpCode: widget.corpCode),
+        const SizedBox(height: AppSpace.lg),
         Text(
           '공시 원본 파일에서 뽑은 글 (${formatCount(content.charCount)}자). 표는 칸만 옮겼고, '
           '그림·서식은 빠집니다. 정확한 원문은 DART 공시에서 확인하세요.',
@@ -229,6 +232,106 @@ class _SectionBody extends StatelessWidget {
           const SizedBox(height: AppSpace.md),
         ],
       ],
+    );
+  }
+}
+
+/// 이 기업이 들어간 AI 관계 (거절한 것 제외)와 "이 기업 관계 추출".
+class _AiRelations extends StatefulWidget {
+  const _AiRelations({required this.corpCode});
+
+  final String corpCode;
+
+  @override
+  State<_AiRelations> createState() => _AiRelationsState();
+}
+
+class _AiRelationsState extends State<_AiRelations> {
+  List<ReviewItem>? _items;
+  bool _extracting = false;
+  String? _message;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final items = await client.review.forCompany(widget.corpCode);
+      if (mounted) setState(() => _items = items);
+    } catch (_) {}
+  }
+
+  Future<void> _extract() async {
+    setState(() => (_extracting = true, _message = null));
+    try {
+      final r = await client.ai.extractCompany(widget.corpCode);
+      setState(
+        () => _message = r.succeeded
+            ? '관계 후보 ${r.relationCount}건 (근거가 원문에 없어 버린 것 ${r.droppedCount}건)'
+            : '추출 실패: ${r.error}',
+      );
+      await _load();
+    } on IngestException catch (e) {
+      setState(() => _message = e.message);
+    } catch (e) {
+      setState(() => _message = '$e');
+    } finally {
+      if (mounted) setState(() => _extracting = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    final items = _items ?? const <ReviewItem>[];
+    return Container(
+      padding: const EdgeInsets.all(AppSpace.md),
+      decoration: BoxDecoration(
+        color: c.surface,
+        borderRadius: context.shape.borderRadius,
+        border: Border.all(color: c.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SectionLabel(
+            'AI가 뽑은 관계 (공급 · 경쟁 · 제품)',
+            accent: true,
+            trailing: AppButton(
+              label: _extracting ? '읽는 중… (수십 초)' : '이 기업 관계 추출',
+              variant: AppButtonVariant.link,
+              onPressed: _extracting ? null : _extract,
+            ),
+          ),
+          const SizedBox(height: AppSpace.xs),
+          Text(
+            '근거 인용이 원문에 그대로 있는 것만 남기고, 검수에서 승인해야 확정됩니다.',
+            style: t.body(12, color: c.textMuted),
+          ),
+          if (_message != null) ...[
+            const SizedBox(height: AppSpace.xs),
+            Text(_message!, style: t.body(12.5, color: c.textSecondary)),
+          ],
+          const SizedBox(height: AppSpace.sm),
+          if (items.isEmpty)
+            Text('아직 없습니다.', style: t.body(13, color: c.textMuted))
+          else
+            for (final item in items)
+              ReviewCard(
+                item: item,
+                onDecide: item.relation.status == RelationStatus.draft
+                    ? (approve) async {
+                        await client.review.decide(item.relation.id!, approve);
+                        await _load();
+                      }
+                    : null,
+              ),
+        ],
+      ),
     );
   }
 }

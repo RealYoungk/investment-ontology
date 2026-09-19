@@ -1,0 +1,12 @@
+### AI 관계 추출 준비 상태.
+class: AiStatus
+fields:
+  keyConfigured: bool
+  model: String
+  ### 사업의 내용을 받은 기업 수 (가장 최근 보고서 기준)
+  documentCompanies: int
+  ### 그중 추출한 기업 수
+  extractedCompanies: int
+  draftCount: int
+  verifiedCount: int
+  rejectedCount: int

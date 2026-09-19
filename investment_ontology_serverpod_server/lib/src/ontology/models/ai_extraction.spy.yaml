@@ -1,0 +1,19 @@
+### AI 관계 추출 실행 기록: 사업보고서 본문 하나를 모델 하나로 읽은 결과.
+class: AiExtraction
+table: ai_extraction
+fields:
+  documentId: int, relation(parent=business_document, onDelete=Cascade)
+  companyId: int
+  model: String
+  succeeded: bool
+  ### 저장한 관계 수 (draft)
+  relationCount: int
+  ### 근거 인용이 원문에 없거나 형식이 틀려 버린 수
+  droppedCount: int
+  error: String?
+  createdAt: DateTime
+indexes:
+  ai_extraction_document_idx:
+    fields: documentId
+  ai_extraction_company_idx:
+    fields: companyId

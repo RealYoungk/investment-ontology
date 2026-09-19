@@ -14,6 +14,10 @@ import 'dart:async' as _ida;
 import 'package:http/http.dart' as _i85jenna;
 import 'package:investment_ontology_serverpod_client/src/protocol/greetings/greeting.dart'
     as _iqvwj7cf;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ai_extraction.dart'
+    as _i8m2dvht;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ai_status.dart'
+    as _ie40qci9;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/business_content.dart'
     as _i6ht4m6x;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_detail.dart'
@@ -46,10 +50,20 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _iamn97sz;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/market_cap_treemap.dart'
     as _ifex1fnm;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ontology_relation.dart'
+    as _isup83mn;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/overview.dart'
     as _iqnrnt8q;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/person_profile.dart'
     as _impgjy6j;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/relation_predicate.dart'
+    as _iklpi3wo;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/relation_status.dart'
+    as _ixp2yk27;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/review_item.dart'
+    as _ihqozc6p;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/review_page.dart'
+    as _i59ekwm6;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/shareholder_return.dart'
     as _ir6fk3mk;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/theme_detail.dart'
@@ -305,6 +319,38 @@ class EndpointGreeting extends _isc.EndpointRef {
         'greeting',
         'hello',
         {'name': name},
+      );
+}
+
+/// AI 관계 추출 (4단계). Anthropic 키가 있어야 추출하고, 결과는 모두 검수 대기(draft)다.
+/// {@category Endpoint}
+class EndpointAi extends _isc.EndpointRef {
+  EndpointAi(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'ai';
+
+  _ida.Future<_ie40qci9.AiStatus> status() =>
+      caller.callServerEndpoint<_ie40qci9.AiStatus>(
+        'ai',
+        'status',
+        {},
+      );
+
+  /// 기업 하나의 가장 최근 사업보고서 본문을 바로 읽는다 (수십 초 걸린다).
+  _ida.Future<_i8m2dvht.AiExtraction> extractCompany(String corpCode) =>
+      caller.callServerEndpoint<_i8m2dvht.AiExtraction>(
+        'ai',
+        'extractCompany',
+        {'corpCode': corpCode},
+      );
+
+  /// 아직 읽지 않은 기업의 최근 본문을 [limit]개까지 읽는 작업을 시작한다.
+  _ida.Future<_i1paap7y.IngestJob> startBatch({int? limit}) =>
+      caller.callServerEndpoint<_i1paap7y.IngestJob>(
+        'ai',
+        'startBatch',
+        {'limit': limit},
       );
 }
 
@@ -609,6 +655,52 @@ class EndpointMarket extends _isc.EndpointRef {
   );
 }
 
+/// AI 관계 검수 큐: 근거 인용을 보고 승인(verified)·거절(rejected)한다.
+/// {@category Endpoint}
+class EndpointReview extends _isc.EndpointRef {
+  EndpointReview(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'review';
+
+  _ida.Future<_i59ekwm6.ReviewPage> list({
+    _ixp2yk27.RelationStatus? status,
+    _iklpi3wo.RelationPredicate? predicate,
+    int? offset,
+    int? limit,
+  }) => caller.callServerEndpoint<_i59ekwm6.ReviewPage>(
+    'review',
+    'list',
+    {
+      'status': status,
+      'predicate': predicate,
+      'offset': offset,
+      'limit': limit,
+    },
+  );
+
+  /// 승인하면 verified, 거절하면 rejected. 다시 추출해도 이 결정은 유지된다.
+  _ida.Future<_isup83mn.OntologyRelation?> decide(
+    int relationId,
+    bool approve,
+  ) => caller.callServerEndpoint<_isup83mn.OntologyRelation?>(
+    'review',
+    'decide',
+    {
+      'relationId': relationId,
+      'approve': approve,
+    },
+  );
+
+  /// 기업이 주어나 목적어인 AI 관계 (거절한 것 제외).
+  _ida.Future<List<_ihqozc6p.ReviewItem>> forCompany(String corpCode) =>
+      caller.callServerEndpoint<List<_ihqozc6p.ReviewItem>>(
+        'review',
+        'forCompany',
+        {'corpCode': corpCode},
+      );
+}
+
 /// 테마 (5단계): 사용자가 정의하는 투자 주제와 기업 편입.
 ///
 /// 편입은 사람의 판단이므로 출처는 manual Source로 남긴다.
@@ -745,12 +837,14 @@ class Client extends _isc.ServerpodClientShared {
     emailIdp = EndpointEmailIdp(this);
     jwtRefresh = EndpointJwtRefresh(this);
     greeting = EndpointGreeting(this);
+    ai = EndpointAi(this);
     company = EndpointCompany(this);
     disclosure = EndpointDisclosure(this);
     financial = EndpointFinancial(this);
     governance = EndpointGovernance(this);
     ingest = EndpointIngest(this);
     market = EndpointMarket(this);
+    review = EndpointReview(this);
     theme = EndpointTheme(this);
     modules = Modules(this);
   }
@@ -760,6 +854,8 @@ class Client extends _isc.ServerpodClientShared {
   late final EndpointJwtRefresh jwtRefresh;
 
   late final EndpointGreeting greeting;
+
+  late final EndpointAi ai;
 
   late final EndpointCompany company;
 
@@ -773,6 +869,8 @@ class Client extends _isc.ServerpodClientShared {
 
   late final EndpointMarket market;
 
+  late final EndpointReview review;
+
   late final EndpointTheme theme;
 
   late final Modules modules;
@@ -782,12 +880,14 @@ class Client extends _isc.ServerpodClientShared {
     'emailIdp': emailIdp,
     'jwtRefresh': jwtRefresh,
     'greeting': greeting,
+    'ai': ai,
     'company': company,
     'disclosure': disclosure,
     'financial': financial,
     'governance': governance,
     'ingest': ingest,
     'market': market,
+    'review': review,
     'theme': theme,
   };
 

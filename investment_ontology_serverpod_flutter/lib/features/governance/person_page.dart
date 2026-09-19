@@ -164,7 +164,7 @@ class _PersonPageState extends State<PersonPage> {
                       RelationPredicate.shareholderOf =>
                         r.estimated ? '주주 (추정)' : '주주',
                       RelationPredicate.executiveOf => '임원',
-                      RelationPredicate.investsIn => '출자',
+                      _ => r.predicate.name,
                     },
                   ),
                   AppDataTable.text(
