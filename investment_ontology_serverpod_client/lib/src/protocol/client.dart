@@ -60,6 +60,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _isup83mn;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/overview.dart'
     as _iqnrnt8q;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/person_hit.dart'
+    as _i96d117e;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/person_profile.dart'
     as _impgjy6j;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/relation_predicate.dart'
@@ -524,6 +526,19 @@ class EndpointGovernance extends _isc.EndpointRef {
     {
       'corpCode': corpCode,
       'bsnsYear': bsnsYear,
+    },
+  );
+
+  /// 이름으로 인물을 찾는다. 이어진 기업이 많은 순서로 [limit]명.
+  _ida.Future<List<_i96d117e.PersonHit>> searchPersons(
+    String query, {
+    int? limit,
+  }) => caller.callServerEndpoint<List<_i96d117e.PersonHit>>(
+    'governance',
+    'searchPersons',
+    {
+      'query': query,
+      'limit': limit,
     },
   );
 

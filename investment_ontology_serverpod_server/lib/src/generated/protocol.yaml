@@ -30,6 +30,7 @@ financial:
   - report:
 governance:
   - summary:
+  - searchPersons:
   - person:
   - rejectPersonLink:
 graph:
