@@ -147,6 +147,7 @@ void main() {
         holder(rSamsung, samsung, '이재용', '최대주주의 특수관계인', '1.65'),
         holder(rSamsung, samsung, '이재용', '최대주주의 특수관계인', '0.02', kind: '우선주'),
         holder(rSamsung, samsung, '전영현', '계열회사 임원', '0.00'),
+        holder(rSamsung, samsung, '이부진', '계열회사 임원', '0.71'),
         holder(rSamsung, samsung, '계', '-', '15.23'),
       ]);
       dart.set('exctvSttus', samsung, 2025, [
@@ -231,6 +232,7 @@ void main() {
       ]);
       dart.set('hyslrSttus', cnt, 2025, [
         holder('20260310000003', cnt, '이 재 용', '최대주주 본인', '19.76'),
+        holder('20260310000003', cnt, '이 부 진', '친인척', '6.10'),
       ]);
       // 서로 지분으로 이어지지 않은 두 회사의 같은 이름은 합치지 않는다.
       dart.set('hyslrSttus', other, 2025, [
@@ -253,7 +255,7 @@ void main() {
             t.rceptNo.equals(rSamsung) &
             t.section.equals(DartSection.largestShareholders),
       ))!;
-      expect(report.rowCount, 6);
+      expect(report.rowCount, 7);
       expect(report.settlementDate, DateTime.utc(2025, 12, 31));
       final source = (await Source.db.findById(session, report.sourceId))!;
       expect(source.reference, rSamsung);
@@ -262,7 +264,7 @@ void main() {
           session,
           where: (t) => t.reportId.equals(report.id!),
         ),
-        6,
+        7,
       );
 
       final holders = await ShareholderEntry.db.find(
@@ -325,9 +327,9 @@ void main() {
       // 삼성전자·삼성생명·삼성물산은 서로 지분으로 이어져 있다 → 이재용은 한 사람(추정).
       final lee = await ShareholderEntry.db.find(
         session,
-        where: (t) => t.holderLinkBasis.equals(
-          DisclosureLinkBasis.ownershipCluster,
-        ),
+        where: (t) =>
+            t.holderLinkBasis.equals(DisclosureLinkBasis.ownershipCluster) &
+            t.holderName.inSet({'이재용', '이 재 용'}),
       );
       expect(
         {for (final s in lee) s.companyId},
@@ -344,6 +346,14 @@ void main() {
       ))!;
       expect(person.name, '이재용');
       expect(person.estimated, isTrue);
+
+      // 한 곳은 '계열회사 임원', 다른 곳은 '친인척'으로 적어도 같은 묶음이면 같은 사람(추정).
+      final boojin = await ShareholderEntry.db.find(
+        session,
+        where: (t) => t.holderName.inSet({'이부진', '이 부 진'}),
+      );
+      expect({for (final s in boojin) s.holderPersonId}, hasLength(1));
+      expect(boojin.first.holderPersonId, isNotNull);
 
       final kim = await ShareholderEntry.db.find(
         session,
@@ -377,7 +387,7 @@ void main() {
         samsung,
       ))!;
       expect(gov.bsnsYear, 2025);
-      expect(gov.shareholders, hasLength(6));
+      expect(gov.shareholders, hasLength(7));
       expect(gov.executives, hasLength(1));
       expect({for (final c in gov.companies) c.corpCode}, {life, cnt, other});
 
@@ -462,22 +472,26 @@ void main() {
       expect(ret.sources, isNotEmpty);
     });
 
-    test('재무 백필이 남아 있으면 최신 사업연도의 핵심 항목만 받는다', () async {
+    test('재무 백필이 남아 있으면 기업마다 가장 최근 사업보고서의 핵심 항목만 받는다', () async {
       final old = await filing(samsung, '20250310000001', 2024);
       await DartFiling.db.updateRow(
         session,
         old.copyWith(consolidatedStatus: FilingFetchStatus.pending),
       );
+      // 결산월이 달라 FY2026 사업보고서가 먼저 나온 기업이 있어도, 다른 기업의 최근 보고서는 FY2025다.
+      await filing(other, '20260610000004', 2026);
       final job = await runSync();
       expect(job.message, contains('핵심 항목 완료'));
-      // FY2025 5곳 × 핵심 9종만 호출.
+      // 기업마다 가장 최근 사업보고서(삼성 등 4곳 FY2025, 다른회사 FY2026) × 핵심 9종만 호출.
       expect(dart.calls, hasLength(5 * 9));
+      expect(dart.calls, contains('hyslrSttus|$other|2026'));
+      expect(dart.calls, isNot(contains('hyslrSttus|$other|2025')));
       expect(
         await DartFilingSection.db.count(
           session,
           where: (t) => t.status.equals(FilingFetchStatus.pending),
         ),
-        5 * 19 + 28,
+        5 * 19 + 28 + 28,
       );
     });
 

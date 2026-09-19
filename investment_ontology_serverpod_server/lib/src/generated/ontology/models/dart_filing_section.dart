@@ -23,19 +23,22 @@ abstract class DartFilingSection
     required this.filingId,
     required this.companyId,
     required this.bsnsYear,
+    int? yearRank,
     required this.section,
     required this.tier,
     required this.status,
     int? attempts,
     this.lastError,
     this.fetchedAt,
-  }) : attempts = attempts ?? 0;
+  }) : yearRank = yearRank ?? 0,
+       attempts = attempts ?? 0;
 
   factory DartFilingSection({
     int? id,
     required int filingId,
     required int companyId,
     required int bsnsYear,
+    int? yearRank,
     required _iy0bhrwp.DartSection section,
     required int tier,
     required _iy9345ub.FilingFetchStatus status,
@@ -50,6 +53,7 @@ abstract class DartFilingSection
       filingId: jsonSerialization['filingId'] as int,
       companyId: jsonSerialization['companyId'] as int,
       bsnsYear: jsonSerialization['bsnsYear'] as int,
+      yearRank: jsonSerialization['yearRank'] as int?,
       section: _iy0bhrwp.DartSection.fromJson(
         (jsonSerialization['section'] as String),
       ),
@@ -78,6 +82,9 @@ abstract class DartFilingSection
 
   int bsnsYear;
 
+  /// 이 기업의 사업보고서 가운데 몇 번째로 최근인지 (0 = 가장 최근). 결산월이 달라 전체 최신 연도는 기업마다 다르다
+  int yearRank;
+
   _iy0bhrwp.DartSection section;
 
   /// 받는 순서. 0 = 핵심 (지배구조·주주환원), 1 = 나머지
@@ -103,6 +110,7 @@ abstract class DartFilingSection
     int? filingId,
     int? companyId,
     int? bsnsYear,
+    int? yearRank,
     _iy0bhrwp.DartSection? section,
     int? tier,
     _iy9345ub.FilingFetchStatus? status,
@@ -118,6 +126,7 @@ abstract class DartFilingSection
       'filingId': filingId,
       'companyId': companyId,
       'bsnsYear': bsnsYear,
+      'yearRank': yearRank,
       'section': section.toJson(),
       'tier': tier,
       'status': status.toJson(),
@@ -135,6 +144,7 @@ abstract class DartFilingSection
       'filingId': filingId,
       'companyId': companyId,
       'bsnsYear': bsnsYear,
+      'yearRank': yearRank,
       'section': section.toJson(),
       'tier': tier,
       'status': status.toJson(),
@@ -180,6 +190,7 @@ class _DartFilingSectionImpl extends DartFilingSection {
     required int filingId,
     required int companyId,
     required int bsnsYear,
+    int? yearRank,
     required _iy0bhrwp.DartSection section,
     required int tier,
     required _iy9345ub.FilingFetchStatus status,
@@ -191,6 +202,7 @@ class _DartFilingSectionImpl extends DartFilingSection {
          filingId: filingId,
          companyId: companyId,
          bsnsYear: bsnsYear,
+         yearRank: yearRank,
          section: section,
          tier: tier,
          status: status,
@@ -208,6 +220,7 @@ class _DartFilingSectionImpl extends DartFilingSection {
     int? filingId,
     int? companyId,
     int? bsnsYear,
+    int? yearRank,
     _iy0bhrwp.DartSection? section,
     int? tier,
     _iy9345ub.FilingFetchStatus? status,
@@ -220,6 +233,7 @@ class _DartFilingSectionImpl extends DartFilingSection {
       filingId: filingId ?? this.filingId,
       companyId: companyId ?? this.companyId,
       bsnsYear: bsnsYear ?? this.bsnsYear,
+      yearRank: yearRank ?? this.yearRank,
       section: section ?? this.section,
       tier: tier ?? this.tier,
       status: status ?? this.status,
@@ -246,6 +260,11 @@ class DartFilingSectionUpdateTable
 
   _is.ColumnValue<int, int> bsnsYear(int value) => _is.ColumnValue(
     table.bsnsYear,
+    value,
+  );
+
+  _is.ColumnValue<int, int> yearRank(int value) => _is.ColumnValue(
+    table.yearRank,
     value,
   );
 
@@ -300,6 +319,11 @@ class DartFilingSectionTable extends _is.Table<int?> {
       'bsnsYear',
       this,
     );
+    yearRank = _is.ColumnInt(
+      'yearRank',
+      this,
+      hasDefault: true,
+    );
     section = _is.ColumnEnum(
       'section',
       this,
@@ -337,6 +361,9 @@ class DartFilingSectionTable extends _is.Table<int?> {
 
   late final _is.ColumnInt bsnsYear;
 
+  /// 이 기업의 사업보고서 가운데 몇 번째로 최근인지 (0 = 가장 최근). 결산월이 달라 전체 최신 연도는 기업마다 다르다
+  late final _is.ColumnInt yearRank;
+
   late final _is.ColumnEnum<_iy0bhrwp.DartSection> section;
 
   /// 받는 순서. 0 = 핵심 (지배구조·주주환원), 1 = 나머지
@@ -357,6 +384,7 @@ class DartFilingSectionTable extends _is.Table<int?> {
     filingId,
     companyId,
     bsnsYear,
+    yearRank,
     section,
     tier,
     status,

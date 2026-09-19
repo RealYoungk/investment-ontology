@@ -6,6 +6,8 @@ fields:
   filingId: int, relation(parent=dart_filing, onDelete=Cascade)
   companyId: int
   bsnsYear: int
+  ### 이 기업의 사업보고서 가운데 몇 번째로 최근인지 (0 = 가장 최근). 결산월이 달라 전체 최신 연도는 기업마다 다르다
+  yearRank: int, default=0
   section: DartSection
   ### 받는 순서. 0 = 핵심 (지배구조·주주환원), 1 = 나머지
   tier: int
@@ -19,4 +21,4 @@ indexes:
     fields: filingId, section
     unique: true
   dart_filing_section_queue_idx:
-    fields: status, bsnsYear, tier
+    fields: status, yearRank, tier

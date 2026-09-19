@@ -17,23 +17,30 @@ import 'ingest_jobs.dart';
 /// DART 정기보고서 주요정보(주주·임원·출자·배당·자기주식 … 28종)를 수집한다.
 ///
 /// 1. 재무 수집이 쌓은 [DartFiling] 장부의 사업보고서마다 28개 항목을 [DartFilingSection]에 넣는다.
-/// 2. 받지 않은 (보고서, 항목)을 최신 사업연도 → 핵심 항목(tier 0) 순으로 받는다.
+/// 2. 받지 않은 (보고서, 항목)을 기업마다 최근 사업보고서 → 핵심 항목(tier 0) 순으로 받는다.
 /// 3. 원문 행([DisclosureRow])과 타입 층(주주·임원·출자·배당·자기주식)을 저장하고,
 ///    끝나면 [DisclosureLinks]로 인물·관계 색인을 다시 만든다 (호출 없음).
 ///
-/// 재무 백필이 남아 있으면 최신 사업연도의 핵심 항목만 [priorityBudget]까지 받는다.
+/// 재무 백필이 남아 있으면 기업마다 가장 최근 사업보고서의 핵심 항목만 [priorityBudget]까지 받는다.
+/// 결산월이 기업마다 달라 "가장 최근"은 기업별로 정한다 ([DartFilingSection.yearRank]).
 class DisclosureSync {
   DisclosureSync(
     this.session,
     this.dart,
     this.jobId, {
-    this.dailyBudget = ApiCallBudget.dartFinancialBudget,
+    int? dailyBudget,
     this.priorityBudget = ApiCallBudget.dartDisclosurePriorityBudget,
     this.callInterval = const Duration(milliseconds: 200),
     this.scheduleResume,
     this.corpCode,
     DateTime Function()? clock,
-  }) : _clock = clock ?? DateTime.now;
+  }) : dailyBudget =
+           dailyBudget ??
+           // 기업 하나(28회)는 기업마스터처럼 DART 전체 한도 안에서 바로 받는다.
+           (corpCode == null
+               ? ApiCallBudget.dartFinancialBudget
+               : ApiCallBudget.dartDailyLimit - 100),
+       _clock = clock ?? DateTime.now;
 
   static const kind = 'disclosures';
 
@@ -101,9 +108,9 @@ class DisclosureSync {
       final byName = DisclosureLinks.companiesByName(companies);
 
       await _ensureLedger(now, only);
+      await _rankYears();
       await _retryFailed(only);
 
-      final latestYear = await _latestAnnualYear();
       final backlog = only == null && await _financialBacklog();
       final used = await ApiCallBudget.usedToday(
         session,
@@ -112,14 +119,14 @@ class DisclosureSync {
       );
       _allowance = dailyBudget - used;
       if (backlog && priorityBudget < _allowance) _allowance = priorityBudget;
-      // 재무 백필 중이면 최신 사업연도의 핵심 항목만.
-      final priorityOnly = backlog && latestYear != null;
+      // 재무 백필 중이면 기업마다 가장 최근 사업보고서의 핵심 항목만.
+      final priorityOnly = backlog;
 
       Expression scope(DartFilingSectionTable t) {
         Expression e = t.status.equals(FilingFetchStatus.pending);
         if (only != null) e = e & t.companyId.equals(only.id!);
         if (priorityOnly) {
-          e = e & t.bsnsYear.equals(latestYear) & t.tier.equals(0);
+          e = e & t.yearRank.equals(0) & t.tier.equals(0);
         }
         return e;
       }
@@ -132,7 +139,12 @@ class DisclosureSync {
         final batch = await DartFilingSection.db.find(
           session,
           where: scope,
-          orderByList: (t) => [t.bsnsYear.desc(), t.tier.asc(), t.id.asc()],
+          orderByList: (t) => [
+            t.yearRank.asc(),
+            t.tier.asc(),
+            t.bsnsYear.desc(),
+            t.id.asc(),
+          ],
           limit: _batch,
         );
         if (batch.isEmpty) break;
@@ -223,8 +235,8 @@ class DisclosureSync {
       if (only != null) message = '${only.name}: $message';
       if (priorityOnly) {
         message += remainingScope == 0
-            ? ' · FY$latestYear 핵심 항목 완료, 나머지는 재무 백필 뒤에 받음'
-            : ' · 재무 백필 중이라 FY$latestYear 핵심 항목부터 받는 중';
+            ? ' · 최근 사업보고서의 핵심 항목 완료, 나머지는 재무 백필 뒤에 받음'
+            : ' · 재무 백필 중이라 최근 사업보고서의 핵심 항목부터 받는 중';
       }
       if (_budgetExhausted &&
           remainingScope > 0 &&
@@ -235,7 +247,7 @@ class DisclosureSync {
         ).add(const Duration(minutes: 5));
         await scheduleResume?.call(at);
         message +=
-            ' · 오늘 몫의 호출($_allowance건)을 다 써서 '
+            ' · ${_allowance <= 0 ? '오늘 DART 호출 한도를 다른 수집이 이미 씀' : '오늘 몫의 호출($_allowance건)을 다 씀'}, '
             '${scheduleResume != null ? '다음 날 이어서 받음' : '다음 실행에서 이어서 받음'}';
       }
       await IngestJobs.save(
@@ -290,6 +302,18 @@ class DisclosureSync {
     );
   }
 
+  /// 기업마다 사업보고서의 최근 순위(0 = 가장 최근)를 매긴다. 새 사업보고서가 들어오면 바뀐다.
+  Future<void> _rankYears() async {
+    await session.db.unsafeExecute(
+      'UPDATE "dart_filing_section" s SET "yearRank" = r.rank '
+      'FROM (SELECT "companyId", "bsnsYear", '
+      'DENSE_RANK() OVER (PARTITION BY "companyId" ORDER BY "bsnsYear" DESC) - 1 AS rank '
+      'FROM (SELECT DISTINCT "companyId", "bsnsYear" FROM "dart_filing_section") d) r '
+      'WHERE s."companyId" = r."companyId" AND s."bsnsYear" = r."bsnsYear" '
+      'AND s."yearRank" <> r.rank',
+    );
+  }
+
   /// 실패한 항목을 재시도 횟수 안에서 다시 대기로 돌린다.
   Future<void> _retryFailed(Company? only) async {
     await session.db.unsafeExecute(
@@ -303,14 +327,6 @@ class DisclosureSync {
         'company': ?only?.id,
       }),
     );
-  }
-
-  Future<int?> _latestAnnualYear() async {
-    final row = await DartFilingSection.db.findFirstRow(
-      session,
-      orderByList: (t) => [t.bsnsYear.desc()],
-    );
-    return row?.bsnsYear;
   }
 
   /// 재무 수집이 받을 공시가 남았는지.

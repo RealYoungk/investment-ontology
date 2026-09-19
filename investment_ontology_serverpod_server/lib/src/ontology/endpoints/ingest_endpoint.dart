@@ -3,6 +3,7 @@ import 'package:serverpod/serverpod.dart';
 import '../../generated/protocol.dart';
 import '../dart/dart_api_key.dart';
 import '../data_go_kr/data_go_kr_service_key.dart';
+import '../disclosure/disclosure_links.dart';
 import '../ingest/company_master_sync.dart';
 import '../ingest/disclosure_sync.dart';
 import '../ingest/financial_facts_sync.dart';
@@ -82,6 +83,12 @@ class IngestEndpoint extends Endpoint {
       await IngestSchedule.disclosuresForCompanyNow(session, job.id!, corpCode);
     }
     return job;
+  }
+
+  /// 주요정보의 인물 연결과 관계 색인을 다시 만든다 (DART 호출 없음). 연결 규칙을 고친 뒤 쓴다.
+  Future<String> rebuildDisclosureLinks(Session session) async {
+    final r = await DisclosureLinks(session).rebuild();
+    return '관계 ${r.relations}건, 추정 인물 연결 ${r.estimatedLinks}건';
   }
 
   /// 시세 수집 시작. 이미 실행 중이면 그 작업을 돌려준다.

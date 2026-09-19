@@ -1137,6 +1137,34 @@ class _IngestEndpoint {
     });
   }
 
+  _ida.Future<String> rebuildDisclosureLinks(
+    _ist.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'ingest',
+            method: 'rebuildDisclosureLinks',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'ingest',
+          methodName: 'rebuildDisclosureLinks',
+          parameters: _ist.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue = await (_localCallContext.method.call(
+          _localUniqueSession,
+          _localCallContext.arguments,
+        ) as _ida.Future<String>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
   _ida.Future<_idt86amb.IngestJob> startMarketSnapshot(
     _ist.TestSessionBuilder sessionBuilder,
   ) async {

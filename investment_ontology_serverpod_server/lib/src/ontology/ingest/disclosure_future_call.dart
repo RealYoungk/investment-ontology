@@ -4,7 +4,7 @@ import '../dart/dart_api_key.dart';
 import '../dart/dart_client.dart';
 import 'disclosure_sync.dart';
 import 'ingest_jobs.dart';
-import 'ingest_schedule.dart';
+import 'resume_hooks.dart';
 
 class DisclosureFutureCall extends FutureCall {
   Future<void> run(Session session, int jobId) async {
@@ -17,7 +17,10 @@ class DisclosureFutureCall extends FutureCall {
       session,
       DartClient(key),
       jobId,
-      scheduleResume: (at) => IngestSchedule.disclosuresResume(session, at),
+      scheduleResume: switch (ResumeHooks.disclosures) {
+        final hook? => (at) => hook(session, at),
+        null => null,
+      },
     ).run();
   }
 

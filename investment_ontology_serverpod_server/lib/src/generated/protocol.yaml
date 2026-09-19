@@ -31,6 +31,7 @@ ingest:
   - startCompanyMaster:
   - startFinancials:
   - startDisclosures:
+  - rebuildDisclosureLinks:
   - startMarketSnapshot:
   - cancel:
   - latest:

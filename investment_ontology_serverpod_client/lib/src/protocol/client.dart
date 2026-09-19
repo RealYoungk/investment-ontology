@@ -519,6 +519,14 @@ class EndpointIngest extends _isc.EndpointRef {
         {'corpCode': corpCode},
       );
 
+  /// 주요정보의 인물 연결과 관계 색인을 다시 만든다 (DART 호출 없음). 연결 규칙을 고친 뒤 쓴다.
+  _ida.Future<String> rebuildDisclosureLinks() =>
+      caller.callServerEndpoint<String>(
+        'ingest',
+        'rebuildDisclosureLinks',
+        {},
+      );
+
   /// 시세 수집 시작. 이미 실행 중이면 그 작업을 돌려준다.
   ///
   /// 받지 않은 평일 기준일을 최신순으로 받고(처음에는 5년), 가장 최근 기준일의

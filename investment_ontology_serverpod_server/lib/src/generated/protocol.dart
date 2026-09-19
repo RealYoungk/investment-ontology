@@ -818,6 +818,13 @@ class Protocol extends _is.DatabaseSerializationManager {
           dartType: 'int',
         ),
         _isp.ColumnDefinition(
+          name: 'yearRank',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
           name: 'section',
           columnType: _isp.ColumnType.text,
           isNullable: false,
@@ -895,7 +902,7 @@ class Protocol extends _is.DatabaseSerializationManager {
             ),
             _isp.IndexElementDefinition(
               type: _isp.IndexElementDefinitionType.column,
-              definition: 'bsnsYear',
+              definition: 'yearRank',
             ),
             _isp.IndexElementDefinition(
               type: _isp.IndexElementDefinitionType.column,

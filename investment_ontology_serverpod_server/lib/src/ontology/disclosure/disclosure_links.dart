@@ -10,8 +10,9 @@ import 'disclosure_values.dart';
 /// 인물 연결 규칙:
 /// - 임원은 (이름, 출생년월)로 같은 사람을 찾는다 (수집할 때 잇는다).
 /// - 주주 이름이 같은 보고서의 임원 한 명과 같으면 그 사람 (확정).
-/// - 지분으로 이어진 기업 묶음의 두 곳 이상 주주 명단에 같은 이름이 특수관계인으로 나오면 같은
-///   사람으로 본다 (추정). 사람이 끊은 것([PersonLinkRejection])은 묶지 않는다.
+/// - 지분으로 이어진 기업 묶음의 두 곳 이상 주주 명단에 같은 이름이 나오고, 그중 한 곳이라도
+///   특수관계인·친인척 등으로 적었으면 같은 사람으로 본다 (추정). 같은 사람을 회사마다
+///   "계열회사 임원", "친인척"처럼 다르게 적기 때문이다. 사람이 끊은 것([PersonLinkRejection])은 묶지 않는다.
 class DisclosureLinks {
   DisclosureLinks(this.session);
 
@@ -393,7 +394,6 @@ class DisclosureLinks {
     for (final s in candidates) {
       final name = DisclosureValues.personName(s.holderName);
       if (!_personName.hasMatch(name)) continue;
-      if (!_relatedParty.hasMatch(s.relationText ?? '')) continue;
       if (rejected.contains('${s.companyId}|$name')) continue;
       if (!parent.containsKey(s.companyId)) continue;
       final root = find(s.companyId);
@@ -408,6 +408,9 @@ class DisclosureLinks {
     for (final g in groups.values) {
       final companyIds = {for (final s in g) s.companyId};
       if (companyIds.length < 2) continue;
+      if (!g.any((s) => _relatedParty.hasMatch(s.relationText ?? ''))) {
+        continue;
+      }
       final name = DisclosureValues.personName(g.first.holderName);
       // 묶음 안 임원 가운데 같은 이름이 한 사람뿐이면 그 사람 (출생년월이 있는 인물).
       final execPersons = {
