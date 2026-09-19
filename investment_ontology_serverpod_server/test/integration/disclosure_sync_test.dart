@@ -5,6 +5,7 @@ import 'package:http/testing.dart';
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/dart_client.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/disclosure/disclosure_links.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/ingest/api_call_budget.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/ingest/disclosure_sync.dart';
 import 'package:serverpod/serverpod.dart';
 import 'package:test/test.dart';
@@ -16,6 +17,9 @@ class FakeDisclosures {
   final rows = <String, List<Map<String, String>>>{};
   final calls = <String>[];
 
+  /// 호출마다 실행한다 (다른 수집이 동시에 호출을 쓰는 상황 흉내).
+  Future<void> Function()? onCall;
+
   void set(String api, String corp, int year, List<Map<String, String>> list) =>
       rows['$api|$corp|$year'] = list;
 
@@ -26,6 +30,7 @@ class FakeDisclosures {
       final q = req.url.queryParameters;
       final key = '$api|${q['corp_code']}|${q['bsns_year']}';
       calls.add(key);
+      await onCall?.call();
       final list = rows[key];
       final body = list == null
           ? '{"status":"013","message":"조회된 데이타가 없습니다."}'
@@ -500,6 +505,14 @@ void main() {
       expect(dart.calls, hasLength(10));
       expect(job.message, contains('다음 날 이어서 받음'));
       expect(resumes, [DateTime.utc(2026, 9, 19, 15, 5)]);
+    });
+
+    test('함께 도는 다른 수집이 호출을 쓰면 공용 장부를 보고 도중에 멈춘다', () async {
+      // 이 수집의 몫은 1,000회지만, 호출마다 다른 수집이 100회씩 쓴다.
+      dart.onCall = () => ApiCallBudget.record(session, ApiProvider.dart, 100);
+      final job = await runSync(dailyBudget: 1000);
+      expect(dart.calls.length, lessThanOrEqualTo(21));
+      expect(job.message, contains('다음 날 이어서 받음'));
     });
 
     test('정정공시가 나오면 이전 보고서를 새 보고서가 대체한다', () async {

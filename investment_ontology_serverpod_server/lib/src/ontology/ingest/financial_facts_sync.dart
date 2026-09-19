@@ -151,6 +151,14 @@ class FinancialFactsSync {
         if (_budgetExhausted) break;
         if (processed % _progressEvery == 0) {
           await _meter.flush(session);
+          // 주요정보 수집이 함께 돌면 시작할 때 계산한 몫만으로는 하루 한도를 넘길 수 있다.
+          if (await ApiCallBudget.reached(
+            session,
+            ApiProvider.dart,
+            dailyBudget,
+          )) {
+            _budgetExhausted = true;
+          }
           job = await IngestJobs.save(
             session,
             job.copyWith(

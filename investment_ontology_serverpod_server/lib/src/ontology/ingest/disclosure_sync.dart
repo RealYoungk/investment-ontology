@@ -162,6 +162,16 @@ class DisclosureSync {
               break outer;
             }
             await _meter.flush(session);
+            // 재무 수집이 함께 돌면 시작할 때 계산한 몫만으로는 하루 한도를 넘길 수 있다.
+            if (processed > 0 &&
+                await ApiCallBudget.reached(
+                  session,
+                  ApiProvider.dart,
+                  dailyBudget,
+                )) {
+              _budgetExhausted = true;
+              break outer;
+            }
             job = await IngestJobs.save(
               session,
               job.copyWith(

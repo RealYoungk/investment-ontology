@@ -47,6 +47,14 @@ abstract final class ApiCallBudget {
     return row?.calls ?? 0;
   }
 
+  /// 오늘(KST) 이 제공자의 호출이 [limit]에 닿았는지. 여러 수집이 동시에 돌 때 각자 시작할
+  /// 때만 계산한 몫으로는 합이 한도를 넘을 수 있어, 진행 중에 이것으로 다시 확인한다.
+  static Future<bool> reached(
+    Session session,
+    ApiProvider provider,
+    int limit,
+  ) async => await usedToday(session, provider) >= limit;
+
   /// 호출 수를 더한다. 동시에 도는 작업끼리 덮어쓰지 않도록 DB에서 더한다.
   static Future<void> record(
     Session session,
