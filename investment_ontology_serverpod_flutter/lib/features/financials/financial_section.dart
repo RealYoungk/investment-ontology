@@ -1,35 +1,48 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../app/ingest_monitor.dart';
+import '../../app/router.dart';
 import '../../client.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
-import '../company_ledger/formatters.dart';
+import '../common/formatters.dart';
 import 'financial_metrics.dart';
-import 'financial_report_page.dart';
 
 enum _Period { annual, quarterly }
 
-/// 기업 카드의 재무·시세: 파생 지표(계산식 포함), 매출·영업이익 추이, 영업이익률, 출처.
+/// 기업 상세의 재무 탭: 파생 지표(계산식 포함), 매출·영업이익 추이, 영업이익률, 출처.
 class FinancialSection extends StatefulWidget {
-  const FinancialSection({super.key, required this.corpCode});
+  const FinancialSection({
+    super.key,
+    required this.corpCode,
+    this.initialData,
+    this.initialMetric,
+  });
 
   final String corpCode;
+
+  /// 이미 불러온 기본(연결 우선) 재무. 있으면 처음에 다시 부르지 않는다.
+  final CompanyFinancials? initialData;
+
+  /// 처음부터 계산식을 펼쳐 둘 지표 ([DerivedMetric.key]).
+  final String? initialMetric;
 
   @override
   State<FinancialSection> createState() => _FinancialSectionState();
 }
 
 class _FinancialSectionState extends State<FinancialSection> {
-  CompanyFinancials? _data;
+  late CompanyFinancials? _data = widget.initialData;
   Object? _error;
-  bool _loading = true;
-  FsDiv? _fsDiv;
+  late bool _loading = widget.initialData == null;
+  late FsDiv? _fsDiv = widget.initialData?.fsDiv;
   _Period _period = _Period.annual;
-  String? _openMetric;
+  late String? _openMetric = widget.initialMetric;
 
   bool _fetching = false;
   String? _fetchMessage;
@@ -37,7 +50,7 @@ class _FinancialSectionState extends State<FinancialSection> {
   @override
   void initState() {
     super.initState();
-    _load();
+    if (widget.initialData == null) _load();
   }
 
   /// 이 기업의 정기보고서만 찾아 바로 받는다. 끝나면 다시 불러온다.
@@ -54,6 +67,8 @@ class _FinancialSectionState extends State<FinancialSection> {
       }
       if (!mounted) return;
       setState(() => _fetchMessage = job.message);
+      // 기업 상세 머리의 지표 등 다른 화면도 새 재무를 다시 불러오게 한다.
+      IngestMonitor.instance.poke();
       await _load();
     } on IngestException catch (e) {
       if (mounted) setState(() => _fetchMessage = e.message);
@@ -248,7 +263,13 @@ class _MetricGrid extends StatelessWidget {
     final t = context.typo;
     return LayoutBuilder(
       builder: (context, constraints) {
-        final width = (constraints.maxWidth - AppSpace.sm) / 2;
+        final columns = constraints.maxWidth >= 900
+            ? 6
+            : constraints.maxWidth >= 520
+            ? 3
+            : 2;
+        final width =
+            (constraints.maxWidth - AppSpace.sm * (columns - 1)) / columns;
         return Wrap(
           spacing: AppSpace.sm,
           runSpacing: AppSpace.sm,
@@ -548,11 +569,7 @@ class _Sources extends StatelessWidget {
                   label: '재무제표 원문 표 →',
                   variant: AppButtonVariant.link,
                   tone: c.accent,
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => FinancialReportPage(reportId: p.reportId),
-                    ),
-                  ),
+                  onPressed: () => context.push(AppRoutes.report(p.reportId)),
                 ),
                 AppButton(
                   label: 'DART 공시 →',

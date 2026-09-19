@@ -3,7 +3,7 @@ import 'package:investment_ontology_serverpod_client/investment_ontology_serverp
 
 import '../../../design/components/components.dart';
 import '../../../design/tokens.dart';
-import '../formatters.dart';
+import '../../common/formatters.dart';
 
 /// 상장사 목록 표.
 class CompanyTable extends StatelessWidget {

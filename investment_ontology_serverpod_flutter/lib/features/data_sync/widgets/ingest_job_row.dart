@@ -3,73 +3,34 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 
+import '../../../app/ingest_monitor.dart';
 import '../../../client.dart';
 import '../../../design/components/components.dart';
 import '../../../design/tokens.dart';
-import '../formatters.dart';
+import '../../common/formatters.dart';
 
-/// 재무(DART)·시세(공공데이터포털) 수집 상태와 실행 버튼.
-class DataSyncPanel extends StatelessWidget {
-  const DataSyncPanel({super.key, required this.onFinished});
-
-  /// 수집이 끝났을 때 (재무·트리맵 새로고침용).
-  final Future<void> Function() onFinished;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _JobRow(
-          kind: 'financial_facts',
-          label: 'DART 재무',
-          action: '재무제표 수집',
-          description:
-              'DART 공시 목록에서 상장사 정기보고서를 찾아 연결·별도 전체 재무제표를 받습니다. '
-              '사업보고서·분기·반기보고서 모두 최근 5개 사업연도. '
-              'DART 일일 호출 18,000건까지 쓰고 나머지는 다음 날 이어서 받습니다. '
-              '서버가 켜져 있으면 매일 18:30에 자동으로 수집합니다.',
-          start: client.ingest.startFinancials,
-          onFinished: onFinished,
-        ),
-        _JobRow(
-          kind: 'market_snapshot',
-          label: '시세',
-          action: '시세 수집',
-          description:
-              '공공데이터포털 금융위원회 주식시세정보로 받지 않은 평일의 전 종목 시세를 받고 '
-              '(처음에는 5년), 최근 기준일의 상장종목 정보로 종목을 기업에 연결합니다. '
-              '서버가 켜져 있으면 매일 18:00에 자동으로 수집합니다.',
-          start: client.ingest.startMarketSnapshot,
-          onFinished: onFinished,
-        ),
-      ],
-    );
-  }
-}
-
-class _JobRow extends StatefulWidget {
-  const _JobRow({
+/// 수집 작업 한 종류의 상태 · 진행률 · 실행/취소 버튼.
+///
+/// 수집이 끝났을 때 다른 화면을 새로 고치는 일은 [IngestMonitor]가 한다.
+class IngestJobRow extends StatefulWidget {
+  const IngestJobRow({
+    super.key,
     required this.kind,
     required this.label,
     required this.action,
-    required this.description,
     required this.start,
-    required this.onFinished,
   });
 
   final String kind;
   final String label;
   final String action;
-  final String description;
   final Future<IngestJob> Function() start;
-  final Future<void> Function() onFinished;
 
   @override
-  State<_JobRow> createState() => _JobRowState();
+  State<IngestJobRow> createState() => _JobRowState();
 }
 
-class _JobRowState extends State<_JobRow> {
+class _JobRowState extends State<IngestJobRow> {
   /// 수집 중일 때와 쉬고 있을 때의 상태 확인 간격. 예약·이어받기로 서버가 스스로 수집을
   /// 시작하기도 하므로 쉬고 있을 때도 가끔 확인한다.
   static const _runningInterval = Duration(seconds: 3);
@@ -98,16 +59,8 @@ class _JobRowState extends State<_JobRow> {
     try {
       final job = await client.ingest.latestOf(widget.kind);
       if (!mounted) return;
-      final wasRunning = _running;
-      final before = _job;
       setState(() => _job = job);
       _syncPolling();
-      // 수집이 끝났거나, 보지 못한 사이에 다른 수집이 돌고 끝났으면 화면을 새로 고친다.
-      final finishedUnseen =
-          before != null && job != null && job.id != before.id && !_running;
-      if ((wasRunning && !_running) || finishedUnseen) {
-        await widget.onFinished();
-      }
     } catch (_) {
       // 일시적인 연결 오류는 다음 폴링에서 다시 시도.
     }
@@ -134,6 +87,7 @@ class _JobRowState extends State<_JobRow> {
       if (!mounted) return;
       setState(() => _job = job);
       _syncPolling();
+      IngestMonitor.instance.poke();
     } on IngestException catch (e) {
       if (mounted) setState(() => _error = e.message);
     } catch (e) {
@@ -172,17 +126,14 @@ class _JobRowState extends State<_JobRow> {
             runSpacing: AppSpace.sm,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Tooltip(
-                message: widget.description,
-                child: StatusDot(
-                  label: widget.label,
-                  color: switch (job?.status) {
-                    IngestStatus.running || IngestStatus.failed => c.accent,
-                    IngestStatus.succeeded => c.success,
-                    IngestStatus.cancelled || null => c.textMuted,
-                  },
-                  pulsing: _running,
-                ),
+              StatusDot(
+                label: widget.label,
+                color: switch (job?.status) {
+                  IngestStatus.running || IngestStatus.failed => c.accent,
+                  IngestStatus.succeeded => c.success,
+                  IngestStatus.cancelled || null => c.textMuted,
+                },
+                pulsing: _running,
               ),
               Text(_statusText(job), style: t.body(13, color: c.textSecondary)),
               if (_running)

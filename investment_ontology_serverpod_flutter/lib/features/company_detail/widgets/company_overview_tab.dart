@@ -2,149 +2,164 @@ import 'package:flutter/material.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../client.dart';
 import '../../../design/components/components.dart';
 import '../../../design/tokens.dart';
-import '../../financials/financial_section.dart';
-import '../formatters.dart';
+import '../../financials/financial_metrics.dart';
+import '../../common/formatters.dart';
 
-/// 기업 카드: 기업개황 필드 + KSIC 경로 + 변경 이력 + 출처.
-class CompanyCard extends StatefulWidget {
-  const CompanyCard({
+/// 기업 상세의 개요 탭: 재무 요약(자세히는 재무 탭) · 기업개황 · 산업 분류 · 변경 이력 · 출처.
+class CompanyOverviewTab extends StatelessWidget {
+  const CompanyOverviewTab({
     super.key,
-    required this.corpCode,
-    required this.onClose,
+    required this.detail,
+    required this.financials,
+    required this.onOpenFinancials,
   });
 
-  final String corpCode;
-  final VoidCallback onClose;
+  /// 이보다 넓으면 두 단으로 놓는다.
+  static const _twoColumnWidth = 980.0;
 
-  @override
-  State<CompanyCard> createState() => _CompanyCardState();
-}
-
-class _CompanyCardState extends State<CompanyCard> {
-  late final Future<CompanyDetail?> _future = client.company.detail(
-    widget.corpCode,
-  );
+  final CompanyDetail detail;
+  final CompanyFinancials? financials;
+  final VoidCallback onOpenFinancials;
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<CompanyDetail?>(
-      future: _future,
-      builder: (context, snap) {
-        if (snap.connectionState != ConnectionState.done) {
-          return const Center(child: CircularProgressIndicator(strokeWidth: 2));
+    final main = [
+      _FinancialDigest(financials: financials, onOpen: onOpenFinancials),
+      const SizedBox(height: AppSpace.section),
+      _Profile(company: detail.company),
+    ];
+    final side = [
+      if (detail.industryPath.isNotEmpty) ...[
+        const SectionLabel('산업 분류 · KSIC'),
+        const SizedBox(height: 10),
+        _IndustryPath(path: detail.industryPath),
+        const SizedBox(height: AppSpace.xxl),
+      ],
+      _ChangeHistory(changes: detail.changes),
+      const SizedBox(height: AppSpace.xxl),
+      _SourceNote(
+        corpCode: detail.company.corpCode,
+        source: detail.profileSource,
+      ),
+    ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < _twoColumnWidth) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ...main,
+              const SizedBox(height: AppSpace.section),
+              ...side,
+            ],
+          );
         }
-        final detail = snap.data;
-        return _Frame(
-          onClose: widget.onClose,
-          child: detail != null
-              ? _Body(detail: detail)
-              : Text(
-                  snap.hasError
-                      ? '불러오지 못했습니다: ${snap.error}'
-                      : '기업을 찾을 수 없습니다.',
-                  style: context.typo.body(14),
-                ),
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 3,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: main,
+              ),
+            ),
+            const SizedBox(width: AppSpace.section),
+            Expanded(
+              flex: 2,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: side,
+              ),
+            ),
+          ],
         );
       },
     );
   }
 }
 
-class _Frame extends StatelessWidget {
-  const _Frame({required this.onClose, required this.child});
+/// 연간 매출액·영업이익 추이. 지표·분기·재무제표는 재무 탭에서 본다.
+class _FinancialDigest extends StatelessWidget {
+  const _FinancialDigest({required this.financials, required this.onOpen});
 
-  final VoidCallback onClose;
-  final Widget child;
+  final CompanyFinancials? financials;
+  final VoidCallback onOpen;
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpace.xxl,
-        AppSpace.xl,
-        AppSpace.xxl,
-        40,
+    final c = context.colors;
+    final t = context.typo;
+    final fin = financials;
+    final points = fin == null
+        ? const <PeriodPoint>[]
+        : FinancialView(fin).annual();
+    final series = [
+      ChartSeries(
+        label: '매출액',
+        color: c.chartSeries1,
+        values: [for (final p in points) p.revenue.value],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SectionLabel(
-            '기업 카드',
-            accent: true,
-            trailing: IconButton(
-              onPressed: onClose,
-              icon: Icon(Icons.close, color: context.colors.textPrimary),
-              tooltip: '닫기',
-            ),
+      ChartSeries(
+        label: '영업이익',
+        color: c.chartSeries2,
+        values: [for (final p in points) p.operatingIncome.value],
+      ),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SectionLabel(
+          '재무 요약 · 연간${fin?.fsDiv == null ? '' : ' ${fsDivLabel(fin!.fsDiv!)}'}',
+          trailing: AppButton(
+            label: '재무 자세히 →',
+            variant: AppButtonVariant.link,
+            tone: c.accent,
+            onPressed: onOpen,
           ),
-          child,
+        ),
+        const SizedBox(height: AppSpace.sm),
+        if (points.isEmpty)
+          Text(
+            fin == null || fin.filingCount == 0
+                ? '아직 재무를 수집하지 않았습니다.'
+                : '사업보고서 재무가 아직 없습니다 (정기보고서 '
+                      '${formatCount(fin.pendingFilingCount)}건 수집 대기).',
+            style: t.body(13, color: c.textMuted),
+          )
+        else ...[
+          ChartLegend(series: series),
+          const SizedBox(height: AppSpace.sm),
+          AppColumnChart(
+            categories: [for (final p in points) p.label],
+            series: series,
+            formatValue: formatKrwShort,
+          ),
         ],
-      ),
+      ],
     );
   }
 }
 
-class _Body extends StatelessWidget {
-  const _Body({required this.detail});
+class _Profile extends StatelessWidget {
+  const _Profile({required this.company});
 
-  final CompanyDetail detail;
+  final Company company;
 
   static Uri _webUri(String url) =>
       Uri.parse(url.startsWith('http') ? url : 'https://$url');
 
   @override
   Widget build(BuildContext context) {
-    final c = context.colors;
-    final t = context.typo;
-    final company = detail.company;
     final homepage = company.homepageUrl;
     final ir = company.irUrl;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(company.name, style: t.display(34, color: c.textPrimary)),
-        if (company.nameEng != null) ...[
-          const SizedBox(height: 6),
-          Text(company.nameEng!, style: t.body(13.5, color: c.textSecondary)),
-        ],
-        const SizedBox(height: 18),
-        Wrap(
-          spacing: 10,
-          runSpacing: AppSpace.sm,
-          children: [
-            AppTag(
-              label: marketLabel(company.market),
-              color: c.accent,
-              filled: true,
-              numeric: true,
-              size: AppTagSize.medium,
-            ),
-            if (company.stockCode != null)
-              AppTag(
-                label: company.stockCode!,
-                numeric: true,
-                size: AppTagSize.medium,
-              ),
-            AppTag(
-              label: 'DART ${company.corpCode}',
-              numeric: true,
-              size: AppTagSize.medium,
-            ),
-          ],
-        ),
-        const SizedBox(height: 28),
-        if (detail.industryPath.isNotEmpty) ...[
-          const SectionLabel('산업 분류 · KSIC'),
-          const SizedBox(height: 10),
-          _IndustryPath(path: detail.industryPath),
-          const SizedBox(height: 28),
-        ],
-        FinancialSection(corpCode: company.corpCode),
-        const SizedBox(height: 28),
         const SectionLabel('기업개황'),
         const SizedBox(height: 6),
         KeyValueRow(label: '대표자', value: company.ceoName),
@@ -172,10 +187,6 @@ class _Body extends StatelessWidget {
           value: ir,
           onTap: ir == null ? null : () => launchUrl(_webUri(ir)),
         ),
-        const SizedBox(height: 28),
-        _ChangeHistory(changes: detail.changes),
-        const SizedBox(height: 28),
-        _SourceNote(corpCode: company.corpCode, source: detail.profileSource),
       ],
     );
   }

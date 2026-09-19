@@ -1,70 +1,84 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 
+import '../../app/ingest_monitor.dart';
+import '../../app/router.dart';
 import '../../client.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
-import '../market_map/market_cap_treemap_section.dart';
-import 'widgets/company_card.dart';
+import '../common/formatters.dart';
+import 'company_filter.dart';
 import 'widgets/company_table.dart';
-import 'widgets/data_sync_panel.dart';
-import 'widgets/industry_distribution.dart';
-import 'widgets/ingest_status_bar.dart';
-import 'widgets/market_summary.dart';
 
-/// 상장사 원장: 시장·업종 분포 + 검색 가능한 전체 상장사 목록 + 기업 상세.
-class CompanyLedgerPage extends StatefulWidget {
-  const CompanyLedgerPage({super.key});
+/// 기업: 검색 · 시장 · 업종 필터 · 정렬 + 상장사 목록. 필터는 주소에 남는다.
+class CompanyListPage extends StatefulWidget {
+  const CompanyListPage({super.key, required this.filter});
+
+  final CompanyFilter filter;
 
   @override
-  State<CompanyLedgerPage> createState() => _CompanyLedgerPageState();
+  State<CompanyListPage> createState() => _CompanyListPageState();
 }
 
-class _CompanyLedgerPageState extends State<CompanyLedgerPage> {
+class _CompanyListPageState extends State<CompanyListPage> {
   static const _pageSize = 50;
-  static const _wideBreakpoint = 1180.0;
-  static const _detailWidth = 440.0;
 
   Overview? _overview;
   List<FacetCount> _divisions = const [];
   CompanyPage? _page;
   String? _error;
-  bool _loadingPage = false;
+  bool _loading = false;
 
-  Market? _market;
-  String? _section;
-  String? _division;
-  CompanySort _sort = CompanySort.name;
-  String _query = '';
-  int _offset = 0;
-  String? _selected;
-
-  /// 재무·시세 수집이 끝날 때마다 올려 트리맵·기업 카드를 다시 불러온다.
-  int _dataVersion = 0;
-
-  final _searchController = TextEditingController();
+  late final _searchController = TextEditingController(
+    text: widget.filter.query,
+  );
+  final _searchFocus = FocusNode();
   Timer? _debounce;
 
   /// 늦게 도착한 이전 요청 결과를 버리기 위한 번호.
   int _requestSeq = 0;
 
+  CompanyFilter get _filter => widget.filter;
+  int get _offset => (_filter.page - 1) * _pageSize;
+
   @override
   void initState() {
     super.initState();
-    _refreshAll();
+    IngestMonitor.instance.dataVersion.addListener(_reloadAll);
+    _reloadAll();
+  }
+
+  @override
+  void didUpdateWidget(covariant CompanyListPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final before = oldWidget.filter, now = widget.filter;
+    if (before == now) return;
+    // 뒤로가기 등으로 주소가 바뀌었을 때 검색창도 맞춘다 (입력 중이면 건드리지 않는다).
+    if (!_searchFocus.hasFocus && _searchController.text != now.query) {
+      _searchController.text = now.query;
+    }
+    _loadPage();
+    if (before.section != now.section || before.market != now.market) {
+      _loadDivisions();
+    }
   }
 
   @override
   void dispose() {
+    IngestMonitor.instance.dataVersion.removeListener(_reloadAll);
     _debounce?.cancel();
     _searchController.dispose();
+    _searchFocus.dispose();
     super.dispose();
   }
 
-  Future<void> _refreshAll() async {
-    await Future.wait([_loadOverview(), _loadPage(), _loadDivisions()]);
+  void _reloadAll() {
+    _loadOverview();
+    _loadPage();
+    _loadDivisions();
   }
 
   Future<void> _loadOverview() async {
@@ -77,14 +91,16 @@ class _CompanyLedgerPageState extends State<CompanyLedgerPage> {
   }
 
   Future<void> _loadDivisions() async {
-    final section = _section;
+    final section = _filter.section;
     if (section == null) {
       setState(() => _divisions = const []);
       return;
     }
     try {
-      final d = await client.company.divisions(section, market: _market);
-      if (mounted && section == _section) setState(() => _divisions = d);
+      final d = await client.company.divisions(section, market: _filter.market);
+      if (mounted && section == _filter.section) {
+        setState(() => _divisions = d);
+      }
     } catch (_) {
       // 목록 쪽 오류 표시로 충분하다.
     }
@@ -92,14 +108,15 @@ class _CompanyLedgerPageState extends State<CompanyLedgerPage> {
 
   Future<void> _loadPage() async {
     final seq = ++_requestSeq;
-    setState(() => _loadingPage = true);
+    final f = _filter;
+    setState(() => _loading = true);
     try {
       final page = await client.company.list(
-        query: _query.isEmpty ? null : _query,
-        market: _market,
-        sectionCode: _section,
-        divisionCode: _division,
-        sort: _sort,
+        query: f.query.isEmpty ? null : f.query,
+        market: f.market,
+        sectionCode: f.section,
+        divisionCode: f.division,
+        sort: f.sort,
         offset: _offset,
         limit: _pageSize,
       );
@@ -111,203 +128,92 @@ class _CompanyLedgerPageState extends State<CompanyLedgerPage> {
     } catch (e) {
       if (mounted && seq == _requestSeq) setState(() => _error = '$e');
     } finally {
-      if (mounted && seq == _requestSeq) setState(() => _loadingPage = false);
+      if (mounted && seq == _requestSeq) setState(() => _loading = false);
     }
   }
 
-  /// 필터를 바꾸고 첫 페이지부터 다시 불러온다.
-  void _applyFilter(VoidCallback change, {bool reloadDivisions = false}) {
-    setState(() {
-      change();
-      _offset = 0;
-    });
-    _loadPage();
-    if (reloadDivisions) _loadDivisions();
+  /// 필터를 주소에 반영한다. 필터를 바꿀 때마다 방문 기록이 쌓이지 않게 한다.
+  void _apply(CompanyFilter next) {
+    if (next == _filter) return;
+    Router.neglect(context, () => context.go(next.location));
   }
 
   void _onSearchChanged(String value) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 250), () {
-      if (value.trim() == _query) return;
-      _applyFilter(() => _query = value.trim());
+      if (!mounted || value.trim() == _filter.query) return;
+      _apply(_filter.copyWith(query: value.trim()));
     });
   }
 
   void _clearFilters() {
     _searchController.clear();
-    _applyFilter(() {
-      _market = null;
-      _section = null;
-      _division = null;
-      _divisions = const [];
-      _query = '';
-    });
-  }
-
-  void _openCompany(String corpCode, {required bool wide}) {
-    if (wide) {
-      setState(() => _selected = corpCode);
-      return;
-    }
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (routeContext) => Scaffold(
-          backgroundColor: routeContext.colors.surface,
-          body: SafeArea(
-            child: CompanyCard(
-              corpCode: corpCode,
-              onClose: () => Navigator.of(routeContext).pop(),
-            ),
-          ),
-        ),
-      ),
-    );
+    _apply(CompanyFilter(sort: _filter.sort));
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final wide = constraints.maxWidth >= _wideBreakpoint;
-          final main = _buildMain(context, wide: wide);
-          if (!wide) return main;
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(child: main),
-              _buildDetailPane(context),
+    final o = _overview;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 980;
+        return PageFrame(
+          children: [
+            PageHeading(
+              eyebrow: 'INVESTMENT ONTOLOGY · 기업',
+              title: '기업',
+              subtitle: o == null
+                  ? '불러오는 중…'
+                  : '국내 상장 ${formatCount(o.totalListed)}개사 · 출처 DART 기업개황',
+            ),
+            const SizedBox(height: AppSpace.xl),
+            _buildToolbar(context),
+            const SizedBox(height: AppSpace.md),
+            if (_error != null) ...[
+              AppNotice(message: '서버에 연결하지 못했습니다 — $_error'),
+              const SizedBox(height: AppSpace.md),
             ],
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildDetailPane(BuildContext context) {
-    final c = context.colors;
-    final selected = _selected;
-    return AnimatedContainer(
-      duration: AppMotion.slow,
-      curve: AppMotion.curve,
-      width: selected == null ? 0 : _detailWidth,
-      decoration: BoxDecoration(
-        color: c.surface,
-        border: Border(left: BorderSide(color: c.borderStrong, width: 1.5)),
-      ),
-      child: selected == null
-          ? const SizedBox.shrink()
-          : ClipRect(
-              child: OverflowBox(
-                alignment: Alignment.topLeft,
-                minWidth: _detailWidth,
-                maxWidth: _detailWidth,
-                child: CompanyCard(
-                  key: ValueKey('$selected-$_dataVersion'),
-                  corpCode: selected,
-                  onClose: () => setState(() => _selected = null),
+            if (_page != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: AppSpace.sm),
+                child: Text(
+                  '${formatCount(_page!.total)}개사',
+                  style: context.typo.numeric(
+                    12.5,
+                    color: context.colors.textSecondary,
+                  ),
                 ),
               ),
-            ),
-    );
-  }
-
-  Widget _buildMain(BuildContext context, {required bool wide}) {
-    final overview = _overview;
-    final hPad = wide ? AppSpace.section : AppSpace.xl - 4;
-    return CustomScrollView(
-      slivers: [
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(hPad, 36, hPad, 0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                IngestStatusBar(
-                  lastJob: overview?.lastJob,
-                  nextFullRefreshAt: overview?.nextFullRefreshAt,
-                  onFinished: _refreshAll,
-                ),
-                DataSyncPanel(
-                  onFinished: () async => setState(() => _dataVersion++),
-                ),
-                const SizedBox(height: 28),
-                MarketSummary(
-                  overview: overview,
-                  selected: _market,
-                  onSelect: (m) => _applyFilter(
-                    () => _market = _market == m ? null : m,
-                    reloadDivisions: true,
-                  ),
-                ),
-                const SizedBox(height: AppSpace.xxl),
-                if (overview != null && overview.bySection.isNotEmpty)
-                  IndustryDistribution(
-                    revision: overview.industryRevision,
-                    sections: overview.bySection,
-                    divisions: _divisions,
-                    selectedSection: _section,
-                    selectedDivision: _division,
-                    onSelectSection: (code) => _applyFilter(() {
-                      _section = _section == code ? null : code;
-                      _division = null;
-                      _divisions = const [];
-                    }, reloadDivisions: true),
-                    onSelectDivision: (code) => _applyFilter(
-                      () => _division = _division == code ? null : code,
-                    ),
-                  ),
-                const SizedBox(height: AppSpace.xxl),
-                MarketCapTreemapSection(
-                  key: ValueKey('treemap-$_dataVersion'),
-                  market: _market,
-                  onSelectCompany: (corpCode) =>
-                      _openCompany(corpCode, wide: wide),
-                ),
-                const SizedBox(height: 28),
-                _buildToolbar(),
-                const SizedBox(height: AppSpace.md),
-                if (_error != null) ...[
-                  AppNotice(message: '서버에 연결하지 못했습니다 — $_error'),
-                  const SizedBox(height: AppSpace.md),
-                ],
-              ],
-            ),
-          ),
-        ),
-        SliverPadding(
-          padding: EdgeInsets.fromLTRB(hPad, 0, hPad, AppSpace.section),
-          sliver: SliverToBoxAdapter(
-            child: CompanyTable(
+            CompanyTable(
               page: _page,
-              loading: _loadingPage,
-              compact: !wide,
-              selected: _selected,
+              loading: _loading,
+              compact: compact,
+              selected: null,
               offset: _offset,
               pageSize: _pageSize,
-              onSelect: (corpCode) => _openCompany(corpCode, wide: wide),
-              onPage: (offset) {
-                setState(() => _offset = offset);
-                _loadPage();
-              },
+              onSelect: (corpCode) => context.push(AppRoutes.company(corpCode)),
+              onPage: (offset) =>
+                  _apply(_filter.copyWith(page: offset ~/ _pageSize + 1)),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildToolbar() {
-    final hasFilter = _market != null || _section != null || _query.isNotEmpty;
+  Widget _buildToolbar(BuildContext context) {
+    final f = _filter;
+    final sections = _overview?.bySection ?? const <FacetCount>[];
     return Wrap(
       spacing: AppSpace.lg,
       runSpacing: AppSpace.md,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 420),
+          constraints: const BoxConstraints(maxWidth: 360),
           child: TextField(
             controller: _searchController,
+            focusNode: _searchFocus,
             onChanged: _onSearchChanged,
             style: context.typo.body(15),
             decoration: InputDecoration(
@@ -320,17 +226,50 @@ class _CompanyLedgerPageState extends State<CompanyLedgerPage> {
             ),
           ),
         ),
+        AppToggleGroup<Market?>(
+          label: '시장',
+          value: f.market,
+          options: const {
+            null: '전체',
+            Market.kospi: 'KOSPI',
+            Market.kosdaq: 'KOSDAQ',
+            Market.konex: 'KONEX',
+          },
+          onChanged: (m) => _apply(f.copyWith(market: () => m)),
+        ),
+        AppSelect<String>(
+          label: '업종',
+          placeholder: '대분류 전체',
+          allLabel: '대분류 전체',
+          value: f.section,
+          options: {
+            for (final s in sections)
+              s.code: '${s.code} ${s.name} (${formatCount(s.count)})',
+          },
+          onChanged: (code) => _apply(f.copyWith(section: () => code)),
+        ),
+        if (f.section != null)
+          AppSelect<String>(
+            placeholder: '중분류 전체',
+            allLabel: '중분류 전체',
+            value: f.division,
+            options: {
+              for (final d in _divisions)
+                d.code: '${d.code} ${d.name} (${formatCount(d.count)})',
+            },
+            onChanged: (code) => _apply(f.copyWith(division: () => code)),
+          ),
         AppToggleGroup<CompanySort>(
           label: '정렬',
-          value: _sort,
+          value: f.sort,
           options: const {
             CompanySort.name: '가나다',
             CompanySort.stockCode: '종목코드',
             CompanySort.establishedDate: '설립 오래된',
           },
-          onChanged: (s) => _applyFilter(() => _sort = s),
+          onChanged: (s) => _apply(f.copyWith(sort: s)),
         ),
-        if (hasFilter)
+        if (f.hasFilter)
           AppButton(
             label: '필터 초기화',
             icon: Icons.close,

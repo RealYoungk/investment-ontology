@@ -3,9 +3,9 @@ import 'package:investment_ontology_serverpod_client/investment_ontology_serverp
 
 import '../../../design/components/components.dart';
 import '../../../design/tokens.dart';
-import '../formatters.dart';
+import '../../common/formatters.dart';
 
-/// 제목 + 시장별 상장사 수. 숫자를 누르면 시장 필터가 된다.
+/// 시장 화면 제목 + 시장별 상장사 수. 숫자를 누르면 시장 필터가 된다.
 class MarketSummary extends StatelessWidget {
   const MarketSummary({
     super.key,
@@ -22,8 +22,6 @@ class MarketSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.colors;
-    final t = context.typo;
     final o = overview;
     final counts = {for (final f in o?.byMarket ?? <FacetCount>[]) f.code: f};
     return Wrap(
@@ -31,21 +29,12 @@ class MarketSummary extends StatelessWidget {
       runSpacing: AppSpace.xl,
       crossAxisAlignment: WrapCrossAlignment.end,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SectionLabel('INVESTMENT ONTOLOGY · 01', accent: true),
-            const SizedBox(height: 10),
-            Text('상장사 원장', style: t.display(52, color: c.textPrimary)),
-            const SizedBox(height: AppSpace.sm),
-            Text(
-              o == null
-                  ? '불러오는 중…'
-                  : '국내 상장 ${formatCount(o.totalListed)}개사 · 출처 DART 기업개황',
-              style: t.body(14, color: c.textSecondary),
-            ),
-          ],
+        PageHeading(
+          eyebrow: 'INVESTMENT ONTOLOGY · 시장',
+          title: '시장',
+          subtitle: o == null
+              ? '불러오는 중…'
+              : '국내 상장 ${formatCount(o.totalListed)}개사 · 시장을 누르면 트리맵이 그 시장만 보여줍니다',
         ),
         for (final market in _markets)
           _MarketFigure(

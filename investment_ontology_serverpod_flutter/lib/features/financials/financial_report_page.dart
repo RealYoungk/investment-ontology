@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../client.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
-import '../company_ledger/formatters.dart';
+import '../common/formatters.dart';
 import 'financial_metrics.dart';
 
 /// 재무 보고서 원문 표: 재무제표별 모든 계정과 금액 열, 같은 기간의 정정 이력.
@@ -98,7 +99,9 @@ class _FinancialReportPageState extends State<FinancialReportPage> {
           '재무제표 원문 · ${fsDivLabel(report.fsDiv)}',
           accent: true,
           trailing: IconButton(
-            onPressed: () => Navigator.of(context).pop(),
+            // 주소로 바로 들어왔으면 돌아갈 화면이 없어 기업 목록으로 간다.
+            onPressed: () =>
+                context.canPop() ? context.pop() : context.go('/companies'),
             icon: Icon(Icons.close, color: c.textPrimary),
             tooltip: '닫기',
           ),

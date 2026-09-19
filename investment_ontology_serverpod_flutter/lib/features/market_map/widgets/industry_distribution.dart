@@ -3,7 +3,7 @@ import 'package:investment_ontology_serverpod_client/investment_ontology_serverp
 
 import '../../../design/components/components.dart';
 import '../../../design/tokens.dart';
-import '../formatters.dart';
+import '../../common/formatters.dart';
 
 /// KSIC 대분류 분포를 한 줄 비례 막대로 보여주고, 선택 시 중분류 목록을 편다.
 class IndustryDistribution extends StatelessWidget {
@@ -42,7 +42,7 @@ class IndustryDistribution extends StatelessWidget {
         SectionLabel(
           '업종 분포 · KSIC 대분류',
           trailing: Text(
-            '막대를 눌러 필터',
+            '막대를 누르면 중분류, 중분류를 누르면 기업 목록',
             style: context.typo.body(12, color: c.textMuted),
           ),
         ),

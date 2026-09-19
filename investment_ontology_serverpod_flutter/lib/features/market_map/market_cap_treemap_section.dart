@@ -4,7 +4,7 @@ import 'package:investment_ontology_serverpod_client/investment_ontology_serverp
 import '../../client.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
-import '../company_ledger/formatters.dart';
+import '../common/formatters.dart';
 import '../financials/financial_metrics.dart';
 
 /// 업종별 시가총액 트리맵. 전체에서는 대분류 → 중분류, 대분류를 누르면 중분류 → 기업.
@@ -184,7 +184,7 @@ class _MarketCapTreemapSectionState extends State<MarketCapTreemapSection> {
                 tooltip:
                     '${company.name} (${marketLabel(company.market)})\n'
                     '시가총액 ${formatKrw(company.marketCap)} · 비중 ${share(company.marketCap)}\n'
-                    '눌러서 기업 카드 열기',
+                    '눌러서 기업 상세 열기',
               ),
             if (division.children.length > _companiesPerDivision)
               _rest(division.children.skip(_companiesPerDivision).toList()),
