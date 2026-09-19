@@ -431,14 +431,17 @@ class _GlobalSearchState extends State<_GlobalSearch> {
         targetAnchor: Alignment.bottomRight,
         followerAnchor: Alignment.topRight,
         offset: const Offset(0, 4),
-        child: Material(
-          color: c.surface,
-          elevation: 4,
-          borderRadius: context.shape.borderRadius,
-          child: _HitList(
-            hits: _hits,
-            onCompany: (item) => _go(AppRoutes.company(item.corpCode)),
-            onPerson: (p) => _go(AppRoutes.person(p.personId)),
+        // 결과 목록을 검색창의 일부로 묶어, 누르는 동안 "바깥을 눌렀다"로 닫히지 않게 한다.
+        child: TextFieldTapRegion(
+          child: Material(
+            color: c.surface,
+            elevation: 4,
+            borderRadius: context.shape.borderRadius,
+            child: _HitList(
+              hits: _hits,
+              onCompany: (item) => _go(AppRoutes.company(item.corpCode)),
+              onPerson: (p) => _go(AppRoutes.person(p.personId)),
+            ),
           ),
         ),
       ),
@@ -467,10 +470,7 @@ class _GlobalSearchState extends State<_GlobalSearch> {
           },
           onTapOutside: (_) {
             _focus.unfocus();
-            Future<void>.delayed(
-              const Duration(milliseconds: 150),
-              () => _setHits(_noHits),
-            );
+            _setHits(_noHits);
           },
           style: t.body(13.5),
           decoration: InputDecoration(
