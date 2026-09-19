@@ -263,6 +263,7 @@ class _CompanyListPageState extends State<CompanyListPage> {
           label: '정렬',
           value: f.sort,
           options: const {
+            CompanySort.marketCap: '시가총액',
             CompanySort.name: '가나다',
             CompanySort.stockCode: '종목코드',
             CompanySort.establishedDate: '설립 오래된',

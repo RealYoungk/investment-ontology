@@ -4,6 +4,7 @@ import 'package:investment_ontology_serverpod_client/investment_ontology_serverp
 import '../../../design/components/components.dart';
 import '../../../design/tokens.dart';
 import '../../common/formatters.dart';
+import '../../financials/financial_metrics.dart';
 
 /// 상장사 목록 표.
 class CompanyTable extends StatelessWidget {
@@ -83,6 +84,7 @@ abstract final class _Col {
   static const index = 52.0;
   static const code = 86.0;
   static const market = 70.0;
+  static const cap = 120.0;
   static const ceo = 150.0;
   static const month = 56.0;
   static const established = 104.0;
@@ -122,7 +124,9 @@ class _HeaderRow extends StatelessWidget {
           fixed('종목', _Col.code),
           flex('회사명', _Col.nameFlex),
           fixed('시장', _Col.market),
+          fixed('시가총액', _Col.cap, end: true),
           if (!compact) ...[
+            const SizedBox(width: AppSpace.lg),
             flex('업종 (KSIC)', _Col.industryFlex),
             fixed('대표자', _Col.ceo),
             fixed('결산', _Col.month, end: true),
@@ -213,7 +217,18 @@ class _CompanyRow extends StatelessWidget {
                 ),
               ),
             ),
+            SizedBox(
+              width: _Col.cap,
+              child: Text(
+                item.marketCap == null ? '—' : formatKrw(item.marketCap),
+                textAlign: TextAlign.end,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: t.numeric(13, color: fg, weight: FontWeight.w600),
+              ),
+            ),
             if (!compact) ...[
+              const SizedBox(width: AppSpace.lg),
               Expanded(
                 flex: _Col.industryFlex,
                 child: Text.rich(

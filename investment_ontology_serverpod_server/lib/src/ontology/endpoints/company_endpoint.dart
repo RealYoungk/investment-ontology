@@ -3,6 +3,7 @@ import 'package:serverpod/serverpod.dart';
 import '../../generated/protocol.dart';
 import '../ingest/company_master_sync.dart';
 import '../ingest/ksic_revision.dart';
+import '../market/market_caps.dart';
 
 /// 상장사 조회.
 class CompanyEndpoint extends Endpoint {
@@ -91,20 +92,42 @@ class CompanyEndpoint extends Endpoint {
     }
 
     final total = await Company.db.count(session, where: where);
-    final rows = await Company.db.find(
-      session,
-      where: where,
-      orderByList: (t) => switch (order) {
-        CompanySort.name => [t.name.asc()],
-        CompanySort.stockCode => [t.stockCode.asc()],
-        CompanySort.establishedDate => [
-          t.establishedDate.asc(),
-          t.name.asc(),
-        ],
-      },
-      offset: offset,
-      limit: limit,
-    );
+    final List<Company> rows;
+    final Map<int, BigInt> caps;
+    if (order == CompanySort.marketCap) {
+      // 시가총액은 시세 테이블에 있어, 조건에 맞는 기업 전체의 시총을 구해 정렬한 뒤 자른다.
+      final all = await Company.db.find(session, where: where);
+      caps = (await MarketCaps.latest(session, {
+        for (final c in all) c.id!,
+      })).caps;
+      all.sort((a, b) {
+        final ca = caps[a.id], cb = caps[b.id];
+        if (ca == null && cb == null) return a.name.compareTo(b.name);
+        if (ca == null) return 1;
+        if (cb == null) return -1;
+        return cb.compareTo(ca);
+      });
+      rows = all.skip(offset).take(limit).toList();
+    } else {
+      rows = await Company.db.find(
+        session,
+        where: where,
+        orderByList: (t) => switch (order) {
+          CompanySort.name => [t.name.asc()],
+          CompanySort.stockCode => [t.stockCode.asc()],
+          CompanySort.establishedDate => [
+            t.establishedDate.asc(),
+            t.name.asc(),
+          ],
+          CompanySort.marketCap => [t.name.asc()],
+        },
+        offset: offset,
+        limit: limit,
+      );
+      caps = (await MarketCaps.latest(session, {
+        for (final c in rows) c.id!,
+      })).caps;
+    }
 
     final names = await _industryNames(
       session,
@@ -129,6 +152,7 @@ class CompanyEndpoint extends Endpoint {
             ceoName: c.ceoName,
             fiscalMonth: c.fiscalMonth,
             establishedDate: c.establishedDate,
+            marketCap: caps[c.id],
           ),
       ],
     );

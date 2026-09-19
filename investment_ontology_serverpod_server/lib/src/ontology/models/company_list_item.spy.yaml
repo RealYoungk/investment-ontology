@@ -12,3 +12,5 @@ fields:
   ceoName: String?
   fiscalMonth: int?
   establishedDate: DateTime?
+  ### 가장 최근 기준일 시가총액 (종목 합). 시세가 없으면 null
+  marketCap: BigInt?

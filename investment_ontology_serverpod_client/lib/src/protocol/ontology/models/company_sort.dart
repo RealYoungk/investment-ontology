@@ -15,7 +15,10 @@ import 'package:serverpod_client/serverpod_client.dart' as _isc;
 enum CompanySort implements _isc.SerializableModel {
   name,
   stockCode,
-  establishedDate;
+  establishedDate,
+
+  /// 시가총액 큰 순 (가장 최근 기준일, 시세가 없으면 뒤로)
+  marketCap;
 
   static CompanySort fromJson(String name) {
     switch (name) {
@@ -25,6 +28,8 @@ enum CompanySort implements _isc.SerializableModel {
         return CompanySort.stockCode;
       case 'establishedDate':
         return CompanySort.establishedDate;
+      case 'marketCap':
+        return CompanySort.marketCap;
       default:
         throw ArgumentError(
           'Value "$name" cannot be converted to "CompanySort"',
