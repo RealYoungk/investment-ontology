@@ -41,6 +41,7 @@ ingest:
   - rebuildDisclosureLinks:
   - startMarketSnapshot:
   - cancel:
+  - coverage:
   - latest:
   - latestOf:
 market:

@@ -4,6 +4,7 @@ import '../../generated/protocol.dart';
 import '../dart/dart_api_key.dart';
 import '../data_go_kr/data_go_kr_service_key.dart';
 import '../disclosure/disclosure_links.dart';
+import '../ingest/api_call_budget.dart';
 import '../ingest/company_master_sync.dart';
 import '../ingest/disclosure_sync.dart';
 import '../ingest/financial_facts_sync.dart';
@@ -137,6 +138,47 @@ class IngestEndpoint extends Endpoint {
         finishedAt: DateTime.now().toUtc(),
         message: '사용자 취소',
       ),
+    );
+  }
+
+  /// 수집 현황. 층마다 얼마나 받았는지 한 번에 센다.
+  Future<IngestCoverage> coverage(Session session) async {
+    final rows = await session.db.unsafeQuery('''
+      SELECT
+        (SELECT count(*) FROM company WHERE "stockCode" IS NOT NULL),
+        (SELECT count(DISTINCT r."companyId") FROM financial_report r
+           JOIN company c ON c.id = r."companyId" WHERE c."stockCode" IS NOT NULL),
+        (SELECT count(*) FROM dart_filing),
+        (SELECT count(*) FROM dart_filing
+           WHERE "consolidatedStatus" = 'pending' OR "separateStatus" = 'pending'),
+        (SELECT count(*) FROM dart_filing_section WHERE "yearRank" = 0 AND tier = 0),
+        (SELECT count(*) FROM dart_filing_section
+           WHERE "yearRank" = 0 AND tier = 0 AND status IN ('stored', 'noData')),
+        (SELECT count(*) FROM dart_filing_section),
+        (SELECT count(*) FROM dart_filing_section WHERE status IN ('stored', 'noData')),
+        (SELECT count(*) FROM dart_filing_section WHERE status = 'failed'),
+        (SELECT count(DISTINCT "companyId") FROM dart_filing_section WHERE status = 'stored'),
+        (SELECT count(*) FROM ontology_relation),
+        (SELECT count(*) FROM person)
+    ''');
+    final v = [for (final x in rows.first) (x as int?) ?? 0];
+    return IngestCoverage(
+      listedCompanies: v[0],
+      companiesWithFinancials: v[1],
+      filingsTotal: v[2],
+      filingsPending: v[3],
+      prioritySections: v[4],
+      prioritySectionsDone: v[5],
+      sections: v[6],
+      sectionsDone: v[7],
+      sectionsFailed: v[8],
+      companiesWithDisclosures: v[9],
+      relations: v[10],
+      persons: v[11],
+      dartCallsToday: await ApiCallBudget.usedToday(session, ApiProvider.dart),
+      dartDailyLimit: ApiCallBudget.dartDailyLimit,
+      dartFinancialBudget: ApiCallBudget.dartFinancialBudget,
+      dartDisclosurePriorityBudget: ApiCallBudget.dartDisclosurePriorityBudget,
     );
   }
 
