@@ -571,13 +571,14 @@ class _Sources extends StatelessWidget {
           for (final s in sources) ...[
             const SizedBox(height: AppSpace.sm),
             Text(s.title, style: t.body(12.5, weight: FontWeight.w600)),
-            Row(
+            Wrap(
+              spacing: AppSpace.md,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 Text(
                   'DART 접수 ${s.reference ?? ''} · 수집 ${formatDateTime(s.retrievedAt)}',
                   style: t.numeric(11, color: c.textSecondary),
                 ),
-                const SizedBox(width: AppSpace.md),
                 if (s.url != null)
                   AppButton(
                     label: 'DART 공시 →',

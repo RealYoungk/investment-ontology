@@ -1,0 +1,19 @@
+import 'package:serverpod/serverpod.dart';
+
+import '../../generated/protocol.dart';
+import '../disclosure/ownership_groups.dart';
+
+/// 지분으로 이어진 상장사 묶음 조회.
+class GroupEndpoint extends Endpoint {
+  /// 두 곳 이상으로 이루어진 묶음. 시가총액 합이 큰 순서.
+  Future<List<CompanyGroup>> list(Session session) =>
+      OwnershipGroups(session).all();
+
+  /// [corpCode] 기업이 속한 묶음. 어느 묶음에도 없으면 null.
+  Future<CompanyGroup?> of(Session session, String corpCode) async {
+    for (final g in await OwnershipGroups(session).all()) {
+      if (g.members.any((m) => m.company.corpCode == corpCode)) return g;
+    }
+    return null;
+  }
+}

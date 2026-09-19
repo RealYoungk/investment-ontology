@@ -1,0 +1,5 @@
+### 기업 묶음의 한 기업.
+class: GroupMember
+fields:
+  company: CompanyRef
+  marketCap: BigInt?

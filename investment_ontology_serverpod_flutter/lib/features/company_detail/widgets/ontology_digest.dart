@@ -29,6 +29,7 @@ class OntologyDigest extends StatefulWidget {
 class _OntologyDigestState extends State<OntologyDigest> {
   CompanyGovernance? _gov;
   List<ReviewItem> _ai = const [];
+  CompanyGroup? _group;
   bool _loaded = false;
 
   @override
@@ -39,11 +40,14 @@ class _OntologyDigestState extends State<OntologyDigest> {
 
   Future<void> _load() async {
     try {
-      final (gov, ai) = await (
+      final (gov, ai, group) = await (
         client.governance.summary(widget.corpCode),
         client.review.forCompany(widget.corpCode),
+        client.group.of(widget.corpCode),
       ).wait;
-      if (mounted) setState(() => (_gov = gov, _ai = ai, _loaded = true));
+      if (mounted) {
+        setState(() => (_gov = gov, _ai = ai, _group = group, _loaded = true));
+      }
     } catch (_) {
       if (mounted) setState(() => _loaded = true);
     }
@@ -150,6 +154,13 @@ class _OntologyDigestState extends State<OntologyDigest> {
                   label: '지배구조 →',
                   variant: AppButtonVariant.link,
                   onPressed: () => widget.onOpenTab('governance'),
+                ),
+              if (_group case final g?)
+                AppButton(
+                  label: '${g.anchor.name} 묶음 ${g.members.length}개사 →',
+                  variant: AppButtonVariant.link,
+                  onPressed: () =>
+                      context.push(AppRoutes.group(widget.corpCode)),
                 ),
               AppButton(
                 label: '관계망 →',

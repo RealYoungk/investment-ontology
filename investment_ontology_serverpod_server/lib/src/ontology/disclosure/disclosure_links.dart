@@ -51,6 +51,48 @@ class DisclosureLinks {
     };
   }
 
+  /// 지분으로 이어진 기업 묶음: 기업 id → 묶음 대표 id. 연결이 하나도 없는 기업은 빠진다.
+  ///
+  /// 최대주주 명단의 법인 주주, 그리고 경영참여 목적 [clusterInvestmentRatio]% 이상 출자로 잇는다.
+  static Map<int, int> ownershipClusters(
+    Iterable<ShareholderEntry> shareholders,
+    Iterable<InvestmentEntry> investments,
+  ) {
+    final parent = <int, int>{};
+    int find(int x) {
+      var r = parent[x] ??= x;
+      while (r != parent[r]) {
+        r = parent[r]!;
+      }
+      parent[x] = r;
+      return r;
+    }
+
+    void union(int a, int b) {
+      final ra = find(a), rb = find(b);
+      if (ra != rb) parent[ra] = rb;
+    }
+
+    for (final s in shareholders) {
+      if (clusterShareholder(s)) union(s.companyId, s.holderCompanyId!);
+    }
+    for (final i in investments) {
+      if (clusterInvestment(i)) union(i.companyId, i.investeeCompanyId!);
+    }
+    return {for (final x in parent.keys.toList()) x: find(x)};
+  }
+
+  /// 묶음을 만드는 주주 행: 상장사로 이어진 법인 주주.
+  static bool clusterShareholder(ShareholderEntry s) =>
+      !s.isTotal && s.holderCompanyId != null;
+
+  /// 묶음을 만드는 출자 행: 상장사로 이어진 경영참여 목적 출자, 지분율 기준 이상.
+  static bool clusterInvestment(InvestmentEntry i) =>
+      !i.isTotal &&
+      i.investeeCompanyId != null &&
+      (i.purpose?.contains('경영') ?? false) &&
+      (i.ratioEnd ?? 0) >= clusterInvestmentRatio;
+
   static String executivePersonKey(String name, int year, int month) =>
       'exec:$name:$year-${month.toString().padLeft(2, '0')}';
 
@@ -353,37 +395,10 @@ class DisclosureLinks {
     }
 
     // 2. 지분으로 이어진 기업 묶음.
-    final parent = <int, int>{};
-    int find(int x) {
-      var r = parent[x] ??= x;
-      while (r != parent[r]) {
-        r = parent[r]!;
-      }
-      parent[x] = r;
-      return r;
-    }
-
-    void union(int a, int b) {
-      final ra = find(a), rb = find(b);
-      if (ra != rb) parent[ra] = rb;
-    }
-
-    for (final s in shareholders) {
-      if (!s.isTotal && s.holderCompanyId != null) {
-        union(s.companyId, s.holderCompanyId!);
-      }
-    }
-    for (final i in investments) {
-      if (!i.isTotal &&
-          i.investeeCompanyId != null &&
-          (i.purpose?.contains('경영') ?? false) &&
-          (i.ratioEnd ?? 0) >= clusterInvestmentRatio) {
-        union(i.companyId, i.investeeCompanyId!);
-      }
-    }
+    final root = ownershipClusters(shareholders, investments);
     final size = <int, int>{};
-    for (final x in parent.keys.toList()) {
-      size[find(x)] = (size[find(x)] ?? 0) + 1;
+    for (final r in root.values) {
+      size[r] = (size[r] ?? 0) + 1;
     }
 
     final rejected = {
@@ -395,10 +410,10 @@ class DisclosureLinks {
       final name = DisclosureValues.personName(s.holderName);
       if (!_personName.hasMatch(name)) continue;
       if (rejected.contains('${s.companyId}|$name')) continue;
-      if (!parent.containsKey(s.companyId)) continue;
-      final root = find(s.companyId);
-      if ((size[root] ?? 0) > maxClusterSize) continue;
-      (groups['$root|$name'] ??= []).add(s);
+      final r = root[s.companyId];
+      if (r == null) continue;
+      if ((size[r] ?? 0) > maxClusterSize) continue;
+      (groups['$r|$name'] ??= []).add(s);
     }
 
     final companies = {

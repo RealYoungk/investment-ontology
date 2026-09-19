@@ -11,6 +11,8 @@
 // ignore_for_file: dead_code, unnecessary_type_check
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_group.dart'
+    as _i7uvzrch;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/disclosure_section_info.dart'
     as _i39r1xmm;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/facet_count.dart'
@@ -40,6 +42,7 @@ import 'ontology/models/company_detail.dart' as _ire9jjud;
 import 'ontology/models/company_financials.dart' as _iki0y6e6;
 import 'ontology/models/company_governance.dart' as _ijqcijwd;
 import 'ontology/models/company_graph.dart' as _ixtgihs0;
+import 'ontology/models/company_group.dart' as _ihdcqaon;
 import 'ontology/models/company_list_item.dart' as _i0csqxj4;
 import 'ontology/models/company_market_cap.dart' as _it4u3ib3;
 import 'ontology/models/company_page.dart' as _iaj9eyri;
@@ -73,6 +76,9 @@ import 'ontology/models/fs_div.dart' as _i906z99z;
 import 'ontology/models/governance_link.dart' as _ikth1mft;
 import 'ontology/models/graph_edge.dart' as _iamhnwn8;
 import 'ontology/models/graph_node.dart' as _iqv6eyci;
+import 'ontology/models/group_edge.dart' as _i1fyp5lv;
+import 'ontology/models/group_member.dart' as _iyd2zx8r;
+import 'ontology/models/group_person.dart' as _iklt0jfv;
 import 'ontology/models/industry.dart' as _i3hzx3f1;
 import 'ontology/models/industry_revision_check.dart' as _i25uuckt;
 import 'ontology/models/ingest_coverage.dart' as _il0sbv1h;
@@ -124,6 +130,7 @@ export 'ontology/models/company_detail.dart';
 export 'ontology/models/company_financials.dart';
 export 'ontology/models/company_governance.dart';
 export 'ontology/models/company_graph.dart';
+export 'ontology/models/company_group.dart';
 export 'ontology/models/company_list_item.dart';
 export 'ontology/models/company_market_cap.dart';
 export 'ontology/models/company_page.dart';
@@ -157,6 +164,9 @@ export 'ontology/models/fs_div.dart';
 export 'ontology/models/governance_link.dart';
 export 'ontology/models/graph_edge.dart';
 export 'ontology/models/graph_node.dart';
+export 'ontology/models/group_edge.dart';
+export 'ontology/models/group_member.dart';
+export 'ontology/models/group_person.dart';
 export 'ontology/models/industry.dart';
 export 'ontology/models/industry_revision_check.dart';
 export 'ontology/models/ingest_coverage.dart';
@@ -272,6 +282,9 @@ class Protocol extends _isc.SerializationManager {
     if (t == _ixtgihs0.CompanyGraph) {
       return _ixtgihs0.CompanyGraph.fromJson(data) as T;
     }
+    if (t == _ihdcqaon.CompanyGroup) {
+      return _ihdcqaon.CompanyGroup.fromJson(data) as T;
+    }
     if (t == _i0csqxj4.CompanyListItem) {
       return _i0csqxj4.CompanyListItem.fromJson(data) as T;
     }
@@ -370,6 +383,15 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _iqv6eyci.GraphNode) {
       return _iqv6eyci.GraphNode.fromJson(data) as T;
+    }
+    if (t == _i1fyp5lv.GroupEdge) {
+      return _i1fyp5lv.GroupEdge.fromJson(data) as T;
+    }
+    if (t == _iyd2zx8r.GroupMember) {
+      return _iyd2zx8r.GroupMember.fromJson(data) as T;
+    }
+    if (t == _iklt0jfv.GroupPerson) {
+      return _iklt0jfv.GroupPerson.fromJson(data) as T;
     }
     if (t == _i3hzx3f1.Industry) {
       return _i3hzx3f1.Industry.fromJson(data) as T;
@@ -531,6 +553,9 @@ class Protocol extends _isc.SerializationManager {
     if (t == _isc.getType<_ixtgihs0.CompanyGraph?>()) {
       return (data != null ? _ixtgihs0.CompanyGraph.fromJson(data) : null) as T;
     }
+    if (t == _isc.getType<_ihdcqaon.CompanyGroup?>()) {
+      return (data != null ? _ihdcqaon.CompanyGroup.fromJson(data) : null) as T;
+    }
     if (t == _isc.getType<_i0csqxj4.CompanyListItem?>()) {
       return (data != null ? _i0csqxj4.CompanyListItem.fromJson(data) : null)
           as T;
@@ -665,6 +690,15 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _isc.getType<_iqv6eyci.GraphNode?>()) {
       return (data != null ? _iqv6eyci.GraphNode.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_i1fyp5lv.GroupEdge?>()) {
+      return (data != null ? _i1fyp5lv.GroupEdge.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_iyd2zx8r.GroupMember?>()) {
+      return (data != null ? _iyd2zx8r.GroupMember.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_iklt0jfv.GroupPerson?>()) {
+      return (data != null ? _iklt0jfv.GroupPerson.fromJson(data) : null) as T;
     }
     if (t == _isc.getType<_i3hzx3f1.Industry?>()) {
       return (data != null ? _i3hzx3f1.Industry.fromJson(data) : null) as T;
@@ -888,6 +922,24 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_iyd2zx8r.GroupMember>) {
+      return (data as List)
+              .map((e) => deserialize<_iyd2zx8r.GroupMember>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i1fyp5lv.GroupEdge>) {
+      return (data as List)
+              .map((e) => deserialize<_i1fyp5lv.GroupEdge>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_iklt0jfv.GroupPerson>) {
+      return (data as List)
+              .map((e) => deserialize<_iklt0jfv.GroupPerson>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_ionn6cq2.SecurityQuote>) {
       return (data as List)
               .map((e) => deserialize<_ionn6cq2.SecurityQuote>(e))
@@ -990,6 +1042,12 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_i7uvzrch.CompanyGroup>) {
+      return (data as List)
+              .map((e) => deserialize<_i7uvzrch.CompanyGroup>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_ihqozc6p.ReviewItem>) {
       return (data as List)
               .map((e) => deserialize<_ihqozc6p.ReviewItem>(e))
@@ -1033,6 +1091,7 @@ class Protocol extends _isc.SerializationManager {
       _iki0y6e6.CompanyFinancials => 'CompanyFinancials',
       _ijqcijwd.CompanyGovernance => 'CompanyGovernance',
       _ixtgihs0.CompanyGraph => 'CompanyGraph',
+      _ihdcqaon.CompanyGroup => 'CompanyGroup',
       _i0csqxj4.CompanyListItem => 'CompanyListItem',
       _it4u3ib3.CompanyMarketCap => 'CompanyMarketCap',
       _iaj9eyri.CompanyPage => 'CompanyPage',
@@ -1066,6 +1125,9 @@ class Protocol extends _isc.SerializationManager {
       _ikth1mft.GovernanceLink => 'GovernanceLink',
       _iamhnwn8.GraphEdge => 'GraphEdge',
       _iqv6eyci.GraphNode => 'GraphNode',
+      _i1fyp5lv.GroupEdge => 'GroupEdge',
+      _iyd2zx8r.GroupMember => 'GroupMember',
+      _iklt0jfv.GroupPerson => 'GroupPerson',
       _i3hzx3f1.Industry => 'Industry',
       _i25uuckt.IndustryRevisionCheck => 'IndustryRevisionCheck',
       _il0sbv1h.IngestCoverage => 'IngestCoverage',
@@ -1148,6 +1210,8 @@ class Protocol extends _isc.SerializationManager {
         return 'CompanyGovernance';
       case _ixtgihs0.CompanyGraph():
         return 'CompanyGraph';
+      case _ihdcqaon.CompanyGroup():
+        return 'CompanyGroup';
       case _i0csqxj4.CompanyListItem():
         return 'CompanyListItem';
       case _it4u3ib3.CompanyMarketCap():
@@ -1214,6 +1278,12 @@ class Protocol extends _isc.SerializationManager {
         return 'GraphEdge';
       case _iqv6eyci.GraphNode():
         return 'GraphNode';
+      case _i1fyp5lv.GroupEdge():
+        return 'GroupEdge';
+      case _iyd2zx8r.GroupMember():
+        return 'GroupMember';
+      case _iklt0jfv.GroupPerson():
+        return 'GroupPerson';
       case _i3hzx3f1.Industry():
         return 'Industry';
       case _i25uuckt.IndustryRevisionCheck():
@@ -1352,6 +1422,9 @@ class Protocol extends _isc.SerializationManager {
     if (dataClassName == 'CompanyGraph') {
       return deserialize<_ixtgihs0.CompanyGraph>(data['data']);
     }
+    if (dataClassName == 'CompanyGroup') {
+      return deserialize<_ihdcqaon.CompanyGroup>(data['data']);
+    }
     if (dataClassName == 'CompanyListItem') {
       return deserialize<_i0csqxj4.CompanyListItem>(data['data']);
     }
@@ -1450,6 +1523,15 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'GraphNode') {
       return deserialize<_iqv6eyci.GraphNode>(data['data']);
+    }
+    if (dataClassName == 'GroupEdge') {
+      return deserialize<_i1fyp5lv.GroupEdge>(data['data']);
+    }
+    if (dataClassName == 'GroupMember') {
+      return deserialize<_iyd2zx8r.GroupMember>(data['data']);
+    }
+    if (dataClassName == 'GroupPerson') {
+      return deserialize<_iklt0jfv.GroupPerson>(data['data']);
     }
     if (dataClassName == 'Industry') {
       return deserialize<_i3hzx3f1.Industry>(data['data']);

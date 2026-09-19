@@ -38,6 +38,7 @@ import '../ontology/endpoints/disclosure_endpoint.dart' as _i23b9rs7;
 import '../ontology/endpoints/financial_endpoint.dart' as _ipit2z9y;
 import '../ontology/endpoints/governance_endpoint.dart' as _i6kw8hva;
 import '../ontology/endpoints/graph_endpoint.dart' as _ixdq71x8;
+import '../ontology/endpoints/group_endpoint.dart' as _i8zm50hy;
 import '../ontology/endpoints/ingest_endpoint.dart' as _icbircc0;
 import '../ontology/endpoints/market_endpoint.dart' as _iaw7fzks;
 import '../ontology/endpoints/review_endpoint.dart' as _i9uttt4a;
@@ -100,6 +101,12 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'graph',
+          null,
+        ),
+      'group': _i8zm50hy.GroupEndpoint()
+        ..initialize(
+          server,
+          'group',
           null,
         ),
       'ingest': _icbircc0.IngestEndpoint()
@@ -798,6 +805,40 @@ class Endpoints extends _is.EndpointDispatch {
                     maxNodes: params['maxNodes'],
                     includeNames: params['includeNames'],
                   ),
+        ),
+      },
+    );
+    connectors['group'] = _is.EndpointConnector(
+      name: 'group',
+      endpoint: endpoints['group']!,
+      methodConnectors: {
+        'list': _is.MethodConnector(
+          name: 'list',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['group'] as _i8zm50hy.GroupEndpoint).list(session),
+        ),
+        'of': _is.MethodConnector(
+          name: 'of',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['group'] as _i8zm50hy.GroupEndpoint).of(
+                session,
+                params['corpCode'],
+              ),
         ),
       },
     );

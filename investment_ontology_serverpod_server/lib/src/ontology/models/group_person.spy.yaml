@@ -1,0 +1,9 @@
+### 기업 묶음 안 여러 기업의 최대주주 명단에 나오는 인물.
+class: GroupPerson
+fields:
+  personId: int
+  name: String
+  ### 추정 연결 (지분 묶음 규칙)
+  estimated: bool
+  ### 이 인물이 주주인 묶음 안 기업 수
+  companyCount: int

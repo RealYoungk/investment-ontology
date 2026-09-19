@@ -1,0 +1,12 @@
+### 지분으로 이어진 상장사 묶음. 최대주주 명단의 법인 주주와 경영참여 목적 15% 이상 출자로 잇는다
+### (각 기업의 가장 최근 사업보고서 기준). 공정위 기업집단 지정과는 다른, 공시에서 계산한 묶음이다.
+class: CompanyGroup
+fields:
+  ### 시가총액이 가장 큰 기업 (묶음 이름)
+  anchor: CompanyRef
+  members: List<GroupMember>
+  edges: List<GroupEdge>
+  totalMarketCap: BigInt?
+  baseDate: DateTime?
+  ### 묶음 안 두 곳 이상의 최대주주 명단에 나오는 인물
+  sharedPersons: List<GroupPerson>

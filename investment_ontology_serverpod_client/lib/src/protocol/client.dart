@@ -28,6 +28,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _iyg8kuqs;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_graph.dart'
     as _ihkbqpbm;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_group.dart'
+    as _i7uvzrch;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_page.dart'
     as _itgpgg86;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_sort.dart'
@@ -575,6 +577,31 @@ class EndpointGraph extends _isc.EndpointRef {
   );
 }
 
+/// 지분으로 이어진 상장사 묶음 조회.
+/// {@category Endpoint}
+class EndpointGroup extends _isc.EndpointRef {
+  EndpointGroup(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'group';
+
+  /// 두 곳 이상으로 이루어진 묶음. 시가총액 합이 큰 순서.
+  _ida.Future<List<_i7uvzrch.CompanyGroup>> list() =>
+      caller.callServerEndpoint<List<_i7uvzrch.CompanyGroup>>(
+        'group',
+        'list',
+        {},
+      );
+
+  /// [corpCode] 기업이 속한 묶음. 어느 묶음에도 없으면 null.
+  _ida.Future<_i7uvzrch.CompanyGroup?> of(String corpCode) =>
+      caller.callServerEndpoint<_i7uvzrch.CompanyGroup?>(
+        'group',
+        'of',
+        {'corpCode': corpCode},
+      );
+}
+
 /// 외부 원천 수집 제어.
 ///
 /// 1인 로컬 사용 전제라 인증이 없다. 외부에 배포하기 전에 인증을 붙여야 한다.
@@ -883,6 +910,7 @@ class Client extends _isc.ServerpodClientShared {
     financial = EndpointFinancial(this);
     governance = EndpointGovernance(this);
     graph = EndpointGraph(this);
+    group = EndpointGroup(this);
     ingest = EndpointIngest(this);
     market = EndpointMarket(this);
     review = EndpointReview(this);
@@ -908,6 +936,8 @@ class Client extends _isc.ServerpodClientShared {
 
   late final EndpointGraph graph;
 
+  late final EndpointGroup group;
+
   late final EndpointIngest ingest;
 
   late final EndpointMarket market;
@@ -929,6 +959,7 @@ class Client extends _isc.ServerpodClientShared {
     'financial': financial,
     'governance': governance,
     'graph': graph,
+    'group': group,
     'ingest': ingest,
     'market': market,
     'review': review,
