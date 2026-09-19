@@ -3,7 +3,7 @@ import 'package:serverpod/serverpod.dart';
 import '../data_go_kr/data_go_kr_client.dart';
 import '../data_go_kr/data_go_kr_service_key.dart';
 import 'ingest_jobs.dart';
-import 'ingest_schedule.dart';
+import 'ingest_hooks.dart';
 import 'market_snapshot_sync.dart';
 
 class MarketSnapshotFutureCall extends FutureCall {
@@ -17,7 +17,10 @@ class MarketSnapshotFutureCall extends FutureCall {
       session,
       DataGoKrClient(key),
       jobId,
-      scheduleResume: (at) => IngestSchedule.marketSnapshotResume(session, at),
+      scheduleResume: switch (IngestHooks.marketSnapshotResume) {
+        final hook? => (at) => hook(session, at),
+        null => null,
+      },
     ).run();
   }
 

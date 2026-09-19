@@ -4,7 +4,7 @@ import '../dart/dart_api_key.dart';
 import '../dart/dart_client.dart';
 import 'financial_facts_sync.dart';
 import 'ingest_jobs.dart';
-import 'ingest_schedule.dart';
+import 'ingest_hooks.dart';
 
 class FinancialFactsFutureCall extends FutureCall {
   Future<void> run(Session session, int jobId) async {
@@ -17,7 +17,10 @@ class FinancialFactsFutureCall extends FutureCall {
       session,
       DartClient(key),
       jobId,
-      scheduleResume: (at) => IngestSchedule.financialsResume(session, at),
+      scheduleResume: switch (IngestHooks.financialsResume) {
+        final hook? => (at) => hook(session, at),
+        null => null,
+      },
     ).run();
   }
 

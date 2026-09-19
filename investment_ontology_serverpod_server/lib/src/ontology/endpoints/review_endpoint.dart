@@ -82,12 +82,13 @@ class ReviewEndpoint extends Endpoint {
   ) async {
     final docIds = {for (final r in relations) r.factId};
     final docs = {
-      for (final d in docIds.isEmpty
-          ? const <BusinessDocument>[]
-          : await BusinessDocument.db.find(
-              session,
-              where: (t) => t.id.inSet(docIds),
-            ))
+      for (final d
+          in docIds.isEmpty
+              ? const <BusinessDocument>[]
+              : await BusinessDocument.db.find(
+                  session,
+                  where: (t) => t.id.inSet(docIds),
+                ))
         d.id!: d,
     };
     final companyIds = <int>{
@@ -95,9 +96,13 @@ class ReviewEndpoint extends Endpoint {
       for (final r in relations) ...[?r.subjectCompanyId, ?r.objectCompanyId],
     };
     final companies = {
-      for (final c in companyIds.isEmpty
-          ? const <Company>[]
-          : await Company.db.find(session, where: (t) => t.id.inSet(companyIds)))
+      for (final c
+          in companyIds.isEmpty
+              ? const <Company>[]
+              : await Company.db.find(
+                  session,
+                  where: (t) => t.id.inSet(companyIds),
+                ))
         c.id!: c,
     };
     return [

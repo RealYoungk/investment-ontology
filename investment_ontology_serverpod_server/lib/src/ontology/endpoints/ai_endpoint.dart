@@ -4,7 +4,7 @@ import '../../generated/protocol.dart';
 import '../ai/ai_extraction_service.dart';
 import '../ai/anthropic_client.dart';
 import '../ingest/ingest_jobs.dart';
-import '../ingest/ingest_schedule.dart';
+import '../ingest/ingest_hooks.dart';
 
 /// AI 관계 추출 (4단계). Anthropic 키가 있어야 추출하고, 결과는 모두 검수 대기(draft)다.
 class AiEndpoint extends Endpoint {
@@ -65,7 +65,10 @@ class AiEndpoint extends Endpoint {
     final running = await IngestJobs.running(session, AiExtractionService.kind);
     if (running != null) return running;
     final job = (await IngestJobs.start(session, AiExtractionService.kind))!;
-    await IngestSchedule.aiExtractionNow(
+    await IngestHooks.require(
+      IngestHooks.aiExtractionNow,
+      'aiExtractionNow',
+    )(
       session,
       job.id!,
       (limit ?? 20).clamp(1, 500),

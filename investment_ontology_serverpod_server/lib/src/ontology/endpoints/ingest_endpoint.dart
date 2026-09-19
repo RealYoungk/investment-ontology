@@ -8,7 +8,7 @@ import '../ingest/company_master_sync.dart';
 import '../ingest/disclosure_sync.dart';
 import '../ingest/financial_facts_sync.dart';
 import '../ingest/ingest_jobs.dart';
-import '../ingest/ingest_schedule.dart';
+import '../ingest/ingest_hooks.dart';
 import '../ingest/market_snapshot_sync.dart';
 
 /// 외부 원천 수집 제어.
@@ -35,7 +35,11 @@ class IngestEndpoint extends Endpoint {
       CompanyMasterSync.kind,
       fullRefresh: full,
     ))!;
-    await IngestSchedule.companyMasterNow(session, job.id!, full);
+    await IngestHooks.require(IngestHooks.companyMasterNow, 'companyMasterNow')(
+      session,
+      job.id!,
+      full,
+    );
     return job;
   }
 
@@ -54,9 +58,15 @@ class IngestEndpoint extends Endpoint {
     if (running != null) return running;
     final job = (await IngestJobs.start(session, kind))!;
     if (corpCode == null) {
-      await IngestSchedule.financialsNow(session, job.id!);
+      await IngestHooks.require(IngestHooks.financialsNow, 'financialsNow')(
+        session,
+        job.id!,
+      );
     } else {
-      await IngestSchedule.financialsForCompanyNow(session, job.id!, corpCode);
+      await IngestHooks.require(
+        IngestHooks.financialsForCompanyNow,
+        'financialsForCompanyNow',
+      )(session, job.id!, corpCode);
     }
     return job;
   }
@@ -78,9 +88,15 @@ class IngestEndpoint extends Endpoint {
     if (running != null) return running;
     final job = (await IngestJobs.start(session, kind))!;
     if (corpCode == null) {
-      await IngestSchedule.disclosuresNow(session, job.id!);
+      await IngestHooks.require(IngestHooks.disclosuresNow, 'disclosuresNow')(
+        session,
+        job.id!,
+      );
     } else {
-      await IngestSchedule.disclosuresForCompanyNow(session, job.id!, corpCode);
+      await IngestHooks.require(
+        IngestHooks.disclosuresForCompanyNow,
+        'disclosuresForCompanyNow',
+      )(session, job.id!, corpCode);
     }
     return job;
   }
@@ -104,7 +120,10 @@ class IngestEndpoint extends Endpoint {
     final running = await IngestJobs.running(session, MarketSnapshotSync.kind);
     if (running != null) return running;
     final job = (await IngestJobs.start(session, MarketSnapshotSync.kind))!;
-    await IngestSchedule.marketSnapshotNow(session, job.id!);
+    await IngestHooks.require(
+      IngestHooks.marketSnapshotNow,
+      'marketSnapshotNow',
+    )(session, job.id!);
     return job;
   }
 

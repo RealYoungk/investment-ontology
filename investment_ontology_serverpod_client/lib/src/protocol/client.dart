@@ -26,6 +26,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _i8vk5eaa;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_governance.dart'
     as _iyg8kuqs;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_graph.dart'
+    as _ihkbqpbm;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_page.dart'
     as _itgpgg86;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_sort.dart'
@@ -543,6 +545,34 @@ class EndpointGovernance extends _isc.EndpointRef {
   );
 }
 
+/// 관계망: 기업을 가운데 두고 관계 색인(OntologyRelation)을 따라 이웃을 넓힌다.
+///
+/// 넓히는 것은 기업·인물 노드만이고, 이름뿐인 대상(비상장·해외 법인, 제품)은 끝 노드로만 둔다.
+/// 거절한 관계와 검수 전 AI 관계(draft)는 빼고, 인물 추정 연결(draft)은 점선으로 넣는다.
+/// {@category Endpoint}
+class EndpointGraph extends _isc.EndpointRef {
+  EndpointGraph(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'graph';
+
+  _ida.Future<_ihkbqpbm.CompanyGraph?> neighborhood(
+    String corpCode, {
+    int? depth,
+    int? maxNodes,
+    bool? includeNames,
+  }) => caller.callServerEndpoint<_ihkbqpbm.CompanyGraph?>(
+    'graph',
+    'neighborhood',
+    {
+      'corpCode': corpCode,
+      'depth': depth,
+      'maxNodes': maxNodes,
+      'includeNames': includeNames,
+    },
+  );
+}
+
 /// 외부 원천 수집 제어.
 ///
 /// 1인 로컬 사용 전제라 인증이 없다. 외부에 배포하기 전에 인증을 붙여야 한다.
@@ -842,6 +872,7 @@ class Client extends _isc.ServerpodClientShared {
     disclosure = EndpointDisclosure(this);
     financial = EndpointFinancial(this);
     governance = EndpointGovernance(this);
+    graph = EndpointGraph(this);
     ingest = EndpointIngest(this);
     market = EndpointMarket(this);
     review = EndpointReview(this);
@@ -865,6 +896,8 @@ class Client extends _isc.ServerpodClientShared {
 
   late final EndpointGovernance governance;
 
+  late final EndpointGraph graph;
+
   late final EndpointIngest ingest;
 
   late final EndpointMarket market;
@@ -885,6 +918,7 @@ class Client extends _isc.ServerpodClientShared {
     'disclosure': disclosure,
     'financial': financial,
     'governance': governance,
+    'graph': graph,
     'ingest': ingest,
     'market': market,
     'review': review,

@@ -1,0 +1,11 @@
+### 관계망 간선 (방향: from → to).
+class: GraphEdge
+fields:
+  from: String
+  to: String
+  predicate: RelationPredicate
+  weight: double?
+  ### 추정 연결(draft)
+  estimated: bool
+  ### AI가 뽑고 사람이 승인한 관계
+  ai: bool

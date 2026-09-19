@@ -37,6 +37,7 @@ import '../ontology/endpoints/company_endpoint.dart' as _itnisr3u;
 import '../ontology/endpoints/disclosure_endpoint.dart' as _i23b9rs7;
 import '../ontology/endpoints/financial_endpoint.dart' as _ipit2z9y;
 import '../ontology/endpoints/governance_endpoint.dart' as _i6kw8hva;
+import '../ontology/endpoints/graph_endpoint.dart' as _ixdq71x8;
 import '../ontology/endpoints/ingest_endpoint.dart' as _icbircc0;
 import '../ontology/endpoints/market_endpoint.dart' as _iaw7fzks;
 import '../ontology/endpoints/review_endpoint.dart' as _i9uttt4a;
@@ -93,6 +94,12 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'governance',
+          null,
+        ),
+      'graph': _ixdq71x8.GraphEndpoint()
+        ..initialize(
+          server,
+          'graph',
           null,
         ),
       'ingest': _icbircc0.IngestEndpoint()
@@ -748,6 +755,49 @@ class Endpoints extends _is.EndpointDispatch {
                         params['corpCode'],
                         params['holderName'],
                       ),
+        ),
+      },
+    );
+    connectors['graph'] = _is.EndpointConnector(
+      name: 'graph',
+      endpoint: endpoints['graph']!,
+      methodConnectors: {
+        'neighborhood': _is.MethodConnector(
+          name: 'neighborhood',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'depth': _is.ParameterDescription(
+              name: 'depth',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
+            'maxNodes': _is.ParameterDescription(
+              name: 'maxNodes',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
+            'includeNames': _is.ParameterDescription(
+              name: 'includeNames',
+              type: _is.getType<bool?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['graph'] as _ixdq71x8.GraphEndpoint).neighborhood(
+                    session,
+                    params['corpCode'],
+                    depth: params['depth'],
+                    maxNodes: params['maxNodes'],
+                    includeNames: params['includeNames'],
+                  ),
         ),
       },
     );

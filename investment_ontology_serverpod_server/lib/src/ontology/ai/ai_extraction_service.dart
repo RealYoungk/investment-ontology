@@ -160,7 +160,12 @@ class AiExtractionService {
         ),
       );
     } catch (e, st) {
-      session.log('AI 관계 추출 실패', level: LogLevel.error, exception: e, stackTrace: st);
+      session.log(
+        'AI 관계 추출 실패',
+        level: LogLevel.error,
+        exception: e,
+        stackTrace: st,
+      );
       await IngestJobs.fail(session, jobId, '$e');
     } finally {
       client.close();
