@@ -156,9 +156,19 @@ class _TopBar extends StatelessWidget {
                   ),
                 ),
               ),
-              if (constraints.maxWidth >= 1100) ...[
-                const Center(child: _GlobalSearch()),
-              ],
+              if (constraints.maxWidth >= 1100)
+                const Center(child: _GlobalSearch())
+              else
+                Center(
+                  child: IconButton(
+                    tooltip: '기업 바로 가기',
+                    icon: Icon(Icons.search, color: c.textPrimary),
+                    onPressed: () => showDialog<void>(
+                      context: context,
+                      builder: (_) => const _SearchDialog(),
+                    ),
+                  ),
+                ),
             ],
           ),
         );
@@ -394,6 +404,118 @@ class _GlobalSearchState extends State<_GlobalSearch> {
             hintText: '기업 바로 가기',
             prefixIcon: Icon(Icons.search, size: 18, color: c.textSecondary),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 좁은 화면의 기업 검색: 검색창 대신 아이콘을 누르면 뜬다.
+class _SearchDialog extends StatefulWidget {
+  const _SearchDialog();
+
+  @override
+  State<_SearchDialog> createState() => _SearchDialogState();
+}
+
+class _SearchDialogState extends State<_SearchDialog> {
+  final _controller = TextEditingController();
+  List<CompanyListItem> _results = const [];
+  Timer? _debounce;
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _search(String q) {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 200), () async {
+      final query = q.trim();
+      if (query.isEmpty) {
+        setState(() => _results = const []);
+        return;
+      }
+      try {
+        final page = await client.company.list(
+          query: query,
+          sort: CompanySort.marketCap,
+          limit: 8,
+        );
+        if (mounted && _controller.text.trim() == query) {
+          setState(() => _results = page.items);
+        }
+      } catch (_) {}
+    });
+  }
+
+  void _open(CompanyListItem item) {
+    final router = GoRouter.of(context);
+    Navigator.of(context).pop();
+    router.push(AppRoutes.company(item.corpCode));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    return Dialog(
+      alignment: Alignment.topCenter,
+      insetPadding: const EdgeInsets.all(AppSpace.md),
+      backgroundColor: c.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: context.shape.borderRadius,
+        side: BorderSide(color: c.borderStrong),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpace.md),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              controller: _controller,
+              autofocus: true,
+              onChanged: _search,
+              onSubmitted: (_) {
+                if (_results.isNotEmpty) _open(_results.first);
+              },
+              style: t.body(15),
+              decoration: InputDecoration(
+                hintText: '회사명 · 종목코드',
+                prefixIcon: Icon(Icons.search, color: c.textSecondary),
+              ),
+            ),
+            for (final item in _results)
+              HoverBuilder(
+                onTap: () => _open(item),
+                builder: (context, hovered) => Container(
+                  color: hovered ? c.surfaceHover : Colors.transparent,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpace.sm,
+                    vertical: 10,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          item.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: t.body(14),
+                        ),
+                      ),
+                      Text(
+                        item.stockCode ?? '',
+                        style: t.numeric(12, color: c.textSecondary),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );
