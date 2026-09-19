@@ -1,0 +1,234 @@
+import 'package:flutter/material.dart';
+import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../../client.dart';
+import '../../design/components/components.dart';
+import '../../design/tokens.dart';
+import '../common/formatters.dart';
+
+/// 글을 문단과 표(' | '로 이은 줄이 이어진 묶음)로 나눈다.
+List<({bool table, List<String> lines})> businessBlocks(String text) {
+  final blocks = <({bool table, List<String> lines})>[];
+  for (final line in text.split('\n')) {
+    final isTable = line.contains(' | ');
+    if (blocks.isNotEmpty && blocks.last.table == isTable) {
+      blocks.last.lines.add(line);
+    } else {
+      blocks.add((table: isTable, lines: [line]));
+    }
+  }
+  return blocks;
+}
+
+/// 기업 상세의 사업의 내용 탭: 사업보고서 본문 "II. 사업의 내용" (공시 원본 그대로).
+class BusinessTab extends StatefulWidget {
+  const BusinessTab({super.key, required this.corpCode});
+
+  final String corpCode;
+
+  @override
+  State<BusinessTab> createState() => _BusinessTabState();
+}
+
+class _BusinessTabState extends State<BusinessTab> {
+  BusinessContent? _content;
+  Object? _error;
+  int? _year;
+  int _section = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final c = await client.disclosure.businessContent(
+        widget.corpCode,
+        bsnsYear: _year,
+      );
+      if (mounted) setState(() => (_content = c, _error = null, _section = 0));
+    } catch (e) {
+      if (mounted) setState(() => _error = e);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    final content = _content;
+    if (_error != null) {
+      return AppNotice(message: '사업의 내용을 불러오지 못했습니다 — $_error');
+    }
+    if (content == null) return const LinearProgressIndicator(minHeight: 2);
+    final sections = content.sections;
+    final current = sections.isEmpty
+        ? null
+        : sections[_section.clamp(0, sections.length - 1)];
+
+    final toc = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final (i, s) in sections.indexed)
+          HoverBuilder(
+            onTap: () => setState(() => _section = i),
+            builder: (context, hovered) {
+              final active = i == _section;
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpace.sm,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: active
+                      ? c.inverse
+                      : hovered
+                      ? c.surfaceHover
+                      : Colors.transparent,
+                  borderRadius: context.shape.borderRadius,
+                ),
+                child: Text(
+                  s.title.isEmpty ? '(머리말)' : s.title,
+                  style: t.body(
+                    13,
+                    color: active ? c.onInverse : c.textPrimary,
+                    weight: active ? FontWeight.w600 : null,
+                  ),
+                ),
+              );
+            },
+          ),
+      ],
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Wrap(
+          spacing: AppSpace.lg,
+          runSpacing: AppSpace.sm,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Text(
+              '${content.title} · FY${content.bsnsYear} 사업보고서',
+              style: t.body(14, weight: FontWeight.w600),
+            ),
+            if (content.years.length > 1)
+              AppToggleGroup<int>(
+                value: content.bsnsYear,
+                options: {for (final y in content.years) y: 'FY$y'},
+                onChanged: (y) {
+                  setState(() => _year = y);
+                  _load();
+                },
+              ),
+          ],
+        ),
+        const SizedBox(height: AppSpace.xs),
+        Text(
+          '공시 원본 파일에서 뽑은 글 (${formatCount(content.charCount)}자). 표는 칸만 옮겼고, '
+          '그림·서식은 빠집니다. 정확한 원문은 DART 공시에서 확인하세요.',
+          style: t.body(12, color: c.textMuted),
+        ),
+        const SizedBox(height: AppSpace.lg),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final body = current == null
+                ? Text('본문이 없습니다.', style: t.body(13, color: c.textMuted))
+                : _SectionBody(section: current);
+            if (constraints.maxWidth < 900) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  toc,
+                  const SizedBox(height: AppSpace.lg),
+                  body,
+                ],
+              );
+            }
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(width: 240, child: toc),
+                const SizedBox(width: AppSpace.xl),
+                Expanded(child: body),
+              ],
+            );
+          },
+        ),
+        const SizedBox(height: AppSpace.xl),
+        if (content.source case final s?)
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '${s.title} · 접수 ${s.reference ?? ''} · 수집 ${formatDateTime(s.retrievedAt)}',
+                  style: t.body(11.5, color: c.textMuted),
+                ),
+              ),
+              if (s.url != null)
+                AppButton(
+                  label: 'DART 공시 →',
+                  variant: AppButtonVariant.link,
+                  onPressed: () => launchUrl(Uri.parse(s.url!)),
+                ),
+            ],
+          ),
+      ],
+    );
+  }
+}
+
+class _SectionBody extends StatelessWidget {
+  const _SectionBody({required this.section});
+
+  final BusinessSection section;
+
+  static int _width(({bool table, List<String> lines}) b) =>
+      b.lines.map((l) => l.split(' | ').length).reduce((a, b) => a > b ? a : b);
+
+  static List<String> _padded(String line, int width) {
+    final cells = line.split(' | ');
+    return [...cells, for (var i = cells.length; i < width; i++) ''];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.typo;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (section.title.isNotEmpty)
+          Text(section.title, style: t.body(18, weight: FontWeight.w700)),
+        const SizedBox(height: AppSpace.md),
+        for (final b in businessBlocks(section.text)) ...[
+          if (b.table)
+            AppDataTable(
+              maxCellWidth: 360,
+              // 병합 칸 때문에 행마다 칸 수가 달라, 가장 긴 행에 맞춰 머리글을 늘린다.
+              columns: [
+                for (final (i, h) in _padded(b.lines.first, _width(b)).indexed)
+                  AppColumn(i == 0 || h.isNotEmpty ? h : ''),
+              ],
+              rows: [
+                for (final line in b.lines.skip(1))
+                  AppRow([
+                    for (final cell in line.split(' | '))
+                      AppDataTable.text(context, cell.isEmpty ? null : cell),
+                  ]),
+              ],
+            )
+          else
+            SelectableText(
+              b.lines.join('\n'),
+              style: t.body(14).copyWith(height: 1.7),
+            ),
+          const SizedBox(height: AppSpace.md),
+        ],
+      ],
+    );
+  }
+}

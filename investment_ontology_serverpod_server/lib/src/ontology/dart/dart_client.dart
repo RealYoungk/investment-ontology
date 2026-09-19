@@ -251,6 +251,24 @@ class DartClient {
     return ((body['list'] as List?) ?? const []).cast<Map<String, dynamic>>();
   }
 
+  /// 공시 원본 파일 (`document.xml`, zip). 파일이 없으면(014 — 첨부만 고친 정정공시 등) null.
+  Future<List<int>?> fetchDocument(String rceptNo) async {
+    final res = await _get('document.xml', {'rcept_no': rceptNo});
+    final bytes = res.bodyBytes;
+    if (bytes.length >= 2 && bytes[0] == 0x50 && bytes[1] == 0x4B) return bytes;
+    try {
+      _throwFromErrorBody(utf8.decode(bytes, allowMalformed: true));
+    } on DartApiException catch (e) {
+      if (e.status == fileNotFoundStatus || e.status == noDataStatus) {
+        return null;
+      }
+      rethrow;
+    }
+  }
+
+  /// 공시 원본 파일이 없음.
+  static const fileNotFoundStatus = '014';
+
   /// JSON API 호출. status가 000이 아니면 예외, [allowNoData]이고 013이면 null.
   Future<Map<String, dynamic>?> _json(
     String path,
@@ -306,7 +324,7 @@ class DartClient {
       final message = doc.findAllElements('message').firstOrNull?.innerText;
       throw DartApiException(status ?? 'unknown', message ?? body);
     } on XmlException {
-      throw DartApiException('parse', 'corpCode.xml 응답을 해석할 수 없음');
+      throw DartApiException('parse', '오류 응답을 해석할 수 없음');
     }
   }
 

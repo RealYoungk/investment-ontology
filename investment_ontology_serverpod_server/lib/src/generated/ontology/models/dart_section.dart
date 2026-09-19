@@ -96,7 +96,10 @@ enum DartSection implements _is.SerializableModel {
   topFivePay,
 
   /// 타법인 출자현황 (otrCprInvstmntSttus)
-  investments;
+  investments,
+
+  /// 사업보고서 본문 "II. 사업의 내용" (공시 원본 파일 document.xml, 보고서당 1회)
+  businessContent;
 
   static DartSection fromJson(String name) {
     switch (name) {
@@ -156,6 +159,8 @@ enum DartSection implements _is.SerializableModel {
         return DartSection.topFivePay;
       case 'investments':
         return DartSection.investments;
+      case 'businessContent':
+        return DartSection.businessContent;
       default:
         throw ArgumentError(
           'Value "$name" cannot be converted to "DartSection"',

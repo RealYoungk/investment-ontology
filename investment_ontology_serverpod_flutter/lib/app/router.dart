@@ -16,7 +16,7 @@ import 'app_shell.dart';
 ///
 /// - `/market` 시장 — 시장 요약 · 업종 분포 · 시총 트리맵
 /// - `/companies?market=&section=&division=&q=&sort=&page=` 기업 목록 (필터가 주소에 남는다)
-/// - `/company/:corpCode?tab=financials` 기업 상세 (tab: overview · financials · governance · returns · disclosures)
+/// - `/company/:corpCode?tab=financials` 기업 상세 (tab: overview · financials · business · governance · returns · disclosures)
 /// - `/person/:personId` 인물
 /// - `/themes`, `/themes/:themeId` 테마
 /// - `/reports/:reportId` 재무제표 원문 표

@@ -5,6 +5,7 @@ import 'package:serverpod/serverpod.dart';
 import '../../generated/protocol.dart';
 import '../dart/dart_sections.dart';
 import '../dart/dart_values.dart';
+import '../disclosure/business_text.dart';
 import '../disclosure/disclosure_values.dart';
 
 /// 정기보고서 주요정보 조회: 항목 목록 · 원문 표 · 주주환원.
@@ -87,6 +88,42 @@ class DisclosureEndpoint extends Endpoint {
       emptyRowCount: report.emptyRowCount,
       source: await Source.db.findById(session, report.sourceId),
       years: [for (final r in reports) r.bsnsYear],
+    );
+  }
+
+  /// 사업보고서 본문 "II. 사업의 내용"을 하위 절로 나눠서. [bsnsYear]가 없으면 가장 최근.
+  Future<BusinessContent?> businessContent(
+    Session session,
+    String corpCode, {
+    int? bsnsYear,
+  }) async {
+    final company = await _company(session, corpCode);
+    if (company == null) return null;
+    final reports = await _reports(
+      session,
+      company.id!,
+      section: DartSection.businessContent,
+    );
+    if (reports.isEmpty) return null;
+    final report =
+        reports.where((r) => r.bsnsYear == bsnsYear).firstOrNull ??
+        reports.first;
+    final doc = await BusinessDocument.db.findFirstRow(
+      session,
+      where: (t) => t.reportId.equals(report.id!),
+    );
+    if (doc == null) return null;
+    return BusinessContent(
+      bsnsYear: doc.bsnsYear,
+      rceptNo: doc.rceptNo,
+      title: doc.title,
+      sections: [
+        for (final s in BusinessText.sections(doc.text))
+          BusinessSection(title: s.title, text: s.text),
+      ],
+      charCount: doc.charCount,
+      years: [for (final r in reports) r.bsnsYear],
+      source: await Source.db.findById(session, report.sourceId),
     );
   }
 

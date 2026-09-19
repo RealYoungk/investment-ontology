@@ -6,6 +6,7 @@ import '../../generated/protocol.dart';
 import '../dart/dart_client.dart';
 import '../dart/dart_sections.dart';
 import '../dart/dart_values.dart';
+import '../disclosure/business_text.dart';
 import '../disclosure/disclosure_links.dart';
 import '../disclosure/disclosure_rows.dart';
 import '../disclosure/disclosure_values.dart';
@@ -365,15 +366,19 @@ class DisclosureSync {
     FilingFetchStatus status;
     String? error;
     try {
-      final rows = await _callDart(
-        () => dart.fetchDisclosure(
-          api: info.api,
-          corpCode: company.corpCode,
-          bsnsYear: item.bsnsYear,
-          reportCode: _annualCode,
-        ),
-      );
-      status = await _store(item, filing, company, rows, byName);
+      if (item.section == DartSection.businessContent) {
+        status = await _fetchDocument(item, filing, company);
+      } else {
+        final rows = await _callDart(
+          () => dart.fetchDisclosure(
+            api: info.api,
+            corpCode: company.corpCode,
+            bsnsYear: item.bsnsYear,
+            reportCode: _annualCode,
+          ),
+        );
+        status = await _store(item, filing, company, rows, byName);
+      }
     } on DartApiException catch (e) {
       if (e.status == '020') {
         _budgetExhausted = true;
@@ -462,6 +467,113 @@ class DisclosureSync {
       return FilingFetchStatus.stored;
     }
     return FilingFetchStatus.stored;
+  }
+
+  /// 사업보고서 원본 파일에서 "II. 사업의 내용"을 받아 저장한다.
+  ///
+  /// 첨부만 고친 정정공시는 원본 파일이 없어(014), 같은 사업연도의 이전 접수번호로 다시 받는다.
+  Future<FilingFetchStatus> _fetchDocument(
+    DartFilingSection item,
+    DartFiling filing,
+    Company company,
+  ) async {
+    final candidates = [
+      filing,
+      ...await DartFiling.db.find(
+        session,
+        where: (t) =>
+            t.companyId.equals(company.id!) &
+            t.bsnsYear.equals(item.bsnsYear) &
+            t.reportCode.equals(FinancialReportCode.annual) &
+            t.rceptNo.notEquals(filing.rceptNo),
+        orderByList: (t) => [t.rceptNo.desc()],
+      ),
+    ];
+    for (final f in candidates) {
+      final existing = await DisclosureReport.db.findFirstRow(
+        session,
+        where: (t) =>
+            t.rceptNo.equals(f.rceptNo) &
+            t.section.equals(DartSection.businessContent),
+      );
+      if (existing != null) return FilingFetchStatus.stored;
+      if (!_hasAllowance) return FilingFetchStatus.pending;
+      final zip = await _callDart(() => dart.fetchDocument(f.rceptNo));
+      if (zip == null) continue;
+      final doc = BusinessText.fromZip(zip, f.rceptNo);
+      if (doc == null) return FilingFetchStatus.noData;
+      await _insertDocument(item, company, f, doc);
+      return FilingFetchStatus.stored;
+    }
+    return FilingFetchStatus.noData;
+  }
+
+  Future<void> _insertDocument(
+    DartFilingSection item,
+    Company company,
+    DartFiling filing,
+    ({String title, String text}) doc,
+  ) async {
+    final now = DateTime.now().toUtc();
+    await session.db.transaction((tx) async {
+      final source = await Source.db.insertRow(
+        session,
+        Source(
+          kind: SourceKind.dartReport,
+          title: 'DART 공시 원본 · ${doc.title} · ${filing.reportName}',
+          reference: filing.rceptNo,
+          url: DartClient.filingViewerUrl(filing.rceptNo).toString(),
+          retrievedAt: now,
+        ),
+        transaction: tx,
+      );
+      final report = await DisclosureReport.db.insertRow(
+        session,
+        DisclosureReport(
+          companyId: company.id!,
+          section: DartSection.businessContent,
+          rceptNo: filing.rceptNo,
+          bsnsYear: item.bsnsYear,
+          reportCode: FinancialReportCode.annual,
+          rowCount: 1,
+          sourceId: source.id!,
+          fetchedAt: now,
+        ),
+        transaction: tx,
+      );
+      await BusinessDocument.db.insertRow(
+        session,
+        BusinessDocument(
+          reportId: report.id!,
+          companyId: company.id!,
+          bsnsYear: item.bsnsYear,
+          rceptNo: filing.rceptNo,
+          title: doc.title,
+          text: doc.text,
+          charCount: doc.text.length,
+        ),
+        transaction: tx,
+      );
+      final others = await DisclosureReport.db.find(
+        session,
+        where: (t) =>
+            t.companyId.equals(company.id!) &
+            t.bsnsYear.equals(item.bsnsYear) &
+            t.section.equals(DartSection.businessContent) &
+            t.supersededById.equals(null) &
+            t.id.notEquals(report.id!),
+        transaction: tx,
+      );
+      for (final other in others) {
+        if (other.rceptNo.compareTo(filing.rceptNo) < 0) {
+          await DisclosureReport.db.updateRow(
+            session,
+            other.copyWith(supersededById: report.id),
+            transaction: tx,
+          );
+        }
+      }
+    });
   }
 
   /// 출생년월이 있는 임원을 인물에 잇는다 (없으면 만든다).

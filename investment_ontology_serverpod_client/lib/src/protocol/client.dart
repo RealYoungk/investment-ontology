@@ -14,6 +14,8 @@ import 'dart:async' as _ida;
 import 'package:http/http.dart' as _i85jenna;
 import 'package:investment_ontology_serverpod_client/src/protocol/greetings/greeting.dart'
     as _iqvwj7cf;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/business_content.dart'
+    as _i6ht4m6x;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_detail.dart'
     as _ig9j925g;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_financials.dart'
@@ -393,6 +395,19 @@ class EndpointDisclosure extends _isc.EndpointRef {
     {
       'corpCode': corpCode,
       'section': section,
+      'bsnsYear': bsnsYear,
+    },
+  );
+
+  /// 사업보고서 본문 "II. 사업의 내용"을 하위 절로 나눠서. [bsnsYear]가 없으면 가장 최근.
+  _ida.Future<_i6ht4m6x.BusinessContent?> businessContent(
+    String corpCode, {
+    int? bsnsYear,
+  }) => caller.callServerEndpoint<_i6ht4m6x.BusinessContent?>(
+    'disclosure',
+    'businessContent',
+    {
+      'corpCode': corpCode,
       'bsnsYear': bsnsYear,
     },
   );

@@ -1,0 +1,5 @@
+### 사업의 내용 하위 절 하나 (1. 사업의 개요, 2. 주요 제품 및 서비스 …).
+class: BusinessSection
+fields:
+  title: String
+  text: String

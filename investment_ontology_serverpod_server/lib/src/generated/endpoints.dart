@@ -504,6 +504,32 @@ class Endpoints extends _is.EndpointDispatch {
                         bsnsYear: params['bsnsYear'],
                       ),
         ),
+        'businessContent': _is.MethodConnector(
+          name: 'businessContent',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'bsnsYear': _is.ParameterDescription(
+              name: 'bsnsYear',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['disclosure'] as _i23b9rs7.DisclosureEndpoint)
+                      .businessContent(
+                        session,
+                        params['corpCode'],
+                        bsnsYear: params['bsnsYear'],
+                      ),
+        ),
         'shareholderReturn': _is.MethodConnector(
           name: 'shareholderReturn',
           params: {

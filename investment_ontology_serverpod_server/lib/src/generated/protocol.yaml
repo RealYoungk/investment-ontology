@@ -19,6 +19,7 @@ company:
 disclosure:
   - sections:
   - table:
+  - businessContent:
   - shareholderReturn:
 financial:
   - summary:
