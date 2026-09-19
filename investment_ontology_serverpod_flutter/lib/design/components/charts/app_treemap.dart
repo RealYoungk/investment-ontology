@@ -276,7 +276,7 @@ class _FittedLabelState extends State<_FittedLabel> {
       builder: (context, constraints) {
         final scaler = MediaQuery.textScalerOf(context);
         final base = DefaultTextStyle.of(context).style;
-        bool fits(String s, TextStyle? st) {
+        Size measure(String s, TextStyle? st) {
           // Text 위젯처럼 기본 글꼴 설정을 합쳐서 잰다.
           final painter = TextPainter(
             text: TextSpan(text: s, style: base.merge(st)),
@@ -284,13 +284,18 @@ class _FittedLabelState extends State<_FittedLabel> {
             textDirection: TextDirection.ltr,
             textScaler: scaler,
           )..layout();
-          final fit = painter.width * _safety <= constraints.maxWidth;
+          final size = painter.size;
           painter.dispose();
-          return fit;
+          return size;
         }
 
+        bool fitsWidth(Size s) => s.width * _safety <= constraints.maxWidth;
+
         final w = widget;
-        if (!fits(w.text, w.style)) return const SizedBox.shrink();
+        final labelSize = measure(w.text, w.style);
+        if (!fitsWidth(labelSize) || labelSize.height > constraints.maxHeight) {
+          return const SizedBox.shrink();
+        }
         final d = w.detail;
         final label = Text(
           w.text,
@@ -298,7 +303,13 @@ class _FittedLabelState extends State<_FittedLabel> {
           maxLines: 1,
           softWrap: false,
         );
-        if (d == null || !fits(d, w.detailStyle)) return label;
+        if (d == null) return label;
+        final detailSize = measure(d, w.detailStyle);
+        // 작은 타일에서는 이름만 적는다.
+        if (!fitsWidth(detailSize) ||
+            labelSize.height + detailSize.height > constraints.maxHeight) {
+          return label;
+        }
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
