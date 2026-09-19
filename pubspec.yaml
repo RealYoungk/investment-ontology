@@ -2,7 +2,7 @@ name: _
 publish_to: none
 
 environment:
-  sdk: '^3.12.2'
+  sdk: '^3.13.4'
 
 workspace:
   - investment_ontology_serverpod_client

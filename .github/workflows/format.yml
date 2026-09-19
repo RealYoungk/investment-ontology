@@ -15,11 +15,15 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.44.4'
+          # 로컬과 같이 항상 최신 stable을 쓴다.
+          channel: stable
 
       - name: Install dependencies
         run: flutter pub get
 
       - name: Check formatting
         working-directory: investment_ontology_serverpod_server
-        run: dart format --set-exit-if-changed .
+        # 생성 코드는 생성기가 쓴 그대로 둔다. 최신 SDK 포맷터와 달라도 고치지 않는다.
+        run: >-
+          dart format --set-exit-if-changed
+          $(git ls-files '*.dart' | grep -v -e '^lib/src/generated/' -e '^test/integration/test_tools/')

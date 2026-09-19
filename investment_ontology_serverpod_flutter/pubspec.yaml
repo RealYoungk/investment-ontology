@@ -18,8 +18,8 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: '^3.12.2'
-  flutter: '^3.44.4'
+  sdk: '^3.13.4'
+  flutter: '^3.47.5'
 
 resolution: workspace
 
@@ -29,6 +29,9 @@ dependencies:
   cupertino_icons: ^1.0.5
   flutter:
     sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
+  go_router: ^18.0.1
   google_fonts: ^8.1.0
   investment_ontology_serverpod_client:
     path: ../investment_ontology_serverpod_client
