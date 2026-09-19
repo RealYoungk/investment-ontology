@@ -14,11 +14,15 @@ class CompanyHeader extends StatelessWidget {
     super.key,
     required this.detail,
     required this.financials,
+    required this.openMetric,
     required this.onOpenMetric,
   });
 
   final CompanyDetail detail;
   final CompanyFinancials? financials;
+
+  /// 계산식을 펼친 지표 (강조 표시).
+  final String? openMetric;
   final ValueChanged<String> onOpenMetric;
 
   @override
@@ -86,6 +90,7 @@ class CompanyHeader extends StatelessWidget {
           _KeyStats(
             metrics: FinancialView(fin).metrics(),
             fsDiv: fin.fsDiv,
+            open: openMetric,
             onTap: onOpenMetric,
           )
         else
@@ -102,11 +107,13 @@ class _KeyStats extends StatelessWidget {
   const _KeyStats({
     required this.metrics,
     required this.fsDiv,
+    required this.open,
     required this.onTap,
   });
 
   final List<DerivedMetric> metrics;
   final FsDiv? fsDiv;
+  final String? open;
   final ValueChanged<String> onTap;
 
   @override
@@ -132,12 +139,20 @@ class _KeyStats extends StatelessWidget {
                     duration: AppMotion.fast,
                     width: 200,
                     padding: const EdgeInsets.fromLTRB(
-                      0,
+                      AppSpace.sm,
                       AppSpace.md,
                       AppSpace.lg,
                       AppSpace.md,
                     ),
-                    color: hovered ? c.surfaceHover : Colors.transparent,
+                    decoration: BoxDecoration(
+                      color: hovered ? c.surfaceHover : Colors.transparent,
+                      border: Border(
+                        bottom: BorderSide(
+                          color: open == m.key ? c.accent : Colors.transparent,
+                          width: 3,
+                        ),
+                      ),
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

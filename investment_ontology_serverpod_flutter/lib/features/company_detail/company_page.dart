@@ -41,7 +41,7 @@ class _CompanyPageState extends State<CompanyPage> {
   /// 새 데이터를 불러올 때마다 올려 재무 탭을 새 값으로 다시 만든다.
   int _version = 0;
 
-  /// 헤더 지표를 눌러 재무 탭으로 왔을 때 펼쳐 둘 지표.
+  /// 계산식을 펼친 지표. 머리의 지표를 누르면 재무 탭에서 그 계산식을 연다.
   String? _openMetric;
 
   @override
@@ -79,7 +79,8 @@ class _CompanyPageState extends State<CompanyPage> {
 
   void _openFinancials({String? metric}) => setState(() {
     _tab = CompanyTab.financials;
-    _openMetric = metric;
+    // 같은 지표를 다시 누르면 닫는다.
+    _openMetric = metric == _openMetric ? null : metric;
   });
 
   void _back() {
@@ -118,6 +119,7 @@ class _CompanyPageState extends State<CompanyPage> {
           CompanyHeader(
             detail: detail,
             financials: _financials,
+            openMetric: _tab == CompanyTab.financials ? _openMetric : null,
             onOpenMetric: (key) => _openFinancials(metric: key),
           ),
           const SizedBox(height: AppSpace.xl),
@@ -140,10 +142,11 @@ class _CompanyPageState extends State<CompanyPage> {
               onOpenFinancials: () => _openFinancials(),
             ),
             CompanyTab.financials => FinancialSection(
-              key: ValueKey('financials-$_version-$_openMetric'),
+              key: ValueKey('financials-$_version'),
               corpCode: widget.corpCode,
               initialData: _financials,
-              initialMetric: _openMetric,
+              openMetric: _openMetric,
+              onCloseMetric: () => setState(() => _openMetric = null),
             ),
           },
         ],
