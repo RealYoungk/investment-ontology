@@ -92,7 +92,7 @@ class OwnershipGroups {
       ]..sort(_byCapDesc);
       if (refs.length < 2) continue;
 
-      final edges = <GroupEdge>[
+      final rawEdges = <GroupEdge>[
         for (final s in shareholders)
           if (DisclosureLinks.clusterShareholder(s) &&
               ids.contains(s.companyId))
@@ -113,6 +113,15 @@ class OwnershipGroups {
               bsnsYear: i.bsnsYear,
             ),
       ];
+      // 같은 두 기업 사이 행이 주식 종류·계정별로 여럿이면 지분율이 가장 큰 것 하나만 남긴다.
+      final byPair = <String, GroupEdge>{};
+      for (final e in rawEdges) {
+        if (e.fromCompanyId == e.toCompanyId) continue;
+        final key = '${e.fromCompanyId}|${e.toCompanyId}|${e.predicate.name}';
+        final prev = byPair[key];
+        if (prev == null || (e.ratio ?? 0) > (prev.ratio ?? 0)) byPair[key] = e;
+      }
+      final edges = byPair.values.toList();
 
       final personCompanies = <int, Set<int>>{};
       for (final s in shareholders) {
