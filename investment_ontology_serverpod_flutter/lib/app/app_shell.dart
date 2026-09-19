@@ -21,7 +21,11 @@ class _Destination {
 
 const _destinations = [
   _Destination('시장', '/market'),
-  _Destination('기업', '/companies', matches: ['/company/', '/reports/']),
+  _Destination(
+    '기업',
+    '/companies',
+    matches: ['/company/', '/reports/', '/person/'],
+  ),
   _Destination('데이터', '/data'),
 ];
 
