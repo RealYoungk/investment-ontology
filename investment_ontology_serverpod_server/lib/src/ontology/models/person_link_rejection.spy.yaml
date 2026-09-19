@@ -1,0 +1,12 @@
+### 사람이 끊은 추정 인물 연결. 연결을 다시 계산해도 이 기업의 이 이름은 묶지 않는다.
+class: PersonLinkRejection
+table: person_link_rejection
+fields:
+  companyId: int, relation(parent=company, onDelete=Cascade)
+  ### 공백을 뗀 이름
+  name: String
+  createdAt: DateTime
+indexes:
+  person_link_rejection_idx:
+    fields: companyId, name
+    unique: true

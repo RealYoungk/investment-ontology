@@ -1,0 +1,631 @@
+import 'dart:convert';
+
+import 'package:serverpod/serverpod.dart';
+
+import '../../generated/protocol.dart';
+import '../dart/dart_client.dart';
+import '../dart/dart_sections.dart';
+import '../dart/dart_values.dart';
+import '../disclosure/disclosure_links.dart';
+import '../disclosure/disclosure_rows.dart';
+import '../disclosure/disclosure_values.dart';
+import 'api_call_budget.dart';
+import 'financial_facts_sync.dart';
+import 'financial_rows.dart';
+import 'ingest_jobs.dart';
+
+/// DART 정기보고서 주요정보(주주·임원·출자·배당·자기주식 … 28종)를 수집한다.
+///
+/// 1. 재무 수집이 쌓은 [DartFiling] 장부의 사업보고서마다 28개 항목을 [DartFilingSection]에 넣는다.
+/// 2. 받지 않은 (보고서, 항목)을 최신 사업연도 → 핵심 항목(tier 0) 순으로 받는다.
+/// 3. 원문 행([DisclosureRow])과 타입 층(주주·임원·출자·배당·자기주식)을 저장하고,
+///    끝나면 [DisclosureLinks]로 인물·관계 색인을 다시 만든다 (호출 없음).
+///
+/// 재무 백필이 남아 있으면 최신 사업연도의 핵심 항목만 [priorityBudget]까지 받는다.
+class DisclosureSync {
+  DisclosureSync(
+    this.session,
+    this.dart,
+    this.jobId, {
+    this.dailyBudget = ApiCallBudget.dartFinancialBudget,
+    this.priorityBudget = ApiCallBudget.dartDisclosurePriorityBudget,
+    this.callInterval = const Duration(milliseconds: 200),
+    this.scheduleResume,
+    this.corpCode,
+    DateTime Function()? clock,
+  }) : _clock = clock ?? DateTime.now;
+
+  static const kind = 'disclosures';
+
+  /// 기업 하나만 받는 수집.
+  static const companyKind = 'disclosures_company';
+
+  /// (보고서, 항목)별 실패 허용 횟수. 실패는 다음 실행에서 다시 받는다.
+  static const maxAttempts = 3;
+
+  /// 사업보고서 코드 (11011). 3단계는 사업보고서만 받는다.
+  static final _annualCode = FinancialCodes.reportCodeToDart(
+    FinancialReportCode.annual,
+  );
+
+  static const _batch = 500;
+  static const _progressEvery = 20;
+  static const _insertChunk = 1000;
+
+  final Session session;
+  final DartClient dart;
+  final int jobId;
+  final int dailyBudget;
+  final int priorityBudget;
+  final Duration callInterval;
+  final Future<void> Function(DateTime at)? scheduleResume;
+
+  /// 지정하면 이 기업의 사업보고서만 받는다 (재무 백필과 관계없이 전 항목).
+  final String? corpCode;
+
+  final DateTime Function() _clock;
+  late final _meter = ApiCallMeter(ApiProvider.dart, () => dart.calls);
+
+  late int _allowance;
+  bool _budgetExhausted = false;
+
+  bool get _hasAllowance {
+    if (dart.calls >= _allowance) _budgetExhausted = true;
+    return !_budgetExhausted;
+  }
+
+  /// 이번 실행에서 인물 키 → id (같은 사람을 여러 번 찾지 않도록).
+  final _persons = <String, int>{};
+
+  Future<void> run() async {
+    final claimed = await IngestJobs.claim(session, jobId);
+    if (claimed == null) {
+      dart.close();
+      return;
+    }
+    var job = claimed;
+    var stored = 0, noData = 0, failed = 0, processed = 0;
+    try {
+      final now = _clock().toUtc();
+      final companies = await Company.db.find(
+        session,
+        where: (t) => t.market.inSet(DisclosureLinks.listedMarkets),
+      );
+      final byId = {for (final c in companies) c.id!: c};
+      final only = corpCode == null
+          ? null
+          : companies.where((c) => c.corpCode == corpCode).firstOrNull;
+      if (corpCode != null && only == null) {
+        throw StateError('상장사 원장에 없는 기업: $corpCode');
+      }
+      final byName = DisclosureLinks.companiesByName(companies);
+
+      await _ensureLedger(now, only);
+      await _retryFailed(only);
+
+      final latestYear = await _latestAnnualYear();
+      final backlog = only == null && await _financialBacklog();
+      final used = await ApiCallBudget.usedToday(
+        session,
+        ApiProvider.dart,
+        now: now,
+      );
+      _allowance = dailyBudget - used;
+      if (backlog && priorityBudget < _allowance) _allowance = priorityBudget;
+      // 재무 백필 중이면 최신 사업연도의 핵심 항목만.
+      final priorityOnly = backlog && latestYear != null;
+
+      Expression scope(DartFilingSectionTable t) {
+        Expression e = t.status.equals(FilingFetchStatus.pending);
+        if (only != null) e = e & t.companyId.equals(only.id!);
+        if (priorityOnly) {
+          e = e & t.bsnsYear.equals(latestYear) & t.tier.equals(0);
+        }
+        return e;
+      }
+
+      final total = await DartFilingSection.db.count(session, where: scope);
+      job = await IngestJobs.save(session, job.copyWith(total: total));
+
+      outer:
+      while (true) {
+        final batch = await DartFilingSection.db.find(
+          session,
+          where: scope,
+          orderByList: (t) => [t.bsnsYear.desc(), t.tier.asc(), t.id.asc()],
+          limit: _batch,
+        );
+        if (batch.isEmpty) break;
+        final filings = {
+          for (final f in await DartFiling.db.find(
+            session,
+            where: (t) => t.id.inSet(<int>{for (final s in batch) s.filingId}),
+          ))
+            f.id!: f,
+        };
+        for (final item in batch) {
+          if (processed % _progressEvery == 0) {
+            if (await IngestJobs.isCancelled(session, jobId)) {
+              job = job.copyWith(status: IngestStatus.cancelled);
+              break outer;
+            }
+            await _meter.flush(session);
+            job = await IngestJobs.save(
+              session,
+              job.copyWith(
+                processed: processed,
+                updated: stored,
+                failed: failed,
+                apiCalls: dart.calls,
+                message: '주요정보 수집 중 · 저장 $stored건, 자료 없음 $noData건',
+              ),
+            );
+          }
+          if (!_hasAllowance) break outer;
+          final filing = filings[item.filingId];
+          final company = filing == null ? null : byId[filing.companyId];
+          final result = filing == null || company == null
+              ? FilingFetchStatus.unsupported
+              : await _fetch(item, filing, company, byName);
+          if (_budgetExhausted && result == FilingFetchStatus.pending) {
+            break outer;
+          }
+          switch (result) {
+            case FilingFetchStatus.stored:
+              stored++;
+            case FilingFetchStatus.noData:
+              noData++;
+            case FilingFetchStatus.failed:
+              failed++;
+            case FilingFetchStatus.pending || FilingFetchStatus.unsupported:
+              break;
+          }
+          if (result == FilingFetchStatus.unsupported) {
+            await DartFilingSection.db.updateRow(
+              session,
+              item.copyWith(status: FilingFetchStatus.unsupported),
+            );
+          }
+          processed++;
+        }
+      }
+      await _meter.flush(session);
+
+      if (stored > 0) {
+        job = await IngestJobs.save(
+          session,
+          job.copyWith(
+            processed: processed,
+            updated: stored,
+            failed: failed,
+            apiCalls: dart.calls,
+            message: '관계 색인을 다시 만드는 중 (호출 없음)',
+          ),
+        );
+        await DisclosureLinks(session).rebuild();
+      }
+
+      final remainingAll = await DartFilingSection.db.count(
+        session,
+        where: (t) {
+          Expression e = t.status.equals(FilingFetchStatus.pending);
+          if (only != null) e = e & t.companyId.equals(only.id!);
+          return e;
+        },
+      );
+      final remainingScope = await DartFilingSection.db.count(
+        session,
+        where: scope,
+      );
+      final cancelled = job.status == IngestStatus.cancelled;
+      var message =
+          '저장 $stored건, 자료 없음 $noData건, 실패 $failed건 · 남은 항목 $remainingAll건';
+      if (only != null) message = '${only.name}: $message';
+      if (priorityOnly) {
+        message += remainingScope == 0
+            ? ' · FY$latestYear 핵심 항목 완료, 나머지는 재무 백필 뒤에 받음'
+            : ' · 재무 백필 중이라 FY$latestYear 핵심 항목부터 받는 중';
+      }
+      if (_budgetExhausted &&
+          remainingScope > 0 &&
+          !cancelled &&
+          only == null) {
+        final at = ApiCallBudget.nextKstMidnight(
+          now,
+        ).add(const Duration(minutes: 5));
+        await scheduleResume?.call(at);
+        message +=
+            ' · 오늘 몫의 호출($_allowance건)을 다 써서 '
+            '${scheduleResume != null ? '다음 날 이어서 받음' : '다음 실행에서 이어서 받음'}';
+      }
+      await IngestJobs.save(
+        session,
+        job.copyWith(
+          status: cancelled ? IngestStatus.cancelled : IngestStatus.succeeded,
+          processed: processed,
+          updated: stored,
+          failed: failed,
+          apiCalls: dart.calls,
+          finishedAt: DateTime.now().toUtc(),
+          message: message,
+        ),
+      );
+    } catch (e, st) {
+      session.log(
+        '주요정보 수집 실패',
+        level: LogLevel.error,
+        exception: e,
+        stackTrace: st,
+      );
+      await IngestJobs.fail(session, jobId, '$e', apiCalls: dart.calls);
+    } finally {
+      await _meter.flush(session);
+      dart.close();
+    }
+  }
+
+  /// 사업보고서마다 28개 항목의 장부 행을 만든다. 같은 기업·사업연도에 정정공시가 있으면
+  /// 가장 늦은 접수번호만 넣는다 (주요정보 API는 그 기간의 최종 보고서 값을 준다).
+  Future<void> _ensureLedger(DateTime now, Company? only) async {
+    final values = [
+      for (final s in DartSection.values)
+        "('${s.name}', ${DartSections.of(s).tier})",
+    ].join(', ');
+    await session.db.unsafeExecute(
+      'INSERT INTO "dart_filing_section" '
+      '("filingId", "companyId", "bsnsYear", "section", "tier", "status", "attempts") '
+      'SELECT f."id", f."companyId", f."bsnsYear", s.section, s.tier, '
+      "'${FilingFetchStatus.pending.name}', 0 "
+      'FROM (SELECT DISTINCT ON ("companyId", "bsnsYear") * FROM "dart_filing" '
+      "WHERE \"reportCode\" = '${FinancialReportCode.annual.name}' "
+      'AND "companyId" IS NOT NULL AND "bsnsYear" >= @first '
+      '${only == null ? '' : 'AND "companyId" = @company '}'
+      'ORDER BY "companyId", "bsnsYear", "rceptNo" DESC) f '
+      'CROSS JOIN (VALUES $values) AS s(section, tier) '
+      'ON CONFLICT ("filingId", "section") DO NOTHING',
+      parameters: QueryParameters.named({
+        'first': FinancialFactsSync.firstAnnualYear(now),
+        'company': ?only?.id,
+      }),
+    );
+  }
+
+  /// 실패한 항목을 재시도 횟수 안에서 다시 대기로 돌린다.
+  Future<void> _retryFailed(Company? only) async {
+    await session.db.unsafeExecute(
+      'UPDATE "dart_filing_section" SET "status" = @pending '
+      'WHERE "status" = @failed AND "attempts" < @max '
+      '${only == null ? '' : 'AND "companyId" = @company'}',
+      parameters: QueryParameters.named({
+        'pending': FilingFetchStatus.pending.name,
+        'failed': FilingFetchStatus.failed.name,
+        'max': maxAttempts,
+        'company': ?only?.id,
+      }),
+    );
+  }
+
+  Future<int?> _latestAnnualYear() async {
+    final row = await DartFilingSection.db.findFirstRow(
+      session,
+      orderByList: (t) => [t.bsnsYear.desc()],
+    );
+    return row?.bsnsYear;
+  }
+
+  /// 재무 수집이 받을 공시가 남았는지.
+  Future<bool> _financialBacklog() async =>
+      await DartFiling.db.count(
+        session,
+        where: (t) =>
+            t.reportCode.notEquals(null) &
+            t.companyId.notEquals(null) &
+            t.attempts.between(0, FinancialFactsSync.maxAttempts - 1) &
+            (t.consolidatedStatus.equals(FilingFetchStatus.pending) |
+                t.consolidatedStatus.equals(FilingFetchStatus.failed) |
+                t.separateStatus.equals(FilingFetchStatus.pending) |
+                t.separateStatus.equals(FilingFetchStatus.failed)),
+      ) >
+      0;
+
+  /// 항목 하나를 받는다. 한도에 닿아 받지 못했으면 pending.
+  Future<FilingFetchStatus> _fetch(
+    DartFilingSection item,
+    DartFiling filing,
+    Company company,
+    Map<String, int> byName,
+  ) async {
+    final info = DartSections.of(item.section);
+    FilingFetchStatus status;
+    String? error;
+    try {
+      final rows = await _callDart(
+        () => dart.fetchDisclosure(
+          api: info.api,
+          corpCode: company.corpCode,
+          bsnsYear: item.bsnsYear,
+          reportCode: _annualCode,
+        ),
+      );
+      status = await _store(item, filing, company, rows, byName);
+    } on DartApiException catch (e) {
+      if (e.status == '020') {
+        _budgetExhausted = true;
+        return FilingFetchStatus.pending;
+      }
+      if (e.isFatal) rethrow;
+      status = FilingFetchStatus.failed;
+      error = '${info.label}: $e';
+      session.log(
+        '주요정보 실패 ${company.corpCode} ${filing.rceptNo} ${info.api}: $e',
+        level: LogLevel.warning,
+      );
+    }
+    var next = item.copyWith(
+      status: status,
+      fetchedAt: DateTime.now().toUtc(),
+    );
+    if (error != null) {
+      next = next.copyWith(lastError: error, attempts: item.attempts + 1);
+    }
+    await DartFilingSection.db.updateRow(session, next);
+    return status;
+  }
+
+  Future<FilingFetchStatus> _store(
+    DartFilingSection item,
+    DartFiling filing,
+    Company company,
+    List<Map<String, dynamic>>? raw,
+    Map<String, int> byName,
+  ) async {
+    if (raw == null || raw.isEmpty) return FilingFetchStatus.noData;
+    final prepared = DisclosureRows.prepare(raw);
+    if (prepared.rows.isEmpty) return FilingFetchStatus.noData;
+
+    final rceptNos = {for (final r in raw) ?DartValues.text(r['rcept_no'])};
+    if (rceptNos.length != 1) {
+      throw DartApiException('parse', '응답 접수번호가 하나가 아님: $rceptNos');
+    }
+    for (final r in raw) {
+      final corp = DartValues.text(r['corp_code']);
+      if (corp != null && corp != company.corpCode) {
+        throw DartApiException(
+          'mismatch',
+          '요청 기업 ${company.corpCode}와 응답 기업 $corp이 다름',
+        );
+      }
+    }
+    final rceptNo = rceptNos.single;
+    final existing = await DisclosureReport.db.findFirstRow(
+      session,
+      where: (t) => t.rceptNo.equals(rceptNo) & t.section.equals(item.section),
+    );
+    if (existing != null) return FilingFetchStatus.stored;
+
+    final executives = item.section == DartSection.executives
+        ? await _withPersons(
+            DisclosureRows.executives(
+              prepared.rows,
+              reportId: 0,
+              companyId: company.id!,
+              bsnsYear: item.bsnsYear,
+            ),
+          )
+        : const <ExecutiveEntry>[];
+
+    try {
+      await _insert(
+        item,
+        company,
+        rceptNo,
+        raw.first,
+        prepared,
+        byName,
+        executives,
+        reportName: rceptNo == filing.rceptNo
+            ? filing.reportName
+            : (await DartFiling.db.findFirstRow(
+                    session,
+                    where: (t) => t.rceptNo.equals(rceptNo),
+                  ))?.reportName ??
+                  filing.reportName,
+      );
+    } on DatabaseUniqueViolationException {
+      // 기업 하나 수집과 전체 수집이 같은 항목을 동시에 저장하면 늦은 쪽이 여기로 온다.
+      return FilingFetchStatus.stored;
+    }
+    return FilingFetchStatus.stored;
+  }
+
+  /// 출생년월이 있는 임원을 인물에 잇는다 (없으면 만든다).
+  Future<List<ExecutiveEntry>> _withPersons(
+    List<ExecutiveEntry> entries,
+  ) async {
+    final out = <ExecutiveEntry>[];
+    for (final e in entries) {
+      final y = e.birthYear, m = e.birthMonth;
+      final name = DisclosureValues.personName(e.name);
+      if (y == null || m == null || name.isEmpty) {
+        out.add(e);
+        continue;
+      }
+      final key = DisclosureLinks.executivePersonKey(name, y, m);
+      final id =
+          _persons[key] ??
+          await DisclosureLinks.findOrCreatePerson(
+            session,
+            Person(
+              name: name,
+              birthYear: y,
+              birthMonth: m,
+              sex: e.sex,
+              personKey: key,
+              estimated: false,
+            ),
+          );
+      _persons[key] = id;
+      out.add(e.copyWith(personId: id));
+    }
+    return out;
+  }
+
+  Future<void> _insert(
+    DartFilingSection item,
+    Company company,
+    String rceptNo,
+    Map<String, dynamic> first,
+    ({List<SourceRow> rows, int empty}) prepared,
+    Map<String, int> byName,
+    List<ExecutiveEntry> executives, {
+    required String reportName,
+  }) async {
+    final now = DateTime.now().toUtc();
+    final info = DartSections.of(item.section);
+    final bsnsYear = item.bsnsYear;
+    await session.db.transaction((tx) async {
+      final source = await Source.db.insertRow(
+        session,
+        Source(
+          kind: SourceKind.dartReport,
+          title: 'DART 정기보고서 주요정보 · ${info.label} (${info.api}) · $reportName',
+          reference: rceptNo,
+          url: DartClient.filingViewerUrl(rceptNo).toString(),
+          retrievedAt: now,
+        ),
+        transaction: tx,
+      );
+      final report = await DisclosureReport.db.insertRow(
+        session,
+        DisclosureReport(
+          companyId: company.id!,
+          section: item.section,
+          rceptNo: rceptNo,
+          bsnsYear: bsnsYear,
+          reportCode: FinancialReportCode.annual,
+          settlementDate: DisclosureValues.date(first['stlm_dt']),
+          rowCount: prepared.rows.length,
+          emptyRowCount: prepared.empty,
+          sourceId: source.id!,
+          fetchedAt: now,
+        ),
+        transaction: tx,
+      );
+      final reportId = report.id!;
+
+      Future<void> chunked<T extends TableRow>(
+        List<T> rows,
+        Future<List<T>> Function(List<T> chunk) insert,
+      ) async {
+        for (var i = 0; i < rows.length; i += _insertChunk) {
+          await insert(
+            rows.sublist(i, (i + _insertChunk).clamp(0, rows.length)),
+          );
+        }
+      }
+
+      await chunked(
+        [
+          for (final r in prepared.rows)
+            DisclosureRow(
+              reportId: reportId,
+              ord: r.ord,
+              isTotal: r.isTotal,
+              rowJson: jsonEncode(r.fields),
+            ),
+        ],
+        (c) => DisclosureRow.db.insert(session, c, transaction: tx),
+      );
+
+      final companyId = company.id!;
+      switch (item.section) {
+        case DartSection.largestShareholders:
+          await chunked(
+            DisclosureRows.shareholders(
+              prepared.rows,
+              reportId: reportId,
+              companyId: companyId,
+              bsnsYear: bsnsYear,
+              companiesByName: byName,
+            ),
+            (c) => ShareholderEntry.db.insert(session, c, transaction: tx),
+          );
+        case DartSection.executives:
+          await chunked(
+            [for (final e in executives) e.copyWith(reportId: reportId)],
+            (c) => ExecutiveEntry.db.insert(session, c, transaction: tx),
+          );
+        case DartSection.investments:
+          await chunked(
+            DisclosureRows.investments(
+              prepared.rows,
+              reportId: reportId,
+              companyId: companyId,
+              bsnsYear: bsnsYear,
+              companiesByName: byName,
+            ),
+            (c) => InvestmentEntry.db.insert(session, c, transaction: tx),
+          );
+        case DartSection.dividend:
+          await chunked(
+            DisclosureRows.dividends(
+              prepared.rows,
+              reportId: reportId,
+              companyId: companyId,
+              bsnsYear: bsnsYear,
+            ),
+            (c) => DividendEntry.db.insert(session, c, transaction: tx),
+          );
+        case DartSection.treasuryStock:
+          await chunked(
+            DisclosureRows.treasuryStock(
+              prepared.rows,
+              reportId: reportId,
+              companyId: companyId,
+              bsnsYear: bsnsYear,
+            ),
+            (c) => TreasuryStockEntry.db.insert(session, c, transaction: tx),
+          );
+        default:
+          break;
+      }
+
+      // 같은 기업·사업연도·항목의 이전 보고서(정정 전)는 이 보고서가 대체한다.
+      final others = await DisclosureReport.db.find(
+        session,
+        where: (t) =>
+            t.companyId.equals(companyId) &
+            t.bsnsYear.equals(bsnsYear) &
+            t.reportCode.equals(FinancialReportCode.annual) &
+            t.section.equals(item.section) &
+            t.supersededById.equals(null) &
+            t.id.notEquals(reportId),
+        transaction: tx,
+      );
+      for (final other in others) {
+        if (other.rceptNo.compareTo(rceptNo) < 0) {
+          await DisclosureReport.db.updateRow(
+            session,
+            other.copyWith(supersededById: reportId),
+            transaction: tx,
+          );
+        } else {
+          // 더 늦은 보고서를 이미 받았다 — 이 보고서가 대체된 쪽이다.
+          await DisclosureReport.db.updateRow(
+            session,
+            report.copyWith(supersededById: other.id),
+            transaction: tx,
+          );
+        }
+      }
+    });
+  }
+
+  Future<T> _callDart<T>(Future<T> Function() call) async {
+    try {
+      return await call();
+    } finally {
+      await Future<void>.delayed(callInterval);
+    }
+  }
+}

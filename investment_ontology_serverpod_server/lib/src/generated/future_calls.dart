@@ -15,10 +15,15 @@ import 'dart:async' as _ida;
 import 'package:clock/clock.dart' as _io0w16m8;
 import 'package:serverpod/serverpod.dart' as _is;
 import '../ontology/ingest/company_master_future_call.dart' as _iouuus1c;
+import '../ontology/ingest/disclosure_future_call.dart' as _itvp2mss;
 import '../ontology/ingest/financial_facts_future_call.dart' as _iqtu3y45;
 import '../ontology/ingest/market_snapshot_future_call.dart' as _i3rk8q0z;
 import 'future_calls_generated_models/company_master_future_call_run_model.dart'
     as _i8298vau;
+import 'future_calls_generated_models/disclosure_future_call_run_company_model.dart'
+    as _iln8mnkp;
+import 'future_calls_generated_models/disclosure_future_call_run_model.dart'
+    as _i9swl9ej;
 import 'future_calls_generated_models/financial_facts_future_call_run_company_model.dart'
     as _in9ocduk;
 import 'future_calls_generated_models/financial_facts_future_call_run_model.dart'
@@ -69,6 +74,9 @@ class FutureCalls extends _is.FutureCallDispatch<_FutureCallRef> {
   ) {
     var registeredFutureCalls = <String, _is.InvokableFutureCall>{
       'CompanyMasterRunFutureCall': CompanyMasterRunFutureCall(),
+      'DisclosureRunFutureCall': DisclosureRunFutureCall(),
+      'DisclosureRunCompanyFutureCall': DisclosureRunCompanyFutureCall(),
+      'DisclosureResumeFutureCall': DisclosureResumeFutureCall(),
       'FinancialFactsRunFutureCall': FinancialFactsRunFutureCall(),
       'FinancialFactsRunCompanyFutureCall':
           FinancialFactsRunCompanyFutureCall(),
@@ -199,6 +207,8 @@ class _FutureCallRef {
     _invokeFutureCall,
   );
 
+  late final disclosure = _DisclosureFutureCallDispatcher(_invokeFutureCall);
+
   late final financialFacts = _FinancialFactsFutureCallDispatcher(
     _invokeFutureCall,
   );
@@ -224,6 +234,41 @@ class _CompanyMasterFutureCallDispatcher {
     return _invokeFutureCall(
       'CompanyMasterRunFutureCall',
       object,
+    );
+  }
+}
+
+class _DisclosureFutureCallDispatcher {
+  _DisclosureFutureCallDispatcher(this._invokeFutureCall);
+
+  final _InvokeFutureCall _invokeFutureCall;
+
+  Future<void> run(int jobId) {
+    var object = _i9swl9ej.DisclosureFutureCallRunModel(jobId: jobId);
+    return _invokeFutureCall(
+      'DisclosureRunFutureCall',
+      object,
+    );
+  }
+
+  Future<void> runCompany(
+    int jobId,
+    String corpCode,
+  ) {
+    var object = _iln8mnkp.DisclosureFutureCallRunCompanyModel(
+      jobId: jobId,
+      corpCode: corpCode,
+    );
+    return _invokeFutureCall(
+      'DisclosureRunCompanyFutureCall',
+      object,
+    );
+  }
+
+  Future<void> resume() {
+    return _invokeFutureCall(
+      'DisclosureResumeFutureCall',
+      null,
     );
   }
 }
@@ -300,6 +345,55 @@ class CompanyMasterRunFutureCall
         object.force,
       );
     }
+  }
+}
+
+class DisclosureRunFutureCall
+    extends _is.FutureCall<_i9swl9ej.DisclosureFutureCallRunModel>
+    implements _is.InvokableFutureCall<_i9swl9ej.DisclosureFutureCallRunModel> {
+  @override
+  _ida.Future<void> invoke(
+    _is.Session session,
+    _i9swl9ej.DisclosureFutureCallRunModel? object,
+  ) async {
+    if (object != null) {
+      await _itvp2mss.DisclosureFutureCall().run(
+        session,
+        object.jobId,
+      );
+    }
+  }
+}
+
+/// 기업 하나의 사업보고서 주요정보만 받는다.
+class DisclosureRunCompanyFutureCall
+    extends _is.FutureCall<_iln8mnkp.DisclosureFutureCallRunCompanyModel>
+    implements
+        _is.InvokableFutureCall<_iln8mnkp.DisclosureFutureCallRunCompanyModel> {
+  @override
+  _ida.Future<void> invoke(
+    _is.Session session,
+    _iln8mnkp.DisclosureFutureCallRunCompanyModel? object,
+  ) async {
+    if (object != null) {
+      await _itvp2mss.DisclosureFutureCall().runCompany(
+        session,
+        object.jobId,
+        object.corpCode,
+      );
+    }
+  }
+}
+
+/// 매일 예약·이어받기. 같은 수집이 돌고 있으면 건너뛴다.
+class DisclosureResumeFutureCall extends _is.FutureCall
+    implements _is.InvokableFutureCall {
+  @override
+  _ida.Future<void> invoke(
+    _is.Session session,
+    _is.SerializableModel? object,
+  ) async {
+    await _itvp2mss.DisclosureFutureCall().resume(session);
   }
 }
 

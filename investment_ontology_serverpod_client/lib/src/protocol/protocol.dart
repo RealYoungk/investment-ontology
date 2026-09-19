@@ -11,6 +11,8 @@
 // ignore_for_file: dead_code, unnecessary_type_check
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/disclosure_section_info.dart'
+    as _i39r1xmm;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/facet_count.dart'
     as _icfgas7c;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
@@ -25,14 +27,27 @@ import 'ontology/models/company.dart' as _ipen255x;
 import 'ontology/models/company_change.dart' as _isfozywu;
 import 'ontology/models/company_detail.dart' as _ire9jjud;
 import 'ontology/models/company_financials.dart' as _iki0y6e6;
+import 'ontology/models/company_governance.dart' as _ijqcijwd;
 import 'ontology/models/company_list_item.dart' as _i0csqxj4;
 import 'ontology/models/company_market_cap.dart' as _it4u3ib3;
 import 'ontology/models/company_page.dart' as _iaj9eyri;
+import 'ontology/models/company_ref.dart' as _i4gnucl8;
 import 'ontology/models/company_sort.dart' as _ia2izjbq;
 import 'ontology/models/dart_corp_status.dart' as _ir49pw6i;
 import 'ontology/models/dart_filing.dart' as _itki3qdq;
 import 'ontology/models/dart_filing_scan.dart' as _ixr5w3gq;
+import 'ontology/models/dart_filing_section.dart' as _isprzv4c;
+import 'ontology/models/dart_section.dart' as _islomtus;
+import 'ontology/models/disclosure_link_basis.dart' as _iffxd3r6;
+import 'ontology/models/disclosure_report.dart' as _i4blf95b;
+import 'ontology/models/disclosure_row.dart' as _irf27uzx;
+import 'ontology/models/disclosure_section_info.dart' as _ij0mhdco;
+import 'ontology/models/disclosure_table.dart' as _i7prd3sw;
+import 'ontology/models/disclosure_table_row.dart' as _i98o73zd;
+import 'ontology/models/dividend_entry.dart' as _ith4ion6;
 import 'ontology/models/exceptions.dart' as _iqc95j34;
+import 'ontology/models/executive_entry.dart' as _i3df9cy5;
+import 'ontology/models/executive_registration.dart' as _iz7k3x6v;
 import 'ontology/models/facet_count.dart' as _iqbvehdv;
 import 'ontology/models/filing_fetch_status.dart' as _i167q75d;
 import 'ontology/models/financial_fact.dart' as _igykxm42;
@@ -43,21 +58,36 @@ import 'ontology/models/financial_report_code.dart' as _idwohplt;
 import 'ontology/models/financial_report_detail.dart' as _ia8vdu33;
 import 'ontology/models/financial_statement_kind.dart' as _im4itn08;
 import 'ontology/models/fs_div.dart' as _i906z99z;
+import 'ontology/models/governance_link.dart' as _ikth1mft;
 import 'ontology/models/industry.dart' as _i3hzx3f1;
 import 'ontology/models/industry_revision_check.dart' as _i25uuckt;
 import 'ontology/models/ingest_job.dart' as _iay1heal;
 import 'ontology/models/ingest_status.dart' as _imojj26x;
+import 'ontology/models/investment_entry.dart' as _i9p8kpm7;
 import 'ontology/models/market.dart' as _iyzzhewo;
 import 'ontology/models/market_cap_node.dart' as _i1tskjhh;
 import 'ontology/models/market_cap_treemap.dart' as _iwodvuy1;
 import 'ontology/models/market_snapshot.dart' as _ibhowe7d;
 import 'ontology/models/market_snapshot_day.dart' as _i3renazk;
+import 'ontology/models/ontology_relation.dart' as _iejnlir1;
 import 'ontology/models/overview.dart' as _iz31wbgv;
+import 'ontology/models/person.dart' as _i9gy9ys0;
+import 'ontology/models/person_link_rejection.dart' as _iffou6wp;
+import 'ontology/models/person_profile.dart' as _i12ugm17;
+import 'ontology/models/person_role.dart' as _ipnxekll;
+import 'ontology/models/relation_fact_kind.dart' as _iy288i3j;
+import 'ontology/models/relation_origin.dart' as _id1oen7t;
+import 'ontology/models/relation_predicate.dart' as _idal2dwe;
+import 'ontology/models/relation_status.dart' as _ih00v9tp;
 import 'ontology/models/security.dart' as _ilujots3;
 import 'ontology/models/security_link_basis.dart' as _ic799xum;
 import 'ontology/models/security_quote.dart' as _ionn6cq2;
+import 'ontology/models/shareholder_entry.dart' as _itljah4k;
+import 'ontology/models/shareholder_return.dart' as _iiit8m20;
 import 'ontology/models/source.dart' as _icm1zoh2;
 import 'ontology/models/source_kind.dart' as _itk5lja3;
+import 'ontology/models/stock_total_row.dart' as _i3sjboun;
+import 'ontology/models/treasury_stock_entry.dart' as _injn1qca;
 export 'greetings/greeting.dart';
 export 'ontology/models/api_call_usage.dart';
 export 'ontology/models/api_provider.dart';
@@ -65,14 +95,27 @@ export 'ontology/models/company.dart';
 export 'ontology/models/company_change.dart';
 export 'ontology/models/company_detail.dart';
 export 'ontology/models/company_financials.dart';
+export 'ontology/models/company_governance.dart';
 export 'ontology/models/company_list_item.dart';
 export 'ontology/models/company_market_cap.dart';
 export 'ontology/models/company_page.dart';
+export 'ontology/models/company_ref.dart';
 export 'ontology/models/company_sort.dart';
 export 'ontology/models/dart_corp_status.dart';
 export 'ontology/models/dart_filing.dart';
 export 'ontology/models/dart_filing_scan.dart';
+export 'ontology/models/dart_filing_section.dart';
+export 'ontology/models/dart_section.dart';
+export 'ontology/models/disclosure_link_basis.dart';
+export 'ontology/models/disclosure_report.dart';
+export 'ontology/models/disclosure_row.dart';
+export 'ontology/models/disclosure_section_info.dart';
+export 'ontology/models/disclosure_table.dart';
+export 'ontology/models/disclosure_table_row.dart';
+export 'ontology/models/dividend_entry.dart';
 export 'ontology/models/exceptions.dart';
+export 'ontology/models/executive_entry.dart';
+export 'ontology/models/executive_registration.dart';
 export 'ontology/models/facet_count.dart';
 export 'ontology/models/filing_fetch_status.dart';
 export 'ontology/models/financial_fact.dart';
@@ -83,21 +126,36 @@ export 'ontology/models/financial_report_code.dart';
 export 'ontology/models/financial_report_detail.dart';
 export 'ontology/models/financial_statement_kind.dart';
 export 'ontology/models/fs_div.dart';
+export 'ontology/models/governance_link.dart';
 export 'ontology/models/industry.dart';
 export 'ontology/models/industry_revision_check.dart';
 export 'ontology/models/ingest_job.dart';
 export 'ontology/models/ingest_status.dart';
+export 'ontology/models/investment_entry.dart';
 export 'ontology/models/market.dart';
 export 'ontology/models/market_cap_node.dart';
 export 'ontology/models/market_cap_treemap.dart';
 export 'ontology/models/market_snapshot.dart';
 export 'ontology/models/market_snapshot_day.dart';
+export 'ontology/models/ontology_relation.dart';
 export 'ontology/models/overview.dart';
+export 'ontology/models/person.dart';
+export 'ontology/models/person_link_rejection.dart';
+export 'ontology/models/person_profile.dart';
+export 'ontology/models/person_role.dart';
+export 'ontology/models/relation_fact_kind.dart';
+export 'ontology/models/relation_origin.dart';
+export 'ontology/models/relation_predicate.dart';
+export 'ontology/models/relation_status.dart';
 export 'ontology/models/security.dart';
 export 'ontology/models/security_link_basis.dart';
 export 'ontology/models/security_quote.dart';
+export 'ontology/models/shareholder_entry.dart';
+export 'ontology/models/shareholder_return.dart';
 export 'ontology/models/source.dart';
 export 'ontology/models/source_kind.dart';
+export 'ontology/models/stock_total_row.dart';
+export 'ontology/models/treasury_stock_entry.dart';
 export 'client.dart';
 
 class Protocol extends _isc.SerializationManager {
@@ -155,6 +213,9 @@ class Protocol extends _isc.SerializationManager {
     if (t == _iki0y6e6.CompanyFinancials) {
       return _iki0y6e6.CompanyFinancials.fromJson(data) as T;
     }
+    if (t == _ijqcijwd.CompanyGovernance) {
+      return _ijqcijwd.CompanyGovernance.fromJson(data) as T;
+    }
     if (t == _i0csqxj4.CompanyListItem) {
       return _i0csqxj4.CompanyListItem.fromJson(data) as T;
     }
@@ -163,6 +224,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _iaj9eyri.CompanyPage) {
       return _iaj9eyri.CompanyPage.fromJson(data) as T;
+    }
+    if (t == _i4gnucl8.CompanyRef) {
+      return _i4gnucl8.CompanyRef.fromJson(data) as T;
     }
     if (t == _ia2izjbq.CompanySort) {
       return _ia2izjbq.CompanySort.fromJson(data) as T;
@@ -176,8 +240,41 @@ class Protocol extends _isc.SerializationManager {
     if (t == _ixr5w3gq.DartFilingScan) {
       return _ixr5w3gq.DartFilingScan.fromJson(data) as T;
     }
+    if (t == _isprzv4c.DartFilingSection) {
+      return _isprzv4c.DartFilingSection.fromJson(data) as T;
+    }
+    if (t == _islomtus.DartSection) {
+      return _islomtus.DartSection.fromJson(data) as T;
+    }
+    if (t == _iffxd3r6.DisclosureLinkBasis) {
+      return _iffxd3r6.DisclosureLinkBasis.fromJson(data) as T;
+    }
+    if (t == _i4blf95b.DisclosureReport) {
+      return _i4blf95b.DisclosureReport.fromJson(data) as T;
+    }
+    if (t == _irf27uzx.DisclosureRow) {
+      return _irf27uzx.DisclosureRow.fromJson(data) as T;
+    }
+    if (t == _ij0mhdco.DisclosureSectionInfo) {
+      return _ij0mhdco.DisclosureSectionInfo.fromJson(data) as T;
+    }
+    if (t == _i7prd3sw.DisclosureTable) {
+      return _i7prd3sw.DisclosureTable.fromJson(data) as T;
+    }
+    if (t == _i98o73zd.DisclosureTableRow) {
+      return _i98o73zd.DisclosureTableRow.fromJson(data) as T;
+    }
+    if (t == _ith4ion6.DividendEntry) {
+      return _ith4ion6.DividendEntry.fromJson(data) as T;
+    }
     if (t == _iqc95j34.IngestException) {
       return _iqc95j34.IngestException.fromJson(data) as T;
+    }
+    if (t == _i3df9cy5.ExecutiveEntry) {
+      return _i3df9cy5.ExecutiveEntry.fromJson(data) as T;
+    }
+    if (t == _iz7k3x6v.ExecutiveRegistration) {
+      return _iz7k3x6v.ExecutiveRegistration.fromJson(data) as T;
     }
     if (t == _iqbvehdv.FacetCount) {
       return _iqbvehdv.FacetCount.fromJson(data) as T;
@@ -209,6 +306,9 @@ class Protocol extends _isc.SerializationManager {
     if (t == _i906z99z.FsDiv) {
       return _i906z99z.FsDiv.fromJson(data) as T;
     }
+    if (t == _ikth1mft.GovernanceLink) {
+      return _ikth1mft.GovernanceLink.fromJson(data) as T;
+    }
     if (t == _i3hzx3f1.Industry) {
       return _i3hzx3f1.Industry.fromJson(data) as T;
     }
@@ -220,6 +320,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _imojj26x.IngestStatus) {
       return _imojj26x.IngestStatus.fromJson(data) as T;
+    }
+    if (t == _i9p8kpm7.InvestmentEntry) {
+      return _i9p8kpm7.InvestmentEntry.fromJson(data) as T;
     }
     if (t == _iyzzhewo.Market) {
       return _iyzzhewo.Market.fromJson(data) as T;
@@ -236,8 +339,35 @@ class Protocol extends _isc.SerializationManager {
     if (t == _i3renazk.MarketSnapshotDay) {
       return _i3renazk.MarketSnapshotDay.fromJson(data) as T;
     }
+    if (t == _iejnlir1.OntologyRelation) {
+      return _iejnlir1.OntologyRelation.fromJson(data) as T;
+    }
     if (t == _iz31wbgv.Overview) {
       return _iz31wbgv.Overview.fromJson(data) as T;
+    }
+    if (t == _i9gy9ys0.Person) {
+      return _i9gy9ys0.Person.fromJson(data) as T;
+    }
+    if (t == _iffou6wp.PersonLinkRejection) {
+      return _iffou6wp.PersonLinkRejection.fromJson(data) as T;
+    }
+    if (t == _i12ugm17.PersonProfile) {
+      return _i12ugm17.PersonProfile.fromJson(data) as T;
+    }
+    if (t == _ipnxekll.PersonRole) {
+      return _ipnxekll.PersonRole.fromJson(data) as T;
+    }
+    if (t == _iy288i3j.RelationFactKind) {
+      return _iy288i3j.RelationFactKind.fromJson(data) as T;
+    }
+    if (t == _id1oen7t.RelationOrigin) {
+      return _id1oen7t.RelationOrigin.fromJson(data) as T;
+    }
+    if (t == _idal2dwe.RelationPredicate) {
+      return _idal2dwe.RelationPredicate.fromJson(data) as T;
+    }
+    if (t == _ih00v9tp.RelationStatus) {
+      return _ih00v9tp.RelationStatus.fromJson(data) as T;
     }
     if (t == _ilujots3.Security) {
       return _ilujots3.Security.fromJson(data) as T;
@@ -248,11 +378,23 @@ class Protocol extends _isc.SerializationManager {
     if (t == _ionn6cq2.SecurityQuote) {
       return _ionn6cq2.SecurityQuote.fromJson(data) as T;
     }
+    if (t == _itljah4k.ShareholderEntry) {
+      return _itljah4k.ShareholderEntry.fromJson(data) as T;
+    }
+    if (t == _iiit8m20.ShareholderReturn) {
+      return _iiit8m20.ShareholderReturn.fromJson(data) as T;
+    }
     if (t == _icm1zoh2.Source) {
       return _icm1zoh2.Source.fromJson(data) as T;
     }
     if (t == _itk5lja3.SourceKind) {
       return _itk5lja3.SourceKind.fromJson(data) as T;
+    }
+    if (t == _i3sjboun.StockTotalRow) {
+      return _i3sjboun.StockTotalRow.fromJson(data) as T;
+    }
+    if (t == _injn1qca.TreasuryStockEntry) {
+      return _injn1qca.TreasuryStockEntry.fromJson(data) as T;
     }
     if (t == _isc.getType<_izw8z7ou.Greeting?>()) {
       return (data != null ? _izw8z7ou.Greeting.fromJson(data) : null) as T;
@@ -278,6 +420,10 @@ class Protocol extends _isc.SerializationManager {
       return (data != null ? _iki0y6e6.CompanyFinancials.fromJson(data) : null)
           as T;
     }
+    if (t == _isc.getType<_ijqcijwd.CompanyGovernance?>()) {
+      return (data != null ? _ijqcijwd.CompanyGovernance.fromJson(data) : null)
+          as T;
+    }
     if (t == _isc.getType<_i0csqxj4.CompanyListItem?>()) {
       return (data != null ? _i0csqxj4.CompanyListItem.fromJson(data) : null)
           as T;
@@ -288,6 +434,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _isc.getType<_iaj9eyri.CompanyPage?>()) {
       return (data != null ? _iaj9eyri.CompanyPage.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_i4gnucl8.CompanyRef?>()) {
+      return (data != null ? _i4gnucl8.CompanyRef.fromJson(data) : null) as T;
     }
     if (t == _isc.getType<_ia2izjbq.CompanySort?>()) {
       return (data != null ? _ia2izjbq.CompanySort.fromJson(data) : null) as T;
@@ -303,8 +452,57 @@ class Protocol extends _isc.SerializationManager {
       return (data != null ? _ixr5w3gq.DartFilingScan.fromJson(data) : null)
           as T;
     }
+    if (t == _isc.getType<_isprzv4c.DartFilingSection?>()) {
+      return (data != null ? _isprzv4c.DartFilingSection.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_islomtus.DartSection?>()) {
+      return (data != null ? _islomtus.DartSection.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_iffxd3r6.DisclosureLinkBasis?>()) {
+      return (data != null
+              ? _iffxd3r6.DisclosureLinkBasis.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _isc.getType<_i4blf95b.DisclosureReport?>()) {
+      return (data != null ? _i4blf95b.DisclosureReport.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_irf27uzx.DisclosureRow?>()) {
+      return (data != null ? _irf27uzx.DisclosureRow.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_ij0mhdco.DisclosureSectionInfo?>()) {
+      return (data != null
+              ? _ij0mhdco.DisclosureSectionInfo.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _isc.getType<_i7prd3sw.DisclosureTable?>()) {
+      return (data != null ? _i7prd3sw.DisclosureTable.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_i98o73zd.DisclosureTableRow?>()) {
+      return (data != null ? _i98o73zd.DisclosureTableRow.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_ith4ion6.DividendEntry?>()) {
+      return (data != null ? _ith4ion6.DividendEntry.fromJson(data) : null)
+          as T;
+    }
     if (t == _isc.getType<_iqc95j34.IngestException?>()) {
       return (data != null ? _iqc95j34.IngestException.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_i3df9cy5.ExecutiveEntry?>()) {
+      return (data != null ? _i3df9cy5.ExecutiveEntry.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_iz7k3x6v.ExecutiveRegistration?>()) {
+      return (data != null
+              ? _iz7k3x6v.ExecutiveRegistration.fromJson(data)
+              : null)
           as T;
     }
     if (t == _isc.getType<_iqbvehdv.FacetCount?>()) {
@@ -351,6 +549,10 @@ class Protocol extends _isc.SerializationManager {
     if (t == _isc.getType<_i906z99z.FsDiv?>()) {
       return (data != null ? _i906z99z.FsDiv.fromJson(data) : null) as T;
     }
+    if (t == _isc.getType<_ikth1mft.GovernanceLink?>()) {
+      return (data != null ? _ikth1mft.GovernanceLink.fromJson(data) : null)
+          as T;
+    }
     if (t == _isc.getType<_i3hzx3f1.Industry?>()) {
       return (data != null ? _i3hzx3f1.Industry.fromJson(data) : null) as T;
     }
@@ -365,6 +567,10 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _isc.getType<_imojj26x.IngestStatus?>()) {
       return (data != null ? _imojj26x.IngestStatus.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_i9p8kpm7.InvestmentEntry?>()) {
+      return (data != null ? _i9p8kpm7.InvestmentEntry.fromJson(data) : null)
+          as T;
     }
     if (t == _isc.getType<_iyzzhewo.Market?>()) {
       return (data != null ? _iyzzhewo.Market.fromJson(data) : null) as T;
@@ -385,8 +591,44 @@ class Protocol extends _isc.SerializationManager {
       return (data != null ? _i3renazk.MarketSnapshotDay.fromJson(data) : null)
           as T;
     }
+    if (t == _isc.getType<_iejnlir1.OntologyRelation?>()) {
+      return (data != null ? _iejnlir1.OntologyRelation.fromJson(data) : null)
+          as T;
+    }
     if (t == _isc.getType<_iz31wbgv.Overview?>()) {
       return (data != null ? _iz31wbgv.Overview.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_i9gy9ys0.Person?>()) {
+      return (data != null ? _i9gy9ys0.Person.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_iffou6wp.PersonLinkRejection?>()) {
+      return (data != null
+              ? _iffou6wp.PersonLinkRejection.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _isc.getType<_i12ugm17.PersonProfile?>()) {
+      return (data != null ? _i12ugm17.PersonProfile.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_ipnxekll.PersonRole?>()) {
+      return (data != null ? _ipnxekll.PersonRole.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_iy288i3j.RelationFactKind?>()) {
+      return (data != null ? _iy288i3j.RelationFactKind.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_id1oen7t.RelationOrigin?>()) {
+      return (data != null ? _id1oen7t.RelationOrigin.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_idal2dwe.RelationPredicate?>()) {
+      return (data != null ? _idal2dwe.RelationPredicate.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_ih00v9tp.RelationStatus?>()) {
+      return (data != null ? _ih00v9tp.RelationStatus.fromJson(data) : null)
+          as T;
     }
     if (t == _isc.getType<_ilujots3.Security?>()) {
       return (data != null ? _ilujots3.Security.fromJson(data) : null) as T;
@@ -399,11 +641,27 @@ class Protocol extends _isc.SerializationManager {
       return (data != null ? _ionn6cq2.SecurityQuote.fromJson(data) : null)
           as T;
     }
+    if (t == _isc.getType<_itljah4k.ShareholderEntry?>()) {
+      return (data != null ? _itljah4k.ShareholderEntry.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_iiit8m20.ShareholderReturn?>()) {
+      return (data != null ? _iiit8m20.ShareholderReturn.fromJson(data) : null)
+          as T;
+    }
     if (t == _isc.getType<_icm1zoh2.Source?>()) {
       return (data != null ? _icm1zoh2.Source.fromJson(data) : null) as T;
     }
     if (t == _isc.getType<_itk5lja3.SourceKind?>()) {
       return (data != null ? _itk5lja3.SourceKind.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_i3sjboun.StockTotalRow?>()) {
+      return (data != null ? _i3sjboun.StockTotalRow.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_injn1qca.TreasuryStockEntry?>()) {
+      return (data != null ? _injn1qca.TreasuryStockEntry.fromJson(data) : null)
+          as T;
     }
     if (t == List<_i3hzx3f1.Industry>) {
       return (data as List)
@@ -427,6 +685,51 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
+    if (t == List<int>) {
+      return (data as List).map((e) => deserialize<int>(e)).toList() as T;
+    }
+    if (t == List<_itljah4k.ShareholderEntry>) {
+      return (data as List)
+              .map((e) => deserialize<_itljah4k.ShareholderEntry>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i3df9cy5.ExecutiveEntry>) {
+      return (data as List)
+              .map((e) => deserialize<_i3df9cy5.ExecutiveEntry>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i9p8kpm7.InvestmentEntry>) {
+      return (data as List)
+              .map((e) => deserialize<_i9p8kpm7.InvestmentEntry>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_ikth1mft.GovernanceLink>) {
+      return (data as List)
+              .map((e) => deserialize<_ikth1mft.GovernanceLink>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i4gnucl8.CompanyRef>) {
+      return (data as List)
+              .map((e) => deserialize<_i4gnucl8.CompanyRef>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i9gy9ys0.Person>) {
+      return (data as List)
+              .map((e) => deserialize<_i9gy9ys0.Person>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_icm1zoh2.Source>) {
+      return (data as List)
+              .map((e) => deserialize<_icm1zoh2.Source>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_ionn6cq2.SecurityQuote>) {
       return (data as List)
               .map((e) => deserialize<_ionn6cq2.SecurityQuote>(e))
@@ -438,6 +741,18 @@ class Protocol extends _isc.SerializationManager {
               .map((e) => deserialize<_i0csqxj4.CompanyListItem>(e))
               .toList()
           as T;
+    }
+    if (t == List<String>) {
+      return (data as List).map((e) => deserialize<String>(e)).toList() as T;
+    }
+    if (t == List<_i98o73zd.DisclosureTableRow>) {
+      return (data as List)
+              .map((e) => deserialize<_i98o73zd.DisclosureTableRow>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<String?>) {
+      return (data as List).map((e) => deserialize<String?>(e)).toList() as T;
     }
     if (t == List<_igzbjepn.FinancialLine>) {
       return (data as List)
@@ -457,9 +772,6 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
-    if (t == List<String>) {
-      return (data as List).map((e) => deserialize<String>(e)).toList() as T;
-    }
     if (t == List<_i1tskjhh.MarketCapNode>) {
       return (data as List)
               .map((e) => deserialize<_i1tskjhh.MarketCapNode>(e))
@@ -472,9 +784,39 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_ipnxekll.PersonRole>) {
+      return (data as List)
+              .map((e) => deserialize<_ipnxekll.PersonRole>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_ith4ion6.DividendEntry>) {
+      return (data as List)
+              .map((e) => deserialize<_ith4ion6.DividendEntry>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_injn1qca.TreasuryStockEntry>) {
+      return (data as List)
+              .map((e) => deserialize<_injn1qca.TreasuryStockEntry>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i3sjboun.StockTotalRow>) {
+      return (data as List)
+              .map((e) => deserialize<_i3sjboun.StockTotalRow>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_icfgas7c.FacetCount>) {
       return (data as List)
               .map((e) => deserialize<_icfgas7c.FacetCount>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i39r1xmm.DisclosureSectionInfo>) {
+      return (data as List)
+              .map((e) => deserialize<_i39r1xmm.DisclosureSectionInfo>(e))
               .toList()
           as T;
     }
@@ -496,14 +838,27 @@ class Protocol extends _isc.SerializationManager {
       _isfozywu.CompanyChange => 'CompanyChange',
       _ire9jjud.CompanyDetail => 'CompanyDetail',
       _iki0y6e6.CompanyFinancials => 'CompanyFinancials',
+      _ijqcijwd.CompanyGovernance => 'CompanyGovernance',
       _i0csqxj4.CompanyListItem => 'CompanyListItem',
       _it4u3ib3.CompanyMarketCap => 'CompanyMarketCap',
       _iaj9eyri.CompanyPage => 'CompanyPage',
+      _i4gnucl8.CompanyRef => 'CompanyRef',
       _ia2izjbq.CompanySort => 'CompanySort',
       _ir49pw6i.DartCorpStatus => 'DartCorpStatus',
       _itki3qdq.DartFiling => 'DartFiling',
       _ixr5w3gq.DartFilingScan => 'DartFilingScan',
+      _isprzv4c.DartFilingSection => 'DartFilingSection',
+      _islomtus.DartSection => 'DartSection',
+      _iffxd3r6.DisclosureLinkBasis => 'DisclosureLinkBasis',
+      _i4blf95b.DisclosureReport => 'DisclosureReport',
+      _irf27uzx.DisclosureRow => 'DisclosureRow',
+      _ij0mhdco.DisclosureSectionInfo => 'DisclosureSectionInfo',
+      _i7prd3sw.DisclosureTable => 'DisclosureTable',
+      _i98o73zd.DisclosureTableRow => 'DisclosureTableRow',
+      _ith4ion6.DividendEntry => 'DividendEntry',
       _iqc95j34.IngestException => 'IngestException',
+      _i3df9cy5.ExecutiveEntry => 'ExecutiveEntry',
+      _iz7k3x6v.ExecutiveRegistration => 'ExecutiveRegistration',
       _iqbvehdv.FacetCount => 'FacetCount',
       _i167q75d.FilingFetchStatus => 'FilingFetchStatus',
       _igykxm42.FinancialFact => 'FinancialFact',
@@ -514,21 +869,36 @@ class Protocol extends _isc.SerializationManager {
       _ia8vdu33.FinancialReportDetail => 'FinancialReportDetail',
       _im4itn08.FinancialStatementKind => 'FinancialStatementKind',
       _i906z99z.FsDiv => 'FsDiv',
+      _ikth1mft.GovernanceLink => 'GovernanceLink',
       _i3hzx3f1.Industry => 'Industry',
       _i25uuckt.IndustryRevisionCheck => 'IndustryRevisionCheck',
       _iay1heal.IngestJob => 'IngestJob',
       _imojj26x.IngestStatus => 'IngestStatus',
+      _i9p8kpm7.InvestmentEntry => 'InvestmentEntry',
       _iyzzhewo.Market => 'Market',
       _i1tskjhh.MarketCapNode => 'MarketCapNode',
       _iwodvuy1.MarketCapTreemap => 'MarketCapTreemap',
       _ibhowe7d.MarketSnapshot => 'MarketSnapshot',
       _i3renazk.MarketSnapshotDay => 'MarketSnapshotDay',
+      _iejnlir1.OntologyRelation => 'OntologyRelation',
       _iz31wbgv.Overview => 'Overview',
+      _i9gy9ys0.Person => 'Person',
+      _iffou6wp.PersonLinkRejection => 'PersonLinkRejection',
+      _i12ugm17.PersonProfile => 'PersonProfile',
+      _ipnxekll.PersonRole => 'PersonRole',
+      _iy288i3j.RelationFactKind => 'RelationFactKind',
+      _id1oen7t.RelationOrigin => 'RelationOrigin',
+      _idal2dwe.RelationPredicate => 'RelationPredicate',
+      _ih00v9tp.RelationStatus => 'RelationStatus',
       _ilujots3.Security => 'Security',
       _ic799xum.SecurityLinkBasis => 'SecurityLinkBasis',
       _ionn6cq2.SecurityQuote => 'SecurityQuote',
+      _itljah4k.ShareholderEntry => 'ShareholderEntry',
+      _iiit8m20.ShareholderReturn => 'ShareholderReturn',
       _icm1zoh2.Source => 'Source',
       _itk5lja3.SourceKind => 'SourceKind',
+      _i3sjboun.StockTotalRow => 'StockTotalRow',
+      _injn1qca.TreasuryStockEntry => 'TreasuryStockEntry',
       _ => null,
     };
   }
@@ -560,12 +930,16 @@ class Protocol extends _isc.SerializationManager {
         return 'CompanyDetail';
       case _iki0y6e6.CompanyFinancials():
         return 'CompanyFinancials';
+      case _ijqcijwd.CompanyGovernance():
+        return 'CompanyGovernance';
       case _i0csqxj4.CompanyListItem():
         return 'CompanyListItem';
       case _it4u3ib3.CompanyMarketCap():
         return 'CompanyMarketCap';
       case _iaj9eyri.CompanyPage():
         return 'CompanyPage';
+      case _i4gnucl8.CompanyRef():
+        return 'CompanyRef';
       case _ia2izjbq.CompanySort():
         return 'CompanySort';
       case _ir49pw6i.DartCorpStatus():
@@ -574,8 +948,30 @@ class Protocol extends _isc.SerializationManager {
         return 'DartFiling';
       case _ixr5w3gq.DartFilingScan():
         return 'DartFilingScan';
+      case _isprzv4c.DartFilingSection():
+        return 'DartFilingSection';
+      case _islomtus.DartSection():
+        return 'DartSection';
+      case _iffxd3r6.DisclosureLinkBasis():
+        return 'DisclosureLinkBasis';
+      case _i4blf95b.DisclosureReport():
+        return 'DisclosureReport';
+      case _irf27uzx.DisclosureRow():
+        return 'DisclosureRow';
+      case _ij0mhdco.DisclosureSectionInfo():
+        return 'DisclosureSectionInfo';
+      case _i7prd3sw.DisclosureTable():
+        return 'DisclosureTable';
+      case _i98o73zd.DisclosureTableRow():
+        return 'DisclosureTableRow';
+      case _ith4ion6.DividendEntry():
+        return 'DividendEntry';
       case _iqc95j34.IngestException():
         return 'IngestException';
+      case _i3df9cy5.ExecutiveEntry():
+        return 'ExecutiveEntry';
+      case _iz7k3x6v.ExecutiveRegistration():
+        return 'ExecutiveRegistration';
       case _iqbvehdv.FacetCount():
         return 'FacetCount';
       case _i167q75d.FilingFetchStatus():
@@ -596,6 +992,8 @@ class Protocol extends _isc.SerializationManager {
         return 'FinancialStatementKind';
       case _i906z99z.FsDiv():
         return 'FsDiv';
+      case _ikth1mft.GovernanceLink():
+        return 'GovernanceLink';
       case _i3hzx3f1.Industry():
         return 'Industry';
       case _i25uuckt.IndustryRevisionCheck():
@@ -604,6 +1002,8 @@ class Protocol extends _isc.SerializationManager {
         return 'IngestJob';
       case _imojj26x.IngestStatus():
         return 'IngestStatus';
+      case _i9p8kpm7.InvestmentEntry():
+        return 'InvestmentEntry';
       case _iyzzhewo.Market():
         return 'Market';
       case _i1tskjhh.MarketCapNode():
@@ -614,18 +1014,44 @@ class Protocol extends _isc.SerializationManager {
         return 'MarketSnapshot';
       case _i3renazk.MarketSnapshotDay():
         return 'MarketSnapshotDay';
+      case _iejnlir1.OntologyRelation():
+        return 'OntologyRelation';
       case _iz31wbgv.Overview():
         return 'Overview';
+      case _i9gy9ys0.Person():
+        return 'Person';
+      case _iffou6wp.PersonLinkRejection():
+        return 'PersonLinkRejection';
+      case _i12ugm17.PersonProfile():
+        return 'PersonProfile';
+      case _ipnxekll.PersonRole():
+        return 'PersonRole';
+      case _iy288i3j.RelationFactKind():
+        return 'RelationFactKind';
+      case _id1oen7t.RelationOrigin():
+        return 'RelationOrigin';
+      case _idal2dwe.RelationPredicate():
+        return 'RelationPredicate';
+      case _ih00v9tp.RelationStatus():
+        return 'RelationStatus';
       case _ilujots3.Security():
         return 'Security';
       case _ic799xum.SecurityLinkBasis():
         return 'SecurityLinkBasis';
       case _ionn6cq2.SecurityQuote():
         return 'SecurityQuote';
+      case _itljah4k.ShareholderEntry():
+        return 'ShareholderEntry';
+      case _iiit8m20.ShareholderReturn():
+        return 'ShareholderReturn';
       case _icm1zoh2.Source():
         return 'Source';
       case _itk5lja3.SourceKind():
         return 'SourceKind';
+      case _i3sjboun.StockTotalRow():
+        return 'StockTotalRow';
+      case _injn1qca.TreasuryStockEntry():
+        return 'TreasuryStockEntry';
     }
     className = _iaic.Protocol().getClassNameForObject(data);
     if (className != null) {
@@ -669,6 +1095,9 @@ class Protocol extends _isc.SerializationManager {
     if (dataClassName == 'CompanyFinancials') {
       return deserialize<_iki0y6e6.CompanyFinancials>(data['data']);
     }
+    if (dataClassName == 'CompanyGovernance') {
+      return deserialize<_ijqcijwd.CompanyGovernance>(data['data']);
+    }
     if (dataClassName == 'CompanyListItem') {
       return deserialize<_i0csqxj4.CompanyListItem>(data['data']);
     }
@@ -677,6 +1106,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'CompanyPage') {
       return deserialize<_iaj9eyri.CompanyPage>(data['data']);
+    }
+    if (dataClassName == 'CompanyRef') {
+      return deserialize<_i4gnucl8.CompanyRef>(data['data']);
     }
     if (dataClassName == 'CompanySort') {
       return deserialize<_ia2izjbq.CompanySort>(data['data']);
@@ -690,8 +1122,41 @@ class Protocol extends _isc.SerializationManager {
     if (dataClassName == 'DartFilingScan') {
       return deserialize<_ixr5w3gq.DartFilingScan>(data['data']);
     }
+    if (dataClassName == 'DartFilingSection') {
+      return deserialize<_isprzv4c.DartFilingSection>(data['data']);
+    }
+    if (dataClassName == 'DartSection') {
+      return deserialize<_islomtus.DartSection>(data['data']);
+    }
+    if (dataClassName == 'DisclosureLinkBasis') {
+      return deserialize<_iffxd3r6.DisclosureLinkBasis>(data['data']);
+    }
+    if (dataClassName == 'DisclosureReport') {
+      return deserialize<_i4blf95b.DisclosureReport>(data['data']);
+    }
+    if (dataClassName == 'DisclosureRow') {
+      return deserialize<_irf27uzx.DisclosureRow>(data['data']);
+    }
+    if (dataClassName == 'DisclosureSectionInfo') {
+      return deserialize<_ij0mhdco.DisclosureSectionInfo>(data['data']);
+    }
+    if (dataClassName == 'DisclosureTable') {
+      return deserialize<_i7prd3sw.DisclosureTable>(data['data']);
+    }
+    if (dataClassName == 'DisclosureTableRow') {
+      return deserialize<_i98o73zd.DisclosureTableRow>(data['data']);
+    }
+    if (dataClassName == 'DividendEntry') {
+      return deserialize<_ith4ion6.DividendEntry>(data['data']);
+    }
     if (dataClassName == 'IngestException') {
       return deserialize<_iqc95j34.IngestException>(data['data']);
+    }
+    if (dataClassName == 'ExecutiveEntry') {
+      return deserialize<_i3df9cy5.ExecutiveEntry>(data['data']);
+    }
+    if (dataClassName == 'ExecutiveRegistration') {
+      return deserialize<_iz7k3x6v.ExecutiveRegistration>(data['data']);
     }
     if (dataClassName == 'FacetCount') {
       return deserialize<_iqbvehdv.FacetCount>(data['data']);
@@ -723,6 +1188,9 @@ class Protocol extends _isc.SerializationManager {
     if (dataClassName == 'FsDiv') {
       return deserialize<_i906z99z.FsDiv>(data['data']);
     }
+    if (dataClassName == 'GovernanceLink') {
+      return deserialize<_ikth1mft.GovernanceLink>(data['data']);
+    }
     if (dataClassName == 'Industry') {
       return deserialize<_i3hzx3f1.Industry>(data['data']);
     }
@@ -734,6 +1202,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'IngestStatus') {
       return deserialize<_imojj26x.IngestStatus>(data['data']);
+    }
+    if (dataClassName == 'InvestmentEntry') {
+      return deserialize<_i9p8kpm7.InvestmentEntry>(data['data']);
     }
     if (dataClassName == 'Market') {
       return deserialize<_iyzzhewo.Market>(data['data']);
@@ -750,8 +1221,35 @@ class Protocol extends _isc.SerializationManager {
     if (dataClassName == 'MarketSnapshotDay') {
       return deserialize<_i3renazk.MarketSnapshotDay>(data['data']);
     }
+    if (dataClassName == 'OntologyRelation') {
+      return deserialize<_iejnlir1.OntologyRelation>(data['data']);
+    }
     if (dataClassName == 'Overview') {
       return deserialize<_iz31wbgv.Overview>(data['data']);
+    }
+    if (dataClassName == 'Person') {
+      return deserialize<_i9gy9ys0.Person>(data['data']);
+    }
+    if (dataClassName == 'PersonLinkRejection') {
+      return deserialize<_iffou6wp.PersonLinkRejection>(data['data']);
+    }
+    if (dataClassName == 'PersonProfile') {
+      return deserialize<_i12ugm17.PersonProfile>(data['data']);
+    }
+    if (dataClassName == 'PersonRole') {
+      return deserialize<_ipnxekll.PersonRole>(data['data']);
+    }
+    if (dataClassName == 'RelationFactKind') {
+      return deserialize<_iy288i3j.RelationFactKind>(data['data']);
+    }
+    if (dataClassName == 'RelationOrigin') {
+      return deserialize<_id1oen7t.RelationOrigin>(data['data']);
+    }
+    if (dataClassName == 'RelationPredicate') {
+      return deserialize<_idal2dwe.RelationPredicate>(data['data']);
+    }
+    if (dataClassName == 'RelationStatus') {
+      return deserialize<_ih00v9tp.RelationStatus>(data['data']);
     }
     if (dataClassName == 'Security') {
       return deserialize<_ilujots3.Security>(data['data']);
@@ -762,11 +1260,23 @@ class Protocol extends _isc.SerializationManager {
     if (dataClassName == 'SecurityQuote') {
       return deserialize<_ionn6cq2.SecurityQuote>(data['data']);
     }
+    if (dataClassName == 'ShareholderEntry') {
+      return deserialize<_itljah4k.ShareholderEntry>(data['data']);
+    }
+    if (dataClassName == 'ShareholderReturn') {
+      return deserialize<_iiit8m20.ShareholderReturn>(data['data']);
+    }
     if (dataClassName == 'Source') {
       return deserialize<_icm1zoh2.Source>(data['data']);
     }
     if (dataClassName == 'SourceKind') {
       return deserialize<_itk5lja3.SourceKind>(data['data']);
+    }
+    if (dataClassName == 'StockTotalRow') {
+      return deserialize<_i3sjboun.StockTotalRow>(data['data']);
+    }
+    if (dataClassName == 'TreasuryStockEntry') {
+      return deserialize<_injn1qca.TreasuryStockEntry>(data['data']);
     }
     if (dataClassName.startsWith('serverpod_auth_idp.')) {
       data['className'] = dataClassName.substring(19);

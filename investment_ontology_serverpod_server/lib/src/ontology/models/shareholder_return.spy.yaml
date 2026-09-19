@@ -1,0 +1,11 @@
+### 기업 상세의 주주환원: 배당 · 자기주식 · 주식 총수.
+class: ShareholderReturn
+fields:
+  corpCode: String
+  ### 배당 행 (사업보고서마다 당기·전기·전전기가 있어 연도별로 모은다, 최근 보고서부터)
+  dividends: List<DividendEntry>
+  treasuryYear: int?
+  treasury: List<TreasuryStockEntry>
+  stockTotalYear: int?
+  stockTotals: List<StockTotalRow>
+  sources: List<Source>

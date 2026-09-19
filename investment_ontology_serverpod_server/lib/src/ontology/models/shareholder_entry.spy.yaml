@@ -1,0 +1,34 @@
+### 최대주주 및 특수관계인 한 행 (최대주주 현황 hyslrSttus).
+class: ShareholderEntry
+table: shareholder_entry
+fields:
+  reportId: int, relation(parent=disclosure_report, onDelete=Cascade)
+  companyId: int
+  bsnsYear: int
+  ord: int
+  ### 줄바꿈·겹공백을 정리한 이름 (원문 nm)
+  holderName: String
+  ### 관계 원문 (최대주주 본인, 최대주주의 특수관계인, 계열회사, 친인척 …)
+  relationText: String?
+  ### 주식 종류 원문 (보통주, 우선주 …)
+  stockKind: String?
+  sharesBegin: BigInt?
+  ### 기초 지분율 (%)
+  ratioBegin: double?
+  sharesEnd: BigInt?
+  ### 기말 지분율 (%)
+  ratioEnd: double?
+  remark: String?
+  isTotal: bool
+  holderCompanyId: int?, relation(parent=company, onDelete=SetNull)
+  holderPersonId: int?, relation(parent=person, onDelete=SetNull)
+  holderLinkBasis: DisclosureLinkBasis?
+indexes:
+  shareholder_entry_report_idx:
+    fields: reportId
+  shareholder_entry_company_idx:
+    fields: companyId, bsnsYear
+  shareholder_entry_holder_company_idx:
+    fields: holderCompanyId
+  shareholder_entry_holder_person_idx:
+    fields: holderPersonId

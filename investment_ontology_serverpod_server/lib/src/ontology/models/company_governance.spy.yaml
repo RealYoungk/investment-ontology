@@ -1,0 +1,20 @@
+### 기업 상세의 지배구조: 한 사업연도 사업보고서의 최대주주 · 임원 · 타법인출자와 역방향 관계.
+class: CompanyGovernance
+fields:
+  corpCode: String
+  ### 보여 주는 사업연도. 자료가 없으면 null
+  bsnsYear: int?
+  settlementDate: DateTime?
+  ### 자료가 있는 사업연도 (최근부터)
+  availableYears: List<int>
+  shareholders: List<ShareholderEntry>
+  executives: List<ExecutiveEntry>
+  investments: List<InvestmentEntry>
+  ### 이 기업에 출자한 기업 (다른 기업의 타법인 출자현황)
+  investors: List<GovernanceLink>
+  ### 이 기업이 최대주주·특수관계인으로 있는 기업 (다른 기업의 최대주주 현황)
+  holdings: List<GovernanceLink>
+  ### 위 행들이 가리키는 기업·인물
+  companies: List<CompanyRef>
+  persons: List<Person>
+  sources: List<Source>

@@ -1,0 +1,9 @@
+### 온톨로지 관계 종류. 4단계(AI 추출)에서 공급·경쟁 등을 더한다.
+enum: RelationPredicate
+values:
+  ### 주주 → 기업 (최대주주 현황)
+  - shareholderOf
+  ### 인물 → 기업 (임원 현황)
+  - executiveOf
+  ### 기업 → 출자 대상 (타법인 출자현황)
+  - investsIn

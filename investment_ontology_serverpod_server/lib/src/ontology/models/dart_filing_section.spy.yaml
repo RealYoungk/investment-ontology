@@ -1,0 +1,22 @@
+### 수집 장부: 정기보고서(DartFiling) 한 건 × 주요정보 항목 하나의 수집 상태.
+### 항목이 늘어도 스키마를 바꾸지 않도록 항목마다 행으로 둔다.
+class: DartFilingSection
+table: dart_filing_section
+fields:
+  filingId: int, relation(parent=dart_filing, onDelete=Cascade)
+  companyId: int
+  bsnsYear: int
+  section: DartSection
+  ### 받는 순서. 0 = 핵심 (지배구조·주주환원), 1 = 나머지
+  tier: int
+  status: FilingFetchStatus
+  ### 실패한 실행 수
+  attempts: int, default=0
+  lastError: String?
+  fetchedAt: DateTime?
+indexes:
+  dart_filing_section_filing_idx:
+    fields: filingId, section
+    unique: true
+  dart_filing_section_queue_idx:
+    fields: status, bsnsYear, tier

@@ -16,12 +16,21 @@ company:
   - divisions:
   - list:
   - detail:
+disclosure:
+  - sections:
+  - table:
+  - shareholderReturn:
 financial:
   - summary:
   - report:
+governance:
+  - summary:
+  - person:
+  - rejectPersonLink:
 ingest:
   - startCompanyMaster:
   - startFinancials:
+  - startDisclosures:
   - startMarketSnapshot:
   - cancel:
   - latest:

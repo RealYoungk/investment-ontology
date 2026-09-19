@@ -59,6 +59,8 @@ abstract final class IngestJobs {
     'financial_facts': 'FinancialFacts',
     'financial_facts_company': 'FinancialFacts',
     'market_snapshot': 'MarketSnapshot',
+    'disclosures': 'Disclosure',
+    'disclosures_company': 'Disclosure',
     'company_master': 'CompanyMaster',
   };
 

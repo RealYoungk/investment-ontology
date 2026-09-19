@@ -1,0 +1,9 @@
+### 관계를 만든 방법.
+enum: RelationOrigin
+values:
+  ### 구조화된 API 응답
+  - api
+  ### AI 추출 (4단계)
+  - ai
+  ### 사람이 입력
+  - manual

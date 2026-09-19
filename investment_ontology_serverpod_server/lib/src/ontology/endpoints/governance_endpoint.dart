@@ -1,0 +1,281 @@
+import 'package:serverpod/serverpod.dart';
+
+import '../../generated/protocol.dart';
+import '../disclosure/disclosure_values.dart';
+
+/// 지배구조 조회: 최대주주 · 임원 · 타법인출자와 인물.
+class GovernanceEndpoint extends Endpoint {
+  static const _sections = {
+    DartSection.largestShareholders,
+    DartSection.executives,
+    DartSection.investments,
+  };
+
+  /// 기업의 한 사업연도(없으면 가장 최근) 지배구조.
+  Future<CompanyGovernance?> summary(
+    Session session,
+    String corpCode, {
+    int? bsnsYear,
+  }) async {
+    final company = await Company.db.findFirstRow(
+      session,
+      where: (t) => t.corpCode.equals(corpCode),
+    );
+    if (company == null) return null;
+    final companyId = company.id!;
+
+    final reports = await DisclosureReport.db.find(
+      session,
+      where: (t) =>
+          t.companyId.equals(companyId) &
+          t.supersededById.equals(null) &
+          t.reportCode.equals(FinancialReportCode.annual) &
+          t.section.inSet(_sections),
+    );
+    final years = {for (final r in reports) r.bsnsYear}.toList()
+      ..sort((a, b) => b.compareTo(a));
+    final year = bsnsYear != null && years.contains(bsnsYear)
+        ? bsnsYear
+        : years.firstOrNull;
+
+    DisclosureReport? report(DartSection s) =>
+        reports.where((r) => r.section == s && r.bsnsYear == year).firstOrNull;
+    final shareholderReport = report(DartSection.largestShareholders);
+    final executiveReport = report(DartSection.executives);
+    final investmentReport = report(DartSection.investments);
+
+    final shareholders = shareholderReport == null
+        ? <ShareholderEntry>[]
+        : await ShareholderEntry.db.find(
+            session,
+            where: (t) => t.reportId.equals(shareholderReport.id!),
+            orderBy: (t) => t.ord,
+          );
+    final executives = executiveReport == null
+        ? <ExecutiveEntry>[]
+        : await ExecutiveEntry.db.find(
+            session,
+            where: (t) => t.reportId.equals(executiveReport.id!),
+            orderBy: (t) => t.ord,
+          );
+    final investments = investmentReport == null
+        ? <InvestmentEntry>[]
+        : await InvestmentEntry.db.find(
+            session,
+            where: (t) => t.reportId.equals(investmentReport.id!),
+            orderBy: (t) => t.ord,
+          );
+
+    // 다른 기업의 보고서에서 역으로: 이 기업에 출자한 기업, 이 기업이 주주인 기업.
+    final investorRelations = await OntologyRelation.db.find(
+      session,
+      where: (t) =>
+          t.objectCompanyId.equals(companyId) &
+          t.predicate.equals(RelationPredicate.investsIn) &
+          t.subjectCompanyId.notEquals(companyId),
+      orderByList: (t) => [t.weight.desc()],
+    );
+    final holdingRelations = await OntologyRelation.db.find(
+      session,
+      where: (t) =>
+          t.subjectCompanyId.equals(companyId) &
+          t.predicate.equals(RelationPredicate.shareholderOf) &
+          t.objectCompanyId.notEquals(companyId),
+      orderByList: (t) => [t.weight.desc()],
+    );
+
+    final companyIds = <int>{
+      for (final s in shareholders) ?s.holderCompanyId,
+      for (final i in investments) ?i.investeeCompanyId,
+      for (final r in investorRelations) ?r.subjectCompanyId,
+      for (final r in holdingRelations) ?r.objectCompanyId,
+    };
+    final companies = await _companyRefs(session, companyIds);
+    final corpCodes = {for (final c in companies) c.id: c.corpCode};
+
+    GovernanceLink link(OntologyRelation r, int? otherId) => GovernanceLink(
+      predicate: r.predicate,
+      companyId: otherId,
+      corpCode: otherId == null ? null : corpCodes[otherId],
+      name: otherId == r.subjectCompanyId ? r.subjectName : r.objectName,
+      weight: r.weight,
+      bsnsYear: r.bsnsYear,
+      relationId: r.id!,
+    );
+
+    final personIds = <int>{
+      for (final s in shareholders) ?s.holderPersonId,
+      for (final e in executives) ?e.personId,
+    };
+    final sourceIds = {
+      for (final r in [shareholderReport, executiveReport, investmentReport])
+        ?r?.sourceId,
+    };
+
+    return CompanyGovernance(
+      corpCode: corpCode,
+      bsnsYear: year,
+      settlementDate: (shareholderReport ?? executiveReport ?? investmentReport)
+          ?.settlementDate,
+      availableYears: years,
+      shareholders: shareholders,
+      executives: executives,
+      investments: investments,
+      investors: [
+        for (final r in investorRelations) link(r, r.subjectCompanyId),
+      ],
+      holdings: [for (final r in holdingRelations) link(r, r.objectCompanyId)],
+      companies: companies,
+      persons: personIds.isEmpty
+          ? []
+          : await Person.db.find(
+              session,
+              where: (t) => t.id.inSet(personIds),
+            ),
+      sources: sourceIds.isEmpty
+          ? []
+          : await Source.db.find(session, where: (t) => t.id.inSet(sourceIds)),
+    );
+  }
+
+  /// 인물과 그가 주주·임원으로 있는 기업 (각 기업의 가장 최근 사업보고서 기준).
+  Future<PersonProfile?> person(Session session, int personId) async {
+    final person = await Person.db.findById(session, personId);
+    if (person == null) return null;
+    final relations = await OntologyRelation.db.find(
+      session,
+      where: (t) =>
+          t.subjectPersonId.equals(personId) &
+          t.status.notEquals(RelationStatus.rejected),
+    );
+    final companies = {
+      for (final c in await _companyRefs(session, {
+        for (final r in relations) ?r.objectCompanyId,
+      }))
+        c.id: c,
+    };
+    final shareholderIds = {
+      for (final r in relations)
+        if (r.factKind == RelationFactKind.shareholderEntry) r.factId,
+    };
+    final executiveIds = {
+      for (final r in relations)
+        if (r.factKind == RelationFactKind.executiveEntry) r.factId,
+    };
+    final shareholders = {
+      for (final s
+          in shareholderIds.isEmpty
+              ? const <ShareholderEntry>[]
+              : await ShareholderEntry.db.find(
+                  session,
+                  where: (t) => t.id.inSet(shareholderIds),
+                ))
+        s.id!: s,
+    };
+    final executives = {
+      for (final e
+          in executiveIds.isEmpty
+              ? const <ExecutiveEntry>[]
+              : await ExecutiveEntry.db.find(
+                  session,
+                  where: (t) => t.id.inSet(executiveIds),
+                ))
+        e.id!: e,
+    };
+
+    final roles = <PersonRole>[
+      for (final r in relations)
+        if (companies[r.objectCompanyId] case final company?)
+          () {
+            final s = r.factKind == RelationFactKind.shareholderEntry
+                ? shareholders[r.factId]
+                : null;
+            final e = r.factKind == RelationFactKind.executiveEntry
+                ? executives[r.factId]
+                : null;
+            return PersonRole(
+              predicate: r.predicate,
+              companyId: company.id,
+              corpCode: company.corpCode,
+              companyName: company.name,
+              bsnsYear: r.bsnsYear,
+              weight: r.weight,
+              position: e?.position,
+              registration: e?.registration,
+              detail: s?.relationText ?? e?.duties,
+              basis: r.subjectBasis,
+              estimated: r.status == RelationStatus.draft,
+            );
+          }(),
+    ]..sort((a, b) => (b.weight ?? -1).compareTo(a.weight ?? -1));
+    return PersonProfile(person: person, roles: roles);
+  }
+
+  /// 추정 인물 연결을 끊는다: 이 기업의 이 이름은 다시 계산해도 묶지 않는다.
+  Future<void> rejectPersonLink(
+    Session session,
+    String corpCode,
+    String holderName,
+  ) async {
+    final company = await Company.db.findFirstRow(
+      session,
+      where: (t) => t.corpCode.equals(corpCode),
+    );
+    if (company == null) return;
+    final name = DisclosureValues.personName(holderName);
+    if (name.isEmpty) return;
+    await session.db.unsafeExecute(
+      'INSERT INTO "person_link_rejection" ("companyId", "name", "createdAt") '
+      'VALUES (@company, @name, NOW()) ON CONFLICT DO NOTHING',
+      parameters: QueryParameters.named({
+        'company': company.id!,
+        'name': name,
+      }),
+    );
+    // 다음 전체 계산을 기다리지 않고 이 기업의 추정 연결을 바로 푼다.
+    final rows = [
+      for (final s in await ShareholderEntry.db.find(
+        session,
+        where: (t) =>
+            t.companyId.equals(company.id!) &
+            t.holderLinkBasis.equals(DisclosureLinkBasis.ownershipCluster),
+      ))
+        if (DisclosureValues.personName(s.holderName) == name) s,
+    ];
+    if (rows.isEmpty) return;
+    final ids = {for (final s in rows) s.id!};
+    await session.db.unsafeExecute(
+      'UPDATE "shareholder_entry" SET "holderPersonId" = NULL, '
+      '"holderLinkBasis" = NULL WHERE "id" = ANY(@ids)',
+      parameters: QueryParameters.named({'ids': ids.toList()}),
+    );
+    await session.db.unsafeExecute(
+      'UPDATE "ontology_relation" SET "subjectPersonId" = NULL, '
+      '"subjectBasis" = NULL, "status" = @status '
+      'WHERE "factKind" = @kind AND "factId" = ANY(@ids)',
+      parameters: QueryParameters.named({
+        'status': RelationStatus.verified.name,
+        'kind': RelationFactKind.shareholderEntry.name,
+        'ids': ids.toList(),
+      }),
+    );
+  }
+
+  static Future<List<CompanyRef>> _companyRefs(
+    Session session,
+    Set<int> ids,
+  ) async => ids.isEmpty
+      ? []
+      : [
+          for (final c in await Company.db.find(
+            session,
+            where: (t) => t.id.inSet(ids),
+          ))
+            CompanyRef(
+              id: c.id!,
+              corpCode: c.corpCode,
+              name: c.name,
+              market: c.market,
+            ),
+        ];
+}

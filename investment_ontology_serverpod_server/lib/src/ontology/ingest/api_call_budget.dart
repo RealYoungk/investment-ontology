@@ -12,6 +12,10 @@ abstract final class ApiCallBudget {
   /// 재무 수집이 하루에 쓸 수 있는 DART 호출 수. 나머지는 기업마스터 수집 몫으로 남긴다.
   static const dartFinancialBudget = 18000;
 
+  /// 재무 백필이 남아 있는 동안 주요정보 수집이 하루에 먼저 쓸 수 있는 호출 수.
+  /// 최신 사업보고서의 핵심 항목(지배구조·주주환원)만 받고, 나머지는 재무에 양보한다.
+  static const dartDisclosurePriorityBudget = 9000;
+
   static const _kstOffset = Duration(hours: 9);
 
   /// [now] 시각의 KST 날짜 (YYYY-MM-DD).
