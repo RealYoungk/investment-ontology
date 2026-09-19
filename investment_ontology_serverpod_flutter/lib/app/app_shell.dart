@@ -26,10 +26,11 @@ const _destinations = [
     '/companies',
     matches: ['/company/', '/reports/', '/person/'],
   ),
+  _Destination('테마', '/themes'),
   _Destination('데이터', '/data'),
 ];
 
-/// 모든 화면을 감싸는 틀: 맨 위 메뉴(시장 · 기업 · 데이터) + 본문.
+/// 모든 화면을 감싸는 틀: 맨 위 메뉴(시장 · 기업 · 테마 · 데이터) + 본문.
 class AppShell extends StatefulWidget {
   const AppShell({super.key, required this.location, required this.child});
 

@@ -34,6 +34,7 @@ import '../ontology/endpoints/financial_endpoint.dart' as _ipit2z9y;
 import '../ontology/endpoints/governance_endpoint.dart' as _i6kw8hva;
 import '../ontology/endpoints/ingest_endpoint.dart' as _icbircc0;
 import '../ontology/endpoints/market_endpoint.dart' as _iaw7fzks;
+import '../ontology/endpoints/theme_endpoint.dart' as _iqaca509;
 export 'future_calls.dart' show ServerpodFutureCallsGetter;
 
 class Endpoints extends _is.EndpointDispatch {
@@ -92,6 +93,12 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'market',
+          null,
+        ),
+      'theme': _iqaca509.ThemeEndpoint()
+        ..initialize(
+          server,
+          'theme',
           null,
         ),
     };
@@ -805,6 +812,187 @@ class Endpoints extends _is.EndpointDispatch {
                     session,
                     sectionCode: params['sectionCode'],
                     market: params['market'],
+                  ),
+        ),
+      },
+    );
+    connectors['theme'] = _is.EndpointConnector(
+      name: 'theme',
+      endpoint: endpoints['theme']!,
+      methodConnectors: {
+        'list': _is.MethodConnector(
+          name: 'list',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['theme'] as _iqaca509.ThemeEndpoint).list(session),
+        ),
+        'create': _is.MethodConnector(
+          name: 'create',
+          params: {
+            'name': _is.ParameterDescription(
+              name: 'name',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'description': _is.ParameterDescription(
+              name: 'description',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['theme'] as _iqaca509.ThemeEndpoint).create(
+                session,
+                params['name'],
+                description: params['description'],
+              ),
+        ),
+        'update': _is.MethodConnector(
+          name: 'update',
+          params: {
+            'themeId': _is.ParameterDescription(
+              name: 'themeId',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+            'name': _is.ParameterDescription(
+              name: 'name',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'description': _is.ParameterDescription(
+              name: 'description',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['theme'] as _iqaca509.ThemeEndpoint).update(
+                session,
+                params['themeId'],
+                params['name'],
+                description: params['description'],
+              ),
+        ),
+        'delete': _is.MethodConnector(
+          name: 'delete',
+          params: {
+            'themeId': _is.ParameterDescription(
+              name: 'themeId',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['theme'] as _iqaca509.ThemeEndpoint).delete(
+                session,
+                params['themeId'],
+              ),
+        ),
+        'detail': _is.MethodConnector(
+          name: 'detail',
+          params: {
+            'themeId': _is.ParameterDescription(
+              name: 'themeId',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['theme'] as _iqaca509.ThemeEndpoint).detail(
+                session,
+                params['themeId'],
+              ),
+        ),
+        'addCompany': _is.MethodConnector(
+          name: 'addCompany',
+          params: {
+            'themeId': _is.ParameterDescription(
+              name: 'themeId',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'note': _is.ParameterDescription(
+              name: 'note',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['theme'] as _iqaca509.ThemeEndpoint).addCompany(
+                    session,
+                    params['themeId'],
+                    params['corpCode'],
+                    note: params['note'],
+                  ),
+        ),
+        'removeCompany': _is.MethodConnector(
+          name: 'removeCompany',
+          params: {
+            'themeId': _is.ParameterDescription(
+              name: 'themeId',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['theme'] as _iqaca509.ThemeEndpoint).removeCompany(
+                    session,
+                    params['themeId'],
+                    params['corpCode'],
+                  ),
+        ),
+        'themesOf': _is.MethodConnector(
+          name: 'themesOf',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['theme'] as _iqaca509.ThemeEndpoint).themesOf(
+                    session,
+                    params['corpCode'],
                   ),
         ),
       },

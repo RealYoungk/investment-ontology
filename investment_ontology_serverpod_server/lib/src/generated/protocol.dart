@@ -15,6 +15,10 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _itpltonf;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/facet_count.dart'
     as _iee4t190;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/investment_theme.dart'
+    as _in6y0ur2;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/theme_summary.dart'
+    as _iy65bs9o;
 import 'package:serverpod/protocol.dart' as _isp;
 import 'package:serverpod/serverpod.dart' as _is;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
@@ -77,6 +81,7 @@ import 'ontology/models/industry_revision_check.dart' as _i25uuckt;
 import 'ontology/models/ingest_job.dart' as _iay1heal;
 import 'ontology/models/ingest_status.dart' as _imojj26x;
 import 'ontology/models/investment_entry.dart' as _i9p8kpm7;
+import 'ontology/models/investment_theme.dart' as _i57inxpq;
 import 'ontology/models/market.dart' as _iyzzhewo;
 import 'ontology/models/market_cap_node.dart' as _i1tskjhh;
 import 'ontology/models/market_cap_treemap.dart' as _iwodvuy1;
@@ -100,6 +105,10 @@ import 'ontology/models/shareholder_return.dart' as _iiit8m20;
 import 'ontology/models/source.dart' as _icm1zoh2;
 import 'ontology/models/source_kind.dart' as _itk5lja3;
 import 'ontology/models/stock_total_row.dart' as _i3sjboun;
+import 'ontology/models/theme_detail.dart' as _ir3er3o6;
+import 'ontology/models/theme_member.dart' as _irm69cop;
+import 'ontology/models/theme_member_view.dart' as _irah5hi6;
+import 'ontology/models/theme_summary.dart' as _i4ynus9k;
 import 'ontology/models/treasury_stock_entry.dart' as _injn1qca;
 export 'greetings/greeting.dart';
 export 'ontology/models/api_call_usage.dart';
@@ -145,6 +154,7 @@ export 'ontology/models/industry_revision_check.dart';
 export 'ontology/models/ingest_job.dart';
 export 'ontology/models/ingest_status.dart';
 export 'ontology/models/investment_entry.dart';
+export 'ontology/models/investment_theme.dart';
 export 'ontology/models/market.dart';
 export 'ontology/models/market_cap_node.dart';
 export 'ontology/models/market_cap_treemap.dart';
@@ -168,6 +178,10 @@ export 'ontology/models/shareholder_return.dart';
 export 'ontology/models/source.dart';
 export 'ontology/models/source_kind.dart';
 export 'ontology/models/stock_total_row.dart';
+export 'ontology/models/theme_detail.dart';
+export 'ontology/models/theme_member.dart';
+export 'ontology/models/theme_member_view.dart';
+export 'ontology/models/theme_summary.dart';
 export 'ontology/models/treasury_stock_entry.dart';
 
 class Protocol extends _is.DatabaseSerializationManager {
@@ -3201,6 +3215,172 @@ class Protocol extends _is.DatabaseSerializationManager {
       managed: true,
     ),
     _isp.TableDefinition(
+      name: 'theme',
+      dartName: 'InvestmentTheme',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'name',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'description',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: 'updatedAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'theme_name_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'name',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'theme_member',
+      dartName: 'ThemeMember',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'themeId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'companyId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'note',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'sourceId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'theme_member_fk_0',
+          columns: ['themeId'],
+          referenceTable: 'theme',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.cascade,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'theme_member_fk_1',
+          columns: ['companyId'],
+          referenceTable: 'company',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.cascade,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'theme_member_fk_2',
+          columns: ['sourceId'],
+          referenceTable: 'source',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.restrict,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'theme_member_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'themeId',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'companyId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'theme_member_company_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'companyId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
       name: 'treasury_stock_entry',
       dartName: 'TreasuryStockEntry',
       schema: 'public',
@@ -3533,6 +3713,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _i9p8kpm7.InvestmentEntry) {
       return _i9p8kpm7.InvestmentEntry.fromJson(data) as T;
     }
+    if (t == _i57inxpq.InvestmentTheme) {
+      return _i57inxpq.InvestmentTheme.fromJson(data) as T;
+    }
     if (t == _iyzzhewo.Market) {
       return _iyzzhewo.Market.fromJson(data) as T;
     }
@@ -3601,6 +3784,18 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (t == _i3sjboun.StockTotalRow) {
       return _i3sjboun.StockTotalRow.fromJson(data) as T;
+    }
+    if (t == _ir3er3o6.ThemeDetail) {
+      return _ir3er3o6.ThemeDetail.fromJson(data) as T;
+    }
+    if (t == _irm69cop.ThemeMember) {
+      return _irm69cop.ThemeMember.fromJson(data) as T;
+    }
+    if (t == _irah5hi6.ThemeMemberView) {
+      return _irah5hi6.ThemeMemberView.fromJson(data) as T;
+    }
+    if (t == _i4ynus9k.ThemeSummary) {
+      return _i4ynus9k.ThemeSummary.fromJson(data) as T;
     }
     if (t == _injn1qca.TreasuryStockEntry) {
       return _injn1qca.TreasuryStockEntry.fromJson(data) as T;
@@ -3818,6 +4013,10 @@ class Protocol extends _is.DatabaseSerializationManager {
       return (data != null ? _i9p8kpm7.InvestmentEntry.fromJson(data) : null)
           as T;
     }
+    if (t == _is.getType<_i57inxpq.InvestmentTheme?>()) {
+      return (data != null ? _i57inxpq.InvestmentTheme.fromJson(data) : null)
+          as T;
+    }
     if (t == _is.getType<_iyzzhewo.Market?>()) {
       return (data != null ? _iyzzhewo.Market.fromJson(data) : null) as T;
     }
@@ -3904,6 +4103,19 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _is.getType<_i3sjboun.StockTotalRow?>()) {
       return (data != null ? _i3sjboun.StockTotalRow.fromJson(data) : null)
           as T;
+    }
+    if (t == _is.getType<_ir3er3o6.ThemeDetail?>()) {
+      return (data != null ? _ir3er3o6.ThemeDetail.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_irm69cop.ThemeMember?>()) {
+      return (data != null ? _irm69cop.ThemeMember.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_irah5hi6.ThemeMemberView?>()) {
+      return (data != null ? _irah5hi6.ThemeMemberView.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_i4ynus9k.ThemeSummary?>()) {
+      return (data != null ? _i4ynus9k.ThemeSummary.fromJson(data) : null) as T;
     }
     if (t == _is.getType<_injn1qca.TreasuryStockEntry?>()) {
       return (data != null ? _injn1qca.TreasuryStockEntry.fromJson(data) : null)
@@ -4054,6 +4266,12 @@ class Protocol extends _is.DatabaseSerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_irah5hi6.ThemeMemberView>) {
+      return (data as List)
+              .map((e) => deserialize<_irah5hi6.ThemeMemberView>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_iee4t190.FacetCount>) {
       return (data as List)
               .map((e) => deserialize<_iee4t190.FacetCount>(e))
@@ -4063,6 +4281,18 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == List<_itpltonf.DisclosureSectionInfo>) {
       return (data as List)
               .map((e) => deserialize<_itpltonf.DisclosureSectionInfo>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_iy65bs9o.ThemeSummary>) {
+      return (data as List)
+              .map((e) => deserialize<_iy65bs9o.ThemeSummary>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_in6y0ur2.InvestmentTheme>) {
+      return (data as List)
+              .map((e) => deserialize<_in6y0ur2.InvestmentTheme>(e))
               .toList()
           as T;
     }
@@ -4135,6 +4365,7 @@ class Protocol extends _is.DatabaseSerializationManager {
       _iay1heal.IngestJob => 'IngestJob',
       _imojj26x.IngestStatus => 'IngestStatus',
       _i9p8kpm7.InvestmentEntry => 'InvestmentEntry',
+      _i57inxpq.InvestmentTheme => 'InvestmentTheme',
       _iyzzhewo.Market => 'Market',
       _i1tskjhh.MarketCapNode => 'MarketCapNode',
       _iwodvuy1.MarketCapTreemap => 'MarketCapTreemap',
@@ -4158,6 +4389,10 @@ class Protocol extends _is.DatabaseSerializationManager {
       _icm1zoh2.Source => 'Source',
       _itk5lja3.SourceKind => 'SourceKind',
       _i3sjboun.StockTotalRow => 'StockTotalRow',
+      _ir3er3o6.ThemeDetail => 'ThemeDetail',
+      _irm69cop.ThemeMember => 'ThemeMember',
+      _irah5hi6.ThemeMemberView => 'ThemeMemberView',
+      _i4ynus9k.ThemeSummary => 'ThemeSummary',
       _injn1qca.TreasuryStockEntry => 'TreasuryStockEntry',
       _ => null,
     };
@@ -4276,6 +4511,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'IngestStatus';
       case _i9p8kpm7.InvestmentEntry():
         return 'InvestmentEntry';
+      case _i57inxpq.InvestmentTheme():
+        return 'InvestmentTheme';
       case _iyzzhewo.Market():
         return 'Market';
       case _i1tskjhh.MarketCapNode():
@@ -4322,6 +4559,14 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'SourceKind';
       case _i3sjboun.StockTotalRow():
         return 'StockTotalRow';
+      case _ir3er3o6.ThemeDetail():
+        return 'ThemeDetail';
+      case _irm69cop.ThemeMember():
+        return 'ThemeMember';
+      case _irah5hi6.ThemeMemberView():
+        return 'ThemeMemberView';
+      case _i4ynus9k.ThemeSummary():
+        return 'ThemeSummary';
       case _injn1qca.TreasuryStockEntry():
         return 'TreasuryStockEntry';
     }
@@ -4510,6 +4755,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (dataClassName == 'InvestmentEntry') {
       return deserialize<_i9p8kpm7.InvestmentEntry>(data['data']);
     }
+    if (dataClassName == 'InvestmentTheme') {
+      return deserialize<_i57inxpq.InvestmentTheme>(data['data']);
+    }
     if (dataClassName == 'Market') {
       return deserialize<_iyzzhewo.Market>(data['data']);
     }
@@ -4578,6 +4826,18 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'StockTotalRow') {
       return deserialize<_i3sjboun.StockTotalRow>(data['data']);
+    }
+    if (dataClassName == 'ThemeDetail') {
+      return deserialize<_ir3er3o6.ThemeDetail>(data['data']);
+    }
+    if (dataClassName == 'ThemeMember') {
+      return deserialize<_irm69cop.ThemeMember>(data['data']);
+    }
+    if (dataClassName == 'ThemeMemberView') {
+      return deserialize<_irah5hi6.ThemeMemberView>(data['data']);
+    }
+    if (dataClassName == 'ThemeSummary') {
+      return deserialize<_i4ynus9k.ThemeSummary>(data['data']);
     }
     if (dataClassName == 'TreasuryStockEntry') {
       return deserialize<_injn1qca.TreasuryStockEntry>(data['data']);
@@ -4661,6 +4921,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return _iay1heal.IngestJob.t;
       case _i9p8kpm7.InvestmentEntry:
         return _i9p8kpm7.InvestmentEntry.t;
+      case _i57inxpq.InvestmentTheme:
+        return _i57inxpq.InvestmentTheme.t;
       case _ibhowe7d.MarketSnapshot:
         return _ibhowe7d.MarketSnapshot.t;
       case _i3renazk.MarketSnapshotDay:
@@ -4677,6 +4939,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return _itljah4k.ShareholderEntry.t;
       case _icm1zoh2.Source:
         return _icm1zoh2.Source.t;
+      case _irm69cop.ThemeMember:
+        return _irm69cop.ThemeMember.t;
       case _injn1qca.TreasuryStockEntry:
         return _injn1qca.TreasuryStockEntry.t;
     }

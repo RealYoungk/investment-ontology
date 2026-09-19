@@ -1,0 +1,7 @@
+### 테마 상세: 편입 기업과 시가총액.
+class: ThemeDetail
+fields:
+  theme: InvestmentTheme
+  members: List<ThemeMemberView>
+  ### 시가총액 기준일
+  baseDate: DateTime?

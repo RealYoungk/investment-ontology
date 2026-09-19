@@ -1,0 +1,12 @@
+### 테마: 사용자가 직접 정의하는 투자 주제 (예: 2차전지, AI 반도체). 5단계.
+class: InvestmentTheme
+table: theme
+fields:
+  name: String
+  description: String?
+  createdAt: DateTime
+  updatedAt: DateTime
+indexes:
+  theme_name_idx:
+    fields: name
+    unique: true

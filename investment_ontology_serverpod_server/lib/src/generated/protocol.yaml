@@ -38,3 +38,12 @@ ingest:
   - latestOf:
 market:
   - industryTreemap:
+theme:
+  - list:
+  - create:
+  - update:
+  - delete:
+  - detail:
+  - addCompany:
+  - removeCompany:
+  - themesOf:

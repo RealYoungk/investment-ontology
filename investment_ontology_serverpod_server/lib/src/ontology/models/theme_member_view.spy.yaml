@@ -1,0 +1,8 @@
+### 테마 상세의 편입 기업 한 줄.
+class: ThemeMemberView
+fields:
+  member: ThemeMember
+  company: CompanyRef
+  ### KSIC 가장 세부 업종 이름
+  industryName: String?
+  marketCap: BigInt?

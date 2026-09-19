@@ -38,6 +38,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _indtcksm;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ingest_job.dart'
     as _i1paap7y;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/investment_theme.dart'
+    as _izhmhfon;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/market.dart'
     as _iamn97sz;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/market_cap_treemap.dart'
@@ -48,6 +50,12 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _impgjy6j;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/shareholder_return.dart'
     as _ir6fk3mk;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/theme_detail.dart'
+    as _is8fq5gm;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/theme_member.dart'
+    as _i33gd2p5;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/theme_summary.dart'
+    as _ihj01hrs;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _iacc;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
@@ -586,6 +594,101 @@ class EndpointMarket extends _isc.EndpointRef {
   );
 }
 
+/// 테마 (5단계): 사용자가 정의하는 투자 주제와 기업 편입.
+///
+/// 편입은 사람의 판단이므로 출처는 manual Source로 남긴다.
+/// {@category Endpoint}
+class EndpointTheme extends _isc.EndpointRef {
+  EndpointTheme(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'theme';
+
+  /// 테마 목록. 편입 기업 시가총액이 큰 순서.
+  _ida.Future<List<_ihj01hrs.ThemeSummary>> list() =>
+      caller.callServerEndpoint<List<_ihj01hrs.ThemeSummary>>(
+        'theme',
+        'list',
+        {},
+      );
+
+  _ida.Future<_izhmhfon.InvestmentTheme> create(
+    String name, {
+    String? description,
+  }) => caller.callServerEndpoint<_izhmhfon.InvestmentTheme>(
+    'theme',
+    'create',
+    {
+      'name': name,
+      'description': description,
+    },
+  );
+
+  _ida.Future<_izhmhfon.InvestmentTheme?> update(
+    int themeId,
+    String name, {
+    String? description,
+  }) => caller.callServerEndpoint<_izhmhfon.InvestmentTheme?>(
+    'theme',
+    'update',
+    {
+      'themeId': themeId,
+      'name': name,
+      'description': description,
+    },
+  );
+
+  /// 테마를 지운다 (편입 기록도 함께). 사용자가 만든 것이라 지울 수 있다.
+  _ida.Future<void> delete(int themeId) => caller.callServerEndpoint<void>(
+    'theme',
+    'delete',
+    {'themeId': themeId},
+  );
+
+  /// 테마와 편입 기업 (시가총액 큰 순서).
+  _ida.Future<_is8fq5gm.ThemeDetail?> detail(int themeId) =>
+      caller.callServerEndpoint<_is8fq5gm.ThemeDetail?>(
+        'theme',
+        'detail',
+        {'themeId': themeId},
+      );
+
+  /// 기업을 테마에 넣는다. 이미 있으면 메모만 고친다.
+  _ida.Future<_i33gd2p5.ThemeMember?> addCompany(
+    int themeId,
+    String corpCode, {
+    String? note,
+  }) => caller.callServerEndpoint<_i33gd2p5.ThemeMember?>(
+    'theme',
+    'addCompany',
+    {
+      'themeId': themeId,
+      'corpCode': corpCode,
+      'note': note,
+    },
+  );
+
+  _ida.Future<void> removeCompany(
+    int themeId,
+    String corpCode,
+  ) => caller.callServerEndpoint<void>(
+    'theme',
+    'removeCompany',
+    {
+      'themeId': themeId,
+      'corpCode': corpCode,
+    },
+  );
+
+  /// 기업이 속한 테마.
+  _ida.Future<List<_izhmhfon.InvestmentTheme>> themesOf(String corpCode) =>
+      caller.callServerEndpoint<List<_izhmhfon.InvestmentTheme>>(
+        'theme',
+        'themesOf',
+        {'corpCode': corpCode},
+      );
+}
+
 class Modules {
   Modules(Client client) {
     serverpod_auth_idp = _iaic.Caller(client);
@@ -633,6 +736,7 @@ class Client extends _isc.ServerpodClientShared {
     governance = EndpointGovernance(this);
     ingest = EndpointIngest(this);
     market = EndpointMarket(this);
+    theme = EndpointTheme(this);
     modules = Modules(this);
   }
 
@@ -654,6 +758,8 @@ class Client extends _isc.ServerpodClientShared {
 
   late final EndpointMarket market;
 
+  late final EndpointTheme theme;
+
   late final Modules modules;
 
   @override
@@ -667,6 +773,7 @@ class Client extends _isc.ServerpodClientShared {
     'governance': governance,
     'ingest': ingest,
     'market': market,
+    'theme': theme,
   };
 
   @override

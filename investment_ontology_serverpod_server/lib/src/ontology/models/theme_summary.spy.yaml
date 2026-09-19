@@ -1,0 +1,9 @@
+### 테마 목록 한 줄.
+class: ThemeSummary
+fields:
+  theme: InvestmentTheme
+  memberCount: int
+  ### 편입 기업 시가총액 합 (가장 최근 기준일). 시세가 없으면 null
+  marketCap: BigInt?
+  ### 시가총액이 큰 기업 이름 몇 개
+  topNames: List<String>
