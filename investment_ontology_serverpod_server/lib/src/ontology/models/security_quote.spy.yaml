@@ -1,0 +1,10 @@
+### 종목의 기준일 시세 요약.
+class: SecurityQuote
+fields:
+  securityId: int
+  shortCode: String
+  name: String
+  closePrice: BigInt?
+  listedShares: BigInt?
+  marketCap: BigInt?
+  volume: BigInt?

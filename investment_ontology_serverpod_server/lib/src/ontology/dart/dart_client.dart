@@ -44,6 +44,41 @@ class DartCorpCode {
   final DateTime? modifyDate;
 }
 
+/// `list.json`의 공시 한 건.
+class DartFilingItem {
+  DartFilingItem({
+    required this.corpCode,
+    required this.corpName,
+    required this.stockCode,
+    required this.corpCls,
+    required this.reportName,
+    required this.rceptNo,
+    required this.rceptDate,
+  });
+
+  final String corpCode;
+  final String corpName;
+  final String? stockCode;
+  final String? corpCls;
+  final String reportName;
+  final String rceptNo;
+  final DateTime? rceptDate;
+}
+
+class DartFilingPage {
+  DartFilingPage({
+    required this.page,
+    required this.totalPages,
+    required this.totalCount,
+    required this.items,
+  });
+
+  final int page;
+  final int totalPages;
+  final int totalCount;
+  final List<DartFilingItem> items;
+}
+
 class DartClient {
   DartClient(this.apiKey, {http.Client? httpClient})
     : _http = httpClient ?? http.Client();
@@ -62,6 +97,38 @@ class DartClient {
 
   static Uri companyApiUrl(String corpCode) =>
       Uri.parse('$baseUrl/company.json?corp_code=$corpCode');
+
+  /// 인증키를 뺀 재무 API 주소 (Source 기록용).
+  static Uri financialApiUrl(
+    String corpCode,
+    int bsnsYear,
+    String reportCode,
+    String fsDiv,
+  ) => Uri.parse('$baseUrl/fnlttSinglAcntAll.json').replace(
+    queryParameters: _financialParams(corpCode, bsnsYear, reportCode, fsDiv),
+  );
+
+  /// DART 공시 뷰어.
+  static Uri filingViewerUrl(String rceptNo) =>
+      Uri.parse('https://dart.fss.or.kr/dsaf001/main.do?rcpNo=$rceptNo');
+
+  /// 조회된 데이터가 없음.
+  static const noDataStatus = '013';
+
+  /// `list.json` 페이지당 최대 건수.
+  static const filingPageSize = 100;
+
+  static Map<String, String> _financialParams(
+    String corpCode,
+    int bsnsYear,
+    String reportCode,
+    String fsDiv,
+  ) => {
+    'corp_code': corpCode,
+    'bsns_year': '$bsnsYear',
+    'reprt_code': reportCode,
+    'fs_div': fsDiv,
+  };
 
   /// 전체 고유번호 목록 (zip 안의 CORPCODE.xml).
   Future<List<DartCorpCode>> fetchCorpCodes() async {
@@ -91,15 +158,100 @@ class DartClient {
   }
 
   /// 기업개황 (`company.json`). 원문 필드를 그대로 돌려준다.
-  Future<Map<String, dynamic>> fetchCompany(String corpCode) async {
-    final res = await _get('company.json', {'corp_code': corpCode});
+  Future<Map<String, dynamic>> fetchCompany(String corpCode) async =>
+      (await _json('company.json', {'corp_code': corpCode}))!;
+
+  /// 정기공시 목록 (`list.json`, 공시유형 A) 한 페이지.
+  ///
+  /// 회사를 지정하지 않으면 DART가 기간을 3개월 이내로 제한한다. [lastReportOnly]이면
+  /// 정정 전 원본은 빠지고 최종 보고서만 온다. `pblntf_detail_ty`는 실제로 걸러지지
+  /// 않으므로 보고서 종류는 이름([DartReportName])으로 가린다.
+  Future<DartFilingPage> fetchFilings({
+    required DateTime from,
+    required DateTime to,
+    int page = 1,
+    String? corpCode,
+    bool lastReportOnly = true,
+  }) async {
+    final body = await _json('list.json', {
+      'bgn_de': DartValues.formatYmd(from),
+      'end_de': DartValues.formatYmd(to),
+      'pblntf_ty': 'A',
+      'last_reprt_at': lastReportOnly ? 'Y' : 'N',
+      'sort': 'date',
+      'sort_mth': 'asc',
+      'page_no': '$page',
+      'page_count': '$filingPageSize',
+      'corp_code': ?corpCode,
+    }, allowNoData: true);
+    if (body == null) {
+      return DartFilingPage(
+        page: page,
+        totalPages: 0,
+        totalCount: 0,
+        items: const [],
+      );
+    }
+    final list = (body['list'] as List?) ?? const [];
+    return DartFilingPage(
+      page: page,
+      totalPages: (body['total_page'] as num?)?.toInt() ?? 0,
+      totalCount: (body['total_count'] as num?)?.toInt() ?? 0,
+      items: [
+        for (final e in list.cast<Map<String, dynamic>>())
+          if (DartValues.text(e['corp_code']) != null &&
+              DartValues.text(e['rcept_no']) != null)
+            DartFilingItem(
+              corpCode: DartValues.text(e['corp_code'])!,
+              corpName: DartValues.text(e['corp_name']) ?? '',
+              stockCode: DartValues.text(e['stock_code']),
+              corpCls: DartValues.text(e['corp_cls']),
+              reportName: DartValues.text(e['report_nm']) ?? '',
+              rceptNo: DartValues.text(e['rcept_no'])!,
+              rceptDate: DartValues.ymd(e['rcept_dt']),
+            ),
+      ],
+    );
+  }
+
+  /// 단일회사 전체 재무제표 (`fnlttSinglAcntAll.json`) 원문 행.
+  ///
+  /// [reportCode]는 11011(사업)/11012(반기)/11013(1분기)/11014(3분기),
+  /// [fsDiv]는 CFS(연결)/OFS(별도). 해당 재무제표가 없으면(013) null.
+  Future<List<Map<String, dynamic>>?> fetchFinancialStatements({
+    required String corpCode,
+    required int bsnsYear,
+    required String reportCode,
+    required String fsDiv,
+  }) async {
+    final body = await _json(
+      'fnlttSinglAcntAll.json',
+      _financialParams(corpCode, bsnsYear, reportCode, fsDiv),
+      allowNoData: true,
+    );
+    if (body == null) return null;
+    return ((body['list'] as List?) ?? const []).cast<Map<String, dynamic>>();
+  }
+
+  /// JSON API 호출. status가 000이 아니면 예외, [allowNoData]이고 013이면 null.
+  Future<Map<String, dynamic>?> _json(
+    String path,
+    Map<String, String> params, {
+    bool allowNoData = false,
+  }) async {
+    final res = await _get(path, params);
+    if (res.bodyBytes.isEmpty) {
+      // DART가 짧은 시간에 호출이 몰리면 200과 빈 본문을 돌려줄 때가 있다.
+      throw DartApiException('empty', '$path 빈 응답');
+    }
     final Map<String, dynamic> body;
     try {
       body = jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
     } on FormatException catch (e) {
-      throw DartApiException('parse', 'company.json 파싱 실패: $e');
+      throw DartApiException('parse', '$path 파싱 실패: $e');
     }
     final status = body['status'] as String?;
+    if (allowNoData && status == noDataStatus) return null;
     if (status != '000') {
       throw DartApiException(status ?? 'unknown', '${body['message']}');
     }

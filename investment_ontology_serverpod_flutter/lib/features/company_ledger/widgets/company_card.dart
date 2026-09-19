@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../client.dart';
 import '../../../design/components/components.dart';
 import '../../../design/tokens.dart';
+import '../../financials/financial_section.dart';
 import '../formatters.dart';
 
 /// 기업 카드: 기업개황 필드 + KSIC 경로 + 변경 이력 + 출처.
@@ -142,6 +143,8 @@ class _Body extends StatelessWidget {
           _IndustryPath(path: detail.industryPath),
           const SizedBox(height: 28),
         ],
+        FinancialSection(corpCode: company.corpCode),
+        const SizedBox(height: 28),
         const SectionLabel('기업개황'),
         const SizedBox(height: 6),
         KeyValueRow(label: '대표자', value: company.ceoName),

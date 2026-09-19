@@ -1,0 +1,8 @@
+### 기업의 기준일 시가총액. 발행 종목(보통주·우선주 등) 시가총액의 합.
+class: CompanyMarketCap
+fields:
+  baseDate: DateTime
+  ### 종목 시가총액 합. 한 종목이라도 값이 없으면 null
+  marketCap: BigInt?
+  securities: List<SecurityQuote>
+  source: Source?

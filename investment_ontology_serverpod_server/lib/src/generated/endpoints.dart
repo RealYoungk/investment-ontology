@@ -14,6 +14,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/future_calls.
     as _i4o8e4lj;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_sort.dart'
     as _iosqhah1;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/fs_div.dart'
+    as _i69nddnn;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/market.dart'
     as _iyonaxpd;
 import 'package:serverpod/serverpod.dart' as _is;
@@ -25,7 +27,9 @@ import '../auth/email_idp_endpoint.dart' as _iuc1hd5t;
 import '../auth/jwt_refresh_endpoint.dart' as _inwq3ztq;
 import '../greetings/greeting_endpoint.dart' as _il624ik7;
 import '../ontology/endpoints/company_endpoint.dart' as _itnisr3u;
+import '../ontology/endpoints/financial_endpoint.dart' as _ipit2z9y;
 import '../ontology/endpoints/ingest_endpoint.dart' as _icbircc0;
+import '../ontology/endpoints/market_endpoint.dart' as _iaw7fzks;
 export 'future_calls.dart' show ServerpodFutureCallsGetter;
 
 class Endpoints extends _is.EndpointDispatch {
@@ -56,10 +60,22 @@ class Endpoints extends _is.EndpointDispatch {
           'company',
           null,
         ),
+      'financial': _ipit2z9y.FinancialEndpoint()
+        ..initialize(
+          server,
+          'financial',
+          null,
+        ),
       'ingest': _icbircc0.IngestEndpoint()
         ..initialize(
           server,
           'ingest',
+          null,
+        ),
+      'market': _iaw7fzks.MarketEndpoint()
+        ..initialize(
+          server,
+          'market',
           null,
         ),
     };
@@ -409,6 +425,56 @@ class Endpoints extends _is.EndpointDispatch {
         ),
       },
     );
+    connectors['financial'] = _is.EndpointConnector(
+      name: 'financial',
+      endpoint: endpoints['financial']!,
+      methodConnectors: {
+        'summary': _is.MethodConnector(
+          name: 'summary',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'fsDiv': _is.ParameterDescription(
+              name: 'fsDiv',
+              type: _is.getType<_i69nddnn.FsDiv?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['financial'] as _ipit2z9y.FinancialEndpoint)
+                  .summary(
+                    session,
+                    params['corpCode'],
+                    fsDiv: params['fsDiv'],
+                  ),
+        ),
+        'report': _is.MethodConnector(
+          name: 'report',
+          params: {
+            'reportId': _is.ParameterDescription(
+              name: 'reportId',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['financial'] as _ipit2z9y.FinancialEndpoint)
+                  .report(
+                    session,
+                    params['reportId'],
+                  ),
+        ),
+      },
+    );
     connectors['ingest'] = _is.EndpointConnector(
       name: 'ingest',
       endpoint: endpoints['ingest']!,
@@ -431,6 +497,35 @@ class Endpoints extends _is.EndpointDispatch {
                     session,
                     force: params['force'],
                   ),
+        ),
+        'startFinancials': _is.MethodConnector(
+          name: 'startFinancials',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['ingest'] as _icbircc0.IngestEndpoint)
+                  .startFinancials(
+                    session,
+                    corpCode: params['corpCode'],
+                  ),
+        ),
+        'startMarketSnapshot': _is.MethodConnector(
+          name: 'startMarketSnapshot',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['ingest'] as _icbircc0.IngestEndpoint)
+                  .startMarketSnapshot(session),
         ),
         'cancel': _is.MethodConnector(
           name: 'cancel',
@@ -460,6 +555,56 @@ class Endpoints extends _is.EndpointDispatch {
                 Map<String, dynamic> params,
               ) async => (endpoints['ingest'] as _icbircc0.IngestEndpoint)
                   .latest(session),
+        ),
+        'latestOf': _is.MethodConnector(
+          name: 'latestOf',
+          params: {
+            'kind': _is.ParameterDescription(
+              name: 'kind',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['ingest'] as _icbircc0.IngestEndpoint).latestOf(
+                    session,
+                    params['kind'],
+                  ),
+        ),
+      },
+    );
+    connectors['market'] = _is.EndpointConnector(
+      name: 'market',
+      endpoint: endpoints['market']!,
+      methodConnectors: {
+        'industryTreemap': _is.MethodConnector(
+          name: 'industryTreemap',
+          params: {
+            'sectionCode': _is.ParameterDescription(
+              name: 'sectionCode',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
+            'market': _is.ParameterDescription(
+              name: 'market',
+              type: _is.getType<_iyonaxpd.Market?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['market'] as _iaw7fzks.MarketEndpoint)
+                  .industryTreemap(
+                    session,
+                    sectionCode: params['sectionCode'],
+                    market: params['market'],
+                  ),
         ),
       },
     );

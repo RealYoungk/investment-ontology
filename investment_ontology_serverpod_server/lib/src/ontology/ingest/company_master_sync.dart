@@ -3,13 +3,20 @@ import 'package:serverpod/serverpod.dart';
 import '../../generated/protocol.dart';
 import '../dart/dart_client.dart';
 import '../dart/dart_values.dart';
+import 'api_call_budget.dart';
 import 'company_changes.dart';
+import 'ingest_jobs.dart';
 import 'ksic_revision.dart';
 import 'ksic_seeder.dart';
 
 /// DART 고유번호 목록 + 기업개황으로 상장사 마스터를 채운다.
 class CompanyMasterSync {
-  CompanyMasterSync(this.session, this.dart, this.jobId);
+  CompanyMasterSync(
+    this.session,
+    this.dart,
+    this.jobId, {
+    this.dailyLimit = ApiCallBudget.dartDailyLimit - 100,
+  });
 
   static const kind = 'company_master';
 
@@ -46,8 +53,20 @@ class CompanyMasterSync {
   final DartClient dart;
   final int jobId;
 
+  /// 이 수집이 오늘 쓸 수 있는 DART 호출 상한 (재무 수집 등 다른 수집과 합산, 약간 여유).
+  final int dailyLimit;
+
+  /// DART 요청 제한 초과.
+  static const _limitExceeded = '020';
+  late final _meter = ApiCallMeter(ApiProvider.dart, () => dart.calls);
+
   Future<void> run({required bool force}) async {
-    var job = (await IngestJob.db.findById(session, jobId))!;
+    final claimed = await IngestJobs.claim(session, jobId);
+    if (claimed == null) {
+      dart.close();
+      return;
+    }
+    var job = claimed;
     try {
       await KsicSeeder.seed(session);
 
@@ -74,11 +93,19 @@ class CompanyMasterSync {
 
       job = await _save(job.copyWith(total: targets.length));
 
+      // 재무 수집이 같은 날 DART 한도를 많이 썼으면 남은 만큼만 쓰고 멈춘다.
+      final allowance =
+          dailyLimit - await ApiCallBudget.usedToday(session, ApiProvider.dart);
+      var limitReached = false;
       var processed = 0, updated = 0, failed = 0;
       final failures = <String>[];
       for (final corp in targets) {
         if (processed % _progressEvery == 0 && await _isCancelled()) {
           job = job.copyWith(status: IngestStatus.cancelled);
+          break;
+        }
+        if (dart.calls >= allowance) {
+          limitReached = true;
           break;
         }
         try {
@@ -91,6 +118,10 @@ class CompanyMasterSync {
           );
           if (changed) updated++;
         } on DartApiException catch (e) {
+          if (e.status == _limitExceeded) {
+            limitReached = true;
+            break;
+          }
           if (e.isFatal) rethrow;
           failed++;
           if (failures.length < 10) failures.add('${corp.corpName}: $e');
@@ -101,6 +132,7 @@ class CompanyMasterSync {
         }
         processed++;
         if (processed % _progressEvery == 0) {
+          await _meter.flush(session);
           job = await _save(
             job.copyWith(
               processed: processed,
@@ -111,6 +143,25 @@ class CompanyMasterSync {
           );
         }
         await Future<void>.delayed(_callInterval);
+      }
+
+      if (limitReached && job.status != IngestStatus.cancelled) {
+        // 전체 갱신이 끝나지 않았으므로 성공으로 남기지 않는다 (다음 수집이 다시 전체 갱신).
+        // 받은 기업은 저장되어 있고, 변경분 수집은 변경일이 남은 기업을 다시 고른다.
+        await _save(
+          job.copyWith(
+            status: IngestStatus.failed,
+            processed: processed,
+            updated: updated,
+            failed: failed,
+            apiCalls: dart.calls,
+            finishedAt: DateTime.now().toUtc(),
+            message:
+                'DART 일일 호출 한도에 닿아 ${targets.length}건 중 $processed건에서 멈춤. '
+                '받은 것은 저장되어 있습니다. 내일 다시 수집하면 남은 기업을 받습니다.',
+          ),
+        );
+        return;
       }
 
       await _save(
@@ -129,6 +180,16 @@ class CompanyMasterSync {
         ),
       );
     } catch (e, st) {
+      if (e is DartApiException && e.status == _limitExceeded) {
+        // 기업개황 목록(corpCode.xml)부터 한도에 걸린 경우.
+        await fail(
+          session,
+          jobId,
+          'DART 일일 호출 한도에 닿아 수집하지 못했습니다. 내일 다시 수집하세요.',
+          apiCalls: dart.calls,
+        );
+        return;
+      }
       session.log(
         '상장사 마스터 수집 실패',
         level: LogLevel.error,
@@ -137,6 +198,7 @@ class CompanyMasterSync {
       );
       await fail(session, jobId, '$e', apiCalls: dart.calls);
     } finally {
+      await _meter.flush(session);
       dart.close();
       await KsicRevision.invalidate(session);
     }
@@ -148,19 +210,7 @@ class CompanyMasterSync {
     int jobId,
     String message, {
     int? apiCalls,
-  }) async {
-    final job = await IngestJob.db.findById(session, jobId);
-    if (job == null) return;
-    await IngestJob.db.updateRow(
-      session,
-      job.copyWith(
-        status: IngestStatus.failed,
-        apiCalls: apiCalls ?? job.apiCalls,
-        finishedAt: DateTime.now().toUtc(),
-        message: message,
-      ),
-    );
-  }
+  }) => IngestJobs.fail(session, jobId, message, apiCalls: apiCalls);
 
   /// 기업개황을 다시 받아야 하는지.
   ///
@@ -295,16 +345,7 @@ class CompanyMasterSync {
     });
   }
 
-  Future<bool> _isCancelled() async {
-    final j = await IngestJob.db.findById(session, jobId);
-    return j?.status == IngestStatus.cancelled;
-  }
+  Future<bool> _isCancelled() => IngestJobs.isCancelled(session, jobId);
 
-  Future<IngestJob> _save(IngestJob job) async {
-    // 취소 요청은 덮어쓰지 않는다.
-    if (job.status == IngestStatus.running && await _isCancelled()) {
-      job = job.copyWith(status: IngestStatus.cancelled);
-    }
-    return IngestJob.db.updateRow(session, job);
-  }
+  Future<IngestJob> _save(IngestJob job) => IngestJobs.save(session, job);
 }

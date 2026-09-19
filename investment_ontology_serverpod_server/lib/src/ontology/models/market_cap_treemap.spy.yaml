@@ -1,0 +1,17 @@
+### 업종별 시가총액 트리맵.
+class: MarketCapTreemap
+fields:
+  ### 시세 기준일. 시세가 없으면 null
+  baseDate: DateTime?
+  source: Source?
+  ### 지정하면 이 대분류 안의 중분류 → 기업, 아니면 대분류 → 중분류
+  sectionCode: String?
+  sectionName: String?
+  market: Market?
+  total: BigInt
+  nodes: List<MarketCapNode>
+  ### 기업(상장사 원장)에 연결되지 않아 합계에서 뺀 종목
+  unlinkedSecurityCount: int
+  unlinkedMarketCap: BigInt
+  ### 업종명에 쓴 KSIC 차수
+  industryRevision: String

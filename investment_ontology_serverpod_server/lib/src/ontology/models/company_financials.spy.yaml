@@ -1,0 +1,13 @@
+### 기업 상세의 재무·시세. 파생 지표는 담지 않고 화면에서 원천 값으로 계산한다.
+class: CompanyFinancials
+fields:
+  corpCode: String
+  ### periods의 연결/별도 구분. 재무 자료가 없으면 null
+  fsDiv: FsDiv?
+  availableFsDivs: List<FsDiv>
+  ### 오래된 기간부터
+  periods: List<FinancialPeriod>
+  market: CompanyMarketCap?
+  ### 수집 장부의 이 기업 정기보고서 수와 아직 받지 않은 수
+  filingCount: int
+  pendingFilingCount: int

@@ -1,0 +1,7 @@
+### 연결/별도 재무제표 구분 (DART fs_div).
+enum: FsDiv
+values:
+  ### 연결재무제표 (CFS)
+  - consolidated
+  ### 별도(개별)재무제표 (OFS)
+  - separate

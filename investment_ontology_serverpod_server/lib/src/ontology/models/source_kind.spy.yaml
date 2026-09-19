@@ -3,5 +3,7 @@ values:
   - dartApi
   - dartReport
   - krxApi
+  ### 공공데이터포털 (금융위원회 주식시세정보·KRX상장종목정보)
+  - dataGoKrApi
   - officialFile
   - manual

@@ -16,16 +16,24 @@ import 'package:investment_ontology_serverpod_client/src/protocol/greetings/gree
     as _iqvwj7cf;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_detail.dart'
     as _ig9j925g;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_financials.dart'
+    as _i8vk5eaa;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_page.dart'
     as _itgpgg86;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_sort.dart'
     as _i35nawlu;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/facet_count.dart'
     as _icfgas7c;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/financial_report_detail.dart'
+    as _iurgb10z;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/fs_div.dart'
+    as _indtcksm;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ingest_job.dart'
     as _i1paap7y;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/market.dart'
     as _iamn97sz;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/market_cap_treemap.dart'
+    as _ifex1fnm;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/overview.dart'
     as _iqnrnt8q;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
@@ -337,6 +345,38 @@ class EndpointCompany extends _isc.EndpointRef {
       );
 }
 
+/// 기업 재무·시세 조회. 파생 지표는 계산하지 않고 원천 값만 돌려준다.
+/// {@category Endpoint}
+class EndpointFinancial extends _isc.EndpointRef {
+  EndpointFinancial(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'financial';
+
+  /// 기업의 기간별 핵심 계정과 최근 시가총액.
+  ///
+  /// [fsDiv]가 없으면 연결재무제표가 있으면 연결, 없으면 별도를 쓴다.
+  _ida.Future<_i8vk5eaa.CompanyFinancials?> summary(
+    String corpCode, {
+    _indtcksm.FsDiv? fsDiv,
+  }) => caller.callServerEndpoint<_i8vk5eaa.CompanyFinancials?>(
+    'financial',
+    'summary',
+    {
+      'corpCode': corpCode,
+      'fsDiv': fsDiv,
+    },
+  );
+
+  /// 재무 보고서 원문 표와 같은 기간의 정정 이력.
+  _ida.Future<_iurgb10z.FinancialReportDetail?> report(int reportId) =>
+      caller.callServerEndpoint<_iurgb10z.FinancialReportDetail?>(
+        'financial',
+        'report',
+        {'reportId': reportId},
+      );
+}
+
 /// 외부 원천 수집 제어.
 ///
 /// 1인 로컬 사용 전제라 인증이 없다. 외부에 배포하기 전에 인증을 붙여야 한다.
@@ -358,6 +398,29 @@ class EndpointIngest extends _isc.EndpointRef {
         {'force': force},
       );
 
+  /// 재무제표 수집 시작. 이미 실행 중이면 그 작업을 돌려준다.
+  ///
+  /// 공시 목록에서 새 정기보고서를 찾고, 받지 않은 보고서를 최신순으로 받는다.
+  /// DART 일일 호출 예산을 다 쓰면 멈추고 다음 날 이어서 받는다.
+  /// [corpCode]를 주면 그 기업의 정기보고서만 찾아 바로 받는다. 전체 수집이 돌고 있어도 된다.
+  _ida.Future<_i1paap7y.IngestJob> startFinancials({String? corpCode}) =>
+      caller.callServerEndpoint<_i1paap7y.IngestJob>(
+        'ingest',
+        'startFinancials',
+        {'corpCode': corpCode},
+      );
+
+  /// 시세 수집 시작. 이미 실행 중이면 그 작업을 돌려준다.
+  ///
+  /// 받지 않은 평일 기준일을 최신순으로 받고(처음에는 5년), 가장 최근 기준일의
+  /// 상장종목 정보로 종목을 기업에 잇는다.
+  _ida.Future<_i1paap7y.IngestJob> startMarketSnapshot() =>
+      caller.callServerEndpoint<_i1paap7y.IngestJob>(
+        'ingest',
+        'startMarketSnapshot',
+        {},
+      );
+
   _ida.Future<_i1paap7y.IngestJob?> cancel(int jobId) =>
       caller.callServerEndpoint<_i1paap7y.IngestJob?>(
         'ingest',
@@ -371,6 +434,39 @@ class EndpointIngest extends _isc.EndpointRef {
         'latest',
         {},
       );
+
+  /// [kind]의 최근 작업 (`company_master`, `financial_facts`, `market_snapshot`).
+  _ida.Future<_i1paap7y.IngestJob?> latestOf(String kind) =>
+      caller.callServerEndpoint<_i1paap7y.IngestJob?>(
+        'ingest',
+        'latestOf',
+        {'kind': kind},
+      );
+}
+
+/// 시세 조회.
+/// {@category Endpoint}
+class EndpointMarket extends _isc.EndpointRef {
+  EndpointMarket(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'market';
+
+  /// 가장 최근 기준일의 업종별 시가총액.
+  ///
+  /// 기업 시가총액은 기업에 연결된 종목(보통주·우선주 등) 시가총액의 합이다.
+  /// [sectionCode]가 없으면 대분류 → 중분류, 있으면 그 대분류의 중분류 → 기업으로 묶는다.
+  _ida.Future<_ifex1fnm.MarketCapTreemap> industryTreemap({
+    String? sectionCode,
+    _iamn97sz.Market? market,
+  }) => caller.callServerEndpoint<_ifex1fnm.MarketCapTreemap>(
+    'market',
+    'industryTreemap',
+    {
+      'sectionCode': sectionCode,
+      'market': market,
+    },
+  );
 }
 
 class Modules {
@@ -415,7 +511,9 @@ class Client extends _isc.ServerpodClientShared {
     jwtRefresh = EndpointJwtRefresh(this);
     greeting = EndpointGreeting(this);
     company = EndpointCompany(this);
+    financial = EndpointFinancial(this);
     ingest = EndpointIngest(this);
+    market = EndpointMarket(this);
     modules = Modules(this);
   }
 
@@ -427,7 +525,11 @@ class Client extends _isc.ServerpodClientShared {
 
   late final EndpointCompany company;
 
+  late final EndpointFinancial financial;
+
   late final EndpointIngest ingest;
+
+  late final EndpointMarket market;
 
   late final Modules modules;
 
@@ -437,7 +539,9 @@ class Client extends _isc.ServerpodClientShared {
     'jwtRefresh': jwtRefresh,
     'greeting': greeting,
     'company': company,
+    'financial': financial,
     'ingest': ingest,
+    'market': market,
   };
 
   @override

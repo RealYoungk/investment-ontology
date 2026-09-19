@@ -53,7 +53,7 @@ A single-user tool for building an investment ontology of Korean listed companie
 
 Principles: numbers come only from primary sources (DART OpenAPI, KRX); every fact carries a `Source`; AI is used only to extract relations from text, with evidence and human review.
 
-Current state (phase 1 — listed-company master):
+Current state (phase 1 — listed-company master, phase 2 — financials and market data):
 
 - Server code lives in `investment_ontology_serverpod_server/lib/src/ontology/`:
   - `models/` — `Company` (key: DART `corpCode`), `Industry` (KSIC 10), `Source`, `IngestJob`, view DTOs.
@@ -61,10 +61,19 @@ Current state (phase 1 — listed-company master):
   - `ingest/` — `CompanyMasterSync` (run as `CompanyMasterFutureCall`; incremental by DART change date, full refresh every 30 days), `KsicSeeder` (loads both KSIC 10 and 11 from `assets/ksic/`), `KsicRevision` (decides which KSIC revision DART's industry codes follow, from codes unique to one revision; cached, invalidated after each sync).
   - `tool/ksic/` — reproducible extraction of the KSIC assets from the official 국가데이터처 notices. Never hand-edit `assets/ksic/*.json`.
   - `endpoints/` — `company` (overview, divisions, list, detail) and `ingest` (startCompanyMaster, cancel, latest).
+- Phase 2 (financials and market data), also in `lib/src/ontology/`:
+  - `models/` — `FinancialReport` (one DART filing × consolidated/separate) and `FinancialFact` (every amount column of a `fnlttSinglAcntAll` row, BigInt won, corrections linked by `supersededBy`, never deleted), `Security`/`MarketSnapshot` (공공데이터포털), ledgers `DartFiling`, `DartFilingScan`, `MarketSnapshotDay`, `ApiCallUsage`, view DTOs.
+  - `ingest/financial_facts_sync.dart` — filing list scan → fetch pending reports newest first, daily DART budget 18,000, resumes next day; `corpCode` fetches one company. `ingest/market_snapshot_sync.dart` — daily prices + listing (crno → `Company.jurirNo`).
+  - `ingest/ingest_schedule.dart` — the only place that references generated `futureCalls` dispatchers. Never reference them from FutureCall or Endpoint files: a failed analysis there makes the generator drop the FutureCall and the generated code never comes back. After adding a FutureCall method, run `serverpod generate --force`, then `dart test test/unit/generated_code_test.dart`.
+  - `financial/financial_accounts.dart` — key accounts by XBRL ID only. `endpoints/` — `financial` (summary, report), `market` (industryTreemap).
+  - Derived metrics (PER, margins, Q4, TTM) are computed in the app (`lib/features/financials/financial_metrics.dart`) and shown with their formula and inputs; never store them.
 - The DART API key is read by `dart/dart_api_key.dart`: `session.passwords['dartApiKey']` (`config/passwords.yaml` under `shared:`, or `SERVERPOD_PASSWORD_dartApiKey`), falling back to the `DART_API_KEY` environment variable.
+- The 공공데이터포털 service key is read by `data_go_kr/data_go_kr_service_key.dart`: `session.passwords['dataGoKrServiceKey']` (`shared:`), falling back to `DATA_GO_KR_SERVICE_KEY`. Store the Decoding key; never write it into a `Source` URL.
 - No authentication: local single-user use only. Add auth before deploying anywhere public.
 - Source values are normalized to the schema's types at the ingest boundary (`dart/dart_values.dart`); invalid values become null. Re-fetches record field-level diffs in `CompanyChange` (`ingest/company_changes.dart`).
 - Flutter UI:
   - `lib/design/` — design system. `tokens.dart` (semantic `AppColors`/`AppTypography`/`AppShape` theme extensions, `AppSpace`, `AppMotion`; read via `context.colors` / `context.typo` / `context.shape`), `components/` (reusable widgets), `brands/` (concrete colors and fonts), `app_theme.dart`.
   - `lib/features/<feature>/` — screens. Use only tokens and components: never hard-code colors (`Color(0x…)`, `Colors.*`) or fonts here. `test/design_boundary_test.dart` enforces this. Rebranding = add a brand in `design/brands/` and switch it in `main.dart`.
   - `lib/features/company_ledger/` — "상장사 원장" (listed-company ledger).
+  - `lib/features/financials/` — financial section in the company card, statement table page. `lib/features/market_map/` — market-cap treemap by industry.
+  - Charts live in `lib/design/components/charts/` and use the `chart*` color tokens. If a brand changes those colors, re-run the dataviz palette validator against the brand's surface.

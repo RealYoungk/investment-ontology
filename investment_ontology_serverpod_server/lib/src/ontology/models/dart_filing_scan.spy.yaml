@@ -1,0 +1,11 @@
+### 수집 장부: 전체 공시 목록(list.json)을 어느 구간까지 훑었는지. 한 행만 둔다.
+### 기업 하나만 받는 수집은 이 커서를 움직이지 않는다.
+class: DartFilingScan
+table: dart_filing_scan
+fields:
+  ### 훑기 시작한 날짜(UTC 자정). 수집 범위가 넓어져 이보다 이른 날짜가 필요하면 처음부터 다시 훑는다.
+  ### 기록 전의 행은 null이고, 이 경우도 처음부터 다시 훑는다.
+  scannedFrom: DateTime?
+  ### 이 날짜(UTC 자정)까지의 구간을 끝까지 훑었다
+  scannedThrough: DateTime
+  updatedAt: DateTime

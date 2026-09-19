@@ -80,6 +80,108 @@ void main() {
     });
   });
 
+  group('DartClient 재무', () {
+    DartClient client(String body, {void Function(http.Request)? onRequest}) =>
+        DartClient(
+          'key',
+          httpClient: MockClient((req) async {
+            onRequest?.call(req);
+            return http.Response.bytes(utf8.encode(body), 200);
+          }),
+        );
+
+    test('fnlttSinglAcntAll 원문 행을 돌려준다', () async {
+      late Uri url;
+      final rows =
+          await client(
+            '{"status":"000","message":"정상","list":[{"rcept_no":"20260310002820",'
+            '"sj_div":"BS","account_id":"ifrs-full_Assets","thstrm_amount":"566942110000000"}]}',
+            onRequest: (req) => url = req.url,
+          ).fetchFinancialStatements(
+            corpCode: '00126380',
+            bsnsYear: 2025,
+            reportCode: '11011',
+            fsDiv: 'CFS',
+          );
+
+      expect(rows, hasLength(1));
+      expect(rows!.single['account_id'], 'ifrs-full_Assets');
+      expect(url.queryParameters, containsPair('bsns_year', '2025'));
+      expect(url.queryParameters, containsPair('fs_div', 'CFS'));
+    });
+
+    test('013(데이터 없음)은 null', () async {
+      final rows =
+          await client(
+            '{"status":"013","message":"조회된 데이타가 없습니다."}',
+          ).fetchFinancialStatements(
+            corpCode: '00000001',
+            bsnsYear: 2025,
+            reportCode: '11011',
+            fsDiv: 'CFS',
+          );
+      expect(rows, isNull);
+    });
+
+    test('빈 본문은 계속 호출할 수 있는 오류', () async {
+      await expectLater(
+        client('').fetchFinancialStatements(
+          corpCode: '00126380',
+          bsnsYear: 2025,
+          reportCode: '11011',
+          fsDiv: 'CFS',
+        ),
+        throwsA(
+          isA<DartApiException>()
+              .having((e) => e.status, 'status', 'empty')
+              .having((e) => e.isFatal, 'isFatal', isFalse),
+        ),
+      );
+    });
+
+    test('Source용 주소에는 인증키가 없다', () {
+      final url = DartClient.financialApiUrl('00126380', 2025, '11011', 'CFS');
+      expect(url.queryParameters.containsKey('crtfc_key'), isFalse);
+      expect(url.queryParameters['corp_code'], '00126380');
+    });
+
+    test('list.json 페이지를 읽는다', () async {
+      late Uri url;
+      final page =
+          await client(
+            '{"status":"000","message":"정상","page_no":1,"page_count":100,'
+            '"total_count":1,"total_page":1,"list":[{"corp_code":"00120030",'
+            '"corp_name":"GS건설","stock_code":"006360","corp_cls":"Y",'
+            '"report_nm":"[기재정정]사업보고서 (2023.12)","rcept_no":"20260630000500",'
+            '"flr_nm":"GS건설","rcept_dt":"20260630","rm":""}]}',
+            onRequest: (req) => url = req.url,
+          ).fetchFilings(
+            from: DateTime.utc(2026, 6, 1),
+            to: DateTime.utc(2026, 8, 31),
+          );
+
+      expect(url.queryParameters, containsPair('bgn_de', '20260601'));
+      expect(url.queryParameters, containsPair('last_reprt_at', 'Y'));
+      expect(page.totalPages, 1);
+      final f = page.items.single;
+      expect(f.rceptNo, '20260630000500');
+      expect(f.rceptDate, DateTime.utc(2026, 6, 30));
+      expect(f.stockCode, '006360');
+    });
+
+    test('list.json 013은 빈 페이지', () async {
+      final page =
+          await client(
+            '{"status":"013","message":"조회된 데이타가 없습니다."}',
+          ).fetchFilings(
+            from: DateTime.utc(2026, 1, 1),
+            to: DateTime.utc(2026, 1, 2),
+          );
+      expect(page.items, isEmpty);
+      expect(page.totalPages, 0);
+    });
+  });
+
   group('KsicSeeder.classify', () {
     test('소분류 코드에서 중분류와 대분류를 구한다', () {
       expect(KsicSeeder.classify('264'), (division: '26', section: 'C'));

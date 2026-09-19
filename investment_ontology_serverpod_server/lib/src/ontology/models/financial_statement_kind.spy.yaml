@@ -1,0 +1,13 @@
+### 재무제표 종류 (DART sj_div).
+enum: FinancialStatementKind
+values:
+  ### 재무상태표 (BS)
+  - balanceSheet
+  ### 손익계산서 (IS)
+  - incomeStatement
+  ### 포괄손익계산서 (CIS)
+  - comprehensiveIncome
+  ### 현금흐름표 (CF)
+  - cashFlow
+  ### 자본변동표 (SCE)
+  - equityChanges

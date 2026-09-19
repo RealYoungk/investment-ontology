@@ -6,6 +6,7 @@ import 'package:serverpod_cloud_storage/serverpod_cloud_storage.dart';
 
 import 'src/cache_busting.dart';
 import 'src/generated/serverpod.dart';
+import 'src/ontology/ingest/ingest_schedule.dart';
 import 'src/web/routes/app_config_route.dart';
 
 /// The starting point of the Serverpod server.
@@ -102,4 +103,12 @@ void run(List<String> args) async {
 
   // Start the server.
   await pod.start();
+
+  // 끊긴 수집을 정리·이어받고, 시세·재무 매일 자동 수집을 예약한다.
+  final session = await pod.createSession(enableLogging: false);
+  try {
+    await IngestSchedule.onServerStart(session);
+  } finally {
+    await session.close();
+  }
 }

@@ -1,0 +1,31 @@
+### 종목의 하루 시세. 공공데이터포털 금융위원회_주식시세정보(getStockPriceInfo) 응답 한 행.
+### 가격·금액은 원 단위 정수. 등락률처럼 원천 값으로 계산되는 값은 저장하지 않는다.
+class: MarketSnapshot
+table: market_snapshot
+fields:
+  securityId: int, relation(parent=security, onDelete=Restrict)
+  ### 기준일 (UTC 자정)
+  baseDate: DateTime
+  ### 종가 (clpr)
+  closePrice: BigInt?
+  ### 전일 대비 (vs)
+  change: BigInt?
+  ### 시가·고가·저가 (mkp, hipr, lopr)
+  openPrice: BigInt?
+  highPrice: BigInt?
+  lowPrice: BigInt?
+  ### 거래량 (trqu)
+  volume: BigInt?
+  ### 거래대금 (trPrc)
+  tradingValue: BigInt?
+  ### 상장주식수 (lstgStCnt)
+  listedShares: BigInt?
+  ### 시가총액 (mrktTotAmt)
+  marketCap: BigInt?
+  sourceId: int, relation(parent=source, onDelete=Restrict)
+indexes:
+  market_snapshot_security_date_idx:
+    fields: securityId, baseDate
+    unique: true
+  market_snapshot_date_idx:
+    fields: baseDate

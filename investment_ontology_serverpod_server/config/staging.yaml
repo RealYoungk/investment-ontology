@@ -62,8 +62,10 @@ sessionLogs:
 
 # futureCallExecutionEnabled: true # Defaults to true
 
-#futureCall:
-#  concurrencyLimit: 1 # Defaults to 1, a negative or null value removes the limit
+# 수집 작업(재무·시세·기업마스터)이 서로 기다리지 않게 한다. 같은 종류가 겹치는 것은
+# IngestJobs가 막는다.
+futureCall:
+  concurrencyLimit: 4 # Defaults to 1, a negative or null value removes the limit
 #  scanInterval: 5000 # Unit in milliseconds, defaults to 5000
 
 # Recommended when serving web clients: keeps auth tokens in httpOnly

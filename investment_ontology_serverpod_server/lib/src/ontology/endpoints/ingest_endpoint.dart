@@ -1,17 +1,18 @@
 import 'package:serverpod/serverpod.dart';
 
-import '../../generated/future_calls.dart';
 import '../../generated/protocol.dart';
 import '../dart/dart_api_key.dart';
+import '../data_go_kr/data_go_kr_service_key.dart';
 import '../ingest/company_master_sync.dart';
+import '../ingest/financial_facts_sync.dart';
+import '../ingest/ingest_jobs.dart';
+import '../ingest/ingest_schedule.dart';
+import '../ingest/market_snapshot_sync.dart';
 
 /// 외부 원천 수집 제어.
 ///
 /// 1인 로컬 사용 전제라 인증이 없다. 외부에 배포하기 전에 인증을 붙여야 한다.
 class IngestEndpoint extends Endpoint {
-  /// 서버 재시작 등으로 멈춘 작업을 실행 중으로 보지 않는 기준.
-  static const _staleAfter = Duration(hours: 3);
-
   /// 상장사 마스터 수집 시작. 이미 실행 중이면 그 작업을 돌려준다.
   ///
   /// 평소에는 DART 변경일이 바뀐 기업만 다시 받는다. [force]이거나 마지막 전체
@@ -20,33 +21,58 @@ class IngestEndpoint extends Endpoint {
     Session session, {
     bool? force,
   }) async {
-    if (DartApiKey.read(session) == null) {
-      throw IngestException(
-        message:
-            'DART API 키가 없습니다. 환경변수 ${DartApiKey.envName}를 설정하거나 '
-            'config/passwords.yaml의 shared: 아래에 dartApiKey를 추가하고 '
-            '서버를 재시작하세요.',
-      );
-    }
+    _requireDartKey(session);
 
-    final running = await _running(session);
+    final running = await IngestJobs.running(session, CompanyMasterSync.kind);
     if (running != null) return running;
 
     final full =
         (force ?? false) || await CompanyMasterSync.isFullRefreshDue(session);
-    final job = await IngestJob.db.insertRow(
+    final job = (await IngestJobs.start(
       session,
-      IngestJob(
-        kind: CompanyMasterSync.kind,
-        status: IngestStatus.running,
-        startedAt: DateTime.now().toUtc(),
-        fullRefresh: full,
-      ),
-    );
-    await session.serverpod.futureCalls
-        .callWithDelay(Duration.zero)
-        .companyMaster
-        .run(job.id!, full);
+      CompanyMasterSync.kind,
+      fullRefresh: full,
+    ))!;
+    await IngestSchedule.companyMasterNow(session, job.id!, full);
+    return job;
+  }
+
+  /// 재무제표 수집 시작. 이미 실행 중이면 그 작업을 돌려준다.
+  ///
+  /// 공시 목록에서 새 정기보고서를 찾고, 받지 않은 보고서를 최신순으로 받는다.
+  /// DART 일일 호출 예산을 다 쓰면 멈추고 다음 날 이어서 받는다.
+  /// [corpCode]를 주면 그 기업의 정기보고서만 찾아 바로 받는다. 전체 수집이 돌고 있어도 된다.
+  Future<IngestJob> startFinancials(Session session, {String? corpCode}) async {
+    _requireDartKey(session);
+    // 기업 하나 수집은 따로 세어, 전체 백필이 도는 중에도 바로 받을 수 있게 한다.
+    final kind = corpCode == null
+        ? FinancialFactsSync.kind
+        : FinancialFactsSync.companyKind;
+    final running = await IngestJobs.running(session, kind);
+    if (running != null) return running;
+    final job = (await IngestJobs.start(session, kind))!;
+    if (corpCode == null) {
+      await IngestSchedule.financialsNow(session, job.id!);
+    } else {
+      await IngestSchedule.financialsForCompanyNow(session, job.id!, corpCode);
+    }
+    return job;
+  }
+
+  /// 시세 수집 시작. 이미 실행 중이면 그 작업을 돌려준다.
+  ///
+  /// 받지 않은 평일 기준일을 최신순으로 받고(처음에는 5년), 가장 최근 기준일의
+  /// 상장종목 정보로 종목을 기업에 잇는다.
+  Future<IngestJob> startMarketSnapshot(Session session) async {
+    if (DataGoKrServiceKey.read(session) == null) {
+      throw IngestException(
+        message: DataGoKrServiceKey.secret.missingMessage('공공데이터포털 서비스'),
+      );
+    }
+    final running = await IngestJobs.running(session, MarketSnapshotSync.kind);
+    if (running != null) return running;
+    final job = (await IngestJobs.start(session, MarketSnapshotSync.kind))!;
+    await IngestSchedule.marketSnapshotNow(session, job.id!);
     return job;
   }
 
@@ -63,32 +89,18 @@ class IngestEndpoint extends Endpoint {
     );
   }
 
-  Future<IngestJob?> latest(Session session) => IngestJob.db.findFirstRow(
-    session,
-    where: (t) => t.kind.equals(CompanyMasterSync.kind),
-    orderBy: (t) => t.startedAt.desc(),
-  );
+  Future<IngestJob?> latest(Session session) =>
+      IngestJobs.latest(session, CompanyMasterSync.kind);
 
-  Future<IngestJob?> _running(Session session) async {
-    final job = await IngestJob.db.findFirstRow(
-      session,
-      where: (t) =>
-          t.kind.equals(CompanyMasterSync.kind) &
-          t.status.equals(IngestStatus.running),
-      orderBy: (t) => t.startedAt.desc(),
-    );
-    if (job == null) return null;
-    if (DateTime.now().toUtc().difference(job.startedAt) < _staleAfter) {
-      return job;
+  /// [kind]의 최근 작업 (`company_master`, `financial_facts`, `market_snapshot`).
+  Future<IngestJob?> latestOf(Session session, String kind) =>
+      IngestJobs.latest(session, kind);
+
+  static void _requireDartKey(Session session) {
+    if (DartApiKey.read(session) == null) {
+      throw IngestException(
+        message: DartApiKey.secret.missingMessage('DART API'),
+      );
     }
-    await IngestJob.db.updateRow(
-      session,
-      job.copyWith(
-        status: IngestStatus.failed,
-        finishedAt: DateTime.now().toUtc(),
-        message: '응답 없는 작업으로 정리됨',
-      ),
-    );
-    return null;
   }
 }

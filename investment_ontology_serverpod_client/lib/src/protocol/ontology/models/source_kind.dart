@@ -16,6 +16,9 @@ enum SourceKind implements _isc.SerializableModel {
   dartApi,
   dartReport,
   krxApi,
+
+  /// 공공데이터포털 (금융위원회 주식시세정보·KRX상장종목정보)
+  dataGoKrApi,
   officialFile,
   manual;
 
@@ -27,6 +30,8 @@ enum SourceKind implements _isc.SerializableModel {
         return SourceKind.dartReport;
       case 'krxApi':
         return SourceKind.krxApi;
+      case 'dataGoKrApi':
+        return SourceKind.dataGoKrApi;
       case 'officialFile':
         return SourceKind.officialFile;
       case 'manual':

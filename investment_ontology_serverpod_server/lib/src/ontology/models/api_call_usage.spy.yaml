@@ -1,0 +1,13 @@
+### 수집 장부: 제공자별·날짜별 API 호출 수.
+### 여러 수집 작업이 같은 일일 한도를 나눠 쓰므로 작업(IngestJob)과 따로 날짜 기준으로 합산한다.
+class: ApiCallUsage
+table: api_call_usage
+fields:
+  provider: ApiProvider
+  ### 한도가 초기화되는 기준 날짜 (KST, YYYY-MM-DD)
+  day: String
+  calls: int, default=0
+indexes:
+  api_call_usage_provider_day_idx:
+    fields: provider, day
+    unique: true

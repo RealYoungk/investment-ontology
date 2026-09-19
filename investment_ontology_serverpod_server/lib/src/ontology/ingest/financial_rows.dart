@@ -1,0 +1,136 @@
+import '../../generated/protocol.dart';
+import '../dart/dart_values.dart';
+
+/// DART 재무 API 코드 ↔ 스키마 enum.
+abstract final class FinancialCodes {
+  static const _reportCodes = {
+    FinancialReportCode.annual: '11011',
+    FinancialReportCode.halfYear: '11012',
+    FinancialReportCode.q1: '11013',
+    FinancialReportCode.q3: '11014',
+  };
+
+  static String reportCodeToDart(FinancialReportCode code) =>
+      _reportCodes[code]!;
+
+  static FinancialReportCode? reportCodeFromDart(String? code) => {
+    for (final e in _reportCodes.entries) e.value: e.key,
+  }[code];
+
+  static String fsDivToDart(FsDiv div) => switch (div) {
+    FsDiv.consolidated => 'CFS',
+    FsDiv.separate => 'OFS',
+  };
+
+  static String fsDivName(FsDiv div) => switch (div) {
+    FsDiv.consolidated => '연결',
+    FsDiv.separate => '별도',
+  };
+
+  static FinancialStatementKind? statementFromDart(Object? sjDiv) =>
+      switch (DartValues.text(sjDiv)) {
+        'BS' => FinancialStatementKind.balanceSheet,
+        'IS' => FinancialStatementKind.incomeStatement,
+        'CIS' => FinancialStatementKind.comprehensiveIncome,
+        'CF' => FinancialStatementKind.cashFlow,
+        'SCE' => FinancialStatementKind.equityChanges,
+        _ => null,
+      };
+}
+
+/// `fnlttSinglAcntAll` 응답 행 → [FinancialFact].
+abstract final class FinancialRows {
+  /// 행을 사실로 바꾼다. 재무제표 구분을 알 수 없는 행은 [skippedRows]로 센다.
+  static ({List<FinancialFact> facts, int invalidAmounts, int skippedRows})
+  toFacts(
+    List<Map<String, dynamic>> rows, {
+    required int reportId,
+    required int companyId,
+    required int bsnsYear,
+    required FinancialReportCode reportCode,
+    required FsDiv fsDiv,
+    required int sourceId,
+  }) {
+    var invalid = 0, skipped = 0;
+    BigInt? amount(Object? v) {
+      if (DartValues.isInvalidAmount(v)) invalid++;
+      return DartValues.amount(v);
+    }
+
+    final facts = <FinancialFact>[];
+    for (final r in rows) {
+      final statement = FinancialCodes.statementFromDart(r['sj_div']);
+      if (statement == null) {
+        skipped++;
+        continue;
+      }
+      final accountId = DartValues.text(r['account_id']);
+      facts.add(
+        FinancialFact(
+          reportId: reportId,
+          companyId: companyId,
+          bsnsYear: bsnsYear,
+          reportCode: reportCode,
+          fsDiv: fsDiv,
+          statement: statement,
+          // `-표준계정코드 미사용-`처럼 XBRL ID가 아닌 표기는 비운다.
+          accountId: (accountId == null || accountId.startsWith('-'))
+              ? null
+              : accountId,
+          accountName: DartValues.text(r['account_nm']) ?? '',
+          accountDetail: DartValues.text(r['account_detail']),
+          ord: int.tryParse(DartValues.text(r['ord']) ?? ''),
+          periodName: DartValues.text(r['thstrm_nm']),
+          amount: amount(r['thstrm_amount']),
+          cumulativeAmount: amount(r['thstrm_add_amount']),
+          priorPeriodName: DartValues.text(r['frmtrm_nm']),
+          priorAmount: amount(r['frmtrm_amount']),
+          priorCumulativeAmount: amount(r['frmtrm_add_amount']),
+          priorQuarterName: DartValues.text(r['frmtrm_q_nm']),
+          priorQuarterAmount: amount(r['frmtrm_q_amount']),
+          beforePriorPeriodName: DartValues.text(r['bfefrmtrm_nm']),
+          beforePriorAmount: amount(r['bfefrmtrm_amount']),
+          currency: DartValues.text(r['currency']),
+          sourceId: sourceId,
+        ),
+      );
+    }
+    return (facts: facts, invalidAmounts: invalid, skippedRows: skipped);
+  }
+
+  /// 정정 전 사실 id → 같은 칸의 정정 후 사실 id.
+  ///
+  /// 같은 칸은 재무제표·계정 ID·계정명·세부(자본 구성요소)가 같은 것이다. 한 보고서 안에
+  /// 같은 키가 여러 번 나오면 나온 순서(ord, id)대로 짝짓는다. 짝이 없는 이전 사실은
+  /// 보고서 단위의 supersededBy로만 대체된다.
+  static Map<int, int> supersessions(
+    List<FinancialFact> previous,
+    List<FinancialFact> next,
+  ) {
+    Map<String, List<int>> index(List<FinancialFact> facts) {
+      final sorted = [...facts]
+        ..sort((a, b) {
+          final byOrd = (a.ord ?? 0).compareTo(b.ord ?? 0);
+          return byOrd != 0 ? byOrd : a.id!.compareTo(b.id!);
+        });
+      final map = <String, List<int>>{};
+      for (final f in sorted) {
+        (map[_key(f)] ??= []).add(f.id!);
+      }
+      return map;
+    }
+
+    final nextByKey = index(next);
+    final result = <int, int>{};
+    index(previous).forEach((key, ids) {
+      final targets = nextByKey[key] ?? const <int>[];
+      for (var i = 0; i < ids.length && i < targets.length; i++) {
+        result[ids[i]] = targets[i];
+      }
+    });
+    return result;
+  }
+
+  static String _key(FinancialFact f) =>
+      '${f.statement.name}\u0000${f.accountId}\u0000${f.accountName}\u0000${f.accountDetail}';
+}

@@ -65,3 +65,5 @@ serverpod:
       displayName: "Investment ontology serverpod app"
       auto_launch: true
       target: lib/driver.dart
+      # 서버를 다시 켜도 주소가 바뀌지 않게 고정한다 (열어 둔 탭을 새로 고치면 그대로 보인다).
+      web-port: 8100

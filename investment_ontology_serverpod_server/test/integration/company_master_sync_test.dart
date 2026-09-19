@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/dart_client.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/ingest/api_call_budget.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/ingest/company_master_sync.dart';
 import 'package:serverpod/serverpod.dart';
 import 'package:test/test.dart';
@@ -207,7 +208,7 @@ void main() {
       expect(await CompanyMasterSync.isFullRefreshDue(session), isTrue);
     });
 
-    test('치명적 오류면 작업을 실패로 끝낸다', () async {
+    test('DART 요청 제한(020)이면 멈추고 한도 안내와 함께 실패로 남긴다', () async {
       final job = await IngestJob.db.insertRow(
         session,
         IngestJob(
@@ -230,7 +231,39 @@ void main() {
 
       final result = (await IngestJob.db.findById(session, job.id!))!;
       expect(result.status, IngestStatus.failed);
-      expect(result.message, contains('020'));
+      expect(result.message, contains('한도'));
+    });
+
+    test('오늘 DART 호출이 한도에 가까우면 남은 만큼만 받고 멈춘다', () async {
+      // 재무 수집이 오늘 이미 많이 썼다고 둔다.
+      await ApiCallBudget.record(session, ApiProvider.dart, 100);
+      final job = await IngestJob.db.insertRow(
+        session,
+        IngestJob(
+          kind: CompanyMasterSync.kind,
+          status: IngestStatus.running,
+          startedAt: DateTime.now().toUtc(),
+        ),
+      );
+      final client = dart.client();
+
+      // 상한 102 - 사용 100 = 2회: corpCode.xml 1회 + 기업개황 1회에서 멈춘다.
+      await CompanyMasterSync(
+        session,
+        client,
+        job.id!,
+        dailyLimit: 102,
+      ).run(force: true);
+
+      final result = (await IngestJob.db.findById(session, job.id!))!;
+      expect(result.status, IngestStatus.failed);
+      expect(result.message, contains('2건 중 1건에서 멈춤'));
+      expect(dart.companyCalls, hasLength(1));
+      expect(
+        await CompanyMasterSync.lastFullRefresh(session),
+        isNull,
+        reason: '끝나지 않은 전체 갱신은 완료로 치지 않는다',
+      );
     });
   });
 }
