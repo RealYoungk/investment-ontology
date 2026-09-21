@@ -10,6 +10,7 @@ import '../disclosure/business_text.dart';
 import '../disclosure/disclosure_links.dart';
 import '../disclosure/disclosure_rows.dart';
 import '../disclosure/disclosure_values.dart';
+import '../market/market_caps.dart';
 import 'api_call_budget.dart';
 import 'financial_facts_sync.dart';
 import 'financial_rows.dart';
@@ -31,6 +32,7 @@ class DisclosureSync {
     this.jobId, {
     int? dailyBudget,
     this.priorityBudget = ApiCallBudget.dartDisclosurePriorityBudget,
+    this.businessBudget = defaultBusinessBudget,
     this.callInterval = const Duration(milliseconds: 200),
     this.scheduleResume,
     this.corpCode,
@@ -42,6 +44,10 @@ class DisclosureSync {
                ? ApiCallBudget.dartFinancialBudget
                : ApiCallBudget.dartDailyLimit - 100),
        _clock = clock ?? DateTime.now;
+
+  /// 재무 백필이 끝나기를 기다리면 본문이 몇 주 동안 안 쌓이므로, 백필 중에도
+  /// 시가총액이 큰 기업부터 하루 이만큼은 받는다. 관계 추출의 재료다.
+  static const defaultBusinessBudget = 300;
 
   static const kind = 'disclosures';
 
@@ -65,6 +71,9 @@ class DisclosureSync {
   final int jobId;
   final int dailyBudget;
   final int priorityBudget;
+
+  /// 재무 백필 중에도 하루에 받는 "사업의 내용" 본문 수 (1건 = 1회 호출).
+  final int businessBudget;
   final Duration callInterval;
   final Future<void> Function(DateTime at)? scheduleResume;
 
@@ -130,6 +139,13 @@ class DisclosureSync {
           e = e & t.yearRank.equals(0) & t.tier.equals(0);
         }
         return e;
+      }
+
+      if (priorityOnly) {
+        final n = await _fetchBusinessDocuments(byId, byName);
+        stored += n.stored;
+        failed += n.failed;
+        processed += n.stored + n.failed;
       }
 
       final total = await DartFilingSection.db.count(session, where: scope);
@@ -354,6 +370,56 @@ class DisclosureSync {
                 t.separateStatus.equals(FilingFetchStatus.failed)),
       ) >
       0;
+
+  /// 재무 백필 중에 "사업의 내용" 본문을 시가총액이 큰 기업부터 [businessBudget]건 받는다.
+  ///
+  /// 핵심 항목(tier 0)과 몫을 나눠 쓴다. 본문은 관계·값 추출의 재료라 백필이
+  /// 끝날 때까지 기다리면 온톨로지가 자라지 않는다.
+  Future<({int stored, int failed})> _fetchBusinessDocuments(
+    Map<int, Company> byId,
+    Map<String, int> byName,
+  ) async {
+    if (businessBudget <= 0 || !_hasAllowance) return (stored: 0, failed: 0);
+    final pending = await DartFilingSection.db.find(
+      session,
+      where: (t) =>
+          t.status.equals(FilingFetchStatus.pending) &
+          t.yearRank.equals(0) &
+          t.section.equals(DartSection.businessContent),
+    );
+    if (pending.isEmpty) return (stored: 0, failed: 0);
+    final caps = await MarketCaps.latest(session, {
+      for (final s in pending) s.companyId,
+    });
+    pending.sort((a, b) {
+      final x = caps.caps[a.companyId] ?? BigInt.zero;
+      final y = caps.caps[b.companyId] ?? BigInt.zero;
+      return y.compareTo(x);
+    });
+    final filings = {
+      for (final f in await DartFiling.db.find(
+        session,
+        where: (t) => t.id.inSet(<int>{
+          for (final s in pending.take(businessBudget)) s.filingId,
+        }),
+      ))
+        f.id!: f,
+    };
+    var stored = 0, failed = 0;
+    for (final item in pending.take(businessBudget)) {
+      if (!_hasAllowance) break;
+      if (await IngestJobs.isCancelled(session, jobId)) break;
+      final filing = filings[item.filingId];
+      final company = filing == null ? null : byId[filing.companyId];
+      if (filing == null || company == null) continue;
+      final result = await _fetch(item, filing, company, byName);
+      if (_budgetExhausted && result == FilingFetchStatus.pending) break;
+      if (result == FilingFetchStatus.stored) stored++;
+      if (result == FilingFetchStatus.failed) failed++;
+    }
+    await _meter.flush(session);
+    return (stored: stored, failed: failed);
+  }
 
   /// 항목 하나를 받는다. 한도에 닿아 받지 못했으면 pending.
   Future<FilingFetchStatus> _fetch(

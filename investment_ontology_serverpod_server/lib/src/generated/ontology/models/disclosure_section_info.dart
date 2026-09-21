@@ -13,6 +13,7 @@
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart'
     as _i4yshtjp;
 import 'package:serverpod/serverpod.dart' as _is;
+
 import '../../ontology/models/dart_section.dart' as _iy0bhrwp;
 
 /// 기업이 가진 주요정보 항목 하나와 자료가 있는 사업연도.
