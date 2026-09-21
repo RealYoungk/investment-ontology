@@ -39,9 +39,20 @@ class ScreenEndpoint extends Endpoint {
     _baseDate = null;
   }
 
+  /// 데이터가 바뀐 뒤 첫 요청에 지난 계산을 먼저 주고 뒤에서 다시 계산할지.
+  /// 전 상장사 계산이 10초쯤 걸려, 하루 한 번 누군가는 그만큼 기다리게 된다.
+  /// 테스트는 바로 새 값을 보려고 끈다.
+  static bool serveStaleWhileRefreshing = true;
+
   static String? _cacheKey;
   static List<ScreenRow>? _cache;
   static DateTime? _baseDate;
+
+  /// 뒤에서 도는 다시 계산 (한 번에 하나만).
+  static Future<void>? _refreshing;
+
+  /// 뒤에서 도는 계산이 끝날 때까지 (테스트에서 쓴다).
+  static Future<void> awaitRefresh() => _refreshing ?? Future.value();
 
   /// 조건에 맞는 기업. 값이 없는 기업(적자·자본잠식 등)은 그 지표 조건이 있으면 빠진다.
   Future<ScreenPage> list(
@@ -252,6 +263,20 @@ class ScreenEndpoint extends Endpoint {
 
   /// 전 상장사의 지표. 재무·시세가 바뀌지 않았으면 지난 계산을 그대로 쓴다.
   Future<List<ScreenRow>> _universe(Session session) async {
+    final key = await _versionKey(session);
+    if (key == _cacheKey && _cache != null) return _cache!;
+    if (serveStaleWhileRefreshing && _cache != null) {
+      // 지난 계산을 바로 주고, 새 계산은 따로 연 세션에서 한 번만 돌린다.
+      _refreshing ??= _refresh(session.serverpod, key).whenComplete(
+        () => _refreshing = null,
+      );
+      return _cache!;
+    }
+    return _compute(session, key);
+  }
+
+  /// 재무·시세·배당·기업 정보 중 하나라도 바뀌면 달라지는 값.
+  static Future<String> _versionKey(Session session) async {
     final version = await session.db.unsafeQuery('''
       SELECT (SELECT max(id) FROM financial_fact),
              (SELECT max("baseDate") FROM market_snapshot_day WHERE "rowCount" > 0),
@@ -260,9 +285,20 @@ class ScreenEndpoint extends Endpoint {
              (SELECT max(id) FROM dividend_entry),
              (SELECT count(*) FROM dividend_entry)
     ''');
-    final key = version.first.join('|');
-    if (key == _cacheKey && _cache != null) return _cache!;
+    return version.first.join('|');
+  }
 
+  static Future<void> _refresh(Serverpod serverpod, String key) async {
+    final session = await serverpod.createSession(enableLogging: false);
+    try {
+      await ScreenEndpoint()._compute(session, key);
+    } finally {
+      await session.close();
+    }
+  }
+
+  /// 전 상장사의 지표를 계산해 캐시에 넣는다.
+  Future<List<ScreenRow>> _compute(Session session, String key) async {
     final markets = DisclosureLinks.listedMarkets
         .map((m) => "'${m.name}'")
         .join(', ');

@@ -56,9 +56,10 @@ void main() {
         r'class (\w+)Endpoint extends Endpoint',
       ).firstMatch(source)?.group(1);
       if (name == null) continue;
+      // static 메서드는 엔드포인트가 아니다 (테스트용 캐시 조작 등).
       final methods = {
         for (final m in RegExp(
-          r'\n  (?:static )?Future<[^>]*>+\s+(\w+)\(',
+          r'\n  Future<[^>]*>+\s+(\w+)\(',
         ).allMatches(source))
           m.group(1)!,
       }..removeWhere((m) => m.startsWith('_'));
