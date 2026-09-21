@@ -497,7 +497,7 @@ class _DocumentFactsState extends State<_DocumentFacts> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SectionLabel(
-            '본문에서 뽑은 값 · FY${_facts.first.bsnsYear}',
+            '본문에서 뽑은 값',
             accent: true,
             trailing: Text(
               '사람이 승인한 것만',
@@ -516,6 +516,11 @@ class _DocumentFactsState extends State<_DocumentFacts> {
             ),
             const SizedBox(height: AppSpace.md),
           ],
+          Text(
+            'FY${_facts.first.bsnsYear} 값과 근거',
+            style: t.body(12.5, color: c.textSecondary),
+          ),
+          const SizedBox(height: AppSpace.xs),
           AppDataTable(
             columns: const [
               AppColumn('항목', nowrap: true),
