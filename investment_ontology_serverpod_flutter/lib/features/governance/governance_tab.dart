@@ -131,6 +131,15 @@ class _GovernanceTabState extends State<GovernanceTab> {
           ],
         ),
         const SizedBox(height: AppSpace.xl),
+        Align(
+          alignment: Alignment.centerRight,
+          child: AppButton(
+            label: '관계망에서 더 넓게 보기 →',
+            variant: AppButtonVariant.link,
+            tone: c.accent,
+            onPressed: () => context.push(AppRoutes.graph(widget.corpCode)),
+          ),
+        ),
         GovernanceGraph(
           center: widget.companyName,
           left: holders,

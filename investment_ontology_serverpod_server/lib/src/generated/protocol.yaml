@@ -32,6 +32,8 @@ governance:
   - summary:
   - person:
   - rejectPersonLink:
+graph:
+  - neighborhood:
 ingest:
   - startCompanyMaster:
   - startFinancials:

@@ -6,11 +6,11 @@ import 'disclosure_sync.dart';
 import 'financial_facts_sync.dart';
 import 'ingest_jobs.dart';
 import 'market_snapshot_sync.dart';
-import 'resume_hooks.dart';
+import 'ingest_hooks.dart';
 
 /// 수집 FutureCall 예약.
 ///
-/// FutureCall 파일은 이 파일을 가져오지 않는다 ([ResumeHooks] 참고).
+/// 엔드포인트·FutureCall 파일은 이 파일을 가져오지 않는다 ([IngestHooks] 참고).
 ///
 /// 생성된 `futureCalls` 디스패처는 이 파일에서만 참조한다. FutureCall이나 Endpoint
 /// 파일이 생성 코드를 직접 참조하면, 생성기가 그 파일을 분석하다 실패했을 때 FutureCall
@@ -36,7 +36,7 @@ abstract final class IngestSchedule {
   /// 2. 다시 실행되지 않는 재무·시세·주요정보 수집은 바로 이어받기를 예약한다 (기업마스터는 수동).
   /// 3. 매일 자동 수집 예약이 없으면 건다.
   static Future<void> onServerStart(Session session) async {
-    ResumeHooks.disclosures = disclosuresResume;
+    installHooks();
     final r = await IngestJobs.recoverInterrupted(session);
     final soon = DateTime.now().toUtc().add(const Duration(seconds: 10));
     for (final (kind, resumeId, resume) in [
@@ -176,4 +176,18 @@ abstract final class IngestSchedule {
           .callWithDelay(Duration.zero)
           .aiExtraction
           .run(jobId, limit);
+
+  /// 엔드포인트·FutureCall이 쓰는 예약 함수를 등록한다.
+  static void installHooks() {
+    IngestHooks.companyMasterNow = companyMasterNow;
+    IngestHooks.financialsNow = financialsNow;
+    IngestHooks.financialsForCompanyNow = financialsForCompanyNow;
+    IngestHooks.financialsResume = financialsResume;
+    IngestHooks.marketSnapshotNow = marketSnapshotNow;
+    IngestHooks.marketSnapshotResume = marketSnapshotResume;
+    IngestHooks.disclosuresNow = disclosuresNow;
+    IngestHooks.disclosuresForCompanyNow = disclosuresForCompanyNow;
+    IngestHooks.disclosures = disclosuresResume;
+    IngestHooks.aiExtractionNow = aiExtractionNow;
+  }
 }

@@ -136,7 +136,9 @@ $excerpt
         dropped++;
         continue;
       }
-      final otherName = otherId == null ? r.name : companyNames[otherId] ?? r.name;
+      final otherName = otherId == null
+          ? r.name
+          : companyNames[otherId] ?? r.name;
       final (predicate, subjectIsCompany) = switch (r.type) {
         'product' => (RelationPredicate.produces, true),
         'customer' => (RelationPredicate.suppliesTo, true),

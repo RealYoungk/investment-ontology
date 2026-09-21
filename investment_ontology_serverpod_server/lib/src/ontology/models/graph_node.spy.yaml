@@ -1,0 +1,13 @@
+### 관계망 노드: 기업 · 인물 · 이름뿐인 대상.
+class: GraphNode
+fields:
+  ### c<기업 id> · p<인물 id> · n<이름>
+  key: String
+  ### company · person · name
+  kind: String
+  label: String
+  corpCode: String?
+  personId: int?
+  ### 중심에서 몇 단계
+  depth: int
+  marketCap: BigInt?

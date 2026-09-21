@@ -7,6 +7,7 @@ import '../features/company_detail/company_page.dart';
 import '../features/data_sync/data_page.dart';
 import '../features/financials/financial_report_page.dart';
 import '../features/governance/person_page.dart';
+import '../features/graph/graph_page.dart';
 import '../features/market_map/market_page.dart';
 import '../features/review/review_page.dart';
 import '../features/themes/theme_page.dart';
@@ -20,6 +21,7 @@ import 'app_shell.dart';
 /// - `/company/:corpCode?tab=financials` 기업 상세 (tab: overview · financials · business · governance · returns · disclosures)
 /// - `/person/:personId` 인물
 /// - `/themes`, `/themes/:themeId` 테마
+/// - `/graph/:corpCode` 관계망
 /// - `/review` AI 관계 검수
 /// - `/reports/:reportId` 재무제표 원문 표
 /// - `/data` 수집 상태
@@ -33,6 +35,8 @@ abstract final class AppRoutes {
   static String person(int personId) => '/person/$personId';
 
   static String theme(int themeId) => '/themes/$themeId';
+
+  static String graph(String corpCode) => '/graph/$corpCode';
 
   static String report(int reportId) => '/reports/$reportId';
 
@@ -68,6 +72,18 @@ abstract final class AppRoutes {
             path: '/themes/:themeId',
             builder: (context, state) => ThemePage(
               themeId: int.tryParse(state.pathParameters['themeId']!) ?? -1,
+            ),
+          ),
+          GoRoute(
+            path: '/graph',
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: GraphPage()),
+          ),
+          GoRoute(
+            path: '/graph/:corpCode',
+            pageBuilder: (context, state) => NoTransitionPage(
+              key: const ValueKey('graph'),
+              child: GraphPage(corpCode: state.pathParameters['corpCode']),
             ),
           ),
           GoRoute(

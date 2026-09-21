@@ -1,0 +1,8 @@
+### 기업 중심 관계망 (각 기업의 최근 사업보고서 기준 관계 색인 + 승인된 AI 관계).
+class: CompanyGraph
+fields:
+  centerKey: String
+  nodes: List<GraphNode>
+  edges: List<GraphEdge>
+  ### 노드 수 제한으로 잘렸는지
+  truncated: bool
