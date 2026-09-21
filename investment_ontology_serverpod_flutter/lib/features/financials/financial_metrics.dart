@@ -116,6 +116,23 @@ class PeriodPoint {
   }
 }
 
+/// 한 해의 현금흐름.
+class CashPoint {
+  const CashPoint({
+    required this.label,
+    required this.operating,
+    required this.capex,
+    required this.free,
+  });
+
+  final String label;
+  final double? operating;
+  final double? capex;
+
+  /// 잉여현금흐름 = 영업활동 현금흐름 − 유형자산의 취득.
+  final double? free;
+}
+
 /// [CompanyFinancials]의 원천 값으로 기간별 값과 파생 지표를 계산한다.
 class FinancialView {
   FinancialView(this.data);
@@ -170,6 +187,23 @@ class FinancialView {
           revenue: _raw(p, 'revenue', '매출액'),
           operatingIncome: _raw(p, 'operatingIncome', '영업이익'),
         ),
+  ];
+
+  /// 연도별 현금흐름. 유형자산 취득은 양수로 적는 회사와 음수로 적는 회사가
+  /// 섞여 있어 절댓값으로 본다 (기업 머리의 FCF와 같은 규칙).
+  List<CashPoint> cashFlowAnnual() => [
+    for (final p in data.periods)
+      if (p.reportCode == FinancialReportCode.annual)
+        () {
+          final ocf = line(p, 'operatingCashFlow')?.amount?.toDouble();
+          final capex = line(p, 'capex')?.amount?.abs().toDouble();
+          return CashPoint(
+            label: '${p.bsnsYear}',
+            operating: ocf,
+            capex: capex,
+            free: ocf == null || capex == null ? null : ocf - capex,
+          );
+        }(),
   ];
 
   /// 분기별 3개월 값. 4분기는 사업보고서 − 3분기 누적으로 계산한다.

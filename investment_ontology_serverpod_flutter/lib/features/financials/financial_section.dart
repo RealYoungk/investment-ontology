@@ -227,6 +227,19 @@ class _FinancialSectionState extends State<FinancialSection> {
           )
         else
           _TrendCharts(points: points),
+        if (_period == _Period.annual) ...[
+          () {
+            final cash = [
+              for (final p in view.cashFlowAnnual())
+                if (p.operating != null) p,
+            ];
+            if (cash.length < 2) return const SizedBox.shrink();
+            return Padding(
+              padding: const EdgeInsets.only(top: AppSpace.xl),
+              child: _CashFlowChart(points: cash),
+            );
+          }(),
+        ],
         if (data.pendingFilingCount > 0 || data.filingCount == 0) ...[
           const SizedBox(height: AppSpace.sm),
           if (data.pendingFilingCount > 0)
@@ -376,6 +389,53 @@ class _TrendCharts extends StatelessWidget {
         ],
         const SizedBox(height: AppSpace.md),
         _PointTable(points: points),
+      ],
+    );
+  }
+}
+
+/// 연도별 현금흐름: 영업활동으로 번 현금에서 설비에 쓴 돈을 뺀 것이 잉여현금흐름이다.
+class _CashFlowChart extends StatelessWidget {
+  const _CashFlowChart({required this.points});
+
+  final List<CashPoint> points;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    final series = [
+      ChartSeries(
+        label: '영업활동 현금흐름',
+        color: c.chartSeries1,
+        values: [for (final p in points) p.operating],
+      ),
+      ChartSeries(
+        label: '잉여현금흐름',
+        color: c.chartSeries2,
+        values: [for (final p in points) p.free],
+      ),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          '현금흐름 · 잉여현금흐름 = 영업활동 현금흐름 − 유형자산의 취득',
+          style: t.body(13, weight: FontWeight.w600),
+        ),
+        const SizedBox(height: AppSpace.xs),
+        ChartLegend(series: series),
+        const SizedBox(height: AppSpace.sm),
+        AppColumnChart(
+          categories: [for (final p in points) p.label],
+          series: series,
+          formatValue: formatKrwShort,
+        ),
+        const SizedBox(height: AppSpace.xs),
+        Text(
+          '유형자산 취득: ${[for (final p in points) '${p.label} ${p.capex == null ? '—' : formatKrwShort(p.capex!)}'].join(' · ')}',
+          style: t.body(11.5, color: c.textMuted),
+        ),
       ],
     );
   }
