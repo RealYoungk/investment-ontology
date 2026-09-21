@@ -23,9 +23,13 @@ class FinancialSection extends StatefulWidget {
     this.initialData,
     this.openMetric,
     this.onCloseMetric,
+    this.dataVersion = 0,
   });
 
   final String corpCode;
+
+  /// 수집이 끝날 때마다 오른다. 바뀌면 다시 읽되 고른 구분은 그대로 둔다.
+  final int dataVersion;
 
   /// 이미 불러온 기본(연결 우선) 재무. 있으면 처음에 다시 부르지 않는다.
   final CompanyFinancials? initialData;
@@ -52,6 +56,12 @@ class _FinancialSectionState extends State<FinancialSection> {
   void initState() {
     super.initState();
     if (widget.initialData == null) _load();
+  }
+
+  @override
+  void didUpdateWidget(covariant FinancialSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.dataVersion != widget.dataVersion) _load();
   }
 
   /// 이 기업의 정기보고서만 찾아 바로 받는다. 끝나면 다시 불러온다.
@@ -103,23 +113,27 @@ class _FinancialSectionState extends State<FinancialSection> {
     );
   }
 
+  /// 늦게 온 응답이 새 응답을 덮지 않게 하는 요청 번호 (연결↔별도를 빨리 누를 때).
+  int _seq = 0;
+
   Future<void> _load() async {
+    final seq = ++_seq;
     setState(() => _loading = true);
     try {
       final data = await client.financial.summary(
         widget.corpCode,
         fsDiv: _fsDiv,
       );
-      if (!mounted) return;
+      if (!mounted || seq != _seq) return;
       setState(() {
         _data = data;
         _fsDiv = data?.fsDiv;
         _error = null;
       });
     } catch (e) {
-      if (mounted) setState(() => _error = e);
+      if (mounted && seq == _seq) setState(() => _error = e);
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (mounted && seq == _seq) setState(() => _loading = false);
     }
   }
 
@@ -227,6 +241,36 @@ class _FinancialSectionState extends State<FinancialSection> {
           )
         else
           _TrendCharts(points: points),
+        // 분기 실적은 들쭉날쭉해 한 해치로 더해 놓아야 흐름이 보인다.
+        () {
+          final revenue = view.trailingSeries('revenue');
+          final operating = view.trailingSeries('operatingIncome');
+          if (revenue.length < 3) return const SizedBox.shrink();
+          return Padding(
+            padding: const EdgeInsets.only(top: AppSpace.xl),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _TrailingChart(revenue: revenue, operating: operating),
+                const SizedBox(height: AppSpace.lg),
+                _TrailingRatios(rows: view.trailingRatios()),
+              ],
+            ),
+          );
+        }(),
+        if (_period == _Period.annual) ...[
+          () {
+            final cash = [
+              for (final p in view.cashFlowAnnual())
+                if (p.operating != null) p,
+            ];
+            if (cash.length < 2) return const SizedBox.shrink();
+            return Padding(
+              padding: const EdgeInsets.only(top: AppSpace.xl),
+              child: _CashFlowChart(points: cash),
+            );
+          }(),
+        ],
         if (data.pendingFilingCount > 0 || data.filingCount == 0) ...[
           const SizedBox(height: AppSpace.sm),
           if (data.pendingFilingCount > 0)
@@ -376,6 +420,155 @@ class _TrendCharts extends StatelessWidget {
         ],
         const SizedBox(height: AppSpace.md),
         _PointTable(points: points),
+      ],
+    );
+  }
+}
+
+/// 분기마다의 최근 12개월 이익률. 계절을 걷어 낸 수익성 흐름이다.
+class _TrailingRatios extends StatelessWidget {
+  const _TrailingRatios({required this.rows});
+
+  final List<({String label, double? margin, double? netMargin, double? roe})>
+  rows;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    if (rows.length < 3) return const SizedBox.shrink();
+    final series = [
+      ChartSeries(
+        label: '영업이익률',
+        color: c.chartSeries2,
+        values: [for (final r in rows) r.margin],
+      ),
+      ChartSeries(
+        label: '순이익률',
+        color: c.chartSeries1,
+        values: [for (final r in rows) r.netMargin],
+      ),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          '수익성 추이 · 최근 12개월끼리 나눈 값',
+          style: t.body(13, weight: FontWeight.w600),
+        ),
+        const SizedBox(height: AppSpace.xs),
+        ChartLegend(series: series),
+        const SizedBox(height: AppSpace.sm),
+        AppLineChart.many(
+          categories: [for (final r in rows) r.label],
+          series: series,
+          formatValue: (v) => '${v.toStringAsFixed(0)}%',
+          height: 150,
+        ),
+      ],
+    );
+  }
+}
+
+/// 분기마다의 최근 12개월(TTM) 매출·영업이익. 계절성을 걷어 낸 흐름이다.
+class _TrailingChart extends StatelessWidget {
+  const _TrailingChart({required this.revenue, required this.operating});
+
+  final List<
+    ({String label, int year, FinancialReportCode code, double? value})
+  >
+  revenue;
+  final List<
+    ({String label, int year, FinancialReportCode code, double? value})
+  >
+  operating;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    final byLabel = {for (final o in operating) o.label: o.value};
+    final series = [
+      ChartSeries(
+        label: '매출액 (최근 12개월)',
+        color: c.chartSeries1,
+        values: [for (final r in revenue) r.value],
+      ),
+      ChartSeries(
+        label: '영업이익 (최근 12개월)',
+        color: c.chartSeries2,
+        values: [for (final r in revenue) byLabel[r.label]],
+      ),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          '최근 12개월 추이 · 분기마다 앞선 네 분기를 더한 값',
+          style: t.body(13, weight: FontWeight.w600),
+        ),
+        const SizedBox(height: AppSpace.xs),
+        ChartLegend(series: series),
+        const SizedBox(height: AppSpace.sm),
+        AppColumnChart(
+          categories: [for (final r in revenue) r.label],
+          series: series,
+          formatValue: formatKrwShort,
+          height: 180,
+        ),
+        const SizedBox(height: AppSpace.xs),
+        Text(
+          '사업보고서는 그 해 연간, 분기·반기는 전년 연간 + 올해 누적 − 전년 같은 기간 누적입니다. '
+          '계절을 타는 사업도 한 해치로 더해 놓으면 늘고 줄어드는 방향이 보입니다.',
+          style: t.body(11.5, color: c.textMuted),
+        ),
+      ],
+    );
+  }
+}
+
+/// 연도별 현금흐름: 영업활동으로 번 현금에서 설비에 쓴 돈을 뺀 것이 잉여현금흐름이다.
+class _CashFlowChart extends StatelessWidget {
+  const _CashFlowChart({required this.points});
+
+  final List<CashPoint> points;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    final series = [
+      ChartSeries(
+        label: '영업활동 현금흐름',
+        color: c.chartSeries1,
+        values: [for (final p in points) p.operating],
+      ),
+      ChartSeries(
+        label: '잉여현금흐름',
+        color: c.chartSeries2,
+        values: [for (final p in points) p.free],
+      ),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          '현금흐름 · 잉여현금흐름 = 영업활동 현금흐름 − 유형자산의 취득',
+          style: t.body(13, weight: FontWeight.w600),
+        ),
+        const SizedBox(height: AppSpace.xs),
+        ChartLegend(series: series),
+        const SizedBox(height: AppSpace.sm),
+        AppColumnChart(
+          categories: [for (final p in points) p.label],
+          series: series,
+          formatValue: formatKrwShort,
+        ),
+        const SizedBox(height: AppSpace.xs),
+        Text(
+          '유형자산 취득: ${[for (final p in points) '${p.label} ${p.capex == null ? '—' : formatKrwShort(p.capex!)}'].join(' · ')}',
+          style: t.body(11.5, color: c.textMuted),
+        ),
       ],
     );
   }

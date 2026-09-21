@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
@@ -45,14 +47,44 @@ class FinancialFactsSync {
 
   static const _progressEvery = 20;
 
-  /// 수집하는 햇수.
+  /// 먼저 채우는 햇수. 최근 5개 사업연도부터 끝낸다.
   static const historyYears = 5;
 
-  /// 사업보고서는 최근 5개 사업연도 (2026년이면 FY2021~2025).
-  static int firstAnnualYear(DateTime now) => now.year - historyYears;
+  /// 최근 5개년을 다 받은 뒤 넓히는 햇수. 한 번 넓히면 되돌리지 않는다
+  /// (범위가 좁아졌다 넓어졌다 하면 공시 목록을 처음부터 다시 훑게 된다).
+  static const extendedHistoryYears = 10;
 
-  /// 분기·반기보고서는 올해를 포함한 5개 사업연도 (2026년이면 FY2022~2026).
-  static int firstInterimYear(DateTime now) => now.year - historyYears + 1;
+  /// 사업보고서는 최근 [years]개 사업연도 (2026년·5년이면 FY2021~2025).
+  static int firstAnnualYear(DateTime now, [int years = historyYears]) =>
+      now.year - years;
+
+  /// 분기·반기보고서는 올해를 포함한 [years]개 사업연도 (2026년·5년이면 FY2022~2026).
+  static int firstInterimYear(DateTime now, [int years = historyYears]) =>
+      now.year - years + 1;
+
+  /// 이번 실행에서 쓸 햇수. 최근 5개년에 받을 것이 남아 있으면 5년, 다 받았거나
+  /// 이미 넓게 훑은 적이 있으면 10년.
+  Future<int> _years(DateTime now) async {
+    final cursor = await DartFilingScan.db.findFirstRow(session);
+    final wide = DateTime.utc(
+      firstInterimYear(now, extendedHistoryYears),
+      1,
+      1,
+    );
+    if (cursor?.scannedFrom case final from? when !from.isAfter(wide)) {
+      return extendedHistoryYears;
+    }
+    // 처음 채우는 중(장부가 비었거나 받을 것이 남음)이면 5년부터 끝낸다.
+    final total = await DartFiling.db.count(session);
+    if (total == 0) return historyYears;
+    final pending = await DartFiling.db.count(
+      session,
+      where: (t) =>
+          t.consolidatedStatus.equals(FilingFetchStatus.pending) |
+          t.separateStatus.equals(FilingFetchStatus.pending),
+    );
+    return pending == 0 ? extendedHistoryYears : historyYears;
+  }
 
   static const _listedMarkets = {Market.kospi, Market.kosdaq, Market.konex};
 
@@ -80,6 +112,16 @@ class FinancialFactsSync {
     return !_budgetExhausted;
   }
 
+  /// 최근 공시 피드는 재무 예산을 다 쓴 날에도 돌아야 한다 — 하루 몇 번뿐인 호출이고,
+  /// 이걸 거르면 그날 공시가 통째로 빈다. 그래서 재무 예산이 아니라 DART 하루
+  /// 한도(20,000)에서 이만큼을 따로 떼어 쓴다.
+  static const feedReserve = 60;
+
+  /// 이번 작업에서 피드가 쓸 수 있는 호출 수.
+  late int _feedAllowance;
+
+  bool get _hasFeedAllowance => dart.calls < _feedAllowance;
+
   Future<void> run() async {
     final claimed = await IngestJobs.claim(session, jobId);
     if (claimed == null) {
@@ -90,9 +132,16 @@ class FinancialFactsSync {
     var discovered = 0, stored = 0, failed = 0, processed = 0;
     try {
       final now = _clock().toUtc();
-      _allowance =
-          dailyBudget -
-          await ApiCallBudget.usedToday(session, ApiProvider.dart, now: now);
+      final usedToday = await ApiCallBudget.usedToday(
+        session,
+        ApiProvider.dart,
+        now: now,
+      );
+      _allowance = dailyBudget - usedToday;
+      _feedAllowance = min(
+        feedReserve,
+        max(0, ApiCallBudget.dartDailyLimit - usedToday),
+      );
 
       final companies = {
         for (final c in await Company.db.find(
@@ -110,6 +159,7 @@ class FinancialFactsSync {
         throw StateError('상장사 원장에 없는 기업: $corpCode');
       }
 
+      final feedRows = await _scanFeed(companies, now);
       discovered = await _scan(companies, now, job);
       if (await IngestJobs.isCancelled(session, jobId)) {
         job = job.copyWith(status: IngestStatus.cancelled);
@@ -183,6 +233,7 @@ class FinancialFactsSync {
       );
       final cancelled = job.status == IngestStatus.cancelled;
       var message = '새 공시 $discovered건, 저장한 재무제표 $stored벌, 남은 공시 $remaining건';
+      if (feedRows > 0) message += ', 공시 피드 $feedRows건';
       if (only != null) message = '${only.name}: $message';
       if (_budgetExhausted && remaining > 0 && !cancelled && only == null) {
         final at = ApiCallBudget.nextKstMidnight(
@@ -223,6 +274,59 @@ class FinancialFactsSync {
       status.equals(FilingFetchStatus.pending) |
       status.equals(FilingFetchStatus.failed);
 
+  /// 최근 며칠의 모든 공시를 목록만 받아 둔다 (계약·증자·주요사항 등).
+  ///
+  /// 기업 화면의 "최근 공시"에 쓴다. 정기보고서만 받는 [_scan]과 달리 종류를
+  /// 가리지 않으며, 하루 열 번쯤이면 끝난다.
+  static const feedDays = 3;
+
+  Future<int> _scanFeed(Map<String, Company> companies, DateTime now) async {
+    if (corpCode != null) return 0;
+    final today = DateTime.utc(now.year, now.month, now.day);
+    final from = today.subtract(const Duration(days: feedDays));
+    final seen = {
+      for (final d in await DartDisclosure.db.find(
+        session,
+        where: (t) => t.receivedDate >= from,
+      ))
+        d.rceptNo,
+    };
+    var stored = 0;
+    for (var page = 1; ; page++) {
+      if (!_hasFeedAllowance) break;
+      final result = await _callDart(
+        () => dart.fetchFilings(
+          from: from,
+          to: today,
+          page: page,
+          typeCode: null,
+          lastReportOnly: false,
+        ),
+      );
+      final rows = [
+        for (final item in result.items)
+          // 상장사 것만 남긴다 — 화면은 기업 페이지에서만 이 목록을 본다.
+          if (companies.containsKey(item.corpCode) && seen.add(item.rceptNo))
+            DartDisclosure(
+              rceptNo: item.rceptNo,
+              corpCode: item.corpCode,
+              companyId: companies[item.corpCode]!.id,
+              corpName: item.corpName,
+              reportName: item.reportName,
+              receivedDate: item.rceptDate ?? today,
+              filerName: item.filerName,
+              discoveredAt: now,
+            ),
+      ];
+      if (rows.isNotEmpty) {
+        await DartDisclosure.db.insert(session, rows);
+        stored += rows.length;
+      }
+      if (page >= result.totalPages) break;
+    }
+    return stored;
+  }
+
   /// 공시 목록을 훑어 새 정기보고서를 장부에 넣는다. 넣은 건수를 돌려준다.
   Future<int> _scan(
     Map<String, Company> companies,
@@ -230,10 +334,11 @@ class FinancialFactsSync {
     IngestJob job,
   ) async {
     final today = DateTime.utc(now.year, now.month, now.day);
-    final earliest = DateTime.utc(firstInterimYear(now), 1, 1);
+    final years = await _years(now);
+    final earliest = DateTime.utc(firstInterimYear(now, years), 1, 1);
     final code = corpCode;
     if (code != null) {
-      return _scanCompany(code, companies, now, earliest, today);
+      return _scanCompany(code, companies, now, earliest, today, years);
     }
 
     final cursor = await DartFilingScan.db.findFirstRow(session);
@@ -253,7 +358,7 @@ class FinancialFactsSync {
         final result = await _callDart(
           () => dart.fetchFilings(from: from, to: to, page: page),
         );
-        inserted += await _record(result.items, companies, now);
+        inserted += await _record(result.items, companies, now, years);
         if (page % 5 == 1) {
           await _meter.flush(session);
           job = await IngestJobs.save(
@@ -300,6 +405,7 @@ class FinancialFactsSync {
     DateTime now,
     DateTime from,
     DateTime to,
+    int years,
   ) async {
     var inserted = 0;
     for (var page = 1; ; page++) {
@@ -307,7 +413,7 @@ class FinancialFactsSync {
       final result = await _callDart(
         () => dart.fetchFilings(from: from, to: to, page: page, corpCode: code),
       );
-      inserted += await _record(result.items, companies, now);
+      inserted += await _record(result.items, companies, now, years);
       if (page >= result.totalPages) return inserted;
     }
   }
@@ -316,6 +422,7 @@ class FinancialFactsSync {
     List<DartFilingItem> items,
     Map<String, Company> companies,
     DateTime now,
+    int years,
   ) async {
     if (items.isEmpty) return 0;
     final known = {
@@ -335,10 +442,10 @@ class FinancialFactsSync {
       final code = FinancialCodes.reportCodeFromDart(resolved?.reportCode);
       if (resolved != null) {
         final firstYear = code == FinancialReportCode.annual
-            ? firstAnnualYear(now)
-            : firstInterimYear(now);
+            ? firstAnnualYear(now, years)
+            : firstInterimYear(now, years);
         if (resolved.bsnsYear < firstYear) continue;
-      } else if (name.periodYear < firstInterimYear(now)) {
+      } else if (name.periodYear < firstInterimYear(now, years)) {
         continue;
       }
       final status = code == null

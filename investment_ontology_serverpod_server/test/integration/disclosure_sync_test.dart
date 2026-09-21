@@ -99,6 +99,7 @@ void main() {
     Future<IngestJob> runSync({
       int dailyBudget = 18000,
       int priorityBudget = 9000,
+      int businessBudget = DisclosureSync.defaultBusinessBudget,
       String? corpCode,
     }) async {
       final job = await IngestJob.db.insertRow(
@@ -115,6 +116,7 @@ void main() {
         job.id!,
         dailyBudget: dailyBudget,
         priorityBudget: priorityBudget,
+        businessBudget: businessBudget,
         callInterval: Duration.zero,
         clock: () => now,
         corpCode: corpCode,
@@ -509,8 +511,13 @@ void main() {
       await filing(other, '20260610000004', 2026);
       final job = await runSync();
       expect(job.message, contains('핵심 항목 완료'));
-      // 기업마다 가장 최근 사업보고서(삼성 등 4곳 FY2025, 다른회사 FY2026) × 핵심 9종만 호출.
-      expect(dart.calls, hasLength(5 * 9));
+      // 기업마다 가장 최근 사업보고서(삼성 등 4곳 FY2025, 다른회사 FY2026) × 핵심 9종,
+      // 그리고 백필 중에도 받는 "사업의 내용" 본문 5건 (기업마다 최근 보고서 하나).
+      expect(dart.calls, hasLength(5 * 9 + 5));
+      expect(
+        dart.calls.take(5).every((c) => c.startsWith('document|')),
+        isTrue,
+      );
       expect(dart.calls, contains('hyslrSttus|$other|2026'));
       expect(dart.calls, isNot(contains('hyslrSttus|$other|2025')));
       expect(
@@ -518,7 +525,31 @@ void main() {
           session,
           where: (t) => t.status.equals(FilingFetchStatus.pending),
         ),
-        5 * 20 + 29 + 29,
+        // 본문 5건을 이 실행에서 받았으므로 그만큼 줄어 있다.
+        5 * 20 + 29 + 29 - 5,
+      );
+    });
+
+    test('본문은 하루 몫만큼만 받고 나머지는 다음 날로 남긴다', () async {
+      // 재무 백필이 남아 있는 상태 (그때만 본문에 하루 몫을 따로 준다).
+      final old = await filing(samsung, '20250310000001', 2024);
+      await DartFiling.db.updateRow(
+        session,
+        old.copyWith(consolidatedStatus: FilingFetchStatus.pending),
+      );
+      await runSync(businessBudget: 2);
+      expect(
+        dart.calls.where((c) => c.startsWith('document|')),
+        hasLength(2),
+      );
+      expect(
+        await DartFilingSection.db.count(
+          session,
+          where: (t) =>
+              t.section.equals(DartSection.businessContent) &
+              t.status.equals(FilingFetchStatus.pending),
+        ),
+        greaterThan(0),
       );
     });
 

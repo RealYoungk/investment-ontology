@@ -36,5 +36,8 @@ fields:
 indexes:
   financial_fact_series_idx:
     fields: companyId, statement, accountId, bsnsYear, reportCode
+  ### 스크리닝: 계정 하나로 전 상장사를 훑는다
+  financial_fact_account_idx:
+    fields: accountId, reportCode, fsDiv
   financial_fact_report_idx:
     fields: reportId

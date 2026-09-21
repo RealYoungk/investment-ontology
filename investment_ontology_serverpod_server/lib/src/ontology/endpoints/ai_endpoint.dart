@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
 import '../ai/ai_extraction_service.dart';
 import '../ai/anthropic_client.dart';
+import '../ai/document_facts.dart';
 import '../ai/relation_extractor.dart';
 import '../ingest/ingest_jobs.dart';
 import '../ingest/ingest_hooks.dart';
@@ -16,7 +19,7 @@ import '../ingest/ingest_hooks.dart';
 class AiEndpoint extends Endpoint {
   Future<AiStatus> status(Session session) async {
     final latest = await AiExtractionService.latestDocuments(session);
-    final latestIds = {for (final d in latest) d.id!};
+    final latestIds = {for (final d in latest) d.id};
     final extracted = {
       for (final e in await AiExtraction.db.find(
         session,
@@ -99,7 +102,7 @@ class AiEndpoint extends Endpoint {
     final todo = [
       for (final d in docs)
         if (!done.contains(d.id)) d,
-    ]..sort((a, b) => a.text.length.compareTo(b.text.length));
+    ]..sort((a, b) => a.charCount.compareTo(b.charCount));
     final companies = {
       for (final c in await Company.db.find(session)) c.id!: c,
     };
@@ -107,22 +110,53 @@ class AiEndpoint extends Endpoint {
       for (final d in todo.take((limit ?? 20).clamp(1, 200)))
         if (companies[d.companyId] case final c?)
           BusinessDocumentRef(
-            documentId: d.id!,
+            documentId: d.id,
             corpCode: c.corpCode,
             companyName: c.name,
             bsnsYear: d.bsnsYear,
-            chars: d.text.length,
+            chars: d.charCount,
           ),
     ];
   }
 
   /// 본문 발췌 (모델에 넣는 것과 같은 범위).
-  Future<String> documentText(Session session, int documentId) async {
+  Future<String> documentText(
+    Session session,
+    int documentId, {
+
+    /// 관계가 몰린 절부터 이만큼만. 여러 기업을 한 번에 읽을 때 줄여서 쓴다.
+    int? maxChars,
+  }) async {
     final doc = await BusinessDocument.db.findById(session, documentId);
     if (doc == null) {
       throw IngestException(message: '본문을 찾을 수 없습니다: $documentId');
     }
-    return RelationExtractor.excerpt(doc.text);
+    return RelationExtractor.excerpt(doc.text, maxChars: maxChars);
+  }
+
+  /// 여러 기업의 본문을 한 번에. 아직 읽지 않은 것부터 준다.
+  ///
+  /// 한 기업씩 왕복하면 느려서, 구독 세션에서 관계를 뽑을 때 이걸로 묶어 받는다.
+  /// 결과는 `=== <documentId> <기업 이름> FY<연도> ===` 줄로 구분한다.
+  Future<String> documentTexts(
+    Session session, {
+    int? limit,
+    int? maxChars,
+  }) async {
+    final docs = await pending(session, limit: limit ?? 10);
+    final buf = StringBuffer();
+    for (final ref in docs) {
+      final doc = await BusinessDocument.db.findById(session, ref.documentId);
+      if (doc == null) continue;
+      buf
+        ..writeln(
+          '=== ${ref.documentId} ${ref.companyName} FY${ref.bsnsYear} ===',
+        )
+        ..writeln(
+          RelationExtractor.excerpt(doc.text, maxChars: maxChars ?? 6000),
+        );
+    }
+    return buf.toString();
   }
 
   /// 밖에서 뽑은 결과를 저장한다. [answer]는 배치 실행과 같은 JSON 형식이다.
@@ -144,6 +178,50 @@ class AiEndpoint extends Endpoint {
       parsed,
       (model ?? 'claude-code').trim(),
     );
+  }
+
+  /// 밖에서 뽑은 '본문 값'(수주잔고·가동률·점유율 등)을 저장한다.
+  ///
+  /// ```json
+  /// {"facts": [{"kind": "orderBacklog", "label": "건설사업", "value": 21292358,
+  ///             "unit": "백만원", "asOf": "2025-12-31", "evidence": "…"}]}
+  /// ```
+  Future<String> submitFacts(
+    Session session,
+    int documentId,
+    String answer, {
+    String? model,
+  }) async {
+    final doc = await BusinessDocument.db.findById(session, documentId);
+    if (doc == null) {
+      throw IngestException(message: '본문을 찾을 수 없습니다: $documentId');
+    }
+    final List<
+      ({
+        DocumentFactKind kind,
+        String label,
+        double value,
+        String unit,
+        DateTime? asOf,
+        String evidence,
+        double? confidence,
+      })
+    >
+    parsed;
+    try {
+      parsed = DocumentFacts.parse(
+        jsonDecode(answer) as Map<String, dynamic>,
+      );
+    } on Object catch (e) {
+      throw IngestException(message: '형식을 읽지 못했습니다: $e');
+    }
+    final result = await DocumentFacts.store(
+      session,
+      doc,
+      parsed,
+      (model ?? 'claude-code').trim(),
+    );
+    return '저장 ${result.stored}건, 버린 것 ${result.dropped}건';
   }
 
   static String _requireKey(Session session) {

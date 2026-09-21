@@ -1,0 +1,35 @@
+### 스크리닝 결과 한 줄. 지표는 저장하지 않고 조회할 때 계산하며, 계산에 쓴 값도 함께 준다.
+###
+### 손익·현금흐름은 최근 12개월(TTM), 재무상태표는 최근 보고서 기말 값이다.
+class: ScreenRow
+fields:
+  company: CompanyRef
+  ### 지표를 계산한 사업연도 (가장 최근 연결 보고서)
+  bsnsYear: int
+  marketCap: BigInt
+  revenue: BigInt?
+  operatingIncome: BigInt?
+  netIncome: BigInt?
+  equity: BigInt?
+  ### 부채총계 (최근 기말)
+  liabilities: BigInt?
+  ### 자본총계 (최근 기말). 지배주주 자본인 equity와 다르다
+  totalEquity: BigInt?
+  ### 잉여현금흐름 = 영업활동 현금흐름 − 유형자산의 취득 (최근 12개월)
+  freeCashFlow: BigInt?
+  ### 최근 사업연도 현금배당금총액 (원)
+  dividendTotal: BigInt?
+  per: double?
+  pbr: double?
+  roe: double?
+  operatingMargin: double?
+  ### 부채총계 ÷ 자본총계 (%)
+  debtRatio: double?
+  ### 잉여현금흐름 ÷ 시가총액 (%)
+  fcfYield: double?
+  ### 현금배당금총액 ÷ 시가총액 (%)
+  dividendYield: double?
+  ### 매출액 증감률 (올해 누적 vs 전년 같은 기간, %)
+  revenueGrowth: double?
+  ### 영업이익 증감률 (올해 누적 vs 전년 같은 기간, %)
+  operatingIncomeGrowth: double?

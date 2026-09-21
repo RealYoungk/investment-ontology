@@ -41,7 +41,8 @@ class AppTag extends StatelessWidget {
         borderRadius: context.shape.borderRadius,
         border: Border.all(color: tone, width: 1),
       ),
-      child: Text(label, style: style),
+      // 좁은 칸에서도 글자가 줄바꿈되지 않게 ("받 음"처럼 쪼개지던 문제).
+      child: Text(label, style: style, maxLines: 1, softWrap: false),
     );
   }
 }

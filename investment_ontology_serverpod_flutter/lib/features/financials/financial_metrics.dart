@@ -116,6 +116,23 @@ class PeriodPoint {
   }
 }
 
+/// 한 해의 현금흐름.
+class CashPoint {
+  const CashPoint({
+    required this.label,
+    required this.operating,
+    required this.capex,
+    required this.free,
+  });
+
+  final String label;
+  final double? operating;
+  final double? capex;
+
+  /// 잉여현금흐름 = 영업활동 현금흐름 − 유형자산의 취득.
+  final double? free;
+}
+
 /// [CompanyFinancials]의 원천 값으로 기간별 값과 파생 지표를 계산한다.
 class FinancialView {
   FinancialView(this.data);
@@ -152,8 +169,10 @@ class FinancialView {
   static BigInt? cumulative(FinancialPeriod? p, String key) {
     final l = line(p, key);
     if (l == null) return null;
+    // 현금흐름표는 분기·반기에도 누적만 공시한다 (3개월 값이 따로 없어 amount가 누적이다).
     if (p!.reportCode == FinancialReportCode.annual ||
-        p.reportCode == FinancialReportCode.q1) {
+        p.reportCode == FinancialReportCode.q1 ||
+        l.statement == FinancialStatementKind.cashFlow) {
       return l.cumulativeAmount ?? l.amount;
     }
     return l.cumulativeAmount;
@@ -168,6 +187,23 @@ class FinancialView {
           revenue: _raw(p, 'revenue', '매출액'),
           operatingIncome: _raw(p, 'operatingIncome', '영업이익'),
         ),
+  ];
+
+  /// 연도별 현금흐름. 유형자산 취득은 양수로 적는 회사와 음수로 적는 회사가
+  /// 섞여 있어 절댓값으로 본다 (기업 머리의 FCF와 같은 규칙).
+  List<CashPoint> cashFlowAnnual() => [
+    for (final p in data.periods)
+      if (p.reportCode == FinancialReportCode.annual)
+        () {
+          final ocf = line(p, 'operatingCashFlow')?.amount?.toDouble();
+          final capex = line(p, 'capex')?.amount?.abs().toDouble();
+          return CashPoint(
+            label: '${p.bsnsYear}',
+            operating: ocf,
+            capex: capex,
+            free: ocf == null || capex == null ? null : ocf - capex,
+          );
+        }(),
   ];
 
   /// 분기별 3개월 값. 4분기는 사업보고서 − 3분기 누적으로 계산한다.
@@ -259,6 +295,72 @@ class FinancialView {
           ? '3분기 누적 값이 없음'
           : null,
     );
+  }
+
+  /// 분기마다의 최근 12개월 값 하나.
+  ///
+  /// 사업보고서면 그 해 연간, 분기·반기면 전년 연간 + 올해 누적 − 전년 같은 기간 누적.
+  /// 분기 실적은 들쭉날쭉해 한 해치로 더해 놓아야 흐름이 보인다.
+  List<({String label, int year, FinancialReportCode code, double? value})>
+  trailingSeries(String key) {
+    final out =
+        <({String label, int year, FinancialReportCode code, double? value})>[];
+    for (final p in data.periods) {
+      final value = _trailingAt(p, key);
+      if (value == null) continue;
+      out.add((
+        label: p.reportCode == FinancialReportCode.annual
+            ? '${p.bsnsYear}'
+            : "${p.bsnsYear % 100}.${reportCodeLabel(p.reportCode)}",
+        year: p.bsnsYear,
+        code: p.reportCode,
+        value: value,
+      ));
+    }
+    return out;
+  }
+
+  /// 분기마다의 최근 12개월 기준 이익률과 ROE.
+  ///
+  /// 이익률은 같은 12개월끼리 나누고, ROE는 그 시점 기말 자본으로 나눈다
+  /// (기업 머리의 지표와 같은 규칙).
+  List<({String label, double? margin, double? netMargin, double? roe})>
+  trailingRatios() {
+    final out =
+        <({String label, double? margin, double? netMargin, double? roe})>[];
+    for (final p in data.periods) {
+      final revenue = _trailingAt(p, 'revenue');
+      final operating = _trailingAt(p, 'operatingIncome');
+      final net = _trailingAt(p, netIncomeKey);
+      final equity = line(p, equityKey)?.amount?.toDouble();
+      if (revenue == null && net == null) continue;
+      double? over(double? a, double? b) =>
+          a == null || b == null || b <= 0 ? null : 100 * a / b;
+      out.add((
+        label: p.reportCode == FinancialReportCode.annual
+            ? '${p.bsnsYear}'
+            : "${p.bsnsYear % 100}.${reportCodeLabel(p.reportCode)}",
+        margin: over(operating, revenue),
+        netMargin: over(net, revenue),
+        roe: over(net, equity),
+      ));
+    }
+    return out;
+  }
+
+  /// 이 보고서 시점의 최근 12개월 값.
+  double? _trailingAt(FinancialPeriod p, String key) {
+    if (p.reportCode == FinancialReportCode.annual) {
+      return line(p, key)?.amount?.toDouble();
+    }
+    final prevAnnual = line(
+      period(p.bsnsYear - 1, FinancialReportCode.annual),
+      key,
+    )?.amount;
+    final cur = cumulative(p, key);
+    final prev = cumulative(period(p.bsnsYear - 1, p.reportCode), key);
+    if (prevAnnual == null || cur == null || prev == null) return null;
+    return (prevAnnual + cur - prev).toDouble();
   }
 
   /// 가장 최근 보고서.
@@ -374,6 +476,12 @@ class FinancialView {
       );
     }
 
+    // 상장사의 자산총계가 1억원보다 작을 수는 없다. 그보다 작으면 재무제표를 원이
+    // 아닌 단위(천원 등)로 낸 것이라, 시가총액과 섞는 지표는 계산하지 않는다.
+    final assets = latestBalance('assets', '자산총계');
+    final scaleMismatch = assets.value != null && assets.value! < 100000000;
+    const scaleNote = '재무제표가 원 단위가 아닌 것으로 보여 시가총액과 견주지 않음';
+
     final capValue = DerivedValue(
       value: cap,
       formula: '시가총액 = 발행 종목(보통주·우선주 등) 시가총액 합',
@@ -389,12 +497,14 @@ class FinancialView {
       capValue,
       netIncome,
       inputs: [capInput, ...netIncome.inputs],
+      topMissing: scaleMismatch ? scaleNote : null,
     );
     final pbr = ratio(
       'PBR = 시가총액 ÷ $equityLabel (최근 기말)',
       capValue,
       equity,
       inputs: [capInput, ...equity.inputs],
+      topMissing: scaleMismatch ? scaleNote : null,
     );
     final margin = ratio(
       '영업이익률 = 영업이익 ÷ 매출액 (각각 최근 12개월)\n${opIncome.formula}\n${revenue.formula}',
@@ -410,6 +520,29 @@ class FinancialView {
       '부채비율 = 부채총계 ÷ 자본총계 (최근 기말)',
       liabilities,
       totalEquity,
+    );
+
+    // 잉여현금흐름 = 영업활동 현금흐름 − 유형자산 취득. 공시는 취득액을 양수로 적는
+    // 회사와 음수로 적는 회사가 섞여 있어 절댓값으로 뺀다.
+    final ocf = trailing('operatingCashFlow', '영업활동 현금흐름');
+    final capex = trailing('capex', '유형자산의 취득');
+    final fcfValue = ocf.value == null || capex.value == null
+        ? null
+        : ocf.value! - capex.value!.abs();
+    final fcf = DerivedValue(
+      value: fcfValue,
+      formula:
+          '잉여현금흐름(FCF) = 영업활동 현금흐름 − 유형자산의 취득 (각각 최근 12개월)\n'
+          '${ocf.formula}\n${capex.formula}',
+      inputs: [...ocf.inputs, ...capex.inputs],
+      missing: fcfValue == null ? (ocf.missing ?? capex.missing) : null,
+    );
+    final fcfYield = ratio(
+      'FCF 수익률 = 잉여현금흐름 ÷ 시가총액',
+      fcf,
+      capValue,
+      inputs: [...fcf.inputs, capInput],
+      topMissing: scaleMismatch ? scaleNote : null,
     );
 
     return [
@@ -448,6 +581,18 @@ class FinancialView {
         label: '부채비율',
         display: formatPercent(debt.value),
         derived: debt,
+      ),
+      DerivedMetric(
+        key: 'freeCashFlow',
+        label: '잉여현금흐름',
+        display: fcf.value == null ? '—' : formatKrwShort(fcf.value!),
+        derived: fcf,
+      ),
+      DerivedMetric(
+        key: 'fcfYield',
+        label: 'FCF 수익률',
+        display: formatPercent(fcfYield.value),
+        derived: fcfYield,
       ),
     ];
   }

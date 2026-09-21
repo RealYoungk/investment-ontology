@@ -6,6 +6,14 @@ import '../ingest/ingest_jobs.dart';
 import 'anthropic_client.dart';
 import 'relation_extractor.dart';
 
+/// 본문 목록의 한 줄 (글은 빼고).
+typedef BusinessDocumentRow = ({
+  int id,
+  int companyId,
+  int bsnsYear,
+  int charCount,
+});
+
 /// 사업보고서 본문을 AI로 읽어 관계 후보(draft)를 만든다.
 ///
 /// 화면 요청 중에는 절대 부르지 않는다. API 키로 배치를 돌리거나([extract]),
@@ -21,17 +29,27 @@ class AiExtractionService {
   final Session session;
   final AnthropicClient? client;
 
-  /// 기업마다 가장 최근 사업보고서 본문.
-  static Future<List<BusinessDocument>> latestDocuments(Session session) async {
-    final docs = await BusinessDocument.db.find(
-      session,
-      orderByList: (t) => [t.bsnsYear.desc(), t.id.desc()],
-    );
-    final latest = <int, BusinessDocument>{};
-    for (final d in docs) {
-      latest.putIfAbsent(d.companyId, () => d);
-    }
-    return latest.values.toList();
+  /// 기업마다 가장 최근 사업보고서 본문 — 글은 빼고 목록만.
+  ///
+  /// 본문 하나가 수십만 자라 전부 읽으면 서버가 버티지 못한다. 세는 일과 고르는 일은
+  /// 이 목록으로 하고, 글은 고른 문서만 [BusinessDocument.db.findById]로 가져온다.
+  static Future<List<BusinessDocumentRow>> latestDocuments(
+    Session session,
+  ) async {
+    final rows = await session.db.unsafeQuery('''
+      SELECT DISTINCT ON ("companyId") id, "companyId", "bsnsYear", "charCount"
+      FROM business_document
+      ORDER BY "companyId", "bsnsYear" DESC, id DESC
+    ''');
+    return [
+      for (final r in rows)
+        (
+          id: r[0] as int,
+          companyId: r[1] as int,
+          bsnsYear: r[2] as int,
+          charCount: r[3] as int,
+        ),
+    ];
   }
 
   /// 문서 하나를 읽는다. 이 문서의 이전 draft는 지우고, 사람이 이미 승인·거절한 관계는 다시 만들지 않는다.
@@ -49,22 +67,32 @@ class AiExtractionService {
         ),
       );
       return await store(doc, RelationExtractor.parse(answer), client.model);
+    } on AnswerFormatException catch (e) {
+      // 읽지 못한 문서는 실패로 남겨 다음 배치에서 다시 시도한다.
+      return _failure(doc, client.model, e.message, now);
     } on AnthropicException catch (e) {
-      return AiExtraction.db.insertRow(
-        session,
-        AiExtraction(
-          documentId: doc.id!,
-          companyId: company.id!,
-          model: client.model,
-          succeeded: false,
-          relationCount: 0,
-          droppedCount: 0,
-          error: e.message,
-          createdAt: now,
-        ),
-      );
+      return _failure(doc, client.model, e.message, now);
     }
   }
+
+  Future<AiExtraction> _failure(
+    BusinessDocument doc,
+    String model,
+    String error,
+    DateTime now,
+  ) => AiExtraction.db.insertRow(
+    session,
+    AiExtraction(
+      documentId: doc.id!,
+      companyId: doc.companyId,
+      model: model,
+      succeeded: false,
+      relationCount: 0,
+      droppedCount: 0,
+      error: error,
+      createdAt: now,
+    ),
+  );
 
   /// 뽑아 온 후보를 저장한다. 인용이 원문에 그대로 있는 것만 남기고, 이 문서의 이전
   /// draft는 지우되 사람이 이미 승인·거절한 관계는 그대로 둔다.
@@ -152,14 +180,17 @@ class AiExtractionService {
       };
       final targets = [
         for (final d in await latestDocuments(session))
-          if (!extracted.contains(d.id)) d,
+          if (!extracted.contains(d.id)) d.id,
       ].take(limit).toList();
       job = await IngestJobs.save(session, job.copyWith(total: targets.length));
-      for (final doc in targets) {
+      for (final id in targets) {
         if (await IngestJobs.isCancelled(session, jobId)) {
           job = job.copyWith(status: IngestStatus.cancelled);
           break;
         }
+        // 글은 읽을 문서만 가져온다.
+        final doc = await BusinessDocument.db.findById(session, id);
+        if (doc == null) continue;
         final r = await extract(doc);
         done++;
         relations += r.relationCount;

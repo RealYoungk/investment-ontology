@@ -1,0 +1,6 @@
+### 검수 화면에 보여 줄 값 하나 (어느 기업의 무엇인지 포함).
+class: FactItem
+fields:
+  fact: DocumentFact
+  corpCode: String
+  companyName: String

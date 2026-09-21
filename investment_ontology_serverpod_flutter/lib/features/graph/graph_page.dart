@@ -64,9 +64,13 @@ class _GraphPageState extends State<GraphPage> {
     }
   }
 
+  /// 늦게 온 응답이 새 응답을 덮지 않게 하는 요청 번호.
+  int _seq = 0;
+
   Future<void> _load() async {
     final code = widget.corpCode;
     if (code == null) return;
+    final seq = ++_seq;
     setState(() => _loading = true);
     try {
       final g = await client.graph.neighborhood(
@@ -75,11 +79,11 @@ class _GraphPageState extends State<GraphPage> {
         maxNodes: _maxNodes,
         includeNames: _names,
       );
-      if (mounted) setState(() => (_graph = g, _error = null));
+      if (mounted && seq == _seq) setState(() => (_graph = g, _error = null));
     } catch (e) {
-      if (mounted) setState(() => _error = e);
+      if (mounted && seq == _seq) setState(() => _error = e);
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (mounted && seq == _seq) setState(() => _loading = false);
     }
   }
 
@@ -158,24 +162,37 @@ class _GraphPageState extends State<GraphPage> {
             style: t.body(12, color: c.textMuted),
           ),
           const SizedBox(height: AppSpace.sm),
-          AnimatedOpacity(
-            duration: AppMotion.fast,
-            opacity: _loading ? 0.5 : 1,
-            child: _GraphCanvas(
-              key: ValueKey(
-                '${g.centerKey}-${g.nodes.length}-${g.edges.length}',
-              ),
-              graph: g,
-              selected: _selected?.key,
-              onTap: _tap,
-            ),
+          LayoutBuilder(
+            builder: (context, box) {
+              // 폰에서는 점이 겹쳐 그림으로 읽기 어렵다. 관계를 종류별 목록으로 보여 준다.
+              if (box.maxWidth < 600) {
+                return _GraphList(graph: g, onTap: _tap);
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  AnimatedOpacity(
+                    duration: AppMotion.fast,
+                    opacity: _loading ? 0.5 : 1,
+                    child: _GraphCanvas(
+                      key: ValueKey(
+                        '${g.centerKey}-${g.nodes.length}-${g.edges.length}',
+                      ),
+                      graph: g,
+                      selected: _selected?.key,
+                      onTap: _tap,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpace.sm),
+                  const _Legend(),
+                  if (_selected case final n?) ...[
+                    const SizedBox(height: AppSpace.md),
+                    _Selection(node: n, graph: g),
+                  ],
+                ],
+              );
+            },
           ),
-          const SizedBox(height: AppSpace.sm),
-          const _Legend(),
-          if (_selected case final n?) ...[
-            const SizedBox(height: AppSpace.md),
-            _Selection(node: n, graph: g),
-          ],
         ],
       ],
     );
@@ -422,6 +439,130 @@ class _GraphCanvasState extends State<_GraphCanvas> {
           ),
         );
       },
+    );
+  }
+}
+
+/// 폰에서 보는 관계망: 중심 기업의 관계를 종류별로 묶은 목록.
+///
+/// 그림 대신 글로 읽는다. 줄을 누르면 그 대상이 가운데로 온다 (그림과 같은 동작).
+class _GraphList extends StatelessWidget {
+  const _GraphList({required this.graph, required this.onTap});
+
+  final CompanyGraph graph;
+  final ValueChanged<GraphNode> onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    final byKey = {for (final n in graph.nodes) n.key: n};
+    final center = byKey[graph.centerKey];
+
+    // (제목, 이 노드에서 본 상대, 관계) — 중심에 붙은 것부터, 그다음 2단계.
+    final groups = <String, List<(GraphNode, GraphEdge, bool)>>{};
+    for (final e in graph.edges) {
+      final fromCenter = e.from == graph.centerKey;
+      final toCenter = e.to == graph.centerKey;
+      final other = byKey[fromCenter ? e.to : e.from];
+      if (other == null) continue;
+      // 최대주주 명단(shareholderOf)과 타법인출자(investsIn)는 같은 지분을 양쪽에서
+      // 적은 것이라 한 묶음으로 보여 준다 (아래에서 같은 상대는 하나로 합친다).
+      final title = switch ((e.predicate, toCenter)) {
+        (RelationPredicate.shareholderOf, true) ||
+        (RelationPredicate.investsIn, true) => '주주',
+        (RelationPredicate.shareholderOf, false) ||
+        (RelationPredicate.investsIn, false) => '지분을 가진 곳',
+        (RelationPredicate.executiveOf, true) => '임원',
+        (RelationPredicate.executiveOf, false) => '임원으로 있는 곳',
+        (RelationPredicate.suppliesTo, true) => '공급처',
+        (RelationPredicate.suppliesTo, false) => '매출처',
+        (RelationPredicate.competesWith, _) => '경쟁',
+        (RelationPredicate.produces, _) => '제품',
+      };
+      if (!fromCenter && !toCenter) {
+        groups.putIfAbsent('건너편 관계', () => []).add((other, e, false));
+        continue;
+      }
+      groups.putIfAbsent(title, () => []).add((other, e, true));
+    }
+    for (final entry in groups.entries) {
+      // 같은 상대가 두 번 나오면 지분율이 큰 쪽만 남긴다.
+      final best = <String, (GraphNode, GraphEdge, bool)>{};
+      for (final row in entry.value) {
+        final key = '${row.$1.key}|${row.$3}';
+        final kept = best[key];
+        if (kept == null ||
+            (row.$2.weight ?? 0) > (kept.$2.weight ?? 0) ||
+            (kept.$2.estimated && !row.$2.estimated)) {
+          best[key] = row;
+        }
+      }
+      entry.value
+        ..clear()
+        ..addAll(best.values)
+        ..sort((a, b) => (b.$2.weight ?? 0).compareTo(a.$2.weight ?? 0));
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(AppSpace.md),
+      decoration: BoxDecoration(
+        color: c.surface,
+        borderRadius: context.shape.borderRadius,
+        border: Border.all(color: c.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (center != null)
+            Text(center.label, style: t.body(16, weight: FontWeight.w700)),
+          const SizedBox(height: AppSpace.sm),
+          for (final entry in groups.entries) ...[
+            SectionLabel('${entry.key} ${entry.value.length}'),
+            const SizedBox(height: 4),
+            for (final (other, edge, direct) in entry.value.take(30))
+              HoverBuilder(
+                onTap: () => onTap(other),
+                builder: (context, hovered) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 5),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          direct
+                              ? other.label
+                              : '${byKey[edge.from]?.label} → ${byKey[edge.to]?.label}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: t.body(
+                            13.5,
+                            color: other.kind == 'person'
+                                ? c.accent
+                                : c.textPrimary,
+                            weight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      if (edge.estimated)
+                        Text('추정 ', style: t.body(11.5, color: c.textMuted)),
+                      if (edge.weight case final w?)
+                        Text(
+                          formatRatio(w),
+                          style: t.numeric(12.5, color: c.textSecondary),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            if (entry.value.length > 30)
+              Text(
+                '그 밖에 ${entry.value.length - 30}건',
+                style: t.body(12, color: c.textMuted),
+              ),
+            const SizedBox(height: AppSpace.sm),
+          ],
+        ],
+      ),
     );
   }
 }

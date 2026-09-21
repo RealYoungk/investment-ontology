@@ -54,6 +54,7 @@ class DartFilingItem {
     required this.reportName,
     required this.rceptNo,
     required this.rceptDate,
+    this.filerName,
   });
 
   final String corpCode;
@@ -62,6 +63,9 @@ class DartFilingItem {
   final String? corpCls;
   final String reportName;
   final String rceptNo;
+
+  /// 제출인 (회사가 아닐 수도 있다 — 주주의 대량보유 보고 등).
+  final String? filerName;
   final DateTime? rceptDate;
 }
 
@@ -172,11 +176,14 @@ class DartClient {
     int page = 1,
     String? corpCode,
     bool lastReportOnly = true,
+
+    /// 공시 종류 (A 정기공시…). null이면 모든 종류.
+    String? typeCode = 'A',
   }) async {
     final body = await _json('list.json', {
       'bgn_de': DartValues.formatYmd(from),
       'end_de': DartValues.formatYmd(to),
-      'pblntf_ty': 'A',
+      'pblntf_ty': ?typeCode,
       'last_reprt_at': lastReportOnly ? 'Y' : 'N',
       'sort': 'date',
       'sort_mth': 'asc',
@@ -209,6 +216,7 @@ class DartClient {
               reportName: DartValues.text(e['report_nm']) ?? '',
               rceptNo: DartValues.text(e['rcept_no'])!,
               rceptDate: DartValues.ymd(e['rcept_dt']),
+              filerName: DartValues.text(e['flr_nm']),
             ),
       ],
     );

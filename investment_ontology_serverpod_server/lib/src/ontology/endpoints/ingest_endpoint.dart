@@ -4,6 +4,8 @@ import '../../generated/protocol.dart';
 import '../dart/dart_api_key.dart';
 import '../data_go_kr/data_go_kr_service_key.dart';
 import '../disclosure/disclosure_links.dart';
+import '../disclosure/production_facts.dart';
+import '../disclosure/supplier_relations.dart';
 import '../ingest/api_call_budget.dart';
 import '../ingest/company_master_sync.dart';
 import '../ingest/disclosure_sync.dart';
@@ -188,6 +190,42 @@ class IngestEndpoint extends Endpoint {
   /// [kind]의 최근 작업 (`company_master`, `financial_facts`, `market_snapshot`, `disclosures` …).
   Future<IngestJob?> latestOf(Session session, String kind) =>
       IngestJobs.latest(session, kind);
+
+  /// 여러 종류의 마지막 작업을 한 번에. 앱이 15초마다 부르므로 왕복을 한 번으로 줄인다.
+  /// 없는 종류는 빠지므로 `kind`로 맞춰 읽는다.
+  Future<List<IngestJob>> latestOfKinds(
+    Session session,
+    List<String> kinds,
+  ) async => [
+    for (final kind in kinds) ?await IngestJobs.latest(session, kind),
+  ];
+
+  /// 이미 받아 둔 본문에서 생산능력·생산실적·가동률 표를 다시 읽는다 (호출 없음).
+  ///
+  /// 규칙을 고친 뒤 되돌려 읽을 때 쓴다. 사람이 이미 결정한 항목은 건드리지 않는다.
+  Future<String> rebuildProductionFacts(Session session) async {
+    // 본문 하나가 수십만 자다. 전부 메모리에 올리지 않고 한 건씩 읽는다.
+    final ids = [
+      for (final r in await session.db.unsafeQuery(
+        'SELECT id FROM business_document ORDER BY id',
+      ))
+        r[0] as int,
+    ];
+    final keys = await ProductionFacts.listedKeys(session);
+    // 상장사 목록은 한 번만 읽는다 (문서마다 다시 읽으면 3,000번이 된다).
+    final listed = await Company.db.find(
+      session,
+      where: (t) => t.market.inSet(DisclosureLinks.listedMarkets),
+    );
+    var stored = 0, links = 0;
+    for (final id in ids) {
+      final doc = await BusinessDocument.db.findById(session, id);
+      if (doc == null) continue;
+      stored += await ProductionFacts.store(session, doc, companyKeys: keys);
+      links += await SupplierRelations.store(session, doc, listed: listed);
+    }
+    return '본문 ${ids.length}건에서 값 $stored건, 공급 관계 $links건을 읽었습니다.';
+  }
 
   static void _requireDartKey(Session session) {
     if (DartApiKey.read(session) == null) {

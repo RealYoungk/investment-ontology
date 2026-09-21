@@ -10,6 +10,9 @@ import '../disclosure/business_text.dart';
 import '../disclosure/disclosure_links.dart';
 import '../disclosure/disclosure_rows.dart';
 import '../disclosure/disclosure_values.dart';
+import '../disclosure/production_facts.dart';
+import '../disclosure/supplier_relations.dart';
+import '../market/market_caps.dart';
 import 'api_call_budget.dart';
 import 'financial_facts_sync.dart';
 import 'financial_rows.dart';
@@ -31,6 +34,7 @@ class DisclosureSync {
     this.jobId, {
     int? dailyBudget,
     this.priorityBudget = ApiCallBudget.dartDisclosurePriorityBudget,
+    this.businessBudget = defaultBusinessBudget,
     this.callInterval = const Duration(milliseconds: 200),
     this.scheduleResume,
     this.corpCode,
@@ -42,6 +46,10 @@ class DisclosureSync {
                ? ApiCallBudget.dartFinancialBudget
                : ApiCallBudget.dartDailyLimit - 100),
        _clock = clock ?? DateTime.now;
+
+  /// 재무 백필이 끝나기를 기다리면 본문이 몇 주 동안 안 쌓이므로, 백필 중에도
+  /// 시가총액이 큰 기업부터 하루 이만큼은 받는다. 관계 추출의 재료다.
+  static const defaultBusinessBudget = 300;
 
   static const kind = 'disclosures';
 
@@ -65,6 +73,9 @@ class DisclosureSync {
   final int jobId;
   final int dailyBudget;
   final int priorityBudget;
+
+  /// 재무 백필 중에도 하루에 받는 "사업의 내용" 본문 수 (1건 = 1회 호출).
+  final int businessBudget;
   final Duration callInterval;
   final Future<void> Function(DateTime at)? scheduleResume;
 
@@ -81,6 +92,10 @@ class DisclosureSync {
     if (dart.calls >= _allowance) _budgetExhausted = true;
     return !_budgetExhausted;
   }
+
+  /// 이번 실행에서 한 번만 읽는 상장사 목록 (본문 규칙 추출에 쓴다).
+  Set<String>? _companyKeys;
+  List<Company>? _listedCompanies;
 
   /// 이번 실행에서 인물 키 → id (같은 사람을 여러 번 찾지 않도록).
   final _persons = <String, int>{};
@@ -130,6 +145,13 @@ class DisclosureSync {
           e = e & t.yearRank.equals(0) & t.tier.equals(0);
         }
         return e;
+      }
+
+      if (priorityOnly) {
+        final n = await _fetchBusinessDocuments(byId, byName);
+        stored += n.stored;
+        failed += n.failed;
+        processed += n.stored + n.failed;
       }
 
       final total = await DartFilingSection.db.count(session, where: scope);
@@ -354,6 +376,71 @@ class DisclosureSync {
                 t.separateStatus.equals(FilingFetchStatus.failed)),
       ) >
       0;
+
+  /// 재무 백필 중에 "사업의 내용" 본문을 시가총액이 큰 기업부터 [businessBudget]건 받는다.
+  ///
+  /// 핵심 항목(tier 0)과 몫을 나눠 쓴다. 본문은 관계·값 추출의 재료라 백필이
+  /// 끝날 때까지 기다리면 온톨로지가 자라지 않는다.
+  Future<({int stored, int failed})> _fetchBusinessDocuments(
+    Map<int, Company> byId,
+    Map<String, int> byName,
+  ) async {
+    if (businessBudget <= 0 || !_hasAllowance) return (stored: 0, failed: 0);
+    final pending = await DartFilingSection.db.find(
+      session,
+      where: (t) =>
+          t.status.equals(FilingFetchStatus.pending) &
+          t.yearRank.equals(0) &
+          t.section.equals(DartSection.businessContent),
+    );
+    if (pending.isEmpty) return (stored: 0, failed: 0);
+    final caps = await MarketCaps.latest(session, {
+      for (final s in pending) s.companyId,
+    });
+    pending.sort((a, b) {
+      final x = caps.caps[a.companyId] ?? BigInt.zero;
+      final y = caps.caps[b.companyId] ?? BigInt.zero;
+      return y.compareTo(x);
+    });
+    final filings = {
+      for (final f in await DartFiling.db.find(
+        session,
+        where: (t) => t.id.inSet(<int>{
+          for (final s in pending.take(businessBudget)) s.filingId,
+        }),
+      ))
+        f.id!: f,
+    };
+    var stored = 0, failed = 0;
+    var done = 0;
+    for (final item in pending.take(businessBudget)) {
+      if (!_hasAllowance) break;
+      // 재무 수집과 겹쳐 돌면 시작할 때 계산한 몫만으로는 하루 한도를 넘길 수 있다.
+      // 본문은 한 건에 여러 번 부를 수도 있어(정정 공시 되짚기) 자주 확인한다.
+      if (done > 0 && done % _progressEvery == 0) {
+        await _meter.flush(session);
+        if (await ApiCallBudget.reached(
+          session,
+          ApiProvider.dart,
+          dailyBudget,
+        )) {
+          _budgetExhausted = true;
+          break;
+        }
+      }
+      done++;
+      if (await IngestJobs.isCancelled(session, jobId)) break;
+      final filing = filings[item.filingId];
+      final company = filing == null ? null : byId[filing.companyId];
+      if (filing == null || company == null) continue;
+      final result = await _fetch(item, filing, company, byName);
+      if (_budgetExhausted && result == FilingFetchStatus.pending) break;
+      if (result == FilingFetchStatus.stored) stored++;
+      if (result == FilingFetchStatus.failed) failed++;
+    }
+    await _meter.flush(session);
+    return (stored: stored, failed: failed);
+  }
 
   /// 항목 하나를 받는다. 한도에 닿아 받지 못했으면 pending.
   Future<FilingFetchStatus> _fetch(
@@ -585,9 +672,36 @@ class DisclosureSync {
             other.copyWith(supersededById: report.id),
             transaction: tx,
           );
+        } else {
+          // 더 늦은 보고서를 이미 받았다 — 이 보고서가 대체된 쪽이다.
+          await DisclosureReport.db.updateRow(
+            session,
+            report.copyWith(supersededById: other.id),
+            transaction: tx,
+          );
         }
       }
     });
+    // 본문의 생산능력·생산실적·가동률 표는 형식이 일정해 규칙으로 읽는다 (호출 없음).
+    final stored = await BusinessDocument.db.findFirstRow(
+      session,
+      where: (t) => t.rceptNo.equals(filing.rceptNo),
+      orderBy: (t) => t.id.desc(),
+    );
+    if (stored != null) {
+      // 상장사 목록·이름 키는 한 실행에서 한 번만 읽는다 (본문이 하루 300건 온다).
+      _companyKeys ??= await ProductionFacts.listedKeys(session);
+      _listedCompanies ??= await Company.db.find(
+        session,
+        where: (t) => t.market.inSet(DisclosureLinks.listedMarkets),
+      );
+      await ProductionFacts.store(session, stored, companyKeys: _companyKeys);
+      await SupplierRelations.store(
+        session,
+        stored,
+        listed: _listedCompanies,
+      );
+    }
   }
 
   /// 출생년월이 있는 임원을 인물에 잇는다 (없으면 만든다).

@@ -17,7 +17,9 @@ ai:
   - startBatch:
   - pending:
   - documentText:
+  - documentTexts:
   - submit:
+  - submitFacts:
 company:
   - overview:
   - divisions:
@@ -28,6 +30,10 @@ disclosure:
   - table:
   - businessContent:
   - shareholderReturn:
+  - facts:
+  - factTrends:
+  - recentOf:
+  - recentFilings:
 financial:
   - summary:
   - report:
@@ -51,12 +57,24 @@ ingest:
   - coverage:
   - latest:
   - latestOf:
+  - latestOfKinds:
+  - rebuildProductionFacts:
 market:
   - industryTreemap:
+  - priceHistory:
 review:
   - list:
   - decide:
+  - decideMany:
+  - decideFactsMany:
+  - recordCheck:
+  - checks:
+  - facts:
+  - decideFact:
   - forCompany:
+screen:
+  - list:
+  - peers:
 theme:
   - list:
   - create:

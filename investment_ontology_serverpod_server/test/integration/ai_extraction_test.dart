@@ -194,6 +194,48 @@ void main() {
       expect(await endpoints.ai.pending(sessionBuilder), isEmpty);
     });
 
+    test('본문 값(수주잔고 등)도 근거가 원문에 있어야 저장한다', () async {
+      final result = await endpoints.ai.submitFacts(
+        sessionBuilder,
+        doc.id!,
+        jsonEncode({
+          'facts': [
+            {
+              'kind': 'orderBacklog',
+              'label': '배터리',
+              'value': 21292358,
+              'unit': '백만원',
+              'asOf': '2025-12-31',
+              'evidence': '주요 원재료는 양극재이며 (주)양극재에서 매입합니다.',
+              'confidence': 0.9,
+            },
+            {
+              'kind': 'utilization',
+              'label': '없는 부문',
+              'value': 91.6,
+              'unit': '%',
+              'evidence': '원문에 없는 문장이라 버려야 합니다.',
+            },
+          ],
+        }),
+      );
+      expect(result, '저장 1건, 버린 것 1건');
+
+      final page = await endpoints.review.facts(sessionBuilder);
+      expect(page.draftCount, 1);
+      final item = page.items.single;
+      expect((item.companyName, item.fact.label), ('(주)배터리', '배터리'));
+      expect(item.fact.unit, '백만원');
+
+      await endpoints.review.decideFact(sessionBuilder, item.fact.id!, true);
+      final after = await endpoints.review.facts(
+        sessionBuilder,
+        status: RelationStatus.verified,
+      );
+      expect(after.verifiedCount, 1);
+      expect(after.items.single.fact.reviewedAt, isNotNull);
+    });
+
     test('모델 호출이 실패하면 실패로 기록하고 관계는 만들지 않는다', () async {
       final failing = AnthropicClient(
         'key',

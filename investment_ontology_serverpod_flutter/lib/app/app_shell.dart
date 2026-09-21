@@ -32,6 +32,7 @@ const _destinations = [
     '/companies',
     matches: ['/company/', '/reports/', '/person/'],
   ),
+  _Destination('스크리너', '/screen', matches: ['/compare']),
   _Destination('관계망', '/graph'),
   _Destination('지분 묶음', '/groups'),
   _Destination('테마', '/themes'),

@@ -35,6 +35,44 @@ void main() {
         reason: name,
       );
       expect(client, contains('class Endpoint$name '), reason: name);
+      // 클래스는 남고 필드 선언만 빠지면 앱이 컴파일되지 않는다 (실제로 겪었다).
+      expect(
+        client,
+        contains('late final Endpoint$name ${lowerFirst(name)};'),
+        reason: name,
+      );
+    }
+  });
+
+  test('엔드포인트의 공개 메서드가 클라이언트에 모두 있다', () {
+    // 생성기가 반쯤 바뀐 파일을 읽으면 메서드 몇 개만 빠진 채 남기도 한다.
+    final client = File(
+      '../investment_ontology_serverpod_client/lib/src/protocol/client.dart',
+    ).readAsStringSync();
+    for (final file in Directory('lib/src/ontology/endpoints').listSync()) {
+      if (file is! File || !file.path.endsWith('.dart')) continue;
+      final source = file.readAsStringSync();
+      final name = RegExp(
+        r'class (\w+)Endpoint extends Endpoint',
+      ).firstMatch(source)?.group(1);
+      if (name == null) continue;
+      final methods = {
+        for (final m in RegExp(
+          r'\n  (?:static )?Future<[^>]*>+\s+(\w+)\(',
+        ).allMatches(source))
+          m.group(1)!,
+      }..removeWhere((m) => m.startsWith('_'));
+      expect(methods, isNotEmpty, reason: name);
+      final section = client.substring(
+        client.indexOf('class Endpoint$name '),
+      );
+      for (final method in methods) {
+        expect(
+          section.substring(0, section.indexOf('\nclass ') + 1),
+          contains(RegExp('[ >]$method\\(')),
+          reason: '$name.$method',
+        );
+      }
     }
   });
 

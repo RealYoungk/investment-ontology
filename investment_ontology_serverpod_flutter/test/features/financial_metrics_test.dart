@@ -73,6 +73,8 @@ void main() {
             line('revenue', 200),
             line('operatingIncome', 20),
             line('netIncomeOwners', 15),
+            line('operatingCashFlow', 35),
+            line('capex', 12),
           ]),
           period(2025, FinancialReportCode.q3, [
             line('revenue', 300, cumulative: 800),
@@ -82,6 +84,8 @@ void main() {
             line('revenue', 1200),
             line('operatingIncome', 110),
             line('netIncomeOwners', 90),
+            line('operatingCashFlow', 150),
+            line('capex', 60),
             line('equityOwners', 900),
             line('liabilities', 450),
             line('equity', 1000),
@@ -90,6 +94,8 @@ void main() {
             line('revenue', 260),
             line('operatingIncome', 40),
             line('netIncomeOwners', 30),
+            line('operatingCashFlow', 40),
+            line('capex', 18),
             line('equityOwners', 1000),
             line('liabilities', 500),
             line('equity', 1100),
@@ -127,6 +133,30 @@ void main() {
       );
       expect(m['debtRatio']!.derived.value, closeTo(500 / 1100, 1e-9));
       expect(m['roe']!.derived.value, closeTo(105 / 1000, 1e-9));
+    });
+
+    test('잉여현금흐름은 취득액을 절댓값으로 빼고, 수익률은 시가총액으로 나눈다', () {
+      final m = {for (final x in view.metrics()) x.key: x};
+      // 영업활동 현금흐름 150 + 40 − 35 = 155, 유형자산 취득 60 + 18 − 12 = 66.
+      expect(m['freeCashFlow']!.derived.value, closeTo(155 - 66, 1e-9));
+      expect(m['fcfYield']!.derived.value, closeTo(89 / 1400, 1e-9));
+      expect(
+        m['freeCashFlow']!.derived.formula,
+        contains('영업활동 현금흐름 − 유형자산의 취득'),
+      );
+    });
+
+    test('취득액을 음수로 적는 회사도 같은 값이 나온다', () {
+      final v = FinancialView(
+        financials([
+          period(2025, FinancialReportCode.annual, [
+            line('operatingCashFlow', 150),
+            line('capex', -60),
+          ]),
+        ]),
+      );
+      final fcf = v.metrics().firstWhere((x) => x.key == 'freeCashFlow');
+      expect(fcf.derived.value, closeTo(90, 1e-9));
     });
 
     test('적자면 PER을 계산하지 않고 이유를 남긴다', () {

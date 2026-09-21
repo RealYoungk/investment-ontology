@@ -52,13 +52,17 @@ class _ThemesPageState extends State<ThemesPage> {
         _name.text,
         description: _description.text,
       );
+      if (!mounted) return;
       _name.clear();
       _description.clear();
       setState(() => _createError = null);
-      if (mounted) context.push(AppRoutes.theme(theme.id!));
+      context.push(AppRoutes.theme(theme.id!));
       await _load();
     } on IngestException catch (e) {
-      setState(() => _createError = e.message);
+      if (mounted) setState(() => _createError = e.message);
+    } catch (e) {
+      // 연결 오류도 화면에 보여 준다 (조용히 사라지면 만들어진 줄 안다).
+      if (mounted) setState(() => _createError = '$e');
     }
   }
 

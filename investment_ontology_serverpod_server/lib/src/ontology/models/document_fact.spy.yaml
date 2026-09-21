@@ -1,0 +1,35 @@
+### 사업보고서 본문에서 뽑은 값 하나 (수주잔고·가동률·점유율 등).
+###
+### 숫자는 원문에 적힌 단위 그대로 둔다 (바꾸지 않는다). 근거 문장이 원문에 그대로 있어야
+### 하고, 사람이 승인해야 확정이다 — AI 관계([OntologyRelation])와 같은 규칙이다.
+class: DocumentFact
+table: document_fact
+fields:
+  companyId: int, relation(parent=company, onDelete=Cascade)
+  documentId: int, relation(parent=business_document, onDelete=Cascade)
+  bsnsYear: int
+  kind: DocumentFactKind
+  ### 어느 부문·품목의 값인지 (예: 건설사업, 항공, 합계)
+  label: String
+  ### 값. 공시에 적힌 단위 그대로
+  value: double
+  ### 단위 표기 (백만원, 억원, 백만 달러, %, 대 등)
+  unit: String
+  ### 기준일 (본문에 있으면)
+  asOf: DateTime?
+  ### 원문에 그대로 있는 근거 문장
+  evidence: String
+  sourceId: int?, relation(parent=source, onDelete=SetNull)
+  extractedBy: RelationOrigin
+  extractorModel: String?
+  confidence: double?
+  status: RelationStatus
+  reviewedAt: DateTime?
+  ### 누가 결정했는지 (사람이면 null, AI가 원문과 대조했으면 그 이름)
+  reviewedBy: String?
+  createdAt: DateTime
+indexes:
+  document_fact_company_idx:
+    fields: companyId, kind
+  document_fact_document_idx:
+    fields: documentId

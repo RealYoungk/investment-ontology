@@ -1,0 +1,12 @@
+### 최근 올라온 정기보고서 한 건.
+class: FilingFeedItem
+fields:
+  company: CompanyRef
+  rceptNo: String
+  reportName: String
+  receivedDate: DateTime?
+  bsnsYear: int?
+  ### 이 보고서의 재무제표를 받아 뒀는지
+  financialStored: bool
+  ### 시가총액 (최근 기준일)
+  marketCap: BigInt?

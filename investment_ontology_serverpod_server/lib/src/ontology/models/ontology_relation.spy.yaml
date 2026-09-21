@@ -31,6 +31,8 @@ fields:
   extractorModel: String?
   ### 사람이 승인·거절한 시각
   reviewedAt: DateTime?
+  ### 누가 결정했는지 (사람이면 null, AI가 원문과 대조했으면 그 이름)
+  reviewedBy: String?
 indexes:
   ontology_relation_subject_company_idx:
     fields: subjectCompanyId

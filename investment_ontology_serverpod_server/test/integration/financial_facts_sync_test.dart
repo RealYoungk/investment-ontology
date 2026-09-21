@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/dart_client.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/ingest/api_call_budget.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/ingest/financial_facts_sync.dart';
 import 'package:serverpod/serverpod.dart';
 import 'package:test/test.dart';
@@ -240,6 +241,67 @@ void main() {
       expect(facts.every((f) => f.sourceId == report.sourceId), isTrue);
     });
 
+    test('최근 며칠 공시는 종류를 가리지 않고 상장사 것만 장부에 남긴다', () async {
+      dart.filings.addAll([
+        (
+          corp: '00000001',
+          name: '단일판매ㆍ공급계약체결',
+          rcept: '20260915000010',
+          date: '20260915',
+        ),
+        (
+          corp: '00000009',
+          name: '주식등의대량보유상황보고서',
+          rcept: '20260915000011',
+          date: '20260915',
+        ),
+      ]);
+
+      await runSync();
+
+      final feed = await DartDisclosure.db.find(session);
+      expect(
+        feed.map((d) => d.rceptNo),
+        ['20260915000010'],
+        reason: '기업 목록에 없는 곳의 공시는 남기지 않는다',
+      );
+      expect(feed.single.reportName, '단일판매ㆍ공급계약체결');
+      expect(
+        await DartFiling.db.count(
+          session,
+          where: (f) => f.rceptNo.equals('20260915000010'),
+        ),
+        0,
+        reason: '정기보고서가 아니므로 재무 수집 장부에는 들어가지 않는다',
+      );
+
+      // 다시 돌려도 같은 공시를 두 번 넣지 않는다.
+      await runSync();
+      expect(await DartDisclosure.db.count(session), 1);
+    });
+
+    test('재무 예산을 이미 넘겨 쓴 날에도 공시 피드는 돈다', () async {
+      // 오늘 DART 호출을 재무 예산보다 많이 쓴 상태 (다른 수집이 썼다).
+      await ApiCallBudget.record(
+        session,
+        ApiProvider.dart,
+        19538,
+        now: now,
+      );
+      dart.filings.add((
+        corp: '00000001',
+        name: '단일판매ㆍ공급계약체결',
+        rcept: '20260915000010',
+        date: '20260915',
+      ));
+
+      final job = await runSync(dailyBudget: 0);
+
+      expect(await DartDisclosure.db.count(session), 1);
+      expect(job.message, contains('공시 피드 1건'));
+      expect(dart.financialCalls, isEmpty, reason: '재무제표는 한 벌도 받지 않는다');
+    });
+
     test('공시 목록은 달력 3개월을 넘지 않는 구간으로 나눠 조회한다', () async {
       final ranges = <(String, String)>[];
       final base = dart.client();
@@ -275,7 +337,12 @@ void main() {
         clock: () => now,
       ).run();
 
-      expect(ranges.first.$1, '20220101', reason: '분기·반기 5개 사업연도 = FY2022부터');
+      expect(
+        ranges.first,
+        ('20260914', '20260917'),
+        reason: '먼저 최근 며칠 공시 피드를 훑는다',
+      );
+      expect(ranges[1].$1, '20220101', reason: '분기·반기 5개 사업연도 = FY2022부터');
       expect(ranges.last.$2, '20260917');
       for (final (from, to) in ranges) {
         final f = DateTime.parse(from);
@@ -321,7 +388,7 @@ void main() {
       dart.listCalls = 0;
       await runSync();
       expect(dart.listCalls, lessThan(fullScanCalls));
-      expect(dart.listCalls, 1, reason: '커서 7일 전부터 오늘까지 한 구간');
+      expect(dart.listCalls, 2, reason: '공시 피드 1회 + 커서 7일 전부터 한 구간');
     });
 
     test('수집 범위가 넓어져 커서가 과거를 덮지 않으면 처음부터 다시 훑는다', () async {
@@ -351,9 +418,46 @@ void main() {
       expect(cursor.scannedFrom, DateTime.utc(2022, 1, 1));
       expect(cursor.scannedThrough, DateTime.utc(2026, 9, 17));
 
+      // 아직 받을 것이 남아 있으면 범위는 5개년 그대로다.
+      final first = (await DartFiling.db.findFirstRow(session))!;
+      await DartFiling.db.updateRow(
+        session,
+        first.copyWith(consolidatedStatus: FilingFetchStatus.pending),
+      );
       dart.listCalls = 0;
       await runSync();
-      expect(dart.listCalls, 1, reason: '다시 덮였으니 커서 7일 전부터만');
+      expect(dart.listCalls, 2, reason: '공시 피드 1회 + 다시 덮였으니 커서 7일 전부터만');
+    });
+
+    test('최근 5개년을 다 받으면 10년으로 넓혀 다시 훑는다', () async {
+      await runSync();
+      expect(
+        (await DartFilingScan.db.findFirstRow(session))!.scannedFrom,
+        DateTime.utc(2022, 1, 1),
+        reason: '처음에는 5개년',
+      );
+      // 받을 것이 남지 않은 상태에서 다시 돌리면 범위를 넓힌다.
+      final pending = await DartFiling.db.find(
+        session,
+        where: (t) =>
+            t.consolidatedStatus.equals(FilingFetchStatus.pending) |
+            t.separateStatus.equals(FilingFetchStatus.pending),
+      );
+      for (final f in pending) {
+        await DartFiling.db.updateRow(
+          session,
+          f.copyWith(
+            consolidatedStatus: FilingFetchStatus.stored,
+            separateStatus: FilingFetchStatus.stored,
+          ),
+        );
+      }
+      await runSync();
+      expect(
+        (await DartFilingScan.db.findFirstRow(session))!.scannedFrom,
+        DateTime.utc(2017, 1, 1),
+        reason: '다 받았으면 10개년',
+      );
     });
 
     test('다시 돌리면 받은 공시는 호출하지 않는다', () async {

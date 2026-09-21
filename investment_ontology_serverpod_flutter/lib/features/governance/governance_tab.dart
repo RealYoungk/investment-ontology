@@ -128,6 +128,13 @@ class _GovernanceTabState extends State<GovernanceTab> {
               label: '타법인 출자',
               value: '${investments.length}곳 (경영참여 $management)',
             ),
+            if (d.minorityRatio != null)
+              _Figure(
+                label: '소액주주',
+                value:
+                    '${formatRatio(d.minorityRatio)}'
+                    '${d.minorityHolders == null ? '' : ' (${formatCount(d.minorityHolders!)}명)'}',
+              ),
           ],
         ),
         const SizedBox(height: AppSpace.xl),
@@ -137,7 +144,7 @@ class _GovernanceTabState extends State<GovernanceTab> {
             label: '관계망에서 더 넓게 보기 →',
             variant: AppButtonVariant.link,
             tone: c.accent,
-            onPressed: () => context.push(AppRoutes.graph(widget.corpCode)),
+            onPressed: () => context.go(AppRoutes.graph(widget.corpCode)),
           ),
         ),
         GovernanceGraph(

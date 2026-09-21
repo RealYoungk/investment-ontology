@@ -1,0 +1,6 @@
+### 종가 추이의 한 점.
+class: PricePoint
+fields:
+  date: DateTime
+  ### 종가 (원)
+  close: int

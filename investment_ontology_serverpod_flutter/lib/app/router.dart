@@ -12,6 +12,9 @@ import '../features/groups/group_page.dart';
 import '../features/groups/groups_page.dart';
 import '../features/market_map/market_page.dart';
 import '../features/review/review_page.dart';
+import '../features/screen/compare_page.dart';
+import '../features/screen/screen_filter.dart';
+import '../features/screen/screen_page.dart';
 import '../features/themes/theme_page.dart';
 import '../features/themes/themes_page.dart';
 import 'app_shell.dart';
@@ -25,6 +28,8 @@ import 'app_shell.dart';
 /// - `/themes`, `/themes/:themeId` 테마
 /// - `/graph/:corpCode` 관계망
 /// - `/groups`, `/groups/:corpCode` 지분 묶음 (묶음에 속한 아무 기업으로 찾는다)
+/// - `/screen` 스크리너 (재무·시세로 거르기)
+/// - `/compare?codes=a,b` 기업 비교
 /// - `/review` AI 관계 검수
 /// - `/reports/:reportId` 재무제표 원문 표
 /// - `/data` 수집 상태
@@ -40,6 +45,9 @@ abstract final class AppRoutes {
   static String theme(int themeId) => '/themes/$themeId';
 
   static String graph(String corpCode) => '/graph/$corpCode';
+
+  static String compare(List<String> corpCodes) =>
+      '/compare${corpCodes.isEmpty ? '' : '?codes=${corpCodes.join(',')}'}';
 
   static String report(int reportId) => '/reports/$reportId';
 
@@ -86,8 +94,10 @@ abstract final class AppRoutes {
           ),
           GoRoute(
             path: '/graph/:corpCode',
+            // 키에 기업을 넣는다. 고정 키 하나면 관계망을 관계망 위에 쌓을 때
+            // (기업 상세의 "관계망 →") 같은 키가 둘이 되어 Navigator가 걸린다.
             pageBuilder: (context, state) => NoTransitionPage(
-              key: const ValueKey('graph'),
+              key: ValueKey('graph:${state.pathParameters['corpCode']}'),
               child: GraphPage(corpCode: state.pathParameters['corpCode']),
             ),
           ),
@@ -100,6 +110,26 @@ abstract final class AppRoutes {
             path: '/groups/:corpCode',
             builder: (context, state) =>
                 GroupPage(corpCode: state.pathParameters['corpCode']!),
+          ),
+          GoRoute(
+            path: '/screen',
+            pageBuilder: (context, state) => NoTransitionPage(
+              child: ScreenerPage(
+                filter: ScreenFilter.fromQuery(state.uri.queryParameters),
+              ),
+            ),
+          ),
+          GoRoute(
+            path: '/compare',
+            pageBuilder: (context, state) => NoTransitionPage(
+              child: ComparePage(
+                corpCodes: [
+                  for (final c
+                      in (state.uri.queryParameters['codes'] ?? '').split(','))
+                    if (c.trim().isNotEmpty) c.trim(),
+                ],
+              ),
+            ),
           ),
           GoRoute(
             path: '/review',

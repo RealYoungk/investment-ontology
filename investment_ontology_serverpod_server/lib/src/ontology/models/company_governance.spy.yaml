@@ -17,4 +17,7 @@ fields:
   ### 위 행들이 가리키는 기업·인물
   companies: List<CompanyRef>
   persons: List<Person>
+  ### 소액주주 현황 (유통 물량을 가늠하는 값). 그 해 보고서에 있을 때만
+  minorityHolders: int?
+  minorityRatio: double?
   sources: List<Source>

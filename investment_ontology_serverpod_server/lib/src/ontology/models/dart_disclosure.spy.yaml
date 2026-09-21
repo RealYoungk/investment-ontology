@@ -1,0 +1,22 @@
+### DART에 올라온 공시 하나 (종류 가리지 않음). 기업 화면의 "최근 공시"에 쓴다.
+###
+### 정기보고서는 [DartFiling]이 따로 관리한다. 이 표는 계약·증자·주요사항 등
+### 무슨 일이 있었는지 훑어보는 용도라 목록만 담는다.
+class: DartDisclosure
+table: dart_disclosure
+fields:
+  rceptNo: String
+  corpCode: String
+  companyId: int?, relation(parent=company, onDelete=SetNull)
+  corpName: String
+  reportName: String
+  receivedDate: DateTime
+  ### 제출인 (회사가 아닌 경우도 있다 — 주주의 대량보유 보고 등)
+  filerName: String?
+  discoveredAt: DateTime
+indexes:
+  dart_disclosure_rcept_idx:
+    fields: rceptNo
+    unique: true
+  dart_disclosure_company_idx:
+    fields: companyId, receivedDate

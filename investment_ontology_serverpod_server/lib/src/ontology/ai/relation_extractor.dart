@@ -28,7 +28,10 @@ abstract final class RelationExtractor {
       '그대로 복사하며 200자를 넘지 않는다. 답은 JSON 하나로만 한다.';
 
   /// 관계를 찾을 만한 하위 절(사업의 개요·제품·원재료·매출·수주·경쟁)을 먼저, 나머지를 뒤에 붙여 자른다.
-  static String excerpt(String text) {
+  static String excerpt(String text, {int? maxChars}) {
+    final limit = maxChars == null
+        ? RelationExtractor.maxChars
+        : maxChars.clamp(500, RelationExtractor.maxChars);
     final sections = BusinessText.sections(text);
     bool useful(String title) => RegExp(
       r'개요|제품|서비스|원재료|매출|수주|경쟁|영업',
@@ -41,13 +44,13 @@ abstract final class RelationExtractor {
     ];
     final buf = StringBuffer();
     for (final s in ordered) {
-      if (buf.length >= maxChars) break;
+      if (buf.length >= limit) break;
       buf
         ..writeln('## ${s.title}')
         ..writeln(s.text);
     }
     final out = buf.toString();
-    return out.length > maxChars ? out.substring(0, maxChars) : out;
+    return out.length > limit ? out.substring(0, limit) : out;
   }
 
   static String prompt(String companyName, int bsnsYear, String excerpt) =>
@@ -71,19 +74,25 @@ abstract final class RelationExtractor {
 $excerpt
 </문서>''';
 
-  /// 모델 답에서 JSON을 꺼낸다. 형식이 틀린 항목은 버린다.
+  /// 모델 답에서 JSON을 꺼낸다. 형식이 틀린 **항목**은 버리지만, 답 전체가 JSON이
+  /// 아니면(토큰 한도에 걸려 잘린 답 등) [AnswerFormatException]을 던진다 — 관계가
+  /// 없는 문서와 읽지 못한 문서를 구분해야 다시 시도할 수 있다.
   static List<ExtractedRelation> parse(String answer) {
     final start = answer.indexOf('{');
     final end = answer.lastIndexOf('}');
-    if (start < 0 || end <= start) return const [];
+    if (start < 0 || end <= start) {
+      throw AnswerFormatException('답에서 JSON을 찾지 못했습니다');
+    }
     final Object? json;
     try {
       json = jsonDecode(answer.substring(start, end + 1));
-    } on FormatException {
-      return const [];
+    } on FormatException catch (e) {
+      throw AnswerFormatException('JSON을 해석하지 못했습니다: ${e.message}');
     }
     final list = json is Map ? json['relations'] : null;
-    if (list is! List) return const [];
+    if (list is! List) {
+      throw AnswerFormatException('relations 배열이 없습니다');
+    }
     return [
       for (final r in list.whereType<Map>())
         if (r['type'] is String &&
@@ -167,4 +176,14 @@ $excerpt
     }
     return (relations: relations, dropped: dropped);
   }
+}
+
+/// 모델 답이 JSON이 아니거나 잘렸다.
+class AnswerFormatException implements Exception {
+  AnswerFormatException(this.message);
+
+  final String message;
+
+  @override
+  String toString() => 'AnswerFormatException: $message';
 }

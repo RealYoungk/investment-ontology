@@ -30,7 +30,16 @@ void main() {
 ]}''');
     expect(parsed, hasLength(1));
     expect(parsed.single.confidence, 0.9);
-    expect(RelationExtractor.parse('JSON 아님'), isEmpty);
+    // 답 전체가 JSON이 아니면(잘린 답 등) 관계 0건이 아니라 오류다 — 다시 시도해야 한다.
+    expect(
+      () => RelationExtractor.parse('JSON 아님'),
+      throwsA(isA<AnswerFormatException>()),
+    );
+    expect(
+      () => RelationExtractor.parse('{"relations":[{"type":"supplier"'),
+      throwsA(isA<AnswerFormatException>()),
+      reason: '토큰 한도에 걸려 잘린 답',
+    );
   });
 
   test('근거 인용이 원문에 그대로 있고 이름이 인용 안에 있어야 한다', () {

@@ -15,14 +15,24 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _id7v70oo;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_group.dart'
     as _i7uvzrch;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/dart_disclosure.dart'
+    as _izt0hsdc;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/disclosure_section_info.dart'
     as _i39r1xmm;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/document_fact.dart'
+    as _ip7x5uw8;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/facet_count.dart'
     as _icfgas7c;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/filing_feed_item.dart'
+    as _iuq4bocx;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ingest_job.dart'
+    as _i1paap7y;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/investment_theme.dart'
     as _izhmhfon;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/person_hit.dart'
     as _i96d117e;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/review_check.dart'
+    as _ixhvmecn;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/review_item.dart'
     as _ihqozc6p;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/theme_summary.dart'
@@ -54,6 +64,7 @@ import 'ontology/models/company_page.dart' as _iaj9eyri;
 import 'ontology/models/company_ref.dart' as _i4gnucl8;
 import 'ontology/models/company_sort.dart' as _ia2izjbq;
 import 'ontology/models/dart_corp_status.dart' as _ir49pw6i;
+import 'ontology/models/dart_disclosure.dart' as _iw06ztex;
 import 'ontology/models/dart_filing.dart' as _itki3qdq;
 import 'ontology/models/dart_filing_scan.dart' as _ixr5w3gq;
 import 'ontology/models/dart_filing_section.dart' as _isprzv4c;
@@ -65,10 +76,15 @@ import 'ontology/models/disclosure_section_info.dart' as _ij0mhdco;
 import 'ontology/models/disclosure_table.dart' as _i7prd3sw;
 import 'ontology/models/disclosure_table_row.dart' as _i98o73zd;
 import 'ontology/models/dividend_entry.dart' as _ith4ion6;
+import 'ontology/models/document_fact.dart' as _iy6p3omn;
+import 'ontology/models/document_fact_kind.dart' as _iatg4403;
 import 'ontology/models/exceptions.dart' as _iqc95j34;
 import 'ontology/models/executive_entry.dart' as _i3df9cy5;
 import 'ontology/models/executive_registration.dart' as _iz7k3x6v;
 import 'ontology/models/facet_count.dart' as _iqbvehdv;
+import 'ontology/models/fact_item.dart' as _iawn4ngl;
+import 'ontology/models/fact_page.dart' as _iurbyopj;
+import 'ontology/models/filing_feed_item.dart' as _iivg0zeh;
 import 'ontology/models/filing_fetch_status.dart' as _i167q75d;
 import 'ontology/models/financial_fact.dart' as _igykxm42;
 import 'ontology/models/financial_line.dart' as _igzbjepn;
@@ -98,17 +114,25 @@ import 'ontology/models/market_snapshot.dart' as _ibhowe7d;
 import 'ontology/models/market_snapshot_day.dart' as _i3renazk;
 import 'ontology/models/ontology_relation.dart' as _iejnlir1;
 import 'ontology/models/overview.dart' as _iz31wbgv;
+import 'ontology/models/peer_comparison.dart' as _isobo9h5;
+import 'ontology/models/peer_metric.dart' as _iihutb4k;
 import 'ontology/models/person.dart' as _i9gy9ys0;
 import 'ontology/models/person_hit.dart' as _iyxi6nm4;
 import 'ontology/models/person_link_rejection.dart' as _iffou6wp;
 import 'ontology/models/person_profile.dart' as _i12ugm17;
 import 'ontology/models/person_role.dart' as _ipnxekll;
+import 'ontology/models/price_history.dart' as _i451wru0;
+import 'ontology/models/price_point.dart' as _iyfyllvz;
 import 'ontology/models/relation_fact_kind.dart' as _iy288i3j;
 import 'ontology/models/relation_origin.dart' as _id1oen7t;
 import 'ontology/models/relation_predicate.dart' as _idal2dwe;
 import 'ontology/models/relation_status.dart' as _ih00v9tp;
+import 'ontology/models/review_check.dart' as _iqdwyhyy;
 import 'ontology/models/review_item.dart' as _i6uduqoi;
 import 'ontology/models/review_page.dart' as _i22wlf7g;
+import 'ontology/models/screen_page.dart' as _izca0w44;
+import 'ontology/models/screen_row.dart' as _ie748vep;
+import 'ontology/models/screen_sort.dart' as _igeg1iky;
 import 'ontology/models/security.dart' as _ilujots3;
 import 'ontology/models/security_link_basis.dart' as _ic799xum;
 import 'ontology/models/security_quote.dart' as _ionn6cq2;
@@ -144,6 +168,7 @@ export 'ontology/models/company_page.dart';
 export 'ontology/models/company_ref.dart';
 export 'ontology/models/company_sort.dart';
 export 'ontology/models/dart_corp_status.dart';
+export 'ontology/models/dart_disclosure.dart';
 export 'ontology/models/dart_filing.dart';
 export 'ontology/models/dart_filing_scan.dart';
 export 'ontology/models/dart_filing_section.dart';
@@ -155,10 +180,15 @@ export 'ontology/models/disclosure_section_info.dart';
 export 'ontology/models/disclosure_table.dart';
 export 'ontology/models/disclosure_table_row.dart';
 export 'ontology/models/dividend_entry.dart';
+export 'ontology/models/document_fact.dart';
+export 'ontology/models/document_fact_kind.dart';
 export 'ontology/models/exceptions.dart';
 export 'ontology/models/executive_entry.dart';
 export 'ontology/models/executive_registration.dart';
 export 'ontology/models/facet_count.dart';
+export 'ontology/models/fact_item.dart';
+export 'ontology/models/fact_page.dart';
+export 'ontology/models/filing_feed_item.dart';
 export 'ontology/models/filing_fetch_status.dart';
 export 'ontology/models/financial_fact.dart';
 export 'ontology/models/financial_line.dart';
@@ -188,17 +218,25 @@ export 'ontology/models/market_snapshot.dart';
 export 'ontology/models/market_snapshot_day.dart';
 export 'ontology/models/ontology_relation.dart';
 export 'ontology/models/overview.dart';
+export 'ontology/models/peer_comparison.dart';
+export 'ontology/models/peer_metric.dart';
 export 'ontology/models/person.dart';
 export 'ontology/models/person_hit.dart';
 export 'ontology/models/person_link_rejection.dart';
 export 'ontology/models/person_profile.dart';
 export 'ontology/models/person_role.dart';
+export 'ontology/models/price_history.dart';
+export 'ontology/models/price_point.dart';
 export 'ontology/models/relation_fact_kind.dart';
 export 'ontology/models/relation_origin.dart';
 export 'ontology/models/relation_predicate.dart';
 export 'ontology/models/relation_status.dart';
+export 'ontology/models/review_check.dart';
 export 'ontology/models/review_item.dart';
 export 'ontology/models/review_page.dart';
+export 'ontology/models/screen_page.dart';
+export 'ontology/models/screen_row.dart';
+export 'ontology/models/screen_sort.dart';
 export 'ontology/models/security.dart';
 export 'ontology/models/security_link_basis.dart';
 export 'ontology/models/security_quote.dart';
@@ -314,6 +352,9 @@ class Protocol extends _isc.SerializationManager {
     if (t == _ir49pw6i.DartCorpStatus) {
       return _ir49pw6i.DartCorpStatus.fromJson(data) as T;
     }
+    if (t == _iw06ztex.DartDisclosure) {
+      return _iw06ztex.DartDisclosure.fromJson(data) as T;
+    }
     if (t == _itki3qdq.DartFiling) {
       return _itki3qdq.DartFiling.fromJson(data) as T;
     }
@@ -347,6 +388,12 @@ class Protocol extends _isc.SerializationManager {
     if (t == _ith4ion6.DividendEntry) {
       return _ith4ion6.DividendEntry.fromJson(data) as T;
     }
+    if (t == _iy6p3omn.DocumentFact) {
+      return _iy6p3omn.DocumentFact.fromJson(data) as T;
+    }
+    if (t == _iatg4403.DocumentFactKind) {
+      return _iatg4403.DocumentFactKind.fromJson(data) as T;
+    }
     if (t == _iqc95j34.IngestException) {
       return _iqc95j34.IngestException.fromJson(data) as T;
     }
@@ -358,6 +405,15 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _iqbvehdv.FacetCount) {
       return _iqbvehdv.FacetCount.fromJson(data) as T;
+    }
+    if (t == _iawn4ngl.FactItem) {
+      return _iawn4ngl.FactItem.fromJson(data) as T;
+    }
+    if (t == _iurbyopj.FactPage) {
+      return _iurbyopj.FactPage.fromJson(data) as T;
+    }
+    if (t == _iivg0zeh.FilingFeedItem) {
+      return _iivg0zeh.FilingFeedItem.fromJson(data) as T;
     }
     if (t == _i167q75d.FilingFetchStatus) {
       return _i167q75d.FilingFetchStatus.fromJson(data) as T;
@@ -446,6 +502,12 @@ class Protocol extends _isc.SerializationManager {
     if (t == _iz31wbgv.Overview) {
       return _iz31wbgv.Overview.fromJson(data) as T;
     }
+    if (t == _isobo9h5.PeerComparison) {
+      return _isobo9h5.PeerComparison.fromJson(data) as T;
+    }
+    if (t == _iihutb4k.PeerMetric) {
+      return _iihutb4k.PeerMetric.fromJson(data) as T;
+    }
     if (t == _i9gy9ys0.Person) {
       return _i9gy9ys0.Person.fromJson(data) as T;
     }
@@ -461,6 +523,12 @@ class Protocol extends _isc.SerializationManager {
     if (t == _ipnxekll.PersonRole) {
       return _ipnxekll.PersonRole.fromJson(data) as T;
     }
+    if (t == _i451wru0.PriceHistory) {
+      return _i451wru0.PriceHistory.fromJson(data) as T;
+    }
+    if (t == _iyfyllvz.PricePoint) {
+      return _iyfyllvz.PricePoint.fromJson(data) as T;
+    }
     if (t == _iy288i3j.RelationFactKind) {
       return _iy288i3j.RelationFactKind.fromJson(data) as T;
     }
@@ -473,11 +541,23 @@ class Protocol extends _isc.SerializationManager {
     if (t == _ih00v9tp.RelationStatus) {
       return _ih00v9tp.RelationStatus.fromJson(data) as T;
     }
+    if (t == _iqdwyhyy.ReviewCheck) {
+      return _iqdwyhyy.ReviewCheck.fromJson(data) as T;
+    }
     if (t == _i6uduqoi.ReviewItem) {
       return _i6uduqoi.ReviewItem.fromJson(data) as T;
     }
     if (t == _i22wlf7g.ReviewPage) {
       return _i22wlf7g.ReviewPage.fromJson(data) as T;
+    }
+    if (t == _izca0w44.ScreenPage) {
+      return _izca0w44.ScreenPage.fromJson(data) as T;
+    }
+    if (t == _ie748vep.ScreenRow) {
+      return _ie748vep.ScreenRow.fromJson(data) as T;
+    }
+    if (t == _igeg1iky.ScreenSort) {
+      return _igeg1iky.ScreenSort.fromJson(data) as T;
     }
     if (t == _ilujots3.Security) {
       return _ilujots3.Security.fromJson(data) as T;
@@ -597,6 +677,10 @@ class Protocol extends _isc.SerializationManager {
       return (data != null ? _ir49pw6i.DartCorpStatus.fromJson(data) : null)
           as T;
     }
+    if (t == _isc.getType<_iw06ztex.DartDisclosure?>()) {
+      return (data != null ? _iw06ztex.DartDisclosure.fromJson(data) : null)
+          as T;
+    }
     if (t == _isc.getType<_itki3qdq.DartFiling?>()) {
       return (data != null ? _itki3qdq.DartFiling.fromJson(data) : null) as T;
     }
@@ -643,6 +727,13 @@ class Protocol extends _isc.SerializationManager {
       return (data != null ? _ith4ion6.DividendEntry.fromJson(data) : null)
           as T;
     }
+    if (t == _isc.getType<_iy6p3omn.DocumentFact?>()) {
+      return (data != null ? _iy6p3omn.DocumentFact.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_iatg4403.DocumentFactKind?>()) {
+      return (data != null ? _iatg4403.DocumentFactKind.fromJson(data) : null)
+          as T;
+    }
     if (t == _isc.getType<_iqc95j34.IngestException?>()) {
       return (data != null ? _iqc95j34.IngestException.fromJson(data) : null)
           as T;
@@ -659,6 +750,16 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _isc.getType<_iqbvehdv.FacetCount?>()) {
       return (data != null ? _iqbvehdv.FacetCount.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_iawn4ngl.FactItem?>()) {
+      return (data != null ? _iawn4ngl.FactItem.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_iurbyopj.FactPage?>()) {
+      return (data != null ? _iurbyopj.FactPage.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_iivg0zeh.FilingFeedItem?>()) {
+      return (data != null ? _iivg0zeh.FilingFeedItem.fromJson(data) : null)
+          as T;
     }
     if (t == _isc.getType<_i167q75d.FilingFetchStatus?>()) {
       return (data != null ? _i167q75d.FilingFetchStatus.fromJson(data) : null)
@@ -773,6 +874,13 @@ class Protocol extends _isc.SerializationManager {
     if (t == _isc.getType<_iz31wbgv.Overview?>()) {
       return (data != null ? _iz31wbgv.Overview.fromJson(data) : null) as T;
     }
+    if (t == _isc.getType<_isobo9h5.PeerComparison?>()) {
+      return (data != null ? _isobo9h5.PeerComparison.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_iihutb4k.PeerMetric?>()) {
+      return (data != null ? _iihutb4k.PeerMetric.fromJson(data) : null) as T;
+    }
     if (t == _isc.getType<_i9gy9ys0.Person?>()) {
       return (data != null ? _i9gy9ys0.Person.fromJson(data) : null) as T;
     }
@@ -792,6 +900,12 @@ class Protocol extends _isc.SerializationManager {
     if (t == _isc.getType<_ipnxekll.PersonRole?>()) {
       return (data != null ? _ipnxekll.PersonRole.fromJson(data) : null) as T;
     }
+    if (t == _isc.getType<_i451wru0.PriceHistory?>()) {
+      return (data != null ? _i451wru0.PriceHistory.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_iyfyllvz.PricePoint?>()) {
+      return (data != null ? _iyfyllvz.PricePoint.fromJson(data) : null) as T;
+    }
     if (t == _isc.getType<_iy288i3j.RelationFactKind?>()) {
       return (data != null ? _iy288i3j.RelationFactKind.fromJson(data) : null)
           as T;
@@ -808,11 +922,23 @@ class Protocol extends _isc.SerializationManager {
       return (data != null ? _ih00v9tp.RelationStatus.fromJson(data) : null)
           as T;
     }
+    if (t == _isc.getType<_iqdwyhyy.ReviewCheck?>()) {
+      return (data != null ? _iqdwyhyy.ReviewCheck.fromJson(data) : null) as T;
+    }
     if (t == _isc.getType<_i6uduqoi.ReviewItem?>()) {
       return (data != null ? _i6uduqoi.ReviewItem.fromJson(data) : null) as T;
     }
     if (t == _isc.getType<_i22wlf7g.ReviewPage?>()) {
       return (data != null ? _i22wlf7g.ReviewPage.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_izca0w44.ScreenPage?>()) {
+      return (data != null ? _izca0w44.ScreenPage.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_ie748vep.ScreenRow?>()) {
+      return (data != null ? _ie748vep.ScreenRow.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_igeg1iky.ScreenSort?>()) {
+      return (data != null ? _igeg1iky.ScreenSort.fromJson(data) : null) as T;
     }
     if (t == _isc.getType<_ilujots3.Security?>()) {
       return (data != null ? _ilujots3.Security.fromJson(data) : null) as T;
@@ -987,6 +1113,12 @@ class Protocol extends _isc.SerializationManager {
     if (t == List<String?>) {
       return (data as List).map((e) => deserialize<String?>(e)).toList() as T;
     }
+    if (t == List<_iawn4ngl.FactItem>) {
+      return (data as List)
+              .map((e) => deserialize<_iawn4ngl.FactItem>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_igzbjepn.FinancialLine>) {
       return (data as List)
               .map((e) => deserialize<_igzbjepn.FinancialLine>(e))
@@ -1017,15 +1149,33 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_iihutb4k.PeerMetric>) {
+      return (data as List)
+              .map((e) => deserialize<_iihutb4k.PeerMetric>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_ipnxekll.PersonRole>) {
       return (data as List)
               .map((e) => deserialize<_ipnxekll.PersonRole>(e))
               .toList()
           as T;
     }
+    if (t == List<_iyfyllvz.PricePoint>) {
+      return (data as List)
+              .map((e) => deserialize<_iyfyllvz.PricePoint>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_i6uduqoi.ReviewItem>) {
       return (data as List)
               .map((e) => deserialize<_i6uduqoi.ReviewItem>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_ie748vep.ScreenRow>) {
+      return (data as List)
+              .map((e) => deserialize<_ie748vep.ScreenRow>(e))
               .toList()
           as T;
     }
@@ -1071,6 +1221,24 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_ip7x5uw8.DocumentFact>) {
+      return (data as List)
+              .map((e) => deserialize<_ip7x5uw8.DocumentFact>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_izt0hsdc.DartDisclosure>) {
+      return (data as List)
+              .map((e) => deserialize<_izt0hsdc.DartDisclosure>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_iuq4bocx.FilingFeedItem>) {
+      return (data as List)
+              .map((e) => deserialize<_iuq4bocx.FilingFeedItem>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_i96d117e.PersonHit>) {
       return (data as List)
               .map((e) => deserialize<_i96d117e.PersonHit>(e))
@@ -1083,10 +1251,34 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_i1paap7y.IngestJob>) {
+      return (data as List)
+              .map((e) => deserialize<_i1paap7y.IngestJob>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<String>) {
+      return (data as List).map((e) => deserialize<String>(e)).toList() as T;
+    }
+    if (t == List<int>) {
+      return (data as List).map((e) => deserialize<int>(e)).toList() as T;
+    }
+    if (t == List<_ixhvmecn.ReviewCheck>) {
+      return (data as List)
+              .map((e) => deserialize<_ixhvmecn.ReviewCheck>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_ihqozc6p.ReviewItem>) {
       return (data as List)
               .map((e) => deserialize<_ihqozc6p.ReviewItem>(e))
               .toList()
+          as T;
+    }
+    if (t == _isc.getType<List<String>?>()) {
+      return (data != null
+              ? (data as List).map((e) => deserialize<String>(e)).toList()
+              : null)
           as T;
     }
     if (t == List<_ihj01hrs.ThemeSummary>) {
@@ -1134,6 +1326,7 @@ class Protocol extends _isc.SerializationManager {
       _i4gnucl8.CompanyRef => 'CompanyRef',
       _ia2izjbq.CompanySort => 'CompanySort',
       _ir49pw6i.DartCorpStatus => 'DartCorpStatus',
+      _iw06ztex.DartDisclosure => 'DartDisclosure',
       _itki3qdq.DartFiling => 'DartFiling',
       _ixr5w3gq.DartFilingScan => 'DartFilingScan',
       _isprzv4c.DartFilingSection => 'DartFilingSection',
@@ -1145,10 +1338,15 @@ class Protocol extends _isc.SerializationManager {
       _i7prd3sw.DisclosureTable => 'DisclosureTable',
       _i98o73zd.DisclosureTableRow => 'DisclosureTableRow',
       _ith4ion6.DividendEntry => 'DividendEntry',
+      _iy6p3omn.DocumentFact => 'DocumentFact',
+      _iatg4403.DocumentFactKind => 'DocumentFactKind',
       _iqc95j34.IngestException => 'IngestException',
       _i3df9cy5.ExecutiveEntry => 'ExecutiveEntry',
       _iz7k3x6v.ExecutiveRegistration => 'ExecutiveRegistration',
       _iqbvehdv.FacetCount => 'FacetCount',
+      _iawn4ngl.FactItem => 'FactItem',
+      _iurbyopj.FactPage => 'FactPage',
+      _iivg0zeh.FilingFeedItem => 'FilingFeedItem',
       _i167q75d.FilingFetchStatus => 'FilingFetchStatus',
       _igykxm42.FinancialFact => 'FinancialFact',
       _igzbjepn.FinancialLine => 'FinancialLine',
@@ -1178,17 +1376,25 @@ class Protocol extends _isc.SerializationManager {
       _i3renazk.MarketSnapshotDay => 'MarketSnapshotDay',
       _iejnlir1.OntologyRelation => 'OntologyRelation',
       _iz31wbgv.Overview => 'Overview',
+      _isobo9h5.PeerComparison => 'PeerComparison',
+      _iihutb4k.PeerMetric => 'PeerMetric',
       _i9gy9ys0.Person => 'Person',
       _iyxi6nm4.PersonHit => 'PersonHit',
       _iffou6wp.PersonLinkRejection => 'PersonLinkRejection',
       _i12ugm17.PersonProfile => 'PersonProfile',
       _ipnxekll.PersonRole => 'PersonRole',
+      _i451wru0.PriceHistory => 'PriceHistory',
+      _iyfyllvz.PricePoint => 'PricePoint',
       _iy288i3j.RelationFactKind => 'RelationFactKind',
       _id1oen7t.RelationOrigin => 'RelationOrigin',
       _idal2dwe.RelationPredicate => 'RelationPredicate',
       _ih00v9tp.RelationStatus => 'RelationStatus',
+      _iqdwyhyy.ReviewCheck => 'ReviewCheck',
       _i6uduqoi.ReviewItem => 'ReviewItem',
       _i22wlf7g.ReviewPage => 'ReviewPage',
+      _izca0w44.ScreenPage => 'ScreenPage',
+      _ie748vep.ScreenRow => 'ScreenRow',
+      _igeg1iky.ScreenSort => 'ScreenSort',
       _ilujots3.Security => 'Security',
       _ic799xum.SecurityLinkBasis => 'SecurityLinkBasis',
       _ionn6cq2.SecurityQuote => 'SecurityQuote',
@@ -1263,6 +1469,8 @@ class Protocol extends _isc.SerializationManager {
         return 'CompanySort';
       case _ir49pw6i.DartCorpStatus():
         return 'DartCorpStatus';
+      case _iw06ztex.DartDisclosure():
+        return 'DartDisclosure';
       case _itki3qdq.DartFiling():
         return 'DartFiling';
       case _ixr5w3gq.DartFilingScan():
@@ -1285,6 +1493,10 @@ class Protocol extends _isc.SerializationManager {
         return 'DisclosureTableRow';
       case _ith4ion6.DividendEntry():
         return 'DividendEntry';
+      case _iy6p3omn.DocumentFact():
+        return 'DocumentFact';
+      case _iatg4403.DocumentFactKind():
+        return 'DocumentFactKind';
       case _iqc95j34.IngestException():
         return 'IngestException';
       case _i3df9cy5.ExecutiveEntry():
@@ -1293,6 +1505,12 @@ class Protocol extends _isc.SerializationManager {
         return 'ExecutiveRegistration';
       case _iqbvehdv.FacetCount():
         return 'FacetCount';
+      case _iawn4ngl.FactItem():
+        return 'FactItem';
+      case _iurbyopj.FactPage():
+        return 'FactPage';
+      case _iivg0zeh.FilingFeedItem():
+        return 'FilingFeedItem';
       case _i167q75d.FilingFetchStatus():
         return 'FilingFetchStatus';
       case _igykxm42.FinancialFact():
@@ -1351,6 +1569,10 @@ class Protocol extends _isc.SerializationManager {
         return 'OntologyRelation';
       case _iz31wbgv.Overview():
         return 'Overview';
+      case _isobo9h5.PeerComparison():
+        return 'PeerComparison';
+      case _iihutb4k.PeerMetric():
+        return 'PeerMetric';
       case _i9gy9ys0.Person():
         return 'Person';
       case _iyxi6nm4.PersonHit():
@@ -1361,6 +1583,10 @@ class Protocol extends _isc.SerializationManager {
         return 'PersonProfile';
       case _ipnxekll.PersonRole():
         return 'PersonRole';
+      case _i451wru0.PriceHistory():
+        return 'PriceHistory';
+      case _iyfyllvz.PricePoint():
+        return 'PricePoint';
       case _iy288i3j.RelationFactKind():
         return 'RelationFactKind';
       case _id1oen7t.RelationOrigin():
@@ -1369,10 +1595,18 @@ class Protocol extends _isc.SerializationManager {
         return 'RelationPredicate';
       case _ih00v9tp.RelationStatus():
         return 'RelationStatus';
+      case _iqdwyhyy.ReviewCheck():
+        return 'ReviewCheck';
       case _i6uduqoi.ReviewItem():
         return 'ReviewItem';
       case _i22wlf7g.ReviewPage():
         return 'ReviewPage';
+      case _izca0w44.ScreenPage():
+        return 'ScreenPage';
+      case _ie748vep.ScreenRow():
+        return 'ScreenRow';
+      case _igeg1iky.ScreenSort():
+        return 'ScreenSort';
       case _ilujots3.Security():
         return 'Security';
       case _ic799xum.SecurityLinkBasis():
@@ -1487,6 +1721,9 @@ class Protocol extends _isc.SerializationManager {
     if (dataClassName == 'DartCorpStatus') {
       return deserialize<_ir49pw6i.DartCorpStatus>(data['data']);
     }
+    if (dataClassName == 'DartDisclosure') {
+      return deserialize<_iw06ztex.DartDisclosure>(data['data']);
+    }
     if (dataClassName == 'DartFiling') {
       return deserialize<_itki3qdq.DartFiling>(data['data']);
     }
@@ -1520,6 +1757,12 @@ class Protocol extends _isc.SerializationManager {
     if (dataClassName == 'DividendEntry') {
       return deserialize<_ith4ion6.DividendEntry>(data['data']);
     }
+    if (dataClassName == 'DocumentFact') {
+      return deserialize<_iy6p3omn.DocumentFact>(data['data']);
+    }
+    if (dataClassName == 'DocumentFactKind') {
+      return deserialize<_iatg4403.DocumentFactKind>(data['data']);
+    }
     if (dataClassName == 'IngestException') {
       return deserialize<_iqc95j34.IngestException>(data['data']);
     }
@@ -1531,6 +1774,15 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'FacetCount') {
       return deserialize<_iqbvehdv.FacetCount>(data['data']);
+    }
+    if (dataClassName == 'FactItem') {
+      return deserialize<_iawn4ngl.FactItem>(data['data']);
+    }
+    if (dataClassName == 'FactPage') {
+      return deserialize<_iurbyopj.FactPage>(data['data']);
+    }
+    if (dataClassName == 'FilingFeedItem') {
+      return deserialize<_iivg0zeh.FilingFeedItem>(data['data']);
     }
     if (dataClassName == 'FilingFetchStatus') {
       return deserialize<_i167q75d.FilingFetchStatus>(data['data']);
@@ -1619,6 +1871,12 @@ class Protocol extends _isc.SerializationManager {
     if (dataClassName == 'Overview') {
       return deserialize<_iz31wbgv.Overview>(data['data']);
     }
+    if (dataClassName == 'PeerComparison') {
+      return deserialize<_isobo9h5.PeerComparison>(data['data']);
+    }
+    if (dataClassName == 'PeerMetric') {
+      return deserialize<_iihutb4k.PeerMetric>(data['data']);
+    }
     if (dataClassName == 'Person') {
       return deserialize<_i9gy9ys0.Person>(data['data']);
     }
@@ -1634,6 +1892,12 @@ class Protocol extends _isc.SerializationManager {
     if (dataClassName == 'PersonRole') {
       return deserialize<_ipnxekll.PersonRole>(data['data']);
     }
+    if (dataClassName == 'PriceHistory') {
+      return deserialize<_i451wru0.PriceHistory>(data['data']);
+    }
+    if (dataClassName == 'PricePoint') {
+      return deserialize<_iyfyllvz.PricePoint>(data['data']);
+    }
     if (dataClassName == 'RelationFactKind') {
       return deserialize<_iy288i3j.RelationFactKind>(data['data']);
     }
@@ -1646,11 +1910,23 @@ class Protocol extends _isc.SerializationManager {
     if (dataClassName == 'RelationStatus') {
       return deserialize<_ih00v9tp.RelationStatus>(data['data']);
     }
+    if (dataClassName == 'ReviewCheck') {
+      return deserialize<_iqdwyhyy.ReviewCheck>(data['data']);
+    }
     if (dataClassName == 'ReviewItem') {
       return deserialize<_i6uduqoi.ReviewItem>(data['data']);
     }
     if (dataClassName == 'ReviewPage') {
       return deserialize<_i22wlf7g.ReviewPage>(data['data']);
+    }
+    if (dataClassName == 'ScreenPage') {
+      return deserialize<_izca0w44.ScreenPage>(data['data']);
+    }
+    if (dataClassName == 'ScreenRow') {
+      return deserialize<_ie748vep.ScreenRow>(data['data']);
+    }
+    if (dataClassName == 'ScreenSort') {
+      return deserialize<_igeg1iky.ScreenSort>(data['data']);
     }
     if (dataClassName == 'Security') {
       return deserialize<_ilujots3.Security>(data['data']);

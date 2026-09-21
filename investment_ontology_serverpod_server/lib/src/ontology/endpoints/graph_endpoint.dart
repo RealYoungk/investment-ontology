@@ -54,8 +54,16 @@ class GraphEndpoint extends Endpoint {
         },
         orderByList: (t) => [t.weight.desc()],
       );
-      // 지분율이 큰 관계부터 넣어, 잘릴 때 약한 관계가 빠지게 한다.
-      relations.sort((a, b) => (b.weight ?? -1).compareTo(a.weight ?? -1));
+      // 사람이 승인한 관계(공급·경쟁·제품)를 먼저 넣고, 그다음 지분율이 큰 순서.
+      // 출자가 백 곳이 넘는 기업에서는 지분율만으로 줄 세우면 승인한 관계가
+      // 노드 수 제한에 밀려 하나도 안 보인다.
+      int rank(OntologyRelation r) =>
+          r.extractedBy == RelationOrigin.ai ? 0 : 1;
+      relations.sort((a, b) {
+        final byKind = rank(a).compareTo(rank(b));
+        if (byKind != 0) return byKind;
+        return (b.weight ?? -1).compareTo(a.weight ?? -1);
+      });
       final nextCompanies = <int>{}, nextPersons = <int>{};
       for (final r in relations) {
         final from = _subjectKey(r), to = _objectKey(r);
