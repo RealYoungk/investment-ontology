@@ -13,7 +13,6 @@
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart'
     as _i4yshtjp;
 import 'package:serverpod/serverpod.dart' as _is;
-
 import '../../ontology/models/company_ref.dart' as _id7z5ov5;
 import '../../ontology/models/executive_entry.dart' as _idolfb48;
 import '../../ontology/models/governance_link.dart' as _icazq9ky;

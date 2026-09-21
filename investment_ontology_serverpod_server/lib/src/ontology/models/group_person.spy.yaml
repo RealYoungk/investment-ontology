@@ -5,5 +5,7 @@ fields:
   name: String
   ### 추정 연결 (지분 묶음 규칙)
   estimated: bool
+  ### 출생년도 (임원 명단에 있으면). 같은 이름의 다른 사람을 가른다
+  birthYear: int?
   ### 이 인물이 주주인 묶음 안 기업 수
   companyCount: int

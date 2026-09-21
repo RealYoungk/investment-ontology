@@ -13,7 +13,6 @@
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart'
     as _i4yshtjp;
 import 'package:serverpod/serverpod.dart' as _is;
-
 import '../../ontology/models/dart_section.dart' as _iy0bhrwp;
 import '../../ontology/models/disclosure_table_row.dart' as _iib1bouo;
 import '../../ontology/models/source.dart' as _i5ra8lvy;

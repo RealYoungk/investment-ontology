@@ -723,7 +723,8 @@ class EndpointMarket extends _isc.EndpointRef {
   /// 가장 최근 기준일의 업종별 시가총액.
   ///
   /// 기업 시가총액은 기업에 연결된 종목(보통주·우선주 등) 시가총액의 합이다.
-  /// [sectionCode]가 없으면 대분류 → 중분류, 있으면 그 대분류의 중분류 → 기업으로 묶는다.
+  /// [sectionCode]가 없으면 대분류 → 그 안 시가총액 상위 기업, 있으면 그 대분류의
+  /// 중분류 → 기업으로 묶는다. 화면에 다 그릴 수 없어 대분류마다 [_topCompanies]개까지만 보낸다.
   _ida.Future<_ifex1fnm.MarketCapTreemap> industryTreemap({
     String? sectionCode,
     _iamn97sz.Market? market,

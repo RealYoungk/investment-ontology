@@ -19,6 +19,7 @@ abstract class GroupPerson
     required this.personId,
     required this.name,
     required this.estimated,
+    this.birthYear,
     required this.companyCount,
   });
 
@@ -26,6 +27,7 @@ abstract class GroupPerson
     required int personId,
     required String name,
     required bool estimated,
+    int? birthYear,
     required int companyCount,
   }) = _GroupPersonImpl;
 
@@ -34,6 +36,7 @@ abstract class GroupPerson
       personId: jsonSerialization['personId'] as int,
       name: jsonSerialization['name'] as String,
       estimated: _is.BoolJsonExtension.fromJson(jsonSerialization['estimated']),
+      birthYear: jsonSerialization['birthYear'] as int?,
       companyCount: jsonSerialization['companyCount'] as int,
     );
   }
@@ -45,6 +48,9 @@ abstract class GroupPerson
   /// 추정 연결 (지분 묶음 규칙)
   bool estimated;
 
+  /// 출생년도 (임원 명단에 있으면). 같은 이름의 다른 사람을 가른다
+  int? birthYear;
+
   /// 이 인물이 주주인 묶음 안 기업 수
   int companyCount;
 
@@ -55,6 +61,7 @@ abstract class GroupPerson
     int? personId,
     String? name,
     bool? estimated,
+    int? birthYear,
     int? companyCount,
   });
   @override
@@ -64,6 +71,7 @@ abstract class GroupPerson
       'personId': personId,
       'name': name,
       'estimated': estimated,
+      if (birthYear != null) 'birthYear': birthYear,
       'companyCount': companyCount,
     };
   }
@@ -75,6 +83,7 @@ abstract class GroupPerson
       'personId': personId,
       'name': name,
       'estimated': estimated,
+      if (birthYear != null) 'birthYear': birthYear,
       'companyCount': companyCount,
     };
   }
@@ -85,16 +94,20 @@ abstract class GroupPerson
   }
 }
 
+class _Undefined {}
+
 class _GroupPersonImpl extends GroupPerson {
   _GroupPersonImpl({
     required int personId,
     required String name,
     required bool estimated,
+    int? birthYear,
     required int companyCount,
   }) : super._(
          personId: personId,
          name: name,
          estimated: estimated,
+         birthYear: birthYear,
          companyCount: companyCount,
        );
 
@@ -106,12 +119,14 @@ class _GroupPersonImpl extends GroupPerson {
     int? personId,
     String? name,
     bool? estimated,
+    Object? birthYear = _Undefined,
     int? companyCount,
   }) {
     return GroupPerson(
       personId: personId ?? this.personId,
       name: name ?? this.name,
       estimated: estimated ?? this.estimated,
+      birthYear: birthYear is int? ? birthYear : this.birthYear,
       companyCount: companyCount ?? this.companyCount,
     );
   }
