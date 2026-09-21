@@ -28,6 +28,7 @@ abstract class CompanyListItem
     this.ceoName,
     this.fiscalMonth,
     this.establishedDate,
+    this.marketCap,
   });
 
   factory CompanyListItem({
@@ -42,6 +43,7 @@ abstract class CompanyListItem
     String? ceoName,
     int? fiscalMonth,
     DateTime? establishedDate,
+    BigInt? marketCap,
   }) = _CompanyListItemImpl;
 
   factory CompanyListItem.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -63,6 +65,9 @@ abstract class CompanyListItem
           : _is.DateTimeJsonExtension.fromJson(
               jsonSerialization['establishedDate'],
             ),
+      marketCap: jsonSerialization['marketCap'] == null
+          ? null
+          : _is.BigIntJsonExtension.fromJson(jsonSerialization['marketCap']),
     );
   }
 
@@ -88,6 +93,9 @@ abstract class CompanyListItem
 
   DateTime? establishedDate;
 
+  /// 가장 최근 기준일 시가총액 (종목 합). 시세가 없으면 null
+  BigInt? marketCap;
+
   /// Returns a shallow copy of this [CompanyListItem]
   /// with some or all fields replaced by the given arguments.
   @_is.useResult
@@ -103,6 +111,7 @@ abstract class CompanyListItem
     String? ceoName,
     int? fiscalMonth,
     DateTime? establishedDate,
+    BigInt? marketCap,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -119,6 +128,7 @@ abstract class CompanyListItem
       if (ceoName != null) 'ceoName': ceoName,
       if (fiscalMonth != null) 'fiscalMonth': fiscalMonth,
       if (establishedDate != null) 'establishedDate': establishedDate?.toJson(),
+      if (marketCap != null) 'marketCap': marketCap?.toJson(),
     };
   }
 
@@ -137,6 +147,7 @@ abstract class CompanyListItem
       if (ceoName != null) 'ceoName': ceoName,
       if (fiscalMonth != null) 'fiscalMonth': fiscalMonth,
       if (establishedDate != null) 'establishedDate': establishedDate?.toJson(),
+      if (marketCap != null) 'marketCap': marketCap?.toJson(),
     };
   }
 
@@ -161,6 +172,7 @@ class _CompanyListItemImpl extends CompanyListItem {
     String? ceoName,
     int? fiscalMonth,
     DateTime? establishedDate,
+    BigInt? marketCap,
   }) : super._(
          corpCode: corpCode,
          name: name,
@@ -173,6 +185,7 @@ class _CompanyListItemImpl extends CompanyListItem {
          ceoName: ceoName,
          fiscalMonth: fiscalMonth,
          establishedDate: establishedDate,
+         marketCap: marketCap,
        );
 
   /// Returns a shallow copy of this [CompanyListItem]
@@ -191,6 +204,7 @@ class _CompanyListItemImpl extends CompanyListItem {
     Object? ceoName = _Undefined,
     Object? fiscalMonth = _Undefined,
     Object? establishedDate = _Undefined,
+    Object? marketCap = _Undefined,
   }) {
     return CompanyListItem(
       corpCode: corpCode ?? this.corpCode,
@@ -206,6 +220,7 @@ class _CompanyListItemImpl extends CompanyListItem {
       establishedDate: establishedDate is DateTime?
           ? establishedDate
           : this.establishedDate,
+      marketCap: marketCap is BigInt? ? marketCap : this.marketCap,
     );
   }
 }

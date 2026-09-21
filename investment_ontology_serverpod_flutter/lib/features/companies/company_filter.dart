@@ -9,7 +9,7 @@ class CompanyFilter {
     this.section,
     this.division,
     this.query = '',
-    this.sort = CompanySort.name,
+    this.sort = CompanySort.marketCap,
     this.page = 1,
   });
 
@@ -36,7 +36,7 @@ class CompanyFilter {
       section: section,
       division: section == null ? null : _text(q['division']),
       query: q['q']?.trim() ?? '',
-      sort: CompanySort.values.asNameMap()[q['sort']] ?? CompanySort.name,
+      sort: CompanySort.values.asNameMap()[q['sort']] ?? CompanySort.marketCap,
       page: (int.tryParse(q['page'] ?? '') ?? 1).clamp(1, 1 << 20),
     );
   }
@@ -46,7 +46,7 @@ class CompanyFilter {
     'section': ?section,
     'division': ?division,
     if (query.isNotEmpty) 'q': query,
-    if (sort != CompanySort.name) 'sort': sort.name,
+    if (sort != CompanySort.marketCap) 'sort': sort.name,
     if (page > 1) 'page': '$page',
   };
 
