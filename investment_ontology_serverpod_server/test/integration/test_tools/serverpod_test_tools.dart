@@ -46,6 +46,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _iye7y8x2;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_graph.dart'
     as _iaqm8wre;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_group.dart'
+    as _i4udlom4;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_page.dart'
     as _i23npuz6;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_sort.dart'
@@ -246,6 +248,8 @@ class TestEndpoints {
 
   late final _GraphEndpoint graph;
 
+  late final _GroupEndpoint group;
+
   late final _IngestEndpoint ingest;
 
   late final _MarketEndpoint market;
@@ -295,6 +299,10 @@ class _InternalTestEndpoints extends TestEndpoints
       serializationManager,
     );
     graph = _GraphEndpoint(
+      endpoints,
+      serializationManager,
+    );
+    group = _GroupEndpoint(
       endpoints,
       serializationManager,
     );
@@ -1266,6 +1274,74 @@ class _GraphEndpoint {
           _localUniqueSession,
           _localCallContext.arguments,
         ) as _ida.Future<_iaqm8wre.CompanyGraph?>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
+class _GroupEndpoint {
+  _GroupEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _is.EndpointDispatch _endpointDispatch;
+
+  final _is.SerializationManager _serializationManager;
+
+  _ida.Future<List<_i4udlom4.CompanyGroup>> list(
+    _ist.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'group',
+            method: 'list',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'group',
+          methodName: 'list',
+          parameters: _ist.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue = await (_localCallContext.method.call(
+          _localUniqueSession,
+          _localCallContext.arguments,
+        ) as _ida.Future<List<_i4udlom4.CompanyGroup>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_i4udlom4.CompanyGroup?> of(
+    _ist.TestSessionBuilder sessionBuilder,
+    String corpCode,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'group',
+            method: 'of',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'group',
+          methodName: 'of',
+          parameters: _ist.testObjectToJson({'corpCode': corpCode}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue = await (_localCallContext.method.call(
+          _localUniqueSession,
+          _localCallContext.arguments,
+        ) as _ida.Future<_i4udlom4.CompanyGroup?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

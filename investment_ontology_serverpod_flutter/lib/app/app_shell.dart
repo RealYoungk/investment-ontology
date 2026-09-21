@@ -33,6 +33,7 @@ const _destinations = [
     matches: ['/company/', '/reports/', '/person/'],
   ),
   _Destination('관계망', '/graph'),
+  _Destination('지분 묶음', '/groups'),
   _Destination('테마', '/themes'),
   _Destination('검수', '/review'),
   _Destination('데이터', '/data'),

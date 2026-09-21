@@ -47,3 +47,4 @@ key.properties
 
 # ===== Logs =====
 *.log
+.playwright-mcp/

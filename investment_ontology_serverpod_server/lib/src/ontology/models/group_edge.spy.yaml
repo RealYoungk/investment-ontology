@@ -1,0 +1,10 @@
+### 기업 묶음 안의 지분 연결: from이 to의 주식을 가진다.
+class: GroupEdge
+fields:
+  fromCompanyId: int
+  toCompanyId: int
+  ### shareholderOf (to의 최대주주 명단에 from) 또는 investsIn (from의 경영참여 출자)
+  predicate: RelationPredicate
+  ### 기말 지분율 (%)
+  ratio: double?
+  bsnsYear: int
