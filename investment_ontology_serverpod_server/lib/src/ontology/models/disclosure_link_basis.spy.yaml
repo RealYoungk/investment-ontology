@@ -1,0 +1,9 @@
+### 주요정보의 이름을 기업·인물에 연결한 근거. 추정(ownershipCluster)은 화면에 따로 표시한다.
+enum: DisclosureLinkBasis
+values:
+  ### 이름(법인 형태·각주·공백 제거)이 상장사 한 곳과 정확히 같음
+  - companyName
+  ### 같은 보고서의 임원 현황에 같은 이름의 임원이 한 명
+  - executiveSameReport
+  ### 지분으로 이어진 기업 묶음의 여러 회사 주주 명단에 같은 이름이 특수관계인으로 나옴 (추정)
+  - ownershipCluster

@@ -1,0 +1,4 @@
+class: PersonProfile
+fields:
+  person: Person
+  roles: List<PersonRole>

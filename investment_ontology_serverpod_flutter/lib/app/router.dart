@@ -6,6 +6,7 @@ import '../features/companies/company_list_page.dart';
 import '../features/company_detail/company_page.dart';
 import '../features/data_sync/data_page.dart';
 import '../features/financials/financial_report_page.dart';
+import '../features/governance/person_page.dart';
 import '../features/market_map/market_page.dart';
 import 'app_shell.dart';
 
@@ -13,15 +14,18 @@ import 'app_shell.dart';
 ///
 /// - `/market` 시장 — 시장 요약 · 업종 분포 · 시총 트리맵
 /// - `/companies?market=&section=&division=&q=&sort=&page=` 기업 목록 (필터가 주소에 남는다)
-/// - `/company/:corpCode?tab=financials` 기업 상세
+/// - `/company/:corpCode?tab=financials` 기업 상세 (tab: overview · financials · governance · returns · disclosures)
+/// - `/person/:personId` 인물
 /// - `/reports/:reportId` 재무제표 원문 표
 /// - `/data` 수집 상태
 ///
 /// 맨 위 메뉴 사이 이동은 [GoRouterHelper.go], 상세로 들어갈 때는 [GoRouterHelper.push]를
 /// 쓴다. push로 들어가면 목록 화면이 그대로 남아 있어 뒤로 오면 스크롤 위치까지 돌아온다.
 abstract final class AppRoutes {
-  static String company(String corpCode, {bool financials = false}) =>
-      '/company/$corpCode${financials ? '?tab=financials' : ''}';
+  static String company(String corpCode, {String? tab}) =>
+      '/company/$corpCode${tab == null ? '' : '?tab=$tab'}';
+
+  static String person(int personId) => '/person/$personId';
 
   static String report(int reportId) => '/reports/$reportId';
 
@@ -57,9 +61,16 @@ abstract final class AppRoutes {
             path: '/company/:corpCode',
             builder: (context, state) => CompanyPage(
               corpCode: state.pathParameters['corpCode']!,
-              initialTab: state.uri.queryParameters['tab'] == 'financials'
-                  ? CompanyTab.financials
-                  : CompanyTab.overview,
+              initialTab:
+                  CompanyTab.values
+                      .asNameMap()[state.uri.queryParameters['tab']] ??
+                  CompanyTab.overview,
+            ),
+          ),
+          GoRoute(
+            path: '/person/:personId',
+            builder: (context, state) => PersonPage(
+              personId: int.tryParse(state.pathParameters['personId']!) ?? -1,
             ),
           ),
           GoRoute(

@@ -1,0 +1,12 @@
+### 다른 회사 보고서에서 역으로 찾은 관계 (이 기업에 출자한 기업, 이 기업이 주주인 기업).
+class: GovernanceLink
+fields:
+  predicate: RelationPredicate
+  companyId: int?
+  corpCode: String?
+  ### 상대 기업 이름
+  name: String
+  ### 지분율 (%)
+  weight: double?
+  bsnsYear: int
+  relationId: int

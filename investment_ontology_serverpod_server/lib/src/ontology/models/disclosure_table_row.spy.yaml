@@ -1,0 +1,4 @@
+class: DisclosureTableRow
+fields:
+  isTotal: bool
+  cells: List<String?>

@@ -91,6 +91,24 @@ class _DataPageState extends State<DataPage> {
         ),
         const SizedBox(height: AppSpace.section),
         const _Source(
+          title: '정기보고서 주요정보 · DART 사업보고서 28종',
+          description:
+              '재무 수집이 찾은 사업보고서마다 최대주주·임원·타법인출자·배당·자기주식·주식 총수·증자 '
+              '(핵심 9종)와 직원·보수·감사·채권 등 나머지 19종을 받습니다. 기업마다 가장 최근 '
+              '사업보고서의 핵심 항목부터 받고, 재무 백필이 남아 있는 동안은 핵심 항목만 하루 '
+              '9,000회까지 씁니다. 매일 19:00에 자동 수집, 한도를 다 쓰면 다음 날 00:05에 이어서 받습니다. '
+              '받은 뒤에는 인물 연결과 관계 색인을 호출 없이 다시 만듭니다.',
+        ),
+        IngestJobRow(
+          kind: 'disclosures',
+          label: 'DART 주요정보',
+          action: '주요정보 수집',
+          start: client.ingest.startDisclosures,
+        ),
+        const SizedBox(height: AppSpace.sm),
+        const _RebuildLinks(),
+        const SizedBox(height: AppSpace.section),
+        const _Source(
           title: '시세 · 공공데이터포털 금융위원회',
           description:
               '주식시세정보로 받지 않은 평일의 전 종목 시세를 받고(처음에는 5년), 최근 '
@@ -127,6 +145,53 @@ class _Source extends StatelessWidget {
           Text(description, style: t.body(13, color: c.textSecondary)),
         ],
       ),
+    );
+  }
+}
+
+/// 인물 연결·관계 색인 다시 계산 (호출 없음).
+class _RebuildLinks extends StatefulWidget {
+  const _RebuildLinks();
+
+  @override
+  State<_RebuildLinks> createState() => _RebuildLinksState();
+}
+
+class _RebuildLinksState extends State<_RebuildLinks> {
+  bool _running = false;
+  String? _message;
+
+  Future<void> _run() async {
+    setState(() => _running = true);
+    try {
+      final m = await client.ingest.rebuildDisclosureLinks();
+      if (mounted) setState(() => _message = m);
+    } catch (e) {
+      if (mounted) setState(() => _message = '$e');
+    } finally {
+      if (mounted) setState(() => _running = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    return Wrap(
+      spacing: AppSpace.md,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        Tooltip(
+          message: '받아 둔 주요정보로 인물 연결(추정 포함)과 관계 색인을 다시 만듭니다. DART를 부르지 않습니다.',
+          child: AppButton(
+            label: _running ? '계산 중…' : '관계 다시 계산',
+            variant: AppButtonVariant.link,
+            onPressed: _running ? null : _run,
+          ),
+        ),
+        if (_message != null)
+          Text(_message!, style: t.body(12, color: c.textMuted)),
+      ],
     );
   }
 }

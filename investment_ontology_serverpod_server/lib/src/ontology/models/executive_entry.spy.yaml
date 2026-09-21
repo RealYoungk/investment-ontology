@@ -1,0 +1,33 @@
+### 임원 한 행 (임원 현황 exctvSttus). 회사마다 미등기 임원을 내는지가 다르다.
+class: ExecutiveEntry
+table: executive_entry
+fields:
+  reportId: int, relation(parent=disclosure_report, onDelete=Cascade)
+  companyId: int
+  bsnsYear: int
+  ord: int
+  ### 줄바꿈·겹공백을 정리한 이름
+  name: String
+  sex: String?
+  birthYear: int?
+  birthMonth: int?
+  ### 직위 원문
+  position: String?
+  registration: ExecutiveRegistration
+  registrationRaw: String?
+  ### 상근 여부
+  fullTime: bool?
+  duties: String?
+  career: String?
+  relationToLargestHolder: String?
+  ### 재직기간 (개월)
+  tenureMonths: int?
+  termEndDate: DateTime?
+  personId: int?, relation(parent=person, onDelete=SetNull)
+indexes:
+  executive_entry_report_idx:
+    fields: reportId
+  executive_entry_company_idx:
+    fields: companyId, bsnsYear
+  executive_entry_person_idx:
+    fields: personId

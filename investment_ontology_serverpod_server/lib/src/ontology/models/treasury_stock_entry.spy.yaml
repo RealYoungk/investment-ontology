@@ -1,0 +1,26 @@
+### 자기주식 취득 및 처분 한 행 (tesstkAcqsDspsSttus). 수량은 주.
+class: TreasuryStockEntry
+table: treasury_stock_entry
+fields:
+  reportId: int, relation(parent=disclosure_report, onDelete=Cascade)
+  companyId: int
+  bsnsYear: int
+  ord: int
+  ### 취득 방법 원문 (대·중·소분류)
+  method1: String?
+  method2: String?
+  method3: String?
+  stockKind: String?
+  sharesBegin: BigInt?
+  acquired: BigInt?
+  disposed: BigInt?
+  retired: BigInt?
+  sharesEnd: BigInt?
+  remark: String?
+  ### 총계·소계 행
+  isTotal: bool
+indexes:
+  treasury_stock_entry_report_idx:
+    fields: reportId
+  treasury_stock_entry_company_idx:
+    fields: companyId, bsnsYear

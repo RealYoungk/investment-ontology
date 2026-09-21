@@ -1,0 +1,13 @@
+### 주요정보 항목 하나의 원문 표 (응답 필드 그대로, 머리글만 한글로).
+class: DisclosureTable
+fields:
+  section: DartSection
+  label: String
+  bsnsYear: int
+  rceptNo: String
+  settlementDate: DateTime?
+  headers: List<String>
+  rows: List<DisclosureTableRow>
+  emptyRowCount: int
+  source: Source?
+  years: List<int>

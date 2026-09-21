@@ -1,0 +1,6 @@
+### 관계가 가리키는 원천 행의 종류.
+enum: RelationFactKind
+values:
+  - shareholderEntry
+  - executiveEntry
+  - investmentEntry

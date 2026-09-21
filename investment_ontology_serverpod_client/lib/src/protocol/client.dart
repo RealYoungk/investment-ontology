@@ -18,10 +18,18 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _ig9j925g;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_financials.dart'
     as _i8vk5eaa;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_governance.dart'
+    as _iyg8kuqs;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_page.dart'
     as _itgpgg86;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_sort.dart'
     as _i35nawlu;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/dart_section.dart'
+    as _iaqblgop;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/disclosure_section_info.dart'
+    as _i39r1xmm;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/disclosure_table.dart'
+    as _i1woaxtv;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/facet_count.dart'
     as _icfgas7c;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/financial_report_detail.dart'
@@ -36,6 +44,10 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _ifex1fnm;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/overview.dart'
     as _iqnrnt8q;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/person_profile.dart'
+    as _impgjy6j;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/shareholder_return.dart'
+    as _ir6fk3mk;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _iacc;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
@@ -345,6 +357,48 @@ class EndpointCompany extends _isc.EndpointRef {
       );
 }
 
+/// 정기보고서 주요정보 조회: 항목 목록 · 원문 표 · 주주환원.
+/// {@category Endpoint}
+class EndpointDisclosure extends _isc.EndpointRef {
+  EndpointDisclosure(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'disclosure';
+
+  /// 기업이 가진 주요정보 항목과 사업연도 (항목 순서는 [DartSections.info]).
+  _ida.Future<List<_i39r1xmm.DisclosureSectionInfo>> sections(
+    String corpCode,
+  ) => caller.callServerEndpoint<List<_i39r1xmm.DisclosureSectionInfo>>(
+    'disclosure',
+    'sections',
+    {'corpCode': corpCode},
+  );
+
+  /// 항목 하나의 원문 표 (응답 필드 그대로, 머리글만 한글). [bsnsYear]가 없으면 가장 최근.
+  _ida.Future<_i1woaxtv.DisclosureTable?> table(
+    String corpCode,
+    _iaqblgop.DartSection section, {
+    int? bsnsYear,
+  }) => caller.callServerEndpoint<_i1woaxtv.DisclosureTable?>(
+    'disclosure',
+    'table',
+    {
+      'corpCode': corpCode,
+      'section': section,
+      'bsnsYear': bsnsYear,
+    },
+  );
+
+  /// 배당(사업보고서마다 당기·전기·전전기) · 가장 최근 자기주식 · 주식 총수.
+  _ida.Future<_ir6fk3mk.ShareholderReturn?> shareholderReturn(
+    String corpCode,
+  ) => caller.callServerEndpoint<_ir6fk3mk.ShareholderReturn?>(
+    'disclosure',
+    'shareholderReturn',
+    {'corpCode': corpCode},
+  );
+}
+
 /// 기업 재무·시세 조회. 파생 지표는 계산하지 않고 원천 값만 돌려준다.
 /// {@category Endpoint}
 class EndpointFinancial extends _isc.EndpointRef {
@@ -375,6 +429,49 @@ class EndpointFinancial extends _isc.EndpointRef {
         'report',
         {'reportId': reportId},
       );
+}
+
+/// 지배구조 조회: 최대주주 · 임원 · 타법인출자와 인물.
+/// {@category Endpoint}
+class EndpointGovernance extends _isc.EndpointRef {
+  EndpointGovernance(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'governance';
+
+  /// 기업의 한 사업연도(없으면 가장 최근) 지배구조.
+  _ida.Future<_iyg8kuqs.CompanyGovernance?> summary(
+    String corpCode, {
+    int? bsnsYear,
+  }) => caller.callServerEndpoint<_iyg8kuqs.CompanyGovernance?>(
+    'governance',
+    'summary',
+    {
+      'corpCode': corpCode,
+      'bsnsYear': bsnsYear,
+    },
+  );
+
+  /// 인물과 그가 주주·임원으로 있는 기업 (각 기업의 가장 최근 사업보고서 기준).
+  _ida.Future<_impgjy6j.PersonProfile?> person(int personId) =>
+      caller.callServerEndpoint<_impgjy6j.PersonProfile?>(
+        'governance',
+        'person',
+        {'personId': personId},
+      );
+
+  /// 추정 인물 연결을 끊는다: 이 기업의 이 이름은 다시 계산해도 묶지 않는다.
+  _ida.Future<void> rejectPersonLink(
+    String corpCode,
+    String holderName,
+  ) => caller.callServerEndpoint<void>(
+    'governance',
+    'rejectPersonLink',
+    {
+      'corpCode': corpCode,
+      'holderName': holderName,
+    },
+  );
 }
 
 /// 외부 원천 수집 제어.
@@ -410,6 +507,26 @@ class EndpointIngest extends _isc.EndpointRef {
         {'corpCode': corpCode},
       );
 
+  /// 정기보고서 주요정보(주주·임원·출자·배당 등 28종) 수집 시작. 이미 실행 중이면 그 작업을 돌려준다.
+  ///
+  /// 재무 수집이 장부에 넣은 사업보고서의 항목을 최신 사업연도·핵심 항목부터 받는다.
+  /// 재무 백필이 남아 있으면 최신 사업연도의 핵심 항목만 받는다.
+  /// [corpCode]를 주면 그 기업의 사업보고서 항목만 바로 받는다.
+  _ida.Future<_i1paap7y.IngestJob> startDisclosures({String? corpCode}) =>
+      caller.callServerEndpoint<_i1paap7y.IngestJob>(
+        'ingest',
+        'startDisclosures',
+        {'corpCode': corpCode},
+      );
+
+  /// 주요정보의 인물 연결과 관계 색인을 다시 만든다 (DART 호출 없음). 연결 규칙을 고친 뒤 쓴다.
+  _ida.Future<String> rebuildDisclosureLinks() =>
+      caller.callServerEndpoint<String>(
+        'ingest',
+        'rebuildDisclosureLinks',
+        {},
+      );
+
   /// 시세 수집 시작. 이미 실행 중이면 그 작업을 돌려준다.
   ///
   /// 받지 않은 평일 기준일을 최신순으로 받고(처음에는 5년), 가장 최근 기준일의
@@ -435,7 +552,7 @@ class EndpointIngest extends _isc.EndpointRef {
         {},
       );
 
-  /// [kind]의 최근 작업 (`company_master`, `financial_facts`, `market_snapshot`).
+  /// [kind]의 최근 작업 (`company_master`, `financial_facts`, `market_snapshot`, `disclosures` …).
   _ida.Future<_i1paap7y.IngestJob?> latestOf(String kind) =>
       caller.callServerEndpoint<_i1paap7y.IngestJob?>(
         'ingest',
@@ -511,7 +628,9 @@ class Client extends _isc.ServerpodClientShared {
     jwtRefresh = EndpointJwtRefresh(this);
     greeting = EndpointGreeting(this);
     company = EndpointCompany(this);
+    disclosure = EndpointDisclosure(this);
     financial = EndpointFinancial(this);
+    governance = EndpointGovernance(this);
     ingest = EndpointIngest(this);
     market = EndpointMarket(this);
     modules = Modules(this);
@@ -525,7 +644,11 @@ class Client extends _isc.ServerpodClientShared {
 
   late final EndpointCompany company;
 
+  late final EndpointDisclosure disclosure;
+
   late final EndpointFinancial financial;
+
+  late final EndpointGovernance governance;
 
   late final EndpointIngest ingest;
 
@@ -539,7 +662,9 @@ class Client extends _isc.ServerpodClientShared {
     'jwtRefresh': jwtRefresh,
     'greeting': greeting,
     'company': company,
+    'disclosure': disclosure,
     'financial': financial,
+    'governance': governance,
     'ingest': ingest,
     'market': market,
   };

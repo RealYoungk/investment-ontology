@@ -1,0 +1,7 @@
+### 기업이 가진 주요정보 항목 하나와 자료가 있는 사업연도.
+class: DisclosureSectionInfo
+fields:
+  section: DartSection
+  label: String
+  group: String
+  years: List<int>

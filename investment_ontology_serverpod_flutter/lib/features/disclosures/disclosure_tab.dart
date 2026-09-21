@@ -1,0 +1,273 @@
+import 'package:flutter/material.dart';
+import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../../client.dart';
+import '../../design/components/components.dart';
+import '../../design/tokens.dart';
+import '../common/formatters.dart';
+
+/// 기업 상세의 공시 항목 탭: 정기보고서 주요정보 28종의 원문 표.
+///
+/// 응답 필드를 그대로 보여 주고 머리글만 한글로 바꾼다. 값·단위는 원문 그대로다.
+class DisclosureTab extends StatefulWidget {
+  const DisclosureTab({
+    super.key,
+    required this.corpCode,
+    required this.sections,
+  });
+
+  final String corpCode;
+  final List<DisclosureSectionInfo> sections;
+
+  @override
+  State<DisclosureTab> createState() => _DisclosureTabState();
+}
+
+class _DisclosureTabState extends State<DisclosureTab> {
+  late DartSection _section = widget.sections.first.section;
+  int? _year;
+  DisclosureTable? _table;
+  Object? _error;
+  bool _loading = false;
+  int _seq = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final seq = ++_seq;
+    setState(() => _loading = true);
+    try {
+      final table = await client.disclosure.table(
+        widget.corpCode,
+        _section,
+        bsnsYear: _year,
+      );
+      if (mounted && seq == _seq) {
+        setState(() => (_table = table, _error = null, _loading = false));
+      }
+    } catch (e) {
+      if (mounted && seq == _seq) {
+        setState(() => (_error = e, _loading = false));
+      }
+    }
+  }
+
+  void _select(DartSection section) {
+    if (section == _section) return;
+    setState(() {
+      _section = section;
+      _year = null;
+    });
+    _load();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final wide = constraints.maxWidth >= 900;
+        final table = _buildTable(context);
+        if (!wide) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: AppSelect<DartSection>(
+                  label: '항목',
+                  placeholder: '항목',
+                  allLabel: '—',
+                  value: _section,
+                  options: {
+                    for (final s in widget.sections)
+                      s.section: '${s.group} · ${s.label}',
+                  },
+                  onChanged: (s) {
+                    if (s != null) _select(s);
+                  },
+                ),
+              ),
+              const SizedBox(height: AppSpace.lg),
+              table,
+            ],
+          );
+        }
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 240,
+              child: _SectionList(
+                sections: widget.sections,
+                selected: _section,
+                onSelect: _select,
+              ),
+            ),
+            const SizedBox(width: AppSpace.xl),
+            Expanded(child: table),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildTable(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    final table = _table;
+    if (_error != null) {
+      return AppNotice(message: '표를 불러오지 못했습니다 — $_error');
+    }
+    if (table == null) return const LinearProgressIndicator(minHeight: 2);
+    return AnimatedOpacity(
+      duration: AppMotion.fast,
+      opacity: _loading ? 0.5 : 1,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Wrap(
+            spacing: AppSpace.lg,
+            runSpacing: AppSpace.sm,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Text(table.label, style: t.body(16, weight: FontWeight.w700)),
+              if (table.years.length > 1)
+                AppToggleGroup<int>(
+                  value: table.bsnsYear,
+                  options: {for (final y in table.years) y: 'FY$y'},
+                  onChanged: (y) {
+                    setState(() => _year = y);
+                    _load();
+                  },
+                ),
+            ],
+          ),
+          const SizedBox(height: AppSpace.xs),
+          Text(
+            'FY${table.bsnsYear} 사업보고서'
+            '${table.settlementDate == null ? '' : ' · 기준일 ${formatDate(table.settlementDate)}'}'
+            ' · 원문 ${table.rows.length}행'
+            '${table.emptyRowCount > 0 ? ' (값이 모두 비어 있던 ${table.emptyRowCount}행 제외)' : ''}'
+            ' · 값과 단위는 원문 그대로',
+            style: t.body(12, color: c.textMuted),
+          ),
+          const SizedBox(height: AppSpace.md),
+          AppDataTable(
+            columns: [
+              for (final (i, h) in table.headers.indexed)
+                AppColumn(h, numeric: _numericColumn(table, i)),
+            ],
+            rows: [
+              for (final r in table.rows)
+                AppRow(emphasized: r.isTotal, [
+                  for (final (i, cell) in r.cells.indexed)
+                    AppDataTable.text(
+                      context,
+                      cell,
+                      numeric: _numericColumn(table, i),
+                    ),
+                ]),
+            ],
+          ),
+          const SizedBox(height: AppSpace.md),
+          if (table.source case final s?)
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '${s.title} · 접수 ${s.reference ?? ''} · 수집 ${formatDateTime(s.retrievedAt)}',
+                    style: t.body(11.5, color: c.textMuted),
+                  ),
+                ),
+                if (s.url != null)
+                  AppButton(
+                    label: 'DART 공시 →',
+                    variant: AppButtonVariant.link,
+                    onPressed: () => launchUrl(Uri.parse(s.url!)),
+                  ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// 값이 있는 칸이 모두 숫자 표기면 숫자 열.
+  static bool _numericColumn(DisclosureTable table, int i) {
+    var any = false;
+    for (final r in table.rows) {
+      final v = i < r.cells.length ? r.cells[i] : null;
+      if (v == null) continue;
+      any = true;
+      if (!RegExp(r'^-?[\d,]+(\.\d+)?%?$').hasMatch(v.trim())) return false;
+    }
+    return any;
+  }
+}
+
+class _SectionList extends StatelessWidget {
+  const _SectionList({
+    required this.sections,
+    required this.selected,
+    required this.onSelect,
+  });
+
+  final List<DisclosureSectionInfo> sections;
+  final DartSection selected;
+  final ValueChanged<DartSection> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    final groups = <String, List<DisclosureSectionInfo>>{};
+    for (final s in sections) {
+      (groups[s.group] ??= []).add(s);
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final g in groups.entries) ...[
+          Padding(
+            padding: const EdgeInsets.only(top: AppSpace.md, bottom: 4),
+            child: SectionLabel(g.key),
+          ),
+          for (final s in g.value)
+            HoverBuilder(
+              onTap: () => onSelect(s.section),
+              builder: (context, hovered) {
+                final active = s.section == selected;
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpace.sm,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: active
+                        ? c.inverse
+                        : hovered
+                        ? c.surfaceHover
+                        : Colors.transparent,
+                    borderRadius: context.shape.borderRadius,
+                  ),
+                  child: Text(
+                    s.label,
+                    style: t.body(
+                      13,
+                      color: active ? c.onInverse : c.textPrimary,
+                      weight: active ? FontWeight.w600 : null,
+                    ),
+                  ),
+                );
+              },
+            ),
+        ],
+      ],
+    );
+  }
+}

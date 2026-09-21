@@ -1,0 +1,9 @@
+### 주식의 총수 현황 한 줄 (보통주 · 우선주 · 합계).
+class: StockTotalRow
+fields:
+  kind: String
+  ### 발행주식의 총수
+  issued: BigInt?
+  treasury: BigInt?
+  ### 유통주식수
+  outstanding: BigInt?

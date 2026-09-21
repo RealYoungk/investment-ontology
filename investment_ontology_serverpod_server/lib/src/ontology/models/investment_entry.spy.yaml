@@ -1,0 +1,38 @@
+### 타법인 출자 한 행 (타법인 출자현황 otrCprInvstmntSttus). 금액은 원 단위 (API가 원문 백만원을 원으로 바꿔 준다).
+class: InvestmentEntry
+table: investment_entry
+fields:
+  reportId: int, relation(parent=disclosure_report, onDelete=Cascade)
+  companyId: int
+  bsnsYear: int
+  ord: int
+  ### 줄바꿈·겹공백을 정리한 출자 대상 이름
+  investeeName: String
+  ### 출자 목적 원문 (경영참여, 단순투자, 일반투자 …)
+  purpose: String?
+  firstAcquiredOn: DateTime?
+  firstAcquiredAmount: BigInt?
+  sharesBegin: BigInt?
+  ratioBegin: double?
+  bookValueBegin: BigInt?
+  ### 증감: 취득(처분) 수량·금액, 평가손익
+  sharesChange: BigInt?
+  amountChange: BigInt?
+  valuationChange: BigInt?
+  sharesEnd: BigInt?
+  ### 기말 지분율 (%)
+  ratioEnd: double?
+  bookValueEnd: BigInt?
+  ### 출자 대상의 최근 사업연도 총자산·당기순이익
+  investeeTotalAssets: BigInt?
+  investeeNetIncome: BigInt?
+  isTotal: bool
+  investeeCompanyId: int?, relation(parent=company, onDelete=SetNull)
+  investeeLinkBasis: DisclosureLinkBasis?
+indexes:
+  investment_entry_report_idx:
+    fields: reportId
+  investment_entry_company_idx:
+    fields: companyId, bsnsYear
+  investment_entry_investee_idx:
+    fields: investeeCompanyId

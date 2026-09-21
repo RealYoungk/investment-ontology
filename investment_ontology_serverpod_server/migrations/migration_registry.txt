@@ -14,3 +14,5 @@
 20260917154255499-filing-scan-cursor
 20260917171059903-filing-scan-from
 20260918142349420-security-link-basis
+20260919045832078-disclosures
+20260919051218532-filing-section-year-rank

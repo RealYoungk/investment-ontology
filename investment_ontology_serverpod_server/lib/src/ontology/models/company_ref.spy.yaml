@@ -1,0 +1,7 @@
+### 화면에서 기업으로 건너가기 위한 최소 정보.
+class: CompanyRef
+fields:
+  id: int
+  corpCode: String
+  name: String
+  market: Market?

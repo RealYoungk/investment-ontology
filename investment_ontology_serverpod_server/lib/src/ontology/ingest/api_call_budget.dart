@@ -12,6 +12,10 @@ abstract final class ApiCallBudget {
   /// 재무 수집이 하루에 쓸 수 있는 DART 호출 수. 나머지는 기업마스터 수집 몫으로 남긴다.
   static const dartFinancialBudget = 18000;
 
+  /// 재무 백필이 남아 있는 동안 주요정보 수집이 하루에 먼저 쓸 수 있는 호출 수.
+  /// 최신 사업보고서의 핵심 항목(지배구조·주주환원)만 받고, 나머지는 재무에 양보한다.
+  static const dartDisclosurePriorityBudget = 9000;
+
   static const _kstOffset = Duration(hours: 9);
 
   /// [now] 시각의 KST 날짜 (YYYY-MM-DD).
@@ -42,6 +46,14 @@ abstract final class ApiCallBudget {
     );
     return row?.calls ?? 0;
   }
+
+  /// 오늘(KST) 이 제공자의 호출이 [limit]에 닿았는지. 여러 수집이 동시에 돌 때 각자 시작할
+  /// 때만 계산한 몫으로는 합이 한도를 넘을 수 있어, 진행 중에 이것으로 다시 확인한다.
+  static Future<bool> reached(
+    Session session,
+    ApiProvider provider,
+    int limit,
+  ) async => await usedToday(session, provider) >= limit;
 
   /// 호출 수를 더한다. 동시에 도는 작업끼리 덮어쓰지 않도록 DB에서 더한다.
   static Future<void> record(

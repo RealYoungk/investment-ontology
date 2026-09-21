@@ -1,0 +1,9 @@
+### 관계 검수 상태.
+enum: RelationStatus
+values:
+  ### 원천 응답 그대로 (API)
+  - verified
+  ### 추정 연결 또는 AI 추출. 사람이 끊을 수 있다
+  - draft
+  ### 사람이 틀렸다고 끊음
+  - rejected

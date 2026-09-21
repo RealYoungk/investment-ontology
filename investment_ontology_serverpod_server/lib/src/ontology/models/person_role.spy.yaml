@@ -1,0 +1,17 @@
+### 인물이 기업과 맺은 관계 하나.
+class: PersonRole
+fields:
+  predicate: RelationPredicate
+  companyId: int
+  corpCode: String
+  companyName: String
+  bsnsYear: int
+  ### 주주면 지분율 (%, 보통주)
+  weight: double?
+  ### 임원이면 직위 · 등기 구분
+  position: String?
+  registration: ExecutiveRegistration?
+  ### 원문의 관계 표기 (주주) 또는 담당업무 (임원)
+  detail: String?
+  basis: DisclosureLinkBasis?
+  estimated: bool

@@ -1,0 +1,26 @@
+### 정기보고서 한 건의 주요정보 항목 하나. 응답 행(DisclosureRow)을 묶는다.
+### 정정공시로 대체되면 지우지 않고 supersededBy로 새 보고서를 가리킨다.
+class: DisclosureReport
+table: disclosure_report
+fields:
+  companyId: int, relation(parent=company, onDelete=Restrict)
+  section: DartSection
+  ### 응답의 접수번호. 이 값들이 실린 공시
+  rceptNo: String
+  bsnsYear: int
+  reportCode: FinancialReportCode
+  ### 응답의 결산기준일 (stlm_dt, UTC 자정) — 관계의 기준일
+  settlementDate: DateTime?
+  ### 저장한 행 수 (값이 모두 '-'인 빈 줄 제외)
+  rowCount: int
+  ### 값이 모두 '-'여서 저장하지 않은 빈 줄 수
+  emptyRowCount: int, default=0
+  sourceId: int, relation(parent=source, onDelete=Restrict)
+  supersededById: int?, relation(parent=disclosure_report, onDelete=SetNull)
+  fetchedAt: DateTime
+indexes:
+  disclosure_report_rcept_idx:
+    fields: rceptNo, section
+    unique: true
+  disclosure_report_company_idx:
+    fields: companyId, section, bsnsYear

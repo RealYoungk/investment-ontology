@@ -14,6 +14,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/future_calls.
     as _i4o8e4lj;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_sort.dart'
     as _iosqhah1;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/dart_section.dart'
+    as _i6h8j7tv;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/fs_div.dart'
     as _i69nddnn;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/market.dart'
@@ -27,7 +29,9 @@ import '../auth/email_idp_endpoint.dart' as _iuc1hd5t;
 import '../auth/jwt_refresh_endpoint.dart' as _inwq3ztq;
 import '../greetings/greeting_endpoint.dart' as _il624ik7;
 import '../ontology/endpoints/company_endpoint.dart' as _itnisr3u;
+import '../ontology/endpoints/disclosure_endpoint.dart' as _i23b9rs7;
 import '../ontology/endpoints/financial_endpoint.dart' as _ipit2z9y;
+import '../ontology/endpoints/governance_endpoint.dart' as _i6kw8hva;
 import '../ontology/endpoints/ingest_endpoint.dart' as _icbircc0;
 import '../ontology/endpoints/market_endpoint.dart' as _iaw7fzks;
 export 'future_calls.dart' show ServerpodFutureCallsGetter;
@@ -60,10 +64,22 @@ class Endpoints extends _is.EndpointDispatch {
           'company',
           null,
         ),
+      'disclosure': _i23b9rs7.DisclosureEndpoint()
+        ..initialize(
+          server,
+          'disclosure',
+          null,
+        ),
       'financial': _ipit2z9y.FinancialEndpoint()
         ..initialize(
           server,
           'financial',
+          null,
+        ),
+      'governance': _i6kw8hva.GovernanceEndpoint()
+        ..initialize(
+          server,
+          'governance',
           null,
         ),
       'ingest': _icbircc0.IngestEndpoint()
@@ -425,6 +441,84 @@ class Endpoints extends _is.EndpointDispatch {
         ),
       },
     );
+    connectors['disclosure'] = _is.EndpointConnector(
+      name: 'disclosure',
+      endpoint: endpoints['disclosure']!,
+      methodConnectors: {
+        'sections': _is.MethodConnector(
+          name: 'sections',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['disclosure'] as _i23b9rs7.DisclosureEndpoint)
+                      .sections(
+                        session,
+                        params['corpCode'],
+                      ),
+        ),
+        'table': _is.MethodConnector(
+          name: 'table',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'section': _is.ParameterDescription(
+              name: 'section',
+              type: _is.getType<_i6h8j7tv.DartSection>(),
+              nullable: false,
+            ),
+            'bsnsYear': _is.ParameterDescription(
+              name: 'bsnsYear',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['disclosure'] as _i23b9rs7.DisclosureEndpoint)
+                      .table(
+                        session,
+                        params['corpCode'],
+                        params['section'],
+                        bsnsYear: params['bsnsYear'],
+                      ),
+        ),
+        'shareholderReturn': _is.MethodConnector(
+          name: 'shareholderReturn',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['disclosure'] as _i23b9rs7.DisclosureEndpoint)
+                      .shareholderReturn(
+                        session,
+                        params['corpCode'],
+                      ),
+        ),
+      },
+    );
     connectors['financial'] = _is.EndpointConnector(
       name: 'financial',
       endpoint: endpoints['financial']!,
@@ -475,6 +569,84 @@ class Endpoints extends _is.EndpointDispatch {
         ),
       },
     );
+    connectors['governance'] = _is.EndpointConnector(
+      name: 'governance',
+      endpoint: endpoints['governance']!,
+      methodConnectors: {
+        'summary': _is.MethodConnector(
+          name: 'summary',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'bsnsYear': _is.ParameterDescription(
+              name: 'bsnsYear',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['governance'] as _i6kw8hva.GovernanceEndpoint)
+                      .summary(
+                        session,
+                        params['corpCode'],
+                        bsnsYear: params['bsnsYear'],
+                      ),
+        ),
+        'person': _is.MethodConnector(
+          name: 'person',
+          params: {
+            'personId': _is.ParameterDescription(
+              name: 'personId',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['governance'] as _i6kw8hva.GovernanceEndpoint)
+                      .person(
+                        session,
+                        params['personId'],
+                      ),
+        ),
+        'rejectPersonLink': _is.MethodConnector(
+          name: 'rejectPersonLink',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'holderName': _is.ParameterDescription(
+              name: 'holderName',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['governance'] as _i6kw8hva.GovernanceEndpoint)
+                      .rejectPersonLink(
+                        session,
+                        params['corpCode'],
+                        params['holderName'],
+                      ),
+        ),
+      },
+    );
     connectors['ingest'] = _is.EndpointConnector(
       name: 'ingest',
       endpoint: endpoints['ingest']!,
@@ -516,6 +688,35 @@ class Endpoints extends _is.EndpointDispatch {
                     session,
                     corpCode: params['corpCode'],
                   ),
+        ),
+        'startDisclosures': _is.MethodConnector(
+          name: 'startDisclosures',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['ingest'] as _icbircc0.IngestEndpoint)
+                  .startDisclosures(
+                    session,
+                    corpCode: params['corpCode'],
+                  ),
+        ),
+        'rebuildDisclosureLinks': _is.MethodConnector(
+          name: 'rebuildDisclosureLinks',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['ingest'] as _icbircc0.IngestEndpoint)
+                  .rebuildDisclosureLinks(session),
         ),
         'startMarketSnapshot': _is.MethodConnector(
           name: 'startMarketSnapshot',

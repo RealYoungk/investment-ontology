@@ -20,6 +20,8 @@ class IngestMonitor {
     'financial_facts',
     'financial_facts_company',
     'market_snapshot',
+    'disclosures',
+    'disclosures_company',
   ];
 
   static const _runningInterval = Duration(seconds: 3);

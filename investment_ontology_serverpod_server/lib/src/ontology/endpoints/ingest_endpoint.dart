@@ -3,7 +3,9 @@ import 'package:serverpod/serverpod.dart';
 import '../../generated/protocol.dart';
 import '../dart/dart_api_key.dart';
 import '../data_go_kr/data_go_kr_service_key.dart';
+import '../disclosure/disclosure_links.dart';
 import '../ingest/company_master_sync.dart';
+import '../ingest/disclosure_sync.dart';
 import '../ingest/financial_facts_sync.dart';
 import '../ingest/ingest_jobs.dart';
 import '../ingest/ingest_schedule.dart';
@@ -59,6 +61,36 @@ class IngestEndpoint extends Endpoint {
     return job;
   }
 
+  /// 정기보고서 주요정보(주주·임원·출자·배당 등 28종) 수집 시작. 이미 실행 중이면 그 작업을 돌려준다.
+  ///
+  /// 재무 수집이 장부에 넣은 사업보고서의 항목을 최신 사업연도·핵심 항목부터 받는다.
+  /// 재무 백필이 남아 있으면 최신 사업연도의 핵심 항목만 받는다.
+  /// [corpCode]를 주면 그 기업의 사업보고서 항목만 바로 받는다.
+  Future<IngestJob> startDisclosures(
+    Session session, {
+    String? corpCode,
+  }) async {
+    _requireDartKey(session);
+    final kind = corpCode == null
+        ? DisclosureSync.kind
+        : DisclosureSync.companyKind;
+    final running = await IngestJobs.running(session, kind);
+    if (running != null) return running;
+    final job = (await IngestJobs.start(session, kind))!;
+    if (corpCode == null) {
+      await IngestSchedule.disclosuresNow(session, job.id!);
+    } else {
+      await IngestSchedule.disclosuresForCompanyNow(session, job.id!, corpCode);
+    }
+    return job;
+  }
+
+  /// 주요정보의 인물 연결과 관계 색인을 다시 만든다 (DART 호출 없음). 연결 규칙을 고친 뒤 쓴다.
+  Future<String> rebuildDisclosureLinks(Session session) async {
+    final r = await DisclosureLinks(session).rebuild();
+    return '관계 ${r.relations}건, 추정 인물 연결 ${r.estimatedLinks}건';
+  }
+
   /// 시세 수집 시작. 이미 실행 중이면 그 작업을 돌려준다.
   ///
   /// 받지 않은 평일 기준일을 최신순으로 받고(처음에는 5년), 가장 최근 기준일의
@@ -92,7 +124,7 @@ class IngestEndpoint extends Endpoint {
   Future<IngestJob?> latest(Session session) =>
       IngestJobs.latest(session, CompanyMasterSync.kind);
 
-  /// [kind]의 최근 작업 (`company_master`, `financial_facts`, `market_snapshot`).
+  /// [kind]의 최근 작업 (`company_master`, `financial_facts`, `market_snapshot`, `disclosures` …).
   Future<IngestJob?> latestOf(Session session, String kind) =>
       IngestJobs.latest(session, kind);
 

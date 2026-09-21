@@ -233,6 +233,24 @@ class DartClient {
     return ((body['list'] as List?) ?? const []).cast<Map<String, dynamic>>();
   }
 
+  /// 정기보고서 주요정보 (`hyslrSttus.json` 등, 경로는 `DartSections`) 원문 행.
+  ///
+  /// 자료가 없으면 013으로 오기도 하고, 값이 모두 `-`인 행을 주기도 한다. 013이면 null.
+  Future<List<Map<String, dynamic>>?> fetchDisclosure({
+    required String api,
+    required String corpCode,
+    required int bsnsYear,
+    required String reportCode,
+  }) async {
+    final body = await _json('$api.json', {
+      'corp_code': corpCode,
+      'bsns_year': '$bsnsYear',
+      'reprt_code': reportCode,
+    }, allowNoData: true);
+    if (body == null) return null;
+    return ((body['list'] as List?) ?? const []).cast<Map<String, dynamic>>();
+  }
+
   /// JSON API 호출. status가 000이 아니면 예외, [allowNoData]이고 013이면 null.
   Future<Map<String, dynamic>?> _json(
     String path,

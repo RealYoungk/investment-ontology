@@ -1,0 +1,10 @@
+### 임원의 등기 구분 (임원 현황 rgist_exctv_at).
+enum: ExecutiveRegistration
+values:
+  - inside
+  - outside
+  ### 기타비상무이사
+  - nonExecutive
+  - unregistered
+  ### 위에 없는 표기 (원문은 registrationRaw)
+  - other
