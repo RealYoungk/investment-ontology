@@ -70,6 +70,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _isup83mn;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/overview.dart'
     as _iqnrnt8q;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/peer_comparison.dart'
+    as _izfg2hmi;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/person_hit.dart'
     as _i96d117e;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/person_profile.dart'
@@ -969,6 +971,15 @@ class EndpointScreen extends _isc.EndpointRef {
       'limit': limit,
     },
   );
+
+  /// 같은 업종 기업들과의 비교. 업종은 값이 있는 기업이 다섯 곳은 되도록
+  /// 세분류 → 중분류 → 대분류 순으로 넓혀 잡는다.
+  _ida.Future<_izfg2hmi.PeerComparison?> peers(String corpCode) =>
+      caller.callServerEndpoint<_izfg2hmi.PeerComparison?>(
+        'screen',
+        'peers',
+        {'corpCode': corpCode},
+      );
 }
 
 /// 테마 (5단계): 사용자가 정의하는 투자 주제와 기업 편입.

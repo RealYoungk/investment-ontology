@@ -40,15 +40,22 @@ final ledgerBrand = AppBrand(
       letterSpacing: -0.5,
     ),
     bodyBase: GoogleFonts.ibmPlexSansKr(height: 1.35),
+    // 모노 폰트에는 한글이 없다. 웹에서 글자마다 대체 폰트를 받다가 빠뜨리면
+    // 네모(⬜)로 보이므로, 이미 쓰는 한글 폰트를 대체로 지정해 둔다 (조·억·온톨로지 …).
     numericBase: GoogleFonts.ibmPlexMono(
       fontWeight: FontWeight.w500,
       fontFeatures: const [FontFeature.tabularFigures()],
-    ),
+    ).copyWith(fontFamilyFallback: _koreanFallback),
     labelBase: GoogleFonts.ibmPlexMono(
       fontSize: 10.5,
       fontWeight: FontWeight.w600,
       letterSpacing: 1.4,
-    ),
+    ).copyWith(fontFamilyFallback: _koreanFallback),
   ),
   shape: const AppShape(radius: 0, strokeWidth: 1.2),
 );
+
+/// 모노 폰트가 못 그리는 글자(한글)를 맡는 폰트.
+final _koreanFallback = <String>[
+  ?GoogleFonts.ibmPlexSansKr().fontFamily,
+];

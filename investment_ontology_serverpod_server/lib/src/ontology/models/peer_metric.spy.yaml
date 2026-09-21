@@ -1,0 +1,15 @@
+### 업종 비교의 지표 하나. 값은 저장하지 않고 조회할 때 계산한다.
+class: PeerMetric
+fields:
+  key: String
+  label: String
+  ### 이 기업의 값
+  value: double?
+  ### 같은 업종 기업들의 중앙값
+  median: double?
+  ### 같은 업종에서 몇 번째인지 (1 = 가장 좋음). 값이 없으면 null
+  rank: int?
+  ### 값이 있는 같은 업종 기업 수
+  ranked: int?
+  ### 낮을수록 좋은 지표인지 (PER·PBR·부채비율)
+  lowerIsBetter: bool

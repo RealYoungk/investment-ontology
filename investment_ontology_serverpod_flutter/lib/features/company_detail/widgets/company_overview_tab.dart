@@ -7,6 +7,7 @@ import '../../../design/tokens.dart';
 import '../../financials/financial_metrics.dart';
 import '../../common/formatters.dart';
 import 'ontology_digest.dart';
+import 'peer_digest.dart';
 
 /// 기업 상세의 개요 탭: 재무 요약(자세히는 재무 탭) · 기업개황 · 산업 분류 · 변경 이력 · 출처.
 class CompanyOverviewTab extends StatelessWidget {
@@ -38,6 +39,8 @@ class CompanyOverviewTab extends StatelessWidget {
         corpCode: detail.company.corpCode,
         onOpenTab: onOpenTab,
       ),
+      const SizedBox(height: AppSpace.lg),
+      PeerDigest(corpCode: detail.company.corpCode),
       const SizedBox(height: AppSpace.xl),
       if (detail.industryPath.isNotEmpty) ...[
         const SectionLabel('산업 분류 · KSIC'),

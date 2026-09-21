@@ -11,7 +11,6 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _is;
-
 import '../../ontology/models/disclosure_link_basis.dart' as _i0btqt1b;
 
 /// 타법인 출자 한 행 (타법인 출자현황 otrCprInvstmntSttus). 금액은 원 단위 (API가 원문 백만원을 원으로 바꿔 준다).

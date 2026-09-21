@@ -13,7 +13,6 @@
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart'
     as _i4yshtjp;
 import 'package:serverpod/serverpod.dart' as _is;
-
 import '../../ontology/models/company_market_cap.dart' as _itup2ouf;
 import '../../ontology/models/financial_period.dart' as _idrk0nnp;
 import '../../ontology/models/fs_div.dart' as _igqrlzji;

@@ -107,6 +107,8 @@ import 'ontology/models/market_snapshot.dart' as _ibhowe7d;
 import 'ontology/models/market_snapshot_day.dart' as _i3renazk;
 import 'ontology/models/ontology_relation.dart' as _iejnlir1;
 import 'ontology/models/overview.dart' as _iz31wbgv;
+import 'ontology/models/peer_comparison.dart' as _isobo9h5;
+import 'ontology/models/peer_metric.dart' as _iihutb4k;
 import 'ontology/models/person.dart' as _i9gy9ys0;
 import 'ontology/models/person_hit.dart' as _iyxi6nm4;
 import 'ontology/models/person_link_rejection.dart' as _iffou6wp;
@@ -205,6 +207,8 @@ export 'ontology/models/market_snapshot.dart';
 export 'ontology/models/market_snapshot_day.dart';
 export 'ontology/models/ontology_relation.dart';
 export 'ontology/models/overview.dart';
+export 'ontology/models/peer_comparison.dart';
+export 'ontology/models/peer_metric.dart';
 export 'ontology/models/person.dart';
 export 'ontology/models/person_hit.dart';
 export 'ontology/models/person_link_rejection.dart';
@@ -480,6 +484,12 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _iz31wbgv.Overview) {
       return _iz31wbgv.Overview.fromJson(data) as T;
+    }
+    if (t == _isobo9h5.PeerComparison) {
+      return _isobo9h5.PeerComparison.fromJson(data) as T;
+    }
+    if (t == _iihutb4k.PeerMetric) {
+      return _iihutb4k.PeerMetric.fromJson(data) as T;
     }
     if (t == _i9gy9ys0.Person) {
       return _i9gy9ys0.Person.fromJson(data) as T;
@@ -834,6 +844,13 @@ class Protocol extends _isc.SerializationManager {
     if (t == _isc.getType<_iz31wbgv.Overview?>()) {
       return (data != null ? _iz31wbgv.Overview.fromJson(data) : null) as T;
     }
+    if (t == _isc.getType<_isobo9h5.PeerComparison?>()) {
+      return (data != null ? _isobo9h5.PeerComparison.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_iihutb4k.PeerMetric?>()) {
+      return (data != null ? _iihutb4k.PeerMetric.fromJson(data) : null) as T;
+    }
     if (t == _isc.getType<_i9gy9ys0.Person?>()) {
       return (data != null ? _i9gy9ys0.Person.fromJson(data) : null) as T;
     }
@@ -1093,6 +1110,12 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_iihutb4k.PeerMetric>) {
+      return (data as List)
+              .map((e) => deserialize<_iihutb4k.PeerMetric>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_ipnxekll.PersonRole>) {
       return (data as List)
               .map((e) => deserialize<_ipnxekll.PersonRole>(e))
@@ -1286,6 +1309,8 @@ class Protocol extends _isc.SerializationManager {
       _i3renazk.MarketSnapshotDay => 'MarketSnapshotDay',
       _iejnlir1.OntologyRelation => 'OntologyRelation',
       _iz31wbgv.Overview => 'Overview',
+      _isobo9h5.PeerComparison => 'PeerComparison',
+      _iihutb4k.PeerMetric => 'PeerMetric',
       _i9gy9ys0.Person => 'Person',
       _iyxi6nm4.PersonHit => 'PersonHit',
       _iffou6wp.PersonLinkRejection => 'PersonLinkRejection',
@@ -1472,6 +1497,10 @@ class Protocol extends _isc.SerializationManager {
         return 'OntologyRelation';
       case _iz31wbgv.Overview():
         return 'Overview';
+      case _isobo9h5.PeerComparison():
+        return 'PeerComparison';
+      case _iihutb4k.PeerMetric():
+        return 'PeerMetric';
       case _i9gy9ys0.Person():
         return 'Person';
       case _iyxi6nm4.PersonHit():
@@ -1760,6 +1789,12 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'Overview') {
       return deserialize<_iz31wbgv.Overview>(data['data']);
+    }
+    if (dataClassName == 'PeerComparison') {
+      return deserialize<_isobo9h5.PeerComparison>(data['data']);
+    }
+    if (dataClassName == 'PeerMetric') {
+      return deserialize<_iihutb4k.PeerMetric>(data['data']);
     }
     if (dataClassName == 'Person') {
       return deserialize<_i9gy9ys0.Person>(data['data']);

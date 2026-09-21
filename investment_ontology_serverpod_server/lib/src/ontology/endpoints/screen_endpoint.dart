@@ -134,6 +134,98 @@ class ScreenEndpoint extends Endpoint {
     );
   }
 
+  /// 같은 업종 기업들과의 비교. 업종은 값이 있는 기업이 다섯 곳은 되도록
+  /// 세분류 → 중분류 → 대분류 순으로 넓혀 잡는다.
+  Future<PeerComparison?> peers(Session session, String corpCode) async {
+    final company = await Company.db.findFirstRow(
+      session,
+      where: (t) => t.corpCode.equals(corpCode),
+    );
+    if (company?.id == null) return null;
+    final all = await _universe(session);
+    final me = all.where((r) => r.company.corpCode == corpCode).firstOrNull;
+    if (me == null) return null;
+
+    final companies = await Company.db.find(
+      session,
+      where: (t) => t.market.inSet(DisclosureLinks.listedMarkets),
+    );
+    final byId = {for (final c in companies) c.id!: c};
+
+    // 좁은 업종부터 본다. 기업 수가 너무 적으면 중앙값이 뜻이 없다.
+    const minPeers = 5;
+    List<ScreenRow> inGroup(String? Function(Company) code) {
+      final mine = code(company!);
+      if (mine == null || mine.isEmpty) return const [];
+      return [
+        for (final r in all)
+          if (code(byId[r.company.id] ?? company) == mine) r,
+      ];
+    }
+
+    var code = company!.industryCode;
+    var group = inGroup((c) => c.industryCode);
+    if (group.length < minPeers) {
+      code = company.divisionCode;
+      group = inGroup((c) => c.divisionCode);
+    }
+    if (group.length < minPeers) {
+      code = company.sectionCode;
+      group = inGroup((c) => c.sectionCode);
+    }
+    if (group.length < minPeers || code == null) return null;
+
+    final industry = await Industry.db.findFirstRow(
+      session,
+      where: (t) => t.code.equals(code!),
+    );
+
+    PeerMetric metric(
+      String key,
+      String label,
+      double? Function(ScreenRow) pick, {
+      bool lowerIsBetter = false,
+    }) {
+      final values = [for (final r in group) ?pick(r)]..sort();
+      final mine = pick(me);
+      final median = values.isEmpty
+          ? null
+          : values.length.isOdd
+          ? values[values.length ~/ 2]
+          : (values[values.length ~/ 2 - 1] + values[values.length ~/ 2]) / 2;
+      int? rank;
+      if (mine != null && values.isNotEmpty) {
+        rank =
+            1 + values.where((v) => lowerIsBetter ? v < mine : v > mine).length;
+      }
+      return PeerMetric(
+        key: key,
+        label: label,
+        value: mine,
+        median: median,
+        rank: rank,
+        ranked: values.isEmpty ? null : values.length,
+        lowerIsBetter: lowerIsBetter,
+      );
+    }
+
+    return PeerComparison(
+      code: code,
+      label: industry?.name ?? code,
+      peerCount: group.length,
+      metrics: [
+        metric('per', 'PER', (r) => r.per, lowerIsBetter: true),
+        metric('pbr', 'PBR', (r) => r.pbr, lowerIsBetter: true),
+        metric('roe', 'ROE', (r) => r.roe),
+        metric('operatingMargin', '영업이익률', (r) => r.operatingMargin),
+        metric('revenueGrowth', '매출 성장률', (r) => r.revenueGrowth),
+        metric('debtRatio', '부채비율', (r) => r.debtRatio, lowerIsBetter: true),
+        metric('dividendYield', '배당수익률', (r) => r.dividendYield),
+        metric('fcfYield', 'FCF 수익률', (r) => r.fcfYield),
+      ],
+    );
+  }
+
   /// 전 상장사의 지표. 재무·시세가 바뀌지 않았으면 지난 계산을 그대로 쓴다.
   Future<List<ScreenRow>> _universe(Session session) async {
     final version = await session.db.unsafeQuery('''
