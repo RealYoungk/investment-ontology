@@ -44,3 +44,5 @@ fields:
   low52w: int?
   ### 52주 밴드에서 지금 종가의 자리 (0 = 최저, 100 = 최고)
   bandPosition: double?
+  ### 최근 한 달 하루 평균 거래대금 (원). 얼마나 사고팔 수 있는지
+  avgTradingValue: BigInt?

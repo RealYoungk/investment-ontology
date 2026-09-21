@@ -61,6 +61,9 @@ class ScreenEndpoint extends Endpoint {
     double? dividendYieldMin,
     double? fcfYieldMin,
     BigInt? marketCapMin,
+
+    /// 하루 평균 거래대금(원)이 이보다 적은 기업은 뺀다 — 사고팔기 어려운 종목.
+    BigInt? avgTradingValueMin,
     ScreenSort? sort,
     bool? ascending,
     int? offset,
@@ -93,7 +96,10 @@ class ScreenEndpoint extends Endpoint {
                           r.dividendYield! >= dividendYieldMin)) &&
                   (fcfYieldMin == null ||
                       (r.fcfYield != null && r.fcfYield! >= fcfYieldMin)) &&
-                  (marketCapMin == null || r.marketCap >= marketCapMin)))
+                  (marketCapMin == null || r.marketCap >= marketCapMin) &&
+                  (avgTradingValueMin == null ||
+                      (r.avgTradingValue != null &&
+                          r.avgTradingValue! >= avgTradingValueMin))))
             r,
     ];
     if (sectionCode != null && codes == null) {
@@ -127,6 +133,7 @@ class ScreenEndpoint extends Endpoint {
       // 낮을수록 (52주 최저에 가까울수록) 앞으로.
       ScreenSort.bandPosition =>
         r.bandPosition == null ? null : -r.bandPosition!,
+      ScreenSort.avgTradingValue => r.avgTradingValue?.toDouble(),
     };
     final asc = ascending ?? false;
     rows.sort((a, b) {
@@ -345,6 +352,15 @@ class ScreenEndpoint extends Endpoint {
         FROM rep r JOIN market_snapshot m ON m."securityId" = r.sid
         WHERE m."baseDate" <= (SELECT max("baseDate") FROM market_snapshot_day WHERE "rowCount" > 0) - interval '12 months'
         ORDER BY r.id, m."baseDate" DESC
+      ), liq AS (
+        -- 최근 한 달 하루 평균 거래대금. 사고팔 수 있는 크기를 보는 값이다.
+        SELECT r.id, avg(m."tradingValue"::numeric) AS v
+        FROM rep r JOIN market_snapshot m ON m."securityId" = r.sid
+        WHERE m."baseDate" > (
+            SELECT max("baseDate") FROM market_snapshot_day WHERE "rowCount" > 0
+          ) - interval '30 days'
+          AND m."tradingValue" IS NOT NULL
+        GROUP BY r.id
       ), band AS (
         -- 액면분할·병합이 있으면 종가를 이어 붙일 수 없다. 상장주식수의 최대·최소도
         -- 같이 가져와, 크게 바뀐 기업은 값을 내지 않는다.
@@ -389,7 +405,8 @@ class ScreenEndpoint extends Endpoint {
           max(pn.v) AS px, max(p3.v) AS px3, max(p12.v) AS px12,
           max(bd.hi) AS hi52, max(bd.lo) AS lo52,
           max(pn.sh) AS sh, max(p3.sh) AS sh3, max(p12.sh) AS sh12,
-          max(bd.sh_hi) AS sh_hi, max(bd.sh_lo) AS sh_lo
+          max(bd.sh_hi) AS sh_hi, max(bd.sh_lo) AS sh_lo,
+          max(lq.v) AS liq
         FROM company c
         JOIN latest l ON l.id = c.id
         JOIN cap ON cap.id = c.id
@@ -400,13 +417,14 @@ class ScreenEndpoint extends Endpoint {
         LEFT JOIN px_3m p3 ON p3.id = c.id
         LEFT JOIN px_12m p12 ON p12.id = c.id
         LEFT JOIN band bd ON bd.id = c.id
+        LEFT JOIN liq lq ON lq.id = c.id
         WHERE c.market IN ($markets)
         GROUP BY c.id, c."corpCode", c.name, c.market, l.y, cap.cap
       )
       SELECT id, "corpCode", name, market, y, cap, revenue, op, ni, eq,
              total_eq, liab, fcf, dividend,
              revenue_now, revenue_ago, op_now, op_ago, assets,
-             px, px3, px12, hi52, lo52, sh, sh3, sh12, sh_hi, sh_lo
+             px, px3, px12, hi52, lo52, sh, sh3, sh12, sh_hi, sh_lo, liq
       FROM metrics
     ''');
 
@@ -519,6 +537,7 @@ class ScreenEndpoint extends Endpoint {
             bandPosition: sameShares(r[27], r[28])
                 ? position(r[19], r[22], r[23])
                 : null,
+            avgTradingValue: big(r[29]),
           ),
     ];
     _cacheKey = key;

@@ -1702,6 +1702,11 @@ class Endpoints extends _is.EndpointDispatch {
               type: _is.getType<BigInt?>(),
               nullable: true,
             ),
+            'avgTradingValueMin': _is.ParameterDescription(
+              name: 'avgTradingValueMin',
+              type: _is.getType<BigInt?>(),
+              nullable: true,
+            ),
             'sort': _is.ParameterDescription(
               name: 'sort',
               type: _is.getType<_i9blzem0.ScreenSort?>(),
@@ -1742,6 +1747,7 @@ class Endpoints extends _is.EndpointDispatch {
                 dividendYieldMin: params['dividendYieldMin'],
                 fcfYieldMin: params['fcfYieldMin'],
                 marketCapMin: params['marketCapMin'],
+                avgTradingValueMin: params['avgTradingValueMin'],
                 sort: params['sort'],
                 ascending: params['ascending'],
                 offset: params['offset'],

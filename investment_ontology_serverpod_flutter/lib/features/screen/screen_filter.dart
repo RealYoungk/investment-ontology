@@ -14,6 +14,7 @@ class ScreenFilter {
     this.fcfMin,
     this.revenueGrowthMin,
     this.opGrowthMin,
+    this.liquidityMin,
     this.sort = ScreenSort.marketCap,
     this.ascending = false,
   });
@@ -40,6 +41,7 @@ class ScreenFilter {
       fcfMin: number('fcf'),
       revenueGrowthMin: number('rgrow'),
       opGrowthMin: number('ogrow'),
+      liquidityMin: number('liq'),
       sort: ScreenSort.values.asNameMap()[q['sort']] ?? ScreenSort.marketCap,
       ascending: q['asc'] == '1',
     );
@@ -55,6 +57,9 @@ class ScreenFilter {
   final double? fcfMin;
   final double? revenueGrowthMin;
   final double? opGrowthMin;
+
+  /// 하루 평균 거래대금 최소 (억원)
+  final double? liquidityMin;
   final ScreenSort sort;
   final bool ascending;
 
@@ -67,7 +72,8 @@ class ScreenFilter {
       dividendMin != null ||
       fcfMin != null ||
       revenueGrowthMin != null ||
-      opGrowthMin != null;
+      opGrowthMin != null ||
+      liquidityMin != null;
 
   ScreenFilter copyWith({
     Market? Function()? market,
@@ -80,6 +86,7 @@ class ScreenFilter {
     double? Function()? fcfMin,
     double? Function()? revenueGrowthMin,
     double? Function()? opGrowthMin,
+    double? Function()? liquidityMin,
     ScreenSort? sort,
     bool? ascending,
   }) => ScreenFilter(
@@ -95,6 +102,7 @@ class ScreenFilter {
         ? this.revenueGrowthMin
         : revenueGrowthMin(),
     opGrowthMin: opGrowthMin == null ? this.opGrowthMin : opGrowthMin(),
+    liquidityMin: liquidityMin == null ? this.liquidityMin : liquidityMin(),
     sort: sort ?? this.sort,
     ascending: ascending ?? this.ascending,
   );
@@ -111,6 +119,7 @@ class ScreenFilter {
       if (fcfMin case final v?) 'fcf': _trim(v),
       if (revenueGrowthMin case final v?) 'rgrow': _trim(v),
       if (opGrowthMin case final v?) 'ogrow': _trim(v),
+      if (liquidityMin case final v?) 'liq': _trim(v),
       if (sort != ScreenSort.marketCap) 'sort': sort.name,
       if (ascending) 'asc': '1',
     };
@@ -134,6 +143,7 @@ class ScreenFilter {
       other.fcfMin == fcfMin &&
       other.revenueGrowthMin == revenueGrowthMin &&
       other.opGrowthMin == opGrowthMin &&
+      other.liquidityMin == liquidityMin &&
       other.sort == sort &&
       other.ascending == ascending;
 
@@ -149,6 +159,7 @@ class ScreenFilter {
     fcfMin,
     revenueGrowthMin,
     opGrowthMin,
+    liquidityMin,
     sort,
     ascending,
   );
