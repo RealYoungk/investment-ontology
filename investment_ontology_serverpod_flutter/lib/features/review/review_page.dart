@@ -380,11 +380,19 @@ class _Accuracy extends StatelessWidget {
             '${mine.map((x) => x.checkedBy).toSet().join(' · ')}',
             style: t.body(11.5, color: c.textMuted),
           ),
-          for (final x in mine)
+          // 기록이 쌓이면 최근 것만 (숫자는 위에서 다 합쳐 보여 준다).
+          for (final x in mine.take(2))
             if (x.note case final note?) ...[
               const SizedBox(height: 4),
               Text(note, style: t.body(12, color: c.textSecondary)),
             ],
+          if (mine.length > 2) ...[
+            const SizedBox(height: 4),
+            Text(
+              '그 밖에 대조 기록 ${formatCount(mine.length - 2)}건',
+              style: t.body(11.5, color: c.textMuted),
+            ),
+          ],
         ],
       ),
     );
