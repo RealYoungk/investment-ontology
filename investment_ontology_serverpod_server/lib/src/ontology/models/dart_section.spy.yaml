@@ -57,3 +57,5 @@ values:
   - topFivePay
   ### 타법인 출자현황 (otrCprInvstmntSttus)
   - investments
+  ### 사업보고서 본문 "II. 사업의 내용" (공시 원본 파일 document.xml, 보고서당 1회)
+  - businessContent

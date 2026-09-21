@@ -7,6 +7,7 @@ import '../../app/router.dart';
 import '../../client.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
+import '../business/business_tab.dart';
 import '../disclosures/disclosure_tab.dart';
 import '../financials/financial_section.dart';
 import '../governance/governance_tab.dart';
@@ -14,7 +15,14 @@ import '../shareholder_return/shareholder_return_tab.dart';
 import 'widgets/company_header.dart';
 import 'widgets/company_overview_tab.dart';
 
-enum CompanyTab { overview, financials, governance, returns, disclosures }
+enum CompanyTab {
+  overview,
+  financials,
+  business,
+  governance,
+  returns,
+  disclosures,
+}
 
 /// 탭별 주요정보 항목. 이 가운데 하나라도 받았으면 탭을 보여 준다.
 const _governanceSections = {
@@ -110,6 +118,12 @@ class _CompanyPageState extends State<CompanyPage> {
     }
   }
 
+  /// 원문 표로 보여 주는 항목 (사업의 내용은 글이라 따로 탭이 있다).
+  List<DisclosureSectionInfo> get _tableSections => [
+    for (final s in _sections)
+      if (s.section != DartSection.businessContent) s,
+  ];
+
   bool _has(Set<DartSection> wanted) =>
       _sections.any((s) => wanted.contains(s.section));
 
@@ -117,9 +131,10 @@ class _CompanyPageState extends State<CompanyPage> {
   Map<CompanyTab, String> get _tabs => {
     CompanyTab.overview: '개요',
     CompanyTab.financials: '재무',
+    if (_has({DartSection.businessContent})) CompanyTab.business: '사업의 내용',
     if (_has(_governanceSections)) CompanyTab.governance: '지배구조',
     if (_has(_returnSections)) CompanyTab.returns: '주주환원',
-    if (_sections.isNotEmpty) CompanyTab.disclosures: '공시 항목',
+    if (_tableSections.isNotEmpty) CompanyTab.disclosures: '공시 항목',
   };
 
   @override
@@ -200,7 +215,11 @@ class _CompanyPageState extends State<CompanyPage> {
             CompanyTab.disclosures => DisclosureTab(
               key: ValueKey('disclosures-$_version'),
               corpCode: widget.corpCode,
-              sections: _sections,
+              sections: _tableSections,
+            ),
+            CompanyTab.business => BusinessTab(
+              key: ValueKey('business-$_version'),
+              corpCode: widget.corpCode,
             ),
             CompanyTab.financials => FinancialSection(
               key: ValueKey('financials-$_version'),

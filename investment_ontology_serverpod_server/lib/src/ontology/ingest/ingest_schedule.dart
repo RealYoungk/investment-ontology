@@ -170,4 +170,10 @@ abstract final class IngestSchedule {
         .disclosure
         .resume();
   }
+
+  static Future<void> aiExtractionNow(Session session, int jobId, int limit) =>
+      session.serverpod.futureCalls
+          .callWithDelay(Duration.zero)
+          .aiExtraction
+          .run(jobId, limit);
 }

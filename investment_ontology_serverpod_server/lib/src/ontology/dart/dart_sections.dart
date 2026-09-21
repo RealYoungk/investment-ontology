@@ -15,7 +15,7 @@ class DartSectionInfo {
   final int tier;
 }
 
-/// DART 정기보고서 주요정보(DS002) 28종.
+/// DART 정기보고서 주요정보(DS002) 28종과 사업보고서 본문(사업의 내용).
 ///
 /// 2026-09-19 표본(30개사 FY2025 사업보고서)에서 28종 모두 주소를 확인했다. 개인별 보수의
 /// Ver 2.0 API 두 종은 같은 항목의 새 판이라 받지 않는다.
@@ -25,6 +25,7 @@ abstract final class DartSections {
   static const people = '사람·보수';
   static const audit = '감사';
   static const debt = '채무·자금';
+  static const business = '사업의 내용';
 
   static const info = <DartSection, DartSectionInfo>{
     DartSection.largestShareholders: DartSectionInfo(
@@ -189,6 +190,13 @@ abstract final class DartSections {
       '사모자금의 사용내역',
       debt,
       1,
+    ),
+    // 주요정보 API가 아니라 공시 원본 파일(document.xml)에서 본문을 뽑는다. 보고서당 1회.
+    DartSection.businessContent: DartSectionInfo(
+      'document',
+      '사업의 내용',
+      business,
+      2,
     ),
   };
 

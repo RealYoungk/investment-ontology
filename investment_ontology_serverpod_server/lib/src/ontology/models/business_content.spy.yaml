@@ -1,0 +1,10 @@
+### 기업 상세의 사업의 내용 탭.
+class: BusinessContent
+fields:
+  bsnsYear: int
+  rceptNo: String
+  title: String
+  sections: List<BusinessSection>
+  charCount: int
+  years: List<int>
+  source: Source?

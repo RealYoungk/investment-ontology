@@ -16,7 +16,10 @@ import 'package:serverpod/serverpod.dart' as _is;
 enum RelationFactKind implements _is.SerializableModel {
   shareholderEntry,
   executiveEntry,
-  investmentEntry;
+  investmentEntry,
+
+  /// 사업보고서 본문 (AI 추출의 원문)
+  businessDocument;
 
   static RelationFactKind fromJson(String name) {
     switch (name) {
@@ -26,6 +29,8 @@ enum RelationFactKind implements _is.SerializableModel {
         return RelationFactKind.executiveEntry;
       case 'investmentEntry':
         return RelationFactKind.investmentEntry;
+      case 'businessDocument':
+        return RelationFactKind.businessDocument;
       default:
         throw ArgumentError(
           'Value "$name" cannot be converted to "RelationFactKind"',

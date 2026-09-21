@@ -17,6 +17,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _iee4t190;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/investment_theme.dart'
     as _in6y0ur2;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/review_item.dart'
+    as _ip1s5ejx;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/theme_summary.dart'
     as _iy65bs9o;
 import 'package:serverpod/protocol.dart' as _isp;
@@ -25,6 +27,8 @@ import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _iacs;
 import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
     as _iais;
+import 'future_calls_generated_models/ai_extraction_future_call_run_model.dart'
+    as _iskveedf;
 import 'future_calls_generated_models/company_master_future_call_run_model.dart'
     as _i8298vau;
 import 'future_calls_generated_models/disclosure_future_call_run_company_model.dart'
@@ -38,8 +42,13 @@ import 'future_calls_generated_models/financial_facts_future_call_run_model.dart
 import 'future_calls_generated_models/market_snapshot_future_call_run_model.dart'
     as _i7jjkv72;
 import 'greetings/greeting.dart' as _izw8z7ou;
+import 'ontology/models/ai_extraction.dart' as _idjojx8t;
+import 'ontology/models/ai_status.dart' as _i7c6k6qa;
 import 'ontology/models/api_call_usage.dart' as _i3e42he1;
 import 'ontology/models/api_provider.dart' as _i82zif2r;
+import 'ontology/models/business_content.dart' as _ik6lqqsr;
+import 'ontology/models/business_document.dart' as _imi0q911;
+import 'ontology/models/business_section.dart' as _inylkhjt;
 import 'ontology/models/company.dart' as _ipen255x;
 import 'ontology/models/company_change.dart' as _isfozywu;
 import 'ontology/models/company_detail.dart' as _ire9jjud;
@@ -97,6 +106,8 @@ import 'ontology/models/relation_fact_kind.dart' as _iy288i3j;
 import 'ontology/models/relation_origin.dart' as _id1oen7t;
 import 'ontology/models/relation_predicate.dart' as _idal2dwe;
 import 'ontology/models/relation_status.dart' as _ih00v9tp;
+import 'ontology/models/review_item.dart' as _i6uduqoi;
+import 'ontology/models/review_page.dart' as _i22wlf7g;
 import 'ontology/models/security.dart' as _ilujots3;
 import 'ontology/models/security_link_basis.dart' as _ic799xum;
 import 'ontology/models/security_quote.dart' as _ionn6cq2;
@@ -111,8 +122,13 @@ import 'ontology/models/theme_member_view.dart' as _irah5hi6;
 import 'ontology/models/theme_summary.dart' as _i4ynus9k;
 import 'ontology/models/treasury_stock_entry.dart' as _injn1qca;
 export 'greetings/greeting.dart';
+export 'ontology/models/ai_extraction.dart';
+export 'ontology/models/ai_status.dart';
 export 'ontology/models/api_call_usage.dart';
 export 'ontology/models/api_provider.dart';
+export 'ontology/models/business_content.dart';
+export 'ontology/models/business_document.dart';
+export 'ontology/models/business_section.dart';
 export 'ontology/models/company.dart';
 export 'ontology/models/company_change.dart';
 export 'ontology/models/company_detail.dart';
@@ -170,6 +186,8 @@ export 'ontology/models/relation_fact_kind.dart';
 export 'ontology/models/relation_origin.dart';
 export 'ontology/models/relation_predicate.dart';
 export 'ontology/models/relation_status.dart';
+export 'ontology/models/review_item.dart';
+export 'ontology/models/review_page.dart';
 export 'ontology/models/security.dart';
 export 'ontology/models/security_link_basis.dart';
 export 'ontology/models/security_quote.dart';
@@ -192,6 +210,110 @@ class Protocol extends _is.DatabaseSerializationManager {
   static final Protocol _instance = Protocol._().._registerHostProtocols();
 
   static List<_isp.TableDefinition> get targetTableDefinitions => [
+    _isp.TableDefinition(
+      name: 'ai_extraction',
+      dartName: 'AiExtraction',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'documentId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'companyId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'model',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'succeeded',
+          columnType: _isp.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+        ),
+        _isp.ColumnDefinition(
+          name: 'relationCount',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'droppedCount',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'error',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'ai_extraction_fk_0',
+          columns: ['documentId'],
+          referenceTable: 'business_document',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.cascade,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'ai_extraction_document_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'documentId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'ai_extraction_company_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'companyId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
     _isp.TableDefinition(
       name: 'api_call_usage',
       dartName: 'ApiCallUsage',
@@ -242,6 +364,108 @@ class Protocol extends _is.DatabaseSerializationManager {
           ],
           type: 'btree',
           isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'business_document',
+      dartName: 'BusinessDocument',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'reportId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'companyId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'bsnsYear',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'rceptNo',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'title',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'text',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'charCount',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'business_document_fk_0',
+          columns: ['reportId'],
+          referenceTable: 'disclosure_report',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.cascade,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'business_document_report_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'reportId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'business_document_company_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'companyId',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'bsnsYear',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
           isPrimary: false,
         ),
       ],
@@ -2576,6 +2800,30 @@ class Protocol extends _is.DatabaseSerializationManager {
           isNullable: true,
           dartType: 'protocol:DisclosureLinkBasis?',
         ),
+        _isp.ColumnDefinition(
+          name: 'evidence',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'confidence',
+          columnType: _isp.ColumnType.doublePrecision,
+          isNullable: true,
+          dartType: 'double?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'extractorModel',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'reviewedAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
       ],
       foreignKeys: [
         _isp.ForeignKeyDefinition(
@@ -3562,6 +3810,9 @@ class Protocol extends _is.DatabaseSerializationManager {
       }
     }
 
+    if (t == _iskveedf.AiExtractionFutureCallRunModel) {
+      return _iskveedf.AiExtractionFutureCallRunModel.fromJson(data) as T;
+    }
     if (t == _i8298vau.CompanyMasterFutureCallRunModel) {
       return _i8298vau.CompanyMasterFutureCallRunModel.fromJson(data) as T;
     }
@@ -3584,11 +3835,26 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _izw8z7ou.Greeting) {
       return _izw8z7ou.Greeting.fromJson(data) as T;
     }
+    if (t == _idjojx8t.AiExtraction) {
+      return _idjojx8t.AiExtraction.fromJson(data) as T;
+    }
+    if (t == _i7c6k6qa.AiStatus) {
+      return _i7c6k6qa.AiStatus.fromJson(data) as T;
+    }
     if (t == _i3e42he1.ApiCallUsage) {
       return _i3e42he1.ApiCallUsage.fromJson(data) as T;
     }
     if (t == _i82zif2r.ApiProvider) {
       return _i82zif2r.ApiProvider.fromJson(data) as T;
+    }
+    if (t == _ik6lqqsr.BusinessContent) {
+      return _ik6lqqsr.BusinessContent.fromJson(data) as T;
+    }
+    if (t == _imi0q911.BusinessDocument) {
+      return _imi0q911.BusinessDocument.fromJson(data) as T;
+    }
+    if (t == _inylkhjt.BusinessSection) {
+      return _inylkhjt.BusinessSection.fromJson(data) as T;
     }
     if (t == _ipen255x.Company) {
       return _ipen255x.Company.fromJson(data) as T;
@@ -3761,6 +4027,12 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _ih00v9tp.RelationStatus) {
       return _ih00v9tp.RelationStatus.fromJson(data) as T;
     }
+    if (t == _i6uduqoi.ReviewItem) {
+      return _i6uduqoi.ReviewItem.fromJson(data) as T;
+    }
+    if (t == _i22wlf7g.ReviewPage) {
+      return _i22wlf7g.ReviewPage.fromJson(data) as T;
+    }
     if (t == _ilujots3.Security) {
       return _ilujots3.Security.fromJson(data) as T;
     }
@@ -3799,6 +4071,12 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (t == _injn1qca.TreasuryStockEntry) {
       return _injn1qca.TreasuryStockEntry.fromJson(data) as T;
+    }
+    if (t == _is.getType<_iskveedf.AiExtractionFutureCallRunModel?>()) {
+      return (data != null
+              ? _iskveedf.AiExtractionFutureCallRunModel.fromJson(data)
+              : null)
+          as T;
     }
     if (t == _is.getType<_i8298vau.CompanyMasterFutureCallRunModel?>()) {
       return (data != null
@@ -3840,11 +4118,29 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _is.getType<_izw8z7ou.Greeting?>()) {
       return (data != null ? _izw8z7ou.Greeting.fromJson(data) : null) as T;
     }
+    if (t == _is.getType<_idjojx8t.AiExtraction?>()) {
+      return (data != null ? _idjojx8t.AiExtraction.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_i7c6k6qa.AiStatus?>()) {
+      return (data != null ? _i7c6k6qa.AiStatus.fromJson(data) : null) as T;
+    }
     if (t == _is.getType<_i3e42he1.ApiCallUsage?>()) {
       return (data != null ? _i3e42he1.ApiCallUsage.fromJson(data) : null) as T;
     }
     if (t == _is.getType<_i82zif2r.ApiProvider?>()) {
       return (data != null ? _i82zif2r.ApiProvider.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_ik6lqqsr.BusinessContent?>()) {
+      return (data != null ? _ik6lqqsr.BusinessContent.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_imi0q911.BusinessDocument?>()) {
+      return (data != null ? _imi0q911.BusinessDocument.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_inylkhjt.BusinessSection?>()) {
+      return (data != null ? _inylkhjt.BusinessSection.fromJson(data) : null)
+          as T;
     }
     if (t == _is.getType<_ipen255x.Company?>()) {
       return (data != null ? _ipen255x.Company.fromJson(data) : null) as T;
@@ -4075,6 +4371,12 @@ class Protocol extends _is.DatabaseSerializationManager {
       return (data != null ? _ih00v9tp.RelationStatus.fromJson(data) : null)
           as T;
     }
+    if (t == _is.getType<_i6uduqoi.ReviewItem?>()) {
+      return (data != null ? _i6uduqoi.ReviewItem.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_i22wlf7g.ReviewPage?>()) {
+      return (data != null ? _i22wlf7g.ReviewPage.fromJson(data) : null) as T;
+    }
     if (t == _is.getType<_ilujots3.Security?>()) {
       return (data != null ? _ilujots3.Security.fromJson(data) : null) as T;
     }
@@ -4121,6 +4423,15 @@ class Protocol extends _is.DatabaseSerializationManager {
       return (data != null ? _injn1qca.TreasuryStockEntry.fromJson(data) : null)
           as T;
     }
+    if (t == List<_inylkhjt.BusinessSection>) {
+      return (data as List)
+              .map((e) => deserialize<_inylkhjt.BusinessSection>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<int>) {
+      return (data as List).map((e) => deserialize<int>(e)).toList() as T;
+    }
     if (t == List<_i3hzx3f1.Industry>) {
       return (data as List)
               .map((e) => deserialize<_i3hzx3f1.Industry>(e))
@@ -4142,9 +4453,6 @@ class Protocol extends _is.DatabaseSerializationManager {
               .map((e) => deserialize<_itz8g04g.FinancialPeriod>(e))
               .toList()
           as T;
-    }
-    if (t == List<int>) {
-      return (data as List).map((e) => deserialize<int>(e)).toList() as T;
     }
     if (t == List<_itljah4k.ShareholderEntry>) {
       return (data as List)
@@ -4248,6 +4556,12 @@ class Protocol extends _is.DatabaseSerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_i6uduqoi.ReviewItem>) {
+      return (data as List)
+              .map((e) => deserialize<_i6uduqoi.ReviewItem>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_ith4ion6.DividendEntry>) {
       return (data as List)
               .map((e) => deserialize<_ith4ion6.DividendEntry>(e))
@@ -4284,6 +4598,12 @@ class Protocol extends _is.DatabaseSerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_ip1s5ejx.ReviewItem>) {
+      return (data as List)
+              .map((e) => deserialize<_ip1s5ejx.ReviewItem>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_iy65bs9o.ThemeSummary>) {
       return (data as List)
               .map((e) => deserialize<_iy65bs9o.ThemeSummary>(e))
@@ -4310,6 +4630,8 @@ class Protocol extends _is.DatabaseSerializationManager {
 
   static String? getClassNameForType(Type type) {
     return switch (type) {
+      _iskveedf.AiExtractionFutureCallRunModel =>
+        'AiExtractionFutureCallRunModel',
       _i8298vau.CompanyMasterFutureCallRunModel =>
         'CompanyMasterFutureCallRunModel',
       _iln8mnkp.DisclosureFutureCallRunCompanyModel =>
@@ -4322,8 +4644,13 @@ class Protocol extends _is.DatabaseSerializationManager {
       _i7jjkv72.MarketSnapshotFutureCallRunModel =>
         'MarketSnapshotFutureCallRunModel',
       _izw8z7ou.Greeting => 'Greeting',
+      _idjojx8t.AiExtraction => 'AiExtraction',
+      _i7c6k6qa.AiStatus => 'AiStatus',
       _i3e42he1.ApiCallUsage => 'ApiCallUsage',
       _i82zif2r.ApiProvider => 'ApiProvider',
+      _ik6lqqsr.BusinessContent => 'BusinessContent',
+      _imi0q911.BusinessDocument => 'BusinessDocument',
+      _inylkhjt.BusinessSection => 'BusinessSection',
       _ipen255x.Company => 'Company',
       _isfozywu.CompanyChange => 'CompanyChange',
       _ire9jjud.CompanyDetail => 'CompanyDetail',
@@ -4381,6 +4708,8 @@ class Protocol extends _is.DatabaseSerializationManager {
       _id1oen7t.RelationOrigin => 'RelationOrigin',
       _idal2dwe.RelationPredicate => 'RelationPredicate',
       _ih00v9tp.RelationStatus => 'RelationStatus',
+      _i6uduqoi.ReviewItem => 'ReviewItem',
+      _i22wlf7g.ReviewPage => 'ReviewPage',
       _ilujots3.Security => 'Security',
       _ic799xum.SecurityLinkBasis => 'SecurityLinkBasis',
       _ionn6cq2.SecurityQuote => 'SecurityQuote',
@@ -4411,6 +4740,8 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
 
     switch (data) {
+      case _iskveedf.AiExtractionFutureCallRunModel():
+        return 'AiExtractionFutureCallRunModel';
       case _i8298vau.CompanyMasterFutureCallRunModel():
         return 'CompanyMasterFutureCallRunModel';
       case _iln8mnkp.DisclosureFutureCallRunCompanyModel():
@@ -4425,10 +4756,20 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'MarketSnapshotFutureCallRunModel';
       case _izw8z7ou.Greeting():
         return 'Greeting';
+      case _idjojx8t.AiExtraction():
+        return 'AiExtraction';
+      case _i7c6k6qa.AiStatus():
+        return 'AiStatus';
       case _i3e42he1.ApiCallUsage():
         return 'ApiCallUsage';
       case _i82zif2r.ApiProvider():
         return 'ApiProvider';
+      case _ik6lqqsr.BusinessContent():
+        return 'BusinessContent';
+      case _imi0q911.BusinessDocument():
+        return 'BusinessDocument';
+      case _inylkhjt.BusinessSection():
+        return 'BusinessSection';
       case _ipen255x.Company():
         return 'Company';
       case _isfozywu.CompanyChange():
@@ -4543,6 +4884,10 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'RelationPredicate';
       case _ih00v9tp.RelationStatus():
         return 'RelationStatus';
+      case _i6uduqoi.ReviewItem():
+        return 'ReviewItem';
+      case _i22wlf7g.ReviewPage():
+        return 'ReviewPage';
       case _ilujots3.Security():
         return 'Security';
       case _ic799xum.SecurityLinkBasis():
@@ -4595,6 +4940,11 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (dataClassName is! String) {
       return super.deserializeByClassName(data);
     }
+    if (dataClassName == 'AiExtractionFutureCallRunModel') {
+      return deserialize<_iskveedf.AiExtractionFutureCallRunModel>(
+        data['data'],
+      );
+    }
     if (dataClassName == 'CompanyMasterFutureCallRunModel') {
       return deserialize<_i8298vau.CompanyMasterFutureCallRunModel>(
         data['data'],
@@ -4626,11 +4976,26 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (dataClassName == 'Greeting') {
       return deserialize<_izw8z7ou.Greeting>(data['data']);
     }
+    if (dataClassName == 'AiExtraction') {
+      return deserialize<_idjojx8t.AiExtraction>(data['data']);
+    }
+    if (dataClassName == 'AiStatus') {
+      return deserialize<_i7c6k6qa.AiStatus>(data['data']);
+    }
     if (dataClassName == 'ApiCallUsage') {
       return deserialize<_i3e42he1.ApiCallUsage>(data['data']);
     }
     if (dataClassName == 'ApiProvider') {
       return deserialize<_i82zif2r.ApiProvider>(data['data']);
+    }
+    if (dataClassName == 'BusinessContent') {
+      return deserialize<_ik6lqqsr.BusinessContent>(data['data']);
+    }
+    if (dataClassName == 'BusinessDocument') {
+      return deserialize<_imi0q911.BusinessDocument>(data['data']);
+    }
+    if (dataClassName == 'BusinessSection') {
+      return deserialize<_inylkhjt.BusinessSection>(data['data']);
     }
     if (dataClassName == 'Company') {
       return deserialize<_ipen255x.Company>(data['data']);
@@ -4803,6 +5168,12 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (dataClassName == 'RelationStatus') {
       return deserialize<_ih00v9tp.RelationStatus>(data['data']);
     }
+    if (dataClassName == 'ReviewItem') {
+      return deserialize<_i6uduqoi.ReviewItem>(data['data']);
+    }
+    if (dataClassName == 'ReviewPage') {
+      return deserialize<_i22wlf7g.ReviewPage>(data['data']);
+    }
     if (dataClassName == 'Security') {
       return deserialize<_ilujots3.Security>(data['data']);
     }
@@ -4889,8 +5260,12 @@ class Protocol extends _is.DatabaseSerializationManager {
       }
     }
     switch (t) {
+      case _idjojx8t.AiExtraction:
+        return _idjojx8t.AiExtraction.t;
       case _i3e42he1.ApiCallUsage:
         return _i3e42he1.ApiCallUsage.t;
+      case _imi0q911.BusinessDocument:
+        return _imi0q911.BusinessDocument.t;
       case _ipen255x.Company:
         return _ipen255x.Company.t;
       case _isfozywu.CompanyChange:

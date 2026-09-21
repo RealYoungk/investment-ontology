@@ -22,6 +22,7 @@ class IngestMonitor {
     'market_snapshot',
     'disclosures',
     'disclosures_company',
+    'ai_extraction',
   ];
 
   static const _runningInterval = Duration(seconds: 3);

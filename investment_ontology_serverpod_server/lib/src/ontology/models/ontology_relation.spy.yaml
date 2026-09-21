@@ -23,6 +23,14 @@ fields:
   status: RelationStatus
   ### 주어를 연결한 근거
   subjectBasis: DisclosureLinkBasis?
+  ### AI 추출: 원문 그대로의 인용 (원문에 없으면 저장하지 않는다)
+  evidence: String?
+  ### AI 추출: 모델이 매긴 확신도 (0~1)
+  confidence: double?
+  ### AI 추출: 모델 이름
+  extractorModel: String?
+  ### 사람이 승인·거절한 시각
+  reviewedAt: DateTime?
 indexes:
   ontology_relation_subject_company_idx:
     fields: subjectCompanyId

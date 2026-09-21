@@ -11,6 +11,10 @@ jwtRefresh:
   - refreshAccessToken:
 greeting:
   - hello:
+ai:
+  - status:
+  - extractCompany:
+  - startBatch:
 company:
   - overview:
   - divisions:
@@ -19,6 +23,7 @@ company:
 disclosure:
   - sections:
   - table:
+  - businessContent:
   - shareholderReturn:
 financial:
   - summary:
@@ -38,6 +43,10 @@ ingest:
   - latestOf:
 market:
   - industryTreemap:
+review:
+  - list:
+  - decide:
+  - forCompany:
 theme:
   - list:
   - create:

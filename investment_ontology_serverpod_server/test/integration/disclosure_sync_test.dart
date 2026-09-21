@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:archive/archive.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
@@ -20,14 +21,34 @@ class FakeDisclosures {
   /// 호출마다 실행한다 (다른 수집이 동시에 호출을 쓰는 상황 흉내).
   Future<void> Function()? onCall;
 
+  /// 접수번호 → 공시 원본 XML. 없으면 014 (파일 없음).
+  final documents = <String, String>{};
+
   void set(String api, String corp, int year, List<Map<String, String>> list) =>
       rows['$api|$corp|$year'] = list;
 
   DartClient client() => DartClient(
     'key',
     httpClient: MockClient((req) async {
-      final api = req.url.pathSegments.last.replaceAll('.json', '');
       final q = req.url.queryParameters;
+      if (req.url.path.endsWith('document.xml')) {
+        final rcept = q['rcept_no']!;
+        calls.add('document|$rcept');
+        final xml = documents[rcept];
+        if (xml == null) {
+          return http.Response.bytes(
+            utf8.encode(
+              '<?xml version="1.0" encoding="UTF-8"?><result><status>014</status>'
+              '<message>파일이 존재하지 않습니다.</message></result>',
+            ),
+            200,
+          );
+        }
+        final archive = Archive()
+          ..addFile(ArchiveFile.bytes('$rcept.xml', utf8.encode(xml)));
+        return http.Response.bytes(ZipEncoder().encodeBytes(archive), 200);
+      }
+      final api = req.url.pathSegments.last.replaceAll('.json', '');
       final key = '$api|${q['corp_code']}|${q['bsns_year']}';
       calls.add(key);
       await onCall?.call();
@@ -251,8 +272,9 @@ void main() {
     test('사업보고서마다 28개 항목을 받아 원문 행과 타입 층을 출처와 함께 저장한다', () async {
       final job = await runSync();
       expect(job.status, IngestStatus.succeeded, reason: job.message);
-      expect(await DartFilingSection.db.count(session), 5 * 28);
-      expect(dart.calls, hasLength(5 * 28));
+      expect(await DartFilingSection.db.count(session), 5 * 29);
+      // 주요정보 28종 + 사업의 내용(원본 파일 1회).
+      expect(dart.calls, hasLength(5 * 29));
 
       final report = (await DisclosureReport.db.findFirstRow(
         session,
@@ -496,7 +518,7 @@ void main() {
           session,
           where: (t) => t.status.equals(FilingFetchStatus.pending),
         ),
-        5 * 19 + 28 + 28,
+        5 * 20 + 29 + 29,
       );
     });
 
@@ -513,6 +535,56 @@ void main() {
       final job = await runSync(dailyBudget: 1000);
       expect(dart.calls.length, lessThanOrEqualTo(21));
       expect(job.message, contains('다음 날 이어서 받음'));
+    });
+
+    test('사업보고서 원본 파일에서 사업의 내용을 뽑아 하위 절로 보여 준다', () async {
+      dart.documents[rSamsung] = '''
+<DOCUMENT><BODY>
+<TITLE ATOC="Y" AASSOCNOTE="D-0-1-0-0">I. 회사의 개요</TITLE><P>개요</P>
+<TITLE ATOC="Y" AASSOCNOTE="D-0-2-0-0">II. 사업의 내용</TITLE>
+<TITLE ATOC="Y" AASSOCNOTE="L-0-2-1-L1">1. 사업의 개요</TITLE>
+<P>당사는 DRAM과 NAND Flash를 생산합니다.</P>
+<TITLE ATOC="Y" AASSOCNOTE="L-0-2-2-L1">2. 주요 제품 및 서비스</TITLE>
+<TABLE><TR><TH>부문</TH><TH>주요 제품</TH></TR>
+<TR><TD>DS</TD><TE>DRAM &amp; NAND</TE></TR></TABLE>
+<TITLE ATOC="Y" AASSOCNOTE="D-0-3-0-0">III. 재무에 관한 사항</TITLE><P>재무</P>
+</BODY></DOCUMENT>''';
+      await runSync(corpCode: samsung);
+      final doc = (await BusinessDocument.db.findFirstRow(session))!;
+      expect(doc.rceptNo, rSamsung);
+      expect(doc.text, isNot(contains('재무')));
+      final content = (await endpoints.disclosure.businessContent(
+        sessionBuilder,
+        samsung,
+      ))!;
+      expect(content.title, 'II. 사업의 내용');
+      expect(
+        [for (final s in content.sections) s.title],
+        [
+          '1. 사업의 개요',
+          '2. 주요 제품 및 서비스',
+        ],
+      );
+      expect(content.sections.last.text, '부문 | 주요 제품\nDS | DRAM & NAND');
+      expect(content.source!.reference, rSamsung);
+    });
+
+    test('정정공시의 원본 파일이 없으면 같은 사업연도의 이전 접수번호로 받는다', () async {
+      const corrected = '20260401000001';
+      await filing(samsung, corrected, 2025);
+      dart.documents[rSamsung] =
+          '<TITLE AASSOCNOTE="D-0-2-0-0">II. 사업의 내용</TITLE><P>본문</P>'
+          '<TITLE AASSOCNOTE="D-0-3-0-0">III.</TITLE>';
+      await runSync(corpCode: samsung);
+      expect(
+        dart.calls,
+        containsAllInOrder([
+          'document|$corrected',
+          'document|$rSamsung',
+        ]),
+      );
+      final doc = (await BusinessDocument.db.findFirstRow(session))!;
+      expect(doc.rceptNo, rSamsung);
     });
 
     test('정정공시가 나오면 이전 보고서를 새 보고서가 대체한다', () async {

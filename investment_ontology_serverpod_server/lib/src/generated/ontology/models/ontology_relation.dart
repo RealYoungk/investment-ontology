@@ -39,6 +39,10 @@ abstract class OntologyRelation
     required this.extractedBy,
     required this.status,
     this.subjectBasis,
+    this.evidence,
+    this.confidence,
+    this.extractorModel,
+    this.reviewedAt,
   });
 
   factory OntologyRelation({
@@ -58,6 +62,10 @@ abstract class OntologyRelation
     required _i58iymfp.RelationOrigin extractedBy,
     required _ije7dn2u.RelationStatus status,
     _i0btqt1b.DisclosureLinkBasis? subjectBasis,
+    String? evidence,
+    double? confidence,
+    String? extractorModel,
+    DateTime? reviewedAt,
   }) = _OntologyRelationImpl;
 
   factory OntologyRelation.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -92,6 +100,12 @@ abstract class OntologyRelation
           : _i0btqt1b.DisclosureLinkBasis.fromJson(
               (jsonSerialization['subjectBasis'] as String),
             ),
+      evidence: jsonSerialization['evidence'] as String?,
+      confidence: (jsonSerialization['confidence'] as num?)?.toDouble(),
+      extractorModel: jsonSerialization['extractorModel'] as String?,
+      reviewedAt: jsonSerialization['reviewedAt'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(jsonSerialization['reviewedAt']),
     );
   }
 
@@ -136,6 +150,18 @@ abstract class OntologyRelation
   /// 주어를 연결한 근거
   _i0btqt1b.DisclosureLinkBasis? subjectBasis;
 
+  /// AI 추출: 원문 그대로의 인용 (원문에 없으면 저장하지 않는다)
+  String? evidence;
+
+  /// AI 추출: 모델이 매긴 확신도 (0~1)
+  double? confidence;
+
+  /// AI 추출: 모델 이름
+  String? extractorModel;
+
+  /// 사람이 승인·거절한 시각
+  DateTime? reviewedAt;
+
   @override
   _is.Table<int?> get table => t;
 
@@ -159,6 +185,10 @@ abstract class OntologyRelation
     _i58iymfp.RelationOrigin? extractedBy,
     _ije7dn2u.RelationStatus? status,
     _i0btqt1b.DisclosureLinkBasis? subjectBasis,
+    String? evidence,
+    double? confidence,
+    String? extractorModel,
+    DateTime? reviewedAt,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -180,6 +210,10 @@ abstract class OntologyRelation
       'extractedBy': extractedBy.toJson(),
       'status': status.toJson(),
       if (subjectBasis != null) 'subjectBasis': subjectBasis?.toJson(),
+      if (evidence != null) 'evidence': evidence,
+      if (confidence != null) 'confidence': confidence,
+      if (extractorModel != null) 'extractorModel': extractorModel,
+      if (reviewedAt != null) 'reviewedAt': reviewedAt?.toJson(),
     };
   }
 
@@ -203,6 +237,10 @@ abstract class OntologyRelation
       'extractedBy': extractedBy.toJson(),
       'status': status.toJson(),
       if (subjectBasis != null) 'subjectBasis': subjectBasis?.toJson(),
+      if (evidence != null) 'evidence': evidence,
+      if (confidence != null) 'confidence': confidence,
+      if (extractorModel != null) 'extractorModel': extractorModel,
+      if (reviewedAt != null) 'reviewedAt': reviewedAt?.toJson(),
     };
   }
 
@@ -254,6 +292,10 @@ class _OntologyRelationImpl extends OntologyRelation {
     required _i58iymfp.RelationOrigin extractedBy,
     required _ije7dn2u.RelationStatus status,
     _i0btqt1b.DisclosureLinkBasis? subjectBasis,
+    String? evidence,
+    double? confidence,
+    String? extractorModel,
+    DateTime? reviewedAt,
   }) : super._(
          id: id,
          predicate: predicate,
@@ -271,6 +313,10 @@ class _OntologyRelationImpl extends OntologyRelation {
          extractedBy: extractedBy,
          status: status,
          subjectBasis: subjectBasis,
+         evidence: evidence,
+         confidence: confidence,
+         extractorModel: extractorModel,
+         reviewedAt: reviewedAt,
        );
 
   /// Returns a shallow copy of this [OntologyRelation]
@@ -294,6 +340,10 @@ class _OntologyRelationImpl extends OntologyRelation {
     _i58iymfp.RelationOrigin? extractedBy,
     _ije7dn2u.RelationStatus? status,
     Object? subjectBasis = _Undefined,
+    Object? evidence = _Undefined,
+    Object? confidence = _Undefined,
+    Object? extractorModel = _Undefined,
+    Object? reviewedAt = _Undefined,
   }) {
     return OntologyRelation(
       id: id is int? ? id : this.id,
@@ -320,6 +370,12 @@ class _OntologyRelationImpl extends OntologyRelation {
       subjectBasis: subjectBasis is _i0btqt1b.DisclosureLinkBasis?
           ? subjectBasis
           : this.subjectBasis,
+      evidence: evidence is String? ? evidence : this.evidence,
+      confidence: confidence is double? ? confidence : this.confidence,
+      extractorModel: extractorModel is String?
+          ? extractorModel
+          : this.extractorModel,
+      reviewedAt: reviewedAt is DateTime? ? reviewedAt : this.reviewedAt,
     );
   }
 }
@@ -408,6 +464,28 @@ class OntologyRelationUpdateTable
     table.subjectBasis,
     value,
   );
+
+  _is.ColumnValue<String, String> evidence(String? value) => _is.ColumnValue(
+    table.evidence,
+    value,
+  );
+
+  _is.ColumnValue<double, double> confidence(double? value) => _is.ColumnValue(
+    table.confidence,
+    value,
+  );
+
+  _is.ColumnValue<String, String> extractorModel(String? value) =>
+      _is.ColumnValue(
+        table.extractorModel,
+        value,
+      );
+
+  _is.ColumnValue<DateTime, DateTime> reviewedAt(DateTime? value) =>
+      _is.ColumnValue(
+        table.reviewedAt,
+        value,
+      );
 }
 
 class OntologyRelationTable extends _is.Table<int?> {
@@ -479,6 +557,22 @@ class OntologyRelationTable extends _is.Table<int?> {
       this,
       _is.EnumSerialization.byName,
     );
+    evidence = _is.ColumnString(
+      'evidence',
+      this,
+    );
+    confidence = _is.ColumnDouble(
+      'confidence',
+      this,
+    );
+    extractorModel = _is.ColumnString(
+      'extractorModel',
+      this,
+    );
+    reviewedAt = _is.ColumnDateTime(
+      'reviewedAt',
+      this,
+    );
   }
 
   late final OntologyRelationUpdateTable updateTable;
@@ -517,6 +611,18 @@ class OntologyRelationTable extends _is.Table<int?> {
   /// 주어를 연결한 근거
   late final _is.ColumnEnum<_i0btqt1b.DisclosureLinkBasis> subjectBasis;
 
+  /// AI 추출: 원문 그대로의 인용 (원문에 없으면 저장하지 않는다)
+  late final _is.ColumnString evidence;
+
+  /// AI 추출: 모델이 매긴 확신도 (0~1)
+  late final _is.ColumnDouble confidence;
+
+  /// AI 추출: 모델 이름
+  late final _is.ColumnString extractorModel;
+
+  /// 사람이 승인·거절한 시각
+  late final _is.ColumnDateTime reviewedAt;
+
   @override
   List<_is.Column> get columns => [
     id,
@@ -535,6 +641,10 @@ class OntologyRelationTable extends _is.Table<int?> {
     extractedBy,
     status,
     subjectBasis,
+    evidence,
+    confidence,
+    extractorModel,
+    reviewedAt,
   ];
 }
 

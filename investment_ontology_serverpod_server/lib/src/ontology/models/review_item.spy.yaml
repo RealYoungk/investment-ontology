@@ -1,0 +1,9 @@
+### 검수 큐의 관계 하나와 화면에 필요한 기업 정보.
+class: ReviewItem
+fields:
+  relation: OntologyRelation
+  ### 원문(사업보고서)을 낸 기업
+  companyCorpCode: String
+  companyName: String
+  subjectCorpCode: String?
+  objectCorpCode: String?

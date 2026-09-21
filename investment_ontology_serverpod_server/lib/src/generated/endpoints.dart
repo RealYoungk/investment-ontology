@@ -20,6 +20,10 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _i69nddnn;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/market.dart'
     as _iyonaxpd;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/relation_predicate.dart'
+    as _iw7mt1ku;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/relation_status.dart'
+    as _iy39k7od;
 import 'package:serverpod/serverpod.dart' as _is;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _iacs;
@@ -28,12 +32,14 @@ import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
 import '../auth/email_idp_endpoint.dart' as _iuc1hd5t;
 import '../auth/jwt_refresh_endpoint.dart' as _inwq3ztq;
 import '../greetings/greeting_endpoint.dart' as _il624ik7;
+import '../ontology/endpoints/ai_endpoint.dart' as _iadofkda;
 import '../ontology/endpoints/company_endpoint.dart' as _itnisr3u;
 import '../ontology/endpoints/disclosure_endpoint.dart' as _i23b9rs7;
 import '../ontology/endpoints/financial_endpoint.dart' as _ipit2z9y;
 import '../ontology/endpoints/governance_endpoint.dart' as _i6kw8hva;
 import '../ontology/endpoints/ingest_endpoint.dart' as _icbircc0;
 import '../ontology/endpoints/market_endpoint.dart' as _iaw7fzks;
+import '../ontology/endpoints/review_endpoint.dart' as _i9uttt4a;
 import '../ontology/endpoints/theme_endpoint.dart' as _iqaca509;
 export 'future_calls.dart' show ServerpodFutureCallsGetter;
 
@@ -57,6 +63,12 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'greeting',
+          null,
+        ),
+      'ai': _iadofkda.AiEndpoint()
+        ..initialize(
+          server,
+          'ai',
           null,
         ),
       'company': _itnisr3u.CompanyEndpoint()
@@ -93,6 +105,12 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'market',
+          null,
+        ),
+      'review': _i9uttt4a.ReviewEndpoint()
+        ..initialize(
+          server,
+          'review',
           null,
         ),
       'theme': _iqaca509.ThemeEndpoint()
@@ -333,6 +351,59 @@ class Endpoints extends _is.EndpointDispatch {
         ),
       },
     );
+    connectors['ai'] = _is.EndpointConnector(
+      name: 'ai',
+      endpoint: endpoints['ai']!,
+      methodConnectors: {
+        'status': _is.MethodConnector(
+          name: 'status',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['ai'] as _iadofkda.AiEndpoint).status(session),
+        ),
+        'extractCompany': _is.MethodConnector(
+          name: 'extractCompany',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['ai'] as _iadofkda.AiEndpoint).extractCompany(
+                    session,
+                    params['corpCode'],
+                  ),
+        ),
+        'startBatch': _is.MethodConnector(
+          name: 'startBatch',
+          params: {
+            'limit': _is.ParameterDescription(
+              name: 'limit',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['ai'] as _iadofkda.AiEndpoint).startBatch(
+                session,
+                limit: params['limit'],
+              ),
+        ),
+      },
+    );
     connectors['company'] = _is.EndpointConnector(
       name: 'company',
       endpoint: endpoints['company']!,
@@ -501,6 +572,32 @@ class Endpoints extends _is.EndpointDispatch {
                         session,
                         params['corpCode'],
                         params['section'],
+                        bsnsYear: params['bsnsYear'],
+                      ),
+        ),
+        'businessContent': _is.MethodConnector(
+          name: 'businessContent',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'bsnsYear': _is.ParameterDescription(
+              name: 'bsnsYear',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['disclosure'] as _i23b9rs7.DisclosureEndpoint)
+                      .businessContent(
+                        session,
+                        params['corpCode'],
                         bsnsYear: params['bsnsYear'],
                       ),
         ),
@@ -812,6 +909,92 @@ class Endpoints extends _is.EndpointDispatch {
                     session,
                     sectionCode: params['sectionCode'],
                     market: params['market'],
+                  ),
+        ),
+      },
+    );
+    connectors['review'] = _is.EndpointConnector(
+      name: 'review',
+      endpoint: endpoints['review']!,
+      methodConnectors: {
+        'list': _is.MethodConnector(
+          name: 'list',
+          params: {
+            'status': _is.ParameterDescription(
+              name: 'status',
+              type: _is.getType<_iy39k7od.RelationStatus?>(),
+              nullable: true,
+            ),
+            'predicate': _is.ParameterDescription(
+              name: 'predicate',
+              type: _is.getType<_iw7mt1ku.RelationPredicate?>(),
+              nullable: true,
+            ),
+            'offset': _is.ParameterDescription(
+              name: 'offset',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
+            'limit': _is.ParameterDescription(
+              name: 'limit',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['review'] as _i9uttt4a.ReviewEndpoint).list(
+                session,
+                status: params['status'],
+                predicate: params['predicate'],
+                offset: params['offset'],
+                limit: params['limit'],
+              ),
+        ),
+        'decide': _is.MethodConnector(
+          name: 'decide',
+          params: {
+            'relationId': _is.ParameterDescription(
+              name: 'relationId',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+            'approve': _is.ParameterDescription(
+              name: 'approve',
+              type: _is.getType<bool>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['review'] as _i9uttt4a.ReviewEndpoint).decide(
+                    session,
+                    params['relationId'],
+                    params['approve'],
+                  ),
+        ),
+        'forCompany': _is.MethodConnector(
+          name: 'forCompany',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['review'] as _i9uttt4a.ReviewEndpoint).forCompany(
+                    session,
+                    params['corpCode'],
                   ),
         ),
       },

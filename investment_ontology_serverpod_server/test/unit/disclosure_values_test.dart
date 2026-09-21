@@ -121,7 +121,7 @@ void main() {
 
   test('주요정보 28종의 API 주소는 서로 다르고 모든 항목에 정보가 있다', () {
     expect(DartSections.info.keys.toSet(), DartSection.values.toSet());
-    expect({for (final i in DartSections.info.values) i.api}.length, 28);
+    expect({for (final i in DartSections.info.values) i.api}.length, 29);
     expect(
       [
         for (final e in DartSections.info.entries)
