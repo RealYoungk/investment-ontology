@@ -37,13 +37,29 @@ abstract final class SupplierRelations {
       ))
         '${r.predicate.name}|${r.subjectName}',
     };
+    // 해마다 표기가 달라진다 ("영풍전자㈜" · "영풍전자", "Intel" · "INTEL").
+    // 이 기업에 이미 쓰인 표기가 있으면 그것으로 맞춘다.
+    final spelling = <String, String>{
+      for (final r in await OntologyRelation.db.find(
+        session,
+        where: (t) =>
+            t.objectCompanyId.equals(company.id!) &
+            t.factKind.equals(RelationFactKind.businessDocument),
+        orderBy: (t) => t.bsnsYear.desc(),
+      ))
+        DisclosureValues.companyName(r.subjectName): r.subjectName,
+    };
 
     final now = DateTime.now().toUtc();
     final add = <OntologyRelation>[];
     for (final row in rows) {
       final otherId = byName[DisclosureValues.companyName(row.name)];
       if (otherId == company.id) continue;
-      final subjectName = otherId == null ? row.name : names[otherId]!;
+      final key = DisclosureValues.companyName(row.name);
+      final subjectName = otherId != null
+          ? names[otherId]!
+          : (spelling[key] ?? row.name);
+      spelling.putIfAbsent(key, () => subjectName);
       if (!existing.add('suppliesTo|$subjectName')) continue;
       add.add(
         OntologyRelation(

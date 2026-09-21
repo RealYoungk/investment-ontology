@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../app/router.dart';
 import '../../client.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
@@ -321,17 +323,26 @@ class _AiRelationsState extends State<_AiRelations> {
           const SizedBox(height: AppSpace.sm),
           if (items.isEmpty)
             Text('아직 없습니다.', style: t.body(13, color: c.textMuted))
-          else
+          else ...[
+            // 확정된 것은 이름만 묶어서 (해마다 같은 공급처가 되풀이된다).
+            _RelationGroups(
+              items: [
+                for (final i in items)
+                  if (i.relation.status != RelationStatus.draft) i,
+              ],
+              onOpenCompany: (code) => context.push(AppRoutes.company(code)),
+            ),
+            // 검수 대기는 근거를 봐야 하니 카드로.
             for (final item in items)
-              ReviewCard(
-                item: item,
-                onDecide: item.relation.status == RelationStatus.draft
-                    ? (approve) async {
-                        await client.review.decide(item.relation.id!, approve);
-                        await _load();
-                      }
-                    : null,
-              ),
+              if (item.relation.status == RelationStatus.draft)
+                ReviewCard(
+                  item: item,
+                  onDecide: (approve) async {
+                    await client.review.decide(item.relation.id!, approve);
+                    await _load();
+                  },
+                ),
+          ],
         ],
       ),
     );
@@ -339,6 +350,88 @@ class _AiRelationsState extends State<_AiRelations> {
 }
 
 /// 본문에서 뽑아 승인한 값 (수주잔고·가동률·점유율 등). API로는 받을 수 없는 것들이다.
+
+/// 확정된 관계를 종류별로 이름만 묶어 보여 준다. 해마다 같은 공급처가 되풀이되므로
+/// 카드로 늘어놓으면 읽히지 않는다. 이름을 누르면 그 기업으로 간다.
+class _RelationGroups extends StatelessWidget {
+  const _RelationGroups({required this.items, required this.onOpenCompany});
+
+  final List<ReviewItem> items;
+  final ValueChanged<String> onOpenCompany;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    if (items.isEmpty) return const SizedBox.shrink();
+    // (종류, 상대) 하나로 묶고 연도 범위를 적는다.
+    final groups = <RelationPredicate, Map<String, (ReviewItem, Set<int>)>>{};
+    for (final i in items) {
+      final r = i.relation;
+      // 이 기업이 목적어면 상대는 주어다 (공급처), 아니면 목적어다 (매출처·제품).
+      final mineIsObject =
+          r.objectCompanyId != null && i.objectCorpCode == i.companyCorpCode;
+      final other = mineIsObject ? r.subjectName : r.objectName;
+      final byName = groups.putIfAbsent(r.predicate, () => {});
+      final prev = byName[other];
+      byName[other] = (
+        prev == null || r.bsnsYear > prev.$1.relation.bsnsYear ? i : prev.$1,
+        {...?prev?.$2, r.bsnsYear},
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final entry in groups.entries) ...[
+          Padding(
+            padding: const EdgeInsets.only(top: AppSpace.sm, bottom: 4),
+            child: Text(
+              '${predicateLabel(entry.key)} ${entry.value.length}',
+              style: t.body(12.5, color: c.textSecondary),
+            ),
+          ),
+          Wrap(
+            spacing: AppSpace.sm,
+            runSpacing: 6,
+            children: [
+              for (final e in entry.value.entries)
+                Tooltip(
+                  message:
+                      '${e.value.$1.relation.evidence ?? ''}\n'
+                      'FY${(e.value.$2.toList()..sort()).join(", FY")}',
+                  child: HoverBuilder(
+                    onTap: () {
+                      final item = e.value.$1;
+                      final code = item.objectCorpCode == item.companyCorpCode
+                          ? item.subjectCorpCode
+                          : item.objectCorpCode;
+                      if (code != null && code != item.companyCorpCode) {
+                        onOpenCompany(code);
+                      }
+                    },
+                    builder: (context, hovered) => Text(
+                      e.key,
+                      style: t
+                          .body(
+                            13.5,
+                            color: c.textPrimary,
+                            weight: FontWeight.w500,
+                          )
+                          .copyWith(
+                            decoration: hovered
+                                ? TextDecoration.underline
+                                : null,
+                          ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+}
 
 /// 본문에서 뽑은 값의 종류 이름. 개요 탭 요약과 검수 화면도 같은 이름을 쓴다.
 String documentFactKindLabel(DocumentFactKind k) => switch (k) {

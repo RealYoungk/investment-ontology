@@ -13,6 +13,7 @@
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart'
     as _i4yshtjp;
 import 'package:serverpod/serverpod.dart' as _is;
+
 import '../../ontology/models/facet_count.dart' as _icav4sge;
 import '../../ontology/models/industry_revision_check.dart' as _ixu13ifg;
 import '../../ontology/models/ingest_job.dart' as _iwr40u3f;
