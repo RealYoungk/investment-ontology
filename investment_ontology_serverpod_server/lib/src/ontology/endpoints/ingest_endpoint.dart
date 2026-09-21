@@ -205,9 +205,10 @@ class IngestEndpoint extends Endpoint {
   /// 규칙을 고친 뒤 되돌려 읽을 때 쓴다. 사람이 이미 결정한 항목은 건드리지 않는다.
   Future<String> rebuildProductionFacts(Session session) async {
     final docs = await BusinessDocument.db.find(session);
+    final keys = await ProductionFacts.listedKeys(session);
     var stored = 0;
     for (final doc in docs) {
-      stored += await ProductionFacts.store(session, doc);
+      stored += await ProductionFacts.store(session, doc, companyKeys: keys);
     }
     var links = 0;
     for (final doc in docs) {

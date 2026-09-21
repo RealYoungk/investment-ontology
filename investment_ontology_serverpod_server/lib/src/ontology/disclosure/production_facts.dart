@@ -1,6 +1,7 @@
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
+import 'disclosure_links.dart';
 
 /// 사업보고서 본문의 "생산능력·생산실적·가동률" 표를 규칙으로 읽는다 (AI 없음).
 ///
@@ -18,6 +19,9 @@ abstract final class ProductionFacts {
   /// 한 문서에서 받아들이는 최대 줄 수. 표가 통째로 들어오는 것을 막는다.
   static const maxRows = 40;
 
+  /// 지주회사 (KSIC). 이 업종은 본문이 자회사 이야기라 규칙 추출을 하지 않는다.
+  static const holdingCompanyCode = '64992';
+
   static final _number = RegExp(r'^-?[\d,]+(?:\.\d+)?$');
 
   /// 표의 한 줄에서 읽은 값.
@@ -25,38 +29,81 @@ abstract final class ProductionFacts {
     ({
       String label,
       String unit,
-      double capacity,
-      double production,
+      double? capacity,
+      double? production,
       double utilization,
       String evidence,
     })
   >
-  parse(String text) {
+  parse(
+    String text, {
+    String? owner,
+
+    /// 다른 회사 이름(정규화한 키). 이 이름이 대괄호로 붙은 구역의 표는 건너뛴다.
+    /// 대괄호는 사업부문 제목에도 쓰이므로, 아는 회사 이름일 때만 건너뛴다.
+    Set<String> otherCompanies = const {},
+  }) {
     final out =
         <
           ({
             String label,
             String unit,
-            double capacity,
-            double production,
+            double? capacity,
+            double? production,
             double utilization,
             String evidence,
           })
         >[];
     final lines = text.split('\n');
+    // "[SK하이닉스]"처럼 다른 회사 이름이 붙은 구역의 표는 그 회사 것이다.
+    // 지주사 보고서에는 자회사·관계기업의 표가 섞여 있다.
+    final ownerKey = _key(owner ?? '');
+    var otherCompany = false;
     var inTable = false;
+    var onlyUtilization = false;
+    var overAt = -1, underAt = -1;
     var unitFromHeader = '';
     for (final raw in lines) {
       final line = raw.trim();
       if (line.isEmpty) continue;
+      final marker = RegExp(r'^\[([^\]]{2,20})\]').firstMatch(line);
+      if (marker != null) {
+        final name = _key(marker.group(1)!);
+        final isOwner =
+            ownerKey.isNotEmpty &&
+            (ownerKey.contains(name) || name.contains(ownerKey));
+        // 대괄호는 "[제78기 누계]"처럼 표 제목에도 쓰인다. 회사 이름일 때만 바꾼다.
+        if (isOwner) {
+          otherCompany = false;
+          inTable = false;
+        } else if (otherCompanies.contains(name)) {
+          otherCompany = true;
+          inTable = false;
+        }
+        continue;
+      }
+      if (otherCompany) continue;
       final cells = [for (final c in line.split('|')) c.trim()];
 
       // 머리글: 생산능력·생산실적·가동률이 한 줄에 같이 있다.
       if (line.contains('생산능력') &&
           line.contains('생산실적') &&
-          RegExp('가동률').hasMatch(line)) {
+          line.contains('가동률')) {
         inTable = true;
+        onlyUtilization = false;
         unitFromHeader = _unitIn(line);
+        continue;
+      }
+      // 가동률만 따로 적는 표 (가동가능시간·실제가동시간 …). 비율만 받되,
+      // 머리글에서 분자(실제…)와 분모(…가능) 칸을 집어 스스로 검산한다.
+      if (line.contains('가동률') && cells.length >= 3) {
+        final over = cells.indexWhere((c) => c.contains('실제'));
+        final under = cells.indexWhere((c) => c.contains('가능'));
+        inTable = over > 0 && under > 0;
+        onlyUtilization = inTable;
+        overAt = over;
+        underAt = under;
+        unitFromHeader = '';
         continue;
       }
       if (!inTable) continue;
@@ -69,13 +116,25 @@ abstract final class ProductionFacts {
       final last = cells.last;
       if (!last.endsWith('%')) continue;
       final util = double.tryParse(last.replaceAll(RegExp(r'[%,]'), ''));
-      final cap = _num(cells[cells.length - 3]);
-      final prod = _num(cells[cells.length - 2]);
-      if (util == null || cap == null || prod == null || cap <= 0) continue;
-      if ((util - 100 * prod / cap).abs() > tolerance) continue;
+      if (util == null) continue;
+      double? cap, prod;
+      if (onlyUtilization) {
+        if (overAt >= cells.length || underAt >= cells.length) continue;
+        final over = _num(cells[overAt]), under = _num(cells[underAt]);
+        if (over == null || under == null || under <= 0) continue;
+        if ((util - 100 * over / under).abs() > tolerance) continue;
+      } else {
+        cap = _num(cells[cells.length - 3]);
+        prod = _num(cells[cells.length - 2]);
+        if (cap == null || prod == null || cap <= 0) continue;
+        if ((util - 100 * prod / cap).abs() > tolerance) continue;
+      }
 
       final labels = [
-        for (final c in cells.sublist(0, cells.length - 3))
+        for (final c in cells.sublist(
+          0,
+          onlyUtilization ? cells.length - 1 : cells.length - 3,
+        ))
           if (c.isNotEmpty && !_number.hasMatch(c)) c,
       ];
       if (labels.isEmpty) continue;
@@ -97,6 +156,25 @@ abstract final class ProductionFacts {
       if (out.length >= maxRows) break;
     }
     return out;
+  }
+
+  /// 이름 비교용 (괄호·법인 표기·공백을 떼고 소문자로).
+  static String _key(String name) {
+    var k = name.replaceAll(RegExp(r'\(주\)|㈜|주식회사|\s'), '').toLowerCase();
+    // 같은 회사를 한글·로마자로 섞어 적는다 ("SK스퀘어" · "에스케이스퀘어").
+    const alias = {
+      '에스케이': 'sk',
+      '엘지': 'lg',
+      '케이티': 'kt',
+      '지에스': 'gs',
+      '씨제이': 'cj',
+      '에이치디': 'hd',
+      '포스코': 'posco',
+    };
+    for (final e in alias.entries) {
+      k = k.replaceAll(e.key, e.value);
+    }
+    return k;
   }
 
   static double? _num(String s) =>
@@ -131,9 +209,29 @@ abstract final class ProductionFacts {
     return known.contains(fromHeader) ? fromHeader : '';
   }
 
+  /// 상장사 이름 키 (대괄호 구역이 다른 회사 것인지 가릴 때 쓴다).
+  static Future<Set<String>> listedKeys(Session session) async => {
+    for (final c in await Company.db.find(
+      session,
+      where: (t) => t.market.inSet(DisclosureLinks.listedMarkets),
+    ))
+      _key(c.name),
+  };
+
   /// 한 문서에서 읽어 저장한다. 이미 사람이 결정한 항목은 건드리지 않는다.
-  static Future<int> store(Session session, BusinessDocument doc) async {
-    final rows = parse(doc.text);
+  static Future<int> store(
+    Session session,
+    BusinessDocument doc, {
+
+    /// 상장사 이름 키. 없으면 읽어 온다 (여러 문서를 돌릴 때는 미리 만들어 넘긴다).
+    Set<String>? companyKeys,
+  }) async {
+    final company = await Company.db.findById(session, doc.companyId);
+    // 지주회사(KSIC 64992)의 "사업의 내용"은 대부분 자회사·관계기업의 표다.
+    // 그 회사 값으로 잘못 넣느니 통째로 건너뛴다.
+    if (company?.industryCode == holdingCompanyCode) return 0;
+    final others = companyKeys ?? await listedKeys(session);
+    final rows = parse(doc.text, owner: company?.name, otherCompanies: others);
     if (rows.isEmpty) return 0;
     final report = await DisclosureReport.db.findById(session, doc.reportId);
     final existing = {
@@ -146,10 +244,11 @@ abstract final class ProductionFacts {
     final now = DateTime.now().toUtc();
     final facts = <DocumentFact>[];
     for (final r in rows) {
-      if (r.unit.isEmpty) continue;
+      if (r.unit.isEmpty && r.capacity != null) continue;
       for (final (kind, value, unit) in [
-        (DocumentFactKind.capacity, r.capacity, r.unit),
-        (DocumentFactKind.production, r.production, r.unit),
+        if (r.capacity case final v?) (DocumentFactKind.capacity, v, r.unit),
+        if (r.production case final v?)
+          (DocumentFactKind.production, v, r.unit),
         (DocumentFactKind.utilization, r.utilization, '%'),
       ]) {
         if (existing.contains('${kind.name}|${r.label}')) continue;
