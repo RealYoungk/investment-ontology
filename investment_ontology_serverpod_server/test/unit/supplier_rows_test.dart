@@ -39,6 +39,17 @@ DX | 스마트폰 | 100 | 50% | Alphabet, Apple
     expect(SupplierRows.parse(text), isEmpty);
   });
 
+  test('"주요 매출처는 A, B 등" 문장에서 이름을 뽑는다', () {
+    const text = '''
+주요 매출처는 Alphabet, Apple, Deutsche Telekom 등(알파벳순)이 있습니다.
+주요 매출처는 자동차 OEM 업체로서 주요 5대 매출처에 대한 매출 비중은 약 63% 수준입니다.
+''';
+    expect(
+      SupplierRows.customers(text).map((r) => r.name),
+      ['Alphabet', 'Apple', 'Deutsche Telekom'],
+    );
+  });
+
   test('같은 이름은 한 번만', () {
     const text = '''
 부 문 | 품 목 | 매입액 | 주요 매입처

@@ -17,6 +17,31 @@ abstract final class SupplierRows {
 
   static final _bad = RegExp(r'[0-9%]|^[-—·]+$|해당\s*없음|미기재|자체');
 
+  /// "주요 매출처는 A, B, C 등" 문장에서 매출처 이름. 이 꼴이 아니면 읽지 않는다
+  /// ("주요 매출처는 자동차 OEM 업체로서…"처럼 이름이 아닌 문장이 많다).
+  static final _customers = RegExp(r'주요\s*매출처는\s*([^.]{3,200}?)\s*등');
+
+  static List<({String name, String evidence})> customers(String text) {
+    final out = <({String name, String evidence})>[];
+    final seen = <String>{};
+    for (final line in text.split('\n')) {
+      for (final m in _customers.allMatches(line)) {
+        final sentence = line.trim();
+        for (final piece in m.group(1)!.split(RegExp(r'[,،]'))) {
+          final name = piece.trim();
+          if (name.length < 2 || name.length > 30) continue;
+          if (_bad.hasMatch(name) || name.contains(' 및 ')) continue;
+          // 이름이 아니라 설명인 문장은 통째로 버린다.
+          if (RegExp(r'업체|고객사|기업|회사로서|등지').hasMatch(name)) continue;
+          if (!seen.add(name)) continue;
+          out.add((name: name, evidence: sentence));
+          if (out.length >= maxNames) return out;
+        }
+      }
+    }
+    return out;
+  }
+
   /// (매입처 이름, 그 줄) 목록. 줄은 근거로 그대로 남긴다.
   static List<({String name, String evidence})> parse(String text) {
     final out = <({String name, String evidence})>[];

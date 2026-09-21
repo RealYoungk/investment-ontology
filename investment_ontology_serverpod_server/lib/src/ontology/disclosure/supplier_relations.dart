@@ -11,12 +11,13 @@ import 'supplier_rows.dart';
 /// 남겨 화면에서 구분할 수 있게 한다. 이미 있는 관계(사람이 결정했거나 AI가 뽑아 둔
 /// 것)는 건드리지 않는다.
 abstract final class SupplierRelations {
-  static const model = '표 규칙 (원재료 매입처 열)';
+  static const model = '표 규칙 (원재료 매입처·주요 매출처)';
 
   /// 이름을 상장사에 잇는다. 정확히 하나와 맞을 때만 (이름만 남기는 것은 그대로 둔다).
   static Future<int> store(Session session, BusinessDocument doc) async {
     final rows = SupplierRows.parse(doc.text);
-    if (rows.isEmpty) return 0;
+    final buyers = SupplierRows.customers(doc.text);
+    if (rows.isEmpty && buyers.isEmpty) return 0;
     final company = await Company.db.findById(session, doc.companyId);
     final report = await DisclosureReport.db.findById(session, doc.reportId);
     if (company == null || report == null) return 0;
@@ -35,7 +36,7 @@ abstract final class SupplierRelations {
             t.factKind.equals(RelationFactKind.businessDocument) &
             t.factId.equals(doc.id!),
       ))
-        '${r.predicate.name}|${r.subjectName}',
+        '${r.predicate.name}|${r.subjectName}|${r.objectName}',
     };
     // 해마다 표기가 달라진다 ("영풍전자㈜" · "영풍전자", "Intel" · "INTEL").
     // 이 기업에 이미 쓰인 표기가 있으면 그것으로 맞춘다.
@@ -60,7 +61,7 @@ abstract final class SupplierRelations {
           ? names[otherId]!
           : (spelling[key] ?? row.name);
       spelling.putIfAbsent(key, () => subjectName);
-      if (!existing.add('suppliesTo|$subjectName')) continue;
+      if (!existing.add('suppliesTo|$subjectName|${company.name}')) continue;
       add.add(
         OntologyRelation(
           predicate: RelationPredicate.suppliesTo,
@@ -73,6 +74,36 @@ abstract final class SupplierRelations {
           factKind: RelationFactKind.businessDocument,
           factId: doc.id!,
           // 표를 그대로 옮긴 것이라 DART API로 받은 관계와 같은 급으로 본다.
+          extractedBy: RelationOrigin.ai,
+          status: RelationStatus.verified,
+          evidence: row.evidence,
+          extractorModel: model,
+          reviewedAt: now,
+          reviewedBy: model,
+        ),
+      );
+    }
+    // 매출처는 방향이 반대다 (이 기업 → 매출처).
+    for (final row in buyers) {
+      final otherId = byName[DisclosureValues.companyName(row.name)];
+      if (otherId == company.id) continue;
+      final key = DisclosureValues.companyName(row.name);
+      final objectName = otherId != null
+          ? names[otherId]!
+          : (spelling[key] ?? row.name);
+      spelling.putIfAbsent(key, () => objectName);
+      if (!existing.add('suppliesTo|${company.name}|$objectName')) continue;
+      add.add(
+        OntologyRelation(
+          predicate: RelationPredicate.suppliesTo,
+          subjectCompanyId: company.id,
+          subjectName: company.name,
+          objectCompanyId: otherId,
+          objectName: objectName,
+          bsnsYear: doc.bsnsYear,
+          sourceId: report.sourceId,
+          factKind: RelationFactKind.businessDocument,
+          factId: doc.id!,
           extractedBy: RelationOrigin.ai,
           status: RelationStatus.verified,
           evidence: row.evidence,
