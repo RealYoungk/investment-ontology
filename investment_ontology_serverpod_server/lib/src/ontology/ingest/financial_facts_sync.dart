@@ -45,14 +45,44 @@ class FinancialFactsSync {
 
   static const _progressEvery = 20;
 
-  /// 수집하는 햇수.
+  /// 먼저 채우는 햇수. 최근 5개 사업연도부터 끝낸다.
   static const historyYears = 5;
 
-  /// 사업보고서는 최근 5개 사업연도 (2026년이면 FY2021~2025).
-  static int firstAnnualYear(DateTime now) => now.year - historyYears;
+  /// 최근 5개년을 다 받은 뒤 넓히는 햇수. 한 번 넓히면 되돌리지 않는다
+  /// (범위가 좁아졌다 넓어졌다 하면 공시 목록을 처음부터 다시 훑게 된다).
+  static const extendedHistoryYears = 10;
 
-  /// 분기·반기보고서는 올해를 포함한 5개 사업연도 (2026년이면 FY2022~2026).
-  static int firstInterimYear(DateTime now) => now.year - historyYears + 1;
+  /// 사업보고서는 최근 [years]개 사업연도 (2026년·5년이면 FY2021~2025).
+  static int firstAnnualYear(DateTime now, [int years = historyYears]) =>
+      now.year - years;
+
+  /// 분기·반기보고서는 올해를 포함한 [years]개 사업연도 (2026년·5년이면 FY2022~2026).
+  static int firstInterimYear(DateTime now, [int years = historyYears]) =>
+      now.year - years + 1;
+
+  /// 이번 실행에서 쓸 햇수. 최근 5개년에 받을 것이 남아 있으면 5년, 다 받았거나
+  /// 이미 넓게 훑은 적이 있으면 10년.
+  Future<int> _years(DateTime now) async {
+    final cursor = await DartFilingScan.db.findFirstRow(session);
+    final wide = DateTime.utc(
+      firstInterimYear(now, extendedHistoryYears),
+      1,
+      1,
+    );
+    if (cursor?.scannedFrom case final from? when !from.isAfter(wide)) {
+      return extendedHistoryYears;
+    }
+    // 처음 채우는 중(장부가 비었거나 받을 것이 남음)이면 5년부터 끝낸다.
+    final total = await DartFiling.db.count(session);
+    if (total == 0) return historyYears;
+    final pending = await DartFiling.db.count(
+      session,
+      where: (t) =>
+          t.consolidatedStatus.equals(FilingFetchStatus.pending) |
+          t.separateStatus.equals(FilingFetchStatus.pending),
+    );
+    return pending == 0 ? extendedHistoryYears : historyYears;
+  }
 
   static const _listedMarkets = {Market.kospi, Market.kosdaq, Market.konex};
 
@@ -230,10 +260,11 @@ class FinancialFactsSync {
     IngestJob job,
   ) async {
     final today = DateTime.utc(now.year, now.month, now.day);
-    final earliest = DateTime.utc(firstInterimYear(now), 1, 1);
+    final years = await _years(now);
+    final earliest = DateTime.utc(firstInterimYear(now, years), 1, 1);
     final code = corpCode;
     if (code != null) {
-      return _scanCompany(code, companies, now, earliest, today);
+      return _scanCompany(code, companies, now, earliest, today, years);
     }
 
     final cursor = await DartFilingScan.db.findFirstRow(session);
@@ -253,7 +284,7 @@ class FinancialFactsSync {
         final result = await _callDart(
           () => dart.fetchFilings(from: from, to: to, page: page),
         );
-        inserted += await _record(result.items, companies, now);
+        inserted += await _record(result.items, companies, now, years);
         if (page % 5 == 1) {
           await _meter.flush(session);
           job = await IngestJobs.save(
@@ -300,6 +331,7 @@ class FinancialFactsSync {
     DateTime now,
     DateTime from,
     DateTime to,
+    int years,
   ) async {
     var inserted = 0;
     for (var page = 1; ; page++) {
@@ -307,7 +339,7 @@ class FinancialFactsSync {
       final result = await _callDart(
         () => dart.fetchFilings(from: from, to: to, page: page, corpCode: code),
       );
-      inserted += await _record(result.items, companies, now);
+      inserted += await _record(result.items, companies, now, years);
       if (page >= result.totalPages) return inserted;
     }
   }
@@ -316,6 +348,7 @@ class FinancialFactsSync {
     List<DartFilingItem> items,
     Map<String, Company> companies,
     DateTime now,
+    int years,
   ) async {
     if (items.isEmpty) return 0;
     final known = {
@@ -335,10 +368,10 @@ class FinancialFactsSync {
       final code = FinancialCodes.reportCodeFromDart(resolved?.reportCode);
       if (resolved != null) {
         final firstYear = code == FinancialReportCode.annual
-            ? firstAnnualYear(now)
-            : firstInterimYear(now);
+            ? firstAnnualYear(now, years)
+            : firstInterimYear(now, years);
         if (resolved.bsnsYear < firstYear) continue;
-      } else if (name.periodYear < firstInterimYear(now)) {
+      } else if (name.periodYear < firstInterimYear(now, years)) {
         continue;
       }
       final status = code == null

@@ -351,9 +351,46 @@ void main() {
       expect(cursor.scannedFrom, DateTime.utc(2022, 1, 1));
       expect(cursor.scannedThrough, DateTime.utc(2026, 9, 17));
 
+      // 아직 받을 것이 남아 있으면 범위는 5개년 그대로다.
+      final first = (await DartFiling.db.findFirstRow(session))!;
+      await DartFiling.db.updateRow(
+        session,
+        first.copyWith(consolidatedStatus: FilingFetchStatus.pending),
+      );
       dart.listCalls = 0;
       await runSync();
       expect(dart.listCalls, 1, reason: '다시 덮였으니 커서 7일 전부터만');
+    });
+
+    test('최근 5개년을 다 받으면 10년으로 넓혀 다시 훑는다', () async {
+      await runSync();
+      expect(
+        (await DartFilingScan.db.findFirstRow(session))!.scannedFrom,
+        DateTime.utc(2022, 1, 1),
+        reason: '처음에는 5개년',
+      );
+      // 받을 것이 남지 않은 상태에서 다시 돌리면 범위를 넓힌다.
+      final pending = await DartFiling.db.find(
+        session,
+        where: (t) =>
+            t.consolidatedStatus.equals(FilingFetchStatus.pending) |
+            t.separateStatus.equals(FilingFetchStatus.pending),
+      );
+      for (final f in pending) {
+        await DartFiling.db.updateRow(
+          session,
+          f.copyWith(
+            consolidatedStatus: FilingFetchStatus.stored,
+            separateStatus: FilingFetchStatus.stored,
+          ),
+        );
+      }
+      await runSync();
+      expect(
+        (await DartFilingScan.db.findFirstRow(session))!.scannedFrom,
+        DateTime.utc(2017, 1, 1),
+        reason: '다 받았으면 10개년',
+      );
     });
 
     test('다시 돌리면 받은 공시는 호출하지 않는다', () async {
