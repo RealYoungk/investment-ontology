@@ -193,6 +193,9 @@ class _CompanyPageState extends State<CompanyPage> {
                   detail: detail,
                   financials: _financials,
                   onOpenFinancials: () => _openFinancials(),
+                  onOpenTab: (name) => setState(
+                    () => _tab = CompanyTab.values.asNameMap()[name] ?? _tab,
+                  ),
                 ),
                 if (_sections.isEmpty) ...[
                   const SizedBox(height: AppSpace.section),
