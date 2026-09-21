@@ -524,6 +524,36 @@ class Endpoints extends _is.EndpointDispatch {
                 model: params['model'],
               ),
         ),
+        'submitDigest': _is.MethodConnector(
+          name: 'submitDigest',
+          params: {
+            'documentId': _is.ParameterDescription(
+              name: 'documentId',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+            'answer': _is.ParameterDescription(
+              name: 'answer',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'model': _is.ParameterDescription(
+              name: 'model',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['ai'] as _iadofkda.AiEndpoint).submitDigest(
+                session,
+                params['documentId'],
+                params['answer'],
+                model: params['model'],
+              ),
+        ),
         'submitFacts': _is.MethodConnector(
           name: 'submitFacts',
           params: {
@@ -837,6 +867,32 @@ class Endpoints extends _is.EndpointDispatch {
                         session,
                         params['corpCode'],
                         limit: params['limit'],
+                      ),
+        ),
+        'digest': _is.MethodConnector(
+          name: 'digest',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'bsnsYear': _is.ParameterDescription(
+              name: 'bsnsYear',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['disclosure'] as _i23b9rs7.DisclosureEndpoint)
+                      .digest(
+                        session,
+                        params['corpCode'],
+                        bsnsYear: params['bsnsYear'],
                       ),
         ),
         'recentFilings': _is.MethodConnector(

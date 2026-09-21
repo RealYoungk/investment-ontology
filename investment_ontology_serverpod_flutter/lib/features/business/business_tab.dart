@@ -50,6 +50,9 @@ class _BusinessTabState extends State<BusinessTab> {
   int _section = 0;
   int _seq = 0;
 
+  /// 원문은 기본으로 접어 둔다. 읽기 좋게 녹인 글이 먼저다.
+  bool _showRaw = false;
+
   @override
   void initState() {
     super.initState();
@@ -166,40 +169,57 @@ class _BusinessTabState extends State<BusinessTab> {
           ],
         ),
         const SizedBox(height: AppSpace.md),
+        _Digest(
+          corpCode: widget.corpCode,
+          bsnsYear: content.bsnsYear,
+          dataVersion: widget.dataVersion,
+        ),
         _DocumentFacts(corpCode: widget.corpCode),
         _AiRelations(corpCode: widget.corpCode),
         const SizedBox(height: AppSpace.lg),
-        Text(
-          '공시 원본 파일에서 뽑은 글 (${formatCount(content.charCount)}자). 표는 칸만 옮겼고, '
-          '그림·서식은 빠집니다. 정확한 원문은 DART 공시에서 확인하세요.',
-          style: t.body(12, color: c.textMuted),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                '원문 (${formatCount(content.charCount)}자) — 위 글은 이 원문을 읽어 쓴 것입니다. '
+                '표는 칸만 옮겼고 그림·서식은 빠집니다.',
+                style: t.body(12, color: c.textMuted),
+              ),
+            ),
+            AppButton(
+              label: _showRaw ? '원문 접기' : '원문 펼치기',
+              variant: AppButtonVariant.link,
+              onPressed: () => setState(() => _showRaw = !_showRaw),
+            ),
+          ],
         ),
         const SizedBox(height: AppSpace.lg),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final body = current == null
-                ? Text('본문이 없습니다.', style: t.body(13, color: c.textMuted))
-                : _SectionBody(section: current);
-            if (constraints.maxWidth < 900) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+        if (_showRaw)
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final body = current == null
+                  ? Text('본문이 없습니다.', style: t.body(13, color: c.textMuted))
+                  : _SectionBody(section: current);
+              if (constraints.maxWidth < 900) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    toc,
+                    const SizedBox(height: AppSpace.lg),
+                    body,
+                  ],
+                );
+              }
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  toc,
-                  const SizedBox(height: AppSpace.lg),
-                  body,
+                  SizedBox(width: 240, child: toc),
+                  const SizedBox(width: AppSpace.xl),
+                  Expanded(child: body),
                 ],
               );
-            }
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(width: 240, child: toc),
-                const SizedBox(width: AppSpace.xl),
-                Expanded(child: body),
-              ],
-            );
-          },
-        ),
+            },
+          ),
         const SizedBox(height: AppSpace.xl),
         if (content.source case final s?)
           Row(
@@ -270,6 +290,146 @@ class _SectionBody extends StatelessWidget {
           const SizedBox(height: AppSpace.md),
         ],
       ],
+    );
+  }
+}
+
+/// "사업의 내용"을 읽기 좋게 녹인 절들. 원문을 통째로 보여 주는 대신 이것이 먼저다.
+///
+/// 글은 서버 밖에서 미리 읽어 넣은 것이고(ai.submitDigest), 절마다 원문 근거가 붙는다.
+class _Digest extends StatefulWidget {
+  const _Digest({
+    required this.corpCode,
+    required this.bsnsYear,
+    required this.dataVersion,
+  });
+
+  final String corpCode;
+  final int bsnsYear;
+  final int dataVersion;
+
+  @override
+  State<_Digest> createState() => _DigestState();
+}
+
+class _DigestState extends State<_Digest> {
+  List<BusinessDigestSection>? _sections;
+  final _open = <int>{};
+  int _seq = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  @override
+  void didUpdateWidget(covariant _Digest old) {
+    super.didUpdateWidget(old);
+    if (old.corpCode != widget.corpCode ||
+        old.bsnsYear != widget.bsnsYear ||
+        old.dataVersion != widget.dataVersion) {
+      _load();
+    }
+  }
+
+  Future<void> _load() async {
+    final seq = ++_seq;
+    try {
+      final s = await client.disclosure.digest(
+        widget.corpCode,
+        bsnsYear: widget.bsnsYear,
+      );
+      if (mounted && seq == _seq) setState(() => _sections = s);
+    } catch (_) {}
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    final sections = _sections;
+    if (sections == null) return const SizedBox.shrink();
+    if (sections.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: AppSpace.lg),
+        child: Text(
+          '이 해의 사업의 내용은 아직 읽기 좋게 정리하지 않았습니다. 아래 원문을 펼쳐 보거나, '
+          '값·관계 칸을 보세요.',
+          style: t.body(12.5, color: c.textMuted),
+        ),
+      );
+    }
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpace.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SectionLabel(
+            '사업의 내용 · 읽기 좋게',
+            accent: true,
+            trailing: Text(
+              '출처: FY${widget.bsnsYear} 사업보고서 · 절마다 근거',
+              style: t.body(12, color: c.textMuted),
+            ),
+          ),
+          const SizedBox(height: AppSpace.sm),
+          for (final s in sections) ...[
+            Container(
+              padding: const EdgeInsets.all(AppSpace.md),
+              decoration: BoxDecoration(
+                color: c.surface,
+                borderRadius: context.shape.borderRadius,
+                border: Border.all(color: c.border),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(s.title, style: t.body(15, weight: FontWeight.w700)),
+                  const SizedBox(height: AppSpace.xs),
+                  SelectableText(
+                    s.summary,
+                    style: t.body(14).copyWith(height: 1.7),
+                  ),
+                  const SizedBox(height: AppSpace.xs),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: AppButton(
+                      label: _open.contains(s.id) ? '근거 접기' : '원문 근거',
+                      variant: AppButtonVariant.link,
+                      onPressed: () => setState(() {
+                        _open.contains(s.id!)
+                            ? _open.remove(s.id!)
+                            : _open.add(s.id!);
+                      }),
+                    ),
+                  ),
+                  if (_open.contains(s.id))
+                    Container(
+                      margin: const EdgeInsets.only(top: AppSpace.xs),
+                      padding: const EdgeInsets.all(AppSpace.sm),
+                      decoration: BoxDecoration(
+                        color: c.surfaceHover,
+                        borderRadius: context.shape.borderRadius,
+                      ),
+                      child: SelectableText(
+                        s.evidence,
+                        style: t
+                            .body(12.5, color: c.textSecondary)
+                            .copyWith(height: 1.6),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpace.sm),
+          ],
+          Text(
+            '읽은 사람: ${sections.first.extractorModel}. 요약이 틀리면 원문 근거로 확인하세요.',
+            style: t.body(11.5, color: c.textMuted),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -37,6 +37,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _iabynv8u;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/business_content.dart'
     as _i01bb80a;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/business_digest_section.dart'
+    as _izmct7si;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/business_document_ref.dart'
     as _i9fapywb;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_detail.dart'
@@ -968,6 +970,43 @@ class _AiEndpoint {
     });
   }
 
+  _ida.Future<String> submitDigest(
+    _ist.TestSessionBuilder sessionBuilder,
+    int documentId,
+    String answer, {
+    String? model,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'ai',
+            method: 'submitDigest',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'ai',
+          methodName: 'submitDigest',
+          parameters: _ist.testObjectToJson({
+            'documentId': documentId,
+            'answer': answer,
+            'model': model,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<String>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
   _ida.Future<String> submitFacts(
     _ist.TestSessionBuilder sessionBuilder,
     int documentId,
@@ -1392,6 +1431,41 @@ class _DisclosureEndpoint {
                   _localCallContext.arguments,
                 )
                 as _ida.Future<List<_iogwdcx0.DartDisclosure>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<List<_izmct7si.BusinessDigestSection>> digest(
+    _ist.TestSessionBuilder sessionBuilder,
+    String corpCode, {
+    int? bsnsYear,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'disclosure',
+            method: 'digest',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'disclosure',
+          methodName: 'digest',
+          parameters: _ist.testObjectToJson({
+            'corpCode': corpCode,
+            'bsnsYear': bsnsYear,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_izmct7si.BusinessDigestSection>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

@@ -20,6 +20,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _ie40qci9;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/business_content.dart'
     as _i6ht4m6x;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/business_digest_section.dart'
+    as _i5qsmr7t;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/business_document_ref.dart'
     as _id7v70oo;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_detail.dart'
@@ -445,6 +447,27 @@ class EndpointAi extends _isc.EndpointRef {
     },
   );
 
+  /// 밖에서 읽어 온 "사업의 내용" 요약(절별)을 저장한다. 그 문서의 이전 요약은 지운다.
+  ///
+  /// ```json
+  /// {"sections":[{"kind":"overview","title":"무엇을 하는 회사인가","summary":"…",
+  ///               "evidence":"원문 그대로의 문장"}]}
+  /// ```
+  /// 근거 인용이 원문에 글자 그대로 없으면 그 절은 버린다 (관계·값과 같은 규칙).
+  _ida.Future<String> submitDigest(
+    int documentId,
+    String answer, {
+    String? model,
+  }) => caller.callServerEndpoint<String>(
+    'ai',
+    'submitDigest',
+    {
+      'documentId': documentId,
+      'answer': answer,
+      'model': model,
+    },
+  );
+
   /// 밖에서 뽑은 '본문 값'(수주잔고·가동률·점유율 등)을 저장한다.
   ///
   /// ```json
@@ -609,6 +632,19 @@ class EndpointDisclosure extends _isc.EndpointRef {
     {
       'corpCode': corpCode,
       'limit': limit,
+    },
+  );
+
+  /// "사업의 내용"을 읽기 좋게 녹인 절들 (없으면 빈 목록). [bsnsYear]가 없으면 가장 최근 해.
+  _ida.Future<List<_i5qsmr7t.BusinessDigestSection>> digest(
+    String corpCode, {
+    int? bsnsYear,
+  }) => caller.callServerEndpoint<List<_i5qsmr7t.BusinessDigestSection>>(
+    'disclosure',
+    'digest',
+    {
+      'corpCode': corpCode,
+      'bsnsYear': bsnsYear,
     },
   );
 

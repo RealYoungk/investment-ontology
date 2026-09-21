@@ -11,6 +11,8 @@
 // ignore_for_file: dead_code, unnecessary_type_check
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/business_digest_section.dart'
+    as _i5qsmr7t;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/business_document_ref.dart'
     as _id7v70oo;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_group.dart'
@@ -50,6 +52,8 @@ import 'ontology/models/ai_status.dart' as _i7c6k6qa;
 import 'ontology/models/api_call_usage.dart' as _i3e42he1;
 import 'ontology/models/api_provider.dart' as _i82zif2r;
 import 'ontology/models/business_content.dart' as _ik6lqqsr;
+import 'ontology/models/business_digest_kind.dart' as _izxiijmh;
+import 'ontology/models/business_digest_section.dart' as _iq2bjjp3;
 import 'ontology/models/business_document.dart' as _imi0q911;
 import 'ontology/models/business_document_ref.dart' as _is707pet;
 import 'ontology/models/business_section.dart' as _inylkhjt;
@@ -155,6 +159,8 @@ export 'ontology/models/ai_status.dart';
 export 'ontology/models/api_call_usage.dart';
 export 'ontology/models/api_provider.dart';
 export 'ontology/models/business_content.dart';
+export 'ontology/models/business_digest_kind.dart';
+export 'ontology/models/business_digest_section.dart';
 export 'ontology/models/business_document.dart';
 export 'ontology/models/business_document_ref.dart';
 export 'ontology/models/business_section.dart';
@@ -307,6 +313,12 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _ik6lqqsr.BusinessContent) {
       return _ik6lqqsr.BusinessContent.fromJson(data) as T;
+    }
+    if (t == _izxiijmh.BusinessDigestKind) {
+      return _izxiijmh.BusinessDigestKind.fromJson(data) as T;
+    }
+    if (t == _iq2bjjp3.BusinessDigestSection) {
+      return _iq2bjjp3.BusinessDigestSection.fromJson(data) as T;
     }
     if (t == _imi0q911.BusinessDocument) {
       return _imi0q911.BusinessDocument.fromJson(data) as T;
@@ -622,6 +634,16 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _isc.getType<_ik6lqqsr.BusinessContent?>()) {
       return (data != null ? _ik6lqqsr.BusinessContent.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_izxiijmh.BusinessDigestKind?>()) {
+      return (data != null ? _izxiijmh.BusinessDigestKind.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_iq2bjjp3.BusinessDigestSection?>()) {
+      return (data != null
+              ? _iq2bjjp3.BusinessDigestSection.fromJson(data)
+              : null)
           as T;
     }
     if (t == _isc.getType<_imi0q911.BusinessDocument?>()) {
@@ -1244,6 +1266,12 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_i5qsmr7t.BusinessDigestSection>) {
+      return (data as List)
+              .map((e) => deserialize<_i5qsmr7t.BusinessDigestSection>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_iuq4bocx.FilingFeedItem>) {
       return (data as List)
               .map((e) => deserialize<_iuq4bocx.FilingFeedItem>(e))
@@ -1327,6 +1355,8 @@ class Protocol extends _isc.SerializationManager {
       _i3e42he1.ApiCallUsage => 'ApiCallUsage',
       _i82zif2r.ApiProvider => 'ApiProvider',
       _ik6lqqsr.BusinessContent => 'BusinessContent',
+      _izxiijmh.BusinessDigestKind => 'BusinessDigestKind',
+      _iq2bjjp3.BusinessDigestSection => 'BusinessDigestSection',
       _imi0q911.BusinessDocument => 'BusinessDocument',
       _is707pet.BusinessDocumentRef => 'BusinessDocumentRef',
       _inylkhjt.BusinessSection => 'BusinessSection',
@@ -1455,6 +1485,10 @@ class Protocol extends _isc.SerializationManager {
         return 'ApiProvider';
       case _ik6lqqsr.BusinessContent():
         return 'BusinessContent';
+      case _izxiijmh.BusinessDigestKind():
+        return 'BusinessDigestKind';
+      case _iq2bjjp3.BusinessDigestSection():
+        return 'BusinessDigestSection';
       case _imi0q911.BusinessDocument():
         return 'BusinessDocument';
       case _is707pet.BusinessDocumentRef():
@@ -1692,6 +1726,12 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'BusinessContent') {
       return deserialize<_ik6lqqsr.BusinessContent>(data['data']);
+    }
+    if (dataClassName == 'BusinessDigestKind') {
+      return deserialize<_izxiijmh.BusinessDigestKind>(data['data']);
+    }
+    if (dataClassName == 'BusinessDigestSection') {
+      return deserialize<_iq2bjjp3.BusinessDigestSection>(data['data']);
     }
     if (dataClassName == 'BusinessDocument') {
       return deserialize<_imi0q911.BusinessDocument>(data['data']);

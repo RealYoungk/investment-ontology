@@ -19,6 +19,7 @@ ai:
   - documentText:
   - documentTexts:
   - submit:
+  - submitDigest:
   - submitFacts:
 company:
   - overview:
@@ -33,6 +34,7 @@ disclosure:
   - facts:
   - factTrends:
   - recentOf:
+  - digest:
   - recentFilings:
 financial:
   - summary:

@@ -180,6 +180,78 @@ class AiEndpoint extends Endpoint {
     );
   }
 
+  /// 밖에서 읽어 온 "사업의 내용" 요약(절별)을 저장한다. 그 문서의 이전 요약은 지운다.
+  ///
+  /// ```json
+  /// {"sections":[{"kind":"overview","title":"무엇을 하는 회사인가","summary":"…",
+  ///               "evidence":"원문 그대로의 문장"}]}
+  /// ```
+  /// 근거 인용이 원문에 글자 그대로 없으면 그 절은 버린다 (관계·값과 같은 규칙).
+  Future<String> submitDigest(
+    Session session,
+    int documentId,
+    String answer, {
+    String? model,
+  }) async {
+    final doc = await BusinessDocument.db.findById(session, documentId);
+    if (doc == null) {
+      throw IngestException(message: '본문을 찾을 수 없습니다: $documentId');
+    }
+    final report = await DisclosureReport.db.findById(session, doc.reportId);
+    final Object? json;
+    try {
+      json = jsonDecode(answer);
+    } on FormatException catch (e) {
+      throw IngestException(message: 'JSON을 해석하지 못했습니다: ${e.message}');
+    }
+    final list = json is Map ? json['sections'] : null;
+    if (list is! List) throw IngestException(message: 'sections 배열이 없습니다');
+    final kinds = {for (final k in BusinessDigestKind.values) k.name: k};
+    final now = DateTime.now().toUtc();
+    final rows = <BusinessDigestSection>[];
+    var dropped = 0;
+    for (final (i, raw) in list.whereType<Map>().indexed) {
+      final kind = kinds[raw['kind']];
+      final title = '${raw['title'] ?? ''}'.trim();
+      final summary = '${raw['summary'] ?? ''}'.trim();
+      final evidence = '${raw['evidence'] ?? ''}'.trim();
+      if (kind == null || title.isEmpty || summary.isEmpty) {
+        dropped++;
+        continue;
+      }
+      if (!DocumentFacts.grounded(evidence, doc.text)) {
+        dropped++;
+        continue;
+      }
+      rows.add(
+        BusinessDigestSection(
+          companyId: doc.companyId,
+          documentId: doc.id!,
+          bsnsYear: doc.bsnsYear,
+          ord: i,
+          kind: kind,
+          title: title,
+          summary: summary,
+          evidence: evidence,
+          extractorModel: (model ?? 'claude-code').trim(),
+          sourceId: report?.sourceId,
+          createdAt: now,
+        ),
+      );
+    }
+    await session.db.transaction((tx) async {
+      await BusinessDigestSection.db.deleteWhere(
+        session,
+        where: (t) => t.documentId.equals(doc.id!),
+        transaction: tx,
+      );
+      if (rows.isNotEmpty) {
+        await BusinessDigestSection.db.insert(session, rows, transaction: tx);
+      }
+    });
+    return '저장 ${rows.length}절, 버린 것 $dropped절';
+  }
+
   /// 밖에서 뽑은 '본문 값'(수주잔고·가동률·점유율 등)을 저장한다.
   ///
   /// ```json

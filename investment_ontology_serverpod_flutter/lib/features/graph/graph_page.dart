@@ -106,7 +106,7 @@ class _GraphPageState extends State<GraphPage> {
           eyebrow: 'INVESTMENT ONTOLOGY · 관계망',
           title: '관계망',
           subtitle:
-              '기업을 가운데 두고 주주·출자·임원 관계와 검수에서 승인한 AI 관계(공급·경쟁)를 따라 넓힙니다. '
+              '기업을 가운데 두고 주주·출자·임원 관계와 사업보고서 본문에서 읽은 관계(공급·매출·경쟁)를 따라 넓힙니다. '
               '기업을 누르면 그 기업이 가운데로 옵니다. 각 기업의 가장 최근 사업보고서 기준입니다.',
         ),
         const SizedBox(height: AppSpace.lg),

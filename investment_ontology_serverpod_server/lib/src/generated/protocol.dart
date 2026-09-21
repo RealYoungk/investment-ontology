@@ -11,6 +11,8 @@
 // ignore_for_file: dead_code, unnecessary_type_check
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/business_digest_section.dart'
+    as _izmct7si;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/business_document_ref.dart'
     as _i9fapywb;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_group.dart'
@@ -65,6 +67,8 @@ import 'ontology/models/ai_status.dart' as _i7c6k6qa;
 import 'ontology/models/api_call_usage.dart' as _i3e42he1;
 import 'ontology/models/api_provider.dart' as _i82zif2r;
 import 'ontology/models/business_content.dart' as _ik6lqqsr;
+import 'ontology/models/business_digest_kind.dart' as _izxiijmh;
+import 'ontology/models/business_digest_section.dart' as _iq2bjjp3;
 import 'ontology/models/business_document.dart' as _imi0q911;
 import 'ontology/models/business_document_ref.dart' as _is707pet;
 import 'ontology/models/business_section.dart' as _inylkhjt;
@@ -170,6 +174,8 @@ export 'ontology/models/ai_status.dart';
 export 'ontology/models/api_call_usage.dart';
 export 'ontology/models/api_provider.dart';
 export 'ontology/models/business_content.dart';
+export 'ontology/models/business_digest_kind.dart';
+export 'ontology/models/business_digest_section.dart';
 export 'ontology/models/business_document.dart';
 export 'ontology/models/business_document_ref.dart';
 export 'ontology/models/business_section.dart';
@@ -432,6 +438,156 @@ class Protocol extends _is.DatabaseSerializationManager {
           ],
           type: 'btree',
           isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'business_digest_section',
+      dartName: 'BusinessDigestSection',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'companyId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'documentId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'bsnsYear',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'ord',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'kind',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:BusinessDigestKind',
+        ),
+        _isp.ColumnDefinition(
+          name: 'title',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'summary',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'evidence',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'extractorModel',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'sourceId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'business_digest_section_fk_0',
+          columns: ['companyId'],
+          referenceTable: 'company',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.cascade,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'business_digest_section_fk_1',
+          columns: ['documentId'],
+          referenceTable: 'business_document',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.cascade,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'business_digest_section_fk_2',
+          columns: ['sourceId'],
+          referenceTable: 'source',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.setNull,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'business_digest_document_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'documentId',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'ord',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'business_digest_company_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'companyId',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'bsnsYear',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
           isPrimary: false,
         ),
       ],
@@ -4313,6 +4469,12 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _ik6lqqsr.BusinessContent) {
       return _ik6lqqsr.BusinessContent.fromJson(data) as T;
     }
+    if (t == _izxiijmh.BusinessDigestKind) {
+      return _izxiijmh.BusinessDigestKind.fromJson(data) as T;
+    }
+    if (t == _iq2bjjp3.BusinessDigestSection) {
+      return _iq2bjjp3.BusinessDigestSection.fromJson(data) as T;
+    }
     if (t == _imi0q911.BusinessDocument) {
       return _imi0q911.BusinessDocument.fromJson(data) as T;
     }
@@ -4670,6 +4832,16 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (t == _is.getType<_ik6lqqsr.BusinessContent?>()) {
       return (data != null ? _ik6lqqsr.BusinessContent.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_izxiijmh.BusinessDigestKind?>()) {
+      return (data != null ? _izxiijmh.BusinessDigestKind.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_iq2bjjp3.BusinessDigestSection?>()) {
+      return (data != null
+              ? _iq2bjjp3.BusinessDigestSection.fromJson(data)
+              : null)
           as T;
     }
     if (t == _is.getType<_imi0q911.BusinessDocument?>()) {
@@ -5292,6 +5464,12 @@ class Protocol extends _is.DatabaseSerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_izmct7si.BusinessDigestSection>) {
+      return (data as List)
+              .map((e) => deserialize<_izmct7si.BusinessDigestSection>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_iwgt3edw.FilingFeedItem>) {
       return (data as List)
               .map((e) => deserialize<_iwgt3edw.FilingFeedItem>(e))
@@ -5391,6 +5569,8 @@ class Protocol extends _is.DatabaseSerializationManager {
       _i3e42he1.ApiCallUsage => 'ApiCallUsage',
       _i82zif2r.ApiProvider => 'ApiProvider',
       _ik6lqqsr.BusinessContent => 'BusinessContent',
+      _izxiijmh.BusinessDigestKind => 'BusinessDigestKind',
+      _iq2bjjp3.BusinessDigestSection => 'BusinessDigestSection',
       _imi0q911.BusinessDocument => 'BusinessDocument',
       _is707pet.BusinessDocumentRef => 'BusinessDocumentRef',
       _inylkhjt.BusinessSection => 'BusinessSection',
@@ -5533,6 +5713,10 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'ApiProvider';
       case _ik6lqqsr.BusinessContent():
         return 'BusinessContent';
+      case _izxiijmh.BusinessDigestKind():
+        return 'BusinessDigestKind';
+      case _iq2bjjp3.BusinessDigestSection():
+        return 'BusinessDigestSection';
       case _imi0q911.BusinessDocument():
         return 'BusinessDocument';
       case _is707pet.BusinessDocumentRef():
@@ -5807,6 +5991,12 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'BusinessContent') {
       return deserialize<_ik6lqqsr.BusinessContent>(data['data']);
+    }
+    if (dataClassName == 'BusinessDigestKind') {
+      return deserialize<_izxiijmh.BusinessDigestKind>(data['data']);
+    }
+    if (dataClassName == 'BusinessDigestSection') {
+      return deserialize<_iq2bjjp3.BusinessDigestSection>(data['data']);
     }
     if (dataClassName == 'BusinessDocument') {
       return deserialize<_imi0q911.BusinessDocument>(data['data']);
@@ -6156,6 +6346,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return _idjojx8t.AiExtraction.t;
       case _i3e42he1.ApiCallUsage:
         return _i3e42he1.ApiCallUsage.t;
+      case _iq2bjjp3.BusinessDigestSection:
+        return _iq2bjjp3.BusinessDigestSection.t;
       case _imi0q911.BusinessDocument:
         return _imi0q911.BusinessDocument.t;
       case _ipen255x.Company:
