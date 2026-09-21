@@ -21,6 +21,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _ihq2wng4;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/facet_count.dart'
     as _iee4t190;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/filing_feed_item.dart'
+    as _iwgt3edw;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/investment_theme.dart'
     as _in6y0ur2;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/person_hit.dart'
@@ -90,6 +92,7 @@ import 'ontology/models/executive_registration.dart' as _iz7k3x6v;
 import 'ontology/models/facet_count.dart' as _iqbvehdv;
 import 'ontology/models/fact_item.dart' as _iawn4ngl;
 import 'ontology/models/fact_page.dart' as _iurbyopj;
+import 'ontology/models/filing_feed_item.dart' as _iivg0zeh;
 import 'ontology/models/filing_fetch_status.dart' as _i167q75d;
 import 'ontology/models/financial_fact.dart' as _igykxm42;
 import 'ontology/models/financial_line.dart' as _igzbjepn;
@@ -187,6 +190,7 @@ export 'ontology/models/executive_registration.dart';
 export 'ontology/models/facet_count.dart';
 export 'ontology/models/fact_item.dart';
 export 'ontology/models/fact_page.dart';
+export 'ontology/models/filing_feed_item.dart';
 export 'ontology/models/filing_fetch_status.dart';
 export 'ontology/models/financial_fact.dart';
 export 'ontology/models/financial_line.dart';
@@ -4194,6 +4198,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _iurbyopj.FactPage) {
       return _iurbyopj.FactPage.fromJson(data) as T;
     }
+    if (t == _iivg0zeh.FilingFeedItem) {
+      return _iivg0zeh.FilingFeedItem.fromJson(data) as T;
+    }
     if (t == _i167q75d.FilingFetchStatus) {
       return _i167q75d.FilingFetchStatus.fromJson(data) as T;
     }
@@ -4559,6 +4566,10 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (t == _is.getType<_iurbyopj.FactPage?>()) {
       return (data != null ? _iurbyopj.FactPage.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_iivg0zeh.FilingFeedItem?>()) {
+      return (data != null ? _iivg0zeh.FilingFeedItem.fromJson(data) : null)
+          as T;
     }
     if (t == _is.getType<_i167q75d.FilingFetchStatus?>()) {
       return (data != null ? _i167q75d.FilingFetchStatus.fromJson(data) : null)
@@ -4998,6 +5009,12 @@ class Protocol extends _is.DatabaseSerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_iwgt3edw.FilingFeedItem>) {
+      return (data as List)
+              .map((e) => deserialize<_iwgt3edw.FilingFeedItem>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_iqw74hrd.PersonHit>) {
       return (data as List)
               .map((e) => deserialize<_iqw74hrd.PersonHit>(e))
@@ -5096,6 +5113,7 @@ class Protocol extends _is.DatabaseSerializationManager {
       _iqbvehdv.FacetCount => 'FacetCount',
       _iawn4ngl.FactItem => 'FactItem',
       _iurbyopj.FactPage => 'FactPage',
+      _iivg0zeh.FilingFeedItem => 'FilingFeedItem',
       _i167q75d.FilingFetchStatus => 'FilingFetchStatus',
       _igykxm42.FinancialFact => 'FinancialFact',
       _igzbjepn.FinancialLine => 'FinancialLine',
@@ -5265,6 +5283,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'FactItem';
       case _iurbyopj.FactPage():
         return 'FactPage';
+      case _iivg0zeh.FilingFeedItem():
+        return 'FilingFeedItem';
       case _i167q75d.FilingFetchStatus():
         return 'FilingFetchStatus';
       case _igykxm42.FinancialFact():
@@ -5558,6 +5578,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'FactPage') {
       return deserialize<_iurbyopj.FactPage>(data['data']);
+    }
+    if (dataClassName == 'FilingFeedItem') {
+      return deserialize<_iivg0zeh.FilingFeedItem>(data['data']);
     }
     if (dataClassName == 'FilingFetchStatus') {
       return deserialize<_i167q75d.FilingFetchStatus>(data['data']);

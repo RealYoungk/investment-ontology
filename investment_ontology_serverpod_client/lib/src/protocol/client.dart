@@ -50,6 +50,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _icfgas7c;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/fact_page.dart'
     as _i9n1o9ln;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/filing_feed_item.dart'
+    as _iuq4bocx;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/financial_report_detail.dart'
     as _iurgb10z;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/fs_div.dart'
@@ -555,6 +557,21 @@ class EndpointDisclosure extends _isc.EndpointRef {
         'facts',
         {'corpCode': corpCode},
       );
+
+  /// 최근 올라온 정기보고서. 새 공시를 눈에 띄게 보여 주는 용도다.
+  ///
+  /// 사업·반기·분기보고서만 다룬다 (수집 대상이 그것뿐이다). 정정 공시도 그대로 보인다.
+  _ida.Future<List<_iuq4bocx.FilingFeedItem>> recentFilings({
+    _iamn97sz.Market? market,
+    int? limit,
+  }) => caller.callServerEndpoint<List<_iuq4bocx.FilingFeedItem>>(
+    'disclosure',
+    'recentFilings',
+    {
+      'market': market,
+      'limit': limit,
+    },
+  );
 }
 
 /// 기업 재무·시세 조회. 파생 지표는 계산하지 않고 원천 값만 돌려준다.

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
+import '../market/market_caps.dart';
 import '../dart/dart_sections.dart';
 import '../dart/dart_values.dart';
 import '../disclosure/business_text.dart';
@@ -249,6 +250,53 @@ class DisclosureEndpoint extends Endpoint {
     return [
       for (final f in all)
         if (f.bsnsYear == year) f,
+    ];
+  }
+
+  /// 최근 올라온 정기보고서. 새 공시를 눈에 띄게 보여 주는 용도다.
+  ///
+  /// 사업·반기·분기보고서만 다룬다 (수집 대상이 그것뿐이다). 정정 공시도 그대로 보인다.
+  Future<List<FilingFeedItem>> recentFilings(
+    Session session, {
+    Market? market,
+    int? limit,
+  }) async {
+    final filings = await DartFiling.db.find(
+      session,
+      where: (t) =>
+          t.receivedDate.notEquals(null) & t.companyId.notEquals(null),
+      orderByList: (t) => [t.receivedDate.desc(), t.rceptNo.desc()],
+      limit: (limit ?? 30).clamp(1, 200),
+    );
+    if (filings.isEmpty) return const [];
+    final companies = {
+      for (final c in await Company.db.find(
+        session,
+        where: (t) => t.id.inSet(<int>{for (final f in filings) f.companyId!}),
+      ))
+        c.id!: c,
+    };
+    final caps = await MarketCaps.latest(session, companies.keys.toSet());
+    return [
+      for (final f in filings)
+        if (companies[f.companyId] case final c?)
+          if (market == null || c.market == market)
+            FilingFeedItem(
+              company: CompanyRef(
+                id: c.id!,
+                corpCode: c.corpCode,
+                name: c.name,
+                market: c.market,
+              ),
+              rceptNo: f.rceptNo,
+              reportName: f.reportName,
+              receivedDate: f.receivedDate,
+              bsnsYear: f.bsnsYear,
+              financialStored:
+                  f.consolidatedStatus == FilingFetchStatus.stored ||
+                  f.separateStatus == FilingFetchStatus.stored,
+              marketCap: caps.caps[c.id],
+            ),
     ];
   }
 }

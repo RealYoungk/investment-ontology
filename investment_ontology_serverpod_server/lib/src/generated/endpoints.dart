@@ -762,6 +762,32 @@ class Endpoints extends _is.EndpointDispatch {
                         params['corpCode'],
                       ),
         ),
+        'recentFilings': _is.MethodConnector(
+          name: 'recentFilings',
+          params: {
+            'market': _is.ParameterDescription(
+              name: 'market',
+              type: _is.getType<_iyonaxpd.Market?>(),
+              nullable: true,
+            ),
+            'limit': _is.ParameterDescription(
+              name: 'limit',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['disclosure'] as _i23b9rs7.DisclosureEndpoint)
+                      .recentFilings(
+                        session,
+                        market: params['market'],
+                        limit: params['limit'],
+                      ),
+        ),
       },
     );
     connectors['financial'] = _is.EndpointConnector(

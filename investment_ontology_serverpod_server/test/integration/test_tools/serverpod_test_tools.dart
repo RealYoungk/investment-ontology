@@ -67,6 +67,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _iee4t190;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/fact_page.dart'
     as _i43txb4s;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/filing_feed_item.dart'
+    as _iwgt3edw;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/financial_report_detail.dart'
     as _ip1nebyh;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/fs_div.dart'
@@ -1275,6 +1277,41 @@ class _DisclosureEndpoint {
                   _localCallContext.arguments,
                 )
                 as _ida.Future<List<_ihq2wng4.DocumentFact>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<List<_iwgt3edw.FilingFeedItem>> recentFilings(
+    _ist.TestSessionBuilder sessionBuilder, {
+    _iyonaxpd.Market? market,
+    int? limit,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'disclosure',
+            method: 'recentFilings',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'disclosure',
+          methodName: 'recentFilings',
+          parameters: _ist.testObjectToJson({
+            'market': market,
+            'limit': limit,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_iwgt3edw.FilingFeedItem>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
