@@ -26,6 +26,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _iw7mt1ku;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/relation_status.dart'
     as _iy39k7od;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/screen_sort.dart'
+    as _i9blzem0;
 import 'package:serverpod/serverpod.dart' as _is;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _iacs;
@@ -44,6 +46,7 @@ import '../ontology/endpoints/group_endpoint.dart' as _i8zm50hy;
 import '../ontology/endpoints/ingest_endpoint.dart' as _icbircc0;
 import '../ontology/endpoints/market_endpoint.dart' as _iaw7fzks;
 import '../ontology/endpoints/review_endpoint.dart' as _i9uttt4a;
+import '../ontology/endpoints/screen_endpoint.dart' as _ilgabfhk;
 import '../ontology/endpoints/theme_endpoint.dart' as _iqaca509;
 export 'future_calls.dart' show ServerpodFutureCallsGetter;
 
@@ -127,6 +130,12 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'review',
+          null,
+        ),
+      'screen': _ilgabfhk.ScreenEndpoint()
+        ..initialize(
+          server,
+          'screen',
           null,
         ),
       'theme': _iqaca509.ThemeEndpoint()
@@ -1303,6 +1312,90 @@ class Endpoints extends _is.EndpointDispatch {
                     session,
                     params['corpCode'],
                   ),
+        ),
+      },
+    );
+    connectors['screen'] = _is.EndpointConnector(
+      name: 'screen',
+      endpoint: endpoints['screen']!,
+      methodConnectors: {
+        'list': _is.MethodConnector(
+          name: 'list',
+          params: {
+            'market': _is.ParameterDescription(
+              name: 'market',
+              type: _is.getType<_iyonaxpd.Market?>(),
+              nullable: true,
+            ),
+            'sectionCode': _is.ParameterDescription(
+              name: 'sectionCode',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
+            'perMax': _is.ParameterDescription(
+              name: 'perMax',
+              type: _is.getType<double?>(),
+              nullable: true,
+            ),
+            'pbrMax': _is.ParameterDescription(
+              name: 'pbrMax',
+              type: _is.getType<double?>(),
+              nullable: true,
+            ),
+            'roeMin': _is.ParameterDescription(
+              name: 'roeMin',
+              type: _is.getType<double?>(),
+              nullable: true,
+            ),
+            'operatingMarginMin': _is.ParameterDescription(
+              name: 'operatingMarginMin',
+              type: _is.getType<double?>(),
+              nullable: true,
+            ),
+            'marketCapMin': _is.ParameterDescription(
+              name: 'marketCapMin',
+              type: _is.getType<BigInt?>(),
+              nullable: true,
+            ),
+            'sort': _is.ParameterDescription(
+              name: 'sort',
+              type: _is.getType<_i9blzem0.ScreenSort?>(),
+              nullable: true,
+            ),
+            'ascending': _is.ParameterDescription(
+              name: 'ascending',
+              type: _is.getType<bool?>(),
+              nullable: true,
+            ),
+            'offset': _is.ParameterDescription(
+              name: 'offset',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
+            'limit': _is.ParameterDescription(
+              name: 'limit',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['screen'] as _ilgabfhk.ScreenEndpoint).list(
+                session,
+                market: params['market'],
+                sectionCode: params['sectionCode'],
+                perMax: params['perMax'],
+                pbrMax: params['pbrMax'],
+                roeMin: params['roeMin'],
+                operatingMarginMin: params['operatingMarginMin'],
+                marketCapMin: params['marketCapMin'],
+                sort: params['sort'],
+                ascending: params['ascending'],
+                offset: params['offset'],
+                limit: params['limit'],
+              ),
         ),
       },
     );

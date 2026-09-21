@@ -61,6 +61,8 @@ review:
   - facts:
   - decideFact:
   - forCompany:
+screen:
+  - list:
 theme:
   - list:
   - create:

@@ -1,0 +1,359 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
+import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
+
+import '../../app/router.dart';
+import '../../client.dart';
+import '../../design/components/components.dart';
+import '../../design/tokens.dart';
+import '../common/formatters.dart';
+import '../financials/financial_metrics.dart';
+
+/// 스크리너: 재무·시세로 기업을 거른다.
+///
+/// 지표는 저장하지 않고 서버가 조회할 때 계산한다. 계산에 쓴 원천 값(매출·영업이익·
+/// 순이익·자본)을 같이 보여 줘서 숫자의 근거를 볼 수 있게 한다.
+class ScreenerPage extends StatefulWidget {
+  const ScreenerPage({super.key});
+
+  @override
+  State<ScreenerPage> createState() => _ScreenerPageState();
+}
+
+class _ScreenerPageState extends State<ScreenerPage> {
+  Market? _market;
+  double? _perMax;
+  double? _pbrMax;
+  double? _roeMin;
+  double? _marginMin;
+  ScreenSort _sort = ScreenSort.marketCap;
+  bool _ascending = false;
+  ScreenPage? _page;
+  Object? _error;
+  bool _loading = false;
+  Timer? _debounce;
+  int _seq = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  void _reload() {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 250), _load);
+  }
+
+  Future<void> _load() async {
+    final seq = ++_seq;
+    setState(() => _loading = true);
+    try {
+      final p = await client.screen.list(
+        market: _market,
+        perMax: _perMax,
+        pbrMax: _pbrMax,
+        roeMin: _roeMin,
+        operatingMarginMin: _marginMin,
+        sort: _sort,
+        ascending: _ascending,
+        limit: 100,
+      );
+      if (!mounted || seq != _seq) return;
+      setState(() => (_page = p, _error = null));
+    } catch (e) {
+      if (mounted && seq == _seq) setState(() => _error = e);
+    } finally {
+      if (mounted && seq == _seq) setState(() => _loading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    final page = _page;
+    return PageFrame(
+      children: [
+        PageHeading(
+          eyebrow: 'INVESTMENT ONTOLOGY · 스크리너',
+          title: '스크리너',
+          subtitle:
+              '가장 최근 연결 사업보고서와 최근 시세로 계산합니다. 값이 없는 기업(적자·자본잠식·'
+              '표준계정 미사용)은 그 조건을 걸면 빠집니다'
+              '${page?.baseDate == null ? '' : ' · 시세 ${formatDate(page!.baseDate)}'}'
+              '${page == null ? '' : ' · 계산 가능 ${formatCount(page.universe)}개사'}',
+        ),
+        const SizedBox(height: AppSpace.xl),
+        Wrap(
+          spacing: AppSpace.lg,
+          runSpacing: AppSpace.md,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            AppToggleGroup<Market?>(
+              label: '시장',
+              value: _market,
+              options: const {
+                null: '전체',
+                Market.kospi: 'KOSPI',
+                Market.kosdaq: 'KOSDAQ',
+              },
+              onChanged: (m) {
+                setState(() => _market = m);
+                _load();
+              },
+            ),
+            _NumberField(
+              label: 'PER 이하',
+              value: _perMax,
+              onChanged: (v) {
+                _perMax = v;
+                _reload();
+              },
+            ),
+            _NumberField(
+              label: 'PBR 이하',
+              value: _pbrMax,
+              onChanged: (v) {
+                _pbrMax = v;
+                _reload();
+              },
+            ),
+            _NumberField(
+              label: 'ROE % 이상',
+              value: _roeMin,
+              onChanged: (v) {
+                _roeMin = v;
+                _reload();
+              },
+            ),
+            _NumberField(
+              label: '영업이익률 % 이상',
+              value: _marginMin,
+              onChanged: (v) {
+                _marginMin = v;
+                _reload();
+              },
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpace.md),
+        Wrap(
+          spacing: AppSpace.lg,
+          runSpacing: AppSpace.sm,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            AppToggleGroup<ScreenSort>(
+              label: '정렬',
+              value: _sort,
+              options: const {
+                ScreenSort.marketCap: '시가총액',
+                ScreenSort.per: 'PER',
+                ScreenSort.pbr: 'PBR',
+                ScreenSort.roe: 'ROE',
+                ScreenSort.operatingMargin: '영업이익률',
+              },
+              onChanged: (s) {
+                setState(() {
+                  _sort = s;
+                  // 싼 것·높은 수익성을 먼저 보는 쪽이 자연스럽다.
+                  _ascending = s == ScreenSort.per || s == ScreenSort.pbr;
+                });
+                _load();
+              },
+            ),
+            AppToggleGroup<bool>(
+              value: _ascending,
+              options: const {true: '작은 순', false: '큰 순'},
+              onChanged: (v) {
+                setState(() => _ascending = v);
+                _load();
+              },
+            ),
+            if (_perMax != null ||
+                _pbrMax != null ||
+                _roeMin != null ||
+                _marginMin != null)
+              AppButton(
+                label: '조건 초기화',
+                icon: Icons.close,
+                variant: AppButtonVariant.link,
+                tone: c.accent,
+                onPressed: () {
+                  setState(() {
+                    _perMax = _pbrMax = _roeMin = _marginMin = null;
+                  });
+                  _load();
+                },
+              ),
+          ],
+        ),
+        const SizedBox(height: AppSpace.md),
+        if (_error != null)
+          AppNotice(message: '스크리닝에 실패했습니다 — $_error')
+        else ...[
+          SizedBox(
+            height: 2,
+            child: _loading
+                ? const LinearProgressIndicator(minHeight: 2)
+                : null,
+          ),
+          const SizedBox(height: AppSpace.sm),
+          if (page != null)
+            Text(
+              '${formatCount(page.total)}개사'
+              '${page.total > page.items.length ? ' 중 ${formatCount(page.items.length)}개사' : ''}',
+              style: t.numeric(12.5, color: c.textSecondary),
+            ),
+          const SizedBox(height: AppSpace.sm),
+          if (page != null) _ResultTable(page: page),
+          const SizedBox(height: AppSpace.md),
+          Text(
+            'PER = 시가총액 ÷ 지배주주 당기순이익 · PBR = 시가총액 ÷ 지배주주 자본 · '
+            'ROE = 지배주주 순이익 ÷ 지배주주 자본 · 영업이익률 = 영업이익 ÷ 매출액. '
+            '모두 연결 기준이며, 지배주주 값이 없으면 전체 값을 씁니다. 표준계정(XBRL)으로만 찾으므로 '
+            '금융업 등 일부 기업은 매출·영업이익이 비어 보일 수 있습니다.',
+            style: t.body(11.5, color: c.textMuted),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _ResultTable extends StatelessWidget {
+  const _ResultTable({required this.page});
+
+  final ScreenPage page;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    if (page.items.isEmpty) {
+      return Text('조건에 맞는 기업이 없습니다.', style: t.body(13, color: c.textMuted));
+    }
+    return AppDataTable(
+      columns: const [
+        AppColumn('기업'),
+        AppColumn('시가총액', numeric: true),
+        AppColumn('PER', numeric: true),
+        AppColumn('PBR', numeric: true),
+        AppColumn('ROE', numeric: true),
+        AppColumn('영업이익률', numeric: true),
+        AppColumn('매출액', numeric: true),
+        AppColumn('영업이익', numeric: true),
+        AppColumn('FY'),
+      ],
+      rows: [
+        for (final r in page.items)
+          AppRow([
+            HoverBuilder(
+              onTap: () => context.push(AppRoutes.company(r.company.corpCode)),
+              builder: (context, hovered) => Text(
+                r.company.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: t
+                    .body(13.5, color: c.accent, weight: FontWeight.w600)
+                    .copyWith(
+                      decoration: hovered ? TextDecoration.underline : null,
+                      decorationColor: c.accent,
+                    ),
+              ),
+            ),
+            AppDataTable.text(context, formatKrw(r.marketCap), numeric: true),
+            AppDataTable.text(context, formatTimes(r.per), numeric: true),
+            AppDataTable.text(context, formatTimes(r.pbr), numeric: true),
+            AppDataTable.text(
+              context,
+              r.roe == null ? null : '${r.roe!.toStringAsFixed(1)}%',
+              numeric: true,
+            ),
+            AppDataTable.text(
+              context,
+              r.operatingMargin == null
+                  ? null
+                  : '${r.operatingMargin!.toStringAsFixed(1)}%',
+              numeric: true,
+            ),
+            AppDataTable.text(context, formatKrw(r.revenue), numeric: true),
+            AppDataTable.text(
+              context,
+              formatKrw(r.operatingIncome),
+              numeric: true,
+            ),
+            AppDataTable.text(context, 'FY${r.bsnsYear}'),
+          ]),
+      ],
+    );
+  }
+}
+
+/// 숫자 하나를 받는 작은 입력칸. 비우면 그 조건을 끈다.
+class _NumberField extends StatefulWidget {
+  const _NumberField({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String label;
+  final double? value;
+  final ValueChanged<double?> onChanged;
+
+  @override
+  State<_NumberField> createState() => _NumberFieldState();
+}
+
+class _NumberFieldState extends State<_NumberField> {
+  late final _controller = TextEditingController(
+    text: widget.value?.toString() ?? '',
+  );
+
+  @override
+  void didUpdateWidget(covariant _NumberField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final text = widget.value?.toString() ?? '';
+    if (widget.value != oldWidget.value && _controller.text != text) {
+      _controller.text = text;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    return SizedBox(
+      width: 148,
+      child: TextField(
+        controller: _controller,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[\d.]'))],
+        style: t.numeric(14),
+        decoration: InputDecoration(
+          isDense: true,
+          labelText: widget.label,
+          labelStyle: t.body(12, color: c.textSecondary),
+          hintText: '제한 없음',
+        ),
+        onChanged: (v) => widget.onChanged(double.tryParse(v.trim())),
+      ),
+    );
+  }
+}

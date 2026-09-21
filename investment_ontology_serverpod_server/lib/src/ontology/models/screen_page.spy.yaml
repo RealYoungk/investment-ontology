@@ -1,0 +1,9 @@
+### 스크리닝 결과.
+class: ScreenPage
+fields:
+  items: List<ScreenRow>
+  total: int
+  ### 시세 기준일
+  baseDate: DateTime?
+  ### 지표를 계산할 재무가 있는 상장사 수 (거르기 전)
+  universe: int

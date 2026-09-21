@@ -12,6 +12,7 @@ import '../features/groups/group_page.dart';
 import '../features/groups/groups_page.dart';
 import '../features/market_map/market_page.dart';
 import '../features/review/review_page.dart';
+import '../features/screen/screen_page.dart';
 import '../features/themes/theme_page.dart';
 import '../features/themes/themes_page.dart';
 import 'app_shell.dart';
@@ -25,6 +26,7 @@ import 'app_shell.dart';
 /// - `/themes`, `/themes/:themeId` 테마
 /// - `/graph/:corpCode` 관계망
 /// - `/groups`, `/groups/:corpCode` 지분 묶음 (묶음에 속한 아무 기업으로 찾는다)
+/// - `/screen` 스크리너 (재무·시세로 거르기)
 /// - `/review` AI 관계 검수
 /// - `/reports/:reportId` 재무제표 원문 표
 /// - `/data` 수집 상태
@@ -100,6 +102,11 @@ abstract final class AppRoutes {
             path: '/groups/:corpCode',
             builder: (context, state) =>
                 GroupPage(corpCode: state.pathParameters['corpCode']!),
+          ),
+          GoRoute(
+            path: '/screen',
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: ScreenerPage()),
           ),
           GoRoute(
             path: '/review',

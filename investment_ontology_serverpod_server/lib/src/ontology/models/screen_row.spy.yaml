@@ -1,0 +1,15 @@
+### 스크리닝 결과 한 줄. 지표는 저장하지 않고 조회할 때 계산하며, 계산에 쓴 값도 함께 준다.
+class: ScreenRow
+fields:
+  company: CompanyRef
+  ### 지표를 계산한 사업연도 (가장 최근 연결 사업보고서)
+  bsnsYear: int
+  marketCap: BigInt
+  revenue: BigInt?
+  operatingIncome: BigInt?
+  netIncome: BigInt?
+  equity: BigInt?
+  per: double?
+  pbr: double?
+  roe: double?
+  operatingMargin: double?

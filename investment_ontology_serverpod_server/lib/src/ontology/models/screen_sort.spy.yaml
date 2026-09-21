@@ -1,0 +1,8 @@
+### 스크리닝 정렬 기준.
+enum: ScreenSort
+values:
+  - marketCap
+  - per
+  - pbr
+  - roe
+  - operatingMargin

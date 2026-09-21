@@ -80,6 +80,10 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _ihqozc6p;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/review_page.dart'
     as _i59ekwm6;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/screen_page.dart'
+    as _iy3d4gdi;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/screen_sort.dart'
+    as _iswpkxoo;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/shareholder_return.dart'
     as _ir6fk3mk;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/theme_detail.dart'
@@ -893,6 +897,49 @@ class EndpointReview extends _isc.EndpointRef {
       );
 }
 
+/// 재무·시세로 기업을 거르는 스크리닝.
+///
+/// 지표(PER·PBR·ROE·영업이익률)는 저장하지 않는다. 조회할 때 가장 최근 연결
+/// 사업보고서의 원천 값과 최근 시가총액으로 계산하고, 계산에 쓴 값도 같이 돌려준다.
+/// {@category Endpoint}
+class EndpointScreen extends _isc.EndpointRef {
+  EndpointScreen(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'screen';
+
+  /// 조건에 맞는 기업. 값이 없는 기업(적자·자본잠식 등)은 그 지표 조건이 있으면 빠진다.
+  _ida.Future<_iy3d4gdi.ScreenPage> list({
+    _iamn97sz.Market? market,
+    String? sectionCode,
+    double? perMax,
+    double? pbrMax,
+    double? roeMin,
+    double? operatingMarginMin,
+    BigInt? marketCapMin,
+    _iswpkxoo.ScreenSort? sort,
+    bool? ascending,
+    int? offset,
+    int? limit,
+  }) => caller.callServerEndpoint<_iy3d4gdi.ScreenPage>(
+    'screen',
+    'list',
+    {
+      'market': market,
+      'sectionCode': sectionCode,
+      'perMax': perMax,
+      'pbrMax': pbrMax,
+      'roeMin': roeMin,
+      'operatingMarginMin': operatingMarginMin,
+      'marketCapMin': marketCapMin,
+      'sort': sort,
+      'ascending': ascending,
+      'offset': offset,
+      'limit': limit,
+    },
+  );
+}
+
 /// 테마 (5단계): 사용자가 정의하는 투자 주제와 기업 편입.
 ///
 /// 편입은 사람의 판단이므로 출처는 manual Source로 남긴다.
@@ -1039,6 +1086,7 @@ class Client extends _isc.ServerpodClientShared {
     ingest = EndpointIngest(this);
     market = EndpointMarket(this);
     review = EndpointReview(this);
+    screen = EndpointScreen(this);
     theme = EndpointTheme(this);
     modules = Modules(this);
   }
@@ -1069,6 +1117,8 @@ class Client extends _isc.ServerpodClientShared {
 
   late final EndpointReview review;
 
+  late final EndpointScreen screen;
+
   late final EndpointTheme theme;
 
   late final Modules modules;
@@ -1088,6 +1138,7 @@ class Client extends _isc.ServerpodClientShared {
     'ingest': ingest,
     'market': market,
     'review': review,
+    'screen': screen,
     'theme': theme,
   };
 

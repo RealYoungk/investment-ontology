@@ -130,6 +130,9 @@ import 'ontology/models/relation_predicate.dart' as _idal2dwe;
 import 'ontology/models/relation_status.dart' as _ih00v9tp;
 import 'ontology/models/review_item.dart' as _i6uduqoi;
 import 'ontology/models/review_page.dart' as _i22wlf7g;
+import 'ontology/models/screen_page.dart' as _izca0w44;
+import 'ontology/models/screen_row.dart' as _ie748vep;
+import 'ontology/models/screen_sort.dart' as _igeg1iky;
 import 'ontology/models/security.dart' as _ilujots3;
 import 'ontology/models/security_link_basis.dart' as _ic799xum;
 import 'ontology/models/security_quote.dart' as _ionn6cq2;
@@ -224,6 +227,9 @@ export 'ontology/models/relation_predicate.dart';
 export 'ontology/models/relation_status.dart';
 export 'ontology/models/review_item.dart';
 export 'ontology/models/review_page.dart';
+export 'ontology/models/screen_page.dart';
+export 'ontology/models/screen_row.dart';
+export 'ontology/models/screen_sort.dart';
 export 'ontology/models/security.dart';
 export 'ontology/models/security_link_basis.dart';
 export 'ontology/models/security_quote.dart';
@@ -2107,6 +2113,27 @@ class Protocol extends _is.DatabaseSerializationManager {
             _isp.IndexElementDefinition(
               type: _isp.IndexElementDefinitionType.column,
               definition: 'reportCode',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'financial_fact_account_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'accountId',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'reportCode',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'fsDiv',
             ),
           ],
           type: 'btree',
@@ -4287,6 +4314,15 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _i22wlf7g.ReviewPage) {
       return _i22wlf7g.ReviewPage.fromJson(data) as T;
     }
+    if (t == _izca0w44.ScreenPage) {
+      return _izca0w44.ScreenPage.fromJson(data) as T;
+    }
+    if (t == _ie748vep.ScreenRow) {
+      return _ie748vep.ScreenRow.fromJson(data) as T;
+    }
+    if (t == _igeg1iky.ScreenSort) {
+      return _igeg1iky.ScreenSort.fromJson(data) as T;
+    }
     if (t == _ilujots3.Security) {
       return _ilujots3.Security.fromJson(data) as T;
     }
@@ -4678,6 +4714,15 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _is.getType<_i22wlf7g.ReviewPage?>()) {
       return (data != null ? _i22wlf7g.ReviewPage.fromJson(data) : null) as T;
     }
+    if (t == _is.getType<_izca0w44.ScreenPage?>()) {
+      return (data != null ? _izca0w44.ScreenPage.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_ie748vep.ScreenRow?>()) {
+      return (data != null ? _ie748vep.ScreenRow.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_igeg1iky.ScreenSort?>()) {
+      return (data != null ? _igeg1iky.ScreenSort.fromJson(data) : null) as T;
+    }
     if (t == _is.getType<_ilujots3.Security?>()) {
       return (data != null ? _ilujots3.Security.fromJson(data) : null) as T;
     }
@@ -4899,6 +4944,12 @@ class Protocol extends _is.DatabaseSerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_ie748vep.ScreenRow>) {
+      return (data as List)
+              .map((e) => deserialize<_ie748vep.ScreenRow>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_ith4ion6.DividendEntry>) {
       return (data as List)
               .map((e) => deserialize<_ith4ion6.DividendEntry>(e))
@@ -5085,6 +5136,9 @@ class Protocol extends _is.DatabaseSerializationManager {
       _ih00v9tp.RelationStatus => 'RelationStatus',
       _i6uduqoi.ReviewItem => 'ReviewItem',
       _i22wlf7g.ReviewPage => 'ReviewPage',
+      _izca0w44.ScreenPage => 'ScreenPage',
+      _ie748vep.ScreenRow => 'ScreenRow',
+      _igeg1iky.ScreenSort => 'ScreenSort',
       _ilujots3.Security => 'Security',
       _ic799xum.SecurityLinkBasis => 'SecurityLinkBasis',
       _ionn6cq2.SecurityQuote => 'SecurityQuote',
@@ -5291,6 +5345,12 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'ReviewItem';
       case _i22wlf7g.ReviewPage():
         return 'ReviewPage';
+      case _izca0w44.ScreenPage():
+        return 'ScreenPage';
+      case _ie748vep.ScreenRow():
+        return 'ScreenRow';
+      case _igeg1iky.ScreenSort():
+        return 'ScreenSort';
       case _ilujots3.Security():
         return 'Security';
       case _ic799xum.SecurityLinkBasis():
@@ -5618,6 +5678,15 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'ReviewPage') {
       return deserialize<_i22wlf7g.ReviewPage>(data['data']);
+    }
+    if (dataClassName == 'ScreenPage') {
+      return deserialize<_izca0w44.ScreenPage>(data['data']);
+    }
+    if (dataClassName == 'ScreenRow') {
+      return deserialize<_ie748vep.ScreenRow>(data['data']);
+    }
+    if (dataClassName == 'ScreenSort') {
+      return deserialize<_igeg1iky.ScreenSort>(data['data']);
     }
     if (dataClassName == 'Security') {
       return deserialize<_ilujots3.Security>(data['data']);
