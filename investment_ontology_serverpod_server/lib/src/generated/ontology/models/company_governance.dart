@@ -13,7 +13,6 @@
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart'
     as _i4yshtjp;
 import 'package:serverpod/serverpod.dart' as _is;
-
 import '../../ontology/models/company_ref.dart' as _id7z5ov5;
 import '../../ontology/models/executive_entry.dart' as _idolfb48;
 import '../../ontology/models/governance_link.dart' as _icazq9ky;
@@ -37,6 +36,8 @@ abstract class CompanyGovernance
     required this.holdings,
     required this.companies,
     required this.persons,
+    this.minorityHolders,
+    this.minorityRatio,
     required this.sources,
   });
 
@@ -52,6 +53,8 @@ abstract class CompanyGovernance
     required List<_icazq9ky.GovernanceLink> holdings,
     required List<_id7z5ov5.CompanyRef> companies,
     required List<_ici34sqw.Person> persons,
+    int? minorityHolders,
+    double? minorityRatio,
     required List<_i5ra8lvy.Source> sources,
   }) = _CompanyGovernanceImpl;
 
@@ -93,6 +96,8 @@ abstract class CompanyGovernance
       persons: _i4yshtjp.Protocol().deserialize<List<_ici34sqw.Person>>(
         jsonSerialization['persons'],
       ),
+      minorityHolders: jsonSerialization['minorityHolders'] as int?,
+      minorityRatio: (jsonSerialization['minorityRatio'] as num?)?.toDouble(),
       sources: _i4yshtjp.Protocol().deserialize<List<_i5ra8lvy.Source>>(
         jsonSerialization['sources'],
       ),
@@ -126,6 +131,11 @@ abstract class CompanyGovernance
 
   List<_ici34sqw.Person> persons;
 
+  /// 소액주주 현황 (유통 물량을 가늠하는 값). 그 해 보고서에 있을 때만
+  int? minorityHolders;
+
+  double? minorityRatio;
+
   List<_i5ra8lvy.Source> sources;
 
   /// Returns a shallow copy of this [CompanyGovernance]
@@ -143,6 +153,8 @@ abstract class CompanyGovernance
     List<_icazq9ky.GovernanceLink>? holdings,
     List<_id7z5ov5.CompanyRef>? companies,
     List<_ici34sqw.Person>? persons,
+    int? minorityHolders,
+    double? minorityRatio,
     List<_i5ra8lvy.Source>? sources,
   });
   @override
@@ -160,6 +172,8 @@ abstract class CompanyGovernance
       'holdings': holdings.toJson(valueToJson: (v) => v.toJson()),
       'companies': companies.toJson(valueToJson: (v) => v.toJson()),
       'persons': persons.toJson(valueToJson: (v) => v.toJson()),
+      if (minorityHolders != null) 'minorityHolders': minorityHolders,
+      if (minorityRatio != null) 'minorityRatio': minorityRatio,
       'sources': sources.toJson(valueToJson: (v) => v.toJson()),
     };
   }
@@ -185,6 +199,8 @@ abstract class CompanyGovernance
       'holdings': holdings.toJson(valueToJson: (v) => v.toJsonForProtocol()),
       'companies': companies.toJson(valueToJson: (v) => v.toJsonForProtocol()),
       'persons': persons.toJson(valueToJson: (v) => v.toJsonForProtocol()),
+      if (minorityHolders != null) 'minorityHolders': minorityHolders,
+      if (minorityRatio != null) 'minorityRatio': minorityRatio,
       'sources': sources.toJson(valueToJson: (v) => v.toJsonForProtocol()),
     };
   }
@@ -210,6 +226,8 @@ class _CompanyGovernanceImpl extends CompanyGovernance {
     required List<_icazq9ky.GovernanceLink> holdings,
     required List<_id7z5ov5.CompanyRef> companies,
     required List<_ici34sqw.Person> persons,
+    int? minorityHolders,
+    double? minorityRatio,
     required List<_i5ra8lvy.Source> sources,
   }) : super._(
          corpCode: corpCode,
@@ -223,6 +241,8 @@ class _CompanyGovernanceImpl extends CompanyGovernance {
          holdings: holdings,
          companies: companies,
          persons: persons,
+         minorityHolders: minorityHolders,
+         minorityRatio: minorityRatio,
          sources: sources,
        );
 
@@ -242,6 +262,8 @@ class _CompanyGovernanceImpl extends CompanyGovernance {
     List<_icazq9ky.GovernanceLink>? holdings,
     List<_id7z5ov5.CompanyRef>? companies,
     List<_ici34sqw.Person>? persons,
+    Object? minorityHolders = _Undefined,
+    Object? minorityRatio = _Undefined,
     List<_i5ra8lvy.Source>? sources,
   }) {
     return CompanyGovernance(
@@ -264,6 +286,12 @@ class _CompanyGovernanceImpl extends CompanyGovernance {
       companies:
           companies ?? this.companies.map((e0) => e0.copyWith()).toList(),
       persons: persons ?? this.persons.map((e0) => e0.copyWith()).toList(),
+      minorityHolders: minorityHolders is int?
+          ? minorityHolders
+          : this.minorityHolders,
+      minorityRatio: minorityRatio is double?
+          ? minorityRatio
+          : this.minorityRatio,
       sources: sources ?? this.sources.map((e0) => e0.copyWith()).toList(),
     );
   }

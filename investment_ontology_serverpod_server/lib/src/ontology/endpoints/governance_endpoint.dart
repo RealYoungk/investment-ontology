@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
@@ -112,7 +114,34 @@ class GovernanceEndpoint extends Endpoint {
         ?r?.sourceId,
     };
 
+    // 소액주주 현황: 그 해 보고서의 '소액주주' 줄 (사람 수와 보유 지분율).
+    final minority = await DisclosureReport.db.findFirstRow(
+      session,
+      where: (t) =>
+          t.companyId.equals(companyId) &
+          t.section.equals(DartSection.minorityShareholders) &
+          t.supersededById.equals(null) &
+          (year == null ? t.bsnsYear.notEquals(null) : t.bsnsYear.equals(year)),
+      orderBy: (t) => t.bsnsYear.desc(),
+    );
+    final minorityRow = minority == null
+        ? null
+        : (await DisclosureRow.db.find(
+            session,
+            where: (t) => t.reportId.equals(minority.id!),
+            orderBy: (t) => t.ord,
+          )).firstOrNull;
+    final minorityJson = minorityRow == null
+        ? null
+        : jsonDecode(minorityRow.rowJson) as Map<String, dynamic>;
+
     return CompanyGovernance(
+      minorityHolders: DisclosureValues.integer(
+        minorityJson?['shrholdr_co'],
+      )?.toInt(),
+      minorityRatio: DisclosureValues.decimal(
+        minorityJson?['hold_stock_rate'],
+      ),
       corpCode: corpCode,
       bsnsYear: year,
       settlementDate: (shareholderReport ?? executiveReport ?? investmentReport)

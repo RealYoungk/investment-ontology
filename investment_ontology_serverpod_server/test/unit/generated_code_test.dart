@@ -38,6 +38,38 @@ void main() {
     }
   });
 
+  test('엔드포인트의 공개 메서드가 클라이언트에 모두 있다', () {
+    // 생성기가 반쯤 바뀐 파일을 읽으면 메서드 몇 개만 빠진 채 남기도 한다.
+    final client = File(
+      '../investment_ontology_serverpod_client/lib/src/protocol/client.dart',
+    ).readAsStringSync();
+    for (final file in Directory('lib/src/ontology/endpoints').listSync()) {
+      if (file is! File || !file.path.endsWith('.dart')) continue;
+      final source = file.readAsStringSync();
+      final name = RegExp(
+        r'class (\w+)Endpoint extends Endpoint',
+      ).firstMatch(source)?.group(1);
+      if (name == null) continue;
+      final methods = {
+        for (final m in RegExp(
+          r'\n  (?:static )?Future<[^>]*>+\s+(\w+)\(',
+        ).allMatches(source))
+          m.group(1)!,
+      }..removeWhere((m) => m.startsWith('_'));
+      expect(methods, isNotEmpty, reason: name);
+      final section = client.substring(
+        client.indexOf('class Endpoint$name '),
+      );
+      for (final method in methods) {
+        expect(
+          section.substring(0, section.indexOf('\nclass ') + 1),
+          contains(RegExp('[ >]$method\\(')),
+          reason: '$name.$method',
+        );
+      }
+    }
+  });
+
   test('모든 FutureCall이 생성 코드에 등록되어 있다', () {
     final futureCalls = File(
       'lib/src/generated/future_calls.dart',
