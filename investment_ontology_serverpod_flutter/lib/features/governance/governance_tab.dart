@@ -98,10 +98,18 @@ class _GovernanceTabState extends State<GovernanceTab> {
               '${d.settlementDate == null ? '' : ' · 기준일 ${formatDate(d.settlementDate)}'}',
               style: t.body(14, weight: FontWeight.w600),
             ),
-            if (d.availableYears.length > 1)
+            if (d.availableYears.length > 1 ||
+                d.availableYears.every((y) => y < DateTime.now().year))
               AppToggleGroup<int>(
                 value: d.bsnsYear!,
-                options: {for (final y in d.availableYears) y: 'FY$y'},
+                // 지금 해의 사업보고서가 아직 없으면 그 칸을 지우지 않고 흐리게 둔다.
+                options: {
+                  for (final y in _withThisYear(d.availableYears)) y: 'FY$y',
+                },
+                disabled: {
+                  for (final y in _withThisYear(d.availableYears))
+                    if (!d.availableYears.contains(y)) y,
+                },
                 onChanged: (y) {
                   setState(() => _year = y);
                   _load();
@@ -599,4 +607,12 @@ class _Sources extends StatelessWidget {
       ),
     );
   }
+}
+
+/// 자료가 있는 해에 지금 해를 더한다 (없으면 흐린 칸으로). 최신 해부터.
+List<int> _withThisYear(List<int> years) {
+  final thisYear = DateTime.now().year;
+  final all = {...years, if (years.isNotEmpty) thisYear}.toList()
+    ..sort((a, b) => b.compareTo(a));
+  return all;
 }

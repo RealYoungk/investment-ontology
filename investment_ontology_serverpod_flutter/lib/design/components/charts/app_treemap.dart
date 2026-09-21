@@ -293,8 +293,21 @@ class _FittedLabelState extends State<_FittedLabel> {
 
         final w = widget;
         final labelSize = measure(w.text, w.style);
-        if (!fitsWidth(labelSize) || labelSize.height > constraints.maxHeight) {
+        if (labelSize.height > constraints.maxHeight) {
           return const SizedBox.shrink();
+        }
+        // 이름이 다 안 들어가는 타일에는 앞 글자만이라도 적는다 (…로 줄여서).
+        // 큰 상자가 텅 비어 보이는 것보다 낫다. 두 글자도 안 들어가면 비운다.
+        if (!fitsWidth(labelSize)) {
+          final two = measure(w.text.characters.take(2).toString(), w.style);
+          if (!fitsWidth(two)) return const SizedBox.shrink();
+          return Text(
+            w.text,
+            style: w.style,
+            maxLines: 1,
+            softWrap: false,
+            overflow: TextOverflow.ellipsis,
+          );
         }
         final d = w.detail;
         final label = Text(

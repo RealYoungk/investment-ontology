@@ -146,10 +146,18 @@ class _DisclosureTabState extends State<DisclosureTab> {
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               Text(table.label, style: t.body(16, weight: FontWeight.w700)),
-              if (table.years.length > 1)
+              if (table.years.length > 1 ||
+                  table.years.first < DateTime.now().year)
                 AppToggleGroup<int>(
                   value: table.bsnsYear,
-                  options: {for (final y in table.years) y: 'FY$y'},
+                  // 지금 해의 사업보고서가 아직 없으면 그 칸을 지우지 않고 흐리게 둔다.
+                  options: {
+                    for (final y in _withThisYear(table.years)) y: 'FY$y',
+                  },
+                  disabled: {
+                    for (final y in _withThisYear(table.years))
+                      if (!table.years.contains(y)) y,
+                  },
                   onChanged: (y) {
                     setState(() => _year = y);
                     _load();
@@ -170,7 +178,16 @@ class _DisclosureTabState extends State<DisclosureTab> {
           AppDataTable(
             columns: [
               for (final (i, h) in table.headers.indexed)
-                AppColumn(h, numeric: _numericColumn(table, i)),
+                // 숫자는 한 줄로 — 칸이 좁으면 "508,157,14 8"처럼 접혀 읽을 수 없다.
+                AppColumn(
+                  h,
+                  numeric: _numericColumn(table, i),
+                  nowrap: _numericColumn(table, i),
+                  // 가장 긴 값이 들어갈 폭을 직접 준다 (숫자 글꼴 한 글자 ≈ 7.6px).
+                  minWidth: _numericColumn(table, i)
+                      ? _longestCell(table, i) * 7.6 + 2 * AppSpace.sm
+                      : null,
+                ),
             ],
             rows: [
               for (final r in table.rows)
@@ -180,6 +197,7 @@ class _DisclosureTabState extends State<DisclosureTab> {
                       context,
                       cell,
                       numeric: _numericColumn(table, i),
+                      nowrap: _numericColumn(table, i),
                     ),
                 ]),
             ],
@@ -280,4 +298,22 @@ class _SectionList extends StatelessWidget {
       ],
     );
   }
+}
+
+/// 표가 가진 해에 지금 해를 더한다 (없으면 "없음" 칸으로 보이게). 최신 해부터.
+List<int> _withThisYear(List<int> years) {
+  final thisYear = DateTime.now().year;
+  final all = {...years, if (years.isNotEmpty) thisYear}.toList()
+    ..sort((a, b) => b.compareTo(a));
+  return all;
+}
+
+/// i번째 열에서 가장 긴 값의 글자 수 (머리글 포함).
+int _longestCell(DisclosureTable table, int i) {
+  var n = table.headers[i].length;
+  for (final r in table.rows) {
+    final len = i < r.cells.length ? (r.cells[i]?.length ?? 0) : 0;
+    if (len > n) n = len;
+  }
+  return n;
 }

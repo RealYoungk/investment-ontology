@@ -120,7 +120,7 @@ class _OntologyDigestState extends State<OntologyDigest> {
     if (byPredicate.isNotEmpty) {
       lines.add(
         line(
-          'AI 관계',
+          '본문 관계',
           [
             for (final e in byPredicate.entries)
               '${predicateLabel(e.key)} ${e.value}',
