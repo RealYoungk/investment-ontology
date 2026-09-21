@@ -121,9 +121,9 @@ class _HeaderRow extends StatelessWidget {
       child: Row(
         children: [
           if (!compact) fixed('NO', _Col.index),
-          fixed('종목', _Col.code),
+          if (!compact) fixed('종목', _Col.code),
           flex('회사명', _Col.nameFlex),
-          fixed('시장', _Col.market),
+          if (!compact) fixed('시장', _Col.market),
           fixed('시가총액', _Col.cap, end: true),
           if (!compact) ...[
             const SizedBox(width: AppSpace.lg),
@@ -189,34 +189,47 @@ class _CompanyRow extends StatelessWidget {
                   ),
                 ),
               ),
-            SizedBox(
-              width: _Col.code,
-              child: Text(
-                item.stockCode ?? '—',
-                style: t.numeric(13.5, color: fg, weight: FontWeight.w600),
-              ),
-            ),
-            Expanded(
-              flex: _Col.nameFlex,
-              child: Text(
-                item.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: t.body(15, color: fg, weight: FontWeight.w600),
-              ),
-            ),
-            SizedBox(
-              width: _Col.market,
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: AppTag(
-                  label: marketLabel(item.market),
-                  color: selected && item.market == Market.kospi
-                      ? c.onInverse
-                      : marketColor(context, item.market),
+            if (!compact)
+              SizedBox(
+                width: _Col.code,
+                child: Text(
+                  item.stockCode ?? '—',
+                  style: t.numeric(13.5, color: fg, weight: FontWeight.w600),
                 ),
               ),
+            Expanded(
+              flex: _Col.nameFlex,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: t.body(15, color: fg, weight: FontWeight.w600),
+                  ),
+                  // 좁은 화면: 종목코드·시장 열 대신 이름 아래에 적는다.
+                  if (compact)
+                    Text(
+                      '${item.stockCode ?? '—'} · ${marketLabel(item.market)}',
+                      style: t.numeric(11.5, color: fg),
+                    ),
+                ],
+              ),
             ),
+            if (!compact)
+              SizedBox(
+                width: _Col.market,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: AppTag(
+                    label: marketLabel(item.market),
+                    color: selected && item.market == Market.kospi
+                        ? c.onInverse
+                        : marketColor(context, item.market),
+                  ),
+                ),
+              ),
             SizedBox(
               width: _Col.cap,
               child: Text(

@@ -130,54 +130,67 @@ class _KeyStats extends StatelessWidget {
               bottom: BorderSide(color: c.border),
             ),
           ),
-          child: Wrap(
-            children: [
-              for (final m in metrics)
-                HoverBuilder(
-                  onTap: () => onTap(m.key),
-                  builder: (context, hovered) => AnimatedContainer(
-                    duration: AppMotion.fast,
-                    width: 200,
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpace.sm,
-                      AppSpace.md,
-                      AppSpace.lg,
-                      AppSpace.md,
-                    ),
-                    decoration: BoxDecoration(
-                      color: hovered ? c.surfaceHover : Colors.transparent,
-                      border: Border(
-                        bottom: BorderSide(
-                          color: open == m.key ? c.accent : Colors.transparent,
-                          width: 3,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              // 좁은 화면에서는 두 칸씩 놓는다.
+              final cell = constraints.maxWidth < 600
+                  ? (constraints.maxWidth / 2).floorToDouble()
+                  : 200.0;
+              return Wrap(
+                children: [
+                  for (final m in metrics)
+                    HoverBuilder(
+                      onTap: () => onTap(m.key),
+                      builder: (context, hovered) => AnimatedContainer(
+                        duration: AppMotion.fast,
+                        width: cell,
+                        padding: const EdgeInsets.fromLTRB(
+                          AppSpace.sm,
+                          AppSpace.md,
+                          AppSpace.lg,
+                          AppSpace.md,
+                        ),
+                        decoration: BoxDecoration(
+                          color: hovered ? c.surfaceHover : Colors.transparent,
+                          border: Border(
+                            bottom: BorderSide(
+                              color: open == m.key
+                                  ? c.accent
+                                  : Colors.transparent,
+                              width: 3,
+                            ),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              m.label,
+                              style: t.body(12, color: c.textSecondary),
+                            ),
+                            const SizedBox(height: AppSpace.xs),
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                m.display,
+                                maxLines: 1,
+                                style: t.numeric(
+                                  20,
+                                  color: m.derived.value == null
+                                      ? c.textMuted
+                                      : c.textPrimary,
+                                  weight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          m.label,
-                          style: t.body(12, color: c.textSecondary),
-                        ),
-                        const SizedBox(height: AppSpace.xs),
-                        Text(
-                          m.display,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: t.numeric(
-                            20,
-                            color: m.derived.value == null
-                                ? c.textMuted
-                                : c.textPrimary,
-                            weight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-            ],
+                ],
+              );
+            },
           ),
         ),
         const SizedBox(height: AppSpace.xs),

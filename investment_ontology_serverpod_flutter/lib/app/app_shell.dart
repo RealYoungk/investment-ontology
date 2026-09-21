@@ -135,17 +135,27 @@ class _TopBar extends StatelessWidget {
                 ),
                 const SizedBox(width: AppSpace.xxl),
               ],
-              for (final d in destinations)
-                _NavItem(
-                  label: d.destination.label,
-                  active: d.active,
-                  onTap: d.onTap,
-                  trailing: d.destination.path == '/data'
-                      ? const _IngestIndicator()
-                      : null,
+              // 좁은 화면에서는 메뉴가 넘치지 않게 가로로 밀어 본다.
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (final d in destinations)
+                        _NavItem(
+                          label: d.destination.label,
+                          active: d.active,
+                          onTap: d.onTap,
+                          trailing: d.destination.path == '/data'
+                              ? const _IngestIndicator()
+                              : null,
+                        ),
+                    ],
+                  ),
                 ),
+              ),
               if (constraints.maxWidth >= 1100) ...[
-                const Spacer(),
                 const Center(child: _GlobalSearch()),
               ],
             ],
