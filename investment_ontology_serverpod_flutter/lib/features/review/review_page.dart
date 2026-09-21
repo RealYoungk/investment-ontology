@@ -251,45 +251,65 @@ class ReviewCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpace.sm),
-          Row(
-            children: [
-              Expanded(
-                child: HoverBuilder(
-                  onTap: () => context.push(
-                    AppRoutes.company(item.companyCorpCode, tab: 'business'),
+          LayoutBuilder(
+            builder: (context, box) {
+              final source = HoverBuilder(
+                onTap: () => context.push(
+                  AppRoutes.company(item.companyCorpCode, tab: 'business'),
+                ),
+                builder: (context, hovered) => Text(
+                  '원문: ${item.companyName} FY${r.bsnsYear} 사업보고서 · 사업의 내용'
+                  '${r.extractorModel == null ? '' : ' · ${r.extractorModel}'}',
+                  style: t
+                      .body(11.5, color: c.textMuted)
+                      .copyWith(
+                        decoration: hovered ? TextDecoration.underline : null,
+                      ),
+                ),
+              );
+              final actions = <Widget>[
+                if (onDecide != null) ...[
+                  AppButton(
+                    label: '거절',
+                    variant: AppButtonVariant.link,
+                    onPressed: busy ? null : () => onDecide!(false),
                   ),
-                  builder: (context, hovered) => Text(
-                    '원문: ${item.companyName} FY${r.bsnsYear} 사업보고서 · 사업의 내용'
-                    '${r.extractorModel == null ? '' : ' · ${r.extractorModel}'}',
-                    style: t
-                        .body(11.5, color: c.textMuted)
-                        .copyWith(
-                          decoration: hovered ? TextDecoration.underline : null,
-                        ),
+                  const SizedBox(width: AppSpace.sm),
+                  AppButton(
+                    label: '승인',
+                    variant: AppButtonVariant.primary,
+                    onPressed: busy ? null : () => onDecide!(true),
                   ),
-                ),
-              ),
-              if (onDecide != null) ...[
-                AppButton(
-                  label: '거절',
-                  variant: AppButtonVariant.link,
-                  onPressed: busy ? null : () => onDecide!(false),
-                ),
-                const SizedBox(width: AppSpace.sm),
-                AppButton(
-                  label: '승인',
-                  variant: AppButtonVariant.primary,
-                  onPressed: busy ? null : () => onDecide!(true),
-                ),
-              ] else
-                AppTag(
-                  label: switch (r.status) {
-                    RelationStatus.verified => '승인됨',
-                    RelationStatus.rejected => '거절됨',
-                    RelationStatus.draft => '검수 대기',
-                  },
-                ),
-            ],
+                ] else
+                  AppTag(
+                    label: switch (r.status) {
+                      RelationStatus.verified => '승인됨',
+                      RelationStatus.rejected => '거절됨',
+                      RelationStatus.draft => '검수 대기',
+                    },
+                  ),
+              ];
+              // 폰에서는 출처 글이 버튼에 밀려 두 줄로 쪼개진다. 버튼을 아래 줄로 내린다.
+              if (box.maxWidth < 460) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    source,
+                    const SizedBox(height: AppSpace.sm),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: actions,
+                    ),
+                  ],
+                );
+              }
+              return Row(
+                children: [
+                  Expanded(child: source),
+                  ...actions,
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -394,38 +414,58 @@ class _FactList extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: AppSpace.sm),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'FY${item.fact.bsnsYear} 사업보고서 · 사업의 내용'
-                        '${item.fact.extractorModel == null ? '' : ' · ${item.fact.extractorModel}'}',
-                        style: t.body(11.5, color: c.textMuted),
-                      ),
-                    ),
-                    if (item.fact.status == RelationStatus.draft) ...[
-                      AppButton(
-                        label: '거절',
-                        variant: AppButtonVariant.link,
-                        onPressed: busy.contains(-item.fact.id!)
-                            ? null
-                            : () => onDecide(item.fact, false),
-                      ),
-                      const SizedBox(width: AppSpace.sm),
-                      AppButton(
-                        label: '승인',
-                        variant: AppButtonVariant.primary,
-                        onPressed: busy.contains(-item.fact.id!)
-                            ? null
-                            : () => onDecide(item.fact, true),
-                      ),
-                    ] else
-                      AppTag(
-                        label: item.fact.status == RelationStatus.verified
-                            ? '승인됨'
-                            : '거절됨',
-                      ),
-                  ],
+                LayoutBuilder(
+                  builder: (context, box) {
+                    final source = Text(
+                      'FY${item.fact.bsnsYear} 사업보고서 · 사업의 내용'
+                      '${item.fact.extractorModel == null ? '' : ' · ${item.fact.extractorModel}'}',
+                      style: t.body(11.5, color: c.textMuted),
+                    );
+                    final actions = <Widget>[
+                      if (item.fact.status == RelationStatus.draft) ...[
+                        AppButton(
+                          label: '거절',
+                          variant: AppButtonVariant.link,
+                          onPressed: busy.contains(-item.fact.id!)
+                              ? null
+                              : () => onDecide(item.fact, false),
+                        ),
+                        const SizedBox(width: AppSpace.sm),
+                        AppButton(
+                          label: '승인',
+                          variant: AppButtonVariant.primary,
+                          onPressed: busy.contains(-item.fact.id!)
+                              ? null
+                              : () => onDecide(item.fact, true),
+                        ),
+                      ] else
+                        AppTag(
+                          label: item.fact.status == RelationStatus.verified
+                              ? '승인됨'
+                              : '거절됨',
+                        ),
+                    ];
+                    // 폰에서는 버튼을 아래 줄로 내린다 (출처 글이 쪼개지지 않게).
+                    if (box.maxWidth < 460) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          source,
+                          const SizedBox(height: AppSpace.sm),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: actions,
+                          ),
+                        ],
+                      );
+                    }
+                    return Row(
+                      children: [
+                        Expanded(child: source),
+                        ...actions,
+                      ],
+                    );
+                  },
                 ),
               ],
             ),
