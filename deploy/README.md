@@ -2,26 +2,42 @@
 
 방식 비교는 [../docs/deploy.md](../docs/deploy.md). 여기는 고른 뒤의 실행 순서입니다.
 
-## A. 맥 + 터널 (무료) — 지금 쓰는 방식
+## A. 맥 + Tailscale (무료) — 지금 쓰는 방식
 
-맥이 서버를 계속 돌리고, 폰은 사설망으로 붙습니다. 앱은 **접속한 주소의 8080**을 API로 쓰므로 (`lib/client.dart`), 주소마다 다시 빌드할 필요가 없습니다.
+맥이 서버를 돌리고 폰은 Tailscale 사설망으로 붙습니다. 인터넷에는 열리지 않습니다.
+앱은 **접속한 주소의 8080**을 API로 쓰므로 (`lib/client.dart`), 주소가 바뀌어도 다시 빌드할 필요가 없습니다.
 
-1. **Tailscale**: 맥과 폰에 앱을 깔고 같은 계정으로 로그인합니다.
-2. 맥에서 세 가지를 띄웁니다. 재시작하면 다시 켜야 합니다.
+접속 주소: `http://investment-ontology.tailb7d6da.ts.net:8110`
 
-   ```bash
-   serverpod start                 # API 8080 · 예약 수집 (서버 패키지 폴더에서)
-   scripts/host.sh                 # 앱 빌드 후 8110에 띄우고 접속 주소를 출력
-   caffeinate -dims                # 맥이 잠들면 접속도 수집도 멈춘다
-   ```
+### 맥에서 켜 두는 것 (재시작하면 다시)
 
-   화면만 다시 띄울 때는 `scripts/host.sh --serve` (빌드 건너뜀).
+```bash
+serverpod start                  # API 8080 · 예약 수집 (서버 패키지 폴더에서)
+scripts/host.sh                  # 앱 빌드 후 8110에 띄움 (--serve 는 빌드 건너뜀)
+caffeinate -dims                 # 맥이 잠들면 접속도 수집도 멈춘다
+/opt/homebrew/opt/tailscale/bin/tailscaled --tun=userspace-networking   --statedir=$HOME/.tailscale-state --socket=$HOME/.tailscale-state/tailscaled.sock
+```
 
-3. 폰에서 `http://<맥이름>.ts.net:8110`. 같은 와이파이에서는 `http://<맥 IP>:8110`.
+관리자 권한이 없어 **사용자 모드(userspace-networking)** 로 돌립니다. 이 방식은 맥이 사설망에
+직접 붙지는 않고, `tailscale serve`가 받은 요청을 로컬 포트로 넘깁니다. 한 번 설정하면 상태가
+남아 tailscaled를 다시 켜도 유지됩니다.
 
-앱 화면을 고친 뒤에는 `scripts/host.sh`를 다시 돌려야 폰에 반영됩니다.
+```bash
+TS="tailscale --socket=$HOME/.tailscale-state/tailscaled.sock"
+$TS up --hostname=investment-ontology --accept-dns=false   # 로그인 링크가 나온다
+$TS serve --bg --http=8110 http://127.0.0.1:8110           # 앱
+$TS serve --bg --http=8080 http://127.0.0.1:8080           # API
+$TS serve status                                           # 확인
+```
 
-Cloudflare Tunnel로 공개 주소를 쓰려면, `cloudflared`로 8110(앱)과 8080(API)을 각각 도메인에 붙이고 Cloudflare Access로 잠급니다. 이때는 https라 자동 감지가 꺼지므로 `flutter build web --dart-define=SERVER_URL=https://<API 도메인>/`로 빌드합니다.
+`--http=` 로 열면 인증서가 필요 없습니다 (사설망 안이라 그대로 씁니다). 관리자 권한이 있으면
+Tailscale 맥 앱을 설치하는 쪽이 간단하고, 그때는 `serve` 없이 `http://<맥이름>:8110` 로 바로 붙습니다.
+
+### 폰에서
+
+App Store에서 Tailscale을 설치하고 같은 계정으로 로그인한 뒤 위 주소를 엽니다. 홈 화면에 추가하면 앱처럼 씁니다.
+
+앱 화면을 고친 뒤에는 `scripts/host.sh` 를 다시 돌려야 폰에 반영됩니다.
 
 ## B. 작은 서버 (VPS)
 
