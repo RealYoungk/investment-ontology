@@ -36,7 +36,6 @@ import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
 import '../auth/email_idp_endpoint.dart' as _iuc1hd5t;
 import '../auth/jwt_refresh_endpoint.dart' as _inwq3ztq;
 import '../greetings/greeting_endpoint.dart' as _il624ik7;
-import '../ontology/endpoints/ai_endpoint.dart' as _iadofkda;
 import '../ontology/endpoints/company_endpoint.dart' as _itnisr3u;
 import '../ontology/endpoints/disclosure_endpoint.dart' as _i23b9rs7;
 import '../ontology/endpoints/financial_endpoint.dart' as _ipit2z9y;
@@ -70,12 +69,6 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'greeting',
-          null,
-        ),
-      'ai': _iadofkda.AiEndpoint()
-        ..initialize(
-          server,
-          'ai',
           null,
         ),
       'company': _itnisr3u.CompanyEndpoint()
@@ -373,186 +366,6 @@ class Endpoints extends _is.EndpointDispatch {
                     session,
                     params['name'],
                   ),
-        ),
-      },
-    );
-    connectors['ai'] = _is.EndpointConnector(
-      name: 'ai',
-      endpoint: endpoints['ai']!,
-      methodConnectors: {
-        'status': _is.MethodConnector(
-          name: 'status',
-          params: {},
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['ai'] as _iadofkda.AiEndpoint).status(session),
-        ),
-        'extractCompany': _is.MethodConnector(
-          name: 'extractCompany',
-          params: {
-            'corpCode': _is.ParameterDescription(
-              name: 'corpCode',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['ai'] as _iadofkda.AiEndpoint).extractCompany(
-                    session,
-                    params['corpCode'],
-                  ),
-        ),
-        'startBatch': _is.MethodConnector(
-          name: 'startBatch',
-          params: {
-            'limit': _is.ParameterDescription(
-              name: 'limit',
-              type: _is.getType<int?>(),
-              nullable: true,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['ai'] as _iadofkda.AiEndpoint).startBatch(
-                session,
-                limit: params['limit'],
-              ),
-        ),
-        'pending': _is.MethodConnector(
-          name: 'pending',
-          params: {
-            'limit': _is.ParameterDescription(
-              name: 'limit',
-              type: _is.getType<int?>(),
-              nullable: true,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['ai'] as _iadofkda.AiEndpoint).pending(
-                session,
-                limit: params['limit'],
-              ),
-        ),
-        'documentText': _is.MethodConnector(
-          name: 'documentText',
-          params: {
-            'documentId': _is.ParameterDescription(
-              name: 'documentId',
-              type: _is.getType<int>(),
-              nullable: false,
-            ),
-            'maxChars': _is.ParameterDescription(
-              name: 'maxChars',
-              type: _is.getType<int?>(),
-              nullable: true,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['ai'] as _iadofkda.AiEndpoint).documentText(
-                session,
-                params['documentId'],
-                maxChars: params['maxChars'],
-              ),
-        ),
-        'documentTexts': _is.MethodConnector(
-          name: 'documentTexts',
-          params: {
-            'limit': _is.ParameterDescription(
-              name: 'limit',
-              type: _is.getType<int?>(),
-              nullable: true,
-            ),
-            'maxChars': _is.ParameterDescription(
-              name: 'maxChars',
-              type: _is.getType<int?>(),
-              nullable: true,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['ai'] as _iadofkda.AiEndpoint).documentTexts(
-                    session,
-                    limit: params['limit'],
-                    maxChars: params['maxChars'],
-                  ),
-        ),
-        'submit': _is.MethodConnector(
-          name: 'submit',
-          params: {
-            'documentId': _is.ParameterDescription(
-              name: 'documentId',
-              type: _is.getType<int>(),
-              nullable: false,
-            ),
-            'answer': _is.ParameterDescription(
-              name: 'answer',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-            'model': _is.ParameterDescription(
-              name: 'model',
-              type: _is.getType<String?>(),
-              nullable: true,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['ai'] as _iadofkda.AiEndpoint).submit(
-                session,
-                params['documentId'],
-                params['answer'],
-                model: params['model'],
-              ),
-        ),
-        'submitFacts': _is.MethodConnector(
-          name: 'submitFacts',
-          params: {
-            'documentId': _is.ParameterDescription(
-              name: 'documentId',
-              type: _is.getType<int>(),
-              nullable: false,
-            ),
-            'answer': _is.ParameterDescription(
-              name: 'answer',
-              type: _is.getType<String>(),
-              nullable: false,
-            ),
-            'model': _is.ParameterDescription(
-              name: 'model',
-              type: _is.getType<String?>(),
-              nullable: true,
-            ),
-          },
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async => (endpoints['ai'] as _iadofkda.AiEndpoint).submitFacts(
-                session,
-                params['documentId'],
-                params['answer'],
-                model: params['model'],
-              ),
         ),
       },
     );

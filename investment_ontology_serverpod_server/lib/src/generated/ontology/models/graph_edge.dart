@@ -11,6 +11,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _is;
+
 import '../../ontology/models/relation_predicate.dart' as _iqv2n0qs;
 
 /// 관계망 간선 (방향: from → to).

@@ -11,6 +11,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _is;
+
 import '../../ontology/models/disclosure_link_basis.dart' as _i0btqt1b;
 
 /// 최대주주 및 특수관계인 한 행 (최대주주 현황 hyslrSttus).
