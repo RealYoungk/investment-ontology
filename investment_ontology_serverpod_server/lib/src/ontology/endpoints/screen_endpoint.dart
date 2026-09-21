@@ -27,6 +27,13 @@ class ScreenEndpoint extends Endpoint {
     'ifrs-full_Liabilities',
   ];
 
+  /// 지난 계산을 버린다 (테스트에서 쓴다).
+  static void clearCache() {
+    _cacheKey = null;
+    _cache = null;
+    _baseDate = null;
+  }
+
   static String? _cacheKey;
   static List<ScreenRow>? _cache;
   static DateTime? _baseDate;
