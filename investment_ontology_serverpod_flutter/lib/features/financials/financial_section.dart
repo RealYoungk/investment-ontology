@@ -234,7 +234,14 @@ class _FinancialSectionState extends State<FinancialSection> {
           if (revenue.length < 3) return const SizedBox.shrink();
           return Padding(
             padding: const EdgeInsets.only(top: AppSpace.xl),
-            child: _TrailingChart(revenue: revenue, operating: operating),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _TrailingChart(revenue: revenue, operating: operating),
+                const SizedBox(height: AppSpace.lg),
+                _TrailingRatios(rows: view.trailingRatios()),
+              ],
+            ),
           );
         }(),
         if (_period == _Period.annual) ...[
@@ -399,6 +406,51 @@ class _TrendCharts extends StatelessWidget {
         ],
         const SizedBox(height: AppSpace.md),
         _PointTable(points: points),
+      ],
+    );
+  }
+}
+
+/// 분기마다의 최근 12개월 이익률. 계절을 걷어 낸 수익성 흐름이다.
+class _TrailingRatios extends StatelessWidget {
+  const _TrailingRatios({required this.rows});
+
+  final List<({String label, double? margin, double? netMargin, double? roe})>
+  rows;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    if (rows.length < 3) return const SizedBox.shrink();
+    final series = [
+      ChartSeries(
+        label: '영업이익률',
+        color: c.chartSeries2,
+        values: [for (final r in rows) r.margin],
+      ),
+      ChartSeries(
+        label: '순이익률',
+        color: c.chartSeries1,
+        values: [for (final r in rows) r.netMargin],
+      ),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          '수익성 추이 · 최근 12개월끼리 나눈 값',
+          style: t.body(13, weight: FontWeight.w600),
+        ),
+        const SizedBox(height: AppSpace.xs),
+        ChartLegend(series: series),
+        const SizedBox(height: AppSpace.sm),
+        AppLineChart.many(
+          categories: [for (final r in rows) r.label],
+          series: series,
+          formatValue: (v) => '${v.toStringAsFixed(0)}%',
+          height: 150,
+        ),
       ],
     );
   }

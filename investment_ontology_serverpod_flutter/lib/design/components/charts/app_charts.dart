@@ -382,9 +382,17 @@ class AppLineChart extends _CategoryChart {
     this.includeZeroBaseline = true,
   }) : super(series: [series]);
 
-  final bool includeZeroBaseline;
+  /// 선을 여러 개 (이익률·순이익률·ROE처럼 단위가 같은 것끼리).
+  const AppLineChart.many({
+    super.key,
+    required super.categories,
+    required super.series,
+    required super.formatValue,
+    super.height = 140,
+    this.includeZeroBaseline = true,
+  });
 
-  ChartSeries get _line => series.first;
+  final bool includeZeroBaseline;
 
   @override
   bool get includeZero => includeZeroBaseline;
@@ -399,8 +407,8 @@ class AppLineChart extends _CategoryChart {
   ) {
     final n = categories.length;
     final band = plot.width / n;
-    Offset? point(int i) {
-      final v = _line.values[i];
+    Offset? pointOf(ChartSeries s, int i) {
+      final v = s.values[i];
       if (v == null) return null;
       return Offset(
         plot.left + band * (i + 0.5),
@@ -408,24 +416,26 @@ class AppLineChart extends _CategoryChart {
       );
     }
 
-    final line = Paint()
-      ..color = _line.color
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke
-      ..strokeJoin = StrokeJoin.round
-      ..strokeCap = StrokeCap.round;
-    final path = Path();
-    var open = false;
-    for (var i = 0; i < n; i++) {
-      final p = point(i);
-      if (p == null) {
-        open = false;
-        continue;
+    for (final s in series) {
+      final line = Paint()
+        ..color = s.color
+        ..strokeWidth = 2
+        ..style = PaintingStyle.stroke
+        ..strokeJoin = StrokeJoin.round
+        ..strokeCap = StrokeCap.round;
+      final path = Path();
+      var open = false;
+      for (var i = 0; i < n; i++) {
+        final p = pointOf(s, i);
+        if (p == null) {
+          open = false;
+          continue;
+        }
+        open ? path.lineTo(p.dx, p.dy) : path.moveTo(p.dx, p.dy);
+        open = true;
       }
-      open ? path.lineTo(p.dx, p.dy) : path.moveTo(p.dx, p.dy);
-      open = true;
+      canvas.drawPath(path, line);
     }
-    canvas.drawPath(path, line);
 
     if (hovered != null) {
       final x = plot.left + band * (hovered + 0.5);
@@ -437,12 +447,15 @@ class AppLineChart extends _CategoryChart {
           ..strokeWidth = 1,
       );
     }
-    for (var i = 0; i < n; i++) {
-      final p = point(i);
-      if (p == null) continue;
-      final r = i == hovered ? 5.0 : 4.0;
-      canvas.drawCircle(p, r + 2, Paint()..color = colors.surface);
-      canvas.drawCircle(p, r, Paint()..color = _line.color);
+    // 점은 선이 하나일 때만 (여러 개면 지저분하다).
+    if (series.length == 1) {
+      for (var i = 0; i < n; i++) {
+        final p = pointOf(series.first, i);
+        if (p == null) continue;
+        final r = i == hovered ? 5.0 : 4.0;
+        canvas.drawCircle(p, r + 2, Paint()..color = colors.surface);
+        canvas.drawCircle(p, r, Paint()..color = series.first.color);
+      }
     }
   }
 }

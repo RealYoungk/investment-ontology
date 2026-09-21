@@ -320,6 +320,34 @@ class FinancialView {
     return out;
   }
 
+  /// 분기마다의 최근 12개월 기준 이익률과 ROE.
+  ///
+  /// 이익률은 같은 12개월끼리 나누고, ROE는 그 시점 기말 자본으로 나눈다
+  /// (기업 머리의 지표와 같은 규칙).
+  List<({String label, double? margin, double? netMargin, double? roe})>
+  trailingRatios() {
+    final out =
+        <({String label, double? margin, double? netMargin, double? roe})>[];
+    for (final p in data.periods) {
+      final revenue = _trailingAt(p, 'revenue');
+      final operating = _trailingAt(p, 'operatingIncome');
+      final net = _trailingAt(p, netIncomeKey);
+      final equity = line(p, equityKey)?.amount?.toDouble();
+      if (revenue == null && net == null) continue;
+      double? over(double? a, double? b) =>
+          a == null || b == null || b <= 0 ? null : 100 * a / b;
+      out.add((
+        label: p.reportCode == FinancialReportCode.annual
+            ? '${p.bsnsYear}'
+            : "${p.bsnsYear % 100}.${reportCodeLabel(p.reportCode)}",
+        margin: over(operating, revenue),
+        netMargin: over(net, revenue),
+        roe: over(net, equity),
+      ));
+    }
+    return out;
+  }
+
   /// 이 보고서 시점의 최근 12개월 값.
   double? _trailingAt(FinancialPeriod p, String key) {
     if (p.reportCode == FinancialReportCode.annual) {
