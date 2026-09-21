@@ -471,9 +471,10 @@ class _GraphList extends StatelessWidget {
         (RelationPredicate.investsIn, false) => '지분을 가진 곳',
         (RelationPredicate.executiveOf, true) => '임원',
         (RelationPredicate.executiveOf, false) => '임원으로 있는 곳',
-        (RelationPredicate.suppliesTo, _) => '공급 (AI)',
-        (RelationPredicate.competesWith, _) => '경쟁 (AI)',
-        (RelationPredicate.produces, _) => '제품 (AI)',
+        (RelationPredicate.suppliesTo, true) => '공급처',
+        (RelationPredicate.suppliesTo, false) => '매출처',
+        (RelationPredicate.competesWith, _) => '경쟁',
+        (RelationPredicate.produces, _) => '제품',
       };
       if (!fromCenter && !toCenter) {
         groups.putIfAbsent('건너편 관계', () => []).add((other, e, false));
