@@ -1,9 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 
 import '../design/components/components.dart';
 import '../design/tokens.dart';
+import '../client.dart';
+import '../features/financials/financial_metrics.dart';
 import 'ingest_monitor.dart';
+import 'router.dart';
 
 /// 맨 위 메뉴 한 칸.
 class _Destination {
@@ -138,6 +144,10 @@ class _TopBar extends StatelessWidget {
                       ? const _IngestIndicator()
                       : null,
                 ),
+              if (constraints.maxWidth >= 1100) ...[
+                const Spacer(),
+                const Center(child: _GlobalSearch()),
+              ],
             ],
           ),
         );
@@ -217,6 +227,164 @@ class _IngestIndicator extends StatelessWidget {
               ),
             )
           : const SizedBox.shrink(),
+    );
+  }
+}
+
+/// 어느 화면에서든 기업으로 바로 가는 검색.
+class _GlobalSearch extends StatefulWidget {
+  const _GlobalSearch();
+
+  @override
+  State<_GlobalSearch> createState() => _GlobalSearchState();
+}
+
+class _GlobalSearchState extends State<_GlobalSearch> {
+  final _controller = TextEditingController();
+  final _focus = FocusNode();
+  final _link = LayerLink();
+  OverlayEntry? _overlay;
+  List<CompanyListItem> _results = const [];
+  Timer? _debounce;
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _overlay?.remove();
+    _controller.dispose();
+    _focus.dispose();
+    super.dispose();
+  }
+
+  void _search(String q) {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 200), () async {
+      final query = q.trim();
+      if (query.isEmpty) {
+        _setResults(const []);
+        return;
+      }
+      try {
+        final page = await client.company.list(
+          query: query,
+          sort: CompanySort.marketCap,
+          limit: 8,
+        );
+        if (mounted && _controller.text.trim() == query) {
+          _setResults(page.items);
+        }
+      } catch (_) {}
+    });
+  }
+
+  void _setResults(List<CompanyListItem> items) {
+    _results = items;
+    _overlay?.remove();
+    _overlay = null;
+    if (items.isEmpty) return;
+    _overlay = OverlayEntry(builder: _buildOverlay);
+    Overlay.of(context).insert(_overlay!);
+  }
+
+  void _open(CompanyListItem item) {
+    _controller.clear();
+    _focus.unfocus();
+    _setResults(const []);
+    context.push(AppRoutes.company(item.corpCode));
+  }
+
+  Widget _buildOverlay(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    return Positioned(
+      width: 320,
+      child: CompositedTransformFollower(
+        link: _link,
+        showWhenUnlinked: false,
+        targetAnchor: Alignment.bottomRight,
+        followerAnchor: Alignment.topRight,
+        offset: const Offset(0, 4),
+        child: Material(
+          color: c.surface,
+          elevation: 4,
+          borderRadius: context.shape.borderRadius,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final item in _results)
+                HoverBuilder(
+                  onTap: () => _open(item),
+                  builder: (context, hovered) => Container(
+                    color: hovered ? c.surfaceHover : Colors.transparent,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpace.md,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 64,
+                          child: Text(
+                            item.stockCode ?? '',
+                            style: t.numeric(12, color: c.textSecondary),
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            item.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: t.body(13.5),
+                          ),
+                        ),
+                        Text(
+                          item.marketCap == null
+                              ? ''
+                              : formatKrw(item.marketCap),
+                          style: t.numeric(11.5, color: c.textMuted),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    return CompositedTransformTarget(
+      link: _link,
+      child: SizedBox(
+        width: 260,
+        height: 36,
+        child: TextField(
+          controller: _controller,
+          focusNode: _focus,
+          onChanged: _search,
+          onSubmitted: (_) {
+            if (_results.isNotEmpty) _open(_results.first);
+          },
+          onTapOutside: (_) {
+            _focus.unfocus();
+            Future<void>.delayed(
+              const Duration(milliseconds: 150),
+              () => _setResults(const []),
+            );
+          },
+          style: t.body(13.5),
+          decoration: InputDecoration(
+            isDense: true,
+            hintText: '기업 바로 가기',
+            prefixIcon: Icon(Icons.search, size: 18, color: c.textSecondary),
+          ),
+        ),
+      ),
     );
   }
 }
