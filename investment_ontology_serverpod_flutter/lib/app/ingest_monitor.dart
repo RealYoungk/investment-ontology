@@ -53,18 +53,18 @@ class IngestMonitor {
 
   Future<void> _tick() async {
     try {
-      final jobs = await Future.wait([
-        for (final kind in kinds) client.ingest.latestOf(kind),
-      ]);
+      // 종류마다 따로 묻지 않고 한 번에 (15초마다 도는 확인이다).
+      final found = await client.ingest.latestOfKinds(kinds);
+      final byKind = {for (final j in found) j.kind: j};
       var finished = false;
-      for (final (i, kind) in kinds.indexed) {
-        final job = jobs[i];
+      for (final kind in kinds) {
+        final job = byKind[kind];
         if (_seen.containsKey(kind) && _finishedSince(_seen[kind], job)) {
           finished = true;
         }
         _seen[kind] = job;
       }
-      running.value = jobs.any((j) => j?.status == IngestStatus.running);
+      running.value = found.any((j) => j.status == IngestStatus.running);
       if (finished) dataVersion.value++;
     } catch (_) {
       // 일시적인 연결 오류는 다음 확인에서 다시 시도.

@@ -189,6 +189,15 @@ class IngestEndpoint extends Endpoint {
   Future<IngestJob?> latestOf(Session session, String kind) =>
       IngestJobs.latest(session, kind);
 
+  /// 여러 종류의 마지막 작업을 한 번에. 앱이 15초마다 부르므로 왕복을 한 번으로 줄인다.
+  /// 없는 종류는 빠지므로 `kind`로 맞춰 읽는다.
+  Future<List<IngestJob>> latestOfKinds(
+    Session session,
+    List<String> kinds,
+  ) async => [
+    for (final kind in kinds) ?await IngestJobs.latest(session, kind),
+  ];
+
   static void _requireDartKey(Session session) {
     if (DartApiKey.read(session) == null) {
       throw IngestException(

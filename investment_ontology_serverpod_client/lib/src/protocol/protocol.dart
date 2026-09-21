@@ -23,6 +23,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _icfgas7c;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/filing_feed_item.dart'
     as _iuq4bocx;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ingest_job.dart'
+    as _i1paap7y;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/investment_theme.dart'
     as _izhmhfon;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/person_hit.dart'
@@ -1200,14 +1202,20 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
-    if (t == List<_ihqozc6p.ReviewItem>) {
+    if (t == List<_i1paap7y.IngestJob>) {
       return (data as List)
-              .map((e) => deserialize<_ihqozc6p.ReviewItem>(e))
+              .map((e) => deserialize<_i1paap7y.IngestJob>(e))
               .toList()
           as T;
     }
     if (t == List<String>) {
       return (data as List).map((e) => deserialize<String>(e)).toList() as T;
+    }
+    if (t == List<_ihqozc6p.ReviewItem>) {
+      return (data as List)
+              .map((e) => deserialize<_ihqozc6p.ReviewItem>(e))
+              .toList()
+          as T;
     }
     if (t == _isc.getType<List<String>?>()) {
       return (data != null

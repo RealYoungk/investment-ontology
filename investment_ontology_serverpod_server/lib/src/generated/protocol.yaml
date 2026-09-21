@@ -54,6 +54,7 @@ ingest:
   - coverage:
   - latest:
   - latestOf:
+  - latestOfKinds:
 market:
   - industryTreemap:
 review:

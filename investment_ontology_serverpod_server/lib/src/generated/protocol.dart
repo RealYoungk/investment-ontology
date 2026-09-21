@@ -23,6 +23,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _iee4t190;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/filing_feed_item.dart'
     as _iwgt3edw;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/ingest_job.dart'
+    as _idt86amb;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/investment_theme.dart'
     as _in6y0ur2;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/person_hit.dart'
@@ -5050,14 +5052,20 @@ class Protocol extends _is.DatabaseSerializationManager {
               .toList()
           as T;
     }
-    if (t == List<_ip1s5ejx.ReviewItem>) {
+    if (t == List<_idt86amb.IngestJob>) {
       return (data as List)
-              .map((e) => deserialize<_ip1s5ejx.ReviewItem>(e))
+              .map((e) => deserialize<_idt86amb.IngestJob>(e))
               .toList()
           as T;
     }
     if (t == List<String>) {
       return (data as List).map((e) => deserialize<String>(e)).toList() as T;
+    }
+    if (t == List<_ip1s5ejx.ReviewItem>) {
+      return (data as List)
+              .map((e) => deserialize<_ip1s5ejx.ReviewItem>(e))
+              .toList()
+          as T;
     }
     if (t == _is.getType<List<String>?>()) {
       return (data != null

@@ -1160,6 +1160,25 @@ class Endpoints extends _is.EndpointDispatch {
                     params['kind'],
                   ),
         ),
+        'latestOfKinds': _is.MethodConnector(
+          name: 'latestOfKinds',
+          params: {
+            'kinds': _is.ParameterDescription(
+              name: 'kinds',
+              type: _is.getType<List<String>>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['ingest'] as _icbircc0.IngestEndpoint)
+                  .latestOfKinds(
+                    session,
+                    params['kinds'],
+                  ),
+        ),
       },
     );
     connectors['market'] = _is.EndpointConnector(

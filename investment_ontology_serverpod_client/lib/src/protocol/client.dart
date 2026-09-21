@@ -812,6 +812,15 @@ class EndpointIngest extends _isc.EndpointRef {
         'latestOf',
         {'kind': kind},
       );
+
+  /// 여러 종류의 마지막 작업을 한 번에. 앱이 15초마다 부르므로 왕복을 한 번으로 줄인다.
+  /// 없는 종류는 빠지므로 `kind`로 맞춰 읽는다.
+  _ida.Future<List<_i1paap7y.IngestJob>> latestOfKinds(List<String> kinds) =>
+      caller.callServerEndpoint<List<_i1paap7y.IngestJob>>(
+        'ingest',
+        'latestOfKinds',
+        {'kinds': kinds},
+      );
 }
 
 /// 시세 조회.

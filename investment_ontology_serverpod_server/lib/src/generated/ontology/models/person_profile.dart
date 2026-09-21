@@ -13,7 +13,6 @@
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart'
     as _i4yshtjp;
 import 'package:serverpod/serverpod.dart' as _is;
-
 import '../../ontology/models/person.dart' as _ici34sqw;
 import '../../ontology/models/person_role.dart' as _i9dsdzhy;
 
