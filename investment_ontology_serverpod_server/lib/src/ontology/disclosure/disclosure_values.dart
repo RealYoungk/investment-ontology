@@ -64,13 +64,17 @@ abstract final class DisclosureValues {
   }
 
   /// 출생년월 `1960년 12월`, `1960.12` → (1960, 12).
-  static ({int year, int month})? yearMonth(Object? value) {
+  ///
+  /// 공시에 `2068년 01월`처럼 오타가 있다. 앞으로 올 해는 태어난 해일 수 없어 버린다
+  /// (인물을 (이름, 출생년월)로 잇기 때문에 잘못된 값이 남으면 다른 사람이 된다).
+  static ({int year, int month})? yearMonth(Object? value, {int? thisYear}) {
     final v = DartValues.text(value);
     if (v == null) return null;
     final m = RegExp(r'^(\d{4})\s*[.\-년]\s*(\d{1,2})\s*월?$').firstMatch(v);
     if (m == null) return null;
     final year = int.parse(m[1]!), month = int.parse(m[2]!);
-    if (year < 1900 || month < 1 || month > 12) return null;
+    if (year < 1900 || year > (thisYear ?? DateTime.now().year)) return null;
+    if (month < 1 || month > 12) return null;
     return (year: year, month: month);
   }
 
