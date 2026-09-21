@@ -84,7 +84,7 @@ class _ComparePageState extends State<ComparePage> {
         const PageHeading(
           eyebrow: 'INVESTMENT ONTOLOGY · 비교',
           title: '기업 비교',
-          subtitle: '최대 4곳을 나란히 놓고 봅니다. 지표는 가장 최근 연결 사업보고서와 최근 시세로 계산합니다.',
+          subtitle: '최대 4곳을 나란히 놓고 봅니다. 지표는 최근 12개월(TTM) 연결 실적과 최근 시세로 계산합니다.',
         ),
         const SizedBox(height: AppSpace.xl),
         _AddCompany(
@@ -140,11 +140,11 @@ class _CompareTable extends StatelessWidget {
       ('PBR', (r) => formatTimes(r.pbr)),
       ('ROE', (r) => pct(r.roe)),
       ('영업이익률', (r) => pct(r.operatingMargin)),
-      ('매출액', (r) => formatKrw(r.revenue)),
-      ('영업이익', (r) => formatKrw(r.operatingIncome)),
-      ('지배주주 순이익', (r) => formatKrw(r.netIncome)),
+      ('매출액(TTM)', (r) => formatKrw(r.revenue)),
+      ('영업이익(TTM)', (r) => formatKrw(r.operatingIncome)),
+      ('지배주주 순이익(TTM)', (r) => formatKrw(r.netIncome)),
       ('지배주주 자본', (r) => formatKrw(r.equity)),
-      ('기준 사업연도', (r) => 'FY${r.bsnsYear}'),
+      ('최근 보고서', (r) => 'FY${r.bsnsYear}'),
     ];
     return AppDataTable(
       columns: [

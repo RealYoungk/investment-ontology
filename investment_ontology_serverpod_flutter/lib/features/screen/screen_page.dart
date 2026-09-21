@@ -99,7 +99,8 @@ class _ScreenerPageState extends State<ScreenerPage> {
           eyebrow: 'INVESTMENT ONTOLOGY · 스크리너',
           title: '스크리너',
           subtitle:
-              '가장 최근 연결 사업보고서와 최근 시세로 계산합니다. 값이 없는 기업(적자·자본잠식·'
+              '최근 12개월(TTM) 연결 실적과 최근 시세로 계산합니다 — 기업 화면과 같은 기준입니다. '
+              '값이 없는 기업(적자·자본잠식·'
               '표준계정 미사용)은 그 조건을 걸면 빠집니다'
               '${page?.baseDate == null ? '' : ' · 시세 ${formatDate(page!.baseDate)}'}'
               '${page == null ? '' : ' · 계산 가능 ${formatCount(page.universe)}개사'}',
@@ -206,7 +207,9 @@ class _ScreenerPageState extends State<ScreenerPage> {
           Text(
             'PER = 시가총액 ÷ 지배주주 당기순이익 · PBR = 시가총액 ÷ 지배주주 자본 · '
             'ROE = 지배주주 순이익 ÷ 지배주주 자본 · 영업이익률 = 영업이익 ÷ 매출액. '
-            '모두 연결 기준이며, 지배주주 값이 없으면 전체 값을 씁니다. 표준계정(XBRL)으로만 찾으므로 '
+            '손익 항목은 최근 12개월 합계(사업보고서면 그 해, 아니면 전년 연간 + 올해 누적 − 전년 같은 기간 '
+            '누적)이고 자본은 최근 보고서 시점 값입니다. 모두 연결 기준이며, 지배주주 값이 없으면 전체 값을 씁니다. '
+            '표준계정(XBRL)으로만 찾으므로 '
             '금융업 등 일부 기업은 매출·영업이익이 비어 보일 수 있습니다.',
             style: t.body(11.5, color: c.textMuted),
           ),
@@ -236,9 +239,9 @@ class _ResultTable extends StatelessWidget {
         AppColumn('PBR(배)', numeric: true),
         AppColumn('ROE(%)', numeric: true),
         AppColumn('영업이익률(%)', numeric: true),
-        AppColumn('매출액', numeric: true),
-        AppColumn('영업이익', numeric: true),
-        AppColumn('사업연도'),
+        AppColumn('매출액(TTM)', numeric: true),
+        AppColumn('영업이익(TTM)', numeric: true),
+        AppColumn('최근 보고서'),
       ],
       rows: [
         for (final r in page.items)

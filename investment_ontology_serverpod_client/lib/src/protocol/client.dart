@@ -916,8 +916,10 @@ class EndpointReview extends _isc.EndpointRef {
 
 /// 재무·시세로 기업을 거르는 스크리닝.
 ///
-/// 지표(PER·PBR·ROE·영업이익률)는 저장하지 않는다. 조회할 때 가장 최근 연결
-/// 사업보고서의 원천 값과 최근 시가총액으로 계산하고, 계산에 쓴 값도 같이 돌려준다.
+/// 지표(PER·PBR·ROE·영업이익률)는 저장하지 않는다. 최근 12개월(TTM) 원천 값과 최근
+/// 시가총액으로 계산하고, 계산에 쓴 값도 같이 돌려준다. 기업 화면의 지표와 같은 기준이다.
+///
+/// 전 상장사를 한 번 계산해 두고(데이터가 바뀌면 다시), 거르기·정렬은 메모리에서 한다.
 /// {@category Endpoint}
 class EndpointScreen extends _isc.EndpointRef {
   EndpointScreen(_isc.EndpointCaller caller) : super(caller);

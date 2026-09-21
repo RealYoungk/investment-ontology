@@ -171,9 +171,22 @@ class _CompanyPageState extends State<CompanyPage> {
             onOpenMetric: (key) => _openFinancials(metric: key),
           ),
           const SizedBox(height: AppSpace.md),
-          _ThemeChips(
-            key: ValueKey('themes-$_version'),
-            corpCode: widget.corpCode,
+          Wrap(
+            spacing: AppSpace.lg,
+            runSpacing: AppSpace.sm,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              _ThemeChips(
+                key: ValueKey('themes-$_version'),
+                corpCode: widget.corpCode,
+              ),
+              AppButton(
+                label: '다른 기업과 비교 →',
+                variant: AppButtonVariant.link,
+                onPressed: () =>
+                    context.push(AppRoutes.compare([widget.corpCode])),
+              ),
+            ],
           ),
           const SizedBox(height: AppSpace.lg),
           AppTabBar<CompanyTab>(
