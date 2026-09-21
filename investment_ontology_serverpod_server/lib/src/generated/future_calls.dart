@@ -12,10 +12,8 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _ida;
-
 import 'package:clock/clock.dart' as _io0w16m8;
 import 'package:serverpod/serverpod.dart' as _is;
-
 import '../ontology/ai/ai_extraction_future_call.dart' as _ifdlgs52;
 import '../ontology/ingest/company_master_future_call.dart' as _iouuus1c;
 import '../ontology/ingest/disclosure_future_call.dart' as _itvp2mss;
@@ -37,10 +35,8 @@ import 'future_calls_generated_models/market_snapshot_future_call_run_model.dart
     as _i7jjkv72;
 
 /// Invokes a future call.
-typedef _InvokeFutureCall = Future<void> Function(
-  String name,
-  _is.SerializableModel? object,
-);
+typedef _InvokeFutureCall =
+    Future<void> Function(String name, _is.SerializableModel? object);
 
 extension ServerpodFutureCallsGetter on _is.Serverpod {
   /// Generated future calls.

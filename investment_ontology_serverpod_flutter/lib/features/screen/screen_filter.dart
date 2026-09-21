@@ -9,6 +9,9 @@ class ScreenFilter {
     this.pbrMax,
     this.roeMin,
     this.marginMin,
+    this.debtMax,
+    this.dividendMin,
+    this.fcfMin,
     this.sort = ScreenSort.marketCap,
     this.ascending = false,
   });
@@ -30,6 +33,9 @@ class ScreenFilter {
       pbrMax: number('pbr'),
       roeMin: number('roe'),
       marginMin: number('margin'),
+      debtMax: number('debt'),
+      dividendMin: number('div'),
+      fcfMin: number('fcf'),
       sort: ScreenSort.values.asNameMap()[q['sort']] ?? ScreenSort.marketCap,
       ascending: q['asc'] == '1',
     );
@@ -40,11 +46,20 @@ class ScreenFilter {
   final double? pbrMax;
   final double? roeMin;
   final double? marginMin;
+  final double? debtMax;
+  final double? dividendMin;
+  final double? fcfMin;
   final ScreenSort sort;
   final bool ascending;
 
   bool get hasCondition =>
-      perMax != null || pbrMax != null || roeMin != null || marginMin != null;
+      perMax != null ||
+      pbrMax != null ||
+      roeMin != null ||
+      marginMin != null ||
+      debtMax != null ||
+      dividendMin != null ||
+      fcfMin != null;
 
   ScreenFilter copyWith({
     Market? Function()? market,
@@ -52,6 +67,9 @@ class ScreenFilter {
     double? Function()? pbrMax,
     double? Function()? roeMin,
     double? Function()? marginMin,
+    double? Function()? debtMax,
+    double? Function()? dividendMin,
+    double? Function()? fcfMin,
     ScreenSort? sort,
     bool? ascending,
   }) => ScreenFilter(
@@ -60,6 +78,9 @@ class ScreenFilter {
     pbrMax: pbrMax == null ? this.pbrMax : pbrMax(),
     roeMin: roeMin == null ? this.roeMin : roeMin(),
     marginMin: marginMin == null ? this.marginMin : marginMin(),
+    debtMax: debtMax == null ? this.debtMax : debtMax(),
+    dividendMin: dividendMin == null ? this.dividendMin : dividendMin(),
+    fcfMin: fcfMin == null ? this.fcfMin : fcfMin(),
     sort: sort ?? this.sort,
     ascending: ascending ?? this.ascending,
   );
@@ -71,6 +92,9 @@ class ScreenFilter {
       if (pbrMax case final v?) 'pbr': _trim(v),
       if (roeMin case final v?) 'roe': _trim(v),
       if (marginMin case final v?) 'margin': _trim(v),
+      if (debtMax case final v?) 'debt': _trim(v),
+      if (dividendMin case final v?) 'div': _trim(v),
+      if (fcfMin case final v?) 'fcf': _trim(v),
       if (sort != ScreenSort.marketCap) 'sort': sort.name,
       if (ascending) 'asc': '1',
     };
@@ -89,10 +113,23 @@ class ScreenFilter {
       other.pbrMax == pbrMax &&
       other.roeMin == roeMin &&
       other.marginMin == marginMin &&
+      other.debtMax == debtMax &&
+      other.dividendMin == dividendMin &&
+      other.fcfMin == fcfMin &&
       other.sort == sort &&
       other.ascending == ascending;
 
   @override
-  int get hashCode =>
-      Object.hash(market, perMax, pbrMax, roeMin, marginMin, sort, ascending);
+  int get hashCode => Object.hash(
+    market,
+    perMax,
+    pbrMax,
+    roeMin,
+    marginMin,
+    debtMax,
+    dividendMin,
+    fcfMin,
+    sort,
+    ascending,
+  );
 }

@@ -33,7 +33,6 @@ import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _iacs;
 import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
     as _iais;
-
 import '../auth/email_idp_endpoint.dart' as _iuc1hd5t;
 import '../auth/jwt_refresh_endpoint.dart' as _inwq3ztq;
 import '../greetings/greeting_endpoint.dart' as _il624ik7;
@@ -384,10 +383,12 @@ class Endpoints extends _is.EndpointDispatch {
         'status': _is.MethodConnector(
           name: 'status',
           params: {},
-          call: (
-            _is.Session session,
-            Map<String, dynamic> params,
-          ) async => (endpoints['ai'] as _iadofkda.AiEndpoint).status(session),
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['ai'] as _iadofkda.AiEndpoint).status(session),
         ),
         'extractCompany': _is.MethodConnector(
           name: 'extractCompany',
@@ -1382,6 +1383,21 @@ class Endpoints extends _is.EndpointDispatch {
               type: _is.getType<double?>(),
               nullable: true,
             ),
+            'debtRatioMax': _is.ParameterDescription(
+              name: 'debtRatioMax',
+              type: _is.getType<double?>(),
+              nullable: true,
+            ),
+            'dividendYieldMin': _is.ParameterDescription(
+              name: 'dividendYieldMin',
+              type: _is.getType<double?>(),
+              nullable: true,
+            ),
+            'fcfYieldMin': _is.ParameterDescription(
+              name: 'fcfYieldMin',
+              type: _is.getType<double?>(),
+              nullable: true,
+            ),
             'marketCapMin': _is.ParameterDescription(
               name: 'marketCapMin',
               type: _is.getType<BigInt?>(),
@@ -1421,6 +1437,9 @@ class Endpoints extends _is.EndpointDispatch {
                 pbrMax: params['pbrMax'],
                 roeMin: params['roeMin'],
                 operatingMarginMin: params['operatingMarginMin'],
+                debtRatioMax: params['debtRatioMax'],
+                dividendYieldMin: params['dividendYieldMin'],
+                fcfYieldMin: params['fcfYieldMin'],
                 marketCapMin: params['marketCapMin'],
                 sort: params['sort'],
                 ascending: params['ascending'],

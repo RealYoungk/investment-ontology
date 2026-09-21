@@ -75,6 +75,9 @@ class _ScreenerPageState extends State<ScreenerPage> {
         pbrMax: _f.pbrMax,
         roeMin: _f.roeMin,
         operatingMarginMin: _f.marginMin,
+        debtRatioMax: _f.debtMax,
+        dividendYieldMin: _f.dividendMin,
+        fcfYieldMin: _f.fcfMin,
         sort: _f.sort,
         ascending: _f.ascending,
         limit: 100,
@@ -141,6 +144,21 @@ class _ScreenerPageState extends State<ScreenerPage> {
               value: _f.marginMin,
               onChanged: (v) => _applySoon(_f.copyWith(marginMin: () => v)),
             ),
+            _NumberField(
+              label: '부채비율 % 이하',
+              value: _f.debtMax,
+              onChanged: (v) => _applySoon(_f.copyWith(debtMax: () => v)),
+            ),
+            _NumberField(
+              label: '배당수익률 % 이상',
+              value: _f.dividendMin,
+              onChanged: (v) => _applySoon(_f.copyWith(dividendMin: () => v)),
+            ),
+            _NumberField(
+              label: 'FCF 수익률 % 이상',
+              value: _f.fcfMin,
+              onChanged: (v) => _applySoon(_f.copyWith(fcfMin: () => v)),
+            ),
           ],
         ),
         const SizedBox(height: AppSpace.md),
@@ -158,6 +176,9 @@ class _ScreenerPageState extends State<ScreenerPage> {
                 ScreenSort.pbr: 'PBR',
                 ScreenSort.roe: 'ROE',
                 ScreenSort.operatingMargin: '영업이익률',
+                ScreenSort.debtRatio: '부채비율',
+                ScreenSort.dividendYield: '배당수익률',
+                ScreenSort.fcfYield: 'FCF 수익률',
               },
               // 싼 것·높은 수익성을 먼저 보는 쪽이 자연스럽다.
               onChanged: (s) => _apply(
@@ -206,11 +227,15 @@ class _ScreenerPageState extends State<ScreenerPage> {
           const SizedBox(height: AppSpace.md),
           Text(
             'PER = 시가총액 ÷ 지배주주 당기순이익 · PBR = 시가총액 ÷ 지배주주 자본 · '
-            'ROE = 지배주주 순이익 ÷ 지배주주 자본 · 영업이익률 = 영업이익 ÷ 매출액. '
+            'ROE = 지배주주 순이익 ÷ 지배주주 자본 · 영업이익률 = 영업이익 ÷ 매출액 · '
+            '부채비율 = 부채총계 ÷ 자본총계 · FCF 수익률 = (영업활동 현금흐름 − 유형자산 취득) ÷ 시가총액 · '
+            '배당수익률 = 최근 사업연도 현금배당금총액 ÷ 시가총액. '
             '손익 항목은 최근 12개월 합계(사업보고서면 그 해, 아니면 전년 연간 + 올해 누적 − 전년 같은 기간 '
             '누적)이고 자본은 최근 보고서 시점 값입니다. 모두 연결 기준이며, 지배주주 값이 없으면 전체 값을 씁니다. '
             '표준계정(XBRL)으로만 찾으므로 '
-            '금융업 등 일부 기업은 매출·영업이익이 비어 보일 수 있습니다.',
+            '금융업 등 일부 기업은 매출·영업이익이 비어 보일 수 있고, 영업활동 현금흐름의 성격이 달라 '
+            'FCF 수익률이 지나치게 크게 나올 수 있습니다. 배당수익률은 공시된 배당수익률이 아니라 '
+            '최근 시세로 다시 계산한 값입니다.',
             style: t.body(11.5, color: c.textMuted),
           ),
         ],
@@ -239,6 +264,9 @@ class _ResultTable extends StatelessWidget {
         AppColumn('PBR(배)', numeric: true),
         AppColumn('ROE(%)', numeric: true),
         AppColumn('영업이익률(%)', numeric: true),
+        AppColumn('부채비율(%)', numeric: true),
+        AppColumn('배당수익률(%)', numeric: true),
+        AppColumn('FCF 수익률(%)', numeric: true),
         AppColumn('매출액(TTM)', numeric: true),
         AppColumn('영업이익(TTM)', numeric: true),
         AppColumn('최근 보고서'),
@@ -279,6 +307,21 @@ class _ResultTable extends StatelessWidget {
             AppDataTable.text(
               context,
               r.operatingMargin?.toStringAsFixed(1),
+              numeric: true,
+            ),
+            AppDataTable.text(
+              context,
+              r.debtRatio?.toStringAsFixed(1),
+              numeric: true,
+            ),
+            AppDataTable.text(
+              context,
+              r.dividendYield?.toStringAsFixed(2),
+              numeric: true,
+            ),
+            AppDataTable.text(
+              context,
+              r.fcfYield?.toStringAsFixed(2),
               numeric: true,
             ),
             AppDataTable.text(context, formatKrw(r.revenue), numeric: true),

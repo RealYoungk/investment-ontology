@@ -6,3 +6,6 @@ values:
   - pbr
   - roe
   - operatingMargin
+  - debtRatio
+  - fcfYield
+  - dividendYield

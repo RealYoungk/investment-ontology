@@ -152,8 +152,10 @@ class FinancialView {
   static BigInt? cumulative(FinancialPeriod? p, String key) {
     final l = line(p, key);
     if (l == null) return null;
+    // 현금흐름표는 분기·반기에도 누적만 공시한다 (3개월 값이 따로 없어 amount가 누적이다).
     if (p!.reportCode == FinancialReportCode.annual ||
-        p.reportCode == FinancialReportCode.q1) {
+        p.reportCode == FinancialReportCode.q1 ||
+        l.statement == FinancialStatementKind.cashFlow) {
       return l.cumulativeAmount ?? l.amount;
     }
     return l.cumulativeAmount;

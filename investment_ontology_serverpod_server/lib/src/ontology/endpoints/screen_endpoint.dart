@@ -10,15 +10,21 @@ import '../disclosure/disclosure_links.dart';
 ///
 /// 전 상장사를 한 번 계산해 두고(데이터가 바뀌면 다시), 거르기·정렬은 메모리에서 한다.
 class ScreenEndpoint extends Endpoint {
-  static const _income = [
+  /// 최근 12개월(TTM)로 더하는 계정 — 손익계산서와 현금흐름표.
+  static const _flow = [
     'ifrs-full_Revenue',
     'dart_OperatingIncomeLoss',
     'ifrs-full_ProfitLossAttributableToOwnersOfParent',
     'ifrs-full_ProfitLoss',
+    'ifrs-full_CashFlowsFromUsedInOperatingActivities',
+    'ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities',
   ];
+
+  /// 최근 보고서 기말 값을 쓰는 계정 — 재무상태표.
   static const _balance = [
     'ifrs-full_EquityAttributableToOwnersOfParent',
     'ifrs-full_Equity',
+    'ifrs-full_Liabilities',
   ];
 
   static String? _cacheKey;
@@ -37,6 +43,9 @@ class ScreenEndpoint extends Endpoint {
     double? pbrMax,
     double? roeMin,
     double? operatingMarginMin,
+    double? debtRatioMax,
+    double? dividendYieldMin,
+    double? fcfYieldMin,
     BigInt? marketCapMin,
     ScreenSort? sort,
     bool? ascending,
@@ -56,6 +65,13 @@ class ScreenEndpoint extends Endpoint {
                   (operatingMarginMin == null ||
                       (r.operatingMargin != null &&
                           r.operatingMargin! >= operatingMarginMin)) &&
+                  (debtRatioMax == null ||
+                      (r.debtRatio != null && r.debtRatio! <= debtRatioMax)) &&
+                  (dividendYieldMin == null ||
+                      (r.dividendYield != null &&
+                          r.dividendYield! >= dividendYieldMin)) &&
+                  (fcfYieldMin == null ||
+                      (r.fcfYield != null && r.fcfYield! >= fcfYieldMin)) &&
                   (marketCapMin == null || r.marketCap >= marketCapMin)))
             r,
     ];
@@ -79,6 +95,10 @@ class ScreenEndpoint extends Endpoint {
       ScreenSort.pbr => r.pbr,
       ScreenSort.roe => r.roe,
       ScreenSort.operatingMargin => r.operatingMargin,
+      // 부채비율은 낮을수록 좋으니 기본 정렬(내림차순)에서 낮은 쪽이 앞에 오게 뒤집는다.
+      ScreenSort.debtRatio => r.debtRatio == null ? null : -r.debtRatio!,
+      ScreenSort.fcfYield => r.fcfYield,
+      ScreenSort.dividendYield => r.dividendYield,
     };
     final asc = ascending ?? false;
     rows.sort((a, b) {
@@ -116,7 +136,7 @@ class ScreenEndpoint extends Endpoint {
     final markets = DisclosureLinks.listedMarkets
         .map((m) => "'${m.name}'")
         .join(', ');
-    final income = _income.map((a) => "'$a'").join(', ');
+    final flow = _flow.map((a) => "'$a'").join(', ');
     final balance = _balance.map((a) => "'$a'").join(', ');
     final rows = await session.db.unsafeQuery('''
       WITH rank_code AS (
@@ -129,29 +149,34 @@ class ScreenEndpoint extends Endpoint {
         WHERE r."fsDiv" = 'consolidated'
         ORDER BY r."companyId", r."bsnsYear" DESC, rc.rk DESC
       ), inc AS (
+        -- 누적 값: 사업보고서·1분기와 현금흐름표는 amount가 곧 누적이다
+        -- (현금흐름표에는 3개월 값이 따로 없다). 기업 화면과 같은 규칙.
         SELECT f."companyId" AS id, f."accountId" AS acc, f."bsnsYear" AS y,
                f."reportCode" AS code, f.amount::numeric AS amt,
-               f."cumulativeAmount"::numeric AS cum,
-               f."priorCumulativeAmount"::numeric AS prior
+               CASE WHEN f."reportCode" IN ('annual','q1')
+                      OR f.statement = 'cashFlow'
+                    THEN coalesce(f."cumulativeAmount"::numeric, f.amount::numeric)
+                    ELSE f."cumulativeAmount"::numeric END AS cum
         FROM financial_fact f
         WHERE f."fsDiv" = 'consolidated' AND f."supersededById" IS NULL
-          AND f.statement IN ('incomeStatement','comprehensiveIncome')
-          AND f."accountId" IN ($income)
+          AND f.statement IN ('incomeStatement','comprehensiveIncome','cashFlow')
+          AND f."accountId" IN ($flow)
       ), cur AS (
-        SELECT i.id, i.acc, l.code, max(i.amt) AS amt, max(i.cum) AS cum,
-               max(i.prior) AS prior
+        SELECT i.id, i.acc, l.code, max(i.amt) AS amt, max(i.cum) AS cum
         FROM inc i JOIN latest l ON l.id = i.id AND l.y = i.y AND l.code = i.code
         GROUP BY 1, 2, 3
       ), prev AS (
-        SELECT i.id, i.acc, max(i.amt) AS amt
+        -- 전년 사업보고서(연간)와 전년 같은 기간 누적.
+        SELECT i.id, i.acc,
+               max(i.amt) FILTER (WHERE i.code = 'annual') AS annual,
+               max(i.cum) FILTER (WHERE i.code = l.code) AS same
         FROM inc i JOIN latest l ON l.id = i.id AND i.y = l.y - 1
-        WHERE i.code = 'annual'
-        GROUP BY 1, 2
+        GROUP BY i.id, i.acc, l.code
       ), ttm AS (
         -- 최근 보고서가 사업보고서면 그 값, 아니면 전년 연간 + 올해 누적 − 전년 같은 기간 누적.
         SELECT c.id, c.acc,
                CASE WHEN c.code = 'annual' THEN c.amt
-                    ELSE p.amt + c.cum - c.prior END AS v
+                    ELSE p.annual + c.cum - p.same END AS v
         FROM cur c LEFT JOIN prev p ON p.id = c.id AND p.acc = c.acc
       ), bs AS (
         SELECT f."companyId" AS id, f."accountId" AS acc, max(f.amount::numeric) AS v
@@ -167,6 +192,13 @@ class ScreenEndpoint extends Endpoint {
         WHERE m."baseDate" = (SELECT max("baseDate") FROM market_snapshot_day WHERE "rowCount" > 0)
           AND s."companyId" IS NOT NULL
         GROUP BY 1
+      ), div AS (
+        -- 최근 사업연도의 현금배당금총액 (백만원 → 원).
+        SELECT DISTINCT ON (d."companyId") d."companyId" AS id,
+               d.current * 1000000 AS total
+        FROM dividend_entry d
+        WHERE d.item LIKE '현금배당금총액%' AND d.current IS NOT NULL
+        ORDER BY d."companyId", d."bsnsYear" DESC
       ), metrics AS (
         SELECT c.id, c."corpCode", c.name, c.market, l.y, cap.cap,
           max(t.v) FILTER (WHERE t.acc = 'ifrs-full_Revenue') AS revenue,
@@ -176,16 +208,24 @@ class ScreenEndpoint extends Endpoint {
             max(t.v) FILTER (WHERE t.acc = 'ifrs-full_ProfitLoss')) AS ni,
           coalesce(
             max(b.v) FILTER (WHERE b.acc = 'ifrs-full_EquityAttributableToOwnersOfParent'),
-            max(b.v) FILTER (WHERE b.acc = 'ifrs-full_Equity')) AS eq
+            max(b.v) FILTER (WHERE b.acc = 'ifrs-full_Equity')) AS eq,
+          max(b.v) FILTER (WHERE b.acc = 'ifrs-full_Equity') AS total_eq,
+          max(b.v) FILTER (WHERE b.acc = 'ifrs-full_Liabilities') AS liab,
+          -- 취득액을 음수로 적는 회사가 있어 절댓값으로 뺀다 (기업 화면과 같은 규칙).
+          max(t.v) FILTER (WHERE t.acc = 'ifrs-full_CashFlowsFromUsedInOperatingActivities')
+            - abs(max(t.v) FILTER (WHERE t.acc = 'ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities')) AS fcf,
+          max(dv.total) AS dividend
         FROM company c
         JOIN latest l ON l.id = c.id
         JOIN cap ON cap.id = c.id
         LEFT JOIN ttm t ON t.id = c.id
         LEFT JOIN bs b ON b.id = c.id
+        LEFT JOIN div dv ON dv.id = c.id
         WHERE c.market IN ($markets)
         GROUP BY c.id, c."corpCode", c.name, c.market, l.y, cap.cap
       )
-      SELECT id, "corpCode", name, market, y, cap, revenue, op, ni, eq
+      SELECT id, "corpCode", name, market, y, cap, revenue, op, ni, eq,
+             total_eq, liab, fcf, dividend
       FROM metrics
     ''');
 
@@ -218,10 +258,17 @@ class ScreenEndpoint extends Endpoint {
           operatingIncome: big(r[7]),
           netIncome: big(r[8]),
           equity: big(r[9]),
+          totalEquity: big(r[10]),
+          liabilities: big(r[11]),
+          freeCashFlow: big(r[12]),
+          dividendTotal: big(r[13]),
           per: divide(r[5], r[8]),
           pbr: divide(r[5], r[9]),
           roe: divide(r[8], r[9], scale: 100),
           operatingMargin: divide(r[7], r[6], scale: 100),
+          debtRatio: divide(r[11], r[10], scale: 100),
+          fcfYield: divide(r[12], r[5], scale: 100),
+          dividendYield: divide(r[13], r[5], scale: 100),
         ),
     ];
     _cacheKey = key;

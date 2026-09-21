@@ -27,6 +27,16 @@ void main() {
     );
   });
 
+  test('부채비율·배당·FCF 조건도 주소에 담긴다', () {
+    const filter = ScreenFilter(debtMax: 100, dividendMin: 3, fcfMin: 5);
+    expect(filter.location, '/screen?debt=100&div=3&fcf=5');
+    expect(
+      ScreenFilter.fromQuery({'debt': '100', 'div': '3', 'fcf': '5'}),
+      filter,
+    );
+    expect(filter.hasCondition, isTrue);
+  });
+
   test('조건이 없으면 주소도 깨끗하다', () {
     expect(const ScreenFilter().location, '/screen');
     expect(ScreenFilter.fromQuery(const {}), const ScreenFilter());

@@ -37,7 +37,6 @@ import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _iacs;
 import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
     as _iais;
-
 import 'future_calls_generated_models/ai_extraction_future_call_run_model.dart'
     as _iskveedf;
 import 'future_calls_generated_models/company_master_future_call_run_model.dart'

@@ -16,6 +16,8 @@ import 'package:serverpod_client/serverpod_client.dart' as _isc;
 import '../../ontology/models/company_ref.dart' as _id7z5ov5;
 
 /// 스크리닝 결과 한 줄. 지표는 저장하지 않고 조회할 때 계산하며, 계산에 쓴 값도 함께 준다.
+///
+/// 손익·현금흐름은 최근 12개월(TTM), 재무상태표는 최근 보고서 기말 값이다.
 abstract class ScreenRow
     implements _isc.SerializableModel, _isc.ProtocolSerialization {
   ScreenRow._({
@@ -26,10 +28,17 @@ abstract class ScreenRow
     this.operatingIncome,
     this.netIncome,
     this.equity,
+    this.liabilities,
+    this.totalEquity,
+    this.freeCashFlow,
+    this.dividendTotal,
     this.per,
     this.pbr,
     this.roe,
     this.operatingMargin,
+    this.debtRatio,
+    this.fcfYield,
+    this.dividendYield,
   });
 
   factory ScreenRow({
@@ -40,10 +49,17 @@ abstract class ScreenRow
     BigInt? operatingIncome,
     BigInt? netIncome,
     BigInt? equity,
+    BigInt? liabilities,
+    BigInt? totalEquity,
+    BigInt? freeCashFlow,
+    BigInt? dividendTotal,
     double? per,
     double? pbr,
     double? roe,
     double? operatingMargin,
+    double? debtRatio,
+    double? fcfYield,
+    double? dividendYield,
   }) = _ScreenRowImpl;
 
   factory ScreenRow.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -69,17 +85,36 @@ abstract class ScreenRow
       equity: jsonSerialization['equity'] == null
           ? null
           : _isc.BigIntJsonExtension.fromJson(jsonSerialization['equity']),
+      liabilities: jsonSerialization['liabilities'] == null
+          ? null
+          : _isc.BigIntJsonExtension.fromJson(jsonSerialization['liabilities']),
+      totalEquity: jsonSerialization['totalEquity'] == null
+          ? null
+          : _isc.BigIntJsonExtension.fromJson(jsonSerialization['totalEquity']),
+      freeCashFlow: jsonSerialization['freeCashFlow'] == null
+          ? null
+          : _isc.BigIntJsonExtension.fromJson(
+              jsonSerialization['freeCashFlow'],
+            ),
+      dividendTotal: jsonSerialization['dividendTotal'] == null
+          ? null
+          : _isc.BigIntJsonExtension.fromJson(
+              jsonSerialization['dividendTotal'],
+            ),
       per: (jsonSerialization['per'] as num?)?.toDouble(),
       pbr: (jsonSerialization['pbr'] as num?)?.toDouble(),
       roe: (jsonSerialization['roe'] as num?)?.toDouble(),
       operatingMargin: (jsonSerialization['operatingMargin'] as num?)
           ?.toDouble(),
+      debtRatio: (jsonSerialization['debtRatio'] as num?)?.toDouble(),
+      fcfYield: (jsonSerialization['fcfYield'] as num?)?.toDouble(),
+      dividendYield: (jsonSerialization['dividendYield'] as num?)?.toDouble(),
     );
   }
 
   _id7z5ov5.CompanyRef company;
 
-  /// 지표를 계산한 사업연도 (가장 최근 연결 사업보고서)
+  /// 지표를 계산한 사업연도 (가장 최근 연결 보고서)
   int bsnsYear;
 
   BigInt marketCap;
@@ -92,6 +127,18 @@ abstract class ScreenRow
 
   BigInt? equity;
 
+  /// 부채총계 (최근 기말)
+  BigInt? liabilities;
+
+  /// 자본총계 (최근 기말). 지배주주 자본인 equity와 다르다
+  BigInt? totalEquity;
+
+  /// 잉여현금흐름 = 영업활동 현금흐름 − 유형자산의 취득 (최근 12개월)
+  BigInt? freeCashFlow;
+
+  /// 최근 사업연도 현금배당금총액 (원)
+  BigInt? dividendTotal;
+
   double? per;
 
   double? pbr;
@@ -99,6 +146,15 @@ abstract class ScreenRow
   double? roe;
 
   double? operatingMargin;
+
+  /// 부채총계 ÷ 자본총계 (%)
+  double? debtRatio;
+
+  /// 잉여현금흐름 ÷ 시가총액 (%)
+  double? fcfYield;
+
+  /// 현금배당금총액 ÷ 시가총액 (%)
+  double? dividendYield;
 
   /// Returns a shallow copy of this [ScreenRow]
   /// with some or all fields replaced by the given arguments.
@@ -111,10 +167,17 @@ abstract class ScreenRow
     BigInt? operatingIncome,
     BigInt? netIncome,
     BigInt? equity,
+    BigInt? liabilities,
+    BigInt? totalEquity,
+    BigInt? freeCashFlow,
+    BigInt? dividendTotal,
     double? per,
     double? pbr,
     double? roe,
     double? operatingMargin,
+    double? debtRatio,
+    double? fcfYield,
+    double? dividendYield,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -127,10 +190,17 @@ abstract class ScreenRow
       if (operatingIncome != null) 'operatingIncome': operatingIncome?.toJson(),
       if (netIncome != null) 'netIncome': netIncome?.toJson(),
       if (equity != null) 'equity': equity?.toJson(),
+      if (liabilities != null) 'liabilities': liabilities?.toJson(),
+      if (totalEquity != null) 'totalEquity': totalEquity?.toJson(),
+      if (freeCashFlow != null) 'freeCashFlow': freeCashFlow?.toJson(),
+      if (dividendTotal != null) 'dividendTotal': dividendTotal?.toJson(),
       if (per != null) 'per': per,
       if (pbr != null) 'pbr': pbr,
       if (roe != null) 'roe': roe,
       if (operatingMargin != null) 'operatingMargin': operatingMargin,
+      if (debtRatio != null) 'debtRatio': debtRatio,
+      if (fcfYield != null) 'fcfYield': fcfYield,
+      if (dividendYield != null) 'dividendYield': dividendYield,
     };
   }
 
@@ -145,10 +215,17 @@ abstract class ScreenRow
       if (operatingIncome != null) 'operatingIncome': operatingIncome?.toJson(),
       if (netIncome != null) 'netIncome': netIncome?.toJson(),
       if (equity != null) 'equity': equity?.toJson(),
+      if (liabilities != null) 'liabilities': liabilities?.toJson(),
+      if (totalEquity != null) 'totalEquity': totalEquity?.toJson(),
+      if (freeCashFlow != null) 'freeCashFlow': freeCashFlow?.toJson(),
+      if (dividendTotal != null) 'dividendTotal': dividendTotal?.toJson(),
       if (per != null) 'per': per,
       if (pbr != null) 'pbr': pbr,
       if (roe != null) 'roe': roe,
       if (operatingMargin != null) 'operatingMargin': operatingMargin,
+      if (debtRatio != null) 'debtRatio': debtRatio,
+      if (fcfYield != null) 'fcfYield': fcfYield,
+      if (dividendYield != null) 'dividendYield': dividendYield,
     };
   }
 
@@ -169,10 +246,17 @@ class _ScreenRowImpl extends ScreenRow {
     BigInt? operatingIncome,
     BigInt? netIncome,
     BigInt? equity,
+    BigInt? liabilities,
+    BigInt? totalEquity,
+    BigInt? freeCashFlow,
+    BigInt? dividendTotal,
     double? per,
     double? pbr,
     double? roe,
     double? operatingMargin,
+    double? debtRatio,
+    double? fcfYield,
+    double? dividendYield,
   }) : super._(
          company: company,
          bsnsYear: bsnsYear,
@@ -181,10 +265,17 @@ class _ScreenRowImpl extends ScreenRow {
          operatingIncome: operatingIncome,
          netIncome: netIncome,
          equity: equity,
+         liabilities: liabilities,
+         totalEquity: totalEquity,
+         freeCashFlow: freeCashFlow,
+         dividendTotal: dividendTotal,
          per: per,
          pbr: pbr,
          roe: roe,
          operatingMargin: operatingMargin,
+         debtRatio: debtRatio,
+         fcfYield: fcfYield,
+         dividendYield: dividendYield,
        );
 
   /// Returns a shallow copy of this [ScreenRow]
@@ -199,10 +290,17 @@ class _ScreenRowImpl extends ScreenRow {
     Object? operatingIncome = _Undefined,
     Object? netIncome = _Undefined,
     Object? equity = _Undefined,
+    Object? liabilities = _Undefined,
+    Object? totalEquity = _Undefined,
+    Object? freeCashFlow = _Undefined,
+    Object? dividendTotal = _Undefined,
     Object? per = _Undefined,
     Object? pbr = _Undefined,
     Object? roe = _Undefined,
     Object? operatingMargin = _Undefined,
+    Object? debtRatio = _Undefined,
+    Object? fcfYield = _Undefined,
+    Object? dividendYield = _Undefined,
   }) {
     return ScreenRow(
       company: company ?? this.company.copyWith(),
@@ -214,12 +312,23 @@ class _ScreenRowImpl extends ScreenRow {
           : this.operatingIncome,
       netIncome: netIncome is BigInt? ? netIncome : this.netIncome,
       equity: equity is BigInt? ? equity : this.equity,
+      liabilities: liabilities is BigInt? ? liabilities : this.liabilities,
+      totalEquity: totalEquity is BigInt? ? totalEquity : this.totalEquity,
+      freeCashFlow: freeCashFlow is BigInt? ? freeCashFlow : this.freeCashFlow,
+      dividendTotal: dividendTotal is BigInt?
+          ? dividendTotal
+          : this.dividendTotal,
       per: per is double? ? per : this.per,
       pbr: pbr is double? ? pbr : this.pbr,
       roe: roe is double? ? roe : this.roe,
       operatingMargin: operatingMargin is double?
           ? operatingMargin
           : this.operatingMargin,
+      debtRatio: debtRatio is double? ? debtRatio : this.debtRatio,
+      fcfYield: fcfYield is double? ? fcfYield : this.fcfYield,
+      dividendYield: dividendYield is double?
+          ? dividendYield
+          : this.dividendYield,
     );
   }
 }

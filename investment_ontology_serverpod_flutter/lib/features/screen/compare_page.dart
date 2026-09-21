@@ -140,10 +140,15 @@ class _CompareTable extends StatelessWidget {
       ('PBR', (r) => formatTimes(r.pbr)),
       ('ROE', (r) => pct(r.roe)),
       ('영업이익률', (r) => pct(r.operatingMargin)),
+      ('부채비율', (r) => pct(r.debtRatio)),
+      ('배당수익률', (r) => pct(r.dividendYield)),
+      ('FCF 수익률', (r) => pct(r.fcfYield)),
       ('매출액(TTM)', (r) => formatKrw(r.revenue)),
       ('영업이익(TTM)', (r) => formatKrw(r.operatingIncome)),
       ('지배주주 순이익(TTM)', (r) => formatKrw(r.netIncome)),
       ('지배주주 자본', (r) => formatKrw(r.equity)),
+      ('잉여현금흐름(TTM)', (r) => formatKrw(r.freeCashFlow)),
+      ('현금배당금총액', (r) => formatKrw(r.dividendTotal)),
       ('최근 보고서', (r) => 'FY${r.bsnsYear}'),
     ];
     return AppDataTable(
