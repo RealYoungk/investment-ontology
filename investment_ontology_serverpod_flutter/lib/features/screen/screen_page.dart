@@ -11,31 +11,30 @@ import '../../design/components/components.dart';
 import '../../design/tokens.dart';
 import '../common/formatters.dart';
 import '../financials/financial_metrics.dart';
+import 'screen_filter.dart';
 
 /// 스크리너: 재무·시세로 기업을 거른다.
 ///
 /// 지표는 저장하지 않고 서버가 조회할 때 계산한다. 계산에 쓴 원천 값(매출·영업이익·
 /// 순이익·자본)을 같이 보여 줘서 숫자의 근거를 볼 수 있게 한다.
 class ScreenerPage extends StatefulWidget {
-  const ScreenerPage({super.key});
+  const ScreenerPage({super.key, required this.filter});
+
+  /// 조건은 주소에 남는다 (`/screen?per=10&roe=15`). 북마크·뒤로가기가 된다.
+  final ScreenFilter filter;
 
   @override
   State<ScreenerPage> createState() => _ScreenerPageState();
 }
 
 class _ScreenerPageState extends State<ScreenerPage> {
-  Market? _market;
-  double? _perMax;
-  double? _pbrMax;
-  double? _roeMin;
-  double? _marginMin;
-  ScreenSort _sort = ScreenSort.marketCap;
-  bool _ascending = false;
   ScreenPage? _page;
   Object? _error;
   bool _loading = false;
   Timer? _debounce;
   int _seq = 0;
+
+  ScreenFilter get _f => widget.filter;
 
   @override
   void initState() {
@@ -44,14 +43,26 @@ class _ScreenerPageState extends State<ScreenerPage> {
   }
 
   @override
+  void didUpdateWidget(covariant ScreenerPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.filter != widget.filter) _load();
+  }
+
+  @override
   void dispose() {
     _debounce?.cancel();
     super.dispose();
   }
 
-  void _reload() {
+  /// 조건을 주소에 반영한다. 조건을 바꿀 때마다 방문 기록이 쌓이지 않게 한다.
+  void _apply(ScreenFilter next) {
+    if (next == _f) return;
+    Router.neglect(context, () => context.go(next.location));
+  }
+
+  void _applySoon(ScreenFilter next) {
     _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 250), _load);
+    _debounce = Timer(const Duration(milliseconds: 300), () => _apply(next));
   }
 
   Future<void> _load() async {
@@ -59,13 +70,13 @@ class _ScreenerPageState extends State<ScreenerPage> {
     setState(() => _loading = true);
     try {
       final p = await client.screen.list(
-        market: _market,
-        perMax: _perMax,
-        pbrMax: _pbrMax,
-        roeMin: _roeMin,
-        operatingMarginMin: _marginMin,
-        sort: _sort,
-        ascending: _ascending,
+        market: _f.market,
+        perMax: _f.perMax,
+        pbrMax: _f.pbrMax,
+        roeMin: _f.roeMin,
+        operatingMarginMin: _f.marginMin,
+        sort: _f.sort,
+        ascending: _f.ascending,
         limit: 100,
       );
       if (!mounted || seq != _seq) return;
@@ -101,48 +112,33 @@ class _ScreenerPageState extends State<ScreenerPage> {
           children: [
             AppToggleGroup<Market?>(
               label: '시장',
-              value: _market,
+              value: _f.market,
               options: const {
                 null: '전체',
                 Market.kospi: 'KOSPI',
                 Market.kosdaq: 'KOSDAQ',
               },
-              onChanged: (m) {
-                setState(() => _market = m);
-                _load();
-              },
+              onChanged: (m) => _apply(_f.copyWith(market: () => m)),
             ),
             _NumberField(
               label: 'PER 이하',
-              value: _perMax,
-              onChanged: (v) {
-                _perMax = v;
-                _reload();
-              },
+              value: _f.perMax,
+              onChanged: (v) => _applySoon(_f.copyWith(perMax: () => v)),
             ),
             _NumberField(
               label: 'PBR 이하',
-              value: _pbrMax,
-              onChanged: (v) {
-                _pbrMax = v;
-                _reload();
-              },
+              value: _f.pbrMax,
+              onChanged: (v) => _applySoon(_f.copyWith(pbrMax: () => v)),
             ),
             _NumberField(
               label: 'ROE % 이상',
-              value: _roeMin,
-              onChanged: (v) {
-                _roeMin = v;
-                _reload();
-              },
+              value: _f.roeMin,
+              onChanged: (v) => _applySoon(_f.copyWith(roeMin: () => v)),
             ),
             _NumberField(
               label: '영업이익률 % 이상',
-              value: _marginMin,
-              onChanged: (v) {
-                _marginMin = v;
-                _reload();
-              },
+              value: _f.marginMin,
+              onChanged: (v) => _applySoon(_f.copyWith(marginMin: () => v)),
             ),
           ],
         ),
@@ -154,7 +150,7 @@ class _ScreenerPageState extends State<ScreenerPage> {
           children: [
             AppToggleGroup<ScreenSort>(
               label: '정렬',
-              value: _sort,
+              value: _f.sort,
               options: const {
                 ScreenSort.marketCap: '시가총액',
                 ScreenSort.per: 'PER',
@@ -162,38 +158,28 @@ class _ScreenerPageState extends State<ScreenerPage> {
                 ScreenSort.roe: 'ROE',
                 ScreenSort.operatingMargin: '영업이익률',
               },
-              onChanged: (s) {
-                setState(() {
-                  _sort = s;
-                  // 싼 것·높은 수익성을 먼저 보는 쪽이 자연스럽다.
-                  _ascending = s == ScreenSort.per || s == ScreenSort.pbr;
-                });
-                _load();
-              },
+              // 싼 것·높은 수익성을 먼저 보는 쪽이 자연스럽다.
+              onChanged: (s) => _apply(
+                _f.copyWith(
+                  sort: s,
+                  ascending: s == ScreenSort.per || s == ScreenSort.pbr,
+                ),
+              ),
             ),
             AppToggleGroup<bool>(
-              value: _ascending,
+              value: _f.ascending,
               options: const {true: '작은 순', false: '큰 순'},
-              onChanged: (v) {
-                setState(() => _ascending = v);
-                _load();
-              },
+              onChanged: (v) => _apply(_f.copyWith(ascending: v)),
             ),
-            if (_perMax != null ||
-                _pbrMax != null ||
-                _roeMin != null ||
-                _marginMin != null)
+            if (_f.hasCondition)
               AppButton(
                 label: '조건 초기화',
                 icon: Icons.close,
                 variant: AppButtonVariant.link,
                 tone: c.accent,
-                onPressed: () {
-                  setState(() {
-                    _perMax = _pbrMax = _roeMin = _marginMin = null;
-                  });
-                  _load();
-                },
+                onPressed: () => _apply(
+                  ScreenFilter(sort: _f.sort, ascending: _f.ascending),
+                ),
               ),
           ],
         ),
@@ -246,13 +232,13 @@ class _ResultTable extends StatelessWidget {
       columns: const [
         AppColumn('기업'),
         AppColumn('시가총액', numeric: true),
-        AppColumn('PER', numeric: true),
-        AppColumn('PBR', numeric: true),
-        AppColumn('ROE', numeric: true),
-        AppColumn('영업이익률', numeric: true),
+        AppColumn('PER(배)', numeric: true),
+        AppColumn('PBR(배)', numeric: true),
+        AppColumn('ROE(%)', numeric: true),
+        AppColumn('영업이익률(%)', numeric: true),
         AppColumn('매출액', numeric: true),
         AppColumn('영업이익', numeric: true),
-        AppColumn('FY'),
+        AppColumn('사업연도'),
       ],
       rows: [
         for (final r in page.items)
@@ -272,18 +258,24 @@ class _ResultTable extends StatelessWidget {
               ),
             ),
             AppDataTable.text(context, formatKrw(r.marketCap), numeric: true),
-            AppDataTable.text(context, formatTimes(r.per), numeric: true),
-            AppDataTable.text(context, formatTimes(r.pbr), numeric: true),
             AppDataTable.text(
               context,
-              r.roe == null ? null : '${r.roe!.toStringAsFixed(1)}%',
+              r.per?.toStringAsFixed(2),
               numeric: true,
             ),
             AppDataTable.text(
               context,
-              r.operatingMargin == null
-                  ? null
-                  : '${r.operatingMargin!.toStringAsFixed(1)}%',
+              r.pbr?.toStringAsFixed(2),
+              numeric: true,
+            ),
+            AppDataTable.text(
+              context,
+              r.roe?.toStringAsFixed(1),
+              numeric: true,
+            ),
+            AppDataTable.text(
+              context,
+              r.operatingMargin?.toStringAsFixed(1),
               numeric: true,
             ),
             AppDataTable.text(context, formatKrw(r.revenue), numeric: true),
@@ -292,7 +284,7 @@ class _ResultTable extends StatelessWidget {
               formatKrw(r.operatingIncome),
               numeric: true,
             ),
-            AppDataTable.text(context, 'FY${r.bsnsYear}'),
+            AppDataTable.text(context, '${r.bsnsYear}'),
           ]),
       ],
     );

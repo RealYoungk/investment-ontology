@@ -13,6 +13,7 @@ import '../features/groups/groups_page.dart';
 import '../features/market_map/market_page.dart';
 import '../features/review/review_page.dart';
 import '../features/screen/compare_page.dart';
+import '../features/screen/screen_filter.dart';
 import '../features/screen/screen_page.dart';
 import '../features/themes/theme_page.dart';
 import '../features/themes/themes_page.dart';
@@ -110,8 +111,11 @@ abstract final class AppRoutes {
           ),
           GoRoute(
             path: '/screen',
-            pageBuilder: (context, state) =>
-                const NoTransitionPage(child: ScreenerPage()),
+            pageBuilder: (context, state) => NoTransitionPage(
+              child: ScreenerPage(
+                filter: ScreenFilter.fromQuery(state.uri.queryParameters),
+              ),
+            ),
           ),
           GoRoute(
             path: '/compare',
