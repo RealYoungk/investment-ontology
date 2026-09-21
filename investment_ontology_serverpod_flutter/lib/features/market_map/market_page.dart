@@ -12,6 +12,7 @@ import '../companies/company_filter.dart';
 import '../financials/financial_metrics.dart';
 import 'market_cap_treemap_section.dart';
 import 'widgets/industry_distribution.dart';
+import 'widgets/market_cap_trend.dart';
 import 'widgets/market_summary.dart';
 
 /// 시장: 시장별 상장사 수 · 업종 분포 · 업종별 시가총액 트리맵. 탐색의 시작점.
@@ -102,6 +103,14 @@ class _MarketPageState extends State<MarketPage> {
           const SizedBox(height: AppSpace.lg),
           AppNotice(message: '서버에 연결하지 못했습니다 — $_error'),
         ],
+        const SizedBox(height: AppSpace.section),
+        ValueListenableBuilder<int>(
+          valueListenable: IngestMonitor.instance.dataVersion,
+          builder: (context, version, _) => MarketCapTrend(
+            key: ValueKey('cap-trend-$version-${_market?.name}'),
+            market: _market,
+          ),
+        ),
         const SizedBox(height: AppSpace.section),
         _RecentFilings(market: _market),
         const SizedBox(height: AppSpace.section),

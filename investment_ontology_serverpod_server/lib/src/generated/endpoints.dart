@@ -1297,6 +1297,31 @@ class Endpoints extends _is.EndpointDispatch {
                     market: params['market'],
                   ),
         ),
+        'capHistory': _is.MethodConnector(
+          name: 'capHistory',
+          params: {
+            'market': _is.ParameterDescription(
+              name: 'market',
+              type: _is.getType<_iyonaxpd.Market?>(),
+              nullable: true,
+            ),
+            'days': _is.ParameterDescription(
+              name: 'days',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['market'] as _iaw7fzks.MarketEndpoint).capHistory(
+                    session,
+                    market: params['market'],
+                    days: params['days'],
+                  ),
+        ),
         'priceHistory': _is.MethodConnector(
           name: 'priceHistory',
           params: {

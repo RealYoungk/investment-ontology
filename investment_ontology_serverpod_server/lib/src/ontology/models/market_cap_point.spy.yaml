@@ -1,0 +1,7 @@
+### 시장 전체 시가총액의 하루 값 (그 기준일에 시세가 있는 종목의 합).
+class: MarketCapPoint
+fields:
+  date: DateTime
+  marketCap: BigInt
+  ### 합에 들어간 종목 수
+  securityCount: int

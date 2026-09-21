@@ -29,6 +29,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _i1paap7y;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/investment_theme.dart'
     as _izhmhfon;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/market_cap_point.dart'
+    as _i140v7gk;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/person_hit.dart'
     as _i96d117e;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/review_check.dart'
@@ -109,6 +111,7 @@ import 'ontology/models/investment_entry.dart' as _i9p8kpm7;
 import 'ontology/models/investment_theme.dart' as _i57inxpq;
 import 'ontology/models/market.dart' as _iyzzhewo;
 import 'ontology/models/market_cap_node.dart' as _i1tskjhh;
+import 'ontology/models/market_cap_point.dart' as _igdvszti;
 import 'ontology/models/market_cap_treemap.dart' as _iwodvuy1;
 import 'ontology/models/market_snapshot.dart' as _ibhowe7d;
 import 'ontology/models/market_snapshot_day.dart' as _i3renazk;
@@ -213,6 +216,7 @@ export 'ontology/models/investment_entry.dart';
 export 'ontology/models/investment_theme.dart';
 export 'ontology/models/market.dart';
 export 'ontology/models/market_cap_node.dart';
+export 'ontology/models/market_cap_point.dart';
 export 'ontology/models/market_cap_treemap.dart';
 export 'ontology/models/market_snapshot.dart';
 export 'ontology/models/market_snapshot_day.dart';
@@ -486,6 +490,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _i1tskjhh.MarketCapNode) {
       return _i1tskjhh.MarketCapNode.fromJson(data) as T;
+    }
+    if (t == _igdvszti.MarketCapPoint) {
+      return _igdvszti.MarketCapPoint.fromJson(data) as T;
     }
     if (t == _iwodvuy1.MarketCapTreemap) {
       return _iwodvuy1.MarketCapTreemap.fromJson(data) as T;
@@ -853,6 +860,10 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _isc.getType<_i1tskjhh.MarketCapNode?>()) {
       return (data != null ? _i1tskjhh.MarketCapNode.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_igdvszti.MarketCapPoint?>()) {
+      return (data != null ? _igdvszti.MarketCapPoint.fromJson(data) : null)
           as T;
     }
     if (t == _isc.getType<_iwodvuy1.MarketCapTreemap?>()) {
@@ -1260,6 +1271,12 @@ class Protocol extends _isc.SerializationManager {
     if (t == List<String>) {
       return (data as List).map((e) => deserialize<String>(e)).toList() as T;
     }
+    if (t == List<_i140v7gk.MarketCapPoint>) {
+      return (data as List)
+              .map((e) => deserialize<_i140v7gk.MarketCapPoint>(e))
+              .toList()
+          as T;
+    }
     if (t == List<int>) {
       return (data as List).map((e) => deserialize<int>(e)).toList() as T;
     }
@@ -1371,6 +1388,7 @@ class Protocol extends _isc.SerializationManager {
       _i57inxpq.InvestmentTheme => 'InvestmentTheme',
       _iyzzhewo.Market => 'Market',
       _i1tskjhh.MarketCapNode => 'MarketCapNode',
+      _igdvszti.MarketCapPoint => 'MarketCapPoint',
       _iwodvuy1.MarketCapTreemap => 'MarketCapTreemap',
       _ibhowe7d.MarketSnapshot => 'MarketSnapshot',
       _i3renazk.MarketSnapshotDay => 'MarketSnapshotDay',
@@ -1559,6 +1577,8 @@ class Protocol extends _isc.SerializationManager {
         return 'Market';
       case _i1tskjhh.MarketCapNode():
         return 'MarketCapNode';
+      case _igdvszti.MarketCapPoint():
+        return 'MarketCapPoint';
       case _iwodvuy1.MarketCapTreemap():
         return 'MarketCapTreemap';
       case _ibhowe7d.MarketSnapshot():
@@ -1855,6 +1875,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'MarketCapNode') {
       return deserialize<_i1tskjhh.MarketCapNode>(data['data']);
+    }
+    if (dataClassName == 'MarketCapPoint') {
+      return deserialize<_igdvszti.MarketCapPoint>(data['data']);
     }
     if (dataClassName == 'MarketCapTreemap') {
       return deserialize<_iwodvuy1.MarketCapTreemap>(data['data']);

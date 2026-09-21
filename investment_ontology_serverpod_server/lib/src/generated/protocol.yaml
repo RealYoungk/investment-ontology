@@ -61,6 +61,7 @@ ingest:
   - rebuildProductionFacts:
 market:
   - industryTreemap:
+  - capHistory:
   - priceHistory:
 review:
   - list:

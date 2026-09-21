@@ -83,6 +83,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _in6y0ur2;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/market.dart'
     as _iyonaxpd;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/market_cap_point.dart'
+    as _ihep8lzy;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/market_cap_treemap.dart'
     as _i5mpfst8;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/ontology_relation.dart'
@@ -2164,6 +2166,41 @@ class _MarketEndpoint {
                   _localCallContext.arguments,
                 )
                 as _ida.Future<_i5mpfst8.MarketCapTreemap>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<List<_ihep8lzy.MarketCapPoint>> capHistory(
+    _ist.TestSessionBuilder sessionBuilder, {
+    _iyonaxpd.Market? market,
+    required int days,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'market',
+            method: 'capHistory',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'market',
+          methodName: 'capHistory',
+          parameters: _ist.testObjectToJson({
+            'market': market,
+            'days': days,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_ihep8lzy.MarketCapPoint>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

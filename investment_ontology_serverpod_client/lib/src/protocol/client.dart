@@ -66,6 +66,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _izhmhfon;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/market.dart'
     as _iamn97sz;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/market_cap_point.dart'
+    as _i140v7gk;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/market_cap_treemap.dart'
     as _ifex1fnm;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ontology_relation.dart'
@@ -905,6 +907,22 @@ class EndpointMarket extends _isc.EndpointRef {
     {
       'sectionCode': sectionCode,
       'market': market,
+    },
+  );
+
+  /// 시장 전체 시가총액의 추이 ([days] 달력일).
+  ///
+  /// 그 기준일에 시세가 있는 종목의 시가총액 합이다. 상장·폐지로 종목 수가 달라지므로
+  /// 지수가 아니라 "그날 시장에 얼마가 있었는가"로 읽는다. 종목 수도 함께 준다.
+  _ida.Future<List<_i140v7gk.MarketCapPoint>> capHistory({
+    _iamn97sz.Market? market,
+    required int days,
+  }) => caller.callServerEndpoint<List<_i140v7gk.MarketCapPoint>>(
+    'market',
+    'capHistory',
+    {
+      'market': market,
+      'days': days,
     },
   );
 
