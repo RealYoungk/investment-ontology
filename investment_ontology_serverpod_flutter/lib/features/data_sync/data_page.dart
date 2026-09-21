@@ -334,6 +334,12 @@ class _CoverageState extends State<_Coverage> {
               ? null
               : '실패 ${formatCount(v.sectionsFailed)}건 (재시도)',
         ),
+        _Progress(
+          label: '사업의 내용 요약 (본문이 있는 기업 중 절별 요약까지 있는 곳)',
+          done: v.companiesWithDigest,
+          total: v.companiesWithBusinessText,
+          note: '세션에서 읽어 넣음 · 시가총액 큰 기업부터',
+        ),
         const SizedBox(height: AppSpace.sm),
         Text(
           '주요정보가 있는 상장사 ${formatCount(v.companiesWithDisclosures)}개사 · '

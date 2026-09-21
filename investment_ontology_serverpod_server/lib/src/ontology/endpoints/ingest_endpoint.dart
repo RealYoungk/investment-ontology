@@ -161,7 +161,9 @@ class IngestEndpoint extends Endpoint {
         (SELECT count(*) FROM dart_filing_section WHERE status = 'failed'),
         (SELECT count(DISTINCT "companyId") FROM dart_filing_section WHERE status = 'stored'),
         (SELECT count(*) FROM ontology_relation),
-        (SELECT count(*) FROM person)
+        (SELECT count(*) FROM person),
+        (SELECT count(DISTINCT "companyId") FROM business_document),
+        (SELECT count(DISTINCT "companyId") FROM business_digest_section)
     ''');
     final v = [for (final x in rows.first) (x as int?) ?? 0];
     return IngestCoverage(
@@ -177,6 +179,8 @@ class IngestEndpoint extends Endpoint {
       companiesWithDisclosures: v[9],
       relations: v[10],
       persons: v[11],
+      companiesWithBusinessText: v[12],
+      companiesWithDigest: v[13],
       dartCallsToday: await ApiCallBudget.usedToday(session, ApiProvider.dart),
       dartDailyLimit: ApiCallBudget.dartDailyLimit,
       dartFinancialBudget: ApiCallBudget.dartFinancialBudget,

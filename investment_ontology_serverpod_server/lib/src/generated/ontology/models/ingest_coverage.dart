@@ -28,6 +28,8 @@ abstract class IngestCoverage
     required this.companiesWithDisclosures,
     required this.relations,
     required this.persons,
+    required this.companiesWithBusinessText,
+    required this.companiesWithDigest,
     required this.dartCallsToday,
     required this.dartDailyLimit,
     required this.dartFinancialBudget,
@@ -47,6 +49,8 @@ abstract class IngestCoverage
     required int companiesWithDisclosures,
     required int relations,
     required int persons,
+    required int companiesWithBusinessText,
+    required int companiesWithDigest,
     required int dartCallsToday,
     required int dartDailyLimit,
     required int dartFinancialBudget,
@@ -69,6 +73,9 @@ abstract class IngestCoverage
           jsonSerialization['companiesWithDisclosures'] as int,
       relations: jsonSerialization['relations'] as int,
       persons: jsonSerialization['persons'] as int,
+      companiesWithBusinessText:
+          jsonSerialization['companiesWithBusinessText'] as int,
+      companiesWithDigest: jsonSerialization['companiesWithDigest'] as int,
       dartCallsToday: jsonSerialization['dartCallsToday'] as int,
       dartDailyLimit: jsonSerialization['dartDailyLimit'] as int,
       dartFinancialBudget: jsonSerialization['dartFinancialBudget'] as int,
@@ -108,6 +115,11 @@ abstract class IngestCoverage
 
   int persons;
 
+  /// "사업의 내용" 본문이 있는 상장사 수와, 그중 절별 요약(BusinessDigestSection)까지 있는 수
+  int companiesWithBusinessText;
+
+  int companiesWithDigest;
+
   /// 오늘(KST) DART 호출 수와 일일 한도
   int dartCallsToday;
 
@@ -133,6 +145,8 @@ abstract class IngestCoverage
     int? companiesWithDisclosures,
     int? relations,
     int? persons,
+    int? companiesWithBusinessText,
+    int? companiesWithDigest,
     int? dartCallsToday,
     int? dartDailyLimit,
     int? dartFinancialBudget,
@@ -154,6 +168,8 @@ abstract class IngestCoverage
       'companiesWithDisclosures': companiesWithDisclosures,
       'relations': relations,
       'persons': persons,
+      'companiesWithBusinessText': companiesWithBusinessText,
+      'companiesWithDigest': companiesWithDigest,
       'dartCallsToday': dartCallsToday,
       'dartDailyLimit': dartDailyLimit,
       'dartFinancialBudget': dartFinancialBudget,
@@ -177,6 +193,8 @@ abstract class IngestCoverage
       'companiesWithDisclosures': companiesWithDisclosures,
       'relations': relations,
       'persons': persons,
+      'companiesWithBusinessText': companiesWithBusinessText,
+      'companiesWithDigest': companiesWithDigest,
       'dartCallsToday': dartCallsToday,
       'dartDailyLimit': dartDailyLimit,
       'dartFinancialBudget': dartFinancialBudget,
@@ -204,6 +222,8 @@ class _IngestCoverageImpl extends IngestCoverage {
     required int companiesWithDisclosures,
     required int relations,
     required int persons,
+    required int companiesWithBusinessText,
+    required int companiesWithDigest,
     required int dartCallsToday,
     required int dartDailyLimit,
     required int dartFinancialBudget,
@@ -221,6 +241,8 @@ class _IngestCoverageImpl extends IngestCoverage {
          companiesWithDisclosures: companiesWithDisclosures,
          relations: relations,
          persons: persons,
+         companiesWithBusinessText: companiesWithBusinessText,
+         companiesWithDigest: companiesWithDigest,
          dartCallsToday: dartCallsToday,
          dartDailyLimit: dartDailyLimit,
          dartFinancialBudget: dartFinancialBudget,
@@ -244,6 +266,8 @@ class _IngestCoverageImpl extends IngestCoverage {
     int? companiesWithDisclosures,
     int? relations,
     int? persons,
+    int? companiesWithBusinessText,
+    int? companiesWithDigest,
     int? dartCallsToday,
     int? dartDailyLimit,
     int? dartFinancialBudget,
@@ -264,6 +288,9 @@ class _IngestCoverageImpl extends IngestCoverage {
           companiesWithDisclosures ?? this.companiesWithDisclosures,
       relations: relations ?? this.relations,
       persons: persons ?? this.persons,
+      companiesWithBusinessText:
+          companiesWithBusinessText ?? this.companiesWithBusinessText,
+      companiesWithDigest: companiesWithDigest ?? this.companiesWithDigest,
       dartCallsToday: dartCallsToday ?? this.dartCallsToday,
       dartDailyLimit: dartDailyLimit ?? this.dartDailyLimit,
       dartFinancialBudget: dartFinancialBudget ?? this.dartFinancialBudget,

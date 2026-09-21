@@ -11,6 +11,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _is;
+
 import '../../ontology/models/source_kind.dart' as _i64hjcpq;
 
 /// 사실(수치·관계)의 출처. 출처 없는 사실은 저장하지 않는다.

@@ -11,6 +11,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _is;
+
 import '../../ontology/models/document_fact_kind.dart' as _izbt83zi;
 import '../../ontology/models/relation_origin.dart' as _i58iymfp;
 import '../../ontology/models/relation_status.dart' as _ije7dn2u;
