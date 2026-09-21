@@ -12,6 +12,7 @@ import '../features/groups/group_page.dart';
 import '../features/groups/groups_page.dart';
 import '../features/market_map/market_page.dart';
 import '../features/review/review_page.dart';
+import '../features/screen/compare_page.dart';
 import '../features/screen/screen_page.dart';
 import '../features/themes/theme_page.dart';
 import '../features/themes/themes_page.dart';
@@ -27,6 +28,7 @@ import 'app_shell.dart';
 /// - `/graph/:corpCode` 관계망
 /// - `/groups`, `/groups/:corpCode` 지분 묶음 (묶음에 속한 아무 기업으로 찾는다)
 /// - `/screen` 스크리너 (재무·시세로 거르기)
+/// - `/compare?codes=a,b` 기업 비교
 /// - `/review` AI 관계 검수
 /// - `/reports/:reportId` 재무제표 원문 표
 /// - `/data` 수집 상태
@@ -42,6 +44,9 @@ abstract final class AppRoutes {
   static String theme(int themeId) => '/themes/$themeId';
 
   static String graph(String corpCode) => '/graph/$corpCode';
+
+  static String compare(List<String> corpCodes) =>
+      '/compare${corpCodes.isEmpty ? '' : '?codes=${corpCodes.join(',')}'}';
 
   static String report(int reportId) => '/reports/$reportId';
 
@@ -107,6 +112,18 @@ abstract final class AppRoutes {
             path: '/screen',
             pageBuilder: (context, state) =>
                 const NoTransitionPage(child: ScreenerPage()),
+          ),
+          GoRoute(
+            path: '/compare',
+            pageBuilder: (context, state) => NoTransitionPage(
+              child: ComparePage(
+                corpCodes: [
+                  for (final c
+                      in (state.uri.queryParameters['codes'] ?? '').split(','))
+                    if (c.trim().isNotEmpty) c.trim(),
+                ],
+              ),
+            ),
           ),
           GoRoute(
             path: '/review',

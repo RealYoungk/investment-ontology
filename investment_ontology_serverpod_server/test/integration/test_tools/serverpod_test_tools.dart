@@ -2200,6 +2200,7 @@ class _ScreenEndpoint {
 
   _ida.Future<_ia9do9rj.ScreenPage> list(
     _ist.TestSessionBuilder sessionBuilder, {
+    List<String>? corpCodes,
     _iyonaxpd.Market? market,
     String? sectionCode,
     double? perMax,
@@ -2224,6 +2225,7 @@ class _ScreenEndpoint {
           endpointPath: 'screen',
           methodName: 'list',
           parameters: _ist.testObjectToJson({
+            'corpCodes': corpCodes,
             'market': market,
             'sectionCode': sectionCode,
             'perMax': perMax,

@@ -927,6 +927,7 @@ class EndpointScreen extends _isc.EndpointRef {
 
   /// 조건에 맞는 기업. 값이 없는 기업(적자·자본잠식 등)은 그 지표 조건이 있으면 빠진다.
   _ida.Future<_iy3d4gdi.ScreenPage> list({
+    List<String>? corpCodes,
     _iamn97sz.Market? market,
     String? sectionCode,
     double? perMax,
@@ -942,6 +943,7 @@ class EndpointScreen extends _isc.EndpointRef {
     'screen',
     'list',
     {
+      'corpCodes': corpCodes,
       'market': market,
       'sectionCode': sectionCode,
       'perMax': perMax,

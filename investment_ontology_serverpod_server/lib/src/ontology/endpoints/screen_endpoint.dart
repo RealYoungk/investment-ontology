@@ -21,6 +21,9 @@ class ScreenEndpoint extends Endpoint {
   /// 조건에 맞는 기업. 값이 없는 기업(적자·자본잠식 등)은 그 지표 조건이 있으면 빠진다.
   Future<ScreenPage> list(
     Session session, {
+
+    /// 이 기업들만 (비교 화면). 주면 다른 조건은 무시한다.
+    List<String>? corpCodes,
     Market? market,
     String? sectionCode,
     double? perMax,
@@ -39,13 +42,21 @@ class ScreenEndpoint extends Endpoint {
     // 계정·시장 목록은 코드 안의 고정값이다. 파라미터로 넘기면 계획이 나빠져 3배 느리다.
     final accountList = _accounts.map((a) => "'$a'").join(', ');
     final marketList = markets.map((m) => "'$m'").join(', ');
+    if (corpCodes != null && corpCodes.isEmpty) {
+      return ScreenPage(items: const [], total: 0, universe: 0);
+    }
+    final codes = corpCodes
+        ?.where((c) => RegExp(r'^\d{8}$').hasMatch(c))
+        .map((c) => "'$c'")
+        .join(', ');
     final having = <String>[
-      if (perMax != null) 'per IS NOT NULL AND per <= @perMax',
-      if (pbrMax != null) 'pbr IS NOT NULL AND pbr <= @pbrMax',
-      if (roeMin != null) 'roe IS NOT NULL AND roe >= @roeMin',
-      if (operatingMarginMin != null)
+      if (codes != null) 'true',
+      if (codes == null && perMax != null) 'per IS NOT NULL AND per <= @perMax',
+      if (codes == null && pbrMax != null) 'pbr IS NOT NULL AND pbr <= @pbrMax',
+      if (codes == null && roeMin != null) 'roe IS NOT NULL AND roe >= @roeMin',
+      if (codes == null && operatingMarginMin != null)
         'margin IS NOT NULL AND margin >= @marginMin',
-      if (marketCapMin != null) 'cap >= @capMin',
+      if (codes == null && marketCapMin != null) 'cap >= @capMin',
     ];
     final order = switch (sort ?? ScreenSort.marketCap) {
       ScreenSort.marketCap => 'cap',
@@ -102,6 +113,7 @@ class ScreenEndpoint extends Endpoint {
         JOIN latest l ON l.id = c.id
         JOIN cap ON cap.id = c.id
         WHERE c.market IN ($marketList)
+          ${codes == null ? '' : 'AND c."corpCode" IN ($codes)'}
           ${sectionCode == null ? '' : 'AND c."sectionCode" = @sectionCode'}
       )
       SELECT id, "corpCode", name, market, y, cap, revenue, op, ni, eq,
@@ -118,13 +130,15 @@ class ScreenEndpoint extends Endpoint {
       'offset': offset ?? 0,
     };
     if (sectionCode != null) parameters['sectionCode'] = sectionCode;
-    if (perMax != null) parameters['perMax'] = perMax;
-    if (pbrMax != null) parameters['pbrMax'] = pbrMax;
-    if (roeMin != null) parameters['roeMin'] = roeMin;
-    if (operatingMarginMin != null) {
-      parameters['marginMin'] = operatingMarginMin;
+    if (codes == null) {
+      if (perMax != null) parameters['perMax'] = perMax;
+      if (pbrMax != null) parameters['pbrMax'] = pbrMax;
+      if (roeMin != null) parameters['roeMin'] = roeMin;
+      if (operatingMarginMin != null) {
+        parameters['marginMin'] = operatingMarginMin;
+      }
+      if (marketCapMin != null) parameters['capMin'] = marketCapMin.toString();
     }
-    if (marketCapMin != null) parameters['capMin'] = marketCapMin.toString();
 
     final rows = await session.db.unsafeQuery(
       sql,

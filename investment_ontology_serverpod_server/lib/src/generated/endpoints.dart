@@ -1348,6 +1348,11 @@ class Endpoints extends _is.EndpointDispatch {
         'list': _is.MethodConnector(
           name: 'list',
           params: {
+            'corpCodes': _is.ParameterDescription(
+              name: 'corpCodes',
+              type: _is.getType<List<String>?>(),
+              nullable: true,
+            ),
             'market': _is.ParameterDescription(
               name: 'market',
               type: _is.getType<_iyonaxpd.Market?>(),
@@ -1410,6 +1415,7 @@ class Endpoints extends _is.EndpointDispatch {
                 Map<String, dynamic> params,
               ) async => (endpoints['screen'] as _ilgabfhk.ScreenEndpoint).list(
                 session,
+                corpCodes: params['corpCodes'],
                 market: params['market'],
                 sectionCode: params['sectionCode'],
                 perMax: params['perMax'],
