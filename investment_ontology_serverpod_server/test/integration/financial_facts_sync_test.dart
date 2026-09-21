@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/dart_client.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/ingest/api_call_budget.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/ingest/financial_facts_sync.dart';
 import 'package:serverpod/serverpod.dart';
 import 'package:test/test.dart';
@@ -279,7 +280,14 @@ void main() {
       expect(await DartDisclosure.db.count(session), 1);
     });
 
-    test('예산을 다 쓴 날에도 공시 피드는 돈다', () async {
+    test('재무 예산을 이미 넘겨 쓴 날에도 공시 피드는 돈다', () async {
+      // 오늘 DART 호출을 재무 예산보다 많이 쓴 상태 (다른 수집이 썼다).
+      await ApiCallBudget.record(
+        session,
+        ApiProvider.dart,
+        19538,
+        now: now,
+      );
       dart.filings.add((
         corp: '00000001',
         name: '단일판매ㆍ공급계약체결',

@@ -39,9 +39,31 @@ class _RecentDisclosuresState extends State<RecentDisclosures> {
 
   Future<void> _load() async {
     try {
-      final items = await client.disclosure.recentOf(widget.corpCode);
+      final items = await client.disclosure.recentOf(
+        widget.corpCode,
+        limit: 50,
+      );
       if (mounted) setState(() => _items = items);
     } catch (_) {}
+  }
+
+  /// 같은 날 같은 이름의 공시는 한 줄로 묶는다 — 임원 소유상황처럼 사람 수만큼
+  /// 따로 나오는 공시가 목록을 덮지 않게. 누르면 그중 첫 건의 원문으로 간다.
+  static List<({DartDisclosure first, int count})> group(
+    List<DartDisclosure> items,
+  ) {
+    final out = <({DartDisclosure first, int count})>[];
+    for (final d in items) {
+      final last = out.isEmpty ? null : out.last;
+      if (last != null &&
+          last.first.reportName == d.reportName &&
+          last.first.receivedDate == d.receivedDate) {
+        out[out.length - 1] = (first: last.first, count: last.count + 1);
+      } else {
+        out.add((first: d, count: 1));
+      }
+    }
+    return out;
   }
 
   @override
@@ -49,6 +71,8 @@ class _RecentDisclosuresState extends State<RecentDisclosures> {
     final c = context.colors;
     final t = context.typo;
     if (_items.isEmpty) return const SizedBox.shrink();
+    // 묶고 나서 열 개까지만 — 개요는 훑어보는 자리다.
+    final rows = group(_items).take(10).toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -60,11 +84,11 @@ class _RecentDisclosuresState extends State<RecentDisclosures> {
           ),
         ),
         const SizedBox(height: AppSpace.sm),
-        for (final d in _items)
+        for (final (:first, :count) in rows)
           HoverBuilder(
             onTap: () => launchUrl(
               Uri.parse(
-                'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${d.rceptNo}',
+                'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${first.rceptNo}',
               ),
               mode: LaunchMode.externalApplication,
             ),
@@ -74,15 +98,18 @@ class _RecentDisclosuresState extends State<RecentDisclosures> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(
-                    width: 74,
+                    width: 86,
                     child: Text(
-                      formatDate(d.receivedDate),
+                      formatDate(first.receivedDate),
+                      softWrap: false,
                       style: t.numeric(12, color: c.textMuted),
                     ),
                   ),
                   Expanded(
                     child: Text(
-                      d.reportName,
+                      count > 1
+                          ? '${first.reportName} $count건'
+                          : first.reportName,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: t

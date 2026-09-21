@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
@@ -110,11 +112,15 @@ class FinancialFactsSync {
     return !_budgetExhausted;
   }
 
-  /// 최근 공시 피드는 예산을 다 쓴 날에도 돌아야 한다 — 하루 몇 번뿐인 호출이고,
-  /// 이걸 거르면 그날 공시가 통째로 빈다. DART 한도(20,000)에는 여유가 있다.
+  /// 최근 공시 피드는 재무 예산을 다 쓴 날에도 돌아야 한다 — 하루 몇 번뿐인 호출이고,
+  /// 이걸 거르면 그날 공시가 통째로 빈다. 그래서 재무 예산이 아니라 DART 하루
+  /// 한도(20,000)에서 이만큼을 따로 떼어 쓴다.
   static const feedReserve = 60;
 
-  bool get _hasFeedAllowance => dart.calls < _allowance + feedReserve;
+  /// 이번 작업에서 피드가 쓸 수 있는 호출 수.
+  late int _feedAllowance;
+
+  bool get _hasFeedAllowance => dart.calls < _feedAllowance;
 
   Future<void> run() async {
     final claimed = await IngestJobs.claim(session, jobId);
@@ -126,9 +132,16 @@ class FinancialFactsSync {
     var discovered = 0, stored = 0, failed = 0, processed = 0;
     try {
       final now = _clock().toUtc();
-      _allowance =
-          dailyBudget -
-          await ApiCallBudget.usedToday(session, ApiProvider.dart, now: now);
+      final usedToday = await ApiCallBudget.usedToday(
+        session,
+        ApiProvider.dart,
+        now: now,
+      );
+      _allowance = dailyBudget - usedToday;
+      _feedAllowance = min(
+        feedReserve,
+        max(0, ApiCallBudget.dartDailyLimit - usedToday),
+      );
 
       final companies = {
         for (final c in await Company.db.find(
