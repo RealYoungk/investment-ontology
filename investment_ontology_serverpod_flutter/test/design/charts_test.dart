@@ -75,4 +75,13 @@ void main() {
     expect(scale.max, greaterThanOrEqualTo(245000));
     expect(scale.ticks.first, scale.min);
   });
+
+  test('0을 빼면 눈금 바닥이 값 아래로 붙는다 (주가 8만~36만)', () {
+    final scale = ChartScale.of(
+      const [79700, 362500, 261000],
+      includeZero: false,
+    );
+    expect(scale.min, 50000, reason: '10만 눈금이면 바닥이 0이 된다');
+    expect(scale.max, greaterThanOrEqualTo(362500));
+  });
 }

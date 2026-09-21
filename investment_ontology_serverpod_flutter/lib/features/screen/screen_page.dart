@@ -194,6 +194,9 @@ class _ScreenerPageState extends State<ScreenerPage> {
                 ScreenSort.fcfYield: 'FCF 수익률',
                 ScreenSort.revenueGrowth: '매출 성장률',
                 ScreenSort.operatingIncomeGrowth: '영업이익 성장률',
+                ScreenSort.return3m: '3개월 주가',
+                ScreenSort.return12m: '12개월 주가',
+                ScreenSort.bandPosition: '52주 최저에 가까운',
               },
               // 싼 것·높은 수익성을 먼저 보는 쪽이 자연스럽다.
               onChanged: (s) => _apply(
@@ -245,6 +248,8 @@ class _ScreenerPageState extends State<ScreenerPage> {
             'ROE = 지배주주 순이익 ÷ 지배주주 자본 · 영업이익률 = 영업이익 ÷ 매출액 · '
             '부채비율 = 부채총계 ÷ 자본총계 · FCF 수익률 = (영업활동 현금흐름 − 유형자산 취득) ÷ 시가총액 · '
             '배당수익률 = 최근 사업연도 현금배당금총액 ÷ 시가총액 · '
+            '3·12개월 = 대표 종목(시가총액이 가장 큰 종목) 종가 등락률 · '
+            '52주 위치 = 최근 1년 종가의 최저(0)~최고(100) 사이 지금 자리 · '
             '성장률 = 올해 누적 대비 전년 같은 기간 누적 (전년이 적자면 계산하지 않음). '
             '손익 항목은 최근 12개월 합계(사업보고서면 그 해, 아니면 전년 연간 + 올해 누적 − 전년 같은 기간 '
             '누적)이고 자본은 최근 보고서 시점 값입니다. 모두 연결 기준이며, 지배주주 값이 없으면 전체 값을 씁니다. '
@@ -282,6 +287,9 @@ class _ResultTable extends StatelessWidget {
     '부채비율(%)',
     '배당수익률(%)',
     'FCF 수익률(%)',
+    '3개월(%)',
+    '12개월(%)',
+    '52주 위치(%)',
     '매출액(TTM)',
     '영업이익(TTM)',
     '최근 보고서',
@@ -298,6 +306,9 @@ class _ResultTable extends StatelessWidget {
     ScreenSort.debtRatio => '부채비율(%)',
     ScreenSort.dividendYield => '배당수익률(%)',
     ScreenSort.fcfYield => 'FCF 수익률(%)',
+    ScreenSort.return3m => '3개월(%)',
+    ScreenSort.return12m => '12개월(%)',
+    ScreenSort.bandPosition => '52주 위치(%)',
   };
 
   @override
@@ -320,6 +331,9 @@ class _ResultTable extends StatelessWidget {
       ('부채비율(%)', (r) => fixed(r.debtRatio, 1)),
       ('배당수익률(%)', (r) => fixed(r.dividendYield, 2)),
       ('FCF 수익률(%)', (r) => fixed(r.fcfYield, 2)),
+      ('3개월(%)', (r) => fixed(r.return3m, 1)),
+      ('12개월(%)', (r) => fixed(r.return12m, 1)),
+      ('52주 위치(%)', (r) => fixed(r.bandPosition, 0)),
       ('매출액(TTM)', (r) => formatKrw(r.revenue)),
       ('영업이익(TTM)', (r) => formatKrw(r.operatingIncome)),
       ('최근 보고서', (r) => '${r.bsnsYear}'),

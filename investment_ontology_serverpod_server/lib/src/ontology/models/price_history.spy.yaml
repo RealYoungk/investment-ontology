@@ -7,3 +7,8 @@ fields:
   ### 점 사이 간격 (1이면 매 거래일, 5면 다섯 거래일에 하나)
   stride: int
   points: List<PricePoint>
+  ### 최근 1년 종가의 최고·최저와 지금 종가의 자리 (0 = 최저, 100 = 최고).
+  ### 그사이 상장주식수가 크게 바뀌었으면(액면분할·병합) 비운다 — 종가를 이어 붙일 수 없다.
+  high52w: int?
+  low52w: int?
+  bandPosition: double?

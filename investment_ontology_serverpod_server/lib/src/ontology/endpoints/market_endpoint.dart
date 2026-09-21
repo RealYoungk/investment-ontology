@@ -152,6 +152,48 @@ class MarketEndpoint extends Endpoint {
     );
   }
 
+  /// 시장 전체 시가총액의 추이 ([days] 달력일).
+  ///
+  /// 그 기준일에 시세가 있는 종목의 시가총액 합이다. 상장·폐지로 종목 수가 달라지므로
+  /// 지수가 아니라 "그날 시장에 얼마가 있었는가"로 읽는다. 종목 수도 함께 준다.
+  Future<List<MarketCapPoint>> capHistory(
+    Session session, {
+    Market? market,
+    int days = 365,
+  }) async {
+    final filter = market == null ? '' : "AND c.market = '${market.name}'";
+    final window = days.clamp(30, 3660);
+    final rows = await session.db.unsafeQuery('''
+      SELECT m."baseDate", sum(m."marketCap"::numeric) AS cap, count(*) AS n
+      FROM market_snapshot m
+      JOIN security s ON s.id = m."securityId"
+      LEFT JOIN company c ON c.id = s."companyId"
+      WHERE m."marketCap" IS NOT NULL
+        AND m."baseDate" > (
+          SELECT max("baseDate") FROM market_snapshot_day WHERE "rowCount" > 0
+        ) - interval '$window days'
+        $filter
+      GROUP BY 1
+      ORDER BY 1
+    ''');
+    final all = [
+      for (final r in rows)
+        MarketCapPoint(
+          date: r[0] as DateTime,
+          marketCap: BigInt.parse('${r[1]}'.split('.').first),
+          securityCount: int.parse('${r[2]}'),
+        ),
+    ];
+    if (all.length <= _pricePoints) return all;
+    // 마지막 거래일이 반드시 남게 뒤에서부터 고른다.
+    final stride = (all.length / _pricePoints).ceil();
+    return [for (var i = all.length - 1; i >= 0; i -= stride) all[i]].reversed
+        .toList();
+  }
+
+  /// 상장주식수가 이보다 달라졌으면 종가를 이어 붙이지 않는다 (스크리너와 같은 규칙).
+  static const shareTolerance = 0.3;
+
   /// 화면에 그릴 점 수의 목표. 거래일이 이보다 많으면 일정 간격으로 골라 보낸다.
   static const _pricePoints = 260;
 
@@ -217,6 +259,33 @@ class MarketEndpoint extends Endpoint {
     final picked = [
       for (var i = closes.length - 1; i >= 0; i -= stride) closes[i],
     ].reversed;
+    // 52주 고저. 액면분할·병합이 있으면 종가를 이어 붙일 수 없어 비운다.
+    final yearAgo = latestDay.baseDate.subtract(const Duration(days: 365));
+    final year = [
+      for (final r in rows)
+        if (r.baseDate.isAfter(yearAgo) && r.closePrice != null) r,
+    ];
+    int? high, low;
+    double? band;
+    if (year.isNotEmpty) {
+      final shares = [for (final r in year) ?r.listedShares];
+      final okShares =
+          shares.length == year.length &&
+          shares.every(
+            (s) =>
+                s > BigInt.zero &&
+                (s.toDouble() / shares.last.toDouble() - 1).abs() <=
+                    shareTolerance,
+          );
+      if (okShares) {
+        final closes = [for (final r in year) r.closePrice!.toInt()];
+        high = closes.reduce((a, b) => a > b ? a : b);
+        low = closes.reduce((a, b) => a < b ? a : b);
+        final now = closes.last;
+        band = high > low ? 100 * (now - low) / (high - low) : null;
+      }
+    }
+
     return PriceHistory(
       securityName: security.name,
       shortCode: security.shortCode,
@@ -225,6 +294,9 @@ class MarketEndpoint extends Endpoint {
         for (final (date, close) in picked)
           PricePoint(date: date, close: close),
       ],
+      high52w: high,
+      low52w: low,
+      bandPosition: band,
     );
   }
 

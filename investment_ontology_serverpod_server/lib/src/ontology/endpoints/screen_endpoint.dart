@@ -122,6 +122,11 @@ class ScreenEndpoint extends Endpoint {
       ScreenSort.dividendYield => r.dividendYield,
       ScreenSort.revenueGrowth => r.revenueGrowth,
       ScreenSort.operatingIncomeGrowth => r.operatingIncomeGrowth,
+      ScreenSort.return3m => r.return3m,
+      ScreenSort.return12m => r.return12m,
+      // 낮을수록 (52주 최저에 가까울수록) 앞으로.
+      ScreenSort.bandPosition =>
+        r.bandPosition == null ? null : -r.bandPosition!,
     };
     final asc = ascending ?? false;
     rows.sort((a, b) {
@@ -315,6 +320,40 @@ class ScreenEndpoint extends Endpoint {
         WHERE m."baseDate" = (SELECT max("baseDate") FROM market_snapshot_day WHERE "rowCount" > 0)
           AND s."companyId" IS NOT NULL AND m."marketCap" IS NOT NULL
         GROUP BY 1
+      ), rep AS (
+        -- 대표 종목: 가장 최근 기준일 시가총액이 큰 것 (주가 추이 화면과 같은 규칙).
+        SELECT DISTINCT ON (s."companyId") s."companyId" AS id, m."securityId" AS sid
+        FROM market_snapshot m
+        JOIN security s ON s.id = m."securityId"
+        WHERE m."baseDate" = (SELECT max("baseDate") FROM market_snapshot_day WHERE "rowCount" > 0)
+          AND s."companyId" IS NOT NULL AND m."marketCap" IS NOT NULL
+        ORDER BY s."companyId", m."marketCap"::numeric DESC
+      ), px_now AS (
+        SELECT r.id, m."closePrice"::numeric AS v, m."listedShares"::numeric AS sh
+        FROM rep r JOIN market_snapshot m ON m."securityId" = r.sid
+        WHERE m."baseDate" = (SELECT max("baseDate") FROM market_snapshot_day WHERE "rowCount" > 0)
+      ), px_3m AS (
+        -- 3개월 전 거래일이 휴장일 수 있어 그 이전 마지막 거래일을 쓴다.
+        SELECT DISTINCT ON (r.id) r.id, m."closePrice"::numeric AS v,
+               m."listedShares"::numeric AS sh
+        FROM rep r JOIN market_snapshot m ON m."securityId" = r.sid
+        WHERE m."baseDate" <= (SELECT max("baseDate") FROM market_snapshot_day WHERE "rowCount" > 0) - interval '3 months'
+        ORDER BY r.id, m."baseDate" DESC
+      ), px_12m AS (
+        SELECT DISTINCT ON (r.id) r.id, m."closePrice"::numeric AS v,
+               m."listedShares"::numeric AS sh
+        FROM rep r JOIN market_snapshot m ON m."securityId" = r.sid
+        WHERE m."baseDate" <= (SELECT max("baseDate") FROM market_snapshot_day WHERE "rowCount" > 0) - interval '12 months'
+        ORDER BY r.id, m."baseDate" DESC
+      ), band AS (
+        -- 액면분할·병합이 있으면 종가를 이어 붙일 수 없다. 상장주식수의 최대·최소도
+        -- 같이 가져와, 크게 바뀐 기업은 값을 내지 않는다.
+        SELECT r.id, max(m."closePrice"::numeric) AS hi, min(m."closePrice"::numeric) AS lo,
+               max(m."listedShares"::numeric) AS sh_hi, min(m."listedShares"::numeric) AS sh_lo
+        FROM rep r JOIN market_snapshot m ON m."securityId" = r.sid
+        WHERE m."baseDate" > (SELECT max("baseDate") FROM market_snapshot_day WHERE "rowCount" > 0) - interval '12 months'
+          AND m."closePrice" IS NOT NULL
+        GROUP BY r.id
       ), div AS (
         -- 최근 사업연도의 현금배당금총액 (백만원 → 원). 단위는 항목 이름에 있으므로
         -- 아는 표기만 받는다 (다른 단위가 나오면 틀린 값을 쓰느니 비워 둔다).
@@ -346,19 +385,28 @@ class ScreenEndpoint extends Endpoint {
           max(t.now_cum) FILTER (WHERE t.acc = 'ifrs-full_Revenue') AS revenue_now,
           max(t.ago_cum) FILTER (WHERE t.acc = 'ifrs-full_Revenue') AS revenue_ago,
           max(t.now_cum) FILTER (WHERE t.acc = 'dart_OperatingIncomeLoss') AS op_now,
-          max(t.ago_cum) FILTER (WHERE t.acc = 'dart_OperatingIncomeLoss') AS op_ago
+          max(t.ago_cum) FILTER (WHERE t.acc = 'dart_OperatingIncomeLoss') AS op_ago,
+          max(pn.v) AS px, max(p3.v) AS px3, max(p12.v) AS px12,
+          max(bd.hi) AS hi52, max(bd.lo) AS lo52,
+          max(pn.sh) AS sh, max(p3.sh) AS sh3, max(p12.sh) AS sh12,
+          max(bd.sh_hi) AS sh_hi, max(bd.sh_lo) AS sh_lo
         FROM company c
         JOIN latest l ON l.id = c.id
         JOIN cap ON cap.id = c.id
         LEFT JOIN ttm t ON t.id = c.id
         LEFT JOIN bs b ON b.id = c.id
         LEFT JOIN div dv ON dv.id = c.id
+        LEFT JOIN px_now pn ON pn.id = c.id
+        LEFT JOIN px_3m p3 ON p3.id = c.id
+        LEFT JOIN px_12m p12 ON p12.id = c.id
+        LEFT JOIN band bd ON bd.id = c.id
         WHERE c.market IN ($markets)
         GROUP BY c.id, c."corpCode", c.name, c.market, l.y, cap.cap
       )
       SELECT id, "corpCode", name, market, y, cap, revenue, op, ni, eq,
              total_eq, liab, fcf, dividend,
-             revenue_now, revenue_ago, op_now, op_ago, assets
+             revenue_now, revenue_ago, op_now, op_ago, assets,
+             px, px3, px12, hi52, lo52, sh, sh3, sh12, sh_hi, sh_lo
       FROM metrics
     ''');
 
@@ -381,6 +429,42 @@ class ScreenEndpoint extends Endpoint {
     bool wonScale(Object? assets) {
       final v = big(assets);
       return v != null && v >= _minAssets;
+    }
+
+    int? whole(Object? v) => v == null ? null : double.parse('$v').round();
+
+    /// 상장주식수가 이보다 달라졌으면 종가를 이어 붙이지 않는다 (액면분할·병합,
+    /// 큰 유상증자). 조정 주가를 만들 근거가 없으므로 틀린 값을 내느니 비운다.
+    const shareTolerance = 0.3;
+
+    bool sameShares(Object? a, Object? b) {
+      final x = a == null ? null : double.parse('$a');
+      final y = b == null ? null : double.parse('$b');
+      if (x == null || y == null || x <= 0 || y <= 0) return false;
+      return (x / y - 1).abs() <= shareTolerance;
+    }
+
+    /// 지금 값이 [then]보다 몇 % 오르내렸는가. 주식수가 크게 바뀌었으면 비운다.
+    double? change(
+      Object? now,
+      Object? then,
+      Object? sharesNow,
+      Object? sharesThen,
+    ) {
+      if (!sameShares(sharesNow, sharesThen)) return null;
+      final a = now == null ? null : double.parse('$now');
+      final b = then == null ? null : double.parse('$then');
+      if (a == null || b == null || b <= 0) return null;
+      return 100 * (a - b) / b;
+    }
+
+    /// 52주 최저(0)~최고(100) 사이에서 지금 종가의 자리.
+    double? position(Object? now, Object? hi, Object? lo) {
+      final v = now == null ? null : double.parse('$now');
+      final h = hi == null ? null : double.parse('$hi');
+      final l = lo == null ? null : double.parse('$lo');
+      if (v == null || h == null || l == null || h <= l) return null;
+      return 100 * (v - l) / (h - l);
     }
 
     /// 전년 같은 기간 대비 증감률(%). 작년이 적자(0 이하)면 계산하지 않는다.
@@ -426,6 +510,15 @@ class ScreenEndpoint extends Endpoint {
                 : null,
             revenueGrowth: growth(r[14], r[15]),
             operatingIncomeGrowth: growth(r[16], r[17]),
+            // 주가는 거래소 시세라 단위 문제가 없다.
+            closePrice: whole(r[19]),
+            return3m: change(r[19], r[20], r[24], r[25]),
+            return12m: change(r[19], r[21], r[24], r[26]),
+            high52w: sameShares(r[27], r[28]) ? whole(r[22]) : null,
+            low52w: sameShares(r[27], r[28]) ? whole(r[23]) : null,
+            bandPosition: sameShares(r[27], r[28])
+                ? position(r[19], r[22], r[23])
+                : null,
           ),
     ];
     _cacheKey = key;

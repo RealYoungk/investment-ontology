@@ -29,6 +29,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _idt86amb;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/investment_theme.dart'
     as _in6y0ur2;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/market_cap_point.dart'
+    as _ihep8lzy;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/person_hit.dart'
     as _iqw74hrd;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/review_check.dart'
@@ -43,7 +45,6 @@ import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _iacs;
 import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
     as _iais;
-
 import 'future_calls_generated_models/ai_extraction_future_call_run_model.dart'
     as _iskveedf;
 import 'future_calls_generated_models/company_master_future_call_run_model.dart'
@@ -125,6 +126,7 @@ import 'ontology/models/investment_entry.dart' as _i9p8kpm7;
 import 'ontology/models/investment_theme.dart' as _i57inxpq;
 import 'ontology/models/market.dart' as _iyzzhewo;
 import 'ontology/models/market_cap_node.dart' as _i1tskjhh;
+import 'ontology/models/market_cap_point.dart' as _igdvszti;
 import 'ontology/models/market_cap_treemap.dart' as _iwodvuy1;
 import 'ontology/models/market_snapshot.dart' as _ibhowe7d;
 import 'ontology/models/market_snapshot_day.dart' as _i3renazk;
@@ -229,6 +231,7 @@ export 'ontology/models/investment_entry.dart';
 export 'ontology/models/investment_theme.dart';
 export 'ontology/models/market.dart';
 export 'ontology/models/market_cap_node.dart';
+export 'ontology/models/market_cap_point.dart';
 export 'ontology/models/market_cap_treemap.dart';
 export 'ontology/models/market_snapshot.dart';
 export 'ontology/models/market_snapshot_day.dart';
@@ -4493,6 +4496,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _i1tskjhh.MarketCapNode) {
       return _i1tskjhh.MarketCapNode.fromJson(data) as T;
     }
+    if (t == _igdvszti.MarketCapPoint) {
+      return _igdvszti.MarketCapPoint.fromJson(data) as T;
+    }
     if (t == _iwodvuy1.MarketCapTreemap) {
       return _iwodvuy1.MarketCapTreemap.fromJson(data) as T;
     }
@@ -4904,6 +4910,10 @@ class Protocol extends _is.DatabaseSerializationManager {
       return (data != null ? _i1tskjhh.MarketCapNode.fromJson(data) : null)
           as T;
     }
+    if (t == _is.getType<_igdvszti.MarketCapPoint?>()) {
+      return (data != null ? _igdvszti.MarketCapPoint.fromJson(data) : null)
+          as T;
+    }
     if (t == _is.getType<_iwodvuy1.MarketCapTreemap?>()) {
       return (data != null ? _iwodvuy1.MarketCapTreemap.fromJson(data) : null)
           as T;
@@ -5309,6 +5319,12 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == List<String>) {
       return (data as List).map((e) => deserialize<String>(e)).toList() as T;
     }
+    if (t == List<_ihep8lzy.MarketCapPoint>) {
+      return (data as List)
+              .map((e) => deserialize<_ihep8lzy.MarketCapPoint>(e))
+              .toList()
+          as T;
+    }
     if (t == List<int>) {
       return (data as List).map((e) => deserialize<int>(e)).toList() as T;
     }
@@ -5436,6 +5452,7 @@ class Protocol extends _is.DatabaseSerializationManager {
       _i57inxpq.InvestmentTheme => 'InvestmentTheme',
       _iyzzhewo.Market => 'Market',
       _i1tskjhh.MarketCapNode => 'MarketCapNode',
+      _igdvszti.MarketCapPoint => 'MarketCapPoint',
       _iwodvuy1.MarketCapTreemap => 'MarketCapTreemap',
       _ibhowe7d.MarketSnapshot => 'MarketSnapshot',
       _i3renazk.MarketSnapshotDay => 'MarketSnapshotDay',
@@ -5638,6 +5655,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'Market';
       case _i1tskjhh.MarketCapNode():
         return 'MarketCapNode';
+      case _igdvszti.MarketCapPoint():
+        return 'MarketCapPoint';
       case _iwodvuy1.MarketCapTreemap():
         return 'MarketCapTreemap';
       case _ibhowe7d.MarketSnapshot():
@@ -5971,6 +5990,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'MarketCapNode') {
       return deserialize<_i1tskjhh.MarketCapNode>(data['data']);
+    }
+    if (dataClassName == 'MarketCapPoint') {
+      return deserialize<_igdvszti.MarketCapPoint>(data['data']);
     }
     if (dataClassName == 'MarketCapTreemap') {
       return deserialize<_iwodvuy1.MarketCapTreemap>(data['data']);
