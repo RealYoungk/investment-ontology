@@ -410,10 +410,6 @@ class _FactTrend extends StatelessWidget {
           formatValue: short,
           height: 150,
         ),
-        Text(
-          '각 해 사업보고서에 적힌 그 해 값입니다. 회사가 나중에 기준을 바꿔 다시 적기도 합니다.',
-          style: t.body(11, color: c.textMuted),
-        ),
       ],
     );
   }
@@ -461,7 +457,23 @@ class _DocumentFactsState extends State<_DocumentFacts> {
       by.putIfAbsent('${f.kind.name}|${f.label}|${f.unit}', () => []).add(f);
     }
     by.removeWhere((_, v) => v.length < 2);
-    return by;
+    // 수주 → 생산 → 점유율 순으로 (읽는 순서를 고정한다).
+    const order = [
+      DocumentFactKind.orderTotal,
+      DocumentFactKind.orderDelivered,
+      DocumentFactKind.orderBacklog,
+      DocumentFactKind.capacity,
+      DocumentFactKind.production,
+      DocumentFactKind.utilization,
+      DocumentFactKind.marketShare,
+    ];
+    final keys = by.keys.toList()
+      ..sort((a, b) {
+        final ka = order.indexOf(by[a]!.first.kind);
+        final kb = order.indexOf(by[b]!.first.kind);
+        return ka != kb ? ka.compareTo(kb) : a.compareTo(b);
+      });
+    return {for (final k in keys) k: by[k]!};
   }
 
   static String label(DocumentFactKind k) => switch (k) {
@@ -496,6 +508,13 @@ class _DocumentFactsState extends State<_DocumentFacts> {
           for (final entry in _series.entries) ...[
             _FactTrend(facts: entry.value, kindLabel: label),
             const SizedBox(height: AppSpace.lg),
+          ],
+          if (_series.isNotEmpty) ...[
+            Text(
+              '차트는 각 해 사업보고서에 적힌 그 해 값입니다. 회사가 나중에 기준을 바꿔 다시 적기도 합니다.',
+              style: t.body(11.5, color: c.textMuted),
+            ),
+            const SizedBox(height: AppSpace.md),
           ],
           AppDataTable(
             columns: const [
