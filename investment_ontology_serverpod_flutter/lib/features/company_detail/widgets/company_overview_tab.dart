@@ -6,6 +6,7 @@ import '../../../design/components/components.dart';
 import '../../../design/tokens.dart';
 import '../../financials/financial_metrics.dart';
 import '../../common/formatters.dart';
+import 'business_blurb.dart';
 import 'business_highlights.dart';
 import 'ontology_digest.dart';
 import 'recent_disclosures.dart';
@@ -33,6 +34,10 @@ class CompanyOverviewTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final main = [
+      BusinessBlurb(
+        corpCode: detail.company.corpCode,
+        onOpen: () => onOpenTab('business'),
+      ),
       PriceChart(corpCode: detail.company.corpCode),
       const SizedBox(height: AppSpace.section),
       _FinancialDigest(financials: financials, onOpen: onOpenFinancials),
