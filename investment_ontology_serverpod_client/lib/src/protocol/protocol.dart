@@ -11,6 +11,8 @@
 // ignore_for_file: dead_code, unnecessary_type_check
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/business_document_ref.dart'
+    as _id7v70oo;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_group.dart'
     as _i7uvzrch;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/disclosure_section_info.dart'
@@ -1165,6 +1167,12 @@ class Protocol extends _isc.SerializationManager {
     if (t == List<_irah5hi6.ThemeMemberView>) {
       return (data as List)
               .map((e) => deserialize<_irah5hi6.ThemeMemberView>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_id7v70oo.BusinessDocumentRef>) {
+      return (data as List)
+              .map((e) => deserialize<_id7v70oo.BusinessDocumentRef>(e))
               .toList()
           as T;
     }
