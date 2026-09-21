@@ -306,11 +306,12 @@ class ScreenEndpoint extends Endpoint {
           AND s."companyId" IS NOT NULL
         GROUP BY 1
       ), div AS (
-        -- 최근 사업연도의 현금배당금총액 (백만원 → 원).
+        -- 최근 사업연도의 현금배당금총액 (백만원 → 원). 단위는 항목 이름에 있으므로
+        -- 아는 표기만 받는다 (다른 단위가 나오면 틀린 값을 쓰느니 비워 둔다).
         SELECT DISTINCT ON (d."companyId") d."companyId" AS id,
                d.current * 1000000 AS total
         FROM dividend_entry d
-        WHERE d.item LIKE '현금배당금총액%' AND d.current IS NOT NULL
+        WHERE d.item = '현금배당금총액(백만원)' AND d.current IS NOT NULL
         ORDER BY d."companyId", d."bsnsYear" DESC
       ), metrics AS (
         SELECT c.id, c."corpCode", c.name, c.market, l.y, cap.cap,
