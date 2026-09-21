@@ -44,8 +44,11 @@ class ReviewEndpoint extends Endpoint {
   Future<OntologyRelation?> decide(
     Session session,
     int relationId,
-    bool approve,
-  ) async {
+    bool approve, {
+
+    /// 누가 결정했는지. 사람이 화면에서 누르면 비워 둔다.
+    String? by,
+  }) async {
     final r = await OntologyRelation.db.findById(session, relationId);
     if (r == null || r.extractedBy != RelationOrigin.ai) return null;
     return OntologyRelation.db.updateRow(
@@ -53,9 +56,67 @@ class ReviewEndpoint extends Endpoint {
       r.copyWith(
         status: approve ? RelationStatus.verified : RelationStatus.rejected,
         reviewedAt: DateTime.now().toUtc(),
+        reviewedBy: by,
       ),
     );
   }
+
+  /// 여러 건을 한 번에. 원문과 대조한 결과를 넣을 때 쓴다.
+  Future<int> decideMany(
+    Session session,
+    List<int> relationIds,
+    bool approve, {
+    String? by,
+  }) async {
+    var done = 0;
+    for (final id in relationIds) {
+      if (await decide(session, id, approve, by: by) != null) done++;
+    }
+    return done;
+  }
+
+  /// 값도 여러 건을 한 번에.
+  Future<int> decideFactsMany(
+    Session session,
+    List<int> factIds,
+    bool approve, {
+    String? by,
+  }) async {
+    var done = 0;
+    for (final id in factIds) {
+      if (await decideFact(session, id, approve, by: by) != null) done++;
+    }
+    return done;
+  }
+
+  /// 대조 검수 기록을 남긴다 (정확률을 숫자로).
+  Future<ReviewCheck> recordCheck(
+    Session session,
+    String scope,
+    int checked,
+    int correct,
+    int leftToPerson,
+    String checkedBy, {
+    String? note,
+  }) => ReviewCheck.db.insertRow(
+    session,
+    ReviewCheck(
+      scope: scope,
+      checked: checked,
+      correct: correct,
+      leftToPerson: leftToPerson,
+      checkedBy: checkedBy,
+      note: note,
+      createdAt: DateTime.now().toUtc(),
+    ),
+  );
+
+  /// 남겨 둔 대조 검수 기록 (최근 것부터).
+  Future<List<ReviewCheck>> checks(Session session) => ReviewCheck.db.find(
+    session,
+    orderBy: (t) => t.createdAt.desc(),
+    limit: 20,
+  );
 
   /// 본문에서 뽑은 값 검수 목록 (수주잔고·가동률·점유율 등).
   Future<FactPage> facts(
@@ -104,8 +165,9 @@ class ReviewEndpoint extends Endpoint {
   Future<DocumentFact?> decideFact(
     Session session,
     int factId,
-    bool approve,
-  ) async {
+    bool approve, {
+    String? by,
+  }) async {
     final f = await DocumentFact.db.findById(session, factId);
     if (f == null) return null;
     return DocumentFact.db.updateRow(
@@ -113,6 +175,7 @@ class ReviewEndpoint extends Endpoint {
       f.copyWith(
         status: approve ? RelationStatus.verified : RelationStatus.rejected,
         reviewedAt: DateTime.now().toUtc(),
+        reviewedBy: by,
       ),
     );
   }

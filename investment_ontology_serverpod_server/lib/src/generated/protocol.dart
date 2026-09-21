@@ -29,6 +29,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _in6y0ur2;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/person_hit.dart'
     as _iqw74hrd;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/review_check.dart'
+    as _iwp9ei5l;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/review_item.dart'
     as _ip1s5ejx;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/theme_summary.dart'
@@ -135,6 +137,7 @@ import 'ontology/models/relation_fact_kind.dart' as _iy288i3j;
 import 'ontology/models/relation_origin.dart' as _id1oen7t;
 import 'ontology/models/relation_predicate.dart' as _idal2dwe;
 import 'ontology/models/relation_status.dart' as _ih00v9tp;
+import 'ontology/models/review_check.dart' as _iqdwyhyy;
 import 'ontology/models/review_item.dart' as _i6uduqoi;
 import 'ontology/models/review_page.dart' as _i22wlf7g;
 import 'ontology/models/screen_page.dart' as _izca0w44;
@@ -235,6 +238,7 @@ export 'ontology/models/relation_fact_kind.dart';
 export 'ontology/models/relation_origin.dart';
 export 'ontology/models/relation_predicate.dart';
 export 'ontology/models/relation_status.dart';
+export 'ontology/models/review_check.dart';
 export 'ontology/models/review_item.dart';
 export 'ontology/models/review_page.dart';
 export 'ontology/models/screen_page.dart';
@@ -1650,6 +1654,12 @@ class Protocol extends _is.DatabaseSerializationManager {
           columnType: _isp.ColumnType.timestampWithoutTimeZone,
           isNullable: true,
           dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'reviewedBy',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
         ),
         _isp.ColumnDefinition(
           name: 'createdAt',
@@ -3073,6 +3083,12 @@ class Protocol extends _is.DatabaseSerializationManager {
           isNullable: true,
           dartType: 'DateTime?',
         ),
+        _isp.ColumnDefinition(
+          name: 'reviewedBy',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
       ],
       foreignKeys: [
         _isp.ForeignKeyDefinition(
@@ -3317,6 +3333,84 @@ class Protocol extends _is.DatabaseSerializationManager {
           ],
           type: 'btree',
           isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'review_check',
+      dartName: 'ReviewCheck',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'scope',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'checked',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'correct',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'leftToPerson',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'checkedBy',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'note',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'review_check_scope_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'scope',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'createdAt',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
           isPrimary: false,
         ),
       ],
@@ -4327,6 +4421,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _ih00v9tp.RelationStatus) {
       return _ih00v9tp.RelationStatus.fromJson(data) as T;
     }
+    if (t == _iqdwyhyy.ReviewCheck) {
+      return _iqdwyhyy.ReviewCheck.fromJson(data) as T;
+    }
     if (t == _i6uduqoi.ReviewItem) {
       return _i6uduqoi.ReviewItem.fromJson(data) as T;
     }
@@ -4738,6 +4835,9 @@ class Protocol extends _is.DatabaseSerializationManager {
       return (data != null ? _ih00v9tp.RelationStatus.fromJson(data) : null)
           as T;
     }
+    if (t == _is.getType<_iqdwyhyy.ReviewCheck?>()) {
+      return (data != null ? _iqdwyhyy.ReviewCheck.fromJson(data) : null) as T;
+    }
     if (t == _is.getType<_i6uduqoi.ReviewItem?>()) {
       return (data != null ? _i6uduqoi.ReviewItem.fromJson(data) : null) as T;
     }
@@ -5061,6 +5161,15 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == List<String>) {
       return (data as List).map((e) => deserialize<String>(e)).toList() as T;
     }
+    if (t == List<int>) {
+      return (data as List).map((e) => deserialize<int>(e)).toList() as T;
+    }
+    if (t == List<_iwp9ei5l.ReviewCheck>) {
+      return (data as List)
+              .map((e) => deserialize<_iwp9ei5l.ReviewCheck>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_ip1s5ejx.ReviewItem>) {
       return (data as List)
               .map((e) => deserialize<_ip1s5ejx.ReviewItem>(e))
@@ -5194,6 +5303,7 @@ class Protocol extends _is.DatabaseSerializationManager {
       _id1oen7t.RelationOrigin => 'RelationOrigin',
       _idal2dwe.RelationPredicate => 'RelationPredicate',
       _ih00v9tp.RelationStatus => 'RelationStatus',
+      _iqdwyhyy.ReviewCheck => 'ReviewCheck',
       _i6uduqoi.ReviewItem => 'ReviewItem',
       _i22wlf7g.ReviewPage => 'ReviewPage',
       _izca0w44.ScreenPage => 'ScreenPage',
@@ -5407,6 +5517,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'RelationPredicate';
       case _ih00v9tp.RelationStatus():
         return 'RelationStatus';
+      case _iqdwyhyy.ReviewCheck():
+        return 'ReviewCheck';
       case _i6uduqoi.ReviewItem():
         return 'ReviewItem';
       case _i22wlf7g.ReviewPage():
@@ -5748,6 +5860,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (dataClassName == 'RelationStatus') {
       return deserialize<_ih00v9tp.RelationStatus>(data['data']);
     }
+    if (dataClassName == 'ReviewCheck') {
+      return deserialize<_iqdwyhyy.ReviewCheck>(data['data']);
+    }
     if (dataClassName == 'ReviewItem') {
       return deserialize<_i6uduqoi.ReviewItem>(data['data']);
     }
@@ -5899,6 +6014,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return _i9gy9ys0.Person.t;
       case _iffou6wp.PersonLinkRejection:
         return _iffou6wp.PersonLinkRejection.t;
+      case _iqdwyhyy.ReviewCheck:
+        return _iqdwyhyy.ReviewCheck.t;
       case _ilujots3.Security:
         return _ilujots3.Security.t;
       case _itljah4k.ShareholderEntry:

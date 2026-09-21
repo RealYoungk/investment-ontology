@@ -80,6 +80,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _iklpi3wo;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/relation_status.dart'
     as _ixp2yk27;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/review_check.dart'
+    as _ixhvmecn;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/review_item.dart'
     as _ihqozc6p;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/review_page.dart'
@@ -897,15 +899,76 @@ class EndpointReview extends _isc.EndpointRef {
   /// 승인하면 verified, 거절하면 rejected. 다시 추출해도 이 결정은 유지된다.
   _ida.Future<_isup83mn.OntologyRelation?> decide(
     int relationId,
-    bool approve,
-  ) => caller.callServerEndpoint<_isup83mn.OntologyRelation?>(
+    bool approve, {
+    String? by,
+  }) => caller.callServerEndpoint<_isup83mn.OntologyRelation?>(
     'review',
     'decide',
     {
       'relationId': relationId,
       'approve': approve,
+      'by': by,
     },
   );
+
+  /// 여러 건을 한 번에. 원문과 대조한 결과를 넣을 때 쓴다.
+  _ida.Future<int> decideMany(
+    List<int> relationIds,
+    bool approve, {
+    String? by,
+  }) => caller.callServerEndpoint<int>(
+    'review',
+    'decideMany',
+    {
+      'relationIds': relationIds,
+      'approve': approve,
+      'by': by,
+    },
+  );
+
+  /// 값도 여러 건을 한 번에.
+  _ida.Future<int> decideFactsMany(
+    List<int> factIds,
+    bool approve, {
+    String? by,
+  }) => caller.callServerEndpoint<int>(
+    'review',
+    'decideFactsMany',
+    {
+      'factIds': factIds,
+      'approve': approve,
+      'by': by,
+    },
+  );
+
+  /// 대조 검수 기록을 남긴다 (정확률을 숫자로).
+  _ida.Future<_ixhvmecn.ReviewCheck> recordCheck(
+    String scope,
+    int checked,
+    int correct,
+    int leftToPerson,
+    String checkedBy, {
+    String? note,
+  }) => caller.callServerEndpoint<_ixhvmecn.ReviewCheck>(
+    'review',
+    'recordCheck',
+    {
+      'scope': scope,
+      'checked': checked,
+      'correct': correct,
+      'leftToPerson': leftToPerson,
+      'checkedBy': checkedBy,
+      'note': note,
+    },
+  );
+
+  /// 남겨 둔 대조 검수 기록 (최근 것부터).
+  _ida.Future<List<_ixhvmecn.ReviewCheck>> checks() =>
+      caller.callServerEndpoint<List<_ixhvmecn.ReviewCheck>>(
+        'review',
+        'checks',
+        {},
+      );
 
   /// 본문에서 뽑은 값 검수 목록 (수주잔고·가동률·점유율 등).
   _ida.Future<_i9n1o9ln.FactPage> facts({
@@ -927,13 +990,15 @@ class EndpointReview extends _isc.EndpointRef {
   /// 값 하나를 승인·거절한다.
   _ida.Future<_ip7x5uw8.DocumentFact?> decideFact(
     int factId,
-    bool approve,
-  ) => caller.callServerEndpoint<_ip7x5uw8.DocumentFact?>(
+    bool approve, {
+    String? by,
+  }) => caller.callServerEndpoint<_ip7x5uw8.DocumentFact?>(
     'review',
     'decideFact',
     {
       'factId': factId,
       'approve': approve,
+      'by': by,
     },
   );
 

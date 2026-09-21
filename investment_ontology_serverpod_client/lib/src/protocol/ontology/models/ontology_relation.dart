@@ -43,6 +43,7 @@ abstract class OntologyRelation
     this.confidence,
     this.extractorModel,
     this.reviewedAt,
+    this.reviewedBy,
   });
 
   factory OntologyRelation({
@@ -66,6 +67,7 @@ abstract class OntologyRelation
     double? confidence,
     String? extractorModel,
     DateTime? reviewedAt,
+    String? reviewedBy,
   }) = _OntologyRelationImpl;
 
   factory OntologyRelation.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -108,6 +110,7 @@ abstract class OntologyRelation
           : _isc.DateTimeJsonExtension.fromJson(
               jsonSerialization['reviewedAt'],
             ),
+      reviewedBy: jsonSerialization['reviewedBy'] as String?,
     );
   }
 
@@ -162,6 +165,9 @@ abstract class OntologyRelation
   /// 사람이 승인·거절한 시각
   DateTime? reviewedAt;
 
+  /// 누가 결정했는지 (사람이면 null, AI가 원문과 대조했으면 그 이름)
+  String? reviewedBy;
+
   /// Returns a shallow copy of this [OntologyRelation]
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
@@ -186,6 +192,7 @@ abstract class OntologyRelation
     double? confidence,
     String? extractorModel,
     DateTime? reviewedAt,
+    String? reviewedBy,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -211,6 +218,7 @@ abstract class OntologyRelation
       if (confidence != null) 'confidence': confidence,
       if (extractorModel != null) 'extractorModel': extractorModel,
       if (reviewedAt != null) 'reviewedAt': reviewedAt?.toJson(),
+      if (reviewedBy != null) 'reviewedBy': reviewedBy,
     };
   }
 
@@ -238,6 +246,7 @@ abstract class OntologyRelation
       if (confidence != null) 'confidence': confidence,
       if (extractorModel != null) 'extractorModel': extractorModel,
       if (reviewedAt != null) 'reviewedAt': reviewedAt?.toJson(),
+      if (reviewedBy != null) 'reviewedBy': reviewedBy,
     };
   }
 
@@ -271,6 +280,7 @@ class _OntologyRelationImpl extends OntologyRelation {
     double? confidence,
     String? extractorModel,
     DateTime? reviewedAt,
+    String? reviewedBy,
   }) : super._(
          id: id,
          predicate: predicate,
@@ -292,6 +302,7 @@ class _OntologyRelationImpl extends OntologyRelation {
          confidence: confidence,
          extractorModel: extractorModel,
          reviewedAt: reviewedAt,
+         reviewedBy: reviewedBy,
        );
 
   /// Returns a shallow copy of this [OntologyRelation]
@@ -319,6 +330,7 @@ class _OntologyRelationImpl extends OntologyRelation {
     Object? confidence = _Undefined,
     Object? extractorModel = _Undefined,
     Object? reviewedAt = _Undefined,
+    Object? reviewedBy = _Undefined,
   }) {
     return OntologyRelation(
       id: id is int? ? id : this.id,
@@ -351,6 +363,7 @@ class _OntologyRelationImpl extends OntologyRelation {
           ? extractorModel
           : this.extractorModel,
       reviewedAt: reviewedAt is DateTime? ? reviewedAt : this.reviewedAt,
+      reviewedBy: reviewedBy is String? ? reviewedBy : this.reviewedBy,
     );
   }
 }

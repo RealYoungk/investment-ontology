@@ -25,6 +25,8 @@ fields:
   confidence: double?
   status: RelationStatus
   reviewedAt: DateTime?
+  ### 누가 결정했는지 (사람이면 null, AI가 원문과 대조했으면 그 이름)
+  reviewedBy: String?
   createdAt: DateTime
 indexes:
   document_fact_company_idx:

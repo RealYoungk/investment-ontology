@@ -61,6 +61,10 @@ market:
 review:
   - list:
   - decide:
+  - decideMany:
+  - decideFactsMany:
+  - recordCheck:
+  - checks:
   - facts:
   - decideFact:
   - forCompany:

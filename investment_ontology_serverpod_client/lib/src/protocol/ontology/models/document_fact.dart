@@ -38,6 +38,7 @@ abstract class DocumentFact
     this.confidence,
     required this.status,
     this.reviewedAt,
+    this.reviewedBy,
     required this.createdAt,
   });
 
@@ -58,6 +59,7 @@ abstract class DocumentFact
     double? confidence,
     required _ije7dn2u.RelationStatus status,
     DateTime? reviewedAt,
+    String? reviewedBy,
     required DateTime createdAt,
   }) = _DocumentFactImpl;
 
@@ -91,6 +93,7 @@ abstract class DocumentFact
           : _isc.DateTimeJsonExtension.fromJson(
               jsonSerialization['reviewedAt'],
             ),
+      reviewedBy: jsonSerialization['reviewedBy'] as String?,
       createdAt: _isc.DateTimeJsonExtension.fromJson(
         jsonSerialization['createdAt'],
       ),
@@ -137,6 +140,9 @@ abstract class DocumentFact
 
   DateTime? reviewedAt;
 
+  /// 누가 결정했는지 (사람이면 null, AI가 원문과 대조했으면 그 이름)
+  String? reviewedBy;
+
   DateTime createdAt;
 
   /// Returns a shallow copy of this [DocumentFact]
@@ -159,6 +165,7 @@ abstract class DocumentFact
     double? confidence,
     _ije7dn2u.RelationStatus? status,
     DateTime? reviewedAt,
+    String? reviewedBy,
     DateTime? createdAt,
   });
   @override
@@ -181,6 +188,7 @@ abstract class DocumentFact
       if (confidence != null) 'confidence': confidence,
       'status': status.toJson(),
       if (reviewedAt != null) 'reviewedAt': reviewedAt?.toJson(),
+      if (reviewedBy != null) 'reviewedBy': reviewedBy,
       'createdAt': createdAt.toJson(),
     };
   }
@@ -205,6 +213,7 @@ abstract class DocumentFact
       if (confidence != null) 'confidence': confidence,
       'status': status.toJson(),
       if (reviewedAt != null) 'reviewedAt': reviewedAt?.toJson(),
+      if (reviewedBy != null) 'reviewedBy': reviewedBy,
       'createdAt': createdAt.toJson(),
     };
   }
@@ -235,6 +244,7 @@ class _DocumentFactImpl extends DocumentFact {
     double? confidence,
     required _ije7dn2u.RelationStatus status,
     DateTime? reviewedAt,
+    String? reviewedBy,
     required DateTime createdAt,
   }) : super._(
          id: id,
@@ -253,6 +263,7 @@ class _DocumentFactImpl extends DocumentFact {
          confidence: confidence,
          status: status,
          reviewedAt: reviewedAt,
+         reviewedBy: reviewedBy,
          createdAt: createdAt,
        );
 
@@ -277,6 +288,7 @@ class _DocumentFactImpl extends DocumentFact {
     Object? confidence = _Undefined,
     _ije7dn2u.RelationStatus? status,
     Object? reviewedAt = _Undefined,
+    Object? reviewedBy = _Undefined,
     DateTime? createdAt,
   }) {
     return DocumentFact(
@@ -298,6 +310,7 @@ class _DocumentFactImpl extends DocumentFact {
       confidence: confidence is double? ? confidence : this.confidence,
       status: status ?? this.status,
       reviewedAt: reviewedAt is DateTime? ? reviewedAt : this.reviewedAt,
+      reviewedBy: reviewedBy is String? ? reviewedBy : this.reviewedBy,
       createdAt: createdAt ?? this.createdAt,
     );
   }

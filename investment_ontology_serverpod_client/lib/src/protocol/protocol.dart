@@ -29,6 +29,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _izhmhfon;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/person_hit.dart'
     as _i96d117e;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/review_check.dart'
+    as _ixhvmecn;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/review_item.dart'
     as _ihqozc6p;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/theme_summary.dart'
@@ -120,6 +122,7 @@ import 'ontology/models/relation_fact_kind.dart' as _iy288i3j;
 import 'ontology/models/relation_origin.dart' as _id1oen7t;
 import 'ontology/models/relation_predicate.dart' as _idal2dwe;
 import 'ontology/models/relation_status.dart' as _ih00v9tp;
+import 'ontology/models/review_check.dart' as _iqdwyhyy;
 import 'ontology/models/review_item.dart' as _i6uduqoi;
 import 'ontology/models/review_page.dart' as _i22wlf7g;
 import 'ontology/models/screen_page.dart' as _izca0w44;
@@ -220,6 +223,7 @@ export 'ontology/models/relation_fact_kind.dart';
 export 'ontology/models/relation_origin.dart';
 export 'ontology/models/relation_predicate.dart';
 export 'ontology/models/relation_status.dart';
+export 'ontology/models/review_check.dart';
 export 'ontology/models/review_item.dart';
 export 'ontology/models/review_page.dart';
 export 'ontology/models/screen_page.dart';
@@ -519,6 +523,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _ih00v9tp.RelationStatus) {
       return _ih00v9tp.RelationStatus.fromJson(data) as T;
+    }
+    if (t == _iqdwyhyy.ReviewCheck) {
+      return _iqdwyhyy.ReviewCheck.fromJson(data) as T;
     }
     if (t == _i6uduqoi.ReviewItem) {
       return _i6uduqoi.ReviewItem.fromJson(data) as T;
@@ -888,6 +895,9 @@ class Protocol extends _isc.SerializationManager {
       return (data != null ? _ih00v9tp.RelationStatus.fromJson(data) : null)
           as T;
     }
+    if (t == _isc.getType<_iqdwyhyy.ReviewCheck?>()) {
+      return (data != null ? _iqdwyhyy.ReviewCheck.fromJson(data) : null) as T;
+    }
     if (t == _isc.getType<_i6uduqoi.ReviewItem?>()) {
       return (data != null ? _i6uduqoi.ReviewItem.fromJson(data) : null) as T;
     }
@@ -1211,6 +1221,15 @@ class Protocol extends _isc.SerializationManager {
     if (t == List<String>) {
       return (data as List).map((e) => deserialize<String>(e)).toList() as T;
     }
+    if (t == List<int>) {
+      return (data as List).map((e) => deserialize<int>(e)).toList() as T;
+    }
+    if (t == List<_ixhvmecn.ReviewCheck>) {
+      return (data as List)
+              .map((e) => deserialize<_ixhvmecn.ReviewCheck>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_ihqozc6p.ReviewItem>) {
       return (data as List)
               .map((e) => deserialize<_ihqozc6p.ReviewItem>(e))
@@ -1328,6 +1347,7 @@ class Protocol extends _isc.SerializationManager {
       _id1oen7t.RelationOrigin => 'RelationOrigin',
       _idal2dwe.RelationPredicate => 'RelationPredicate',
       _ih00v9tp.RelationStatus => 'RelationStatus',
+      _iqdwyhyy.ReviewCheck => 'ReviewCheck',
       _i6uduqoi.ReviewItem => 'ReviewItem',
       _i22wlf7g.ReviewPage => 'ReviewPage',
       _izca0w44.ScreenPage => 'ScreenPage',
@@ -1527,6 +1547,8 @@ class Protocol extends _isc.SerializationManager {
         return 'RelationPredicate';
       case _ih00v9tp.RelationStatus():
         return 'RelationStatus';
+      case _iqdwyhyy.ReviewCheck():
+        return 'ReviewCheck';
       case _i6uduqoi.ReviewItem():
         return 'ReviewItem';
       case _i22wlf7g.ReviewPage():
@@ -1830,6 +1852,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'RelationStatus') {
       return deserialize<_ih00v9tp.RelationStatus>(data['data']);
+    }
+    if (dataClassName == 'ReviewCheck') {
+      return deserialize<_iqdwyhyy.ReviewCheck>(data['data']);
     }
     if (dataClassName == 'ReviewItem') {
       return deserialize<_i6uduqoi.ReviewItem>(data['data']);

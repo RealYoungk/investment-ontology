@@ -97,6 +97,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _iw7mt1ku;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/relation_status.dart'
     as _iy39k7od;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/review_check.dart'
+    as _iwp9ei5l;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/review_item.dart'
     as _ip1s5ejx;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/review_page.dart'
@@ -2122,8 +2124,9 @@ class _ReviewEndpoint {
   _ida.Future<_i5x2f28w.OntologyRelation?> decide(
     _ist.TestSessionBuilder sessionBuilder,
     int relationId,
-    bool approve,
-  ) async {
+    bool approve, {
+    String? by,
+  }) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
           (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
@@ -2138,6 +2141,7 @@ class _ReviewEndpoint {
           parameters: _ist.testObjectToJson({
             'relationId': relationId,
             'approve': approve,
+            'by': by,
           }),
           serializationManager: _serializationManager,
         );
@@ -2147,6 +2151,153 @@ class _ReviewEndpoint {
                   _localCallContext.arguments,
                 )
                 as _ida.Future<_i5x2f28w.OntologyRelation?>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<int> decideMany(
+    _ist.TestSessionBuilder sessionBuilder,
+    List<int> relationIds,
+    bool approve, {
+    String? by,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'review',
+            method: 'decideMany',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'review',
+          methodName: 'decideMany',
+          parameters: _ist.testObjectToJson({
+            'relationIds': relationIds,
+            'approve': approve,
+            'by': by,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<int>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<int> decideFactsMany(
+    _ist.TestSessionBuilder sessionBuilder,
+    List<int> factIds,
+    bool approve, {
+    String? by,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'review',
+            method: 'decideFactsMany',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'review',
+          methodName: 'decideFactsMany',
+          parameters: _ist.testObjectToJson({
+            'factIds': factIds,
+            'approve': approve,
+            'by': by,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<int>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_iwp9ei5l.ReviewCheck> recordCheck(
+    _ist.TestSessionBuilder sessionBuilder,
+    String scope,
+    int checked,
+    int correct,
+    int leftToPerson,
+    String checkedBy, {
+    String? note,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'review',
+            method: 'recordCheck',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'review',
+          methodName: 'recordCheck',
+          parameters: _ist.testObjectToJson({
+            'scope': scope,
+            'checked': checked,
+            'correct': correct,
+            'leftToPerson': leftToPerson,
+            'checkedBy': checkedBy,
+            'note': note,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_iwp9ei5l.ReviewCheck>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<List<_iwp9ei5l.ReviewCheck>> checks(
+    _ist.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'review',
+            method: 'checks',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'review',
+          methodName: 'checks',
+          parameters: _ist.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_iwp9ei5l.ReviewCheck>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2196,8 +2347,9 @@ class _ReviewEndpoint {
   _ida.Future<_ihq2wng4.DocumentFact?> decideFact(
     _ist.TestSessionBuilder sessionBuilder,
     int factId,
-    bool approve,
-  ) async {
+    bool approve, {
+    String? by,
+  }) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
           (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
@@ -2212,6 +2364,7 @@ class _ReviewEndpoint {
           parameters: _ist.testObjectToJson({
             'factId': factId,
             'approve': approve,
+            'by': by,
           }),
           serializationManager: _serializationManager,
         );

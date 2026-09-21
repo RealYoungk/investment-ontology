@@ -1296,6 +1296,11 @@ class Endpoints extends _is.EndpointDispatch {
               type: _is.getType<bool>(),
               nullable: false,
             ),
+            'by': _is.ParameterDescription(
+              name: 'by',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
           },
           call:
               (
@@ -1306,7 +1311,129 @@ class Endpoints extends _is.EndpointDispatch {
                     session,
                     params['relationId'],
                     params['approve'],
+                    by: params['by'],
                   ),
+        ),
+        'decideMany': _is.MethodConnector(
+          name: 'decideMany',
+          params: {
+            'relationIds': _is.ParameterDescription(
+              name: 'relationIds',
+              type: _is.getType<List<int>>(),
+              nullable: false,
+            ),
+            'approve': _is.ParameterDescription(
+              name: 'approve',
+              type: _is.getType<bool>(),
+              nullable: false,
+            ),
+            'by': _is.ParameterDescription(
+              name: 'by',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['review'] as _i9uttt4a.ReviewEndpoint).decideMany(
+                    session,
+                    params['relationIds'],
+                    params['approve'],
+                    by: params['by'],
+                  ),
+        ),
+        'decideFactsMany': _is.MethodConnector(
+          name: 'decideFactsMany',
+          params: {
+            'factIds': _is.ParameterDescription(
+              name: 'factIds',
+              type: _is.getType<List<int>>(),
+              nullable: false,
+            ),
+            'approve': _is.ParameterDescription(
+              name: 'approve',
+              type: _is.getType<bool>(),
+              nullable: false,
+            ),
+            'by': _is.ParameterDescription(
+              name: 'by',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['review'] as _i9uttt4a.ReviewEndpoint)
+                  .decideFactsMany(
+                    session,
+                    params['factIds'],
+                    params['approve'],
+                    by: params['by'],
+                  ),
+        ),
+        'recordCheck': _is.MethodConnector(
+          name: 'recordCheck',
+          params: {
+            'scope': _is.ParameterDescription(
+              name: 'scope',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'checked': _is.ParameterDescription(
+              name: 'checked',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+            'correct': _is.ParameterDescription(
+              name: 'correct',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+            'leftToPerson': _is.ParameterDescription(
+              name: 'leftToPerson',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+            'checkedBy': _is.ParameterDescription(
+              name: 'checkedBy',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'note': _is.ParameterDescription(
+              name: 'note',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['review'] as _i9uttt4a.ReviewEndpoint).recordCheck(
+                    session,
+                    params['scope'],
+                    params['checked'],
+                    params['correct'],
+                    params['leftToPerson'],
+                    params['checkedBy'],
+                    note: params['note'],
+                  ),
+        ),
+        'checks': _is.MethodConnector(
+          name: 'checks',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['review'] as _i9uttt4a.ReviewEndpoint)
+                  .checks(session),
         ),
         'facts': _is.MethodConnector(
           name: 'facts',
@@ -1358,6 +1485,11 @@ class Endpoints extends _is.EndpointDispatch {
               type: _is.getType<bool>(),
               nullable: false,
             ),
+            'by': _is.ParameterDescription(
+              name: 'by',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
           },
           call:
               (
@@ -1368,6 +1500,7 @@ class Endpoints extends _is.EndpointDispatch {
                     session,
                     params['factId'],
                     params['approve'],
+                    by: params['by'],
                   ),
         ),
         'forCompany': _is.MethodConnector(

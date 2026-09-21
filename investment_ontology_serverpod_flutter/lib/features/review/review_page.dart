@@ -30,6 +30,7 @@ class _ReviewQueuePageState extends State<ReviewQueuePage> {
   RelationPredicate? _predicate;
   ReviewPage? _page;
   FactPage? _facts;
+  List<ReviewCheck> _checks = const [];
 
   /// false = 관계, true = 본문에서 뽑은 값.
   bool _showFacts = false;
@@ -44,11 +45,16 @@ class _ReviewQueuePageState extends State<ReviewQueuePage> {
 
   Future<void> _load() async {
     try {
-      final (p, f) = await (
+      final (p, f, checks) = await (
         client.review.list(status: _status, predicate: _predicate, limit: 100),
         client.review.facts(status: _status, limit: 100),
+        client.review.checks(),
       ).wait;
-      if (mounted) setState(() => (_page = p, _facts = f, _error = null));
+      if (mounted) {
+        setState(
+          () => (_page = p, _facts = f, _checks = checks, _error = null),
+        );
+      }
     } catch (e) {
       if (mounted) setState(() => _error = e);
     }
@@ -89,7 +95,9 @@ class _ReviewQueuePageState extends State<ReviewQueuePage> {
               '사업보고서 "사업의 내용"에서 미리 뽑아 둔 관계와 값입니다. 근거 인용이 원문에 '
               '그대로 있는 것만 남겼고, 승인해야 온톨로지에 확정됩니다. 다시 뽑아도 결정은 유지됩니다.',
         ),
-        const SizedBox(height: AppSpace.xl),
+        const SizedBox(height: AppSpace.lg),
+        _Accuracy(checks: _checks, facts: _showFacts),
+        const SizedBox(height: AppSpace.lg),
         Wrap(
           spacing: AppSpace.lg,
           runSpacing: AppSpace.sm,
@@ -311,6 +319,66 @@ class ReviewCard extends StatelessWidget {
               );
             },
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 확신도가 아니라 **실제로 몇 건이 맞았는지**. 근거 문장과 원문을 하나씩 대조한 기록이다.
+class _Accuracy extends StatelessWidget {
+  const _Accuracy({required this.checks, required this.facts});
+
+  final List<ReviewCheck> checks;
+
+  /// 지금 보고 있는 것이 값(true)인지 관계(false)인지.
+  final bool facts;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    final scope = facts ? 'fact' : 'relation';
+    final mine = [
+      for (final x in checks)
+        if (x.scope == scope) x,
+    ];
+    if (mine.isEmpty) return const SizedBox.shrink();
+    final checked = mine.fold(0, (a, b) => a + b.checked);
+    final correct = mine.fold(0, (a, b) => a + b.correct);
+    final left = mine.fold(0, (a, b) => a + b.leftToPerson);
+    if (checked == 0) return const SizedBox.shrink();
+    final rate = 100 * correct / checked;
+
+    return Container(
+      padding: const EdgeInsets.all(AppSpace.md),
+      decoration: BoxDecoration(
+        color: c.surface,
+        borderRadius: context.shape.borderRadius,
+        border: Border.all(color: c.borderStrong),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SectionLabel('대조 검수', accent: true),
+          const SizedBox(height: 4),
+          Text(
+            '${formatCount(checked)}건을 근거 문장·원문과 하나씩 대조해 '
+            '${formatCount(correct)}건이 맞았습니다 (${rate.toStringAsFixed(1)}%)'
+            '${left == 0 ? '' : ' · 애매한 ${formatCount(left)}건은 사람 판단으로 남겼습니다'}.',
+            style: t.body(13.5),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '모델이 스스로 매긴 확신도와 다른 숫자입니다. 대조한 것: '
+            '${mine.map((x) => x.checkedBy).toSet().join(' · ')}',
+            style: t.body(11.5, color: c.textMuted),
+          ),
+          for (final x in mine)
+            if (x.note case final note?) ...[
+              const SizedBox(height: 4),
+              Text(note, style: t.body(12, color: c.textSecondary)),
+            ],
         ],
       ),
     );

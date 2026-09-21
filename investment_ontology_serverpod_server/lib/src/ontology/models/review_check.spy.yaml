@@ -1,0 +1,21 @@
+### 검수 정확률 기록: 뽑아 둔 것을 원문과 하나씩 대조하고 그 결과를 숫자로 남긴다.
+###
+### 모델이 스스로 매긴 확신도(confidence)와 다르다. 이건 실제로 몇 건이 맞았는지다.
+class: ReviewCheck
+table: review_check
+fields:
+  ### relation · fact
+  scope: String
+  ### 대조한 건수
+  checked: int
+  ### 원문과 맞았던 건수
+  correct: int
+  ### 사람 판단으로 남긴 건수 (애매해서 넘긴 것)
+  leftToPerson: int
+  ### 누가 대조했는지
+  checkedBy: String
+  note: String?
+  createdAt: DateTime
+indexes:
+  review_check_scope_idx:
+    fields: scope, createdAt
