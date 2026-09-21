@@ -1,0 +1,27 @@
+### 사업보고서 "사업의 내용"을 절마다 읽기 좋게 녹인 글. 원문을 통째로 보여 주는 대신 이것을 보여 준다.
+###
+### AI가 화면 요청 중에 쓰는 것이 아니라 서버 밖에서 미리 읽어 넣는다 (ai.submitDigest).
+### 근거 인용(evidence)은 원문에 글자 그대로 있어야 저장된다 — 관계·값과 같은 규칙.
+class: BusinessDigestSection
+table: business_digest_section
+fields:
+  companyId: int, relation(parent=company, onDelete=Cascade)
+  documentId: int, relation(parent=business_document, onDelete=Cascade)
+  bsnsYear: int
+  ### 화면 순서
+  ord: int
+  kind: BusinessDigestKind
+  title: String
+  ### 요약 글 (몇 문장, 줄바꿈으로 문단)
+  summary: String
+  ### 원문에서 그대로 옮긴 근거 인용 (가장 중요한 문장·표 줄)
+  evidence: String
+  ### 누가 읽었는지 (모델·세션)
+  extractorModel: String
+  sourceId: int?, relation(parent=source, onDelete=SetNull)
+  createdAt: DateTime
+indexes:
+  business_digest_document_idx:
+    fields: documentId, ord
+  business_digest_company_idx:
+    fields: companyId, bsnsYear

@@ -93,7 +93,7 @@ class _ReviewQueuePageState extends State<ReviewQueuePage> {
           title: '검수',
           subtitle:
               '사업보고서 "사업의 내용"에서 미리 뽑아 둔 관계와 값입니다. 근거 인용이 원문에 '
-              '그대로 있는 것만 남겼고, 승인해야 온톨로지에 확정됩니다. 다시 뽑아도 결정은 유지됩니다.',
+              '그대로 있는 것만 남겼습니다. 대부분은 원문 대조를 거쳐 이미 확정했고, 여기에는 판단이 갈리는 것만 남습니다.',
         ),
         const SizedBox(height: AppSpace.lg),
         _Accuracy(checks: _checks, facts: _showFacts),
@@ -160,7 +160,7 @@ class _ReviewQueuePageState extends State<ReviewQueuePage> {
         else if (page.items.isEmpty)
           Text(
             _status == RelationStatus.draft
-                ? '검수할 관계가 없습니다. 데이터 화면에서 AI 관계 추출을 시작하세요 (Anthropic 키 필요).'
+                ? '남은 관계가 없습니다. 새 본문이 들어오면 서버 밖에서 읽어 넣은 뒤 판단이 갈리는 것만 여기 남깁니다.'
                 : '없습니다.',
             style: t.body(13, color: c.textMuted),
           )

@@ -290,6 +290,29 @@ class DisclosureEndpoint extends Endpoint {
     );
   }
 
+  /// "사업의 내용"을 읽기 좋게 녹인 절들 (없으면 빈 목록). [bsnsYear]가 없으면 가장 최근 해.
+  Future<List<BusinessDigestSection>> digest(
+    Session session,
+    String corpCode, {
+    int? bsnsYear,
+  }) async {
+    final company = await _company(session, corpCode);
+    if (company == null) return const [];
+    final year =
+        bsnsYear ??
+        (await BusinessDigestSection.db.findFirstRow(
+          session,
+          where: (t) => t.companyId.equals(company.id!),
+          orderBy: (t) => t.bsnsYear.desc(),
+        ))?.bsnsYear;
+    if (year == null) return const [];
+    return BusinessDigestSection.db.find(
+      session,
+      where: (t) => t.companyId.equals(company.id!) & t.bsnsYear.equals(year),
+      orderBy: (t) => t.ord,
+    );
+  }
+
   /// 최근 올라온 정기보고서. 새 공시를 눈에 띄게 보여 주는 용도다.
   ///
   /// 사업·반기·분기보고서만 다룬다 (수집 대상이 그것뿐이다). 정정 공시도 그대로 보인다.
