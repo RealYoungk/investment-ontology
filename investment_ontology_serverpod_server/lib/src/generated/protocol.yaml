@@ -11,15 +11,6 @@ jwtRefresh:
   - refreshAccessToken:
 greeting:
   - hello:
-ai:
-  - status:
-  - extractCompany:
-  - startBatch:
-  - pending:
-  - documentText:
-  - documentTexts:
-  - submit:
-  - submitFacts:
 company:
   - overview:
   - divisions:
@@ -57,6 +48,7 @@ ingest:
   - latest:
   - latestOf:
   - latestOfKinds:
+  - rebuildProductionFacts:
 market:
   - industryTreemap:
 review:

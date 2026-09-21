@@ -11,6 +11,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _is;
+
 import '../../ontology/models/ingest_status.dart' as _i281cs6p;
 
 /// 외부 원천 수집 작업 기록.

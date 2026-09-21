@@ -4,6 +4,7 @@ import '../../generated/protocol.dart';
 import '../dart/dart_api_key.dart';
 import '../data_go_kr/data_go_kr_service_key.dart';
 import '../disclosure/disclosure_links.dart';
+import '../disclosure/production_facts.dart';
 import '../ingest/api_call_budget.dart';
 import '../ingest/company_master_sync.dart';
 import '../ingest/disclosure_sync.dart';
@@ -197,6 +198,18 @@ class IngestEndpoint extends Endpoint {
   ) async => [
     for (final kind in kinds) ?await IngestJobs.latest(session, kind),
   ];
+
+  /// 이미 받아 둔 본문에서 생산능력·생산실적·가동률 표를 다시 읽는다 (호출 없음).
+  ///
+  /// 규칙을 고친 뒤 되돌려 읽을 때 쓴다. 사람이 이미 결정한 항목은 건드리지 않는다.
+  Future<String> rebuildProductionFacts(Session session) async {
+    final docs = await BusinessDocument.db.find(session);
+    var stored = 0;
+    for (final doc in docs) {
+      stored += await ProductionFacts.store(session, doc);
+    }
+    return '본문 ${docs.length}건에서 값 $stored건을 읽었습니다.';
+  }
 
   static void _requireDartKey(Session session) {
     if (DartApiKey.read(session) == null) {

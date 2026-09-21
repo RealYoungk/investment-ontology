@@ -10,6 +10,7 @@ import '../disclosure/business_text.dart';
 import '../disclosure/disclosure_links.dart';
 import '../disclosure/disclosure_rows.dart';
 import '../disclosure/disclosure_values.dart';
+import '../disclosure/production_facts.dart';
 import '../market/market_caps.dart';
 import 'api_call_budget.dart';
 import 'financial_facts_sync.dart';
@@ -654,6 +655,13 @@ class DisclosureSync {
         }
       }
     });
+    // 본문의 생산능력·생산실적·가동률 표는 형식이 일정해 규칙으로 읽는다 (호출 없음).
+    final stored = await BusinessDocument.db.findFirstRow(
+      session,
+      where: (t) => t.rceptNo.equals(filing.rceptNo),
+      orderBy: (t) => t.id.desc(),
+    );
+    if (stored != null) await ProductionFacts.store(session, stored);
   }
 
   /// 출생년월이 있는 임원을 인물에 잇는다 (없으면 만든다).
