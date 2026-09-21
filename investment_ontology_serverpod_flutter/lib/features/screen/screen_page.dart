@@ -78,6 +78,8 @@ class _ScreenerPageState extends State<ScreenerPage> {
         debtRatioMax: _f.debtMax,
         dividendYieldMin: _f.dividendMin,
         fcfYieldMin: _f.fcfMin,
+        revenueGrowthMin: _f.revenueGrowthMin,
+        operatingIncomeGrowthMin: _f.opGrowthMin,
         sort: _f.sort,
         ascending: _f.ascending,
         limit: 100,
@@ -159,6 +161,17 @@ class _ScreenerPageState extends State<ScreenerPage> {
               value: _f.fcfMin,
               onChanged: (v) => _applySoon(_f.copyWith(fcfMin: () => v)),
             ),
+            _NumberField(
+              label: '매출 성장률 % 이상',
+              value: _f.revenueGrowthMin,
+              onChanged: (v) =>
+                  _applySoon(_f.copyWith(revenueGrowthMin: () => v)),
+            ),
+            _NumberField(
+              label: '영업이익 성장률 % 이상',
+              value: _f.opGrowthMin,
+              onChanged: (v) => _applySoon(_f.copyWith(opGrowthMin: () => v)),
+            ),
           ],
         ),
         const SizedBox(height: AppSpace.md),
@@ -179,6 +192,8 @@ class _ScreenerPageState extends State<ScreenerPage> {
                 ScreenSort.debtRatio: '부채비율',
                 ScreenSort.dividendYield: '배당수익률',
                 ScreenSort.fcfYield: 'FCF 수익률',
+                ScreenSort.revenueGrowth: '매출 성장률',
+                ScreenSort.operatingIncomeGrowth: '영업이익 성장률',
               },
               // 싼 것·높은 수익성을 먼저 보는 쪽이 자연스럽다.
               onChanged: (s) => _apply(
@@ -223,13 +238,14 @@ class _ScreenerPageState extends State<ScreenerPage> {
               style: t.numeric(12.5, color: c.textSecondary),
             ),
           const SizedBox(height: AppSpace.sm),
-          if (page != null) _ResultTable(page: page),
+          if (page != null) _ResultTable(page: page, sort: _f.sort),
           const SizedBox(height: AppSpace.md),
           Text(
             'PER = 시가총액 ÷ 지배주주 당기순이익 · PBR = 시가총액 ÷ 지배주주 자본 · '
             'ROE = 지배주주 순이익 ÷ 지배주주 자본 · 영업이익률 = 영업이익 ÷ 매출액 · '
             '부채비율 = 부채총계 ÷ 자본총계 · FCF 수익률 = (영업활동 현금흐름 − 유형자산 취득) ÷ 시가총액 · '
-            '배당수익률 = 최근 사업연도 현금배당금총액 ÷ 시가총액. '
+            '배당수익률 = 최근 사업연도 현금배당금총액 ÷ 시가총액 · '
+            '성장률 = 올해 누적 대비 전년 같은 기간 누적 (전년이 적자면 계산하지 않음). '
             '손익 항목은 최근 12개월 합계(사업보고서면 그 해, 아니면 전년 연간 + 올해 누적 − 전년 같은 기간 '
             '누적)이고 자본은 최근 보고서 시점 값입니다. 모두 연결 기준이며, 지배주주 값이 없으면 전체 값을 씁니다. '
             '표준계정(XBRL)으로만 찾으므로 '
@@ -245,9 +261,26 @@ class _ScreenerPageState extends State<ScreenerPage> {
 }
 
 class _ResultTable extends StatelessWidget {
-  const _ResultTable({required this.page});
+  const _ResultTable({required this.page, required this.sort});
 
   final ScreenPage page;
+  final ScreenSort sort;
+
+  /// 좁은 화면에서도 남기는 열. 나머지는 가로로 밀어서 봐야 하므로 폰에서는 접는다.
+  static const _always = {'기업', '시가총액', 'PER(배)', 'ROE(%)'};
+
+  static String? _sortColumn(ScreenSort sort) => switch (sort) {
+    ScreenSort.marketCap => null,
+    ScreenSort.per => 'PER(배)',
+    ScreenSort.pbr => 'PBR(배)',
+    ScreenSort.roe => 'ROE(%)',
+    ScreenSort.operatingMargin => '영업이익률(%)',
+    ScreenSort.revenueGrowth => '매출 성장률(%)',
+    ScreenSort.operatingIncomeGrowth => '영업이익 성장률(%)',
+    ScreenSort.debtRatio => '부채비율(%)',
+    ScreenSort.dividendYield => '배당수익률(%)',
+    ScreenSort.fcfYield => 'FCF 수익률(%)',
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -256,83 +289,67 @@ class _ResultTable extends StatelessWidget {
     if (page.items.isEmpty) {
       return Text('조건에 맞는 기업이 없습니다.', style: t.body(13, color: c.textMuted));
     }
-    return AppDataTable(
-      columns: const [
-        AppColumn('기업'),
-        AppColumn('시가총액', numeric: true),
-        AppColumn('PER(배)', numeric: true),
-        AppColumn('PBR(배)', numeric: true),
-        AppColumn('ROE(%)', numeric: true),
-        AppColumn('영업이익률(%)', numeric: true),
-        AppColumn('부채비율(%)', numeric: true),
-        AppColumn('배당수익률(%)', numeric: true),
-        AppColumn('FCF 수익률(%)', numeric: true),
-        AppColumn('매출액(TTM)', numeric: true),
-        AppColumn('영업이익(TTM)', numeric: true),
-        AppColumn('최근 보고서'),
-      ],
-      rows: [
-        for (final r in page.items)
-          AppRow([
-            HoverBuilder(
-              onTap: () => context.push(AppRoutes.company(r.company.corpCode)),
-              builder: (context, hovered) => Text(
-                r.company.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: t
-                    .body(13.5, color: c.accent, weight: FontWeight.w600)
-                    .copyWith(
-                      decoration: hovered ? TextDecoration.underline : null,
-                      decorationColor: c.accent,
-                    ),
-              ),
-            ),
-            AppDataTable.text(context, formatKrw(r.marketCap), numeric: true),
-            AppDataTable.text(
-              context,
-              r.per?.toStringAsFixed(2),
-              numeric: true,
-            ),
-            AppDataTable.text(
-              context,
-              r.pbr?.toStringAsFixed(2),
-              numeric: true,
-            ),
-            AppDataTable.text(
-              context,
-              r.roe?.toStringAsFixed(1),
-              numeric: true,
-            ),
-            AppDataTable.text(
-              context,
-              r.operatingMargin?.toStringAsFixed(1),
-              numeric: true,
-            ),
-            AppDataTable.text(
-              context,
-              r.debtRatio?.toStringAsFixed(1),
-              numeric: true,
-            ),
-            AppDataTable.text(
-              context,
-              r.dividendYield?.toStringAsFixed(2),
-              numeric: true,
-            ),
-            AppDataTable.text(
-              context,
-              r.fcfYield?.toStringAsFixed(2),
-              numeric: true,
-            ),
-            AppDataTable.text(context, formatKrw(r.revenue), numeric: true),
-            AppDataTable.text(
-              context,
-              formatKrw(r.operatingIncome),
-              numeric: true,
-            ),
-            AppDataTable.text(context, '${r.bsnsYear}'),
-          ]),
-      ],
+    String? fixed(double? v, int digits) => v?.toStringAsFixed(digits);
+    final columns = <(String, String? Function(ScreenRow))>[
+      ('기업', (r) => r.company.name),
+      ('시가총액', (r) => formatKrw(r.marketCap)),
+      ('PER(배)', (r) => fixed(r.per, 2)),
+      ('PBR(배)', (r) => fixed(r.pbr, 2)),
+      ('ROE(%)', (r) => fixed(r.roe, 1)),
+      ('영업이익률(%)', (r) => fixed(r.operatingMargin, 1)),
+      ('매출 성장률(%)', (r) => fixed(r.revenueGrowth, 1)),
+      ('영업이익 성장률(%)', (r) => fixed(r.operatingIncomeGrowth, 1)),
+      ('부채비율(%)', (r) => fixed(r.debtRatio, 1)),
+      ('배당수익률(%)', (r) => fixed(r.dividendYield, 2)),
+      ('FCF 수익률(%)', (r) => fixed(r.fcfYield, 2)),
+      ('매출액(TTM)', (r) => formatKrw(r.revenue)),
+      ('영업이익(TTM)', (r) => formatKrw(r.operatingIncome)),
+      ('최근 보고서', (r) => '${r.bsnsYear}'),
+    ];
+    return LayoutBuilder(
+      builder: (context, box) {
+        final narrow = box.maxWidth < 900;
+        final keep = {..._always, ?_sortColumn(sort)};
+        final shown = [
+          for (final col in columns)
+            if (!narrow || keep.contains(col.$1)) col,
+        ];
+        return AppDataTable(
+          columns: [
+            for (final col in shown) AppColumn(col.$1, numeric: col.$1 != '기업'),
+          ],
+          rows: [
+            for (final r in page.items)
+              AppRow([
+                for (final col in shown)
+                  if (col.$1 == '기업')
+                    HoverBuilder(
+                      onTap: () =>
+                          context.push(AppRoutes.company(r.company.corpCode)),
+                      builder: (context, hovered) => Text(
+                        r.company.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: t
+                            .body(
+                              13.5,
+                              color: c.accent,
+                              weight: FontWeight.w600,
+                            )
+                            .copyWith(
+                              decoration: hovered
+                                  ? TextDecoration.underline
+                                  : null,
+                              decorationColor: c.accent,
+                            ),
+                      ),
+                    )
+                  else
+                    AppDataTable.text(context, col.$2(r), numeric: true),
+              ]),
+          ],
+        );
+      },
     );
   }
 }

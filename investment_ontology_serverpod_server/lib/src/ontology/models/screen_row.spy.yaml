@@ -29,3 +29,7 @@ fields:
   fcfYield: double?
   ### 현금배당금총액 ÷ 시가총액 (%)
   dividendYield: double?
+  ### 매출액 증감률 (올해 누적 vs 전년 같은 기간, %)
+  revenueGrowth: double?
+  ### 영업이익 증감률 (올해 누적 vs 전년 같은 기간, %)
+  operatingIncomeGrowth: double?

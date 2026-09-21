@@ -43,6 +43,8 @@ class ScreenEndpoint extends Endpoint {
     double? pbrMax,
     double? roeMin,
     double? operatingMarginMin,
+    double? revenueGrowthMin,
+    double? operatingIncomeGrowthMin,
     double? debtRatioMax,
     double? dividendYieldMin,
     double? fcfYieldMin,
@@ -65,6 +67,13 @@ class ScreenEndpoint extends Endpoint {
                   (operatingMarginMin == null ||
                       (r.operatingMargin != null &&
                           r.operatingMargin! >= operatingMarginMin)) &&
+                  (revenueGrowthMin == null ||
+                      (r.revenueGrowth != null &&
+                          r.revenueGrowth! >= revenueGrowthMin)) &&
+                  (operatingIncomeGrowthMin == null ||
+                      (r.operatingIncomeGrowth != null &&
+                          r.operatingIncomeGrowth! >=
+                              operatingIncomeGrowthMin)) &&
                   (debtRatioMax == null ||
                       (r.debtRatio != null && r.debtRatio! <= debtRatioMax)) &&
                   (dividendYieldMin == null ||
@@ -99,6 +108,8 @@ class ScreenEndpoint extends Endpoint {
       ScreenSort.debtRatio => r.debtRatio == null ? null : -r.debtRatio!,
       ScreenSort.fcfYield => r.fcfYield,
       ScreenSort.dividendYield => r.dividendYield,
+      ScreenSort.revenueGrowth => r.revenueGrowth,
+      ScreenSort.operatingIncomeGrowth => r.operatingIncomeGrowth,
     };
     final asc = ascending ?? false;
     rows.sort((a, b) {
@@ -174,9 +185,12 @@ class ScreenEndpoint extends Endpoint {
         GROUP BY i.id, i.acc, l.code
       ), ttm AS (
         -- 최근 보고서가 사업보고서면 그 값, 아니면 전년 연간 + 올해 누적 − 전년 같은 기간 누적.
+        -- 성장률은 같은 기간끼리 견준다 (올해 누적 vs 전년 같은 기간 누적).
         SELECT c.id, c.acc,
                CASE WHEN c.code = 'annual' THEN c.amt
-                    ELSE p.annual + c.cum - p.same END AS v
+                    ELSE p.annual + c.cum - p.same END AS v,
+               CASE WHEN c.code = 'annual' THEN c.amt ELSE c.cum END AS now_cum,
+               CASE WHEN c.code = 'annual' THEN p.annual ELSE p.same END AS ago_cum
         FROM cur c LEFT JOIN prev p ON p.id = c.id AND p.acc = c.acc
       ), bs AS (
         SELECT f."companyId" AS id, f."accountId" AS acc, max(f.amount::numeric) AS v
@@ -214,7 +228,11 @@ class ScreenEndpoint extends Endpoint {
           -- 취득액을 음수로 적는 회사가 있어 절댓값으로 뺀다 (기업 화면과 같은 규칙).
           max(t.v) FILTER (WHERE t.acc = 'ifrs-full_CashFlowsFromUsedInOperatingActivities')
             - abs(max(t.v) FILTER (WHERE t.acc = 'ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities')) AS fcf,
-          max(dv.total) AS dividend
+          max(dv.total) AS dividend,
+          max(t.now_cum) FILTER (WHERE t.acc = 'ifrs-full_Revenue') AS revenue_now,
+          max(t.ago_cum) FILTER (WHERE t.acc = 'ifrs-full_Revenue') AS revenue_ago,
+          max(t.now_cum) FILTER (WHERE t.acc = 'dart_OperatingIncomeLoss') AS op_now,
+          max(t.ago_cum) FILTER (WHERE t.acc = 'dart_OperatingIncomeLoss') AS op_ago
         FROM company c
         JOIN latest l ON l.id = c.id
         JOIN cap ON cap.id = c.id
@@ -225,7 +243,8 @@ class ScreenEndpoint extends Endpoint {
         GROUP BY c.id, c."corpCode", c.name, c.market, l.y, cap.cap
       )
       SELECT id, "corpCode", name, market, y, cap, revenue, op, ni, eq,
-             total_eq, liab, fcf, dividend
+             total_eq, liab, fcf, dividend,
+             revenue_now, revenue_ago, op_now, op_ago
       FROM metrics
     ''');
 
@@ -241,6 +260,14 @@ class ScreenEndpoint extends Endpoint {
       final b = bottom == null ? null : double.parse('$bottom');
       if (a == null || b == null || b <= 0) return null;
       return scale * a / b;
+    }
+
+    /// 전년 같은 기간 대비 증감률(%). 작년이 적자(0 이하)면 계산하지 않는다.
+    double? growth(Object? now, Object? ago) {
+      final a = now == null ? null : double.parse('$now');
+      final b = ago == null ? null : double.parse('$ago');
+      if (a == null || b == null || b <= 0) return null;
+      return 100 * (a - b) / b;
     }
 
     final universe = [
@@ -269,6 +296,8 @@ class ScreenEndpoint extends Endpoint {
           debtRatio: divide(r[11], r[10], scale: 100),
           fcfYield: divide(r[12], r[5], scale: 100),
           dividendYield: divide(r[13], r[5], scale: 100),
+          revenueGrowth: growth(r[14], r[15]),
+          operatingIncomeGrowth: growth(r[16], r[17]),
         ),
     ];
     _cacheKey = key;

@@ -9,3 +9,5 @@ values:
   - debtRatio
   - fcfYield
   - dividendYield
+  - revenueGrowth
+  - operatingIncomeGrowth

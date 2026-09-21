@@ -39,6 +39,8 @@ abstract class ScreenRow
     this.debtRatio,
     this.fcfYield,
     this.dividendYield,
+    this.revenueGrowth,
+    this.operatingIncomeGrowth,
   });
 
   factory ScreenRow({
@@ -60,6 +62,8 @@ abstract class ScreenRow
     double? debtRatio,
     double? fcfYield,
     double? dividendYield,
+    double? revenueGrowth,
+    double? operatingIncomeGrowth,
   }) = _ScreenRowImpl;
 
   factory ScreenRow.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -109,6 +113,9 @@ abstract class ScreenRow
       debtRatio: (jsonSerialization['debtRatio'] as num?)?.toDouble(),
       fcfYield: (jsonSerialization['fcfYield'] as num?)?.toDouble(),
       dividendYield: (jsonSerialization['dividendYield'] as num?)?.toDouble(),
+      revenueGrowth: (jsonSerialization['revenueGrowth'] as num?)?.toDouble(),
+      operatingIncomeGrowth:
+          (jsonSerialization['operatingIncomeGrowth'] as num?)?.toDouble(),
     );
   }
 
@@ -156,6 +163,12 @@ abstract class ScreenRow
   /// 현금배당금총액 ÷ 시가총액 (%)
   double? dividendYield;
 
+  /// 매출액 증감률 (올해 누적 vs 전년 같은 기간, %)
+  double? revenueGrowth;
+
+  /// 영업이익 증감률 (올해 누적 vs 전년 같은 기간, %)
+  double? operatingIncomeGrowth;
+
   /// Returns a shallow copy of this [ScreenRow]
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
@@ -178,6 +191,8 @@ abstract class ScreenRow
     double? debtRatio,
     double? fcfYield,
     double? dividendYield,
+    double? revenueGrowth,
+    double? operatingIncomeGrowth,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -201,6 +216,9 @@ abstract class ScreenRow
       if (debtRatio != null) 'debtRatio': debtRatio,
       if (fcfYield != null) 'fcfYield': fcfYield,
       if (dividendYield != null) 'dividendYield': dividendYield,
+      if (revenueGrowth != null) 'revenueGrowth': revenueGrowth,
+      if (operatingIncomeGrowth != null)
+        'operatingIncomeGrowth': operatingIncomeGrowth,
     };
   }
 
@@ -226,6 +244,9 @@ abstract class ScreenRow
       if (debtRatio != null) 'debtRatio': debtRatio,
       if (fcfYield != null) 'fcfYield': fcfYield,
       if (dividendYield != null) 'dividendYield': dividendYield,
+      if (revenueGrowth != null) 'revenueGrowth': revenueGrowth,
+      if (operatingIncomeGrowth != null)
+        'operatingIncomeGrowth': operatingIncomeGrowth,
     };
   }
 
@@ -257,6 +278,8 @@ class _ScreenRowImpl extends ScreenRow {
     double? debtRatio,
     double? fcfYield,
     double? dividendYield,
+    double? revenueGrowth,
+    double? operatingIncomeGrowth,
   }) : super._(
          company: company,
          bsnsYear: bsnsYear,
@@ -276,6 +299,8 @@ class _ScreenRowImpl extends ScreenRow {
          debtRatio: debtRatio,
          fcfYield: fcfYield,
          dividendYield: dividendYield,
+         revenueGrowth: revenueGrowth,
+         operatingIncomeGrowth: operatingIncomeGrowth,
        );
 
   /// Returns a shallow copy of this [ScreenRow]
@@ -301,6 +326,8 @@ class _ScreenRowImpl extends ScreenRow {
     Object? debtRatio = _Undefined,
     Object? fcfYield = _Undefined,
     Object? dividendYield = _Undefined,
+    Object? revenueGrowth = _Undefined,
+    Object? operatingIncomeGrowth = _Undefined,
   }) {
     return ScreenRow(
       company: company ?? this.company.copyWith(),
@@ -329,6 +356,12 @@ class _ScreenRowImpl extends ScreenRow {
       dividendYield: dividendYield is double?
           ? dividendYield
           : this.dividendYield,
+      revenueGrowth: revenueGrowth is double?
+          ? revenueGrowth
+          : this.revenueGrowth,
+      operatingIncomeGrowth: operatingIncomeGrowth is double?
+          ? operatingIncomeGrowth
+          : this.operatingIncomeGrowth,
     );
   }
 }

@@ -1383,6 +1383,16 @@ class Endpoints extends _is.EndpointDispatch {
               type: _is.getType<double?>(),
               nullable: true,
             ),
+            'revenueGrowthMin': _is.ParameterDescription(
+              name: 'revenueGrowthMin',
+              type: _is.getType<double?>(),
+              nullable: true,
+            ),
+            'operatingIncomeGrowthMin': _is.ParameterDescription(
+              name: 'operatingIncomeGrowthMin',
+              type: _is.getType<double?>(),
+              nullable: true,
+            ),
             'debtRatioMax': _is.ParameterDescription(
               name: 'debtRatioMax',
               type: _is.getType<double?>(),
@@ -1437,6 +1447,8 @@ class Endpoints extends _is.EndpointDispatch {
                 pbrMax: params['pbrMax'],
                 roeMin: params['roeMin'],
                 operatingMarginMin: params['operatingMarginMin'],
+                revenueGrowthMin: params['revenueGrowthMin'],
+                operatingIncomeGrowthMin: params['operatingIncomeGrowthMin'],
                 debtRatioMax: params['debtRatioMax'],
                 dividendYieldMin: params['dividendYieldMin'],
                 fcfYieldMin: params['fcfYieldMin'],

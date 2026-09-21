@@ -12,6 +12,8 @@ class ScreenFilter {
     this.debtMax,
     this.dividendMin,
     this.fcfMin,
+    this.revenueGrowthMin,
+    this.opGrowthMin,
     this.sort = ScreenSort.marketCap,
     this.ascending = false,
   });
@@ -36,6 +38,8 @@ class ScreenFilter {
       debtMax: number('debt'),
       dividendMin: number('div'),
       fcfMin: number('fcf'),
+      revenueGrowthMin: number('rgrow'),
+      opGrowthMin: number('ogrow'),
       sort: ScreenSort.values.asNameMap()[q['sort']] ?? ScreenSort.marketCap,
       ascending: q['asc'] == '1',
     );
@@ -49,6 +53,8 @@ class ScreenFilter {
   final double? debtMax;
   final double? dividendMin;
   final double? fcfMin;
+  final double? revenueGrowthMin;
+  final double? opGrowthMin;
   final ScreenSort sort;
   final bool ascending;
 
@@ -59,7 +65,9 @@ class ScreenFilter {
       marginMin != null ||
       debtMax != null ||
       dividendMin != null ||
-      fcfMin != null;
+      fcfMin != null ||
+      revenueGrowthMin != null ||
+      opGrowthMin != null;
 
   ScreenFilter copyWith({
     Market? Function()? market,
@@ -70,6 +78,8 @@ class ScreenFilter {
     double? Function()? debtMax,
     double? Function()? dividendMin,
     double? Function()? fcfMin,
+    double? Function()? revenueGrowthMin,
+    double? Function()? opGrowthMin,
     ScreenSort? sort,
     bool? ascending,
   }) => ScreenFilter(
@@ -81,6 +91,10 @@ class ScreenFilter {
     debtMax: debtMax == null ? this.debtMax : debtMax(),
     dividendMin: dividendMin == null ? this.dividendMin : dividendMin(),
     fcfMin: fcfMin == null ? this.fcfMin : fcfMin(),
+    revenueGrowthMin: revenueGrowthMin == null
+        ? this.revenueGrowthMin
+        : revenueGrowthMin(),
+    opGrowthMin: opGrowthMin == null ? this.opGrowthMin : opGrowthMin(),
     sort: sort ?? this.sort,
     ascending: ascending ?? this.ascending,
   );
@@ -95,6 +109,8 @@ class ScreenFilter {
       if (debtMax case final v?) 'debt': _trim(v),
       if (dividendMin case final v?) 'div': _trim(v),
       if (fcfMin case final v?) 'fcf': _trim(v),
+      if (revenueGrowthMin case final v?) 'rgrow': _trim(v),
+      if (opGrowthMin case final v?) 'ogrow': _trim(v),
       if (sort != ScreenSort.marketCap) 'sort': sort.name,
       if (ascending) 'asc': '1',
     };
@@ -116,6 +132,8 @@ class ScreenFilter {
       other.debtMax == debtMax &&
       other.dividendMin == dividendMin &&
       other.fcfMin == fcfMin &&
+      other.revenueGrowthMin == revenueGrowthMin &&
+      other.opGrowthMin == opGrowthMin &&
       other.sort == sort &&
       other.ascending == ascending;
 
@@ -129,6 +147,8 @@ class ScreenFilter {
     debtMax,
     dividendMin,
     fcfMin,
+    revenueGrowthMin,
+    opGrowthMin,
     sort,
     ascending,
   );

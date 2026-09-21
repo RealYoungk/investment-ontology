@@ -140,6 +140,8 @@ class _CompareTable extends StatelessWidget {
       ('PBR', (r) => formatTimes(r.pbr)),
       ('ROE', (r) => pct(r.roe)),
       ('영업이익률', (r) => pct(r.operatingMargin)),
+      ('매출 성장률', (r) => pct(r.revenueGrowth)),
+      ('영업이익 성장률', (r) => pct(r.operatingIncomeGrowth)),
       ('부채비율', (r) => pct(r.debtRatio)),
       ('배당수익률', (r) => pct(r.dividendYield)),
       ('FCF 수익률', (r) => pct(r.fcfYield)),

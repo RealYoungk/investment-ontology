@@ -11,7 +11,6 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _is;
-
 import '../../ontology/models/api_provider.dart' as _ihrpaigz;
 
 /// 수집 장부: 제공자별·날짜별 API 호출 수.

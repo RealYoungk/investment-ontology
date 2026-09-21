@@ -11,7 +11,6 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _is;
-
 import '../../ontology/models/disclosure_link_basis.dart' as _i0btqt1b;
 import '../../ontology/models/executive_registration.dart' as _i5x1kqvd;
 import '../../ontology/models/relation_predicate.dart' as _iqv2n0qs;
