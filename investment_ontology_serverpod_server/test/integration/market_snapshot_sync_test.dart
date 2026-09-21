@@ -277,6 +277,34 @@ void main() {
       expect(api.priceCalls, ['20260916', '20260914']);
     });
 
+    test('뒤 기준일 시세를 받은 적이 없으면 빈 날을 휴장일로 확정하지 않는다', () async {
+      // 공급처 게시가 며칠 밀리는 동안 거래일을 휴장일로 못박아 영영 빠뜨리면 안 된다.
+      api.prices['20260910'] = [price('KR7005930003', '005930', '삼성전자')];
+
+      final job = await IngestJob.db.insertRow(
+        session,
+        IngestJob(
+          kind: MarketSnapshotSync.kind,
+          status: IngestStatus.running,
+          startedAt: DateTime.now().toUtc(),
+        ),
+      );
+      await MarketSnapshotSync(
+        session,
+        api.client(),
+        job.id!,
+        backfillFrom: DateTime.utc(2026, 9, 10),
+        callInterval: Duration.zero,
+        clock: () => now,
+      ).run();
+
+      final days = {
+        for (final d in await MarketSnapshotDay.db.find(session))
+          d.baseDate.day: d.rowCount,
+      };
+      expect(days, {10: 1});
+    });
+
     test('서비스키 오류면 작업을 실패로 끝낸다', () async {
       api.errorBody =
           '<OpenAPI_ServiceResponse><cmmMsgHeader>'

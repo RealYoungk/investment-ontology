@@ -43,6 +43,13 @@ void main() {
       expect(DisclosureValues.date('2025.02.30'), isNull);
       expect(DisclosureValues.yearMonth('1960년 12월'), (year: 1960, month: 12));
       expect(DisclosureValues.yearMonth('1960년'), isNull);
+      // 공시 오타: 앞으로 올 해는 태어난 해일 수 없다.
+      expect(DisclosureValues.yearMonth('2068년 01월', thisYear: 2026), isNull);
+      expect(
+        DisclosureValues.yearMonth('2026년 07월', thisYear: 2026),
+        (year: 2026, month: 7),
+      );
+      expect(DisclosureValues.yearMonth('2027년 07월', thisYear: 2026), isNull);
       expect(DisclosureValues.months('46개월'), 46);
       expect(DisclosureValues.months('10'), 10);
       expect(DisclosureValues.months('1년'), isNull);

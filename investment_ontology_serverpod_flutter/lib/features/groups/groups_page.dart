@@ -118,7 +118,7 @@ class _GroupCard extends StatelessWidget {
             if (g.sharedPersons.isNotEmpty) ...[
               const SizedBox(height: AppSpace.sm),
               Text(
-                '여러 곳의 주주: ${g.sharedPersons.take(4).map((p) => p.name).join(' · ')}',
+                '여러 곳의 주주: ${g.sharedPersons.take(4).map(personLabel).join(' · ')}',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: t.body(12, color: c.textMuted),
@@ -130,3 +130,10 @@ class _GroupCard extends StatelessWidget {
     );
   }
 }
+
+/// 같은 이름의 다른 사람이 섞여 보이지 않게, 출생년도나 추정 여부를 덧붙인다.
+String personLabel(GroupPerson p) => switch ((p.birthYear, p.estimated)) {
+  (final int year, _) => '${p.name}($year년생)',
+  (_, true) => '${p.name}(추정)',
+  _ => p.name,
+};

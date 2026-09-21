@@ -15,6 +15,9 @@ ai:
   - status:
   - extractCompany:
   - startBatch:
+  - pending:
+  - documentText:
+  - submit:
 company:
   - overview:
   - divisions:

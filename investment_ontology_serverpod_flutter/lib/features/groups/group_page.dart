@@ -8,6 +8,7 @@ import '../../design/components/components.dart';
 import '../../design/tokens.dart';
 import '../common/formatters.dart';
 import '../financials/financial_metrics.dart';
+import 'groups_page.dart' show personLabel;
 
 /// 지분 묶음 상세: 시가총액 지도, 묶음 안 지분 연결, 여러 곳의 주주인 인물.
 class GroupPage extends StatefulWidget {
@@ -136,7 +137,7 @@ class _GroupPageState extends State<GroupPage> {
                         border: Border.all(color: c.borderStrong),
                       ),
                       child: Text(
-                        '${p.name} · ${p.companyCount}곳${p.estimated ? ' · 추정' : ''}',
+                        '${personLabel(p)} · ${p.companyCount}곳',
                         style: t.body(13),
                       ),
                     ),

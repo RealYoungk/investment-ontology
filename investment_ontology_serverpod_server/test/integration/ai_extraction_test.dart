@@ -154,6 +154,46 @@ void main() {
       expect(requests, 2);
     });
 
+    test('밖에서 뽑은 결과도 같은 검증을 거쳐 저장한다 (키 없이)', () async {
+      // 구독 세션 등으로 미리 읽고 넣는 길. 화면 요청 중에는 모델을 부르지 않는다.
+      final pending = await endpoints.ai.pending(sessionBuilder);
+      expect(pending.map((d) => d.corpCode), contains('00000001'));
+      final text = await endpoints.ai.documentText(
+        sessionBuilder,
+        pending.first.documentId,
+      );
+      expect(text, contains('양극재'));
+
+      final run = await endpoints.ai.submit(
+        sessionBuilder,
+        pending.first.documentId,
+        jsonEncode({
+          'relations': [
+            {
+              'type': 'supplier',
+              'name': '(주)양극재',
+              'evidence': '양극재이며 (주)양극재에서 매입합니다.',
+              'confidence': 0.9,
+            },
+            {
+              'type': 'customer',
+              'name': '없는회사',
+              'evidence': '원문에 없는 문장입니다.',
+              'confidence': 0.9,
+            },
+          ],
+        }),
+      );
+
+      expect((run.relationCount, run.droppedCount), (1, 1));
+      expect(run.model, 'claude-code');
+      final page = await endpoints.review.list(sessionBuilder);
+      expect(page.draftCount, 1);
+      expect(page.items.single.relation.extractorModel, 'claude-code');
+      // 넣은 뒤에는 '아직 읽지 않은 본문'에서 빠진다.
+      expect(await endpoints.ai.pending(sessionBuilder), isEmpty);
+    });
+
     test('모델 호출이 실패하면 실패로 기록하고 관계는 만들지 않는다', () async {
       final failing = AnthropicClient(
         'key',

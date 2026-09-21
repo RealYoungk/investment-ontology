@@ -35,10 +35,24 @@ class _GraphPageState extends State<GraphPage> {
   int _maxNodes = 80;
   GraphNode? _selected;
 
+  /// 폰에서는 노드가 많으면 서로 겹쳐 못 읽는다. 처음 한 번만 줄여 둔다.
+  bool _sizedForScreen = false;
+
   @override
   void initState() {
     super.initState();
     _load();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_sizedForScreen) return;
+    _sizedForScreen = true;
+    if (MediaQuery.sizeOf(context).width < 600 && _maxNodes != 40) {
+      _maxNodes = 40;
+      _load();
+    }
   }
 
   @override
@@ -293,6 +307,18 @@ class _GraphCanvasState extends State<_GraphCanvas> {
         _layout(constraints.maxWidth);
         final pos = _pos!;
         final g = widget.graph;
+        // 좁은 화면에서는 이름이 서로 겹쳐 못 읽는다. 큰 노드만 이름을 적고,
+        // 나머지는 눌렀을 때(툴팁·아래 목록)에서 본다.
+        final labelled = constraints.maxWidth >= 600
+            ? null
+            : {
+                g.centerKey,
+                ...([...g.nodes]..sort(
+                      (a, b) => _radius(b).compareTo(_radius(a)),
+                    ))
+                    .take(10)
+                    .map((n) => n.key),
+              };
         return Container(
           height: _height,
           decoration: BoxDecoration(
@@ -366,21 +392,23 @@ class _GraphCanvasState extends State<_GraphCanvas> {
                                       ),
                                     ),
                                     const SizedBox(height: 2),
-                                    Text(
-                                      n.label,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      textAlign: TextAlign.center,
-                                      style: t.body(
-                                        n.kind == 'name' ? 10 : 11.5,
-                                        color: n.kind == 'name'
-                                            ? c.textMuted
-                                            : c.textPrimary,
-                                        weight: isCenter
-                                            ? FontWeight.w700
-                                            : null,
+                                    if (labelled == null ||
+                                        labelled.contains(n.key))
+                                      Text(
+                                        n.label,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.center,
+                                        style: t.body(
+                                          n.kind == 'name' ? 10 : 11.5,
+                                          color: n.kind == 'name'
+                                              ? c.textMuted
+                                              : c.textPrimary,
+                                          weight: isCenter
+                                              ? FontWeight.w700
+                                              : null,
+                                        ),
                                       ),
-                                    ),
                                   ],
                                 ),
                               ),

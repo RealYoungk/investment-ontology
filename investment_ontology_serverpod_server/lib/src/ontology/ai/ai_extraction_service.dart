@@ -7,13 +7,19 @@ import 'anthropic_client.dart';
 import 'relation_extractor.dart';
 
 /// 사업보고서 본문을 AI로 읽어 관계 후보(draft)를 만든다.
+///
+/// 화면 요청 중에는 절대 부르지 않는다. API 키로 배치를 돌리거나([extract]),
+/// 밖(구독 세션 등)에서 미리 뽑은 결과를 넣는다([store]).
 class AiExtractionService {
   AiExtractionService(this.session, this.client);
+
+  /// 모델을 부르지 않고 저장만 할 때.
+  AiExtractionService.offline(this.session) : client = null;
 
   static const kind = 'ai_extraction';
 
   final Session session;
-  final AnthropicClient client;
+  final AnthropicClient? client;
 
   /// 기업마다 가장 최근 사업보고서 본문.
   static Future<List<BusinessDocument>> latestDocuments(Session session) async {
@@ -30,12 +36,8 @@ class AiExtractionService {
 
   /// 문서 하나를 읽는다. 이 문서의 이전 draft는 지우고, 사람이 이미 승인·거절한 관계는 다시 만들지 않는다.
   Future<AiExtraction> extract(BusinessDocument doc) async {
+    final client = this.client!;
     final company = (await Company.db.findById(session, doc.companyId))!;
-    final report = (await DisclosureReport.db.findById(session, doc.reportId))!;
-    final listed = await Company.db.find(
-      session,
-      where: (t) => t.market.inSet(DisclosureLinks.listedMarkets),
-    );
     final now = DateTime.now().toUtc();
     try {
       final answer = await client.complete(
@@ -46,13 +48,45 @@ class AiExtractionService {
           RelationExtractor.excerpt(doc.text),
         ),
       );
-      final parsed = RelationExtractor.parse(answer);
+      return await store(doc, RelationExtractor.parse(answer), client.model);
+    } on AnthropicException catch (e) {
+      return AiExtraction.db.insertRow(
+        session,
+        AiExtraction(
+          documentId: doc.id!,
+          companyId: company.id!,
+          model: client.model,
+          succeeded: false,
+          relationCount: 0,
+          droppedCount: 0,
+          error: e.message,
+          createdAt: now,
+        ),
+      );
+    }
+  }
+
+  /// 뽑아 온 후보를 저장한다. 인용이 원문에 그대로 있는 것만 남기고, 이 문서의 이전
+  /// draft는 지우되 사람이 이미 승인·거절한 관계는 그대로 둔다.
+  Future<AiExtraction> store(
+    BusinessDocument doc,
+    List<ExtractedRelation> parsed,
+    String model,
+  ) async {
+    final company = (await Company.db.findById(session, doc.companyId))!;
+    final report = (await DisclosureReport.db.findById(session, doc.reportId))!;
+    final listed = await Company.db.find(
+      session,
+      where: (t) => t.market.inSet(DisclosureLinks.listedMarkets),
+    );
+    final now = DateTime.now().toUtc();
+    {
       final result = RelationExtractor.toRelations(
         parsed,
         document: doc,
         company: company,
         sourceId: report.sourceId,
-        model: client.model,
+        model: model,
         companiesByName: DisclosureLinks.companiesByName(listed),
         companyNames: {for (final c in listed) c.id!: c.name},
       );
@@ -87,7 +121,7 @@ class AiExtractionService {
           AiExtraction(
             documentId: doc.id!,
             companyId: company.id!,
-            model: client.model,
+            model: model,
             succeeded: true,
             relationCount: fresh.length,
             droppedCount: result.dropped,
@@ -96,20 +130,6 @@ class AiExtractionService {
           transaction: tx,
         );
       });
-    } on AnthropicException catch (e) {
-      return AiExtraction.db.insertRow(
-        session,
-        AiExtraction(
-          documentId: doc.id!,
-          companyId: company.id!,
-          model: client.model,
-          succeeded: false,
-          relationCount: 0,
-          droppedCount: 0,
-          error: e.message,
-          createdAt: now,
-        ),
-      );
     }
   }
 
@@ -168,7 +188,7 @@ class AiExtractionService {
       );
       await IngestJobs.fail(session, jobId, '$e');
     } finally {
-      client.close();
+      client?.close();
     }
   }
 }

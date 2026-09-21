@@ -1,0 +1,9 @@
+### 아직 읽지 않은 사업보고서 본문 한 건 (밖에서 미리 뽑을 때 고르는 용도).
+class: BusinessDocumentRef
+fields:
+  documentId: int
+  corpCode: String
+  companyName: String
+  bsnsYear: int
+  ### 본문 글자 수
+  chars: int

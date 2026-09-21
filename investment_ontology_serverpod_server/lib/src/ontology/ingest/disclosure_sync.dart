@@ -411,13 +411,27 @@ class DisclosureSync {
     Map<String, int> byName,
   ) async {
     if (raw == null || raw.isEmpty) return FilingFetchStatus.noData;
-    final prepared = DisclosureRows.prepare(raw);
-    if (prepared.rows.isEmpty) return FilingFetchStatus.noData;
 
+    // 결산월이 바뀐 리츠처럼 한 사업연도에 정기보고서가 둘이면 두 보고서의 행이 함께 온다.
+    // 지금 장부 줄의 접수번호만 남기고, 없으면 가장 최근 접수번호만 남긴다.
     final rceptNos = {for (final r in raw) ?DartValues.text(r['rcept_no'])};
     if (rceptNos.length != 1) {
-      throw DartApiException('parse', '응답 접수번호가 하나가 아님: $rceptNos');
+      if (rceptNos.isEmpty) {
+        throw DartApiException('parse', '응답에 접수번호가 없음');
+      }
+      final pick = rceptNos.contains(filing.rceptNo)
+          ? filing.rceptNo
+          : (rceptNos.toList()..sort()).last;
+      raw = [
+        for (final r in raw)
+          if (DartValues.text(r['rcept_no']) == pick) r,
+      ];
+      rceptNos
+        ..clear()
+        ..add(pick);
     }
+    final prepared = DisclosureRows.prepare(raw);
+    if (prepared.rows.isEmpty) return FilingFetchStatus.noData;
     for (final r in raw) {
       final corp = DartValues.text(r['corp_code']);
       if (corp != null && corp != company.corpCode) {

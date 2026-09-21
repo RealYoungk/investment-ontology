@@ -138,6 +138,7 @@ class OwnershipGroups {
               personId: p.key,
               name: persons[p.key]!.name,
               estimated: persons[p.key]!.estimated,
+              birthYear: persons[p.key]!.birthYear,
               companyCount: p.value.length,
             ),
       ]..sort((a, b) => b.companyCount.compareTo(a.companyCount));

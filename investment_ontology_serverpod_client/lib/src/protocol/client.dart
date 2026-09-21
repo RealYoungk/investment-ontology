@@ -20,6 +20,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _ie40qci9;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/business_content.dart'
     as _i6ht4m6x;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/business_document_ref.dart'
+    as _id7v70oo;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_detail.dart'
     as _ig9j925g;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_financials.dart'
@@ -330,7 +332,12 @@ class EndpointGreeting extends _isc.EndpointRef {
       );
 }
 
-/// AI 관계 추출 (4단계). Anthropic 키가 있어야 추출하고, 결과는 모두 검수 대기(draft)다.
+/// AI 관계 추출 (4단계).
+///
+/// 화면 요청 중에는 모델을 부르지 않는다. 미리 뽑아 저장해 두고 화면은 저장된 것만 읽는다.
+/// 뽑는 방법은 둘이다. (1) Anthropic 키로 배치 실행, (2) 밖(구독 세션 등)에서 본문을 읽고
+/// [submit]으로 결과를 넣기. 어느 쪽이든 결과는 검수 대기(draft)이고, 인용이 원문에 그대로
+/// 있는 후보만 남는다.
 /// {@category Endpoint}
 class EndpointAi extends _isc.EndpointRef {
   EndpointAi(_isc.EndpointCaller caller) : super(caller);
@@ -360,6 +367,40 @@ class EndpointAi extends _isc.EndpointRef {
         'startBatch',
         {'limit': limit},
       );
+
+  /// 아직 읽지 않은 기업의 최근 본문 목록. 밖에서 미리 뽑을 때 이 순서로 고른다
+  /// (본문이 짧은 것부터 — 한 번에 읽기 좋다).
+  _ida.Future<List<_id7v70oo.BusinessDocumentRef>> pending({int? limit}) =>
+      caller.callServerEndpoint<List<_id7v70oo.BusinessDocumentRef>>(
+        'ai',
+        'pending',
+        {'limit': limit},
+      );
+
+  /// 본문 발췌 (모델에 넣는 것과 같은 범위).
+  _ida.Future<String> documentText(int documentId) =>
+      caller.callServerEndpoint<String>(
+        'ai',
+        'documentText',
+        {'documentId': documentId},
+      );
+
+  /// 밖에서 뽑은 결과를 저장한다. [answer]는 배치 실행과 같은 JSON 형식이다.
+  ///
+  /// 인용이 원문에 그대로 없으면 그 후보는 버린다. 키가 없어도 된다.
+  _ida.Future<_i8m2dvht.AiExtraction> submit(
+    int documentId,
+    String answer, {
+    String? model,
+  }) => caller.callServerEndpoint<_i8m2dvht.AiExtraction>(
+    'ai',
+    'submit',
+    {
+      'documentId': documentId,
+      'answer': answer,
+      'model': model,
+    },
+  );
 }
 
 /// 상장사 조회.
@@ -601,6 +642,8 @@ class EndpointGroup extends _isc.EndpointRef {
   String get name => 'group';
 
   /// 두 곳 이상으로 이루어진 묶음. 시가총액 합이 큰 순서.
+  ///
+  /// 목록 화면은 지분 연결을 쓰지 않아 빼고 보낸다 (응답이 절반 아래로 줄어든다).
   _ida.Future<List<_i7uvzrch.CompanyGroup>> list() =>
       caller.callServerEndpoint<List<_i7uvzrch.CompanyGroup>>(
         'group',
@@ -723,7 +766,8 @@ class EndpointMarket extends _isc.EndpointRef {
   /// 가장 최근 기준일의 업종별 시가총액.
   ///
   /// 기업 시가총액은 기업에 연결된 종목(보통주·우선주 등) 시가총액의 합이다.
-  /// [sectionCode]가 없으면 대분류 → 중분류, 있으면 그 대분류의 중분류 → 기업으로 묶는다.
+  /// [sectionCode]가 없으면 대분류 → 그 안 시가총액 상위 기업, 있으면 그 대분류의
+  /// 중분류 → 기업으로 묶는다. 화면에 다 그릴 수 없어 대분류마다 [_topCompanies]개까지만 보낸다.
   _ida.Future<_ifex1fnm.MarketCapTreemap> industryTreemap({
     String? sectionCode,
     _iamn97sz.Market? market,
