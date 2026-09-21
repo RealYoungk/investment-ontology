@@ -121,6 +121,8 @@ import 'ontology/models/person_hit.dart' as _iyxi6nm4;
 import 'ontology/models/person_link_rejection.dart' as _iffou6wp;
 import 'ontology/models/person_profile.dart' as _i12ugm17;
 import 'ontology/models/person_role.dart' as _ipnxekll;
+import 'ontology/models/price_history.dart' as _i451wru0;
+import 'ontology/models/price_point.dart' as _iyfyllvz;
 import 'ontology/models/relation_fact_kind.dart' as _iy288i3j;
 import 'ontology/models/relation_origin.dart' as _id1oen7t;
 import 'ontology/models/relation_predicate.dart' as _idal2dwe;
@@ -223,6 +225,8 @@ export 'ontology/models/person_hit.dart';
 export 'ontology/models/person_link_rejection.dart';
 export 'ontology/models/person_profile.dart';
 export 'ontology/models/person_role.dart';
+export 'ontology/models/price_history.dart';
+export 'ontology/models/price_point.dart';
 export 'ontology/models/relation_fact_kind.dart';
 export 'ontology/models/relation_origin.dart';
 export 'ontology/models/relation_predicate.dart';
@@ -518,6 +522,12 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _ipnxekll.PersonRole) {
       return _ipnxekll.PersonRole.fromJson(data) as T;
+    }
+    if (t == _i451wru0.PriceHistory) {
+      return _i451wru0.PriceHistory.fromJson(data) as T;
+    }
+    if (t == _iyfyllvz.PricePoint) {
+      return _iyfyllvz.PricePoint.fromJson(data) as T;
     }
     if (t == _iy288i3j.RelationFactKind) {
       return _iy288i3j.RelationFactKind.fromJson(data) as T;
@@ -890,6 +900,12 @@ class Protocol extends _isc.SerializationManager {
     if (t == _isc.getType<_ipnxekll.PersonRole?>()) {
       return (data != null ? _ipnxekll.PersonRole.fromJson(data) : null) as T;
     }
+    if (t == _isc.getType<_i451wru0.PriceHistory?>()) {
+      return (data != null ? _i451wru0.PriceHistory.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_iyfyllvz.PricePoint?>()) {
+      return (data != null ? _iyfyllvz.PricePoint.fromJson(data) : null) as T;
+    }
     if (t == _isc.getType<_iy288i3j.RelationFactKind?>()) {
       return (data != null ? _iy288i3j.RelationFactKind.fromJson(data) : null)
           as T;
@@ -1145,6 +1161,12 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_iyfyllvz.PricePoint>) {
+      return (data as List)
+              .map((e) => deserialize<_iyfyllvz.PricePoint>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_i6uduqoi.ReviewItem>) {
       return (data as List)
               .map((e) => deserialize<_i6uduqoi.ReviewItem>(e))
@@ -1361,6 +1383,8 @@ class Protocol extends _isc.SerializationManager {
       _iffou6wp.PersonLinkRejection => 'PersonLinkRejection',
       _i12ugm17.PersonProfile => 'PersonProfile',
       _ipnxekll.PersonRole => 'PersonRole',
+      _i451wru0.PriceHistory => 'PriceHistory',
+      _iyfyllvz.PricePoint => 'PricePoint',
       _iy288i3j.RelationFactKind => 'RelationFactKind',
       _id1oen7t.RelationOrigin => 'RelationOrigin',
       _idal2dwe.RelationPredicate => 'RelationPredicate',
@@ -1559,6 +1583,10 @@ class Protocol extends _isc.SerializationManager {
         return 'PersonProfile';
       case _ipnxekll.PersonRole():
         return 'PersonRole';
+      case _i451wru0.PriceHistory():
+        return 'PriceHistory';
+      case _iyfyllvz.PricePoint():
+        return 'PricePoint';
       case _iy288i3j.RelationFactKind():
         return 'RelationFactKind';
       case _id1oen7t.RelationOrigin():
@@ -1863,6 +1891,12 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'PersonRole') {
       return deserialize<_ipnxekll.PersonRole>(data['data']);
+    }
+    if (dataClassName == 'PriceHistory') {
+      return deserialize<_i451wru0.PriceHistory>(data['data']);
+    }
+    if (dataClassName == 'PricePoint') {
+      return deserialize<_iyfyllvz.PricePoint>(data['data']);
     }
     if (dataClassName == 'RelationFactKind') {
       return deserialize<_iy288i3j.RelationFactKind>(data['data']);

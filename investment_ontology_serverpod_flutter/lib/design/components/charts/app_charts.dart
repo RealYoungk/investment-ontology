@@ -394,6 +394,9 @@ class AppLineChart extends _CategoryChart {
 
   final bool includeZeroBaseline;
 
+  /// 이보다 점이 많으면 점을 찍지 않는다.
+  static const _maxDots = 60;
+
   @override
   bool get includeZero => includeZeroBaseline;
 
@@ -447,8 +450,8 @@ class AppLineChart extends _CategoryChart {
           ..strokeWidth = 1,
       );
     }
-    // 점은 선이 하나일 때만 (여러 개면 지저분하다).
-    if (series.length == 1) {
+    // 점은 선이 하나이고 범주가 적을 때만 (주가처럼 촘촘하면 선만 그린다).
+    if (series.length == 1 && n <= _maxDots) {
       for (var i = 0; i < n; i++) {
         final p = pointOf(series.first, i);
         if (p == null) continue;

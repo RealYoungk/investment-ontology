@@ -78,6 +78,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _i96d117e;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/person_profile.dart'
     as _impgjy6j;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/price_history.dart'
+    as _i8lezpm9;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/relation_predicate.dart'
     as _iklpi3wo;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/relation_status.dart'
@@ -903,6 +905,23 @@ class EndpointMarket extends _isc.EndpointRef {
     {
       'sectionCode': sectionCode,
       'market': market,
+    },
+  );
+
+  /// 기업 대표 종목의 종가 추이 ([days] 거래일 아닌 달력일 기준).
+  ///
+  /// 기업에 종목이 여럿이면(보통주·우선주) 가장 최근 시가총액이 큰 쪽을 대표로 쓴다.
+  /// 5년치는 1,200일이 넘으므로 [_pricePoints]개 안팎으로 솎아 보낸다 — 마지막 점은
+  /// 늘 최근 거래일이다.
+  _ida.Future<_i8lezpm9.PriceHistory?> priceHistory(
+    String corpCode, {
+    required int days,
+  }) => caller.callServerEndpoint<_i8lezpm9.PriceHistory?>(
+    'market',
+    'priceHistory',
+    {
+      'corpCode': corpCode,
+      'days': days,
     },
   );
 }

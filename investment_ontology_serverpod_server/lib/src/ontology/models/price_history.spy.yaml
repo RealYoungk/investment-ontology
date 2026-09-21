@@ -1,0 +1,9 @@
+### 한 종목의 종가 추이. 화면에서 그리기 좋게 골라 보낸 점들이다 (원천은 공공데이터포털 일별 시세).
+class: PriceHistory
+fields:
+  ### 대표 종목 (기업에 여러 종목이 있으면 시가총액이 가장 큰 것)
+  securityName: String
+  shortCode: String
+  ### 점 사이 간격 (1이면 매 거래일, 5면 다섯 거래일에 하나)
+  stride: int
+  points: List<PricePoint>

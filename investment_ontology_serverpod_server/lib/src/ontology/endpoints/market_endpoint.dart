@@ -152,6 +152,82 @@ class MarketEndpoint extends Endpoint {
     );
   }
 
+  /// 화면에 그릴 점 수의 목표. 거래일이 이보다 많으면 일정 간격으로 골라 보낸다.
+  static const _pricePoints = 260;
+
+  /// 기업 대표 종목의 종가 추이 ([days] 거래일 아닌 달력일 기준).
+  ///
+  /// 기업에 종목이 여럿이면(보통주·우선주) 가장 최근 시가총액이 큰 쪽을 대표로 쓴다.
+  /// 5년치는 1,200일이 넘으므로 [_pricePoints]개 안팎으로 솎아 보낸다 — 마지막 점은
+  /// 늘 최근 거래일이다.
+  Future<PriceHistory?> priceHistory(
+    Session session,
+    String corpCode, {
+    int days = 365,
+  }) async {
+    final company = await Company.db.findFirstRow(
+      session,
+      where: (t) => t.corpCode.equals(corpCode),
+    );
+    if (company == null) return null;
+    final securities = await Security.db.find(
+      session,
+      where: (t) => t.companyId.equals(company.id!),
+    );
+    if (securities.isEmpty) return null;
+
+    final latestDay = await MarketSnapshotDay.db.findFirstRow(
+      session,
+      where: (t) => t.rowCount > 0,
+      orderBy: (t) => t.baseDate.desc(),
+    );
+    if (latestDay == null) return null;
+
+    // 대표 종목: 가장 최근 기준일 시가총액이 큰 쪽.
+    final latest = await MarketSnapshot.db.find(
+      session,
+      where: (t) =>
+          t.securityId.inSet({for (final s in securities) s.id!}) &
+          t.baseDate.equals(latestDay.baseDate),
+    );
+    latest.sort(
+      (a, b) =>
+          (b.marketCap ?? BigInt.zero).compareTo(a.marketCap ?? BigInt.zero),
+    );
+    final securityId = latest.isEmpty
+        ? securities.first.id!
+        : latest.first.securityId;
+    final security = securities.firstWhere((s) => s.id == securityId);
+
+    final from = latestDay.baseDate.subtract(
+      Duration(days: days.clamp(30, 3660)),
+    );
+    final rows = await MarketSnapshot.db.find(
+      session,
+      where: (t) => t.securityId.equals(securityId) & (t.baseDate >= from),
+      orderBy: (t) => t.baseDate,
+    );
+    final closes = [
+      for (final r in rows)
+        if (r.closePrice != null) (r.baseDate, r.closePrice!.toInt()),
+    ];
+    if (closes.isEmpty) return null;
+    final stride = (closes.length / _pricePoints).ceil().clamp(1, 60);
+    // 뒤에서부터 골라 마지막 거래일이 반드시 남게 한다.
+    final picked = [
+      for (var i = closes.length - 1; i >= 0; i -= stride) closes[i],
+    ].reversed;
+    return PriceHistory(
+      securityName: security.name,
+      shortCode: security.shortCode,
+      stride: stride,
+      points: [
+        for (final (date, close) in picked)
+          PricePoint(date: date, close: close),
+      ],
+    );
+  }
+
   static MarketCapNode _companyNode(Company company, BigInt cap) =>
       MarketCapNode(
         code: company.corpCode,
