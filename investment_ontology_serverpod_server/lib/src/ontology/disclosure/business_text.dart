@@ -22,19 +22,35 @@ abstract final class BusinessText {
   );
   static final _endText = RegExp(r'<TITLE[^>]*>\s*III\.', dotAll: true);
 
-  /// zip에서 본문 파일(`<접수번호>.xml`, 없으면 첫 XML)을 골라 뽑는다. 못 찾으면 null.
+  /// zip에서 본문 파일을 골라 뽑는다. 못 찾으면 null.
+  ///
+  /// 사업보고서 zip에는 본문 말고도 첨부(외부감사 실시내용, 감사보고서 …)가 같이 든다.
+  /// 첨부도 절 코드 `D-0-2-0-0`을 쓰므로 코드만 믿으면 "2. 감사참여자…"가 본문으로 뽑힌다
+  /// (현대제철·메리츠 FY2025가 그랬다). 그래서 "사업의 내용"이라는 제목 글자가 실제로
+  /// 들어 있는 XML만 후보로 두고, 그중 `<접수번호>.xml` → 큰 파일 순으로 고른다.
   static ({String title, String text})? fromZip(List<int> zip, String rceptNo) {
     final archive = ZipDecoder().decodeBytes(zip);
     final xmls = [
       for (final f in archive.files)
-        if (f.isFile && f.name.toLowerCase().endsWith('.xml')) f,
+        if (f.isFile && f.name.toLowerCase().endsWith('.xml'))
+          (name: f.name, xml: utf8.decode(f.content, allowMalformed: true)),
     ];
     if (xmls.isEmpty) return null;
+    final withBody =
+        xmls.where((f) => _hasBusinessTitle.hasMatch(f.xml)).toList()
+          ..sort((a, b) => b.xml.length.compareTo(a.xml.length));
+    if (withBody.isEmpty) return null;
     final main =
-        xmls.where((f) => f.name == '$rceptNo.xml').firstOrNull ??
-        (xmls..sort((a, b) => a.name.length.compareTo(b.name.length))).first;
-    return fromXml(utf8.decode(main.content, allowMalformed: true));
+        withBody.where((f) => f.name == '$rceptNo.xml').firstOrNull ??
+        withBody.first;
+    return fromXml(main.xml);
   }
+
+  /// 본문임을 알려 주는 제목 — 첨부 문서에는 없다. 제목 안의 다른 태그는 건너뛴다.
+  static final _hasBusinessTitle = RegExp(
+    r'<TITLE[^>]*>(?:(?!</TITLE>).)*사업의\s*내용',
+    dotAll: true,
+  );
 
   static ({String title, String text})? fromXml(String xml) {
     var start = _startCode.firstMatch(xml) ?? _startText.firstMatch(xml);
