@@ -18,7 +18,14 @@ abstract final class SupplierRows {
     r'(\s*(등|외|外|기타)\s*$)|(\s*(인천|구미|아산|창원|울산|여수|천안)?\s*(공장|사업장|본사|외주)\s*$)',
   );
 
-  static final _bad = RegExp(r'[0-9%]|^[-—·]+$|해당\s*없음|미기재|자체');
+  static final _bad = RegExp(
+    // 숫자·기호, 없음, 그리고 이름이 아닌 칸 — "A사"처럼 익명 처리한 거래처,
+    // "국내"·"수입" 같은 시장 구분, "비율"·"금액" 같은 두 번째 머리글.
+    r'[0-9%]|^[-—·]+$|해당\s*없음|미기재|자체|^[A-Z]사$|^(국내|수입|해외|기타|국내외|비율|비중|금액|매입액|매입처|품목|구분)$',
+  );
+
+  /// 두 번째 머리글 줄("매입액 | 비율 | 매입액 | 비율")은 값이 아니다.
+  static final _headerWord = RegExp(r'^(매입액|비율|비중|금액|수량|단가|구분|품목|용도)$');
 
   /// "주요 매출처는 A, B, C 등" 문장에서 매출처 이름. 이 꼴이 아니면 읽지 않는다
   /// ("주요 매출처는 자동차 OEM 업체로서…"처럼 이름이 아닌 문장이 많다).
@@ -65,6 +72,8 @@ abstract final class SupplierRows {
         continue;
       }
       if (column < 0 || column >= cells.length) continue;
+      // 칸이 모두 머리글 낱말이면 (당기·전기 머리글의 둘째 줄) 건너뛴다.
+      if (cells.every((c) => c.isEmpty || _headerWord.hasMatch(c))) continue;
       final cell = cells[column];
       if (cell.isEmpty) continue;
       for (final piece in cell.split(RegExp(r'[,،/]|\s및\s'))) {
