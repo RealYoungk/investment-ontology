@@ -363,10 +363,12 @@ class _FactTrend extends StatelessWidget {
       '백만원' => formatKrwShort(v * 1000000),
       '억원' => formatKrwShort(v * 100000000),
       '조원' => formatKrwShort(v * 1000000000000),
+      // 10만부터 "만"으로 줄인다. 그보다 작으면 반올림 때문에 눈금이 겹친다
+      // (15,000과 20,000이 둘 다 "2만"이 되던 문제).
       _ =>
-        v.abs() >= 10000
+        v.abs() >= 100000
             ? '${formatCount((v / 10000).round())}만'
-            : formatDecimal(v),
+            : formatCount(v.round()),
     };
     final last = facts.last.value, first = facts.first.value;
     final change = first == 0 ? null : 100 * (last - first) / first.abs();
