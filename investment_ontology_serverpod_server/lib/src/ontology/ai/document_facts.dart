@@ -89,6 +89,9 @@ abstract final class DocumentFacts {
   ) async {
     final report = await DisclosureReport.db.findById(session, doc.reportId);
     final now = DateTime.now().toUtc();
+    // 같은 항목이라도 기준일이 다르면 다른 값이다 (한 표에 여러 해가 적히기도 한다).
+    String keyOf(DocumentFactKind kind, String label, DateTime? asOf) =>
+        '${kind.name}|$label|${asOf?.toIso8601String().substring(0, 10) ?? ''}';
     final decided = {
       for (final f in await DocumentFact.db.find(
         session,
@@ -96,13 +99,13 @@ abstract final class DocumentFacts {
             t.documentId.equals(doc.id!) &
             t.status.notEquals(RelationStatus.draft),
       ))
-        '${f.kind.name}|${f.label}',
+        keyOf(f.kind, f.label, f.asOf),
     };
     final seen = <String>{};
     final rows = <DocumentFact>[];
     var dropped = 0;
     for (final f in facts) {
-      final key = '${f.kind.name}|${f.label}';
+      final key = keyOf(f.kind, f.label, f.asOf);
       if (f.label.isEmpty ||
           f.unit.isEmpty ||
           !grounded(f.evidence, doc.text) ||

@@ -13,6 +13,7 @@
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart'
     as _i4yshtjp;
 import 'package:serverpod/serverpod.dart' as _is;
+
 import '../../ontology/models/ontology_relation.dart' as _isp34kug;
 
 /// 검수 큐의 관계 하나와 화면에 필요한 기업 정보.

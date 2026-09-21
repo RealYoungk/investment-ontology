@@ -33,7 +33,13 @@ enum DocumentFactKind implements _isc.SerializableModel {
   utilization,
 
   /// 시장점유율 (%)
-  marketShare;
+  marketShare,
+
+  /// 회사가 공시한 앞으로의 투자 계획 (CAPEX·R&D 등). 예측이 아니라 회사 발표다
+  investmentPlan,
+
+  /// 실제 집행한 투자액
+  investmentActual;
 
   static DocumentFactKind fromJson(String name) {
     switch (name) {
@@ -51,6 +57,10 @@ enum DocumentFactKind implements _isc.SerializableModel {
         return DocumentFactKind.utilization;
       case 'marketShare':
         return DocumentFactKind.marketShare;
+      case 'investmentPlan':
+        return DocumentFactKind.investmentPlan;
+      case 'investmentActual':
+        return DocumentFactKind.investmentActual;
       default:
         throw ArgumentError(
           'Value "$name" cannot be converted to "DocumentFactKind"',

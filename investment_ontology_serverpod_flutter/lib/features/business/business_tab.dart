@@ -349,6 +349,9 @@ class _FactTrend extends StatelessWidget {
   final List<DocumentFact> facts;
   final String Function(DocumentFactKind) kindLabel;
 
+  /// 가로축의 해. 기준일이 있으면 그 해를 쓴다 (투자계획은 다음 해 값이다).
+  static int _year(DocumentFact f) => f.asOf?.year ?? f.bsnsYear;
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
@@ -367,6 +370,36 @@ class _FactTrend extends StatelessWidget {
     };
     final last = facts.last.value, first = facts.first.value;
     final change = first == 0 ? null : 100 * (last - first) / first.abs();
+    final hasPlan = facts.any(
+      (f) => f.kind == DocumentFactKind.investmentPlan,
+    );
+    // 집행과 계획을 한 차트에. 계획은 아직 안 지난 해라 색을 달리 한다.
+    final series = hasPlan
+        ? [
+            ChartSeries(
+              label: '집행',
+              color: c.chartSeries1,
+              values: [
+                for (final f in facts)
+                  f.kind == DocumentFactKind.investmentPlan ? null : f.value,
+              ],
+            ),
+            ChartSeries(
+              label: '회사가 밝힌 계획',
+              color: c.chartSeries2,
+              values: [
+                for (final f in facts)
+                  f.kind == DocumentFactKind.investmentPlan ? f.value : null,
+              ],
+            ),
+          ]
+        : [
+            ChartSeries(
+              label: kindLabel(facts.first.kind),
+              color: c.chartSeries1,
+              values: [for (final f in facts) f.value],
+            ),
+          ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -387,7 +420,7 @@ class _FactTrend extends StatelessWidget {
             if (change != null) ...[
               const SizedBox(width: AppSpace.sm),
               Text(
-                '${facts.first.bsnsYear}→${facts.last.bsnsYear} '
+                '${_year(facts.first)}→${_year(facts.last)} '
                 '${change >= 0 ? '+' : ''}${change.toStringAsFixed(1)}%',
                 style: t.numeric(
                   12,
@@ -398,15 +431,13 @@ class _FactTrend extends StatelessWidget {
           ],
         ),
         const SizedBox(height: AppSpace.xs),
+        if (series.length > 1) ...[
+          ChartLegend(series: series),
+          const SizedBox(height: AppSpace.xs),
+        ],
         AppColumnChart(
-          categories: [for (final f in facts) '${f.bsnsYear}'],
-          series: [
-            ChartSeries(
-              label: kindLabel(facts.first.kind),
-              color: c.chartSeries1,
-              values: [for (final f in facts) f.value],
-            ),
-          ],
+          categories: [for (final f in facts) '${_year(f)}'],
+          series: series,
           formatValue: short,
           height: 150,
         ),
@@ -454,9 +485,18 @@ class _DocumentFactsState extends State<_DocumentFacts> {
   Map<String, List<DocumentFact>> get _series {
     final by = <String, List<DocumentFact>>{};
     for (final f in _trends) {
-      by.putIfAbsent('${f.kind.name}|${f.label}|${f.unit}', () => []).add(f);
+      // 투자 집행과 다음 해 계획은 한 차트에 같이 놓는다 (앞을 보는 숫자다).
+      final group = f.kind == DocumentFactKind.investmentPlan
+          ? DocumentFactKind.investmentActual.name
+          : f.kind.name;
+      by.putIfAbsent('$group|${f.label}|${f.unit}', () => []).add(f);
     }
     by.removeWhere((_, v) => v.length < 2);
+    // 한 보고서에 여러 해가 적히기도 하므로 기준일의 해로 줄 세운다.
+    int year(DocumentFact f) => f.asOf?.year ?? f.bsnsYear;
+    for (final list in by.values) {
+      list.sort((a, b) => year(a).compareTo(year(b)));
+    }
     // 수주 → 생산 → 점유율 순으로 (읽는 순서를 고정한다).
     const order = [
       DocumentFactKind.orderTotal,
@@ -484,6 +524,8 @@ class _DocumentFactsState extends State<_DocumentFacts> {
     DocumentFactKind.production => '생산실적',
     DocumentFactKind.utilization => '가동률',
     DocumentFactKind.marketShare => '시장점유율',
+    DocumentFactKind.investmentPlan => '투자계획',
+    DocumentFactKind.investmentActual => '투자집행',
   };
 
   @override

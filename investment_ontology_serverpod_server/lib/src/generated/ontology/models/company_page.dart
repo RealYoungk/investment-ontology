@@ -13,6 +13,7 @@
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart'
     as _i4yshtjp;
 import 'package:serverpod/serverpod.dart' as _is;
+
 import '../../ontology/models/company_list_item.dart' as _i5wxl3z7;
 
 abstract class CompanyPage

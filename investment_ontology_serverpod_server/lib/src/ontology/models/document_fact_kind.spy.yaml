@@ -15,3 +15,7 @@ values:
   - utilization
   ### 시장점유율 (%)
   - marketShare
+  ### 회사가 공시한 앞으로의 투자 계획 (CAPEX·R&D 등). 예측이 아니라 회사 발표다
+  - investmentPlan
+  ### 실제 집행한 투자액
+  - investmentActual
