@@ -46,6 +46,7 @@ void main() {
         ('B', '비'),
         ('C', '씨'),
         ('D', '디'),
+        ('E', '이'),
       ]) {
         ids[code] = (await Company.db.insertRow(
           session,
@@ -107,14 +108,15 @@ void main() {
       );
     });
 
-    test('기업을 가운데 두고 단계별로 넓히고, 이름뿐인 노드는 넓히지 않는다', () async {
+    test('기업을 가운데 두고 단계별로 넓히고, 주주·출자의 이름뿐인 노드는 넓히지 않는다', () async {
       final g = (await endpoints.graph.neighborhood(sessionBuilder, 'A'))!;
       final byKey = {for (final n in g.nodes) n.key: n};
       expect(g.centerKey, 'c${ids['A']}');
       expect(byKey['c${ids['B']}']!.depth, 1);
       expect(byKey['c${ids['C']}']!.depth, 1);
       expect(byKey['c${ids['D']}']!.depth, 2);
-      expect(byKey['nSDMA']!.kind, 'name');
+      expect(byKey['nsdma']!.kind, 'name');
+      expect(byKey['nsdma']!.label, 'SDMA', reason: '표시는 관계에 적힌 이름');
       expect(byKey['p${ids['P']}']!.label, '홍길동');
       // 검수 전 AI 관계(D → A 공급)와 거절한 관계는 없다.
       expect(g.edges.where((e) => e.ai), isEmpty);
@@ -145,6 +147,38 @@ void main() {
         maxNodes: 10,
       ))!;
       expect(small.truncated, isFalse);
+    });
+
+    test('본문에서 뽑은 관계의 이름은 표기가 달라도 한 노드이고, 그 이름을 건너 다른 기업이 보인다', () async {
+      // Sony → A, SONY → E (둘 다 승인한 공급 관계). E는 이름 노드를 통해서만 A와 이어진다.
+      await relation(
+        RelationPredicate.suppliesTo,
+        subjectName: 'Sony',
+        objectCompany: ids['A'],
+        origin: RelationOrigin.ai,
+      );
+      await relation(
+        RelationPredicate.suppliesTo,
+        subjectName: 'SONY',
+        objectCompany: ids['E'],
+        origin: RelationOrigin.ai,
+      );
+      final g = (await endpoints.graph.neighborhood(sessionBuilder, 'A'))!;
+      final byKey = {for (final n in g.nodes) n.key: n};
+      expect(byKey['nsony']!.depth, 1);
+      expect(byKey['nsony']!.label, 'Sony');
+      expect(byKey['c${ids['E']}']!.depth, 2, reason: '같은 공급사를 쓰는 기업');
+      expect(byKey.containsKey('nSONY'), isFalse, reason: '표기가 달라도 한 노드');
+
+      // 이름을 빼면 E도 안 보인다.
+      final noNames = (await endpoints.graph.neighborhood(
+        sessionBuilder,
+        'A',
+        includeNames: false,
+      ))!;
+      expect({
+        for (final n in noNames.nodes) n.key,
+      }, isNot(contains('c${ids['E']}')));
     });
   });
 }
