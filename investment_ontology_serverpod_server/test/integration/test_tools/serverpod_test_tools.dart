@@ -38,6 +38,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _iabynv8u;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/business_content.dart'
     as _i01bb80a;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/business_document_ref.dart'
+    as _i9fapywb;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_detail.dart'
     as _iws6mlcl;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_financials.dart'
@@ -768,6 +770,99 @@ class _AiEndpoint {
           _localUniqueSession,
           _localCallContext.arguments,
         ) as _ida.Future<_idt86amb.IngestJob>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<List<_i9fapywb.BusinessDocumentRef>> pending(
+    _ist.TestSessionBuilder sessionBuilder, {
+    int? limit,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'ai',
+            method: 'pending',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'ai',
+          methodName: 'pending',
+          parameters: _ist.testObjectToJson({'limit': limit}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue = await (_localCallContext.method.call(
+          _localUniqueSession,
+          _localCallContext.arguments,
+        ) as _ida.Future<List<_i9fapywb.BusinessDocumentRef>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<String> documentText(
+    _ist.TestSessionBuilder sessionBuilder,
+    int documentId,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'ai',
+            method: 'documentText',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'ai',
+          methodName: 'documentText',
+          parameters: _ist.testObjectToJson({'documentId': documentId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue = await (_localCallContext.method.call(
+          _localUniqueSession,
+          _localCallContext.arguments,
+        ) as _ida.Future<String>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_i5zcz6ng.AiExtraction> submit(
+    _ist.TestSessionBuilder sessionBuilder,
+    int documentId,
+    String answer, {
+    String? model,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'ai',
+            method: 'submit',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'ai',
+          methodName: 'submit',
+          parameters: _ist.testObjectToJson({
+            'documentId': documentId,
+            'answer': answer,
+            'model': model,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue = await (_localCallContext.method.call(
+          _localUniqueSession,
+          _localCallContext.arguments,
+        ) as _ida.Future<_i5zcz6ng.AiExtraction>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

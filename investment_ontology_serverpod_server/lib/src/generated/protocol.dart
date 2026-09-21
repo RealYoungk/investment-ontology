@@ -11,6 +11,8 @@
 // ignore_for_file: dead_code, unnecessary_type_check
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/business_document_ref.dart'
+    as _i9fapywb;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_group.dart'
     as _i4udlom4;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/disclosure_section_info.dart'
@@ -53,6 +55,7 @@ import 'ontology/models/api_call_usage.dart' as _i3e42he1;
 import 'ontology/models/api_provider.dart' as _i82zif2r;
 import 'ontology/models/business_content.dart' as _ik6lqqsr;
 import 'ontology/models/business_document.dart' as _imi0q911;
+import 'ontology/models/business_document_ref.dart' as _is707pet;
 import 'ontology/models/business_section.dart' as _inylkhjt;
 import 'ontology/models/company.dart' as _ipen255x;
 import 'ontology/models/company_change.dart' as _isfozywu;
@@ -142,6 +145,7 @@ export 'ontology/models/api_call_usage.dart';
 export 'ontology/models/api_provider.dart';
 export 'ontology/models/business_content.dart';
 export 'ontology/models/business_document.dart';
+export 'ontology/models/business_document_ref.dart';
 export 'ontology/models/business_section.dart';
 export 'ontology/models/company.dart';
 export 'ontology/models/company_change.dart';
@@ -3876,6 +3880,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _imi0q911.BusinessDocument) {
       return _imi0q911.BusinessDocument.fromJson(data) as T;
     }
+    if (t == _is707pet.BusinessDocumentRef) {
+      return _is707pet.BusinessDocumentRef.fromJson(data) as T;
+    }
     if (t == _inylkhjt.BusinessSection) {
       return _inylkhjt.BusinessSection.fromJson(data) as T;
     }
@@ -4186,6 +4193,12 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (t == _is.getType<_imi0q911.BusinessDocument?>()) {
       return (data != null ? _imi0q911.BusinessDocument.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_is707pet.BusinessDocumentRef?>()) {
+      return (data != null
+              ? _is707pet.BusinessDocumentRef.fromJson(data)
+              : null)
           as T;
     }
     if (t == _is.getType<_inylkhjt.BusinessSection?>()) {
@@ -4694,6 +4707,12 @@ class Protocol extends _is.DatabaseSerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_i9fapywb.BusinessDocumentRef>) {
+      return (data as List)
+              .map((e) => deserialize<_i9fapywb.BusinessDocumentRef>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_iee4t190.FacetCount>) {
       return (data as List)
               .map((e) => deserialize<_iee4t190.FacetCount>(e))
@@ -4770,6 +4789,7 @@ class Protocol extends _is.DatabaseSerializationManager {
       _i82zif2r.ApiProvider => 'ApiProvider',
       _ik6lqqsr.BusinessContent => 'BusinessContent',
       _imi0q911.BusinessDocument => 'BusinessDocument',
+      _is707pet.BusinessDocumentRef => 'BusinessDocumentRef',
       _inylkhjt.BusinessSection => 'BusinessSection',
       _ipen255x.Company => 'Company',
       _isfozywu.CompanyChange => 'CompanyChange',
@@ -4897,6 +4917,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'BusinessContent';
       case _imi0q911.BusinessDocument():
         return 'BusinessDocument';
+      case _is707pet.BusinessDocumentRef():
+        return 'BusinessDocumentRef';
       case _inylkhjt.BusinessSection():
         return 'BusinessSection';
       case _ipen255x.Company():
@@ -5140,6 +5162,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'BusinessDocument') {
       return deserialize<_imi0q911.BusinessDocument>(data['data']);
+    }
+    if (dataClassName == 'BusinessDocumentRef') {
+      return deserialize<_is707pet.BusinessDocumentRef>(data['data']);
     }
     if (dataClassName == 'BusinessSection') {
       return deserialize<_inylkhjt.BusinessSection>(data['data']);

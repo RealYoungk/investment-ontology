@@ -415,6 +415,72 @@ class Endpoints extends _is.EndpointDispatch {
                 limit: params['limit'],
               ),
         ),
+        'pending': _is.MethodConnector(
+          name: 'pending',
+          params: {
+            'limit': _is.ParameterDescription(
+              name: 'limit',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['ai'] as _iadofkda.AiEndpoint).pending(
+                session,
+                limit: params['limit'],
+              ),
+        ),
+        'documentText': _is.MethodConnector(
+          name: 'documentText',
+          params: {
+            'documentId': _is.ParameterDescription(
+              name: 'documentId',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['ai'] as _iadofkda.AiEndpoint).documentText(
+                session,
+                params['documentId'],
+              ),
+        ),
+        'submit': _is.MethodConnector(
+          name: 'submit',
+          params: {
+            'documentId': _is.ParameterDescription(
+              name: 'documentId',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+            'answer': _is.ParameterDescription(
+              name: 'answer',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'model': _is.ParameterDescription(
+              name: 'model',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['ai'] as _iadofkda.AiEndpoint).submit(
+                session,
+                params['documentId'],
+                params['answer'],
+                model: params['model'],
+              ),
+        ),
       },
     );
     connectors['company'] = _is.EndpointConnector(
