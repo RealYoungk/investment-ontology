@@ -412,6 +412,28 @@ class FinancialView {
       totalEquity,
     );
 
+    // 잉여현금흐름 = 영업활동 현금흐름 − 유형자산 취득. 공시는 취득액을 양수로 적는
+    // 회사와 음수로 적는 회사가 섞여 있어 절댓값으로 뺀다.
+    final ocf = trailing('operatingCashFlow', '영업활동 현금흐름');
+    final capex = trailing('capex', '유형자산의 취득');
+    final fcfValue = ocf.value == null || capex.value == null
+        ? null
+        : ocf.value! - capex.value!.abs();
+    final fcf = DerivedValue(
+      value: fcfValue,
+      formula:
+          '잉여현금흐름(FCF) = 영업활동 현금흐름 − 유형자산의 취득 (각각 최근 12개월)\n'
+          '${ocf.formula}\n${capex.formula}',
+      inputs: [...ocf.inputs, ...capex.inputs],
+      missing: fcfValue == null ? (ocf.missing ?? capex.missing) : null,
+    );
+    final fcfYield = ratio(
+      'FCF 수익률 = 잉여현금흐름 ÷ 시가총액',
+      fcf,
+      capValue,
+      inputs: [...fcf.inputs, capInput],
+    );
+
     return [
       DerivedMetric(
         key: 'marketCap',
@@ -448,6 +470,18 @@ class FinancialView {
         label: '부채비율',
         display: formatPercent(debt.value),
         derived: debt,
+      ),
+      DerivedMetric(
+        key: 'freeCashFlow',
+        label: '잉여현금흐름',
+        display: fcf.value == null ? '—' : formatKrwShort(fcf.value!),
+        derived: fcf,
+      ),
+      DerivedMetric(
+        key: 'fcfYield',
+        label: 'FCF 수익률',
+        display: formatPercent(fcfYield.value),
+        derived: fcfYield,
       ),
     ];
   }

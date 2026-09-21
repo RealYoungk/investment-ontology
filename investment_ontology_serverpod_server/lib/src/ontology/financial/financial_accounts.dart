@@ -60,6 +60,14 @@ abstract final class FinancialAccounts {
       ['ifrs-full_CashFlowsFromUsedInOperatingActivities'],
       _cf,
     ),
+    FinancialAccount(
+      'capex',
+      '유형자산의 취득',
+      [
+        'ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities',
+      ],
+      _cf,
+    ),
   ];
 
   static final Set<String> accountIds = {
