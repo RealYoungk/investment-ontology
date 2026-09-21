@@ -35,6 +35,12 @@ void main() {
         reason: name,
       );
       expect(client, contains('class Endpoint$name '), reason: name);
+      // 클래스는 남고 필드 선언만 빠지면 앱이 컴파일되지 않는다 (실제로 겪었다).
+      expect(
+        client,
+        contains('late final Endpoint$name ${lowerFirst(name)};'),
+        reason: name,
+      );
     }
   });
 

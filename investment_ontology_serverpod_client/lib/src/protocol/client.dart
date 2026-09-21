@@ -14,8 +14,14 @@ import 'dart:async' as _ida;
 import 'package:http/http.dart' as _i85jenna;
 import 'package:investment_ontology_serverpod_client/src/protocol/greetings/greeting.dart'
     as _iqvwj7cf;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ai_extraction.dart'
+    as _i8m2dvht;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ai_status.dart'
+    as _ie40qci9;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/business_content.dart'
     as _i6ht4m6x;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/business_document_ref.dart'
+    as _id7v70oo;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_detail.dart'
     as _ig9j925g;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_financials.dart'
@@ -340,6 +346,118 @@ class EndpointGreeting extends _isc.EndpointRef {
         'hello',
         {'name': name},
       );
+}
+
+/// AI 관계 추출 (4단계).
+///
+/// 화면 요청 중에는 모델을 부르지 않는다. 미리 뽑아 저장해 두고 화면은 저장된 것만 읽는다.
+/// 뽑는 방법은 둘이다. (1) Anthropic 키로 배치 실행, (2) 밖(구독 세션 등)에서 본문을 읽고
+/// [submit]으로 결과를 넣기. 어느 쪽이든 결과는 검수 대기(draft)이고, 인용이 원문에 그대로
+/// 있는 후보만 남는다.
+/// {@category Endpoint}
+class EndpointAi extends _isc.EndpointRef {
+  EndpointAi(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'ai';
+
+  _ida.Future<_ie40qci9.AiStatus> status() =>
+      caller.callServerEndpoint<_ie40qci9.AiStatus>(
+        'ai',
+        'status',
+        {},
+      );
+
+  /// 기업 하나의 가장 최근 사업보고서 본문을 바로 읽는다 (수십 초 걸린다).
+  _ida.Future<_i8m2dvht.AiExtraction> extractCompany(String corpCode) =>
+      caller.callServerEndpoint<_i8m2dvht.AiExtraction>(
+        'ai',
+        'extractCompany',
+        {'corpCode': corpCode},
+      );
+
+  /// 아직 읽지 않은 기업의 최근 본문을 [limit]개까지 읽는 작업을 시작한다.
+  _ida.Future<_i1paap7y.IngestJob> startBatch({int? limit}) =>
+      caller.callServerEndpoint<_i1paap7y.IngestJob>(
+        'ai',
+        'startBatch',
+        {'limit': limit},
+      );
+
+  /// 아직 읽지 않은 기업의 최근 본문 목록. 밖에서 미리 뽑을 때 이 순서로 고른다
+  /// (본문이 짧은 것부터 — 한 번에 읽기 좋다).
+  _ida.Future<List<_id7v70oo.BusinessDocumentRef>> pending({int? limit}) =>
+      caller.callServerEndpoint<List<_id7v70oo.BusinessDocumentRef>>(
+        'ai',
+        'pending',
+        {'limit': limit},
+      );
+
+  /// 본문 발췌 (모델에 넣는 것과 같은 범위).
+  _ida.Future<String> documentText(
+    int documentId, {
+    int? maxChars,
+  }) => caller.callServerEndpoint<String>(
+    'ai',
+    'documentText',
+    {
+      'documentId': documentId,
+      'maxChars': maxChars,
+    },
+  );
+
+  /// 여러 기업의 본문을 한 번에. 아직 읽지 않은 것부터 준다.
+  ///
+  /// 한 기업씩 왕복하면 느려서, 구독 세션에서 관계를 뽑을 때 이걸로 묶어 받는다.
+  /// 결과는 `=== <documentId> <기업 이름> FY<연도> ===` 줄로 구분한다.
+  _ida.Future<String> documentTexts({
+    int? limit,
+    int? maxChars,
+  }) => caller.callServerEndpoint<String>(
+    'ai',
+    'documentTexts',
+    {
+      'limit': limit,
+      'maxChars': maxChars,
+    },
+  );
+
+  /// 밖에서 뽑은 결과를 저장한다. [answer]는 배치 실행과 같은 JSON 형식이다.
+  ///
+  /// 인용이 원문에 그대로 없으면 그 후보는 버린다. 키가 없어도 된다.
+  _ida.Future<_i8m2dvht.AiExtraction> submit(
+    int documentId,
+    String answer, {
+    String? model,
+  }) => caller.callServerEndpoint<_i8m2dvht.AiExtraction>(
+    'ai',
+    'submit',
+    {
+      'documentId': documentId,
+      'answer': answer,
+      'model': model,
+    },
+  );
+
+  /// 밖에서 뽑은 '본문 값'(수주잔고·가동률·점유율 등)을 저장한다.
+  ///
+  /// ```json
+  /// {"facts": [{"kind": "orderBacklog", "label": "건설사업", "value": 21292358,
+  ///             "unit": "백만원", "asOf": "2025-12-31", "evidence": "…"}]}
+  /// ```
+  _ida.Future<String> submitFacts(
+    int documentId,
+    String answer, {
+    String? model,
+  }) => caller.callServerEndpoint<String>(
+    'ai',
+    'submitFacts',
+    {
+      'documentId': documentId,
+      'answer': answer,
+      'model': model,
+    },
+  );
 }
 
 /// 상장사 조회.
@@ -1095,6 +1213,7 @@ class Client extends _isc.ServerpodClientShared {
     emailIdp = EndpointEmailIdp(this);
     jwtRefresh = EndpointJwtRefresh(this);
     greeting = EndpointGreeting(this);
+    ai = EndpointAi(this);
     company = EndpointCompany(this);
     disclosure = EndpointDisclosure(this);
     financial = EndpointFinancial(this);
@@ -1114,6 +1233,8 @@ class Client extends _isc.ServerpodClientShared {
   late final EndpointJwtRefresh jwtRefresh;
 
   late final EndpointGreeting greeting;
+
+  late final EndpointAi ai;
 
   late final EndpointCompany company;
 
@@ -1144,6 +1265,7 @@ class Client extends _isc.ServerpodClientShared {
     'emailIdp': emailIdp,
     'jwtRefresh': jwtRefresh,
     'greeting': greeting,
+    'ai': ai,
     'company': company,
     'disclosure': disclosure,
     'financial': financial,
