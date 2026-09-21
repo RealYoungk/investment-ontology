@@ -103,3 +103,25 @@ nohup scripts/watchdog.sh > /tmp/watchdog.log 2>&1 &
 뜨면 DART 하루 한도를 나눠 쓰게 되기 때문입니다.
 
 무엇을 했는지는 `tail -f /tmp/watchdog.log`, 멈추려면 `pkill -f scripts/watchdog.sh`.
+
+## C. 공개 URL (Tailscale Funnel) — 남에게 잠깐 보여줄 때
+
+A가 도는 상태에서 인터넷에 여는 방법입니다. tailscaled는 사용자 모드라 소켓을 지정합니다.
+
+```bash
+TS="tailscale --socket=$HOME/.tailscale-state/tailscaled.sock"
+$TS funnel --bg --set-path=/api http://127.0.0.1:8080   # API. 첫 실행이면 승인 링크가 나온다 → 브라우저에서 한 번 허용
+$TS funnel --bg http://127.0.0.1:8110                   # 앱
+$TS funnel status
+```
+
+주소: **https://investment-ontology.tailb7d6da.ts.net/** — 앱은 https로 열리면 같은 주소의 `/api/`를 API로 쓰므로(`lib/client.dart`) 다시 빌드할 필요가 없습니다. Funnel이 `/api` 앞부분을 떼고 넘겨 주는 것을 확인했습니다 (`/api/company/detail` → Serverpod `company/detail`). 사설망 주소(8080·8110 serve)는 그대로 둡니다.
+
+닫기:
+
+```bash
+$TS funnel --https=443 off      # 공개만 끈다 (사설망 serve는 남는다)
+# 또는 전부 초기화: $TS funnel reset
+```
+
+**주의**: 앱에 로그인이 없습니다. 링크를 아는 사람은 누구나 볼 수 있고, 데이터 화면의 수집 시작이나 검수 승인·거절 같은 **쓰기도 됩니다**. 보여 준 뒤에는 바로 닫으세요. 오래 열어 둘 거면 B처럼 비밀번호를 앞에 둡니다.
