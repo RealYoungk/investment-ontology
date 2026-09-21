@@ -2,26 +2,26 @@
 
 방식 비교는 [../docs/deploy.md](../docs/deploy.md). 여기는 고른 뒤의 실행 순서입니다.
 
-## A. 맥 + 터널 (무료)
+## A. 맥 + 터널 (무료) — 지금 쓰는 방식
 
-1. **Tailscale**: 맥과 폰에 앱을 깔고 같은 계정으로 로그인합니다. 맥의 이름(예: `macbook.tail1234.ts.net`)을 확인합니다.
-2. 앱을 그 주소로 빌드합니다.
+맥이 서버를 계속 돌리고, 폰은 사설망으로 붙습니다. 앱은 **접속한 주소의 8080**을 API로 쓰므로 (`lib/client.dart`), 주소마다 다시 빌드할 필요가 없습니다.
 
-   ```bash
-   cd investment_ontology_serverpod_flutter
-   flutter build web --dart-define=SERVER_URL=http://macbook.tail1234.ts.net:8080/
-   ```
-
-3. 빌드 결과를 띄웁니다 (`serverpod start`의 개발 서버 대신 고정 서버).
+1. **Tailscale**: 맥과 폰에 앱을 깔고 같은 계정으로 로그인합니다.
+2. 맥에서 세 가지를 띄웁니다. 재시작하면 다시 켜야 합니다.
 
    ```bash
-   cd build/web && python3 -m http.server 8100 --bind 0.0.0.0
+   serverpod start                 # API 8080 · 예약 수집 (서버 패키지 폴더에서)
+   scripts/host.sh                 # 앱 빌드 후 8110에 띄우고 접속 주소를 출력
+   caffeinate -dims                # 맥이 잠들면 접속도 수집도 멈춘다
    ```
 
-4. 맥이 잠들지 않게 합니다: `caffeinate -dims` 를 켜 두거나 시스템 설정에서 잠자기를 끕니다.
-5. 폰에서 `http://macbook.tail1234.ts.net:8100` 로 들어갑니다. Tailscale 안이라 남에게는 보이지 않습니다.
+   화면만 다시 띄울 때는 `scripts/host.sh --serve` (빌드 건너뜀).
 
-Cloudflare Tunnel을 쓸 때는 3번까지 같고, `cloudflared tunnel` 로 8100(앱)과 8080(API)을 각각 도메인에 붙인 뒤 Cloudflare Access로 잠급니다. 이때 `SERVER_URL` 은 API 쪽 공개 주소입니다.
+3. 폰에서 `http://<맥이름>.ts.net:8110`. 같은 와이파이에서는 `http://<맥 IP>:8110`.
+
+앱 화면을 고친 뒤에는 `scripts/host.sh`를 다시 돌려야 폰에 반영됩니다.
+
+Cloudflare Tunnel로 공개 주소를 쓰려면, `cloudflared`로 8110(앱)과 8080(API)을 각각 도메인에 붙이고 Cloudflare Access로 잠급니다. 이때는 https라 자동 감지가 꺼지므로 `flutter build web --dart-define=SERVER_URL=https://<API 도메인>/`로 빌드합니다.
 
 ## B. 작은 서버 (VPS)
 
