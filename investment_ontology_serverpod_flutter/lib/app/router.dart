@@ -94,8 +94,10 @@ abstract final class AppRoutes {
           ),
           GoRoute(
             path: '/graph/:corpCode',
+            // 키에 기업을 넣는다. 고정 키 하나면 관계망을 관계망 위에 쌓을 때
+            // (기업 상세의 "관계망 →") 같은 키가 둘이 되어 Navigator가 걸린다.
             pageBuilder: (context, state) => NoTransitionPage(
-              key: const ValueKey('graph'),
+              key: ValueKey('graph:${state.pathParameters['corpCode']}'),
               child: GraphPage(corpCode: state.pathParameters['corpCode']),
             ),
           ),

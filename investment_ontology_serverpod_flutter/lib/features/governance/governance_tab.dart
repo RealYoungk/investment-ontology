@@ -144,7 +144,7 @@ class _GovernanceTabState extends State<GovernanceTab> {
             label: '관계망에서 더 넓게 보기 →',
             variant: AppButtonVariant.link,
             tone: c.accent,
-            onPressed: () => context.push(AppRoutes.graph(widget.corpCode)),
+            onPressed: () => context.go(AppRoutes.graph(widget.corpCode)),
           ),
         ),
         GovernanceGraph(

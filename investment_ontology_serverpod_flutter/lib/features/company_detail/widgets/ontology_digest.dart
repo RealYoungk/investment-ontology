@@ -166,7 +166,7 @@ class _OntologyDigestState extends State<OntologyDigest> {
                 label: '관계망 →',
                 variant: AppButtonVariant.link,
                 tone: c.accent,
-                onPressed: () => context.push(AppRoutes.graph(widget.corpCode)),
+                onPressed: () => context.go(AppRoutes.graph(widget.corpCode)),
               ),
             ],
           ),

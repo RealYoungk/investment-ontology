@@ -23,9 +23,13 @@ class FinancialSection extends StatefulWidget {
     this.initialData,
     this.openMetric,
     this.onCloseMetric,
+    this.dataVersion = 0,
   });
 
   final String corpCode;
+
+  /// 수집이 끝날 때마다 오른다. 바뀌면 다시 읽되 고른 구분은 그대로 둔다.
+  final int dataVersion;
 
   /// 이미 불러온 기본(연결 우선) 재무. 있으면 처음에 다시 부르지 않는다.
   final CompanyFinancials? initialData;
@@ -52,6 +56,12 @@ class _FinancialSectionState extends State<FinancialSection> {
   void initState() {
     super.initState();
     if (widget.initialData == null) _load();
+  }
+
+  @override
+  void didUpdateWidget(covariant FinancialSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.dataVersion != widget.dataVersion) _load();
   }
 
   /// 이 기업의 정기보고서만 찾아 바로 받는다. 끝나면 다시 불러온다.
@@ -103,23 +113,27 @@ class _FinancialSectionState extends State<FinancialSection> {
     );
   }
 
+  /// 늦게 온 응답이 새 응답을 덮지 않게 하는 요청 번호 (연결↔별도를 빨리 누를 때).
+  int _seq = 0;
+
   Future<void> _load() async {
+    final seq = ++_seq;
     setState(() => _loading = true);
     try {
       final data = await client.financial.summary(
         widget.corpCode,
         fsDiv: _fsDiv,
       );
-      if (!mounted) return;
+      if (!mounted || seq != _seq) return;
       setState(() {
         _data = data;
         _fsDiv = data?.fsDiv;
         _error = null;
       });
     } catch (e) {
-      if (mounted) setState(() => _error = e);
+      if (mounted && seq == _seq) setState(() => _error = e);
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (mounted && seq == _seq) setState(() => _loading = false);
     }
   }
 

@@ -39,6 +39,10 @@ class IngestMonitor {
   bool _started = false;
   Timer? _timer;
 
+  /// 도는 중인 확인의 번호. 새 확인이 시작되면 앞의 것은 타이머를 걸지 않는다
+  /// (poke를 여러 번 누르면 확인이 겹쳐 늘어난다).
+  int _run = 0;
+
   void start() {
     if (_started) return;
     _started = true;
@@ -52,6 +56,7 @@ class IngestMonitor {
   }
 
   Future<void> _tick() async {
+    final run = ++_run;
     try {
       // 종류마다 따로 묻지 않고 한 번에 (15초마다 도는 확인이다).
       final found = await client.ingest.latestOfKinds(kinds);
@@ -69,6 +74,8 @@ class IngestMonitor {
     } catch (_) {
       // 일시적인 연결 오류는 다음 확인에서 다시 시도.
     }
+    if (run != _run) return;
+    _timer?.cancel();
     _timer = Timer(running.value ? _runningInterval : _idleInterval, _tick);
   }
 

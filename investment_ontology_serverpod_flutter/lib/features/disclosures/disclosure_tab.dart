@@ -15,10 +15,14 @@ class DisclosureTab extends StatefulWidget {
     super.key,
     required this.corpCode,
     required this.sections,
+    this.dataVersion = 0,
   });
 
   final String corpCode;
   final List<DisclosureSectionInfo> sections;
+
+  /// 수집이 끝날 때마다 오른다. 바뀌면 다시 읽되 고른 항목은 그대로 둔다.
+  final int dataVersion;
 
   @override
   State<DisclosureTab> createState() => _DisclosureTabState();
@@ -36,6 +40,12 @@ class _DisclosureTabState extends State<DisclosureTab> {
   void initState() {
     super.initState();
     _load();
+  }
+
+  @override
+  void didUpdateWidget(covariant DisclosureTab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.dataVersion != widget.dataVersion) _load();
   }
 
   Future<void> _load() async {

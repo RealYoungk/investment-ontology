@@ -398,18 +398,25 @@ class _NumberFieldState extends State<_NumberField> {
     text: widget.value?.toString() ?? '',
   );
 
+  final _focus = FocusNode();
+
   @override
   void didUpdateWidget(covariant _NumberField oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final text = widget.value?.toString() ?? '';
-    if (widget.value != oldWidget.value && _controller.text != text) {
-      _controller.text = text;
+    if (widget.value == oldWidget.value) return;
+    // 치는 중에는 건드리지 않는다. "1"을 "1.0"으로 고쳐 쓰면 이어 친 "5"가
+    // "1.05"가 되어 사용자가 넣지 않은 조건이 걸린다.
+    if (_focus.hasFocus && double.tryParse(_controller.text) == widget.value) {
+      return;
     }
+    final text = widget.value?.toString() ?? '';
+    if (_controller.text != text) _controller.text = text;
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _focus.dispose();
     super.dispose();
   }
 
@@ -421,6 +428,7 @@ class _NumberFieldState extends State<_NumberField> {
       width: 148,
       child: TextField(
         controller: _controller,
+        focusNode: _focus,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
         inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[\d.]'))],
         style: t.numeric(14),

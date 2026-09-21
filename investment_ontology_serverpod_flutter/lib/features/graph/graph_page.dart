@@ -64,9 +64,13 @@ class _GraphPageState extends State<GraphPage> {
     }
   }
 
+  /// 늦게 온 응답이 새 응답을 덮지 않게 하는 요청 번호.
+  int _seq = 0;
+
   Future<void> _load() async {
     final code = widget.corpCode;
     if (code == null) return;
+    final seq = ++_seq;
     setState(() => _loading = true);
     try {
       final g = await client.graph.neighborhood(
@@ -75,11 +79,11 @@ class _GraphPageState extends State<GraphPage> {
         maxNodes: _maxNodes,
         includeNames: _names,
       );
-      if (mounted) setState(() => (_graph = g, _error = null));
+      if (mounted && seq == _seq) setState(() => (_graph = g, _error = null));
     } catch (e) {
-      if (mounted) setState(() => _error = e);
+      if (mounted && seq == _seq) setState(() => _error = e);
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (mounted && seq == _seq) setState(() => _loading = false);
     }
   }
 

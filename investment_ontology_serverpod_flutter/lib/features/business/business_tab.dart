@@ -27,9 +27,16 @@ List<({bool table, List<String> lines})> businessBlocks(String text) {
 
 /// 기업 상세의 사업의 내용 탭: 사업보고서 본문 "II. 사업의 내용" (공시 원본 그대로).
 class BusinessTab extends StatefulWidget {
-  const BusinessTab({super.key, required this.corpCode});
+  const BusinessTab({
+    super.key,
+    required this.corpCode,
+    this.dataVersion = 0,
+  });
 
   final String corpCode;
+
+  /// 수집이 끝날 때마다 오른다. 바뀌면 다시 읽되 고른 소제목은 그대로 둔다.
+  final int dataVersion;
 
   @override
   State<BusinessTab> createState() => _BusinessTabState();
@@ -40,6 +47,7 @@ class _BusinessTabState extends State<BusinessTab> {
   Object? _error;
   int? _year;
   int _section = 0;
+  int _seq = 0;
 
   @override
   void initState() {
@@ -47,15 +55,32 @@ class _BusinessTabState extends State<BusinessTab> {
     _load();
   }
 
-  Future<void> _load() async {
+  @override
+  void didUpdateWidget(covariant BusinessTab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.corpCode != widget.corpCode) {
+      _year = null;
+      _load();
+    } else if (oldWidget.dataVersion != widget.dataVersion) {
+      _load(keepSection: true);
+    }
+  }
+
+  Future<void> _load({bool keepSection = false}) async {
+    final seq = ++_seq;
     try {
       final c = await client.disclosure.businessContent(
         widget.corpCode,
         bsnsYear: _year,
       );
-      if (mounted) setState(() => (_content = c, _error = null, _section = 0));
+      if (!mounted || seq != _seq) return;
+      setState(() {
+        _content = c;
+        _error = null;
+        if (!keepSection) _section = 0;
+      });
     } catch (e) {
-      if (mounted) setState(() => _error = e);
+      if (mounted && seq == _seq) setState(() => _error = e);
     }
   }
 
@@ -272,6 +297,8 @@ class _AiRelationsState extends State<_AiRelations> {
     setState(() => (_extracting = true, _message = null));
     try {
       final r = await client.ai.extractCompany(widget.corpCode);
+      // 수십 초 걸리는 호출이라 그사이 다른 화면으로 갔을 수 있다.
+      if (!mounted) return;
       setState(
         () => _message = r.succeeded
             ? '관계 후보 ${r.relationCount}건 (근거가 원문에 없어 버린 것 ${r.droppedCount}건)'
@@ -279,9 +306,9 @@ class _AiRelationsState extends State<_AiRelations> {
       );
       await _load();
     } on IngestException catch (e) {
-      setState(() => _message = e.message);
+      if (mounted) setState(() => _message = e.message);
     } catch (e) {
-      setState(() => _message = '$e');
+      if (mounted) setState(() => _message = '$e');
     } finally {
       if (mounted) setState(() => _extracting = false);
     }

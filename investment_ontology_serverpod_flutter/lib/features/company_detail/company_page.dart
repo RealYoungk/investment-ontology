@@ -229,16 +229,19 @@ class _CompanyPageState extends State<CompanyPage> {
               corpCode: widget.corpCode,
             ),
             CompanyTab.disclosures => DisclosureTab(
-              key: ValueKey('disclosures-$_version'),
+              key: const ValueKey('disclosures'),
+              dataVersion: _version,
               corpCode: widget.corpCode,
               sections: _tableSections,
             ),
             CompanyTab.business => BusinessTab(
-              key: ValueKey('business-$_version'),
+              key: const ValueKey('business'),
+              dataVersion: _version,
               corpCode: widget.corpCode,
             ),
             CompanyTab.financials => FinancialSection(
-              key: ValueKey('financials-$_version'),
+              key: const ValueKey('financials'),
+              dataVersion: _version,
               corpCode: widget.corpCode,
               initialData: _financials,
               openMetric: _openMetric,
