@@ -288,7 +288,7 @@ class ReviewCard extends StatelessWidget {
                     variant: AppButtonVariant.primary,
                     onPressed: busy ? null : () => onDecide!(true),
                   ),
-                ] else
+                ] else ...[
                   AppTag(
                     label: switch (r.status) {
                       RelationStatus.verified => '승인됨',
@@ -296,6 +296,12 @@ class ReviewCard extends StatelessWidget {
                       RelationStatus.draft => '검수 대기',
                     },
                   ),
+                  // 누가 결정했는지. 사람이 누른 것은 표시하지 않는다.
+                  if (r.reviewedBy != null) ...[
+                    const SizedBox(width: AppSpace.xs),
+                    AppTag(label: '원문 대조', color: c.textMuted),
+                  ],
+                ],
               ];
               // 폰에서는 출처 글이 버튼에 밀려 두 줄로 쪼개진다. 버튼을 아래 줄로 내린다.
               if (box.maxWidth < 460) {
@@ -506,12 +512,17 @@ class _FactList extends StatelessWidget {
                               ? null
                               : () => onDecide(item.fact, true),
                         ),
-                      ] else
+                      ] else ...[
                         AppTag(
                           label: item.fact.status == RelationStatus.verified
                               ? '승인됨'
                               : '거절됨',
                         ),
+                        if (item.fact.reviewedBy != null) ...[
+                          const SizedBox(width: AppSpace.xs),
+                          AppTag(label: '원문 대조', color: c.textMuted),
+                        ],
+                      ],
                     ];
                     // 폰에서는 버튼을 아래 줄로 내린다 (출처 글이 쪼개지지 않게).
                     if (box.maxWidth < 460) {
