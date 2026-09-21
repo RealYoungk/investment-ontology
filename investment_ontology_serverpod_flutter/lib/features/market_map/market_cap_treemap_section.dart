@@ -27,6 +27,9 @@ class _MarketCapTreemapSectionState extends State<MarketCapTreemapSection> {
   /// 한 중분류 안에 이름을 따로 보여줄 기업 수. 나머지는 "그 외"로 묶는다.
   static const _companiesPerDivision = 30;
 
+  /// 첫 화면에서 대분류 상자 안에 이름을 적을 기업 수.
+  static const _companiesPerSection = 14;
+
   MarketCapTreemap? _map;
   Object? _error;
   String? _section;
@@ -104,18 +107,20 @@ class _MarketCapTreemapSectionState extends State<MarketCapTreemapSection> {
               style: t.body(13, color: c.textMuted),
             )
           else
-            AppTreemap<String>(
-              items: _items(map),
-              height: 440,
-              onTap: (item) {
-                if (map.sectionCode == null) {
-                  // 대분류 머리글이나 중분류 타일 → 그 대분류로 들어간다.
-                  final section = item.id.split('/').first;
-                  if (section != '-') _drill(section);
-                } else {
-                  widget.onSelectCompany(item.id);
-                }
-              },
+            LayoutBuilder(
+              builder: (context, constraints) => AppTreemap<String>(
+                items: _items(map, constraints.maxWidth),
+                height: 440,
+                onTap: (item) {
+                  if (item.id.startsWith('corp:')) {
+                    widget.onSelectCompany(item.id.substring(5));
+                  } else if (map.sectionCode == null) {
+                    // 대분류 머리글이나 '그 외' 타일 → 그 대분류로 들어간다.
+                    final section = item.id.split('/').first;
+                    if (section != '-') _drill(section);
+                  }
+                },
+              ),
             ),
           const SizedBox(height: AppSpace.sm),
           _Footnote(map: map),
@@ -125,7 +130,9 @@ class _MarketCapTreemapSectionState extends State<MarketCapTreemapSection> {
     );
   }
 
-  List<TreemapItem<String>> _items(MarketCapTreemap map) {
+  List<TreemapItem<String>> _items(MarketCapTreemap map, double width) {
+    // 좁은 화면에서는 타일이 작아 이름이 안 보이므로 덜 넣는다.
+    final perSection = width < 700 ? 6 : _companiesPerSection;
     final total = map.total.toDouble();
     String share(BigInt cap) => total <= 0
         ? ''
@@ -144,18 +151,14 @@ class _MarketCapTreemapSectionState extends State<MarketCapTreemapSection> {
                 '${tip(section.name, section.marketCap, section.companyCount)}\n눌러서 중분류·기업 보기',
             tappable: section.code != '-',
             children: [
-              for (final division in section.children)
-                TreemapItem(
-                  id: '${section.code}/${division.code}',
-                  label: division.name,
-                  detail: share(division.marketCap),
-                  value: division.marketCap.toDouble(),
-                  tooltip: tip(
-                    '${division.code} ${division.name}',
-                    division.marketCap,
-                    division.companyCount,
-                  ),
-                  tappable: section.code != '-',
+              for (final company in section.children.take(perSection))
+                _companyItem(company, share),
+              if (section.children.length > perSection ||
+                  section.companyCount > section.children.length)
+                _rest(
+                  section.children.skip(perSection).toList(),
+                  section,
+                  id: '${section.code}/more',
                 ),
             ],
           ),
@@ -176,32 +179,56 @@ class _MarketCapTreemapSectionState extends State<MarketCapTreemapSection> {
           tappable: false,
           children: [
             for (final company in division.children.take(_companiesPerDivision))
-              TreemapItem(
-                id: company.code,
-                label: company.name,
-                detail: formatKrw(company.marketCap),
-                value: company.marketCap.toDouble(),
-                tooltip:
-                    '${company.name} (${marketLabel(company.market)})\n'
-                    '시가총액 ${formatKrw(company.marketCap)} · 비중 ${share(company.marketCap)}\n'
-                    '눌러서 기업 상세 열기',
-              ),
+              _companyItem(company, share),
             if (division.children.length > _companiesPerDivision)
-              _rest(division.children.skip(_companiesPerDivision).toList()),
+              _rest(
+                division.children.skip(_companiesPerDivision).toList(),
+                null,
+              ),
           ],
         ),
     ];
   }
 
-  static TreemapItem<String> _rest(List<MarketCapNode> rest) {
+  static TreemapItem<String> _companyItem(
+    MarketCapNode company,
+    String Function(BigInt) share,
+  ) => TreemapItem(
+    id: 'corp:${company.code}',
+    label: company.name,
+    detail: formatKrw(company.marketCap),
+    value: company.marketCap.toDouble(),
+    tooltip:
+        '${company.name} (${marketLabel(company.market)})\n'
+        '시가총액 ${formatKrw(company.marketCap)} · 비중 ${share(company.marketCap)}\n'
+        '눌러서 기업 상세 열기',
+  );
+
+  /// 남은 기업을 한 칸으로. 첫 화면에서는 눌러서 그 업종 전체를 본다.
+  static TreemapItem<String> _rest(
+    List<MarketCapNode> rest,
+    MarketCapNode? section, {
+    String id = '',
+  }) {
     final cap = rest.fold(BigInt.zero, (s, n) => s + n.marketCap);
+    final hidden = section == null
+        ? rest.length
+        : section.companyCount - (section.children.length - rest.length);
+    final total = section == null
+        ? cap
+        : section.marketCap -
+              section.children
+                  .take(section.children.length - rest.length)
+                  .fold(BigInt.zero, (s, n) => s + n.marketCap);
     return TreemapItem(
-      id: '',
-      label: '그 외 ${rest.length}개사',
-      detail: formatKrw(cap),
-      value: cap.toDouble(),
-      tooltip: '그 외 ${rest.length}개사 합계 ${formatKrw(cap)}',
-      tappable: false,
+      id: id,
+      label: '그 외 ${formatCount(hidden)}개사',
+      detail: formatKrw(total),
+      value: total.toDouble(),
+      tooltip: section == null
+          ? '그 외 ${formatCount(hidden)}개사 합계 ${formatKrw(total)}'
+          : '${section.name}의 나머지 ${formatCount(hidden)}개사 합계 ${formatKrw(total)}\n눌러서 이 업종 전체 보기',
+      tappable: section != null,
     );
   }
 }

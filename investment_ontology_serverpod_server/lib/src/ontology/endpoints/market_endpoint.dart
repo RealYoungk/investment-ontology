@@ -10,10 +10,14 @@ class MarketEndpoint extends Endpoint {
   /// 업종 코드가 없는 기업의 묶음 코드.
   static const unclassifiedCode = '-';
 
+  /// 첫 화면에서 대분류마다 이름을 적어 보여 줄 기업 수. 나머지는 '그 외'로 묶인다.
+  static const _topCompanies = 40;
+
   /// 가장 최근 기준일의 업종별 시가총액.
   ///
   /// 기업 시가총액은 기업에 연결된 종목(보통주·우선주 등) 시가총액의 합이다.
-  /// [sectionCode]가 없으면 대분류 → 중분류, 있으면 그 대분류의 중분류 → 기업으로 묶는다.
+  /// [sectionCode]가 없으면 대분류 → 그 안 시가총액 상위 기업, 있으면 그 대분류의
+  /// 중분류 → 기업으로 묶는다. 화면에 다 그릴 수 없어 대분류마다 [_topCompanies]개까지만 보낸다.
   Future<MarketCapTreemap> industryTreemap(
     Session session, {
     String? sectionCode,
@@ -120,27 +124,15 @@ class MarketEndpoint extends Endpoint {
               for (final (_, cap) in list) cap,
           ]),
           companyCount: outer.value.values.fold(0, (n, l) => n + l.length),
-          children: [
-            for (final inner in outer.value.entries)
-              if (sectionCode == null)
-                MarketCapNode(
-                  code: inner.key,
-                  name: nameOf(inner.key),
-                  marketCap: sum([for (final (_, cap) in inner.value) cap]),
-                  companyCount: inner.value.length,
-                  children: const [],
-                )
-              else
-                for (final (company, cap) in inner.value)
-                  MarketCapNode(
-                    code: company.corpCode,
-                    name: company.name,
-                    marketCap: cap,
-                    companyCount: 1,
-                    market: company.market,
-                    children: const [],
-                  ),
-          ]..sort(byCap),
+          children:
+              sectionCode == null
+                    ? _topOf(outer.value)
+                    : [
+                        for (final inner in outer.value.entries)
+                          for (final (company, cap) in inner.value)
+                            _companyNode(company, cap),
+                      ]
+                ..sort(byCap),
         ),
     ]..sort(byCap);
 
@@ -158,5 +150,26 @@ class MarketEndpoint extends Endpoint {
       unlinkedMarketCap: unlinkedCap,
       industryRevision: revision,
     );
+  }
+
+  static MarketCapNode _companyNode(Company company, BigInt cap) =>
+      MarketCapNode(
+        code: company.corpCode,
+        name: company.name,
+        marketCap: cap,
+        companyCount: 1,
+        market: company.market,
+        children: const [],
+      );
+
+  /// 대분류 안 기업을 시가총액 순으로 [_topCompanies]개까지.
+  static List<MarketCapNode> _topOf(
+    Map<String, List<(Company, BigInt)>> byDivision,
+  ) {
+    final all = [
+      for (final list in byDivision.values)
+        for (final (company, cap) in list) _companyNode(company, cap),
+    ]..sort((a, b) => b.marketCap.compareTo(a.marketCap));
+    return all.length <= _topCompanies ? all : all.sublist(0, _topCompanies);
   }
 }

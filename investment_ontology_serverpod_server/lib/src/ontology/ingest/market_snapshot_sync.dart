@@ -28,6 +28,9 @@ class MarketSnapshotSync {
   static const kind = 'market_snapshot';
 
   /// 시세는 다음 영업일 오후에 올라온다. 이 기간 안의 빈 기준일은 휴장일로 확정하지 않는다.
+  ///
+  /// 이 기간이 지나도, 그 뒤 기준일의 시세를 받은 적이 없으면 아직 공개가 늦는 것으로 보고
+  /// 휴장일로 확정하지 않는다 (확정하면 다시 받지 않아 거래일을 영영 빠뜨린다).
   static const publishGrace = Duration(days: 3);
 
   static const _insertChunk = 1000;
@@ -58,6 +61,14 @@ class MarketSnapshotSync {
   }
 
   /// KST 날짜의 UTC 자정.
+  /// 이 기준일보다 뒤의 시세를 받은 적이 있는지. 공개가 늦는 것과 휴장일을 가른다.
+  Future<bool> _hasLaterDay(DateTime date) async =>
+      await MarketSnapshotDay.db.findFirstRow(
+        session,
+        where: (t) => (t.rowCount > 0) & (t.baseDate > date),
+      ) !=
+      null;
+
   static DateTime kstDate(DateTime now) {
     final k = now.toUtc().add(const Duration(hours: 9));
     return DateTime.utc(k.year, k.month, k.day);
@@ -148,7 +159,8 @@ class MarketSnapshotSync {
             await _storeDay(date, items, securities);
             stored++;
           } else if (!today.difference(date).isNegative &&
-              today.difference(date) > publishGrace) {
+              today.difference(date) > publishGrace &&
+              await _hasLaterDay(date)) {
             await MarketSnapshotDay.db.insertRow(
               session,
               MarketSnapshotDay(

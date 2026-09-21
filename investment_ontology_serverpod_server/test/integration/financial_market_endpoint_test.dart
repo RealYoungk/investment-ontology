@@ -289,7 +289,7 @@ void main() {
       ]);
     });
 
-    test('industryTreemap: 대분류 → 중분류, 기업에 안 이어진 종목은 따로', () async {
+    test('industryTreemap: 대분류 → 그 안 기업, 기업에 안 이어진 종목은 따로', () async {
       final map = await endpoints.market.industryTreemap(sessionBuilder);
 
       expect(map.baseDate, DateTime.utc(2026, 9, 16));
@@ -300,7 +300,11 @@ void main() {
       expect(c.code, 'C');
       expect(c.marketCap, BigInt.from(1080));
       expect(c.companyCount, 2);
-      expect(c.children.single.code, '26');
+      // 첫 화면에서 이름을 보여 주도록 대분류 아래는 바로 기업 (시가총액 순).
+      expect(c.children.map((n) => (n.name, n.marketCap)), [
+        ('삼성전자', BigInt.from(880)),
+        ('SK하이닉스', BigInt.from(200)),
+      ]);
       expect(map.nodes.last.code, 'J');
     });
 
