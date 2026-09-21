@@ -28,7 +28,10 @@ abstract final class RelationExtractor {
       '그대로 복사하며 200자를 넘지 않는다. 답은 JSON 하나로만 한다.';
 
   /// 관계를 찾을 만한 하위 절(사업의 개요·제품·원재료·매출·수주·경쟁)을 먼저, 나머지를 뒤에 붙여 자른다.
-  static String excerpt(String text) {
+  static String excerpt(String text, {int? maxChars}) {
+    final limit = maxChars == null
+        ? RelationExtractor.maxChars
+        : maxChars.clamp(500, RelationExtractor.maxChars);
     final sections = BusinessText.sections(text);
     bool useful(String title) => RegExp(
       r'개요|제품|서비스|원재료|매출|수주|경쟁|영업',
@@ -41,13 +44,13 @@ abstract final class RelationExtractor {
     ];
     final buf = StringBuffer();
     for (final s in ordered) {
-      if (buf.length >= maxChars) break;
+      if (buf.length >= limit) break;
       buf
         ..writeln('## ${s.title}')
         ..writeln(s.text);
     }
     final out = buf.toString();
-    return out.length > maxChars ? out.substring(0, maxChars) : out;
+    return out.length > limit ? out.substring(0, limit) : out;
   }
 
   static String prompt(String companyName, int bsnsYear, String excerpt) =>

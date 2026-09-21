@@ -11,7 +11,6 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _is;
-
 import '../../ontology/models/financial_report_code.dart' as _i6mbh8k5;
 import '../../ontology/models/financial_statement_kind.dart' as _ibg3jdoa;
 import '../../ontology/models/fs_div.dart' as _igqrlzji;

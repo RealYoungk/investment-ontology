@@ -120,12 +120,43 @@ class AiEndpoint extends Endpoint {
   }
 
   /// 본문 발췌 (모델에 넣는 것과 같은 범위).
-  Future<String> documentText(Session session, int documentId) async {
+  Future<String> documentText(
+    Session session,
+    int documentId, {
+
+    /// 관계가 몰린 절부터 이만큼만. 여러 기업을 한 번에 읽을 때 줄여서 쓴다.
+    int? maxChars,
+  }) async {
     final doc = await BusinessDocument.db.findById(session, documentId);
     if (doc == null) {
       throw IngestException(message: '본문을 찾을 수 없습니다: $documentId');
     }
-    return RelationExtractor.excerpt(doc.text);
+    return RelationExtractor.excerpt(doc.text, maxChars: maxChars);
+  }
+
+  /// 여러 기업의 본문을 한 번에. 아직 읽지 않은 것부터 준다.
+  ///
+  /// 한 기업씩 왕복하면 느려서, 구독 세션에서 관계를 뽑을 때 이걸로 묶어 받는다.
+  /// 결과는 `=== <documentId> <기업 이름> FY<연도> ===` 줄로 구분한다.
+  Future<String> documentTexts(
+    Session session, {
+    int? limit,
+    int? maxChars,
+  }) async {
+    final docs = await pending(session, limit: limit ?? 10);
+    final buf = StringBuffer();
+    for (final ref in docs) {
+      final doc = await BusinessDocument.db.findById(session, ref.documentId);
+      if (doc == null) continue;
+      buf
+        ..writeln(
+          '=== ${ref.documentId} ${ref.companyName} FY${ref.bsnsYear} ===',
+        )
+        ..writeln(
+          RelationExtractor.excerpt(doc.text, maxChars: maxChars ?? 6000),
+        );
+    }
+    return buf.toString();
   }
 
   /// 밖에서 뽑은 결과를 저장한다. [answer]는 배치 실행과 같은 JSON 형식이다.

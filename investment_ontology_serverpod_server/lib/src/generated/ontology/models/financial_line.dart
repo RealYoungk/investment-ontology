@@ -11,7 +11,6 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _is;
-
 import '../../ontology/models/financial_statement_kind.dart' as _ibg3jdoa;
 
 /// 화면에 쓰는 핵심 계정 값 하나. 원천 사실(FinancialFact)의 값을 그대로 옮긴다.

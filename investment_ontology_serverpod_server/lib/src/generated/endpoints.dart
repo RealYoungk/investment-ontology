@@ -453,6 +453,11 @@ class Endpoints extends _is.EndpointDispatch {
               type: _is.getType<int>(),
               nullable: false,
             ),
+            'maxChars': _is.ParameterDescription(
+              name: 'maxChars',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
           },
           call:
               (
@@ -461,7 +466,33 @@ class Endpoints extends _is.EndpointDispatch {
               ) async => (endpoints['ai'] as _iadofkda.AiEndpoint).documentText(
                 session,
                 params['documentId'],
+                maxChars: params['maxChars'],
               ),
+        ),
+        'documentTexts': _is.MethodConnector(
+          name: 'documentTexts',
+          params: {
+            'limit': _is.ParameterDescription(
+              name: 'limit',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
+            'maxChars': _is.ParameterDescription(
+              name: 'maxChars',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['ai'] as _iadofkda.AiEndpoint).documentTexts(
+                    session,
+                    limit: params['limit'],
+                    maxChars: params['maxChars'],
+                  ),
         ),
         'submit': _is.MethodConnector(
           name: 'submit',

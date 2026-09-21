@@ -11,7 +11,6 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _is;
-
 import '../../ontology/models/market.dart' as _igwiku5p;
 
 /// 기업. 식별자는 DART 고유번호(corp_code, 8자리).

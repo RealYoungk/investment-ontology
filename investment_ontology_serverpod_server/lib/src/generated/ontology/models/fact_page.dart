@@ -13,7 +13,6 @@
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart'
     as _i4yshtjp;
 import 'package:serverpod/serverpod.dart' as _is;
-
 import '../../ontology/models/fact_item.dart' as _ine9j7ol;
 
 /// 본문에서 뽑은 값의 검수 목록.

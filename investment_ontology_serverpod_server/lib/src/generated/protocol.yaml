@@ -17,6 +17,7 @@ ai:
   - startBatch:
   - pending:
   - documentText:
+  - documentTexts:
   - submit:
   - submitFacts:
 company:

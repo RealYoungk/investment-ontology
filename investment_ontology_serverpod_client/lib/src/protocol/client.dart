@@ -392,12 +392,33 @@ class EndpointAi extends _isc.EndpointRef {
       );
 
   /// 본문 발췌 (모델에 넣는 것과 같은 범위).
-  _ida.Future<String> documentText(int documentId) =>
-      caller.callServerEndpoint<String>(
-        'ai',
-        'documentText',
-        {'documentId': documentId},
-      );
+  _ida.Future<String> documentText(
+    int documentId, {
+    int? maxChars,
+  }) => caller.callServerEndpoint<String>(
+    'ai',
+    'documentText',
+    {
+      'documentId': documentId,
+      'maxChars': maxChars,
+    },
+  );
+
+  /// 여러 기업의 본문을 한 번에. 아직 읽지 않은 것부터 준다.
+  ///
+  /// 한 기업씩 왕복하면 느려서, 구독 세션에서 관계를 뽑을 때 이걸로 묶어 받는다.
+  /// 결과는 `=== <documentId> <기업 이름> FY<연도> ===` 줄로 구분한다.
+  _ida.Future<String> documentTexts({
+    int? limit,
+    int? maxChars,
+  }) => caller.callServerEndpoint<String>(
+    'ai',
+    'documentTexts',
+    {
+      'limit': limit,
+      'maxChars': maxChars,
+    },
+  );
 
   /// 밖에서 뽑은 결과를 저장한다. [answer]는 배치 실행과 같은 JSON 형식이다.
   ///
