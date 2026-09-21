@@ -8,8 +8,9 @@ class AppColumn {
     this.label, {
     this.numeric = false,
     this.width,
-    bool? nowrap,
-  }) : nowrap = nowrap ?? numeric;
+    this.nowrap = false,
+    this.minWidth,
+  });
 
   final String label;
 
@@ -19,9 +20,11 @@ class AppColumn {
   /// 고정 폭. 없으면 내용에 맞춘다.
   final double? width;
 
-  /// 줄바꿈·자르기 없이 내용 폭만큼 (숫자 열은 기본으로 그렇게 한다).
-  /// 표는 가로로 밀 수 있으므로 넓어져도 된다.
+  /// 한 줄로만 (날짜처럼 쪼개지면 안 되는 짧은 값). 폭이 모자라면 잘린다.
   final bool nowrap;
+
+  /// 최소 폭. 숫자 열은 기본 76 — "10.82"가 "10.8 / 2"로 쪼개지지 않을 만큼.
+  final double? minWidth;
 }
 
 /// 표의 행 하나.
@@ -58,8 +61,8 @@ class AppDataTable extends StatelessWidget {
     bool strong = false,
     Color? color,
 
-    /// 줄바꿈을 막는다. 숫자 칸은 기본으로 막는다 ("10.8 2"처럼 쪼개지면 잘못 읽힌다).
-    bool? nowrap,
+    /// 한 줄로만. 폭이 모자라면 잘리므로, 짧은 값에만 쓴다.
+    bool nowrap = false,
   }) {
     final t = context.typo;
     final c = context.colors;
@@ -74,7 +77,7 @@ class AppDataTable extends StatelessWidget {
             color: color ?? c.textPrimary,
             weight: strong ? FontWeight.w700 : null,
           );
-    final keepOneLine = nowrap ?? numeric;
+    final keepOneLine = nowrap;
     return Text(
       value ?? '—',
       style: value == null ? style.copyWith(color: c.textMuted) : style,
@@ -90,9 +93,12 @@ class AppDataTable extends StatelessWidget {
     final t = context.typo;
     Widget cell(Widget child, AppColumn col) => Container(
       width: col.width,
-      constraints: col.width == null && !col.nowrap
-          ? BoxConstraints(maxWidth: maxCellWidth)
-          : null,
+      constraints: col.width != null
+          ? null
+          : BoxConstraints(
+              minWidth: col.minWidth ?? (col.numeric ? 76 : 0),
+              maxWidth: col.nowrap ? double.infinity : maxCellWidth,
+            ),
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpace.sm,
         vertical: 7,
