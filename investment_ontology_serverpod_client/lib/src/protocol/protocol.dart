@@ -75,6 +75,7 @@ import 'ontology/models/graph_edge.dart' as _iamhnwn8;
 import 'ontology/models/graph_node.dart' as _iqv6eyci;
 import 'ontology/models/industry.dart' as _i3hzx3f1;
 import 'ontology/models/industry_revision_check.dart' as _i25uuckt;
+import 'ontology/models/ingest_coverage.dart' as _il0sbv1h;
 import 'ontology/models/ingest_job.dart' as _iay1heal;
 import 'ontology/models/ingest_status.dart' as _imojj26x;
 import 'ontology/models/investment_entry.dart' as _i9p8kpm7;
@@ -158,6 +159,7 @@ export 'ontology/models/graph_edge.dart';
 export 'ontology/models/graph_node.dart';
 export 'ontology/models/industry.dart';
 export 'ontology/models/industry_revision_check.dart';
+export 'ontology/models/ingest_coverage.dart';
 export 'ontology/models/ingest_job.dart';
 export 'ontology/models/ingest_status.dart';
 export 'ontology/models/investment_entry.dart';
@@ -374,6 +376,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _i25uuckt.IndustryRevisionCheck) {
       return _i25uuckt.IndustryRevisionCheck.fromJson(data) as T;
+    }
+    if (t == _il0sbv1h.IngestCoverage) {
+      return _il0sbv1h.IngestCoverage.fromJson(data) as T;
     }
     if (t == _iay1heal.IngestJob) {
       return _iay1heal.IngestJob.fromJson(data) as T;
@@ -668,6 +673,10 @@ class Protocol extends _isc.SerializationManager {
       return (data != null
               ? _i25uuckt.IndustryRevisionCheck.fromJson(data)
               : null)
+          as T;
+    }
+    if (t == _isc.getType<_il0sbv1h.IngestCoverage?>()) {
+      return (data != null ? _il0sbv1h.IngestCoverage.fromJson(data) : null)
           as T;
     }
     if (t == _isc.getType<_iay1heal.IngestJob?>()) {
@@ -1059,6 +1068,7 @@ class Protocol extends _isc.SerializationManager {
       _iqv6eyci.GraphNode => 'GraphNode',
       _i3hzx3f1.Industry => 'Industry',
       _i25uuckt.IndustryRevisionCheck => 'IndustryRevisionCheck',
+      _il0sbv1h.IngestCoverage => 'IngestCoverage',
       _iay1heal.IngestJob => 'IngestJob',
       _imojj26x.IngestStatus => 'IngestStatus',
       _i9p8kpm7.InvestmentEntry => 'InvestmentEntry',
@@ -1208,6 +1218,8 @@ class Protocol extends _isc.SerializationManager {
         return 'Industry';
       case _i25uuckt.IndustryRevisionCheck():
         return 'IndustryRevisionCheck';
+      case _il0sbv1h.IngestCoverage():
+        return 'IngestCoverage';
       case _iay1heal.IngestJob():
         return 'IngestJob';
       case _imojj26x.IngestStatus():
@@ -1444,6 +1456,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'IndustryRevisionCheck') {
       return deserialize<_i25uuckt.IndustryRevisionCheck>(data['data']);
+    }
+    if (dataClassName == 'IngestCoverage') {
+      return deserialize<_il0sbv1h.IngestCoverage>(data['data']);
     }
     if (dataClassName == 'IngestJob') {
       return deserialize<_iay1heal.IngestJob>(data['data']);

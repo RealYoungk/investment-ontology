@@ -901,6 +901,16 @@ class Endpoints extends _is.EndpointDispatch {
                     params['jobId'],
                   ),
         ),
+        'coverage': _is.MethodConnector(
+          name: 'coverage',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['ingest'] as _icbircc0.IngestEndpoint)
+                  .coverage(session),
+        ),
         'latest': _is.MethodConnector(
           name: 'latest',
           params: {},

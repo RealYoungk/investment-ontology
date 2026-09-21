@@ -1,0 +1,27 @@
+### 수집 현황: 층마다 얼마나 받았는지와 오늘 DART 호출 수.
+class: IngestCoverage
+fields:
+  ### 상장사 수
+  listedCompanies: int
+  ### 재무제표가 하나라도 있는 상장사 수
+  companiesWithFinancials: int
+  ### 찾은 정기보고서 수와 그중 아직 받지 않은 수 (연결·별도 중 하나라도 대기)
+  filingsTotal: int
+  filingsPending: int
+  ### 우선 범위(기업별 최신 사업보고서의 핵심 항목) 주요정보 섹션 수와 끝난 수
+  prioritySections: int
+  prioritySectionsDone: int
+  ### 전체 주요정보 섹션 수, 끝난 수, 실패 수
+  sections: int
+  sectionsDone: int
+  sectionsFailed: int
+  ### 주요정보 원문이 하나라도 있는 상장사 수
+  companiesWithDisclosures: int
+  ### 온톨로지 관계 수와 사람 수 (추정 연결 포함)
+  relations: int
+  persons: int
+  ### 오늘(KST) DART 호출 수와 일일 한도
+  dartCallsToday: int
+  dartDailyLimit: int
+  dartFinancialBudget: int
+  dartDisclosurePriorityBudget: int

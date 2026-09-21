@@ -61,6 +61,8 @@ class _DataPageState extends State<DataPage> {
           AppNotice(message: '서버에 연결하지 못했습니다 — $_error'),
         ],
         const SizedBox(height: AppSpace.section),
+        const _Coverage(),
+        const SizedBox(height: AppSpace.section),
         const _Source(
           title: '상장사 마스터 · DART 기업개황',
           description:
@@ -276,6 +278,145 @@ class _AiExtractionState extends State<_AiExtraction> {
           ),
         ],
       ],
+    );
+  }
+}
+
+/// 수집 현황: 층마다 얼마나 받았는지, 오늘 DART 호출, 남은 기간 어림.
+class _Coverage extends StatefulWidget {
+  const _Coverage();
+
+  @override
+  State<_Coverage> createState() => _CoverageState();
+}
+
+class _CoverageState extends State<_Coverage> {
+  IngestCoverage? _coverage;
+
+  @override
+  void initState() {
+    super.initState();
+    IngestMonitor.instance.dataVersion.addListener(_load);
+    _load();
+  }
+
+  @override
+  void dispose() {
+    IngestMonitor.instance.dataVersion.removeListener(_load);
+    super.dispose();
+  }
+
+  Future<void> _load() async {
+    try {
+      final v = await client.ingest.coverage();
+      if (mounted) setState(() => _coverage = v);
+    } catch (_) {
+      // 위쪽 서버 연결 오류 표시로 충분하다.
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final v = _coverage;
+    final c = context.colors;
+    final t = context.typo;
+    if (v == null) return const LinearProgressIndicator(minHeight: 2);
+    // 정기보고서 하나에 연결·별도 두 번 부른다고 본 어림.
+    final financialDays = (v.filingsPending * 2 / v.dartFinancialBudget).ceil();
+    final priorityLeft = v.prioritySections - v.prioritySectionsDone;
+    final priorityDays = (priorityLeft / v.dartDisclosurePriorityBudget).ceil();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SectionLabel('수집 현황', accent: true),
+        const SizedBox(height: AppSpace.sm),
+        _Progress(
+          label: '재무제표가 있는 상장사',
+          done: v.companiesWithFinancials,
+          total: v.listedCompanies,
+        ),
+        _Progress(
+          label: '받은 정기보고서 재무제표',
+          done: v.filingsTotal - v.filingsPending,
+          total: v.filingsTotal,
+          note: v.filingsPending == 0 ? null : '남은 기간 어림 $financialDays일',
+        ),
+        _Progress(
+          label: '주요정보 우선 범위 (최신 사업보고서 핵심 항목)',
+          done: v.prioritySectionsDone,
+          total: v.prioritySections,
+          note: priorityLeft == 0 ? null : '남은 기간 어림 $priorityDays일',
+        ),
+        _Progress(
+          label: '주요정보 전체 (5개년 28종 + 본문)',
+          done: v.sectionsDone,
+          total: v.sections,
+          note: v.sectionsFailed == 0
+              ? null
+              : '실패 ${formatCount(v.sectionsFailed)}건 (재시도)',
+        ),
+        const SizedBox(height: AppSpace.sm),
+        Text(
+          '주요정보가 있는 상장사 ${formatCount(v.companiesWithDisclosures)}개사 · '
+          '관계 ${formatCount(v.relations)}건 · 인물 ${formatCount(v.persons)}명',
+          style: t.numeric(12.5, color: c.textSecondary),
+        ),
+        Text(
+          '오늘 DART 호출 ${formatCount(v.dartCallsToday)} / ${formatCount(v.dartDailyLimit)} '
+          '(재무 ${formatCount(v.dartFinancialBudget)}, 재무가 밀린 동안 주요정보 '
+          '${formatCount(v.dartDisclosurePriorityBudget)}) · 남은 기간은 하루 예산으로 나눈 어림',
+          style: t.body(12, color: c.textMuted),
+        ),
+      ],
+    );
+  }
+}
+
+class _Progress extends StatelessWidget {
+  const _Progress({
+    required this.label,
+    required this.done,
+    required this.total,
+    this.note,
+  });
+
+  final String label;
+  final int done;
+  final int total;
+  final String? note;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    final ratio = total == 0 ? 0.0 : done / total;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpace.xs),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Wrap(
+            spacing: AppSpace.md,
+            children: [
+              Text(label, style: t.body(13)),
+              Text(
+                '${formatCount(done)} / ${formatCount(total)} '
+                '(${(ratio * 100).toStringAsFixed(1)}%)',
+                style: t.numeric(12.5, color: c.textSecondary),
+              ),
+              if (note != null)
+                Text(note!, style: t.body(12, color: c.textMuted)),
+            ],
+          ),
+          const SizedBox(height: 4),
+          LinearProgressIndicator(
+            value: ratio,
+            minHeight: 4,
+            color: c.accent,
+            backgroundColor: c.border,
+          ),
+        ],
+      ),
     );
   }
 }

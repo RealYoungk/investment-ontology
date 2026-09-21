@@ -44,6 +44,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _iurgb10z;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/fs_div.dart'
     as _indtcksm;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ingest_coverage.dart'
+    as _i2drq233;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ingest_job.dart'
     as _i1paap7y;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/investment_theme.dart'
@@ -642,6 +644,14 @@ class EndpointIngest extends _isc.EndpointRef {
         'ingest',
         'cancel',
         {'jobId': jobId},
+      );
+
+  /// 수집 현황. 층마다 얼마나 받았는지 한 번에 센다.
+  _ida.Future<_i2drq233.IngestCoverage> coverage() =>
+      caller.callServerEndpoint<_i2drq233.IngestCoverage>(
+        'ingest',
+        'coverage',
+        {},
       );
 
   _ida.Future<_i1paap7y.IngestJob?> latest() =>
