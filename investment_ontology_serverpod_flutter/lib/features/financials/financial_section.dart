@@ -227,6 +227,16 @@ class _FinancialSectionState extends State<FinancialSection> {
           )
         else
           _TrendCharts(points: points),
+        // 분기 실적은 들쭉날쭉해 한 해치로 더해 놓아야 흐름이 보인다.
+        () {
+          final revenue = view.trailingSeries('revenue');
+          final operating = view.trailingSeries('operatingIncome');
+          if (revenue.length < 3) return const SizedBox.shrink();
+          return Padding(
+            padding: const EdgeInsets.only(top: AppSpace.xl),
+            child: _TrailingChart(revenue: revenue, operating: operating),
+          );
+        }(),
         if (_period == _Period.annual) ...[
           () {
             final cash = [
@@ -389,6 +399,63 @@ class _TrendCharts extends StatelessWidget {
         ],
         const SizedBox(height: AppSpace.md),
         _PointTable(points: points),
+      ],
+    );
+  }
+}
+
+/// 분기마다의 최근 12개월(TTM) 매출·영업이익. 계절성을 걷어 낸 흐름이다.
+class _TrailingChart extends StatelessWidget {
+  const _TrailingChart({required this.revenue, required this.operating});
+
+  final List<
+    ({String label, int year, FinancialReportCode code, double? value})
+  >
+  revenue;
+  final List<
+    ({String label, int year, FinancialReportCode code, double? value})
+  >
+  operating;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    final byLabel = {for (final o in operating) o.label: o.value};
+    final series = [
+      ChartSeries(
+        label: '매출액 (최근 12개월)',
+        color: c.chartSeries1,
+        values: [for (final r in revenue) r.value],
+      ),
+      ChartSeries(
+        label: '영업이익 (최근 12개월)',
+        color: c.chartSeries2,
+        values: [for (final r in revenue) byLabel[r.label]],
+      ),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          '최근 12개월 추이 · 분기마다 앞선 네 분기를 더한 값',
+          style: t.body(13, weight: FontWeight.w600),
+        ),
+        const SizedBox(height: AppSpace.xs),
+        ChartLegend(series: series),
+        const SizedBox(height: AppSpace.sm),
+        AppColumnChart(
+          categories: [for (final r in revenue) r.label],
+          series: series,
+          formatValue: formatKrwShort,
+          height: 180,
+        ),
+        const SizedBox(height: AppSpace.xs),
+        Text(
+          '사업보고서는 그 해 연간, 분기·반기는 전년 연간 + 올해 누적 − 전년 같은 기간 누적입니다. '
+          '계절을 타는 사업도 한 해치로 더해 놓으면 늘고 줄어드는 방향이 보입니다.',
+          style: t.body(11.5, color: c.textMuted),
+        ),
       ],
     );
   }

@@ -297,6 +297,44 @@ class FinancialView {
     );
   }
 
+  /// 분기마다의 최근 12개월 값 하나.
+  ///
+  /// 사업보고서면 그 해 연간, 분기·반기면 전년 연간 + 올해 누적 − 전년 같은 기간 누적.
+  /// 분기 실적은 들쭉날쭉해 한 해치로 더해 놓아야 흐름이 보인다.
+  List<({String label, int year, FinancialReportCode code, double? value})>
+  trailingSeries(String key) {
+    final out =
+        <({String label, int year, FinancialReportCode code, double? value})>[];
+    for (final p in data.periods) {
+      final value = _trailingAt(p, key);
+      if (value == null) continue;
+      out.add((
+        label: p.reportCode == FinancialReportCode.annual
+            ? '${p.bsnsYear}'
+            : "${p.bsnsYear % 100}.${reportCodeLabel(p.reportCode)}",
+        year: p.bsnsYear,
+        code: p.reportCode,
+        value: value,
+      ));
+    }
+    return out;
+  }
+
+  /// 이 보고서 시점의 최근 12개월 값.
+  double? _trailingAt(FinancialPeriod p, String key) {
+    if (p.reportCode == FinancialReportCode.annual) {
+      return line(p, key)?.amount?.toDouble();
+    }
+    final prevAnnual = line(
+      period(p.bsnsYear - 1, FinancialReportCode.annual),
+      key,
+    )?.amount;
+    final cur = cumulative(p, key);
+    final prev = cumulative(period(p.bsnsYear - 1, p.reportCode), key);
+    if (prevAnnual == null || cur == null || prev == null) return null;
+    return (prevAnnual + cur - prev).toDouble();
+  }
+
   /// 가장 최근 보고서.
   FinancialPeriod? get latest =>
       data.periods.isEmpty ? null : data.periods.last;
