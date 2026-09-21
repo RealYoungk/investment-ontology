@@ -25,7 +25,12 @@ class ScreenEndpoint extends Endpoint {
     'ifrs-full_EquityAttributableToOwnersOfParent',
     'ifrs-full_Equity',
     'ifrs-full_Liabilities',
+    'ifrs-full_Assets',
   ];
+
+  /// 상장사의 자산총계가 이보다 작을 수는 없다. 이보다 작으면 재무제표를 원이 아닌
+  /// 단위(천원 등)로 낸 것이라, 시가총액과 섞는 지표(PER·PBR·수익률)를 계산하지 않는다.
+  static final _minAssets = BigInt.from(100000000);
 
   /// 지난 계산을 버린다 (테스트에서 쓴다).
   static void clearCache() {
@@ -325,6 +330,7 @@ class ScreenEndpoint extends Endpoint {
             max(b.v) FILTER (WHERE b.acc = 'ifrs-full_Equity')) AS eq,
           max(b.v) FILTER (WHERE b.acc = 'ifrs-full_Equity') AS total_eq,
           max(b.v) FILTER (WHERE b.acc = 'ifrs-full_Liabilities') AS liab,
+          max(b.v) FILTER (WHERE b.acc = 'ifrs-full_Assets') AS assets,
           -- 취득액을 음수로 적는 회사가 있어 절댓값으로 뺀다 (기업 화면과 같은 규칙).
           max(t.v) FILTER (WHERE t.acc = 'ifrs-full_CashFlowsFromUsedInOperatingActivities')
             - abs(max(t.v) FILTER (WHERE t.acc = 'ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities')) AS fcf,
@@ -344,7 +350,7 @@ class ScreenEndpoint extends Endpoint {
       )
       SELECT id, "corpCode", name, market, y, cap, revenue, op, ni, eq,
              total_eq, liab, fcf, dividend,
-             revenue_now, revenue_ago, op_now, op_ago
+             revenue_now, revenue_ago, op_now, op_ago, assets
       FROM metrics
     ''');
 
@@ -389,13 +395,22 @@ class ScreenEndpoint extends Endpoint {
           liabilities: big(r[11]),
           freeCashFlow: big(r[12]),
           dividendTotal: big(r[13]),
-          per: divide(r[5], r[8]),
-          pbr: divide(r[5], r[9]),
+          // 시가총액(원)과 섞는 지표는 재무제표가 원일 때만.
+          per: big(r[18]) != null && big(r[18])! < _minAssets
+              ? null
+              : divide(r[5], r[8]),
+          pbr: big(r[18]) != null && big(r[18])! < _minAssets
+              ? null
+              : divide(r[5], r[9]),
           roe: divide(r[8], r[9], scale: 100),
           operatingMargin: divide(r[7], r[6], scale: 100),
           debtRatio: divide(r[11], r[10], scale: 100),
-          fcfYield: divide(r[12], r[5], scale: 100),
-          dividendYield: divide(r[13], r[5], scale: 100),
+          fcfYield: big(r[18]) != null && big(r[18])! < _minAssets
+              ? null
+              : divide(r[12], r[5], scale: 100),
+          dividendYield: big(r[18]) != null && big(r[18])! < _minAssets
+              ? null
+              : divide(r[13], r[5], scale: 100),
           revenueGrowth: growth(r[14], r[15]),
           operatingIncomeGrowth: growth(r[16], r[17]),
         ),

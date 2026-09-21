@@ -54,7 +54,8 @@ void main() {
       FinancialStatementKind kind(String account) => switch (account) {
         'ifrs-full_Equity' ||
         'ifrs-full_EquityAttributableToOwnersOfParent' ||
-        'ifrs-full_Liabilities' => FinancialStatementKind.balanceSheet,
+        'ifrs-full_Liabilities' ||
+        'ifrs-full_Assets' => FinancialStatementKind.balanceSheet,
         'ifrs-full_CashFlowsFromUsedInOperatingActivities' ||
         'ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities' =>
           FinancialStatementKind.cashFlow,
@@ -273,6 +274,28 @@ void main() {
         debtRatioMax: 100,
       );
       expect([for (final r in debt.items) r.company.name], ['큰회사']);
+    });
+
+    test('재무제표가 원 단위가 아니면 시가총액과 섞는 지표를 주지 않는다', () async {
+      // 자산총계 1억 미만은 상장사일 수 없다 (천원 단위로 낸 공시).
+      final tiny = await company('00000009', '천원회사', '264');
+      await report(tiny, 2025, FinancialReportCode.annual, {
+        'ifrs-full_Revenue': (1000, null),
+        'ifrs-full_ProfitLoss': (100, null),
+        'ifrs-full_Equity': (500, null),
+        'ifrs-full_Assets': (800, null),
+      });
+      await quote(tiny, '000009', 1000000);
+      final page = await endpoints.screen.list(
+        sessionBuilder,
+        corpCodes: ['00000009'],
+      );
+      final row = page.items.single;
+      expect(row.per, isNull, reason: '시가총액과 단위가 달라 계산하지 않는다');
+      expect(row.pbr, isNull);
+      // 재무제표 안에서만 계산하는 지표는 그대로 준다.
+      expect(row.revenue, BigInt.from(1000));
+      expect(row.netIncome, BigInt.from(100));
     });
 
     test('비교는 조건을 무시하고 준 기업만 준다', () async {

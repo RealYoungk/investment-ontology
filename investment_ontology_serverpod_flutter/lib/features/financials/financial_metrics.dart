@@ -410,6 +410,12 @@ class FinancialView {
       );
     }
 
+    // 상장사의 자산총계가 1억원보다 작을 수는 없다. 그보다 작으면 재무제표를 원이
+    // 아닌 단위(천원 등)로 낸 것이라, 시가총액과 섞는 지표는 계산하지 않는다.
+    final assets = latestBalance('assets', '자산총계');
+    final scaleMismatch = assets.value != null && assets.value! < 100000000;
+    const scaleNote = '재무제표가 원 단위가 아닌 것으로 보여 시가총액과 견주지 않음';
+
     final capValue = DerivedValue(
       value: cap,
       formula: '시가총액 = 발행 종목(보통주·우선주 등) 시가총액 합',
@@ -425,12 +431,14 @@ class FinancialView {
       capValue,
       netIncome,
       inputs: [capInput, ...netIncome.inputs],
+      topMissing: scaleMismatch ? scaleNote : null,
     );
     final pbr = ratio(
       'PBR = 시가총액 ÷ $equityLabel (최근 기말)',
       capValue,
       equity,
       inputs: [capInput, ...equity.inputs],
+      topMissing: scaleMismatch ? scaleNote : null,
     );
     final margin = ratio(
       '영업이익률 = 영업이익 ÷ 매출액 (각각 최근 12개월)\n${opIncome.formula}\n${revenue.formula}',
@@ -468,6 +476,7 @@ class FinancialView {
       fcf,
       capValue,
       inputs: [...fcf.inputs, capInput],
+      topMissing: scaleMismatch ? scaleNote : null,
     );
 
     return [

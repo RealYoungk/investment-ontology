@@ -13,7 +13,6 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _ida;
 import 'dart:io' as _idi;
-
 import 'package:investment_ontology_serverpod_server/src/generated/future_calls.dart'
     as _i4o8e4lj;
 import 'package:investment_ontology_serverpod_server/src/generated/future_calls_generated_models/ai_extraction_future_call_run_model.dart'
@@ -395,10 +394,12 @@ class _EmailIdpEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_iacs.AuthSuccess>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_iacs.AuthSuccess>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -424,10 +425,12 @@ class _EmailIdpEndpoint {
           parameters: _ist.testObjectToJson({'email': email}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_is.UuidValue>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_is.UuidValue>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -457,10 +460,12 @@ class _EmailIdpEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<String>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<String>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -490,10 +495,12 @@ class _EmailIdpEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_iacs.AuthSuccess>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_iacs.AuthSuccess>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -519,10 +526,12 @@ class _EmailIdpEndpoint {
           parameters: _ist.testObjectToJson({'email': email}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_is.UuidValue>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_is.UuidValue>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -552,10 +561,12 @@ class _EmailIdpEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<String>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<String>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -585,10 +596,12 @@ class _EmailIdpEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<void>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<void>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -611,10 +624,12 @@ class _EmailIdpEndpoint {
           parameters: _ist.testObjectToJson({}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<bool>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<bool>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -651,10 +666,12 @@ class _JwtRefreshEndpoint {
           parameters: _ist.testObjectToJson({'refreshToken': refreshToken}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_iacs.AuthSuccess>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_iacs.AuthSuccess>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -691,10 +708,12 @@ class _GreetingEndpoint {
           parameters: _ist.testObjectToJson({'name': name}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_isd101g2.Greeting>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_isd101g2.Greeting>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -730,10 +749,12 @@ class _AiEndpoint {
           parameters: _ist.testObjectToJson({}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_iabynv8u.AiStatus>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_iabynv8u.AiStatus>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -759,10 +780,12 @@ class _AiEndpoint {
           parameters: _ist.testObjectToJson({'corpCode': corpCode}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_i5zcz6ng.AiExtraction>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_i5zcz6ng.AiExtraction>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -788,10 +811,12 @@ class _AiEndpoint {
           parameters: _ist.testObjectToJson({'limit': limit}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_idt86amb.IngestJob>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_idt86amb.IngestJob>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -817,10 +842,12 @@ class _AiEndpoint {
           parameters: _ist.testObjectToJson({'limit': limit}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<List<_i9fapywb.BusinessDocumentRef>>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_i9fapywb.BusinessDocumentRef>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -850,10 +877,12 @@ class _AiEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<String>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<String>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -883,10 +912,12 @@ class _AiEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<String>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<String>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -918,10 +949,12 @@ class _AiEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_i5zcz6ng.AiExtraction>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_i5zcz6ng.AiExtraction>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -953,10 +986,12 @@ class _AiEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<String>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<String>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -992,10 +1027,12 @@ class _CompanyEndpoint {
           parameters: _ist.testObjectToJson({}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_i5enxcw4.Overview>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_i5enxcw4.Overview>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1025,10 +1062,12 @@ class _CompanyEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<List<_iee4t190.FacetCount>>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_iee4t190.FacetCount>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1068,10 +1107,12 @@ class _CompanyEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_i23npuz6.CompanyPage>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_i23npuz6.CompanyPage>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1097,10 +1138,12 @@ class _CompanyEndpoint {
           parameters: _ist.testObjectToJson({'corpCode': corpCode}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_iws6mlcl.CompanyDetail?>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_iws6mlcl.CompanyDetail?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1137,10 +1180,12 @@ class _DisclosureEndpoint {
           parameters: _ist.testObjectToJson({'corpCode': corpCode}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<List<_itpltonf.DisclosureSectionInfo>>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_itpltonf.DisclosureSectionInfo>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1172,10 +1217,12 @@ class _DisclosureEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_ijd5lkez.DisclosureTable?>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_ijd5lkez.DisclosureTable?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1205,10 +1252,12 @@ class _DisclosureEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_i01bb80a.BusinessContent?>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_i01bb80a.BusinessContent?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1234,10 +1283,12 @@ class _DisclosureEndpoint {
           parameters: _ist.testObjectToJson({'corpCode': corpCode}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_iokqvrbx.ShareholderReturn?>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_iokqvrbx.ShareholderReturn?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1263,10 +1314,12 @@ class _DisclosureEndpoint {
           parameters: _ist.testObjectToJson({'corpCode': corpCode}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<List<_ihq2wng4.DocumentFact>>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_ihq2wng4.DocumentFact>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1292,10 +1345,12 @@ class _DisclosureEndpoint {
           parameters: _ist.testObjectToJson({'corpCode': corpCode}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<List<_ihq2wng4.DocumentFact>>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_ihq2wng4.DocumentFact>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1325,10 +1380,12 @@ class _DisclosureEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<List<_iwgt3edw.FilingFeedItem>>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_iwgt3edw.FilingFeedItem>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1369,10 +1426,12 @@ class _FinancialEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_imylp7bk.CompanyFinancials?>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_imylp7bk.CompanyFinancials?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1398,10 +1457,12 @@ class _FinancialEndpoint {
           parameters: _ist.testObjectToJson({'reportId': reportId}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_ip1nebyh.FinancialReportDetail?>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_ip1nebyh.FinancialReportDetail?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1442,10 +1503,12 @@ class _GovernanceEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_iye7y8x2.CompanyGovernance?>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_iye7y8x2.CompanyGovernance?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1475,10 +1538,12 @@ class _GovernanceEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<List<_iqw74hrd.PersonHit>>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_iqw74hrd.PersonHit>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1504,10 +1569,12 @@ class _GovernanceEndpoint {
           parameters: _ist.testObjectToJson({'personId': personId}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_inwk3hxk.PersonProfile?>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_inwk3hxk.PersonProfile?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1537,10 +1604,12 @@ class _GovernanceEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<void>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<void>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1585,10 +1654,12 @@ class _GraphEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_iaqm8wre.CompanyGraph?>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_iaqm8wre.CompanyGraph?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1624,10 +1695,12 @@ class _GroupEndpoint {
           parameters: _ist.testObjectToJson({}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<List<_i4udlom4.CompanyGroup>>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_i4udlom4.CompanyGroup>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1653,10 +1726,12 @@ class _GroupEndpoint {
           parameters: _ist.testObjectToJson({'corpCode': corpCode}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_i4udlom4.CompanyGroup?>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_i4udlom4.CompanyGroup?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1693,10 +1768,12 @@ class _IngestEndpoint {
           parameters: _ist.testObjectToJson({'force': force}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_idt86amb.IngestJob>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_idt86amb.IngestJob>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1722,10 +1799,12 @@ class _IngestEndpoint {
           parameters: _ist.testObjectToJson({'corpCode': corpCode}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_idt86amb.IngestJob>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_idt86amb.IngestJob>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1751,10 +1830,12 @@ class _IngestEndpoint {
           parameters: _ist.testObjectToJson({'corpCode': corpCode}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_idt86amb.IngestJob>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_idt86amb.IngestJob>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1779,10 +1860,12 @@ class _IngestEndpoint {
           parameters: _ist.testObjectToJson({}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<String>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<String>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1807,10 +1890,12 @@ class _IngestEndpoint {
           parameters: _ist.testObjectToJson({}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_idt86amb.IngestJob>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_idt86amb.IngestJob>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1836,10 +1921,12 @@ class _IngestEndpoint {
           parameters: _ist.testObjectToJson({'jobId': jobId}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_idt86amb.IngestJob?>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_idt86amb.IngestJob?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1864,10 +1951,12 @@ class _IngestEndpoint {
           parameters: _ist.testObjectToJson({}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_ixl8qyld.IngestCoverage>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_ixl8qyld.IngestCoverage>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1892,10 +1981,12 @@ class _IngestEndpoint {
           parameters: _ist.testObjectToJson({}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_idt86amb.IngestJob?>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_idt86amb.IngestJob?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1921,10 +2012,12 @@ class _IngestEndpoint {
           parameters: _ist.testObjectToJson({'kind': kind}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_idt86amb.IngestJob?>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_idt86amb.IngestJob?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1950,10 +2043,12 @@ class _IngestEndpoint {
           parameters: _ist.testObjectToJson({'kinds': kinds}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<List<_idt86amb.IngestJob>>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_idt86amb.IngestJob>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -1978,10 +2073,12 @@ class _IngestEndpoint {
           parameters: _ist.testObjectToJson({}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<String>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<String>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2022,10 +2119,12 @@ class _MarketEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_i5mpfst8.MarketCapTreemap>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_i5mpfst8.MarketCapTreemap>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2070,10 +2169,12 @@ class _ReviewEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_icif05qz.ReviewPage>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_icif05qz.ReviewPage>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2105,10 +2206,12 @@ class _ReviewEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_i5x2f28w.OntologyRelation?>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_i5x2f28w.OntologyRelation?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2140,10 +2243,12 @@ class _ReviewEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<int>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<int>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2175,10 +2280,12 @@ class _ReviewEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<int>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<int>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2216,10 +2323,12 @@ class _ReviewEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_iwp9ei5l.ReviewCheck>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_iwp9ei5l.ReviewCheck>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2244,10 +2353,12 @@ class _ReviewEndpoint {
           parameters: _ist.testObjectToJson({}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<List<_iwp9ei5l.ReviewCheck>>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_iwp9ei5l.ReviewCheck>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2281,10 +2392,12 @@ class _ReviewEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_i43txb4s.FactPage>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_i43txb4s.FactPage>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2316,10 +2429,12 @@ class _ReviewEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_ihq2wng4.DocumentFact?>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_ihq2wng4.DocumentFact?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2345,10 +2460,12 @@ class _ReviewEndpoint {
           parameters: _ist.testObjectToJson({'corpCode': corpCode}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<List<_ip1s5ejx.ReviewItem>>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_ip1s5ejx.ReviewItem>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2419,10 +2536,12 @@ class _ScreenEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_ia9do9rj.ScreenPage>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_ia9do9rj.ScreenPage>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2448,10 +2567,12 @@ class _ScreenEndpoint {
           parameters: _ist.testObjectToJson({'corpCode': corpCode}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_i517wz0h.PeerComparison?>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_i517wz0h.PeerComparison?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2487,10 +2608,12 @@ class _ThemeEndpoint {
           parameters: _ist.testObjectToJson({}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<List<_iy65bs9o.ThemeSummary>>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_iy65bs9o.ThemeSummary>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2520,10 +2643,12 @@ class _ThemeEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_in6y0ur2.InvestmentTheme>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_in6y0ur2.InvestmentTheme>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2555,10 +2680,12 @@ class _ThemeEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_in6y0ur2.InvestmentTheme?>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_in6y0ur2.InvestmentTheme?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2584,10 +2711,12 @@ class _ThemeEndpoint {
           parameters: _ist.testObjectToJson({'themeId': themeId}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<void>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<void>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2613,10 +2742,12 @@ class _ThemeEndpoint {
           parameters: _ist.testObjectToJson({'themeId': themeId}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_izstvsu9.ThemeDetail?>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_izstvsu9.ThemeDetail?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2648,10 +2779,12 @@ class _ThemeEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<_i39abacz.ThemeMember?>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_i39abacz.ThemeMember?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2681,10 +2814,12 @@ class _ThemeEndpoint {
           }),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<void>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<void>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2710,10 +2845,12 @@ class _ThemeEndpoint {
           parameters: _ist.testObjectToJson({'corpCode': corpCode}),
           serializationManager: _serializationManager,
         );
-        var _localReturnValue = await (_localCallContext.method.call(
-          _localUniqueSession,
-          _localCallContext.arguments,
-        ) as _ida.Future<List<_in6y0ur2.InvestmentTheme>>);
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_in6y0ur2.InvestmentTheme>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
