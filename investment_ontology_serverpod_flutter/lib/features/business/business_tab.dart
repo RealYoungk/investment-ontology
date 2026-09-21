@@ -8,7 +8,8 @@ import '../../client.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
 import '../common/formatters.dart';
-import '../financials/financial_metrics.dart' show formatKrwShort;
+import '../financials/financial_metrics.dart'
+    show formatKrwShort, formatUnitAmount;
 import '../review/review_page.dart';
 
 /// 글을 문단과 표(' | '로 이은 줄이 이어진 묶음)로 나눈다.
@@ -145,10 +146,18 @@ class _BusinessTabState extends State<BusinessTab> {
               '${content.title} · FY${content.bsnsYear} 사업보고서',
               style: t.body(14, weight: FontWeight.w600),
             ),
-            if (content.years.length > 1)
+            if (content.years.length > 1 ||
+                content.years.first < DateTime.now().year)
               AppToggleGroup<int>(
                 value: content.bsnsYear,
-                options: {for (final y in content.years) y: 'FY$y'},
+                // 지금 해의 사업보고서가 아직 없으면 그 칸을 지우지 않고 흐리게 둔다.
+                options: {
+                  for (final y in _withThisYear(content.years)) y: 'FY$y',
+                },
+                disabled: {
+                  for (final y in _withThisYear(content.years))
+                    if (!content.years.contains(y)) y,
+                },
                 onChanged: (y) {
                   setState(() => _year = y);
                   _load();
@@ -265,7 +274,9 @@ class _SectionBody extends StatelessWidget {
   }
 }
 
-/// 이 기업이 들어간 AI 관계 (거절한 것 제외)와 "이 기업 관계 추출".
+/// 이 기업이 들어간, 본문에서 읽은 관계 (거절한 것 제외).
+///
+/// 화면은 저장된 것만 읽는다. 읽는 일(AI·규칙)은 서버 밖에서 미리 하고 넣는다.
 class _AiRelations extends StatefulWidget {
   const _AiRelations({required this.corpCode});
 
@@ -277,8 +288,6 @@ class _AiRelations extends StatefulWidget {
 
 class _AiRelationsState extends State<_AiRelations> {
   List<ReviewItem>? _items;
-  bool _extracting = false;
-  String? _message;
 
   @override
   void initState() {
@@ -291,27 +300,6 @@ class _AiRelationsState extends State<_AiRelations> {
       final items = await client.review.forCompany(widget.corpCode);
       if (mounted) setState(() => _items = items);
     } catch (_) {}
-  }
-
-  Future<void> _extract() async {
-    setState(() => (_extracting = true, _message = null));
-    try {
-      final r = await client.ai.extractCompany(widget.corpCode);
-      // 수십 초 걸리는 호출이라 그사이 다른 화면으로 갔을 수 있다.
-      if (!mounted) return;
-      setState(
-        () => _message = r.succeeded
-            ? '관계 후보 ${r.relationCount}건 (근거가 원문에 없어 버린 것 ${r.droppedCount}건)'
-            : '추출 실패: ${r.error}',
-      );
-      await _load();
-    } on IngestException catch (e) {
-      if (mounted) setState(() => _message = e.message);
-    } catch (e) {
-      if (mounted) setState(() => _message = '$e');
-    } finally {
-      if (mounted) setState(() => _extracting = false);
-    }
   }
 
   @override
@@ -330,23 +318,18 @@ class _AiRelationsState extends State<_AiRelations> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SectionLabel(
-            'AI가 뽑은 관계 (공급 · 경쟁 · 제품)',
+            '본문에서 읽은 관계 (공급 · 매출 · 경쟁 · 제품)',
             accent: true,
-            trailing: AppButton(
-              label: _extracting ? '읽는 중… (수십 초)' : '이 기업 관계 추출',
-              variant: AppButtonVariant.link,
-              onPressed: _extracting ? null : _extract,
+            trailing: Text(
+              '출처: 사업보고서 II. 사업의 내용',
+              style: t.body(12, color: c.textMuted),
             ),
           ),
           const SizedBox(height: AppSpace.xs),
           Text(
-            '근거 인용이 원문에 그대로 있는 것만 남기고, 검수에서 승인해야 확정됩니다.',
+            '근거 문장이 원문에 그대로 있는 것만 넣습니다. 각 관계에 누가 어떻게 읽었는지(표 규칙 · 원문 대조)가 붙습니다.',
             style: t.body(12, color: c.textMuted),
           ),
-          if (_message != null) ...[
-            const SizedBox(height: AppSpace.xs),
-            Text(_message!, style: t.body(12.5, color: c.textSecondary)),
-          ],
           const SizedBox(height: AppSpace.sm),
           if (items.isEmpty)
             Text('아직 없습니다.', style: t.body(13, color: c.textMuted))
@@ -523,6 +506,10 @@ class _FactTrend extends StatelessWidget {
     final hasPlan = facts.any(
       (f) => f.kind == DocumentFactKind.investmentPlan,
     );
+    // 지금은 이 해인데 값이 없으면 "없음" 칸을 둔다 — 빠진 건지 안 나온 건지 보이게.
+    final thisYear = DateTime.now().year;
+    final missingYear = _year(facts.last) < thisYear;
+    final shown = [...facts, if (missingYear) null];
     // 집행과 계획을 한 차트에. 계획은 아직 안 지난 해라 색을 달리 한다.
     final series = hasPlan
         ? [
@@ -530,16 +517,16 @@ class _FactTrend extends StatelessWidget {
               label: '집행',
               color: c.chartSeries1,
               values: [
-                for (final f in facts)
-                  f.kind == DocumentFactKind.investmentPlan ? null : f.value,
+                for (final f in shown)
+                  f?.kind == DocumentFactKind.investmentPlan ? null : f?.value,
               ],
             ),
             ChartSeries(
               label: '회사가 밝힌 계획',
               color: c.chartSeries2,
               values: [
-                for (final f in facts)
-                  f.kind == DocumentFactKind.investmentPlan ? f.value : null,
+                for (final f in shown)
+                  f?.kind == DocumentFactKind.investmentPlan ? f?.value : null,
               ],
             ),
           ]
@@ -547,7 +534,7 @@ class _FactTrend extends StatelessWidget {
             ChartSeries(
               label: kindLabel(facts.first.kind),
               color: c.chartSeries1,
-              values: [for (final f in facts) f.value],
+              values: [for (final f in shown) f?.value],
             ),
           ];
 
@@ -564,7 +551,7 @@ class _FactTrend extends StatelessWidget {
               ),
             ),
             Text(
-              '${formatDecimal(last)}$unit',
+              formatUnitAmount(last, unit),
               style: t.numeric(15, weight: FontWeight.w700),
             ),
             if (change != null) ...[
@@ -586,7 +573,9 @@ class _FactTrend extends StatelessWidget {
           const SizedBox(height: AppSpace.xs),
         ],
         AppColumnChart(
-          categories: [for (final f in facts) '${_year(f)}'],
+          categories: [
+            for (final f in shown) f == null ? '$thisYear 없음' : '${_year(f)}',
+          ],
           series: series,
           formatValue: short,
           height: 150,
@@ -682,7 +671,7 @@ class _DocumentFactsState extends State<_DocumentFacts> {
             '본문에서 뽑은 값',
             accent: true,
             trailing: Text(
-              '사람이 승인한 것만',
+              '출처: 사업보고서 본문 · 검산·원문 대조를 거친 값',
               style: t.body(12, color: c.textMuted),
             ),
           ),
@@ -742,4 +731,12 @@ class _DocumentFactsState extends State<_DocumentFacts> {
       ),
     );
   }
+}
+
+/// 본문이 있는 해에 지금 해를 더한다 (없으면 흐린 칸으로). 최신 해부터.
+List<int> _withThisYear(List<int> years) {
+  final thisYear = DateTime.now().year;
+  final all = {...years, if (years.isNotEmpty) thisYear}.toList()
+    ..sort((a, b) => b.compareTo(a));
+  return all;
 }

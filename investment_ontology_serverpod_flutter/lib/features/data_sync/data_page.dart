@@ -114,12 +114,12 @@ class _DataPageState extends State<DataPage> {
         const _RebuildLinks(),
         const SizedBox(height: AppSpace.section),
         const _Source(
-          title: 'AI 관계 추출 · Anthropic (4단계)',
+          title: '본문에서 읽은 관계·값 (4단계)',
           description:
-              '받아 둔 사업보고서 "사업의 내용"을 AI가 읽고 제품·공급(원재료 매입처·주요 매출처)·경쟁 관계를 '
-              '뽑습니다. 근거 인용이 원문에 그대로 없으면 버리고, 남은 것은 모두 검수 대기로 두어 '
-              '검수 화면에서 승인해야 확정됩니다. Anthropic API 키가 있어야 돌고 호출 비용이 듭니다 '
-              '(자동으로 돌지 않음).',
+              '받아 둔 사업보고서 "사업의 내용"에서 제품·공급(원재료 매입처·주요 매출처)·경쟁 관계와 '
+              '수주잔고·생산능력·점유율 같은 값을 읽어 넣습니다. 형식이 일정한 표는 규칙으로 서버가 바로 '
+              '읽고(검산 통과한 것만), 문장에서 읽어야 하는 것은 서버 밖에서 미리 읽어 넣습니다 — '
+              '이 앱은 어디서도 AI를 부르지 않습니다. 근거 문장이 원문에 그대로 있는 것만 저장됩니다.',
         ),
         const _AiExtraction(),
         const SizedBox(height: AppSpace.section),
@@ -221,7 +221,6 @@ class _AiExtraction extends StatefulWidget {
 
 class _AiExtractionState extends State<_AiExtraction> {
   AiStatus? _status;
-  int _limit = 20;
 
   @override
   void initState() {
@@ -252,33 +251,11 @@ class _AiExtractionState extends State<_AiExtraction> {
           style: t.body(13, color: c.textSecondary),
         ),
         const SizedBox(height: AppSpace.sm),
-        if (!s.keyConfigured)
-          AppNotice(
-            message:
-                'Anthropic API 키가 없어 추출할 수 없습니다. 환경변수 ANTHROPIC_API_KEY를 설정하거나 '
-                'config/passwords.yaml의 shared: 아래에 anthropicApiKey를 넣고 서버를 다시 시작하세요.',
-          )
-        else ...[
-          Wrap(
-            spacing: AppSpace.md,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              AppToggleGroup<int>(
-                label: '이번에 읽을 기업 수',
-                value: _limit,
-                options: const {5: '5', 20: '20', 100: '100', 500: '500'},
-                onChanged: (v) => setState(() => _limit = v),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpace.sm),
-          IngestJobRow(
-            kind: 'ai_extraction',
-            label: 'AI 추출',
-            action: '관계 추출 시작',
-            start: () => client.ai.startBatch(limit: _limit),
-          ),
-        ],
+        Text(
+          '읽는 일은 서버 밖에서 합니다 (ai.pending → ai.documentTexts → ai.submit / ai.submitFacts). '
+          '이 화면에서 시작하는 것은 없습니다.',
+          style: t.body(12.5, color: c.textMuted),
+        ),
       ],
     );
   }

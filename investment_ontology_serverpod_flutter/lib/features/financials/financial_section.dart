@@ -262,7 +262,7 @@ class _FinancialSectionState extends State<FinancialSection> {
           () {
             final cash = [
               for (final p in view.cashFlowAnnual())
-                if (p.operating != null) p,
+                if (p.operating != null || p.label.endsWith('없음')) p,
             ];
             if (cash.length < 2) return const SizedBox.shrink();
             return Padding(

@@ -249,25 +249,35 @@ class _RecentFilingsState extends State<_RecentFilings> {
                 ],
               ),
             );
+            // 열이 몇 개 없어 왼쪽에 몰려 보이지 않게 폭을 다 쓴다 (기업·보고서 열이 남는 폭을 가져간다).
             return AppDataTable(
+              expand: true,
               columns: [
-                if (!compact) const AppColumn('접수일'),
-                const AppColumn('기업'),
-                if (!compact) const AppColumn('보고서'),
-                if (!compact) const AppColumn('시가총액', numeric: true),
+                // 날짜는 고정 폭 — 내용 폭 재기가 몇 px 모자라 끝 글자가 잘린다.
+                if (!compact) const AppColumn('접수일', width: 100),
+                const AppColumn('기업', flex: true),
+                if (!compact) const AppColumn('보고서', flex: true, nowrap: true),
+                if (!compact)
+                  const AppColumn('시가총액', numeric: true, nowrap: true),
                 const AppColumn('재무'),
               ],
               rows: [
                 for (final f in items)
                   AppRow([
                     if (!compact)
-                      AppDataTable.text(context, formatDate(f.receivedDate)),
+                      AppDataTable.text(
+                        context,
+                        formatDate(f.receivedDate),
+                        nowrap: true,
+                      ),
                     name(f),
                     if (!compact) AppDataTable.text(context, f.reportName),
                     if (!compact)
                       AppDataTable.text(
                         context,
-                        f.marketCap == null ? null : formatKrw(f.marketCap),
+                        f.marketCap == null
+                            ? null
+                            : formatKrwShort(f.marketCap!.toDouble()),
                         numeric: true,
                       ),
                     AppTag(

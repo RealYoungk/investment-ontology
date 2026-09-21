@@ -18,6 +18,36 @@ String formatKrw(BigInt? v) {
   return '$sign${formatCount(a.toInt())}원';
 }
 
+/// 원 단위 금액을 조·억·만원으로 끝까지 적는다: "234조 34억 3,455만원". 1만원 아래는 원.
+/// 큰 수를 자릿수 세지 않고 읽게 하려는 표기라, 값이 클수록 이 표기를 쓴다.
+String formatKrwLong(double won) {
+  if (!won.isFinite) return '—';
+  final sign = won < 0 ? '-' : '';
+  var a = won.abs().round();
+  if (a < 10000) return '$sign${formatCount(a)}원';
+  final parts = <String>[];
+  final jo = a ~/ 1000000000000;
+  a %= 1000000000000;
+  final eok = a ~/ 100000000;
+  a %= 100000000;
+  final man = a ~/ 10000;
+  if (jo > 0) parts.add('${formatCount(jo)}조');
+  if (eok > 0) parts.add('${formatCount(eok)}억');
+  if (man > 0) parts.add('${formatCount(man)}만');
+  return '$sign${parts.join(' ')}원';
+}
+
+/// 공시 단위 그대로 적힌 값을 읽기 좋게: 백만원·억원·조원은 [formatKrwLong]으로,
+/// 나머지 단위(%, 대, 톤…)는 값 그대로.
+String formatUnitAmount(double value, String unit) => switch (unit) {
+  '백만원' => formatKrwLong(value * 1000000),
+  '천원' => formatKrwLong(value * 1000),
+  '억원' => formatKrwLong(value * 100000000),
+  '조원' => formatKrwLong(value * 1000000000000),
+  '원' => formatKrwLong(value),
+  _ => '${formatDecimal(value)}$unit',
+};
+
 /// 차트 눈금용 짧은 금액: 1.2조, 3,400억.
 String formatKrwShort(double v) {
   final a = v.abs();
@@ -178,33 +208,139 @@ class FinancialView {
     return l.cumulativeAmount;
   }
 
-  /// 사업연도별 값.
-  List<PeriodPoint> annual() => [
-    for (final p in data.periods)
-      if (p.reportCode == FinancialReportCode.annual)
+  /// 사업연도별 값. 사업보고서가 아직 없는 최근 해는 분기·반기보고서의 **누적**으로
+  /// 한 칸을 더 두고(예: "2026 반기 누적"), 그것도 없으면 "없음"으로 빈 칸을 둔다 —
+  /// 올해 칸이 아예 없으면 데이터가 빠진 건지 안 나온 건지 알 수 없다.
+  List<PeriodPoint> annual({DateTime? now}) {
+    final points = [
+      for (final p in data.periods)
+        if (p.reportCode == FinancialReportCode.annual)
+          PeriodPoint(
+            label: '${p.bsnsYear}',
+            revenue: _raw(p, 'revenue', '매출액'),
+            operatingIncome: _raw(p, 'operatingIncome', '영업이익'),
+          ),
+    ];
+    final lastAnnual = lastAnnualYear;
+    final latest = latestInterim();
+    if (latest != null) {
+      final l = reportCodeLabel(latest.reportCode);
+      points.add(
         PeriodPoint(
-          label: '${p.bsnsYear}',
-          revenue: _raw(p, 'revenue', '매출액'),
-          operatingIncome: _raw(p, 'operatingIncome', '영업이익'),
+          label: '${latest.bsnsYear} $l 누적',
+          revenue: _cumulativeValue(latest, 'revenue', '매출액'),
+          operatingIncome: _cumulativeValue(latest, 'operatingIncome', '영업이익'),
+          derivedNote: '사업보고서가 아직 없어 $l보고서까지의 누적 값',
         ),
-  ];
+      );
+    }
+    final thisYear = (now ?? DateTime.now()).year;
+    final covered = latest?.bsnsYear ?? lastAnnual;
+    if (points.isNotEmpty && (covered == null || covered < thisYear)) {
+      points.add(
+        PeriodPoint(
+          label: '$thisYear 없음',
+          revenue: const DerivedValue(
+            value: null,
+            formula: '올해 보고서가 아직 없음',
+            inputs: [],
+            missing: '올해 분기·반기보고서가 아직 없음',
+          ),
+          operatingIncome: const DerivedValue(
+            value: null,
+            formula: '올해 보고서가 아직 없음',
+            inputs: [],
+            missing: '올해 분기·반기보고서가 아직 없음',
+          ),
+          derivedNote: '아직 공시된 보고서가 없는 해',
+        ),
+      );
+    }
+    return points;
+  }
+
+  DerivedValue _cumulativeValue(FinancialPeriod p, String key, String label) {
+    final l = line(p, key);
+    final v = cumulative(p, key);
+    return DerivedValue(
+      value: v?.toDouble(),
+      formula: '$label 누적 (${basis(p)})',
+      inputs: [MetricInput(l?.accountName ?? label, v, basis(p))],
+      missing: l == null ? '$label 계정이 없음' : null,
+    );
+  }
 
   /// 연도별 현금흐름. 유형자산 취득은 양수로 적는 회사와 음수로 적는 회사가
   /// 섞여 있어 절댓값으로 본다 (기업 머리의 FCF와 같은 규칙).
-  List<CashPoint> cashFlowAnnual() => [
-    for (final p in data.periods)
-      if (p.reportCode == FinancialReportCode.annual)
-        () {
-          final ocf = line(p, 'operatingCashFlow')?.amount?.toDouble();
-          final capex = line(p, 'capex')?.amount?.abs().toDouble();
-          return CashPoint(
-            label: '${p.bsnsYear}',
-            operating: ocf,
-            capex: capex,
-            free: ocf == null || capex == null ? null : ocf - capex,
-          );
-        }(),
-  ];
+  List<CashPoint> cashFlowAnnual({DateTime? now}) {
+    CashPoint point(FinancialPeriod p, String label) {
+      // 현금흐름표는 분기·반기에도 누적만 공시하므로 amount가 곧 누적이다.
+      final ocf = line(p, 'operatingCashFlow')?.amount?.toDouble();
+      final capex = line(p, 'capex')?.amount?.abs().toDouble();
+      return CashPoint(
+        label: label,
+        operating: ocf,
+        capex: capex,
+        free: ocf == null || capex == null ? null : ocf - capex,
+      );
+    }
+
+    final points = [
+      for (final p in data.periods)
+        if (p.reportCode == FinancialReportCode.annual)
+          point(p, '${p.bsnsYear}'),
+    ];
+    // 사업보고서가 아직 없는 최근 해는 분기·반기 누적으로, 그것도 없으면 "없음".
+    final latest = latestInterim();
+    if (latest != null) {
+      points.add(
+        point(
+          latest,
+          '${latest.bsnsYear} ${reportCodeLabel(latest.reportCode)} 누적',
+        ),
+      );
+    }
+    final thisYear = (now ?? DateTime.now()).year;
+    final covered = latest?.bsnsYear ?? lastAnnualYear;
+    if (points.isNotEmpty && (covered == null || covered < thisYear)) {
+      points.add(
+        CashPoint(
+          label: '$thisYear 없음',
+          operating: null,
+          capex: null,
+          free: null,
+        ),
+      );
+    }
+    return points;
+  }
+
+  /// 가장 최근 사업보고서의 사업연도.
+  int? get lastAnnualYear => data.periods
+      .where((p) => p.reportCode == FinancialReportCode.annual)
+      .fold<int?>(null, (m, p) => m == null || p.bsnsYear > m ? p.bsnsYear : m);
+
+  /// 마지막 사업보고서 뒤에 오는 해의 가장 최근 분기·반기보고서.
+  FinancialPeriod? latestInterim() {
+    const rank = {
+      FinancialReportCode.q1: 1,
+      FinancialReportCode.halfYear: 2,
+      FinancialReportCode.q3: 3,
+    };
+    final lastAnnual = lastAnnualYear;
+    FinancialPeriod? latest;
+    for (final p in data.periods) {
+      if (p.reportCode == FinancialReportCode.annual) continue;
+      if (lastAnnual != null && p.bsnsYear <= lastAnnual) continue;
+      if (latest == null ||
+          p.bsnsYear > latest.bsnsYear ||
+          (p.bsnsYear == latest.bsnsYear &&
+              rank[p.reportCode]! > rank[latest.reportCode]!)) {
+        latest = p;
+      }
+    }
+    return latest;
+  }
 
   /// 분기별 3개월 값. 4분기는 사업보고서 − 3분기 누적으로 계산한다.
   List<PeriodPoint> quarterly() {

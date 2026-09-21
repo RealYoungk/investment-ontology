@@ -5,7 +5,7 @@ import '../../../client.dart';
 import '../../../design/components/components.dart';
 import '../../../design/tokens.dart';
 import '../../business/business_tab.dart' show documentFactKindLabel;
-import '../../common/formatters.dart';
+import '../../financials/financial_metrics.dart';
 
 /// 개요 탭의 사업 지표 요약: 본문에서 뽑은 값 중 최근 것과 그동안의 변화.
 ///
@@ -123,7 +123,7 @@ class _BusinessHighlightsState extends State<BusinessHighlights> {
                 ),
                 const SizedBox(width: AppSpace.sm),
                 Text(
-                  '${formatDecimal(r.last.value)}${r.last.unit}',
+                  formatUnitAmount(r.last.value, r.last.unit),
                   style: t.numeric(14, weight: FontWeight.w700),
                 ),
                 if (r.change case final change?) ...[

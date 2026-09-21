@@ -11,12 +11,16 @@ class AppToggleGroup<T> extends StatelessWidget {
     required this.value,
     required this.onChanged,
     this.label,
+    this.disabled = const {},
   });
 
   final Map<T, String> options;
   final T value;
   final ValueChanged<T> onChanged;
   final String? label;
+
+  /// 고를 수 없는 항목 (자료가 아직 없는 해 등). 지우지 않고 흐리게 보여 준다.
+  final Set<T> disabled;
 
   @override
   Widget build(BuildContext context) {
@@ -35,9 +39,12 @@ class AppToggleGroup<T> extends StatelessWidget {
             children: [
               for (final MapEntry(key: option, value: text) in options.entries)
                 HoverBuilder(
-                  onTap: () => onChanged(option),
+                  onTap: disabled.contains(option)
+                      ? null
+                      : () => onChanged(option),
                   builder: (context, hovered) {
                     final active = option == value;
+                    final off = disabled.contains(option);
                     return AnimatedContainer(
                       duration: AppMotion.fast,
                       padding: const EdgeInsets.symmetric(
@@ -47,12 +54,12 @@ class AppToggleGroup<T> extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: active
                             ? c.inverse
-                            : hovered
+                            : hovered && !off
                             ? c.surfaceHover
                             : Colors.transparent,
                         borderRadius: context.shape.borderRadius,
                         border: Border.all(
-                          color: c.borderStrong,
+                          color: off ? c.border : c.borderStrong,
                           width: context.shape.strokeWidth,
                         ),
                       ),
@@ -60,7 +67,11 @@ class AppToggleGroup<T> extends StatelessWidget {
                         text,
                         style: context.typo.body(
                           13,
-                          color: active ? c.onInverse : c.textPrimary,
+                          color: active
+                              ? c.onInverse
+                              : off
+                              ? c.textMuted
+                              : c.textPrimary,
                           weight: FontWeight.w500,
                         ),
                       ),

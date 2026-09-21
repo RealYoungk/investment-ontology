@@ -60,6 +60,41 @@ void main() {
     });
   });
 
+  group('formatKrwLong', () {
+    test('조·억·만원까지 끝까지 적는다', () {
+      expect(formatKrwLong(234903423455000), '234조 9,034억 2,345만원');
+      expect(formatKrwLong(1133577000000), '1조 1,335억 7,700만원');
+      expect(formatKrwLong(4500), '4,500원');
+      expect(formatUnitAmount(1133577, '백만원'), '1조 1,335억 7,700만원');
+      expect(formatUnitAmount(84.6, '%'), '84.6%');
+    });
+  });
+
+  group('annual()의 올해 칸', () {
+    test('사업보고서가 없는 해는 최근 분기·반기 누적으로, 그것도 없으면 없음', () {
+      final view = FinancialView(
+        financials([
+          period(2025, FinancialReportCode.annual, [line('revenue', 250)]),
+          period(2026, FinancialReportCode.q1, [line('revenue', 60)]),
+          period(2026, FinancialReportCode.halfYear, [
+            line('revenue', 70, cumulative: 130),
+          ]),
+        ]),
+      );
+      final points = view.annual(now: DateTime(2026, 9, 21));
+      expect(points.map((p) => p.label), ['2025', '2026 반기 누적']);
+      expect(points.last.revenue.value, 130, reason: '반기 누적');
+
+      final only = FinancialView(
+        financials([
+          period(2025, FinancialReportCode.annual, [line('revenue', 250)]),
+        ]),
+      ).annual(now: DateTime(2026, 9, 21));
+      expect(only.map((p) => p.label), ['2025', '2026 없음']);
+      expect(only.last.revenue.value, isNull);
+    });
+  });
+
   group('FinancialView', () {
     final view = FinancialView(
       financials(

@@ -10,9 +10,13 @@ class AppColumn {
     this.width,
     this.nowrap = false,
     this.minWidth,
+    this.flex = false,
   });
 
   final String label;
+
+  /// 표가 자리를 채울 때([AppDataTable.expand]) 남는 폭을 가져가는 열.
+  final bool flex;
 
   /// 숫자 열: 오른쪽 정렬, 숫자 글꼴.
   final bool numeric;
@@ -47,11 +51,16 @@ class AppDataTable extends StatelessWidget {
     required this.columns,
     required this.rows,
     this.maxCellWidth = 320,
+    this.expand = false,
   });
 
   final List<AppColumn> columns;
   final List<AppRow> rows;
   final double maxCellWidth;
+
+  /// 내용이 좁아도 표가 주어진 폭을 다 쓴다. 남는 폭은 [AppColumn.flex] 열이 가져간다.
+  /// 열이 몇 개 없는 목록이 화면 왼쪽에 몰려 보이지 않게 할 때 쓴다.
+  final bool expand;
 
   /// 글자 셀. 숫자 열이면 숫자 글꼴로 오른쪽 정렬.
   static Widget text(
@@ -107,9 +116,14 @@ class AppDataTable extends StatelessWidget {
       child: child,
     );
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
+    final flexColumns = {
+      for (var i = 0; i < columns.length; i++)
+        if (columns[i].flex) i: const FlexColumnWidth(),
+    };
+    Widget table(double? minWidth) => ConstrainedBox(
+      constraints: BoxConstraints(minWidth: minWidth ?? 0),
       child: Table(
+        columnWidths: expand ? flexColumns : null,
         defaultColumnWidth: const IntrinsicColumnWidth(),
         defaultVerticalAlignment: TableCellVerticalAlignment.middle,
         children: [
@@ -157,6 +171,19 @@ class AppDataTable extends StatelessWidget {
               ],
             ),
         ],
+      ),
+    );
+
+    if (!expand) {
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: table(null),
+      );
+    }
+    return LayoutBuilder(
+      builder: (context, box) => SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: table(box.maxWidth),
       ),
     );
   }

@@ -6,6 +6,7 @@ import '../../client.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
 import '../common/formatters.dart';
+import '../financials/financial_metrics.dart' show formatKrwLong;
 
 /// 배당 항목 하나의 연도별 값.
 class DividendSeries {
@@ -58,8 +59,9 @@ String formatDividendValue(double? v, String? unit) {
       : v.toStringAsFixed(2);
   return switch (unit) {
     '%' => '$text%',
-    '원' => '$text원',
-    '백만원' => '$text백만원',
+    // 큰 금액은 자릿수 세지 않고 읽게 조·억·만원으로 (값은 공시 단위 그대로).
+    '원' => v.abs() >= 10000 ? formatKrwLong(v) : '$text원',
+    '백만원' => formatKrwLong(v * 1000000),
     _ => text,
   };
 }
@@ -102,7 +104,12 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
     if (d == null) return const LinearProgressIndicator(minHeight: 2);
 
     final series = dividendSeries(d.dividends);
-    final years = {for (final s in series) ...s.values.keys}.toList()..sort();
+    // 지금 해의 사업보고서가 아직 없으면 그 해를 빈 칸으로 둔다 (지우지 않는다).
+    final thisYear = DateTime.now().year;
+    final years = {
+      for (final s in series) ...s.values.keys,
+      if (series.any((s) => s.values.isNotEmpty)) thisYear,
+    }.toList()..sort();
     DividendSeries? find(bool Function(DividendSeries s) test) =>
         series.where(test).firstOrNull;
     bool common(DividendSeries s) =>
@@ -170,7 +177,13 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
           AppDataTable(
             columns: [
               const AppColumn('항목'),
-              for (final y in years.reversed) AppColumn('FY$y', numeric: true),
+              for (final y in years.reversed)
+                AppColumn(
+                  series.any((s) => s.values.containsKey(y))
+                      ? 'FY$y'
+                      : 'FY$y 없음',
+                  numeric: true,
+                ),
             ],
             rows: [
               for (final s in series)
@@ -306,7 +319,9 @@ class _Trend extends StatelessWidget {
       color: color,
       values: [for (final y in years) series.values[y]],
     );
-    final categories = [for (final y in years) 'FY$y'];
+    final categories = [
+      for (final y in years) series.values.containsKey(y) ? 'FY$y' : 'FY$y 없음',
+    ];
     String format(double v) => formatDividendValue(v, series.unit);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
