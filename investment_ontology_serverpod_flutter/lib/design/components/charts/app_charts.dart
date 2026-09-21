@@ -98,9 +98,8 @@ class _CategoryChartState extends State<_CategoryChart> {
     final values = [
       for (final s in widget.series)
         for (final v in s.values) ?v,
-      if (widget.includeZero) 0.0,
     ];
-    final scale = ChartScale.of(values);
+    final scale = ChartScale.of(values, includeZero: widget.includeZero);
     final n = widget.categories.length;
 
     return SizedBox(

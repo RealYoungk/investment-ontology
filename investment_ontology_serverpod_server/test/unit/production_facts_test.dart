@@ -99,4 +99,16 @@ void main() {
     expect(ProductionFacts.parse(text).first.unit, isEmpty);
     expect(ProductionFacts.parse(withUnit).first.unit, '백만원');
   });
+
+  test('당기·전기를 나란히 적은 표에서는 당기 칸만 읽는다', () {
+    const text = '''
+품 목 | 단 위 | 생산능력 | 생산실적 | 가동률 | 생산능력 | 생산실적 | 가동률
+소형전지 | 백만개 | 2,000 | 1,000 | 50% | 1,000 | 900 | 90%
+''';
+    final rows = ProductionFacts.parse(text);
+    expect(rows, hasLength(1));
+    expect(rows.first.capacity, 2000, reason: '전기(1,000)가 아니라 당기');
+    expect(rows.first.production, 1000);
+    expect(rows.first.utilization, 50);
+  });
 }

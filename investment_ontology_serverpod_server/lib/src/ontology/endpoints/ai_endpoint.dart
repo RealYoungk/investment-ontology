@@ -19,7 +19,7 @@ import '../ingest/ingest_hooks.dart';
 class AiEndpoint extends Endpoint {
   Future<AiStatus> status(Session session) async {
     final latest = await AiExtractionService.latestDocuments(session);
-    final latestIds = {for (final d in latest) d.id!};
+    final latestIds = {for (final d in latest) d.id};
     final extracted = {
       for (final e in await AiExtraction.db.find(
         session,
@@ -102,7 +102,7 @@ class AiEndpoint extends Endpoint {
     final todo = [
       for (final d in docs)
         if (!done.contains(d.id)) d,
-    ]..sort((a, b) => a.text.length.compareTo(b.text.length));
+    ]..sort((a, b) => a.charCount.compareTo(b.charCount));
     final companies = {
       for (final c in await Company.db.find(session)) c.id!: c,
     };
@@ -110,11 +110,11 @@ class AiEndpoint extends Endpoint {
       for (final d in todo.take((limit ?? 20).clamp(1, 200)))
         if (companies[d.companyId] case final c?)
           BusinessDocumentRef(
-            documentId: d.id!,
+            documentId: d.id,
             corpCode: c.corpCode,
             companyName: c.name,
             bsnsYear: d.bsnsYear,
-            chars: d.text.length,
+            chars: d.charCount,
           ),
     ];
   }

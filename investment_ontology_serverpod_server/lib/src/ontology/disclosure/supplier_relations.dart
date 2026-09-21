@@ -3,6 +3,7 @@ import 'package:serverpod/serverpod.dart';
 import '../../generated/protocol.dart';
 import 'disclosure_links.dart';
 import 'disclosure_values.dart';
+import 'production_facts.dart';
 import 'supplier_rows.dart';
 
 /// "주요 원재료" 표의 매입처를 공급 관계로 넣는다 (AI 없이, [SupplierRows] 규칙).
@@ -21,10 +22,13 @@ abstract final class SupplierRelations {
     /// 상장사 목록. 여러 문서를 돌릴 때는 한 번만 읽어 넘긴다.
     List<Company>? listed,
   }) async {
+    final company = await Company.db.findById(session, doc.companyId);
+    // 지주회사(KSIC 64992) 본문은 대부분 자회사 이야기다 — 매입처를 지주사 것으로
+    // 넣게 되므로 통째로 건너뛴다 (ProductionFacts와 같은 규칙).
+    if (company?.industryCode == ProductionFacts.holdingCompanyCode) return 0;
     final rows = SupplierRows.parse(doc.text);
     final buyers = SupplierRows.customers(doc.text);
     if (rows.isEmpty && buyers.isEmpty) return 0;
-    final company = await Company.db.findById(session, doc.companyId);
     final report = await DisclosureReport.db.findById(session, doc.reportId);
     if (company == null || report == null) return 0;
 

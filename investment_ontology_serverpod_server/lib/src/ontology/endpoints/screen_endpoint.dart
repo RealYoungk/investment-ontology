@@ -243,7 +243,10 @@ class ScreenEndpoint extends Endpoint {
     final version = await session.db.unsafeQuery('''
       SELECT (SELECT max(id) FROM financial_fact),
              (SELECT max("baseDate") FROM market_snapshot_day WHERE "rowCount" > 0),
-             (SELECT count(*) FROM company)
+             (SELECT count(*) FROM company),
+             (SELECT max(id) FROM company_change),
+             (SELECT max(id) FROM dividend_entry),
+             (SELECT count(*) FROM dividend_entry)
     ''');
     final key = version.first.join('|');
     if (key == _cacheKey && _cache != null) return _cache!;
@@ -304,11 +307,13 @@ class ScreenEndpoint extends Endpoint {
           AND f.statement = 'balanceSheet' AND f."accountId" IN ($balance)
         GROUP BY 1, 2
       ), cap AS (
+        -- 시가총액이 없는 종목(거래정지 등)은 빼고 합한다. 한 종목도 없으면 그 기업은
+        -- 스크리너에 나오지 않는다 (값을 매길 수 없으므로).
         SELECT s."companyId" AS id, sum(m."marketCap"::numeric) AS cap
         FROM market_snapshot m
         JOIN security s ON s.id = m."securityId"
         WHERE m."baseDate" = (SELECT max("baseDate") FROM market_snapshot_day WHERE "rowCount" > 0)
-          AND s."companyId" IS NOT NULL
+          AND s."companyId" IS NOT NULL AND m."marketCap" IS NOT NULL
         GROUP BY 1
       ), div AS (
         -- 최근 사업연도의 현금배당금총액 (백만원 → 원). 단위는 항목 이름에 있으므로
@@ -316,8 +321,11 @@ class ScreenEndpoint extends Endpoint {
         SELECT DISTINCT ON (d."companyId") d."companyId" AS id,
                d.current * 1000000 AS total
         FROM dividend_entry d
+        JOIN disclosure_report dr ON dr.id = d."reportId"
         WHERE d.item = '현금배당금총액(백만원)' AND d.current IS NOT NULL
-        ORDER BY d."companyId", d."bsnsYear" DESC
+          -- 정정으로 대체된 보고서는 쓰지 않는다 (주주환원 화면과 같은 규칙).
+          AND dr."supersededById" IS NULL
+        ORDER BY d."companyId", d."bsnsYear" DESC, dr."rceptNo" DESC
       ), metrics AS (
         SELECT c.id, c."corpCode", c.name, c.market, l.y, cap.cap,
           max(t.v) FILTER (WHERE t.acc = 'ifrs-full_Revenue') AS revenue,
@@ -368,6 +376,13 @@ class ScreenEndpoint extends Endpoint {
       return scale * a / b;
     }
 
+    /// 재무제표가 원 단위임을 확인했는가. 천원으로 적는 회사가 있어 시가총액과
+    /// 섞는 지표는 자산총계로 단위를 확인한 뒤에만 낸다 (모르면 내지 않는다).
+    bool wonScale(Object? assets) {
+      final v = big(assets);
+      return v != null && v >= _minAssets;
+    }
+
     /// 전년 같은 기간 대비 증감률(%). 작년이 적자(0 이하)면 계산하지 않는다.
     double? growth(Object? now, Object? ago) {
       final a = now == null ? null : double.parse('$now');
@@ -378,42 +393,40 @@ class ScreenEndpoint extends Endpoint {
 
     final universe = [
       for (final r in rows)
-        ScreenRow(
-          company: CompanyRef(
-            id: r[0] as int,
-            corpCode: r[1] as String,
-            name: r[2] as String,
-            market: r[3] == null ? null : Market.values.byName('${r[3]}'),
+        // 시가총액을 모르는 기업은 스크리너에 올리지 않는다 (SQL에서 걸러지지만
+        // 한 번 더 막는다 — 값 없이 올리면 정렬이 무너진다).
+        if (big(r[5]) != null)
+          ScreenRow(
+            company: CompanyRef(
+              id: r[0] as int,
+              corpCode: r[1] as String,
+              name: r[2] as String,
+              market: r[3] == null ? null : Market.values.byName('${r[3]}'),
+            ),
+            bsnsYear: r[4] as int,
+            marketCap: big(r[5])!,
+            revenue: big(r[6]),
+            operatingIncome: big(r[7]),
+            netIncome: big(r[8]),
+            equity: big(r[9]),
+            totalEquity: big(r[10]),
+            liabilities: big(r[11]),
+            freeCashFlow: big(r[12]),
+            dividendTotal: big(r[13]),
+            // 시가총액(원)과 섞는 지표는 재무제표가 원인 것을 확인했을 때만.
+            // 자산총계를 모르면 단위를 확인할 수 없으므로 내지 않는다.
+            per: wonScale(r[18]) ? divide(r[5], r[8]) : null,
+            pbr: wonScale(r[18]) ? divide(r[5], r[9]) : null,
+            roe: divide(r[8], r[9], scale: 100),
+            operatingMargin: divide(r[7], r[6], scale: 100),
+            debtRatio: divide(r[11], r[10], scale: 100),
+            fcfYield: wonScale(r[18]) ? divide(r[12], r[5], scale: 100) : null,
+            dividendYield: wonScale(r[18])
+                ? divide(r[13], r[5], scale: 100)
+                : null,
+            revenueGrowth: growth(r[14], r[15]),
+            operatingIncomeGrowth: growth(r[16], r[17]),
           ),
-          bsnsYear: r[4] as int,
-          marketCap: big(r[5])!,
-          revenue: big(r[6]),
-          operatingIncome: big(r[7]),
-          netIncome: big(r[8]),
-          equity: big(r[9]),
-          totalEquity: big(r[10]),
-          liabilities: big(r[11]),
-          freeCashFlow: big(r[12]),
-          dividendTotal: big(r[13]),
-          // 시가총액(원)과 섞는 지표는 재무제표가 원일 때만.
-          per: big(r[18]) != null && big(r[18])! < _minAssets
-              ? null
-              : divide(r[5], r[8]),
-          pbr: big(r[18]) != null && big(r[18])! < _minAssets
-              ? null
-              : divide(r[5], r[9]),
-          roe: divide(r[8], r[9], scale: 100),
-          operatingMargin: divide(r[7], r[6], scale: 100),
-          debtRatio: divide(r[11], r[10], scale: 100),
-          fcfYield: big(r[18]) != null && big(r[18])! < _minAssets
-              ? null
-              : divide(r[12], r[5], scale: 100),
-          dividendYield: big(r[18]) != null && big(r[18])! < _minAssets
-              ? null
-              : divide(r[13], r[5], scale: 100),
-          revenueGrowth: growth(r[14], r[15]),
-          operatingIncomeGrowth: growth(r[16], r[17]),
-        ),
     ];
     _cacheKey = key;
     _cache = universe;

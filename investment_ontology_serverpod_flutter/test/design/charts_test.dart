@@ -64,4 +64,15 @@ void main() {
       expect(s.fraction(s.max), 1);
     });
   });
+
+  test('0을 빼면 값 범위만 덮는다 (주가처럼 0에서 먼 값)', () {
+    final scale = ChartScale.of(
+      const [95000, 245000, 104900],
+      includeZero: false,
+    );
+    expect(scale.min, greaterThan(0));
+    expect(scale.min, lessThanOrEqualTo(95000));
+    expect(scale.max, greaterThanOrEqualTo(245000));
+    expect(scale.ticks.first, scale.min);
+  });
 }

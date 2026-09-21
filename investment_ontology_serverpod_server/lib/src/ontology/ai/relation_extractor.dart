@@ -74,19 +74,25 @@ abstract final class RelationExtractor {
 $excerpt
 </문서>''';
 
-  /// 모델 답에서 JSON을 꺼낸다. 형식이 틀린 항목은 버린다.
+  /// 모델 답에서 JSON을 꺼낸다. 형식이 틀린 **항목**은 버리지만, 답 전체가 JSON이
+  /// 아니면(토큰 한도에 걸려 잘린 답 등) [AnswerFormatException]을 던진다 — 관계가
+  /// 없는 문서와 읽지 못한 문서를 구분해야 다시 시도할 수 있다.
   static List<ExtractedRelation> parse(String answer) {
     final start = answer.indexOf('{');
     final end = answer.lastIndexOf('}');
-    if (start < 0 || end <= start) return const [];
+    if (start < 0 || end <= start) {
+      throw AnswerFormatException('답에서 JSON을 찾지 못했습니다');
+    }
     final Object? json;
     try {
       json = jsonDecode(answer.substring(start, end + 1));
-    } on FormatException {
-      return const [];
+    } on FormatException catch (e) {
+      throw AnswerFormatException('JSON을 해석하지 못했습니다: ${e.message}');
     }
     final list = json is Map ? json['relations'] : null;
-    if (list is! List) return const [];
+    if (list is! List) {
+      throw AnswerFormatException('relations 배열이 없습니다');
+    }
     return [
       for (final r in list.whereType<Map>())
         if (r['type'] is String &&
@@ -170,4 +176,14 @@ $excerpt
     }
     return (relations: relations, dropped: dropped);
   }
+}
+
+/// 모델 답이 JSON이 아니거나 잘렸다.
+class AnswerFormatException implements Exception {
+  AnswerFormatException(this.message);
+
+  final String message;
+
+  @override
+  String toString() => 'AnswerFormatException: $message';
 }

@@ -204,17 +204,27 @@ class IngestEndpoint extends Endpoint {
   ///
   /// 규칙을 고친 뒤 되돌려 읽을 때 쓴다. 사람이 이미 결정한 항목은 건드리지 않는다.
   Future<String> rebuildProductionFacts(Session session) async {
-    final docs = await BusinessDocument.db.find(session);
+    // 본문 하나가 수십만 자다. 전부 메모리에 올리지 않고 한 건씩 읽는다.
+    final ids = [
+      for (final r in await session.db.unsafeQuery(
+        'SELECT id FROM business_document ORDER BY id',
+      ))
+        r[0] as int,
+    ];
     final keys = await ProductionFacts.listedKeys(session);
-    var stored = 0;
-    for (final doc in docs) {
+    // 상장사 목록은 한 번만 읽는다 (문서마다 다시 읽으면 3,000번이 된다).
+    final listed = await Company.db.find(
+      session,
+      where: (t) => t.market.inSet(DisclosureLinks.listedMarkets),
+    );
+    var stored = 0, links = 0;
+    for (final id in ids) {
+      final doc = await BusinessDocument.db.findById(session, id);
+      if (doc == null) continue;
       stored += await ProductionFacts.store(session, doc, companyKeys: keys);
+      links += await SupplierRelations.store(session, doc, listed: listed);
     }
-    var links = 0;
-    for (final doc in docs) {
-      links += await SupplierRelations.store(session, doc);
-    }
-    return '본문 ${docs.length}건에서 값 $stored건, 공급 관계 $links건을 읽었습니다.';
+    return '본문 ${ids.length}건에서 값 $stored건, 공급 관계 $links건을 읽었습니다.';
   }
 
   static void _requireDartKey(Session session) {

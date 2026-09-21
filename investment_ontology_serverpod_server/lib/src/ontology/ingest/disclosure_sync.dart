@@ -412,8 +412,23 @@ class DisclosureSync {
         f.id!: f,
     };
     var stored = 0, failed = 0;
+    var done = 0;
     for (final item in pending.take(businessBudget)) {
       if (!_hasAllowance) break;
+      // 재무 수집과 겹쳐 돌면 시작할 때 계산한 몫만으로는 하루 한도를 넘길 수 있다.
+      // 본문은 한 건에 여러 번 부를 수도 있어(정정 공시 되짚기) 자주 확인한다.
+      if (done > 0 && done % _progressEvery == 0) {
+        await _meter.flush(session);
+        if (await ApiCallBudget.reached(
+          session,
+          ApiProvider.dart,
+          dailyBudget,
+        )) {
+          _budgetExhausted = true;
+          break;
+        }
+      }
+      done++;
       if (await IngestJobs.isCancelled(session, jobId)) break;
       final filing = filings[item.filingId];
       final company = filing == null ? null : byId[filing.companyId];
@@ -655,6 +670,13 @@ class DisclosureSync {
           await DisclosureReport.db.updateRow(
             session,
             other.copyWith(supersededById: report.id),
+            transaction: tx,
+          );
+        } else {
+          // 더 늦은 보고서를 이미 받았다 — 이 보고서가 대체된 쪽이다.
+          await DisclosureReport.db.updateRow(
+            session,
+            report.copyWith(supersededById: other.id),
             transaction: tx,
           );
         }

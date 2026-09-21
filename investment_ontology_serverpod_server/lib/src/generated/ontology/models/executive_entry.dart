@@ -11,6 +11,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _is;
+
 import '../../ontology/models/executive_registration.dart' as _i5x1kqvd;
 
 /// 임원 한 행 (임원 현황 exctvSttus). 회사마다 미등기 임원을 내는지가 다르다.

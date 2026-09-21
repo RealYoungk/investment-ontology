@@ -63,6 +63,8 @@ abstract final class ProductionFacts {
     var inTable = false;
     var onlyUtilization = false;
     var overAt = -1, underAt = -1;
+    // 생산능력·생산실적·가동률 칸의 자리와 머리글의 칸 수 (오른쪽 끝 기준으로 다시 센다).
+    var capAt = -1, prodAt = -1, utilAt = -1, columns = -1;
     var unitFromHeader = '';
     for (final raw in lines) {
       final line = raw.trim();
@@ -90,7 +92,12 @@ abstract final class ProductionFacts {
       if (line.contains('생산능력') &&
           line.contains('생산실적') &&
           line.contains('가동률')) {
-        inTable = true;
+        // 당기·전기를 나란히 적는 표가 있다. 머리글에서 칸을 집어 **맨 앞(당기)**만 읽는다.
+        capAt = cells.indexWhere((c) => c.contains('생산능력'));
+        prodAt = cells.indexWhere((c) => c.contains('생산실적'));
+        utilAt = cells.indexWhere((c) => c.contains('가동률'));
+        columns = cells.length;
+        inTable = capAt >= 0 && prodAt >= 0 && utilAt >= 0;
         onlyUtilization = false;
         unitFromHeader = _unitIn(line);
         continue;
@@ -114,28 +121,35 @@ abstract final class ProductionFacts {
         continue;
       }
 
-      final last = cells.last;
-      if (!last.endsWith('%')) continue;
-      final util = double.tryParse(last.replaceAll(RegExp(r'[%,]'), ''));
-      if (util == null) continue;
+      double? util;
       double? cap, prod;
+      var labelEnd = cells.length - 1;
       if (onlyUtilization) {
+        final last = cells.last;
+        if (!last.endsWith('%')) continue;
+        util = double.tryParse(last.replaceAll(RegExp(r'[%,]'), ''));
+        if (util == null) continue;
         if (overAt >= cells.length || underAt >= cells.length) continue;
         final over = _num(cells[overAt]), under = _num(cells[underAt]);
         if (over == null || under == null || under <= 0) continue;
         if ((util - 100 * over / under).abs() > tolerance) continue;
       } else {
-        cap = _num(cells[cells.length - 3]);
-        prod = _num(cells[cells.length - 2]);
-        if (cap == null || prod == null || cap <= 0) continue;
+        // 머리글에서 집은 칸을 오른쪽 끝 기준으로 다시 찾는다 (이름 칸이 합쳐져 있어도
+        // 기(期)별 숫자 묶음은 그대로다).
+        final capIdx = cells.length - (columns - capAt);
+        final prodIdx = cells.length - (columns - prodAt);
+        final utilIdx = cells.length - (columns - utilAt);
+        if (capIdx < 0 || utilIdx >= cells.length) continue;
+        util = _percent(cells[utilIdx]);
+        cap = _num(cells[capIdx]);
+        prod = _num(cells[prodIdx]);
+        if (util == null || cap == null || prod == null || cap <= 0) continue;
         if ((util - 100 * prod / cap).abs() > tolerance) continue;
+        labelEnd = capIdx;
       }
 
       final labels = [
-        for (final c in cells.sublist(
-          0,
-          onlyUtilization ? cells.length - 1 : cells.length - 3,
-        ))
+        for (final c in cells.sublist(0, labelEnd.clamp(0, cells.length)))
           if (c.isNotEmpty && !_number.hasMatch(c)) c,
       ];
       if (labels.isEmpty) continue;
@@ -158,6 +172,10 @@ abstract final class ProductionFacts {
     }
     return out;
   }
+
+  /// "50%", "50.4 %" → 50, 50.4. 아니면 null.
+  static double? _percent(String s) =>
+      double.tryParse(s.replaceAll(RegExp(r'[%,\s]'), ''));
 
   /// 이름 비교용 (괄호·법인 표기·공백을 떼고 소문자로).
   static String _key(String name) {
@@ -252,7 +270,7 @@ abstract final class ProductionFacts {
           (DocumentFactKind.production, v, r.unit),
         (DocumentFactKind.utilization, r.utilization, '%'),
       ]) {
-        if (existing.contains('${kind.name}|${r.label}')) continue;
+        if (!existing.add('${kind.name}|${r.label}')) continue;
         facts.add(
           DocumentFact(
             companyId: doc.companyId,
@@ -278,7 +296,7 @@ abstract final class ProductionFacts {
     }
     // 부문별 매출도 같은 규칙으로 (표의 비중으로 스스로 검산된다).
     for (final r in SegmentRevenue.parse(doc.text)) {
-      if (existing.contains('segmentRevenue|${r.label}')) continue;
+      if (!existing.add('segmentRevenue|${r.label}')) continue;
       facts.add(
         DocumentFact(
           companyId: doc.companyId,

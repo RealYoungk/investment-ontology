@@ -298,10 +298,26 @@ class DisclosureEndpoint extends Endpoint {
     Market? market,
     int? limit,
   }) async {
+    // 시장으로 거를 때는 먼저 그 시장의 기업을 추려 조회한다 — 전체에서 앞 몇 건을
+    // 가져와 뒤에서 거르면, 공시가 적은 시장(코넥스)은 늘 빈 목록이 된다.
+    Set<int>? onlyIds;
+    if (market != null) {
+      onlyIds = {
+        for (final c in await Company.db.find(
+          session,
+          where: (t) => t.market.equals(market),
+        ))
+          c.id!,
+      };
+      if (onlyIds.isEmpty) return const [];
+    }
     final filings = await DartFiling.db.find(
       session,
-      where: (t) =>
-          t.receivedDate.notEquals(null) & t.companyId.notEquals(null),
+      where: (t) {
+        final base =
+            t.receivedDate.notEquals(null) & t.companyId.notEquals(null);
+        return onlyIds == null ? base : base & t.companyId.inSet(onlyIds);
+      },
       orderByList: (t) => [t.receivedDate.desc(), t.rceptNo.desc()],
       limit: (limit ?? 30).clamp(1, 200),
     );
@@ -317,23 +333,22 @@ class DisclosureEndpoint extends Endpoint {
     return [
       for (final f in filings)
         if (companies[f.companyId] case final c?)
-          if (market == null || c.market == market)
-            FilingFeedItem(
-              company: CompanyRef(
-                id: c.id!,
-                corpCode: c.corpCode,
-                name: c.name,
-                market: c.market,
-              ),
-              rceptNo: f.rceptNo,
-              reportName: f.reportName,
-              receivedDate: f.receivedDate,
-              bsnsYear: f.bsnsYear,
-              financialStored:
-                  f.consolidatedStatus == FilingFetchStatus.stored ||
-                  f.separateStatus == FilingFetchStatus.stored,
-              marketCap: caps.caps[c.id],
+          FilingFeedItem(
+            company: CompanyRef(
+              id: c.id!,
+              corpCode: c.corpCode,
+              name: c.name,
+              market: c.market,
             ),
+            rceptNo: f.rceptNo,
+            reportName: f.reportName,
+            receivedDate: f.receivedDate,
+            bsnsYear: f.bsnsYear,
+            financialStored:
+                f.consolidatedStatus == FilingFetchStatus.stored ||
+                f.separateStatus == FilingFetchStatus.stored,
+            marketCap: caps.caps[c.id],
+          ),
     ];
   }
 }

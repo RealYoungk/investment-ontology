@@ -11,6 +11,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _is;
+
 import '../../ontology/models/market.dart' as _igwiku5p;
 
 /// 화면에서 기업으로 건너가기 위한 최소 정보.

@@ -161,6 +161,9 @@ void main() {
         'ifrs-full_Equity': (500, null),
         'ifrs-full_EquityAttributableToOwnersOfParent': (480, null),
         'ifrs-full_Liabilities': (250, null),
+        // 자산총계로 재무제표가 원 단위임을 확인한다 (천원으로 적는 회사가 있어,
+        // 1억원을 넘는 자산총계를 본 뒤에만 시가총액과 섞는 지표를 낸다).
+        'ifrs-full_Assets': (1000000000, null),
       });
 
       // 작은회사: 최근 보고서가 사업보고서 → 그 값이 곧 최근 12개월.
@@ -170,6 +173,7 @@ void main() {
         'ifrs-full_ProfitLoss': (4, null),
         'ifrs-full_Equity': (50, null),
         'ifrs-full_Liabilities': (150, null),
+        'ifrs-full_Assets': (1000000000, null),
       });
 
       await quote(big, '000001', 1000);
@@ -316,6 +320,7 @@ void main() {
           'dart_OperatingIncomeLoss': (20, null),
           'ifrs-full_ProfitLoss': (10, null),
           'ifrs-full_Equity': (100, null),
+          'ifrs-full_Assets': (1000000000, null),
         });
         await quote(c, '00000$i', 500);
       }
