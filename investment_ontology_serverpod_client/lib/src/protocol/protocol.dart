@@ -17,6 +17,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _i7uvzrch;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/disclosure_section_info.dart'
     as _i39r1xmm;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/document_fact.dart'
+    as _ip7x5uw8;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/facet_count.dart'
     as _icfgas7c;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/investment_theme.dart'
@@ -65,10 +67,14 @@ import 'ontology/models/disclosure_section_info.dart' as _ij0mhdco;
 import 'ontology/models/disclosure_table.dart' as _i7prd3sw;
 import 'ontology/models/disclosure_table_row.dart' as _i98o73zd;
 import 'ontology/models/dividend_entry.dart' as _ith4ion6;
+import 'ontology/models/document_fact.dart' as _iy6p3omn;
+import 'ontology/models/document_fact_kind.dart' as _iatg4403;
 import 'ontology/models/exceptions.dart' as _iqc95j34;
 import 'ontology/models/executive_entry.dart' as _i3df9cy5;
 import 'ontology/models/executive_registration.dart' as _iz7k3x6v;
 import 'ontology/models/facet_count.dart' as _iqbvehdv;
+import 'ontology/models/fact_item.dart' as _iawn4ngl;
+import 'ontology/models/fact_page.dart' as _iurbyopj;
 import 'ontology/models/filing_fetch_status.dart' as _i167q75d;
 import 'ontology/models/financial_fact.dart' as _igykxm42;
 import 'ontology/models/financial_line.dart' as _igzbjepn;
@@ -155,10 +161,14 @@ export 'ontology/models/disclosure_section_info.dart';
 export 'ontology/models/disclosure_table.dart';
 export 'ontology/models/disclosure_table_row.dart';
 export 'ontology/models/dividend_entry.dart';
+export 'ontology/models/document_fact.dart';
+export 'ontology/models/document_fact_kind.dart';
 export 'ontology/models/exceptions.dart';
 export 'ontology/models/executive_entry.dart';
 export 'ontology/models/executive_registration.dart';
 export 'ontology/models/facet_count.dart';
+export 'ontology/models/fact_item.dart';
+export 'ontology/models/fact_page.dart';
 export 'ontology/models/filing_fetch_status.dart';
 export 'ontology/models/financial_fact.dart';
 export 'ontology/models/financial_line.dart';
@@ -347,6 +357,12 @@ class Protocol extends _isc.SerializationManager {
     if (t == _ith4ion6.DividendEntry) {
       return _ith4ion6.DividendEntry.fromJson(data) as T;
     }
+    if (t == _iy6p3omn.DocumentFact) {
+      return _iy6p3omn.DocumentFact.fromJson(data) as T;
+    }
+    if (t == _iatg4403.DocumentFactKind) {
+      return _iatg4403.DocumentFactKind.fromJson(data) as T;
+    }
     if (t == _iqc95j34.IngestException) {
       return _iqc95j34.IngestException.fromJson(data) as T;
     }
@@ -358,6 +374,12 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _iqbvehdv.FacetCount) {
       return _iqbvehdv.FacetCount.fromJson(data) as T;
+    }
+    if (t == _iawn4ngl.FactItem) {
+      return _iawn4ngl.FactItem.fromJson(data) as T;
+    }
+    if (t == _iurbyopj.FactPage) {
+      return _iurbyopj.FactPage.fromJson(data) as T;
     }
     if (t == _i167q75d.FilingFetchStatus) {
       return _i167q75d.FilingFetchStatus.fromJson(data) as T;
@@ -643,6 +665,13 @@ class Protocol extends _isc.SerializationManager {
       return (data != null ? _ith4ion6.DividendEntry.fromJson(data) : null)
           as T;
     }
+    if (t == _isc.getType<_iy6p3omn.DocumentFact?>()) {
+      return (data != null ? _iy6p3omn.DocumentFact.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_iatg4403.DocumentFactKind?>()) {
+      return (data != null ? _iatg4403.DocumentFactKind.fromJson(data) : null)
+          as T;
+    }
     if (t == _isc.getType<_iqc95j34.IngestException?>()) {
       return (data != null ? _iqc95j34.IngestException.fromJson(data) : null)
           as T;
@@ -659,6 +688,12 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _isc.getType<_iqbvehdv.FacetCount?>()) {
       return (data != null ? _iqbvehdv.FacetCount.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_iawn4ngl.FactItem?>()) {
+      return (data != null ? _iawn4ngl.FactItem.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_iurbyopj.FactPage?>()) {
+      return (data != null ? _iurbyopj.FactPage.fromJson(data) : null) as T;
     }
     if (t == _isc.getType<_i167q75d.FilingFetchStatus?>()) {
       return (data != null ? _i167q75d.FilingFetchStatus.fromJson(data) : null)
@@ -987,6 +1022,12 @@ class Protocol extends _isc.SerializationManager {
     if (t == List<String?>) {
       return (data as List).map((e) => deserialize<String?>(e)).toList() as T;
     }
+    if (t == List<_iawn4ngl.FactItem>) {
+      return (data as List)
+              .map((e) => deserialize<_iawn4ngl.FactItem>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_igzbjepn.FinancialLine>) {
       return (data as List)
               .map((e) => deserialize<_igzbjepn.FinancialLine>(e))
@@ -1071,6 +1112,12 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_ip7x5uw8.DocumentFact>) {
+      return (data as List)
+              .map((e) => deserialize<_ip7x5uw8.DocumentFact>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_i96d117e.PersonHit>) {
       return (data as List)
               .map((e) => deserialize<_i96d117e.PersonHit>(e))
@@ -1145,10 +1192,14 @@ class Protocol extends _isc.SerializationManager {
       _i7prd3sw.DisclosureTable => 'DisclosureTable',
       _i98o73zd.DisclosureTableRow => 'DisclosureTableRow',
       _ith4ion6.DividendEntry => 'DividendEntry',
+      _iy6p3omn.DocumentFact => 'DocumentFact',
+      _iatg4403.DocumentFactKind => 'DocumentFactKind',
       _iqc95j34.IngestException => 'IngestException',
       _i3df9cy5.ExecutiveEntry => 'ExecutiveEntry',
       _iz7k3x6v.ExecutiveRegistration => 'ExecutiveRegistration',
       _iqbvehdv.FacetCount => 'FacetCount',
+      _iawn4ngl.FactItem => 'FactItem',
+      _iurbyopj.FactPage => 'FactPage',
       _i167q75d.FilingFetchStatus => 'FilingFetchStatus',
       _igykxm42.FinancialFact => 'FinancialFact',
       _igzbjepn.FinancialLine => 'FinancialLine',
@@ -1285,6 +1336,10 @@ class Protocol extends _isc.SerializationManager {
         return 'DisclosureTableRow';
       case _ith4ion6.DividendEntry():
         return 'DividendEntry';
+      case _iy6p3omn.DocumentFact():
+        return 'DocumentFact';
+      case _iatg4403.DocumentFactKind():
+        return 'DocumentFactKind';
       case _iqc95j34.IngestException():
         return 'IngestException';
       case _i3df9cy5.ExecutiveEntry():
@@ -1293,6 +1348,10 @@ class Protocol extends _isc.SerializationManager {
         return 'ExecutiveRegistration';
       case _iqbvehdv.FacetCount():
         return 'FacetCount';
+      case _iawn4ngl.FactItem():
+        return 'FactItem';
+      case _iurbyopj.FactPage():
+        return 'FactPage';
       case _i167q75d.FilingFetchStatus():
         return 'FilingFetchStatus';
       case _igykxm42.FinancialFact():
@@ -1520,6 +1579,12 @@ class Protocol extends _isc.SerializationManager {
     if (dataClassName == 'DividendEntry') {
       return deserialize<_ith4ion6.DividendEntry>(data['data']);
     }
+    if (dataClassName == 'DocumentFact') {
+      return deserialize<_iy6p3omn.DocumentFact>(data['data']);
+    }
+    if (dataClassName == 'DocumentFactKind') {
+      return deserialize<_iatg4403.DocumentFactKind>(data['data']);
+    }
     if (dataClassName == 'IngestException') {
       return deserialize<_iqc95j34.IngestException>(data['data']);
     }
@@ -1531,6 +1596,12 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'FacetCount') {
       return deserialize<_iqbvehdv.FacetCount>(data['data']);
+    }
+    if (dataClassName == 'FactItem') {
+      return deserialize<_iawn4ngl.FactItem>(data['data']);
+    }
+    if (dataClassName == 'FactPage') {
+      return deserialize<_iurbyopj.FactPage>(data['data']);
     }
     if (dataClassName == 'FilingFetchStatus') {
       return deserialize<_i167q75d.FilingFetchStatus>(data['data']);

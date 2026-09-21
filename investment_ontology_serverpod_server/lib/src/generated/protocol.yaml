@@ -18,6 +18,7 @@ ai:
   - pending:
   - documentText:
   - submit:
+  - submitFacts:
 company:
   - overview:
   - divisions:
@@ -28,6 +29,7 @@ disclosure:
   - table:
   - businessContent:
   - shareholderReturn:
+  - facts:
 financial:
   - summary:
   - report:
@@ -56,6 +58,8 @@ market:
 review:
   - list:
   - decide:
+  - facts:
+  - decideFact:
   - forCompany:
 theme:
   - list:

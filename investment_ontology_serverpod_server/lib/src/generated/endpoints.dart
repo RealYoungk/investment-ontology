@@ -16,6 +16,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _iosqhah1;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/dart_section.dart'
     as _i6h8j7tv;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/document_fact_kind.dart'
+    as _i1rhjzgf;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/fs_div.dart'
     as _i69nddnn;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/market.dart'
@@ -481,6 +483,36 @@ class Endpoints extends _is.EndpointDispatch {
                 model: params['model'],
               ),
         ),
+        'submitFacts': _is.MethodConnector(
+          name: 'submitFacts',
+          params: {
+            'documentId': _is.ParameterDescription(
+              name: 'documentId',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+            'answer': _is.ParameterDescription(
+              name: 'answer',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'model': _is.ParameterDescription(
+              name: 'model',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['ai'] as _iadofkda.AiEndpoint).submitFacts(
+                session,
+                params['documentId'],
+                params['answer'],
+                model: params['model'],
+              ),
+        ),
       },
     );
     connectors['company'] = _is.EndpointConnector(
@@ -696,6 +728,26 @@ class Endpoints extends _is.EndpointDispatch {
               ) async =>
                   (endpoints['disclosure'] as _i23b9rs7.DisclosureEndpoint)
                       .shareholderReturn(
+                        session,
+                        params['corpCode'],
+                      ),
+        ),
+        'facts': _is.MethodConnector(
+          name: 'facts',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['disclosure'] as _i23b9rs7.DisclosureEndpoint)
+                      .facts(
                         session,
                         params['corpCode'],
                       ),
@@ -1167,6 +1219,68 @@ class Endpoints extends _is.EndpointDispatch {
                   (endpoints['review'] as _i9uttt4a.ReviewEndpoint).decide(
                     session,
                     params['relationId'],
+                    params['approve'],
+                  ),
+        ),
+        'facts': _is.MethodConnector(
+          name: 'facts',
+          params: {
+            'status': _is.ParameterDescription(
+              name: 'status',
+              type: _is.getType<_iy39k7od.RelationStatus?>(),
+              nullable: true,
+            ),
+            'kind': _is.ParameterDescription(
+              name: 'kind',
+              type: _is.getType<_i1rhjzgf.DocumentFactKind?>(),
+              nullable: true,
+            ),
+            'offset': _is.ParameterDescription(
+              name: 'offset',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
+            'limit': _is.ParameterDescription(
+              name: 'limit',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['review'] as _i9uttt4a.ReviewEndpoint).facts(
+                    session,
+                    status: params['status'],
+                    kind: params['kind'],
+                    offset: params['offset'],
+                    limit: params['limit'],
+                  ),
+        ),
+        'decideFact': _is.MethodConnector(
+          name: 'decideFact',
+          params: {
+            'factId': _is.ParameterDescription(
+              name: 'factId',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+            'approve': _is.ParameterDescription(
+              name: 'approve',
+              type: _is.getType<bool>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['review'] as _i9uttt4a.ReviewEndpoint).decideFact(
+                    session,
+                    params['factId'],
                     params['approve'],
                   ),
         ),

@@ -1,0 +1,8 @@
+### 본문에서 뽑은 값의 검수 목록.
+class: FactPage
+fields:
+  items: List<FactItem>
+  total: int
+  draftCount: int
+  verifiedCount: int
+  rejectedCount: int

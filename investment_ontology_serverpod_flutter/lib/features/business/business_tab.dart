@@ -129,6 +129,7 @@ class _BusinessTabState extends State<BusinessTab> {
           ],
         ),
         const SizedBox(height: AppSpace.md),
+        _DocumentFacts(corpCode: widget.corpCode),
         _AiRelations(corpCode: widget.corpCode),
         const SizedBox(height: AppSpace.lg),
         Text(
@@ -330,6 +331,107 @@ class _AiRelationsState extends State<_AiRelations> {
                       }
                     : null,
               ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 본문에서 뽑아 승인한 값 (수주잔고·가동률·점유율 등). API로는 받을 수 없는 것들이다.
+class _DocumentFacts extends StatefulWidget {
+  const _DocumentFacts({required this.corpCode});
+
+  final String corpCode;
+
+  @override
+  State<_DocumentFacts> createState() => _DocumentFactsState();
+}
+
+class _DocumentFactsState extends State<_DocumentFacts> {
+  List<DocumentFact> _facts = const [];
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  @override
+  void didUpdateWidget(covariant _DocumentFacts oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.corpCode != widget.corpCode) _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final f = await client.disclosure.facts(widget.corpCode);
+      if (mounted) setState(() => _facts = f);
+    } catch (_) {}
+  }
+
+  static String label(DocumentFactKind k) => switch (k) {
+    DocumentFactKind.orderTotal => '수주총액',
+    DocumentFactKind.orderDelivered => '기납품액',
+    DocumentFactKind.orderBacklog => '수주잔고',
+    DocumentFactKind.capacity => '생산능력',
+    DocumentFactKind.production => '생산실적',
+    DocumentFactKind.utilization => '가동률',
+    DocumentFactKind.marketShare => '시장점유율',
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    if (_facts.isEmpty) return const SizedBox.shrink();
+    final c = context.colors;
+    final t = context.typo;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpace.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SectionLabel(
+            '본문에서 뽑은 값 · FY${_facts.first.bsnsYear}',
+            accent: true,
+            trailing: Text(
+              '사람이 승인한 것만',
+              style: t.body(12, color: c.textMuted),
+            ),
+          ),
+          const SizedBox(height: AppSpace.sm),
+          AppDataTable(
+            columns: const [
+              AppColumn('항목'),
+              AppColumn('구분'),
+              AppColumn('값', numeric: true),
+              AppColumn('기준일'),
+              AppColumn('근거'),
+            ],
+            rows: [
+              for (final f in _facts)
+                AppRow([
+                  AppDataTable.text(context, label(f.kind)),
+                  AppDataTable.text(context, f.label),
+                  AppDataTable.text(
+                    context,
+                    '${formatDecimal(f.value)}${f.unit}',
+                    numeric: true,
+                  ),
+                  AppDataTable.text(
+                    context,
+                    f.asOf == null ? null : formatDate(f.asOf),
+                  ),
+                  Tooltip(
+                    message: f.evidence,
+                    child: Text(
+                      f.evidence,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: t.body(12, color: c.textMuted),
+                    ),
+                  ),
+                ]),
+            ],
+          ),
         ],
       ),
     );

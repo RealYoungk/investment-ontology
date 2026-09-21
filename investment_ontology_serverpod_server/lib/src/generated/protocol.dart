@@ -17,6 +17,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _i4udlom4;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/disclosure_section_info.dart'
     as _itpltonf;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/document_fact.dart'
+    as _ihq2wng4;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/facet_count.dart'
     as _iee4t190;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/investment_theme.dart'
@@ -81,10 +83,14 @@ import 'ontology/models/disclosure_section_info.dart' as _ij0mhdco;
 import 'ontology/models/disclosure_table.dart' as _i7prd3sw;
 import 'ontology/models/disclosure_table_row.dart' as _i98o73zd;
 import 'ontology/models/dividend_entry.dart' as _ith4ion6;
+import 'ontology/models/document_fact.dart' as _iy6p3omn;
+import 'ontology/models/document_fact_kind.dart' as _iatg4403;
 import 'ontology/models/exceptions.dart' as _iqc95j34;
 import 'ontology/models/executive_entry.dart' as _i3df9cy5;
 import 'ontology/models/executive_registration.dart' as _iz7k3x6v;
 import 'ontology/models/facet_count.dart' as _iqbvehdv;
+import 'ontology/models/fact_item.dart' as _iawn4ngl;
+import 'ontology/models/fact_page.dart' as _iurbyopj;
 import 'ontology/models/filing_fetch_status.dart' as _i167q75d;
 import 'ontology/models/financial_fact.dart' as _igykxm42;
 import 'ontology/models/financial_line.dart' as _igzbjepn;
@@ -171,10 +177,14 @@ export 'ontology/models/disclosure_section_info.dart';
 export 'ontology/models/disclosure_table.dart';
 export 'ontology/models/disclosure_table_row.dart';
 export 'ontology/models/dividend_entry.dart';
+export 'ontology/models/document_fact.dart';
+export 'ontology/models/document_fact_kind.dart';
 export 'ontology/models/exceptions.dart';
 export 'ontology/models/executive_entry.dart';
 export 'ontology/models/executive_registration.dart';
 export 'ontology/models/facet_count.dart';
+export 'ontology/models/fact_item.dart';
+export 'ontology/models/fact_page.dart';
 export 'ontology/models/filing_fetch_status.dart';
 export 'ontology/models/financial_fact.dart';
 export 'ontology/models/financial_line.dart';
@@ -1514,6 +1524,182 @@ class Protocol extends _is.DatabaseSerializationManager {
             _isp.IndexElementDefinition(
               type: _isp.IndexElementDefinitionType.column,
               definition: 'bsnsYear',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'document_fact',
+      dartName: 'DocumentFact',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'companyId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'documentId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'bsnsYear',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'kind',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:DocumentFactKind',
+        ),
+        _isp.ColumnDefinition(
+          name: 'label',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'value',
+          columnType: _isp.ColumnType.doublePrecision,
+          isNullable: false,
+          dartType: 'double',
+        ),
+        _isp.ColumnDefinition(
+          name: 'unit',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'asOf',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'evidence',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'sourceId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'extractedBy',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:RelationOrigin',
+        ),
+        _isp.ColumnDefinition(
+          name: 'extractorModel',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'confidence',
+          columnType: _isp.ColumnType.doublePrecision,
+          isNullable: true,
+          dartType: 'double?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'status',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:RelationStatus',
+        ),
+        _isp.ColumnDefinition(
+          name: 'reviewedAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'document_fact_fk_0',
+          columns: ['companyId'],
+          referenceTable: 'company',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.cascade,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'document_fact_fk_1',
+          columns: ['documentId'],
+          referenceTable: 'business_document',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.cascade,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'document_fact_fk_2',
+          columns: ['sourceId'],
+          referenceTable: 'source',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.setNull,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'document_fact_company_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'companyId',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'kind',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'document_fact_document_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'documentId',
             ),
           ],
           type: 'btree',
@@ -3958,6 +4144,12 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _ith4ion6.DividendEntry) {
       return _ith4ion6.DividendEntry.fromJson(data) as T;
     }
+    if (t == _iy6p3omn.DocumentFact) {
+      return _iy6p3omn.DocumentFact.fromJson(data) as T;
+    }
+    if (t == _iatg4403.DocumentFactKind) {
+      return _iatg4403.DocumentFactKind.fromJson(data) as T;
+    }
     if (t == _iqc95j34.IngestException) {
       return _iqc95j34.IngestException.fromJson(data) as T;
     }
@@ -3969,6 +4161,12 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (t == _iqbvehdv.FacetCount) {
       return _iqbvehdv.FacetCount.fromJson(data) as T;
+    }
+    if (t == _iawn4ngl.FactItem) {
+      return _iawn4ngl.FactItem.fromJson(data) as T;
+    }
+    if (t == _iurbyopj.FactPage) {
+      return _iurbyopj.FactPage.fromJson(data) as T;
     }
     if (t == _i167q75d.FilingFetchStatus) {
       return _i167q75d.FilingFetchStatus.fromJson(data) as T;
@@ -4297,6 +4495,13 @@ class Protocol extends _is.DatabaseSerializationManager {
       return (data != null ? _ith4ion6.DividendEntry.fromJson(data) : null)
           as T;
     }
+    if (t == _is.getType<_iy6p3omn.DocumentFact?>()) {
+      return (data != null ? _iy6p3omn.DocumentFact.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_iatg4403.DocumentFactKind?>()) {
+      return (data != null ? _iatg4403.DocumentFactKind.fromJson(data) : null)
+          as T;
+    }
     if (t == _is.getType<_iqc95j34.IngestException?>()) {
       return (data != null ? _iqc95j34.IngestException.fromJson(data) : null)
           as T;
@@ -4313,6 +4518,12 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (t == _is.getType<_iqbvehdv.FacetCount?>()) {
       return (data != null ? _iqbvehdv.FacetCount.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_iawn4ngl.FactItem?>()) {
+      return (data != null ? _iawn4ngl.FactItem.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_iurbyopj.FactPage?>()) {
+      return (data != null ? _iurbyopj.FactPage.fromJson(data) : null) as T;
     }
     if (t == _is.getType<_i167q75d.FilingFetchStatus?>()) {
       return (data != null ? _i167q75d.FilingFetchStatus.fromJson(data) : null)
@@ -4641,6 +4852,12 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == List<String?>) {
       return (data as List).map((e) => deserialize<String?>(e)).toList() as T;
     }
+    if (t == List<_iawn4ngl.FactItem>) {
+      return (data as List)
+              .map((e) => deserialize<_iawn4ngl.FactItem>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_igzbjepn.FinancialLine>) {
       return (data as List)
               .map((e) => deserialize<_igzbjepn.FinancialLine>(e))
@@ -4722,6 +4939,12 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == List<_itpltonf.DisclosureSectionInfo>) {
       return (data as List)
               .map((e) => deserialize<_itpltonf.DisclosureSectionInfo>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_ihq2wng4.DocumentFact>) {
+      return (data as List)
+              .map((e) => deserialize<_ihq2wng4.DocumentFact>(e))
               .toList()
           as T;
     }
@@ -4815,10 +5038,14 @@ class Protocol extends _is.DatabaseSerializationManager {
       _i7prd3sw.DisclosureTable => 'DisclosureTable',
       _i98o73zd.DisclosureTableRow => 'DisclosureTableRow',
       _ith4ion6.DividendEntry => 'DividendEntry',
+      _iy6p3omn.DocumentFact => 'DocumentFact',
+      _iatg4403.DocumentFactKind => 'DocumentFactKind',
       _iqc95j34.IngestException => 'IngestException',
       _i3df9cy5.ExecutiveEntry => 'ExecutiveEntry',
       _iz7k3x6v.ExecutiveRegistration => 'ExecutiveRegistration',
       _iqbvehdv.FacetCount => 'FacetCount',
+      _iawn4ngl.FactItem => 'FactItem',
+      _iurbyopj.FactPage => 'FactPage',
       _i167q75d.FilingFetchStatus => 'FilingFetchStatus',
       _igykxm42.FinancialFact => 'FinancialFact',
       _igzbjepn.FinancialLine => 'FinancialLine',
@@ -4969,6 +5196,10 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'DisclosureTableRow';
       case _ith4ion6.DividendEntry():
         return 'DividendEntry';
+      case _iy6p3omn.DocumentFact():
+        return 'DocumentFact';
+      case _iatg4403.DocumentFactKind():
+        return 'DocumentFactKind';
       case _iqc95j34.IngestException():
         return 'IngestException';
       case _i3df9cy5.ExecutiveEntry():
@@ -4977,6 +5208,10 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'ExecutiveRegistration';
       case _iqbvehdv.FacetCount():
         return 'FacetCount';
+      case _iawn4ngl.FactItem():
+        return 'FactItem';
+      case _iurbyopj.FactPage():
+        return 'FactPage';
       case _i167q75d.FilingFetchStatus():
         return 'FilingFetchStatus';
       case _igykxm42.FinancialFact():
@@ -5241,6 +5476,12 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (dataClassName == 'DividendEntry') {
       return deserialize<_ith4ion6.DividendEntry>(data['data']);
     }
+    if (dataClassName == 'DocumentFact') {
+      return deserialize<_iy6p3omn.DocumentFact>(data['data']);
+    }
+    if (dataClassName == 'DocumentFactKind') {
+      return deserialize<_iatg4403.DocumentFactKind>(data['data']);
+    }
     if (dataClassName == 'IngestException') {
       return deserialize<_iqc95j34.IngestException>(data['data']);
     }
@@ -5252,6 +5493,12 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'FacetCount') {
       return deserialize<_iqbvehdv.FacetCount>(data['data']);
+    }
+    if (dataClassName == 'FactItem') {
+      return deserialize<_iawn4ngl.FactItem>(data['data']);
+    }
+    if (dataClassName == 'FactPage') {
+      return deserialize<_iurbyopj.FactPage>(data['data']);
     }
     if (dataClassName == 'FilingFetchStatus') {
       return deserialize<_i167q75d.FilingFetchStatus>(data['data']);
@@ -5483,6 +5730,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return _irf27uzx.DisclosureRow.t;
       case _ith4ion6.DividendEntry:
         return _ith4ion6.DividendEntry.t;
+      case _iy6p3omn.DocumentFact:
+        return _iy6p3omn.DocumentFact.t;
       case _i3df9cy5.ExecutiveEntry:
         return _i3df9cy5.ExecutiveEntry.t;
       case _igykxm42.FinancialFact:

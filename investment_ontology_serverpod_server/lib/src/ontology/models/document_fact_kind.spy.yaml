@@ -1,0 +1,17 @@
+### 사업보고서 본문에서 뽑는 값의 종류. API로는 받을 수 없고 글·표에만 있는 것들.
+enum: DocumentFactKind
+values:
+  ### 수주총액 (계약 총액)
+  - orderTotal
+  ### 기납품액 (이미 매출로 인식한 부분)
+  - orderDelivered
+  ### 수주잔고 (남은 계약 잔액)
+  - orderBacklog
+  ### 생산능력
+  - capacity
+  ### 생산실적
+  - production
+  ### 가동률 (%)
+  - utilization
+  ### 시장점유율 (%)
+  - marketShare

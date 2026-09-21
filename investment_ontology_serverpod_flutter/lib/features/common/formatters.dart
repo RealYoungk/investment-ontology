@@ -57,3 +57,7 @@ String companyFieldLabel(String field) => switch (field) {
   'fiscalMonth' => '결산월',
   _ => field,
 };
+
+/// 소수점 없는 큰 수는 천 단위 구분, 소수는 소수점 한 자리까지.
+String formatDecimal(double v) =>
+    v == v.roundToDouble() ? formatCount(v.round()) : v.toStringAsFixed(1);

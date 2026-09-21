@@ -57,6 +57,66 @@ class ReviewEndpoint extends Endpoint {
     );
   }
 
+  /// 본문에서 뽑은 값 검수 목록 (수주잔고·가동률·점유율 등).
+  Future<FactPage> facts(
+    Session session, {
+    RelationStatus? status,
+    DocumentFactKind? kind,
+    int? offset,
+    int? limit,
+  }) async {
+    Expression where(DocumentFactTable t) {
+      Expression e = t.status.equals(status ?? RelationStatus.draft);
+      if (kind != null) e = e & t.kind.equals(kind);
+      return e;
+    }
+
+    final rows = await DocumentFact.db.find(
+      session,
+      where: where,
+      orderByList: (t) => [t.companyId.asc(), t.kind.asc(), t.id.asc()],
+      offset: offset ?? 0,
+      limit: (limit ?? 50).clamp(1, 200),
+    );
+    final companies = {
+      for (final c in await Company.db.find(
+        session,
+        where: (t) => t.id.inSet(<int>{for (final f in rows) f.companyId}),
+      ))
+        c.id!: c,
+    };
+    Future<int> count(RelationStatus s) =>
+        DocumentFact.db.count(session, where: (t) => t.status.equals(s));
+    return FactPage(
+      items: [
+        for (final f in rows)
+          if (companies[f.companyId] case final c?)
+            FactItem(fact: f, corpCode: c.corpCode, companyName: c.name),
+      ],
+      total: await DocumentFact.db.count(session, where: where),
+      draftCount: await count(RelationStatus.draft),
+      verifiedCount: await count(RelationStatus.verified),
+      rejectedCount: await count(RelationStatus.rejected),
+    );
+  }
+
+  /// 값 하나를 승인·거절한다.
+  Future<DocumentFact?> decideFact(
+    Session session,
+    int factId,
+    bool approve,
+  ) async {
+    final f = await DocumentFact.db.findById(session, factId);
+    if (f == null) return null;
+    return DocumentFact.db.updateRow(
+      session,
+      f.copyWith(
+        status: approve ? RelationStatus.verified : RelationStatus.rejected,
+        reviewedAt: DateTime.now().toUtc(),
+      ),
+    );
+  }
+
   /// 기업이 주어나 목적어인 AI 관계 (거절한 것 제외).
   Future<List<ReviewItem>> forCompany(Session session, String corpCode) async {
     final company = await Company.db.findFirstRow(

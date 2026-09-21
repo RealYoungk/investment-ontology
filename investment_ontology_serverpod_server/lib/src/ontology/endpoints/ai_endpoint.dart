@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
 import '../ai/ai_extraction_service.dart';
 import '../ai/anthropic_client.dart';
+import '../ai/document_facts.dart';
 import '../ai/relation_extractor.dart';
 import '../ingest/ingest_jobs.dart';
 import '../ingest/ingest_hooks.dart';
@@ -144,6 +147,50 @@ class AiEndpoint extends Endpoint {
       parsed,
       (model ?? 'claude-code').trim(),
     );
+  }
+
+  /// 밖에서 뽑은 '본문 값'(수주잔고·가동률·점유율 등)을 저장한다.
+  ///
+  /// ```json
+  /// {"facts": [{"kind": "orderBacklog", "label": "건설사업", "value": 21292358,
+  ///             "unit": "백만원", "asOf": "2025-12-31", "evidence": "…"}]}
+  /// ```
+  Future<String> submitFacts(
+    Session session,
+    int documentId,
+    String answer, {
+    String? model,
+  }) async {
+    final doc = await BusinessDocument.db.findById(session, documentId);
+    if (doc == null) {
+      throw IngestException(message: '본문을 찾을 수 없습니다: $documentId');
+    }
+    final List<
+      ({
+        DocumentFactKind kind,
+        String label,
+        double value,
+        String unit,
+        DateTime? asOf,
+        String evidence,
+        double? confidence,
+      })
+    >
+    parsed;
+    try {
+      parsed = DocumentFacts.parse(
+        jsonDecode(answer) as Map<String, dynamic>,
+      );
+    } on Object catch (e) {
+      throw IngestException(message: '형식을 읽지 못했습니다: $e');
+    }
+    final result = await DocumentFacts.store(
+      session,
+      doc,
+      parsed,
+      (model ?? 'claude-code').trim(),
+    );
+    return '저장 ${result.stored}건, 버린 것 ${result.dropped}건';
   }
 
   static String _requireKey(Session session) {

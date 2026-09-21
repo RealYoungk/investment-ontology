@@ -227,4 +227,28 @@ class DisclosureEndpoint extends Endpoint {
     },
     orderByList: (t) => [t.bsnsYear.desc()],
   );
+
+  /// 기업의 '본문에서 뽑은 값' 가운데 승인된 것 (수주잔고·가동률·점유율 등).
+  ///
+  /// 가장 최근 사업연도만. 화면은 이 값을 출처·근거와 함께 보여 준다.
+  Future<List<DocumentFact>> facts(Session session, String corpCode) async {
+    final company = await Company.db.findFirstRow(
+      session,
+      where: (t) => t.corpCode.equals(corpCode),
+    );
+    if (company == null) return const [];
+    final all = await DocumentFact.db.find(
+      session,
+      where: (t) =>
+          t.companyId.equals(company.id!) &
+          t.status.equals(RelationStatus.verified),
+      orderByList: (t) => [t.bsnsYear.desc(), t.kind.asc(), t.id.asc()],
+    );
+    if (all.isEmpty) return all;
+    final year = all.first.bsnsYear;
+    return [
+      for (final f in all)
+        if (f.bsnsYear == year) f,
+    ];
+  }
 }

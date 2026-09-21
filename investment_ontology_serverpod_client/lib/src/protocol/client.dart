@@ -42,8 +42,14 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _i39r1xmm;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/disclosure_table.dart'
     as _i1woaxtv;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/document_fact.dart'
+    as _ip7x5uw8;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/document_fact_kind.dart'
+    as _i7h2wu58;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/facet_count.dart'
     as _icfgas7c;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/fact_page.dart'
+    as _i9n1o9ln;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/financial_report_detail.dart'
     as _iurgb10z;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/fs_div.dart'
@@ -401,6 +407,26 @@ class EndpointAi extends _isc.EndpointRef {
       'model': model,
     },
   );
+
+  /// 밖에서 뽑은 '본문 값'(수주잔고·가동률·점유율 등)을 저장한다.
+  ///
+  /// ```json
+  /// {"facts": [{"kind": "orderBacklog", "label": "건설사업", "value": 21292358,
+  ///             "unit": "백만원", "asOf": "2025-12-31", "evidence": "…"}]}
+  /// ```
+  _ida.Future<String> submitFacts(
+    int documentId,
+    String answer, {
+    String? model,
+  }) => caller.callServerEndpoint<String>(
+    'ai',
+    'submitFacts',
+    {
+      'documentId': documentId,
+      'answer': answer,
+      'model': model,
+    },
+  );
 }
 
 /// 상장사 조회.
@@ -515,6 +541,16 @@ class EndpointDisclosure extends _isc.EndpointRef {
     'shareholderReturn',
     {'corpCode': corpCode},
   );
+
+  /// 기업의 '본문에서 뽑은 값' 가운데 승인된 것 (수주잔고·가동률·점유율 등).
+  ///
+  /// 가장 최근 사업연도만. 화면은 이 값을 출처·근거와 함께 보여 준다.
+  _ida.Future<List<_ip7x5uw8.DocumentFact>> facts(String corpCode) =>
+      caller.callServerEndpoint<List<_ip7x5uw8.DocumentFact>>(
+        'disclosure',
+        'facts',
+        {'corpCode': corpCode},
+      );
 }
 
 /// 기업 재무·시세 조회. 파생 지표는 계산하지 않고 원천 값만 돌려준다.
@@ -814,6 +850,36 @@ class EndpointReview extends _isc.EndpointRef {
     'decide',
     {
       'relationId': relationId,
+      'approve': approve,
+    },
+  );
+
+  /// 본문에서 뽑은 값 검수 목록 (수주잔고·가동률·점유율 등).
+  _ida.Future<_i9n1o9ln.FactPage> facts({
+    _ixp2yk27.RelationStatus? status,
+    _i7h2wu58.DocumentFactKind? kind,
+    int? offset,
+    int? limit,
+  }) => caller.callServerEndpoint<_i9n1o9ln.FactPage>(
+    'review',
+    'facts',
+    {
+      'status': status,
+      'kind': kind,
+      'offset': offset,
+      'limit': limit,
+    },
+  );
+
+  /// 값 하나를 승인·거절한다.
+  _ida.Future<_ip7x5uw8.DocumentFact?> decideFact(
+    int factId,
+    bool approve,
+  ) => caller.callServerEndpoint<_ip7x5uw8.DocumentFact?>(
+    'review',
+    'decideFact',
+    {
+      'factId': factId,
       'approve': approve,
     },
   );
