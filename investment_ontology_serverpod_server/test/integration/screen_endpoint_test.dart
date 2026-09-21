@@ -111,6 +111,8 @@ void main() {
     setUp(() async {
       session = sessionBuilder.build();
       ScreenEndpoint.clearCache();
+      // 테스트는 바뀐 값을 바로 본다 (지난 계산을 먼저 주는 동작은 따로 확인).
+      ScreenEndpoint.serveStaleWhileRefreshing = false;
       await KsicSeeder.seed(session);
       source = await Source.db.insertRow(
         session,
@@ -448,6 +450,29 @@ void main() {
         avgTradingValueMin: BigInt.from(6000),
       );
       expect(liquid.items, isEmpty, reason: '둘 다 5,000원어치뿐이다');
+    });
+
+    test('데이터가 바뀐 뒤 첫 요청은 지난 계산을 먼저 준다', () async {
+      // 뒤에서 도는 계산은 따로 연 세션이라 테스트 트랜잭션 안의 데이터를 보지 못한다.
+      // 여기서는 "먼저 지난 값을 준다"만 확인하고, 계산이 끝나기를 기다린 뒤 지운다.
+      ScreenEndpoint.serveStaleWhileRefreshing = true;
+      try {
+        final before = await endpoints.screen.list(sessionBuilder);
+        expect(before.universe, 2);
+        final c = await company('00000003', '새회사', '264');
+        await report(c, 2025, FinancialReportCode.annual, {
+          'ifrs-full_Revenue': (100, null),
+          'ifrs-full_Assets': (1000000000, null),
+        });
+        await quote(c, '000003', 500);
+
+        final stale = await endpoints.screen.list(sessionBuilder);
+        expect(stale.universe, 2, reason: '지난 계산을 먼저 준다');
+      } finally {
+        ScreenEndpoint.serveStaleWhileRefreshing = false;
+        await ScreenEndpoint.awaitRefresh();
+        ScreenEndpoint.clearCache();
+      }
     });
   });
 }
