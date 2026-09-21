@@ -297,9 +297,12 @@ class ReviewCard extends StatelessWidget {
                     },
                   ),
                   // 누가 결정했는지. 사람이 누른 것은 표시하지 않는다.
-                  if (r.reviewedBy != null) ...[
+                  if (r.reviewedBy case final by?) ...[
                     const SizedBox(width: AppSpace.xs),
-                    AppTag(label: '원문 대조', color: c.textMuted),
+                    AppTag(
+                      label: by.startsWith('표 규칙') ? '표 규칙' : '원문 대조',
+                      color: c.textMuted,
+                    ),
                   ],
                 ],
               ];
@@ -528,9 +531,12 @@ class _FactList extends StatelessWidget {
                               ? '승인됨'
                               : '거절됨',
                         ),
-                        if (item.fact.reviewedBy != null) ...[
+                        if (item.fact.reviewedBy case final by?) ...[
                           const SizedBox(width: AppSpace.xs),
-                          AppTag(label: '원문 대조', color: c.textMuted),
+                          AppTag(
+                            label: by.startsWith('표 규칙') ? '표 규칙' : '원문 대조',
+                            color: c.textMuted,
+                          ),
                         ],
                       ],
                     ];
