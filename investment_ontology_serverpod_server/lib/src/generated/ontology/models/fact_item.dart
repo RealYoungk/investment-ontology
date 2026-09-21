@@ -13,7 +13,6 @@
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart'
     as _i4yshtjp;
 import 'package:serverpod/serverpod.dart' as _is;
-
 import '../../ontology/models/document_fact.dart' as _i7vmevlg;
 
 /// 검수 화면에 보여 줄 값 하나 (어느 기업의 무엇인지 포함).

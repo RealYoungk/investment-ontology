@@ -13,7 +13,6 @@
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart'
     as _i4yshtjp;
 import 'package:serverpod/serverpod.dart' as _is;
-
 import '../../ontology/models/financial_line.dart' as _iub4r7it;
 import '../../ontology/models/financial_report_code.dart' as _i6mbh8k5;
 

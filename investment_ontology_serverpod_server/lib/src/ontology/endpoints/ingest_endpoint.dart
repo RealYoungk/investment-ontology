@@ -5,6 +5,7 @@ import '../dart/dart_api_key.dart';
 import '../data_go_kr/data_go_kr_service_key.dart';
 import '../disclosure/disclosure_links.dart';
 import '../disclosure/production_facts.dart';
+import '../disclosure/supplier_relations.dart';
 import '../ingest/api_call_budget.dart';
 import '../ingest/company_master_sync.dart';
 import '../ingest/disclosure_sync.dart';
@@ -208,7 +209,11 @@ class IngestEndpoint extends Endpoint {
     for (final doc in docs) {
       stored += await ProductionFacts.store(session, doc);
     }
-    return '본문 ${docs.length}건에서 값 $stored건을 읽었습니다.';
+    var links = 0;
+    for (final doc in docs) {
+      links += await SupplierRelations.store(session, doc);
+    }
+    return '본문 ${docs.length}건에서 값 $stored건, 공급 관계 $links건을 읽었습니다.';
   }
 
   static void _requireDartKey(Session session) {

@@ -13,7 +13,6 @@
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart'
     as _i4yshtjp;
 import 'package:serverpod/serverpod.dart' as _is;
-
 import '../../ontology/models/graph_edge.dart' as _iknezajl;
 import '../../ontology/models/graph_node.dart' as _i1tb8zsr;
 

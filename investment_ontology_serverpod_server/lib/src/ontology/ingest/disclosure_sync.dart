@@ -11,6 +11,7 @@ import '../disclosure/disclosure_links.dart';
 import '../disclosure/disclosure_rows.dart';
 import '../disclosure/disclosure_values.dart';
 import '../disclosure/production_facts.dart';
+import '../disclosure/supplier_relations.dart';
 import '../market/market_caps.dart';
 import 'api_call_budget.dart';
 import 'financial_facts_sync.dart';
@@ -661,7 +662,10 @@ class DisclosureSync {
       where: (t) => t.rceptNo.equals(filing.rceptNo),
       orderBy: (t) => t.id.desc(),
     );
-    if (stored != null) await ProductionFacts.store(session, stored);
+    if (stored != null) {
+      await ProductionFacts.store(session, stored);
+      await SupplierRelations.store(session, stored);
+    }
   }
 
   /// 출생년월이 있는 임원을 인물에 잇는다 (없으면 만든다).
