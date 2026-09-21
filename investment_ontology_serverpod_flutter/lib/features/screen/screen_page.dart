@@ -80,6 +80,10 @@ class _ScreenerPageState extends State<ScreenerPage> {
         fcfYieldMin: _f.fcfMin,
         revenueGrowthMin: _f.revenueGrowthMin,
         operatingIncomeGrowthMin: _f.opGrowthMin,
+        // 화면에서는 억원으로 받는다 (원 단위 숫자는 세기 어렵다).
+        avgTradingValueMin: _f.liquidityMin == null
+            ? null
+            : BigInt.from((_f.liquidityMin! * 100000000).round()),
         sort: _f.sort,
         ascending: _f.ascending,
         limit: 100,
@@ -172,6 +176,11 @@ class _ScreenerPageState extends State<ScreenerPage> {
               value: _f.opGrowthMin,
               onChanged: (v) => _applySoon(_f.copyWith(opGrowthMin: () => v)),
             ),
+            _NumberField(
+              label: '거래대금 억원 이상',
+              value: _f.liquidityMin,
+              onChanged: (v) => _applySoon(_f.copyWith(liquidityMin: () => v)),
+            ),
           ],
         ),
         const SizedBox(height: AppSpace.md),
@@ -197,6 +206,7 @@ class _ScreenerPageState extends State<ScreenerPage> {
                 ScreenSort.return3m: '3개월 주가',
                 ScreenSort.return12m: '12개월 주가',
                 ScreenSort.bandPosition: '52주 최저에 가까운',
+                ScreenSort.avgTradingValue: '거래대금',
               },
               // 싼 것·높은 수익성을 먼저 보는 쪽이 자연스럽다.
               onChanged: (s) => _apply(
@@ -250,6 +260,7 @@ class _ScreenerPageState extends State<ScreenerPage> {
             '배당수익률 = 최근 사업연도 현금배당금총액 ÷ 시가총액 · '
             '3·12개월 = 대표 종목(시가총액이 가장 큰 종목) 종가 등락률 · '
             '52주 위치 = 최근 1년 종가의 최저(0)~최고(100) 사이 지금 자리 · '
+            '거래대금 = 최근 한 달 하루 평균 (사고팔 수 있는 크기) · '
             '성장률 = 올해 누적 대비 전년 같은 기간 누적 (전년이 적자면 계산하지 않음). '
             '손익 항목은 최근 12개월 합계(사업보고서면 그 해, 아니면 전년 연간 + 올해 누적 − 전년 같은 기간 '
             '누적)이고 자본은 최근 보고서 시점 값입니다. 모두 연결 기준이며, 지배주주 값이 없으면 전체 값을 씁니다. '
@@ -287,6 +298,7 @@ class _ResultTable extends StatelessWidget {
     '부채비율(%)',
     '배당수익률(%)',
     'FCF 수익률(%)',
+    '거래대금',
     '3개월(%)',
     '12개월(%)',
     '52주 위치(%)',
@@ -309,6 +321,7 @@ class _ResultTable extends StatelessWidget {
     ScreenSort.return3m => '3개월(%)',
     ScreenSort.return12m => '12개월(%)',
     ScreenSort.bandPosition => '52주 위치(%)',
+    ScreenSort.avgTradingValue => '거래대금',
   };
 
   @override
@@ -331,6 +344,7 @@ class _ResultTable extends StatelessWidget {
       ('부채비율(%)', (r) => fixed(r.debtRatio, 1)),
       ('배당수익률(%)', (r) => fixed(r.dividendYield, 2)),
       ('FCF 수익률(%)', (r) => fixed(r.fcfYield, 2)),
+      ('거래대금', (r) => formatKrw(r.avgTradingValue)),
       ('3개월(%)', (r) => fixed(r.return3m, 1)),
       ('12개월(%)', (r) => fixed(r.return12m, 1)),
       ('52주 위치(%)', (r) => fixed(r.bandPosition, 0)),

@@ -47,6 +47,7 @@ abstract class ScreenRow
     this.high52w,
     this.low52w,
     this.bandPosition,
+    this.avgTradingValue,
   });
 
   factory ScreenRow({
@@ -76,6 +77,7 @@ abstract class ScreenRow
     int? high52w,
     int? low52w,
     double? bandPosition,
+    BigInt? avgTradingValue,
   }) = _ScreenRowImpl;
 
   factory ScreenRow.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -134,6 +136,11 @@ abstract class ScreenRow
       high52w: jsonSerialization['high52w'] as int?,
       low52w: jsonSerialization['low52w'] as int?,
       bandPosition: (jsonSerialization['bandPosition'] as num?)?.toDouble(),
+      avgTradingValue: jsonSerialization['avgTradingValue'] == null
+          ? null
+          : _isc.BigIntJsonExtension.fromJson(
+              jsonSerialization['avgTradingValue'],
+            ),
     );
   }
 
@@ -204,6 +211,9 @@ abstract class ScreenRow
   /// 52주 밴드에서 지금 종가의 자리 (0 = 최저, 100 = 최고)
   double? bandPosition;
 
+  /// 최근 한 달 하루 평균 거래대금 (원). 얼마나 사고팔 수 있는지
+  BigInt? avgTradingValue;
+
   /// Returns a shallow copy of this [ScreenRow]
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
@@ -234,6 +244,7 @@ abstract class ScreenRow
     int? high52w,
     int? low52w,
     double? bandPosition,
+    BigInt? avgTradingValue,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -266,6 +277,7 @@ abstract class ScreenRow
       if (high52w != null) 'high52w': high52w,
       if (low52w != null) 'low52w': low52w,
       if (bandPosition != null) 'bandPosition': bandPosition,
+      if (avgTradingValue != null) 'avgTradingValue': avgTradingValue?.toJson(),
     };
   }
 
@@ -300,6 +312,7 @@ abstract class ScreenRow
       if (high52w != null) 'high52w': high52w,
       if (low52w != null) 'low52w': low52w,
       if (bandPosition != null) 'bandPosition': bandPosition,
+      if (avgTradingValue != null) 'avgTradingValue': avgTradingValue?.toJson(),
     };
   }
 
@@ -339,6 +352,7 @@ class _ScreenRowImpl extends ScreenRow {
     int? high52w,
     int? low52w,
     double? bandPosition,
+    BigInt? avgTradingValue,
   }) : super._(
          company: company,
          bsnsYear: bsnsYear,
@@ -366,6 +380,7 @@ class _ScreenRowImpl extends ScreenRow {
          high52w: high52w,
          low52w: low52w,
          bandPosition: bandPosition,
+         avgTradingValue: avgTradingValue,
        );
 
   /// Returns a shallow copy of this [ScreenRow]
@@ -399,6 +414,7 @@ class _ScreenRowImpl extends ScreenRow {
     Object? high52w = _Undefined,
     Object? low52w = _Undefined,
     Object? bandPosition = _Undefined,
+    Object? avgTradingValue = _Undefined,
   }) {
     return ScreenRow(
       company: company ?? this.company.copyWith(),
@@ -439,6 +455,9 @@ class _ScreenRowImpl extends ScreenRow {
       high52w: high52w is int? ? high52w : this.high52w,
       low52w: low52w is int? ? low52w : this.low52w,
       bandPosition: bandPosition is double? ? bandPosition : this.bandPosition,
+      avgTradingValue: avgTradingValue is BigInt?
+          ? avgTradingValue
+          : this.avgTradingValue,
     );
   }
 }

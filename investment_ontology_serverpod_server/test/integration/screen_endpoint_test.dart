@@ -102,6 +102,7 @@ void main() {
           closePrice: BigInt.from(1000),
           marketCap: BigInt.from(cap),
           listedShares: BigInt.from(1000),
+          tradingValue: BigInt.from(5000),
           sourceId: source.id!,
         ),
       );
@@ -384,6 +385,7 @@ void main() {
             closePrice: BigInt.from(price),
             marketCap: BigInt.from(price),
             listedShares: BigInt.from(1000),
+            tradingValue: BigInt.from(price * 10),
             sourceId: source.id!,
           ),
         );
@@ -432,6 +434,20 @@ void main() {
           r.company.name: r,
       };
       expect(rows['큰회사']!.return12m, isNull, reason: '10원 → 1,000원은 허수다');
+    });
+
+    test('거래대금이 적은 기업은 걸러낸다', () async {
+      final all = await endpoints.screen.list(sessionBuilder);
+      expect(
+        all.items.map((r) => r.avgTradingValue),
+        everyElement(isNotNull),
+        reason: '하루 평균 거래대금',
+      );
+      final liquid = await endpoints.screen.list(
+        sessionBuilder,
+        avgTradingValueMin: BigInt.from(6000),
+      );
+      expect(liquid.items, isEmpty, reason: '둘 다 5,000원어치뿐이다');
     });
   });
 }

@@ -26,7 +26,8 @@ enum ScreenSort implements _is.SerializableModel {
   operatingIncomeGrowth,
   return3m,
   return12m,
-  bandPosition;
+  bandPosition,
+  avgTradingValue;
 
   static ScreenSort fromJson(String name) {
     switch (name) {
@@ -56,6 +57,8 @@ enum ScreenSort implements _is.SerializableModel {
         return ScreenSort.return12m;
       case 'bandPosition':
         return ScreenSort.bandPosition;
+      case 'avgTradingValue':
+        return ScreenSort.avgTradingValue;
       default:
         throw ArgumentError(
           'Value "$name" cannot be converted to "ScreenSort"',
