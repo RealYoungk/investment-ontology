@@ -21,18 +21,21 @@ final serverUrl = _resolveServerUrl();
 ///
 /// 1. `--dart-define=SERVER_URL=...` 가 있으면 그것.
 /// 2. 웹에서 http로 열었으면 **앱을 내려받은 그 host의 8080**. 맥을 서버로 두고 집
-///    네트워크나 Tailscale로 들어올 때, 주소마다 다시 빌드하지 않아도 된다.
-/// 3. 나머지는 Serverpod 기본 (assets/config.json → localhost:8080).
+///    네트워크로 들어올 때, 주소마다 다시 빌드하지 않아도 된다.
+/// 3. 웹에서 https로 열었으면 **같은 주소의 `/api/`**. Tailscale serve나 Caddy처럼
+///    앞단이 한 주소로 앱과 API를 같이 내보내는 경우다 (`deploy/Caddyfile` 참고).
+/// 4. 나머지는 Serverpod 기본 (assets/config.json → localhost:8080).
 Future<String> _resolveServerUrl() async {
   const fromEnv = String.fromEnvironment('SERVER_URL');
   if (fromEnv.isNotEmpty) return fromEnv;
   final base = Uri.base;
-  if (kIsWeb &&
-      base.scheme == 'http' &&
-      base.host.isNotEmpty &&
-      base.host != 'localhost' &&
-      base.host != '127.0.0.1') {
-    return '${Uri(scheme: 'http', host: base.host, port: 8080)}/';
+  if (kIsWeb && base.host.isNotEmpty) {
+    if (base.scheme == 'https') return '${base.origin}/api/';
+    if (base.scheme == 'http' &&
+        base.host != 'localhost' &&
+        base.host != '127.0.0.1') {
+      return '${Uri(scheme: 'http', host: base.host, port: 8080)}/';
+    }
   }
   return getServerUrl();
 }
