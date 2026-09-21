@@ -24,6 +24,9 @@ class FakeDisclosures {
   /// 접수번호 → 공시 원본 XML. 없으면 014 (파일 없음).
   final documents = <String, String>{};
 
+  /// 회사별 공시 목록 (`list.json`, 원본·정정 모두). (접수번호, 보고서 이름, 접수일)
+  final filings = <String, List<(String, String, String)>>{};
+
   void set(String api, String corp, int year, List<Map<String, String>> list) =>
       rows['$api|$corp|$year'] = list;
 
@@ -47,6 +50,28 @@ class FakeDisclosures {
         final archive = Archive()
           ..addFile(ArchiveFile.bytes('$rcept.xml', utf8.encode(xml)));
         return http.Response.bytes(ZipEncoder().encodeBytes(archive), 200);
+      }
+      if (req.url.path.endsWith('list.json')) {
+        calls.add('list|${q['corp_code']}');
+        final items = filings[q['corp_code']] ?? const [];
+        final body = items.isEmpty
+            ? '{"status":"013","message":"조회된 데이타가 없습니다."}'
+            : jsonEncode({
+                'status': '000',
+                'total_page': 1,
+                'total_count': items.length,
+                'list': [
+                  for (final (rcept, name, date) in items)
+                    {
+                      'corp_code': q['corp_code'],
+                      'corp_name': q['corp_code'],
+                      'report_nm': name,
+                      'rcept_no': rcept,
+                      'rcept_dt': date,
+                    },
+                ],
+              });
+        return http.Response.bytes(utf8.encode(body), 200);
       }
       final api = req.url.pathSegments.last.replaceAll('.json', '');
       final key = '$api|${q['corp_code']}|${q['bsns_year']}';
@@ -130,13 +155,14 @@ void main() {
       String rcept,
       int year, {
       FilingFetchStatus financial = FilingFetchStatus.stored,
+      String? name,
     }) => DartFiling.db.insertRow(
       session,
       DartFiling(
         rceptNo: rcept,
         corpCode: corp,
         companyId: ids[corp],
-        reportName: '사업보고서 ($year.12)',
+        reportName: name ?? '사업보고서 ($year.12)',
         receivedDate: DateTime.utc(year + 1, 3, 10),
         bsnsYear: year,
         reportCode: FinancialReportCode.annual,
@@ -616,6 +642,41 @@ void main() {
       );
       final doc = (await BusinessDocument.db.findFirstRow(session))!;
       expect(doc.rceptNo, rSamsung);
+    });
+
+    test('첨부만 고친 정정공시뿐이면 공시 목록에서 원본 사업보고서를 찾아 받는다', () async {
+      // 장부에는 최종 보고서(첨부정정)만 있다. 원본 파일이 없으니(014) 목록을 물어 원본을 찾는다.
+      // 원본은 장부(dart_filing)에 없다 — 목록을 last_reprt_at=Y로 훑기 때문이다.
+      const attachmentFix = '20260319000633', original = '20260305000009';
+      await filing(
+        life,
+        attachmentFix,
+        2025,
+        name: '[첨부정정]사업보고서 (2025.12)',
+      );
+      dart.filings[life] = [
+        (original, '사업보고서 (2025.12)', '20260310'),
+        (attachmentFix, '[첨부정정]사업보고서 (2025.12)', '20260319'),
+      ];
+      dart.documents[original] =
+          '<TITLE AASSOCNOTE="D-0-2-0-0">II. 사업의 내용</TITLE><P>본문</P>'
+          '<TITLE AASSOCNOTE="D-0-3-0-0">III.</TITLE>';
+
+      await runSync(corpCode: life);
+
+      expect(
+        dart.calls,
+        containsAllInOrder([
+          'document|$attachmentFix',
+          'list|$life',
+          'document|$original',
+        ]),
+      );
+      final doc = (await BusinessDocument.db.findFirstRow(
+        session,
+        where: (t) => t.companyId.equals(ids[life]!),
+      ))!;
+      expect(doc.rceptNo, original);
     });
 
     test('한 사업연도에 정기보고서가 둘이면 이 보고서의 행만 저장한다', () async {
