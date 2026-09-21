@@ -793,6 +793,26 @@ class Endpoints extends _is.EndpointDispatch {
                         params['corpCode'],
                       ),
         ),
+        'factTrends': _is.MethodConnector(
+          name: 'factTrends',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['disclosure'] as _i23b9rs7.DisclosureEndpoint)
+                      .factTrends(
+                        session,
+                        params['corpCode'],
+                      ),
+        ),
         'recentFilings': _is.MethodConnector(
           name: 'recentFilings',
           params: {

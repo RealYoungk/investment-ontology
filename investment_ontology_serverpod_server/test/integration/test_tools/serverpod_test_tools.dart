@@ -1327,6 +1327,37 @@ class _DisclosureEndpoint {
     });
   }
 
+  _ida.Future<List<_ihq2wng4.DocumentFact>> factTrends(
+    _ist.TestSessionBuilder sessionBuilder,
+    String corpCode,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'disclosure',
+            method: 'factTrends',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'disclosure',
+          methodName: 'factTrends',
+          parameters: _ist.testObjectToJson({'corpCode': corpCode}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_ihq2wng4.DocumentFact>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
   _ida.Future<List<_iwgt3edw.FilingFeedItem>> recentFilings(
     _ist.TestSessionBuilder sessionBuilder, {
     _iyonaxpd.Market? market,

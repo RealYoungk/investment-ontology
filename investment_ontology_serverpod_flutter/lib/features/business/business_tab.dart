@@ -6,6 +6,7 @@ import '../../client.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
 import '../common/formatters.dart';
+import '../financials/financial_metrics.dart' show formatKrwShort;
 import '../review/review_page.dart';
 
 /// 글을 문단과 표(' | '로 이은 줄이 이어진 묶음)로 나눈다.
@@ -338,6 +339,82 @@ class _AiRelationsState extends State<_AiRelations> {
 }
 
 /// 본문에서 뽑아 승인한 값 (수주잔고·가동률·점유율 등). API로는 받을 수 없는 것들이다.
+
+/// 해마다 같은 항목이 있으면 흐름으로 (수주잔고·생산능력·점유율 …).
+///
+/// 표만 있으면 숫자가 늘었는지 줄었는지 눈에 안 들어온다.
+class _FactTrend extends StatelessWidget {
+  const _FactTrend({required this.facts, required this.kindLabel});
+
+  final List<DocumentFact> facts;
+  final String Function(DocumentFactKind) kindLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    final unit = facts.first.unit;
+    // 눈금은 읽기 쉬운 단위로. 백만원은 조·억으로 바꿔 적는다 (값 자체는 공시 단위 그대로).
+    String short(double v) => switch (unit) {
+      '%' => '${v.toStringAsFixed(1)}%',
+      '백만원' => formatKrwShort(v * 1000000),
+      '억원' => formatKrwShort(v * 100000000),
+      '조원' => formatKrwShort(v * 1000000000000),
+      _ =>
+        v.abs() >= 10000
+            ? '${formatCount((v / 10000).round())}만'
+            : formatDecimal(v),
+    };
+    final last = facts.last.value, first = facts.first.value;
+    final change = first == 0 ? null : 100 * (last - first) / first.abs();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(
+              child: Text(
+                '${kindLabel(facts.first.kind)} · ${facts.first.label}',
+                style: t.body(13.5, weight: FontWeight.w600),
+              ),
+            ),
+            Text(
+              '${formatDecimal(last)}$unit',
+              style: t.numeric(15, weight: FontWeight.w700),
+            ),
+            if (change != null) ...[
+              const SizedBox(width: AppSpace.sm),
+              Text(
+                '${facts.first.bsnsYear}→${facts.last.bsnsYear} '
+                '${change >= 0 ? '+' : ''}${change.toStringAsFixed(1)}%',
+                style: t.numeric(
+                  12,
+                  color: change >= 0 ? c.success : c.accent,
+                ),
+              ),
+            ],
+          ],
+        ),
+        const SizedBox(height: AppSpace.xs),
+        AppColumnChart(
+          categories: [for (final f in facts) '${f.bsnsYear}'],
+          series: [
+            ChartSeries(
+              label: kindLabel(facts.first.kind),
+              color: c.chartSeries1,
+              values: [for (final f in facts) f.value],
+            ),
+          ],
+          formatValue: short,
+          height: 150,
+        ),
+      ],
+    );
+  }
+}
+
 class _DocumentFacts extends StatefulWidget {
   const _DocumentFacts({required this.corpCode});
 
@@ -349,6 +426,7 @@ class _DocumentFacts extends StatefulWidget {
 
 class _DocumentFactsState extends State<_DocumentFacts> {
   List<DocumentFact> _facts = const [];
+  List<DocumentFact> _trends = const [];
 
   @override
   void initState() {
@@ -364,9 +442,22 @@ class _DocumentFactsState extends State<_DocumentFacts> {
 
   Future<void> _load() async {
     try {
-      final f = await client.disclosure.facts(widget.corpCode);
-      if (mounted) setState(() => _facts = f);
+      final (f, trends) = await (
+        client.disclosure.facts(widget.corpCode),
+        client.disclosure.factTrends(widget.corpCode),
+      ).wait;
+      if (mounted) setState(() => (_facts = f, _trends = trends));
     } catch (_) {}
+  }
+
+  /// 같은 (항목, 구분)이 두 해 이상 있으면 흐름으로 본다. 오래된 해부터.
+  Map<String, List<DocumentFact>> get _series {
+    final by = <String, List<DocumentFact>>{};
+    for (final f in _trends) {
+      by.putIfAbsent('${f.kind.name}|${f.label}|${f.unit}', () => []).add(f);
+    }
+    by.removeWhere((_, v) => v.length < 2);
+    return by;
   }
 
   static String label(DocumentFactKind k) => switch (k) {
@@ -398,6 +489,10 @@ class _DocumentFactsState extends State<_DocumentFacts> {
             ),
           ),
           const SizedBox(height: AppSpace.sm),
+          for (final entry in _series.entries) ...[
+            _FactTrend(facts: entry.value, kindLabel: label),
+            const SizedBox(height: AppSpace.lg),
+          ],
           AppDataTable(
             columns: const [
               AppColumn('항목', nowrap: true),

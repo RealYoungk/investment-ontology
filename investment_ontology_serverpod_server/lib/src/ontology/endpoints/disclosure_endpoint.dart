@@ -253,6 +253,27 @@ class DisclosureEndpoint extends Endpoint {
     ];
   }
 
+  /// 승인된 값 전부 (연도별 흐름을 보려고). 오래된 해부터.
+  ///
+  /// 같은 항목이 해마다 있으면 화면이 막대 차트로 그린다 — 표만 있으면 흐름이 안 보인다.
+  Future<List<DocumentFact>> factTrends(
+    Session session,
+    String corpCode,
+  ) async {
+    final company = await Company.db.findFirstRow(
+      session,
+      where: (t) => t.corpCode.equals(corpCode),
+    );
+    if (company == null) return const [];
+    return DocumentFact.db.find(
+      session,
+      where: (t) =>
+          t.companyId.equals(company.id!) &
+          t.status.equals(RelationStatus.verified),
+      orderByList: (t) => [t.bsnsYear.asc(), t.kind.asc(), t.id.asc()],
+    );
+  }
+
   /// 최근 올라온 정기보고서. 새 공시를 눈에 띄게 보여 주는 용도다.
   ///
   /// 사업·반기·분기보고서만 다룬다 (수집 대상이 그것뿐이다). 정정 공시도 그대로 보인다.
