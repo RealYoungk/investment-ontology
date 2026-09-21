@@ -334,7 +334,8 @@ class _ResultTable extends StatelessWidget {
     String? fixed(double? v, int digits) => v?.toStringAsFixed(digits);
     final columns = <(String, String? Function(ScreenRow))>[
       ('기업', (r) => r.company.name),
-      ('시가총액', (r) => formatKrw(r.marketCap)),
+      // 표에서는 짧게 (1,357조 · 6.1조). 긴 표기는 칸을 넘겨 두 줄이 된다.
+      ('시가총액', (r) => formatKrwShort(r.marketCap.toDouble())),
       ('PER(배)', (r) => fixed(r.per, 2)),
       ('PBR(배)', (r) => fixed(r.pbr, 2)),
       ('ROE(%)', (r) => fixed(r.roe, 1)),
@@ -344,7 +345,12 @@ class _ResultTable extends StatelessWidget {
       ('부채비율(%)', (r) => fixed(r.debtRatio, 1)),
       ('배당수익률(%)', (r) => fixed(r.dividendYield, 2)),
       ('FCF 수익률(%)', (r) => fixed(r.fcfYield, 2)),
-      ('거래대금', (r) => formatKrw(r.avgTradingValue)),
+      (
+        '거래대금',
+        (r) => r.avgTradingValue == null
+            ? null
+            : formatKrwShort(r.avgTradingValue!.toDouble()),
+      ),
       ('3개월(%)', (r) => fixed(r.return3m, 1)),
       ('12개월(%)', (r) => fixed(r.return12m, 1)),
       ('52주 위치(%)', (r) => fixed(r.bandPosition, 0)),
