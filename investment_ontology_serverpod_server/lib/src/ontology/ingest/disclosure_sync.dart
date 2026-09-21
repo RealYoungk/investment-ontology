@@ -591,11 +591,13 @@ class DisclosureSync {
         orderByList: (t) => [t.rceptNo.desc()],
       ),
     ];
+    // 파일이 없거나(014, null) 파일은 있어도 본문이 아니면(noData — 감사보고서만 든
+    // 첨부정정 zip) 다음 후보로 간다. 첨부정정이 두 번이면 첫 zip이 그렇다 (현대제철 FY2025).
     final tried = <String>{};
     for (final f in candidates) {
       final status = await _tryDocument(item, company, f);
       tried.add(f.rceptNo);
-      if (status != null) return status;
+      if (status != null && status != FilingFetchStatus.noData) return status;
     }
     // 장부에는 최종 보고서만 있다 (공시 목록을 last_reprt_at=Y로 훑는다). 첨부만 고친
     // 정정공시는 원본 파일이 없어(014) 여기까지 오므로, 그 회사의 같은 해 공시 목록을
@@ -610,7 +612,7 @@ class DisclosureSync {
     )) {
       if (tried.contains(f.rceptNo)) continue;
       final status = await _tryDocument(item, company, f);
-      if (status != null) return status;
+      if (status != null && status != FilingFetchStatus.noData) return status;
     }
     return FilingFetchStatus.noData;
   }
@@ -632,7 +634,14 @@ class DisclosureSync {
     final zip = await _callDart(() => dart.fetchDocument(f.rceptNo));
     if (zip == null) return null;
     final doc = BusinessText.fromZip(zip, f.rceptNo);
-    if (doc == null) return FilingFetchStatus.noData;
+    if (doc == null) {
+      session.log(
+        '사업의 내용 없음 ${company.name} ${f.rceptNo} ${f.reportName}: '
+        '${BusinessText.describeZip(zip)}',
+        level: LogLevel.info,
+      );
+      return FilingFetchStatus.noData;
+    }
     await _insertDocument(item, company, f, doc);
     return FilingFetchStatus.stored;
   }

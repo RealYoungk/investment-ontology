@@ -46,6 +46,17 @@ abstract final class BusinessText {
     return fromXml(main.xml);
   }
 
+  /// zip 안의 파일 이름과 크기, 본문 제목 유무 — 본문을 못 찾았을 때 로그용.
+  static String describeZip(List<int> zip) {
+    final archive = ZipDecoder().decodeBytes(zip);
+    return [
+      for (final f in archive.files)
+        if (f.isFile)
+          '${f.name}(${f.content.length}'
+              '${f.name.toLowerCase().endsWith('.xml') && _hasBusinessTitle.hasMatch(utf8.decode(f.content, allowMalformed: true)) ? ', 본문' : ''})',
+    ].join(' ');
+  }
+
   /// 본문임을 알려 주는 제목 — 첨부 문서에는 없다. 제목 안의 다른 태그는 건너뛴다.
   static final _hasBusinessTitle = RegExp(
     r'<TITLE[^>]*>(?:(?!</TITLE>).)*사업의\s*내용',

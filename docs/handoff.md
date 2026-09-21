@@ -64,6 +64,12 @@
 - 앱에서 AI를 부르는 버튼·안내(관계 추출, API 키)는 모두 뺐습니다. 검수 화면은 판단이 갈리는 것만 남는 자리입니다.
 - 지수(코스피·코스닥)는 공공데이터포털 **"금융위원회_지수시세정보"** API를 활용신청해야 받을 수 있습니다 (지금 키로 호출하면 `SERVICE_KEY_IS_NOT_REGISTERED_ERROR`). 신청되면 시세처럼 매일 받아 시장 화면에 그리겠습니다.
 
+## 3-5. 본문 수집 버그 둘 (2026-09-22 새벽)
+
+- 사업보고서 zip에는 본문 말고 첨부(외부감사 실시내용·감사보고서)가 같이 들고, 첨부도 절 코드 `D-0-2-0-0`을 씁니다. 코드만 믿고 이름 짧은 XML을 고르던 규칙이 현대제철·메리츠 FY2025에서 감사 첨부를 본문으로 저장했습니다 → "사업의 내용" 제목이 실제로 든 XML만 후보로 둡니다 (`BusinessText.fromZip`, 테스트 `business_text_test.dart`).
+- 첨부정정이 두 번이면 첫 첨부정정 zip은 감사보고서만 들어 "자료 없음"이 되는데, 거기서 멈추고 원본 사업보고서를 시도하지 않았습니다 → 후보를 끝까지 돕니다 (`DisclosureSync._fetchDocument`). 본문을 못 찾으면 zip 안 파일 목록을 서버 로그에 남깁니다 (`사업의 내용 없음 …`).
+- 다시 받는 법: `disclosure_report`에서 그 접수번호·`businessContent` 행을 지우고(문서는 따라 지워짐) `dart_filing_section`을 `pending`으로 되돌린 뒤 `ingest.startDisclosures(corpCode)`.
+
 ## 4. 알아 둘 것
 
 - 웹 개발 서버가 컴파일 오류 뒤에 옛 코드를 계속 내보내면 (`no routes for location` 등) `serverpod start`를 완전히 껐다 켜야 합니다. hot restart로는 풀리지 않습니다.
