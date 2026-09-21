@@ -112,15 +112,18 @@ void main() {
         {for (final m in g.members) m.company.name},
         {'지주', '자회사', '손자회사'},
       );
-      expect(g.edges, hasLength(2));
+      // 목록은 지분 연결을 빼고 보낸다. 연결은 상세에서.
+      expect(g.edges, isEmpty);
+      final detail = (await endpoints.group.of(sessionBuilder, '00000001'))!;
+      expect(detail.edges, hasLength(2));
       expect(
-        g.edges
+        detail.edges
             .singleWhere((e) => e.predicate == RelationPredicate.shareholderOf)
             .ratio,
         30,
       );
       expect(
-        g.edges.map((e) => e.predicate),
+        detail.edges.map((e) => e.predicate),
         containsAll([
           RelationPredicate.shareholderOf,
           RelationPredicate.investsIn,

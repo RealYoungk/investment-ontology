@@ -11,6 +11,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _is;
+
 import '../../ontology/models/market.dart' as _igwiku5p;
 import '../../ontology/models/security_link_basis.dart' as _ipb681z0;
 

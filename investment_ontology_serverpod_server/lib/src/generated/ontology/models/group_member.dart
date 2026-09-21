@@ -13,6 +13,7 @@
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart'
     as _i4yshtjp;
 import 'package:serverpod/serverpod.dart' as _is;
+
 import '../../ontology/models/company_ref.dart' as _id7z5ov5;
 
 /// 기업 묶음의 한 기업.
