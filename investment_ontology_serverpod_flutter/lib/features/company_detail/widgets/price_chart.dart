@@ -155,6 +155,11 @@ class _PriceChartState extends State<PriceChart> {
             ),
           ],
         ),
+        if (h.high52w case final hi?)
+          if (h.low52w case final lo?) ...[
+            const SizedBox(height: AppSpace.xs),
+            _Band(low: lo, high: hi, position: h.bandPosition),
+          ],
         const SizedBox(height: AppSpace.sm),
         AppLineChart(
           categories: [for (final p in points) formatDate(p.date)],
@@ -167,6 +172,63 @@ class _PriceChartState extends State<PriceChart> {
           height: 200,
           includeZeroBaseline: false,
         ),
+      ],
+    );
+  }
+}
+
+/// 52주 최저~최고 사이 지금 종가의 자리.
+class _Band extends StatelessWidget {
+  const _Band({required this.low, required this.high, this.position});
+
+  final int low;
+  final int high;
+  final double? position;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    final p = (position ?? 0).clamp(0, 100) / 100;
+    return Row(
+      children: [
+        Text(
+          '52주 ${formatCount(low)}',
+          style: t.numeric(11.5, color: c.textMuted),
+        ),
+        const SizedBox(width: AppSpace.sm),
+        Expanded(
+          child: LayoutBuilder(
+            builder: (context, box) => SizedBox(
+              height: 14,
+              child: Stack(
+                alignment: Alignment.centerLeft,
+                children: [
+                  Container(
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: c.chartGrid,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  Positioned(
+                    left: (box.maxWidth - 8) * p,
+                    child: Container(
+                      width: 8,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        color: c.chartSeries1,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: AppSpace.sm),
+        Text(formatCount(high), style: t.numeric(11.5, color: c.textMuted)),
       ],
     );
   }

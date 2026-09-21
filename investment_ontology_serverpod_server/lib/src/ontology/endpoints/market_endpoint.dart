@@ -191,6 +191,9 @@ class MarketEndpoint extends Endpoint {
         .toList();
   }
 
+  /// 상장주식수가 이보다 달라졌으면 종가를 이어 붙이지 않는다 (스크리너와 같은 규칙).
+  static const shareTolerance = 0.3;
+
   /// 화면에 그릴 점 수의 목표. 거래일이 이보다 많으면 일정 간격으로 골라 보낸다.
   static const _pricePoints = 260;
 
@@ -256,6 +259,33 @@ class MarketEndpoint extends Endpoint {
     final picked = [
       for (var i = closes.length - 1; i >= 0; i -= stride) closes[i],
     ].reversed;
+    // 52주 고저. 액면분할·병합이 있으면 종가를 이어 붙일 수 없어 비운다.
+    final yearAgo = latestDay.baseDate.subtract(const Duration(days: 365));
+    final year = [
+      for (final r in rows)
+        if (r.baseDate.isAfter(yearAgo) && r.closePrice != null) r,
+    ];
+    int? high, low;
+    double? band;
+    if (year.isNotEmpty) {
+      final shares = [for (final r in year) ?r.listedShares];
+      final okShares =
+          shares.length == year.length &&
+          shares.every(
+            (s) =>
+                s > BigInt.zero &&
+                (s.toDouble() / shares.last.toDouble() - 1).abs() <=
+                    shareTolerance,
+          );
+      if (okShares) {
+        final closes = [for (final r in year) r.closePrice!.toInt()];
+        high = closes.reduce((a, b) => a > b ? a : b);
+        low = closes.reduce((a, b) => a < b ? a : b);
+        final now = closes.last;
+        band = high > low ? 100 * (now - low) / (high - low) : null;
+      }
+    }
+
     return PriceHistory(
       securityName: security.name,
       shortCode: security.shortCode,
@@ -264,6 +294,9 @@ class MarketEndpoint extends Endpoint {
         for (final (date, close) in picked)
           PricePoint(date: date, close: close),
       ],
+      high52w: high,
+      low52w: low,
+      bandPosition: band,
     );
   }
 

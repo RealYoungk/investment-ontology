@@ -23,6 +23,9 @@ abstract class PriceHistory
     required this.shortCode,
     required this.stride,
     required this.points,
+    this.high52w,
+    this.low52w,
+    this.bandPosition,
   });
 
   factory PriceHistory({
@@ -30,6 +33,9 @@ abstract class PriceHistory
     required String shortCode,
     required int stride,
     required List<_i4m22bwn.PricePoint> points,
+    int? high52w,
+    int? low52w,
+    double? bandPosition,
   }) = _PriceHistoryImpl;
 
   factory PriceHistory.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -40,6 +46,9 @@ abstract class PriceHistory
       points: _i4yshtjp.Protocol().deserialize<List<_i4m22bwn.PricePoint>>(
         jsonSerialization['points'],
       ),
+      high52w: jsonSerialization['high52w'] as int?,
+      low52w: jsonSerialization['low52w'] as int?,
+      bandPosition: (jsonSerialization['bandPosition'] as num?)?.toDouble(),
     );
   }
 
@@ -53,6 +62,14 @@ abstract class PriceHistory
 
   List<_i4m22bwn.PricePoint> points;
 
+  /// 최근 1년 종가의 최고·최저와 지금 종가의 자리 (0 = 최저, 100 = 최고).
+  /// 그사이 상장주식수가 크게 바뀌었으면(액면분할·병합) 비운다 — 종가를 이어 붙일 수 없다.
+  int? high52w;
+
+  int? low52w;
+
+  double? bandPosition;
+
   /// Returns a shallow copy of this [PriceHistory]
   /// with some or all fields replaced by the given arguments.
   @_is.useResult
@@ -61,6 +78,9 @@ abstract class PriceHistory
     String? shortCode,
     int? stride,
     List<_i4m22bwn.PricePoint>? points,
+    int? high52w,
+    int? low52w,
+    double? bandPosition,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -70,6 +90,9 @@ abstract class PriceHistory
       'shortCode': shortCode,
       'stride': stride,
       'points': points.toJson(valueToJson: (v) => v.toJson()),
+      if (high52w != null) 'high52w': high52w,
+      if (low52w != null) 'low52w': low52w,
+      if (bandPosition != null) 'bandPosition': bandPosition,
     };
   }
 
@@ -81,6 +104,9 @@ abstract class PriceHistory
       'shortCode': shortCode,
       'stride': stride,
       'points': points.toJson(valueToJson: (v) => v.toJsonForProtocol()),
+      if (high52w != null) 'high52w': high52w,
+      if (low52w != null) 'low52w': low52w,
+      if (bandPosition != null) 'bandPosition': bandPosition,
     };
   }
 
@@ -90,17 +116,25 @@ abstract class PriceHistory
   }
 }
 
+class _Undefined {}
+
 class _PriceHistoryImpl extends PriceHistory {
   _PriceHistoryImpl({
     required String securityName,
     required String shortCode,
     required int stride,
     required List<_i4m22bwn.PricePoint> points,
+    int? high52w,
+    int? low52w,
+    double? bandPosition,
   }) : super._(
          securityName: securityName,
          shortCode: shortCode,
          stride: stride,
          points: points,
+         high52w: high52w,
+         low52w: low52w,
+         bandPosition: bandPosition,
        );
 
   /// Returns a shallow copy of this [PriceHistory]
@@ -112,12 +146,18 @@ class _PriceHistoryImpl extends PriceHistory {
     String? shortCode,
     int? stride,
     List<_i4m22bwn.PricePoint>? points,
+    Object? high52w = _Undefined,
+    Object? low52w = _Undefined,
+    Object? bandPosition = _Undefined,
   }) {
     return PriceHistory(
       securityName: securityName ?? this.securityName,
       shortCode: shortCode ?? this.shortCode,
       stride: stride ?? this.stride,
       points: points ?? this.points.map((e0) => e0.copyWith()).toList(),
+      high52w: high52w is int? ? high52w : this.high52w,
+      low52w: low52w is int? ? low52w : this.low52w,
+      bandPosition: bandPosition is double? ? bandPosition : this.bandPosition,
     );
   }
 }
