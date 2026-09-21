@@ -587,6 +587,30 @@ void main() {
       expect(doc.rceptNo, rSamsung);
     });
 
+    test('한 사업연도에 정기보고서가 둘이면 이 보고서의 행만 저장한다', () async {
+      // 결산월이 바뀐 리츠 등은 같은 사업연도·보고서 코드로 두 건을 내서, 응답에 두
+      // 접수번호의 행이 함께 온다. 예전에는 통째로 실패 처리했다.
+      const earlier = '20250522000350';
+      dart.set('hyslrSttus', samsung, 2025, [
+        holder(earlier, samsung, '옛 최대주주㈜', '최대주주 본인', '5.00'),
+        holder(rSamsung, samsung, '삼성생명보험㈜', '최대주주 본인', '8.51'),
+      ]);
+
+      final job = await runSync(corpCode: samsung);
+
+      expect(job.failed, 0);
+      final reports = await DisclosureReport.db.find(
+        session,
+        where: (t) => t.section.equals(DartSection.largestShareholders),
+      );
+      expect([for (final r in reports) r.rceptNo], [rSamsung]);
+      final gov = (await endpoints.governance.summary(
+        sessionBuilder,
+        samsung,
+      ))!;
+      expect([for (final s in gov.shareholders) s.holderName], ['삼성생명보험㈜']);
+    });
+
     test('정정공시가 나오면 이전 보고서를 새 보고서가 대체한다', () async {
       await runSync(corpCode: samsung);
       const corrected = '20260401000001';
