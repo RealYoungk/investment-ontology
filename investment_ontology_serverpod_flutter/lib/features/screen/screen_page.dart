@@ -266,8 +266,26 @@ class _ResultTable extends StatelessWidget {
   final ScreenPage page;
   final ScreenSort sort;
 
-  /// 좁은 화면에서도 남기는 열. 나머지는 가로로 밀어서 봐야 하므로 폰에서는 접는다.
-  static const _always = {'기업', '시가총액', 'PER(배)', 'ROE(%)'};
+  /// 열 하나가 차지하는 대략의 폭. 화면에 맞춰 몇 개를 보일지 정하는 데 쓴다.
+  static const _columnWidth = 92.0;
+  static const _nameWidth = 160.0;
+
+  /// 폭이 모자랄 때 남길 순서. 지금 정렬 기준인 열은 언제나 남긴다.
+  static const _priority = [
+    '시가총액',
+    'PER(배)',
+    'ROE(%)',
+    'PBR(배)',
+    '영업이익률(%)',
+    '매출 성장률(%)',
+    '영업이익 성장률(%)',
+    '부채비율(%)',
+    '배당수익률(%)',
+    'FCF 수익률(%)',
+    '매출액(TTM)',
+    '영업이익(TTM)',
+    '최근 보고서',
+  ];
 
   static String? _sortColumn(ScreenSort sort) => switch (sort) {
     ScreenSort.marketCap => null,
@@ -308,11 +326,16 @@ class _ResultTable extends StatelessWidget {
     ];
     return LayoutBuilder(
       builder: (context, box) {
-        final narrow = box.maxWidth < 900;
-        final keep = {..._always, ?_sortColumn(sort)};
+        // 들어갈 만큼만 보이고, 좁으면 중요한 열부터 남긴다 (가로로도 밀 수 있다).
+        final fits = ((box.maxWidth - _nameWidth) / _columnWidth).floor();
+        final keep = {
+          '기업',
+          ?_sortColumn(sort),
+          ..._priority.take(fits.clamp(2, _priority.length)),
+        };
         final shown = [
           for (final col in columns)
-            if (!narrow || keep.contains(col.$1)) col,
+            if (keep.contains(col.$1)) col,
         ];
         return AppDataTable(
           columns: [
