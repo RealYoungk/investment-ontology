@@ -330,6 +330,7 @@ class _AiRelationsState extends State<_AiRelations> {
                 for (final i in items)
                   if (i.relation.status != RelationStatus.draft) i,
               ],
+              corpCode: widget.corpCode,
               onOpenCompany: (code) => context.push(AppRoutes.company(code)),
             ),
             // 검수 대기는 근거를 봐야 하니 카드로.
@@ -354,9 +355,17 @@ class _AiRelationsState extends State<_AiRelations> {
 /// 확정된 관계를 종류별로 이름만 묶어 보여 준다. 해마다 같은 공급처가 되풀이되므로
 /// 카드로 늘어놓으면 읽히지 않는다. 이름을 누르면 그 기업으로 간다.
 class _RelationGroups extends StatelessWidget {
-  const _RelationGroups({required this.items, required this.onOpenCompany});
+  const _RelationGroups({
+    required this.items,
+    required this.corpCode,
+    required this.onOpenCompany,
+  });
 
   final List<ReviewItem> items;
+
+  /// 지금 보고 있는 기업. 상대가 누구인지는 이 기준으로 가른다
+  /// (다른 기업의 보고서에서 온 관계도 섞여 있다).
+  final String corpCode;
   final ValueChanged<String> onOpenCompany;
 
   @override
@@ -368,10 +377,12 @@ class _RelationGroups extends StatelessWidget {
     final groups = <RelationPredicate, Map<String, (ReviewItem, Set<int>)>>{};
     for (final i in items) {
       final r = i.relation;
-      // 이 기업이 목적어면 상대는 주어다 (공급처), 아니면 목적어다 (매출처·제품).
-      final mineIsObject =
-          r.objectCompanyId != null && i.objectCorpCode == i.companyCorpCode;
-      final other = mineIsObject ? r.subjectName : r.objectName;
+      // 내가 주어면 상대는 목적어(매출처·제품), 아니면 주어(공급처).
+      // 다른 기업의 보고서에서 온 관계도 섞여 있어 보고서 기업이 아니라
+      // 지금 보고 있는 기업으로 가른다.
+      final other = i.subjectCorpCode == corpCode
+          ? r.objectName
+          : r.subjectName;
       final byName = groups.putIfAbsent(r.predicate, () => {});
       final prev = byName[other];
       byName[other] = (
@@ -402,10 +413,10 @@ class _RelationGroups extends StatelessWidget {
                   child: HoverBuilder(
                     onTap: () {
                       final item = e.value.$1;
-                      final code = item.objectCorpCode == item.companyCorpCode
-                          ? item.subjectCorpCode
-                          : item.objectCorpCode;
-                      if (code != null && code != item.companyCorpCode) {
+                      final code = item.subjectCorpCode == corpCode
+                          ? item.objectCorpCode
+                          : item.subjectCorpCode;
+                      if (code != null && code != corpCode) {
                         onOpenCompany(code);
                       }
                     },
