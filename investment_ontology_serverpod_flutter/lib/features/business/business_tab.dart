@@ -400,10 +400,10 @@ class _DocumentFactsState extends State<_DocumentFacts> {
           const SizedBox(height: AppSpace.sm),
           AppDataTable(
             columns: const [
-              AppColumn('항목'),
+              AppColumn('항목', nowrap: true),
               AppColumn('구분'),
               AppColumn('값', numeric: true),
-              AppColumn('기준일'),
+              AppColumn('기준일', nowrap: true),
               AppColumn('근거'),
             ],
             rows: [
@@ -419,6 +419,7 @@ class _DocumentFactsState extends State<_DocumentFacts> {
                   AppDataTable.text(
                     context,
                     f.asOf == null ? null : formatDate(f.asOf),
+                    nowrap: true,
                   ),
                   Tooltip(
                     message: f.evidence,
