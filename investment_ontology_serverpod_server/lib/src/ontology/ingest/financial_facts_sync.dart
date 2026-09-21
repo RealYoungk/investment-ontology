@@ -110,6 +110,12 @@ class FinancialFactsSync {
     return !_budgetExhausted;
   }
 
+  /// 최근 공시 피드는 예산을 다 쓴 날에도 돌아야 한다 — 하루 몇 번뿐인 호출이고,
+  /// 이걸 거르면 그날 공시가 통째로 빈다. DART 한도(20,000)에는 여유가 있다.
+  static const feedReserve = 60;
+
+  bool get _hasFeedAllowance => dart.calls < _allowance + feedReserve;
+
   Future<void> run() async {
     final claimed = await IngestJobs.claim(session, jobId);
     if (claimed == null) {
@@ -140,7 +146,7 @@ class FinancialFactsSync {
         throw StateError('상장사 원장에 없는 기업: $corpCode');
       }
 
-      await _scanFeed(companies, now);
+      final feedRows = await _scanFeed(companies, now);
       discovered = await _scan(companies, now, job);
       if (await IngestJobs.isCancelled(session, jobId)) {
         job = job.copyWith(status: IngestStatus.cancelled);
@@ -214,6 +220,7 @@ class FinancialFactsSync {
       );
       final cancelled = job.status == IngestStatus.cancelled;
       var message = '새 공시 $discovered건, 저장한 재무제표 $stored벌, 남은 공시 $remaining건';
+      if (feedRows > 0) message += ', 공시 피드 $feedRows건';
       if (only != null) message = '${only.name}: $message';
       if (_budgetExhausted && remaining > 0 && !cancelled && only == null) {
         final at = ApiCallBudget.nextKstMidnight(
@@ -273,7 +280,7 @@ class FinancialFactsSync {
     };
     var stored = 0;
     for (var page = 1; ; page++) {
-      if (!_hasAllowance) break;
+      if (!_hasFeedAllowance) break;
       final result = await _callDart(
         () => dart.fetchFilings(
           from: from,

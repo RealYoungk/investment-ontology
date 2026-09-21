@@ -279,6 +279,21 @@ void main() {
       expect(await DartDisclosure.db.count(session), 1);
     });
 
+    test('예산을 다 쓴 날에도 공시 피드는 돈다', () async {
+      dart.filings.add((
+        corp: '00000001',
+        name: '단일판매ㆍ공급계약체결',
+        rcept: '20260915000010',
+        date: '20260915',
+      ));
+
+      final job = await runSync(dailyBudget: 0);
+
+      expect(await DartDisclosure.db.count(session), 1);
+      expect(job.message, contains('공시 피드 1건'));
+      expect(dart.financialCalls, isEmpty, reason: '재무제표는 한 벌도 받지 않는다');
+    });
+
     test('공시 목록은 달력 3개월을 넘지 않는 구간으로 나눠 조회한다', () async {
       final ranges = <(String, String)>[];
       final base = dart.client();
