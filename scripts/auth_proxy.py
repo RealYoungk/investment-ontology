@@ -10,6 +10,7 @@
 """
 
 import base64
+import hmac
 import os
 import sys
 import urllib.error
@@ -44,11 +45,9 @@ class Proxy(BaseHTTPRequestHandler):
         header = self.headers.get("Authorization", "")
         if not header.startswith("Basic "):
             return False
-        # 길이가 달라도 시간이 같도록 비교한다.
+        # 맞는 글자 수에 따라 응답 시간이 달라지지 않도록 상수 시간으로 비교한다.
         given = header[6:].strip()
-        return len(given) == len(self.expected) and all(
-            a == b for a, b in zip(given, self.expected)
-        )
+        return hmac.compare_digest(given.encode(), self.expected.encode())
 
     def _forward(self) -> None:
         if not self._authed():
