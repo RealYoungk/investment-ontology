@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 
 import '../../app/ingest_monitor.dart';
+import '../../app/router.dart';
 import '../../client.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
@@ -154,7 +155,12 @@ class _CompanyPageState extends State<CompanyPage> {
             openMetric: tab == CompanyTab.financials ? _openMetric : null,
             onOpenMetric: (key) => _openFinancials(metric: key),
           ),
-          const SizedBox(height: AppSpace.xl),
+          const SizedBox(height: AppSpace.md),
+          _ThemeChips(
+            key: ValueKey('themes-$_version'),
+            corpCode: widget.corpCode,
+          ),
+          const SizedBox(height: AppSpace.lg),
           AppTabBar<CompanyTab>(
             tabs: tabs,
             value: tab,
@@ -279,6 +285,88 @@ class _DisclosureFetchCardState extends State<_DisclosureFetchCard> {
           ],
         ],
       ),
+    );
+  }
+}
+
+/// 기업이 속한 테마와 "테마에 추가".
+class _ThemeChips extends StatefulWidget {
+  const _ThemeChips({super.key, required this.corpCode});
+
+  final String corpCode;
+
+  @override
+  State<_ThemeChips> createState() => _ThemeChipsState();
+}
+
+class _ThemeChipsState extends State<_ThemeChips> {
+  List<InvestmentTheme> _mine = const [];
+  List<ThemeSummary> _all = const [];
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final (mine, all) = await (
+        client.theme.themesOf(widget.corpCode),
+        client.theme.list(),
+      ).wait;
+      if (mounted) setState(() => (_mine = mine, _all = all));
+    } catch (_) {
+      // 테마는 부가 정보라 실패해도 상세는 보여 준다.
+    }
+  }
+
+  Future<void> _add(int themeId) async {
+    await client.theme.addCompany(themeId, widget.corpCode);
+    await _load();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    final mineIds = {for (final m in _mine) m.id};
+    final candidates = {
+      for (final s in _all)
+        if (!mineIds.contains(s.theme.id)) s.theme.id!: s.theme.name,
+    };
+    return Wrap(
+      spacing: AppSpace.sm,
+      runSpacing: AppSpace.sm,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        Text('테마', style: t.label(color: c.textSecondary)),
+        for (final theme in _mine)
+          HoverBuilder(
+            onTap: () => context.push(AppRoutes.theme(theme.id!)),
+            builder: (context, hovered) => AppTag(
+              label: theme.name,
+              color: hovered ? c.accent : null,
+              size: AppTagSize.medium,
+            ),
+          ),
+        if (candidates.isNotEmpty)
+          AppSelect<int>(
+            placeholder: '테마에 추가',
+            allLabel: '—',
+            value: null,
+            options: candidates,
+            onChanged: (id) {
+              if (id != null) _add(id);
+            },
+          )
+        else
+          AppButton(
+            label: _all.isEmpty ? '테마 만들기 →' : '새 테마 →',
+            variant: AppButtonVariant.link,
+            onPressed: () => context.go('/themes'),
+          ),
+      ],
     );
   }
 }

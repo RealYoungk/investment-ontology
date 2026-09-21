@@ -1,0 +1,16 @@
+### 기업의 테마 편입 (EXPOSED_TO). 사람의 판단이라 출처는 manual이고, 왜 넣었는지 메모를 남긴다.
+class: ThemeMember
+table: theme_member
+fields:
+  themeId: int, relation(parent=theme, onDelete=Cascade)
+  companyId: int, relation(parent=company, onDelete=Cascade)
+  ### 노출도 메모 (왜 이 테마인지)
+  note: String?
+  sourceId: int, relation(parent=source, onDelete=Restrict)
+  createdAt: DateTime
+indexes:
+  theme_member_idx:
+    fields: themeId, companyId
+    unique: true
+  theme_member_company_idx:
+    fields: companyId
