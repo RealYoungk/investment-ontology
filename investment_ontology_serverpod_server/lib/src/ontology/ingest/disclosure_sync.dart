@@ -4,6 +4,7 @@ import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
 import '../dart/dart_client.dart';
+import '../dart/dart_report_name.dart';
 import '../dart/dart_sections.dart';
 import '../dart/dart_values.dart';
 import '../disclosure/business_text.dart';
@@ -590,23 +591,96 @@ class DisclosureSync {
         orderByList: (t) => [t.rceptNo.desc()],
       ),
     ];
+    final tried = <String>{};
     for (final f in candidates) {
-      final existing = await DisclosureReport.db.findFirstRow(
-        session,
-        where: (t) =>
-            t.rceptNo.equals(f.rceptNo) &
-            t.section.equals(DartSection.businessContent),
-      );
-      if (existing != null) return FilingFetchStatus.stored;
-      if (!_hasAllowance) return FilingFetchStatus.pending;
-      final zip = await _callDart(() => dart.fetchDocument(f.rceptNo));
-      if (zip == null) continue;
-      final doc = BusinessText.fromZip(zip, f.rceptNo);
-      if (doc == null) return FilingFetchStatus.noData;
-      await _insertDocument(item, company, f, doc);
-      return FilingFetchStatus.stored;
+      final status = await _tryDocument(item, company, f);
+      tried.add(f.rceptNo);
+      if (status != null) return status;
+    }
+    // 장부에는 최종 보고서만 있다 (공시 목록을 last_reprt_at=Y로 훑는다). 첨부만 고친
+    // 정정공시는 원본 파일이 없어(014) 여기까지 오므로, 그 회사의 같은 해 공시 목록을
+    // 한 번 더 물어 원본 사업보고서를 찾는다 — 그러지 않으면 그 해 본문이 통째로 빈다.
+    // 원본 공시가 파일이 없으면 정말 없는 것이다. 정정공시일 때만 원본을 찾는다.
+    if (!filing.reportName.contains('정정')) return FilingFetchStatus.noData;
+    if (!_hasAllowance) return FilingFetchStatus.pending;
+    for (final f in await _earlierAnnualFilings(
+      filing,
+      company,
+      item.bsnsYear,
+    )) {
+      if (tried.contains(f.rceptNo)) continue;
+      final status = await _tryDocument(item, company, f);
+      if (status != null) return status;
     }
     return FilingFetchStatus.noData;
+  }
+
+  /// 공시 하나의 원본을 받아 본문을 저장한다. 파일이 없으면(014) null — 다음 후보로.
+  Future<FilingFetchStatus?> _tryDocument(
+    DartFilingSection item,
+    Company company,
+    DartFiling f,
+  ) async {
+    final existing = await DisclosureReport.db.findFirstRow(
+      session,
+      where: (t) =>
+          t.rceptNo.equals(f.rceptNo) &
+          t.section.equals(DartSection.businessContent),
+    );
+    if (existing != null) return FilingFetchStatus.stored;
+    if (!_hasAllowance) return FilingFetchStatus.pending;
+    final zip = await _callDart(() => dart.fetchDocument(f.rceptNo));
+    if (zip == null) return null;
+    final doc = BusinessText.fromZip(zip, f.rceptNo);
+    if (doc == null) return FilingFetchStatus.noData;
+    await _insertDocument(item, company, f, doc);
+    return FilingFetchStatus.stored;
+  }
+
+  /// 정정 이전의 같은 해 사업보고서 (DART 공시 목록, 원본 포함). 최신 것부터.
+  Future<List<DartFiling>> _earlierAnnualFilings(
+    DartFiling filing,
+    Company company,
+    int bsnsYear,
+  ) async {
+    final received = filing.receivedDate;
+    if (received == null) return const [];
+    final page = await _callDart(
+      () => dart.fetchFilings(
+        from: received.subtract(const Duration(days: 120)),
+        to: received,
+        corpCode: company.corpCode,
+        lastReportOnly: false,
+      ),
+    );
+    final out = <DartFiling>[];
+    for (final it in page.items) {
+      if (it.rceptNo.compareTo(filing.rceptNo) >= 0) continue;
+      final resolved = DartReportName.parse(
+        it.reportName,
+      )?.resolve(company.fiscalMonth);
+      if (resolved == null ||
+          resolved.reportCode != _annualCode ||
+          resolved.bsnsYear != bsnsYear) {
+        continue;
+      }
+      out.add(
+        DartFiling(
+          rceptNo: it.rceptNo,
+          corpCode: it.corpCode,
+          companyId: company.id,
+          reportName: it.reportName,
+          receivedDate: it.rceptDate,
+          bsnsYear: bsnsYear,
+          reportCode: FinancialReportCode.annual,
+          consolidatedStatus: FilingFetchStatus.noData,
+          separateStatus: FilingFetchStatus.noData,
+          discoveredAt: DateTime.now().toUtc(),
+        ),
+      );
+    }
+    out.sort((a, b) => b.rceptNo.compareTo(a.rceptNo));
+    return out;
   }
 
   Future<void> _insertDocument(
