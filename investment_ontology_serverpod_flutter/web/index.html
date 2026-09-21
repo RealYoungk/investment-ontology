@@ -1,46 +1,78 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
-
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="국내 상장사의 재무·지배구조·관계를 1차 공시에서 모아 탐색하는 투자 온톨로지">
+  <meta name="theme-color" content="#F2EDE2">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="investment_ontology_serverpod_flutter">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="투자 온톨로지">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
-
-  <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>investment_ontology_serverpod_flutter</title>
+  <title>투자 온톨로지</title>
   <link rel="manifest" href="manifest.json">
+
+  <style>
+    /* 첫 로딩 화면. Flutter Web은 엔진(수 MB)을 받아 첫 그림을 그리기까지 빈 화면이라,
+       앱이 첫 프레임을 그리면(flutter-first-frame) 걷어 낸다. 색은 lib/design/brands의 값. */
+    html, body { margin: 0; height: 100%; background: #F2EDE2; }
+    #splash {
+      position: fixed; inset: 0; z-index: 9999;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+      background: #F2EDE2; color: #17140F;
+      font-family: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+      transition: opacity .35s ease;
+    }
+    #splash.gone { opacity: 0; pointer-events: none; }
+    #splash .mark {
+      font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+      font-size: 12px; font-weight: 600; letter-spacing: .12em; color: #C8401A;
+    }
+    #splash h1 {
+      margin: 0; font-family: "AppleMyungjo", "Nanum Myeongjo", "Batang", serif;
+      font-size: 34px; font-weight: 800; letter-spacing: -.01em; line-height: 1.1;
+    }
+    #splash .bar { width: 180px; height: 3px; background: #CFC5B3; overflow: hidden; border-radius: 2px; }
+    #splash .bar::after {
+      content: ""; display: block; height: 100%; width: 40%; background: #C8401A;
+      animation: slide 1.2s ease-in-out infinite;
+    }
+    #splash .hint { font-size: 13px; color: #5C554A; }
+    #splash .slow { font-size: 12px; color: #9A9183; opacity: 0; transition: opacity .4s; }
+    #splash.long .slow { opacity: 1; }
+    @keyframes slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(350%); } }
+    @media (prefers-reduced-motion: reduce) { #splash .bar::after { animation: none; width: 100%; } }
+  </style>
 </head>
 <body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
-
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
+  <div id="splash" role="status" aria-live="polite">
+    <span class="mark">INVESTMENT ONTOLOGY</span>
+    <h1>투자 온톨로지</h1>
+    <div class="bar" aria-hidden="true"></div>
+    <span class="hint">불러오는 중…</span>
+    <span class="slow">처음 열 때는 앱을 받아야 해서 몇 초 걸립니다. 다음부터는 바로 뜹니다.</span>
+  </div>
+  <script>
+    (function () {
+      var splash = document.getElementById('splash');
+      var done = false;
+      function hide() {
+        if (done) return; done = true;
+        splash.classList.add('gone');
+        setTimeout(function () { splash.remove(); }, 400);
+      }
+      window.addEventListener('flutter-first-frame', hide);
+      setTimeout(function () { splash.classList.add('long'); }, 2500);
+      // 이벤트를 놓쳐도 화면을 가리고 있지 않게 한다.
+      setTimeout(hide, 30000);
+    })();
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
