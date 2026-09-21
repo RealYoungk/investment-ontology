@@ -36,6 +36,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _itgpgg86;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_sort.dart'
     as _i35nawlu;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/dart_disclosure.dart'
+    as _izt0hsdc;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/dart_section.dart'
     as _iaqblgop;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/disclosure_section_info.dart'
@@ -592,6 +594,19 @@ class EndpointDisclosure extends _isc.EndpointRef {
         'factTrends',
         {'corpCode': corpCode},
       );
+
+  /// 이 기업의 최근 공시 (종류 가리지 않음). 계약·증자·주요사항 등.
+  _ida.Future<List<_izt0hsdc.DartDisclosure>> recentOf(
+    String corpCode, {
+    int? limit,
+  }) => caller.callServerEndpoint<List<_izt0hsdc.DartDisclosure>>(
+    'disclosure',
+    'recentOf',
+    {
+      'corpCode': corpCode,
+      'limit': limit,
+    },
+  );
 
   /// 최근 올라온 정기보고서. 새 공시를 눈에 띄게 보여 주는 용도다.
   ///

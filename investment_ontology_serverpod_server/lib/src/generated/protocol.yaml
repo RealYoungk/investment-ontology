@@ -32,6 +32,7 @@ disclosure:
   - shareholderReturn:
   - facts:
   - factTrends:
+  - recentOf:
   - recentFilings:
 financial:
   - summary:

@@ -15,6 +15,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _i9fapywb;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_group.dart'
     as _i4udlom4;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/dart_disclosure.dart'
+    as _iogwdcx0;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/disclosure_section_info.dart'
     as _itpltonf;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/document_fact.dart'
@@ -41,6 +43,7 @@ import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _iacs;
 import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
     as _iais;
+
 import 'future_calls_generated_models/ai_extraction_future_call_run_model.dart'
     as _iskveedf;
 import 'future_calls_generated_models/company_master_future_call_run_model.dart'
@@ -77,6 +80,7 @@ import 'ontology/models/company_page.dart' as _iaj9eyri;
 import 'ontology/models/company_ref.dart' as _i4gnucl8;
 import 'ontology/models/company_sort.dart' as _ia2izjbq;
 import 'ontology/models/dart_corp_status.dart' as _ir49pw6i;
+import 'ontology/models/dart_disclosure.dart' as _iw06ztex;
 import 'ontology/models/dart_filing.dart' as _itki3qdq;
 import 'ontology/models/dart_filing_scan.dart' as _ixr5w3gq;
 import 'ontology/models/dart_filing_section.dart' as _isprzv4c;
@@ -178,6 +182,7 @@ export 'ontology/models/company_page.dart';
 export 'ontology/models/company_ref.dart';
 export 'ontology/models/company_sort.dart';
 export 'ontology/models/dart_corp_status.dart';
+export 'ontology/models/dart_disclosure.dart';
 export 'ontology/models/dart_filing.dart';
 export 'ontology/models/dart_filing_scan.dart';
 export 'ontology/models/dart_filing_section.dart';
@@ -883,6 +888,114 @@ class Protocol extends _is.DatabaseSerializationManager {
           ],
           type: 'btree',
           isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'dart_disclosure',
+      dartName: 'DartDisclosure',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'rceptNo',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'corpCode',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'companyId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'corpName',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'reportName',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'receivedDate',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: 'filerName',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'discoveredAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'dart_disclosure_fk_0',
+          columns: ['companyId'],
+          referenceTable: 'company',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.setNull,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'dart_disclosure_rcept_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'rceptNo',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'dart_disclosure_company_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'companyId',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'receivedDate',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
           isPrimary: false,
         ),
       ],
@@ -4241,6 +4354,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _ir49pw6i.DartCorpStatus) {
       return _ir49pw6i.DartCorpStatus.fromJson(data) as T;
     }
+    if (t == _iw06ztex.DartDisclosure) {
+      return _iw06ztex.DartDisclosure.fromJson(data) as T;
+    }
     if (t == _itki3qdq.DartFiling) {
       return _itki3qdq.DartFiling.fromJson(data) as T;
     }
@@ -4598,6 +4714,10 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (t == _is.getType<_ir49pw6i.DartCorpStatus?>()) {
       return (data != null ? _ir49pw6i.DartCorpStatus.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_iw06ztex.DartDisclosure?>()) {
+      return (data != null ? _iw06ztex.DartDisclosure.fromJson(data) : null)
           as T;
     }
     if (t == _is.getType<_itki3qdq.DartFiling?>()) {
@@ -5134,6 +5254,12 @@ class Protocol extends _is.DatabaseSerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_iogwdcx0.DartDisclosure>) {
+      return (data as List)
+              .map((e) => deserialize<_iogwdcx0.DartDisclosure>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_iwgt3edw.FilingFeedItem>) {
       return (data as List)
               .map((e) => deserialize<_iwgt3edw.FilingFeedItem>(e))
@@ -5243,6 +5369,7 @@ class Protocol extends _is.DatabaseSerializationManager {
       _i4gnucl8.CompanyRef => 'CompanyRef',
       _ia2izjbq.CompanySort => 'CompanySort',
       _ir49pw6i.DartCorpStatus => 'DartCorpStatus',
+      _iw06ztex.DartDisclosure => 'DartDisclosure',
       _itki3qdq.DartFiling => 'DartFiling',
       _ixr5w3gq.DartFilingScan => 'DartFilingScan',
       _isprzv4c.DartFilingSection => 'DartFilingSection',
@@ -5397,6 +5524,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'CompanySort';
       case _ir49pw6i.DartCorpStatus():
         return 'DartCorpStatus';
+      case _iw06ztex.DartDisclosure():
+        return 'DartDisclosure';
       case _itki3qdq.DartFiling():
         return 'DartFiling';
       case _ixr5w3gq.DartFilingScan():
@@ -5679,6 +5808,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'DartCorpStatus') {
       return deserialize<_ir49pw6i.DartCorpStatus>(data['data']);
+    }
+    if (dataClassName == 'DartDisclosure') {
+      return deserialize<_iw06ztex.DartDisclosure>(data['data']);
     }
     if (dataClassName == 'DartFiling') {
       return deserialize<_itki3qdq.DartFiling>(data['data']);
@@ -5976,6 +6108,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return _isfozywu.CompanyChange.t;
       case _ir49pw6i.DartCorpStatus:
         return _ir49pw6i.DartCorpStatus.t;
+      case _iw06ztex.DartDisclosure:
+        return _iw06ztex.DartDisclosure.t;
       case _itki3qdq.DartFiling:
         return _itki3qdq.DartFiling.t;
       case _ixr5w3gq.DartFilingScan:

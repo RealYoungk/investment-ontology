@@ -33,6 +33,7 @@ import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _iacs;
 import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
     as _iais;
+
 import '../auth/email_idp_endpoint.dart' as _iuc1hd5t;
 import '../auth/jwt_refresh_endpoint.dart' as _inwq3ztq;
 import '../greetings/greeting_endpoint.dart' as _il624ik7;
@@ -383,12 +384,10 @@ class Endpoints extends _is.EndpointDispatch {
         'status': _is.MethodConnector(
           name: 'status',
           params: {},
-          call:
-              (
-                _is.Session session,
-                Map<String, dynamic> params,
-              ) async =>
-                  (endpoints['ai'] as _iadofkda.AiEndpoint).status(session),
+          call: (
+            _is.Session session,
+            Map<String, dynamic> params,
+          ) async => (endpoints['ai'] as _iadofkda.AiEndpoint).status(session),
         ),
         'extractCompany': _is.MethodConnector(
           name: 'extractCompany',
@@ -811,6 +810,32 @@ class Endpoints extends _is.EndpointDispatch {
                       .factTrends(
                         session,
                         params['corpCode'],
+                      ),
+        ),
+        'recentOf': _is.MethodConnector(
+          name: 'recentOf',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'limit': _is.ParameterDescription(
+              name: 'limit',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['disclosure'] as _i23b9rs7.DisclosureEndpoint)
+                      .recentOf(
+                        session,
+                        params['corpCode'],
+                        limit: params['limit'],
                       ),
         ),
         'recentFilings': _is.MethodConnector(

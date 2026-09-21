@@ -8,6 +8,7 @@ import '../../financials/financial_metrics.dart';
 import '../../common/formatters.dart';
 import 'business_highlights.dart';
 import 'ontology_digest.dart';
+import 'recent_disclosures.dart';
 import 'peer_digest.dart';
 
 /// 기업 상세의 개요 탭: 재무 요약(자세히는 재무 탭) · 기업개황 · 산업 분류 · 변경 이력 · 출처.
@@ -54,6 +55,8 @@ class CompanyOverviewTab extends StatelessWidget {
         _IndustryPath(path: detail.industryPath),
         const SizedBox(height: AppSpace.xxl),
       ],
+      RecentDisclosures(corpCode: detail.company.corpCode),
+      const SizedBox(height: AppSpace.xxl),
       _ChangeHistory(changes: detail.changes),
       const SizedBox(height: AppSpace.xxl),
       _SourceNote(

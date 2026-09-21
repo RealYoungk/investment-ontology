@@ -13,6 +13,7 @@
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart'
     as _i4yshtjp;
 import 'package:serverpod/serverpod.dart' as _is;
+
 import '../../ontology/models/screen_row.dart' as _ibpsq3i8;
 
 /// 스크리닝 결과.

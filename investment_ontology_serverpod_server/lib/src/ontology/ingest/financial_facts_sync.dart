@@ -140,6 +140,7 @@ class FinancialFactsSync {
         throw StateError('상장사 원장에 없는 기업: $corpCode');
       }
 
+      await _scanFeed(companies, now);
       discovered = await _scan(companies, now, job);
       if (await IngestJobs.isCancelled(session, jobId)) {
         job = job.copyWith(status: IngestStatus.cancelled);
@@ -252,6 +253,59 @@ class FinancialFactsSync {
   static Expression _needsFetch(ColumnEnum<FilingFetchStatus> status) =>
       status.equals(FilingFetchStatus.pending) |
       status.equals(FilingFetchStatus.failed);
+
+  /// 최근 며칠의 모든 공시를 목록만 받아 둔다 (계약·증자·주요사항 등).
+  ///
+  /// 기업 화면의 "최근 공시"에 쓴다. 정기보고서만 받는 [_scan]과 달리 종류를
+  /// 가리지 않으며, 하루 열 번쯤이면 끝난다.
+  static const feedDays = 3;
+
+  Future<int> _scanFeed(Map<String, Company> companies, DateTime now) async {
+    if (corpCode != null) return 0;
+    final today = DateTime.utc(now.year, now.month, now.day);
+    final from = today.subtract(const Duration(days: feedDays));
+    final seen = {
+      for (final d in await DartDisclosure.db.find(
+        session,
+        where: (t) => t.receivedDate >= from,
+      ))
+        d.rceptNo,
+    };
+    var stored = 0;
+    for (var page = 1; ; page++) {
+      if (!_hasAllowance) break;
+      final result = await _callDart(
+        () => dart.fetchFilings(
+          from: from,
+          to: today,
+          page: page,
+          typeCode: null,
+          lastReportOnly: false,
+        ),
+      );
+      final rows = [
+        for (final item in result.items)
+          // 상장사 것만 남긴다 — 화면은 기업 페이지에서만 이 목록을 본다.
+          if (companies.containsKey(item.corpCode) && seen.add(item.rceptNo))
+            DartDisclosure(
+              rceptNo: item.rceptNo,
+              corpCode: item.corpCode,
+              companyId: companies[item.corpCode]!.id,
+              corpName: item.corpName,
+              reportName: item.reportName,
+              receivedDate: item.rceptDate ?? today,
+              filerName: item.filerName,
+              discoveredAt: now,
+            ),
+      ];
+      if (rows.isNotEmpty) {
+        await DartDisclosure.db.insert(session, rows);
+        stored += rows.length;
+      }
+      if (page >= result.totalPages) break;
+    }
+    return stored;
+  }
 
   /// 공시 목록을 훑어 새 정기보고서를 장부에 넣는다. 넣은 건수를 돌려준다.
   Future<int> _scan(

@@ -274,6 +274,22 @@ class DisclosureEndpoint extends Endpoint {
     );
   }
 
+  /// 이 기업의 최근 공시 (종류 가리지 않음). 계약·증자·주요사항 등.
+  Future<List<DartDisclosure>> recentOf(
+    Session session,
+    String corpCode, {
+    int? limit,
+  }) async {
+    final company = await _company(session, corpCode);
+    if (company == null) return const [];
+    return DartDisclosure.db.find(
+      session,
+      where: (t) => t.companyId.equals(company.id!),
+      orderByList: (t) => [t.receivedDate.desc(), t.rceptNo.desc()],
+      limit: (limit ?? 12).clamp(1, 50),
+    );
+  }
+
   /// 최근 올라온 정기보고서. 새 공시를 눈에 띄게 보여 주는 용도다.
   ///
   /// 사업·반기·분기보고서만 다룬다 (수집 대상이 그것뿐이다). 정정 공시도 그대로 보인다.

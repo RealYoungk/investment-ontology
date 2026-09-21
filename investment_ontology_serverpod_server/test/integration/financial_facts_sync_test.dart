@@ -240,6 +240,45 @@ void main() {
       expect(facts.every((f) => f.sourceId == report.sourceId), isTrue);
     });
 
+    test('최근 며칠 공시는 종류를 가리지 않고 상장사 것만 장부에 남긴다', () async {
+      dart.filings.addAll([
+        (
+          corp: '00000001',
+          name: '단일판매ㆍ공급계약체결',
+          rcept: '20260915000010',
+          date: '20260915',
+        ),
+        (
+          corp: '00000009',
+          name: '주식등의대량보유상황보고서',
+          rcept: '20260915000011',
+          date: '20260915',
+        ),
+      ]);
+
+      await runSync();
+
+      final feed = await DartDisclosure.db.find(session);
+      expect(
+        feed.map((d) => d.rceptNo),
+        ['20260915000010'],
+        reason: '기업 목록에 없는 곳의 공시는 남기지 않는다',
+      );
+      expect(feed.single.reportName, '단일판매ㆍ공급계약체결');
+      expect(
+        await DartFiling.db.count(
+          session,
+          where: (f) => f.rceptNo.equals('20260915000010'),
+        ),
+        0,
+        reason: '정기보고서가 아니므로 재무 수집 장부에는 들어가지 않는다',
+      );
+
+      // 다시 돌려도 같은 공시를 두 번 넣지 않는다.
+      await runSync();
+      expect(await DartDisclosure.db.count(session), 1);
+    });
+
     test('공시 목록은 달력 3개월을 넘지 않는 구간으로 나눠 조회한다', () async {
       final ranges = <(String, String)>[];
       final base = dart.client();
@@ -275,7 +314,12 @@ void main() {
         clock: () => now,
       ).run();
 
-      expect(ranges.first.$1, '20220101', reason: '분기·반기 5개 사업연도 = FY2022부터');
+      expect(
+        ranges.first,
+        ('20260914', '20260917'),
+        reason: '먼저 최근 며칠 공시 피드를 훑는다',
+      );
+      expect(ranges[1].$1, '20220101', reason: '분기·반기 5개 사업연도 = FY2022부터');
       expect(ranges.last.$2, '20260917');
       for (final (from, to) in ranges) {
         final f = DateTime.parse(from);
@@ -321,7 +365,7 @@ void main() {
       dart.listCalls = 0;
       await runSync();
       expect(dart.listCalls, lessThan(fullScanCalls));
-      expect(dart.listCalls, 1, reason: '커서 7일 전부터 오늘까지 한 구간');
+      expect(dart.listCalls, 2, reason: '공시 피드 1회 + 커서 7일 전부터 한 구간');
     });
 
     test('수집 범위가 넓어져 커서가 과거를 덮지 않으면 처음부터 다시 훑는다', () async {
@@ -359,7 +403,7 @@ void main() {
       );
       dart.listCalls = 0;
       await runSync();
-      expect(dart.listCalls, 1, reason: '다시 덮였으니 커서 7일 전부터만');
+      expect(dart.listCalls, 2, reason: '공시 피드 1회 + 다시 덮였으니 커서 7일 전부터만');
     });
 
     test('최근 5개년을 다 받으면 10년으로 넓혀 다시 훑는다', () async {

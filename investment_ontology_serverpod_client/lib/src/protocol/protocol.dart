@@ -15,6 +15,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _id7v70oo;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_group.dart'
     as _i7uvzrch;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/dart_disclosure.dart'
+    as _izt0hsdc;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/disclosure_section_info.dart'
     as _i39r1xmm;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/document_fact.dart'
@@ -62,6 +64,7 @@ import 'ontology/models/company_page.dart' as _iaj9eyri;
 import 'ontology/models/company_ref.dart' as _i4gnucl8;
 import 'ontology/models/company_sort.dart' as _ia2izjbq;
 import 'ontology/models/dart_corp_status.dart' as _ir49pw6i;
+import 'ontology/models/dart_disclosure.dart' as _iw06ztex;
 import 'ontology/models/dart_filing.dart' as _itki3qdq;
 import 'ontology/models/dart_filing_scan.dart' as _ixr5w3gq;
 import 'ontology/models/dart_filing_section.dart' as _isprzv4c;
@@ -163,6 +166,7 @@ export 'ontology/models/company_page.dart';
 export 'ontology/models/company_ref.dart';
 export 'ontology/models/company_sort.dart';
 export 'ontology/models/dart_corp_status.dart';
+export 'ontology/models/dart_disclosure.dart';
 export 'ontology/models/dart_filing.dart';
 export 'ontology/models/dart_filing_scan.dart';
 export 'ontology/models/dart_filing_section.dart';
@@ -343,6 +347,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _ir49pw6i.DartCorpStatus) {
       return _ir49pw6i.DartCorpStatus.fromJson(data) as T;
+    }
+    if (t == _iw06ztex.DartDisclosure) {
+      return _iw06ztex.DartDisclosure.fromJson(data) as T;
     }
     if (t == _itki3qdq.DartFiling) {
       return _itki3qdq.DartFiling.fromJson(data) as T;
@@ -658,6 +665,10 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _isc.getType<_ir49pw6i.DartCorpStatus?>()) {
       return (data != null ? _ir49pw6i.DartCorpStatus.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_iw06ztex.DartDisclosure?>()) {
+      return (data != null ? _iw06ztex.DartDisclosure.fromJson(data) : null)
           as T;
     }
     if (t == _isc.getType<_itki3qdq.DartFiling?>()) {
@@ -1194,6 +1205,12 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_izt0hsdc.DartDisclosure>) {
+      return (data as List)
+              .map((e) => deserialize<_izt0hsdc.DartDisclosure>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_iuq4bocx.FilingFeedItem>) {
       return (data as List)
               .map((e) => deserialize<_iuq4bocx.FilingFeedItem>(e))
@@ -1287,6 +1304,7 @@ class Protocol extends _isc.SerializationManager {
       _i4gnucl8.CompanyRef => 'CompanyRef',
       _ia2izjbq.CompanySort => 'CompanySort',
       _ir49pw6i.DartCorpStatus => 'DartCorpStatus',
+      _iw06ztex.DartDisclosure => 'DartDisclosure',
       _itki3qdq.DartFiling => 'DartFiling',
       _ixr5w3gq.DartFilingScan => 'DartFilingScan',
       _isprzv4c.DartFilingSection => 'DartFilingSection',
@@ -1427,6 +1445,8 @@ class Protocol extends _isc.SerializationManager {
         return 'CompanySort';
       case _ir49pw6i.DartCorpStatus():
         return 'DartCorpStatus';
+      case _iw06ztex.DartDisclosure():
+        return 'DartDisclosure';
       case _itki3qdq.DartFiling():
         return 'DartFiling';
       case _ixr5w3gq.DartFilingScan():
@@ -1672,6 +1692,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'DartCorpStatus') {
       return deserialize<_ir49pw6i.DartCorpStatus>(data['data']);
+    }
+    if (dataClassName == 'DartDisclosure') {
+      return deserialize<_iw06ztex.DartDisclosure>(data['data']);
     }
     if (dataClassName == 'DartFiling') {
       return deserialize<_itki3qdq.DartFiling>(data['data']);
