@@ -373,17 +373,20 @@ class _RelationGroups extends StatelessWidget {
     final c = context.colors;
     final t = context.typo;
     if (items.isEmpty) return const SizedBox.shrink();
-    // (종류, 상대) 하나로 묶고 연도 범위를 적는다.
-    final groups = <RelationPredicate, Map<String, (ReviewItem, Set<int>)>>{};
+    // (묶음 이름, 상대) 하나로 묶고 연도 범위를 적는다. 공급은 방향을 나눈다.
+    final groups = <String, Map<String, (ReviewItem, Set<int>)>>{};
     for (final i in items) {
       final r = i.relation;
       // 내가 주어면 상대는 목적어(매출처·제품), 아니면 주어(공급처).
       // 다른 기업의 보고서에서 온 관계도 섞여 있어 보고서 기업이 아니라
       // 지금 보고 있는 기업으로 가른다.
-      final other = i.subjectCorpCode == corpCode
-          ? r.objectName
-          : r.subjectName;
-      final byName = groups.putIfAbsent(r.predicate, () => {});
+      final iAmSubject = i.subjectCorpCode == corpCode;
+      final other = iAmSubject ? r.objectName : r.subjectName;
+      final title = switch (r.predicate) {
+        RelationPredicate.suppliesTo => iAmSubject ? '매출처' : '공급처',
+        _ => predicateLabel(r.predicate),
+      };
+      final byName = groups.putIfAbsent(title, () => {});
       final prev = byName[other];
       byName[other] = (
         prev == null || r.bsnsYear > prev.$1.relation.bsnsYear ? i : prev.$1,
@@ -397,7 +400,7 @@ class _RelationGroups extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: AppSpace.sm, bottom: 4),
             child: Text(
-              '${predicateLabel(entry.key)} ${entry.value.length}',
+              '${entry.key} ${entry.value.length}',
               style: t.body(12.5, color: c.textSecondary),
             ),
           ),
