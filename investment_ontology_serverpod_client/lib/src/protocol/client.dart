@@ -718,7 +718,10 @@ class EndpointGovernance extends _isc.EndpointRef {
 
 /// 관계망: 기업을 가운데 두고 관계 색인(OntologyRelation)을 따라 이웃을 넓힌다.
 ///
-/// 넓히는 것은 기업·인물 노드만이고, 이름뿐인 대상(비상장·해외 법인, 제품)은 끝 노드로만 둔다.
+/// 기업·인물 노드를 넓히고, 이름뿐인 대상(비상장·해외 법인, 제품)도 **본문에서 뽑은
+/// 관계(공급·매출·경쟁·제품)에 한해** 건너간다 — 같은 공급사를 쓰는 다른 상장사가
+/// 보인다. 이름은 표기를 정규화해 묶는다 ("SONY"·"Sony"는 한 노드). 주주·출자의
+/// 이름뿐인 대상은 끝 노드로만 둔다 (동명이인·수백 곳 폭발).
 /// 거절한 관계와 검수 전 AI 관계(draft)는 빼고, 인물 추정 연결(draft)은 점선으로 넣는다.
 /// {@category Endpoint}
 class EndpointGraph extends _isc.EndpointRef {
