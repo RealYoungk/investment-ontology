@@ -11,3 +11,6 @@ values:
   - dividendYield
   - revenueGrowth
   - operatingIncomeGrowth
+  - return3m
+  - return12m
+  - bandPosition

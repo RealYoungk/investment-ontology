@@ -41,6 +41,12 @@ abstract class ScreenRow
     this.dividendYield,
     this.revenueGrowth,
     this.operatingIncomeGrowth,
+    this.closePrice,
+    this.return3m,
+    this.return12m,
+    this.high52w,
+    this.low52w,
+    this.bandPosition,
   });
 
   factory ScreenRow({
@@ -64,6 +70,12 @@ abstract class ScreenRow
     double? dividendYield,
     double? revenueGrowth,
     double? operatingIncomeGrowth,
+    int? closePrice,
+    double? return3m,
+    double? return12m,
+    int? high52w,
+    int? low52w,
+    double? bandPosition,
   }) = _ScreenRowImpl;
 
   factory ScreenRow.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -116,6 +128,12 @@ abstract class ScreenRow
       revenueGrowth: (jsonSerialization['revenueGrowth'] as num?)?.toDouble(),
       operatingIncomeGrowth:
           (jsonSerialization['operatingIncomeGrowth'] as num?)?.toDouble(),
+      closePrice: jsonSerialization['closePrice'] as int?,
+      return3m: (jsonSerialization['return3m'] as num?)?.toDouble(),
+      return12m: (jsonSerialization['return12m'] as num?)?.toDouble(),
+      high52w: jsonSerialization['high52w'] as int?,
+      low52w: jsonSerialization['low52w'] as int?,
+      bandPosition: (jsonSerialization['bandPosition'] as num?)?.toDouble(),
     );
   }
 
@@ -169,6 +187,23 @@ abstract class ScreenRow
   /// 영업이익 증감률 (올해 누적 vs 전년 같은 기간, %)
   double? operatingIncomeGrowth;
 
+  /// 대표 종목 종가 (최근 거래일, 원). 기업에 종목이 여럿이면 시가총액이 가장 큰 것
+  int? closePrice;
+
+  /// 3개월 주가 등락률 (%)
+  double? return3m;
+
+  /// 12개월 주가 등락률 (%)
+  double? return12m;
+
+  /// 최근 1년 종가의 최고·최저 (원)
+  int? high52w;
+
+  int? low52w;
+
+  /// 52주 밴드에서 지금 종가의 자리 (0 = 최저, 100 = 최고)
+  double? bandPosition;
+
   /// Returns a shallow copy of this [ScreenRow]
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
@@ -193,6 +228,12 @@ abstract class ScreenRow
     double? dividendYield,
     double? revenueGrowth,
     double? operatingIncomeGrowth,
+    int? closePrice,
+    double? return3m,
+    double? return12m,
+    int? high52w,
+    int? low52w,
+    double? bandPosition,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -219,6 +260,12 @@ abstract class ScreenRow
       if (revenueGrowth != null) 'revenueGrowth': revenueGrowth,
       if (operatingIncomeGrowth != null)
         'operatingIncomeGrowth': operatingIncomeGrowth,
+      if (closePrice != null) 'closePrice': closePrice,
+      if (return3m != null) 'return3m': return3m,
+      if (return12m != null) 'return12m': return12m,
+      if (high52w != null) 'high52w': high52w,
+      if (low52w != null) 'low52w': low52w,
+      if (bandPosition != null) 'bandPosition': bandPosition,
     };
   }
 
@@ -247,6 +294,12 @@ abstract class ScreenRow
       if (revenueGrowth != null) 'revenueGrowth': revenueGrowth,
       if (operatingIncomeGrowth != null)
         'operatingIncomeGrowth': operatingIncomeGrowth,
+      if (closePrice != null) 'closePrice': closePrice,
+      if (return3m != null) 'return3m': return3m,
+      if (return12m != null) 'return12m': return12m,
+      if (high52w != null) 'high52w': high52w,
+      if (low52w != null) 'low52w': low52w,
+      if (bandPosition != null) 'bandPosition': bandPosition,
     };
   }
 
@@ -280,6 +333,12 @@ class _ScreenRowImpl extends ScreenRow {
     double? dividendYield,
     double? revenueGrowth,
     double? operatingIncomeGrowth,
+    int? closePrice,
+    double? return3m,
+    double? return12m,
+    int? high52w,
+    int? low52w,
+    double? bandPosition,
   }) : super._(
          company: company,
          bsnsYear: bsnsYear,
@@ -301,6 +360,12 @@ class _ScreenRowImpl extends ScreenRow {
          dividendYield: dividendYield,
          revenueGrowth: revenueGrowth,
          operatingIncomeGrowth: operatingIncomeGrowth,
+         closePrice: closePrice,
+         return3m: return3m,
+         return12m: return12m,
+         high52w: high52w,
+         low52w: low52w,
+         bandPosition: bandPosition,
        );
 
   /// Returns a shallow copy of this [ScreenRow]
@@ -328,6 +393,12 @@ class _ScreenRowImpl extends ScreenRow {
     Object? dividendYield = _Undefined,
     Object? revenueGrowth = _Undefined,
     Object? operatingIncomeGrowth = _Undefined,
+    Object? closePrice = _Undefined,
+    Object? return3m = _Undefined,
+    Object? return12m = _Undefined,
+    Object? high52w = _Undefined,
+    Object? low52w = _Undefined,
+    Object? bandPosition = _Undefined,
   }) {
     return ScreenRow(
       company: company ?? this.company.copyWith(),
@@ -362,6 +433,12 @@ class _ScreenRowImpl extends ScreenRow {
       operatingIncomeGrowth: operatingIncomeGrowth is double?
           ? operatingIncomeGrowth
           : this.operatingIncomeGrowth,
+      closePrice: closePrice is int? ? closePrice : this.closePrice,
+      return3m: return3m is double? ? return3m : this.return3m,
+      return12m: return12m is double? ? return12m : this.return12m,
+      high52w: high52w is int? ? high52w : this.high52w,
+      low52w: low52w is int? ? low52w : this.low52w,
+      bandPosition: bandPosition is double? ? bandPosition : this.bandPosition,
     );
   }
 }

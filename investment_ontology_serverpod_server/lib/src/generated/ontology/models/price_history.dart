@@ -13,7 +13,6 @@
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart'
     as _i4yshtjp;
 import 'package:serverpod/serverpod.dart' as _is;
-
 import '../../ontology/models/price_point.dart' as _i4m22bwn;
 
 /// 한 종목의 종가 추이. 화면에서 그리기 좋게 골라 보낸 점들이다 (원천은 공공데이터포털 일별 시세).

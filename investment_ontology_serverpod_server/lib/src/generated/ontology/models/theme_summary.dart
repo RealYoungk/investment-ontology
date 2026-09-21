@@ -13,7 +13,6 @@
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart'
     as _i4yshtjp;
 import 'package:serverpod/serverpod.dart' as _is;
-
 import '../../ontology/models/investment_theme.dart' as _iyyq5gsr;
 
 /// 테마 목록 한 줄.

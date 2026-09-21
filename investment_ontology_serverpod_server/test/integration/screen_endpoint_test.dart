@@ -101,6 +101,7 @@ void main() {
           baseDate: DateTime.utc(2026, 9, 16),
           closePrice: BigInt.from(1000),
           marketCap: BigInt.from(cap),
+          listedShares: BigInt.from(1000),
           sourceId: source.id!,
         ),
       );
@@ -363,6 +364,74 @@ void main() {
       await quote(third, '000003', 5);
       final after = await endpoints.screen.list(sessionBuilder);
       expect(after.universe, 3);
+    });
+
+    test('시세에서 등락률과 52주 자리를 낸다', () async {
+      // 큰회사: 400일 전 500원 → 300일 전 600원 → 100일 전 800원 → 지금 1,000원.
+      // 52주 밴드는 1년 안의 값만 본다 (400일 전 500원은 밖이다).
+      final security = (await Security.db.find(
+        session,
+        where: (t) => t.shortCode.equals('000001'),
+      )).single;
+      final source = (await Source.db.find(session)).first;
+      for (final (days, price) in [(400, 500), (300, 600), (100, 800)]) {
+        final date = DateTime.utc(2026, 9, 16).subtract(Duration(days: days));
+        await MarketSnapshot.db.insertRow(
+          session,
+          MarketSnapshot(
+            securityId: security.id!,
+            baseDate: date,
+            closePrice: BigInt.from(price),
+            marketCap: BigInt.from(price),
+            listedShares: BigInt.from(1000),
+            sourceId: source.id!,
+          ),
+        );
+      }
+      ScreenEndpoint.clearCache();
+
+      final rows = {
+        for (final r in (await endpoints.screen.list(sessionBuilder)).items)
+          r.company.name: r,
+      };
+      final b = rows['큰회사']!;
+      expect(b.closePrice, 1000);
+      expect(b.return3m, closeTo(25, 1e-9), reason: '800 → 1,000');
+      expect(b.return12m, closeTo(100, 1e-9), reason: '500 → 1,000');
+      expect(b.high52w, 1000);
+      expect(b.low52w, 600, reason: '1년 안의 최저');
+      expect(b.bandPosition, closeTo(100, 1e-9), reason: '최고가에 있다');
+    });
+
+    test('주식수가 크게 바뀐 기업(액면병합 등)은 등락률을 내지 않는다', () async {
+      final security = (await Security.db.find(
+        session,
+        where: (t) => t.shortCode.equals('000001'),
+      )).single;
+      final source = (await Source.db.find(session)).first;
+      // 1년 전에는 주식수가 100배였다 (그때 종가 10원 = 지금 1,000원과 같은 값).
+      await MarketSnapshot.db.insertRow(
+        session,
+        MarketSnapshot(
+          securityId: security.id!,
+          baseDate: DateTime.utc(
+            2026,
+            9,
+            16,
+          ).subtract(const Duration(days: 400)),
+          closePrice: BigInt.from(10),
+          marketCap: BigInt.from(1000),
+          listedShares: BigInt.from(100000),
+          sourceId: source.id!,
+        ),
+      );
+      ScreenEndpoint.clearCache();
+
+      final rows = {
+        for (final r in (await endpoints.screen.list(sessionBuilder)).items)
+          r.company.name: r,
+      };
+      expect(rows['큰회사']!.return12m, isNull, reason: '10원 → 1,000원은 허수다');
     });
   });
 }
