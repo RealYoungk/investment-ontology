@@ -306,6 +306,57 @@ class _GraphCanvasState extends State<_GraphCanvas> {
     );
   }
 
+  /// 겹치지 않게 놓을 수 있는 이름의 노드 키. 큰 노드(가운데 먼저)부터 차례로
+  /// 이름 상자를 놓고, 앞서 놓인 상자나 다른 원과 겹치면 그 이름은 뺀다.
+  static Set<String> _placeLabels(
+    CompanyGraph g,
+    Map<String, Offset> pos, {
+    int? limit,
+  }) {
+    final order = [...g.nodes]
+      ..sort((a, b) {
+        if (a.key == g.centerKey) return -1;
+        if (b.key == g.centerKey) return 1;
+        return _radius(b).compareTo(_radius(a));
+      });
+    final circles = [
+      for (final n in g.nodes)
+        if (pos[n.key] case final p?)
+          Rect.fromCircle(center: p, radius: _radius(n)),
+    ];
+    final taken = <Rect>[];
+    final out = <String>{};
+    for (final n in order) {
+      final p = pos[n.key];
+      if (p == null) continue;
+      if (limit != null && out.length >= limit) break;
+      final fontSize = n.kind == 'name' ? 10.0 : 11.5;
+      // 글자 폭 어림: 한글은 글자 크기만큼, 로마자·숫자는 그 절반쯤.
+      var w = 8.0;
+      for (final ch in n.label.runes) {
+        w += ch > 0x2E80 ? fontSize : fontSize * 0.55;
+      }
+      w = math.min(w, 140);
+      final box = Rect.fromLTWH(
+        p.dx - w / 2,
+        p.dy + _radius(n) + 2,
+        w,
+        fontSize + 5,
+      );
+      final isCenter = n.key == g.centerKey;
+      final clash =
+          taken.any((r) => r.overlaps(box)) ||
+          (!isCenter &&
+              circles.any(
+                (c) => c.overlaps(box) && c.center != p,
+              ));
+      if (clash) continue;
+      taken.add(box);
+      out.add(n.key);
+    }
+    return out;
+  }
+
   /// 시가총액으로 기업 노드 크기를 정한다 (로그 비율).
   static double _radius(GraphNode n) {
     if (n.kind == 'name') return 5;
@@ -324,18 +375,14 @@ class _GraphCanvasState extends State<_GraphCanvas> {
         _layout(constraints.maxWidth);
         final pos = _pos!;
         final g = widget.graph;
-        // 좁은 화면에서는 이름이 서로 겹쳐 못 읽는다. 큰 노드만 이름을 적고,
-        // 나머지는 눌렀을 때(툴팁·아래 목록)에서 본다.
-        final labelled = constraints.maxWidth >= 600
-            ? null
-            : {
-                g.centerKey,
-                ...([...g.nodes]..sort(
-                      (a, b) => _radius(b).compareTo(_radius(a)),
-                    ))
-                    .take(10)
-                    .map((n) => n.key),
-              };
+        // 이름이 서로 겹치면 못 읽는다. 큰 노드부터 이름을 놓고, 이미 놓인 이름이나
+        // 다른 원과 겹치는 이름은 숨긴다 (눌렀을 때 툴팁·아래 목록에서 본다).
+        // 좁은 화면에서는 그래도 많으니 열 개까지만.
+        final labelled = _placeLabels(
+          g,
+          pos,
+          limit: constraints.maxWidth >= 600 ? null : 10,
+        );
         return Container(
           height: _height,
           decoration: BoxDecoration(
@@ -409,8 +456,7 @@ class _GraphCanvasState extends State<_GraphCanvas> {
                                       ),
                                     ),
                                     const SizedBox(height: 2),
-                                    if (labelled == null ||
-                                        labelled.contains(n.key))
+                                    if (labelled.contains(n.key))
                                       Text(
                                         n.label,
                                         maxLines: 1,
@@ -616,13 +662,84 @@ class _Legend extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final t = context.typo;
-    return Text(
-      '검정 = 가운데 기업 · 파랑 = 기업·지분(주주·출자) · 주황 = 인물·임원 · 초록 = 승인된 AI 관계(공급·경쟁·제품) · '
-      '점선 = 추정 인물 연결 · 선 굵기 = 지분율 · 점 = 방향(목적어 쪽) · 원 크기 = 시가총액 · '
-      '끌어서 이동, 휠·두 손가락으로 확대',
-      style: t.body(11.5, color: c.textMuted),
+    Widget dot(Color color, {bool ring = false}) => Container(
+      width: 10,
+      height: 10,
+      decoration: BoxDecoration(
+        color: ring ? null : color,
+        shape: BoxShape.circle,
+        border: ring ? Border.all(color: color, width: 2) : null,
+      ),
+    );
+    Widget line(Color color, {bool dashed = false, double width = 2}) =>
+        SizedBox(
+          width: 18,
+          height: 10,
+          child: CustomPaint(
+            painter: _LegendLinePainter(color, dashed: dashed, width: width),
+          ),
+        );
+    Widget item(Widget mark, String text) => Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        mark,
+        const SizedBox(width: 6),
+        Text(text, style: t.body(12, color: c.textSecondary)),
+      ],
+    );
+    return Wrap(
+      spacing: AppSpace.lg,
+      runSpacing: AppSpace.xs,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        item(dot(c.inverse), '가운데 기업'),
+        item(dot(c.chartSeries1), '기업 (원 크기 = 시가총액)'),
+        item(dot(c.chartSeries2), '인물'),
+        item(dot(c.chartGrid), '비상장·해외 법인, 제품'),
+        item(line(c.chartSeries1, width: 3), '주주·출자 (굵기 = 지분율)'),
+        item(line(c.chartSeries2), '임원'),
+        item(line(c.success), '공급·매출·경쟁·제품 (본문에서 뽑아 승인)'),
+        item(line(c.chartSeries1, dashed: true), '추정 인물 연결'),
+        Text(
+          '선 끝 점 = 방향(목적어 쪽) · 끌어서 이동, 휠·두 손가락으로 확대',
+          style: t.body(11.5, color: c.textMuted),
+        ),
+      ],
     );
   }
+}
+
+class _LegendLinePainter extends CustomPainter {
+  const _LegendLinePainter(this.color, {this.dashed = false, this.width = 2});
+
+  final Color color;
+  final bool dashed;
+  final double width;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = width
+      ..style = PaintingStyle.stroke;
+    final y = size.height / 2;
+    if (dashed) {
+      for (var x = 0.0; x < size.width; x += 6) {
+        canvas.drawLine(
+          Offset(x, y),
+          Offset(math.min(x + 3, size.width), y),
+          paint,
+        );
+      }
+    } else {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+    canvas.drawCircle(Offset(size.width - 2, y), 2, Paint()..color = color);
+  }
+
+  @override
+  bool shouldRepaint(covariant _LegendLinePainter old) =>
+      old.color != color || old.dashed != dashed || old.width != width;
 }
 
 /// 누른 노드의 관계 목록.
