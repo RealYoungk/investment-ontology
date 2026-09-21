@@ -26,7 +26,12 @@ class ChartScale {
     lo ??= 0.0;
     hi ??= 0.0;
     if (lo == hi) hi = lo + 1;
-    final step = _niceStep((hi - lo) / targetTicks);
+    var step = _niceStep((hi - lo) / targetTicks);
+    // 0을 넣지 않기로 했는데 눈금이 굵어 바닥이 0으로 떨어지면 (주가 8만~36만에
+    // 눈금 10만) 아래 눈금이 값보다 작아지도록 한 단계 줄인다.
+    if (!includeZero && lo > 0 && step > lo) {
+      step = _niceStep(lo, down: true);
+    }
     final min = (lo / step).floorToDouble() * step;
     final max = (hi / step).ceilToDouble() * step;
     final ticks = <double>[
@@ -44,17 +49,23 @@ class ChartScale {
   /// 값 → 0(아래)~1(위).
   double fraction(double v) => (v - min) / (max - min);
 
-  static double _niceStep(double raw) {
+  /// [raw]에 가까운 1·2·5 단위. [down]이면 [raw]를 넘지 않는 가장 큰 단위.
+  static double _niceStep(double raw, {bool down = false}) {
     final exp = math.pow(10, (math.log(raw) / math.ln10).floor()).toDouble();
     final f = raw / exp;
-    // 가장 가까운 1·2·5 단위로 반올림한다.
-    final nice = f < 1.5
-        ? 1
-        : f < 3
-        ? 2
-        : f < 7
-        ? 5
-        : 10;
+    final nice = down
+        ? (f >= 5
+              ? 5
+              : f >= 2
+              ? 2
+              : 1)
+        : (f < 1.5
+              ? 1
+              : f < 3
+              ? 2
+              : f < 7
+              ? 5
+              : 10);
     return nice * exp;
   }
 }
