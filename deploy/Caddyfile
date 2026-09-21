@@ -1,0 +1,20 @@
+# 로그인이 없는 앱이라 프록시에서 비밀번호로 막는다. TLS는 Caddy가 알아서 받는다.
+{$DOMAIN} {
+	encode zstd gzip
+
+	basic_auth {
+		{$BASIC_AUTH_USER} {$BASIC_AUTH_HASH}
+	}
+
+	# Flutter 웹 빌드 결과 (deploy/web에 복사해 둔다).
+	handle {
+		root * /srv/web
+		try_files {path} /index.html
+		file_server
+	}
+
+	# Serverpod API.
+	handle_path /api/* {
+		reverse_proxy server:8080
+	}
+}

@@ -48,3 +48,5 @@ key.properties
 # ===== Logs =====
 *.log
 .playwright-mcp/
+deploy/.env
+deploy/web/
