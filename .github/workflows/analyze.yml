@@ -15,7 +15,8 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.44.4'
+          # 로컬과 같이 항상 최신 stable을 쓴다.
+          channel: stable
 
       - name: Install dependencies
         run: flutter pub get

@@ -1,6 +1,6 @@
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 
-import '../company_ledger/formatters.dart';
+import '../common/formatters.dart';
 
 /// 원 단위 금액 → "566조 9,421억". 1억 미만은 원 단위.
 String formatKrw(BigInt? v) {

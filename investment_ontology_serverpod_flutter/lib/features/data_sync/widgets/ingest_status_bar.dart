@@ -3,12 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 
+import '../../../app/ingest_monitor.dart';
 import '../../../client.dart';
 import '../../../design/components/components.dart';
 import '../../../design/tokens.dart';
-import '../formatters.dart';
+import '../../common/formatters.dart';
 
-/// DART 수집 상태와 실행 버튼. 실행 중에는 진행률을 폴링한다.
+/// 상장사 마스터(DART 기업개황) 수집 상태와 실행 버튼. 실행 중에는 진행률을 폴링한다.
 class IngestStatusBar extends StatefulWidget {
   const IngestStatusBar({
     super.key,
@@ -95,6 +96,7 @@ class _IngestStatusBarState extends State<IngestStatusBar> {
       if (!mounted) return;
       setState(() => _job = job);
       _syncPolling();
+      IngestMonitor.instance.poke();
     } on IngestException catch (e) {
       if (mounted) setState(() => _error = e.message);
     } catch (e) {

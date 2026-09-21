@@ -1,35 +1,49 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../app/ingest_monitor.dart';
+import '../../app/router.dart';
 import '../../client.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
-import '../company_ledger/formatters.dart';
+import '../common/formatters.dart';
 import 'financial_metrics.dart';
-import 'financial_report_page.dart';
 
 enum _Period { annual, quarterly }
 
-/// 기업 카드의 재무·시세: 파생 지표(계산식 포함), 매출·영업이익 추이, 영업이익률, 출처.
+/// 기업 상세의 재무 탭: 파생 지표(계산식 포함), 매출·영업이익 추이, 영업이익률, 출처.
 class FinancialSection extends StatefulWidget {
-  const FinancialSection({super.key, required this.corpCode});
+  const FinancialSection({
+    super.key,
+    required this.corpCode,
+    this.initialData,
+    this.openMetric,
+    this.onCloseMetric,
+  });
 
   final String corpCode;
+
+  /// 이미 불러온 기본(연결 우선) 재무. 있으면 처음에 다시 부르지 않는다.
+  final CompanyFinancials? initialData;
+
+  /// 계산식을 펼칠 지표 ([DerivedMetric.key]). 지표는 기업 상세 머리에서 고른다.
+  final String? openMetric;
+  final VoidCallback? onCloseMetric;
 
   @override
   State<FinancialSection> createState() => _FinancialSectionState();
 }
 
 class _FinancialSectionState extends State<FinancialSection> {
-  CompanyFinancials? _data;
+  late CompanyFinancials? _data = widget.initialData;
   Object? _error;
-  bool _loading = true;
-  FsDiv? _fsDiv;
+  late bool _loading = widget.initialData == null;
+  late FsDiv? _fsDiv = widget.initialData?.fsDiv;
   _Period _period = _Period.annual;
-  String? _openMetric;
 
   bool _fetching = false;
   String? _fetchMessage;
@@ -37,7 +51,7 @@ class _FinancialSectionState extends State<FinancialSection> {
   @override
   void initState() {
     super.initState();
-    _load();
+    if (widget.initialData == null) _load();
   }
 
   /// 이 기업의 정기보고서만 찾아 바로 받는다. 끝나면 다시 불러온다.
@@ -54,6 +68,8 @@ class _FinancialSectionState extends State<FinancialSection> {
       }
       if (!mounted) return;
       setState(() => _fetchMessage = job.message);
+      // 기업 상세 머리의 지표 등 다른 화면도 새 재무를 다시 불러오게 한다.
+      IngestMonitor.instance.poke();
       await _load();
     } on IngestException catch (e) {
       if (mounted) setState(() => _fetchMessage = e.message);
@@ -156,7 +172,7 @@ class _FinancialSectionState extends State<FinancialSection> {
     final t = context.typo;
     final data = view.data;
     final metrics = view.metrics();
-    final open = metrics.where((m) => m.key == _openMetric).firstOrNull;
+    final open = metrics.where((m) => m.key == widget.openMetric).firstOrNull;
     final points = _period == _Period.annual ? view.annual() : view.quarterly();
     final latest = view.latest;
 
@@ -188,13 +204,6 @@ class _FinancialSectionState extends State<FinancialSection> {
             ),
           ],
         ),
-        const SizedBox(height: AppSpace.md),
-        _MetricGrid(
-          metrics: metrics,
-          open: _openMetric,
-          onTap: (key) =>
-              setState(() => _openMetric = _openMetric == key ? null : key),
-        ),
         AnimatedSize(
           duration: AppMotion.normal,
           curve: AppMotion.curve,
@@ -202,8 +211,12 @@ class _FinancialSectionState extends State<FinancialSection> {
           child: open == null
               ? const SizedBox(width: double.infinity)
               : Padding(
-                  padding: const EdgeInsets.only(top: AppSpace.sm),
-                  child: _FormulaCard(metric: open),
+                  padding: const EdgeInsets.only(top: AppSpace.md),
+                  child: _FormulaCard(
+                    metric: open,
+                    fsDiv: data.fsDiv,
+                    onClose: widget.onCloseMetric,
+                  ),
                 ),
         ),
         const SizedBox(height: AppSpace.xl),
@@ -231,98 +244,13 @@ class _FinancialSectionState extends State<FinancialSection> {
   }
 }
 
-class _MetricGrid extends StatelessWidget {
-  const _MetricGrid({
-    required this.metrics,
-    required this.open,
-    required this.onTap,
-  });
-
-  final List<DerivedMetric> metrics;
-  final String? open;
-  final ValueChanged<String> onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    final t = context.typo;
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = (constraints.maxWidth - AppSpace.sm) / 2;
-        return Wrap(
-          spacing: AppSpace.sm,
-          runSpacing: AppSpace.sm,
-          children: [
-            for (final m in metrics)
-              SizedBox(
-                width: width,
-                child: HoverBuilder(
-                  onTap: () => onTap(m.key),
-                  builder: (context, hovered) {
-                    final active = open == m.key;
-                    return AnimatedContainer(
-                      duration: AppMotion.fast,
-                      padding: const EdgeInsets.all(AppSpace.md),
-                      decoration: BoxDecoration(
-                        color: active
-                            ? c.inverse
-                            : hovered
-                            ? c.surfaceHover
-                            : c.background,
-                        borderRadius: context.shape.borderRadius,
-                        border: Border.all(color: c.border),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                m.label,
-                                style: t.body(
-                                  12,
-                                  color: active ? c.onInverse : c.textSecondary,
-                                ),
-                              ),
-                              const Spacer(),
-                              Text(
-                                'ƒ',
-                                style: t.numeric(
-                                  11,
-                                  color: active ? c.onInverse : c.textMuted,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            m.display,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: t.body(
-                              17,
-                              color: active ? c.onInverse : c.textPrimary,
-                              weight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-          ],
-        );
-      },
-    );
-  }
-}
-
 /// 지표의 계산식, 입력 원천 값과 그 출처.
 class _FormulaCard extends StatelessWidget {
-  const _FormulaCard({required this.metric});
+  const _FormulaCard({required this.metric, required this.fsDiv, this.onClose});
 
   final DerivedMetric metric;
+  final FsDiv? fsDiv;
+  final VoidCallback? onClose;
 
   @override
   Widget build(BuildContext context) {
@@ -342,7 +270,18 @@ class _FormulaCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SectionLabel('계산식 · ${metric.label}', accent: true),
+          SectionLabel(
+            '계산식 · ${metric.label} = ${metric.display}'
+            '${fsDiv == null ? '' : ' · ${fsDivLabel(fsDiv!)}'}',
+            accent: true,
+            trailing: onClose == null
+                ? null
+                : IconButton(
+                    onPressed: onClose,
+                    icon: Icon(Icons.close, size: 18, color: c.textPrimary),
+                    tooltip: '닫기',
+                  ),
+          ),
           const SizedBox(height: AppSpace.sm),
           SelectableText(d.formula, style: t.numeric(12, color: c.textPrimary)),
           const SizedBox(height: AppSpace.sm),
@@ -548,11 +487,7 @@ class _Sources extends StatelessWidget {
                   label: '재무제표 원문 표 →',
                   variant: AppButtonVariant.link,
                   tone: c.accent,
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => FinancialReportPage(reportId: p.reportId),
-                    ),
-                  ),
+                  onPressed: () => context.push(AppRoutes.report(p.reportId)),
                 ),
                 AppButton(
                   label: 'DART 공시 →',

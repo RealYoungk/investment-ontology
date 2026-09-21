@@ -4,8 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// 리브랜딩이 브랜드 파일 교체만으로 끝나도록, 화면 코드가 색·글꼴을 직접 정하지 않는지 확인한다.
 void main() {
-  final featureFiles = Directory('lib/features')
-      .listSync(recursive: true)
+  final featureFiles = [Directory('lib/features'), Directory('lib/app')]
+      .expand((d) => d.listSync(recursive: true))
       .whereType<File>()
       .where((f) => f.path.endsWith('.dart'));
 
