@@ -410,6 +410,10 @@ class _FactTrend extends StatelessWidget {
           formatValue: short,
           height: 150,
         ),
+        Text(
+          '각 해 사업보고서에 적힌 그 해 값입니다. 회사가 나중에 기준을 바꿔 다시 적기도 합니다.',
+          style: t.body(11, color: c.textMuted),
+        ),
       ],
     );
   }
