@@ -458,6 +458,7 @@ String documentFactKindLabel(DocumentFactKind k) => switch (k) {
   DocumentFactKind.marketShare => '시장점유율',
   DocumentFactKind.investmentPlan => '투자계획',
   DocumentFactKind.investmentActual => '투자집행',
+  DocumentFactKind.segmentRevenue => '부문 매출',
 };
 
 /// 해마다 같은 항목이 있으면 흐름으로 (수주잔고·생산능력·점유율 …).

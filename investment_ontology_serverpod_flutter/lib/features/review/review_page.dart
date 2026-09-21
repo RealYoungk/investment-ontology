@@ -426,6 +426,7 @@ class _FactList extends StatelessWidget {
     DocumentFactKind.marketShare => '시장점유율',
     DocumentFactKind.investmentPlan => '투자계획',
     DocumentFactKind.investmentActual => '투자집행',
+    DocumentFactKind.segmentRevenue => '부문 매출',
   };
 
   @override

@@ -2,6 +2,7 @@ import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
 import 'disclosure_links.dart';
+import 'segment_revenue.dart';
 
 /// 사업보고서 본문의 "생산능력·생산실적·가동률" 표를 규칙으로 읽는다 (AI 없음).
 ///
@@ -274,6 +275,30 @@ abstract final class ProductionFacts {
           ),
         );
       }
+    }
+    // 부문별 매출도 같은 규칙으로 (표의 비중으로 스스로 검산된다).
+    for (final r in SegmentRevenue.parse(doc.text)) {
+      if (existing.contains('segmentRevenue|${r.label}')) continue;
+      facts.add(
+        DocumentFact(
+          companyId: doc.companyId,
+          documentId: doc.id!,
+          bsnsYear: doc.bsnsYear,
+          kind: DocumentFactKind.segmentRevenue,
+          label: r.label,
+          value: r.amount,
+          unit: r.unit,
+          asOf: DateTime.utc(doc.bsnsYear, 12, 31),
+          evidence: r.evidence,
+          sourceId: report?.sourceId,
+          extractedBy: RelationOrigin.api,
+          extractorModel: '표 규칙',
+          status: RelationStatus.verified,
+          reviewedAt: now,
+          reviewedBy: '표 규칙 (비중 = 매출액 ÷ 합계 확인)',
+          createdAt: now,
+        ),
+      );
     }
     if (facts.isEmpty) return 0;
     await DocumentFact.db.insert(session, facts);

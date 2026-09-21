@@ -19,3 +19,5 @@ values:
   - investmentPlan
   ### 실제 집행한 투자액
   - investmentActual
+  ### 사업부문별 매출액 (본문 "주요 제품 매출" 표)
+  - segmentRevenue
