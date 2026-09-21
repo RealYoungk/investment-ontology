@@ -340,6 +340,19 @@ class _AiRelationsState extends State<_AiRelations> {
 
 /// 본문에서 뽑아 승인한 값 (수주잔고·가동률·점유율 등). API로는 받을 수 없는 것들이다.
 
+/// 본문에서 뽑은 값의 종류 이름. 개요 탭 요약과 검수 화면도 같은 이름을 쓴다.
+String documentFactKindLabel(DocumentFactKind k) => switch (k) {
+  DocumentFactKind.orderTotal => '수주총액',
+  DocumentFactKind.orderDelivered => '기납품액',
+  DocumentFactKind.orderBacklog => '수주잔고',
+  DocumentFactKind.capacity => '생산능력',
+  DocumentFactKind.production => '생산실적',
+  DocumentFactKind.utilization => '가동률',
+  DocumentFactKind.marketShare => '시장점유율',
+  DocumentFactKind.investmentPlan => '투자계획',
+  DocumentFactKind.investmentActual => '투자집행',
+};
+
 /// 해마다 같은 항목이 있으면 흐름으로 (수주잔고·생산능력·점유율 …).
 ///
 /// 표만 있으면 숫자가 늘었는지 줄었는지 눈에 안 들어온다.
@@ -518,17 +531,7 @@ class _DocumentFactsState extends State<_DocumentFacts> {
     return {for (final k in keys) k: by[k]!};
   }
 
-  static String label(DocumentFactKind k) => switch (k) {
-    DocumentFactKind.orderTotal => '수주총액',
-    DocumentFactKind.orderDelivered => '기납품액',
-    DocumentFactKind.orderBacklog => '수주잔고',
-    DocumentFactKind.capacity => '생산능력',
-    DocumentFactKind.production => '생산실적',
-    DocumentFactKind.utilization => '가동률',
-    DocumentFactKind.marketShare => '시장점유율',
-    DocumentFactKind.investmentPlan => '투자계획',
-    DocumentFactKind.investmentActual => '투자집행',
-  };
+  static String label(DocumentFactKind k) => documentFactKindLabel(k);
 
   @override
   Widget build(BuildContext context) {

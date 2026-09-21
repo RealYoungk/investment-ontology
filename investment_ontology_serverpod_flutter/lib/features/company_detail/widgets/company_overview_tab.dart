@@ -6,6 +6,7 @@ import '../../../design/components/components.dart';
 import '../../../design/tokens.dart';
 import '../../financials/financial_metrics.dart';
 import '../../common/formatters.dart';
+import 'business_highlights.dart';
 import 'ontology_digest.dart';
 import 'peer_digest.dart';
 
@@ -31,6 +32,11 @@ class CompanyOverviewTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final main = [
       _FinancialDigest(financials: financials, onOpen: onOpenFinancials),
+      const SizedBox(height: AppSpace.section),
+      BusinessHighlights(
+        corpCode: detail.company.corpCode,
+        onOpenTab: onOpenTab,
+      ),
       const SizedBox(height: AppSpace.section),
       _Profile(company: detail.company),
     ];
