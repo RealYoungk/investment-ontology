@@ -93,6 +93,10 @@ class DisclosureSync {
     return !_budgetExhausted;
   }
 
+  /// 이번 실행에서 한 번만 읽는 상장사 목록 (본문 규칙 추출에 쓴다).
+  Set<String>? _companyKeys;
+  List<Company>? _listedCompanies;
+
   /// 이번 실행에서 인물 키 → id (같은 사람을 여러 번 찾지 않도록).
   final _persons = <String, int>{};
 
@@ -663,8 +667,18 @@ class DisclosureSync {
       orderBy: (t) => t.id.desc(),
     );
     if (stored != null) {
-      await ProductionFacts.store(session, stored);
-      await SupplierRelations.store(session, stored);
+      // 상장사 목록·이름 키는 한 실행에서 한 번만 읽는다 (본문이 하루 300건 온다).
+      _companyKeys ??= await ProductionFacts.listedKeys(session);
+      _listedCompanies ??= await Company.db.find(
+        session,
+        where: (t) => t.market.inSet(DisclosureLinks.listedMarkets),
+      );
+      await ProductionFacts.store(session, stored, companyKeys: _companyKeys);
+      await SupplierRelations.store(
+        session,
+        stored,
+        listed: _listedCompanies,
+      );
     }
   }
 

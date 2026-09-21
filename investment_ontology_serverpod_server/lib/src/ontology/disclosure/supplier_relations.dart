@@ -14,7 +14,13 @@ abstract final class SupplierRelations {
   static const model = '표 규칙 (원재료 매입처·주요 매출처)';
 
   /// 이름을 상장사에 잇는다. 정확히 하나와 맞을 때만 (이름만 남기는 것은 그대로 둔다).
-  static Future<int> store(Session session, BusinessDocument doc) async {
+  static Future<int> store(
+    Session session,
+    BusinessDocument doc, {
+
+    /// 상장사 목록. 여러 문서를 돌릴 때는 한 번만 읽어 넘긴다.
+    List<Company>? listed,
+  }) async {
     final rows = SupplierRows.parse(doc.text);
     final buyers = SupplierRows.customers(doc.text);
     if (rows.isEmpty && buyers.isEmpty) return 0;
@@ -22,12 +28,14 @@ abstract final class SupplierRelations {
     final report = await DisclosureReport.db.findById(session, doc.reportId);
     if (company == null || report == null) return 0;
 
-    final listed = await Company.db.find(
-      session,
-      where: (t) => t.market.inSet(DisclosureLinks.listedMarkets),
-    );
-    final byName = DisclosureLinks.companiesByName(listed);
-    final names = {for (final c in listed) c.id!: c.name};
+    final companies =
+        listed ??
+        await Company.db.find(
+          session,
+          where: (t) => t.market.inSet(DisclosureLinks.listedMarkets),
+        );
+    final byName = DisclosureLinks.companiesByName(companies);
+    final names = {for (final c in companies) c.id!: c.name};
 
     final existing = {
       for (final r in await OntologyRelation.db.find(
