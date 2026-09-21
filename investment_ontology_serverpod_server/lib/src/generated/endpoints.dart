@@ -717,6 +717,32 @@ class Endpoints extends _is.EndpointDispatch {
                         bsnsYear: params['bsnsYear'],
                       ),
         ),
+        'searchPersons': _is.MethodConnector(
+          name: 'searchPersons',
+          params: {
+            'query': _is.ParameterDescription(
+              name: 'query',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'limit': _is.ParameterDescription(
+              name: 'limit',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['governance'] as _i6kw8hva.GovernanceEndpoint)
+                      .searchPersons(
+                        session,
+                        params['query'],
+                        limit: params['limit'],
+                      ),
+        ),
         'person': _is.MethodConnector(
           name: 'person',
           params: {

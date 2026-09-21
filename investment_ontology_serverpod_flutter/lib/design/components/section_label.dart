@@ -23,6 +23,16 @@ class SectionLabel extends StatelessWidget {
       style: context.typo.label(color: accent ? c.accent : c.textSecondary),
     );
     if (trailing == null) return label;
-    return Row(children: [label, const Spacer(), trailing!]);
+    // 좁은 화면에서는 오른쪽 글이 줄어들거나 줄바꿈된다.
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        label,
+        const SizedBox(width: AppSpace.md),
+        Expanded(
+          child: Align(alignment: Alignment.centerRight, child: trailing),
+        ),
+      ],
+    );
   }
 }

@@ -156,9 +156,19 @@ class _TopBar extends StatelessWidget {
                   ),
                 ),
               ),
-              if (constraints.maxWidth >= 1100) ...[
-                const Center(child: _GlobalSearch()),
-              ],
+              if (constraints.maxWidth >= 1100)
+                const Center(child: _GlobalSearch())
+              else
+                Center(
+                  child: IconButton(
+                    tooltip: '기업 · 인물 바로 가기',
+                    icon: Icon(Icons.search, color: c.textPrimary),
+                    onPressed: () => showDialog<void>(
+                      context: context,
+                      builder: (_) => const _SearchDialog(),
+                    ),
+                  ),
+                ),
             ],
           ),
         );
@@ -242,7 +252,120 @@ class _IngestIndicator extends StatelessWidget {
   }
 }
 
-/// 어느 화면에서든 기업으로 바로 가는 검색.
+/// 기업·인물 검색 결과.
+typedef _Hits = ({List<CompanyListItem> companies, List<PersonHit> persons});
+
+const _noHits = (companies: <CompanyListItem>[], persons: <PersonHit>[]);
+
+/// 기업은 시가총액 순 8곳, 인물은 이어진 기업이 많은 순 4명.
+Future<_Hits> _searchAll(String query) async {
+  final (page, persons) = await (
+    client.company.list(query: query, sort: CompanySort.marketCap, limit: 8),
+    client.governance.searchPersons(query, limit: 4),
+  ).wait;
+  return (companies: page.items, persons: persons);
+}
+
+/// 검색 결과 목록: 기업 다음에 인물.
+class _HitList extends StatelessWidget {
+  const _HitList({
+    required this.hits,
+    required this.onCompany,
+    required this.onPerson,
+  });
+
+  final _Hits hits;
+  final ValueChanged<CompanyListItem> onCompany;
+  final ValueChanged<PersonHit> onPerson;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    Widget row({required VoidCallback onTap, required List<Widget> children}) =>
+        HoverBuilder(
+          onTap: onTap,
+          builder: (context, hovered) => Container(
+            color: hovered ? c.surfaceHover : Colors.transparent,
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpace.md,
+              vertical: 8,
+            ),
+            child: Row(children: children),
+          ),
+        );
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final item in hits.companies)
+          row(
+            onTap: () => onCompany(item),
+            children: [
+              SizedBox(
+                width: 64,
+                child: Text(
+                  item.stockCode ?? '',
+                  style: t.numeric(12, color: c.textSecondary),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  item.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: t.body(13.5),
+                ),
+              ),
+              Text(
+                item.marketCap == null ? '' : formatKrw(item.marketCap),
+                style: t.numeric(11.5, color: c.textMuted),
+              ),
+            ],
+          ),
+        if (hits.persons.isNotEmpty) ...[
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpace.md,
+              AppSpace.sm,
+              AppSpace.md,
+              2,
+            ),
+            child: Text('인물', style: t.label(color: c.textSecondary)),
+          ),
+          for (final p in hits.persons)
+            row(
+              onTap: () => onPerson(p),
+              children: [
+                SizedBox(
+                  width: 64,
+                  child: Text(
+                    p.birthYear == null ? '' : '${p.birthYear}년생',
+                    style: t.numeric(11.5, color: c.textSecondary),
+                  ),
+                ),
+                Text(p.name, style: t.body(13.5)),
+                if (p.estimated)
+                  Text(' · 추정', style: t.body(11.5, color: c.textMuted)),
+                const SizedBox(width: AppSpace.sm),
+                Expanded(
+                  child: Text(
+                    p.companyNames.join(' · '),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.end,
+                    style: t.body(11.5, color: c.textMuted),
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ],
+    );
+  }
+}
+
+/// 어느 화면에서든 기업·인물로 바로 가는 검색.
 class _GlobalSearch extends StatefulWidget {
   const _GlobalSearch();
 
@@ -255,7 +378,7 @@ class _GlobalSearchState extends State<_GlobalSearch> {
   final _focus = FocusNode();
   final _link = LayerLink();
   OverlayEntry? _overlay;
-  List<CompanyListItem> _results = const [];
+  _Hits _hits = _noHits;
   Timer? _debounce;
 
   @override
@@ -272,93 +395,53 @@ class _GlobalSearchState extends State<_GlobalSearch> {
     _debounce = Timer(const Duration(milliseconds: 200), () async {
       final query = q.trim();
       if (query.isEmpty) {
-        _setResults(const []);
+        _setHits(_noHits);
         return;
       }
       try {
-        final page = await client.company.list(
-          query: query,
-          sort: CompanySort.marketCap,
-          limit: 8,
-        );
-        if (mounted && _controller.text.trim() == query) {
-          _setResults(page.items);
-        }
+        final hits = await _searchAll(query);
+        if (mounted && _controller.text.trim() == query) _setHits(hits);
       } catch (_) {}
     });
   }
 
-  void _setResults(List<CompanyListItem> items) {
-    _results = items;
+  void _setHits(_Hits hits) {
+    _hits = hits;
     _overlay?.remove();
     _overlay = null;
-    if (items.isEmpty) return;
+    if (hits.companies.isEmpty && hits.persons.isEmpty) return;
     _overlay = OverlayEntry(builder: _buildOverlay);
     Overlay.of(context).insert(_overlay!);
   }
 
-  void _open(CompanyListItem item) {
+  void _go(String location) {
     _controller.clear();
     _focus.unfocus();
-    _setResults(const []);
-    context.push(AppRoutes.company(item.corpCode));
+    _setHits(_noHits);
+    context.push(location);
   }
 
   Widget _buildOverlay(BuildContext context) {
     final c = context.colors;
-    final t = context.typo;
     return Positioned(
-      width: 320,
+      width: 360,
       child: CompositedTransformFollower(
         link: _link,
         showWhenUnlinked: false,
         targetAnchor: Alignment.bottomRight,
         followerAnchor: Alignment.topRight,
         offset: const Offset(0, 4),
-        child: Material(
-          color: c.surface,
-          elevation: 4,
-          borderRadius: context.shape.borderRadius,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final item in _results)
-                HoverBuilder(
-                  onTap: () => _open(item),
-                  builder: (context, hovered) => Container(
-                    color: hovered ? c.surfaceHover : Colors.transparent,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpace.md,
-                      vertical: 8,
-                    ),
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 64,
-                          child: Text(
-                            item.stockCode ?? '',
-                            style: t.numeric(12, color: c.textSecondary),
-                          ),
-                        ),
-                        Expanded(
-                          child: Text(
-                            item.name,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: t.body(13.5),
-                          ),
-                        ),
-                        Text(
-                          item.marketCap == null
-                              ? ''
-                              : formatKrw(item.marketCap),
-                          style: t.numeric(11.5, color: c.textMuted),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-            ],
+        // 결과 목록을 검색창의 일부로 묶어, 누르는 동안 "바깥을 눌렀다"로 닫히지 않게 한다.
+        child: TextFieldTapRegion(
+          child: Material(
+            color: c.surface,
+            elevation: 4,
+            borderRadius: context.shape.borderRadius,
+            child: _HitList(
+              hits: _hits,
+              onCompany: (item) => _go(AppRoutes.company(item.corpCode)),
+              onPerson: (p) => _go(AppRoutes.person(p.personId)),
+            ),
           ),
         ),
       ),
@@ -379,21 +462,113 @@ class _GlobalSearchState extends State<_GlobalSearch> {
           focusNode: _focus,
           onChanged: _search,
           onSubmitted: (_) {
-            if (_results.isNotEmpty) _open(_results.first);
+            if (_hits.companies.isNotEmpty) {
+              _go(AppRoutes.company(_hits.companies.first.corpCode));
+            } else if (_hits.persons.isNotEmpty) {
+              _go(AppRoutes.person(_hits.persons.first.personId));
+            }
           },
           onTapOutside: (_) {
             _focus.unfocus();
-            Future<void>.delayed(
-              const Duration(milliseconds: 150),
-              () => _setResults(const []),
-            );
+            _setHits(_noHits);
           },
           style: t.body(13.5),
           decoration: InputDecoration(
             isDense: true,
-            hintText: '기업 바로 가기',
+            hintText: '기업 · 인물 바로 가기',
             prefixIcon: Icon(Icons.search, size: 18, color: c.textSecondary),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 좁은 화면의 검색: 검색창 대신 아이콘을 누르면 뜬다.
+class _SearchDialog extends StatefulWidget {
+  const _SearchDialog();
+
+  @override
+  State<_SearchDialog> createState() => _SearchDialogState();
+}
+
+class _SearchDialogState extends State<_SearchDialog> {
+  final _controller = TextEditingController();
+  _Hits _hits = _noHits;
+  Timer? _debounce;
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _search(String q) {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 200), () async {
+      final query = q.trim();
+      if (query.isEmpty) {
+        setState(() => _hits = _noHits);
+        return;
+      }
+      try {
+        final hits = await _searchAll(query);
+        if (mounted && _controller.text.trim() == query) {
+          setState(() => _hits = hits);
+        }
+      } catch (_) {}
+    });
+  }
+
+  void _go(String location) {
+    final router = GoRouter.of(context);
+    Navigator.of(context).pop();
+    router.push(location);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    return Dialog(
+      alignment: Alignment.topCenter,
+      insetPadding: const EdgeInsets.all(AppSpace.md),
+      backgroundColor: c.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: context.shape.borderRadius,
+        side: BorderSide(color: c.borderStrong),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpace.md),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              controller: _controller,
+              autofocus: true,
+              onChanged: _search,
+              onSubmitted: (_) {
+                if (_hits.companies.isNotEmpty) {
+                  _go(AppRoutes.company(_hits.companies.first.corpCode));
+                } else if (_hits.persons.isNotEmpty) {
+                  _go(AppRoutes.person(_hits.persons.first.personId));
+                }
+              },
+              style: t.body(15),
+              decoration: InputDecoration(
+                hintText: '회사명 · 종목코드 · 인물',
+                prefixIcon: Icon(Icons.search, color: c.textSecondary),
+              ),
+            ),
+            const SizedBox(height: AppSpace.xs),
+            _HitList(
+              hits: _hits,
+              onCompany: (item) => _go(AppRoutes.company(item.corpCode)),
+              onPerson: (p) => _go(AppRoutes.person(p.personId)),
+            ),
+          ],
         ),
       ),
     );

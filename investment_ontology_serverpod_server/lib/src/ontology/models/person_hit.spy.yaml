@@ -1,0 +1,12 @@
+### 인물 검색 결과 한 줄.
+class: PersonHit
+fields:
+  personId: int
+  name: String
+  estimated: bool
+  birthYear: int?
+  birthMonth: int?
+  ### 이 인물이 주주·임원으로 이어진 기업 수
+  companyCount: int
+  ### 이어진 기업 가운데 세 곳까지의 이름 (가나다순)
+  companyNames: List<String>

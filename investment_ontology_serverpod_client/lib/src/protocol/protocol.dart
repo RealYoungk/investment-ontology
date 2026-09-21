@@ -19,6 +19,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _icfgas7c;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/investment_theme.dart'
     as _izhmhfon;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/person_hit.dart'
+    as _i96d117e;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/review_item.dart'
     as _ihqozc6p;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/theme_summary.dart'
@@ -94,6 +96,7 @@ import 'ontology/models/market_snapshot_day.dart' as _i3renazk;
 import 'ontology/models/ontology_relation.dart' as _iejnlir1;
 import 'ontology/models/overview.dart' as _iz31wbgv;
 import 'ontology/models/person.dart' as _i9gy9ys0;
+import 'ontology/models/person_hit.dart' as _iyxi6nm4;
 import 'ontology/models/person_link_rejection.dart' as _iffou6wp;
 import 'ontology/models/person_profile.dart' as _i12ugm17;
 import 'ontology/models/person_role.dart' as _ipnxekll;
@@ -182,6 +185,7 @@ export 'ontology/models/market_snapshot_day.dart';
 export 'ontology/models/ontology_relation.dart';
 export 'ontology/models/overview.dart';
 export 'ontology/models/person.dart';
+export 'ontology/models/person_hit.dart';
 export 'ontology/models/person_link_rejection.dart';
 export 'ontology/models/person_profile.dart';
 export 'ontology/models/person_role.dart';
@@ -437,6 +441,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _i9gy9ys0.Person) {
       return _i9gy9ys0.Person.fromJson(data) as T;
+    }
+    if (t == _iyxi6nm4.PersonHit) {
+      return _iyxi6nm4.PersonHit.fromJson(data) as T;
     }
     if (t == _iffou6wp.PersonLinkRejection) {
       return _iffou6wp.PersonLinkRejection.fromJson(data) as T;
@@ -756,6 +763,9 @@ class Protocol extends _isc.SerializationManager {
     if (t == _isc.getType<_i9gy9ys0.Person?>()) {
       return (data != null ? _i9gy9ys0.Person.fromJson(data) : null) as T;
     }
+    if (t == _isc.getType<_iyxi6nm4.PersonHit?>()) {
+      return (data != null ? _iyxi6nm4.PersonHit.fromJson(data) : null) as T;
+    }
     if (t == _isc.getType<_iffou6wp.PersonLinkRejection?>()) {
       return (data != null
               ? _iffou6wp.PersonLinkRejection.fromJson(data)
@@ -1042,6 +1052,12 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_i96d117e.PersonHit>) {
+      return (data as List)
+              .map((e) => deserialize<_i96d117e.PersonHit>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_i7uvzrch.CompanyGroup>) {
       return (data as List)
               .map((e) => deserialize<_i7uvzrch.CompanyGroup>(e))
@@ -1143,6 +1159,7 @@ class Protocol extends _isc.SerializationManager {
       _iejnlir1.OntologyRelation => 'OntologyRelation',
       _iz31wbgv.Overview => 'Overview',
       _i9gy9ys0.Person => 'Person',
+      _iyxi6nm4.PersonHit => 'PersonHit',
       _iffou6wp.PersonLinkRejection => 'PersonLinkRejection',
       _i12ugm17.PersonProfile => 'PersonProfile',
       _ipnxekll.PersonRole => 'PersonRole',
@@ -1314,6 +1331,8 @@ class Protocol extends _isc.SerializationManager {
         return 'Overview';
       case _i9gy9ys0.Person():
         return 'Person';
+      case _iyxi6nm4.PersonHit():
+        return 'PersonHit';
       case _iffou6wp.PersonLinkRejection():
         return 'PersonLinkRejection';
       case _i12ugm17.PersonProfile():
@@ -1577,6 +1596,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'Person') {
       return deserialize<_i9gy9ys0.Person>(data['data']);
+    }
+    if (dataClassName == 'PersonHit') {
+      return deserialize<_iyxi6nm4.PersonHit>(data['data']);
     }
     if (dataClassName == 'PersonLinkRejection') {
       return deserialize<_iffou6wp.PersonLinkRejection>(data['data']);

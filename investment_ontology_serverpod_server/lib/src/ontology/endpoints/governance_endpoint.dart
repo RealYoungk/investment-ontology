@@ -138,6 +138,42 @@ class GovernanceEndpoint extends Endpoint {
     );
   }
 
+  /// 이름으로 인물을 찾는다. 이어진 기업이 많은 순서로 [limit]명.
+  Future<List<PersonHit>> searchPersons(
+    Session session,
+    String query, {
+    int? limit,
+  }) async {
+    final q = query.trim();
+    if (q.length < 2) return const [];
+    final rows = await session.db.unsafeQuery(
+      'SELECT p.id, p.name, p.estimated, p."birthYear", p."birthMonth", '
+      'count(DISTINCT r."objectCompanyId")::int AS n, '
+      '(array_agg(DISTINCT c.name))[1:3] AS names '
+      'FROM person p '
+      'JOIN ontology_relation r ON r."subjectPersonId" = p.id '
+      'JOIN company c ON c.id = r."objectCompanyId" '
+      'WHERE p.name LIKE @q '
+      'GROUP BY p.id ORDER BY n DESC, p.name LIMIT @limit',
+      parameters: QueryParameters.named({
+        'q': '${q.replaceAll('%', '').replaceAll('_', '')}%',
+        'limit': (limit ?? 5).clamp(1, 20),
+      }),
+    );
+    return [
+      for (final r in rows)
+        PersonHit(
+          personId: r[0] as int,
+          name: r[1] as String,
+          estimated: r[2] as bool,
+          birthYear: r[3] as int?,
+          birthMonth: r[4] as int?,
+          companyCount: r[5] as int,
+          companyNames: [for (final n in (r[6] as List? ?? const [])) '$n'],
+        ),
+    ];
+  }
+
   /// 인물과 그가 주주·임원으로 있는 기업 (각 기업의 가장 최근 사업보고서 기준).
   Future<PersonProfile?> person(Session session, int personId) async {
     final person = await Person.db.findById(session, personId);

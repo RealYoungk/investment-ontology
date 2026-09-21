@@ -78,6 +78,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _i5x2f28w;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/overview.dart'
     as _i5enxcw4;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/person_hit.dart'
+    as _iqw74hrd;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/person_profile.dart'
     as _inwk3hxk;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/relation_predicate.dart'
@@ -1164,6 +1166,39 @@ class _GovernanceEndpoint {
           _localUniqueSession,
           _localCallContext.arguments,
         ) as _ida.Future<_iye7y8x2.CompanyGovernance?>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<List<_iqw74hrd.PersonHit>> searchPersons(
+    _ist.TestSessionBuilder sessionBuilder,
+    String query, {
+    int? limit,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'governance',
+            method: 'searchPersons',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'governance',
+          methodName: 'searchPersons',
+          parameters: _ist.testObjectToJson({
+            'query': query,
+            'limit': limit,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue = await (_localCallContext.method.call(
+          _localUniqueSession,
+          _localCallContext.arguments,
+        ) as _ida.Future<List<_iqw74hrd.PersonHit>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

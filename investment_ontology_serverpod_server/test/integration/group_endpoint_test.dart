@@ -76,6 +76,9 @@ void main() {
       // 지주 → 자회사 (주주 명단), 자회사 → 손자회사 (경영참여 출자 40%).
       final sub = await report('자회사', DartSection.largestShareholders, 2025);
       await holder('자회사', sub, holderCompanyId: ids['지주']);
+      // 같은 주주의 우선주 행과 자기주식 행은 연결을 늘리지 않는다.
+      await holder('자회사', sub, holderCompanyId: ids['지주'], ratio: 3);
+      await holder('자회사', sub, holderCompanyId: ids['자회사'], ratio: 1);
       await holder('자회사', sub, personId: owner.id);
       final parent = await report('지주', DartSection.largestShareholders, 2025);
       await holder('지주', parent, personId: owner.id);
@@ -110,6 +113,12 @@ void main() {
         {'지주', '자회사', '손자회사'},
       );
       expect(g.edges, hasLength(2));
+      expect(
+        g.edges
+            .singleWhere((e) => e.predicate == RelationPredicate.shareholderOf)
+            .ratio,
+        30,
+      );
       expect(
         g.edges.map((e) => e.predicate),
         containsAll([
