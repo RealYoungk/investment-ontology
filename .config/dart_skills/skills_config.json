@@ -1,0 +1,465 @@
+{
+  "version": 2,
+  "installations": {
+    "generic": {
+      "package:serverpod": {
+        "skills": [
+          {
+            "name": "serverpod-logging",
+            "installedAt": "2026-09-22T04:49:13.128215Z",
+            "contentHash": "GxHJfqlCgplPWLBZRAakXA==",
+            "path": "skills/serverpod-logging"
+          },
+          {
+            "name": "serverpod-endpoints",
+            "installedAt": "2026-09-22T04:49:13.129460Z",
+            "contentHash": "WzNRaxk5Y98V2rNSpJoNoQ==",
+            "path": "skills/serverpod-endpoints"
+          },
+          {
+            "name": "serverpod-configuration",
+            "installedAt": "2026-09-22T04:49:13.131885Z",
+            "contentHash": "4egtTkTjWXbgShSHs/Br9w==",
+            "path": "skills/serverpod-configuration"
+          },
+          {
+            "name": "serverpod-modules",
+            "installedAt": "2026-09-22T04:49:13.132796Z",
+            "contentHash": "xk/XinyrYLdjMXEoTjENeg==",
+            "path": "skills/serverpod-modules"
+          },
+          {
+            "name": "serverpod-caching",
+            "installedAt": "2026-09-22T04:49:13.133517Z",
+            "contentHash": "I54rutBk+moFdPQf2oco2Q==",
+            "path": "skills/serverpod-caching"
+          },
+          {
+            "name": "serverpod-auth",
+            "installedAt": "2026-09-22T04:49:13.135684Z",
+            "contentHash": "u2v5X/zN3UD9foeQ7D7d0Q==",
+            "path": "skills/serverpod-auth"
+          },
+          {
+            "name": "serverpod-health-checks",
+            "installedAt": "2026-09-22T04:49:13.137098Z",
+            "contentHash": "iWEKi3XtCYO5fs427Myz3w==",
+            "path": "skills/serverpod-health-checks"
+          },
+          {
+            "name": "serverpod-migrations",
+            "installedAt": "2026-09-22T04:49:13.138960Z",
+            "contentHash": "0hYlBwapr4beOgX/AvV9Pg==",
+            "path": "skills/serverpod-migrations"
+          },
+          {
+            "name": "serverpod-database",
+            "installedAt": "2026-09-22T04:49:13.140380Z",
+            "contentHash": "g1gmuOnrsH0XcfW4JDhY9Q==",
+            "path": "skills/serverpod-database"
+          },
+          {
+            "name": "serverpod-testing",
+            "installedAt": "2026-09-22T04:49:13.142307Z",
+            "contentHash": "ZZXSM/scH1KdwNlSRS+fHA==",
+            "path": "skills/serverpod-testing"
+          },
+          {
+            "name": "serverpod-scheduling",
+            "installedAt": "2026-09-22T04:49:13.143722Z",
+            "contentHash": "KO6q6lVqLyE+RXyWfZzAgw==",
+            "path": "skills/serverpod-scheduling"
+          },
+          {
+            "name": "serverpod-server-events",
+            "installedAt": "2026-09-22T04:49:13.145105Z",
+            "contentHash": "hgKVZJDNwQK7utHN9Na5kQ==",
+            "path": "skills/serverpod-server-events"
+          },
+          {
+            "name": "serverpod-file-uploads",
+            "installedAt": "2026-09-22T04:49:13.146075Z",
+            "contentHash": "rc57BPJ4RExXKF94xJDvPw==",
+            "path": "skills/serverpod-file-uploads"
+          },
+          {
+            "name": "serverpod-flutter-frontend",
+            "installedAt": "2026-09-22T04:49:13.148114Z",
+            "contentHash": "jv1TR+wDHwkBArvLTg2jDA==",
+            "path": "skills/serverpod-flutter-frontend"
+          },
+          {
+            "name": "serverpod-models",
+            "installedAt": "2026-09-22T04:49:13.151312Z",
+            "contentHash": "3Zwv5UJZW8UAfDlW1Vx2bg==",
+            "path": "skills/serverpod-models"
+          },
+          {
+            "name": "serverpod-overview",
+            "installedAt": "2026-09-22T04:49:13.152785Z",
+            "contentHash": "T9RxkFbcugpwDaPKhmNvnA==",
+            "path": "skills/serverpod-overview"
+          },
+          {
+            "name": "serverpod-streams",
+            "installedAt": "2026-09-22T04:49:13.154430Z",
+            "contentHash": "/KH/kl1f5t5niDgicYbQLQ==",
+            "path": "skills/serverpod-streams"
+          },
+          {
+            "name": "serverpod-webserver",
+            "installedAt": "2026-09-22T04:49:13.158136Z",
+            "contentHash": "dmEXC7lAt806bpZEXAnE3A==",
+            "path": "skills/serverpod-webserver"
+          },
+          {
+            "name": "serverpod-sessions",
+            "installedAt": "2026-09-22T04:49:13.159023Z",
+            "contentHash": "8ft0Qsj9A6OMIf/0J+fgzQ==",
+            "path": "skills/serverpod-sessions"
+          },
+          {
+            "name": "serverpod-upgrading",
+            "installedAt": "2026-09-22T04:49:13.159870Z",
+            "contentHash": "+PcrpWCvyYEo/mIfXc4xTQ==",
+            "path": "skills/serverpod-upgrading"
+          },
+          {
+            "name": "serverpod-deployment",
+            "installedAt": "2026-09-22T04:49:13.160593Z",
+            "contentHash": "nUhj/FK7jSfYuhw8xZRdOg==",
+            "path": "skills/serverpod-deployment"
+          }
+        ]
+      },
+      "https://github.com/flutter/skills.git": {
+        "skills": [
+          {
+            "name": "flutter-implement-json-serialization",
+            "installedAt": "2026-09-22T04:49:13.162320Z",
+            "contentHash": "jC7hDMdTDD0frc0y0+kN0Q==",
+            "path": "skills/flutter-implement-json-serialization"
+          },
+          {
+            "name": "dart-use-pattern-matching",
+            "installedAt": "2026-09-22T04:49:13.164768Z",
+            "contentHash": "Yia2r8G/M4iUDqTzalAGsA==",
+            "path": "skills/dart-use-pattern-matching"
+          },
+          {
+            "name": "flutter-add-widget-test",
+            "installedAt": "2026-09-22T04:49:13.166039Z",
+            "contentHash": "FzecKt4J27Rmhl/zaDbaWA==",
+            "path": "skills/flutter-add-widget-test"
+          },
+          {
+            "name": "flutter-use-http-package",
+            "installedAt": "2026-09-22T04:49:13.167404Z",
+            "contentHash": "k316EVUUi1d4WlV8e47w5Q==",
+            "path": "skills/flutter-use-http-package"
+          },
+          {
+            "name": "flutter-build-responsive-layout",
+            "installedAt": "2026-09-22T04:49:13.168813Z",
+            "contentHash": "gBxqGFG9MvBAZgKyWHKFyQ==",
+            "path": "skills/flutter-build-responsive-layout"
+          },
+          {
+            "name": "flutter-apply-architecture-best-practices",
+            "installedAt": "2026-09-22T04:49:13.170392Z",
+            "contentHash": "xR4gAYksQ6W4FvrjpvHV3A==",
+            "path": "skills/flutter-apply-architecture-best-practices"
+          },
+          {
+            "name": "dart-write-documentation",
+            "installedAt": "2026-09-22T04:49:13.171802Z",
+            "contentHash": "64nJUzpJ+sDVo2FHkcBHHg==",
+            "path": "skills/dart-write-documentation"
+          },
+          {
+            "name": "dart-generate-test-mocks",
+            "installedAt": "2026-09-22T04:49:13.172696Z",
+            "contentHash": "kx0+ybzEkMzmVJBuJHgsDQ==",
+            "path": "skills/dart-generate-test-mocks"
+          },
+          {
+            "name": "dart-use-ffigen",
+            "installedAt": "2026-09-22T04:49:13.173635Z",
+            "contentHash": "hTYntbDqTCtS3UOdN4Tc5A==",
+            "path": "skills/dart-use-ffigen"
+          },
+          {
+            "name": "dart-use-path-package",
+            "installedAt": "2026-09-22T04:49:13.175317Z",
+            "contentHash": "e0m4m0mMzI10eZKozWKVow==",
+            "path": "skills/dart-use-path-package"
+          },
+          {
+            "name": "flutter-add-widget-preview",
+            "installedAt": "2026-09-22T04:49:13.176105Z",
+            "contentHash": "I82x9gum3iTszPB2Sy1oAA==",
+            "path": "skills/flutter-add-widget-preview"
+          },
+          {
+            "name": "flutter-setup-declarative-routing",
+            "installedAt": "2026-09-22T04:49:13.177036Z",
+            "contentHash": "0/j9PSB16r7eqKdm3xZzXw==",
+            "path": "skills/flutter-setup-declarative-routing"
+          },
+          {
+            "name": "dart-resolve-package-conflicts",
+            "installedAt": "2026-09-22T04:49:13.177811Z",
+            "contentHash": "P1PB2AipggVpvuq7a946wg==",
+            "path": "skills/dart-resolve-package-conflicts"
+          },
+          {
+            "name": "dart-collect-coverage",
+            "installedAt": "2026-09-22T04:49:13.178567Z",
+            "contentHash": "B9/qZ2V7FxeX+MIy1Pc2iA==",
+            "path": "skills/dart-collect-coverage"
+          },
+          {
+            "name": "dart-use-doc-examples",
+            "installedAt": "2026-09-22T04:49:13.179927Z",
+            "contentHash": "Tt8hXMKuQl1PhF8i9cKbkA==",
+            "path": "skills/dart-use-doc-examples"
+          },
+          {
+            "name": "dart-use-primary-constructors",
+            "installedAt": "2026-09-22T04:49:13.181396Z",
+            "contentHash": "KGPHLdTcdu14G+LPwL5YFQ==",
+            "path": "skills/dart-use-primary-constructors"
+          },
+          {
+            "name": "dart-setup-ffi-assets",
+            "installedAt": "2026-09-22T04:49:13.182629Z",
+            "contentHash": "TLc8v8xZi8gIa0Fvhqjq+w==",
+            "path": "skills/dart-setup-ffi-assets"
+          },
+          {
+            "name": "flutter-fix-layout-issues",
+            "installedAt": "2026-09-22T04:49:13.183504Z",
+            "contentHash": "u/ZzEgUP9eg1TFe4v9KmCQ==",
+            "path": "skills/flutter-fix-layout-issues"
+          },
+          {
+            "name": "dart-migrate-to-checks-package",
+            "installedAt": "2026-09-22T04:49:13.185003Z",
+            "contentHash": "qnEkEh/eW/JmKpsNQ80yRQ==",
+            "path": "skills/dart-migrate-to-checks-package"
+          },
+          {
+            "name": "dart-fix-runtime-errors",
+            "installedAt": "2026-09-22T04:49:13.186032Z",
+            "contentHash": "ttSySW/9ys1is3DsMxjrMA==",
+            "path": "skills/dart-fix-runtime-errors"
+          },
+          {
+            "name": "dart-add-unit-test",
+            "installedAt": "2026-09-22T04:49:13.186839Z",
+            "contentHash": "BTBQcGE2w7XxaizcWbHAmQ==",
+            "path": "skills/dart-add-unit-test"
+          },
+          {
+            "name": "flutter-add-integration-test",
+            "installedAt": "2026-09-22T04:49:13.188119Z",
+            "contentHash": "/PxwGBPNmmTMUqvExCD9bg==",
+            "path": "skills/flutter-add-integration-test"
+          },
+          {
+            "name": "dart-run-static-analysis",
+            "installedAt": "2026-09-22T04:49:13.189770Z",
+            "contentHash": "wEl5bxwKPCSBFoChl5ZENQ==",
+            "path": "skills/dart-run-static-analysis"
+          },
+          {
+            "name": "flutter-setup-localization",
+            "installedAt": "2026-09-22T04:49:13.191190Z",
+            "contentHash": "yCerR0eEktC1qzgW8Zs6Uw==",
+            "path": "skills/flutter-setup-localization"
+          },
+          {
+            "name": "dart-build-cli-app",
+            "installedAt": "2026-09-22T04:49:13.195344Z",
+            "contentHash": "LIS02EaKQenkn8rC4UkUng==",
+            "path": "skills/dart-build-cli-app"
+          }
+        ]
+      }
+    },
+    "claude": {
+      "package:relic": {
+        "skills": [
+          {
+            "name": "relic-static-files",
+            "installedAt": "2026-09-17T08:30:13.668568Z"
+          },
+          {
+            "name": "relic-app-setup",
+            "installedAt": "2026-09-17T08:30:13.669773Z"
+          },
+          {
+            "name": "relic-shelf-migration",
+            "installedAt": "2026-09-17T08:30:13.670919Z"
+          },
+          {
+            "name": "relic-routing",
+            "installedAt": "2026-09-17T08:30:13.672215Z"
+          },
+          {
+            "name": "relic-request-response",
+            "installedAt": "2026-09-17T08:30:13.673388Z"
+          },
+          {
+            "name": "relic-middleware",
+            "installedAt": "2026-09-17T08:30:13.674417Z"
+          },
+          {
+            "name": "relic-websockets",
+            "installedAt": "2026-09-17T08:30:13.675154Z"
+          }
+        ]
+      },
+      "package:serverpod": {
+        "skills": [
+          {
+            "name": "serverpod-logging",
+            "installedAt": "2026-09-17T08:30:13.675984Z"
+          },
+          {
+            "name": "serverpod-endpoints",
+            "installedAt": "2026-09-17T08:30:13.676882Z"
+          },
+          {
+            "name": "serverpod-configuration",
+            "installedAt": "2026-09-17T08:30:13.678963Z"
+          },
+          {
+            "name": "serverpod-modules",
+            "installedAt": "2026-09-17T08:30:13.679662Z"
+          },
+          {
+            "name": "serverpod-caching",
+            "installedAt": "2026-09-17T08:30:13.680383Z"
+          },
+          {
+            "name": "serverpod-auth",
+            "installedAt": "2026-09-17T08:30:13.682887Z"
+          },
+          {
+            "name": "serverpod-health-checks",
+            "installedAt": "2026-09-17T08:30:13.683853Z"
+          },
+          {
+            "name": "serverpod-migrations",
+            "installedAt": "2026-09-17T08:30:13.684936Z"
+          },
+          {
+            "name": "serverpod-database",
+            "installedAt": "2026-09-17T08:30:13.686174Z"
+          },
+          {
+            "name": "serverpod-testing",
+            "installedAt": "2026-09-17T08:30:13.687613Z"
+          },
+          {
+            "name": "serverpod-scheduling",
+            "installedAt": "2026-09-17T08:30:13.689500Z"
+          },
+          {
+            "name": "serverpod-server-events",
+            "installedAt": "2026-09-17T08:30:13.694515Z"
+          },
+          {
+            "name": "serverpod-file-uploads",
+            "installedAt": "2026-09-17T08:30:13.696782Z"
+          },
+          {
+            "name": "serverpod-flutter-frontend",
+            "installedAt": "2026-09-17T08:30:13.703648Z"
+          },
+          {
+            "name": "serverpod-models",
+            "installedAt": "2026-09-17T08:30:13.709386Z"
+          },
+          {
+            "name": "serverpod-overview",
+            "installedAt": "2026-09-17T08:30:13.710480Z"
+          },
+          {
+            "name": "serverpod-streams",
+            "installedAt": "2026-09-17T08:30:13.711435Z"
+          },
+          {
+            "name": "serverpod-webserver",
+            "installedAt": "2026-09-17T08:30:13.714265Z"
+          },
+          {
+            "name": "serverpod-sessions",
+            "installedAt": "2026-09-17T08:30:13.715640Z"
+          },
+          {
+            "name": "serverpod-upgrading",
+            "installedAt": "2026-09-17T08:30:13.716857Z"
+          },
+          {
+            "name": "serverpod-deployment",
+            "installedAt": "2026-09-17T08:30:13.717530Z"
+          }
+        ]
+      },
+      "package:synchronized": {
+        "skills": [
+          {
+            "name": "synchronized-lock",
+            "installedAt": "2026-09-17T08:30:13.718486Z"
+          }
+        ]
+      },
+      "https://github.com/flutter/skills.git": {
+        "skills": [
+          {
+            "name": "flutter-implement-json-serialization",
+            "installedAt": "2026-09-17T08:30:13.719641Z"
+          },
+          {
+            "name": "flutter-add-widget-test",
+            "installedAt": "2026-09-17T08:30:13.720709Z"
+          },
+          {
+            "name": "flutter-use-http-package",
+            "installedAt": "2026-09-17T08:30:13.721506Z"
+          },
+          {
+            "name": "flutter-build-responsive-layout",
+            "installedAt": "2026-09-17T08:30:13.722261Z"
+          },
+          {
+            "name": "flutter-apply-architecture-best-practices",
+            "installedAt": "2026-09-17T08:30:13.723078Z"
+          },
+          {
+            "name": "flutter-add-widget-preview",
+            "installedAt": "2026-09-17T08:30:13.723915Z"
+          },
+          {
+            "name": "flutter-setup-declarative-routing",
+            "installedAt": "2026-09-17T08:30:13.724738Z"
+          },
+          {
+            "name": "flutter-fix-layout-issues",
+            "installedAt": "2026-09-17T08:30:13.725539Z"
+          },
+          {
+            "name": "flutter-add-integration-test",
+            "installedAt": "2026-09-17T08:30:13.726555Z"
+          },
+          {
+            "name": "flutter-setup-localization",
+            "installedAt": "2026-09-17T08:30:13.727283Z"
+          }
+        ]
+      }
+    }
+  }
+}

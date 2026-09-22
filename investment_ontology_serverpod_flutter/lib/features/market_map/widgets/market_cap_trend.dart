@@ -115,12 +115,12 @@ class _MarketCapTrendState extends State<MarketCapTrend> {
           ),
         ),
         const SizedBox(height: AppSpace.sm),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
+        // 좁은 화면에서는 기간이 다음 줄로 내려간다 (Row면 오른쪽이 잘린다).
+        Wrap(
+          spacing: AppSpace.sm,
+          crossAxisAlignment: WrapCrossAlignment.end,
           children: [
             Text(formatKrw(last.marketCap), style: t.numeric(22)),
-            const SizedBox(width: AppSpace.sm),
             if (change != null)
               Text(
                 '${change >= 0 ? '+' : ''}${change.toStringAsFixed(1)}%',
@@ -129,7 +129,6 @@ class _MarketCapTrendState extends State<MarketCapTrend> {
                   color: change >= 0 ? c.accent : c.textSecondary,
                 ),
               ),
-            const SizedBox(width: AppSpace.sm),
             Text(
               '${formatDate(first.date)} → ${formatDate(last.date)} · '
               '종목 ${formatCount(last.securityCount)}개',
