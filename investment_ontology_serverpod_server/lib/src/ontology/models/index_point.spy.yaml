@@ -1,0 +1,6 @@
+### 지수 추이의 한 점.
+class: IndexPoint
+fields:
+  date: DateTime
+  ### 종가 (지수 값, 원문 소수 그대로)
+  value: double

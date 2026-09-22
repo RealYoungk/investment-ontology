@@ -11,7 +11,6 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _is;
-
 import '../../ontology/models/business_digest_kind.dart' as _ir8vruw8;
 
 /// 사업보고서 "사업의 내용"을 절마다 읽기 좋게 녹인 글. 원문을 통째로 보여 주는 대신 이것을 보여 준다.

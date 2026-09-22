@@ -60,6 +60,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _iurgb10z;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/fs_div.dart'
     as _indtcksm;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/index_history.dart'
+    as _imi7bbqj;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ingest_coverage.dart'
     as _i2drq233;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ingest_job.dart'
@@ -961,6 +963,24 @@ class EndpointMarket extends _isc.EndpointRef {
     'capHistory',
     {
       'market': market,
+      'days': days,
+    },
+  );
+
+  /// 지수 추이 ([days] 달력일). 코스피·코스닥은 이름이 곧 지수명이다 ("코스피", "코스닥").
+  ///
+  /// 같은 이름이 여러 계열에 있으면(예: "IT 서비스"는 KOSPI·KOSDAQ 계열 둘 다) [series]로 고른다.
+  /// 없으면 null. 점은 [_pricePoints]개 안팎으로 솎고 마지막 점은 늘 최근 거래일이다.
+  _ida.Future<_imi7bbqj.IndexHistory?> indexHistory(
+    String name, {
+    String? series,
+    required int days,
+  }) => caller.callServerEndpoint<_imi7bbqj.IndexHistory?>(
+    'market',
+    'indexHistory',
+    {
+      'name': name,
+      'series': series,
       'days': days,
     },
   );

@@ -13,7 +13,6 @@
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart'
     as _i4yshtjp;
 import 'package:serverpod/serverpod.dart' as _is;
-
 import '../../ontology/models/dividend_entry.dart' as _i2wevjp3;
 import '../../ontology/models/source.dart' as _i5ra8lvy;
 import '../../ontology/models/stock_total_row.dart' as _iujsfq9w;

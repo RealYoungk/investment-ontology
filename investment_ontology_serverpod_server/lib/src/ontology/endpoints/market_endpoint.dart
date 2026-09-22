@@ -191,6 +191,49 @@ class MarketEndpoint extends Endpoint {
         .toList();
   }
 
+  /// 지수 추이 ([days] 달력일). 코스피·코스닥은 이름이 곧 지수명이다 ("코스피", "코스닥").
+  ///
+  /// 같은 이름이 여러 계열에 있으면(예: "IT 서비스"는 KOSPI·KOSDAQ 계열 둘 다) [series]로 고른다.
+  /// 없으면 null. 점은 [_pricePoints]개 안팎으로 솎고 마지막 점은 늘 최근 거래일이다.
+  Future<IndexHistory?> indexHistory(
+    Session session,
+    String name, {
+    String? series,
+    int days = 365,
+  }) async {
+    final latest = await MarketIndexSnapshot.db.findFirstRow(
+      session,
+      where: (t) => series == null
+          ? t.name.equals(name)
+          : t.name.equals(name) & t.series.equals(series),
+      orderBy: (t) => t.baseDate.desc(),
+    );
+    if (latest == null) return null;
+    final from = latest.baseDate.subtract(Duration(days: days.clamp(30, 3660)));
+    final rows = await MarketIndexSnapshot.db.find(
+      session,
+      where: (t) =>
+          t.name.equals(name) &
+          t.series.equals(latest.series) &
+          (t.baseDate >= from),
+      orderBy: (t) => t.baseDate,
+    );
+    if (rows.isEmpty) return null;
+    final stride = (rows.length / _pricePoints).ceil().clamp(1, 60);
+    final picked = [
+      for (var i = rows.length - 1; i >= 0; i -= stride) rows[i],
+    ].reversed;
+    return IndexHistory(
+      series: latest.series,
+      name: latest.name,
+      stride: stride,
+      points: [
+        for (final r in picked) IndexPoint(date: r.baseDate, value: r.close),
+      ],
+      lastChangeRate: latest.changeRate,
+    );
+  }
+
   /// 상장주식수가 이보다 달라졌으면 종가를 이어 붙이지 않는다 (스크리너와 같은 규칙).
   static const shareTolerance = 0.3;
 

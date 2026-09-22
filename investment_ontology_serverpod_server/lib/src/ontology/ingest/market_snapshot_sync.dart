@@ -200,6 +200,11 @@ class MarketSnapshotSync {
         }
       }
 
+      var indexDays = 0;
+      if (job.status != IngestStatus.cancelled) {
+        indexDays = await _syncIndexes(start, failures);
+      }
+
       var linked = 0;
       final cancelled = job.status == IngestStatus.cancelled;
       final latestDay = await MarketSnapshotDay.db.findFirstRow(
@@ -227,7 +232,8 @@ class MarketSnapshotSync {
       }
 
       final remaining = dates.length - processed;
-      var message = '시세 $stored일 저장, 남은 기준일 $remaining일, 기업 연결 종목 $linked개';
+      var message =
+          '시세 $stored일 저장, 남은 기준일 $remaining일, 지수 $indexDays일 저장, 기업 연결 종목 $linked개';
       if (_budgetExhausted && !cancelled) {
         final at = ApiCallBudget.nextKstMidnight(
           now,
@@ -384,6 +390,142 @@ class MarketSnapshotSync {
       await MarketSnapshotDay.db.insertRow(
         session,
         MarketSnapshotDay(
+          baseDate: date,
+          rowCount: rows.length,
+          sourceId: source.id,
+          fetchedAt: DateTime.now().toUtc(),
+        ),
+        transaction: tx,
+      );
+    });
+  }
+
+  /// 지수시세를 받는다. 거래일·휴장일은 시세 장부([MarketSnapshotDay])를 따른다 —
+  /// 시세가 있는 날만 부르고, 시세가 0건으로 확정된 휴장일은 부르지 않고 0건으로 적는다.
+  /// 저장한 기준일 수를 돌려준다.
+  Future<int> _syncIndexes(DateTime start, List<String> failures) async {
+    final fetched = {
+      for (final d in await MarketIndexDay.db.find(session))
+        d.baseDate.millisecondsSinceEpoch,
+    };
+    final days = await MarketSnapshotDay.db.find(
+      session,
+      where: (t) => t.baseDate >= start,
+      orderBy: (t) => t.baseDate.desc(),
+    );
+    var stored = 0;
+    for (final day in days) {
+      if (fetched.contains(day.baseDate.millisecondsSinceEpoch)) continue;
+      if (day.rowCount == 0) {
+        await MarketIndexDay.db.insertRow(
+          session,
+          MarketIndexDay(
+            baseDate: day.baseDate,
+            rowCount: 0,
+            fetchedAt: DateTime.now().toUtc(),
+          ),
+        );
+        continue;
+      }
+      if (!_hasAllowance) break;
+      try {
+        final items = await _allPages(
+          (page) => client.fetchMarketIndexes(day.baseDate, page: page),
+        );
+        if (items == null) break;
+        // 시세가 있는 날에 지수가 비어 오면 아직 공개 전이다 — 장부에 남기지 않고 다음에 다시 본다.
+        if (items.isEmpty) continue;
+        await _storeIndexDay(day.baseDate, items);
+        stored++;
+      } on DataGoKrApiException catch (e) {
+        if (e.code == '22') {
+          _budgetExhausted = true;
+          break;
+        }
+        if (e.isFatal) {
+          failures.add('지수 ${DartValues.formatYmd(day.baseDate)}: $e');
+          break;
+        }
+        if (failures.length < 5) {
+          failures.add('지수 ${DartValues.formatYmd(day.baseDate)}: $e');
+        }
+        session.log(
+          '지수 수집 실패 ${DartValues.formatYmd(day.baseDate)}: $e',
+          level: LogLevel.warning,
+        );
+      }
+      if (stored % 20 == 0) await _meter.flush(session);
+    }
+    return stored;
+  }
+
+  /// 원문 소수 문자열 → double. 비었거나 숫자가 아니면 null.
+  static double? decimal(Object? value) {
+    final v = DartValues.text(value)?.replaceAll(',', '');
+    if (v == null || v == '-') return null;
+    return double.tryParse(v);
+  }
+
+  Future<void> _storeIndexDay(
+    DateTime date,
+    List<Map<String, dynamic>> items,
+  ) async {
+    final ymd = DartValues.formatYmd(date);
+    await session.db.transaction((tx) async {
+      final source = await Source.db.insertRow(
+        session,
+        Source(
+          kind: SourceKind.dataGoKrApi,
+          title: '공공데이터포털 금융위원회_지수시세정보 (getStockMarketIndex_V2) $ymd',
+          reference: ymd,
+          url: DataGoKrClient.publicUrl(
+            DataGoKrClient.marketIndexPath,
+            date,
+          ).toString(),
+          retrievedAt: DateTime.now().toUtc(),
+        ),
+        transaction: tx,
+      );
+      final seen = <String>{};
+      final rows = <MarketIndexSnapshot>[];
+      for (final item in items) {
+        final name = DartValues.text(item['idxNm']);
+        final series = DartValues.text(item['idxCsf']);
+        final close = decimal(item['clpr']);
+        if (name == null || series == null || close == null) continue;
+        if (!seen.add('$series|$name')) continue;
+        rows.add(
+          MarketIndexSnapshot(
+            baseDate: date,
+            series: series,
+            name: name,
+            close: close,
+            change: decimal(item['vs']),
+            changeRate: decimal(item['fltRt']),
+            open: decimal(item['mkp']),
+            high: decimal(item['hipr']),
+            low: decimal(item['lopr']),
+            volume: DartValues.amount(item['trqu']),
+            tradingValue: DartValues.amount(item['trPrc']),
+            marketCap: DartValues.amount(item['lstgMrktTotAmt']),
+            constituentCount: int.tryParse(
+              DartValues.text(item['epyItmsCnt']) ?? '',
+            ),
+            sourceId: source.id!,
+          ),
+        );
+      }
+      await MarketIndexSnapshot.db.deleteWhere(
+        session,
+        where: (t) => t.baseDate.equals(date),
+        transaction: tx,
+      );
+      if (rows.isNotEmpty) {
+        await MarketIndexSnapshot.db.insert(session, rows, transaction: tx);
+      }
+      await MarketIndexDay.db.insertRow(
+        session,
+        MarketIndexDay(
           baseDate: date,
           rowCount: rows.length,
           sourceId: source.id,

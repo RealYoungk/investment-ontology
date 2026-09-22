@@ -11,6 +11,7 @@ import '../common/formatters.dart';
 import '../companies/company_filter.dart';
 import '../financials/financial_metrics.dart';
 import 'market_cap_treemap_section.dart';
+import 'widgets/index_trend.dart';
 import 'widgets/industry_distribution.dart';
 import 'widgets/market_cap_trend.dart';
 import 'widgets/market_summary.dart';
@@ -103,6 +104,12 @@ class _MarketPageState extends State<MarketPage> {
           const SizedBox(height: AppSpace.lg),
           AppNotice(message: '서버에 연결하지 못했습니다 — $_error'),
         ],
+        const SizedBox(height: AppSpace.section),
+        ValueListenableBuilder<int>(
+          valueListenable: IngestMonitor.instance.dataVersion,
+          builder: (context, version, _) =>
+              IndexTrend(key: ValueKey('index-trend-$version')),
+        ),
         const SizedBox(height: AppSpace.section),
         ValueListenableBuilder<int>(
           valueListenable: IngestMonitor.instance.dataVersion,
