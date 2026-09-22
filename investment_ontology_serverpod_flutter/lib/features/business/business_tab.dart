@@ -856,7 +856,8 @@ class _DocumentFactsState extends State<_DocumentFacts> {
             columns: const [
               AppColumn('항목', nowrap: true),
               AppColumn('구분'),
-              AppColumn('값', numeric: true),
+              // 값은 한 줄로 — 칸이 좁으면 "2,387,516백\n만원"처럼 접힌다.
+              AppColumn('값', numeric: true, nowrap: true),
               AppColumn('기준일', nowrap: true),
               AppColumn('근거'),
             ],
@@ -869,6 +870,7 @@ class _DocumentFactsState extends State<_DocumentFacts> {
                     context,
                     '${formatDecimal(f.value)}${f.unit}',
                     numeric: true,
+                    nowrap: true,
                   ),
                   AppDataTable.text(
                     context,
