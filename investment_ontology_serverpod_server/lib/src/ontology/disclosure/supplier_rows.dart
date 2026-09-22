@@ -15,7 +15,7 @@ abstract final class SupplierRows {
 
   /// 이름 뒤에 붙는 군더더기.
   static final _tail = RegExp(
-    r'(\s*(등|외|外|기타)\s*$)|(\s*(인천|구미|아산|창원|울산|여수|천안)?\s*(공장|사업장|본사|외주)\s*$)',
+    r'(\s*(등|외|外|기타|계열)\s*$)|(\s*(인천|구미|아산|창원|울산|여수|천안|거제|영암)?\s*(공장|사업장|본사|외주|조선소)\s*$)',
   );
 
   static final _bad = RegExp(
@@ -47,6 +47,129 @@ abstract final class SupplierRows {
           out.add((name: name, evidence: sentence));
           if (out.length >= maxNames) return out;
         }
+      }
+    }
+    return out;
+  }
+
+  /// 매출처 표의 머리글 칸. 매입처 표와 헷갈리지 않게 "매입"이 든 줄은 받지 않는다.
+  /// "매출처"·"주요 매출처"·"주요매출처" 칸만 (거래처·고객은 판매경로·결제조건 표에도 쓰여 못 미덥다).
+  static final _customerHeader = RegExp(r'^(주요\s*)?매출처(\s*명)?$');
+  static final _shareHeader = RegExp(r'비중|비율|점유율');
+  static final _amountHeader = RegExp(r'매출액|매출금액|금액|매출');
+  static final _numeric = RegExp(r'^[\d,]+(?:\.\d+)?%?$');
+
+  /// 이름이 아니라 구분·경로인 칸 — 이런 줄은 매출처가 아니다.
+  static final _category = RegExp(
+    r'^(국내|해외|내수|수출|유통|직영|직판|대리점|특약점|대리점\s*및\s*특약점|온라인|오프라인|홈쇼핑|B2B|B2C|기타|소계|합계|계|총계|제품|상품|용역|합\s*계|소\s*계|총\s*계)$',
+  );
+
+  /// 이름이 아닌 것들: "기타거래처"·"제조회사"·"조선 산업"·"폴란드 등완제기 수출국"·
+  /// "조합관리보수", 그리고 표가 뒤집혀 있을 때 이름 칸에 오는 "매출비중".
+  static final _generic = RegExp(
+    r'거래처$|(^|\s)(회사|산업|업체|고객|고객사|수출국)$|보수$|수수료$|^(제조|판매|유통|협력)\s*회사$|비중|비율',
+  );
+
+  /// 이름을 쉼표로 나누되 ", Ltd."·", Inc" 같은 법인 접미사 앞의 쉼표는 나누지 않는다
+  /// ("SK Energy International Pte., Ltd."가 "Ltd."로 쪼개지지 않게).
+  static final _nameSplit = RegExp(
+    r'[,،](?!\s*(?:Ltd|LTD|Inc|INC|Co|CO|Corp|CORP|LLC|Limited|LIMITED|S\.A|GmbH|PLC|plc)\b)|/|\s및\s',
+  );
+
+  /// "주요 매출처 | 매출액 | 비중" 표의 (매출처 이름, 비중 %, 그 줄).
+  ///
+  /// 머리글에서 매출처 칸과 비중 칸을 집는다. 비중 칸이 없으면 이름만 받는다.
+  /// 오른쪽 끝 기준으로 칸을 다시 찾으므로 이름 칸이 합쳐져 있어도 비중은 맞게 읽힌다.
+  static List<({String name, double? share, String evidence})> customerRows(
+    String text,
+  ) {
+    final out = <({String name, double? share, String evidence})>[];
+    final seen = <String>{};
+    var nameAt = -1, shareAt = -1, columns = -1;
+    for (final raw in text.split('\n')) {
+      final line = raw.trim();
+      if (line.isEmpty || line.startsWith('※')) continue;
+      final cells = [for (final c in line.split('|')) c.trim()];
+      if (cells.length < 2) {
+        if (!line.contains('|')) nameAt = -1;
+        continue;
+      }
+      // 매입처 표가 바로 이어지면 앞 매출처 표의 칸 자리를 잊는다.
+      if (_header.hasMatch(line)) {
+        nameAt = -1;
+        continue;
+      }
+      final h = cells.indexWhere(_customerHeader.hasMatch);
+      // 머리글: 매출처 칸과 금액·비중 칸이 같이 있고 숫자 칸은 없다.
+      if (h >= 0 &&
+          !cells.any(_numeric.hasMatch) &&
+          cells.any(
+            (c) => _shareHeader.hasMatch(c) || _amountHeader.hasMatch(c),
+          )) {
+        nameAt = h;
+        shareAt = cells.indexWhere(_shareHeader.hasMatch);
+        columns = cells.length;
+        continue;
+      }
+      if (nameAt < 0) continue;
+      // 둘째 머리글 줄("2025년 | 2024년", "금액 | 비중")은 값이 아니다.
+      if (cells.every(
+        (c) =>
+            c.isEmpty ||
+            _headerWord.hasMatch(c) ||
+            _shareHeader.hasMatch(c) ||
+            RegExp(r'^(제\s*\d+\s*기|\d{4}년?)').hasMatch(c),
+      )) {
+        continue;
+      }
+      // 값 줄에는 숫자 칸(금액이나 비중)이 있다. 없으면 표가 끝난 것이다.
+      if (!cells.any(_numeric.hasMatch)) {
+        nameAt = -1;
+        continue;
+      }
+      if (nameAt >= cells.length) continue;
+      final cell = cells[nameAt];
+      if (cell.isEmpty || _category.hasMatch(cell)) continue;
+      double? share;
+      if (shareAt >= 0) {
+        // 비고 칸이 비어 있으면 줄이 머리글보다 짧다. 머리글 자리와 오른쪽 끝 기준 자리 가운데
+        // 비중처럼 보이는 값(%가 붙었거나 100 이하)을 고른다.
+        for (final idx in {shareAt, cells.length - (columns - shareAt)}) {
+          if (idx < 0 || idx >= cells.length) continue;
+          final raw = cells[idx];
+          final v = double.tryParse(raw.replaceAll(RegExp(r'[%,\s]'), ''));
+          if (v == null) continue;
+          if (raw.contains('%') || v <= 100) {
+            share = v;
+            break;
+          }
+        }
+      }
+      final pieces = [
+        for (final p in cell.split(_nameSplit))
+          if (p.trim().isNotEmpty) p.trim(),
+      ];
+      for (final piece in pieces) {
+        var name = piece;
+        for (var i = 0; i < 3; i++) {
+          final next = name.replaceAll(_tail, '').trim();
+          if (next == name) break;
+          name = next;
+        }
+        if (name.length < 2 || name.length > 40) continue;
+        if (_bad.hasMatch(name) ||
+            _category.hasMatch(name) ||
+            _generic.hasMatch(name)) {
+          continue;
+        }
+        if (!seen.add(name)) continue;
+        // 한 칸에 여럿이면 비중은 그 묶음의 것이라 이름마다 붙이지 않는다.
+        out.add((
+          name: name,
+          share: pieces.length > 1 ? null : share,
+          evidence: line,
+        ));
+        if (out.length >= maxNames) return out;
       }
     }
     return out;
