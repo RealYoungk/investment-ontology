@@ -29,6 +29,16 @@ Harman | 디지털 콕핏 등 | 157,833 | 4.7%
     expect(rows.last.amount, -301146, reason: '△는 음수');
   });
 
+  test('단위 표기를 돈 단위 하나로 정리한다', () {
+    expect(SegmentRevenue.pickUnit('건, 백만원'), '백만원');
+    expect(SegmentRevenue.pickUnit('USD 1,000'), 'USD천');
+    expect(SegmentRevenue.pickUnit('1,000원'), '천원');
+    expect(SegmentRevenue.pickUnit('천USD,천원'), '', reason: '통화 둘');
+    expect(SegmentRevenue.pickUnit('개'), '', reason: '수량은 매출 단위가 아니다');
+    expect(SegmentRevenue.pickUnit('VND억'), 'VND억');
+    expect(SegmentRevenue.pickUnit('천U\$'), '천U\$');
+  });
+
   test('비중이 매출액 ÷ 합계와 어긋나면 그 표를 버린다', () {
     const wrong = '''
 (단위 : 억원, %)
