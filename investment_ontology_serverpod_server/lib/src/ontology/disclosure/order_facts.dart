@@ -54,6 +54,7 @@ abstract final class OrderFacts {
     String? lastUnit;
     var lastUnitAt = -1000;
     var inTable = false;
+    var flow = false;
     var unit = '';
     var rows =
         <
@@ -125,11 +126,13 @@ abstract final class OrderFacts {
         lastUnit = u.group(1)!.trim();
         lastUnitAt = i;
       }
-      if (line.contains('수주총액') &&
-          line.contains('기납품액') &&
-          line.contains('수주잔고')) {
+      final header = _headerKind(line);
+      if (header != null) {
         flush();
+        // 공사명·현장명이 있는 표는 프로젝트별 상세라 회사 전체 값이 아니다 (발주처 칸은 표준 표에도 있다).
+        if (_projectTable.hasMatch(line)) continue;
         inTable = true;
+        flow = header == _HeaderKind.flow;
         unit = i - lastUnitAt <= unitDistance ? _pickUnit(lastUnit) : '';
         lastUnit = null;
         continue;
@@ -152,7 +155,7 @@ abstract final class OrderFacts {
         }
       }
       if (numbers.length < 3) continue;
-      final triple = _triple(numbers);
+      final triple = flow ? _flowTriple(numbers) : _triple(numbers);
       if (triple == null) continue;
       final labels = [
         for (final c in cells)
@@ -178,6 +181,52 @@ abstract final class OrderFacts {
     }
     flush();
     return out;
+  }
+
+  /// 머리글이 어느 꼴인지. 표준(수주총액·기납품액·수주잔고), 건설(기본도급액·완성공사액·계약잔액)은
+  /// 세 칸 식이 같고, 흐름형(기초·신규·기납품액·기말잔고)은 기초 + 신규 − 기납품 = 잔고다.
+  static _HeaderKind? _headerKind(String line) {
+    final delivered = line.contains('기납품액') || line.contains('완성공사액');
+    final backlog =
+        line.contains('수주잔고') ||
+        line.contains('계약잔액') ||
+        line.contains('수주잔액') && !line.contains('기초') && !line.contains('이월');
+    if (!delivered) return null;
+    final total =
+        line.contains('수주총액') ||
+        line.contains('기본도급액') ||
+        line.contains('기본 도급금액') ||
+        line.contains('도급액');
+    if (total && backlog) return _HeaderKind.standard;
+    final opening = line.contains('기초') || line.contains('이월');
+    final added = line.contains('신규') || line.contains('당기');
+    final closing =
+        line.contains('수주잔고') ||
+        line.contains('기말수주잔고') ||
+        line.contains('기말잔고');
+    if (opening && added && closing) return _HeaderKind.flow;
+    return null;
+  }
+
+  static final _projectTable = RegExp(r'공사명|현장명|프로젝트명');
+
+  /// 흐름형 줄: 마지막 두 수가 (기납품, 잔고)이고 나머지(기초·사업결합·신규)를 더한 것이 총액.
+  /// 수량 칸("-")의 0은 빼고 센다. 식이 안 맞으면(수량이 섞인 줄) 버린다.
+  static (double, double, double)? _flowTriple(List<double> numbers) {
+    final n = [
+      for (final v in numbers)
+        if (v != 0) v,
+    ];
+    if (n.length < 3) return null;
+    final backlog = n.last;
+    final delivered = n[n.length - 2];
+    final total = n.sublist(0, n.length - 2).fold(0.0, (a, b) => a + b);
+    if (total <= 0) return null;
+    if ((total - delivered - backlog).abs() >
+        (total * tolerance).clamp(1, double.infinity)) {
+      return null;
+    }
+    return (total, delivered, backlog);
   }
 
   /// 총액 − 기납품 = 잔고가 맞는 (총액, 기납품, 잔고). 여럿이면 총액이 가장 큰 것.
@@ -211,3 +260,5 @@ abstract final class OrderFacts {
     return v == null ? null : (negative ? -v : v);
   }
 }
+
+enum _HeaderKind { standard, flow }
