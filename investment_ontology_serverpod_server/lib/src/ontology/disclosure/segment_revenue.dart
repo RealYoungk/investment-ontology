@@ -18,9 +18,23 @@ abstract final class SegmentRevenue {
   /// 실제 보고서는 표 바로 앞 줄에 "(단위 : 백만원)"을 적는다.
   static const unitDistance = 3;
 
-  static final _amountHeader = RegExp(r'매출');
+  static final _amountHeader = RegExp(r'매출|금액');
   static final _amountExact = RegExp(r'매출액|금액');
   static final _ratioHeader = RegExp(r'비중|비율');
+
+  /// "매출액(비율)"·"당기매출액(비율)"처럼 금액과 비율을 한 칸에 적는 머리글.
+  static final _combinedHeader = RegExp(r'매출액\s*\(\s*(비율|비중)\s*\)');
+
+  /// 그 한 칸의 값: "312,776,938 (79.4%)".
+  static final _combinedCell = RegExp(
+    r'^([△▲\-]?[\d,]+(?:\.\d+)?)\s*\(\s*([\d.]+)\s*%\s*\)$',
+  );
+
+  /// 부문별 재무 표에는 매출액 줄 사이에 영업이익·자산 줄이 있다 — 매출이 아니다.
+  static final _notRevenueRow = RegExp(r'영업이익|영업손익|당기순이익|순이익|자산|부채|자본');
+
+  /// 이름 칸에서 뺄 낱말 ("IT서비스 | 매출액 | …"의 매출액).
+  static final _revenueWord = RegExp(r'^(매출액|매출|매출실적|당기매출액)$');
   static final _unitLine = RegExp(r'단위\s*[:：]\s*([^)\]]+)');
   static final _number = RegExp(r'^[△▲\-]?[\d,]+(?:\.\d+)?$');
   static const _totalLabels = {
@@ -67,17 +81,24 @@ abstract final class SegmentRevenue {
     String? lastUnit;
     var lastUnitAt = -1000;
     var amountAt = -1, ratioAt = -1, columns = -1;
+    // 금액과 비율이 한 칸("312,776,938 (79.4%)")인 표.
+    var combined = false;
     var rows = <({String label, double amount, double ratio, String line})>[];
     double? total;
 
     void flush() {
-      // 비중이 매출액 ÷ 합계와 맞는 표만 받는다.
-      final sum = total ?? rows.fold<double>(0, (a, r) => a + r.amount.abs());
-      if (rows.isNotEmpty && sum > 0 && unit.isNotEmpty) {
-        final ok = rows.every(
-          (r) =>
-              (r.ratio.abs() - 100 * r.amount.abs() / sum).abs() <= tolerance,
-        );
+      // 비중이 매출액 ÷ 합계와 맞는 표만 받는다. 합계 줄이 연결조정 뒤의 값이면 비중은
+      // 조정 전 합(각 줄의 합)에 대한 것이니, 둘 중 하나와 맞으면 된다.
+      final rowSum = rows.fold<double>(0, (a, r) => a + r.amount.abs());
+      if (rows.isNotEmpty && unit.isNotEmpty) {
+        bool fits(double sum) =>
+            sum > 0 &&
+            rows.every(
+              (r) =>
+                  (r.ratio.abs() - 100 * r.amount.abs() / sum).abs() <=
+                  tolerance,
+            );
+        final ok = fits(total ?? rowSum) || total != null && fits(rowSum);
         if (ok) {
           for (final r in rows.take(maxRows)) {
             out.add((
@@ -94,6 +115,7 @@ abstract final class SegmentRevenue {
       amountAt = -1;
       ratioAt = -1;
       columns = -1;
+      combined = false;
       unit = '';
     }
 
@@ -108,6 +130,20 @@ abstract final class SegmentRevenue {
       }
       final cells = [for (final c in line.split('|')) c.trim()];
 
+      // 금액·비율이 한 칸인 머리글.
+      final ci = cells.indexWhere(_combinedHeader.hasMatch);
+      if (ci >= 0 && !cells.any((c) => _combinedCell.hasMatch(c))) {
+        flush();
+        if (_customerTable.hasMatch(line)) continue;
+        combined = true;
+        amountAt = ci;
+        ratioAt = ci;
+        columns = cells.length;
+        unit = i - lastUnitAt <= unitDistance ? pickUnit(lastUnit) : '';
+        lastUnit = null;
+        continue;
+      }
+
       final r = cells.indexWhere(_ratioHeader.hasMatch);
       // 비중 앞에서 금액 칸을 고른다. "매출유형"처럼 이름만 매출인 칸이 앞에 있으므로
       // 비중 바로 앞의 금액 칸을 쓴다 (기가 여러 개면 맨 앞이 당기다).
@@ -120,7 +156,18 @@ abstract final class SegmentRevenue {
           if (_amountExact.hasMatch(cells[k])) k,
       ];
       final a = (exact.isNotEmpty ? exact : before).lastOrNull ?? -1;
-      if (a >= 0 && r > a && cells.length >= 3) {
+      if (a >= 0 && r > a && cells.length >= 3 && !combined) {
+        // "금액 | 비중"만 있는 둘째 머리글은 매출 표라는 말이 앞뒤 3줄 안에 있어야 한다
+        // (원재료 매입 표도 같은 머리글을 쓴다).
+        if (!line.contains('매출')) {
+          var near = false;
+          for (var j = i - 3; j <= i + 3 && !near; j++) {
+            if (j >= 0 && j < lines.length && j != i) {
+              near = lines[j].contains('매출');
+            }
+          }
+          if (!near) continue;
+        }
         flush();
         // 매출처별 표("매출처 | 매출품목 | … / 매출액 | 비중")는 부문이 아니라 고객이다.
         // 머리글이 두 줄이면 첫 줄이 바로 앞에 있다.
@@ -142,20 +189,52 @@ abstract final class SegmentRevenue {
         flush();
         continue;
       }
+      // 둘째 머리글 줄("2025년 | 2024년")은 값이 아니다.
+      if (cells.every(
+        (c) => c.isEmpty || RegExp(r'^(\d{4}년?|제\s*\d+\s*기)').hasMatch(c),
+      )) {
+        continue;
+      }
       final labels = [
         for (final c in cells)
-          if (c.isNotEmpty && !_number.hasMatch(c) && !c.endsWith('%')) c,
+          if (c.isNotEmpty &&
+              !_number.hasMatch(c) &&
+              !c.endsWith('%') &&
+              !_combinedCell.hasMatch(c) &&
+              !_revenueWord.hasMatch(c))
+            c,
       ];
-      // 칸은 오른쪽 끝을 기준으로 센다. 합계 줄처럼 앞쪽 이름 칸이 합쳐져 있어도
-      // 기(期)별 숫자 묶음은 그대로라, 머리글에서 집은 칸을 다시 찾을 수 있다.
-      final amount = _num(_cell(cells, columns - amountAt));
-      final ratio = _num(_cell(cells, columns - ratioAt));
-      if (labels.isEmpty || amount == null || ratio == null) continue;
-      final name = labels.first;
-      if (_totalLabels.contains(name.replaceAll(' ', ''))) {
+      double? amount, ratio;
+      if (combined) {
+        // 첫 번째 "금액 (비율)" 칸이 당기다. 합계 줄은 금액만 적기도 한다.
+        final cc = cells.firstWhere(
+          (c) => _combinedCell.hasMatch(c),
+          orElse: () => '',
+        );
+        if (cc.isNotEmpty) {
+          final m = _combinedCell.firstMatch(cc)!;
+          amount = _num(m.group(1)!);
+          ratio = double.tryParse(m.group(2)!);
+        } else {
+          final first = cells.firstWhere(_number.hasMatch, orElse: () => '');
+          amount = first.isEmpty ? null : _num(first);
+        }
+      } else {
+        // 칸은 오른쪽 끝을 기준으로 센다. 합계 줄처럼 앞쪽 이름 칸이 합쳐져 있어도
+        // 기(期)별 숫자 묶음은 그대로라, 머리글에서 집은 칸을 다시 찾을 수 있다.
+        amount = _num(_cell(cells, columns - amountAt));
+        ratio = _num(_cell(cells, columns - ratioAt));
+      }
+      if (amount == null) continue;
+      final name = labels.isEmpty ? '' : labels.first;
+      if (labels.isNotEmpty &&
+          _totalLabels.contains(name.replaceAll(' ', ''))) {
         total = amount.abs();
         continue;
       }
+      if (labels.isEmpty || ratio == null) continue;
+      // 영업이익·자산 줄이 매출 줄과 같은 비중 칸을 쓰는 표(부문별 재무정보).
+      if (cells.any(_notRevenueRow.hasMatch)) continue;
       rows.add((label: name, amount: amount, ratio: ratio, line: line));
     }
     flush();
