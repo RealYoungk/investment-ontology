@@ -40,11 +40,16 @@ def main() -> None:
     listed = [l.split('\t') for l in psql(
         '''select id, name from company where market in ('kospi','kosdaq') and name is not null'''
     ).strip().split('\n') if l]
+    # 보통 낱말과 겹치는 상장사 이름은 뺀다 ("디바이스"·"하이브리드"·"아크릴 섬유"·"따라서 전기전자").
+    stop = {'디바이스', '디아이', '이닉스', '서전기전', '하이브', '케이씨', '라닉스', '한네트', '그래피', '아크릴', '삼양사', '대상', '한섬', '동서', '대한'}
     names = {}
     for cid, name in listed:
         k = key(name)
-        if len(k) >= 3:
+        if len(k) >= 3 and k not in stop:
             names[k] = name
+    # 본문은 다른 표기를 쓴다.
+    for alias, full in {'sk하이닉스': '에스케이하이닉스(주)', 'sk텔레콤': '에스케이텔레콤 주식회사', 'hd현대중공업': '에이치디현대중공업(주)', 'lg디스플레이': '엘지디스플레이(주)', 'lg화학': '(주)엘지화학', 'lg전자': 'LG전자(주)'}.items():
+        names.setdefault(alias, full)
     # 긴 이름부터 맞춰 "삼성전자"가 "삼성전자서비스"에 먹히지 않게 한다.
     ordered = sorted(names, key=len, reverse=True)
 
