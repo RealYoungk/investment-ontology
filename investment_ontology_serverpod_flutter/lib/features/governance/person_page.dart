@@ -67,6 +67,12 @@ class _PersonPageState extends State<PersonPage> {
     await _load();
   }
 
+  static String _relationLabel(PersonRole r) => switch (r.predicate) {
+    RelationPredicate.shareholderOf => r.estimated ? '주주 (추정)' : '주주',
+    RelationPredicate.executiveOf => '임원',
+    _ => r.predicate.name,
+  };
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
@@ -130,63 +136,87 @@ class _PersonPageState extends State<PersonPage> {
           const SizedBox(height: AppSpace.xl),
           const SectionLabel('관계 · 각 기업의 최근 사업보고서'),
           const SizedBox(height: AppSpace.sm),
-          AppDataTable(
-            columns: const [
-              AppColumn('기업', nowrap: true),
-              AppColumn('관계', nowrap: true),
-              AppColumn('지분율 (보통주)', numeric: true),
-              AppColumn('직위 · 원문', flex: true),
-              AppColumn('사업연도', nowrap: true),
-              AppColumn('', width: 48),
-            ],
-            rows: [
-              for (final r in p.roles)
-                AppRow([
-                  HoverBuilder(
-                    onTap: () => context.push(
-                      AppRoutes.company(r.corpCode, tab: 'governance'),
-                    ),
-                    builder: (context, hovered) => Text(
-                      r.companyName,
-                      style: t
-                          .body(13, color: c.accent, weight: FontWeight.w600)
-                          .copyWith(
-                            decoration: hovered
-                                ? TextDecoration.underline
-                                : null,
-                            decorationColor: c.accent,
+          LayoutBuilder(
+            builder: (context, box) {
+              // 좁은 화면에서는 관계·직위를 기업명 아래 줄에 넣고 사업연도는 뺀다
+              // (모두 최근 사업보고서라 정보가 적다).
+              final compact = box.maxWidth < 640;
+              return AppDataTable(
+                columns: [
+                  if (compact)
+                    const AppColumn('기업 · 관계', flex: true)
+                  else
+                    const AppColumn('기업', nowrap: true),
+                  if (!compact) const AppColumn('관계', nowrap: true),
+                  const AppColumn('지분율', numeric: true),
+                  if (!compact) const AppColumn('직위 · 원문', flex: true),
+                  if (!compact) const AppColumn('사업연도', nowrap: true),
+                  const AppColumn('', width: 48),
+                ],
+                rows: [
+                  for (final r in p.roles)
+                    AppRow([
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          HoverBuilder(
+                            onTap: () => context.push(
+                              AppRoutes.company(r.corpCode, tab: 'governance'),
+                            ),
+                            builder: (context, hovered) => Text(
+                              r.companyName,
+                              style: t
+                                  .body(
+                                    13,
+                                    color: c.accent,
+                                    weight: FontWeight.w600,
+                                  )
+                                  .copyWith(
+                                    decoration: hovered
+                                        ? TextDecoration.underline
+                                        : null,
+                                    decorationColor: c.accent,
+                                  ),
+                            ),
                           ),
-                    ),
-                  ),
-                  AppDataTable.text(
-                    context,
-                    switch (r.predicate) {
-                      RelationPredicate.shareholderOf =>
-                        r.estimated ? '주주 (추정)' : '주주',
-                      RelationPredicate.executiveOf => '임원',
-                      _ => r.predicate.name,
-                    },
-                  ),
-                  AppDataTable.text(
-                    context,
-                    r.weight == null ? null : formatRatio(r.weight),
-                    numeric: true,
-                  ),
-                  AppDataTable.text(
-                    context,
-                    [?r.position, ?r.detail].join(' · '),
-                  ),
-                  AppDataTable.text(context, 'FY${r.bsnsYear}'),
-                  r.estimated
-                      ? AppButton(
-                          label: '끊기',
-                          variant: AppButtonVariant.link,
-                          tone: c.accent,
-                          onPressed: () => _reject(r, p.person),
-                        )
-                      : const SizedBox.shrink(),
-                ]),
-            ],
+                          if (compact)
+                            Text(
+                              [
+                                _relationLabel(r),
+                                ?r.position,
+                                ?r.detail,
+                              ].join(' · '),
+                              style: t.body(12, color: c.textSecondary),
+                            ),
+                        ],
+                      ),
+                      if (!compact)
+                        AppDataTable.text(context, _relationLabel(r)),
+                      AppDataTable.text(
+                        context,
+                        r.weight == null ? null : formatRatio(r.weight),
+                        numeric: true,
+                      ),
+                      if (!compact)
+                        AppDataTable.text(
+                          context,
+                          [?r.position, ?r.detail].join(' · '),
+                        ),
+                      if (!compact)
+                        AppDataTable.text(context, 'FY${r.bsnsYear}'),
+                      r.estimated
+                          ? AppButton(
+                              label: '끊기',
+                              variant: AppButtonVariant.link,
+                              tone: c.accent,
+                              onPressed: () => _reject(r, p.person),
+                            )
+                          : const SizedBox.shrink(),
+                    ]),
+                ],
+              );
+            },
           ),
         ],
       ],

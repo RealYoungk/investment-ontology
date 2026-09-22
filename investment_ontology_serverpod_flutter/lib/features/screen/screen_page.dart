@@ -415,7 +415,16 @@ class _ResultTable extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, box) {
         // 들어갈 만큼만 보이고, 좁으면 중요한 열부터 남긴다 (가로로도 밀 수 있다).
-        final fits = ((box.maxWidth - _nameWidth) / _columnWidth).floor();
+        // 좁은 화면에서는 기업명 열 폭을 고정해 (긴 이름은 …으로) 숫자 두 열이 들어가게 한다.
+        final narrow = box.maxWidth < 600;
+        final nameWidth = narrow
+            ? (box.maxWidth - 2 * _columnWidth - AppSpace.lg).clamp(
+                120.0,
+                _nameWidth,
+              )
+            : _nameWidth;
+        final fits = ((box.maxWidth - nameWidth - AppSpace.md) / _columnWidth)
+            .floor();
         final keep = {
           '기업',
           ?_sortColumn(sort),
@@ -427,7 +436,14 @@ class _ResultTable extends StatelessWidget {
         ];
         return AppDataTable(
           columns: [
-            for (final col in shown) AppColumn(col.$1, numeric: col.$1 != '기업'),
+            for (final col in shown)
+              col.$1 == '기업'
+                  ? AppColumn(
+                      col.$1,
+                      width: narrow ? nameWidth : null,
+                      flex: true,
+                    )
+                  : AppColumn(col.$1, numeric: true),
           ],
           rows: [
             for (final r in page.items)
@@ -481,26 +497,38 @@ class _FilterGroup extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final t = context.typo;
+    final name = Text(label, style: t.label(color: c.textSecondary));
+    final fields = Wrap(
+      spacing: AppSpace.md,
+      runSpacing: AppSpace.sm,
+      children: children,
+    );
     return Padding(
       padding: EdgeInsets.only(bottom: last ? 0 : AppSpace.md),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 104,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 14),
-              child: Text(label, style: t.label(color: c.textSecondary)),
-            ),
-          ),
-          Expanded(
-            child: Wrap(
-              spacing: AppSpace.md,
-              runSpacing: AppSpace.sm,
-              children: children,
-            ),
-          ),
-        ],
+      child: LayoutBuilder(
+        builder: (context, box) => box.maxWidth < 560
+            // 좁으면 이름을 위에 (옆에 두면 입력칸이 한 줄에 하나씩 세로로 늘어진다).
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  name,
+                  const SizedBox(height: AppSpace.xs),
+                  fields,
+                ],
+              )
+            : Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 104,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 14),
+                      child: name,
+                    ),
+                  ),
+                  Expanded(child: fields),
+                ],
+              ),
       ),
     );
   }

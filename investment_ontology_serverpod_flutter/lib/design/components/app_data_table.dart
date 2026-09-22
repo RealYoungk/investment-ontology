@@ -1,4 +1,7 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import '../tokens.dart';
 
@@ -30,17 +33,6 @@ class AppColumn {
 
   /// 최소 폭. 숫자 열은 기본 76 — "10.82"가 "10.8 / 2"로 쪼개지지 않을 만큼.
   final double? minWidth;
-
-  /// 자리를 채우는 배치에서 이 열이 차지한다고 보는 폭 (실제 폭이 아니라 표가 들어갈지
-  /// 가늠하는 어림).
-  double get _guess =>
-      width ??
-      minWidth ??
-      (numeric
-          ? 92
-          : flex
-          ? 200
-          : 120);
 }
 
 /// 표의 행 하나.
@@ -58,10 +50,11 @@ class AppRow {
 
 /// 표. 셀은 위젯이고, 글자 셀은 [AppDataTable.text]로 만든다.
 ///
-/// 자리가 넉넉하면 주어진 폭을 다 쓰고 남는 폭은 [AppColumn.flex] 열이 가져간다. 열이
-/// 폭보다 많으면 (열 어림의 합이 폭을 넘으면) 내용 폭대로 그리고 가로로 민다.
-/// 예전처럼 무한 폭 안에서 flex 열을 쓰면 그 열이 한 글자 폭으로 찌그러지므로, 채우는
-/// 배치에서는 표에 유한한 폭을 준다.
+/// 남는 폭이 있으면 [AppColumn.flex] 열(없으면 첫 글자 열)이 가져가 표가 주어진 폭을 채우고,
+/// 내용이 폭보다 넓으면 내용 폭대로 그려 가로로 민다. 둘 다 같은 배치에서 나온다: 가로 스크롤
+/// 안에서 최소 폭만 주고, flex 열을 `MaxColumnWidth(내용 폭, flex)`로 두면 RenderTable이
+/// 남는 폭만큼만 그 열을 키운다 (무한 폭에서 FlexColumnWidth만 쓰면 그 열이 0이 되어
+/// 한 글자씩 세로로 늘어지던 것이 예전 버그).
 class AppDataTable extends StatelessWidget {
   const AppDataTable({
     super.key,
@@ -69,20 +62,17 @@ class AppDataTable extends StatelessWidget {
     required this.rows,
     this.maxCellWidth = 320,
     this.expand = true,
-    this.fitWidth,
   });
 
   final List<AppColumn> columns;
   final List<AppRow> rows;
 
-  /// 내용에 맞추는 열의 셀 최대 폭. 긴 글은 이 폭에서 줄을 바꾼다.
+  /// 내용에 맞추는 열이 제 폭을 잴 때의 셀 최대 폭. 긴 글은 이 폭에서 줄을 바꾼다.
+  /// (남는 폭을 가져가는 열은 이보다 넓어질 수 있다.)
   final double maxCellWidth;
 
   /// 내용이 좁아도 표가 주어진 폭을 다 쓴다 (기본). 끄면 늘 내용 폭대로.
   final bool expand;
-
-  /// 자리를 채우는 배치에 필요한 최소 폭. 없으면 열마다 어림한 폭의 합.
-  final double? fitWidth;
 
   /// 글자 셀. 숫자 열이면 숫자 글꼴로 오른쪽 정렬.
   static Widget text(
@@ -119,10 +109,6 @@ class AppDataTable extends StatelessWidget {
     );
   }
 
-  double get _fitWidth =>
-      fitWidth ??
-      columns.fold(0.0, (s, col) => s + col._guess) + AppSpace.sm * 2;
-
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
@@ -140,29 +126,34 @@ class AppDataTable extends StatelessWidget {
       if (first >= 0) flexIndexes = {first};
     }
 
-    Widget cell(Widget child, AppColumn col, {required bool fills}) =>
-        Container(
-          width: col.width,
-          constraints: col.width != null
-              ? null
-              : BoxConstraints(
-                  minWidth: col.minWidth ?? (col.numeric ? 76 : 0),
-                  maxWidth: col.nowrap || fills
-                      ? double.infinity
-                      : maxCellWidth,
-                ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpace.sm,
-            vertical: 7,
-          ),
-          alignment: col.numeric ? Alignment.centerRight : Alignment.centerLeft,
-          child: child,
-        );
+    // 남는 폭을 가져가는 열은 제 폭을 잴 때 화면의 3할까지만 요구한다. 폰에서 메모·근거처럼
+    // 긴 글 열이 320px를 요구하면 다른 열이 밀려나 표가 화면을 넘는다. 남는 폭이 있으면
+    // 어차피 flex로 넓어진다.
+    Widget cell(Widget child, AppColumn col, double flexCap) => Container(
+      width: col.width,
+      constraints: col.width != null
+          ? null
+          : BoxConstraints(minWidth: col.minWidth ?? (col.numeric ? 76 : 0)),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpace.sm,
+        vertical: 7,
+      ),
+      alignment: col.numeric ? Alignment.centerRight : Alignment.centerLeft,
+      child: col.width != null || col.nowrap
+          ? child
+          : _IntrinsicCap(
+              maxWidth: col.flex
+                  ? math.min(maxCellWidth, flexCap)
+                  : maxCellWidth,
+              child: child,
+            ),
+    );
 
-    Widget table({required bool fill}) => Table(
-      columnWidths: fill
-          ? {for (final i in flexIndexes) i: const FlexColumnWidth()}
-          : null,
+    Widget table(double flexCap) => Table(
+      columnWidths: {
+        for (final i in flexIndexes)
+          i: const MaxColumnWidth(IntrinsicColumnWidth(), FlexColumnWidth()),
+      },
       defaultColumnWidth: const IntrinsicColumnWidth(),
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       children: [
@@ -174,7 +165,7 @@ class AppDataTable extends StatelessWidget {
             ),
           ),
           children: [
-            for (final (i, col) in columns.indexed)
+            for (final col in columns)
               cell(
                 Text(
                   col.label,
@@ -182,7 +173,7 @@ class AppDataTable extends StatelessWidget {
                   textAlign: col.numeric ? TextAlign.right : TextAlign.left,
                 ),
                 col,
-                fills: fill && flexIndexes.contains(i),
+                flexCap,
               ),
           ],
         ),
@@ -207,7 +198,7 @@ class AppDataTable extends StatelessWidget {
                     ),
                   ),
                   col,
-                  fills: fill && flexIndexes.contains(i),
+                  flexCap,
                 ),
             ],
           ),
@@ -215,20 +206,59 @@ class AppDataTable extends StatelessWidget {
     );
 
     return LayoutBuilder(
-      builder: (context, box) {
-        final fill =
-            expand &&
-            box.maxWidth.isFinite &&
-            box.maxWidth >= _fitWidth &&
-            flexIndexes.isNotEmpty;
-        if (fill) {
-          return SizedBox(width: box.maxWidth, child: table(fill: true));
-        }
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: table(fill: false),
-        );
-      },
+      builder: (context, box) => SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minWidth: expand && box.maxWidth.isFinite ? box.maxWidth : 0,
+          ),
+          child: table(
+            box.maxWidth.isFinite
+                ? math.max(100, box.maxWidth * 0.3)
+                : maxCellWidth,
+          ),
+        ),
+      ),
     );
   }
+}
+
+/// 자식의 고유 폭(intrinsic width)만 [maxWidth]로 막고, 실제 배치 폭은 그대로 넘긴다.
+///
+/// 표가 열 폭을 잴 때 긴 글이 한 줄 폭 전체를 요구하지 않게 하면서도, 그 열이 남는 폭을
+/// 가져가 넓어졌을 때는 넓어진 폭을 다 쓰게 한다 (BoxConstraints.maxWidth로 막으면 배치도
+/// 같이 막힌다).
+class _IntrinsicCap extends SingleChildRenderObjectWidget {
+  const _IntrinsicCap({required this.maxWidth, required super.child});
+
+  final double maxWidth;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderIntrinsicCap(maxWidth);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderIntrinsicCap renderObject,
+  ) => renderObject.maxWidth = maxWidth;
+}
+
+class _RenderIntrinsicCap extends RenderProxyBox {
+  _RenderIntrinsicCap(this._maxWidth);
+
+  double _maxWidth;
+  set maxWidth(double v) {
+    if (v == _maxWidth) return;
+    _maxWidth = v;
+    markNeedsLayout();
+  }
+
+  @override
+  double computeMaxIntrinsicWidth(double height) =>
+      math.min(super.computeMaxIntrinsicWidth(height), _maxWidth);
+
+  @override
+  double computeMinIntrinsicWidth(double height) =>
+      math.min(super.computeMinIntrinsicWidth(height), _maxWidth);
 }

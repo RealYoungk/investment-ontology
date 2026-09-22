@@ -193,30 +193,40 @@ class _Edges extends StatelessWidget {
           style: t.body(12.5, color: c.textSecondary),
         ),
         const SizedBox(height: AppSpace.sm),
-        AppDataTable(
-          columns: const [
-            AppColumn('가진 쪽', nowrap: true),
-            AppColumn('가진 기업', nowrap: true),
-            AppColumn('지분율', numeric: true),
-            AppColumn('근거', flex: true),
-          ],
-          rows: [
-            for (final e in edges)
-              AppRow([
-                company(e.fromCompanyId),
-                company(e.toCompanyId),
-                AppDataTable.text(
-                  context,
-                  e.ratio == null ? null : '${e.ratio!.toStringAsFixed(2)}%',
-                  numeric: true,
-                ),
-                AppDataTable.text(
-                  context,
-                  '${e.predicate == RelationPredicate.shareholderOf ? '최대주주 명단' : '타법인출자 (경영참여)'}'
-                  ' · FY${e.bsnsYear}',
-                ),
-              ]),
-          ],
+        LayoutBuilder(
+          builder: (context, box) {
+            // 좁은 화면에서는 근거를 짧게 (주주/출자 · 연도) 적어 표가 폭 안에 들게 한다.
+            final compact = box.maxWidth < 640;
+            return AppDataTable(
+              columns: const [
+                AppColumn('가진 쪽'),
+                AppColumn('가진 기업'),
+                AppColumn('지분율', numeric: true),
+                AppColumn('근거', flex: true),
+              ],
+              rows: [
+                for (final e in edges)
+                  AppRow([
+                    company(e.fromCompanyId),
+                    company(e.toCompanyId),
+                    AppDataTable.text(
+                      context,
+                      e.ratio == null
+                          ? null
+                          : '${e.ratio!.toStringAsFixed(2)}%',
+                      numeric: true,
+                    ),
+                    AppDataTable.text(
+                      context,
+                      e.predicate == RelationPredicate.shareholderOf
+                          ? (compact ? '주주 명단' : '최대주주 명단')
+                          : (compact ? '타법인출자' : '타법인출자 (경영참여)'),
+                      nowrap: true,
+                    ),
+                  ]),
+              ],
+            );
+          },
         ),
       ],
     );
