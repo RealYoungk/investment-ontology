@@ -109,6 +109,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _iy39k7od;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/review_check.dart'
     as _iwp9ei5l;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/review_context.dart'
+    as _icjfwfa9;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/review_item.dart'
     as _ip1s5ejx;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/review_page.dart'
@@ -2502,6 +2504,113 @@ class _ReviewEndpoint {
             'approve': approve,
             'by': by,
           }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<int>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_icjfwfa9.ReviewContext?> context(
+    _ist.TestSessionBuilder sessionBuilder,
+    String scope,
+    int id, {
+    required int around,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'review',
+            method: 'context',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'review',
+          methodName: 'context',
+          parameters: _ist.testObjectToJson({
+            'scope': scope,
+            'id': id,
+            'around': around,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_icjfwfa9.ReviewContext?>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<int> recommend(
+    _ist.TestSessionBuilder sessionBuilder,
+    String scope,
+    List<int> ids,
+    _iy39k7od.RelationStatus recommendation,
+    String note,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'review',
+            method: 'recommend',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'review',
+          methodName: 'recommend',
+          parameters: _ist.testObjectToJson({
+            'scope': scope,
+            'ids': ids,
+            'recommendation': recommendation,
+            'note': note,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<int>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<int> applyRecommended(
+    _ist.TestSessionBuilder sessionBuilder,
+    String scope,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'review',
+            method: 'applyRecommended',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'review',
+          methodName: 'applyRecommended',
+          parameters: _ist.testObjectToJson({'scope': scope}),
           serializationManager: _serializationManager,
         );
         var _localReturnValue =

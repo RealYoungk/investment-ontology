@@ -39,6 +39,8 @@ abstract class DocumentFact
     required this.status,
     this.reviewedAt,
     this.reviewedBy,
+    this.recommendation,
+    this.reviewNote,
     required this.createdAt,
   });
 
@@ -60,6 +62,8 @@ abstract class DocumentFact
     required _ije7dn2u.RelationStatus status,
     DateTime? reviewedAt,
     String? reviewedBy,
+    _ije7dn2u.RelationStatus? recommendation,
+    String? reviewNote,
     required DateTime createdAt,
   }) = _DocumentFactImpl;
 
@@ -94,6 +98,12 @@ abstract class DocumentFact
               jsonSerialization['reviewedAt'],
             ),
       reviewedBy: jsonSerialization['reviewedBy'] as String?,
+      recommendation: jsonSerialization['recommendation'] == null
+          ? null
+          : _ije7dn2u.RelationStatus.fromJson(
+              (jsonSerialization['recommendation'] as String),
+            ),
+      reviewNote: jsonSerialization['reviewNote'] as String?,
       createdAt: _isc.DateTimeJsonExtension.fromJson(
         jsonSerialization['createdAt'],
       ),
@@ -143,6 +153,12 @@ abstract class DocumentFact
   /// 누가 결정했는지 (사람이면 null, AI가 원문과 대조했으면 그 이름)
   String? reviewedBy;
 
+  /// 원문과 대조한 쪽이 사람에게 남긴 추천 (verified·rejected). 판단이 갈려 사람에게 넘길 때 채운다
+  _ije7dn2u.RelationStatus? recommendation;
+
+  /// 왜 애매한지, 무엇을 봐야 하는지 — 사람이 빨리 결정하도록 적는 메모
+  String? reviewNote;
+
   DateTime createdAt;
 
   /// Returns a shallow copy of this [DocumentFact]
@@ -166,6 +182,8 @@ abstract class DocumentFact
     _ije7dn2u.RelationStatus? status,
     DateTime? reviewedAt,
     String? reviewedBy,
+    _ije7dn2u.RelationStatus? recommendation,
+    String? reviewNote,
     DateTime? createdAt,
   });
   @override
@@ -189,6 +207,8 @@ abstract class DocumentFact
       'status': status.toJson(),
       if (reviewedAt != null) 'reviewedAt': reviewedAt?.toJson(),
       if (reviewedBy != null) 'reviewedBy': reviewedBy,
+      if (recommendation != null) 'recommendation': recommendation?.toJson(),
+      if (reviewNote != null) 'reviewNote': reviewNote,
       'createdAt': createdAt.toJson(),
     };
   }
@@ -214,6 +234,8 @@ abstract class DocumentFact
       'status': status.toJson(),
       if (reviewedAt != null) 'reviewedAt': reviewedAt?.toJson(),
       if (reviewedBy != null) 'reviewedBy': reviewedBy,
+      if (recommendation != null) 'recommendation': recommendation?.toJson(),
+      if (reviewNote != null) 'reviewNote': reviewNote,
       'createdAt': createdAt.toJson(),
     };
   }
@@ -245,6 +267,8 @@ class _DocumentFactImpl extends DocumentFact {
     required _ije7dn2u.RelationStatus status,
     DateTime? reviewedAt,
     String? reviewedBy,
+    _ije7dn2u.RelationStatus? recommendation,
+    String? reviewNote,
     required DateTime createdAt,
   }) : super._(
          id: id,
@@ -264,6 +288,8 @@ class _DocumentFactImpl extends DocumentFact {
          status: status,
          reviewedAt: reviewedAt,
          reviewedBy: reviewedBy,
+         recommendation: recommendation,
+         reviewNote: reviewNote,
          createdAt: createdAt,
        );
 
@@ -289,6 +315,8 @@ class _DocumentFactImpl extends DocumentFact {
     _ije7dn2u.RelationStatus? status,
     Object? reviewedAt = _Undefined,
     Object? reviewedBy = _Undefined,
+    Object? recommendation = _Undefined,
+    Object? reviewNote = _Undefined,
     DateTime? createdAt,
   }) {
     return DocumentFact(
@@ -311,6 +339,10 @@ class _DocumentFactImpl extends DocumentFact {
       status: status ?? this.status,
       reviewedAt: reviewedAt is DateTime? ? reviewedAt : this.reviewedAt,
       reviewedBy: reviewedBy is String? ? reviewedBy : this.reviewedBy,
+      recommendation: recommendation is _ije7dn2u.RelationStatus?
+          ? recommendation
+          : this.recommendation,
+      reviewNote: reviewNote is String? ? reviewNote : this.reviewNote,
       createdAt: createdAt ?? this.createdAt,
     );
   }

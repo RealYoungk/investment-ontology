@@ -67,6 +67,14 @@
 - 지수(코스피·코스닥): 2026-09-22 활용신청이 되어 **같은 키의 V2 주소**(`GetMarketIndexInfoService_V2/getStockMarketIndex_V2`)로 받습니다 (V1 주소는 HTTP 400). 시세 수집 작업이 시세를 받은 날마다 지수 170개를 한 번에 받아 `market_index_snapshot`에 넣고, 시장 화면 맨 위에 코스피·코스닥 1·3·5년 추이를 그립니다. 5년 백필은 2026-09-22 오전에 돌렸습니다 (하루 1,250건 안팎, 시세 예산 안).
 - **8101 포트는 `build/web` 정적 빌드**(`spa.py`)라 앱 코드를 고치면 `flutter build web --release`를 다시 해야 보입니다. `serverpod start`의 웹 개발 서버(8100)는 컴파일 오류 뒤 죽어 있을 수 있습니다 — 그때는 `serverpod start`를 껐다 켜야 합니다.
 
+## 3-6. 검수를 빠르게 (2026-09-22 오전)
+
+사용자 지침: "내가 판단할 수 있는 건 다 하고, 사람 리뷰가 필요하면 빠르고 정확하게 할 수 있게 만들어라. 애매하면 둘 다 적고 정확도를 낮춰라."
+
+- 관계·값에 `recommendation`(승인/거절 추천)과 `reviewNote`(왜 애매한지)를 붙였습니다. 세션에서 대조한 뒤 사람에게 넘기는 것은 `review.recommend('relation'|'fact', ids, recommendation, note)`로 추천을 달아 둡니다. 애매한 것은 버리지 말고 메모에 두 해석을 다 적고 `confidence`를 낮춥니다 (SK스퀘어–갤럭시스토어 경쟁: 0.5로 승인).
+- 검수 화면(`/review`): 추천과 이유가 근거보다 먼저 보이고, "원문 맥락 펼치기(C)"가 `review.context`로 근거 앞뒤 500자를 그 자리에 보여 줍니다(원문 탭으로 안 감). J/K로 넘기고 A/R로 결정, "추천대로 N건 적용"이 `review.applyRecommended`로 한 번에 끝냅니다(`reviewedBy` = "추천대로 일괄 적용"). 폰 폭에서도 버튼이 아래 줄로 내려갑니다.
+- 지금 대기 0건. 새 본문이 들어오면: 세션에서 뽑고(`ai.submit`/`ai.submitFacts`) → 원문 대조해 분명한 것은 `decideMany` → 남는 것에 `recommend` → `recordCheck`로 정확률 기록. 사람은 추천만 훑고 일괄 적용하면 됩니다.
+
 ## 3-5. 본문 수집 버그 둘 (2026-09-22 새벽)
 
 - 사업보고서 zip에는 본문 말고 첨부(외부감사 실시내용·감사보고서)가 같이 들고, 첨부도 절 코드 `D-0-2-0-0`을 씁니다. 코드만 믿고 이름 짧은 XML을 고르던 규칙이 현대제철·메리츠 FY2025에서 감사 첨부를 본문으로 저장했습니다 → "사업의 내용" 제목이 실제로 든 XML만 후보로 둡니다 (`BusinessText.fromZip`, 테스트 `business_text_test.dart`).

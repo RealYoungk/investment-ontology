@@ -33,6 +33,10 @@ fields:
   reviewedAt: DateTime?
   ### 누가 결정했는지 (사람이면 null, AI가 원문과 대조했으면 그 이름)
   reviewedBy: String?
+  ### 원문과 대조한 쪽이 사람에게 남긴 추천 (verified·rejected). 판단이 갈려 사람에게 넘길 때 채운다
+  recommendation: RelationStatus?
+  ### 왜 애매한지, 무엇을 봐야 하는지 — 사람이 빨리 결정하도록 적는 메모
+  reviewNote: String?
 indexes:
   ontology_relation_subject_company_idx:
     fields: subjectCompanyId

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 
@@ -17,7 +18,25 @@ String predicateLabel(RelationPredicate p) => switch (p) {
   RelationPredicate.competesWith => '경쟁',
 };
 
-/// 검수 큐 (4단계): AI가 사업보고서 본문에서 뽑은 관계를 근거 인용을 보고 승인·거절한다.
+String factKindLabel(DocumentFactKind k) => switch (k) {
+  DocumentFactKind.orderTotal => '수주총액',
+  DocumentFactKind.orderDelivered => '기납품액',
+  DocumentFactKind.orderBacklog => '수주잔고',
+  DocumentFactKind.capacity => '생산능력',
+  DocumentFactKind.production => '생산실적',
+  DocumentFactKind.utilization => '가동률',
+  DocumentFactKind.marketShare => '시장점유율',
+  DocumentFactKind.investmentPlan => '투자계획',
+  DocumentFactKind.investmentActual => '투자집행',
+  DocumentFactKind.segmentRevenue => '부문 매출',
+};
+
+/// 검수 큐: 사업보고서 본문에서 뽑아 둔 관계·값 가운데 사람 판단이 필요한 것.
+///
+/// 사람이 가장 느린 고리라, 화면은 한 건을 결정하는 데 드는 시간을 줄이는 데 맞춘다.
+/// - 근거 문장을 원문 앞뒤와 함께 그 자리에서 펼쳐 본다 (원문 탭으로 가지 않는다).
+/// - 대조한 쪽이 남긴 추천과 이유가 먼저 보이고, "추천대로 적용"으로 한 번에 끝낼 수 있다.
+/// - 키보드: J/↓ 다음 · K/↑ 이전 · A 승인 · R 거절 · C 원문 맥락 펼치기.
 class ReviewQueuePage extends StatefulWidget {
   const ReviewQueuePage({super.key});
 
@@ -36,11 +55,27 @@ class _ReviewQueuePageState extends State<ReviewQueuePage> {
   bool _showFacts = false;
   Object? _error;
   final _busy = <int>{};
+  final _focus = FocusNode();
+  final _scroll = ScrollController();
+
+  /// 키보드로 고른 항목 (목록 안 순서).
+  int _selected = 0;
+
+  /// 원문 맥락을 펼친 항목의 열쇠 ("relation:12" · "fact:7").
+  final _open = <String>{};
+  final _keys = <String, GlobalKey>{};
 
   @override
   void initState() {
     super.initState();
     _load();
+  }
+
+  @override
+  void dispose() {
+    _focus.dispose();
+    _scroll.dispose();
+    super.dispose();
   }
 
   Future<void> _load() async {
@@ -51,14 +86,25 @@ class _ReviewQueuePageState extends State<ReviewQueuePage> {
         client.review.checks(),
       ).wait;
       if (mounted) {
-        setState(
-          () => (_page = p, _facts = f, _checks = checks, _error = null),
-        );
+        setState(() {
+          _page = p;
+          _facts = f;
+          _checks = checks;
+          _error = null;
+          _selected = _selected.clamp(0, (_count - 1).clamp(0, 1 << 20));
+        });
       }
     } catch (e) {
       if (mounted) setState(() => _error = e);
     }
   }
+
+  int get _count =>
+      _showFacts ? (_facts?.items.length ?? 0) : (_page?.items.length ?? 0);
+
+  String _keyOf(int index) => _showFacts
+      ? 'fact:${_facts!.items[index].fact.id}'
+      : 'relation:${_page!.items[index].relation.id}';
 
   Future<void> _decideFact(DocumentFact f, bool approve) async {
     setState(() => _busy.add(-f.id!));
@@ -80,122 +126,273 @@ class _ReviewQueuePageState extends State<ReviewQueuePage> {
     }
   }
 
+  Future<void> _applyRecommended() async {
+    final scope = _showFacts ? 'fact' : 'relation';
+    final n = await client.review.applyRecommended(scope);
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('추천대로 ${formatCount(n)}건을 결정했습니다.')));
+    await _load();
+  }
+
+  void _decideSelected(bool approve) {
+    if (_status != RelationStatus.draft || _count == 0) return;
+    if (_showFacts) {
+      _decideFact(_facts!.items[_selected].fact, approve);
+    } else {
+      _decide(_page!.items[_selected].relation, approve);
+    }
+  }
+
+  void _move(int delta) {
+    if (_count == 0) return;
+    setState(() => _selected = (_selected + delta).clamp(0, _count - 1));
+    final key = _keys[_keyOf(_selected)];
+    final ctx = key?.currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(
+        ctx,
+        alignment: 0.2,
+        duration: AppMotion.fast,
+      );
+    }
+  }
+
+  void _toggleContext(String key) => setState(() {
+    if (!_open.remove(key)) _open.add(key);
+  });
+
+  KeyEventResult _onKey(FocusNode node, KeyEvent event) {
+    if (event is! KeyDownEvent) return KeyEventResult.ignored;
+    final k = event.logicalKey;
+    if (k == LogicalKeyboardKey.keyJ || k == LogicalKeyboardKey.arrowDown) {
+      _move(1);
+    } else if (k == LogicalKeyboardKey.keyK ||
+        k == LogicalKeyboardKey.arrowUp) {
+      _move(-1);
+    } else if (k == LogicalKeyboardKey.keyA) {
+      _decideSelected(true);
+    } else if (k == LogicalKeyboardKey.keyR) {
+      _decideSelected(false);
+    } else if (k == LogicalKeyboardKey.keyC) {
+      if (_count > 0) _toggleContext(_keyOf(_selected));
+    } else {
+      return KeyEventResult.ignored;
+    }
+    return KeyEventResult.handled;
+  }
+
+  /// 추천이 있는 검수 대기 항목 수 (지금 목록 기준).
+  int get _recommended => _showFacts
+      ? (_facts?.items
+                .where(
+                  (i) =>
+                      i.fact.status == RelationStatus.draft &&
+                      i.fact.recommendation != null,
+                )
+                .length ??
+            0)
+      : (_page?.items
+                .where(
+                  (i) =>
+                      i.relation.status == RelationStatus.draft &&
+                      i.relation.recommendation != null,
+                )
+                .length ??
+            0);
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     final t = context.typo;
     final page = _page;
-    return PageFrame(
-      maxWidth: 1080,
-      children: [
-        const PageHeading(
-          eyebrow: 'INVESTMENT ONTOLOGY · 검수',
-          title: '검수',
-          subtitle:
-              '사업보고서 "사업의 내용"에서 미리 뽑아 둔 관계와 값입니다. 근거 인용이 원문에 '
-              '그대로 있는 것만 남겼습니다. 대부분은 원문 대조를 거쳐 이미 확정했고, 여기에는 판단이 갈리는 것만 남습니다.',
-        ),
-        const SizedBox(height: AppSpace.lg),
-        _Accuracy(checks: _checks, facts: _showFacts),
-        const SizedBox(height: AppSpace.lg),
-        Wrap(
-          spacing: AppSpace.lg,
-          runSpacing: AppSpace.sm,
-          crossAxisAlignment: WrapCrossAlignment.center,
+    final facts = _facts;
+    return Focus(
+      focusNode: _focus,
+      autofocus: true,
+      onKeyEvent: _onKey,
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => _focus.requestFocus(),
+        child: PageFrame(
+          maxWidth: 1080,
+          controller: _scroll,
           children: [
-            AppToggleGroup<bool>(
-              value: _showFacts,
-              options: {
-                false:
-                    '관계 ${_page == null ? '' : formatCount(_page!.draftCount)}',
-                true:
-                    '값 ${_facts == null ? '' : formatCount(_facts!.draftCount)}',
-              },
-              onChanged: (v) => setState(() => _showFacts = v),
+            const PageHeading(
+              eyebrow: 'INVESTMENT ONTOLOGY · 검수',
+              title: '검수',
+              subtitle:
+                  '사업보고서 "사업의 내용"에서 미리 뽑아 둔 관계와 값입니다. 근거 인용이 원문에 그대로 있는 것만 남겼고, '
+                  '대부분은 원문 대조를 거쳐 이미 확정했습니다. 여기에는 판단이 갈리는 것만 남고, 대조한 쪽의 추천과 이유가 붙어 있습니다.',
             ),
-            AppToggleGroup<RelationStatus>(
-              value: _status,
-              options: {
-                RelationStatus.draft:
-                    '검수 대기 ${page == null ? '' : formatCount(page.draftCount)}',
-                RelationStatus.verified:
-                    '승인 ${page == null ? '' : formatCount(page.verifiedCount)}',
-                RelationStatus.rejected:
-                    '거절 ${page == null ? '' : formatCount(page.rejectedCount)}',
-              },
-              onChanged: (s) {
-                setState(() => _status = s);
-                _load();
-              },
+            const SizedBox(height: AppSpace.sm),
+            Text(
+              '키보드: J·↓ 다음 · K·↑ 이전 · A 승인 · R 거절 · C 원문 맥락',
+              style: t.body(12, color: c.textMuted),
             ),
-            if (!_showFacts)
-              AppToggleGroup<RelationPredicate?>(
-                label: '종류',
-                value: _predicate,
-                options: const {
-                  null: '전체',
-                  RelationPredicate.suppliesTo: '공급',
-                  RelationPredicate.competesWith: '경쟁',
-                  RelationPredicate.produces: '제품',
-                },
-                onChanged: (p) {
-                  setState(() => _predicate = p);
-                  _load();
-                },
+            const SizedBox(height: AppSpace.lg),
+            _Accuracy(checks: _checks, facts: _showFacts),
+            const SizedBox(height: AppSpace.lg),
+            Wrap(
+              spacing: AppSpace.lg,
+              runSpacing: AppSpace.sm,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                AppToggleGroup<bool>(
+                  value: _showFacts,
+                  options: {
+                    false:
+                        '관계 ${page == null ? '' : formatCount(page.draftCount)}',
+                    true:
+                        '값 ${facts == null ? '' : formatCount(facts.draftCount)}',
+                  },
+                  onChanged: (v) => setState(() {
+                    _showFacts = v;
+                    _selected = 0;
+                  }),
+                ),
+                AppToggleGroup<RelationStatus>(
+                  value: _status,
+                  options: {
+                    RelationStatus.draft:
+                        '검수 대기 ${_showFacts ? (facts == null ? '' : formatCount(facts.draftCount)) : (page == null ? '' : formatCount(page.draftCount))}',
+                    RelationStatus.verified:
+                        '승인 ${_showFacts ? (facts == null ? '' : formatCount(facts.verifiedCount)) : (page == null ? '' : formatCount(page.verifiedCount))}',
+                    RelationStatus.rejected:
+                        '거절 ${_showFacts ? (facts == null ? '' : formatCount(facts.rejectedCount)) : (page == null ? '' : formatCount(page.rejectedCount))}',
+                  },
+                  onChanged: (s) {
+                    setState(() {
+                      _status = s;
+                      _selected = 0;
+                    });
+                    _load();
+                  },
+                ),
+                if (!_showFacts)
+                  AppToggleGroup<RelationPredicate?>(
+                    label: '종류',
+                    value: _predicate,
+                    options: const {
+                      null: '전체',
+                      RelationPredicate.suppliesTo: '공급',
+                      RelationPredicate.competesWith: '경쟁',
+                      RelationPredicate.produces: '제품',
+                    },
+                    onChanged: (p) {
+                      setState(() {
+                        _predicate = p;
+                        _selected = 0;
+                      });
+                      _load();
+                    },
+                  ),
+                if (_status == RelationStatus.draft && _recommended > 0)
+                  AppButton(
+                    label: '추천대로 ${formatCount(_recommended)}건 적용',
+                    variant: AppButtonVariant.primary,
+                    onPressed: _applyRecommended,
+                  ),
+              ],
+            ),
+            const SizedBox(height: AppSpace.lg),
+            if (_error != null)
+              AppNotice(message: '검수 큐를 불러오지 못했습니다 — $_error')
+            else if (_showFacts) ...[
+              if (facts == null)
+                const LinearProgressIndicator(minHeight: 2)
+              else if (facts.items.isEmpty)
+                Text(
+                  _status == RelationStatus.draft
+                      ? '검수할 값이 없습니다. 사업보고서 본문을 읽어 넣으면 판단이 갈리는 것만 여기 쌓입니다.'
+                      : '없습니다.',
+                  style: t.body(13, color: c.textMuted),
+                )
+              else ...[
+                Text(
+                  '${formatCount(facts.total)}건 중 ${facts.items.length}건 · API로는 받을 수 없고 본문에만 있는 값입니다',
+                  style: t.body(12, color: c.textMuted),
+                ),
+                const SizedBox(height: AppSpace.sm),
+                for (final (i, item) in facts.items.indexed)
+                  FactCard(
+                    key: _keys.putIfAbsent(
+                      'fact:${item.fact.id}',
+                      GlobalKey.new,
+                    ),
+                    item: item,
+                    selected: i == _selected,
+                    contextOpen: _open.contains('fact:${item.fact.id}'),
+                    onToggleContext: () =>
+                        _toggleContext('fact:${item.fact.id}'),
+                    onSelect: () => setState(() => _selected = i),
+                    busy: _busy.contains(-item.fact.id!),
+                    onDecide: item.fact.status == RelationStatus.draft
+                        ? (approve) => _decideFact(item.fact, approve)
+                        : null,
+                  ),
+              ],
+            ] else if (page == null)
+              const LinearProgressIndicator(minHeight: 2)
+            else if (page.items.isEmpty)
+              Text(
+                _status == RelationStatus.draft
+                    ? '남은 관계가 없습니다. 새 본문이 들어오면 서버 밖에서 읽어 넣은 뒤 판단이 갈리는 것만 여기 남깁니다.'
+                    : '없습니다.',
+                style: t.body(13, color: c.textMuted),
+              )
+            else ...[
+              Text(
+                '${formatCount(page.total)}건 중 ${page.items.length}건 · 확신도 높은 순',
+                style: t.body(12, color: c.textMuted),
               ),
+              const SizedBox(height: AppSpace.sm),
+              for (final (i, item) in page.items.indexed)
+                ReviewCard(
+                  key: _keys.putIfAbsent(
+                    'relation:${item.relation.id}',
+                    GlobalKey.new,
+                  ),
+                  item: item,
+                  selected: i == _selected,
+                  contextOpen: _open.contains('relation:${item.relation.id}'),
+                  onToggleContext: () =>
+                      _toggleContext('relation:${item.relation.id}'),
+                  onSelect: () => setState(() => _selected = i),
+                  busy: _busy.contains(item.relation.id),
+                  onDecide: item.relation.status == RelationStatus.draft
+                      ? (approve) => _decide(item.relation, approve)
+                      : null,
+                ),
+            ],
           ],
         ),
-        const SizedBox(height: AppSpace.lg),
-        if (_error != null)
-          AppNotice(message: '검수 큐를 불러오지 못했습니다 — $_error')
-        else if (_showFacts)
-          _FactList(
-            page: _facts,
-            busy: _busy,
-            onDecide: _decideFact,
-            status: _status,
-          )
-        else if (page == null)
-          const LinearProgressIndicator(minHeight: 2)
-        else if (page.items.isEmpty)
-          Text(
-            _status == RelationStatus.draft
-                ? '남은 관계가 없습니다. 새 본문이 들어오면 서버 밖에서 읽어 넣은 뒤 판단이 갈리는 것만 여기 남깁니다.'
-                : '없습니다.',
-            style: t.body(13, color: c.textMuted),
-          )
-        else ...[
-          Text(
-            '${formatCount(page.total)}건 중 ${page.items.length}건 · 확신도 높은 순',
-            style: t.body(12, color: c.textMuted),
-          ),
-          const SizedBox(height: AppSpace.sm),
-          for (final item in page.items)
-            ReviewCard(
-              item: item,
-              busy: _busy.contains(item.relation.id),
-              onDecide: item.relation.status == RelationStatus.draft
-                  ? (approve) => _decide(item.relation, approve)
-                  : null,
-            ),
-        ],
-      ],
+      ),
     );
   }
 }
 
-/// 관계 하나: 주어 —종류→ 목적어, 근거 인용, 원문 기업, 승인·거절.
+/// 관계 하나: 주어 —종류→ 목적어, 추천과 이유, 근거 인용(원문 맥락 펼치기), 승인·거절.
 class ReviewCard extends StatelessWidget {
   const ReviewCard({
     super.key,
     required this.item,
     this.onDecide,
     this.busy = false,
+    this.selected = false,
+    this.contextOpen = false,
+    this.onToggleContext,
+    this.onSelect,
   });
 
   final ReviewItem item;
   final ValueChanged<bool>? onDecide;
   final bool busy;
+  final bool selected;
+  final bool contextOpen;
+  final VoidCallback? onToggleContext;
+  final VoidCallback? onSelect;
 
   @override
   Widget build(BuildContext context) {
@@ -220,116 +417,408 @@ class ReviewCard extends StatelessWidget {
             ),
       ),
     );
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppSpace.sm),
-      padding: const EdgeInsets.all(AppSpace.md),
-      decoration: BoxDecoration(
-        color: c.surface,
-        borderRadius: context.shape.borderRadius,
-        border: Border.all(color: c.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+    return _CardFrame(
+      selected: selected,
+      onSelect: onSelect,
+      head: Wrap(
+        spacing: AppSpace.sm,
+        runSpacing: 4,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          Wrap(
-            spacing: AppSpace.sm,
-            runSpacing: 4,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              node(r.subjectName, item.subjectCorpCode),
-              AppTag(label: predicateLabel(r.predicate), color: c.accent),
-              node(r.objectName, item.objectCorpCode),
-              if (r.confidence != null)
-                Text(
-                  '확신도 ${(r.confidence! * 100).round()}%',
-                  style: t.numeric(11.5, color: c.textMuted),
-                ),
-            ],
-          ),
-          const SizedBox(height: AppSpace.sm),
-          Container(
-            padding: const EdgeInsets.all(AppSpace.sm),
-            decoration: BoxDecoration(
-              color: c.background,
-              border: Border(left: BorderSide(color: c.borderStrong, width: 3)),
+          node(r.subjectName, item.subjectCorpCode),
+          AppTag(label: predicateLabel(r.predicate), color: c.accent),
+          node(r.objectName, item.objectCorpCode),
+          if (r.confidence != null)
+            Text(
+              '확신도 ${(r.confidence! * 100).round()}%',
+              style: t.numeric(11.5, color: c.textMuted),
             ),
-            child: SelectableText(
-              '“${r.evidence ?? ''}”',
-              style: t.body(13, color: c.textSecondary).copyWith(height: 1.6),
-            ),
-          ),
-          const SizedBox(height: AppSpace.sm),
-          LayoutBuilder(
-            builder: (context, box) {
-              final source = HoverBuilder(
-                onTap: () => context.push(
-                  AppRoutes.company(item.companyCorpCode, tab: 'business'),
-                ),
-                builder: (context, hovered) => Text(
-                  '원문: ${item.companyName} FY${r.bsnsYear} 사업보고서 · 사업의 내용'
-                  '${r.extractorModel == null ? '' : ' · ${r.extractorModel}'}',
-                  style: t
-                      .body(11.5, color: c.textMuted)
-                      .copyWith(
-                        decoration: hovered ? TextDecoration.underline : null,
-                      ),
-                ),
-              );
-              final actions = <Widget>[
-                if (onDecide != null) ...[
-                  AppButton(
-                    label: '거절',
-                    variant: AppButtonVariant.link,
-                    onPressed: busy ? null : () => onDecide!(false),
-                  ),
-                  const SizedBox(width: AppSpace.sm),
-                  AppButton(
-                    label: '승인',
-                    variant: AppButtonVariant.primary,
-                    onPressed: busy ? null : () => onDecide!(true),
-                  ),
-                ] else ...[
-                  AppTag(
-                    label: switch (r.status) {
-                      RelationStatus.verified => '승인됨',
-                      RelationStatus.rejected => '거절됨',
-                      RelationStatus.draft => '검수 대기',
-                    },
-                  ),
-                  // 누가 결정했는지. 사람이 누른 것은 표시하지 않는다.
-                  if (r.reviewedBy case final by?) ...[
-                    const SizedBox(width: AppSpace.xs),
-                    AppTag(
-                      label: by.startsWith('표 규칙') ? '표 규칙' : '원문 대조',
-                      color: c.textMuted,
-                    ),
-                  ],
-                ],
-              ];
-              // 폰에서는 출처 글이 버튼에 밀려 두 줄로 쪼개진다. 버튼을 아래 줄로 내린다.
-              if (box.maxWidth < 460) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    source,
-                    const SizedBox(height: AppSpace.sm),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: actions,
-                    ),
-                  ],
-                );
-              }
-              return Row(
-                children: [
-                  Expanded(child: source),
-                  ...actions,
-                ],
-              );
-            },
-          ),
         ],
       ),
+      recommendation: r.recommendation,
+      reviewNote: r.reviewNote,
+      evidence: r.evidence ?? '',
+      scope: 'relation',
+      id: r.id!,
+      contextOpen: contextOpen,
+      onToggleContext: onToggleContext,
+      source: HoverBuilder(
+        onTap: () => context.push(
+          AppRoutes.company(item.companyCorpCode, tab: 'business'),
+        ),
+        builder: (context, hovered) => Text(
+          '원문: ${item.companyName} FY${r.bsnsYear} 사업보고서 · 사업의 내용'
+          '${r.extractorModel == null ? '' : ' · ${r.extractorModel}'}',
+          style: t
+              .body(11.5, color: c.textMuted)
+              .copyWith(
+                decoration: hovered ? TextDecoration.underline : null,
+              ),
+        ),
+      ),
+      status: r.status,
+      reviewedBy: r.reviewedBy,
+      busy: busy,
+      onDecide: onDecide,
+    );
+  }
+}
+
+/// 값 하나: 기업 · 종류 · 값, 추천과 이유, 근거(원문 맥락), 승인·거절.
+class FactCard extends StatelessWidget {
+  const FactCard({
+    super.key,
+    required this.item,
+    this.onDecide,
+    this.busy = false,
+    this.selected = false,
+    this.contextOpen = false,
+    this.onToggleContext,
+    this.onSelect,
+  });
+
+  final FactItem item;
+  final ValueChanged<bool>? onDecide;
+  final bool busy;
+  final bool selected;
+  final bool contextOpen;
+  final VoidCallback? onToggleContext;
+  final VoidCallback? onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    final f = item.fact;
+    return _CardFrame(
+      selected: selected,
+      onSelect: onSelect,
+      head: Wrap(
+        spacing: AppSpace.sm,
+        runSpacing: 4,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          HoverBuilder(
+            onTap: () => context.push(AppRoutes.company(item.corpCode)),
+            builder: (context, hovered) => Text(
+              item.companyName,
+              style: t
+                  .body(14, weight: FontWeight.w700, color: c.accent)
+                  .copyWith(
+                    decoration: hovered ? TextDecoration.underline : null,
+                    decorationColor: c.accent,
+                  ),
+            ),
+          ),
+          AppTag(label: factKindLabel(f.kind), color: c.accent),
+          Text(f.label, style: t.body(13.5)),
+          Text(
+            '${formatDecimal(f.value)}${f.unit}',
+            style: t.numeric(15, weight: FontWeight.w600),
+          ),
+          if (f.asOf != null)
+            Text(formatDate(f.asOf), style: t.numeric(12, color: c.textMuted)),
+        ],
+      ),
+      recommendation: f.recommendation,
+      reviewNote: f.reviewNote,
+      evidence: f.evidence,
+      scope: 'fact',
+      id: f.id!,
+      contextOpen: contextOpen,
+      onToggleContext: onToggleContext,
+      source: Text(
+        'FY${f.bsnsYear} 사업보고서 · 사업의 내용'
+        '${f.extractorModel == null ? '' : ' · ${f.extractorModel}'}',
+        style: t.body(11.5, color: c.textMuted),
+      ),
+      status: f.status,
+      reviewedBy: f.reviewedBy,
+      busy: busy,
+      onDecide: onDecide,
+    );
+  }
+}
+
+/// 관계·값 카드의 공통 틀.
+class _CardFrame extends StatelessWidget {
+  const _CardFrame({
+    required this.head,
+    required this.recommendation,
+    required this.reviewNote,
+    required this.evidence,
+    required this.scope,
+    required this.id,
+    required this.contextOpen,
+    required this.onToggleContext,
+    required this.source,
+    required this.status,
+    required this.reviewedBy,
+    required this.busy,
+    required this.onDecide,
+    required this.selected,
+    required this.onSelect,
+  });
+
+  final Widget head;
+  final RelationStatus? recommendation;
+  final String? reviewNote;
+  final String evidence;
+  final String scope;
+  final int id;
+  final bool contextOpen;
+  final VoidCallback? onToggleContext;
+  final Widget source;
+  final RelationStatus status;
+  final String? reviewedBy;
+  final bool busy;
+  final ValueChanged<bool>? onDecide;
+  final bool selected;
+  final VoidCallback? onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    final rec = recommendation;
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: onSelect,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: AppSpace.sm),
+        padding: const EdgeInsets.all(AppSpace.md),
+        decoration: BoxDecoration(
+          color: c.surface,
+          borderRadius: context.shape.borderRadius,
+          border: Border.all(
+            color: selected ? c.accent : c.border,
+            width: selected ? 1.5 : 1,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            head,
+            // 추천이 있으면 근거보다 먼저 — 사람은 추천이 맞는지만 확인하면 된다.
+            if (rec != null && status == RelationStatus.draft) ...[
+              const SizedBox(height: AppSpace.sm),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppTag(
+                    label: rec == RelationStatus.verified ? '추천: 승인' : '추천: 거절',
+                    color: rec == RelationStatus.verified
+                        ? c.success
+                        : c.textSecondary,
+                    filled: true,
+                  ),
+                  if (reviewNote case final note?) ...[
+                    const SizedBox(width: AppSpace.sm),
+                    Expanded(
+                      child: Text(
+                        note,
+                        style: t
+                            .body(13, color: c.textPrimary)
+                            .copyWith(
+                              height: 1.5,
+                            ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ] else if (reviewNote case final note?) ...[
+              const SizedBox(height: AppSpace.sm),
+              Text(note, style: t.body(12.5, color: c.textSecondary)),
+            ],
+            const SizedBox(height: AppSpace.sm),
+            _Evidence(
+              evidence: evidence,
+              scope: scope,
+              id: id,
+              open: contextOpen,
+              onToggle: onToggleContext,
+            ),
+            const SizedBox(height: AppSpace.sm),
+            LayoutBuilder(
+              builder: (context, box) {
+                final actions = <Widget>[
+                  if (onDecide != null) ...[
+                    AppButton(
+                      label: '거절 (R)',
+                      variant: AppButtonVariant.link,
+                      onPressed: busy ? null : () => onDecide!(false),
+                    ),
+                    const SizedBox(width: AppSpace.sm),
+                    AppButton(
+                      label: '승인 (A)',
+                      variant: AppButtonVariant.primary,
+                      onPressed: busy ? null : () => onDecide!(true),
+                    ),
+                  ] else ...[
+                    AppTag(
+                      label: switch (status) {
+                        RelationStatus.verified => '승인됨',
+                        RelationStatus.rejected => '거절됨',
+                        RelationStatus.draft => '검수 대기',
+                      },
+                    ),
+                    // 누가 결정했는지. 사람이 하나씩 누른 것은 표시하지 않는다.
+                    if (reviewedBy case final by?) ...[
+                      const SizedBox(width: AppSpace.xs),
+                      AppTag(
+                        label: by.startsWith('표 규칙')
+                            ? '표 규칙'
+                            : by.startsWith('추천대로')
+                            ? '추천대로 일괄'
+                            : '원문 대조',
+                        color: c.textMuted,
+                      ),
+                    ],
+                  ],
+                ];
+                // 폰에서는 출처 글이 버튼에 밀려 두 줄로 쪼개진다. 버튼을 아래 줄로 내린다.
+                if (box.maxWidth < 460) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      source,
+                      const SizedBox(height: AppSpace.sm),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: actions,
+                      ),
+                    ],
+                  );
+                }
+                return Row(
+                  children: [
+                    Expanded(child: source),
+                    ...actions,
+                  ],
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 근거 인용. 펼치면 원문 앞뒤 몇백 자를 받아 근거를 강조해 보여 준다.
+class _Evidence extends StatefulWidget {
+  const _Evidence({
+    required this.evidence,
+    required this.scope,
+    required this.id,
+    required this.open,
+    required this.onToggle,
+  });
+
+  final String evidence;
+  final String scope;
+  final int id;
+  final bool open;
+  final VoidCallback? onToggle;
+
+  @override
+  State<_Evidence> createState() => _EvidenceState();
+}
+
+class _EvidenceState extends State<_Evidence> {
+  ReviewContext? _context;
+  bool _loading = false;
+  Object? _error;
+
+  @override
+  void didUpdateWidget(covariant _Evidence oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.open && !oldWidget.open && _context == null) _load();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.open) _load();
+  }
+
+  Future<void> _load() async {
+    setState(() => _loading = true);
+    try {
+      final ctx = await client.review.context(widget.scope, widget.id, around: 500);
+      if (mounted) {
+        setState(() => (_context = ctx, _error = null, _loading = false));
+      }
+    } catch (e) {
+      if (mounted) setState(() => (_error = e, _loading = false));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    final ctx = _context;
+    final body = t.body(13, color: c.textSecondary).copyWith(height: 1.6);
+    final mark = t
+        .body(13, color: c.textPrimary, weight: FontWeight.w600)
+        .copyWith(height: 1.6, backgroundColor: c.accentSubtle);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(AppSpace.sm),
+          decoration: BoxDecoration(
+            color: c.background,
+            border: Border(left: BorderSide(color: c.borderStrong, width: 3)),
+          ),
+          child: !widget.open || ctx == null
+              ? SelectableText('“${widget.evidence}”', style: body)
+              : SelectableText.rich(
+                  TextSpan(
+                    children: [
+                      if (ctx.heading case final h?)
+                        TextSpan(
+                          text: '$h\n',
+                          style: t.body(11.5, color: c.textMuted),
+                        ),
+                      if (ctx.found) ...[
+                        TextSpan(text: '…${ctx.before}', style: body),
+                        TextSpan(text: ctx.evidence, style: mark),
+                        TextSpan(text: '${ctx.after}…', style: body),
+                      ] else
+                        TextSpan(
+                          text:
+                              '“${ctx.evidence}”\n(원문에서 이 문장을 찾지 못했습니다 — 본문이 다시 수집됐을 수 있습니다)',
+                          style: body,
+                        ),
+                    ],
+                  ),
+                ),
+        ),
+        Row(
+          children: [
+            AppButton(
+              label: widget.open
+                  ? '원문 맥락 접기 (C)'
+                  : _loading
+                  ? '원문 맥락 여는 중…'
+                  : '원문 맥락 펼치기 (C)',
+              variant: AppButtonVariant.link,
+              onPressed: widget.onToggle,
+            ),
+            if (_error != null)
+              Expanded(
+                child: Text(
+                  '맥락을 불러오지 못했습니다 — $_error',
+                  style: t.body(11.5, color: c.textMuted),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -398,175 +887,6 @@ class _Accuracy extends StatelessWidget {
           ],
         ],
       ),
-    );
-  }
-}
-
-/// 본문에서 뽑은 값 목록 (수주잔고·가동률·점유율 등).
-class _FactList extends StatelessWidget {
-  const _FactList({
-    required this.page,
-    required this.busy,
-    required this.onDecide,
-    required this.status,
-  });
-
-  final FactPage? page;
-  final Set<int> busy;
-  final void Function(DocumentFact, bool) onDecide;
-  final RelationStatus status;
-
-  static String kindLabel(DocumentFactKind k) => switch (k) {
-    DocumentFactKind.orderTotal => '수주총액',
-    DocumentFactKind.orderDelivered => '기납품액',
-    DocumentFactKind.orderBacklog => '수주잔고',
-    DocumentFactKind.capacity => '생산능력',
-    DocumentFactKind.production => '생산실적',
-    DocumentFactKind.utilization => '가동률',
-    DocumentFactKind.marketShare => '시장점유율',
-    DocumentFactKind.investmentPlan => '투자계획',
-    DocumentFactKind.investmentActual => '투자집행',
-    DocumentFactKind.segmentRevenue => '부문 매출',
-  };
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    final t = context.typo;
-    final p = page;
-    if (p == null) return const LinearProgressIndicator(minHeight: 2);
-    if (p.items.isEmpty) {
-      return Text(
-        status == RelationStatus.draft
-            ? '검수할 값이 없습니다. 사업보고서 본문을 읽어 넣으면 여기에 쌓입니다.'
-            : '없습니다.',
-        style: t.body(13, color: c.textMuted),
-      );
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          '${formatCount(p.total)}건 중 ${p.items.length}건 · API로는 받을 수 없고 본문에만 있는 값입니다',
-          style: t.body(12, color: c.textMuted),
-        ),
-        const SizedBox(height: AppSpace.sm),
-        for (final item in p.items)
-          Container(
-            margin: const EdgeInsets.only(bottom: AppSpace.sm),
-            padding: const EdgeInsets.all(AppSpace.md),
-            decoration: BoxDecoration(
-              color: c.surface,
-              borderRadius: context.shape.borderRadius,
-              border: Border.all(color: c.border),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Wrap(
-                  spacing: AppSpace.sm,
-                  runSpacing: 4,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    Text(
-                      item.companyName,
-                      style: t.body(14, weight: FontWeight.w700),
-                    ),
-                    AppTag(label: kindLabel(item.fact.kind), color: c.accent),
-                    Text(item.fact.label, style: t.body(13.5)),
-                    Text(
-                      '${formatDecimal(item.fact.value)}${item.fact.unit}',
-                      style: t.numeric(15, weight: FontWeight.w600),
-                    ),
-                    if (item.fact.asOf != null)
-                      Text(
-                        formatDate(item.fact.asOf),
-                        style: t.numeric(12, color: c.textMuted),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: AppSpace.sm),
-                Container(
-                  padding: const EdgeInsets.all(AppSpace.sm),
-                  decoration: BoxDecoration(
-                    color: c.background,
-                    border: Border(
-                      left: BorderSide(color: c.borderStrong, width: 3),
-                    ),
-                  ),
-                  child: SelectableText(
-                    '“${item.fact.evidence}”',
-                    style: t
-                        .body(12.5, color: c.textSecondary)
-                        .copyWith(height: 1.6),
-                  ),
-                ),
-                const SizedBox(height: AppSpace.sm),
-                LayoutBuilder(
-                  builder: (context, box) {
-                    final source = Text(
-                      'FY${item.fact.bsnsYear} 사업보고서 · 사업의 내용'
-                      '${item.fact.extractorModel == null ? '' : ' · ${item.fact.extractorModel}'}',
-                      style: t.body(11.5, color: c.textMuted),
-                    );
-                    final actions = <Widget>[
-                      if (item.fact.status == RelationStatus.draft) ...[
-                        AppButton(
-                          label: '거절',
-                          variant: AppButtonVariant.link,
-                          onPressed: busy.contains(-item.fact.id!)
-                              ? null
-                              : () => onDecide(item.fact, false),
-                        ),
-                        const SizedBox(width: AppSpace.sm),
-                        AppButton(
-                          label: '승인',
-                          variant: AppButtonVariant.primary,
-                          onPressed: busy.contains(-item.fact.id!)
-                              ? null
-                              : () => onDecide(item.fact, true),
-                        ),
-                      ] else ...[
-                        AppTag(
-                          label: item.fact.status == RelationStatus.verified
-                              ? '승인됨'
-                              : '거절됨',
-                        ),
-                        if (item.fact.reviewedBy case final by?) ...[
-                          const SizedBox(width: AppSpace.xs),
-                          AppTag(
-                            label: by.startsWith('표 규칙') ? '표 규칙' : '원문 대조',
-                            color: c.textMuted,
-                          ),
-                        ],
-                      ],
-                    ];
-                    // 폰에서는 버튼을 아래 줄로 내린다 (출처 글이 쪼개지지 않게).
-                    if (box.maxWidth < 460) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          source,
-                          const SizedBox(height: AppSpace.sm),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: actions,
-                          ),
-                        ],
-                      );
-                    }
-                    return Row(
-                      children: [
-                        Expanded(child: source),
-                        ...actions,
-                      ],
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-      ],
     );
   }
 }

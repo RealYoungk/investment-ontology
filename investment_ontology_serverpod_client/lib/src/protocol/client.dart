@@ -92,6 +92,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _ixp2yk27;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/review_check.dart'
     as _ixhvmecn;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/review_context.dart'
+    as _i80fto18;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/review_item.dart'
     as _ihqozc6p;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/review_page.dart'
@@ -1071,6 +1073,49 @@ class EndpointReview extends _isc.EndpointRef {
       'by': by,
     },
   );
+
+  /// 근거 문장을 원문 앞뒤 [around]자와 함께 돌려준다. [scope]는 relation · fact.
+  ///
+  /// 사람이 원문 탭으로 옮겨 가 문장을 찾는 시간을 없앤다 — 검수에서 가장 오래 걸리는 일이다.
+  _ida.Future<_i80fto18.ReviewContext?> context(
+    String scope,
+    int id, {
+    required int around,
+  }) => caller.callServerEndpoint<_i80fto18.ReviewContext?>(
+    'review',
+    'context',
+    {
+      'scope': scope,
+      'id': id,
+      'around': around,
+    },
+  );
+
+  /// 원문과 대조한 쪽이 사람에게 추천을 남긴다 (승인·거절과 그 이유). 결정은 바꾸지 않는다.
+  _ida.Future<int> recommend(
+    String scope,
+    List<int> ids,
+    _ixp2yk27.RelationStatus recommendation,
+    String note,
+  ) => caller.callServerEndpoint<int>(
+    'review',
+    'recommend',
+    {
+      'scope': scope,
+      'ids': ids,
+      'recommendation': recommendation,
+      'note': note,
+    },
+  );
+
+  /// 검수 대기 중 추천이 있는 것을 추천대로 한 번에 결정한다. 사람이 누른 것이므로
+  /// `reviewedBy`는 "추천대로 일괄"로 남겨 하나씩 본 것과 구분한다.
+  _ida.Future<int> applyRecommended(String scope) =>
+      caller.callServerEndpoint<int>(
+        'review',
+        'applyRecommended',
+        {'scope': scope},
+      );
 
   /// 대조 검수 기록을 남긴다 (정확률을 숫자로).
   _ida.Future<_ixhvmecn.ReviewCheck> recordCheck(

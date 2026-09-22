@@ -1569,6 +1569,93 @@ class Endpoints extends _is.EndpointDispatch {
                     by: params['by'],
                   ),
         ),
+        'context': _is.MethodConnector(
+          name: 'context',
+          params: {
+            'scope': _is.ParameterDescription(
+              name: 'scope',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'id': _is.ParameterDescription(
+              name: 'id',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+            'around': _is.ParameterDescription(
+              name: 'around',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['review'] as _i9uttt4a.ReviewEndpoint).context(
+                    session,
+                    params['scope'],
+                    params['id'],
+                    around: params['around'],
+                  ),
+        ),
+        'recommend': _is.MethodConnector(
+          name: 'recommend',
+          params: {
+            'scope': _is.ParameterDescription(
+              name: 'scope',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'ids': _is.ParameterDescription(
+              name: 'ids',
+              type: _is.getType<List<int>>(),
+              nullable: false,
+            ),
+            'recommendation': _is.ParameterDescription(
+              name: 'recommendation',
+              type: _is.getType<_iy39k7od.RelationStatus>(),
+              nullable: false,
+            ),
+            'note': _is.ParameterDescription(
+              name: 'note',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['review'] as _i9uttt4a.ReviewEndpoint).recommend(
+                    session,
+                    params['scope'],
+                    params['ids'],
+                    params['recommendation'],
+                    params['note'],
+                  ),
+        ),
+        'applyRecommended': _is.MethodConnector(
+          name: 'applyRecommended',
+          params: {
+            'scope': _is.ParameterDescription(
+              name: 'scope',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['review'] as _i9uttt4a.ReviewEndpoint)
+                  .applyRecommended(
+                    session,
+                    params['scope'],
+                  ),
+        ),
         'recordCheck': _is.MethodConnector(
           name: 'recordCheck',
           params: {

@@ -154,6 +154,7 @@ import 'ontology/models/relation_origin.dart' as _id1oen7t;
 import 'ontology/models/relation_predicate.dart' as _idal2dwe;
 import 'ontology/models/relation_status.dart' as _ih00v9tp;
 import 'ontology/models/review_check.dart' as _iqdwyhyy;
+import 'ontology/models/review_context.dart' as _ijdr1ucd;
 import 'ontology/models/review_item.dart' as _i6uduqoi;
 import 'ontology/models/review_page.dart' as _i22wlf7g;
 import 'ontology/models/screen_page.dart' as _izca0w44;
@@ -265,6 +266,7 @@ export 'ontology/models/relation_origin.dart';
 export 'ontology/models/relation_predicate.dart';
 export 'ontology/models/relation_status.dart';
 export 'ontology/models/review_check.dart';
+export 'ontology/models/review_context.dart';
 export 'ontology/models/review_item.dart';
 export 'ontology/models/review_page.dart';
 export 'ontology/models/screen_page.dart';
@@ -1946,6 +1948,18 @@ class Protocol extends _is.DatabaseSerializationManager {
           dartType: 'String?',
         ),
         _isp.ColumnDefinition(
+          name: 'recommendation',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'protocol:RelationStatus?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'reviewNote',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
           name: 'createdAt',
           columnType: _isp.ColumnType.timestampWithoutTimeZone,
           isNullable: false,
@@ -3596,6 +3610,18 @@ class Protocol extends _is.DatabaseSerializationManager {
           isNullable: true,
           dartType: 'String?',
         ),
+        _isp.ColumnDefinition(
+          name: 'recommendation',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'protocol:RelationStatus?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'reviewNote',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
       ],
       foreignKeys: [
         _isp.ForeignKeyDefinition(
@@ -4961,6 +4987,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _iqdwyhyy.ReviewCheck) {
       return _iqdwyhyy.ReviewCheck.fromJson(data) as T;
     }
+    if (t == _ijdr1ucd.ReviewContext) {
+      return _ijdr1ucd.ReviewContext.fromJson(data) as T;
+    }
     if (t == _i6uduqoi.ReviewItem) {
       return _i6uduqoi.ReviewItem.fromJson(data) as T;
     }
@@ -5414,6 +5443,10 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (t == _is.getType<_iqdwyhyy.ReviewCheck?>()) {
       return (data != null ? _iqdwyhyy.ReviewCheck.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_ijdr1ucd.ReviewContext?>()) {
+      return (data != null ? _ijdr1ucd.ReviewContext.fromJson(data) : null)
+          as T;
     }
     if (t == _is.getType<_i6uduqoi.ReviewItem?>()) {
       return (data != null ? _i6uduqoi.ReviewItem.fromJson(data) : null) as T;
@@ -5921,6 +5954,7 @@ class Protocol extends _is.DatabaseSerializationManager {
       _idal2dwe.RelationPredicate => 'RelationPredicate',
       _ih00v9tp.RelationStatus => 'RelationStatus',
       _iqdwyhyy.ReviewCheck => 'ReviewCheck',
+      _ijdr1ucd.ReviewContext => 'ReviewContext',
       _i6uduqoi.ReviewItem => 'ReviewItem',
       _i22wlf7g.ReviewPage => 'ReviewPage',
       _izca0w44.ScreenPage => 'ScreenPage',
@@ -6156,6 +6190,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'RelationStatus';
       case _iqdwyhyy.ReviewCheck():
         return 'ReviewCheck';
+      case _ijdr1ucd.ReviewContext():
+        return 'ReviewContext';
       case _i6uduqoi.ReviewItem():
         return 'ReviewItem';
       case _i22wlf7g.ReviewPage():
@@ -6529,6 +6565,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'ReviewCheck') {
       return deserialize<_iqdwyhyy.ReviewCheck>(data['data']);
+    }
+    if (dataClassName == 'ReviewContext') {
+      return deserialize<_ijdr1ucd.ReviewContext>(data['data']);
     }
     if (dataClassName == 'ReviewItem') {
       return deserialize<_i6uduqoi.ReviewItem>(data['data']);

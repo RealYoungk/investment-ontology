@@ -89,6 +89,135 @@ class ReviewEndpoint extends Endpoint {
     return done;
   }
 
+  /// 근거 문장을 원문 앞뒤 [around]자와 함께 돌려준다. [scope]는 relation · fact.
+  ///
+  /// 사람이 원문 탭으로 옮겨 가 문장을 찾는 시간을 없앤다 — 검수에서 가장 오래 걸리는 일이다.
+  Future<ReviewContext?> context(
+    Session session,
+    String scope,
+    int id, {
+    int around = 500,
+  }) async {
+    final String? evidence;
+    final int? documentId;
+    if (scope == 'fact') {
+      final f = await DocumentFact.db.findById(session, id);
+      evidence = f?.evidence;
+      documentId = f?.documentId;
+    } else {
+      final r = await OntologyRelation.db.findById(session, id);
+      evidence = r?.evidence;
+      documentId = r?.factKind == RelationFactKind.businessDocument
+          ? r?.factId
+          : null;
+    }
+    if (evidence == null || documentId == null) return null;
+    final doc = await BusinessDocument.db.findById(session, documentId);
+    if (doc == null) return null;
+    final text = doc.text;
+    final at = text.indexOf(evidence);
+    if (at < 0) {
+      return ReviewContext(
+        before: '',
+        evidence: evidence,
+        after: '',
+        heading: null,
+        found: false,
+      );
+    }
+    final span = around.clamp(100, 3000);
+    final start = (at - span).clamp(0, text.length);
+    final end = (at + evidence.length + span).clamp(0, text.length);
+    // 근거 앞에서 가장 가까운 절 제목.
+    String? heading;
+    for (final m in RegExp(r'^## .*$', multiLine: true).allMatches(text)) {
+      if (m.start > at) break;
+      heading = m.group(0)!.substring(3).trim();
+    }
+    return ReviewContext(
+      before: text.substring(start, at),
+      evidence: evidence,
+      after: text.substring(at + evidence.length, end),
+      heading: heading,
+      found: true,
+    );
+  }
+
+  /// 원문과 대조한 쪽이 사람에게 추천을 남긴다 (승인·거절과 그 이유). 결정은 바꾸지 않는다.
+  Future<int> recommend(
+    Session session,
+    String scope,
+    List<int> ids,
+    RelationStatus recommendation,
+    String note,
+  ) async {
+    if (recommendation == RelationStatus.draft) return 0;
+    var done = 0;
+    if (scope == 'fact') {
+      for (final f in await DocumentFact.db.find(
+        session,
+        where: (t) => t.id.inSet(ids.toSet()),
+      )) {
+        await DocumentFact.db.updateRow(
+          session,
+          f.copyWith(recommendation: recommendation, reviewNote: note),
+        );
+        done++;
+      }
+      return done;
+    }
+    for (final r in await OntologyRelation.db.find(
+      session,
+      where: (t) => t.id.inSet(ids.toSet()),
+    )) {
+      await OntologyRelation.db.updateRow(
+        session,
+        r.copyWith(recommendation: recommendation, reviewNote: note),
+      );
+      done++;
+    }
+    return done;
+  }
+
+  /// 검수 대기 중 추천이 있는 것을 추천대로 한 번에 결정한다. 사람이 누른 것이므로
+  /// `reviewedBy`는 "추천대로 일괄"로 남겨 하나씩 본 것과 구분한다.
+  Future<int> applyRecommended(Session session, String scope) async {
+    const by = '추천대로 일괄 적용';
+    final now = DateTime.now().toUtc();
+    var done = 0;
+    if (scope == 'fact') {
+      for (final f in await DocumentFact.db.find(
+        session,
+        where: (t) =>
+            t.status.equals(RelationStatus.draft) &
+            (t.recommendation.equals(RelationStatus.verified) |
+                t.recommendation.equals(RelationStatus.rejected)),
+      )) {
+        await DocumentFact.db.updateRow(
+          session,
+          f.copyWith(status: f.recommendation, reviewedAt: now, reviewedBy: by),
+        );
+        done++;
+      }
+      return done;
+    }
+    for (final r in await OntologyRelation.db.find(
+      session,
+      where: (t) =>
+          t.extractedBy.equals(RelationOrigin.ai) &
+          t.status.equals(RelationStatus.draft) &
+          (t.recommendation.equals(RelationStatus.verified) |
+              t.recommendation.equals(RelationStatus.rejected)),
+    )) {
+      await OntologyRelation.db.updateRow(
+        session,
+        r.copyWith(status: r.recommendation, reviewedAt: now, reviewedBy: by),
+      );
+      done++;
+    }
+    return done;
+  }
+
   /// 대조 검수 기록을 남긴다 (정확률을 숫자로).
   Future<ReviewCheck> recordCheck(
     Session session,

@@ -44,6 +44,8 @@ abstract class OntologyRelation
     this.extractorModel,
     this.reviewedAt,
     this.reviewedBy,
+    this.recommendation,
+    this.reviewNote,
   });
 
   factory OntologyRelation({
@@ -68,6 +70,8 @@ abstract class OntologyRelation
     String? extractorModel,
     DateTime? reviewedAt,
     String? reviewedBy,
+    _ije7dn2u.RelationStatus? recommendation,
+    String? reviewNote,
   }) = _OntologyRelationImpl;
 
   factory OntologyRelation.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -111,6 +115,12 @@ abstract class OntologyRelation
               jsonSerialization['reviewedAt'],
             ),
       reviewedBy: jsonSerialization['reviewedBy'] as String?,
+      recommendation: jsonSerialization['recommendation'] == null
+          ? null
+          : _ije7dn2u.RelationStatus.fromJson(
+              (jsonSerialization['recommendation'] as String),
+            ),
+      reviewNote: jsonSerialization['reviewNote'] as String?,
     );
   }
 
@@ -168,6 +178,12 @@ abstract class OntologyRelation
   /// 누가 결정했는지 (사람이면 null, AI가 원문과 대조했으면 그 이름)
   String? reviewedBy;
 
+  /// 원문과 대조한 쪽이 사람에게 남긴 추천 (verified·rejected). 판단이 갈려 사람에게 넘길 때 채운다
+  _ije7dn2u.RelationStatus? recommendation;
+
+  /// 왜 애매한지, 무엇을 봐야 하는지 — 사람이 빨리 결정하도록 적는 메모
+  String? reviewNote;
+
   /// Returns a shallow copy of this [OntologyRelation]
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
@@ -193,6 +209,8 @@ abstract class OntologyRelation
     String? extractorModel,
     DateTime? reviewedAt,
     String? reviewedBy,
+    _ije7dn2u.RelationStatus? recommendation,
+    String? reviewNote,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -219,6 +237,8 @@ abstract class OntologyRelation
       if (extractorModel != null) 'extractorModel': extractorModel,
       if (reviewedAt != null) 'reviewedAt': reviewedAt?.toJson(),
       if (reviewedBy != null) 'reviewedBy': reviewedBy,
+      if (recommendation != null) 'recommendation': recommendation?.toJson(),
+      if (reviewNote != null) 'reviewNote': reviewNote,
     };
   }
 
@@ -247,6 +267,8 @@ abstract class OntologyRelation
       if (extractorModel != null) 'extractorModel': extractorModel,
       if (reviewedAt != null) 'reviewedAt': reviewedAt?.toJson(),
       if (reviewedBy != null) 'reviewedBy': reviewedBy,
+      if (recommendation != null) 'recommendation': recommendation?.toJson(),
+      if (reviewNote != null) 'reviewNote': reviewNote,
     };
   }
 
@@ -281,6 +303,8 @@ class _OntologyRelationImpl extends OntologyRelation {
     String? extractorModel,
     DateTime? reviewedAt,
     String? reviewedBy,
+    _ije7dn2u.RelationStatus? recommendation,
+    String? reviewNote,
   }) : super._(
          id: id,
          predicate: predicate,
@@ -303,6 +327,8 @@ class _OntologyRelationImpl extends OntologyRelation {
          extractorModel: extractorModel,
          reviewedAt: reviewedAt,
          reviewedBy: reviewedBy,
+         recommendation: recommendation,
+         reviewNote: reviewNote,
        );
 
   /// Returns a shallow copy of this [OntologyRelation]
@@ -331,6 +357,8 @@ class _OntologyRelationImpl extends OntologyRelation {
     Object? extractorModel = _Undefined,
     Object? reviewedAt = _Undefined,
     Object? reviewedBy = _Undefined,
+    Object? recommendation = _Undefined,
+    Object? reviewNote = _Undefined,
   }) {
     return OntologyRelation(
       id: id is int? ? id : this.id,
@@ -364,6 +392,10 @@ class _OntologyRelationImpl extends OntologyRelation {
           : this.extractorModel,
       reviewedAt: reviewedAt is DateTime? ? reviewedAt : this.reviewedAt,
       reviewedBy: reviewedBy is String? ? reviewedBy : this.reviewedBy,
+      recommendation: recommendation is _ije7dn2u.RelationStatus?
+          ? recommendation
+          : this.recommendation,
+      reviewNote: reviewNote is String? ? reviewNote : this.reviewNote,
     );
   }
 }

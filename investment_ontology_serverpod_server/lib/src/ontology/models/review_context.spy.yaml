@@ -1,0 +1,13 @@
+### 검수 항목의 근거 문장을 원문 앞뒤와 함께. 사람이 원문 탭으로 가지 않고 그 자리에서 판단하게.
+class: ReviewContext
+fields:
+  ### 근거 앞의 원문 (몇백 자)
+  before: String
+  ### 근거 문장 (원문 그대로)
+  evidence: String
+  ### 근거 뒤의 원문
+  after: String
+  ### 근거가 든 절 제목 (`## ` 줄), 없으면 null
+  heading: String?
+  ### 원문에서 근거를 찾지 못했으면 false (그러면 before·after는 비어 있다)
+  found: bool
