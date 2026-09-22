@@ -155,8 +155,9 @@ class _CompareTable extends StatelessWidget {
     ];
     return AppDataTable(
       columns: [
-        const AppColumn('지표'),
-        for (final r in rows) AppColumn(r.company.name, numeric: true),
+        const AppColumn('지표', flex: true),
+        for (final r in rows)
+          AppColumn(r.company.name, numeric: true, minWidth: 150),
       ],
       rows: [
         AppRow([

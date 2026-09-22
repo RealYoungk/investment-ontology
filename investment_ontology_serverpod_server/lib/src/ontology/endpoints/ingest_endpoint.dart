@@ -1,3 +1,4 @@
+import 'package:serverpod/protocol.dart' as sp;
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
@@ -195,6 +196,64 @@ class IngestEndpoint extends Endpoint {
   /// [kind]의 최근 작업 (`company_master`, `financial_facts`, `market_snapshot`, `disclosures` …).
   Future<IngestJob?> latestOf(Session session, String kind) =>
       IngestJobs.latest(session, kind);
+
+  /// 자동 수집의 예약과 마지막 실행. 데이터 화면이 "돌고 있음 · 대기 중(다음 실행) · 끝남"을
+  /// 한눈에 보이는 데 쓴다. 예약 식별자는 [IngestSchedule]과 같다 (그 파일은 생성 코드를
+  /// 참조하므로 여기서 가져오지 않는다).
+  Future<List<IngestScheduleEntry>> schedule(Session session) async {
+    const plan = [
+      (
+        MarketSnapshotSync.kind,
+        '시세',
+        '매일 18:00',
+        'market_snapshot_daily',
+        'market_snapshot_resume',
+      ),
+      (
+        FinancialFactsSync.kind,
+        'DART 재무',
+        '매일 18:30 (한도를 다 쓰면 다음 날 00:10에 이어서)',
+        'financial_facts_daily',
+        'financial_facts_resume',
+      ),
+      (
+        DisclosureSync.kind,
+        'DART 주요정보 · 사업의 내용',
+        '매일 19:00 (한도를 다 쓰면 다음 날 00:05에 이어서)',
+        'disclosures_daily',
+        'disclosures_resume',
+      ),
+    ];
+    final calls = await sp.FutureCallEntry.db.find(
+      session,
+      where: (t) => t.identifier.inSet({
+        for (final p in plan) ...{p.$4, p.$5},
+      }),
+    );
+    final out = <IngestScheduleEntry>[];
+    for (final (kind, label, timing, dailyId, resumeId) in plan) {
+      DateTime? next;
+      var resuming = false;
+      for (final c in calls) {
+        if (c.identifier != dailyId && c.identifier != resumeId) continue;
+        if (next == null || c.time.isBefore(next)) {
+          next = c.time;
+          resuming = c.identifier == resumeId;
+        }
+      }
+      out.add(
+        IngestScheduleEntry(
+          kind: kind,
+          label: label,
+          timing: timing,
+          nextRunAt: next,
+          resuming: resuming,
+          lastJob: await IngestJobs.latest(session, kind),
+        ),
+      );
+    }
+    return out;
+  }
 
   /// 여러 종류의 마지막 작업을 한 번에. 앱이 15초마다 부르므로 왕복을 한 번으로 줄인다.
   /// 없는 종류는 빠지므로 `kind`로 맞춰 읽는다.

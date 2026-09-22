@@ -132,12 +132,12 @@ class _PersonPageState extends State<PersonPage> {
           const SizedBox(height: AppSpace.sm),
           AppDataTable(
             columns: const [
-              AppColumn('기업'),
-              AppColumn('관계'),
+              AppColumn('기업', nowrap: true),
+              AppColumn('관계', nowrap: true),
               AppColumn('지분율 (보통주)', numeric: true),
-              AppColumn('직위 · 원문'),
-              AppColumn('사업연도'),
-              AppColumn(''),
+              AppColumn('직위 · 원문', flex: true),
+              AppColumn('사업연도', nowrap: true),
+              AppColumn('', width: 48),
             ],
             rows: [
               for (final r in p.roles)

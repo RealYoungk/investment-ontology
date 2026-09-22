@@ -115,8 +115,9 @@ class _ScreenerPageState extends State<ScreenerPage> {
               '${page == null ? '' : ' · 계산 가능 ${formatCount(page.universe)}개사'}',
         ),
         const SizedBox(height: AppSpace.xl),
+        // 위계: 범위(시장)와 보기(정렬)는 한 줄, 거르는 조건은 묶음별로 한 줄씩.
         Wrap(
-          spacing: AppSpace.lg,
+          spacing: AppSpace.xl,
           runSpacing: AppSpace.md,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
@@ -130,108 +131,161 @@ class _ScreenerPageState extends State<ScreenerPage> {
               },
               onChanged: (m) => _apply(_f.copyWith(market: () => m)),
             ),
-            _NumberField(
-              label: 'PER 이하',
-              value: _f.perMax,
-              onChanged: (v) => _applySoon(_f.copyWith(perMax: () => v)),
-            ),
-            _NumberField(
-              label: 'PBR 이하',
-              value: _f.pbrMax,
-              onChanged: (v) => _applySoon(_f.copyWith(pbrMax: () => v)),
-            ),
-            _NumberField(
-              label: 'ROE % 이상',
-              value: _f.roeMin,
-              onChanged: (v) => _applySoon(_f.copyWith(roeMin: () => v)),
-            ),
-            _NumberField(
-              label: '영업이익률 % 이상',
-              value: _f.marginMin,
-              onChanged: (v) => _applySoon(_f.copyWith(marginMin: () => v)),
-            ),
-            _NumberField(
-              label: '부채비율 % 이하',
-              value: _f.debtMax,
-              onChanged: (v) => _applySoon(_f.copyWith(debtMax: () => v)),
-            ),
-            _NumberField(
-              label: '배당수익률 % 이상',
-              value: _f.dividendMin,
-              onChanged: (v) => _applySoon(_f.copyWith(dividendMin: () => v)),
-            ),
-            _NumberField(
-              label: 'FCF 수익률 % 이상',
-              value: _f.fcfMin,
-              onChanged: (v) => _applySoon(_f.copyWith(fcfMin: () => v)),
-            ),
-            _NumberField(
-              label: '매출 성장률 % 이상',
-              value: _f.revenueGrowthMin,
-              onChanged: (v) =>
-                  _applySoon(_f.copyWith(revenueGrowthMin: () => v)),
-            ),
-            _NumberField(
-              label: '영업이익 성장률 % 이상',
-              value: _f.opGrowthMin,
-              onChanged: (v) => _applySoon(_f.copyWith(opGrowthMin: () => v)),
-            ),
-            _NumberField(
-              label: '거래대금 억원 이상',
-              value: _f.liquidityMin,
-              onChanged: (v) => _applySoon(_f.copyWith(liquidityMin: () => v)),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AppSelect<ScreenSort>(
+                  label: '정렬',
+                  placeholder: '시가총액',
+                  allLabel: '시가총액',
+                  value: _f.sort == ScreenSort.marketCap ? null : _f.sort,
+                  options: const {
+                    ScreenSort.per: 'PER',
+                    ScreenSort.pbr: 'PBR',
+                    ScreenSort.roe: 'ROE',
+                    ScreenSort.operatingMargin: '영업이익률',
+                    ScreenSort.revenueGrowth: '매출 성장률',
+                    ScreenSort.operatingIncomeGrowth: '영업이익 성장률',
+                    ScreenSort.debtRatio: '부채비율',
+                    ScreenSort.dividendYield: '배당수익률',
+                    ScreenSort.fcfYield: 'FCF 수익률',
+                    ScreenSort.return3m: '3개월 주가',
+                    ScreenSort.return12m: '12개월 주가',
+                    ScreenSort.bandPosition: '52주 최저에 가까운',
+                    ScreenSort.avgTradingValue: '거래대금',
+                  },
+                  // 싼 것·높은 수익성을 먼저 보는 쪽이 자연스럽다.
+                  onChanged: (s) {
+                    final sort = s ?? ScreenSort.marketCap;
+                    _apply(
+                      _f.copyWith(
+                        sort: sort,
+                        ascending:
+                            sort == ScreenSort.per || sort == ScreenSort.pbr,
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(width: AppSpace.sm),
+                AppToggleGroup<bool>(
+                  value: _f.ascending,
+                  options: const {false: '큰 순', true: '작은 순'},
+                  onChanged: (v) => _apply(_f.copyWith(ascending: v)),
+                ),
+              ],
             ),
           ],
         ),
-        const SizedBox(height: AppSpace.md),
-        Wrap(
-          spacing: AppSpace.lg,
-          runSpacing: AppSpace.sm,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            AppToggleGroup<ScreenSort>(
-              label: '정렬',
-              value: _f.sort,
-              options: const {
-                ScreenSort.marketCap: '시가총액',
-                ScreenSort.per: 'PER',
-                ScreenSort.pbr: 'PBR',
-                ScreenSort.roe: 'ROE',
-                ScreenSort.operatingMargin: '영업이익률',
-                ScreenSort.debtRatio: '부채비율',
-                ScreenSort.dividendYield: '배당수익률',
-                ScreenSort.fcfYield: 'FCF 수익률',
-                ScreenSort.revenueGrowth: '매출 성장률',
-                ScreenSort.operatingIncomeGrowth: '영업이익 성장률',
-                ScreenSort.return3m: '3개월 주가',
-                ScreenSort.return12m: '12개월 주가',
-                ScreenSort.bandPosition: '52주 최저에 가까운',
-                ScreenSort.avgTradingValue: '거래대금',
-              },
-              // 싼 것·높은 수익성을 먼저 보는 쪽이 자연스럽다.
-              onChanged: (s) => _apply(
-                _f.copyWith(
-                  sort: s,
-                  ascending: s == ScreenSort.per || s == ScreenSort.pbr,
-                ),
+        const SizedBox(height: AppSpace.lg),
+        Container(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpace.md,
+            AppSpace.sm,
+            AppSpace.md,
+            AppSpace.md,
+          ),
+          decoration: BoxDecoration(
+            color: c.surface,
+            borderRadius: context.shape.borderRadius,
+            border: Border.all(color: c.border),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SectionLabel(
+                _f.conditionCount == 0
+                    ? '조건 · 비우면 제한 없음'
+                    : '조건 ${_f.conditionCount}개 적용',
+                trailing: _f.hasCondition
+                    ? AppButton(
+                        label: '조건 초기화',
+                        icon: Icons.close,
+                        variant: AppButtonVariant.link,
+                        tone: c.accent,
+                        onPressed: () => _apply(
+                          ScreenFilter(
+                            market: _f.market,
+                            sort: _f.sort,
+                            ascending: _f.ascending,
+                          ),
+                        ),
+                      )
+                    : null,
               ),
-            ),
-            AppToggleGroup<bool>(
-              value: _f.ascending,
-              options: const {true: '작은 순', false: '큰 순'},
-              onChanged: (v) => _apply(_f.copyWith(ascending: v)),
-            ),
-            if (_f.hasCondition)
-              AppButton(
-                label: '조건 초기화',
-                icon: Icons.close,
-                variant: AppButtonVariant.link,
-                tone: c.accent,
-                onPressed: () => _apply(
-                  ScreenFilter(sort: _f.sort, ascending: _f.ascending),
-                ),
+              const SizedBox(height: AppSpace.sm),
+              _FilterGroup(
+                label: '밸류에이션',
+                children: [
+                  _NumberField(
+                    label: 'PER 이하',
+                    value: _f.perMax,
+                    onChanged: (v) => _applySoon(_f.copyWith(perMax: () => v)),
+                  ),
+                  _NumberField(
+                    label: 'PBR 이하',
+                    value: _f.pbrMax,
+                    onChanged: (v) => _applySoon(_f.copyWith(pbrMax: () => v)),
+                  ),
+                  _NumberField(
+                    label: '배당수익률 % 이상',
+                    value: _f.dividendMin,
+                    onChanged: (v) =>
+                        _applySoon(_f.copyWith(dividendMin: () => v)),
+                  ),
+                  _NumberField(
+                    label: 'FCF 수익률 % 이상',
+                    value: _f.fcfMin,
+                    onChanged: (v) => _applySoon(_f.copyWith(fcfMin: () => v)),
+                  ),
+                ],
               ),
-          ],
+              _FilterGroup(
+                label: '수익성 · 성장',
+                children: [
+                  _NumberField(
+                    label: 'ROE % 이상',
+                    value: _f.roeMin,
+                    onChanged: (v) => _applySoon(_f.copyWith(roeMin: () => v)),
+                  ),
+                  _NumberField(
+                    label: '영업이익률 % 이상',
+                    value: _f.marginMin,
+                    onChanged: (v) =>
+                        _applySoon(_f.copyWith(marginMin: () => v)),
+                  ),
+                  _NumberField(
+                    label: '매출 성장률 % 이상',
+                    value: _f.revenueGrowthMin,
+                    onChanged: (v) =>
+                        _applySoon(_f.copyWith(revenueGrowthMin: () => v)),
+                  ),
+                  _NumberField(
+                    label: '영업이익 성장률 % 이상',
+                    value: _f.opGrowthMin,
+                    onChanged: (v) =>
+                        _applySoon(_f.copyWith(opGrowthMin: () => v)),
+                  ),
+                ],
+              ),
+              _FilterGroup(
+                label: '안정성 · 유동성',
+                last: true,
+                children: [
+                  _NumberField(
+                    label: '부채비율 % 이하',
+                    value: _f.debtMax,
+                    onChanged: (v) => _applySoon(_f.copyWith(debtMax: () => v)),
+                  ),
+                  _NumberField(
+                    label: '거래대금 억원 이상',
+                    value: _f.liquidityMin,
+                    onChanged: (v) =>
+                        _applySoon(_f.copyWith(liquidityMin: () => v)),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: AppSpace.md),
         if (_error != null)
@@ -407,6 +461,47 @@ class _ResultTable extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+/// 조건 묶음 한 줄: 왼쪽에 묶음 이름, 오른쪽에 입력칸들.
+class _FilterGroup extends StatelessWidget {
+  const _FilterGroup({
+    required this.label,
+    required this.children,
+    this.last = false,
+  });
+
+  final String label;
+  final List<Widget> children;
+  final bool last;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    return Padding(
+      padding: EdgeInsets.only(bottom: last ? 0 : AppSpace.md),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 104,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 14),
+              child: Text(label, style: t.label(color: c.textSecondary)),
+            ),
+          ),
+          Expanded(
+            child: Wrap(
+              spacing: AppSpace.md,
+              runSpacing: AppSpace.sm,
+              children: children,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

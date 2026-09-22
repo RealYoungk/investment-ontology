@@ -448,6 +448,7 @@ class _AiRelations extends StatefulWidget {
 
 class _AiRelationsState extends State<_AiRelations> {
   List<ReviewItem>? _items;
+  List<ReviewCheck> _checks = const [];
 
   @override
   void initState() {
@@ -457,9 +458,26 @@ class _AiRelationsState extends State<_AiRelations> {
 
   Future<void> _load() async {
     try {
-      final items = await client.review.forCompany(widget.corpCode);
-      if (mounted) setState(() => _items = items);
+      final (items, checks) = await (
+        client.review.forCompany(widget.corpCode),
+        client.review.checks(),
+      ).wait;
+      if (mounted) setState(() => (_items = items, _checks = checks));
     } catch (_) {}
+  }
+
+  /// 모델의 확신도가 아니라 실제로 대조해 맞은 비율. 규칙으로 읽은 것은 스스로 검산한
+  /// 것만 저장하므로 대조 대상이 아니다.
+  String? get _accuracy {
+    final mine = [
+      for (final x in _checks)
+        if (x.scope == 'relation') x,
+    ];
+    final checked = mine.fold(0, (a, b) => a + b.checked);
+    if (checked == 0) return null;
+    final correct = mine.fold(0, (a, b) => a + b.correct);
+    return 'AI가 문장에서 읽은 관계의 측정 정확도 ${(100 * correct / checked).toStringAsFixed(1)}% '
+        '(${formatCount(checked)}건을 원문과 하나씩 대조해 ${formatCount(correct)}건이 맞음)';
   }
 
   @override
@@ -487,7 +505,8 @@ class _AiRelationsState extends State<_AiRelations> {
           ),
           const SizedBox(height: AppSpace.xs),
           Text(
-            '근거 문장이 원문에 그대로 있는 것만 넣습니다. 각 관계에 누가 어떻게 읽었는지(표 규칙 · 원문 대조)가 붙습니다.',
+            '근거 문장이 원문에 그대로 있는 것만 넣습니다. 각 관계에 누가 어떻게 읽었는지(표 규칙 · 원문 대조)가 붙습니다.'
+            '${_accuracy == null ? '' : ' $_accuracy.'}',
             style: t.body(12, color: c.textMuted),
           ),
           const SizedBox(height: AppSpace.sm),

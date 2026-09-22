@@ -1,0 +1,14 @@
+### 자동 수집 한 종류의 예약과 마지막 실행. 데이터 화면의 "지금 상태".
+class: IngestScheduleEntry
+fields:
+  ### 작업 종류 (`market_snapshot`, `financial_facts`, `disclosures`)
+  kind: String
+  label: String
+  ### 예약 설명 ("매일 18:00")
+  timing: String
+  ### 다음 실행 예정 (예약이 없으면 null). 이어받기 예약이 있으면 그것이 더 이르다.
+  nextRunAt: DateTime?
+  ### 이어받기(한도 소진 뒤 다음 날) 예약인지
+  resuming: bool
+  ### 마지막 실행
+  lastJob: IngestJob?

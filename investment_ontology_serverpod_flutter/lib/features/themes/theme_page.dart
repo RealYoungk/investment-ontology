@@ -235,7 +235,7 @@ class _Members extends StatelessWidget {
               // 폭은 직접 준다 — 내용 폭 재기가 몇 px 모자라 끝 글자가 잘린다.
               AppColumn('기업', nowrap: true, width: 120),
               AppColumn('시장', nowrap: true, width: 56),
-              AppColumn('업종'),
+              AppColumn('업종', nowrap: true, minWidth: 120),
               AppColumn('시가총액', numeric: true, nowrap: true, width: 130),
               AppColumn('비중', numeric: true, nowrap: true, width: 64),
               AppColumn('메모 (왜 이 테마인가)', flex: true),
@@ -265,7 +265,7 @@ class _Members extends StatelessWidget {
                     marketLabel(m.company.market),
                     nowrap: true,
                   ),
-                  AppDataTable.text(context, m.industryName),
+                  AppDataTable.text(context, m.industryName, nowrap: true),
                   AppDataTable.text(
                     context,
                     m.marketCap == null ? null : formatKrw(m.marketCap),

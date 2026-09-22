@@ -186,13 +186,19 @@ class _Edges extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SectionLabel('묶음 안 지분 연결'),
+        const SizedBox(height: AppSpace.xs),
+        Text(
+          '지분율이 높은 쪽부터. 가진 쪽의 지분 매각·합병·상속은 가진 기업의 주가에, 가진 기업의 '
+          '실적·배당은 가진 쪽의 지분법 이익과 배당 수입에 닿습니다.',
+          style: t.body(12.5, color: c.textSecondary),
+        ),
         const SizedBox(height: AppSpace.sm),
         AppDataTable(
           columns: const [
-            AppColumn('가진 쪽'),
-            AppColumn('가진 기업'),
+            AppColumn('가진 쪽', nowrap: true),
+            AppColumn('가진 기업', nowrap: true),
             AppColumn('지분율', numeric: true),
-            AppColumn('근거'),
+            AppColumn('근거', flex: true),
           ],
           rows: [
             for (final e in edges)

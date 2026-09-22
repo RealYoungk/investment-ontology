@@ -110,7 +110,7 @@ class _FinancialReportPageState extends State<FinancialReportPage> {
         const SizedBox(height: AppSpace.sm),
         Text(
           '${report.bsnsYear} 사업연도 · ${reportCodeLabel(report.reportCode)} · '
-          '접수 ${report.rceptNo} · 계정 ${formatCount(report.factCount)}개'
+          '접수 ${report.rceptNo} · 계정 ${formatCount(report.factCount)}개 · 금액은 조·억·만원으로 적고 원 단위는 마우스를 올리면 보입니다'
           '${report.invalidAmountCount > 0 ? ' · 정수가 아니어서 비운 금액 ${report.invalidAmountCount}개' : ''}',
           style: t.numeric(12, color: c.textSecondary),
         ),
@@ -311,9 +311,13 @@ class _FactTable extends StatelessWidget {
                   if (hasDetail)
                     cell(f.accountDetail ?? '', right: false, width: 260),
                   for (final (_, value) in columns)
-                    cell(
-                      value(f) == null ? '—' : formatCount(value(f)!.toInt()),
-                    ),
+                    if (value(f) case final v?)
+                      Tooltip(
+                        message: '${formatCount(v.toInt())}원',
+                        child: cell(formatKrwLong(v.toDouble())),
+                      )
+                    else
+                      cell('—'),
                 ],
               ),
             ),

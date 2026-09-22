@@ -1293,6 +1293,16 @@ class Endpoints extends _is.EndpointDispatch {
                     params['kind'],
                   ),
         ),
+        'schedule': _is.MethodConnector(
+          name: 'schedule',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['ingest'] as _icbircc0.IngestEndpoint)
+                  .schedule(session),
+        ),
         'latestOfKinds': _is.MethodConnector(
           name: 'latestOfKinds',
           params: {
