@@ -2,6 +2,7 @@ import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
 import 'disclosure_links.dart';
+import 'order_facts.dart';
 import 'segment_revenue.dart';
 
 /// 사업보고서 본문의 "생산능력·생산실적·가동률" 표를 규칙으로 읽는다 (AI 없음).
@@ -250,8 +251,8 @@ abstract final class ProductionFacts {
     // 그 회사 값으로 잘못 넣느니 통째로 건너뛴다.
     if (company?.industryCode == holdingCompanyCode) return 0;
     final others = companyKeys ?? await listedKeys(session);
+    // 가동률 표가 없어도 부문별 매출·수주 표는 있을 수 있다 — 여기서 돌아가지 않는다.
     final rows = parse(doc.text, owner: company?.name, otherCompanies: others);
-    if (rows.isEmpty) return 0;
     final report = await DisclosureReport.db.findById(session, doc.reportId);
     final existing = {
       for (final f in await DocumentFact.db.find(
@@ -317,6 +318,36 @@ abstract final class ProductionFacts {
           createdAt: now,
         ),
       );
+    }
+    // 수주상황 표도 같은 규칙으로 (수주총액 − 기납품액 = 수주잔고로 스스로 검산된다).
+    for (final r in OrderFacts.parse(doc.text)) {
+      for (final (kind, value) in [
+        (DocumentFactKind.orderTotal, r.total),
+        (DocumentFactKind.orderDelivered, r.delivered),
+        (DocumentFactKind.orderBacklog, r.backlog),
+      ]) {
+        if (!existing.add('${kind.name}|${r.label}')) continue;
+        facts.add(
+          DocumentFact(
+            companyId: doc.companyId,
+            documentId: doc.id!,
+            bsnsYear: doc.bsnsYear,
+            kind: kind,
+            label: r.label,
+            value: value,
+            unit: r.unit,
+            asOf: DateTime.utc(doc.bsnsYear, 12, 31),
+            evidence: r.evidence,
+            sourceId: report?.sourceId,
+            extractedBy: RelationOrigin.api,
+            extractorModel: '표 규칙',
+            status: RelationStatus.verified,
+            reviewedAt: now,
+            reviewedBy: '표 규칙 (수주총액 − 기납품액 = 수주잔고 확인)',
+            createdAt: now,
+          ),
+        );
+      }
     }
     if (facts.isEmpty) return 0;
     await DocumentFact.db.insert(session, facts);

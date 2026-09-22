@@ -19,9 +19,42 @@ abstract final class SegmentRevenue {
   static final _amountHeader = RegExp(r'매출');
   static final _amountExact = RegExp(r'매출액|금액');
   static final _ratioHeader = RegExp(r'비중|비율');
-  static final _unitLine = RegExp(r'단위\s*[:：]\s*([^,)\]]+)');
+  static final _unitLine = RegExp(r'단위\s*[:：]\s*([^)\]]+)');
   static final _number = RegExp(r'^[△▲\-]?[\d,]+(?:\.\d+)?$');
-  static const _totalLabels = {'계', '합계', '소계', '총계', '총 계', '합 계'};
+  static const _totalLabels = {
+    '계',
+    '합계',
+    '소계',
+    '총계',
+    '총합계',
+    '매출총계',
+    '매출합계',
+    '매출액합계',
+    '누계',
+  };
+
+  /// 돈 단위만 매출로 받는다 ("개"·"T"처럼 수량 단위가 붙은 표는 매출 표가 아니다).
+  static final _money = RegExp(r'원|달러|USD|KRW|EUR|CHF|JPY|VND|CNY|\$|엔|유로|위안');
+
+  /// "(단위 : 건, 백만원)" → 백만원, "USD 1,000" → 천USD. 돈 단위가 없거나 둘 이상이면 ''.
+  static String pickUnit(String? raw) {
+    if (raw == null) return '';
+    // 자릿수 표기를 말로 바꾼 뒤 쉼표로 나눈다 ("1,000원"이 "1"과 "000원"으로 갈리지 않게).
+    final spelled = raw
+        .replaceAll(RegExp(r'1,000,000\s*'), '백만')
+        .replaceAll(RegExp(r'1,000\s*'), '천');
+    final parts = [
+      for (final p in spelled.split(RegExp(r'[,，/]')))
+        if (p.trim().isNotEmpty) p.trim(),
+    ];
+    final money = [
+      for (final p in parts)
+        if (_money.hasMatch(p)) p.replaceAll(' ', ''),
+    ];
+    if (money.length != 1) return '';
+    // "USD천"처럼 통화 뒤에 자릿수가 붙는 표기는 공시에 흔하다 (천USD·USD천·VND억). 그대로 둔다.
+    return money.single;
+  }
 
   /// (부문 이름, 매출액, 단위, 그 줄).
   static List<({String label, double amount, String unit, String evidence})>
@@ -91,7 +124,7 @@ abstract final class SegmentRevenue {
         ratioAt = r;
         columns = cells.length;
         // 단위는 이 표 바로 앞에 적힌 것만, 한 번만 쓴다 (앞 표의 단위가 새지 않게).
-        unit = i - lastUnitAt <= unitDistance ? (lastUnit ?? '') : '';
+        unit = i - lastUnitAt <= unitDistance ? pickUnit(lastUnit) : '';
         lastUnit = null;
         continue;
       }
