@@ -147,7 +147,16 @@ abstract final class OrderFacts {
       }
       if (!inTable) continue;
       final cells = [for (final c in line.split('|')) c.trim()];
-      if (line.startsWith('※') || cells.length < 3) {
+      if (line.startsWith('※')) {
+        flush();
+        continue;
+      }
+      if (cells.length < 3) {
+        // "(2024.12.31) | (2025.12.31)" 같은 기준일 줄은 표의 일부다.
+        bool dateCell(String c) =>
+            c.isEmpty ||
+            _dateLike.hasMatch(c.replaceAll(RegExp(r'^\(|\)$'), ''));
+        if (cells.every(dateCell)) continue;
         flush();
         continue;
       }
@@ -210,26 +219,27 @@ abstract final class OrderFacts {
   /// 머리글이 어느 꼴인지. 표준(수주총액·기납품액·수주잔고), 건설(기본도급액·완성공사액·계약잔액)은
   /// 세 칸 식이 같고, 흐름형(기초·신규·기납품액·기말잔고)은 기초 + 신규 − 기납품 = 잔고다.
   static _HeaderKind? _headerKind(String line) {
-    final delivered = line.contains('기납품액') || line.contains('완성공사액');
-    final backlog =
-        line.contains('수주잔고') ||
-        line.contains('계약잔액') ||
-        line.contains('수주잔액') && !line.contains('기초') && !line.contains('이월');
+    final delivered =
+        line.contains('기납품액') ||
+        line.contains('완성공사액') ||
+        line.contains('매출계상액') ||
+        line.contains('매출인식액');
     if (!delivered) return null;
+    final closing =
+        line.contains('수주잔고') || line.contains('계약잔액') || line.contains('기말잔고');
+    if (!closing) return null;
+    // 기초·이월(전기 잔고)이나 신규·증감 칸이 있으면 흐름형이다 — "수주총액"이 함께 있어도
+    // (LG CNS: 기초계약잔액 | 수주총액 | 기납품액 | 수주잔고) 그 수주총액은 당기 신규분이다.
+    final opening = line.contains('기초') || line.contains('이월');
+    final added =
+        line.contains('신규') || line.contains('산규') || line.contains('증감');
+    if (opening || added) return _HeaderKind.flow;
     final total =
         line.contains('수주총액') ||
         line.contains('기본도급액') ||
         line.contains('기본 도급금액') ||
         line.contains('도급액');
-    if (total && backlog) return _HeaderKind.standard;
-    final opening = line.contains('기초') || line.contains('이월');
-    final added = line.contains('신규') || line.contains('당기');
-    final closing =
-        line.contains('수주잔고') ||
-        line.contains('기말수주잔고') ||
-        line.contains('기말잔고');
-    if (opening && added && closing) return _HeaderKind.flow;
-    return null;
+    return total ? _HeaderKind.standard : null;
   }
 
   static final _projectTable = RegExp(
