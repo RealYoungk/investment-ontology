@@ -238,8 +238,8 @@ abstract final class SegmentRevenue {
       if (labels.isEmpty || ratio == null) continue;
       // 영업이익·자산 줄이 매출 줄과 같은 비중 칸을 쓰는 표(부문별 재무정보).
       if (cells.any(_notRevenueRow.hasMatch)) continue;
-      // 이름이 없는 줄("-")은 부문이 아니다.
-      if (RegExp(r'^[-—·]+$').hasMatch(name)) continue;
+      // 이름이 없는 줄("-")이나 음수 줄(부문간 내부거래 제거)은 부문이 아니다.
+      if (RegExp(r'^[-—·]+$').hasMatch(name) || amount < 0) continue;
       rows.add((label: name, amount: amount, ratio: ratio, line: line));
     }
     flush();

@@ -17,16 +17,11 @@ Harman | 디지털 콕핏 등 | 157,833 | 4.7%
 
   test('부문별 매출액과 단위를 읽는다', () {
     final rows = SegmentRevenue.parse(samsung);
-    expect(rows.map((r) => r.label), [
-      'DX 부문',
-      'DS 부문',
-      'SDC',
-      'Harman',
-      '기타',
-    ]);
+    // 음수 줄(부문간 내부거래 제거)은 부문이 아니다.
+    expect(rows.map((r) => r.label), ['DX 부문', 'DS 부문', 'SDC', 'Harman']);
     expect(rows.first.amount, 1879673);
     expect(rows.first.unit, '억원');
-    expect(rows.last.amount, -301146, reason: '△는 음수');
+    expect(rows.last.amount, 157833, reason: '음수(△) 줄은 빠지고 Harman이 마지막');
   });
 
   test('단위 표기를 돈 단위 하나로 정리한다', () {
