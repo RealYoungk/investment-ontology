@@ -32,6 +32,7 @@ class _BusinessHighlightsState extends State<BusinessHighlights> {
     DocumentFactKind.orderBacklog,
     DocumentFactKind.investmentPlan,
     DocumentFactKind.marketShare,
+    DocumentFactKind.rndRatio,
     DocumentFactKind.utilization,
     DocumentFactKind.production,
     DocumentFactKind.capacity,
