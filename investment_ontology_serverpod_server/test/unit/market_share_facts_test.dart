@@ -126,6 +126,13 @@ TV | 28.3% | 30.1% | 29.7%
 두 원 공 조 | 35% | 36% | 38%
 ''';
     final rows = MarketShareFacts.parse(t, owner: '삼성전자(주)', bsnsYear: 2024);
+    // 증감율 줄은 점유율이 아니다.
+    const growth = '''
+편의점 시장점유율
+구분 | 2025년 | 2024년 | 2023년
+매출 증감율 | -9.1 | -2.5 | 3.7
+''';
+    expect(MarketShareFacts.parse(growth, owner: '(주)지에스리테일'), isEmpty);
     expect(rows.map((r) => (r.label, r.year, r.value)), [
       ('TV', 2024, 28.3),
       ('TV', 2023, 30.1),
