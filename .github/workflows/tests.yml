@@ -41,3 +41,7 @@ jobs:
       - name: Run Flutter tests
         working-directory: investment_ontology_serverpod_flutter
         run: flutter test
+
+      - name: Build Flutter web release
+        working-directory: investment_ontology_serverpod_flutter
+        run: flutter build web --release

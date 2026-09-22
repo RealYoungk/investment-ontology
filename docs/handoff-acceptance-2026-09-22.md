@@ -23,9 +23,9 @@ flutter test
 
 ## 실행 증거
 
-- 앞선 로컬 검증: 서버 273개, Flutter 53개; 이후 카운트다운 2개 및 디자인 경계 검증 통과.
+- 비밀 설정/기존 DB 없는 별도 checkout: 잠금파일 강제 의존성 설치, 정적 분석, 수기 Dart 208개 포맷 검사 통과. 서버 273개, Flutter 55개 전체 테스트 통과. Flutter Web release 빌드 성공.
 - DB 69개 테이블 전체 dump/별도 복원·행 수·무결성 검사 통과. 실제 데이터 재추출은 실행하지 않았다.
-- 새 체크아웃과 원격 CI 결과는 이 변경을 검증한 PR 체크와 최종 작업 보고에서 확인한다. 검증 전 성공으로 기록하지 않는다.
+- 원격 CI 결과와 검증한 commit은 [PR #77](https://github.com/RealYoungk/investment-ontology/pull/77)의 체크에서 확인한다. 초기 검증에서 발견한 CI 셸 줄바꿈 및 테스트 DB 비밀번호 의존성을 수정했다. 테스트 전용 합성 비밀번호는 scripts/test-server.sh로 제공한다.
 
 ## 운영 인계
 

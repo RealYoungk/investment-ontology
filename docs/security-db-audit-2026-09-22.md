@@ -29,8 +29,8 @@ Serverpod overview/auth/database/models/migrations/configuration/testing/session
 - 정정공시 도착 순서에 무관하게 최신 접수번호 하나만 활성화하도록 기간별 advisory lock과 양방향 대체 판정 적용. 원본→정정, 정정→원본, 세 버전 뒤섞임 3건 통과. 과거 금액과 출처는 보존한다. 동시 재무 수집의 실제 경합 테스트는 별도로 실행하지 않았다.
 - 로그인 기본 화면과 회원가입/재설정 이동을 한글화했다. 코드 입력과 비밀번호 조건 화면의 고정 높이 때문에 생긴 작은 화면 overflow를 고쳤다. 320px에서 가입·인증·비밀번호 설정 단계까지 위젯 검증했다. 사용자의 실제 비밀번호 입력/실계정 신규 가입은 대신하지 않았다.
 - 선택적 Docker 컨텍스트에서 비밀 설정·관리자 목록·로컬 DB를 제외하고 SDK 요구 버전 및 non-root 실행을 맞췄다. compose의 인증 환경변수·관리자 이메일·DB 설정·마이그레이션을 보완하고 충돌하는 basic auth를 제거했다. 이미지 빌드는 수행하지 않았다.
-- CI에서 불필요한 Docker 실행을 없애고 전체 워크스페이스 분석/수기 코드 포맷/Flutter 테스트를 포함했다. GitHub에서 확인한 action commit으로 고정했다. 원격 CI 실행은 미실행.
-- 최종 서버 전체 273개 통과. Flutter 전체 53개 통과. 정적 분석 오류 없음. 앱 hot restart 후 실제 관리자 로그인 유지, 최근 서버/Flutter 로그 오류 없음.
+- CI에서 불필요한 Docker 실행을 없애고 전체 워크스페이스 분석/수기 코드 포맷/Flutter 테스트를 포함했다. GitHub에서 확인한 action commit으로 고정했다. 원격 CI는 PR #77에서 실행하며 최신 결과는 해당 체크를 따른다.
+- 최종 서버 전체 273개 통과. 카운트다운 반영 후 깨끗한 checkout에서 Flutter 전체 55개 통과, Web release 빌드 성공. 정적 분석 오류 없음. 앱 hot restart 후 실제 관리자 로그인 유지, 최근 서버/Flutter 로그 오류 없음.
 
 ## 해석과 한계
 

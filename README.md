@@ -96,14 +96,17 @@ cd investment_ontology_serverpod_flutter && flutter build web --release
 검사 순서 (코드를 고친 뒤): 자동 생성은 `serverpod start`가 담당합니다. 분석·포맷 후 모델 변경이 있으면 MCP로 마이그레이션을 생성·적용하고, 필요한 재시작과 테스트·로그 확인을 합니다. 전체 절차는 `AGENTS.md`를 따릅니다. 아래는 CLI 검사 명령이며 강제 생성은 일상 검사에 포함하지 않습니다.
 
 ```bash
-cd investment_ontology_serverpod_server && dart analyze && dart format .
-# 필요한 MCP 마이그레이션·재시작 뒤
-dart test test/unit
+# 저장소 루트: 생성 코드는 직접 포맷하지 않는다.
+flutter pub get --enforce-lockfile
+dart analyze
+bash scripts/test-server.sh
+# Flutter 패키지에서
+cd investment_ontology_serverpod_flutter
+flutter test
+flutter build web --release
 ```
 
-```bash
-cd investment_ontology_serverpod_flutter && dart analyze && flutter test
-```
+포맷 범위와 명령은 `.github/workflows/format.yml`을 따른다. 서버/client/test_tools 생성 코드는 제외한다. 테스트 실행 스크립트는 격리된 테스트 DB 전용 합성 비밀번호만 설정하며 실제 API 키·비밀번호를 요구하지 않는다.
 
 DB 직접 보기: `psql -h /tmp/iopg -U postgres -d investment_ontology_serverpod`.
 
