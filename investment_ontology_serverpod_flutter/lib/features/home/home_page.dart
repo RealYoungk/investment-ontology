@@ -216,7 +216,8 @@ class _HomePageState extends State<HomePage> {
               padding: const EdgeInsets.all(AppSpace.xl),
               decoration: BoxDecoration(
                 color: c.surface,
-                border: Border(top: BorderSide(color: c.accent, width: 3)),
+                border: Border.all(color: c.border),
+                borderRadius: context.shape.borderRadius,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -286,13 +287,13 @@ class _HomePageState extends State<HomePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(flex: 6, child: introduction),
-                const SizedBox(width: 56),
+                const SizedBox(width: 32),
                 Expanded(flex: 5, child: entry),
               ],
             );
           },
         ),
-        const SizedBox(height: 56),
+        const SizedBox(height: 32),
         Text('어떤 변화가 궁금한가요?', style: t.display(26)),
         const SizedBox(height: AppSpace.sm),
         Text(
@@ -383,7 +384,7 @@ class _HomePageState extends State<HomePage> {
           '탐색을 위한 예시 조건입니다. 기업의 우열이나 투자 추천을 뜻하지 않습니다.',
           style: t.body(12, color: c.textSecondary),
         ),
-        const SizedBox(height: 56),
+        const SizedBox(height: 32),
         Divider(color: c.border),
         const SizedBox(height: AppSpace.xxl),
         LayoutBuilder(
@@ -422,7 +423,7 @@ class _HomePageState extends State<HomePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(child: search),
-                const SizedBox(width: 56),
+                const SizedBox(width: 32),
                 Expanded(child: guide),
               ],
             );

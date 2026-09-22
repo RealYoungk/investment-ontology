@@ -131,6 +131,12 @@ class AppTypography extends ThemeExtension<AppTypography> {
     required this.labelBase,
   });
 
+  TextStyle get pageTitle => display(30);
+  TextStyle get sectionTitle => body(20, weight: FontWeight.w600);
+  TextStyle get bodyText => body(14);
+  TextStyle get supportingText => body(12);
+  TextStyle get metricValue => numeric(28, weight: FontWeight.w600);
+
   /// 큰 제목.
   final TextStyle displayBase;
 

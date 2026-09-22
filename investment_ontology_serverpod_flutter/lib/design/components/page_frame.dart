@@ -19,7 +19,7 @@ class PageFrame extends StatelessWidget {
   final ScrollController? controller;
 
   static double gutter(double width) =>
-      width < compactBreakpoint ? AppSpace.lg : AppSpace.section;
+      width < compactBreakpoint ? AppSpace.lg : AppSpace.xxl;
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +73,7 @@ class PageHeading extends StatelessWidget {
           Text(eyebrow!, style: t.label(color: c.accent)),
           const SizedBox(height: AppSpace.sm),
         ],
-        Text(title, style: t.display(40, color: c.textPrimary)),
+        Text(title, style: t.display(30, color: c.textPrimary)),
         if (subtitle != null) ...[
           const SizedBox(height: AppSpace.sm),
           Text(subtitle!, style: t.body(14, color: c.textSecondary)),

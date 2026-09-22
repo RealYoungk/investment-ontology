@@ -50,7 +50,7 @@ class AppButton extends StatelessWidget {
           AppButtonVariant.secondary => (
             hovered ? c.surfaceHover : Colors.transparent,
             ink,
-            ink,
+            c.border,
           ),
           AppButtonVariant.link => (Colors.transparent, ink, null),
         };
@@ -71,7 +71,7 @@ class AppButton extends StatelessWidget {
               ? const EdgeInsets.symmetric(vertical: AppSpace.xs)
               : const EdgeInsets.symmetric(
                   horizontal: AppSpace.md,
-                  vertical: 7,
+                  vertical: 12,
                 ),
           decoration: BoxDecoration(
             color: bg,
@@ -117,8 +117,8 @@ class AppIconButton extends StatelessWidget {
       onTap: onPressed,
       builder: (context, hovered) => AnimatedContainer(
         duration: AppMotion.fast,
-        width: 38,
-        height: 32,
+        width: 44,
+        height: 44,
         decoration: BoxDecoration(
           color: hovered ? c.surfaceHover : Colors.transparent,
           borderRadius: context.shape.borderRadius,

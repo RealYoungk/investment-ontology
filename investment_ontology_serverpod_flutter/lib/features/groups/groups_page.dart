@@ -46,13 +46,20 @@ class _GroupsPageState extends State<GroupsPage> {
         PageHeading(
           title: '지분 묶음',
           subtitle:
-              '한 기업의 주가는 그 기업만으로 움직이지 않습니다. 지주사·계열사의 지분 매각, 합병, 상속, '
-              '순환출자 해소, 계열사 부실 지원 같은 사건은 지분으로 이어진 다른 상장사의 주가로 번집니다. '
-              '이 화면은 그 전파 경로를 미리 그려 둔 것입니다 — 어떤 기업을 볼 때 "같이 봐야 할 기업"이 '
-              '무엇인지, 지주사 할인·계열 리스크가 어디서 오는지 찾는 데 씁니다.\n'
-              '최대주주 명단의 법인 주주와 경영참여 목적 15% 이상 출자로 이어진 상장사 묶음입니다. '
-              '각 기업의 가장 최근 사업보고서 기준으로 계산하며, 공정위 기업집단 지정과는 다릅니다.'
+              '지분으로 연결된 기업을 함께 살펴보세요.'
               '${groups == null ? '' : ' · ${formatCount(groups.length)}개 묶음'}',
+        ),
+        const ExpansionTile(
+          tilePadding: EdgeInsets.zero,
+          title: Text('묶음의 기준'),
+          children: [
+            Padding(
+              padding: EdgeInsets.only(bottom: 16),
+              child: Text(
+                '각 기업의 최근 사업보고서에서 법인 최대주주와 경영참여 목적 15% 이상 출자로 연결된 상장사를 묶습니다. 공정위 기업집단 지정과는 다릅니다. 지분 매각·합병 등과 함께 살펴볼 기업을 찾는 용도입니다.',
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: AppSpace.xl),
         if (_error != null)

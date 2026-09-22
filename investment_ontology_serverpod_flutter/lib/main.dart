@@ -8,7 +8,7 @@ import 'app/ingest_monitor.dart';
 import 'app/router.dart';
 import 'client.dart';
 import 'design/app_theme.dart';
-import 'design/brands/ledger_brand.dart';
+import 'design/brands/research_desk_brand.dart';
 import 'features/auth/app_auth.dart';
 import 'features/auth/auth_gate.dart';
 import 'features/auth/sign_in_page.dart';
@@ -32,7 +32,7 @@ void main() async {
   startMonitorWhenSignedIn();
   // 글꼴을 첫 배치 전에 받는다. 나중에 바뀌면 표가 글꼴 바뀌기 전 폭으로 열을 잰 채 남아
   // 이름 열이 접히고 flex 열만 넓어진다 (헤드리스 캡처에서 확인).
-  final theme = buildAppTheme(ledgerBrand);
+  final theme = buildAppTheme(researchDeskBrand);
   await GoogleFonts.pendingFonts();
   runApp(MyApp(theme: theme));
 }

@@ -75,7 +75,7 @@ class JourneyHeading extends StatelessWidget {
             title,
             style: t
                 .display(
-                  box.maxWidth < 480 ? 32 : (large ? 56 : 44),
+                  box.maxWidth < 480 ? 28 : (large ? 36 : 32),
                   color: c.textPrimary,
                 )
                 .copyWith(height: 1.3),

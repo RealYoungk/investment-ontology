@@ -83,189 +83,31 @@ class _AppShellState extends State<AppShell> {
   Widget build(BuildContext context) {
     final c = context.colors;
     final path = widget.location.path;
-    return Scaffold(
-      backgroundColor: c.background,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _TopBar(
-            destinations: [
-              for (final d in _destinations)
-                (
-                  destination: d,
-                  active: d.owns(path),
-                  onTap: () => context.go(
-                    d.path == '/companies' ? _companiesLocation : d.path,
-                  ),
-                ),
-            ],
-          ),
-          Expanded(child: widget.child),
-        ],
-      ),
-    );
-  }
-}
-
-class _TopBar extends StatelessWidget {
-  const _TopBar({required this.destinations});
-
-  final List<({_Destination destination, bool active, VoidCallback onTap})>
-  destinations;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    final t = context.typo;
+    final destinations = [
+      for (final d in _destinations)
+        (
+          destination: d,
+          active: d.owns(path),
+          onTap: () =>
+              context.go(d.path == '/companies' ? _companiesLocation : d.path),
+        ),
+    ];
     return LayoutBuilder(
-      builder: (context, constraints) {
-        final pad = PageFrame.gutter(constraints.maxWidth);
-        final compact = constraints.maxWidth < PageFrame.compactBreakpoint;
-        return Container(
-          height: 56,
-          padding: EdgeInsets.symmetric(horizontal: pad),
-          decoration: BoxDecoration(
-            color: c.surface,
-            border: Border(
-              bottom: BorderSide(color: c.borderStrong, width: 1.5),
-            ),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+      builder: (context, box) {
+        final desktop = box.maxWidth >= 1100;
+        return Scaffold(
+          backgroundColor: c.background,
+          body: Row(
             children: [
-              if (GoRouter.of(context).canPop())
-                Center(
-                  child: IconButton(
-                    tooltip: '이전 화면',
-                    icon: Icon(
-                      Icons.arrow_back,
-                      size: 20,
-                      color: c.textSecondary,
-                    ),
-                    onPressed: () => context.pop(),
-                  ),
-                ),
-              if (!compact) ...[
-                Center(
-                  child: TextButton(
-                    onPressed: () => context.go('/home'),
-                    child: Text(
-                      '투자 온톨로지',
-                      style: t.body(
-                        15,
-                        color: c.accent,
-                        weight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: AppSpace.xxl),
-              ],
-              // 좁은 화면에서도 모든 목적지를 한 번에 찾을 수 있게 한다.
+              if (desktop) _DeskNavigation(destinations: destinations),
               Expanded(
-                child: constraints.maxWidth < 1000
-                    ? Align(
-                        alignment: Alignment.centerLeft,
-                        child: PopupMenuButton<int>(
-                          tooltip: '전체 메뉴',
-                          position: PopupMenuPosition.under,
-                          offset: const Offset(0, 8),
-                          color: c.surface,
-                          surfaceTintColor: c.surface,
-                          elevation: 4,
-                          constraints: const BoxConstraints(
-                            minWidth: 184,
-                            maxWidth: 220,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            side: BorderSide(color: c.border),
-                          ),
-                          onSelected: (index) => destinations[index].onTap(),
-                          itemBuilder: (context) => [
-                            for (var i = 0; i < destinations.length; i++)
-                              PopupMenuItem(
-                                value: i,
-                                height: 44,
-                                child: Text(
-                                  destinations[i].destination.label,
-                                  style: t.body(
-                                    14,
-                                    weight: destinations[i].active
-                                        ? FontWeight.w700
-                                        : FontWeight.w400,
-                                  ),
-                                ),
-                              ),
-                          ],
-                          child: SizedBox(
-                            height: 40,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.menu,
-                                  size: 20,
-                                  color: c.textPrimary,
-                                ),
-                                const SizedBox(width: AppSpace.sm),
-                                Text(
-                                  destinations
-                                          .where((d) => d.active)
-                                          .firstOrNull
-                                          ?.destination
-                                          .label ??
-                                      '전체 메뉴',
-                                  style: t.body(14, weight: FontWeight.w600),
-                                ),
-                                Icon(
-                                  Icons.expand_more,
-                                  size: 18,
-                                  color: c.textSecondary,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      )
-                    : SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            for (final d in destinations)
-                              _NavItem(
-                                label: d.destination.label,
-                                active: d.active,
-                                onTap: d.onTap,
-                                trailing: d.destination.path == '/data'
-                                    ? const _IngestIndicator()
-                                    : null,
-                              ),
-                          ],
-                        ),
-                      ),
-              ),
-              if (constraints.maxWidth >= 1100)
-                const Center(child: _GlobalSearch())
-              else
-                Center(
-                  child: IconButton(
-                    tooltip: '기업 · 인물 · 테마 · 메뉴 검색',
-                    iconSize: 20,
-                    constraints: const BoxConstraints.tightFor(
-                      width: 40,
-                      height: 40,
-                    ),
-                    icon: Icon(Icons.search, color: c.textSecondary),
-                    onPressed: () => showDialog<void>(
-                      context: context,
-                      builder: (_) => const _SearchDialog(),
-                    ),
-                  ),
+                child: Column(
+                  children: [
+                    _TopBar(destinations: destinations, desktop: desktop),
+                    Expanded(child: widget.child),
+                  ],
                 ),
-              const SizedBox(width: AppSpace.md),
-              const Center(child: _Account()),
+              ),
             ],
           ),
         );
@@ -274,54 +116,166 @@ class _TopBar extends StatelessWidget {
   }
 }
 
-class _NavItem extends StatelessWidget {
-  const _NavItem({
-    required this.label,
-    required this.active,
-    required this.onTap,
-    this.trailing,
-  });
-
-  final String label;
-  final bool active;
-  final VoidCallback onTap;
-  final Widget? trailing;
-
+class _DeskNavigation extends StatelessWidget {
+  const _DeskNavigation({required this.destinations});
+  final List<({_Destination destination, bool active, VoidCallback onTap})>
+  destinations;
+  static const icons = [
+    Icons.home_outlined,
+    Icons.bar_chart,
+    Icons.business_outlined,
+    Icons.filter_alt_outlined,
+    Icons.hub_outlined,
+    Icons.account_tree_outlined,
+    Icons.bookmarks_outlined,
+    Icons.storage_outlined,
+  ];
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     final t = context.typo;
-    return HoverBuilder(
-      onTap: onTap,
-      builder: (context, hovered) => AnimatedContainer(
-        duration: AppMotion.fast,
-        padding: const EdgeInsets.symmetric(horizontal: AppSpace.lg),
-        decoration: BoxDecoration(
-          color: hovered && !active ? c.surfaceHover : Colors.transparent,
-          border: Border(
-            bottom: BorderSide(
-              color: active ? c.accent : Colors.transparent,
-              width: 3,
-            ),
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
+    return Container(
+      width: 204,
+      color: c.inverse,
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              label,
-              style: t.body(
-                15,
-                color: active ? c.textPrimary : c.textSecondary,
-                weight: active ? FontWeight.w700 : FontWeight.w500,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 28, 12, 28),
+              child: Text(
+                '투자 온톨로지',
+                style: t.body(17, color: c.onInverse, weight: FontWeight.w700),
               ),
             ),
-            if (trailing != null) ...[
-              const SizedBox(width: AppSpace.sm),
-              trailing!,
-            ],
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                children: [
+                  for (var i = 0; i < destinations.length; i++)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Material(
+                        color: destinations[i].active
+                            ? c.onInverse.withValues(alpha: .13)
+                            : c.inverse,
+                        borderRadius: BorderRadius.circular(8),
+                        child: ListTile(
+                          dense: true,
+                          minTileHeight: 46,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          leading: Icon(
+                            icons[i],
+                            size: 19,
+                            color: c.onInverse.withValues(
+                              alpha: destinations[i].active ? 1 : .65,
+                            ),
+                          ),
+                          title: Text(
+                            destinations[i].destination.label,
+                            style: t.body(
+                              14,
+                              color: c.onInverse.withValues(
+                                alpha: destinations[i].active ? 1 : .72,
+                              ),
+                              weight: destinations[i].active
+                                  ? FontWeight.w600
+                                  : FontWeight.w400,
+                            ),
+                          ),
+                          trailing: destinations[i].destination.path == '/data'
+                              ? const _IngestIndicator()
+                              : null,
+                          selected: destinations[i].active,
+                          onTap: destinations[i].onTap,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: TextButton(
+                onPressed: () => context.go('/about'),
+                child: Text(
+                  '서비스 소개',
+                  style: t.body(12, color: c.onInverse.withValues(alpha: .7)),
+                ),
+              ),
+            ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _TopBar extends StatelessWidget {
+  const _TopBar({required this.destinations, required this.desktop});
+  final bool desktop;
+  final List<({_Destination destination, bool active, VoidCallback onTap})>
+  destinations;
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    return Container(
+      height: 64,
+      padding: EdgeInsets.symmetric(horizontal: desktop ? 32 : 12),
+      decoration: BoxDecoration(
+        color: c.surface,
+        border: Border(bottom: BorderSide(color: c.border)),
+      ),
+      child: Row(
+        children: [
+          if (GoRouter.of(context).canPop())
+            IconButton(
+              tooltip: '이전 화면',
+              onPressed: () => context.pop(),
+              icon: const Icon(Icons.arrow_back, size: 20),
+            ),
+          if (!desktop)
+            PopupMenuButton<int>(
+              tooltip: '전체 메뉴',
+              constraints: const BoxConstraints(minWidth: 200, maxWidth: 240),
+              position: PopupMenuPosition.under,
+              onSelected: (i) => destinations[i].onTap(),
+              itemBuilder: (_) => [
+                for (var i = 0; i < destinations.length; i++)
+                  PopupMenuItem(
+                    value: i,
+                    child: Text(destinations[i].destination.label),
+                  ),
+              ],
+              icon: const Icon(Icons.menu, size: 22),
+            ),
+          Text(
+            destinations
+                    .where((d) => d.active)
+                    .firstOrNull
+                    ?.destination
+                    .label ??
+                '투자 온톨로지',
+            style: t.body(14, color: c.textSecondary, weight: FontWeight.w600),
+          ),
+          const Spacer(),
+          if (desktop)
+            const _GlobalSearch()
+          else
+            IconButton(
+              tooltip: '기업 · 인물 · 테마 · 메뉴 검색',
+              icon: const Icon(Icons.search, size: 21),
+              onPressed: () => showDialog<void>(
+                context: context,
+                builder: (_) => const _SearchDialog(),
+              ),
+            ),
+          const SizedBox(width: 12),
+          const _Account(),
+        ],
       ),
     );
   }

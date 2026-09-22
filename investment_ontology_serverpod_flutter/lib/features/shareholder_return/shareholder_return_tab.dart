@@ -162,7 +162,7 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
                     color: c.chartSeries1,
                   ),
               ];
-              final columns = box.maxWidth >= 1050
+              final columns = box.maxWidth >= 920
                   ? 3
                   : box.maxWidth >= 680
                   ? 2

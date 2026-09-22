@@ -1,4 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+
+import '../design/design_gallery.dart';
+
 import 'package:go_router/go_router.dart';
 
 import '../features/home/home_page.dart';
@@ -67,6 +70,8 @@ abstract final class AppRoutes {
         builder: (context, state, child) =>
             AppShell(location: state.uri, child: child),
         routes: [
+          if (kDebugMode)
+            GoRoute(path: '/design', builder: (_, _) => const DesignGallery()),
           GoRoute(
             path: '/home',
             pageBuilder: (context, state) => NoTransitionPage(
