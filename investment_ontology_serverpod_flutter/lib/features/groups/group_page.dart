@@ -163,8 +163,67 @@ class _Edges extends StatelessWidget {
     final c = context.colors;
     final t = context.typo;
     final byId = {for (final m in group.members) m.company.id: m.company};
+    final capById = {
+      for (final m in group.members)
+        if (m.marketCap case final cap? when cap > BigInt.zero)
+          m.company.id: cap.toDouble(),
+    };
     final edges = [...group.edges]
       ..sort((a, b) => (b.ratio ?? 0).compareTo(a.ratio ?? 0));
+    // 지분 가치 = 가진 기업 시가총액 × 지분율. 가진 쪽 시가총액과 견주면 "얼마나 큰 일인가"가
+    // 보인다 (지주사 할인의 재료). 같은 쌍이 최대주주 명단과 타법인출자에 둘 다 있으면 한 번만.
+    double? stakeValue(GroupEdge e) {
+      final cap = capById[e.toCompanyId];
+      if (cap == null || e.ratio == null) return null;
+      return cap * e.ratio! / 100;
+    }
+
+    double? holderShare(GroupEdge e) {
+      final value = stakeValue(e);
+      final own = capById[e.fromCompanyId];
+      if (value == null || own == null) return null;
+      return value / own * 100;
+    }
+
+    final bestByPair = <(int, int), GroupEdge>{};
+    for (final e in edges) {
+      final key = (e.fromCompanyId, e.toCompanyId);
+      final prev = bestByPair[key];
+      if (prev == null || (e.ratio ?? 0) > (prev.ratio ?? 0)) {
+        bestByPair[key] = e;
+      }
+    }
+    // 표에도 쌍마다 한 줄. 근거는 둘 다 적는다.
+    final basisByPair = <(int, int), Set<RelationPredicate>>{};
+    for (final e in edges) {
+      basisByPair
+          .putIfAbsent((e.fromCompanyId, e.toCompanyId), () => {})
+          .add(e.predicate);
+    }
+    final shownEdges = [...bestByPair.values]
+      ..sort((a, b) => (b.ratio ?? 0).compareTo(a.ratio ?? 0));
+    String basis(GroupEdge e) => [
+      if (basisByPair[(e.fromCompanyId, e.toCompanyId)]!.contains(
+        RelationPredicate.shareholderOf,
+      ))
+        '최대주주 명단',
+      if (basisByPair[(e.fromCompanyId, e.toCompanyId)]!.contains(
+        RelationPredicate.investsIn,
+      ))
+        '타법인출자 (경영참여)',
+    ].join(' · ');
+    final heldByHolder = <int, double>{};
+    for (final e in bestByPair.values) {
+      final v = stakeValue(e);
+      if (v != null) {
+        heldByHolder[e.fromCompanyId] =
+            (heldByHolder[e.fromCompanyId] ?? 0) + v;
+      }
+    }
+    final holders = [
+      for (final MapEntry(key: id, value: held) in heldByHolder.entries)
+        if (capById[id] case final own?) (id: id, held: held, own: own),
+    ]..sort((a, b) => (b.held / b.own).compareTo(a.held / a.own));
     Widget company(int id) {
       final ref = byId[id];
       if (ref == null) return AppDataTable.text(context, '—');
@@ -185,6 +244,48 @@ class _Edges extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (holders.isNotEmpty) ...[
+          const SectionLabel('보유 지분 가치 · 시가총액 대비'),
+          const SizedBox(height: AppSpace.xs),
+          Text(
+            '묶음 안 상장사 지분의 시가 합(가진 기업 시가총액 × 지분율)이 자기 시가총액의 몇 %인지. '
+            '높을수록 그 기업의 가치가 계열사 주가로 설명되는 지주사에 가깝고, 계열사 사건이 '
+            '주가로 번지기 쉽습니다.',
+            style: t.body(12.5, color: c.textSecondary),
+          ),
+          const SizedBox(height: AppSpace.sm),
+          AppDataTable(
+            columns: const [
+              AppColumn('기업', flex: true),
+              AppColumn('보유 지분 가치', numeric: true),
+              AppColumn('시가총액', numeric: true),
+              AppColumn('시총 대비', numeric: true),
+            ],
+            rows: [
+              for (final h in holders)
+                AppRow([
+                  company(h.id),
+                  AppDataTable.text(
+                    context,
+                    formatKrwShort(h.held),
+                    numeric: true,
+                  ),
+                  AppDataTable.text(
+                    context,
+                    formatKrwShort(h.own),
+                    numeric: true,
+                  ),
+                  AppDataTable.text(
+                    context,
+                    '${(h.held / h.own * 100).toStringAsFixed(0)}%',
+                    numeric: true,
+                    strong: h.held / h.own >= 0.5,
+                  ),
+                ]),
+            ],
+          ),
+          const SizedBox(height: AppSpace.xl),
+        ],
         const SectionLabel('묶음 안 지분 연결'),
         const SizedBox(height: AppSpace.xs),
         Text(
@@ -195,7 +296,7 @@ class _Edges extends StatelessWidget {
         const SizedBox(height: AppSpace.sm),
         LayoutBuilder(
           builder: (context, box) {
-            // 좁은 화면에서는 근거를 짧게 (주주/출자 · 연도) 적어 표가 폭 안에 들게 한다.
+            // 좁은 화면에서는 근거·시총 대비를 빼고 연결·지분율·지분 가치만.
             final compact = box.maxWidth < 640;
             return AppDataTable(
               columns: [
@@ -206,10 +307,12 @@ class _Edges extends StatelessWidget {
                   AppColumn('가진 기업', nowrap: true),
                 ],
                 const AppColumn('지분율', numeric: true),
-                AppColumn('근거', flex: !compact, nowrap: compact),
+                const AppColumn('지분 가치', numeric: true),
+                if (!compact) const AppColumn('가진 쪽 시총 대비', numeric: true),
+                if (!compact) const AppColumn('근거', flex: true),
               ],
               rows: [
-                for (final e in edges)
+                for (final e in shownEdges)
                   AppRow([
                     if (compact)
                       Column(
@@ -239,11 +342,21 @@ class _Edges extends StatelessWidget {
                     ),
                     AppDataTable.text(
                       context,
-                      e.predicate == RelationPredicate.shareholderOf
-                          ? (compact ? '주주 명단' : '최대주주 명단')
-                          : (compact ? '타법인출자' : '타법인출자 (경영참여)'),
-                      nowrap: true,
+                      stakeValue(e) == null
+                          ? null
+                          : formatKrwShort(stakeValue(e)!),
+                      numeric: true,
                     ),
+                    if (!compact)
+                      AppDataTable.text(
+                        context,
+                        holderShare(e) == null
+                            ? null
+                            : '${holderShare(e)!.toStringAsFixed(1)}%',
+                        numeric: true,
+                      ),
+                    if (!compact)
+                      AppDataTable.text(context, basis(e), nowrap: true),
                   ]),
               ],
             );
