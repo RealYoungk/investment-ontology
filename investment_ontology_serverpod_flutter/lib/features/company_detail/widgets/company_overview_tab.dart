@@ -38,8 +38,6 @@ class CompanyOverviewTab extends StatelessWidget {
         corpCode: detail.company.corpCode,
         onOpen: () => onOpenTab('business'),
       ),
-      PriceChart(corpCode: detail.company.corpCode),
-      const SizedBox(height: AppSpace.section),
       _FinancialDigest(financials: financials, onOpen: onOpenFinancials),
       const SizedBox(height: AppSpace.section),
       BusinessHighlights(
@@ -47,7 +45,25 @@ class CompanyOverviewTab extends StatelessWidget {
         onOpenTab: onOpenTab,
       ),
       const SizedBox(height: AppSpace.section),
-      _Profile(company: detail.company),
+      PriceChart(corpCode: detail.company.corpCode),
+      const SizedBox(height: AppSpace.section),
+      ExpansionTile(
+        tilePadding: EdgeInsets.zero,
+        title: Text(
+          '기업 기본정보',
+          style: context.typo.body(15, weight: FontWeight.w600),
+        ),
+        subtitle: Text(
+          '대표자 · 설립일 · 주소 · 연락처',
+          style: context.typo.body(12, color: context.colors.textSecondary),
+        ),
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: AppSpace.lg),
+            child: _Profile(company: detail.company),
+          ),
+        ],
+      ),
     ];
     final side = [
       OntologyDigest(

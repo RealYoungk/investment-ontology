@@ -26,6 +26,7 @@ class _BusinessBlurbState extends State<BusinessBlurb> {
   BusinessDigestSection? _overview;
   int _count = 0;
   int _seq = 0;
+  bool _expanded = false;
 
   @override
   void initState() {
@@ -72,7 +73,22 @@ class _BusinessBlurbState extends State<BusinessBlurb> {
           ),
         ),
         const SizedBox(height: AppSpace.sm),
-        SelectableText(o.summary, style: t.body(14).copyWith(height: 1.7)),
+        if (_expanded)
+          SelectableText(o.summary, style: t.body(14).copyWith(height: 1.7))
+        else
+          Text(
+            o.summary,
+            maxLines: 4,
+            overflow: TextOverflow.ellipsis,
+            style: t.body(14).copyWith(height: 1.7),
+          ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton(
+            onPressed: () => setState(() => _expanded = !_expanded),
+            child: Text(_expanded ? '사업 설명 접기' : '사업 설명 전체 읽기'),
+          ),
+        ),
         const SizedBox(height: AppSpace.xs),
         Text(
           '사업보고서 "사업의 내용"을 읽어 쓴 글입니다. 근거는 사업의 내용 탭에서 절마다 펼쳐 볼 수 있습니다.',

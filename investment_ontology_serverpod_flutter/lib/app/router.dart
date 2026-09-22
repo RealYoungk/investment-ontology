@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/home/home_page.dart';
+import '../features/home/about_page.dart';
+import '../features/home/explore_intent.dart';
 import '../features/companies/company_filter.dart';
 import '../features/companies/company_list_page.dart';
 import '../features/company_detail/company_page.dart';
@@ -21,6 +24,8 @@ import 'app_shell.dart';
 
 /// 화면 주소.
 ///
+/// - `/home` 질문에서 시작하는 기업 탐색 (기본 진입점)
+/// - `/about` 서비스 소개
 /// - `/market` 시장 — 시장 요약 · 업종 분포 · 시총 트리맵
 /// - `/companies?market=&section=&division=&q=&sort=&page=` 기업 목록 (필터가 주소에 남는다)
 /// - `/company/:corpCode?tab=financials` 기업 상세 (tab: overview · financials · business · governance · returns · disclosures)
@@ -54,13 +59,25 @@ abstract final class AppRoutes {
   static String group(String corpCode) => '/groups/$corpCode';
 
   static final router = GoRouter(
-    initialLocation: '/market',
+    initialLocation: '/home',
     routes: [
-      GoRoute(path: '/', redirect: (_, _) => '/market'),
+      GoRoute(path: '/', redirect: (_, _) => '/home'),
+      GoRoute(path: '/about', builder: (context, state) => const AboutPage()),
       ShellRoute(
         builder: (context, state, child) =>
             AppShell(location: state.uri, child: child),
         routes: [
+          GoRoute(
+            path: '/home',
+            pageBuilder: (context, state) => NoTransitionPage(
+              key: const ValueKey('home'),
+              child: HomePage(
+                intent: ExploreIntent.fromQuery(
+                  state.uri.queryParameters['intent'],
+                ),
+              ),
+            ),
+          ),
           GoRoute(
             path: '/market',
             pageBuilder: (context, state) =>

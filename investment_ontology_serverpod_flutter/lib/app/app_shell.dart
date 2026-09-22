@@ -28,6 +28,7 @@ class _Destination {
 }
 
 const _destinations = [
+  _Destination('홈', '/home'),
   _Destination('시장', '/market'),
   _Destination(
     '기업',
@@ -134,9 +135,16 @@ class _TopBar extends StatelessWidget {
             children: [
               if (!compact) ...[
                 Center(
-                  child: Text(
-                    'INVESTMENT ONTOLOGY',
-                    style: t.label(color: c.accent),
+                  child: TextButton(
+                    onPressed: () => context.go('/home'),
+                    child: Text(
+                      '투자 온톨로지',
+                      style: t.body(
+                        15,
+                        color: c.accent,
+                        weight: FontWeight.w700,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(width: AppSpace.xxl),
