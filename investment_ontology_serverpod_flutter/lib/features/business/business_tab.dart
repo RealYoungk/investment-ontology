@@ -853,13 +853,27 @@ class _DocumentFactsState extends State<_DocumentFacts> {
           ),
           const SizedBox(height: AppSpace.xs),
           AppDataTable(
-            columns: const [
-              AppColumn('항목', nowrap: true),
-              AppColumn('구분'),
-              // 값은 한 줄로 — 칸이 좁으면 "2,387,516백\n만원"처럼 접힌다.
-              AppColumn('값', numeric: true, nowrap: true),
-              AppColumn('기준일', nowrap: true),
-              AppColumn('근거'),
+            columns: [
+              const AppColumn('항목', nowrap: true),
+              const AppColumn('구분'),
+              // 값·날짜는 한 줄로, 폭은 직접 준다 — 내용 폭 재기가 몇 px 모자라 끝 글자가 잘린다
+              // (숫자 글꼴 한 글자 ≈ 7.6px, 공시 항목 표와 같은 규칙).
+              AppColumn(
+                '값',
+                numeric: true,
+                nowrap: true,
+                minWidth:
+                    _facts
+                            .map(
+                              (f) =>
+                                  '${formatDecimal(f.value)}${f.unit}'.length,
+                            )
+                            .fold(2, (a, b) => a > b ? a : b) *
+                        7.6 +
+                    2 * AppSpace.sm,
+              ),
+              AppColumn('기준일', nowrap: true, width: 100),
+              const AppColumn('근거'),
             ],
             rows: [
               for (final f in _facts)
