@@ -60,6 +60,7 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   /// 기업 목록으로 돌아갈 때 쓰던 필터를 그대로 되살리기 위한 마지막 목록 주소.
   String _companiesLocation = '/companies';
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -96,6 +97,27 @@ class _AppShellState extends State<AppShell> {
       builder: (context, box) {
         final desktop = box.maxWidth >= 1100;
         return Scaffold(
+          key: _scaffoldKey,
+          drawer: desktop
+              ? null
+              : Drawer(
+                  width: 288,
+                  backgroundColor: c.inverse,
+                  child: _DeskNavigation(
+                    destinations: [
+                      for (final item in destinations)
+                        (
+                          destination: item.destination,
+                          active: item.active,
+                          onTap: () {
+                            _scaffoldKey.currentState?.closeDrawer();
+                            item.onTap();
+                          },
+                        ),
+                    ],
+                    onClose: () => _scaffoldKey.currentState?.closeDrawer(),
+                  ),
+                ),
           backgroundColor: c.background,
           body: Row(
             children: [
@@ -117,7 +139,8 @@ class _AppShellState extends State<AppShell> {
 }
 
 class _DeskNavigation extends StatelessWidget {
-  const _DeskNavigation({required this.destinations});
+  const _DeskNavigation({required this.destinations, this.onClose});
+  final VoidCallback? onClose;
   final List<({_Destination destination, bool active, VoidCallback onTap})>
   destinations;
   static const icons = [
@@ -135,7 +158,7 @@ class _DeskNavigation extends StatelessWidget {
     final c = context.colors;
     final t = context.typo;
     return Container(
-      width: 204,
+      width: onClose == null ? 204 : 288,
       color: c.inverse,
       child: SafeArea(
         child: Column(
@@ -143,9 +166,25 @@ class _DeskNavigation extends StatelessWidget {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 28, 12, 28),
-              child: Text(
-                '알파인더',
-                style: t.body(17, color: c.onInverse, weight: FontWeight.w700),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      '알파인더',
+                      style: t.body(
+                        17,
+                        color: c.onInverse,
+                        weight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  if (onClose != null)
+                    IconButton(
+                      tooltip: '메뉴 닫기',
+                      onPressed: onClose,
+                      icon: Icon(Icons.close, color: c.onInverse, size: 22),
+                    ),
+                ],
               ),
             ),
             Expanded(
@@ -199,7 +238,10 @@ class _DeskNavigation extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(16),
               child: TextButton(
-                onPressed: () => context.go('/about'),
+                onPressed: () {
+                  onClose?.call();
+                  context.go('/about');
+                },
                 child: Text(
                   '서비스 소개',
                   style: t.body(12, color: c.onInverse.withValues(alpha: .7)),
@@ -238,18 +280,9 @@ class _TopBar extends StatelessWidget {
               icon: const Icon(Icons.arrow_back, size: 20),
             ),
           if (!desktop)
-            PopupMenuButton<int>(
+            IconButton(
               tooltip: '전체 메뉴',
-              constraints: const BoxConstraints(minWidth: 200, maxWidth: 240),
-              position: PopupMenuPosition.under,
-              onSelected: (i) => destinations[i].onTap(),
-              itemBuilder: (_) => [
-                for (var i = 0; i < destinations.length; i++)
-                  PopupMenuItem(
-                    value: i,
-                    child: Text(destinations[i].destination.label),
-                  ),
-              ],
+              onPressed: () => Scaffold.of(context).openDrawer(),
               icon: const Icon(Icons.menu, size: 22),
             ),
           Text(

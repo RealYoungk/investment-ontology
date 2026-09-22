@@ -13,7 +13,7 @@
 
 ## Navigation and responsive layout
 - >=1100: 204px charcoal sidebar, 64px utility header. No duplicated top navigation.
-- <1100: compact header with anchored complete menu; content uses full width. Search and account remain available.
+- <1100: compact header with a 288px left drawer (matching desktop menu order, active state, close button, and close-on-navigation); content uses full width. Search and account remain available.
 - Detail back action in header only when router can pop. Preserve list query/filter/scroll behavior.
 - Home keeps industry entry, metric conditions and company search. No invented market recommendations.
 - Market shows value, equal-period returns, chart, expandable source. Company shows identity, key metrics, detail tabs.

@@ -9,7 +9,7 @@
 
 ## Implemented
 - New Research Desk brand, retained Ledger brand for comparison/rollback.
-- Desktop charcoal sidebar and utility header; compact popup navigation below 1100px. Detail back remains router-driven.
+- Desktop charcoal sidebar and utility header; left drawer navigation below 1100px. Detail back remains router-driven.
 - Sans-serif headings, semantic typography roles, quiet surfaces, subtle borders, rounded controls and custom dialog/menu theme.
 - Shared actions support keyboard Enter/Space and visible focus; icon targets 44px.
 - `/design` debug-only Flutter component gallery uses actual components.
@@ -31,3 +31,7 @@
 
 ## Scope limits
 This is a shared design-system migration, not evidence that every control on every route has been exhaustively tested. Person/report/auth flows inherit the common theme; they were not individually navigated in this pass. No AI extraction, data ingestion, auth changes, production deployment or database migration was performed for the redesign.
+
+## 2026-09-23 mobile navigation follow-up
+
+Replaced the compact popup with a 288px left drawer using the desktop navigation. At 390×844, verified opening, active home state, selecting Market and automatic dismissal, plus the close control. Desktop home and mobile drawer captures: `output/design-review/`. Static analysis passed.
