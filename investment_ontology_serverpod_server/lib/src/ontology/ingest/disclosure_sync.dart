@@ -12,6 +12,7 @@ import '../disclosure/disclosure_links.dart';
 import '../disclosure/disclosure_rows.dart';
 import '../disclosure/disclosure_values.dart';
 import '../disclosure/production_facts.dart';
+import '../disclosure/rnd_facts.dart';
 import '../disclosure/supplier_relations.dart';
 import '../market/market_caps.dart';
 import 'api_call_budget.dart';
@@ -779,6 +780,7 @@ class DisclosureSync {
         where: (t) => t.market.inSet(DisclosureLinks.listedMarkets),
       );
       await ProductionFacts.store(session, stored, companyKeys: _companyKeys);
+      await RndFacts.store(session, stored);
       await SupplierRelations.store(
         session,
         stored,

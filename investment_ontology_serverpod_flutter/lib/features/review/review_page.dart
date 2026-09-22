@@ -29,6 +29,8 @@ String factKindLabel(DocumentFactKind k) => switch (k) {
   DocumentFactKind.investmentPlan => '투자계획',
   DocumentFactKind.investmentActual => '투자집행',
   DocumentFactKind.segmentRevenue => '부문 매출',
+  DocumentFactKind.rndExpense => '연구개발비',
+  DocumentFactKind.rndRatio => '연구개발비 비율',
 };
 
 /// 검수 큐: 사업보고서 본문에서 뽑아 둔 관계·값 가운데 사람 판단이 필요한 것.
@@ -746,7 +748,11 @@ class _EvidenceState extends State<_Evidence> {
   Future<void> _load() async {
     setState(() => _loading = true);
     try {
-      final ctx = await client.review.context(widget.scope, widget.id, around: 500);
+      final ctx = await client.review.context(
+        widget.scope,
+        widget.id,
+        around: 500,
+      );
       if (mounted) {
         setState(() => (_context = ctx, _error = null, _loading = false));
       }

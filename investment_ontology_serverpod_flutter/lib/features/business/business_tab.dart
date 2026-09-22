@@ -656,6 +656,8 @@ String documentFactKindLabel(DocumentFactKind k) => switch (k) {
   DocumentFactKind.investmentPlan => '투자계획',
   DocumentFactKind.investmentActual => '투자집행',
   DocumentFactKind.segmentRevenue => '부문 매출',
+  DocumentFactKind.rndExpense => '연구개발비',
+  DocumentFactKind.rndRatio => '연구개발비 비율',
 };
 
 /// 해마다 같은 항목이 있으면 흐름으로 (수주잔고·생산능력·점유율 …).
@@ -678,6 +680,7 @@ class _FactTrend extends StatelessWidget {
     // 눈금은 읽기 쉬운 단위로. 백만원은 조·억으로 바꿔 적는다 (값 자체는 공시 단위 그대로).
     String short(double v) => switch (unit) {
       '%' => '${v.toStringAsFixed(1)}%',
+      '천원' => formatKrwShort(v * 1000),
       '백만원' => formatKrwShort(v * 1000000),
       '억원' => formatKrwShort(v * 100000000),
       '조원' => formatKrwShort(v * 1000000000000),
@@ -832,6 +835,8 @@ class _DocumentFactsState extends State<_DocumentFacts> {
       DocumentFactKind.production,
       DocumentFactKind.utilization,
       DocumentFactKind.marketShare,
+      DocumentFactKind.rndExpense,
+      DocumentFactKind.rndRatio,
     ];
     final keys = by.keys.toList()
       ..sort((a, b) {
