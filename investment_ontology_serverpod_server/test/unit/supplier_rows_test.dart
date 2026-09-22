@@ -84,6 +84,9 @@ DX | 스마트폰 | 100 | 50% | Alphabet, Apple
 원유 | SK Energy Americas, Inc. 등 | 1,000
 나프타 | DAEHAN CERAMICS CO., LTD 외 | 100
 P-X | SK지오센트릭SK지오센트릭 | 10
+LNG | 미국 | 5
+포장재 | 톤) | 5
+기타 | 있음 | 5
 ''';
     expect(SupplierRows.parse(text).map((r) => r.name), [
       'SK Energy Americas, Inc.',

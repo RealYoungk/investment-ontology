@@ -21,8 +21,12 @@ abstract final class SupplierRows {
   static final _bad = RegExp(
     // 숫자·기호, 없음, 그리고 이름이 아닌 칸 — "A사"처럼 익명 처리한 거래처,
     // "국내"·"수입" 같은 시장 구분, "비율"·"금액" 같은 두 번째 머리글.
-    r'[0-9%]|^[-—·]+$|해당\s*없음|미기재|자체|^[A-Z]사$|^(국내|수입|해외|기타|국내외|비율|비중|금액|매입액|매입처|품목|구분)$',
+    r'[0-9%]|^[-—·]+$|해당\s*없음|미기재|자체|^[A-Z]사$|^(국내|수입|해외|기타|국내외|비율|비중|금액|매입액|매입처|품목|구분|미국|유럽|호주|중국|일본|아시아|동남아|중동|있음|없음|비고|방법|상품|제품|원재료|자재|건재|농산|kg|톤|t|m|M)$',
   );
+
+  /// 닫는 괄호만 남은 조각("톤)", "장)")은 표 칸이 어긋난 것이다.
+  static bool _danglingParen(String name) =>
+      name.endsWith(')') && !name.contains('(');
 
   /// 두 번째 머리글 줄("매입액 | 비율 | 매입액 | 비율")은 값이 아니다.
   static final _headerWord = RegExp(r'^(매입액|비율|비중|금액|수량|단가|구분|품목|용도)$');
@@ -196,6 +200,7 @@ abstract final class SupplierRows {
         }
         if (name.length < 2 || name.length > 40) continue;
         if (_bad.hasMatch(name) ||
+            _danglingParen(name) ||
             _category.hasMatch(name) ||
             _generic.hasMatch(name)) {
           continue;
@@ -246,7 +251,7 @@ abstract final class SupplierRows {
           name = next;
         }
         if (name.length < 2 || name.length > 30) continue;
-        if (_bad.hasMatch(name)) continue;
+        if (_bad.hasMatch(name) || _danglingParen(name)) continue;
         if (!seen.add(name)) continue;
         out.add((name: name, evidence: line));
         if (out.length >= maxNames) return out;
