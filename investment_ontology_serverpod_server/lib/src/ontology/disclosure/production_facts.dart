@@ -2,6 +2,7 @@ import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
 import 'disclosure_links.dart';
+import 'market_share_facts.dart';
 import 'order_facts.dart';
 import 'segment_revenue.dart';
 
@@ -259,7 +260,10 @@ abstract final class ProductionFacts {
         session,
         where: (t) => t.documentId.equals(doc.id!),
       ))
-        '${f.kind.name}|${f.label}',
+        if (f.kind == DocumentFactKind.marketShare)
+          '${f.kind.name}|${f.label}|${f.asOf?.year}'
+        else
+          '${f.kind.name}|${f.label}',
     };
     final now = DateTime.now().toUtc();
     final facts = <DocumentFact>[];
@@ -348,6 +352,34 @@ abstract final class ProductionFacts {
           ),
         );
       }
+    }
+    // 연도별 시장점유율 표 (이 회사 줄의 % 값만). 해마다 값이 있어 키에 연도를 넣는다.
+    for (final r in MarketShareFacts.parse(
+      doc.text,
+      owner: company!.name,
+      bsnsYear: doc.bsnsYear,
+    )) {
+      if (!existing.add('marketShare|${r.label}|${r.year}')) continue;
+      facts.add(
+        DocumentFact(
+          companyId: doc.companyId,
+          documentId: doc.id!,
+          bsnsYear: doc.bsnsYear,
+          kind: DocumentFactKind.marketShare,
+          label: r.label,
+          value: r.value,
+          unit: '%',
+          asOf: DateTime.utc(r.year, 12, 31),
+          evidence: r.evidence,
+          sourceId: report?.sourceId,
+          extractedBy: RelationOrigin.api,
+          extractorModel: '표 규칙',
+          status: RelationStatus.verified,
+          reviewedAt: now,
+          reviewedBy: '표 규칙 (연도별 시장점유율 표, 당사 줄)',
+          createdAt: now,
+        ),
+      );
     }
     if (facts.isEmpty) return 0;
     await DocumentFact.db.insert(session, facts);
