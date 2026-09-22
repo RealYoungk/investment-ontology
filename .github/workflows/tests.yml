@@ -11,20 +11,15 @@ jobs:
     runs-on: ubuntu-latest
     env:
       VERSION: '4.0.0'
-      SERVERPOD_PASSWORD_database: 'L3KJIsnYmp9SZlA1zXcE4VCHu4XH8lBR'
-      SERVERPOD_PASSWORD_redis: 'HwEU4oizAZsUicVzFDqr1d46ApJUMb4Q'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
-          # 로컬과 같이 항상 최신 stable을 쓴다.
+          # 검증한 SDK를 고정해 로컬과 CI를 동일하게 유지한다.
           channel: stable
-
-      - name: Start containers
-        working-directory: investment_ontology_serverpod_server
-        run: docker compose up --quiet-pull --build -d
+          flutter-version: 3.47.5
 
       - name: Install dependencies
         run: flutter pub get
@@ -39,11 +34,14 @@ jobs:
         working-directory: investment_ontology_serverpod_server
         run: serverpod generate
 
-      - name: Run tests
-        working-directory: investment_ontology_serverpod_server
-        run: dart test
+      - name: Run server tests
+        # config/test.yaml의 dataPath가 내장 PostgreSQL을 쓰므로 Docker가 필요 없다.
+        run: bash scripts/test-server.sh
 
-      - name: Stop containers
-        if: always()
-        working-directory: investment_ontology_serverpod_server
-        run: docker compose down -v
+      - name: Run Flutter tests
+        working-directory: investment_ontology_serverpod_flutter
+        run: flutter test
+
+      - name: Build Flutter web release
+        working-directory: investment_ontology_serverpod_flutter
+        run: flutter build web --release

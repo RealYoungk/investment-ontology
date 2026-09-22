@@ -7,6 +7,8 @@ import 'package:investment_ontology_serverpod_client/investment_ontology_serverp
 import '../design/components/components.dart';
 import '../design/tokens.dart';
 import '../client.dart';
+import '../features/auth/app_auth.dart';
+import '../features/auth/app_viewer.dart';
 import '../features/financials/financial_metrics.dart';
 import 'ingest_monitor.dart';
 import 'router.dart';
@@ -172,6 +174,8 @@ class _TopBar extends StatelessWidget {
                     ),
                   ),
                 ),
+              const SizedBox(width: AppSpace.md),
+              const Center(child: _Account()),
             ],
           ),
         );
@@ -229,6 +233,43 @@ class _NavItem extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// 지금 계정의 역할(관리자 · 읽기 전용)과 로그아웃.
+class _Account extends StatelessWidget {
+  const _Account();
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final viewer = context.viewer;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (viewer != null)
+          Tooltip(
+            message: viewer.isAdmin
+                ? '데이터를 바꿀 수 있습니다 (테마 · 수집 · 검수).'
+                : '볼 수만 있습니다. 바꾸려면 관리자 권한이 필요합니다.',
+            child: AppTag(
+              label: viewer.roleLabel,
+              color: viewer.isAdmin ? c.accent : c.textSecondary,
+            ),
+          ),
+        const SizedBox(width: AppSpace.xs),
+        AppIconButton(
+          icon: Icons.logout,
+          tooltip: '로그아웃',
+          onPressed: () async {
+            await AppAuth.signOut();
+            // 다음에 로그인하는 사람이 보던 화면으로 들어가지 않게 첫 화면으로 돌린다.
+            // (로그아웃 순간 로그인 문이 라우터를 내리므로 보던 화면은 이미 사라졌다.)
+            AppRoutes.router.go('/market');
+          },
+        ),
+      ],
     );
   }
 }

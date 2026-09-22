@@ -1,3 +1,5 @@
+import 'rule_document_store.dart';
+
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
@@ -21,8 +23,32 @@ abstract final class SupplierRelations {
 
     /// 상장사 목록. 여러 문서를 돌릴 때는 한 번만 읽어 넘긴다.
     List<Company>? listed,
+  }) => RuleDocumentStore.run(
+    session,
+    doc,
+    (current, tx) => _store(session, current, tx, listed: listed),
+  );
+
+  static Future<int> _store(
+    Session session,
+    BusinessDocument doc,
+    Transaction tx, {
+    List<Company>? listed,
   }) async {
-    final company = await Company.db.findById(session, doc.companyId);
+    await OntologyRelation.db.deleteWhere(
+      session,
+      transaction: tx,
+      where: (t) =>
+          t.factKind.equals(RelationFactKind.businessDocument) &
+          t.factId.equals(doc.id!) &
+          t.extractorModel.equals(model) &
+          t.reviewedBy.equals(model),
+    );
+    final company = await Company.db.findById(
+      session,
+      doc.companyId,
+      transaction: tx,
+    );
     // 지주회사(KSIC 64992) 본문은 대부분 자회사 이야기다 — 매입처를 지주사 것으로
     // 넣게 되므로 통째로 건너뛴다 (ProductionFacts와 같은 규칙).
     if (company?.industryCode == ProductionFacts.holdingCompanyCode) return 0;
@@ -33,13 +59,18 @@ abstract final class SupplierRelations {
       ...SupplierRows.customerRows(doc.text),
     ];
     if (rows.isEmpty && buyers.isEmpty) return 0;
-    final report = await DisclosureReport.db.findById(session, doc.reportId);
+    final report = await DisclosureReport.db.findById(
+      session,
+      doc.reportId,
+      transaction: tx,
+    );
     if (company == null || report == null) return 0;
 
     final companies =
         listed ??
         await Company.db.find(
           session,
+          transaction: tx,
           where: (t) => t.market.inSet(DisclosureLinks.listedMarkets),
         );
     final byName = DisclosureLinks.companiesByName(companies);
@@ -57,6 +88,7 @@ abstract final class SupplierRelations {
     final existing = {
       for (final r in await OntologyRelation.db.find(
         session,
+        transaction: tx,
         where: (t) =>
             t.factKind.equals(RelationFactKind.businessDocument) &
             t.factId.equals(doc.id!),
@@ -68,6 +100,7 @@ abstract final class SupplierRelations {
     final spelling = <String, String>{
       for (final r in await OntologyRelation.db.find(
         session,
+        transaction: tx,
         where: (t) =>
             t.objectCompanyId.equals(company.id!) &
             t.factKind.equals(RelationFactKind.businessDocument),
@@ -149,7 +182,7 @@ abstract final class SupplierRelations {
       );
     }
     if (add.isEmpty) return 0;
-    await OntologyRelation.db.insert(session, add);
+    await OntologyRelation.db.insert(session, add, transaction: tx);
     return add.length;
   }
 

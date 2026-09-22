@@ -2,7 +2,7 @@
 # docker build -f investment_ontology_serverpod_server/Dockerfile .
 
 # Build stage
-FROM dart:3.12.2 AS build
+FROM dart:3.13.4 AS build
 
 # Create a minimal workspace that preserves locked server dependency versions.
 WORKDIR /app
@@ -11,7 +11,7 @@ COPY investment_ontology_serverpod_server investment_ontology_serverpod_server
 RUN printf '%s\n' \
   'name: _' \
   'environment:' \
-  '  sdk: ^3.12.2' \
+  '  sdk: ^3.13.4' \
   'workspace:' \
   '  - investment_ontology_serverpod_server' \
   > pubspec.yaml
@@ -38,17 +38,24 @@ ENV role=monolith
 # Copy runtime dependencies
 COPY --from=build /runtime/ /
 
+# Run as an unprivileged user. The server only reads its compiled binary,
+# static assets and config at startup (session logs and future-call state go
+# to the database, not local disk), so nothing here needs to be writable.
+RUN addgroup -S serverpod && adduser -S -G serverpod -h /app serverpod
+
 # Copy compiled server executable and native libraries
-COPY --from=build /app/investment_ontology_serverpod_server/build/bundle/ ./
+COPY --from=build --chown=serverpod:serverpod /app/investment_ontology_serverpod_server/build/bundle/ ./
 
 # Copy configuration files and resources
-COPY --from=build /app/investment_ontology_serverpod_server/config/ config/
-COPY --from=build /app/investment_ontology_serverpod_server/web/ web/
-COPY --from=build /app/investment_ontology_serverpod_server/migrations/ migrations/
-COPY --from=build /app/investment_ontology_serverpod_server/assets/ assets/
+COPY --from=build --chown=serverpod:serverpod /app/investment_ontology_serverpod_server/config/ config/
+COPY --from=build --chown=serverpod:serverpod /app/investment_ontology_serverpod_server/web/ web/
+COPY --from=build --chown=serverpod:serverpod /app/investment_ontology_serverpod_server/migrations/ migrations/
+COPY --from=build --chown=serverpod:serverpod /app/investment_ontology_serverpod_server/assets/ assets/
 
 # This file is required to enable the endpoint log filter in Insights.
-COPY --from=build /app/investment_ontology_serverpod_server/lib/src/generated/protocol.yaml lib/src/generated/protocol.yaml
+COPY --from=build --chown=serverpod:serverpod /app/investment_ontology_serverpod_server/lib/src/generated/protocol.yaml lib/src/generated/protocol.yaml
+
+USER serverpod
 
 # Expose ports
 EXPOSE 8080

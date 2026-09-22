@@ -3,9 +3,11 @@ import 'package:serverpod/serverpod.dart';
 import 'package:test/test.dart';
 
 import 'test_tools/serverpod_test_tools.dart';
+import 'auth_test_sessions.dart';
 
 void main() {
-  withServerpod('Given 수집 현황', (sessionBuilder, endpoints) {
+  withServerpod('Given 수집 현황', (anonymous, endpoints) {
+    final sessionBuilder = anonymous.asReader;
     late Session session;
 
     setUp(() async {

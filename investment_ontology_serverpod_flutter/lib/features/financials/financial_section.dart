@@ -10,6 +10,7 @@ import '../../app/router.dart';
 import '../../client.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
+import '../auth/app_viewer.dart';
 import '../common/formatters.dart';
 import 'financial_metrics.dart';
 
@@ -66,6 +67,7 @@ class _FinancialSectionState extends State<FinancialSection> {
 
   /// 이 기업의 정기보고서만 찾아 바로 받는다. 끝나면 다시 불러온다.
   Future<void> _fetchCompany() async {
+    if (!context.ensureAdmin()) return;
     setState(() {
       _fetching = true;
       _fetchMessage = null;

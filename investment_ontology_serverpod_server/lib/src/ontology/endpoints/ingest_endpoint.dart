@@ -2,6 +2,7 @@ import 'package:serverpod/protocol.dart' as sp;
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
+import '../auth/ontology_access.dart';
 import '../dart/dart_api_key.dart';
 import '../data_go_kr/data_go_kr_service_key.dart';
 import '../disclosure/disclosure_links.dart';
@@ -18,8 +19,11 @@ import '../ingest/market_snapshot_sync.dart';
 
 /// 외부 원천 수집 제어.
 ///
-/// 1인 로컬 사용 전제라 인증이 없다. 외부에 배포하기 전에 인증을 붙여야 한다.
+/// 로그인 사용자는 상태를 읽고, 관리자는 수집 실행·취소·재계산을 요청한다.
 class IngestEndpoint extends Endpoint {
+  @override
+  bool get requireLogin => true;
+
   /// 상장사 마스터 수집 시작. 이미 실행 중이면 그 작업을 돌려준다.
   ///
   /// 평소에는 DART 변경일이 바뀐 기업만 다시 받는다. [force]이거나 마지막 전체
@@ -28,6 +32,7 @@ class IngestEndpoint extends Endpoint {
     Session session, {
     bool? force,
   }) async {
+    OntologyAccess.requireAdmin(session);
     _requireDartKey(session);
 
     final running = await IngestJobs.running(session, CompanyMasterSync.kind);
@@ -35,17 +40,15 @@ class IngestEndpoint extends Endpoint {
 
     final full =
         (force ?? false) || await CompanyMasterSync.isFullRefreshDue(session);
-    final job = (await IngestJobs.start(
+    return IngestJobs.startAndSchedule(
       session,
       CompanyMasterSync.kind,
+      (job) => IngestHooks.require(
+        IngestHooks.companyMasterNow,
+        'companyMasterNow',
+      )(session, job.id!, full),
       fullRefresh: full,
-    ))!;
-    await IngestHooks.require(IngestHooks.companyMasterNow, 'companyMasterNow')(
-      session,
-      job.id!,
-      full,
     );
-    return job;
   }
 
   /// 재무제표 수집 시작. 이미 실행 중이면 그 작업을 돌려준다.
@@ -54,26 +57,25 @@ class IngestEndpoint extends Endpoint {
   /// DART 일일 호출 예산을 다 쓰면 멈추고 다음 날 이어서 받는다.
   /// [corpCode]를 주면 그 기업의 정기보고서만 찾아 바로 받는다. 전체 수집이 돌고 있어도 된다.
   Future<IngestJob> startFinancials(Session session, {String? corpCode}) async {
+    OntologyAccess.requireAdmin(session);
     _requireDartKey(session);
     // 기업 하나 수집은 따로 세어, 전체 백필이 도는 중에도 바로 받을 수 있게 한다.
     final kind = corpCode == null
         ? FinancialFactsSync.kind
         : FinancialFactsSync.companyKind;
-    final running = await IngestJobs.running(session, kind);
-    if (running != null) return running;
-    final job = (await IngestJobs.start(session, kind))!;
-    if (corpCode == null) {
-      await IngestHooks.require(IngestHooks.financialsNow, 'financialsNow')(
-        session,
-        job.id!,
-      );
-    } else {
-      await IngestHooks.require(
-        IngestHooks.financialsForCompanyNow,
-        'financialsForCompanyNow',
-      )(session, job.id!, corpCode);
-    }
-    return job;
+    return IngestJobs.startAndSchedule(session, kind, (job) async {
+      if (corpCode == null) {
+        await IngestHooks.require(IngestHooks.financialsNow, 'financialsNow')(
+          session,
+          job.id!,
+        );
+      } else {
+        await IngestHooks.require(
+          IngestHooks.financialsForCompanyNow,
+          'financialsForCompanyNow',
+        )(session, job.id!, corpCode);
+      }
+    });
   }
 
   /// 정기보고서 주요정보(주주·임원·출자·배당 등 28종) 수집 시작. 이미 실행 중이면 그 작업을 돌려준다.
@@ -85,29 +87,29 @@ class IngestEndpoint extends Endpoint {
     Session session, {
     String? corpCode,
   }) async {
+    OntologyAccess.requireAdmin(session);
     _requireDartKey(session);
     final kind = corpCode == null
         ? DisclosureSync.kind
         : DisclosureSync.companyKind;
-    final running = await IngestJobs.running(session, kind);
-    if (running != null) return running;
-    final job = (await IngestJobs.start(session, kind))!;
-    if (corpCode == null) {
-      await IngestHooks.require(IngestHooks.disclosuresNow, 'disclosuresNow')(
-        session,
-        job.id!,
-      );
-    } else {
-      await IngestHooks.require(
-        IngestHooks.disclosuresForCompanyNow,
-        'disclosuresForCompanyNow',
-      )(session, job.id!, corpCode);
-    }
-    return job;
+    return IngestJobs.startAndSchedule(session, kind, (job) async {
+      if (corpCode == null) {
+        await IngestHooks.require(IngestHooks.disclosuresNow, 'disclosuresNow')(
+          session,
+          job.id!,
+        );
+      } else {
+        await IngestHooks.require(
+          IngestHooks.disclosuresForCompanyNow,
+          'disclosuresForCompanyNow',
+        )(session, job.id!, corpCode);
+      }
+    });
   }
 
   /// 주요정보의 인물 연결과 관계 색인을 다시 만든다 (DART 호출 없음). 연결 규칙을 고친 뒤 쓴다.
   Future<String> rebuildDisclosureLinks(Session session) async {
+    OntologyAccess.requireAdmin(session);
     final r = await DisclosureLinks(session).rebuild();
     return '관계 ${r.relations}건, 추정 인물 연결 ${r.estimatedLinks}건';
   }
@@ -117,32 +119,25 @@ class IngestEndpoint extends Endpoint {
   /// 받지 않은 평일 기준일을 최신순으로 받고(처음에는 5년), 가장 최근 기준일의
   /// 상장종목 정보로 종목을 기업에 잇는다.
   Future<IngestJob> startMarketSnapshot(Session session) async {
+    OntologyAccess.requireAdmin(session);
     if (DataGoKrServiceKey.read(session) == null) {
       throw IngestException(
         message: DataGoKrServiceKey.secret.missingMessage('공공데이터포털 서비스'),
       );
     }
-    final running = await IngestJobs.running(session, MarketSnapshotSync.kind);
-    if (running != null) return running;
-    final job = (await IngestJobs.start(session, MarketSnapshotSync.kind))!;
-    await IngestHooks.require(
-      IngestHooks.marketSnapshotNow,
-      'marketSnapshotNow',
-    )(session, job.id!);
-    return job;
+    return IngestJobs.startAndSchedule(
+      session,
+      MarketSnapshotSync.kind,
+      (job) => IngestHooks.require(
+        IngestHooks.marketSnapshotNow,
+        'marketSnapshotNow',
+      )(session, job.id!),
+    );
   }
 
   Future<IngestJob?> cancel(Session session, int jobId) async {
-    final job = await IngestJob.db.findById(session, jobId);
-    if (job == null || job.status != IngestStatus.running) return job;
-    return IngestJob.db.updateRow(
-      session,
-      job.copyWith(
-        status: IngestStatus.cancelled,
-        finishedAt: DateTime.now().toUtc(),
-        message: '사용자 취소',
-      ),
-    );
+    OntologyAccess.requireAdmin(session);
+    return IngestJobs.cancel(session, jobId);
   }
 
   /// 수집 현황. 층마다 얼마나 받았는지 한 번에 센다.
@@ -268,6 +263,7 @@ class IngestEndpoint extends Endpoint {
   ///
   /// 규칙을 고친 뒤 되돌려 읽을 때 쓴다. 사람이 이미 결정한 항목은 건드리지 않는다.
   Future<String> rebuildProductionFacts(Session session) async {
+    OntologyAccess.requireAdmin(session);
     // 본문 하나가 수십만 자다. 전부 메모리에 올리지 않고 한 건씩 읽는다.
     final ids = [
       for (final r in await session.db.unsafeQuery(

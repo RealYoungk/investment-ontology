@@ -31,8 +31,12 @@ KINDS = {'digest': ('ai/submitDigest', 'sections'), 'relations': ('ai/submit', '
 
 
 def post(path: str, body: dict) -> str:
+    token = os.environ.get('ONTOLOGY_ACCESS_TOKEN', '').strip()
+    if not token:
+        raise SystemExit('관리자 로그인 토큰이 필요합니다: ONTOLOGY_ACCESS_TOKEN 환경변수를 설정하세요. --dry-run은 토큰 없이 가능합니다.')
     req = urllib.request.Request(
-        f'{SERVER}/{path}', data=json.dumps(body).encode(), headers={'Content-Type': 'application/json'}
+        f'{SERVER}/{path}', data=json.dumps(body).encode(),
+        headers={'Content-Type': 'application/json', 'Authorization': f'Bearer {token}'}
     )
     return urllib.request.urlopen(req).read().decode()
 

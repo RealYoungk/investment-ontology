@@ -3,10 +3,14 @@ import 'dart:convert';
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
+import '../auth/ontology_access.dart';
 import '../disclosure/disclosure_values.dart';
 
 /// 지배구조 조회: 최대주주 · 임원 · 타법인출자와 인물.
 class GovernanceEndpoint extends Endpoint {
+  @override
+  bool get requireLogin => true;
+
   static const _sections = {
     DartSection.largestShareholders,
     DartSection.executives,
@@ -282,6 +286,7 @@ class GovernanceEndpoint extends Endpoint {
     String corpCode,
     String holderName,
   ) async {
+    OntologyAccess.requireAdmin(session);
     final company = await Company.db.findFirstRow(
       session,
       where: (t) => t.corpCode.equals(corpCode),

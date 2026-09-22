@@ -5,6 +5,9 @@ import '../disclosure/ownership_groups.dart';
 
 /// 지분으로 이어진 상장사 묶음 조회.
 class GroupEndpoint extends Endpoint {
+  @override
+  bool get requireLogin => true;
+
   /// 두 곳 이상으로 이루어진 묶음. 시가총액 합이 큰 순서.
   ///
   /// 목록 화면은 지분 연결을 쓰지 않아 빼고 보낸다 (응답이 절반 아래로 줄어든다).

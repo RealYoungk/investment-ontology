@@ -6,6 +6,7 @@ import '../../app/router.dart';
 import '../../client.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
+import '../auth/app_viewer.dart';
 import 'governance_view.dart';
 
 /// 인물: 주주·임원으로 있는 기업 (각 기업의 가장 최근 사업보고서 기준).
@@ -42,6 +43,7 @@ class _PersonPageState extends State<PersonPage> {
   }
 
   Future<void> _reject(PersonRole role, Person person) async {
+    if (!context.ensureAdmin()) return;
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(

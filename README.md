@@ -8,7 +8,7 @@
 2. **파생 지표는 저장하지 않고 화면에서 계산.** PER·ROE·TTM 같은 값은 앱이 원천 값으로 계산하고 계산식과 입력값을 같이 보여 줍니다. 화면마다 같은 기준(최근 12개월, 연결).
 3. **사업보고서 본문은 스스로 검산되는 표만 규칙으로 읽는다.** 검산에 통과한 값만 저장하고 사람 검수는 없습니다. AI가 문장을 읽는 작업은 서버 밖에서만 하고(앱은 AI를 부르지 않음), 지금은 보류 상태입니다.
 
-## 지금 상태 (2026-09-22)
+## 데이터 스냅샷 (2026-09-22, 실시간 수치는 데이터 화면 참고)
 
 | 층 | 있는 것 | 진행 |
 |---|---|---|
@@ -22,7 +22,9 @@
 
 자동 수집(서버가 켜져 있는 동안): 18:00 시세·지수 → 18:30 재무 새 공시 → 19:00 주요정보 새 공시 → 다음 날 00:05 / 00:10 한도 소진분 이어받기. 새 본문이 들어오면 표 규칙이 바로 돕니다. 상태는 앱의 **데이터** 화면 맨 위 "지금 상태"에서 봅니다.
 
-결정을 기다리는 것: 로그인(Serverpod 인증은 `lib/server.dart`에 준비됨)과 테마의 계정 개인화. 지금은 로그인이 없으니 공개 주소에 두면 안 됩니다.
+Serverpod 이메일 로그인을 사용합니다. 로그인 사용자는 공용 데이터를 조회하고, 관리자는 수집·테마·검수 데이터를 변경할 수 있습니다. 최초 관리자와 개발 모드 가입 방법은 [접근 제어 안내](docs/access-control.md)를 참고하세요. 테마의 계정 개인화는 아직 하지 않습니다.
+
+인수인계 기준과 재현 절차: [마감 기록](docs/handoff-acceptance-2026-09-22.md).
 
 ## 화면
 
@@ -50,7 +52,7 @@ investment_ontology_serverpod_server/     Serverpod 서버
     dart/          DART OpenAPI 클라이언트, 28종 API 정의, 값 정규화
     ai/            서버 밖에서 읽은 결과를 받아 넣는 경로 (앱은 쓰지 않음)
   lib/src/generated/   생성 코드 — 손대지 않음
-  test/unit/           규칙 추출기 단위 테스트 (120개)
+  test/unit/           규칙 추출기 등 단위 테스트 (개수는 실행 결과 기준)
   tool/                KSIC 자산 추출, 본문 요약 도구
 investment_ontology_serverpod_client/     생성 코드 — 손대지 않음
 investment_ontology_serverpod_flutter/    Flutter Web 앱
@@ -91,26 +93,31 @@ cd investment_ontology_serverpod_flutter && flutter build web --release
 
 키는 `investment_ontology_serverpod_server/config/passwords.yaml`의 `shared:`에 `dartApiKey`, `dataGoKrServiceKey`(공공데이터포털 Decoding 키). 열어 보거나 출력하지 않습니다.
 
-검사 순서 (코드를 고친 뒤):
+검사 순서 (코드를 고친 뒤): 자동 생성은 `serverpod start`가 담당합니다. 분석·포맷 후 모델 변경이 있으면 MCP로 마이그레이션을 생성·적용하고, 필요한 재시작과 테스트·로그 확인을 합니다. 전체 절차는 `AGENTS.md`를 따릅니다. 아래는 CLI 검사 명령이며 강제 생성은 일상 검사에 포함하지 않습니다.
 
 ```bash
-cd investment_ontology_serverpod_server && serverpod generate --force && dart analyze && dart format . && dart test test/unit
+# 저장소 루트: 생성 코드는 직접 포맷하지 않는다.
+flutter pub get --enforce-lockfile
+dart analyze
+bash scripts/test-server.sh
+# Flutter 패키지에서
+cd investment_ontology_serverpod_flutter
+flutter test
+flutter build web --release
 ```
 
-```bash
-cd investment_ontology_serverpod_flutter && dart analyze && flutter test
-```
+포맷 범위와 명령은 `.github/workflows/format.yml`을 따른다. 서버/client/test_tools 생성 코드는 제외한다. 테스트 실행 스크립트는 격리된 테스트 DB 전용 합성 비밀번호만 설정하며 실제 API 키·비밀번호를 요구하지 않는다.
 
 DB 직접 보기: `psql -h /tmp/iopg -U postgres -d investment_ontology_serverpod`.
 
 ## 운영 규칙과 함정 (실제로 겪은 것)
 
 - **서버가 도는 동안 브랜치를 바꾸거나 pull하지 않는다.** 감시 생성기가 반쯤 바뀐 트리로 코드를 다시 만들어 엔드포인트가 사라진다. PR을 합친 뒤 작업 트리가 `main`으로 옮겨진 적이 있으니 병합 뒤 `git branch --show-current`를 확인한다.
-- **서버 코드를 고치면 `serverpod generate --force`.** 감시 생성기가 새 엔드포인트를 빠뜨리는 일이 반복됐다. 그 뒤 `dart test test/unit/generated_code_test.dart`.
+- **자동 생성 결과를 검증한다.** 엔드포인트·FutureCall 변경 뒤 `dart test test/unit/generated_code_test.dart`로 누락을 확인한다. MCP 로그와 자동 생성 상태를 먼저 확인하며, 과거의 `serverpod generate --force` 복구 사례를 매번 실행하는 규칙으로 쓰지 않는다. CLI 복구 조건은 `AGENTS.md`를 따른다.
 - **생성 코드는 손대지 않는다.** 모델은 `.spy.yaml`, 로직은 엔드포인트에서.
 - **규칙을 바꾸면 다시 돌리고 눈으로 본다.** `ingest.rebuildProductionFacts`로 재실행하고 새로 들어온 행을 전부 확인한다. 느슨한 정규식 하나가 쓰레기 관계 1,135건을 넣은 적이 있다.
 - **열은 머리글로 고르고 줄의 오른쪽 끝에서 다시 찾는다.** 공시는 당기·전기·전전기를 나란히 적으므로 마지막 칸을 집으면 3년 전 값이 검산을 통과한 채 들어간다.
-- **단위는 표 바로 위 3줄 안의 것만.** 앞 표의 단위가 새 표로 새지 않게 한 번 쓰면 버린다. 단위를 못 찾으면 값도 버린다.
+- **단위 처리는 추출기별로 다르다.** 부문 매출·수주는 표 위 3줄 이내 단위를 한 번 쓰고 비운다. 생산능력·실적은 머리글·이름·구분 칸의 괄호와 앞 6줄의 단위도 탐색한다. 생산 추출기도 실제 가로형 머리글에서 앞 단위를 소비하고, 절·회사 경계에서는 단위와 미완성 세로형 값을 초기화한다. 경계 회귀 테스트를 유지한다. 단위를 못 찾으면 능력·실적은 버리되 검산된 가동률은 남길 수 있다.
 - **화면 코드는 색·글꼴을 직접 쓰지 않는다.** `test/design_boundary_test.dart`가 막는다. 표는 `AppDataTable` — 남는 폭을 채우고 폰에서는 부수 열을 접는다.
 - **앱은 AI를 부르지 않는다.** 화면은 저장된 것만 읽는다.
 - 답과 기록은 한글로, 큰 금액은 "234조 9,034억" 꼴로.
@@ -118,6 +125,6 @@ DB 직접 보기: `psql -h /tmp/iopg -U postgres -d investment_ontology_serverpo
 ## 문서 지도
 
 - `AGENTS.md` — 코드를 고칠 때 지켜야 할 지침 전체 (가장 먼저 읽을 것).
-- `docs/handoff.md` — 시간순 작업 기록: 결정, 함정, 남은 일. 뒤쪽 항목이 최신.
+- `docs/handoff.md` — 작업 기록: 결정, 함정, 남은 일. 항목 배치는 시간순이 아니므로 날짜·시각과 명시된 사용자 결정을 기준으로 읽는다. 현재 방침은 문서 상단을 먼저 본다.
 - `docs/ontology-design.md`, `docs/phase3-governance.md` — 설계.
 - `docs/deploy.md`, `deploy/README.md` — 맥+Tailscale, VPS, 공개 URL 세 가지 배포.

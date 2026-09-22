@@ -1,3 +1,5 @@
+import 'dart:io' show stderr;
+
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
@@ -10,6 +12,9 @@ import '../disclosure/disclosure_links.dart';
 ///
 /// 전 상장사를 한 번 계산해 두고(데이터가 바뀌면 다시), 거르기·정렬은 메모리에서 한다.
 class ScreenEndpoint extends Endpoint {
+  @override
+  bool get requireLogin => true;
+
   /// 최근 12개월(TTM)로 더하는 계정 — 손익계산서와 현금흐름표.
   static const _flow = [
     'ifrs-full_Revenue',
@@ -288,12 +293,53 @@ class ScreenEndpoint extends Endpoint {
     return version.first.join('|');
   }
 
+  /// 뒤에서 도는 계산 대신 쓸 함수 (테스트에서 실패·재시도를 확인할 때 쓴다).
+  static Future<void> Function(Session session, String key)? refreshOverride;
+
+  /// 뒤에서 다시 계산한다. 실패해도 던지지 않는다 — 지난 계산을 계속 주고,
+  /// `_refreshing`이 풀려 다음 요청이 다시 시도한다.
   static Future<void> _refresh(Serverpod serverpod, String key) async {
-    final session = await serverpod.createSession(enableLogging: false);
+    Session? session;
     try {
-      await ScreenEndpoint()._compute(session, key);
+      session = await serverpod.createSession(enableLogging: false);
+      final compute = refreshOverride;
+      if (compute != null) {
+        await compute(session, key);
+      } else {
+        await ScreenEndpoint()._compute(session, key);
+      }
+    } catch (e, st) {
+      await _logRefreshFailure(serverpod, e, st);
     } finally {
-      await session.close();
+      try {
+        await session?.close();
+      } catch (e, st) {
+        await _logRefreshFailure(serverpod, e, st);
+      }
+    }
+  }
+
+  /// 계산 세션은 로그를 끈 채 열려 `log`가 아무것도 남기지 않으니, 로그를 켠 세션을 따로 연다.
+  static Future<void> _logRefreshFailure(
+    Serverpod serverpod,
+    Object error,
+    StackTrace stackTrace,
+  ) async {
+    const message = '스크리너 다시 계산 실패 (지난 계산을 계속 준다)';
+    try {
+      final session = await serverpod.createSession();
+      try {
+        session.log(
+          message,
+          level: LogLevel.error,
+          exception: error,
+          stackTrace: stackTrace,
+        );
+      } finally {
+        await session.close();
+      }
+    } catch (_) {
+      stderr.writeln('$message: $error\n$stackTrace');
     }
   }
 

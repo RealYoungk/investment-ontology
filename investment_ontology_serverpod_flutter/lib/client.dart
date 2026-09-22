@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
@@ -53,5 +51,11 @@ Future<void> initializeClient() async {
   client = Client(await serverUrl)
     ..connectivityMonitor = FlutterConnectivityMonitor()
     ..authSessionManager = FlutterAuthSessionManager();
-  unawaited(client.auth.initialize());
+  if (kIsWeb) client.cookieAuth = true;
+  // 저장된 로그인을 되살리고 서버에 확인한 뒤에야 첫 화면을 정한다 (로그인 문이 로그인
+  // 화면과 앱 사이를 깜빡이지 않게). 서버가 늦거나 꺼져 있으면 시간 초과가 밖으로
+  // 나오는데, 그때는 되살린 로그인을 그대로 쓰고 다음 요청에서 다시 확인된다.
+  try {
+    await client.auth.initialize();
+  } catch (_) {}
 }

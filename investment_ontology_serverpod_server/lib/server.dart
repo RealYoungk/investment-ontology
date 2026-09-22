@@ -1,10 +1,10 @@
 import 'dart:io';
 
 import 'package:serverpod_auth_idp_server/core.dart';
-import 'package:serverpod_auth_idp_server/providers/email.dart';
 import 'package:serverpod_cloud_storage/serverpod_cloud_storage.dart';
 
 import 'src/cache_busting.dart';
+import 'src/ontology/auth/admin_provisioning.dart';
 import 'src/generated/serverpod.dart';
 import 'src/ontology/ingest/ingest_schedule.dart';
 import 'src/web/routes/app_config_route.dart';
@@ -30,9 +30,7 @@ void run(List<String> args) async {
       // staging and production they are sent through the Serverpod Cloud email
       // service. If you want to use a custom provider for sending emails, use
       // `EmailIdpConfigFromPasswords`.
-      ServerpodCloudEmailIdpConfig(
-        appDisplayName: 'investment_ontology_serverpod',
-      ),
+      AdminProvisioning.fromEnvironment().configuration(),
     ],
   );
 
@@ -100,6 +98,10 @@ void run(List<String> args) async {
       fallback: () => DatabaseCloudStorage('public'),
     ),
   );
+
+  // 수집 예약 함수를 서버 시작 전에 넣는다. pod.start()가 FutureCall 실행을 시작하므로,
+  // 그 전에 없으면 끊겼다 다시 실행되는 수집이 이어받기 예약 없이 돈다.
+  IngestSchedule.installHooks();
 
   // Start the server.
   await pod.start();

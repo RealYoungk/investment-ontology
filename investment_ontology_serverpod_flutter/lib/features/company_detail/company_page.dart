@@ -7,6 +7,7 @@ import '../../app/router.dart';
 import '../../client.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
+import '../auth/app_viewer.dart';
 import '../business/business_tab.dart';
 import '../disclosures/disclosure_tab.dart';
 import '../financials/financial_section.dart';
@@ -277,6 +278,7 @@ class _DisclosureFetchCardState extends State<_DisclosureFetchCard> {
   String? _message;
 
   Future<void> _fetch() async {
+    if (!context.ensureAdmin()) return;
     setState(() => (_fetching = true, _message = null));
     try {
       var job = await client.ingest.startDisclosures(corpCode: widget.corpCode);
@@ -367,6 +369,7 @@ class _ThemeChipsState extends State<_ThemeChips> {
   }
 
   Future<void> _add(int themeId) async {
+    if (!context.ensureAdmin()) return;
     await client.theme.addCompany(themeId, widget.corpCode);
     await _load();
   }

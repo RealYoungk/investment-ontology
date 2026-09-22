@@ -4,12 +4,14 @@ import 'package:investment_ontology_serverpod_server/src/ontology/ingest/ksic_se
 import 'package:serverpod/serverpod.dart';
 import 'package:test/test.dart';
 
+import 'auth_test_sessions.dart';
 import 'test_tools/serverpod_test_tools.dart';
 
 /// 스크리너: 지표를 저장하지 않고 조회할 때 계산한다. 기업 화면과 같은 기준
 /// (손익·현금흐름은 최근 12개월, 재무상태표는 최근 보고서 기말)인지 확인한다.
 void main() {
-  withServerpod('Given 스크리닝할 재무·시세', (sessionBuilder, endpoints) {
+  withServerpod('Given 스크리닝할 재무·시세', (anonymous, endpoints) {
+    final sessionBuilder = anonymous.asReader;
     late Session session;
     late Source source;
     late Company big;
@@ -471,6 +473,44 @@ void main() {
       } finally {
         ScreenEndpoint.serveStaleWhileRefreshing = false;
         await ScreenEndpoint.awaitRefresh();
+        ScreenEndpoint.clearCache();
+      }
+    });
+
+    test('뒤에서 도는 계산이 실패해도 지난 계산을 주고, 다음 요청이 다시 시도한다', () async {
+      var calls = 0;
+      var closed = 0;
+      var fail = true;
+      ScreenEndpoint.serveStaleWhileRefreshing = true;
+      ScreenEndpoint.refreshOverride = (s, key) async {
+        calls++;
+        s.addWillCloseListener((_) => closed++);
+        if (fail) throw StateError('db down');
+      };
+      try {
+        expect((await endpoints.screen.list(sessionBuilder)).universe, 2);
+        final c = await company('00000003', '새회사', '264');
+        await quote(c, '000003', 500);
+
+        // 실패: 요청은 지난 계산을 받고, 실패는 밖으로 새지 않는다
+        // (새면 기다리는 곳에서 던지거나 테스트 존의 처리되지 않은 오류가 된다).
+        final stale = await endpoints.screen.list(sessionBuilder);
+        expect(stale.universe, 2, reason: '지난 계산을 계속 준다');
+        await ScreenEndpoint.awaitRefresh();
+        expect(calls, 1);
+        expect(closed, 1, reason: '따로 연 세션은 실패해도 닫는다');
+
+        // 다시 시도: 실패한 계산이 자리를 비워 두어 다음 요청이 새로 돌린다.
+        fail = false;
+        final retry = await endpoints.screen.list(sessionBuilder);
+        expect(retry.universe, 2, reason: '다시 계산하는 동안에도 지난 계산을 준다');
+        await ScreenEndpoint.awaitRefresh();
+        expect(calls, 2, reason: '실패 뒤 다음 요청이 다시 계산한다');
+        expect(closed, 2);
+      } finally {
+        ScreenEndpoint.serveStaleWhileRefreshing = false;
+        await ScreenEndpoint.awaitRefresh();
+        ScreenEndpoint.refreshOverride = null;
         ScreenEndpoint.clearCache();
       }
     });

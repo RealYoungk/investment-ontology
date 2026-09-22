@@ -8,10 +8,12 @@ import 'package:investment_ontology_serverpod_server/src/ontology/ai/anthropic_c
 import 'package:serverpod/serverpod.dart';
 import 'package:test/test.dart';
 
+import 'auth_test_sessions.dart';
 import 'test_tools/serverpod_test_tools.dart';
 
 void main() {
-  withServerpod('Given AI 관계 추출', (sessionBuilder, endpoints) {
+  withServerpod('Given AI 관계 추출', (anonymous, endpoints) {
+    final sessionBuilder = anonymous.asAdmin;
     late Session session;
     late BusinessDocument doc;
     late int batteryId, cathodeId;

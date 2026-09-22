@@ -1,0 +1,45 @@
+# Build context ignore for `docker build -f investment_ontology_serverpod_server/Dockerfile .`
+# (build context is the repo root). Keeps local secrets and dev-only state out
+# of the context so they can never be copied into an image layer — the
+# Dockerfile's `COPY investment_ontology_serverpod_server ...` would otherwise
+# pull config/passwords.yaml and config/admin_emails.local straight into the
+# image. Everything else under investment_ontology_serverpod_server/config/,
+# web/, migrations/ and assets/ is unaffected and still gets copied.
+
+# Secrets — must never enter the build context.
+**/config/passwords.yaml
+**/config/admin_emails.local
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# Embedded/local database state and build output — large, irrelevant to the
+# compiled server binary, and database content must never enter an image.
+# The build stage generates its own .dart_tool/ inside the container via
+# `dart pub get`, independent of any host .dart_tool/.
+.serverpod/
+**/.serverpod/
+build/
+**/build/
+.dart_tool/
+**/.dart_tool/
+
+# Version control.
+.git/
+.gitattributes
+.gitignore
+
+# Editor and agent tooling — not needed to build or run the server.
+.agents/
+.claude/
+.codex/
+.gemini/
+.cursor/
+.vscode/
+.idea/
+.mcp.json
+.dart_skills/
+skills/
+.gstack/
+.playwright-mcp/

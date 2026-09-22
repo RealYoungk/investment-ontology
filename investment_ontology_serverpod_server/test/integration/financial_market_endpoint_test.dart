@@ -4,10 +4,12 @@ import 'package:investment_ontology_serverpod_server/src/ontology/ingest/ksic_se
 import 'package:serverpod/serverpod.dart';
 import 'package:test/test.dart';
 
+import 'auth_test_sessions.dart';
 import 'test_tools/serverpod_test_tools.dart';
 
 void main() {
-  withServerpod('Given 재무·시세 데이터', (sessionBuilder, endpoints) {
+  withServerpod('Given 재무·시세 데이터', (anonymous, endpoints) {
+    final sessionBuilder = anonymous.asReader;
     late Session session;
     late Company samsung;
     late Company hynix;
