@@ -68,9 +68,23 @@ abstract final class ProductionFacts {
     // 생산능력·생산실적·가동률 칸의 자리와 머리글의 칸 수 (오른쪽 끝 기준으로 다시 센다).
     var capAt = -1, prodAt = -1, utilAt = -1, columns = -1;
     var unitFromHeader = '';
-    for (final raw in lines) {
-      final line = raw.trim();
+    // 단위 줄("(단위 : 천㎡, %)")은 머리글 바로 위에 따로 온다. 3줄 안의 것만 쓴다.
+    String? lastUnit;
+    var lastUnitAt = -1000;
+    // 세로형 표: "… | 생산능력 | 1,729,388 | …" 줄 뒤에 생산실적 줄, 가동률 줄이 온다.
+    List<String>? vCapLabels;
+    double? vCap, vProd;
+    var vCapIsCapacity = false;
+    var vAt = -1000;
+    String vUnit = '';
+    for (var i = 0; i < lines.length; i++) {
+      final line = lines[i].trim();
       if (line.isEmpty) continue;
+      final u = RegExp(r'단위\s*[:：]\s*([^)\]]+)').firstMatch(line);
+      if (u != null) {
+        lastUnit = u.group(1)!.trim();
+        lastUnitAt = i;
+      }
       final marker = RegExp(r'^\[([^\]]{2,20})\]').firstMatch(line);
       if (marker != null) {
         final name = _key(marker.group(1)!);
@@ -102,6 +116,47 @@ abstract final class ProductionFacts {
         inTable = capAt >= 0 && prodAt >= 0 && utilAt >= 0;
         onlyUtilization = false;
         unitFromHeader = _unitIn(line);
+        if (unitFromHeader.isEmpty && i - lastUnitAt <= 3) {
+          unitFromHeader = _firstUnit(lastUnit);
+        }
+        continue;
+      }
+      // 세로형: 구분 칸에 생산능력·생산실적·가동률이 줄마다 있고 숫자는 그 뒤 칸(당기가 맨 앞).
+      final vertical = _verticalRow(cells);
+      if (vertical != null) {
+        final (kind, labels, value) = vertical;
+        if (kind == 'cap') {
+          vCapLabels = labels;
+          vCap = value;
+          vCapIsCapacity = cells.any((c) => c.contains('생산능력'));
+          vProd = null;
+          vAt = i;
+          vUnit = i - lastUnitAt <= 6 ? _firstUnit(lastUnit) : '';
+        } else if (kind == 'prod' && vCap != null && i - vAt <= 2) {
+          vProd = value;
+        } else if (kind == 'util' &&
+            vCap != null &&
+            vProd != null &&
+            i - vAt <= 3 &&
+            vCap > 0 &&
+            (value - 100 * vProd / vCap).abs() <= tolerance) {
+          final name = vCapLabels!.join(' · ');
+          if (name.isNotEmpty) {
+            out.add((
+              label: name.length > 60 ? name.substring(0, 60) : name,
+              unit: vCapIsCapacity ? vUnit : '',
+              capacity: vCapIsCapacity ? vCap : null,
+              production: vCapIsCapacity ? vProd : null,
+              utilization: value,
+              evidence: line,
+            ));
+          }
+          vCap = null;
+          vProd = null;
+        }
+        if (kind != 'cap' && kind != 'prod') {
+          vCap = null;
+        }
         continue;
       }
       // 가동률만 따로 적는 표 (가동가능시간·실제가동시간 …). 비율만 받되,
@@ -201,6 +256,48 @@ abstract final class ProductionFacts {
   static double? _num(String s) =>
       _number.hasMatch(s) ? double.tryParse(s.replaceAll(',', '')) : null;
 
+  /// 단위 줄의 첫 단위 ("천㎡, %" → 천㎡). 품목마다 다른 단위("완제의약품-백만정, …")나
+  /// 숫자가 섞인 것은 단위로 보지 않는다.
+  static String _firstUnit(String? raw) {
+    if (raw == null) return '';
+    for (final part in raw.split(',')) {
+      final t = part.trim();
+      if (t.isEmpty || t == '%') continue;
+      if (t.length > 8 || RegExp(r'[0-9\-:]').hasMatch(t)) return '';
+      return t;
+    }
+    return '';
+  }
+
+  static final _vCap = RegExp(r'^(당기\s*)?(생산능력|가동가능시간|목표\s*가동시간|조업가능)');
+  static final _vProd = RegExp(r'^(당기\s*)?(생산실적|실제\s*가동시간|실제\s*생산)');
+  static final _vUtil = RegExp(r'^(당기\s*|평균\s*)?(가동률|가동율)');
+
+  /// 세로형 표의 한 줄: (종류, 이름 칸들, 첫 숫자). 구분 칸(생산능력·생산실적·가동률) 바로
+  /// 뒤의 숫자가 당기다. 그런 칸이 없으면 null.
+  static (String, List<String>, double)? _verticalRow(List<String> cells) {
+    for (var k = 0; k < cells.length - 1; k++) {
+      final c = cells[k];
+      final kind = _vCap.hasMatch(c)
+          ? 'cap'
+          : _vProd.hasMatch(c)
+          ? 'prod'
+          : _vUtil.hasMatch(c)
+          ? 'util'
+          : null;
+      if (kind == null) continue;
+      final next = cells[k + 1];
+      final v = kind == 'util' ? _percent(next) : _num(next);
+      if (v == null) return null;
+      final labels = [
+        for (final l in cells.sublist(0, k))
+          if (l.isNotEmpty && !_number.hasMatch(l)) l,
+      ];
+      return (kind, labels, v);
+    }
+    return null;
+  }
+
   /// "(단위 : 백만개, %)" 처럼 적힌 단위.
   static String _unitIn(String line) {
     final m = RegExp(r'단위\s*[:：]\s*([^,)\]]+)').firstMatch(line);
@@ -268,11 +365,13 @@ abstract final class ProductionFacts {
     final now = DateTime.now().toUtc();
     final facts = <DocumentFact>[];
     for (final r in rows) {
-      if (r.unit.isEmpty && r.capacity != null) continue;
+      // 단위를 모르면 생산능력·실적은 넣지 않지만, 가동률(%)은 단위가 필요 없으니 넣는다.
+      final withAmounts = r.unit.isNotEmpty;
       for (final (kind, value, unit) in [
-        if (r.capacity case final v?) (DocumentFactKind.capacity, v, r.unit),
-        if (r.production case final v?)
-          (DocumentFactKind.production, v, r.unit),
+        if (withAmounts && r.capacity != null)
+          (DocumentFactKind.capacity, r.capacity!, r.unit),
+        if (withAmounts && r.production != null)
+          (DocumentFactKind.production, r.production!, r.unit),
         (DocumentFactKind.utilization, r.utilization, '%'),
       ]) {
         if (!existing.add('${kind.name}|${r.label}')) continue;
