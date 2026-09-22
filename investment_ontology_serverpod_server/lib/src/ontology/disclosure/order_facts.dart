@@ -163,16 +163,23 @@ abstract final class OrderFacts {
       // 두 번째 머리글 줄 ("수량 | 금액 | 수량 | 금액 …")은 값이 아니다.
       // "(10,322,942)"처럼 괄호로 적은 기납품액은 뺀 금액이다 — 크기만 쓴다 (식으로 검산된다).
       final numbers = <double>[];
+      // 괄호 수는 뺀 금액이다. 흐름형에서는 기초·신규 사이의 "계약금액 변경 (1,353,700)"처럼
+      // 부호가 뜻을 가지므로 따로 기억한다.
+      final signed = <double>[];
       for (final c in cells) {
-        final bare = _parens.hasMatch(c) ? c.substring(1, c.length - 1) : c;
+        final paren = _parens.hasMatch(c);
+        final bare = paren ? c.substring(1, c.length - 1) : c;
         if (c == '-' || c == '—') {
           numbers.add(0);
+          signed.add(0);
         } else if (_number.hasMatch(bare)) {
-          numbers.add(_num(bare)!.abs());
+          final v = _num(bare)!;
+          numbers.add(v.abs());
+          signed.add(paren ? -v.abs() : v);
         }
       }
       if (numbers.length < 3) continue;
-      final triple = flow ? _flowTriple(numbers) : _triple(numbers);
+      final triple = flow ? _flowTriple(signed) : _triple(numbers);
       if (triple == null) continue;
       final labels = [
         for (final c in cells)
@@ -219,18 +226,15 @@ abstract final class OrderFacts {
   /// 머리글이 어느 꼴인지. 표준(수주총액·기납품액·수주잔고), 건설(기본도급액·완성공사액·계약잔액)은
   /// 세 칸 식이 같고, 흐름형(기초·신규·기납품액·기말잔고)은 기초 + 신규 − 기납품 = 잔고다.
   static _HeaderKind? _headerKind(String line) {
-    final delivered =
-        line.contains('기납품액') ||
-        line.contains('완성공사액') ||
-        line.contains('매출계상액') ||
-        line.contains('매출인식액');
+    final delivered = RegExp(
+      r'기납품액|납품액|완성공사액|매출계상액|매출인식액|당기수익|수익인식',
+    ).hasMatch(line);
     if (!delivered) return null;
-    final closing =
-        line.contains('수주잔고') || line.contains('계약잔액') || line.contains('기말잔고');
+    final closing = RegExp(r'수주\s*잔고|계약\s*잔액|기말\s*잔고').hasMatch(line);
     if (!closing) return null;
     // 기초·이월(전기 잔고)이나 신규·증감 칸이 있으면 흐름형이다 — "수주총액"이 함께 있어도
     // (LG CNS: 기초계약잔액 | 수주총액 | 기납품액 | 수주잔고) 그 수주총액은 당기 신규분이다.
-    final opening = line.contains('기초') || line.contains('이월');
+    final opening = RegExp(r'기초|이월|전기말').hasMatch(line);
     final added =
         line.contains('신규') || line.contains('산규') || line.contains('증감');
     if (opening || added) return _HeaderKind.flow;
@@ -253,16 +257,30 @@ abstract final class OrderFacts {
       for (final v in numbers)
         if (v != 0) v,
     ];
-    if (n.length < 3) return null;
-    final backlog = n.last;
-    final delivered = n[n.length - 2];
-    final total = n.sublist(0, n.length - 2).fold(0.0, (a, b) => a + b);
-    if (total <= 0) return null;
-    if ((total - delivered - backlog).abs() >
-        (total * tolerance).clamp(1, double.infinity)) {
-      return null;
+    // 수량 칸이 "-"가 아니라 숫자면 금액과 번갈아 온다 (24 | 2,251,142 | 6 | 691,323 …).
+    // 전체, 홀수 자리, 짝수 자리 가운데 식이 맞는 쪽을 쓴다 (금액이 커서 총액이 큰 쪽).
+    final candidates = [
+      n,
+      if (n.length >= 6 && n.length.isEven) ...[
+        [for (var i = 1; i < n.length; i += 2) n[i]],
+        [for (var i = 0; i < n.length; i += 2) n[i]],
+      ],
+    ];
+    (double, double, double)? best;
+    for (final c in candidates) {
+      if (c.length < 3) continue;
+      // 기납품과 잔고는 크기만 (괄호로 적기도 한다). 기초·변경·신규는 부호대로 더한다.
+      final backlog = c.last.abs();
+      final delivered = c[c.length - 2].abs();
+      final total = c.sublist(0, c.length - 2).fold(0.0, (a, b) => a + b);
+      if (total <= 0) continue;
+      if ((total - delivered - backlog).abs() >
+          (total * tolerance).clamp(1, double.infinity)) {
+        continue;
+      }
+      if (best == null || total > best.$1) best = (total, delivered, backlog);
     }
-    return (total, delivered, backlog);
+    return best;
   }
 
   /// 총액 − 기납품 = 잔고가 맞는 (총액, 기납품, 잔고). 여럿이면 총액이 가장 큰 것.
