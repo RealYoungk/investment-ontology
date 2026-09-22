@@ -42,6 +42,17 @@ abstract final class MarketShareFacts {
     // 연도마다 칸이 여럿일 때: 칸 수와 그중 점유율 칸의 자리.
     var span = 1, offset = 0;
     String? hint;
+    // 표에 이 회사 줄이 없고 값 줄이 하나뿐이면(제품별 표: "TV | 28.3% | 30.1% | 29.7%")
+    // 그 한 줄이 이 회사의 점유율이다. 표가 끝날 때 판단하려고 모아 둔다.
+    var tableRows = 0;
+    List<({String label, int year, double value, String evidence})>? single;
+    void endTable() {
+      if (tableRows == 1 && single != null) out.addAll(single!);
+      tableRows = 0;
+      single = null;
+      years = {};
+    }
+
     final used = <String>{};
     String unique(String label) {
       if (used.add(label)) return label;
@@ -58,7 +69,7 @@ abstract final class MarketShareFacts {
       if (_unitPercent.hasMatch(line)) unitPercentAt = i;
       final cells = [for (final c in line.split('|')) c.trim()];
       if (cells.length < 3) {
-        years = {};
+        endTable();
         continue;
       }
       // 머리글: 연도 칸이 둘 이상.
@@ -72,7 +83,13 @@ abstract final class MarketShareFacts {
         found[c] = y;
       }
       if (found.length >= 2 && found.length == found.values.toSet().length) {
-        if (i - lastShareAt > contextLines ||
+        endTable();
+        // "점유율"은 표 위 제목이나 표 아래 주석("※ 시장점유율은 … 자료")에 있다.
+        var shareNear = i - lastShareAt <= contextLines;
+        for (var j = i + 1; j <= i + 6 && j < lines.length && !shareNear; j++) {
+          shareNear = lines[j].contains('점유율');
+        }
+        if (!shareNear ||
             bsnsYear != null &&
                 found.values.any((y) => y < bsnsYear - 7 || y > bsnsYear + 1)) {
           years = {};
@@ -126,7 +143,11 @@ abstract final class MarketShareFacts {
       final isSelf =
           _self.hasMatch(labelCells.first) && !label.contains('경쟁') ||
           labelCells.any((c) => _key(c) == ownerKey && ownerKey.length >= 2);
-      if (!isSelf) continue;
+      // 이 회사 줄이 아니어도 값 줄로 센다 (한 줄뿐인 제품별 표를 가리려고).
+      tableRows++;
+      final candidate =
+          !isSelf && !RegExp(r'경쟁|기타|합계|계$|시장|산업|전체').hasMatch(label);
+      if (!isSelf && !candidate) continue;
       // 이름 칸 뒤는 모두 값이어야 한다 ("대한조선 | 15.7% | HD현대중공업 | 10.2%" 같은
       // 순위 쌍 표는 칸이 어긋난다). 칸 수도 머리글과 맞아야 한다 (이름이 둘로 나뉜 줄은 +1).
       final valueCells = cells.sublist(labelCells.length);
@@ -160,17 +181,32 @@ abstract final class MarketShareFacts {
         if (m == null) continue;
         final v = double.parse(m.group(1)!);
         if (v < 0 || v > 100) continue;
-        out.add((
-          label: any ? out.last.label : unique(hint ?? '당사'),
-          year: e.value,
-          value: v,
-          evidence: line,
-        ));
+        if (isSelf) {
+          out.add((
+            label: any ? out.last.label : unique(hint ?? '당사'),
+            year: e.value,
+            value: v,
+            evidence: line,
+          ));
+        } else {
+          // 제품별 표의 한 줄: 이름은 그 줄의 제품.
+          (single ??= []).add((
+            label: any ? single!.last.label : unique(label),
+            year: e.value,
+            value: v,
+            evidence: line,
+          ));
+        }
         any = true;
       }
       // 이 회사 줄은 표마다 하나다 — 다음 줄부터는 경쟁사.
-      if (any) years = {};
+      if (any && isSelf) {
+        tableRows = 0;
+        single = null;
+        years = {};
+      }
     }
+    endTable();
     return out;
   }
 
