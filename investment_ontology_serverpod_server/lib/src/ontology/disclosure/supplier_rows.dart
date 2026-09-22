@@ -29,7 +29,16 @@ abstract final class SupplierRows {
 
   /// "주요 매출처는 A, B, C 등" 문장에서 매출처 이름. 이 꼴이 아니면 읽지 않는다
   /// ("주요 매출처는 자동차 OEM 업체로서…"처럼 이름이 아닌 문장이 많다).
-  static final _customers = RegExp(r'주요\s*매출처는\s*([^.]{3,200}?)\s*등');
+  /// "주요 매출처는 A, B 등" · "주요 매출처로는 A, B 등이 있으며" · "주요 매출처는 A와 B입니다".
+  static final _customers = RegExp(
+    r'주요\s*매출처(?:는|로는)\s*([^.]{3,200}?)\s*(?:등|입니다|이며|이고)',
+  );
+
+  /// 이름 앞에 붙은 설명("자동차용 도료 거래선인 현대자동차") — 이름만 남긴다.
+  static final _describer = RegExp(r'^.*?(거래선|거래처|업체|고객사|고객|제조사|회사)인\s+');
+
+  /// 이름 목록의 구분: 쉼표, "및", "A와 B"·"A과 B"의 조사.
+  static final _listSplit = RegExp(r'[,،]|\s및\s|(?<=[)\w가-힣])(?:와|과)\s+');
 
   static List<({String name, String evidence})> customers(String text) {
     final out = <({String name, String evidence})>[];
@@ -37,12 +46,30 @@ abstract final class SupplierRows {
     for (final line in text.split('\n')) {
       for (final m in _customers.allMatches(line)) {
         final sentence = line.trim();
-        for (final piece in m.group(1)!.split(RegExp(r'[,،]'))) {
-          final name = piece.trim();
+        // 괄호 속 부연("폭스바겐 그룹(폭스바겐, 아우디)")은 떼고 나눈다.
+        final list = m
+            .group(1)!
+            .replaceAll(
+              RegExp(r'\((?![주유]\))[^)]*\)'),
+              '',
+            );
+        for (final piece in list.split(_listSplit)) {
+          // "내화물사업부문은 ㈜포스코"처럼 주제어가 앞에 붙으면 이름만 남긴다.
+          final name = undouble(
+            piece
+                .trim()
+                .replaceFirst(_describer, '')
+                .replaceFirst(RegExp(r'^.*?[은는]\s+'), ''),
+          );
           if (name.length < 2 || name.length > 30) continue;
-          if (_bad.hasMatch(name) || name.contains(' 및 ')) continue;
-          // 이름이 아니라 설명인 문장은 통째로 버린다.
-          if (RegExp(r'업체|고객사|기업|회사로서|등지').hasMatch(name)) continue;
+          if (_bad.hasMatch(name)) continue;
+          // 이름이 아니라 설명인 조각은 버린다 ("그 종속회사", "자동차 OEM 업체로서",
+          // "반도체 제조"·"LED용 칩" 같은 품목).
+          if (RegExp(
+            r'업체|고객사|기업|회사로서|등지|종속회사|관계사|계열사|^그\s|소속|^\d|제조$|\S+용\s|잉곳|칩$|시장$|부문$',
+          ).hasMatch(name)) {
+            continue;
+          }
           if (!seen.add(name)) continue;
           out.add((name: name, evidence: sentence));
           if (out.length >= maxNames) return out;
@@ -50,6 +77,17 @@ abstract final class SupplierRows {
       }
     }
     return out;
+  }
+
+  /// 표의 칸이 겹쳐 붙은 이름("SK지오센트릭SK지오센트릭")은 한 번만.
+  static String undouble(String name) {
+    if (name.length >= 4 && name.length.isEven) {
+      final half = name.length ~/ 2;
+      if (name.substring(0, half) == name.substring(half)) {
+        return name.substring(0, half);
+      }
+    }
+    return name;
   }
 
   /// 매출처 표의 머리글 칸. 매입처 표와 헷갈리지 않게 "매입"이 든 줄은 받지 않는다.
@@ -150,7 +188,7 @@ abstract final class SupplierRows {
           if (p.trim().isNotEmpty) p.trim(),
       ];
       for (final piece in pieces) {
-        var name = piece;
+        var name = undouble(piece);
         for (var i = 0; i < 3; i++) {
           final next = name.replaceAll(_tail, '').trim();
           if (next == name) break;
@@ -199,9 +237,9 @@ abstract final class SupplierRows {
       if (cells.every((c) => c.isEmpty || _headerWord.hasMatch(c))) continue;
       final cell = cells[column];
       if (cell.isEmpty) continue;
-      for (final piece in cell.split(RegExp(r'[,،/]|\s및\s'))) {
+      for (final piece in cell.split(_nameSplit)) {
         // "동국제강(주) 인천공장 外"처럼 군더더기가 겹치면 없어질 때까지 뗀다.
-        var name = piece.trim();
+        var name = undouble(piece.trim());
         for (var i = 0; i < 3; i++) {
           final next = name.replaceAll(_tail, '').trim();
           if (next == name) break;
