@@ -27,7 +27,11 @@ abstract final class SupplierRelations {
     // 넣게 되므로 통째로 건너뛴다 (ProductionFacts와 같은 규칙).
     if (company?.industryCode == ProductionFacts.holdingCompanyCode) return 0;
     final rows = SupplierRows.parse(doc.text);
-    final buyers = SupplierRows.customers(doc.text);
+    final buyers = [
+      for (final b in SupplierRows.customers(doc.text))
+        (name: b.name, share: null as double?, evidence: b.evidence),
+      ...SupplierRows.customerRows(doc.text),
+    ];
     if (rows.isEmpty && buyers.isEmpty) return 0;
     final report = await DisclosureReport.db.findById(session, doc.reportId);
     if (company == null || report == null) return 0;
@@ -62,6 +66,12 @@ abstract final class SupplierRelations {
       ))
         DisclosureValues.companyName(r.subjectName): r.subjectName,
     };
+
+    // 자회사 표에는 모회사가 매출처로 나온다 ("LS Electric Co., Ltd") — 영문 이름으로도 자기 자신을 거른다.
+    String slug(String? n) =>
+        DisclosureValues.companyName(n).replaceAll(RegExp(r'[.,]'), '');
+    final selfEng = slug(company.nameEng);
+    bool isSelf(String name) => selfEng.isNotEmpty && slug(name) == selfEng;
 
     final now = DateTime.now().toUtc();
     final add = <OntologyRelation>[];
@@ -98,7 +108,7 @@ abstract final class SupplierRelations {
     // 매출처는 방향이 반대다 (이 기업 → 매출처).
     for (final row in buyers) {
       final otherId = byName[DisclosureValues.companyName(row.name)];
-      if (otherId == company.id) continue;
+      if (otherId == company.id || isSelf(row.name)) continue;
       final key = DisclosureValues.companyName(row.name);
       final objectName = otherId != null
           ? names[otherId]!
@@ -113,6 +123,8 @@ abstract final class SupplierRelations {
           objectCompanyId: otherId,
           objectName: objectName,
           bsnsYear: doc.bsnsYear,
+          // 매출처 표의 비중(%). 문장에서 읽은 것은 없다.
+          weight: row.share,
           sourceId: report.sourceId,
           factKind: RelationFactKind.businessDocument,
           factId: doc.id!,
