@@ -232,14 +232,15 @@ class _Members extends StatelessWidget {
             // 메모가 남는 폭을 가져가고, 짧은 칸(시장·시가총액·날짜·빼기)은 접히지 않게 한 줄로.
             expand: true,
             columns: const [
-              AppColumn('기업', nowrap: true),
-              AppColumn('시장', nowrap: true),
+              // 폭은 직접 준다 — 내용 폭 재기가 몇 px 모자라 끝 글자가 잘린다.
+              AppColumn('기업', nowrap: true, width: 120),
+              AppColumn('시장', nowrap: true, width: 56),
               AppColumn('업종'),
-              AppColumn('시가총액', numeric: true, nowrap: true),
-              AppColumn('비중', numeric: true, nowrap: true),
+              AppColumn('시가총액', numeric: true, nowrap: true, width: 130),
+              AppColumn('비중', numeric: true, nowrap: true, width: 64),
               AppColumn('메모 (왜 이 테마인가)', flex: true),
               AppColumn('편입일', nowrap: true, width: 96),
-              AppColumn('', nowrap: true),
+              AppColumn('', nowrap: true, width: 48),
             ],
             rows: [
               for (final m in detail.members)
