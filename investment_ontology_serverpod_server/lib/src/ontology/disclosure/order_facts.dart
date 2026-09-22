@@ -180,6 +180,11 @@ abstract final class OrderFacts {
       }
     }
     flush();
+    // 합계 표가 하나라도 있으면, 합계 없는 표의 줄(자회사·부문의 한 줄짜리 표)은 그 회사 값이
+    // 아닐 때가 많다 — 합계만 남긴다. 합계 표가 없는 작은 회사는 줄마다 그대로 둔다.
+    if (out.any((r) => r.label.startsWith('합계'))) {
+      out.removeWhere((r) => !r.label.startsWith('합계'));
+    }
     return out;
   }
 
@@ -208,7 +213,9 @@ abstract final class OrderFacts {
     return null;
   }
 
-  static final _projectTable = RegExp(r'공사명|현장명|프로젝트명');
+  static final _projectTable = RegExp(
+    r'공\s*사\s*명|현\s*장\s*명|프로젝트\s*명|사\s*업\s*명|계\s*약\s*명|수주처명',
+  );
 
   /// 흐름형 줄: 마지막 두 수가 (기납품, 잔고)이고 나머지(기초·사업결합·신규)를 더한 것이 총액.
   /// 수량 칸("-")의 0은 빼고 센다. 식이 안 맞으면(수량이 섞인 줄) 버린다.
