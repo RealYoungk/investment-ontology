@@ -24,6 +24,14 @@ abstract final class SupplierRows {
     r'[0-9%]|^[-—·]+$|해당\s*없음|미기재|자체|^[A-Z]사$|^(국내|수입|해외|기타|국내외|비율|비중|금액|매입액|매입처|품목|구분|미국|유럽|호주|중국|일본|아시아|동남아|중동|있음|없음|비고|방법|상품|제품|원재료|자재|건재|농산|kg|톤|t|m|M)$',
   );
 
+  /// 이름이 아니라 문장·설명인 칸 ("당사는 고객별 여신관리 시스템 도입", "ㆍ공급처 다수 존재",
+  /// 특허 제목). 한글 이름에 띄어쓰기가 셋 이상이면 문장으로 본다.
+  static final _sentence = RegExp(
+    r'습니다|합니다|존재|경향|전략|도입|편이나|기반|ㆍ|^당사|^이의\s|^이를\s|시스템$|장치$|방법$|^[^\s]*[가-힣][^\s]*(\s+\S+){3,}$',
+  );
+
+  static final _sentenceCell = RegExp(r'습니다|합니다|존재|경향|ㆍ|^당사');
+
   /// 닫는 괄호만 남은 조각("톤)", "장)")은 표 칸이 어긋난 것이다.
   static bool _danglingParen(String name) =>
       name.endsWith(')') && !name.contains('(');
@@ -232,7 +240,10 @@ abstract final class SupplierRows {
         if (!line.contains('|')) column = -1;
         continue;
       }
-      final headerAt = cells.indexWhere(_header.hasMatch);
+      // 머리글 칸은 짧다. 특허 제목("…레미콘 공급업체 평가 시스템 및 방법") 같은 긴 칸은 머리글이 아니다.
+      final headerAt = cells.indexWhere(
+        (c) => _header.hasMatch(c) && c.length <= 14,
+      );
       if (headerAt >= 0) {
         column = headerAt;
         continue;
@@ -241,7 +252,8 @@ abstract final class SupplierRows {
       // 칸이 모두 머리글 낱말이면 (당기·전기 머리글의 둘째 줄) 건너뛴다.
       if (cells.every((c) => c.isEmpty || _headerWord.hasMatch(c))) continue;
       final cell = cells[column];
-      if (cell.isEmpty) continue;
+      // 칸 전체가 설명문("ㆍ공급처 다수 존재ㆍ가격은 … 환율 영향")이면 조각도 이름이 아니다.
+      if (cell.isEmpty || _sentenceCell.hasMatch(cell)) continue;
       for (final piece in cell.split(_nameSplit)) {
         // "동국제강(주) 인천공장 外"처럼 군더더기가 겹치면 없어질 때까지 뗀다.
         var name = undouble(piece.trim());
@@ -254,6 +266,7 @@ abstract final class SupplierRows {
         if (_bad.hasMatch(name) ||
             _danglingParen(name) ||
             _category.hasMatch(name) ||
+            _sentence.hasMatch(name) ||
             name.contains('→')) {
           continue;
         }
