@@ -64,6 +64,7 @@ abstract final class ProductionFacts {
     var otherCompany = false;
     var inTable = false;
     var onlyUtilization = false;
+    var utilAsProduction = false;
     var overAt = -1, underAt = -1;
     // 생산능력·생산실적·가동률 칸의 자리와 머리글의 칸 수 (오른쪽 끝 기준으로 다시 센다).
     var capAt = -1, prodAt = -1, utilAt = -1, columns = -1;
@@ -128,14 +129,18 @@ abstract final class ProductionFacts {
       // 세로형: 구분 칸에 생산능력·생산실적·가동률이 줄마다 있고 숫자는 그 뒤 칸(당기가 맨 앞).
       final vertical = _verticalRow(cells);
       if (vertical != null) {
-        final (kind, labels, value) = vertical;
+        final (kind, labels, value, unitInCell) = vertical;
         if (kind == 'cap') {
           vCapLabels = labels;
           vCap = value;
           vCapIsCapacity = cells.any((c) => c.contains('생산능력'));
           vProd = null;
           vAt = i;
-          vUnit = i - lastUnitAt <= 6 ? _firstUnit(lastUnit) : '';
+          // "생산능력(PACK)"처럼 구분 칸 괄호의 단위가 먼저다.
+          vUnit = unitInCell;
+          if (vUnit.isEmpty && i - lastUnitAt <= 6) {
+            vUnit = _firstUnit(lastUnit);
+          }
           if (vUnit.isEmpty) {
             for (final l in labels) {
               vUnit = _unitFromParens(l);
@@ -178,7 +183,19 @@ abstract final class ProductionFacts {
         onlyUtilization = inTable;
         overAt = over;
         underAt = under;
+        // "생산가능수량 | 실제생산수량"은 생산능력·생산실적이다 (시간이면 가동률만).
+        utilAsProduction =
+            inTable &&
+            cells[over].contains('생산') &&
+            cells[under].contains('생산') &&
+            !cells[under].contains('시간');
         unitFromHeader = '';
+        if (utilAsProduction) {
+          unitFromHeader = _unitFromParens(cells[under]);
+          if (unitFromHeader.isEmpty && i - lastUnitAt <= 6) {
+            unitFromHeader = _firstUnit(lastUnit);
+          }
+        }
         continue;
       }
       if (!inTable) continue;
@@ -200,6 +217,11 @@ abstract final class ProductionFacts {
         final over = _num(cells[overAt]), under = _num(cells[underAt]);
         if (over == null || under == null || under <= 0) continue;
         if ((util - 100 * over / under).abs() > tolerance) continue;
+        if (utilAsProduction) {
+          cap = under;
+          prod = over;
+          labelEnd = underAt;
+        }
       } else {
         // 머리글에서 집은 칸을 오른쪽 끝 기준으로 다시 찾는다 (이름 칸이 합쳐져 있어도
         // 기(期)별 숫자 묶음은 그대로다).
@@ -289,7 +311,7 @@ abstract final class ProductionFacts {
   /// 괄호 속 단위 낱말 ("광학솔루션(백만개)" → 백만개, "Chemical(ton)" → ton). 단위처럼
   /// 생긴 짧은 낱말만 — "(연결)"·"(주1)"은 아니다.
   static final _unitWord = RegExp(
-    r'^(백만|천|억|만|百万|千|億|萬)?\s*(개|대|톤|ton|TON|t|㎡|m²|㎥|시간|MH|배치|GWh|MWh|MW|kW|장|매|EA|ea|박스|병|kg|L|ℓ|km|m|시트|Sheet|sheet|Panel|셀|Cell|Set|set|Bbl|배럴|정|Bag|Syringe|個|台|枚|톤/년|대/년)$',
+    r'^(백만|천|억|만|百万|千|億|萬)?\s*(개|대|톤|ton|TON|t|㎡|m²|㎥|시간|MH|배치|GWh|MWh|MW|kW|장|매|EA|ea|박스|병|kg|L|ℓ|km|m|시트|Sheet|sheet|Panel|셀|Cell|Set|set|Bbl|배럴|정|Bag|Syringe|個|台|枚|PACK|Pack|pack|Roll|롤|Kg|KG|톤/년|대/년|M|MT|BBL)$',
   );
 
   static String _unitFromParens(String cell) {
@@ -306,7 +328,9 @@ abstract final class ProductionFacts {
 
   /// 세로형 표의 한 줄: (종류, 이름 칸들, 첫 숫자). 구분 칸(생산능력·생산실적·가동률) 바로
   /// 뒤의 숫자가 당기다. 그런 칸이 없으면 null.
-  static (String, List<String>, double)? _verticalRow(List<String> cells) {
+  static (String, List<String>, double, String)? _verticalRow(
+    List<String> cells,
+  ) {
     for (var k = 0; k < cells.length - 1; k++) {
       final c = cells[k];
       final kind = _vCap.hasMatch(c)
@@ -324,7 +348,7 @@ abstract final class ProductionFacts {
         for (final l in cells.sublist(0, k))
           if (l.isNotEmpty && !_number.hasMatch(l)) l,
       ];
-      return (kind, labels, v);
+      return (kind, labels, v, _unitFromParens(c));
     }
     return null;
   }
