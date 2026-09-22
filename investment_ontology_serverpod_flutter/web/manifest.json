@@ -1,11 +1,11 @@
 {
-    "name": "투자 온톨로지",
-    "short_name": "투자 온톨로지",
+    "name": "알파인더",
+    "short_name": "알파인더",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#F5F7FA",
     "theme_color": "#F5F7FA",
-    "description": "국내 상장사를 공시와 데이터로 탐색하는 투자 온톨로지",
+    "description": "국내 상장사를 공시와 데이터로 탐색하는 알파인더",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

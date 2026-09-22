@@ -48,7 +48,7 @@ class AdminProvisioning {
   }
 
   EmailIdpConfig configuration() {
-    final delivery = ServerpodCloudEmailIdpConfig(appDisplayName: '투자 온톨로지');
+    final delivery = ServerpodCloudEmailIdpConfig(appDisplayName: '알파인더');
     return EmailIdpConfigFromPasswords(
       sendRegistrationVerificationCode:
           delivery.sendRegistrationVerificationCode,

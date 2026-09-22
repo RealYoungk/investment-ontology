@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: '투자 온톨로지',
+      title: '알파인더',
       debugShowCheckedModeBanner: false,
       theme: theme,
       // 로그인 폼의 텍스트 칸은 한국어로 짰지만, 길게 눌렀을 때 나오는 선택 메뉴(복사·붙여

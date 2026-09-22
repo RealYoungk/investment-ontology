@@ -144,7 +144,7 @@ class _DeskNavigation extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 28, 12, 28),
               child: Text(
-                '투자 온톨로지',
+                '알파인더',
                 style: t.body(17, color: c.onInverse, weight: FontWeight.w700),
               ),
             ),
@@ -258,7 +258,7 @@ class _TopBar extends StatelessWidget {
                     .firstOrNull
                     ?.destination
                     .label ??
-                '투자 온톨로지',
+                '알파인더',
             style: t.body(14, color: c.textSecondary, weight: FontWeight.w600),
           ),
           const Spacer(),

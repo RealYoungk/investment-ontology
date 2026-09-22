@@ -69,9 +69,9 @@ class _SignInPageState extends State<SignInPage> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('INVESTMENT ONTOLOGY', style: t.label(color: c.accent)),
+                  Text('ALFINDER', style: t.label(color: c.accent)),
                   const SizedBox(height: AppSpace.sm),
-                  Text('투자 온톨로지', style: t.display(28)),
+                  Text('알파인더', style: t.display(28)),
                   const SizedBox(height: AppSpace.sm),
                   Text(
                     '로그인한 계정만 볼 수 있습니다. 데이터를 바꾸는 일은 관리자만 합니다.',
