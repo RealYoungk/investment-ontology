@@ -71,6 +71,9 @@ review:
   - decide:
   - decideMany:
   - decideFactsMany:
+  - context:
+  - recommend:
+  - applyRecommended:
   - recordCheck:
   - checks:
   - facts:
