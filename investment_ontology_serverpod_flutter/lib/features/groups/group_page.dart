@@ -198,17 +198,38 @@ class _Edges extends StatelessWidget {
             // 좁은 화면에서는 근거를 짧게 (주주/출자 · 연도) 적어 표가 폭 안에 들게 한다.
             final compact = box.maxWidth < 640;
             return AppDataTable(
-              columns: const [
-                AppColumn('가진 쪽'),
-                AppColumn('가진 기업'),
-                AppColumn('지분율', numeric: true),
-                AppColumn('근거', flex: true),
+              columns: [
+                if (compact)
+                  const AppColumn('가진 쪽 → 가진 기업', flex: true)
+                else ...const [
+                  AppColumn('가진 쪽', nowrap: true),
+                  AppColumn('가진 기업', nowrap: true),
+                ],
+                const AppColumn('지분율', numeric: true),
+                AppColumn('근거', flex: !compact, nowrap: compact),
               ],
               rows: [
                 for (final e in edges)
                   AppRow([
-                    company(e.fromCompanyId),
-                    company(e.toCompanyId),
+                    if (compact)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          company(e.fromCompanyId),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text('→ ', style: t.body(12, color: c.textMuted)),
+                              Flexible(child: company(e.toCompanyId)),
+                            ],
+                          ),
+                        ],
+                      )
+                    else ...[
+                      company(e.fromCompanyId),
+                      company(e.toCompanyId),
+                    ],
                     AppDataTable.text(
                       context,
                       e.ratio == null
