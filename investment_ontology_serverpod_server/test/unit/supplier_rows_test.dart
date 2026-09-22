@@ -118,4 +118,22 @@ B | 나 | 2 | 포스코, 현대제철
 ''';
     expect(SupplierRows.parse(text).map((r) => r.name), ['(주)포스코']);
   });
+
+  test('매입처 표의 비중을 읽고, 한 칸에 여럿이면 비중은 붙이지 않는다 (삼성전자)', () {
+    const t = '''
+(단위 : 억원, %)
+부 문 | 품 목 | 구체적 용도 | 매입액 | 비중 | 주요 매입처
+DX 부문 | 모바일AP 솔루션 | CPU | 109,326 | 16.1% | Qualcomm, MediaTek
+디스플레이 패널 | TV ㆍ 모니터용 화면표시장치 | 75,825 | 11.2% | CSOT, AUO 등
+DS 부문 | Chemical | 원판 가공 | 27,234 | 16.7% | 솔브레인㈜
+''';
+    final rows = SupplierRows.parse(t);
+    expect(rows.map((r) => (r.name, r.share)), [
+      ('Qualcomm', null),
+      ('MediaTek', null),
+      ('CSOT', null),
+      ('AUO', null),
+      ('솔브레인㈜', 16.7),
+    ]);
+  });
 }
