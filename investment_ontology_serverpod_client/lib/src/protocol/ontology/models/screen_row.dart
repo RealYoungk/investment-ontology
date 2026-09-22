@@ -48,6 +48,11 @@ abstract class ScreenRow
     this.low52w,
     this.bandPosition,
     this.avgTradingValue,
+    this.dividendYear,
+    this.dividendPayout,
+    this.dividendYears,
+    this.volume,
+    this.volumeRatio,
   });
 
   factory ScreenRow({
@@ -78,6 +83,11 @@ abstract class ScreenRow
     int? low52w,
     double? bandPosition,
     BigInt? avgTradingValue,
+    int? dividendYear,
+    double? dividendPayout,
+    int? dividendYears,
+    BigInt? volume,
+    double? volumeRatio,
   }) = _ScreenRowImpl;
 
   factory ScreenRow.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -141,6 +151,13 @@ abstract class ScreenRow
           : _isc.BigIntJsonExtension.fromJson(
               jsonSerialization['avgTradingValue'],
             ),
+      dividendYear: jsonSerialization['dividendYear'] as int?,
+      dividendPayout: (jsonSerialization['dividendPayout'] as num?)?.toDouble(),
+      dividendYears: jsonSerialization['dividendYears'] as int?,
+      volume: jsonSerialization['volume'] == null
+          ? null
+          : _isc.BigIntJsonExtension.fromJson(jsonSerialization['volume']),
+      volumeRatio: (jsonSerialization['volumeRatio'] as num?)?.toDouble(),
     );
   }
 
@@ -214,6 +231,21 @@ abstract class ScreenRow
   /// 최근 한 달 하루 평균 거래대금 (원). 얼마나 사고팔 수 있는지
   BigInt? avgTradingValue;
 
+  /// 최근 연간 배당 공시 기준연도
+  int? dividendYear;
+
+  /// 최근 연간 공시 현금배당성향 (%), 연결 우선. 음수는 계산 불가
+  double? dividendPayout;
+
+  /// 같은 연간 공시의 당기·전기·전전기에서 확인된 연속 현금배당 (0~3년). 누락은 연속으로 간주하지 않음
+  int? dividendYears;
+
+  /// 대표 종목 기준일 거래량 (주)
+  BigInt? volume;
+
+  /// 기준일 거래량 ÷ 직전 20거래일 평균 거래량. 20일 미달·0분모·주식수 큰 변동은 null
+  double? volumeRatio;
+
   /// Returns a shallow copy of this [ScreenRow]
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
@@ -245,6 +277,11 @@ abstract class ScreenRow
     int? low52w,
     double? bandPosition,
     BigInt? avgTradingValue,
+    int? dividendYear,
+    double? dividendPayout,
+    int? dividendYears,
+    BigInt? volume,
+    double? volumeRatio,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -278,6 +315,11 @@ abstract class ScreenRow
       if (low52w != null) 'low52w': low52w,
       if (bandPosition != null) 'bandPosition': bandPosition,
       if (avgTradingValue != null) 'avgTradingValue': avgTradingValue?.toJson(),
+      if (dividendYear != null) 'dividendYear': dividendYear,
+      if (dividendPayout != null) 'dividendPayout': dividendPayout,
+      if (dividendYears != null) 'dividendYears': dividendYears,
+      if (volume != null) 'volume': volume?.toJson(),
+      if (volumeRatio != null) 'volumeRatio': volumeRatio,
     };
   }
 
@@ -313,6 +355,11 @@ abstract class ScreenRow
       if (low52w != null) 'low52w': low52w,
       if (bandPosition != null) 'bandPosition': bandPosition,
       if (avgTradingValue != null) 'avgTradingValue': avgTradingValue?.toJson(),
+      if (dividendYear != null) 'dividendYear': dividendYear,
+      if (dividendPayout != null) 'dividendPayout': dividendPayout,
+      if (dividendYears != null) 'dividendYears': dividendYears,
+      if (volume != null) 'volume': volume?.toJson(),
+      if (volumeRatio != null) 'volumeRatio': volumeRatio,
     };
   }
 
@@ -353,6 +400,11 @@ class _ScreenRowImpl extends ScreenRow {
     int? low52w,
     double? bandPosition,
     BigInt? avgTradingValue,
+    int? dividendYear,
+    double? dividendPayout,
+    int? dividendYears,
+    BigInt? volume,
+    double? volumeRatio,
   }) : super._(
          company: company,
          bsnsYear: bsnsYear,
@@ -381,6 +433,11 @@ class _ScreenRowImpl extends ScreenRow {
          low52w: low52w,
          bandPosition: bandPosition,
          avgTradingValue: avgTradingValue,
+         dividendYear: dividendYear,
+         dividendPayout: dividendPayout,
+         dividendYears: dividendYears,
+         volume: volume,
+         volumeRatio: volumeRatio,
        );
 
   /// Returns a shallow copy of this [ScreenRow]
@@ -415,6 +472,11 @@ class _ScreenRowImpl extends ScreenRow {
     Object? low52w = _Undefined,
     Object? bandPosition = _Undefined,
     Object? avgTradingValue = _Undefined,
+    Object? dividendYear = _Undefined,
+    Object? dividendPayout = _Undefined,
+    Object? dividendYears = _Undefined,
+    Object? volume = _Undefined,
+    Object? volumeRatio = _Undefined,
   }) {
     return ScreenRow(
       company: company ?? this.company.copyWith(),
@@ -458,6 +520,13 @@ class _ScreenRowImpl extends ScreenRow {
       avgTradingValue: avgTradingValue is BigInt?
           ? avgTradingValue
           : this.avgTradingValue,
+      dividendYear: dividendYear is int? ? dividendYear : this.dividendYear,
+      dividendPayout: dividendPayout is double?
+          ? dividendPayout
+          : this.dividendPayout,
+      dividendYears: dividendYears is int? ? dividendYears : this.dividendYears,
+      volume: volume is BigInt? ? volume : this.volume,
+      volumeRatio: volumeRatio is double? ? volumeRatio : this.volumeRatio,
     );
   }
 }

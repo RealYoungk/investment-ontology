@@ -85,6 +85,17 @@ String value(WidgetTester tester, String label) =>
     tester.widget<TextField>(field(label)).controller!.text;
 Future<void> preset(WidgetTester tester, String title) async {
   await click(tester, find.byType(DropdownButtonFormField<String>));
+  await tester.scrollUntilVisible(
+    find.text(title),
+    180,
+    scrollable: find.byType(Scrollable).last,
+    maxScrolls: 20,
+  );
+  await tester.scrollUntilVisible(
+    find.text(title).last,
+    160,
+    scrollable: find.byType(Scrollable).last,
+  );
   await click(tester, find.text(title).last);
 }
 
@@ -104,12 +115,12 @@ void main() {
         requests++;
         return result(20);
       }, location: '/screen?market=kosdaq&sort=roe');
-      expect(find.byType(TextField), findsNWidgets(10));
+      expect(find.byType(TextField), findsNWidgets(18));
       expect(requests, 1); // No extra preset-count queries.
       await preset(tester, '이익 대비 저렴한 주식');
       expect(value(tester, 'PER 이하'), '12');
       expect(value(tester, 'ROE % 이상'), '10');
-      expect(find.byType(TextField), findsNWidgets(10));
+      expect(find.byType(TextField), findsNWidgets(18));
       expect(
         router.routeInformationProvider.value.uri.queryParameters['market'],
         'kosdaq',
@@ -137,6 +148,53 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+  testWidgets('거래량 프리셋은 단위 그대로 채우고 유효 범위를 벗어난 입력은 적용하지 않는다', (tester) async {
+    final router = await pumpScreen(
+      tester,
+      (f, {offset = 0, limit = 100}) async => result(2),
+    );
+    tester
+        .widget<DropdownButtonFormField<String>>(
+          find.byType(DropdownButtonFormField<String>),
+        )
+        .onChanged!('volume-surge');
+    await tester.pumpAndSettle();
+    expect(value(tester, '기준일 거래량 만주 이상'), '10');
+    expect(value(tester, '평소 대비 거래량 배 이상'), '2');
+    expect(value(tester, '거래대금 억원 이상'), '10');
+    expect(
+      router.routeInformationProvider.value.uri.queryParameters['volratio'],
+      '2',
+    );
+    expect(find.text('거래량(배)'), findsOneWidget);
+    await tester.ensureVisible(field('52주 가격 위치 % 이상'));
+    await tester.enterText(field('52주 가격 위치 % 이상'), '101');
+    await tester.pumpAndSettle(const Duration(milliseconds: 350));
+    expect(
+      router.routeInformationProvider.value.uri.queryParameters['band'],
+      isNull,
+    );
+    expect(find.text('입력 범위를 확인해 주세요'), findsOneWidget);
+    await tester.enterText(field('52주 가격 위치 % 이상'), '90');
+    await tester.pumpAndSettle(const Duration(milliseconds: 350));
+    expect(
+      router.routeInformationProvider.value.uri.queryParameters['band'],
+      '90',
+    );
+  });
+  testWidgets('연속 배당 프리셋은 새 조건과 기준연도 열을 보여준다', (tester) async {
+    await pumpScreen(tester, (f, {offset = 0, limit = 100}) async => result(2));
+    tester
+        .widget<DropdownButtonFormField<String>>(
+          find.byType(DropdownButtonFormField<String>),
+        )
+        .onChanged!('dividend-history');
+    await tester.pumpAndSettle();
+    expect(value(tester, '확인된 연속 배당 년 이상'), '3');
+    expect(value(tester, '배당성향 % 이하'), '70');
+    expect(find.text('배당 기준연도'), findsOneWidget);
+    expect(find.text('연속 배당(년)'), findsOneWidget);
+  });
   testWidgets('빠르게 여러 칸을 입력해도 앞의 값이 유실되지 않는다', (tester) async {
     final router = await pumpScreen(
       tester,

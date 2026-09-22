@@ -38,6 +38,18 @@ Future<ScreenPage> fetchScreen(
   avgTradingValueMin: f.liquidityMin == null
       ? null
       : BigInt.from((f.liquidityMin! * 100000000).round()),
+  dividendPayoutMax: f.payoutMax,
+  dividendYearsMin: f.dividendYearsMin?.toInt(),
+  volumeMin: f.volumeMin == null
+      ? null
+      : BigInt.from((f.volumeMin! * 10000).round()),
+  volumeRatioMin: f.volumeRatioMin,
+  marketCapMin: f.marketCapMin == null
+      ? null
+      : BigInt.from((f.marketCapMin! * 100000000).round()),
+  return3mMin: f.return3mMin,
+  return12mMin: f.return12mMin,
+  bandPositionMin: f.bandPositionMin,
   sort: f.sort,
   ascending: f.ascending,
   offset: offset,
@@ -180,6 +192,10 @@ class _ScreenerPageState extends State<ScreenerPage> {
                     ScreenSort.return12m: '12개월 주가',
                     ScreenSort.bandPosition: '52주 최저에 가까운',
                     ScreenSort.avgTradingValue: '거래대금',
+                    ScreenSort.dividendPayout: '배당성향',
+                    ScreenSort.dividendYears: '확인된 연속 배당',
+                    ScreenSort.volume: '거래량',
+                    ScreenSort.volumeRatio: '평소 대비 거래량',
                   },
                   // 싼 것·높은 수익성을 먼저 보는 쪽이 자연스럽다.
                   onChanged: (s) {
@@ -188,7 +204,9 @@ class _ScreenerPageState extends State<ScreenerPage> {
                       _f.copyWith(
                         sort: sort,
                         ascending:
-                            sort == ScreenSort.per || sort == ScreenSort.pbr,
+                            sort == ScreenSort.per ||
+                            sort == ScreenSort.pbr ||
+                            sort == ScreenSort.dividendPayout,
                       ),
                     );
                   },
@@ -231,7 +249,20 @@ class _ScreenerPageState extends State<ScreenerPage> {
                         'preset-${ScreenPreset.matching(_f)?.id ?? 'custom'}',
                       ),
                       initialValue: ScreenPreset.matching(_f)?.id,
-                      itemHeight: 64,
+                      itemHeight: 56,
+                      menuMaxHeight: 440,
+                      selectedItemBuilder: (context) => [
+                        for (final group in screenPresetGroups) ...[
+                          const SizedBox.shrink(),
+                          for (final preset in screenPresets.where(
+                            (p) => p.group == group,
+                          ))
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(preset.title, maxLines: 2),
+                            ),
+                        ],
+                      ],
                       isExpanded: true,
                       style: t.body(13),
                       decoration: const InputDecoration(
@@ -242,11 +273,22 @@ class _ScreenerPageState extends State<ScreenerPage> {
                         style: t.body(13, color: c.textSecondary),
                       ),
                       items: [
-                        for (final preset in screenPresets)
-                          DropdownMenuItem(
-                            value: preset.id,
-                            child: Text(preset.title, maxLines: 2),
+                        for (final group in screenPresetGroups) ...[
+                          DropdownMenuItem<String>(
+                            enabled: false,
+                            child: Text(
+                              group,
+                              style: t.label(color: c.textMuted),
+                            ),
                           ),
+                          for (final preset in screenPresets.where(
+                            (p) => p.group == group,
+                          ))
+                            DropdownMenuItem(
+                              value: preset.id,
+                              child: Text(preset.title, maxLines: 2),
+                            ),
+                        ],
                       ],
                       onChanged: (id) {
                         if (id == null) return;
@@ -307,18 +349,21 @@ class _ScreenerPageState extends State<ScreenerPage> {
                 children: [
                   _NumberField(
                     key: ValueKey('per-$_inputRevision'),
+                    min: 0,
                     label: 'PER 이하',
                     value: _f.perMax,
                     onChanged: (v) => _applySoon(_f.copyWith(perMax: () => v)),
                   ),
                   _NumberField(
                     key: ValueKey('pbr-$_inputRevision'),
+                    min: 0,
                     label: 'PBR 이하',
                     value: _f.pbrMax,
                     onChanged: (v) => _applySoon(_f.copyWith(pbrMax: () => v)),
                   ),
                   _NumberField(
                     key: ValueKey('div-$_inputRevision'),
+                    min: 0,
                     label: '배당수익률 % 이상',
                     value: _f.dividendMin,
                     onChanged: (v) =>
@@ -366,20 +411,127 @@ class _ScreenerPageState extends State<ScreenerPage> {
               ),
               _FilterGroup(
                 label: '안정성 · 유동성',
-                last: true,
                 children: [
                   _NumberField(
                     key: ValueKey('debt-$_inputRevision'),
+                    min: 0,
                     label: '부채비율 % 이하',
                     value: _f.debtMax,
                     onChanged: (v) => _applySoon(_f.copyWith(debtMax: () => v)),
                   ),
                   _NumberField(
                     key: ValueKey('liq-$_inputRevision'),
+                    min: 0,
                     label: '거래대금 억원 이상',
                     value: _f.liquidityMin,
                     onChanged: (v) =>
                         _applySoon(_f.copyWith(liquidityMin: () => v)),
+                  ),
+                ],
+              ),
+              _FilterGroup(
+                label: '배당 더 보기',
+                last: false,
+                children: [
+                  _NumberField(
+                    key: ValueKey('payout-$_inputRevision'),
+                    label: '배당성향 % 이하',
+                    help: '최근 연간 공시값입니다. 이익 중 배당으로 지급한 비율이며, 적자·미수집은 제외됩니다.',
+                    min: 0,
+
+                    integer: false,
+                    value: _f.payoutMax,
+                    onChanged: (v) =>
+                        _applySoon(_f.copyWith(payoutMax: () => v)),
+                  ),
+                  _NumberField(
+                    key: ValueKey('divyears-$_inputRevision'),
+                    label: '확인된 연속 배당 년 이상',
+                    help: '최근 연간 공시의 당기·전기·전전기 현금배당금총액을 확인합니다. 최대 3년, 빈 값은 연속으로 세지 않습니다.',
+                    min: 0,
+                    max: 3,
+                    integer: true,
+                    value: _f.dividendYearsMin,
+                    onChanged: (v) =>
+                        _applySoon(_f.copyWith(dividendYearsMin: () => v)),
+                  ),
+                ],
+              ),
+              _FilterGroup(
+                label: '규모 · 거래',
+                last: false,
+                children: [
+                  _NumberField(
+                    key: ValueKey('cap-$_inputRevision'),
+                    label: '시가총액 억원 이상',
+                    help: '기업에 연결된 종목의 최근 시가총액 합계입니다.',
+                    min: 0,
+
+                    integer: false,
+                    value: _f.marketCapMin,
+                    onChanged: (v) =>
+                        _applySoon(_f.copyWith(marketCapMin: () => v)),
+                  ),
+                  _NumberField(
+                    key: ValueKey('vol-$_inputRevision'),
+                    label: '기준일 거래량 만주 이상',
+                    help: '대표 종목의 마지막 수집 거래일 거래량입니다. 거래대금과 단위가 다릅니다.',
+                    min: 0,
+
+                    integer: false,
+                    value: _f.volumeMin,
+                    onChanged: (v) =>
+                        _applySoon(_f.copyWith(volumeMin: () => v)),
+                  ),
+                  _NumberField(
+                    key: ValueKey('volratio-$_inputRevision'),
+                    label: '평소 대비 거래량 배 이상',
+                    help: '기준일 거래량 ÷ 직전 20거래일 평균. 2배는 평소의 두 배입니다. 이력 부족·주식수 큰 변동은 제외됩니다.',
+                    min: 0,
+
+                    integer: false,
+                    value: _f.volumeRatioMin,
+                    onChanged: (v) =>
+                        _applySoon(_f.copyWith(volumeRatioMin: () => v)),
+                  ),
+                ],
+              ),
+              _FilterGroup(
+                label: '주가 흐름',
+                last: true,
+                children: [
+                  _NumberField(
+                    key: ValueKey('r3m-$_inputRevision'),
+                    label: '3개월 등락률 % 이상',
+                    help: '대표 종목의 3개월 가격 변화입니다. 음수도 입력할 수 있습니다.',
+                    min: -100,
+
+                    integer: false,
+                    value: _f.return3mMin,
+                    onChanged: (v) =>
+                        _applySoon(_f.copyWith(return3mMin: () => v)),
+                  ),
+                  _NumberField(
+                    key: ValueKey('r12m-$_inputRevision'),
+                    label: '12개월 등락률 % 이상',
+                    help: '대표 종목의 12개월 가격 변화입니다. 일별 연속 상승을 뜻하지 않습니다.',
+                    min: -100,
+
+                    integer: false,
+                    value: _f.return12mMin,
+                    onChanged: (v) =>
+                        _applySoon(_f.copyWith(return12mMin: () => v)),
+                  ),
+                  _NumberField(
+                    key: ValueKey('band-$_inputRevision'),
+                    label: '52주 가격 위치 % 이상',
+                    help: '최근 1년 종가 범위에서 최저 0, 최고 100입니다. 90은 범위의 상위 10% 구간이며 신고가까지 거리와 다릅니다.',
+                    min: 0,
+                    max: 100,
+                    integer: false,
+                    value: _f.bandPositionMin,
+                    onChanged: (v) =>
+                        _applySoon(_f.copyWith(bandPositionMin: () => v)),
                   ),
                 ],
               ),
@@ -404,13 +556,15 @@ class _ScreenerPageState extends State<ScreenerPage> {
               style: t.numeric(12.5, color: c.textSecondary),
             ),
           const SizedBox(height: AppSpace.sm),
-          if (page != null) _ResultTable(page: page, sort: _f.sort),
+          if (page != null) _ResultTable(page: page, filter: _f),
           const SizedBox(height: AppSpace.md),
           Text(
             'PER = 시가총액 ÷ 지배주주 당기순이익 · PBR = 시가총액 ÷ 지배주주 자본 · '
             'ROE = 지배주주 순이익 ÷ 지배주주 자본 · 영업이익률 = 영업이익 ÷ 매출액 · '
             '부채비율 = 부채총계 ÷ 자본총계 · FCF 수익률 = (영업활동 현금흐름 − 유형자산 취득) ÷ 시가총액 · '
             '배당수익률 = 최근 사업연도 현금배당금총액 ÷ 시가총액 · '
+            '배당성향 = 연간 공시값(연결 우선) · 연속 배당 = 최근 연간 공시에 확인된 최대 3년의 현금배당 · '
+            '거래량 = 기준일 대표 종목 거래량 · 거래량 배수 = 기준일 ÷ 직전 20거래일 평균(당일 제외) · '
             '3·12개월 = 대표 종목(시가총액이 가장 큰 종목) 종가 등락률 · '
             '52주 위치 = 최근 1년 종가의 최저(0)~최고(100) 사이 지금 자리 · '
             '거래대금 = 최근 한 달 하루 평균 (사고팔 수 있는 크기) · '
@@ -430,10 +584,11 @@ class _ScreenerPageState extends State<ScreenerPage> {
 }
 
 class _ResultTable extends StatelessWidget {
-  const _ResultTable({required this.page, required this.sort});
+  const _ResultTable({required this.page, required this.filter});
 
   final ScreenPage page;
-  final ScreenSort sort;
+  final ScreenFilter filter;
+  ScreenSort get sort => filter.sort;
 
   /// 열 하나가 차지하는 대략의 폭. 화면에 맞춰 몇 개를 보일지 정하는 데 쓴다.
   static const _columnWidth = 92.0;
@@ -475,6 +630,10 @@ class _ResultTable extends StatelessWidget {
     ScreenSort.return12m => '12개월(%)',
     ScreenSort.bandPosition => '52주 위치(%)',
     ScreenSort.avgTradingValue => '거래대금',
+    ScreenSort.dividendPayout => '배당성향(%)',
+    ScreenSort.dividendYears => '연속 배당(년)',
+    ScreenSort.volume => '거래량(만주)',
+    ScreenSort.volumeRatio => '거래량(배)',
   };
 
   @override
@@ -498,6 +657,16 @@ class _ResultTable extends StatelessWidget {
       ('부채비율(%)', (r) => fixed(r.debtRatio, 1)),
       ('배당수익률(%)', (r) => fixed(r.dividendYield, 2)),
       ('FCF 수익률(%)', (r) => fixed(r.fcfYield, 2)),
+      ('배당성향(%)', (r) => fixed(r.dividendPayout, 1)),
+      ('연속 배당(년)', (r) => r.dividendYears?.toString()),
+      ('배당 기준연도', (r) => r.dividendYear?.toString()),
+      (
+        '거래량(만주)',
+        (r) => r.volume == null
+            ? null
+            : (r.volume!.toDouble() / 10000).toStringAsFixed(1),
+      ),
+      ('거래량(배)', (r) => fixed(r.volumeRatio, 2)),
       (
         '거래대금',
         (r) => r.avgTradingValue == null
@@ -527,6 +696,28 @@ class _ResultTable extends StatelessWidget {
         final keep = {
           '기업',
           ?_sortColumn(sort),
+          if (filter.perMax != null) 'PER(배)',
+          if (filter.pbrMax != null) 'PBR(배)',
+          if (filter.roeMin != null) 'ROE(%)',
+          if (filter.marginMin != null) '영업이익률(%)',
+          if (filter.revenueGrowthMin != null) '매출 성장률(%)',
+          if (filter.opGrowthMin != null) '영업이익 성장률(%)',
+          if (filter.debtMax != null) '부채비율(%)',
+          if (filter.dividendMin != null) '배당수익률(%)',
+          if (filter.fcfMin != null) 'FCF 수익률(%)',
+          if (filter.liquidityMin != null) '거래대금',
+          if (filter.marketCapMin != null) '시가총액',
+          if (filter.payoutMax != null) '배당성향(%)',
+          if (filter.dividendYearsMin != null) '연속 배당(년)',
+          if (filter.dividendMin != null ||
+              filter.payoutMax != null ||
+              filter.dividendYearsMin != null)
+            '배당 기준연도',
+          if (filter.volumeMin != null) '거래량(만주)',
+          if (filter.volumeRatioMin != null) '거래량(배)',
+          if (filter.return3mMin != null) '3개월(%)',
+          if (filter.return12mMin != null) '12개월(%)',
+          if (filter.bandPositionMin != null) '52주 위치(%)',
           ..._priority.take(fits.clamp(2, _priority.length)),
         };
         final shown = [
@@ -652,8 +843,16 @@ class _NumberField extends StatefulWidget {
     required this.label,
     required this.value,
     required this.onChanged,
+    this.help,
+    this.min,
+    this.max,
+    this.integer = false,
   });
 
+  final String? help;
+  final double? min;
+  final double? max;
+  final bool integer;
   final String label;
   final double? value;
   final ValueChanged<double?> onChanged;
@@ -673,11 +872,13 @@ class _NumberFieldState extends State<_NumberField> {
   );
 
   final _focus = FocusNode();
+  String? _inputError;
 
   @override
   void didUpdateWidget(covariant _NumberField oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.value == oldWidget.value) return;
+    _inputError = null;
     // 치는 중에는 건드리지 않는다. "1"을 "1.0"으로 고쳐 쓰면 이어 친 "5"가
     // "1.05"가 되어 사용자가 넣지 않은 조건이 걸린다.
     if (_focus.hasFocus && double.tryParse(_controller.text) == widget.value) {
@@ -703,8 +904,13 @@ class _NumberFieldState extends State<_NumberField> {
       child: TextField(
         controller: _controller,
         focusNode: _focus,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[\d.]'))],
+        keyboardType: const TextInputType.numberWithOptions(
+          decimal: true,
+          signed: true,
+        ),
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp(r'[\d.\-]')),
+        ],
         style: t.numeric(14),
         decoration: InputDecoration(
           isDense: true,
@@ -712,8 +918,28 @@ class _NumberFieldState extends State<_NumberField> {
           floatingLabelBehavior: FloatingLabelBehavior.always,
           labelStyle: t.body(12, color: c.textSecondary),
           hintText: '제한 없음',
+          errorText: _inputError,
+          suffixIcon: widget.help == null
+              ? null
+              : Tooltip(
+                  message: widget.help!,
+                  triggerMode: TooltipTriggerMode.tap,
+                  child: Icon(Icons.info_outline, size: 15, color: c.textMuted),
+                ),
         ),
-        onChanged: (v) => widget.onChanged(double.tryParse(v.trim())),
+        onChanged: (v) {
+          final text = v.trim();
+          final number = double.tryParse(text);
+          final valid =
+              text.isEmpty ||
+              (number != null &&
+                  number.isFinite &&
+                  (widget.min == null || number >= widget.min!) &&
+                  (widget.max == null || number <= widget.max!) &&
+                  (!widget.integer || number == number.roundToDouble()));
+          setState(() => _inputError = valid ? null : '입력 범위를 확인해 주세요');
+          if (valid) widget.onChanged(number);
+        },
       ),
     );
   }

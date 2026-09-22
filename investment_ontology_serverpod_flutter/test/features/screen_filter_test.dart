@@ -4,6 +4,32 @@ import 'package:investment_ontology_serverpod_flutter/features/screen/screen_fil
 import 'package:investment_ontology_serverpod_flutter/features/screen/screen_presets.dart';
 
 void main() {
+  test('확장 필터는 URL에서 단위와 음수·0 경계를 보존한다', () {
+    const f = ScreenFilter(
+      payoutMax: 70,
+      dividendYearsMin: 3,
+      volumeMin: 10,
+      volumeRatioMin: 2,
+      marketCapMin: 1000,
+      return3mMin: -10,
+      return12mMin: 0,
+      bandPositionMin: 90,
+    );
+    expect(ScreenFilter.fromQuery(Uri.parse(f.location).queryParameters), f);
+    expect(f.conditionCount, 8);
+    expect(f.copyWith(volumeRatioMin: () => null).conditionCount, 7);
+    expect(
+      ScreenFilter.fromQuery({
+        'divyears': '4',
+        'band': '101',
+        'r3m': '-101',
+        'vol': '-1',
+      }),
+      const ScreenFilter(),
+    );
+    expect(ScreenFilter.fromQuery({'divyears': '1.5'}), const ScreenFilter());
+  });
+
   test('0과 음수 성장률은 보존하고 잘못된 숫자는 조건으로 쓰지 않는다', () {
     const filter = ScreenFilter(marginMin: 0, revenueGrowthMin: -5);
     expect(
@@ -38,7 +64,10 @@ void main() {
         preset.matches(applied.copyWith(sort: ScreenSort.marketCap)),
         isTrue,
       );
-      expect(preset.matches(applied.copyWith(liquidityMin: () => 5)), isFalse);
+      expect(
+        preset.matches(applied.copyWith(liquidityMin: () => 999)),
+        isFalse,
+      );
     }
   });
 
