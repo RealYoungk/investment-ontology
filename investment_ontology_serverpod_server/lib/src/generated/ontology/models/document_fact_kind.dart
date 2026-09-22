@@ -42,7 +42,13 @@ enum DocumentFactKind implements _is.SerializableModel {
   investmentActual,
 
   /// 사업부문별 매출액 (본문 "주요 제품 매출" 표)
-  segmentRevenue;
+  segmentRevenue,
+
+  /// 연구개발비용 계 (본문 "연구개발비용" 표, 정부보조금 차감 전·후 가운데 비율과 맞는 쪽)
+  rndExpense,
+
+  /// 연구개발비 ÷ 매출액 (%), 표에 적힌 값
+  rndRatio;
 
   static DocumentFactKind fromJson(String name) {
     switch (name) {
@@ -66,6 +72,10 @@ enum DocumentFactKind implements _is.SerializableModel {
         return DocumentFactKind.investmentActual;
       case 'segmentRevenue':
         return DocumentFactKind.segmentRevenue;
+      case 'rndExpense':
+        return DocumentFactKind.rndExpense;
+      case 'rndRatio':
+        return DocumentFactKind.rndRatio;
       default:
         throw ArgumentError(
           'Value "$name" cannot be converted to "DocumentFactKind"',
