@@ -32,7 +32,7 @@ Only when the server cannot be started at all, fall back to the CLI in the serve
 - `serverpod generate` to regenerate the client and the generated server code.
 - `serverpod create-migration` after changing a model with a `table` (add `--force` for destructive changes). It only writes the migration; `serverpod start` applies pending migrations when it boots the server.
 
-Tests need no Docker. `config/test.yaml` sets `database.dataPath`, so Serverpod starts and manages the test database (an embedded PostgreSQL) itself, and the project's `docker-compose.yaml` is not used for it. Just run `dart test` in the server package.
+Tests need no Docker. `config/test.yaml` sets `database.dataPath`, so Serverpod starts and manages the test database (an embedded PostgreSQL) itself, and the project's `docker-compose.yaml` is not used for it. Use `bash scripts/test-server.sh` from the repository root on a clean checkout; it supplies a synthetic test-only DB password required by Serverpod configuration. No real credentials or Docker are needed.
 
 Checklist after doing changes, in this order:
 

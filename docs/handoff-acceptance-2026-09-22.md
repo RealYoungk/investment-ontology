@@ -13,8 +13,8 @@ Flutter 3.47.5 / Dart 3.13.4 / Serverpod 4.0.0. 로컬 앱의 인수인계 기�
 ```sh
 flutter pub get --enforce-lockfile
 dart analyze
-# 서버 패키지에서
-dart test
+# 저장소 루트에서 (격리 테스트 DB용 합성 비밀번호 자동 설정)
+bash scripts/test-server.sh
 # Flutter 패키지에서
 flutter test
 ```

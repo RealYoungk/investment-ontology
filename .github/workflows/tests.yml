@@ -36,8 +36,7 @@ jobs:
 
       - name: Run server tests
         # config/test.yaml의 dataPath가 내장 PostgreSQL을 쓰므로 Docker가 필요 없다.
-        working-directory: investment_ontology_serverpod_server
-        run: dart test
+        run: bash scripts/test-server.sh
 
       - name: Run Flutter tests
         working-directory: investment_ontology_serverpod_flutter
