@@ -106,6 +106,8 @@ import 'ontology/models/graph_node.dart' as _iqv6eyci;
 import 'ontology/models/group_edge.dart' as _i1fyp5lv;
 import 'ontology/models/group_member.dart' as _iyd2zx8r;
 import 'ontology/models/group_person.dart' as _iklt0jfv;
+import 'ontology/models/index_history.dart' as _iocwvagy;
+import 'ontology/models/index_point.dart' as _it75qdkc;
 import 'ontology/models/industry.dart' as _i3hzx3f1;
 import 'ontology/models/industry_revision_check.dart' as _i25uuckt;
 import 'ontology/models/ingest_coverage.dart' as _il0sbv1h;
@@ -117,6 +119,8 @@ import 'ontology/models/market.dart' as _iyzzhewo;
 import 'ontology/models/market_cap_node.dart' as _i1tskjhh;
 import 'ontology/models/market_cap_point.dart' as _igdvszti;
 import 'ontology/models/market_cap_treemap.dart' as _iwodvuy1;
+import 'ontology/models/market_index_day.dart' as _ihawso0m;
+import 'ontology/models/market_index_snapshot.dart' as _i9c8jqc3;
 import 'ontology/models/market_snapshot.dart' as _ibhowe7d;
 import 'ontology/models/market_snapshot_day.dart' as _i3renazk;
 import 'ontology/models/ontology_relation.dart' as _iejnlir1;
@@ -213,6 +217,8 @@ export 'ontology/models/graph_node.dart';
 export 'ontology/models/group_edge.dart';
 export 'ontology/models/group_member.dart';
 export 'ontology/models/group_person.dart';
+export 'ontology/models/index_history.dart';
+export 'ontology/models/index_point.dart';
 export 'ontology/models/industry.dart';
 export 'ontology/models/industry_revision_check.dart';
 export 'ontology/models/ingest_coverage.dart';
@@ -224,6 +230,8 @@ export 'ontology/models/market.dart';
 export 'ontology/models/market_cap_node.dart';
 export 'ontology/models/market_cap_point.dart';
 export 'ontology/models/market_cap_treemap.dart';
+export 'ontology/models/market_index_day.dart';
+export 'ontology/models/market_index_snapshot.dart';
 export 'ontology/models/market_snapshot.dart';
 export 'ontology/models/market_snapshot_day.dart';
 export 'ontology/models/ontology_relation.dart';
@@ -476,6 +484,12 @@ class Protocol extends _isc.SerializationManager {
     if (t == _iklt0jfv.GroupPerson) {
       return _iklt0jfv.GroupPerson.fromJson(data) as T;
     }
+    if (t == _iocwvagy.IndexHistory) {
+      return _iocwvagy.IndexHistory.fromJson(data) as T;
+    }
+    if (t == _it75qdkc.IndexPoint) {
+      return _it75qdkc.IndexPoint.fromJson(data) as T;
+    }
     if (t == _i3hzx3f1.Industry) {
       return _i3hzx3f1.Industry.fromJson(data) as T;
     }
@@ -508,6 +522,12 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _iwodvuy1.MarketCapTreemap) {
       return _iwodvuy1.MarketCapTreemap.fromJson(data) as T;
+    }
+    if (t == _ihawso0m.MarketIndexDay) {
+      return _ihawso0m.MarketIndexDay.fromJson(data) as T;
+    }
+    if (t == _i9c8jqc3.MarketIndexSnapshot) {
+      return _i9c8jqc3.MarketIndexSnapshot.fromJson(data) as T;
     }
     if (t == _ibhowe7d.MarketSnapshot) {
       return _ibhowe7d.MarketSnapshot.fromJson(data) as T;
@@ -850,6 +870,12 @@ class Protocol extends _isc.SerializationManager {
     if (t == _isc.getType<_iklt0jfv.GroupPerson?>()) {
       return (data != null ? _iklt0jfv.GroupPerson.fromJson(data) : null) as T;
     }
+    if (t == _isc.getType<_iocwvagy.IndexHistory?>()) {
+      return (data != null ? _iocwvagy.IndexHistory.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_it75qdkc.IndexPoint?>()) {
+      return (data != null ? _it75qdkc.IndexPoint.fromJson(data) : null) as T;
+    }
     if (t == _isc.getType<_i3hzx3f1.Industry?>()) {
       return (data != null ? _i3hzx3f1.Industry.fromJson(data) : null) as T;
     }
@@ -890,6 +916,16 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _isc.getType<_iwodvuy1.MarketCapTreemap?>()) {
       return (data != null ? _iwodvuy1.MarketCapTreemap.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_ihawso0m.MarketIndexDay?>()) {
+      return (data != null ? _ihawso0m.MarketIndexDay.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_i9c8jqc3.MarketIndexSnapshot?>()) {
+      return (data != null
+              ? _i9c8jqc3.MarketIndexSnapshot.fromJson(data)
+              : null)
           as T;
     }
     if (t == _isc.getType<_ibhowe7d.MarketSnapshot?>()) {
@@ -1170,6 +1206,12 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_it75qdkc.IndexPoint>) {
+      return (data as List)
+              .map((e) => deserialize<_it75qdkc.IndexPoint>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_i1tskjhh.MarketCapNode>) {
       return (data as List)
               .map((e) => deserialize<_i1tskjhh.MarketCapNode>(e))
@@ -1409,6 +1451,8 @@ class Protocol extends _isc.SerializationManager {
       _i1fyp5lv.GroupEdge => 'GroupEdge',
       _iyd2zx8r.GroupMember => 'GroupMember',
       _iklt0jfv.GroupPerson => 'GroupPerson',
+      _iocwvagy.IndexHistory => 'IndexHistory',
+      _it75qdkc.IndexPoint => 'IndexPoint',
       _i3hzx3f1.Industry => 'Industry',
       _i25uuckt.IndustryRevisionCheck => 'IndustryRevisionCheck',
       _il0sbv1h.IngestCoverage => 'IngestCoverage',
@@ -1420,6 +1464,8 @@ class Protocol extends _isc.SerializationManager {
       _i1tskjhh.MarketCapNode => 'MarketCapNode',
       _igdvszti.MarketCapPoint => 'MarketCapPoint',
       _iwodvuy1.MarketCapTreemap => 'MarketCapTreemap',
+      _ihawso0m.MarketIndexDay => 'MarketIndexDay',
+      _i9c8jqc3.MarketIndexSnapshot => 'MarketIndexSnapshot',
       _ibhowe7d.MarketSnapshot => 'MarketSnapshot',
       _i3renazk.MarketSnapshotDay => 'MarketSnapshotDay',
       _iejnlir1.OntologyRelation => 'OntologyRelation',
@@ -1593,6 +1639,10 @@ class Protocol extends _isc.SerializationManager {
         return 'GroupMember';
       case _iklt0jfv.GroupPerson():
         return 'GroupPerson';
+      case _iocwvagy.IndexHistory():
+        return 'IndexHistory';
+      case _it75qdkc.IndexPoint():
+        return 'IndexPoint';
       case _i3hzx3f1.Industry():
         return 'Industry';
       case _i25uuckt.IndustryRevisionCheck():
@@ -1615,6 +1665,10 @@ class Protocol extends _isc.SerializationManager {
         return 'MarketCapPoint';
       case _iwodvuy1.MarketCapTreemap():
         return 'MarketCapTreemap';
+      case _ihawso0m.MarketIndexDay():
+        return 'MarketIndexDay';
+      case _i9c8jqc3.MarketIndexSnapshot():
+        return 'MarketIndexSnapshot';
       case _ibhowe7d.MarketSnapshot():
         return 'MarketSnapshot';
       case _i3renazk.MarketSnapshotDay():
@@ -1889,6 +1943,12 @@ class Protocol extends _isc.SerializationManager {
     if (dataClassName == 'GroupPerson') {
       return deserialize<_iklt0jfv.GroupPerson>(data['data']);
     }
+    if (dataClassName == 'IndexHistory') {
+      return deserialize<_iocwvagy.IndexHistory>(data['data']);
+    }
+    if (dataClassName == 'IndexPoint') {
+      return deserialize<_it75qdkc.IndexPoint>(data['data']);
+    }
     if (dataClassName == 'Industry') {
       return deserialize<_i3hzx3f1.Industry>(data['data']);
     }
@@ -1921,6 +1981,12 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'MarketCapTreemap') {
       return deserialize<_iwodvuy1.MarketCapTreemap>(data['data']);
+    }
+    if (dataClassName == 'MarketIndexDay') {
+      return deserialize<_ihawso0m.MarketIndexDay>(data['data']);
+    }
+    if (dataClassName == 'MarketIndexSnapshot') {
+      return deserialize<_i9c8jqc3.MarketIndexSnapshot>(data['data']);
     }
     if (dataClassName == 'MarketSnapshot') {
       return deserialize<_ibhowe7d.MarketSnapshot>(data['data']);

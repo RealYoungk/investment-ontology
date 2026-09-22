@@ -1,0 +1,13 @@
+### 수집 장부: 지수를 받은 기준일. 휴장일(0건)도 기록해 다시 조회하지 않는다.
+class: MarketIndexDay
+table: market_index_day
+fields:
+  ### 기준일 (UTC 자정)
+  baseDate: DateTime
+  rowCount: int
+  sourceId: int?, relation(parent=source, onDelete=SetNull)
+  fetchedAt: DateTime
+indexes:
+  market_index_day_date_idx:
+    fields: baseDate
+    unique: true

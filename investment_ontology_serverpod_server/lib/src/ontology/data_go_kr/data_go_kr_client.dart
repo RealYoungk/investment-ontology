@@ -61,6 +61,10 @@ class DataGoKrClient {
       'GetStockSecuritiesInfoService_V2/getStockPriceInfo_V2';
   static const listedItemPath = 'GetKrxListedInfoService_V2/getItemInfo_V2';
 
+  /// 지수시세정보 (금융위원회_지수시세정보). 하루 170개 안팎 지수가 한 페이지에 온다.
+  static const marketIndexPath =
+      'GetMarketIndexInfoService_V2/getStockMarketIndex_V2';
+
   /// 페이지당 행 수.
   static const pageSize = 1000;
 
@@ -82,6 +86,10 @@ class DataGoKrClient {
   /// KRX상장종목정보: 기준일의 상장 종목과 발행 법인.
   Future<DataGoKrPage> fetchListedItems(DateTime baseDate, {int page = 1}) =>
       _page(listedItemPath, baseDate, page);
+
+  /// 지수시세정보: 기준일의 전 지수 값 (코스피·코스닥·KRX·테마 계열).
+  Future<DataGoKrPage> fetchMarketIndexes(DateTime baseDate, {int page = 1}) =>
+      _page(marketIndexPath, baseDate, page);
 
   Future<DataGoKrPage> _page(String path, DateTime baseDate, int page) async {
     final uri = Uri.parse('$baseUrl/$path').replace(

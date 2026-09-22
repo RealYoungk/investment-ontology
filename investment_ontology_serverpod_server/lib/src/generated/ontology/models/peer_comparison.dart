@@ -13,7 +13,6 @@
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart'
     as _i4yshtjp;
 import 'package:serverpod/serverpod.dart' as _is;
-
 import '../../ontology/models/peer_metric.dart' as _i4dx7lca;
 
 /// 같은 업종 기업들과의 비교. 업종은 세분류 → 중분류 → 대분류 순으로 넓혀 잡는다.

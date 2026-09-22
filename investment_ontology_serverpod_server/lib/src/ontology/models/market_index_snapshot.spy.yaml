@@ -1,0 +1,36 @@
+### 지수(코스피·코스닥·KRX·테마)의 하루 값. 공공데이터포털 금융위원회_지수시세정보(getStockMarketIndex_V2) 응답 한 행.
+### 지수 값은 원문 소수 그대로, 금액은 원 단위 정수. 등락률처럼 원천 값으로 계산되는 값은 등락률(fltRt)만 원문대로 둔다.
+class: MarketIndexSnapshot
+table: market_index_snapshot
+fields:
+  ### 기준일 (UTC 자정)
+  baseDate: DateTime
+  ### 지수 계열 (idxCsf: KOSPI시리즈 · KOSDAQ시리즈 · KRX시리즈 · 테마시리즈)
+  series: String
+  ### 지수명 (idxNm: 코스피, 코스닥, IT 서비스 …)
+  name: String
+  ### 종가 (clpr)
+  close: double
+  ### 전일 대비 (vs)
+  change: double?
+  ### 등락률 % (fltRt)
+  changeRate: double?
+  ### 시가·고가·저가 (mkp, hipr, lopr)
+  open: double?
+  high: double?
+  low: double?
+  ### 거래량 (trqu)
+  volume: BigInt?
+  ### 거래대금 (trPrc)
+  tradingValue: BigInt?
+  ### 상장시가총액 (lstgMrktTotAmt)
+  marketCap: BigInt?
+  ### 채용 종목 수 (epyItmsCnt)
+  constituentCount: int?
+  sourceId: int, relation(parent=source, onDelete=Restrict)
+indexes:
+  market_index_snapshot_key_idx:
+    fields: baseDate, series, name
+    unique: true
+  market_index_snapshot_name_idx:
+    fields: series, name, baseDate

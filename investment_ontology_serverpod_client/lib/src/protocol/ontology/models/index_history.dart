@@ -1,0 +1,139 @@
+/* AUTOMATICALLY GENERATED CODE DO NOT MODIFY */
+/*   To generate run: "serverpod generate"    */
+
+// ignore_for_file: implementation_imports
+// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: public_member_api_docs
+// ignore_for_file: type_literal_in_constant_pattern
+// ignore_for_file: use_super_parameters
+// ignore_for_file: invalid_use_of_internal_member
+
+// ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:investment_ontology_serverpod_client/src/protocol/protocol.dart'
+    as _ilkzeueu;
+import 'package:serverpod_client/serverpod_client.dart' as _isc;
+import '../../ontology/models/index_point.dart' as _ipppabto;
+
+/// 지수 하나의 추이. 화면에서 그리기 좋게 골라 보낸 점들이다 (원천은 공공데이터포털 일별 지수시세).
+abstract class IndexHistory
+    implements _isc.SerializableModel, _isc.ProtocolSerialization {
+  IndexHistory._({
+    required this.series,
+    required this.name,
+    required this.stride,
+    required this.points,
+    this.lastChangeRate,
+  });
+
+  factory IndexHistory({
+    required String series,
+    required String name,
+    required int stride,
+    required List<_ipppabto.IndexPoint> points,
+    double? lastChangeRate,
+  }) = _IndexHistoryImpl;
+
+  factory IndexHistory.fromJson(Map<String, dynamic> jsonSerialization) {
+    return IndexHistory(
+      series: jsonSerialization['series'] as String,
+      name: jsonSerialization['name'] as String,
+      stride: jsonSerialization['stride'] as int,
+      points: _ilkzeueu.Protocol().deserialize<List<_ipppabto.IndexPoint>>(
+        jsonSerialization['points'],
+      ),
+      lastChangeRate: (jsonSerialization['lastChangeRate'] as num?)?.toDouble(),
+    );
+  }
+
+  String series;
+
+  String name;
+
+  /// 점 사이 간격 (1이면 매 거래일, 5면 다섯 거래일에 하나)
+  int stride;
+
+  List<_ipppabto.IndexPoint> points;
+
+  /// 마지막 거래일의 전일 대비 등락률 % (원문 fltRt)
+  double? lastChangeRate;
+
+  /// Returns a shallow copy of this [IndexHistory]
+  /// with some or all fields replaced by the given arguments.
+  @_isc.useResult
+  IndexHistory copyWith({
+    String? series,
+    String? name,
+    int? stride,
+    List<_ipppabto.IndexPoint>? points,
+    double? lastChangeRate,
+  });
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      '__className__': 'IndexHistory',
+      'series': series,
+      'name': name,
+      'stride': stride,
+      'points': points.toJson(valueToJson: (v) => v.toJson()),
+      if (lastChangeRate != null) 'lastChangeRate': lastChangeRate,
+    };
+  }
+
+  @override
+  Map<String, dynamic> toJsonForProtocol() {
+    return {
+      '__className__': 'IndexHistory',
+      'series': series,
+      'name': name,
+      'stride': stride,
+      'points': points.toJson(valueToJson: (v) => v.toJsonForProtocol()),
+      if (lastChangeRate != null) 'lastChangeRate': lastChangeRate,
+    };
+  }
+
+  @override
+  String toString() {
+    return _isc.SerializationManager.encode(this);
+  }
+}
+
+class _Undefined {}
+
+class _IndexHistoryImpl extends IndexHistory {
+  _IndexHistoryImpl({
+    required String series,
+    required String name,
+    required int stride,
+    required List<_ipppabto.IndexPoint> points,
+    double? lastChangeRate,
+  }) : super._(
+         series: series,
+         name: name,
+         stride: stride,
+         points: points,
+         lastChangeRate: lastChangeRate,
+       );
+
+  /// Returns a shallow copy of this [IndexHistory]
+  /// with some or all fields replaced by the given arguments.
+  @_isc.useResult
+  @override
+  IndexHistory copyWith({
+    String? series,
+    String? name,
+    int? stride,
+    List<_ipppabto.IndexPoint>? points,
+    Object? lastChangeRate = _Undefined,
+  }) {
+    return IndexHistory(
+      series: series ?? this.series,
+      name: name ?? this.name,
+      stride: stride ?? this.stride,
+      points: points ?? this.points.map((e0) => e0.copyWith()).toList(),
+      lastChangeRate: lastChangeRate is double?
+          ? lastChangeRate
+          : this.lastChangeRate,
+    );
+  }
+}

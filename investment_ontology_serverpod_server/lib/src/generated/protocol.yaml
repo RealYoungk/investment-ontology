@@ -64,6 +64,7 @@ ingest:
 market:
   - industryTreemap:
   - capHistory:
+  - indexHistory:
   - priceHistory:
 review:
   - list:
