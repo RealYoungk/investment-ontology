@@ -229,15 +229,17 @@ class _Members extends StatelessWidget {
           )
         else
           AppDataTable(
+            // 메모가 남는 폭을 가져가고, 짧은 칸(시장·시가총액·날짜·빼기)은 접히지 않게 한 줄로.
+            expand: true,
             columns: const [
-              AppColumn('기업'),
-              AppColumn('시장'),
+              AppColumn('기업', nowrap: true),
+              AppColumn('시장', nowrap: true),
               AppColumn('업종'),
-              AppColumn('시가총액', numeric: true),
-              AppColumn('비중', numeric: true),
-              AppColumn('메모 (왜 이 테마인가)'),
-              AppColumn('편입일'),
-              AppColumn(''),
+              AppColumn('시가총액', numeric: true, nowrap: true),
+              AppColumn('비중', numeric: true, nowrap: true),
+              AppColumn('메모 (왜 이 테마인가)', flex: true),
+              AppColumn('편입일', nowrap: true, width: 96),
+              AppColumn('', nowrap: true),
             ],
             rows: [
               for (final m in detail.members)
@@ -257,12 +259,17 @@ class _Members extends StatelessWidget {
                           ),
                     ),
                   ),
-                  AppDataTable.text(context, marketLabel(m.company.market)),
+                  AppDataTable.text(
+                    context,
+                    marketLabel(m.company.market),
+                    nowrap: true,
+                  ),
                   AppDataTable.text(context, m.industryName),
                   AppDataTable.text(
                     context,
                     m.marketCap == null ? null : formatKrw(m.marketCap),
                     numeric: true,
+                    nowrap: true,
                   ),
                   AppDataTable.text(
                     context,
@@ -272,7 +279,11 @@ class _Members extends StatelessWidget {
                     numeric: true,
                   ),
                   AppDataTable.text(context, m.member.note),
-                  AppDataTable.text(context, formatDate(m.member.createdAt)),
+                  AppDataTable.text(
+                    context,
+                    formatDate(m.member.createdAt),
+                    nowrap: true,
+                  ),
                   AppButton(
                     label: '빼기',
                     variant: AppButtonVariant.link,
