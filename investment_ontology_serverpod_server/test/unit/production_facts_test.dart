@@ -91,12 +91,12 @@ void main() {
 사업부문 | 생산능력 | 생산실적 | 가동률
 반도체 | 1,000 | 800 | 80%
 ''';
-    // 머리글 줄과 단위 줄이 따로여도, 단위가 적힌 머리글 줄이면 받는다.
+    // 단위 줄이 머리글 바로 위(3줄 안)에 있어도, 머리글 줄에 있어도 받는다.
     const withUnit = '''
 사업부문 | 생산능력 | 생산실적 | 가동률 (단위 : 백만원)
 반도체 | 1,000 | 800 | 80%
 ''';
-    expect(ProductionFacts.parse(text).first.unit, isEmpty);
+    expect(ProductionFacts.parse(text).first.unit, '백만원');
     expect(ProductionFacts.parse(withUnit).first.unit, '백만원');
   });
 
@@ -110,5 +110,47 @@ void main() {
     expect(rows.first.capacity, 2000, reason: '전기(1,000)가 아니라 당기');
     expect(rows.first.production, 1000);
     expect(rows.first.utilization, 50);
+  });
+
+  test('단위가 머리글 윗줄에 있어도 쓰고, 품목마다 단위가 다르면 가동률만 남긴다', () {
+    const t = '''
+| (단위 : 천㎡, %)
+사업부문 | 당기 생산능력 | 당기 생산실적 | 당기 가동률
+제조 | 1,002 | 759 | 76%
+(단위 : 완제의약품-백만정, 바이오의약품-백만Syringe, 수액-백만Bag, API-Ton)
+사업소(사업부문) | 생산능력 | 생산실적 | 평균가동률(%)
+오송공장(수액) | 54.9 | 27.5 | 50.0
+''';
+    final rows = ProductionFacts.parse(t, owner: '대덕전자(주)');
+    expect(rows.map((r) => (r.label, r.unit, r.utilization)), [
+      ('제조', '천㎡', 76.0),
+      ('오송공장(수액)', '', 50.0),
+    ]);
+  });
+
+  test('세로형 표(생산능력·생산실적·가동률이 줄마다)도 당기 값을 검산해 읽는다', () {
+    const t = '''
+(단위 : 백만원, MH)
+사업부문 | 해당회사 | 품 목 | 사업소 | 구분 | 2025년 | 2024년 | 2023년
+방산 | 한화시스템(주) | 전술통신장비 등 | 구미사업장 | 생산능력 | 1,729,388 | 1,289,684 | 1,166,247
+생산실적 | 1,447,826 | 1,101,233 | 1,060,056
+가동률(%) | 83.72 | 85.39 | 90.89
+기타 | Hanwha Philly Shipyard Inc | 선박 조립 및 건조 등 | 미국 | 목표 가동시간 | 3,071,267 | - | -
+실제 가동시간 | 3,154,560 | - | -
+가동률(%) | 102.71 | - | -
+| (단위 : 백만원)
+사업부문 | 해당 회사 | 사업소 | 품 목 | 구 분 | 2025년 | 2024년
+시큐리티 | 한화비전㈜ 및 해외생산법인 | 베트남 박닌 | 감시장비 등 | 생산능력 | 363,760 | 162,015
+생산실적 | 332,803 | 154,799
+가동률(%) | 91.49% | 95.55%
+''';
+    final rows = ProductionFacts.parse(t, owner: '한화시스템(주)');
+    expect(rows.map((r) => r.utilization), [83.72, 102.71, 91.49]);
+    expect(rows[0].label, '방산 · 한화시스템(주) · 전술통신장비 등 · 구미사업장');
+    expect(rows[0].capacity, 1729388);
+    expect(rows[0].unit, '백만원');
+    // 목표·실제 가동시간은 생산능력이 아니라 가동률만.
+    expect(rows[1].capacity, isNull);
+    expect(rows[2].unit, '백만원');
   });
 }
