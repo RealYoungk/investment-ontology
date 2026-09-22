@@ -116,7 +116,11 @@ abstract final class ProductionFacts {
         inTable = capAt >= 0 && prodAt >= 0 && utilAt >= 0;
         onlyUtilization = false;
         unitFromHeader = _unitIn(line);
-        if (unitFromHeader.isEmpty && i - lastUnitAt <= 3) {
+        // "생산능력(톤)"처럼 머리글 칸 괄호에 단위를 적기도 한다.
+        if (unitFromHeader.isEmpty && capAt >= 0) {
+          unitFromHeader = _unitFromParens(cells[capAt]);
+        }
+        if (unitFromHeader.isEmpty && i - lastUnitAt <= 6) {
           unitFromHeader = _firstUnit(lastUnit);
         }
         continue;
@@ -132,6 +136,12 @@ abstract final class ProductionFacts {
           vProd = null;
           vAt = i;
           vUnit = i - lastUnitAt <= 6 ? _firstUnit(lastUnit) : '';
+          if (vUnit.isEmpty) {
+            for (final l in labels) {
+              vUnit = _unitFromParens(l);
+              if (vUnit.isNotEmpty) break;
+            }
+          }
         } else if (kind == 'prod' && vCap != null && i - vAt <= 2) {
           vProd = value;
         } else if (kind == 'util' &&
@@ -210,8 +220,15 @@ abstract final class ProductionFacts {
           if (c.isNotEmpty && !_number.hasMatch(c)) c,
       ];
       if (labels.isEmpty) continue;
-      // 마지막 글자 칸이 단위일 때가 많다 (백만개, 톤 …).
-      final unit = _unitOf(labels.last, unitFromHeader);
+      // 마지막 글자 칸이 단위일 때가 많다 (백만개, 톤 …). 이름 칸 괄호("광학솔루션(백만개)",
+      // "Chemical(ton)")에 적기도 한다.
+      var unit = _unitOf(labels.last, unitFromHeader);
+      if (unit.isEmpty) {
+        for (final l in labels) {
+          unit = _unitFromParens(l);
+          if (unit.isNotEmpty) break;
+        }
+      }
       final name = [
         for (final l in labels)
           if (l != unit) l,
@@ -265,6 +282,20 @@ abstract final class ProductionFacts {
       if (t.isEmpty || t == '%') continue;
       if (t.length > 8 || RegExp(r'[0-9\-:]').hasMatch(t)) return '';
       return t;
+    }
+    return '';
+  }
+
+  /// 괄호 속 단위 낱말 ("광학솔루션(백만개)" → 백만개, "Chemical(ton)" → ton). 단위처럼
+  /// 생긴 짧은 낱말만 — "(연결)"·"(주1)"은 아니다.
+  static final _unitWord = RegExp(
+    r'^(백만|천|억|만|百万|千|億|萬)?\s*(개|대|톤|ton|TON|t|㎡|m²|㎥|시간|MH|배치|GWh|MWh|MW|kW|장|매|EA|ea|박스|병|kg|L|ℓ|km|m|시트|Sheet|sheet|Panel|셀|Cell|Set|set|Bbl|배럴|정|Bag|Syringe|個|台|枚|톤/년|대/년)$',
+  );
+
+  static String _unitFromParens(String cell) {
+    for (final m in RegExp(r'\(([^()]{1,10})\)').allMatches(cell)) {
+      final t = m.group(1)!.trim();
+      if (_unitWord.hasMatch(t)) return t;
     }
     return '';
   }
