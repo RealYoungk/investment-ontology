@@ -7,6 +7,7 @@ import '../../../app/ingest_monitor.dart';
 import '../../../client.dart';
 import '../../../design/components/components.dart';
 import '../../../design/tokens.dart';
+import '../../auth/app_viewer.dart';
 import '../../common/formatters.dart';
 
 /// 상장사 마스터(DART 기업개황) 수집 상태와 실행 버튼. 실행 중에는 진행률을 폴링한다.
@@ -87,6 +88,7 @@ class _IngestStatusBarState extends State<IngestStatusBar> {
   }
 
   Future<void> _start({bool force = false}) async {
+    if (!context.ensureAdmin()) return;
     setState(() {
       _starting = true;
       _error = null;
@@ -107,6 +109,7 @@ class _IngestStatusBarState extends State<IngestStatusBar> {
   }
 
   Future<void> _cancel() async {
+    if (!context.ensureAdmin()) return;
     final id = _job?.id;
     if (id == null) return;
     final job = await client.ingest.cancel(id);

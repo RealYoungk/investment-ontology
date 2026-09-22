@@ -3,6 +3,7 @@ import 'package:investment_ontology_serverpod_client/investment_ontology_serverp
 
 import '../../app/ingest_monitor.dart';
 import '../../client.dart';
+import '../auth/app_viewer.dart';
 import '../common/formatters.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
@@ -180,6 +181,7 @@ class _RebuildLinksState extends State<_RebuildLinks> {
   String? _message;
 
   Future<void> _run() async {
+    if (!context.ensureAdmin()) return;
     setState(() => _running = true);
     try {
       final m = await client.ingest.rebuildDisclosureLinks();
@@ -323,13 +325,17 @@ class _CoverageState extends State<_Coverage> {
           label: '받은 정기보고서 재무제표',
           done: v.filingsTotal - v.filingsPending,
           total: v.filingsTotal,
-          note: v.filingsPending == 0 ? null : '남은 기간 어림 $financialDays일',
+          note: v.filingsPending == 0
+              ? null
+              : '일일 호출 예산 기준 약 $financialDays일 · 완료 시각 미정',
         ),
         _Progress(
           label: '주요정보 우선 범위 (최신 사업보고서 핵심 항목)',
           done: v.prioritySectionsDone,
           total: v.prioritySections,
-          note: priorityLeft == 0 ? null : '남은 기간 어림 $priorityDays일',
+          note: priorityLeft == 0
+              ? null
+              : '일일 호출 예산 기준 약 $priorityDays일 · 완료 시각 미정',
         ),
         _Progress(
           label: '주요정보 전체 (5개년 28종 + 본문)',

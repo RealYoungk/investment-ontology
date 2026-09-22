@@ -8,6 +8,7 @@ import '../../app/router.dart';
 import '../../client.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
+import '../auth/app_viewer.dart';
 import '../common/formatters.dart';
 import '../financials/financial_metrics.dart';
 
@@ -42,6 +43,7 @@ class _ThemePageState extends State<ThemePage> {
   }
 
   Future<void> _edit(ThemeDetail d) async {
+    if (!context.ensureAdmin()) return;
     final name = TextEditingController(text: d.theme.name);
     final description = TextEditingController(text: d.theme.description ?? '');
     final ok = await showDialog<bool>(
@@ -84,6 +86,7 @@ class _ThemePageState extends State<ThemePage> {
   }
 
   Future<void> _delete(ThemeDetail d) async {
+    if (!context.ensureAdmin()) return;
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -142,17 +145,19 @@ class _ThemePageState extends State<ThemePage> {
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               Text(d.theme.name, style: t.display(40, color: c.textPrimary)),
-              AppButton(
-                label: '고치기',
-                variant: AppButtonVariant.link,
-                onPressed: () => _edit(d),
-              ),
-              AppButton(
-                label: '지우기',
-                variant: AppButtonVariant.link,
-                tone: c.accent,
-                onPressed: () => _delete(d),
-              ),
+              if (context.isAdmin) ...[
+                AppButton(
+                  label: '고치기',
+                  variant: AppButtonVariant.link,
+                  onPressed: () => _edit(d),
+                ),
+                AppButton(
+                  label: '지우기',
+                  variant: AppButtonVariant.link,
+                  tone: c.accent,
+                  onPressed: () => _delete(d),
+                ),
+              ],
             ],
           ),
           if (d.theme.description != null) ...[
@@ -191,7 +196,10 @@ class _ThemePageState extends State<ThemePage> {
           ],
           _Members(detail: d, onChanged: _load),
           const SizedBox(height: AppSpace.section),
-          _AddCompany(themeId: widget.themeId, onAdded: _load),
+          if (context.isAdmin)
+            _AddCompany(themeId: widget.themeId, onAdded: _load)
+          else
+            const AppNotice(message: '읽기 전용 계정입니다. 기업을 넣고 빼려면 관리자 권한이 필요합니다.'),
         ],
       ],
     );
@@ -334,6 +342,7 @@ class _Members extends StatelessWidget {
                         label: '빼기',
                         variant: AppButtonVariant.link,
                         onPressed: () async {
+                          if (!context.ensureAdmin()) return;
                           await client.theme.removeCompany(
                             detail.theme.id!,
                             m.company.corpCode,
@@ -389,6 +398,7 @@ class _AddCompanyState extends State<_AddCompany> {
   }
 
   Future<void> _add(CompanyListItem item) async {
+    if (!context.ensureAdmin()) return;
     await client.theme.addCompany(
       widget.themeId,
       item.corpCode,

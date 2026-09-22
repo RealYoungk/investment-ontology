@@ -11,6 +11,7 @@ import 'package:investment_ontology_serverpod_server/src/ontology/ingest/disclos
 import 'package:serverpod/serverpod.dart';
 import 'package:test/test.dart';
 
+import 'auth_test_sessions.dart';
 import 'test_tools/serverpod_test_tools.dart';
 
 /// 가짜 DART 주요정보. `api|corp|year` → 응답 행. 없으면 013.
@@ -110,7 +111,8 @@ Map<String, String> holder(
 };
 
 void main() {
-  withServerpod('Given DisclosureSync', (sessionBuilder, endpoints) {
+  withServerpod('Given DisclosureSync', (anonymous, endpoints) {
+    final sessionBuilder = anonymous.asAdmin;
     late Session session;
     late FakeDisclosures dart;
     final now = DateTime.utc(2026, 9, 19, 3);

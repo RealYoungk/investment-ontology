@@ -3,10 +3,12 @@ import 'package:investment_ontology_serverpod_server/src/ontology/ingest/ksic_re
 import 'package:investment_ontology_serverpod_server/src/ontology/ingest/ksic_seeder.dart';
 import 'package:test/test.dart';
 
+import 'auth_test_sessions.dart';
 import 'test_tools/serverpod_test_tools.dart';
 
 void main() {
-  withServerpod('Given 상장사 데이터', (sessionBuilder, endpoints) {
+  withServerpod('Given 상장사 데이터', (anonymous, endpoints) {
+    final sessionBuilder = anonymous.asReader;
     setUp(() async {
       final session = sessionBuilder.build();
       await KsicSeeder.seed(session);

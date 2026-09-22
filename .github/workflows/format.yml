@@ -11,19 +11,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
-          # 로컬과 같이 항상 최신 stable을 쓴다.
+          # 검증한 SDK를 고정해 로컬과 CI를 동일하게 유지한다.
           channel: stable
+          flutter-version: 3.47.5
 
       - name: Install dependencies
         run: flutter pub get
 
       - name: Check formatting
-        working-directory: investment_ontology_serverpod_server
-        # 생성 코드는 생성기가 쓴 그대로 둔다. 최신 SDK 포맷터와 달라도 고치지 않는다.
+        # 서버(백엔드)·앱(프론트엔드)의 손으로 쓴 코드만 본다. 생성 코드(서버
+        # lib/src/generated/, 통합 테스트 test_tools/, 클라이언트 패키지 전체)는
+        # 생성기가 쓴 그대로 두고 최신 SDK 포맷터와 달라도 고치지 않는다.
         run: >-
           dart format --set-exit-if-changed
-          $(git ls-files '*.dart' | grep -v -e '^lib/src/generated/' -e '^test/integration/test_tools/')
+          $(git ls-files '*.dart'
+            | grep -v -e '^investment_ontology_serverpod_client/'
+                      -e '^investment_ontology_serverpod_server/lib/src/generated/'
+                      -e '^investment_ontology_serverpod_server/test/integration/test_tools/')

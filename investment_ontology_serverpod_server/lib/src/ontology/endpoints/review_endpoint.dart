@@ -1,9 +1,16 @@
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
+import '../auth/ontology_access.dart';
 
 /// AI 관계 검수 큐: 근거 인용을 보고 승인(verified)·거절(rejected)한다.
+///
+/// 읽기(list · context · checks · facts · forCompany)는 로그인한 누구나 —
+/// 사업의 내용 탭이 실측 정확도를 보여 준다. 결정·추천·기록은 관리자만.
 class ReviewEndpoint extends Endpoint {
+  @override
+  bool get requireLogin => true;
+
   Future<ReviewPage> list(
     Session session, {
     RelationStatus? status,
@@ -49,6 +56,7 @@ class ReviewEndpoint extends Endpoint {
     /// 누가 결정했는지. 사람이 화면에서 누르면 비워 둔다.
     String? by,
   }) async {
+    OntologyAccess.requireAdmin(session);
     final r = await OntologyRelation.db.findById(session, relationId);
     if (r == null || r.extractedBy != RelationOrigin.ai) return null;
     return OntologyRelation.db.updateRow(
@@ -68,6 +76,7 @@ class ReviewEndpoint extends Endpoint {
     bool approve, {
     String? by,
   }) async {
+    OntologyAccess.requireAdmin(session);
     var done = 0;
     for (final id in relationIds) {
       if (await decide(session, id, approve, by: by) != null) done++;
@@ -82,6 +91,7 @@ class ReviewEndpoint extends Endpoint {
     bool approve, {
     String? by,
   }) async {
+    OntologyAccess.requireAdmin(session);
     var done = 0;
     for (final id in factIds) {
       if (await decideFact(session, id, approve, by: by) != null) done++;
@@ -151,6 +161,7 @@ class ReviewEndpoint extends Endpoint {
     RelationStatus recommendation,
     String note,
   ) async {
+    OntologyAccess.requireAdmin(session);
     if (recommendation == RelationStatus.draft) return 0;
     var done = 0;
     if (scope == 'fact') {
@@ -182,6 +193,7 @@ class ReviewEndpoint extends Endpoint {
   /// 검수 대기 중 추천이 있는 것을 추천대로 한 번에 결정한다. 사람이 누른 것이므로
   /// `reviewedBy`는 "추천대로 일괄"로 남겨 하나씩 본 것과 구분한다.
   Future<int> applyRecommended(Session session, String scope) async {
+    OntologyAccess.requireAdmin(session);
     const by = '추천대로 일괄 적용';
     final now = DateTime.now().toUtc();
     var done = 0;
@@ -227,18 +239,21 @@ class ReviewEndpoint extends Endpoint {
     int leftToPerson,
     String checkedBy, {
     String? note,
-  }) => ReviewCheck.db.insertRow(
-    session,
-    ReviewCheck(
-      scope: scope,
-      checked: checked,
-      correct: correct,
-      leftToPerson: leftToPerson,
-      checkedBy: checkedBy,
-      note: note,
-      createdAt: DateTime.now().toUtc(),
-    ),
-  );
+  }) async {
+    OntologyAccess.requireAdmin(session);
+    return ReviewCheck.db.insertRow(
+      session,
+      ReviewCheck(
+        scope: scope,
+        checked: checked,
+        correct: correct,
+        leftToPerson: leftToPerson,
+        checkedBy: checkedBy,
+        note: note,
+        createdAt: DateTime.now().toUtc(),
+      ),
+    );
+  }
 
   /// 남겨 둔 대조 검수 기록 (최근 것부터).
   Future<List<ReviewCheck>> checks(Session session) => ReviewCheck.db.find(
@@ -297,6 +312,7 @@ class ReviewEndpoint extends Endpoint {
     bool approve, {
     String? by,
   }) async {
+    OntologyAccess.requireAdmin(session);
     final f = await DocumentFact.db.findById(session, factId);
     if (f == null) return null;
     return DocumentFact.db.updateRow(

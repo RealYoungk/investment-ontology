@@ -7,6 +7,7 @@ import '../../../app/ingest_monitor.dart';
 import '../../../client.dart';
 import '../../../design/components/components.dart';
 import '../../../design/tokens.dart';
+import '../../auth/app_viewer.dart';
 import '../../common/formatters.dart';
 
 /// 수집 작업 한 종류의 상태 · 진행률 · 실행/취소 버튼.
@@ -78,6 +79,7 @@ class _JobRowState extends State<IngestJobRow> {
   }
 
   Future<void> _start() async {
+    if (!context.ensureAdmin()) return;
     setState(() {
       _starting = true;
       _error = null;
@@ -98,6 +100,7 @@ class _JobRowState extends State<IngestJobRow> {
   }
 
   Future<void> _cancel() async {
+    if (!context.ensureAdmin()) return;
     final id = _job?.id;
     if (id == null) return;
     final job = await client.ingest.cancel(id);

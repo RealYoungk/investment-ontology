@@ -818,7 +818,7 @@ class EndpointGroup extends _isc.EndpointRef {
 
 /// 외부 원천 수집 제어.
 ///
-/// 1인 로컬 사용 전제라 인증이 없다. 외부에 배포하기 전에 인증을 붙여야 한다.
+/// 로그인 사용자는 상태를 읽고, 관리자는 수집 실행·취소·재계산을 요청한다.
 /// {@category Endpoint}
 class EndpointIngest extends _isc.EndpointRef {
   EndpointIngest(_isc.EndpointCaller caller) : super(caller);
@@ -1018,6 +1018,9 @@ class EndpointMarket extends _isc.EndpointRef {
 }
 
 /// AI 관계 검수 큐: 근거 인용을 보고 승인(verified)·거절(rejected)한다.
+///
+/// 읽기(list · context · checks · facts · forCompany)는 로그인한 누구나 —
+/// 사업의 내용 탭이 실측 정확도를 보여 준다. 결정·추천·기록은 관리자만.
 /// {@category Endpoint}
 class EndpointReview extends _isc.EndpointRef {
   EndpointReview(_isc.EndpointCaller caller) : super(caller);

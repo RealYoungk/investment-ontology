@@ -1,3 +1,5 @@
+import 'rule_document_store.dart';
+
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
@@ -69,7 +71,7 @@ abstract final class ProductionFacts {
     // 생산능력·생산실적·가동률 칸의 자리와 머리글의 칸 수 (오른쪽 끝 기준으로 다시 센다).
     var capAt = -1, prodAt = -1, utilAt = -1, columns = -1;
     var unitFromHeader = '';
-    // 단위 줄("(단위 : 천㎡, %)")은 머리글 바로 위에 따로 온다. 3줄 안의 것만 쓴다.
+    // 단위 줄("(단위 : 천㎡, %)")은 머리글 앞 6줄까지 찾되 절 경계를 넘기지 않는다.
     String? lastUnit;
     var lastUnitAt = -1000;
     // 세로형 표: "… | 생산능력 | 1,729,388 | …" 줄 뒤에 생산실적 줄, 가동률 줄이 온다.
@@ -78,13 +80,24 @@ abstract final class ProductionFacts {
     var vCapIsCapacity = false;
     var vAt = -1000;
     String vUnit = '';
+    void resetTable() {
+      lastUnit = null;
+      lastUnitAt = -1000;
+      unitFromHeader = '';
+      inTable = false;
+      vCap = null;
+      vProd = null;
+      vUnit = '';
+    }
+
     for (var i = 0; i < lines.length; i++) {
       final line = lines[i].trim();
       if (line.isEmpty) continue;
-      final u = RegExp(r'단위\s*[:：]\s*([^)\]]+)').firstMatch(line);
-      if (u != null) {
-        lastUnit = u.group(1)!.trim();
-        lastUnitAt = i;
+      // BusinessText가 절 제목을 ## 형태로 보존한다. 새 절에서는 단위뿐 아니라
+      // 이전 가로형 머리글과 미완성 세로형 묶음도 이어 쓰면 안 된다.
+      if (RegExp(r'^#{1,6}\s').hasMatch(line)) {
+        resetTable();
+        continue;
       }
       final marker = RegExp(r'^\[([^\]]{2,20})\]').firstMatch(line);
       if (marker != null) {
@@ -95,14 +108,19 @@ abstract final class ProductionFacts {
         // 대괄호는 "[제78기 누계]"처럼 표 제목에도 쓰인다. 회사 이름일 때만 바꾼다.
         if (isOwner) {
           otherCompany = false;
-          inTable = false;
+          resetTable();
         } else if (otherCompanies.contains(name)) {
           otherCompany = true;
-          inTable = false;
+          resetTable();
         }
         continue;
       }
       if (otherCompany) continue;
+      final u = RegExp(r'단위\s*[:：]\s*([^)\]]+)').firstMatch(line);
+      if (u != null) {
+        lastUnit = u.group(1)!.trim();
+        lastUnitAt = i;
+      }
       final cells = [for (final c in line.split('|')) c.trim()];
 
       // 머리글: 생산능력·생산실적·가동률이 한 줄에 같이 있다.
@@ -114,7 +132,13 @@ abstract final class ProductionFacts {
         prodAt = cells.indexWhere((c) => c.contains('생산실적'));
         utilAt = cells.indexWhere((c) => c.contains('가동률'));
         columns = cells.length;
-        inTable = capAt >= 0 && prodAt >= 0 && utilAt >= 0;
+        inTable =
+            capAt >= 0 &&
+            prodAt >= 0 &&
+            utilAt >= 0 &&
+            capAt != prodAt &&
+            capAt != utilAt &&
+            prodAt != utilAt;
         onlyUtilization = false;
         unitFromHeader = _unitIn(line);
         // "생산능력(톤)"처럼 머리글 칸 괄호에 단위를 적기도 한다.
@@ -124,6 +148,11 @@ abstract final class ProductionFacts {
         if (unitFromHeader.isEmpty && i - lastUnitAt <= 6) {
           unitFromHeader = _firstUnit(lastUnit);
         }
+        // 실제 열 머리글에서만 소비한다. 세 키워드가 든 설명 문장은
+        // 머리글이 아니며, 그 문장에 적힌 단위는 다음 표가 사용한다.
+        if (inTable) lastUnit = null;
+        vCap = null;
+        vProd = null;
         continue;
       }
       // 세로형: 구분 칸에 생산능력·생산실적·가동률이 줄마다 있고 숫자는 그 뒤 칸(당기가 맨 앞).
@@ -153,8 +182,8 @@ abstract final class ProductionFacts {
             vCap != null &&
             vProd != null &&
             i - vAt <= 3 &&
-            vCap > 0 &&
-            (value - 100 * vProd / vCap).abs() <= tolerance) {
+            vCap! > 0 &&
+            (value - 100 * vProd! / vCap!).abs() <= tolerance) {
           final name = vCapLabels!.join(' · ');
           if (name.isNotEmpty) {
             out.add((
@@ -196,6 +225,9 @@ abstract final class ProductionFacts {
             unitFromHeader = _firstUnit(lastUnit);
           }
         }
+        lastUnit = null;
+        vCap = null;
+        vProd = null;
         continue;
       }
       if (!inTable) continue;
@@ -383,10 +415,14 @@ abstract final class ProductionFacts {
   }
 
   /// 상장사 이름 키 (대괄호 구역이 다른 회사 것인지 가릴 때 쓴다).
-  static Future<Set<String>> listedKeys(Session session) async => {
+  static Future<Set<String>> listedKeys(
+    Session session, {
+    Transaction? transaction,
+  }) async => {
     for (final c in await Company.db.find(
       session,
       where: (t) => t.market.inSet(DisclosureLinks.listedMarkets),
+      transaction: transaction,
     ))
       _key(c.name),
   };
@@ -398,18 +434,51 @@ abstract final class ProductionFacts {
 
     /// 상장사 이름 키. 없으면 읽어 온다 (여러 문서를 돌릴 때는 미리 만들어 넘긴다).
     Set<String>? companyKeys,
+  }) => RuleDocumentStore.run(
+    session,
+    doc,
+    (current, tx) => _store(session, current, tx, companyKeys: companyKeys),
+  );
+
+  static Future<int> _store(
+    Session session,
+    BusinessDocument doc,
+    Transaction tx, {
+    Set<String>? companyKeys,
   }) async {
-    final company = await Company.db.findById(session, doc.companyId);
+    await DocumentFact.db.deleteWhere(
+      session,
+      transaction: tx,
+      where: (t) =>
+          t.documentId.equals(doc.id!) &
+          t.extractedBy.equals(RelationOrigin.api) &
+          t.extractorModel.equals('표 규칙') &
+          t.reviewedBy.like('표 규칙%') &
+          t.kind.notInSet({
+            DocumentFactKind.rndExpense,
+            DocumentFactKind.rndRatio,
+          }),
+    );
+    final company = await Company.db.findById(
+      session,
+      doc.companyId,
+      transaction: tx,
+    );
     // 지주회사(KSIC 64992)의 "사업의 내용"은 대부분 자회사·관계기업의 표다.
     // 그 회사 값으로 잘못 넣느니 통째로 건너뛴다.
     if (company?.industryCode == holdingCompanyCode) return 0;
-    final others = companyKeys ?? await listedKeys(session);
+    final others = companyKeys ?? await listedKeys(session, transaction: tx);
     // 가동률 표가 없어도 부문별 매출·수주 표는 있을 수 있다 — 여기서 돌아가지 않는다.
     final rows = parse(doc.text, owner: company?.name, otherCompanies: others);
-    final report = await DisclosureReport.db.findById(session, doc.reportId);
+    final report = await DisclosureReport.db.findById(
+      session,
+      doc.reportId,
+      transaction: tx,
+    );
     final existing = {
       for (final f in await DocumentFact.db.find(
         session,
+        transaction: tx,
         where: (t) => t.documentId.equals(doc.id!),
       ))
         if (f.kind == DocumentFactKind.marketShare)
@@ -536,7 +605,7 @@ abstract final class ProductionFacts {
       );
     }
     if (facts.isEmpty) return 0;
-    await DocumentFact.db.insert(session, facts);
+    await DocumentFact.db.insert(session, facts, transaction: tx);
     return facts.length;
   }
 }

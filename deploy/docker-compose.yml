@@ -35,10 +35,33 @@ services:
         condition: service_healthy
     environment:
       runmode: production
+      ONTOLOGY_ADMIN_EMAILS: ${ONTOLOGY_ADMIN_EMAILS:?set in .env}
+      # config/production.yaml은 Serverpod Cloud/Terraform용 자리표시자 도메인·DB
+      # 호스트를 담고 있다. 이 compose의 postgres는 SSL이 없고 이름도 다르므로
+      # 여기서 덮어쓴다. (config/production.yaml은 서버 앱 코드 소유라 여기서
+      # 고치지 않는다 — 값을 맞추는 대신 환경변수 우선순위로 이긴다.)
+      SERVERPOD_DATABASE_HOST: postgres
+      SERVERPOD_DATABASE_PORT: "5432"
+      SERVERPOD_DATABASE_NAME: investment_ontology_serverpod
+      SERVERPOD_DATABASE_REQUIRE_SSL: "false"
+      # 첫 기동에서 대기 중인 마이그레이션을 적용한다.
+      SERVERPOD_APPLY_MIGRATIONS: "true"
+      # 웹 클라이언트는 로그인 토큰을 httpOnly 쿠키로 받는다(lib/client.dart의
+      # `cookieAuth = true`). allowedOrigins 없이 authCookie만 켜면 기동이
+      # 실패하므로 같이 설정한다. Caddy가 앱과 API를 같은 오리진(도메인)으로
+      # 묶어 서빙하므로 오리진은 하나면 된다.
+      SERVERPOD_ALLOWED_ORIGINS: https://${DOMAIN:?set in .env}
+      SERVERPOD_AUTH_COOKIE_SECURE: "true"
       # Serverpod는 config/production.yaml을 읽고, 비밀값만 환경변수로 받는다.
       SERVERPOD_PASSWORD_database: ${POSTGRES_PASSWORD:?set in .env}
       SERVERPOD_PASSWORD_redis: ${REDIS_PASSWORD:?set in .env}
       SERVERPOD_PASSWORD_serviceSecret: ${SERVICE_SECRET:?set in .env}
+      # 로그인 키. 배포마다 재생성하지 않는다. 유출 시에는 영향을 확인하고 교체한다 — jwtHmacSha512PrivateKey를 바꾸면
+      # 발급된 토큰이, jwtRefreshTokenHashPepper를 바꾸면 리프레시 토큰이 전부
+      # 무효화된다.
+      SERVERPOD_PASSWORD_jwtHmacSha512PrivateKey: ${JWT_HMAC_SHA512_PRIVATE_KEY:?set in .env}
+      SERVERPOD_PASSWORD_jwtRefreshTokenHashPepper: ${JWT_REFRESH_TOKEN_HASH_PEPPER:?set in .env}
+      SERVERPOD_PASSWORD_emailSecretHashPepper: ${EMAIL_SECRET_HASH_PEPPER:?set in .env}
       SERVERPOD_PASSWORD_dartApiKey: ${DART_API_KEY:?set in .env}
       SERVERPOD_PASSWORD_dataGoKrServiceKey: ${DATA_GO_KR_SERVICE_KEY:?set in .env}
       # AI 관계 추출을 쓸 때만 필요 (없으면 그 기능만 꺼진 채로 돈다).
@@ -57,9 +80,6 @@ services:
       - "443:443"
     environment:
       DOMAIN: ${DOMAIN:?set in .env}
-      # htpasswd 해시: docker run --rm caddy:2 caddy hash-password --plaintext '비밀번호'
-      BASIC_AUTH_USER: ${BASIC_AUTH_USER:?set in .env}
-      BASIC_AUTH_HASH: ${BASIC_AUTH_HASH:?set in .env}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - ./web:/srv/web:ro

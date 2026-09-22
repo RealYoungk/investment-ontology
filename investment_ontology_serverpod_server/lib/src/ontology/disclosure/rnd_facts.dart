@@ -1,3 +1,5 @@
+import 'rule_document_store.dart';
+
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
@@ -153,7 +155,31 @@ abstract final class RndFacts {
   };
 
   /// 한 문서에서 읽어 저장한다. 비율과 맞는 계 줄이 없으면 아무것도 넣지 않는다.
-  static Future<int> store(Session session, BusinessDocument doc) async {
+  static Future<int> store(Session session, BusinessDocument doc) =>
+      RuleDocumentStore.run(
+        session,
+        doc,
+        (current, tx) => _store(session, current, tx),
+      );
+
+  static Future<int> _store(
+    Session session,
+    BusinessDocument doc,
+    Transaction tx,
+  ) async {
+    await DocumentFact.db.deleteWhere(
+      session,
+      transaction: tx,
+      where: (t) =>
+          t.documentId.equals(doc.id!) &
+          t.extractedBy.equals(RelationOrigin.api) &
+          t.extractorModel.equals('표 규칙') &
+          t.reviewedBy.equals(model) &
+          t.kind.inSet({
+            DocumentFactKind.rndExpense,
+            DocumentFactKind.rndRatio,
+          }),
+    );
     final table = parse(doc.text, bsnsYear: doc.bsnsYear);
     if (table == null) return 0;
     final won = _wonPerUnit[table.unit];
@@ -166,6 +192,7 @@ abstract final class RndFacts {
       for (final fs in [FsDiv.consolidated, FsDiv.separate]) {
         final f = await FinancialFact.db.findFirstRow(
           session,
+          transaction: tx,
           where: (t) =>
               t.companyId.equals(doc.companyId) &
               t.bsnsYear.equals(year0) &
@@ -193,10 +220,15 @@ abstract final class RndFacts {
     }
     if (chosen == null) return 0;
 
-    final report = await DisclosureReport.db.findById(session, doc.reportId);
+    final report = await DisclosureReport.db.findById(
+      session,
+      doc.reportId,
+      transaction: tx,
+    );
     final existing = {
       for (final f in await DocumentFact.db.find(
         session,
+        transaction: tx,
         where: (t) =>
             t.documentId.equals(doc.id!) &
             t.kind.inSet({
@@ -251,7 +283,7 @@ abstract final class RndFacts {
       }
     }
     if (facts.isEmpty) return 0;
-    await DocumentFact.db.insert(session, facts);
+    await DocumentFact.db.insert(session, facts, transaction: tx);
     return facts.length;
   }
 }

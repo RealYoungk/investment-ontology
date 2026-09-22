@@ -1,10 +1,7 @@
-# 로그인이 없는 앱이라 프록시에서 비밀번호로 막는다. TLS는 Caddy가 알아서 받는다.
+# 앱 자체 로그인(이메일)이 접근을 막으므로 프록시 단 비밀번호는 두지 않는다.
+# TLS는 Caddy가 알아서 받는다.
 {$DOMAIN} {
 	encode zstd gzip
-
-	basic_auth {
-		{$BASIC_AUTH_USER} {$BASIC_AUTH_HASH}
-	}
 
 	# Flutter 웹 빌드 결과 (deploy/web에 복사해 둔다).
 	handle {

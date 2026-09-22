@@ -7,6 +7,7 @@ import '../../app/router.dart';
 import '../../client.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
+import '../auth/app_viewer.dart';
 import '../common/formatters.dart';
 
 String predicateLabel(RelationPredicate p) => switch (p) {
@@ -109,6 +110,7 @@ class _ReviewQueuePageState extends State<ReviewQueuePage> {
       : 'relation:${_page!.items[index].relation.id}';
 
   Future<void> _decideFact(DocumentFact f, bool approve) async {
+    if (!context.ensureAdmin()) return;
     setState(() => _busy.add(-f.id!));
     try {
       await client.review.decideFact(f.id!, approve);
@@ -119,6 +121,7 @@ class _ReviewQueuePageState extends State<ReviewQueuePage> {
   }
 
   Future<void> _decide(OntologyRelation r, bool approve) async {
+    if (!context.ensureAdmin()) return;
     setState(() => _busy.add(r.id!));
     try {
       await client.review.decide(r.id!, approve);
@@ -129,6 +132,7 @@ class _ReviewQueuePageState extends State<ReviewQueuePage> {
   }
 
   Future<void> _applyRecommended() async {
+    if (!context.ensureAdmin()) return;
     final scope = _showFacts ? 'fact' : 'relation';
     final n = await client.review.applyRecommended(scope);
     if (!mounted) return;

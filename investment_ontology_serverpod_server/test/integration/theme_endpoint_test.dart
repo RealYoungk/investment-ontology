@@ -2,10 +2,12 @@ import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart
 import 'package:serverpod/serverpod.dart';
 import 'package:test/test.dart';
 
+import 'auth_test_sessions.dart';
 import 'test_tools/serverpod_test_tools.dart';
 
 void main() {
-  withServerpod('Given 테마', (sessionBuilder, endpoints) {
+  withServerpod('Given 테마', (anonymous, endpoints) {
+    final sessionBuilder = anonymous.asAdmin;
     late Session session;
     final ids = <String, int>{};
 

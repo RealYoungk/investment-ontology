@@ -1,6 +1,7 @@
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
+import '../auth/ontology_access.dart';
 import '../ingest/ksic_revision.dart';
 import '../market/market_caps.dart';
 
@@ -8,6 +9,9 @@ import '../market/market_caps.dart';
 ///
 /// 편입은 사람의 판단이므로 출처는 manual Source로 남긴다.
 class ThemeEndpoint extends Endpoint {
+  @override
+  bool get requireLogin => true;
+
   /// 테마 목록. 편입 기업 시가총액이 큰 순서.
   Future<List<ThemeSummary>> list(Session session) async {
     final themes = await InvestmentTheme.db.find(
@@ -65,6 +69,7 @@ class ThemeEndpoint extends Endpoint {
     String name, {
     String? description,
   }) async {
+    OntologyAccess.requireAdmin(session);
     final trimmed = name.trim();
     if (trimmed.isEmpty) {
       throw IngestException(message: '테마 이름을 입력하세요.');
@@ -92,6 +97,7 @@ class ThemeEndpoint extends Endpoint {
     String name, {
     String? description,
   }) async {
+    OntologyAccess.requireAdmin(session);
     final theme = await InvestmentTheme.db.findById(session, themeId);
     if (theme == null) return null;
     final trimmed = name.trim();
@@ -112,6 +118,7 @@ class ThemeEndpoint extends Endpoint {
 
   /// 테마를 지운다 (편입 기록도 함께). 사용자가 만든 것이라 지울 수 있다.
   Future<void> delete(Session session, int themeId) async {
+    OntologyAccess.requireAdmin(session);
     await InvestmentTheme.db.deleteWhere(
       session,
       where: (t) => t.id.equals(themeId),
@@ -169,6 +176,7 @@ class ThemeEndpoint extends Endpoint {
     String corpCode, {
     String? note,
   }) async {
+    OntologyAccess.requireAdmin(session);
     final theme = await InvestmentTheme.db.findById(session, themeId);
     final company = await Company.db.findFirstRow(
       session,
@@ -228,6 +236,7 @@ class ThemeEndpoint extends Endpoint {
     int themeId,
     String corpCode,
   ) async {
+    OntologyAccess.requireAdmin(session);
     final company = await Company.db.findFirstRow(
       session,
       where: (t) => t.corpCode.equals(corpCode),

@@ -7,6 +7,7 @@ import '../../app/router.dart';
 import '../../client.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
+import '../auth/app_viewer.dart';
 import '../common/formatters.dart';
 import '../financials/financial_metrics.dart'
     show formatKrwShort, formatUnitAmount;
@@ -528,6 +529,7 @@ class _AiRelationsState extends State<_AiRelations> {
                 ReviewCard(
                   item: item,
                   onDecide: (approve) async {
+                    if (!context.ensureAdmin()) return;
                     await client.review.decide(item.relation.id!, approve);
                     await _load();
                   },

@@ -7,6 +7,9 @@ import '../market/market_caps.dart';
 
 /// 상장사 조회.
 class CompanyEndpoint extends Endpoint {
+  @override
+  bool get requireLogin => true;
+
   static const _listed = {Market.kospi, Market.kosdaq, Market.konex};
 
   /// 시장·대분류별 상장사 수와 최근 수집 작업.

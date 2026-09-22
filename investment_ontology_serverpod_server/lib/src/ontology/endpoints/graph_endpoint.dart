@@ -12,6 +12,9 @@ import '../market/market_caps.dart';
 /// 이름뿐인 대상은 끝 노드로만 둔다 (동명이인·수백 곳 폭발).
 /// 거절한 관계와 검수 전 AI 관계(draft)는 빼고, 인물 추정 연결(draft)은 점선으로 넣는다.
 class GraphEndpoint extends Endpoint {
+  @override
+  bool get requireLogin => true;
+
   static const maxDepth = 3;
 
   Future<CompanyGraph?> neighborhood(

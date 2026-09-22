@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
+import '../auth/ontology_access.dart';
 import '../ai/ai_extraction_service.dart';
 import '../ai/anthropic_client.dart';
 import '../ai/document_facts.dart';
@@ -17,6 +18,9 @@ import '../ingest/ingest_hooks.dart';
 /// [submit]으로 결과를 넣기. 어느 쪽이든 결과는 검수 대기(draft)이고, 인용이 원문에 그대로
 /// 있는 후보만 남는다.
 class AiEndpoint extends Endpoint {
+  @override
+  bool get requireLogin => true;
+
   Future<AiStatus> status(Session session) async {
     final latest = await AiExtractionService.latestDocuments(session);
     final latestIds = {for (final d in latest) d.id};
@@ -45,6 +49,7 @@ class AiEndpoint extends Endpoint {
 
   /// 기업 하나의 가장 최근 사업보고서 본문을 바로 읽는다 (수십 초 걸린다).
   Future<AiExtraction> extractCompany(Session session, String corpCode) async {
+    OntologyAccess.requireAdmin(session);
     final key = _requireKey(session);
     final company = await Company.db.findFirstRow(
       session,
@@ -70,19 +75,16 @@ class AiEndpoint extends Endpoint {
 
   /// 아직 읽지 않은 기업의 최근 본문을 [limit]개까지 읽는 작업을 시작한다.
   Future<IngestJob> startBatch(Session session, {int? limit}) async {
+    OntologyAccess.requireAdmin(session);
     _requireKey(session);
-    final running = await IngestJobs.running(session, AiExtractionService.kind);
-    if (running != null) return running;
-    final job = (await IngestJobs.start(session, AiExtractionService.kind))!;
-    await IngestHooks.require(
-      IngestHooks.aiExtractionNow,
-      'aiExtractionNow',
-    )(
+    return IngestJobs.startAndSchedule(
       session,
-      job.id!,
-      (limit ?? 20).clamp(1, 500),
+      AiExtractionService.kind,
+      (job) => IngestHooks.require(
+        IngestHooks.aiExtractionNow,
+        'aiExtractionNow',
+      )(session, job.id!, (limit ?? 20).clamp(1, 500)),
     );
-    return job;
   }
 
   /// 아직 읽지 않은 기업의 최근 본문 목록. 밖에서 미리 뽑을 때 이 순서로 고른다
@@ -168,6 +170,7 @@ class AiEndpoint extends Endpoint {
     String answer, {
     String? model,
   }) async {
+    OntologyAccess.requireAdmin(session);
     final doc = await BusinessDocument.db.findById(session, documentId);
     if (doc == null) {
       throw IngestException(message: '본문을 찾을 수 없습니다: $documentId');
@@ -193,6 +196,7 @@ class AiEndpoint extends Endpoint {
     String answer, {
     String? model,
   }) async {
+    OntologyAccess.requireAdmin(session);
     final doc = await BusinessDocument.db.findById(session, documentId);
     if (doc == null) {
       throw IngestException(message: '본문을 찾을 수 없습니다: $documentId');
@@ -264,6 +268,7 @@ class AiEndpoint extends Endpoint {
     String answer, {
     String? model,
   }) async {
+    OntologyAccess.requireAdmin(session);
     final doc = await BusinessDocument.db.findById(session, documentId);
     if (doc == null) {
       throw IngestException(message: '본문을 찾을 수 없습니다: $documentId');

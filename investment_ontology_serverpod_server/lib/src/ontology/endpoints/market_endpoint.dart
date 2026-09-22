@@ -5,6 +5,9 @@ import '../ingest/ksic_revision.dart';
 
 /// 시세 조회.
 class MarketEndpoint extends Endpoint {
+  @override
+  bool get requireLogin => true;
+
   static const _listed = {Market.kospi, Market.kosdaq, Market.konex};
 
   /// 업종 코드가 없는 기업의 묶음 코드.

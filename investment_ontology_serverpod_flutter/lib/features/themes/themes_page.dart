@@ -6,6 +6,7 @@ import '../../app/router.dart';
 import '../../client.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
+import '../auth/app_viewer.dart';
 import '../common/formatters.dart';
 import '../financials/financial_metrics.dart';
 
@@ -47,6 +48,7 @@ class _ThemesPageState extends State<ThemesPage> {
   }
 
   Future<void> _create() async {
+    if (!context.ensureAdmin()) return;
     try {
       final theme = await client.theme.create(
         _name.text,
@@ -81,38 +83,41 @@ class _ThemesPageState extends State<ThemesPage> {
               '편입은 사용자 입력(manual)으로 출처가 남습니다.',
         ),
         const SizedBox(height: AppSpace.xl),
-        Wrap(
-          spacing: AppSpace.md,
-          runSpacing: AppSpace.sm,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            SizedBox(
-              width: 220,
-              child: TextField(
-                controller: _name,
-                style: t.body(14),
-                decoration: const InputDecoration(hintText: '새 테마 이름'),
-                onSubmitted: (_) => _create(),
+        if (!context.isAdmin)
+          const AppNotice(message: '읽기 전용 계정입니다. 테마를 만들거나 고치려면 관리자 권한이 필요합니다.')
+        else
+          Wrap(
+            spacing: AppSpace.md,
+            runSpacing: AppSpace.sm,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              SizedBox(
+                width: 220,
+                child: TextField(
+                  controller: _name,
+                  style: t.body(14),
+                  decoration: const InputDecoration(hintText: '새 테마 이름'),
+                  onSubmitted: (_) => _create(),
+                ),
               ),
-            ),
-            SizedBox(
-              width: 360,
-              child: TextField(
-                controller: _description,
-                style: t.body(14),
-                decoration: const InputDecoration(hintText: '설명 (선택)'),
-                onSubmitted: (_) => _create(),
+              SizedBox(
+                width: 360,
+                child: TextField(
+                  controller: _description,
+                  style: t.body(14),
+                  decoration: const InputDecoration(hintText: '설명 (선택)'),
+                  onSubmitted: (_) => _create(),
+                ),
               ),
-            ),
-            AppButton(
-              label: '테마 만들기',
-              variant: AppButtonVariant.primary,
-              onPressed: _create,
-            ),
-            if (_createError != null)
-              Text(_createError!, style: t.body(13, color: c.accent)),
-          ],
-        ),
+              AppButton(
+                label: '테마 만들기',
+                variant: AppButtonVariant.primary,
+                onPressed: _create,
+              ),
+              if (_createError != null)
+                Text(_createError!, style: t.body(13, color: c.accent)),
+            ],
+          ),
         const SizedBox(height: AppSpace.xl),
         if (_error != null)
           AppNotice(message: '테마를 불러오지 못했습니다 — $_error')

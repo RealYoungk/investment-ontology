@@ -11,6 +11,9 @@ import '../disclosure/disclosure_values.dart';
 
 /// 정기보고서 주요정보 조회: 항목 목록 · 원문 표 · 주주환원.
 class DisclosureEndpoint extends Endpoint {
+  @override
+  bool get requireLogin => true;
+
   /// 기업이 가진 주요정보 항목과 사업연도 (항목 순서는 [DartSections.info]).
   Future<List<DisclosureSectionInfo>> sections(
     Session session,

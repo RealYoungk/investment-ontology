@@ -614,6 +614,11 @@ class FinancialFactsSync {
     return (status: FilingFetchStatus.stored, inserted: true);
   }
 
+  /// [_insert]가 회사·사업연도·보고서 코드·구분 단위로 잡는 PostgreSQL 트랜잭션
+  /// advisory lock의 첫 번째 키. [IngestJobs]의 잠금 등 다른 advisory lock과
+  /// 겹치지 않게 이 값으로 구분한다. 두 번째 키는 그 넷을 합친 문자열의 hashtext.
+  static const _supersedeLockNamespace = 461101;
+
   Future<void> _insert(
     DartFiling filing,
     Company company,
@@ -626,6 +631,17 @@ class FinancialFactsSync {
     final bsnsYear = filing.bsnsYear!;
     final reportCode = filing.reportCode!;
     await session.db.transaction((tx) async {
+      // 같은 (회사, 사업연도, 보고서 코드, 구분)을 동시에 처리하는 다른 실행(전체
+      // 수집과 기업 하나 수집 등)과 이 트랜잭션의 대체 판정을 직렬화한다. 잠그지
+      // 않으면 두 실행이 서로의 커밋을 보지 못한 채 각자 "활성" 보고서를 하나씩
+      // 남겨, 같은 기간에 활성 보고서가 둘 이상 생긴다.
+      await session.db.unsafeExecute(
+        'SELECT pg_advisory_xact_lock($_supersedeLockNamespace, hashtext(@key))',
+        parameters: QueryParameters.named({
+          'key': '${company.id}:$bsnsYear:${reportCode.name}:${div.name}',
+        }),
+        transaction: tx,
+      );
       final source = await Source.db.insertRow(
         session,
         Source(
@@ -680,7 +696,11 @@ class FinancialFactsSync {
         );
       }
 
-      final previous = await FinancialReport.db.find(
+      // 같은 기간에 아직 활성(supersededById == null)인 다른 보고서. 정상적으로는
+      // 많아야 하나지만, 과거에 이 판정이 대칭이 아니었던 시절 생긴 데이터라면
+      // 둘 이상일 수 있다 — 그런 기존 행을 되돌아가 고치지는 않되, 이번에 새
+      // 보고서가 들어온 김에 함께 바로잡는다(아래에서 활성으로 하나만 남긴다).
+      final rivals = await FinancialReport.db.find(
         session,
         where: (t) =>
             t.companyId.equals(company.id!) &
@@ -691,19 +711,39 @@ class FinancialFactsSync {
             t.id.notEquals(report.id!),
         transaction: tx,
       );
-      for (final prev in previous) {
-        if (prev.rceptNo.compareTo(rceptNo) >= 0) continue;
+
+      // 접수번호가 가장 큰(가장 최근) 쪽이 최종본이다. 공시 목록은 수신일
+      // 역순으로 훑으므로, 정정본(수신일이 늦음)이 원본보다 먼저 저장되어 있을
+      // 수 있다 — 그러면 방금 넣은 [report]가 오히려 지는 쪽이 된다.
+      var authoritative = report;
+      for (final rival in rivals) {
+        if (rival.rceptNo.compareTo(authoritative.rceptNo) > 0) {
+          authoritative = rival;
+        }
+      }
+      final authoritativeFacts = identical(authoritative, report)
+          ? inserted
+          : await FinancialFact.db.find(
+              session,
+              where: (t) => t.reportId.equals(authoritative.id!),
+              transaction: tx,
+            );
+
+      for (final loser in [report, ...rivals]) {
+        if (loser.id == authoritative.id) continue;
         await FinancialReport.db.updateRow(
           session,
-          prev.copyWith(supersededById: report.id),
+          loser.copyWith(supersededById: authoritative.id),
           transaction: tx,
         );
-        final oldFacts = await FinancialFact.db.find(
-          session,
-          where: (t) => t.reportId.equals(prev.id!),
-          transaction: tx,
-        );
-        final links = FinancialRows.supersessions(oldFacts, inserted);
+        final oldFacts = loser.id == report.id
+            ? inserted
+            : await FinancialFact.db.find(
+                session,
+                where: (t) => t.reportId.equals(loser.id!),
+                transaction: tx,
+              );
+        final links = FinancialRows.supersessions(oldFacts, authoritativeFacts);
         final updates = [
           for (final f in oldFacts)
             if (links[f.id] != null) f.copyWith(supersededById: links[f.id]),
