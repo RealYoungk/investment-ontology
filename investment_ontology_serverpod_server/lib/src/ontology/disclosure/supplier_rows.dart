@@ -226,11 +226,16 @@ abstract final class SupplierRows {
     return out;
   }
 
-  /// (매입처 이름, 그 줄) 목록. 줄은 근거로 그대로 남긴다.
-  static List<({String name, String evidence})> parse(String text) {
-    final out = <({String name, String evidence})>[];
+  /// (매입처 이름, 매입 비중 %, 그 줄) 목록. 줄은 근거로 그대로 남긴다.
+  ///
+  /// 비중은 머리글의 비중·비율 칸을 오른쪽 끝 기준으로 다시 찾아 읽는다 (매출처 표와 같다).
+  /// 한 칸에 매입처가 여럿이면 비중은 그 묶음의 것이라 붙이지 않는다.
+  static List<({String name, double? share, String evidence})> parse(
+    String text,
+  ) {
+    final out = <({String name, double? share, String evidence})>[];
     final seen = <String>{};
-    var column = -1;
+    var column = -1, shareAt = -1, columns = -1;
     for (final raw in text.split('\n')) {
       final line = raw.trim();
       if (line.isEmpty || line.startsWith('※')) continue;
@@ -246,15 +251,35 @@ abstract final class SupplierRows {
       );
       if (headerAt >= 0) {
         column = headerAt;
+        shareAt = cells.indexWhere(_shareHeader.hasMatch);
+        columns = cells.length;
         continue;
       }
-      if (column < 0 || column >= cells.length) continue;
+      if (column < 0) continue;
       // 칸이 모두 머리글 낱말이면 (당기·전기 머리글의 둘째 줄) 건너뛴다.
       if (cells.every((c) => c.isEmpty || _headerWord.hasMatch(c))) continue;
-      final cell = cells[column];
+      // 부문 칸이 합쳐진 줄은 머리글보다 짧다 — 오른쪽 끝 기준으로 칸을 다시 찾는다.
+      final nameAt = cells.length == columns
+          ? column
+          : cells.length - (columns - column);
+      if (nameAt < 0 || nameAt >= cells.length) continue;
+      final cell = cells[nameAt];
       // 칸 전체가 설명문("ㆍ공급처 다수 존재ㆍ가격은 … 환율 영향")이면 조각도 이름이 아니다.
       if (cell.isEmpty || _sentenceCell.hasMatch(cell)) continue;
-      for (final piece in cell.split(_nameSplit)) {
+      double? share;
+      final shareIdx = cells.length == columns
+          ? shareAt
+          : cells.length - (columns - shareAt);
+      if (shareAt >= 0 && shareIdx >= 0 && shareIdx < cells.length) {
+        final raw = cells[shareIdx];
+        final v = double.tryParse(raw.replaceAll(RegExp(r'[%,\s]'), ''));
+        if (v != null && (raw.contains('%') || v <= 100)) share = v;
+      }
+      final pieces = [
+        for (final p in cell.split(_nameSplit))
+          if (p.trim().isNotEmpty) p.trim(),
+      ];
+      for (final piece in pieces) {
         // "동국제강(주) 인천공장 外"처럼 군더더기가 겹치면 없어질 때까지 뗀다.
         var name = undouble(piece.trim());
         for (var i = 0; i < 3; i++) {
@@ -271,7 +296,11 @@ abstract final class SupplierRows {
           continue;
         }
         if (!seen.add(name)) continue;
-        out.add((name: name, evidence: line));
+        out.add((
+          name: name,
+          share: pieces.length > 1 ? null : share,
+          evidence: line,
+        ));
         if (out.length >= maxNames) return out;
       }
     }

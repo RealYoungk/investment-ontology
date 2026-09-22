@@ -101,6 +101,8 @@ abstract final class SupplierRelations {
           objectCompanyId: company.id,
           objectName: company.name,
           bsnsYear: doc.bsnsYear,
+          // 매입처 표의 매입 비중(%).
+          weight: row.share,
           sourceId: report.sourceId,
           factKind: RelationFactKind.businessDocument,
           factId: doc.id!,
