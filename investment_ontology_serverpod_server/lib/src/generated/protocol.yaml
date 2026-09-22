@@ -59,6 +59,7 @@ ingest:
   - coverage:
   - latest:
   - latestOf:
+  - schedule:
   - latestOfKinds:
   - rebuildProductionFacts:
 market:

@@ -186,31 +186,68 @@ class _Edges extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SectionLabel('묶음 안 지분 연결'),
+        const SizedBox(height: AppSpace.xs),
+        Text(
+          '지분율이 높은 쪽부터. 가진 쪽의 지분 매각·합병·상속은 가진 기업의 주가에, 가진 기업의 '
+          '실적·배당은 가진 쪽의 지분법 이익과 배당 수입에 닿습니다.',
+          style: t.body(12.5, color: c.textSecondary),
+        ),
         const SizedBox(height: AppSpace.sm),
-        AppDataTable(
-          columns: const [
-            AppColumn('가진 쪽'),
-            AppColumn('가진 기업'),
-            AppColumn('지분율', numeric: true),
-            AppColumn('근거'),
-          ],
-          rows: [
-            for (final e in edges)
-              AppRow([
-                company(e.fromCompanyId),
-                company(e.toCompanyId),
-                AppDataTable.text(
-                  context,
-                  e.ratio == null ? null : '${e.ratio!.toStringAsFixed(2)}%',
-                  numeric: true,
-                ),
-                AppDataTable.text(
-                  context,
-                  '${e.predicate == RelationPredicate.shareholderOf ? '최대주주 명단' : '타법인출자 (경영참여)'}'
-                  ' · FY${e.bsnsYear}',
-                ),
-              ]),
-          ],
+        LayoutBuilder(
+          builder: (context, box) {
+            // 좁은 화면에서는 근거를 짧게 (주주/출자 · 연도) 적어 표가 폭 안에 들게 한다.
+            final compact = box.maxWidth < 640;
+            return AppDataTable(
+              columns: [
+                if (compact)
+                  const AppColumn('가진 쪽 → 가진 기업', flex: true)
+                else ...const [
+                  AppColumn('가진 쪽', nowrap: true),
+                  AppColumn('가진 기업', nowrap: true),
+                ],
+                const AppColumn('지분율', numeric: true),
+                AppColumn('근거', flex: !compact, nowrap: compact),
+              ],
+              rows: [
+                for (final e in edges)
+                  AppRow([
+                    if (compact)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          company(e.fromCompanyId),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text('→ ', style: t.body(12, color: c.textMuted)),
+                              Flexible(child: company(e.toCompanyId)),
+                            ],
+                          ),
+                        ],
+                      )
+                    else ...[
+                      company(e.fromCompanyId),
+                      company(e.toCompanyId),
+                    ],
+                    AppDataTable.text(
+                      context,
+                      e.ratio == null
+                          ? null
+                          : '${e.ratio!.toStringAsFixed(2)}%',
+                      numeric: true,
+                    ),
+                    AppDataTable.text(
+                      context,
+                      e.predicate == RelationPredicate.shareholderOf
+                          ? (compact ? '주주 명단' : '최대주주 명단')
+                          : (compact ? '타법인출자' : '타법인출자 (경영참여)'),
+                      nowrap: true,
+                    ),
+                  ]),
+              ],
+            );
+          },
         ),
       ],
     );

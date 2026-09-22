@@ -83,6 +83,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _ixl8qyld;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/ingest_job.dart'
     as _idt86amb;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/ingest_schedule_entry.dart'
+    as _irm0258u;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/investment_theme.dart'
     as _in6y0ur2;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/market.dart'
@@ -2137,6 +2139,36 @@ class _IngestEndpoint {
                   _localCallContext.arguments,
                 )
                 as _ida.Future<_idt86amb.IngestJob?>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<List<_irm0258u.IngestScheduleEntry>> schedule(
+    _ist.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'ingest',
+            method: 'schedule',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'ingest',
+          methodName: 'schedule',
+          parameters: _ist.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_irm0258u.IngestScheduleEntry>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

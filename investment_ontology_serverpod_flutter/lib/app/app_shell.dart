@@ -36,11 +36,13 @@ const _destinations = [
   _Destination('관계망', '/graph'),
   _Destination('지분 묶음', '/groups'),
   _Destination('테마', '/themes'),
-  _Destination('검수', '/review'),
   _Destination('데이터', '/data'),
 ];
 
-/// 모든 화면을 감싸는 틀: 맨 위 메뉴(시장 · 기업 · 관계망 · 테마 · 검수 · 데이터) + 본문.
+/// 모든 화면을 감싸는 틀: 맨 위 메뉴(시장 · 기업 · 스크리너 · 관계망 · 지분 묶음 · 테마 · 데이터) + 본문.
+///
+/// 검수 화면(`/review`)은 메뉴에 두지 않는다 — AI가 읽은 것은 대조 검수를 거쳐 스스로 확정하고,
+/// 사람은 화면에 적힌 측정 정확도만 본다. 주소로는 여전히 열린다.
 class AppShell extends StatefulWidget {
   const AppShell({super.key, required this.location, required this.child});
 

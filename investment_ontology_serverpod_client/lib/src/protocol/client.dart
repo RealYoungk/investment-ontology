@@ -66,6 +66,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _i2drq233;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ingest_job.dart'
     as _i1paap7y;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ingest_schedule_entry.dart'
+    as _idevncao;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/investment_theme.dart'
     as _izhmhfon;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/market.dart'
@@ -906,6 +908,16 @@ class EndpointIngest extends _isc.EndpointRef {
         'ingest',
         'latestOf',
         {'kind': kind},
+      );
+
+  /// 자동 수집의 예약과 마지막 실행. 데이터 화면이 "돌고 있음 · 대기 중(다음 실행) · 끝남"을
+  /// 한눈에 보이는 데 쓴다. 예약 식별자는 [IngestSchedule]과 같다 (그 파일은 생성 코드를
+  /// 참조하므로 여기서 가져오지 않는다).
+  _ida.Future<List<_idevncao.IngestScheduleEntry>> schedule() =>
+      caller.callServerEndpoint<List<_idevncao.IngestScheduleEntry>>(
+        'ingest',
+        'schedule',
+        {},
       );
 
   /// 여러 종류의 마지막 작업을 한 번에. 앱이 15초마다 부르므로 왕복을 한 번으로 줄인다.

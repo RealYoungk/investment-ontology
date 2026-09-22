@@ -155,8 +155,10 @@ class _CompareTable extends StatelessWidget {
     ];
     return AppDataTable(
       columns: [
-        const AppColumn('지표'),
-        for (final r in rows) AppColumn(r.company.name, numeric: true),
+        const AppColumn('지표', nowrap: true),
+        // 기업 열이 남는 폭을 똑같이 나눠 가진다.
+        for (final r in rows)
+          AppColumn(r.company.name, numeric: true, minWidth: 150, flex: true),
       ],
       rows: [
         AppRow([

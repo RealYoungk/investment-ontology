@@ -29,6 +29,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _iwgt3edw;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/ingest_job.dart'
     as _idt86amb;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/ingest_schedule_entry.dart'
+    as _irm0258u;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/investment_theme.dart'
     as _in6y0ur2;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/market_cap_point.dart'
@@ -127,6 +129,7 @@ import 'ontology/models/industry.dart' as _i3hzx3f1;
 import 'ontology/models/industry_revision_check.dart' as _i25uuckt;
 import 'ontology/models/ingest_coverage.dart' as _il0sbv1h;
 import 'ontology/models/ingest_job.dart' as _iay1heal;
+import 'ontology/models/ingest_schedule_entry.dart' as _ilyxu1av;
 import 'ontology/models/ingest_status.dart' as _imojj26x;
 import 'ontology/models/investment_entry.dart' as _i9p8kpm7;
 import 'ontology/models/investment_theme.dart' as _i57inxpq;
@@ -239,6 +242,7 @@ export 'ontology/models/industry.dart';
 export 'ontology/models/industry_revision_check.dart';
 export 'ontology/models/ingest_coverage.dart';
 export 'ontology/models/ingest_job.dart';
+export 'ontology/models/ingest_schedule_entry.dart';
 export 'ontology/models/ingest_status.dart';
 export 'ontology/models/investment_entry.dart';
 export 'ontology/models/investment_theme.dart';
@@ -4906,6 +4910,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _iay1heal.IngestJob) {
       return _iay1heal.IngestJob.fromJson(data) as T;
     }
+    if (t == _ilyxu1av.IngestScheduleEntry) {
+      return _ilyxu1av.IngestScheduleEntry.fromJson(data) as T;
+    }
     if (t == _imojj26x.IngestStatus) {
       return _imojj26x.IngestStatus.fromJson(data) as T;
     }
@@ -5341,6 +5348,12 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (t == _is.getType<_iay1heal.IngestJob?>()) {
       return (data != null ? _iay1heal.IngestJob.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_ilyxu1av.IngestScheduleEntry?>()) {
+      return (data != null
+              ? _ilyxu1av.IngestScheduleEntry.fromJson(data)
+              : null)
+          as T;
     }
     if (t == _is.getType<_imojj26x.IngestStatus?>()) {
       return (data != null ? _imojj26x.IngestStatus.fromJson(data) : null) as T;
@@ -5786,6 +5799,12 @@ class Protocol extends _is.DatabaseSerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_irm0258u.IngestScheduleEntry>) {
+      return (data as List)
+              .map((e) => deserialize<_irm0258u.IngestScheduleEntry>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_idt86amb.IngestJob>) {
       return (data as List)
               .map((e) => deserialize<_idt86amb.IngestJob>(e))
@@ -5927,6 +5946,7 @@ class Protocol extends _is.DatabaseSerializationManager {
       _i25uuckt.IndustryRevisionCheck => 'IndustryRevisionCheck',
       _il0sbv1h.IngestCoverage => 'IngestCoverage',
       _iay1heal.IngestJob => 'IngestJob',
+      _ilyxu1av.IngestScheduleEntry => 'IngestScheduleEntry',
       _imojj26x.IngestStatus => 'IngestStatus',
       _i9p8kpm7.InvestmentEntry => 'InvestmentEntry',
       _i57inxpq.InvestmentTheme => 'InvestmentTheme',
@@ -6136,6 +6156,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'IngestCoverage';
       case _iay1heal.IngestJob():
         return 'IngestJob';
+      case _ilyxu1av.IngestScheduleEntry():
+        return 'IngestScheduleEntry';
       case _imojj26x.IngestStatus():
         return 'IngestStatus';
       case _i9p8kpm7.InvestmentEntry():
@@ -6484,6 +6506,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'IngestJob') {
       return deserialize<_iay1heal.IngestJob>(data['data']);
+    }
+    if (dataClassName == 'IngestScheduleEntry') {
+      return deserialize<_ilyxu1av.IngestScheduleEntry>(data['data']);
     }
     if (dataClassName == 'IngestStatus') {
       return deserialize<_imojj26x.IngestStatus>(data['data']);

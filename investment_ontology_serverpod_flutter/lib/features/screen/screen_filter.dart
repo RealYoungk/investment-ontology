@@ -63,17 +63,21 @@ class ScreenFilter {
   final ScreenSort sort;
   final bool ascending;
 
-  bool get hasCondition =>
-      perMax != null ||
-      pbrMax != null ||
-      roeMin != null ||
-      marginMin != null ||
-      debtMax != null ||
-      dividendMin != null ||
-      fcfMin != null ||
-      revenueGrowthMin != null ||
-      opGrowthMin != null ||
-      liquidityMin != null;
+  bool get hasCondition => conditionCount > 0;
+
+  /// 걸린 조건 수 (시장·정렬은 조건이 아니다).
+  int get conditionCount => [
+    perMax,
+    pbrMax,
+    roeMin,
+    marginMin,
+    debtMax,
+    dividendMin,
+    fcfMin,
+    revenueGrowthMin,
+    opGrowthMin,
+    liquidityMin,
+  ].whereType<double>().length;
 
   ScreenFilter copyWith({
     Market? Function()? market,

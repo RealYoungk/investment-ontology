@@ -21,7 +21,7 @@ abstract final class SupplierRows {
   static final _bad = RegExp(
     // 숫자·기호, 없음, 그리고 이름이 아닌 칸 — "A사"처럼 익명 처리한 거래처,
     // "국내"·"수입" 같은 시장 구분, "비율"·"금액" 같은 두 번째 머리글.
-    r'[0-9%]|^[-—·]+$|해당\s*없음|미기재|자체|^[A-Z]사$|^(국내|수입|해외|기타|국내외|비율|비중|금액|매입액|매입처|품목|구분|미국|유럽|호주|중국|일본|아시아|동남아|중동|있음|없음|비고|방법|상품|제품|원재료|자재|건재|농산|kg|톤|t|m|M)$',
+    r'[0-9%]|^[-—·]+$|해당\s*없음|미기재|자체|^[A-Z]사$|직수입|경작인|(원재료|부재료|원료|자재)$|^(국내|수입|해외|기타|국내외|비율|비중|금액|매입액|매입처|품목|구분|미국|유럽|호주|중국|일본|아시아|동남아|중동|있음|없음|비고|방법|상품|제품|원재료|자재|건재|농산|kg|톤|t|m|M)$',
   );
 
   /// 이름이 아니라 문장·설명인 칸 ("당사는 고객별 여신관리 시스템 도입", "ㆍ공급처 다수 존재",
@@ -31,6 +31,22 @@ abstract final class SupplierRows {
   );
 
   static final _sentenceCell = RegExp(r'습니다|합니다|존재|경향|ㆍ|^당사');
+
+  /// 법인 표기가 있으면 틀림없이 이름 칸이다.
+  static final _corporate = RegExp(
+    r'\((주|유)\)|㈜|주식회사|Co\.|Ltd|Inc|Corp|LLC|GmbH|Limited',
+  );
+
+  /// 이름 칸처럼 보이는가: 숫자 칸이나 한 낱말짜리 용도 설명("TPA 원재료", "상품제조용",
+  /// "판매용")이 아니어야 한다. 이름이 여럿인 칸(쉼표)은 조각마다 따로 거른다.
+  static bool _looksLikeNames(String cell) {
+    if (cell.isEmpty || _numeric.hasMatch(cell)) return false;
+    if (_corporate.hasMatch(cell)) return true;
+    if (cell.contains(',') || cell.contains('및')) return true;
+    return !RegExp(
+      r'(원재료|부재료|원료|자재|용|용도|제조|가공|생산|판매|직수입|경작인)$|^-$',
+    ).hasMatch(cell);
+  }
 
   /// 닫는 괄호만 남은 조각("톤)", "장)")은 표 칸이 어긋난 것이다.
   static bool _danglingParen(String name) =>
@@ -258,12 +274,26 @@ abstract final class SupplierRows {
       if (column < 0) continue;
       // 칸이 모두 머리글 낱말이면 (당기·전기 머리글의 둘째 줄) 건너뛴다.
       if (cells.every((c) => c.isEmpty || _headerWord.hasMatch(c))) continue;
-      // 부문 칸이 합쳐진 줄은 머리글보다 짧다 — 오른쪽 끝 기준으로 칸을 다시 찾는다.
-      final nameAt = cells.length == columns
+      // 부문 칸이 합쳐진 줄은 머리글보다 짧다 — 오른쪽 끝 기준으로 칸을 다시 찾되,
+      // 그 칸이 용도 설명("TPA 원재료")이면 머리글 자리를, 그것도 아니면 법인 표기가
+      // 있는 칸을 쓴다.
+      var nameAt = cells.length == columns
           ? column
           : cells.length - (columns - column);
+      if (cells.length != columns) {
+        final ok =
+            nameAt >= 0 &&
+            nameAt < cells.length &&
+            _looksLikeNames(cells[nameAt]);
+        if (!ok) {
+          nameAt = column < cells.length && _looksLikeNames(cells[column])
+              ? column
+              : cells.lastIndexWhere(_corporate.hasMatch);
+        }
+      }
       if (nameAt < 0 || nameAt >= cells.length) continue;
       final cell = cells[nameAt];
+      if (!_looksLikeNames(cell)) continue;
       // 칸 전체가 설명문("ㆍ공급처 다수 존재ㆍ가격은 … 환율 영향")이면 조각도 이름이 아니다.
       if (cell.isEmpty || _sentenceCell.hasMatch(cell)) continue;
       double? share;
@@ -273,7 +303,11 @@ abstract final class SupplierRows {
       if (shareAt >= 0 && shareIdx >= 0 && shareIdx < cells.length) {
         final raw = cells[shareIdx];
         final v = double.tryParse(raw.replaceAll(RegExp(r'[%,\s]'), ''));
-        if (v != null && (raw.contains('%') || v <= 100)) share = v;
+        // 짧은 줄에서는 % 표시가 있을 때만 (수량 칸을 비중으로 읽지 않게).
+        if (v != null &&
+            (raw.contains('%') || cells.length == columns && v <= 100)) {
+          share = v;
+        }
       }
       final pieces = [
         for (final p in cell.split(_nameSplit))

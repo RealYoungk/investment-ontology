@@ -8,6 +8,7 @@ import '../../design/components/components.dart';
 import '../../design/tokens.dart';
 import 'widgets/ingest_job_row.dart';
 import 'widgets/ingest_status_bar.dart';
+import 'widgets/schedule_board.dart';
 
 /// 데이터: 원천별 수집 상태와 실행 버튼.
 class DataPage extends StatefulWidget {
@@ -60,6 +61,8 @@ class _DataPageState extends State<DataPage> {
           const SizedBox(height: AppSpace.lg),
           AppNotice(message: '서버에 연결하지 못했습니다 — $_error'),
         ],
+        const SizedBox(height: AppSpace.section),
+        const ScheduleBoard(),
         const SizedBox(height: AppSpace.section),
         const _Coverage(),
         const SizedBox(height: AppSpace.section),
@@ -246,8 +249,10 @@ class _AiExtractionState extends State<_AiExtraction> {
       children: [
         Text(
           '사업의 내용을 받은 기업 ${formatCount(s.documentCompanies)}곳 중 '
-          '${formatCount(s.extractedCompanies)}곳 추출 · 검수 대기 ${formatCount(s.draftCount)} · '
-          '승인 ${formatCount(s.verifiedCount)} · 거절 ${formatCount(s.rejectedCount)} · 모델 ${s.model}',
+          '${formatCount(s.extractedCompanies)}곳에서 읽음 · 확정 ${formatCount(s.verifiedCount)} · '
+          '버림 ${formatCount(s.rejectedCount)}'
+          '${s.draftCount == 0 ? '' : ' · 아직 판단 전 ${formatCount(s.draftCount)}'}. '
+          '사람이 검수하지 않습니다 — 대조 검수를 거쳐 스스로 확정하고, 측정한 정확도를 기업 화면에 적습니다.',
           style: t.body(13, color: c.textSecondary),
         ),
         const SizedBox(height: AppSpace.sm),

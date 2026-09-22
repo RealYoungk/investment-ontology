@@ -228,76 +228,123 @@ class _Members extends StatelessWidget {
             style: t.body(13, color: c.textMuted),
           )
         else
-          AppDataTable(
-            // 메모가 남는 폭을 가져가고, 짧은 칸(시장·시가총액·날짜·빼기)은 접히지 않게 한 줄로.
-            expand: true,
-            columns: const [
-              // 폭은 직접 준다 — 내용 폭 재기가 몇 px 모자라 끝 글자가 잘린다.
-              AppColumn('기업', nowrap: true, width: 120),
-              AppColumn('시장', nowrap: true, width: 56),
-              AppColumn('업종'),
-              AppColumn('시가총액', numeric: true, nowrap: true, width: 130),
-              AppColumn('비중', numeric: true, nowrap: true, width: 64),
-              AppColumn('메모 (왜 이 테마인가)', flex: true),
-              AppColumn('편입일', nowrap: true, width: 96),
-              AppColumn('', nowrap: true, width: 48),
-            ],
-            rows: [
-              for (final m in detail.members)
-                AppRow([
-                  HoverBuilder(
-                    onTap: () =>
-                        context.push(AppRoutes.company(m.company.corpCode)),
-                    builder: (context, hovered) => Text(
-                      m.company.name,
-                      style: t
-                          .body(13, color: c.accent, weight: FontWeight.w600)
-                          .copyWith(
-                            decoration: hovered
-                                ? TextDecoration.underline
-                                : null,
-                            decorationColor: c.accent,
-                          ),
+          LayoutBuilder(
+            builder: (context, box) {
+              // 좁은 화면(폰)에서는 기업명 아래 줄에 메모를 넣고 시가총액만 옆에 둔다.
+              final compact = box.maxWidth < 720;
+              return AppDataTable(
+                columns: [
+                  if (compact)
+                    const AppColumn('기업 · 메모', flex: true)
+                  else
+                    const AppColumn('기업', nowrap: true, width: 120),
+                  if (!compact) const AppColumn('시장', nowrap: true, width: 56),
+                  if (!compact)
+                    const AppColumn('업종', nowrap: true, minWidth: 120),
+                  AppColumn(
+                    '시가총액',
+                    numeric: true,
+                    nowrap: true,
+                    width: compact ? 96 : 130,
+                  ),
+                  if (!compact)
+                    const AppColumn(
+                      '비중',
+                      numeric: true,
+                      nowrap: true,
+                      width: 64,
                     ),
-                  ),
-                  AppDataTable.text(
-                    context,
-                    marketLabel(m.company.market),
-                    nowrap: true,
-                  ),
-                  AppDataTable.text(context, m.industryName),
-                  AppDataTable.text(
-                    context,
-                    m.marketCap == null ? null : formatKrw(m.marketCap),
-                    numeric: true,
-                    nowrap: true,
-                  ),
-                  AppDataTable.text(
-                    context,
-                    m.marketCap == null || total == BigInt.zero
-                        ? null
-                        : '${(m.marketCap!.toDouble() / total.toDouble() * 100).toStringAsFixed(1)}%',
-                    numeric: true,
-                  ),
-                  AppDataTable.text(context, m.member.note),
-                  AppDataTable.text(
-                    context,
-                    formatDate(m.member.createdAt),
-                    nowrap: true,
-                  ),
-                  AppButton(
-                    label: '빼기',
-                    variant: AppButtonVariant.link,
-                    onPressed: () async {
-                      await client.theme.removeCompany(
-                        detail.theme.id!,
-                        m.company.corpCode,
-                      );
-                      await onChanged();
-                    },
-                  ),
-                ]),
-            ],
+                  if (!compact) const AppColumn('메모 (왜 이 테마인가)', flex: true),
+                  if (!compact) const AppColumn('편입일', nowrap: true, width: 96),
+                  const AppColumn('', nowrap: true, width: 48),
+                ],
+                rows: [
+                  for (final m in detail.members)
+                    AppRow([
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          HoverBuilder(
+                            onTap: () => context.push(
+                              AppRoutes.company(m.company.corpCode),
+                            ),
+                            builder: (context, hovered) => Text(
+                              m.company.name,
+                              style: t
+                                  .body(
+                                    13,
+                                    color: c.accent,
+                                    weight: FontWeight.w600,
+                                  )
+                                  .copyWith(
+                                    decoration: hovered
+                                        ? TextDecoration.underline
+                                        : null,
+                                    decorationColor: c.accent,
+                                  ),
+                            ),
+                          ),
+                          if (compact)
+                            if (m.member.note case final note?)
+                              Text(
+                                note,
+                                style: t.body(12, color: c.textSecondary),
+                              ),
+                        ],
+                      ),
+                      if (!compact)
+                        AppDataTable.text(
+                          context,
+                          marketLabel(m.company.market),
+                          nowrap: true,
+                        ),
+                      if (!compact)
+                        AppDataTable.text(
+                          context,
+                          m.industryName,
+                          nowrap: true,
+                        ),
+                      AppDataTable.text(
+                        context,
+                        m.marketCap == null
+                            ? null
+                            : compact
+                            ? formatKrwShort(m.marketCap!.toDouble())
+                            : formatKrw(m.marketCap),
+                        numeric: true,
+                        nowrap: true,
+                      ),
+                      if (!compact)
+                        AppDataTable.text(
+                          context,
+                          m.marketCap == null || total == BigInt.zero
+                              ? null
+                              : '${(m.marketCap!.toDouble() / total.toDouble() * 100).toStringAsFixed(1)}%',
+                          numeric: true,
+                        ),
+                      if (!compact) AppDataTable.text(context, m.member.note),
+                      if (!compact)
+                        AppDataTable.text(
+                          context,
+                          formatDate(m.member.createdAt),
+                          nowrap: true,
+                        ),
+                      AppButton(
+                        label: '빼기',
+                        variant: AppButtonVariant.link,
+                        onPressed: () async {
+                          await client.theme.removeCompany(
+                            detail.theme.id!,
+                            m.company.corpCode,
+                          );
+                          await onChanged();
+                        },
+                      ),
+                    ]),
+                ],
+              );
+            },
           ),
       ],
     );
