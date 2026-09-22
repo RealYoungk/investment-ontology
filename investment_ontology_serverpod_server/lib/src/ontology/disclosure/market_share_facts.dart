@@ -146,7 +146,10 @@ abstract final class MarketShareFacts {
       // 이 회사 줄이 아니어도 값 줄로 센다 (한 줄뿐인 제품별 표를 가리려고).
       tableRows++;
       final candidate =
-          !isSelf && !RegExp(r'경쟁|기타|합계|계$|시장|산업|전체').hasMatch(label);
+          !isSelf &&
+          !RegExp(
+            r'경쟁|기타|합계|계$|시장|산업|전체|증감|성장|증가|감소|비율|매출|이익|원가|비용|수익',
+          ).hasMatch(label);
       if (!isSelf && !candidate) continue;
       // 이름 칸 뒤는 모두 값이어야 한다 ("대한조선 | 15.7% | HD현대중공업 | 10.2%" 같은
       // 순위 쌍 표는 칸이 어긋난다). 칸 수도 머리글과 맞아야 한다 (이름이 둘로 나뉜 줄은 +1).

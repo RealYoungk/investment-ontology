@@ -265,13 +265,32 @@ class DisclosureEndpoint extends Endpoint {
       where: (t) => t.corpCode.equals(corpCode),
     );
     if (company == null) return const [];
-    return DocumentFact.db.find(
+    final all = await DocumentFact.db.find(
       session,
       where: (t) =>
           t.companyId.equals(company.id!) &
           t.status.equals(RelationStatus.verified),
       orderByList: (t) => [t.bsnsYear.asc(), t.kind.asc(), t.id.asc()],
     );
+    // 같은 항목·같은 해의 값이 여러 보고서에 있으면(표가 당기·전기·전전기를 나란히 적고,
+    // 회사는 재작성한다) 그 해의 보고서 값을 쓴다 — 없으면 가장 가까운 해의 보고서.
+    final best = <String, DocumentFact>{};
+    for (final f in all) {
+      final year = f.asOf?.year ?? f.bsnsYear;
+      final key = '${f.kind.name}|${f.label}|$year';
+      final prev = best[key];
+      if (prev == null) {
+        best[key] = f;
+        continue;
+      }
+      final d = (f.bsnsYear - year).abs(), pd = (prev.bsnsYear - year).abs();
+      if (d < pd || d == pd && f.bsnsYear > prev.bsnsYear) best[key] = f;
+    }
+    final keep = {for (final f in best.values) f.id};
+    return [
+      for (final f in all)
+        if (keep.contains(f.id)) f,
+    ];
   }
 
   /// 이 기업의 최근 공시 (종류 가리지 않음). 계약·증자·주요사항 등.
