@@ -11,6 +11,8 @@ import '../business/business_tab.dart';
 import '../disclosures/disclosure_tab.dart';
 import '../financials/financial_section.dart';
 import '../governance/governance_tab.dart';
+import '../groups/group_math.dart';
+import '../financials/financial_metrics.dart' show formatKrwShort;
 import '../shareholder_return/shareholder_return_tab.dart';
 import 'widgets/company_header.dart';
 import 'widgets/company_overview_tab.dart';
@@ -187,6 +189,11 @@ class _CompanyPageState extends State<CompanyPage> {
                     context.push(AppRoutes.compare([widget.corpCode])),
               ),
             ],
+          ),
+          _GroupLine(
+            key: ValueKey('group-$_version'),
+            corpCode: widget.corpCode,
+            companyId: detail.company.id!,
           ),
           const SizedBox(height: AppSpace.lg),
           AppTabBar<CompanyTab>(
@@ -405,6 +412,79 @@ class _ThemeChipsState extends State<_ThemeChips> {
             onPressed: () => context.go('/themes'),
           ),
       ],
+    );
+  }
+}
+
+/// 지분 묶음 한 줄: 이 기업이 묶음 안 상장사에 가진 지분의 시가 합(시총 대비)과, 묶음 안
+/// 기업들이 이 기업에 가진 지분율. 계열사 사건이 이 주가로 얼마나 번질지 가늠하는 숫자.
+class _GroupLine extends StatefulWidget {
+  const _GroupLine({
+    super.key,
+    required this.corpCode,
+    required this.companyId,
+  });
+
+  final String corpCode;
+  final int companyId;
+
+  @override
+  State<_GroupLine> createState() => _GroupLineState();
+}
+
+class _GroupLineState extends State<_GroupLine> {
+  CompanyGroup? _group;
+  bool _loaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final g = await client.group.of(widget.corpCode);
+      if (mounted) setState(() => (_group = g, _loaded = true));
+    } catch (_) {
+      if (mounted) setState(() => _loaded = true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    final g = _group;
+    if (!_loaded || g == null) return const SizedBox.shrink();
+    final math = GroupMath(g);
+    final held = math.heldValueOf(widget.companyId);
+    final own = math.capById[widget.companyId];
+    final heldRatio = math.heldRatioOf(widget.companyId);
+    final parts = <String>[
+      '${g.anchor.name} 묶음 ${g.members.length}개사',
+      if (held != null)
+        '묶음 안 상장 지분 가치 ${formatKrwShort(held)}'
+            '${own == null ? '' : ' (시총의 ${(held / own * 100).toStringAsFixed(0)}%)'}',
+      if (heldRatio != null) '묶음 안 기업이 가진 지분 ${heldRatio.toStringAsFixed(1)}%',
+    ];
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpace.sm),
+      child: Wrap(
+        spacing: AppSpace.sm,
+        runSpacing: AppSpace.xs,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Text('지분 묶음', style: t.label(color: c.textSecondary)),
+          Text(parts.join(' · '), style: t.numeric(12.5, color: c.textPrimary)),
+          AppButton(
+            label: '묶음 보기 →',
+            variant: AppButtonVariant.link,
+            tone: c.accent,
+            onPressed: () => context.push(AppRoutes.group(widget.corpCode)),
+          ),
+        ],
+      ),
     );
   }
 }

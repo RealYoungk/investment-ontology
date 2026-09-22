@@ -8,6 +8,7 @@ import '../../design/components/components.dart';
 import '../../design/tokens.dart';
 import '../common/formatters.dart';
 import '../financials/financial_metrics.dart';
+import 'group_math.dart';
 import 'groups_page.dart' show personLabel;
 
 /// 지분 묶음 상세: 시가총액 지도, 묶음 안 지분 연결, 여러 곳의 주주인 인물.
@@ -163,36 +164,13 @@ class _Edges extends StatelessWidget {
     final c = context.colors;
     final t = context.typo;
     final byId = {for (final m in group.members) m.company.id: m.company};
-    final capById = {
-      for (final m in group.members)
-        if (m.marketCap case final cap? when cap > BigInt.zero)
-          m.company.id: cap.toDouble(),
-    };
+    final math = GroupMath(group);
+    final capById = math.capById;
     final edges = [...group.edges]
       ..sort((a, b) => (b.ratio ?? 0).compareTo(a.ratio ?? 0));
-    // 지분 가치 = 가진 기업 시가총액 × 지분율. 가진 쪽 시가총액과 견주면 "얼마나 큰 일인가"가
-    // 보인다 (지주사 할인의 재료). 같은 쌍이 최대주주 명단과 타법인출자에 둘 다 있으면 한 번만.
-    double? stakeValue(GroupEdge e) {
-      final cap = capById[e.toCompanyId];
-      if (cap == null || e.ratio == null) return null;
-      return cap * e.ratio! / 100;
-    }
-
-    double? holderShare(GroupEdge e) {
-      final value = stakeValue(e);
-      final own = capById[e.fromCompanyId];
-      if (value == null || own == null) return null;
-      return value / own * 100;
-    }
-
-    final bestByPair = <(int, int), GroupEdge>{};
-    for (final e in edges) {
-      final key = (e.fromCompanyId, e.toCompanyId);
-      final prev = bestByPair[key];
-      if (prev == null || (e.ratio ?? 0) > (prev.ratio ?? 0)) {
-        bestByPair[key] = e;
-      }
-    }
+    double? stakeValue(GroupEdge e) => math.stakeValue(e);
+    double? holderShare(GroupEdge e) => math.holderShare(e);
+    final bestByPair = math.bestByPair;
     // 표에도 쌍마다 한 줄. 근거는 둘 다 적는다.
     final basisByPair = <(int, int), Set<RelationPredicate>>{};
     for (final e in edges) {
