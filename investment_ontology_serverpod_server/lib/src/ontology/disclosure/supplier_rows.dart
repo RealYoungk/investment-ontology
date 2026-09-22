@@ -251,7 +251,12 @@ abstract final class SupplierRows {
           name = next;
         }
         if (name.length < 2 || name.length > 30) continue;
-        if (_bad.hasMatch(name) || _danglingParen(name)) continue;
+        if (_bad.hasMatch(name) ||
+            _danglingParen(name) ||
+            _category.hasMatch(name) ||
+            name.contains('→')) {
+          continue;
+        }
         if (!seen.add(name)) continue;
         out.add((name: name, evidence: line));
         if (out.length >= maxNames) return out;

@@ -87,6 +87,8 @@ P-X | SK지오센트릭SK지오센트릭 | 10
 LNG | 미국 | 5
 포장재 | 톤) | 5
 기타 | 있음 | 5
+합계 | 합 계 | 25
+임대 | HDC아이파크몰(임대인) → 계약자(임차인) | 1
 ''';
     expect(SupplierRows.parse(text).map((r) => r.name), [
       'SK Energy Americas, Inc.',

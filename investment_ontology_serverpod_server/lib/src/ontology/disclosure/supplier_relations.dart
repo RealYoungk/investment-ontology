@@ -43,6 +43,15 @@ abstract final class SupplierRelations {
           where: (t) => t.market.inSet(DisclosureLinks.listedMarkets),
         );
     final byName = DisclosureLinks.companiesByName(companies);
+    // 종목명은 "KEC"·"DB"처럼 짧아 다른 회사(인도 KEC International)를 잘못 잇는다.
+    // 짧은 이름은 정식 이름으로 맞을 때만 상장사에 잇는다.
+    final byFullName = _byFullName(companies);
+    int? link(String key) {
+      final id = byName[key];
+      if (id == null) return null;
+      return key.length >= 5 || byFullName.containsKey(key) ? id : null;
+    }
+
     final names = {for (final c in companies) c.id!: c.name};
 
     final existing = {
@@ -76,7 +85,7 @@ abstract final class SupplierRelations {
     final now = DateTime.now().toUtc();
     final add = <OntologyRelation>[];
     for (final row in rows) {
-      final otherId = byName[DisclosureValues.companyName(row.name)];
+      final otherId = link(DisclosureValues.companyName(row.name));
       if (otherId == company.id) continue;
       final key = DisclosureValues.companyName(row.name);
       final subjectName = otherId != null
@@ -107,7 +116,7 @@ abstract final class SupplierRelations {
     }
     // 매출처는 방향이 반대다 (이 기업 → 매출처).
     for (final row in buyers) {
-      final otherId = byName[DisclosureValues.companyName(row.name)];
+      final otherId = link(DisclosureValues.companyName(row.name));
       if (otherId == company.id || isSelf(row.name)) continue;
       final key = DisclosureValues.companyName(row.name);
       final objectName = otherId != null
@@ -140,5 +149,18 @@ abstract final class SupplierRelations {
     if (add.isEmpty) return 0;
     await OntologyRelation.db.insert(session, add);
     return add.length;
+  }
+
+  /// 정식 이름(종목명 제외)으로만 만든 이름 → 상장사 id (하나와 맞을 때만).
+  static Map<String, int> _byFullName(Iterable<Company> companies) {
+    final ids = <String, Set<int>>{};
+    for (final c in companies) {
+      final key = DisclosureValues.companyName(c.name);
+      if (key.isNotEmpty) (ids[key] ??= {}).add(c.id!);
+    }
+    return {
+      for (final e in ids.entries)
+        if (e.value.length == 1) e.key: e.value.single,
+    };
   }
 }
