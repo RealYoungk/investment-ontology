@@ -28,6 +28,11 @@ abstract final class OrderFacts {
   static final _parens = RegExp(r'^\([\d,]+(?:\.\d+)?\)$');
   static const _totalLabels = {'계', '합계', '소계', '총계', '총합계', '누계'};
 
+  /// 날짜·각주 표시("2022.06.2", "'25.12.31", "*2")는 품목 이름이 아니다.
+  static final _dateLike = RegExp(
+    r"^'?\d{2,4}[.\-/]\s?\d{1,2}([.\-/]\s?\d{1,2})?[.일]?\s*(까지|일까지)?$|^\*\d+$|^~",
+  );
+
   /// (이름, 수주총액, 기납품액, 수주잔고, 단위, 그 줄).
   static List<
     ({
@@ -75,6 +80,8 @@ abstract final class OrderFacts {
     })?
     total;
 
+    String? lastLabel;
+    var continuation = 1;
     // 한 문서에 수주 표가 여럿이면(부문마다) 합계가 겹친다 — "합계 (2)"로 가른다.
     final used = <String>{};
     String unique(String label) {
@@ -115,6 +122,7 @@ abstract final class OrderFacts {
       unit = '';
       rows = [];
       total = null;
+      lastLabel = null;
     }
 
     final lines = text.split('\n');
@@ -162,10 +170,21 @@ abstract final class OrderFacts {
           if (c.isNotEmpty &&
               c != '-' &&
               !_number.hasMatch(c) &&
-              !_parens.hasMatch(c))
+              !_parens.hasMatch(c) &&
+              !_dateLike.hasMatch(c))
             c,
       ];
-      final name = labels.isEmpty ? '합계' : labels.first;
+      // 품목 칸이 빈 이어지는 줄("| 2022.06.2 | 2024.05.8 | …")은 앞 줄의 품목이다.
+      String name;
+      if (labels.isNotEmpty) {
+        name = labels.first;
+        lastLabel = name;
+        continuation = 1;
+      } else if (lastLabel case final l?) {
+        name = '$l (${++continuation})';
+      } else {
+        name = '합계';
+      }
       final row = (
         label: name.length > 60 ? name.substring(0, 60) : name,
         total: triple.$1,
