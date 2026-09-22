@@ -15,3 +15,7 @@ values:
   - return12m
   - bandPosition
   - avgTradingValue
+  - dividendPayout
+  - dividendYears
+  - volume
+  - volumeRatio

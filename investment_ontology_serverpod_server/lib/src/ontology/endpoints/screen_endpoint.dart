@@ -76,6 +76,13 @@ class ScreenEndpoint extends Endpoint {
     double? debtRatioMax,
     double? dividendYieldMin,
     double? fcfYieldMin,
+    double? dividendPayoutMax,
+    int? dividendYearsMin,
+    BigInt? volumeMin,
+    double? volumeRatioMin,
+    double? return3mMin,
+    double? return12mMin,
+    double? bandPositionMin,
     BigInt? marketCapMin,
 
     /// 하루 평균 거래대금(원)이 이보다 적은 기업은 뺀다 — 사고팔기 어려운 종목.
@@ -85,6 +92,23 @@ class ScreenEndpoint extends Endpoint {
     int? offset,
     int? limit,
   }) async {
+    for (final value in [dividendPayoutMax, volumeRatioMin, bandPositionMin]) {
+      if (value != null && (!value.isFinite || value < 0)) {
+        throw ArgumentError('조건은 유한한 0 이상의 숫자여야 합니다.');
+      }
+    }
+    for (final value in [return3mMin, return12mMin]) {
+      if (value != null && (!value.isFinite || value < -100)) {
+        throw ArgumentError('등락률은 -100 이상이어야 합니다.');
+      }
+    }
+    if ((bandPositionMin != null && bandPositionMin > 100) ||
+        (dividendYearsMin != null &&
+            (dividendYearsMin < 0 || dividendYearsMin > 3)) ||
+        (volumeMin != null && volumeMin < BigInt.zero) ||
+        (marketCapMin != null && marketCapMin < BigInt.zero)) {
+      throw ArgumentError('조건 범위를 확인해 주세요. 배당 연수는 최대 3년입니다.');
+    }
     final all = await _universe(session);
     final codes = corpCodes?.toSet();
     var rows = [
@@ -112,6 +136,24 @@ class ScreenEndpoint extends Endpoint {
                           r.dividendYield! >= dividendYieldMin)) &&
                   (fcfYieldMin == null ||
                       (r.fcfYield != null && r.fcfYield! >= fcfYieldMin)) &&
+                  (dividendPayoutMax == null ||
+                      (r.dividendPayout != null &&
+                          r.dividendPayout! <= dividendPayoutMax)) &&
+                  (dividendYearsMin == null ||
+                      (r.dividendYears != null &&
+                          r.dividendYears! >= dividendYearsMin)) &&
+                  (volumeMin == null ||
+                      (r.volume != null && r.volume! >= volumeMin)) &&
+                  (volumeRatioMin == null ||
+                      (r.volumeRatio != null &&
+                          r.volumeRatio! >= volumeRatioMin)) &&
+                  (return3mMin == null ||
+                      (r.return3m != null && r.return3m! >= return3mMin)) &&
+                  (return12mMin == null ||
+                      (r.return12m != null && r.return12m! >= return12mMin)) &&
+                  (bandPositionMin == null ||
+                      (r.bandPosition != null &&
+                          r.bandPosition! >= bandPositionMin)) &&
                   (marketCapMin == null || r.marketCap >= marketCapMin) &&
                   (avgTradingValueMin == null ||
                       (r.avgTradingValue != null &&
@@ -150,6 +192,10 @@ class ScreenEndpoint extends Endpoint {
       ScreenSort.bandPosition =>
         r.bandPosition == null ? null : -r.bandPosition!,
       ScreenSort.avgTradingValue => r.avgTradingValue?.toDouble(),
+      ScreenSort.dividendPayout => r.dividendPayout,
+      ScreenSort.dividendYears => r.dividendYears?.toDouble(),
+      ScreenSort.volume => r.volume?.toDouble(),
+      ScreenSort.volumeRatio => r.volumeRatio,
     };
     final asc = ascending ?? false;
     rows.sort((a, b) {
@@ -288,7 +334,8 @@ class ScreenEndpoint extends Endpoint {
              (SELECT count(*) FROM company),
              (SELECT max(id) FROM company_change),
              (SELECT max(id) FROM dividend_entry),
-             (SELECT count(*) FROM dividend_entry)
+             (SELECT count(*) FROM dividend_entry),
+             (SELECT max(id) FROM disclosure_report WHERE section = 'dividend')
     ''');
     return version.first.join('|');
   }
@@ -427,12 +474,14 @@ class ScreenEndpoint extends Endpoint {
                m."listedShares"::numeric AS sh
         FROM rep r JOIN market_snapshot m ON m."securityId" = r.sid
         WHERE m."baseDate" <= (SELECT max("baseDate") FROM market_snapshot_day WHERE "rowCount" > 0) - interval '3 months'
+          AND m."baseDate" >= (SELECT max("baseDate") FROM market_snapshot_day WHERE "rowCount" > 0) - interval '3 months' - interval '7 days'
         ORDER BY r.id, m."baseDate" DESC
       ), px_12m AS (
         SELECT DISTINCT ON (r.id) r.id, m."closePrice"::numeric AS v,
                m."listedShares"::numeric AS sh
         FROM rep r JOIN market_snapshot m ON m."securityId" = r.sid
         WHERE m."baseDate" <= (SELECT max("baseDate") FROM market_snapshot_day WHERE "rowCount" > 0) - interval '12 months'
+          AND m."baseDate" >= (SELECT max("baseDate") FROM market_snapshot_day WHERE "rowCount" > 0) - interval '12 months' - interval '7 days'
         ORDER BY r.id, m."baseDate" DESC
       ), liq AS (
         -- 최근 한 달 하루 평균 거래대금. 사고팔 수 있는 크기를 보는 값이다.
@@ -441,6 +490,7 @@ class ScreenEndpoint extends Endpoint {
         WHERE m."baseDate" > (
             SELECT max("baseDate") FROM market_snapshot_day WHERE "rowCount" > 0
           ) - interval '30 days'
+          AND m."baseDate" <= (SELECT max("baseDate") FROM market_snapshot_day WHERE "rowCount" > 0)
           AND m."tradingValue" IS NOT NULL
         GROUP BY r.id
       ), band AS (
@@ -450,19 +500,52 @@ class ScreenEndpoint extends Endpoint {
                max(m."listedShares"::numeric) AS sh_hi, min(m."listedShares"::numeric) AS sh_lo
         FROM rep r JOIN market_snapshot m ON m."securityId" = r.sid
         WHERE m."baseDate" > (SELECT max("baseDate") FROM market_snapshot_day WHERE "rowCount" > 0) - interval '12 months'
+          AND m."baseDate" <= (SELECT max("baseDate") FROM market_snapshot_day WHERE "rowCount" > 0)
           AND m."closePrice" IS NOT NULL
         GROUP BY r.id
-      ), div AS (
-        -- 최근 사업연도의 현금배당금총액 (백만원 → 원). 단위는 항목 이름에 있으므로
-        -- 아는 표기만 받는다 (다른 단위가 나오면 틀린 값을 쓰느니 비워 둔다).
-        SELECT DISTINCT ON (d."companyId") d."companyId" AS id,
-               d.current * 1000000 AS total
-        FROM dividend_entry d
-        JOIN disclosure_report dr ON dr.id = d."reportId"
-        WHERE d.item = '현금배당금총액(백만원)' AND d.current IS NOT NULL
-          -- 정정으로 대체된 보고서는 쓰지 않는다 (주주환원 화면과 같은 규칙).
+      ), vol AS (
+        -- Exactly the preceding 20 observed trading sessions, excluding today.
+        -- Null/negative volumes, incomplete windows and share-count changes invalidate the ratio.
+        SELECT r.id, n.volume::numeric AS volume,
+          CASE WHEN n.volume::numeric >= 0 AND h.valid = 20 AND h.avg_volume > 0
+                 AND n."listedShares"::numeric > 0 AND h.valid_shares = 20
+                 AND greatest(h.sh_hi, n."listedShares"::numeric)
+                   / least(h.sh_lo, n."listedShares"::numeric) <= 1.3
+            THEN n.volume::numeric / h.avg_volume END AS ratio
+        FROM rep r JOIN market_snapshot n ON n."securityId" = r.sid
+          AND n."baseDate" = (SELECT max("baseDate") FROM market_snapshot_day WHERE "rowCount" > 0)
+        LEFT JOIN LATERAL (
+          SELECT count(*) FILTER (WHERE v.volume::numeric >= 0) AS valid,
+                 avg(v.volume::numeric) AS avg_volume,
+                 count(*) FILTER (WHERE v."listedShares"::numeric > 0) AS valid_shares,
+                 min(v."listedShares"::numeric) AS sh_lo,
+                 max(v."listedShares"::numeric) AS sh_hi
+          FROM (SELECT m.volume, m."listedShares" FROM market_snapshot m
+                WHERE m."securityId" = r.sid AND m."baseDate" < n."baseDate"
+                  AND m."baseDate" IN (
+                    SELECT md."baseDate" FROM market_snapshot_day md
+                    WHERE md."rowCount" > 0 AND md."baseDate" < n."baseDate"
+                    ORDER BY md."baseDate" DESC LIMIT 20)
+                ORDER BY m."baseDate" DESC LIMIT 20) v
+        ) h ON true
+      ), dividend_report AS (
+        -- Select the newest annual disclosure FIRST. Never fall back to an older
+        -- positive dividend merely because the latest report is null or zero.
+        SELECT DISTINCT ON (dr."companyId") dr.id, dr."companyId", dr."bsnsYear"
+        FROM disclosure_report dr
+        WHERE dr.section = 'dividend' AND dr."reportCode" = 'annual'
           AND dr."supersededById" IS NULL
-        ORDER BY d."companyId", d."bsnsYear" DESC, dr."rceptNo" DESC
+        ORDER BY dr."companyId", dr."bsnsYear" DESC, dr."rceptNo" DESC
+      ), div AS (
+        SELECT dr."companyId" AS id, dr."bsnsYear" AS year,
+          max(d.current) FILTER (WHERE d.item = '현금배당금총액(백만원)') * 1000000 AS total,
+          max(d.prior) FILTER (WHERE d.item = '현금배당금총액(백만원)') AS prior,
+          max(d."beforePrior") FILTER (WHERE d.item = '현금배당금총액(백만원)') AS before_prior,
+          coalesce(
+            max(d.current) FILTER (WHERE d.item = '(연결)현금배당성향(%)'),
+            max(d.current) FILTER (WHERE d.item = '현금배당성향(%)')) AS payout
+        FROM dividend_report dr LEFT JOIN dividend_entry d ON d."reportId" = dr.id
+        GROUP BY dr."companyId", dr."bsnsYear"
       ), metrics AS (
         SELECT c.id, c."corpCode", c.name, c.market, l.y, cap.cap,
           max(t.v) FILTER (WHERE t.acc = 'ifrs-full_Revenue') AS revenue,
@@ -488,7 +571,10 @@ class ScreenEndpoint extends Endpoint {
           max(bd.hi) AS hi52, max(bd.lo) AS lo52,
           max(pn.sh) AS sh, max(p3.sh) AS sh3, max(p12.sh) AS sh12,
           max(bd.sh_hi) AS sh_hi, max(bd.sh_lo) AS sh_lo,
-          max(lq.v) AS liq
+          max(lq.v) AS liq,
+          max(vl.volume) AS volume, max(vl.ratio) AS volume_ratio,
+          max(dv.year) AS div_year, max(dv.payout) AS payout,
+          max(dv.prior) AS div_prior, max(dv.before_prior) AS div_before_prior
         FROM company c
         JOIN latest l ON l.id = c.id
         JOIN cap ON cap.id = c.id
@@ -500,13 +586,14 @@ class ScreenEndpoint extends Endpoint {
         LEFT JOIN px_12m p12 ON p12.id = c.id
         LEFT JOIN band bd ON bd.id = c.id
         LEFT JOIN liq lq ON lq.id = c.id
+        LEFT JOIN vol vl ON vl.id = c.id
         WHERE c.market IN ($markets)
         GROUP BY c.id, c."corpCode", c.name, c.market, l.y, cap.cap
       )
       SELECT id, "corpCode", name, market, y, cap, revenue, op, ni, eq,
              total_eq, liab, fcf, dividend,
              revenue_now, revenue_ago, op_now, op_ago, assets,
-             px, px3, px12, hi52, lo52, sh, sh3, sh12, sh_hi, sh_lo, liq
+             px, px3, px12, hi52, lo52, sh, sh3, sh12, sh_hi, sh_lo, liq, volume, volume_ratio, div_year, payout, div_prior, div_before_prior
       FROM metrics
     ''');
 
@@ -614,12 +701,33 @@ class ScreenEndpoint extends Endpoint {
             closePrice: whole(r[19]),
             return3m: change(r[19], r[20], r[24], r[25]),
             return12m: change(r[19], r[21], r[24], r[26]),
-            high52w: sameShares(r[27], r[28]) ? whole(r[22]) : null,
-            low52w: sameShares(r[27], r[28]) ? whole(r[23]) : null,
-            bandPosition: sameShares(r[27], r[28])
+            high52w: r[21] != null && sameShares(r[27], r[28])
+                ? whole(r[22])
+                : null,
+            low52w: r[21] != null && sameShares(r[27], r[28])
+                ? whole(r[23])
+                : null,
+            bandPosition: r[21] != null && sameShares(r[27], r[28])
                 ? position(r[19], r[22], r[23])
                 : null,
             avgTradingValue: big(r[29]),
+            volume: big(r[30]) != null && big(r[30])! >= BigInt.zero
+                ? big(r[30])
+                : null,
+            volumeRatio: r[31] == null ? null : double.parse('${r[31]}'),
+            dividendYear: whole(r[32]),
+            dividendPayout: r[33] != null && double.parse('${r[33]}') >= 0
+                ? double.parse('${r[33]}')
+                : null,
+            dividendYears: r[13] == null
+                ? null
+                : double.parse('${r[13]}') <= 0
+                ? 0
+                : r[34] == null || double.parse('${r[34]}') <= 0
+                ? 1
+                : r[35] == null || double.parse('${r[35]}') <= 0
+                ? 2
+                : 3,
           ),
     ];
     _cacheKey = key;

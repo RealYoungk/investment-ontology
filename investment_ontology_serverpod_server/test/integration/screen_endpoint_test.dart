@@ -215,6 +215,220 @@ void main() {
       );
     });
 
+    Future<void> volumeHistory({
+      int days = 20,
+      int amount = 100,
+      bool split = false,
+      bool missing = false,
+    }) async {
+      final security = (await Security.db.find(
+        session,
+        where: (t) => t.shortCode.equals('000001'),
+      )).single;
+      final current = (await MarketSnapshot.db.find(
+        session,
+        where: (t) => t.securityId.equals(security.id!),
+      )).single;
+      current.volume = BigInt.from(200);
+      await MarketSnapshot.db.updateRow(session, current);
+      for (var i = 1; i <= days; i++) {
+        final date = current.baseDate.subtract(Duration(days: i));
+        await MarketSnapshotDay.db.insertRow(
+          session,
+          MarketSnapshotDay(
+            baseDate: date,
+            rowCount: 1,
+            fetchedAt: DateTime.now().toUtc(),
+          ),
+        );
+        await MarketSnapshot.db.insertRow(
+          session,
+          MarketSnapshot(
+            securityId: security.id!,
+            baseDate: date,
+            volume: missing && i == 5 ? null : BigInt.from(amount),
+            listedShares: BigInt.from(split && i == 5 ? 2000 : 1000),
+            closePrice: BigInt.from(1000),
+            sourceId: source.id!,
+          ),
+        );
+      }
+      ScreenEndpoint.clearCache();
+    }
+
+    test('거래량은 당일을 제외한 직전 20거래일과 비교하고 모든 조건을 함께 적용한다', () async {
+      await volumeHistory();
+      final page = await endpoints.screen.list(
+        sessionBuilder,
+        volumeRatioMin: 2,
+        volumeMin: BigInt.from(200),
+        marketCapMin: BigInt.from(1000),
+      );
+      expect(page.items.map((r) => r.company.name), ['큰회사']);
+      expect(page.items.single.volumeRatio, 2);
+      expect(page.items.single.volume, BigInt.from(200));
+      expect(
+        (await endpoints.screen.list(
+          sessionBuilder,
+          volumeRatioMin: 2.01,
+        )).items,
+        isEmpty,
+      );
+      expect(
+        (await endpoints.screen.list(
+          sessionBuilder,
+          volumeMin: BigInt.from(201),
+        )).items,
+        isEmpty,
+      );
+      expect(
+        (await endpoints.screen.list(
+          sessionBuilder,
+          marketCapMin: BigInt.from(1001),
+        )).items,
+        isEmpty,
+      );
+    });
+
+    for (final scenario in ['short', 'zero', 'split', 'missing']) {
+      test('거래량 배수에서 $scenario 자료를 0이나 정상 값으로 대체하지 않는다', () async {
+        await volumeHistory(
+          days: scenario == 'short' ? 19 : 20,
+          amount: scenario == 'zero' ? 0 : 100,
+          split: scenario == 'split',
+          missing: scenario == 'missing',
+        );
+        final page = await endpoints.screen.list(sessionBuilder);
+        expect(
+          page.items.firstWhere((r) => r.company.name == '큰회사').volumeRatio,
+          isNull,
+        );
+        expect(
+          (await endpoints.screen.list(
+            sessionBuilder,
+            volumeRatioMin: 0,
+          )).items,
+          isEmpty,
+        );
+      });
+    }
+
+    test('20일보다 오래된 거래량은 평균에 섞지 않는다', () async {
+      await volumeHistory(days: 21);
+      final security = (await Security.db.find(
+        session,
+        where: (t) => t.shortCode.equals('000001'),
+      )).single;
+      final oldest = (await MarketSnapshot.db.find(
+        session,
+        where: (t) => t.securityId.equals(security.id!),
+        orderBy: (t) => t.baseDate,
+      )).first;
+      oldest.volume = BigInt.from(10000000);
+      await MarketSnapshot.db.updateRow(session, oldest);
+      ScreenEndpoint.clearCache();
+      expect(
+        (await endpoints.screen.list(
+          sessionBuilder,
+          volumeRatioMin: 2,
+        )).items.single.volumeRatio,
+        2,
+      );
+    });
+
+    test('배당성향은 공시값을 쓰고 누락·무배당을 연속 배당으로 세지 않는다', () async {
+      final dividend = (await DividendEntry.db.find(session)).single;
+      dividend.prior = 1;
+      dividend.beforePrior = 1;
+      await DividendEntry.db.updateRow(session, dividend);
+      await DividendEntry.db.insertRow(
+        session,
+        DividendEntry(
+          reportId: dividend.reportId,
+          companyId: big.id!,
+          bsnsYear: 2025,
+          ord: 1,
+          item: '현금배당성향(%)',
+          unit: '%',
+          current: 40,
+        ),
+      );
+      final page = await endpoints.screen.list(
+        sessionBuilder,
+        dividendPayoutMax: 40,
+        dividendYearsMin: 3,
+      );
+      expect(page.items.map((r) => r.company.name), ['큰회사']);
+      expect(page.items.single.dividendYear, 2025);
+      expect(page.items.single.dividendPayout, 40);
+      expect(page.items.single.dividendYears, 3);
+      expect(
+        (await endpoints.screen.list(
+          sessionBuilder,
+          dividendPayoutMax: 39,
+        )).items,
+        isEmpty,
+      );
+      for (final prior in [null, 0.0]) {
+        dividend.prior = prior;
+        await DividendEntry.db.updateRow(session, dividend);
+        ScreenEndpoint.clearCache();
+        expect(
+          (await endpoints.screen.list(
+            sessionBuilder,
+            dividendYearsMin: 3,
+          )).items,
+          isEmpty,
+        );
+        expect(
+          (await endpoints.screen.list(sessionBuilder))
+              .items
+              .first
+              .dividendYears,
+          1,
+        );
+      }
+    });
+
+    test('최신 연간 배당이 비어도 과거 배당으로 돌아가지 않는다', () async {
+      await DisclosureReport.db.insertRow(
+        session,
+        DisclosureReport(
+          companyId: big.id!,
+          rceptNo: 'd2',
+          bsnsYear: 2026,
+          section: DartSection.dividend,
+          reportCode: FinancialReportCode.annual,
+          rowCount: 0,
+          sourceId: source.id!,
+          fetchedAt: DateTime.now().toUtc(),
+        ),
+      );
+      ScreenEndpoint.clearCache();
+      final row = (await endpoints.screen.list(sessionBuilder)).items.first;
+      expect(row.dividendYear, 2026);
+      expect(row.dividendYield, isNull);
+      expect(row.dividendYears, isNull);
+      expect(
+        (await endpoints.screen.list(
+          sessionBuilder,
+          dividendYieldMin: 0,
+        )).items,
+        isEmpty,
+      );
+    });
+
+    test('새 필터는 부정확한 숫자와 범위를 거부한다', () async {
+      for (final request in [
+        () => endpoints.screen.list(sessionBuilder, volumeRatioMin: double.nan),
+        () => endpoints.screen.list(sessionBuilder, dividendYearsMin: 4),
+        () => endpoints.screen.list(sessionBuilder, bandPositionMin: 101),
+        () => endpoints.screen.list(sessionBuilder, return3mMin: -101),
+      ]) {
+        await expectLater(request(), throwsA(anything));
+      }
+    });
+
     test('최근 12개월과 최근 기말 값으로 지표를 만든다', () async {
       final page = await endpoints.screen.list(sessionBuilder);
       final rows = {for (final r in page.items) r.company.name: r};
@@ -253,6 +467,7 @@ void main() {
       expect(s.per, closeTo(40 / 4, 1e-9));
       // 전년 자료가 없으면 성장률·FCF는 계산하지 않는다.
       expect(s.revenueGrowth, isNull);
+      expect(s.bandPosition, isNull, reason: '상장 이력 1년 미만은 52주 위치를 단정하지 않는다');
       expect(s.freeCashFlow, isNull);
     });
 
@@ -372,14 +587,14 @@ void main() {
     });
 
     test('시세에서 등락률과 52주 자리를 낸다', () async {
-      // 큰회사: 400일 전 500원 → 300일 전 600원 → 100일 전 800원 → 지금 1,000원.
-      // 52주 밴드는 1년 안의 값만 본다 (400일 전 500원은 밖이다).
+      // 큰회사: 370일 전 500원 → 300일 전 600원 → 95일 전 800원 → 지금 1,000원.
+      // 52주 밴드는 1년 안의 값만 본다 (370일 전 500원은 밖이다).
       final security = (await Security.db.find(
         session,
         where: (t) => t.shortCode.equals('000001'),
       )).single;
       final source = (await Source.db.find(session)).first;
-      for (final (days, price) in [(400, 500), (300, 600), (100, 800)]) {
+      for (final (days, price) in [(370, 500), (300, 600), (95, 800)]) {
         final date = DateTime.utc(2026, 9, 16).subtract(Duration(days: days));
         await MarketSnapshot.db.insertRow(
           session,
@@ -407,6 +622,48 @@ void main() {
       expect(b.high52w, 1000);
       expect(b.low52w, 600, reason: '1년 안의 최저');
       expect(b.bandPosition, closeTo(100, 1e-9), reason: '최고가에 있다');
+      expect(
+        (await endpoints.screen.list(
+          sessionBuilder,
+          return3mMin: 25,
+          return12mMin: 100,
+          bandPositionMin: 100,
+        )).items.map((r) => r.company.name),
+        ['큰회사'],
+      );
+      expect(
+        (await endpoints.screen.list(sessionBuilder, return3mMin: 25.1)).items,
+        isEmpty,
+      );
+      expect(
+        (await endpoints.screen.list(
+          sessionBuilder,
+          return12mMin: 100.1,
+        )).items,
+        isEmpty,
+      );
+    });
+
+    test('가격 비교일보다 오래된 시세를 가까운 기준일 값처럼 쓰지 않는다', () async {
+      final security = (await Security.db.find(
+        session,
+        where: (t) => t.shortCode.equals('000001'),
+      )).single;
+      await MarketSnapshot.db.insertRow(
+        session,
+        MarketSnapshot(
+          securityId: security.id!,
+          baseDate: DateTime.utc(2025, 1, 1),
+          closePrice: BigInt.from(500),
+          listedShares: BigInt.from(1000),
+          sourceId: source.id!,
+        ),
+      );
+      ScreenEndpoint.clearCache();
+      final row = (await endpoints.screen.list(sessionBuilder)).items.first;
+      expect(row.return3m, isNull);
+      expect(row.return12m, isNull);
+      expect(row.bandPosition, isNull);
     });
 
     test('주식수가 크게 바뀐 기업(액면병합 등)은 등락률을 내지 않는다', () async {
@@ -424,7 +681,7 @@ void main() {
             2026,
             9,
             16,
-          ).subtract(const Duration(days: 400)),
+          ).subtract(const Duration(days: 370)),
           closePrice: BigInt.from(10),
           marketCap: BigInt.from(1000),
           listedShares: BigInt.from(100000),
