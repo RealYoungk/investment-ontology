@@ -12,6 +12,8 @@ abstract final class SegmentRevenue {
   /// 한 표에서 받아들이는 최대 부문 수.
   static const maxRows = 20;
 
+  static final _customerTable = RegExp(r'매출처|고객사|거래처|판매처');
+
   /// 단위 표기가 표 머리글에서 이보다 멀면 이 표의 단위로 보지 않는다 (줄 수).
   /// 실제 보고서는 표 바로 앞 줄에 "(단위 : 백만원)"을 적는다.
   static const unitDistance = 3;
@@ -120,6 +122,13 @@ abstract final class SegmentRevenue {
       final a = (exact.isNotEmpty ? exact : before).lastOrNull ?? -1;
       if (a >= 0 && r > a && cells.length >= 3) {
         flush();
+        // 매출처별 표("매출처 | 매출품목 | … / 매출액 | 비중")는 부문이 아니라 고객이다.
+        // 머리글이 두 줄이면 첫 줄이 바로 앞에 있다.
+        if (_customerTable.hasMatch(line) ||
+            i > 0 && _customerTable.hasMatch(lines[i - 1])) {
+          amountAt = -1;
+          continue;
+        }
         amountAt = a;
         ratioAt = r;
         columns = cells.length;
