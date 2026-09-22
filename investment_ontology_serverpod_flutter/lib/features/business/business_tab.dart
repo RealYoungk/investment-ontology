@@ -864,12 +864,11 @@ class _DocumentFactsState extends State<_DocumentFacts> {
                 nowrap: true,
                 minWidth:
                     _facts
-                            .map(
-                              (f) =>
-                                  '${formatDecimal(f.value)}${f.unit}'.length,
-                            )
-                            .fold(2, (a, b) => a > b ? a : b) *
-                        7.6 +
+                        .map(
+                          (f) =>
+                              _textWidth('${formatDecimal(f.value)}${f.unit}'),
+                        )
+                        .fold(20.0, (a, b) => a > b ? a : b) +
                     2 * AppSpace.sm,
               ),
               AppColumn('기준일', nowrap: true, width: 100),
@@ -915,4 +914,13 @@ List<int> _withThisYear(List<int> years) {
   final all = {...years, if (years.isNotEmpty) thisYear}.toList()
     ..sort((a, b) => b.compareTo(a));
   return all;
+}
+
+/// 숫자·기호는 한 글자 ≈ 7.6px, 한글은 ≈ 13.5px (숫자 글꼴 기준 어림).
+double _textWidth(String text) {
+  var w = 0.0;
+  for (final r in text.runes) {
+    w += r >= 0xAC00 && r <= 0xD7A3 ? 13.5 : 7.6;
+  }
+  return w;
 }
