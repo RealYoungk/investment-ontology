@@ -44,7 +44,6 @@ class _GroupsPageState extends State<GroupsPage> {
     return PageFrame(
       children: [
         PageHeading(
-          eyebrow: 'INVESTMENT ONTOLOGY · 지분 묶음',
           title: '지분 묶음',
           subtitle:
               '한 기업의 주가는 그 기업만으로 움직이지 않습니다. 지주사·계열사의 지분 매각, 합병, 상속, '
@@ -66,10 +65,27 @@ class _GroupsPageState extends State<GroupsPage> {
             style: t.body(13, color: c.textMuted),
           )
         else
-          Wrap(
-            spacing: AppSpace.md,
-            runSpacing: AppSpace.md,
-            children: [for (final g in groups) _GroupCard(group: g)],
+          LayoutBuilder(
+            builder: (context, box) {
+              final columns = box.maxWidth >= 1020
+                  ? 3
+                  : box.maxWidth >= 680
+                  ? 2
+                  : 1;
+              final width =
+                  (box.maxWidth - AppSpace.md * (columns - 1)) / columns;
+              return Wrap(
+                spacing: AppSpace.md,
+                runSpacing: AppSpace.md,
+                children: [
+                  for (final g in groups)
+                    SizedBox(
+                      width: width,
+                      child: _GroupCard(group: g),
+                    ),
+                ],
+              );
+            },
           ),
       ],
     );
@@ -91,12 +107,12 @@ class _GroupCard extends StatelessWidget {
       onTap: () => context.push(AppRoutes.group(g.anchor.corpCode)),
       builder: (context, hovered) => AnimatedContainer(
         duration: AppMotion.fast,
-        width: 340,
+
         padding: const EdgeInsets.all(AppSpace.lg),
         decoration: BoxDecoration(
           color: hovered ? c.surfaceHover : c.surface,
           borderRadius: context.shape.borderRadius,
-          border: Border.all(color: c.borderStrong),
+          border: Border.all(color: c.border),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

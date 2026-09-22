@@ -33,6 +33,34 @@ void main() {
       );
     });
 
+    test('KST 자정에 전날 소진한 예산이 다음 날로 넘어가지 않는다', () async {
+      final before = DateTime.utc(2026, 9, 22, 14, 59, 59);
+      final after = DateTime.utc(2026, 9, 22, 15);
+      await ApiCallBudget.record(
+        session,
+        ApiProvider.dart,
+        ApiCallBudget.dartFinancialBudget,
+        now: before,
+      );
+      expect(
+        await ApiCallBudget.usedToday(session, ApiProvider.dart, now: before),
+        ApiCallBudget.dartFinancialBudget,
+      );
+      expect(
+        await ApiCallBudget.usedToday(session, ApiProvider.dart, now: after),
+        0,
+      );
+      await ApiCallBudget.record(session, ApiProvider.dart, 1, now: after);
+      expect(
+        await ApiCallBudget.usedToday(session, ApiProvider.dart, now: after),
+        1,
+      );
+      expect(
+        await ApiCallBudget.usedToday(session, ApiProvider.dart, now: before),
+        ApiCallBudget.dartFinancialBudget,
+      );
+    });
+
     test('ApiCallMeter는 늘어난 만큼만 기록한다', () async {
       var calls = 0;
       final meter = ApiCallMeter(ApiProvider.dart, () => calls);

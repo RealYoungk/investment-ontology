@@ -24,6 +24,10 @@ abstract class IndexHistory
     required this.stride,
     required this.points,
     this.lastChangeRate,
+    this.dayBase,
+    this.weekBase,
+    this.monthBase,
+    this.yearBase,
   });
 
   factory IndexHistory({
@@ -32,6 +36,10 @@ abstract class IndexHistory
     required int stride,
     required List<_ipppabto.IndexPoint> points,
     double? lastChangeRate,
+    _ipppabto.IndexPoint? dayBase,
+    _ipppabto.IndexPoint? weekBase,
+    _ipppabto.IndexPoint? monthBase,
+    _ipppabto.IndexPoint? yearBase,
   }) = _IndexHistoryImpl;
 
   factory IndexHistory.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -43,6 +51,26 @@ abstract class IndexHistory
         jsonSerialization['points'],
       ),
       lastChangeRate: (jsonSerialization['lastChangeRate'] as num?)?.toDouble(),
+      dayBase: jsonSerialization['dayBase'] == null
+          ? null
+          : _ilkzeueu.Protocol().deserialize<_ipppabto.IndexPoint>(
+              jsonSerialization['dayBase'],
+            ),
+      weekBase: jsonSerialization['weekBase'] == null
+          ? null
+          : _ilkzeueu.Protocol().deserialize<_ipppabto.IndexPoint>(
+              jsonSerialization['weekBase'],
+            ),
+      monthBase: jsonSerialization['monthBase'] == null
+          ? null
+          : _ilkzeueu.Protocol().deserialize<_ipppabto.IndexPoint>(
+              jsonSerialization['monthBase'],
+            ),
+      yearBase: jsonSerialization['yearBase'] == null
+          ? null
+          : _ilkzeueu.Protocol().deserialize<_ipppabto.IndexPoint>(
+              jsonSerialization['yearBase'],
+            ),
     );
   }
 
@@ -58,6 +86,15 @@ abstract class IndexHistory
   /// 마지막 거래일의 전일 대비 등락률 % (원문 fltRt)
   double? lastChangeRate;
 
+  /// 차트 간격과 무관한 실제 비교 종가. 기준일 이전 10일 이내 자료만 허용.
+  _ipppabto.IndexPoint? dayBase;
+
+  _ipppabto.IndexPoint? weekBase;
+
+  _ipppabto.IndexPoint? monthBase;
+
+  _ipppabto.IndexPoint? yearBase;
+
   /// Returns a shallow copy of this [IndexHistory]
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
@@ -67,6 +104,10 @@ abstract class IndexHistory
     int? stride,
     List<_ipppabto.IndexPoint>? points,
     double? lastChangeRate,
+    _ipppabto.IndexPoint? dayBase,
+    _ipppabto.IndexPoint? weekBase,
+    _ipppabto.IndexPoint? monthBase,
+    _ipppabto.IndexPoint? yearBase,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -77,6 +118,10 @@ abstract class IndexHistory
       'stride': stride,
       'points': points.toJson(valueToJson: (v) => v.toJson()),
       if (lastChangeRate != null) 'lastChangeRate': lastChangeRate,
+      if (dayBase != null) 'dayBase': dayBase?.toJson(),
+      if (weekBase != null) 'weekBase': weekBase?.toJson(),
+      if (monthBase != null) 'monthBase': monthBase?.toJson(),
+      if (yearBase != null) 'yearBase': yearBase?.toJson(),
     };
   }
 
@@ -89,6 +134,10 @@ abstract class IndexHistory
       'stride': stride,
       'points': points.toJson(valueToJson: (v) => v.toJsonForProtocol()),
       if (lastChangeRate != null) 'lastChangeRate': lastChangeRate,
+      if (dayBase != null) 'dayBase': dayBase?.toJsonForProtocol(),
+      if (weekBase != null) 'weekBase': weekBase?.toJsonForProtocol(),
+      if (monthBase != null) 'monthBase': monthBase?.toJsonForProtocol(),
+      if (yearBase != null) 'yearBase': yearBase?.toJsonForProtocol(),
     };
   }
 
@@ -107,12 +156,20 @@ class _IndexHistoryImpl extends IndexHistory {
     required int stride,
     required List<_ipppabto.IndexPoint> points,
     double? lastChangeRate,
+    _ipppabto.IndexPoint? dayBase,
+    _ipppabto.IndexPoint? weekBase,
+    _ipppabto.IndexPoint? monthBase,
+    _ipppabto.IndexPoint? yearBase,
   }) : super._(
          series: series,
          name: name,
          stride: stride,
          points: points,
          lastChangeRate: lastChangeRate,
+         dayBase: dayBase,
+         weekBase: weekBase,
+         monthBase: monthBase,
+         yearBase: yearBase,
        );
 
   /// Returns a shallow copy of this [IndexHistory]
@@ -125,6 +182,10 @@ class _IndexHistoryImpl extends IndexHistory {
     int? stride,
     List<_ipppabto.IndexPoint>? points,
     Object? lastChangeRate = _Undefined,
+    Object? dayBase = _Undefined,
+    Object? weekBase = _Undefined,
+    Object? monthBase = _Undefined,
+    Object? yearBase = _Undefined,
   }) {
     return IndexHistory(
       series: series ?? this.series,
@@ -134,6 +195,18 @@ class _IndexHistoryImpl extends IndexHistory {
       lastChangeRate: lastChangeRate is double?
           ? lastChangeRate
           : this.lastChangeRate,
+      dayBase: dayBase is _ipppabto.IndexPoint?
+          ? dayBase
+          : this.dayBase?.copyWith(),
+      weekBase: weekBase is _ipppabto.IndexPoint?
+          ? weekBase
+          : this.weekBase?.copyWith(),
+      monthBase: monthBase is _ipppabto.IndexPoint?
+          ? monthBase
+          : this.monthBase?.copyWith(),
+      yearBase: yearBase is _ipppabto.IndexPoint?
+          ? yearBase
+          : this.yearBase?.copyWith(),
     );
   }
 }

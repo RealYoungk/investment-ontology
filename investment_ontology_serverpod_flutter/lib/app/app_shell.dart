@@ -133,6 +133,18 @@ class _TopBar extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (GoRouter.of(context).canPop())
+                Center(
+                  child: IconButton(
+                    tooltip: '이전 화면',
+                    icon: Icon(
+                      Icons.arrow_back,
+                      size: 20,
+                      color: c.textSecondary,
+                    ),
+                    onPressed: () => context.pop(),
+                  ),
+                ),
               if (!compact) ...[
                 Center(
                   child: TextButton(
@@ -149,33 +161,103 @@ class _TopBar extends StatelessWidget {
                 ),
                 const SizedBox(width: AppSpace.xxl),
               ],
-              // 좁은 화면에서는 메뉴가 넘치지 않게 가로로 밀어 본다.
+              // 좁은 화면에서도 모든 목적지를 한 번에 찾을 수 있게 한다.
               Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      for (final d in destinations)
-                        _NavItem(
-                          label: d.destination.label,
-                          active: d.active,
-                          onTap: d.onTap,
-                          trailing: d.destination.path == '/data'
-                              ? const _IngestIndicator()
-                              : null,
+                child: constraints.maxWidth < 1000
+                    ? Align(
+                        alignment: Alignment.centerLeft,
+                        child: PopupMenuButton<int>(
+                          tooltip: '전체 메뉴',
+                          position: PopupMenuPosition.under,
+                          offset: const Offset(0, 8),
+                          color: c.surface,
+                          surfaceTintColor: c.surface,
+                          elevation: 4,
+                          constraints: const BoxConstraints(
+                            minWidth: 184,
+                            maxWidth: 220,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            side: BorderSide(color: c.border),
+                          ),
+                          onSelected: (index) => destinations[index].onTap(),
+                          itemBuilder: (context) => [
+                            for (var i = 0; i < destinations.length; i++)
+                              PopupMenuItem(
+                                value: i,
+                                height: 44,
+                                child: Text(
+                                  destinations[i].destination.label,
+                                  style: t.body(
+                                    14,
+                                    weight: destinations[i].active
+                                        ? FontWeight.w700
+                                        : FontWeight.w400,
+                                  ),
+                                ),
+                              ),
+                          ],
+                          child: SizedBox(
+                            height: 40,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.menu,
+                                  size: 20,
+                                  color: c.textPrimary,
+                                ),
+                                const SizedBox(width: AppSpace.sm),
+                                Text(
+                                  destinations
+                                          .where((d) => d.active)
+                                          .firstOrNull
+                                          ?.destination
+                                          .label ??
+                                      '전체 메뉴',
+                                  style: t.body(14, weight: FontWeight.w600),
+                                ),
+                                Icon(
+                                  Icons.expand_more,
+                                  size: 18,
+                                  color: c.textSecondary,
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                    ],
-                  ),
-                ),
+                      )
+                    : SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            for (final d in destinations)
+                              _NavItem(
+                                label: d.destination.label,
+                                active: d.active,
+                                onTap: d.onTap,
+                                trailing: d.destination.path == '/data'
+                                    ? const _IngestIndicator()
+                                    : null,
+                              ),
+                          ],
+                        ),
+                      ),
               ),
               if (constraints.maxWidth >= 1100)
                 const Center(child: _GlobalSearch())
               else
                 Center(
                   child: IconButton(
-                    tooltip: '기업 · 인물 바로 가기',
-                    icon: Icon(Icons.search, color: c.textPrimary),
+                    tooltip: '기업 · 인물 · 테마 · 메뉴 검색',
+                    iconSize: 20,
+                    constraints: const BoxConstraints.tightFor(
+                      width: 40,
+                      height: 40,
+                    ),
+                    icon: Icon(Icons.search, color: c.textSecondary),
                     onPressed: () => showDialog<void>(
                       context: context,
                       builder: (_) => const _SearchDialog(),
@@ -261,14 +343,20 @@ class _Account extends StatelessWidget {
             message: viewer.isAdmin
                 ? '데이터를 바꿀 수 있습니다 (테마 · 수집 · 검수).'
                 : '볼 수만 있습니다. 바꾸려면 관리자 권한이 필요합니다.',
-            child: AppTag(
-              label: viewer.roleLabel,
-              color: viewer.isAdmin ? c.accent : c.textSecondary,
+            child: Text(
+              viewer.roleLabel,
+              style: context.typo.body(
+                12,
+                color: c.textSecondary,
+                weight: FontWeight.w500,
+              ),
             ),
           ),
         const SizedBox(width: AppSpace.xs),
-        AppIconButton(
-          icon: Icons.logout,
+        IconButton(
+          icon: Icon(Icons.logout, color: c.textSecondary),
+          iconSize: 20,
+          constraints: const BoxConstraints.tightFor(width: 40, height: 40),
           tooltip: '로그아웃',
           onPressed: () async {
             await AppAuth.signOut();
@@ -305,17 +393,57 @@ class _IngestIndicator extends StatelessWidget {
 }
 
 /// 기업·인물 검색 결과.
-typedef _Hits = ({List<CompanyListItem> companies, List<PersonHit> persons});
+typedef _SearchLink = ({String title, String detail, String location});
+typedef _Hits = ({
+  List<CompanyListItem> companies,
+  List<PersonHit> persons,
+  List<_SearchLink> links,
+});
 
-const _noHits = (companies: <CompanyListItem>[], persons: <PersonHit>[]);
+const _noHits = (
+  companies: <CompanyListItem>[],
+  persons: <PersonHit>[],
+  links: <_SearchLink>[],
+);
 
 /// 기업은 시가총액 순 8곳, 인물은 이어진 기업이 많은 순 4명.
 Future<_Hits> _searchAll(String query) async {
-  final (page, persons) = await (
+  final (page, persons, themes) = await (
     client.company.list(query: query, sort: CompanySort.marketCap, limit: 8),
     client.governance.searchPersons(query, limit: 4),
+    client.theme.list(),
   ).wait;
-  return (companies: page.items, persons: persons);
+  final q = query.toLowerCase().replaceAll(' ', '');
+  bool matches(String text) =>
+      text.toLowerCase().replaceAll(' ', '').contains(q);
+  final links = <_SearchLink>[
+    for (final theme in themes)
+      if (matches(
+        '${theme.theme.name} ${theme.theme.description ?? ''} ${theme.topNames.join(' ')}',
+      ))
+        (
+          title: theme.theme.name,
+          detail: '테마 · ${theme.memberCount}개 기업',
+          location: AppRoutes.theme(theme.theme.id!),
+        ),
+    for (final item in const [
+      (title: '시장', detail: '코스피 코스닥 지수 시가총액 업종', location: '/market'),
+      (title: '기업', detail: '상장기업 종목 목록', location: '/companies'),
+      (
+        title: '스크리너',
+        detail: 'PER PBR ROE 영업이익률 성장률 배당수익률 FCF 조건 검색',
+        location: '/screen',
+      ),
+      (title: '기업 비교', detail: '재무 수익성 밸류에이션 비교', location: '/compare'),
+      (title: '관계망', detail: '주주 임원 고객 공급 출자 연결', location: '/graph'),
+      (title: '지분 묶음', detail: '기업집단 지배구조 계열사', location: '/groups'),
+      (title: '테마', detail: '투자 아이디어 관련 기업 묶음', location: '/themes'),
+      (title: '데이터', detail: '수집 현황 누락 업데이트 공시 재무', location: '/data'),
+      (title: '서비스 소개', detail: '사용법 도움말 출처', location: '/about'),
+    ])
+      if (matches('${item.title} ${item.detail}')) item,
+  ];
+  return (companies: page.items, persons: persons, links: links);
 }
 
 /// 검색 결과 목록: 기업 다음에 인물.
@@ -324,11 +452,13 @@ class _HitList extends StatelessWidget {
     required this.hits,
     required this.onCompany,
     required this.onPerson,
+    required this.onLocation,
   });
 
   final _Hits hits;
   final ValueChanged<CompanyListItem> onCompany;
   final ValueChanged<PersonHit> onPerson;
+  final ValueChanged<String> onLocation;
 
   @override
   Widget build(BuildContext context) {
@@ -350,6 +480,24 @@ class _HitList extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        for (final link in hits.links)
+          row(
+            onTap: () => onLocation(link.location),
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(link.title, style: t.body(13.5)),
+                    Text(
+                      link.detail,
+                      style: t.body(11.5, color: c.textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         for (final item in hits.companies)
           row(
             onTap: () => onCompany(item),
@@ -461,7 +609,9 @@ class _GlobalSearchState extends State<_GlobalSearch> {
     _hits = hits;
     _overlay?.remove();
     _overlay = null;
-    if (hits.companies.isEmpty && hits.persons.isEmpty) return;
+    if (hits.companies.isEmpty && hits.persons.isEmpty && hits.links.isEmpty) {
+      return;
+    }
     _overlay = OverlayEntry(builder: _buildOverlay);
     Overlay.of(context).insert(_overlay!);
   }
@@ -493,6 +643,7 @@ class _GlobalSearchState extends State<_GlobalSearch> {
               hits: _hits,
               onCompany: (item) => _go(AppRoutes.company(item.corpCode)),
               onPerson: (p) => _go(AppRoutes.person(p.personId)),
+              onLocation: _go,
             ),
           ),
         ),
@@ -516,6 +667,8 @@ class _GlobalSearchState extends State<_GlobalSearch> {
           onSubmitted: (_) {
             if (_hits.companies.isNotEmpty) {
               _go(AppRoutes.company(_hits.companies.first.corpCode));
+            } else if (_hits.links.isNotEmpty) {
+              _go(_hits.links.first.location);
             } else if (_hits.persons.isNotEmpty) {
               _go(AppRoutes.person(_hits.persons.first.personId));
             }
@@ -527,7 +680,7 @@ class _GlobalSearchState extends State<_GlobalSearch> {
           style: t.body(13.5),
           decoration: InputDecoration(
             isDense: true,
-            hintText: '기업 · 인물 바로 가기',
+            hintText: '기업 · 인물 · 테마 · 메뉴 검색',
             prefixIcon: Icon(Icons.search, size: 18, color: c.textSecondary),
           ),
         ),
@@ -604,13 +757,15 @@ class _SearchDialogState extends State<_SearchDialog> {
               onSubmitted: (_) {
                 if (_hits.companies.isNotEmpty) {
                   _go(AppRoutes.company(_hits.companies.first.corpCode));
+                } else if (_hits.links.isNotEmpty) {
+                  _go(_hits.links.first.location);
                 } else if (_hits.persons.isNotEmpty) {
                   _go(AppRoutes.person(_hits.persons.first.personId));
                 }
               },
               style: t.body(15),
               decoration: InputDecoration(
-                hintText: '회사명 · 종목코드 · 인물',
+                hintText: '기업 · 인물 · 테마 · 메뉴 검색',
                 prefixIcon: Icon(Icons.search, color: c.textSecondary),
               ),
             ),
@@ -619,6 +774,7 @@ class _SearchDialogState extends State<_SearchDialog> {
               hits: _hits,
               onCompany: (item) => _go(AppRoutes.company(item.corpCode)),
               onPerson: (p) => _go(AppRoutes.person(p.personId)),
+              onLocation: _go,
             ),
           ],
         ),

@@ -8,3 +8,8 @@ fields:
   points: List<IndexPoint>
   ### 마지막 거래일의 전일 대비 등락률 % (원문 fltRt)
   lastChangeRate: double?
+  ### 차트 간격과 무관한 실제 비교 종가. 기준일 이전 10일 이내 자료만 허용.
+  dayBase: IndexPoint?
+  weekBase: IndexPoint?
+  monthBase: IndexPoint?
+  yearBase: IndexPoint?

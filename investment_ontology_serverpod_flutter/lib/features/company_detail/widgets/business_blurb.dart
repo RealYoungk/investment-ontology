@@ -72,15 +72,15 @@ class _BusinessBlurbState extends State<BusinessBlurb> {
             onPressed: widget.onOpen,
           ),
         ),
-        const SizedBox(height: AppSpace.sm),
+        const SizedBox(height: AppSpace.lg),
         if (_expanded)
-          SelectableText(o.summary, style: t.body(14).copyWith(height: 1.7))
+          SelectableText(o.summary, style: t.body(16).copyWith(height: 1.85))
         else
           Text(
             o.summary,
             maxLines: 4,
             overflow: TextOverflow.ellipsis,
-            style: t.body(14).copyWith(height: 1.7),
+            style: t.body(16).copyWith(height: 1.85),
           ),
         Align(
           alignment: Alignment.centerLeft,
@@ -92,7 +92,7 @@ class _BusinessBlurbState extends State<BusinessBlurb> {
         const SizedBox(height: AppSpace.xs),
         Text(
           '사업보고서 "사업의 내용"을 읽어 쓴 글입니다. 근거는 사업의 내용 탭에서 절마다 펼쳐 볼 수 있습니다.',
-          style: t.body(11.5, color: c.textMuted),
+          style: t.body(12, color: c.textSecondary),
         ),
         const SizedBox(height: AppSpace.section),
       ],

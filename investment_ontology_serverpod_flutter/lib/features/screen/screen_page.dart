@@ -12,13 +12,50 @@ import '../../design/tokens.dart';
 import '../common/formatters.dart';
 import '../financials/financial_metrics.dart';
 import 'screen_filter.dart';
+import 'screen_presets.dart';
+
+typedef ScreenFetch = Future<ScreenPage> Function(
+  ScreenFilter filter, {
+  int offset,
+  int limit,
+});
+
+Future<ScreenPage> fetchScreen(
+  ScreenFilter f, {
+  int offset = 0,
+  int limit = 100,
+}) => client.screen.list(
+  market: f.market,
+  perMax: f.perMax,
+  pbrMax: f.pbrMax,
+  roeMin: f.roeMin,
+  operatingMarginMin: f.marginMin,
+  debtRatioMax: f.debtMax,
+  dividendYieldMin: f.dividendMin,
+  fcfYieldMin: f.fcfMin,
+  revenueGrowthMin: f.revenueGrowthMin,
+  operatingIncomeGrowthMin: f.opGrowthMin,
+  avgTradingValueMin: f.liquidityMin == null
+      ? null
+      : BigInt.from((f.liquidityMin! * 100000000).round()),
+  sort: f.sort,
+  ascending: f.ascending,
+  offset: offset,
+  limit: limit,
+);
 
 /// 스크리너: 재무·시세로 기업을 거른다.
 ///
 /// 지표는 저장하지 않고 서버가 조회할 때 계산한다. 계산에 쓴 원천 값(매출·영업이익·
 /// 순이익·자본)을 같이 보여 줘서 숫자의 근거를 볼 수 있게 한다.
 class ScreenerPage extends StatefulWidget {
-  const ScreenerPage({super.key, required this.filter});
+  const ScreenerPage({
+    super.key,
+    required this.filter,
+    this.fetch = fetchScreen,
+  });
+
+  final ScreenFetch fetch;
 
   /// 조건은 주소에 남는다 (`/screen?per=10&roe=15`). 북마크·뒤로가기가 된다.
   final ScreenFilter filter;
@@ -32,9 +69,11 @@ class _ScreenerPageState extends State<ScreenerPage> {
   Object? _error;
   bool _loading = false;
   Timer? _debounce;
+  ScreenFilter? _pending;
+  int _inputRevision = 0;
   int _seq = 0;
 
-  ScreenFilter get _f => widget.filter;
+  ScreenFilter get _f => _pending ?? widget.filter;
 
   @override
   void initState() {
@@ -45,7 +84,11 @@ class _ScreenerPageState extends State<ScreenerPage> {
   @override
   void didUpdateWidget(covariant ScreenerPage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.filter != widget.filter) _load();
+    if (oldWidget.filter != widget.filter) {
+      _debounce?.cancel();
+      _pending = null;
+      _load();
+    }
   }
 
   @override
@@ -56,12 +99,15 @@ class _ScreenerPageState extends State<ScreenerPage> {
 
   /// 조건을 주소에 반영한다. 조건을 바꿀 때마다 방문 기록이 쌓이지 않게 한다.
   void _apply(ScreenFilter next) {
-    if (next == _f) return;
+    _debounce?.cancel();
+    _pending = null;
+    if (next == widget.filter) return;
     Router.neglect(context, () => context.go(next.location));
   }
 
   void _applySoon(ScreenFilter next) {
     _debounce?.cancel();
+    _pending = next;
     _debounce = Timer(const Duration(milliseconds: 300), () => _apply(next));
   }
 
@@ -69,25 +115,7 @@ class _ScreenerPageState extends State<ScreenerPage> {
     final seq = ++_seq;
     setState(() => _loading = true);
     try {
-      final p = await client.screen.list(
-        market: _f.market,
-        perMax: _f.perMax,
-        pbrMax: _f.pbrMax,
-        roeMin: _f.roeMin,
-        operatingMarginMin: _f.marginMin,
-        debtRatioMax: _f.debtMax,
-        dividendYieldMin: _f.dividendMin,
-        fcfYieldMin: _f.fcfMin,
-        revenueGrowthMin: _f.revenueGrowthMin,
-        operatingIncomeGrowthMin: _f.opGrowthMin,
-        // 화면에서는 억원으로 받는다 (원 단위 숫자는 세기 어렵다).
-        avgTradingValueMin: _f.liquidityMin == null
-            ? null
-            : BigInt.from((_f.liquidityMin! * 100000000).round()),
-        sort: _f.sort,
-        ascending: _f.ascending,
-        limit: 100,
-      );
+      final p = await widget.fetch(widget.filter);
       if (!mounted || seq != _seq) return;
       setState(() => (_page = p, _error = null));
     } catch (e) {
@@ -105,7 +133,6 @@ class _ScreenerPageState extends State<ScreenerPage> {
     return PageFrame(
       children: [
         PageHeading(
-          eyebrow: 'INVESTMENT ONTOLOGY · 스크리너',
           title: '스크리너',
           subtitle:
               '최근 12개월(TTM) 연결 실적과 최근 시세로 계산합니다 — 기업 화면과 같은 기준입니다. '
@@ -192,6 +219,65 @@ class _ScreenerPageState extends State<ScreenerPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Wrap(
+                spacing: AppSpace.md,
+                runSpacing: AppSpace.sm,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 280,
+                    child: DropdownButtonFormField<String>(
+                      key: ValueKey(
+                        'preset-${ScreenPreset.matching(_f)?.id ?? 'custom'}',
+                      ),
+                      initialValue: ScreenPreset.matching(_f)?.id,
+                      itemHeight: 64,
+                      isExpanded: true,
+                      style: t.body(13),
+                      decoration: const InputDecoration(
+                        labelText: '프리셋으로 값 채우기',
+                      ),
+                      hint: Text(
+                        '프리셋 선택',
+                        style: t.body(13, color: c.textSecondary),
+                      ),
+                      items: [
+                        for (final preset in screenPresets)
+                          DropdownMenuItem(
+                            value: preset.id,
+                            child: Text(preset.title, maxLines: 2),
+                          ),
+                      ],
+                      onChanged: (id) {
+                        if (id == null) return;
+                        final preset = screenPresets.firstWhere(
+                          (p) => p.id == id,
+                        );
+                        final next = preset.applyTo(_f);
+                        setState(() => _inputRevision++);
+                        _apply(next);
+                      },
+                    ),
+                  ),
+                  Text(
+                    '선택하면 아래 조건이 채워집니다. 채워진 숫자는 직접 바꿀 수 있습니다.',
+                    style: t.body(12, color: c.textSecondary),
+                  ),
+                ],
+              ),
+              if (ScreenPreset.matching(_f) case final preset?) ...[
+                const SizedBox(height: AppSpace.sm),
+                Text(
+                  preset.description,
+                  style: t.body(12, color: c.textSecondary),
+                ),
+              ],
+              const SizedBox(height: AppSpace.sm),
+              Text(
+                '프리셋은 예시 조건이며, 선택하면 기존 숫자 조건을 교체합니다.',
+                style: t.body(11.5, color: c.textSecondary),
+              ),
+              const SizedBox(height: AppSpace.md),
               SectionLabel(
                 _f.conditionCount == 0
                     ? '조건 · 비우면 제한 없음'
@@ -202,13 +288,16 @@ class _ScreenerPageState extends State<ScreenerPage> {
                         icon: Icons.close,
                         variant: AppButtonVariant.link,
                         tone: c.accent,
-                        onPressed: () => _apply(
-                          ScreenFilter(
-                            market: _f.market,
-                            sort: _f.sort,
-                            ascending: _f.ascending,
-                          ),
-                        ),
+                        onPressed: () {
+                          setState(() => _inputRevision++);
+                          _apply(
+                            ScreenFilter(
+                              market: _f.market,
+                              sort: _f.sort,
+                              ascending: _f.ascending,
+                            ),
+                          );
+                        },
                       )
                     : null,
               ),
@@ -217,22 +306,26 @@ class _ScreenerPageState extends State<ScreenerPage> {
                 label: '밸류에이션',
                 children: [
                   _NumberField(
+                    key: ValueKey('per-$_inputRevision'),
                     label: 'PER 이하',
                     value: _f.perMax,
                     onChanged: (v) => _applySoon(_f.copyWith(perMax: () => v)),
                   ),
                   _NumberField(
+                    key: ValueKey('pbr-$_inputRevision'),
                     label: 'PBR 이하',
                     value: _f.pbrMax,
                     onChanged: (v) => _applySoon(_f.copyWith(pbrMax: () => v)),
                   ),
                   _NumberField(
+                    key: ValueKey('div-$_inputRevision'),
                     label: '배당수익률 % 이상',
                     value: _f.dividendMin,
                     onChanged: (v) =>
                         _applySoon(_f.copyWith(dividendMin: () => v)),
                   ),
                   _NumberField(
+                    key: ValueKey('fcf-$_inputRevision'),
                     label: 'FCF 수익률 % 이상',
                     value: _f.fcfMin,
                     onChanged: (v) => _applySoon(_f.copyWith(fcfMin: () => v)),
@@ -243,23 +336,27 @@ class _ScreenerPageState extends State<ScreenerPage> {
                 label: '수익성 · 성장',
                 children: [
                   _NumberField(
+                    key: ValueKey('roe-$_inputRevision'),
                     label: 'ROE % 이상',
                     value: _f.roeMin,
                     onChanged: (v) => _applySoon(_f.copyWith(roeMin: () => v)),
                   ),
                   _NumberField(
+                    key: ValueKey('margin-$_inputRevision'),
                     label: '영업이익률 % 이상',
                     value: _f.marginMin,
                     onChanged: (v) =>
                         _applySoon(_f.copyWith(marginMin: () => v)),
                   ),
                   _NumberField(
+                    key: ValueKey('rgrow-$_inputRevision'),
                     label: '매출 성장률 % 이상',
                     value: _f.revenueGrowthMin,
                     onChanged: (v) =>
                         _applySoon(_f.copyWith(revenueGrowthMin: () => v)),
                   ),
                   _NumberField(
+                    key: ValueKey('ogrow-$_inputRevision'),
                     label: '영업이익 성장률 % 이상',
                     value: _f.opGrowthMin,
                     onChanged: (v) =>
@@ -272,11 +369,13 @@ class _ScreenerPageState extends State<ScreenerPage> {
                 last: true,
                 children: [
                   _NumberField(
+                    key: ValueKey('debt-$_inputRevision'),
                     label: '부채비율 % 이하',
                     value: _f.debtMax,
                     onChanged: (v) => _applySoon(_f.copyWith(debtMax: () => v)),
                   ),
                   _NumberField(
+                    key: ValueKey('liq-$_inputRevision'),
                     label: '거래대금 억원 이상',
                     value: _f.liquidityMin,
                     onChanged: (v) =>
@@ -513,7 +612,19 @@ class _FilterGroup extends StatelessWidget {
                 children: [
                   name,
                   const SizedBox(height: AppSpace.xs),
-                  fields,
+                  Wrap(
+                    spacing: AppSpace.md,
+                    runSpacing: AppSpace.md,
+                    children: [
+                      for (final field in children)
+                        SizedBox(
+                          width: box.maxWidth < 320
+                              ? box.maxWidth
+                              : (box.maxWidth - AppSpace.md) / 2,
+                          child: field,
+                        ),
+                    ],
+                  ),
                 ],
               )
             : Row(
@@ -537,6 +648,7 @@ class _FilterGroup extends StatelessWidget {
 /// 숫자 하나를 받는 작은 입력칸. 비우면 그 조건을 끈다.
 class _NumberField extends StatefulWidget {
   const _NumberField({
+    super.key,
     required this.label,
     required this.value,
     required this.onChanged,
@@ -551,8 +663,13 @@ class _NumberField extends StatefulWidget {
 }
 
 class _NumberFieldState extends State<_NumberField> {
+  static String _number(double? v) => v == null
+      ? ''
+      : v == v.roundToDouble()
+      ? v.toInt().toString()
+      : v.toString();
   late final _controller = TextEditingController(
-    text: widget.value?.toString() ?? '',
+    text: _number(widget.value),
   );
 
   final _focus = FocusNode();
@@ -566,7 +683,7 @@ class _NumberFieldState extends State<_NumberField> {
     if (_focus.hasFocus && double.tryParse(_controller.text) == widget.value) {
       return;
     }
-    final text = widget.value?.toString() ?? '';
+    final text = _number(widget.value);
     if (_controller.text != text) _controller.text = text;
   }
 
@@ -582,7 +699,7 @@ class _NumberFieldState extends State<_NumberField> {
     final c = context.colors;
     final t = context.typo;
     return SizedBox(
-      width: 148,
+      width: 184,
       child: TextField(
         controller: _controller,
         focusNode: _focus,
@@ -592,6 +709,7 @@ class _NumberFieldState extends State<_NumberField> {
         decoration: InputDecoration(
           isDense: true,
           labelText: widget.label,
+          floatingLabelBehavior: FloatingLabelBehavior.always,
           labelStyle: t.body(12, color: c.textSecondary),
           hintText: '제한 없음',
         ),

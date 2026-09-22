@@ -134,18 +134,18 @@ class _PriceChartState extends State<PriceChart> {
           ),
         ),
         const SizedBox(height: AppSpace.sm),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
+        Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          runSpacing: AppSpace.xs,
           children: [
             Text('${formatCount(last.close)}원', style: t.numeric(22)),
             const SizedBox(width: AppSpace.sm),
             if (change != null)
               Text(
-                '${change >= 0 ? '+' : ''}${change.toStringAsFixed(1)}%',
+                '기간 ${change > 0 ? '+' : ''}${change.toStringAsFixed(1)}%',
                 style: t.numeric(
                   14,
-                  color: change >= 0 ? c.accent : c.textSecondary,
+                  color: c.marketChange(change),
                 ),
               ),
             const SizedBox(width: AppSpace.sm),
@@ -155,6 +155,13 @@ class _PriceChartState extends State<PriceChart> {
             ),
           ],
         ),
+        if (last.date.difference(first.date).inDays < _days - 14) ...[
+          const SizedBox(height: AppSpace.sm),
+          Text(
+            '조회 기간보다 보유 시세가 짧습니다. 표시 범위는 ${formatDate(first.date)}–${formatDate(last.date)}이며, 첫 시세일이 상장일을 뜻하지는 않습니다.',
+            style: t.body(12, color: c.textSecondary),
+          ),
+        ],
         if (h.high52w case final hi?)
           if (h.low52w case final lo?) ...[
             const SizedBox(height: AppSpace.xs),
@@ -162,10 +169,13 @@ class _PriceChartState extends State<PriceChart> {
           ],
         const SizedBox(height: AppSpace.sm),
         AppLineChart(
+          formatCategory: (date) =>
+              date.length >= 7 ? date.substring(2, 7) : date,
+          maxAxisLabels: 6,
           categories: [for (final p in points) formatDate(p.date)],
           series: ChartSeries(
             label: '종가',
-            color: c.chartSeries1,
+            color: c.marketChange(change),
             values: [for (final p in points) p.close.toDouble()],
           ),
           formatValue: (v) => formatCount(v.round()),

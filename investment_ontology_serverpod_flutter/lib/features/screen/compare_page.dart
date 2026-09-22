@@ -82,7 +82,6 @@ class _ComparePageState extends State<ComparePage> {
     return PageFrame(
       children: [
         const PageHeading(
-          eyebrow: 'INVESTMENT ONTOLOGY · 비교',
           title: '기업 비교',
           subtitle: '최대 4곳을 나란히 놓고 봅니다. 지표는 최근 12개월(TTM) 연결 실적과 최근 시세로 계산합니다.',
         ),
@@ -104,7 +103,11 @@ class _ComparePageState extends State<ComparePage> {
           )
         else if (_loading && _rows.isEmpty)
           const LinearProgressIndicator(minHeight: 2)
-        else
+        else ...[
+          if (_rows.isNotEmpty) _ComparisonCharts(rows: _rows),
+          const SizedBox(height: AppSpace.xl),
+          const SectionLabel('세부 수치 · 같은 기준으로 대조'),
+          const SizedBox(height: AppSpace.md),
           _CompareTable(
             rows: _rows,
             onRemove: (code) => _go([
@@ -112,6 +115,7 @@ class _ComparePageState extends State<ComparePage> {
                 if (x != code) x,
             ]),
           ),
+        ],
       ],
     );
   }
@@ -296,6 +300,72 @@ class _AddCompanyState extends State<_AddCompany> {
             ),
           ),
       ],
+    );
+  }
+}
+
+class _ComparisonCharts extends StatelessWidget {
+  const _ComparisonCharts({required this.rows});
+  final List<ScreenRow> rows;
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    final metrics = <(String, String, double? Function(ScreenRow))>[
+      ('가격은 이익의 몇 배인가', 'PER · 배', (r) => r.per),
+      ('매출에서 얼마나 남기는가', '영업이익률 · %', (r) => r.operatingMargin),
+      ('자본 대비 얼마나 벌었는가', 'ROE · %', (r) => r.roe),
+    ];
+    return LayoutBuilder(
+      builder: (context, box) {
+        final columns = box.maxWidth >= 960
+            ? 3
+            : box.maxWidth >= 640
+            ? 2
+            : 1;
+        final width = (box.maxWidth - AppSpace.xl * (columns - 1)) / columns;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text('가격과 수익성의 차이를 먼저 살펴보세요.', style: t.display(24)),
+            const SizedBox(height: AppSpace.sm),
+            Text(
+              '각 차트는 독립된 축입니다. 업종·보고 기간이 다르면 수치만으로 우열을 판단하기 어렵습니다. 결측값은 막대로 표시하지 않습니다.',
+              style: t.body(12, color: c.textSecondary),
+            ),
+            const SizedBox(height: AppSpace.xl),
+            Wrap(
+              spacing: AppSpace.xl,
+              runSpacing: AppSpace.xl,
+              children: [
+                for (final (title, unit, value) in metrics)
+                  SizedBox(
+                    width: width,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(title, style: t.body(15, weight: FontWeight.w600)),
+                        Text(unit, style: t.body(12, color: c.textSecondary)),
+                        const SizedBox(height: AppSpace.md),
+                        AppColumnChart(
+                          categories: [for (final r in rows) r.company.name],
+                          series: [
+                            ChartSeries(
+                              label: unit,
+                              color: c.chartSeries1,
+                              values: [for (final r in rows) value(r)],
+                            ),
+                          ],
+                          formatValue: (v) => v.toStringAsFixed(1),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 }

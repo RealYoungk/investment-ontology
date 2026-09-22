@@ -22,6 +22,8 @@ AppBrand _brand() => AppBrand(
     accentSubtle: Color(0xFFF3D9CC),
     onAccent: Color(0xFFF2EDE2),
     success: Color(0xFF3F6B4E),
+    marketUp: Color(0xFFB83232),
+    marketDown: Color(0xFF2463AD),
     marketKospi: Color(0xFF17140F),
     marketKosdaq: Color(0xFFC8401A),
     marketKonex: Color(0xFF8A7B5E),

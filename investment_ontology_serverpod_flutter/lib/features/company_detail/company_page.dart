@@ -113,14 +113,6 @@ class _CompanyPageState extends State<CompanyPage> {
     _openMetric = metric == _openMetric ? null : metric;
   });
 
-  void _back() {
-    if (context.canPop()) {
-      context.pop();
-    } else {
-      context.go('/companies');
-    }
-  }
-
   /// 원문 표로 보여 주는 항목 (사업의 내용은 글이라 따로 탭이 있다).
   List<DisclosureSectionInfo> get _tableSections => [
     for (final s in _sections)
@@ -150,15 +142,6 @@ class _CompanyPageState extends State<CompanyPage> {
 
     return PageFrame(
       children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: AppButton(
-            label: '← 뒤로',
-            variant: AppButtonVariant.link,
-            onPressed: _back,
-          ),
-        ),
-        const SizedBox(height: AppSpace.lg),
         if (!_loaded)
           const LinearProgressIndicator(minHeight: 2)
         else if (detail == null)

@@ -1,3 +1,5 @@
+import '../safe_ingest_message.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -154,7 +156,10 @@ class _JobRowState extends State<IngestJobRow> {
           ),
           if (job?.message != null && !_running) ...[
             const SizedBox(height: AppSpace.xs),
-            Text(job!.message!, style: t.body(12, color: c.textMuted)),
+            Text(
+              safeIngestMessage(job!.message!),
+              style: t.body(12, color: c.textMuted),
+            ),
           ],
           if (_running) ...[
             const SizedBox(height: AppSpace.sm),
@@ -162,7 +167,10 @@ class _JobRowState extends State<IngestJobRow> {
           ],
           if (_error != null) ...[
             const SizedBox(height: AppSpace.sm),
-            Text(_error!, style: t.body(13, color: c.accent)),
+            Text(
+              safeIngestMessage(_error!),
+              style: t.body(13, color: c.accent),
+            ),
           ],
         ],
       ),

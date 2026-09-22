@@ -160,7 +160,6 @@ class _CompanyListPageState extends State<CompanyListPage> {
         return PageFrame(
           children: [
             PageHeading(
-              eyebrow: 'INVESTMENT ONTOLOGY · 기업',
               title: '기업',
               subtitle: o == null
                   ? '불러오는 중…'

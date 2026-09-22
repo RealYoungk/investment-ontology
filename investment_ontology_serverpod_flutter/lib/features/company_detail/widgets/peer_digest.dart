@@ -129,6 +129,8 @@ class _PeerDigestState extends State<PeerDigest> {
             ),
           ),
           Text(
+            '산업분류가 같은 기업을 비교합니다. 5개사 미만이면 상위 업종으로 넓힙니다. '
+            '사업·제품이 유사한 직접 경쟁사 목록은 아닙니다. '
             '순위는 값이 있는 기업만 셉니다. PER·PBR·부채비율은 낮을수록 앞입니다.',
             style: t.body(11.5, color: c.textMuted),
           ),

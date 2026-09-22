@@ -83,16 +83,6 @@ class _PersonPageState extends State<PersonPage> {
     return PageFrame(
       maxWidth: 1080,
       children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: AppButton(
-            label: '← 뒤로',
-            variant: AppButtonVariant.link,
-            onPressed: () =>
-                context.canPop() ? context.pop() : context.go('/companies'),
-          ),
-        ),
-        const SizedBox(height: AppSpace.lg),
         if (!_loaded)
           const LinearProgressIndicator(minHeight: 2)
         else if (p == null)
@@ -101,8 +91,6 @@ class _PersonPageState extends State<PersonPage> {
             style: t.body(14, color: c.textSecondary),
           )
         else ...[
-          const SectionLabel('INVESTMENT ONTOLOGY · 인물', accent: true),
-          const SizedBox(height: AppSpace.sm),
           Text(p.person.name, style: t.display(40, color: c.textPrimary)),
           const SizedBox(height: AppSpace.sm),
           Wrap(
@@ -136,6 +124,59 @@ class _PersonPageState extends State<PersonPage> {
             ),
           ],
           const SizedBox(height: AppSpace.xl),
+          if (p.roles.any(
+            (r) =>
+                r.predicate == RelationPredicate.shareholderOf &&
+                r.weight != null,
+          )) ...[
+            Text('어느 기업의 지분을 갖고 있나요?', style: t.display(24)),
+            const SizedBox(height: AppSpace.sm),
+            Text(
+              '기업별 지분율 · 각 기업의 최근 사업보고서. 서로 다른 기업의 비율이므로 합산하지 않습니다.',
+              style: t.body(12, color: c.textSecondary),
+            ),
+            const SizedBox(height: AppSpace.xl),
+            for (final r in p.roles.where(
+              (r) =>
+                  r.predicate == RelationPredicate.shareholderOf &&
+                  r.weight != null &&
+                  r.weight! >= 0 &&
+                  r.weight! <= 100,
+            ))
+              Padding(
+                padding: const EdgeInsets.only(bottom: AppSpace.lg),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Wrap(
+                      spacing: AppSpace.md,
+                      runSpacing: AppSpace.xs,
+                      children: [
+                        AppButton(
+                          label: r.companyName,
+                          variant: AppButtonVariant.link,
+                          onPressed: () => context.push(
+                            AppRoutes.company(r.corpCode, tab: 'governance'),
+                          ),
+                        ),
+                        Text(
+                          '${formatRatio(r.weight)}${r.estimated ? ' · 추정 연결' : ''}',
+                          style: t.numeric(16, color: c.textPrimary),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpace.xs),
+                    LinearProgressIndicator(
+                      value: r.weight! / 100,
+                      minHeight: 10,
+                      color: r.estimated ? c.chartSeries2 : c.chartSeries1,
+                      backgroundColor: c.chartTile,
+                    ),
+                  ],
+                ),
+              ),
+            const SizedBox(height: AppSpace.xl),
+          ],
           const SectionLabel('관계 · 각 기업의 최근 사업보고서'),
           const SizedBox(height: AppSpace.sm),
           LayoutBuilder(

@@ -30,9 +30,9 @@ class _GraphPageState extends State<GraphPage> {
   CompanyGraph? _graph;
   Object? _error;
   bool _loading = false;
-  int _depth = 2;
+  int _depth = 1;
   bool _names = false;
-  int _maxNodes = 80;
+  int _maxNodes = 40;
   GraphNode? _selected;
 
   /// 폰에서는 노드가 많으면 서로 겹쳐 못 읽는다. 처음 한 번만 줄여 둔다.
@@ -103,7 +103,6 @@ class _GraphPageState extends State<GraphPage> {
       maxWidth: 1400,
       children: [
         const PageHeading(
-          eyebrow: 'INVESTMENT ONTOLOGY · 관계망',
           title: '관계망',
           subtitle:
               '기업을 가운데 두고 주주·출자·임원 관계와 사업보고서 본문에서 읽은 관계(공급·매출·경쟁)를 따라 넓힙니다. '

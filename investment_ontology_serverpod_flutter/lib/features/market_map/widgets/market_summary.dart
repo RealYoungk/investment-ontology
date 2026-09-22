@@ -30,7 +30,6 @@ class MarketSummary extends StatelessWidget {
       crossAxisAlignment: WrapCrossAlignment.end,
       children: [
         PageHeading(
-          eyebrow: 'INVESTMENT ONTOLOGY · 시장',
           title: '시장',
           subtitle: o == null
               ? '불러오는 중…'

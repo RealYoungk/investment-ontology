@@ -52,93 +52,104 @@ class _DataPageState extends State<DataPage> {
       maxWidth: 960,
       children: [
         const PageHeading(
-          eyebrow: 'INVESTMENT ONTOLOGY · 데이터',
           title: '데이터',
-          subtitle:
-              '숫자는 1차 출처(DART, 공공데이터포털)에서만 받습니다. '
-              '서버가 켜져 있으면 예약된 시각에 스스로 수집하고, 끊기면 다음에 이어서 받습니다.',
+          subtitle: '자료가 얼마나 준비됐는지, 언제 갱신되는지 확인하세요.',
         ),
         if (_error != null) ...[
           const SizedBox(height: AppSpace.lg),
-          AppNotice(message: '서버에 연결하지 못했습니다 — $_error'),
+          const AppNotice(message: '현재 상태를 불러오지 못했습니다. 잠시 후 다시 확인해 주세요.'),
         ],
         const SizedBox(height: AppSpace.section),
-        const ScheduleBoard(),
-        const SizedBox(height: AppSpace.section),
         const _Coverage(),
-        const SizedBox(height: AppSpace.section),
-        const _Source(
-          title: '상장사 마스터 · DART 기업개황',
-          description:
-              '상장사 목록(corpCode.xml)과 기업개황(company.json). 평소에는 DART 변경일이 '
-              '바뀐 기업만 받고, 30일마다 전체를 다시 받습니다. 자동으로 돌지 않으니 '
-              '필요할 때 누릅니다.',
-        ),
-        if (o != null)
-          IngestStatusBar(
-            lastJob: o.lastJob,
-            nextFullRefreshAt: o.nextFullRefreshAt,
-            onFinished: _loadOverview,
-          )
-        else
-          const LinearProgressIndicator(minHeight: 2),
-        const SizedBox(height: AppSpace.section),
-        const _Source(
-          title: '재무 · DART 정기보고서',
-          description:
-              'DART 공시 목록에서 상장사 정기보고서를 찾아 연결·별도 전체 재무제표를 받습니다. '
-              '사업보고서·분기·반기보고서 모두 최근 5개 사업연도. DART 일일 호출 18,000건까지 '
-              '쓰고 나머지는 다음 날 00:10에 이어서 받습니다. 매일 18:30에 자동 수집.',
-        ),
-        IngestJobRow(
-          kind: 'financial_facts',
-          label: 'DART 재무',
-          action: '재무제표 수집',
-          start: client.ingest.startFinancials,
-        ),
-        const SizedBox(height: AppSpace.section),
-        const _Source(
-          title: '정기보고서 주요정보 · DART 사업보고서 28종',
-          description:
-              '재무 수집이 찾은 사업보고서마다 최대주주·임원·타법인출자·배당·자기주식·주식 총수·증자 '
-              '(핵심 9종)와 직원·보수·감사·채권 등 나머지 19종을 받습니다. 기업마다 가장 최근 '
-              '사업보고서의 핵심 항목부터 받고, 재무 백필이 남아 있는 동안은 핵심 항목만 하루 '
-              '9,000회까지 씁니다. 여기에 더해 "사업의 내용" 본문을 시가총액 큰 기업부터 하루 300건 받습니다 '
-              '— 관계·값 추출의 재료입니다. 매일 19:00에 자동 수집, 한도를 다 쓰면 다음 날 00:05에 이어서 받습니다. '
-              '받은 뒤에는 인물 연결과 관계 색인을 호출 없이 다시 만들고, 본문의 생산능력·가동률 표와 '
-              '원재료 매입처는 규칙으로 읽어 바로 넣습니다 (AI 없음).',
-        ),
-        IngestJobRow(
-          kind: 'disclosures',
-          label: 'DART 주요정보',
-          action: '주요정보 수집',
-          start: client.ingest.startDisclosures,
-        ),
-        const SizedBox(height: AppSpace.sm),
-        const _RebuildLinks(),
-        const SizedBox(height: AppSpace.section),
-        const _Source(
-          title: '본문에서 읽은 관계·값 (4단계)',
-          description:
-              '받아 둔 사업보고서 "사업의 내용"에서 제품·공급(원재료 매입처·주요 매출처)·경쟁 관계와 '
-              '수주잔고·생산능력·점유율 같은 값을 읽어 넣습니다. 형식이 일정한 표는 규칙으로 서버가 바로 '
-              '읽고(검산 통과한 것만), 문장에서 읽어야 하는 것은 서버 밖에서 미리 읽어 넣습니다 — '
-              '이 앱은 어디서도 AI를 부르지 않습니다. 근거 문장이 원문에 그대로 있는 것만 저장됩니다.',
-        ),
-        const _AiExtraction(),
-        const SizedBox(height: AppSpace.section),
-        const _Source(
-          title: '시세 · 공공데이터포털 금융위원회',
-          description:
-              '주식시세정보로 받지 않은 평일의 전 종목 시세를 받고(처음에는 5년), 최근 '
-              '기준일의 상장종목 정보로 종목을 기업에 연결합니다. 매일 18:00에 자동 수집.',
-        ),
-        IngestJobRow(
-          kind: 'market_snapshot',
-          label: '시세',
-          action: '시세 수집',
-          start: client.ingest.startMarketSnapshot,
-        ),
+        const SizedBox(height: AppSpace.xxl),
+        const ScheduleBoard(),
+        const SizedBox(height: AppSpace.xxl),
+        if (context.isAdmin)
+          ExpansionTile(
+            tilePadding: EdgeInsets.zero,
+            title: Text(
+              '수집 관리',
+              style: context.typo.body(14, weight: FontWeight.w600),
+            ),
+            subtitle: Text(
+              '관리자 · 수동 실행 및 처리 상세',
+              style: context.typo.body(12, color: context.colors.textSecondary),
+            ),
+            children: [
+              const _Source(
+                title: '상장사 마스터 · DART 기업개황',
+                description:
+                    '상장사 목록(corpCode.xml)과 기업개황(company.json). 평소에는 DART 변경일이 '
+                    '바뀐 기업만 받고, 30일마다 전체를 다시 받습니다. 자동으로 돌지 않으니 '
+                    '필요할 때 누릅니다.',
+              ),
+              if (o != null)
+                IngestStatusBar(
+                  lastJob: o.lastJob,
+                  nextFullRefreshAt: o.nextFullRefreshAt,
+                  onFinished: _loadOverview,
+                )
+              else
+                const LinearProgressIndicator(minHeight: 2),
+              const SizedBox(height: AppSpace.section),
+              const _Source(
+                title: '재무 · DART 정기보고서',
+                description:
+                    'DART 공시 목록에서 상장사 정기보고서를 찾아 연결·별도 전체 재무제표를 받습니다. '
+                    '사업보고서·분기·반기보고서 모두 최근 5개 사업연도. DART 일일 호출 18,000건까지 '
+                    '쓰고 나머지는 다음 날 00:10에 이어서 받습니다. 매일 18:30에 자동 수집.',
+              ),
+              IngestJobRow(
+                kind: 'financial_facts',
+                label: 'DART 재무',
+                action: '재무제표 수집',
+                start: client.ingest.startFinancials,
+              ),
+              const SizedBox(height: AppSpace.section),
+              const _Source(
+                title: '정기보고서 주요정보 · DART 사업보고서 28종',
+                description:
+                    '재무 수집이 찾은 사업보고서마다 최대주주·임원·타법인출자·배당·자기주식·주식 총수·증자 '
+                    '(핵심 9종)와 직원·보수·감사·채권 등 나머지 19종을 받습니다. 기업마다 가장 최근 '
+                    '사업보고서의 핵심 항목부터 받고, 재무 백필이 남아 있는 동안은 핵심 항목만 하루 '
+                    '9,000회까지 씁니다. 여기에 더해 "사업의 내용" 본문을 시가총액 큰 기업부터 하루 300건 받습니다 '
+                    '— 관계·값 추출의 재료입니다. 매일 19:00에 자동 수집, 한도를 다 쓰면 다음 날 00:05에 이어서 받습니다. '
+                    '받은 뒤에는 인물 연결과 관계 색인을 호출 없이 다시 만들고, 본문의 생산능력·가동률 표와 '
+                    '원재료 매입처는 규칙으로 읽어 바로 넣습니다 (AI 없음).',
+              ),
+              IngestJobRow(
+                kind: 'disclosures',
+                label: 'DART 주요정보',
+                action: '주요정보 수집',
+                start: client.ingest.startDisclosures,
+              ),
+              const SizedBox(height: AppSpace.sm),
+              const _RebuildLinks(),
+              const SizedBox(height: AppSpace.section),
+              const _Source(
+                title: '본문에서 읽은 관계·값 (4단계)',
+                description:
+                    '받아 둔 사업보고서 "사업의 내용"에서 제품·공급(원재료 매입처·주요 매출처)·경쟁 관계와 '
+                    '수주잔고·생산능력·점유율 같은 값을 읽어 넣습니다. 형식이 일정한 표는 규칙으로 서버가 바로 '
+                    '읽고(검산 통과한 것만), 문장에서 읽어야 하는 것은 서버 밖에서 미리 읽어 넣습니다 — '
+                    '이 앱은 어디서도 AI를 부르지 않습니다. 근거 문장이 원문에 그대로 있는 것만 저장됩니다.',
+              ),
+              const _AiExtraction(),
+              const SizedBox(height: AppSpace.section),
+              const _Source(
+                title: '시세 · 공공데이터포털 금융위원회',
+                description:
+                    '주식시세정보로 받지 않은 평일의 전 종목 시세를 받고(처음에는 5년), 최근 '
+                    '기준일의 상장종목 정보로 종목을 기업에 연결합니다. 매일 18:00에 자동 수집.',
+              ),
+              IngestJobRow(
+                kind: 'market_snapshot',
+                label: '시세',
+                action: '시세 수집',
+                start: client.ingest.startMarketSnapshot,
+              ),
+            ],
+          ),
       ],
     );
   }
@@ -156,12 +167,14 @@ class _Source extends StatelessWidget {
     final t = context.typo;
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpace.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: ExpansionTile(
+        tilePadding: EdgeInsets.zero,
+        title: Text(title, style: t.body(13, weight: FontWeight.w600)),
         children: [
-          SectionLabel(title, accent: true),
-          const SizedBox(height: AppSpace.xs),
-          Text(description, style: t.body(13, color: c.textSecondary)),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(description, style: t.body(12, color: c.textSecondary)),
+          ),
         ],
       ),
     );
@@ -330,7 +343,7 @@ class _CoverageState extends State<_Coverage> {
               : '일일 호출 예산 기준 약 $financialDays일 · 완료 시각 미정',
         ),
         _Progress(
-          label: '주요정보 우선 범위 (최신 사업보고서 핵심 항목)',
+          label: '최신 사업보고서 핵심 정보',
           done: v.prioritySectionsDone,
           total: v.prioritySections,
           note: priorityLeft == 0
@@ -338,18 +351,12 @@ class _CoverageState extends State<_Coverage> {
               : '일일 호출 예산 기준 약 $priorityDays일 · 완료 시각 미정',
         ),
         _Progress(
-          label: '주요정보 전체 (5개년 28종 + 본문)',
+          label: '전체 공시 항목',
           done: v.sectionsDone,
           total: v.sections,
           note: v.sectionsFailed == 0
               ? null
               : '실패 ${formatCount(v.sectionsFailed)}건 (재시도)',
-        ),
-        _Progress(
-          label: '사업의 내용 요약 (본문이 있는 기업 중 절별 요약까지 있는 곳)',
-          done: v.companiesWithDigest,
-          total: v.companiesWithBusinessText,
-          note: '세션에서 읽어 넣음 · 시가총액 큰 기업부터',
         ),
         const SizedBox(height: AppSpace.sm),
         Text(
@@ -357,11 +364,19 @@ class _CoverageState extends State<_Coverage> {
           '관계 ${formatCount(v.relations)}건 · 인물 ${formatCount(v.persons)}명',
           style: t.numeric(12.5, color: c.textSecondary),
         ),
-        Text(
-          '오늘 DART 호출 ${formatCount(v.dartCallsToday)} / ${formatCount(v.dartDailyLimit)} '
-          '(재무 ${formatCount(v.dartFinancialBudget)}, 재무가 밀린 동안 주요정보 '
-          '${formatCount(v.dartDisclosurePriorityBudget)}) · 남은 기간은 하루 예산으로 나눈 어림',
-          style: t.body(12, color: c.textMuted),
+        ExpansionTile(
+          tilePadding: EdgeInsets.zero,
+          dense: true,
+          title: Text('출처·수집 범위', style: t.body(12, color: c.textSecondary)),
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'DART 기업개황·정기보고서 / 금융위원회 주식·지수 시세. 표시 비율은 확보 범위이며 개별 값의 정확도 점수는 아닙니다.\n오늘 DART 호출 ${formatCount(v.dartCallsToday)} / ${formatCount(v.dartDailyLimit)}',
+                style: t.body(12, color: c.textSecondary),
+              ),
+            ),
+          ],
         ),
       ],
     );

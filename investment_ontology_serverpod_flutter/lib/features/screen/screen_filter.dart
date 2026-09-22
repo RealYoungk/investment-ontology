@@ -22,7 +22,14 @@ class ScreenFilter {
   factory ScreenFilter.fromQuery(Map<String, String> q) {
     double? number(String key) {
       final v = double.tryParse(q[key] ?? '');
-      return v == null || v <= 0 ? null : v;
+      final signed = const {
+        'roe',
+        'margin',
+        'rgrow',
+        'ogrow',
+        'fcf',
+      }.contains(key);
+      return v == null || !v.isFinite || (!signed && v < 0) ? null : v;
     }
 
     return ScreenFilter(

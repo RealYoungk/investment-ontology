@@ -286,7 +286,7 @@ class _SectionBody extends StatelessWidget {
           else
             SelectableText(
               b.lines.join('\n'),
-              style: t.body(14).copyWith(height: 1.7),
+              style: t.body(16).copyWith(height: 1.8),
             ),
           const SizedBox(height: AppSpace.md),
         ],
@@ -383,14 +383,19 @@ class _DigestState extends State<_Digest> {
                 borderRadius: context.shape.borderRadius,
                 border: Border.all(color: c.border),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+              child: ExpansionTile(
+                initiallyExpanded: s == sections.first,
+                maintainState: true,
+                tilePadding: EdgeInsets.zero,
+                expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
+                title: Text(
+                  s.title,
+                  style: t.body(16, weight: FontWeight.w700),
+                ),
                 children: [
-                  Text(s.title, style: t.body(15, weight: FontWeight.w700)),
-                  const SizedBox(height: AppSpace.xs),
                   SelectableText(
                     s.summary,
-                    style: t.body(14).copyWith(height: 1.7),
+                    style: t.body(16).copyWith(height: 1.8),
                   ),
                   const SizedBox(height: AppSpace.xs),
                   Align(
@@ -752,30 +757,26 @@ class _FactTrend extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
+        Text(
+          '${kindLabel(facts.first.kind)} · ${facts.first.label}',
+          style: t.body(14, weight: FontWeight.w600),
+        ),
+        const SizedBox(height: AppSpace.xs),
+        Wrap(
+          spacing: AppSpace.md,
+          runSpacing: AppSpace.xs,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            Expanded(
-              child: Text(
-                '${kindLabel(facts.first.kind)} · ${facts.first.label}',
-                style: t.body(13.5, weight: FontWeight.w600),
-              ),
-            ),
             Text(
               formatUnitAmount(last, unit),
-              style: t.numeric(15, weight: FontWeight.w700),
+              style: t.numeric(18, weight: FontWeight.w700),
             ),
-            if (change != null) ...[
-              const SizedBox(width: AppSpace.sm),
+            if (change != null)
               Text(
                 '${_year(facts.first)}→${_year(facts.last)} '
                 '${change >= 0 ? '+' : ''}${change.toStringAsFixed(1)}%',
-                style: t.numeric(
-                  12,
-                  color: change >= 0 ? c.success : c.accent,
-                ),
+                style: t.numeric(12, color: change >= 0 ? c.success : c.accent),
               ),
-            ],
           ],
         ),
         const SizedBox(height: AppSpace.xs),

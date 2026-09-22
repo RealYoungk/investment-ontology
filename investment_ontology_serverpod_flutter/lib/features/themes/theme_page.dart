@@ -123,7 +123,7 @@ class _ThemePageState extends State<ThemePage> {
         Align(
           alignment: Alignment.centerLeft,
           child: AppButton(
-            label: '← 테마 목록',
+            label: '테마 목록',
             variant: AppButtonVariant.link,
             onPressed: () =>
                 context.canPop() ? context.pop() : context.go('/themes'),
@@ -138,8 +138,6 @@ class _ThemePageState extends State<ThemePage> {
             style: t.body(14, color: c.textSecondary),
           )
         else ...[
-          const SectionLabel('INVESTMENT ONTOLOGY · 테마', accent: true),
-          const SizedBox(height: AppSpace.sm),
           Wrap(
             spacing: AppSpace.lg,
             crossAxisAlignment: WrapCrossAlignment.center,

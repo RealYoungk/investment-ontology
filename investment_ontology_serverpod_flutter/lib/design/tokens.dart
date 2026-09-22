@@ -18,6 +18,8 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.accentSubtle,
     required this.onAccent,
     required this.success,
+    required this.marketUp,
+    required this.marketDown,
     required this.marketKospi,
     required this.marketKosdaq,
     required this.marketKonex,
@@ -55,6 +57,16 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color onAccent;
 
   final Color success;
+
+  /// 한국 시장 등락: 상승 빨강, 하락 파랑, 보합 및 결측 중립.
+  final Color marketUp;
+  final Color marketDown;
+
+  Color marketChange(num? value) => value == null || value == 0
+      ? textSecondary
+      : value > 0
+      ? marketUp
+      : marketDown;
 
   /// 시장 구분 색.
   final Color marketKospi;
@@ -95,6 +107,8 @@ class AppColors extends ThemeExtension<AppColors> {
       accentSubtle: l(accentSubtle, other.accentSubtle),
       onAccent: l(onAccent, other.onAccent),
       success: l(success, other.success),
+      marketUp: l(marketUp, other.marketUp),
+      marketDown: l(marketDown, other.marketDown),
       marketKospi: l(marketKospi, other.marketKospi),
       marketKosdaq: l(marketKosdaq, other.marketKosdaq),
       marketKonex: l(marketKonex, other.marketKonex),

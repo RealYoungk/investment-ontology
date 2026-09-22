@@ -226,7 +226,6 @@ class _ReviewQueuePageState extends State<ReviewQueuePage> {
           controller: _scroll,
           children: [
             const PageHeading(
-              eyebrow: 'INVESTMENT ONTOLOGY · 검수',
               title: '검수',
               subtitle:
                   '사업보고서 "사업의 내용"에서 미리 뽑아 둔 관계와 값입니다. 근거 인용이 원문에 그대로 있는 것만 남겼고, '
