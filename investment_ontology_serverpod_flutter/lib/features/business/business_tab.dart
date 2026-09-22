@@ -563,6 +563,24 @@ class _RelationGroups extends StatelessWidget {
         {...?prev?.$2, r.bsnsYear},
       );
     }
+    // 매출처 표에서 읽은 비중(%)이 있으면 큰 순으로, 없는 것은 이름순 뒤에.
+    List<MapEntry<String, (ReviewItem, Set<int>)>> ordered(
+      Map<String, (ReviewItem, Set<int>)> m,
+    ) => m.entries.toList()
+      ..sort((a, b) {
+        final wa = a.value.$1.relation.weight, wb = b.value.$1.relation.weight;
+        if (wa != null || wb != null) return (wb ?? -1).compareTo(wa ?? -1);
+        return a.key.compareTo(b.key);
+      });
+    // 비중은 관계의 주어(파는 쪽) 매출 기준이다. 내가 사는 쪽(공급처)이면 그렇게 적는다.
+    String share(ReviewItem i) {
+      final w = i.relation.weight;
+      if (w == null) return '';
+      final pct =
+          '${w == w.roundToDouble() ? w.toInt() : w.toStringAsFixed(1)}%';
+      return i.subjectCorpCode == corpCode ? ' $pct' : ' (상대 매출의 $pct)';
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -578,7 +596,7 @@ class _RelationGroups extends StatelessWidget {
             spacing: AppSpace.sm,
             runSpacing: 6,
             children: [
-              for (final e in entry.value.entries)
+              for (final e in ordered(entry.value))
                 Tooltip(
                   message:
                       '${e.value.$1.relation.evidence ?? ''}\n'
@@ -593,19 +611,28 @@ class _RelationGroups extends StatelessWidget {
                         onOpenCompany(code);
                       }
                     },
-                    builder: (context, hovered) => Text(
-                      e.key,
-                      style: t
-                          .body(
-                            13.5,
-                            color: c.textPrimary,
-                            weight: FontWeight.w500,
-                          )
-                          .copyWith(
-                            decoration: hovered
-                                ? TextDecoration.underline
-                                : null,
+                    builder: (context, hovered) => Text.rich(
+                      TextSpan(
+                        text: e.key,
+                        style: t
+                            .body(
+                              13.5,
+                              color: c.textPrimary,
+                              weight: FontWeight.w500,
+                            )
+                            .copyWith(
+                              decoration: hovered
+                                  ? TextDecoration.underline
+                                  : null,
+                            ),
+                        children: [
+                          // 매출처 표에 적힌 매출 비중.
+                          TextSpan(
+                            text: share(e.value.$1),
+                            style: t.body(12, color: c.textSecondary),
                           ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
