@@ -61,9 +61,13 @@ abstract class _CategoryChart extends StatefulWidget {
     required this.series,
     required this.formatValue,
     required this.height,
+    this.formatCategory,
+    this.maxAxisLabels,
   });
 
   final List<String> categories;
+  final String Function(String)? formatCategory;
+  final int? maxAxisLabels;
   final List<ChartSeries> series;
 
   /// 눈금·툴팁 값 표시.
@@ -277,15 +281,27 @@ class _ChartPainter extends CustomPainter {
     }
 
     // 범주 이름: 겹치면 건너뛰며 쓴다.
-    final painters = [for (final c in chart.categories) _text(c, labelStyle)];
+    final painters = [
+      for (final c in chart.categories)
+        _text(chart.formatCategory?.call(c) ?? c, labelStyle),
+    ];
     final widest = painters.fold(0.0, (w, p) => math.max(w, p.width));
-    final every = math.max(1, ((widest + 8) / band).ceil());
+    final every = math.max(
+      chart.maxAxisLabels == null ? 1 : (n / chart.maxAxisLabels!).ceil(),
+      ((widest + 16) / band).ceil(),
+    );
     for (var i = 0; i < n; i++) {
       if ((n - 1 - i) % every != 0) continue;
       final p = painters[i];
       p.paint(
         canvas,
-        Offset(plot.left + band * (i + 0.5) - p.width / 2, plot.bottom + 6),
+        Offset(
+          (plot.left + band * (i + 0.5) - p.width / 2).clamp(
+            plot.left,
+            plot.right - p.width,
+          ),
+          plot.bottom + 6,
+        ),
       );
     }
 
@@ -375,6 +391,8 @@ class AppLineChart extends _CategoryChart {
   AppLineChart({
     super.key,
     required super.categories,
+    super.formatCategory,
+    super.maxAxisLabels,
     required ChartSeries series,
     required super.formatValue,
     super.height = 140,
@@ -385,6 +403,8 @@ class AppLineChart extends _CategoryChart {
   const AppLineChart.many({
     super.key,
     required super.categories,
+    super.formatCategory,
+    super.maxAxisLabels,
     required super.series,
     required super.formatValue,
     super.height = 140,

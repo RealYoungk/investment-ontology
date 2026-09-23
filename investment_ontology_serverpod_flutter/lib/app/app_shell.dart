@@ -7,7 +7,6 @@ import 'package:investment_ontology_serverpod_client/investment_ontology_serverp
 import '../design/components/components.dart';
 import '../design/tokens.dart';
 import '../client.dart';
-import '../features/auth/app_auth.dart';
 import '../features/auth/app_viewer.dart';
 import '../features/financials/financial_metrics.dart';
 import 'ingest_monitor.dart';
@@ -39,7 +38,6 @@ const _destinations = [
   _Destination('관계망', '/graph'),
   _Destination('지분 묶음', '/groups'),
   _Destination('테마', '/themes'),
-  _Destination('데이터', '/data'),
 ];
 
 /// 모든 화면을 감싸는 틀: 맨 위 메뉴(시장 · 기업 · 스크리너 · 관계망 · 지분 묶음 · 테마 · 데이터) + 본문.
@@ -60,6 +58,7 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   /// 기업 목록으로 돌아갈 때 쓰던 필터를 그대로 되살리기 위한 마지막 목록 주소.
   String _companiesLocation = '/companies';
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -83,107 +82,52 @@ class _AppShellState extends State<AppShell> {
   Widget build(BuildContext context) {
     final c = context.colors;
     final path = widget.location.path;
-    return Scaffold(
-      backgroundColor: c.background,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _TopBar(
-            destinations: [
-              for (final d in _destinations)
-                (
-                  destination: d,
-                  active: d.owns(path),
-                  onTap: () => context.go(
-                    d.path == '/companies' ? _companiesLocation : d.path,
-                  ),
-                ),
-            ],
-          ),
-          Expanded(child: widget.child),
-        ],
-      ),
-    );
-  }
-}
-
-class _TopBar extends StatelessWidget {
-  const _TopBar({required this.destinations});
-
-  final List<({_Destination destination, bool active, VoidCallback onTap})>
-  destinations;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    final t = context.typo;
+    final destinations = [
+      for (final d in _destinations)
+        (
+          destination: d,
+          active: d.owns(path),
+          onTap: () =>
+              context.go(d.path == '/companies' ? _companiesLocation : d.path),
+        ),
+    ];
     return LayoutBuilder(
-      builder: (context, constraints) {
-        final pad = PageFrame.gutter(constraints.maxWidth);
-        final compact = constraints.maxWidth < PageFrame.compactBreakpoint;
-        return Container(
-          height: 56,
-          padding: EdgeInsets.symmetric(horizontal: pad),
-          decoration: BoxDecoration(
-            color: c.surface,
-            border: Border(
-              bottom: BorderSide(color: c.borderStrong, width: 1.5),
-            ),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (!compact) ...[
-                Center(
-                  child: TextButton(
-                    onPressed: () => context.go('/home'),
-                    child: Text(
-                      '투자 온톨로지',
-                      style: t.body(
-                        15,
-                        color: c.accent,
-                        weight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: AppSpace.xxl),
-              ],
-              // 좁은 화면에서는 메뉴가 넘치지 않게 가로로 밀어 본다.
-              Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      for (final d in destinations)
-                        _NavItem(
-                          label: d.destination.label,
-                          active: d.active,
-                          onTap: d.onTap,
-                          trailing: d.destination.path == '/data'
-                              ? const _IngestIndicator()
-                              : null,
+      builder: (context, box) {
+        final desktop = box.maxWidth >= 1100;
+        return Scaffold(
+          key: _scaffoldKey,
+          drawer: desktop
+              ? null
+              : Drawer(
+                  width: 288,
+                  backgroundColor: c.inverse,
+                  child: _DeskNavigation(
+                    destinations: [
+                      for (final item in destinations)
+                        (
+                          destination: item.destination,
+                          active: item.active,
+                          onTap: () {
+                            _scaffoldKey.currentState?.closeDrawer();
+                            item.onTap();
+                          },
                         ),
                     ],
+                    onClose: () => _scaffoldKey.currentState?.closeDrawer(),
                   ),
+                ),
+          backgroundColor: c.background,
+          body: Row(
+            children: [
+              if (desktop) _DeskNavigation(destinations: destinations),
+              Expanded(
+                child: Column(
+                  children: [
+                    _TopBar(destinations: destinations, desktop: desktop),
+                    Expanded(child: widget.child),
+                  ],
                 ),
               ),
-              if (constraints.maxWidth >= 1100)
-                const Center(child: _GlobalSearch())
-              else
-                Center(
-                  child: IconButton(
-                    tooltip: '기업 · 인물 바로 가기',
-                    icon: Icon(Icons.search, color: c.textPrimary),
-                    onPressed: () => showDialog<void>(
-                      context: context,
-                      builder: (_) => const _SearchDialog(),
-                    ),
-                  ),
-                ),
-              const SizedBox(width: AppSpace.md),
-              const Center(child: _Account()),
             ],
           ),
         );
@@ -192,54 +136,242 @@ class _TopBar extends StatelessWidget {
   }
 }
 
-class _NavItem extends StatelessWidget {
-  const _NavItem({
-    required this.label,
-    required this.active,
-    required this.onTap,
-    this.trailing,
-  });
-
-  final String label;
-  final bool active;
-  final VoidCallback onTap;
-  final Widget? trailing;
-
+class _DeskNavigation extends StatelessWidget {
+  const _DeskNavigation({required this.destinations, this.onClose});
+  final VoidCallback? onClose;
+  final List<({_Destination destination, bool active, VoidCallback onTap})>
+  destinations;
+  static const icons = [
+    Icons.home_outlined,
+    Icons.bar_chart,
+    Icons.business_outlined,
+    Icons.filter_alt_outlined,
+    Icons.hub_outlined,
+    Icons.account_tree_outlined,
+    Icons.bookmarks_outlined,
+    Icons.storage_outlined,
+  ];
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     final t = context.typo;
-    return HoverBuilder(
-      onTap: onTap,
-      builder: (context, hovered) => AnimatedContainer(
-        duration: AppMotion.fast,
-        padding: const EdgeInsets.symmetric(horizontal: AppSpace.lg),
-        decoration: BoxDecoration(
-          color: hovered && !active ? c.surfaceHover : Colors.transparent,
-          border: Border(
-            bottom: BorderSide(
-              color: active ? c.accent : Colors.transparent,
-              width: 3,
-            ),
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
+    return Container(
+      width: onClose == null ? 204 : 288,
+      color: c.inverse,
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              label,
-              style: t.body(
-                15,
-                color: active ? c.textPrimary : c.textSecondary,
-                weight: active ? FontWeight.w700 : FontWeight.w500,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 28, 12, 28),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: context.shape.borderRadius,
+                    child: Image.asset(
+                      'assets/brand/alfinder-logo.png',
+                      width: 40,
+                      height: 40,
+                      fit: BoxFit.cover,
+                      excludeFromSemantics: true,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpace.sm),
+                  Expanded(
+                    child: Text(
+                      '알파인더',
+                      style: t.body(
+                        17,
+                        color: c.onInverse,
+                        weight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  if (onClose != null)
+                    IconButton(
+                      tooltip: '메뉴 닫기',
+                      onPressed: onClose,
+                      icon: Icon(Icons.close, color: c.onInverse, size: 22),
+                    ),
+                ],
               ),
             ),
-            if (trailing != null) ...[
-              const SizedBox(width: AppSpace.sm),
-              trailing!,
-            ],
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                children: [
+                  for (var i = 0; i < destinations.length; i++)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Material(
+                        color: destinations[i].active
+                            ? c.onInverse.withValues(alpha: .13)
+                            : c.inverse,
+                        borderRadius: BorderRadius.circular(8),
+                        child: ListTile(
+                          dense: true,
+                          minTileHeight: 46,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          leading: Icon(
+                            icons[i],
+                            size: 19,
+                            color: c.onInverse.withValues(
+                              alpha: destinations[i].active ? 1 : .65,
+                            ),
+                          ),
+                          title: Text(
+                            destinations[i].destination.label,
+                            style: t.body(
+                              14,
+                              color: c.onInverse.withValues(
+                                alpha: destinations[i].active ? 1 : .72,
+                              ),
+                              weight: destinations[i].active
+                                  ? FontWeight.w600
+                                  : FontWeight.w400,
+                            ),
+                          ),
+                          trailing: destinations[i].destination.path == '/data'
+                              ? const _IngestIndicator()
+                              : null,
+                          selected: destinations[i].active,
+                          onTap: destinations[i].onTap,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            if (context.isAdmin)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Divider(color: c.onInverse.withValues(alpha: .15)),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+                      child: Text(
+                        '관리자',
+                        style: t.label(
+                          color: c.onInverse.withValues(alpha: .5),
+                        ),
+                      ),
+                    ),
+                    ListTile(
+                      leading: Icon(
+                        Icons.storage_outlined,
+                        size: 20,
+                        color: c.onInverse,
+                      ),
+                      title: Text(
+                        '데이터 관리',
+                        style: t.body(14, color: c.onInverse),
+                      ),
+                      selected: GoRouterState.of(context).uri.path == '/data',
+                      onTap: () {
+                        onClose?.call();
+                        context.go('/data');
+                      },
+                    ),
+                    ListTile(
+                      leading: Icon(
+                        Icons.manage_accounts_outlined,
+                        size: 20,
+                        color: c.onInverse,
+                      ),
+                      title: Text(
+                        '회원 관리',
+                        style: t.body(14, color: c.onInverse),
+                      ),
+                      selected:
+                          GoRouterState.of(context).uri.path ==
+                          '/admin/accounts',
+                      selectedTileColor: c.onInverse.withValues(alpha: .13),
+                      onTap: () {
+                        onClose?.call();
+                        context.go('/admin/accounts');
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: TextButton(
+                onPressed: () {
+                  onClose?.call();
+                  context.go('/about');
+                },
+                child: Text(
+                  '서비스 소개',
+                  style: t.body(12, color: c.onInverse.withValues(alpha: .7)),
+                ),
+              ),
+            ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _TopBar extends StatelessWidget {
+  const _TopBar({required this.destinations, required this.desktop});
+  final bool desktop;
+  final List<({_Destination destination, bool active, VoidCallback onTap})>
+  destinations;
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = context.typo;
+    return Container(
+      height: 64,
+      padding: EdgeInsets.symmetric(horizontal: desktop ? 32 : 12),
+      decoration: BoxDecoration(
+        color: c.surface,
+        border: Border(bottom: BorderSide(color: c.border)),
+      ),
+      child: Row(
+        children: [
+          if (GoRouter.of(context).canPop())
+            IconButton(
+              tooltip: '이전 화면',
+              onPressed: () => context.pop(),
+              icon: const Icon(Icons.arrow_back, size: 20),
+            ),
+          if (!desktop)
+            IconButton(
+              tooltip: '전체 메뉴',
+              onPressed: () => Scaffold.of(context).openDrawer(),
+              icon: const Icon(Icons.menu, size: 22),
+            ),
+          Text(
+            destinations
+                    .where((d) => d.active)
+                    .firstOrNull
+                    ?.destination
+                    .label ??
+                '알파인더',
+            style: t.body(14, color: c.textSecondary, weight: FontWeight.w600),
+          ),
+          const Spacer(),
+          if (desktop)
+            const _GlobalSearch()
+          else
+            IconButton(
+              tooltip: '기업 · 인물 · 테마 · 메뉴 검색',
+              icon: const Icon(Icons.search, size: 21),
+              onPressed: () => showDialog<void>(
+                context: context,
+                builder: (_) => const _SearchDialog(),
+              ),
+            ),
+          const SizedBox(width: 12),
+          const _Account(),
+        ],
       ),
     );
   }
@@ -250,36 +382,21 @@ class _Account extends StatelessWidget {
   const _Account();
 
   @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    final viewer = context.viewer;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (viewer != null)
-          Tooltip(
-            message: viewer.isAdmin
-                ? '데이터를 바꿀 수 있습니다 (테마 · 수집 · 검수).'
-                : '볼 수만 있습니다. 바꾸려면 관리자 권한이 필요합니다.',
-            child: AppTag(
-              label: viewer.roleLabel,
-              color: viewer.isAdmin ? c.accent : c.textSecondary,
-            ),
+  Widget build(BuildContext context) => context.viewer == null
+      ? TextButton(
+          onPressed: () => context.go('/login'),
+          child: const Text('로그인'),
+        )
+      : IconButton(
+          tooltip: context.viewer == null ? '로그인' : '내 계정',
+          icon: Icon(
+            Icons.account_circle_outlined,
+            color: context.colors.textSecondary,
+            size: 24,
           ),
-        const SizedBox(width: AppSpace.xs),
-        AppIconButton(
-          icon: Icons.logout,
-          tooltip: '로그아웃',
-          onPressed: () async {
-            await AppAuth.signOut();
-            // 다음에 로그인하는 사람이 보던 화면으로 들어가지 않게 첫 화면으로 돌린다.
-            // (로그아웃 순간 로그인 문이 라우터를 내리므로 보던 화면은 이미 사라졌다.)
-            AppRoutes.router.go('/market');
-          },
-        ),
-      ],
-    );
-  }
+          onPressed: () =>
+              context.go(context.viewer == null ? '/login' : '/account'),
+        );
 }
 
 /// 수집이 돌고 있으면 "데이터" 메뉴 옆에 깜빡이는 점.
@@ -305,17 +422,56 @@ class _IngestIndicator extends StatelessWidget {
 }
 
 /// 기업·인물 검색 결과.
-typedef _Hits = ({List<CompanyListItem> companies, List<PersonHit> persons});
+typedef _SearchLink = ({String title, String detail, String location});
+typedef _Hits = ({
+  List<CompanyListItem> companies,
+  List<PersonHit> persons,
+  List<_SearchLink> links,
+});
 
-const _noHits = (companies: <CompanyListItem>[], persons: <PersonHit>[]);
+const _noHits = (
+  companies: <CompanyListItem>[],
+  persons: <PersonHit>[],
+  links: <_SearchLink>[],
+);
 
 /// 기업은 시가총액 순 8곳, 인물은 이어진 기업이 많은 순 4명.
 Future<_Hits> _searchAll(String query) async {
-  final (page, persons) = await (
+  final (page, persons, themes) = await (
     client.company.list(query: query, sort: CompanySort.marketCap, limit: 8),
     client.governance.searchPersons(query, limit: 4),
+    client.theme.list(),
   ).wait;
-  return (companies: page.items, persons: persons);
+  final q = query.toLowerCase().replaceAll(' ', '');
+  bool matches(String text) =>
+      text.toLowerCase().replaceAll(' ', '').contains(q);
+  final links = <_SearchLink>[
+    for (final theme in themes)
+      if (matches(
+        '${theme.theme.name} ${theme.theme.description ?? ''} ${theme.topNames.join(' ')}',
+      ))
+        (
+          title: theme.theme.name,
+          detail: '테마 · ${theme.memberCount}개 기업',
+          location: AppRoutes.theme(theme.theme.id!),
+        ),
+    for (final item in const [
+      (title: '시장', detail: '코스피 코스닥 지수 시가총액 업종', location: '/market'),
+      (title: '기업', detail: '상장기업 종목 목록', location: '/companies'),
+      (
+        title: '스크리너',
+        detail: 'PER PBR ROE 영업이익률 성장률 배당수익률 FCF 조건 검색',
+        location: '/screen',
+      ),
+      (title: '기업 비교', detail: '재무 수익성 밸류에이션 비교', location: '/compare'),
+      (title: '관계망', detail: '주주 임원 고객 공급 출자 연결', location: '/graph'),
+      (title: '지분 묶음', detail: '기업집단 지배구조 계열사', location: '/groups'),
+      (title: '테마', detail: '투자 아이디어 관련 기업 묶음', location: '/themes'),
+      (title: '서비스 소개', detail: '사용법 도움말 출처', location: '/about'),
+    ])
+      if (matches('${item.title} ${item.detail}')) item,
+  ];
+  return (companies: page.items, persons: persons, links: links);
 }
 
 /// 검색 결과 목록: 기업 다음에 인물.
@@ -324,11 +480,13 @@ class _HitList extends StatelessWidget {
     required this.hits,
     required this.onCompany,
     required this.onPerson,
+    required this.onLocation,
   });
 
   final _Hits hits;
   final ValueChanged<CompanyListItem> onCompany;
   final ValueChanged<PersonHit> onPerson;
+  final ValueChanged<String> onLocation;
 
   @override
   Widget build(BuildContext context) {
@@ -350,6 +508,24 @@ class _HitList extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        for (final link in hits.links)
+          row(
+            onTap: () => onLocation(link.location),
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(link.title, style: t.body(13.5)),
+                    Text(
+                      link.detail,
+                      style: t.body(11.5, color: c.textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         for (final item in hits.companies)
           row(
             onTap: () => onCompany(item),
@@ -461,7 +637,9 @@ class _GlobalSearchState extends State<_GlobalSearch> {
     _hits = hits;
     _overlay?.remove();
     _overlay = null;
-    if (hits.companies.isEmpty && hits.persons.isEmpty) return;
+    if (hits.companies.isEmpty && hits.persons.isEmpty && hits.links.isEmpty) {
+      return;
+    }
     _overlay = OverlayEntry(builder: _buildOverlay);
     Overlay.of(context).insert(_overlay!);
   }
@@ -493,6 +671,7 @@ class _GlobalSearchState extends State<_GlobalSearch> {
               hits: _hits,
               onCompany: (item) => _go(AppRoutes.company(item.corpCode)),
               onPerson: (p) => _go(AppRoutes.person(p.personId)),
+              onLocation: _go,
             ),
           ),
         ),
@@ -516,6 +695,8 @@ class _GlobalSearchState extends State<_GlobalSearch> {
           onSubmitted: (_) {
             if (_hits.companies.isNotEmpty) {
               _go(AppRoutes.company(_hits.companies.first.corpCode));
+            } else if (_hits.links.isNotEmpty) {
+              _go(_hits.links.first.location);
             } else if (_hits.persons.isNotEmpty) {
               _go(AppRoutes.person(_hits.persons.first.personId));
             }
@@ -527,7 +708,7 @@ class _GlobalSearchState extends State<_GlobalSearch> {
           style: t.body(13.5),
           decoration: InputDecoration(
             isDense: true,
-            hintText: '기업 · 인물 바로 가기',
+            hintText: '기업 · 인물 · 테마 · 메뉴 검색',
             prefixIcon: Icon(Icons.search, size: 18, color: c.textSecondary),
           ),
         ),
@@ -604,13 +785,15 @@ class _SearchDialogState extends State<_SearchDialog> {
               onSubmitted: (_) {
                 if (_hits.companies.isNotEmpty) {
                   _go(AppRoutes.company(_hits.companies.first.corpCode));
+                } else if (_hits.links.isNotEmpty) {
+                  _go(_hits.links.first.location);
                 } else if (_hits.persons.isNotEmpty) {
                   _go(AppRoutes.person(_hits.persons.first.personId));
                 }
               },
               style: t.body(15),
               decoration: InputDecoration(
-                hintText: '회사명 · 종목코드 · 인물',
+                hintText: '기업 · 인물 · 테마 · 메뉴 검색',
                 prefixIcon: Icon(Icons.search, color: c.textSecondary),
               ),
             ),
@@ -619,6 +802,7 @@ class _SearchDialogState extends State<_SearchDialog> {
               hits: _hits,
               onCompany: (item) => _go(AppRoutes.company(item.corpCode)),
               onPerson: (p) => _go(AppRoutes.person(p.personId)),
+              onLocation: _go,
             ),
           ],
         ),

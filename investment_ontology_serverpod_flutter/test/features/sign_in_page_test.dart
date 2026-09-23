@@ -31,6 +31,28 @@ void main() {
     (w) => w is TextField && w.decoration?.labelText == '이메일',
   );
 
+  testWidgets('가입 단계와 인증 대상 이메일을 보여주고 주소를 수정할 수 있다', (tester) async {
+    await pump(tester);
+    final controller = tester
+        .widget<LoginFormKo>(find.byType(LoginFormKo))
+        .controller;
+    controller.emailController.text = 'reader@example.com';
+    controller.navigateTo(EmailFlowScreen.verifyRegistration);
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(find.text('2 인증'), findsOneWidget);
+    expect(find.text('reader@example.com'), findsOneWidget);
+    expect(find.textContaining('서버 실행 콘솔'), findsNothing);
+    final verify = find.widgetWithText(ElevatedButton, '인증');
+    if (verify.evaluate().isNotEmpty) {
+      expect(tester.widget<ElevatedButton>(verify).onPressed, isNull);
+    }
+    await tester.tap(find.text('이메일 주소 수정'));
+    await tester.pump();
+    expect(find.text('이메일로 가입'), findsOneWidget);
+    expect(controller.emailController.text, 'reader@example.com');
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
   testWidgets('로그인 화면이 맨 먼저 보이고, 가입 링크가 있다', (tester) async {
     await pump(tester);
 
@@ -46,7 +68,7 @@ void main() {
 
     // 가입 단계에서만 뜻이 있는 안내는 로그인 화면에 없다.
     expect(find.text(readOnlyAccountNotice), findsNothing);
-    expect(find.text(devVerificationNotice), findsNothing);
+    expect(find.textContaining('서버 실행 콘솔'), findsNothing);
   });
 
   testWidgets('가입하기를 누르면 가입 화면으로, 로그인으로 돌아가면 다시 로그인 화면', (tester) async {

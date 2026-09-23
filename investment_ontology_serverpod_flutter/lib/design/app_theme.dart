@@ -44,6 +44,37 @@ ThemeData buildAppTheme(AppBrand brand) {
       displayColor: c.textPrimary,
     ),
     dividerColor: c.border,
+    dialogTheme: DialogThemeData(
+      backgroundColor: c.surface,
+      surfaceTintColor: c.surface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      titleTextStyle: t.body(20, color: c.textPrimary, weight: FontWeight.w600),
+      contentTextStyle: t.body(14, color: c.textSecondary),
+    ),
+    popupMenuTheme: PopupMenuThemeData(
+      color: c.surface,
+      surfaceTintColor: c.surface,
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: radius,
+        side: BorderSide(color: c.border),
+      ),
+      textStyle: t.body(14, color: c.textPrimary),
+    ),
+    iconButtonTheme: IconButtonThemeData(
+      style: IconButton.styleFrom(
+        foregroundColor: c.textSecondary,
+        minimumSize: const Size(44, 44),
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: c.accent,
+        minimumSize: const Size(44, 44),
+        textStyle: t.body(14, weight: FontWeight.w600),
+      ),
+    ),
+
     tooltipTheme: TooltipThemeData(
       decoration: BoxDecoration(color: c.inverse, borderRadius: radius),
       textStyle: t.body(12, color: c.onInverse),

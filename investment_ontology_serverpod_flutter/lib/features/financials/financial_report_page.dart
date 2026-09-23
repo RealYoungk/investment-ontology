@@ -257,72 +257,85 @@ class _FactTable extends StatelessWidget {
         (head('전전기', first.beforePriorPeriodName), (f) => f.beforePriorAmount),
     ];
 
-    Widget cell(
-      String text, {
-      bool header = false,
-      bool right = true,
-      double width = 200,
-    }) => Container(
-      width: width,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      alignment: right ? Alignment.centerRight : Alignment.centerLeft,
-      child: Text(
-        text,
-        maxLines: header ? 2 : 1,
-        softWrap: header,
-        textAlign: right ? TextAlign.right : TextAlign.left,
-        style: header
-            ? t.body(11.5, color: c.textSecondary)
-            : right
-            ? t.numeric(12)
-            : t.body(12.5),
-      ),
-    );
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: c.borderStrong)),
-            ),
-            child: Row(
-              children: [
-                cell('계정', header: true, right: false, width: 260),
-                if (hasDetail)
-                  cell('자본 구성요소', header: true, right: false, width: 260),
-                for (final (label, _) in columns) cell(label, header: true),
-              ],
-            ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final available =
+            (constraints.maxWidth - (hasDetail ? 520 : 260)) / columns.length;
+        final valueWidth = available > 200 ? available : 200.0;
+        Widget cell(
+          String text, {
+          bool header = false,
+          bool right = true,
+          double? width,
+        }) => Container(
+          width: width ?? valueWidth,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          alignment: right ? Alignment.centerRight : Alignment.centerLeft,
+          child: Text(
+            text,
+            maxLines: header
+                ? 2
+                : right
+                ? 1
+                : null,
+            softWrap: header || !right,
+            textAlign: right ? TextAlign.right : TextAlign.left,
+            style: header
+                ? t.body(11.5, color: c.textSecondary)
+                : right
+                ? t.numeric(12)
+                : t.body(12.5),
           ),
-          for (final f in facts)
-            Container(
-              decoration: BoxDecoration(
-                border: Border(bottom: BorderSide(color: c.border, width: 0.8)),
+        );
+
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  border: Border(bottom: BorderSide(color: c.borderStrong)),
+                ),
+                child: Row(
+                  children: [
+                    cell('계정', header: true, right: false, width: 260),
+                    if (hasDetail)
+                      cell('자본 구성요소', header: true, right: false, width: 260),
+                    for (final (label, _) in columns) cell(label, header: true),
+                  ],
+                ),
               ),
-              child: Row(
-                children: [
-                  Tooltip(
-                    message: f.accountId ?? '표준계정코드 미사용',
-                    child: cell(f.accountName, right: false, width: 260),
+              for (final f in facts)
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(color: c.border, width: 0.8),
+                    ),
                   ),
-                  if (hasDetail)
-                    cell(f.accountDetail ?? '', right: false, width: 260),
-                  for (final (_, value) in columns)
-                    if (value(f) case final v?)
+                  child: Row(
+                    children: [
                       Tooltip(
-                        message: '${formatCount(v.toInt())}원',
-                        child: cell(formatKrwLong(v.toDouble())),
-                      )
-                    else
-                      cell('—'),
-                ],
-              ),
-            ),
-        ],
-      ),
+                        message: f.accountId ?? '표준계정코드 미사용',
+                        child: cell(f.accountName, right: false, width: 260),
+                      ),
+                      if (hasDetail)
+                        cell(f.accountDetail ?? '', right: false, width: 260),
+                      for (final (_, value) in columns)
+                        if (value(f) case final v?)
+                          Tooltip(
+                            message: '${formatCount(v.toInt())}원',
+                            child: cell(formatKrwLong(v.toDouble())),
+                          )
+                        else
+                          cell('—'),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

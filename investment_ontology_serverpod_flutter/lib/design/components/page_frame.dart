@@ -19,7 +19,7 @@ class PageFrame extends StatelessWidget {
   final ScrollController? controller;
 
   static double gutter(double width) =>
-      width < compactBreakpoint ? AppSpace.lg : AppSpace.section;
+      width < compactBreakpoint ? AppSpace.lg : AppSpace.xxl;
 
   @override
   Widget build(BuildContext context) {
@@ -53,12 +53,12 @@ class PageFrame extends StatelessWidget {
 class PageHeading extends StatelessWidget {
   const PageHeading({
     super.key,
-    required this.eyebrow,
+    this.eyebrow,
     required this.title,
     this.subtitle,
   });
 
-  final String eyebrow;
+  final String? eyebrow;
   final String title;
   final String? subtitle;
 
@@ -69,9 +69,11 @@ class PageHeading extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(eyebrow, style: t.label(color: c.accent)),
-        const SizedBox(height: AppSpace.sm),
-        Text(title, style: t.display(40, color: c.textPrimary)),
+        if (eyebrow != null) ...[
+          Text(eyebrow!, style: t.label(color: c.accent)),
+          const SizedBox(height: AppSpace.sm),
+        ],
+        Text(title, style: t.display(30, color: c.textPrimary)),
         if (subtitle != null) ...[
           const SizedBox(height: AppSpace.sm),
           Text(subtitle!, style: t.body(14, color: c.textSecondary)),

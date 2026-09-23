@@ -76,15 +76,14 @@ class _ThemesPageState extends State<ThemesPage> {
     return PageFrame(
       children: [
         const PageHeading(
-          eyebrow: 'INVESTMENT ONTOLOGY · 테마',
           title: '테마',
           subtitle:
-              '직접 정의하는 투자 주제입니다. 기업을 넣을 때 왜 넣었는지 메모를 남기고, '
-              '편입은 사용자 입력(manual)으로 출처가 남습니다.',
+              '운영자가 투자 주제별로 정리한 기업 묶음입니다. 편입 이유를 확인하고 관련 기업을 함께 살펴보세요. '
+              '같은 테마에 속한다고 직접 비교 가능한 피어인 것은 아닙니다.',
         ),
         const SizedBox(height: AppSpace.xl),
         if (!context.isAdmin)
-          const AppNotice(message: '읽기 전용 계정입니다. 테마를 만들거나 고치려면 관리자 권한이 필요합니다.')
+          const AppNotice(message: '테마는 운영자가 관리합니다. 기업별 편입 이유와 출처를 확인할 수 있습니다.')
         else
           Wrap(
             spacing: AppSpace.md,
@@ -129,60 +128,72 @@ class _ThemesPageState extends State<ThemesPage> {
             style: t.body(13, color: c.textMuted),
           )
         else
-          Wrap(
-            spacing: AppSpace.md,
-            runSpacing: AppSpace.md,
-            children: [
-              for (final s in themes)
-                HoverBuilder(
-                  onTap: () async {
-                    await context.push(AppRoutes.theme(s.theme.id!));
-                    await _load();
-                  },
-                  builder: (context, hovered) => AnimatedContainer(
-                    duration: AppMotion.fast,
-                    width: 300,
-                    padding: const EdgeInsets.all(AppSpace.lg),
-                    decoration: BoxDecoration(
-                      color: hovered ? c.surfaceHover : c.surface,
-                      borderRadius: context.shape.borderRadius,
-                      border: Border.all(color: c.borderStrong),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          s.theme.name,
-                          style: t.body(18, weight: FontWeight.w700),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final columns = constraints.maxWidth >= 1020
+                  ? 3
+                  : constraints.maxWidth >= 680
+                  ? 2
+                  : 1;
+              final cardWidth =
+                  (constraints.maxWidth - AppSpace.md * (columns - 1)) /
+                  columns;
+              return Wrap(
+                spacing: AppSpace.md,
+                runSpacing: AppSpace.md,
+                children: [
+                  for (final s in themes)
+                    HoverBuilder(
+                      onTap: () async {
+                        await context.push(AppRoutes.theme(s.theme.id!));
+                        await _load();
+                      },
+                      builder: (context, hovered) => AnimatedContainer(
+                        duration: AppMotion.fast,
+                        width: cardWidth,
+                        padding: const EdgeInsets.all(AppSpace.lg),
+                        decoration: BoxDecoration(
+                          color: hovered ? c.surfaceHover : c.surface,
+                          borderRadius: context.shape.borderRadius,
+                          border: Border.all(color: c.border),
                         ),
-                        if (s.theme.description != null) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            s.theme.description!,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: t.body(12.5, color: c.textSecondary),
-                          ),
-                        ],
-                        const SizedBox(height: AppSpace.md),
-                        Text(
-                          '${formatCount(s.memberCount)}개사 · 시가총액 ${formatKrw(s.marketCap)}',
-                          style: t.numeric(13, weight: FontWeight.w600),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              s.theme.name,
+                              style: t.body(18, weight: FontWeight.w700),
+                            ),
+                            if (s.theme.description != null) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                s.theme.description!,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: t.body(12.5, color: c.textSecondary),
+                              ),
+                            ],
+                            const SizedBox(height: AppSpace.md),
+                            Text(
+                              '${formatCount(s.memberCount)}개사 · 시가총액 ${formatKrw(s.marketCap)}',
+                              style: t.numeric(13, weight: FontWeight.w600),
+                            ),
+                            if (s.topNames.isNotEmpty) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                s.topNames.join(' · '),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: t.body(12, color: c.textMuted),
+                              ),
+                            ],
+                          ],
                         ),
-                        if (s.topNames.isNotEmpty) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            s.topNames.join(' · '),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: t.body(12, color: c.textMuted),
-                          ),
-                        ],
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-            ],
+                ],
+              );
+            },
           ),
       ],
     );

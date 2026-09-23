@@ -11,11 +11,13 @@ class AuthGate extends StatefulWidget {
     required this.viewer,
     required this.signIn,
     required this.child,
+    this.allowAnonymous = false,
   });
 
   final ValueListenable<AppViewer?> viewer;
   final Widget signIn;
   final Widget child;
+  final bool allowAnonymous;
 
   @override
   State<AuthGate> createState() => _AuthGateState();
@@ -76,7 +78,7 @@ class _AuthGateState extends State<AuthGate> {
   Widget build(BuildContext context) {
     if (_switching) return const SizedBox.shrink();
     final current = _current;
-    if (current == null) {
+    if (current == null && !widget.allowAnonymous) {
       // ラウ터 바깥에서도 인증 폼에 Navigator/Overlay를 제공한다.
       return Navigator(
         key: const ValueKey('sign-in'),

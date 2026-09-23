@@ -6,7 +6,7 @@ import '../disclosure/ownership_groups.dart';
 /// 지분으로 이어진 상장사 묶음 조회.
 class GroupEndpoint extends Endpoint {
   @override
-  bool get requireLogin => true;
+  bool get requireLogin => false;
 
   /// 두 곳 이상으로 이루어진 묶음. 시가총액 합이 큰 순서.
   ///

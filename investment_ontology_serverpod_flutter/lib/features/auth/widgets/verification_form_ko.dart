@@ -60,6 +60,20 @@ class _VerificationFormKoState extends State<VerificationFormKo> {
       children: [
         Text(widget.title, style: Theme.of(context).textTheme.headlineMedium),
         smallGap,
+        Text(
+          controller.emailController.text,
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+        TextButton(
+          onPressed: controller.isLoading
+              ? null
+              : () => controller.navigateTo(
+                  controller.currentScreen == EmailFlowScreen.verifyRegistration
+                      ? EmailFlowScreen.startRegistration
+                      : EmailFlowScreen.requestPasswordReset,
+                ),
+          child: const Text('이메일 주소 수정'),
+        ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -84,7 +98,9 @@ class _VerificationFormKoState extends State<VerificationFormKo> {
                 LengthLimitingTextInputFormatter(8),
               ],
               onChanged: (value) {
-                if (value.length == 8) widget.onCompleted();
+                if (value.length == 8 && !controller.isLoading) {
+                  widget.onCompleted();
+                }
               },
               onSubmitted: (value) {
                 if (value.length == 8 && !controller.isLoading) {
@@ -93,15 +109,22 @@ class _VerificationFormKoState extends State<VerificationFormKo> {
               },
             ),
             _ResendCodeButtonKo(
-              onResendPressed: controller.resendVerificationCode,
+              controller: controller,
             ),
           ],
         ),
         smallGap,
-        ActionButton(
-          onPressed: widget.onCompleted,
-          label: texts.verify,
-          isLoading: controller.isLoading,
+        ListenableBuilder(
+          listenable: controller.verificationCodeController,
+          builder: (context, _) => ActionButton(
+            onPressed:
+                controller.verificationCodeController.text.length == 8 &&
+                    !controller.isLoading
+                ? widget.onCompleted
+                : null,
+            label: texts.verify,
+            isLoading: controller.isLoading,
+          ),
         ),
         BackToSignInButton(controller: controller),
       ],
@@ -111,9 +134,9 @@ class _VerificationFormKoState extends State<VerificationFormKo> {
 
 /// 패키지의 `ResendCodeButton`과 같은 카운트다운 동작을 하는 한국어 재전송 버튼.
 class _ResendCodeButtonKo extends StatefulWidget {
-  const _ResendCodeButtonKo({required this.onResendPressed});
+  const _ResendCodeButtonKo({required this.controller});
 
-  final Future<void> Function() onResendPressed;
+  final EmailAuthController controller;
 
   @override
   State<_ResendCodeButtonKo> createState() => _ResendCodeButtonKoState();
@@ -151,11 +174,19 @@ class _ResendCodeButtonKoState extends State<_ResendCodeButtonKo> {
   }
 
   Future<void> _handleResend() async {
-    if (_remainingSeconds > 0 || _isResending) return;
+    if (_remainingSeconds > 0 || _isResending || widget.controller.isLoading) {
+      return;
+    }
     setState(() => _isResending = true);
     try {
-      await widget.onResendPressed();
-      if (mounted) _startTimer();
+      await widget.controller.resendVerificationCode();
+      if (mounted && widget.controller.state != EmailAuthState.error) {
+        widget.controller.verificationCodeController.clear();
+        _startTimer();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('새 인증 코드를 보냈습니다. 가장 최근 메일을 확인해 주세요.')),
+        );
+      }
     } catch (_) {
       // 오류는 EmailAuthController의 onError로 이미 알린다.
     } finally {
@@ -170,7 +201,8 @@ class _ResendCodeButtonKoState extends State<_ResendCodeButtonKo> {
 
   @override
   Widget build(BuildContext context) {
-    final isEnabled = _remainingSeconds == 0 && !_isResending;
+    final isEnabled =
+        _remainingSeconds == 0 && !_isResending && !widget.controller.isLoading;
     return Column(
       children: [
         tinyGap,

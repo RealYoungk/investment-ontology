@@ -1,48 +1,56 @@
-# 배포 (밖에서 쓰기)
+# 알파인더 공개 배포
 
-폰이나 다른 컴퓨터에서 쓰려면 방법이 세 가지입니다. 어느 쪽이든 **계정·설치 승인은 사용자가 해야** 해서, 고르면 나머지는 자동으로 진행합니다.
+## 운영 구조 (2026-09-23)
 
-## 지금 구조
+사용자 결정: 당장은 추가 서버 비용 없이 맥북에서 Serverpod와 PostgreSQL을 운영한다.
 
-| 조각 | 무엇 | 지금 |
-|---|---|---|
-| 서버 | Serverpod (Dart). API 8080, 인사이트 8081, 웹서버 8082 | 맥에서 `serverpod start` |
-| DB | PostgreSQL (Serverpod가 띄우는 내장 판) | 맥, **2.8GB** (수집 끝나면 15GB 안팎 예상) |
-| 앱 | Flutter Web | 개발 서버 8100 |
-| 수집 | 서버 안 예약 작업 (매일 18:00·18:30·19:00, 자정 이어받기) | 서버가 켜져 있는 동안만 |
+- 웹 화면: Vercel의 `alfinder-research` 프로젝트에 Flutter release 정적 빌드.
+- API: 같은 도메인의 `/api/`를 Node 전송 프록시 → Tailscale Funnel → 맥북 8080으로 전달. Vercel edge rewrite에서 간헐적 DNS 실패가 재현되어 명시적 A 레코드 조회로 교체했다.
+- DB와 Insights 포트는 공개 라우트로 연결하지 않는다.
+- 공유 데이터 조회는 비로그인도 가능하다. 계정은 본인만, 운영과 변경은 관리자만 가능하다. 이메일은 Resend.
+- 맥북이 꺼지거나 잠들거나 네트워크가 끊기면 로그인·조회·수집이 중단된다.
+- 서버 시작은 사용자가 `serverpod start`로 수행한다. 배포 스크립트는 서버를 시작하지 않는다.
 
-앱은 이미 `--dart-define=SERVER_URL=...` 또는 `assets/config.json`으로 API 주소를 바꿀 수 있어, **코드를 고치지 않아도** 어디든 붙습니다.
+## 이번 전환 상태
 
-두 가지는 어느 방법에서든 지켜야 합니다.
+2026-09-23 alfinder.kr을 새 Flutter 배포로 전환 완료했다. 초기 DNS 전파 중 502가 있어 잠시 복구한 뒤, 세 차례 연속 API 확인을 거쳐 다시 전환했다.
+실도메인 Flutter 화면/정적 파일 200. 비로그인 company/list·market·theme는 공개 조회 200, ingest/ai/review 대기열/account는 401. 잘못된 로그인 invalidCredentials 및 허용되지 않은 Origin 403 확인. 실제 회원의 로그인 성공은 이번 전환에서는 재검증하지 않았다.
+www는 Vercel 별칭은 있으나 DNS 레코드가 없어 접속 미검증이다. 안내 주소는 https://alfinder.kr 이다.
 
-- **로그인이 없습니다.** 주소를 아는 사람은 다 들어옵니다. 앞단에 문을 달거나(Cloudflare Access·Tailscale·프록시 비밀번호), Serverpod 인증을 붙인 다음에 공개해야 합니다.
-- **수집은 한 곳에서만.** DART 하루 2만 건은 키 기준이라, 맥과 서버에서 같이 돌리면 서로 예산을 까먹습니다.
+- 새 배포: `alfinder-research-5065bynvo-realyoungks-projects.vercel.app`
+- 이전 배포(롤백): `alfinder-research-fzc4xg05h-realyoungks-projects.vercel.app`
+- 기존 Git 연결 `RealYoungk/alfinder`는 해제했다. 예전 사이트가 자동 재배포되는 것을 방지한다.
+- Vercel rootDirectory는 `apps/research`에서 null, framework는 nextjs에서 null로 변경.
+- 가비아의 웹·메일 DNS는 변경하지 않았다.
 
-## A. 맥을 그대로 두고 터널로 (무료, 오늘 가능) — 추천
+## 재배포
 
-맥이 서버를 계속 돌리고, 폰에서 사설망으로 접속합니다. 데이터는 맥에 남습니다.
+`scripts/prepare_public_web.py`로 빌드 출력물을 준비한 뒤:
 
-- **Tailscale**: 맥과 폰에 앱을 깔고 로그인하면 끝. 폰에서 `http://<맥 이름>:8100`. 남에게 노출되지 않아 따로 문을 달 필요가 없습니다.
-- **Cloudflare Tunnel**: 도메인이 있으면 `https://…`로 열고 Cloudflare Access(이메일 인증)로 잠급니다.
+```sh
+vercel deploy --prebuilt --prod --skip-domain --yes --cwd output/public-deploy
+```
 
-  - 드는 돈: 없음
-  - 준비: 계정 만들기와 앱 설치 (사용자), 그 뒤 앱 빌드와 주소 설정 (제가)
-  - 한계: **맥이 깨어 있어야** 합니다. 뚜껑을 닫거나 잠들면 수집도 멈춥니다 (`caffeinate`로 막을 수 있음)
+별도 배포 URL에서 화면·API·인증·새로고침을 검증하고 나서만 `vercel promote <URL>`로 전환한다.
+프록시는 DNS만 재시도하고 전송한 변경 요청은 재시도하지 않는다. API 응답은 캐시하지 않는다. Flutter의 HTTPS 기본 API 경로는 같은 origin의 `/api/`이다.
 
-## B. 작은 서버로 옮기기 (월 5,000~8,000원)
+## 맥북 터널
 
-Hetzner CX22(약 €4.5/월, 디스크 40GB) 같은 VPS에 Docker로 서버·DB·프록시를 올립니다. 맥을 꺼도 수집이 돕니다.
+실제 데몬은 사용자 전용 소켓을 쓴다. 기본 `/var/run/tailscaled.socket`은 존재하지 않는다.
 
-- 준비: VPS 계정과 결제 (사용자), 도메인 하나 (선택)
-- 제가 하는 것: Docker Compose(서버·Postgres·Caddy TLS+비밀번호) 작성, 마이그레이션, 맥 DB 덤프 옮기기(2.8GB), 예약 수집 확인
-- 주의: 디스크는 40GB 이상. 수집이 끝나면 DB가 15GB 안팎으로 커집니다. 백업(주 1회 덤프)도 같이 걸어 둡니다
+```sh
+tailscale --socket="$HOME/.tailscale-state/tailscaled.sock" funnel status
+tailscale --socket="$HOME/.tailscale-state/tailscaled.sock" funnel --bg --https=443 --set-path=/api http://127.0.0.1:8080
+```
 
-## C. 관리형 플랫폼 (월 3만 원 안팎)
+공개 DNS 등록은 최대 10분 걸릴 수 있다. status 출력만으로 성공 판정하지 않고 외부 HTTP로 검증한다.
 
-Fly.io·Render 같은 곳에 서버를 올리고 관리형 Postgres를 씁니다. 운영은 편하지만, 이 데이터 크기(10GB+)에서는 B보다 몇 배 비쌉니다. 혼자 쓰는 도구에는 과합니다.
+## 복구
 
-## 고르면 바로 할 일
+Vercel에서 이전 배포를 promote하면 도메인 서비스가 복구된다. 과거 프로젝트 파일과 배포는 삭제하지 않는다.
+예전 Git 자동 배포까지 복구하려면 rootDirectory `apps/research`, framework `nextjs`와 저장소 연결을 함께 되돌린다.
 
-1. **A를 고르면**: 앱을 `flutter build web`으로 빌드해 맥에서 정적으로 띄우고, API 주소를 터널 주소로 박아 둡니다. 맥이 잠들지 않게 설정합니다.
-2. **B를 고르면**: Dockerfile은 이미 있습니다. Compose와 Caddy 설정을 쓰고, DB를 옮기고, 수집을 서버 쪽으로만 켭니다.
-3. 어느 쪽이든 **문 달기**(Access·Tailscale·비밀번호)를 먼저 하고 주소를 공개합니다.
+## 운영 한계
+
+현재는 사용자 맥북의 개발 실행 환경을 공개 연결한 단계다. 독립 서버 이전, DB 최소권한 역할,
+백업 복원 훈련, 재부팅 후 운영 절차, 공개 서비스 정책 정비는 별도 운영 과제다.

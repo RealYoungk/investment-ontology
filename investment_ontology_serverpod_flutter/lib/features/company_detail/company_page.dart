@@ -113,14 +113,6 @@ class _CompanyPageState extends State<CompanyPage> {
     _openMetric = metric == _openMetric ? null : metric;
   });
 
-  void _back() {
-    if (context.canPop()) {
-      context.pop();
-    } else {
-      context.go('/companies');
-    }
-  }
-
   /// 원문 표로 보여 주는 항목 (사업의 내용은 글이라 따로 탭이 있다).
   List<DisclosureSectionInfo> get _tableSections => [
     for (final s in _sections)
@@ -150,15 +142,6 @@ class _CompanyPageState extends State<CompanyPage> {
 
     return PageFrame(
       children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: AppButton(
-            label: '← 뒤로',
-            variant: AppButtonVariant.link,
-            onPressed: _back,
-          ),
-        ),
-        const SizedBox(height: AppSpace.lg),
         if (!_loaded)
           const LinearProgressIndicator(minHeight: 2)
         else if (detail == null)
@@ -378,6 +361,7 @@ class _ThemeChipsState extends State<_ThemeChips> {
   Widget build(BuildContext context) {
     final c = context.colors;
     final t = context.typo;
+    if (!context.isAdmin && _mine.isEmpty) return const SizedBox.shrink();
     final mineIds = {for (final m in _mine) m.id};
     final candidates = {
       for (final s in _all)
@@ -398,7 +382,7 @@ class _ThemeChipsState extends State<_ThemeChips> {
               size: AppTagSize.medium,
             ),
           ),
-        if (candidates.isNotEmpty)
+        if (context.isAdmin && candidates.isNotEmpty)
           AppSelect<int>(
             placeholder: '테마에 추가',
             allLabel: '—',
@@ -408,7 +392,7 @@ class _ThemeChipsState extends State<_ThemeChips> {
               if (id != null) _add(id);
             },
           )
-        else
+        else if (context.isAdmin)
           AppButton(
             label: _all.isEmpty ? '테마 만들기 →' : '새 테마 →',
             variant: AppButtonVariant.link,

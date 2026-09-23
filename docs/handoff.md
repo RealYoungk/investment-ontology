@@ -226,3 +226,52 @@
 - 자동 규칙 재실행은 문서 잠금과 최신 문서 재조회, 자동 결과 교체로 동시 실행/오래된 결과 문제를 고쳤다. 수동 결정은 보존한다.
 - 정정공시가 먼저 들어온 경우에도 최신 활성 보고서 하나를 유지하도록 대칭 대체와 기간별 advisory lock 적용. 새 회귀 3건 통과.
 - 최종 서버 전체 273개 / Flutter 53개 통과, 정적 분석 오류 없음. 한글 로그인 우선 UI 및 320px 인증/비밀번호 설정 화면도 구현했다. 최종 UI 테스트 결과는 추가 보안·DB 보고서에 기록한다.
+
+## 2026-09-23 계정 관리와 인증 메일
+
+- 내 계정 /account, 관리자 회원 관리 /admin/accounts 추가. 회원 권한/정지/세션 해제, 일반 회원 비밀번호 재인증 탈퇴 지원.
+- AccountSecurity가 요청마다 DB 권한·정지 여부를 확인. 역할 변경과 탈퇴는 같은 사용자 테이블 잠금으로 직렬화.
+- 인증번호 콘솔 출력을 제거하고 Resend 전송 어댑터 도입. 발신 도메인/API 키 미설정: **실제 가입·재설정 메일 발송 불가**. docs/auth-email.md 참고. 공급자 선택 사용자 답변 및 실수신 검증 대기.
+- dart analyze 통과. 계정/메일/생성 11개, 기존 인증·권한 34개, auth gate/design boundary 8개, 로그인 화면 7개 테스트 통과. 릴리스 웹 빌드 성공.
+- 실제 관리자 계정으로 데스크톱/390px 내 계정·회원 관리·비밀번호 재설정 진입 확인. 실제 권한 변경·탈퇴·메일 발송은 수행하지 않음; 격리 테스트에서 검증.
+
+## 2026-09-23 가입 흐름과 관리자 내비게이션 후속
+
+- 사용자가 Resend 무료 플랜을 선택. DNS 조회상 alfinder.kr은 가비아 네임서버. Resend 로그인·DNS 설정 접근 및 실수신 검증은 아직 대기.
+- 상단 프로필 클릭은 /account 바로 이동. 데스크톱 사이드바 및 모바일 드로어 하단에 관리자 전용 회원 관리 분리.
+- 가입 3단계 표시, 인증 대상 이메일과 주소 수정, 콘솔 안내 제거, 불완전 코드 제출 비활성화, 재전송 실패 시 쿨다운 재시작 방지 및 성공 안내.
+- Flutter 관련 테스트 16개, analyze, 웹 릴리스 빌드 통과. 관리자 메뉴→회원 관리→프로필 직접 이동 및 390px 드로어 실제 클릭 확인.
+- 실제 메일 발송/인증 완료는 미검증. 일반 회원용 약관·개인정보 처리 고지 및 동의 기록은 기존 구현에 없으며, 공개 출시를 완전히 준비했다고 보지 않는다.
+- 이번 변경 전부터 스크리너·로고·pubspec·development.yaml 변경이 존재해 보존. 작업 트리에 변경 유지.
+
+## 2026-09-23 인증 메일 실제 연결 및 계정 전체 흐름 검증 완료
+
+- 위 기록의 Resend/DNS/API 키 미설정 및 실수신 미검증 상태는 해소됨. `alfinder.kr` Verified, 도메인 제한 발송 전용 키 서버 연결, TLS Enforced, DMARC 초기 none. 비밀값은 Git 제외 파일에만 저장.
+- 테스트 전용 일반 계정으로 실제 Gmail 수신을 포함한 가입·로그인·재설정·권한 거부·세션 해제·탈퇴 검증 완료. 기존 관리자 계정 변경 없음. 테스트 계정과 임시 자격증명 정리 완료.
+- 브라우저 일반 회원 로그인/관리자 주소 차단/모든 기기 로그아웃 확인. 가입/재설정 비밀번호 단계는 API 검증. 서버 39개 + Flutter 16개 관련 테스트 통과.
+- 상세 근거: docs/auth-email.md, 로컬 output/auth-qa/results.json. 공개 서비스 법적 고지/동의 및 DMARC 강제 차단 정책은 별도 후속 범위.
+
+## 2026-09-23 공개 전환 준비
+
+- 사용자 승인: 기존 alfinder.kr을 새 앱으로 교체하고, 당장은 맥북 서버로 운영.
+- Vercel 새 Flutter 배포는 READY. 도메인은 아직 구형 사이트에 유지.
+- 기존 Git 자동배포 연결 해제, 프로젝트 framework/rootDirectory 정리.
+- Funnel 활성화와 allowedOrigins alfinder.kr/www 추가, MCP 재시작 완료.
+- 공개 DNS 미반영으로 실제 전환 대기. 정확한 배포/복구 주소는 docs/deploy.md.
+- 서버 분석 통과, 권한 통합 테스트 21개 통과. 별도 배포 로그인 화면 렌더링 확인.
+
+- 13:28 KST 후속: Funnel DNS 반영 및 API 정상 응답 확인. 새 배포를 promote하여 alfinder.kr/www 전환 완료.
+
+- 최종: DNS 전파 중 간헐적 502로 잠시 복구했으나, 별도 배포 API 3회 연속 성공 후 새 배포로 재전환. alfinder.kr 화면 200 및 비로그인 주요 API 401 확인. 실제 회원 로그인 성공은 이번 배포에서 미재검증. www는 DNS 미설정으로 안내하지 않는다.
+
+## 2026-09-23 비로그인 공개 탐색 / 관리자 데이터 관리
+
+- 사용자 승인으로 공개 기업/시장/재무/공시/그래프/테마 조회의 로그인 의무를 해제했다. 계정 기능은 로그인, 모든 변경은 관리자 경계를 유지한다.
+- ingest/ai 엔드포인트 전체는 admin scope, 검수 대기열·근거·결정은 메서드 관리자 검사. 공개 forCompany는 승인 관계만, checks는 익명화 수치만 제공한다.
+- /data·/review·/admin/*는 비관리자 홈으로 리다이렉트, /account는 로그인 화면으로. 관리자 사이드바 하단에 데이터 관리 배치. 수집 감시는 관리자만 실행.
+- API external rewrite의 간헐적인 DNS_HOSTNAME_EMPTY/NOT_FOUND를 관찰해 Node transport proxy로 교체. IPv4 DNS 조회와 DNS 단계 재시도만 하며 요청/변경을 재전송하지 않는다. TLS 검증, 인증·쿠키·Origin과 Serverpod auth/base-path 헤더를 유지한다. 서버 비즈니스 로직과 DB는 맥북 Serverpod에 그대로 있다.
+- 서버 권한/생성 코드 37개, Flutter 인증/디자인 17개, 프록시 헤더/본문/쿠키/DNS 재시도 1개 테스트 통과. 공개 방문 홈/기업 상세 렌더링과 /data→/home 실제 브라우저 확인.
+
+- 공개 최종 배포: dpl_HyHN8nagsPawDDfJhvrv2wtajiKm (alfinder-research-al76gldg3-realyoungks-projects.vercel.app), alfinder.kr 승격 완료.
+
+- 후속 전송 보완: DNS 조회를 동시 요청 간 공유하고 60초 캐시. 최종 배포 dpl_ZMYtLSXQLjWfnwuZFhbB8CUMbTxq (alfinder-research-5065bynvo-realyoungks-projects.vercel.app). 동시 5요청 200, 실제 alfinder.kr 비로그인 시장에서 기업 수·코스피/코스닥 숫자와 차트 표시 확인. 스크린샷 output/desktop-preview/public-market.png.

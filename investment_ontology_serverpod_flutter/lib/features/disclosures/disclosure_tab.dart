@@ -35,6 +35,7 @@ class _DisclosureTabState extends State<DisclosureTab> {
   Object? _error;
   bool _loading = false;
   int _seq = 0;
+  final _tableAnchor = GlobalKey();
 
   @override
   void initState() {
@@ -73,7 +74,15 @@ class _DisclosureTabState extends State<DisclosureTab> {
       _section = section;
       _year = null;
     });
-    _load();
+    _load().then((_) {
+      if (!mounted) return;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final target = _tableAnchor.currentContext;
+        if (mounted && target != null) {
+          Scrollable.ensureVisible(target, duration: AppMotion.fast);
+        }
+      });
+    });
   }
 
   @override
@@ -81,7 +90,10 @@ class _DisclosureTabState extends State<DisclosureTab> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final wide = constraints.maxWidth >= 900;
-        final table = _buildTable(context);
+        final table = KeyedSubtree(
+          key: _tableAnchor,
+          child: _buildTable(context),
+        );
         if (!wide) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -175,6 +187,10 @@ class _DisclosureTabState extends State<DisclosureTab> {
             style: t.body(12, color: c.textMuted),
           ),
           const SizedBox(height: AppSpace.md),
+          if (!_loading && _section == DartSection.employees) ...[
+            _EmployeeChart(table: table),
+            const SizedBox(height: AppSpace.xl),
+          ],
           AppDataTable(
             columns: [
               for (final (i, h) in table.headers.indexed)
@@ -316,4 +332,59 @@ int _longestCell(DisclosureTable table, int i) {
     if (len > n) n = len;
   }
   return n;
+}
+
+/// 인원만 시각화한다. 급여·근속연수를 같은 축에 섞지 않고 합계행 중복도 피한다.
+class _EmployeeChart extends StatelessWidget {
+  const _EmployeeChart({required this.table});
+  final DisclosureTable table;
+  @override
+  Widget build(BuildContext context) {
+    final count = table.headers.indexOf('합계');
+    final division = table.headers.indexOf('사업부문');
+    final sex = table.headers.indexOf('성별');
+    if (count < 0 || division < 0) return const SizedBox.shrink();
+    final values = <(String, double)>[];
+    for (final row in table.rows) {
+      if (row.isTotal ||
+          row.cells.length <= count ||
+          row.cells.length <= division) {
+        continue;
+      }
+      final label = row.cells[division] ?? '';
+      if (label.contains('합계') || label.contains('소계')) continue;
+      final value = double.tryParse(
+        (row.cells[count] ?? '').replaceAll(',', ''),
+      );
+      if (value == null || !value.isFinite || value < 0) continue;
+      values.add((
+        '$label${sex >= 0 && row.cells.length > sex ? ' · ${row.cells[sex] ?? ''}' : ''}',
+        value,
+      ));
+    }
+    if (values.isEmpty || values.length > 12) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('사업부문별 인원 구성', style: context.typo.display(22)),
+        const SizedBox(height: AppSpace.sm),
+        Text(
+          '공시된 인원 합계 · 명. 성별·사업부문별 행이며 합계행은 중복 표시하지 않습니다.',
+          style: context.typo.body(12, color: context.colors.textSecondary),
+        ),
+        const SizedBox(height: AppSpace.md),
+        AppColumnChart(
+          categories: [for (final v in values) v.$1],
+          series: [
+            ChartSeries(
+              label: '직원 수',
+              color: context.colors.chartSeries1,
+              values: [for (final v in values) v.$2],
+            ),
+          ],
+          formatValue: (v) => '${formatCount(v.round())}명',
+        ),
+      ],
+    );
+  }
 }

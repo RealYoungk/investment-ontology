@@ -109,11 +109,7 @@ class _IndexTrendState extends State<IndexTrend> {
         LayoutBuilder(
           builder: (context, box) {
             final cards = [
-              for (final (i, h) in histories.indexed)
-                _IndexCard(
-                  history: h,
-                  color: i == 0 ? c.chartSeries1 : c.chartSeries2,
-                ),
+              for (final h in histories) _IndexCard(history: h),
             ];
             // 폰에서는 세로로, 넓으면 나란히.
             if (box.maxWidth < 720) {
@@ -138,21 +134,14 @@ class _IndexTrendState extends State<IndexTrend> {
             );
           },
         ),
-        const SizedBox(height: AppSpace.xs),
-        Text(
-          '공공데이터포털 금융위원회_지수시세정보의 종가입니다. 종목 구성이 바뀌어도 이어지는 값이라 시가총액 합과는 다릅니다.',
-          style: t.body(11.5, color: c.textMuted),
-        ),
       ],
     );
   }
 }
 
 class _IndexCard extends StatelessWidget {
-  const _IndexCard({required this.history, required this.color});
-
+  const _IndexCard({required this.history});
   final IndexHistory history;
-  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -160,46 +149,118 @@ class _IndexCard extends StatelessWidget {
     final t = context.typo;
     final points = history.points;
     final first = points.first, last = points.last;
-    final change = first.value <= 0
+    double? rate(IndexPoint? base) => base == null || base.value <= 0
         ? null
-        : (last.value / first.value - 1) * 100;
+        : (last.value / base.value - 1) * 100;
+    final change = rate(first);
+    final comparisons = [
+      (label: '전일', base: history.dayBase, value: history.lastChangeRate),
+      (label: '1주', base: history.weekBase, value: rate(history.weekBase)),
+      (label: '1개월', base: history.monthBase, value: rate(history.monthBase)),
+      (label: '1년', base: history.yearBase, value: rate(history.yearBase)),
+    ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        Text(history.name, style: t.body(13, weight: FontWeight.w600)),
+        const SizedBox(height: AppSpace.xs),
+        Text(
+          formatDecimal(last.value),
+          style: t.numeric(26, weight: FontWeight.w600),
+        ),
+        const SizedBox(height: AppSpace.md),
+        Text('이전 시점 대비', style: t.body(11, color: c.textSecondary)),
+        const SizedBox(height: AppSpace.xs),
         Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
           children: [
-            Text(history.name, style: t.body(13, weight: FontWeight.w600)),
-            const SizedBox(width: AppSpace.sm),
-            Text(formatDecimal(last.value), style: t.numeric(22)),
-            const SizedBox(width: AppSpace.sm),
-            if (change != null)
-              Text(
-                '${change >= 0 ? '+' : ''}${change.toStringAsFixed(1)}%',
-                style: t.numeric(
-                  14,
-                  color: change >= 0 ? c.accent : c.textSecondary,
+            for (final item in comparisons)
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(item.label, style: t.body(12, color: c.textSecondary)),
+                    const SizedBox(height: AppSpace.xs),
+                    Text(
+                      item.value == null
+                          ? '자료 부족'
+                          : '${item.value! > 0 ? '+' : ''}${item.value!.toStringAsFixed(2)}%',
+                      style: t.numeric(
+                        13,
+                        color: c.marketChange(item.value),
+                        weight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
               ),
           ],
         ),
-        Text(
-          '${formatDate(first.date)} → ${formatDate(last.date)}'
-          '${history.lastChangeRate == null ? '' : ' · 전일 대비 ${history.lastChangeRate! >= 0 ? '+' : ''}${history.lastChangeRate!.toStringAsFixed(2)}%'}',
-          style: t.body(12, color: c.textMuted),
-        ),
-        const SizedBox(height: AppSpace.sm),
+        const SizedBox(height: AppSpace.md),
         AppLineChart(
+          formatCategory: (date) =>
+              date.length >= 7 ? date.substring(2, 7) : date,
+          maxAxisLabels: 6,
           categories: [for (final p in points) formatDate(p.date)],
           series: ChartSeries(
             label: history.name,
-            color: color,
+            color: c.marketChange(change),
             values: [for (final p in points) p.value],
           ),
           formatValue: formatDecimal,
           height: 180,
           includeZeroBaseline: false,
+        ),
+        Theme(
+          data: Theme.of(context).copyWith(dividerColor: c.surface),
+          child: ExpansionTile(
+            tilePadding: EdgeInsets.zero,
+            childrenPadding: const EdgeInsets.only(bottom: AppSpace.sm),
+            dense: true,
+            title: Text('기준·출처', style: t.body(11.5, color: c.textSecondary)),
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '종가 기준 ${formatDate(last.date)} · 금융위원회 지수시세정보',
+                  style: t.body(12, color: c.textSecondary),
+                ),
+              ),
+              const SizedBox(height: AppSpace.sm),
+              for (final item in comparisons)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: AppSpace.xs),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 52,
+                        child: Text(item.label, style: t.body(12)),
+                      ),
+                      Expanded(
+                        child: Text(
+                          item.base == null
+                              ? '비교 종가 자료 없음'
+                              : '${formatDate(item.base!.date)} · ${formatDecimal(item.base!.value)}',
+                          style: t.numeric(12, color: c.textSecondary),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              const SizedBox(height: AppSpace.sm),
+              Text(
+                '1주·1개월·1년은 기준일에서 거슬러 계산합니다. 휴장일은 이전 종가를 사용하며 10일 넘게 떨어진 자료는 제외합니다. 월말·윤년은 해당 월말로 맞춥니다. 전일 등락률은 원천기관 제공 값입니다.',
+                style: t.body(12, color: c.textSecondary),
+              ),
+              const SizedBox(height: AppSpace.sm),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '차트 ${formatDate(first.date)}–${formatDate(last.date)}${change == null ? '' : ' · 기간 ${change > 0 ? '+' : ''}${change.toStringAsFixed(1)}%'}',
+                  style: t.body(12, color: c.textSecondary),
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );

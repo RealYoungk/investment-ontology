@@ -81,6 +81,29 @@ void main() {
     log = [];
   });
 
+  testWidgets('공개 탐색은 비로그인으로 열리고 관리자 권한은 없다', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: AuthGate(
+          viewer: viewer,
+          allowAnonymous: true,
+          signIn: const Text('로그인 화면'),
+          child: Builder(
+            builder: (context) => Text(context.isAdmin ? '관리자' : '공개 탐색'),
+          ),
+        ),
+      ),
+    );
+    expect(find.text('공개 탐색'), findsOneWidget);
+    expect(find.text('로그인 화면'), findsNothing);
+    viewer.value = const AppViewer(userId: 'admin', isAdmin: true);
+    await tester.pump();
+    expect(find.text('관리자'), findsOneWidget);
+    viewer.value = null;
+    await tester.pump();
+    expect(find.text('공개 탐색'), findsOneWidget);
+  });
+
   testWidgets('로그인 전에는 어떤 화면도 만들지 않고, 로그인하면 처음 연 주소로 들어간다', (
     tester,
   ) async {

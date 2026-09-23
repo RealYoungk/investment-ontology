@@ -1,0 +1,8 @@
+### Public account metadata; never exposes passwords or authentication tokens.
+class: AccountView
+fields:
+  userId: String
+  email: String
+  createdAt: DateTime
+  isAdmin: bool
+  blocked: bool

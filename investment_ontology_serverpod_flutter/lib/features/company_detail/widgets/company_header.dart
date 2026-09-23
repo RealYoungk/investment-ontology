@@ -126,16 +126,19 @@ class _KeyStats extends StatelessWidget {
         Container(
           decoration: BoxDecoration(
             border: Border(
-              top: BorderSide(color: c.borderStrong, width: 1.5),
+              top: BorderSide(color: c.border),
               bottom: BorderSide(color: c.border),
             ),
           ),
           child: LayoutBuilder(
             builder: (context, constraints) {
-              // 좁은 화면에서는 두 칸씩 놓는다.
-              final cell = constraints.maxWidth < 600
-                  ? (constraints.maxWidth / 2).floorToDouble()
-                  : 200.0;
+              // 화면 폭에 맞춰 2·4·8열로 정렬해 들쭉날쭉한 줄바꿈을 피한다.
+              final columns = constraints.maxWidth < 600
+                  ? 2
+                  : constraints.maxWidth < 1100
+                  ? 4
+                  : 8;
+              final cell = constraints.maxWidth / columns;
               return Wrap(
                 children: [
                   for (final m in metrics)
@@ -184,6 +187,13 @@ class _KeyStats extends StatelessWidget {
                                 ),
                               ),
                             ),
+                            if (m.derived.value == null) ...[
+                              const SizedBox(height: AppSpace.xs),
+                              Text(
+                                m.derived.missing ?? '계산에 필요한 자료가 부족합니다.',
+                                style: t.body(11.5, color: c.textSecondary),
+                              ),
+                            ],
                           ],
                         ),
                       ),

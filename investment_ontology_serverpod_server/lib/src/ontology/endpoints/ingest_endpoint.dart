@@ -24,6 +24,9 @@ class IngestEndpoint extends Endpoint {
   @override
   bool get requireLogin => true;
 
+  @override
+  Set<Scope> get requiredScopes => {Scope.admin};
+
   /// 상장사 마스터 수집 시작. 이미 실행 중이면 그 작업을 돌려준다.
   ///
   /// 평소에는 DART 변경일이 바뀐 기업만 다시 받는다. [force]이거나 마지막 전체

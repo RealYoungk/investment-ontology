@@ -9,7 +9,7 @@ import '../disclosure/disclosure_values.dart';
 /// 지배구조 조회: 최대주주 · 임원 · 타법인출자와 인물.
 class GovernanceEndpoint extends Endpoint {
   @override
-  bool get requireLogin => true;
+  bool get requireLogin => false;
 
   static const _sections = {
     DartSection.largestShareholders,

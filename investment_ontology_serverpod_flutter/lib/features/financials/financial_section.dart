@@ -13,6 +13,7 @@ import '../../design/tokens.dart';
 import '../auth/app_viewer.dart';
 import '../common/formatters.dart';
 import 'financial_metrics.dart';
+import 'financial_coverage.dart';
 
 enum _Period { annual, quarterly }
 
@@ -195,6 +196,7 @@ class _FinancialSectionState extends State<FinancialSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        FinancialCoverage(data: data),
         Wrap(
           spacing: AppSpace.md,
           runSpacing: AppSpace.sm,

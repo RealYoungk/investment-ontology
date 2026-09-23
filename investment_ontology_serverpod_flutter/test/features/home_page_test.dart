@@ -49,17 +49,56 @@ void main() {
       return [];
     });
     expect(calls, 0);
-    expect(find.text('궁금한 기업,\n어디부터 살펴볼까요?'), findsOneWidget);
+    expect(find.text('아는 산업에서,\n새로운 기업으로.'), findsOneWidget);
     expect(field, findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  for (final entry in [
+    ('자동차', '/companies?section=C&division=30'),
+    ('매출이 늘어난 기업', '/screen?rgrow=10'),
+    ('이익을 남기는 기업', '/screen?margin=10'),
+    ('배당을 주는 기업', '/screen?div=3'),
+  ]) {
+    testWidgets('기업 이름 없이 ${entry.$1} 탐색을 시작한다', (tester) async {
+      final router = GoRouter(
+        initialLocation: '/home',
+        routes: [
+          GoRoute(
+            path: '/home',
+            builder: (_, _) =>
+                Scaffold(body: HomePage(search: (_) async => [])),
+          ),
+          GoRoute(
+            path: '/companies',
+            builder: (_, state) => Scaffold(body: Text(state.uri.toString())),
+          ),
+          GoRoute(
+            path: '/screen',
+            builder: (_, state) => Scaffold(body: Text(state.uri.toString())),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(
+        MaterialApp.router(theme: theme, routerConfig: router),
+      );
+      final target = find.text(entry.$1);
+      await tester.ensureVisible(target);
+      await tester.tap(target);
+      await tester.pumpAndSettle();
+      expect(find.text(entry.$2), findsOneWidget);
+    });
+  }
 
   testWidgets('늦게 도착한 이전 검색 결과와 지운 검색 결과는 표시하지 않는다', (tester) async {
     final first = Completer<List<CompanyListItem>>();
     final second = Completer<List<CompanyListItem>>();
     await pumpHome(tester, (q) => q == '삼성' ? first.future : second.future);
+    await tester.ensureVisible(field);
     await tester.enterText(field, '삼성');
     await tester.pump(const Duration(milliseconds: 300));
+    await tester.ensureVisible(field);
     await tester.enterText(field, '현대');
     await tester.pump(const Duration(milliseconds: 300));
     second.complete([CompanyListItem(corpCode: '2', name: '현대자동차')]);
@@ -79,6 +118,7 @@ void main() {
       if (++calls == 1) throw Exception('offline');
       return [];
     });
+    await tester.ensureVisible(field);
     await tester.enterText(field, '검색');
     await tester.pump(const Duration(milliseconds: 300));
     await tester.pump();
@@ -122,6 +162,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp.router(theme: theme, routerConfig: router),
       );
+      await tester.ensureVisible(field);
       await tester.enterText(field, '삼성전자');
       await tester.pump(const Duration(milliseconds: 300));
       await tester.pumpAndSettle();

@@ -20,8 +20,7 @@ const koreanEmailSignInTexts = EmailSignInTexts(
   alreadyHaveAnAccount: '이미 계정이 있으신가요?',
   verifyAccountTitle: '계정 인증',
   verifyResetCodeTitle: '재설정 코드 인증',
-  verificationMessage:
-      '인증 코드를 확인한 뒤 아래에 입력하세요. 로컬 개발 서버를 사용 중이면 서버 실행 콘솔에서 확인할 수 있습니다.',
+  verificationMessage: '이메일로 받은 8자리 인증 코드를 입력해 주세요. 코드는 15분 동안 사용할 수 있습니다.',
   verify: '인증',
   setAccountPasswordTitle: '계정 비밀번호 설정',
   passwordLabel: '비밀번호',
@@ -52,12 +51,7 @@ const koreanPasswordRequirementTexts = PasswordRequirementTexts(
 );
 
 /// 새 계정은 읽기 전용이라는 안내. 가입 단계(시작·인증·비밀번호 설정)에서만 보여준다.
-const readOnlyAccountNotice = '새 계정은 읽기 전용입니다. 관리자 권한이 필요하면 운영자에게 요청하세요.';
-
-/// 로컬 개발 서버는 인증 메일을 실제로 보내지 않는다는 안내. 인증 코드 화면에서, 그리고
-/// 로컬/개발 실행일 때만 보여준다([SignInPage]에서 `kDebugMode`로 가린다).
-const devVerificationNotice =
-    '로컬 개발 서버에서는 인증 메일이 발송되지 않습니다. 인증 코드는 서버 실행 콘솔에 표시됩니다.';
+const readOnlyAccountNotice = '가입하면 기업·재무·시장 정보를 둘러볼 수 있습니다.';
 
 const _genericAuthError = '알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도하세요.';
 

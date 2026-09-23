@@ -58,7 +58,7 @@ class _GroupPageState extends State<GroupPage> {
         Align(
           alignment: Alignment.centerLeft,
           child: AppButton(
-            label: '← 지분 묶음',
+            label: '지분 묶음 목록',
             variant: AppButtonVariant.link,
             onPressed: () =>
                 context.canPop() ? context.pop() : context.go('/groups'),
@@ -75,8 +75,6 @@ class _GroupPageState extends State<GroupPage> {
             style: t.body(14, color: c.textSecondary),
           )
         else ...[
-          const SectionLabel('INVESTMENT ONTOLOGY · 지분 묶음', accent: true),
-          const SizedBox(height: AppSpace.sm),
           Text('${g.anchor.name} 묶음', style: t.display(40)),
           const SizedBox(height: AppSpace.sm),
           Wrap(
@@ -231,7 +229,37 @@ class _Edges extends StatelessWidget {
             '주가로 번지기 쉽습니다.',
             style: t.body(12.5, color: c.textSecondary),
           ),
-          const SizedBox(height: AppSpace.sm),
+          const SizedBox(height: AppSpace.md),
+          Text(
+            '시총 대비 비중 상위 ${holders.take(6).length}개사 · 같은 축 0~${(100 * holders.first.held / holders.first.own).ceil()}% · 100%를 넘을 수 있습니다',
+            style: t.body(12, color: c.textSecondary),
+          ),
+          for (final h in holders.take(6)) ...[
+            const SizedBox(height: AppSpace.md),
+            Wrap(
+              spacing: AppSpace.md,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                company(h.id),
+                Text(
+                  '${(100 * h.held / h.own).toStringAsFixed(1)}% · ${formatKrwShort(h.held)}',
+                  style: t.numeric(14, weight: FontWeight.w600),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpace.xs),
+            LinearProgressIndicator(
+              value: holders.first.held > 0
+                  ? (h.held / h.own) / (holders.first.held / holders.first.own)
+                  : 0,
+              minHeight: 10,
+              color: c.chartSeries1,
+              backgroundColor: c.chartTile,
+              semanticsLabel: '${byId[h.id]?.name} 시가총액 대비 보유 지분 가치',
+              semanticsValue: '${(100 * h.held / h.own).toStringAsFixed(1)}%',
+            ),
+          ],
+          const SizedBox(height: AppSpace.xl),
           AppDataTable(
             columns: const [
               AppColumn('기업', flex: true),

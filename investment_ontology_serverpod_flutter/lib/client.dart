@@ -4,6 +4,8 @@ import 'package:investment_ontology_serverpod_client/investment_ontology_serverp
 import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
 import 'package:serverpod_flutter/serverpod_flutter.dart';
 
+import 'features/auth/rejected_refresh_handler.dart';
+
 // When you are running the app on a physical device, you need to set the
 // server URL to the IP address of your computer. You can find the IP
 // address by running `ipconfig` on Windows or `ifconfig` on Mac/Linux.
@@ -48,9 +50,19 @@ Future<String> _resolveServerUrl() async {
 late final Client client;
 
 Future<void> initializeClient() async {
-  client = Client(await serverUrl)
-    ..connectivityMonitor = FlutterConnectivityMonitor()
-    ..authSessionManager = FlutterAuthSessionManager();
+  client =
+      Client(
+          await serverUrl,
+          onFailedCall: (context, error, stackTrace) async {
+            await handleRejectedRefresh(
+              context,
+              error,
+              clearLocalSession: () => client.auth.updateSignedInUser(null),
+            );
+          },
+        )
+        ..connectivityMonitor = FlutterConnectivityMonitor()
+        ..authSessionManager = FlutterAuthSessionManager();
   if (kIsWeb) client.cookieAuth = true;
   // 저장된 로그인을 되살리고 서버에 확인한 뒤에야 첫 화면을 정한다 (로그인 문이 로그인
   // 화면과 앱 사이를 깜빡이지 않게). 서버가 늦거나 꺼져 있으면 시간 초과가 밖으로

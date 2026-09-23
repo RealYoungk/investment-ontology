@@ -9,19 +9,34 @@ class SectionLabel extends StatelessWidget {
     super.key,
     this.accent = false,
     this.trailing,
+    this.tooltip,
   });
 
   final String text;
   final bool accent;
   final Widget? trailing;
+  final String? tooltip;
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final label = Text(
+    Widget label = Text(
       text,
       style: context.typo.label(color: accent ? c.accent : c.textSecondary),
     );
+    if (tooltip != null) {
+      final tipKey = GlobalKey<TooltipState>();
+      label = Tooltip(
+        key: tipKey,
+        message: tooltip!,
+        waitDuration: const Duration(milliseconds: 300),
+        showDuration: const Duration(seconds: 6),
+        child: InkWell(
+          onTap: () => tipKey.currentState?.ensureTooltipVisible(),
+          child: label,
+        ),
+      );
+    }
     if (trailing == null) return label;
     // 좁은 화면에서는 오른쪽 글이 줄어들거나 줄바꿈된다.
     return Row(

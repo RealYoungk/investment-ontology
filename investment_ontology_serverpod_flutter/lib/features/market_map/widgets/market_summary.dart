@@ -24,28 +24,48 @@ class MarketSummary extends StatelessWidget {
   Widget build(BuildContext context) {
     final o = overview;
     final counts = {for (final f in o?.byMarket ?? <FacetCount>[]) f.code: f};
-    return Wrap(
-      spacing: 56,
-      runSpacing: AppSpace.xl,
-      crossAxisAlignment: WrapCrossAlignment.end,
-      children: [
-        PageHeading(
-          eyebrow: 'INVESTMENT ONTOLOGY · 시장',
+    return LayoutBuilder(
+      builder: (context, box) {
+        final narrow = box.maxWidth < 600;
+        final heading = PageHeading(
           title: '시장',
           subtitle: o == null
               ? '불러오는 중…'
-              : '국내 상장 ${formatCount(o.totalListed)}개사 · 시장을 누르면 트리맵이 그 시장만 보여줍니다',
-        ),
-        for (final market in _markets)
-          _MarketFigure(
-            label: marketLabel(market),
-            count: counts[market.name]?.count,
-            color: marketColor(context, market),
-            active: selected == market,
-            dimmed: selected != null && selected != market,
-            onTap: () => onSelect(market),
-          ),
-      ],
+              : '국내 상장 ${formatCount(o.totalListed)}개사',
+        );
+        final figures = [
+          for (final market in _markets)
+            _MarketFigure(
+              label: marketLabel(market),
+              count: counts[market.name]?.count,
+              color: marketColor(context, market),
+              active: selected == market,
+              dimmed: selected != null && selected != market,
+              compact: narrow,
+              onTap: () => onSelect(market),
+            ),
+        ];
+        if (narrow) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              heading,
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  for (final figure in figures) Expanded(child: figure),
+                ],
+              ),
+            ],
+          );
+        }
+        return Wrap(
+          spacing: 56,
+          runSpacing: AppSpace.xl,
+          crossAxisAlignment: WrapCrossAlignment.end,
+          children: [heading, ...figures],
+        );
+      },
     );
   }
 }
@@ -58,8 +78,10 @@ class _MarketFigure extends StatelessWidget {
     required this.active,
     required this.dimmed,
     required this.onTap,
+    this.compact = false,
   });
 
+  final bool compact;
   final String label;
   final int? count;
   final Color color;
@@ -90,7 +112,11 @@ class _MarketFigure extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               count == null ? '—' : formatCount(count!),
-              style: t.numeric(40, color: color, weight: FontWeight.w600),
+              style: t.numeric(
+                compact ? 26 : 40,
+                color: color,
+                weight: FontWeight.w600,
+              ),
             ),
             AnimatedContainer(
               duration: AppMotion.normal,

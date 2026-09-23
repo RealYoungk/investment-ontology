@@ -54,7 +54,7 @@ class _AboutPageState extends State<AboutPage> {
                 children: [
                   Expanded(
                     child: Text(
-                      '투자 온톨로지',
+                      '알파인더',
                       style: t.body(17, weight: FontWeight.w700),
                     ),
                   ),
@@ -214,7 +214,7 @@ class _AboutPageState extends State<AboutPage> {
                   Divider(color: c.border),
                   const SizedBox(height: AppSpace.lg),
                   Text(
-                    '투자 온톨로지 · 기업을 이해하고, 근거를 확인하고, 스스로 판단하기',
+                    '알파인더 · 기업을 이해하고, 근거를 확인하고, 스스로 판단하기',
                     style: t.body(12, color: c.textSecondary),
                   ),
                 ],

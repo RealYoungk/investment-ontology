@@ -1,11 +1,11 @@
 {
-    "name": "investment_ontology_serverpod_flutter",
-    "short_name": "investment_ontology_serverpod_flutter",
+    "name": "알파인더",
+    "short_name": "알파인더",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#F5F7FA",
+    "theme_color": "#F5F7FA",
+    "description": "국내 상장사를 공시와 데이터로 탐색하는 알파인더",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

@@ -1,5 +1,5 @@
-import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
 import 'package:serverpod_auth_idp_flutter/widgets.dart';
 
@@ -19,9 +19,10 @@ import 'widgets/verification_form_ko.dart';
 /// 지역화된 가입·재설정 시작 폼은 재사용한다. 나머지는 한국어 문구와 작은 화면의
 /// 높이에 맞춰 구성하고 내장 컨트롤러의 인증·비밀번호 검증 로직을 사용한다.
 ///
-/// 가입하면 읽기 전용이다. 관리자 권한은 서버의 허용 목록으로만 생긴다.
+/// 가입하면 일반 회원이다. 관리자 권한은 서버에서만 부여한다.
 class SignInPage extends StatefulWidget {
-  const SignInPage({super.key});
+  const SignInPage({super.key, this.resetPassword = false});
+  final bool resetPassword;
 
   @override
   State<SignInPage> createState() => _SignInPageState();
@@ -30,6 +31,9 @@ class SignInPage extends StatefulWidget {
 class _SignInPageState extends State<SignInPage> {
   late final _controller = EmailAuthController(
     client: client,
+    startScreen: widget.resetPassword
+        ? EmailFlowScreen.requestPasswordReset
+        : EmailFlowScreen.login,
     emailValidation: koreanEmailValidation,
     onError: _showError,
   );
@@ -55,6 +59,9 @@ class _SignInPageState extends State<SignInPage> {
       email: koreanEmailSignInTexts,
       passwordRequirementTexts: koreanPasswordRequirementTexts,
       child: Scaffold(
+        appBar: widget.resetPassword
+            ? AppBar(title: const Text('비밀번호 재설정'))
+            : null,
         backgroundColor: c.background,
         body: Center(
           child: SingleChildScrollView(
@@ -69,12 +76,21 @@ class _SignInPageState extends State<SignInPage> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('INVESTMENT ONTOLOGY', style: t.label(color: c.accent)),
+                  if (!widget.resetPassword)
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                        onPressed: () => context.go('/home'),
+                        icon: const Icon(Icons.arrow_back, size: 18),
+                        label: const Text('로그인 없이 둘러보기'),
+                      ),
+                    ),
+                  Text('ALFINDER', style: t.label(color: c.accent)),
                   const SizedBox(height: AppSpace.sm),
-                  Text('투자 온톨로지', style: t.display(28)),
+                  Text('알파인더', style: t.display(28)),
                   const SizedBox(height: AppSpace.sm),
                   Text(
-                    '로그인한 계정만 볼 수 있습니다. 데이터를 바꾸는 일은 관리자만 합니다.',
+                    '기업을 이해하는 첫걸음, 알파인더에서 시작하세요.',
                     style: t.body(13.5, color: c.textSecondary),
                   ),
                   const SizedBox(height: AppSpace.xl),
@@ -90,8 +106,15 @@ class _SignInPageState extends State<SignInPage> {
                     ),
                     child: ListenableBuilder(
                       listenable: _controller,
-                      builder: (context, _) =>
+                      builder: (context, _) => Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _RegistrationProgress(
+                            screen: _controller.currentScreen,
+                          ),
                           _AuthFlowScreen(controller: _controller),
+                        ],
+                      ),
                     ),
                   ),
                   ListenableBuilder(
@@ -167,9 +190,8 @@ class _Notices extends StatelessWidget {
   Widget build(BuildContext context) {
     final notices = [
       if (_registrationSteps.contains(screen)) readOnlyAccountNotice,
-      // 로컬 개발 서버에서만 뜻이 있는 안내라, 개발 실행일 때만 보여준다.
-      if (kDebugMode && _verificationSteps.contains(screen))
-        devVerificationNotice,
+      if (_verificationSteps.contains(screen))
+        '메일이 보이지 않으면 스팸함을 확인해 주세요. 인증번호는 다른 사람에게 알려주지 마세요.',
     ];
     if (notices.isEmpty) return const SizedBox.shrink();
     return Column(
@@ -180,6 +202,42 @@ class _Notices extends StatelessWidget {
           AppNotice(message: notice),
         ],
       ],
+    );
+  }
+}
+
+class _RegistrationProgress extends StatelessWidget {
+  const _RegistrationProgress({required this.screen});
+  final EmailFlowScreen screen;
+
+  @override
+  Widget build(BuildContext context) {
+    final step = switch (screen) {
+      EmailFlowScreen.startRegistration => 0,
+      EmailFlowScreen.verifyRegistration => 1,
+      EmailFlowScreen.completeRegistration => 2,
+      _ => -1,
+    };
+    if (step < 0) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpace.lg),
+      child: Row(
+        children: [
+          for (var i = 0; i < 3; i++)
+            Expanded(
+              child: Text(
+                '${i + 1} ${['이메일', '인증', '비밀번호'][i]}',
+                style: context.typo.body(
+                  12,
+                  color: i == step
+                      ? context.colors.accent
+                      : context.colors.textSecondary,
+                  weight: i == step ? FontWeight.w700 : FontWeight.w400,
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

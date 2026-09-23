@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../design/components/components.dart';
 import '../../../design/tokens.dart';
 import '../../financials/financial_metrics.dart';
+import '../../financials/financial_coverage.dart';
 import '../../common/formatters.dart';
 import 'business_blurb.dart';
 import 'business_highlights.dart';
@@ -105,7 +106,7 @@ class CompanyOverviewTab extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              flex: 3,
+              flex: 2,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: main,
@@ -113,7 +114,7 @@ class CompanyOverviewTab extends StatelessWidget {
             ),
             const SizedBox(width: AppSpace.section),
             Expanded(
-              flex: 2,
+              flex: 1,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: side,
@@ -167,6 +168,7 @@ class _FinancialDigest extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpace.sm),
+        if (fin != null) FinancialCoverage(data: fin),
         if (points.isEmpty)
           Text(
             fin == null || fin.filingCount == 0

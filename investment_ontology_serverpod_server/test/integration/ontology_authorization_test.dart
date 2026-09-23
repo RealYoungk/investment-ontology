@@ -28,17 +28,26 @@ void main() {
         'governance.searchPersons': () =>
             endpoints.governance.searchPersons(anonymous, '홍길동'),
         'theme.list': () => endpoints.theme.list(anonymous),
-        'theme.create': () => endpoints.theme.create(anonymous, '거부'),
-        'review.checks': () => endpoints.review.checks(anonymous),
-        'review.decide': () => endpoints.review.decide(anonymous, 1, true),
       };
       for (final MapEntry(key: name, value: call) in calls.entries) {
-        test('then $name은 인증 필요로 거절된다', () async {
-          await expectLater(
-            call(),
-            throwsA(isA<ServerpodUnauthenticatedException>()),
-          );
+        test('then $name은 공개 조회할 수 있다', () async {
+          await call();
         });
+      }
+    });
+
+    test('anonymous cannot mutate or read moderation queues', () async {
+      for (final call in <Future<Object?> Function()>[
+        () => endpoints.theme.create(anonymous, 'denied'),
+        () => endpoints.review.list(anonymous),
+        () => endpoints.review.facts(anonymous),
+        () => endpoints.review.context(anonymous, 'fact', 1, around: 500),
+        () => endpoints.review.decide(anonymous, 1, true),
+      ]) {
+        await expectLater(
+          call(),
+          throwsA(isA<ServerpodUnauthenticatedException>()),
+        );
       }
     });
 
@@ -118,6 +127,10 @@ void main() {
           'test',
         );
         expect(check.correct, 9);
+        final publicChecks = await endpoints.review.checks(anonymous);
+        expect(publicChecks.single.correct, 9);
+        expect(publicChecks.single.checkedBy, '원문 대조');
+        expect(publicChecks.single.note, isNull);
       });
     });
   });

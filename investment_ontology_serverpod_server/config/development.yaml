@@ -63,9 +63,12 @@ futureCall:
 
 # Web refresh tokens stay in HttpOnly cookies. Native/CLI clients use Bearer.
 authCookie:
-  secure: false # Local HTTP only; production must use secure cookies.
+  secure: true # HTTPS Funnel; browsers also permit Secure cookies on localhost.
   sameSite: lax
 allowedOrigins:
+  - https://alfinder.kr
+  - https://www.alfinder.kr
+  - https://investment-ontology.tailb7d6da.ts.net
   - http://localhost:8100
   - http://127.0.0.1:8100
   - http://localhost:8082

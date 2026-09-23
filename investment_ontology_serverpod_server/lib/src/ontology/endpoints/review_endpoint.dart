@@ -9,7 +9,7 @@ import '../auth/ontology_access.dart';
 /// 사업의 내용 탭이 실측 정확도를 보여 준다. 결정·추천·기록은 관리자만.
 class ReviewEndpoint extends Endpoint {
   @override
-  bool get requireLogin => true;
+  bool get requireLogin => false;
 
   Future<ReviewPage> list(
     Session session, {
@@ -18,6 +18,7 @@ class ReviewEndpoint extends Endpoint {
     int? offset,
     int? limit,
   }) async {
+    OntologyAccess.requireAdmin(session);
     Expression where(OntologyRelationTable t) {
       Expression e =
           t.extractedBy.equals(RelationOrigin.ai) &
@@ -108,6 +109,7 @@ class ReviewEndpoint extends Endpoint {
     int id, {
     int around = 500,
   }) async {
+    OntologyAccess.requireAdmin(session);
     final String? evidence;
     final int? documentId;
     if (scope == 'fact') {
@@ -256,11 +258,17 @@ class ReviewEndpoint extends Endpoint {
   }
 
   /// 남겨 둔 대조 검수 기록 (최근 것부터).
-  Future<List<ReviewCheck>> checks(Session session) => ReviewCheck.db.find(
-    session,
-    orderBy: (t) => t.createdAt.desc(),
-    limit: 20,
-  );
+  Future<List<ReviewCheck>> checks(Session session) async {
+    final rows = await ReviewCheck.db.find(
+      session,
+      orderBy: (t) => t.createdAt.desc(),
+      limit: 20,
+    );
+    if (OntologyAccess.isAdmin(session.authenticated)) return rows;
+    return [
+      for (final row in rows) row.copyWith(checkedBy: '원문 대조', note: null),
+    ];
+  }
 
   /// 본문에서 뽑은 값 검수 목록 (수주잔고·가동률·점유율 등).
   Future<FactPage> facts(
@@ -270,6 +278,7 @@ class ReviewEndpoint extends Endpoint {
     int? offset,
     int? limit,
   }) async {
+    OntologyAccess.requireAdmin(session);
     Expression where(DocumentFactTable t) {
       Expression e = t.status.equals(status ?? RelationStatus.draft);
       if (kind != null) e = e & t.kind.equals(kind);
@@ -336,12 +345,26 @@ class ReviewEndpoint extends Endpoint {
       session,
       where: (t) =>
           t.extractedBy.equals(RelationOrigin.ai) &
-          t.status.notEquals(RelationStatus.rejected) &
+          (OntologyAccess.isAdmin(session.authenticated)
+              ? t.status.notEquals(RelationStatus.rejected)
+              : t.status.equals(RelationStatus.verified)) &
           (t.subjectCompanyId.equals(company.id!) |
               t.objectCompanyId.equals(company.id!)),
       orderByList: (t) => [t.predicate.asc(), t.confidence.desc()],
     );
-    return _items(session, relations);
+    return _items(
+      session,
+      OntologyAccess.isAdmin(session.authenticated)
+          ? relations
+          : [
+              for (final row in relations)
+                row.copyWith(
+                  reviewedBy: null,
+                  reviewNote: null,
+                  recommendation: null,
+                ),
+            ],
+    );
   }
 
   static Future<List<ReviewItem>> _items(

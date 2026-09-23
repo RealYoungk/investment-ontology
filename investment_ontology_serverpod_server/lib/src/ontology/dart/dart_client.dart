@@ -5,10 +5,12 @@ import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart';
 
 import 'dart_values.dart';
+import '../ingest/api_error_message.dart';
 
 /// DART OpenAPI (https://opendart.fss.or.kr) 호출 오류.
 class DartApiException implements Exception {
-  DartApiException(this.status, this.message);
+  DartApiException(this.status, String message)
+    : message = redactApiError(message);
 
   /// DART 응답 status. 네트워크·파싱 오류는 `http`/`parse`.
   final String status;
@@ -311,7 +313,10 @@ class DartClient {
     try {
       res = await _http.get(uri).timeout(const Duration(seconds: 30));
     } catch (e) {
-      throw DartApiException('http', '$path 요청 실패: $e');
+      throw DartApiException(
+        'http',
+        '$path 요청 실패: ${redactApiError(e, secrets: [apiKey])}',
+      );
     }
     if (res.statusCode != 200) {
       throw DartApiException('http', '$path HTTP ${res.statusCode}');

@@ -48,7 +48,7 @@ class _MarketCapTrendState extends State<MarketCapTrend> {
     try {
       final p = await client.market.capHistory(
         market: widget.market,
-        days: _days,
+        days: _days < 380 ? 380 : _days,
       );
       if (mounted && seq == _seq) setState(() => _points = p);
     } catch (_) {
@@ -66,7 +66,15 @@ class _MarketCapTrendState extends State<MarketCapTrend> {
   Widget build(BuildContext context) {
     final c = context.colors;
     final t = context.typo;
-    final points = _points;
+    final points = _points.isEmpty
+        ? _points
+        : _points
+              .where(
+                (p) => !p.date.isBefore(
+                  _points.last.date.subtract(Duration(days: _days)),
+                ),
+              )
+              .toList();
     if (points.length < 2) return const SizedBox.shrink();
     final first = points.first, last = points.last;
     final from = first.marketCap.toDouble();
@@ -74,11 +82,42 @@ class _MarketCapTrendState extends State<MarketCapTrend> {
         ? null
         : (last.marketCap.toDouble() / from - 1) * 100;
 
+    DateTime monthBack(int months) {
+      final first = DateTime.utc(last.date.year, last.date.month - months);
+      final end = DateTime.utc(first.year, first.month + 1, 0).day;
+      return DateTime.utc(first.year, first.month, last.date.day.clamp(1, end));
+    }
+
+    final comparisons = [
+      for (final period in [
+        (label: '전일', date: last.date.subtract(const Duration(days: 1))),
+        (label: '1주', date: last.date.subtract(const Duration(days: 7))),
+        (label: '1개월', date: monthBack(1)),
+        (label: '1년', date: monthBack(12)),
+      ])
+        () {
+          final base = _points
+              .where(
+                (p) =>
+                    !p.date.isAfter(period.date) &&
+                    !p.date.isBefore(
+                      period.date.subtract(const Duration(days: 10)),
+                    ),
+              )
+              .lastOrNull;
+          final rate = base == null || base.marketCap <= BigInt.zero
+              ? null
+              : (last.marketCap.toDouble() / base.marketCap.toDouble() - 1) *
+                    100;
+          return (label: period.label, base: base, rate: rate);
+        }(),
+    ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SectionLabel(
           '시가총액 추이',
+          tooltip: '그날 시세가 있는 종목의 시가총액 합입니다. 상장·폐지로 종목 수가 달라지므로 지수와는 다릅니다.',
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -115,43 +154,100 @@ class _MarketCapTrendState extends State<MarketCapTrend> {
           ),
         ),
         const SizedBox(height: AppSpace.sm),
-        // 좁은 화면에서는 기간이 다음 줄로 내려간다 (Row면 오른쪽이 잘린다).
-        Wrap(
-          spacing: AppSpace.sm,
-          crossAxisAlignment: WrapCrossAlignment.end,
+        Text(
+          formatKrw(last.marketCap),
+          style: t.numeric(26, weight: FontWeight.w600),
+        ),
+        const SizedBox(height: AppSpace.md),
+        Text('이전 시점 대비', style: t.body(11, color: c.textSecondary)),
+        const SizedBox(height: AppSpace.xs),
+        Row(
           children: [
-            Text(formatKrw(last.marketCap), style: t.numeric(22)),
-            if (change != null)
-              Text(
-                '${change >= 0 ? '+' : ''}${change.toStringAsFixed(1)}%',
-                style: t.numeric(
-                  14,
-                  color: change >= 0 ? c.accent : c.textSecondary,
+            for (final item in comparisons)
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(item.label, style: t.body(12, color: c.textSecondary)),
+                    const SizedBox(height: AppSpace.xs),
+                    Text(
+                      item.rate == null
+                          ? '자료 부족'
+                          : '${item.rate! > 0 ? '+' : ''}${item.rate!.toStringAsFixed(2)}%',
+                      style: t.numeric(
+                        13,
+                        color: c.marketChange(item.rate),
+                        weight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            Text(
-              '${formatDate(first.date)} → ${formatDate(last.date)} · '
-              '종목 ${formatCount(last.securityCount)}개',
-              style: t.body(12, color: c.textMuted),
-            ),
           ],
         ),
-        const SizedBox(height: AppSpace.sm),
+        const SizedBox(height: AppSpace.md),
         AppLineChart(
+          formatCategory: (date) =>
+              date.length >= 7 ? date.substring(2, 7) : date,
+          maxAxisLabels: 6,
           categories: [for (final p in points) formatDate(p.date)],
           series: ChartSeries(
             label: '시가총액',
-            color: c.chartSeries1,
+            color: c.marketChange(change),
             values: [for (final p in points) p.marketCap.toDouble()],
           ),
           formatValue: formatKrwShort,
-          height: 200,
+          height: 180,
           includeZeroBaseline: false,
         ),
-        const SizedBox(height: AppSpace.xs),
-        Text(
-          '그날 시세가 있는 종목의 시가총액 합입니다. 상장·폐지로 종목 수가 달라지므로 지수와는 다릅니다.',
-          style: t.body(11.5, color: c.textMuted),
+        Theme(
+          data: Theme.of(context).copyWith(dividerColor: c.surface),
+          child: ExpansionTile(
+            tilePadding: EdgeInsets.zero,
+            dense: true,
+            title: Text('기준·출처', style: t.body(11.5, color: c.textSecondary)),
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '기준 ${formatDate(last.date)} · ${formatCount(last.securityCount)}개 종목 · 금융위원회 주식시세정보',
+                  style: t.body(12, color: c.textSecondary),
+                ),
+              ),
+              for (final item in comparisons)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: AppSpace.xs),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 52,
+                        child: Text(item.label, style: t.body(12)),
+                      ),
+                      Expanded(
+                        child: Text(
+                          item.base == null
+                              ? '비교 자료 부족'
+                              : '${formatDate(item.base!.date)} · ${formatKrw(item.base!.marketCap)}',
+                          style: t.body(12, color: c.textSecondary),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              Text(
+                '휴장일은 이전 종가를 사용하며 10일 넘게 떨어진 자료는 제외합니다. 상장·폐지로 구성 종목 수가 달라져 지수 수익률과는 다릅니다.',
+                style: t.body(12, color: c.textSecondary),
+              ),
+              const SizedBox(height: AppSpace.sm),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '차트 ${formatDate(first.date)}–${formatDate(last.date)}${change == null ? '' : ' · 기간 ${change > 0 ? '+' : ''}${change.toStringAsFixed(1)}%'}',
+                  style: t.body(12, color: c.textSecondary),
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );

@@ -4,10 +4,12 @@ import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart';
 
 import '../dart/dart_values.dart';
+import '../ingest/api_error_message.dart';
 
 /// 공공데이터포털 API 호출 오류.
 class DataGoKrApiException implements Exception {
-  DataGoKrApiException(this.code, this.message);
+  DataGoKrApiException(this.code, String message)
+    : message = redactApiError(message);
 
   /// 포털 결과 코드(`resultCode`/`returnReasonCode`) 또는 `http`/`parse`.
   final String code;
@@ -106,7 +108,10 @@ class DataGoKrClient {
     try {
       res = await _http.get(uri).timeout(const Duration(seconds: 60));
     } catch (e) {
-      throw DataGoKrApiException('http', '$path 요청 실패: $e');
+      throw DataGoKrApiException(
+        'http',
+        '$path 요청 실패: ${redactApiError(e, secrets: [serviceKey])}',
+      );
     }
     final text = utf8.decode(res.bodyBytes, allowMalformed: true);
     if (res.statusCode != 200) {

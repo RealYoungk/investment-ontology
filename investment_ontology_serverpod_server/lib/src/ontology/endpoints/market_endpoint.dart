@@ -1,3 +1,5 @@
+import '../market/comparison_date.dart';
+
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
@@ -6,7 +8,7 @@ import '../ingest/ksic_revision.dart';
 /// 시세 조회.
 class MarketEndpoint extends Endpoint {
   @override
-  bool get requireLogin => true;
+  bool get requireLogin => false;
 
   static const _listed = {Market.kospi, Market.kosdaq, Market.konex};
 
@@ -190,8 +192,14 @@ class MarketEndpoint extends Endpoint {
     if (all.length <= _pricePoints) return all;
     // 마지막 거래일이 반드시 남게 뒤에서부터 고른다.
     final stride = (all.length / _pricePoints).ceil();
-    return [for (var i = all.length - 1; i >= 0; i -= stride) all[i]].reversed
-        .toList();
+    final recentFrom = all.last.date.subtract(const Duration(days: 380));
+    // 고정 비교에 쓰는 최근 1년은 일별 종가를 보존한다.
+    return [
+      for (var i = 0; i < all.length; i++)
+        if (!all[i].date.isBefore(recentFrom) ||
+            (all.length - 1 - i) % stride == 0)
+          all[i],
+    ];
   }
 
   /// 지수 추이 ([days] 달력일). 코스피·코스닥은 이름이 곧 지수명이다 ("코스피", "코스닥").
@@ -226,6 +234,27 @@ class MarketEndpoint extends Endpoint {
     final picked = [
       for (var i = rows.length - 1; i >= 0; i -= stride) rows[i],
     ].reversed;
+    Future<IndexPoint?> base(DateTime target) async {
+      final row = await MarketIndexSnapshot.db.findFirstRow(
+        session,
+        where: (t) =>
+            t.name.equals(name) &
+            t.series.equals(latest.series) &
+            (t.baseDate <= target) &
+            (t.baseDate >= target.subtract(const Duration(days: 10))),
+        orderBy: (t) => t.baseDate.desc(),
+      );
+      return row == null
+          ? null
+          : IndexPoint(date: row.baseDate, value: row.close);
+    }
+
+    final bases = await Future.wait([
+      base(latest.baseDate.subtract(const Duration(days: 1))),
+      base(latest.baseDate.subtract(const Duration(days: 7))),
+      base(comparisonMonth(latest.baseDate, 1)),
+      base(comparisonMonth(latest.baseDate, 12)),
+    ]);
     return IndexHistory(
       series: latest.series,
       name: latest.name,
@@ -234,6 +263,10 @@ class MarketEndpoint extends Endpoint {
         for (final r in picked) IndexPoint(date: r.baseDate, value: r.close),
       ],
       lastChangeRate: latest.changeRate,
+      dayBase: bases[0],
+      weekBase: bases[1],
+      monthBase: bases[2],
+      yearBase: bases[3],
     );
   }
 

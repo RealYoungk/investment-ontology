@@ -5,6 +5,7 @@ import 'package:serverpod_cloud_storage/serverpod_cloud_storage.dart';
 
 import 'src/cache_busting.dart';
 import 'src/ontology/auth/admin_provisioning.dart';
+import 'src/ontology/auth/account_security.dart';
 import 'src/generated/serverpod.dart';
 import 'src/ontology/ingest/ingest_schedule.dart';
 import 'src/web/routes/app_config_route.dart';
@@ -25,14 +26,12 @@ void run(List<String> args) async {
     ],
     identityProviderBuilders: [
       // Configure the email identity provider for email/password authentication.
-      // The default setup works with Serverpod Cloud without configuration. In
-      // development the verification codes are logged to the console, and in
-      // staging and production they are sent through the Serverpod Cloud email
-      // service. If you want to use a custom provider for sending emails, use
-      // `EmailIdpConfigFromPasswords`.
+      // Authentication mail uses the configured transactional email provider.
       AdminProvisioning.fromEnvironment().configuration(),
     ],
   );
+
+  pod.authenticationHandler = AccountSecurity.authenticate;
 
   // Serve all files in the web/static relative directory under /web.
   // These are used by the default web page.

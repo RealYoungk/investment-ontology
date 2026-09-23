@@ -1,3 +1,5 @@
+import '../safe_ingest_message.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -190,7 +192,10 @@ class _IngestStatusBarState extends State<IngestStatusBar> {
           ],
           if (_error != null) ...[
             const SizedBox(height: 10),
-            Text(_error!, style: context.typo.body(13, color: c.accent)),
+            Text(
+              safeIngestMessage(_error!),
+              style: context.typo.body(13, color: c.accent),
+            ),
           ],
         ],
       ),
@@ -224,7 +229,7 @@ class _IngestStatusBarState extends State<IngestStatusBar> {
         '${job.fullRefresh ? '전체 갱신' : '변경분 수집'} 중 — $counts',
       IngestStatus.succeeded =>
         '최근 수집 ${formatDateTime(job.finishedAt ?? job.startedAt)} — $counts',
-      IngestStatus.failed => '수집 실패 — ${job.message ?? ''}',
+      IngestStatus.failed => '수집 실패 — ${safeIngestMessage(job.message ?? '')}',
       IngestStatus.cancelled => '수집 취소됨 — $counts',
     };
   }

@@ -1,3 +1,5 @@
+import '../safe_ingest_message.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -8,7 +10,6 @@ import '../../../client.dart';
 import '../../../design/components/components.dart';
 import '../../../design/tokens.dart';
 import '../../common/formatters.dart';
-import 'schedule_countdown.dart';
 
 /// 지금 상태: 자동 수집마다 "실행 중 · 대기 중(다음 실행) · 끝남 · 실패"를 한 줄로.
 ///
@@ -60,19 +61,11 @@ class _ScheduleBoardState extends State<ScheduleBoard> {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.colors;
-    final t = context.typo;
     final entries = _entries;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SectionLabel('지금 상태', accent: true),
-        const SizedBox(height: AppSpace.xs),
-        Text(
-          '예약으로 스스로 도는 수집과 버튼으로 시작한 수집 모두 같은 장부에 남습니다. '
-          '다음 수집까지 남은 시간은 매초 갱신됩니다. 실행 중에는 처리 현황을 보여줍니다.',
-          style: t.body(12.5, color: c.textSecondary),
-        ),
         const SizedBox(height: AppSpace.sm),
         if (entries == null)
           const LinearProgressIndicator(minHeight: 2)
@@ -100,7 +93,7 @@ class _Row extends StatelessWidget {
     final (String state, Color color) = running
         ? ('실행 중', c.accent)
         : failed
-        ? ('실패', c.accent)
+        ? ('확인 필요', c.accent)
         : entry.nextRunAt != null
         ? ('대기 중', c.textMuted)
         : ('예약 없음', c.textMuted);
@@ -130,56 +123,55 @@ class _Row extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                width: 210,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      entry.label,
-                      style: t.body(13.5, weight: FontWeight.w600),
-                    ),
-                    Text(entry.timing, style: t.body(11.5, color: c.textMuted)),
-                  ],
-                ),
-              ),
-              SizedBox(
-                width: 96,
-                child: StatusDot(label: state, color: color, pulsing: running),
-              ),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      running
-                          ? last()
-                          : entry.nextRunAt == null
-                          ? '다음 실행 예약 없음'
-                          : scheduleCountdown(
-                              entry.nextRunAt!,
-                              now,
-                              resuming: entry.resuming,
-                            ),
-                      style: t.body(13),
-                    ),
-                    if (!running && entry.nextRunAt != null)
-                      Text(
-                        '예약 ${formatDateTime(entry.nextRunAt!.toLocal())}',
-                        style: t.numeric(12, color: c.textMuted),
-                      ),
-                    if (!running)
-                      Text(
-                        '마지막 ${last()}',
-                        style: t.numeric(12, color: c.textSecondary),
-                      ),
-                    if (job?.message case final m? when !running)
-                      Text(m, style: t.body(12, color: c.textMuted)),
-                  ],
+                child: Text(
+                  entry.label,
+                  style: t.body(14, weight: FontWeight.w600),
                 ),
               ),
+              StatusDot(label: state, color: color, pulsing: running),
+            ],
+          ),
+          const SizedBox(height: AppSpace.xs),
+          Text(
+            running
+                ? last()
+                : entry.nextRunAt == null
+                ? '다음 수집 예약 없음'
+                : '다음 수집 ${formatDateTime(entry.nextRunAt!.toLocal())}',
+            style: t.body(12, color: c.textSecondary),
+          ),
+          if (failed)
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpace.xs),
+              child: Text(
+                job?.message?.contains('Failed host lookup') == true
+                    ? '지난 수집 실패 · 원천기관 주소 조회 오류'
+                    : '지난 수집이 완료되지 않았습니다. 상세 기록을 확인하세요.',
+                style: t.body(12, color: c.accent),
+              ),
+            ),
+          ExpansionTile(
+            tilePadding: EdgeInsets.zero,
+            dense: true,
+            title: Text('실행 기록', style: t.body(11.5, color: c.textSecondary)),
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '${entry.timing}\n마지막 ${last()}',
+                  style: t.body(12, color: c.textSecondary),
+                ),
+              ),
+              if (job?.message case final message?)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    safeIngestMessage(message),
+                    style: t.body(12, color: c.textSecondary),
+                  ),
+                ),
             ],
           ),
           if (running) ...[

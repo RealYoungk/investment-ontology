@@ -10,7 +10,7 @@ import '../market/market_caps.dart';
 /// 편입은 사람의 판단이므로 출처는 manual Source로 남긴다.
 class ThemeEndpoint extends Endpoint {
   @override
-  bool get requireLogin => true;
+  bool get requireLogin => false;
 
   /// 테마 목록. 편입 기업 시가총액이 큰 순서.
   Future<List<ThemeSummary>> list(Session session) async {
