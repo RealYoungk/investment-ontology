@@ -1,3 +1,7 @@
+import '../features/research/legacy_report_slugs.dart';
+import '../features/research/research_pages.dart';
+import '../features/research/research_editor.dart';
+
 import 'package:flutter/foundation.dart';
 
 import '../design/design_gallery.dart';
@@ -42,7 +46,7 @@ import 'app_shell.dart';
 /// - `/screen` 스크리너 (재무·시세로 거르기)
 /// - `/compare?codes=a,b` 기업 비교
 /// - `/review` AI 관계 검수
-/// - `/reports/:reportId` 재무제표 원문 표
+/// - `/financial-reports/:reportId` 재무제표 원문 표
 /// - `/data` 수집 상태
 ///
 /// 맨 위 메뉴 사이 이동은 [GoRouterHelper.go], 상세로 들어갈 때는 [GoRouterHelper.push]를
@@ -60,7 +64,7 @@ abstract final class AppRoutes {
   static String compare(List<String> corpCodes) =>
       '/compare${corpCodes.isEmpty ? '' : '?codes=${corpCodes.join(',')}'}';
 
-  static String report(int reportId) => '/reports/$reportId';
+  static String report(int reportId) => '/financial-reports/$reportId';
 
   static String group(String corpCode) => '/groups/$corpCode';
 
@@ -75,8 +79,11 @@ abstract final class AppRoutes {
       if (adminOnly && !(viewer?.isAdmin ?? false)) return '/home';
       if (path == '/account' && viewer == null) return '/login?next=/account';
       if (path == '/login' && viewer != null) {
-        return state.uri.queryParameters['next'] == '/account'
-            ? '/account'
+        final next = state.uri.queryParameters['next'];
+        return next == '/account' ||
+                (next != null &&
+                    RegExp(r'^/research(?:/[a-z0-9-]+)?$').hasMatch(next))
+            ? next!
             : '/home';
       }
       return null;
@@ -89,6 +96,40 @@ abstract final class AppRoutes {
         builder: (context, state, child) =>
             AppShell(location: state.uri, child: child),
         routes: [
+          GoRoute(
+            path: '/research',
+            builder: (_, state) => ResearchListPage(
+              ticker: state.uri.queryParameters['ticker'],
+              query: state.uri.queryParameters['q'] ?? '',
+            ),
+          ),
+          GoRoute(
+            path: '/research/:slug',
+            builder: (_, state) => ResearchReaderPage(
+              slug: state.pathParameters['slug']!,
+              draft: state.uri.queryParameters['draft'] == 'true',
+            ),
+          ),
+          GoRoute(
+            path: '/admin/research',
+            builder: (_, _) => const ResearchListPage(manage: true),
+          ),
+          GoRoute(
+            path: '/admin/research/:slug',
+            onExit: (context, _) => ResearchEditorPage.confirmExit(context),
+            builder: (_, state) =>
+                ResearchEditorPage(slug: state.pathParameters['slug']!),
+          ),
+          GoRoute(path: '/reports', redirect: (_, _) => '/research'),
+          GoRoute(
+            path: '/reports/:legacy',
+            redirect: (_, state) {
+              final id = state.pathParameters['legacy']!;
+              return legacyReportSlugs.contains(id.toLowerCase())
+                  ? '/research/${id.toLowerCase()}'
+                  : '/financial-reports/$id';
+            },
+          ),
           GoRoute(path: '/account', builder: (_, _) => const AccountPage()),
           GoRoute(
             path: '/admin/accounts',
@@ -204,7 +245,7 @@ abstract final class AppRoutes {
             ),
           ),
           GoRoute(
-            path: '/reports/:reportId',
+            path: '/financial-reports/:reportId',
             builder: (context, state) => FinancialReportPage(
               reportId: int.tryParse(state.pathParameters['reportId']!) ?? -1,
             ),

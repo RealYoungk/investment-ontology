@@ -8,7 +8,7 @@ void main() {
       AppRoutes.company('00126380', tab: 'financials'),
       '/company/00126380?tab=financials',
     );
-    expect(AppRoutes.report(42), '/reports/42');
+    expect(AppRoutes.report(42), '/financial-reports/42');
     expect(AppRoutes.person(7), '/person/7');
   });
 }

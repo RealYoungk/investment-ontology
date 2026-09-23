@@ -166,6 +166,14 @@ class _CompanyPageState extends State<CompanyPage> {
                 key: ValueKey('themes-$_version'),
                 corpCode: widget.corpCode,
               ),
+              if (detail.company.stockCode != null)
+                AppButton(
+                  label: '관련 리포트 →',
+                  variant: AppButtonVariant.link,
+                  onPressed: () => context.push(
+                    '/research?ticker=${detail.company.stockCode}',
+                  ),
+                ),
               AppButton(
                 label: '다른 기업과 비교 →',
                 variant: AppButtonVariant.link,

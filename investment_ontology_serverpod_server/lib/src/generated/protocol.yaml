@@ -74,6 +74,15 @@ market:
   - capHistory:
   - indexHistory:
   - priceHistory:
+research:
+  - list:
+  - get:
+  - save:
+  - publish:
+  - editions:
+  - history:
+  - bookmark:
+  - importLegacy:
 review:
   - list:
   - decide:

@@ -39,6 +39,10 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _ihep8lzy;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/person_hit.dart'
     as _iqw74hrd;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/research_entry.dart'
+    as _i4m98jho;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/research_revision.dart'
+    as _i1srdgcl;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/review_check.dart'
     as _iwp9ei5l;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/review_item.dart'
@@ -159,6 +163,10 @@ import 'ontology/models/relation_fact_kind.dart' as _iy288i3j;
 import 'ontology/models/relation_origin.dart' as _id1oen7t;
 import 'ontology/models/relation_predicate.dart' as _idal2dwe;
 import 'ontology/models/relation_status.dart' as _ih00v9tp;
+import 'ontology/models/research_article.dart' as _i83xfi8m;
+import 'ontology/models/research_bookmark.dart' as _iofl85o3;
+import 'ontology/models/research_entry.dart' as _i5jhmhfg;
+import 'ontology/models/research_revision.dart' as _iwk8vi27;
 import 'ontology/models/review_check.dart' as _iqdwyhyy;
 import 'ontology/models/review_context.dart' as _ijdr1ucd;
 import 'ontology/models/review_item.dart' as _i6uduqoi;
@@ -273,6 +281,10 @@ export 'ontology/models/relation_fact_kind.dart';
 export 'ontology/models/relation_origin.dart';
 export 'ontology/models/relation_predicate.dart';
 export 'ontology/models/relation_status.dart';
+export 'ontology/models/research_article.dart';
+export 'ontology/models/research_bookmark.dart';
+export 'ontology/models/research_entry.dart';
+export 'ontology/models/research_revision.dart';
 export 'ontology/models/review_check.dart';
 export 'ontology/models/review_context.dart';
 export 'ontology/models/review_item.dart';
@@ -3880,6 +3892,224 @@ class Protocol extends _is.DatabaseSerializationManager {
       managed: true,
     ),
     _isp.TableDefinition(
+      name: 'research_article',
+      dartName: 'ResearchArticle',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'slug',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'latestVersion',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'publishedVersion',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'research_article_slug_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'slug',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'research_bookmark',
+      dartName: 'ResearchBookmark',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'userId',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'articleId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'research_bookmark_user_article_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'userId',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'articleId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'research_revision',
+      dartName: 'ResearchRevision',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'articleId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'version',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'title',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'summary',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'ticker',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'market',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'content',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'format',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'searchText',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'dataAsOf',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: 'publishedAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: 'note',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'legacy',
+          columnType: _isp.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'research_revision_version_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'articleId',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'version',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
       name: 'review_check',
       dartName: 'ReviewCheck',
       schema: 'public',
@@ -4998,6 +5228,18 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _ih00v9tp.RelationStatus) {
       return _ih00v9tp.RelationStatus.fromJson(data) as T;
     }
+    if (t == _i83xfi8m.ResearchArticle) {
+      return _i83xfi8m.ResearchArticle.fromJson(data) as T;
+    }
+    if (t == _iofl85o3.ResearchBookmark) {
+      return _iofl85o3.ResearchBookmark.fromJson(data) as T;
+    }
+    if (t == _i5jhmhfg.ResearchEntry) {
+      return _i5jhmhfg.ResearchEntry.fromJson(data) as T;
+    }
+    if (t == _iwk8vi27.ResearchRevision) {
+      return _iwk8vi27.ResearchRevision.fromJson(data) as T;
+    }
     if (t == _iqdwyhyy.ReviewCheck) {
       return _iqdwyhyy.ReviewCheck.fromJson(data) as T;
     }
@@ -5464,6 +5706,22 @@ class Protocol extends _is.DatabaseSerializationManager {
       return (data != null ? _ih00v9tp.RelationStatus.fromJson(data) : null)
           as T;
     }
+    if (t == _is.getType<_i83xfi8m.ResearchArticle?>()) {
+      return (data != null ? _i83xfi8m.ResearchArticle.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_iofl85o3.ResearchBookmark?>()) {
+      return (data != null ? _iofl85o3.ResearchBookmark.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_i5jhmhfg.ResearchEntry?>()) {
+      return (data != null ? _i5jhmhfg.ResearchEntry.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_iwk8vi27.ResearchRevision?>()) {
+      return (data != null ? _iwk8vi27.ResearchRevision.fromJson(data) : null)
+          as T;
+    }
     if (t == _is.getType<_iqdwyhyy.ReviewCheck?>()) {
       return (data != null ? _iqdwyhyy.ReviewCheck.fromJson(data) : null) as T;
     }
@@ -5836,6 +6094,18 @@ class Protocol extends _is.DatabaseSerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_i4m98jho.ResearchEntry>) {
+      return (data as List)
+              .map((e) => deserialize<_i4m98jho.ResearchEntry>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i1srdgcl.ResearchRevision>) {
+      return (data as List)
+              .map((e) => deserialize<_i1srdgcl.ResearchRevision>(e))
+              .toList()
+          as T;
+    }
     if (t == List<int>) {
       return (data as List).map((e) => deserialize<int>(e)).toList() as T;
     }
@@ -5990,6 +6260,10 @@ class Protocol extends _is.DatabaseSerializationManager {
       _id1oen7t.RelationOrigin => 'RelationOrigin',
       _idal2dwe.RelationPredicate => 'RelationPredicate',
       _ih00v9tp.RelationStatus => 'RelationStatus',
+      _i83xfi8m.ResearchArticle => 'ResearchArticle',
+      _iofl85o3.ResearchBookmark => 'ResearchBookmark',
+      _i5jhmhfg.ResearchEntry => 'ResearchEntry',
+      _iwk8vi27.ResearchRevision => 'ResearchRevision',
       _iqdwyhyy.ReviewCheck => 'ReviewCheck',
       _ijdr1ucd.ReviewContext => 'ReviewContext',
       _i6uduqoi.ReviewItem => 'ReviewItem',
@@ -6229,6 +6503,14 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'RelationPredicate';
       case _ih00v9tp.RelationStatus():
         return 'RelationStatus';
+      case _i83xfi8m.ResearchArticle():
+        return 'ResearchArticle';
+      case _iofl85o3.ResearchBookmark():
+        return 'ResearchBookmark';
+      case _i5jhmhfg.ResearchEntry():
+        return 'ResearchEntry';
+      case _iwk8vi27.ResearchRevision():
+        return 'ResearchRevision';
       case _iqdwyhyy.ReviewCheck():
         return 'ReviewCheck';
       case _ijdr1ucd.ReviewContext():
@@ -6610,6 +6892,18 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (dataClassName == 'RelationStatus') {
       return deserialize<_ih00v9tp.RelationStatus>(data['data']);
     }
+    if (dataClassName == 'ResearchArticle') {
+      return deserialize<_i83xfi8m.ResearchArticle>(data['data']);
+    }
+    if (dataClassName == 'ResearchBookmark') {
+      return deserialize<_iofl85o3.ResearchBookmark>(data['data']);
+    }
+    if (dataClassName == 'ResearchEntry') {
+      return deserialize<_i5jhmhfg.ResearchEntry>(data['data']);
+    }
+    if (dataClassName == 'ResearchRevision') {
+      return deserialize<_iwk8vi27.ResearchRevision>(data['data']);
+    }
     if (dataClassName == 'ReviewCheck') {
       return deserialize<_iqdwyhyy.ReviewCheck>(data['data']);
     }
@@ -6775,6 +7069,12 @@ class Protocol extends _is.DatabaseSerializationManager {
         return _i9gy9ys0.Person.t;
       case _iffou6wp.PersonLinkRejection:
         return _iffou6wp.PersonLinkRejection.t;
+      case _i83xfi8m.ResearchArticle:
+        return _i83xfi8m.ResearchArticle.t;
+      case _iofl85o3.ResearchBookmark:
+        return _iofl85o3.ResearchBookmark.t;
+      case _iwk8vi27.ResearchRevision:
+        return _iwk8vi27.ResearchRevision.t;
       case _iqdwyhyy.ReviewCheck:
         return _iqdwyhyy.ReviewCheck.t;
       case _ilujots3.Security:

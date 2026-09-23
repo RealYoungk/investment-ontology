@@ -29,10 +29,11 @@ class _Destination {
 const _destinations = [
   _Destination('홈', '/home'),
   _Destination('시장', '/market'),
+  _Destination('리포트', '/research'),
   _Destination(
     '기업',
     '/companies',
-    matches: ['/company/', '/reports/', '/person/'],
+    matches: ['/company/', '/financial-reports/', '/person/'],
   ),
   _Destination('스크리너', '/screen', matches: ['/compare']),
   _Destination('관계망', '/graph'),
@@ -144,6 +145,7 @@ class _DeskNavigation extends StatelessWidget {
   static const icons = [
     Icons.home_outlined,
     Icons.bar_chart,
+    Icons.article_outlined,
     Icons.business_outlined,
     Icons.filter_alt_outlined,
     Icons.hub_outlined,
@@ -259,6 +261,23 @@ class _DeskNavigation extends StatelessWidget {
                           color: c.onInverse.withValues(alpha: .5),
                         ),
                       ),
+                    ),
+                    ListTile(
+                      leading: Icon(
+                        Icons.article_outlined,
+                        size: 20,
+                        color: c.onInverse,
+                      ),
+                      title: Text(
+                        '리포트 관리',
+                        style: t.body(14, color: c.onInverse),
+                      ),
+                      selected: GoRouterState.of(context).uri.path
+                          .startsWith('/admin/research'),
+                      onTap: () {
+                        onClose?.call();
+                        context.go('/admin/research');
+                      },
                     ),
                     ListTile(
                       leading: Icon(
@@ -463,6 +482,7 @@ Future<_Hits> _searchAll(String query) async {
         detail: 'PER PBR ROE 영업이익률 성장률 배당수익률 FCF 조건 검색',
         location: '/screen',
       ),
+      (title: '리포트', detail: '기업 분석 본문 읽기', location: '/research'),
       (title: '기업 비교', detail: '재무 수익성 밸류에이션 비교', location: '/compare'),
       (title: '관계망', detail: '주주 임원 고객 공급 출자 연결', location: '/graph'),
       (title: '지분 묶음', detail: '기업집단 지배구조 계열사', location: '/groups'),
@@ -471,6 +491,11 @@ Future<_Hits> _searchAll(String query) async {
     ])
       if (matches('${item.title} ${item.detail}')) item,
   ];
+  links.add((
+    title: '리포트 본문에서 검색',
+    detail: query,
+    location: '/research?q=${Uri.encodeQueryComponent(query)}',
+  ));
   return (companies: page.items, persons: persons, links: links);
 }
 

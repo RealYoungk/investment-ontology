@@ -1,0 +1,770 @@
+[
+  {
+    "slug": "000150",
+    "sha256": "638431a8086918ebc92222689f72c73bbf608b3a8e1fd31499c2f94870ae91a2",
+    "images": 0,
+    "source": "apps/research/app/reports/000150/page.tsx",
+    "sourceSha256": "f460511ed9165cbcd2da156b9afe751adbfbff236344ed5158b0cef0e1679c07",
+    "glossary": 154
+  },
+  {
+    "slug": "000660",
+    "sha256": "1b93646bf5b92584d02959ee91ebab32dbd811a92a4a270e6edc5b68a77ae205",
+    "images": 4,
+    "source": "apps/research/app/reports/000660/page.tsx",
+    "sourceSha256": "aed5565eac08be6b3de1cfba5db74dfe1a532965f8a487a981fa4d18335da64f",
+    "glossary": 228
+  },
+  {
+    "slug": "0007c0",
+    "sha256": "9afa36cbc1c2f010e54974d0e99533ff85918f9ed850981dbce58191b29c5611",
+    "images": 0,
+    "source": "apps/research/app/reports/0007c0/page.tsx",
+    "sourceSha256": "6b4f00dde57a78cd8e1f5e92cab20cafff0eea3e8d05748118e6a04ba187367f",
+    "glossary": 344
+  },
+  {
+    "slug": "003380",
+    "sha256": "6fdd2adfd984282f4a1dc032f42250cdd5d9b941489f892d705c4ddd54c9cb5d",
+    "images": 0,
+    "source": "apps/research/app/reports/003380/page.tsx",
+    "sourceSha256": "bd8e3338b6a6eea9d51d895855b14bb52fc31e0be98d9de251e1f5d8d260ad93",
+    "glossary": 124
+  },
+  {
+    "slug": "005380",
+    "sha256": "0f85e2b785e3b852d3f17b0328c0fdfd6748424c329a120863f9511a19003946",
+    "images": 0,
+    "source": "apps/research/app/reports/005380/page.tsx",
+    "sourceSha256": "3589d4e93a5d7dcf2156e1dcb047187dc593f85c5326ba15da5c17d4473029be",
+    "glossary": 62
+  },
+  {
+    "slug": "005490",
+    "sha256": "478084b2d996f74b997e805f4a99e0def1cbf8c86e910770a6fb02c0d19e981f",
+    "images": 0,
+    "source": "apps/research/app/reports/005490/page.tsx",
+    "sourceSha256": "069f39d7d907dfa6745bc40fbd97bc6f18beaed2aa09b11556a8826f1977b8a6",
+    "glossary": 324
+  },
+  {
+    "slug": "005930",
+    "sha256": "87454b15394d37404a66ec046d4c44a3d53b6543999aee1d3f70cbc45ef19a57",
+    "images": 1,
+    "source": "apps/research/app/reports/005930/page.tsx",
+    "sourceSha256": "995379b1e9a33b70d77cf21e60d551b5533e3d8820a6e5a01eabab1a5d3944ce",
+    "glossary": 292
+  },
+  {
+    "slug": "006260",
+    "sha256": "0d4f476627f327f9cb98a658252b6d521eb4c77db95674af59e3e87eb0dadaa2",
+    "images": 0,
+    "source": "apps/research/app/reports/006260/page.tsx",
+    "sourceSha256": "eccfb2fe6064e44073ddbebd450049edaf7803fc6a047c6f7af4fdcaa2659889",
+    "glossary": 146
+  },
+  {
+    "slug": "007660",
+    "sha256": "bd9783705a26f22cd7dbab168bc2adeeef56a8f0399cffc4fc55eb2dd81e3b8e",
+    "images": 2,
+    "source": "apps/research/app/reports/007660/page.tsx",
+    "sourceSha256": "3300be048981ddb4e30abef11cdb185f95b2620a87860f4ab8420bf0487d6b45",
+    "glossary": 128
+  },
+  {
+    "slug": "008930",
+    "sha256": "059910db1f48f3475a15e15c5c78480da22bbd2866ec056a8b28ee0b89ea880f",
+    "images": 0,
+    "source": "apps/research/app/reports/008930/page.tsx",
+    "sourceSha256": "f7b45c50abf0dd36d7e98a8a88ece700e1f45cddb9efe2d83a049b3241e369e9",
+    "glossary": 154
+  },
+  {
+    "slug": "009150",
+    "sha256": "c31f5059ba3867698ff28510394e630f26d11ee62eca76acb418088cfcef75f6",
+    "images": 1,
+    "source": "apps/research/app/reports/009150/page.tsx",
+    "sourceSha256": "b2da94fa2611402b40b60028eda580f531796b80b96f9c7693aee5f71cd7cfe4",
+    "glossary": 96
+  },
+  {
+    "slug": "009540",
+    "sha256": "8122a1dcf5c4e1ba134e752f69b23fb1bcff88a03ced3cdda52ae3640039ac1c",
+    "images": 0,
+    "source": "apps/research/app/reports/009540/page.tsx",
+    "sourceSha256": "f7cbb265ce309f41398ddc65e0c92f78cdeac626f83dde20cf2232b0fa37039e",
+    "glossary": 102
+  },
+  {
+    "slug": "010120",
+    "sha256": "c50fd77c8db7e944568c92dd36041ae983ec03c233109b4efbac4d128883e96a",
+    "images": 0,
+    "source": "apps/research/app/reports/010120/page.tsx",
+    "sourceSha256": "097aa5a7cfae254e0d051776279a8688ff48ed2f792fc525f857fd193506e3eb",
+    "glossary": 126
+  },
+  {
+    "slug": "010140",
+    "sha256": "7df5f2fb3c91a70595906275304df62866c92a1f966f2d9864cc79cdff94f8f2",
+    "images": 0,
+    "source": "apps/research/app/reports/010140/page.tsx",
+    "sourceSha256": "5f43526029463598de399d681467eed155c0cdb6a9ef1b0fcf3da64a174bfaba",
+    "glossary": 94
+  },
+  {
+    "slug": "010170",
+    "sha256": "7809547fac7214d970550e17c69562568a5c2b10c962dba2da63dfeea489f990",
+    "images": 1,
+    "source": "apps/research/app/reports/010170/page.tsx",
+    "sourceSha256": "f8f46325985cd453765543fd03f6e79adb76842d010681ea8cb6affd4b3bd31c",
+    "glossary": 144
+  },
+  {
+    "slug": "011780",
+    "sha256": "23d44f45de8046d1f40cfef63765d26a5d432a3c9775bd8433a76960bfe4483b",
+    "images": 0,
+    "source": "apps/research/app/reports/011780/page.tsx",
+    "sourceSha256": "3d7e233ca07691f0594ff896fc533deed198cfa42c5b99b9dfbc2dc95066eb66",
+    "glossary": 302
+  },
+  {
+    "slug": "011790",
+    "sha256": "d2c7d55817926deed701155b54222c5bb1ad55e92a1f9786e93b05f6e704ddf9",
+    "images": 0,
+    "source": "apps/research/app/reports/011790/page.tsx",
+    "sourceSha256": "d1680ec5f2545c55470741cfb7e0f3c50e5ecd0488589965fbde478bdf0ed322",
+    "glossary": 122
+  },
+  {
+    "slug": "012330",
+    "sha256": "eb213aa9b61a5609737fd3ed3fb98572ba1a885078b163a90527086a84ca7826",
+    "images": 0,
+    "source": "apps/research/app/reports/012330/page.tsx",
+    "sourceSha256": "5f0e7316e0f50ec3c088fe1fb89fae621e233d21c6c4b94c9d8026a46d1bb162",
+    "glossary": 130
+  },
+  {
+    "slug": "012450",
+    "sha256": "9b34404a09080b0e7e60883e435dc8908b79e9f3d7b5c24b99f9f38889e690a9",
+    "images": 3,
+    "source": "apps/research/app/reports/012450/page.tsx",
+    "sourceSha256": "20c065eefc67fa0ec82dfb7f31fb5151605925655d5034824f17a6f413aa2ac3",
+    "glossary": 250
+  },
+  {
+    "slug": "017670",
+    "sha256": "25328a639f7125d345af77cf3f4171324683ec3e42b3584535b79e9f1272f5cc",
+    "images": 0,
+    "source": "apps/research/app/reports/017670/page.tsx",
+    "sourceSha256": "874a33018082d8bbcfcef0218631c2f206a404fcef70568b203d0ea369608e39",
+    "glossary": 82
+  },
+  {
+    "slug": "018260",
+    "sha256": "9366e650645037c29853f22e75c63c53c7bc14bc16a08006f9a466d1c3a47c66",
+    "images": 0,
+    "source": "apps/research/app/reports/018260/page.tsx",
+    "sourceSha256": "8dbafd26b71eb5e34e06218c909b0c74d4258dbcbdb5323d01b98ed08787994a",
+    "glossary": 148
+  },
+  {
+    "slug": "019210",
+    "sha256": "42f263a4886ebd8d7f45f3af6a5d458e41cb33228e3b95faba9f9da4ab07b514",
+    "images": 4,
+    "source": "apps/research/app/reports/019210/page.tsx",
+    "sourceSha256": "1be882005e8f5be41411989fcbfb6be0d59f5de58b7f8df1f73ab7010d5da4ab",
+    "glossary": 122
+  },
+  {
+    "slug": "020150",
+    "sha256": "dfeea33d697fdec542a369eb7b53d458e1561298a2973f83b929156837ab62ab",
+    "images": 0,
+    "source": "apps/research/app/reports/020150/page.tsx",
+    "sourceSha256": "efe5a00dea6980763f22a606f61e3d912992f84135fcd37b90b90ce1fafa8e33",
+    "glossary": 104
+  },
+  {
+    "slug": "024060",
+    "sha256": "211d2a58e2e8b955d4782135e1331db62562127747ee220696f83d0cd96e644c",
+    "images": 0,
+    "source": "apps/research/app/reports/024060/page.tsx",
+    "sourceSha256": "21403abf1222c21b32be9b9dc91b912d9282ad7b06cb22fb6073c2e674c2fa9b",
+    "glossary": 120
+  },
+  {
+    "slug": "030520",
+    "sha256": "d9f6eca9b3f2c684ba37bcafcd86b14219640a7025288272e91ca733dc884ec7",
+    "images": 0,
+    "source": "apps/research/app/reports/030520/page.tsx",
+    "sourceSha256": "a403580950c834b46a8ac0ac5093f243ad5733e466c20307506d2680f5b8e07a",
+    "glossary": 152
+  },
+  {
+    "slug": "031980",
+    "sha256": "b166c0287f56e698dece5dc82d27e69d61683255f99eb90c9d660c28f9db5bdd",
+    "images": 2,
+    "source": "apps/research/app/reports/031980/page.tsx",
+    "sourceSha256": "6172c56170c4d7c3fff8c49a3ab18d2938c93d346ac930986f95e78fd09fb343",
+    "glossary": 148
+  },
+  {
+    "slug": "035420",
+    "sha256": "7c0d15042ccc5faa1f8dd71554344d3170c3287131ab09acbcd6afe5b72f9138",
+    "images": 0,
+    "source": "apps/research/app/reports/035420/page.tsx",
+    "sourceSha256": "2530daf99cbeddbbb90d9b4d54ee76295b9acf7eae708ae2efee3ab947c88baf",
+    "glossary": 62
+  },
+  {
+    "slug": "042660",
+    "sha256": "770451fffe3e67f598acc0d5159855d92a174b88bbd040d94091f7dd0f7020df",
+    "images": 0,
+    "source": "apps/research/app/reports/042660/page.tsx",
+    "sourceSha256": "9f3bba3d76d7b46bd9295a8d003cdaf49255a95ecf48ea698a7f90c9faf16e92",
+    "glossary": 68
+  },
+  {
+    "slug": "043260",
+    "sha256": "977cc2ab246383386cdcb0e1480c12ee559cd2c5a8f35fd4d930955c49d9f5c0",
+    "images": 3,
+    "source": "apps/research/app/reports/043260/page.tsx",
+    "sourceSha256": "bf243670dae20215b3fbc42c944f419f6d033891942324ed8ef572bccd5c274b",
+    "glossary": 190
+  },
+  {
+    "slug": "047040",
+    "sha256": "57bc4f5f40729cc8039495bea4f3319502644b5a5d791d8169d1dce1581b08c7",
+    "images": 0,
+    "source": "apps/research/app/reports/047040/page.tsx",
+    "sourceSha256": "1c59cdd4be72c180e3bad95c1940f0b5502c04f8e70589dca86eb663768291c9",
+    "glossary": 126
+  },
+  {
+    "slug": "055550",
+    "sha256": "dc6e04aeb6b74439e3f8d9bb7532e9f138913dd3d76dadb404dc2c2c2cc15e04",
+    "images": 0,
+    "source": "apps/research/app/reports/055550/page.tsx",
+    "sourceSha256": "8846a3457915c5d2e79c662afbb18a5b0269ae56fe6399bcd2cc14a2283df227",
+    "glossary": 186
+  },
+  {
+    "slug": "058610",
+    "sha256": "af316afae448ee7405a6f912b79d280dd0fd991e8fe0ee7ecc90b121a3b52eb6",
+    "images": 2,
+    "source": "apps/research/app/reports/058610/page.tsx",
+    "sourceSha256": "00cd5dfc7300ba8a2598e7412dd68a63956411ec8ba588c18f8c5af511f7ed8e",
+    "glossary": 124
+  },
+  {
+    "slug": "066970",
+    "sha256": "3f88a4c9881d184244d2130a59bf6fa198a74abb75df4da4215cfc4d5abb2af0",
+    "images": 0,
+    "source": "apps/research/app/reports/066970/page.tsx",
+    "sourceSha256": "25456e0965011e6ba3876745cdd125c01d776fd972f3021b930449e7eae9661e",
+    "glossary": 126
+  },
+  {
+    "slug": "073240",
+    "sha256": "837c10f21dcd7847f914ce0d22285dff33f03de604eaa2a9f3088aa20953f4ba",
+    "images": 0,
+    "source": "apps/research/app/reports/073240/page.tsx",
+    "sourceSha256": "827dff795d8a59c4bfd35fe74a8d5787869378d9dcd00b40b25aa76c53bdee0f",
+    "glossary": 106
+  },
+  {
+    "slug": "077360",
+    "sha256": "8034b3933ad3e22e1145dacbe554dd7987557dbdb8804b2c37574e96459b66b6",
+    "images": 0,
+    "source": "apps/research/app/reports/077360/page.tsx",
+    "sourceSha256": "a5e7057281c3e979135791c8309ff437f3205618f256b62968f49e552397915a",
+    "glossary": 184
+  },
+  {
+    "slug": "079550",
+    "sha256": "c9ab4b048f64550f2e9ae9ca3bd0ff6896c8133bbbee4b48bb0666af59f7eb96",
+    "images": 2,
+    "source": "apps/research/app/reports/079550/page.tsx",
+    "sourceSha256": "e44f5309e74ac8382197044e84089f7679fb1b59752050b25345385b8185a4ee",
+    "glossary": 92
+  },
+  {
+    "slug": "079940",
+    "sha256": "c7126ad5d113a4c792a1fd0764dab860aea6dc88f5957c20b668db033cbdd7e9",
+    "images": 1,
+    "source": "apps/research/app/reports/079940/page.tsx",
+    "sourceSha256": "e7e94183c7a61520aa5f1c9a3558a6ffbb466fd7016c9c8ab402376395024d3d",
+    "glossary": 270
+  },
+  {
+    "slug": "089030",
+    "sha256": "821839e0aef17c6901812a150e184229506bcea483a1d2e556c749d95dd8946c",
+    "images": 2,
+    "source": "apps/research/app/reports/089030/page.tsx",
+    "sourceSha256": "5e521c81798bd40db3801e0e86fecee808ff4dc6d28590ae823685bf28c0e21a",
+    "glossary": 280
+  },
+  {
+    "slug": "089790",
+    "sha256": "c5f99ad6ea6b862b5bc782935dd25faee0018965d400087396b317a571f3fc97",
+    "images": 0,
+    "source": "apps/research/app/reports/089790/page.tsx",
+    "sourceSha256": "9b467d3fcc9c0c8f796d6b021ed8f3b3d31148827a718247ac60a060ab14aa14",
+    "glossary": 116
+  },
+  {
+    "slug": "090360",
+    "sha256": "4f6079ee490b6f8e864b37857faaf5040a41ad624a525f72911971b2dcb48c34",
+    "images": 3,
+    "source": "apps/research/app/reports/090360/page.tsx",
+    "sourceSha256": "301fe83d20d1d675b2f3503ffe5981596c57915771e2f3c2fcddc6a63140a3d3",
+    "glossary": 122
+  },
+  {
+    "slug": "090460",
+    "sha256": "6455030b5c0e9abe48d253690cabba456b5bbcafc7d826d7a9bc18649ea3bbf5",
+    "images": 0,
+    "source": "apps/research/app/reports/090460/page.tsx",
+    "sourceSha256": "c28b7c8debde91be46085caf306e1d82b5204a8cb7eef3dd9e0f86e831050247",
+    "glossary": 92
+  },
+  {
+    "slug": "092870",
+    "sha256": "dea374108951efe895d94fc1907c5a8ad8a3bb73c6fe00d9bc20396c648ac606",
+    "images": 0,
+    "source": "apps/research/app/reports/092870/page.tsx",
+    "sourceSha256": "171115a5edf131d48630a17e8814164f6dba2a681215303108f0eec187c76f11",
+    "glossary": 92
+  },
+  {
+    "slug": "093370",
+    "sha256": "a874d82ab84c09a10554a3da65e8822d78a2886855c00bdacb29223765cd9490",
+    "images": 1,
+    "source": "apps/research/app/reports/093370/page.tsx",
+    "sourceSha256": "40d8571b41bef04d511e7a6fde4462be7efad386ffad9b5e47bca26b544d044a",
+    "glossary": 286
+  },
+  {
+    "slug": "096770",
+    "sha256": "f99f24b464104c63145f4218e4e445198556b7e39bb9e5a275d1ceb13de1e3da",
+    "images": 0,
+    "source": "apps/research/app/reports/096770/page.tsx",
+    "sourceSha256": "0ea1a555fd22d22889b3d66db94a5794eb62e5cffaf2004abb6cfd23a11f97d9",
+    "glossary": 114
+  },
+  {
+    "slug": "105560",
+    "sha256": "663dfe63d549bc96a0f54c052ee8a8c889f4be46649a2e6dfd6e0e407ead53b8",
+    "images": 0,
+    "source": "apps/research/app/reports/105560/page.tsx",
+    "sourceSha256": "3afd6f52daac502bfe3f2c8c0257abf143c2e61be6bbfb251121e1b4b04dc268",
+    "glossary": 138
+  },
+  {
+    "slug": "108380",
+    "sha256": "5eb00829504960b654c1ee44c8ed86a59300998f5a4e28a3a4169d3a9ff80b32",
+    "images": 1,
+    "source": "apps/research/app/reports/108380/page.tsx",
+    "sourceSha256": "2a6f70db242d76cdccae982d1ed26fa734d0677e6c6219963e19e5a9a094e1b6",
+    "glossary": 190
+  },
+  {
+    "slug": "108490",
+    "sha256": "01b07ba25b14590466297d42c7ff2df04db6c0a5ae3daff5fad18124392e72c4",
+    "images": 3,
+    "source": "apps/research/app/reports/108490/page.tsx",
+    "sourceSha256": "6522865c78e8cb52c0fbed58fe8712632632e84381fa2d84ca3e67e9e2bf9c41",
+    "glossary": 106
+  },
+  {
+    "slug": "119850",
+    "sha256": "363ad0c518c471ba2eb421fac21bf486ee7aa6ee9cce8aea8843b8710ce99703",
+    "images": 1,
+    "source": "apps/research/app/reports/119850/page.tsx",
+    "sourceSha256": "add7054ec3a072c59d9aa26308348a146005bc7ae2dc3df05c29e9380d52df26",
+    "glossary": 108
+  },
+  {
+    "slug": "122640",
+    "sha256": "8baf4f962c8cef5362e6c57b7435d92952e4d7f66f49218f18f65e39e41e94ba",
+    "images": 2,
+    "source": "apps/research/app/reports/122640/page.tsx",
+    "sourceSha256": "dcca74489fa86e8e12b9f0d0c1802373741fb1c6a83407cbfc17cc01e1a46664",
+    "glossary": 118
+  },
+  {
+    "slug": "125490",
+    "sha256": "064bc4ed97542f158edaf560366866930c7c0eacebe1b4ea8f0653bb0f5b6ba7",
+    "images": 1,
+    "source": "apps/research/app/reports/125490/page.tsx",
+    "sourceSha256": "aec29e01f8fe0b79fe3827ae588a6d37e84ea798313c72bd8c866ab0eabcb8bc",
+    "glossary": 74
+  },
+  {
+    "slug": "128940",
+    "sha256": "9cfe765873a061950ca4ad42cd8a47e4eb8b2835124ff686efb3ac6a03eed5a4",
+    "images": 0,
+    "source": "apps/research/app/reports/128940/page.tsx",
+    "sourceSha256": "59c3207b506f488922ec24aa37341388f3ff17bdaea979f401c3793422f2e715",
+    "glossary": 224
+  },
+  {
+    "slug": "137400",
+    "sha256": "c64b96a0d91f2ed3f0c6cc2f48099294cc0c1ec53379252a0eb5b886f2fae691",
+    "images": 5,
+    "source": "apps/research/app/reports/137400/page.tsx",
+    "sourceSha256": "1444e655515ff1b57085bb709d854cd937e579f1978be6d68e9a56800f3e20e1",
+    "glossary": 74
+  },
+  {
+    "slug": "138080",
+    "sha256": "1578f42f233b9c5b2a2c46612aecd11df6da2f197455a56e8ba9a39375e5049e",
+    "images": 1,
+    "source": "apps/research/app/reports/138080/page.tsx",
+    "sourceSha256": "1c378f4b0e5edce03aa0f9c3cea0bc1497e0d5ad033e6179013c65d250ec16f5",
+    "glossary": 124
+  },
+  {
+    "slug": "141080",
+    "sha256": "e5669cb6539864adf06fa3d015a490cf3d47a7f1aa6cd6f388170625f41b93a4",
+    "images": 0,
+    "source": "apps/research/app/reports/141080/page.tsx",
+    "sourceSha256": "dc63c03914080469b2edef3ef38bbe355eaa49ab14e1cb64983d1f33448bf96c",
+    "glossary": 274
+  },
+  {
+    "slug": "187790",
+    "sha256": "c590dee203b139ec04223437e3c5efdc0a0e43a5c52888f2565f61accb04e159",
+    "images": 9,
+    "source": "apps/research/app/reports/187790/page.tsx",
+    "sourceSha256": "cb2d745d914f5978a263fc57fe196f05c9cff1a2a4a9e15b8694d2baa1a59055",
+    "glossary": 138
+  },
+  {
+    "slug": "189300",
+    "sha256": "577edfde4e89e2c5d970fb03f419d917c5d7d9ca463e050be11fbe214c449d84",
+    "images": 2,
+    "source": "apps/research/app/reports/189300/page.tsx",
+    "sourceSha256": "46222e51d517684b7d1e153d647b2a98769e6849669f4fb534d788833c2ae0dd",
+    "glossary": 168
+  },
+  {
+    "slug": "189330",
+    "sha256": "af2415a8de6b8463543a1a214a4c5c262e84f66da58e4037f70e0698fac9c4d8",
+    "images": 0,
+    "source": "apps/research/app/reports/189330/page.tsx",
+    "sourceSha256": "ed9a70a422153c9c63bc78e270fc3435088dc8589bddb87e4a4648787726209d",
+    "glossary": 142
+  },
+  {
+    "slug": "196170",
+    "sha256": "4e394e7a9f6e286324694dfc4bd00694aaa525df56f799c10933369adc9cfda2",
+    "images": 0,
+    "source": "apps/research/app/reports/196170/page.tsx",
+    "sourceSha256": "588e426710540e409a29cd496d6c2400352440da59a33269f638fdaa3074f704",
+    "glossary": 138
+  },
+  {
+    "slug": "199430",
+    "sha256": "43cc31aa1a278a9d5697a3cd3c43c451daa3e4749d94925514dffcca85a84087",
+    "images": 0,
+    "source": "apps/research/app/reports/199430/page.tsx",
+    "sourceSha256": "e3fe6c3d3f99bb2fc0906351d68aed43f7a1fd06d2fe4096e592eda58070f55e",
+    "glossary": 84
+  },
+  {
+    "slug": "204270",
+    "sha256": "594fe10efd22552e6f4f49c2cb0365944bd07f1db0484268327d693dcb20757a",
+    "images": 2,
+    "source": "apps/research/app/reports/204270/page.tsx",
+    "sourceSha256": "c5adb43eda7f6a9896395951f0f46b2ba03e22060456a80962748dd3aa9d7067",
+    "glossary": 122
+  },
+  {
+    "slug": "207940",
+    "sha256": "735c731ebad6b0c11bb1eb85ffd856720c17e518b8a230317f8942b332980d26",
+    "images": 3,
+    "source": "apps/research/app/reports/207940/page.tsx",
+    "sourceSha256": "dec34cbe57e248a9e2e5bb629db3774907a923c9a5628423eec6167d0817b583",
+    "glossary": 214
+  },
+  {
+    "slug": "219130",
+    "sha256": "ddfeb82ef6cc9c5badab253cb7ea9bd96591917c06c9bbbf445e7540b0f1cb64",
+    "images": 0,
+    "source": "apps/research/app/reports/219130/page.tsx",
+    "sourceSha256": "63e0a12b4ca1dd5f06dd1df046bd1c913ecfba4d3d48dd1c4cdc5461af005de6",
+    "glossary": 130
+  },
+  {
+    "slug": "222800",
+    "sha256": "4804f92aa81c1b548760d42cf5c557d5a8e6ca86e3f6253a1e7f4889888bb2b4",
+    "images": 2,
+    "source": "apps/research/app/reports/222800/page.tsx",
+    "sourceSha256": "abdde5d666c362618dcd1dc8681c9362a3b6bce7e78ab76414d0fde82c1d3a76",
+    "glossary": 118
+  },
+  {
+    "slug": "237690",
+    "sha256": "e48f74a33aba7c5b86f9a268966ac5ce3097f3a6da70fec93f2d734752d86bd9",
+    "images": 0,
+    "source": "apps/research/app/reports/237690/page.tsx",
+    "sourceSha256": "833d987b52f25686dc4f89cfb52edd5cc385afa75b25287233a1853a420305be",
+    "glossary": 120
+  },
+  {
+    "slug": "241770",
+    "sha256": "0836f718eaacb590b704c3867e052c5ede40bbd0e3d87f17f19c0fa802186c51",
+    "images": 4,
+    "source": "apps/research/app/reports/241770/page.tsx",
+    "sourceSha256": "f6e77b0d640bcbfca19d55e732934bd465528105882c7e24c3f56b7e8c411815",
+    "glossary": 74
+  },
+  {
+    "slug": "242040",
+    "sha256": "01bb3227a47736cf20e3329913c12539e2497bff5bc38179944f04bdb1bfc8c9",
+    "images": 0,
+    "source": "apps/research/app/reports/242040/page.tsx",
+    "sourceSha256": "16c87d7200fa950fe4d50e2266ec1805544471d4522e4d04fc8df654151099a3",
+    "glossary": 182
+  },
+  {
+    "slug": "247540",
+    "sha256": "aa821839c5aafecbad7af005869bf5175645f3fefd099a11cb5fbc53f670ddc7",
+    "images": 0,
+    "source": "apps/research/app/reports/247540/page.tsx",
+    "sourceSha256": "837d82bc17a19368e2583f7c329befdf1efab6a755281c8356bccd74b21be081",
+    "glossary": 114
+  },
+  {
+    "slug": "265740",
+    "sha256": "2beb3d6f9bb84beaffcafa67a0535d1057f1f455f1f54182545f163d3e49c0f2",
+    "images": 0,
+    "source": "apps/research/app/reports/265740/page.tsx",
+    "sourceSha256": "e715e5c41485d0a59ca7f41fe0fc18bdf17793d2797f66731873ab6eb4e75093",
+    "glossary": 106
+  },
+  {
+    "slug": "298040",
+    "sha256": "bf97721aacbc9369a54227cd77db008f08d2f3bd09c7fc6b07b38dd3aaa653b3",
+    "images": 0,
+    "source": "apps/research/app/reports/298040/page.tsx",
+    "sourceSha256": "54f8dfd35b3ae28f80915bcfd15669a7393836e59516e0b0ed9b811f67bf0e5c",
+    "glossary": 92
+  },
+  {
+    "slug": "298380",
+    "sha256": "34ffa108ec4dd9ae6dc3f2d1b4f65b20c79d2fae3866db341855ad412e94f237",
+    "images": 3,
+    "source": "apps/research/app/reports/298380/page.tsx",
+    "sourceSha256": "1e8f90295033a3a06c47675fd8d57886d61b0eee00f59243c7a23f0d3052beae",
+    "glossary": 396
+  },
+  {
+    "slug": "307950",
+    "sha256": "825ea6ab2fc1243110d61b93e2e0753dc761ce34f8dfc02bb158f7bc0bce1d0c",
+    "images": 0,
+    "source": "apps/research/app/reports/307950/page.tsx",
+    "sourceSha256": "df91b4b7e8d591d9402a60229b30cb2b15296ce2df9c6754cb78556ba6d8f242",
+    "glossary": 96
+  },
+  {
+    "slug": "319660",
+    "sha256": "0b6ecd3f753b7fe7aed62adb1d17c326a378a72c109bb0b7c9604f6637f783af",
+    "images": 3,
+    "source": "apps/research/app/reports/319660/page.tsx",
+    "sourceSha256": "5b929dcdffb9f0d4939099ac6df807dfda89070cdf7cc9e251e564879216451a",
+    "glossary": 138
+  },
+  {
+    "slug": "327260",
+    "sha256": "17702c241778aedcbbd35cb79364138bba71c870e91b4942995e546c71f81830",
+    "images": 2,
+    "source": "apps/research/app/reports/327260/page.tsx",
+    "sourceSha256": "596aeee18db3892319320437083d839bac52c95778d87a32b048579be4b11581",
+    "glossary": 178
+  },
+  {
+    "slug": "332570",
+    "sha256": "07fd399371cade1234c704c2d6b1ab2e508990917b3708434ba92c91d37719e7",
+    "images": 1,
+    "source": "apps/research/app/reports/332570/page.tsx",
+    "sourceSha256": "b07272ed2f4b3501f4594d568aec1b0dde2f2f0163dae9c579e997b2fcbb5f6c",
+    "glossary": 170
+  },
+  {
+    "slug": "347700",
+    "sha256": "f511bc44de10c79d0f33c777bb2e0b3f6ca094200230d086cb69aefd50235f66",
+    "images": 0,
+    "source": "apps/research/app/reports/347700/page.tsx",
+    "sourceSha256": "725b9e18b9ca50213a4a9d554ca4aa8282e1e602172c191617530d67432205e2",
+    "glossary": 90
+  },
+  {
+    "slug": "347770",
+    "sha256": "52ded047371d40e7ed01729787d2712010907b9de20a5a2c1cd1bbc5ab681505",
+    "images": 0,
+    "source": "apps/research/app/reports/347770/page.tsx",
+    "sourceSha256": "ecef7682966df2272e31c09153a2312a73f32f6740794cf6416fdf041fb267b3",
+    "glossary": 46
+  },
+  {
+    "slug": "353200",
+    "sha256": "cd91bec4b2caa1f01715edf75e389ce54b18e4d7686e1ea6d6a4faeda054d5fd",
+    "images": 0,
+    "source": "apps/research/app/reports/353200/page.tsx",
+    "sourceSha256": "ff49452cea578a65db80715b14c3fa985e7b0697ff6783a11b8acb8b16e79789",
+    "glossary": 112
+  },
+  {
+    "slug": "373220",
+    "sha256": "7991c42dafcb02742507fc3c473fb45e4f7497ac8782c1d13d404195b287d3a4",
+    "images": 2,
+    "source": "apps/research/app/reports/373220/page.tsx",
+    "sourceSha256": "4e9f4623385a15a2d6a85e53207a6bc646b99fe30e0ccb5acf3515083f59338b",
+    "glossary": 238
+  },
+  {
+    "slug": "377450",
+    "sha256": "bcf97c25f1929093d26cf711a5c9c768c760974ee9adb2ff6a09bf5984c409e8",
+    "images": 0,
+    "source": "apps/research/app/reports/377450/page.tsx",
+    "sourceSha256": "a50134719067b45c5f9bec472f5fb33dfa79a9028b63906b416888890b7129ad",
+    "glossary": 76
+  },
+  {
+    "slug": "377480",
+    "sha256": "5c41b65bf91fb99122fffef1d7d83a9ed6ff61d0904949f1d0455f819bd4b58d",
+    "images": 2,
+    "source": "apps/research/app/reports/377480/page.tsx",
+    "sourceSha256": "9f635e43260291bc6ad5ce64311e14bd77bc778ea38b9ad0401925d276502fea",
+    "glossary": 230
+  },
+  {
+    "slug": "388210",
+    "sha256": "e56d638692171d48494bf09a8c9a2f3c4cb6caae0a25ecce2a7c1d8e61578b32",
+    "images": 2,
+    "source": "apps/research/app/reports/388210/page.tsx",
+    "sourceSha256": "c8aaceb3f17c246aeacf6de9e2ba5623b3d4b23d7aafa6195dbc72a9602e6935",
+    "glossary": 152
+  },
+  {
+    "slug": "403870",
+    "sha256": "4ab4698b1d7732f630438f1870a9ddfddc209b44d348a2d308b7505fe50959db",
+    "images": 2,
+    "source": "apps/research/app/reports/403870/page.tsx",
+    "sourceSha256": "76597c1a4cbeaa32f64c64768bea3b5309966b4a4c16465bc29c208a497f9e80",
+    "glossary": 118
+  },
+  {
+    "slug": "405100",
+    "sha256": "64e7bbff47dde1654535f7d603dd4188b62ed32a4e0ec04ebeeed6d5588c8a2d",
+    "images": 0,
+    "source": "apps/research/app/reports/405100/page.tsx",
+    "sourceSha256": "d05c5c572de6f4cb1a149788ee5b3bc55a60880424be5f386010a9df39a481f9",
+    "glossary": 114
+  },
+  {
+    "slug": "419530",
+    "sha256": "cf1f372b916fab294cf53d74b3bb79ab8f470810ef2dc5042402b3414024877b",
+    "images": 0,
+    "source": "apps/research/app/reports/419530/page.tsx",
+    "sourceSha256": "282e31ea7c635c0bb246670c79be6f7bad46716a728d7392f50c3a6abb411a28",
+    "glossary": 76
+  },
+  {
+    "slug": "437730",
+    "sha256": "921658d2ad9f4d36aa33217691a3e9c0351142c583331f6134cdf607eeb56e42",
+    "images": 0,
+    "source": "apps/research/app/reports/437730/page.tsx",
+    "sourceSha256": "abefffcc216232f194b227ab7f49ec759dc3cfbc3672a5858d565f6d4eedeb09",
+    "glossary": 118
+  },
+  {
+    "slug": "445090",
+    "sha256": "81abcc54d33b79a90b25fe3fa076154eca62b30186f0c276e964b318d713026f",
+    "images": 0,
+    "source": "apps/research/app/reports/445090/page.tsx",
+    "sourceSha256": "4f81ba2698d8a5b11e1a883906bc67a1cc8f334c28e86a8313a66994ce7eb1db",
+    "glossary": 122
+  },
+  {
+    "slug": "448900",
+    "sha256": "9fae63145f23feef773a0d688491f6f148b648905ff3bae391a04a28c951a22e",
+    "images": 2,
+    "source": "apps/research/app/reports/448900/page.tsx",
+    "sourceSha256": "9d13f0e54c3348263f961f3ace83512ece9874bbceb13f8431c80cfaed3bb6d8",
+    "glossary": 132
+  },
+  {
+    "slug": "452430",
+    "sha256": "ae707ed6596ff1d0b550c148bd0d3f2708db60ba5b08478f45a97d2c2e1aa5c3",
+    "images": 2,
+    "source": "apps/research/app/reports/452430/page.tsx",
+    "sourceSha256": "acc53964fcabfd007a243c9c83e0de5b9169f3cc4932bff3d013a5d11f52771b",
+    "glossary": 102
+  },
+  {
+    "slug": "454910",
+    "sha256": "8cc22e741809df972a1faa2ace4a44c5afa08334417a2ca2a25d947911562611",
+    "images": 1,
+    "source": "apps/research/app/reports/454910/page.tsx",
+    "sourceSha256": "f3b68a4f7e1075c4dbdd33c5cc06bfd39b06fe27ff002733a1476a06959c6231",
+    "glossary": 90
+  },
+  {
+    "slug": "460930",
+    "sha256": "29971d938461b4acae57addd7eb53d2539dd79f18837da1af9f3d62441ee266c",
+    "images": 0,
+    "source": "apps/research/app/reports/460930/page.tsx",
+    "sourceSha256": "aab63eaec611206089ba38cb80fed754254aa02d14b163a2864ec4238c5043d2",
+    "glossary": 148
+  },
+  {
+    "slug": "466100",
+    "sha256": "743da69ca7ac723d2706cced85b48259d8f503974009472ac276bd92a9d306c2",
+    "images": 2,
+    "source": "apps/research/app/reports/466100/page.tsx",
+    "sourceSha256": "3e6a4202d1ad181507574027dd66d15181256ea0be6a054657eebdfec95a4ae1",
+    "glossary": 74
+  },
+  {
+    "slug": "475150",
+    "sha256": "8ba0eb693ba9c7480231e32f5a35203bd5605b14c93117d08fd66a17687536f2",
+    "images": 0,
+    "source": "apps/research/app/reports/475150/page.tsx",
+    "sourceSha256": "7edf881c25c91c8c03907284968d42de8f9f0455a6cc5be100244a3adb11735d",
+    "glossary": 118
+  },
+  {
+    "slug": "477850",
+    "sha256": "2f0b4b7e8b8bffe0356d9d8647bae095d19d4e79e30f9bed111c4a539bafb1d6",
+    "images": 1,
+    "source": "apps/research/app/reports/477850/page.tsx",
+    "sourceSha256": "40e8871a7b9c1e102018b6400aa8a7a755e2e86b89bc4de5c2e8232adcbf9e19",
+    "glossary": 142
+  },
+  {
+    "slug": "481070",
+    "sha256": "f7c2af92bad5d00168012b57be209cf69abb8d1788a60431728dd75c59444987",
+    "images": 2,
+    "source": "apps/research/app/reports/481070/page.tsx",
+    "sourceSha256": "4f5937310f44d95bedebaf54673ea08e8e5ef8c343273a281a22feb3cc178a14",
+    "glossary": 132
+  },
+  {
+    "slug": "486990",
+    "sha256": "c9840c8b0e35baa0f24b68ff908e628590ade2b2e6dc4bb9c6f680ffb5928a46",
+    "images": 0,
+    "source": "apps/research/app/reports/486990/page.tsx",
+    "sourceSha256": "698147fea4ea37304f64ea1c6eaead2f78f9ae8a7f98f539902b98b4e9ab9b9e",
+    "glossary": 70
+  },
+  {
+    "slug": "489790",
+    "sha256": "868be8e7d88962031c8b1fa7c9f509c52e0066d2e2e2ac03e7dafdfca4a8d266",
+    "images": 2,
+    "source": "apps/research/app/reports/489790/page.tsx",
+    "sourceSha256": "171f9d66da29cb8f3e1bab677d3a06449721f9256fddf44a8b0dadbac5bdfebb",
+    "glossary": 88
+  }
+]

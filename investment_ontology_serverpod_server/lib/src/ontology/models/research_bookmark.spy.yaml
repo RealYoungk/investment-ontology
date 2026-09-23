@@ -1,0 +1,9 @@
+class: ResearchBookmark
+table: research_bookmark
+fields:
+  userId: String
+  articleId: int
+indexes:
+  research_bookmark_user_article_idx:
+    fields: userId, articleId
+    unique: true

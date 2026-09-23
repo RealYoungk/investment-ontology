@@ -138,6 +138,11 @@ class AccountEndpoint extends Endpoint {
       if (current.blocked || current.scopes.contains(Scope.admin)) {
         throw StateError('현재 계정 상태에서는 탈퇴할 수 없습니다.');
       }
+      await ResearchBookmark.db.deleteWhere(
+        session,
+        where: (t) => t.userId.equals(verifiedId.toString()),
+        transaction: tx,
+      );
       await const AuthUsers().delete(
         session,
         authUserId: verifiedId,

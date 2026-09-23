@@ -39,6 +39,10 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _i140v7gk;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/person_hit.dart'
     as _i96d117e;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/research_entry.dart'
+    as _ijnm0jah;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/research_revision.dart'
+    as _iok5u361;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/review_check.dart'
     as _ixhvmecn;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/review_item.dart'
@@ -144,6 +148,10 @@ import 'ontology/models/relation_fact_kind.dart' as _iy288i3j;
 import 'ontology/models/relation_origin.dart' as _id1oen7t;
 import 'ontology/models/relation_predicate.dart' as _idal2dwe;
 import 'ontology/models/relation_status.dart' as _ih00v9tp;
+import 'ontology/models/research_article.dart' as _i83xfi8m;
+import 'ontology/models/research_bookmark.dart' as _iofl85o3;
+import 'ontology/models/research_entry.dart' as _i5jhmhfg;
+import 'ontology/models/research_revision.dart' as _iwk8vi27;
 import 'ontology/models/review_check.dart' as _iqdwyhyy;
 import 'ontology/models/review_context.dart' as _ijdr1ucd;
 import 'ontology/models/review_item.dart' as _i6uduqoi;
@@ -258,6 +266,10 @@ export 'ontology/models/relation_fact_kind.dart';
 export 'ontology/models/relation_origin.dart';
 export 'ontology/models/relation_predicate.dart';
 export 'ontology/models/relation_status.dart';
+export 'ontology/models/research_article.dart';
+export 'ontology/models/research_bookmark.dart';
+export 'ontology/models/research_entry.dart';
+export 'ontology/models/research_revision.dart';
 export 'ontology/models/review_check.dart';
 export 'ontology/models/review_context.dart';
 export 'ontology/models/review_item.dart';
@@ -595,6 +607,18 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _ih00v9tp.RelationStatus) {
       return _ih00v9tp.RelationStatus.fromJson(data) as T;
+    }
+    if (t == _i83xfi8m.ResearchArticle) {
+      return _i83xfi8m.ResearchArticle.fromJson(data) as T;
+    }
+    if (t == _iofl85o3.ResearchBookmark) {
+      return _iofl85o3.ResearchBookmark.fromJson(data) as T;
+    }
+    if (t == _i5jhmhfg.ResearchEntry) {
+      return _i5jhmhfg.ResearchEntry.fromJson(data) as T;
+    }
+    if (t == _iwk8vi27.ResearchRevision) {
+      return _iwk8vi27.ResearchRevision.fromJson(data) as T;
     }
     if (t == _iqdwyhyy.ReviewCheck) {
       return _iqdwyhyy.ReviewCheck.fromJson(data) as T;
@@ -1019,6 +1043,22 @@ class Protocol extends _isc.SerializationManager {
       return (data != null ? _ih00v9tp.RelationStatus.fromJson(data) : null)
           as T;
     }
+    if (t == _isc.getType<_i83xfi8m.ResearchArticle?>()) {
+      return (data != null ? _i83xfi8m.ResearchArticle.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_iofl85o3.ResearchBookmark?>()) {
+      return (data != null ? _iofl85o3.ResearchBookmark.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_i5jhmhfg.ResearchEntry?>()) {
+      return (data != null ? _i5jhmhfg.ResearchEntry.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_iwk8vi27.ResearchRevision?>()) {
+      return (data != null ? _iwk8vi27.ResearchRevision.fromJson(data) : null)
+          as T;
+    }
     if (t == _isc.getType<_iqdwyhyy.ReviewCheck?>()) {
       return (data != null ? _iqdwyhyy.ReviewCheck.fromJson(data) : null) as T;
     }
@@ -1391,6 +1431,18 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_ijnm0jah.ResearchEntry>) {
+      return (data as List)
+              .map((e) => deserialize<_ijnm0jah.ResearchEntry>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_iok5u361.ResearchRevision>) {
+      return (data as List)
+              .map((e) => deserialize<_iok5u361.ResearchRevision>(e))
+              .toList()
+          as T;
+    }
     if (t == List<int>) {
       return (data as List).map((e) => deserialize<int>(e)).toList() as T;
     }
@@ -1529,6 +1581,10 @@ class Protocol extends _isc.SerializationManager {
       _id1oen7t.RelationOrigin => 'RelationOrigin',
       _idal2dwe.RelationPredicate => 'RelationPredicate',
       _ih00v9tp.RelationStatus => 'RelationStatus',
+      _i83xfi8m.ResearchArticle => 'ResearchArticle',
+      _iofl85o3.ResearchBookmark => 'ResearchBookmark',
+      _i5jhmhfg.ResearchEntry => 'ResearchEntry',
+      _iwk8vi27.ResearchRevision => 'ResearchRevision',
       _iqdwyhyy.ReviewCheck => 'ReviewCheck',
       _ijdr1ucd.ReviewContext => 'ReviewContext',
       _i6uduqoi.ReviewItem => 'ReviewItem',
@@ -1754,6 +1810,14 @@ class Protocol extends _isc.SerializationManager {
         return 'RelationPredicate';
       case _ih00v9tp.RelationStatus():
         return 'RelationStatus';
+      case _i83xfi8m.ResearchArticle():
+        return 'ResearchArticle';
+      case _iofl85o3.ResearchBookmark():
+        return 'ResearchBookmark';
+      case _i5jhmhfg.ResearchEntry():
+        return 'ResearchEntry';
+      case _iwk8vi27.ResearchRevision():
+        return 'ResearchRevision';
       case _iqdwyhyy.ReviewCheck():
         return 'ReviewCheck';
       case _ijdr1ucd.ReviewContext():
@@ -2097,6 +2161,18 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'RelationStatus') {
       return deserialize<_ih00v9tp.RelationStatus>(data['data']);
+    }
+    if (dataClassName == 'ResearchArticle') {
+      return deserialize<_i83xfi8m.ResearchArticle>(data['data']);
+    }
+    if (dataClassName == 'ResearchBookmark') {
+      return deserialize<_iofl85o3.ResearchBookmark>(data['data']);
+    }
+    if (dataClassName == 'ResearchEntry') {
+      return deserialize<_i5jhmhfg.ResearchEntry>(data['data']);
+    }
+    if (dataClassName == 'ResearchRevision') {
+      return deserialize<_iwk8vi27.ResearchRevision>(data['data']);
     }
     if (dataClassName == 'ReviewCheck') {
       return deserialize<_iqdwyhyy.ReviewCheck>(data['data']);

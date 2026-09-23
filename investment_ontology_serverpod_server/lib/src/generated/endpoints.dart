@@ -46,6 +46,7 @@ import '../ontology/endpoints/graph_endpoint.dart' as _ixdq71x8;
 import '../ontology/endpoints/group_endpoint.dart' as _i8zm50hy;
 import '../ontology/endpoints/ingest_endpoint.dart' as _icbircc0;
 import '../ontology/endpoints/market_endpoint.dart' as _iaw7fzks;
+import '../ontology/endpoints/research_endpoint.dart' as _ij32qqag;
 import '../ontology/endpoints/review_endpoint.dart' as _i9uttt4a;
 import '../ontology/endpoints/screen_endpoint.dart' as _ilgabfhk;
 import '../ontology/endpoints/theme_endpoint.dart' as _iqaca509;
@@ -131,6 +132,12 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'market',
+          null,
+        ),
+      'research': _ij32qqag.ResearchEndpoint()
+        ..initialize(
+          server,
+          'research',
           null,
         ),
       'review': _i9uttt4a.ReviewEndpoint()
@@ -1565,6 +1572,275 @@ class Endpoints extends _is.EndpointDispatch {
                     params['corpCode'],
                     days: params['days'],
                   ),
+        ),
+      },
+    );
+    connectors['research'] = _is.EndpointConnector(
+      name: 'research',
+      endpoint: endpoints['research']!,
+      methodConnectors: {
+        'list': _is.MethodConnector(
+          name: 'list',
+          params: {
+            'query': _is.ParameterDescription(
+              name: 'query',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'market': _is.ParameterDescription(
+              name: 'market',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'manage': _is.ParameterDescription(
+              name: 'manage',
+              type: _is.getType<bool>(),
+              nullable: false,
+            ),
+            'savedOnly': _is.ParameterDescription(
+              name: 'savedOnly',
+              type: _is.getType<bool>(),
+              nullable: false,
+            ),
+            'ticker': _is.ParameterDescription(
+              name: 'ticker',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
+            'offset': _is.ParameterDescription(
+              name: 'offset',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['research'] as _ij32qqag.ResearchEndpoint).list(
+                    session,
+                    query: params['query'],
+                    market: params['market'],
+                    manage: params['manage'],
+                    savedOnly: params['savedOnly'],
+                    ticker: params['ticker'],
+                    offset: params['offset'],
+                  ),
+        ),
+        'get': _is.MethodConnector(
+          name: 'get',
+          params: {
+            'slug': _is.ParameterDescription(
+              name: 'slug',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'draft': _is.ParameterDescription(
+              name: 'draft',
+              type: _is.getType<bool>(),
+              nullable: false,
+            ),
+            'source': _is.ParameterDescription(
+              name: 'source',
+              type: _is.getType<bool>(),
+              nullable: false,
+            ),
+            'version': _is.ParameterDescription(
+              name: 'version',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['research'] as _ij32qqag.ResearchEndpoint).get(
+                    session,
+                    params['slug'],
+                    draft: params['draft'],
+                    source: params['source'],
+                    version: params['version'],
+                  ),
+        ),
+        'save': _is.MethodConnector(
+          name: 'save',
+          params: {
+            'slug': _is.ParameterDescription(
+              name: 'slug',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'title': _is.ParameterDescription(
+              name: 'title',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'summary': _is.ParameterDescription(
+              name: 'summary',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'ticker': _is.ParameterDescription(
+              name: 'ticker',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'market': _is.ParameterDescription(
+              name: 'market',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'content': _is.ParameterDescription(
+              name: 'content',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'format': _is.ParameterDescription(
+              name: 'format',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'dataAsOf': _is.ParameterDescription(
+              name: 'dataAsOf',
+              type: _is.getType<DateTime>(),
+              nullable: false,
+            ),
+            'expectedVersion': _is.ParameterDescription(
+              name: 'expectedVersion',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+            'note': _is.ParameterDescription(
+              name: 'note',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['research'] as _ij32qqag.ResearchEndpoint).save(
+                    session,
+                    params['slug'],
+                    params['title'],
+                    params['summary'],
+                    params['ticker'],
+                    params['market'],
+                    params['content'],
+                    params['format'],
+                    params['dataAsOf'],
+                    params['expectedVersion'],
+                    params['note'],
+                  ),
+        ),
+        'publish': _is.MethodConnector(
+          name: 'publish',
+          params: {
+            'slug': _is.ParameterDescription(
+              name: 'slug',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'version': _is.ParameterDescription(
+              name: 'version',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+            'withdraw': _is.ParameterDescription(
+              name: 'withdraw',
+              type: _is.getType<bool>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['research'] as _ij32qqag.ResearchEndpoint).publish(
+                    session,
+                    params['slug'],
+                    params['version'],
+                    withdraw: params['withdraw'],
+                  ),
+        ),
+        'editions': _is.MethodConnector(
+          name: 'editions',
+          params: {
+            'slug': _is.ParameterDescription(
+              name: 'slug',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['research'] as _ij32qqag.ResearchEndpoint)
+                  .editions(
+                    session,
+                    params['slug'],
+                  ),
+        ),
+        'history': _is.MethodConnector(
+          name: 'history',
+          params: {
+            'slug': _is.ParameterDescription(
+              name: 'slug',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['research'] as _ij32qqag.ResearchEndpoint).history(
+                    session,
+                    params['slug'],
+                  ),
+        ),
+        'bookmark': _is.MethodConnector(
+          name: 'bookmark',
+          params: {
+            'slug': _is.ParameterDescription(
+              name: 'slug',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'saved': _is.ParameterDescription(
+              name: 'saved',
+              type: _is.getType<bool>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['research'] as _ij32qqag.ResearchEndpoint)
+                  .bookmark(
+                    session,
+                    params['slug'],
+                    params['saved'],
+                  ),
+        ),
+        'importLegacy': _is.MethodConnector(
+          name: 'importLegacy',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['research'] as _ij32qqag.ResearchEndpoint)
+                  .importLegacy(session),
         ),
       },
     );

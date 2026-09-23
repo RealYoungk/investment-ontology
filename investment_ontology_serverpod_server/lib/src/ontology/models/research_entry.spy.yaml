@@ -1,0 +1,6 @@
+class: ResearchEntry
+fields:
+  article: ResearchArticle
+  revision: ResearchRevision
+  corpCode: String?
+  saved: bool

@@ -1,0 +1,10 @@
+class: ResearchArticle
+table: research_article
+fields:
+  slug: String
+  latestVersion: int
+  publishedVersion: int?
+indexes:
+  research_article_slug_idx:
+    fields: slug
+    unique: true

@@ -94,6 +94,10 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _iklpi3wo;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/relation_status.dart'
     as _ixp2yk27;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/research_entry.dart'
+    as _ijnm0jah;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/research_revision.dart'
+    as _iok5u361;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/review_check.dart'
     as _ixhvmecn;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/review_context.dart'
@@ -1075,6 +1079,126 @@ class EndpointMarket extends _isc.EndpointRef {
   );
 }
 
+/// Published editions are public; drafts and publishing are administrator-only.
+/// {@category Endpoint}
+class EndpointResearch extends _isc.EndpointRef {
+  EndpointResearch(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'research';
+
+  _ida.Future<List<_ijnm0jah.ResearchEntry>> list({
+    required String query,
+    required String market,
+    required bool manage,
+    required bool savedOnly,
+    String? ticker,
+    required int offset,
+  }) => caller.callServerEndpoint<List<_ijnm0jah.ResearchEntry>>(
+    'research',
+    'list',
+    {
+      'query': query,
+      'market': market,
+      'manage': manage,
+      'savedOnly': savedOnly,
+      'ticker': ticker,
+      'offset': offset,
+    },
+  );
+
+  _ida.Future<_ijnm0jah.ResearchEntry?> get(
+    String slug, {
+    required bool draft,
+    required bool source,
+    int? version,
+  }) => caller.callServerEndpoint<_ijnm0jah.ResearchEntry?>(
+    'research',
+    'get',
+    {
+      'slug': slug,
+      'draft': draft,
+      'source': source,
+      'version': version,
+    },
+  );
+
+  _ida.Future<_ijnm0jah.ResearchEntry> save(
+    String slug,
+    String title,
+    String summary,
+    String ticker,
+    String market,
+    String content,
+    String format,
+    DateTime dataAsOf,
+    int expectedVersion,
+    String note,
+  ) => caller.callServerEndpoint<_ijnm0jah.ResearchEntry>(
+    'research',
+    'save',
+    {
+      'slug': slug,
+      'title': title,
+      'summary': summary,
+      'ticker': ticker,
+      'market': market,
+      'content': content,
+      'format': format,
+      'dataAsOf': dataAsOf,
+      'expectedVersion': expectedVersion,
+      'note': note,
+    },
+  );
+
+  _ida.Future<void> publish(
+    String slug,
+    int version, {
+    required bool withdraw,
+  }) => caller.callServerEndpoint<void>(
+    'research',
+    'publish',
+    {
+      'slug': slug,
+      'version': version,
+      'withdraw': withdraw,
+    },
+  );
+
+  _ida.Future<List<_iok5u361.ResearchRevision>> editions(String slug) =>
+      caller.callServerEndpoint<List<_iok5u361.ResearchRevision>>(
+        'research',
+        'editions',
+        {'slug': slug},
+      );
+
+  _ida.Future<List<_iok5u361.ResearchRevision>> history(String slug) =>
+      caller.callServerEndpoint<List<_iok5u361.ResearchRevision>>(
+        'research',
+        'history',
+        {'slug': slug},
+      );
+
+  _ida.Future<bool> bookmark(
+    String slug,
+    bool saved,
+  ) => caller.callServerEndpoint<bool>(
+    'research',
+    'bookmark',
+    {
+      'slug': slug,
+      'saved': saved,
+    },
+  );
+
+  /// Copies the local, hash-inventoried legacy corpus once; never overwrites edits.
+  _ida.Future<int> importLegacy() => caller.callServerEndpoint<int>(
+    'research',
+    'importLegacy',
+    {},
+  );
+}
+
 /// AI 관계 검수 큐: 근거 인용을 보고 승인(verified)·거절(rejected)한다.
 ///
 /// 읽기(list · context · checks · facts · forCompany)는 로그인한 누구나 —
@@ -1488,6 +1612,7 @@ class Client extends _isc.ServerpodClientShared {
     group = EndpointGroup(this);
     ingest = EndpointIngest(this);
     market = EndpointMarket(this);
+    research = EndpointResearch(this);
     review = EndpointReview(this);
     screen = EndpointScreen(this);
     theme = EndpointTheme(this);
@@ -1520,6 +1645,8 @@ class Client extends _isc.ServerpodClientShared {
 
   late final EndpointMarket market;
 
+  late final EndpointResearch research;
+
   late final EndpointReview review;
 
   late final EndpointScreen screen;
@@ -1543,6 +1670,7 @@ class Client extends _isc.ServerpodClientShared {
     'group': group,
     'ingest': ingest,
     'market': market,
+    'research': research,
     'review': review,
     'screen': screen,
     'theme': theme,

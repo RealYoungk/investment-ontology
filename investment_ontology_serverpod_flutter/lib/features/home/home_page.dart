@@ -407,6 +407,13 @@ class _HomePageState extends State<HomePage> {
                     onTap: () => _selectIntent(intent),
                   ),
                 const SizedBox(height: AppSpace.sm),
+                _entry(
+                  context,
+                  title: '분석을 읽으며 기업 알아보기',
+                  detail: '알파인더의 관점과 근거를 함께 읽어보세요.',
+                  icon: Icons.article_outlined,
+                  onTap: () => context.go('/research'),
+                ),
                 TextButton(
                   onPressed: () => context.push('/about'),
                   child: const Text('서비스 사용법 →'),
