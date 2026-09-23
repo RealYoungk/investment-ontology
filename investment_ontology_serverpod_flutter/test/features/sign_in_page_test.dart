@@ -46,7 +46,7 @@ void main() {
 
     // 가입 단계에서만 뜻이 있는 안내는 로그인 화면에 없다.
     expect(find.text(readOnlyAccountNotice), findsNothing);
-    expect(find.text(devVerificationNotice), findsNothing);
+    expect(find.textContaining('서버 실행 콘솔'), findsNothing);
   });
 
   testWidgets('가입하기를 누르면 가입 화면으로, 로그인으로 돌아가면 다시 로그인 화면', (tester) async {

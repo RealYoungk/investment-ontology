@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
 import 'package:serverpod_auth_idp_flutter/widgets.dart';
@@ -21,7 +20,8 @@ import 'widgets/verification_form_ko.dart';
 ///
 /// 가입하면 읽기 전용이다. 관리자 권한은 서버의 허용 목록으로만 생긴다.
 class SignInPage extends StatefulWidget {
-  const SignInPage({super.key});
+  const SignInPage({super.key, this.resetPassword = false});
+  final bool resetPassword;
 
   @override
   State<SignInPage> createState() => _SignInPageState();
@@ -30,6 +30,9 @@ class SignInPage extends StatefulWidget {
 class _SignInPageState extends State<SignInPage> {
   late final _controller = EmailAuthController(
     client: client,
+    startScreen: widget.resetPassword
+        ? EmailFlowScreen.requestPasswordReset
+        : EmailFlowScreen.login,
     emailValidation: koreanEmailValidation,
     onError: _showError,
   );
@@ -55,6 +58,9 @@ class _SignInPageState extends State<SignInPage> {
       email: koreanEmailSignInTexts,
       passwordRequirementTexts: koreanPasswordRequirementTexts,
       child: Scaffold(
+        appBar: widget.resetPassword
+            ? AppBar(title: const Text('비밀번호 재설정'))
+            : null,
         backgroundColor: c.background,
         body: Center(
           child: SingleChildScrollView(
@@ -167,9 +173,8 @@ class _Notices extends StatelessWidget {
   Widget build(BuildContext context) {
     final notices = [
       if (_registrationSteps.contains(screen)) readOnlyAccountNotice,
-      // 로컬 개발 서버에서만 뜻이 있는 안내라, 개발 실행일 때만 보여준다.
-      if (kDebugMode && _verificationSteps.contains(screen))
-        devVerificationNotice,
+      if (_verificationSteps.contains(screen))
+        '메일이 보이지 않으면 스팸함을 확인해 주세요. 인증번호는 다른 사람에게 알려주지 마세요.',
     ];
     if (notices.isEmpty) return const SizedBox.shrink();
     return Column(

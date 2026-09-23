@@ -14,6 +14,8 @@ import 'dart:async' as _ida;
 import 'package:http/http.dart' as _i85jenna;
 import 'package:investment_ontology_serverpod_client/src/protocol/greetings/greeting.dart'
     as _iqvwj7cf;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/account_view.dart'
+    as _ih9nljg3;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ai_extraction.dart'
     as _i8m2dvht;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ai_status.dart'
@@ -359,6 +361,62 @@ class EndpointGreeting extends _isc.EndpointRef {
         'greeting',
         'hello',
         {'name': name},
+      );
+}
+
+/// {@category Endpoint}
+class EndpointAccount extends _isc.EndpointRef {
+  EndpointAccount(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'account';
+
+  _ida.Future<bool> mailConfigured() => caller.callServerEndpoint<bool>(
+    'account',
+    'mailConfigured',
+    {},
+  );
+
+  _ida.Future<_ih9nljg3.AccountView> me() =>
+      caller.callServerEndpoint<_ih9nljg3.AccountView>(
+        'account',
+        'me',
+        {},
+      );
+
+  _ida.Future<List<_ih9nljg3.AccountView>> list({required int offset}) =>
+      caller.callServerEndpoint<List<_ih9nljg3.AccountView>>(
+        'account',
+        'list',
+        {'offset': offset},
+      );
+
+  _ida.Future<void> updateAccess(
+    String userId, {
+    required bool isAdmin,
+    required bool blocked,
+  }) => caller.callServerEndpoint<void>(
+    'account',
+    'updateAccess',
+    {
+      'userId': userId,
+      'isAdmin': isAdmin,
+      'blocked': blocked,
+    },
+  );
+
+  _ida.Future<void> revokeSessions({String? userId}) =>
+      caller.callServerEndpoint<void>(
+        'account',
+        'revokeSessions',
+        {'userId': userId},
+      );
+
+  _ida.Future<void> deleteMe(String password) =>
+      caller.callServerEndpoint<void>(
+        'account',
+        'deleteMe',
+        {'password': password},
       );
 }
 
@@ -1420,6 +1478,7 @@ class Client extends _isc.ServerpodClientShared {
     emailIdp = EndpointEmailIdp(this);
     jwtRefresh = EndpointJwtRefresh(this);
     greeting = EndpointGreeting(this);
+    account = EndpointAccount(this);
     ai = EndpointAi(this);
     company = EndpointCompany(this);
     disclosure = EndpointDisclosure(this);
@@ -1440,6 +1499,8 @@ class Client extends _isc.ServerpodClientShared {
   late final EndpointJwtRefresh jwtRefresh;
 
   late final EndpointGreeting greeting;
+
+  late final EndpointAccount account;
 
   late final EndpointAi ai;
 
@@ -1472,6 +1533,7 @@ class Client extends _isc.ServerpodClientShared {
     'emailIdp': emailIdp,
     'jwtRefresh': jwtRefresh,
     'greeting': greeting,
+    'account': account,
     'ai': ai,
     'company': company,
     'disclosure': disclosure,

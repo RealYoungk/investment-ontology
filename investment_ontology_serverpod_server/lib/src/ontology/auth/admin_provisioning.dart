@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'auth_mail_delivery.dart';
+
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_idp_server/core.dart';
 import 'package:serverpod_auth_idp_server/providers/email.dart';
@@ -48,12 +50,36 @@ class AdminProvisioning {
   }
 
   EmailIdpConfig configuration() {
-    final delivery = ServerpodCloudEmailIdpConfig(appDisplayName: '알파인더');
+    final delivery = AuthMailDelivery();
     return EmailIdpConfigFromPasswords(
       sendRegistrationVerificationCode:
-          delivery.sendRegistrationVerificationCode,
+          (
+            session, {
+            required email,
+            required accountRequestId,
+            required verificationCode,
+            required transaction,
+          }) => delivery.send(
+            session,
+            email: email,
+            code: verificationCode,
+            requestId: accountRequestId.toString(),
+            reset: false,
+          ),
       sendPasswordResetVerificationCode:
-          delivery.sendPasswordResetVerificationCode,
+          (
+            session, {
+            required email,
+            required passwordResetRequestId,
+            required verificationCode,
+            required transaction,
+          }) => delivery.send(
+            session,
+            email: email,
+            code: verificationCode,
+            requestId: passwordResetRequestId.toString(),
+            reset: true,
+          ),
       onAfterAccountCreated: onAccountCreated,
     );
   }

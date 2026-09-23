@@ -322,36 +322,27 @@ class _Account extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final viewer = context.viewer;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (viewer != null)
-          Tooltip(
-            message: viewer.isAdmin
-                ? '데이터를 바꿀 수 있습니다 (테마 · 수집 · 검수).'
-                : '볼 수만 있습니다. 바꾸려면 관리자 권한이 필요합니다.',
-            child: Text(
-              viewer.roleLabel,
-              style: context.typo.body(
-                12,
-                color: c.textSecondary,
-                weight: FontWeight.w500,
-              ),
-            ),
-          ),
-        const SizedBox(width: AppSpace.xs),
-        IconButton(
-          icon: Icon(Icons.logout, color: c.textSecondary),
-          iconSize: 20,
-          constraints: const BoxConstraints.tightFor(width: 40, height: 40),
-          tooltip: '로그아웃',
-          onPressed: () async {
-            await AppAuth.signOut();
-            // 다음에 로그인하는 사람이 보던 화면으로 들어가지 않게 첫 화면으로 돌린다.
-            // (로그아웃 순간 로그인 문이 라우터를 내리므로 보던 화면은 이미 사라졌다.)
-            AppRoutes.router.go('/market');
-          },
-        ),
+    return PopupMenuButton<String>(
+      tooltip: '내 계정',
+      icon: Icon(
+        Icons.account_circle_outlined,
+        color: c.textSecondary,
+        size: 24,
+      ),
+      onSelected: (value) async {
+        if (value == 'logout') {
+          await AppAuth.signOut();
+          AppRoutes.router.go('/home');
+        } else if (context.mounted) {
+          context.push(value);
+        }
+      },
+      itemBuilder: (_) => [
+        const PopupMenuItem(value: '/account', child: Text('내 계정')),
+        if (viewer?.isAdmin ?? false)
+          const PopupMenuItem(value: '/admin/accounts', child: Text('회원 관리')),
+        const PopupMenuDivider(),
+        const PopupMenuItem(value: 'logout', child: Text('로그아웃')),
       ],
     );
   }

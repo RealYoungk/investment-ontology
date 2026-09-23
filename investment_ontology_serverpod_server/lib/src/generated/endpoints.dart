@@ -36,6 +36,7 @@ import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
 import '../auth/email_idp_endpoint.dart' as _iuc1hd5t;
 import '../auth/jwt_refresh_endpoint.dart' as _inwq3ztq;
 import '../greetings/greeting_endpoint.dart' as _il624ik7;
+import '../ontology/endpoints/account_endpoint.dart' as _io2i71g8;
 import '../ontology/endpoints/ai_endpoint.dart' as _iadofkda;
 import '../ontology/endpoints/company_endpoint.dart' as _itnisr3u;
 import '../ontology/endpoints/disclosure_endpoint.dart' as _i23b9rs7;
@@ -70,6 +71,12 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'greeting',
+          null,
+        ),
+      'account': _io2i71g8.AccountEndpoint()
+        ..initialize(
+          server,
+          'account',
           null,
         ),
       'ai': _iadofkda.AiEndpoint()
@@ -372,6 +379,121 @@ class Endpoints extends _is.EndpointDispatch {
                   (endpoints['greeting'] as _il624ik7.GreetingEndpoint).hello(
                     session,
                     params['name'],
+                  ),
+        ),
+      },
+    );
+    connectors['account'] = _is.EndpointConnector(
+      name: 'account',
+      endpoint: endpoints['account']!,
+      methodConnectors: {
+        'mailConfigured': _is.MethodConnector(
+          name: 'mailConfigured',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['account'] as _io2i71g8.AccountEndpoint)
+                  .mailConfigured(session),
+        ),
+        'me': _is.MethodConnector(
+          name: 'me',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['account'] as _io2i71g8.AccountEndpoint).me(
+                session,
+              ),
+        ),
+        'list': _is.MethodConnector(
+          name: 'list',
+          params: {
+            'offset': _is.ParameterDescription(
+              name: 'offset',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['account'] as _io2i71g8.AccountEndpoint).list(
+                    session,
+                    offset: params['offset'],
+                  ),
+        ),
+        'updateAccess': _is.MethodConnector(
+          name: 'updateAccess',
+          params: {
+            'userId': _is.ParameterDescription(
+              name: 'userId',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'isAdmin': _is.ParameterDescription(
+              name: 'isAdmin',
+              type: _is.getType<bool>(),
+              nullable: false,
+            ),
+            'blocked': _is.ParameterDescription(
+              name: 'blocked',
+              type: _is.getType<bool>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['account'] as _io2i71g8.AccountEndpoint)
+                  .updateAccess(
+                    session,
+                    params['userId'],
+                    isAdmin: params['isAdmin'],
+                    blocked: params['blocked'],
+                  ),
+        ),
+        'revokeSessions': _is.MethodConnector(
+          name: 'revokeSessions',
+          params: {
+            'userId': _is.ParameterDescription(
+              name: 'userId',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['account'] as _io2i71g8.AccountEndpoint)
+                  .revokeSessions(
+                    session,
+                    userId: params['userId'],
+                  ),
+        ),
+        'deleteMe': _is.MethodConnector(
+          name: 'deleteMe',
+          params: {
+            'password': _is.ParameterDescription(
+              name: 'password',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['account'] as _io2i71g8.AccountEndpoint).deleteMe(
+                    session,
+                    params['password'],
                   ),
         ),
       },

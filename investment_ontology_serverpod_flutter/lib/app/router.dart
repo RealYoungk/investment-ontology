@@ -5,6 +5,7 @@ import '../design/design_gallery.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/home/home_page.dart';
+import '../features/auth/account_page.dart';
 import '../features/home/about_page.dart';
 import '../features/home/explore_intent.dart';
 import '../features/companies/company_filter.dart';
@@ -70,6 +71,11 @@ abstract final class AppRoutes {
         builder: (context, state, child) =>
             AppShell(location: state.uri, child: child),
         routes: [
+          GoRoute(path: '/account', builder: (_, _) => const AccountPage()),
+          GoRoute(
+            path: '/admin/accounts',
+            builder: (_, _) => const AccountPage(manage: true),
+          ),
           if (kDebugMode)
             GoRoute(path: '/design', builder: (_, _) => const DesignGallery()),
           GoRoute(

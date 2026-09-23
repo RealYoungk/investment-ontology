@@ -11,6 +11,8 @@
 // ignore_for_file: dead_code, unnecessary_type_check
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/account_view.dart'
+    as _ih9nljg3;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/business_digest_section.dart'
     as _i5qsmr7t;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/business_document_ref.dart'
@@ -49,6 +51,7 @@ import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
     as _iaic;
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
 import 'greetings/greeting.dart' as _izw8z7ou;
+import 'ontology/models/account_view.dart' as _i7n6g9s8;
 import 'ontology/models/ai_extraction.dart' as _idjojx8t;
 import 'ontology/models/ai_status.dart' as _i7c6k6qa;
 import 'ontology/models/api_call_usage.dart' as _i3e42he1;
@@ -162,6 +165,7 @@ import 'ontology/models/theme_member_view.dart' as _irah5hi6;
 import 'ontology/models/theme_summary.dart' as _i4ynus9k;
 import 'ontology/models/treasury_stock_entry.dart' as _injn1qca;
 export 'greetings/greeting.dart';
+export 'ontology/models/account_view.dart';
 export 'ontology/models/ai_extraction.dart';
 export 'ontology/models/ai_status.dart';
 export 'ontology/models/api_call_usage.dart';
@@ -312,6 +316,9 @@ class Protocol extends _isc.SerializationManager {
 
     if (t == _izw8z7ou.Greeting) {
       return _izw8z7ou.Greeting.fromJson(data) as T;
+    }
+    if (t == _i7n6g9s8.AccountView) {
+      return _i7n6g9s8.AccountView.fromJson(data) as T;
     }
     if (t == _idjojx8t.AiExtraction) {
       return _idjojx8t.AiExtraction.fromJson(data) as T;
@@ -651,6 +658,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _isc.getType<_izw8z7ou.Greeting?>()) {
       return (data != null ? _izw8z7ou.Greeting.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_i7n6g9s8.AccountView?>()) {
+      return (data != null ? _i7n6g9s8.AccountView.fromJson(data) : null) as T;
     }
     if (t == _isc.getType<_idjojx8t.AiExtraction?>()) {
       return (data != null ? _idjojx8t.AiExtraction.fromJson(data) : null) as T;
@@ -1300,6 +1310,12 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_ih9nljg3.AccountView>) {
+      return (data as List)
+              .map((e) => deserialize<_ih9nljg3.AccountView>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_id7v70oo.BusinessDocumentRef>) {
       return (data as List)
               .map((e) => deserialize<_id7v70oo.BusinessDocumentRef>(e))
@@ -1420,6 +1436,7 @@ class Protocol extends _isc.SerializationManager {
   static String? getClassNameForType(Type type) {
     return switch (type) {
       _izw8z7ou.Greeting => 'Greeting',
+      _i7n6g9s8.AccountView => 'AccountView',
       _idjojx8t.AiExtraction => 'AiExtraction',
       _i7c6k6qa.AiStatus => 'AiStatus',
       _i3e42he1.ApiCallUsage => 'ApiCallUsage',
@@ -1551,6 +1568,8 @@ class Protocol extends _isc.SerializationManager {
     switch (data) {
       case _izw8z7ou.Greeting():
         return 'Greeting';
+      case _i7n6g9s8.AccountView():
+        return 'AccountView';
       case _idjojx8t.AiExtraction():
         return 'AiExtraction';
       case _i7c6k6qa.AiStatus():
@@ -1799,6 +1818,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'Greeting') {
       return deserialize<_izw8z7ou.Greeting>(data['data']);
+    }
+    if (dataClassName == 'AccountView') {
+      return deserialize<_i7n6g9s8.AccountView>(data['data']);
     }
     if (dataClassName == 'AiExtraction') {
       return deserialize<_idjojx8t.AiExtraction>(data['data']);

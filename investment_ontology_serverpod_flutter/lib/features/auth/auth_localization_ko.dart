@@ -54,11 +54,6 @@ const koreanPasswordRequirementTexts = PasswordRequirementTexts(
 /// 새 계정은 읽기 전용이라는 안내. 가입 단계(시작·인증·비밀번호 설정)에서만 보여준다.
 const readOnlyAccountNotice = '새 계정은 읽기 전용입니다. 관리자 권한이 필요하면 운영자에게 요청하세요.';
 
-/// 로컬 개발 서버는 인증 메일을 실제로 보내지 않는다는 안내. 인증 코드 화면에서, 그리고
-/// 로컬/개발 실행일 때만 보여준다([SignInPage]에서 `kDebugMode`로 가린다).
-const devVerificationNotice =
-    '로컬 개발 서버에서는 인증 메일이 발송되지 않습니다. 인증 코드는 서버 실행 콘솔에 표시됩니다.';
-
 const _genericAuthError = '알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도하세요.';
 
 /// [EmailAuthController.validateEmail]의 규칙은 그대로 신뢰하고, 사람에게 보여줄

@@ -11,6 +11,13 @@ jwtRefresh:
   - refreshAccessToken:
 greeting:
   - hello:
+account:
+  - mailConfigured:
+  - me:
+  - list:
+  - updateAccess:
+  - revokeSessions:
+  - deleteMe:
 ai:
   - status:
   - extractCompany:
