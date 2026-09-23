@@ -361,6 +361,7 @@ class _ThemeChipsState extends State<_ThemeChips> {
   Widget build(BuildContext context) {
     final c = context.colors;
     final t = context.typo;
+    if (!context.isAdmin && _mine.isEmpty) return const SizedBox.shrink();
     final mineIds = {for (final m in _mine) m.id};
     final candidates = {
       for (final s in _all)
@@ -381,7 +382,7 @@ class _ThemeChipsState extends State<_ThemeChips> {
               size: AppTagSize.medium,
             ),
           ),
-        if (candidates.isNotEmpty)
+        if (context.isAdmin && candidates.isNotEmpty)
           AppSelect<int>(
             placeholder: '테마에 추가',
             allLabel: '—',
@@ -391,7 +392,7 @@ class _ThemeChipsState extends State<_ThemeChips> {
               if (id != null) _add(id);
             },
           )
-        else
+        else if (context.isAdmin)
           AppButton(
             label: _all.isEmpty ? '테마 만들기 →' : '새 테마 →',
             variant: AppButtonVariant.link,

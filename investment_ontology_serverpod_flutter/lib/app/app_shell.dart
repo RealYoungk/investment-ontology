@@ -7,7 +7,6 @@ import 'package:investment_ontology_serverpod_client/investment_ontology_serverp
 import '../design/components/components.dart';
 import '../design/tokens.dart';
 import '../client.dart';
-import '../features/auth/app_auth.dart';
 import '../features/auth/app_viewer.dart';
 import '../features/financials/financial_metrics.dart';
 import 'ingest_monitor.dart';
@@ -39,7 +38,6 @@ const _destinations = [
   _Destination('관계망', '/graph'),
   _Destination('지분 묶음', '/groups'),
   _Destination('테마', '/themes'),
-  _Destination('데이터', '/data'),
 ];
 
 /// 모든 화면을 감싸는 틀: 맨 위 메뉴(시장 · 기업 · 스크리너 · 관계망 · 지분 묶음 · 테마 · 데이터) + 본문.
@@ -168,6 +166,17 @@ class _DeskNavigation extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(20, 28, 12, 28),
               child: Row(
                 children: [
+                  ClipRRect(
+                    borderRadius: context.shape.borderRadius,
+                    child: Image.asset(
+                      'assets/brand/alfinder-logo.png',
+                      width: 40,
+                      height: 40,
+                      fit: BoxFit.cover,
+                      excludeFromSemantics: true,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpace.sm),
                   Expanded(
                     child: Text(
                       '알파인더',
@@ -235,6 +244,60 @@ class _DeskNavigation extends StatelessWidget {
                 ],
               ),
             ),
+            if (context.isAdmin)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Divider(color: c.onInverse.withValues(alpha: .15)),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+                      child: Text(
+                        '관리자',
+                        style: t.label(
+                          color: c.onInverse.withValues(alpha: .5),
+                        ),
+                      ),
+                    ),
+                    ListTile(
+                      leading: Icon(
+                        Icons.storage_outlined,
+                        size: 20,
+                        color: c.onInverse,
+                      ),
+                      title: Text(
+                        '데이터 관리',
+                        style: t.body(14, color: c.onInverse),
+                      ),
+                      selected: GoRouterState.of(context).uri.path == '/data',
+                      onTap: () {
+                        onClose?.call();
+                        context.go('/data');
+                      },
+                    ),
+                    ListTile(
+                      leading: Icon(
+                        Icons.manage_accounts_outlined,
+                        size: 20,
+                        color: c.onInverse,
+                      ),
+                      title: Text(
+                        '회원 관리',
+                        style: t.body(14, color: c.onInverse),
+                      ),
+                      selected:
+                          GoRouterState.of(context).uri.path ==
+                          '/admin/accounts',
+                      selectedTileColor: c.onInverse.withValues(alpha: .13),
+                      onTap: () {
+                        onClose?.call();
+                        context.go('/admin/accounts');
+                      },
+                    ),
+                  ],
+                ),
+              ),
             Padding(
               padding: const EdgeInsets.all(16),
               child: TextButton(
@@ -319,33 +382,21 @@ class _Account extends StatelessWidget {
   const _Account();
 
   @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    final viewer = context.viewer;
-    return PopupMenuButton<String>(
-      tooltip: '내 계정',
-      icon: Icon(
-        Icons.account_circle_outlined,
-        color: c.textSecondary,
-        size: 24,
-      ),
-      onSelected: (value) async {
-        if (value == 'logout') {
-          await AppAuth.signOut();
-          AppRoutes.router.go('/home');
-        } else if (context.mounted) {
-          context.push(value);
-        }
-      },
-      itemBuilder: (_) => [
-        const PopupMenuItem(value: '/account', child: Text('내 계정')),
-        if (viewer?.isAdmin ?? false)
-          const PopupMenuItem(value: '/admin/accounts', child: Text('회원 관리')),
-        const PopupMenuDivider(),
-        const PopupMenuItem(value: 'logout', child: Text('로그아웃')),
-      ],
-    );
-  }
+  Widget build(BuildContext context) => context.viewer == null
+      ? TextButton(
+          onPressed: () => context.go('/login'),
+          child: const Text('로그인'),
+        )
+      : IconButton(
+          tooltip: context.viewer == null ? '로그인' : '내 계정',
+          icon: Icon(
+            Icons.account_circle_outlined,
+            color: context.colors.textSecondary,
+            size: 24,
+          ),
+          onPressed: () =>
+              context.go(context.viewer == null ? '/login' : '/account'),
+        );
 }
 
 /// 수집이 돌고 있으면 "데이터" 메뉴 옆에 깜빡이는 점.
@@ -416,7 +467,6 @@ Future<_Hits> _searchAll(String query) async {
       (title: '관계망', detail: '주주 임원 고객 공급 출자 연결', location: '/graph'),
       (title: '지분 묶음', detail: '기업집단 지배구조 계열사', location: '/groups'),
       (title: '테마', detail: '투자 아이디어 관련 기업 묶음', location: '/themes'),
-      (title: '데이터', detail: '수집 현황 누락 업데이트 공시 재무', location: '/data'),
       (title: '서비스 소개', detail: '사용법 도움말 출처', location: '/about'),
     ])
       if (matches('${item.title} ${item.detail}')) item,

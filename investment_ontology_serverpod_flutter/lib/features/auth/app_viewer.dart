@@ -28,7 +28,7 @@ class AppViewer {
 class AppViewerScope extends InheritedWidget {
   const AppViewerScope({super.key, required this.viewer, required super.child});
 
-  final AppViewer viewer;
+  final AppViewer? viewer;
 
   static AppViewer? maybeOf(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<AppViewerScope>()?.viewer;

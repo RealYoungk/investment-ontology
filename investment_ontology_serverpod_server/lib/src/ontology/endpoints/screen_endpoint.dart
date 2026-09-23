@@ -13,7 +13,7 @@ import '../disclosure/disclosure_links.dart';
 /// 전 상장사를 한 번 계산해 두고(데이터가 바뀌면 다시), 거르기·정렬은 메모리에서 한다.
 class ScreenEndpoint extends Endpoint {
   @override
-  bool get requireLogin => true;
+  bool get requireLogin => false;
 
   /// 최근 12개월(TTM)로 더하는 계정 — 손익계산서와 현금흐름표.
   static const _flow = [

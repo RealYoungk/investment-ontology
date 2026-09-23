@@ -8,7 +8,7 @@ import '../market/market_caps.dart';
 /// 상장사 조회.
 class CompanyEndpoint extends Endpoint {
   @override
-  bool get requireLogin => true;
+  bool get requireLogin => false;
 
   static const _listed = {Market.kospi, Market.kosdaq, Market.konex};
 

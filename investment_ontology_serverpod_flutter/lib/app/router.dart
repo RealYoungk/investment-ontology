@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 
 import '../features/home/home_page.dart';
 import '../features/auth/account_page.dart';
+import '../features/auth/app_auth.dart';
+import '../features/auth/sign_in_page.dart';
 import '../features/home/about_page.dart';
 import '../features/home/explore_intent.dart';
 import '../features/companies/company_filter.dart';
@@ -64,8 +66,24 @@ abstract final class AppRoutes {
 
   static final router = GoRouter(
     initialLocation: '/home',
+    refreshListenable: AppAuth.viewer,
+    redirect: (_, state) {
+      final viewer = AppAuth.viewer.value;
+      final path = state.uri.path;
+      final adminOnly =
+          path == '/data' || path == '/review' || path.startsWith('/admin/');
+      if (adminOnly && !(viewer?.isAdmin ?? false)) return '/home';
+      if (path == '/account' && viewer == null) return '/login?next=/account';
+      if (path == '/login' && viewer != null) {
+        return state.uri.queryParameters['next'] == '/account'
+            ? '/account'
+            : '/home';
+      }
+      return null;
+    },
     routes: [
       GoRoute(path: '/', redirect: (_, _) => '/home'),
+      GoRoute(path: '/login', builder: (_, _) => const SignInPage()),
       GoRoute(path: '/about', builder: (context, state) => const AboutPage()),
       ShellRoute(
         builder: (context, state, child) =>

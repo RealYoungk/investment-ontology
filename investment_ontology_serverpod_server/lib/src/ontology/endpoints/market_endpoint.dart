@@ -8,7 +8,7 @@ import '../ingest/ksic_revision.dart';
 /// 시세 조회.
 class MarketEndpoint extends Endpoint {
   @override
-  bool get requireLogin => true;
+  bool get requireLogin => false;
 
   static const _listed = {Market.kospi, Market.kosdaq, Market.konex};
 

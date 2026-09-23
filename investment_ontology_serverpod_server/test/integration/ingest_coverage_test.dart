@@ -7,7 +7,7 @@ import 'auth_test_sessions.dart';
 
 void main() {
   withServerpod('Given 수집 현황', (anonymous, endpoints) {
-    final sessionBuilder = anonymous.asReader;
+    final sessionBuilder = anonymous.asAdmin;
     late Session session;
 
     setUp(() async {

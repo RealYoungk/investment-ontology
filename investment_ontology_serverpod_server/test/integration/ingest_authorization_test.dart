@@ -16,10 +16,18 @@ void main() {
         throwsA(isA<ServerpodUnauthenticatedException>()),
       );
     });
-    test('readers can see collection status', () async {
-      expect(await endpoints.ingest.latest(reader), isNull);
-      await endpoints.ingest.coverage(reader);
-      await endpoints.ai.status(reader);
+    test('collection status and AI operations are admin-only', () async {
+      for (final call in <Future<Object?> Function()>[
+        () => endpoints.ingest.latest(reader),
+        () => endpoints.ingest.coverage(reader),
+        () => endpoints.ingest.schedule(reader),
+        () => endpoints.ai.status(reader),
+      ]) {
+        await expectLater(
+          call(),
+          throwsA(isA<ServerpodInsufficientAccessException>()),
+        );
+      }
     });
     final mutations = <String, Future<Object?> Function()>{
       'master': () => endpoints.ingest.startCompanyMaster(reader),

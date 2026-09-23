@@ -59,3 +59,9 @@ investment_ontology_serverpod_server/config/admin_emails.local
 
 # Local audit reports may contain sensitive infrastructure details.
 .gstack/
+
+# Local build and review artifacts
+/build/
+/output/
+__pycache__/
+*.pyc

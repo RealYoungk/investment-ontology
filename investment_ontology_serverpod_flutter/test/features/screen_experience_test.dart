@@ -49,6 +49,7 @@ Future<GoRouter> pumpScreen(
   WidgetTester tester,
   ScreenFetch fetch, {
   String location = '/screen',
+  bool edit = true,
 }) async {
   final router = GoRouter(
     initialLocation: location,
@@ -69,6 +70,7 @@ Future<GoRouter> pumpScreen(
     MaterialApp.router(theme: theme, routerConfig: router),
   );
   await tester.pumpAndSettle();
+  if (edit) await click(tester, find.text('조건 직접 수정'));
   return router;
 }
 
@@ -100,6 +102,23 @@ Future<void> preset(WidgetTester tester, String title) async {
 }
 
 void main() {
+  testWidgets('조건은 기본으로 접히고 펼쳐 수정한 뒤 접어도 유지된다', (tester) async {
+    await pumpScreen(
+      tester,
+      (filter, {offset = 0, limit = 100}) async => result(1),
+      edit: false,
+    );
+    expect(find.byType(TextField), findsNothing);
+    await click(tester, find.text('조건 직접 수정'));
+    expect(find.byType(TextField), findsNWidgets(18));
+    await tester.enterText(field('PER 이하'), '12');
+    await tester.pumpAndSettle(const Duration(milliseconds: 400));
+    await click(tester, find.text('조건 수정 닫기'));
+    expect(find.byType(TextField), findsNothing);
+    await click(tester, find.text('조건 직접 수정'));
+    expect(value(tester, 'PER 이하'), '12');
+  });
+
   for (final width in [390.0, 1440.0]) {
     testWidgets('입력칸을 유지하고 프리셋이 값을 채운다 ${width.toInt()}px', (tester) async {
       tester.view.physicalSize = Size(width, 1100);

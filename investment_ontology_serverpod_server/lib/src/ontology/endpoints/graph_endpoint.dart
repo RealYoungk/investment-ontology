@@ -13,7 +13,7 @@ import '../market/market_caps.dart';
 /// 거절한 관계와 검수 전 AI 관계(draft)는 빼고, 인물 추정 연결(draft)은 점선으로 넣는다.
 class GraphEndpoint extends Endpoint {
   @override
-  bool get requireLogin => true;
+  bool get requireLogin => false;
 
   static const maxDepth = 3;
 

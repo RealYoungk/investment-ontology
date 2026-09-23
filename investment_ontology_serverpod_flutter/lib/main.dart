@@ -21,7 +21,7 @@ void main() async {
   AppAuth.bind(client.auth);
   // 수집 감시도 데이터 요청이다. 로그인하기 전에는 시작하지 않는다.
   void startMonitorWhenSignedIn() {
-    if (AppAuth.viewer.value != null) {
+    if (AppAuth.viewer.value?.isAdmin ?? false) {
       IngestMonitor.instance.start();
     } else {
       IngestMonitor.instance.stop();
@@ -60,9 +60,10 @@ class MyApp extends StatelessWidget {
       supportedLocales: const [Locale('ko')],
       locale: const Locale('ko'),
       routerConfig: AppRoutes.router,
-      // 로그인하지 않았으면 라우터를 만들지 않는다: 어떤 화면도 데이터를 부르지 않는다.
+      // 공개 탐색은 비로그인 허용. 개인/관리자 경로는 라우터에서 보호한다.
       builder: (context, child) => AuthGate(
         viewer: AppAuth.viewer,
+        allowAnonymous: true,
         signIn: const SignInPage(),
         child: child ?? const SizedBox.shrink(),
       ),

@@ -21,6 +21,9 @@ class AiEndpoint extends Endpoint {
   @override
   bool get requireLogin => true;
 
+  @override
+  Set<Scope> get requiredScopes => {Scope.admin};
+
   Future<AiStatus> status(Session session) async {
     final latest = await AiExtractionService.latestDocuments(session);
     final latestIds = {for (final d in latest) d.id};

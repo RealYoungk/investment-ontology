@@ -7,7 +7,7 @@ import '../ingest/financial_facts_sync.dart';
 /// 기업 재무·시세 조회. 파생 지표는 계산하지 않고 원천 값만 돌려준다.
 class FinancialEndpoint extends Endpoint {
   @override
-  bool get requireLogin => true;
+  bool get requireLogin => false;
 
   static const _reportOrder = {
     FinancialReportCode.q1: 0,
