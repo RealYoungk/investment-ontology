@@ -1,3 +1,5 @@
+import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart'
+    show ResearchBookmark;
 import 'package:investment_ontology_serverpod_server/src/ontology/auth/account_security.dart';
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_idp_server/core.dart';
@@ -62,11 +64,46 @@ void main() {
             throwsA(isA<EmailAuthenticationInvalidCredentialsException>()),
           );
           expect((await endpoints.account.me(auth)).userId, id.toString());
+          // Saved reports are personal data and go with the account;
+          // another reader's saves stay.
+          final admin = signed(
+            UuidValue.fromString('00000000-0000-4000-8000-0000000000aa'),
+            {Scope.admin},
+          );
+          final other = signed(
+            UuidValue.fromString('00000000-0000-4000-8000-0000000000bb'),
+            {},
+          );
+          await endpoints.research.save(
+            admin,
+            'deletion-bookmark',
+            '저장 정리 확인',
+            '탈퇴 시 저장 삭제',
+            '005930',
+            'KOSPI',
+            '본문',
+            'markdown',
+            DateTime.utc(2026, 9, 24),
+            0,
+            '',
+          );
+          await endpoints.research.publish(
+            admin,
+            'deletion-bookmark',
+            1,
+            withdraw: false,
+          );
+          await endpoints.research.bookmark(auth, 'deletion-bookmark', true);
+          await endpoints.research.bookmark(other, 'deletion-bookmark', true);
           await endpoints.account.deleteMe(auth, password);
           expect(
             await AccountSecurity.authenticate(builder.build(), result.token),
             isNull,
           );
+          final left = await ResearchBookmark.db.find(builder.build());
+          expect(left.map((b) => b.userId), [
+            '00000000-0000-4000-8000-0000000000bb',
+          ]);
         },
       );
 

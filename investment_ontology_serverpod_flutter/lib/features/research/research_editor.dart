@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
@@ -5,11 +7,19 @@ import 'package:investment_ontology_serverpod_client/investment_ontology_serverp
 import '../../client.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
+import 'leave_guard.dart';
 import 'research_pages.dart';
 
 class ResearchEditorPage extends StatefulWidget {
-  const ResearchEditorPage({super.key, required this.slug});
+  const ResearchEditorPage({super.key, required this.slug, this.research});
   final String slug;
+
+  /// Defaults to the app client; tests pass a fake.
+  final EndpointResearch? research;
+
+  /// Serverpod's `maxRequestSize` (config/*.yaml) is 512 KiB for the whole
+  /// call; beyond it the request is refused before the endpoint can explain.
+  static const maxBodyBytes = 480 * 1024;
   static bool hasUnsavedChanges = false;
   static Future<bool> confirmExit(BuildContext context) async {
     if (!hasUnsavedChanges) return true;
@@ -39,6 +49,8 @@ class ResearchEditorPage extends StatefulWidget {
 }
 
 class _ResearchEditorPageState extends State<ResearchEditorPage> {
+  late final _research = widget.research ?? client.research;
+  late final _leaveGuard = LeaveGuard(() => _dirty);
   final _slug = TextEditingController(),
       _title = TextEditingController(),
       _summary = TextEditingController(),
@@ -66,6 +78,7 @@ class _ResearchEditorPageState extends State<ResearchEditorPage> {
     for (final c in _fields) {
       c.addListener(_changed);
     }
+    _leaveGuard.attach();
     if (widget.slug == 'new') {
       _loaded = true;
     } else {
@@ -74,16 +87,18 @@ class _ResearchEditorPageState extends State<ResearchEditorPage> {
   }
 
   void _changed() {
-    if (_loaded && mounted) {
-      setState(() {
-        _dirty = true;
-        ResearchEditorPage.hasUnsavedChanges = true;
-      });
-    }
+    if (_loaded && mounted) setState(_markDirty);
+  }
+
+  /// Every edit goes through here, so the leave guards see all of them.
+  void _markDirty() {
+    _dirty = true;
+    ResearchEditorPage.hasUnsavedChanges = true;
   }
 
   @override
   void dispose() {
+    _leaveGuard.detach();
     for (final c in _fields) {
       c.dispose();
     }
@@ -111,14 +126,16 @@ class _ResearchEditorPageState extends State<ResearchEditorPage> {
   Future<void> _load() async {
     setState(() => _busy = true);
     try {
-      final e = await client.research.get(
-        widget.slug,
-        draft: true,
-        source: true,
-      );
+      final e = await _research.get(widget.slug, draft: true, source: true);
       if (!mounted) return;
-      if (e == null) throw StateError('not found');
-      final h = await client.research.history(widget.slug);
+      if (e == null) {
+        // Continue as a new article at this address; edits count as unsaved.
+        _slug.text = widget.slug;
+        _loaded = true;
+        setState(() => _error = '아직 없는 리포트입니다. 이 주소로 새로 작성할 수 있습니다.');
+        return;
+      }
+      final h = await _research.history(widget.slug);
       if (mounted) {
         setState(() {
           _fill(e);
@@ -140,12 +157,18 @@ class _ResearchEditorPageState extends State<ResearchEditorPage> {
       setState(() => _error = '분석 기준일을 YYYY-MM-DD 형식으로 입력하세요.');
       return false;
     }
+    if (utf8.encode(_body.text).length > ResearchEditorPage.maxBodyBytes) {
+      setState(
+        () => _error = '본문이 너무 큽니다. 그림은 파일로 올리고 본문을 480KB 이내로 줄여주세요.',
+      );
+      return false;
+    }
     setState(() {
       _busy = true;
       _error = '';
     });
     try {
-      final e = await client.research.save(
+      final e = await _research.save(
         _slug.text.trim(),
         _title.text,
         _summary.text,
@@ -157,12 +180,17 @@ class _ResearchEditorPageState extends State<ResearchEditorPage> {
         _entry?.article.latestVersion ?? 0,
         _note.text,
       );
-      final h = await client.research.history(e.article.slug);
       if (!mounted) return false;
-      setState(() {
-        _fill(e);
-        _history = h;
-      });
+      // Saving already committed. An optional history fetch must not leave
+      // the editor holding the old version and make its next save conflict.
+      setState(() => _fill(e));
+      try {
+        final h = await _research.history(e.article.slug);
+        if (mounted) setState(() => _history = h);
+      } catch (_) {
+        // The saved source/version remains authoritative; history can reload.
+      }
+      if (!mounted) return true;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('초안을 저장했습니다. 공개본은 그대로 유지됩니다.')),
       );
@@ -201,16 +229,12 @@ class _ResearchEditorPageState extends State<ResearchEditorPage> {
     if (yes != true) return;
     setState(() => _busy = true);
     try {
-      await client.research.publish(
+      await _research.publish(
         _slug.text,
         _entry!.article.latestVersion,
         withdraw: withdraw,
       );
-      final e = await client.research.get(
-        _slug.text,
-        draft: true,
-        source: true,
-      );
+      final e = await _research.get(_slug.text, draft: true, source: true);
       if (mounted && e != null) {
         setState(() => _fill(e));
         ScaffoldMessenger.of(context).showSnackBar(
@@ -226,7 +250,7 @@ class _ResearchEditorPageState extends State<ResearchEditorPage> {
 
   Future<void> _restore(ResearchRevision revision) async {
     try {
-      final e = await client.research.get(
+      final e = await _research.get(
         _slug.text,
         version: revision.version,
         draft: false,
@@ -238,7 +262,7 @@ class _ResearchEditorPageState extends State<ResearchEditorPage> {
         _fill(e);
         _entry = latest;
         _note.text = 'v${revision.version} 내용으로 복원';
-        _dirty = true;
+        _markDirty();
       });
     } catch (e) {
       if (mounted) setState(() => _error = researchError(e));
@@ -377,7 +401,7 @@ class _ResearchEditorPageState extends State<ResearchEditorPage> {
                 ? null
                 : (v) => setState(() {
                     _market = v!;
-                    _dirty = true;
+                    _markDirty();
                   }),
           ),
           const SizedBox(height: 20),

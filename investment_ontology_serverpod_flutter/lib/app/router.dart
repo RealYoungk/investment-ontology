@@ -68,190 +68,206 @@ abstract final class AppRoutes {
 
   static String group(String corpCode) => '/groups/$corpCode';
 
-  static final router = GoRouter(
-    initialLocation: '/home',
-    refreshListenable: AppAuth.viewer,
-    redirect: (_, state) {
-      final viewer = AppAuth.viewer.value;
-      final path = state.uri.path;
-      final adminOnly =
-          path == '/data' || path == '/review' || path.startsWith('/admin/');
-      if (adminOnly && !(viewer?.isAdmin ?? false)) return '/home';
-      if (path == '/account' && viewer == null) return '/login?next=/account';
-      if (path == '/login' && viewer != null) {
-        final next = state.uri.queryParameters['next'];
-        return next == '/account' ||
-                (next != null &&
-                    RegExp(r'^/research(?:/[a-z0-9-]+)?$').hasMatch(next))
-            ? next!
-            : '/home';
-      }
-      return null;
-    },
-    routes: [
-      GoRoute(path: '/', redirect: (_, _) => '/home'),
-      GoRoute(path: '/login', builder: (_, _) => const SignInPage()),
-      GoRoute(path: '/about', builder: (context, state) => const AboutPage()),
-      ShellRoute(
-        builder: (context, state, child) =>
-            AppShell(location: state.uri, child: child),
-        routes: [
-          GoRoute(
-            path: '/research',
-            builder: (_, state) => ResearchListPage(
-              ticker: state.uri.queryParameters['ticker'],
-              query: state.uri.queryParameters['q'] ?? '',
+  static final router = _createRouter();
+
+  static GoRouter _createRouter() {
+    // Keep detail routes reloadable/shareable while push preserves list state.
+    GoRouter.optionURLReflectsImperativeAPIs = true;
+    return GoRouter(
+      initialLocation: '/home',
+      refreshListenable: AppAuth.viewer,
+      redirect: (_, state) {
+        final viewer = AppAuth.viewer.value;
+        final path = state.uri.path;
+        final adminOnly =
+            path == '/data' || path == '/review' || path.startsWith('/admin/');
+        if (adminOnly && !(viewer?.isAdmin ?? false)) return '/home';
+        if (path == '/account' && viewer == null) return '/login?next=/account';
+        if (path == '/login' && viewer != null) {
+          final next = state.uri.queryParameters['next'];
+          return next == '/account' ||
+                  (next != null &&
+                      RegExp(r'^/research(?:/[a-z0-9-]+)?$').hasMatch(next))
+              ? next!
+              : '/home';
+        }
+        return null;
+      },
+      routes: [
+        GoRoute(path: '/', redirect: (_, _) => '/home'),
+        GoRoute(path: '/login', builder: (_, _) => const SignInPage()),
+        GoRoute(path: '/about', builder: (context, state) => const AboutPage()),
+        ShellRoute(
+          builder: (context, state, child) =>
+              AppShell(location: state.uri, child: child),
+          routes: [
+            GoRoute(
+              path: '/research',
+              builder: (_, state) => ResearchListPage(
+                ticker: state.uri.queryParameters['ticker'],
+                query: state.uri.queryParameters['q'] ?? '',
+                market: state.uri.queryParameters['market'] ?? '',
+              ),
             ),
-          ),
-          GoRoute(
-            path: '/research/:slug',
-            builder: (_, state) => ResearchReaderPage(
-              slug: state.pathParameters['slug']!,
-              draft: state.uri.queryParameters['draft'] == 'true',
+            GoRoute(
+              path: '/research/:slug',
+              builder: (_, state) => ResearchReaderPage(
+                slug: state.pathParameters['slug']!,
+                draft: state.uri.queryParameters['draft'] == 'true',
+              ),
             ),
-          ),
-          GoRoute(
-            path: '/admin/research',
-            builder: (_, _) => const ResearchListPage(manage: true),
-          ),
-          GoRoute(
-            path: '/admin/research/:slug',
-            onExit: (context, _) => ResearchEditorPage.confirmExit(context),
-            builder: (_, state) =>
-                ResearchEditorPage(slug: state.pathParameters['slug']!),
-          ),
-          GoRoute(path: '/reports', redirect: (_, _) => '/research'),
-          GoRoute(
-            path: '/reports/:legacy',
-            redirect: (_, state) {
-              final id = state.pathParameters['legacy']!;
-              return legacyReportSlugs.contains(id.toLowerCase())
-                  ? '/research/${id.toLowerCase()}'
-                  : '/financial-reports/$id';
-            },
-          ),
-          GoRoute(path: '/account', builder: (_, _) => const AccountPage()),
-          GoRoute(
-            path: '/admin/accounts',
-            builder: (_, _) => const AccountPage(manage: true),
-          ),
-          if (kDebugMode)
-            GoRoute(path: '/design', builder: (_, _) => const DesignGallery()),
-          GoRoute(
-            path: '/home',
-            pageBuilder: (context, state) => NoTransitionPage(
-              key: const ValueKey('home'),
-              child: HomePage(
-                intent: ExploreIntent.fromQuery(
-                  state.uri.queryParameters['intent'],
+            GoRoute(
+              path: '/admin/research',
+              builder: (_, state) => ResearchListPage(
+                manage: true,
+                query: state.uri.queryParameters['q'] ?? '',
+                market: state.uri.queryParameters['market'] ?? '',
+              ),
+            ),
+            GoRoute(
+              path: '/admin/research/:slug',
+              onExit: (context, _) => ResearchEditorPage.confirmExit(context),
+              builder: (_, state) =>
+                  ResearchEditorPage(slug: state.pathParameters['slug']!),
+            ),
+            GoRoute(path: '/reports', redirect: (_, _) => '/research'),
+            GoRoute(
+              path: '/reports/:legacy',
+              redirect: (_, state) {
+                final id = state.pathParameters['legacy']!;
+                return legacyReportSlugs.contains(id.toLowerCase())
+                    ? '/research/${id.toLowerCase()}'
+                    : '/financial-reports/$id';
+              },
+            ),
+            GoRoute(path: '/account', builder: (_, _) => const AccountPage()),
+            GoRoute(
+              path: '/admin/accounts',
+              builder: (_, _) => const AccountPage(manage: true),
+            ),
+            if (kDebugMode)
+              GoRoute(
+                path: '/design',
+                builder: (_, _) => const DesignGallery(),
+              ),
+            GoRoute(
+              path: '/home',
+              pageBuilder: (context, state) => NoTransitionPage(
+                key: const ValueKey('home'),
+                child: HomePage(
+                  intent: ExploreIntent.fromQuery(
+                    state.uri.queryParameters['intent'],
+                  ),
                 ),
               ),
             ),
-          ),
-          GoRoute(
-            path: '/market',
-            pageBuilder: (context, state) =>
-                const NoTransitionPage(child: MarketPage()),
-          ),
-          GoRoute(
-            path: '/companies',
-            pageBuilder: (context, state) => NoTransitionPage(
-              // 필터가 바뀌어도 같은 화면을 유지하고 목록만 다시 불러온다.
-              key: const ValueKey('companies'),
-              child: CompanyListPage(
-                filter: CompanyFilter.fromQuery(state.uri.queryParameters),
+            GoRoute(
+              path: '/market',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: MarketPage()),
+            ),
+            GoRoute(
+              path: '/companies',
+              pageBuilder: (context, state) => NoTransitionPage(
+                // 필터가 바뀌어도 같은 화면을 유지하고 목록만 다시 불러온다.
+                key: const ValueKey('companies'),
+                child: CompanyListPage(
+                  filter: CompanyFilter.fromQuery(state.uri.queryParameters),
+                ),
               ),
             ),
-          ),
-          GoRoute(
-            path: '/themes',
-            pageBuilder: (context, state) =>
-                const NoTransitionPage(child: ThemesPage()),
-          ),
-          GoRoute(
-            path: '/themes/:themeId',
-            builder: (context, state) => ThemePage(
-              themeId: int.tryParse(state.pathParameters['themeId']!) ?? -1,
+            GoRoute(
+              path: '/themes',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: ThemesPage()),
             ),
-          ),
-          GoRoute(
-            path: '/graph',
-            pageBuilder: (context, state) =>
-                const NoTransitionPage(child: GraphPage()),
-          ),
-          GoRoute(
-            path: '/graph/:corpCode',
-            // 키에 기업을 넣는다. 고정 키 하나면 관계망을 관계망 위에 쌓을 때
-            // (기업 상세의 "관계망 →") 같은 키가 둘이 되어 Navigator가 걸린다.
-            pageBuilder: (context, state) => NoTransitionPage(
-              key: ValueKey('graph:${state.pathParameters['corpCode']}'),
-              child: GraphPage(corpCode: state.pathParameters['corpCode']),
-            ),
-          ),
-          GoRoute(
-            path: '/groups',
-            pageBuilder: (context, state) =>
-                const NoTransitionPage(child: GroupsPage()),
-          ),
-          GoRoute(
-            path: '/groups/:corpCode',
-            builder: (context, state) =>
-                GroupPage(corpCode: state.pathParameters['corpCode']!),
-          ),
-          GoRoute(
-            path: '/screen',
-            pageBuilder: (context, state) => NoTransitionPage(
-              child: ScreenerPage(
-                filter: ScreenFilter.fromQuery(state.uri.queryParameters),
+            GoRoute(
+              path: '/themes/:themeId',
+              builder: (context, state) => ThemePage(
+                themeId: int.tryParse(state.pathParameters['themeId']!) ?? -1,
               ),
             ),
-          ),
-          GoRoute(
-            path: '/compare',
-            pageBuilder: (context, state) => NoTransitionPage(
-              child: ComparePage(
-                corpCodes: [
-                  for (final c
-                      in (state.uri.queryParameters['codes'] ?? '').split(','))
-                    if (c.trim().isNotEmpty) c.trim(),
-                ],
+            GoRoute(
+              path: '/graph',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: GraphPage()),
+            ),
+            GoRoute(
+              path: '/graph/:corpCode',
+              // 키에 기업을 넣는다. 고정 키 하나면 관계망을 관계망 위에 쌓을 때
+              // (기업 상세의 "관계망 →") 같은 키가 둘이 되어 Navigator가 걸린다.
+              pageBuilder: (context, state) => NoTransitionPage(
+                key: ValueKey('graph:${state.pathParameters['corpCode']}'),
+                child: GraphPage(corpCode: state.pathParameters['corpCode']),
               ),
             ),
-          ),
-          GoRoute(
-            path: '/review',
-            pageBuilder: (context, state) =>
-                const NoTransitionPage(child: ReviewQueuePage()),
-          ),
-          GoRoute(
-            path: '/data',
-            pageBuilder: (context, state) =>
-                const NoTransitionPage(child: DataPage()),
-          ),
-          GoRoute(
-            path: '/company/:corpCode',
-            builder: (context, state) => CompanyPage(
-              corpCode: state.pathParameters['corpCode']!,
-              initialTab:
-                  CompanyTab.values
-                      .asNameMap()[state.uri.queryParameters['tab']] ??
-                  CompanyTab.overview,
+            GoRoute(
+              path: '/groups',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: GroupsPage()),
             ),
-          ),
-          GoRoute(
-            path: '/person/:personId',
-            builder: (context, state) => PersonPage(
-              personId: int.tryParse(state.pathParameters['personId']!) ?? -1,
+            GoRoute(
+              path: '/groups/:corpCode',
+              builder: (context, state) =>
+                  GroupPage(corpCode: state.pathParameters['corpCode']!),
             ),
-          ),
-          GoRoute(
-            path: '/financial-reports/:reportId',
-            builder: (context, state) => FinancialReportPage(
-              reportId: int.tryParse(state.pathParameters['reportId']!) ?? -1,
+            GoRoute(
+              path: '/screen',
+              pageBuilder: (context, state) => NoTransitionPage(
+                child: ScreenerPage(
+                  filter: ScreenFilter.fromQuery(state.uri.queryParameters),
+                ),
+              ),
             ),
-          ),
-        ],
-      ),
-    ],
-  );
+            GoRoute(
+              path: '/compare',
+              pageBuilder: (context, state) => NoTransitionPage(
+                child: ComparePage(
+                  corpCodes: [
+                    for (final c
+                        in (state.uri.queryParameters['codes'] ?? '').split(
+                          ',',
+                        ))
+                      if (c.trim().isNotEmpty) c.trim(),
+                  ],
+                ),
+              ),
+            ),
+            GoRoute(
+              path: '/review',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: ReviewQueuePage()),
+            ),
+            GoRoute(
+              path: '/data',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: DataPage()),
+            ),
+            GoRoute(
+              path: '/company/:corpCode',
+              builder: (context, state) => CompanyPage(
+                corpCode: state.pathParameters['corpCode']!,
+                initialTab:
+                    CompanyTab.values
+                        .asNameMap()[state.uri.queryParameters['tab']] ??
+                    CompanyTab.overview,
+              ),
+            ),
+            GoRoute(
+              path: '/person/:personId',
+              builder: (context, state) => PersonPage(
+                personId: int.tryParse(state.pathParameters['personId']!) ?? -1,
+              ),
+            ),
+            GoRoute(
+              path: '/financial-reports/:reportId',
+              builder: (context, state) => FinancialReportPage(
+                reportId: int.tryParse(state.pathParameters['reportId']!) ?? -1,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
 }

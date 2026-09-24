@@ -24,46 +24,98 @@ class ResearchEndpoint extends Endpoint {
         reason: AuthenticationFailureReason.unauthenticated,
       );
     }
-    final articles = await ResearchArticle.db.find(session);
-    final bookmarks = session.authenticated == null
-        ? <ResearchBookmark>[]
-        : await ResearchBookmark.db.find(
-            session,
-            where: (t) =>
-                t.userId.equals(session.authenticated!.userIdentifier),
-          );
-    final saved = bookmarks.map((b) => b.articleId).toSet();
-    final revisions = await ResearchRevision.db.find(session);
-    final q = query.trim().toLowerCase();
-    final entries = <ResearchEntry>[];
-    for (final a in articles) {
-      final version = manage ? a.latestVersion : a.publishedVersion;
-      if (version == null || (savedOnly && !saved.contains(a.id))) continue;
-      final r = revisions
-          .where((r) => r.articleId == a.id && r.version == version)
-          .firstOrNull;
-      if (r == null ||
-          (market.isNotEmpty && r.market != market) ||
-          (ticker != null && r.ticker != ticker)) {
-        continue;
-      }
-      if (q.isNotEmpty &&
-          !'${r.title} ${r.ticker} ${r.summary} ${r.searchText}'
-              .toLowerCase()
-              .contains(q)) {
-        continue;
-      }
-      entries.add(
-        ResearchEntry(
-          article: a,
-          revision: r.copyWith(content: '', searchText: ''),
-          saved: saved.contains(a.id),
-        ),
-      );
+    // Only the one revision a reader may see (published, or latest for
+    // administrators) is joined, filtered, ordered and paged in the database;
+    // bodies are searched there and never leave it.
+    final user = session.authenticated?.userIdentifier;
+    final params = <String, Object>{
+      'user': user ?? '',
+      'offset': offset.clamp(0, 100000),
+      'limit': pageSize,
+    };
+    final where = <String>[];
+    if (savedOnly) where.add('b."id" IS NOT NULL');
+    if (market.isNotEmpty) {
+      where.add('r."market" = @market');
+      params['market'] = market;
     }
-    entries.sort((a, b) => b.revision.dataAsOf.compareTo(a.revision.dataAsOf));
-    return entries.skip(offset.clamp(0, 100000)).take(30).toList();
+    if (ticker != null) {
+      where.add('r."ticker" = @ticker');
+      params['ticker'] = ticker;
+    }
+    final q = query.trim().toLowerCase();
+    if (q.isNotEmpty) {
+      // strpos, not LIKE: % and _ in a search are literal characters.
+      where.add(
+        "strpos(lower(r.\"title\" || ' ' || r.\"ticker\" || ' ' || "
+        "r.\"summary\" || ' ' || r.\"searchText\"), @q) > 0",
+      );
+      params['q'] = q;
+    }
+    final rows = await session.db.unsafeQuery(
+      'SELECT a."id" AS "articleId", a."slug", a."latestVersion", '
+      'a."publishedVersion", r."id", r."version", r."title", r."summary", '
+      'r."ticker", r."market", r."format", r."dataAsOf", r."publishedAt", '
+      'r."createdAt", ${manage ? 'r."note"' : "''"} AS "note", r."legacy", b."id" IS NOT NULL AS "saved" '
+      'FROM "research_article" a '
+      'JOIN "research_revision" r ON r."articleId" = a."id" AND r."version" = '
+      '${manage ? 'a."latestVersion"' : 'a."publishedVersion"'} '
+      'LEFT JOIN "research_bookmark" b '
+      'ON b."articleId" = a."id" AND b."userId" = @user '
+      '${where.isEmpty ? '' : 'WHERE ${where.join(' AND ')} '}'
+      'ORDER BY r."dataAsOf" DESC, a."id" DESC LIMIT @limit OFFSET @offset',
+      parameters: QueryParameters.named(params),
+    );
+    return [
+      for (final row in rows) _entry(row.toColumnMap()),
+    ];
   }
+
+  /// Page size of [list]; the app asks for more while a full page comes back.
+  static const pageSize = 30;
+
+  static ResearchEntry _entry(Map<String, dynamic> m) => ResearchEntry(
+    article: ResearchArticle(
+      id: m['articleId'] as int,
+      slug: m['slug'] as String,
+      latestVersion: m['latestVersion'] as int,
+      publishedVersion: m['publishedVersion'] as int?,
+    ),
+    revision: ResearchRevision(
+      id: m['id'] as int,
+      articleId: m['articleId'] as int,
+      version: m['version'] as int,
+      title: m['title'] as String,
+      summary: m['summary'] as String,
+      ticker: m['ticker'] as String,
+      market: m['market'] as String,
+      content: '',
+      format: m['format'] as String,
+      searchText: '',
+      dataAsOf: _utc(m['dataAsOf'])!,
+      publishedAt: _utc(m['publishedAt']),
+      createdAt: _utc(m['createdAt'])!,
+      note: m['note'] as String,
+      legacy: m['legacy'] as bool,
+    ),
+    saved: m['saved'] as bool,
+  );
+
+  // Columns are `timestamp without time zone` holding UTC, as the ORM writes.
+  static DateTime? _utc(Object? v) => v == null
+      ? null
+      : (v as DateTime).isUtc
+      ? v
+      : DateTime.utc(
+          v.year,
+          v.month,
+          v.day,
+          v.hour,
+          v.minute,
+          v.second,
+          v.millisecond,
+          v.microsecond,
+        );
 
   Future<ResearchEntry?> get(
     Session session,
@@ -115,6 +167,7 @@ class ResearchEndpoint extends Endpoint {
               content: ResearchContent.render(r.content, r.format),
               format: 'html',
               searchText: '',
+              note: '',
             ),
       corpCode: c?.corpCode,
       saved: saved != null,
@@ -146,7 +199,13 @@ class ResearchEndpoint extends Endpoint {
         note.length > 1000) {
       throw IngestException(message: '주소·제목·핵심 관점·6자리 종목코드·시장을 확인하세요.');
     }
-    final rendered = ResearchContent.render(content, format);
+    final String rendered;
+    try {
+      rendered = ResearchContent.render(content, format);
+    } on ArgumentError catch (e) {
+      // Too long or an unknown format: a message for the editor, not a 500.
+      throw IngestException(message: '${e.message}');
+    }
     final text = ResearchContent.text(rendered);
     if (text.trim().isEmpty) throw IngestException(message: '본문을 입력하세요.');
     await session.db.transaction((tx) async {
@@ -256,7 +315,9 @@ class ResearchEndpoint extends Endpoint {
       where: (t) => t.articleId.equals(a!.id!) & t.publishedAt.notEquals(null),
     );
     rows.sort((a, b) => b.version.compareTo(a.version));
-    return rows.map((r) => r.copyWith(content: '', searchText: '')).toList();
+    return rows
+        .map((r) => r.copyWith(content: '', searchText: '', note: ''))
+        .toList();
   }
 
   Future<List<ResearchRevision>> history(Session session, String slug) async {
@@ -313,6 +374,18 @@ class ResearchEndpoint extends Endpoint {
     return saved;
   }
 
+  /// Whether [r] was written by [importLegacy] rather than the editor.
+  ///
+  /// `legacy` alone is not enough: editor saves inherit it from the edition
+  /// they revise, and an administrator may keep the imported note. Only the
+  /// importer backdates publication to the source date, before the row
+  /// existed; the editor publishes a saved row later, at the current time.
+  static bool _importedEdition(ResearchRevision r) =>
+      r.legacy &&
+      r.publishedAt != null &&
+      r.publishedAt == r.dataAsOf &&
+      r.publishedAt!.isBefore(r.createdAt);
+
   /// Copies the local, hash-inventoried legacy corpus once; never overwrites edits.
   Future<int> importLegacy(Session session) async {
     OntologyAccess.requireAdmin(session);
@@ -361,7 +434,7 @@ class ResearchEndpoint extends Endpoint {
             transaction: tx,
           );
           if (previous == null ||
-              !previous.legacy ||
+              !_importedEdition(previous) ||
               previous.note != m['note'] ||
               (previous.content == content && previous.dataAsOf == date)) {
             continue;

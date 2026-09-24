@@ -1,3 +1,7 @@
+## 2026-09-24 리포트 독립 검수 보완
+
+PR80에 Claude Opus 5.5 변경과 Codex 추가 검수 수정 통합. 서버315/Flutter104 통과, release 검토판 갱신. 검증 범위와 native beforeunload 미확인 사항은 docs/reports-opus-review.md 마지막 절 참고. 사용자 E2E 리뷰 전 머지 금지.
+
 ## 2026-09-24 리포트 리뷰 브랜치
 
 기존 변경은 PR #79, main 7c8475c로 머지/배포 완료. 복구 태그 alfinder-pre-reports-20260923. 현재 codex/reports-workspace는 사용자 리뷰 전이므로 머지하지 않는다. 구현·검증·리뷰 주소와 제한은 [reports-workspace.md](reports-workspace.md)를 먼저 확인한다. 96편 이관 완료, 테스트 글 e2e-report-review는 비공개.
