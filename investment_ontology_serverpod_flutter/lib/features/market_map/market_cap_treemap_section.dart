@@ -6,6 +6,7 @@ import '../../design/components/components.dart';
 import '../../design/tokens.dart';
 import '../common/formatters.dart';
 import '../financials/financial_metrics.dart';
+import 'market_load_notice.dart';
 
 /// 업종별 시가총액 트리맵. 전체에서는 대분류 → 중분류, 대분류를 누르면 중분류 → 기업.
 class MarketCapTreemapSection extends StatefulWidget {
@@ -31,7 +32,7 @@ class _MarketCapTreemapSectionState extends State<MarketCapTreemapSection> {
   static const _companiesPerSection = 14;
 
   MarketCapTreemap? _map;
-  Object? _error;
+  bool _failed = false;
   String? _section;
   int _seq = 0;
 
@@ -49,6 +50,7 @@ class _MarketCapTreemapSectionState extends State<MarketCapTreemapSection> {
 
   Future<void> _load() async {
     final seq = ++_seq;
+    setState(() => _failed = false);
     try {
       final map = await client.market.industryTreemap(
         sectionCode: _section,
@@ -57,11 +59,11 @@ class _MarketCapTreemapSectionState extends State<MarketCapTreemapSection> {
       if (mounted && seq == _seq) {
         setState(() {
           _map = map;
-          _error = null;
+          _failed = false;
         });
       }
-    } catch (e) {
-      if (mounted && seq == _seq) setState(() => _error = e);
+    } catch (_) {
+      if (mounted && seq == _seq) setState(() => _failed = true);
     }
   }
 
@@ -89,8 +91,8 @@ class _MarketCapTreemapSectionState extends State<MarketCapTreemapSection> {
                 ),
         ),
         const SizedBox(height: AppSpace.sm),
-        if (_error != null)
-          AppNotice(message: '시가총액을 불러오지 못했습니다 — $_error')
+        if (_failed)
+          MarketLoadNotice(subject: '업종별 시가총액', retry: _load)
         else if (map == null)
           const LinearProgressIndicator(minHeight: 2)
         else if (map.baseDate == null)
