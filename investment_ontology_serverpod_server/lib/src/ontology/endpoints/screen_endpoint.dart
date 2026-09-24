@@ -4,6 +4,7 @@ import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
 import '../disclosure/disclosure_links.dart';
+import '../cache/single_flight.dart';
 
 /// 재무·시세로 기업을 거르는 스크리닝.
 ///
@@ -55,6 +56,8 @@ class ScreenEndpoint extends Endpoint {
 
   /// 뒤에서 도는 다시 계산 (한 번에 하나만).
   static Future<void>? _refreshing;
+
+  static final _coldCalculation = SingleFlight<List<ScreenRow>>();
 
   /// 뒤에서 도는 계산이 끝날 때까지 (테스트에서 쓴다).
   static Future<void> awaitRefresh() => _refreshing ?? Future.value();
@@ -323,7 +326,7 @@ class ScreenEndpoint extends Endpoint {
       );
       return _cache!;
     }
-    return _compute(session, key);
+    return _coldCalculation.run(() => _compute(session, key));
   }
 
   /// 재무·시세·배당·기업 정보 중 하나라도 바뀌면 달라지는 값.
@@ -416,7 +419,17 @@ class ScreenEndpoint extends Endpoint {
                       OR f.statement = 'cashFlow'
                     THEN coalesce(f."cumulativeAmount"::numeric, f.amount::numeric)
                     ELSE f."cumulativeAmount"::numeric END AS cum
-        FROM financial_fact f
+        -- Only the three reports used by cur/prev. Reading all historical facts
+        -- first forced a scan of 10M+ rows on the production database.
+        FROM latest scope
+        JOIN financial_report scope_report
+          ON scope_report."companyId" = scope.id
+         AND scope_report."fsDiv" = 'consolidated'
+         AND (scope_report."bsnsYear" = scope.y
+              AND scope_report."reportCode" = scope.code
+              OR scope_report."bsnsYear" = scope.y - 1
+              AND scope_report."reportCode" IN (scope.code, 'annual'))
+        JOIN financial_fact f ON f."reportId" = scope_report.id
         WHERE f."fsDiv" = 'consolidated' AND f."supersededById" IS NULL
           AND f.statement IN ('incomeStatement','comprehensiveIncome','cashFlow')
           AND f."accountId" IN ($flow)
