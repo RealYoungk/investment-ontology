@@ -54,3 +54,7 @@ Vercel에서 이전 배포를 promote하면 도메인 서비스가 복구된다.
 
 현재는 사용자 맥북의 개발 실행 환경을 공개 연결한 단계다. 독립 서버 이전, DB 최소권한 역할,
 백업 복원 훈련, 재부팅 후 운영 절차, 공개 서비스 정책 정비는 별도 운영 과제다.
+
+## 2026-09-24 연결 및 시장 긴급 수정
+
+PR81 main 기반 배포 dpl_tR6TPiYKWjmsHmpMNd8SwPcu9CfE (alfinder-research-bok090see-realyoungks-projects.vercel.app)를 alfinder.kr에 반영. DNS ENOTFOUND 재현 후 제한 시간 있는 DoH fallback 추가. 시장 재시도 UI 및 스크리너 초기 계산 개선. 리포트 PR80은 미포함. 근거와 복구는 [장애 기록](incident-market-timeout-20260924.md) 참고.
