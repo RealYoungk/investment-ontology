@@ -1,3 +1,7 @@
+## 2026-09-24 휴대폰 검토 링크 교체
+
+현재 리포트 리뷰 주소는 https://alfinder-review.vercel.app/research . 기존 Funnel 직접 주소는 사용자의 폰에서 열리지 않아 안내용으로 사용하지 않는다. Vercel 별도 배포이며 alfinder.kr 운영 사이트와 분리. docs/reports-workspace.md 최신 절 참고.
+
 ## 2026-09-24 리포트 독립 검수 보완
 
 PR80에 Claude Opus 5.5 변경과 Codex 추가 검수 수정 통합. 서버315/Flutter104 통과, release 검토판 갱신. 검증 범위와 native beforeunload 미확인 사항은 docs/reports-opus-review.md 마지막 절 참고. 사용자 E2E 리뷰 전 머지 금지.

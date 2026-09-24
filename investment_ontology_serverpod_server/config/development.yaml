@@ -69,6 +69,7 @@ allowedOrigins:
   - https://alfinder.kr
   - https://www.alfinder.kr
   - https://investment-ontology.tailb7d6da.ts.net
+  - https://alfinder-review.vercel.app
   - http://localhost:8100
   - http://127.0.0.1:8100
   - http://localhost:8082

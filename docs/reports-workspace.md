@@ -24,7 +24,7 @@
 ## 2026-09-24 구현 및 리뷰
 
 - 기준 변경은 PR #79로 main에 머지하고 alfinder.kr 배포를 확인했다. 리포트 브랜치는 아직 main에 합치지 않는다.
-- 리뷰 주소: https://investment-ontology.tailb7d6da.ts.net/research (맥북의 기존 웹 서버/Funnel 사용).
+- 리뷰 주소: https://alfinder-review.vercel.app/research (2026-09-24 휴대폰 접속 문제로 Vercel 정적 배포 및 API 프록시로 변경).
 - 관리자 편집: /admin/research. 비로그인 사용자는 공개 글을 읽을 수 있고, 개인 저장은 로그인 필요.
 - 기존 96편 이관. 렌더링 보정은 원 버전을 남기며, 관리자가 수정한 글은 재이관으로 덮어쓰지 않는다.
 - 아카이브의 숫자·주장·기준일은 당시 원문이다. 최신 투자 사실을 재검증한 작업이 아니다.
@@ -58,3 +58,7 @@
 ### 2026-09-24 독립 검수 보완
 
 Claude Opus 5.5의 격리 변경을 검수 후 통합. 재이관 덮어쓰기 방지, DB 검색·페이지 정렬, 검색 조건 및 상세 주소 보존, 시장 변경 이탈 보호, 저장 후 history 실패 복구, 공개 응답 편집 메모 제거. 서버 315/315, Flutter 104/104, 분석·포맷·release 빌드 통과. 실제 검색→상세→새로고침→뒤로가기 및 모바일·메뉴 이탈 경고 확인. native beforeunload 경고는 자동화에서 확인하지 못함. 상세 근거: reports-opus-review.md 마지막 절.
+
+### 휴대폰 검토 주소 교체 · 2026-09-24
+
+Funnel URL은 맥에서 HTTP200이어도 사용자 휴대폰 접속 실패가 반복됐다. 검토판을 별도 Vercel 배포 dpl_4bdsp3oB7UmtDANJcQjfgAoLdcQk에 올리고 https://alfinder-review.vercel.app 별칭을 부여했다. 브라우저는 이 주소의 /api를 사용하며 프록시의 DoH fallback을 거쳐 맥 API에 연결한다. 정확한 Origin만 허용하고 MCP 재시작. 운영 alfinder.kr은 promote하지 않았다. 로그인 없이 목록 및 모바일 상세 본문을 실제 확인. 사용자 휴대폰 실접속 성공 여부는 아직 확인 전.
