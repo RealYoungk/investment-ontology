@@ -11,6 +11,7 @@ import '../common/formatters.dart';
 import '../companies/company_filter.dart';
 import '../financials/financial_metrics.dart';
 import 'market_cap_treemap_section.dart';
+import 'market_load_notice.dart';
 import 'widgets/index_trend.dart';
 import 'widgets/industry_distribution.dart';
 import 'widgets/market_cap_trend.dart';
@@ -29,7 +30,8 @@ class MarketPage extends StatefulWidget {
 
 class _MarketPageState extends State<MarketPage> {
   Overview? _overview;
-  String? _error;
+  bool _failed = false;
+  bool _loadingOverview = false;
   Market? _market;
   String? _section;
   List<FacetCount> _divisions = const [];
@@ -53,11 +55,16 @@ class _MarketPageState extends State<MarketPage> {
   }
 
   Future<void> _loadOverview() async {
+    if (_loadingOverview) return;
+    _loadingOverview = true;
+    setState(() => _failed = false);
     try {
       final o = await client.company.overview();
-      if (mounted) setState(() => (_overview = o, _error = null));
-    } catch (e) {
-      if (mounted) setState(() => _error = '$e');
+      if (mounted) setState(() => (_overview = o, _failed = false));
+    } catch (_) {
+      if (mounted) setState(() => _failed = true);
+    } finally {
+      _loadingOverview = false;
     }
   }
 
@@ -100,9 +107,9 @@ class _MarketPageState extends State<MarketPage> {
             _loadDivisions();
           },
         ),
-        if (_error != null) ...[
+        if (_failed) ...[
           const SizedBox(height: AppSpace.lg),
-          AppNotice(message: '서버에 연결하지 못했습니다 — $_error'),
+          MarketLoadNotice(subject: '시장 정보', retry: _loadOverview),
         ],
         const SizedBox(height: AppSpace.section),
         ValueListenableBuilder<int>(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 
 import '../../../client.dart';
+import '../market_load_notice.dart';
 import '../../../design/components/components.dart';
 import '../../../design/tokens.dart';
 import '../../common/formatters.dart';
@@ -29,6 +30,7 @@ class _IndexTrendState extends State<IndexTrend> {
   int _days = IndexTrend.ranges.first.days;
   List<IndexHistory?> _histories = const [];
   int _seq = 0;
+  bool _failed = false;
 
   @override
   void initState() {
@@ -38,6 +40,7 @@ class _IndexTrendState extends State<IndexTrend> {
 
   Future<void> _load() async {
     final seq = ++_seq;
+    setState(() => _failed = false);
     try {
       final h = await Future.wait([
         for (final n in IndexTrend.names)
@@ -45,7 +48,7 @@ class _IndexTrendState extends State<IndexTrend> {
       ]);
       if (mounted && seq == _seq) setState(() => _histories = h);
     } catch (_) {
-      // 시장 화면의 나머지는 그대로 보여준다.
+      if (mounted && seq == _seq) setState(() => _failed = true);
     }
   }
 
@@ -57,6 +60,9 @@ class _IndexTrendState extends State<IndexTrend> {
 
   @override
   Widget build(BuildContext context) {
+    if (_failed) {
+      return MarketLoadNotice(subject: '지수 추이', retry: _load);
+    }
     final c = context.colors;
     final t = context.typo;
     final histories = [
