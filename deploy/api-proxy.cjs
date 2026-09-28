@@ -1,6 +1,17 @@
 // Transport only: authentication and all business logic remain in Serverpod.
 const https = require('node:https');
 const dns = require('node:dns').promises;
+const { isIPv4 } = require('node:net');
+
+async function withDeadline(promise, ms) {
+  let timer;
+  try {
+    return await Promise.race([promise, new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error('DNS deadline')), ms);
+    })]);
+  } finally { clearTimeout(timer); }
+}
+
 const upstreamHost = 'investment-ontology.tailb7d6da.ts.net';
 let resolvedAddresses;
 let resolvedUntil = 0;
@@ -9,14 +20,34 @@ async function resolveUpstream() {
   if (resolvedAddresses && Date.now() < resolvedUntil) return resolvedAddresses;
   if (resolving) return resolving;
   resolving = (async () => {
-    for (let attempt = 0; attempt < 3; attempt++) {
-      try {
-        const addresses = await dns.resolve4(upstreamHost);
-        if (!addresses.length) throw new Error('DNS empty');
-        resolvedAddresses = addresses; resolvedUntil = Date.now() + 60000;
-        return addresses;
-      } catch (error) { if (attempt === 2) throw error; }
+    let addresses;
+    try {
+      addresses = await withDeadline((async () => {
+        for (let attempt = 0; attempt < 3; attempt++) {
+          try {
+            const result = await dns.resolve4(upstreamHost);
+            if (!result.length) throw new Error('DNS empty');
+            return result;
+          } catch (error) { if (attempt === 2) throw error; }
+        }
+      })(), 3000);
+    } catch (_) {
+      // Vercel's resolver intermittently returns ENOTFOUND for a healthy Funnel.
+      // Resolve only this fixed, public hostname over HTTPS. No request headers,
+      // cookies or body are sent to the DNS provider; upstream TLS is unchanged.
+      const response = await fetch(
+        'https://cloudflare-dns.com/dns-query?name=' + upstreamHost + '&type=A',
+        { headers: { accept: 'application/dns-json' }, signal: AbortSignal.timeout(3000) },
+      );
+      if (!response.ok) throw new Error('DNS fallback HTTP ' + response.status);
+      const answer = await response.json();
+      addresses = answer.Status === 0
+        ? (answer.Answer || []).filter(a => a.type === 1 && isIPv4(a.data)).map(a => a.data)
+        : [];
+      if (!addresses.length) throw new Error('DNS fallback empty');
     }
+    resolvedAddresses = addresses; resolvedUntil = Date.now() + 60000;
+    return addresses;
   })();
   try { return await resolving; } finally { resolving = undefined; }
 }
