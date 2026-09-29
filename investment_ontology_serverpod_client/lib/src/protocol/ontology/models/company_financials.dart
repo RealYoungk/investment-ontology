@@ -28,6 +28,7 @@ abstract class CompanyFinancials
     this.market,
     required this.filingCount,
     required this.pendingFilingCount,
+    this.basisReason,
   });
 
   factory CompanyFinancials({
@@ -38,6 +39,7 @@ abstract class CompanyFinancials
     _itup2ouf.CompanyMarketCap? market,
     required int filingCount,
     required int pendingFilingCount,
+    String? basisReason,
   }) = _CompanyFinancialsImpl;
 
   factory CompanyFinancials.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -60,6 +62,7 @@ abstract class CompanyFinancials
             ),
       filingCount: jsonSerialization['filingCount'] as int,
       pendingFilingCount: jsonSerialization['pendingFilingCount'] as int,
+      basisReason: jsonSerialization['basisReason'] as String?,
     );
   }
 
@@ -80,6 +83,9 @@ abstract class CompanyFinancials
 
   int pendingFilingCount;
 
+  /// 자동 선택 이유 또는 수동 선택
+  String? basisReason;
+
   /// Returns a shallow copy of this [CompanyFinancials]
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
@@ -91,6 +97,7 @@ abstract class CompanyFinancials
     _itup2ouf.CompanyMarketCap? market,
     int? filingCount,
     int? pendingFilingCount,
+    String? basisReason,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -103,6 +110,7 @@ abstract class CompanyFinancials
       if (market != null) 'market': market?.toJson(),
       'filingCount': filingCount,
       'pendingFilingCount': pendingFilingCount,
+      if (basisReason != null) 'basisReason': basisReason,
     };
   }
 
@@ -117,6 +125,7 @@ abstract class CompanyFinancials
       if (market != null) 'market': market?.toJsonForProtocol(),
       'filingCount': filingCount,
       'pendingFilingCount': pendingFilingCount,
+      if (basisReason != null) 'basisReason': basisReason,
     };
   }
 
@@ -137,6 +146,7 @@ class _CompanyFinancialsImpl extends CompanyFinancials {
     _itup2ouf.CompanyMarketCap? market,
     required int filingCount,
     required int pendingFilingCount,
+    String? basisReason,
   }) : super._(
          corpCode: corpCode,
          fsDiv: fsDiv,
@@ -145,6 +155,7 @@ class _CompanyFinancialsImpl extends CompanyFinancials {
          market: market,
          filingCount: filingCount,
          pendingFilingCount: pendingFilingCount,
+         basisReason: basisReason,
        );
 
   /// Returns a shallow copy of this [CompanyFinancials]
@@ -159,6 +170,7 @@ class _CompanyFinancialsImpl extends CompanyFinancials {
     Object? market = _Undefined,
     int? filingCount,
     int? pendingFilingCount,
+    Object? basisReason = _Undefined,
   }) {
     return CompanyFinancials(
       corpCode: corpCode ?? this.corpCode,
@@ -171,6 +183,7 @@ class _CompanyFinancialsImpl extends CompanyFinancials {
           : this.market?.copyWith(),
       filingCount: filingCount ?? this.filingCount,
       pendingFilingCount: pendingFilingCount ?? this.pendingFilingCount,
+      basisReason: basisReason is String? ? basisReason : this.basisReason,
     );
   }
 }

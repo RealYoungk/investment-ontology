@@ -2,6 +2,7 @@ import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
 import '../financial/financial_accounts.dart';
+import '../financial/financial_basis.dart';
 import '../ingest/financial_facts_sync.dart';
 
 /// 기업 재무·시세 조회. 파생 지표는 계산하지 않고 원천 값만 돌려준다.
@@ -18,7 +19,7 @@ class FinancialEndpoint extends Endpoint {
 
   /// 기업의 기간별 핵심 계정과 최근 시가총액.
   ///
-  /// [fsDiv]가 없으면 연결재무제표가 있으면 연결, 없으면 별도를 쓴다.
+  /// [fsDiv]가 없으면 최신 기간과 계산 가능성을 공통 규칙으로 판단한다.
   Future<CompanyFinancials?> summary(
     Session session,
     String corpCode, {
@@ -36,17 +37,32 @@ class FinancialEndpoint extends Endpoint {
           t.companyId.equals(company.id!) & t.supersededById.equals(null),
     );
     final available = {for (final r in reports) r.fsDiv};
-    final chosen = (fsDiv != null && available.contains(fsDiv))
-        ? fsDiv
-        : available.contains(FsDiv.consolidated)
-        ? FsDiv.consolidated
-        : available.contains(FsDiv.separate)
-        ? FsDiv.separate
-        : null;
-    final selected = [
-      for (final r in reports)
-        if (r.fsDiv == chosen) r,
-    ]..sort(_byPeriod);
+    final selection = await session.db.unsafeQuery(
+      'WITH ${FinancialBasis.ctes(companyId: company.id!)} SELECT fs,reason FROM latest',
+    );
+    // Explicit requests never silently return another basis.
+    final chosen =
+        fsDiv ??
+        (selection.isEmpty
+            ? null
+            : FsDiv.values.byName('${selection.first[0]}'));
+    final reason = fsDiv != null
+        ? 'manual'
+        : selection.isEmpty
+        ? 'no_financials'
+        : '${selection.first[1]}';
+    // Same canonical report per period as the shared selection SQL.
+    final canonical = <(int, FinancialReportCode), FinancialReport>{};
+    for (final report in reports.where((r) => r.fsDiv == chosen)) {
+      final key = (report.bsnsYear, report.reportCode);
+      final old = canonical[key];
+      if (old == null ||
+          report.rceptNo.compareTo(old.rceptNo) > 0 ||
+          report.rceptNo == old.rceptNo && report.id! > old.id!) {
+        canonical[key] = report;
+      }
+    }
+    final selected = canonical.values.toList()..sort(_byPeriod);
 
     final ids = {for (final r in selected) r.id!};
     final facts = ids.isEmpty
@@ -55,7 +71,9 @@ class FinancialEndpoint extends Endpoint {
             session,
             where: (t) =>
                 t.reportId.inSet(ids) &
-                t.accountId.inSet(FinancialAccounts.accountIds),
+                t.accountId.inSet(FinancialAccounts.accountIds) &
+                t.supersededById.equals(null),
+            orderBy: (t) => t.id,
           );
     final factsByReport = <int, List<FinancialFact>>{};
     for (final f in facts) {
@@ -109,6 +127,7 @@ class FinancialEndpoint extends Endpoint {
     return CompanyFinancials(
       corpCode: corpCode,
       fsDiv: chosen,
+      basisReason: reason,
       availableFsDivs: [
         for (final d in FsDiv.values)
           if (available.contains(d)) d,

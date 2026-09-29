@@ -1,0 +1,8 @@
+class: BusinessUnderstanding
+fields:
+  status: String
+  products: List<BusinessProduct>
+  bsnsYear: int?
+  rceptNo: String?
+  computedAt: DateTime?
+  ruleVersion: int

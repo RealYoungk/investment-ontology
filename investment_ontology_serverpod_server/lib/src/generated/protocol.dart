@@ -76,7 +76,10 @@ import 'ontology/models/business_digest_kind.dart' as _izxiijmh;
 import 'ontology/models/business_digest_section.dart' as _iq2bjjp3;
 import 'ontology/models/business_document.dart' as _imi0q911;
 import 'ontology/models/business_document_ref.dart' as _is707pet;
+import 'ontology/models/business_product.dart' as _i3peg7yx;
+import 'ontology/models/business_profile.dart' as _iegef18i;
 import 'ontology/models/business_section.dart' as _inylkhjt;
+import 'ontology/models/business_understanding.dart' as _iwkhf8pb;
 import 'ontology/models/company.dart' as _ipen255x;
 import 'ontology/models/company_change.dart' as _isfozywu;
 import 'ontology/models/company_detail.dart' as _ire9jjud;
@@ -146,8 +149,12 @@ import 'ontology/models/market_snapshot.dart' as _ibhowe7d;
 import 'ontology/models/market_snapshot_day.dart' as _i3renazk;
 import 'ontology/models/ontology_relation.dart' as _iejnlir1;
 import 'ontology/models/overview.dart' as _iz31wbgv;
+import 'ontology/models/peer_candidate.dart' as _i6cusig8;
+import 'ontology/models/peer_candidates.dart' as _i59onhk4;
 import 'ontology/models/peer_comparison.dart' as _isobo9h5;
 import 'ontology/models/peer_metric.dart' as _iihutb4k;
+import 'ontology/models/peer_profile.dart' as _iwm08ow1;
+import 'ontology/models/peer_signal.dart' as _i8bwgp5o;
 import 'ontology/models/person.dart' as _i9gy9ys0;
 import 'ontology/models/person_hit.dart' as _iyxi6nm4;
 import 'ontology/models/person_link_rejection.dart' as _iffou6wp;
@@ -159,6 +166,9 @@ import 'ontology/models/relation_fact_kind.dart' as _iy288i3j;
 import 'ontology/models/relation_origin.dart' as _id1oen7t;
 import 'ontology/models/relation_predicate.dart' as _idal2dwe;
 import 'ontology/models/relation_status.dart' as _ih00v9tp;
+import 'ontology/models/research_article.dart' as _i83xfi8m;
+import 'ontology/models/research_bookmark.dart' as _iofl85o3;
+import 'ontology/models/research_revision.dart' as _iwk8vi27;
 import 'ontology/models/review_check.dart' as _iqdwyhyy;
 import 'ontology/models/review_context.dart' as _ijdr1ucd;
 import 'ontology/models/review_item.dart' as _i6uduqoi;
@@ -190,7 +200,10 @@ export 'ontology/models/business_digest_kind.dart';
 export 'ontology/models/business_digest_section.dart';
 export 'ontology/models/business_document.dart';
 export 'ontology/models/business_document_ref.dart';
+export 'ontology/models/business_product.dart';
+export 'ontology/models/business_profile.dart';
 export 'ontology/models/business_section.dart';
+export 'ontology/models/business_understanding.dart';
 export 'ontology/models/company.dart';
 export 'ontology/models/company_change.dart';
 export 'ontology/models/company_detail.dart';
@@ -260,8 +273,12 @@ export 'ontology/models/market_snapshot.dart';
 export 'ontology/models/market_snapshot_day.dart';
 export 'ontology/models/ontology_relation.dart';
 export 'ontology/models/overview.dart';
+export 'ontology/models/peer_candidate.dart';
+export 'ontology/models/peer_candidates.dart';
 export 'ontology/models/peer_comparison.dart';
 export 'ontology/models/peer_metric.dart';
+export 'ontology/models/peer_profile.dart';
+export 'ontology/models/peer_signal.dart';
 export 'ontology/models/person.dart';
 export 'ontology/models/person_hit.dart';
 export 'ontology/models/person_link_rejection.dart';
@@ -273,6 +290,9 @@ export 'ontology/models/relation_fact_kind.dart';
 export 'ontology/models/relation_origin.dart';
 export 'ontology/models/relation_predicate.dart';
 export 'ontology/models/relation_status.dart';
+export 'ontology/models/research_article.dart';
+export 'ontology/models/research_bookmark.dart';
+export 'ontology/models/research_revision.dart';
 export 'ontology/models/review_check.dart';
 export 'ontology/models/review_context.dart';
 export 'ontology/models/review_item.dart';
@@ -708,6 +728,73 @@ class Protocol extends _is.DatabaseSerializationManager {
           ],
           type: 'btree',
           isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'business_profile',
+      dartName: 'BusinessProfile',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'documentId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'ruleVersion',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'products',
+          columnType: _isp.ColumnType.json,
+          isNullable: false,
+          dartType: 'List<protocol:BusinessProduct>',
+        ),
+        _isp.ColumnDefinition(
+          name: 'computedAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'business_profile_fk_0',
+          columns: ['documentId'],
+          referenceTable: 'business_document',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.cascade,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'business_profile_document_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'documentId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
           isPrimary: false,
         ),
       ],
@@ -3734,6 +3821,73 @@ class Protocol extends _is.DatabaseSerializationManager {
       managed: true,
     ),
     _isp.TableDefinition(
+      name: 'peer_profile',
+      dartName: 'PeerProfile',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'documentId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'ruleVersion',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'signals',
+          columnType: _isp.ColumnType.json,
+          isNullable: false,
+          dartType: 'List<protocol:PeerSignal>',
+        ),
+        _isp.ColumnDefinition(
+          name: 'computedAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'peer_profile_fk_0',
+          columns: ['documentId'],
+          referenceTable: 'business_document',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.cascade,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'peer_profile_document_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'documentId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
       name: 'person',
       dartName: 'Person',
       schema: 'public',
@@ -3870,6 +4024,224 @@ class Protocol extends _is.DatabaseSerializationManager {
             _isp.IndexElementDefinition(
               type: _isp.IndexElementDefinitionType.column,
               definition: 'name',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'research_article',
+      dartName: 'ResearchArticle',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'slug',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'latestVersion',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'publishedVersion',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'research_article_slug_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'slug',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'research_bookmark',
+      dartName: 'ResearchBookmark',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'userId',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'articleId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'research_bookmark_user_article_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'userId',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'articleId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'research_revision',
+      dartName: 'ResearchRevision',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'articleId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'version',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'title',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'summary',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'ticker',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'market',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'content',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'format',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'searchText',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'dataAsOf',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: 'publishedAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: 'note',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'legacy',
+          columnType: _isp.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'research_revision_version_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'articleId',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'version',
             ),
           ],
           type: 'btree',
@@ -4749,8 +5121,17 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _is707pet.BusinessDocumentRef) {
       return _is707pet.BusinessDocumentRef.fromJson(data) as T;
     }
+    if (t == _i3peg7yx.BusinessProduct) {
+      return _i3peg7yx.BusinessProduct.fromJson(data) as T;
+    }
+    if (t == _iegef18i.BusinessProfile) {
+      return _iegef18i.BusinessProfile.fromJson(data) as T;
+    }
     if (t == _inylkhjt.BusinessSection) {
       return _inylkhjt.BusinessSection.fromJson(data) as T;
+    }
+    if (t == _iwkhf8pb.BusinessUnderstanding) {
+      return _iwkhf8pb.BusinessUnderstanding.fromJson(data) as T;
     }
     if (t == _ipen255x.Company) {
       return _ipen255x.Company.fromJson(data) as T;
@@ -4959,11 +5340,23 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _iz31wbgv.Overview) {
       return _iz31wbgv.Overview.fromJson(data) as T;
     }
+    if (t == _i6cusig8.PeerCandidate) {
+      return _i6cusig8.PeerCandidate.fromJson(data) as T;
+    }
+    if (t == _i59onhk4.PeerCandidates) {
+      return _i59onhk4.PeerCandidates.fromJson(data) as T;
+    }
     if (t == _isobo9h5.PeerComparison) {
       return _isobo9h5.PeerComparison.fromJson(data) as T;
     }
     if (t == _iihutb4k.PeerMetric) {
       return _iihutb4k.PeerMetric.fromJson(data) as T;
+    }
+    if (t == _iwm08ow1.PeerProfile) {
+      return _iwm08ow1.PeerProfile.fromJson(data) as T;
+    }
+    if (t == _i8bwgp5o.PeerSignal) {
+      return _i8bwgp5o.PeerSignal.fromJson(data) as T;
     }
     if (t == _i9gy9ys0.Person) {
       return _i9gy9ys0.Person.fromJson(data) as T;
@@ -4997,6 +5390,15 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (t == _ih00v9tp.RelationStatus) {
       return _ih00v9tp.RelationStatus.fromJson(data) as T;
+    }
+    if (t == _i83xfi8m.ResearchArticle) {
+      return _i83xfi8m.ResearchArticle.fromJson(data) as T;
+    }
+    if (t == _iofl85o3.ResearchBookmark) {
+      return _iofl85o3.ResearchBookmark.fromJson(data) as T;
+    }
+    if (t == _iwk8vi27.ResearchRevision) {
+      return _iwk8vi27.ResearchRevision.fromJson(data) as T;
     }
     if (t == _iqdwyhyy.ReviewCheck) {
       return _iqdwyhyy.ReviewCheck.fromJson(data) as T;
@@ -5143,8 +5545,22 @@ class Protocol extends _is.DatabaseSerializationManager {
               : null)
           as T;
     }
+    if (t == _is.getType<_i3peg7yx.BusinessProduct?>()) {
+      return (data != null ? _i3peg7yx.BusinessProduct.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_iegef18i.BusinessProfile?>()) {
+      return (data != null ? _iegef18i.BusinessProfile.fromJson(data) : null)
+          as T;
+    }
     if (t == _is.getType<_inylkhjt.BusinessSection?>()) {
       return (data != null ? _inylkhjt.BusinessSection.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_iwkhf8pb.BusinessUnderstanding?>()) {
+      return (data != null
+              ? _iwkhf8pb.BusinessUnderstanding.fromJson(data)
+              : null)
           as T;
     }
     if (t == _is.getType<_ipen255x.Company?>()) {
@@ -5416,12 +5832,26 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _is.getType<_iz31wbgv.Overview?>()) {
       return (data != null ? _iz31wbgv.Overview.fromJson(data) : null) as T;
     }
+    if (t == _is.getType<_i6cusig8.PeerCandidate?>()) {
+      return (data != null ? _i6cusig8.PeerCandidate.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_i59onhk4.PeerCandidates?>()) {
+      return (data != null ? _i59onhk4.PeerCandidates.fromJson(data) : null)
+          as T;
+    }
     if (t == _is.getType<_isobo9h5.PeerComparison?>()) {
       return (data != null ? _isobo9h5.PeerComparison.fromJson(data) : null)
           as T;
     }
     if (t == _is.getType<_iihutb4k.PeerMetric?>()) {
       return (data != null ? _iihutb4k.PeerMetric.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_iwm08ow1.PeerProfile?>()) {
+      return (data != null ? _iwm08ow1.PeerProfile.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_i8bwgp5o.PeerSignal?>()) {
+      return (data != null ? _i8bwgp5o.PeerSignal.fromJson(data) : null) as T;
     }
     if (t == _is.getType<_i9gy9ys0.Person?>()) {
       return (data != null ? _i9gy9ys0.Person.fromJson(data) : null) as T;
@@ -5462,6 +5892,18 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (t == _is.getType<_ih00v9tp.RelationStatus?>()) {
       return (data != null ? _ih00v9tp.RelationStatus.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_i83xfi8m.ResearchArticle?>()) {
+      return (data != null ? _i83xfi8m.ResearchArticle.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_iofl85o3.ResearchBookmark?>()) {
+      return (data != null ? _iofl85o3.ResearchBookmark.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_iwk8vi27.ResearchRevision?>()) {
+      return (data != null ? _iwk8vi27.ResearchRevision.fromJson(data) : null)
           as T;
     }
     if (t == _is.getType<_iqdwyhyy.ReviewCheck?>()) {
@@ -5540,6 +5982,12 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (t == List<int>) {
       return (data as List).map((e) => deserialize<int>(e)).toList() as T;
+    }
+    if (t == List<_i3peg7yx.BusinessProduct>) {
+      return (data as List)
+              .map((e) => deserialize<_i3peg7yx.BusinessProduct>(e))
+              .toList()
+          as T;
     }
     if (t == List<_i3hzx3f1.Industry>) {
       return (data as List)
@@ -5701,6 +6149,18 @@ class Protocol extends _is.DatabaseSerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_i8bwgp5o.PeerSignal>) {
+      return (data as List)
+              .map((e) => deserialize<_i8bwgp5o.PeerSignal>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i6cusig8.PeerCandidate>) {
+      return (data as List)
+              .map((e) => deserialize<_i6cusig8.PeerCandidate>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_iihutb4k.PeerMetric>) {
       return (data as List)
               .map((e) => deserialize<_iihutb4k.PeerMetric>(e))
@@ -5729,6 +6189,21 @@ class Protocol extends _is.DatabaseSerializationManager {
       return (data as List)
               .map((e) => deserialize<_ie748vep.ScreenRow>(e))
               .toList()
+          as T;
+    }
+    if (t == Map<String, String>) {
+      return (data as Map).map(
+            (k, v) => MapEntry(deserialize<String>(k), deserialize<String>(v)),
+          )
+          as T;
+    }
+    if (t == _is.getType<Map<String, String>?>()) {
+      return (data != null
+              ? (data as Map).map(
+                  (k, v) =>
+                      MapEntry(deserialize<String>(k), deserialize<String>(v)),
+                )
+              : null)
           as T;
     }
     if (t == List<_ith4ion6.DividendEntry>) {
@@ -5907,7 +6382,10 @@ class Protocol extends _is.DatabaseSerializationManager {
       _iq2bjjp3.BusinessDigestSection => 'BusinessDigestSection',
       _imi0q911.BusinessDocument => 'BusinessDocument',
       _is707pet.BusinessDocumentRef => 'BusinessDocumentRef',
+      _i3peg7yx.BusinessProduct => 'BusinessProduct',
+      _iegef18i.BusinessProfile => 'BusinessProfile',
       _inylkhjt.BusinessSection => 'BusinessSection',
+      _iwkhf8pb.BusinessUnderstanding => 'BusinessUnderstanding',
       _ipen255x.Company => 'Company',
       _isfozywu.CompanyChange => 'CompanyChange',
       _ire9jjud.CompanyDetail => 'CompanyDetail',
@@ -5977,8 +6455,12 @@ class Protocol extends _is.DatabaseSerializationManager {
       _i3renazk.MarketSnapshotDay => 'MarketSnapshotDay',
       _iejnlir1.OntologyRelation => 'OntologyRelation',
       _iz31wbgv.Overview => 'Overview',
+      _i6cusig8.PeerCandidate => 'PeerCandidate',
+      _i59onhk4.PeerCandidates => 'PeerCandidates',
       _isobo9h5.PeerComparison => 'PeerComparison',
       _iihutb4k.PeerMetric => 'PeerMetric',
+      _iwm08ow1.PeerProfile => 'PeerProfile',
+      _i8bwgp5o.PeerSignal => 'PeerSignal',
       _i9gy9ys0.Person => 'Person',
       _iyxi6nm4.PersonHit => 'PersonHit',
       _iffou6wp.PersonLinkRejection => 'PersonLinkRejection',
@@ -5990,6 +6472,9 @@ class Protocol extends _is.DatabaseSerializationManager {
       _id1oen7t.RelationOrigin => 'RelationOrigin',
       _idal2dwe.RelationPredicate => 'RelationPredicate',
       _ih00v9tp.RelationStatus => 'RelationStatus',
+      _i83xfi8m.ResearchArticle => 'ResearchArticle',
+      _iofl85o3.ResearchBookmark => 'ResearchBookmark',
+      _iwk8vi27.ResearchRevision => 'ResearchRevision',
       _iqdwyhyy.ReviewCheck => 'ReviewCheck',
       _ijdr1ucd.ReviewContext => 'ReviewContext',
       _i6uduqoi.ReviewItem => 'ReviewItem',
@@ -6063,8 +6548,14 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'BusinessDocument';
       case _is707pet.BusinessDocumentRef():
         return 'BusinessDocumentRef';
+      case _i3peg7yx.BusinessProduct():
+        return 'BusinessProduct';
+      case _iegef18i.BusinessProfile():
+        return 'BusinessProfile';
       case _inylkhjt.BusinessSection():
         return 'BusinessSection';
+      case _iwkhf8pb.BusinessUnderstanding():
+        return 'BusinessUnderstanding';
       case _ipen255x.Company():
         return 'Company';
       case _isfozywu.CompanyChange():
@@ -6203,10 +6694,18 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'OntologyRelation';
       case _iz31wbgv.Overview():
         return 'Overview';
+      case _i6cusig8.PeerCandidate():
+        return 'PeerCandidate';
+      case _i59onhk4.PeerCandidates():
+        return 'PeerCandidates';
       case _isobo9h5.PeerComparison():
         return 'PeerComparison';
       case _iihutb4k.PeerMetric():
         return 'PeerMetric';
+      case _iwm08ow1.PeerProfile():
+        return 'PeerProfile';
+      case _i8bwgp5o.PeerSignal():
+        return 'PeerSignal';
       case _i9gy9ys0.Person():
         return 'Person';
       case _iyxi6nm4.PersonHit():
@@ -6229,6 +6728,12 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'RelationPredicate';
       case _ih00v9tp.RelationStatus():
         return 'RelationStatus';
+      case _i83xfi8m.ResearchArticle():
+        return 'ResearchArticle';
+      case _iofl85o3.ResearchBookmark():
+        return 'ResearchBookmark';
+      case _iwk8vi27.ResearchRevision():
+        return 'ResearchRevision';
       case _iqdwyhyy.ReviewCheck():
         return 'ReviewCheck';
       case _ijdr1ucd.ReviewContext():
@@ -6361,8 +6866,17 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (dataClassName == 'BusinessDocumentRef') {
       return deserialize<_is707pet.BusinessDocumentRef>(data['data']);
     }
+    if (dataClassName == 'BusinessProduct') {
+      return deserialize<_i3peg7yx.BusinessProduct>(data['data']);
+    }
+    if (dataClassName == 'BusinessProfile') {
+      return deserialize<_iegef18i.BusinessProfile>(data['data']);
+    }
     if (dataClassName == 'BusinessSection') {
       return deserialize<_inylkhjt.BusinessSection>(data['data']);
+    }
+    if (dataClassName == 'BusinessUnderstanding') {
+      return deserialize<_iwkhf8pb.BusinessUnderstanding>(data['data']);
     }
     if (dataClassName == 'Company') {
       return deserialize<_ipen255x.Company>(data['data']);
@@ -6571,11 +7085,23 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (dataClassName == 'Overview') {
       return deserialize<_iz31wbgv.Overview>(data['data']);
     }
+    if (dataClassName == 'PeerCandidate') {
+      return deserialize<_i6cusig8.PeerCandidate>(data['data']);
+    }
+    if (dataClassName == 'PeerCandidates') {
+      return deserialize<_i59onhk4.PeerCandidates>(data['data']);
+    }
     if (dataClassName == 'PeerComparison') {
       return deserialize<_isobo9h5.PeerComparison>(data['data']);
     }
     if (dataClassName == 'PeerMetric') {
       return deserialize<_iihutb4k.PeerMetric>(data['data']);
+    }
+    if (dataClassName == 'PeerProfile') {
+      return deserialize<_iwm08ow1.PeerProfile>(data['data']);
+    }
+    if (dataClassName == 'PeerSignal') {
+      return deserialize<_i8bwgp5o.PeerSignal>(data['data']);
     }
     if (dataClassName == 'Person') {
       return deserialize<_i9gy9ys0.Person>(data['data']);
@@ -6609,6 +7135,15 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'RelationStatus') {
       return deserialize<_ih00v9tp.RelationStatus>(data['data']);
+    }
+    if (dataClassName == 'ResearchArticle') {
+      return deserialize<_i83xfi8m.ResearchArticle>(data['data']);
+    }
+    if (dataClassName == 'ResearchBookmark') {
+      return deserialize<_iofl85o3.ResearchBookmark>(data['data']);
+    }
+    if (dataClassName == 'ResearchRevision') {
+      return deserialize<_iwk8vi27.ResearchRevision>(data['data']);
     }
     if (dataClassName == 'ReviewCheck') {
       return deserialize<_iqdwyhyy.ReviewCheck>(data['data']);
@@ -6725,6 +7260,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return _iq2bjjp3.BusinessDigestSection.t;
       case _imi0q911.BusinessDocument:
         return _imi0q911.BusinessDocument.t;
+      case _iegef18i.BusinessProfile:
+        return _iegef18i.BusinessProfile.t;
       case _ipen255x.Company:
         return _ipen255x.Company.t;
       case _isfozywu.CompanyChange:
@@ -6771,10 +7308,18 @@ class Protocol extends _is.DatabaseSerializationManager {
         return _i3renazk.MarketSnapshotDay.t;
       case _iejnlir1.OntologyRelation:
         return _iejnlir1.OntologyRelation.t;
+      case _iwm08ow1.PeerProfile:
+        return _iwm08ow1.PeerProfile.t;
       case _i9gy9ys0.Person:
         return _i9gy9ys0.Person.t;
       case _iffou6wp.PersonLinkRejection:
         return _iffou6wp.PersonLinkRejection.t;
+      case _i83xfi8m.ResearchArticle:
+        return _i83xfi8m.ResearchArticle.t;
+      case _iofl85o3.ResearchBookmark:
+        return _iofl85o3.ResearchBookmark.t;
+      case _iwk8vi27.ResearchRevision:
+        return _iwk8vi27.ResearchRevision.t;
       case _iqdwyhyy.ReviewCheck:
         return _iqdwyhyy.ReviewCheck.t;
       case _ilujots3.Security:

@@ -593,6 +593,75 @@ class _HitList extends StatelessWidget {
   }
 }
 
+/// 검색 대기, 실패, 빈 결과를 데스크톱과 모바일에서 동일하게 표시한다.
+class _SearchResults extends StatelessWidget {
+  const _SearchResults({
+    required this.loading,
+    required this.failed,
+    required this.hits,
+    required this.onCompany,
+    required this.onPerson,
+    required this.onLocation,
+  });
+
+  final bool loading;
+  final bool failed;
+  final _Hits hits;
+  final ValueChanged<CompanyListItem> onCompany;
+  final ValueChanged<PersonHit> onPerson;
+  final ValueChanged<String> onLocation;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!loading &&
+        !failed &&
+        (hits.companies.isNotEmpty ||
+            hits.persons.isNotEmpty ||
+            hits.links.isNotEmpty)) {
+      return _HitList(
+        hits: hits,
+        onCompany: onCompany,
+        onPerson: onPerson,
+        onLocation: onLocation,
+      );
+    }
+    return Semantics(
+      liveRegion: true,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpace.md),
+        child: Row(
+          children: [
+            if (loading) ...[
+              SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: context.colors.textSecondary,
+                ),
+              ),
+              const SizedBox(width: AppSpace.sm),
+            ],
+            Expanded(
+              child: Text(
+                loading
+                    ? '검색 중…'
+                    : failed
+                    ? '검색하지 못했습니다. 검색어를 다시 입력해 주세요.'
+                    : '검색 결과가 없습니다.',
+                style: context.typo.body(
+                  13.5,
+                  color: context.colors.textSecondary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// 어느 화면에서든 기업·인물로 바로 가는 검색.
 class _GlobalSearch extends StatefulWidget {
   const _GlobalSearch();
@@ -608,6 +677,9 @@ class _GlobalSearchState extends State<_GlobalSearch> {
   OverlayEntry? _overlay;
   _Hits _hits = _noHits;
   Timer? _debounce;
+  bool _loading = false;
+  bool _failed = false;
+  int _request = 0;
 
   @override
   void dispose() {
@@ -620,34 +692,48 @@ class _GlobalSearchState extends State<_GlobalSearch> {
 
   void _search(String q) {
     _debounce?.cancel();
+    final request = ++_request;
+    final query = q.trim();
+    _loading = query.isNotEmpty;
+    _failed = false;
+    _setHits(_noHits, show: query.isNotEmpty);
+    if (query.isEmpty) return;
     _debounce = Timer(const Duration(milliseconds: 200), () async {
-      final query = q.trim();
-      if (query.isEmpty) {
-        _setHits(_noHits);
-        return;
-      }
       try {
         final hits = await _searchAll(query);
-        if (mounted && _controller.text.trim() == query) _setHits(hits);
-      } catch (_) {}
+        if (!mounted || request != _request) return;
+        _loading = false;
+        _setHits(hits, show: true);
+      } catch (_) {
+        if (!mounted || request != _request) return;
+        _loading = false;
+        _failed = true;
+        _setHits(_noHits, show: true);
+      }
     });
   }
 
-  void _setHits(_Hits hits) {
+  void _setHits(_Hits hits, {bool show = false}) {
     _hits = hits;
     _overlay?.remove();
     _overlay = null;
-    if (hits.companies.isEmpty && hits.persons.isEmpty && hits.links.isEmpty) {
-      return;
-    }
+    if (!show) return;
     _overlay = OverlayEntry(builder: _buildOverlay);
     Overlay.of(context).insert(_overlay!);
+  }
+
+  void _dismiss() {
+    _debounce?.cancel();
+    _request++;
+    _loading = false;
+    _failed = false;
+    _setHits(_noHits);
   }
 
   void _go(String location) {
     _controller.clear();
     _focus.unfocus();
-    _setHits(_noHits);
+    _dismiss();
     context.push(location);
   }
 
@@ -667,7 +753,9 @@ class _GlobalSearchState extends State<_GlobalSearch> {
             color: c.surface,
             elevation: 4,
             borderRadius: context.shape.borderRadius,
-            child: _HitList(
+            child: _SearchResults(
+              loading: _loading,
+              failed: _failed,
               hits: _hits,
               onCompany: (item) => _go(AppRoutes.company(item.corpCode)),
               onPerson: (p) => _go(AppRoutes.person(p.personId)),
@@ -703,7 +791,7 @@ class _GlobalSearchState extends State<_GlobalSearch> {
           },
           onTapOutside: (_) {
             _focus.unfocus();
-            _setHits(_noHits);
+            _dismiss();
           },
           style: t.body(13.5),
           decoration: InputDecoration(
@@ -729,6 +817,9 @@ class _SearchDialogState extends State<_SearchDialog> {
   final _controller = TextEditingController();
   _Hits _hits = _noHits;
   Timer? _debounce;
+  bool _loading = false;
+  bool _failed = false;
+  int _request = 0;
 
   @override
   void dispose() {
@@ -739,18 +830,29 @@ class _SearchDialogState extends State<_SearchDialog> {
 
   void _search(String q) {
     _debounce?.cancel();
+    final request = ++_request;
+    final query = q.trim();
+    setState(() {
+      _hits = _noHits;
+      _loading = query.isNotEmpty;
+      _failed = false;
+    });
+    if (query.isEmpty) return;
     _debounce = Timer(const Duration(milliseconds: 200), () async {
-      final query = q.trim();
-      if (query.isEmpty) {
-        setState(() => _hits = _noHits);
-        return;
-      }
       try {
         final hits = await _searchAll(query);
-        if (mounted && _controller.text.trim() == query) {
-          setState(() => _hits = hits);
-        }
-      } catch (_) {}
+        if (!mounted || request != _request) return;
+        setState(() {
+          _hits = hits;
+          _loading = false;
+        });
+      } catch (_) {
+        if (!mounted || request != _request) return;
+        setState(() {
+          _loading = false;
+          _failed = true;
+        });
+      }
     });
   }
 
@@ -798,12 +900,15 @@ class _SearchDialogState extends State<_SearchDialog> {
               ),
             ),
             const SizedBox(height: AppSpace.xs),
-            _HitList(
-              hits: _hits,
-              onCompany: (item) => _go(AppRoutes.company(item.corpCode)),
-              onPerson: (p) => _go(AppRoutes.person(p.personId)),
-              onLocation: _go,
-            ),
+            if (_controller.text.trim().isNotEmpty)
+              _SearchResults(
+                loading: _loading,
+                failed: _failed,
+                hits: _hits,
+                onCompany: (item) => _go(AppRoutes.company(item.corpCode)),
+                onPerson: (p) => _go(AppRoutes.person(p.personId)),
+                onLocation: _go,
+              ),
           ],
         ),
       ),

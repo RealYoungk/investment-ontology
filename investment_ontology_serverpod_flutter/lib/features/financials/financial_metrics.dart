@@ -80,6 +80,30 @@ String fsDivLabel(FsDiv div) => switch (div) {
   FsDiv.separate => '별도',
 };
 
+String financialBasisReason(String? reason) => switch (reason) {
+  'incomplete_consolidated' => '연결 자료 부족 · 별도 자동 적용',
+  'newer_separate' => '별도에 더 최신 자료 있음',
+  'separate_only' => '별도 자료만 수집됨',
+  'manual' => '직접 선택',
+  'no_financials' => '재무 자료 없음',
+  _ => '연결 우선 자동 선택',
+};
+
+String? screenMetricNote(ScreenRow row, String label) {
+  final key = switch (label.replaceAll(RegExp(r'\(.*\)'), '')) {
+    'PER' => 'per',
+    'PBR' => 'pbr',
+    'ROE' => 'roe',
+    '영업이익률' => 'operatingMargin',
+    '부채비율' => 'debtRatio',
+    'FCF 수익률' => 'fcfYield',
+    '매출 성장률' => 'revenueGrowth',
+    '영업이익 성장률' => 'operatingIncomeGrowth',
+    _ => null,
+  };
+  return row.metricNotes?[key];
+}
+
 /// 계산에 들어간 원천 값 하나.
 class MetricInput {
   const MetricInput(this.label, this.amount, this.basis);
@@ -190,10 +214,20 @@ class FinancialView {
       '${p.bsnsYear} ${reportCodeLabel(p.reportCode)} · 접수 ${p.rceptNo}';
 
   /// 순이익·자본은 연결이면 지배주주 몫, 별도면 회사 전체.
-  String get netIncomeKey => isConsolidated ? 'netIncomeOwners' : 'netIncome';
-  String get netIncomeLabel => isConsolidated ? '지배주주 순이익' : '당기순이익';
-  String get equityKey => isConsolidated ? 'equityOwners' : 'equity';
-  String get equityLabel => isConsolidated ? '지배주주 자본' : '자본총계';
+  String get netIncomeKey =>
+      isConsolidated &&
+          (latest == null ||
+              _trailingAt(latest!, 'netIncomeOwners') != null ||
+              _trailingAt(latest!, 'netIncome') == null)
+      ? 'netIncomeOwners'
+      : 'netIncome';
+  String get netIncomeLabel =>
+      netIncomeKey == 'netIncomeOwners' ? '지배주주 순이익' : '당기순이익';
+  String get equityKey =>
+      isConsolidated && line(latest, 'equityOwners')?.amount != null
+      ? 'equityOwners'
+      : 'equity';
+  String get equityLabel => equityKey == 'equityOwners' ? '지배주주 자본' : '자본총계';
 
   /// 기간 흐름 계정(손익·현금흐름)의 해당 기간 누적값.
   static BigInt? cumulative(FinancialPeriod? p, String key) {
@@ -467,8 +501,18 @@ class FinancialView {
     for (final p in data.periods) {
       final revenue = _trailingAt(p, 'revenue');
       final operating = _trailingAt(p, 'operatingIncome');
-      final net = _trailingAt(p, netIncomeKey);
-      final equity = line(p, equityKey)?.amount?.toDouble();
+      final ownersNet = isConsolidated
+          ? _trailingAt(p, 'netIncomeOwners')
+          : null;
+      final ownersEquity = isConsolidated
+          ? line(p, 'equityOwners')?.amount?.toDouble()
+          : null;
+      final totalNet = _trailingAt(p, 'netIncome');
+      final net = ownersNet ?? totalNet;
+      final useOwners = ownersNet != null && ownersEquity != null;
+      final equity = useOwners
+          ? ownersEquity
+          : line(p, 'equity')?.amount?.toDouble();
       if (revenue == null && net == null) continue;
       double? over(double? a, double? b) =>
           a == null || b == null || b <= 0 ? null : 100 * a / b;
@@ -478,7 +522,7 @@ class FinancialView {
             : "${p.bsnsYear % 100}.${reportCodeLabel(p.reportCode)}",
         margin: over(operating, revenue),
         netMargin: over(net, revenue),
-        roe: over(net, equity),
+        roe: over(useOwners ? ownersNet : totalNet, equity),
       ));
     }
     return out;
@@ -550,7 +594,13 @@ class FinancialView {
           prevSame == null ? '${p.bsnsYear - 1} $code 보고서 없음' : basis(prevSame),
         ),
       ],
-      missing: value == null ? '최근 12개월 합에 필요한 값이 모자람' : null,
+      missing: value == null
+          ? '${[
+              if (a == null) '${p.bsnsYear - 1} 연간',
+              if (cur == null) '${p.bsnsYear} $code 누적',
+              if (prev == null) '${p.bsnsYear - 1} $code 누적',
+            ].join(' · ')} 자료 부족'
+          : null,
     );
   }
 
@@ -564,7 +614,7 @@ class FinancialView {
       inputs: [
         if (p != null) MetricInput(label, l?.amount, basis(p)),
       ],
-      missing: l == null ? '$label 계정이 없음' : null,
+      missing: l?.amount == null ? '$label 자료 부족' : null,
     );
   }
 
@@ -592,6 +642,7 @@ class FinancialView {
       double? topValue,
       String? topMissing,
       bool positiveBottom = true,
+      String nonPositiveReason = '분모가 0 이하',
     }) {
       final t = topValue ?? top.value;
       final b = bottom.value;
@@ -599,7 +650,7 @@ class FinancialView {
       double? value;
       if (missing == null && t != null && b != null) {
         if (positiveBottom && b <= 0) {
-          missing = '분모가 0 이하 (적자·자본잠식)';
+          missing = nonPositiveReason;
         } else {
           value = t / b;
         }
@@ -615,8 +666,10 @@ class FinancialView {
     // 상장사의 자산총계가 1억원보다 작을 수는 없다. 그보다 작으면 재무제표를 원이
     // 아닌 단위(천원 등)로 낸 것이라, 시가총액과 섞는 지표는 계산하지 않는다.
     final assets = latestBalance('assets', '자산총계');
-    final scaleMismatch = assets.value != null && assets.value! < 100000000;
-    const scaleNote = '재무제표가 원 단위가 아닌 것으로 보여 시가총액과 견주지 않음';
+    final scaleMismatch = assets.value == null || assets.value! < 100000000;
+    final scaleNote = assets.value == null
+        ? '자산총계 누락 · 금액 단위 확인 불가'
+        : '재무 금액 단위 확인 필요';
 
     final capValue = DerivedValue(
       value: cap,
@@ -633,6 +686,7 @@ class FinancialView {
       capValue,
       netIncome,
       inputs: [capInput, ...netIncome.inputs],
+      nonPositiveReason: '순이익 0 이하 · PER 계산 불가',
       topMissing: scaleMismatch ? scaleNote : null,
     );
     final pbr = ratio(
@@ -640,22 +694,31 @@ class FinancialView {
       capValue,
       equity,
       inputs: [capInput, ...equity.inputs],
+      nonPositiveReason: '자본 0 이하 · PBR 계산 불가',
       topMissing: scaleMismatch ? scaleNote : null,
     );
     final margin = ratio(
       '영업이익률 = 영업이익 ÷ 매출액 (각각 최근 12개월)\n${opIncome.formula}\n${revenue.formula}',
       opIncome,
       revenue,
+      nonPositiveReason: '매출액 0 이하',
     );
+    // ROE must use the same ownership scope on both sides.
+    final roeOwners =
+        netIncomeKey == 'netIncomeOwners' && equityKey == 'equityOwners';
+    final roeNet = roeOwners ? netIncome : trailing('netIncome', '당기순이익');
+    final roeEquity = roeOwners ? equity : latestBalance('equity', '자본총계');
     final roe = ratio(
-      'ROE = ${netIncome.formula} ÷ $equityLabel (최근 기말 값, 평균 아님)',
-      netIncome,
-      equity,
+      'ROE = ${roeNet.formula} ÷ ${roeOwners ? '지배주주 자본' : '자본총계'} (최근 기말 값, 평균 아님)',
+      roeNet,
+      roeEquity,
+      nonPositiveReason: '자본 0 이하 · ROE 계산 불가',
     );
     final debt = ratio(
       '부채비율 = 부채총계 ÷ 자본총계 (최근 기말)',
       liabilities,
       totalEquity,
+      nonPositiveReason: '자본 0 이하 · 부채비율 계산 불가',
     );
 
     // 잉여현금흐름 = 영업활동 현금흐름 − 유형자산 취득. 공시는 취득액을 양수로 적는
@@ -721,7 +784,7 @@ class FinancialView {
       DerivedMetric(
         key: 'freeCashFlow',
         label: '잉여현금흐름',
-        display: fcf.value == null ? '—' : formatKrwShort(fcf.value!),
+        display: fcf.value == null ? '—' : formatKrw(BigInt.from(fcf.value!)),
         derived: fcf,
       ),
       DerivedMetric(

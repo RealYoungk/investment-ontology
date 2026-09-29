@@ -68,6 +68,48 @@ class _CompanyPageState extends State<CompanyPage> {
 
   /// 새 데이터를 불러올 때마다 올려 재무 탭을 새 값으로 다시 만든다.
   int _version = 0;
+  int _loadSequence = 0;
+  FsDiv? _fsDiv;
+  bool _changingBasis = false;
+  String? _basisError;
+
+  Future<void> _changeBasis(FsDiv? div) async {
+    final sequence = ++_loadSequence;
+    final previousBasis = _financials?.basisReason == 'manual'
+        ? _financials?.fsDiv
+        : null;
+    setState(() {
+      _fsDiv = div;
+      _changingBasis = true;
+      _basisError = null;
+    });
+    try {
+      final financials = await client.financial.summary(
+        widget.corpCode,
+        fsDiv: div,
+      );
+      if (!mounted || sequence != _loadSequence) return;
+      if (financials == null ||
+          (div != null &&
+              (financials.fsDiv != div ||
+                  !financials.availableFsDivs.contains(div)))) {
+        throw StateError('Requested financial basis unavailable');
+      }
+      setState(() {
+        _financials = financials;
+        _fsDiv = div;
+        _changingBasis = false;
+        _version++;
+      });
+    } catch (_) {
+      if (!mounted || sequence != _loadSequence) return;
+      setState(() {
+        _changingBasis = false;
+        _fsDiv = previousBasis;
+        _basisError = '재무 기준을 바꾸지 못했습니다. 다시 선택해 주세요.';
+      });
+    }
+  }
 
   /// 계산식을 펼친 지표. 머리의 지표를 누르면 재무 탭에서 그 계산식을 연다.
   String? _openMetric;
@@ -86,14 +128,17 @@ class _CompanyPageState extends State<CompanyPage> {
   }
 
   Future<void> _load() async {
+    final sequence = ++_loadSequence;
     try {
       final (detail, financials, sections) = await (
         client.company.detail(widget.corpCode),
-        client.financial.summary(widget.corpCode),
+        client.financial.summary(widget.corpCode, fsDiv: _fsDiv),
         client.disclosure.sections(widget.corpCode),
       ).wait;
-      if (!mounted) return;
+      if (!mounted || sequence != _loadSequence) return;
       setState(() {
+        _changingBasis = false;
+        _basisError = null;
         _detail = detail;
         _financials = financials;
         _sections = sections;
@@ -103,7 +148,16 @@ class _CompanyPageState extends State<CompanyPage> {
       });
     } catch (e) {
       final error = e is ParallelWaitError ? e.errors : e;
-      if (mounted) setState(() => (_error = error, _loaded = true));
+      if (mounted && sequence == _loadSequence) {
+        setState(() {
+          _error = error;
+          _loaded = true;
+          _changingBasis = false;
+          _fsDiv = _financials?.basisReason == 'manual'
+              ? _financials?.fsDiv
+              : null;
+        });
+      }
     }
   }
 
@@ -152,27 +206,18 @@ class _CompanyPageState extends State<CompanyPage> {
         else ...[
           CompanyHeader(
             detail: detail,
+            onCompare: () => context.push(AppRoutes.compare([widget.corpCode])),
             financials: _financials,
+            onBasisChanged: _changeBasis,
+            changingBasis: _changingBasis,
+            selectedBasis: _fsDiv,
+            basisError: _basisError,
             openMetric: tab == CompanyTab.financials ? _openMetric : null,
             onOpenMetric: (key) => _openFinancials(metric: key),
           ),
-          const SizedBox(height: AppSpace.md),
-          Wrap(
-            spacing: AppSpace.lg,
-            runSpacing: AppSpace.sm,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              _ThemeChips(
-                key: ValueKey('themes-$_version'),
-                corpCode: widget.corpCode,
-              ),
-              AppButton(
-                label: '다른 기업과 비교 →',
-                variant: AppButtonVariant.link,
-                onPressed: () =>
-                    context.push(AppRoutes.compare([widget.corpCode])),
-              ),
-            ],
+          _ThemeChips(
+            key: ValueKey('themes-$_version'),
+            corpCode: widget.corpCode,
           ),
           _GroupLine(
             key: ValueKey('group-$_version'),
@@ -194,9 +239,8 @@ class _CompanyPageState extends State<CompanyPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 CompanyOverviewTab(
+                  key: ValueKey(_version),
                   detail: detail,
-                  financials: _financials,
-                  onOpenFinancials: () => _openFinancials(),
                   onOpenTab: (name) => setState(
                     () => _tab = CompanyTab.values.asNameMap()[name] ?? _tab,
                   ),
@@ -235,6 +279,7 @@ class _CompanyPageState extends State<CompanyPage> {
               dataVersion: _version,
               corpCode: widget.corpCode,
               initialData: _financials,
+              showBasisSelector: false,
               openMetric: _openMetric,
               onCloseMetric: () => setState(() => _openMetric = null),
             ),
@@ -367,38 +412,41 @@ class _ThemeChipsState extends State<_ThemeChips> {
       for (final s in _all)
         if (!mineIds.contains(s.theme.id)) s.theme.id!: s.theme.name,
     };
-    return Wrap(
-      spacing: AppSpace.sm,
-      runSpacing: AppSpace.sm,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: [
-        Text('테마', style: t.label(color: c.textSecondary)),
-        for (final theme in _mine)
-          HoverBuilder(
-            onTap: () => context.push(AppRoutes.theme(theme.id!)),
-            builder: (context, hovered) => AppTag(
-              label: theme.name,
-              color: hovered ? c.accent : null,
-              size: AppTagSize.medium,
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpace.md),
+      child: Wrap(
+        spacing: AppSpace.sm,
+        runSpacing: AppSpace.sm,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Text('테마', style: t.label(color: c.textSecondary)),
+          for (final theme in _mine)
+            HoverBuilder(
+              onTap: () => context.push(AppRoutes.theme(theme.id!)),
+              builder: (context, hovered) => AppTag(
+                label: theme.name,
+                color: hovered ? c.accent : null,
+                size: AppTagSize.medium,
+              ),
             ),
-          ),
-        if (context.isAdmin && candidates.isNotEmpty)
-          AppSelect<int>(
-            placeholder: '테마에 추가',
-            allLabel: '—',
-            value: null,
-            options: candidates,
-            onChanged: (id) {
-              if (id != null) _add(id);
-            },
-          )
-        else if (context.isAdmin)
-          AppButton(
-            label: _all.isEmpty ? '테마 만들기 →' : '새 테마 →',
-            variant: AppButtonVariant.link,
-            onPressed: () => context.go('/themes'),
-          ),
-      ],
+          if (context.isAdmin && candidates.isNotEmpty)
+            AppSelect<int>(
+              placeholder: '테마에 추가',
+              allLabel: '—',
+              value: null,
+              options: candidates,
+              onChanged: (id) {
+                if (id != null) _add(id);
+              },
+            )
+          else if (context.isAdmin)
+            AppButton(
+              label: _all.isEmpty ? '테마 만들기 →' : '새 테마 →',
+              variant: AppButtonVariant.link,
+              onPressed: () => context.go('/themes'),
+            ),
+        ],
+      ),
     );
   }
 }

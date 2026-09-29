@@ -235,7 +235,7 @@ class FinancialFactsSync {
       var message = '새 공시 $discovered건, 저장한 재무제표 $stored벌, 남은 공시 $remaining건';
       if (feedRows > 0) message += ', 공시 피드 $feedRows건';
       if (only != null) message = '${only.name}: $message';
-      if (_budgetExhausted && remaining > 0 && !cancelled && only == null) {
+      if (_budgetExhausted && !cancelled && only == null) {
         final at = ApiCallBudget.nextKstMidnight(
           now,
         ).add(const Duration(minutes: 10));
@@ -247,7 +247,11 @@ class FinancialFactsSync {
       await IngestJobs.save(
         session,
         job.copyWith(
-          status: cancelled ? IngestStatus.cancelled : IngestStatus.succeeded,
+          status: cancelled
+              ? IngestStatus.cancelled
+              : failed > 0
+              ? IngestStatus.failed
+              : IngestStatus.succeeded,
           processed: processed,
           updated: stored,
           failed: failed,
@@ -263,7 +267,29 @@ class FinancialFactsSync {
         exception: e,
         stackTrace: st,
       );
-      await IngestJobs.fail(session, jobId, '$e', apiCalls: dart.calls);
+      final retry =
+          e is DartApiException &&
+          (e.status == 'http' || e.status == '800') &&
+          corpCode == null &&
+          scheduleResume != null &&
+          !await IngestJobs.isCancelled(session, jobId);
+      if (retry) {
+        await scheduleResume!(
+          _clock().toUtc().add(const Duration(minutes: 15)),
+        );
+      }
+      await IngestJobs.save(
+        session,
+        job.copyWith(
+          status: IngestStatus.failed,
+          processed: processed,
+          updated: stored,
+          failed: failed + 1,
+          apiCalls: dart.calls,
+          finishedAt: DateTime.now().toUtc(),
+          message: '$e${retry ? ' · 15분 후 자동 재시도 예약' : ''}',
+        ),
+      );
     } finally {
       await _meter.flush(session);
       dart.close();
@@ -522,7 +548,7 @@ class FinancialFactsSync {
           _budgetExhausted = true;
           break;
         }
-        if (e.isFatal) rethrow;
+        if (e.isFatal || e.status == 'http') rethrow;
         result = FilingFetchStatus.failed;
         error = '${FinancialCodes.fsDivName(div)}: $e';
         failed = true;

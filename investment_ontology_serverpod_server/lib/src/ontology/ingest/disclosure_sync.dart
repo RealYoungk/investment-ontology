@@ -1,3 +1,6 @@
+import '../business/business_profiles.dart';
+import '../peers/peer_catalog.dart';
+
 import 'dart:convert';
 
 import 'package:serverpod/serverpod.dart';
@@ -45,7 +48,7 @@ class DisclosureSync {
            dailyBudget ??
            // 기업 하나(28회)는 기업마스터처럼 DART 전체 한도 안에서 바로 받는다.
            (corpCode == null
-               ? ApiCallBudget.dartFinancialBudget
+               ? ApiCallBudget.dartDisclosureBudget
                : ApiCallBudget.dartDailyLimit - 100),
        _clock = clock ?? DateTime.now;
 
@@ -288,7 +291,11 @@ class DisclosureSync {
       await IngestJobs.save(
         session,
         job.copyWith(
-          status: cancelled ? IngestStatus.cancelled : IngestStatus.succeeded,
+          status: cancelled
+              ? IngestStatus.cancelled
+              : failed > 0
+              ? IngestStatus.failed
+              : IngestStatus.succeeded,
           processed: processed,
           updated: stored,
           failed: failed,
@@ -304,7 +311,29 @@ class DisclosureSync {
         exception: e,
         stackTrace: st,
       );
-      await IngestJobs.fail(session, jobId, '$e', apiCalls: dart.calls);
+      final retry =
+          e is DartApiException &&
+          (e.status == 'http' || e.status == '800') &&
+          corpCode == null &&
+          scheduleResume != null &&
+          !await IngestJobs.isCancelled(session, jobId);
+      if (retry) {
+        await scheduleResume!(
+          _clock().toUtc().add(const Duration(minutes: 15)),
+        );
+      }
+      await IngestJobs.save(
+        session,
+        job.copyWith(
+          status: IngestStatus.failed,
+          processed: processed,
+          updated: stored,
+          failed: failed + 1,
+          apiCalls: dart.calls,
+          finishedAt: DateTime.now().toUtc(),
+          message: '$e${retry ? ' · 15분 후 자동 재시도 예약' : ''}',
+        ),
+      );
     } finally {
       await _meter.flush(session);
       dart.close();
@@ -473,7 +502,7 @@ class DisclosureSync {
         _budgetExhausted = true;
         return FilingFetchStatus.pending;
       }
-      if (e.isFatal) rethrow;
+      if (e.isFatal || e.status == 'http') rethrow;
       status = FilingFetchStatus.failed;
       error = '${info.label}: $e';
       session.log(
@@ -781,6 +810,8 @@ class DisclosureSync {
       );
       await ProductionFacts.store(session, stored, companyKeys: _companyKeys);
       await RndFacts.store(session, stored);
+      await PeerProfiles.store(session, stored);
+      await BusinessProfiles.store(session, stored);
       await SupplierRelations.store(
         session,
         stored,

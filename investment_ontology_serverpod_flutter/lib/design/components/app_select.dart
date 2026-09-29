@@ -14,6 +14,7 @@ class AppSelect<T> extends StatelessWidget {
     required this.placeholder,
     this.label,
     this.allLabel = '전체',
+    this.allowClear = true,
   });
 
   final Map<T, String> options;
@@ -22,6 +23,7 @@ class AppSelect<T> extends StatelessWidget {
   final String placeholder;
   final String? label;
   final String allLabel;
+  final bool allowClear;
 
   @override
   Widget build(BuildContext context) {
@@ -47,11 +49,15 @@ class AppSelect<T> extends StatelessWidget {
           ),
           onSelected: (choice) => onChanged(choice.value),
           itemBuilder: (context) => [
-            PopupMenuItem(
-              value: _Choice<T>(null),
-              height: 36,
-              child: Text(allLabel, style: t.body(13, color: c.textSecondary)),
-            ),
+            if (allowClear)
+              PopupMenuItem(
+                value: _Choice<T>(null),
+                height: 36,
+                child: Text(
+                  allLabel,
+                  style: t.body(13, color: c.textSecondary),
+                ),
+              ),
             for (final MapEntry(key: option, value: text) in options.entries)
               PopupMenuItem(
                 value: _Choice(option),

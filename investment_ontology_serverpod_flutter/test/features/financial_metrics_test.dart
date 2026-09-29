@@ -22,7 +22,10 @@ FinancialPeriod period(
   rceptNo: '${year}0000000000',
   reportName: '$year $code',
   supersededCount: 0,
-  lines: lines,
+  lines: [
+    if (!lines.any((l) => l.key == 'assets')) line('assets', 1000000000),
+    ...lines,
+  ],
 );
 
 CompanyFinancials financials(List<FinancialPeriod> periods, {BigInt? cap}) =>
@@ -92,6 +95,121 @@ void main() {
       ).annual(now: DateTime(2026, 9, 21));
       expect(only.map((p) => p.label), ['2025', '2026 없음']);
       expect(only.last.revenue.value, isNull);
+    });
+  });
+
+  group('누락 사유와 별도 재무', () {
+    test('전년 동기 누락을 정확히 표시하고 연간 값으로 대체하지 않는다', () {
+      final data = financials([
+        period(2025, FinancialReportCode.annual, [
+          line('netIncomeOwners', 100),
+        ]),
+        period(2026, FinancialReportCode.halfYear, [
+          line('netIncomeOwners', 40, cumulative: 70),
+        ]),
+      ], cap: BigInt.from(1000));
+      final per = FinancialView(data)
+          .metrics()
+          .firstWhere((m) => m.key == 'per');
+      expect(per.derived.value, isNull);
+      expect(per.derived.missing, '2025 반기 누적 자료 부족');
+    });
+
+    test('보고서가 있어도 누적 계정 값이 없으면 해당 기간을 표시한다', () {
+      final view = FinancialView(
+        financials([
+          period(2025, FinancialReportCode.halfYear, [
+            line('revenue', 10, cumulative: 30),
+          ]),
+          period(2025, FinancialReportCode.annual, [line('revenue', 100)]),
+          period(2026, FinancialReportCode.halfYear, [line('revenue', 20)]),
+        ]),
+      );
+      expect(view.trailing('revenue', '매출액').missing, '2026 반기 누적 자료 부족');
+    });
+
+    test('별도 순이익으로 TTM을 계산하고 0인 전년 동기는 누락으로 보지 않는다', () {
+      final data = financials([
+        period(2025, FinancialReportCode.halfYear, [
+          line('netIncome', 0, cumulative: 0),
+        ]),
+        period(2025, FinancialReportCode.annual, [line('netIncome', 100)]),
+        period(2026, FinancialReportCode.halfYear, [
+          line('netIncome', 40, cumulative: 50),
+        ]),
+      ], cap: BigInt.from(1500));
+      data.fsDiv = FsDiv.separate;
+      final per = FinancialView(data)
+          .metrics()
+          .firstWhere((m) => m.key == 'per');
+      expect(per.derived.value, 10);
+      expect(per.derived.missing, isNull);
+      expect(per.derived.formula, isNot(contains('지배주주')));
+    });
+  });
+
+  group('계산 불가 상태', () {
+    test('자본 0 이하와 순이익 적자를 구분하고 적자 ROE는 보존한다', () {
+      final data = financials([
+        period(2025, FinancialReportCode.annual, [
+          line('netIncomeOwners', -10),
+          line('equityOwners', 100),
+          line('equity', 100),
+          line('liabilities', 200),
+        ]),
+      ], cap: BigInt.from(1000));
+      var metrics = {for (final m in FinancialView(data).metrics()) m.key: m};
+      expect(metrics['per']!.derived.missing, contains('순이익 0 이하'));
+      expect(metrics['roe']!.derived.value, -.1);
+      data.periods.single.lines = [
+        line('assets', 1000000000),
+        line('netIncomeOwners', 10),
+        line('equityOwners', 0),
+        line('equity', 0),
+      ];
+      metrics = {for (final m in FinancialView(data).metrics()) m.key: m};
+      expect(metrics['pbr']!.derived.missing, contains('자본 0 이하'));
+      expect(metrics['roe']!.derived.missing, contains('자본 0 이하'));
+    });
+    test('ROE는 전체 순이익과 지배주주 자본을 섞지 않는다', () {
+      final data = financials([
+        period(2025, FinancialReportCode.annual, [
+          line('netIncome', 20),
+          line('equityOwners', 50),
+          line('equity', 100),
+        ]),
+      ], cap: BigInt.from(1000));
+      final roe = FinancialView(data)
+          .metrics()
+          .firstWhere((m) => m.key == 'roe');
+      expect(roe.derived.value, .2);
+      expect(FinancialView(data).trailingRatios().single.roe, 20);
+      expect(roe.derived.formula, contains('자본총계'));
+      expect(roe.derived.formula, isNot(contains('지배주주')));
+    });
+    test('금액 단위 확인에 필요한 자산이 없으면 PER을 계산하지 않는다', () {
+      final data = financials([
+        period(2025, FinancialReportCode.annual, [line('netIncome', 10)]),
+      ], cap: BigInt.from(1000));
+      data.periods.single.lines.removeWhere((l) => l.key == 'assets');
+      final per = FinancialView(data)
+          .metrics()
+          .firstWhere((m) => m.key == 'per');
+      expect(per.derived.value, isNull);
+      expect(per.derived.missing, contains('자산총계 누락'));
+    });
+    test('지배주주 값 누락 시 연결 전체 값으로 계산하고 근거에 표시한다', () {
+      final data = financials([
+        period(2025, FinancialReportCode.annual, [
+          line('netIncome', 100),
+          line('equity', 500),
+        ]),
+      ], cap: BigInt.from(1000));
+      final metrics = {for (final m in FinancialView(data).metrics()) m.key: m};
+      expect(metrics['per']!.derived.value, 10);
+      expect(metrics['pbr']!.derived.value, 2);
+      expect(metrics['per']!.derived.formula, contains('당기순이익'));
+      expect(metrics['pbr']!.derived.formula, contains('자본총계'));
     });
   });
 

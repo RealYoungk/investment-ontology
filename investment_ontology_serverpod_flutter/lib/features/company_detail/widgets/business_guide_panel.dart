@@ -1,0 +1,198 @@
+import 'package:flutter/material.dart';
+import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../../../client.dart';
+import '../../../design/components/components.dart';
+import '../../../design/tokens.dart';
+import 'revenue_composition.dart';
+import 'substrate_guide.dart';
+
+/// Every issuer uses the same stored profile contract and explicit coverage states.
+class BusinessGuidePanel extends StatefulWidget {
+  const BusinessGuidePanel({
+    super.key,
+    required this.corpCode,
+  });
+  final String corpCode;
+  @override
+  State<BusinessGuidePanel> createState() => _BusinessGuidePanelState();
+}
+
+class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
+  BusinessUnderstanding? _data;
+  bool _failed = false;
+  int _seq = 0, _selected = 0;
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  @override
+  void didUpdateWidget(covariant BusinessGuidePanel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.corpCode != widget.corpCode) _load();
+  }
+
+  Future<void> _load() async {
+    final seq = ++_seq;
+    setState(() {
+      _data = null;
+      _failed = false;
+      _selected = 0;
+    });
+    try {
+      final data = await client.disclosure.understanding(widget.corpCode);
+      if (mounted && seq == _seq) setState(() => _data = data);
+    } catch (_) {
+      if (mounted && seq == _seq) setState(() => _failed = true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors, t = context.typo;
+    final data = _data;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SectionLabel('무엇을 팔고, 어디에 쓰이나요?', accent: true),
+        const SizedBox(height: AppSpace.md),
+        if (_failed) ...[
+          Text('제품 설명을 불러오지 못했습니다.', style: t.body(14)),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton(onPressed: _load, child: const Text('다시 불러오기')),
+          ),
+        ] else if (data == null)
+          const LinearProgressIndicator(minHeight: 2)
+        else if (data.products.isEmpty)
+          Text(switch (data.status) {
+            'no_document' => '제품을 확인할 사업보고서가 아직 수집되지 않았습니다.',
+            'pending' => '수집한 공시에서 제품 정보를 정리하고 있습니다.',
+            'stale' => '최근 사업보고서가 없어 제품 설명을 갱신하지 못했습니다.',
+            _ => '공시는 있지만 제품과 용도를 자동으로 연결하지 못했습니다. 사업 원문에서 확인할 수 있습니다.',
+          }, style: t.body(14, color: c.textSecondary))
+        else if (data.products.any((p) => p.key == 'substrate_aoi')) ...[
+          const SubstrateGuide(),
+        ] else ...[
+          Text('공시에서 확인한 제품', style: t.body(20, weight: FontWeight.w700)),
+          const SizedBox(height: AppSpace.sm),
+          Wrap(
+            spacing: AppSpace.sm,
+            runSpacing: AppSpace.sm,
+            children: [
+              for (final (i, product) in data.products.indexed)
+                ChoiceChip(
+                  label: Text(product.name),
+                  selected: i == _selected,
+                  onSelected: (_) => setState(() => _selected = i),
+                ),
+            ],
+          ),
+          const SizedBox(height: AppSpace.md),
+          BusinessProductCard(
+            product: data.products[_selected],
+            rceptNo: data.rceptNo,
+          ),
+          const SizedBox(height: AppSpace.sm),
+          Text(
+            '회사 제품 확인: FY${data.bsnsYear} 사업보고서 · 공정 설명은 제품 원리이며 회사별 성능 보증은 아닙니다.',
+            style: t.body(11, color: c.textMuted),
+          ),
+        ],
+        const SizedBox(height: AppSpace.xl),
+        RevenueComposition(
+          corpCode: widget.corpCode,
+          products: data?.products ?? const [],
+        ),
+        const SizedBox(height: AppSpace.xl),
+      ],
+    );
+  }
+}
+
+class BusinessProductCard extends StatelessWidget {
+  const BusinessProductCard({super.key, required this.product, this.rceptNo});
+  final BusinessProduct product;
+  final String? rceptNo;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors, t = context.typo;
+    final explained = product.explanationKind != 'source_only';
+    final circuit = product.key.startsWith('substrate_');
+    return Container(
+      padding: const EdgeInsets.all(AppSpace.lg),
+      decoration: BoxDecoration(
+        color: c.surface,
+        border: Border.all(color: c.border),
+        borderRadius: context.shape.borderRadius,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (explained) ...[
+            Text(
+              product.process,
+              style: t.body(13, color: c.accent, weight: FontWeight.w600),
+            ),
+            const SizedBox(height: AppSpace.md),
+            Text(
+              product.role,
+              style: t.body(19, weight: FontWeight.w700).copyWith(height: 1.5),
+            ),
+            const SizedBox(height: AppSpace.sm),
+            Text(
+              product.benefit.isEmpty ? '' : '고객이 쓰는 이유 · ${product.benefit}',
+              style: t.body(14).copyWith(height: 1.7),
+            ),
+          ] else ...[
+            Text(product.name, style: t.body(19, weight: FontWeight.w700)),
+            const SizedBox(height: AppSpace.sm),
+            Text(
+              '제품은 공시에서 확인했습니다. 쓰이는 공정과 고객의 사용 목적은 아직 연결되지 않았습니다.',
+              style: t.body(14, color: c.textSecondary).copyWith(height: 1.7),
+            ),
+          ],
+          Material(
+            color: c.surface,
+            child: ExpansionTile(
+              key: ValueKey(product.key),
+              tilePadding: EdgeInsets.zero,
+              title: Text('이 회사의 제품인 근거', style: t.body(13)),
+              children: [
+                SelectableText(
+                  product.evidence,
+                  style: t.body(13).copyWith(height: 1.7),
+                ),
+                if (rceptNo != null)
+                  _link(
+                    'DART 사업보고서 ↗',
+                    'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=$rceptNo',
+                  ),
+              ],
+            ),
+          ),
+          if (product.referenceUrl != null)
+            _link('제품 원리·사진 참고 ↗', product.referenceUrl!),
+          if (circuit)
+            _link(
+              '패키지 기판의 역할 · 삼성전기 ↗',
+              'https://www.samsungsem.com/kr/product/substrate/package-substrate.do',
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _link(String label, String url) => Align(
+    alignment: Alignment.centerLeft,
+    child: AppButton(
+      label: label,
+      variant: AppButtonVariant.link,
+      onPressed: () => launchUrl(Uri.parse(url)),
+    ),
+  );
+}

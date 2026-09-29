@@ -8,3 +8,5 @@ fields:
   ### 비교에 쓴 기업 수 (자기 자신 포함)
   peerCount: int
   metrics: List<PeerMetric>
+  ### 대상 기업과 비교 집단에 공통으로 적용한 재무 기준
+  fsDiv: FsDiv?

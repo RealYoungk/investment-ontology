@@ -4,188 +4,83 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../design/components/components.dart';
 import '../../../design/tokens.dart';
-import '../../financials/financial_metrics.dart';
-import '../../financials/financial_coverage.dart';
 import '../../common/formatters.dart';
-import 'business_blurb.dart';
+import 'business_guide_panel.dart';
 import 'business_highlights.dart';
-import 'ontology_digest.dart';
 import 'recent_disclosures.dart';
-import 'peer_digest.dart';
 import 'price_chart.dart';
 
-/// 기업 상세의 개요 탭: 재무 요약(자세히는 재무 탭) · 기업개황 · 산업 분류 · 변경 이력 · 출처.
+/// 개요는 사업 이해와 규모 파악, 재무 탭은 기간별 분석을 담당한다.
 class CompanyOverviewTab extends StatelessWidget {
   const CompanyOverviewTab({
     super.key,
     required this.detail,
-    required this.financials,
-    required this.onOpenFinancials,
     required this.onOpenTab,
   });
 
-  /// 이보다 넓으면 두 단으로 놓는다.
-  static const _twoColumnWidth = 980.0;
-
   final CompanyDetail detail;
-  final CompanyFinancials? financials;
-  final VoidCallback onOpenFinancials;
   final ValueChanged<String> onOpenTab;
 
   @override
   Widget build(BuildContext context) {
     final main = [
-      BusinessBlurb(
+      BusinessGuidePanel(
         corpCode: detail.company.corpCode,
-        onOpen: () => onOpenTab('business'),
       ),
-      _FinancialDigest(financials: financials, onOpen: onOpenFinancials),
-      const SizedBox(height: AppSpace.section),
       BusinessHighlights(
         corpCode: detail.company.corpCode,
         onOpenTab: onOpenTab,
       ),
-      const SizedBox(height: AppSpace.section),
-      PriceChart(corpCode: detail.company.corpCode),
-      const SizedBox(height: AppSpace.section),
-      ExpansionTile(
-        tilePadding: EdgeInsets.zero,
-        title: Text(
-          '기업 기본정보',
-          style: context.typo.body(15, weight: FontWeight.w600),
+      const SectionLabel('주가는 어떻게 움직였나요?', accent: true),
+      const SizedBox(height: AppSpace.md),
+      Container(
+        padding: const EdgeInsets.all(AppSpace.lg),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          border: Border.all(color: context.colors.border),
+          borderRadius: context.shape.borderRadius,
         ),
-        subtitle: Text(
-          '대표자 · 설립일 · 주소 · 연락처',
-          style: context.typo.body(12, color: context.colors.textSecondary),
+        child: PriceChart(corpCode: detail.company.corpCode),
+      ),
+      const SizedBox(height: AppSpace.xl),
+      const SectionLabel('어떤 기업인가요?', accent: true),
+      const SizedBox(height: AppSpace.md),
+      _CompanyInfoCard(
+        title: Text(
+          '기업 정보',
+          style: context.typo.body(18, weight: FontWeight.w700),
         ),
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: AppSpace.lg),
+            padding: const EdgeInsets.symmetric(vertical: AppSpace.sm),
             child: _Profile(company: detail.company),
           ),
+          if (detail.industryPath.isNotEmpty) ...[
+            const SizedBox(height: AppSpace.md),
+            _IndustryPath(path: detail.industryPath),
+          ],
+          if (detail.changes.isNotEmpty)
+            ExpansionTile(
+              tilePadding: EdgeInsets.zero,
+              expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
+              title: Text(
+                '정보 변경 기록 · ${detail.changes.length}건',
+                style: context.typo.body(
+                  13,
+                  color: context.colors.textSecondary,
+                ),
+              ),
+              children: [_ChangeHistory(changes: detail.changes)],
+            ),
         ],
       ),
     ];
-    final side = [
-      OntologyDigest(
-        corpCode: detail.company.corpCode,
-        onOpenTab: onOpenTab,
-      ),
-      const SizedBox(height: AppSpace.lg),
-      PeerDigest(corpCode: detail.company.corpCode),
-      const SizedBox(height: AppSpace.xl),
-      if (detail.industryPath.isNotEmpty) ...[
-        const SectionLabel('산업 분류 · KSIC'),
-        const SizedBox(height: 10),
-        _IndustryPath(path: detail.industryPath),
-        const SizedBox(height: AppSpace.xxl),
-      ],
-      RecentDisclosures(corpCode: detail.company.corpCode),
-      const SizedBox(height: AppSpace.xxl),
-      _ChangeHistory(changes: detail.changes),
-      const SizedBox(height: AppSpace.xxl),
-      _SourceNote(
-        corpCode: detail.company.corpCode,
-        source: detail.profileSource,
-      ),
-    ];
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        if (constraints.maxWidth < _twoColumnWidth) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              ...main,
-              const SizedBox(height: AppSpace.section),
-              ...side,
-            ],
-          );
-        }
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: main,
-              ),
-            ),
-            const SizedBox(width: AppSpace.section),
-            Expanded(
-              flex: 1,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: side,
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-/// 연간 매출액·영업이익 추이. 지표·분기·재무제표는 재무 탭에서 본다.
-class _FinancialDigest extends StatelessWidget {
-  const _FinancialDigest({required this.financials, required this.onOpen});
-
-  final CompanyFinancials? financials;
-  final VoidCallback onOpen;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    final t = context.typo;
-    final fin = financials;
-    final points = fin == null
-        ? const <PeriodPoint>[]
-        : FinancialView(fin).annual();
-    final series = [
-      ChartSeries(
-        label: '매출액',
-        color: c.chartSeries1,
-        values: [for (final p in points) p.revenue.value],
-      ),
-      ChartSeries(
-        label: '영업이익',
-        color: c.chartSeries2,
-        values: [for (final p in points) p.operatingIncome.value],
-      ),
-    ];
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SectionLabel(
-          '재무 요약 · 연간${fin?.fsDiv == null ? '' : ' ${fsDivLabel(fin!.fsDiv!)}'}',
-          trailing: AppButton(
-            label: '재무 자세히 →',
-            variant: AppButtonVariant.link,
-            tone: c.accent,
-            onPressed: onOpen,
-          ),
-        ),
-        const SizedBox(height: AppSpace.sm),
-        if (fin != null) FinancialCoverage(data: fin),
-        if (points.isEmpty)
-          Text(
-            fin == null || fin.filingCount == 0
-                ? '아직 재무를 수집하지 않았습니다.'
-                : '사업보고서 재무가 아직 없습니다 (정기보고서 '
-                      '${formatCount(fin.pendingFilingCount)}건 수집 대기).',
-            style: t.body(13, color: c.textMuted),
-          )
-        else ...[
-          ChartLegend(series: series),
-          const SizedBox(height: AppSpace.sm),
-          AppColumnChart(
-            categories: [for (final p in points) p.label],
-            series: series,
-            formatValue: formatKrwShort,
-          ),
-        ],
+        ...main,
+        const SizedBox(height: AppSpace.xl),
+        RecentDisclosures(corpCode: detail.company.corpCode),
       ],
     );
   }
@@ -206,8 +101,6 @@ class _Profile extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SectionLabel('기업개황'),
-        const SizedBox(height: 6),
         KeyValueRow(label: '대표자', value: company.ceoName),
         KeyValueRow(
           label: '설립일',
@@ -247,43 +140,23 @@ class _IndustryPath extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final t = context.typo;
+    if (path.isEmpty) return const SizedBox.shrink();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (final (depth, industry) in path.indexed)
-          Padding(
-            padding: EdgeInsets.only(left: depth * 16.0, bottom: 6),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  depth == 0 ? '■ ' : '└ ',
-                  style: t.numeric(
-                    12,
-                    color: depth == path.length - 1 ? c.accent : c.textMuted,
-                  ),
-                ),
-                SizedBox(
-                  width: 48,
-                  child: Text(
-                    industry.code,
-                    style: t.numeric(12.5, weight: FontWeight.w700),
-                  ),
-                ),
-                Expanded(
-                  child: Text(
-                    industry.name,
-                    style: t.body(
-                      13.5,
-                      weight: depth == path.length - 1
-                          ? FontWeight.w600
-                          : FontWeight.w400,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+        Text(path.last.name, style: t.body(15, weight: FontWeight.w600)),
+        const SizedBox(height: AppSpace.xs),
+        Text(
+          'KSIC ${path.last.code}',
+          style: t.numeric(12, color: c.textMuted),
+        ),
+        if (path.length > 1) ...[
+          const SizedBox(height: AppSpace.sm),
+          Text(
+            path.take(path.length - 1).map((p) => p.name).join(' › '),
+            style: t.body(12, color: c.textSecondary).copyWith(height: 1.6),
           ),
+        ],
       ],
     );
   }
@@ -301,11 +174,11 @@ class _ChangeHistory extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SectionLabel('변경 이력'),
+        const SectionLabel('기본정보 변경 기록'),
         const SizedBox(height: AppSpace.sm),
         if (changes.isEmpty)
           Text(
-            '처음 수집한 뒤로 바뀐 내용이 없습니다.',
+            '기록된 기본정보 변경이 없습니다.',
             style: t.body(13, color: c.textMuted),
           )
         else
@@ -326,7 +199,7 @@ class _ChangeHistory extends StatelessWidget {
                       ),
                       const Spacer(),
                       Text(
-                        formatDateTime(change.changedAt),
+                        formatDate(change.changedAt),
                         style: t.numeric(11.5, color: c.textMuted),
                       ),
                     ],
@@ -360,56 +233,27 @@ class _ChangeHistory extends StatelessWidget {
   }
 }
 
-class _SourceNote extends StatelessWidget {
-  const _SourceNote({required this.corpCode, required this.source});
-
-  final String corpCode;
-  final Source? source;
-
+class _CompanyInfoCard extends StatelessWidget {
+  const _CompanyInfoCard({required this.title, required this.children});
+  final Widget title;
+  final List<Widget> children;
   @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    final t = context.typo;
-    final s = source;
-    return Container(
+  Widget build(BuildContext context) => Material(
+    color: context.colors.surface,
+    shape: RoundedRectangleBorder(
+      borderRadius: context.shape.borderRadius,
+      side: BorderSide(color: context.colors.border),
+    ),
+    child: Padding(
       padding: const EdgeInsets.all(AppSpace.lg),
-      decoration: BoxDecoration(
-        color: c.background,
-        borderRadius: context.shape.borderRadius,
-        border: Border.all(
-          color: c.borderStrong,
-          width: context.shape.strokeWidth,
-        ),
-      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SectionLabel('출처', accent: true),
+          title,
           const SizedBox(height: AppSpace.sm),
-          Text(
-            s?.title ?? '출처 기록 없음',
-            style: t.body(13.5, weight: FontWeight.w600),
-          ),
-          if (s != null) ...[
-            const SizedBox(height: AppSpace.xs),
-            Text(
-              '수집 ${formatDateTime(s.retrievedAt)}',
-              style: t.numeric(12, color: c.textSecondary),
-            ),
-          ],
-          const SizedBox(height: AppSpace.sm),
-          AppButton(
-            label: 'DART 공시 목록 열기 →',
-            variant: AppButtonVariant.link,
-            tone: c.accent,
-            onPressed: () => launchUrl(
-              Uri.parse(
-                'https://dart.fss.or.kr/dsab007/main.do?autoSearch=true&option=corp&textCrpCik=$corpCode',
-              ),
-            ),
-          ),
+          ...children,
         ],
       ),
-    );
-  }
+    ),
+  );
 }

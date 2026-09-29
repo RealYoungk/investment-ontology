@@ -2,6 +2,10 @@
 
 자리를 비운 동안 한 작업과 지금 상태를 정리합니다. 수치는 작성 시점 기준이고, 최신 값은 앱 **데이터** 화면 맨 위 "수집 현황"에서 봅니다.
 
+## 2026-09-29 개요 화면 최종 정리
+
+기업 개요는 제품·사용 공정, 매출 구성, 주가, 기업정보의 질문형 4개 영역으로 통일했다. 기업정보는 기본 펼침이며 공통 여백은 영역 사이 24px / 제목 아래 12px / 카드 내부 16px다. 재무 요약 중복과 하단 온톨로지·업종 비교를 제거하고, 동일 재무 기준의 업종 중앙값을 상단 지표에 붙였다. 제품 설명은 자체 도식과 저장된 규칙 기반 프로필을 사용한다. 최종 범위와 한계는 [사업 이해 화면](business-understanding.md)의 마지막 절을 참조한다. 커밋 전 서버 235개·Flutter 110개 테스트 통과. 공개 배포는 별도다.
+
 ## 현재 인수인계 기준 (2026-09-22)
 
 - 최신 검증/마감 절차는 [인수인계 마감 기록](handoff-acceptance-2026-09-22.md), 보안·DB 근거는 [추가 점검 보고서](security-db-audit-2026-09-22.md)를 먼저 읽는다. 아래 번호별 수치·PR·대기열·공개 URL은 과거 기록이다.
@@ -275,3 +279,47 @@
 - 공개 최종 배포: dpl_HyHN8nagsPawDDfJhvrv2wtajiKm (alfinder-research-al76gldg3-realyoungks-projects.vercel.app), alfinder.kr 승격 완료.
 
 - 후속 전송 보완: DNS 조회를 동시 요청 간 공유하고 60초 캐시. 최종 배포 dpl_ZMYtLSXQLjWfnwuZFhbB8CUMbTxq (alfinder-research-5065bynvo-realyoungks-projects.vercel.app). 동시 5요청 200, 실제 alfinder.kr 비로그인 시장에서 기업 수·코스피/코스닥 숫자와 차트 표시 확인. 스크린샷 output/desktop-preview/public-market.png.
+
+## 2026-09-28 기업 재무 기준 전환과 누락 안내 간소화
+
+- 사용자 요청: 기가비스처럼 연결 이력이 짧아 PER 등이 비는 경우 별도 재무로 확인할 수 있게 하고, 누락 이유와 화면 설명을 간결하게 표시.
+- 현재 API 대조: 기가비스(00765569)의 연결 기간은 2025 Q3부터, 별도는 2023 반기부터다. 최근 보고서 2026 반기에서 연결 TTM에 필요한 2025 반기가 저장돼 있지 않다. 이는 저장 자료 관찰이며 공시 자체가 없다는 판정이 아니다.
+- 상단 연결/별도 선택이 핵심 지표·개요 차트·재무 탭 계산 근거를 함께 변경한다. 기존 재무 탭만 전환되어 상단에 연결 지표가 남던 문제를 수정했다. 동일 기준 안에서 계산하며 연결/별도 혼합이나 연간 값의 TTM 대체는 하지 않는다. 기본값은 기존 연결 우선, 별도는 사용자가 선택한다.
+- 누락 기간을 명시하고 공통 사유는 한 번만 표시한다. 자료 범위·업종 비교 기준·산업분류/변경 이력/출처를 접었다. 업종 비교와 스크리너는 기존 연결 기준이므로 업종 카드 제목에 기준을 표시했다.
+- 분석·포맷·diff 검사, 계산/디자인 15개 및 기준 전환 위젯 회귀 1개 통과. 실제 localhost 데스크톱/390px에서 별도 전환과 PER 계산 근거 확인: 74.86배(시세 기준일 2026-09-23). Flutter Driver는 응답 timeout으로 CUA 브라우저에서 검증했다. Serverpod MCP hot_restart 후 화면 정상.
+- 공개 사이트 배포는 하지 않았다. localhost:8100/company/00765569에 수정 화면을 열어두었다. 기존 app_shell.dart 및 migration 변경은 이 작업 변경이 아니며 보존했다.
+
+## 2026-09-28 후속: 수동 전환을 넘어 재무 엣지케이스 자동 대응
+
+위의 수동 선택만 구현한 상태를 보완했다. 최신 기간·연결 우선·별도의 입력 보완 여부를 공통 SQL로 판단하여 기업 상세/스크리너/비교에 적용한다. 적자·0은 누락으로 보지 않고, 연결/별도 기간을 섞지 않는다. 수동 선택 우선과 자동 복귀, 누락 기간 및 계산 불가 사유, 실제 기준 표시를 구현했다. 지배주주 값이 없을 때 전체 값으로 계산하는 규칙도 양쪽을 일치시키되 ROE의 소유주 범위는 맞춘다. 업종 비교는 같은 재무 기준끼리 계산한다.
+
+규칙·검증 범위·실행 증거·배포 상태는 `docs/financial-basis-edge-cases.md` 참조. 공개 API를 공유하는 개발 서버에는 반영됐고, 공개 웹 번들은 미배포다.
+
+## 2026-09-28 공시 제품군 기반 기업 비교 후보
+
+사용자 요청에 따라 검사장비의 제품군 전처리와 비교 후보 UI를 구현했다. 최신 활성 공시의 주요 제품 절에서 규칙으로 대상·방식을 읽어 peer_profile에 원문 인용/규칙 버전을 사전 저장한다. 신규 본문 수집 시 처리하고 서버 시작 시 미처리/이전 규칙을 보완한다. 조회는 현재 활성 문서·현재 버전·최근 3개 연도만 허용한다. 같은 검사 대상과 방식이 겹치는 후보만 제공한다. 기가비스는 인텍플러스·펨트론 2곳이며 선정 이유, 서로 다른 제품군, 공시 원문 링크를 접어서 표시하고 클릭으로 비교에 추가한다. 원문 인용 중복은 합쳐 표시한다. 미지원·자료 없음·준비 중·조회 실패는 구분하고 수동 검색은 유지한다.
+
+설계와 한계, 스키마 보존 조치, 테스트/실제 화면 확인은 docs/peer-candidates.md 참고. 13개 서버/6개 Flutter 관련 테스트, 분석 통과. 공개 웹 번들 미배포. 기존 app_shell 및 선행 migration 변경 보존.
+
+## 2026-09-28 비교 후보 시스템화 및 가독성 개편
+
+앞선 검사장비 한정 구현을 규칙 v7의 범용 제품 카탈로그로 확장했다. `peers/product_taxonomy.dart`와 `peer_rules.dart`에서 주요 제품 표의 제품 열만 추출하고 일반 제품은 KSIC 대분류도 일치시킨다. 여러 사업 중 비교할 제품을 선택할 수 있으며 기본 제품을 매출 최대 사업으로 해석하지 않는다. 프로필 2,651건 처리, 신호 925곳, 기본 제품에서 후보가 있는 기업 182곳(정확도 수치 아님). 신규 공시 및 규칙 버전 변경 시 자동 전처리 구조를 유지한다.
+
+UI는 공통 제품 한 문장 → 비교 이유 대화상자의 회사별 차이 → 접힌 공시 원문 순서로 바꿨다. 원문을 카드에 나열하지 않는다. 최신 설계/확장 절차는 docs/peer-candidates.md, 재현 가능한 감사 도구는 server/tool/peers/. 자동 생성기의 오래된 의존성 분석 때문에 서비스 파일을 peer_profiles.dart에서 peer_catalog.dart로 옮겼으며 클래스명은 PeerProfiles를 유지했다. endpoint optional focusKey 생성 및 등록 테스트 통과. 공개 웹 번들 미배포.
+
+## 2026-09-29 수집 장애 복구
+
+통신 장애 즉시 중단/15분 후 자동 재개, 부분 실패 성공 판정 수정, 재시작 시 누락된 복구 예약 생성, 주요정보 18,000/재무 19,000 호출 상한 분리, 검색 단계 예산 소진 재개를 반영했다. 실제 시세·지수 9/28까지 복구(실패 0), 재무 재개 및 최근 공시 470건 추가 확인. 서버 전체 334개 및 후속 재무 17개 테스트 통과. 재무 10년 이력 확장 작업은 실행 중이며 완료와 구분한다. 상세 근거와 남은 범위는 docs/ingestion-recovery-2026-09-29.md.
+
+## 2026-09-29 기업 사업 이해의 공통 구조
+
+사용자는 기가비스 탐방 준비에서 제품·매출·공정 이해가 막혔고, 기업 한 건의 대응이 아닌 시스템 수정을 요구했다. 회사 코드 분기를 제거하고 BusinessProfile/BusinessProduct/BusinessUnderstanding + 공통 제품 설명 사전을 도입했다. 신규 공시 수집 및 규칙 버전 변경 시 사전 저장, 읽기 전용 disclosure.understanding, 회사 공시 근거와 일반 제품 원리 출처 분리, 미지원·미수집·대기·실패·오래된 자료 상태를 구현했다. 기존 공개 읽기/관리자 변경 권한은 유지했다.
+
+개요 첫 블록은 제품 선택→공정/효용→부문별 매출→기존 연간 재무 순서다. 기판 AOI/VRS/AOR는 칩-기판-메인보드 관계 및 결함 개념도를 제공한다. 기존 부문 매출의 병합셀 제품명과 인쇄 비중을 보여주되 합산/기간 혼합을 피한다. 제품 공통 사전은 MLCC/패키지기판도 지원하며 기업별 예외 코드는 없다.
+
+규칙 20007 감사: 2,651개 활성 문서 처리, 907개사 제품 연결, 2개사 공정/용도 설명(기가비스·삼성전기), 비원문 근거 0건. 전수 의미 정확도와 혼동하지 않는다. WLP/PLP/유리기판 사업화 단계 및 전체 업종 설명은 미지원. 확장 규칙과 근거, 검증·배포 상태는 docs/business-understanding.md 참조. 로컬 웹 반영, 공개 웹 번들 미배포.
+
+### 2026-09-29 business explanation revision
+User rejected the initial business guide's explanatory value despite passing technical checks. Removed the two-line circuit drawing; substrate AOI profiles now show an object → manufacturing stage → real defect/repair lesson with credited official images. See docs/business-understanding.md. Local frontend revised; user comprehension not yet validated. Do not describe the earlier profile coverage as successful business understanding.
+
+Follow-up: user approved improvement but requested direct visual labels and raised copyright. Official copied images removed from the bundle; original vector diagrams now label IC/chip, substrate, solder balls and motherboard via red leader lines. Manufacturer images are source links only. See docs/business-understanding.md for media rules.

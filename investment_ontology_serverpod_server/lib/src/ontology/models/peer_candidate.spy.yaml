@@ -1,0 +1,10 @@
+class: PeerCandidate
+fields:
+  corpCode: String
+  name: String
+  tier: String
+  reasons: List<String>
+  differences: List<String>
+  signals: List<PeerSignal>
+  bsnsYear: int
+  rceptNo: String

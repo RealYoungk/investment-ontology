@@ -354,7 +354,7 @@ class _ScreenerPageState extends State<ScreenerPage> {
                     style: t.body(12, color: c.textSecondary),
                   ),
                   const Tooltip(
-                    message: '프리셋은 수정 가능한 예시 조건입니다. 선택하면 기존 숫자 조건을 교체합니다. 최근 12개월 연결 실적과 최근 수집 시세를 사용하며, 조건에 필요한 값이 없는 기업은 제외합니다. 지배주주 값이 없으면 전체 값을 사용합니다. 금융업 등은 표준계정과 현금흐름의 성격이 달라 지표 해석에 주의가 필요합니다.',
+                    message: '프리셋은 수정 가능한 예시 조건입니다. 선택하면 기존 숫자 조건을 교체합니다. 최신 기간에서 연결 우선으로 계산하며, 연결 자료가 부족하고 별도로 보완 가능하면 별도를 적용합니다.  조건에 필요한 값이 없는 기업은 제외합니다. 지배주주 값이 없으면 전체 값을 사용합니다. 금융업 등은 표준계정과 현금흐름의 성격이 달라 지표 해석에 주의가 필요합니다.',
                     triggerMode: TooltipTriggerMode.tap,
                     child: Padding(
                       padding: EdgeInsets.all(12),
@@ -395,7 +395,7 @@ class _ScreenerPageState extends State<ScreenerPage> {
                       key: ValueKey('per-$_inputRevision'),
                       min: 0,
                       label: 'PER 이하',
-                      help: '시가총액 ÷ 최근 12개월 지배주주 순이익입니다. 적자 기업은 계산하지 않습니다.',
+                      help: '시가총액 ÷ 최근 12개월 순이익입니다. 연결은 지배주주 몫을 우선하며, 없으면 전체 값을 사용합니다. 순이익이 0 이하면 계산하지 않습니다.',
                       value: _f.perMax,
                       onChanged: (v) =>
                           _applySoon(_f.copyWith(perMax: () => v)),
@@ -404,7 +404,7 @@ class _ScreenerPageState extends State<ScreenerPage> {
                       key: ValueKey('pbr-$_inputRevision'),
                       min: 0,
                       label: 'PBR 이하',
-                      help: '시가총액 ÷ 최근 보고서의 지배주주 자본입니다.',
+                      help: '시가총액 ÷ 최근 보고서의 자본입니다. 연결은 지배주주 몫을 우선하며, 없으면 자본총계를 사용합니다.',
                       value: _f.pbrMax,
                       onChanged: (v) =>
                           _applySoon(_f.copyWith(pbrMax: () => v)),
@@ -434,7 +434,7 @@ class _ScreenerPageState extends State<ScreenerPage> {
                     _NumberField(
                       key: ValueKey('roe-$_inputRevision'),
                       label: 'ROE % 이상',
-                      help: '최근 12개월 지배주주 순이익 ÷ 최근 보고서의 지배주주 자본 × 100입니다.',
+                      help: '최근 12개월 순이익 ÷ 최근 보고서의 자본 × 100입니다. 연결은 지배주주 몫을 우선합니다.',
                       value: _f.roeMin,
                       onChanged: (v) =>
                           _applySoon(_f.copyWith(roeMin: () => v)),
@@ -686,7 +686,10 @@ class _ResultTable extends StatelessWidget {
     }
     String? fixed(double? v, int digits) => v?.toStringAsFixed(digits);
     final columns = <(String, String? Function(ScreenRow))>[
-      ('기업', (r) => r.company.name),
+      (
+        '기업',
+        (r) => '${r.company.name}${r.fsDiv == FsDiv.separate ? ' · 별도' : ''}',
+      ),
       // 표에서는 짧게 (1,357조 · 6.1조). 긴 표기는 칸을 넘겨 두 줄이 된다.
       ('시가총액', (r) => formatKrwShort(r.marketCap.toDouble())),
       ('PER(배)', (r) => fixed(r.per, 2)),
@@ -719,7 +722,11 @@ class _ResultTable extends StatelessWidget {
       ('52주 위치(%)', (r) => fixed(r.bandPosition, 0)),
       ('매출액(TTM)', (r) => formatKrw(r.revenue)),
       ('영업이익(TTM)', (r) => formatKrw(r.operatingIncome)),
-      ('최근 보고서', (r) => '${r.bsnsYear}'),
+      (
+        '최근 보고서',
+        (r) =>
+            '${r.bsnsYear} ${r.reportCode == null ? '' : reportCodeLabel(r.reportCode!)}',
+      ),
     ];
     return LayoutBuilder(
       builder: (context, box) {
@@ -785,7 +792,7 @@ class _ResultTable extends StatelessWidget {
                       onTap: () =>
                           context.push(AppRoutes.company(r.company.corpCode)),
                       builder: (context, hovered) => Text(
-                        r.company.name,
+                        '${r.company.name}${r.fsDiv == FsDiv.separate ? ' · 별도' : ''}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: t
@@ -803,7 +810,14 @@ class _ResultTable extends StatelessWidget {
                       ),
                     )
                   else
-                    AppDataTable.text(context, col.$2(r), numeric: true),
+                    Tooltip(
+                      message: screenMetricNote(r, col.$1) ?? '',
+                      child: AppDataTable.text(
+                        context,
+                        col.$2(r),
+                        numeric: true,
+                      ),
+                    ),
               ]),
           ],
         );

@@ -22,6 +22,28 @@ void main() {
       }),
     );
 
+    test('재시도 예약 없이 남은 실패는 시작 시 한 번만 복구 예약한다', () async {
+      final session = sessionBuilder.build();
+      await IngestJob.db.insertRow(
+        session,
+        IngestJob(
+          kind: FinancialFactsSync.kind,
+          status: IngestStatus.failed,
+          startedAt: DateTime.now().toUtc(),
+          failed: 1,
+        ),
+      );
+      await IngestSchedule.onServerStart(session);
+      await IngestSchedule.onServerStart(session);
+      expect(
+        await sp.FutureCallEntry.db.count(
+          session,
+          where: (t) => t.identifier.equals(IngestSchedule.financialsResumeId),
+        ),
+        1,
+      );
+    });
+
     test('매일 예약을 한 번만 건다 (서버를 여러 번 켜도 쌓이지 않음)', () async {
       await IngestSchedule.ensureDaily(session);
       await IngestSchedule.ensureDaily(session);

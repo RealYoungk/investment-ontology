@@ -97,56 +97,59 @@ class _BusinessHighlightsState extends State<BusinessHighlights> {
     final rows = _rows;
     if (rows.isEmpty) return const SizedBox.shrink();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        SectionLabel(
-          '사업 지표 · 본문에서',
-          trailing: AppButton(
-            label: '사업의 내용 →',
-            variant: AppButtonVariant.link,
-            tone: c.accent,
-            onPressed: () => widget.onOpenTab('business'),
-          ),
-        ),
-        const SizedBox(height: AppSpace.sm),
-        for (final r in rows)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Text(
-                    '${documentFactKindLabel(r.last.kind)} · ${r.last.label}',
-                    style: t.body(13, color: c.textSecondary),
-                  ),
-                ),
-                const SizedBox(width: AppSpace.sm),
-                Text(
-                  formatUnitAmount(r.last.value, r.last.unit),
-                  style: t.numeric(14, weight: FontWeight.w700),
-                ),
-                if (r.change case final change?) ...[
-                  const SizedBox(width: AppSpace.sm),
-                  SizedBox(
-                    width: 96,
-                    child: Text(
-                      '${r.firstYear}→${_year(r.last)} '
-                      '${change >= 0 ? '+' : ''}${change.toStringAsFixed(1)}%',
-                      textAlign: TextAlign.right,
-                      style: t.numeric(
-                        11.5,
-                        color: change >= 0 ? c.success : c.accent,
-                      ),
-                    ),
-                  ),
-                ] else
-                  const SizedBox(width: 96),
-              ],
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpace.xl),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SectionLabel(
+            '사업 지표 · 본문에서',
+            trailing: AppButton(
+              label: '사업의 내용 →',
+              variant: AppButtonVariant.link,
+              tone: c.accent,
+              onPressed: () => widget.onOpenTab('business'),
             ),
           ),
-      ],
+          const SizedBox(height: AppSpace.sm),
+          for (final r in rows)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      '${documentFactKindLabel(r.last.kind)} · ${r.last.label}',
+                      style: t.body(13, color: c.textSecondary),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpace.sm),
+                  Text(
+                    formatUnitAmount(r.last.value, r.last.unit),
+                    style: t.numeric(14, weight: FontWeight.w700),
+                  ),
+                  if (r.change case final change?) ...[
+                    const SizedBox(width: AppSpace.sm),
+                    SizedBox(
+                      width: 96,
+                      child: Text(
+                        '${r.firstYear}→${_year(r.last)} '
+                        '${change >= 0 ? '+' : ''}${change.toStringAsFixed(1)}%',
+                        textAlign: TextAlign.right,
+                        style: t.numeric(
+                          11.5,
+                          color: change >= 0 ? c.success : c.accent,
+                        ),
+                      ),
+                    ),
+                  ] else
+                    const SizedBox(width: 96),
+                ],
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

@@ -13,6 +13,7 @@
 import 'package:investment_ontology_serverpod_client/src/protocol/protocol.dart'
     as _ilkzeueu;
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
+import '../../ontology/models/fs_div.dart' as _igqrlzji;
 import '../../ontology/models/peer_metric.dart' as _i4dx7lca;
 
 /// 같은 업종 기업들과의 비교. 업종은 세분류 → 중분류 → 대분류 순으로 넓혀 잡는다.
@@ -23,6 +24,7 @@ abstract class PeerComparison
     required this.label,
     required this.peerCount,
     required this.metrics,
+    this.fsDiv,
   });
 
   factory PeerComparison({
@@ -30,6 +32,7 @@ abstract class PeerComparison
     required String label,
     required int peerCount,
     required List<_i4dx7lca.PeerMetric> metrics,
+    _igqrlzji.FsDiv? fsDiv,
   }) = _PeerComparisonImpl;
 
   factory PeerComparison.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -40,6 +43,9 @@ abstract class PeerComparison
       metrics: _ilkzeueu.Protocol().deserialize<List<_i4dx7lca.PeerMetric>>(
         jsonSerialization['metrics'],
       ),
+      fsDiv: jsonSerialization['fsDiv'] == null
+          ? null
+          : _igqrlzji.FsDiv.fromJson((jsonSerialization['fsDiv'] as String)),
     );
   }
 
@@ -54,6 +60,9 @@ abstract class PeerComparison
 
   List<_i4dx7lca.PeerMetric> metrics;
 
+  /// 대상 기업과 비교 집단에 공통으로 적용한 재무 기준
+  _igqrlzji.FsDiv? fsDiv;
+
   /// Returns a shallow copy of this [PeerComparison]
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
@@ -62,6 +71,7 @@ abstract class PeerComparison
     String? label,
     int? peerCount,
     List<_i4dx7lca.PeerMetric>? metrics,
+    _igqrlzji.FsDiv? fsDiv,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -71,6 +81,7 @@ abstract class PeerComparison
       'label': label,
       'peerCount': peerCount,
       'metrics': metrics.toJson(valueToJson: (v) => v.toJson()),
+      if (fsDiv != null) 'fsDiv': fsDiv?.toJson(),
     };
   }
 
@@ -82,6 +93,7 @@ abstract class PeerComparison
       'label': label,
       'peerCount': peerCount,
       'metrics': metrics.toJson(valueToJson: (v) => v.toJsonForProtocol()),
+      if (fsDiv != null) 'fsDiv': fsDiv?.toJson(),
     };
   }
 
@@ -91,17 +103,21 @@ abstract class PeerComparison
   }
 }
 
+class _Undefined {}
+
 class _PeerComparisonImpl extends PeerComparison {
   _PeerComparisonImpl({
     required String code,
     required String label,
     required int peerCount,
     required List<_i4dx7lca.PeerMetric> metrics,
+    _igqrlzji.FsDiv? fsDiv,
   }) : super._(
          code: code,
          label: label,
          peerCount: peerCount,
          metrics: metrics,
+         fsDiv: fsDiv,
        );
 
   /// Returns a shallow copy of this [PeerComparison]
@@ -113,12 +129,14 @@ class _PeerComparisonImpl extends PeerComparison {
     String? label,
     int? peerCount,
     List<_i4dx7lca.PeerMetric>? metrics,
+    Object? fsDiv = _Undefined,
   }) {
     return PeerComparison(
       code: code ?? this.code,
       label: label ?? this.label,
       peerCount: peerCount ?? this.peerCount,
       metrics: metrics ?? this.metrics.map((e0) => e0.copyWith()).toList(),
+      fsDiv: fsDiv is _igqrlzji.FsDiv? ? fsDiv : this.fsDiv,
     );
   }
 }

@@ -17,10 +17,12 @@ class FakeDataGoKr {
   final priceCalls = <String>[];
   final listedCalls = <String>[];
   String? errorBody;
+  bool offline = false;
 
   DataGoKrClient client() => DataGoKrClient(
     'key',
     httpClient: MockClient((req) async {
+      if (offline) throw http.ClientException('Failed host lookup');
       final q = req.url.queryParameters;
       final date = q['basDt']!;
       final isPrice = req.url.path.endsWith('getStockPriceInfo_V2');
@@ -303,6 +305,22 @@ void main() {
           d.baseDate.day: d.rowCount,
       };
       expect(days, {10: 1});
+    });
+
+    test('통신 장애는 즉시 중단하고 예약하며 다음 실행에서 빠진 날을 복구한다', () async {
+      api.offline = true;
+      final failed = await runSync();
+      expect(failed.status, IngestStatus.failed);
+      expect(failed.apiCalls, 1);
+      expect(failed.message, contains('미완료 기준일 1일'));
+      expect(resumes, [now.add(const Duration(minutes: 15))]);
+      expect(await MarketSnapshotDay.db.count(session), 0);
+      api.offline = false;
+      api.prices['20260916'] = [price('KR7005930003', '005930', '삼성전자')];
+      final recovered = await runSync();
+      expect(recovered.status, IngestStatus.succeeded);
+      expect(recovered.updated, 1);
+      expect(await MarketSnapshotDay.db.count(session), 1);
     });
 
     test('서비스키 오류면 작업을 실패로 끝낸다', () async {

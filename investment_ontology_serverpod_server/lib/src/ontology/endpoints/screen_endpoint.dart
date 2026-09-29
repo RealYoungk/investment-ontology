@@ -5,6 +5,8 @@ import 'package:serverpod/serverpod.dart';
 import '../../generated/protocol.dart';
 import '../disclosure/disclosure_links.dart';
 import '../cache/single_flight.dart';
+import '../financial/financial_basis.dart';
+import '../peers/peer_catalog.dart';
 
 /// 재무·시세로 기업을 거르는 스크리닝.
 ///
@@ -16,23 +18,12 @@ class ScreenEndpoint extends Endpoint {
   @override
   bool get requireLogin => false;
 
-  /// 최근 12개월(TTM)로 더하는 계정 — 손익계산서와 현금흐름표.
-  static const _flow = [
-    'ifrs-full_Revenue',
-    'dart_OperatingIncomeLoss',
-    'ifrs-full_ProfitLossAttributableToOwnersOfParent',
-    'ifrs-full_ProfitLoss',
-    'ifrs-full_CashFlowsFromUsedInOperatingActivities',
-    'ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities',
-  ];
-
-  /// 최근 보고서 기말 값을 쓰는 계정 — 재무상태표.
-  static const _balance = [
-    'ifrs-full_EquityAttributableToOwnersOfParent',
-    'ifrs-full_Equity',
-    'ifrs-full_Liabilities',
-    'ifrs-full_Assets',
-  ];
+  /// 사전 처리된 최신 공시 제품군으로 선정한 비교 후보.
+  Future<PeerCandidates> peerCandidates(
+    Session session,
+    String corpCode, {
+    String? focusKey,
+  }) => PeerProfiles.candidates(session, corpCode, focusKey: focusKey);
 
   /// 상장사의 자산총계가 이보다 작을 수는 없다. 이보다 작으면 재무제표를 원이 아닌
   /// 단위(천원 등)로 낸 것이라, 시가총액과 섞는 지표(PER·PBR·수익률)를 계산하지 않는다.
@@ -248,7 +239,9 @@ class ScreenEndpoint extends Endpoint {
       if (mine == null || mine.isEmpty) return const [];
       return [
         for (final r in all)
-          if (code(byId[r.company.id] ?? company) == mine) r,
+          if (r.fsDiv == me.fsDiv &&
+              code(byId[r.company.id] ?? company) == mine)
+            r,
       ];
     }
 
@@ -299,6 +292,7 @@ class ScreenEndpoint extends Endpoint {
     }
 
     return PeerComparison(
+      fsDiv: me.fsDiv,
       code: code,
       label: industry?.name ?? code,
       peerCount: group.length,
@@ -398,69 +392,8 @@ class ScreenEndpoint extends Endpoint {
     final markets = DisclosureLinks.listedMarkets
         .map((m) => "'${m.name}'")
         .join(', ');
-    final flow = _flow.map((a) => "'$a'").join(', ');
-    final balance = _balance.map((a) => "'$a'").join(', ');
     final rows = await session.db.unsafeQuery('''
-      WITH rank_code AS (
-        SELECT * FROM (VALUES ('q1',1),('halfYear',2),('q3',3),('annual',4)) AS t(code, rk)
-      ), latest AS (
-        -- 기업마다 가장 최근 연결 보고서 (분기·반기 포함).
-        SELECT DISTINCT ON (r."companyId")
-               r."companyId" AS id, r."bsnsYear" AS y, r."reportCode" AS code
-        FROM financial_report r JOIN rank_code rc ON rc.code = r."reportCode"
-        WHERE r."fsDiv" = 'consolidated'
-        ORDER BY r."companyId", r."bsnsYear" DESC, rc.rk DESC
-      ), inc AS (
-        -- 누적 값: 사업보고서·1분기와 현금흐름표는 amount가 곧 누적이다
-        -- (현금흐름표에는 3개월 값이 따로 없다). 기업 화면과 같은 규칙.
-        SELECT f."companyId" AS id, f."accountId" AS acc, f."bsnsYear" AS y,
-               f."reportCode" AS code, f.amount::numeric AS amt,
-               CASE WHEN f."reportCode" IN ('annual','q1')
-                      OR f.statement = 'cashFlow'
-                    THEN coalesce(f."cumulativeAmount"::numeric, f.amount::numeric)
-                    ELSE f."cumulativeAmount"::numeric END AS cum
-        -- Only the three reports used by cur/prev. Reading all historical facts
-        -- first forced a scan of 10M+ rows on the production database.
-        FROM latest scope
-        JOIN financial_report scope_report
-          ON scope_report."companyId" = scope.id
-         AND scope_report."fsDiv" = 'consolidated'
-         AND (scope_report."bsnsYear" = scope.y
-              AND scope_report."reportCode" = scope.code
-              OR scope_report."bsnsYear" = scope.y - 1
-              AND scope_report."reportCode" IN (scope.code, 'annual'))
-        JOIN financial_fact f ON f."reportId" = scope_report.id
-        WHERE f."fsDiv" = 'consolidated' AND f."supersededById" IS NULL
-          AND f.statement IN ('incomeStatement','comprehensiveIncome','cashFlow')
-          AND f."accountId" IN ($flow)
-      ), cur AS (
-        SELECT i.id, i.acc, l.code, max(i.amt) AS amt, max(i.cum) AS cum
-        FROM inc i JOIN latest l ON l.id = i.id AND l.y = i.y AND l.code = i.code
-        GROUP BY 1, 2, 3
-      ), prev AS (
-        -- 전년 사업보고서(연간)와 전년 같은 기간 누적.
-        SELECT i.id, i.acc,
-               max(i.amt) FILTER (WHERE i.code = 'annual') AS annual,
-               max(i.cum) FILTER (WHERE i.code = l.code) AS same
-        FROM inc i JOIN latest l ON l.id = i.id AND i.y = l.y - 1
-        GROUP BY i.id, i.acc, l.code
-      ), ttm AS (
-        -- 최근 보고서가 사업보고서면 그 값, 아니면 전년 연간 + 올해 누적 − 전년 같은 기간 누적.
-        -- 성장률은 같은 기간끼리 견준다 (올해 누적 vs 전년 같은 기간 누적).
-        SELECT c.id, c.acc,
-               CASE WHEN c.code = 'annual' THEN c.amt
-                    ELSE p.annual + c.cum - p.same END AS v,
-               CASE WHEN c.code = 'annual' THEN c.amt ELSE c.cum END AS now_cum,
-               CASE WHEN c.code = 'annual' THEN p.annual ELSE p.same END AS ago_cum
-        FROM cur c LEFT JOIN prev p ON p.id = c.id AND p.acc = c.acc
-      ), bs AS (
-        SELECT f."companyId" AS id, f."accountId" AS acc, max(f.amount::numeric) AS v
-        FROM financial_fact f
-        JOIN latest l ON l.id = f."companyId" AND l.y = f."bsnsYear" AND l.code = f."reportCode"
-        WHERE f."fsDiv" = 'consolidated' AND f."supersededById" IS NULL
-          AND f.statement = 'balanceSheet' AND f."accountId" IN ($balance)
-        GROUP BY 1, 2
-      ), cap AS (
+      WITH ${FinancialBasis.ctes()}, cap AS (
         -- 시가총액이 없는 종목(거래정지 등)은 빼고 합한다. 한 종목도 없으면 그 기업은
         -- 스크리너에 나오지 않는다 (값을 매길 수 없으므로).
         SELECT s."companyId" AS id, sum(m."marketCap"::numeric) AS cap
@@ -560,15 +493,23 @@ class ScreenEndpoint extends Endpoint {
         FROM dividend_report dr LEFT JOIN dividend_entry d ON d."reportId" = dr.id
         GROUP BY dr."companyId", dr."bsnsYear"
       ), metrics AS (
-        SELECT c.id, c."corpCode", c.name, c.market, l.y, cap.cap,
+        SELECT c.id, c."corpCode", c.name, c.market, l.y, l.fs, l.code, l.reason, cap.cap,
           max(t.v) FILTER (WHERE t.acc = 'ifrs-full_Revenue') AS revenue,
           max(t.v) FILTER (WHERE t.acc = 'dart_OperatingIncomeLoss') AS op,
-          coalesce(
-            max(t.v) FILTER (WHERE t.acc = 'ifrs-full_ProfitLossAttributableToOwnersOfParent'),
-            max(t.v) FILTER (WHERE t.acc = 'ifrs-full_ProfitLoss')) AS ni,
-          coalesce(
-            max(b.v) FILTER (WHERE b.acc = 'ifrs-full_EquityAttributableToOwnersOfParent'),
-            max(b.v) FILTER (WHERE b.acc = 'ifrs-full_Equity')) AS eq,
+          coalesce(max(t.v) FILTER (WHERE l.fs='consolidated' AND t.acc='ifrs-full_ProfitLossAttributableToOwnersOfParent'),
+            max(t.v) FILTER (WHERE t.acc='ifrs-full_ProfitLoss')) AS ni,
+          coalesce(max(b.v) FILTER (WHERE l.fs='consolidated' AND b.acc='ifrs-full_EquityAttributableToOwnersOfParent'),
+            max(b.v) FILTER (WHERE b.acc='ifrs-full_Equity')) AS eq,
+          CASE WHEN l.fs='consolidated'
+            AND max(t.v) FILTER (WHERE t.acc='ifrs-full_ProfitLossAttributableToOwnersOfParent') IS NOT NULL
+            AND max(b.v) FILTER (WHERE b.acc='ifrs-full_EquityAttributableToOwnersOfParent') IS NOT NULL
+            THEN max(t.v) FILTER (WHERE t.acc='ifrs-full_ProfitLossAttributableToOwnersOfParent')
+            ELSE max(t.v) FILTER (WHERE t.acc='ifrs-full_ProfitLoss') END AS roe_ni,
+          CASE WHEN l.fs='consolidated'
+            AND max(t.v) FILTER (WHERE t.acc='ifrs-full_ProfitLossAttributableToOwnersOfParent') IS NOT NULL
+            AND max(b.v) FILTER (WHERE b.acc='ifrs-full_EquityAttributableToOwnersOfParent') IS NOT NULL
+            THEN max(b.v) FILTER (WHERE b.acc='ifrs-full_EquityAttributableToOwnersOfParent')
+            ELSE max(b.v) FILTER (WHERE b.acc='ifrs-full_Equity') END AS roe_eq,
           max(b.v) FILTER (WHERE b.acc = 'ifrs-full_Equity') AS total_eq,
           max(b.v) FILTER (WHERE b.acc = 'ifrs-full_Liabilities') AS liab,
           max(b.v) FILTER (WHERE b.acc = 'ifrs-full_Assets') AS assets,
@@ -591,8 +532,8 @@ class ScreenEndpoint extends Endpoint {
         FROM company c
         JOIN latest l ON l.id = c.id
         JOIN cap ON cap.id = c.id
-        LEFT JOIN ttm t ON t.id = c.id
-        LEFT JOIN bs b ON b.id = c.id
+        LEFT JOIN ttm t ON t.id = c.id AND t.fs = l.fs
+        LEFT JOIN bs b ON b.id = c.id AND b.fs = l.fs
         LEFT JOIN div dv ON dv.id = c.id
         LEFT JOIN px_now pn ON pn.id = c.id
         LEFT JOIN px_3m p3 ON p3.id = c.id
@@ -601,12 +542,12 @@ class ScreenEndpoint extends Endpoint {
         LEFT JOIN liq lq ON lq.id = c.id
         LEFT JOIN vol vl ON vl.id = c.id
         WHERE c.market IN ($markets)
-        GROUP BY c.id, c."corpCode", c.name, c.market, l.y, cap.cap
+        GROUP BY c.id, c."corpCode", c.name, c.market, l.y, l.fs, l.code, l.reason, cap.cap
       )
       SELECT id, "corpCode", name, market, y, cap, revenue, op, ni, eq,
              total_eq, liab, fcf, dividend,
              revenue_now, revenue_ago, op_now, op_ago, assets,
-             px, px3, px12, hi52, lo52, sh, sh3, sh12, sh_hi, sh_lo, liq, volume, volume_ratio, div_year, payout, div_prior, div_before_prior
+             px, px3, px12, hi52, lo52, sh, sh3, sh12, sh_hi, sh_lo, liq, volume, volume_ratio, div_year, payout, div_prior, div_before_prior, fs, code, reason, roe_ni, roe_eq
       FROM metrics
     ''');
 
@@ -675,6 +616,35 @@ class ScreenEndpoint extends Endpoint {
       return 100 * (a - b) / b;
     }
 
+    Map<String, String> notes(List<dynamic> r) {
+      final out = <String, String>{};
+      void ratioNote(
+        String key,
+        int top,
+        int bottom,
+        String nonPositive, {
+        bool scale = false,
+      }) {
+        if (scale && !wonScale(r[18])) {
+          out[key] = r[18] == null ? '자산총계 누락 · 금액 단위 확인 불가' : '재무 금액 단위 확인 필요';
+        } else if (r[top] == null || r[bottom] == null) {
+          out[key] = '계산에 필요한 재무 자료 부족';
+        } else if (double.parse('${r[bottom]}') <= 0) {
+          out[key] = nonPositive;
+        }
+      }
+
+      ratioNote('per', 5, 8, '순이익 0 이하 · PER 계산 불가', scale: true);
+      ratioNote('pbr', 5, 9, '자본 0 이하 · PBR 계산 불가', scale: true);
+      ratioNote('roe', 39, 40, '자본 0 이하 · ROE 계산 불가');
+      ratioNote('operatingMargin', 7, 6, '매출액 0 이하');
+      ratioNote('debtRatio', 11, 10, '자본 0 이하 · 부채비율 계산 불가');
+      ratioNote('fcfYield', 12, 5, '시가총액 0 이하', scale: true);
+      ratioNote('revenueGrowth', 14, 15, '전년 매출액 0 이하');
+      ratioNote('operatingIncomeGrowth', 16, 17, '전년 영업이익 0 이하');
+      return out;
+    }
+
     final universe = [
       for (final r in rows)
         // 시가총액을 모르는 기업은 스크리너에 올리지 않는다 (SQL에서 걸러지지만
@@ -688,6 +658,10 @@ class ScreenEndpoint extends Endpoint {
               market: r[3] == null ? null : Market.values.byName('${r[3]}'),
             ),
             bsnsYear: r[4] as int,
+            metricNotes: notes(r.toList()),
+            fsDiv: FsDiv.values.byName(r[36] as String),
+            reportCode: FinancialReportCode.values.byName(r[37] as String),
+            basisReason: r[38] as String,
             marketCap: big(r[5])!,
             revenue: big(r[6]),
             operatingIncome: big(r[7]),
@@ -701,7 +675,7 @@ class ScreenEndpoint extends Endpoint {
             // 자산총계를 모르면 단위를 확인할 수 없으므로 내지 않는다.
             per: wonScale(r[18]) ? divide(r[5], r[8]) : null,
             pbr: wonScale(r[18]) ? divide(r[5], r[9]) : null,
-            roe: divide(r[8], r[9], scale: 100),
+            roe: divide(r[39], r[40], scale: 100),
             operatingMargin: divide(r[7], r[6], scale: 100),
             debtRatio: divide(r[11], r[10], scale: 100),
             fcfYield: wonScale(r[18]) ? divide(r[12], r[5], scale: 100) : null,

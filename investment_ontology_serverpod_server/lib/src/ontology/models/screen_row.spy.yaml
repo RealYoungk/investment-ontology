@@ -56,3 +56,9 @@ fields:
   volume: BigInt?
   ### 기준일 거래량 ÷ 직전 20거래일 평균 거래량. 20일 미달·0분모·주식수 큰 변동은 null
   volumeRatio: double?
+  ### 실제 계산에 사용한 재무 기준과 최신 보고서
+  fsDiv: FsDiv?
+  reportCode: FinancialReportCode?
+  basisReason: String?
+  ### 계산하지 못한 지표별 사유 (저장하지 않음)
+  metricNotes: Map<String, String>?

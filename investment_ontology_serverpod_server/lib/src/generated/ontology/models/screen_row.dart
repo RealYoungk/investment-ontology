@@ -14,6 +14,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart
     as _i4yshtjp;
 import 'package:serverpod/serverpod.dart' as _is;
 import '../../ontology/models/company_ref.dart' as _id7z5ov5;
+import '../../ontology/models/financial_report_code.dart' as _i6mbh8k5;
+import '../../ontology/models/fs_div.dart' as _igqrlzji;
 
 /// 스크리닝 결과 한 줄. 지표는 저장하지 않고 조회할 때 계산하며, 계산에 쓴 값도 함께 준다.
 ///
@@ -53,6 +55,10 @@ abstract class ScreenRow
     this.dividendYears,
     this.volume,
     this.volumeRatio,
+    this.fsDiv,
+    this.reportCode,
+    this.basisReason,
+    this.metricNotes,
   });
 
   factory ScreenRow({
@@ -88,6 +94,10 @@ abstract class ScreenRow
     int? dividendYears,
     BigInt? volume,
     double? volumeRatio,
+    _igqrlzji.FsDiv? fsDiv,
+    _i6mbh8k5.FinancialReportCode? reportCode,
+    String? basisReason,
+    Map<String, String>? metricNotes,
   }) = _ScreenRowImpl;
 
   factory ScreenRow.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -156,6 +166,20 @@ abstract class ScreenRow
           ? null
           : _is.BigIntJsonExtension.fromJson(jsonSerialization['volume']),
       volumeRatio: (jsonSerialization['volumeRatio'] as num?)?.toDouble(),
+      fsDiv: jsonSerialization['fsDiv'] == null
+          ? null
+          : _igqrlzji.FsDiv.fromJson((jsonSerialization['fsDiv'] as String)),
+      reportCode: jsonSerialization['reportCode'] == null
+          ? null
+          : _i6mbh8k5.FinancialReportCode.fromJson(
+              (jsonSerialization['reportCode'] as String),
+            ),
+      basisReason: jsonSerialization['basisReason'] as String?,
+      metricNotes: jsonSerialization['metricNotes'] == null
+          ? null
+          : _i4yshtjp.Protocol().deserialize<Map<String, String>>(
+              jsonSerialization['metricNotes'],
+            ),
     );
   }
 
@@ -244,6 +268,16 @@ abstract class ScreenRow
   /// 기준일 거래량 ÷ 직전 20거래일 평균 거래량. 20일 미달·0분모·주식수 큰 변동은 null
   double? volumeRatio;
 
+  /// 실제 계산에 사용한 재무 기준과 최신 보고서
+  _igqrlzji.FsDiv? fsDiv;
+
+  _i6mbh8k5.FinancialReportCode? reportCode;
+
+  String? basisReason;
+
+  /// 계산하지 못한 지표별 사유 (저장하지 않음)
+  Map<String, String>? metricNotes;
+
   /// Returns a shallow copy of this [ScreenRow]
   /// with some or all fields replaced by the given arguments.
   @_is.useResult
@@ -280,6 +314,10 @@ abstract class ScreenRow
     int? dividendYears,
     BigInt? volume,
     double? volumeRatio,
+    _igqrlzji.FsDiv? fsDiv,
+    _i6mbh8k5.FinancialReportCode? reportCode,
+    String? basisReason,
+    Map<String, String>? metricNotes,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -318,6 +356,10 @@ abstract class ScreenRow
       if (dividendYears != null) 'dividendYears': dividendYears,
       if (volume != null) 'volume': volume?.toJson(),
       if (volumeRatio != null) 'volumeRatio': volumeRatio,
+      if (fsDiv != null) 'fsDiv': fsDiv?.toJson(),
+      if (reportCode != null) 'reportCode': reportCode?.toJson(),
+      if (basisReason != null) 'basisReason': basisReason,
+      if (metricNotes != null) 'metricNotes': metricNotes?.toJson(),
     };
   }
 
@@ -358,6 +400,10 @@ abstract class ScreenRow
       if (dividendYears != null) 'dividendYears': dividendYears,
       if (volume != null) 'volume': volume?.toJson(),
       if (volumeRatio != null) 'volumeRatio': volumeRatio,
+      if (fsDiv != null) 'fsDiv': fsDiv?.toJson(),
+      if (reportCode != null) 'reportCode': reportCode?.toJson(),
+      if (basisReason != null) 'basisReason': basisReason,
+      if (metricNotes != null) 'metricNotes': metricNotes?.toJson(),
     };
   }
 
@@ -403,6 +449,10 @@ class _ScreenRowImpl extends ScreenRow {
     int? dividendYears,
     BigInt? volume,
     double? volumeRatio,
+    _igqrlzji.FsDiv? fsDiv,
+    _i6mbh8k5.FinancialReportCode? reportCode,
+    String? basisReason,
+    Map<String, String>? metricNotes,
   }) : super._(
          company: company,
          bsnsYear: bsnsYear,
@@ -436,6 +486,10 @@ class _ScreenRowImpl extends ScreenRow {
          dividendYears: dividendYears,
          volume: volume,
          volumeRatio: volumeRatio,
+         fsDiv: fsDiv,
+         reportCode: reportCode,
+         basisReason: basisReason,
+         metricNotes: metricNotes,
        );
 
   /// Returns a shallow copy of this [ScreenRow]
@@ -475,6 +529,10 @@ class _ScreenRowImpl extends ScreenRow {
     Object? dividendYears = _Undefined,
     Object? volume = _Undefined,
     Object? volumeRatio = _Undefined,
+    Object? fsDiv = _Undefined,
+    Object? reportCode = _Undefined,
+    Object? basisReason = _Undefined,
+    Object? metricNotes = _Undefined,
   }) {
     return ScreenRow(
       company: company ?? this.company.copyWith(),
@@ -525,6 +583,22 @@ class _ScreenRowImpl extends ScreenRow {
       dividendYears: dividendYears is int? ? dividendYears : this.dividendYears,
       volume: volume is BigInt? ? volume : this.volume,
       volumeRatio: volumeRatio is double? ? volumeRatio : this.volumeRatio,
+      fsDiv: fsDiv is _igqrlzji.FsDiv? ? fsDiv : this.fsDiv,
+      reportCode: reportCode is _i6mbh8k5.FinancialReportCode?
+          ? reportCode
+          : this.reportCode,
+      basisReason: basisReason is String? ? basisReason : this.basisReason,
+      metricNotes: metricNotes is Map<String, String>?
+          ? metricNotes
+          : this.metricNotes?.map(
+              (
+                key0,
+                value0,
+              ) => MapEntry(
+                key0,
+                value0,
+              ),
+            ),
     );
   }
 }

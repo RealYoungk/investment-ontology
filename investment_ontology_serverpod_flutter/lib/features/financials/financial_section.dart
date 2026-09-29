@@ -26,9 +26,11 @@ class FinancialSection extends StatefulWidget {
     this.openMetric,
     this.onCloseMetric,
     this.dataVersion = 0,
+    this.showBasisSelector = true,
   });
 
   final String corpCode;
+  final bool showBasisSelector;
 
   /// 수집이 끝날 때마다 오른다. 바뀌면 다시 읽되 고른 구분은 그대로 둔다.
   final int dataVersion;
@@ -63,7 +65,16 @@ class _FinancialSectionState extends State<FinancialSection> {
   @override
   void didUpdateWidget(covariant FinancialSection oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.dataVersion != widget.dataVersion) _load();
+    if (oldWidget.initialData != widget.initialData &&
+        widget.initialData != null) {
+      _seq++;
+      _data = widget.initialData;
+      _fsDiv = _data?.fsDiv;
+      _loading = false;
+      _error = null;
+    } else if (oldWidget.dataVersion != widget.dataVersion) {
+      _load();
+    }
   }
 
   /// 이 기업의 정기보고서만 찾아 바로 받는다. 끝나면 다시 불러온다.
@@ -201,7 +212,7 @@ class _FinancialSectionState extends State<FinancialSection> {
           spacing: AppSpace.md,
           runSpacing: AppSpace.sm,
           children: [
-            if (data.availableFsDivs.length > 1)
+            if (widget.showBasisSelector && data.availableFsDivs.length > 1)
               AppToggleGroup<FsDiv>(
                 value: data.fsDiv ?? FsDiv.consolidated,
                 options: {
@@ -213,7 +224,7 @@ class _FinancialSectionState extends State<FinancialSection> {
                   _load();
                 },
               )
-            else if (data.fsDiv != null)
+            else if (widget.showBasisSelector && data.fsDiv != null)
               AppTag(label: '${fsDivLabel(data.fsDiv!)}재무제표만 있음'),
             AppToggleGroup<_Period>(
               value: _period,
@@ -233,6 +244,7 @@ class _FinancialSectionState extends State<FinancialSection> {
                   child: _FormulaCard(
                     metric: open,
                     fsDiv: data.fsDiv,
+                    basisReason: data.basisReason,
                     onClose: widget.onCloseMetric,
                   ),
                 ),
@@ -294,10 +306,16 @@ class _FinancialSectionState extends State<FinancialSection> {
 
 /// 지표의 계산식, 입력 원천 값과 그 출처.
 class _FormulaCard extends StatelessWidget {
-  const _FormulaCard({required this.metric, required this.fsDiv, this.onClose});
+  const _FormulaCard({
+    required this.metric,
+    required this.fsDiv,
+    this.basisReason,
+    this.onClose,
+  });
 
   final DerivedMetric metric;
   final FsDiv? fsDiv;
+  final String? basisReason;
   final VoidCallback? onClose;
 
   @override
@@ -331,6 +349,13 @@ class _FormulaCard extends StatelessWidget {
                   ),
           ),
           const SizedBox(height: AppSpace.sm),
+          if (basisReason != null) ...[
+            Text(
+              financialBasisReason(basisReason),
+              style: t.body(12, color: c.textSecondary),
+            ),
+            const SizedBox(height: AppSpace.sm),
+          ],
           SelectableText(d.formula, style: t.numeric(12, color: c.textPrimary)),
           const SizedBox(height: AppSpace.sm),
           for (final input in d.inputs)

@@ -1,0 +1,10 @@
+class: PeerCandidates
+fields:
+  status: String
+  anchorName: String
+  signals: List<PeerSignal>
+  bsnsYear: int?
+  rceptNo: String?
+  computedAt: DateTime?
+  ruleVersion: int
+  items: List<PeerCandidate>

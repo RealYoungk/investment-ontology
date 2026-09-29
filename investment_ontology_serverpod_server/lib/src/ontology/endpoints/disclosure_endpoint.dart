@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import '../business/business_profiles.dart';
+
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
@@ -13,6 +15,12 @@ import '../disclosure/disclosure_values.dart';
 class DisclosureEndpoint extends Endpoint {
   @override
   bool get requireLogin => false;
+
+  /// 최신 활성 공시에서 미리 추출한 제품·공정 설명.
+  Future<BusinessUnderstanding> understanding(
+    Session session,
+    String corpCode,
+  ) => BusinessProfiles.read(session, corpCode);
 
   /// 기업이 가진 주요정보 항목과 사업연도 (항목 순서는 [DartSections.info]).
   Future<List<DisclosureSectionInfo>> sections(

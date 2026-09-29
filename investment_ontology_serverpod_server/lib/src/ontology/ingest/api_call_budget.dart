@@ -9,8 +9,12 @@ abstract final class ApiCallBudget {
   /// DART 키당 일일 한도 (약 20,000건).
   static const dartDailyLimit = 20000;
 
-  /// 재무 수집이 하루에 쓸 수 있는 DART 호출 수. 나머지는 기업마스터 수집 몫으로 남긴다.
-  static const dartFinancialBudget = 18000;
+  /// 재무 수집이 하루에 쓸 수 있는 DART 호출 수. 주요정보보다 1,000회를 더 확보해 최신 공시 확인이 굶지 않게 한다.
+  /// 마지막 1,000회는 기업마스터 등 다른 요청 몫이다.
+  static const dartFinancialBudget = 19000;
+
+  /// 과거 주요정보가 최신 재무 수집 몫까지 쓰지 않도록 별도 상한을 둔다.
+  static const dartDisclosureBudget = 18000;
 
   /// 재무 백필이 남아 있는 동안 주요정보 수집이 하루에 먼저 쓸 수 있는 호출 수.
   /// 최신 사업보고서의 핵심 항목(지배구조·주주환원)만 받고, 나머지는 재무에 양보한다.

@@ -1,0 +1,11 @@
+class: BusinessProfile
+table: business_profile
+fields:
+  documentId: int, relation(parent=business_document, onDelete=Cascade)
+  ruleVersion: int
+  products: List<BusinessProduct>
+  computedAt: DateTime
+indexes:
+  business_profile_document_idx:
+    fields: documentId
+    unique: true

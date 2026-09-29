@@ -9,6 +9,7 @@ import '../../client.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
 import '../financials/financial_metrics.dart';
+import 'peer_candidates_panel.dart';
 
 /// 기업 비교: 두세 곳을 나란히 놓고 같은 잣대로 본다.
 ///
@@ -30,6 +31,7 @@ class _ComparePageState extends State<ComparePage> {
   List<ScreenRow> _rows = const [];
   Object? _error;
   bool _loading = false;
+  int _request = 0;
 
   @override
   void initState() {
@@ -47,8 +49,13 @@ class _ComparePageState extends State<ComparePage> {
   }
 
   Future<void> _load() async {
+    final request = ++_request;
     if (widget.corpCodes.isEmpty) {
-      setState(() => _rows = const []);
+      setState(() {
+        _rows = const [];
+        _error = null;
+        _loading = false;
+      });
       return;
     }
     setState(() => _loading = true);
@@ -59,16 +66,16 @@ class _ComparePageState extends State<ComparePage> {
       );
       // 주소에 적은 순서대로 보여 준다.
       final byCode = {for (final r in page.items) r.company.corpCode: r};
-      if (mounted) {
+      if (mounted && request == _request) {
         setState(() {
           _rows = [for (final c in widget.corpCodes) ?byCode[c]];
           _error = null;
         });
       }
     } catch (e) {
-      if (mounted) setState(() => _error = e);
+      if (mounted && request == _request) setState(() => _error = e);
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (mounted && request == _request) setState(() => _loading = false);
     }
   }
 
@@ -81,19 +88,69 @@ class _ComparePageState extends State<ComparePage> {
     final t = context.typo;
     return PageFrame(
       children: [
-        const PageHeading(
-          title: '기업 비교',
-          subtitle: '최대 4곳을 나란히 놓고 봅니다. 지표는 최근 12개월(TTM) 연결 실적과 최근 시세로 계산합니다.',
+        const PageHeading(title: '기업 비교'),
+        const SizedBox(height: AppSpace.lg),
+        if (_rows.isNotEmpty) ...[
+          Wrap(
+            spacing: AppSpace.sm,
+            runSpacing: AppSpace.sm,
+            children: [
+              for (final row in _rows)
+                InputChip(
+                  label: Text(
+                    row.company.name
+                        .replaceAll('(주)', '')
+                        .replaceAll('주식회사', '')
+                        .trim(),
+                  ),
+                  tooltip: '기업 상세 보기',
+                  onPressed: () =>
+                      context.push(AppRoutes.company(row.company.corpCode)),
+                  onDeleted: () => _go([
+                    for (final code in widget.corpCodes)
+                      if (code != row.company.corpCode) code,
+                  ]),
+                  deleteButtonTooltipMessage: '비교에서 빼기',
+                ),
+            ],
+          ),
+          const SizedBox(height: AppSpace.md),
+        ],
+        Container(
+          decoration: BoxDecoration(
+            color: c.surface,
+            border: Border.all(color: c.border),
+            borderRadius: context.shape.borderRadius,
+          ),
+          child: ExpansionTile(
+            key: ValueKey(widget.corpCodes.length < 2),
+            initiallyExpanded: widget.corpCodes.length < 2,
+            leading: const Icon(Icons.add_circle_outline, size: 20),
+            title: Text('비교 기업 찾기', style: t.body(15, weight: FontWeight.w600)),
+            childrenPadding: const EdgeInsets.all(AppSpace.lg),
+            children: [
+              _AddCompany(
+                disabled: widget.corpCodes.length >= maxCompanies,
+                onAdd: (code) {
+                  if (widget.corpCodes.contains(code)) return;
+                  _go([...widget.corpCodes, code]);
+                },
+              ),
+              const SizedBox(height: AppSpace.lg),
+              PeerCandidatesPanel(
+                codes: widget.corpCodes,
+                onAdd: (code) {
+                  if (widget.corpCodes.length >= maxCompanies ||
+                      widget.corpCodes.contains(code)) {
+                    return;
+                  }
+                  _go([...widget.corpCodes, code]);
+                },
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: AppSpace.xl),
-        _AddCompany(
-          disabled: widget.corpCodes.length >= maxCompanies,
-          onAdd: (code) {
-            if (widget.corpCodes.contains(code)) return;
-            _go([...widget.corpCodes, code]);
-          },
-        ),
-        const SizedBox(height: AppSpace.md),
         if (_error != null)
           AppNotice(message: '비교하지 못했습니다 — $_error')
         else if (widget.corpCodes.isEmpty)
@@ -106,14 +163,10 @@ class _ComparePageState extends State<ComparePage> {
         else ...[
           if (_rows.isNotEmpty) _ComparisonCharts(rows: _rows),
           const SizedBox(height: AppSpace.xl),
-          const SectionLabel('세부 수치 · 같은 기준으로 대조'),
+          const SectionLabel('세부 수치'),
           const SizedBox(height: AppSpace.md),
           _CompareTable(
             rows: _rows,
-            onRemove: (code) => _go([
-              for (final x in widget.corpCodes)
-                if (x != code) x,
-            ]),
           ),
         ],
       ],
@@ -122,10 +175,9 @@ class _ComparePageState extends State<ComparePage> {
 }
 
 class _CompareTable extends StatelessWidget {
-  const _CompareTable({required this.rows, required this.onRemove});
+  const _CompareTable({required this.rows});
 
   final List<ScreenRow> rows;
-  final ValueChanged<String> onRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -139,6 +191,12 @@ class _CompareTable extends StatelessWidget {
     }
     String? pct(double? v) => v == null ? null : '${v.toStringAsFixed(1)}%';
     final metrics = <(String, String? Function(ScreenRow))>[
+      (
+        '재무 기준',
+        (r) => r.fsDiv == null
+            ? '—'
+            : '${fsDivLabel(r.fsDiv!)} · ${financialBasisReason(r.basisReason)}',
+      ),
       ('시가총액', (r) => formatKrw(r.marketCap)),
       ('PER', (r) => formatTimes(r.per)),
       ('PBR', (r) => formatTimes(r.pbr)),
@@ -151,11 +209,15 @@ class _CompareTable extends StatelessWidget {
       ('FCF 수익률', (r) => pct(r.fcfYield)),
       ('매출액(TTM)', (r) => formatKrw(r.revenue)),
       ('영업이익(TTM)', (r) => formatKrw(r.operatingIncome)),
-      ('지배주주 순이익(TTM)', (r) => formatKrw(r.netIncome)),
-      ('지배주주 자본', (r) => formatKrw(r.equity)),
+      ('순이익(TTM)', (r) => formatKrw(r.netIncome)),
+      ('자본', (r) => formatKrw(r.equity)),
       ('잉여현금흐름(TTM)', (r) => formatKrw(r.freeCashFlow)),
       ('현금배당금총액', (r) => formatKrw(r.dividendTotal)),
-      ('최근 보고서', (r) => 'FY${r.bsnsYear}'),
+      (
+        '최근 보고서',
+        (r) =>
+            '${r.bsnsYear} ${r.reportCode == null ? '' : reportCodeLabel(r.reportCode!)}',
+      ),
     ];
     return AppDataTable(
       columns: [
@@ -165,35 +227,14 @@ class _CompareTable extends StatelessWidget {
           AppColumn(r.company.name, numeric: true, minWidth: 150, flex: true),
       ],
       rows: [
-        AppRow([
-          AppDataTable.text(context, ''),
-          for (final r in rows)
-            Align(
-              alignment: Alignment.centerRight,
-              child: Wrap(
-                spacing: AppSpace.sm,
-                children: [
-                  AppButton(
-                    label: '상세 →',
-                    variant: AppButtonVariant.link,
-                    tone: c.accent,
-                    onPressed: () =>
-                        context.push(AppRoutes.company(r.company.corpCode)),
-                  ),
-                  AppButton(
-                    label: '빼기',
-                    variant: AppButtonVariant.link,
-                    onPressed: () => onRemove(r.company.corpCode),
-                  ),
-                ],
-              ),
-            ),
-        ]),
         for (final (label, value) in metrics)
           AppRow([
             AppDataTable.text(context, label),
             for (final r in rows)
-              AppDataTable.text(context, value(r), numeric: true),
+              Tooltip(
+                message: screenMetricNote(r, label) ?? '',
+                child: AppDataTable.text(context, value(r), numeric: true),
+              ),
           ]),
       ],
     );
@@ -327,10 +368,10 @@ class _ComparisonCharts extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('가격과 수익성의 차이를 먼저 살펴보세요.', style: t.display(24)),
+            Text('밸류에이션·수익성', style: t.display(24)),
             const SizedBox(height: AppSpace.sm),
             Text(
-              '각 차트는 독립된 축입니다. 업종·보고 기간이 다르면 수치만으로 우열을 판단하기 어렵습니다. 결측값은 막대로 표시하지 않습니다.',
+              '최근 12개월 실적 기준 · 지표별 축은 다릅니다.',
               style: t.body(12, color: c.textSecondary),
             ),
             const SizedBox(height: AppSpace.xl),

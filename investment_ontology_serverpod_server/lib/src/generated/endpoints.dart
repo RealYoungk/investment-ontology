@@ -827,6 +827,26 @@ class Endpoints extends _is.EndpointDispatch {
       name: 'disclosure',
       endpoint: endpoints['disclosure']!,
       methodConnectors: {
+        'understanding': _is.MethodConnector(
+          name: 'understanding',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['disclosure'] as _i23b9rs7.DisclosureEndpoint)
+                      .understanding(
+                        session,
+                        params['corpCode'],
+                      ),
+        ),
         'sections': _is.MethodConnector(
           name: 'sections',
           params: {
@@ -1940,6 +1960,31 @@ class Endpoints extends _is.EndpointDispatch {
       name: 'screen',
       endpoint: endpoints['screen']!,
       methodConnectors: {
+        'peerCandidates': _is.MethodConnector(
+          name: 'peerCandidates',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'focusKey': _is.ParameterDescription(
+              name: 'focusKey',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['screen'] as _ilgabfhk.ScreenEndpoint)
+                  .peerCandidates(
+                    session,
+                    params['corpCode'],
+                    focusKey: params['focusKey'],
+                  ),
+        ),
         'list': _is.MethodConnector(
           name: 'list',
           params: {

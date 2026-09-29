@@ -175,7 +175,7 @@ class MarketSnapshotSync {
             _budgetExhausted = true;
             break;
           }
-          if (e.isFatal) rethrow;
+          if (e.isFatal || e.code == 'http') rethrow;
           failed++;
           if (failures.length < 5) {
             failures.add('${DartValues.formatYmd(date)}: $e');
@@ -221,7 +221,7 @@ class MarketSnapshotSync {
         } on DataGoKrApiException catch (e) {
           if (e.code == '22') {
             _budgetExhausted = true;
-          } else if (e.isFatal) {
+          } else if (e.isFatal || e.code == 'http') {
             rethrow;
           } else {
             failures.add(
@@ -231,7 +231,7 @@ class MarketSnapshotSync {
         }
       }
 
-      final remaining = dates.length - processed;
+      final remaining = dates.length - processed + failed;
       var message =
           '시세 $stored일 저장, 남은 기준일 $remaining일, 지수 $indexDays일 저장, 기업 연결 종목 $linked개';
       if (_budgetExhausted && !cancelled) {
@@ -245,7 +245,11 @@ class MarketSnapshotSync {
       await IngestJobs.save(
         session,
         job.copyWith(
-          status: cancelled ? IngestStatus.cancelled : IngestStatus.succeeded,
+          status: cancelled
+              ? IngestStatus.cancelled
+              : failures.isNotEmpty
+              ? IngestStatus.failed
+              : IngestStatus.succeeded,
           processed: processed,
           updated: stored,
           failed: failed,
@@ -261,7 +265,30 @@ class MarketSnapshotSync {
         exception: e,
         stackTrace: st,
       );
-      await IngestJobs.fail(session, jobId, '$e', apiCalls: client.calls);
+      final retry =
+          e is DataGoKrApiException &&
+          e.code == 'http' &&
+          scheduleResume != null &&
+          !await IngestJobs.isCancelled(session, jobId);
+      if (retry) {
+        await scheduleResume!(
+          _clock().toUtc().add(const Duration(minutes: 15)),
+        );
+      }
+      await IngestJobs.save(
+        session,
+        job.copyWith(
+          status: IngestStatus.failed,
+          processed: processed,
+          updated: stored,
+          failed: failed + 1,
+          apiCalls: client.calls,
+          finishedAt: DateTime.now().toUtc(),
+          message:
+              '시세 $stored일 저장, 미완료 기준일 ${job.total - processed + failed}일 · $e'
+              '${retry ? ' · 15분 후 자동 재시도 예약' : ''}',
+        ),
+      );
     } finally {
       await _meter.flush(session);
       client.close();
@@ -442,10 +469,7 @@ class MarketSnapshotSync {
           _budgetExhausted = true;
           break;
         }
-        if (e.isFatal) {
-          failures.add('지수 ${DartValues.formatYmd(day.baseDate)}: $e');
-          break;
-        }
+        if (e.isFatal || e.code == 'http') rethrow;
         if (failures.length < 5) {
           failures.add('지수 ${DartValues.formatYmd(day.baseDate)}: $e');
         }

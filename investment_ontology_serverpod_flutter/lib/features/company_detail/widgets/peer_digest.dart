@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 
 import '../../../client.dart';
+import '../../financials/financial_metrics.dart';
 import '../../../design/components/components.dart';
 import '../../../design/tokens.dart';
 
@@ -74,7 +75,10 @@ class _PeerDigestState extends State<PeerDigest> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SectionLabel('업종 비교', accent: true),
+          SectionLabel(
+            '업종 비교 · ${peers.fsDiv == null ? '자동' : fsDivLabel(peers.fsDiv!)} 기준',
+            accent: true,
+          ),
           const SizedBox(height: 2),
           Text(
             '${peers.label} · ${peers.peerCount}개사',
@@ -128,11 +132,18 @@ class _PeerDigestState extends State<PeerDigest> {
               onPressed: () => context.push('/screen'),
             ),
           ),
-          Text(
-            '산업분류가 같은 기업을 비교합니다. 5개사 미만이면 상위 업종으로 넓힙니다. '
-            '사업·제품이 유사한 직접 경쟁사 목록은 아닙니다. '
-            '순위는 값이 있는 기업만 셉니다. PER·PBR·부채비율은 낮을수록 앞입니다.',
-            style: t.body(11.5, color: c.textMuted),
+          ExpansionTile(
+            tilePadding: EdgeInsets.zero,
+            title: Text('비교 기준', style: t.body(12, color: c.textMuted)),
+            children: [
+              Text(
+                '자동 선택한 재무 기준이 같은 기업끼리 비교합니다. 수동 선택한 상단 지표와 다를 수 있습니다. '
+                '같은 산업분류로 비교하며 5개사 미만이면 상위 업종을 사용합니다. '
+                '직접 경쟁사 목록은 아닙니다. 값이 있는 기업만 순위를 매기며 '
+                'PER·PBR·부채비율은 낮을수록 앞입니다.',
+                style: t.body(11.5, color: c.textMuted),
+              ),
+            ],
           ),
         ],
       ),

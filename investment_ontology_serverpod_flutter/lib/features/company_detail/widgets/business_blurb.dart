@@ -91,7 +91,7 @@ class _BusinessBlurbState extends State<BusinessBlurb> {
         ),
         const SizedBox(height: AppSpace.xs),
         Text(
-          '사업보고서 "사업의 내용"을 읽어 쓴 글입니다. 근거는 사업의 내용 탭에서 절마다 펼쳐 볼 수 있습니다.',
+          '사업보고서 기반 요약 · 근거는 사업의 내용에서 확인',
           style: t.body(12, color: c.textSecondary),
         ),
         const SizedBox(height: AppSpace.section),

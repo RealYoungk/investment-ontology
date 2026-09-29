@@ -26,6 +26,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _i5qsmr7t;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/business_document_ref.dart'
     as _id7v70oo;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/business_understanding.dart'
+    as _ixjez09i;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_detail.dart'
     as _ig9j925g;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_financials.dart'
@@ -82,6 +84,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _isup83mn;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/overview.dart'
     as _iqnrnt8q;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/peer_candidates.dart'
+    as _i68u57gi;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/peer_comparison.dart'
     as _izfg2hmi;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/person_hit.dart'
@@ -620,6 +624,14 @@ class EndpointDisclosure extends _isc.EndpointRef {
   @override
   String get name => 'disclosure';
 
+  /// 최신 활성 공시에서 미리 추출한 제품·공정 설명.
+  _ida.Future<_ixjez09i.BusinessUnderstanding> understanding(String corpCode) =>
+      caller.callServerEndpoint<_ixjez09i.BusinessUnderstanding>(
+        'disclosure',
+        'understanding',
+        {'corpCode': corpCode},
+      );
+
   /// 기업이 가진 주요정보 항목과 사업연도 (항목 순서는 [DartSections.info]).
   _ida.Future<List<_i39r1xmm.DisclosureSectionInfo>> sections(
     String corpCode,
@@ -738,7 +750,7 @@ class EndpointFinancial extends _isc.EndpointRef {
 
   /// 기업의 기간별 핵심 계정과 최근 시가총액.
   ///
-  /// [fsDiv]가 없으면 연결재무제표가 있으면 연결, 없으면 별도를 쓴다.
+  /// [fsDiv]가 없으면 최신 기간과 계산 가능성을 공통 규칙으로 판단한다.
   _ida.Future<_i8vk5eaa.CompanyFinancials?> summary(
     String corpCode, {
     _indtcksm.FsDiv? fsDiv,
@@ -1272,6 +1284,19 @@ class EndpointScreen extends _isc.EndpointRef {
 
   @override
   String get name => 'screen';
+
+  /// 사전 처리된 최신 공시 제품군으로 선정한 비교 후보.
+  _ida.Future<_i68u57gi.PeerCandidates> peerCandidates(
+    String corpCode, {
+    String? focusKey,
+  }) => caller.callServerEndpoint<_i68u57gi.PeerCandidates>(
+    'screen',
+    'peerCandidates',
+    {
+      'corpCode': corpCode,
+      'focusKey': focusKey,
+    },
+  );
 
   /// 조건에 맞는 기업. 값이 없는 기업(적자·자본잠식 등)은 그 지표 조건이 있으면 빠진다.
   _ida.Future<_iy3d4gdi.ScreenPage> list({

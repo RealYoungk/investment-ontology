@@ -43,6 +43,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _izmct7si;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/business_document_ref.dart'
     as _i9fapywb;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/business_understanding.dart'
+    as _iyogv5m9;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_detail.dart'
     as _iws6mlcl;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_financials.dart'
@@ -99,6 +101,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _i5x2f28w;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/overview.dart'
     as _i5enxcw4;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/peer_candidates.dart'
+    as _iju25st5;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/peer_comparison.dart'
     as _i517wz0h;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/person_hit.dart'
@@ -1421,6 +1425,37 @@ class _DisclosureEndpoint {
   final _is.EndpointDispatch _endpointDispatch;
 
   final _is.SerializationManager _serializationManager;
+
+  _ida.Future<_iyogv5m9.BusinessUnderstanding> understanding(
+    _ist.TestSessionBuilder sessionBuilder,
+    String corpCode,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'disclosure',
+            method: 'understanding',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'disclosure',
+          methodName: 'understanding',
+          parameters: _ist.testObjectToJson({'corpCode': corpCode}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_iyogv5m9.BusinessUnderstanding>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
 
   _ida.Future<List<_itpltonf.DisclosureSectionInfo>> sections(
     _ist.TestSessionBuilder sessionBuilder,
@@ -3057,6 +3092,41 @@ class _ScreenEndpoint {
   final _is.EndpointDispatch _endpointDispatch;
 
   final _is.SerializationManager _serializationManager;
+
+  _ida.Future<_iju25st5.PeerCandidates> peerCandidates(
+    _ist.TestSessionBuilder sessionBuilder,
+    String corpCode, {
+    String? focusKey,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'screen',
+            method: 'peerCandidates',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'screen',
+          methodName: 'peerCandidates',
+          parameters: _ist.testObjectToJson({
+            'corpCode': corpCode,
+            'focusKey': focusKey,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_iju25st5.PeerCandidates>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
 
   _ida.Future<_ia9do9rj.ScreenPage> list(
     _ist.TestSessionBuilder sessionBuilder, {

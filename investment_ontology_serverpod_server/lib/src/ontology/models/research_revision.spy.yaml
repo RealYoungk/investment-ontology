@@ -1,0 +1,21 @@
+class: ResearchRevision
+table: research_revision
+fields:
+  articleId: int
+  version: int
+  title: String
+  summary: String
+  ticker: String
+  market: String
+  content: String
+  format: String
+  searchText: String
+  dataAsOf: DateTime
+  publishedAt: DateTime?
+  createdAt: DateTime
+  note: String
+  legacy: bool
+indexes:
+  research_revision_version_idx:
+    fields: articleId, version
+    unique: true

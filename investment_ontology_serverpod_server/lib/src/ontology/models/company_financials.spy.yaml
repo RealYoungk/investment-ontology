@@ -11,3 +11,5 @@ fields:
   ### 수집 장부의 이 기업 정기보고서 수와 아직 받지 않은 수
   filingCount: int
   pendingFilingCount: int
+  ### 자동 선택 이유 또는 수동 선택
+  basisReason: String?

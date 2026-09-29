@@ -1,0 +1,5 @@
+class: PeerSignal
+fields:
+  key: String
+  label: String
+  evidence: String

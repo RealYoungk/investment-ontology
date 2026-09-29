@@ -34,6 +34,7 @@ company:
   - list:
   - detail:
 disclosure:
+  - understanding:
   - sections:
   - table:
   - businessContent:
@@ -88,6 +89,7 @@ review:
   - decideFact:
   - forCompany:
 screen:
+  - peerCandidates:
   - list:
   - peers:
 theme:

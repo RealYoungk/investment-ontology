@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 
+import '../../../client.dart';
 import '../../../design/components/components.dart';
 import '../../../design/tokens.dart';
 import '../../common/formatters.dart';
@@ -16,8 +17,18 @@ class CompanyHeader extends StatelessWidget {
     required this.financials,
     required this.openMetric,
     required this.onOpenMetric,
+    this.onBasisChanged,
+    this.changingBasis = false,
+    this.basisError,
+    this.selectedBasis,
+    this.onCompare,
   });
 
+  final VoidCallback? onCompare;
+  final ValueChanged<FsDiv?>? onBasisChanged;
+  final FsDiv? selectedBasis;
+  final bool changingBasis;
+  final String? basisError;
   final CompanyDetail detail;
   final CompanyFinancials? financials;
 
@@ -38,20 +49,41 @@ class CompanyHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Wrap(
-          spacing: AppSpace.lg,
-          runSpacing: AppSpace.sm,
-          crossAxisAlignment: WrapCrossAlignment.end,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(company.name, style: t.display(40, color: c.textPrimary)),
-            if (company.nameEng != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 6),
-                child: Text(
-                  company.nameEng!,
-                  style: t.body(13.5, color: c.textSecondary),
+            Expanded(
+              child: Wrap(
+                spacing: AppSpace.lg,
+                runSpacing: AppSpace.sm,
+                crossAxisAlignment: WrapCrossAlignment.end,
+                children: [
+                  Text(
+                    company.name,
+                    style: t.display(40, color: c.textPrimary),
+                  ),
+                  if (company.nameEng != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Text(
+                        company.nameEng!,
+                        style: t.body(13.5, color: c.textSecondary),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            if (onCompare != null) ...[
+              const SizedBox(width: AppSpace.md),
+              Tooltip(
+                message: '다른 기업과 비교',
+                child: AppButton(
+                  icon: Icons.business_outlined,
+                  label: '비교',
+                  onPressed: onCompare,
                 ),
               ),
+            ],
           ],
         ),
         const SizedBox(height: AppSpace.md),
@@ -73,29 +105,50 @@ class CompanyHeader extends StatelessWidget {
                 numeric: true,
                 size: AppTagSize.medium,
               ),
-            AppTag(
-              label: 'DART ${company.corpCode}',
-              numeric: true,
-              size: AppTagSize.medium,
-            ),
             if (industry != null)
               Text(
-                '${industry.code} ${industry.name}',
+                industry.name,
                 style: t.body(13.5, color: c.textSecondary),
               ),
           ],
         ),
         const SizedBox(height: AppSpace.xl),
+        if (fin != null &&
+            fin.availableFsDivs.isNotEmpty &&
+            onBasisChanged != null) ...[
+          Row(
+            children: [
+              AppToggleGroup<String>(
+                value: selectedBasis?.name ?? 'auto',
+                options: {
+                  'auto': '자동',
+                  for (final div in fin.availableFsDivs)
+                    div.name: fsDivLabel(div),
+                },
+                onChanged: (value) => onBasisChanged!(
+                  value == 'auto' ? null : FsDiv.values.byName(value),
+                ),
+              ),
+              const SizedBox(width: AppSpace.sm),
+              if (changingBasis)
+                Text('불러오는 중…', style: t.body(12, color: c.textMuted)),
+            ],
+          ),
+          if (basisError != null)
+            Text(basisError!, style: t.body(12, color: c.textSecondary)),
+          const SizedBox(height: AppSpace.sm),
+        ],
         if (hasFinancials)
           _KeyStats(
             metrics: FinancialView(fin).metrics(),
+            corpCode: company.corpCode,
             fsDiv: fin.fsDiv,
             open: openMetric,
             onTap: onOpenMetric,
           )
         else
           Text(
-            '아직 재무·시세를 수집하지 않았습니다. 재무 탭에서 이 기업만 바로 받을 수 있습니다.',
+            '수집된 재무·시세가 없습니다.',
             style: t.body(13, color: c.textMuted),
           ),
       ],
@@ -103,23 +156,85 @@ class CompanyHeader extends StatelessWidget {
   }
 }
 
-class _KeyStats extends StatelessWidget {
+class _KeyStats extends StatefulWidget {
   const _KeyStats({
     required this.metrics,
+    required this.corpCode,
     required this.fsDiv,
     required this.open,
     required this.onTap,
   });
 
-  final List<DerivedMetric> metrics;
+  final String corpCode;
   final FsDiv? fsDiv;
+  final List<DerivedMetric> metrics;
   final String? open;
   final ValueChanged<String> onTap;
+
+  @override
+  State<_KeyStats> createState() => _KeyStatsState();
+}
+
+class _KeyStatsState extends State<_KeyStats> {
+  PeerComparison? _peers;
+  int _request = 0;
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  @override
+  void didUpdateWidget(covariant _KeyStats oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.corpCode != widget.corpCode ||
+        oldWidget.fsDiv != widget.fsDiv) {
+      _load();
+    }
+  }
+
+  Future<void> _load() async {
+    final request = ++_request;
+    _peers = null;
+    try {
+      final peers = await client.screen.peers(widget.corpCode);
+      if (mounted && request == _request) setState(() => _peers = peers);
+    } catch (_) {
+      if (mounted && request == _request) setState(() => _peers = null);
+    }
+  }
+
+  Widget _benchmark(BuildContext context, String key) {
+    final peers = _peers;
+    if (peers == null || peers.fsDiv != widget.fsDiv) {
+      return const SizedBox.shrink();
+    }
+    final metric = peers.metrics
+        .where((m) => m.key == key && m.value != null && m.median != null)
+        .firstOrNull;
+    if (metric == null) return const SizedBox.shrink();
+    final unit = key == 'per' || key == 'pbr' ? '배' : '%';
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpace.xs),
+      child: Tooltip(
+        message:
+            '${peers.label} · 유효값 ${metric.ranked ?? peers.peerCount}개사 · ${peers.fsDiv == null ? '자동' : fsDivLabel(peers.fsDiv!)} 기준\n평균이 아닌 중앙값입니다. 같은 산업분류이며 직접 경쟁사 비교는 아닙니다.',
+        child: Text(
+          '업종 중앙 ${metric.median!.toStringAsFixed(1)}$unit',
+          style: context.typo.body(11, color: context.colors.textSecondary),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     final t = context.typo;
+    final missingReasons = {
+      for (final m in widget.metrics)
+        if (m.derived.value == null) m.derived.missing ?? '계산 자료 부족',
+    };
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -141,9 +256,9 @@ class _KeyStats extends StatelessWidget {
               final cell = constraints.maxWidth / columns;
               return Wrap(
                 children: [
-                  for (final m in metrics)
+                  for (final m in widget.metrics)
                     HoverBuilder(
-                      onTap: () => onTap(m.key),
+                      onTap: () => widget.onTap(m.key),
                       builder: (context, hovered) => AnimatedContainer(
                         duration: AppMotion.fast,
                         width: cell,
@@ -157,7 +272,7 @@ class _KeyStats extends StatelessWidget {
                           color: hovered ? c.surfaceHover : Colors.transparent,
                           border: Border(
                             bottom: BorderSide(
-                              color: open == m.key
+                              color: widget.open == m.key
                                   ? c.accent
                                   : Colors.transparent,
                               width: 3,
@@ -187,13 +302,7 @@ class _KeyStats extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            if (m.derived.value == null) ...[
-                              const SizedBox(height: AppSpace.xs),
-                              Text(
-                                m.derived.missing ?? '계산에 필요한 자료가 부족합니다.',
-                                style: t.body(11.5, color: c.textSecondary),
-                              ),
-                            ],
+                            _benchmark(context, m.key),
                           ],
                         ),
                       ),
@@ -203,12 +312,15 @@ class _KeyStats extends StatelessWidget {
             },
           ),
         ),
-        const SizedBox(height: AppSpace.xs),
-        Text(
-          '${fsDiv == null ? '' : '${fsDivLabel(fsDiv!)}재무제표 · '}'
-          '원천 값으로 화면에서 계산 · 누르면 계산식과 입력값',
-          style: t.body(11.5, color: c.textMuted),
-        ),
+        if (missingReasons.isNotEmpty) ...[
+          const SizedBox(height: AppSpace.sm),
+          Text(
+            missingReasons.length == 1
+                ? '— ${missingReasons.single}'
+                : '일부 지표 계산 불가 · 지표를 누르면 사유 확인',
+            style: t.body(12, color: c.textSecondary),
+          ),
+        ],
       ],
     );
   }

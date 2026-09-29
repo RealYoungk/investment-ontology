@@ -299,6 +299,23 @@ void main() {
       ]);
     });
 
+    test('통신 장애는 항목 재시도 횟수를 소진하지 않고 자동 재개한다', () async {
+      dart.onCall = () async =>
+          throw http.ClientException('Failed host lookup');
+      final job = await runSync(businessBudget: 0);
+      expect(job.status, IngestStatus.failed);
+      expect(job.apiCalls, 1);
+      expect(resumes, [now.add(const Duration(minutes: 15))]);
+      final items = await DartFilingSection.db.find(session);
+      expect(items.every((item) => item.attempts == 0), isTrue);
+      expect(
+        items.every((item) => item.status == FilingFetchStatus.pending),
+        isTrue,
+      );
+      dart.onCall = null;
+      expect((await runSync(businessBudget: 0)).status, IngestStatus.succeeded);
+    });
+
     test('사업보고서마다 28개 항목을 받아 원문 행과 타입 층을 출처와 함께 저장한다', () async {
       final job = await runSync();
       expect(job.status, IngestStatus.succeeded, reason: job.message);

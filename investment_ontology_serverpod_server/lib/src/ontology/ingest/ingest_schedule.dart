@@ -1,12 +1,16 @@
+import '../business/business_profiles.dart';
+
 import 'package:serverpod/protocol.dart' as sp;
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/future_calls.dart';
+import '../../generated/protocol.dart' show IngestStatus;
 import 'disclosure_sync.dart';
 import 'financial_facts_sync.dart';
 import 'ingest_jobs.dart';
 import 'market_snapshot_sync.dart';
 import 'ingest_hooks.dart';
+import '../peers/peer_catalog.dart';
 
 /// 수집 FutureCall 예약.
 ///
@@ -52,9 +56,21 @@ abstract final class IngestSchedule {
           session,
           where: (t) => t.identifier.equals(resumeId),
         );
+      } else if (!await _scheduled(session, resumeId)) {
+        final latest = await IngestJobs.latest(session, kind);
+        // 이전 버전이 성공으로 기록한 부분 실패도 재시도한다.
+        // 취소된 작업과 이미 예약된 예산 대기는 그대로 둔다.
+        if (latest != null &&
+            (latest.status == IngestStatus.failed ||
+                (latest.status == IngestStatus.succeeded &&
+                    latest.failed > 0))) {
+          await resume(session, soon);
+        }
       }
     }
     await ensureDaily(session);
+    await PeerProfiles.backfill(session);
+    await BusinessProfiles.backfill(session);
   }
 
   /// 매일 자동 수집 예약이 없으면 건다. 서버가 켜질 때마다 부른다.

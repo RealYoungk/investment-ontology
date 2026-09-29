@@ -21,6 +21,7 @@ class FakeDart {
   final statements = <String, String>{};
   final financialCalls = <String>[];
   var listCalls = 0;
+  bool offline = false;
 
   static String key(String corp, int year, String code, String fs) =>
       '$corp|$year|$code|$fs';
@@ -40,6 +41,7 @@ class FakeDart {
   DartClient client() => DartClient(
     'key',
     httpClient: MockClient((req) async {
+      if (offline) throw http.ClientException('Failed host lookup');
       final q = req.url.queryParameters;
       if (req.url.path.endsWith('list.json')) {
         listCalls++;
@@ -196,6 +198,16 @@ void main() {
         ),
         row('20260310000001', 'CIS', '-표준계정코드 미사용-', '기타', '12.5'),
       ]);
+    });
+
+    test('공시 검색 통신 장애는 실패로 기록하고 15분 뒤 재개한다', () async {
+      dart.offline = true;
+      final job = await runSync();
+      expect(job.status, IngestStatus.failed);
+      expect(job.apiCalls, 1);
+      expect(resumes, [now.add(const Duration(minutes: 15))]);
+      dart.offline = false;
+      expect((await runSync()).status, IngestStatus.succeeded);
     });
 
     test('공시 목록의 정기보고서를 연결·별도로 받아 출처와 함께 저장한다', () async {
@@ -639,6 +651,11 @@ void main() {
         dart.financialCalls.where((c) => c.startsWith('00000002')),
         isEmpty,
       );
+    });
+
+    test('공시를 발견하기 전 예산이 소진돼도 다음 날 검색을 재개한다', () async {
+      await runSync(dailyBudget: 0);
+      expect(resumes, [DateTime.utc(2026, 9, 17, 15, 10)]);
     });
 
     test('일일 예산에 닿으면 멈추고 다음 날 이어받기를 예약한다', () async {

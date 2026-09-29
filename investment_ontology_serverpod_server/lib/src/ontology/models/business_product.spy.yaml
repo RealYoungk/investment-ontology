@@ -1,0 +1,12 @@
+### 회사 제품과 설명을 연결하는 근거. 설명 사전과 회사 귀속 근거를 구분한다.
+class: BusinessProduct
+fields:
+  key: String
+  name: String
+  role: String
+  process: String
+  benefit: String
+  evidence: String
+  referenceUrl: String?
+  ### 설명 사전은 일반적인 제품 원리이며 회사별 성능 보증이 아니다.
+  explanationKind: String
