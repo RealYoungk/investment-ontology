@@ -17,6 +17,7 @@ void main() {
     Future<List<sp.FutureCallEntry>> daily() => sp.FutureCallEntry.db.find(
       session,
       where: (t) => t.identifier.inSet({
+        IngestSchedule.companyMasterDailyId,
         IngestSchedule.marketSnapshotDailyId,
         IngestSchedule.financialsDailyId,
       }),
@@ -52,10 +53,17 @@ void main() {
       expect(
         entries.map((e) => e.identifier),
         unorderedEquals([
+          IngestSchedule.companyMasterDailyId,
           IngestSchedule.marketSnapshotDailyId,
           IngestSchedule.financialsDailyId,
         ]),
       );
+      final company = entries.firstWhere(
+        (e) => e.identifier == IngestSchedule.companyMasterDailyId,
+      );
+      expect(company.name, 'CompanyMasterResumeFutureCall');
+      expect(company.time.toUtc().hour, 23, reason: '08:30 KST = 전날 23:30 UTC');
+      expect(company.time.toUtc().minute, 30);
       final market = entries.firstWhere(
         (e) => e.identifier == IngestSchedule.marketSnapshotDailyId,
       );

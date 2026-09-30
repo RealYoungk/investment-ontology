@@ -77,6 +77,7 @@ class FutureCalls extends _is.FutureCallDispatch<_FutureCallRef> {
   ) {
     var registeredFutureCalls = <String, _is.InvokableFutureCall>{
       'AiExtractionRunFutureCall': AiExtractionRunFutureCall(),
+      'CompanyMasterResumeFutureCall': CompanyMasterResumeFutureCall(),
       'CompanyMasterRunFutureCall': CompanyMasterRunFutureCall(),
       'DisclosureRunFutureCall': DisclosureRunFutureCall(),
       'DisclosureRunCompanyFutureCall': DisclosureRunCompanyFutureCall(),
@@ -251,6 +252,13 @@ class _CompanyMasterFutureCallDispatcher {
 
   final _InvokeFutureCall _invokeFutureCall;
 
+  Future<void> resume() {
+    return _invokeFutureCall(
+      'CompanyMasterResumeFutureCall',
+      null,
+    );
+  }
+
   Future<void> run(
     int jobId,
     bool force,
@@ -373,6 +381,18 @@ class AiExtractionRunFutureCall
         object.limit,
       );
     }
+  }
+}
+
+/// 매일 기업 마스터 갱신. 같은 종류의 실행 중 작업이 있으면 중복하지 않는다.
+class CompanyMasterResumeFutureCall extends _is.FutureCall
+    implements _is.InvokableFutureCall {
+  @override
+  _ida.Future<void> invoke(
+    _is.Session session,
+    _is.SerializableModel? object,
+  ) async {
+    await _iouuus1c.CompanyMasterFutureCall().resume(session);
   }
 }
 

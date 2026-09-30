@@ -21,6 +21,11 @@ import '../peers/peer_catalog.dart';
 /// 자체를 빼 버려 참조하던 생성 코드가 다시 생기지 않는 순환에 빠진다.
 abstract final class IngestSchedule {
   /// 매일 자동 수집 예약 식별자.
+  static const companyMasterDailyId = 'company_master_daily';
+
+  /// 매일 08:30 KST에 신규·변경 기업을 등록한다.
+  static const companyMasterDailyCron = '30 23 * * *';
+
   static const marketSnapshotDailyId = 'market_snapshot_daily';
   static const financialsDailyId = 'financial_facts_daily';
   static const disclosuresDailyId = 'disclosures_daily';
@@ -37,7 +42,7 @@ abstract final class IngestSchedule {
   /// 서버가 켜질 때 부른다.
   ///
   /// 1. 이전 서버와 함께 끊긴 수집 작업을 정리한다. Serverpod가 다시 실행할 작업은 둔다.
-  /// 2. 다시 실행되지 않는 재무·시세·주요정보 수집은 바로 이어받기를 예약한다 (기업마스터는 수동).
+  /// 2. 다시 실행되지 않는 재무·시세·주요정보 수집은 바로 이어받기를 예약한다 (기업 마스터는 다음 일일 예약에서 갱신).
   /// 3. 매일 자동 수집 예약이 없으면 건다.
   static Future<void> onServerStart(Session session) async {
     installHooks();
@@ -79,6 +84,13 @@ abstract final class IngestSchedule {
   /// 실행되고 다음 날로 넘어가므로, 지우고 다시 걸면 그 한 번을 놓친다.
   /// 실행은 `resume`이라 같은 종류의 수집이 돌고 있으면 건너뛴다.
   static Future<void> ensureDaily(Session session) async {
+    if (!await _scheduled(session, companyMasterDailyId)) {
+      await session.serverpod.futureCalls
+          .callRecurring(identifier: companyMasterDailyId)
+          .cron(companyMasterDailyCron)
+          .companyMaster
+          .resume();
+    }
     if (!await _scheduled(session, marketSnapshotDailyId)) {
       await session.serverpod.futureCalls
           .callRecurring(identifier: marketSnapshotDailyId)

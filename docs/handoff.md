@@ -347,3 +347,7 @@ Follow-up: user approved improvement but requested direct visual labels and rais
 검색 아이콘 클릭 안에서 준비된 입력창을 즉시 활성화하도록 변경했다. 입력칸 재탭 없이 포커스와 키보드를 요청하며, 닫기/뒤로가기/재열기/데스크톱 전환을 테스트했다. Flutter semantic input/textarea는 16px로 보정하여 iOS 자동 확대 원인을 제거하고 pinch zoom은 유지했다. 사용자가 실제 모바일에서 "굿 됐네"로 동작을 확인했다.
 
 현재 공개 배포는 `dpl_8rZjBRfeS9XcXHvYjur2J5kJBbrH`이며 alfinder.kr에 반영됐다. 배포 및 롤백 상세는 docs/deploy.md 참조. 커밋 전 Flutter 전체 136개, 뉴스/생성 코드 서버 테스트 8개, 카탈로그 Python 테스트 9개 통과. 앞선 미배포 기록은 각 작업 당시 상태이며 위 공개 배포가 최신이다.
+
+## 2026-09-30 데이터 화면과 기업 마스터 자동 갱신
+
+데이터 화면은 데이터 종류별 카드에서 DB 확보 수·처리율, 자동 갱신 일정, 실행 버튼을 함께 보여준다. API 주소·요청 파라미터와 저장 스키마는 상세로 접었다. 스키마 참조는 `scripts/data/build_catalog.py`로 모델 파일에서 갱신한다. 기업 마스터도 매일 08:30 KST 신규·변경 기업 수집을 예약하며, 기존 30일 전체 갱신 규칙을 유지한다. 신규 상장사 등록은 DART 목록 반영 시점에 의존한다. 등록 생성·예약 중복 방지·기업 마스터 수집 관련 서버 테스트 18개 통과.

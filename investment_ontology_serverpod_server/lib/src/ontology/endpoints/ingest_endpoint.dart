@@ -201,6 +201,13 @@ class IngestEndpoint extends Endpoint {
   Future<List<IngestScheduleEntry>> schedule(Session session) async {
     const plan = [
       (
+        CompanyMasterSync.kind,
+        '기업 기본정보',
+        '매일 08:30 · 신규·변경 기업, 30일마다 전체 갱신',
+        'company_master_daily',
+        'company_master_resume',
+      ),
+      (
         MarketSnapshotSync.kind,
         '시세',
         '매일 18:00',

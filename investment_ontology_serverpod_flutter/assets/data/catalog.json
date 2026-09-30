@@ -1,0 +1,368 @@
+{
+  "company": {
+    "endpoints": [
+      {
+        "label": "기업 목록",
+        "url": "https://opendart.fss.or.kr/api/corpCode.xml",
+        "params": "crtfc_key"
+      },
+      {
+        "label": "기업개황",
+        "url": "https://opendart.fss.or.kr/api/company.json",
+        "params": "crtfc_key, corp_code"
+      }
+    ],
+    "schemas": [
+      {
+        "file": "company.spy.yaml",
+        "definition": "### 기업. 식별자는 DART 고유번호(corp_code, 8자리).\nclass: Company\ntable: company\nfields:\n  corpCode: String\n  name: String\n  nameEng: String?\n  stockName: String?\n  ### 단축 종목코드 (6자리)\n  stockCode: String?\n  market: Market?\n  ceoName: String?\n  ### 법인등록번호\n  jurirNo: String?\n  ### 사업자등록번호\n  bizrNo: String?\n  address: String?\n  homepageUrl: String?\n  irUrl: String?\n  phone: String?\n  ### KSIC 코드 (DART induty_code 원문)\n  industryCode: String?\n  ### KSIC 대분류 (A~U), industryCode에서 파생\n  sectionCode: String?\n  ### KSIC 중분류 (2자리), industryCode에서 파생\n  divisionCode: String?\n  ### 설립일 (UTC 자정). 원천 값이 유효한 날짜가 아니면 null\n  establishedDate: DateTime?\n  ### 결산월 (1~12)\n  fiscalMonth: int?\n  ### corpCode.xml의 modify_date (UTC 자정)\n  dartModifiedDate: DateTime?\n  profileSourceId: int?, relation(parent=source, onDelete=SetNull)\n  profileUpdatedAt: DateTime?\nindexes:\n  company_corp_code_idx:\n    fields: corpCode\n    unique: true\n  company_stock_code_idx:\n    fields: stockCode\n  company_market_idx:\n    fields: market\n  company_section_idx:\n    fields: sectionCode, divisionCode\n"
+      },
+      {
+        "file": "industry.spy.yaml",
+        "definition": "### 한국표준산업분류(KSIC) 항목. 개정 차수마다 따로 둔다.\nclass: Industry\ntable: industry\nfields:\n  ### A~U (대분류) 또는 2~5자리 숫자\n  code: String\n  name: String\n  ### 1 대분류, 2 중분류, 3 소분류, 4 세분류, 5 세세분류\n  level: int\n  parentCode: String?\n  ### 예: \"KSIC 11\"\n  revision: String\n  ### 통계청 고시 자료\n  sourceId: int?, relation(parent=source, onDelete=SetNull)\nindexes:\n  industry_revision_code_idx:\n    fields: revision, code\n    unique: true\n"
+      },
+      {
+        "file": "company_change.spy.yaml",
+        "definition": "### 기업 속성 변경 이력. 다시 수집했을 때 값이 바뀐 필드마다 한 행.\nclass: CompanyChange\ntable: company_change\nfields:\n  companyId: int, relation(parent=company, onDelete=Cascade)\n  ### Company 필드명 (예: ceoName, market)\n  field: String\n  ### 정규화된 값을 문자열로 (날짜는 YYYY-MM-DD, enum은 이름)\n  oldValue: String?\n  newValue: String?\n  sourceId: int?, relation(parent=source, onDelete=SetNull)\n  changedAt: DateTime\nindexes:\n  company_change_company_idx:\n    fields: companyId, changedAt\n"
+      },
+      {
+        "file": "source.spy.yaml",
+        "definition": "### 사실(수치·관계)의 출처. 출처 없는 사실은 저장하지 않는다.\nclass: Source\ntable: source\nfields:\n  kind: SourceKind\n  ### 예: \"DART 기업개황 (company.json)\"\n  title: String\n  ### 공시 접수번호, corp_code 등 원천에서의 식별자\n  reference: String?\n  url: String?\n  retrievedAt: DateTime\n"
+      },
+      {
+        "file": "source_kind.spy.yaml",
+        "definition": "enum: SourceKind\nvalues:\n  - dartApi\n  - dartReport\n  - krxApi\n  ### 공공데이터포털 (금융위원회 주식시세정보·KRX상장종목정보)\n  - dataGoKrApi\n  - officialFile\n  - manual\n"
+      }
+    ]
+  },
+  "financial": {
+    "endpoints": [
+      {
+        "label": "공시 목록",
+        "url": "https://opendart.fss.or.kr/api/list.json",
+        "params": "crtfc_key, bgn_de, end_de, pblntf_ty, page_no, page_count (기업별 조회: corp_code)"
+      },
+      {
+        "label": "전체 재무제표",
+        "url": "https://opendart.fss.or.kr/api/fnlttSinglAcntAll.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code, fs_div"
+      }
+    ],
+    "schemas": [
+      {
+        "file": "dart_filing.spy.yaml",
+        "definition": "### 수집 장부: DART 공시 목록(list.json)에서 찾은 상장사 정기보고서.\n### 온톨로지 엔티티가 아니라, 어떤 보고서를 받았고 받을지 기록한다.\nclass: DartFiling\ntable: dart_filing\nfields:\n  ### 공시 접수번호 (14자리)\n  rceptNo: String\n  corpCode: String\n  companyId: int?, relation(parent=company, onDelete=SetNull)\n  ### 예: \"[기재정정]사업보고서 (2025.12)\"\n  reportName: String\n  ### 접수일 (UTC 자정)\n  receivedDate: DateTime?\n  bsnsYear: int?\n  reportCode: FinancialReportCode?\n  consolidatedStatus: FilingFetchStatus\n  separateStatus: FilingFetchStatus\n  ### 실패한 호출 수 (연결·별도 합산)\n  attempts: int, default=0\n  lastError: String?\n  discoveredAt: DateTime\n  checkedAt: DateTime?\nindexes:\n  dart_filing_rcept_no_idx:\n    fields: rceptNo\n    unique: true\n  dart_filing_company_idx:\n    fields: companyId, bsnsYear, reportCode\n  dart_filing_received_idx:\n    fields: receivedDate\n"
+      },
+      {
+        "file": "financial_report.spy.yaml",
+        "definition": "### 재무 보고서: 공시 1건의 연결 또는 별도 재무제표 한 벌. FinancialFact를 묶는다.\n### 정정공시로 대체되면 지우지 않고 supersededBy로 새 보고서를 가리킨다.\nclass: FinancialReport\ntable: financial_report\nfields:\n  companyId: int, relation(parent=company, onDelete=Restrict)\n  ### 재무 API 응답의 접수번호. 이 숫자들이 실린 공시\n  rceptNo: String\n  fsDiv: FsDiv\n  bsnsYear: int\n  reportCode: FinancialReportCode\n  reportName: String\n  receivedDate: DateTime?\n  factCount: int\n  ### 원천 값이 있었지만 원 단위 정수가 아니어서 비워 둔 금액 수\n  invalidAmountCount: int, default=0\n  sourceId: int, relation(parent=source, onDelete=Restrict)\n  supersededById: int?, relation(parent=financial_report, onDelete=SetNull)\n  fetchedAt: DateTime\nindexes:\n  financial_report_rcept_no_idx:\n    fields: rceptNo, fsDiv\n    unique: true\n  financial_report_period_idx:\n    fields: companyId, bsnsYear, reportCode, fsDiv\n"
+      },
+      {
+        "file": "financial_fact.spy.yaml",
+        "definition": "### 재무 수치 한 칸. DART fnlttSinglAcntAll 응답 한 행의 금액 열을 모두 담는다.\n### 금액은 원 단위 정수. 비교 기간 값(전기·전전기)도 같은 공시에 실린 값이다.\nclass: FinancialFact\ntable: financial_fact\nfields:\n  reportId: int, relation(parent=financial_report, onDelete=Restrict)\n  # 조회용으로 보고서 속성을 함께 둔다.\n  companyId: int\n  bsnsYear: int\n  reportCode: FinancialReportCode\n  fsDiv: FsDiv\n  statement: FinancialStatementKind\n  ### XBRL 계정 ID (예: ifrs-full_Revenue). 표준계정코드를 쓰지 않은 계정은 null\n  accountId: String?\n  accountName: String\n  ### 자본변동표의 자본 구성요소 등 (원문 그대로)\n  accountDetail: String?\n  ord: int?\n  ### 당기 (thstrm_nm / thstrm_amount / thstrm_add_amount)\n  periodName: String?\n  amount: BigInt?\n  cumulativeAmount: BigInt?\n  ### 전기 (frmtrm_nm / frmtrm_amount / frmtrm_add_amount)\n  priorPeriodName: String?\n  priorAmount: BigInt?\n  priorCumulativeAmount: BigInt?\n  ### 전기 동분기 (frmtrm_q_nm / frmtrm_q_amount)\n  priorQuarterName: String?\n  priorQuarterAmount: BigInt?\n  ### 전전기 (bfefrmtrm_nm / bfefrmtrm_amount)\n  beforePriorPeriodName: String?\n  beforePriorAmount: BigInt?\n  currency: String?\n  sourceId: int, relation(parent=source, onDelete=Restrict)\n  supersededById: int?, relation(parent=financial_fact, onDelete=SetNull)\nindexes:\n  financial_fact_series_idx:\n    fields: companyId, statement, accountId, bsnsYear, reportCode\n  ### 스크리닝: 계정 하나로 전 상장사를 훑는다\n  financial_fact_account_idx:\n    fields: accountId, reportCode, fsDiv\n  financial_fact_report_idx:\n    fields: reportId\n"
+      },
+      {
+        "file": "fs_div.spy.yaml",
+        "definition": "### 연결/별도 재무제표 구분 (DART fs_div).\nenum: FsDiv\nvalues:\n  ### 연결재무제표 (CFS)\n  - consolidated\n  ### 별도(개별)재무제표 (OFS)\n  - separate\n"
+      },
+      {
+        "file": "financial_report_code.spy.yaml",
+        "definition": "### DART 정기보고서 코드 (reprt_code).\nenum: FinancialReportCode\nvalues:\n  ### 사업보고서 (11011)\n  - annual\n  ### 반기보고서 (11012)\n  - halfYear\n  ### 1분기보고서 (11013)\n  - q1\n  ### 3분기보고서 (11014)\n  - q3\n"
+      },
+      {
+        "file": "financial_statement_kind.spy.yaml",
+        "definition": "### 재무제표 종류 (DART sj_div).\nenum: FinancialStatementKind\nvalues:\n  ### 재무상태표 (BS)\n  - balanceSheet\n  ### 손익계산서 (IS)\n  - incomeStatement\n  ### 포괄손익계산서 (CIS)\n  - comprehensiveIncome\n  ### 현금흐름표 (CF)\n  - cashFlow\n  ### 자본변동표 (SCE)\n  - equityChanges\n"
+      },
+      {
+        "file": "source.spy.yaml",
+        "definition": "### 사실(수치·관계)의 출처. 출처 없는 사실은 저장하지 않는다.\nclass: Source\ntable: source\nfields:\n  kind: SourceKind\n  ### 예: \"DART 기업개황 (company.json)\"\n  title: String\n  ### 공시 접수번호, corp_code 등 원천에서의 식별자\n  reference: String?\n  url: String?\n  retrievedAt: DateTime\n"
+      },
+      {
+        "file": "source_kind.spy.yaml",
+        "definition": "enum: SourceKind\nvalues:\n  - dartApi\n  - dartReport\n  - krxApi\n  ### 공공데이터포털 (금융위원회 주식시세정보·KRX상장종목정보)\n  - dataGoKrApi\n  - officialFile\n  - manual\n"
+      }
+    ]
+  },
+  "disclosure": {
+    "endpoints": [
+      {
+        "label": "최대주주 현황",
+        "url": "https://opendart.fss.or.kr/api/hyslrSttus.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code"
+      },
+      {
+        "label": "최대주주 변동현황",
+        "url": "https://opendart.fss.or.kr/api/hyslrChgSttus.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code"
+      },
+      {
+        "label": "소액주주 현황",
+        "url": "https://opendart.fss.or.kr/api/mrhlSttus.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code"
+      },
+      {
+        "label": "임원 현황",
+        "url": "https://opendart.fss.or.kr/api/exctvSttus.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code"
+      },
+      {
+        "label": "타법인 출자현황",
+        "url": "https://opendart.fss.or.kr/api/otrCprInvstmntSttus.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code"
+      },
+      {
+        "label": "사외이사 및 그 변동현황",
+        "url": "https://opendart.fss.or.kr/api/outcmpnyDrctrNdChangeSttus.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code"
+      },
+      {
+        "label": "배당에 관한 사항",
+        "url": "https://opendart.fss.or.kr/api/alotMatter.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code"
+      },
+      {
+        "label": "자기주식 취득 및 처분 현황",
+        "url": "https://opendart.fss.or.kr/api/tesstkAcqsDspsSttus.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code"
+      },
+      {
+        "label": "주식의 총수 현황",
+        "url": "https://opendart.fss.or.kr/api/stockTotqySttus.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code"
+      },
+      {
+        "label": "증자(감자) 현황",
+        "url": "https://opendart.fss.or.kr/api/irdsSttus.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code"
+      },
+      {
+        "label": "직원 현황",
+        "url": "https://opendart.fss.or.kr/api/empSttus.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code"
+      },
+      {
+        "label": "미등기임원 보수현황",
+        "url": "https://opendart.fss.or.kr/api/unrstExctvMendngSttus.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code"
+      },
+      {
+        "label": "이사·감사 보수 (주주총회 승인금액)",
+        "url": "https://opendart.fss.or.kr/api/drctrAdtAllMendngSttusGmtsckConfmAmount.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code"
+      },
+      {
+        "label": "이사·감사 보수 (지급금액 전체)",
+        "url": "https://opendart.fss.or.kr/api/hmvAuditAllSttus.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code"
+      },
+      {
+        "label": "이사·감사 보수 (지급금액 유형별)",
+        "url": "https://opendart.fss.or.kr/api/drctrAdtAllMendngSttusMendngPymntamtTyCl.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code"
+      },
+      {
+        "label": "이사·감사 개인별 보수 (5억원 이상)",
+        "url": "https://opendart.fss.or.kr/api/hmvAuditIndvdlBySttus.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code"
+      },
+      {
+        "label": "개인별 보수 상위 5인 (5억원 이상)",
+        "url": "https://opendart.fss.or.kr/api/indvdlByPay.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code"
+      },
+      {
+        "label": "회계감사인과 감사의견",
+        "url": "https://opendart.fss.or.kr/api/accnutAdtorNmNdAdtOpinion.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code"
+      },
+      {
+        "label": "감사용역 체결현황",
+        "url": "https://opendart.fss.or.kr/api/adtServcCnclsSttus.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code"
+      },
+      {
+        "label": "비감사용역 계약체결 현황",
+        "url": "https://opendart.fss.or.kr/api/accnutAdtorNonAdtServcCnclsSttus.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code"
+      },
+      {
+        "label": "채무증권 발행실적",
+        "url": "https://opendart.fss.or.kr/api/detScritsIsuAcmslt.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code"
+      },
+      {
+        "label": "기업어음증권 미상환 잔액",
+        "url": "https://opendart.fss.or.kr/api/entrprsBilScritsNrdmpBlce.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code"
+      },
+      {
+        "label": "단기사채 미상환 잔액",
+        "url": "https://opendart.fss.or.kr/api/srtpdPsndbtNrdmpBlce.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code"
+      },
+      {
+        "label": "회사채 미상환 잔액",
+        "url": "https://opendart.fss.or.kr/api/cprndNrdmpBlce.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code"
+      },
+      {
+        "label": "신종자본증권 미상환 잔액",
+        "url": "https://opendart.fss.or.kr/api/newCaplScritsNrdmpBlce.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code"
+      },
+      {
+        "label": "조건부 자본증권 미상환 잔액",
+        "url": "https://opendart.fss.or.kr/api/cndlCaplScritsNrdmpBlce.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code"
+      },
+      {
+        "label": "공모자금의 사용내역",
+        "url": "https://opendart.fss.or.kr/api/pssrpCptalUseDtls.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code"
+      },
+      {
+        "label": "사모자금의 사용내역",
+        "url": "https://opendart.fss.or.kr/api/prvsrpCptalUseDtls.json",
+        "params": "crtfc_key, corp_code, bsns_year, reprt_code"
+      }
+    ],
+    "schemas": [
+      {
+        "file": "dart_filing_section.spy.yaml",
+        "definition": "### 수집 장부: 정기보고서(DartFiling) 한 건 × 주요정보 항목 하나의 수집 상태.\n### 항목이 늘어도 스키마를 바꾸지 않도록 항목마다 행으로 둔다.\nclass: DartFilingSection\ntable: dart_filing_section\nfields:\n  filingId: int, relation(parent=dart_filing, onDelete=Cascade)\n  companyId: int\n  bsnsYear: int\n  ### 이 기업의 사업보고서 가운데 몇 번째로 최근인지 (0 = 가장 최근). 결산월이 달라 전체 최신 연도는 기업마다 다르다\n  yearRank: int, default=0\n  section: DartSection\n  ### 받는 순서. 0 = 핵심 (지배구조·주주환원), 1 = 나머지\n  tier: int\n  status: FilingFetchStatus\n  ### 실패한 실행 수\n  attempts: int, default=0\n  lastError: String?\n  fetchedAt: DateTime?\nindexes:\n  dart_filing_section_filing_idx:\n    fields: filingId, section\n    unique: true\n  dart_filing_section_queue_idx:\n    fields: status, yearRank, tier\n"
+      },
+      {
+        "file": "disclosure_report.spy.yaml",
+        "definition": "### 정기보고서 한 건의 주요정보 항목 하나. 응답 행(DisclosureRow)을 묶는다.\n### 정정공시로 대체되면 지우지 않고 supersededBy로 새 보고서를 가리킨다.\nclass: DisclosureReport\ntable: disclosure_report\nfields:\n  companyId: int, relation(parent=company, onDelete=Restrict)\n  section: DartSection\n  ### 응답의 접수번호. 이 값들이 실린 공시\n  rceptNo: String\n  bsnsYear: int\n  reportCode: FinancialReportCode\n  ### 응답의 결산기준일 (stlm_dt, UTC 자정) — 관계의 기준일\n  settlementDate: DateTime?\n  ### 저장한 행 수 (값이 모두 '-'인 빈 줄 제외)\n  rowCount: int\n  ### 값이 모두 '-'여서 저장하지 않은 빈 줄 수\n  emptyRowCount: int, default=0\n  sourceId: int, relation(parent=source, onDelete=Restrict)\n  supersededById: int?, relation(parent=disclosure_report, onDelete=SetNull)\n  fetchedAt: DateTime\nindexes:\n  disclosure_report_rcept_idx:\n    fields: rceptNo, section\n    unique: true\n  disclosure_report_company_idx:\n    fields: companyId, section, bsnsYear\n"
+      },
+      {
+        "file": "disclosure_row.spy.yaml",
+        "definition": "### 주요정보 응답 한 행을 원문 그대로. 항목 28종 모두 이 형식으로 보관한다.\n### 타입 층(ShareholderEntry 등)은 이 행에서 호출 없이 다시 만들 수 있다.\nclass: DisclosureRow\ntable: disclosure_row\nfields:\n  reportId: int, relation(parent=disclosure_report, onDelete=Cascade)\n  ### 응답 순서 (0부터)\n  ord: int\n  ### 합계·소계 행 (계, 합계, 소계, 총계)\n  isTotal: bool\n  ### 응답 행 JSON 원문 (공통 필드 rcept_no·corp_code 등 포함)\n  rowJson: String\nindexes:\n  disclosure_row_report_idx:\n    fields: reportId\n"
+      },
+      {
+        "file": "shareholder_entry.spy.yaml",
+        "definition": "### 최대주주 및 특수관계인 한 행 (최대주주 현황 hyslrSttus).\nclass: ShareholderEntry\ntable: shareholder_entry\nfields:\n  reportId: int, relation(parent=disclosure_report, onDelete=Cascade)\n  companyId: int\n  bsnsYear: int\n  ord: int\n  ### 줄바꿈·겹공백을 정리한 이름 (원문 nm)\n  holderName: String\n  ### 관계 원문 (최대주주 본인, 최대주주의 특수관계인, 계열회사, 친인척 …)\n  relationText: String?\n  ### 주식 종류 원문 (보통주, 우선주 …)\n  stockKind: String?\n  sharesBegin: BigInt?\n  ### 기초 지분율 (%)\n  ratioBegin: double?\n  sharesEnd: BigInt?\n  ### 기말 지분율 (%)\n  ratioEnd: double?\n  remark: String?\n  isTotal: bool\n  holderCompanyId: int?, relation(parent=company, onDelete=SetNull)\n  holderPersonId: int?, relation(parent=person, onDelete=SetNull)\n  holderLinkBasis: DisclosureLinkBasis?\nindexes:\n  shareholder_entry_report_idx:\n    fields: reportId\n  shareholder_entry_company_idx:\n    fields: companyId, bsnsYear\n  shareholder_entry_holder_company_idx:\n    fields: holderCompanyId\n  shareholder_entry_holder_person_idx:\n    fields: holderPersonId\n"
+      },
+      {
+        "file": "executive_entry.spy.yaml",
+        "definition": "### 임원 한 행 (임원 현황 exctvSttus). 회사마다 미등기 임원을 내는지가 다르다.\nclass: ExecutiveEntry\ntable: executive_entry\nfields:\n  reportId: int, relation(parent=disclosure_report, onDelete=Cascade)\n  companyId: int\n  bsnsYear: int\n  ord: int\n  ### 줄바꿈·겹공백을 정리한 이름\n  name: String\n  sex: String?\n  birthYear: int?\n  birthMonth: int?\n  ### 직위 원문\n  position: String?\n  registration: ExecutiveRegistration\n  registrationRaw: String?\n  ### 상근 여부\n  fullTime: bool?\n  duties: String?\n  career: String?\n  relationToLargestHolder: String?\n  ### 재직기간 (개월)\n  tenureMonths: int?\n  termEndDate: DateTime?\n  personId: int?, relation(parent=person, onDelete=SetNull)\nindexes:\n  executive_entry_report_idx:\n    fields: reportId\n  executive_entry_company_idx:\n    fields: companyId, bsnsYear\n  executive_entry_person_idx:\n    fields: personId\n"
+      },
+      {
+        "file": "investment_entry.spy.yaml",
+        "definition": "### 타법인 출자 한 행 (타법인 출자현황 otrCprInvstmntSttus). 금액은 원 단위 (API가 원문 백만원을 원으로 바꿔 준다).\nclass: InvestmentEntry\ntable: investment_entry\nfields:\n  reportId: int, relation(parent=disclosure_report, onDelete=Cascade)\n  companyId: int\n  bsnsYear: int\n  ord: int\n  ### 줄바꿈·겹공백을 정리한 출자 대상 이름\n  investeeName: String\n  ### 출자 목적 원문 (경영참여, 단순투자, 일반투자 …)\n  purpose: String?\n  firstAcquiredOn: DateTime?\n  firstAcquiredAmount: BigInt?\n  sharesBegin: BigInt?\n  ratioBegin: double?\n  bookValueBegin: BigInt?\n  ### 증감: 취득(처분) 수량·금액, 평가손익\n  sharesChange: BigInt?\n  amountChange: BigInt?\n  valuationChange: BigInt?\n  sharesEnd: BigInt?\n  ### 기말 지분율 (%)\n  ratioEnd: double?\n  bookValueEnd: BigInt?\n  ### 출자 대상의 최근 사업연도 총자산·당기순이익\n  investeeTotalAssets: BigInt?\n  investeeNetIncome: BigInt?\n  isTotal: bool\n  investeeCompanyId: int?, relation(parent=company, onDelete=SetNull)\n  investeeLinkBasis: DisclosureLinkBasis?\nindexes:\n  investment_entry_report_idx:\n    fields: reportId\n  investment_entry_company_idx:\n    fields: companyId, bsnsYear\n  investment_entry_investee_idx:\n    fields: investeeCompanyId\n"
+      },
+      {
+        "file": "dividend_entry.spy.yaml",
+        "definition": "### 배당에 관한 사항 한 행 (alotMatter). 값의 단위는 행 이름에 있어(unit) 원으로 바꾸지 않는다.\nclass: DividendEntry\ntable: dividend_entry\nfields:\n  reportId: int, relation(parent=disclosure_report, onDelete=Cascade)\n  companyId: int\n  bsnsYear: int\n  ord: int\n  ### 항목 원문 (주당액면가액(원), (연결)당기순이익(백만원), 현금배당성향(%) …)\n  item: String\n  ### 항목 이름 끝의 단위 (원, 백만원, %, 주 …). 없으면 null\n  unit: String?\n  stockKind: String?\n  ### 당기·전기·전전기 값\n  current: double?\n  prior: double?\n  beforePrior: double?\nindexes:\n  dividend_entry_report_idx:\n    fields: reportId\n  dividend_entry_company_idx:\n    fields: companyId, bsnsYear\n"
+      },
+      {
+        "file": "treasury_stock_entry.spy.yaml",
+        "definition": "### 자기주식 취득 및 처분 한 행 (tesstkAcqsDspsSttus). 수량은 주.\nclass: TreasuryStockEntry\ntable: treasury_stock_entry\nfields:\n  reportId: int, relation(parent=disclosure_report, onDelete=Cascade)\n  companyId: int\n  bsnsYear: int\n  ord: int\n  ### 취득 방법 원문 (대·중·소분류)\n  method1: String?\n  method2: String?\n  method3: String?\n  stockKind: String?\n  sharesBegin: BigInt?\n  acquired: BigInt?\n  disposed: BigInt?\n  retired: BigInt?\n  sharesEnd: BigInt?\n  remark: String?\n  ### 총계·소계 행\n  isTotal: bool\nindexes:\n  treasury_stock_entry_report_idx:\n    fields: reportId\n  treasury_stock_entry_company_idx:\n    fields: companyId, bsnsYear\n"
+      },
+      {
+        "file": "dart_section.spy.yaml",
+        "definition": "### DART 정기보고서 주요정보(DS002) 항목. 항목마다 API 하나다 (주소·이름·우선순위는 DartSections).\nenum: DartSection\nvalues:\n  ### 주식의 총수 현황 (stockTotqySttus)\n  - stockTotal\n  ### 자기주식 취득 및 처분 현황 (tesstkAcqsDspsSttus)\n  - treasuryStock\n  ### 배당에 관한 사항 (alotMatter)\n  - dividend\n  ### 증자(감자) 현황 (irdsSttus)\n  - capitalChange\n  ### 채무증권 발행실적 (detScritsIsuAcmslt)\n  - debtIssuance\n  ### 기업어음증권 미상환 잔액 (entrprsBilScritsNrdmpBlce)\n  - commercialPaperBalance\n  ### 단기사채 미상환 잔액 (srtpdPsndbtNrdmpBlce)\n  - shortTermBondBalance\n  ### 회사채 미상환 잔액 (cprndNrdmpBlce)\n  - corporateBondBalance\n  ### 신종자본증권 미상환 잔액 (newCaplScritsNrdmpBlce)\n  - hybridCapitalBalance\n  ### 조건부 자본증권 미상환 잔액 (cndlCaplScritsNrdmpBlce)\n  - contingentCapitalBalance\n  ### 공모자금의 사용내역 (pssrpCptalUseDtls)\n  - publicFundUse\n  ### 사모자금의 사용내역 (prvsrpCptalUseDtls)\n  - privateFundUse\n  ### 회계감사인의 명칭 및 감사의견 (accnutAdtorNmNdAdtOpinion)\n  - auditorOpinion\n  ### 감사용역체결현황 (adtServcCnclsSttus)\n  - auditContract\n  ### 회계감사인과의 비감사용역 계약체결 현황 (accnutAdtorNonAdtServcCnclsSttus)\n  - nonAuditContract\n  ### 사외이사 및 그 변동현황 (outcmpnyDrctrNdChangeSttus)\n  - outsideDirectors\n  ### 최대주주 현황 (hyslrSttus)\n  - largestShareholders\n  ### 최대주주 변동현황 (hyslrChgSttus)\n  - largestShareholderChanges\n  ### 소액주주 현황 (mrhlSttus)\n  - minorityShareholders\n  ### 임원 현황 (exctvSttus)\n  - executives\n  ### 직원 현황 (empSttus)\n  - employees\n  ### 미등기임원 보수현황 (unrstExctvMendngSttus)\n  - unregisteredExecutivePay\n  ### 이사·감사 전체의 보수현황 - 주주총회 승인금액 (drctrAdtAllMendngSttusGmtsckConfmAmount)\n  - directorPayApproved\n  ### 이사·감사 전체의 보수현황 - 보수지급금액 전체 (hmvAuditAllSttus)\n  - directorPayTotal\n  ### 이사·감사 전체의 보수현황 - 보수지급금액 유형별 (drctrAdtAllMendngSttusMendngPymntamtTyCl)\n  - directorPayByType\n  ### 이사·감사의 개인별 보수현황 5억원 이상 (hmvAuditIndvdlBySttus)\n  - directorPayIndividual\n  ### 개인별 보수지급 금액 5억 이상 상위 5인 (indvdlByPay)\n  - topFivePay\n  ### 타법인 출자현황 (otrCprInvstmntSttus)\n  - investments\n  ### 사업보고서 본문 \"II. 사업의 내용\" (공시 원본 파일 document.xml, 보고서당 1회)\n  - businessContent\n"
+      },
+      {
+        "file": "source.spy.yaml",
+        "definition": "### 사실(수치·관계)의 출처. 출처 없는 사실은 저장하지 않는다.\nclass: Source\ntable: source\nfields:\n  kind: SourceKind\n  ### 예: \"DART 기업개황 (company.json)\"\n  title: String\n  ### 공시 접수번호, corp_code 등 원천에서의 식별자\n  reference: String?\n  url: String?\n  retrievedAt: DateTime\n"
+      },
+      {
+        "file": "source_kind.spy.yaml",
+        "definition": "enum: SourceKind\nvalues:\n  - dartApi\n  - dartReport\n  - krxApi\n  ### 공공데이터포털 (금융위원회 주식시세정보·KRX상장종목정보)\n  - dataGoKrApi\n  - officialFile\n  - manual\n"
+      }
+    ]
+  },
+  "business": {
+    "endpoints": [
+      {
+        "label": "공시 원문 ZIP/XML",
+        "url": "https://opendart.fss.or.kr/api/document.xml",
+        "params": "crtfc_key, rcept_no"
+      }
+    ],
+    "schemas": [
+      {
+        "file": "business_document.spy.yaml",
+        "definition": "### 사업보고서 본문 \"II. 사업의 내용\" (공시 원본 파일 document.xml에서 뽑은 글). 4단계 AI 관계 추출의 원천.\nclass: BusinessDocument\ntable: business_document\nfields:\n  reportId: int, relation(parent=disclosure_report, onDelete=Cascade)\n  companyId: int\n  bsnsYear: int\n  rceptNo: String\n  ### 원문 제목 (예: II. 사업의 내용)\n  title: String\n  ### 표는 칸을 ' | '로 이은 줄로, 하위 절 제목은 '## '로 시작하는 줄로 바꾼 글\n  text: String\n  charCount: int\nindexes:\n  business_document_report_idx:\n    fields: reportId\n    unique: true\n  business_document_company_idx:\n    fields: companyId, bsnsYear\n"
+      },
+      {
+        "file": "document_fact.spy.yaml",
+        "definition": "### 사업보고서 본문에서 뽑은 값 하나 (수주잔고·가동률·점유율 등).\n###\n### 숫자는 원문에 적힌 단위 그대로 둔다 (바꾸지 않는다). 근거 문장이 원문에 그대로 있어야\n### 하고, 사람이 승인해야 확정이다 — AI 관계([OntologyRelation])와 같은 규칙이다.\nclass: DocumentFact\ntable: document_fact\nfields:\n  companyId: int, relation(parent=company, onDelete=Cascade)\n  documentId: int, relation(parent=business_document, onDelete=Cascade)\n  bsnsYear: int\n  kind: DocumentFactKind\n  ### 어느 부문·품목의 값인지 (예: 건설사업, 항공, 합계)\n  label: String\n  ### 값. 공시에 적힌 단위 그대로\n  value: double\n  ### 단위 표기 (백만원, 억원, 백만 달러, %, 대 등)\n  unit: String\n  ### 기준일 (본문에 있으면)\n  asOf: DateTime?\n  ### 원문에 그대로 있는 근거 문장\n  evidence: String\n  sourceId: int?, relation(parent=source, onDelete=SetNull)\n  extractedBy: RelationOrigin\n  extractorModel: String?\n  confidence: double?\n  status: RelationStatus\n  reviewedAt: DateTime?\n  ### 누가 결정했는지 (사람이면 null, AI가 원문과 대조했으면 그 이름)\n  reviewedBy: String?\n  ### 원문과 대조한 쪽이 사람에게 남긴 추천 (verified·rejected). 판단이 갈려 사람에게 넘길 때 채운다\n  recommendation: RelationStatus?\n  ### 왜 애매한지, 무엇을 봐야 하는지 — 사람이 빨리 결정하도록 적는 메모\n  reviewNote: String?\n  createdAt: DateTime\nindexes:\n  document_fact_company_idx:\n    fields: companyId, kind\n  document_fact_document_idx:\n    fields: documentId\n"
+      },
+      {
+        "file": "document_fact_kind.spy.yaml",
+        "definition": "### 사업보고서 본문에서 뽑는 값의 종류. API로는 받을 수 없고 글·표에만 있는 것들.\nenum: DocumentFactKind\nvalues:\n  ### 수주총액 (계약 총액)\n  - orderTotal\n  ### 기납품액 (이미 매출로 인식한 부분)\n  - orderDelivered\n  ### 수주잔고 (남은 계약 잔액)\n  - orderBacklog\n  ### 생산능력\n  - capacity\n  ### 생산실적\n  - production\n  ### 가동률 (%)\n  - utilization\n  ### 시장점유율 (%)\n  - marketShare\n  ### 회사가 공시한 앞으로의 투자 계획 (CAPEX·R&D 등). 예측이 아니라 회사 발표다\n  - investmentPlan\n  ### 실제 집행한 투자액\n  - investmentActual\n  ### 사업부문별 매출액 (본문 \"주요 제품 매출\" 표)\n  - segmentRevenue\n  ### 연구개발비용 계 (본문 \"연구개발비용\" 표, 정부보조금 차감 전·후 가운데 비율과 맞는 쪽)\n  - rndExpense\n  ### 연구개발비 ÷ 매출액 (%), 표에 적힌 값\n  - rndRatio\n"
+      },
+      {
+        "file": "ontology_relation.spy.yaml",
+        "definition": "### 온톨로지 관계(엣지) — 그래프 탐색용 공통 색인.\n### 3단계 관계는 주요정보 타입 층(ShareholderEntry 등)에서 다시 만들 수 있고, 자세한 값은 factKind·factId가 가리키는 행에 있다.\n### 각 기업의 가장 최근 사업보고서 기준으로 만든다.\nclass: OntologyRelation\ntable: ontology_relation\nfields:\n  predicate: RelationPredicate\n  subjectCompanyId: int?, relation(parent=company, onDelete=Cascade)\n  subjectPersonId: int?, relation(parent=person, onDelete=Cascade)\n  ### 주어 이름 (연결되지 않았으면 이 이름뿐인 노드)\n  subjectName: String\n  objectCompanyId: int?, relation(parent=company, onDelete=Cascade)\n  objectName: String\n  ### 기준일 (결산기준일)\n  asOf: DateTime?\n  bsnsYear: int\n  ### 대표 수치 (지분율 %, 보통주 기준). 없으면 null\n  weight: double?\n  sourceId: int?, relation(parent=source, onDelete=SetNull)\n  factKind: RelationFactKind\n  factId: int\n  extractedBy: RelationOrigin\n  status: RelationStatus\n  ### 주어를 연결한 근거\n  subjectBasis: DisclosureLinkBasis?\n  ### AI 추출: 원문 그대로의 인용 (원문에 없으면 저장하지 않는다)\n  evidence: String?\n  ### AI 추출: 모델이 매긴 확신도 (0~1)\n  confidence: double?\n  ### AI 추출: 모델 이름\n  extractorModel: String?\n  ### 사람이 승인·거절한 시각\n  reviewedAt: DateTime?\n  ### 누가 결정했는지 (사람이면 null, AI가 원문과 대조했으면 그 이름)\n  reviewedBy: String?\n  ### 원문과 대조한 쪽이 사람에게 남긴 추천 (verified·rejected). 판단이 갈려 사람에게 넘길 때 채운다\n  recommendation: RelationStatus?\n  ### 왜 애매한지, 무엇을 봐야 하는지 — 사람이 빨리 결정하도록 적는 메모\n  reviewNote: String?\nindexes:\n  ontology_relation_subject_company_idx:\n    fields: subjectCompanyId\n  ontology_relation_subject_person_idx:\n    fields: subjectPersonId\n  ontology_relation_object_company_idx:\n    fields: objectCompanyId\n  ontology_relation_fact_idx:\n    fields: factKind, factId\n"
+      },
+      {
+        "file": "relation_status.spy.yaml",
+        "definition": "### 관계 검수 상태.\nenum: RelationStatus\nvalues:\n  ### 원천 응답 그대로 (API)\n  - verified\n  ### 추정 연결 또는 AI 추출. 사람이 끊을 수 있다\n  - draft\n  ### 사람이 틀렸다고 끊음\n  - rejected\n"
+      },
+      {
+        "file": "relation_predicate.spy.yaml",
+        "definition": "### 온톨로지 관계 종류. 4단계(AI 추출)에서 공급·경쟁 등을 더한다.\nenum: RelationPredicate\nvalues:\n  ### 주주 → 기업 (최대주주 현황)\n  - shareholderOf\n  ### 인물 → 기업 (임원 현황)\n  - executiveOf\n  ### 기업 → 출자 대상 (타법인 출자현황)\n  - investsIn\n  ### 기업 → 제품·서비스 (사업의 내용, AI 추출)\n  - produces\n  ### 공급사 → 고객사 (원재료 매입처·주요 매출처, AI 추출)\n  - suppliesTo\n  ### 기업 ↔ 경쟁사 (AI 추출)\n  - competesWith\n"
+      },
+      {
+        "file": "source.spy.yaml",
+        "definition": "### 사실(수치·관계)의 출처. 출처 없는 사실은 저장하지 않는다.\nclass: Source\ntable: source\nfields:\n  kind: SourceKind\n  ### 예: \"DART 기업개황 (company.json)\"\n  title: String\n  ### 공시 접수번호, corp_code 등 원천에서의 식별자\n  reference: String?\n  url: String?\n  retrievedAt: DateTime\n"
+      },
+      {
+        "file": "source_kind.spy.yaml",
+        "definition": "enum: SourceKind\nvalues:\n  - dartApi\n  - dartReport\n  - krxApi\n  ### 공공데이터포털 (금융위원회 주식시세정보·KRX상장종목정보)\n  - dataGoKrApi\n  - officialFile\n  - manual\n"
+      }
+    ]
+  },
+  "market": {
+    "endpoints": [
+      {
+        "label": "주식시세",
+        "url": "https://apis.data.go.kr/1160100/GetStockSecuritiesInfoService_V2/getStockPriceInfo_V2",
+        "params": "serviceKey, basDt, resultType=json, pageNo, numOfRows"
+      },
+      {
+        "label": "KRX 상장종목",
+        "url": "https://apis.data.go.kr/1160100/GetKrxListedInfoService_V2/getItemInfo_V2",
+        "params": "serviceKey, basDt, resultType=json, pageNo, numOfRows"
+      },
+      {
+        "label": "시장 지수",
+        "url": "https://apis.data.go.kr/1160100/GetMarketIndexInfoService_V2/getStockMarketIndex_V2",
+        "params": "serviceKey, basDt, resultType=json, pageNo, numOfRows"
+      }
+    ],
+    "schemas": [
+      {
+        "file": "security.spy.yaml",
+        "definition": "### 종목. 식별자는 ISIN. 발행 기업은 법인등록번호 → DART 종목코드 → ISIN 발행체 코드 순서로 잇는다.\nclass: Security\ntable: security\nfields:\n  isinCode: String\n  ### 단축코드 (6자리)\n  shortCode: String\n  name: String\n  market: Market?\n  ### 법인등록번호 (13자리, 숫자만)\n  crno: String?\n  ### KRX상장종목정보의 법인명\n  corpName: String?\n  companyId: int?, relation(parent=company, onDelete=SetNull)\n  ### companyId를 정한 근거\n  linkBasis: SecurityLinkBasis?\n  ### 시세나 상장종목 목록에서 마지막으로 확인한 기준일 (UTC 자정)\n  lastSeenDate: DateTime\n  ### 종목 정보(이름·시장·법인)의 마지막 출처\n  sourceId: int?, relation(parent=source, onDelete=SetNull)\nindexes:\n  security_isin_idx:\n    fields: isinCode\n    unique: true\n  security_short_code_idx:\n    fields: shortCode\n  security_company_idx:\n    fields: companyId\n"
+      },
+      {
+        "file": "market_snapshot.spy.yaml",
+        "definition": "### 종목의 하루 시세. 공공데이터포털 금융위원회_주식시세정보(getStockPriceInfo) 응답 한 행.\n### 가격·금액은 원 단위 정수. 등락률처럼 원천 값으로 계산되는 값은 저장하지 않는다.\nclass: MarketSnapshot\ntable: market_snapshot\nfields:\n  securityId: int, relation(parent=security, onDelete=Restrict)\n  ### 기준일 (UTC 자정)\n  baseDate: DateTime\n  ### 종가 (clpr)\n  closePrice: BigInt?\n  ### 전일 대비 (vs)\n  change: BigInt?\n  ### 시가·고가·저가 (mkp, hipr, lopr)\n  openPrice: BigInt?\n  highPrice: BigInt?\n  lowPrice: BigInt?\n  ### 거래량 (trqu)\n  volume: BigInt?\n  ### 거래대금 (trPrc)\n  tradingValue: BigInt?\n  ### 상장주식수 (lstgStCnt)\n  listedShares: BigInt?\n  ### 시가총액 (mrktTotAmt)\n  marketCap: BigInt?\n  sourceId: int, relation(parent=source, onDelete=Restrict)\nindexes:\n  market_snapshot_security_date_idx:\n    fields: securityId, baseDate\n    unique: true\n  market_snapshot_date_idx:\n    fields: baseDate\n"
+      },
+      {
+        "file": "market_snapshot_day.spy.yaml",
+        "definition": "### 수집 장부: 시세를 받은 기준일. 휴장일(0건)도 기록해 다시 조회하지 않는다.\nclass: MarketSnapshotDay\ntable: market_snapshot_day\nfields:\n  ### 기준일 (UTC 자정)\n  baseDate: DateTime\n  rowCount: int\n  sourceId: int?, relation(parent=source, onDelete=SetNull)\n  fetchedAt: DateTime\nindexes:\n  market_snapshot_day_date_idx:\n    fields: baseDate\n    unique: true\n"
+      },
+      {
+        "file": "market_index_snapshot.spy.yaml",
+        "definition": "### 지수(코스피·코스닥·KRX·테마)의 하루 값. 공공데이터포털 금융위원회_지수시세정보(getStockMarketIndex_V2) 응답 한 행.\n### 지수 값은 원문 소수 그대로, 금액은 원 단위 정수. 등락률처럼 원천 값으로 계산되는 값은 등락률(fltRt)만 원문대로 둔다.\nclass: MarketIndexSnapshot\ntable: market_index_snapshot\nfields:\n  ### 기준일 (UTC 자정)\n  baseDate: DateTime\n  ### 지수 계열 (idxCsf: KOSPI시리즈 · KOSDAQ시리즈 · KRX시리즈 · 테마시리즈)\n  series: String\n  ### 지수명 (idxNm: 코스피, 코스닥, IT 서비스 …)\n  name: String\n  ### 종가 (clpr)\n  close: double\n  ### 전일 대비 (vs)\n  change: double?\n  ### 등락률 % (fltRt)\n  changeRate: double?\n  ### 시가·고가·저가 (mkp, hipr, lopr)\n  open: double?\n  high: double?\n  low: double?\n  ### 거래량 (trqu)\n  volume: BigInt?\n  ### 거래대금 (trPrc)\n  tradingValue: BigInt?\n  ### 상장시가총액 (lstgMrktTotAmt)\n  marketCap: BigInt?\n  ### 채용 종목 수 (epyItmsCnt)\n  constituentCount: int?\n  sourceId: int, relation(parent=source, onDelete=Restrict)\nindexes:\n  market_index_snapshot_key_idx:\n    fields: baseDate, series, name\n    unique: true\n  market_index_snapshot_name_idx:\n    fields: series, name, baseDate\n"
+      },
+      {
+        "file": "market_index_day.spy.yaml",
+        "definition": "### 수집 장부: 지수를 받은 기준일. 휴장일(0건)도 기록해 다시 조회하지 않는다.\nclass: MarketIndexDay\ntable: market_index_day\nfields:\n  ### 기준일 (UTC 자정)\n  baseDate: DateTime\n  rowCount: int\n  sourceId: int?, relation(parent=source, onDelete=SetNull)\n  fetchedAt: DateTime\nindexes:\n  market_index_day_date_idx:\n    fields: baseDate\n    unique: true\n"
+      },
+      {
+        "file": "source.spy.yaml",
+        "definition": "### 사실(수치·관계)의 출처. 출처 없는 사실은 저장하지 않는다.\nclass: Source\ntable: source\nfields:\n  kind: SourceKind\n  ### 예: \"DART 기업개황 (company.json)\"\n  title: String\n  ### 공시 접수번호, corp_code 등 원천에서의 식별자\n  reference: String?\n  url: String?\n  retrievedAt: DateTime\n"
+      },
+      {
+        "file": "source_kind.spy.yaml",
+        "definition": "enum: SourceKind\nvalues:\n  - dartApi\n  - dartReport\n  - krxApi\n  ### 공공데이터포털 (금융위원회 주식시세정보·KRX상장종목정보)\n  - dataGoKrApi\n  - officialFile\n  - manual\n"
+      }
+    ]
+  }
+}

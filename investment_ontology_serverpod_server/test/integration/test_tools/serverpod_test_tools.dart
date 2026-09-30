@@ -3593,6 +3593,19 @@ class _AiExtractionFutureCall {
 }
 
 class _CompanyMasterFutureCall {
+  Future<void> resume(_ist.TestSessionBuilder sessionBuilder) async {
+    var _localUniqueSession =
+        (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild();
+    try {
+      await _i4o8e4lj.CompanyMasterResumeFutureCall().invoke(
+        _localUniqueSession,
+        null,
+      );
+    } finally {
+      await _localUniqueSession.close();
+    }
+  }
+
   Future<void> run(
     _ist.TestSessionBuilder sessionBuilder,
     int jobId,
