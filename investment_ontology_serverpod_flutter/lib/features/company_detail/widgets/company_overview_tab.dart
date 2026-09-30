@@ -6,8 +6,7 @@ import '../../../design/components/components.dart';
 import '../../../design/tokens.dart';
 import '../../common/formatters.dart';
 import 'business_guide_panel.dart';
-import 'business_highlights.dart';
-import 'recent_disclosures.dart';
+import 'company_news_section.dart';
 import 'price_chart.dart';
 
 /// 개요는 사업 이해와 규모 파악, 재무 탭은 기간별 분석을 담당한다.
@@ -15,21 +14,15 @@ class CompanyOverviewTab extends StatelessWidget {
   const CompanyOverviewTab({
     super.key,
     required this.detail,
-    required this.onOpenTab,
   });
 
   final CompanyDetail detail;
-  final ValueChanged<String> onOpenTab;
 
   @override
   Widget build(BuildContext context) {
     final main = [
       BusinessGuidePanel(
         corpCode: detail.company.corpCode,
-      ),
-      BusinessHighlights(
-        corpCode: detail.company.corpCode,
-        onOpenTab: onOpenTab,
       ),
       const SectionLabel('주가는 어떻게 움직였나요?', accent: true),
       const SizedBox(height: AppSpace.md),
@@ -42,6 +35,8 @@ class CompanyOverviewTab extends StatelessWidget {
         ),
         child: PriceChart(corpCode: detail.company.corpCode),
       ),
+      const SizedBox(height: AppSpace.xl),
+      CompanyNewsSection(corpCode: detail.company.corpCode),
       const SizedBox(height: AppSpace.xl),
       const SectionLabel('어떤 기업인가요?', accent: true),
       const SizedBox(height: AppSpace.md),
@@ -79,8 +74,6 @@ class CompanyOverviewTab extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ...main,
-        const SizedBox(height: AppSpace.xl),
-        RecentDisclosures(corpCode: detail.company.corpCode),
       ],
     );
   }

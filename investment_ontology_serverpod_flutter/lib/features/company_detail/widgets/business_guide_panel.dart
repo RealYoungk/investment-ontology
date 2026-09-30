@@ -6,7 +6,13 @@ import '../../../client.dart';
 import '../../../design/components/components.dart';
 import '../../../design/tokens.dart';
 import 'revenue_composition.dart';
+import '../business/overview_catalog.dart';
+import 'business_model_guide.dart';
 import 'substrate_guide.dart';
+import '../business/power_product_lesson.dart';
+import 'power_components_guide.dart';
+import '../business/company_development.dart';
+import 'company_development_section.dart';
 
 /// Every issuer uses the same stored profile contract and explicit coverage states.
 class BusinessGuidePanel extends StatefulWidget {
@@ -21,6 +27,9 @@ class BusinessGuidePanel extends StatefulWidget {
 
 class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
   BusinessUnderstanding? _data;
+  CompanyOverviewLesson? _lesson;
+  bool _lessonLoading = true;
+  PowerProductLesson? _powerLesson;
   bool _failed = false;
   int _seq = 0, _selected = 0;
   @override
@@ -39,14 +48,49 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
     final seq = ++_seq;
     setState(() {
       _data = null;
+      _lesson = null;
+      _lessonLoading = true;
+      _powerLesson = null;
       _failed = false;
       _selected = 0;
     });
+    _loadLesson(seq);
     try {
       final data = await client.disclosure.understanding(widget.corpCode);
       if (mounted && seq == _seq) setState(() => _data = data);
+      if (data.status == 'ready' &&
+          data.products.any((p) => p.name.toUpperCase().contains('SMPS'))) {
+        // Optional local lesson: a failed source fetch must not hide the profile.
+        try {
+          final content = await client.disclosure.businessContent(
+            widget.corpCode,
+          );
+          if (mounted && seq == _seq) {
+            setState(
+              () => _powerLesson = PowerProductLesson.resolve(data, content),
+            );
+          }
+        } catch (_) {
+          // Keep the original product cards and revenue fetch available.
+        }
+      }
     } catch (_) {
       if (mounted && seq == _seq) setState(() => _failed = true);
+    }
+  }
+
+  Future<void> _loadLesson(int seq) async {
+    CompanyOverviewLesson? lesson;
+    try {
+      lesson = (await OverviewCatalog.load()).forCompany(widget.corpCode);
+    } catch (_) {
+      // The API-backed product display remains available if an asset fails.
+    }
+    if (mounted && seq == _seq) {
+      setState(() {
+        _lesson = lesson;
+        _lessonLoading = false;
+      });
     }
   }
 
@@ -54,12 +98,22 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
   Widget build(BuildContext context) {
     final c = context.colors, t = context.typo;
     final data = _data;
+    final development = CompanyDevelopment.forCompany(widget.corpCode);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SectionLabel('무엇을 팔고, 어디에 쓰이나요?', accent: true),
+        SectionLabel(
+          _lesson != null && development == null
+              ? '어떤 사업으로 돈을 버나요?'
+              : '무엇을 팔고, 어디에 쓰이나요?',
+          accent: true,
+        ),
         const SizedBox(height: AppSpace.md),
-        if (_failed) ...[
+        if (_lesson != null && development == null)
+          BusinessModelGuide(lesson: _lesson!)
+        else if (_lessonLoading && development == null)
+          const LinearProgressIndicator(minHeight: 2)
+        else if (_failed) ...[
           Text('제품 설명을 불러오지 못했습니다.', style: t.body(14)),
           Align(
             alignment: Alignment.centerLeft,
@@ -74,7 +128,9 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
             'stale' => '최근 사업보고서가 없어 제품 설명을 갱신하지 못했습니다.',
             _ => '공시는 있지만 제품과 용도를 자동으로 연결하지 못했습니다. 사업 원문에서 확인할 수 있습니다.',
           }, style: t.body(14, color: c.textSecondary))
-        else if (data.products.any((p) => p.key == 'substrate_aoi')) ...[
+        else if (_powerLesson != null) ...[
+          PowerComponentsGuide(includeOptical: widget.corpCode == '00317210'),
+        ] else if (data.products.any((p) => p.key == 'substrate_aoi')) ...[
           const SubstrateGuide(),
         ] else ...[
           Text('공시에서 확인한 제품', style: t.body(20, weight: FontWeight.w700)),
@@ -103,10 +159,16 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
           ),
         ],
         const SizedBox(height: AppSpace.xl),
-        RevenueComposition(
-          corpCode: widget.corpCode,
-          products: data?.products ?? const [],
-        ),
+        if (development != null) ...[
+          CompanyDevelopmentSection(development: development),
+          const SizedBox(height: AppSpace.xl),
+        ],
+        if (_lesson?.models.first.label != '기업인수목적회사')
+          RevenueComposition(
+            corpCode: widget.corpCode,
+            products: data?.products ?? const [],
+            printedMix: _powerLesson,
+          ),
         const SizedBox(height: AppSpace.xl),
       ],
     );

@@ -39,6 +39,7 @@ import '../greetings/greeting_endpoint.dart' as _il624ik7;
 import '../ontology/endpoints/account_endpoint.dart' as _io2i71g8;
 import '../ontology/endpoints/ai_endpoint.dart' as _iadofkda;
 import '../ontology/endpoints/company_endpoint.dart' as _itnisr3u;
+import '../ontology/endpoints/company_news_endpoint.dart' as _ij4mm9jr;
 import '../ontology/endpoints/disclosure_endpoint.dart' as _i23b9rs7;
 import '../ontology/endpoints/financial_endpoint.dart' as _ipit2z9y;
 import '../ontology/endpoints/governance_endpoint.dart' as _i6kw8hva;
@@ -89,6 +90,12 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'company',
+          null,
+        ),
+      'companyNews': _ij4mm9jr.CompanyNewsEndpoint()
+        ..initialize(
+          server,
+          'companyNews',
           null,
         ),
       'disclosure': _i23b9rs7.DisclosureEndpoint()
@@ -820,6 +827,32 @@ class Endpoints extends _is.EndpointDispatch {
                     session,
                     params['corpCode'],
                   ),
+        ),
+      },
+    );
+    connectors['companyNews'] = _is.EndpointConnector(
+      name: 'companyNews',
+      endpoint: endpoints['companyNews']!,
+      methodConnectors: {
+        'recent': _is.MethodConnector(
+          name: 'recent',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['companyNews'] as _ij4mm9jr.CompanyNewsEndpoint)
+                      .recent(
+                        session,
+                        params['corpCode'],
+                      ),
         ),
       },
     );

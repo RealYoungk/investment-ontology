@@ -76,55 +76,68 @@ class _RecentDisclosuresState extends State<RecentDisclosures> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SectionLabel(
-          '최근 공시',
-          trailing: Text(
-            '모든 종류 · 누르면 DART',
-            style: t.body(12, color: c.textMuted),
+        const SectionLabel('최근 어떤 공시가 나왔나요?', accent: true),
+        const SizedBox(height: AppSpace.md),
+        Container(
+          padding: const EdgeInsets.all(AppSpace.lg),
+          decoration: BoxDecoration(
+            color: c.surface,
+            border: Border.all(color: c.border),
+            borderRadius: context.shape.borderRadius,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text('최근 공시', style: t.body(18, weight: FontWeight.w700)),
+              const SizedBox(height: AppSpace.sm),
+              for (final (index, row) in rows.indexed) ...[
+                if (index > 0) Divider(height: AppSpace.lg, color: c.border),
+                HoverBuilder(
+                  onTap: () => launchUrl(
+                    Uri.parse(
+                      'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${row.first.rceptNo}',
+                    ),
+                    mode: LaunchMode.externalApplication,
+                  ),
+                  builder: (context, hovered) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: AppSpace.sm),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                formatDate(row.first.receivedDate),
+                                style: t.numeric(12, color: c.textMuted),
+                              ),
+                              const SizedBox(height: AppSpace.xs),
+                              Text(
+                                row.count > 1
+                                    ? '${row.first.reportName} · ${row.count}건'
+                                    : row.first.reportName,
+                                style: t
+                                    .body(14, weight: FontWeight.w500)
+                                    .copyWith(
+                                      height: 1.5,
+                                      decoration: hovered
+                                          ? TextDecoration.underline
+                                          : null,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: AppSpace.md),
+                        Icon(Icons.open_in_new, size: 16, color: c.textMuted),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ],
           ),
         ),
-        const SizedBox(height: AppSpace.sm),
-        for (final (:first, :count) in rows)
-          HoverBuilder(
-            onTap: () => launchUrl(
-              Uri.parse(
-                'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${first.rceptNo}',
-              ),
-              mode: LaunchMode.externalApplication,
-            ),
-            builder: (context, hovered) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: 86,
-                    child: Text(
-                      formatDate(first.receivedDate),
-                      softWrap: false,
-                      style: t.numeric(12, color: c.textMuted),
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      count > 1
-                          ? '${first.reportName} $count건'
-                          : first.reportName,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: t
-                          .body(13, weight: FontWeight.w500)
-                          .copyWith(
-                            decoration: hovered
-                                ? TextDecoration.underline
-                                : null,
-                          ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
       ],
     );
   }

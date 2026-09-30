@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 
@@ -37,10 +38,9 @@ const _destinations = [
   _Destination('스크리너', '/screen', matches: ['/compare']),
   _Destination('관계망', '/graph'),
   _Destination('지분 묶음', '/groups'),
-  _Destination('테마', '/themes'),
 ];
 
-/// 모든 화면을 감싸는 틀: 맨 위 메뉴(시장 · 기업 · 스크리너 · 관계망 · 지분 묶음 · 테마 · 데이터) + 본문.
+/// 모든 화면을 감싸는 틀: 맨 위 메뉴(시장 · 기업 · 스크리너 · 관계망 · 지분 묶음 · 데이터) + 본문.
 ///
 /// 검수 화면(`/review`)은 메뉴에 두지 않는다 — AI가 읽은 것은 대조 검수를 거쳐 스스로 확정하고,
 /// 사람은 화면에 적힌 측정 정확도만 본다. 주소로는 여전히 열린다.
@@ -358,17 +358,7 @@ class _TopBar extends StatelessWidget {
             style: t.body(14, color: c.textSecondary, weight: FontWeight.w600),
           ),
           const Spacer(),
-          if (desktop)
-            const _GlobalSearch()
-          else
-            IconButton(
-              tooltip: '기업 · 인물 · 테마 · 메뉴 검색',
-              icon: const Icon(Icons.search, size: 21),
-              onPressed: () => showDialog<void>(
-                context: context,
-                builder: (_) => const _SearchDialog(),
-              ),
-            ),
+          if (desktop) const _GlobalSearch() else const _MobileSearchButton(),
           const SizedBox(width: 12),
           const _Account(),
         ],
@@ -437,24 +427,14 @@ const _noHits = (
 
 /// 기업은 시가총액 순 8곳, 인물은 이어진 기업이 많은 순 4명.
 Future<_Hits> _searchAll(String query) async {
-  final (page, persons, themes) = await (
+  final (page, persons) = await (
     client.company.list(query: query, sort: CompanySort.marketCap, limit: 8),
     client.governance.searchPersons(query, limit: 4),
-    client.theme.list(),
   ).wait;
   final q = query.toLowerCase().replaceAll(' ', '');
   bool matches(String text) =>
       text.toLowerCase().replaceAll(' ', '').contains(q);
   final links = <_SearchLink>[
-    for (final theme in themes)
-      if (matches(
-        '${theme.theme.name} ${theme.theme.description ?? ''} ${theme.topNames.join(' ')}',
-      ))
-        (
-          title: theme.theme.name,
-          detail: '테마 · ${theme.memberCount}개 기업',
-          location: AppRoutes.theme(theme.theme.id!),
-        ),
     for (final item in const [
       (title: '시장', detail: '코스피 코스닥 지수 시가총액 업종', location: '/market'),
       (title: '기업', detail: '상장기업 종목 목록', location: '/companies'),
@@ -466,7 +446,6 @@ Future<_Hits> _searchAll(String query) async {
       (title: '기업 비교', detail: '재무 수익성 밸류에이션 비교', location: '/compare'),
       (title: '관계망', detail: '주주 임원 고객 공급 출자 연결', location: '/graph'),
       (title: '지분 묶음', detail: '기업집단 지배구조 계열사', location: '/groups'),
-      (title: '테마', detail: '투자 아이디어 관련 기업 묶음', location: '/themes'),
       (title: '서비스 소개', detail: '사용법 도움말 출처', location: '/about'),
     ])
       if (matches('${item.title} ${item.detail}')) item,
@@ -478,12 +457,16 @@ Future<_Hits> _searchAll(String query) async {
 class _HitList extends StatelessWidget {
   const _HitList({
     required this.hits,
+    this.selectedIndex = -1,
+    this.selectedKey,
     required this.onCompany,
     required this.onPerson,
     required this.onLocation,
   });
 
   final _Hits hits;
+  final int selectedIndex;
+  final GlobalKey? selectedKey;
   final ValueChanged<CompanyListItem> onCompany;
   final ValueChanged<PersonHit> onPerson;
   final ValueChanged<String> onLocation;
@@ -492,18 +475,30 @@ class _HitList extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final t = context.typo;
-    Widget row({required VoidCallback onTap, required List<Widget> children}) =>
-        HoverBuilder(
+    var rowIndex = 0;
+    Widget row({required VoidCallback onTap, required List<Widget> children}) {
+      final selected = rowIndex++ == selectedIndex;
+      return Semantics(
+        key: selected ? selectedKey : null,
+        selected: selected,
+        child: HoverBuilder(
           onTap: onTap,
           builder: (context, hovered) => Container(
-            color: hovered ? c.surfaceHover : Colors.transparent,
+            color: selected
+                ? c.accentSubtle
+                : hovered
+                ? c.surfaceHover
+                : c.surface,
             padding: const EdgeInsets.symmetric(
               horizontal: AppSpace.md,
               vertical: 8,
             ),
             child: Row(children: children),
           ),
-        );
+        ),
+      );
+    }
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -599,6 +594,8 @@ class _SearchResults extends StatelessWidget {
     required this.loading,
     required this.failed,
     required this.hits,
+    this.selectedIndex = -1,
+    this.selectedKey,
     required this.onCompany,
     required this.onPerson,
     required this.onLocation,
@@ -607,6 +604,8 @@ class _SearchResults extends StatelessWidget {
   final bool loading;
   final bool failed;
   final _Hits hits;
+  final int selectedIndex;
+  final GlobalKey? selectedKey;
   final ValueChanged<CompanyListItem> onCompany;
   final ValueChanged<PersonHit> onPerson;
   final ValueChanged<String> onLocation;
@@ -620,6 +619,8 @@ class _SearchResults extends StatelessWidget {
             hits.links.isNotEmpty)) {
       return _HitList(
         hits: hits,
+        selectedIndex: selectedIndex,
+        selectedKey: selectedKey,
         onCompany: onCompany,
         onPerson: onPerson,
         onLocation: onLocation,
@@ -662,6 +663,65 @@ class _SearchResults extends StatelessWidget {
   }
 }
 
+mixin _SearchKeyboard<T extends StatefulWidget> on State<T> {
+  _Hits get _hits;
+  TextEditingController get _controller;
+  void _go(String location);
+  void _refreshSelection();
+  void _closeSearch();
+  int _selectedIndex = -1;
+  final _selectedKey = GlobalKey();
+  List<String> get _locations => [
+    for (final link in _hits.links) link.location,
+    for (final company in _hits.companies) AppRoutes.company(company.corpCode),
+    for (final person in _hits.persons) AppRoutes.person(person.personId),
+  ];
+  void _submitSelected() {
+    if (_controller.value.composing.isValid &&
+        !_controller.value.composing.isCollapsed) {
+      return;
+    }
+    final locations = _locations;
+    if (locations.isNotEmpty) {
+      _go(
+        locations[_selectedIndex < 0
+            ? 0
+            : _selectedIndex.clamp(0, locations.length - 1)],
+      );
+    }
+  }
+
+  KeyEventResult _onSearchKey(FocusNode node, KeyEvent event) {
+    if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
+      return KeyEventResult.ignored;
+    }
+    if (_controller.value.composing.isValid &&
+        !_controller.value.composing.isCollapsed) {
+      return KeyEventResult.ignored;
+    }
+    if (event.logicalKey == LogicalKeyboardKey.escape) {
+      _closeSearch();
+      return KeyEventResult.handled;
+    }
+    final down = event.logicalKey == LogicalKeyboardKey.arrowDown;
+    final up = event.logicalKey == LogicalKeyboardKey.arrowUp;
+    if (!down && !up) return KeyEventResult.ignored;
+    final count = _locations.length;
+    if (count == 0) return KeyEventResult.ignored;
+    _selectedIndex = _selectedIndex < 0
+        ? (down ? 0 : count - 1)
+        : (_selectedIndex + (down ? 1 : -1)).clamp(0, count - 1);
+    _refreshSelection();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final selected = _selectedKey.currentContext;
+      if (mounted && selected != null) {
+        Scrollable.ensureVisible(selected, alignment: 0.5);
+      }
+    });
+    return KeyEventResult.handled;
+  }
+}
+
 /// 어느 화면에서든 기업·인물로 바로 가는 검색.
 class _GlobalSearch extends StatefulWidget {
   const _GlobalSearch();
@@ -670,11 +730,21 @@ class _GlobalSearch extends StatefulWidget {
   State<_GlobalSearch> createState() => _GlobalSearchState();
 }
 
-class _GlobalSearchState extends State<_GlobalSearch> {
+class _GlobalSearchState extends State<_GlobalSearch> with _SearchKeyboard {
+  @override
+  void _refreshSelection() => _overlay?.markNeedsBuild();
+  @override
+  void _closeSearch() {
+    _focus.unfocus();
+    _dismiss();
+  }
+
+  @override
   final _controller = TextEditingController();
   final _focus = FocusNode();
   final _link = LayerLink();
   OverlayEntry? _overlay;
+  @override
   _Hits _hits = _noHits;
   Timer? _debounce;
   bool _loading = false;
@@ -691,6 +761,7 @@ class _GlobalSearchState extends State<_GlobalSearch> {
   }
 
   void _search(String q) {
+    _selectedIndex = -1;
     _debounce?.cancel();
     final request = ++_request;
     final query = q.trim();
@@ -730,6 +801,7 @@ class _GlobalSearchState extends State<_GlobalSearch> {
     _setHits(_noHits);
   }
 
+  @override
   void _go(String location) {
     _controller.clear();
     _focus.unfocus();
@@ -753,13 +825,22 @@ class _GlobalSearchState extends State<_GlobalSearch> {
             color: c.surface,
             elevation: 4,
             borderRadius: context.shape.borderRadius,
-            child: _SearchResults(
-              loading: _loading,
-              failed: _failed,
-              hits: _hits,
-              onCompany: (item) => _go(AppRoutes.company(item.corpCode)),
-              onPerson: (p) => _go(AppRoutes.person(p.personId)),
-              onLocation: _go,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.sizeOf(context).height * 0.65,
+              ),
+              child: SingleChildScrollView(
+                child: _SearchResults(
+                  loading: _loading,
+                  failed: _failed,
+                  hits: _hits,
+                  selectedIndex: _selectedIndex,
+                  selectedKey: _selectedKey,
+                  onCompany: (item) => _go(AppRoutes.company(item.corpCode)),
+                  onPerson: (p) => _go(AppRoutes.person(p.personId)),
+                  onLocation: _go,
+                ),
+              ),
             ),
           ),
         ),
@@ -776,28 +857,24 @@ class _GlobalSearchState extends State<_GlobalSearch> {
       child: SizedBox(
         width: 260,
         height: 36,
-        child: TextField(
-          controller: _controller,
-          focusNode: _focus,
-          onChanged: _search,
-          onSubmitted: (_) {
-            if (_hits.companies.isNotEmpty) {
-              _go(AppRoutes.company(_hits.companies.first.corpCode));
-            } else if (_hits.links.isNotEmpty) {
-              _go(_hits.links.first.location);
-            } else if (_hits.persons.isNotEmpty) {
-              _go(AppRoutes.person(_hits.persons.first.personId));
-            }
-          },
-          onTapOutside: (_) {
-            _focus.unfocus();
-            _dismiss();
-          },
-          style: t.body(13.5),
-          decoration: InputDecoration(
-            isDense: true,
-            hintText: '기업 · 인물 · 테마 · 메뉴 검색',
-            prefixIcon: Icon(Icons.search, size: 18, color: c.textSecondary),
+        child: Focus(
+          onKeyEvent: _onSearchKey,
+          child: TextField(
+            controller: _controller,
+            focusNode: _focus,
+            textInputAction: TextInputAction.search,
+            onChanged: _search,
+            onSubmitted: (_) => _submitSelected(),
+            onTapOutside: (_) {
+              _focus.unfocus();
+              _dismiss();
+            },
+            style: t.body(13.5),
+            decoration: InputDecoration(
+              isDense: true,
+              hintText: '기업 · 인물 · 메뉴 검색',
+              prefixIcon: Icon(Icons.search, size: 18, color: c.textSecondary),
+            ),
           ),
         ),
       ),
@@ -805,16 +882,140 @@ class _GlobalSearchState extends State<_GlobalSearch> {
   }
 }
 
-/// 좁은 화면의 검색: 검색창 대신 아이콘을 누르면 뜬다.
+/// Keep the real editor mounted so its keyboard request runs in the icon's
+/// user gesture, not in a later dialog build (which iOS Safari rejects).
+class _MobileSearchButton extends StatefulWidget {
+  const _MobileSearchButton();
+
+  @override
+  State<_MobileSearchButton> createState() => _MobileSearchButtonState();
+}
+
+class _MobileSearchButtonState extends State<_MobileSearchButton> {
+  final _dialogKey = GlobalKey<_SearchDialogState>();
+  OverlayEntry? _entry;
+  LocalHistoryEntry? _history;
+  bool _open = false;
+  bool _disposing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final entry = OverlayEntry(
+        builder: (context) => Positioned.fill(
+          child: Offstage(
+            offstage: !_open,
+            child: Stack(
+              children: [
+                ModalBarrier(
+                  color: Theme.of(context).colorScheme.scrim
+                      .withValues(alpha: .54),
+                  dismissible: true,
+                  onDismiss: _close,
+                  semanticsLabel: MaterialLocalizations.of(context)
+                      .modalBarrierDismissLabel,
+                ),
+                _SearchDialog(key: _dialogKey, onClose: _close),
+              ],
+            ),
+          ),
+        ),
+      );
+      _entry = entry;
+      Overlay.of(context).insert(entry);
+    });
+  }
+
+  void _show() {
+    if (_open || _dialogKey.currentState == null) return;
+    _open = true;
+    _history = LocalHistoryEntry(onRemove: _hide);
+    ModalRoute.of(context)?.addLocalHistoryEntry(_history!);
+    _entry!.markNeedsBuild();
+    _dialogKey.currentState!.activateSearch();
+  }
+
+  void _hide() {
+    _history = null;
+    if (_disposing) return;
+    _open = false;
+    _dialogKey.currentState?.deactivateSearch();
+    _entry?.markNeedsBuild();
+  }
+
+  void _close() {
+    final history = _history;
+    if (history != null) {
+      history.remove();
+    } else {
+      _hide();
+    }
+  }
+
+  @override
+  void dispose() {
+    _disposing = true;
+    _history?.remove();
+    _entry?.remove();
+    _entry?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => IconButton(
+    tooltip: '기업 · 인물 · 메뉴 검색',
+    icon: const Icon(Icons.search, size: 21),
+    onPressed: _show,
+  );
+}
+
+/// 좁은 화면의 검색: 같은 입력 요소를 유지한 채 팝업을 열고 닫는다.
 class _SearchDialog extends StatefulWidget {
-  const _SearchDialog();
+  const _SearchDialog({super.key, required this.onClose});
+
+  final VoidCallback onClose;
 
   @override
   State<_SearchDialog> createState() => _SearchDialogState();
 }
 
-class _SearchDialogState extends State<_SearchDialog> {
+class _SearchDialogState extends State<_SearchDialog> with _SearchKeyboard {
+  final _focus = FocusNode(canRequestFocus: false, skipTraversal: true);
+
+  void activateSearch() {
+    _focus
+      ..canRequestFocus = true
+      ..skipTraversal = false
+      ..requestFocus();
+    // Commit synchronously while the browser still has user activation.
+    FocusManager.instance.applyFocusChangesIfNeeded();
+  }
+
+  void deactivateSearch() {
+    _focus
+      ..unfocus()
+      ..canRequestFocus = false
+      ..skipTraversal = true;
+    _debounce?.cancel();
+    _request++;
+    _controller.clear();
+    setState(() {
+      _hits = _noHits;
+      _selectedIndex = -1;
+      _loading = false;
+      _failed = false;
+    });
+  }
+
+  @override
+  void _refreshSelection() => setState(() {});
+  @override
+  void _closeSearch() => widget.onClose();
+  @override
   final _controller = TextEditingController();
+  @override
   _Hits _hits = _noHits;
   Timer? _debounce;
   bool _loading = false;
@@ -825,10 +1026,12 @@ class _SearchDialogState extends State<_SearchDialog> {
   void dispose() {
     _debounce?.cancel();
     _controller.dispose();
+    _focus.dispose();
     super.dispose();
   }
 
   void _search(String q) {
+    _selectedIndex = -1;
     _debounce?.cancel();
     final request = ++_request;
     final query = q.trim();
@@ -856,9 +1059,10 @@ class _SearchDialogState extends State<_SearchDialog> {
     });
   }
 
+  @override
   void _go(String location) {
     final router = GoRouter.of(context);
-    Navigator.of(context).pop();
+    widget.onClose();
     router.push(location);
   }
 
@@ -880,34 +1084,36 @@ class _SearchDialogState extends State<_SearchDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextField(
-              controller: _controller,
-              autofocus: true,
-              onChanged: _search,
-              onSubmitted: (_) {
-                if (_hits.companies.isNotEmpty) {
-                  _go(AppRoutes.company(_hits.companies.first.corpCode));
-                } else if (_hits.links.isNotEmpty) {
-                  _go(_hits.links.first.location);
-                } else if (_hits.persons.isNotEmpty) {
-                  _go(AppRoutes.person(_hits.persons.first.personId));
-                }
-              },
-              style: t.body(15),
-              decoration: InputDecoration(
-                hintText: '기업 · 인물 · 테마 · 메뉴 검색',
-                prefixIcon: Icon(Icons.search, color: c.textSecondary),
+            Focus(
+              onKeyEvent: _onSearchKey,
+              child: TextField(
+                controller: _controller,
+                focusNode: _focus,
+                textInputAction: TextInputAction.search,
+                onChanged: _search,
+                onSubmitted: (_) => _submitSelected(),
+                style: t.body(16),
+                decoration: InputDecoration(
+                  hintText: '기업 · 인물 · 메뉴 검색',
+                  prefixIcon: Icon(Icons.search, color: c.textSecondary),
+                ),
               ),
             ),
             const SizedBox(height: AppSpace.xs),
             if (_controller.text.trim().isNotEmpty)
-              _SearchResults(
-                loading: _loading,
-                failed: _failed,
-                hits: _hits,
-                onCompany: (item) => _go(AppRoutes.company(item.corpCode)),
-                onPerson: (p) => _go(AppRoutes.person(p.personId)),
-                onLocation: _go,
+              Flexible(
+                child: SingleChildScrollView(
+                  child: _SearchResults(
+                    loading: _loading,
+                    failed: _failed,
+                    hits: _hits,
+                    selectedIndex: _selectedIndex,
+                    selectedKey: _selectedKey,
+                    onCompany: (item) => _go(AppRoutes.company(item.corpCode)),
+                    onPerson: (p) => _go(AppRoutes.person(p.personId)),
+                    onLocation: _go,
+                  ),
+                ),
               ),
           ],
         ),

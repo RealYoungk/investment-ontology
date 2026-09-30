@@ -1,0 +1,9 @@
+class: CompanyNewsItem
+fields:
+  title: String
+  excerpt: String
+  url: String
+  publishedAt: DateTime
+  category: String
+  publisher: String
+  relatedUrls: List<String>

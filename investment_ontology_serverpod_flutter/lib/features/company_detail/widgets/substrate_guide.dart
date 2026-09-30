@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../design/tokens.dart';
+import 'business_guide_navigation.dart';
 import 'package_structure_diagram.dart';
 
 /// A product-family lesson: issuer attribution comes from the stored profile.
@@ -118,28 +119,9 @@ class _SubstrateGuideState extends State<SubstrateGuide> {
             ),
           ],
           const SizedBox(height: AppSpace.lg),
-          Row(
-            children: [
-              Text('${_step + 1} / 3', style: t.body(12, color: c.textMuted)),
-              const Spacer(),
-              if (_step > 0)
-                TextButton(
-                  onPressed: () => setState(() => _step--),
-                  child: const Text('이전'),
-                ),
-              if (_step < 2)
-                FilledButton(
-                  onPressed: () => setState(() => _step++),
-                  child: const Text('다음 →'),
-                ),
-              if (_step == 2)
-                Flexible(
-                  child: Text(
-                    '아래에서 매출 구성 확인 ↓',
-                    style: t.body(12, color: c.accent),
-                  ),
-                ),
-            ],
+          BusinessGuideNavigation(
+            step: _step,
+            onChanged: (value) => setState(() => _step = value),
           ),
         ],
       ),

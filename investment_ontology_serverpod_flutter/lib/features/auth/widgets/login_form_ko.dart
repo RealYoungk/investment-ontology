@@ -1,66 +1,153 @@
 import 'package:flutter/material.dart';
 import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
-import 'package:serverpod_auth_idp_flutter/widgets.dart';
 
-/// 로그인 화면.
-///
-/// 패키지 기본 `LoginForm`은 [PasswordField]에 라벨을 넘기지 않아 항상 영어 "Password"로
-/// 뜬다(가입·재설정 화면의 비밀번호 칸은 `texts.passwordLabel`/`texts.newPasswordLabel`을
-/// 넘겨 제대로 지역화된다). 같은 부품(EmailTextField·PasswordField·ActionButton·
-/// HyperlinkTextButton·FormStandardLayout)으로 라벨만 채워 다시 그린다 — 인증 호출은
-/// 그대로 [EmailAuthController.login]을 쓴다.
-class LoginFormKo extends StatelessWidget {
-  const LoginFormKo({super.key, required this.controller});
+import '../../../design/tokens.dart';
 
+/// 로그인과 가입 시작의 공통 입력 레이아웃. 인증은 Serverpod가 처리한다.
+class LoginFormKo extends StatefulWidget {
+  const LoginFormKo({
+    super.key,
+    required this.controller,
+    this.registration = false,
+  });
   final EmailAuthController controller;
+  final bool registration;
+  @override
+  State<LoginFormKo> createState() => _LoginFormKoState();
+}
 
+class _LoginFormKoState extends State<LoginFormKo> {
+  bool _visible = false;
   @override
   Widget build(BuildContext context) {
-    final texts = context.emailSignInTexts;
+    final controller = widget.controller;
+    final registration = widget.registration;
+    final t = context.typo;
+    final c = context.colors;
+    final ready =
+        controller.emailController.text.trim().isNotEmpty &&
+        (registration || controller.passwordController.text.isNotEmpty) &&
+        !controller.isLoading;
+    void submit() {
+      if (!ready) return;
+      if (registration) {
+        controller.startRegistration();
+      } else {
+        controller.login();
+      }
+    }
 
-    return FormStandardLayout(
-      title: texts.title,
-      content: Column(
+    return AutofillGroup(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          EmailTextField(controller: controller),
-          smallGap,
-          PasswordField(
-            labelText: texts.passwordLabel,
-            controller: controller.passwordController,
-            isLoading: controller.isLoading,
+          Text(registration ? '회원가입' : '로그인', style: t.display(26)),
+          const SizedBox(height: 8),
+          Text(
+            registration ? '이메일 인증으로 계정을 만들어 주세요.' : '이메일로 알파인더에 로그인하세요.',
+            style: t.body(14, color: c.textSecondary),
           ),
-          tinyGap,
-          Align(
-            alignment: Alignment.centerRight,
-            child: HyperlinkTextButton(
-              onPressed: () =>
-                  controller.navigateTo(EmailFlowScreen.requestPasswordReset),
-              label: texts.forgotPassword,
+          const SizedBox(height: 28),
+          Text('이메일', style: t.body(13, weight: FontWeight.w600)),
+          const SizedBox(height: 8),
+          TextField(
+            controller: controller.emailController,
+            enabled: !controller.isLoading,
+            keyboardType: TextInputType.emailAddress,
+            autofillHints: const [AutofillHints.username],
+            autocorrect: false,
+            textInputAction: registration
+                ? TextInputAction.done
+                : TextInputAction.next,
+            onSubmitted: registration
+                ? (_) => submit()
+                : (_) => FocusScope.of(context).nextFocus(),
+            decoration: InputDecoration(
+              hintText: 'name@example.com',
+              errorText: controller.error is InvalidEmailException
+                  ? controller.errorMessage
+                  : null,
             ),
           ),
-        ],
-      ),
-      actionButton: ActionButton(
-        onPressed:
-            controller.emailController.text.isNotEmpty &&
-                controller.passwordController.text.isNotEmpty &&
-                controller.state == EmailAuthState.idle
-            ? controller.login
-            : null,
-        label: texts.signIn,
-        isLoading: controller.isLoading,
-      ),
-      // 계정이 없는 사람을 위한 가입 링크. 로그인 화면에서 바로 보인다.
-      bottomText: Wrap(
-        alignment: WrapAlignment.center,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          Text(texts.dontHaveAnAccount),
-          HyperlinkTextButton(
-            onPressed: () =>
-                controller.navigateTo(EmailFlowScreen.startRegistration),
-            label: texts.signUp,
+          if (!registration) ...[
+            const SizedBox(height: 20),
+            Text('비밀번호', style: t.body(13, weight: FontWeight.w600)),
+            const SizedBox(height: 8),
+            TextField(
+              controller: controller.passwordController,
+              enabled: !controller.isLoading,
+              obscureText: !_visible,
+              autofillHints: const [AutofillHints.password],
+              autocorrect: false,
+              enableSuggestions: false,
+              textInputAction: TextInputAction.done,
+              onSubmitted: (_) => submit(),
+              decoration: InputDecoration(
+                hintText: '비밀번호를 입력해 주세요',
+                suffixIcon: IconButton(
+                  tooltip: _visible ? '비밀번호 숨기기' : '비밀번호 표시',
+                  onPressed: () => setState(() => _visible = !_visible),
+                  icon: Icon(
+                    _visible
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: controller.isLoading
+                    ? null
+                    : () => controller.navigateTo(
+                        EmailFlowScreen.requestPasswordReset,
+                      ),
+                child: const Text('비밀번호 찾기'),
+              ),
+            ),
+          ] else
+            const SizedBox(height: 24),
+          SizedBox(
+            height: 48,
+            child: FilledButton(
+              style: FilledButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: context.shape.borderRadius,
+                ),
+              ),
+              onPressed: ready ? submit : null,
+              child: controller.isLoading
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Text(registration ? '인증번호 받기' : '로그인'),
+            ),
+          ),
+          const SizedBox(height: 24),
+          Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Text(
+                registration ? '이미 계정이 있나요?' : '아직 계정이 없나요?',
+                style: t.body(13, color: c.textSecondary),
+              ),
+              TextButton(
+                onPressed: controller.isLoading
+                    ? null
+                    : () => controller.navigateTo(
+                        registration
+                            ? EmailFlowScreen.login
+                            : EmailFlowScreen.startRegistration,
+                      ),
+                child: Text(registration ? '로그인' : '회원가입'),
+              ),
+            ],
           ),
         ],
       ),

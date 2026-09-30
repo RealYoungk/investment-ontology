@@ -323,3 +323,27 @@ UI는 공통 제품 한 문장 → 비교 이유 대화상자의 회사별 차�
 User rejected the initial business guide's explanatory value despite passing technical checks. Removed the two-line circuit drawing; substrate AOI profiles now show an object → manufacturing stage → real defect/repair lesson with credited official images. See docs/business-understanding.md. Local frontend revised; user comprehension not yet validated. Do not describe the earlier profile coverage as successful business understanding.
 
 Follow-up: user approved improvement but requested direct visual labels and raised copyright. Official copied images removed from the bundle; original vector diagrams now label IC/chip, substrate, solder balls and motherboard via red leader lines. Manufacturer images are source links only. See docs/business-understanding.md for media rules.
+
+### 성호전자 제품군 설명 적용 (2026-09-29)
+
+사용자 요청으로 설명 DB 이관은 보류하고 성호전자(00317210)에 제품군 공통 원리도를 적용했다. 기존 프로필과 사업본문을 읽기만 하며 PSU·필름콘덴서·증착필름의 주요 제품 표가 확인되는 기업에만 연결한다. 화면 문구/도식은 코드에 있고 DB 변경은 없다. 비중만 공시된 표는 숫자를 그대로 표시하되 연결 전체 구성으로 보이지 않게 구분한다. 자세한 출처·조건·한계는 business-understanding.md 마지막 절. 정적 분석 및 관련 12개 테스트 통과; 실제 390px/기본 폭에서 라벨·도식·매출 표시와 세 단계 이동 확인. 로컬 성호전자 화면을 열어 두었으며 공개 배포·추가 커밋/푸시는 하지 않았다.
+
+- 2026-09-29 성호전자 개요: 제품 설명 다음·매출 구성 앞에 기업별 변화 섹션 추가. `company_development.dart`의 기업 코드별 정적 스냅샷 + 공통 위젯. 반기보고서 `20260814003108` 실제 II/연결주석에서 ADS테크 인수·광통신 공정장비 확인. 확정 사실 / 조건부 실적 연결 / 탐방 질문 분리. 자동 갱신·DB 저장 없음. 세부 근거와 범위는 docs/business-understanding.md 참조.
+- 2026-09-30: 변화 섹션에 데이터센터→광통신→장비의 배경 설명을 추가. 개인화된 탐방 질문 제거, 주문·양산·이익/현금의 핵심 판단 기준으로 교체. 3단계 배경은 넓은 화면 가로/좁은 화면 세로, 판단 기준은 별도 배경으로 구분.
+- 2026-09-30 성호전자 하단 최근 공시를 사건 중심 최근 소식으로 대체. company_news.dart(정적 기업별 스냅샷), company_news_section.dart(요약/펼침 경과/상세 원문). 9/30 정리 기준 수주·납품/CB/실적 3건. 다른 기업은 기존 공시 목록. 자동 수집·갱신 없음. 조사 근거·날짜 오인 사례는 business-understanding.md에 기록.
+
+- 2026-09-30 최근 소식을 정적 카탈로그에서 `companyNews.recent` 조회 API로 전환. 화면 진입 때 네이버 뉴스/DART 병렬 호출, 5분 캐시, 규칙 분류/중복 제거. 뉴스 DB 저장·스케줄러·AI 없음. 신규 엔드포인트 로그인 필수. 네이버 키는 서버 `naverClientId`/`naverClientSecret` 또는 `NAVER_CLIENT_ID`/`NAVER_CLIENT_SECRET`; 현재 로컬 미설정, 실제 기사 검증 미완료.
+
+- 2026-09-30 NAVER API HUB 뉴스 전용 앱과 로컬 서버 키 연결 완료, 직접 HTTP 200/10건 확인. 기존 뉴스 캐시/혼합정렬/중복 묶기는 제거하고 원순서 뉴스와 공시 영역을 분리. 사용자가 서버 직접 실행을 명시 허용해 `serverpod start`를 실행함. 시작 실패 원인은 새 키가 주석 예시 아래에 들어간 YAML 오류였고 실제 shared 절로 이동해 복구.
+
+## 2026-09-30 전 기업 개요 초기 적용
+
+사용자가 정적인 제품·투자포인트 설명의 전 기업 확장을 명시적으로 요청하여, 개요 설명 범위에서 수동/AI 작성 보류를 해제했다. DB 스키마·사실 저장은 변경하지 않고 정적 설명 카탈로그를 추가했다. 실행 시점의 2,756개 상장기업에 사업 구조 설명·3단계 도식·업종 성장 동력을 연결한다. 기가비스·성호전자의 기존 상세 도식/투자포인트가 우선한다. 기업별 공시 사실과 공통 업종 설명은 구분하며, 모든 기업의 최신 투자 논리를 개별 조사한 결과가 아니다.
+
+재생성·근거·검증 경계는 [카탈로그 운영 방법](../tool/overview/README.md), 실제 커버리지는 `outputs/overview-rollout/coverage.json`에 있다. 정적 자산은 `assets/overview/companies.json`, UI는 `BusinessModelGuide`, 읽기는 `OverviewCatalog`. 라이브 재무·시세·최근소식은 기존 API를 유지한다. 신규 회사는 다음 카탈로그 재생성 전까지 API 제품 화면으로 돌아간다. 은행·보험·증권·금융지주 등의 헤더는 제조업식 FCF/마진/부채비율을 제외하고 PER/PBR/ROE 중심으로 표시한다.
+
+## 2026-09-30 모바일 입력 마감 및 배포
+
+검색 아이콘 클릭 안에서 준비된 입력창을 즉시 활성화하도록 변경했다. 입력칸 재탭 없이 포커스와 키보드를 요청하며, 닫기/뒤로가기/재열기/데스크톱 전환을 테스트했다. Flutter semantic input/textarea는 16px로 보정하여 iOS 자동 확대 원인을 제거하고 pinch zoom은 유지했다. 사용자가 실제 모바일에서 "굿 됐네"로 동작을 확인했다.
+
+현재 공개 배포는 `dpl_8rZjBRfeS9XcXHvYjur2J5kJBbrH`이며 alfinder.kr에 반영됐다. 배포 및 롤백 상세는 docs/deploy.md 참조. 커밋 전 Flutter 전체 136개, 뉴스/생성 코드 서버 테스트 8개, 카탈로그 Python 테스트 9개 통과. 앞선 미배포 기록은 각 작업 당시 상태이며 위 공개 배포가 최신이다.

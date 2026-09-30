@@ -215,10 +215,6 @@ class _CompanyPageState extends State<CompanyPage> {
             openMetric: tab == CompanyTab.financials ? _openMetric : null,
             onOpenMetric: (key) => _openFinancials(metric: key),
           ),
-          _ThemeChips(
-            key: ValueKey('themes-$_version'),
-            corpCode: widget.corpCode,
-          ),
           _GroupLine(
             key: ValueKey('group-$_version'),
             corpCode: widget.corpCode,
@@ -241,9 +237,6 @@ class _CompanyPageState extends State<CompanyPage> {
                 CompanyOverviewTab(
                   key: ValueKey(_version),
                   detail: detail,
-                  onOpenTab: (name) => setState(
-                    () => _tab = CompanyTab.values.asNameMap()[name] ?? _tab,
-                  ),
                 ),
                 if (_sections.isEmpty) ...[
                   const SizedBox(height: AppSpace.section),
@@ -358,93 +351,6 @@ class _DisclosureFetchCardState extends State<_DisclosureFetchCard> {
             const SizedBox(height: AppSpace.xs),
             Text(_message!, style: t.body(12, color: c.textMuted)),
           ],
-        ],
-      ),
-    );
-  }
-}
-
-/// 기업이 속한 테마와 "테마에 추가".
-class _ThemeChips extends StatefulWidget {
-  const _ThemeChips({super.key, required this.corpCode});
-
-  final String corpCode;
-
-  @override
-  State<_ThemeChips> createState() => _ThemeChipsState();
-}
-
-class _ThemeChipsState extends State<_ThemeChips> {
-  List<InvestmentTheme> _mine = const [];
-  List<ThemeSummary> _all = const [];
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    try {
-      final (mine, all) = await (
-        client.theme.themesOf(widget.corpCode),
-        client.theme.list(),
-      ).wait;
-      if (mounted) setState(() => (_mine = mine, _all = all));
-    } catch (_) {
-      // 테마는 부가 정보라 실패해도 상세는 보여 준다.
-    }
-  }
-
-  Future<void> _add(int themeId) async {
-    if (!context.ensureAdmin()) return;
-    await client.theme.addCompany(themeId, widget.corpCode);
-    await _load();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    final t = context.typo;
-    if (!context.isAdmin && _mine.isEmpty) return const SizedBox.shrink();
-    final mineIds = {for (final m in _mine) m.id};
-    final candidates = {
-      for (final s in _all)
-        if (!mineIds.contains(s.theme.id)) s.theme.id!: s.theme.name,
-    };
-    return Padding(
-      padding: const EdgeInsets.only(top: AppSpace.md),
-      child: Wrap(
-        spacing: AppSpace.sm,
-        runSpacing: AppSpace.sm,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          Text('테마', style: t.label(color: c.textSecondary)),
-          for (final theme in _mine)
-            HoverBuilder(
-              onTap: () => context.push(AppRoutes.theme(theme.id!)),
-              builder: (context, hovered) => AppTag(
-                label: theme.name,
-                color: hovered ? c.accent : null,
-                size: AppTagSize.medium,
-              ),
-            ),
-          if (context.isAdmin && candidates.isNotEmpty)
-            AppSelect<int>(
-              placeholder: '테마에 추가',
-              allLabel: '—',
-              value: null,
-              options: candidates,
-              onChanged: (id) {
-                if (id != null) _add(id);
-              },
-            )
-          else if (context.isAdmin)
-            AppButton(
-              label: _all.isEmpty ? '테마 만들기 →' : '새 테마 →',
-              variant: AppButtonVariant.link,
-              onPressed: () => context.go('/themes'),
-            ),
         ],
       ),
     );

@@ -76,6 +76,7 @@ flutter:
   # https://flutter.dev/assets-and-images/#from-packages
   assets:
     - assets/config.json
+    - assets/overview/companies.json
     - assets/brand/alfinder-logo.png
 
   # To add custom fonts to your application, add a fonts section here,

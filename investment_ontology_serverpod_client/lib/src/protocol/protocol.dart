@@ -74,6 +74,8 @@ import 'ontology/models/company_graph.dart' as _ixtgihs0;
 import 'ontology/models/company_group.dart' as _ihdcqaon;
 import 'ontology/models/company_list_item.dart' as _i0csqxj4;
 import 'ontology/models/company_market_cap.dart' as _it4u3ib3;
+import 'ontology/models/company_news_feed.dart' as _izcvpxxd;
+import 'ontology/models/company_news_item.dart' as _iiky47zh;
 import 'ontology/models/company_page.dart' as _iaj9eyri;
 import 'ontology/models/company_ref.dart' as _i4gnucl8;
 import 'ontology/models/company_sort.dart' as _ia2izjbq;
@@ -198,6 +200,8 @@ export 'ontology/models/company_graph.dart';
 export 'ontology/models/company_group.dart';
 export 'ontology/models/company_list_item.dart';
 export 'ontology/models/company_market_cap.dart';
+export 'ontology/models/company_news_feed.dart';
+export 'ontology/models/company_news_item.dart';
 export 'ontology/models/company_page.dart';
 export 'ontology/models/company_ref.dart';
 export 'ontology/models/company_sort.dart';
@@ -405,6 +409,12 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _it4u3ib3.CompanyMarketCap) {
       return _it4u3ib3.CompanyMarketCap.fromJson(data) as T;
+    }
+    if (t == _izcvpxxd.CompanyNewsFeed) {
+      return _izcvpxxd.CompanyNewsFeed.fromJson(data) as T;
+    }
+    if (t == _iiky47zh.CompanyNewsItem) {
+      return _iiky47zh.CompanyNewsItem.fromJson(data) as T;
     }
     if (t == _iaj9eyri.CompanyPage) {
       return _iaj9eyri.CompanyPage.fromJson(data) as T;
@@ -797,6 +807,14 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _isc.getType<_it4u3ib3.CompanyMarketCap?>()) {
       return (data != null ? _it4u3ib3.CompanyMarketCap.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_izcvpxxd.CompanyNewsFeed?>()) {
+      return (data != null ? _izcvpxxd.CompanyNewsFeed.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_iiky47zh.CompanyNewsItem?>()) {
+      return (data != null ? _iiky47zh.CompanyNewsItem.fromJson(data) : null)
           as T;
     }
     if (t == _isc.getType<_iaj9eyri.CompanyPage?>()) {
@@ -1292,14 +1310,20 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
-    if (t == List<_i0csqxj4.CompanyListItem>) {
+    if (t == List<_iiky47zh.CompanyNewsItem>) {
       return (data as List)
-              .map((e) => deserialize<_i0csqxj4.CompanyListItem>(e))
+              .map((e) => deserialize<_iiky47zh.CompanyNewsItem>(e))
               .toList()
           as T;
     }
     if (t == List<String>) {
       return (data as List).map((e) => deserialize<String>(e)).toList() as T;
+    }
+    if (t == List<_i0csqxj4.CompanyListItem>) {
+      return (data as List)
+              .map((e) => deserialize<_i0csqxj4.CompanyListItem>(e))
+              .toList()
+          as T;
     }
     if (t == List<_i98o73zd.DisclosureTableRow>) {
       return (data as List)
@@ -1582,6 +1606,8 @@ class Protocol extends _isc.SerializationManager {
       _ihdcqaon.CompanyGroup => 'CompanyGroup',
       _i0csqxj4.CompanyListItem => 'CompanyListItem',
       _it4u3ib3.CompanyMarketCap => 'CompanyMarketCap',
+      _izcvpxxd.CompanyNewsFeed => 'CompanyNewsFeed',
+      _iiky47zh.CompanyNewsItem => 'CompanyNewsItem',
       _iaj9eyri.CompanyPage => 'CompanyPage',
       _i4gnucl8.CompanyRef => 'CompanyRef',
       _ia2izjbq.CompanySort => 'CompanySort',
@@ -1747,6 +1773,10 @@ class Protocol extends _isc.SerializationManager {
         return 'CompanyListItem';
       case _it4u3ib3.CompanyMarketCap():
         return 'CompanyMarketCap';
+      case _izcvpxxd.CompanyNewsFeed():
+        return 'CompanyNewsFeed';
+      case _iiky47zh.CompanyNewsItem():
+        return 'CompanyNewsItem';
       case _iaj9eyri.CompanyPage():
         return 'CompanyPage';
       case _i4gnucl8.CompanyRef():
@@ -2040,6 +2070,12 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'CompanyMarketCap') {
       return deserialize<_it4u3ib3.CompanyMarketCap>(data['data']);
+    }
+    if (dataClassName == 'CompanyNewsFeed') {
+      return deserialize<_izcvpxxd.CompanyNewsFeed>(data['data']);
+    }
+    if (dataClassName == 'CompanyNewsItem') {
+      return deserialize<_iiky47zh.CompanyNewsItem>(data['data']);
     }
     if (dataClassName == 'CompanyPage') {
       return deserialize<_iaj9eyri.CompanyPage>(data['data']);

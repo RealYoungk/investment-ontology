@@ -38,6 +38,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _ihkbqpbm;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_group.dart'
     as _i7uvzrch;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_news_feed.dart'
+    as _ic30bbzw;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_page.dart'
     as _itgpgg86;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_sort.dart'
@@ -612,6 +614,21 @@ class EndpointCompany extends _isc.EndpointRef {
       caller.callServerEndpoint<_ig9j925g.CompanyDetail?>(
         'company',
         'detail',
+        {'corpCode': corpCode},
+      );
+}
+
+/// {@category Endpoint}
+class EndpointCompanyNews extends _isc.EndpointRef {
+  EndpointCompanyNews(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'companyNews';
+
+  _ida.Future<_ic30bbzw.CompanyNewsFeed> recent(String corpCode) =>
+      caller.callServerEndpoint<_ic30bbzw.CompanyNewsFeed>(
+        'companyNews',
+        'recent',
         {'corpCode': corpCode},
       );
 }
@@ -1506,6 +1523,7 @@ class Client extends _isc.ServerpodClientShared {
     account = EndpointAccount(this);
     ai = EndpointAi(this);
     company = EndpointCompany(this);
+    companyNews = EndpointCompanyNews(this);
     disclosure = EndpointDisclosure(this);
     financial = EndpointFinancial(this);
     governance = EndpointGovernance(this);
@@ -1530,6 +1548,8 @@ class Client extends _isc.ServerpodClientShared {
   late final EndpointAi ai;
 
   late final EndpointCompany company;
+
+  late final EndpointCompanyNews companyNews;
 
   late final EndpointDisclosure disclosure;
 
@@ -1561,6 +1581,7 @@ class Client extends _isc.ServerpodClientShared {
     'account': account,
     'ai': ai,
     'company': company,
+    'companyNews': companyNews,
     'disclosure': disclosure,
     'financial': financial,
     'governance': governance,

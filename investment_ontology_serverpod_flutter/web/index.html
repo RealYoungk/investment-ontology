@@ -20,6 +20,13 @@
   <link rel="manifest" href="manifest.json">
 
   <style>
+    /* Flutter semantic inputs otherwise inherit the browser's small default
+       font and trigger iOS focus zoom, even though Flutter paints larger text.
+       Keep pinch zoom available; do not cap the viewport scale.
+       Upstream: https://github.com/flutter/flutter/issues/192327 */
+    flt-semantics input, flt-semantics textarea {
+      font-size: 16px;
+    }
     /* Keep the initial frame aligned with Research Desk, without font downloads. */
     html, body { margin: 0; height: 100%; background: #FFFFFF; }
     #splash {

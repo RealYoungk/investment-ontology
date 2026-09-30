@@ -76,31 +76,20 @@ class _SignInPageState extends State<SignInPage> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (!widget.resetPassword)
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: TextButton.icon(
-                        onPressed: () => context.go('/home'),
-                        icon: const Icon(Icons.arrow_back, size: 18),
-                        label: const Text('로그인 없이 둘러보기'),
-                      ),
-                    ),
-                  Text('ALFINDER', style: t.label(color: c.accent)),
-                  const SizedBox(height: AppSpace.sm),
-                  Text('알파인더', style: t.display(28)),
-                  const SizedBox(height: AppSpace.sm),
                   Text(
-                    '기업을 이해하는 첫걸음, 알파인더에서 시작하세요.',
-                    style: t.body(13.5, color: c.textSecondary),
+                    'alfinder',
+                    style: t.display(22).copyWith(color: c.accent),
                   ),
-                  const SizedBox(height: AppSpace.xl),
+                  const SizedBox(height: AppSpace.lg),
                   Container(
-                    padding: const EdgeInsets.all(AppSpace.lg),
+                    padding: EdgeInsets.all(
+                      MediaQuery.sizeOf(context).width < 480 ? 24 : 32,
+                    ),
                     decoration: BoxDecoration(
                       color: c.surface,
                       borderRadius: context.shape.borderRadius,
                       border: Border.all(
-                        color: c.borderStrong,
+                        color: c.border,
                         width: context.shape.strokeWidth,
                       ),
                     ),
@@ -122,6 +111,19 @@ class _SignInPageState extends State<SignInPage> {
                     builder: (context, _) =>
                         _Notices(screen: _controller.currentScreen),
                   ),
+                  if (!widget.resetPassword) ...[
+                    const SizedBox(height: AppSpace.md),
+                    Align(
+                      alignment: Alignment.center,
+                      child: TextButton(
+                        onPressed: () => context.go('/home'),
+                        child: Text(
+                          '둘러보기',
+                          style: t.body(13, color: c.textSecondary),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -142,8 +144,9 @@ class _AuthFlowScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return switch (controller.currentScreen) {
       EmailFlowScreen.login => LoginFormKo(controller: controller),
-      EmailFlowScreen.startRegistration => StartRegistrationForm(
+      EmailFlowScreen.startRegistration => LoginFormKo(
         controller: controller,
+        registration: true,
       ),
       EmailFlowScreen.verifyRegistration => VerificationFormKo(
         controller: controller,
@@ -175,12 +178,6 @@ class _Notices extends StatelessWidget {
 
   final EmailFlowScreen screen;
 
-  static const _registrationSteps = {
-    EmailFlowScreen.startRegistration,
-    EmailFlowScreen.verifyRegistration,
-    EmailFlowScreen.completeRegistration,
-  };
-
   static const _verificationSteps = {
     EmailFlowScreen.verifyRegistration,
     EmailFlowScreen.verifyPasswordReset,
@@ -189,7 +186,6 @@ class _Notices extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final notices = [
-      if (_registrationSteps.contains(screen)) readOnlyAccountNotice,
       if (_verificationSteps.contains(screen))
         '메일이 보이지 않으면 스팸함을 확인해 주세요. 인증번호는 다른 사람에게 알려주지 마세요.',
     ];

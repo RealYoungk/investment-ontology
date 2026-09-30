@@ -55,6 +55,19 @@ void main() {
       expect(s.ticks, [0, 20, 40, 60, 80, 100]);
     });
 
+    test('큰 가격 변동에서도 눈금 수가 폭증하지 않는다', () {
+      for (final values in [
+        [1035.0, 53200.0, 24950.0],
+        [1.0, 1000000000.0],
+        [0.01, 500.0],
+      ]) {
+        final scale = ChartScale.of(values, includeZero: false);
+        expect(scale.ticks.length, lessThanOrEqualTo(8));
+        expect(scale.min, lessThanOrEqualTo(values.first));
+        expect(scale.max, greaterThanOrEqualTo(values[1]));
+      }
+    });
+
     test('음수 범위', () {
       final s = ChartScale.of([-30, 45]);
       expect(s.min, lessThanOrEqualTo(-30));

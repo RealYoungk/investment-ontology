@@ -1,3 +1,5 @@
+import '../business/overview_metrics.dart';
+
 import 'package:flutter/material.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 
@@ -140,7 +142,19 @@ class CompanyHeader extends StatelessWidget {
         ],
         if (hasFinancials)
           _KeyStats(
-            metrics: FinancialView(fin).metrics(),
+            metrics: FinancialView(fin)
+                .metrics()
+                .where(
+                  (metric) => showOverviewMetric(
+                    metric.key,
+                    assetVehicle: isAssetInvestmentVehicle(company.name),
+                    financial: usesFinancialOverviewMetrics(
+                      company.industryCode,
+                      company.name,
+                    ),
+                  ),
+                )
+                .toList(),
             corpCode: company.corpCode,
             fsDiv: fin.fsDiv,
             open: openMetric,
@@ -248,11 +262,16 @@ class _KeyStatsState extends State<_KeyStats> {
           child: LayoutBuilder(
             builder: (context, constraints) {
               // 화면 폭에 맞춰 2·4·8열로 정렬해 들쭉날쭉한 줄바꿈을 피한다.
-              final columns = constraints.maxWidth < 600
+              var columns = constraints.maxWidth < 600
                   ? 2
                   : constraints.maxWidth < 1100
                   ? 4
                   : 8;
+              while (columns > 1 &&
+                  (columns > widget.metrics.length ||
+                      widget.metrics.length % columns != 0)) {
+                columns--;
+              }
               final cell = constraints.maxWidth / columns;
               return Wrap(
                 children: [

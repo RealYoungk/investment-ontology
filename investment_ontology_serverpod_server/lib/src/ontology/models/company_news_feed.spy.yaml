@@ -1,0 +1,6 @@
+class: CompanyNewsFeed
+fields:
+  items: List<CompanyNewsItem>
+  fetchedAt: DateTime
+  newsStatus: String
+  filingStatus: String

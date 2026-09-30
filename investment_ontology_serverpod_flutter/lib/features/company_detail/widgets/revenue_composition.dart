@@ -5,6 +5,7 @@ import '../../../client.dart';
 import '../../../design/components/components.dart';
 import '../../../design/tokens.dart';
 import '../../financials/financial_metrics.dart';
+import '../business/power_product_lesson.dart';
 
 /// Preserve filing labels before the amount, including merged category cells.
 /// A percentage is shown only when the first printed amount matches the fact.
@@ -55,9 +56,11 @@ class RevenueComposition extends StatefulWidget {
     super.key,
     required this.corpCode,
     this.products = const [],
+    this.printedMix,
   });
   final String corpCode;
   final List<BusinessProduct> products;
+  final PowerProductLesson? printedMix;
   @override
   State<RevenueComposition> createState() => _RevenueCompositionState();
 }
@@ -114,7 +117,7 @@ class _RevenueCompositionState extends State<RevenueComposition> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                '제품별 매출 구성',
+                '사업별 매출 구성',
                 style: t
                     .body(18, weight: FontWeight.w700)
                     .copyWith(height: 1.4),
@@ -131,6 +134,8 @@ class _RevenueCompositionState extends State<RevenueComposition> {
                 ),
               ] else if (rows == null)
                 const LinearProgressIndicator(minHeight: 2)
+              else if (rows.isEmpty && widget.printedMix != null)
+                PrintedProductMix(mix: widget.printedMix!)
               else if (rows.isEmpty)
                 Text(
                   '자동 검증된 부문별 매출이 아직 없습니다.',
@@ -155,6 +160,57 @@ class _RevenueCompositionState extends State<RevenueComposition> {
       ],
     );
   }
+}
+
+/// Percentage-only filing table. Never invent monetary values from other totals.
+class PrintedProductMix extends StatelessWidget {
+  const PrintedProductMix({super.key, required this.mix});
+  final PowerProductLesson mix;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Text(
+        '${mix.year} · 공시의 주요 제품 매출 비중',
+        style: context.typo.body(13, color: context.colors.textSecondary),
+      ),
+      const SizedBox(height: AppSpace.sm),
+      for (final row in mix.shares)
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: AppSpace.sm),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  row.label,
+                  style: context.typo.body(13, weight: FontWeight.w600),
+                ),
+              ),
+              const SizedBox(width: AppSpace.md),
+              SizedBox(
+                width: 64,
+                child: LinearProgressIndicator(
+                  value: row.share / 100,
+                  minHeight: 5,
+                  color: context.colors.chartSeries1,
+                  backgroundColor: context.colors.chartGrid,
+                ),
+              ),
+              const SizedBox(width: AppSpace.sm),
+              SizedBox(
+                width: 48,
+                child: Text(
+                  '${row.share.toStringAsFixed(1)}%',
+                  textAlign: TextAlign.right,
+                  style: context.typo.numeric(13),
+                ),
+              ),
+            ],
+          ),
+        ),
+    ],
+  );
 }
 
 class _RevenueRow extends StatelessWidget {

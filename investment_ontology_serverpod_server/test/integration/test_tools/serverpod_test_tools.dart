@@ -55,6 +55,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _iaqm8wre;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_group.dart'
     as _i4udlom4;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_news_feed.dart'
+    as _igm0itx7;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_page.dart'
     as _i23npuz6;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_sort.dart'
@@ -281,6 +283,8 @@ class TestEndpoints {
 
   late final _CompanyEndpoint company;
 
+  late final _CompanyNewsEndpoint companyNews;
+
   late final _DisclosureEndpoint disclosure;
 
   late final _FinancialEndpoint financial;
@@ -330,6 +334,10 @@ class _InternalTestEndpoints extends TestEndpoints
       serializationManager,
     );
     company = _CompanyEndpoint(
+      endpoints,
+      serializationManager,
+    );
+    companyNews = _CompanyNewsEndpoint(
       endpoints,
       serializationManager,
     );
@@ -1408,6 +1416,48 @@ class _CompanyEndpoint {
                   _localCallContext.arguments,
                 )
                 as _ida.Future<_iws6mlcl.CompanyDetail?>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
+class _CompanyNewsEndpoint {
+  _CompanyNewsEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _is.EndpointDispatch _endpointDispatch;
+
+  final _is.SerializationManager _serializationManager;
+
+  _ida.Future<_igm0itx7.CompanyNewsFeed> recent(
+    _ist.TestSessionBuilder sessionBuilder,
+    String corpCode,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'companyNews',
+            method: 'recent',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'companyNews',
+          methodName: 'recent',
+          parameters: _ist.testObjectToJson({'corpCode': corpCode}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_igm0itx7.CompanyNewsFeed>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

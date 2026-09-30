@@ -33,6 +33,8 @@ company:
   - divisions:
   - list:
   - detail:
+companyNews:
+  - recent:
 disclosure:
   - understanding:
   - sections:

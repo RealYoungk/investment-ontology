@@ -13,6 +13,9 @@ class ChartScale {
     int targetTicks = 4,
     bool includeZero = true,
   }) {
+    if (targetTicks < 1) {
+      throw ArgumentError.value(targetTicks, 'targetTicks', 'must be positive');
+    }
     double? lo, hi;
     if (includeZero) {
       lo = 0.0;
@@ -30,7 +33,11 @@ class ChartScale {
     // 0을 넣지 않기로 했는데 눈금이 굵어 바닥이 0으로 떨어지면 (주가 8만~36만에
     // 눈금 10만) 아래 눈금이 값보다 작아지도록 한 단계 줄인다.
     if (!includeZero && lo > 0 && step > lo) {
-      step = _niceStep(lo, down: true);
+      final candidate = _niceStep(lo, down: true);
+      final count = (hi / candidate).ceil() - (lo / candidate).floor() + 1;
+      // A low starting price must not produce hundreds of labels after a rally.
+      // includeZero=false permits a zero tick; it does not require excluding it.
+      if (count <= targetTicks * 2) step = candidate;
     }
     final min = (lo / step).floorToDouble() * step;
     final max = (hi / step).ceilToDouble() * step;

@@ -51,6 +51,22 @@ abstract final class AppRoutes {
   static String company(String corpCode, {String? tab}) =>
       '/company/$corpCode${tab == null ? '' : '?tab=$tab'}';
 
+  static String login({required String next}) =>
+      Uri(path: '/login', queryParameters: {'next': next}).toString();
+
+  static String afterLogin(String? next) {
+    // Only known local destinations may be supplied by the login URL.
+    if (next == '/account') return next!;
+    final uri = Uri.tryParse(next ?? '');
+    if (uri != null &&
+        !uri.hasScheme &&
+        !uri.hasAuthority &&
+        RegExp(r'^/company/[0-9]{8}$').hasMatch(uri.path)) {
+      return uri.toString();
+    }
+    return '/home';
+  }
+
   static String person(int personId) => '/person/$personId';
 
   static String theme(int themeId) => '/themes/$themeId';
@@ -70,20 +86,22 @@ abstract final class AppRoutes {
     redirect: (_, state) {
       final viewer = AppAuth.viewer.value;
       final path = state.uri.path;
+      // 테마는 고도화 전까지 사용자 동선에서 제외한다. 저장 데이터는 유지한다.
+      if (path == '/themes' || path.startsWith('/themes/')) return '/home';
       final adminOnly =
           path == '/data' || path == '/review' || path.startsWith('/admin/');
       if (adminOnly && !(viewer?.isAdmin ?? false)) return '/home';
       if (path == '/account' && viewer == null) return '/login?next=/account';
       if (path == '/login' && viewer != null) {
-        return state.uri.queryParameters['next'] == '/account'
-            ? '/account'
-            : '/home';
+        return afterLogin(state.uri.queryParameters['next']);
       }
       return null;
     },
     routes: [
       GoRoute(path: '/', redirect: (_, _) => '/home'),
       GoRoute(path: '/login', builder: (_, _) => const SignInPage()),
+      if (kDebugMode)
+        GoRoute(path: '/design/auth', builder: (_, _) => const SignInPage()),
       GoRoute(path: '/about', builder: (context, state) => const AboutPage()),
       ShellRoute(
         builder: (context, state, child) =>
