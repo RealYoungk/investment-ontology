@@ -8,7 +8,7 @@ abstract final class PeerProfiles {
     SELECT DISTINCT ON (d."companyId") d.id, d."companyId"
     FROM business_document d JOIN disclosure_report r ON r.id=d."reportId"
     JOIN company c ON c.id=d."companyId"
-    WHERE r."supersededById" IS NULL AND c.market IN ('kospi','kosdaq','konex')
+    WHERE r."supersededById" IS NULL AND r."reportCode"='annual' AND c.market IN ('kospi','kosdaq','konex')
       AND (c."industryCode" IS NULL OR c."industryCode" <> '64992')
     ORDER BY d."companyId", d."bsnsYear" DESC, d."rceptNo" DESC, d.id DESC
   ''';

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:archive/archive.dart';
+import 'package:cp949_codec/cp949_codec.dart';
 
 /// 공시 원본 파일(DART 전자공시 XML)에서 "II. 사업의 내용"을 글로 뽑는다.
 ///
@@ -33,7 +34,7 @@ abstract final class BusinessText {
     final xmls = [
       for (final f in archive.files)
         if (f.isFile && f.name.toLowerCase().endsWith('.xml'))
-          (name: f.name, xml: utf8.decode(f.content, allowMalformed: true)),
+          if (_decodeXml(f.content) case final xml?) (name: f.name, xml: xml),
     ];
     if (xmls.isEmpty) return null;
     final withBody =
@@ -53,8 +54,25 @@ abstract final class BusinessText {
       for (final f in archive.files)
         if (f.isFile)
           '${f.name}(${f.content.length}'
-              '${f.name.toLowerCase().endsWith('.xml') && _hasBusinessTitle.hasMatch(utf8.decode(f.content, allowMalformed: true)) ? ', 본문' : ''})',
+              '${f.name.toLowerCase().endsWith('.xml') && _hasBusinessTitle.hasMatch(_decodeXml(f.content) ?? '') ? ', 본문' : ''})',
     ].join(' ');
+  }
+
+  /// DART archives may declare UTF-8 while their bytes are EUC-KR (Samsung FY2021).
+  /// Try lossless UTF-8, then lossless CP949; never persist replacement characters.
+  static String? _decodeXml(List<int> bytes) {
+    try {
+      final text = utf8.decode(bytes);
+      if (!text.contains('\uFFFD')) return text;
+    } on FormatException {
+      // The declaration cannot be trusted; inspect the actual byte encoding.
+    }
+    try {
+      final text = const CP949Codec().decode(bytes);
+      return text.contains('\uFFFD') ? null : text;
+    } on FormatException {
+      return null;
+    }
   }
 
   /// 본문임을 알려 주는 제목 — 첨부 문서에는 없다. 제목 안의 다른 태그는 건너뛴다.

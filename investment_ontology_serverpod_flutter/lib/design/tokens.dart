@@ -25,10 +25,11 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.marketKonex,
     required this.chartSeries1,
     required this.chartSeries2,
+    Color? chartSeries3,
     required this.chartGrid,
     required this.chartTile,
     required this.chartTileHover,
-  });
+  }) : chartSeries3 = chartSeries3 ?? textSecondary;
 
   /// 페이지 바탕.
   final Color background;
@@ -77,6 +78,7 @@ class AppColors extends ThemeExtension<AppColors> {
   /// 브랜드를 바꾸면 dataviz 검증기로 표면색 대비·색각 구분을 다시 확인한다.
   final Color chartSeries1;
   final Color chartSeries2;
+  final Color chartSeries3;
 
   /// 차트 격자·축 (표면에서 한 단계 떨어진 회색).
   final Color chartGrid;
@@ -114,6 +116,7 @@ class AppColors extends ThemeExtension<AppColors> {
       marketKonex: l(marketKonex, other.marketKonex),
       chartSeries1: l(chartSeries1, other.chartSeries1),
       chartSeries2: l(chartSeries2, other.chartSeries2),
+      chartSeries3: l(chartSeries3, other.chartSeries3),
       chartGrid: l(chartGrid, other.chartGrid),
       chartTile: l(chartTile, other.chartTile),
       chartTileHover: l(chartTileHover, other.chartTileHover),

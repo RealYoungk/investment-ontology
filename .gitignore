@@ -65,3 +65,7 @@ investment_ontology_serverpod_server/config/admin_emails.local
 /output/
 __pycache__/
 *.pyc
+
+# Reproducible local financial audit snapshots (large public-source data)
+outputs/metric-audit/
+outputs/metric-source-audit/

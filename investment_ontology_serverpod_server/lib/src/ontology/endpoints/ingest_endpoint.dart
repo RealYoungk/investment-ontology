@@ -4,6 +4,8 @@ import 'package:serverpod/serverpod.dart';
 import '../../generated/protocol.dart';
 import '../auth/ontology_access.dart';
 import '../dart/dart_api_key.dart';
+import '../dart/dart_client.dart';
+import '../disclosure/business_text_repair.dart';
 import '../data_go_kr/data_go_kr_service_key.dart';
 import '../disclosure/disclosure_links.dart';
 import '../disclosure/production_facts.dart';
@@ -272,12 +274,23 @@ class IngestEndpoint extends Endpoint {
   /// 이미 받아 둔 본문에서 생산능력·생산실적·가동률 표를 다시 읽는다 (호출 없음).
   ///
   /// 규칙을 고친 뒤 되돌려 읽을 때 쓴다. 사람이 이미 결정한 항목은 건드리지 않는다.
-  Future<String> rebuildProductionFacts(Session session) async {
+  Future<String> rebuildProductionFacts(
+    Session session, {
+    String? corpCode,
+  }) async {
     OntologyAccess.requireAdmin(session);
+    final company = corpCode == null
+        ? null
+        : await Company.db.findFirstRow(
+            session,
+            where: (t) => t.corpCode.equals(corpCode),
+          );
+    if (corpCode != null && company == null) return '기업을 찾지 못했습니다.';
+    final clause = company == null ? '' : 'WHERE "companyId" = ${company.id!}';
     // 본문 하나가 수십만 자다. 전부 메모리에 올리지 않고 한 건씩 읽는다.
     final ids = [
       for (final r in await session.db.unsafeQuery(
-        'SELECT id FROM business_document ORDER BY id',
+        'SELECT id FROM business_document $clause ORDER BY id',
       ))
         r[0] as int,
     ];
@@ -287,15 +300,45 @@ class IngestEndpoint extends Endpoint {
       session,
       where: (t) => t.market.inSet(DisclosureLinks.listedMarkets),
     );
-    var stored = 0, links = 0;
-    for (final id in ids) {
-      final doc = await BusinessDocument.db.findById(session, id);
-      if (doc == null) continue;
-      stored += await ProductionFacts.store(session, doc, companyKeys: keys);
-      stored += await RndFacts.store(session, doc);
-      links += await SupplierRelations.store(session, doc, listed: listed);
+    var stored = 0, links = 0, repaired = 0;
+    // A targeted replay also repairs malformed legacy text, with the existing
+    // DART budget and admin gate. Global offline replay never makes API calls.
+    final key = company == null ? null : DartApiKey.read(session);
+    final dart = key == null ? null : DartClient(key);
+    final meter = dart == null
+        ? null
+        : ApiCallMeter(ApiProvider.dart, () => dart.calls);
+    try {
+      for (final id in ids) {
+        final doc = await BusinessDocument.db.findById(session, id);
+        if (doc == null) continue;
+        if (dart != null &&
+            doc.text.contains('\uFFFD') &&
+            !await ApiCallBudget.reached(
+              session,
+              ApiProvider.dart,
+              ApiCallBudget.dartDailyLimit,
+            )) {
+          try {
+            if (await BusinessTextRepair.repair(
+              session,
+              doc,
+              dart.fetchDocument,
+            )) {
+              repaired++;
+            }
+          } finally {
+            await meter!.flush(session);
+          }
+        }
+        stored += await ProductionFacts.store(session, doc, companyKeys: keys);
+        stored += await RndFacts.store(session, doc);
+        links += await SupplierRelations.store(session, doc, listed: listed);
+      }
+    } finally {
+      dart?.close();
     }
-    return '본문 ${ids.length}건에서 값 $stored건, 공급 관계 $links건을 읽었습니다.';
+    return '본문 ${ids.length}건에서 값 $stored건, 공급 관계 $links건을 읽었습니다. 원문 $repaired건 복구.';
   }
 
   static void _requireDartKey(Session session) {

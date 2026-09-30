@@ -493,7 +493,7 @@ class ScreenEndpoint extends Endpoint {
         FROM dividend_report dr LEFT JOIN dividend_entry d ON d."reportId" = dr.id
         GROUP BY dr."companyId", dr."bsnsYear"
       ), metrics AS (
-        SELECT c.id, c."corpCode", c.name, c.market, l.y, l.fs, l.code, l.reason, cap.cap,
+        SELECT c.id, c."corpCode", c.name, c.market, l.y, l.fs, l.code, l.reason, cap.cap, bc.currency AS reporting_currency,
           max(t.v) FILTER (WHERE t.acc = 'ifrs-full_Revenue') AS revenue,
           max(t.v) FILTER (WHERE t.acc = 'dart_OperatingIncomeLoss') AS op,
           coalesce(max(t.v) FILTER (WHERE l.fs='consolidated' AND t.acc='ifrs-full_ProfitLossAttributableToOwnersOfParent'),
@@ -532,6 +532,7 @@ class ScreenEndpoint extends Endpoint {
         FROM company c
         JOIN latest l ON l.id = c.id
         JOIN cap ON cap.id = c.id
+        LEFT JOIN basis_currency bc ON bc.id=c.id AND bc.fs=l.fs
         LEFT JOIN ttm t ON t.id = c.id AND t.fs = l.fs
         LEFT JOIN bs b ON b.id = c.id AND b.fs = l.fs
         LEFT JOIN div dv ON dv.id = c.id
@@ -542,12 +543,12 @@ class ScreenEndpoint extends Endpoint {
         LEFT JOIN liq lq ON lq.id = c.id
         LEFT JOIN vol vl ON vl.id = c.id
         WHERE c.market IN ($markets)
-        GROUP BY c.id, c."corpCode", c.name, c.market, l.y, l.fs, l.code, l.reason, cap.cap
+        GROUP BY c.id, c."corpCode", c.name, c.market, l.y, l.fs, l.code, l.reason, cap.cap, bc.currency
       )
       SELECT id, "corpCode", name, market, y, cap, revenue, op, ni, eq,
              total_eq, liab, fcf, dividend,
              revenue_now, revenue_ago, op_now, op_ago, assets,
-             px, px3, px12, hi52, lo52, sh, sh3, sh12, sh_hi, sh_lo, liq, volume, volume_ratio, div_year, payout, div_prior, div_before_prior, fs, code, reason, roe_ni, roe_eq
+             px, px3, px12, hi52, lo52, sh, sh3, sh12, sh_hi, sh_lo, liq, volume, volume_ratio, div_year, payout, div_prior, div_before_prior, fs, code, reason, roe_ni, roe_eq, reporting_currency
       FROM metrics
     ''');
 
@@ -625,7 +626,9 @@ class ScreenEndpoint extends Endpoint {
         String nonPositive, {
         bool scale = false,
       }) {
-        if (scale && !wonScale(r[18])) {
+        if (scale && r[41] != null && r[41] != 'KRW') {
+          out[key] = '${r[41]} 표시 재무 · 원화 환산 필요';
+        } else if (scale && !wonScale(r[18])) {
           out[key] = r[18] == null ? '자산총계 누락 · 금액 단위 확인 불가' : '재무 금액 단위 확인 필요';
         } else if (r[top] == null || r[bottom] == null) {
           out[key] = '계산에 필요한 재무 자료 부족';
@@ -663,27 +666,35 @@ class ScreenEndpoint extends Endpoint {
             reportCode: FinancialReportCode.values.byName(r[37] as String),
             basisReason: r[38] as String,
             marketCap: big(r[5])!,
-            revenue: big(r[6]),
-            operatingIncome: big(r[7]),
-            netIncome: big(r[8]),
-            equity: big(r[9]),
-            totalEquity: big(r[10]),
-            liabilities: big(r[11]),
-            freeCashFlow: big(r[12]),
+            revenue: r[41] == 'KRW' ? big(r[6]) : null,
+            operatingIncome: r[41] == 'KRW' ? big(r[7]) : null,
+            netIncome: r[41] == 'KRW' ? big(r[8]) : null,
+            equity: r[41] == 'KRW' ? big(r[9]) : null,
+            totalEquity: r[41] == 'KRW' ? big(r[10]) : null,
+            liabilities: r[41] == 'KRW' ? big(r[11]) : null,
+            freeCashFlow: r[41] == 'KRW' ? big(r[12]) : null,
             dividendTotal: big(r[13]),
             // 시가총액(원)과 섞는 지표는 재무제표가 원인 것을 확인했을 때만.
             // 자산총계를 모르면 단위를 확인할 수 없으므로 내지 않는다.
-            per: wonScale(r[18]) ? divide(r[5], r[8]) : null,
-            pbr: wonScale(r[18]) ? divide(r[5], r[9]) : null,
-            roe: divide(r[39], r[40], scale: 100),
-            operatingMargin: divide(r[7], r[6], scale: 100),
-            debtRatio: divide(r[11], r[10], scale: 100),
-            fcfYield: wonScale(r[18]) ? divide(r[12], r[5], scale: 100) : null,
+            per: r[41] == 'KRW' && wonScale(r[18]) ? divide(r[5], r[8]) : null,
+            pbr: r[41] == 'KRW' && wonScale(r[18]) ? divide(r[5], r[9]) : null,
+            roe: r[41] == 'MIXED' ? null : divide(r[39], r[40], scale: 100),
+            operatingMargin: r[41] == 'MIXED'
+                ? null
+                : divide(r[7], r[6], scale: 100),
+            debtRatio: r[41] == 'MIXED'
+                ? null
+                : divide(r[11], r[10], scale: 100),
+            fcfYield: r[41] == 'KRW' && wonScale(r[18])
+                ? divide(r[12], r[5], scale: 100)
+                : null,
             dividendYield: wonScale(r[18])
                 ? divide(r[13], r[5], scale: 100)
                 : null,
-            revenueGrowth: growth(r[14], r[15]),
-            operatingIncomeGrowth: growth(r[16], r[17]),
+            revenueGrowth: r[41] == 'MIXED' ? null : growth(r[14], r[15]),
+            operatingIncomeGrowth: r[41] == 'MIXED'
+                ? null
+                : growth(r[16], r[17]),
             // 주가는 거래소 시세라 단위 문제가 없다.
             closePrice: whole(r[19]),
             return3m: change(r[19], r[20], r[24], r[25]),

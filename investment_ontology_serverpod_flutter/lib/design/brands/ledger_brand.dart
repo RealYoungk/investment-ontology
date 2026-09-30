@@ -31,6 +31,7 @@ final ledgerBrand = AppBrand(
     // 표면 #FAF7F0 기준 dataviz 검증 통과 (명도·채도·색각 구분·대비).
     chartSeries1: Color(0xFF2F6DA8),
     chartSeries2: Color(0xFFC8401A),
+    chartSeries3: Color(0xFF6D44A1),
     chartGrid: Color(0xFFE3DCCD),
     chartTile: Color(0xFFDCE5EE),
     chartTileHover: Color(0xFFBFD1E3),

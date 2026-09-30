@@ -215,12 +215,19 @@ class _Dataset extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final t = context.typo;
-    final description = switch (dataset) {
-      'company' => '기업명 · 종목코드 · 업종 · 대표자',
-      'financial' => '매출 · 이익 · 자산 · 부채 · 현금흐름',
-      'disclosure' => '주주 · 임원 · 출자 · 배당 · 자기주식',
-      'business' => '부문 매출 · 수주 · 가동률 · 연구개발',
-      _ => '주가 · 거래량 · 시가총액 · 지수',
+    final items = switch (dataset) {
+      'company' => ['기업명', '종목코드', '업종'],
+      'financial' => ['손익', '재무상태', '현금흐름'],
+      'disclosure' => ['주주·임원', '출자', '배당'],
+      'business' => ['매출 구성', '수주', '생산·R&D'],
+      _ => ['주가', '시가총액', '지수'],
+    };
+    final icon = switch (dataset) {
+      'company' => Icons.business_outlined,
+      'financial' => Icons.account_balance_outlined,
+      'disclosure' => Icons.hub_outlined,
+      'business' => Icons.factory_outlined,
+      _ => Icons.show_chart,
     };
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpace.lg),
@@ -233,28 +240,82 @@ class _Dataset extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.all(AppSpace.xl),
+            padding: const EdgeInsets.all(AppSpace.lg),
             child: LayoutBuilder(
               builder: (context, box) {
                 final identity = Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: t.body(20, weight: FontWeight.w600)),
-                    const SizedBox(height: AppSpace.sm),
-                    Text(
-                      description,
-                      style: t.body(13, color: c.textSecondary),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(AppSpace.sm),
+                          decoration: BoxDecoration(
+                            color: c.accent.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(icon, color: c.accent, size: 22),
+                        ),
+                        const SizedBox(width: AppSpace.md),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                title,
+                                style: t.body(18, weight: FontWeight.w600),
+                              ),
+                              Text(
+                                source,
+                                style: t.body(11, color: c.textMuted),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: AppSpace.md),
-                    Text(
-                      '$source → 우리 DB',
-                      style: t.body(12, color: c.textMuted),
+                    Wrap(
+                      spacing: AppSpace.xs,
+                      runSpacing: AppSpace.xs,
+                      children: [
+                        for (final item in items)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpace.sm,
+                              vertical: AppSpace.xs,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: c.border),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              item,
+                              style: t.body(11, color: c.textSecondary),
+                            ),
+                          ),
+                      ],
                     ),
                   ],
                 );
-                final metrics = Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: children,
+                final metrics = LayoutBuilder(
+                  builder: (context, size) {
+                    if (children.length < 2 || size.maxWidth < 300) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: children,
+                      );
+                    }
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        for (var i = 0; i < children.length; i++) ...[
+                          if (i > 0) const SizedBox(width: AppSpace.lg),
+                          Expanded(child: children[i]),
+                        ],
+                      ],
+                    );
+                  },
                 );
                 if (box.maxWidth < 600) {
                   return Column(
@@ -269,7 +330,7 @@ class _Dataset extends StatelessWidget {
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(flex: 5, child: identity),
+                    Expanded(flex: 4, child: identity),
                     const SizedBox(width: AppSpace.xxl),
                     Expanded(flex: 6, child: metrics),
                   ],
@@ -282,13 +343,13 @@ class _Dataset extends StatelessWidget {
               border: Border(top: BorderSide(color: c.border)),
             ),
             padding: const EdgeInsets.symmetric(
-              horizontal: AppSpace.xl,
-              vertical: AppSpace.md,
+              horizontal: AppSpace.lg,
+              vertical: AppSpace.sm,
             ),
             child: DatasetCollectionControls(dataset: dataset),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpace.xl),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpace.lg),
             child: DataReference(
               dataset: dataset,
               collectionDetail: '$data\n\n$scope\n\n$detail',
@@ -361,9 +422,16 @@ class _Progress extends StatelessWidget {
               Expanded(
                 child: Text(label, style: t.body(12, color: c.textSecondary)),
               ),
+              if (note != null)
+                Tooltip(
+                  message: note!,
+                  triggerMode: TooltipTriggerMode.tap,
+                  child: Icon(Icons.info_outline, size: 14, color: c.textMuted),
+                ),
+              const SizedBox(width: AppSpace.xs),
               Text(
                 total == 0 ? '미집계' : '${(ratio * 100).toStringAsFixed(1)}%',
-                style: t.numeric(16, weight: FontWeight.w600),
+                style: t.numeric(13, weight: FontWeight.w600),
               ),
             ],
           ),
@@ -374,7 +442,7 @@ class _Progress extends StatelessWidget {
             children: [
               Text(
                 formatCount(done),
-                style: t.numeric(24, weight: FontWeight.w600),
+                style: t.numeric(22, weight: FontWeight.w600),
               ),
               Text(
                 '/ ${formatCount(total)}',
@@ -389,10 +457,6 @@ class _Progress extends StatelessWidget {
             color: c.accent,
             backgroundColor: c.border,
           ),
-          if (note != null) ...[
-            const SizedBox(height: AppSpace.xs),
-            Text(note!, style: t.body(11, color: c.textMuted)),
-          ],
         ],
       ),
     );

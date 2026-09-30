@@ -42,6 +42,7 @@ disclosure:
   - businessContent:
   - shareholderReturn:
   - facts:
+  - factPeriods:
   - factTrends:
   - recentOf:
   - digest:

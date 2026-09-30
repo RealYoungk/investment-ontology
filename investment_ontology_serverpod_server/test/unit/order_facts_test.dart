@@ -3,6 +3,23 @@ import 'package:test/test.dart';
 
 /// 실제 사업보고서 표 모양으로 확인한다.
 void main() {
+  test('GigaVis current-order header is supported only when the balance equation reconciles', () {
+    const table =
+        "(단위 : 백만원)\n품목 | 당기수주 | 납품액 | 수주잔고\n반도체 기판 검사 및 수리장비 | 55,735 | 42,169 | 13,566";
+    final rows = OrderFacts.parse(table);
+    expect(rows, hasLength(1));
+    expect(rows.single.backlog, 13566);
+    expect(rows.single.unit, '백만원');
+    expect(OrderFacts.parse(table.replaceAll('13,566', '30,000')), isEmpty);
+    expect(OrderFacts.parse(table.replaceAll('백만원', '대')), isEmpty);
+  });
+  test('malformed numeric cells neither crash a replay nor create quantity-derived amounts', () {
+    const text =
+        "(단위 : 백만원)\n품목 | 수주총액 | 기납품액 | 수주잔고\n가 | , | 100 | 50 | 50\n나 | 100 | 40 | 60";
+    final result = OrderFacts.parse(text);
+    expect(result.map((r) => r.label), ['나']);
+    expect(result.single.backlog, 60);
+  });
   test('국내·해외 줄과 합계 줄이 있으면 합계만 (비에이치아이)', () {
     const bhi = '''
 다. 수주상황

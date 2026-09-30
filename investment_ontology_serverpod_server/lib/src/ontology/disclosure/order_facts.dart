@@ -166,6 +166,7 @@ abstract final class OrderFacts {
       // 괄호 수는 뺀 금액이다. 흐름형에서는 기초·신규 사이의 "계약금액 변경 (1,353,700)"처럼
       // 부호가 뜻을 가지므로 따로 기억한다.
       final signed = <double>[];
+      var invalidNumber = false;
       for (final c in cells) {
         final paren = _parens.hasMatch(c);
         final bare = paren ? c.substring(1, c.length - 1) : c;
@@ -173,12 +174,16 @@ abstract final class OrderFacts {
           numbers.add(0);
           signed.add(0);
         } else if (_number.hasMatch(bare)) {
-          final v = _num(bare)!;
+          final v = _num(bare);
+          if (v == null || !v.isFinite) {
+            invalidNumber = true;
+            break;
+          }
           numbers.add(v.abs());
           signed.add(paren ? -v.abs() : v);
         }
       }
-      if (numbers.length < 3) continue;
+      if (invalidNumber || numbers.length < 3) continue;
       final triple = flow ? _flowTriple(signed) : _triple(numbers);
       if (triple == null) continue;
       final labels = [
@@ -240,6 +245,7 @@ abstract final class OrderFacts {
     if (opening || added) return _HeaderKind.flow;
     final total =
         line.contains('수주총액') ||
+        RegExp(r'당기\s*수주').hasMatch(line) ||
         line.contains('기본도급액') ||
         line.contains('기본 도급금액') ||
         line.contains('도급액');

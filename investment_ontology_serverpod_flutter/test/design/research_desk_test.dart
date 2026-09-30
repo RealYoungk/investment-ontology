@@ -23,6 +23,7 @@ void main() {
       c.accent,
       c.chartSeries1,
       c.chartSeries2,
+      c.chartSeries3,
     ]) {
       expect(contrast(foreground, c.background), greaterThanOrEqualTo(4.5));
       expect(contrast(foreground, c.surface), greaterThanOrEqualTo(4.5));

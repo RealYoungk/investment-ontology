@@ -11,9 +11,13 @@ class BusinessModelGuide extends StatefulWidget {
     super.key,
     required this.lesson,
     this.showGrowth = true,
+    this.compact = false,
+    this.summary,
   });
   final CompanyOverviewLesson lesson;
   final bool showGrowth;
+  final bool compact;
+  final String? summary;
   @override
   State<BusinessModelGuide> createState() => _BusinessModelGuideState();
 }
@@ -39,6 +43,61 @@ class _BusinessModelGuideState extends State<BusinessModelGuide> {
       ),
       child: Padding(padding: const EdgeInsets.all(AppSpace.lg), child: child),
     );
+    if (widget.compact) {
+      final summary = widget.summary ?? lesson.summary;
+      return card(
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (summary.isNotEmpty) ...[
+              Text(
+                summary,
+                style: t
+                    .body(16, weight: FontWeight.w600)
+                    .copyWith(height: 1.6),
+              ),
+              const SizedBox(height: AppSpace.md),
+            ],
+            if (lesson.products.isNotEmpty) ...[
+              Wrap(
+                spacing: AppSpace.sm,
+                runSpacing: AppSpace.xs,
+                children: [
+                  for (final product in lesson.products)
+                    Chip(
+                      label: Text(
+                        product,
+                        style: t.body(12, color: c.textSecondary),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: AppSpace.sm),
+            ],
+            ExpansionTile(
+              tilePadding: EdgeInsets.zero,
+              expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
+              title: Text(
+                '사업모델 이해하기',
+                style: t.body(13, color: c.textSecondary),
+              ),
+              children: [
+                BusinessModelGuide(
+                  lesson: CompanyOverviewLesson(
+                    summary: '',
+                    products: const [],
+                    models: lesson.models,
+                    hasDocument: lesson.hasDocument,
+                    year: lesson.year,
+                  ),
+                  showGrowth: false,
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

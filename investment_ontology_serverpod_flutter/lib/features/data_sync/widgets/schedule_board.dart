@@ -2,6 +2,8 @@ import '../safe_ingest_message.dart';
 
 import 'dart:async';
 
+import 'package:go_router/go_router.dart';
+
 import 'package:flutter/material.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 
@@ -122,28 +124,38 @@ class _DatasetCollectionControlsState extends State<DatasetCollectionControls> {
     };
     final entry = data?.entries?.where((e) => e.kind == kind).firstOrNull;
     final running = entry?.lastJob?.status == IngestStatus.running;
+    final corpCode = GoRouterState.of(context).uri.queryParameters['corpCode'];
+    final companyScoped =
+        corpCode != null &&
+        (kind == 'financial_facts' || kind == 'disclosures');
     final actions = Wrap(
       spacing: AppSpace.md,
       children: [
         AppButton(
           label: _busy
               ? '요청 중…'
-              : running
+              : running && !companyScoped
               ? '수집 중단'
-              : '지금 수집',
+              : widget.dataset == 'market'
+              ? '금융위에서 갱신'
+              : !companyScoped
+              ? 'DART에서 갱신'
+              : '이 기업 DART 갱신',
           onPressed: _busy
               ? null
               : () => _run(() async {
-                  if (running) {
+                  if (running && !companyScoped) {
                     await client.ingest.cancel(entry!.lastJob!.id!);
                   } else {
                     switch (kind) {
                       case 'financial_facts':
-                        await client.ingest.startFinancials();
+                        await client.ingest.startFinancials(corpCode: corpCode);
                       case 'market_snapshot':
                         await client.ingest.startMarketSnapshot();
                       case 'disclosures':
-                        await client.ingest.startDisclosures();
+                        await client.ingest.startDisclosures(
+                          corpCode: corpCode,
+                        );
                       default:
                         await client.ingest.startCompanyMaster();
                     }
@@ -152,12 +164,14 @@ class _DatasetCollectionControlsState extends State<DatasetCollectionControls> {
         ),
         if (widget.dataset == 'business')
           AppButton(
-            label: '본문 다시 추출',
+            label: corpCode == null ? '저장 원문 재처리' : '이 기업 원문 재처리',
             variant: AppButtonVariant.link,
             onPressed: _busy || running
                 ? null
                 : () => _run(() async {
-                    await client.ingest.rebuildProductionFacts();
+                    await client.ingest.rebuildProductionFacts(
+                      corpCode: corpCode,
+                    );
                   }),
           ),
       ],
@@ -190,7 +204,7 @@ class _DatasetCollectionControlsState extends State<DatasetCollectionControls> {
         ),
         if (widget.dataset == 'business')
           Text(
-            '공시 주요정보와 함께 수집 · 저장 후 규칙 추출',
+            '공시 주요정보와 같은 수집 작업',
             style: context.typo.body(11, color: context.colors.textMuted),
           ),
         if (_error != null)
@@ -199,6 +213,57 @@ class _DatasetCollectionControlsState extends State<DatasetCollectionControls> {
             style: context.typo.body(12, color: context.colors.textSecondary),
           ),
       ],
+    );
+  }
+}
+
+class DatasetRunHistory extends StatelessWidget {
+  const DatasetRunHistory({required this.dataset, super.key});
+  final String dataset;
+
+  @override
+  Widget build(BuildContext context) {
+    final data = context.dependOnInheritedWidgetOfExactType<_ScheduleData>();
+    final kind = switch (dataset) {
+      'financial' => 'financial_facts',
+      'market' => 'market_snapshot',
+      'business' || 'disclosure' => 'disclosures',
+      _ => 'company_master',
+    };
+    final entry = data?.entries?.where((e) => e.kind == kind).firstOrNull;
+    final job = entry?.lastJob;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpace.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            '수집 일정 · 최근 실행',
+            style: context.typo.body(13, weight: FontWeight.w600),
+          ),
+          if (entry != null)
+            Text(
+              entry.timing,
+              style: context.typo.body(12, color: context.colors.textSecondary),
+            ),
+          Text(
+            job == null
+                ? '실행 기록 없음'
+                : '${formatDateTime(job.finishedAt ?? job.startedAt)} · ${switch (job.status) {
+                    IngestStatus.running => '실행 중',
+                    IngestStatus.succeeded => '완료',
+                    IngestStatus.failed => '실패',
+                    IngestStatus.cancelled => '취소',
+                  }} · 처리 ${formatCount(job.processed)}/${formatCount(job.total)} · 실패 ${formatCount(job.failed)}',
+            style: context.typo.body(12, color: context.colors.textSecondary),
+          ),
+          if (job?.message case final message?)
+            Text(
+              safeIngestMessage(message),
+              style: context.typo.body(12, color: context.colors.textSecondary),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -217,13 +282,16 @@ class _Row extends StatelessWidget {
     final running = job?.status == IngestStatus.running;
     final failed = job?.status == IngestStatus.failed;
 
+    final partial = job?.failed != null && job!.failed > 0;
     final (String state, Color color) = running
-        ? ('실행 중', c.accent)
-        : failed
-        ? ('확인 필요', c.accent)
-        : entry.nextRunAt != null
-        ? ('자동 갱신', c.accent)
-        : (entry.kind == 'company_master' ? '수동 수집' : '예약 없음', c.textMuted);
+        ? ('수집 중', c.accent)
+        : failed || partial
+        ? ('일부 실패 · 확인 필요', c.accent)
+        : job?.status == IngestStatus.succeeded
+        ? ('최근 수집 완료', c.accent)
+        : job?.status == IngestStatus.cancelled
+        ? ('수집 취소됨', c.textMuted)
+        : ('아직 수집 전', c.textMuted);
 
     final progress = job == null || job.total == 0
         ? null
@@ -251,11 +319,26 @@ class _Row extends StatelessWidget {
             spacing: AppSpace.md,
             runSpacing: AppSpace.xs,
             children: [
-              StatusDot(label: state, color: color, pulsing: running),
-              Text(
-                entry.timing.split(' (').first,
-                style: t.body(12, color: c.textSecondary),
+              Icon(
+                running
+                    ? Icons.sync
+                    : failed || partial
+                    ? Icons.error_outline
+                    : job?.status == IngestStatus.succeeded
+                    ? Icons.check_circle_outline
+                    : Icons.schedule,
+                size: 16,
+                color: color,
               ),
+              Text(
+                state,
+                style: t.body(12, weight: FontWeight.w600, color: color),
+              ),
+              if (!running && job != null)
+                Text(
+                  formatDateTime(job.finishedAt ?? job.startedAt),
+                  style: t.body(11, color: c.textMuted),
+                ),
             ],
           ),
           const SizedBox(height: AppSpace.xs),
@@ -264,7 +347,7 @@ class _Row extends StatelessWidget {
                 ? last()
                 : entry.nextRunAt == null
                 ? entry.kind == 'company_master'
-                      ? '필요할 때 지금 수집을 눌러 갱신합니다.'
+                      ? '필요할 때 DART에서 갱신을 눌러 실행합니다.'
                       : '다음 수집 예약 없음'
                 : '다음 수집 ${formatDateTime(entry.nextRunAt!.toLocal())}',
             style: t.body(12, color: c.textSecondary),
@@ -279,31 +362,6 @@ class _Row extends StatelessWidget {
                 style: t.body(12, color: c.accent),
               ),
             ),
-          ExpansionTile(
-            tilePadding: EdgeInsets.zero,
-            dense: true,
-            title: Text(
-              '최근 수집 · ${last()}',
-              style: t.body(11.5, color: c.textSecondary),
-            ),
-            children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  '${entry.timing}\n마지막 ${last()}',
-                  style: t.body(12, color: c.textSecondary),
-                ),
-              ),
-              if (job?.message case final message?)
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    safeIngestMessage(message),
-                    style: t.body(12, color: c.textSecondary),
-                  ),
-                ),
-            ],
-          ),
           if (running) ...[
             const SizedBox(height: AppSpace.sm),
             LinearProgressIndicator(value: progress, minHeight: 3),

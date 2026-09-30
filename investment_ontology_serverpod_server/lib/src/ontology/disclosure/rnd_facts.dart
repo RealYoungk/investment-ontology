@@ -167,6 +167,12 @@ abstract final class RndFacts {
     BusinessDocument doc,
     Transaction tx,
   ) async {
+    final sourceReport = await DisclosureReport.db.findById(
+      session,
+      doc.reportId,
+      transaction: tx,
+    );
+    if (sourceReport?.reportCode != FinancialReportCode.annual) return 0;
     await DocumentFact.db.deleteWhere(
       session,
       transaction: tx,

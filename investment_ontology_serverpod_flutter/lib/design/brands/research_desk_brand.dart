@@ -59,6 +59,7 @@ const researchDeskColors = AppColors(
   // Blue / ochre distinguish revenue and earnings without borrowing gain/loss colors.
   chartSeries1: Color(0xFF2F6DA8),
   chartSeries2: Color(0xFF9C5D22),
+  chartSeries3: Color(0xFF6D44A1),
   chartGrid: Color(0xFFE5EAF0),
   chartTile: Color(0xFFE8EFF6),
   chartTileHover: Color(0xFFCFDEEC),

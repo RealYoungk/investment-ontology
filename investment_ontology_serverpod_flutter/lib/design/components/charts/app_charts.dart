@@ -11,11 +11,15 @@ class ChartSeries {
     required this.label,
     required this.color,
     required this.values,
+    this.isLine = false,
+    this.isDashed = false,
   });
 
   final String label;
   final Color color;
   final List<double?> values;
+  final bool isLine;
+  final bool isDashed;
 }
 
 /// 계열 범례. 계열이 둘 이상일 때 쓴다 (글자는 본문색, 색은 옆 견본이 나타낸다).
@@ -36,14 +40,44 @@ class ChartLegend extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: 10,
-                height: 10,
-                decoration: BoxDecoration(
-                  color: s.color,
-                  borderRadius: BorderRadius.circular(2),
+              if (s.isLine)
+                SizedBox(
+                  width: 24,
+                  height: 10,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      if (s.isDashed)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            for (var i = 0; i < 2; i++)
+                              Container(width: 9, height: 3, color: s.color),
+                          ],
+                        )
+                      else
+                        Container(height: 2, color: s.color),
+                      if (!s.isDashed)
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: s.color,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                    ],
+                  ),
+                )
+              else
+                Container(
+                  width: 10,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: s.color,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
-              ),
               const SizedBox(width: 6),
               Text(s.label, style: t.body(12.5, color: c.textSecondary)),
             ],
@@ -75,6 +109,18 @@ abstract class _CategoryChart extends StatefulWidget {
   final double height;
 
   bool get includeZero;
+  List<ChartSeries> get scaleSeries => series;
+  ChartSeries? get secondarySeries => null;
+  String formatSecondary(double value) => formatValue(value);
+  String? tooltipNote(int index) => null;
+  List<({String label, Color color, String value})> tooltipRows(int index) => [
+    for (final s in series)
+      (
+        label: s.label,
+        color: s.color,
+        value: s.values[index] == null ? '—' : formatValue(s.values[index]!),
+      ),
+  ];
 
   @override
   State<_CategoryChart> createState() => _CategoryChartState();
@@ -96,11 +142,20 @@ class _CategoryChartState extends State<_CategoryChart> {
   Offset? _pointer;
 
   @override
+  void didUpdateWidget(covariant _CategoryChart oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.categories != widget.categories) {
+      _hovered = null;
+      _pointer = null;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final c = context.colors;
     final t = context.typo;
     final values = [
-      for (final s in widget.series)
+      for (final s in widget.scaleSeries)
         for (final v in s.values) ?v,
     ];
     final scale = ChartScale.of(values, includeZero: widget.includeZero);
@@ -113,11 +168,21 @@ class _CategoryChartState extends State<_CategoryChart> {
           final plot = Rect.fromLTWH(
             _axisWidth,
             8,
-            math.max(0, constraints.maxWidth - _axisWidth),
+            math.max(
+              0,
+              constraints.maxWidth -
+                  _axisWidth -
+                  (widget.secondarySeries == null ? 0 : _axisWidth),
+            ),
             math.max(0, widget.height - _labelHeight - 8),
           );
           int? indexAt(Offset p) {
-            if (n == 0 || p.dx < plot.left || p.dx > plot.right) return null;
+            if (n == 0 ||
+                plot.width <= 0 ||
+                p.dx < plot.left ||
+                p.dx > plot.right) {
+              return null;
+            }
             return ((p.dx - plot.left) / plot.width * n).floor().clamp(
               0,
               n - 1,
@@ -193,7 +258,7 @@ class _CategoryChartState extends State<_CategoryChart> {
                 style: t.body(12, color: c.onInverse, weight: FontWeight.w600),
               ),
               const SizedBox(height: 4),
-              for (final s in widget.series)
+              for (final row in widget.tooltipRows(index))
                 Padding(
                   padding: const EdgeInsets.only(top: 2),
                   child: Row(
@@ -202,25 +267,28 @@ class _CategoryChartState extends State<_CategoryChart> {
                         width: 8,
                         height: 8,
                         decoration: BoxDecoration(
-                          color: s.color,
+                          color: row.color,
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
-                          s.label,
+                          row.label,
                           style: t.body(11.5, color: c.onInverse),
                         ),
                       ),
                       Text(
-                        s.values[index] == null
-                            ? '—'
-                            : widget.formatValue(s.values[index]!),
+                        row.value,
                         style: t.numeric(11.5, color: c.onInverse),
                       ),
                     ],
                   ),
+                ),
+              if (widget.tooltipNote(index) case final note?)
+                Padding(
+                  padding: const EdgeInsets.only(top: AppSpace.xs),
+                  child: Text(note, style: t.body(11.5, color: c.onInverse)),
                 ),
             ],
           ),
@@ -280,25 +348,37 @@ class _ChartPainter extends CustomPainter {
       tp.paint(canvas, Offset(plot.left - 8 - tp.width, y - tp.height / 2));
     }
 
+    final secondary = chart.secondarySeries;
+    if (secondary != null) {
+      final rightScale = ChartScale.of(secondary.values.nonNulls);
+      for (final tick in rightScale.ticks) {
+        final y = plot.bottom - rightScale.fraction(tick) * plot.height;
+        final tp = _text(
+          chart.formatSecondary(tick),
+          tickStyle.copyWith(color: secondary.color),
+        );
+        tp.paint(canvas, Offset(plot.right + 8, y - tp.height / 2));
+      }
+    }
+
     // 범주 이름: 겹치면 건너뛰며 쓴다.
     final painters = [
       for (final c in chart.categories)
         _text(chart.formatCategory?.call(c) ?? c, labelStyle),
     ];
-    final widest = painters.fold(0.0, (w, p) => math.max(w, p.width));
-    final every = math.max(
-      chart.maxAxisLabels == null ? 1 : (n / chart.maxAxisLabels!).ceil(),
-      ((widest + 16) / band).ceil(),
+    final visible = categoryAxisLabelIndices(
+      widths: [for (final p in painters) p.width],
+      plotWidth: plot.width,
+      maxLabels: chart.maxAxisLabels,
     );
-    for (var i = 0; i < n; i++) {
-      if ((n - 1 - i) % every != 0) continue;
+    for (final i in visible) {
       final p = painters[i];
       p.paint(
         canvas,
         Offset(
           (plot.left + band * (i + 0.5) - p.width / 2).clamp(
             plot.left,
-            plot.right - p.width,
+            math.max(plot.left, plot.right - p.width),
           ),
           plot.bottom + 6,
         ),
@@ -322,6 +402,31 @@ class _ChartPainter extends CustomPainter {
       old.colors != colors;
 }
 
+/// Pick labels by their actual bounds, so one long label does not hide
+/// otherwise readable years across the entire axis. Keep the latest label.
+List<int> categoryAxisLabelIndices({
+  required List<double> widths,
+  required double plotWidth,
+  int? maxLabels,
+}) {
+  if (widths.isEmpty || plotWidth <= 0) return const [];
+  final n = widths.length;
+  final band = plotWidth / n;
+  final every = maxLabels == null ? 1 : (n / math.max(1, maxLabels)).ceil();
+  final selected = <int>[];
+  var nextLeft = double.infinity;
+  for (var i = n - 1; i >= 0; i--) {
+    if ((n - 1 - i) % every != 0) continue;
+    final left = (band * (i + .5) - widths[i] / 2)
+        .clamp(0.0, math.max(0.0, plotWidth - widths[i]))
+        .toDouble();
+    if (left + widths[i] + 4 > nextLeft) continue;
+    selected.add(i);
+    nextLeft = left;
+  }
+  return selected.reversed.toList();
+}
+
 /// 범주별 세로 막대. 계열이 여러 개면 나란히 놓는다. 음수는 기준선 아래로 그린다.
 class AppColumnChart extends _CategoryChart {
   const AppColumnChart({
@@ -329,8 +434,35 @@ class AppColumnChart extends _CategoryChart {
     required super.categories,
     required super.series,
     required super.formatValue,
+    this.extraTooltipSeries = const [],
+    this.categoryNotes = const [],
+    this.showMissingMarkers = false,
+    super.formatCategory,
+    super.maxAxisLabels,
     super.height = 200,
   });
+
+  /// Additional same-unit values in the tooltip, without drawing extra bars.
+  final List<ChartSeries> extraTooltipSeries;
+
+  /// 기간별 결측 사유. 차트 하단에 반복하지 않고 해당 기간 상세에 표시한다.
+  final List<String?> categoryNotes;
+  final bool showMissingMarkers;
+
+  @override
+  String? tooltipNote(int index) =>
+      index < categoryNotes.length ? categoryNotes[index] : null;
+
+  @override
+  List<({String label, Color color, String value})> tooltipRows(int index) => [
+    ...super.tooltipRows(index),
+    for (final s in extraTooltipSeries)
+      (
+        label: s.label,
+        color: s.color,
+        value: s.values[index] == null ? '—' : formatValue(s.values[index]!),
+      ),
+  ];
 
   static const _maxBar = 24.0;
   static const _gap = 2.0;
@@ -357,6 +489,22 @@ class AppColumnChart extends _CategoryChart {
 
     for (var i = 0; i < n; i++) {
       final left = plot.left + band * i + (band - group) / 2;
+      if (showMissingMarkers && series.every((s) => s.values[i] == null)) {
+        final marker = TextPainter(
+          text: TextSpan(
+            text: '—',
+            style: TextStyle(fontSize: 12, color: colors.textMuted),
+          ),
+          textDirection: TextDirection.ltr,
+        )..layout();
+        marker.paint(
+          canvas,
+          Offset(
+            plot.left + band * (i + .5) - marker.width / 2,
+            zeroY - marker.height - 3,
+          ),
+        );
+      }
       for (var s = 0; s < k; s++) {
         final v = series[s].values[i];
         if (v == null) continue;
@@ -382,6 +530,91 @@ class AppColumnChart extends _CategoryChart {
               );
         canvas.drawRRect(rrect, Paint()..color = series[s].color);
       }
+    }
+  }
+}
+
+/// One column series on the left axis and lines sharing one right axis.
+/// Extra monetary series are shown only in the shared period tooltip.
+class AppComboChart extends _CategoryChart {
+  AppComboChart({
+    super.key,
+    required super.categories,
+    required this.columnSeries,
+    required this.lineSeries,
+    this.additionalLineSeries = const [],
+    required super.formatValue,
+    required this.formatLineValue,
+    this.extraTooltipSeries = const [],
+    super.height = 260,
+  }) : super(series: [columnSeries, lineSeries, ...additionalLineSeries]);
+
+  final ChartSeries columnSeries;
+  final ChartSeries lineSeries;
+  final List<ChartSeries> additionalLineSeries;
+  List<ChartSeries> get lineSeriesList => [lineSeries, ...additionalLineSeries];
+  final List<ChartSeries> extraTooltipSeries;
+  final String Function(double value) formatLineValue;
+
+  @override
+  bool get includeZero => true;
+
+  @override
+  List<ChartSeries> get scaleSeries => [columnSeries];
+
+  @override
+  ChartSeries? get secondarySeries =>
+      lineSeriesList.any((s) => s.values.any((v) => v != null && v.isFinite))
+      ? ChartSeries(
+          label: lineSeries.label,
+          color: lineSeries.color,
+          values: [for (final s in lineSeriesList) ...s.values],
+        )
+      : null;
+
+  @override
+  String formatSecondary(double value) => formatLineValue(value);
+
+  @override
+  List<({String label, Color color, String value})> tooltipRows(int index) => [
+    for (final s in [columnSeries, ...extraTooltipSeries, ...lineSeriesList])
+      (
+        label: s.label,
+        color: s.color,
+        value: s.values[index] == null
+            ? '—'
+            : lineSeriesList.contains(s)
+            ? formatLineValue(s.values[index]!)
+            : formatValue(s.values[index]!),
+      ),
+  ];
+
+  @override
+  void paintMarks(
+    Canvas canvas,
+    Rect plot,
+    ChartScale scale,
+    int? hovered,
+    AppColors colors,
+  ) {
+    AppColumnChart(
+      categories: categories,
+      series: [columnSeries],
+      formatValue: formatValue,
+    ).paintMarks(canvas, plot, scale, hovered, colors);
+    final line = secondarySeries;
+    if (line != null) {
+      AppLineChart.many(
+        categories: categories,
+        series: lineSeriesList,
+        formatValue: formatLineValue,
+      ).paintMarks(
+        canvas,
+        plot,
+        ChartScale.of(line.values.nonNulls),
+        hovered,
+        colors,
+      );
     }
   }
 }
@@ -441,7 +674,7 @@ class AppLineChart extends _CategoryChart {
     for (final s in series) {
       final line = Paint()
         ..color = s.color
-        ..strokeWidth = 2
+        ..strokeWidth = s.isDashed ? 3 : 2
         ..style = PaintingStyle.stroke
         ..strokeJoin = StrokeJoin.round
         ..strokeCap = StrokeCap.round;
@@ -456,7 +689,26 @@ class AppLineChart extends _CategoryChart {
         open ? path.lineTo(p.dx, p.dy) : path.moveTo(p.dx, p.dy);
         open = true;
       }
-      canvas.drawPath(path, line);
+      if (s.isDashed) {
+        final halo = Paint()
+          ..color = colors.background
+          ..strokeWidth = 6
+          ..style = PaintingStyle.stroke
+          ..strokeJoin = StrokeJoin.round
+          ..strokeCap = StrokeCap.round;
+        for (final metric in path.computeMetrics()) {
+          for (var start = 0.0; start < metric.length; start += 16) {
+            final dash = metric.extractPath(
+              start,
+              math.min(start + 10, metric.length),
+            );
+            canvas.drawPath(dash, halo);
+            canvas.drawPath(dash, line);
+          }
+        }
+      } else {
+        canvas.drawPath(path, line);
+      }
     }
 
     if (hovered != null) {

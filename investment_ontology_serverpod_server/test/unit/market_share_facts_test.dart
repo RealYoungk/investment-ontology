@@ -1,5 +1,7 @@
 import 'package:investment_ontology_serverpod_server/src/ontology/disclosure/market_share_facts.dart';
 import 'package:test/test.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/disclosure/production_facts.dart';
+import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
 
 void main() {
   test('연도 머리글 + 당사(회사 이름) 줄의 % 값만 읽는다 (한온시스템·서울보증보험)', () {
@@ -27,9 +29,60 @@ void main() {
 민간 보증시장 대비 | 55.0% | 55.1% | 56.0%
 ''';
     final rows2 = MarketShareFacts.parse(t2, owner: '서울보증보험(주)');
-    // 3분기 칸은 연도가 아니라 빼고, 이름이 둘로 나뉜 줄도 오른쪽 끝 기준으로 맞춘다.
-    expect(rows2.map((r) => (r.year, r.value)), [(2024, 23.7), (2023, 24.1)]);
+    // 중간기간도 읽고, 이름이 둘로 나뉜 줄도 오른쪽 끝 기준으로 맞춘다.
+    expect(rows2.map((r) => (r.year, r.value)), [
+      (2025, 23.9),
+      (2024, 23.7),
+      (2023, 24.1),
+    ]);
     expect(rows2.first.label, '당사');
+  });
+
+  test('non-December fiscal halves retain the actual calendar date', () {
+    expect(
+      ProductionFacts.marketShareDate(
+        year: 2026,
+        month: 6,
+        bsnsYear: 2026,
+        periodEnd: DateTime.utc(2025, 11, 30),
+        reportCode: FinancialReportCode.halfYear,
+      ),
+      DateTime.utc(2025, 11, 30),
+    );
+    expect(
+      ProductionFacts.marketShareDate(
+        year: 2025,
+        month: 6,
+        bsnsYear: 2026,
+        periodEnd: DateTime.utc(2025, 11, 30),
+        reportCode: FinancialReportCode.halfYear,
+      ),
+      DateTime.utc(2024, 11, 30),
+    );
+    expect(
+      ProductionFacts.marketShareDate(
+        year: 2025,
+        month: 12,
+        bsnsYear: 2026,
+        periodEnd: DateTime.utc(2026, 6, 30),
+        reportCode: FinancialReportCode.halfYear,
+      ),
+      DateTime.utc(2025, 12, 31),
+    );
+  });
+  test('삼성전자 반기 원문은 상반기와 연간 점유율을 구분하고 기준·추정 여부를 보존한다', () {
+    const text = '''제 품 | 2026년 반기 | 2025년 | 2024년
+DRAM | 39.4% | 34.0% | 41.5%
+※ 시장점유율은 외부조사기관인 DRAMeXchange의 세계시장점유율 자료(금액기준)를 활용하였으며, 2026년 반기 시장점유율은 당사 추정치입니다.''';
+    final rows = MarketShareFacts.parse(text, owner: '삼성전자', bsnsYear: 2026);
+    expect(rows.map((r) => (r.year, r.month, r.value)), [
+      (2026, 6, 39.4),
+      (2025, 12, 34.0),
+      (2024, 12, 41.5),
+    ]);
+    expect(rows.first.basis, '매출액 기준');
+    expect(rows.first.estimated, isTrue);
+    expect(rows.skip(1).every((r) => !r.estimated), isTrue);
   });
 
   test('순위표·경쟁사 줄·뒤집힌 표·점유율 말이 없는 표는 읽지 않는다', () {
@@ -85,7 +138,7 @@ HD현대중공업 | 7,057 | 28.5% | 2,792 | 15.1% | 5,304 | 33.0%
 ''';
     expect(MarketShareFacts.parse(t2, owner: '대한조선 주식회사'), isEmpty);
 
-    // 머리글에 연도 아닌 칸("2025년 3분기말")이 섞이고 둘째 머리글이 있으면 자리를 셀 수 없다.
+    // 중간기간이 명시된 복층 머리글도 기간과 점유율 칸을 함께 보존한다.
     const t3 = '''
 주1) 4대 시중은행 및 인터넷전문은행 간 점유율
 [원화대출금] | (단위 : 백만원, %)
@@ -93,7 +146,13 @@ HD현대중공업 | 7,057 | 28.5% | 2,792 | 15.1% | 5,304 | 33.0%
 잔액 | 점유율 | 잔액 | 점유율 | 잔액 | 점유율
 케이뱅크 | 17,855,166 | 1.27% | 16,266,586 | 1.20% | 13,837,134 | 1.09%
 ''';
-    expect(MarketShareFacts.parse(t3, owner: '주식회사 케이뱅크'), isEmpty);
+    expect(
+      MarketShareFacts.parse(
+        t3,
+        owner: '주식회사 케이뱅크',
+      ).map((r) => (r.year, r.month, r.value)),
+      [(2025, 9, 1.27), (2024, 12, 1.20), (2023, 12, 1.09)],
+    );
     expect(MarketShareFacts.parse(t2, owner: '(주)녹십자'), isEmpty);
   });
 

@@ -17,6 +17,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _i5qsmr7t;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/business_document_ref.dart'
     as _id7v70oo;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/business_fact_period.dart'
+    as _irhba4h9;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_group.dart'
     as _i7uvzrch;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/dart_disclosure.dart'
@@ -61,6 +63,7 @@ import 'ontology/models/business_digest_kind.dart' as _izxiijmh;
 import 'ontology/models/business_digest_section.dart' as _iq2bjjp3;
 import 'ontology/models/business_document.dart' as _imi0q911;
 import 'ontology/models/business_document_ref.dart' as _is707pet;
+import 'ontology/models/business_fact_period.dart' as _i1cpvxoo;
 import 'ontology/models/business_product.dart' as _i3peg7yx;
 import 'ontology/models/business_profile.dart' as _iegef18i;
 import 'ontology/models/business_section.dart' as _inylkhjt;
@@ -187,6 +190,7 @@ export 'ontology/models/business_digest_kind.dart';
 export 'ontology/models/business_digest_section.dart';
 export 'ontology/models/business_document.dart';
 export 'ontology/models/business_document_ref.dart';
+export 'ontology/models/business_fact_period.dart';
 export 'ontology/models/business_product.dart';
 export 'ontology/models/business_profile.dart';
 export 'ontology/models/business_section.dart';
@@ -370,6 +374,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _is707pet.BusinessDocumentRef) {
       return _is707pet.BusinessDocumentRef.fromJson(data) as T;
+    }
+    if (t == _i1cpvxoo.BusinessFactPeriod) {
+      return _i1cpvxoo.BusinessFactPeriod.fromJson(data) as T;
     }
     if (t == _i3peg7yx.BusinessProduct) {
       return _i3peg7yx.BusinessProduct.fromJson(data) as T;
@@ -756,6 +763,10 @@ class Protocol extends _isc.SerializationManager {
       return (data != null
               ? _is707pet.BusinessDocumentRef.fromJson(data)
               : null)
+          as T;
+    }
+    if (t == _isc.getType<_i1cpvxoo.BusinessFactPeriod?>()) {
+      return (data != null ? _i1cpvxoo.BusinessFactPeriod.fromJson(data) : null)
           as T;
     }
     if (t == _isc.getType<_i3peg7yx.BusinessProduct?>()) {
@@ -1487,6 +1498,12 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_irhba4h9.BusinessFactPeriod>) {
+      return (data as List)
+              .map((e) => deserialize<_irhba4h9.BusinessFactPeriod>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_izt0hsdc.DartDisclosure>) {
       return (data as List)
               .map((e) => deserialize<_izt0hsdc.DartDisclosure>(e))
@@ -1593,6 +1610,7 @@ class Protocol extends _isc.SerializationManager {
       _iq2bjjp3.BusinessDigestSection => 'BusinessDigestSection',
       _imi0q911.BusinessDocument => 'BusinessDocument',
       _is707pet.BusinessDocumentRef => 'BusinessDocumentRef',
+      _i1cpvxoo.BusinessFactPeriod => 'BusinessFactPeriod',
       _i3peg7yx.BusinessProduct => 'BusinessProduct',
       _iegef18i.BusinessProfile => 'BusinessProfile',
       _inylkhjt.BusinessSection => 'BusinessSection',
@@ -1747,6 +1765,8 @@ class Protocol extends _isc.SerializationManager {
         return 'BusinessDocument';
       case _is707pet.BusinessDocumentRef():
         return 'BusinessDocumentRef';
+      case _i1cpvxoo.BusinessFactPeriod():
+        return 'BusinessFactPeriod';
       case _i3peg7yx.BusinessProduct():
         return 'BusinessProduct';
       case _iegef18i.BusinessProfile():
@@ -2031,6 +2051,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'BusinessDocumentRef') {
       return deserialize<_is707pet.BusinessDocumentRef>(data['data']);
+    }
+    if (dataClassName == 'BusinessFactPeriod') {
+      return deserialize<_i1cpvxoo.BusinessFactPeriod>(data['data']);
     }
     if (dataClassName == 'BusinessProduct') {
       return deserialize<_i3peg7yx.BusinessProduct>(data['data']);

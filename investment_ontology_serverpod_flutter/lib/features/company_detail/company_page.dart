@@ -12,8 +12,6 @@ import '../business/business_tab.dart';
 import '../disclosures/disclosure_tab.dart';
 import '../financials/financial_section.dart';
 import '../governance/governance_tab.dart';
-import '../groups/group_math.dart';
-import '../financials/financial_metrics.dart' show formatKrwShort;
 import '../shareholder_return/shareholder_return_tab.dart';
 import 'widgets/company_header.dart';
 import 'widgets/company_overview_tab.dart';
@@ -41,7 +39,7 @@ const _returnSections = {
 
 /// 기업 상세: 헤더(이름 · 분류 · 핵심 지표) + 탭(개요 · 재무 · 지배구조 · 주주환원 · 공시 항목).
 ///
-/// 개요는 각 탭의 요약이고 자세한 내용은 탭에서 본다. 탭은 데이터가 생기는 단계마다 늘린다
+/// 개요는 사업 이해와 사업 지표를 담당한다. 탭은 데이터가 생기는 단계마다 늘린다
 /// (3단계 지배구조 등). 빈 탭은 만들지 않는다.
 class CompanyPage extends StatefulWidget {
   const CompanyPage({
@@ -112,7 +110,6 @@ class _CompanyPageState extends State<CompanyPage> {
   }
 
   /// 계산식을 펼친 지표. 머리의 지표를 누르면 재무 탭에서 그 계산식을 연다.
-  String? _openMetric;
 
   @override
   void initState() {
@@ -161,13 +158,7 @@ class _CompanyPageState extends State<CompanyPage> {
     }
   }
 
-  void _openFinancials({String? metric}) => setState(() {
-    _tab = CompanyTab.financials;
-    // 같은 지표를 다시 누르면 닫는다.
-    _openMetric = metric == _openMetric ? null : metric;
-  });
-
-  /// 원문 표로 보여 주는 항목 (사업의 내용은 글이라 따로 탭이 있다).
+  /// 원문 표로 보여 주는 항목. 사업 본문은 개요의 원문 읽기로 연다.
   List<DisclosureSectionInfo> get _tableSections => [
     for (final s in _sections)
       if (s.section != DartSection.businessContent) s,
@@ -180,7 +171,6 @@ class _CompanyPageState extends State<CompanyPage> {
   Map<CompanyTab, String> get _tabs => {
     CompanyTab.overview: '개요',
     CompanyTab.financials: '재무',
-    if (_has({DartSection.businessContent})) CompanyTab.business: '사업의 내용',
     if (_has(_governanceSections)) CompanyTab.governance: '지배구조',
     if (_has(_returnSections)) CompanyTab.returns: '주주환원',
     if (_tableSections.isNotEmpty) CompanyTab.disclosures: '공시 항목',
@@ -212,13 +202,6 @@ class _CompanyPageState extends State<CompanyPage> {
             changingBasis: _changingBasis,
             selectedBasis: _fsDiv,
             basisError: _basisError,
-            openMetric: tab == CompanyTab.financials ? _openMetric : null,
-            onOpenMetric: (key) => _openFinancials(metric: key),
-          ),
-          _GroupLine(
-            key: ValueKey('group-$_version'),
-            corpCode: widget.corpCode,
-            companyId: detail.company.id!,
           ),
           const SizedBox(height: AppSpace.lg),
           AppTabBar<CompanyTab>(
@@ -226,7 +209,6 @@ class _CompanyPageState extends State<CompanyPage> {
             value: tab,
             onChanged: (tab) => setState(() {
               _tab = tab;
-              _openMetric = null;
             }),
           ),
           const SizedBox(height: AppSpace.xl),
@@ -237,6 +219,8 @@ class _CompanyPageState extends State<CompanyPage> {
                 CompanyOverviewTab(
                   key: ValueKey(_version),
                   detail: detail,
+                  latestReport: _financials?.periods.lastOrNull,
+                  dataVersion: _version,
                 ),
                 if (_sections.isEmpty) ...[
                   const SizedBox(height: AppSpace.section),
@@ -268,13 +252,13 @@ class _CompanyPageState extends State<CompanyPage> {
               corpCode: widget.corpCode,
             ),
             CompanyTab.financials => FinancialSection(
+              industryCode: detail.company.industryCode,
+              companyName: detail.company.name,
               key: const ValueKey('financials'),
               dataVersion: _version,
               corpCode: widget.corpCode,
               initialData: _financials,
               showBasisSelector: false,
-              openMetric: _openMetric,
-              onCloseMetric: () => setState(() => _openMetric = null),
             ),
           },
         ],
@@ -351,79 +335,6 @@ class _DisclosureFetchCardState extends State<_DisclosureFetchCard> {
             const SizedBox(height: AppSpace.xs),
             Text(_message!, style: t.body(12, color: c.textMuted)),
           ],
-        ],
-      ),
-    );
-  }
-}
-
-/// 지분 묶음 한 줄: 이 기업이 묶음 안 상장사에 가진 지분의 시가 합(시총 대비)과, 묶음 안
-/// 기업들이 이 기업에 가진 지분율. 계열사 사건이 이 주가로 얼마나 번질지 가늠하는 숫자.
-class _GroupLine extends StatefulWidget {
-  const _GroupLine({
-    super.key,
-    required this.corpCode,
-    required this.companyId,
-  });
-
-  final String corpCode;
-  final int companyId;
-
-  @override
-  State<_GroupLine> createState() => _GroupLineState();
-}
-
-class _GroupLineState extends State<_GroupLine> {
-  CompanyGroup? _group;
-  bool _loaded = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    try {
-      final g = await client.group.of(widget.corpCode);
-      if (mounted) setState(() => (_group = g, _loaded = true));
-    } catch (_) {
-      if (mounted) setState(() => _loaded = true);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    final t = context.typo;
-    final g = _group;
-    if (!_loaded || g == null) return const SizedBox.shrink();
-    final math = GroupMath(g);
-    final held = math.heldValueOf(widget.companyId);
-    final own = math.capById[widget.companyId];
-    final heldRatio = math.heldRatioOf(widget.companyId);
-    final parts = <String>[
-      '${g.anchor.name} 묶음 ${g.members.length}개사',
-      if (held != null)
-        '묶음 안 상장 지분 가치 ${formatKrwShort(held)}'
-            '${own == null ? '' : ' (시총의 ${(held / own * 100).toStringAsFixed(0)}%)'}',
-      if (heldRatio != null) '묶음 안 기업이 가진 지분 ${heldRatio.toStringAsFixed(1)}%',
-    ];
-    return Padding(
-      padding: const EdgeInsets.only(top: AppSpace.sm),
-      child: Wrap(
-        spacing: AppSpace.sm,
-        runSpacing: AppSpace.xs,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          Text('지분 묶음', style: t.label(color: c.textSecondary)),
-          Text(parts.join(' · '), style: t.numeric(12.5, color: c.textPrimary)),
-          AppButton(
-            label: '묶음 보기 →',
-            variant: AppButtonVariant.link,
-            tone: c.accent,
-            onPressed: () => context.push(AppRoutes.group(widget.corpCode)),
-          ),
         ],
       ),
     );

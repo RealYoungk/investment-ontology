@@ -94,3 +94,61 @@ PR81 main 기반 배포 dpl_tR6TPiYKWjmsHmpMNd8SwPcu9CfE (alfinder-research-bok0
 - 롤백: `alfinder-research-2r8kmr6ns-realyoungks-projects.vercel.app`.
 - analyze, 관련 Flutter 테스트 7개, release 빌드 통과. 아이콘 탭 직후 다음 프레임 전 TextInput.show, 재열기, 뒤로가기, desktop 전환, dispose 검증. 브라우저에서 검색칸 재클릭 없이 입력 및 Enter로 기업 진입 확인.
 - 실제 휴대폰 OS 키보드 표시 검증은 별도 필요. 웹 공통 16px semantic input 보정은 유지.
+
+## 2026-09-30 지표 누락 사유 상시 표시
+
+- 헤더의 PER/ROE 등 값이 없는 지표 바로 아래에 해당 DerivedValue.missing을 표시한다. 여러 사유를 하나의 클릭 안내로 합치던 문구는 제거했다.
+- 배포: `dpl_C3xXF6SpYGuyJMNfsHpHvi6FZ2Li`, `alfinder-research-qtpervwos-realyoungks-projects.vercel.app`.
+- 롤백: `alfinder-research-vfgmfzgep-realyoungks-projects.vercel.app`.
+- analyze, 계산/390px/1280px 위젯 테스트 19개, release 빌드 통과. HLB 실제 화면에서 PER 누락 사유 상시 표시 확인.
+
+## 2026-09-30 업종별 지표 탐색
+
+- 배포: `dpl_22oVMMgv2urMNmM2oioYkquFqJX7`, `alfinder-research-fsvg5k9zd-realyoungks-projects.vercel.app`, alfinder.kr promote 완료.
+- 롤백: `alfinder-research-qtpervwos-realyoungks-projects.vercel.app` (프런트엔드만). 서버 raw 계정 확장은 이전 클라이언트와 호환.
+- 상단 업종/실적 상태별 6개 지표와 재무 지표 탐색·계산 모달. 지원 범위는 valuation-metrics.md 참조. EV/PEG의 원천 한계가 남아 있음.
+- analyze, 전체 Flutter 144개와 후속 관련 9개 테스트, 서버 관련 24개 및 확장 계정 단위 4개, release 빌드 통과.
+- preview financial/summary 200 및 현금/NCI 확장 입력, 공개 HLB PSR 54.25배/그룹 탐색/계산 모달 확인. 로컬 KB금융·기가비스 업종 선택 검증. 320px 계산창 제목 넘침 수정 및 테스트, 390px 실제 화면 확인.
+- 공개/로컬 main.dart.js SHA256: `c91ce98ad02ddc19420d7f956140cc14643783fac23d9b6d2471280493208f61`.
+
+## 2026-09-30 상단 그리드에 지표 탐색 통합
+
+- 사용자 정정 반영: 그룹 선택과 계산창을 상단 그리드로 옮기고 재무 탭의 중복 지표 탐색·계산 영역 제거.
+- 배포: `dpl_CHxQMaqcRPRfKuDW7MtMrZE7vQaA`, `alfinder-research-7a4qfvggm-realyoungks-projects.vercel.app`. alfinder.kr promote 완료.
+- 롤백: `alfinder-research-fsvg5k9zd-realyoungks-projects.vercel.app`.
+- analyze, 관련 7개 및 설명 추가 후 5개 테스트, release 빌드 통과. 320/1280px 위젯, 실제 모바일 390px 그리드/모달 확인, 재무 탭 중복 제거 확인.
+- 공개/로컬 main.dart.js SHA256: `505fd64bf41b9b468c1dc3e29e6f4a9a85da22422d2db3cb977ed684d78c17ac`.
+
+## 2026-09-30 모바일 지표 상세 바텀시트
+
+- 배포: `dpl_7jYaZcbpARmuBviwGiUgDUuk1SS3`, `alfinder-research-7r8fgd9x2-realyoungks-projects.vercel.app`. alfinder.kr promote 완료.
+- 롤백: `alfinder-research-7a4qfvggm-realyoungks-projects.vercel.app`.
+- 600px 미만 바텀시트/그 이상 중앙 팝업. 관련 6개 테스트, analyze, release 빌드 통과. 공개 390px HLB PSR 바텀시트 및 드래그 닫기 실제 확인.
+- 공개/로컬 main.dart.js SHA256: `ca43855432c96d5c28b8410175b224c42d3d333ca321a9fc1cff9ec9cfda015b`.
+
+
+## 2026-09-30 지분 묶음 UI 보류
+
+사용자 요청으로 데스크톱·모바일 공통 메뉴, 검색 바로가기, 기업 상단 묶음 안내를 제거했다. 기업 페이지의 group.of 호출도 제거했다. /groups 및 하위 주소는 홈으로 리다이렉트한다. 그룹 화면 구현과 서버·DB는 재기획을 위해 보존한다. dart analyze 무오류, 라우터·모바일 검색 테스트 5개 및 웹 release 빌드 통과. 공개 기업 화면에서 묶음 안내 제거 확인.
+
+배포: dpl_4Me23tJaoDrxUwLoZbd5ui5ty7jd (https://alfinder-research-fgs7rm2yw-realyoungks-projects.vercel.app), alfinder.kr 승격 완료. 공개 main.dart.js와 로컬 빌드 SHA256 일치: a4761e069849cf21a3a79e1af428a8286b594ccb2a3313c309e3d50cba551c8c. 롤백 대상: https://alfinder-research-7r8fgd9x2-realyoungks-projects.vercel.app.
+
+
+## 2026-09-30 상단 지표 전수 검증
+
+[검증 보고서](metric-audit-2026-09-30.md): 2,756개사 실제 자동 기준 응답, 23개 지표의 finite-or-reason 검사 및 추천 6개 계약 통과. ID 없는 엄격한 계정명 보완, TTM 누락 계정명 표시, 비양수 시총 차단, 보고서별 CAPEX 부호 정규화 및 기간 불일치 차단. 서버 공통 SQL에도 투자액 부호 정규화 적용. EV/PEG 미연결 및 724개 기업의 일부 추천 지표 누락은 남아 있으며 전체 원문 대조 완료로 해석하지 않는다.
+
+배포 dpl_7uJdruPavWMJ65PeeoQS1kNPmWyw (https://alfinder-research-9gngws583-realyoungks-projects.vercel.app), alfinder.kr 승격 완료. 이전 프런트: https://alfinder-research-fgs7rm2yw-realyoungks-projects.vercel.app. 서버 변경은 별도 코드 복구가 필요하다.
+
+최종 입력 계정명 표시 배포: dpl_EEXMBpex5J2yBDQS4ZSoE9ZAEh3M, https://alfinder-research-134sj1tqp-realyoungks-projects.vercel.app (alfinder.kr 승격). 추가 지표·팝업 테스트 10개 통과.
+
+
+## 2026-09-30 수집분 원천 전수 대조
+
+[원천 대조 보고서](metric-source-audit-2026-09-30.md). 2,756개사, canonical 96,897개 보고서, 선택 원천 행 990,048개 대조 불일치 0. 자동·연결·별도 7,659개 응답의 176,157개 지표 Decimal 독립 검산 불일치 0. 자동 기준 선택·시총·시장 원천 대조도 0. 외화 정보 전달, 통화 혼합 계산 차단, IFRS 대체 계정, Unicode 공백, 원천 재무상태표 합계 불일치 처리를 수정했다. DTO 추가는 자동 생성했으며 마이그레이션 없음.
+
+배포: dpl_Bk8Ar4EcwswQ81XLpV3oy8KYDUat, https://alfinder-research-p0w4teckd-realyoungks-projects.vercel.app 를 alfinder.kr로 승격. 프런트 이전 버전은 https://alfinder-research-134sj1tqp-realyoungks-projects.vercel.app. 서버 변경은 별도 코드 복구가 필요하다. Flutter 151개·서버 관련 24개 및 별도 원천/전수 테스트 통과. 마지막 외화 표기 변경의 지표·팝업 테스트 12개 추가 통과. 원천 스냅샷은 outputs/metric-source-audit에 로컬 보존하고 대용량 데이터는 gitignore 처리했다.
+
+### 2026-09-30 최종 웹 계산 차단 수정
+
+생성 FinancialLine의 nullable BigInt copyWith가 release JS에서 기존 금액을 남기는 현상을 수정: 오류 입력은 명시적인 새 DTO로 구성. 사조동아원 운영 PER 상세에서 합계 불일치 사유 확인. 독립 검산 176,157건 및 원화 오류 사유 대조 0건 불일치. 최종 배포 `dpl_GSnDR96XB6aguoe67NXP29Lh4MBg` / `https://alfinder-research-hfaswjf48-realyoungks-projects.vercel.app`, alfinder.kr 승격 완료. JS SHA256 `e24f6f8942630bc19848014c192cf39750414ef64d4d837782cc08f2db568f32`.

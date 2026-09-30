@@ -2,6 +2,7 @@ import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart
 import 'package:investment_ontology_serverpod_server/src/ontology/endpoints/financial_endpoint.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/endpoints/screen_endpoint.dart';
 import 'package:serverpod/serverpod.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/financial/financial_basis.dart';
 import 'package:test/test.dart';
 
 import 'test_tools/serverpod_test_tools.dart';
@@ -15,6 +16,8 @@ void main() {
     const revenue = 'ifrs-full_Revenue';
     const net = 'ifrs-full_ProfitLoss';
     const assets = 'ifrs-full_Assets';
+    const capex =
+        'ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities';
     const cash = 'ifrs-full_CashFlowsFromUsedInOperatingActivities';
 
     Future<FinancialReport> report(
@@ -49,7 +52,7 @@ void main() {
             reportCode: code,
             statement: e.key == assets
                 ? FinancialStatementKind.balanceSheet
-                : e.key == cash
+                : e.key == cash || e.key == capex
                 ? FinancialStatementKind.cashFlow
                 : FinancialStatementKind.incomeStatement,
             accountId: e.key,
@@ -95,6 +98,86 @@ void main() {
       await session.close();
       ScreenEndpoint.clearCache();
       ScreenEndpoint.serveStaleWhileRefreshing = true;
+    });
+
+    test('TTM capex normalizes filing signs consistently with the header', () async {
+      await report(FsDiv.separate, 2025, FinancialReportCode.halfYear, {
+        capex: 30,
+      });
+      await report(FsDiv.separate, 2025, FinancialReportCode.annual, {
+        capex: -100,
+      });
+      await report(FsDiv.separate, 2026, FinancialReportCode.halfYear, {
+        capex: 40,
+      });
+      final rows = await session.db.unsafeQuery(
+        "WITH ${FinancialBasis.ctes(companyId: company.id!)} SELECT v FROM ttm WHERE acc='$capex'",
+      );
+      expect(num.parse('${rows.single[0]}'), 110);
+    });
+
+    test('unidentified exact totals agree between summary and SQL; duplicates fail closed', () async {
+      final r = await report(FsDiv.separate, 2025, FinancialReportCode.annual, {
+        assets: 500000000,
+      });
+      final unknown = await FinancialFact.db.insertRow(
+        session,
+        FinancialFact(
+          companyId: company.id!,
+          reportId: r.id!,
+          fsDiv: FsDiv.separate,
+          bsnsYear: 2025,
+          reportCode: FinancialReportCode.annual,
+          statement: FinancialStatementKind.comprehensiveIncome,
+          accountName: '당기순이익(손실)',
+          amount: BigInt.from(2399315356),
+          sourceId: source.id!,
+        ),
+      );
+      var result = await summary();
+      expect(
+        result.periods.single.lines
+            .singleWhere((f) => f.key == 'netIncome')
+            .amount,
+        BigInt.from(2399315356),
+      );
+      expect(
+        result.periods.single.lines
+            .singleWhere((f) => f.key == 'netIncome')
+            .accountId,
+        isNull,
+      );
+      Future<List<List<dynamic>>> totals() async => session.db.unsafeQuery(
+        'WITH ${FinancialBasis.ctes(companyId: company.id!)} SELECT acc,v FROM ttm',
+      );
+      expect(
+        (await totals()).any(
+          (r) => r[0] == net && r[1].toString() == '2399315356',
+        ),
+        isTrue,
+      );
+      await FinancialFact.db.insertRow(session, unknown.copyWith(id: null));
+      result = await summary();
+      expect(
+        result.periods.single.lines.any((f) => f.key == 'netIncome'),
+        isFalse,
+      );
+      expect((await totals()).any((r) => r[0] == net), isFalse);
+      await FinancialFact.db.insertRow(
+        session,
+        unknown.copyWith(id: null, accountId: net, amount: BigInt.from(100)),
+      );
+      result = await summary();
+      expect(
+        result.periods.single.lines
+            .singleWhere((f) => f.key == 'netIncome')
+            .amount,
+        BigInt.from(100),
+      );
+      expect(
+        (await totals()).any((r) => r[0] == net && r[1].toString() == '100'),
+        isTrue,
+      );
     });
 
     test(

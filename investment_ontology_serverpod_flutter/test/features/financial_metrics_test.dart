@@ -53,6 +53,156 @@ CompanyFinancials financials(List<FinancialPeriod> periods, {BigInt? cap}) =>
     );
 
 void main() {
+  FinancialLine cashLine(String key, int amount, {String currency = 'KRW'}) =>
+      line(key, amount)
+        ..statement = FinancialStatementKind.cashFlow
+        ..currency = currency;
+
+  group('분기 현금흐름', () {
+    test('누적 공시를 3개월로 차감하고 취득액 부호는 차감 전에 정규화한다', () {
+      final view = FinancialView(
+        financials([
+          period(2025, FinancialReportCode.q1, [
+            cashLine('operatingCashFlow', 10),
+            cashLine('capex', 0),
+          ]),
+          period(2025, FinancialReportCode.halfYear, [
+            cashLine('operatingCashFlow', -10),
+            cashLine('capex', -30),
+          ]),
+          period(2025, FinancialReportCode.q3, [
+            cashLine('operatingCashFlow', 20),
+            cashLine('capex', 50),
+          ]),
+          period(2025, FinancialReportCode.annual, [
+            cashLine('operatingCashFlow', 5),
+            cashLine('capex', -80),
+          ]),
+          period(2026, FinancialReportCode.q1, [
+            cashLine('operatingCashFlow', 8),
+            cashLine('capex', -3),
+          ]),
+        ]),
+      );
+      final points = view.cashFlowQuarterly();
+      expect(points.map((p) => p.label), [
+        '25.1분기',
+        '25.2분기',
+        '25.3분기',
+        '25.4분기',
+        '26.1분기',
+      ]);
+      expect(points.map((p) => p.operating), [10, -20, 30, -15, 8]);
+      expect(points.map((p) => p.capex), [0, 30, 20, 30, 3]);
+      expect(points.map((p) => p.free), [10, -50, 10, -45, 5]);
+      expect(points.every((p) => p.missing == null), isTrue);
+      expect(points.take(4).fold<double>(0, (sum, p) => sum + p.free!), -75);
+    });
+
+    test('직전 보고서·계정이 없으면 누적값을 분기로 쓰거나 0으로 채우지 않는다', () {
+      final data = financials([
+        period(2025, FinancialReportCode.halfYear, [
+          cashLine('operatingCashFlow', 100),
+        ]),
+        period(2025, FinancialReportCode.q3, [
+          cashLine('operatingCashFlow', 120),
+          cashLine('capex', 30),
+        ]),
+      ])..fsDiv = FsDiv.separate;
+      final points = FinancialView(data).cashFlowQuarterly();
+      expect(points.first.operating, isNull);
+      expect(points.first.free, isNull);
+      expect(points.first.missing, contains('2025 1분기 영업현금 누적값 없음'));
+      expect(points.last.operating, 20);
+      expect(points.last.capex, isNull);
+      expect(points.last.free, isNull);
+      expect(points.last.missing, contains('2025 반기 유형자산 취득 누적값 없음'));
+      final annualOnly = FinancialView(
+        financials([
+          period(2024, FinancialReportCode.annual, [
+            cashLine('operatingCashFlow', 120),
+            cashLine('capex', 30),
+          ]),
+        ]),
+      ).cashFlowQuarterly().single;
+      expect(annualOnly.operating, isNull);
+      expect(annualOnly.missing, contains('2024 3분기'));
+    });
+
+    test('통화 변경·취득 누적액 감소·원천 충돌은 계산하지 않고 이유를 남긴다', () {
+      final points = FinancialView(
+        financials([
+          period(2025, FinancialReportCode.q1, [
+            cashLine('operatingCashFlow', 10, currency: 'USD'),
+            cashLine('capex', 30),
+          ]),
+          period(2025, FinancialReportCode.halfYear, [
+            cashLine('operatingCashFlow', 100),
+            cashLine('capex', 20),
+          ]),
+          period(2025, FinancialReportCode.q3, [
+            cashLine('operatingCashFlow', 150)
+              ..unavailableReason = '영업현금 계정 충돌',
+            cashLine('capex', 50),
+          ]),
+        ]),
+      ).cashFlowQuarterly();
+      expect(points[1].operating, isNull);
+      expect(points[1].capex, isNull);
+      expect(points[1].free, isNull);
+      expect(points[1].missing, contains('표시 통화가 다름'));
+      expect(points[1].missing, contains('누적액이 이전 기간보다 작음'));
+      expect(points[2].operating, isNull);
+      expect(points[2].capex, 30);
+      expect(points[2].free, isNull);
+      expect(points[2].missing, '영업현금 계정 충돌');
+    });
+  });
+
+  test('순이익률은 연간·누적·분기·4분기에서 같은 기간 전체 당기순이익을 사용한다', () {
+    final view = FinancialView(
+      financials([
+        period(2025, FinancialReportCode.q1, [
+          line('revenue', 100),
+          line('netIncome', -10),
+        ]),
+        period(2025, FinancialReportCode.halfYear, [
+          line('revenue', 150, cumulative: 250),
+          line('netIncome', 30, cumulative: 20),
+        ]),
+        period(2025, FinancialReportCode.q3, [
+          line('revenue', 100, cumulative: 350),
+          line('netIncome', 10, cumulative: 30),
+        ]),
+        period(2025, FinancialReportCode.annual, [
+          line('revenue', 500),
+          line('netIncome', 80),
+          line('netIncomeOwners', 20),
+        ]),
+        period(2026, FinancialReportCode.halfYear, [
+          line('revenue', 200, cumulative: 400),
+          line('netIncome', -20, cumulative: -40),
+        ]),
+      ]),
+    );
+    final annual = view.annual(now: DateTime(2026, 9, 30));
+    expect(annual.first.netMargin, .16);
+    expect(annual.last.netMargin, -.1);
+    final quarters = view.quarterly();
+    expect(quarters.first.netMargin, -.1);
+    expect(quarters[1].netMargin, .2);
+    expect(quarters[3].netIncome?.value, 50);
+    expect(quarters[3].netMargin, closeTo(50 / 150, .000001));
+    expect(view.trailingSeries('netIncome').last.value, 20);
+    expect(view.trailingSeries('revenue').last.value, 650);
+    final missing = PeriodPoint(
+      label: '없음',
+      revenue: annual.first.revenue,
+      operatingIncome: annual.first.operatingIncome,
+    );
+    expect(missing.netMargin, isNull);
+  });
+
   group('formatKrw', () {
     test('조·억 단위', () {
       expect(formatKrw(BigInt.parse('566942110000000')), '566조 9,421억');
@@ -112,7 +262,7 @@ void main() {
           .metrics()
           .firstWhere((m) => m.key == 'per');
       expect(per.derived.value, isNull);
-      expect(per.derived.missing, '2025 반기 누적 자료 부족');
+      expect(per.derived.missing, '2025 반기 누적 지배주주 순이익 자료 부족');
     });
 
     test('보고서가 있어도 누적 계정 값이 없으면 해당 기간을 표시한다', () {
@@ -125,7 +275,7 @@ void main() {
           period(2026, FinancialReportCode.halfYear, [line('revenue', 20)]),
         ]),
       );
-      expect(view.trailing('revenue', '매출액').missing, '2026 반기 누적 자료 부족');
+      expect(view.trailing('revenue', '매출액').missing, '2026 반기 누적 매출액 자료 부족');
     });
 
     test('별도 순이익으로 TTM을 계산하고 0인 전년 동기는 누락으로 보지 않는다', () {

@@ -71,7 +71,8 @@ class FinancialEndpoint extends Endpoint {
             session,
             where: (t) =>
                 t.reportId.inSet(ids) &
-                t.accountId.inSet(FinancialAccounts.accountIds) &
+                (t.accountId.inSet(FinancialAccounts.accountIds) |
+                    t.accountId.equals(null)) &
                 t.supersededById.equals(null),
             orderBy: (t) => t.id,
           );

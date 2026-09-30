@@ -998,6 +998,26 @@ class Endpoints extends _is.EndpointDispatch {
                         params['corpCode'],
                       ),
         ),
+        'factPeriods': _is.MethodConnector(
+          name: 'factPeriods',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['disclosure'] as _i23b9rs7.DisclosureEndpoint)
+                      .factPeriods(
+                        session,
+                        params['corpCode'],
+                      ),
+        ),
         'factTrends': _is.MethodConnector(
           name: 'factTrends',
           params: {
@@ -1499,13 +1519,22 @@ class Endpoints extends _is.EndpointDispatch {
         ),
         'rebuildProductionFacts': _is.MethodConnector(
           name: 'rebuildProductionFacts',
-          params: {},
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
+          },
           call:
               (
                 _is.Session session,
                 Map<String, dynamic> params,
               ) async => (endpoints['ingest'] as _icbircc0.IngestEndpoint)
-                  .rebuildProductionFacts(session),
+                  .rebuildProductionFacts(
+                    session,
+                    corpCode: params['corpCode'],
+                  ),
         ),
       },
     );

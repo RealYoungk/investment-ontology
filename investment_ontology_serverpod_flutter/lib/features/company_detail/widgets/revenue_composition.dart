@@ -6,6 +6,8 @@ import '../../../design/components/components.dart';
 import '../../../design/tokens.dart';
 import '../../financials/financial_metrics.dart';
 import '../business/power_product_lesson.dart';
+import 'business_operating_section.dart'
+    show businessFactDate, businessPeriodLabel;
 
 /// Preserve filing labels before the amount, including merged category cells.
 /// A percentage is shown only when the first printed amount matches the fact.
@@ -40,14 +42,17 @@ List<DocumentFact> latestRevenueFacts(List<DocumentFact> facts) {
       )
       .toList();
   if (rows.isEmpty) return [];
-  int year(DocumentFact f) => f.asOf?.year ?? f.bsnsYear;
   rows.sort((a, b) {
-    final byYear = year(b).compareTo(year(a));
+    final byYear = businessFactDate(b).compareTo(businessFactDate(a));
     return byYear != 0 ? byYear : b.documentId.compareTo(a.documentId);
   });
   final first = rows.first;
   return rows
-      .where((f) => year(f) == year(first) && f.documentId == first.documentId)
+      .where(
+        (f) =>
+            businessFactDate(f) == businessFactDate(first) &&
+            f.documentId == first.documentId,
+      )
       .toList();
 }
 
@@ -143,16 +148,14 @@ class _RevenueCompositionState extends State<RevenueComposition> {
                 )
               else ...[
                 Text(
-                  'FY${rows.first.asOf?.year ?? rows.first.bsnsYear} · 사업보고서 기준',
+                  businessPeriodLabel(rows.first),
                   style: t.body(13, color: c.textSecondary),
                 ),
                 const SizedBox(height: AppSpace.sm),
                 for (final fact in rows)
                   _RevenueRow(fact: fact, products: widget.products),
-                Text(
-                  '사업보고서에 공시된 항목과 매출 비중입니다. 위 재무 기준 선택과 별개이며, 표시된 항목의 합계가 총매출과 다를 수 있습니다.',
-                  style: t.body(11, color: c.textMuted).copyWith(height: 1.5),
-                ),
+                if (widget.corpCode == '00126380')
+                  Text('부문 간 내부거래 포함', style: t.body(11, color: c.textMuted)),
               ],
             ],
           ),

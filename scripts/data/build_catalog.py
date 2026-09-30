@@ -22,11 +22,30 @@ endpoints = {
     'business': [('공시 원문 ZIP/XML', base + 'document.xml', 'crtfc_key, rcept_no')],
     'market': [('주식시세', 'https://apis.data.go.kr/1160100/GetStockSecuritiesInfoService_V2/getStockPriceInfo_V2', 'serviceKey, basDt, resultType=json, pageNo, numOfRows'), ('KRX 상장종목', 'https://apis.data.go.kr/1160100/GetKrxListedInfoService_V2/getItemInfo_V2', 'serviceKey, basDt, resultType=json, pageNo, numOfRows'), ('시장 지수', 'https://apis.data.go.kr/1160100/GetMarketIndexInfoService_V2/getStockMarketIndex_V2', 'serviceKey, basDt, resultType=json, pageNo, numOfRows')],
 }
+def schema(name):
+    definition = (server / 'models' / (name + '.spy.yaml')).read_text()
+    fields = []
+    inside = False
+    notes = []
+    for line in definition.splitlines():
+        if line == 'fields:':
+            inside = True
+            continue
+        if inside and line and not line.startswith(' '):
+            break
+        if inside and line.startswith('  ### '):
+            notes.append(line[6:])
+        elif inside and re.match(r'  \w+:', line):
+            field, value = line.strip().split(':', 1)
+            fields.append({'name': field, 'type': value.strip(), 'description': ' '.join(notes)})
+            notes = []
+    return {'file': name + '.spy.yaml', 'definition': definition, 'fields': fields}
+
 out = {}
 for key, models in groups.items():
     models = models + ['source', 'source_kind']
     out[key] = {'endpoints': [{'label': label, 'url': url, 'params': params} for label, url, params in endpoints[key]],
-                'schemas': [{'file': name + '.spy.yaml', 'definition': (server / 'models' / (name + '.spy.yaml')).read_text()} for name in models]}
+                'schemas': [schema(name) for name in models]}
 p = root / 'investment_ontology_serverpod_flutter/assets/data/catalog.json'
 p.parent.mkdir(parents=True, exist_ok=True)
 p.write_text(json.dumps(out, ensure_ascii=False, indent=2) + '\n')

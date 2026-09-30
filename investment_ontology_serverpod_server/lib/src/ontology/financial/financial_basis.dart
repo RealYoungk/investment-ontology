@@ -19,47 +19,83 @@ abstract final class FinancialBasis {
           r."companyId" AS id,r."fsDiv" AS fs,r."bsnsYear" AS y,r."reportCode" AS code,rc.rk
         FROM active_reports r JOIN rank_code rc ON rc.code=r."reportCode"
         ORDER BY r."companyId",r."fsDiv",r."bsnsYear" DESC,rc.rk DESC
-      ), picked_facts AS (
-        SELECT DISTINCT ON (r.id,f."accountId") f.*
+      ), mapped_facts AS (
+        SELECT f.*, ${FinancialAccounts.resolvedIdSql('f')} AS resolved_id
         FROM candidates c JOIN active_reports r ON r."companyId"=c.id AND r."fsDiv"=c.fs
           AND (r."bsnsYear"=c.y AND r."reportCode"=c.code
             OR r."bsnsYear"=c.y-1 AND r."reportCode" IN (c.code,'annual'))
         JOIN financial_fact f ON f."reportId"=r.id
         WHERE f."supersededById" IS NULL AND f."accountDetail" IS NULL
-          AND f."accountId" IN ($ids)
+          AND (f."accountId" IN ($ids) OR f."accountId" IS NULL)
+      ), counted_facts AS (
+        SELECT f.*, count(*) FILTER (WHERE f."accountId" IS NULL)
+          OVER (PARTITION BY f."reportId",f.resolved_id) AS fallback_count
+        FROM mapped_facts f
+      ), picked_facts AS (
+        SELECT DISTINCT ON (f."reportId",f.resolved_id) f.*
+        FROM counted_facts f
+        WHERE f.resolved_id IN ($ids)
+          AND (f."accountId" IS NOT NULL OR f.fallback_count=1)
           AND (
-            f."accountId" IN ('ifrs-full_Assets','ifrs-full_Liabilities','ifrs-full_Equity',
+            f.resolved_id IN ('ifrs-full_Assets','ifrs-full_Liabilities','ifrs-full_Equity',
               'ifrs-full_EquityAttributableToOwnersOfParent') AND f.statement='balanceSheet'
-            OR f."accountId" IN ('ifrs-full_CashFlowsFromUsedInOperatingActivities',
+            OR f.resolved_id IN ('ifrs-full_CashFlowsFromUsedInOperatingActivities',
               'ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities') AND f.statement='cashFlow'
-            OR f."accountId" IN ('ifrs-full_Revenue','dart_OperatingIncomeLoss','ifrs-full_ProfitLoss',
+            OR f.resolved_id IN ('ifrs-full_Revenue','dart_OperatingIncomeLoss','ifrs-full_ProfitLoss',
               'ifrs-full_ProfitLossAttributableToOwnersOfParent') AND f.statement IN ('incomeStatement','comprehensiveIncome')
           )
-        ORDER BY r.id,f."accountId",CASE f.statement WHEN 'incomeStatement' THEN 0 ELSE 1 END,f.id
-      ), inc AS (
-        SELECT f."companyId" AS id,f."fsDiv" AS fs,f."accountId" AS acc,
-          f."bsnsYear" AS y,f."reportCode" AS code,f.amount::numeric AS amt,
+        ORDER BY f."reportId",f.resolved_id,(f."accountId" IS NULL),(f."accountId" IS DISTINCT FROM f.resolved_id),CASE f.statement WHEN 'incomeStatement' THEN 0 ELSE 1 END,f.id
+      ), basis_currency AS (
+        SELECT "companyId" AS id,"fsDiv" AS fs,
+          CASE WHEN count(DISTINCT coalesce(currency,'KRW'))=1
+            THEN min(coalesce(currency,'KRW')) ELSE 'MIXED' END AS currency
+        FROM picked_facts GROUP BY "companyId","fsDiv"
+      ), raw_inc AS (
+        SELECT f."companyId" AS id,f."fsDiv" AS fs,f.resolved_id AS acc,
+          f."bsnsYear" AS y,f."reportCode" AS code,coalesce(f.currency,'KRW') AS currency,f.amount::numeric AS amt,
           CASE WHEN f."reportCode" IN ('annual','q1') OR f.statement='cashFlow'
             THEN coalesce(f."cumulativeAmount"::numeric,f.amount::numeric)
             ELSE f."cumulativeAmount"::numeric END AS cum
         FROM picked_facts f WHERE f.statement IN ('incomeStatement','comprehensiveIncome','cashFlow')
-      ), ttm AS MATERIALIZED (
+      ), inc AS (
+        SELECT id,fs,acc,y,code,currency,
+          CASE WHEN acc='ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities'
+            THEN abs(amt) ELSE amt END AS amt,
+          CASE WHEN acc='ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities'
+            THEN abs(cum) ELSE cum END AS cum
+        FROM raw_inc
+      ), raw_ttm AS MATERIALIZED (
         SELECT c.id,c.fs,i.acc,
-          CASE WHEN c.code='annual' THEN max(i.amt) FILTER (WHERE i.y=c.y)
+          CASE WHEN count(DISTINCT i.currency)>1 THEN NULL WHEN c.code='annual' THEN max(i.amt) FILTER (WHERE i.y=c.y)
             ELSE max(i.amt) FILTER (WHERE i.y=c.y-1 AND i.code='annual')
               +max(i.cum) FILTER (WHERE i.y=c.y)
               -max(i.cum) FILTER (WHERE i.y=c.y-1 AND i.code=c.code) END AS v,
-          CASE WHEN c.code='annual' THEN max(i.amt) FILTER (WHERE i.y=c.y)
+          CASE WHEN count(DISTINCT i.currency)>1 THEN NULL WHEN c.code='annual' THEN max(i.amt) FILTER (WHERE i.y=c.y)
             ELSE max(i.cum) FILTER (WHERE i.y=c.y) END AS now_cum,
-          CASE WHEN c.code='annual' THEN max(i.amt) FILTER (WHERE i.y=c.y-1 AND i.code='annual')
+          CASE WHEN count(DISTINCT i.currency)>1 THEN NULL WHEN c.code='annual' THEN max(i.amt) FILTER (WHERE i.y=c.y-1 AND i.code='annual')
             ELSE max(i.cum) FILTER (WHERE i.y=c.y-1 AND i.code=c.code) END AS ago_cum
         FROM candidates c JOIN inc i ON i.id=c.id AND i.fs=c.fs
         GROUP BY c.id,c.fs,c.y,c.code,i.acc
-      ), bs AS MATERIALIZED (
-        SELECT f."companyId" AS id,f."fsDiv" AS fs,f."accountId" AS acc,f.amount::numeric AS v
+      ), ttm AS MATERIALIZED (
+        SELECT id,fs,acc,
+          CASE WHEN acc='ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities'
+            AND v < 0 THEN NULL ELSE v END AS v,
+          now_cum,ago_cum
+        FROM raw_ttm
+      ), raw_bs AS MATERIALIZED (
+        SELECT f."companyId" AS id,f."fsDiv" AS fs,f.resolved_id AS acc,f.amount::numeric AS v
         FROM picked_facts f JOIN candidates c ON c.id=f."companyId" AND c.fs=f."fsDiv"
           AND c.y=f."bsnsYear" AND c.code=f."reportCode"
         WHERE f.statement='balanceSheet'
+      ), invalid_balance AS (
+        SELECT id,fs FROM raw_bs GROUP BY id,fs
+        HAVING abs(max(v) FILTER(WHERE acc='ifrs-full_Assets')
+          -max(v) FILTER(WHERE acc='ifrs-full_Liabilities')
+          -max(v) FILTER(WHERE acc='ifrs-full_Equity')) > greatest(1000,
+            abs(max(v) FILTER(WHERE acc='ifrs-full_Assets'))/1000000)
+      ), bs AS MATERIALIZED (
+        SELECT b.id,b.fs,b.acc,CASE WHEN i.id IS NOT NULL THEN NULL ELSE b.v END AS v
+        FROM raw_bs b LEFT JOIN invalid_balance i ON i.id=b.id AND i.fs=b.fs
       ), flow_coverage AS (
         SELECT id,fs,bit_or(CASE acc
           WHEN 'ifrs-full_Revenue' THEN 1 WHEN 'dart_OperatingIncomeLoss' THEN 2

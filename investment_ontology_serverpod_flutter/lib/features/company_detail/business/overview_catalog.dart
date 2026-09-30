@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 
+import 'company_research_profile.dart';
+
 /// Versioned, offline explanations. Market/financial numbers still come from API.
 /// General business-model lessons are deliberately distinct from issuer theses.
 class OverviewModel {
@@ -31,12 +33,14 @@ class CompanyOverviewLesson {
     required this.models,
     required this.hasDocument,
     required this.year,
+    this.research,
   });
   final String summary;
   final List<String> products;
   final List<OverviewModel> models;
   final bool hasDocument;
   final int? year;
+  final CompanyResearchProfile? research;
 }
 
 class OverviewCatalog {
@@ -81,6 +85,11 @@ class OverviewCatalog {
       models: models,
       hasDocument: json['hasDocument'] as bool,
       year: json['year'] as int?,
+      research: json['research'] == null
+          ? null
+          : CompanyResearchProfile.fromJson(
+              json['research'] as Map<String, dynamic>,
+            ),
     );
   }
 }

@@ -348,6 +348,193 @@ Follow-up: user approved improvement but requested direct visual labels and rais
 
 현재 공개 배포는 `dpl_8rZjBRfeS9XcXHvYjur2J5kJBbrH`이며 alfinder.kr에 반영됐다. 배포 및 롤백 상세는 docs/deploy.md 참조. 커밋 전 Flutter 전체 136개, 뉴스/생성 코드 서버 테스트 8개, 카탈로그 Python 테스트 9개 통과. 앞선 미배포 기록은 각 작업 당시 상태이며 위 공개 배포가 최신이다.
 
+## 2026-09-30 비아이매트릭스 계정 누락 복구
+
+01462739의 순이익·일부 영업이익·유형자산 취득이 원본 FinancialFact에 있지만 accountId=null이어서 summary와 FinancialBasis SQL에서 누락됐다. FinancialAccounts의 제한된 정확 명칭 목록으로 보완: 표준 ID 우선, ID가 없는 경우만, 허용 재무제표/총계 행, 후보 하나만 허용. EPS·포괄이익·계속영업·지배주주/부문·모호한 순손실 명칭은 제외. 원본 행과 accountId는 변경하지 않는다. 단위·누적/당분기 금액도 원본 그대로 유지한다.
+
+Dart pick과 기준 선택/스크리너 SQL이 같은 명칭 목록을 공유한다. 중복 후보와 표준 ID 우선순위 SQL 통합 테스트 포함 총 24개 통과, analyze 통과. 2025 연간/반기와 2026 반기 순이익은 자본변동표 총계 순이익과 금액 일치 확인(2025 반기는 자본변동표도 ID 없음). 서버 hot_restart 후 공개 API/웹에서 별도 TTM 순이익 778,853,827원, PER 55.43, ROE 2.5%, 영업이익률 -2.0%, FCF -53억 확인. 새로운 웹 빌드/DB 변경은 필요 없으며 서버 계산 수정이 공개 API에 반영됐다.
+
+## 2026-09-30 업종별 가치평가 지표 탐색
+
+사용자는 특정 PSG/EV 지표 두 개가 아니라 사업 구조·이익 상태에 적절한 다양한 지표를 요청했다. 상단 6개 지표를 금융/자산운용/적자/설비/일반으로 선택하고, 재무 탭에 추천·가격·성장/수익성·현금/투자 탐색과 계산 모달을 추가했다. PSR, POR, P/OCF, TTM 매출/순이익 성장, ROA, 현금, OCF마진, 설비투자비율, 공시 계산 EBITDA/마진 및 EV 비율 계산 경로 추가. 금융업에 일반기업용 FCF/마진 탐색과 차트를 표시하지 않는다.
+
+EV의 완전한 부채 합계 수집은 미완이며 현재 매우 제한된 정확 합계 명칭만 지원한다. PEG는 예상 EPS 원천 미연결로 값을 제공하지 않는다. FFO/NAV/규제자본 등은 필요한 원천과 후속 설계를 문서화했다. `docs/valuation-metrics.md`가 계산·지원/미지원 범위의 기준이다. 이 작업을 전 업종 고유 지표 수집 완료로 표현하지 않는다.
+
+Flutter 전체 144개 통과 후 추가/수정 관련 9개 통과(320/1280 계산 모달 포함), 서버 기존 관련 24개+계정 입력 테스트 포함 단위 4개 통과, analyze/release 빌드 통과. 로컬 HLB/기가비스/KB금융 및 공개 HLB 실제 UI 확인. alfinder.kr에 dpl_22oVMMgv2urMNmM2oioYkquFqJX7 배포, 공개 JS 해시 로컬 일치. 기존 미커밋 금융 누락 수정은 함께 보존했고 별도 commit/push는 하지 않았다.
+
+
+## 2026-09-30 지표 탐색 위치 수정
+
+사용자는 재무 탭 확장이 아니라 기존 상단 그리드를 수정하려던 것이라고 정정했다. 지표 그룹(추천/가격/성장·수익성/현금·투자)을 CompanyHeader 그리드 바로 위로 이동하고 모든 지표 클릭은 같은 화면의 MetricFormulaCard 모달로 처리한다. 이전 재무 탭 전환 콜백과 중복 탐색·계산 영역을 제거했다. 재무 탭은 실적 추이/표 중심이다. 모바일 2열, 중간 폭 3열, 큰 화면 추천 6열/기타 4열로 지표 개수가 홀수여도 1열로 붕괴하지 않는다. 회사 변경 시 추천으로 초기화하고 연결/별도 변경 시 같은 그룹을 새 원천으로 갱신한다.
+
+analyze, 관련 7개 테스트 및 설명 추가 후 관련 5개 재실행 통과. 320/1280 위젯 및 실제 390px/기본 폭에서 개요를 유지한 그룹 전환·계산창·재무 탭 중복 제거 확인.
+
+## 2026-09-30 지표 상세 반응형 표시
+
+사용자가 데스크톱 팝업/모바일 바텀시트로 경험 분리를 요청했다. 공통 디자인 함수 showAdaptiveDetail을 추가하고 상단 지표 상세에 적용: 화면 폭 600px 미만은 DraggableScrollableSheet(초기 75%, 최소 35%, 최대 92%) + 공유 스크롤 컨트롤러, 그 이상은 중앙 Dialog. 모바일 안전 영역/드래그 핸들/닫기/뒤로가기를 지원하고 내부 카드 테두리는 제거한다.
+
+관련 테스트 5개 + 긴 본문 독립 스크롤 테스트 1개 통과. 테스트는 실제 view.physicalSize를 설정하여 MediaQuery 분기가 검증되도록 했다. 공개 390px에서 바텀시트 표시와 아래로 끌어 닫기 확인. 로컬 8100 포트는 연결 거부 상태라 로컬 브라우저 검증은 하지 않았으며 임의 서버 시작도 하지 않았다. 배포 dpl_7jYaZcbpARmuBviwGiUgDUuk1SS3.
+
+
+## 2026-09-30 지분 묶음 UI 보류
+
+사용자 요청으로 데스크톱·모바일 공통 메뉴, 검색 바로가기, 기업 상단 묶음 안내를 제거했다. 기업 페이지의 group.of 호출도 제거했다. /groups 및 하위 주소는 홈으로 리다이렉트한다. 그룹 화면 구현과 서버·DB는 재기획을 위해 보존한다. dart analyze 무오류, 라우터·모바일 검색 테스트 5개 및 웹 release 빌드 통과. 공개 기업 화면에서 묶음 안내 제거 확인.
+
+배포: dpl_4Me23tJaoDrxUwLoZbd5ui5ty7jd (https://alfinder-research-fgs7rm2yw-realyoungks-projects.vercel.app), alfinder.kr 승격 완료. 공개 main.dart.js와 로컬 빌드 SHA256 일치: a4761e069849cf21a3a79e1af428a8286b594ccb2a3313c309e3d50cba551c8c. 롤백 대상: https://alfinder-research-7r8fgd9x2-realyoungks-projects.vercel.app.
+
+
+## 2026-09-30 상단 지표 전수 검증
+
+[검증 보고서](metric-audit-2026-09-30.md): 2,756개사 실제 자동 기준 응답, 23개 지표의 finite-or-reason 검사 및 추천 6개 계약 통과. ID 없는 엄격한 계정명 보완, TTM 누락 계정명 표시, 비양수 시총 차단, 보고서별 CAPEX 부호 정규화 및 기간 불일치 차단. 서버 공통 SQL에도 투자액 부호 정규화 적용. EV/PEG 미연결 및 724개 기업의 일부 추천 지표 누락은 남아 있으며 전체 원문 대조 완료로 해석하지 않는다.
+
+배포 dpl_7uJdruPavWMJ65PeeoQS1kNPmWyw (https://alfinder-research-9gngws583-realyoungks-projects.vercel.app), alfinder.kr 승격 완료. 이전 프런트: https://alfinder-research-fgs7rm2yw-realyoungks-projects.vercel.app. 서버 변경은 별도 코드 복구가 필요하다.
+
+최종 입력 계정명 표시 배포: dpl_EEXMBpex5J2yBDQS4ZSoE9ZAEh3M, https://alfinder-research-134sj1tqp-realyoungks-projects.vercel.app (alfinder.kr 승격). 추가 지표·팝업 테스트 10개 통과.
+
+
+## 2026-09-30 수집분 원천 전수 대조
+
+[원천 대조 보고서](metric-source-audit-2026-09-30.md). 2,756개사, canonical 96,897개 보고서, 선택 원천 행 990,048개 대조 불일치 0. 자동·연결·별도 7,659개 응답의 176,157개 지표 Decimal 독립 검산 불일치 0. 자동 기준 선택·시총·시장 원천 대조도 0. 외화 정보 전달, 통화 혼합 계산 차단, IFRS 대체 계정, Unicode 공백, 원천 재무상태표 합계 불일치 처리를 수정했다. DTO 추가는 자동 생성했으며 마이그레이션 없음.
+
+배포: dpl_Bk8Ar4EcwswQ81XLpV3oy8KYDUat, https://alfinder-research-p0w4teckd-realyoungks-projects.vercel.app 를 alfinder.kr로 승격. 프런트 이전 버전은 https://alfinder-research-134sj1tqp-realyoungks-projects.vercel.app. 서버 변경은 별도 코드 복구가 필요하다. Flutter 151개·서버 관련 24개 및 별도 원천/전수 테스트 통과. 마지막 외화 표기 변경의 지표·팝업 테스트 12개 추가 통과. 원천 스냅샷은 outputs/metric-source-audit에 로컬 보존하고 대용량 데이터는 gitignore 처리했다.
+
+### 2026-09-30 최종 웹 계산 차단 수정
+
+생성 FinancialLine의 nullable BigInt copyWith가 release JS에서 기존 금액을 남기는 현상을 수정: 오류 입력은 명시적인 새 DTO로 구성. 사조동아원 운영 PER 상세에서 합계 불일치 사유 확인. 독립 검산 176,157건 및 원화 오류 사유 대조 0건 불일치. 최종 배포 `dpl_GSnDR96XB6aguoe67NXP29Lh4MBg` / `https://alfinder-research-hfaswjf48-realyoungks-projects.vercel.app`, alfinder.kr 승격 완료. JS SHA256 `e24f6f8942630bc19848014c192cf39750414ef64d4d837782cc08f2db568f32`.
+
+## 2026-09-30 재무 탭 상단 단순화
+
+사용자는 재무 탭 최상단의 ‘재무 · 시세’ 제목의 필요성에 의문을 제기했다. 반복 제목을 제거하고 FinancialCoverage 수집 현황을 차트 아래 원천 보고서 영역 앞으로 이동했다. 연간·분기 선택 다음에 매출액·영업이익 추이가 바로 이어진다. 지표 계산과 기간 선택 로직은 변경하지 않았다. Flutter analyze, 디자인 경계 테스트 2개 및 release 빌드 통과.
+
+배포: `dpl_2un3fLgqGP68xGP2kuoLcuxtbv92` / `https://alfinder-research-a0cvhidgi-realyoungks-projects.vercel.app`, alfinder.kr 승격 완료. 운영 JS SHA256 `3ce761a9e6011a72a71c08c5c59da5e491d572229c836407a9a6ee96a0b142b3`가 빌드와 일치.
+운영 재무 탭에서 제목 제거·수집 범위 하단 배치, 연간/분기 전환을 확인했다. 390px 모바일 폭에서도 조작·배치 확인 후 기본 폭 복원. 검수 이미지: outputs/ui-review/financial-tab-top-2026-09-30.jpg.
+
+## 2026-09-30 매출·이익률 혼합 차트
+
+사용자 요청으로 재무 탭의 첫 실적 차트를 매출 막대(왼쪽 금액 축)와 영업이익률 선(오른쪽 % 축)으로 합쳤다. 범례에 축 방향과 선 모양을 표시하고 같은 기간의 매출·영업이익·영업이익률을 hover/터치 상세로 제공한다. 금융업 등 영업이익률 비적용 업종은 기존 매출·영업이익 막대를 유지한다. null 이익률은 선을 끊고 0 매출은 이익률 —를 유지한다. 기간 교체 시 이전 툴팁을 초기화한다. 디자인 토큰 준수. 관련 차트·디자인 경계 14개 테스트, analyze 통과.
+
+운영 배포 `dpl_GPMso1tECVgCYGq5JyACUSaNJLWw` / `https://alfinder-research-klejdga4k-realyoungks-projects.vercel.app`, alfinder.kr 승격 완료. JS SHA256 `7fb735345f37327e4f61ca7d2276b2ac8adeb5c3746f7d8c914543771e4e24d1` 일치. 공개 HLB에서 연간/분기 혼합 차트, 2023년 매출 429억·영업손실 1,250억·이익률 -291.4% 상세 확인. 390px 모바일에서 축·범례·터치 상세·분기 전환 검수 후 기본 폭 복원. 스크린샷 outputs/ui-review/financial-combo-2026-09-30.jpg 및 financial-combo-mobile-2026-09-30.jpg.
+
+## 2026-09-30 최근 12개월 실적 읽기 개선
+
+사용자는 최근 12개월 추이의 투자자 활용 목적이 모호하고 하단 문장이 많다고 지적했다. TTM 매출·영업이익은 선으로 표현하고 제목은 ‘최근 12개월 실적’, 안내는 ‘지난 1년 합계로 매출·이익의 방향을 봅니다’ 한 문장으로 축약했다. 반복된 범례 기간과 하단 계산 문단 제거. 정보 아이콘으로 읽는 법(사업 규모와 이익·적자 흐름)과 정확한 계산 기준을 데스크톱 모달/모바일 바텀시트에 제공한다. 하단 수익성 제목도 ‘수익성 · 최근 12개월’로 줄였다. 계산 로직 변경 없음. analyze 및 차트·반응형 상세·디자인 경계 관련 7개 테스트 통과.
+
+배포 `dpl_Dz166SVz8Xv2XDRziTnE9y1nVjTi` / `https://alfinder-research-g6k8bgmm5-realyoungks-projects.vercel.app`, alfinder.kr 승격 완료. 운영 JS SHA256 `38f7d66036a6b02fe91aabd3ad82610265803205866c14193065050e45c6472a`가 로컬 빌드와 일치.
+공개 재무 탭에서 선 차트·짧은 안내·정보 버튼의 데스크톱 설명 창과 390px 모바일 바텀시트를 실제 조작·검수했다. 임시 폭을 복원하고 검수 중 펼친 표와 설명 창을 닫았다. 화면 증거: outputs/ui-review/financial-ttm-2026-09-30.jpg.
+
+## 2026-09-30 순이익률 통합·중복 실적 표 제거
+
+사용자가 순이익률을 함께 표시하고 중복되는 ‘표로 보기’를 제거하도록 결정했다. 연간·분기·최근 12개월 차트에 매출 막대와 영업이익률 실선·순이익률 점선을 통합하고, 별도 최근 12개월 수익성 차트와 실적 표 구현을 제거했다. 두 이익률은 동일한 오른쪽 % 축을 사용하며 터치/hover 상세에 매출·영업이익·전체 당기순이익·두 이익률을 표시한다. 순이익률은 지배주주 순이익이 아닌 같은 기간 전체 당기순이익 ÷ 매출액이며, 누적·3개월·4분기·TTM 기간을 일치시킨다. 금융업 등 비적용 업종은 기존 금액 차트를 유지한다. 원천 보고서 링크·보고서별 재무제표는 유지했다. analyze 무오류, 차트·계산·재무 탭·반응형 상세·디자인 경계 관련 28개 테스트 통과. Serverpod MCP hot_restart 완료.
+
+운영 배포 `dpl_HX8t26NydppkaR73DLso2x7kCFcd` / `https://alfinder-research-fnhu88n9r-realyoungks-projects.vercel.app`, alfinder.kr 승격 완료. 공개 JS SHA256 `7642819e7d2c24a487737026d60a35e0032b777c08f03c8a4253379d71dc4ba4` 로컬 빌드 일치. 공개 HLB 연간 2023년 상세(매출 429억·영업이익 -1,250억·당기순이익 -2,060억·영업이익률 -291.4%·순이익률 -480.3%) 및 390px 모바일 분기 상세(23.4분기 매출 90억·영업이익 -343억·당기순이익 -1,231억·영업이익률 -379.7%·순이익률 -1365.0%)를 확인했다. 기본 폭·연간 선택 복원. 검수 이미지 outputs/ui-review/financial-net-margin-2026-09-30.jpg 및 financial-net-margin-mobile-2026-09-30.jpg.
+
+## 2026-09-30 현금흐름의 투자자 설명·하단 단순화
+
+사용자는 영업활동/잉여현금흐름의 차이와 투자자 활용 목적이 어렵고 하단 텍스트가 많다고 지적하며 ‘이 기업 재무 지금 받기’를 제거하도록 요청했다. 현금흐름 차트 제목을 ‘사업에서 현금이 남나요?’, 범례는 ‘사업에서 들어온 현금’ / ‘설비 투자 후 남은 현금’으로 풀어썼다. 표준 계정명·음수의 의미·빚 상환/배당 여력·투자액에 따른 차이를 정보 아이콘의 반응형 설명 창으로 제공한다. 연도별 유형자산 취득 금액의 긴 나열은 제거하고, 해당 기간 차트 상세에 설비 투자액을 추가했다. 계산은 기존 영업현금 − 유형자산 취득액을 유지한다. 재무 탭의 기업별 수집 버튼·관련 상태·폴링을 제거하고, 원문/자료 범위/수집 대기는 ‘자료 기준·원문’ 안에 모았다. 수집 서버와 데이터 관리 기능은 변경하지 않았다. 320/1280px에서 설명 창·투자액 상세·버튼 제거·접힌 수집 상태 확인을 포함해 관련 12개 테스트 통과. Serverpod MCP hot_restart 후 로그 정상.
+
+배포 `dpl_GXV2hQGpCMeg9L9ifS47SLbqweuF` / `https://alfinder-research-a4f20leia-realyoungks-projects.vercel.app`, alfinder.kr 승격 완료. 공개 JS SHA256 `c58fc692d470f4e2b2e85195f829f88f65990bbd291cafec5e64359057aaec59` 빌드 일치. 공개 HLB에서 기본 접힌 하단·수집 버튼 제거·데스크톱 설명 창·390px 모바일 차트와 바텀시트를 검수했다. 모바일 2022년 상세: 영업현금 -618억·잉여현금 -736억·설비 투자 117억 표시 확인(표시 단위 반올림). 원문을 펼쳤을 때 16건 대기와 보고서 링크 유지 확인 후 닫고 기본 폭 복원. 검수 이미지 outputs/ui-review/financial-cashflow-2026-09-30.jpg 및 financial-cashflow-mobile-2026-09-30.jpg.
+
+## 2026-09-30 재무 탭 하단 자료 영역 제거
+
+사용자 요청으로 재무 탭의 ‘자료 기준·원문’ 영역을 제거했다. 원문 링크·출처·수집 자료/대기는 이 탭에 표시하지 않고 실적/현금흐름 차트로 마무리한다. 사용하지 않는 _Sources 위젯과 라우팅·외부 링크 imports를 제거했다. 통화 혼합 시 합산하지 않는 안내는 유지하며, 없어진 원문 진입을 안내하던 문장은 수정했다. 원천 데이터·수집·다른 화면의 계산 근거는 변경하지 않았다. 전체 workspace analyze 무오류, 320/1280px 관련 재무·디자인 경계 6개 테스트 통과. MCP hot_restart 및 로그 확인 완료.
+
+배포 `dpl_ExMP68DDhBCeWS235kGEP9CKMX3R` / `https://alfinder-research-hrwxolkqz-realyoungks-projects.vercel.app`, alfinder.kr 승격 완료. 공개 JS SHA256 `c82f646d6642c893f4a1e0a351db5829d11fc11d2ea2b9dd8fa0bfa355e1db26` 빌드 일치. 공개 재무 화면에서 자료/출처/수집 대기 영역이 없고 현금흐름 차트로 끝나는 것을 확인했다. 화면 증거 outputs/ui-review/financial-footer-removed-2026-09-30.jpg.
+
+## 2026-09-30 계절성과 최근 12개월의 목적 구분
+
+사용자가 최근 12개월 차트를 유지하되 계절성 관련 활용 목적을 화면에서 인지할 수 있도록 요청했다. 분기 선택 시 제목을 ‘분기 실적 · 계절성’, 안내를 ‘매년 어느 분기에 매출과 이익이 몰리는지 비교합니다’로 표시한다. 최근 12개월은 ‘최근 12개월 · 계절 변동을 줄인 실적’, ‘분기별 등락보다 매출과 수익성의 큰 흐름을 봅니다’로 구분했다. 분기 차트는 계절 패턴, TTM은 변동을 줄인 추이를 보여준다는 의미를 유지한다. 차트·계산·기간 선택은 유지. analyze 및 기존 관련 테스트 6개 통과, MCP hot_restart·로그 확인 완료.
+
+배포 `dpl_8ULtBkmSZbXj8uTqSMXMok5wNviZ` / `https://alfinder-research-9992ur49c-realyoungks-projects.vercel.app`, alfinder.kr 승격 완료. 공개 JS SHA256 `b8b0f02ade2decf4ddd8a3e40d7f0a4e128876e3c850b17c50b895619708209d` 빌드 일치. 기존 브라우저 탭의 CDP 응답이 멈춰 새 임시 탭으로 검수했다. 공개 연간/분기 전환과 390px에서 두 목적 안내가 함께 보이는 배치를 확인하고, 임시 폭을 복원해 검수 탭을 닫았다. 화면 증거 outputs/ui-review/financial-seasonality-purpose-2026-09-30.jpg 및 financial-seasonality-purpose-mobile-2026-09-30.jpg.
+
+## 2026-09-30 순이익률 점선 가독성 개선
+
+사용자가 재무 탭의 점선이 잘 안 보인다고 지적했다. 순이익률을 회색에서 전용 보라색 chartSeries3 토큰으로 바꾸고 선 두께를 2→3px, 점선 길이/간격을 6/4→10/6px로 조정했다. 매출 막대나 영업이익률과 겹칠 때도 구분되도록 배경색 테두리를 넣고 범례 점선도 길고 굵게 표시한다. 연간·분기·최근 12개월과 당기순이익 상세 색상을 통일했다. 계산·원천 데이터 변경 없음. 전체 analyze 무오류, 차트·색상 대비·재무 탭·디자인 경계 13개 테스트 통과. MCP hot_restart 및 서버/Flutter 로그 정상.
+
+배포 dpl_4YreQSS4x4gj2ivUCbiquF8A4nV4 / https://alfinder-research-4q7nlgs98-realyoungks-projects.vercel.app, alfinder.kr 승격 완료. 공개 JS SHA256 20f8daddf8e972ca0aa8e06fc0d66558766c49dbe7d0f22a8491329250b48cb5 빌드 일치. 공개 HLB에서 연간·분기·TTM 점선의 막대 중첩 대비와 390px 모바일 범례/두 차트 및 터치 상세를 확인했다. 검수 이미지 outputs/ui-review/financial-dashed-visible-2026-09-30.jpg 및 financial-dashed-visible-mobile-2026-09-30.jpg. 임시 viewport 복원 및 검수 탭 종료.
+
+## 2026-09-30 분기 현금흐름 구현·운영 배포
+
+사용자가 분기에서 현금흐름이 없는 이유를 확인한 뒤 배포하도록 요청했다. FinancialView.cashFlowQuarterly()로 1분기 공시값, 2분기 반기−1분기, 3분기 3분기−반기, 4분기 연간−3분기 누적을 계산한다. 유형자산 취득의 부호는 각 원천 누적값에서 절댓값으로 정규화한 뒤 차감한다. 영업현금의 음수는 보존한다. 직전 보고서/계정이 없거나 통화가 다르거나 취득 누적액이 감소하면 해당 값과 FCF를 null로 두고 기간별 상세에 구체적 결측 사유를 표시한다. 0은 정상 값으로 유지. 동일 CompanyFinancials의 사업연도/연결·별도 안에서만 계산하고 연간 표시도 유지한다. 재무 탭 분기 선택에서 현금흐름을 숨기던 조건을 제거하고 ‘각 분기 3개월 동안’ 안내를 붙였다. 세부 계산은 기존 반응형 설명 창에서 제공한다. 단일 기간도 표시하고 전 기간 결측이면 사유만 표시한다.
+
+전체 analyze 무오류, 분기 계산·0/음수·부호 변경·보고서/계정 누락·통화 불일치·누적 감소·원천 충돌 및 320/1280px UI 전환/상세 등 관련 34개 테스트 통과. 설명 창 수정 뒤 UI 6개 재검증 통과. MCP hot_restart 및 서버/Flutter 로그 정상. 배포 dpl_5RVamjo9zuFU84onKy8bttKEyuCj / https://alfinder-research-qq3015ste-realyoungks-projects.vercel.app, alfinder.kr 승격 완료. 공개 JS SHA256 84334004b64219a4118703433f60b097f20ce6de80ae8dec068d50c372346437 빌드 일치.
+
+공개 HLB의 분기 현금흐름과 390px 모바일 터치 상세를 확인했다. 공개 financial/summary의 2025 반기 누적 − 1분기 누적으로 영업현금 −22,590,876,294원, 설비 투자 2,301,092,394원, FCF −24,891,968,688원을 별도로 대조했고 모바일 25.2분기 −226억 / 23억 / −249억 표시와 일치했다. 2023 반기는 취득 누적액이 1분기보다 작으므로 영업현금 −190억만 표시하고 FCF/취득액을 —로 처리하며 ‘유형자산 취득 누적액이 이전 기간보다 작음’을 표시하는 것을 확인했다. 검수 이미지 outputs/ui-review/financial-quarter-cash-2026-09-30.jpg 및 financial-quarter-cash-mobile-2026-09-30.jpg. 임시 viewport 복원, 검수 탭 종료.
+
+## 2026-09-30 개요·사업의 내용 통합 및 보고서 갱신 기준
+
+- 사용자 요청: 개요/사업의 내용 중복을 합치고, 업종 일반론 대신 기업별 맥락을 보여준다. 연간 사업보고서와 최근 반기·분기를 함께 참고한다. 추가 피드백인 개요 위계도 반영했다.
+- 공통 화면: 소개 → 투자포인트(기업별 자료가 있을 때) → 제품 이해 → 매출 구성 → 사업 지표. 업종별 모델·성장 일반론을 주요 설명에서 내리고, 기존 DB overview digest를 우선한다. 사업의 내용 탭 대신 개요의 선택적 원문 팝업/모바일 시트를 제공한다. 기존 business 딥링크는 개요로 표시된다.
+- 삼성전자: 2025 연간+2026 반기 실제 원문 및 공식 IR 대조. 파일 기반 research profile에 검토 기간·접수번호·출처·본문 근거·확인일을 기록했다. HBM/DRAM/NAND 선택형 카드, 자체 GPU–HBM–인터포저 도식, HBM4 출하/HBM4E 샘플 등 현재 투자포인트. 새로운 기간/같은 기간 다른 receipt가 재무 API에 나타나면 이 profile의 현재 투자포인트는 숨긴다.
+- 검증된 사업 지표를 개요로 이동. 단위와 계획/집행 분리, 동일 수치의 축약/주석 라벨 중복 제거, 매출/R&D 중복 표 제외. 숫자 데이터와 기존 원문·digest·관계 데이터는 삭제하지 않았다.
+- 적용 범위 및 원문: docs/company-overview-research.md. 전체 기업의 새 연구를 작성한 것은 아니다. BusinessDocument 수집은 여전히 연간이며, 이번에 새 annual+interim profile을 작성한 기업은 삼성전자다. 유료 AI·자동 검수 큐·DB 모델 변경 없음.
+- 검사: dart analyze 문제 없음, 관련 공통/연구/디자인 테스트 16개 통과. 최종 도식 폭 조정 후 연구 테스트 7개 재검사 통과, git diff --check 통과. 브라우저에서 삼성전자 PC/390px 모바일 제품 전환 및 원문 시트 소제목 이동/닫기, HLB issuer 설명, 기가비스/성호전자 맞춤 설명 유지 확인. 임시 Vercel 도메인은 기존 API origin 제한으로 403이며, alfinder.kr 공개 화면에서 확인했다. 보안 설정 변경 없음.
+- 최종 배포 dpl_Bw6wzrdtXiw1V8M6Sio4Cu9gzMiZ, https://alfinder-research-nk76e5xcd-realyoungks-projects.vercel.app → alfinder.kr 승격. 공개 main.dart.js SHA256 dd5a293af33e5c109ed969ddfd470a34abe35abdd5db3949d237342afeb4cbe1, 로컬 릴리스와 일치. 커밋/푸시는 요청되지 않아 하지 않았다.
+- 최종 공개 화면 캡처: outputs/ui-review/business-overview-hierarchy-desktop-2026-09-30.jpg, outputs/ui-review/business-overview-hierarchy-mobile-2026-09-30.jpg. 모바일/PC에서 소개→투자포인트→선택형 제품 카드 순서와 도식 확인 완료. 검수 탭 닫고 viewport override 해제.
+
+
+### 2026-09-30 삼성전자 메모리 우선순위·중간보고서
+
+- [연구 구조 기록](company-overview-research.md)의 최신 절 참고. 삼성전자 개요에서 DRAM 시장점유율을 우선 배치하고 디지털 콕핏/TV 등은 더 보기로 이동. NAND/HBM 별도 점유율은 DART 원문에 없어 추가하지 않음.
+- DisclosureSync가 최신 연간 이후 최신 반기/분기 본문도 받는다. 연간 API/프로필은 유지, 다른 보고기간은 서로 정정으로 대체하지 않음. settlementDate/asOf와 기간·단위별 활성 사실 선택 사용. 중간 누적액을 연간 막대에 혼합하지 않음.
+- 삼성전자 반기 20260814003699 실제 DB 수집 완료 (1호출, 1저장, 실패0). DRAM 39.4% 2026 상반기·회사 추정과 2026 상반기 부문별 매출을 개요에서 표시. 수집한 본문에서 모든 생산 표까지 추출된 것은 아님.
+- 관리자 `/data?corpCode=...`로 기업별 보고서 갱신 가능. 기존 관리자 인증 endpoint 사용; 별도 우회나 권한 변경 없음.
+- analyze clean, 서버53/Flutter25 + 후속16 통과. 배포 dpl_J21nggQk6hhoFh5dUcapSvSWSyM6, https://alfinder-research-7xwyuiitb-realyoungks-projects.vercel.app, 공개 파일 SHA256 2e6245f16ffd5237a65f6027a33a6f3a228dec08deaee838551dc272c2f2eb74. 커밋/푸시 미실행.
+- 실제 alfinder.kr 1280px/390px 화면에서 2026 상반기 매출과 DRAM39.4% 렌더링, 기타 사업 지표 펼치기 및 디지털 콕핏의 차량 운전석 시스템 설명 확인. 스크린샷: outputs/ui-review/samsung-interim-memory-desktop-2026-09-30.jpg, samsung-interim-memory-mobile-2026-09-30.jpg.
+
+
 ## 2026-09-30 데이터 화면과 기업 마스터 자동 갱신
 
 데이터 화면은 데이터 종류별 카드에서 DB 확보 수·처리율, 자동 갱신 일정, 실행 버튼을 함께 보여준다. API 주소·요청 파라미터와 저장 스키마는 상세로 접었다. 스키마 참조는 `scripts/data/build_catalog.py`로 모델 파일에서 갱신한다. 기업 마스터도 매일 08:30 KST 신규·변경 기업 수집을 예약하며, 기존 30일 전체 갱신 규칙을 유지한다. 신규 상장사 등록은 DART 목록 반영 시점에 의존한다. 등록 생성·예약 중복 방지·기업 마스터 수집 관련 서버 테스트 18개 통과.
+
+
+### 2026-09-30 개요 원문 버튼·추가 사업 지표 레이아웃
+
+- 사업 원문 읽기 버튼/팝업 진입 제거, DB 문서와 원문 읽기 구현은 보존.
+- OperatingMetricsList가 대표/추가 지표를 따로 배치한다. 더 보기 시 대표 카드 크기/위치 유지, 추가 지표 종류별 한 열. 넓은 화면 설명·차트 좌우 / 모바일 위아래, 단일 값 항목은 간결한 행. 값과 기간 규칙 변경 없음.
+- analyze clean, Flutter28개 통과 (320/768/1280px, 확대글꼴 및 펼침/접힘 위치 유지). MCP reload 지연 로그 후 hot restart 성공, 로컬 PC/모바일 확인.
+- 배포 dpl_Gsq44D8N2yfDwnAtakZuU7rqvJX5 → alfinder.kr, 공개/로컬 SHA256 c5814a37d7b4ae6a2cb2dce90ae6defc8ac4010340dca564688415d351a48abf. 커밋/푸시 미실행.
+
+- 공개 alfinder.kr 1280/390px 펼침·접힘 및 원문 버튼 제거 확인. 캡처 outputs/ui-review/business-metrics-expanded-desktop-2026-09-30.jpg / business-metrics-expanded-mobile-2026-09-30.jpg. 검수 탭 닫고 viewport 해제.
+
+
+### 2026-09-30 사업 지표 차트의 축 라벨
+
+- 연도 20·21·22, 상반기 26.1H 등으로 축을 압축. 300px 미만 차트는 26H1/26Q1. 카드/터치/hover 상세의 전체 보고기간은 유지.
+- 공통 범주 차트의 가장 긴 라벨 기준 전역 stride를 실제 라벨 경계 충돌 검사로 변경, 최신 라벨/명시적 최대 개수 우선 유지. 한 개 긴 라벨 때문에 모든 21·23·25 라벨이 생략되지 않음.
+- 변경 파일 분석 문제 없음, Flutter22개 + 최종13개 통과. 로컬 320/390px 모든 연도와 상반기 축, 터치 상세 실제 확인. 전체 분석은 별도 작업 파일 data_reference.dart 스타일 info 1건 존재. MCP restart/reload 후 최근 Flutter 로그 정상.
+- 배포 dpl_EqYjaLBRhQpk6fkae8aWRiSqfQnB → alfinder.kr, SHA256 450915aea67fc24dfa32bda4631c75e06723de3c2c4a1fda2af0fb1509f7c9c9 공개/로컬 일치. 커밋/푸시 미실행.
+
+- 공개 alfinder.kr PC/390px에서 20·21·22·23·24·25·26.1H 모두 렌더링 확인. 캡처 outputs/ui-review/business-axis-compact-mobile-2026-09-30.jpg / business-axis-compact-desktop-2026-09-30.jpg. 검수 탭 닫고 viewport 해제.
+
+
+### 2026-09-30 투자 집행 연간 추이와 결측 기간
+
+- 기존 삼성전자 투자액은 일부 AI/수동 입력된 2024 값에 의존했고, 연간 투자액 표를 읽는 규칙이 없었다. `InvestmentFacts`로 투자액·투자기간·대상자산 열, 통화 단위, 실제 보고기간을 확인해 원문 숫자를 저장한다. 투자계획/미래 기간·불완전한 표는 제외한다. 합계 검산 결과도 보관하며 원문 부문합과 총액이 다른 경우 임의 수정하지 않는다.
+- 삼성전자 2025 공식 원문은 DS 474764 + SDC 27970 + 기타 21225 = 523959억원인데 총액은 526511억원으로 기재돼 있다. DART 원본 XML과 공식 IR PDF 모두 동일하다. 그대로 저장하고 `reviewNote`에 원문 합계 불일치를 기록해 기간 상세에서 표시한다. 공식 PDF: https://images.samsung.com/kdp/ir/business-report/2025_4Q_Interim_Business_Report_vF_kr.pdf . 반올림된 기존 prose 총액은 동일 문서의 정확한 표 총액과 일치할 때 화면에서만 중복 제거한다.
+- 삼성전자 FY2021 원본 20220308000798은 UTF-8 선언과 달리 EUC-KR 바이트였다. UTF-8 strict→CP949 strict로 원문을 손실 없이 해석하고 replacement 문자를 저장하지 않는다. 기존 깨진 본문은 관리자 기업별 재처리에서 동일 공시를 다시 받아 복구한다. DART 예산/호출 장부와 기존 인증을 유지하며 전사 offline 재처리는 외부 호출 없이 수행한다. 삼성전자 FY2021 본문 실제 복구 완료.
+- FY2021의 반도체 사업/DP 사업은 삼성전자에 한해 DS/SDC 시설투자 라벨로 연결한다. 다른 기업의 사업 라벨은 변경하지 않는다. 삼성전자 DS 연간 2021~2025 = 435670/478717/483723/462792/474764억원, 2026 상반기 256030억원. SDC 연간 = 26133/24958/23856/48351/27970억원, 2026 상반기 13346억원. 총액은 482222/531153/531139/536461/526511억원, 2026 상반기 279864억원.
+- `disclosure.factPeriods`는 실제 활성 문서의 보고기간 메타데이터를 제공한다. 대체된 보고서와 종료일을 모르는 중간기간은 제외한다. 사업 카드의 연간 차트는 누락 연도도 null로 유지해 `— 값 미확보`를 표시하고, 최신 수집 보고기간 값이 없으면 해당 기간을 명시한다. 값 하나만 있어도 연간 축을 보여준다. 투자/생산 누적액은 연간 막대와 상반기 금액을 구분한다. 실측 0과 미확보 null은 다르다.
+- 전체 저장 사업 원문 재처리 완료: 관리자 endpoint 성공, 52425ms (18:19:23 KST). 재처리 중 기존 OrderFacts의 comma-only 숫자 처리에서 null assertion이 발견돼 해당 행을 제외하도록 수정, 회귀 테스트 통과 후 전사 재처리 성공.
+- 검증: dart analyze clean, 신규 투자/원문/생성 코드 14개, 수주 13개, DB/인증/기간/복구 통합 3개, Flutter 카드/차트/경계 26개 통과. 단일 값·미확보 연도·실측0·상반기/연간 구분·비12월 결산·320/768/1280px 및 확대 글꼴 포함. 공개 alfinder.kr PC/390px에서 21~25 전체 연간 축과 2026 상반기 집행액 렌더링 확인.
+- 배포 dpl_D1nE4ykzn2qxfktJn7KhJa5Fimj1, https://alfinder-research-8yjglyaw5-realyoungks-projects.vercel.app → alfinder.kr. 공개/로컬 main.dart.js SHA256 cbb2728b2fcf8a29c1fd879e35741a33e83ad95777a2f1667d3d22212f79fe43 일치. 이전 배포 dpl_EqYjaLBRhQpk6fkae8aWRiSqfQnB. 백엔드/DB 재처리는 프런트 롤백과 별개다.
+- 캡처 outputs/ui-review/investment-history-public-desktop-2026-09-30.jpg / investment-history-public-mobile-2026-09-30.jpg. 커밋/푸시는 하지 않았다.
+
+
+### 2026-09-30 수주잔고 기본 노출·추출 복구
+
+- 사용자가 수주잔고가 사라졌다고 지적. 일부 회사의 제품 operatingFocus가 기본 사업 지표를 고를 때 수주잔고를 더 보기로 밀어냈다. `primaryOperatingSeries`가 확보된 수주잔고를 항상 기본 카드로 유지하고, 합계/연결 전체 라벨이 있으면 부문보다 우선한다. 제품 관심 지표는 그 다음이며 펼침 시 기본 카드 위치는 유지한다.
+- 기가비스 FY2025 원문 `당기수주 | 납품액 | 수주잔고`는 기존 표준 header detector가 인정하지 않아 값이 빠졌다. 헤더 별칭을 추가하되 금액 단위·수주/납품/잔고 검산을 유지. 실제 원문 값 55735−42169=13566 백만원(2025-12-31) 저장/공개 화면 복구.
+- 기업별 `/data?corpCode=...`의 갱신 버튼이 회사 범위를 전달하지 않던 문제도 수정. 기존 admin endpoint에 corpCode를 넘기며 전사 작업을 회사별 버튼에서 취소하지 않는다. 기업 마스터/시장 갱신은 전사 범위 유지.
+- 기가비스 관리자 수집 실행으로 FY2024와 2026 반기 본문 추가. FY2024 접수 20250320000503은 영업기밀을 이유로 수주 기재 생략을 명시하므로 숫자를 만들지 않는다. 2026-06-30 수주잔고 65266 백만원은 Source/원문 근거를 보존해 저장, 기본 개요에서 652억6600만원 표시. 연간 2025 값과 반기 2026 시점 값, 미확보 연도를 구분한다.
+- 전체 원문 규칙 재처리 성공 63249ms(18:27:47 KST). 현대건설 95038562백만원, KAI 합계273437억원(별도) 및 비아이매트릭스(corp01462739) 합계11651백만원의 기존 수주잔고 데이터도 확인. 모든 회사가 수주잔고를 공개하거나 규칙으로 읽히는 것은 아니며, 확보된 값의 기본 노출을 보장한다.
+- analyze clean, 수주/생성코드17개, DB기간/원문/인증 통합4개, Flutter사업카드/디자인 경계21개 통과. 제품focus가 있어도 수주잔고 노출·전체 합계 우선·펴기 전 노출·펼침 전후 위치 유지·기존 반응형 검증 포함. MCP hot restart 완료.
+
+- 최종 배포 dpl_9wEtp2rJRM7guF8YWSjiTLkWeo6K, https://alfinder-research-9zwkdzbrx-realyoungks-projects.vercel.app → alfinder.kr. 공개/로컬 main.dart.js SHA256 3adbb171fb827861c751506b1dc23306eb45888e79c8100d0cceb7493ab52aa8 일치. 이전 배포 dpl_D1nE4ykzn2qxfktJn7KhJa5Fimj1.
+- 공개 화면 PC 및 390×844px에서 기본 수주잔고 카드(652억6600만원·2026상반기), 설명·연간 결측 표시·26.1H 축을 시각 검수했다. 캡처 outputs/ui-review/backlog-restored-public-desktop-2026-09-30.jpg / backlog-restored-public-mobile-2026-09-30.jpg. 임시 검수 탭을 닫고 viewport override 해제. 커밋/푸시 미실행.
+
+
+### 2026-09-30 누적 작업 커밋·푸시 전 검증
+
+- 사용자 요청에 따라 재무 지표/검산·적응형 상세, 재무 차트/UI, 기업 개요/메모리 사업 설명, 사업 지표 연간 추이/투자집행/수주잔고, 데이터 화면 및 관련 검증 산출물을 하나의 변경 묶음으로 준비했다. 별도 Oracle 이전 준비 문서와 SQL은 이번 커밋에서 제외하고 작업 트리에 보존한다.
+- 전체 서버 테스트에서 기존 스크리너 fixture의 자산 10억원과 자본/부채 수백원 사이 불일치가 검산에 걸렸다. fixture의 재무/시총 단위를 1,000만원으로 통일하고 자산=자본+부채를 맞췄다. 실제 검산 코드는 변경하지 않았으며 잘못된 재무상태표를 비우는 endpoint 회귀 검증을 추가했다.
+- 최종 dart analyze clean, 전체 수기 Dart 포맷 294파일 변경 없음, Flutter 186개 통과(별도 원천 스냅샷 기반 2개는 기본 실행에서 skip), 서버 383개 전체 통과. git diff check 및 후보 파일의 비밀값 문자열 점검 통과. 최근 MCP 서버 조회 정상, Flutter 마지막 hot restart 정상.

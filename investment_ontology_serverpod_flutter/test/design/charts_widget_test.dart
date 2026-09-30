@@ -42,12 +42,156 @@ AppBrand _brand() => AppBrand(
   shape: const AppShape(radius: 0, strokeWidth: 1.2),
 );
 
-Widget _app(Widget child) => MaterialApp(
+Widget _app(Widget child, {double width = 400}) => MaterialApp(
   theme: buildAppTheme(_brand()),
-  home: Scaffold(body: SizedBox(width: 400, child: child)),
+  home: Scaffold(
+    body: SizedBox(width: width, child: child),
+  ),
 );
 
 void main() {
+  test('compact annual and interim labels all fit a mobile axis', () {
+    final widths = [14.0, 14.0, 14.0, 14.0, 14.0, 14.0, 35.0];
+    expect(categoryAxisLabelIndices(widths: widths, plotWidth: 258), [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+    ]);
+    expect(
+      categoryAxisLabelIndices(widths: [...widths.take(6), 26], plotWidth: 192),
+      [0, 1, 2, 3, 4, 5, 6],
+    );
+  });
+  test('one long final label does not thin all annual labels', () {
+    final widths = [28.0, 28.0, 28.0, 28.0, 28.0, 28.0, 90.0];
+    final selected = categoryAxisLabelIndices(widths: widths, plotWidth: 258);
+    expect(selected, containsAll([0, 1, 2, 3, 6]));
+    var previousRight = double.negativeInfinity;
+    for (final i in selected) {
+      final left = (258 / widths.length * (i + .5) - widths[i] / 2).clamp(
+        0,
+        258 - widths[i],
+      );
+      expect(left, greaterThanOrEqualTo(previousRight + 4));
+      expect(left + widths[i], lessThanOrEqualTo(258));
+      previousRight = left + widths[i];
+    }
+    expect(categoryAxisLabelIndices(widths: widths, plotWidth: 0), isEmpty);
+    expect(categoryAxisLabelIndices(widths: [], plotWidth: 258), isEmpty);
+    expect(
+      categoryAxisLabelIndices(
+        widths: List.filled(7, 14),
+        plotWidth: 258,
+        maxLabels: 4,
+      ),
+      [0, 2, 4, 6],
+    );
+  });
+  AppComboChart combo({bool short = false, bool empty = false}) =>
+      AppComboChart(
+        categories: short ? ['2025'] : ['2023', '2024', '2025'],
+        columnSeries: ChartSeries(
+          label: '매출액',
+          color: const Color(0xFF2F6DA8),
+          values: short ? [250] : [100, 0, 250],
+        ),
+        lineSeries: ChartSeries(
+          label: '영업이익률',
+          color: const Color(0xFFC8401A),
+          values: short ? [empty ? null : .4] : [-12.3, null, .4],
+        ),
+        extraTooltipSeries: [
+          ChartSeries(
+            label: '영업이익',
+            color: const Color(0xFF5C554A),
+            values: short ? [100] : [-1230, null, 100],
+          ),
+        ],
+        formatValue: (v) => '${v.toStringAsFixed(0)}원',
+        formatLineValue: (v) => '${(v * 100).toStringAsFixed(1)}%',
+      );
+
+  testWidgets('혼합 차트: 좁은 화면 터치 상세의 금액·비율과 적자', (tester) async {
+    await tester.pumpWidget(_app(combo(), width: 320));
+    final origin = tester.getTopLeft(find.byType(AppComboChart));
+    await tester.tapAt(origin + const Offset(96, 120));
+    await tester.pump();
+    expect(find.text('100원'), findsOneWidget);
+    expect(find.text('-1230원'), findsOneWidget);
+    expect(find.text('-1230.0%'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    await tester.tapAt(origin + const Offset(160, 120));
+    await tester.pump();
+    expect(find.text('0원'), findsOneWidget);
+    expect(find.text('—'), findsNWidgets(2));
+    expect(find.text('-1230.0%'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('혼합 차트: hover 후 기간을 바꿔도 이전 상세가 남지 않는다', (tester) async {
+    await tester.pumpWidget(_app(combo()));
+    final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await gesture.addPointer(location: Offset.zero);
+    await gesture.moveTo(
+      tester.getTopLeft(find.byType(AppComboChart)) + const Offset(280, 120),
+    );
+    await tester.pump();
+    expect(find.text('250원'), findsOneWidget);
+    expect(find.text('40.0%'), findsOneWidget);
+    await gesture.removePointer();
+
+    await tester.pumpWidget(_app(combo(short: true, empty: true)));
+    await tester.pump();
+    expect(find.text('40.0%'), findsNothing);
+    expect(tester.takeException(), isNull);
+    await tester.tap(find.byType(AppComboChart));
+    await tester.pump();
+    expect(find.text('250원'), findsOneWidget);
+    expect(find.text('—'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('두 이익률은 공통 축을 쓰며 누락된 영업이익률에도 순이익률을 표시한다', (tester) async {
+    final chart = AppComboChart(
+      categories: ['2025', '2026'],
+      columnSeries: const ChartSeries(
+        label: '매출액',
+        color: Color(0xFF2F6DA8),
+        values: [100, 100],
+      ),
+      lineSeries: const ChartSeries(
+        label: '영업이익률',
+        color: Color(0xFFC8401A),
+        values: [null, null],
+      ),
+      additionalLineSeries: const [
+        ChartSeries(
+          label: '순이익률',
+          color: Color(0xFF5C554A),
+          values: [-4, .5],
+          isLine: true,
+          isDashed: true,
+        ),
+      ],
+      formatValue: (v) => '${v.toStringAsFixed(0)}원',
+      formatLineValue: (v) => '${(v * 100).toStringAsFixed(1)}%',
+    );
+    expect(chart.secondarySeries!.values, [null, null, -4, .5]);
+    await tester.pumpWidget(_app(chart, width: 320));
+    final origin = tester.getTopLeft(find.byType(AppComboChart));
+    await tester.tapAt(origin + const Offset(100, 120));
+    await tester.pump();
+    expect(find.text('-400.0%'), findsOneWidget);
+    expect(find.text('—'), findsOneWidget);
+    expect(find.text('100원'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('막대·꺾은선 차트는 음수와 빈 값이 있어도 그린다', (tester) async {
     const series = [
       ChartSeries(

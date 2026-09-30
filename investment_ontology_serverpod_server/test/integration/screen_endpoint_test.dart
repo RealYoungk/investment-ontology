@@ -17,6 +17,12 @@ void main() {
     late Company big;
     late Company small;
 
+    // Financial and market amounts share a 1,000만원 fixture unit.
+    // The explicit thousand-won scenario below intentionally stays unscaled.
+    const moneyUnit = 10000000;
+    BigInt money(int value) => BigInt.from(value * moneyUnit);
+    int scale(Company c) => c.corpCode == '00000009' ? 1 : moneyUnit;
+
     Future<Company> company(String corpCode, String name, String industry) {
       final cls = KsicSeeder.classify(industry);
       return Company.db.insertRow(
@@ -75,10 +81,10 @@ void main() {
             accountId: e.key,
             accountName: e.key,
             periodName: '제 $year 기',
-            amount: BigInt.from(e.value.$1),
+            amount: BigInt.from(e.value.$1 * scale(c)),
             cumulativeAmount: e.value.$2 == null
                 ? null
-                : BigInt.from(e.value.$2!),
+                : BigInt.from(e.value.$2! * scale(c)),
             sourceId: source.id!,
           ),
       ]);
@@ -102,7 +108,7 @@ void main() {
           securityId: s.id!,
           baseDate: DateTime.utc(2026, 9, 16),
           closePrice: BigInt.from(1000),
-          marketCap: BigInt.from(cap),
+          marketCap: BigInt.from(cap * scale(c)),
           listedShares: BigInt.from(1000),
           tradingValue: BigInt.from(5000),
           sourceId: source.id!,
@@ -167,9 +173,8 @@ void main() {
         'ifrs-full_Equity': (500, null),
         'ifrs-full_EquityAttributableToOwnersOfParent': (480, null),
         'ifrs-full_Liabilities': (250, null),
-        // 자산총계로 재무제표가 원 단위임을 확인한다 (천원으로 적는 회사가 있어,
-        // 1억원을 넘는 자산총계를 본 뒤에만 시가총액과 섞는 지표를 낸다).
-        'ifrs-full_Assets': (1000000000, null),
+        // 자산 = 자본 + 부채. 금액 단위와 재무상태표 검산을 모두 통과한다.
+        'ifrs-full_Assets': (750, null),
       });
 
       // 작은회사: 최근 보고서가 사업보고서 → 그 값이 곧 최근 12개월.
@@ -179,7 +184,7 @@ void main() {
         'ifrs-full_ProfitLoss': (4, null),
         'ifrs-full_Equity': (50, null),
         'ifrs-full_Liabilities': (150, null),
-        'ifrs-full_Assets': (1000000000, null),
+        'ifrs-full_Assets': (200, null),
       });
 
       await quote(big, '000001', 1000);
@@ -208,9 +213,8 @@ void main() {
           ord: 0,
           item: '현금배당금총액(백만원)',
           unit: '백만원',
-          // 원으로는 2,000만원. 시가총액 1,000 대비로는 아주 큰 값이지만
-          // 계산이 맞는지만 본다.
-          current: 0.00002,
+          // 200백만원 = 20 fixture units.
+          current: 200,
         ),
       );
     });
@@ -262,7 +266,7 @@ void main() {
         sessionBuilder,
         volumeRatioMin: 2,
         volumeMin: BigInt.from(200),
-        marketCapMin: BigInt.from(1000),
+        marketCapMin: money(1000),
       );
       expect(page.items.map((r) => r.company.name), ['큰회사']);
       expect(page.items.single.volumeRatio, 2);
@@ -284,7 +288,7 @@ void main() {
       expect(
         (await endpoints.screen.list(
           sessionBuilder,
-          marketCapMin: BigInt.from(1001),
+          marketCapMin: money(1001),
         )).items,
         isEmpty,
       );
@@ -438,37 +442,61 @@ void main() {
       final b = rows['큰회사']!;
       // 매출 250 + 150 − 120 = 280, 영업이익 25 + 18 − 12 = 31,
       // 지배주주 순이익 20 + 16 − 10 = 26.
-      expect(b.revenue, BigInt.from(280));
-      expect(b.operatingIncome, BigInt.from(31));
-      expect(b.netIncome, BigInt.from(26));
+      expect(b.revenue, money(280));
+      expect(b.operatingIncome, money(31));
+      expect(b.netIncome, money(26));
       // 자본·부채는 최근 보고서(2026 반기) 기말 값.
-      expect(b.equity, BigInt.from(480));
-      expect(b.liabilities, BigInt.from(250));
-      expect(b.totalEquity, BigInt.from(500));
+      expect(b.equity, money(480));
+      expect(b.liabilities, money(250));
+      expect(b.totalEquity, money(500));
       expect(b.per, closeTo(1000 / 26, 1e-9));
       expect(b.pbr, closeTo(1000 / 480, 1e-9));
       expect(b.roe, closeTo(100 * 26 / 480, 1e-9));
       expect(b.operatingMargin, closeTo(100 * 31 / 280, 1e-9));
       expect(b.debtRatio, closeTo(100 * 250 / 500, 1e-9));
       // 영업활동 현금흐름 70 + 45 − 30 = 85, 유형자산 취득 20 + 15 − 10 = 25.
-      expect(b.freeCashFlow, BigInt.from(60));
+      expect(b.freeCashFlow, money(60));
       expect(b.fcfYield, closeTo(100 * 60 / 1000, 1e-9));
       // 성장률은 같은 기간끼리: 매출 (150 − 120) / 120.
       expect(b.revenueGrowth, closeTo(100 * 30 / 120, 1e-9));
       expect(b.operatingIncomeGrowth, closeTo(100 * 6 / 12, 1e-9));
-      expect(b.dividendTotal, BigInt.from(20));
+      expect(b.dividendTotal, money(20));
       expect(b.dividendYield, closeTo(100 * 20 / 1000, 1e-9));
 
       final s = rows['작은회사']!;
       // 사업보고서가 최근이면 그 값 그대로. 지배주주 값이 없으면 전체 값을 쓴다.
-      expect(s.revenue, BigInt.from(100));
-      expect(s.netIncome, BigInt.from(4));
-      expect(s.equity, BigInt.from(50));
+      expect(s.revenue, money(100));
+      expect(s.netIncome, money(4));
+      expect(s.equity, money(50));
       expect(s.per, closeTo(40 / 4, 1e-9));
       // 전년 자료가 없으면 성장률·FCF는 계산하지 않는다.
       expect(s.revenueGrowth, isNull);
       expect(s.bandPosition, isNull, reason: '상장 이력 1년 미만은 52주 위치를 단정하지 않는다');
       expect(s.freeCashFlow, isNull);
+    });
+
+    test('자산과 부채·자본이 맞지 않으면 해당 재무상태 지표를 비운다', () async {
+      final asset = (await FinancialFact.db.find(
+        session,
+        where: (t) =>
+            t.companyId.equals(big.id!) &
+            t.bsnsYear.equals(2026) &
+            t.accountId.equals('ifrs-full_Assets'),
+      )).single;
+      asset.amount = money(900); // liabilities 250 + equity 500 != assets 900.
+      await FinancialFact.db.updateRow(session, asset);
+      final row = (await endpoints.screen.list(
+        sessionBuilder,
+        corpCodes: [big.corpCode],
+      )).items.single;
+      expect(row.equity, isNull);
+      expect(row.totalEquity, isNull);
+      expect(row.liabilities, isNull);
+      expect(row.pbr, isNull);
+      expect(row.roe, isNull);
+      expect(row.debtRatio, isNull);
+      expect(row.revenue, money(280));
+      expect(row.operatingMargin, closeTo(100 * 31 / 280, 1e-9));
     });
 
     test('조건에 맞는 기업만 남기고, 정렬은 값이 없는 기업을 뒤로 보낸다', () async {
@@ -541,7 +569,8 @@ void main() {
           'dart_OperatingIncomeLoss': (20, null),
           'ifrs-full_ProfitLoss': (10, null),
           'ifrs-full_Equity': (100, null),
-          'ifrs-full_Assets': (1000000000, null),
+          'ifrs-full_Liabilities': (0, null),
+          'ifrs-full_Assets': (100, null),
         });
         await quote(c, '00000$i', 500);
       }

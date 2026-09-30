@@ -45,6 +45,21 @@ void main() {
     expect(latest.length, 1);
     expect(latest.single.documentId, 2);
   });
+  test('latest revenue is one complete period, never a mixture of Q1 and half year', () {
+    final q1 = fact(
+      year: 2026,
+      document: 8,
+    ).copyWith(asOf: DateTime.utc(2026, 3, 31));
+    final half = fact(
+      year: 2026,
+      document: 9,
+    ).copyWith(asOf: DateTime.utc(2026, 6, 30));
+    final lastAnnual = fact();
+    expect(
+      latestRevenueFacts([half, lastAnnual, q1]).map((f) => f.documentId),
+      [9],
+    );
+  });
   for (final width in [320.0, 1280.0]) {
     testWidgets('lesson navigation and original diagrams at $width', (
       tester,

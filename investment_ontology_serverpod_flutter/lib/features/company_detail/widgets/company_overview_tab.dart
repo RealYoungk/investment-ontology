@@ -8,21 +8,32 @@ import '../../common/formatters.dart';
 import 'business_guide_panel.dart';
 import 'company_news_section.dart';
 import 'price_chart.dart';
+import 'business_operating_section.dart';
 
 /// 개요는 사업 이해와 규모 파악, 재무 탭은 기간별 분석을 담당한다.
 class CompanyOverviewTab extends StatelessWidget {
   const CompanyOverviewTab({
     super.key,
     required this.detail,
+    this.latestReport,
+    this.dataVersion = 0,
   });
 
   final CompanyDetail detail;
+  final FinancialPeriod? latestReport;
+  final int dataVersion;
 
   @override
   Widget build(BuildContext context) {
     final main = [
       BusinessGuidePanel(
         corpCode: detail.company.corpCode,
+        latestReport: latestReport,
+      ),
+      BusinessOperatingSection(
+        corpCode: detail.company.corpCode,
+        dataVersion: dataVersion,
+        latestReport: latestReport,
       ),
       const SectionLabel('주가는 어떻게 움직였나요?', accent: true),
       const SizedBox(height: AppSpace.md),

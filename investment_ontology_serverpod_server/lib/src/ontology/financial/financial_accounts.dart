@@ -2,8 +2,8 @@ import '../../generated/protocol.dart';
 
 /// 화면에 쓰는 핵심 계정.
 ///
-/// 계정명이 아니라 XBRL 계정 ID로만 찾는다. 이름으로 비슷한 계정을 추측하지 않으므로
-/// 표준계정을 쓰지 않은 회사(금융업의 "영업수익" 등)는 값이 비어 보일 수 있다.
+/// XBRL ID를 우선한다. ID가 없는 행은 정해진 총계 명칭과 재무제표가
+/// 정확히 일치하고 후보가 하나뿐일 때만 보완한다. 원본 계정 ID는 보존한다.
 class FinancialAccount {
   const FinancialAccount(
     this.key,
@@ -31,11 +31,17 @@ abstract final class FinancialAccounts {
   static const _cf = [FinancialStatementKind.cashFlow];
 
   static const all = [
-    FinancialAccount('revenue', '매출액', ['ifrs-full_Revenue'], _pl),
+    FinancialAccount('revenue', '매출액', [
+      'ifrs-full_Revenue',
+      'ifrs-full_RevenueFromContractsWithCustomers',
+    ], _pl),
     FinancialAccount(
       'operatingIncome',
       '영업이익',
-      ['dart_OperatingIncomeLoss'],
+      [
+        'dart_OperatingIncomeLoss',
+        'ifrs-full_ProfitLossFromOperatingActivities',
+      ],
       _pl,
     ),
     FinancialAccount('netIncome', '당기순이익', ['ifrs-full_ProfitLoss'], _pl),
@@ -45,6 +51,22 @@ abstract final class FinancialAccounts {
       ['ifrs-full_ProfitLossAttributableToOwnersOfParent'],
       _pl,
     ),
+    FinancialAccount('interestDebtIncludingLeases', '이자부채(리스 포함)', [], _bs),
+    FinancialAccount('cash', '현금및현금성자산', [
+      'ifrs-full_CashAndCashEquivalents',
+    ], _bs),
+    FinancialAccount('noncontrollingInterest', '비지배지분', [
+      'ifrs-full_NoncontrollingInterests',
+    ], _bs),
+    FinancialAccount('depreciationAmortisation', '감가상각비 및 무형자산상각비', [
+      'ifrs-full_AdjustmentsForDepreciationAndAmortisationExpense',
+    ], _cf),
+    FinancialAccount('depreciation', '감가상각비', [
+      'ifrs-full_AdjustmentsForDepreciationExpense',
+    ], _cf),
+    FinancialAccount('amortisation', '무형자산상각비', [
+      'ifrs-full_AdjustmentsForAmortisationExpense',
+    ], _cf),
     FinancialAccount('assets', '자산총계', ['ifrs-full_Assets'], _bs),
     FinancialAccount('liabilities', '부채총계', ['ifrs-full_Liabilities'], _bs),
     FinancialAccount('equity', '자본총계', ['ifrs-full_Equity'], _bs),
@@ -74,6 +96,54 @@ abstract final class FinancialAccounts {
     for (final a in all) ...a.accountIds,
   };
 
+  // Deliberately excludes EPS, comprehensive income, continuing operations,
+  // owner/segment subtotals and "loss" labels whose positive sign is ambiguous.
+  static const fallbackNames = <String, List<String>>{
+    'interestDebtIncludingLeases': ['총차입금(리스부채포함)', '차입금및사채및리스부채합계'],
+    'revenue': ['매출액'],
+    'cash': ['현금및현금성자산'],
+    'equity': ['자본총계'],
+    'operatingCashFlow': ['영업활동현금흐름'],
+    'depreciation': ['감가상각비'],
+    'amortisation': ['무형자산상각비'],
+    'netIncome': [
+      '당기순이익(손실)',
+      '반기순이익(손실)',
+      '분기순이익(손실)',
+      '당기순이익',
+      '반기순이익',
+      '분기순이익',
+    ],
+    'operatingIncome': ['영업이익(손실)', '영업이익'],
+    'capex': ['유형자산의취득', '유형자산취득'],
+  };
+
+  static String normalizedName(String name) =>
+      name.replaceAll(RegExp(r'\s+'), '');
+
+  /// Shared finite mapping for SQL consumers; no fuzzy or company-specific match.
+  static String resolvedIdSql(String alias) {
+    const spaces =
+        r'[[:space:]\u00A0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF]';
+    final name = "regexp_replace($alias.\"accountName\", '$spaces', '', 'g')";
+    final cases = <String>[];
+    for (final account in all) {
+      for (final aliasId in account.accountIds.skip(1)) {
+        cases.add(
+          "WHEN $alias.\"accountId\" = '$aliasId' THEN '${account.accountIds.first}'",
+        );
+      }
+      final names = fallbackNames[account.key];
+      if (names == null || account.accountIds.isEmpty) continue;
+      final labels = names.map((n) => "'$n'").join(',');
+      final statements = account.statements.map((s) => "'${s.name}'").join(',');
+      cases.add(
+        "WHEN $alias.\"accountId\" IS NULL AND $alias.statement IN ($statements) AND $name IN ($labels) THEN '${account.accountIds.first}'",
+      );
+    }
+    return 'CASE ${cases.join(' ')} ELSE $alias."accountId" END';
+  }
+
   /// 한 보고서의 사실에서 핵심 계정을 고른다. 자본변동표 세부(accountDetail) 행은 쓰지 않는다.
   static List<FinancialLine> pick(List<FinancialFact> facts) {
     final lines = <FinancialLine>[];
@@ -85,12 +155,29 @@ abstract final class FinancialAccounts {
           for (final f in facts) {
             if (f.accountId == id &&
                 f.statement == statement &&
+                f.supersededById == null &&
                 f.accountDetail == null) {
               found = f;
               break search;
             }
           }
         }
+      }
+      if (found == null) {
+        final names = fallbackNames[account.key];
+        final candidates = names == null
+            ? <FinancialFact>[]
+            : facts
+                  .where(
+                    (f) =>
+                        f.accountId == null &&
+                        f.accountDetail == null &&
+                        f.supersededById == null &&
+                        account.statements.contains(f.statement) &&
+                        names.contains(normalizedName(f.accountName)),
+                  )
+                  .toList();
+        if (candidates.length == 1) found = candidates.single;
       }
       if (found == null) continue;
       lines.add(
@@ -100,10 +187,36 @@ abstract final class FinancialAccounts {
           statement: found.statement,
           accountId: found.accountId,
           accountName: found.accountName,
+          currency: found.currency,
           amount: found.amount,
           cumulativeAmount: found.cumulativeAmount,
         ),
       );
+    }
+    final bs = {for (final l in lines) l.key: l};
+    final totals = [bs['assets'], bs['liabilities'], bs['equity']];
+    if (totals.every((l) => l?.amount != null) &&
+        totals.map((l) => l!.currency ?? 'KRW').toSet().length == 1) {
+      final a = totals[0]!.amount!,
+          b = totals[1]!.amount!,
+          e = totals[2]!.amount!;
+      // Allow at most one part per million for independently rounded totals.
+      final tolerance = a.abs() ~/ BigInt.from(1000000);
+      final allowed = tolerance > BigInt.from(1000)
+          ? tolerance
+          : BigInt.from(1000);
+      if ((a - b - e).abs() > allowed) {
+        for (final l in lines.where(
+          (l) => const {
+            'assets',
+            'liabilities',
+            'equity',
+            'equityOwners',
+          }.contains(l.key),
+        )) {
+          l.unavailableReason = '자산·부채·자본 합계 불일치 · 원천 공시 확인 필요';
+        }
+      }
     }
     return lines;
   }

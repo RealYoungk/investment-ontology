@@ -9,3 +9,7 @@ fields:
   accountName: String
   amount: BigInt?
   cumulativeAmount: BigInt?
+  ### 원천 재무 표시 통화. 환산하지 않은 금액을 원화로 해석하지 않는다.
+  currency: String?
+  ### 충돌하는 원천 계정 등으로 계산에 사용할 수 없을 때의 구체적 사유.
+  unavailableReason: String?

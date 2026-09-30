@@ -43,6 +43,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _izmct7si;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/business_document_ref.dart'
     as _i9fapywb;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/business_fact_period.dart'
+    as _inzxvyu7;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/business_understanding.dart'
     as _iyogv5m9;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_detail.dart'
@@ -1672,6 +1674,37 @@ class _DisclosureEndpoint {
     });
   }
 
+  _ida.Future<List<_inzxvyu7.BusinessFactPeriod>> factPeriods(
+    _ist.TestSessionBuilder sessionBuilder,
+    String corpCode,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'disclosure',
+            method: 'factPeriods',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'disclosure',
+          methodName: 'factPeriods',
+          parameters: _ist.testObjectToJson({'corpCode': corpCode}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_inzxvyu7.BusinessFactPeriod>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
   _ida.Future<List<_ihq2wng4.DocumentFact>> factTrends(
     _ist.TestSessionBuilder sessionBuilder,
     String corpCode,
@@ -2502,8 +2535,9 @@ class _IngestEndpoint {
   }
 
   _ida.Future<String> rebuildProductionFacts(
-    _ist.TestSessionBuilder sessionBuilder,
-  ) async {
+    _ist.TestSessionBuilder sessionBuilder, {
+    String? corpCode,
+  }) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
           (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
@@ -2515,7 +2549,7 @@ class _IngestEndpoint {
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'ingest',
           methodName: 'rebuildProductionFacts',
-          parameters: _ist.testObjectToJson({}),
+          parameters: _ist.testObjectToJson({'corpCode': corpCode}),
           serializationManager: _serializationManager,
         );
         var _localReturnValue =

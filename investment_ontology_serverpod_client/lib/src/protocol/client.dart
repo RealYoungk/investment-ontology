@@ -26,6 +26,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _i5qsmr7t;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/business_document_ref.dart'
     as _id7v70oo;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/business_fact_period.dart'
+    as _irhba4h9;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/business_understanding.dart'
     as _ixjez09i;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_detail.dart'
@@ -708,6 +710,14 @@ class EndpointDisclosure extends _isc.EndpointRef {
   /// 승인된 값 전부 (연도별 흐름을 보려고). 오래된 해부터.
   ///
   /// 같은 항목이 해마다 있으면 화면이 막대 차트로 그린다 — 표만 있으면 흐름이 안 보인다.
+  _ida.Future<List<_irhba4h9.BusinessFactPeriod>> factPeriods(
+    String corpCode,
+  ) => caller.callServerEndpoint<List<_irhba4h9.BusinessFactPeriod>>(
+    'disclosure',
+    'factPeriods',
+    {'corpCode': corpCode},
+  );
+
   _ida.Future<List<_ip7x5uw8.DocumentFact>> factTrends(String corpCode) =>
       caller.callServerEndpoint<List<_ip7x5uw8.DocumentFact>>(
         'disclosure',
@@ -1019,11 +1029,11 @@ class EndpointIngest extends _isc.EndpointRef {
   /// 이미 받아 둔 본문에서 생산능력·생산실적·가동률 표를 다시 읽는다 (호출 없음).
   ///
   /// 규칙을 고친 뒤 되돌려 읽을 때 쓴다. 사람이 이미 결정한 항목은 건드리지 않는다.
-  _ida.Future<String> rebuildProductionFacts() =>
+  _ida.Future<String> rebuildProductionFacts({String? corpCode}) =>
       caller.callServerEndpoint<String>(
         'ingest',
         'rebuildProductionFacts',
-        {},
+        {'corpCode': corpCode},
       );
 }
 

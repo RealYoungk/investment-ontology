@@ -158,6 +158,7 @@ void main() {
       int year, {
       FilingFetchStatus financial = FilingFetchStatus.stored,
       String? name,
+      FinancialReportCode code = FinancialReportCode.annual,
     }) => DartFiling.db.insertRow(
       session,
       DartFiling(
@@ -167,7 +168,7 @@ void main() {
         reportName: name ?? '사업보고서 ($year.12)',
         receivedDate: DateTime.utc(year + 1, 3, 10),
         bsnsYear: year,
-        reportCode: FinancialReportCode.annual,
+        reportCode: code,
         consolidatedStatus: financial,
         separateStatus: financial,
         discoveredAt: now,
@@ -643,6 +644,101 @@ void main() {
       );
       expect(content.sections.last.text, '부문 | 주요 제품\nDS | DRAM & NAND');
       expect(content.source!.reference, rSamsung);
+    });
+
+    test('최신 반기 본문을 연간과 별개로 저장하고 원문·시장점유율 기간을 보존한다', () async {
+      const half = '20260814009999';
+      final halfFiling = await filing(
+        samsung,
+        half,
+        2026,
+        name: '반기보고서 (2026.06)',
+        code: FinancialReportCode.halfYear,
+      );
+      dart.documents[rSamsung] = '<DOCUMENT><BODY><TITLE AASSOCNOTE="D-0-2-0-0">II. 사업의 내용</TITLE><P>2025년 연간 사업</P></BODY></DOCUMENT>';
+      dart.documents[half] =
+          '''<DOCUMENT><BODY><TITLE AASSOCNOTE="D-0-2-0-0">II. 사업의 내용</TITLE>
+        <TABLE><TR><TH>제 품</TH><TH>2026년 반기</TH><TH>2025년</TH><TH>2024년</TH></TR>
+        <TR><TD>DRAM</TD><TD>39.4%</TD><TD>34.0%</TD><TD>41.5%</TD></TR></TABLE>
+        <P>※ 시장점유율은 금액기준이며, 2026년 반기 시장점유율은 당사 추정치입니다.</P>
+        </BODY></DOCUMENT>''';
+      await runSync(corpCode: samsung);
+      final reports = await DisclosureReport.db.find(
+        session,
+        where: (t) => t.section.equals(DartSection.businessContent),
+      );
+      expect(
+        reports.map((r) => r.reportCode),
+        containsAll([FinancialReportCode.annual, FinancialReportCode.halfYear]),
+      );
+      expect(reports.every((r) => r.supersededById == null), isTrue);
+      expect(
+        reports
+            .singleWhere((r) => r.reportCode == FinancialReportCode.halfYear)
+            .settlementDate,
+        DateTime.utc(2026, 6, 30),
+      );
+      final ledger = await DartFilingSection.db.find(
+        session,
+        where: (t) => t.filingId.equals(halfFiling.id!),
+      );
+      expect(ledger.map((r) => r.section), [DartSection.businessContent]);
+      final core = await DartFilingSection.db.findFirstRow(
+        session,
+        where: (t) =>
+            t.companyId.equals(ids[samsung]!) &
+            t.section.equals(DartSection.largestShareholders),
+      );
+      expect(core!.yearRank, 0);
+      final content = await endpoints.disclosure.businessContent(
+        sessionBuilder,
+        samsung,
+      );
+      expect(content!.bsnsYear, 2025);
+      final facts = await endpoints.disclosure.factTrends(
+        sessionBuilder,
+        samsung,
+      );
+      expect(
+        facts.map((f) => (f.asOf, f.value)),
+        containsAll([
+          (DateTime.utc(2026, 6, 30), 39.4),
+          (DateTime.utc(2025, 12, 31), 34.0),
+        ]),
+      );
+      final calls = dart.calls.length;
+      await runSync(corpCode: samsung);
+      expect(dart.calls.length, calls); // idempotent
+      const correction = '20260901009999';
+      await filing(
+        samsung,
+        correction,
+        2026,
+        name: '[기재정정]반기보고서 (2026.06)',
+        code: FinancialReportCode.halfYear,
+      );
+      dart.documents[correction] = dart.documents[half]!.replaceAll(
+        '39.4%',
+        '39.5%',
+      );
+      await runSync(corpCode: samsung);
+      final corrected = await endpoints.disclosure.factTrends(
+        sessionBuilder,
+        samsung,
+      );
+      expect(
+        corrected
+            .where((f) => f.asOf == DateTime.utc(2026, 6, 30))
+            .map((f) => f.value),
+        [39.5],
+      );
+      final annual = await DisclosureReport.db.findFirstRow(
+        session,
+        where: (t) =>
+            t.rceptNo.equals(rSamsung) &
+            t.section.equals(DartSection.businessContent),
+      );
+      expect(annual!.supersededById, isNull);
     });
 
     test('정정공시의 원본 파일이 없으면 같은 사업연도의 이전 접수번호로 받는다', () async {

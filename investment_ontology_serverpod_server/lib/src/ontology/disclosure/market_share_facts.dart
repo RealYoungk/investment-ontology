@@ -12,7 +12,7 @@ abstract final class MarketShareFacts {
   static const contextLines = 15;
 
   static final _year = RegExp(
-    r"^(?:'?(\d{2})|((?:19|20)\d{2}))\s*년?(?:도)?(?:말)?$",
+    r"^(?:'?(\d{2})|((?:19|20)\d{2}))\s*년?(?:도)?\s*(상반기|반기|1분기|3분기)?(?:말)?$",
   );
   static final _percent = RegExp(r'^(\d{1,3}(?:\.\d+)?)\s*%$');
   static final _plain = RegExp(r'^(\d{1,3}(?:\.\d+)?)$');
@@ -24,14 +24,36 @@ abstract final class MarketShareFacts {
   static final _self = RegExp(r'^(당\s*사|자\s*사|연결회사|연결실체|회사)(\s|$|\(|점유율)');
 
   /// (이름, 연도, 값 %, 그 줄).
-  static List<({String label, int year, double value, String evidence})> parse(
+  static List<
+    ({
+      String label,
+      int year,
+      int month,
+      double value,
+      String evidence,
+      String basis,
+      bool estimated,
+    })
+  >
+  parse(
     String text, {
     required String owner,
 
     /// 보고서의 사업연도. 이보다 7년 넘게 앞선 연도 칸(옛 추이표)은 받지 않는다.
     int? bsnsYear,
   }) {
-    final out = <({String label, int year, double value, String evidence})>[];
+    final out =
+        <
+          ({
+            String label,
+            int year,
+            int month,
+            double value,
+            String evidence,
+            String basis,
+            bool estimated,
+          })
+        >[];
     final ownerKey = _key(owner);
     final lines = text.split('\n');
     var lastShareAt = -1000;
@@ -39,13 +61,27 @@ abstract final class MarketShareFacts {
     // 머리글의 연도 자리: 머리글 칸 수, (칸 자리 → 연도).
     var columns = 0;
     var years = <int, int>{};
+    var months = <int, int>{};
     // 연도마다 칸이 여럿일 때: 칸 수와 그중 점유율 칸의 자리.
     var span = 1, offset = 0;
     String? hint;
+    var basis = '';
+    var estimated = false;
     // 표에 이 회사 줄이 없고 값 줄이 하나뿐이면(제품별 표: "TV | 28.3% | 30.1% | 29.7%")
     // 그 한 줄이 이 회사의 점유율이다. 표가 끝날 때 판단하려고 모아 둔다.
     var tableRows = 0;
-    List<({String label, int year, double value, String evidence})>? single;
+    List<
+      ({
+        String label,
+        int year,
+        int month,
+        double value,
+        String evidence,
+        String basis,
+        bool estimated,
+      })
+    >?
+    single;
     void endTable() {
       if (tableRows == 1 && single != null) out.addAll(single!);
       tableRows = 0;
@@ -74,6 +110,7 @@ abstract final class MarketShareFacts {
       }
       // 머리글: 연도 칸이 둘 이상.
       final found = <int, int>{};
+      final foundMonths = <int, int>{};
       for (var c = 0; c < cells.length; c++) {
         final m = _year.firstMatch(cells[c]);
         if (m == null) continue;
@@ -81,6 +118,12 @@ abstract final class MarketShareFacts {
             ? int.parse(m.group(2)!)
             : 2000 + int.parse(m.group(1)!);
         found[c] = y;
+        foundMonths[c] = switch (m.group(3)) {
+          '상반기' || '반기' => 6,
+          '1분기' => 3,
+          '3분기' => 9,
+          _ => 12,
+        };
       }
       if (found.length >= 2 && found.length == found.values.toSet().length) {
         endTable();
@@ -97,9 +140,17 @@ abstract final class MarketShareFacts {
         }
         columns = cells.length;
         years = found;
+        months = foundMonths;
         span = 1;
         offset = 0;
         hint = _hint(lines, i);
+        final context = lines.skip(i).take(8).join('\n');
+        basis = RegExp(r'금액\s*기준').hasMatch(context)
+            ? '매출액 기준'
+            : RegExp(r'수량\s*기준').hasMatch(context)
+            ? '판매량 기준'
+            : '';
+        estimated = RegExp(r'당사\s*추정').hasMatch(context);
         // 둘째 머리글 줄("수주량 | 점유율 | 수주량 | 점유율 …")이 있으면 연도마다 칸이 여럿이다.
         // 점유율 칸의 자리를 기억한다.
         if (i + 1 < lines.length) {
@@ -188,16 +239,22 @@ abstract final class MarketShareFacts {
           out.add((
             label: any ? out.last.label : unique(hint ?? '당사'),
             year: e.value,
+            month: months[e.key]!,
             value: v,
             evidence: line,
+            basis: basis,
+            estimated: estimated && months[e.key]! != 12,
           ));
         } else {
           // 제품별 표의 한 줄: 이름은 그 줄의 제품.
           (single ??= []).add((
             label: any ? single!.last.label : unique(label),
             year: e.value,
+            month: months[e.key]!,
             value: v,
             evidence: line,
+            basis: basis,
+            estimated: estimated && months[e.key]! != 12,
           ));
         }
         any = true;

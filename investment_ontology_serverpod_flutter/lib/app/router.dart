@@ -86,8 +86,13 @@ abstract final class AppRoutes {
     redirect: (_, state) {
       final viewer = AppAuth.viewer.value;
       final path = state.uri.path;
-      // 테마는 고도화 전까지 사용자 동선에서 제외한다. 저장 데이터는 유지한다.
-      if (path == '/themes' || path.startsWith('/themes/')) return '/home';
+      // 테마와 지분 묶음은 고도화 전까지 숨긴다. 저장 데이터와 구현은 유지한다.
+      if (path == '/themes' ||
+          path.startsWith('/themes/') ||
+          path == '/groups' ||
+          path.startsWith('/groups/')) {
+        return '/home';
+      }
       final adminOnly =
           path == '/data' || path == '/review' || path.startsWith('/admin/');
       if (adminOnly && !(viewer?.isAdmin ?? false)) return '/home';

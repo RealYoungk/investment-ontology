@@ -33,9 +33,11 @@ class BusinessTab extends StatefulWidget {
     super.key,
     required this.corpCode,
     this.dataVersion = 0,
+    this.sourceOnly = false,
   });
 
   final String corpCode;
+  final bool sourceOnly;
 
   /// 수집이 끝날 때마다 오른다. 바뀌면 다시 읽되 고른 소제목은 그대로 둔다.
   final int dataVersion;
@@ -47,6 +49,7 @@ class BusinessTab extends StatefulWidget {
 class _BusinessTabState extends State<BusinessTab> {
   BusinessContent? _content;
   Object? _error;
+  bool _loaded = false;
   int? _year;
   int _section = 0;
   int _seq = 0;
@@ -57,6 +60,7 @@ class _BusinessTabState extends State<BusinessTab> {
   @override
   void initState() {
     super.initState();
+    _showRaw = widget.sourceOnly;
     _load();
   }
 
@@ -81,11 +85,17 @@ class _BusinessTabState extends State<BusinessTab> {
       if (!mounted || seq != _seq) return;
       setState(() {
         _content = c;
+        _loaded = true;
         _error = null;
         if (!keepSection) _section = 0;
       });
     } catch (e) {
-      if (mounted && seq == _seq) setState(() => _error = e);
+      if (mounted && seq == _seq) {
+        setState(() {
+          _error = e;
+          _loaded = true;
+        });
+      }
     }
   }
 
@@ -97,7 +107,13 @@ class _BusinessTabState extends State<BusinessTab> {
     if (_error != null) {
       return AppNotice(message: '사업의 내용을 불러오지 못했습니다 — $_error');
     }
-    if (content == null) return const LinearProgressIndicator(minHeight: 2);
+    if (!_loaded) return const LinearProgressIndicator(minHeight: 2);
+    if (content == null) {
+      return Text(
+        '저장된 사업 원문이 없습니다.',
+        style: t.body(14, color: c.textSecondary),
+      );
+    }
     final sections = content.sections;
     final current = sections.isEmpty
         ? null
@@ -147,16 +163,23 @@ class _BusinessTabState extends State<BusinessTab> {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             Text(
-              '${content.title} · FY${content.bsnsYear} 사업보고서',
+              widget.sourceOnly
+                  ? '${content.bsnsYear}년 사업보고서'
+                  : '${content.title} · FY${content.bsnsYear} 사업보고서',
               style: t.body(14, weight: FontWeight.w600),
             ),
             if (content.years.length > 1 ||
-                content.years.first < DateTime.now().year)
+                (content.years.firstOrNull ?? DateTime.now().year) <
+                    DateTime.now().year)
               AppToggleGroup<int>(
                 value: content.bsnsYear,
                 // 지금 해의 사업보고서가 아직 없으면 그 칸을 지우지 않고 흐리게 둔다.
                 options: {
-                  for (final y in _withThisYear(content.years)) y: 'FY$y',
+                  for (final y
+                      in (widget.sourceOnly
+                          ? content.years
+                          : _withThisYear(content.years)))
+                    y: '$y년',
                 },
                 disabled: {
                   for (final y in _withThisYear(content.years))
@@ -170,31 +193,33 @@ class _BusinessTabState extends State<BusinessTab> {
           ],
         ),
         const SizedBox(height: AppSpace.md),
-        _Digest(
-          corpCode: widget.corpCode,
-          bsnsYear: content.bsnsYear,
-          dataVersion: widget.dataVersion,
-        ),
-        _DocumentFacts(corpCode: widget.corpCode),
-        _AiRelations(corpCode: widget.corpCode),
-        const SizedBox(height: AppSpace.lg),
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                '원문 (${formatCount(content.charCount)}자) — 위 글은 이 원문을 읽어 쓴 것입니다. '
-                '표는 칸만 옮겼고 그림·서식은 빠집니다.',
-                style: t.body(12, color: c.textMuted),
+        if (!widget.sourceOnly) ...[
+          _Digest(
+            corpCode: widget.corpCode,
+            bsnsYear: content.bsnsYear,
+            dataVersion: widget.dataVersion,
+          ),
+          _DocumentFacts(corpCode: widget.corpCode),
+          _AiRelations(corpCode: widget.corpCode),
+          const SizedBox(height: AppSpace.lg),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '원문 (${formatCount(content.charCount)}자) — 위 글은 이 원문을 읽어 쓴 것입니다. '
+                  '표는 칸만 옮겼고 그림·서식은 빠집니다.',
+                  style: t.body(12, color: c.textMuted),
+                ),
               ),
-            ),
-            AppButton(
-              label: _showRaw ? '원문 접기' : '원문 펼치기',
-              variant: AppButtonVariant.link,
-              onPressed: () => setState(() => _showRaw = !_showRaw),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpace.lg),
+              AppButton(
+                label: _showRaw ? '원문 접기' : '원문 펼치기',
+                variant: AppButtonVariant.link,
+                onPressed: () => setState(() => _showRaw = !_showRaw),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpace.lg),
+        ],
         if (_showRaw)
           LayoutBuilder(
             builder: (context, constraints) {
@@ -205,7 +230,29 @@ class _BusinessTabState extends State<BusinessTab> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    toc,
+                    if (widget.sourceOnly && sections.isNotEmpty)
+                      DropdownButtonFormField<int>(
+                        key: ValueKey(content.bsnsYear),
+                        initialValue: _section.clamp(0, sections.length - 1),
+                        isExpanded: true,
+                        decoration: const InputDecoration(labelText: '소제목'),
+                        items: [
+                          for (final (i, s) in sections.indexed)
+                            DropdownMenuItem(
+                              value: i,
+                              child: Text(
+                                s.title.isEmpty ? '머리말' : s.title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                        ],
+                        onChanged: (i) {
+                          if (i != null) setState(() => _section = i);
+                        },
+                      )
+                    else
+                      toc,
                     const SizedBox(height: AppSpace.lg),
                     body,
                   ],
@@ -222,23 +269,24 @@ class _BusinessTabState extends State<BusinessTab> {
             },
           ),
         const SizedBox(height: AppSpace.xl),
-        if (content.source case final s?)
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  '${s.title} · 접수 ${s.reference ?? ''} · 수집 ${formatDateTime(s.retrievedAt)}',
-                  style: t.body(11.5, color: c.textMuted),
+        if (!widget.sourceOnly && content.source != null)
+          if (content.source case final s?)
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '${s.title} · 접수 ${s.reference ?? ''} · 수집 ${formatDateTime(s.retrievedAt)}',
+                    style: t.body(11.5, color: c.textMuted),
+                  ),
                 ),
-              ),
-              if (s.url != null)
-                AppButton(
-                  label: 'DART 공시 →',
-                  variant: AppButtonVariant.link,
-                  onPressed: () => launchUrl(Uri.parse(s.url!)),
-                ),
-            ],
-          ),
+                if (s.url != null)
+                  AppButton(
+                    label: 'DART 공시 →',
+                    variant: AppButtonVariant.link,
+                    onPressed: () => launchUrl(Uri.parse(s.url!)),
+                  ),
+              ],
+            ),
       ],
     );
   }

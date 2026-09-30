@@ -37,10 +37,9 @@ const _destinations = [
   ),
   _Destination('스크리너', '/screen', matches: ['/compare']),
   _Destination('관계망', '/graph'),
-  _Destination('지분 묶음', '/groups'),
 ];
 
-/// 모든 화면을 감싸는 틀: 맨 위 메뉴(시장 · 기업 · 스크리너 · 관계망 · 지분 묶음 · 데이터) + 본문.
+/// 모든 화면을 감싸는 틀: 맨 위 메뉴(시장 · 기업 · 스크리너 · 관계망 · 데이터) + 본문.
 ///
 /// 검수 화면(`/review`)은 메뉴에 두지 않는다 — AI가 읽은 것은 대조 검수를 거쳐 스스로 확정하고,
 /// 사람은 화면에 적힌 측정 정확도만 본다. 주소로는 여전히 열린다.
@@ -445,7 +444,6 @@ Future<_Hits> _searchAll(String query) async {
       ),
       (title: '기업 비교', detail: '재무 수익성 밸류에이션 비교', location: '/compare'),
       (title: '관계망', detail: '주주 임원 고객 공급 출자 연결', location: '/graph'),
-      (title: '지분 묶음', detail: '기업집단 지배구조 계열사', location: '/groups'),
       (title: '서비스 소개', detail: '사용법 도움말 출처', location: '/about'),
     ])
       if (matches('${item.title} ${item.detail}')) item,

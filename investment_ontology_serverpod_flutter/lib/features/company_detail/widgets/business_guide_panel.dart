@@ -13,14 +13,17 @@ import '../business/power_product_lesson.dart';
 import 'power_components_guide.dart';
 import '../business/company_development.dart';
 import 'company_development_section.dart';
+import 'company_research_guide.dart';
 
 /// Every issuer uses the same stored profile contract and explicit coverage states.
 class BusinessGuidePanel extends StatefulWidget {
   const BusinessGuidePanel({
     super.key,
     required this.corpCode,
+    this.latestReport,
   });
   final String corpCode;
+  final FinancialPeriod? latestReport;
   @override
   State<BusinessGuidePanel> createState() => _BusinessGuidePanelState();
 }
@@ -30,6 +33,7 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
   CompanyOverviewLesson? _lesson;
   bool _lessonLoading = true;
   PowerProductLesson? _powerLesson;
+  String? _issuerSummary;
   bool _failed = false;
   int _seq = 0, _selected = 0;
   @override
@@ -51,10 +55,12 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
       _lesson = null;
       _lessonLoading = true;
       _powerLesson = null;
+      _issuerSummary = null;
       _failed = false;
       _selected = 0;
     });
     _loadLesson(seq);
+    _loadSummary(seq);
     try {
       final data = await client.disclosure.understanding(widget.corpCode);
       if (mounted && seq == _seq) setState(() => _data = data);
@@ -79,6 +85,22 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
     }
   }
 
+  Future<void> _loadSummary(int seq) async {
+    try {
+      final sections = await client.disclosure.digest(widget.corpCode);
+      final overview = sections
+          .where((s) => s.kind == BusinessDigestKind.overview)
+          .firstOrNull;
+      if (mounted && seq == _seq) {
+        setState(
+          () => _issuerSummary = overview?.summary.split('\n').first.trim(),
+        );
+      }
+    } catch (_) {
+      // Confirmed product names remain usable if the optional digest is absent.
+    }
+  }
+
   Future<void> _loadLesson(int seq) async {
     CompanyOverviewLesson? lesson;
     try {
@@ -98,19 +120,40 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
   Widget build(BuildContext context) {
     final c = context.colors, t = context.typo;
     final data = _data;
-    final development = CompanyDevelopment.forCompany(widget.corpCode);
+    final research = _lesson?.research;
+    final development =
+        CompanyDevelopment.forCompany(widget.corpCode) ??
+        (research != null && research.covers(widget.latestReport)
+            ? research.development
+            : null);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (research != null || development != null) ...[
+          Text(
+            research?.summary ?? _issuerSummary ?? _lesson?.summary ?? '',
+            style: t.body(16, weight: FontWeight.w600).copyWith(height: 1.6),
+          ),
+          const SizedBox(height: AppSpace.xl),
+        ],
+        if (development != null) ...[
+          CompanyDevelopmentSection(development: development),
+          const SizedBox(height: AppSpace.xl),
+        ],
         SectionLabel(
-          _lesson != null && development == null
-              ? '어떤 사업으로 돈을 버나요?'
-              : '무엇을 팔고, 어디에 쓰이나요?',
+          '무엇을 팔고, 어디에 쓰이나요?',
           accent: true,
         ),
         const SizedBox(height: AppSpace.md),
-        if (_lesson != null && development == null)
-          BusinessModelGuide(lesson: _lesson!)
+        if (research != null)
+          CompanyResearchGuide(profile: research)
+        else if (_lesson != null && development == null)
+          BusinessModelGuide(
+            lesson: _lesson!,
+            summary: _issuerSummary,
+            compact: true,
+            showGrowth: false,
+          )
         else if (_lessonLoading && development == null)
           const LinearProgressIndicator(minHeight: 2)
         else if (_failed) ...[
@@ -159,10 +202,6 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
           ),
         ],
         const SizedBox(height: AppSpace.xl),
-        if (development != null) ...[
-          CompanyDevelopmentSection(development: development),
-          const SizedBox(height: AppSpace.xl),
-        ],
         if (_lesson?.models.first.label != '기업인수목적회사')
           RevenueComposition(
             corpCode: widget.corpCode,

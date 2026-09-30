@@ -106,7 +106,14 @@ String? screenMetricNote(ScreenRow row, String label) {
 
 /// 계산에 들어간 원천 값 하나.
 class MetricInput {
-  const MetricInput(this.label, this.amount, this.basis);
+  const MetricInput(
+    this.label,
+    this.amount,
+    this.basis, {
+    this.currency = 'KRW',
+  });
+
+  final String currency;
 
   final String label;
   final BigInt? amount;
@@ -127,6 +134,23 @@ class DerivedValue {
   final double? value;
   final String formula;
   final List<MetricInput> inputs;
+
+  Set<String> get currencies => {
+    for (final input in inputs)
+      if (input.amount != null) input.currency,
+  };
+
+  String? get currencyIssue => currencies.length > 1
+      ? '${currencies.join("·")} 통화 불일치 · 환율 환산 필요'
+      : null;
+
+  String formatAmount() {
+    if (value == null) return '—';
+    final currency = currencies.firstOrNull ?? 'KRW';
+    return currency == 'KRW'
+        ? formatKrw(BigInt.from(value!))
+        : '${formatKrw(BigInt.from(value!)).replaceAll('원', '')} $currency';
+  }
 
   /// 계산하지 못한 이유.
   final String? missing;
@@ -152,15 +176,24 @@ class PeriodPoint {
     required this.label,
     required this.revenue,
     required this.operatingIncome,
+    this.netIncome,
     this.derivedNote,
   });
 
   final String label;
   final DerivedValue revenue;
   final DerivedValue operatingIncome;
+  final DerivedValue? netIncome;
 
   /// 원천 값을 그대로 쓰지 않고 계산한 칸이면 그 설명 (예: 4분기).
   final String? derivedNote;
+
+  /// 당기순이익률 = 전체 당기순이익 ÷ 같은 기간 매출액.
+  double? get netMargin {
+    final r = revenue.value, n = netIncome?.value;
+    if (r == null || n == null || r <= 0) return null;
+    return n / r;
+  }
 
   /// 영업이익률 = 영업이익 ÷ 매출액.
   double? get operatingMargin {
@@ -170,13 +203,14 @@ class PeriodPoint {
   }
 }
 
-/// 한 해의 현금흐름.
+/// 한 기간의 현금흐름.
 class CashPoint {
   const CashPoint({
     required this.label,
     required this.operating,
     required this.capex,
     required this.free,
+    this.missing,
   });
 
   final String label;
@@ -185,6 +219,7 @@ class CashPoint {
 
   /// 잉여현금흐름 = 영업활동 현금흐름 − 유형자산의 취득.
   final double? free;
+  final String? missing;
 }
 
 /// [CompanyFinancials]의 원천 값으로 기간별 값과 파생 지표를 계산한다.
@@ -205,7 +240,21 @@ class FinancialView {
   static FinancialLine? line(FinancialPeriod? p, String key) {
     if (p == null) return null;
     for (final l in p.lines) {
-      if (l.key == key) return l;
+      if (l.key == key) {
+        return l.unavailableReason == null
+            ? l
+            // Construct explicitly: the release web compiler can retain the
+            // original BigInt fields when generated copyWith receives null.
+            : FinancialLine(
+                key: l.key,
+                factId: l.factId,
+                statement: l.statement,
+                accountId: l.accountId,
+                accountName: l.accountName,
+                currency: l.currency,
+                unavailableReason: l.unavailableReason,
+              );
+      }
     }
     return null;
   }
@@ -253,6 +302,7 @@ class FinancialView {
             label: '${p.bsnsYear}',
             revenue: _raw(p, 'revenue', '매출액'),
             operatingIncome: _raw(p, 'operatingIncome', '영업이익'),
+            netIncome: _raw(p, 'netIncome', '당기순이익'),
           ),
     ];
     final lastAnnual = lastAnnualYear;
@@ -264,6 +314,7 @@ class FinancialView {
           label: '${latest.bsnsYear} $l 누적',
           revenue: _cumulativeValue(latest, 'revenue', '매출액'),
           operatingIncome: _cumulativeValue(latest, 'operatingIncome', '영업이익'),
+          netIncome: _cumulativeValue(latest, 'netIncome', '당기순이익'),
           derivedNote: '사업보고서가 아직 없어 $l보고서까지의 누적 값',
         ),
       );
@@ -300,7 +351,9 @@ class FinancialView {
       value: v?.toDouble(),
       formula: '$label 누적 (${basis(p)})',
       inputs: [MetricInput(l?.accountName ?? label, v, basis(p))],
-      missing: l == null ? '$label 계정이 없음' : null,
+      missing:
+          l?.unavailableReason ??
+          (l?.amount == null ? '${p.bsnsYear} 연간 $label 계정 없음' : null),
     );
   }
 
@@ -349,6 +402,87 @@ class FinancialView {
     return points;
   }
 
+  /// 누적 공시에서 같은 사업연도의 직전 누적을 빼서 얻는 3개월 현금흐름.
+  List<CashPoint> cashFlowQuarterly() {
+    final years = {for (final p in data.periods) p.bsnsYear}.toList()..sort();
+    return [
+      for (final year in years)
+        for (final (quarter, code) in [
+          (1, FinancialReportCode.q1),
+          (2, FinancialReportCode.halfYear),
+          (3, FinancialReportCode.q3),
+          (4, FinancialReportCode.annual),
+        ])
+          if (period(year, code) case final p?)
+            _cashQuarterPoint(p, '${year % 100}.$quarter분기'),
+    ];
+  }
+
+  CashPoint _cashQuarterPoint(FinancialPeriod p, String label) {
+    final operating = _cashQuarterAmount(p, 'operatingCashFlow', '영업현금');
+    final capex = _cashQuarterAmount(p, 'capex', '유형자산 취득');
+    final missing = {
+      if (operating.missing != null) operating.missing!,
+      if (capex.missing != null) capex.missing!,
+    };
+    return CashPoint(
+      label: label,
+      operating: operating.value,
+      capex: capex.value,
+      free: operating.value == null || capex.value == null
+          ? null
+          : operating.value! - capex.value!,
+      missing: missing.isEmpty ? null : missing.join(' · '),
+    );
+  }
+
+  ({double? value, String? missing}) _cashQuarterAmount(
+    FinancialPeriod p,
+    String key,
+    String label,
+  ) {
+    final currentLine = line(p, key);
+    final current = cumulative(p, key);
+    if (current == null) {
+      return (
+        value: null,
+        missing:
+            currentLine?.unavailableReason ??
+            '${p.bsnsYear} ${reportCodeLabel(p.reportCode)} $label 계정 없음',
+      );
+    }
+    // 취득액의 양수/음수 표기 차이는 각 누적 원천에서 먼저 정규화한다.
+    final normalized = key == 'capex' ? current.abs() : current;
+    if (p.reportCode == FinancialReportCode.q1) {
+      return (value: normalized.toDouble(), missing: null);
+    }
+    final priorCode = switch (p.reportCode) {
+      FinancialReportCode.halfYear => FinancialReportCode.q1,
+      FinancialReportCode.q3 => FinancialReportCode.halfYear,
+      FinancialReportCode.annual => FinancialReportCode.q3,
+      FinancialReportCode.q1 => throw StateError('Handled above'),
+    };
+    final priorPeriod = period(p.bsnsYear, priorCode);
+    final priorLine = line(priorPeriod, key);
+    final prior = cumulative(priorPeriod, key);
+    if (prior == null) {
+      return (
+        value: null,
+        missing:
+            priorLine?.unavailableReason ??
+            '${p.bsnsYear} ${reportCodeLabel(priorCode)} $label 누적값 없음',
+      );
+    }
+    if ((currentLine?.currency ?? 'KRW') != (priorLine?.currency ?? 'KRW')) {
+      return (value: null, missing: '$label 누적값의 표시 통화가 다름');
+    }
+    final value = normalized - (key == 'capex' ? prior.abs() : prior);
+    if (key == 'capex' && value.isNegative) {
+      return (value: null, missing: '유형자산 취득 누적액이 이전 기간보다 작음');
+    }
+    return (value: value.toDouble(), missing: null);
+  }
+
   /// 가장 최근 사업보고서의 사업연도.
   int? get lastAnnualYear => data.periods
       .where((p) => p.reportCode == FinancialReportCode.annual)
@@ -393,6 +527,7 @@ class FinancialView {
             label: '${y % 100}.$q분기',
             revenue: _quarter(p, 'revenue', '매출액'),
             operatingIncome: _quarter(p, 'operatingIncome', '영업이익'),
+            netIncome: _quarter(p, 'netIncome', '당기순이익'),
           ),
         );
       }
@@ -404,6 +539,7 @@ class FinancialView {
             label: '${y % 100}.4분기',
             revenue: _fourthQuarter(y, 'revenue', '매출액'),
             operatingIncome: _fourthQuarter(y, 'operatingIncome', '영업이익'),
+            netIncome: _fourthQuarter(y, 'netIncome', '당기순이익'),
             derivedNote: '4분기 = 사업보고서 연간 값 − 3분기보고서 누적 값',
           ),
         );
@@ -418,7 +554,9 @@ class FinancialView {
       value: l?.amount?.toDouble(),
       formula: '$label (${basis(p)})',
       inputs: [MetricInput(l?.accountName ?? label, l?.amount, basis(p))],
-      missing: l == null ? '$label 계정이 없음' : null,
+      missing:
+          l?.unavailableReason ??
+          (l?.amount == null ? '${p.bsnsYear} 연간 $label 계정 없음' : null),
     );
   }
 
@@ -436,7 +574,7 @@ class FinancialView {
         MetricInput('${l?.accountName ?? label} 3개월', threeMonths, basis(p)),
       ],
       missing: l == null
-          ? '$label 계정이 없음'
+          ? '${p.bsnsYear} 연간 $label 계정 없음'
           : threeMonths == null
           ? '3개월 금액이 따로 공시되지 않음'
           : null,
@@ -540,7 +678,31 @@ class FinancialView {
     final cur = cumulative(p, key);
     final prev = cumulative(period(p.bsnsYear - 1, p.reportCode), key);
     if (prevAnnual == null || cur == null || prev == null) return null;
-    return (prevAnnual + cur - prev).toDouble();
+    final currencies = {
+      for (final source in [
+        line(period(p.bsnsYear - 1, FinancialReportCode.annual), key),
+        line(p, key),
+        line(period(p.bsnsYear - 1, p.reportCode), key),
+      ])
+        if (source != null) source.currency ?? 'KRW',
+    };
+    if (currencies.length > 1) return null;
+    return _trailingSum(key, prevAnnual, cur, prev);
+  }
+
+  // Cash outflows may change sign convention between filings. Normalize each
+  // acquisition input before the TTM subtraction, not the final sum afterwards.
+  static double? _trailingSum(
+    String key,
+    BigInt annual,
+    BigInt current,
+    BigInt prior,
+  ) {
+    final total = key == 'capex'
+        ? annual.abs() + current.abs() - prior.abs()
+        : annual + current - prior;
+    if (key == 'capex' && total.isNegative) return null;
+    return total.toDouble();
   }
 
   /// 가장 최근 보고서.
@@ -564,8 +726,15 @@ class FinancialView {
       return DerivedValue(
         value: a?.toDouble(),
         formula: '$label = ${p.bsnsYear} 사업보고서 연간 값',
-        inputs: [MetricInput('$label 연간', a, basis(p))],
-        missing: a == null ? '$label 계정이 없음' : null,
+        inputs: [
+          MetricInput(
+            '$label 연간',
+            a,
+            basis(p),
+            currency: line(p, key)?.currency ?? 'KRW',
+          ),
+        ],
+        missing: a == null ? '${p.bsnsYear} 연간 $label 계정 없음' : null,
       );
     }
     final prevAnnual = period(p.bsnsYear - 1, FinancialReportCode.annual);
@@ -574,32 +743,52 @@ class FinancialView {
     final cur = cumulative(p, key);
     final prev = cumulative(prevSame, key);
     final code = reportCodeLabel(p.reportCode);
-    final value = (a == null || cur == null || prev == null)
+    final currencies = {
+      for (final source in [
+        line(prevAnnual, key),
+        line(p, key),
+        line(prevSame, key),
+      ])
+        if (source != null) source.currency ?? 'KRW',
+    };
+    final value =
+        (currencies.length > 1 || a == null || cur == null || prev == null)
         ? null
-        : (a + cur - prev).toDouble();
+        : _trailingSum(key, a, cur, prev);
     return DerivedValue(
       value: value,
       formula:
-          '$label(최근 12개월) = ${p.bsnsYear - 1} 사업보고서 + ${p.bsnsYear} $code 누적 − ${p.bsnsYear - 1} $code 누적',
+          '${key == 'capex' ? '$label(각 공시 금액의 절댓값)' : label}(최근 12개월) = ${p.bsnsYear - 1} 사업보고서 + ${p.bsnsYear} $code 누적 − ${p.bsnsYear - 1} $code 누적',
       inputs: [
         MetricInput(
-          '${p.bsnsYear - 1} 연간',
+          '$label · ${p.bsnsYear - 1} 연간',
           a,
           prevAnnual == null ? '${p.bsnsYear - 1} 사업보고서 없음' : basis(prevAnnual),
+          currency: line(prevAnnual, key)?.currency ?? 'KRW',
         ),
-        MetricInput('${p.bsnsYear} $code 누적', cur, basis(p)),
         MetricInput(
-          '${p.bsnsYear - 1} $code 누적',
+          '$label · ${p.bsnsYear} $code 누적',
+          cur,
+          basis(p),
+          currency: line(p, key)?.currency ?? 'KRW',
+        ),
+        MetricInput(
+          '$label · ${p.bsnsYear - 1} $code 누적',
           prev,
           prevSame == null ? '${p.bsnsYear - 1} $code 보고서 없음' : basis(prevSame),
+          currency: line(prevSame, key)?.currency ?? 'KRW',
         ),
       ],
-      missing: value == null
+      missing: currencies.length > 1
+          ? '${currencies.join('·')} 통화 불일치 · 환율 환산 필요'
+          : value == null && a != null && cur != null && prev != null
+          ? '$label 기간별 금액 불일치 · 공시 확인 필요'
+          : value == null
           ? '${[
               if (a == null) '${p.bsnsYear - 1} 연간',
               if (cur == null) '${p.bsnsYear} $code 누적',
               if (prev == null) '${p.bsnsYear - 1} $code 누적',
-            ].join(' · ')} 자료 부족'
+            ].join(' · ')} $label 자료 부족'
           : null,
     );
   }
@@ -612,9 +801,16 @@ class FinancialView {
       value: l?.amount?.toDouble(),
       formula: '$label = 최근 보고서 기말 값',
       inputs: [
-        if (p != null) MetricInput(label, l?.amount, basis(p)),
+        if (p != null)
+          MetricInput(
+            label,
+            l?.amount,
+            basis(p),
+            currency: l?.currency ?? 'KRW',
+          ),
       ],
-      missing: l?.amount == null ? '$label 자료 부족' : null,
+      missing:
+          l?.unavailableReason ?? (l?.amount == null ? '$label 자료 부족' : null),
     );
   }
 
@@ -646,7 +842,10 @@ class FinancialView {
     }) {
       final t = topValue ?? top.value;
       final b = bottom.value;
-      String? missing = topMissing ?? top.missing ?? bottom.missing;
+      final currencies = {...top.currencies, ...bottom.currencies};
+      String? missing = currencies.length > 1
+          ? '${currencies.join("·")} 통화 불일치 · 환율 환산 필요'
+          : topMissing ?? top.missing ?? bottom.missing;
       double? value;
       if (missing == null && t != null && b != null) {
         if (positiveBottom && b <= 0) {
@@ -667,18 +866,24 @@ class FinancialView {
     // 아닌 단위(천원 등)로 낸 것이라, 시가총액과 섞는 지표는 계산하지 않는다.
     final assets = latestBalance('assets', '자산총계');
     final scaleMismatch = assets.value == null || assets.value! < 100000000;
-    final scaleNote = assets.value == null
-        ? '자산총계 누락 · 금액 단위 확인 불가'
+    final scaleNote = latest == null
+        ? '재무 자료 없음'
+        : assets.value == null
+        ? (line(latest, 'assets')?.unavailableReason ?? '자산총계 누락 · 금액 단위 확인 불가')
         : '재무 금액 단위 확인 필요';
 
     final capValue = DerivedValue(
-      value: cap,
+      value: cap != null && cap > 0 ? cap : null,
       formula: '시가총액 = 발행 종목(보통주·우선주 등) 시가총액 합',
       inputs: [
         for (final s in market?.securities ?? const <SecurityQuote>[])
           MetricInput('${s.name} (${s.shortCode})', s.marketCap, capBasis),
       ],
-      missing: cap == null ? '시세를 수집하지 않았거나 종목이 기업에 연결되지 않음' : null,
+      missing: cap == null
+          ? '시세를 수집하지 않았거나 종목이 기업에 연결되지 않음'
+          : cap <= 0
+          ? '시가총액 0 이하 · 시세 확인 필요'
+          : null,
     );
 
     final per = ratio(
@@ -725,7 +930,9 @@ class FinancialView {
     // 회사와 음수로 적는 회사가 섞여 있어 절댓값으로 뺀다.
     final ocf = trailing('operatingCashFlow', '영업활동 현금흐름');
     final capex = trailing('capex', '유형자산의 취득');
-    final fcfValue = ocf.value == null || capex.value == null
+    final fcfCurrencies = {...ocf.currencies, ...capex.currencies};
+    final fcfValue =
+        fcfCurrencies.length > 1 || ocf.value == null || capex.value == null
         ? null
         : ocf.value! - capex.value!.abs();
     final fcf = DerivedValue(
@@ -734,7 +941,11 @@ class FinancialView {
           '잉여현금흐름(FCF) = 영업활동 현금흐름 − 유형자산의 취득 (각각 최근 12개월)\n'
           '${ocf.formula}\n${capex.formula}',
       inputs: [...ocf.inputs, ...capex.inputs],
-      missing: fcfValue == null ? (ocf.missing ?? capex.missing) : null,
+      missing: fcfCurrencies.length > 1
+          ? '현금흐름·투자액 통화 불일치 · 환율 환산 필요'
+          : fcfValue == null
+          ? (ocf.missing ?? capex.missing)
+          : null,
     );
     final fcfYield = ratio(
       'FCF 수익률 = 잉여현금흐름 ÷ 시가총액',
@@ -744,11 +955,218 @@ class FinancialView {
       topMissing: scaleMismatch ? scaleNote : null,
     );
 
+    DerivedValue combine(
+      String formula,
+      List<DerivedValue> values,
+      double Function(List<double>) calculate,
+    ) {
+      final absent = values.where((v) => v.value == null).firstOrNull;
+      final currencies = {for (final v in values) ...v.currencies};
+      return DerivedValue(
+        value: absent == null && currencies.length <= 1
+            ? calculate(values.map((v) => v.value!).toList())
+            : null,
+        formula: formula,
+        inputs: [
+          for (final v in values)
+            for (final input in v.inputs)
+              MetricInput(
+                '${v.formula.split('=')[0].trim()} · ${input.label}',
+                input.amount,
+                input.basis,
+                currency: input.currency,
+              ),
+        ],
+        missing: currencies.length > 1
+            ? '${currencies.join('·')} 통화 불일치 · 환율 환산 필요'
+            : absent?.missing,
+      );
+    }
+
+    DerivedValue growth(String key, String label) {
+      final now = trailing(key, label);
+      final p = latest;
+      final same = p == null ? null : period(p.bsnsYear - 1, p.reportCode);
+      final pastPeriods = same == null
+          ? <FinancialPeriod>[]
+          : data.periods.take(data.periods.indexOf(same) + 1).toList();
+      final before = same == null
+          ? DerivedValue(
+              value: null,
+              formula: '',
+              inputs: const [],
+              missing: '전년 같은 시점의 $label 자료 부족',
+            )
+          : FinancialView(data.copyWith(periods: pastPeriods))
+                .trailing(key, label);
+      return combine('$label 성장률 = (최근 12개월 ÷ 전년 같은 시점 12개월 − 1) × 100', [
+        now,
+        before,
+      ], (v) => v[0] / v[1] - 1).copyPositiveBase(before, label);
+    }
+
+    final salesGrowth = growth('revenue', '매출액');
+    final profitGrowth = growth(netIncomeKey, netIncomeLabel);
+    final psr = ratio(
+      'PSR = 시가총액 ÷ 최근 12개월 매출액\n${revenue.formula}',
+      capValue,
+      revenue,
+      nonPositiveReason: '매출액 0 이하 · PSR 계산 불가',
+      topMissing: scaleMismatch ? scaleNote : null,
+    );
+    final por = ratio(
+      'POR = 시가총액 ÷ 최근 12개월 영업이익\n${opIncome.formula}',
+      capValue,
+      opIncome,
+      nonPositiveReason: '영업이익 0 이하 · POR 계산 불가',
+      topMissing: scaleMismatch ? scaleNote : null,
+    );
+    final pcf = ratio(
+      'P/OCF = 시가총액 ÷ 최근 12개월 영업현금흐름\n${ocf.formula}',
+      capValue,
+      ocf,
+      nonPositiveReason: '영업현금흐름 0 이하',
+      topMissing: scaleMismatch ? scaleNote : null,
+    );
+    final daTotal = trailing('depreciationAmortisation', '감가상각·무형자산상각 합계');
+    final da = daTotal.value != null
+        ? daTotal
+        : combine('감가상각비 + 무형자산상각비', [
+            trailing('depreciation', '감가상각비'),
+            trailing('amortisation', '무형자산상각비'),
+          ], (v) => v[0] + v[1]);
+    final ebitda = combine(
+      'EBITDA(공시 계산) = 최근 12개월 영업이익 + 감가상각·무형자산상각비\n현금흐름표의 상각 조정을 사용. 회사의 조정 EBITDA와 다를 수 있음.',
+      [opIncome, da],
+      (v) => v[0] + v[1],
+    );
+    final cash = latestBalance('cash', '현금및현금성자산');
+    final debtTotal = latestBalance(
+      'interestDebtIncludingLeases',
+      '차입금·사채·리스부채 합계',
+    );
+    final minority = !isConsolidated
+        ? const DerivedValue(
+            value: 0,
+            formula: '별도 재무는 비지배지분 조정 없음',
+            inputs: [],
+          )
+        : latestBalance('noncontrollingInterest', '비지배지분');
+    final evRaw = combine(
+      'EV = 시가총액 + 이자부채(리스 포함) + 비지배지분 − 현금및현금성자산\n이자부채·비지배지분은 공시 장부금액. 현금 외 금융자산은 차감하지 않음.',
+      [capValue, debtTotal, minority, cash],
+      (v) => v[0] + v[1] + v[2] - v[3],
+    );
+    final ev = scaleMismatch
+        ? DerivedValue(
+            value: null,
+            formula: evRaw.formula,
+            inputs: evRaw.inputs,
+            missing: scaleNote,
+          )
+        : evRaw;
+    final extra = <DerivedMetric>[];
+    void add(
+      String key,
+      String label,
+      DerivedValue v, {
+      bool percent = false,
+      bool amount = false,
+    }) => extra.add(
+      DerivedMetric(
+        key: key,
+        label: label,
+        derived: v,
+        display: amount
+            ? v.formatAmount()
+            : percent
+            ? formatPercent(v.value)
+            : formatTimes(v.value),
+      ),
+    );
+    add('psr', 'PSR', psr);
+    add('por', 'POR', por);
+    add('pcf', 'P/OCF', pcf);
+    add('revenueGrowth', '매출 성장률', salesGrowth, percent: true);
+    add('profitGrowth', '순이익 성장률', profitGrowth, percent: true);
+    add(
+      'roa',
+      'ROA',
+      ratio(
+        'ROA = 최근 12개월 당기순이익 ÷ 최근 기말 자산총계 (평균 아님)',
+        trailing('netIncome', '당기순이익'),
+        assets,
+      ),
+      percent: true,
+    );
+    add(
+      'ocfMargin',
+      '영업현금흐름률',
+      ratio('영업현금흐름률 = 최근 12개월 영업현금흐름 ÷ 매출액', ocf, revenue),
+      percent: true,
+    );
+    final capexAbs = DerivedValue(
+      value: capex.value?.abs(),
+      formula: capex.formula,
+      inputs: capex.inputs,
+      missing: capex.missing,
+    );
+    add(
+      'capexRatio',
+      '설비투자 / 매출',
+      ratio('설비투자 / 매출 = 최근 12개월 유형자산 취득 절댓값 ÷ 매출액', capexAbs, revenue),
+      percent: true,
+    );
+    add('cash', '보유 현금', cash, amount: true);
+    add('ebitda', 'EBITDA(공시 계산)', ebitda, amount: true);
+    add(
+      'ebitdaMargin',
+      'EBITDA 마진',
+      ratio('EBITDA 마진 = 공시 계산 EBITDA ÷ 최근 12개월 매출액', ebitda, revenue),
+      percent: true,
+    );
+    add(
+      'evEbitda',
+      'EV/EBITDA',
+      ratio(
+        'EV/EBITDA = 기업가치 ÷ 최근 12개월 EBITDA\n${ev.formula}\n${ebitda.formula}',
+        ev,
+        ebitda,
+        nonPositiveReason: 'EBITDA 0 이하',
+      ),
+    );
+    add(
+      'evOperating',
+      'EV/영업이익',
+      ratio(
+        'EV/영업이익 = 기업가치 ÷ 최근 12개월 영업이익\n${ev.formula}',
+        ev,
+        opIncome,
+        nonPositiveReason: '영업이익 0 이하',
+      ),
+    );
+    add(
+      'evSales',
+      'EV/Sales',
+      ratio('EV/Sales = 기업가치 ÷ 최근 12개월 매출액\n${ev.formula}', ev, revenue),
+    );
+    add(
+      'peg',
+      'PEG(예상)',
+      const DerivedValue(
+        value: null,
+        formula: 'PEG = 예상 PER ÷ 예상 연평균 EPS 성장률(%, 20%는 20으로 나눔)\n동일 추정 시점·기간의 컨센서스를 사용.',
+        inputs: [],
+        missing: '예상 EPS·성장률 데이터 미연결',
+      ),
+    );
+
     return [
+      ...extra,
       DerivedMetric(
         key: 'marketCap',
         label: '시가총액',
-        display: formatKrw(market?.marketCap),
+        display: capValue.value == null ? '—' : formatKrw(market?.marketCap),
         derived: capValue,
       ),
       DerivedMetric(
@@ -784,7 +1202,7 @@ class FinancialView {
       DerivedMetric(
         key: 'freeCashFlow',
         label: '잉여현금흐름',
-        display: fcf.value == null ? '—' : formatKrw(BigInt.from(fcf.value!)),
+        display: fcf.formatAmount(),
         derived: fcf,
       ),
       DerivedMetric(
@@ -794,5 +1212,17 @@ class FinancialView {
         derived: fcfYield,
       ),
     ];
+  }
+}
+
+extension on DerivedValue {
+  DerivedValue copyPositiveBase(DerivedValue base, String label) {
+    if (base.value == null || base.value! > 0) return this;
+    return DerivedValue(
+      value: null,
+      formula: formula,
+      inputs: inputs,
+      missing: '전년 $label 0 이하 · 성장률 비교 불가',
+    );
   }
 }

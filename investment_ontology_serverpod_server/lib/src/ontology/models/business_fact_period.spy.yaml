@@ -1,0 +1,7 @@
+### Active business-document period metadata for time-series gaps and bases.
+class: BusinessFactPeriod
+fields:
+  documentId: int
+  bsnsYear: int
+  reportCode: FinancialReportCode
+  periodEnd: DateTime

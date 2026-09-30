@@ -24,6 +24,8 @@ abstract class FinancialLine
     required this.accountName,
     this.amount,
     this.cumulativeAmount,
+    this.currency,
+    this.unavailableReason,
   });
 
   factory FinancialLine({
@@ -34,6 +36,8 @@ abstract class FinancialLine
     required String accountName,
     BigInt? amount,
     BigInt? cumulativeAmount,
+    String? currency,
+    String? unavailableReason,
   }) = _FinancialLineImpl;
 
   factory FinancialLine.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -53,6 +57,8 @@ abstract class FinancialLine
           : _isc.BigIntJsonExtension.fromJson(
               jsonSerialization['cumulativeAmount'],
             ),
+      currency: jsonSerialization['currency'] as String?,
+      unavailableReason: jsonSerialization['unavailableReason'] as String?,
     );
   }
 
@@ -71,6 +77,12 @@ abstract class FinancialLine
 
   BigInt? cumulativeAmount;
 
+  /// 원천 재무 표시 통화. 환산하지 않은 금액을 원화로 해석하지 않는다.
+  String? currency;
+
+  /// 충돌하는 원천 계정 등으로 계산에 사용할 수 없을 때의 구체적 사유.
+  String? unavailableReason;
+
   /// Returns a shallow copy of this [FinancialLine]
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
@@ -82,6 +94,8 @@ abstract class FinancialLine
     String? accountName,
     BigInt? amount,
     BigInt? cumulativeAmount,
+    String? currency,
+    String? unavailableReason,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -95,6 +109,8 @@ abstract class FinancialLine
       if (amount != null) 'amount': amount?.toJson(),
       if (cumulativeAmount != null)
         'cumulativeAmount': cumulativeAmount?.toJson(),
+      if (currency != null) 'currency': currency,
+      if (unavailableReason != null) 'unavailableReason': unavailableReason,
     };
   }
 
@@ -110,6 +126,8 @@ abstract class FinancialLine
       if (amount != null) 'amount': amount?.toJson(),
       if (cumulativeAmount != null)
         'cumulativeAmount': cumulativeAmount?.toJson(),
+      if (currency != null) 'currency': currency,
+      if (unavailableReason != null) 'unavailableReason': unavailableReason,
     };
   }
 
@@ -130,6 +148,8 @@ class _FinancialLineImpl extends FinancialLine {
     required String accountName,
     BigInt? amount,
     BigInt? cumulativeAmount,
+    String? currency,
+    String? unavailableReason,
   }) : super._(
          key: key,
          factId: factId,
@@ -138,6 +158,8 @@ class _FinancialLineImpl extends FinancialLine {
          accountName: accountName,
          amount: amount,
          cumulativeAmount: cumulativeAmount,
+         currency: currency,
+         unavailableReason: unavailableReason,
        );
 
   /// Returns a shallow copy of this [FinancialLine]
@@ -152,6 +174,8 @@ class _FinancialLineImpl extends FinancialLine {
     String? accountName,
     Object? amount = _Undefined,
     Object? cumulativeAmount = _Undefined,
+    Object? currency = _Undefined,
+    Object? unavailableReason = _Undefined,
   }) {
     return FinancialLine(
       key: key ?? this.key,
@@ -163,6 +187,10 @@ class _FinancialLineImpl extends FinancialLine {
       cumulativeAmount: cumulativeAmount is BigInt?
           ? cumulativeAmount
           : this.cumulativeAmount,
+      currency: currency is String? ? currency : this.currency,
+      unavailableReason: unavailableReason is String?
+          ? unavailableReason
+          : this.unavailableReason,
     );
   }
 }

@@ -6,6 +6,7 @@ import '../../generated/protocol.dart';
 import 'disclosure_links.dart';
 import 'market_share_facts.dart';
 import 'order_facts.dart';
+import 'investment_facts.dart';
 import 'segment_revenue.dart';
 
 /// 사업보고서 본문의 "생산능력·생산실적·가동률" 표를 규칙으로 읽는다 (AI 없음).
@@ -428,6 +429,28 @@ abstract final class ProductionFacts {
   };
 
   /// 한 문서에서 읽어 저장한다. 이미 사람이 결정한 항목은 건드리지 않는다.
+  /// A table's fiscal-half/quarter header uses the issuer's fiscal calendar.
+  static DateTime marketShareDate({
+    required int year,
+    required int month,
+    required int bsnsYear,
+    required DateTime periodEnd,
+    required FinancialReportCode reportCode,
+  }) {
+    if (month == 12) return DateTime.utc(year, 12, 31);
+    final elapsed = switch (reportCode) {
+      FinancialReportCode.q1 => 3,
+      FinancialReportCode.halfYear => 6,
+      FinancialReportCode.q3 => 9,
+      FinancialReportCode.annual => 12,
+    };
+    return DateTime.utc(
+      periodEnd.year - (bsnsYear - year),
+      periodEnd.month + month - elapsed + 1,
+      0,
+    );
+  }
+
   static Future<int> store(
     Session session,
     BusinessDocument doc, {
@@ -475,6 +498,13 @@ abstract final class ProductionFacts {
       doc.reportId,
       transaction: tx,
     );
+    // A cumulative interim value is dated to the actual reporting period, never December.
+    final periodEnd =
+        report?.settlementDate ?? DateTime.utc(doc.bsnsYear, 12, 31);
+    if (report?.reportCode != FinancialReportCode.annual &&
+        report?.settlementDate == null) {
+      return 0;
+    }
     final existing = {
       for (final f in await DocumentFact.db.find(
         session,
@@ -508,7 +538,7 @@ abstract final class ProductionFacts {
             label: r.label,
             value: value,
             unit: unit,
-            asOf: DateTime.utc(doc.bsnsYear, 12, 31),
+            asOf: periodEnd,
             evidence: r.evidence,
             sourceId: report?.sourceId,
             // 표를 그대로 옮긴 것이라 DART API로 받은 값과 같은 급으로 본다.
@@ -534,7 +564,7 @@ abstract final class ProductionFacts {
           label: r.label,
           value: r.amount,
           unit: r.unit,
-          asOf: DateTime.utc(doc.bsnsYear, 12, 31),
+          asOf: periodEnd,
           evidence: r.evidence,
           sourceId: report?.sourceId,
           extractedBy: RelationOrigin.api,
@@ -563,7 +593,7 @@ abstract final class ProductionFacts {
             label: r.label,
             value: value,
             unit: r.unit,
-            asOf: DateTime.utc(doc.bsnsYear, 12, 31),
+            asOf: periodEnd,
             evidence: r.evidence,
             sourceId: report?.sourceId,
             extractedBy: RelationOrigin.api,
@@ -576,12 +606,51 @@ abstract final class ProductionFacts {
         );
       }
     }
+    for (final r in InvestmentFacts.parse(
+      doc.text,
+      periodEnd: periodEnd,
+      owner: company?.name,
+      otherCompanies: others,
+    )) {
+      if (!existing.add('investmentActual|${r.label}')) continue;
+      facts.add(
+        DocumentFact(
+          companyId: doc.companyId,
+          documentId: doc.id!,
+          bsnsYear: doc.bsnsYear,
+          kind: DocumentFactKind.investmentActual,
+          label: r.label,
+          value: r.value,
+          unit: r.unit,
+          asOf: r.asOf,
+          evidence: r.evidence,
+          sourceId: report?.sourceId,
+          extractedBy: RelationOrigin.api,
+          extractorModel: '표 규칙',
+          status: RelationStatus.verified,
+          reviewedAt: now,
+          reviewNote: r.reconciled ? null : '원문 부문 합계와 공시 총액 불일치',
+          reviewedBy: r.reconciled
+              ? '표 규칙 (투자기간·금액열 확인·부문 합계 검산)'
+              : '표 규칙 (투자기간·금액열 확인·원문 합계 불일치 기록)',
+          createdAt: now,
+        ),
+      );
+    }
     // 연도별 시장점유율 표 (이 회사 줄의 % 값만). 해마다 값이 있어 키에 연도를 넣는다.
     for (final r in MarketShareFacts.parse(
       doc.text,
       owner: company!.name,
       bsnsYear: doc.bsnsYear,
     )) {
+      final asOf = marketShareDate(
+        year: r.year,
+        month: r.month,
+        bsnsYear: doc.bsnsYear,
+        periodEnd: periodEnd,
+        reportCode: report?.reportCode ?? FinancialReportCode.annual,
+      );
+      if (asOf.isAfter(periodEnd)) continue;
       if (!existing.add('marketShare|${r.label}|${r.year}')) continue;
       facts.add(
         DocumentFact(
@@ -592,13 +661,17 @@ abstract final class ProductionFacts {
           label: r.label,
           value: r.value,
           unit: '%',
-          asOf: DateTime.utc(r.year, 12, 31),
+          asOf: asOf,
           evidence: r.evidence,
           sourceId: report?.sourceId,
           extractedBy: RelationOrigin.api,
           extractorModel: '표 규칙',
           status: RelationStatus.verified,
           reviewedAt: now,
+          reviewNote: [
+            if (r.basis.isNotEmpty) r.basis,
+            if (r.estimated && r.year == doc.bsnsYear) '회사 추정',
+          ].join(' · '),
           reviewedBy: '표 규칙 (연도별 시장점유율 표, 당사 줄)',
           createdAt: now,
         ),

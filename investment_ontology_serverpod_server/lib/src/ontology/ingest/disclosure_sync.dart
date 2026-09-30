@@ -64,11 +64,6 @@ class DisclosureSync {
   /// (보고서, 항목)별 실패 허용 횟수. 실패는 다음 실행에서 다시 받는다.
   static const maxAttempts = 3;
 
-  /// 사업보고서 코드 (11011). 3단계는 사업보고서만 받는다.
-  static final _annualCode = FinancialCodes.reportCodeToDart(
-    FinancialReportCode.annual,
-  );
-
   static const _batch = 500;
   static const _progressEvery = 20;
   static const _insertChunk = 1000;
@@ -364,17 +359,40 @@ class DisclosureSync {
         'company': ?only?.id,
       }),
     );
+    // 주요정보 API는 연간만 유지하고, 사업 본문은 최신 연간 이후의 최신 중간보고서도 받는다.
+    await session.db.unsafeExecute(
+      '''INSERT INTO dart_filing_section
+        ("filingId", "companyId", "bsnsYear", section, tier, status, attempts)
+      SELECT f.id, f."companyId", f."bsnsYear", 'businessContent', 2, 'pending', 0
+      FROM (
+        SELECT DISTINCT ON ("companyId") * FROM dart_filing
+        WHERE "companyId" IS NOT NULL AND "reportCode" IN ('q1','halfYear','q3')
+          AND "bsnsYear" >= @first
+          ${only == null ? '' : 'AND "companyId" = @company'}
+        ORDER BY "companyId", "bsnsYear" DESC,
+          CASE "reportCode" WHEN 'q3' THEN 3 WHEN 'halfYear' THEN 2 ELSE 1 END DESC,
+          "rceptNo" DESC
+      ) f
+      WHERE NOT EXISTS (SELECT 1 FROM dart_filing a
+        WHERE a."companyId"=f."companyId" AND a."reportCode"='annual'
+          AND a."bsnsYear">=f."bsnsYear")
+      ON CONFLICT ("filingId", section) DO NOTHING''',
+      parameters: QueryParameters.named({
+        'first': FinancialFactsSync.firstAnnualYear(now),
+        'company': ?only?.id,
+      }),
+    );
   }
 
   /// 기업마다 사업보고서의 최근 순위(0 = 가장 최근)를 매긴다. 새 사업보고서가 들어오면 바뀐다.
   Future<void> _rankYears() async {
     await session.db.unsafeExecute(
-      'UPDATE "dart_filing_section" s SET "yearRank" = r.rank '
-      'FROM (SELECT "companyId", "bsnsYear", '
-      'DENSE_RANK() OVER (PARTITION BY "companyId" ORDER BY "bsnsYear" DESC) - 1 AS rank '
-      'FROM (SELECT DISTINCT "companyId", "bsnsYear" FROM "dart_filing_section") d) r '
-      'WHERE s."companyId" = r."companyId" AND s."bsnsYear" = r."bsnsYear" '
-      'AND s."yearRank" <> r.rank',
+      '''UPDATE dart_filing_section s SET "yearRank"=r.rank
+      FROM (SELECT d.id, DENSE_RANK() OVER (
+        PARTITION BY d."companyId", d.section, (f."reportCode"='annual')
+        ORDER BY d."bsnsYear" DESC) - 1 AS rank
+        FROM dart_filing_section d JOIN dart_filing f ON f.id=d."filingId") r
+      WHERE s.id=r.id AND s."yearRank"<>r.rank''',
     );
   }
 
@@ -492,7 +510,9 @@ class DisclosureSync {
             api: info.api,
             corpCode: company.corpCode,
             bsnsYear: item.bsnsYear,
-            reportCode: _annualCode,
+            reportCode: FinancialCodes.reportCodeToDart(
+              FinancialReportCode.annual,
+            ),
           ),
         );
         status = await _store(item, filing, company, rows, byName);
@@ -616,7 +636,7 @@ class DisclosureSync {
         where: (t) =>
             t.companyId.equals(company.id!) &
             t.bsnsYear.equals(item.bsnsYear) &
-            t.reportCode.equals(FinancialReportCode.annual) &
+            t.reportCode.equals(filing.reportCode) &
             t.rceptNo.notEquals(filing.rceptNo),
         orderByList: (t) => [t.rceptNo.desc()],
       ),
@@ -625,6 +645,7 @@ class DisclosureSync {
     // 첨부정정 zip) 다음 후보로 간다. 첨부정정이 두 번이면 첫 zip이 그렇다 (현대제철 FY2025).
     final tried = <String>{};
     for (final f in candidates) {
+      if (f.rceptNo.compareTo(filing.rceptNo) > 0) continue;
       final status = await _tryDocument(item, company, f);
       tried.add(f.rceptNo);
       if (status != null && status != FilingFetchStatus.noData) return status;
@@ -635,7 +656,7 @@ class DisclosureSync {
     // 원본 공시가 파일이 없으면 정말 없는 것이다. 정정공시일 때만 원본을 찾는다.
     if (!filing.reportName.contains('정정')) return FilingFetchStatus.noData;
     if (!_hasAllowance) return FilingFetchStatus.pending;
-    for (final f in await _earlierAnnualFilings(
+    for (final f in await _earlierPeriodFilings(
       filing,
       company,
       item.bsnsYear,
@@ -677,7 +698,7 @@ class DisclosureSync {
   }
 
   /// 정정 이전의 같은 해 사업보고서 (DART 공시 목록, 원본 포함). 최신 것부터.
-  Future<List<DartFiling>> _earlierAnnualFilings(
+  Future<List<DartFiling>> _earlierPeriodFilings(
     DartFiling filing,
     Company company,
     int bsnsYear,
@@ -699,7 +720,8 @@ class DisclosureSync {
         it.reportName,
       )?.resolve(company.fiscalMonth);
       if (resolved == null ||
-          resolved.reportCode != _annualCode ||
+          resolved.reportCode !=
+              FinancialCodes.reportCodeToDart(filing.reportCode!) ||
           resolved.bsnsYear != bsnsYear) {
         continue;
       }
@@ -711,7 +733,7 @@ class DisclosureSync {
           reportName: it.reportName,
           receivedDate: it.rceptDate,
           bsnsYear: bsnsYear,
-          reportCode: FinancialReportCode.annual,
+          reportCode: filing.reportCode!,
           consolidatedStatus: FilingFetchStatus.noData,
           separateStatus: FilingFetchStatus.noData,
           discoveredAt: DateTime.now().toUtc(),
@@ -728,6 +750,15 @@ class DisclosureSync {
     DartFiling filing,
     ({String title, String text}) doc,
   ) async {
+    final period = DartReportName.parse(filing.reportName);
+    if (period == null || filing.reportCode == null) {
+      throw StateError('정기보고서 기간을 확인할 수 없습니다: ${filing.reportName}');
+    }
+    final periodEnd = DateTime.utc(
+      period.periodYear,
+      period.periodMonth + 1,
+      0,
+    );
     final now = DateTime.now().toUtc();
     await session.db.transaction((tx) async {
       final source = await Source.db.insertRow(
@@ -748,7 +779,8 @@ class DisclosureSync {
           section: DartSection.businessContent,
           rceptNo: filing.rceptNo,
           bsnsYear: item.bsnsYear,
-          reportCode: FinancialReportCode.annual,
+          reportCode: filing.reportCode!,
+          settlementDate: periodEnd,
           rowCount: 1,
           sourceId: source.id!,
           fetchedAt: now,
@@ -773,6 +805,7 @@ class DisclosureSync {
         where: (t) =>
             t.companyId.equals(company.id!) &
             t.bsnsYear.equals(item.bsnsYear) &
+            t.reportCode.equals(filing.reportCode) &
             t.section.equals(DartSection.businessContent) &
             t.supersededById.equals(null) &
             t.id.notEquals(report.id!),
@@ -809,6 +842,8 @@ class DisclosureSync {
         where: (t) => t.market.inSet(DisclosureLinks.listedMarkets),
       );
       await ProductionFacts.store(session, stored, companyKeys: _companyKeys);
+      // 연간 제품/동종기업/관계 프로필과 R&D 검산은 중간 누적값으로 바꾸지 않는다.
+      if (filing.reportCode != FinancialReportCode.annual) return;
       await RndFacts.store(session, stored);
       await PeerProfiles.store(session, stored);
       await BusinessProfiles.store(session, stored);

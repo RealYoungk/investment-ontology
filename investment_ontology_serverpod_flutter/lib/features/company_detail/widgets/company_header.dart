@@ -1,24 +1,24 @@
-import '../business/overview_metrics.dart';
+import '../../financials/metric_profile.dart';
+import '../../financials/metric_formula_card.dart';
 
 import 'package:flutter/material.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 
 import '../../../client.dart';
 import '../../../design/components/components.dart';
+import '../../../design/components/adaptive_detail.dart';
 import '../../../design/tokens.dart';
 import '../../common/formatters.dart';
 import '../../financials/financial_metrics.dart';
 
 /// 기업 상세 머리: 이름 · 시장 · 코드 · 업종과 핵심 지표 한 줄.
 ///
-/// 지표는 화면에서 원천 값으로 계산한 값이다. 누르면 재무 탭에서 계산식과 입력값을 연다.
+/// 지표는 화면에서 원천 값으로 계산한 값이다. 누르면 현재 화면에서 계산식과 입력값을 연다.
 class CompanyHeader extends StatelessWidget {
   const CompanyHeader({
     super.key,
     required this.detail,
     required this.financials,
-    required this.openMetric,
-    required this.onOpenMetric,
     this.onBasisChanged,
     this.changingBasis = false,
     this.basisError,
@@ -33,10 +33,6 @@ class CompanyHeader extends StatelessWidget {
   final String? basisError;
   final CompanyDetail detail;
   final CompanyFinancials? financials;
-
-  /// 계산식을 펼친 지표 (강조 표시).
-  final String? openMetric;
-  final ValueChanged<String> onOpenMetric;
 
   @override
   Widget build(BuildContext context) {
@@ -142,23 +138,12 @@ class CompanyHeader extends StatelessWidget {
         ],
         if (hasFinancials)
           _KeyStats(
-            metrics: FinancialView(fin)
-                .metrics()
-                .where(
-                  (metric) => showOverviewMetric(
-                    metric.key,
-                    assetVehicle: isAssetInvestmentVehicle(company.name),
-                    financial: usesFinancialOverviewMetrics(
-                      company.industryCode,
-                      company.name,
-                    ),
-                  ),
-                )
-                .toList(),
+            metrics: FinancialView(fin).metrics(),
+            industryCode: company.industryCode,
+            companyName: company.name,
+            basisReason: fin.basisReason,
             corpCode: company.corpCode,
             fsDiv: fin.fsDiv,
-            open: openMetric,
-            onTap: onOpenMetric,
           )
         else
           Text(
@@ -175,21 +160,24 @@ class _KeyStats extends StatefulWidget {
     required this.metrics,
     required this.corpCode,
     required this.fsDiv,
-    required this.open,
-    required this.onTap,
+    required this.industryCode,
+    required this.companyName,
+    required this.basisReason,
   });
 
   final String corpCode;
   final FsDiv? fsDiv;
   final List<DerivedMetric> metrics;
-  final String? open;
-  final ValueChanged<String> onTap;
+  final String? industryCode;
+  final String companyName;
+  final String? basisReason;
 
   @override
   State<_KeyStats> createState() => _KeyStatsState();
 }
 
 class _KeyStatsState extends State<_KeyStats> {
+  String _group = '추천';
   PeerComparison? _peers;
   int _request = 0;
   @override
@@ -203,6 +191,7 @@ class _KeyStatsState extends State<_KeyStats> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.corpCode != widget.corpCode ||
         oldWidget.fsDiv != widget.fsDiv) {
+      if (oldWidget.corpCode != widget.corpCode) _group = '추천';
       _load();
     }
   }
@@ -245,13 +234,34 @@ class _KeyStatsState extends State<_KeyStats> {
   Widget build(BuildContext context) {
     final c = context.colors;
     final t = context.typo;
-    final missingReasons = {
-      for (final m in widget.metrics)
-        if (m.derived.value == null) m.derived.missing ?? '계산 자료 부족',
-    };
+    final profile = MetricProfile.forCompany(
+      widget.industryCode,
+      widget.companyName,
+      widget.metrics,
+    );
+    final keys = _group == '추천'
+        ? profile.keys
+        : ['marketCap', ...metricGroups[_group]!];
+    final metrics = [
+      for (final key in keys)
+        ...widget.metrics.where(
+          (m) =>
+              m.key == key &&
+              metricApplies(key, widget.industryCode, widget.companyName),
+        ),
+    ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        AppToggleGroup<String>(
+          value: _group,
+          options: {
+            for (final group in ['추천', ...metricGroups.keys]) group: group,
+          },
+          onChanged: (group) => setState(() => _group = group),
+        ),
+        const SizedBox(height: AppSpace.sm),
+
         Container(
           decoration: BoxDecoration(
             border: Border(
@@ -261,23 +271,26 @@ class _KeyStatsState extends State<_KeyStats> {
           ),
           child: LayoutBuilder(
             builder: (context, constraints) {
-              // 화면 폭에 맞춰 2·4·8열로 정렬해 들쭉날쭉한 줄바꿈을 피한다.
-              var columns = constraints.maxWidth < 600
+              final columns = constraints.maxWidth < 600
                   ? 2
                   : constraints.maxWidth < 1100
-                  ? 4
-                  : 8;
-              while (columns > 1 &&
-                  (columns > widget.metrics.length ||
-                      widget.metrics.length % columns != 0)) {
-                columns--;
-              }
+                  ? 3
+                  : (_group == '추천' ? 6 : 4);
               final cell = constraints.maxWidth / columns;
               return Wrap(
                 children: [
-                  for (final m in widget.metrics)
+                  for (final m in metrics)
                     HoverBuilder(
-                      onTap: () => widget.onTap(m.key),
+                      onTap: () => showAdaptiveDetail(
+                        context: context,
+                        builder: (detailContext) => MetricFormulaCard(
+                          metric: m,
+                          fsDiv: widget.fsDiv,
+                          basisReason: widget.basisReason,
+                          framed: MediaQuery.sizeOf(detailContext).width >= 600,
+                          onClose: () => Navigator.of(detailContext).pop(),
+                        ),
+                      ),
                       builder: (context, hovered) => AnimatedContainer(
                         duration: AppMotion.fast,
                         width: cell,
@@ -291,9 +304,7 @@ class _KeyStatsState extends State<_KeyStats> {
                           color: hovered ? c.surfaceHover : Colors.transparent,
                           border: Border(
                             bottom: BorderSide(
-                              color: widget.open == m.key
-                                  ? c.accent
-                                  : Colors.transparent,
+                              color: Colors.transparent,
                               width: 3,
                             ),
                           ),
@@ -321,7 +332,18 @@ class _KeyStatsState extends State<_KeyStats> {
                                 ),
                               ),
                             ),
-                            _benchmark(context, m.key),
+                            if (m.derived.value == null)
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  top: AppSpace.xs,
+                                ),
+                                child: Text(
+                                  m.derived.missing ?? '계산에 필요한 자료 부족',
+                                  style: t.body(12, color: c.textSecondary),
+                                ),
+                              )
+                            else
+                              _benchmark(context, m.key),
                           ],
                         ),
                       ),
@@ -331,15 +353,6 @@ class _KeyStatsState extends State<_KeyStats> {
             },
           ),
         ),
-        if (missingReasons.isNotEmpty) ...[
-          const SizedBox(height: AppSpace.sm),
-          Text(
-            missingReasons.length == 1
-                ? '— ${missingReasons.single}'
-                : '일부 지표 계산 불가 · 지표를 누르면 사유 확인',
-            style: t.body(12, color: c.textSecondary),
-          ),
-        ],
       ],
     );
   }

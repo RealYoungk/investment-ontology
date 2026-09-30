@@ -9,6 +9,7 @@ import '../market/market_caps.dart';
 import '../dart/dart_sections.dart';
 import '../dart/dart_values.dart';
 import '../disclosure/business_text.dart';
+import '../disclosure/investment_facts.dart';
 import '../disclosure/disclosure_values.dart';
 
 /// 정기보고서 주요정보 조회: 항목 목록 · 원문 표 · 주주환원.
@@ -267,6 +268,44 @@ class DisclosureEndpoint extends Endpoint {
   /// 승인된 값 전부 (연도별 흐름을 보려고). 오래된 해부터.
   ///
   /// 같은 항목이 해마다 있으면 화면이 막대 차트로 그린다 — 표만 있으면 흐름이 안 보인다.
+  Future<List<BusinessFactPeriod>> factPeriods(
+    Session session,
+    String corpCode,
+  ) async {
+    final company = await _company(session, corpCode);
+    if (company == null) return [];
+    final reports = await DisclosureReport.db.find(
+      session,
+      where: (t) =>
+          t.companyId.equals(company.id!) &
+          t.section.equals(DartSection.businessContent) &
+          t.supersededById.equals(null),
+    );
+    final byId = {for (final r in reports) r.id!: r};
+    final documents = await BusinessDocument.db.find(
+      session,
+      where: (t) => t.companyId.equals(company.id!),
+    );
+    return [
+      for (final doc in documents)
+        if (byId[doc.reportId] case final report?)
+          if (report.settlementDate != null ||
+              report.reportCode == FinancialReportCode.annual)
+            BusinessFactPeriod(
+              documentId: doc.id!,
+              bsnsYear: doc.bsnsYear,
+              reportCode: report.reportCode,
+              periodEnd:
+                  report.settlementDate ??
+                  DateTime.utc(
+                    doc.bsnsYear,
+                    (company.fiscalMonth ?? 12) + 1,
+                    0,
+                  ),
+            ),
+    ];
+  }
+
   Future<List<DocumentFact>> factTrends(
     Session session,
     String corpCode,
@@ -283,24 +322,57 @@ class DisclosureEndpoint extends Endpoint {
           t.status.equals(RelationStatus.verified),
       orderByList: (t) => [t.bsnsYear.asc(), t.kind.asc(), t.id.asc()],
     );
+    final reports = await DisclosureReport.db.find(
+      session,
+      where: (t) =>
+          t.companyId.equals(company.id!) &
+          t.section.equals(DartSection.businessContent),
+    );
+    final active = {
+      for (final r in reports)
+        if (r.supersededById == null) r.id!,
+    };
+    final documents = await BusinessDocument.db.find(
+      session,
+      where: (t) => t.companyId.equals(company.id!),
+    );
+    final byDocument = {
+      for (final d in documents)
+        if (active.contains(d.reportId)) d.id!: d,
+    };
+    final valid = all
+        .where((f) => byDocument.containsKey(f.documentId))
+        .toList();
     // 같은 항목·같은 해의 값이 여러 보고서에 있으면(표가 당기·전기·전전기를 나란히 적고,
     // 회사는 재작성한다) 그 해의 보고서 값을 쓴다 — 없으면 가장 가까운 해의 보고서.
     final best = <String, DocumentFact>{};
-    for (final f in all) {
+    for (final f in valid) {
       final year = f.asOf?.year ?? f.bsnsYear;
-      final key = '${f.kind.name}|${f.label}|$year';
+      final key =
+          '${f.kind.name}|${f.label}|${f.unit}|${(f.asOf ?? DateTime.utc(year, 12, 31)).toIso8601String()}';
       final prev = best[key];
       if (prev == null) {
         best[key] = f;
         continue;
       }
       final d = (f.bsnsYear - year).abs(), pd = (prev.bsnsYear - year).abs();
-      if (d < pd || d == pd && f.bsnsYear > prev.bsnsYear) best[key] = f;
+      if (d < pd ||
+          d == pd &&
+              (f.bsnsYear > prev.bsnsYear ||
+                  f.bsnsYear == prev.bsnsYear &&
+                      byDocument[f.documentId]!.rceptNo.compareTo(
+                            byDocument[prev.documentId]!.rceptNo,
+                          ) >
+                          0)) {
+        best[key] = f;
+      }
     }
     final keep = {for (final f in best.values) f.id};
     return [
-      for (final f in all)
-        if (keep.contains(f.id)) f,
+      for (final f in valid)
+        if (keep.contains(f.id) &&
+            !InvestmentFacts.redundantRoundedTotal(f, valid))
+          f,
     ];
   }
 

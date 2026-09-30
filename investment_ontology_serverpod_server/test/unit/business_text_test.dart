@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:archive/archive.dart';
+import 'package:cp949_codec/cp949_codec.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/disclosure/business_text.dart';
 import 'package:test/test.dart';
 
@@ -46,6 +47,37 @@ void main() {
     });
     final doc = BusinessText.fromZip(zip, '20260319000771')!;
     expect(doc.text, contains('철강을 만든다'));
+  });
+
+  test(
+    'EUC-KR bytes declaring UTF-8 decode without lost Korean characters',
+    () {
+      final archive = Archive()
+        ..addFile(
+          ArchiveFile.bytes(
+            '20220308000798.xml',
+            const CP949Codec().encode(
+              '<?xml version="1.0" encoding="utf-8"?>$report',
+            ),
+          ),
+        );
+      final doc = BusinessText.fromZip(
+        ZipEncoder().encodeBytes(archive),
+        '20220308000798',
+      )!;
+      expect(doc.title, 'II. 사업의 내용');
+      expect(doc.text, contains('철강을 만든다'));
+      expect(doc.text, isNot(contains('\uFFFD')));
+    },
+  );
+
+  test('invalid bytes in both encodings are not silently saved as replacement characters', () {
+    final archive = Archive()
+      ..addFile(ArchiveFile.bytes('broken.xml', [...utf8.encode(report), 255]));
+    expect(
+      BusinessText.fromZip(ZipEncoder().encodeBytes(archive), 'broken'),
+      isNull,
+    );
   });
 
   test('사업의 내용이 어디에도 없으면 null', () {
