@@ -475,6 +475,31 @@ void main() {
       expect(s.freeCashFlow, isNull);
     });
 
+    test('선택 기업만 계산하고 전체 스크리너 캐시와 값을 유지한다', () async {
+      ScreenEndpoint.clearCache();
+      final selected = await endpoints.screen.list(
+        sessionBuilder,
+        corpCodes: [big.corpCode],
+      );
+      expect(selected.items.map((r) => r.company.corpCode), [big.corpCode]);
+      expect(selected.universe, 1);
+      final full = await endpoints.screen.list(sessionBuilder);
+      expect(full.universe, 2, reason: '부분 조회가 전체 캐시를 채우면 안 된다');
+      final reference = full.items.singleWhere(
+        (r) => r.company.corpCode == big.corpCode,
+      );
+      expect(selected.items.single.toJson(), reference.toJson());
+      expect(selected.baseDate, full.baseDate);
+      final empty = await endpoints.screen.list(sessionBuilder, corpCodes: []);
+      final unknown = await endpoints.screen.list(
+        sessionBuilder,
+        corpCodes: ["' OR true --"],
+      );
+      expect(empty.items, isEmpty);
+      expect(unknown.items, isEmpty);
+      expect((await endpoints.screen.list(sessionBuilder)).universe, 2);
+    });
+
     test('자산과 부채·자본이 맞지 않으면 해당 재무상태 지표를 비운다', () async {
       final asset = (await FinancialFact.db.find(
         session,

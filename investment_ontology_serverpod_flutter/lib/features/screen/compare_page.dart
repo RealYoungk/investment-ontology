@@ -132,18 +132,23 @@ class _ComparePageState extends State<ComparePage> {
           ),
           const SizedBox(height: AppSpace.md),
         ],
-        Container(
-          decoration: BoxDecoration(
-            color: c.surface,
-            border: Border.all(color: c.border),
-            borderRadius: context.shape.borderRadius,
-          ),
+        Theme(
+          data: Theme.of(context)
+              .copyWith(dividerColor: c.border.withValues(alpha: 0)),
           child: ExpansionTile(
+            tilePadding: EdgeInsets.zero,
+            expandedCrossAxisAlignment: CrossAxisAlignment.start,
+            expandedAlignment: Alignment.centerLeft,
+            backgroundColor: c.surface.withValues(alpha: 0),
+            collapsedBackgroundColor: c.surface.withValues(alpha: 0),
             key: ValueKey(widget.corpCodes.length < 2),
             initiallyExpanded: widget.corpCodes.length < 2,
             leading: const Icon(Icons.add_circle_outline, size: 20),
             title: Text('비교 기업 찾기', style: t.body(15, weight: FontWeight.w600)),
-            childrenPadding: const EdgeInsets.all(AppSpace.lg),
+            childrenPadding: const EdgeInsets.only(
+              top: AppSpace.sm,
+              bottom: AppSpace.md,
+            ),
             children: [
               _AddCompany(
                 disabled: widget.corpCodes.length >= maxCompanies,
@@ -180,11 +185,16 @@ class _ComparePageState extends State<ComparePage> {
           const LinearProgressIndicator(minHeight: 2)
         else ...[
           if (_rows.isNotEmpty) _ComparisonCharts(rows: _rows),
-          const SizedBox(height: AppSpace.xl),
-          const SectionLabel('세부 수치'),
-          const SizedBox(height: AppSpace.md),
-          _CompareTable(
-            rows: _rows,
+          const SizedBox(height: AppSpace.lg),
+          CompanyDataCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const CompanySectionHeading('세부 수치'),
+                const SizedBox(height: AppSpace.md),
+                _CompareTable(rows: _rows),
+              ],
+            ),
           ),
         ],
       ],
@@ -332,7 +342,7 @@ class _AddCompanyState extends State<_AddCompany> {
             },
             builder: (context, hovered) => Container(
               width: 320,
-              color: hovered ? c.surfaceHover : Colors.transparent,
+              color: hovered ? c.surfaceHover : c.surface.withValues(alpha: 0),
               padding: const EdgeInsets.symmetric(
                 horizontal: AppSpace.sm,
                 vertical: 7,
@@ -382,11 +392,11 @@ class _ComparisonCharts extends StatelessWidget {
             : box.maxWidth >= 640
             ? 2
             : 1;
-        final width = (box.maxWidth - AppSpace.xl * (columns - 1)) / columns;
+        final width = (box.maxWidth - AppSpace.md * (columns - 1)) / columns;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('밸류에이션·수익성', style: t.display(24)),
+            const CompanySectionHeading('밸류에이션·수익성'),
             const SizedBox(height: AppSpace.sm),
             Text(
               '최근 12개월 실적 기준 · 지표별 축은 다릅니다.',
@@ -394,30 +404,32 @@ class _ComparisonCharts extends StatelessWidget {
             ),
             const SizedBox(height: AppSpace.xl),
             Wrap(
-              spacing: AppSpace.xl,
-              runSpacing: AppSpace.xl,
+              spacing: AppSpace.md,
+              runSpacing: AppSpace.md,
               children: [
                 for (final (title, unit, value) in metrics)
                   SizedBox(
                     width: width,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(title, style: t.body(15, weight: FontWeight.w600)),
-                        Text(unit, style: t.body(12, color: c.textSecondary)),
-                        const SizedBox(height: AppSpace.md),
-                        AppColumnChart(
-                          categories: [for (final r in rows) r.company.name],
-                          series: [
-                            ChartSeries(
-                              label: unit,
-                              color: c.chartSeries1,
-                              values: [for (final r in rows) value(r)],
-                            ),
-                          ],
-                          formatValue: (v) => v.toStringAsFixed(1),
-                        ),
-                      ],
+                    child: CompanyDataCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          CompanySectionHeading(title),
+                          Text(unit, style: t.body(12, color: c.textSecondary)),
+                          const SizedBox(height: AppSpace.md),
+                          AppColumnChart(
+                            categories: [for (final r in rows) r.company.name],
+                            series: [
+                              ChartSeries(
+                                label: unit,
+                                color: c.chartSeries1,
+                                values: [for (final r in rows) value(r)],
+                              ),
+                            ],
+                            formatValue: (v) => v.toStringAsFixed(1),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
               ],

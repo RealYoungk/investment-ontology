@@ -36,7 +36,8 @@ const _destinations = [
     '/companies',
     matches: ['/company/', '/reports/', '/person/'],
   ),
-  _Destination('기업 찾기', '/screen', matches: ['/compare', '/industries']),
+  _Destination('기업 찾기', '/screen', matches: ['/industries']),
+  _Destination('기업 비교', '/compare'),
   _Destination('관계망', '/graph'),
 ];
 
@@ -157,6 +158,7 @@ class _DeskNavigation extends StatelessWidget {
     Icons.bar_chart,
     Icons.business_outlined,
     Icons.filter_alt_outlined,
+    Icons.compare_arrows_outlined,
     Icons.hub_outlined,
     Icons.account_tree_outlined,
     Icons.bookmarks_outlined,

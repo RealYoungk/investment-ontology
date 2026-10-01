@@ -140,12 +140,7 @@ class _PeerCandidatesPanelState extends State<PeerCandidatesPanel> {
                   for (final candidate in data.items)
                     SizedBox(
                       width: width,
-                      child: Container(
-                        padding: const EdgeInsets.all(AppSpace.md),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: c.border),
-                          borderRadius: context.shape.borderRadius,
-                        ),
+                      child: CompanyDataCard(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [

@@ -65,19 +65,12 @@ class _PeerDigestState extends State<PeerDigest> {
       _ => '${v.toStringAsFixed(1)}%',
     };
 
-    return Container(
-      padding: const EdgeInsets.all(AppSpace.lg),
-      decoration: BoxDecoration(
-        color: c.surface,
-        borderRadius: context.shape.borderRadius,
-        border: Border.all(color: c.borderStrong),
-      ),
+    return CompanyDataCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SectionLabel(
+          CompanySectionHeading(
             '업종 비교 · ${peers.fsDiv == null ? '자동' : fsDivLabel(peers.fsDiv!)} 기준',
-            accent: true,
           ),
           const SizedBox(height: 2),
           Text(

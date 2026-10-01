@@ -818,3 +818,8 @@ User authorized implementing locally before review. Actual Flutter industries pa
 실제 AdSense tag 자체가 push 없이 광고 요청을 만드는 것을 임시 진단에서 발견했다. 최종 loader는 메시지 전용 CMP를 먼저 로드하고 동의 승인 뒤에만 AdSense tag를 로드하도록 변경했다. 이 진단의 실제 외부 요청과 모의 검증을 구분해 문서에 기록했다. 운영 flag OFF 유지.
 
 일반 Flutter Web renderer의 localhost 전용 harness로 운영 광고 위젯/JS + 인증 RPC + 격리 DB를 연결해 회원 전환9/9 확인. 조회실패·유료·해지·만료·갱신·환불·로그아웃에서 실제 DOM과 script/push 수 확인. Google/PG응답은 모의. scripts/start-ad-membership-browser.sh와 상세 검증 문서 참조.
+
+### 2026-10-01 기업 비교 배포 변경
+- 기업 비교를 기업 찾기 아래 독립 드로어/사이드바 메뉴로 추가. 상단 선택 영역 배경 제거, 하단 차트/수치와 후보/업종비교에 공통 카드 적용.
+- screen.list의 corpCodes 지정 조회는 선택 기업 ID를 보고서/시총/대표 종목/배당 SQL 시작부터 제한하고 전체 스크리너 캐시와 분리. 같은 계산 수식 유지, 빈/없는 코드로 전체 조회 금지. 부분/전체 값 일치와 캐시 보존 회귀 추가.
+- 다른 채팅 미커밋 재무/기업설명 변경은 제외하고 최신 main에서 분리 검증. 운영 배포 완료 근거는 후속 기록에서 확인.

@@ -3,7 +3,7 @@ import 'financial_accounts.dart';
 /// Shared SQL for the company summary, screener and comparison universe.
 /// Picks ONE basis, preserving available inputs when filling gaps; never splices consolidated and separate periods.
 abstract final class FinancialBasis {
-  static String ctes({int? companyId}) {
+  static String ctes({int? companyId, List<int>? companyIds}) {
     final ids = FinancialAccounts.accountIds.map((id) => "'$id'").join(',');
     return '''
       rank_code AS (
@@ -12,7 +12,13 @@ abstract final class FinancialBasis {
         SELECT DISTINCT ON (r."companyId",r."fsDiv",r."bsnsYear",r."reportCode") r.*
         FROM financial_report r
         WHERE r."supersededById" IS NULL
-          ${companyId == null ? '' : 'AND r."companyId" = $companyId'}
+          ${companyId != null
+        ? 'AND r."companyId" = $companyId'
+        : companyIds == null
+        ? ''
+        : companyIds.isEmpty
+        ? 'AND false'
+        : 'AND r."companyId" IN (${companyIds.join(',')})'}
         ORDER BY r."companyId",r."fsDiv",r."bsnsYear",r."reportCode",r."rceptNo" DESC,r.id DESC
       ), candidates AS (
         SELECT DISTINCT ON (r."companyId",r."fsDiv")

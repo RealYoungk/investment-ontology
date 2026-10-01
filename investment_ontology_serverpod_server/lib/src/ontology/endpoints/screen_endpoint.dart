@@ -13,7 +13,7 @@ import '../peers/peer_catalog.dart';
 /// 지표(PER·PBR·ROE·영업이익률)는 저장하지 않는다. 최근 12개월(TTM) 원천 값과 최근
 /// 시가총액으로 계산하고, 계산에 쓴 값도 같이 돌려준다. 기업 화면의 지표와 같은 기준이다.
 ///
-/// 전 상장사를 한 번 계산해 두고(데이터가 바뀌면 다시), 거르기·정렬은 메모리에서 한다.
+/// 조건 검색은 전체 캐시를 사용하고, 기업 비교는 선택 기업만 SQL에서 계산한다.
 class ScreenEndpoint extends Endpoint {
   @override
   bool get requireLogin => false;
@@ -103,8 +103,29 @@ class ScreenEndpoint extends Endpoint {
         (marketCapMin != null && marketCapMin < BigInt.zero)) {
       throw ArgumentError('조건 범위를 확인해 주세요. 배당 연수는 최대 3년입니다.');
     }
-    final all = await _universe(session);
     final codes = corpCodes?.toSet();
+    final List<ScreenRow> all;
+    DateTime? baseDate;
+    if (codes == null) {
+      all = await _universe(session);
+      baseDate = _baseDate;
+    } else {
+      final companies = codes.isEmpty
+          ? <Company>[]
+          : await Company.db.find(
+              session,
+              where: (t) => t.corpCode.inSet(codes),
+            );
+      final ids = [for (final company in companies) company.id!];
+      all = ids.isEmpty
+          ? <ScreenRow>[]
+          : await _compute(session, '', companyIds: ids);
+      baseDate = (await MarketSnapshotDay.db.findFirstRow(
+        session,
+        where: (t) => t.rowCount > 0,
+        orderBy: (t) => t.baseDate.desc(),
+      ))?.baseDate;
+    }
     var rows = [
       for (final r in all)
         if (codes == null || codes.contains(r.company.corpCode))
@@ -209,7 +230,7 @@ class ScreenEndpoint extends Endpoint {
     return ScreenPage(
       items: rows.sublist(from, to),
       total: rows.length,
-      baseDate: _baseDate,
+      baseDate: baseDate,
       universe: all.length,
     );
   }
@@ -388,12 +409,20 @@ class ScreenEndpoint extends Endpoint {
   }
 
   /// 전 상장사의 지표를 계산해 캐시에 넣는다.
-  Future<List<ScreenRow>> _compute(Session session, String key) async {
+  Future<List<ScreenRow>> _compute(
+    Session session,
+    String key, {
+    List<int>? companyIds,
+  }) async {
+    // IDs originate from the ORM lookup, never from interpolated request text.
+    String selected(String alias) => companyIds == null
+        ? ''
+        : 'AND $alias."companyId" IN (${companyIds.join(',')})';
     final markets = DisclosureLinks.listedMarkets
         .map((m) => "'${m.name}'")
         .join(', ');
     final rows = await session.db.unsafeQuery('''
-      WITH ${FinancialBasis.ctes()}, cap AS (
+      WITH ${FinancialBasis.ctes(companyIds: companyIds)}, cap AS (
         -- 시가총액이 없는 종목(거래정지 등)은 빼고 합한다. 한 종목도 없으면 그 기업은
         -- 스크리너에 나오지 않는다 (값을 매길 수 없으므로).
         SELECT s."companyId" AS id, sum(m."marketCap"::numeric) AS cap
@@ -401,6 +430,7 @@ class ScreenEndpoint extends Endpoint {
         JOIN security s ON s.id = m."securityId"
         WHERE m."baseDate" = (SELECT max("baseDate") FROM market_snapshot_day WHERE "rowCount" > 0)
           AND s."companyId" IS NOT NULL AND m."marketCap" IS NOT NULL
+          ${selected('s')}
         GROUP BY 1
       ), rep AS (
         -- 대표 종목: 가장 최근 기준일 시가총액이 큰 것 (주가 추이 화면과 같은 규칙).
@@ -409,6 +439,7 @@ class ScreenEndpoint extends Endpoint {
         JOIN security s ON s.id = m."securityId"
         WHERE m."baseDate" = (SELECT max("baseDate") FROM market_snapshot_day WHERE "rowCount" > 0)
           AND s."companyId" IS NOT NULL AND m."marketCap" IS NOT NULL
+          ${selected('s')}
         ORDER BY s."companyId", m."marketCap"::numeric DESC
       ), px_now AS (
         SELECT r.id, m."closePrice"::numeric AS v, m."listedShares"::numeric AS sh
@@ -481,6 +512,7 @@ class ScreenEndpoint extends Endpoint {
         FROM disclosure_report dr
         WHERE dr.section = 'dividend' AND dr."reportCode" = 'annual'
           AND dr."supersededById" IS NULL
+          ${selected('dr')}
         ORDER BY dr."companyId", dr."bsnsYear" DESC, dr."rceptNo" DESC
       ), div AS (
         SELECT dr."companyId" AS id, dr."bsnsYear" AS year,
@@ -728,9 +760,11 @@ class ScreenEndpoint extends Endpoint {
                 : 3,
           ),
     ];
-    _cacheKey = key;
-    _cache = universe;
-    _baseDate = day?.baseDate;
+    if (companyIds == null) {
+      _cacheKey = key;
+      _cache = universe;
+      _baseDate = day?.baseDate;
+    }
     return universe;
   }
 }
