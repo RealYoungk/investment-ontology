@@ -18,7 +18,7 @@ node --test deploy/cloudflare/worker.test.mjs
 bash scripts/test-server.sh
 (cd investment_ontology_serverpod_flutter && flutter test)
 bash scripts/test-billing-browser.sh
-(cd investment_ontology_serverpod_flutter && flutter build web --release)
+(cd investment_ontology_serverpod_flutter && flutter build web --release --dart-define-from-file=../deploy/web-build-defines.json)
 python3 scripts/prepare_public_web.py
 python3 scripts/release_bundle.py
 tar -czf output/web-release.tar.gz -C output/public-deploy .vercel/output manifest.json
