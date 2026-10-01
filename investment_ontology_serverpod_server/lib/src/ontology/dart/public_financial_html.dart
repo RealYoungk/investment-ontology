@@ -621,6 +621,27 @@ abstract final class PublicFinancialHtml {
           !{'과목', '구분', '계정과목'}.contains(_compact(_text(first.group(1)!)))) {
         continue;
       }
+      // A dated primary equity-change table is outside this core-row scope.
+      // Exclude it before numeric-grid parsing; ambiguous headings still fail
+      // through the original grid/statement checks below.
+      final prefix = _compact(_text(scope.substring(0, table.start)));
+      final equityAt = prefix.lastIndexOf('자본변동표');
+      final otherAt = [
+        prefix.lastIndexOf('재무상태표'),
+        prefix.lastIndexOf('손익계산서'),
+        prefix.lastIndexOf('현금흐름표'),
+      ].reduce((a, b) => a > b ? a : b);
+      if (equityAt >= 0 && equityAt > otherAt) {
+        final datedEquity = titlePattern
+            .allMatches(prefix.substring(equityAt))
+            .toList();
+        if (datedEquity.isNotEmpty &&
+            datedEquity.last.group(2) != '현재' &&
+            sourceDate(datedEquity.last.group(1)!) == periodStart &&
+            sourceDate(datedEquity.last.group(3)!) == periodEnd) {
+          continue;
+        }
+      }
       final grid = _FinancialHtmlGrid.parse(table.group(1)!);
       if (grid.isEmpty) continue;
       final labels = grid

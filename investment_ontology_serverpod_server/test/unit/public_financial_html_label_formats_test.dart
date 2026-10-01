@@ -4,7 +4,12 @@ import 'dart:io';
 import 'package:test/test.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_financial_html.dart';
 
-List<Map<String, dynamic>> parseActual(String receipt, {String? cover}) {
+List<Map<String, dynamic>> parseActual(
+  String receipt, {
+  String? cover,
+  String? statement,
+  bool consolidated = true,
+}) {
   const root = 'test/fixtures/financial_html/label-formats';
   final fixtures =
       (jsonDecode(File('$root/evidence.json').readAsStringSync())
@@ -15,21 +20,49 @@ List<Map<String, dynamic>> parseActual(String receipt, {String? cover}) {
   final year = int.parse(p[1]!), month = int.parse(p[2]!);
   return PublicFinancialHtml.parseStandardAnnual(
     coverHtml: cover ?? File('$root/$receipt/4.body').readAsStringSync(),
-    statementHtml: File('$root/$receipt/5.body').readAsStringSync(),
+    statementHtml:
+        statement ??
+        File('$root/$receipt/${consolidated ? 5 : 10}.body').readAsStringSync(),
     coverSource: Uri.parse(File('$root/$receipt/4.url.txt').readAsStringSync()),
     statementSource: Uri.parse(
-      File('$root/$receipt/5.url.txt').readAsStringSync(),
+      File('$root/$receipt/${consolidated ? 5 : 10}.url.txt')
+          .readAsStringSync(),
     ),
     receipt: receipt,
     corpCode: f['corpCode'],
     companyName: f['name'],
     periodStart: DateTime.utc(year - 1, month + 1),
     periodEnd: DateTime.utc(year, month + 1, 0),
-    consolidated: true,
+    consolidated: consolidated,
   );
 }
 
 void main() {
+  for (final basis in [true, false]) {
+    test('actual Aha dated equity-change grid is excluded $basis', () {
+      final rows = parseActual('20240320001370', consolidated: basis);
+      expect(rows.length, greaterThanOrEqualTo(7));
+      expect(rows.any((r) => r['sj_div'] == 'CE'), false);
+      final profit = rows.singleWhere(
+        (r) =>
+            r['sj_div'] == 'CIS' && (r['account_nm'] as String).contains('당기순'),
+      );
+      expect(profit['thstrm_amount'], basis ? '-1666754926' : '-266116406');
+      const receipt = '20240320001370';
+      final body = File(
+        'test/fixtures/financial_html/label-formats/$receipt/${basis ? 5 : 10}.body',
+      ).readAsStringSync();
+      expect(
+        () => parseActual(
+          receipt,
+          consolidated: basis,
+          statement: body.replaceAll(RegExp(r'자\s*본\s*변\s*동\s*표'), '모호한제목'),
+        ),
+        throwsFormatException,
+      );
+    });
+  }
+
   for (final (receipt, label, value) in [
     ('20250326000042', '수익(매출액)(주30)', '155880764900'),
     ('20230621000034', '영업수익', '4315281301'),
