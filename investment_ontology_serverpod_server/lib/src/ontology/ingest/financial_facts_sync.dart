@@ -1097,6 +1097,9 @@ class FinancialFactsSync {
       '20240320001370': {'CFS', 'OFS'},
       '20260316001455': {'OFS'},
       '20260319000105': {'CFS', 'OFS'},
+      '20260319000677': {'OFS'},
+      '20250321001022': {'OFS'},
+      '20240322000131': {'OFS'},
       '20260318000962': {'OFS'},
     };
     bool verifiedParserPending(DartFiling f) {
