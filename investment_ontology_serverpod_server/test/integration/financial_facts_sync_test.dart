@@ -630,8 +630,13 @@ void main() {
           );
           expect(
             dart.financialCalls,
-            isEmpty,
-            reason: 'prior verified mismatch uses only public original even with zero API allowance',
+            mismatchError == 'fresh receiptPeriodMismatch'
+                ? orderedEquals([
+                    '00442455|2024|11011|CFS',
+                    '00442455|2024|11011|OFS',
+                  ])
+                : isEmpty,
+            reason: 'fresh mismatch checks both API bases; verified prior mismatch uses only the exact public original',
           );
           expect(job.status, IngestStatus.succeeded);
           expect(job.message, contains('원문 XBRL 핵심계정 복구 2벌'));
@@ -674,7 +679,9 @@ void main() {
           );
           expect(
             (await DartFiling.db.find(session)).single.attempts,
-            FinancialFactsSync.maxAttempts,
+            mismatchError == 'fresh receiptPeriodMismatch'
+                ? 0
+                : FinancialFactsSync.maxAttempts,
           );
         },
       );
