@@ -16,6 +16,31 @@ abstract final class VerifiedHistoricalCompanyIdentity {
     required Uri coverSource,
     required String coverHtml,
   }) {
+    if (receipt == '20250320001633' &&
+        corpCode == '01188730' &&
+        !consolidated &&
+        periodEnd == DateTime.utc(2024, 12, 31) &&
+        normalize(currentName) == 'SK시그넷' &&
+        normalize(printedName) == '에스케이시그넷' &&
+        coverSource.toString() ==
+            'https://dart.fss.or.kr/report/viewer.do?rcpNo=20250320001633&dcmNo=10440936&eleId=1&offset=958&length=4511&dtd=dart4.xsd' &&
+        sha256.convert(utf8.encode(coverHtml)).toString() ==
+            '397be826b3698513bf845fe91851584fc70520480c1763c9638c778c9e40d3b6') {
+      return {
+        'currentName': currentName,
+        'printedHistoricalName': printedName,
+        'receipt': receipt,
+        'corpCode': corpCode,
+        'periodEnd': '2024-12-31',
+        'basis': 'OFS',
+        'evidence': 'Same official report explicitly declares 에스케이시그넷 주식회사(영문명: SK Signet Inc.); declared official domain identifies SK시그넷(주). Exact receipt only, no general transliteration.',
+        'coverSha256':
+            '397be826b3698513bf845fe91851584fc70520480c1763c9638c778c9e40d3b6',
+        'legalNameEvidenceSource': "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250320001633&dcmNo=10440936&eleId=4&offset=6152&length=10028&dtd=dart4.xsd",
+        'legalNameEvidenceSha256':
+            "01c75ae88aca78256aaa4a2924ef89cd0673a908d0bc4d80c2523a7452d59a90",
+      };
+    }
     if (coverSource.toString() !=
             'https://dart.fss.or.kr/report/viewer.do?rcpNo=20230321001219&dcmNo=9083870&eleId=1&offset=784&length=3924&dtd=dart3.xsd' ||
         sha256.convert(utf8.encode(coverHtml)).toString() !=

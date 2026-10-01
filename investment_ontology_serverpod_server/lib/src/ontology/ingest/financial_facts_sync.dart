@@ -1078,6 +1078,7 @@ class FinancialFactsSync {
     // Exact official fixtures verified by this parser revision. This affects
     // queue order only: existing per-period attempts and failed-basis gates stay.
     const verifiedParserReceipts = <String, Set<String>>{
+      '20250320001633': {'OFS'},
       '20260318000509': {'OFS'},
       '20260617000188': {'OFS'},
       '20260731000744': {'OFS'},
@@ -1108,6 +1109,9 @@ class FinancialFactsSync {
     bool verifiedParserPending(DartFiling f) {
       final bases = verifiedParserReceipts[f.rceptNo];
       if (bases == null) return false;
+      if (f.rceptNo == '20250320001633' && f.corpCode != '01188730') {
+        return false;
+      }
       if (f.rceptNo == '20260318000509' && f.corpCode != '00832700') {
         return false;
       }
