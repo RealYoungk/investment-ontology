@@ -54,12 +54,13 @@ void main() {
               secretKey: 'test_sk_fixture',
               client: MockClient((r) async {
                 requests.add(r);
+                if (r.method == 'DELETE') return http.Response('', 204);
                 final body = jsonDecode(r.body) as Map<String, dynamic>;
                 if (r.url.path.endsWith('/issue')) {
                   return http.Response(
                     jsonEncode({
                       'customerKey': body['customerKey'],
-                      'billingKey': 'opaque+/key==',
+                      'billingKey': 'opaque+/key-${requests.length}==',
                     }),
                     200,
                   );
@@ -190,6 +191,147 @@ void main() {
           checkout.begin(owned, acceptedTestTerms: 'sandbox-v1', at: now),
           throwsStateError,
         );
+      });
+      test(
+        'expired membership starts a new cycle without reusing its old order',
+        () async {
+          final first = await checkout.begin(
+            owned,
+            acceptedTestTerms: 'sandbox-v1',
+            at: now,
+          );
+          final paid = await checkout.complete(
+            owned,
+            state: first.state,
+            authKey: 'fixture-first',
+            at: now,
+          );
+          await MembershipLedger.cancel(owned);
+          final restartAt = paid.paidThroughUtc!.add(const Duration(days: 3));
+          final second = await checkout.begin(
+            owned,
+            acceptedTestTerms: 'sandbox-v1',
+            at: restartAt,
+          );
+          final restarted = await checkout.complete(
+            owned,
+            state: second.state,
+            authKey: 'fixture-second',
+            at: restartAt,
+          );
+          expect(restarted.adFree, true);
+          expect(restarted.cancelAtPeriodEnd, false);
+          final charges = requests
+              .where(
+                (r) => r.method == 'POST' && !r.url.path.endsWith('/issue'),
+              )
+              .toList();
+          expect(charges.length, 2);
+          expect(
+            jsonDecode(charges[0].body)['orderId'],
+            isNot(jsonDecode(charges[1].body)['orderId']),
+          );
+          final subscription = (await BillingSubscription.db.findFirstRow(
+            owned,
+            where: (t) => t.ownerId.equals(MembershipLedger.owner(owned)),
+          ))!;
+          final attempts = await BillingPaymentAttempt.db.find(
+            owned,
+            where: (t) => t.subscriptionId.equals(subscription.id!),
+            orderBy: (t) => t.period,
+          );
+          expect(attempts.last.paidFromUtc, restartAt);
+          expect(attempts.map((r) => r.status), everyElement('paid'));
+          // Refunding an older purchase must not cancel the new independent cycle.
+          await MembershipLedger.fullRefund(
+            owned,
+            attempts.first.id!,
+            SandboxPayment(
+              key: attempts.first.paymentKey!,
+              orderId: attempts.first.orderId,
+              status: 'CANCELED',
+              amount: 2900,
+              balance: 0,
+            ),
+          );
+          final afterHistoricalRefund = await MembershipLedger.status(
+            owned,
+            at: restartAt,
+          );
+          expect(afterHistoricalRefund.adFree, true);
+          expect(afterHistoricalRefund.cancelAtPeriodEnd, false);
+        },
+      );
+      test('card replacement retains expiry and canceled renewal without another charge', () async {
+        final first = await checkout.begin(
+          owned,
+          acceptedTestTerms: 'sandbox-v1',
+          at: now,
+        );
+        final paid = await checkout.complete(
+          owned,
+          state: first.state,
+          authKey: 'fixture-first',
+          at: now,
+        );
+        await MembershipLedger.cancel(owned);
+        final changed = await checkout.begin(
+          owned,
+          acceptedTestTerms: 'sandbox-v1',
+          replaceCard: true,
+          at: now,
+        );
+        final status = await checkout.complete(
+          owned,
+          state: changed.state,
+          authKey: 'fixture-changed',
+          at: now,
+        );
+        expect(status.adFree, true);
+        expect(status.paidThroughUtc, paid.paidThroughUtc);
+        expect(status.cancelAtPeriodEnd, true);
+        expect(
+          requests
+              .where(
+                (r) => r.method == 'POST' && !r.url.path.endsWith('/issue'),
+              )
+              .length,
+          1,
+        );
+        expect(requests.where((r) => r.method == 'DELETE').length, 1);
+        await MembershipLedger.resume(owned, at: now);
+        expect(
+          (await MembershipLedger.status(owned, at: now)).cancelAtPeriodEnd,
+          false,
+        );
+        await expectLater(
+          MembershipLedger.resume(owned, at: paid.paidThroughUtc),
+          throwsStateError,
+        );
+      });
+      test('canceled card registration can retry without charging', () async {
+        final first = await checkout.begin(
+          owned,
+          acceptedTestTerms: 'sandbox-v1',
+          at: now,
+        );
+        await checkout.abort(owned, first.state);
+        final retry = await checkout.begin(
+          owned,
+          acceptedTestTerms: 'sandbox-v1',
+          at: now,
+        );
+        expect(retry.state, isNot(first.state));
+        await expectLater(
+          checkout.complete(
+            owned,
+            state: first.state,
+            authKey: 'fixture',
+            at: now,
+          ),
+          throwsStateError,
+        );
+        expect(requests, isEmpty);
       });
       test(
         'concurrent duplicate callback has one authorization and one order',

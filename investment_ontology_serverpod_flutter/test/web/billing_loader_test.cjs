@@ -8,7 +8,7 @@ function env(protocol='http:') {
   const scripts=[], timers=new Map(), calls=[], replacements=[];
   let id=0;
   const window={};
-  const location={protocol, origin:protocol+'//localhost:9110', pathname:'/membership/checkout'};
+  const location={protocol, origin:protocol+'//localhost:9110', pathname:'/membership/checkout',href:protocol+'//localhost:9110/membership/checkout'};
   vm.runInNewContext(source, {window,location,URL,
     history:{state:null, replaceState:(...args)=>replacements.push(args)},
     document:{createElement:()=>({remove(){this.removed=true;}}), head:{appendChild:s=>scripts.push(s)}},

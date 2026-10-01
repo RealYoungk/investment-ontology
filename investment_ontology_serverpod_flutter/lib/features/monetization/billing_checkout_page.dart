@@ -15,6 +15,7 @@ class BillingCheckoutPage extends StatefulWidget {
     this.state,
     this.authKey,
     this.failed = false,
+    this.replaceCard = false,
     this.loadStatus,
     this.beginCheckout,
     this.completeCheckout,
@@ -25,6 +26,7 @@ class BillingCheckoutPage extends StatefulWidget {
   final String? state;
   final String? authKey;
   final bool failed;
+  final bool replaceCard;
   final Future<MembershipView> Function()? loadStatus;
   final Future<BillingCheckoutView> Function(String)? beginCheckout;
   final Future<MembershipView> Function(String, String)? completeCheckout;
@@ -67,7 +69,9 @@ class _BillingCheckoutPageState extends State<BillingCheckoutPage> {
               widget.authKey!,
             );
         await (widget.refresh ?? AppAuth.refreshMembership)();
-        _message = _status!.adFree
+        _message = widget.replaceCard
+            ? '결제 카드를 변경했습니다. 추가 요금은 청구하지 않았습니다.'
+            : _status!.adFree
             ? '광고 제거 이용권이 적용되었습니다.'
             : '결제 결과를 확인 중입니다. 새 결제를 시작하지 말고 계정 상태를 확인해 주세요.';
       } else {
@@ -93,7 +97,10 @@ class _BillingCheckoutPageState extends State<BillingCheckoutPage> {
     String? pendingState;
     try {
       final checkout =
-          await (widget.beginCheckout ?? client.membership.beginCheckout)(
+          await (widget.beginCheckout ??
+              (widget.replaceCard
+                  ? client.membership.beginCardReplacement
+                  : client.membership.beginCheckout))(
             _status!.termsVersion!,
           );
       pendingState = checkout.state;
@@ -122,8 +129,8 @@ class _BillingCheckoutPageState extends State<BillingCheckoutPage> {
     return PageFrame(
       maxWidth: 680,
       children: [
-        const PageHeading(
-          title: '광고 제거 이용권',
+        PageHeading(
+          title: widget.replaceCard ? '결제 카드 변경' : '광고 제거 이용권',
           subtitle: '기업 정보는 무료로 계속 조회할 수 있습니다.',
         ),
         const SizedBox(height: AppSpace.lg),
@@ -136,20 +143,24 @@ class _BillingCheckoutPageState extends State<BillingCheckoutPage> {
             style: t.body(20, weight: FontWeight.w600),
           ),
           const SizedBox(height: AppSpace.md),
-          if (_status!.adFree)
+          if (_status!.adFree && !widget.replaceCard)
             Text('현재 광고 없이 이용 중입니다.', style: t.body(14))
           else if (!_status!.paymentAvailable)
             Text('이용권 출시를 준비하고 있습니다. 아직 결제할 수 없습니다.', style: t.body(14))
           else ...[
             Text(
-              '카드는 토스페이먼츠 결제창에서 등록합니다. 가입 후 매월 자동 결제되며, 계정 화면에서 다음 갱신을 해지할 수 있습니다.',
+              widget.replaceCard
+                  ? '카드를 바꿔도 이용 기간과 해지 상태는 유지됩니다. 카드 변경으로 추가 결제하지 않습니다.'
+                  : '카드는 토스페이먼츠 결제창에서 등록합니다. 가입 후 매월 자동 결제되며, 계정 화면에서 다음 갱신을 해지할 수 있습니다.',
               style: t.body(14, color: c.textSecondary),
             ),
             const ServiceLinks(),
             CheckboxListTile(
               contentPadding: EdgeInsets.zero,
               title: Text(
-                _status!.isTest
+                widget.replaceCard
+                    ? '다음 정기결제에 사용할 카드를 변경하는 데 동의합니다.'
+                    : _status!.isTest
                     ? '카드 등록과 2,900원 자동결제 테스트에 동의합니다.'
                     : '월 2,900원 정기결제와 이용권 약관에 동의합니다.',
                 style: t.body(14),
@@ -161,7 +172,13 @@ class _BillingCheckoutPageState extends State<BillingCheckoutPage> {
             ),
             FilledButton(
               onPressed: _accepted && !_busy ? _start : null,
-              child: Text(_status!.isTest ? '테스트 카드 등록' : '카드 등록하고 시작하기'),
+              child: Text(
+                widget.replaceCard
+                    ? '카드 변경하기'
+                    : _status!.isTest
+                    ? '테스트 카드 등록'
+                    : '카드 등록하고 시작하기',
+              ),
             ),
           ],
         ],

@@ -15,7 +15,9 @@ git ls-files -z '*.dart' | python3 -c 'import sys; paths=sys.stdin.buffer.read()
 python3 -m unittest discover -s scripts/tests -v
 node --test investment_ontology_serverpod_flutter/test/web/*_test.cjs
 bash scripts/test-server.sh
-(cd investment_ontology_serverpod_flutter && flutter test && flutter build web --release)
+(cd investment_ontology_serverpod_flutter && flutter test)
+bash scripts/test-billing-browser.sh
+(cd investment_ontology_serverpod_flutter && flutter build web --release)
 python3 scripts/prepare_public_web.py
 python3 scripts/release_bundle.py
 tar -czf output/web-release.tar.gz -C output/public-deploy .vercel/output manifest.json

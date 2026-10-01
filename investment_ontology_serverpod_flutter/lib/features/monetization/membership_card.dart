@@ -38,6 +38,21 @@ class _MembershipCardState extends State<MembershipCard> {
     }
   }
 
+  Future<void> _resume() async {
+    setState(() => _canceling = true);
+    try {
+      await client.membership.resumeRenewal();
+      await AppAuth.refreshMembership();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('갱신 재개를 확인하지 못했습니다.')));
+      }
+    } finally {
+      if (mounted) setState(() => _canceling = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewer = context.viewer;
@@ -78,13 +93,29 @@ class _MembershipCardState extends State<MembershipCard> {
               style: t.body(14, color: c.textSecondary),
             ),
             if (viewer!.cancelAtPeriodEnd)
-              Text('자동 갱신 해지됨', style: t.body(14, color: c.textSecondary))
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('자동 갱신 해지됨', style: t.body(14, color: c.textSecondary)),
+                  if (viewer.paymentAvailable)
+                    TextButton(
+                      onPressed: _canceling ? null : _resume,
+                      child: const Text('자동 갱신 다시 켜기'),
+                    ),
+                ],
+              )
             else
               TextButton(
                 onPressed: _canceling ? null : _cancel,
                 child: Text(_canceling ? '해지 중…' : '자동 갱신 해지'),
               ),
           ],
+          if (end != null && (viewer?.paymentAvailable ?? false))
+            TextButton(
+              onPressed: () =>
+                  context.push('/membership/checkout?card=replace'),
+              child: const Text('결제 카드 변경'),
+            ),
           const ServiceLinks(),
           if (!adFree && (viewer?.paymentAvailable ?? false)) ...[
             const SizedBox(height: AppSpace.sm),

@@ -21,10 +21,11 @@ abstract class BillingCheckout
     required this.stateHash,
     required this.expiresUtc,
     required this.status,
+    bool? replaceCard,
     this.termsVersion,
     this.acceptedAtUtc,
     required this.issueIdempotencyKey,
-  });
+  }) : replaceCard = replaceCard ?? false;
 
   factory BillingCheckout({
     int? id,
@@ -33,6 +34,7 @@ abstract class BillingCheckout
     required String stateHash,
     required DateTime expiresUtc,
     required String status,
+    bool? replaceCard,
     String? termsVersion,
     DateTime? acceptedAtUtc,
     required String issueIdempotencyKey,
@@ -50,6 +52,9 @@ abstract class BillingCheckout
         jsonSerialization['expiresUtc'],
       ),
       status: jsonSerialization['status'] as String,
+      replaceCard: jsonSerialization['replaceCard'] == null
+          ? null
+          : _is.BoolJsonExtension.fromJson(jsonSerialization['replaceCard']),
       termsVersion: jsonSerialization['termsVersion'] as String?,
       acceptedAtUtc: jsonSerialization['acceptedAtUtc'] == null
           ? null
@@ -77,6 +82,8 @@ abstract class BillingCheckout
 
   String status;
 
+  bool replaceCard;
+
   String? termsVersion;
 
   DateTime? acceptedAtUtc;
@@ -96,6 +103,7 @@ abstract class BillingCheckout
     String? stateHash,
     DateTime? expiresUtc,
     String? status,
+    bool? replaceCard,
     String? termsVersion,
     DateTime? acceptedAtUtc,
     String? issueIdempotencyKey,
@@ -110,6 +118,7 @@ abstract class BillingCheckout
       'stateHash': stateHash,
       'expiresUtc': expiresUtc.toJson(),
       'status': status,
+      'replaceCard': replaceCard,
       if (termsVersion != null) 'termsVersion': termsVersion,
       if (acceptedAtUtc != null) 'acceptedAtUtc': acceptedAtUtc?.toJson(),
       'issueIdempotencyKey': issueIdempotencyKey,
@@ -159,6 +168,7 @@ class _BillingCheckoutImpl extends BillingCheckout {
     required String stateHash,
     required DateTime expiresUtc,
     required String status,
+    bool? replaceCard,
     String? termsVersion,
     DateTime? acceptedAtUtc,
     required String issueIdempotencyKey,
@@ -169,6 +179,7 @@ class _BillingCheckoutImpl extends BillingCheckout {
          stateHash: stateHash,
          expiresUtc: expiresUtc,
          status: status,
+         replaceCard: replaceCard,
          termsVersion: termsVersion,
          acceptedAtUtc: acceptedAtUtc,
          issueIdempotencyKey: issueIdempotencyKey,
@@ -185,6 +196,7 @@ class _BillingCheckoutImpl extends BillingCheckout {
     String? stateHash,
     DateTime? expiresUtc,
     String? status,
+    bool? replaceCard,
     Object? termsVersion = _Undefined,
     Object? acceptedAtUtc = _Undefined,
     String? issueIdempotencyKey,
@@ -196,6 +208,7 @@ class _BillingCheckoutImpl extends BillingCheckout {
       stateHash: stateHash ?? this.stateHash,
       expiresUtc: expiresUtc ?? this.expiresUtc,
       status: status ?? this.status,
+      replaceCard: replaceCard ?? this.replaceCard,
       termsVersion: termsVersion is String? ? termsVersion : this.termsVersion,
       acceptedAtUtc: acceptedAtUtc is DateTime?
           ? acceptedAtUtc
@@ -232,6 +245,11 @@ class BillingCheckoutUpdateTable extends _is.UpdateTable<BillingCheckoutTable> {
 
   _is.ColumnValue<String, String> status(String value) => _is.ColumnValue(
     table.status,
+    value,
+  );
+
+  _is.ColumnValue<bool, bool> replaceCard(bool value) => _is.ColumnValue(
+    table.replaceCard,
     value,
   );
 
@@ -278,6 +296,11 @@ class BillingCheckoutTable extends _is.Table<int?> {
       'status',
       this,
     );
+    replaceCard = _is.ColumnBool(
+      'replaceCard',
+      this,
+      hasDefault: true,
+    );
     termsVersion = _is.ColumnString(
       'termsVersion',
       this,
@@ -304,6 +327,8 @@ class BillingCheckoutTable extends _is.Table<int?> {
 
   late final _is.ColumnString status;
 
+  late final _is.ColumnBool replaceCard;
+
   late final _is.ColumnString termsVersion;
 
   late final _is.ColumnDateTime acceptedAtUtc;
@@ -318,6 +343,7 @@ class BillingCheckoutTable extends _is.Table<int?> {
     stateHash,
     expiresUtc,
     status,
+    replaceCard,
     termsVersion,
     acceptedAtUtc,
     issueIdempotencyKey,

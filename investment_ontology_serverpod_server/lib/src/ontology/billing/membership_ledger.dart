@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_idp_server/core.dart';
 
@@ -10,6 +12,61 @@ import 'toss_sandbox_gateway.dart';
 /// Provider calls must run outside these transactions and use the stored order
 /// and idempotency key. Unknown attempts must be reconciled, never replaced.
 abstract final class MembershipLedger {
+  static List<String> pendingKeys(String? encoded) {
+    if (encoded == null) return [];
+    if (!encoded.startsWith('[')) return [encoded];
+    return (jsonDecode(encoded) as List).cast<String>();
+  }
+
+  static String? encodePendingKeys(Iterable<String> values) {
+    final keys = values.toSet().toList();
+    return keys.isEmpty
+        ? null
+        : keys.length == 1
+        ? keys.single
+        : jsonEncode(keys);
+  }
+
+  static Future<void> queueUnconfirmedReference(
+    Session session,
+    int subscriptionId,
+    String reference,
+    BillingKeyVault vault,
+  ) async {
+    final first = await BillingSubscription.db.findById(
+      session,
+      subscriptionId,
+    );
+    if (first == null) throw StateError('Missing cleanup owner');
+    final encrypted = await vault.seal(first.ownerId.toString(), reference);
+    await session.db.transaction((tx) async {
+      final sub = await BillingSubscription.db.findById(
+        session,
+        subscriptionId,
+        transaction: tx,
+        lockMode: LockMode.forUpdate,
+      );
+      if (sub == null) throw StateError('Missing cleanup subscription');
+      final pending = pendingKeys(sub.encryptedKeyPendingDeletion);
+      for (final existing in pending) {
+        if (await vault.open(sub.ownerId.toString(), existing) == reference) {
+          return;
+        }
+      }
+      if (sub.encryptedBillingKey != null &&
+          await vault.open(sub.ownerId.toString(), sub.encryptedBillingKey!) ==
+              reference) {
+        sub.encryptedBillingKey = null;
+        sub.cancelAtPeriodEnd = true;
+      }
+      sub.encryptedKeyPendingDeletion = encodePendingKeys([
+        ...pending,
+        encrypted,
+      ]);
+      await BillingSubscription.db.updateRow(session, sub, transaction: tx);
+    });
+  }
+
   static UuidValue owner(Session session) {
     final auth = session.authenticated;
     if (auth == null) {
@@ -88,6 +145,116 @@ abstract final class MembershipLedger {
     });
   }
 
+  /// Prepare a new cycle only after all earlier charges have a known outcome.
+  static Future<BillingSubscription> prepareCheckout(
+    Session session, {
+    bool replaceCard = false,
+    DateTime? at,
+  }) async {
+    final id = owner(session);
+    final now = at ?? DateTime.now().toUtc();
+    return session.db.transaction((tx) async {
+      await _lockUser(session, id, tx);
+      var sub = await _subscription(session, id, tx);
+      if (sub == null) {
+        if (replaceCard) throw StateError('No active membership');
+        return BillingSubscription.db.insertRow(
+          session,
+          BillingSubscription(
+            ownerId: id,
+            originUtc: now,
+            customerKey: 'alfinder-${Uuid().v4()}',
+          ),
+          transaction: tx,
+        );
+      }
+      if (sub.deleted) throw StateError('Account unavailable');
+      final unresolved = await BillingCheckout.db.findFirstRow(
+        session,
+        where: (t) =>
+            t.ownerId.equals(id) &
+            (t.status.inSet({'processing', 'unknown'}) |
+                (t.status.equals('waiting') & (t.expiresUtc > now))),
+        transaction: tx,
+      );
+      if (unresolved != null) throw StateError('Checkout already pending');
+      final paid = await BillingPaymentAttempt.db.findFirstRow(
+        session,
+        where: (t) =>
+            t.subscriptionId.equals(sub.id!) &
+            t.status.equals('paid') &
+            (t.paidFromUtc <= now) &
+            (t.paidThroughUtc > now),
+        transaction: tx,
+      );
+      if (replaceCard) {
+        if (paid == null || sub.encryptedKeyPendingDeletion != null) {
+          throw StateError('Card replacement is unavailable');
+        }
+        return sub;
+      }
+      if (paid != null) throw StateError('Membership is already active');
+      final rows = await BillingPaymentAttempt.db.find(
+        session,
+        where: (t) => t.subscriptionId.equals(sub.id!),
+        orderBy: (t) => t.period.desc(),
+        transaction: tx,
+      );
+      if (rows.any(
+        (row) =>
+            row.status == 'unknown' ||
+            row.status == 'refundRequired' ||
+            (row.status == 'pending' && sub.encryptedBillingKey != null),
+      )) {
+        throw StateError('An earlier charge must be reconciled');
+      }
+      if (rows.isNotEmpty &&
+          rows.first.status == 'pending' &&
+          rows.first.paidThroughUtc.isAfter(now) &&
+          !sub.cancelAtPeriodEnd) {
+        return sub;
+      }
+      if (sub.encryptedKeyPendingDeletion != null) {
+        throw StateError('Key cleanup pending');
+      }
+      for (final row in rows.where((r) => r.status == 'pending')) {
+        row.status = 'abandoned';
+        await BillingPaymentAttempt.db.updateRow(session, row, transaction: tx);
+      }
+      sub.encryptedKeyPendingDeletion = sub.encryptedBillingKey;
+      sub.encryptedBillingKey = null;
+      sub.nextPeriod = rows.isEmpty ? 0 : rows.first.period + 1;
+      sub.cycleStartPeriod = sub.nextPeriod;
+      sub.originUtc = now;
+      sub.cancelAtPeriodEnd = false;
+      return BillingSubscription.db.updateRow(session, sub, transaction: tx);
+    });
+  }
+
+  static Future<void> resume(Session session, {DateTime? at}) async {
+    final id = owner(session);
+    final now = at ?? DateTime.now().toUtc();
+    await session.db.transaction((tx) async {
+      await _lockUser(session, id, tx);
+      final sub = await _subscription(session, id, tx);
+      if (sub == null || sub.deleted || sub.encryptedBillingKey == null) {
+        throw StateError('No renewable membership');
+      }
+      final paid = await BillingPaymentAttempt.db.findFirstRow(
+        session,
+        where: (t) =>
+            t.subscriptionId.equals(sub.id!) &
+            t.status.equals('paid') &
+            (t.paidFromUtc <= now) &
+            (t.paidThroughUtc > now),
+        transaction: tx,
+      );
+      if (paid == null) throw StateError('Start a new membership after expiry');
+      sub.cancelAtPeriodEnd = false;
+      await BillingSubscription.db.updateRow(session, sub, transaction: tx);
+    });
+  }
+
   /// Internal orchestration only. Server-owned order and period, no client amount.
   static Future<BillingPaymentAttempt?> claim(
     Session session, {
@@ -146,8 +313,14 @@ abstract final class MembershipLedger {
         transaction: tx,
       );
       if (prior != null) return prior; // Stable identity for every retry.
-      final from = SubscriptionRules.boundary(sub.originUtc, period);
-      final through = SubscriptionRules.boundary(sub.originUtc, period + 1);
+      final from = SubscriptionRules.boundary(
+        sub.originUtc,
+        period - sub.cycleStartPeriod,
+      );
+      final through = SubscriptionRules.boundary(
+        sub.originUtc,
+        period - sub.cycleStartPeriod + 1,
+      );
       if (now.isBefore(from) || !now.isBefore(through)) return null;
       final nonce = Uuid().v4();
       return BillingPaymentAttempt.db.insertRow(
@@ -238,8 +411,9 @@ abstract final class MembershipLedger {
     Session session,
     String customerKey,
     String reference,
-    BillingKeyVault vault,
-  ) async {
+    BillingKeyVault vault, {
+    bool replaceCard = false,
+  }) async {
     final id = owner(session);
     final encrypted = await vault.seal(id.toString(), reference);
     await session.db.transaction((tx) async {
@@ -247,9 +421,15 @@ abstract final class MembershipLedger {
       final sub = await _subscription(session, id, tx);
       if (sub == null ||
           sub.deleted ||
-          sub.cancelAtPeriodEnd ||
+          (!replaceCard && sub.cancelAtPeriodEnd) ||
           sub.customerKey != customerKey) {
         throw StateError('Subscription cannot accept billing reference');
+      }
+      if (sub.encryptedBillingKey != null) {
+        if (!replaceCard || sub.encryptedKeyPendingDeletion != null) {
+          throw StateError('Existing reference cannot be replaced');
+        }
+        sub.encryptedKeyPendingDeletion = sub.encryptedBillingKey;
       }
       sub.encryptedBillingKey = encrypted;
       await BillingSubscription.db.updateRow(session, sub, transaction: tx);
@@ -278,6 +458,18 @@ abstract final class MembershipLedger {
     SandboxPayment payment,
   ) async {
     await session.db.transaction((tx) async {
+      final first = await BillingPaymentAttempt.db.findById(
+        session,
+        attemptId,
+        transaction: tx,
+      );
+      if (first == null) throw StateError('Unknown refund attempt');
+      final sub = await BillingSubscription.db.findById(
+        session,
+        first.subscriptionId,
+        transaction: tx,
+        lockMode: LockMode.forUpdate,
+      );
       final row = await BillingPaymentAttempt.db.findById(
         session,
         attemptId,
@@ -296,6 +488,19 @@ abstract final class MembershipLedger {
       row.paymentKey = payment.key;
       row.status = 'refunded';
       await BillingPaymentAttempt.db.updateRow(session, row, transaction: tx);
+      // A refund of this cycle's latest payment ends future billing as well.
+      // A historical refund must not cancel a later independently purchased cycle.
+      if (sub != null &&
+          row.period >= sub.cycleStartPeriod &&
+          row.period == sub.nextPeriod - 1) {
+        sub.cancelAtPeriodEnd = true;
+        sub.encryptedKeyPendingDeletion = encodePendingKeys([
+          ...pendingKeys(sub.encryptedKeyPendingDeletion),
+          if (sub.encryptedBillingKey != null) sub.encryptedBillingKey!,
+        ]);
+        sub.encryptedBillingKey = null;
+        await BillingSubscription.db.updateRow(session, sub, transaction: tx);
+      }
     });
   }
 
@@ -308,7 +513,10 @@ abstract final class MembershipLedger {
     final sub = await _subscription(session, id, tx);
     if (sub == null) return;
     sub.deleted = true;
-    sub.encryptedKeyPendingDeletion = sub.encryptedBillingKey;
+    sub.encryptedKeyPendingDeletion = encodePendingKeys([
+      ...pendingKeys(sub.encryptedKeyPendingDeletion),
+      if (sub.encryptedBillingKey != null) sub.encryptedBillingKey!,
+    ]);
     sub.encryptedBillingKey = null;
     sub.cancelAtPeriodEnd = true;
     await BillingSubscription.db.updateRow(session, sub, transaction: tx);

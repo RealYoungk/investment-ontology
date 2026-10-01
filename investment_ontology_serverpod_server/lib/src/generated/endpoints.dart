@@ -1692,6 +1692,37 @@ class Endpoints extends _is.EndpointDispatch {
                         params['acceptedTestTerms'],
                       ),
         ),
+        'beginCardReplacement': _is.MethodConnector(
+          name: 'beginCardReplacement',
+          params: {
+            'acceptedTestTerms': _is.ParameterDescription(
+              name: 'acceptedTestTerms',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['membership'] as _i4hwwhem.MembershipEndpoint)
+                      .beginCardReplacement(
+                        session,
+                        params['acceptedTestTerms'],
+                      ),
+        ),
+        'resumeRenewal': _is.MethodConnector(
+          name: 'resumeRenewal',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['membership'] as _i4hwwhem.MembershipEndpoint)
+                      .resumeRenewal(session),
+        ),
         'completeCheckout': _is.MethodConnector(
           name: 'completeCheckout',
           params: {

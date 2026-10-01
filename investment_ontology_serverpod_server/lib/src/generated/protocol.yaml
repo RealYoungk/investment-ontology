@@ -81,6 +81,8 @@ market:
 membership:
   - status:
   - beginCheckout:
+  - beginCardReplacement:
+  - resumeRenewal:
   - completeCheckout:
   - abortCheckout:
   - cancelRenewal:

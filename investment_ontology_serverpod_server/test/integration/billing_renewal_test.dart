@@ -147,6 +147,7 @@ void main() {
           final paths = <String>[];
           final worker = service((r) async {
             paths.add(r.url.path);
+            if (r.method == 'DELETE') return http.Response('', 204);
             if (r.url.path.endsWith('/cancel')) return response(refund: true);
             final session = builder.build();
             await session.db.transaction(
@@ -155,8 +156,8 @@ void main() {
             return response();
           });
           await worker.run(builder.build(), sub.id!, at: now);
-          expect(paths.length, 2);
-          expect(paths.last.endsWith('/cancel'), true);
+          expect(paths.length, 3);
+          expect(paths.any((path) => path.endsWith('/cancel')), true);
           expect(
             (await BillingPaymentAttempt.db.findById(
               owned,
@@ -218,6 +219,46 @@ void main() {
           );
           fail = false;
           await worker.reconcileKeyDeletion(builder.build(), sub.id!);
+          expect(
+            (await BillingSubscription.db.findById(
+              owned,
+              sub.id!,
+            ))!.encryptedKeyPendingDeletion,
+            isNull,
+          );
+        },
+      );
+      test(
+        'account deletion keeps both an old failed-cleanup key and current key',
+        () async {
+          final current = (await BillingSubscription.db.findById(
+            owned,
+            sub.id!,
+          ))!;
+          current.encryptedKeyPendingDeletion = await vault.seal(
+            sub.ownerId.toString(),
+            'old+/card==',
+          );
+          await BillingSubscription.db.updateRow(owned, current);
+          await owned.db.transaction(
+            (tx) => MembershipLedger.beforeDelete(owned, sub.ownerId, tx),
+          );
+          final deleted = (await BillingSubscription.db.findById(
+            owned,
+            sub.id!,
+          ))!;
+          expect(
+            MembershipLedger.pendingKeys(deleted.encryptedKeyPendingDeletion)
+                .length,
+            2,
+          );
+          final keys = <String>[];
+          final worker = service((r) async {
+            keys.add(r.url.pathSegments.last);
+            return http.Response('', 204);
+          });
+          await worker.reconcileKeyDeletion(builder.build(), sub.id!);
+          expect(keys.toSet(), {'old+/card==', 'opaque+/reference=='});
           expect(
             (await BillingSubscription.db.findById(
               owned,

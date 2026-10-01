@@ -16,13 +16,17 @@
     return loading;
   }
   window.alfinderBilling = {
-    clearQuery() { history.replaceState(history.state, '', location.pathname); },
+    clearQuery() {
+      const operation = new URL(location.href).searchParams.get('card') === 'replace' ? '?card=replace' : '';
+      history.replaceState(history.state, '', location.pathname + operation);
+    },
     async start(clientKey, customerKey, state) {
       if (!/^(test|live)_ck_[A-Za-z0-9]+$/.test(clientKey) || !state || !customerKey) throw new Error('Invalid checkout');
       if (clientKey.startsWith('live_') && location.protocol !== 'https:') throw new Error('HTTPS required');
       await sdk();
       const callback = new URL('/membership/checkout', location.origin);
       callback.searchParams.set('state', state);
+      if (new URL(location.href).searchParams.get('card') === 'replace') callback.searchParams.set('card','replace');
       await window.TossPayments(clientKey).payment({customerKey}).requestBillingAuth({
         method: 'CARD', successUrl: callback.href, failUrl: callback.href
       });

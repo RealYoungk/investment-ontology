@@ -5,7 +5,7 @@ import '../../generated/protocol.dart';
 import '../billing/membership_ledger.dart';
 import '../billing/billing_sandbox_config.dart';
 
-/// Personal, server-derived status. Payment checkout remains unavailable.
+/// Personal, server-derived status and guarded checkout.
 class MembershipEndpoint extends Endpoint {
   @override
   bool get requireLogin => true;
@@ -38,6 +38,27 @@ class MembershipEndpoint extends Endpoint {
       client.close();
     }
   }
+
+  Future<BillingCheckoutView> beginCardReplacement(
+    Session session,
+    String acceptedTestTerms,
+  ) async {
+    final client = http.Client();
+    try {
+      final service = BillingSandboxConfig.checkout(session, client);
+      if (service == null) throw StateError('Checkout is not enabled');
+      return await service.begin(
+        session,
+        acceptedTestTerms: acceptedTestTerms,
+        replaceCard: true,
+      );
+    } finally {
+      client.close();
+    }
+  }
+
+  Future<void> resumeRenewal(Session session) =>
+      MembershipLedger.resume(session);
 
   Future<MembershipView> completeCheckout(
     Session session,

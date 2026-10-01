@@ -15,28 +15,39 @@ class BillingRenewalService {
   Future<void> reconcileKeyDeletion(Session session, int subscriptionId) async {
     final sub = await BillingSubscription.db.findById(session, subscriptionId);
     if (sub == null || sub.encryptedKeyPendingDeletion == null) return;
-    final envelope = sub.encryptedKeyPendingDeletion!;
-    try {
-      final reference = await vault.open(sub.ownerId.toString(), envelope);
-      await gateway.deleteBillingKey(reference);
-      await session.db.transaction((tx) async {
-        final current = await BillingSubscription.db.findById(
-          session,
-          subscriptionId,
-          transaction: tx,
-          lockMode: LockMode.forUpdate,
-        );
-        if (current?.encryptedKeyPendingDeletion == envelope) {
-          current!.encryptedKeyPendingDeletion = null;
+    for (final envelope in MembershipLedger.pendingKeys(
+      sub.encryptedKeyPendingDeletion,
+    )) {
+      try {
+        final reference = await vault.open(sub.ownerId.toString(), envelope);
+        await gateway.deleteBillingKey(reference);
+        await session.db.transaction((tx) async {
+          final current = await BillingSubscription.db.findById(
+            session,
+            subscriptionId,
+            transaction: tx,
+            lockMode: LockMode.forUpdate,
+          );
+          if (current == null) return;
+          final pending = MembershipLedger.pendingKeys(
+            current.encryptedKeyPendingDeletion,
+          );
+          pending.remove(envelope);
+          current.encryptedKeyPendingDeletion =
+              MembershipLedger.encodePendingKeys(pending);
           await BillingSubscription.db.updateRow(
             session,
             current,
             transaction: tx,
           );
-        }
-      });
-    } on SandboxPaymentException {
-      // Retain encrypted cleanup material until provider deletion is confirmed.
+        });
+      } on SandboxPaymentException {
+        // Retain only unconfirmed references, including late account-deletion races.
+        session.log(
+          'Billing key cleanup pending (subscription $subscriptionId)',
+          level: LogLevel.warning,
+        );
+      }
     }
   }
 
@@ -56,6 +67,10 @@ class BillingRenewalService {
         }
       } on SandboxPaymentException {
         // Cancellation/deletion must not stop reconciliation of a past charge.
+        session.log(
+          'Billing result unknown (attempt ${row.id})',
+          level: LogLevel.warning,
+        );
       }
     }
     await reconcileRefunds(session, subscriptionId);
@@ -77,8 +92,13 @@ class BillingRenewalService {
           idempotencyKey: 'refund-${row.idempotencyKey}',
         );
         await MembershipLedger.fullRefund(session, row.id!, refund);
+        await reconcileKeyDeletion(session, subscriptionId);
       } on SandboxPaymentException {
         // Durable refundRequired remains queued for reconciliation.
+        session.log(
+          'Billing refund pending (attempt ${row.id})',
+          level: LogLevel.warning,
+        );
       }
     }
   }
@@ -132,6 +152,10 @@ class BillingRenewalService {
       }
     } on SandboxPaymentException {
       await MembershipLedger.markUnknown(session, row.id!);
+      session.log(
+        'Billing result unknown (attempt ${row.id})',
+        level: LogLevel.warning,
+      );
     }
   }
 }

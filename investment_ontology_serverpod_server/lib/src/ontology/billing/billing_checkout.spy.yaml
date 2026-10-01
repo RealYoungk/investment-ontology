@@ -7,6 +7,7 @@ fields:
   stateHash: String
   expiresUtc: DateTime
   status: String
+  replaceCard: bool, default=false
   termsVersion: String?
   acceptedAtUtc: DateTime?
   issueIdempotencyKey: String

@@ -8,7 +8,6 @@ import 'package:serverpod_auth_idp_server/core.dart';
 import '../../generated/protocol.dart';
 import 'billing_renewal_service.dart';
 import 'membership_ledger.dart';
-import 'toss_sandbox_gateway.dart';
 
 /// The caller is authenticated; checkout state is account-bound,
 /// short-lived and atomically consumed before the external authorization call.
@@ -34,16 +33,27 @@ class BillingCheckoutService {
     Session session, {
     required String acceptedTestTerms,
     DateTime? at,
+    bool replaceCard = false,
   }) async {
     if (acceptedTestTerms != termsVersion) {
       throw StateError('Test terms confirmation required');
     }
     final owner = MembershipLedger.owner(session);
     final now = at ?? DateTime.now().toUtc();
-    final attempt = await MembershipLedger.claim(session, period: 0, at: now);
-    if (attempt == null ||
-        !const {'pending', 'unknown'}.contains(attempt.status)) {
-      throw StateError('Checkout is unavailable');
+    final prepared = await MembershipLedger.prepareCheckout(
+      session,
+      replaceCard: replaceCard,
+      at: now,
+    );
+    if (!replaceCard) {
+      final attempt = await MembershipLedger.claim(
+        session,
+        period: prepared.nextPeriod,
+        at: now,
+      );
+      if (attempt == null || attempt.status != 'pending') {
+        throw StateError('Checkout is unavailable');
+      }
     }
     final state = base64UrlEncode(
       List.generate(32, (_) => Random.secure().nextInt(256)),
@@ -59,14 +69,14 @@ class BillingCheckoutService {
       if (user == null || user.blocked) throw StateError('Account unavailable');
       final sub = await BillingSubscription.db.findById(
         session,
-        attempt.subscriptionId,
+        prepared.id!,
         transaction: tx,
         lockMode: LockMode.forUpdate,
       );
       if (sub == null ||
           sub.deleted ||
-          sub.cancelAtPeriodEnd ||
-          sub.encryptedBillingKey != null) {
+          (!replaceCard &&
+              (sub.cancelAtPeriodEnd || sub.encryptedBillingKey != null))) {
         throw StateError('Checkout is unavailable');
       }
       final unresolved = await BillingCheckout.db.findFirstRow(
@@ -88,6 +98,7 @@ class BillingCheckoutService {
           stateHash: hash,
           expiresUtc: now.add(const Duration(minutes: 10)),
           status: 'waiting',
+          replaceCard: replaceCard,
           termsVersion: termsVersion,
           acceptedAtUtc: now,
           issueIdempotencyKey: 'issue-${Uuid().v4()}',
@@ -170,7 +181,7 @@ class BillingCheckoutService {
     try {
       if (sub == null ||
           sub.deleted ||
-          sub.cancelAtPeriodEnd ||
+          (!challenge.replaceCard && sub.cancelAtPeriodEnd) ||
           sub.customerKey == null) {
         throw StateError('Subscription unavailable');
       }
@@ -184,22 +195,26 @@ class BillingCheckoutService {
         sub.customerKey!,
         issued,
         worker.vault,
+        replaceCard: challenge.replaceCard,
       );
       challenge.status = 'completed';
       await BillingCheckout.db.updateRow(session, challenge);
-      await worker.run(session, sub.id!, at: at);
+      await worker.reconcileKeyDeletion(session, sub.id!);
+      if (!challenge.replaceCard) await worker.run(session, sub.id!, at: at);
       return await MembershipLedger.status(session, at: at);
     } catch (_) {
       challenge.status = 'unknown';
       await BillingCheckout.db.updateRow(session, challenge);
       // If authorization succeeded but the account changed before storage,
-      // disable the test billing reference instead of charging it.
+      // queue the unused provider reference for durable cleanup.
       if (issued != null) {
-        try {
-          await worker.gateway.deleteBillingKey(issued);
-        } on SandboxPaymentException {
-          /* Operator reconciliation required. */
-        }
+        await MembershipLedger.queueUnconfirmedReference(
+          session,
+          challenge.subscriptionId,
+          issued,
+          worker.vault,
+        );
+        await worker.reconcileKeyDeletion(session, challenge.subscriptionId);
       }
       throw StateError(
         'Test checkout could not be confirmed; inspect durable state',

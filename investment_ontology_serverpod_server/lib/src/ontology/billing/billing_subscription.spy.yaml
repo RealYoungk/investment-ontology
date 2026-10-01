@@ -10,6 +10,7 @@ fields:
   encryptedBillingKey: String?
   encryptedKeyPendingDeletion: String?
   nextPeriod: int, default=0
+  cycleStartPeriod: int, default=0
 indexes:
   billing_subscription_owner_idx:
     fields: ownerId

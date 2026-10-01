@@ -1118,7 +1118,7 @@ class EndpointMarket extends _isc.EndpointRef {
   );
 }
 
-/// Personal, server-derived status. Payment checkout remains unavailable.
+/// Personal, server-derived status and guarded checkout.
 /// {@category Endpoint}
 class EndpointMembership extends _isc.EndpointRef {
   EndpointMembership(_isc.EndpointCaller caller) : super(caller);
@@ -1139,6 +1139,20 @@ class EndpointMembership extends _isc.EndpointRef {
     'membership',
     'beginCheckout',
     {'acceptedTestTerms': acceptedTestTerms},
+  );
+
+  _ida.Future<_ieebiau0.BillingCheckoutView> beginCardReplacement(
+    String acceptedTestTerms,
+  ) => caller.callServerEndpoint<_ieebiau0.BillingCheckoutView>(
+    'membership',
+    'beginCardReplacement',
+    {'acceptedTestTerms': acceptedTestTerms},
+  );
+
+  _ida.Future<void> resumeRenewal() => caller.callServerEndpoint<void>(
+    'membership',
+    'resumeRenewal',
+    {},
   );
 
   _ida.Future<_iwrn1kmb.MembershipView> completeCheckout(

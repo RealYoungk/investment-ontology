@@ -24,9 +24,11 @@ abstract class BillingSubscription
     this.encryptedBillingKey,
     this.encryptedKeyPendingDeletion,
     int? nextPeriod,
+    int? cycleStartPeriod,
   }) : cancelAtPeriodEnd = cancelAtPeriodEnd ?? false,
        deleted = deleted ?? false,
-       nextPeriod = nextPeriod ?? 0;
+       nextPeriod = nextPeriod ?? 0,
+       cycleStartPeriod = cycleStartPeriod ?? 0;
 
   factory BillingSubscription({
     int? id,
@@ -38,6 +40,7 @@ abstract class BillingSubscription
     String? encryptedBillingKey,
     String? encryptedKeyPendingDeletion,
     int? nextPeriod,
+    int? cycleStartPeriod,
   }) = _BillingSubscriptionImpl;
 
   factory BillingSubscription.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -62,6 +65,7 @@ abstract class BillingSubscription
       encryptedKeyPendingDeletion:
           jsonSerialization['encryptedKeyPendingDeletion'] as String?,
       nextPeriod: jsonSerialization['nextPeriod'] as int?,
+      cycleStartPeriod: jsonSerialization['cycleStartPeriod'] as int?,
     );
   }
 
@@ -88,6 +92,8 @@ abstract class BillingSubscription
 
   int nextPeriod;
 
+  int cycleStartPeriod;
+
   @override
   _is.Table<int?> get table => t;
 
@@ -104,6 +110,7 @@ abstract class BillingSubscription
     String? encryptedBillingKey,
     String? encryptedKeyPendingDeletion,
     int? nextPeriod,
+    int? cycleStartPeriod,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -120,6 +127,7 @@ abstract class BillingSubscription
       if (encryptedKeyPendingDeletion != null)
         'encryptedKeyPendingDeletion': encryptedKeyPendingDeletion,
       'nextPeriod': nextPeriod,
+      'cycleStartPeriod': cycleStartPeriod,
     };
   }
 
@@ -169,6 +177,7 @@ class _BillingSubscriptionImpl extends BillingSubscription {
     String? encryptedBillingKey,
     String? encryptedKeyPendingDeletion,
     int? nextPeriod,
+    int? cycleStartPeriod,
   }) : super._(
          id: id,
          ownerId: ownerId,
@@ -179,6 +188,7 @@ class _BillingSubscriptionImpl extends BillingSubscription {
          encryptedBillingKey: encryptedBillingKey,
          encryptedKeyPendingDeletion: encryptedKeyPendingDeletion,
          nextPeriod: nextPeriod,
+         cycleStartPeriod: cycleStartPeriod,
        );
 
   /// Returns a shallow copy of this [BillingSubscription]
@@ -195,6 +205,7 @@ class _BillingSubscriptionImpl extends BillingSubscription {
     Object? encryptedBillingKey = _Undefined,
     Object? encryptedKeyPendingDeletion = _Undefined,
     int? nextPeriod,
+    int? cycleStartPeriod,
   }) {
     return BillingSubscription(
       id: id is int? ? id : this.id,
@@ -210,6 +221,7 @@ class _BillingSubscriptionImpl extends BillingSubscription {
           ? encryptedKeyPendingDeletion
           : this.encryptedKeyPendingDeletion,
       nextPeriod: nextPeriod ?? this.nextPeriod,
+      cycleStartPeriod: cycleStartPeriod ?? this.cycleStartPeriod,
     );
   }
 }
@@ -261,6 +273,11 @@ class BillingSubscriptionUpdateTable
     table.nextPeriod,
     value,
   );
+
+  _is.ColumnValue<int, int> cycleStartPeriod(int value) => _is.ColumnValue(
+    table.cycleStartPeriod,
+    value,
+  );
 }
 
 class BillingSubscriptionTable extends _is.Table<int?> {
@@ -302,6 +319,11 @@ class BillingSubscriptionTable extends _is.Table<int?> {
       this,
       hasDefault: true,
     );
+    cycleStartPeriod = _is.ColumnInt(
+      'cycleStartPeriod',
+      this,
+      hasDefault: true,
+    );
   }
 
   late final BillingSubscriptionUpdateTable updateTable;
@@ -322,6 +344,8 @@ class BillingSubscriptionTable extends _is.Table<int?> {
 
   late final _is.ColumnInt nextPeriod;
 
+  late final _is.ColumnInt cycleStartPeriod;
+
   @override
   List<_is.Column> get columns => [
     id,
@@ -333,6 +357,7 @@ class BillingSubscriptionTable extends _is.Table<int?> {
     encryptedBillingKey,
     encryptedKeyPendingDeletion,
     nextPeriod,
+    cycleStartPeriod,
   ];
 }
 
