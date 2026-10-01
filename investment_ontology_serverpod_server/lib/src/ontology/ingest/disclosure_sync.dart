@@ -497,6 +497,13 @@ class DisclosureSync {
                   t.section.equals(DartSection.businessContent) &
                   t.status.equals(FilingFetchStatus.pending),
             );
+      final filings = {
+        for (final f in await DartFiling.db.find(
+          session,
+          where: (t) => t.id.inSet(ids.isEmpty ? {-1} : ids),
+        ))
+          f.id!: f,
+      };
       final order = {
         for (var i = 0; i < scopeRows.length; i++)
           scopeRows[i].toColumnMap()['id'] as int: i,
@@ -516,6 +523,23 @@ class DisclosureSync {
       final publicAnchorIds = {
         for (final row in anchorRows) row.toColumnMap()['id'] as int,
       };
+      // The existing exact-period filing ledger also allows keyless fallback,
+      // even when its body has not been downloaded yet. No list API is needed.
+      if (!_hasAllowance && publicFallbackEnabled) {
+        for (final item in pending) {
+          if (item.lastError != _businessApiWait) continue;
+          final target = filings[item.filingId];
+          final company = target == null ? null : byId[target.companyId];
+          if (target == null ||
+              company == null ||
+              !target.reportName.contains('첨부정정')) {
+            continue;
+          }
+          if ((await _knownEarlierBodyFilings(target, company)).isNotEmpty) {
+            publicAnchorIds.add(item.filingId);
+          }
+        }
+      }
       final apiAvailable = _hasAllowance;
       pending.sort((a, b) {
         if (!apiAvailable) {
@@ -532,13 +556,6 @@ class DisclosureSync {
         return order[a.filingId]!.compareTo(order[b.filingId]!);
       });
       job = await IngestJobs.save(session, job.copyWith(total: pending.length));
-      final filings = {
-        for (final f in await DartFiling.db.find(
-          session,
-          where: (t) => t.id.inSet(ids.isEmpty ? {-1} : ids),
-        ))
-          f.id!: f,
-      };
       final batch = pending
           .take(businessBudget.clamp(0, 9000))
           .take(businessRunLimit.clamp(1, 200))
@@ -717,10 +734,14 @@ class DisclosureSync {
           unfinished.every(
             (item) =>
                 item.status == FilingFetchStatus.pending &&
-                item.lastError == _businessApiWait,
+                item.lastError == _businessApiWait &&
+                !publicAnchorIds.contains(item.filingId),
           );
       final hasUnattemptedBody = unfinished.any(
-        (item) => item.attempts == 0 && item.lastError != _businessApiWait,
+        (item) =>
+            item.attempts == 0 &&
+            (item.lastError != _businessApiWait ||
+                publicAnchorIds.contains(item.filingId)),
       );
       final hasRetryFailures = unfinished.any(
         (item) =>
@@ -1151,16 +1172,7 @@ class DisclosureSync {
     }
     final candidates = [
       filing,
-      if (attachmentOnly)
-        ...await DartFiling.db.find(
-          session,
-          where: (t) =>
-              t.companyId.equals(company.id!) &
-              t.bsnsYear.equals(item.bsnsYear) &
-              t.reportCode.equals(filing.reportCode) &
-              t.rceptNo.notEquals(filing.rceptNo),
-          orderByList: (t) => [t.rceptNo.desc()],
-        ),
+      if (attachmentOnly) ...await _knownEarlierBodyFilings(filing, company),
     ];
     // 파일이 없거나(014, null) 파일은 있어도 본문이 아니면(noData — 감사보고서만 든
     // 첨부정정 zip) 다음 후보로 간다. 첨부정정이 두 번이면 첫 zip이 그렇다 (현대제철 FY2025).
@@ -1499,11 +1511,44 @@ class DisclosureSync {
     return apiAllowed ? null : FilingFetchStatus.pending;
   }
 
+  Future<List<DartFiling>> _knownEarlierBodyFilings(
+    DartFiling target,
+    Company company,
+  ) async {
+    if (target.companyId != company.id ||
+        target.corpCode != company.corpCode ||
+        target.reportCode == null ||
+        DartReportName.parse(target.reportName) == null) {
+      return const [];
+    }
+    final rows = await DartFiling.db.find(
+      session,
+      where: (t) =>
+          t.companyId.equals(company.id!) &
+          t.corpCode.equals(company.corpCode) &
+          t.bsnsYear.equals(target.bsnsYear) &
+          t.reportCode.equals(target.reportCode) &
+          t.rceptNo.notEquals(target.rceptNo),
+      orderByList: (t) => [t.rceptNo.desc()],
+    );
+    return rows
+        .where(
+          (f) =>
+              f.rceptNo.compareTo(target.rceptNo) < 0 &&
+              _sameBodyPeriod(f.reportName, target.reportName) &&
+              (f.receivedDate == null ||
+                  target.receivedDate == null ||
+                  !f.receivedDate!.isAfter(target.receivedDate!)),
+        )
+        .toList();
+  }
+
   static bool _sameBodyPeriod(String first, String second) {
     final a = DartReportName.parse(first);
     final b = DartReportName.parse(second);
     return a != null &&
         b != null &&
+        a.kind == b.kind &&
         a.periodYear == b.periodYear &&
         a.periodMonth == b.periodMonth;
   }

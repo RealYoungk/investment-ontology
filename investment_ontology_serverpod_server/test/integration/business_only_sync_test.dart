@@ -1,4 +1,8 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:convert';
+
+import 'package:http/testing.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
@@ -120,6 +124,31 @@ class CancelAfterHttpBody extends SelectivePublicBody {
     final body = await super.fetch(receipt);
     await cancel();
     return body;
+  }
+}
+
+class ActualOriginalPublicBody extends PublicBusinessDocument {
+  ActualOriginalPublicBody(String receipt, this.target)
+    : super(
+        client: MockClient((request) async {
+          final name = request.url.path == '/dsaf001/main.do'
+              ? 'shell'
+              : 'business';
+          return http.Response(
+            File('test/fixtures/business_apiwait/$receipt/$name.html')
+                .readAsStringSync(),
+            200,
+            headers: {'content-type': 'text/html; charset=utf-8'},
+          );
+        }),
+      );
+  final String target;
+  final receipts = <String>[];
+  @override
+  Future<PublicBusinessBody> fetch(String receipt) async {
+    receipts.add(receipt);
+    if (receipt == target) throw const PublicBusinessNodeMissing();
+    return super.fetch(receipt);
   }
 }
 
@@ -733,6 +762,207 @@ void main() {
       expect(job.message, contains('한도초과 1'));
       expect(client.calls.length, calls);
       expect(resumes, isEmpty);
+    });
+    const apiWait = '사업본문 API 대기: 첨부정정의 공식 이전접수 탐색에 호출 예산 필요';
+    Future<void> markWait(DartFiling target) async {
+      await DartFilingSection.db.insertRow(
+        session,
+        DartFilingSection(
+          filingId: target.id!,
+          companyId: company.id!,
+          bsnsYear: target.bsnsYear!,
+          tier: 2,
+          section: DartSection.businessContent,
+          yearRank: 0,
+          status: FilingFetchStatus.pending,
+          lastError: apiWait,
+          attempts: 0,
+        ),
+      );
+    }
+
+    for (final example in [
+      ('00104722', '국제약품(주)', '20250320000537', '20250320000780'),
+      ('01504211', '주식회사 라메디텍', '20250319000268', '20250319000467'),
+    ]) {
+      test('APIwait uses actual exact earlier source ${example.$1}', () async {
+        company = await Company.db.updateRow(
+          session,
+          company.copyWith(corpCode: example.$1, name: example.$2),
+        );
+        await filing(2024, example.$3);
+        final target = await filing(
+          2024,
+          example.$4,
+          name: '[첨부정정]사업보고서 (2024.12)',
+        );
+        await markWait(target);
+        final reader = ActualOriginalPublicBody(example.$3, example.$4);
+        final job = await run(daily: 0, public: reader);
+        expect(job.updated, 1);
+        expect(client.calls, isEmpty);
+        expect(reader.receipts, [example.$4, example.$3]);
+        final body = (await BusinessDocument.db.find(session)).single;
+        expect(body.rceptNo, example.$3);
+        expect(body.charCount, greaterThan(10000));
+        final report = (await DisclosureReport.db.findById(
+          session,
+          body.reportId,
+        ))!;
+        expect(report.rceptNo, example.$3);
+        expect(report.bsnsYear, 2024);
+        expect(report.reportCode, FinancialReportCode.annual);
+        final source = (await Source.db.findById(session, report.sourceId))!;
+        final primaryProof = jsonDecode(
+          File('test/fixtures/business_apiwait/${example.$3}/proof.json')
+              .readAsStringSync(),
+        ) as Map;
+        final businessProof = (primaryProof['sources'] as List).singleWhere(
+          (s) => s['label'] == 'business',
+        ) as Map;
+        expect(primaryProof['shellCorpIds'], [example.$1]);
+        expect(source.url, businessProof['url']);
+        expect(source.title, contains('SHA256=${businessProof['sha256']}'));
+        expect(
+          (await DartFilingSection.db.findFirstRow(
+            session,
+            where: (t) =>
+                t.filingId.equals(target.id!) &
+                t.section.equals(DartSection.businessContent),
+          ))!.status,
+          FilingFetchStatus.stored,
+        );
+      });
+    }
+    for (final invalid in [
+      'company',
+      'corp',
+      'period',
+      'quarter',
+      'nextquarter',
+      'laterReceipt',
+      'laterDate',
+      'absent',
+    ]) {
+      test(
+        'APIwait rejects known-source $invalid without target GET or reset',
+        () async {
+          final target = await filing(
+            2024,
+            '20250320000780',
+            name: '[첨부정정]사업보고서 (2024.12)',
+          );
+          if (invalid != 'absent') {
+            final other = invalid == 'company'
+                ? await Company.db.insertRow(
+                    session,
+                    Company(
+                      corpCode: '00000002',
+                      name: '다른회사',
+                      market: Market.kospi,
+                      stockCode: '000002',
+                    ),
+                  )
+                : null;
+            var original = await filing(
+              2024,
+              invalid == 'laterReceipt' ? '20250320000781' : '20250320000537',
+            );
+            original = original.copyWith(
+              companyId: invalid == 'company' ? other!.id : original.companyId,
+              corpCode: invalid == 'corp' ? '99999999' : original.corpCode,
+              reportName: invalid == 'nextquarter'
+                  ? '사업보고서 (2025.03)'
+                  : invalid == 'period'
+                  ? '사업보고서 (2024.06)'
+                  : invalid == 'quarter'
+                  ? '반기보고서 (2024.12)'
+                  : original.reportName,
+              receivedDate: invalid == 'laterDate'
+                  ? now.add(const Duration(days: 1))
+                  : original.receivedDate,
+            );
+            await DartFiling.db.updateRow(session, original);
+          }
+          await markWait(target);
+          final reader = SelectivePublicBody({target.rceptNo});
+          final job = await run(daily: 0, public: reader);
+          expect(reader.receipts, isNot(contains(target.rceptNo)));
+          expect(job.updated, lessThanOrEqualTo(1));
+          expect(client.calls, isEmpty);
+          final item = (await DartFilingSection.db.findFirstRow(
+            session,
+            where: (t) =>
+                t.filingId.equals(target.id!) &
+                t.section.equals(DartSection.businessContent),
+          ))!;
+          expect(item.status, FilingFetchStatus.pending);
+          expect(item.attempts, 0);
+          expect(item.lastError, apiWait);
+        },
+      );
+    }
+    test(
+      'APIwait known source cancellation stops GET/storage without reset',
+      () async {
+        await filing(2024, '20250320000537');
+        final target = await filing(
+          2024,
+          '20250320000780',
+          name: '[첨부정정]사업보고서 (2024.12)',
+        );
+        await markWait(target);
+        final reader = CancelAfterHttpBody(() async {
+          final job = (await IngestJobs.latest(
+            session,
+            DisclosureSync.businessKind,
+          ))!;
+          await IngestJobs.cancel(session, job.id!);
+        });
+        final job = await run(daily: 0, public: reader);
+        expect(job.status, IngestStatus.cancelled);
+        expect(reader.receipts, [target.rceptNo]);
+        expect(await BusinessDocument.db.count(session), 0);
+        expect(client.calls, isEmpty);
+        final item = (await DartFilingSection.db.findFirstRow(
+          session,
+          where: (t) =>
+              t.filingId.equals(target.id!) &
+              t.section.equals(DartSection.businessContent),
+        ))!;
+        expect(item.attempts, 0);
+        expect(item.status, FilingFetchStatus.pending);
+        expect(resumes, isEmpty);
+      },
+    );
+    test('APIwait known source limited run remains fresh with thirty-second resume', () async {
+      await filing(2024, '20250320000537');
+      final target = await filing(
+        2024,
+        '20250320000780',
+        name: '[첨부정정]사업보고서 (2024.12)',
+      );
+      await markWait(target);
+      final reader = SelectivePublicBody({target.rceptNo});
+      final first = await run(limit: 1, daily: 0, public: reader);
+      expect(first.updated, 0);
+      expect(reader.receipts, [target.rceptNo]);
+      expect(resumes.single, now.add(const Duration(seconds: 30)));
+      final item = (await DartFilingSection.db.findFirstRow(
+        session,
+        where: (t) =>
+            t.filingId.equals(target.id!) &
+            t.section.equals(DartSection.businessContent),
+      ))!;
+      expect(item.attempts, 0);
+      expect(item.status, FilingFetchStatus.pending);
+      resumes.clear();
+      final next = await run(daily: 0, public: reader);
+      expect(next.updated, 1);
+      expect(
+        (await BusinessDocument.db.find(session)).single.rceptNo,
+        '20250320000537',
+      );
     });
     test('API-blocked attachment first does not starve public body and waits until next midnight only when it remains alone', () async {
       const blocked = '20260411000001', ordinary = '20250310000001';
