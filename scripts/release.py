@@ -236,7 +236,7 @@ def deploy(run_id=None, local=None):
         })
         record['githubDeploymentId'] = gh_deployment['id']
         save(path, record)
-        run('vercel', 'promote', target['url'], '--yes', '--cwd', str(work))
+        run('vercel', 'promote', target['url'], '--yes', '--scope', CONFIG['orgId'], '--cwd', str(work))
         record['status'] = 'promoted-verification-pending'
         save(path, record)
         try:
@@ -265,7 +265,7 @@ def rollback(path):
     check_web(old['url'], expected_main=old['mainJsSha256'])
     if production()['id'] != record['deployment']['id'] or backend() != record['backend']:
         raise ValueError('Production changed during rollback verification')
-    run('vercel', 'promote', old['url'], '--yes')
+    run('vercel', 'promote', old['url'], '--yes', '--scope', CONFIG['orgId'])
     check_web(CONFIG['productionUrl'], expected_main=old['mainJsSha256'])
     record['status'] = 'rolled-back'
     save(path, record)
