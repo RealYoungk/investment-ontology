@@ -164,6 +164,45 @@ void main() {
         f.accountName: f,
     };
 
+    test('같은 연도 다른 annual 기간은 독립 보존하고 정정은 해당 기간에만 연결한다', () async {
+      for (final (receipt, name, amount) in [
+        ('20250501000001', '사업보고서 (2025.03)', '100'),
+        ('20251101000002', '사업보고서 (2025.09)', '200'),
+        ('20260101000003', '[기재정정]사업보고서 (2025.03)', '101'),
+      ]) {
+        dart.filings.add((
+          corp: '00000001',
+          name: name,
+          rcept: receipt,
+          date: receipt.substring(0, 8),
+        ));
+        dart.setRows('00000001', 2025, '11011', 'CFS', [
+          row(receipt, 'BS', 'ifrs-full_Assets', '자산총계', amount),
+        ]);
+        await runSync();
+      }
+      final reports = await FinancialReport.db.find(
+        session,
+        orderBy: (t) => t.rceptNo,
+      );
+      expect(reports, hasLength(3));
+      expect(reports[0].supersededById, reports[2].id);
+      expect(reports[1].supersededById, isNull);
+      expect(reports[2].supersededById, isNull);
+      final march = await factsByName(reports[0].id!);
+      final september = await factsByName(reports[1].id!);
+      final correction = await factsByName(reports[2].id!);
+      expect(march['자산총계']!.amount, BigInt.from(100));
+      expect(september['자산총계']!.amount, BigInt.from(200));
+      expect(march['자산총계']!.supersededById, correction['자산총계']!.id);
+      expect(september['자산총계']!.supersededById, isNull);
+      final sources = await Source.db.find(session);
+      expect(
+        sources.map((s) => s.reference),
+        containsAll(['20250501000001', '20251101000002', '20260101000003']),
+      );
+    });
+
     test(
       '정상 순서(원본 먼저, 정정 나중)로 들어오면 정정본이 원본을 대체한다',
       () async {

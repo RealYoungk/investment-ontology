@@ -54,6 +54,8 @@ class FakeDisclosures {
 
   /// 회사별 공시 목록 (`list.json`, 원본·정정 모두). (접수번호, 보고서 이름, 접수일)
   final filings = <String, List<(String, String, String)>>{};
+  final filingQueries = <Map<String, String>>[];
+  final filingPages = <int, List<(String, String, String)>>{};
 
   void set(String api, String corp, int year, List<Map<String, String>> list) =>
       rows['$api|$corp|$year'] = list;
@@ -90,12 +92,15 @@ class FakeDisclosures {
       }
       if (req.url.path.endsWith('list.json')) {
         calls.add('list|${q['corp_code']}');
-        final items = filings[q['corp_code']] ?? const [];
+        filingQueries.add(Map.of(q));
+        final items = filingPages.isEmpty
+            ? filings[q['corp_code']] ?? const []
+            : filingPages[int.parse(q['page_no']!)] ?? const [];
         final body = items.isEmpty
             ? '{"status":"013","message":"조회된 데이타가 없습니다."}'
             : jsonEncode({
                 'status': '000',
-                'total_page': 1,
+                'total_page': filingPages.isEmpty ? 1 : filingPages.length,
                 'total_count': items.length,
                 'list': [
                   for (final (rcept, name, date) in items)

@@ -1024,7 +1024,10 @@ class DisclosureSync {
     // 첨부정정 zip) 다음 후보로 간다. 첨부정정이 두 번이면 첫 zip이 그렇다 (현대제철 FY2025).
     final tried = <String>{};
     for (final f in candidates) {
-      if (f.rceptNo.compareTo(filing.rceptNo) > 0) continue;
+      if (f.rceptNo.compareTo(filing.rceptNo) > 0 ||
+          !_sameBodyPeriod(f.reportName, filing.reportName)) {
+        continue;
+      }
       final status = await _tryDocument(item, company, f);
       tried.add(f.rceptNo);
       if (status != null && status != FilingFetchStatus.noData) return status;
@@ -1043,6 +1046,9 @@ class DisclosureSync {
       if (tried.contains(f.rceptNo)) continue;
       final status = await _tryDocument(item, company, f);
       if (status != null && status != FilingFetchStatus.noData) return status;
+    }
+    if (!_hasAllowance || await IngestJobs.isCancelled(session, jobId)) {
+      return FilingFetchStatus.pending;
     }
     return FilingFetchStatus.noData;
   }
@@ -1163,6 +1169,15 @@ class DisclosureSync {
     return apiAllowed ? null : FilingFetchStatus.pending;
   }
 
+  static bool _sameBodyPeriod(String first, String second) {
+    final a = DartReportName.parse(first);
+    final b = DartReportName.parse(second);
+    return a != null &&
+        b != null &&
+        a.periodYear == b.periodYear &&
+        a.periodMonth == b.periodMonth;
+  }
+
   /// 정정 이전의 같은 해 사업보고서 (DART 공시 목록, 원본 포함). 최신 것부터.
   Future<List<DartFiling>> _earlierPeriodFilings(
     DartFiling filing,
@@ -1171,17 +1186,39 @@ class DisclosureSync {
   ) async {
     final received = filing.receivedDate;
     if (received == null) return const [];
-    final page = await _callDart(
-      () => dart.fetchFilings(
-        from: received.subtract(const Duration(days: 120)),
-        to: received,
-        corpCode: company.corpCode,
-        lastReportOnly: false,
-      ),
-    );
+    final period = DartReportName.parse(filing.reportName);
+    if (period == null) return const [];
+    final items = <DartFilingItem>[];
+    for (var number = 1; ; number++) {
+      if (!_hasAllowance || await IngestJobs.isCancelled(session, jobId)) break;
+      await _meter.flush(session);
+      if (await ApiCallBudget.reached(
+        session,
+        ApiProvider.dart,
+        ApiCallBudget.dartDailyLimit,
+      )) {
+        _budgetExhausted = true;
+        break;
+      }
+      final page = await _callDart(
+        () => dart.fetchFilings(
+          from: DateTime.utc(period.periodYear, period.periodMonth, 1),
+          to: received,
+          page: number,
+          corpCode: company.corpCode,
+          lastReportOnly: false,
+        ),
+      );
+      items.addAll(page.items);
+      if (number >= page.totalPages) break;
+    }
     final out = <DartFiling>[];
-    for (final it in page.items) {
-      if (it.rceptNo.compareTo(filing.rceptNo) >= 0) continue;
+    for (final it in items) {
+      if (it.corpCode != company.corpCode ||
+          it.rceptNo.compareTo(filing.rceptNo) >= 0) {
+        continue;
+      }
+      if (!_sameBodyPeriod(it.reportName, filing.reportName)) continue;
       final resolved = DartReportName.parse(
         it.reportName,
       )?.resolve(company.fiscalMonth);
@@ -1278,6 +1315,7 @@ class DisclosureSync {
             t.bsnsYear.equals(item.bsnsYear) &
             t.reportCode.equals(filing.reportCode) &
             t.section.equals(DartSection.businessContent) &
+            t.settlementDate.equals(periodEnd) &
             t.supersededById.equals(null) &
             t.id.notEquals(report.id!),
         transaction: tx,
