@@ -1102,6 +1102,8 @@ class FinancialFactsSync {
       '20250321001022': {'OFS'},
       '20240322000131': {'OFS'},
       '20260318000962': {'OFS'},
+      '20260331000297': {'OFS'},
+      '20260331004755': {'OFS'},
     };
     bool verifiedParserPending(DartFiling f) {
       final bases = verifiedParserReceipts[f.rceptNo];
