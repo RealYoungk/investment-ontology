@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_financial_html_fetch.dart';
@@ -17,6 +18,7 @@ void main() {
     String company = '주식회사 폴레드',
     String? shell,
     String? cover,
+    String? statement,
     String? reportName,
     DateTime? end,
     bool consolidated = true,
@@ -39,12 +41,13 @@ void main() {
             ? shell ?? fixture(receipt, 'shell.html')
             : viewers++ == 0
             ? cover ?? fixture(receipt, 'cover.html')
-            : fixture(
-                receipt,
-                consolidated
-                    ? 'consolidated-statement.html'
-                    : 'separate-statement.html',
-              );
+            : statement ??
+                  fixture(
+                    receipt,
+                    consolidated
+                        ? 'consolidated-statement.html'
+                        : 'separate-statement.html',
+                  );
         return http.Response.bytes(
           utf8.encode(body),
           200,
@@ -114,7 +117,50 @@ void main() {
     () async {
       await expectLater(
         fetch(receipt: '20260922000230', corp: '00910202', company: '대동고려삼(주)'),
-        throwsFormatException,
+        throwsA(
+          isA<PublicFinancialHtmlBasisNotApplicable>()
+              .having(
+                (e) => e.sourceReceipt,
+                'source receipt',
+                '20260922000230',
+              )
+              .having((e) => e.corpCode, 'company identity', '00910202')
+              .having((e) => e.periodStart, 'start', DateTime.utc(2025, 7, 1))
+              .having((e) => e.periodEnd, 'end', DateTime.utc(2026, 6, 30))
+              .having((e) => e.consolidated, 'basis', true)
+              .having((e) => e.correctionReceipt, 'no assumed original', isNull)
+              .having(
+                (e) => e.statementSource.queryParameters['rcpNo'],
+                'statement receipt',
+                '20260922000230',
+              )
+              .having(
+                (e) => e.statementSource.queryParameters['dcmNo'],
+                'document',
+                '11588250',
+              )
+              .having(
+                (e) => e.coverSource.queryParameters['dcmNo'],
+                'cover same document',
+                '11588250',
+              )
+              .having(
+                (e) => e.evidence,
+                'actual explicit evidence',
+                '당사는 연결재무제표 작성법인이 아니므로 해당사항이 없습니다.',
+              )
+              .having(
+                (e) => e.sourceDigest,
+                'combined raw SHA',
+                sha256
+                    .convert(
+                      utf8.encode(
+                        '${fixture('20260922000230', 'cover.html')}\n${fixture('20260922000230', 'consolidated-statement.html')}',
+                      ),
+                    )
+                    .toString(),
+              ),
+        ),
       );
     },
   );
@@ -197,6 +243,95 @@ void main() {
         throwsFormatException,
       );
       expect(requests, hasLength(1));
+    },
+  );
+  final genericOnly = throwsA(
+    predicate(
+      (e) =>
+          e is FormatException && e is! PublicFinancialHtmlBasisNotApplicable,
+    ),
+  );
+  Future<PublicFinancialHtmlSource> explicitNone({
+    String? body,
+    String? cover,
+    DateTime? end,
+    bool consolidated = true,
+  }) => fetch(
+    receipt: '20260922000230',
+    corp: '00910202',
+    company: '대동고려삼(주)',
+    statement: body,
+    cover: cover,
+    end: end,
+    consolidated: consolidated,
+  );
+  test(
+    'blank consolidated section is ordinary failure, not proven absence',
+    () async {
+      await expectLater(
+        explicitNone(body: '<BODY>2. 연결재무제표</BODY>'),
+        genericOnly,
+      );
+    },
+  );
+  test(
+    'generic not-applicable sentence cannot prove non-preparer status',
+    () async {
+      await expectLater(
+        explicitNone(
+          body: fixture(
+            '20260922000230',
+            'consolidated-statement.html',
+          ).replaceAll('당사는 연결재무제표 작성법인이 아니므로 해당사항이 없습니다.', '해당사항이 없습니다.'),
+        ),
+        genericOnly,
+      );
+    },
+  );
+  test('explicit non-preparer plus a table cannot become noData', () async {
+    await expectLater(
+      explicitNone(
+        body: fixture('20260922000230', 'consolidated-statement.html')
+            .replaceFirst(
+              '</BODY>',
+              '<TABLE><TR><TD>자산총계</TD><TD>1</TD></TR></TABLE></BODY>',
+            ),
+      ),
+      genericOnly,
+    );
+  });
+  test('explicit sentence in requested OFS cannot become CFS noData', () async {
+    await expectLater(
+      explicitNone(
+        body: fixture('20260922000230', 'consolidated-statement.html'),
+        consolidated: false,
+      ),
+      genericOnly,
+    );
+  });
+  test(
+    'non-preparer evidence never overrides actual cover closing mismatch',
+    () async {
+      await expectLater(
+        explicitNone(end: DateTime.utc(2026, 5, 31)),
+        genericOnly,
+      );
+      expect(requests, hasLength(2));
+    },
+  );
+  test(
+    'non-preparer evidence never overrides cover company mismatch',
+    () async {
+      await expectLater(
+        explicitNone(
+          cover: fixture(
+            '20260922000230',
+            'cover.html',
+          ).replaceAll('대동고려삼', '외국회사'),
+        ),
+        genericOnly,
+      );
+      expect(requests, hasLength(2));
     },
   );
 }

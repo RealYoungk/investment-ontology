@@ -329,6 +329,112 @@ class AttachmentHtmlClient extends AttachmentOriginalClient {
   }
 }
 
+class AnnualNoDataClient extends DartClient {
+  AnnualNoDataClient({
+    this.failSeparate = false,
+    this.failAll = false,
+    this.syntheticQueueIdentity = false,
+    this.onHtml,
+  }) : super(
+         'test-key',
+         httpClient: MockClient(
+           (r) async =>
+               http.Response('{"status":"013","message":"no data"}', 200),
+         ),
+       );
+  final bool failSeparate, failAll;
+  final bool syntheticQueueIdentity;
+  final Future<void> Function(bool consolidated)? onHtml;
+  int financialRequests = 0, htmlRequests = 0, xbrlRequests = 0;
+  @override
+  Future<List<Map<String, dynamic>>?> fetchFinancialStatements({
+    required String corpCode,
+    required int bsnsYear,
+    required String reportCode,
+    required String fsDiv,
+  }) async {
+    financialRequests++;
+    throw StateError('API must not be repeated');
+  }
+
+  @override
+  Future<({List<int> zip, Uri source})> fetchPublicAnnualXbrl(
+    String receipt,
+  ) async {
+    xbrlRequests++;
+    throw const FormatException('Official exact XBRL unsupported');
+  }
+
+  @override
+  Future<PublicFinancialHtmlSource> fetchAnnualHtml(
+    String receipt, {
+    required String reportName,
+    required String corpCode,
+    required String companyName,
+    required int bsnsYear,
+    required DateTime periodEnd,
+    required bool consolidated,
+  }) async {
+    htmlRequests++;
+    await onHtml?.call(consolidated);
+    if (failAll || (failSeparate && !consolidated)) {
+      throw const FormatException('Invalid public annual source');
+    }
+    const dir = 'test/fixtures/financial_html/standard-annual';
+    final fixtureReceipt = syntheticQueueIdentity ? '20260330001188' : receipt;
+    Uri sourceUri(String url) {
+      final uri = Uri.parse(url);
+      return uri.replace(
+        queryParameters: {...uri.queryParameters, 'rcpNo': receipt},
+      );
+    }
+
+    final source = (jsonDecode(
+      File('$dir/evidence.json').readAsStringSync(),
+    ) as List).cast<Map>().singleWhere((s) => s['receipt'] == fixtureReceipt);
+    final body =
+        (jsonDecode(
+          File('$dir/financial-html-evidence.json').readAsStringSync(),
+        ) as List).cast<Map>().singleWhere(
+          (s) =>
+              s['receipt'] == fixtureReceipt &&
+              s['basis'] == (consolidated ? 'consolidated' : 'separate'),
+        );
+    if (receipt == '20260922000230' && consolidated) {
+      throw PublicFinancialHtmlBasisNotApplicable(
+        sourceReceipt: receipt,
+        corpCode: corpCode,
+        companyName: companyName,
+        reportName: reportName,
+        periodStart: DateTime.utc(2025, 7, 1),
+        periodEnd: periodEnd,
+        coverSource: sourceUri(source['coverUrl'] as String),
+        statementSource: sourceUri(body['url'] as String),
+        coverHtml: File('$dir/$fixtureReceipt/cover.html').readAsStringSync(),
+        statementHtml: File('$dir/$fixtureReceipt/consolidated-statement.html')
+            .readAsStringSync(),
+        evidence: '당사는 연결재무제표 작성법인이 아니므로 해당사항이 없습니다.',
+      );
+    }
+    return PublicFinancialHtmlSource(
+      sourceReceipt: receipt,
+      correctionReceipt: null,
+      correctionSource: null,
+      coverHtml: File('$dir/$fixtureReceipt/cover.html').readAsStringSync(),
+      coverSource: sourceUri(source['coverUrl'] as String),
+      statementHtml: File(
+        '$dir/$fixtureReceipt/${consolidated ? 'consolidated' : 'separate'}-statement.html',
+      ).readAsStringSync(),
+      statementSource: sourceUri(body['url'] as String),
+      periodStart: receipt == '20260922000230'
+          ? DateTime.utc(2025, 7, 1)
+          : DateTime.utc(periodEnd.year, 1, 1),
+      periodEnd: periodEnd,
+      rows: const [],
+    );
+  }
+}
+
 class HalfYearHtmlClient extends AttachmentOriginalClient {
   HalfYearHtmlClient({this.wrongReceipt = false})
     : super('20260814002145', const []);
@@ -1046,6 +1152,482 @@ void main() {
         FilingFetchStatus.failed,
       );
     });
+
+    test('official annual CFS non-applicability remains API noData while separate source core is recovered', () async {
+      final c = (await Company.db.find(session)).single;
+      await Company.db.updateRow(
+        session,
+        c.copyWith(
+          corpCode: '00910202',
+          name: '대동고려삼',
+          stockCode: '000001',
+          fiscalMonth: 6,
+        ),
+      );
+      final target = await DartFiling.db.insertRow(
+        session,
+        DartFiling(
+          rceptNo: '20260922000230',
+          corpCode: '00910202',
+          companyId: c.id,
+          reportName: '사업보고서 (2026.06)',
+          bsnsYear: 2026,
+          reportCode: FinancialReportCode.annual,
+          consolidatedStatus: FilingFetchStatus.noData,
+          separateStatus: FilingFetchStatus.noData,
+          discoveredAt: now,
+        ),
+      );
+      final reader = AnnualNoDataClient();
+      final job = await IngestJob.db.insertRow(
+        session,
+        IngestJob(
+          kind: FinancialFactsSync.kind,
+          status: IngestStatus.running,
+          startedAt: now,
+        ),
+      );
+      await FinancialFactsSync(
+        session,
+        reader,
+        job.id!,
+        dailyBudget: 0,
+        corpCode: '00910202',
+        clock: () => now,
+        callInterval: Duration.zero,
+      ).run();
+      final f = (await DartFiling.db.findById(session, target.id!))!;
+      expect(f.consolidatedStatus, FilingFetchStatus.noData);
+      expect(f.separateStatus, FilingFetchStatus.stored);
+      final report = (await FinancialReport.db.find(session)).single;
+      expect(report.fsDiv, FsDiv.separate);
+      expect(report.factCount, 8);
+      final source = (await Source.db.find(
+        session,
+        where: (t) => t.reference.equals(
+          'financial-public-basis-not-applicable:${target.rceptNo}:consolidated',
+        ),
+      )).single;
+      final audit = jsonDecode(source.title) as Map;
+      expect(audit['evidence'], '당사는 연결재무제표 작성법인이 아니므로 해당사항이 없습니다.');
+      expect(audit['sha256'], matches(r'^[a-f0-9]{64}$'));
+      expect(audit['periodEnd'], '2026-06-30T00:00:00.000Z');
+      expect(reader.financialRequests, 0);
+      expect(
+        (await IngestJob.db.findById(session, job.id!))!.status,
+        IngestStatus.succeeded,
+      );
+    });
+
+    test('annual public source checks preserve the existing full report and its extension accounts', () async {
+      final c = (await Company.db.find(session)).single;
+      await Company.db.updateRow(
+        session,
+        c.copyWith(corpCode: '01565364', name: '주식회사 폴레드', stockCode: '000001'),
+      );
+      final target = await DartFiling.db.insertRow(
+        session,
+        DartFiling(
+          rceptNo: '20260330001188',
+          corpCode: '01565364',
+          companyId: c.id,
+          reportName: '사업보고서 (2025.12)',
+          bsnsYear: 2025,
+          reportCode: FinancialReportCode.annual,
+          consolidatedStatus: FilingFetchStatus.noData,
+          separateStatus: FilingFetchStatus.noData,
+          discoveredAt: now,
+        ),
+      );
+      final source = await Source.db.insertRow(
+        session,
+        Source(
+          kind: SourceKind.dartReport,
+          title: 'Full API source',
+          reference: target.rceptNo,
+          retrievedAt: now,
+        ),
+      );
+      final report = await FinancialReport.db.insertRow(
+        session,
+        FinancialReport(
+          companyId: c.id!,
+          rceptNo: target.rceptNo,
+          fsDiv: FsDiv.consolidated,
+          bsnsYear: 2025,
+          reportCode: FinancialReportCode.annual,
+          reportName: target.reportName,
+          factCount: 2,
+          sourceId: source.id!,
+          fetchedAt: now,
+        ),
+      );
+      final ids = <int>[];
+      for (final entry in [
+        ('ifrs-full_Assets', BigInt.parse('54158857291')),
+        ('custom_AdditionalFullStatementAccount', BigInt.from(17)),
+      ]) {
+        final f = await FinancialFact.db.insertRow(
+          session,
+          FinancialFact(
+            reportId: report.id!,
+            companyId: c.id!,
+            bsnsYear: 2025,
+            reportCode: FinancialReportCode.annual,
+            fsDiv: FsDiv.consolidated,
+            statement: FinancialStatementKind.balanceSheet,
+            accountId: entry.$1,
+            accountName: entry.$1,
+            amount: entry.$2,
+            sourceId: source.id!,
+          ),
+        );
+        ids.add(f.id!);
+      }
+      final reader = AnnualNoDataClient();
+      final job = await IngestJob.db.insertRow(
+        session,
+        IngestJob(
+          kind: FinancialFactsSync.kind,
+          status: IngestStatus.running,
+          startedAt: now,
+        ),
+      );
+      await FinancialFactsSync(
+        session,
+        reader,
+        job.id!,
+        dailyBudget: 0,
+        corpCode: '01565364',
+        clock: () => now,
+        callInterval: Duration.zero,
+      ).run();
+      final unchanged = (await FinancialReport.db.findById(
+        session,
+        report.id!,
+      ))!;
+      expect(unchanged.sourceId, source.id);
+      expect(unchanged.factCount, 2);
+      final oldFacts = await FinancialFact.db.find(
+        session,
+        where: (t) => t.reportId.equals(report.id!),
+      );
+      expect([for (final f in oldFacts) f.id!], ids);
+      expect(oldFacts.last.amount, BigInt.from(17));
+      expect(
+        (await Source.db.findById(session, source.id!))!.title,
+        'Full API source',
+      );
+      expect(await FinancialReport.db.count(session), 2);
+      expect(reader.financialRequests, 0);
+    });
+
+    test('annual public cancellation preserves its pending basis for keyless resume without consuming attempts', () async {
+      final c = (await Company.db.find(session)).single;
+      await Company.db.updateRow(
+        session,
+        c.copyWith(corpCode: '01565364', name: '주식회사 폴레드', stockCode: '000001'),
+      );
+      final target = await DartFiling.db.insertRow(
+        session,
+        DartFiling(
+          rceptNo: '20260330001188',
+          corpCode: '01565364',
+          companyId: c.id,
+          reportName: '사업보고서 (2025.12)',
+          bsnsYear: 2025,
+          reportCode: FinancialReportCode.annual,
+          consolidatedStatus: FilingFetchStatus.noData,
+          separateStatus: FilingFetchStatus.noData,
+          discoveredAt: now,
+        ),
+      );
+      final job = await IngestJob.db.insertRow(
+        session,
+        IngestJob(
+          kind: FinancialFactsSync.kind,
+          status: IngestStatus.running,
+          startedAt: now,
+        ),
+      );
+      final reader = AnnualNoDataClient(
+        onHtml: (consolidated) async {
+          if (consolidated) {
+            await IngestJob.db.updateRow(
+              session,
+              (await IngestJob.db.findById(
+                session,
+                job.id!,
+              ))!.copyWith(status: IngestStatus.cancelled),
+            );
+          }
+        },
+      );
+      await FinancialFactsSync(
+        session,
+        reader,
+        job.id!,
+        dailyBudget: 0,
+        corpCode: '01565364',
+        clock: () => now,
+        callInterval: Duration.zero,
+      ).run();
+      var ledger = (await DartFiling.db.findById(session, target.id!))!;
+      expect(
+        ledger.lastError,
+        startsWith('api-noData-annual-public:attempt=0'),
+      );
+      expect(ledger.consolidatedStatus, FilingFetchStatus.stored);
+      expect(ledger.separateStatus, FilingFetchStatus.pending);
+      expect(reader.htmlRequests, 1);
+      final nextJob = await IngestJob.db.insertRow(
+        session,
+        IngestJob(
+          kind: FinancialFactsSync.kind,
+          status: IngestStatus.running,
+          startedAt: now,
+        ),
+      );
+      final resumed = AnnualNoDataClient();
+      await FinancialFactsSync(
+        session,
+        resumed,
+        nextJob.id!,
+        dailyBudget: 0,
+        corpCode: '01565364',
+        clock: () => now,
+        callInterval: Duration.zero,
+      ).run();
+      ledger = (await DartFiling.db.findById(session, target.id!))!;
+      expect(ledger.separateStatus, FilingFetchStatus.stored);
+      expect(resumed.htmlRequests, 1);
+      expect(resumed.financialRequests, 0);
+      expect(await FinancialReport.db.count(session), 2);
+    });
+
+    for (final failAll in [false, true]) {
+      test(
+        'annual public queue bounded policy failAll=$failAll preserves budgets and resumes fresh work',
+        () async {
+          for (var i = 1; i <= 11; i++) {
+            final c = await company('8${i.toString().padLeft(7, '0')}');
+            await Company.db.updateRow(
+              session,
+              c.copyWith(
+                name: '주식회사 폴레드',
+                stockCode: i.toString().padLeft(6, '0'),
+              ),
+            );
+            await DartFiling.db.insertRow(
+              session,
+              DartFiling(
+                rceptNo: '20260330${i.toString().padLeft(6, '0')}',
+                corpCode: c.corpCode,
+                companyId: c.id,
+                reportName: '사업보고서 (2025.12)',
+                bsnsYear: 2025,
+                reportCode: FinancialReportCode.annual,
+                consolidatedStatus: FilingFetchStatus.noData,
+                separateStatus: FilingFetchStatus.noData,
+                discoveredAt: now,
+              ),
+            );
+          }
+          // Queue-only identities are synthetic; the independent HTTP reader tests
+          // bind the actual official company/doc nodes. Monetary structures stay real.
+          final reader = AnnualNoDataClient(
+            failAll: failAll,
+            syntheticQueueIdentity: true,
+          );
+          final job = await IngestJob.db.insertRow(
+            session,
+            IngestJob(
+              kind: FinancialFactsSync.kind,
+              status: IngestStatus.running,
+              startedAt: now,
+            ),
+          );
+          final scheduled = <DateTime>[];
+          await FinancialFactsSync(
+            session,
+            reader,
+            job.id!,
+            dailyBudget: 0,
+            clock: () => now,
+            callInterval: Duration.zero,
+            scheduleResume: (at) async => scheduled.add(at),
+          ).run();
+          expect(reader.financialRequests, 0);
+          expect(reader.htmlRequests, failAll ? 12 : 20);
+          expect(await FinancialReport.db.count(session), failAll ? 0 : 20);
+          final updated = (await IngestJob.db.findById(session, job.id!))!;
+          expect(updated.processed, failAll ? 6 : 10);
+          expect(scheduled, [now.add(const Duration(seconds: 30))]);
+          if (failAll) expect(updated.status, IngestStatus.failed);
+        },
+      );
+    }
+
+    test('failed public annual basis retries three times without repeating API or replacing its successful basis', () async {
+      final c = (await Company.db.find(session)).single;
+      await Company.db.updateRow(
+        session,
+        c.copyWith(corpCode: '01565364', name: '주식회사 폴레드', stockCode: '000001'),
+      );
+      final target = await DartFiling.db.insertRow(
+        session,
+        DartFiling(
+          rceptNo: '20260330001188',
+          corpCode: '01565364',
+          companyId: c.id,
+          reportName: '사업보고서 (2025.12)',
+          bsnsYear: 2025,
+          reportCode: FinancialReportCode.annual,
+          consolidatedStatus: FilingFetchStatus.noData,
+          separateStatus: FilingFetchStatus.noData,
+          discoveredAt: now,
+        ),
+      );
+      final reader = AnnualNoDataClient(failSeparate: true);
+      int? sourceId;
+      List<int>? factIds;
+      for (var i = 0; i < 4; i++) {
+        final job = await IngestJob.db.insertRow(
+          session,
+          IngestJob(
+            kind: FinancialFactsSync.kind,
+            status: IngestStatus.running,
+            startedAt: now,
+          ),
+        );
+        await FinancialFactsSync(
+          session,
+          reader,
+          job.id!,
+          dailyBudget: 0,
+          corpCode: '01565364',
+          clock: () => now,
+          callInterval: Duration.zero,
+        ).run();
+        final report = (await FinancialReport.db.find(session)).single;
+        final facts = await FinancialFact.db.find(
+          session,
+          where: (t) => t.reportId.equals(report.id!),
+        );
+        sourceId ??= report.sourceId;
+        factIds ??= [for (final f in facts) f.id!];
+        expect(report.sourceId, sourceId);
+        expect([for (final f in facts) f.id!], factIds);
+      }
+      expect(reader.financialRequests, 0);
+      expect(reader.htmlRequests, 4);
+      final ledger = (await DartFiling.db.findById(session, target.id!))!;
+      expect(
+        ledger.lastError,
+        startsWith('api-noData-annual-public:attempt=3'),
+      );
+      expect(ledger.consolidatedStatus, FilingFetchStatus.stored);
+      expect(ledger.separateStatus, FilingFetchStatus.failed);
+      expect(
+        await Source.db.count(
+          session,
+          where: (t) => t.reference.equals(
+            'financial-api-noData-origin:${target.rceptNo}',
+          ),
+        ),
+        1,
+      );
+    });
+
+    for (final failSeparate in [false, true]) {
+      test(
+        'API noData annual public HTML $failSeparate preserves API evidence and distinguishes source failures',
+        () async {
+          final c = (await Company.db.find(session)).single;
+          await Company.db.updateRow(
+            session,
+            c.copyWith(
+              corpCode: '01565364',
+              name: '주식회사 폴레드',
+              stockCode: '000001',
+            ),
+          );
+          final target = await DartFiling.db.insertRow(
+            session,
+            DartFiling(
+              rceptNo: '20260330001188',
+              corpCode: '01565364',
+              companyId: c.id,
+              reportName: '사업보고서 (2025.12)',
+              bsnsYear: 2025,
+              reportCode: FinancialReportCode.annual,
+              consolidatedStatus: FilingFetchStatus.noData,
+              separateStatus: FilingFetchStatus.noData,
+              discoveredAt: now,
+            ),
+          );
+          final reader = AnnualNoDataClient(failSeparate: failSeparate);
+          final scheduled = <DateTime>[];
+          final job = await IngestJob.db.insertRow(
+            session,
+            IngestJob(
+              kind: FinancialFactsSync.kind,
+              status: IngestStatus.running,
+              startedAt: now,
+            ),
+          );
+          await FinancialFactsSync(
+            session,
+            reader,
+            job.id!,
+            dailyBudget: 0,
+            corpCode: '01565364',
+            clock: () => now,
+            callInterval: Duration.zero,
+            scheduleResume: (at) async => scheduled.add(at),
+          ).run();
+          expect(reader.financialRequests, 0);
+          expect(reader.htmlRequests, 2);
+          expect(reader.calls, 0);
+          final ledger = (await DartFiling.db.findById(session, target.id!))!;
+          expect(ledger.consolidatedStatus, FilingFetchStatus.stored);
+          expect(
+            ledger.separateStatus,
+            failSeparate ? FilingFetchStatus.failed : FilingFetchStatus.stored,
+          );
+          final audit = (await Source.db.find(
+            session,
+            where: (t) => t.reference.equals(
+              'financial-api-noData-origin:${target.rceptNo}',
+            ),
+          )).single;
+          expect(audit.title, contains('originalConsolidatedStatus'));
+          expect(audit.title, contains('noData'));
+          final reports = await FinancialReport.db.find(session);
+          expect(reports, hasLength(failSeparate ? 1 : 2));
+          for (final report in reports) {
+            final facts = await FinancialFact.db.find(
+              session,
+              where: (t) => t.reportId.equals(report.id!),
+            );
+            expect(facts, hasLength(8));
+            expect(facts.every((f) => f.accountId == null), true);
+            final source = (await Source.db.findById(
+              session,
+              report.sourceId,
+            ))!;
+            expect(source.title, contains('HTML 부분 핵심계정'));
+          }
+          if (failSeparate) {
+            expect(scheduled, contains(now.add(const Duration(minutes: 15))));
+          }
+          expect(
+            (await IngestJob.db.findById(session, job.id!))!.message,
+            contains('전체 재무제표 아님'),
+          );
+        },
+      );
+    }
 
     test('fresh metadata batch remaining resumes in thirty seconds despite a first transport failure', () async {
       for (var i = 1; i <= 21; i++) {

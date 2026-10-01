@@ -31,11 +31,16 @@ class FinancialEndpoint extends Endpoint {
     );
     if (company == null) return null;
 
-    final reports = await FinancialReport.db.find(
-      session,
-      where: (t) =>
-          t.companyId.equals(company.id!) & t.supersededById.equals(null),
+    final activeIds = await session.db.unsafeQuery(
+      'WITH ${FinancialBasis.ctes(companyId: company.id!)} SELECT id FROM active_reports',
     );
+    final reportIds = {for (final row in activeIds) row[0] as int};
+    final reports = reportIds.isEmpty
+        ? <FinancialReport>[]
+        : await FinancialReport.db.find(
+            session,
+            where: (t) => t.id.inSet(reportIds),
+          );
     final available = {for (final r in reports) r.fsDiv};
     final selection = await session.db.unsafeQuery(
       'WITH ${FinancialBasis.ctes(companyId: company.id!)} SELECT fs,reason FROM latest',
@@ -77,20 +82,30 @@ class FinancialEndpoint extends Endpoint {
             orderBy: (t) => t.id,
           );
     final factsByReport = <int, List<FinancialFact>>{};
+    final reportById = {for (final r in selected) r.id!: r};
     for (final f in facts) {
+      final report = reportById[f.reportId]!;
+      if (f.sourceId != report.sourceId ||
+          f.companyId != report.companyId ||
+          f.bsnsYear != report.bsnsYear ||
+          f.reportCode != report.reportCode ||
+          f.fsDiv != report.fsDiv) {
+        continue;
+      }
       (factsByReport[f.reportId] ??= []).add(f);
     }
 
     final supersededCounts = <int, int>{};
-    for (final r in await FinancialReport.db.find(
-      session,
-      where: (t) =>
-          t.companyId.equals(company.id!) &
-          t.supersededById.notEquals(null) &
-          t.fsDiv.equals(chosen ?? FsDiv.consolidated),
-    )) {
-      final key = Object.hash(r.bsnsYear, r.reportCode);
-      supersededCounts[key] = (supersededCounts[key] ?? 0) + 1;
+    final correctionCounts = await session.db.unsafeQuery(
+      'WITH ${FinancialBasis.ctes(companyId: company.id!)} '
+      'SELECT a.id,count(h.id) FROM active_reports a '
+      'JOIN eligible_reports h ON h."companyId"=a."companyId" '
+      'AND h."fsDiv"=a."fsDiv" AND h."bsnsYear"=a."bsnsYear" '
+      'AND h."reportCode"=a."reportCode" AND h.actual_period=a.actual_period '
+      'AND h."supersededById" IS NOT NULL GROUP BY a.id',
+    );
+    for (final row in correctionCounts) {
+      supersededCounts[row[0] as int] = row[1] as int;
     }
 
     final periods = [
@@ -103,8 +118,7 @@ class FinancialEndpoint extends Endpoint {
           reportName: r.reportName,
           receivedDate: r.receivedDate,
           periodName: _periodName(factsByReport[r.id] ?? const []),
-          supersededCount:
-              supersededCounts[Object.hash(r.bsnsYear, r.reportCode)] ?? 0,
+          supersededCount: supersededCounts[r.id] ?? 0,
           lines: FinancialAccounts.pick(factsByReport[r.id] ?? const []),
         ),
     ];
@@ -152,15 +166,30 @@ class FinancialEndpoint extends Endpoint {
         where: (t) => t.reportId.equals(reportId),
         orderByList: (t) => [t.statement.asc(), t.ord.asc(), t.id.asc()],
       ),
-      history: await FinancialReport.db.find(
-        session,
-        where: (t) =>
-            t.companyId.equals(report.companyId) &
-            t.bsnsYear.equals(report.bsnsYear) &
-            t.reportCode.equals(report.reportCode) &
-            t.fsDiv.equals(report.fsDiv),
-        orderBy: (t) => t.rceptNo,
-      ),
+      history: await _history(session, report),
+    );
+  }
+
+  static Future<List<FinancialReport>> _history(
+    Session session,
+    FinancialReport report,
+  ) async {
+    final ids = await session.db.unsafeQuery(
+      'WITH ${FinancialBasis.eligibleReportsCte} '
+      'SELECT h.id FROM eligible_reports current_report '
+      'JOIN eligible_reports h ON h."companyId"=current_report."companyId" '
+      'AND h."bsnsYear"=current_report."bsnsYear" '
+      'AND h."reportCode"=current_report."reportCode" '
+      'AND h."fsDiv"=current_report."fsDiv" '
+      'AND h.actual_period=current_report.actual_period '
+      'WHERE current_report.id=\$1',
+      parameters: QueryParameters.positional([report.id]),
+    );
+    if (ids.isEmpty) return [];
+    return FinancialReport.db.find(
+      session,
+      where: (t) => t.id.inSet(<int>{for (final row in ids) row[0] as int}),
+      orderBy: (t) => t.rceptNo,
     );
   }
 

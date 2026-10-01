@@ -82,6 +82,9 @@ class _FinancialReportPageState extends State<FinancialReportPage> {
     final statement = kinds.contains(_statement)
         ? _statement!
         : kinds.firstOrNull;
+    final hasSeparateSources =
+        (detail.source?.title.startsWith('DART 원문 XBRL 당기 핵심계정 복구') ?? false) &&
+        detail.facts.any((f) => f.sourceId != report.sourceId);
     final facts = [
       for (final f in detail.facts)
         if (f.statement == statement) f,
@@ -137,7 +140,17 @@ class _FinancialReportPageState extends State<FinancialReportPage> {
             ),
           ),
         const SizedBox(height: AppSpace.md),
-        _FactTable(facts: facts),
+        if (hasSeparateSources) ...[
+          const AppNotice(
+            message: '당기 핵심계정을 공식 원문 출처로 보완했습니다. 기존 비교기간 행도 보존합니다. 요약 계산에는 현재 출처의 당기 값을 사용하며, 아래 표에서 행별 출처를 구분합니다.',
+          ),
+          const SizedBox(height: AppSpace.md),
+        ],
+        _FactTable(
+          facts: facts,
+          currentSourceId: report.sourceId,
+          showSource: hasSeparateSources,
+        ),
         const SizedBox(height: AppSpace.xl),
         Text(
           detail.source?.title ?? '출처 기록 없음',
@@ -224,9 +237,15 @@ class _History extends StatelessWidget {
 }
 
 class _FactTable extends StatelessWidget {
-  const _FactTable({required this.facts});
+  const _FactTable({
+    required this.facts,
+    required this.currentSourceId,
+    required this.showSource,
+  });
 
   final List<FinancialFact> facts;
+  final int currentSourceId;
+  final bool showSource;
 
   @override
   Widget build(BuildContext context) {
@@ -260,7 +279,10 @@ class _FactTable extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final available =
-            (constraints.maxWidth - (hasDetail ? 520 : 260)) / columns.length;
+            (constraints.maxWidth -
+                (hasDetail ? 520 : 260) -
+                (showSource ? 150 : 0)) /
+            columns.length;
         final valueWidth = available > 200 ? available : 200.0;
         Widget cell(
           String text, {
@@ -300,6 +322,8 @@ class _FactTable extends StatelessWidget {
                 child: Row(
                   children: [
                     cell('계정', header: true, right: false, width: 260),
+                    if (showSource)
+                      cell('출처', header: true, right: false, width: 150),
                     if (hasDetail)
                       cell('자본 구성요소', header: true, right: false, width: 260),
                     for (final (label, _) in columns) cell(label, header: true),
@@ -319,6 +343,17 @@ class _FactTable extends StatelessWidget {
                         message: f.accountId ?? '표준계정코드 미사용',
                         child: cell(f.accountName, right: false, width: 260),
                       ),
+                      if (showSource)
+                        Tooltip(
+                          message: '출처 기록 #${f.sourceId}',
+                          child: cell(
+                            f.sourceId == currentSourceId
+                                ? '당기 원문 복구'
+                                : '기존 비교기간',
+                            right: false,
+                            width: 150,
+                          ),
+                        ),
                       if (hasDetail)
                         cell(f.accountDetail ?? '', right: false, width: 260),
                       for (final (_, value) in columns)

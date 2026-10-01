@@ -35,6 +35,43 @@ class PublicFinancialHtmlSource {
       sha256.convert(utf8.encode('$coverHtml\n$statementHtml')).toString();
 }
 
+/// Official exact-annual evidence that the company does not prepare CFS.
+/// This is never inferred from missing tables or empty extracted rows.
+class PublicFinancialHtmlBasisNotApplicable extends FormatException {
+  PublicFinancialHtmlBasisNotApplicable({
+    required this.sourceReceipt,
+    required this.corpCode,
+    required this.companyName,
+    required this.reportName,
+    required this.periodStart,
+    required this.periodEnd,
+    required this.coverSource,
+    required this.statementSource,
+    required this.coverHtml,
+    required this.statementHtml,
+    required this.evidence,
+  }) : super(
+         'Official annual consolidated statements explicitly not applicable',
+       );
+
+  final String sourceReceipt;
+  final String corpCode;
+  final String companyName;
+  final String reportName;
+  final DateTime periodStart;
+  final DateTime periodEnd;
+  final Uri coverSource;
+  final Uri statementSource;
+  final String coverHtml;
+  final String statementHtml;
+  final String evidence;
+  String? get correctionReceipt => null;
+  Uri? get correctionSource => null;
+  bool get consolidated => true;
+  String get sourceDigest =>
+      sha256.convert(utf8.encode('$coverHtml\n$statementHtml')).toString();
+}
+
 /// Public HTML transport for exact annuals, attachment originals and half-years.
 /// Company IDs come from each official shell; dates come from the actual cover.
 /// No account IDs, date ranges, or amounts are inferred by this transport.
@@ -332,6 +369,44 @@ class PublicFinancialHtmlFetcher {
       }
     }
     final statementHtml = await get(statementSource, referer: originalSource);
+    if (exactAnnual && consolidated) {
+      const explicitNone = '당사는 연결재무제표 작성법인이 아니므로 해당사항이 없습니다.';
+      final body = RegExp(
+        r'<body\b[^>]*>(.*?)</body>',
+        caseSensitive: false,
+        dotAll: true,
+      ).allMatches(statementHtml).toList();
+      if (body.length == 1 &&
+          !RegExp(
+            r'<(?:table|script|style)\b',
+            caseSensitive: false,
+          ).hasMatch(body.single.group(1)!)) {
+        final plain = body.single
+            .group(1)!
+            .replaceAll(RegExp(r'<[^>]+>'), '')
+            .replaceAll('&nbsp;', '')
+            .replaceAll(RegExp(r'\s+'), '');
+        if (plain == '2.연결재무제표${explicitNone.replaceAll(' ', '')}') {
+          throw PublicFinancialHtmlBasisNotApplicable(
+            sourceReceipt: sourceReceipt,
+            corpCode: corpCode,
+            companyName: companyName,
+            reportName: reportName,
+            periodStart: periodStart,
+            periodEnd: DateTime.utc(
+              periodEnd.year,
+              periodEnd.month,
+              periodEnd.day,
+            ),
+            coverSource: coverSource,
+            statementSource: statementSource,
+            coverHtml: coverHtml,
+            statementHtml: statementHtml,
+            evidence: explicitNone,
+          );
+        }
+      }
+    }
     final name = companyName.replaceAll(RegExp(r'\(주\)|㈜|주식회사|\s+'), '');
     final parse = exactAnnual
         ? PublicFinancialHtml.parseStandardAnnual

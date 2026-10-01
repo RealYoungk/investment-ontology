@@ -46,6 +46,43 @@ void main() {
       Map<String, int> amounts, {
       int? supersededById,
     }) async {
+      final month = switch (code) {
+        FinancialReportCode.annual => '12',
+        FinancialReportCode.q3 => '09',
+        FinancialReportCode.halfYear => '06',
+        FinancialReportCode.q1 => '03',
+      };
+      final reportName = '정기보고서 ($year.$month)';
+      final financialSource = await Source.db.insertRow(
+        session,
+        Source(
+          kind: SourceKind.dartReport,
+          title: 'bound test',
+          reference: rceptNo,
+          retrievedAt: DateTime.now().toUtc(),
+        ),
+      );
+      if (await DartFiling.db.findFirstRow(
+            session,
+            where: (t) => t.rceptNo.equals(rceptNo),
+          ) ==
+          null) {
+        await DartFiling.db.insertRow(
+          session,
+          DartFiling(
+            rceptNo: rceptNo,
+            corpCode: c.corpCode,
+            companyId: c.id,
+            reportName: reportName,
+            bsnsYear: year,
+            reportCode: code,
+            consolidatedStatus: FilingFetchStatus.stored,
+            separateStatus: FilingFetchStatus.stored,
+            discoveredAt: DateTime.now().toUtc(),
+          ),
+        );
+      }
+
       final r = await FinancialReport.db.insertRow(
         session,
         FinancialReport(
@@ -54,9 +91,9 @@ void main() {
           fsDiv: div,
           bsnsYear: year,
           reportCode: code,
-          reportName: '보고서 $rceptNo',
+          reportName: reportName,
           factCount: amounts.length,
-          sourceId: source.id!,
+          sourceId: financialSource.id!,
           supersededById: supersededById,
           fetchedAt: DateTime.now().toUtc(),
         ),
@@ -76,7 +113,7 @@ void main() {
             accountName: e.key,
             periodName: '제 $year 기',
             amount: BigInt.from(e.value),
-            sourceId: source.id!,
+            sourceId: financialSource.id!,
           ),
       ]);
       return r;

@@ -45,17 +45,48 @@ void main() {
       FinancialReportCode code,
       Map<String, (int, int?)> amounts,
     ) async {
+      final receipt = '$year${code.name}${c.id}';
+      final month = switch (code) {
+        FinancialReportCode.annual => '12',
+        FinancialReportCode.q3 => '09',
+        FinancialReportCode.halfYear => '06',
+        FinancialReportCode.q1 => '03',
+      };
+      final reportName = '정기보고서 ($year.$month)';
+      final financialSource = await Source.db.insertRow(
+        session,
+        Source(
+          kind: SourceKind.dartReport,
+          title: 'bound financial fixture',
+          reference: receipt,
+          retrievedAt: DateTime.now().toUtc(),
+        ),
+      );
+      await DartFiling.db.insertRow(
+        session,
+        DartFiling(
+          rceptNo: receipt,
+          corpCode: c.corpCode,
+          companyId: c.id,
+          reportName: reportName,
+          bsnsYear: year,
+          reportCode: code,
+          consolidatedStatus: FilingFetchStatus.stored,
+          separateStatus: FilingFetchStatus.stored,
+          discoveredAt: DateTime.now().toUtc(),
+        ),
+      );
       final r = await FinancialReport.db.insertRow(
         session,
         FinancialReport(
           companyId: c.id!,
-          rceptNo: '$year${code.name}${c.id}',
+          rceptNo: receipt,
           fsDiv: FsDiv.consolidated,
           bsnsYear: year,
           reportCode: code,
-          reportName: '$year $code',
+          reportName: reportName,
           factCount: amounts.length,
-          sourceId: source.id!,
+          sourceId: financialSource.id!,
           fetchedAt: DateTime.now().toUtc(),
         ),
       );
@@ -85,7 +116,7 @@ void main() {
             cumulativeAmount: e.value.$2 == null
                 ? null
                 : BigInt.from(e.value.$2! * scale(c)),
-            sourceId: source.id!,
+            sourceId: financialSource.id!,
           ),
       ]);
     }
