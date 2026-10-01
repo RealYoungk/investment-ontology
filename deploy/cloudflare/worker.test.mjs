@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {test} from 'node:test';
 const source = await readFile(new URL('./_worker.js', import.meta.url), 'utf8');
-const {handleRequest} = await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
+const {default: worker, handleRequest} = await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
 test('static assets bypass API transport', async () => {
   const response = await handleRequest(new Request('https://alfinder.kr/main.dart.js'),
     {ASSETS: {fetch: async () => new Response('asset')}}, () => assert.fail());
@@ -47,4 +47,14 @@ test('malformed API paths never reach the server', async () => {
     assert.equal((await handleRequest(new Request('https://alfinder.kr' + path), {},
       () => assert.fail())).status, 400);
   }
+});
+
+test('runtime execution context is not used as the HTTP client', async () => {
+  const original = globalThis.fetch;
+  globalThis.fetch = async () => new Response('ok');
+  try {
+    const response = await worker.fetch(new Request('https://alfinder.kr/api/company/overview'), {}, {waitUntil() {}});
+    assert.equal(response.status, 200);
+    assert.equal(await response.text(), 'ok');
+  } finally { globalThis.fetch = original; }
 });

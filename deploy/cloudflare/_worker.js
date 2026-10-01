@@ -43,4 +43,6 @@ export async function handleRequest(request, env, send = fetch) {
     });
   }
 }
-export default {fetch: handleRequest};
+export default {
+  fetch(request, env) { return handleRequest(request, env); },
+};
