@@ -11,6 +11,7 @@ import '../client.dart';
 import '../features/auth/app_viewer.dart';
 import '../features/financials/financial_metrics.dart';
 import 'ingest_monitor.dart';
+import '../features/monetization/ad_banner.dart';
 import 'router.dart';
 
 /// 맨 위 메뉴 한 칸.
@@ -123,7 +124,19 @@ class _AppShellState extends State<AppShell> {
                 child: Column(
                   children: [
                     _TopBar(destinations: destinations, desktop: desktop),
-                    Expanded(child: widget.child),
+                    Expanded(
+                      child: PageFrameLeadScope(
+                        leading:
+                            const {
+                              '/home',
+                              '/market',
+                              '/companies',
+                            }.contains(path)
+                            ? const AdBanner()
+                            : null,
+                        child: widget.child,
+                      ),
+                    ),
                   ],
                 ),
               ),

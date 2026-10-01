@@ -39,7 +39,10 @@ class PageFrame extends StatelessWidget {
               constraints: BoxConstraints(maxWidth: maxWidth),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: children,
+                children: [
+                  ?PageFrameLeadScope.of(context),
+                  ...children,
+                ],
               ),
             ),
           ),
@@ -81,4 +84,20 @@ class PageHeading extends StatelessWidget {
       ],
     );
   }
+}
+
+/// Optional page header inside the page's own scroll view.
+/// The shell supplies content without coupling design components to features.
+class PageFrameLeadScope extends InheritedWidget {
+  const PageFrameLeadScope({
+    super.key,
+    required this.leading,
+    required super.child,
+  });
+  final Widget? leading;
+  static Widget? of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<PageFrameLeadScope>()?.leading;
+  @override
+  bool updateShouldNotify(PageFrameLeadScope oldWidget) =>
+      leading != oldWidget.leading;
 }
