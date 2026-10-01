@@ -1414,6 +1414,8 @@ void main() {
         ('20230621000034', '00136101', '메이슨캐피탈', '2023.03'),
         ('20230622000218', '00304915', '코리아에셋', '2023.03'),
         ('20240320001370', '00677334', '아하', '2023.03'),
+        ('20260316001455', '00445869', '유니포인트', '2025.12'),
+        ('20260319000105', '00321204', '지에이이노더스', '2025.12'),
       ]) {
         final c = await company(code);
         await Company.db.updateRow(
@@ -1479,7 +1481,7 @@ void main() {
         callInterval: Duration.zero,
       ).run();
       expect(
-        reader.attemptedReceipts.take(8).toSet(),
+        reader.attemptedReceipts.take(targets.length * 2).toSet(),
         targets.map((f) => f.rceptNo).toSet(),
       );
       expect(reader.financialRequests, 0);
