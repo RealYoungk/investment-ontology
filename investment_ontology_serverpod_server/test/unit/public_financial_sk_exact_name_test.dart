@@ -67,7 +67,7 @@ void main() {
       expect(
         (source.rows.first['html_provenance']
             as Map)['historicalCompanyIdentity']['currentName'],
-        'SK시그넷',
+        'SK시그넷(주)',
       );
       client.close();
     },

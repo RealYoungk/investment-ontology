@@ -228,7 +228,14 @@ void main() {
       ),
       throwsFormatException,
     );
-    expect(requests, hasLength(2));
+    expect(requests, hasLength(3));
+    // One issuer-overview check is allowed; financial statements remain unfetched.
+    expect(
+      requests.last.url,
+      Uri.parse(
+        'https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001188&dcmNo=11196132&eleId=3&offset=6057&length=66304&dtd=dart4.xsd',
+      ),
+    );
   });
   test('actual cover end mismatch cannot reach statements', () async {
     await expectLater(
@@ -364,7 +371,14 @@ void main() {
         ),
         genericOnly,
       );
-      expect(requests, hasLength(2));
+      expect(requests, hasLength(3));
+      // One issuer-overview check is allowed; financial statements remain unfetched.
+      expect(
+        requests.last.url,
+        Uri.parse(
+          'https://dart.fss.or.kr/report/viewer.do?rcpNo=20260922000230&dcmNo=11588250&eleId=3&offset=5925&length=100871&dtd=dart4.xsd',
+        ),
+      );
     },
   );
 }

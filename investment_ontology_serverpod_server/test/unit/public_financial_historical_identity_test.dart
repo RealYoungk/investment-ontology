@@ -67,7 +67,7 @@ void main() {
       expect(
         (source.rows.first['html_provenance']
             as Map)['historicalCompanyIdentity']['currentName'],
-        'DB증권',
+        'DB증권(주)',
       );
       client.close();
     },
