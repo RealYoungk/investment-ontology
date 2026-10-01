@@ -11,6 +11,8 @@
 // ignore_for_file: dead_code, unnecessary_type_check
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/billing/billing_payment_view.dart'
+    as _iw7zbyvm;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/account_view.dart'
     as _ig2zry29;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/business_digest_section.dart'
@@ -71,6 +73,7 @@ import 'greetings/greeting.dart' as _izw8z7ou;
 import 'ontology/billing/billing_checkout.dart' as _i0n2e5en;
 import 'ontology/billing/billing_checkout_view.dart' as _iybkvk8h;
 import 'ontology/billing/billing_payment_attempt.dart' as _i0r0dvlk;
+import 'ontology/billing/billing_payment_view.dart' as _i4b9wxd2;
 import 'ontology/billing/billing_subscription.dart' as _ixpgtalp;
 import 'ontology/billing/membership_view.dart' as _ikugrjyl;
 import 'ontology/models/account_view.dart' as _i7n6g9s8;
@@ -203,6 +206,7 @@ export 'greetings/greeting.dart';
 export 'ontology/billing/billing_checkout.dart';
 export 'ontology/billing/billing_checkout_view.dart';
 export 'ontology/billing/billing_payment_attempt.dart';
+export 'ontology/billing/billing_payment_view.dart';
 export 'ontology/billing/billing_subscription.dart';
 export 'ontology/billing/membership_view.dart';
 export 'ontology/models/account_view.dart';
@@ -5440,6 +5444,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _i0r0dvlk.BillingPaymentAttempt) {
       return _i0r0dvlk.BillingPaymentAttempt.fromJson(data) as T;
     }
+    if (t == _i4b9wxd2.BillingPaymentView) {
+      return _i4b9wxd2.BillingPaymentView.fromJson(data) as T;
+    }
     if (t == _ixpgtalp.BillingSubscription) {
       return _ixpgtalp.BillingSubscription.fromJson(data) as T;
     }
@@ -5884,6 +5891,10 @@ class Protocol extends _is.DatabaseSerializationManager {
       return (data != null
               ? _i0r0dvlk.BillingPaymentAttempt.fromJson(data)
               : null)
+          as T;
+    }
+    if (t == _is.getType<_i4b9wxd2.BillingPaymentView?>()) {
+      return (data != null ? _i4b9wxd2.BillingPaymentView.fromJson(data) : null)
           as T;
     }
     if (t == _is.getType<_ixpgtalp.BillingSubscription?>()) {
@@ -6725,6 +6736,12 @@ class Protocol extends _is.DatabaseSerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_iw7zbyvm.BillingPaymentView>) {
+      return (data as List)
+              .map((e) => deserialize<_iw7zbyvm.BillingPaymentView>(e))
+              .toList()
+          as T;
+    }
     if (t == List<int>) {
       return (data as List).map((e) => deserialize<int>(e)).toList() as T;
     }
@@ -6789,6 +6806,7 @@ class Protocol extends _is.DatabaseSerializationManager {
       _i0n2e5en.BillingCheckout => 'BillingCheckout',
       _iybkvk8h.BillingCheckoutView => 'BillingCheckoutView',
       _i0r0dvlk.BillingPaymentAttempt => 'BillingPaymentAttempt',
+      _i4b9wxd2.BillingPaymentView => 'BillingPaymentView',
       _ixpgtalp.BillingSubscription => 'BillingSubscription',
       _ikugrjyl.MembershipView => 'MembershipView',
       _i7n6g9s8.AccountView => 'AccountView',
@@ -6956,6 +6974,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'BillingCheckoutView';
       case _i0r0dvlk.BillingPaymentAttempt():
         return 'BillingPaymentAttempt';
+      case _i4b9wxd2.BillingPaymentView():
+        return 'BillingPaymentView';
       case _ixpgtalp.BillingSubscription():
         return 'BillingSubscription';
       case _ikugrjyl.MembershipView():
@@ -7282,6 +7302,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'BillingPaymentAttempt') {
       return deserialize<_i0r0dvlk.BillingPaymentAttempt>(data['data']);
+    }
+    if (dataClassName == 'BillingPaymentView') {
+      return deserialize<_i4b9wxd2.BillingPaymentView>(data['data']);
     }
     if (dataClassName == 'BillingSubscription') {
       return deserialize<_ixpgtalp.BillingSubscription>(data['data']);

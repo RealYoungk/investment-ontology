@@ -126,6 +126,69 @@ void main() {
           expect((await MembershipLedger.status(owned)).adFree, true);
         },
       );
+      test(
+        'lost cancel response keeps access until GET confirms the refund',
+        () async {
+          final methods = <String>[];
+          var canceled = false;
+          final worker = service((r) async {
+            methods.add(r.method);
+            if (r.method == 'DELETE') return http.Response('', 204);
+            if (r.url.path.endsWith('/cancel')) {
+              canceled = true;
+              throw TimeoutException('cancel succeeded but response was lost');
+            }
+            return response(refund: canceled);
+          });
+          await MembershipLedger.settle(
+            builder.build(),
+            attempt.id!,
+            SandboxPayment(
+              key: 'payment-${attempt.id}',
+              orderId: attempt.orderId,
+              status: 'DONE',
+              amount: 2900,
+              balance: 2900,
+            ),
+          );
+          await const AuthUsers().update(
+            builder.build(),
+            authUserId: sub.ownerId,
+            scopes: {Scope.admin},
+          );
+          final admin = builder.copyWith(
+            authentication: AuthenticationOverride.authenticationInfo(
+              sub.ownerId.toString(),
+              {Scope.admin},
+            ),
+          );
+          await MembershipLedger.requestRefund(
+            admin.build(),
+            attempt.id!,
+            attempt.orderId,
+          );
+          await worker.reconcileRefunds(builder.build(), sub.id!);
+          expect((await MembershipLedger.status(owned)).adFree, true);
+          expect(
+            (await BillingPaymentAttempt.db.findById(
+              owned,
+              attempt.id!,
+            ))!.status,
+            'refundRequested',
+          );
+          await worker.reconcileRefunds(builder.build(), sub.id!);
+          expect(methods, ['GET', 'POST', 'GET', 'DELETE']);
+          expect((await MembershipLedger.status(owned)).adFree, false);
+          expect(
+            (await BillingPaymentAttempt.db.findById(
+              owned,
+              attempt.id!,
+            ))!.status,
+            'refunded',
+          );
+        },
+      );
+
       test('cancel blocks a new renewal request', () async {
         var calls = 0;
         final worker = service((_) async {
@@ -156,7 +219,7 @@ void main() {
             return response();
           });
           await worker.run(builder.build(), sub.id!, at: now);
-          expect(paths.length, 3);
+          expect(paths.length, 4);
           expect(paths.any((path) => path.endsWith('/cancel')), true);
           expect(
             (await BillingPaymentAttempt.db.findById(

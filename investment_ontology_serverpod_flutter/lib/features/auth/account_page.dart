@@ -7,6 +7,7 @@ import '../../design/components/components.dart';
 import '../../design/tokens.dart';
 import 'app_auth.dart';
 import '../monetization/membership_card.dart';
+import '../monetization/payment_admin_dialog.dart';
 import 'app_viewer.dart';
 import 'sign_in_page.dart';
 
@@ -204,6 +205,16 @@ class _AccountPageState extends State<AccountPage> {
                               spacing: 8,
                               runSpacing: 8,
                               children: [
+                                AppButton(
+                                  label: '결제 내역 · 환불',
+                                  onPressed: _busy
+                                      ? null
+                                      : () => showDialog<void>(
+                                          context: context,
+                                          builder: (_) =>
+                                              PaymentAdminDialog(user: user),
+                                        ),
+                                ),
                                 if (user.userId != context.viewer?.userId) ...[
                                   AppButton(
                                     label: user.isAdmin

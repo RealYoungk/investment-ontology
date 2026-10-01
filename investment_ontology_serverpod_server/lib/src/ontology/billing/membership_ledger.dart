@@ -4,6 +4,7 @@ import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_idp_server/core.dart';
 
 import '../../generated/protocol.dart';
+import '../auth/ontology_access.dart';
 import 'subscription_rules.dart';
 import 'billing_key_vault.dart';
 import 'toss_sandbox_gateway.dart';
@@ -119,7 +120,7 @@ abstract final class MembershipLedger {
         session,
         where: (t) =>
             t.subscriptionId.equals(sub.id!) &
-            t.status.equals('paid') &
+            t.status.inSet({'paid', 'refundRequested'}) &
             (t.paidFromUtc <= now) &
             (t.paidThroughUtc > now),
         orderBy: (t) => t.paidThroughUtc.desc(),
@@ -187,6 +188,14 @@ abstract final class MembershipLedger {
             (t.paidThroughUtc > now),
         transaction: tx,
       );
+      final refund = await BillingPaymentAttempt.db.findFirstRow(
+        session,
+        where: (t) =>
+            t.subscriptionId.equals(sub.id!) &
+            t.status.inSet({'refundRequested', 'refundRequired'}),
+        transaction: tx,
+      );
+      if (refund != null) throw StateError('Refund pending');
       if (replaceCard) {
         if (paid == null || sub.encryptedKeyPendingDeletion != null) {
           throw StateError('Card replacement is unavailable');
@@ -204,6 +213,7 @@ abstract final class MembershipLedger {
         (row) =>
             row.status == 'unknown' ||
             row.status == 'refundRequired' ||
+            row.status == 'refundRequested' ||
             (row.status == 'pending' && sub.encryptedBillingKey != null),
       )) {
         throw StateError('An earlier charge must be reconciled');
@@ -250,6 +260,14 @@ abstract final class MembershipLedger {
         transaction: tx,
       );
       if (paid == null) throw StateError('Start a new membership after expiry');
+      final refund = await BillingPaymentAttempt.db.findFirstRow(
+        session,
+        where: (t) =>
+            t.subscriptionId.equals(sub.id!) &
+            t.status.inSet({'refundRequested', 'refundRequired'}),
+        transaction: tx,
+      );
+      if (refund != null) throw StateError('Refund pending');
       sub.cancelAtPeriodEnd = false;
       await BillingSubscription.db.updateRow(session, sub, transaction: tx);
     });
@@ -391,11 +409,20 @@ abstract final class MembershipLedger {
       }
       if (row.status == 'paid' ||
           row.status == 'refunded' ||
-          row.status == 'refundRequired') {
+          row.status == 'refundRequired' ||
+          row.status == 'refundRequested') {
         return;
       }
+      final refund = await BillingPaymentAttempt.db.findFirstRow(
+        session,
+        where: (t) =>
+            t.subscriptionId.equals(sub.id!) &
+            (t.period >= sub.cycleStartPeriod) &
+            t.status.inSet({'refundRequested', 'refundRequired'}),
+        transaction: tx,
+      );
       row.paymentKey = payment.key;
-      row.status = sub.deleted || user == null || user.blocked
+      row.status = sub.deleted || refund != null || user == null || user.blocked
           ? 'refundRequired'
           : 'paid';
       await BillingPaymentAttempt.db.updateRow(session, row, transaction: tx);
@@ -425,6 +452,14 @@ abstract final class MembershipLedger {
           sub.customerKey != customerKey) {
         throw StateError('Subscription cannot accept billing reference');
       }
+      final refund = await BillingPaymentAttempt.db.findFirstRow(
+        session,
+        where: (t) =>
+            t.subscriptionId.equals(sub.id!) &
+            t.status.inSet({'refundRequested', 'refundRequired'}),
+        transaction: tx,
+      );
+      if (refund != null) throw StateError('Refund pending');
       if (sub.encryptedBillingKey != null) {
         if (!replaceCard || sub.encryptedKeyPendingDeletion != null) {
           throw StateError('Existing reference cannot be replaced');
@@ -449,6 +484,64 @@ abstract final class MembershipLedger {
         row.status = 'unknown';
         await BillingPaymentAttempt.db.updateRow(session, row, transaction: tx);
       }
+    });
+  }
+
+  /// Admin request is durable before any provider call. An unconfirmed refund
+  /// retains paid access until its original expiry, but stops future renewals.
+  static Future<int> requestRefund(
+    Session session,
+    int attemptId,
+    String expectedOrderId,
+  ) async {
+    OntologyAccess.requireAdmin(session);
+    return session.db.transaction((tx) async {
+      await _lockUser(session, owner(session), tx);
+      final actor = await const AuthUsers().get(
+        session,
+        authUserId: owner(session),
+        transaction: tx,
+      );
+      if (!actor.scopes.contains(Scope.admin)) {
+        throw StateError('Administrator access revoked');
+      }
+      final first = await BillingPaymentAttempt.db.findById(
+        session,
+        attemptId,
+        transaction: tx,
+      );
+      if (first == null) throw StateError('Unknown payment');
+      final sub = await BillingSubscription.db.findById(
+        session,
+        first.subscriptionId,
+        transaction: tx,
+        lockMode: LockMode.forUpdate,
+      );
+      final row = await BillingPaymentAttempt.db.findById(
+        session,
+        attemptId,
+        transaction: tx,
+        lockMode: LockMode.forUpdate,
+      );
+      if (row == null ||
+          sub == null ||
+          row.orderId != expectedOrderId ||
+          row.paymentKey == null ||
+          !{'paid', 'refundRequested', 'refunded'}.contains(row.status)) {
+        throw StateError('Payment cannot be refunded');
+      }
+      if (row.status == 'refunded') return sub.id!;
+      row.status = 'refundRequested';
+      await BillingPaymentAttempt.db.updateRow(session, row, transaction: tx);
+      // Historical refunds must not interrupt a separately purchased cycle.
+      if (row.period >= sub.cycleStartPeriod) {
+        sub.cancelAtPeriodEnd = true;
+        await BillingSubscription.db.updateRow(session, sub, transaction: tx);
+      }
+      session.log(
+        'Refund requested: actor=${owner(session)} attempt=$attemptId',
+      );
+      return sub.id!;
     });
   }
 

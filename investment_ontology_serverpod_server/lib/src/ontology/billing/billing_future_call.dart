@@ -25,7 +25,8 @@ class BillingFutureCall extends FutureCall {
       // Refunds are reconciled even after deletion removed the billing key.
       final refunds = await BillingPaymentAttempt.db.find(
         session,
-        where: (t) => t.status.inSet({'refundRequired', 'unknown'}),
+        where: (t) =>
+            t.status.inSet({'refundRequired', 'refundRequested', 'unknown'}),
       );
       for (final id in refunds.map((r) => r.subscriptionId).toSet()) {
         try {

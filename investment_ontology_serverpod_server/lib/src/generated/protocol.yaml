@@ -79,6 +79,8 @@ market:
   - indexHistory:
   - priceHistory:
 membership:
+  - paymentsForAccount:
+  - refundPayment:
   - status:
   - beginCheckout:
   - beginCardReplacement:

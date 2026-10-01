@@ -74,6 +74,181 @@ void main() {
       );
 
       test(
+        'refund requires admin and matching order; access lasts until proof',
+        () async {
+          final row = (await MembershipLedger.claim(
+            signed.build(),
+            period: 0,
+            at: now,
+          ))!;
+          await MembershipLedger.settle(
+            builder.build(),
+            row.id!,
+            approved(row),
+          );
+          final admin = builder.copyWith(
+            authentication: AuthenticationOverride.authenticationInfo(
+              user.toString(),
+              {Scope.admin},
+            ),
+          );
+          await const AuthUsers().update(
+            builder.build(),
+            authUserId: user,
+            scopes: {Scope.admin},
+          );
+          await expectLater(
+            endpoints.membership.paymentsForAccount(signed, user.toString()),
+            throwsA(isA<ServerpodInsufficientAccessException>()),
+          );
+          final views = await endpoints.membership.paymentsForAccount(
+            admin,
+            user.toString(),
+          );
+          expect(views.single.orderId, row.orderId);
+          await expectLater(
+            MembershipLedger.requestRefund(
+              signed.build(),
+              row.id!,
+              row.orderId,
+            ),
+            throwsA(isA<NotAuthorizedException>()),
+          );
+          await expectLater(
+            MembershipLedger.requestRefund(
+              admin.build(),
+              row.id!,
+              'wrong-order',
+            ),
+            throwsStateError,
+          );
+          await MembershipLedger.requestRefund(
+            admin.build(),
+            row.id!,
+            row.orderId,
+          );
+          await MembershipLedger.requestRefund(
+            admin.build(),
+            row.id!,
+            row.orderId,
+          );
+          final pending = await MembershipLedger.status(signed.build());
+          expect(pending.adFree, true);
+          expect(pending.cancelAtPeriodEnd, true);
+          expect(
+            await MembershipLedger.claimRenewal(
+              builder.build(),
+              row.subscriptionId,
+            ),
+            isNull,
+          );
+          await expectLater(
+            MembershipLedger.prepareCheckout(signed.build(), replaceCard: true),
+            throwsStateError,
+          );
+          // A stale DONE retry cannot overwrite the durable request.
+          await MembershipLedger.settle(
+            builder.build(),
+            row.id!,
+            approved(row),
+          );
+          expect(
+            (await BillingPaymentAttempt.db.findById(
+              builder.build(),
+              row.id!,
+            ))!.status,
+            'refundRequested',
+          );
+          await MembershipLedger.fullRefund(
+            builder.build(),
+            row.id!,
+            refunded(row),
+          );
+          expect((await MembershipLedger.status(signed.build())).adFree, false);
+          await MembershipLedger.requestRefund(
+            admin.build(),
+            row.id!,
+            row.orderId,
+          );
+        },
+      );
+
+      test('revoked admin token cannot request a refund', () async {
+        final row = (await MembershipLedger.claim(
+          signed.build(),
+          period: 0,
+          at: now,
+        ))!;
+        await MembershipLedger.settle(builder.build(), row.id!, approved(row));
+        final stale = builder.copyWith(
+          authentication: AuthenticationOverride.authenticationInfo(
+            user.toString(),
+            {Scope.admin},
+          ),
+        );
+        await expectLater(
+          MembershipLedger.requestRefund(stale.build(), row.id!, row.orderId),
+          throwsStateError,
+        );
+        expect(
+          (await BillingPaymentAttempt.db.findById(
+            builder.build(),
+            row.id!,
+          ))!.status,
+          'paid',
+        );
+      });
+
+      test(
+        'in-flight renewal approval after refund request is also refunded',
+        () async {
+          final first = (await MembershipLedger.claim(
+            signed.build(),
+            period: 0,
+            at: now,
+          ))!;
+          await MembershipLedger.settle(
+            builder.build(),
+            first.id!,
+            approved(first),
+          );
+          final renewal = (await MembershipLedger.claim(
+            signed.build(),
+            period: 1,
+            at: SubscriptionRules.boundary(now, 1),
+          ))!;
+          await const AuthUsers().update(
+            builder.build(),
+            authUserId: user,
+            scopes: {Scope.admin},
+          );
+          final admin = builder.copyWith(
+            authentication: AuthenticationOverride.authenticationInfo(
+              user.toString(),
+              {Scope.admin},
+            ),
+          );
+          await MembershipLedger.requestRefund(
+            admin.build(),
+            first.id!,
+            first.orderId,
+          );
+          await MembershipLedger.settle(
+            builder.build(),
+            renewal.id!,
+            approved(renewal),
+          );
+          expect(
+            (await BillingPaymentAttempt.db.findById(
+              builder.build(),
+              renewal.id!,
+            ))!.status,
+            'refundRequired',
+          );
+        },
+      );
+
+      test(
         'concurrent first claims persist one stable order and period',
         () async {
           final rows = await Future.wait(

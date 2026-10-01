@@ -16,6 +16,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/greetings/gree
     as _iqvwj7cf;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/billing/billing_checkout_view.dart'
     as _ieebiau0;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/billing/billing_payment_view.dart'
+    as _isqvkvoy;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/billing/membership_view.dart'
     as _iwrn1kmb;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/account_view.dart'
@@ -1125,6 +1127,26 @@ class EndpointMembership extends _isc.EndpointRef {
 
   @override
   String get name => 'membership';
+
+  _ida.Future<List<_isqvkvoy.BillingPaymentView>> paymentsForAccount(
+    String userId,
+  ) => caller.callServerEndpoint<List<_isqvkvoy.BillingPaymentView>>(
+    'membership',
+    'paymentsForAccount',
+    {'userId': userId},
+  );
+
+  _ida.Future<void> refundPayment(
+    int attemptId,
+    String expectedOrderId,
+  ) => caller.callServerEndpoint<void>(
+    'membership',
+    'refundPayment',
+    {
+      'attemptId': attemptId,
+      'expectedOrderId': expectedOrderId,
+    },
+  );
 
   _ida.Future<_iwrn1kmb.MembershipView> status() =>
       caller.callServerEndpoint<_iwrn1kmb.MembershipView>(

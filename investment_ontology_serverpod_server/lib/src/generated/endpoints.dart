@@ -1661,6 +1661,52 @@ class Endpoints extends _is.EndpointDispatch {
       name: 'membership',
       endpoint: endpoints['membership']!,
       methodConnectors: {
+        'paymentsForAccount': _is.MethodConnector(
+          name: 'paymentsForAccount',
+          params: {
+            'userId': _is.ParameterDescription(
+              name: 'userId',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['membership'] as _i4hwwhem.MembershipEndpoint)
+                      .paymentsForAccount(
+                        session,
+                        params['userId'],
+                      ),
+        ),
+        'refundPayment': _is.MethodConnector(
+          name: 'refundPayment',
+          params: {
+            'attemptId': _is.ParameterDescription(
+              name: 'attemptId',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+            'expectedOrderId': _is.ParameterDescription(
+              name: 'expectedOrderId',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['membership'] as _i4hwwhem.MembershipEndpoint)
+                      .refundPayment(
+                        session,
+                        params['attemptId'],
+                        params['expectedOrderId'],
+                      ),
+        ),
         'status': _is.MethodConnector(
           name: 'status',
           params: {},

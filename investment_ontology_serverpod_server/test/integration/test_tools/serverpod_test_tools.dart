@@ -33,6 +33,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/greetings/gre
     as _isd101g2;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/billing/billing_checkout_view.dart'
     as _i9ji3lii;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/billing/billing_payment_view.dart'
+    as _iw7zbyvm;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/billing/membership_view.dart'
     as _irqqq4jy;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/account_view.dart'
@@ -2740,6 +2742,72 @@ class _MembershipEndpoint {
   final _is.EndpointDispatch _endpointDispatch;
 
   final _is.SerializationManager _serializationManager;
+
+  _ida.Future<List<_iw7zbyvm.BillingPaymentView>> paymentsForAccount(
+    _ist.TestSessionBuilder sessionBuilder,
+    String userId,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'membership',
+            method: 'paymentsForAccount',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'membership',
+          methodName: 'paymentsForAccount',
+          parameters: _ist.testObjectToJson({'userId': userId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_iw7zbyvm.BillingPaymentView>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<void> refundPayment(
+    _ist.TestSessionBuilder sessionBuilder,
+    int attemptId,
+    String expectedOrderId,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'membership',
+            method: 'refundPayment',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'membership',
+          methodName: 'refundPayment',
+          parameters: _ist.testObjectToJson({
+            'attemptId': attemptId,
+            'expectedOrderId': expectedOrderId,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
 
   _ida.Future<_irqqq4jy.MembershipView> status(
     _ist.TestSessionBuilder sessionBuilder,

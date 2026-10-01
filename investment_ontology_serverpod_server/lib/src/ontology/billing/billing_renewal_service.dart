@@ -81,16 +81,28 @@ class BillingRenewalService {
       session,
       where: (t) =>
           t.subscriptionId.equals(subscriptionId) &
-          t.status.equals('refundRequired'),
+          t.status.inSet({'refundRequired', 'refundRequested'}),
     );
     for (final row in rows) {
       if (row.paymentKey == null) continue;
       try {
-        final refund = await gateway.refund(
-          paymentKey: row.paymentKey!,
-          orderId: row.orderId,
-          idempotencyKey: 'refund-${row.idempotencyKey}',
-        );
+        // Lookup first recovers a cancel whose response was lost, even after
+        // the provider's idempotency window expired.
+        final existing = await gateway.lookup(row.orderId);
+        if (existing.key != row.paymentKey ||
+            !{'DONE', 'CANCELED'}.contains(existing.status)) {
+          throw const SandboxPaymentException(
+            'refund_identity',
+            uncertain: true,
+          );
+        }
+        final refund = existing.status == 'CANCELED'
+            ? existing
+            : await gateway.refund(
+                paymentKey: row.paymentKey!,
+                orderId: row.orderId,
+                idempotencyKey: 'refund-${row.idempotencyKey}',
+              );
         await MembershipLedger.fullRefund(session, row.id!, refund);
         await reconcileKeyDeletion(session, subscriptionId);
       } on SandboxPaymentException {
