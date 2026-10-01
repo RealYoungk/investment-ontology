@@ -150,6 +150,41 @@ void main() {
       return (await IngestJob.db.findById(session, j.id!))!;
     }
 
+    test(
+      'API-wait at zero budget reaches verified existing-body anchor',
+      () async {
+        await DartFilingSection.db.insertRow(
+          session,
+          DartFilingSection(
+            filingId: target.id!,
+            companyId: company.id!,
+            bsnsYear: 2025,
+            section: DartSection.businessContent,
+            tier: 2,
+            status: FilingFetchStatus.pending,
+            attempts: 0,
+            lastError: '사업본문 API 대기: 첨부정정의 공식 이전접수 탐색에 호출 예산 필요',
+          ),
+        );
+        await run();
+        expect(gets, 3);
+        final original = await DartFiling.db.findFirstRow(
+          session,
+          where: (t) => t.rceptNo.equals(report.rceptNo),
+        );
+        expect(original, isNotNull);
+        final ledger = await DartFilingSection.db.findFirstRow(
+          session,
+          where: (t) => t.filingId.equals(target.id!),
+        );
+        expect(ledger!.status, FilingFetchStatus.stored);
+        expect(
+          (await BusinessDocument.db.findById(session, body.id!))!.text,
+          body.text,
+        );
+      },
+    );
+
     test('valid anchor preserves body/provenance; target stored and no duplicate retry', () async {
       final before = await scope();
       await run();

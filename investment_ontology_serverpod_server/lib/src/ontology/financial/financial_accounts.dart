@@ -119,6 +119,8 @@ abstract final class FinancialAccounts {
     'amortisation': ['무형자산상각비'],
     'netIncome': [
       '당기순손실',
+      '연결당기순손실',
+      '연결당기순이익',
       '당기순이익(손실)',
       '반기순이익(손실)',
       '분기순이익(손실)',
@@ -130,7 +132,7 @@ abstract final class FinancialAccounts {
     'capex': ['유형자산의취득', '유형자산취득'],
   };
 
-  static const _lossNames = ['영업손실', '당기순손실'];
+  static const _lossNames = ['영업손실', '당기순손실', '연결당기순손실'];
   static bool _unambiguousLoss(FinancialFact fact) =>
       !_lossNames.contains(normalizedName(fact.accountName)) ||
       fact.amount != null && fact.amount! <= BigInt.zero;
@@ -161,7 +163,7 @@ abstract final class FinancialAccounts {
       final labels = names.map((n) => "'$n'").join(',');
       final statements = account.statements.map((s) => "'${s.name}'").join(',');
       cases.add(
-        "WHEN $alias.\"accountId\" IS NULL AND $alias.statement IN ($statements) AND $name IN ($labels) AND ($name NOT IN ('영업손실','당기순손실') OR $alias.amount::numeric <= 0) THEN '${account.accountIds.first}'",
+        "WHEN $alias.\"accountId\" IS NULL AND $alias.statement IN ($statements) AND $name IN ($labels) AND ($name NOT IN ('영업손실','당기순손실','연결당기순손실') OR $alias.amount::numeric <= 0) THEN '${account.accountIds.first}'",
       );
     }
     return 'CASE ${cases.join(' ')} ELSE $alias."accountId" END';

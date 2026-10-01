@@ -220,6 +220,190 @@ void main() {
       );
     });
 
+    test('actual IO whole connected losses stay negative in summary and screener', () async {
+      const dir = 'test/fixtures/financial_html/annual-labels';
+      const receipt = '20260430001951';
+      final all =
+          jsonDecode(File('$dir/evidence.json').readAsStringSync()) as List;
+      final e = all.singleWhere((v) => v['receipt'] == receipt) as Map;
+      final body = File('$dir/$receipt/consolidated.html').readAsStringSync();
+      final start = DateTime.parse('${e['start']}T00:00:00Z');
+      final end = DateTime.parse('${e['end']}T00:00:00Z');
+      final rows = PublicFinancialHtml.parseStandardAnnual(
+        coverHtml: File('$dir/$receipt/cover.html').readAsStringSync(),
+        statementHtml: body,
+        coverSource: Uri.parse(e['urls']['cover']),
+        statementSource: Uri.parse(e['urls']['consolidated']),
+        receipt: receipt,
+        corpCode: e['corpCode'],
+        companyName: e['name'],
+        periodStart: start,
+        periodEnd: end,
+        consolidated: true,
+      );
+      final company = await Company.db.insertRow(
+        session,
+        Company(
+          corpCode: e['corpCode'],
+          name: e['name'],
+          stockCode: '999998',
+          market: Market.kosdaq,
+        ),
+      );
+      final digest = sha256.convert(utf8.encode(body)).toString();
+      final source = await Source.db.insertRow(
+        session,
+        Source(
+          kind: SourceKind.dartReport,
+          reference: receipt,
+          url: e['urls']['consolidated'],
+          title:
+              'DART 원문 HTML 부분 핵심계정(실제 인쇄 계정명, XBRL 계정 ID 미제공) · SHA256:$digest',
+          retrievedAt: DateTime.utc(2026),
+        ),
+      );
+      final reportName =
+          '사업보고서 (${end.year}.${end.month.toString().padLeft(2, '0')})';
+      await DartFiling.db.insertRow(
+        session,
+        DartFiling(
+          rceptNo: receipt,
+          corpCode: company.corpCode,
+          companyId: company.id,
+          reportName: reportName,
+          bsnsYear: end.year,
+          reportCode: FinancialReportCode.annual,
+          consolidatedStatus: FilingFetchStatus.noData,
+          separateStatus: FilingFetchStatus.stored,
+          discoveredAt: DateTime.utc(2026),
+        ),
+      );
+      final report = await FinancialReport.db.insertRow(
+        session,
+        FinancialReport(
+          companyId: company.id!,
+          rceptNo: receipt,
+          bsnsYear: end.year,
+          reportCode: FinancialReportCode.annual,
+          fsDiv: FsDiv.consolidated,
+          reportName: reportName,
+          sourceId: source.id!,
+          factCount: rows.length,
+          fetchedAt: DateTime.utc(2026),
+        ),
+      );
+      await FinancialFact.db.insert(
+        session,
+        FinancialRows.toFacts(
+          rows,
+          reportId: report.id!,
+          companyId: company.id!,
+          bsnsYear: end.year,
+          reportCode: FinancialReportCode.annual,
+          fsDiv: FsDiv.consolidated,
+          sourceId: source.id!,
+        ).facts,
+      );
+      await Source.db.insertRow(
+        session,
+        Source(
+          kind: SourceKind.dartReport,
+          reference: 'financial-api-noData-source:$receipt:consolidated',
+          url: source.url,
+          retrievedAt: DateTime.utc(2026),
+          title: jsonEncode({
+            'action': 'verified-keyless-annual-source-after-api-noData',
+            'targetReceipt': receipt,
+            'sourceReceipt': receipt,
+            'corpCode': company.corpCode,
+            'reportName': reportName,
+            'fsDiv': 'consolidated',
+            'format': 'html',
+            'sha256': digest,
+            'coreRows': rows.length,
+            'coreRowProvenance': rows,
+          }),
+        ),
+      );
+      final summary = (await FinancialEndpoint().summary(
+        session,
+        company.corpCode,
+        fsDiv: FsDiv.consolidated,
+      ))!;
+      final op = summary.periods.single.lines.singleWhere(
+        (l) => l.key == 'operatingIncome',
+      );
+      final net = summary.periods.single.lines.singleWhere(
+        (l) => l.key == 'netIncome',
+      );
+      expect(op.amount, BigInt.from(-4525092778));
+      expect(net.amount, BigInt.from(-5291588269));
+      expect(op.accountName, contains('영업손실'));
+      expect(net.accountName, contains('연결당기순손실'));
+      expect(op.accountId, isNull);
+      expect(net.accountId, isNull);
+      final security = await Security.db.insertRow(
+        session,
+        Security(
+          isinCode: 'KR_LOSS',
+          shortCode: '999998',
+          name: company.name,
+          companyId: company.id,
+          lastSeenDate: DateTime.utc(2026, 10, 1),
+        ),
+      );
+      await MarketSnapshot.db.insertRow(
+        session,
+        MarketSnapshot(
+          securityId: security.id!,
+          baseDate: DateTime.utc(2026, 10, 1),
+          marketCap: BigInt.from(100000000000),
+          sourceId: source.id!,
+        ),
+      );
+      await MarketSnapshotDay.db.insertRow(
+        session,
+        MarketSnapshotDay(
+          baseDate: DateTime.utc(2026, 10, 1),
+          rowCount: 1,
+          fetchedAt: DateTime.utc(2026, 10, 1),
+        ),
+      );
+      final screen = (await ScreenEndpoint().list(
+        session,
+        corpCodes: [company.corpCode],
+      )).items.single;
+      expect(screen.netIncome, BigInt.from(-5291588269));
+      expect(screen.per, isNull);
+      // A positive unidentified API loss is ambiguous and must not become profit.
+      final raw = (await FinancialFact.db.findFirstRow(
+        session,
+        where: (t) =>
+            t.reportId.equals(report.id!) &
+            t.accountName.equals(net.accountName),
+      ))!;
+      await FinancialFact.db.updateRow(
+        session,
+        raw.copyWith(amount: BigInt.one),
+      );
+      expect(
+        (await FinancialEndpoint().summary(
+          session,
+          company.corpCode,
+          fsDiv: FsDiv.consolidated,
+        ))!.periods.single.lines.where((l) => l.key == 'netIncome'),
+        isEmpty,
+      );
+      ScreenEndpoint.clearCache();
+      expect(
+        (await ScreenEndpoint().list(
+          session,
+          corpCodes: [company.corpCode],
+        )).items.single.netIncome,
+        isNull,
+      );
+    });
+
     for (final evidence in reviewed.cast<Map>().where(
       (e) => (e['rawCurrentCoreRows'] as List).isNotEmpty,
     )) {

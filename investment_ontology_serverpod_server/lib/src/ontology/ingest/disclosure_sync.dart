@@ -29,6 +29,7 @@ import 'api_call_budget.dart';
 import 'financial_facts_sync.dart';
 import 'financial_collection_scope.dart';
 import 'business_collection_scope.dart';
+import 'missing_regular_source_recovery.dart';
 import 'financial_rows.dart';
 import 'ingest_jobs.dart';
 
@@ -53,6 +54,7 @@ class DisclosureSync {
     this.publicFallbackEnabled = true,
     this.businessOnly = false,
     this.businessAnchorClientFactory,
+    this.missingRegularClientFactory,
     PublicBusinessDocument? publicDocuments,
     this.callInterval = const Duration(milliseconds: 200),
     this.scheduleResume,
@@ -100,6 +102,7 @@ class DisclosureSync {
   /// Daily API and public-attempt budgets remain independent of this run limit.
   final int businessRunLimit;
   final http.Client Function()? businessAnchorClientFactory;
+  final http.Client Function()? missingRegularClientFactory;
   final bool publicFallbackEnabled;
   final bool businessOnly;
   final PublicBusinessDocument _publicDocuments;
@@ -416,8 +419,20 @@ class DisclosureSync {
     }
     var job = claimed;
     var processed = 0, stored = 0, failed = 0, noData = 0;
+    var discovery = const MissingRegularRecoveryProgress(0, 0, 0, 0);
     try {
       final now = _clock().toUtc();
+      if (publicFallbackEnabled) {
+        discovery = await MissingRegularSourceRecovery.recoverMissing(
+          session,
+          jobId,
+          clientFactory: missingRegularClientFactory,
+          corpCode: corpCode,
+          interval: callInterval == Duration.zero
+              ? Duration.zero
+              : const Duration(seconds: 1),
+        );
+      }
       final scopeRows = await session.db.unsafeQuery(
         '''WITH ${BusinessCollectionScope.cte}
         SELECT id FROM business_scope
@@ -481,11 +496,30 @@ class DisclosureSync {
         for (var i = 0; i < scopeRows.length; i++)
           scopeRows[i].toColumnMap()['id'] as int: i,
       };
+      // Confirmed existing original bodies can obtain a keyless period anchor;
+      // an old API-wait marker must not hide them from that verification path.
+      final anchorRows = publicFallbackEnabled
+          ? await session.db.unsafeQuery(
+              'SELECT DISTINCT f.id FROM dart_filing f JOIN business_document b ON b."companyId"=f."companyId" '
+              'JOIN disclosure_report d ON d.id=b."reportId" AND d."companyId"=f."companyId" '
+              'AND d."bsnsYear"=f."bsnsYear" AND d."reportCode"=f."reportCode" '
+              'WHERE f."reportName" LIKE \'%첨부정정%\' AND d.section=\'businessContent\' '
+              'AND f."reportCode" IN (\'annual\',\'halfYear\') AND b."rceptNo"<f."rceptNo" AND length(b.text)>0 '
+              'AND NOT EXISTS(SELECT 1 FROM dart_filing sf WHERE sf."companyId"=f."companyId" AND sf."rceptNo"=b."rceptNo")',
+            )
+          : [];
+      final publicAnchorIds = {
+        for (final row in anchorRows) row.toColumnMap()['id'] as int,
+      };
       final apiAvailable = _hasAllowance;
       pending.sort((a, b) {
         if (!apiAvailable) {
-          final aWait = a.lastError == _businessApiWait;
-          final bWait = b.lastError == _businessApiWait;
+          final aWait =
+              a.lastError == _businessApiWait &&
+              !publicAnchorIds.contains(a.filingId);
+          final bWait =
+              b.lastError == _businessApiWait &&
+              !publicAnchorIds.contains(b.filingId);
           if (aWait != bWait) return aWait ? 1 : -1;
         }
         final attempts = a.attempts.compareTo(b.attempts);
@@ -511,7 +545,9 @@ class DisclosureSync {
         if ((!_hasAllowance && !_canFetchPublic) || _publicFailureStreak >= 6) {
           break;
         }
-        if (!_hasAllowance && item.lastError == _businessApiWait) {
+        if (!_hasAllowance &&
+            item.lastError == _businessApiWait &&
+            !publicAnchorIds.contains(item.filingId)) {
           continue;
         }
         final f = filings[item.filingId];
@@ -628,8 +664,12 @@ class DisclosureSync {
                 item.lastError != _businessApiWait),
       );
       DateTime? resume;
-      if (unfinished.isNotEmpty && job.status != IngestStatus.cancelled) {
-        if (_publicFailureStreak >= 6 ||
+      if ((unfinished.isNotEmpty ||
+              discovery.failed > 0 ||
+              discovery.deferred > 0) &&
+          job.status != IngestStatus.cancelled) {
+        if (discovery.failed > 0 ||
+            _publicFailureStreak >= 6 ||
             (!hasUnattemptedBody &&
                 (failed > 0 || noData > 0 || hasRetryFailures))) {
           resume = _clock().toUtc().add(const Duration(minutes: 15));
@@ -647,12 +687,17 @@ class DisclosureSync {
         job.copyWith(
           status: job.status == IngestStatus.cancelled
               ? IngestStatus.cancelled
-              : failed > 0 || noData > 0 || exhausted > 0
+              : failed > 0 ||
+                    noData > 0 ||
+                    exhausted > 0 ||
+                    discovery.failed > 0
               ? IngestStatus.failed
               : IngestStatus.succeeded,
           processed: processed,
           updated: stored,
-          failed: failed + noData > exhausted ? failed + noData : exhausted,
+          failed:
+              (failed + noData > exhausted ? failed + noData : exhausted) +
+              discovery.failed,
           apiCalls: dart.calls,
           finishedAt: _clock().toUtc(),
           message:
@@ -661,7 +706,7 @@ class DisclosureSync {
                   ? ''
                   : apiOnlyWaiting
                   ? ' · API 대기: 다음 KST 자정 뒤 이어받기 예약'
-                  : ' · 자동 이어받기 예약'}',
+                  : ' · 자동 이어받기 예약'} · ${discovery.message}',
         ),
       );
     } catch (e, st) {
