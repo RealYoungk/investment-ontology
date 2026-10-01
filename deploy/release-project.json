@@ -1,0 +1,9 @@
+{
+  "repository": "RealYoungk/investment-ontology",
+  "branch": "main",
+  "workflow": "release.yml",
+  "productionUrl": "https://alfinder.kr",
+  "projectId": "prj_ZZk5vpxbNus1EeWMVKIaQEkFxIad",
+  "orgId": "team_xesjMlMR8gnPmDlbVqQSgHc0",
+  "projectName": "alfinder-research"
+}
