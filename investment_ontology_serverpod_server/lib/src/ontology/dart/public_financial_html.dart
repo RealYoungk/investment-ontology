@@ -507,8 +507,10 @@ abstract final class PublicFinancialHtml {
     }
 
     final cover = _compact(_text(coverHtml));
-    final company = RegExp(r'회사명:(.*?)대표이사:').firstMatch(cover)?.group(1);
-    final terms = RegExp(r'\(제(\d+)기\)').allMatches(cover).toList();
+    final company = RegExp(r'회사명:(.*?)(?:공동)?대표이사:')
+        .firstMatch(cover)
+        ?.group(1);
+    final terms = RegExp(r'\(제(\d+)기(?:사업보고서)?\)').allMatches(cover).toList();
     final periods = RegExp(
       r'사업연도((?:\d{4}년\d{1,2}월\d{1,2}일|\d{4}\.\d{2}\.\d{2}))부터((?:\d{4}년\d{1,2}월\d{1,2}일|\d{4}\.\d{2}\.\d{2}))까지',
     ).allMatches(cover).toList();
@@ -546,8 +548,9 @@ abstract final class PublicFinancialHtml {
       after.isEmpty ? statementHtml.length : after.first.start,
     );
     final text = _compact(_text(scope));
+    const titleDate = r'(?:\d{4}년\d{1,2}월\d{1,2}일|\d{4}\.\d{2}\.\d{2})';
     final titlePattern = RegExp(
-      '제$term(?:\\(당\\))?(?:당기|기)(?:기말|말)?:?(\\d{4}년\\d{1,2}월\\d{1,2}일)(현재|부터(\\d{4}년\\d{1,2}월\\d{1,2}일)까지)',
+      '제$term(?:\\(당\\))?(?:당기|기)(?:기말|말)?:?($titleDate)(현재|부터($titleDate)까지)',
     );
     final titles = titlePattern.allMatches(text).toList();
     if (titles.length < 3 ||
@@ -571,6 +574,7 @@ abstract final class PublicFinancialHtml {
       '부채총계': ('liabilities', 'BS'),
       '자본총계': ('equity', 'BS'),
       '매출액': ('revenue', 'CIS'),
+      '매출': ('revenue', 'CIS'),
       '수익(매출액)': ('revenue', 'CIS'),
       '영업수익': ('revenue', 'CIS'),
       '영업이익': ('operating', 'CIS'),
@@ -653,6 +657,7 @@ abstract final class PublicFinancialHtml {
           labels.contains('자본총계')) {
         kind = 'BS';
       } else if ((labels.contains('매출액') ||
+              labels.contains('매출') ||
               labels.contains('영업수익') ||
               labels.contains('수익(매출액)')) &&
           (['영업이익', '영업이익(손실)', '영업손익', '영업손실'].any(labels.contains))) {
@@ -670,9 +675,9 @@ abstract final class PublicFinancialHtml {
       final headers = grid.first
           .whereType<_FinancialHtmlCell>()
           .where(
-            (c) =>
-                RegExp('^제$term(?:\\(당\\))?기(?:기말|말)?\$')
-                    .hasMatch(_compact(c.text)),
+            (c) => RegExp(
+              '^(?:제$term(?:\\(당\\))?기(?:기말|말)?|${periodEnd.year}년도\\(제$term기\\))\$',
+            ).hasMatch(_compact(c.text)),
           )
           .toSet();
       if (headers.length != 1) {
