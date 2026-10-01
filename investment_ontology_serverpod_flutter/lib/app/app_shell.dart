@@ -128,7 +128,6 @@ class _AppShellState extends State<AppShell> {
                       child: PageFrameLeadScope(
                         leading:
                             const {
-                              '/home',
                               '/market',
                               '/companies',
                             }.contains(path)
