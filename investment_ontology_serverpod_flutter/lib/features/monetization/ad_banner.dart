@@ -21,6 +21,7 @@ class _AdBannerState extends State<AdBanner> {
     final config = widget.config;
     final viewer = context.viewer;
     if (_unavailable ||
+        (viewer != null && !viewer.membershipResolved) ||
         !config.show(adFree: viewer?.isAdFree ?? false, web: kIsWeb)) {
       return const SizedBox.shrink();
     }
