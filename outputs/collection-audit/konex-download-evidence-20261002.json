@@ -1,0 +1,16 @@
+[
+  {
+    "name": "Daedong",
+    "corpCode": "00910202",
+    "receipt": "20260922000230",
+    "listing": "https://dart.fss.or.kr/pdf/download/main.do?rcp_no=20260922000230&dcm_no=11588250",
+    "xbrlDownloadLinks": []
+  },
+  {
+    "name": "Supro",
+    "corpCode": "00830447",
+    "receipt": "20260617000188",
+    "listing": "https://dart.fss.or.kr/pdf/download/main.do?rcp_no=20260617000188&dcm_no=11435684",
+    "xbrlDownloadLinks": []
+  }
+]

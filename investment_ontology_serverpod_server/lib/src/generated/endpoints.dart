@@ -1648,6 +1648,16 @@ class Endpoints extends _is.EndpointDispatch {
                     corpCode: params['corpCode'],
                   ),
         ),
+        'startBusinessDocuments': _is.MethodConnector(
+          name: 'startBusinessDocuments',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['ingest'] as _icbircc0.IngestEndpoint)
+                  .startBusinessDocuments(session),
+        ),
         'rebuildDisclosureLinks': _is.MethodConnector(
           name: 'rebuildDisclosureLinks',
           params: {},

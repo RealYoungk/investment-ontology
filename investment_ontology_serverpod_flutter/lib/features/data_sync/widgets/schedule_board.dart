@@ -119,7 +119,8 @@ class _DatasetCollectionControlsState extends State<DatasetCollectionControls> {
     final kind = switch (widget.dataset) {
       'financial' => 'financial_facts',
       'market' => 'market_snapshot',
-      'disclosure' || 'business' => 'disclosures',
+      'disclosure' => 'disclosures',
+      'business' => 'business_documents',
       _ => 'company_master',
     };
     final entry = data?.entries?.where((e) => e.kind == kind).firstOrNull;
@@ -152,6 +153,8 @@ class _DatasetCollectionControlsState extends State<DatasetCollectionControls> {
                         await client.ingest.startFinancials(corpCode: corpCode);
                       case 'market_snapshot':
                         await client.ingest.startMarketSnapshot();
+                      case 'business_documents':
+                        await client.ingest.startBusinessDocuments();
                       case 'disclosures':
                         await client.ingest.startDisclosures(
                           corpCode: corpCode,
@@ -227,7 +230,8 @@ class DatasetRunHistory extends StatelessWidget {
     final kind = switch (dataset) {
       'financial' => 'financial_facts',
       'market' => 'market_snapshot',
-      'business' || 'disclosure' => 'disclosures',
+      'disclosure' => 'disclosures',
+      'business' => 'business_documents',
       _ => 'company_master',
     };
     final entry = data?.entries?.where((e) => e.kind == kind).firstOrNull;

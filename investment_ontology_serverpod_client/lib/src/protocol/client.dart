@@ -1092,6 +1092,14 @@ class EndpointIngest extends _isc.EndpointRef {
         {'corpCode': corpCode},
       );
 
+  /// 주요정보 28종과 별도로 과거 5년 사업 본문과 최신 분기·반기 본문을 받는다.
+  _ida.Future<_i1paap7y.IngestJob> startBusinessDocuments() =>
+      caller.callServerEndpoint<_i1paap7y.IngestJob>(
+        'ingest',
+        'startBusinessDocuments',
+        {},
+      );
+
   /// 주요정보의 인물 연결과 관계 색인을 다시 만든다 (DART 호출 없음). 연결 규칙을 고친 뒤 쓴다.
   _ida.Future<String> rebuildDisclosureLinks() =>
       caller.callServerEndpoint<String>(

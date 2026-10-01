@@ -22,7 +22,7 @@ fields:
   persons: int
   ### "사업의 내용" 본문이 있는 상장사 수와, 그중 절별 요약(BusinessDigestSection)까지 있는 수
   companiesWithBusinessText: int
-  ### 최신 정기보고서 본문 확보 기업 수 (첨부정정 원본 포함)
+  ### 최신 정기보고서와 접수번호가 일치하는 본문 확보 기업 수
   companiesWithLatestBusinessText: int?
   companiesWithDigest: int
   ### 오늘(KST) DART 호출 수와 일일 한도
@@ -30,3 +30,23 @@ fields:
   dartDailyLimit: int
   dartFinancialBudget: int
   dartDisclosurePriorityBudget: int
+  ### 현재 수집 범위의 저장, 자료 없음, 실패 및 시세 장부 상태. 구버전 서버는 null.
+  financialStoredFilings: int?
+  financialNoDataFilings: int?
+  financialFailedFilings: int?
+  financialPendingFilings: int?
+  bodyScopeTotal: int?
+  bodyScopeStored: int?
+  bodyScopePending: int?
+  bodyScopeFailed: int?
+  marketLatestPriceDate: DateTime?
+  marketLatestPriceSecurities: int?
+  marketLatestIndexDate: DateTime?
+  marketLatestIndexCount: int?
+  marketScopeStart: DateTime?
+  marketScopeThrough: DateTime?
+  marketExpectedWeekdays: int?
+  marketPriceDaysStored: int?
+  marketIndexDaysStored: int?
+  marketHistoricalPendingDates: int?
+  marketRecentUnconfirmedDates: int?

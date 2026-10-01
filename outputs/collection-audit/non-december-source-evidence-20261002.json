@@ -1,0 +1,298 @@
+[
+  {
+    "name": "SV",
+    "corpCode": "00599151",
+    "receipt": "20260813001312",
+    "download": "https://dart.fss.or.kr/pdf/download/ifrs.do?rcp_no=20260813001312&dcm_no=11524881&lang=ko",
+    "bytes": 68925,
+    "zipValid": true,
+    "sha256": "40e4745984b080e078e6124a3e68b0591611cdc7ebdd72f0fefc06714acdec81",
+    "files": [
+      "entity00599151_2026-06-30.xbrl",
+      "entity00599151_2026-06-30.xsd",
+      "entity00599151_2026-06-30_def.xml",
+      "entity00599151_2026-06-30_cal.xml",
+      "entity00599151_2026-06-30_pre.xml",
+      "entity00599151_2026-06-30_lab-ko.xml",
+      "entity00599151_2026-06-30_lab-en.xml"
+    ],
+    "reportMetadata": [
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentCreationDate",
+        "text": "2026-08-13"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentOrdinalYearNumberofFiscalYear",
+        "text": "20"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentOrdinalYearNumberofFiscalYear",
+        "text": "20"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentOrdinalYearNumberofFiscalYear",
+        "text": "19"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentOrdinalYearNumberofFiscalYear",
+        "text": "21"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentPeriodEndDate",
+        "text": "2026-03-31"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentPeriodEndDate",
+        "text": "2025-06-30"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentPeriodEndDate",
+        "text": "2025-03-31"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentPeriodEndDate",
+        "text": "2026-06-30"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentPeriodStartDate",
+        "text": "2025-04-01"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentPeriodStartDate",
+        "text": "2025-04-01"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentPeriodStartDate",
+        "text": "2024-04-01"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentPeriodStartDate",
+        "text": "2026-04-01"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentTitle",
+        "text": "First Quarterly Report"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentTitle",
+        "text": "1분기보고서"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}EntityFiscalMonth",
+        "text": "March"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}EntityFiscalMonth",
+        "text": "3월결산법인"
+      }
+    ],
+    "contexts": [
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" id=\"CFY2026dFQA\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">00599151</ns0:identifier>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-04-01</ns0:startDate>\n      <ns0:endDate>2026-06-30</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  ",
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" xmlns:ns1=\"http://xbrl.org/2006/xbrldi\" id=\"CFY2026dFQA_dart-gcd_AuthorInformationAxis_dart-gcd_PersonnelForContactMember\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">00599151</ns0:identifier>\n      <ns0:segment>\n        <ns1:explicitMember dimension=\"dart-gcd:AuthorInformationAxis\">dart-gcd:PersonnelForContactMember</ns1:explicitMember>\n      </ns0:segment>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-04-01</ns0:startDate>\n      <ns0:endDate>2026-06-30</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  ",
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" xmlns:ns1=\"http://xbrl.org/2006/xbrldi\" id=\"CFY2026dFQA_dart-gcd_AuthorInformationAxis_dart-gcd_PersonnelInChargeMember\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">00599151</ns0:identifier>\n      <ns0:segment>\n        <ns1:explicitMember dimension=\"dart-gcd:AuthorInformationAxis\">dart-gcd:PersonnelInChargeMember</ns1:explicitMember>\n      </ns0:segment>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-04-01</ns0:startDate>\n      <ns0:endDate>2026-06-30</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  ",
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" xmlns:ns1=\"http://xbrl.org/2006/xbrldi\" id=\"CFY2026dFQA_dart-gcd_AuthorInformationAxis_dart-gcd_XBRLConsultingFirmMember\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">00599151</ns0:identifier>\n      <ns0:segment>\n        <ns1:explicitMember dimension=\"dart-gcd:AuthorInformationAxis\">dart-gcd:XBRLConsultingFirmMember</ns1:explicitMember>\n      </ns0:segment>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-04-01</ns0:startDate>\n      <ns0:endDate>2026-06-30</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  ",
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" xmlns:ns1=\"http://xbrl.org/2006/xbrldi\" id=\"CFY2026dFQA_dart-gcd_PeriodAxis_dart-gcd_PeriodCoveredbyLastFiscalYearMember\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">00599151</ns0:identifier>\n      <ns0:segment>\n        <ns1:explicitMember dimension=\"dart-gcd:PeriodAxis\">dart-gcd:PeriodCoveredbyLastFiscalYearMember</ns1:explicitMember>\n      </ns0:segment>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-04-01</ns0:startDate>\n      <ns0:endDate>2026-06-30</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  ",
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" xmlns:ns1=\"http://xbrl.org/2006/xbrldi\" id=\"CFY2026dFQA_dart-gcd_PeriodAxis_dart-gcd_PeriodCoveredbyQuarterlyorHalfYearReportofLastFiscalYearMember\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">00599151</ns0:identifier>\n      <ns0:segment>\n        <ns1:explicitMember dimension=\"dart-gcd:PeriodAxis\">dart-gcd:PeriodCoveredbyQuarterlyorHalfYearReportofLastFiscalYearMember</ns1:explicitMember>\n      </ns0:segment>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-04-01</ns0:startDate>\n      <ns0:endDate>2026-06-30</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  ",
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" xmlns:ns1=\"http://xbrl.org/2006/xbrldi\" id=\"CFY2026dFQA_dart-gcd_PeriodAxis_dart-gcd_PeriodCoveredbyTheYearBeforeLastFiscalYearMember\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">00599151</ns0:identifier>\n      <ns0:segment>\n        <ns1:explicitMember dimension=\"dart-gcd:PeriodAxis\">dart-gcd:PeriodCoveredbyTheYearBeforeLastFiscalYearMember</ns1:explicitMember>\n      </ns0:segment>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-04-01</ns0:startDate>\n      <ns0:endDate>2026-06-30</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  ",
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" xmlns:ns1=\"http://xbrl.org/2006/xbrldi\" id=\"CFY2026dFQA_dart-gcd_PeriodAxis_dart-gcd_PeriodCoveredbytheReportofCurrentFiscalYearorQuarterorHalfYearMember\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">00599151</ns0:identifier>\n      <ns0:segment>\n        <ns1:explicitMember dimension=\"dart-gcd:PeriodAxis\">dart-gcd:PeriodCoveredbytheReportofCurrentFiscalYearorQuarterorHalfYearMember</ns1:explicitMember>\n      </ns0:segment>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-04-01</ns0:startDate>\n      <ns0:endDate>2026-06-30</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  ",
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" xmlns:ns1=\"http://xbrl.org/2006/xbrldi\" id=\"CFY2026dFQA_dart-gcd_StatementInformationAxis_dart-gcd_ConsolidatedMember\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">00599151</ns0:identifier>\n      <ns0:segment>\n        <ns1:explicitMember dimension=\"dart-gcd:StatementInformationAxis\">dart-gcd:ConsolidatedMember</ns1:explicitMember>\n      </ns0:segment>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-04-01</ns0:startDate>\n      <ns0:endDate>2026-06-30</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  ",
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" xmlns:ns1=\"http://xbrl.org/2006/xbrldi\" id=\"CFY2026dFQA_dart-gcd_StatementInformationAxis_dart-gcd_SeparateMember\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">00599151</ns0:identifier>\n      <ns0:segment>\n        <ns1:explicitMember dimension=\"dart-gcd:StatementInformationAxis\">dart-gcd:SeparateMember</ns1:explicitMember>\n      </ns0:segment>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-04-01</ns0:startDate>\n      <ns0:endDate>2026-06-30</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  ",
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" xmlns:ns1=\"http://xbrl.org/2006/xbrldi\" id=\"CFY2026dFQA_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_ConsolidatedMember\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">00599151</ns0:identifier>\n      <ns0:segment>\n        <ns1:explicitMember dimension=\"ifrs-full:ConsolidatedAndSeparateFinancialStatementsAxis\">ifrs-full:ConsolidatedMember</ns1:explicitMember>\n      </ns0:segment>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-04-01</ns0:startDate>\n      <ns0:endDate>2026-06-30</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  ",
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" xmlns:ns1=\"http://xbrl.org/2006/xbrldi\" id=\"CFY2026dFQA_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_ConsolidatedMember_ifrs-full_ComponentsOfEquityAxis_dart_CapitalSurplusMember\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">00599151</ns0:identifier>\n      <ns0:segment>\n        <ns1:explicitMember dimension=\"ifrs-full:ConsolidatedAndSeparateFinancialStatementsAxis\">ifrs-full:ConsolidatedMember</ns1:explicitMember>\n        <ns1:explicitMember dimension=\"ifrs-full:ComponentsOfEquityAxis\">dart:CapitalSurplusMember</ns1:explicitMember>\n      </ns0:segment>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-04-01</ns0:startDate>\n      <ns0:endDate>2026-06-30</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  ",
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" xmlns:ns1=\"http://xbrl.org/2006/xbrldi\" id=\"CFY2026dFQA_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_ConsolidatedMember_ifrs-full_ComponentsOfEquityAxis_ifrs-full_AccumulatedOtherComprehensiveIncomeMember\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">00599151</ns0:identifier>\n      <ns0:segment>\n        <ns1:explicitMember dimension=\"ifrs-full:ConsolidatedAndSeparateFinancialStatementsAxis\">ifrs-full:ConsolidatedMember</ns1:explicitMember>\n        <ns1:explicitMember dimension=\"ifrs-full:ComponentsOfEquityAxis\">ifrs-full:AccumulatedOtherComprehensiveIncomeMember</ns1:explicitMember>\n      </ns0:segment>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-04-01</ns0:startDate>\n      <ns0:endDate>2026-06-30</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  ",
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" xmlns:ns1=\"http://xbrl.org/2006/xbrldi\" id=\"CFY2026dFQA_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_ConsolidatedMember_ifrs-full_ComponentsOfEquityAxis_ifrs-full_EquityAttributableToOwnersOfParentMember\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">00599151</ns0:identifier>\n      <ns0:segment>\n        <ns1:explicitMember dimension=\"ifrs-full:ConsolidatedAndSeparateFinancialStatementsAxis\">ifrs-full:ConsolidatedMember</ns1:explicitMember>\n        <ns1:explicitMember dimension=\"ifrs-full:ComponentsOfEquityAxis\">ifrs-full:EquityAttributableToOwnersOfParentMember</ns1:explicitMember>\n      </ns0:segment>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-04-01</ns0:startDate>\n      <ns0:endDate>2026-06-30</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  ",
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" xmlns:ns1=\"http://xbrl.org/2006/xbrldi\" id=\"CFY2026dFQA_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_ConsolidatedMember_ifrs-full_ComponentsOfEquityAxis_ifrs-full_IssuedCapitalMember\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">00599151</ns0:identifier>\n      <ns0:segment>\n        <ns1:explicitMember dimension=\"ifrs-full:ConsolidatedAndSeparateFinancialStatementsAxis\">ifrs-full:ConsolidatedMember</ns1:explicitMember>\n        <ns1:explicitMember dimension=\"ifrs-full:ComponentsOfEquityAxis\">ifrs-full:IssuedCapitalMember</ns1:explicitMember>\n      </ns0:segment>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-04-01</ns0:startDate>\n      <ns0:endDate>2026-06-30</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  "
+    ],
+    "assets": [
+      {
+        "tag": "{https://xbrl.ifrs.org/taxonomy/2024-03-27/ifrs-full}Assets",
+        "attrs": {
+          "contextRef": "CFY2026eFQA_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_ConsolidatedMember",
+          "unitRef": "KRW",
+          "decimals": "0"
+        },
+        "value": "94135633463"
+      },
+      {
+        "tag": "{https://xbrl.ifrs.org/taxonomy/2024-03-27/ifrs-full}Assets",
+        "attrs": {
+          "contextRef": "CFY2026eFQA_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_SeparateMember",
+          "unitRef": "KRW",
+          "decimals": "0"
+        },
+        "value": "95279330944"
+      },
+      {
+        "tag": "{https://xbrl.ifrs.org/taxonomy/2024-03-27/ifrs-full}Assets",
+        "attrs": {
+          "contextRef": "PFY2025eFQ_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_ConsolidatedMember",
+          "unitRef": "KRW",
+          "decimals": "0"
+        },
+        "value": "92652923175"
+      },
+      {
+        "tag": "{https://xbrl.ifrs.org/taxonomy/2024-03-27/ifrs-full}Assets",
+        "attrs": {
+          "contextRef": "PFY2025eFQ_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_SeparateMember",
+          "unitRef": "KRW",
+          "decimals": "0"
+        },
+        "value": "93528670054"
+      }
+    ],
+    "printedBodyUri": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260813001312&dcmNo=11524881&eleId=15&offset=120869&length=1070844&dtd=dart4.xsd",
+    "printedAmountsVerified": {
+      "94,135,633,463": true,
+      "95,279,330,944": true
+    }
+  },
+  {
+    "name": "Teraview",
+    "corpCode": "01957282",
+    "receipt": "20260923000617",
+    "download": "https://dart.fss.or.kr/pdf/download/ifrs.do?rcp_no=20260923000617&dcm_no=11591326&lang=ko",
+    "bytes": 45019,
+    "zipValid": true,
+    "sha256": "05ac5ea65f56380d4bb0698424de798e99e584021ca78b3e5266170a39f32a7f",
+    "files": [
+      "entity01957282_2026-07-31.xbrl",
+      "entity01957282_2026-07-31.xsd",
+      "entity01957282_2026-07-31_def.xml",
+      "entity01957282_2026-07-31_cal.xml",
+      "entity01957282_2026-07-31_pre.xml",
+      "entity01957282_2026-07-31_lab-ko.xml",
+      "entity01957282_2026-07-31_lab-en.xml"
+    ],
+    "reportMetadata": [
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentCreationDate",
+        "text": "2026-09-23"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentOrdinalYearNumberofFiscalYear",
+        "text": "2"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentOrdinalYearNumberofFiscalYear",
+        "text": "2"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentOrdinalYearNumberofFiscalYear",
+        "text": "1"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentOrdinalYearNumberofFiscalYear",
+        "text": "3"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentPeriodEndDate",
+        "text": "2026-04-30"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentPeriodEndDate",
+        "text": "2025-07-31"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentPeriodEndDate",
+        "text": "2025-04-30"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentPeriodEndDate",
+        "text": "2026-07-31"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentPeriodStartDate",
+        "text": "2025-05-01"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentPeriodStartDate",
+        "text": "2025-05-01"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentPeriodStartDate",
+        "text": "2024-05-01"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentPeriodStartDate",
+        "text": "2026-05-01"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentTitle",
+        "text": "First Quarterly Report"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}DocumentTitle",
+        "text": "1분기보고서"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}EntityFiscalMonth",
+        "text": "April"
+      },
+      {
+        "tag": "{http://dart.fss.or.kr/taxonomy/2026-01-31/ifrs/dart-gcd}EntityFiscalMonth",
+        "text": "4월결산법인"
+      }
+    ],
+    "contexts": [
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" id=\"CFY2026dFQA\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">01957282</ns0:identifier>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-05-01</ns0:startDate>\n      <ns0:endDate>2026-07-31</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  ",
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" xmlns:ns1=\"http://xbrl.org/2006/xbrldi\" id=\"CFY2026dFQA_dart-gcd_AuthorInformationAxis_dart-gcd_PersonnelForContactMember\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">01957282</ns0:identifier>\n      <ns0:segment>\n        <ns1:explicitMember dimension=\"dart-gcd:AuthorInformationAxis\">dart-gcd:PersonnelForContactMember</ns1:explicitMember>\n      </ns0:segment>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-05-01</ns0:startDate>\n      <ns0:endDate>2026-07-31</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  ",
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" xmlns:ns1=\"http://xbrl.org/2006/xbrldi\" id=\"CFY2026dFQA_dart-gcd_AuthorInformationAxis_dart-gcd_PersonnelInChargeMember\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">01957282</ns0:identifier>\n      <ns0:segment>\n        <ns1:explicitMember dimension=\"dart-gcd:AuthorInformationAxis\">dart-gcd:PersonnelInChargeMember</ns1:explicitMember>\n      </ns0:segment>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-05-01</ns0:startDate>\n      <ns0:endDate>2026-07-31</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  ",
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" xmlns:ns1=\"http://xbrl.org/2006/xbrldi\" id=\"CFY2026dFQA_dart-gcd_AuthorInformationAxis_dart-gcd_XBRLConsultingFirmMember\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">01957282</ns0:identifier>\n      <ns0:segment>\n        <ns1:explicitMember dimension=\"dart-gcd:AuthorInformationAxis\">dart-gcd:XBRLConsultingFirmMember</ns1:explicitMember>\n      </ns0:segment>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-05-01</ns0:startDate>\n      <ns0:endDate>2026-07-31</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  ",
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" xmlns:ns1=\"http://xbrl.org/2006/xbrldi\" id=\"CFY2026dFQA_dart-gcd_PeriodAxis_dart-gcd_PeriodCoveredbyLastFiscalYearMember\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">01957282</ns0:identifier>\n      <ns0:segment>\n        <ns1:explicitMember dimension=\"dart-gcd:PeriodAxis\">dart-gcd:PeriodCoveredbyLastFiscalYearMember</ns1:explicitMember>\n      </ns0:segment>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-05-01</ns0:startDate>\n      <ns0:endDate>2026-07-31</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  ",
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" xmlns:ns1=\"http://xbrl.org/2006/xbrldi\" id=\"CFY2026dFQA_dart-gcd_PeriodAxis_dart-gcd_PeriodCoveredbyQuarterlyorHalfYearReportofLastFiscalYearMember\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">01957282</ns0:identifier>\n      <ns0:segment>\n        <ns1:explicitMember dimension=\"dart-gcd:PeriodAxis\">dart-gcd:PeriodCoveredbyQuarterlyorHalfYearReportofLastFiscalYearMember</ns1:explicitMember>\n      </ns0:segment>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-05-01</ns0:startDate>\n      <ns0:endDate>2026-07-31</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  ",
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" xmlns:ns1=\"http://xbrl.org/2006/xbrldi\" id=\"CFY2026dFQA_dart-gcd_PeriodAxis_dart-gcd_PeriodCoveredbyTheYearBeforeLastFiscalYearMember\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">01957282</ns0:identifier>\n      <ns0:segment>\n        <ns1:explicitMember dimension=\"dart-gcd:PeriodAxis\">dart-gcd:PeriodCoveredbyTheYearBeforeLastFiscalYearMember</ns1:explicitMember>\n      </ns0:segment>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-05-01</ns0:startDate>\n      <ns0:endDate>2026-07-31</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  ",
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" xmlns:ns1=\"http://xbrl.org/2006/xbrldi\" id=\"CFY2026dFQA_dart-gcd_PeriodAxis_dart-gcd_PeriodCoveredbytheReportofCurrentFiscalYearorQuarterorHalfYearMember\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">01957282</ns0:identifier>\n      <ns0:segment>\n        <ns1:explicitMember dimension=\"dart-gcd:PeriodAxis\">dart-gcd:PeriodCoveredbytheReportofCurrentFiscalYearorQuarterorHalfYearMember</ns1:explicitMember>\n      </ns0:segment>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-05-01</ns0:startDate>\n      <ns0:endDate>2026-07-31</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  ",
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" xmlns:ns1=\"http://xbrl.org/2006/xbrldi\" id=\"CFY2026dFQA_dart-gcd_StatementInformationAxis_dart-gcd_ConsolidatedMember\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">01957282</ns0:identifier>\n      <ns0:segment>\n        <ns1:explicitMember dimension=\"dart-gcd:StatementInformationAxis\">dart-gcd:ConsolidatedMember</ns1:explicitMember>\n      </ns0:segment>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-05-01</ns0:startDate>\n      <ns0:endDate>2026-07-31</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  ",
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" xmlns:ns1=\"http://xbrl.org/2006/xbrldi\" id=\"CFY2026dFQA_dart-gcd_StatementInformationAxis_dart-gcd_SeparateMember\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">01957282</ns0:identifier>\n      <ns0:segment>\n        <ns1:explicitMember dimension=\"dart-gcd:StatementInformationAxis\">dart-gcd:SeparateMember</ns1:explicitMember>\n      </ns0:segment>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-05-01</ns0:startDate>\n      <ns0:endDate>2026-07-31</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  ",
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" xmlns:ns1=\"http://xbrl.org/2006/xbrldi\" id=\"CFY2026dFQA_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_ConsolidatedMember\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">01957282</ns0:identifier>\n      <ns0:segment>\n        <ns1:explicitMember dimension=\"ifrs-full:ConsolidatedAndSeparateFinancialStatementsAxis\">ifrs-full:ConsolidatedMember</ns1:explicitMember>\n      </ns0:segment>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-05-01</ns0:startDate>\n      <ns0:endDate>2026-07-31</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  ",
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" xmlns:ns1=\"http://xbrl.org/2006/xbrldi\" id=\"CFY2026dFQA_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_ConsolidatedMember_ifrs-full_ComponentsOfEquityAxis_dart_CapitalSurplusMember\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">01957282</ns0:identifier>\n      <ns0:segment>\n        <ns1:explicitMember dimension=\"ifrs-full:ConsolidatedAndSeparateFinancialStatementsAxis\">ifrs-full:ConsolidatedMember</ns1:explicitMember>\n        <ns1:explicitMember dimension=\"ifrs-full:ComponentsOfEquityAxis\">dart:CapitalSurplusMember</ns1:explicitMember>\n      </ns0:segment>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-05-01</ns0:startDate>\n      <ns0:endDate>2026-07-31</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  ",
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" xmlns:ns1=\"http://xbrl.org/2006/xbrldi\" id=\"CFY2026dFQA_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_ConsolidatedMember_ifrs-full_ComponentsOfEquityAxis_dart_ElementsOfOtherStockholdersEquityMember\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">01957282</ns0:identifier>\n      <ns0:segment>\n        <ns1:explicitMember dimension=\"ifrs-full:ConsolidatedAndSeparateFinancialStatementsAxis\">ifrs-full:ConsolidatedMember</ns1:explicitMember>\n        <ns1:explicitMember dimension=\"ifrs-full:ComponentsOfEquityAxis\">dart:ElementsOfOtherStockholdersEquityMember</ns1:explicitMember>\n      </ns0:segment>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-05-01</ns0:startDate>\n      <ns0:endDate>2026-07-31</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  ",
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" xmlns:ns1=\"http://xbrl.org/2006/xbrldi\" id=\"CFY2026dFQA_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_ConsolidatedMember_ifrs-full_ComponentsOfEquityAxis_ifrs-full_EquityAttributableToOwnersOfParentMember\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">01957282</ns0:identifier>\n      <ns0:segment>\n        <ns1:explicitMember dimension=\"ifrs-full:ConsolidatedAndSeparateFinancialStatementsAxis\">ifrs-full:ConsolidatedMember</ns1:explicitMember>\n        <ns1:explicitMember dimension=\"ifrs-full:ComponentsOfEquityAxis\">ifrs-full:EquityAttributableToOwnersOfParentMember</ns1:explicitMember>\n      </ns0:segment>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-05-01</ns0:startDate>\n      <ns0:endDate>2026-07-31</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  ",
+      "<ns0:context xmlns:ns0=\"http://www.xbrl.org/2003/instance\" xmlns:ns1=\"http://xbrl.org/2006/xbrldi\" id=\"CFY2026dFQA_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_ConsolidatedMember_ifrs-full_ComponentsOfEquityAxis_ifrs-full_IssuedCapitalMember\">\n    <ns0:entity>\n      <ns0:identifier scheme=\"http://dart.fss.or.kr/ifrs/CIK\">01957282</ns0:identifier>\n      <ns0:segment>\n        <ns1:explicitMember dimension=\"ifrs-full:ConsolidatedAndSeparateFinancialStatementsAxis\">ifrs-full:ConsolidatedMember</ns1:explicitMember>\n        <ns1:explicitMember dimension=\"ifrs-full:ComponentsOfEquityAxis\">ifrs-full:IssuedCapitalMember</ns1:explicitMember>\n      </ns0:segment>\n    </ns0:entity>\n    <ns0:period>\n      <ns0:startDate>2026-05-01</ns0:startDate>\n      <ns0:endDate>2026-07-31</ns0:endDate>\n    </ns0:period>\n  </ns0:context>\n  "
+    ],
+    "assets": [
+      {
+        "tag": "{https://xbrl.ifrs.org/taxonomy/2024-03-27/ifrs-full}Assets",
+        "attrs": {
+          "contextRef": "CFY2026eFQA_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_ConsolidatedMember",
+          "unitRef": "GBP",
+          "decimals": "0"
+        },
+        "value": "19915269"
+      },
+      {
+        "tag": "{https://xbrl.ifrs.org/taxonomy/2024-03-27/ifrs-full}Assets",
+        "attrs": {
+          "contextRef": "CFY2026eFQA_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_SeparateMember",
+          "unitRef": "GBP",
+          "decimals": "0"
+        },
+        "value": "15176503"
+      },
+      {
+        "tag": "{https://xbrl.ifrs.org/taxonomy/2024-03-27/ifrs-full}Assets",
+        "attrs": {
+          "contextRef": "PFY2025eFQ_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_ConsolidatedMember",
+          "unitRef": "GBP",
+          "decimals": "0"
+        },
+        "value": "21007936"
+      },
+      {
+        "tag": "{https://xbrl.ifrs.org/taxonomy/2024-03-27/ifrs-full}Assets",
+        "attrs": {
+          "contextRef": "PFY2025eFQ_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_SeparateMember",
+          "unitRef": "GBP",
+          "decimals": "0"
+        },
+        "value": "16994666"
+      }
+    ],
+    "printedBodyUri": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260923000617&dcmNo=11591326&eleId=17&offset=236056&length=471436&dtd=dart4.xsd",
+    "printedAmountsVerified": {
+      "19,915,269": true,
+      "15,176,503": true
+    }
+  }
+]

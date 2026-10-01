@@ -6,8 +6,10 @@ import '../../generated/protocol.dart';
 import '../dart/dart_client.dart';
 import '../dart/dart_report_name.dart';
 import '../dart/dart_values.dart';
+import '../dart/public_financial_xbrl.dart';
 import 'api_call_budget.dart';
 import 'financial_rows.dart';
+import 'financial_period_repair.dart';
 import 'ingest_jobs.dart';
 
 /// DART 정기보고서의 전체 재무제표를 수집한다.
@@ -118,12 +120,17 @@ class FinancialFactsSync {
 
   /// 한도 소진 시 이어받기를 예약한다. null이면 예약하지 않는다.
   final Future<void> Function(DateTime at)? scheduleResume;
+  int _xbrlCoreRecovered = 0;
+  int _calendarYearRepairCalls = 0;
+  int _periodMetadataRepaired = 0;
+  static const calendarYearRepairReserve = 40;
 
   final DateTime Function() _clock;
   late final _meter = ApiCallMeter(ApiProvider.dart, () => dart.calls);
 
   /// 이번 작업에서 쓸 수 있는 호출 수.
   late int _allowance;
+  late int _sharedAllowance;
   bool _budgetExhausted = false;
 
   bool get _hasAllowance {
@@ -157,6 +164,7 @@ class FinancialFactsSync {
         now: now,
       );
       _allowance = dailyBudget - usedToday;
+      _sharedAllowance = max(0, ApiCallBudget.dartDailyLimit - usedToday);
       _feedAllowance = min(
         feedReserve,
         max(0, ApiCallBudget.dartDailyLimit - usedToday),
@@ -166,7 +174,8 @@ class FinancialFactsSync {
         for (final c in await Company.db.find(
           session,
           where: (t) {
-            final listed = t.market.inSet(_listedMarkets);
+            final listed =
+                t.market.inSet(_listedMarkets) | t.stockCode.notEquals(null);
             final code = corpCode;
             return code == null ? listed : listed & t.corpCode.equals(code);
           },
@@ -192,6 +201,35 @@ class FinancialFactsSync {
               t.reportCode.notEquals(null),
         ),
       );
+      // A prior interim query used the canonical fiscal-end year as the API
+      // year. Retry that precise latest-scope noData once with the report-end
+      // calendar year, preserving all historical ledgers and attempt counts.
+      if (job.status != IngestStatus.cancelled) {
+        for (final f in await DartFiling.db.find(
+          session,
+          where: (t) => t.id.inSet(scopeIds),
+        )) {
+          final year = DartReportName.parse(f.reportName)?.periodYear;
+          if (f.reportCode == FinancialReportCode.annual ||
+              year == null ||
+              year == f.bsnsYear ||
+              f.consolidatedStatus != FilingFetchStatus.noData ||
+              f.separateStatus != FilingFetchStatus.noData ||
+              f.attempts >= maxAttempts ||
+              (f.lastError?.contains(_apiYearRetryMarker) ?? false)) {
+            continue;
+          }
+          await DartFiling.db.updateRow(
+            session,
+            f.copyWith(
+              consolidatedStatus: FilingFetchStatus.pending,
+              separateStatus: FilingFetchStatus.pending,
+              lastError:
+                  '$_apiYearRetryMarker: request $year, canonical ${f.bsnsYear}',
+            ),
+          );
+        }
+      }
       final targets = job.status == IngestStatus.cancelled
           ? const <DartFiling>[]
           : await DartFiling.db.find(
@@ -202,7 +240,9 @@ class FinancialFactsSync {
                   (only == null
                       ? t.companyId.notEquals(null)
                       : t.companyId.equals(only.id!)) &
-                  t.attempts.between(0, maxAttempts - 1) &
+                  (t.attempts.between(0, maxAttempts - 1) |
+                      (t.reportCode.equals(FinancialReportCode.annual) &
+                          t.lastError.like('%DartApiException(mismatch)%'))) &
                   (_needsFetch(t.consolidatedStatus) |
                       _needsFetch(t.separateStatus)),
               orderByList: (t) => [t.receivedDate.desc(), t.rceptNo.desc()],
@@ -216,7 +256,11 @@ class FinancialFactsSync {
           job = job.copyWith(status: IngestStatus.cancelled);
           break;
         }
-        if (!_hasAllowance) break;
+        if (!_hasAllowance &&
+            !_priorAnnualMismatch(filing) &&
+            !_isCalendarYearRepair(filing)) {
+          continue;
+        }
         final company = byId[filing.companyId];
         if (company == null) {
           processed++;
@@ -226,7 +270,8 @@ class FinancialFactsSync {
         stored += result.stored;
         if (result.failed) failed++;
         processed++;
-        if (_budgetExhausted) break;
+        // Already verified mismatches can continue with keyless originals.
+        // Ordinary API targets remain blocked by _hasAllowance above.
         if (processed % _progressEvery == 0) {
           await _meter.flush(session);
           // 주요정보 수집이 함께 돌면 시작할 때 계산한 몫만으로는 하루 한도를 넘길 수 있다.
@@ -257,11 +302,27 @@ class FinancialFactsSync {
             (only == null
                 ? t.companyId.notEquals(null)
                 : t.companyId.equals(only.id!)) &
-            t.attempts.between(0, maxAttempts - 1) &
+            (_needsFetch(t.consolidatedStatus) | _needsFetch(t.separateStatus)),
+      );
+      final exhausted = await DartFiling.db.count(
+        session,
+        where: (t) =>
+            t.id.inSet(scopeIds) &
+            t.attempts.between(maxAttempts, 2147483647) &
             (_needsFetch(t.consolidatedStatus) | _needsFetch(t.separateStatus)),
       );
       final cancelled = job.status == IngestStatus.cancelled;
       var message = '새 공시 $discovered건, 저장한 재무제표 $stored벌, 남은 공시 $remaining건';
+      if (exhausted > 0) message += ', 재시도 한도에 도달한 미완료 $exhausted건';
+      if (_xbrlCoreRecovered > 0) {
+        message += ', 원문 XBRL 핵심계정 복구 $_xbrlCoreRecovered벌(전체 재무제표 아님)';
+      }
+      if (_calendarYearRepairCalls > 0) {
+        message += ', 보고기간 조회연도 보완 $_calendarYearRepairCalls호출(최대40, 공통한도 내)';
+      }
+      if (_periodMetadataRepaired > 0) {
+        message += ', 동일접수·원천값 검증 후 회계연도 메타데이터 복구 $_periodMetadataRepaired벌';
+      }
       if (feedRows > 0) message += ', 공시 피드 $feedRows건';
       if (only != null) message = '${only.name}: $message';
       if (_budgetExhausted && !cancelled && only == null) {
@@ -278,7 +339,7 @@ class FinancialFactsSync {
         job.copyWith(
           status: cancelled
               ? IngestStatus.cancelled
-              : failed > 0
+              : failed > 0 || exhausted > 0
               ? IngestStatus.failed
               : IngestStatus.succeeded,
           processed: processed,
@@ -540,12 +601,56 @@ class FinancialFactsSync {
     }
   }
 
+  static const _apiYearRetryMarker = 'report-end-calendar-api-year-retried';
+
+  static bool _isCalendarYearRepair(DartFiling filing) =>
+      filing.reportCode != FinancialReportCode.annual &&
+      DartReportName.parse(filing.reportName)?.periodYear != filing.bsnsYear &&
+      (filing.lastError?.contains(_apiYearRetryMarker) ?? false);
+
+  Future<bool> _canRepairCalendarYear() async {
+    if (_calendarYearRepairCalls >= calendarYearRepairReserve ||
+        dart.calls >= _sharedAllowance) {
+      return false;
+    }
+    // Include feed and other workers' persisted calls before every division.
+    await _meter.flush(session);
+    return await ApiCallBudget.usedToday(
+          session,
+          ApiProvider.dart,
+          now: _clock().toUtc(),
+        ) <
+        ApiCallBudget.dartDailyLimit;
+  }
+
+  /// Storage uses the fiscal-end year; DART queries use the actual report-end
+  /// calendar year. In December these coincide.
+  static int apiRequestYear(DartFiling filing) {
+    final year = DartReportName.parse(filing.reportName)?.periodYear;
+    if (year == null) throw DartApiException('period', '공시 보고기간을 확인할 수 없음');
+    return year;
+  }
+
+  static bool _sameActualPeriod(String first, String second) {
+    final a = DartReportName.parse(first), b = DartReportName.parse(second);
+    return a != null &&
+        b != null &&
+        a.kind == b.kind &&
+        a.periodYear == b.periodYear &&
+        a.periodMonth == b.periodMonth;
+  }
+
+  static bool _priorAnnualMismatch(DartFiling filing) =>
+      filing.reportCode == FinancialReportCode.annual &&
+      (filing.lastError?.contains('DartApiException(mismatch)') ?? false);
+
   /// 공시 하나의 연결·별도 재무제표를 받는다. 새로 저장한 벌 수와 실패 여부.
   Future<({int stored, bool failed})> _fetchFiling(
     DartFiling filing,
     Company company,
   ) async {
     var next = filing;
+    ({List<int> zip, Uri source})? originalAnnual;
     var stored = 0;
     var failed = false;
     for (final div in FsDiv.values) {
@@ -556,19 +661,31 @@ class FinancialFactsSync {
           status != FilingFetchStatus.failed) {
         continue;
       }
-      if (!_hasAllowance) break;
+      final repairCall = !_hasAllowance && _isCalendarYearRepair(filing);
+      if (!_hasAllowance && !_priorAnnualMismatch(filing) && !repairCall) break;
+      if (repairCall && !await _canRepairCalendarYear()) break;
 
       FilingFetchStatus result;
       String? error;
       try {
+        if (_priorAnnualMismatch(filing)) {
+          // The ledger already records a verified API mismatch. Public original
+          // recovery needs no new key-bearing API call or allowance.
+          throw DartApiException(
+            'mismatch',
+            'previous annual API period mismatch',
+          );
+        }
+        if (repairCall) _calendarYearRepairCalls++;
         final rows = await _callDart(
           () => dart.fetchFinancialStatements(
             corpCode: company.corpCode,
-            bsnsYear: filing.bsnsYear!,
+            bsnsYear: apiRequestYear(filing),
             reportCode: FinancialCodes.reportCodeToDart(filing.reportCode!),
             fsDiv: FinancialCodes.fsDivToDart(div),
           ),
         );
+        if (repairCall) await _meter.flush(session);
         final saved = await _store(filing, company, div, rows);
         result = saved.status;
         if (saved.inserted) stored++;
@@ -578,13 +695,66 @@ class FinancialFactsSync {
           break;
         }
         if (e.isFatal || e.status == 'http') rethrow;
-        result = FilingFetchStatus.failed;
-        error = '${FinancialCodes.fsDivName(div)}: $e';
-        failed = true;
-        session.log(
-          '재무제표 실패 ${company.corpCode} ${filing.rceptNo}: $e',
-          level: LogLevel.warning,
-        );
+        if (e.status == 'mismatch' &&
+            filing.reportCode == FinancialReportCode.annual) {
+          ({List<Map<String, dynamic>> rows, Uri source, String digest})?
+          fallback;
+          try {
+            final period = RegExp(r'\((\d{4})\.(\d{2})\)')
+                .firstMatch(filing.reportName);
+            if (period == null) {
+              throw const FormatException('Annual period missing');
+            }
+            final end = DateTime.utc(
+              int.parse(period.group(1)!),
+              int.parse(period.group(2)!) + 1,
+              0,
+            );
+            final original = originalAnnual ??= await dart
+                .fetchPublicAnnualXbrl(filing.rceptNo);
+            fallback = (
+              rows: PublicFinancialXbrl.parse(
+                original.zip,
+                receipt: filing.rceptNo,
+                corpCode: company.corpCode,
+                bsnsYear: filing.bsnsYear!,
+                periodEnd: end,
+                consolidated: div == FsDiv.consolidated,
+              ),
+              source: original.source,
+              digest: PublicFinancialXbrl.digest(original.zip),
+            );
+          } catch (_) {
+            error =
+                '${FinancialCodes.fsDivName(div)}: API period mismatch; exact-receipt XBRL fallback failed';
+          }
+          if (fallback != null) {
+            final saved = await _store(
+              filing,
+              company,
+              div,
+              fallback.rows,
+              originalSource: fallback.source,
+              originalDigest: fallback.digest,
+            );
+            result = saved.status;
+            if (saved.inserted) {
+              stored++;
+              _xbrlCoreRecovered++;
+            }
+          } else {
+            result = FilingFetchStatus.failed;
+            failed = true;
+          }
+        } else {
+          result = FilingFetchStatus.failed;
+          error = '${FinancialCodes.fsDivName(div)}: $e';
+          failed = true;
+          session.log(
+            '재무제표 실패 ${company.corpCode} ${filing.rceptNo}: $e',
+            level: LogLevel.warning,
+          );
+        }
       }
       next = next.copyWith(
         consolidatedStatus: div == FsDiv.consolidated ? result : null,
@@ -615,8 +785,10 @@ class FinancialFactsSync {
     DartFiling filing,
     Company company,
     FsDiv div,
-    List<Map<String, dynamic>>? rows,
-  ) async {
+    List<Map<String, dynamic>>? rows, {
+    Uri? originalSource,
+    String? originalDigest,
+  }) async {
     if (rows == null || rows.isEmpty) {
       return (status: FilingFetchStatus.noData, inserted: false);
     }
@@ -630,7 +802,7 @@ class FinancialFactsSync {
     // 사업연도·보고서 코드 판정이 어긋나면 다른 기간의 재무가 온다. 응답의 회사·연도·코드로 확인한다.
     final expected = (
       company.corpCode,
-      '${filing.bsnsYear}',
+      '${apiRequestYear(filing)}',
       FinancialCodes.reportCodeToDart(filing.reportCode!),
     );
     for (final r in rows) {
@@ -643,11 +815,53 @@ class FinancialFactsSync {
         throw DartApiException('mismatch', '요청 $expected와 응답 $actual이 다름');
       }
     }
+    // The API can return an older receipt for an unchanged attachment. Never
+    // infer its period from query parameters: require an actual same-period
+    // filing already in the ledger (or the exact requested receipt).
+    final actualFiling = rceptNo == filing.rceptNo
+        ? filing
+        : await DartFiling.db.findFirstRow(
+            session,
+            where: (t) => t.rceptNo.equals(rceptNo),
+          );
+    if (actualFiling == null ||
+        actualFiling.companyId != company.id ||
+        actualFiling.corpCode != company.corpCode ||
+        actualFiling.bsnsYear != filing.bsnsYear ||
+        actualFiling.reportCode != filing.reportCode ||
+        !_sameActualPeriod(actualFiling.reportName, filing.reportName)) {
+      throw DartApiException(
+        'receiptPeriodMismatch',
+        '응답 접수번호 $rceptNo의 동일 기업·보고기간을 확인할 수 없음',
+      );
+    }
     final existing = await FinancialReport.db.findFirstRow(
       session,
       where: (t) => t.rceptNo.equals(rceptNo) & t.fsDiv.equals(div),
     );
     if (existing != null) {
+      if (existing.companyId != company.id ||
+          existing.bsnsYear != filing.bsnsYear ||
+          existing.reportCode != filing.reportCode ||
+          existing.fsDiv != div ||
+          !_sameActualPeriod(existing.reportName, actualFiling.reportName)) {
+        if (rceptNo == filing.rceptNo &&
+            await FinancialPeriodRepair.repair(
+              session,
+              existing: existing,
+              filing: filing,
+              company: company,
+              div: div,
+              freshRows: rows,
+            )) {
+          _periodMetadataRepaired++;
+          return (status: FilingFetchStatus.stored, inserted: false);
+        }
+        throw DartApiException(
+          'storedPeriodMismatch',
+          '기존 재무보고서 $rceptNo의 저장 기간이 공시 원장과 다름; 별도 출처 검증·복구 필요',
+        );
+      }
       return (status: FilingFetchStatus.stored, inserted: false);
     }
 
@@ -661,7 +875,16 @@ class FinancialFactsSync {
               ))?.reportName ??
               filing.reportName.replaceFirst(RegExp(r'^(\[[^\]]+\]\s*)+'), '');
     try {
-      await _insert(filing, company, div, rows, rceptNo, reportName);
+      await _insert(
+        filing,
+        company,
+        div,
+        rows,
+        rceptNo,
+        reportName,
+        originalSource: originalSource,
+        originalDigest: originalDigest,
+      );
     } on DatabaseUniqueViolationException {
       // 전체 수집과 기업 하나 수집이 같은 보고서를 동시에 저장하면 늦은 쪽이 여기로 온다.
       return (status: FilingFetchStatus.stored, inserted: false);
@@ -680,8 +903,10 @@ class FinancialFactsSync {
     FsDiv div,
     List<Map<String, dynamic>> rows,
     String rceptNo,
-    String reportName,
-  ) async {
+    String reportName, {
+    Uri? originalSource,
+    String? originalDigest,
+  }) async {
     final now = DateTime.now().toUtc();
     final bsnsYear = filing.bsnsYear!;
     final reportCode = filing.reportCode!;
@@ -701,11 +926,13 @@ class FinancialFactsSync {
         session,
         Source(
           kind: SourceKind.dartReport,
-          title:
-              'DART 전체 재무제표 (fnlttSinglAcntAll) · $reportName · '
-              '${FinancialCodes.fsDivName(div)}',
+          title: originalSource != null
+              ? 'DART 원문 XBRL 핵심계정 · $reportName · ${FinancialCodes.fsDivName(div)} · SHA256:$originalDigest'
+              : 'DART 전체 재무제표 (fnlttSinglAcntAll) · $reportName · '
+                    '${FinancialCodes.fsDivName(div)}',
           reference: rceptNo,
-          url: DartClient.filingViewerUrl(rceptNo).toString(),
+          url: (originalSource ?? DartClient.filingViewerUrl(rceptNo))
+              .toString(),
           retrievedAt: now,
         ),
         transaction: tx,

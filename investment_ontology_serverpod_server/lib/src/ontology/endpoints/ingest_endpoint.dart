@@ -17,7 +17,8 @@ import '../ingest/api_call_budget.dart';
 import '../ingest/company_master_sync.dart';
 import '../ingest/disclosure_sync.dart';
 import '../ingest/financial_facts_sync.dart';
-import '../ingest/financial_collection_scope.dart';
+import '../ingest/business_collection_scope.dart';
+import '../ingest/market_collection_coverage.dart';
 import '../ingest/ingest_jobs.dart';
 import '../ingest/ingest_hooks.dart';
 import '../ingest/market_snapshot_sync.dart';
@@ -154,6 +155,20 @@ class IngestEndpoint extends Endpoint {
     });
   }
 
+  /// 주요정보 28종과 별도로 과거 5년 사업 본문과 최신 분기·반기 본문을 받는다.
+  Future<IngestJob> startBusinessDocuments(Session session) async {
+    OntologyAccess.requireAdmin(session);
+    _requireDartKey(session);
+    return IngestJobs.startAndSchedule(
+      session,
+      DisclosureSync.businessKind,
+      (job) => IngestHooks.require(
+        IngestHooks.businessDocumentsNow,
+        'businessDocumentsNow',
+      )(session, job.id!),
+    );
+  }
+
   /// 주요정보의 인물 연결과 관계 색인을 다시 만든다 (DART 호출 없음). 연결 규칙을 고친 뒤 쓴다.
   Future<String> rebuildDisclosureLinks(Session session) async {
     OntologyAccess.requireAdmin(session);
@@ -190,7 +205,7 @@ class IngestEndpoint extends Endpoint {
   /// 수집 현황. 층마다 얼마나 받았는지 한 번에 센다.
   Future<IngestCoverage> coverage(Session session) async {
     final rows = await session.db.unsafeQuery('''
-      WITH ${FinancialCollectionScope.cte}
+      WITH ${BusinessCollectionScope.cte}
       SELECT
         (SELECT count(*) FROM company WHERE "stockCode" IS NOT NULL),
         (SELECT count(DISTINCT r."companyId") FROM financial_report r
@@ -221,9 +236,18 @@ class IngestEndpoint extends Endpoint {
             WHERE s."filingId"=f.id AND s.section='businessContent'
               AND s.status='stored' AND b."companyId"=f."companyId"
               AND b."rceptNo"=f."rceptNo"
-          ))
+          )),
+        (SELECT count(*) FROM financial_scope WHERE "consolidatedStatus"='stored' OR "separateStatus"='stored'),
+        (SELECT count(*) FROM financial_scope WHERE "consolidatedStatus"='noData' AND "separateStatus"='noData'),
+        (SELECT count(*) FROM financial_scope WHERE "consolidatedStatus"='failed' OR "separateStatus"='failed'),
+        (SELECT count(*) FROM financial_scope WHERE "consolidatedStatus"='pending' OR "separateStatus"='pending'),
+        (SELECT count(*) FROM business_scope),
+        (SELECT count(*) FROM business_scope WHERE body_stored),
+        (SELECT count(*) FROM business_scope WHERE NOT body_stored AND NOT (body_status IN ('failed','unsupported') OR (body_status='noData' AND body_attempts>=${DisclosureSync.maxAttempts}))),
+        (SELECT count(*) FROM business_scope WHERE NOT body_stored AND (body_status IN ('failed','unsupported') OR (body_status='noData' AND body_attempts>=${DisclosureSync.maxAttempts})))
     ''');
     final v = [for (final x in rows.first) (x as int?) ?? 0];
+    final market = await MarketCollectionCoverage.read(session);
     return IngestCoverage(
       listedCompanies: v[0],
       companiesWithFinancials: v[1],
@@ -240,6 +264,25 @@ class IngestEndpoint extends Endpoint {
       companiesWithBusinessText: v[12],
       companiesWithDigest: v[13],
       companiesWithLatestBusinessText: v[14],
+      financialStoredFilings: v[15],
+      financialNoDataFilings: v[16],
+      financialFailedFilings: v[17],
+      financialPendingFilings: v[18],
+      bodyScopeTotal: v[19],
+      bodyScopeStored: v[20],
+      bodyScopePending: v[21],
+      bodyScopeFailed: v[22],
+      marketLatestPriceDate: market.latestPriceDate,
+      marketLatestPriceSecurities: market.latestPriceSecurities,
+      marketLatestIndexDate: market.latestIndexDate,
+      marketLatestIndexCount: market.latestIndexCount,
+      marketScopeStart: market.scopeStart,
+      marketScopeThrough: market.scopeThrough,
+      marketExpectedWeekdays: market.expectedWeekdays,
+      marketPriceDaysStored: market.priceDaysStored,
+      marketIndexDaysStored: market.indexDaysStored,
+      marketHistoricalPendingDates: market.historicalPendingDates,
+      marketRecentUnconfirmedDates: market.recentUnconfirmedDates,
       dartCallsToday: await ApiCallBudget.usedToday(session, ApiProvider.dart),
       dartDailyLimit: ApiCallBudget.dartDailyLimit,
       dartFinancialBudget: ApiCallBudget.dartFinancialBudget,
@@ -281,8 +324,15 @@ class IngestEndpoint extends Endpoint {
         'financial_facts_resume',
       ),
       (
+        DisclosureSync.businessKind,
+        '사업 본문',
+        '매일 18:45 · 과거 5년 사업보고서와 최신 분기·반기',
+        'business_documents_daily',
+        'business_documents_resume',
+      ),
+      (
         DisclosureSync.kind,
-        'DART 주요정보 · 사업의 내용',
+        'DART 주요정보',
         '매일 19:00 (한도를 다 쓰면 다음 날 00:05에 이어서)',
         'disclosures_daily',
         'disclosures_resume',

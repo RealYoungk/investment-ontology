@@ -75,6 +75,7 @@ ingest:
   - startCompanyMaster:
   - startFinancials:
   - startDisclosures:
+  - startBusinessDocuments:
   - rebuildDisclosureLinks:
   - startMarketSnapshot:
   - cancel:

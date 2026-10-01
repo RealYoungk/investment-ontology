@@ -116,11 +116,43 @@ void main() {
       }
     });
 
+    test('재시도 한도에 도달한 빈 본문은 대기가 아닌 실패로 표시한다', () async {
+      final filing = (await DartFiling.db.find(
+        session,
+        orderBy: (t) => t.rceptNo.desc(),
+      )).first;
+      await DartFilingSection.db.insertRow(
+        session,
+        DartFilingSection(
+          filingId: filing.id!,
+          companyId: filing.companyId!,
+          bsnsYear: filing.bsnsYear!,
+          section: DartSection.businessContent,
+          tier: 2,
+          status: FilingFetchStatus.noData,
+          attempts: 3,
+        ),
+      );
+      final value = await endpoints.ingest.coverage(sessionBuilder);
+      expect(value.bodyScopeStored, 0);
+      expect(value.bodyScopePending, 0);
+      expect(value.bodyScopeFailed, 1);
+    });
+
     test('층마다 받은 수와 전체 수를 센다', () async {
       final v = await endpoints.ingest.coverage(sessionBuilder);
       expect(v.listedCompanies, 2);
       expect(v.filingsTotal, 1, reason: '같은 기간의 최종 정정 접수번호만 수집 대상이다');
       expect(v.filingsPending, 1);
+      expect(v.financialStoredFilings, 1);
+      expect(v.financialPendingFilings, 1);
+      expect(v.financialFailedFilings, 0);
+      expect(v.bodyScopeTotal, 1);
+      expect(v.bodyScopeStored, 0, reason: '공시 섹션 처리와 실제 본문 저장은 별개');
+      expect(v.bodyScopePending, 1);
+      expect(v.marketLatestPriceDate, isNull);
+      expect(v.marketScopeThrough, isNull);
+
       expect(v.prioritySections, 2);
       expect(v.prioritySectionsDone, 1);
       expect(v.sections, 4);

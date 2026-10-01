@@ -81,6 +81,13 @@ void main() {
     final futureCalls = File(
       'lib/src/generated/future_calls.dart',
     ).readAsStringSync();
+    for (final method in [
+      'CompanyMasterRetryFutureCall',
+      'DisclosureRunBusinessFutureCall',
+      'DisclosureResumeBusinessFutureCall',
+    ]) {
+      expect(futureCalls, contains("'$method':"), reason: method);
+    }
     final names = [
       for (final m in RegExp(
         r'class (\w+)FutureCall extends FutureCall',

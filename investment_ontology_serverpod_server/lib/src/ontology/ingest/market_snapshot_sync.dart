@@ -108,6 +108,7 @@ class MarketSnapshotSync {
     var job = claimed;
     var processed = 0, stored = 0, failed = 0;
     final failures = <String>[];
+    var targetDates = <DateTime>[];
     try {
       final now = _clock().toUtc();
       _allowance =
@@ -126,7 +127,7 @@ class MarketSnapshotSync {
         for (final d in await MarketSnapshotDay.db.find(session))
           d.baseDate.millisecondsSinceEpoch,
       };
-      final dates = <DateTime>[
+      final dates = targetDates = <DateTime>[
         for (
           var d = today.subtract(const Duration(days: 1));
           !d.isBefore(start);
@@ -231,9 +232,22 @@ class MarketSnapshotSync {
         }
       }
 
-      final remaining = dates.length - processed + failed;
+      final remaining = await _pendingPriceDates(targetDates);
+      final priceDays = await MarketSnapshotDay.db.find(
+        session,
+        where: (t) => t.baseDate >= start,
+      );
+      final indexDates = {
+        for (final day in await MarketIndexDay.db.find(session))
+          day.baseDate.millisecondsSinceEpoch,
+      };
+      final pendingIndexes = priceDays
+          .where(
+            (day) => !indexDates.contains(day.baseDate.millisecondsSinceEpoch),
+          )
+          .length;
       var message =
-          '시세 $stored일 저장, 남은 기준일 $remaining일, 지수 $indexDays일 저장, 기업 연결 종목 $linked개';
+          '시세 $stored일 저장, 남은 기준일 $remaining일, 지수 $indexDays일 저장, 지수 미완료 $pendingIndexes일, 기업 연결 종목 $linked개';
       if (_budgetExhausted && !cancelled) {
         final at = ApiCallBudget.nextKstMidnight(
           now,
@@ -285,7 +299,7 @@ class MarketSnapshotSync {
           apiCalls: client.calls,
           finishedAt: DateTime.now().toUtc(),
           message:
-              '시세 $stored일 저장, 미완료 기준일 ${job.total - processed + failed}일 · $e'
+              '시세 $stored일 저장, 미완료 기준일 ${await _pendingPriceDates(targetDates)}일 · $e'
               '${retry ? ' · 15분 후 자동 재시도 예약' : ''}',
         ),
       );
@@ -425,6 +439,18 @@ class MarketSnapshotSync {
         transaction: tx,
       );
     });
+  }
+
+  Future<int> _pendingPriceDates(List<DateTime> dates) async {
+    final storedDates = {
+      for (final day in await MarketSnapshotDay.db.find(session))
+        day.baseDate.millisecondsSinceEpoch,
+    };
+    return dates
+        .where(
+          (date) => !storedDates.contains(date.millisecondsSinceEpoch),
+        )
+        .length;
   }
 
   /// 지수시세를 받는다. 거래일·휴장일은 시세 장부([MarketSnapshotDay])를 따른다 —

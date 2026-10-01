@@ -33,6 +33,7 @@ void main() {
       'master': () => endpoints.ingest.startCompanyMaster(reader),
       'financials': () => endpoints.ingest.startFinancials(reader),
       'disclosures': () => endpoints.ingest.startDisclosures(reader),
+      'business bodies': () => endpoints.ingest.startBusinessDocuments(reader),
       'market': () => endpoints.ingest.startMarketSnapshot(reader),
       'cancel': () => endpoints.ingest.cancel(reader, 1),
       'rebuild links': () => endpoints.ingest.rebuildDisclosureLinks(reader),

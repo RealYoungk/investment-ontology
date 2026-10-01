@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart';
 
 import 'dart_values.dart';
+import 'public_financial_xbrl.dart';
 import '../ingest/api_error_message.dart';
 
 /// DART OpenAPI (https://opendart.fss.or.kr) 호출 오류.
@@ -96,6 +97,9 @@ class DartClient {
 
   /// 호출 수 (한도 관리용).
   int calls = 0;
+
+  Future<({List<int> zip, Uri source})> fetchPublicAnnualXbrl(String receipt) =>
+      PublicFinancialXbrl(_http).fetch(receipt);
 
   static Uri companyPageUrl(String corpCode) => Uri.parse(
     'https://dart.fss.or.kr/dsab007/main.do?autoSearch=true&option=corp&textCrpCik=$corpCode',

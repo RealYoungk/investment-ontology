@@ -6,6 +6,7 @@ import 'package:serverpod/serverpod.dart';
 import '../../generated/future_calls.dart';
 import '../../generated/protocol.dart' show IngestStatus;
 import 'disclosure_sync.dart';
+import 'company_master_sync.dart';
 import 'financial_facts_sync.dart';
 import 'ingest_jobs.dart';
 import 'market_snapshot_sync.dart';
@@ -22,6 +23,7 @@ import '../peers/peer_catalog.dart';
 abstract final class IngestSchedule {
   /// 매일 자동 수집 예약 식별자.
   static const companyMasterDailyId = 'company_master_daily';
+  static const companyMasterResumeId = 'company_master_resume';
 
   /// 매일 08:30 KST에 신규·변경 기업을 등록한다.
   static const companyMasterDailyCron = '30 23 * * *';
@@ -29,6 +31,8 @@ abstract final class IngestSchedule {
   static const marketSnapshotDailyId = 'market_snapshot_daily';
   static const financialsDailyId = 'financial_facts_daily';
   static const disclosuresDailyId = 'disclosures_daily';
+  static const businessDocumentsDailyId = 'business_documents_daily';
+  static const businessDocumentsResumeId = 'business_documents_resume';
 
   /// 매일 18:00 KST(09:00 UTC) 시세. 전날 시세가 오후에 올라오므로 저녁에 받는다.
   static const marketSnapshotDailyCron = '0 9 * * *';
@@ -49,8 +53,14 @@ abstract final class IngestSchedule {
     final r = await IngestJobs.recoverInterrupted(session);
     final soon = DateTime.now().toUtc().add(const Duration(seconds: 10));
     for (final (kind, resumeId, resume) in [
+      (CompanyMasterSync.kind, companyMasterResumeId, companyMasterResume),
       (FinancialFactsSync.kind, financialsResumeId, financialsResume),
       (MarketSnapshotSync.kind, marketSnapshotResumeId, marketSnapshotResume),
+      (
+        DisclosureSync.businessKind,
+        businessDocumentsResumeId,
+        businessDocumentsResume,
+      ),
       (DisclosureSync.kind, disclosuresResumeId, disclosuresResume),
     ]) {
       if (r.orphaned.contains(kind)) {
@@ -105,6 +115,13 @@ abstract final class IngestSchedule {
           .financialFacts
           .resume();
     }
+    if (!await _scheduled(session, businessDocumentsDailyId)) {
+      await session.serverpod.futureCalls
+          .callRecurring(identifier: businessDocumentsDailyId)
+          .cron('45 9 * * *')
+          .disclosure
+          .resumeBusiness();
+    }
     if (!await _scheduled(session, disclosuresDailyId)) {
       await session.serverpod.futureCalls
           .callRecurring(identifier: disclosuresDailyId)
@@ -124,6 +141,14 @@ abstract final class IngestSchedule {
   /// 이어받기 예약 식별자. 같은 예약이 쌓이지 않도록 하나만 둔다.
   static const financialsResumeId = 'financial_facts_resume';
   static const marketSnapshotResumeId = 'market_snapshot_resume';
+
+  static Future<void> companyMasterResume(Session session, DateTime at) async {
+    await session.serverpod.futureCalls.cancel(companyMasterResumeId);
+    await session.serverpod.futureCalls
+        .callAtTime(at, identifier: companyMasterResumeId)
+        .companyMaster
+        .retry();
+  }
 
   static Future<void> companyMasterNow(
     Session session,
@@ -173,6 +198,23 @@ abstract final class IngestSchedule {
         .resume();
   }
 
+  static Future<void> businessDocumentsNow(Session session, int jobId) =>
+      session.serverpod.futureCalls
+          .callWithDelay(Duration.zero)
+          .disclosure
+          .runBusiness(jobId);
+
+  static Future<void> businessDocumentsResume(
+    Session session,
+    DateTime at,
+  ) async {
+    await session.serverpod.futureCalls.cancel(businessDocumentsResumeId);
+    await session.serverpod.futureCalls
+        .callAtTime(at, identifier: businessDocumentsResumeId)
+        .disclosure
+        .resumeBusiness();
+  }
+
   static const disclosuresResumeId = 'disclosures_resume';
 
   static Future<void> disclosuresNow(Session session, int jobId) => session
@@ -207,12 +249,15 @@ abstract final class IngestSchedule {
 
   /// 엔드포인트·FutureCall이 쓰는 예약 함수를 등록한다.
   static void installHooks() {
+    IngestHooks.companyMasterResume = companyMasterResume;
     IngestHooks.companyMasterNow = companyMasterNow;
     IngestHooks.financialsNow = financialsNow;
     IngestHooks.financialsForCompanyNow = financialsForCompanyNow;
     IngestHooks.financialsResume = financialsResume;
     IngestHooks.marketSnapshotNow = marketSnapshotNow;
     IngestHooks.marketSnapshotResume = marketSnapshotResume;
+    IngestHooks.businessDocumentsNow = businessDocumentsNow;
+    IngestHooks.businessDocumentsResume = businessDocumentsResume;
     IngestHooks.disclosuresNow = disclosuresNow;
     IngestHooks.disclosuresForCompanyNow = disclosuresForCompanyNow;
     IngestHooks.disclosures = disclosuresResume;

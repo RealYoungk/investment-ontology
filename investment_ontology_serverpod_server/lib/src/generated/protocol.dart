@@ -63,6 +63,8 @@ import 'future_calls_generated_models/ai_extraction_future_call_run_model.dart'
     as _iskveedf;
 import 'future_calls_generated_models/company_master_future_call_run_model.dart'
     as _i8298vau;
+import 'future_calls_generated_models/disclosure_future_call_run_business_model.dart'
+    as _ip76fxv0;
 import 'future_calls_generated_models/disclosure_future_call_run_company_model.dart'
     as _iln8mnkp;
 import 'future_calls_generated_models/disclosure_future_call_run_model.dart'
@@ -5552,6 +5554,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _i8298vau.CompanyMasterFutureCallRunModel) {
       return _i8298vau.CompanyMasterFutureCallRunModel.fromJson(data) as T;
     }
+    if (t == _ip76fxv0.DisclosureFutureCallRunBusinessModel) {
+      return _ip76fxv0.DisclosureFutureCallRunBusinessModel.fromJson(data) as T;
+    }
     if (t == _iln8mnkp.DisclosureFutureCallRunCompanyModel) {
       return _iln8mnkp.DisclosureFutureCallRunCompanyModel.fromJson(data) as T;
     }
@@ -5988,6 +5993,12 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _is.getType<_i8298vau.CompanyMasterFutureCallRunModel?>()) {
       return (data != null
               ? _i8298vau.CompanyMasterFutureCallRunModel.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _is.getType<_ip76fxv0.DisclosureFutureCallRunBusinessModel?>()) {
+      return (data != null
+              ? _ip76fxv0.DisclosureFutureCallRunBusinessModel.fromJson(data)
               : null)
           as T;
     }
@@ -6975,6 +6986,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         'AiExtractionFutureCallRunModel',
       _i8298vau.CompanyMasterFutureCallRunModel =>
         'CompanyMasterFutureCallRunModel',
+      _ip76fxv0.DisclosureFutureCallRunBusinessModel =>
+        'DisclosureFutureCallRunBusinessModel',
       _iln8mnkp.DisclosureFutureCallRunCompanyModel =>
         'DisclosureFutureCallRunCompanyModel',
       _i9swl9ej.DisclosureFutureCallRunModel => 'DisclosureFutureCallRunModel',
@@ -7142,6 +7155,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'AiExtractionFutureCallRunModel';
       case _i8298vau.CompanyMasterFutureCallRunModel():
         return 'CompanyMasterFutureCallRunModel';
+      case _ip76fxv0.DisclosureFutureCallRunBusinessModel():
+        return 'DisclosureFutureCallRunBusinessModel';
       case _iln8mnkp.DisclosureFutureCallRunCompanyModel():
         return 'DisclosureFutureCallRunCompanyModel';
       case _i9swl9ej.DisclosureFutureCallRunModel():
@@ -7459,6 +7474,11 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'CompanyMasterFutureCallRunModel') {
       return deserialize<_i8298vau.CompanyMasterFutureCallRunModel>(
+        data['data'],
+      );
+    }
+    if (dataClassName == 'DisclosureFutureCallRunBusinessModel') {
+      return deserialize<_ip76fxv0.DisclosureFutureCallRunBusinessModel>(
         data['data'],
       );
     }
