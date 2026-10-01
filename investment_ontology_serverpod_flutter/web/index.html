@@ -3,6 +3,7 @@
 <head>
   <base href="$FLUTTER_BASE_HREF">
   <meta charset="UTF-8">
+  <meta name="google-adsense-account" content="ca-pub-4209548390738211">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="description" content="국내 상장사의 재무·지배구조·관계를 1차 공시에서 모아 탐색하는 알파인더">
@@ -83,6 +84,9 @@
   </style>
 </head>
 <body>
+  <!-- Local bridge only: no advertising request until an eligible slot mounts. -->
+  <script src="ad_consent.js"></script>
+  <script src="ad_loader.js"></script>
   <div id="splash">
     <div class="splash-content">
       <img class="mark" src="brand/alfinder-glass-splash.jpg" width="184" height="184" alt="" fetchpriority="high">
@@ -114,6 +118,7 @@
       }, { once: true });
     })();
   </script>
+  <script src="billing_loader.js" defer></script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

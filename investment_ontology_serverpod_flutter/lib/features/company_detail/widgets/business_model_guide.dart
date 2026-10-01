@@ -13,11 +13,13 @@ class BusinessModelGuide extends StatefulWidget {
     this.showGrowth = true,
     this.compact = false,
     this.summary,
+    this.framed = true,
   });
   final CompanyOverviewLesson lesson;
   final bool showGrowth;
   final bool compact;
   final String? summary;
+  final bool framed;
   @override
   State<BusinessModelGuide> createState() => _BusinessModelGuideState();
 }
@@ -35,14 +37,19 @@ class _BusinessModelGuideState extends State<BusinessModelGuide> {
     final c = context.colors, t = context.typo;
     final lesson = widget.lesson;
     final model = lesson.models[_selected];
-    Widget card(Widget child) => Material(
-      color: c.surface,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(color: c.border),
-        borderRadius: context.shape.borderRadius,
-      ),
-      child: Padding(padding: const EdgeInsets.all(AppSpace.lg), child: child),
-    );
+    Widget card(Widget child) => !widget.framed
+        ? child
+        : Material(
+            color: c.surface,
+            shape: RoundedRectangleBorder(
+              side: BorderSide(color: c.border),
+              borderRadius: context.shape.borderRadius,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpace.lg),
+              child: child,
+            ),
+          );
     if (widget.compact) {
       final summary = widget.summary ?? lesson.summary;
       return card(

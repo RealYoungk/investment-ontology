@@ -24,8 +24,6 @@ class CompanyOverviewTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final main = [
-      const CompanySectionHeading('사업의 내용'),
-      const SizedBox(height: AppSpace.md),
       BusinessGuidePanel(
         corpCode: detail.company.corpCode,
         latestReport: latestReport,

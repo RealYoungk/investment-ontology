@@ -143,7 +143,9 @@ void main() {
         expect(pharma.evidence, contains('KSIC 11 21210'));
         expect(pharma.rceptNo, isEmpty);
         expect(updated.listedCompanyCount, 5);
-        expect(result.documentCompanyCount, 3);
+        // Coverage counts every company with a document, including holdings.
+        // Product eligibility remains independently asserted above.
+        expect(result.documentCompanyCount, 4);
         expect(
           result.activities.every(
             (a) => a.evidence == 'DRAM, NAND Flash | 100',

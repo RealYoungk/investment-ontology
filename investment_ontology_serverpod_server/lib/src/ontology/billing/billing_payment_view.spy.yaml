@@ -1,0 +1,8 @@
+class: BillingPaymentView
+fields:
+  attemptId: int
+  orderId: String
+  status: String
+  amountKrw: int
+  paidFromUtc: DateTime
+  paidThroughUtc: DateTime

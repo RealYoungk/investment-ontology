@@ -27,6 +27,8 @@ config = {
         {'src': '/api/(.*)',
          'dest': '/api-proxy?endpoint=$1',
          'headers': {'Cache-Control': 'no-store'}},
+        {'src': '/(?:release\\.json|index\\.html)', 'continue': True,
+         'headers': {'Cache-Control': 'no-store'}},
         {'src': '/(.*)', 'continue': True, 'headers': {
             'X-Content-Type-Options': 'nosniff',
             'Referrer-Policy': 'strict-origin-when-cross-origin',

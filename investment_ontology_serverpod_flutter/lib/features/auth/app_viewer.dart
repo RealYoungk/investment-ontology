@@ -2,26 +2,62 @@ import 'package:flutter/material.dart';
 
 /// 서버의 `Scope.admin` 이름. 앱은 이 이름으로 역할을 표시만 하고, 막는 것은 서버다.
 const adminScopeName = 'serverpod.admin';
+const adFreeScopeName = 'alfinder.adFree';
 
 /// 로그인한 사람. 앱이 알아야 하는 것은 누구인지와 관리자인지뿐이다.
 @immutable
 class AppViewer {
-  const AppViewer({required this.userId, required this.isAdmin});
+  const AppViewer({
+    required this.userId,
+    required this.isAdmin,
+    this.isAdFree = false,
+    this.paidThroughUtc,
+    this.cancelAtPeriodEnd = false,
+    this.paymentAvailable = false,
+    this.isTestMembership = false,
+  });
 
   AppViewer.fromScopes(this.userId, Set<String> scopeNames)
-    : isAdmin = scopeNames.contains(adminScopeName);
+    : isAdmin = scopeNames.contains(adminScopeName),
+      isAdFree = scopeNames.contains(adFreeScopeName),
+      paidThroughUtc = null,
+      cancelAtPeriodEnd = false,
+      paymentAvailable = false,
+      isTestMembership = false;
 
   final String userId;
   final bool isAdmin;
+
+  /// Server-issued entitlement; independent of administrator access.
+  final bool isAdFree;
+  final DateTime? paidThroughUtc;
+  final bool cancelAtPeriodEnd;
+  final bool paymentAvailable;
+  final bool isTestMembership;
 
   String get roleLabel => isAdmin ? '관리자' : '읽기 전용';
 
   @override
   bool operator ==(Object other) =>
-      other is AppViewer && other.userId == userId && other.isAdmin == isAdmin;
+      other is AppViewer &&
+      other.userId == userId &&
+      other.isAdmin == isAdmin &&
+      other.isAdFree == isAdFree &&
+      other.paidThroughUtc == paidThroughUtc &&
+      other.cancelAtPeriodEnd == cancelAtPeriodEnd &&
+      other.paymentAvailable == paymentAvailable &&
+      other.isTestMembership == isTestMembership;
 
   @override
-  int get hashCode => Object.hash(userId, isAdmin);
+  int get hashCode => Object.hash(
+    userId,
+    isAdmin,
+    isAdFree,
+    paidThroughUtc,
+    cancelAtPeriodEnd,
+    paymentAvailable,
+    isTestMembership,
+  );
 }
 
 /// 로그인 문 안쪽의 모든 화면에 [AppViewer]를 내려준다.

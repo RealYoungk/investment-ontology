@@ -796,3 +796,15 @@ User authorized implementing locally before review. Actual Flutter industries pa
 ### 2026-10-01 조건 검색 결과 도구 재배치
 - 상단 프리셋 영역의 Container 배경/테두리/내부 패딩 제거. 기업 수·시세 기준·시장·정렬·표·페이지 이동을 하나의 결과 영역으로 통합. 넓으면 시장 왼쪽/정렬 오른쪽, 좁으면 Wrap.
 - 대상 정적 분석 정상, 기존 screen_experience/design_boundary 12tests 통과. MCP hot reload 후836/390px 실제 화면 확인, 모바일 KOSDAQ 클릭으로 market=kosdaq URL 반영 확인. 증거 outputs/industry-audit-v12-2026-10-01/screen-result-toolbar.png.
+## 2026-10-01 광고 수익화 준비 (codex/ad-placement)
+
+사용자는 일반 광고 + 유료 광고 제거 방향을 승인했다. AdSense 계정은 있으나 사이트 승인 전이다.
+별도 워크트리에 본문과 함께 스크롤되는 일반 배너, 선택적 AdSense 로더, 서버 발행 광고 제거 스코프 및
+계정 상태 UI를 준비했다. 실제 광고 ID·사이트 승인·결제·구독 원장은 아직 없으며 운영 송출/배포하지 않았다.
+기존 728px 상단 고정/모바일 숨김 시안은 폐기했다. 자세한 상태·실행·검증은 `docs/ad-placement-preview.md`.
+
+### 2026-10-01 수익화 원장·고지·환불 준비 (PR #85)
+
+광고 승인과 PG 계약을 기다리는 동안 서버 결제 원장·갱신/해지·카드 교체·재가입, 전액 환불 대사와 광고/쿠키 선택·가입/결제 전 고지를 구현했다. 이전 광고 준비 메모의 '결제 원장 없음'은 당시 상태이며 이제 원장 구현이 있다. 관리자 회원 관리에서 주문을 확인하고 전액 환불을 요청한다. 환불 대기는 갱신을 중단하지만 공급자 취소 확인 전 이용권을 성공/종료로 처리하지 않는다. 생성 코드는 격리 watcher에서 자동 생성했고 이번 관리자 DTO에는 DB 테이블 변경이 없다.
+
+추가 정적 분석 정상, 생성 코드 등록/원장/갱신 통합 23개, 관리자 UI/디자인 경계 4개 통과. 전체 최신 커밋의 Release CI와 운영 배포는 별도 증거를 확인해야 한다. 운영 실광고·실결제 플래그는 OFF를 유지한다. `docs/monetization-launch-readiness.md`, `docs/monetization-operations.md`에 재현·문의 환불·계약/판매자/국외 처리·보존 절차와 미확정 항목을 기록했다. 테스트 상점 성공은 운영 계약 승인과 다르다.

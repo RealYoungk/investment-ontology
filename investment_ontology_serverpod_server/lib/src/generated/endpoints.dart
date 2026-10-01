@@ -49,6 +49,7 @@ import '../ontology/endpoints/group_endpoint.dart' as _i8zm50hy;
 import '../ontology/endpoints/industry_endpoint.dart' as _ihimn963;
 import '../ontology/endpoints/ingest_endpoint.dart' as _icbircc0;
 import '../ontology/endpoints/market_endpoint.dart' as _iaw7fzks;
+import '../ontology/endpoints/membership_endpoint.dart' as _i4hwwhem;
 import '../ontology/endpoints/review_endpoint.dart' as _i9uttt4a;
 import '../ontology/endpoints/screen_endpoint.dart' as _ilgabfhk;
 import '../ontology/endpoints/theme_endpoint.dart' as _iqaca509;
@@ -152,6 +153,12 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'market',
+          null,
+        ),
+      'membership': _i4hwwhem.MembershipEndpoint()
+        ..initialize(
+          server,
+          'membership',
           null,
         ),
       'review': _i9uttt4a.ReviewEndpoint()
@@ -1903,6 +1910,177 @@ class Endpoints extends _is.EndpointDispatch {
                     params['corpCode'],
                     days: params['days'],
                   ),
+        ),
+      },
+    );
+    connectors['membership'] = _is.EndpointConnector(
+      name: 'membership',
+      endpoint: endpoints['membership']!,
+      methodConnectors: {
+        'paymentsForAccount': _is.MethodConnector(
+          name: 'paymentsForAccount',
+          params: {
+            'userId': _is.ParameterDescription(
+              name: 'userId',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['membership'] as _i4hwwhem.MembershipEndpoint)
+                      .paymentsForAccount(
+                        session,
+                        params['userId'],
+                      ),
+        ),
+        'refundPayment': _is.MethodConnector(
+          name: 'refundPayment',
+          params: {
+            'attemptId': _is.ParameterDescription(
+              name: 'attemptId',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+            'expectedOrderId': _is.ParameterDescription(
+              name: 'expectedOrderId',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['membership'] as _i4hwwhem.MembershipEndpoint)
+                      .refundPayment(
+                        session,
+                        params['attemptId'],
+                        params['expectedOrderId'],
+                      ),
+        ),
+        'status': _is.MethodConnector(
+          name: 'status',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['membership'] as _i4hwwhem.MembershipEndpoint)
+                      .status(session),
+        ),
+        'beginCheckout': _is.MethodConnector(
+          name: 'beginCheckout',
+          params: {
+            'acceptedTestTerms': _is.ParameterDescription(
+              name: 'acceptedTestTerms',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['membership'] as _i4hwwhem.MembershipEndpoint)
+                      .beginCheckout(
+                        session,
+                        params['acceptedTestTerms'],
+                      ),
+        ),
+        'beginCardReplacement': _is.MethodConnector(
+          name: 'beginCardReplacement',
+          params: {
+            'acceptedTestTerms': _is.ParameterDescription(
+              name: 'acceptedTestTerms',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['membership'] as _i4hwwhem.MembershipEndpoint)
+                      .beginCardReplacement(
+                        session,
+                        params['acceptedTestTerms'],
+                      ),
+        ),
+        'resumeRenewal': _is.MethodConnector(
+          name: 'resumeRenewal',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['membership'] as _i4hwwhem.MembershipEndpoint)
+                      .resumeRenewal(session),
+        ),
+        'completeCheckout': _is.MethodConnector(
+          name: 'completeCheckout',
+          params: {
+            'state': _is.ParameterDescription(
+              name: 'state',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'authKey': _is.ParameterDescription(
+              name: 'authKey',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['membership'] as _i4hwwhem.MembershipEndpoint)
+                      .completeCheckout(
+                        session,
+                        params['state'],
+                        params['authKey'],
+                      ),
+        ),
+        'abortCheckout': _is.MethodConnector(
+          name: 'abortCheckout',
+          params: {
+            'state': _is.ParameterDescription(
+              name: 'state',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['membership'] as _i4hwwhem.MembershipEndpoint)
+                      .abortCheckout(
+                        session,
+                        params['state'],
+                      ),
+        ),
+        'cancelRenewal': _is.MethodConnector(
+          name: 'cancelRenewal',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['membership'] as _i4hwwhem.MembershipEndpoint)
+                      .cancelRenewal(session),
         ),
       },
     );

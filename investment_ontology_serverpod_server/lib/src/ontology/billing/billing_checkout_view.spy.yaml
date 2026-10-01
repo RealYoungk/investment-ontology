@@ -1,0 +1,5 @@
+class: BillingCheckoutView
+fields:
+  state: String
+  customerKey: String
+  clientKey: String

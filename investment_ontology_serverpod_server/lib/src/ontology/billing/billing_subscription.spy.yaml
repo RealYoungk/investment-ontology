@@ -1,0 +1,17 @@
+class: BillingSubscription
+table: billing_subscription
+serverOnly: true
+fields:
+  ownerId: UuidValue
+  originUtc: DateTime
+  cancelAtPeriodEnd: bool, default=false
+  deleted: bool, default=false
+  customerKey: String?
+  encryptedBillingKey: String?
+  encryptedKeyPendingDeletion: String?
+  nextPeriod: int, default=0
+  cycleStartPeriod: int, default=0
+indexes:
+  billing_subscription_owner_idx:
+    fields: ownerId
+    unique: true

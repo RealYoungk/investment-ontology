@@ -1,0 +1,8 @@
+class: MembershipView
+fields:
+  adFree: bool
+  paidThroughUtc: DateTime?
+  cancelAtPeriodEnd: bool
+  paymentAvailable: bool, default=false
+  termsVersion: String?
+  isTest: bool, default=false

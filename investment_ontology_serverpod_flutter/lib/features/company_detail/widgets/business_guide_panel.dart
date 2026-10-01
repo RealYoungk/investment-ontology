@@ -129,73 +129,92 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (research != null || development != null) ...[
-          Text(
-            research?.summary ?? _issuerSummary ?? _lesson?.summary ?? '',
-            style: t.body(16, weight: FontWeight.w600).copyWith(height: 1.6),
-          ),
-          const SizedBox(height: AppSpace.xl),
-        ],
-        if (development != null) ...[
-          CompanyDevelopmentSection(development: development),
-          const SizedBox(height: AppSpace.xl),
-        ],
-        if (research != null)
-          CompanyResearchGuide(profile: research)
-        else if (_lesson != null && development == null)
-          BusinessModelGuide(
-            lesson: _lesson!,
-            summary: _issuerSummary,
-            compact: true,
-            showGrowth: false,
-          )
-        else if (_lessonLoading && development == null)
-          const LinearProgressIndicator(minHeight: 2)
-        else if (_failed) ...[
-          Text('제품 설명을 불러오지 못했습니다.', style: t.body(14)),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: TextButton(onPressed: _load, child: const Text('다시 불러오기')),
-          ),
-        ] else if (data == null)
-          const LinearProgressIndicator(minHeight: 2)
-        else if (data.products.isEmpty)
-          Text(switch (data.status) {
-            'no_document' => '제품을 확인할 사업보고서가 아직 수집되지 않았습니다.',
-            'pending' => '수집한 공시에서 제품 정보를 정리하고 있습니다.',
-            'stale' => '최근 사업보고서가 없어 제품 설명을 갱신하지 못했습니다.',
-            _ => '공시는 있지만 제품과 용도를 자동으로 연결하지 못했습니다. 사업 원문에서 확인할 수 있습니다.',
-          }, style: t.body(14, color: c.textSecondary))
-        else if (_powerLesson != null) ...[
-          PowerComponentsGuide(includeOptical: widget.corpCode == '00317210'),
-        ] else if (data.products.any((p) => p.key == 'substrate_aoi')) ...[
-          const SubstrateGuide(),
-        ] else ...[
-          Text('공시에서 확인한 제품', style: t.body(20, weight: FontWeight.w700)),
-          const SizedBox(height: AppSpace.sm),
-          Wrap(
-            spacing: AppSpace.sm,
-            runSpacing: AppSpace.sm,
+        CompanyDataCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              for (final (i, product) in data.products.indexed)
-                ChoiceChip(
-                  label: Text(product.name),
-                  selected: i == _selected,
-                  onSelected: (_) => setState(() => _selected = i),
+              const CompanySectionHeading('사업의 내용'),
+              const SizedBox(height: AppSpace.md),
+              if (research != null || development != null) ...[
+                Text(
+                  research?.summary ?? _issuerSummary ?? _lesson?.summary ?? '',
+                  style: t
+                      .body(16, weight: FontWeight.w600)
+                      .copyWith(height: 1.6),
                 ),
+                const SizedBox(height: AppSpace.xl),
+              ],
+              if (development != null) ...[
+                CompanyDevelopmentSection(development: development),
+                const SizedBox(height: AppSpace.xl),
+              ],
+              if (research != null)
+                CompanyResearchGuide(profile: research)
+              else if (_lesson != null && development == null)
+                BusinessModelGuide(
+                  lesson: _lesson!,
+                  summary: _issuerSummary,
+                  compact: true,
+                  framed: false,
+                  showGrowth: false,
+                )
+              else if (_lessonLoading && development == null)
+                const LinearProgressIndicator(minHeight: 2)
+              else if (_failed) ...[
+                Text('제품 설명을 불러오지 못했습니다.', style: t.body(14)),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton(
+                    onPressed: _load,
+                    child: const Text('다시 불러오기'),
+                  ),
+                ),
+              ] else if (data == null)
+                const LinearProgressIndicator(minHeight: 2)
+              else if (data.products.isEmpty)
+                Text(switch (data.status) {
+                  'no_document' => '제품을 확인할 사업보고서가 아직 수집되지 않았습니다.',
+                  'pending' => '수집한 공시에서 제품 정보를 정리하고 있습니다.',
+                  'stale' => '최근 사업보고서가 없어 제품 설명을 갱신하지 못했습니다.',
+                  _ => '공시는 있지만 제품과 용도를 자동으로 연결하지 못했습니다. 사업 원문에서 확인할 수 있습니다.',
+                }, style: t.body(14, color: c.textSecondary))
+              else if (_powerLesson != null) ...[
+                PowerComponentsGuide(
+                  includeOptical: widget.corpCode == '00317210',
+                ),
+              ] else if (data.products.any(
+                (p) => p.key == 'substrate_aoi',
+              )) ...[
+                const SubstrateGuide(),
+              ] else ...[
+                Text('공시에서 확인한 제품', style: t.body(20, weight: FontWeight.w700)),
+                const SizedBox(height: AppSpace.sm),
+                Wrap(
+                  spacing: AppSpace.sm,
+                  runSpacing: AppSpace.sm,
+                  children: [
+                    for (final (i, product) in data.products.indexed)
+                      ChoiceChip(
+                        label: Text(product.name),
+                        selected: i == _selected,
+                        onSelected: (_) => setState(() => _selected = i),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: AppSpace.md),
+                BusinessProductCard(
+                  product: data.products[_selected],
+                  rceptNo: data.rceptNo,
+                ),
+                const SizedBox(height: AppSpace.sm),
+                Text(
+                  '회사 제품 확인: FY${data.bsnsYear} 사업보고서 · 공정 설명은 제품 원리이며 회사별 성능 보증은 아닙니다.',
+                  style: t.body(11, color: c.textMuted),
+                ),
+              ],
             ],
           ),
-          const SizedBox(height: AppSpace.md),
-          BusinessProductCard(
-            product: data.products[_selected],
-            rceptNo: data.rceptNo,
-          ),
-          const SizedBox(height: AppSpace.sm),
-          Text(
-            '회사 제품 확인: FY${data.bsnsYear} 사업보고서 · 공정 설명은 제품 원리이며 회사별 성능 보증은 아닙니다.',
-            style: t.body(11, color: c.textMuted),
-          ),
-        ],
+        ),
         const SizedBox(height: AppSpace.xl),
         if (_lesson?.models.first.label != '기업인수목적회사')
           RevenueComposition(

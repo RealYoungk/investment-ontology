@@ -15,6 +15,7 @@ import 'dart:async' as _ida;
 import 'package:clock/clock.dart' as _io0w16m8;
 import 'package:serverpod/serverpod.dart' as _is;
 import '../ontology/ai/ai_extraction_future_call.dart' as _ifdlgs52;
+import '../ontology/billing/billing_future_call.dart' as _ih3pebim;
 import '../ontology/ingest/company_master_future_call.dart' as _iouuus1c;
 import '../ontology/ingest/disclosure_future_call.dart' as _itvp2mss;
 import '../ontology/ingest/financial_facts_future_call.dart' as _iqtu3y45;
@@ -77,6 +78,8 @@ class FutureCalls extends _is.FutureCallDispatch<_FutureCallRef> {
   ) {
     var registeredFutureCalls = <String, _is.InvokableFutureCall>{
       'AiExtractionRunFutureCall': AiExtractionRunFutureCall(),
+      'BillingRunFutureCall': BillingRunFutureCall(),
+      'BillingScanFutureCall': BillingScanFutureCall(),
       'CompanyMasterResumeFutureCall': CompanyMasterResumeFutureCall(),
       'CompanyMasterRunFutureCall': CompanyMasterRunFutureCall(),
       'DisclosureRunFutureCall': DisclosureRunFutureCall(),
@@ -212,6 +215,8 @@ class _FutureCallRef {
     _invokeFutureCall,
   );
 
+  late final billing = _BillingFutureCallDispatcher(_invokeFutureCall);
+
   late final companyMaster = _CompanyMasterFutureCallDispatcher(
     _invokeFutureCall,
   );
@@ -243,6 +248,26 @@ class _AiExtractionFutureCallDispatcher {
     return _invokeFutureCall(
       'AiExtractionRunFutureCall',
       object,
+    );
+  }
+}
+
+class _BillingFutureCallDispatcher {
+  _BillingFutureCallDispatcher(this._invokeFutureCall);
+
+  final _InvokeFutureCall _invokeFutureCall;
+
+  Future<void> run() {
+    return _invokeFutureCall(
+      'BillingRunFutureCall',
+      null,
+    );
+  }
+
+  Future<void> scan() {
+    return _invokeFutureCall(
+      'BillingScanFutureCall',
+      null,
     );
   }
 }
@@ -381,6 +406,28 @@ class AiExtractionRunFutureCall
         object.limit,
       );
     }
+  }
+}
+
+class BillingRunFutureCall extends _is.FutureCall
+    implements _is.InvokableFutureCall {
+  @override
+  _ida.Future<void> invoke(
+    _is.Session session,
+    _is.SerializableModel? object,
+  ) async {
+    await _ih3pebim.BillingFutureCall().run(session);
+  }
+}
+
+class BillingScanFutureCall extends _is.FutureCall
+    implements _is.InvokableFutureCall {
+  @override
+  _ida.Future<void> invoke(
+    _is.Session session,
+    _is.SerializableModel? object,
+  ) async {
+    await _ih3pebim.BillingFutureCall().scan(session);
   }
 }
 

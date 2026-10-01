@@ -90,6 +90,16 @@ market:
   - capHistory:
   - indexHistory:
   - priceHistory:
+membership:
+  - paymentsForAccount:
+  - refundPayment:
+  - status:
+  - beginCheckout:
+  - beginCardReplacement:
+  - resumeRenewal:
+  - completeCheckout:
+  - abortCheckout:
+  - cancelRenewal:
 review:
   - list:
   - decide:

@@ -11,6 +11,8 @@
 // ignore_for_file: dead_code, unnecessary_type_check
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/billing/billing_payment_view.dart'
+    as _iw7zbyvm;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/account_view.dart'
     as _ig2zry29;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/business_digest_section.dart'
@@ -72,6 +74,12 @@ import 'future_calls_generated_models/financial_facts_future_call_run_model.dart
 import 'future_calls_generated_models/market_snapshot_future_call_run_model.dart'
     as _i7jjkv72;
 import 'greetings/greeting.dart' as _izw8z7ou;
+import 'ontology/billing/billing_checkout.dart' as _i0n2e5en;
+import 'ontology/billing/billing_checkout_view.dart' as _iybkvk8h;
+import 'ontology/billing/billing_payment_attempt.dart' as _i0r0dvlk;
+import 'ontology/billing/billing_payment_view.dart' as _i4b9wxd2;
+import 'ontology/billing/billing_subscription.dart' as _ixpgtalp;
+import 'ontology/billing/membership_view.dart' as _ikugrjyl;
 import 'ontology/models/account_view.dart' as _i7n6g9s8;
 import 'ontology/models/ai_extraction.dart' as _idjojx8t;
 import 'ontology/models/ai_status.dart' as _i7c6k6qa;
@@ -203,6 +211,12 @@ import 'ontology/models/theme_member_view.dart' as _irah5hi6;
 import 'ontology/models/theme_summary.dart' as _i4ynus9k;
 import 'ontology/models/treasury_stock_entry.dart' as _injn1qca;
 export 'greetings/greeting.dart';
+export 'ontology/billing/billing_checkout.dart';
+export 'ontology/billing/billing_checkout_view.dart';
+export 'ontology/billing/billing_payment_attempt.dart';
+export 'ontology/billing/billing_payment_view.dart';
+export 'ontology/billing/billing_subscription.dart';
+export 'ontology/billing/membership_view.dart';
 export 'ontology/models/account_view.dart';
 export 'ontology/models/ai_extraction.dart';
 export 'ontology/models/ai_status.dart';
@@ -492,6 +506,328 @@ class Protocol extends _is.DatabaseSerializationManager {
             _isp.IndexElementDefinition(
               type: _isp.IndexElementDefinitionType.column,
               definition: 'day',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'billing_checkout',
+      dartName: 'BillingCheckout',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'ownerId',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'subscriptionId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'stateHash',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'expiresUtc',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: 'status',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'replaceCard',
+          columnType: _isp.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'false',
+        ),
+        _isp.ColumnDefinition(
+          name: 'termsVersion',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'acceptedAtUtc',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'issueIdempotencyKey',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'billing_checkout_fk_0',
+          columns: ['subscriptionId'],
+          referenceTable: 'billing_subscription',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.noAction,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'billing_checkout_state_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'stateHash',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'billing_payment_attempt',
+      dartName: 'BillingPaymentAttempt',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'subscriptionId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'period',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'orderId',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'idempotencyKey',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'status',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'paymentKey',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'paidFromUtc',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: 'paidThroughUtc',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'billing_payment_attempt_fk_0',
+          columns: ['subscriptionId'],
+          referenceTable: 'billing_subscription',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.noAction,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'billing_payment_period_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'subscriptionId',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'period',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'billing_payment_order_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'orderId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'billing_payment_idempotency_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'idempotencyKey',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'billing_payment_provider_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'paymentKey',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'billing_subscription',
+      dartName: 'BillingSubscription',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'ownerId',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'originUtc',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: 'cancelAtPeriodEnd',
+          columnType: _isp.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'false',
+        ),
+        _isp.ColumnDefinition(
+          name: 'deleted',
+          columnType: _isp.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'false',
+        ),
+        _isp.ColumnDefinition(
+          name: 'customerKey',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'encryptedBillingKey',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'encryptedKeyPendingDeletion',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'nextPeriod',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
+          name: 'cycleStartPeriod',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'billing_subscription_owner_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'ownerId',
             ),
           ],
           type: 'btree',
@@ -5235,6 +5571,24 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _izw8z7ou.Greeting) {
       return _izw8z7ou.Greeting.fromJson(data) as T;
     }
+    if (t == _i0n2e5en.BillingCheckout) {
+      return _i0n2e5en.BillingCheckout.fromJson(data) as T;
+    }
+    if (t == _iybkvk8h.BillingCheckoutView) {
+      return _iybkvk8h.BillingCheckoutView.fromJson(data) as T;
+    }
+    if (t == _i0r0dvlk.BillingPaymentAttempt) {
+      return _i0r0dvlk.BillingPaymentAttempt.fromJson(data) as T;
+    }
+    if (t == _i4b9wxd2.BillingPaymentView) {
+      return _i4b9wxd2.BillingPaymentView.fromJson(data) as T;
+    }
+    if (t == _ixpgtalp.BillingSubscription) {
+      return _ixpgtalp.BillingSubscription.fromJson(data) as T;
+    }
+    if (t == _ikugrjyl.MembershipView) {
+      return _ikugrjyl.MembershipView.fromJson(data) as T;
+    }
     if (t == _i7n6g9s8.AccountView) {
       return _i7n6g9s8.AccountView.fromJson(data) as T;
     }
@@ -5670,6 +6024,36 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (t == _is.getType<_izw8z7ou.Greeting?>()) {
       return (data != null ? _izw8z7ou.Greeting.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_i0n2e5en.BillingCheckout?>()) {
+      return (data != null ? _i0n2e5en.BillingCheckout.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_iybkvk8h.BillingCheckoutView?>()) {
+      return (data != null
+              ? _iybkvk8h.BillingCheckoutView.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _is.getType<_i0r0dvlk.BillingPaymentAttempt?>()) {
+      return (data != null
+              ? _i0r0dvlk.BillingPaymentAttempt.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _is.getType<_i4b9wxd2.BillingPaymentView?>()) {
+      return (data != null ? _i4b9wxd2.BillingPaymentView.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_ixpgtalp.BillingSubscription?>()) {
+      return (data != null
+              ? _ixpgtalp.BillingSubscription.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _is.getType<_ikugrjyl.MembershipView?>()) {
+      return (data != null ? _ikugrjyl.MembershipView.fromJson(data) : null)
+          as T;
     }
     if (t == _is.getType<_i7n6g9s8.AccountView?>()) {
       return (data != null ? _i7n6g9s8.AccountView.fromJson(data) : null) as T;
@@ -6534,6 +6918,12 @@ class Protocol extends _is.DatabaseSerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_iw7zbyvm.BillingPaymentView>) {
+      return (data as List)
+              .map((e) => deserialize<_iw7zbyvm.BillingPaymentView>(e))
+              .toList()
+          as T;
+    }
     if (t == List<int>) {
       return (data as List).map((e) => deserialize<int>(e)).toList() as T;
     }
@@ -6595,6 +6985,12 @@ class Protocol extends _is.DatabaseSerializationManager {
       _i7jjkv72.MarketSnapshotFutureCallRunModel =>
         'MarketSnapshotFutureCallRunModel',
       _izw8z7ou.Greeting => 'Greeting',
+      _i0n2e5en.BillingCheckout => 'BillingCheckout',
+      _iybkvk8h.BillingCheckoutView => 'BillingCheckoutView',
+      _i0r0dvlk.BillingPaymentAttempt => 'BillingPaymentAttempt',
+      _i4b9wxd2.BillingPaymentView => 'BillingPaymentView',
+      _ixpgtalp.BillingSubscription => 'BillingSubscription',
+      _ikugrjyl.MembershipView => 'MembershipView',
       _i7n6g9s8.AccountView => 'AccountView',
       _idjojx8t.AiExtraction => 'AiExtraction',
       _i7c6k6qa.AiStatus => 'AiStatus',
@@ -6758,6 +7154,18 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'MarketSnapshotFutureCallRunModel';
       case _izw8z7ou.Greeting():
         return 'Greeting';
+      case _i0n2e5en.BillingCheckout():
+        return 'BillingCheckout';
+      case _iybkvk8h.BillingCheckoutView():
+        return 'BillingCheckoutView';
+      case _i0r0dvlk.BillingPaymentAttempt():
+        return 'BillingPaymentAttempt';
+      case _i4b9wxd2.BillingPaymentView():
+        return 'BillingPaymentView';
+      case _ixpgtalp.BillingSubscription():
+        return 'BillingSubscription';
+      case _ikugrjyl.MembershipView():
+        return 'MembershipView';
       case _i7n6g9s8.AccountView():
         return 'AccountView';
       case _idjojx8t.AiExtraction():
@@ -7079,6 +7487,24 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'Greeting') {
       return deserialize<_izw8z7ou.Greeting>(data['data']);
+    }
+    if (dataClassName == 'BillingCheckout') {
+      return deserialize<_i0n2e5en.BillingCheckout>(data['data']);
+    }
+    if (dataClassName == 'BillingCheckoutView') {
+      return deserialize<_iybkvk8h.BillingCheckoutView>(data['data']);
+    }
+    if (dataClassName == 'BillingPaymentAttempt') {
+      return deserialize<_i0r0dvlk.BillingPaymentAttempt>(data['data']);
+    }
+    if (dataClassName == 'BillingPaymentView') {
+      return deserialize<_i4b9wxd2.BillingPaymentView>(data['data']);
+    }
+    if (dataClassName == 'BillingSubscription') {
+      return deserialize<_ixpgtalp.BillingSubscription>(data['data']);
+    }
+    if (dataClassName == 'MembershipView') {
+      return deserialize<_ikugrjyl.MembershipView>(data['data']);
     }
     if (dataClassName == 'AccountView') {
       return deserialize<_i7n6g9s8.AccountView>(data['data']);
@@ -7517,6 +7943,12 @@ class Protocol extends _is.DatabaseSerializationManager {
       }
     }
     switch (t) {
+      case _i0n2e5en.BillingCheckout:
+        return _i0n2e5en.BillingCheckout.t;
+      case _i0r0dvlk.BillingPaymentAttempt:
+        return _i0r0dvlk.BillingPaymentAttempt.t;
+      case _ixpgtalp.BillingSubscription:
+        return _ixpgtalp.BillingSubscription.t;
       case _idjojx8t.AiExtraction:
         return _idjojx8t.AiExtraction.t;
       case _i3e42he1.ApiCallUsage:
