@@ -10,8 +10,8 @@ document.querySelector('#run').onclick = async () => {
   const timers=new Map();let timer=0;
   w.setTimeout=(fn)=>{timers.set(++timer,fn);return timer;};w.clearTimeout=id=>timers.delete(id);
   w.alfinderAdConsent={choice:()=>choice,request:async()=>choice===true};
-  w.adsbygoogle={push:()=>{pushes++;doc.querySelector('ins')?.setAttribute('data-ad-status','filled');}};
-  w.googlefc={usstatesoptout:{getInitialUsStatesOptOutStatus:()=>scenario==='usUnknown'?0:scenario==='usOptOut'?3:scenario.startsWith('us')?2:1},callbackQueue:scenario==='missing'?[]:{push:item=>{item.CONSENT_API_READY?.();item.INITIAL_US_STATES_OPT_OUT_DATA_READY?.();}}};
+  w.adsbygoogle={push:()=>{if(w.adsbygoogle.pauseAdRequests!==0)throw new Error('inventory was paused');pushes++;doc.querySelector('ins')?.setAttribute('data-ad-status','filled');}};
+  w.googlefc={usstatesoptout:{getInitialUsStatesOptOutStatus:()=>scenario==='usUnknown'?0:scenario==='usOptOut'?3:scenario.startsWith('us')?2:1},callbackQueue:[]};
   if(scenario==='usGpc')Object.defineProperty(w.navigator,'globalPrivacyControl',{value:true});
   if(['usAllow','usWithdraw','usCachedOptOut'].includes(scenario))w.__gpp=(command,cb)=>{if(command==='addEventListener'){gppListener=cb;cb({eventName:'listenerRegistered',listenerId:1,pingData:{cmpStatus:'loaded',signalStatus:'ready',cmpDisplayStatus:'hidden',parsedSections:{usnat:{SaleOptOut:scenario==='usCachedOptOut'?1:2,SharingOptOut:2,TargetedAdvertisingOptOut:2}}}},true);}};
   w.__tcfapi=(command,_v,cb)=>{if(command!=='addEventListener')return;listener=cb;
@@ -23,7 +23,7 @@ document.querySelector('#run').onclick = async () => {
    if(scenario==='euConsentRestricted'){data.publisher={restrictions:{2:{755:1},7:{755:1},9:{755:1},10:{755:1}}};Object.assign(data.purpose.consents,{2:true,7:true,9:true,10:true});data.purpose.legitimateInterests={};data.vendor.legitimateInterests={};}
    cb(data,scenario!=='error');};
   const append=doc.head.appendChild.bind(doc.head);
-  doc.head.appendChild=el=>{if(el.src?.includes('fundingchoicesmessages')){cmpScripts++;queueMicrotask(()=>el.onload());return el;}if(el.src?.includes('googlesyndication')){scripts++;if(scenario!=='paidPending')queueMicrotask(()=>el.onload());return el;}return append(el);};
+  doc.head.appendChild=el=>{if(el.src?.includes('fundingchoicesmessages')){cmpScripts++;queueMicrotask(()=>el.onload());return el;}if(el.src?.includes('googlesyndication')){if(w.adsbygoogle.pauseAdRequests!==1)throw new Error('tag was not paused');scripts++;if(scenario!=='paidPending')queueMicrotask(()=>{el.onload();if(scenario==='missing')return;const pending=w.googlefc.callbackQueue;const dispatch=item=>{item.CONSENT_API_READY?.();item.INITIAL_US_STATES_OPT_OUT_DATA_READY?.();};w.googlefc.callbackQueue={push:dispatch};for(const item of pending)dispatch(item);});return el;}return append(el);};
   const source=await fetch('../../investment_ontology_serverpod_flutter/web/ad_loader.js').then(r=>r.text());
   const script=doc.createElement('script');script.textContent=source;append(script);
   const slot=doc.querySelector('#slot');let p;
@@ -38,9 +38,9 @@ document.querySelector('#run').onclick = async () => {
   if(scenario==='delay')listener({eventStatus:'tcloaded',gdprApplies:false},true);
   await new Promise(r=>setTimeout(r,20));
   const expectedPush=['allow','withdraw','reopen','usAllow','usWithdraw','euConsentRestricted','euPurposeWithdraw'].includes(scenario)?1:0;
-  const expectedScripts=['allow','withdraw','reopen','paidPending','usAllow','usWithdraw','euConsentRestricted','euPurposeWithdraw'].includes(scenario)?1:0;
-  const expectedCmp=['unselected','reject','paidBefore'].includes(scenario)?0:1;
-  const result={scenario,cmpScripts,scripts,pushes,slots:slot.children.length,pass:cmpScripts===expectedCmp&&scripts===expectedScripts&&pushes===expectedPush&&(['allow','usAllow','euConsentRestricted'].includes(scenario)||slot.children.length===0)};
+  const expectedScripts=['unselected','reject','paidBefore'].includes(scenario)?0:1;
+  const expectedCmp=0;
+  const result={scenario,cmpScripts,scripts,pushes,slots:slot.children.length,pause:w.adsbygoogle.pauseAdRequests,pass:cmpScripts===expectedCmp&&scripts===expectedScripts&&pushes===expectedPush&&(['allow','usAllow','euConsentRestricted'].includes(scenario)||slot.children.length===0)};
   results.push(result);w.alfinderAds.dispose(slot);frame.remove();
  }
  document.querySelector('#result').textContent=JSON.stringify({passed:results.filter(r=>r.pass).length,total:results.length,results},null,2);
