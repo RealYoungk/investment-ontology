@@ -35,12 +35,52 @@ class PublicFinancialHtmlSource {
       sha256.convert(utf8.encode('$coverHtml\n$statementHtml')).toString();
 }
 
-/// Narrow public HTML transport for annual attachment originals and exact half-years.
+/// Official exact-annual evidence that the company does not prepare CFS.
+/// This is never inferred from missing tables or empty extracted rows.
+class PublicFinancialHtmlBasisNotApplicable extends FormatException {
+  PublicFinancialHtmlBasisNotApplicable({
+    required this.sourceReceipt,
+    required this.corpCode,
+    required this.companyName,
+    required this.reportName,
+    required this.periodStart,
+    required this.periodEnd,
+    required this.coverSource,
+    required this.statementSource,
+    required this.coverHtml,
+    required this.statementHtml,
+    required this.evidence,
+  }) : super(
+         'Official annual consolidated statements explicitly not applicable',
+       );
+
+  final String sourceReceipt;
+  final String corpCode;
+  final String companyName;
+  final String reportName;
+  final DateTime periodStart;
+  final DateTime periodEnd;
+  final Uri coverSource;
+  final Uri statementSource;
+  final String coverHtml;
+  final String statementHtml;
+  final String evidence;
+  String? get correctionReceipt => null;
+  Uri? get correctionSource => null;
+  bool get consolidated => true;
+  String get sourceDigest =>
+      sha256.convert(utf8.encode('$coverHtml\n$statementHtml')).toString();
+}
+
+/// Public HTML transport for exact annuals, attachment originals and half-years.
 /// Company IDs come from each official shell; dates come from the actual cover.
 /// No account IDs, date ranges, or amounts are inferred by this transport.
 class PublicFinancialHtmlFetcher {
   PublicFinancialHtmlFetcher(this.client);
   final http.Client client;
+
+  // Reserve starts across exact-annual instances, including call boundaries.
+  static DateTime? _nextAnnualRequestAt;
 
   Future<PublicFinancialHtmlSource> fetchAttachmentAnnual(
     String receipt, {
@@ -59,6 +99,27 @@ class PublicFinancialHtmlFetcher {
     periodEnd: periodEnd,
     consolidated: consolidated,
     halfYear: false,
+  );
+
+  /// Exact annual receipt only. Never follows an attachment or prior receipt.
+  Future<PublicFinancialHtmlSource> fetchAnnual(
+    String receipt, {
+    required String reportName,
+    required String corpCode,
+    required String companyName,
+    required int bsnsYear,
+    required DateTime periodEnd,
+    required bool consolidated,
+  }) => _fetch(
+    receipt,
+    reportName: reportName,
+    corpCode: corpCode,
+    companyName: companyName,
+    bsnsYear: bsnsYear,
+    periodEnd: periodEnd,
+    consolidated: consolidated,
+    halfYear: false,
+    exactAnnual: true,
   );
 
   /// Exact-receipt half-year HTML. This never follows a prior annual report.
@@ -90,10 +151,17 @@ class PublicFinancialHtmlFetcher {
     required DateTime periodEnd,
     required bool consolidated,
     required bool halfYear,
+    bool exactAnnual = false,
   }) async {
     if (!RegExp(r'^\d{14}$').hasMatch(correctionReceipt) ||
         !RegExp(r'^\d{8}$').hasMatch(corpCode) ||
-        !(halfYear
+        !(exactAnnual
+            ? RegExp(r'^(?:\[기재정정\])?사업보고서\s*\(\d{4}\.\d{2}\)$')
+                      .hasMatch(reportName) &&
+                  reportName.endsWith(
+                    '(${periodEnd.year}.${periodEnd.month.toString().padLeft(2, '0')})',
+                  )
+            : halfYear
             ? reportName.startsWith('반기보고서')
             : reportName.startsWith('[첨부정정]사업보고서')) ||
         periodEnd.year != bsnsYear) {
@@ -104,7 +172,18 @@ class PublicFinancialHtmlFetcher {
     String? cookie;
     var requested = false;
     Future<String> get(Uri uri, {Uri? referer}) async {
-      if (requested) await Future<void>.delayed(const Duration(seconds: 1));
+      if (exactAnnual) {
+        final now = DateTime.now();
+        final reserved = _nextAnnualRequestAt;
+        final start = reserved != null && reserved.isAfter(now)
+            ? reserved
+            : now;
+        _nextAnnualRequestAt = start.add(const Duration(seconds: 1));
+        final delay = start.difference(now);
+        if (delay > Duration.zero) await Future<void>.delayed(delay);
+      } else if (requested) {
+        await Future<void>.delayed(const Duration(seconds: 1));
+      }
       requested = true;
       final response = await client
           .get(
@@ -119,6 +198,9 @@ class PublicFinancialHtmlFetcher {
           .timeout(const Duration(seconds: 30));
       if (response.statusCode != 200 ||
           (response.request?.url.host ?? uri.host) != 'dart.fss.or.kr' ||
+          (exactAnnual &&
+              response.request != null &&
+              response.request!.url != uri) ||
           response.bodyBytes.length > 5 * 1024 * 1024) {
         throw const FormatException('Invalid official financial HTML response');
       }
@@ -152,7 +234,7 @@ class PublicFinancialHtmlFetcher {
     var originalSource = correctionSource;
     var shell = correctionShell;
     var dcm = document(shell, sourceReceipt);
-    if (!halfYear) {
+    if (!halfYear && !exactAnnual) {
       final family = RegExp(
         r'<select\b[^>]*\bid=["\x27]family["\x27][^>]*>(.*?)</select>',
         dotAll: true,
@@ -246,7 +328,9 @@ class PublicFinancialHtmlFetcher {
         .replaceAll('&nbsp;', '')
         .replaceAll(RegExp(r'\s+'), '');
     final periods = RegExp(
-      r'사업연도(\d{4})년(\d{2})월(\d{2})일부터(\d{4})년(\d{2})월(\d{2})일까지',
+      exactAnnual
+          ? r'사업연도(\d{4})(?:년|\.)(\d{1,2})(?:월|\.)(\d{1,2})(?:일|\.?)부터(\d{4})(?:년|\.)(\d{1,2})(?:월|\.)(\d{1,2})(?:일|\.?)까지'
+          : r'사업연도(\d{4})년(\d{2})월(\d{2})일부터(\d{4})년(\d{2})월(\d{2})일까지',
     ).allMatches(text).toList();
     if (periods.length != 1) {
       throw const FormatException('Missing or ambiguous declared annual cover');
@@ -255,8 +339,8 @@ class PublicFinancialHtmlFetcher {
       final m = periods.single;
       final value = [
         m.group(offset),
-        m.group(offset + 1),
-        m.group(offset + 2),
+        m.group(offset + 1)!.padLeft(2, '0'),
+        m.group(offset + 2)!.padLeft(2, '0'),
       ].join('-');
       final parsed = DateTime.tryParse(value);
       if (parsed == null ||
@@ -271,9 +355,62 @@ class PublicFinancialHtmlFetcher {
         DateTime.utc(periodEnd.year, periodEnd.month, periodEnd.day)) {
       throw const FormatException('Declared source end mismatch');
     }
+    if (exactAnnual) {
+      String normalize(String name) => name.replaceAll(
+        RegExp(r'\(주\)|㈜|주식회사|\s+'),
+        '',
+      );
+      final printedNames = RegExp(r'회사명:(.*?)대표이사:').allMatches(text).toList();
+      if (printedNames.length != 1 ||
+          normalize(printedNames.single.group(1)!) != normalize(companyName) ||
+          periodEnd.difference(periodStart).inDays < 364 ||
+          periodEnd.difference(periodStart).inDays > 366) {
+        throw const FormatException('Exact annual company/duration mismatch');
+      }
+    }
     final statementHtml = await get(statementSource, referer: originalSource);
+    if (exactAnnual && consolidated) {
+      const explicitNone = '당사는 연결재무제표 작성법인이 아니므로 해당사항이 없습니다.';
+      final body = RegExp(
+        r'<body\b[^>]*>(.*?)</body>',
+        caseSensitive: false,
+        dotAll: true,
+      ).allMatches(statementHtml).toList();
+      if (body.length == 1 &&
+          !RegExp(
+            r'<(?:table|script|style)\b',
+            caseSensitive: false,
+          ).hasMatch(body.single.group(1)!)) {
+        final plain = body.single
+            .group(1)!
+            .replaceAll(RegExp(r'<[^>]+>'), '')
+            .replaceAll('&nbsp;', '')
+            .replaceAll(RegExp(r'\s+'), '');
+        if (plain == '2.연결재무제표${explicitNone.replaceAll(' ', '')}') {
+          throw PublicFinancialHtmlBasisNotApplicable(
+            sourceReceipt: sourceReceipt,
+            corpCode: corpCode,
+            companyName: companyName,
+            reportName: reportName,
+            periodStart: periodStart,
+            periodEnd: DateTime.utc(
+              periodEnd.year,
+              periodEnd.month,
+              periodEnd.day,
+            ),
+            coverSource: coverSource,
+            statementSource: statementSource,
+            coverHtml: coverHtml,
+            statementHtml: statementHtml,
+            evidence: explicitNone,
+          );
+        }
+      }
+    }
     final name = companyName.replaceAll(RegExp(r'\(주\)|㈜|주식회사|\s+'), '');
-    final parse = halfYear
+    final parse = exactAnnual
+        ? PublicFinancialHtml.parseStandardAnnual
+        : halfYear
         ? PublicFinancialHtml.parseHalfYear
         : PublicFinancialHtml.parse;
     final rows = parse(
@@ -290,8 +427,8 @@ class PublicFinancialHtmlFetcher {
     );
     return PublicFinancialHtmlSource(
       sourceReceipt: sourceReceipt,
-      correctionReceipt: halfYear ? null : correctionReceipt,
-      correctionSource: halfYear ? null : correctionSource,
+      correctionReceipt: halfYear || exactAnnual ? null : correctionReceipt,
+      correctionSource: halfYear || exactAnnual ? null : correctionSource,
       coverHtml: coverHtml,
       coverSource: coverSource,
       statementHtml: statementHtml,

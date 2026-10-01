@@ -28,7 +28,7 @@ abstract final class FinancialCollectionScope {
     ), financial_scope AS (
       SELECT p.*,
         EXISTS (SELECT 1 FROM financial_report r
-          JOIN source rs ON rs.id=r."sourceId" AND rs.reference=r."rceptNo"
+          JOIN source rs ON rs.id=r."sourceId" AND rs.reference=r."rceptNo" AND rs.kind='dartReport'
           WHERE r."companyId"=p."companyId" AND r."bsnsYear"=p."bsnsYear"
             AND r."reportCode"=p."reportCode" AND r."fsDiv"='consolidated'
             AND substring(r."reportName" from '\\(([0-9]{4}\\.[0-9]{2})\\)\$')=p.actual_period
@@ -43,7 +43,7 @@ abstract final class FinancialCollectionScope {
                 AND v."fsDiv"=r."fsDiv" AND v."sourceId"=r."sourceId"
                 AND v.amount IS NOT NULL)) AS consolidated_period_stored,
         EXISTS (SELECT 1 FROM financial_report r
-          JOIN source rs ON rs.id=r."sourceId" AND rs.reference=r."rceptNo"
+          JOIN source rs ON rs.id=r."sourceId" AND rs.reference=r."rceptNo" AND rs.kind='dartReport'
           WHERE r."companyId"=p."companyId" AND r."bsnsYear"=p."bsnsYear"
             AND r."reportCode"=p."reportCode" AND r."fsDiv"='separate'
             AND substring(r."reportName" from '\\(([0-9]{4}\\.[0-9]{2})\\)\$')=p.actual_period

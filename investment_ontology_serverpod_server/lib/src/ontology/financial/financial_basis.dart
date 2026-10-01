@@ -4,14 +4,35 @@ import 'financial_comparatives.dart';
 /// Shared SQL for the company summary, screener and comparison universe.
 /// Picks ONE basis, preserving available inputs when filling gaps; never splices consolidated and separate periods.
 abstract final class FinancialBasis {
+  /// Source-ledger periods only; missing periods are never inferred.
+  /// The current DTO selects the latest closing month per fiscal year/type.
+  /// Multiple REIT periods and their twelve-month TTM need a separate model.
+  static const eligibleReportsCte = r'''
+    eligible_reports AS (
+      SELECT r.*, substring(r."reportName" from '\(([0-9]{4}\.[0-9]{2})\)$') AS actual_period
+      FROM financial_report r
+      JOIN source s ON s.id=r."sourceId" AND s.reference=r."rceptNo"
+        AND s.kind='dartReport'
+      JOIN dart_filing f ON f."rceptNo"=r."rceptNo"
+        AND f."companyId"=r."companyId" AND f."bsnsYear"=r."bsnsYear"
+        AND f."reportCode"=r."reportCode"
+      JOIN company c ON c.id=r."companyId" AND c."corpCode"=f."corpCode"
+      WHERE substring(r."reportName" from '\(([0-9]{4}\.[0-9]{2})\)$')
+        =substring(f."reportName" from '\(([0-9]{4}\.[0-9]{2})\)$')
+        AND substring(r."reportName" from '\(([0-9]{4})\.[0-9]{2}\)$')=r."bsnsYear"::text
+        AND substring(r."reportName" from '\([0-9]{4}\.([0-9]{2})\)$') IN
+          ('01','02','03','04','05','06','07','08','09','10','11','12')
+    )
+  ''';
+
   static String ctes({int? companyId, List<int>? companyIds}) {
     final ids = FinancialAccounts.accountIds.map((id) => "'$id'").join(',');
     return '''
-      rank_code AS (
+      $eligibleReportsCte, rank_code AS (
         SELECT * FROM (VALUES ('q1',1),('halfYear',2),('q3',3),('annual',4)) AS t(code,rk)
       ), active_reports AS (
         SELECT DISTINCT ON (r."companyId",r."fsDiv",r."bsnsYear",r."reportCode") r.*
-        FROM financial_report r
+        FROM eligible_reports r
         WHERE r."supersededById" IS NULL
           ${companyId != null
         ? 'AND r."companyId" = $companyId'
@@ -20,7 +41,7 @@ abstract final class FinancialBasis {
         : companyIds.isEmpty
         ? 'AND false'
         : 'AND r."companyId" IN (${companyIds.join(',')})'}
-        ORDER BY r."companyId",r."fsDiv",r."bsnsYear",r."reportCode",r."rceptNo" DESC,r.id DESC
+        ORDER BY r."companyId",r."fsDiv",r."bsnsYear",r."reportCode",r.actual_period DESC,r."rceptNo" DESC,r.id DESC
       ), candidates AS (
         SELECT DISTINCT ON (r."companyId",r."fsDiv")
           r."companyId" AS id,r."fsDiv" AS fs,r."bsnsYear" AS y,r."reportCode" AS code,rc.rk
@@ -32,6 +53,9 @@ abstract final class FinancialBasis {
           AND (r."bsnsYear"=c.y AND r."reportCode"=c.code
             OR r."bsnsYear"=c.y-1 AND r."reportCode" IN (c.code,'annual'))
         JOIN financial_fact f ON f."reportId"=r.id
+          AND f."sourceId"=r."sourceId" AND f."companyId"=r."companyId"
+          AND f."bsnsYear"=r."bsnsYear" AND f."reportCode"=r."reportCode"
+          AND f."fsDiv"=r."fsDiv"
         WHERE f."supersededById" IS NULL AND f."accountDetail" IS NULL
           AND (f."accountId" IN ($ids) OR f."accountId" IS NULL)
       ), counted_facts AS (
@@ -69,7 +93,7 @@ abstract final class FinancialBasis {
             (WHERE x."accountId"='${FinancialComparatives.total}') AS total_prior,
           max(${FinancialComparatives.rawSql('x')}) FILTER
             (WHERE x."accountId"='${FinancialComparatives.minority}') AS minority_prior
-        FROM financial_fact x
+        FROM mapped_facts x
         JOIN (SELECT DISTINCT "reportId" FROM picked_facts) p ON p."reportId"=x."reportId"
         WHERE x."accountDetail" IS NULL AND x."supersededById" IS NULL
           AND x."accountId" IN ('${FinancialComparatives.total}','${FinancialComparatives.minority}')

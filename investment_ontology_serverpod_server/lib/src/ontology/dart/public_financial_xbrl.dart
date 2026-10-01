@@ -295,13 +295,38 @@ class PublicFinancialXbrl {
         continue;
       }
       final measures = units[f.getAttribute('unitRef')];
-      if (measures == null ||
-          measures.length != 1 ||
-          measures.single != 'iso4217:KRW' ||
-          root.getAttribute('xmlns:iso4217') !=
-              'http://www.xbrl.org/2003/iso4217' ||
-          !const ['0', 'INF'].contains(f.getAttribute('decimals')) ||
-          !RegExp(r'^-?\d+$').hasMatch(f.innerText.trim())) {
+      final validMoney =
+          measures != null &&
+          measures.length == 1 &&
+          measures.single == 'iso4217:KRW' &&
+          root.getAttribute('xmlns:iso4217') ==
+              'http://www.xbrl.org/2003/iso4217' &&
+          RegExp(r'^-?\d+$').hasMatch(f.innerText.trim());
+      final decimals = int.tryParse(f.getAttribute('decimals') ?? '');
+      // Some reports also print a rounded contracts-only revenue concept.
+      // Never round it or replace exact total revenue with this alternate.
+      // It may be omitted only when the identical whole-current context,
+      // taxonomy and currency contain an exact total Revenue fact.
+      if (validMoney &&
+          isIfrs &&
+          f.name.local == 'RevenueFromContractsWithCustomers' &&
+          decimals != null &&
+          decimals < 0 &&
+          root.children.whereType<XmlElement>().any(
+            (candidate) =>
+                candidate.name.local == 'Revenue' &&
+                candidate.namespaceUri == f.namespaceUri &&
+                candidate.getAttribute('contextRef') ==
+                    f.getAttribute('contextRef') &&
+                candidate.getAttribute('unitRef') ==
+                    f.getAttribute('unitRef') &&
+                candidate.getAttribute('decimals') == '0' &&
+                RegExp(r'^-?\d+$').hasMatch(candidate.innerText.trim()),
+          )) {
+        continue;
+      }
+      if (!validMoney ||
+          !const ['0', 'INF'].contains(f.getAttribute('decimals'))) {
         throw const FormatException(
           'Unsupported XBRL monetary unit or precision',
         );

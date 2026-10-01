@@ -9,11 +9,13 @@ import '../dart/dart_report_name.dart';
 import '../dart/dart_values.dart';
 import '../dart/public_financial_xbrl.dart';
 import '../dart/public_financial_html.dart';
+import '../dart/public_financial_html_fetch.dart';
 import '../dart/public_financial_period_metadata.dart';
 import 'api_call_budget.dart';
 import 'financial_rows.dart';
 import 'financial_collection_scope.dart';
 import 'financial_period_repair.dart';
+import 'financial_current_core_recovery.dart';
 import 'ingest_jobs.dart';
 
 /// DART 정기보고서의 전체 재무제표를 수집한다.
@@ -306,6 +308,12 @@ class FinancialFactsSync {
           'AND NOT EXISTS(SELECT 1 FROM dart_filing a WHERE a."rceptNo"=r."rceptNo") ORDER BY p.id',
           parameters: QueryParameters.named({'scope': scopeIds.toList()}),
         );
+        if (candidates.isNotEmpty) {
+          job = await IngestJobs.save(
+            session,
+            job.copyWith(message: '공식 원접수 표지·보고기간 출처 확인 중(최대20건)'),
+          );
+        }
         var metadataRequests = 0;
         for (final candidate in candidates) {
           final targetId = candidate[0] as int;
@@ -475,7 +483,51 @@ class FinancialFactsSync {
           }
         }
       }
-      final targets = job.status == IngestStatus.cancelled
+      // One source-proved receipt: restore only its missing current core, once.
+      if (job.status != IngestStatus.cancelled) {
+        for (final f in await DartFiling.db.find(
+          session,
+          where: (t) =>
+              t.id.inSet(scopeIds) &
+              t.rceptNo.equals(FinancialCurrentCoreRecovery.receipt),
+        )) {
+          if (FinancialCurrentCoreRecovery.eligible(f) &&
+              (f.lastError?.contains('storedCurrentAmountsMissing') ?? false) &&
+              !(f.lastError?.contains(FinancialCurrentCoreRecovery.marker) ??
+                  false)) {
+            await DartFiling.db.updateRow(
+              session,
+              f.copyWith(
+                consolidatedStatus:
+                    f.consolidatedStatus == FilingFetchStatus.failed
+                    ? FilingFetchStatus.pending
+                    : f.consolidatedStatus,
+                separateStatus: f.separateStatus == FilingFetchStatus.failed
+                    ? FilingFetchStatus.pending
+                    : f.separateStatus,
+                lastError:
+                    '${FinancialCurrentCoreRecovery.marker}; ${f.lastError}',
+              ),
+            );
+          }
+        }
+      }
+      if (job.status != IngestStatus.cancelled) {
+        job = await IngestJobs.save(
+          session,
+          job.copyWith(message: 'API 자료없음 보고서 공식 원문 확인 중(최대10기간)'),
+        );
+      }
+      final annualPublic = job.status == IngestStatus.cancelled
+          ? (stored: 0, failed: 0, processed: 0, remaining: 0, fresh: false)
+          : await _recoverAnnualApiNoData(scopeIds, companies);
+      stored += annualPublic.stored;
+      failed += annualPublic.failed;
+      processed += annualPublic.processed;
+      if (await IngestJobs.isCancelled(session, jobId)) {
+        job = job.copyWith(status: IngestStatus.cancelled);
+      }
+      final rawTargets = job.status == IngestStatus.cancelled
           ? const <DartFiling>[]
           : await DartFiling.db.find(
               session,
@@ -488,6 +540,15 @@ class FinancialFactsSync {
                   (t.attempts.between(0, maxAttempts - 1) |
                       (t.reportCode.equals(FinancialReportCode.annual) &
                           (t.lastError.like('%$_storedPeriodGapMarker%') |
+                              (t.lastError.like(
+                                    '%${FinancialCurrentCoreRecovery.marker}%',
+                                  ) &
+                                  (t.consolidatedStatus.equals(
+                                        FilingFetchStatus.pending,
+                                      ) |
+                                      t.separateStatus.equals(
+                                        FilingFetchStatus.pending,
+                                      ))) |
                               t.lastError.like('%DartApiException(mismatch)%') |
                               t.lastError.like(
                                 '%DartApiException(receiptPeriodMismatch)%',
@@ -499,8 +560,26 @@ class FinancialFactsSync {
                       _needsFetch(t.separateStatus)),
               orderByList: (t) => [t.receivedDate.desc(), t.rceptNo.desc()],
             );
+      final targets = rawTargets
+          .where(
+            (f) =>
+                !_isAnnualPublicRecovery(f) &&
+                !(FinancialCurrentCoreRecovery.eligible(f) &&
+                    (f.lastError?.contains(
+                          FinancialCurrentCoreRecovery.marker,
+                        ) ??
+                        false) &&
+                    f.attempts >= maxAttempts &&
+                    !_isCurrentCoreRecovery(f)),
+          )
+          .toList();
       final byId = {for (final c in companies.values) c.id!: c};
-      job = await IngestJobs.save(session, job.copyWith(total: targets.length));
+      job = await IngestJobs.save(
+        session,
+        job.copyWith(
+          total: processed + targets.length + annualPublic.remaining,
+        ),
+      );
 
       for (final filing in targets) {
         if (processed % _progressEvery == 0 &&
@@ -615,12 +694,26 @@ class FinancialFactsSync {
         message +=
             ', 원접수 표지 확인 20건 묶음 이후 ${deferredMetadataTargets.length}건 다음 실행 재개';
       }
+      if (annualPublic.processed > 0 || annualPublic.remaining > 0) {
+        message +=
+            ', API 자료없음 연간 원문 확인 ${annualPublic.processed}건·남은 ${annualPublic.remaining}건(핵심계정 부분 수집)';
+      }
+      if (annualPublic.remaining > 0 && !cancelled) {
+        await scheduleResume?.call(
+          now.add(
+            annualPublic.fresh || metadataBatchDeferred
+                ? const Duration(seconds: 30)
+                : const Duration(minutes: 15),
+          ),
+        );
+      }
       if (feedRows > 0) message += ', 공시 피드 $feedRows건';
       if (only != null) message = '${only.name}: $message';
       if (_budgetExhausted &&
           !cancelled &&
           only == null &&
-          deferredMetadataTargets.isEmpty) {
+          deferredMetadataTargets.isEmpty &&
+          annualPublic.remaining == 0) {
         final at = ApiCallBudget.nextKstMidnight(
           now,
         ).add(const Duration(minutes: 10));
@@ -896,6 +989,188 @@ class FinancialFactsSync {
     }
   }
 
+  static const _annualPublicMarker = 'api-noData-annual-public';
+  static bool _isAnnualPublicRecovery(DartFiling f) =>
+      f.reportCode == FinancialReportCode.annual &&
+      (f.lastError?.contains(_annualPublicMarker) ?? false);
+  static int _annualPublicAttempts(DartFiling f) =>
+      int.tryParse(
+        RegExp(r'api-noData-annual-public:attempt=(\d+)')
+                .firstMatch(f.lastError ?? '')
+                ?.group(1) ??
+            '',
+      ) ??
+      0;
+
+  Future<({int stored, int failed, int processed, int remaining, bool fresh})>
+  _recoverAnnualApiNoData(
+    Set<int> scopeIds,
+    Map<String, Company> companies,
+  ) async {
+    final filings = await DartFiling.db.find(
+      session,
+      where: (t) =>
+          t.id.inSet(scopeIds) &
+          t.reportCode.equals(FinancialReportCode.annual),
+    );
+    final queue = filings
+        .where(
+          (f) =>
+              DartReportName.parse(f.reportName)?.kind ==
+                  DartReportKind.annual &&
+              _annualPublicAttempts(f) < 3 &&
+              ((_isAnnualPublicRecovery(f) &&
+                      (f.consolidatedStatus == FilingFetchStatus.failed ||
+                          f.consolidatedStatus == FilingFetchStatus.pending ||
+                          f.separateStatus == FilingFetchStatus.failed ||
+                          f.separateStatus == FilingFetchStatus.pending)) ||
+                  (f.consolidatedStatus == FilingFetchStatus.noData &&
+                      f.separateStatus == FilingFetchStatus.noData &&
+                      !_isAnnualPublicRecovery(f))),
+        )
+        .toList();
+    final periodRanks = <int, int>{};
+    final byCompany = <int?, List<DartFiling>>{};
+    for (final f in queue) {
+      (byCompany[f.companyId] ??= []).add(f);
+    }
+    for (final companyFilings in byCompany.values) {
+      companyFilings.sort(
+        (a, b) => apiRequestYear(b).compareTo(apiRequestYear(a)) != 0
+            ? apiRequestYear(b).compareTo(apiRequestYear(a))
+            : DartReportName.parse(b.reportName)!.periodMonth
+                  .compareTo(DartReportName.parse(a.reportName)!.periodMonth),
+      );
+      for (var i = 0; i < companyFilings.length; i++) {
+        periodRanks[companyFilings[i].id!] = i;
+      }
+    }
+    queue.sort((a, b) {
+      final attempts = _annualPublicAttempts(a)
+          .compareTo(_annualPublicAttempts(b));
+      if (attempts != 0) return attempts;
+      final rank = periodRanks[a.id!]!.compareTo(periodRanks[b.id!]!);
+      if (rank != 0) return rank;
+      final pa = DartReportName.parse(a.reportName),
+          pb = DartReportName.parse(b.reportName);
+      final periods = (pb?.periodYear ?? 0).compareTo(pa?.periodYear ?? 0);
+      if (periods != 0) return periods;
+      final months = (pb?.periodMonth ?? 0).compareTo(pa?.periodMonth ?? 0);
+      return months != 0 ? months : b.rceptNo.compareTo(a.rceptNo);
+    });
+    var stored = 0, failed = 0, processed = 0, consecutiveFailures = 0;
+    final attempted = <int>{};
+    for (final f in queue) {
+      if (processed >= 10 ||
+          consecutiveFailures >= 6 ||
+          await IngestJobs.isCancelled(session, jobId)) {
+        break;
+      }
+      final company = companies[f.corpCode];
+      if (company == null ||
+          DartReportName.parse(f.reportName)?.kind != DartReportKind.annual) {
+        continue;
+      }
+      if (processed > 0 && callInterval != Duration.zero) {
+        await Future<void>.delayed(const Duration(seconds: 1));
+      }
+      final auditReference = 'financial-api-noData-origin:${f.rceptNo}';
+      if (!_isAnnualPublicRecovery(f)) {
+        if (await Source.db.findFirstRow(
+              session,
+              where: (t) => t.reference.equals(auditReference),
+            ) ==
+            null) {
+          await Source.db.insertRow(
+            session,
+            Source(
+              kind: SourceKind.dartReport,
+              reference: auditReference,
+              url: DartClient.filingViewerUrl(f.rceptNo).toString(),
+              retrievedAt: _clock().toUtc(),
+              title: jsonEncode({
+                'action': 'preserved-api-noData-before-keyless-public-recovery',
+                'receipt': f.rceptNo,
+                'corpCode': f.corpCode,
+                'reportName': f.reportName,
+                'originalConsolidatedStatus': f.consolidatedStatus.name,
+                'originalSeparateStatus': f.separateStatus.name,
+                'originalAttempts': f.attempts,
+                'originalLastError': f.lastError,
+                'note':
+                    '원 API 자료없음 장부 근거 보존; API 재요청 없음. 공개 원문 오류는 자료없음으로 확정하지 않음',
+              }),
+            ),
+          );
+        }
+      }
+      final knownCfsAbsent =
+          _isAnnualPublicRecovery(f) &&
+          f.consolidatedStatus == FilingFetchStatus.noData &&
+          await Source.db.findFirstRow(
+                session,
+                where: (t) => t.reference.equals(
+                  'financial-public-basis-not-applicable:${f.rceptNo}:consolidated',
+                ),
+              ) !=
+              null;
+      final sourceRequest = f.copyWith(
+        consolidatedStatus: knownCfsAbsent
+            ? FilingFetchStatus.noData
+            : f.consolidatedStatus == FilingFetchStatus.stored
+            ? FilingFetchStatus.stored
+            : FilingFetchStatus.pending,
+        separateStatus: f.separateStatus == FilingFetchStatus.stored
+            ? FilingFetchStatus.stored
+            : FilingFetchStatus.pending,
+        lastError:
+            '$_annualPublicMarker:attempt=${_annualPublicAttempts(f)}; ${f.lastError ?? ''}',
+      );
+      final result = await _fetchFiling(sourceRequest, company);
+      final updated = (await DartFiling.db.findById(session, f.id!))!;
+      await DartFiling.db.updateRow(
+        session,
+        updated.copyWith(
+          lastError:
+              '$_annualPublicMarker:attempt=${_annualPublicAttempts(f) + (await IngestJobs.isCancelled(session, jobId) ? 0 : 1)}; ${updated.lastError ?? ''}',
+        ),
+      );
+      stored += result.stored;
+      failed += result.failed ? 1 : 0;
+      processed++;
+      attempted.add(f.id!);
+      final anySuccess =
+          updated.consolidatedStatus == FilingFetchStatus.stored ||
+          updated.separateStatus == FilingFetchStatus.stored;
+      consecutiveFailures = anySuccess ? 0 : consecutiveFailures + 1;
+    }
+    var remaining = 0;
+    var fresh = false;
+    for (final f in queue) {
+      final current = (await DartFiling.db.findById(session, f.id!))!;
+      final pending =
+          _annualPublicAttempts(current) < 3 &&
+          (!attempted.contains(f.id!) ||
+              current.consolidatedStatus == FilingFetchStatus.failed ||
+              current.consolidatedStatus == FilingFetchStatus.pending ||
+              current.separateStatus == FilingFetchStatus.failed ||
+              current.separateStatus == FilingFetchStatus.pending);
+      if (pending) {
+        remaining++;
+        if (!attempted.contains(f.id!) && _annualPublicAttempts(current) == 0) {
+          fresh = true;
+        }
+      }
+    }
+    return (
+      stored: stored,
+      failed: failed,
+      processed: processed,
+      remaining: remaining,
+      fresh: fresh,
+    );
+  }
+
   static const _storedPeriodGapMarker = 'source-annual-actual-period-gap';
 
   static const _apiYearRetryMarker = 'report-end-calendar-api-year-retried';
@@ -939,7 +1214,9 @@ class FinancialFactsSync {
 
   static bool _priorAnnualMismatch(DartFiling filing) =>
       filing.reportCode == FinancialReportCode.annual &&
-      ((filing.lastError?.contains(_storedPeriodGapMarker) ?? false) ||
+      ((_isCurrentCoreRecovery(filing)) ||
+          _isAnnualPublicRecovery(filing) ||
+          (filing.lastError?.contains(_storedPeriodGapMarker) ?? false) ||
           (filing.attempts < maxAttempts &&
               (filing.lastError?.contains('storedCurrentAmountsMissing') ??
                   false)) ||
@@ -956,6 +1233,12 @@ class FinancialFactsSync {
   static bool _isAnnualRecovery(DartFiling filing) =>
       filing.reportCode == FinancialReportCode.annual &&
       (filing.lastError?.contains(_annualRecoveryMarker) ?? false);
+
+  static bool _isCurrentCoreRecovery(DartFiling f) =>
+      FinancialCurrentCoreRecovery.eligible(f) &&
+      (f.consolidatedStatus == FilingFetchStatus.pending ||
+          f.separateStatus == FilingFetchStatus.pending) &&
+      (f.lastError?.contains(FinancialCurrentCoreRecovery.marker) ?? false);
 
   static const _halfYearHtmlMarker = 'verified-half-html-noData-once';
   static bool _isKnownHalfYearHtmlPeriod(DartFiling f) {
@@ -1114,6 +1397,10 @@ class FinancialFactsSync {
     var stored = 0;
     var failed = false;
     for (final div in FsDiv.values) {
+      if (_isAnnualPublicRecovery(filing) &&
+          await IngestJobs.isCancelled(session, jobId)) {
+        break;
+      }
       final status = div == FsDiv.consolidated
           ? next.consolidatedStatus
           : next.separateStatus;
@@ -1146,7 +1433,8 @@ class FinancialFactsSync {
           existingCurrent.bsnsYear == filing.bsnsYear &&
           existingCurrent.reportCode == filing.reportCode &&
           _sameActualPeriod(existingCurrent.reportName, filing.reportName) &&
-          !await _hasCurrentAmounts(existingCurrent)) {
+          !await _hasCurrentAmounts(existingCurrent) &&
+          !_isCurrentCoreRecovery(filing)) {
         failed = true;
         next = next.copyWith(
           consolidatedStatus: div == FsDiv.consolidated
@@ -1162,13 +1450,16 @@ class FinancialFactsSync {
       }
       FilingFetchStatus result;
       String? error;
+      PublicFinancialHtmlBasisNotApplicable? verifiedBasisNotApplicable;
       try {
         if (_priorAnnualMismatch(filing)) {
           // The ledger already records a verified API mismatch. Public original
           // recovery needs no new key-bearing API call or allowance.
           throw DartApiException(
             'mismatch',
-            'previous annual API period mismatch',
+            _isAnnualPublicRecovery(filing)
+                ? 'preserved API noData; keyless original recovery'
+                : 'previous annual API period mismatch',
           );
         }
         if (repairCall) _calendarYearRepairCalls++;
@@ -1270,7 +1561,87 @@ class FinancialFactsSync {
               coverSource: null,
             );
           } on FormatException {
-            if (filing.reportName.contains('첨부정정')) {
+            if (_isAnnualPublicRecovery(filing) &&
+                !filing.reportName.contains('첨부정정')) {
+              try {
+                final period = DartReportName.parse(filing.reportName)!;
+                final end = DateTime.utc(
+                  period.periodYear,
+                  period.periodMonth + 1,
+                  0,
+                );
+                final html = await dart.fetchAnnualHtml(
+                  filing.rceptNo,
+                  reportName: filing.reportName,
+                  corpCode: company.corpCode,
+                  companyName: company.name,
+                  bsnsYear: filing.bsnsYear!,
+                  periodEnd: end,
+                  consolidated: div == FsDiv.consolidated,
+                );
+                if (html.sourceReceipt != filing.rceptNo ||
+                    html.correctionReceipt != null ||
+                    html.correctionSource != null ||
+                    html.periodEnd != end) {
+                  throw const FormatException(
+                    'Exact annual HTML source identity mismatch',
+                  );
+                }
+                final rows = PublicFinancialHtml.parseStandardAnnual(
+                  coverHtml: html.coverHtml,
+                  statementHtml: html.statementHtml,
+                  coverSource: html.coverSource,
+                  statementSource: html.statementSource,
+                  receipt: filing.rceptNo,
+                  corpCode: company.corpCode,
+                  companyName: company.name,
+                  periodStart: html.periodStart,
+                  periodEnd: end,
+                  consolidated: div == FsDiv.consolidated,
+                );
+                fallback = (
+                  rows: rows,
+                  source: html.statementSource,
+                  digest: html.sourceDigest,
+                  sourceFiling: filing,
+                  correctionSource: null,
+                  format: 'html',
+                  coverSource: html.coverSource,
+                );
+              } on PublicFinancialHtmlBasisNotApplicable catch (absence) {
+                final period = DartReportName.parse(filing.reportName)!;
+                final end = DateTime.utc(
+                  period.periodYear,
+                  period.periodMonth + 1,
+                  0,
+                );
+                bool bound(Uri uri) =>
+                    uri.scheme == 'https' &&
+                    uri.host == 'dart.fss.or.kr' &&
+                    uri.path == '/report/viewer.do' &&
+                    uri.queryParameters['rcpNo'] == filing.rceptNo &&
+                    RegExp(r'^\d+$')
+                        .hasMatch(uri.queryParameters['dcmNo'] ?? '');
+                if (div != FsDiv.consolidated ||
+                    absence.sourceReceipt != filing.rceptNo ||
+                    absence.corpCode != company.corpCode ||
+                    absence.reportName != filing.reportName ||
+                    absence.periodEnd != end ||
+                    !bound(absence.coverSource) ||
+                    !bound(absence.statementSource) ||
+                    absence.coverSource.queryParameters['dcmNo'] !=
+                        absence.statementSource.queryParameters['dcmNo']) {
+                  error = 'Unbound explicit source basis absence';
+                  failed = true;
+                } else {
+                  verifiedBasisNotApplicable = absence;
+                }
+              } catch (sourceError) {
+                error =
+                    'public annual source verification failed: ${sourceError.runtimeType}';
+                failed = true;
+              }
+            } else if (filing.reportName.contains('첨부정정')) {
               try {
                 final period = DartReportName.parse(filing.reportName)!;
                 final end = DateTime.utc(
@@ -1340,17 +1711,72 @@ class FinancialFactsSync {
                 '${FinancialCodes.fsDivName(div)}: API period mismatch; exact-receipt XBRL fallback failed';
           }
           if (fallback != null) {
-            final saved = await _store(
-              fallback.sourceFiling,
-              company,
-              div,
-              fallback.rows,
-              originalSource: fallback.source,
-              originalDigest: fallback.digest,
-              originalFormat: fallback.format,
-              verifiedAttachmentSource: fallback.correctionSource != null,
-            );
+            late ({FilingFetchStatus status, bool inserted}) saved;
+            try {
+              saved = await _store(
+                fallback.sourceFiling,
+                company,
+                div,
+                fallback.rows,
+                originalSource: fallback.source,
+                originalDigest: fallback.digest,
+                originalFormat: fallback.format,
+                verifiedAttachmentSource: fallback.correctionSource != null,
+              );
+            } on DartApiException catch (e) {
+              if (!_isCurrentCoreRecovery(filing) ||
+                  e.status != 'storedCurrentAmountsMissing') {
+                rethrow;
+              }
+              saved = (status: FilingFetchStatus.failed, inserted: false);
+              error =
+                  '${FinancialCurrentCoreRecovery.marker}; storedCurrentAmountsMissing: verified current-core recovery rejected';
+            }
             result = saved.status;
+            if (saved.status == FilingFetchStatus.stored &&
+                _isAnnualPublicRecovery(filing)) {
+              final reference =
+                  'financial-api-noData-source:${filing.rceptNo}:${div.name}';
+              if (await Source.db.findFirstRow(
+                    session,
+                    where: (t) => t.reference.equals(reference),
+                  ) ==
+                  null) {
+                await Source.db.insertRow(
+                  session,
+                  Source(
+                    kind: SourceKind.dartReport,
+                    reference: reference,
+                    url: fallback.source.toString(),
+                    retrievedAt: _clock().toUtc(),
+                    title: jsonEncode({
+                      'action':
+                          'verified-keyless-annual-source-after-api-noData',
+                      'targetReceipt': filing.rceptNo,
+                      'sourceReceipt': fallback.sourceFiling.rceptNo,
+                      'corpCode': company.corpCode,
+                      'reportName': filing.reportName,
+                      'fsDiv': div.name,
+                      'format': fallback.format,
+                      'sha256': fallback.digest,
+                      'coverSource': fallback.coverSource?.toString(),
+                      'coreRows': fallback.rows.length,
+                      'coreRowProvenance': [
+                        for (final row in fallback.rows)
+                          {
+                            'account_nm': row['account_nm'],
+                            'account_id': row['account_id'],
+                            'thstrm_amount': row['thstrm_amount'],
+                            'currency': row['currency'],
+                            'html_provenance': row['html_provenance'],
+                          },
+                      ],
+                      'note': '공식 원문 핵심계정 부분 수집·전체 재무제표 복구 아님. 원 API 자료없음 기록 및 기존 전체 계정·출처 보존.',
+                    }),
+                  ),
+                );
+              }
+            }
             if (saved.status == FilingFetchStatus.stored &&
                 fallback.correctionSource != null) {
               final marker =
@@ -1375,6 +1801,41 @@ class FinancialFactsSync {
                 _xbrlCoreRecovered++;
               }
             }
+          } else if (verifiedBasisNotApplicable != null) {
+            final absence = verifiedBasisNotApplicable;
+            final reference =
+                'financial-public-basis-not-applicable:${filing.rceptNo}:${div.name}';
+            if (await Source.db.findFirstRow(
+                  session,
+                  where: (t) => t.reference.equals(reference),
+                ) ==
+                null) {
+              await Source.db.insertRow(
+                session,
+                Source(
+                  kind: SourceKind.dartReport,
+                  reference: reference,
+                  url: absence.statementSource.toString(),
+                  retrievedAt: _clock().toUtc(),
+                  title: jsonEncode({
+                    'action':
+                        'official-exact-annual-consolidated-not-applicable',
+                    'receipt': absence.sourceReceipt,
+                    'corpCode': absence.corpCode,
+                    'reportName': filing.reportName,
+                    'fsDiv': div.name,
+                    'coverSource': absence.coverSource.toString(),
+                    'statementSource': absence.statementSource.toString(),
+                    'sha256': absence.sourceDigest,
+                    'periodStart': absence.periodStart.toIso8601String(),
+                    'periodEnd': absence.periodEnd.toIso8601String(),
+                    'evidence': absence.evidence,
+                    'note': '공식 원문에 연결 작성 비적용이 명시됨. 원 API 자료없음 상태 보존; 빈 파싱 결과로 부재를 추정하지 않음.',
+                  }),
+                ),
+              );
+            }
+            result = FilingFetchStatus.noData;
           } else {
             result = FilingFetchStatus.failed;
             failed = true;
@@ -1396,7 +1857,9 @@ class FinancialFactsSync {
       // 생성된 copyWith는 nullable 필드에 null을 넘기면 지우므로, 실패일 때만 넘긴다.
       if (error != null) {
         next = next.copyWith(
-          lastError: _isAnnualRecovery(filing)
+          lastError: _isCurrentCoreRecovery(filing)
+              ? '${FinancialCurrentCoreRecovery.marker}; $error'
+              : _isAnnualRecovery(filing)
               ? "$_annualRecoveryMarker; $error"
               : error,
         );
@@ -1812,6 +2275,23 @@ class FinancialFactsSync {
           'storedPeriodMismatch',
           '기존 재무보고서 $rceptNo의 저장 기간이 공시 원장과 다름; 별도 출처 검증·복구 필요',
         );
+      }
+      if (!await _hasCurrentAmounts(existing) &&
+          _isCurrentCoreRecovery(filing) &&
+          originalSource != null &&
+          originalFormat == 'xbrl' &&
+          originalDigest != null &&
+          await FinancialCurrentCoreRecovery.append(
+            session,
+            report: existing,
+            filing: actualFiling,
+            company: company,
+            div: div,
+            rows: rows,
+            source: originalSource,
+            digest: originalDigest,
+          )) {
+        return (status: FilingFetchStatus.stored, inserted: true);
       }
       if (!await _hasCurrentAmounts(existing)) {
         throw DartApiException(

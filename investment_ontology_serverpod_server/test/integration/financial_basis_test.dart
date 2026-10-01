@@ -28,6 +28,37 @@ void main() {
       bool superseded = false,
       bool details = false,
     }) async {
+      final rceptNo = '${++receipt}'.padLeft(14, '0');
+      final month = switch (code) {
+        FinancialReportCode.annual => '12',
+        FinancialReportCode.q3 => '09',
+        FinancialReportCode.halfYear => '06',
+        FinancialReportCode.q1 => '03',
+      };
+      final reportName = '정기보고서 ($year.$month)';
+      source = await Source.db.insertRow(
+        session,
+        Source(
+          kind: SourceKind.dartReport,
+          title: 'bound test',
+          reference: rceptNo,
+          retrievedAt: DateTime.now().toUtc(),
+        ),
+      );
+      await DartFiling.db.insertRow(
+        session,
+        DartFiling(
+          rceptNo: rceptNo,
+          corpCode: company.corpCode,
+          companyId: company.id,
+          reportName: reportName,
+          bsnsYear: year,
+          reportCode: code,
+          consolidatedStatus: FilingFetchStatus.stored,
+          separateStatus: FilingFetchStatus.stored,
+          discoveredAt: DateTime.now().toUtc(),
+        ),
+      );
       final r = await FinancialReport.db.insertRow(
         session,
         FinancialReport(
@@ -35,8 +66,8 @@ void main() {
           fsDiv: div,
           bsnsYear: year,
           reportCode: code,
-          rceptNo: '${++receipt}'.padLeft(14, '0'),
-          reportName: '$year ${code.name}',
+          rceptNo: rceptNo,
+          reportName: reportName,
           sourceId: source.id!,
           factCount: values.length,
           fetchedAt: DateTime.now().toUtc(),
@@ -82,7 +113,7 @@ void main() {
       source = await Source.db.insertRow(
         session,
         Source(
-          kind: SourceKind.dartApi,
+          kind: SourceKind.dartReport,
           title: 'test',
           retrievedAt: DateTime.now().toUtc(),
         ),
@@ -98,6 +129,227 @@ void main() {
       await session.close();
       ScreenEndpoint.clearCache();
       ScreenEndpoint.serveStaleWhileRefreshing = true;
+    });
+
+    test('newer fabricated report period cannot hide source-bound recovery', () async {
+      final correct = await report(
+        FsDiv.separate,
+        2025,
+        FinancialReportCode.annual,
+        {revenue: 100, net: 10},
+      );
+      final wrong = await report(
+        FsDiv.separate,
+        2025,
+        FinancialReportCode.annual,
+        {revenue: 900, net: 90},
+      );
+      final filing = (await DartFiling.db.findFirstRow(
+        session,
+        where: (t) => t.rceptNo.equals(wrong.rceptNo),
+      ))!;
+      await DartFiling.db.updateRow(
+        session,
+        filing.copyWith(reportName: '사업보고서 (2025.06)'),
+      );
+      final unknown = await report(
+        FsDiv.separate,
+        2025,
+        FinancialReportCode.annual,
+        {revenue: 800},
+      );
+      await FinancialReport.db.updateRow(
+        session,
+        unknown.copyWith(reportName: 'period unavailable'),
+      );
+      final result = await summary(div: FsDiv.separate);
+      expect(result.periods.single.reportId, correct.id);
+      expect(
+        result.periods.single.lines
+            .singleWhere((l) => l.key == 'revenue')
+            .amount,
+        BigInt.from(100),
+      );
+      final sql = await session.db.unsafeQuery(
+        'WITH ${FinancialBasis.ctes(companyId: company.id!)} SELECT v FROM ttm WHERE acc=\'$revenue\'',
+      );
+      expect(num.parse('${sql.single[0]}'), 100);
+      final security = await Security.db.insertRow(
+        session,
+        Security(
+          isinCode: 'KR_SOURCE',
+          shortCode: '999998',
+          name: 'source',
+          companyId: company.id,
+          lastSeenDate: DateTime.utc(2026, 9, 23),
+        ),
+      );
+      await MarketSnapshot.db.insertRow(
+        session,
+        MarketSnapshot(
+          securityId: security.id!,
+          baseDate: DateTime.utc(2026, 9, 23),
+          marketCap: BigInt.from(1000),
+          sourceId: source.id!,
+        ),
+      );
+      await MarketSnapshotDay.db.insertRow(
+        session,
+        MarketSnapshotDay(
+          baseDate: DateTime.utc(2026, 9, 23),
+          rowCount: 1,
+          fetchedAt: DateTime.now().toUtc(),
+        ),
+      );
+      final screen = await ScreenEndpoint().list(
+        session,
+        corpCodes: [company.corpCode],
+      );
+      expect(screen.items.single.revenue, BigInt.from(100));
+      expect(screen.items.single.netIncome, BigInt.from(10));
+      final detail = (await FinancialEndpoint().report(session, correct.id!))!;
+      expect(detail.history.map((r) => r.id), [correct.id]);
+    });
+
+    test('matching receipt on a manual source never becomes eligible primary data', () async {
+      final bound = await report(
+        FsDiv.separate,
+        2025,
+        FinancialReportCode.annual,
+        {revenue: 100},
+      );
+      final manual = await Source.db.insertRow(
+        session,
+        Source(
+          kind: SourceKind.manual,
+          title: 'manual despite matching receipt',
+          reference: bound.rceptNo,
+          retrievedAt: DateTime.now().toUtc(),
+        ),
+      );
+      await FinancialReport.db.updateRow(
+        session,
+        bound.copyWith(sourceId: manual.id!),
+      );
+      for (final fact in await FinancialFact.db.find(
+        session,
+        where: (t) => t.reportId.equals(bound.id!),
+      )) {
+        await FinancialFact.db.updateRow(
+          session,
+          fact.copyWith(sourceId: manual.id!),
+        );
+      }
+      expect((await summary(div: FsDiv.separate)).periods, isEmpty);
+      final ids = await session.db.unsafeQuery(
+        'WITH ${FinancialBasis.ctes(companyId: company.id!)} SELECT id FROM active_reports',
+      );
+      expect(ids, isEmpty);
+      expect(
+        (await FinancialEndpoint().report(session, bound.id!))!.history,
+        isEmpty,
+      );
+    });
+
+    test('unbound report source and foreign-source numbers are unavailable', () async {
+      final bound = await report(
+        FsDiv.separate,
+        2025,
+        FinancialReportCode.annual,
+        {revenue: 100},
+      );
+      final foreign = await Source.db.insertRow(
+        session,
+        Source(
+          kind: SourceKind.dartReport,
+          title: 'different receipt',
+          reference: '19990101000001',
+          retrievedAt: DateTime.now().toUtc(),
+        ),
+      );
+      final fact = (await FinancialFact.db.findFirstRow(
+        session,
+        where: (t) => t.reportId.equals(bound.id!),
+      ))!;
+      await FinancialFact.db.updateRow(
+        session,
+        fact.copyWith(sourceId: foreign.id!),
+      );
+      final result = await summary(div: FsDiv.separate);
+      expect(
+        result.periods.single.lines.where(
+          (l) => l.key == 'revenue' && l.amount != null,
+        ),
+        isEmpty,
+      );
+      final sql = await session.db.unsafeQuery(
+        'WITH ${FinancialBasis.ctes(companyId: company.id!)} SELECT v FROM ttm WHERE acc=\'$revenue\'',
+      );
+      expect(sql.isEmpty || sql.single[0] == null, isTrue);
+      await FinancialReport.db.updateRow(
+        session,
+        bound.copyWith(sourceId: foreign.id!),
+      );
+      expect((await summary(div: FsDiv.separate)).periods, isEmpty);
+    });
+
+    test('latest actual closing month wins and other month is not correction history', () async {
+      final december = await report(
+        FsDiv.separate,
+        2025,
+        FinancialReportCode.annual,
+        {revenue: 120},
+      );
+      final june = await report(
+        FsDiv.separate,
+        2025,
+        FinancialReportCode.annual,
+        {revenue: 60},
+        superseded: true,
+      );
+      await FinancialReport.db.updateRow(
+        session,
+        june.copyWith(
+          reportName: '사업보고서 (2025.06)',
+          supersededById: december.id,
+        ),
+      );
+      final filing = (await DartFiling.db.findFirstRow(
+        session,
+        where: (t) => t.rceptNo.equals(june.rceptNo),
+      ))!;
+      await DartFiling.db.updateRow(
+        session,
+        filing.copyWith(reportName: '사업보고서 (2025.06)'),
+      );
+      final juneCurrent = await report(
+        FsDiv.separate,
+        2025,
+        FinancialReportCode.annual,
+        {revenue: 65},
+      );
+      await FinancialReport.db.updateRow(
+        session,
+        juneCurrent.copyWith(reportName: '사업보고서 (2025.06)'),
+      );
+      final jf = (await DartFiling.db.findFirstRow(
+        session,
+        where: (t) => t.rceptNo.equals(juneCurrent.rceptNo),
+      ))!;
+      await DartFiling.db.updateRow(
+        session,
+        jf.copyWith(reportName: '사업보고서 (2025.06)'),
+      );
+      final result = await summary(div: FsDiv.separate);
+      expect(result.periods.single.reportId, december.id);
+      expect(result.periods.single.supersededCount, 0);
+      final detail = (await FinancialEndpoint().report(session, december.id!))!;
+      expect(detail.history.map((r) => r.id), [december.id]);
+      final juneDetail = (await FinancialEndpoint().report(
+        session,
+        juneCurrent.id!,
+      ))!;
+      expect(juneDetail.history.map((r) => r.id), [june.id, juneCurrent.id]);
     });
 
     test('IPO comparison columns supply TTM, with own-period precedence', () async {

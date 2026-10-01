@@ -164,6 +164,24 @@ class DartClient {
     consolidated: consolidated,
   );
 
+  Future<PublicFinancialHtmlSource> fetchAnnualHtml(
+    String receipt, {
+    required String reportName,
+    required String corpCode,
+    required String companyName,
+    required int bsnsYear,
+    required DateTime periodEnd,
+    required bool consolidated,
+  }) => PublicFinancialHtmlFetcher(_http).fetchAnnual(
+    receipt,
+    reportName: reportName,
+    corpCode: corpCode,
+    companyName: companyName,
+    bsnsYear: bsnsYear,
+    periodEnd: periodEnd,
+    consolidated: consolidated,
+  );
+
   Future<PublicFinancialHtmlSource> fetchHalfYearHtml(
     String receipt, {
     required String reportName,
