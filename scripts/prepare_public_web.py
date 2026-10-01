@@ -3,6 +3,7 @@
 import json
 import shutil
 from pathlib import Path
+from version_web_assets import version_entrypoints
 
 root = Path(__file__).resolve().parent.parent
 source = root / 'investment_ontology_serverpod_flutter/build/web'
@@ -14,6 +15,7 @@ static = output / 'static'
 if static.exists():
     shutil.rmtree(static)
 shutil.copytree(source, static)
+version_entrypoints(static)
 proxy = output / 'functions/api-proxy.func'
 proxy.mkdir(parents=True, exist_ok=True)
 shutil.copyfile(root / 'deploy/api-proxy.cjs', proxy / 'index.cjs')
