@@ -608,6 +608,7 @@ abstract final class PublicFinancialHtml {
 
     final result = <Map<String, dynamic>>[];
     final values = <String, BigInt>{};
+    final missingOptional = <Map<String, dynamic>>[];
     final seenKinds = <String>{};
     var tableIndex = 0;
     for (final table in RegExp(
@@ -737,7 +738,8 @@ abstract final class PublicFinancialHtml {
         if (row.isEmpty) continue;
         final account = accounts[label(row.first?.text ?? '')];
         if (account == null || account.$2 != kind) continue;
-        if (values.containsKey(account.$1)) {
+        if (values.containsKey(account.$1) ||
+            missingOptional.any((m) => m['accountKey'] == account.$1)) {
           throw const FormatException(
             'Duplicate annual whole-company core row',
           );
@@ -757,6 +759,23 @@ abstract final class PublicFinancialHtml {
             .map((c) => money(c!.text))
             .whereType<BigInt>()
             .toList();
+        if (account.$1 == 'capex' &&
+            amounts.isEmpty &&
+            cells.every(
+              (c) => c!.text.trim().isEmpty || c.text.trim() == '-',
+            )) {
+          // An optional printed dash is unavailable, not inferred zero.
+          // Mandatory core rows and malformed/ambiguous numeric cells still fail.
+          missingOptional.add({
+            'accountKey': account.$1,
+            'printedLabel': row.first!.text,
+            'printedCurrentCells': cells.map((c) => c!.text).toList(),
+            'tableIndex': index,
+            'source': statementSource.toString(),
+            'reason': 'Printed optional amount unavailable; no zero or prior amount inferred',
+          });
+          continue;
+        }
         if (amounts.length != 1) {
           throw const FormatException(
             'Ambiguous annual current monetary group',
@@ -821,6 +840,13 @@ abstract final class PublicFinancialHtml {
       throw const FormatException(
         'Annual primary core missing or balance mismatch',
       );
+    }
+    if (missingOptional.isNotEmpty) {
+      for (final row in result) {
+        (row['html_provenance']
+                as Map<String, dynamic>)['unavailableOptionalAccounts'] =
+            missingOptional;
+      }
     }
     return result;
   }
