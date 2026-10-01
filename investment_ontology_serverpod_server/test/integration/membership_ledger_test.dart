@@ -249,6 +249,67 @@ void main() {
       );
 
       test(
+        'completed refund also catches a later in-flight approval',
+        () async {
+          final first = (await MembershipLedger.claim(
+            signed.build(),
+            period: 0,
+            at: now,
+          ))!;
+          await MembershipLedger.settle(
+            builder.build(),
+            first.id!,
+            approved(first),
+          );
+          final renewal = (await MembershipLedger.claim(
+            signed.build(),
+            period: 1,
+            at: SubscriptionRules.boundary(now, 1),
+          ))!;
+          await const AuthUsers().update(
+            builder.build(),
+            authUserId: user,
+            scopes: {Scope.admin},
+          );
+          final admin = builder.copyWith(
+            authentication: AuthenticationOverride.authenticationInfo(
+              user.toString(),
+              {Scope.admin},
+            ),
+          );
+          await MembershipLedger.requestRefund(
+            admin.build(),
+            first.id!,
+            first.orderId,
+          );
+          await MembershipLedger.fullRefund(
+            builder.build(),
+            first.id!,
+            refunded(first),
+          );
+          await MembershipLedger.settle(
+            builder.build(),
+            renewal.id!,
+            approved(renewal),
+          );
+          expect(
+            (await BillingPaymentAttempt.db.findById(
+              builder.build(),
+              renewal.id!,
+            ))!.status,
+            'refundRequired',
+          );
+          expect(
+            (await MembershipLedger.status(
+              signed.build(),
+              at: renewal.paidFromUtc,
+            )).adFree,
+            false,
+          );
+        },
+      );
+
+      test(
         'concurrent first claims persist one stable order and period',
         () async {
           final rows = await Future.wait(

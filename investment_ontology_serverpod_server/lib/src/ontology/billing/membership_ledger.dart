@@ -418,7 +418,7 @@ abstract final class MembershipLedger {
         where: (t) =>
             t.subscriptionId.equals(sub.id!) &
             (t.period >= sub.cycleStartPeriod) &
-            t.status.inSet({'refundRequested', 'refundRequired'}),
+            t.status.inSet({'refundRequested', 'refundRequired', 'refunded'}),
         transaction: tx,
       );
       row.paymentKey = payment.key;

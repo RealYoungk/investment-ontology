@@ -189,6 +189,57 @@ void main() {
         },
       );
 
+      test(
+        'partial cancellation stays pending without another cancel POST',
+        () async {
+          final methods = <String>[];
+          final worker = service((r) async {
+            methods.add(r.method);
+            final value = jsonDecode(response().body) as Map<String, dynamic>;
+            value['status'] = 'PARTIAL_CANCELED';
+            value['balanceAmount'] = 1450;
+            return http.Response(jsonEncode(value), 200);
+          });
+          await MembershipLedger.settle(
+            builder.build(),
+            attempt.id!,
+            SandboxPayment(
+              key: 'payment-${attempt.id}',
+              orderId: attempt.orderId,
+              status: 'DONE',
+              amount: 2900,
+              balance: 2900,
+            ),
+          );
+          await const AuthUsers().update(
+            builder.build(),
+            authUserId: sub.ownerId,
+            scopes: {Scope.admin},
+          );
+          final admin = builder.copyWith(
+            authentication: AuthenticationOverride.authenticationInfo(
+              sub.ownerId.toString(),
+              {Scope.admin},
+            ),
+          );
+          await MembershipLedger.requestRefund(
+            admin.build(),
+            attempt.id!,
+            attempt.orderId,
+          );
+          await worker.reconcileRefunds(builder.build(), sub.id!);
+          expect(methods, ['GET']);
+          expect((await MembershipLedger.status(owned)).adFree, true);
+          expect(
+            (await BillingPaymentAttempt.db.findById(
+              owned,
+              attempt.id!,
+            ))!.status,
+            'refundRequested',
+          );
+        },
+      );
+
       test('cancel blocks a new renewal request', () async {
         var calls = 0;
         final worker = service((_) async {
