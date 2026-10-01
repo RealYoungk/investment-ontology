@@ -1,0 +1,150 @@
+{
+  "metadata": [],
+  "currentWholeRows": [
+    {
+      "account": "OperatingIncomeLoss",
+      "amount": "750396681",
+      "unit": "KRW",
+      "decimals": "0",
+      "contextId": "CFY2026dHYA_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_SeparateMember",
+      "identifier": "00960623",
+      "start": "2026-01-01",
+      "end": "2026-06-30",
+      "instant": null,
+      "dimensions": [
+        "ifrs-full:SeparateMember"
+      ]
+    },
+    {
+      "account": "OperatingIncomeLoss",
+      "amount": "523580344",
+      "unit": "KRW",
+      "decimals": "0",
+      "contextId": "CFY2026dHYQ_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_SeparateMember",
+      "identifier": "00960623",
+      "start": "2026-04-01",
+      "end": "2026-06-30",
+      "instant": null,
+      "dimensions": [
+        "ifrs-full:SeparateMember"
+      ]
+    },
+    {
+      "account": "Assets",
+      "amount": "62819162719",
+      "unit": "KRW",
+      "decimals": "0",
+      "contextId": "CFY2026eHYA_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_SeparateMember",
+      "identifier": "00960623",
+      "start": null,
+      "end": null,
+      "instant": "2026-06-30",
+      "dimensions": [
+        "ifrs-full:SeparateMember"
+      ]
+    },
+    {
+      "account": "CashFlowsFromUsedInOperatingActivities",
+      "amount": "-4053641467",
+      "unit": "KRW",
+      "decimals": "0",
+      "contextId": "CFY2026dHYA_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_SeparateMember",
+      "identifier": "00960623",
+      "start": "2026-01-01",
+      "end": "2026-06-30",
+      "instant": null,
+      "dimensions": [
+        "ifrs-full:SeparateMember"
+      ]
+    },
+    {
+      "account": "Equity",
+      "amount": "31576691418",
+      "unit": "KRW",
+      "decimals": "0",
+      "contextId": "CFY2026eHYA_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_SeparateMember",
+      "identifier": "00960623",
+      "start": null,
+      "end": null,
+      "instant": "2026-06-30",
+      "dimensions": [
+        "ifrs-full:SeparateMember"
+      ]
+    },
+    {
+      "account": "Liabilities",
+      "amount": "31242471301",
+      "unit": "KRW",
+      "decimals": "0",
+      "contextId": "CFY2026eHYA_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_SeparateMember",
+      "identifier": "00960623",
+      "start": null,
+      "end": null,
+      "instant": "2026-06-30",
+      "dimensions": [
+        "ifrs-full:SeparateMember"
+      ]
+    },
+    {
+      "account": "ProfitLoss",
+      "amount": "725163143",
+      "unit": "KRW",
+      "decimals": "0",
+      "contextId": "CFY2026dHYA_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_SeparateMember",
+      "identifier": "00960623",
+      "start": "2026-01-01",
+      "end": "2026-06-30",
+      "instant": null,
+      "dimensions": [
+        "ifrs-full:SeparateMember"
+      ]
+    },
+    {
+      "account": "ProfitLoss",
+      "amount": "482854478",
+      "unit": "KRW",
+      "decimals": "0",
+      "contextId": "CFY2026dHYQ_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_SeparateMember",
+      "identifier": "00960623",
+      "start": "2026-04-01",
+      "end": "2026-06-30",
+      "instant": null,
+      "dimensions": [
+        "ifrs-full:SeparateMember"
+      ]
+    },
+    {
+      "account": "Revenue",
+      "amount": "23769258694",
+      "unit": "KRW",
+      "decimals": "0",
+      "contextId": "CFY2026dHYA_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_SeparateMember",
+      "identifier": "00960623",
+      "start": "2026-01-01",
+      "end": "2026-06-30",
+      "instant": null,
+      "dimensions": [
+        "ifrs-full:SeparateMember"
+      ]
+    },
+    {
+      "account": "Revenue",
+      "amount": "11795577500",
+      "unit": "KRW",
+      "decimals": "0",
+      "contextId": "CFY2026dHYQ_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_SeparateMember",
+      "identifier": "00960623",
+      "start": "2026-04-01",
+      "end": "2026-06-30",
+      "instant": null,
+      "dimensions": [
+        "ifrs-full:SeparateMember"
+      ]
+    }
+  ],
+  "basisDimensions": [
+    "dart-gcd:SeparateMember",
+    "ifrs-full:SeparateMember"
+  ],
+  "note": "source identity00960623; exact source receipt ZIP SHA separately retained"
+}

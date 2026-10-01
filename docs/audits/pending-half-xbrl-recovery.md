@@ -1,0 +1,11 @@
+# Pending half-year exact XBRL recovery
+
+This release admits only source-proved Duksan Navcours corp00960623 receipt20260813000889, inside the existing latest-half-year financial scope. It runs only when the normal API allowance is zero. No historical quarter, API noData-wide, source-receipt substitution or shared hard quota changes are included.
+
+The original exact-receipt cookie/listing-Referer ZIP was retrieved with three public GET requests. Primary metadata says Half Year Report/반기보고서, period2026-01-01..2026-06-30, entity00960623, reporting currency KRW. Whole OFS contexts contain seven core accounts, with distinct2026-04-01..06-30 PL quarter and2026-01-01..06-30 PL cumulative. BS is instant2026-06-30 and CF is six-month cumulative. Additional owner/segment dimensions do not replace missing whole accounts. Unit IDs/date contexts must be unique, monetary precision exact, and assets=liabilities+equity exactly.
+
+Normal API attempts are preserved. A separate explicit source retry marker limits public attempts to three, while maxAttempts and next-day normal API behavior remain unchanged. Source failures are failed, never converted to noData based on absent XBRL contexts. A retry batch is bounded to five source-proved periods and three consecutive failures; untouched work resumes in30seconds, failed-only in15minutes. Public requests retain the existing one-second pacing. Cancellation is checked after download, before each basis and directly before the numeric transaction. Partial seven-account Source and context/ZIP-SHA audit are committed in the same transaction; no full-statement completion is claimed.
+
+CFS non-applicability appears in the official HTML, but this patch does not change the independent HTML parser or treat absent CFS XBRL facts as proof. An already-noData CFS ledger stays unchanged; a pending unsupported CFS stays failed and can still reach the normal API next day. Existing full reports and sources are not replaced by partial core.
+
+The new parser fails closed when calendar report-end year differs from its bsnsYear argument. Non-December canonical FY requires a separate caller-calendar-year check; this source-proved December company is the only recovery candidate. Existing annual parser behavior is unchanged.
