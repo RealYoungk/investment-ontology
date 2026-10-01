@@ -243,8 +243,8 @@ class IngestEndpoint extends Endpoint {
         (SELECT count(*) FROM financial_scope WHERE "consolidatedStatus"='pending' OR "separateStatus"='pending'),
         (SELECT count(*) FROM business_scope),
         (SELECT count(*) FROM business_scope WHERE body_stored),
-        (SELECT count(*) FROM business_scope WHERE NOT body_stored AND body_status<>'failed'),
-        (SELECT count(*) FROM business_scope WHERE NOT body_stored AND body_status='failed')
+        (SELECT count(*) FROM business_scope WHERE NOT body_stored AND NOT (body_status IN ('failed','unsupported') OR (body_status='noData' AND body_attempts>=${DisclosureSync.maxAttempts}))),
+        (SELECT count(*) FROM business_scope WHERE NOT body_stored AND (body_status IN ('failed','unsupported') OR (body_status='noData' AND body_attempts>=${DisclosureSync.maxAttempts})))
     ''');
     final v = [for (final x in rows.first) (x as int?) ?? 0];
     final market = await MarketCollectionCoverage.read(session);

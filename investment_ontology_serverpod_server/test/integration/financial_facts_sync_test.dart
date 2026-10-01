@@ -2,12 +2,14 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:archive/archive.dart';
 import 'package:http/testing.dart';
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/dart_client.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_financial_xbrl.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/ingest/api_call_budget.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/ingest/financial_facts_sync.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/ingest/financial_rows.dart';
 import 'package:serverpod/serverpod.dart';
 import 'package:test/test.dart';
 
@@ -25,6 +27,7 @@ class FakeDart {
   var listCalls = 0;
   bool offline = false;
   bool publicXbrl = false;
+  final publicOriginals = <String, List<int>>{};
 
   static String key(String corp, int year, String code, String fs) =>
       '$corp|$year|$code|$fs';
@@ -46,22 +49,27 @@ class FakeDart {
     httpClient: MockClient((req) async {
       if (offline) throw http.ClientException('Failed host lookup');
       if (req.url.host == 'dart.fss.or.kr') {
+        final receipt =
+            req.url.queryParameters['rcpNo'] ??
+            req.url.queryParameters['rcp_no'] ??
+            '20250409002838';
         if (!publicXbrl) return http.Response('unavailable', 503);
         if (req.url.path == '/dsaf001/main.do') {
           return http.Response(
-            "openPdfDownload('20250409002838', '10571658')",
+            "openPdfDownload('$receipt', '10571658')",
             200,
           );
         }
         if (req.url.path == '/pdf/download/main.do') {
           return http.Response(
-            '<a href="/pdf/download/ifrs.do?rcp_no=20250409002838&amp;dcm_no=10571658&amp;lang=ko">XBRL</a>',
+            '<a href="/pdf/download/ifrs.do?rcp_no=$receipt&amp;dcm_no=10571658&amp;lang=ko">XBRL</a>',
             200,
           );
         }
         return http.Response.bytes(
-          File('test/fixtures/financial_xbrl/cosnine_20250409002838.zip')
-              .readAsBytesSync(),
+          publicOriginals[receipt] ??
+              File('test/fixtures/financial_xbrl/cosnine_20250409002838.zip')
+                  .readAsBytesSync(),
           200,
         );
       }
@@ -645,6 +653,290 @@ void main() {
       );
     });
 
+    Future<void> seedNonDecember({
+      bool oldReceipt = false,
+      bool noRows = false,
+      bool corruptStored = false,
+    }) async {
+      final c = (await Company.db.find(session)).single;
+      await Company.db.updateRow(session, c.copyWith(fiscalMonth: 3));
+      dart.filings.clear();
+      for (final (receipt, year, date) in [
+        ('20250813000001', 2026, DateTime.utc(2025, 8, 13)),
+        ('20260813000001', 2027, DateTime.utc(2026, 8, 13)),
+      ]) {
+        await DartFiling.db.insertRow(
+          session,
+          DartFiling(
+            rceptNo: receipt,
+            corpCode: c.corpCode,
+            companyId: c.id,
+            reportName: '분기보고서 (${year - 1}.06)',
+            receivedDate: date,
+            bsnsYear: year,
+            reportCode: FinancialReportCode.q1,
+            consolidatedStatus: FilingFetchStatus.noData,
+            separateStatus: FilingFetchStatus.noData,
+            discoveredAt: now,
+          ),
+        );
+      }
+      if (!noRows) {
+        for (final fs in ['CFS', 'OFS']) {
+          dart.setRows(c.corpCode, 2026, '11013', fs, [
+            {
+              ...row(
+                oldReceipt ? '20250813000001' : '20260813000001',
+                'BS',
+                'ifrs-full_Assets',
+                '자산총계',
+                '94135633463',
+              ),
+              'bsns_year': '2026',
+              'corp_code': c.corpCode,
+              'reprt_code': '11013',
+            },
+          ]);
+        }
+      }
+      if (corruptStored) {
+        final source = await Source.db.insertRow(
+          session,
+          Source(
+            kind: SourceKind.dartReport,
+            title: 'old misassigned report',
+            reference: '20260813000001',
+            retrievedAt: now,
+          ),
+        );
+        await FinancialReport.db.insertRow(
+          session,
+          FinancialReport(
+            companyId: c.id!,
+            rceptNo: '20260813000001',
+            fsDiv: FsDiv.consolidated,
+            bsnsYear: 2026,
+            reportCode: FinancialReportCode.q1,
+            reportName: '분기보고서 (2026.06)',
+            factCount: 0,
+            sourceId: source.id!,
+            fetchedAt: now,
+          ),
+        );
+      }
+    }
+
+    test('nonDecember latest noData uses actual API calendar year with reserve and canonical storage', () async {
+      await seedNonDecember();
+      final job = await runSync(corpCode: '00000001', dailyBudget: 0);
+      expect(job.status, IngestStatus.succeeded);
+      expect(
+        dart.financialCalls,
+        containsAll(['00000001|2026|11013|CFS', '00000001|2026|11013|OFS']),
+      );
+      expect(dart.financialCalls.any((k) => k.contains('|2027|')), isFalse);
+      final reports = await FinancialReport.db.find(session);
+      expect(reports, hasLength(2));
+      expect(
+        reports.every(
+          (r) => r.bsnsYear == 2027 && r.rceptNo == '20260813000001',
+        ),
+        isTrue,
+      );
+      final historical = (await DartFiling.db.find(
+        session,
+        where: (t) => t.rceptNo.equals('20250813000001'),
+      )).single;
+      expect(historical.consolidatedStatus, FilingFetchStatus.noData);
+      expect(historical.lastError, isNull);
+      expect(job.message, contains('조회연도 보완 2호출'));
+    });
+    test('old API receipt cannot be mapped into next fiscal year', () async {
+      await seedNonDecember(oldReceipt: true);
+      await runSync(corpCode: '00000001', dailyBudget: 0);
+      expect(await FinancialReport.db.count(session), 0);
+      final latest = (await DartFiling.db.find(
+        session,
+        where: (t) => t.rceptNo.equals('20260813000001'),
+      )).single;
+      expect(latest.consolidatedStatus, FilingFetchStatus.failed);
+      expect(latest.lastError, contains('receiptPeriodMismatch'));
+    });
+    test('actual 013 after oneoff calendar-year retry stays noData without infinite requeue', () async {
+      await seedNonDecember(noRows: true);
+      await runSync(corpCode: '00000001', dailyBudget: 0);
+      expect(dart.financialCalls, hasLength(2));
+      dart.financialCalls.clear();
+      await runSync(corpCode: '00000001', dailyBudget: 0);
+      expect(dart.financialCalls, isEmpty);
+      expect(await FinancialReport.db.count(session), 0);
+    });
+    test('same receipt corrupted stored canonical period is failed without rewriting reports', () async {
+      await seedNonDecember(corruptStored: true);
+      await runSync(corpCode: '00000001', dailyBudget: 0);
+      final latest = (await DartFiling.db.find(
+        session,
+        where: (t) => t.rceptNo.equals('20260813000001'),
+      )).single;
+      expect(latest.consolidatedStatus, FilingFetchStatus.failed);
+      expect(latest.lastError, contains('storedPeriodMismatch'));
+      final report = (await FinancialReport.db.find(
+        session,
+        where: (t) => t.fsDiv.equals(FsDiv.consolidated),
+      )).single;
+      expect(report.bsnsYear, 2026);
+    });
+    test('shared hardcap blocks calendar repair even when dedicated reserve exists', () async {
+      await seedNonDecember();
+      await ApiCallUsage.db.insertRow(
+        session,
+        ApiCallUsage(
+          provider: ApiProvider.dart,
+          day: '2026-09-17',
+          calls: 20000,
+        ),
+      );
+      await runSync(corpCode: '00000001', dailyBudget: 0);
+      expect(dart.financialCalls, isEmpty);
+      expect(await FinancialReport.db.count(session), 0);
+    });
+    test('one remaining shared call permits only one repair basis', () async {
+      await seedNonDecember();
+      await ApiCallUsage.db.insertRow(
+        session,
+        ApiCallUsage(
+          provider: ApiProvider.dart,
+          day: '2026-09-17',
+          calls: 19999,
+        ),
+      );
+      await runSync(corpCode: '00000001', dailyBudget: 0);
+      expect(dart.financialCalls, hasLength(1));
+      expect(await FinancialReport.db.count(session), 1);
+    });
+
+    test('fresh exact-period values repair wrong canonical year without changing amounts or source', () async {
+      await seedNonDecember(corruptStored: true);
+      final existing = (await FinancialReport.db.find(session)).single;
+      final fresh =
+          jsonDecode(dart.statements['00000001|2026|11013|CFS']!)['list']
+              as List<dynamic>;
+      final converted = FinancialRows.toFacts(
+        fresh.cast<Map<String, dynamic>>(),
+        reportId: existing.id!,
+        companyId: existing.companyId,
+        bsnsYear: 2026,
+        reportCode: FinancialReportCode.q1,
+        fsDiv: FsDiv.consolidated,
+        sourceId: existing.sourceId,
+      );
+      await FinancialFact.db.insert(session, converted.facts);
+      await FinancialReport.db.updateRow(
+        session,
+        existing.copyWith(factCount: converted.facts.length),
+      );
+      final before = (await FinancialFact.db.find(session)).single;
+      final job = await runSync(corpCode: '00000001', dailyBudget: 0);
+      final report = (await FinancialReport.db.findById(
+        session,
+        existing.id!,
+      ))!;
+      final fact = (await FinancialFact.db.findById(session, before.id!))!;
+      expect(report.bsnsYear, 2027);
+      expect(fact.bsnsYear, 2027);
+      expect(fact.amount, before.amount);
+      expect(fact.sourceId, before.sourceId);
+      expect(report.sourceId, existing.sourceId);
+      expect(job.message, contains('메타데이터 복구 1벌'));
+    });
+
+    test('repair reserve caps at forty calls and leaves other latest filings pending', () async {
+      dart.filings.clear();
+      for (var i = 0; i < 21; i++) {
+        final code = '${10000000 + i}';
+        final c = await company(code, fiscalMonth: 3);
+        await DartFiling.db.insertRow(
+          session,
+          DartFiling(
+            rceptNo: '20260813${i.toString().padLeft(6, '0')}',
+            corpCode: code,
+            companyId: c.id,
+            reportName: '분기보고서 (2026.06)',
+            receivedDate: DateTime.utc(2026, 8, 13),
+            bsnsYear: 2027,
+            reportCode: FinancialReportCode.q1,
+            consolidatedStatus: FilingFetchStatus.noData,
+            separateStatus: FilingFetchStatus.noData,
+            discoveredAt: now,
+          ),
+        );
+      }
+      await runSync(dailyBudget: 0);
+      expect(
+        dart.financialCalls,
+        hasLength(FinancialFactsSync.calendarYearRepairReserve),
+      );
+      expect(
+        await DartFiling.db.count(
+          session,
+          where: (t) => t.consolidatedStatus.equals(FilingFetchStatus.pending),
+        ),
+        1,
+      );
+      expect(await FinancialReport.db.count(session), 0);
+    });
+
+    test('zero API allowance continues through multiple verified annual public recoveries', () async {
+      dart.filings.clear();
+      final c = (await Company.db.find(session)).single;
+      await Company.db.updateRow(session, c.copyWith(corpCode: '00442455'));
+      final second = await company('00442456');
+      final original = File(
+        'test/fixtures/financial_xbrl/cosnine_20250409002838.zip',
+      ).readAsBytesSync();
+      final instance = ZipDecoder()
+          .decodeBytes(original)
+          .files
+          .singleWhere((f) => f.name.endsWith('.xbrl'));
+      dart.publicOriginals['20250409002839'] = ZipEncoder().encodeBytes(
+        Archive()..addFile(
+          ArchiveFile.bytes(
+            instance.name,
+            utf8.encode(
+              utf8.decode(instance.content).replaceAll('00442455', '00442456'),
+            ),
+          ),
+        ),
+      );
+      for (final (corp, id, receipt) in [
+        ('00442455', c.id!, '20250409002838'),
+        ('00442456', second.id!, '20250409002839'),
+      ]) {
+        await DartFiling.db.insertRow(
+          session,
+          DartFiling(
+            rceptNo: receipt,
+            corpCode: corp,
+            companyId: id,
+            reportName: '사업보고서 (2024.12)',
+            receivedDate: DateTime.utc(2025, 4, 9),
+            bsnsYear: 2024,
+            reportCode: FinancialReportCode.annual,
+            consolidatedStatus: FilingFetchStatus.failed,
+            separateStatus: FilingFetchStatus.failed,
+            attempts: 3,
+            lastError: 'DartApiException(mismatch)',
+            discoveredAt: now,
+          ),
+        );
+      }
+      dart.publicXbrl = true;
+      final job = await runSync(dailyBudget: 0);
+      expect(dart.financialCalls, isEmpty);
+      expect(await FinancialReport.db.count(session), 4);
+      expect(job.message, contains('핵심계정 복구 4벌'));
+    });
+
     test('종목코드가 있는 기타시장 기업도 동일 재무 범위로 수집한다', () async {
       final original = (await Company.db.find(session)).single;
       await Company.db.updateRow(
@@ -718,7 +1010,23 @@ void main() {
       expect(filing.lastError, contains('mismatch'));
     });
 
-    test('재무제표가 안 바뀐 정정(첨부추가)은 이전 접수번호로, 표시를 뗀 이름으로 저장한다', () async {
+    test('재무제표가 안 바뀐 정정(첨부추가)은 검증된 동일기간 이전 접수번호로 저장한다', () async {
+      final c = (await Company.db.find(session)).single;
+      await DartFiling.db.insertRow(
+        session,
+        DartFiling(
+          rceptNo: '20260310000001',
+          corpCode: c.corpCode,
+          companyId: c.id,
+          reportName: '사업보고서 (2025.12)',
+          receivedDate: DateTime.utc(2026, 3, 10),
+          bsnsYear: 2025,
+          reportCode: FinancialReportCode.annual,
+          consolidatedStatus: FilingFetchStatus.pending,
+          separateStatus: FilingFetchStatus.pending,
+          discoveredAt: now,
+        ),
+      );
       dart.filings
         ..clear()
         ..add((
@@ -734,7 +1042,10 @@ void main() {
       expect(report.rceptNo, '20260310000001');
       expect(report.reportName, '사업보고서 (2025.12)');
       expect(
-        (await DartFiling.db.find(session)).single.consolidatedStatus,
+        (await DartFiling.db.find(
+          session,
+          where: (t) => t.rceptNo.equals('20260320000009'),
+        )).single.consolidatedStatus,
         FilingFetchStatus.stored,
       );
     });

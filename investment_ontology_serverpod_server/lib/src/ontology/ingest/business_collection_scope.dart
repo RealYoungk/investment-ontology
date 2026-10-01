@@ -6,6 +6,7 @@ abstract final class BusinessCollectionScope {
   static const bodyCte = '''
     business_scope AS (
       SELECT f.*, coalesce(s.status,'pending') AS body_status,
+        coalesce(s.attempts,0) AS body_attempts,
         EXISTS (
           SELECT 1 FROM business_document b
           JOIN disclosure_report d ON d.id=b."reportId"
