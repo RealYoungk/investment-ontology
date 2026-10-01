@@ -11,6 +11,7 @@ class AppViewer {
     required this.userId,
     required this.isAdmin,
     this.isAdFree = false,
+    this.membershipResolved = true,
     this.paidThroughUtc,
     this.cancelAtPeriodEnd = false,
     this.paymentAvailable = false,
@@ -18,7 +19,8 @@ class AppViewer {
   });
 
   AppViewer.fromScopes(this.userId, Set<String> scopeNames)
-    : isAdmin = scopeNames.contains(adminScopeName),
+    : membershipResolved = false,
+      isAdmin = scopeNames.contains(adminScopeName),
       isAdFree = scopeNames.contains(adFreeScopeName),
       paidThroughUtc = null,
       cancelAtPeriodEnd = false,
@@ -30,6 +32,10 @@ class AppViewer {
 
   /// Server-issued entitlement; independent of administrator access.
   final bool isAdFree;
+
+  /// Suppress advertising while the account entitlement is still unknown.
+  /// This never grants paid access or administrator permissions.
+  final bool membershipResolved;
   final DateTime? paidThroughUtc;
   final bool cancelAtPeriodEnd;
   final bool paymentAvailable;
@@ -43,6 +49,7 @@ class AppViewer {
       other.userId == userId &&
       other.isAdmin == isAdmin &&
       other.isAdFree == isAdFree &&
+      other.membershipResolved == membershipResolved &&
       other.paidThroughUtc == paidThroughUtc &&
       other.cancelAtPeriodEnd == cancelAtPeriodEnd &&
       other.paymentAvailable == paymentAvailable &&
@@ -53,6 +60,7 @@ class AppViewer {
     userId,
     isAdmin,
     isAdFree,
+    membershipResolved,
     paidThroughUtc,
     cancelAtPeriodEnd,
     paymentAvailable,

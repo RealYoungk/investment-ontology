@@ -9,6 +9,26 @@ import 'package:investment_ontology_serverpod_flutter/features/monetization/memb
 
 void main() {
   const account = AppViewer(userId: 'account-one', isAdmin: false);
+  test(
+    'entitlement failure leaves restored account advertising suppressed',
+    () async {
+      final source = ValueNotifier<AppViewer?>(
+        AppViewer.fromScopes('member', {}),
+      );
+      final pending = Completer<MembershipView>();
+      final monitor = MembershipMonitor(
+        source: source,
+        fetch: () => pending.future,
+      );
+      expect(monitor.viewer.value!.membershipResolved, false);
+      expect(monitor.viewer.value!.isAdFree, false);
+      pending.completeError(StateError('network unavailable'));
+      await Future<void>.delayed(Duration.zero);
+      expect(monitor.viewer.value!.membershipResolved, false);
+      monitor.dispose();
+      source.dispose();
+    },
+  );
   test('prior account response is discarded', () async {
     final source = ValueNotifier<AppViewer?>(account);
     final old = Completer<MembershipView>();

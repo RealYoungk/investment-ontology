@@ -112,9 +112,24 @@ void main() {
     expect(admin.isAdFree, isFalse);
     expect(
       paid,
-      const AppViewer(userId: 'reader', isAdmin: false, isAdFree: true),
+      const AppViewer(
+        userId: 'reader',
+        isAdmin: false,
+        isAdFree: true,
+        membershipResolved: false,
+      ),
     );
     expect(paid, isNot(const AppViewer(userId: 'reader', isAdmin: false)));
+  });
+  testWidgets('restored account requests no ads before entitlement resolves', (
+    tester,
+  ) async {
+    await tester.pumpWidget(app(viewer: AppViewer.fromScopes('member', {})));
+    expect(slot, findsNothing);
+    await tester.pumpWidget(
+      app(viewer: const AppViewer(userId: 'member', isAdmin: false)),
+    );
+    expect(slot, findsOneWidget);
   });
   testWidgets('disabled config reserves no ad space', (tester) async {
     await tester.pumpWidget(app(config: const AdConfig()));
