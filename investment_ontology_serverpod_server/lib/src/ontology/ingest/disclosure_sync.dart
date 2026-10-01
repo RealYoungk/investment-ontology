@@ -785,6 +785,15 @@ class DisclosureSync {
       try {
         body = await _publicDocuments.fetch(f.rceptNo);
       } catch (e) {
+        // Attachment-only receipts may contain solely the changed attachment.
+        // Keep real source identity and let the existing same-period fallback run.
+        if (e is PublicBusinessNodeMissing && f.reportName.contains('첨부정정')) {
+          session.log(
+            '첨부정정에 사업 본문 없음 ${company.name} ${f.rceptNo} · 원본 확인',
+            level: LogLevel.info,
+          );
+          return null;
+        }
         _publicFailureStreak++;
         if (_publicFailureStreak == 6) {
           session.log(

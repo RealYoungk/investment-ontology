@@ -5,6 +5,11 @@ import 'package:http/http.dart' as http;
 
 import '../disclosure/business_text.dart';
 
+/// A viewer has no business-section node. Ambiguous nodes remain a strict error.
+class PublicBusinessNodeMissing extends FormatException {
+  const PublicBusinessNodeMissing() : super('Business section node missing');
+}
+
 /// An actual, receipt-bound public DART business section, never a viewer shell.
 class PublicBusinessBody {
   const PublicBusinessBody({
@@ -75,13 +80,37 @@ class PublicBusinessDocument {
       r'''node\d+\[['"]text['"]\]\s*=\s*['"]II\.\s*사업의\s*내용['"];(.*?)(?:cnt\+\+)''',
       dotAll: true,
     ).allMatches(shell).toList();
-    if (nodes.length != 1) {
-      throw const FormatException('Business section node missing or ambiguous');
+    if (nodes.isEmpty) {
+      if (RegExp(r'II\.\s*사업의\s*내용').hasMatch(shell)) {
+        throw const FormatException('Malformed business section node');
+      }
+      final otherNodes = RegExp(
+        r"""node\d+\[['"]text['"]\]\s*=\s*['"][^'"]+['"];(.*?)(?:cnt\+\+)""",
+        dotAll: true,
+      ).allMatches(shell);
+      for (final node in otherNodes) {
+        try {
+          _nodeUri(receipt, node.group(1)!);
+          throw const PublicBusinessNodeMissing();
+        } on PublicBusinessNodeMissing {
+          rethrow;
+        } on FormatException {
+          // A partial/foreign node is not evidence of a normal requested viewer.
+        }
+      }
+      throw const FormatException('No verified receipt-bound DART viewer node');
     }
+    if (nodes.length != 1) {
+      throw const FormatException('Business section node ambiguous');
+    }
+    return _nodeUri(receipt, nodes.single.group(1)!);
+  }
+
+  static Uri _nodeUri(String receipt, String node) {
     final fields = <String, String>{};
     for (final match in RegExp(
       r'''\[['"](rcpNo|dcmNo|eleId|offset|length|dtd)['"]\]\s*=\s*['"]([^'"]+)['"]''',
-    ).allMatches(nodes.single.group(1)!)) {
+    ).allMatches(node)) {
       if (fields.containsKey(match.group(1))) {
         throw const FormatException('Duplicate document coordinate');
       }

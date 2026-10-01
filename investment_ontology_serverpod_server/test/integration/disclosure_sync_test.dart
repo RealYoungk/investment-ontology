@@ -22,9 +22,11 @@ class _PublicBodyFixture extends PublicBusinessDocument {
   _PublicBodyFixture({this.fail = false});
   final bool fail;
   final receipts = <String>[];
+  final errors = <String, Object>{};
   @override
   Future<PublicBusinessBody> fetch(String receipt) async {
     receipts.add(receipt);
+    if (errors[receipt] case final error?) throw error;
     if (fail) throw TimeoutException("fixture public transport timeout");
     return PublicBusinessBody(
       receipt: receipt,
@@ -813,6 +815,57 @@ void main() {
             .companiesWithLatestBusinessText,
         1,
       );
+    });
+
+    test('명시 첨부정정의 공개 사업노드 없음은 실제 이전 원본으로 연결한다', () async {
+      const corrected = '20260901000001';
+      await filing(samsung, corrected, 2025, name: '[첨부정정]사업보고서 (2025.12)');
+      final reader = _PublicBodyFixture()
+        ..errors[corrected] = const PublicBusinessNodeMissing();
+      await runSync(corpCode: samsung, dailyBudget: 0, publicDocuments: reader);
+      expect(reader.receipts, [corrected, rSamsung]);
+      final body = (await BusinessDocument.db.find(session)).single;
+      expect(body.rceptNo, rSamsung);
+      final source = (await Source.db.find(session)).single;
+      expect(source.reference, rSamsung);
+      expect(source.url, contains('rcpNo=$rSamsung'));
+      expect(
+        (await endpoints.ingest.coverage(sessionBuilder))
+            .companiesWithLatestBusinessText,
+        0,
+      );
+    });
+
+    test('일반 기재정정의 노드 없음과 첨부정정의 모호한 노드는 이전 원본으로 넘기지 않는다', () async {
+      for (final (receipt, name, error) in [
+        (
+          '20260901000001',
+          '[기재정정]사업보고서 (2025.12)',
+          const PublicBusinessNodeMissing(),
+        ),
+        (
+          '20260902000001',
+          '[첨부정정]사업보고서 (2025.12)',
+          const FormatException('Business section node ambiguous'),
+        ),
+      ]) {
+        final latest = await filing(samsung, receipt, 2025, name: name);
+        final reader = _PublicBodyFixture()..errors[receipt] = error;
+        await runSync(
+          corpCode: samsung,
+          dailyBudget: 0,
+          publicDocuments: reader,
+        );
+        expect(reader.receipts, [receipt]);
+        final section = (await DartFilingSection.db.find(
+          session,
+          where: (t) =>
+              t.filingId.equals(latest.id!) &
+              t.section.equals(DartSection.businessContent),
+        )).single;
+        expect(section.status, FilingFetchStatus.failed);
+      }
+      expect(await BusinessDocument.db.count(session), 0);
     });
 
     test('DART 020 호출 제한 오류 뒤에도 공개 본문을 저장하고 API는 더 부르지 않는다', () async {
