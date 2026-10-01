@@ -6,6 +6,7 @@ import 'package:xml/xml.dart';
 
 import 'dart_values.dart';
 import 'public_financial_xbrl.dart';
+import 'public_financial_html_fetch.dart';
 import '../ingest/api_error_message.dart';
 
 /// DART OpenAPI (https://opendart.fss.or.kr) 호출 오류.
@@ -100,6 +101,49 @@ class DartClient {
 
   Future<({List<int> zip, Uri source})> fetchPublicAnnualXbrl(String receipt) =>
       PublicFinancialXbrl(_http).fetch(receipt);
+
+  Future<
+    ({
+      List<int> zip,
+      Uri source,
+      String receipt,
+      String correctionReceipt,
+      Uri correctionSource,
+    })
+  >
+  fetchLinkedAnnualXbrl(
+    String receipt, {
+    required String reportName,
+    required String corpCode,
+    required int bsnsYear,
+    required DateTime periodEnd,
+    required bool consolidated,
+  }) => PublicFinancialXbrl(_http).fetchLinkedAnnual(
+    receipt,
+    reportName: reportName,
+    corpCode: corpCode,
+    bsnsYear: bsnsYear,
+    periodEnd: periodEnd,
+    consolidated: consolidated,
+  );
+
+  Future<PublicFinancialHtmlSource> fetchAttachmentAnnualHtml(
+    String receipt, {
+    required String reportName,
+    required String corpCode,
+    required String companyName,
+    required int bsnsYear,
+    required DateTime periodEnd,
+    required bool consolidated,
+  }) => PublicFinancialHtmlFetcher(_http).fetchAttachmentAnnual(
+    receipt,
+    reportName: reportName,
+    corpCode: corpCode,
+    companyName: companyName,
+    bsnsYear: bsnsYear,
+    periodEnd: periodEnd,
+    consolidated: consolidated,
+  );
 
   static Uri companyPageUrl(String corpCode) => Uri.parse(
     'https://dart.fss.or.kr/dsab007/main.do?autoSearch=true&option=corp&textCrpCik=$corpCode',

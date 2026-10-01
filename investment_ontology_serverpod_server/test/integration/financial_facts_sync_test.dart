@@ -7,6 +7,7 @@ import 'package:http/testing.dart';
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/dart_client.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_financial_xbrl.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_financial_html_fetch.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/ingest/api_call_budget.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/ingest/financial_facts_sync.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/ingest/financial_rows.dart';
@@ -148,6 +149,133 @@ Map<String, String> row(
   'ord': ord,
   'currency': 'KRW',
 };
+
+class AttachmentOriginalClient extends DartClient {
+  AttachmentOriginalClient(this.originalReceipt, this.zip)
+    : super(
+        'test-key',
+        httpClient: MockClient(
+          (_) async => http.Response('{"status":"013"}', 200),
+        ),
+      );
+  final String originalReceipt;
+  final List<int> zip;
+  int linkedCalls = 0;
+  @override
+  Future<({List<int> zip, Uri source})> fetchPublicAnnualXbrl(
+    String receipt,
+  ) async => throw const FormatException('No exact target XBRL');
+  @override
+  Future<
+    ({
+      List<int> zip,
+      Uri source,
+      String receipt,
+      String correctionReceipt,
+      Uri correctionSource,
+    })
+  >
+  fetchLinkedAnnualXbrl(
+    String receipt, {
+    required String reportName,
+    required String corpCode,
+    required int bsnsYear,
+    required DateTime periodEnd,
+    required bool consolidated,
+  }) async {
+    linkedCalls++;
+    return (
+      zip: zip,
+      source: Uri.parse(
+        'https://dart.fss.or.kr/pdf/download/ifrs.do?rcp_no=$originalReceipt',
+      ),
+      receipt: originalReceipt,
+      correctionReceipt: receipt,
+      correctionSource: Uri.parse(
+        'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=$receipt',
+      ),
+    );
+  }
+}
+
+class ExactPublicOriginalClient extends AttachmentOriginalClient {
+  ExactPublicOriginalClient(super.originalReceipt, super.zip);
+  @override
+  Future<({List<int> zip, Uri source})> fetchPublicAnnualXbrl(
+    String receipt,
+  ) async {
+    if (receipt != originalReceipt) {
+      throw const FormatException('Wrong receipt');
+    }
+    return (
+      zip: zip,
+      source: Uri.parse(
+        'https://dart.fss.or.kr/pdf/download/ifrs.do?rcp_no=$receipt',
+      ),
+    );
+  }
+}
+
+class AttachmentHtmlClient extends AttachmentOriginalClient {
+  AttachmentHtmlClient() : super('20240701000635', const []);
+  int htmlCalls = 0;
+  @override
+  Future<
+    ({
+      List<int> zip,
+      Uri source,
+      String receipt,
+      String correctionReceipt,
+      Uri correctionSource,
+    })
+  >
+  fetchLinkedAnnualXbrl(
+    String receipt, {
+    required String reportName,
+    required String corpCode,
+    required int bsnsYear,
+    required DateTime periodEnd,
+    required bool consolidated,
+  }) async => throw const FormatException('No original XBRL');
+  @override
+  Future<PublicFinancialHtmlSource> fetchAttachmentAnnualHtml(
+    String receipt, {
+    required String reportName,
+    required String corpCode,
+    required String companyName,
+    required int bsnsYear,
+    required DateTime periodEnd,
+    required bool consolidated,
+  }) async {
+    htmlCalls++;
+    final ledger = jsonDecode(
+      File('test/fixtures/financial_html/financial-html-source-ledger.json')
+          .readAsStringSync(),
+    ) as List;
+    Uri source(String basis) => Uri.parse(
+      (ledger.firstWhere((r) => r['basis'] == basis) as Map)['url'] as String,
+    );
+    final basis = consolidated ? 'cfs' : 'ofs';
+    return PublicFinancialHtmlSource(
+      sourceReceipt: originalReceipt,
+      correctionReceipt: receipt,
+      correctionSource: Uri.parse(
+        'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=$receipt',
+      ),
+      coverHtml: File(
+        'test/fixtures/financial_html/$originalReceipt-cover.html',
+      ).readAsStringSync(),
+      coverSource: source('cover'),
+      statementHtml: File(
+        'test/fixtures/financial_html/$originalReceipt-$basis.html',
+      ).readAsStringSync(),
+      statementSource: source(basis),
+      periodStart: DateTime.utc(2023, 4, 1),
+      periodEnd: DateTime.utc(2024, 3, 31),
+      rows: const [],
+    );
+  }
+}
 
 void main() {
   withServerpod('Given FinancialFactsSync', (sessionBuilder, endpoints) {
@@ -686,6 +814,377 @@ void main() {
         },
       );
     }
+
+    for (final (corp, target, original, year, asset) in [
+      ('01669226', '20250321001370', '20250110000545', 2024, '1586401656876'),
+      ('01688896', '20240118000263', '20240118000098', 2023, '742411662610'),
+    ]) {
+      test(
+        'verified attachment $target stores actual original $original and audits target completion',
+        () async {
+          final c = (await Company.db.find(session)).single;
+          await Company.db.updateRow(
+            session,
+            c.copyWith(corpCode: corp, fiscalMonth: 10),
+          );
+          final targetFiling = await DartFiling.db.insertRow(
+            session,
+            DartFiling(
+              rceptNo: target,
+              corpCode: corp,
+              companyId: c.id,
+              reportName: '[첨부정정]사업보고서 ($year.10)',
+              bsnsYear: year,
+              reportCode: FinancialReportCode.annual,
+              consolidatedStatus: FilingFetchStatus.noData,
+              separateStatus: FilingFetchStatus.failed,
+              attempts: 3,
+              lastError: 'OFS: API period mismatch; exact-receipt XBRL fallback failed',
+              discoveredAt: now,
+            ),
+          );
+          final reader = AttachmentOriginalClient(
+            original,
+            File('test/fixtures/financial_xbrl/$original.zip')
+                .readAsBytesSync(),
+          );
+          final j = await IngestJob.db.insertRow(
+            session,
+            IngestJob(
+              kind: FinancialFactsSync.kind,
+              status: IngestStatus.running,
+              startedAt: now,
+            ),
+          );
+          await FinancialFactsSync(
+            session,
+            reader,
+            j.id!,
+            dailyBudget: 0,
+            corpCode: corp,
+            clock: () => now,
+            callInterval: Duration.zero,
+          ).run();
+          expect(reader.linkedCalls, 1);
+          final report = (await FinancialReport.db.find(session)).single;
+          expect(report.rceptNo, original);
+          expect(report.bsnsYear, year);
+          expect(report.reportName, '사업보고서 ($year.10)');
+          final facts = await FinancialFact.db.find(session);
+          expect(
+            facts.singleWhere((f) => f.accountId == 'ifrs-full_Assets').amount,
+            BigInt.parse(asset),
+          );
+          final source = (await Source.db.findById(session, report.sourceId))!;
+          expect(source.reference, original);
+          expect(source.url, contains('rcp_no=$original'));
+          final done = (await DartFiling.db.findById(
+            session,
+            targetFiling.id!,
+          ))!;
+          expect(done.separateStatus, FilingFetchStatus.stored);
+          expect(done.consolidatedStatus, FilingFetchStatus.noData);
+          expect(
+            done.lastError,
+            'verified-attachment-source:$target->$original',
+          );
+          final audit = (await Source.db.findFirstRow(
+            session,
+            where: (t) => t.reference.equals(
+              'financial-attachment-recovery:$target:separate',
+            ),
+          ))!;
+          expect(jsonDecode(audit.title)['sourceReceipt'], original);
+          expect(audit.url, contains('rcpNo=$target'));
+          expect(
+            (await DartFiling.db.findFirstRow(
+              session,
+              where: (t) => t.rceptNo.equals(original),
+            ))!.separateStatus,
+            FilingFetchStatus.stored,
+          );
+        },
+      );
+    }
+    test('linked original from different actual period never creates reports or a source ledger', () async {
+      final c = (await Company.db.find(session)).single;
+      await Company.db.updateRow(session, c.copyWith(corpCode: '01688896'));
+      await DartFiling.db.insertRow(
+        session,
+        DartFiling(
+          rceptNo: '20240118000263',
+          corpCode: '01688896',
+          companyId: c.id,
+          reportName: '[첨부정정]사업보고서 (2023.12)',
+          bsnsYear: 2023,
+          reportCode: FinancialReportCode.annual,
+          consolidatedStatus: FilingFetchStatus.noData,
+          separateStatus: FilingFetchStatus.failed,
+          attempts: 3,
+          lastError: 'DartApiException(receiptPeriodMismatch)',
+          discoveredAt: now,
+        ),
+      );
+      final reader = AttachmentOriginalClient(
+        '20240118000098',
+        File('test/fixtures/financial_xbrl/20240118000098.zip')
+            .readAsBytesSync(),
+      );
+      final j = await IngestJob.db.insertRow(
+        session,
+        IngestJob(
+          kind: FinancialFactsSync.kind,
+          status: IngestStatus.running,
+          startedAt: now,
+        ),
+      );
+      await FinancialFactsSync(
+        session,
+        reader,
+        j.id!,
+        dailyBudget: 0,
+        corpCode: '01688896',
+        clock: () => now,
+      ).run();
+      expect(await FinancialReport.db.count(session), 0);
+      expect(await DartFiling.db.count(session), 1);
+      expect(
+        (await DartFiling.db.find(session)).single.separateStatus,
+        FilingFetchStatus.failed,
+      );
+    });
+
+    test('declared original partial OFS core explicitly records missing whole profit loss while CFS remains full core', () async {
+      final c = (await Company.db.find(session)).single;
+      await Company.db.updateRow(
+        session,
+        c.copyWith(corpCode: '01885222', fiscalMonth: 5),
+      );
+      await DartFiling.db.insertRow(
+        session,
+        DartFiling(
+          rceptNo: '20250811000434',
+          corpCode: '01885222',
+          companyId: c.id,
+          reportName: '사업보고서 (2025.05)',
+          bsnsYear: 2025,
+          reportCode: FinancialReportCode.annual,
+          consolidatedStatus: FilingFetchStatus.failed,
+          separateStatus: FilingFetchStatus.failed,
+          attempts: 3,
+          lastError: 'DartApiException(receiptPeriodMismatch)',
+          discoveredAt: now,
+        ),
+      );
+      final reader = ExactPublicOriginalClient(
+        '20250811000434',
+        File('test/fixtures/financial_xbrl/daishin_value_20250811000434.zip')
+            .readAsBytesSync(),
+      );
+      final j = await IngestJob.db.insertRow(
+        session,
+        IngestJob(
+          kind: FinancialFactsSync.kind,
+          status: IngestStatus.running,
+          startedAt: now,
+        ),
+      );
+      await FinancialFactsSync(
+        session,
+        reader,
+        j.id!,
+        dailyBudget: 0,
+        corpCode: '01885222',
+        clock: () => now,
+        callInterval: Duration.zero,
+      ).run();
+      final reports = await FinancialReport.db.find(session);
+      expect(reports, hasLength(2));
+      for (final report in reports) {
+        final facts = await FinancialFact.db.find(
+          session,
+          where: (t) => t.reportId.equals(report.id!),
+        );
+        final source = (await Source.db.findById(session, report.sourceId))!;
+        expect(source.reference, '20250811000434');
+        if (report.fsDiv == FsDiv.separate) {
+          expect(facts, hasLength(6));
+          expect(
+            facts.any((f) => f.accountId == 'ifrs-full_ProfitLoss'),
+            isFalse,
+          );
+          expect(source.title, contains('부분 핵심계정'));
+          expect(source.title, contains('당기순손익 미확보'));
+          expect(source.title, contains('순손익 wholecontext 미확보'));
+        } else {
+          expect(facts, hasLength(7));
+          expect(
+            facts.any((f) => f.accountId == 'ifrs-full_ProfitLoss'),
+            isTrue,
+          );
+          expect(source.title, isNot(contains('부분 핵심계정')));
+        }
+      }
+      expect(
+        (await IngestJob.db.findById(session, j.id!))!.message,
+        contains('전체 재무제표 아님'),
+      );
+    });
+
+    test('verified missing-XBRL attachment HTML stores actual original printed account labels without invented IDs', () async {
+      final c = (await Company.db.find(session)).single;
+      await Company.db.updateRow(
+        session,
+        c.copyWith(corpCode: '00677334', name: '(주)아하', fiscalMonth: 3),
+      );
+      final target = await DartFiling.db.insertRow(
+        session,
+        DartFiling(
+          rceptNo: '20240702000525',
+          corpCode: '00677334',
+          companyId: c.id,
+          reportName: '[첨부정정]사업보고서 (2024.03)',
+          bsnsYear: 2024,
+          reportCode: FinancialReportCode.annual,
+          consolidatedStatus: FilingFetchStatus.failed,
+          separateStatus: FilingFetchStatus.failed,
+          attempts: 3,
+          lastError: 'DartApiException(receiptPeriodMismatch)',
+          discoveredAt: now,
+        ),
+      );
+      final reader = AttachmentHtmlClient();
+      final j = await IngestJob.db.insertRow(
+        session,
+        IngestJob(
+          kind: FinancialFactsSync.kind,
+          status: IngestStatus.running,
+          startedAt: now,
+        ),
+      );
+      await FinancialFactsSync(
+        session,
+        reader,
+        j.id!,
+        dailyBudget: 0,
+        corpCode: '00677334',
+        clock: () => now,
+        callInterval: Duration.zero,
+      ).run();
+      expect(reader.htmlCalls, 2);
+      final reports = await FinancialReport.db.find(session);
+      expect(reports, hasLength(2));
+      for (final report in reports) {
+        expect(report.rceptNo, '20240701000635');
+        final facts = await FinancialFact.db.find(
+          session,
+          where: (t) => t.reportId.equals(report.id!),
+          orderBy: (t) => t.ord,
+        );
+        expect(facts, hasLength(7));
+        expect(facts.every((f) => f.accountId == null), isTrue);
+        expect(facts.every((f) => f.accountName.isNotEmpty), isTrue);
+        final expected = report.fsDiv == FsDiv.consolidated
+            ? [
+                '101131149053',
+                '62690969504',
+                '38440179549',
+                '78305621279',
+                '3006702112',
+                '1327808656',
+                '-7911425271',
+              ]
+            : [
+                '101309722186',
+                '62043404550',
+                '39266317636',
+                '77432069841',
+                '3025665889',
+                '1934425181',
+                '-8609316999',
+              ];
+        expect(facts.map((f) => f.amount.toString()), expected);
+        final source = (await Source.db.findById(session, report.sourceId))!;
+        expect(source.reference, '20240701000635');
+        expect(source.url, contains('rcpNo=20240701000635'));
+        expect(source.title, contains('HTML 부분 핵심계정'));
+        expect(source.title, contains('XBRL 계정 ID 미제공'));
+        expect(source.title, isNot(contains('XBRL 핵심계정')));
+        final basis = report.fsDiv == FsDiv.consolidated ? 'cfs' : 'ofs';
+        final cover = File(
+          'test/fixtures/financial_html/20240701000635-cover.html',
+        ).readAsStringSync();
+        final statement = File(
+          'test/fixtures/financial_html/20240701000635-$basis.html',
+        ).readAsStringSync();
+        final rawDigest = PublicFinancialXbrl.digest(
+          utf8.encode('$cover\n$statement'),
+        );
+        expect(source.title, contains('SHA256:$rawDigest'));
+
+        final audit = (await Source.db.findFirstRow(
+          session,
+          where: (t) => t.reference.equals(
+            'financial-attachment-recovery:20240702000525:${report.fsDiv.name}',
+          ),
+        ))!;
+        expect(jsonDecode(audit.title)['originalFormat'], 'html');
+        expect(jsonDecode(audit.title)['originalSource'], source.url);
+        expect(
+          jsonDecode(audit.title)['coverSource'],
+          contains('rcpNo=20240701000635'),
+        );
+        expect(jsonDecode(audit.title)['originalSha256'], rawDigest);
+      }
+      final done = (await DartFiling.db.findById(session, target.id!))!;
+      expect(done.consolidatedStatus, FilingFetchStatus.stored);
+      expect(done.separateStatus, FilingFetchStatus.stored);
+      final job = (await IngestJob.db.findById(session, j.id!))!;
+      expect(job.message, contains('HTML 부분 핵심계정 복구 2벌'));
+      expect(job.message, isNot(contains('XBRL 핵심계정 복구')));
+    });
+    test(
+      'ordinary correction cannot use attachment-only HTML fallback',
+      () async {
+        final c = (await Company.db.find(session)).single;
+        await DartFiling.db.insertRow(
+          session,
+          DartFiling(
+            rceptNo: '20240702000525',
+            corpCode: c.corpCode,
+            companyId: c.id,
+            reportName: '[기재정정]사업보고서 (2024.03)',
+            bsnsYear: 2024,
+            reportCode: FinancialReportCode.annual,
+            consolidatedStatus: FilingFetchStatus.noData,
+            separateStatus: FilingFetchStatus.failed,
+            attempts: 3,
+            lastError: 'DartApiException(receiptPeriodMismatch)',
+            discoveredAt: now,
+          ),
+        );
+        final reader = AttachmentHtmlClient();
+        final j = await IngestJob.db.insertRow(
+          session,
+          IngestJob(
+            kind: FinancialFactsSync.kind,
+            status: IngestStatus.running,
+            startedAt: now,
+          ),
+        );
+        await FinancialFactsSync(
+          session,
+          reader,
+          j.id!,
+          dailyBudget: 0,
+          corpCode: c.corpCode,
+          clock: () => now,
+          callInterval: Duration.zero,
+        ).run();
+        expect(reader.htmlCalls, 0);
+        expect(await FinancialReport.db.count(session), 0);
+      },
+    );
 
     Future<void> seedNonDecember({
       bool oldReceipt = false,

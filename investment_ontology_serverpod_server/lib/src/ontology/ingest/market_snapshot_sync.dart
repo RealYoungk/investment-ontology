@@ -54,6 +54,7 @@ class MarketSnapshotSync {
   late final _meter = ApiCallMeter(ApiProvider.dataGoKr, () => client.calls);
   late int _allowance;
   bool _budgetExhausted = false;
+  final _recentEmptyDates = <DateTime>{};
 
   bool get _hasAllowance {
     if (client.calls >= _allowance) _budgetExhausted = true;
@@ -156,6 +157,11 @@ class MarketSnapshotSync {
             (page) => client.fetchStockPrices(date, page: page),
           );
           if (items == null) break;
+          if (items.isEmpty &&
+              today.difference(date) <= publishGrace &&
+              !today.difference(date).isNegative) {
+            _recentEmptyDates.add(date);
+          }
           if (items.isNotEmpty) {
             await _storeDay(date, items, securities);
             stored++;
@@ -254,6 +260,32 @@ class MarketSnapshotSync {
         ).add(const Duration(minutes: 10));
         await scheduleResume?.call(at);
         message += ' · 일일 호출 예산($dailyBudget건) 소진';
+      }
+      // Recent empty responses remain unconfirmed; reuse the single resume hook.
+      // Never compete with the earlier daily run or create unlimited hourly jobs.
+      if (!cancelled &&
+          failures.isEmpty &&
+          !_budgetExhausted &&
+          client.calls < _allowance &&
+          _recentEmptyDates.isNotEmpty &&
+          scheduleResume != null) {
+        final at = now.add(const Duration(hours: 1));
+        var dailyAt = DateTime.utc(today.year, today.month, today.day, 9);
+        if (!dailyAt.isAfter(now)) {
+          dailyAt = dailyAt.add(const Duration(days: 1));
+        }
+        const retryNote = '최근 미확보 기준일 1시간 후 재확인';
+        final recentRetries = await IngestJob.db.count(
+          session,
+          where: (t) =>
+              t.kind.equals(kind) &
+              (t.startedAt >= now.subtract(const Duration(days: 1))) &
+              t.message.like('%$retryNote%'),
+        );
+        if (at.isBefore(dailyAt) && recentRetries < 24) {
+          await scheduleResume!(at);
+          message += ' · $retryNote';
+        }
       }
       if (failures.isNotEmpty) message += ' · 실패 예시: ${failures.join(' / ')}';
       await IngestJobs.save(
@@ -486,8 +518,14 @@ class MarketSnapshotSync {
           (page) => client.fetchMarketIndexes(day.baseDate, page: page),
         );
         if (items == null) break;
-        // 시세가 있는 날에 지수가 비어 오면 아직 공개 전이다 — 장부에 남기지 않고 다음에 다시 본다.
-        if (items.isEmpty) continue;
+        // Empty index responses do not establish publication or holiday status.
+        if (items.isEmpty) {
+          final age = kstDate(_clock().toUtc()).difference(day.baseDate);
+          if (!age.isNegative && age <= publishGrace) {
+            _recentEmptyDates.add(day.baseDate);
+          }
+          continue;
+        }
         await _storeIndexDay(day.baseDate, items);
         stored++;
       } on DataGoKrApiException catch (e) {

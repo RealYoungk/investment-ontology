@@ -14,6 +14,7 @@ import 'test_tools/serverpod_test_tools.dart';
 class FakeDataGoKr {
   final prices = <String, List<Map<String, String>>>{};
   final listed = <String, List<Map<String, String>>>{};
+  final indexes = <String, List<Map<String, String>>>{};
   final priceCalls = <String>[];
   final listedCalls = <String>[];
   String? errorBody;
@@ -30,7 +31,14 @@ class FakeDataGoKr {
       if (errorBody != null) {
         return http.Response.bytes(utf8.encode(errorBody!), 200);
       }
-      final items = (isPrice ? prices : listed)[date] ?? const [];
+      final isIndex = req.url.path.endsWith('getStockMarketIndex_V2');
+      final items =
+          (isPrice
+              ? prices
+              : isIndex
+              ? indexes
+              : listed)[date] ??
+          const [];
       return http.Response.bytes(
         utf8.encode(
           jsonEncode({
@@ -82,15 +90,25 @@ void main() {
     final now = DateTime.utc(2026, 9, 17, 3);
     final resumes = <DateTime>[];
 
-    Future<IngestJob> runSync({int dailyBudget = 9000}) async {
+    Future<IngestJob> runSync({
+      int dailyBudget = 9000,
+      DateTime? at,
+      bool cancelled = false,
+    }) async {
       final job = await IngestJob.db.insertRow(
         session,
         IngestJob(
           kind: MarketSnapshotSync.kind,
           status: IngestStatus.running,
-          startedAt: DateTime.now().toUtc(),
+          startedAt: at ?? now,
         ),
       );
+      if (cancelled) {
+        await IngestJob.db.updateRow(
+          session,
+          job.copyWith(status: IngestStatus.cancelled),
+        );
+      }
       await MarketSnapshotSync(
         session,
         api.client(),
@@ -98,7 +116,7 @@ void main() {
         dailyBudget: dailyBudget,
         backfillFrom: DateTime.utc(2026, 9, 16),
         callInterval: Duration.zero,
-        clock: () => now,
+        clock: () => at ?? now,
         scheduleResume: (at) async => resumes.add(at),
       ).run();
       return (await IngestJob.db.findById(session, job.id!))!;
@@ -365,5 +383,82 @@ void main() {
       expect(job.message, contains('예산'));
       expect(resumes, [DateTime.utc(2026, 9, 17, 15, 10)]);
     });
+    test(
+      'recent empty schedules one hourly retry but does not mark a holiday',
+      () async {
+        final job = await runSync();
+        expect(resumes, [now.add(const Duration(hours: 1))]);
+        expect(job.message, contains('최근 미확보 기준일 1시간 후 재확인'));
+        expect(await MarketSnapshotDay.db.count(session), 0);
+      },
+    );
+    test('daily run taking precedence, cancellation and exhausted budget skip hourly retry', () async {
+      await runSync(at: DateTime.utc(2026, 9, 17, 8, 30));
+      expect(resumes, isEmpty);
+      await runSync(cancelled: true);
+      expect(resumes, isEmpty);
+      final limited = await runSync(dailyBudget: 1);
+      expect(resumes, isEmpty);
+      expect(limited.message, isNot(contains('1시간 후')));
+    });
+    test('complete price/index responses need no retry while recent empty index does', () async {
+      api.prices['20260916'] = [price('KR7005930003', '005930', '삼성전자')];
+      api.indexes['20260916'] = [
+        {'idxNm': '코스피', 'idxCsf': 'KOSPI', 'clpr': '2500'},
+      ];
+      await runSync();
+      expect(resumes, isEmpty);
+      await MarketIndexDay.db.deleteWhere(
+        session,
+        where: (t) => t.baseDate.equals(DateTime.utc(2026, 9, 16)),
+      );
+      api.indexes.clear();
+      final job = await runSync();
+      expect(resumes, [now.add(const Duration(hours: 1))]);
+      expect(job.message, contains('지수 미완료 1일'));
+    });
+    test(
+      'rolling 24-hour limit stops a twenty-fifth recent-empty retry',
+      () async {
+        await IngestJob.db.insert(session, [
+          for (var i = 0; i < 24; i++)
+            IngestJob(
+              kind: MarketSnapshotSync.kind,
+              status: IngestStatus.succeeded,
+              startedAt: now.subtract(Duration(minutes: i)),
+              message: '최근 미확보 기준일 1시간 후 재확인',
+            ),
+        ]);
+        await runSync();
+        expect(resumes, isEmpty);
+      },
+    );
+    test(
+      'older confirmed zero-row holidays are complete and need no hourly retry',
+      () async {
+        await MarketSnapshotDay.db.insert(session, [
+          for (final day in [17, 18, 19])
+            MarketSnapshotDay(
+              baseDate: DateTime.utc(2026, 9, day),
+              rowCount: day == 19 ? 1 : 0,
+              fetchedAt: now,
+            ),
+        ]);
+        api.indexes['20260919'] = [
+          {'idxNm': '코스피', 'idxCsf': 'KOSPI', 'clpr': '2500'},
+        ];
+        final job = await runSync(at: DateTime.utc(2026, 9, 20, 3));
+        expect(resumes, isEmpty);
+        expect(job.message, contains('남은 기준일 0일'));
+        expect(job.message, contains('지수 미완료 0일'));
+        expect(
+          (await MarketSnapshotDay.db.findFirstRow(
+            session,
+            where: (t) => t.baseDate.equals(DateTime.utc(2026, 9, 16)),
+          ))!.rowCount,
+          0,
+        );
+      },
+    );
   });
 }

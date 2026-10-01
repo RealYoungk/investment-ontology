@@ -74,6 +74,107 @@ class PublicFinancialXbrl {
     return (zip: zip, source: links.single);
   }
 
+  /// Resolve only an explicitly attachment-corrected report's unique official
+  /// main-document option. Returned financial facts retain the original receipt;
+  /// the correction receipt and its viewer remain separate provenance.
+  Future<
+    ({
+      List<int> zip,
+      Uri source,
+      String receipt,
+      String correctionReceipt,
+      Uri correctionSource,
+    })
+  >
+  fetchLinkedAnnual(
+    String correctionReceipt, {
+    required String reportName,
+    required String corpCode,
+    required int bsnsYear,
+    required DateTime periodEnd,
+    required bool consolidated,
+  }) async {
+    if (!RegExp(r'^\d{14}$').hasMatch(correctionReceipt) ||
+        !reportName.startsWith('[첨부정정]사업보고서')) {
+      throw const FormatException(
+        'Not an explicit annual attachment correction',
+      );
+    }
+    final correctionSource = Uri.https('dart.fss.or.kr', '/dsaf001/main.do', {
+      'rcpNo': correctionReceipt,
+    });
+    final response = await client
+        .get(
+          correctionSource,
+          headers: {
+            'User-Agent': 'InvestmentOntology/1.0',
+          },
+        )
+        .timeout(const Duration(seconds: 30));
+    if (response.statusCode != 200 ||
+        (response.request?.url.host ?? correctionSource.host) !=
+            'dart.fss.or.kr') {
+      throw const FormatException('Invalid official correction response');
+    }
+    final shell = utf8.decode(response.bodyBytes);
+    if (!RegExp("openPdfDownload\\('$correctionReceipt',\\s*'\\d+'\\)")
+        .hasMatch(shell)) {
+      throw const FormatException('Correction shell receipt mismatch');
+    }
+    final families = RegExp(
+      r'<select\b[^>]*\bid=["\x27]family["\x27][^>]*>(.*?)</select>',
+      caseSensitive: false,
+      dotAll: true,
+    ).allMatches(shell).toList();
+    if (families.length != 1) {
+      throw const FormatException('Ambiguous original document selection');
+    }
+    final candidates = <String>[];
+    for (final option in RegExp(
+      r'<option\b([^>]*)>',
+      caseSensitive: false,
+    ).allMatches(families.single.group(1)!)) {
+      final attrs = <String, String>{};
+      for (final attr in RegExp(
+        r'([\w-]+)\s*=\s*["\x27]([^"\x27]*)["\x27]',
+      ).allMatches(option.group(1)!)) {
+        if (attrs.containsKey(attr.group(1))) {
+          throw const FormatException('Duplicate original option attribute');
+        }
+        attrs[attr.group(1)!] = attr.group(2)!;
+      }
+      if (attrs['title'] != '사업보고서') continue;
+      final value = attrs['value'] ?? '';
+      if (!RegExp(r'^rcpNo=\d{14}$').hasMatch(value)) {
+        throw const FormatException('Invalid original document option');
+      }
+      candidates.add(value.substring(6));
+    }
+    if (candidates.length != 1 ||
+        candidates.single.compareTo(correctionReceipt) >= 0) {
+      throw const FormatException('Ambiguous or nonprior original receipt');
+    }
+    final receipt = candidates.single;
+    await Future<void>.delayed(const Duration(seconds: 1));
+    final original = await fetch(receipt);
+    // Validates trusted source metadata, requested period, entity and basis.
+    parse(
+      original.zip,
+      receipt: receipt,
+      corpCode: corpCode,
+      bsnsYear: bsnsYear,
+      periodEnd: periodEnd,
+      consolidated: consolidated,
+    );
+    return (
+      zip: original.zip,
+      source: original.source,
+      receipt: receipt,
+      correctionReceipt: correctionReceipt,
+      correctionSource: correctionSource,
+    );
+  }
+
   static String digest(List<int> zip) => sha256.convert(zip).toString();
 
   /// Only whole-company, unrounded KRW core-account facts are admitted.
@@ -108,7 +209,8 @@ class PublicFinancialXbrl {
       periodEnd.month + 1,
       1,
     ).toIso8601String().substring(0, 10);
-    final start = _declaredAnnualStart(root, corpCode, end) ?? legacyStart;
+    final declaredStart = _declaredAnnualStart(root, corpCode, end);
+    final start = declaredStart ?? legacyStart;
     final expectedMember = consolidated
         ? 'ConsolidatedMember'
         : 'SeparateMember';
@@ -226,9 +328,68 @@ class PublicFinancialXbrl {
         'currency': 'KRW',
       };
     }
-    if (!values.containsKey('ifrs-full_Assets') ||
-        !values.containsKey('ifrs-full_ProfitLoss')) {
+    if (!values.containsKey('ifrs-full_Assets')) {
       throw const FormatException('Current annual core contexts missing');
+    }
+    if (!values.containsKey('ifrs-full_ProfitLoss')) {
+      // A bounded partial OFS subset is admitted only with explicit annual
+      // metadata and a complete, internally consistent whole-company subset.
+      // Equity-component ProfitLoss facts are never used to infer net income.
+      if (consolidated || declaredStart == null) {
+        throw const FormatException('Current annual core contexts missing');
+      }
+      Map<String, dynamic> requiredFact(String id) {
+        final fact = values[id];
+        if (fact == null) {
+          throw const FormatException('Partial annual core subset incomplete');
+        }
+        return fact;
+      }
+
+      Map<String, dynamic> uniqueAccount(List<String> ids) {
+        final facts = ids
+            .where(values.containsKey)
+            .map((id) => values[id]!)
+            .toList();
+        if (facts.isEmpty ||
+            facts.map((f) => f['thstrm_amount']).toSet().length != 1) {
+          throw const FormatException(
+            'Partial annual account ambiguous or missing',
+          );
+        }
+        return facts.first;
+      }
+
+      final assets = requiredFact('ifrs-full_Assets');
+      final liabilities = requiredFact('ifrs-full_Liabilities');
+      final equity = requiredFact('ifrs-full_Equity');
+      if (BigInt.parse(assets['thstrm_amount'] as String) !=
+          BigInt.parse(liabilities['thstrm_amount'] as String) +
+              BigInt.parse(equity['thstrm_amount'] as String)) {
+        throw const FormatException('Partial annual balance identity mismatch');
+      }
+      final subset = [
+        assets,
+        liabilities,
+        equity,
+        uniqueAccount([
+          'ifrs-full_Revenue',
+          'ifrs-full_RevenueFromContractsWithCustomers',
+        ]),
+        uniqueAccount([
+          'dart_OperatingIncomeLoss',
+          'ifrs-full_ProfitLossFromOperatingActivities',
+        ]),
+        requiredFact('ifrs-full_CashFlowsFromUsedInOperatingActivities'),
+      ];
+      return [
+        for (final fact in subset)
+          {
+            ...fact,
+            'xbrl_partial_core': true,
+            'xbrl_collection_note': '순손익 wholecontext 미확보, 부분 핵심계정',
+          },
+      ];
     }
     return values.values.toList();
   }

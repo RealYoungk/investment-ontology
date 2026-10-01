@@ -113,9 +113,9 @@ class _CoverageState extends State<_Coverage> {
         _Dataset(
           dataset: 'financial',
           title: '재무제표',
-          source: 'DART 전체 재무제표',
+          source: 'DART 재무 API · 공시 원문 보완',
           data:
-              '사업·반기·분기보고서의 연결·별도 전체 계정과 금액. 매출·이익·자산·부채·현금흐름 및 투자 지표의 기초입니다.',
+              '사업·반기·분기보고서의 연결·별도 계정과 금액을 수집합니다. API 기간이 어긋난 보고서는 원문의 검증된 핵심 계정으로 보완하며, 부분 자료와 미확보 계정은 출처에 기록합니다.',
           scope: '기업별 최근 5개년 연간 사업보고서와 그 이후 최신 분기·반기보고서 한 건을 수집합니다. 과거 분기·반기와 10년 자동 확대는 대상에서 제외합니다.',
           detail: '매일 18:30 수집. 호출 한도에 도달하면 다음 날 00:10에 재개합니다. 보고서 처리 완료는 연결·별도에 더 이상 대기가 없다는 뜻이며, 모든 계정이나 두 재무 기준이 존재한다는 뜻은 아닙니다.',
           children: [
@@ -144,8 +144,8 @@ class _CoverageState extends State<_Coverage> {
           title: '공시 주요정보',
           source: 'DART 주요정보 28종',
           data: '최대주주·소액주주·임원·타법인출자·배당·자기주식·주식 총수·증자 등. 지배구조와 주주환원 화면에 사용합니다.',
-          scope: '기업별 최신 사업보고서의 핵심 9종부터 처리합니다. 처리 완료에는 원천의 데이터 없음 응답도 포함되며, 아래 비율은 값의 확보율이 아닙니다.',
-          detail: 'API 예: hyslrSttus.json(최대주주), exctvSttus.json(임원), otrCprInvstmntSttus.json(출자), alotMatter.json(배당), tesstkAcqsDspsSttus.json(자기주식). 매일 19:00 수집, 한도 도달 시 다음 날 00:05 재개. 처리율에는 저장 완료와 원천의 데이터 없음 응답이 모두 포함됩니다. 전체 항목 장부에는 사업의 내용 본문도 포함됩니다.',
+          scope: '기업별 최신 사업보고서의 핵심 9종부터 처리합니다. 처리 완료에는 API의 자료 없음 응답도 포함되며, 아래 비율은 값의 확보율이 아닙니다.',
+          detail: 'API 예: hyslrSttus.json(최대주주), exctvSttus.json(임원), otrCprInvstmntSttus.json(출자), alotMatter.json(배당), tesstkAcqsDspsSttus.json(자기주식). 매일 19:00 수집, 한도 도달 시 다음 날 00:05 재개. 처리율에는 저장 완료와 API의 자료 없음 응답이 모두 포함됩니다. 전체 항목 장부에는 사업의 내용 본문도 포함됩니다.',
           children: [
             _Progress(
               label: '최신 핵심 9종 처리',
@@ -183,7 +183,7 @@ class _CoverageState extends State<_Coverage> {
         ),
         const SizedBox(height: AppSpace.md),
         Text(
-          '기업 보유 수는 자료가 하나라도 있는 기업 수입니다. 재무·공시 주요정보 처리율은 원천 데이터 없음 응답을 포함합니다. 본문 확보율은 실제 본문 저장 기준이며 어느 비율도 정확도 점수가 아닙니다.',
+          '기업 보유 수는 자료가 하나라도 있는 기업 수입니다. 재무·공시 주요정보 처리율은 API의 자료 없음 응답을 포함합니다. 이 응답은 공시 원문이 없다는 뜻이 아닙니다. 본문 확보율은 실제 본문 저장 기준이며 어느 비율도 정확도 점수가 아닙니다.',
           style: t.body(12, color: c.textSecondary),
         ),
       ],
@@ -560,7 +560,7 @@ class FinancialCollectionStatus extends StatelessWidget {
     final v = coverage;
     final counts = [
       ('저장 보고서', v.financialStoredFilings),
-      ('원천 데이터 없음', v.financialNoDataFilings),
+      ('재무 API 응답 자료 없음', v.financialNoDataFilings),
       ('대기 보고서', v.financialPendingFilings),
       ('실패 보고서', v.financialFailedFilings),
     ];
