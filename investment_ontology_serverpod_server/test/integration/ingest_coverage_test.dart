@@ -139,12 +139,134 @@ void main() {
       expect(value.bodyScopeFailed, 1);
     });
 
+    for (final basis in [FsDiv.consolidated, FsDiv.separate]) {
+      test(
+        'actual closing month and original source anchor govern $basis availability',
+        () async {
+          final company = (await Company.db.findFirstRow(
+            session,
+            where: (t) => t.corpCode.equals('00000002'),
+          ))!;
+          final now = DateTime.utc(2026, 1, 1);
+          Future<DartFiling> filing(String receipt, String month) =>
+              DartFiling.db.insertRow(
+                session,
+                DartFiling(
+                  companyId: company.id,
+                  corpCode: company.corpCode,
+                  rceptNo: receipt,
+                  bsnsYear: 2025,
+                  reportCode: FinancialReportCode.annual,
+                  reportName: '사업보고서 (2025.$month)',
+                  discoveredAt: now,
+                  consolidatedStatus: FilingFetchStatus.stored,
+                  separateStatus: FilingFetchStatus.stored,
+                ),
+              );
+          Future<Source> source(String receipt) => Source.db.insertRow(
+            session,
+            Source(
+              kind: SourceKind.dartReport,
+              title: '실제 공시 원접수',
+              reference: receipt,
+              url: 'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=$receipt',
+              retrievedAt: now,
+            ),
+          );
+          Future<FinancialReport> report(
+            String receipt,
+            String month,
+            Source evidence,
+          ) => FinancialReport.db.insertRow(
+            session,
+            FinancialReport(
+              companyId: company.id!,
+              rceptNo: receipt,
+              bsnsYear: 2025,
+              reportCode: FinancialReportCode.annual,
+              fsDiv: basis,
+              reportName: '사업보고서 (2025.$month)',
+              factCount: 1,
+              sourceId: evidence.id!,
+              fetchedAt: now,
+            ),
+          );
+          Future<void> fact(FinancialReport r, Source evidence) async {
+            await FinancialFact.db.insertRow(
+              session,
+              FinancialFact(
+                reportId: r.id!,
+                companyId: company.id!,
+                bsnsYear: 2025,
+                reportCode: FinancialReportCode.annual,
+                fsDiv: basis,
+                statement: FinancialStatementKind.balanceSheet,
+                accountName: '자산총계',
+                amount: BigInt.from(100),
+                sourceId: evidence.id!,
+              ),
+            );
+          }
+
+          // A June original cannot establish the December target's availability.
+          await filing('20250811000001', '06');
+          await filing('20260310000002', '12');
+          final juneSource = await source('20250811000001');
+          final june = await report('20250811000001', '06', juneSource);
+          await fact(june, juneSource);
+          var coverage = await endpoints.ingest.coverage(sessionBuilder);
+          expect(
+            coverage.financialStoredFilings,
+            1,
+            reason: 'June source covers only June, not same-FY December',
+          );
+          // A fabricated report title cannot change its original receipt's period.
+          await FinancialReport.db.updateRow(
+            session,
+            june.copyWith(reportName: '사업보고서 (2025.12)'),
+          );
+          coverage = await endpoints.ingest.coverage(sessionBuilder);
+          expect(
+            coverage.financialStoredFilings,
+            0,
+            reason: 'Report title matches December but source receipt ledger is June',
+          );
+          // An earlier December original is valid for its final correction,
+          // but neither an empty report nor another source's facts suffice.
+          await filing('20260310000001', '12');
+          final decemberSource = await source('20260310000001');
+          final december = await report('20260310000001', '12', decemberSource);
+          expect(
+            (await endpoints.ingest.coverage(sessionBuilder))
+                .financialStoredFilings,
+            0,
+            reason:
+                'Correct original anchor without actual facts is not stored',
+          );
+          await fact(december, juneSource);
+          expect(
+            (await endpoints.ingest.coverage(sessionBuilder))
+                .financialStoredFilings,
+            0,
+            reason: 'Facts must bind the report source, not a different period source',
+          );
+          await fact(december, decemberSource);
+          coverage = await endpoints.ingest.coverage(sessionBuilder);
+          expect(
+            coverage.financialStoredFilings,
+            1,
+            reason: 'Actual December original anchor and its source-bound amount cover final December',
+          );
+        },
+      );
+    }
+
     test('층마다 받은 수와 전체 수를 센다', () async {
       final v = await endpoints.ingest.coverage(sessionBuilder);
       expect(v.listedCompanies, 2);
       expect(v.filingsTotal, 1, reason: '같은 기간의 최종 정정 접수번호만 수집 대상이다');
       expect(v.filingsPending, 1);
-      expect(v.financialStoredFilings, 1);
+      expect(v.financialStoredFilings, 0, reason: 'stored 장부만 있고 실제 숫자·출처는 없음');
       expect(v.financialPendingFilings, 1);
       expect(v.financialFailedFilings, 0);
       expect(v.bodyScopeTotal, 1);

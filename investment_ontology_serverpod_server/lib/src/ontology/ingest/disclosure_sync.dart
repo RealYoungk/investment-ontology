@@ -485,6 +485,8 @@ class DisclosureSync {
           final bWait = b.lastError == _businessApiWait;
           if (aWait != bWait) return aWait ? 1 : -1;
         }
+        final attempts = a.attempts.compareTo(b.attempts);
+        if (attempts != 0) return attempts;
         return order[a.filingId]!.compareTo(order[b.filingId]!);
       });
       job = await IngestJobs.save(session, job.copyWith(total: pending.length));
@@ -611,9 +613,22 @@ class DisclosureSync {
                 item.status == FilingFetchStatus.pending &&
                 item.lastError == _businessApiWait,
           );
+      final hasUnattemptedBody = unfinished.any(
+        (item) => item.attempts == 0 && item.lastError != _businessApiWait,
+      );
+      final hasRetryFailures = unfinished.any(
+        (item) =>
+            item.status == FilingFetchStatus.failed ||
+            item.status == FilingFetchStatus.noData ||
+            (item.attempts > 0 &&
+                item.lastError != null &&
+                item.lastError != _businessApiWait),
+      );
       DateTime? resume;
       if (unfinished.isNotEmpty && job.status != IngestStatus.cancelled) {
-        if (_publicFailureStreak >= 6 || failed > 0 || noData > 0) {
+        if (_publicFailureStreak >= 6 ||
+            (!hasUnattemptedBody &&
+                (failed > 0 || noData > 0 || hasRetryFailures))) {
           resume = _clock().toUtc().add(const Duration(minutes: 15));
         } else if (_budgetExhausted &&
             (!publicFallbackEnabled || apiOnlyWaiting)) {

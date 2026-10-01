@@ -9,8 +9,10 @@ import '../dart/dart_report_name.dart';
 import '../dart/dart_values.dart';
 import '../dart/public_financial_xbrl.dart';
 import '../dart/public_financial_html.dart';
+import '../dart/public_financial_period_metadata.dart';
 import 'api_call_budget.dart';
 import 'financial_rows.dart';
+import 'financial_collection_scope.dart';
 import 'financial_period_repair.dart';
 import 'ingest_jobs.dart';
 
@@ -285,6 +287,170 @@ class FinancialFactsSync {
           );
         }
       }
+      final deferredMetadataTargets = <int>{};
+      var metadataAnchored = 0;
+      var metadataBatchDeferred = false;
+      final failedMetadataReceipts = <String>{};
+      final attemptedMetadataReceipts = <String>{};
+      if (job.status != IngestStatus.cancelled) {
+        final candidates = await session.db.unsafeQuery(
+          'WITH ${FinancialCollectionScope.cte} '
+          'SELECT DISTINCT p.id, r."rceptNo" FROM financial_scope p '
+          'JOIN financial_report r ON r."companyId"=p."companyId" AND r."bsnsYear"=p."bsnsYear" AND r."reportCode"=p."reportCode" '
+          'JOIN source s ON s.id=r."sourceId" AND s.reference=r."rceptNo" '
+          'WHERE p.id=ANY(@scope) AND p."reportCode" IN (\'annual\',\'halfYear\') '
+          'AND substring(r."reportName" from \'[0-9]{4}[.][0-9]{2}\')=p.actual_period '
+          'AND ((p."consolidatedStatus"=\'stored\' AND r."fsDiv"=\'consolidated\' AND NOT p.consolidated_period_stored) OR '
+          '(p."separateStatus"=\'stored\' AND r."fsDiv"=\'separate\' AND NOT p.separate_period_stored)) '
+          'AND EXISTS(SELECT 1 FROM financial_fact v WHERE v."reportId"=r.id AND v."sourceId"=r."sourceId" AND v.amount IS NOT NULL) '
+          'AND NOT EXISTS(SELECT 1 FROM dart_filing a WHERE a."rceptNo"=r."rceptNo") ORDER BY p.id',
+          parameters: QueryParameters.named({'scope': scopeIds.toList()}),
+        );
+        var metadataRequests = 0;
+        for (final candidate in candidates) {
+          final targetId = candidate[0] as int;
+          final metadataReceipt = candidate[1] as String;
+          if (attemptedMetadataReceipts.contains(metadataReceipt)) {
+            if (failedMetadataReceipts.contains(metadataReceipt)) {
+              deferredMetadataTargets.add(targetId);
+            }
+            continue;
+          }
+          if (metadataRequests >= 20) {
+            metadataBatchDeferred = true;
+            deferredMetadataTargets.add(targetId);
+            continue;
+          }
+          if (await IngestJobs.isCancelled(session, jobId)) {
+            job = job.copyWith(status: IngestStatus.cancelled);
+            break;
+          }
+          final target = (await DartFiling.db.findById(session, targetId))!;
+          final company = companies[target.corpCode];
+          final parsed = DartReportName.parse(target.reportName);
+          if (company == null ||
+              parsed == null ||
+              !const [
+                DartReportKind.annual,
+                DartReportKind.halfYear,
+              ].contains(parsed.kind)) {
+            continue;
+          }
+          final end = DateTime.utc(
+            parsed.periodYear,
+            parsed.periodMonth + 1,
+            0,
+          );
+          if (metadataRequests > 0 && callInterval != Duration.zero) {
+            await Future<void>.delayed(const Duration(seconds: 1));
+          }
+          metadataRequests++;
+          attemptedMetadataReceipts.add(metadataReceipt);
+          PublicFinancialPeriodMetadata metadata;
+          try {
+            metadata = await dart.fetchAnnualPeriodMetadata(
+              candidate[1] as String,
+              corpCode: company.corpCode,
+              companyName: company.name,
+              targetReceipt: target.rceptNo,
+              periodEnd: end,
+              halfYear: parsed.kind == DartReportKind.halfYear,
+            );
+            if (metadata.receipt != candidate[1] ||
+                metadata.corpCode != company.corpCode ||
+                metadata.periodEnd != end) {
+              throw const FormatException('Unbound recovered metadata');
+            }
+          } on PublicFinancialMetadataPeriodMismatch {
+            // Independent actual-cover mismatch may proceed to exact target recovery.
+            continue;
+          } catch (e) {
+            deferredMetadataTargets.add(targetId);
+            failedMetadataReceipts.add(metadataReceipt);
+            session.log('Source period metadata deferred: ${e.runtimeType}');
+            continue;
+          }
+          final sourceName =
+              '${parsed.kind == DartReportKind.halfYear ? '반기보고서' : '사업보고서'} (${parsed.periodYear}.${parsed.periodMonth.toString().padLeft(2, '0')})';
+          await session.db.transaction((tx) async {
+            await DartFiling.db.insertRow(
+              session,
+              DartFiling(
+                rceptNo: metadata.receipt,
+                corpCode: company.corpCode,
+                companyId: company.id,
+                reportName: sourceName,
+                bsnsYear: target.bsnsYear,
+                reportCode: target.reportCode,
+                consolidatedStatus: FilingFetchStatus.pending,
+                separateStatus: FilingFetchStatus.pending,
+                lastError: 'verified-source-cover-metadata: ${target.rceptNo}',
+                discoveredAt: now,
+              ),
+              transaction: tx,
+            );
+            await Source.db.insertRow(
+              session,
+              Source(
+                kind: SourceKind.dartReport,
+                reference:
+                    'financial-source-period-anchor:${metadata.receipt}:${target.rceptNo}',
+                url: metadata.coverSource.toString(),
+                retrievedAt: now,
+                title: jsonEncode({
+                  'kind': 'verified-source-cover-period-metadata',
+                  'sourceReceipt': metadata.receipt,
+                  'targetReceipt': target.rceptNo,
+                  'corpCode': metadata.corpCode,
+                  'shellSource': metadata.shellSource.toString(),
+                  'coverSource': metadata.coverSource.toString(),
+                  'sha256': metadata.digest,
+                  'periodStart': metadata.periodStart.toIso8601String(),
+                  'periodEnd': metadata.periodEnd.toIso8601String(),
+                  'validationNote': '공식 표지 기간·회사·보고서 종류와 명시 원접수 연결만 검증; 기존 재무 숫자/출처 변경·전체 금액 재검증 없음',
+                }),
+              ),
+              transaction: tx,
+            );
+          });
+          metadataAnchored++;
+        }
+      }
+      // Stored ledger status alone is insufficient when same-year annual
+      // periods differ. Requeue only missing bases within this run's scope.
+      if (job.status != IngestStatus.cancelled) {
+        final gaps = await session.db.unsafeQuery(
+          'WITH ${FinancialCollectionScope.cte} '
+          'SELECT id, consolidated_period_stored, separate_period_stored FROM financial_scope '
+          'WHERE id=ANY(@scope) AND "reportCode"=\'annual\' AND '
+          '(("consolidatedStatus"=\'stored\' AND NOT consolidated_period_stored) OR '
+          '("separateStatus"=\'stored\' AND NOT separate_period_stored))',
+          parameters: QueryParameters.named({'scope': scopeIds.toList()}),
+        );
+        for (final gap in gaps) {
+          if (deferredMetadataTargets.contains(gap[0])) continue;
+          final f = (await DartFiling.db.findById(session, gap[0] as int))!;
+          if (DartReportName.parse(f.reportName)?.kind !=
+              DartReportKind.annual) {
+            continue;
+          }
+          await DartFiling.db.updateRow(
+            session,
+            f.copyWith(
+              consolidatedStatus:
+                  f.consolidatedStatus == FilingFetchStatus.stored &&
+                      gap[1] != true
+                  ? FilingFetchStatus.pending
+                  : f.consolidatedStatus,
+              separateStatus:
+                  f.separateStatus == FilingFetchStatus.stored && gap[2] != true
+                  ? FilingFetchStatus.pending
+                  : f.separateStatus,
+              lastError: '$_storedPeriodGapMarker; ${f.reportName}',
+            ),
+          );
+        }
+      }
       // One source-reviewed latest half-year exception; ordinary API noData
       // ledgers remain untouched. CFS noData is explicitly preserved.
       if (job.status != IngestStatus.cancelled) {
@@ -321,7 +487,8 @@ class FinancialFactsSync {
                       : t.companyId.equals(only.id!)) &
                   (t.attempts.between(0, maxAttempts - 1) |
                       (t.reportCode.equals(FinancialReportCode.annual) &
-                          (t.lastError.like('%DartApiException(mismatch)%') |
+                          (t.lastError.like('%$_storedPeriodGapMarker%') |
+                              t.lastError.like('%DartApiException(mismatch)%') |
                               t.lastError.like(
                                 '%DartApiException(receiptPeriodMismatch)%',
                               ) |
@@ -434,9 +601,26 @@ class FinancialFactsSync {
         message +=
             ', 동일 원접수·당기 핵심 7계정 검증 후 보고기간 명칭 복구 $_periodNameMetadataRepaired벌(전체 계정값 재검증 아님)';
       }
+      if (metadataAnchored > 0) {
+        message += ', 공식 원접수 표지 기간 연결 $metadataAnchored건(숫자 변경 없음)';
+      }
+      if (deferredMetadataTargets.isNotEmpty && !cancelled) {
+        await scheduleResume?.call(
+          now.add(
+            metadataBatchDeferred
+                ? const Duration(seconds: 30)
+                : const Duration(minutes: 15),
+          ),
+        );
+        message +=
+            ', 원접수 표지 확인 20건 묶음 이후 ${deferredMetadataTargets.length}건 다음 실행 재개';
+      }
       if (feedRows > 0) message += ', 공시 피드 $feedRows건';
       if (only != null) message = '${only.name}: $message';
-      if (_budgetExhausted && !cancelled && only == null) {
+      if (_budgetExhausted &&
+          !cancelled &&
+          only == null &&
+          deferredMetadataTargets.isEmpty) {
         final at = ApiCallBudget.nextKstMidnight(
           now,
         ).add(const Duration(minutes: 10));
@@ -712,6 +896,8 @@ class FinancialFactsSync {
     }
   }
 
+  static const _storedPeriodGapMarker = 'source-annual-actual-period-gap';
+
   static const _apiYearRetryMarker = 'report-end-calendar-api-year-retried';
 
   static bool _isCalendarYearRepair(DartFiling filing) =>
@@ -753,7 +939,11 @@ class FinancialFactsSync {
 
   static bool _priorAnnualMismatch(DartFiling filing) =>
       filing.reportCode == FinancialReportCode.annual &&
-      ((filing.lastError?.contains('DartApiException(mismatch)') ?? false) ||
+      ((filing.lastError?.contains(_storedPeriodGapMarker) ?? false) ||
+          (filing.attempts < maxAttempts &&
+              (filing.lastError?.contains('storedCurrentAmountsMissing') ??
+                  false)) ||
+          (filing.lastError?.contains('DartApiException(mismatch)') ?? false) ||
           (filing.lastError?.contains(
                 'DartApiException(receiptPeriodMismatch)',
               ) ??
@@ -947,6 +1137,29 @@ class FinancialFactsSync {
       if (!_hasAllowance && !_priorAnnualMismatch(filing) && !repairCall) break;
       if (repairCall && !await _canRepairCalendarYear()) break;
 
+      final existingCurrent = await FinancialReport.db.findFirstRow(
+        session,
+        where: (t) => t.rceptNo.equals(filing.rceptNo) & t.fsDiv.equals(div),
+      );
+      if (existingCurrent != null &&
+          existingCurrent.companyId == company.id &&
+          existingCurrent.bsnsYear == filing.bsnsYear &&
+          existingCurrent.reportCode == filing.reportCode &&
+          _sameActualPeriod(existingCurrent.reportName, filing.reportName) &&
+          !await _hasCurrentAmounts(existingCurrent)) {
+        failed = true;
+        next = next.copyWith(
+          consolidatedStatus: div == FsDiv.consolidated
+              ? FilingFetchStatus.failed
+              : null,
+          separateStatus: div == FsDiv.separate
+              ? FilingFetchStatus.failed
+              : null,
+          lastError:
+              'storedCurrentAmountsMissing: ${filing.rceptNo}; 기존 비교기간 숫자·출처 보존, 별도 원문 검증 필요',
+        );
+        continue;
+      }
       FilingFetchStatus result;
       String? error;
       try {
@@ -1492,6 +1705,15 @@ class FinancialFactsSync {
   /// 한 번에 넣는 사실 행 수 (PostgreSQL 파라미터 수 제한 대비).
   static const _insertChunk = 1000;
 
+  Future<bool> _hasCurrentAmounts(FinancialReport report) async =>
+      await FinancialFact.db.count(
+        session,
+        where: (t) =>
+            t.reportId.equals(report.id!) &
+            (t.amount.notEquals(null) | t.cumulativeAmount.notEquals(null)),
+      ) >
+      0;
+
   /// 응답을 저장한다. 같은 접수번호·구분을 이미 저장했으면 넣지 않는다.
   Future<({FilingFetchStatus status, bool inserted})> _store(
     DartFiling filing,
@@ -1589,6 +1811,12 @@ class FinancialFactsSync {
         throw DartApiException(
           'storedPeriodMismatch',
           '기존 재무보고서 $rceptNo의 저장 기간이 공시 원장과 다름; 별도 출처 검증·복구 필요',
+        );
+      }
+      if (!await _hasCurrentAmounts(existing)) {
+        throw DartApiException(
+          'storedCurrentAmountsMissing',
+          '기존 재무보고서 당기 금액 미확보; 비교기간 숫자·출처 보존',
         );
       }
       return (status: FilingFetchStatus.stored, inserted: false);
@@ -1732,8 +1960,25 @@ class FinancialFactsSync {
         transaction: tx,
       );
 
+      final sourceFilings = await DartFiling.db.find(
+        session,
+        where: (t) =>
+            t.companyId.equals(company.id!) &
+            t.corpCode.equals(company.corpCode) &
+            t.bsnsYear.equals(bsnsYear) &
+            t.reportCode.equals(reportCode),
+        transaction: tx,
+      );
+      final verifiedReceipts = {
+        for (final f in sourceFilings)
+          if (_sameActualPeriod(f.reportName, reportName)) f.rceptNo,
+      };
       final rivals = candidates
-          .where((r) => _sameActualPeriod(r.reportName, reportName))
+          .where(
+            (r) =>
+                verifiedReceipts.contains(r.rceptNo) &&
+                _sameActualPeriod(r.reportName, reportName),
+          )
           .toList();
 
       // 접수번호가 가장 큰(가장 최근) 쪽이 최종본이다. 공시 목록은 수신일

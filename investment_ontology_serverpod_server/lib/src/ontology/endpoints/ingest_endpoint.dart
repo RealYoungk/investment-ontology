@@ -213,7 +213,9 @@ class IngestEndpoint extends Endpoint {
         (SELECT count(*) FROM financial_scope),
         (SELECT count(*) FROM financial_scope
            WHERE "consolidatedStatus" IN ('pending', 'failed')
-              OR "separateStatus" IN ('pending', 'failed')),
+              OR "separateStatus" IN ('pending', 'failed')
+              OR ("consolidatedStatus"='stored' AND NOT consolidated_period_stored)
+              OR ("separateStatus"='stored' AND NOT separate_period_stored)),
         (SELECT count(*) FROM dart_filing_section WHERE "yearRank" = 0 AND tier = 0),
         (SELECT count(*) FROM dart_filing_section
            WHERE "yearRank" = 0 AND tier = 0 AND status IN ('stored', 'noData')),
@@ -237,10 +239,14 @@ class IngestEndpoint extends Endpoint {
               AND s.status='stored' AND b."companyId"=f."companyId"
               AND b."rceptNo"=f."rceptNo"
           )),
-        (SELECT count(*) FROM financial_scope WHERE "consolidatedStatus"='stored' OR "separateStatus"='stored'),
+        (SELECT count(*) FROM financial_scope WHERE
+          ("consolidatedStatus"='stored' AND consolidated_period_stored)
+          OR ("separateStatus"='stored' AND separate_period_stored)),
         (SELECT count(*) FROM financial_scope WHERE "consolidatedStatus"='noData' AND "separateStatus"='noData'),
         (SELECT count(*) FROM financial_scope WHERE "consolidatedStatus"='failed' OR "separateStatus"='failed'),
-        (SELECT count(*) FROM financial_scope WHERE "consolidatedStatus"='pending' OR "separateStatus"='pending'),
+        (SELECT count(*) FROM financial_scope WHERE "consolidatedStatus"='pending' OR "separateStatus"='pending'
+          OR ("consolidatedStatus"='stored' AND NOT consolidated_period_stored)
+          OR ("separateStatus"='stored' AND NOT separate_period_stored)),
         (SELECT count(*) FROM business_scope),
         (SELECT count(*) FROM business_scope WHERE body_stored),
         (SELECT count(*) FROM business_scope WHERE NOT body_stored AND NOT (body_status IN ('failed','unsupported') OR (body_status='noData' AND body_attempts>=${DisclosureSync.maxAttempts}))),
