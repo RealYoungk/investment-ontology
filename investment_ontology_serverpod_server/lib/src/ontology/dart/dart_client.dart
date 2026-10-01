@@ -246,6 +246,48 @@ class DartClient {
   /// 정기보고서 주요정보 (`hyslrSttus.json` 등, 경로는 `DartSections`) 원문 행.
   ///
   /// 자료가 없으면 013으로 오기도 하고, 값이 모두 `-`인 행을 주기도 한다. 013이면 null.
+  Future<List<Map<String, dynamic>>> fetchInsiderHoldings(
+    String corpCode,
+  ) async {
+    final data = await _json('elestock.json', {
+      'corp_code': corpCode,
+    }, allowNoData: true);
+    return (data?['list'] as List? ?? []).cast<Map<String, dynamic>>();
+  }
+
+  /// Allowlisted ownership/major-event APIs. Source URLs never contain keys.
+  Future<List<Map<String, dynamic>>> fetchResearchDisclosure(
+    String api,
+    String corpCode, {
+    DateTime? from,
+    DateTime? to,
+  }) async {
+    const ownership = {'elestock', 'majorstock'};
+    const events = {
+      'piicDecsn',
+      'cvbdIsDecsn',
+      'bdwtIsDecsn',
+      'exbdIsDecsn',
+      'tsstkAqDecsn',
+      'tsstkDpDecsn',
+      'tsstkAqTrctrCnsDecsn',
+      'tsstkAqTrctrCcDecsn',
+    };
+    if (!ownership.contains(api) && !events.contains(api)) {
+      throw ArgumentError('Unsupported DART API');
+    }
+    if (events.contains(api) &&
+        (from == null || to == null || from.isAfter(to))) {
+      throw ArgumentError('An ordered date range is required');
+    }
+    final data = await _json('$api.json', {
+      'corp_code': corpCode,
+      if (events.contains(api)) 'bgn_de': DartValues.formatYmd(from!),
+      if (events.contains(api)) 'end_de': DartValues.formatYmd(to!),
+    }, allowNoData: true);
+    return (data?['list'] as List? ?? []).cast<Map<String, dynamic>>();
+  }
+
   Future<List<Map<String, dynamic>>?> fetchDisclosure({
     required String api,
     required String corpCode,

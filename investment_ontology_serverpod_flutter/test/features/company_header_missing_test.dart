@@ -11,7 +11,7 @@ import 'financial_metrics_test.dart' as fixtures;
 void main() {
   for (final width in [390.0, 1280.0]) {
     testWidgets(
-      'missing metric reasons are visible without tapping at $width',
+      'missing metrics show reasons without dash placeholders at $width',
       (tester) async {
         await tester.binding.setSurfaceSize(Size(width, 1000));
         addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -39,6 +39,18 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
+        expect(find.text('PER'), findsOneWidget);
+        final perCell = find
+            .ancestor(
+              of: find.text('PER'),
+              matching: find.byType(AnimatedContainer),
+            )
+            .first;
+        expect(
+          find.descendant(of: perCell, matching: find.text('—')),
+          findsNothing,
+        );
+        expect(find.text('시가총액'), findsOneWidget);
         for (final metric in FinancialView(
           data,
         ).metrics().where((m) => ['per', 'roe'].contains(m.key))) {

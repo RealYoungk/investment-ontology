@@ -104,7 +104,7 @@ class _CompanyNewsSectionState extends State<CompanyNewsSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SectionLabel('최근 어떤 소식이 있나요?', accent: true),
+        const CompanySectionHeading('관련 소식'),
         const SizedBox(height: AppSpace.md),
         Material(
           color: c.surface,

@@ -21,6 +21,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _irhba4h9;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_group.dart'
     as _i7uvzrch;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_market_cap.dart'
+    as _idnoq35n;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/dart_disclosure.dart'
     as _izt0hsdc;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/disclosure_section_info.dart'
@@ -39,6 +41,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _izhmhfon;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/market_cap_point.dart'
     as _i140v7gk;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ownership_snapshot.dart'
+    as _iz9gjubn;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/person_hit.dart'
     as _i96d117e;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/review_check.dart'
@@ -122,6 +126,8 @@ import 'ontology/models/group_person.dart' as _iklt0jfv;
 import 'ontology/models/index_history.dart' as _iocwvagy;
 import 'ontology/models/index_point.dart' as _it75qdkc;
 import 'ontology/models/industry.dart' as _i3hzx3f1;
+import 'ontology/models/industry_activity.dart' as _if5qperq;
+import 'ontology/models/industry_discovery.dart' as _ixuxxo68;
 import 'ontology/models/industry_revision_check.dart' as _i25uuckt;
 import 'ontology/models/ingest_coverage.dart' as _il0sbv1h;
 import 'ontology/models/ingest_job.dart' as _iay1heal;
@@ -139,6 +145,7 @@ import 'ontology/models/market_snapshot.dart' as _ibhowe7d;
 import 'ontology/models/market_snapshot_day.dart' as _i3renazk;
 import 'ontology/models/ontology_relation.dart' as _iejnlir1;
 import 'ontology/models/overview.dart' as _iz31wbgv;
+import 'ontology/models/ownership_snapshot.dart' as _ilc2cd4p;
 import 'ontology/models/peer_candidate.dart' as _i6cusig8;
 import 'ontology/models/peer_candidates.dart' as _i59onhk4;
 import 'ontology/models/peer_comparison.dart' as _isobo9h5;
@@ -159,6 +166,7 @@ import 'ontology/models/relation_status.dart' as _ih00v9tp;
 import 'ontology/models/research_article.dart' as _i83xfi8m;
 import 'ontology/models/research_bookmark.dart' as _iofl85o3;
 import 'ontology/models/research_revision.dart' as _iwk8vi27;
+import 'ontology/models/research_snapshot.dart' as _iwd80rqd;
 import 'ontology/models/review_check.dart' as _iqdwyhyy;
 import 'ontology/models/review_context.dart' as _ijdr1ucd;
 import 'ontology/models/review_item.dart' as _i6uduqoi;
@@ -249,6 +257,8 @@ export 'ontology/models/group_person.dart';
 export 'ontology/models/index_history.dart';
 export 'ontology/models/index_point.dart';
 export 'ontology/models/industry.dart';
+export 'ontology/models/industry_activity.dart';
+export 'ontology/models/industry_discovery.dart';
 export 'ontology/models/industry_revision_check.dart';
 export 'ontology/models/ingest_coverage.dart';
 export 'ontology/models/ingest_job.dart';
@@ -266,6 +276,7 @@ export 'ontology/models/market_snapshot.dart';
 export 'ontology/models/market_snapshot_day.dart';
 export 'ontology/models/ontology_relation.dart';
 export 'ontology/models/overview.dart';
+export 'ontology/models/ownership_snapshot.dart';
 export 'ontology/models/peer_candidate.dart';
 export 'ontology/models/peer_candidates.dart';
 export 'ontology/models/peer_comparison.dart';
@@ -286,6 +297,7 @@ export 'ontology/models/relation_status.dart';
 export 'ontology/models/research_article.dart';
 export 'ontology/models/research_bookmark.dart';
 export 'ontology/models/research_revision.dart';
+export 'ontology/models/research_snapshot.dart';
 export 'ontology/models/review_check.dart';
 export 'ontology/models/review_context.dart';
 export 'ontology/models/review_item.dart';
@@ -552,6 +564,12 @@ class Protocol extends _isc.SerializationManager {
     if (t == _i3hzx3f1.Industry) {
       return _i3hzx3f1.Industry.fromJson(data) as T;
     }
+    if (t == _if5qperq.IndustryActivity) {
+      return _if5qperq.IndustryActivity.fromJson(data) as T;
+    }
+    if (t == _ixuxxo68.IndustryDiscovery) {
+      return _ixuxxo68.IndustryDiscovery.fromJson(data) as T;
+    }
     if (t == _i25uuckt.IndustryRevisionCheck) {
       return _i25uuckt.IndustryRevisionCheck.fromJson(data) as T;
     }
@@ -602,6 +620,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _iz31wbgv.Overview) {
       return _iz31wbgv.Overview.fromJson(data) as T;
+    }
+    if (t == _ilc2cd4p.OwnershipSnapshot) {
+      return _ilc2cd4p.OwnershipSnapshot.fromJson(data) as T;
     }
     if (t == _i6cusig8.PeerCandidate) {
       return _i6cusig8.PeerCandidate.fromJson(data) as T;
@@ -662,6 +683,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _iwk8vi27.ResearchRevision) {
       return _iwk8vi27.ResearchRevision.fromJson(data) as T;
+    }
+    if (t == _iwd80rqd.ResearchSnapshot) {
+      return _iwd80rqd.ResearchSnapshot.fromJson(data) as T;
     }
     if (t == _iqdwyhyy.ReviewCheck) {
       return _iqdwyhyy.ReviewCheck.fromJson(data) as T;
@@ -994,6 +1018,14 @@ class Protocol extends _isc.SerializationManager {
     if (t == _isc.getType<_i3hzx3f1.Industry?>()) {
       return (data != null ? _i3hzx3f1.Industry.fromJson(data) : null) as T;
     }
+    if (t == _isc.getType<_if5qperq.IndustryActivity?>()) {
+      return (data != null ? _if5qperq.IndustryActivity.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_ixuxxo68.IndustryDiscovery?>()) {
+      return (data != null ? _ixuxxo68.IndustryDiscovery.fromJson(data) : null)
+          as T;
+    }
     if (t == _isc.getType<_i25uuckt.IndustryRevisionCheck?>()) {
       return (data != null
               ? _i25uuckt.IndustryRevisionCheck.fromJson(data)
@@ -1063,6 +1095,10 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _isc.getType<_iz31wbgv.Overview?>()) {
       return (data != null ? _iz31wbgv.Overview.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_ilc2cd4p.OwnershipSnapshot?>()) {
+      return (data != null ? _ilc2cd4p.OwnershipSnapshot.fromJson(data) : null)
+          as T;
     }
     if (t == _isc.getType<_i6cusig8.PeerCandidate?>()) {
       return (data != null ? _i6cusig8.PeerCandidate.fromJson(data) : null)
@@ -1136,6 +1172,10 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _isc.getType<_iwk8vi27.ResearchRevision?>()) {
       return (data != null ? _iwk8vi27.ResearchRevision.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_iwd80rqd.ResearchSnapshot?>()) {
+      return (data != null ? _iwd80rqd.ResearchSnapshot.fromJson(data) : null)
           as T;
     }
     if (t == _isc.getType<_iqdwyhyy.ReviewCheck?>()) {
@@ -1375,6 +1415,12 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_if5qperq.IndustryActivity>) {
+      return (data as List)
+              .map((e) => deserialize<_if5qperq.IndustryActivity>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_i1tskjhh.MarketCapNode>) {
       return (data as List)
               .map((e) => deserialize<_i1tskjhh.MarketCapNode>(e))
@@ -1522,6 +1568,12 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_iz9gjubn.OwnershipSnapshot>) {
+      return (data as List)
+              .map((e) => deserialize<_iz9gjubn.OwnershipSnapshot>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_i96d117e.PersonHit>) {
       return (data as List)
               .map((e) => deserialize<_i96d117e.PersonHit>(e))
@@ -1548,6 +1600,12 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == List<String>) {
       return (data as List).map((e) => deserialize<String>(e)).toList() as T;
+    }
+    if (t == List<_idnoq35n.CompanyMarketCap>) {
+      return (data as List)
+              .map((e) => deserialize<_idnoq35n.CompanyMarketCap>(e))
+              .toList()
+          as T;
     }
     if (t == List<_i140v7gk.MarketCapPoint>) {
       return (data as List)
@@ -1669,6 +1727,8 @@ class Protocol extends _isc.SerializationManager {
       _iocwvagy.IndexHistory => 'IndexHistory',
       _it75qdkc.IndexPoint => 'IndexPoint',
       _i3hzx3f1.Industry => 'Industry',
+      _if5qperq.IndustryActivity => 'IndustryActivity',
+      _ixuxxo68.IndustryDiscovery => 'IndustryDiscovery',
       _i25uuckt.IndustryRevisionCheck => 'IndustryRevisionCheck',
       _il0sbv1h.IngestCoverage => 'IngestCoverage',
       _iay1heal.IngestJob => 'IngestJob',
@@ -1686,6 +1746,7 @@ class Protocol extends _isc.SerializationManager {
       _i3renazk.MarketSnapshotDay => 'MarketSnapshotDay',
       _iejnlir1.OntologyRelation => 'OntologyRelation',
       _iz31wbgv.Overview => 'Overview',
+      _ilc2cd4p.OwnershipSnapshot => 'OwnershipSnapshot',
       _i6cusig8.PeerCandidate => 'PeerCandidate',
       _i59onhk4.PeerCandidates => 'PeerCandidates',
       _isobo9h5.PeerComparison => 'PeerComparison',
@@ -1706,6 +1767,7 @@ class Protocol extends _isc.SerializationManager {
       _i83xfi8m.ResearchArticle => 'ResearchArticle',
       _iofl85o3.ResearchBookmark => 'ResearchBookmark',
       _iwk8vi27.ResearchRevision => 'ResearchRevision',
+      _iwd80rqd.ResearchSnapshot => 'ResearchSnapshot',
       _iqdwyhyy.ReviewCheck => 'ReviewCheck',
       _ijdr1ucd.ReviewContext => 'ReviewContext',
       _i6uduqoi.ReviewItem => 'ReviewItem',
@@ -1883,6 +1945,10 @@ class Protocol extends _isc.SerializationManager {
         return 'IndexPoint';
       case _i3hzx3f1.Industry():
         return 'Industry';
+      case _if5qperq.IndustryActivity():
+        return 'IndustryActivity';
+      case _ixuxxo68.IndustryDiscovery():
+        return 'IndustryDiscovery';
       case _i25uuckt.IndustryRevisionCheck():
         return 'IndustryRevisionCheck';
       case _il0sbv1h.IngestCoverage():
@@ -1917,6 +1983,8 @@ class Protocol extends _isc.SerializationManager {
         return 'OntologyRelation';
       case _iz31wbgv.Overview():
         return 'Overview';
+      case _ilc2cd4p.OwnershipSnapshot():
+        return 'OwnershipSnapshot';
       case _i6cusig8.PeerCandidate():
         return 'PeerCandidate';
       case _i59onhk4.PeerCandidates():
@@ -1957,6 +2025,8 @@ class Protocol extends _isc.SerializationManager {
         return 'ResearchBookmark';
       case _iwk8vi27.ResearchRevision():
         return 'ResearchRevision';
+      case _iwd80rqd.ResearchSnapshot():
+        return 'ResearchSnapshot';
       case _iqdwyhyy.ReviewCheck():
         return 'ReviewCheck';
       case _ijdr1ucd.ReviewContext():
@@ -2229,6 +2299,12 @@ class Protocol extends _isc.SerializationManager {
     if (dataClassName == 'Industry') {
       return deserialize<_i3hzx3f1.Industry>(data['data']);
     }
+    if (dataClassName == 'IndustryActivity') {
+      return deserialize<_if5qperq.IndustryActivity>(data['data']);
+    }
+    if (dataClassName == 'IndustryDiscovery') {
+      return deserialize<_ixuxxo68.IndustryDiscovery>(data['data']);
+    }
     if (dataClassName == 'IndustryRevisionCheck') {
       return deserialize<_i25uuckt.IndustryRevisionCheck>(data['data']);
     }
@@ -2279,6 +2355,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'Overview') {
       return deserialize<_iz31wbgv.Overview>(data['data']);
+    }
+    if (dataClassName == 'OwnershipSnapshot') {
+      return deserialize<_ilc2cd4p.OwnershipSnapshot>(data['data']);
     }
     if (dataClassName == 'PeerCandidate') {
       return deserialize<_i6cusig8.PeerCandidate>(data['data']);
@@ -2339,6 +2418,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'ResearchRevision') {
       return deserialize<_iwk8vi27.ResearchRevision>(data['data']);
+    }
+    if (dataClassName == 'ResearchSnapshot') {
+      return deserialize<_iwd80rqd.ResearchSnapshot>(data['data']);
     }
     if (dataClassName == 'ReviewCheck') {
       return deserialize<_iqdwyhyy.ReviewCheck>(data['data']);

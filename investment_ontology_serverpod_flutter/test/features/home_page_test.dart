@@ -49,7 +49,7 @@ void main() {
       return [];
     });
     expect(calls, 0);
-    expect(find.text('아는 산업에서,\n새로운 기업으로.'), findsOneWidget);
+    expect(find.text('어떤 회사인지 알고,\n투자를 생각해 보세요.'), findsOneWidget);
     expect(field, findsOneWidget);
     expect(tester.takeException(), isNull);
   });

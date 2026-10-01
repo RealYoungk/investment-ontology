@@ -152,3 +152,26 @@ PR81 main 기반 배포 dpl_tR6TPiYKWjmsHmpMNd8SwPcu9CfE (alfinder-research-bok0
 ### 2026-09-30 최종 웹 계산 차단 수정
 
 생성 FinancialLine의 nullable BigInt copyWith가 release JS에서 기존 금액을 남기는 현상을 수정: 오류 입력은 명시적인 새 DTO로 구성. 사조동아원 운영 PER 상세에서 합계 불일치 사유 확인. 독립 검산 176,157건 및 원화 오류 사유 대조 0건 불일치. 최종 배포 `dpl_GSnDR96XB6aguoe67NXP29Lh4MBg` / `https://alfinder-research-hfaswjf48-realyoungks-projects.vercel.app`, alfinder.kr 승격 완료. JS SHA256 `e24f6f8942630bc19848014c192cf39750414ef64d4d837782cc08f2db568f32`.
+
+
+## 2026-10-01 iwinv API·DB 전환
+
+배포 `dpl_27N6k7yY8LSpKUqvGyowRprPHc7G` / https://alfinder-research-k5efve5bf-realyoungks-projects.vercel.app 를 alfinder.kr로 승격했다. 기존 Flutter release 정적 빌드를 유지하고 Vercel `/api/` 프록시 upstream을 `alfinder-api.49.247.192.41.sslip.io`로 바꿨다. VM은 iwinv KR1-Z03, 1 CPU / 4GB / NVMe 100GB, 월 기본료 VAT 포함 27,720원이며 트래픽 초과 요금은 별도다. 전체 DB·기존 계정·수집 상태 복원, 원본 핵심 건수 일치, VM 재부팅 자동 복구, 공개 응답 `X-Alfinder-Backend: iwinv`, 조회 200·익명 관리자 작업 401, 실제 Chrome 기업 상세 렌더링을 확인했다. 기존 회원의 실제 로그인 성공은 아직 사용자 확인이 필요하다.
+
+운영 수집은 iwinv에서만 실행한다. 맥 DB는 동결된 조회 전용 사본이다. 매일 서버 백업과 맥이 켜져 있을 때 매시간 서버 외부 사본 갱신을 설정했다. 상세 근거와 복구 절차는 [iwinv 운영 기록](iwinv-migration.md)에 있다. 이전 Vercel 배포만 다시 승격하면 중지된 맥 API로 향하므로 온전한 롤백이 아니다. iwinv에서 새 쓰기가 발생한 이후는 최신 DB를 역이전한 뒤 서버·프록시를 함께 복구해야 한다.
+
+
+## 2026-10-01 KSIC 업종지도 탐색 개선
+
+공식 KSIC 분류·코드·명칭을 유지하면서 첫 지도는 대분류만, 대분류 선택 후 중분류만, 중분류 선택 후 기업을 표시하도록 바꿨다. 지도와 항상 펼친 목록의 선택 동작을 통일하고 상단 경로로 상위 단계에 복귀한다. 작은 기업은 그 외 타일에서 목록으로 이동해 30개씩 더 볼 수 있다. 모바일 목록은 긴 공식 업종명과 시가총액을 세로로 읽도록 구성했다. 새 수집 버전이 도착해도 선택한 중분류를 유지하고 오래된 요청이 최신 탐색 결과를 덮지 못하도록 한다. 서버·DB·인증 정책 변경은 없다.
+
+분석 무오류, 탐색·페이지 확장·상위 복귀 320/1280px·갱신 선택 유지·응답 경합 및 디자인 경계 총 6개 테스트, release 빌드 통과. 실제 공개 Chrome에서 대분류 → 중분류 → 기업, 390px 기업 상세 왕복 시 선택 유지 확인. 미리보기 주소는 cookie 인증 Origin 제한 때문에 403이며 운영 도메인은 조회 200이다. 로컬은 사용자 직접 시작 요청에 따라 serverpod start를 실행했으며 이전 동결 DB와 FutureCall 중지를 유지한다. 로컬 자동 세션 정리는 조회 전용 DB로 인해 쓰기 차단 로그를 남긴다.
+
+최종 배포 `dpl_71oMAmQ5Gr1NUHNZ5ajThujtnAmX` / https://alfinder-research-jy7f94l49-realyoungks-projects.vercel.app 를 alfinder.kr로 승격. 공개 main.dart.js SHA256은 로컬 release와 같은 `648883f2cfb7e09722ab93fe3b2aa46db03e3be3951b324b239eb7473e6126f1`. 프런트 롤백은 iwinv upstream을 쓰는 https://alfinder-research-k5efve5bf-realyoungks-projects.vercel.app 로 가능하다.
+
+
+### 2026-10-01 업종지도 타일 이름 줄바꿈
+
+공통 AppTreemap의 이름을 한 줄 고정에서 타일 너비·높이에 맞는 여러 줄 표시로 바꿨다. 전체 이름을 우선하고 금액·기업 수는 한 줄로 온전히 들어갈 때만 추가한다. 이름도 높이가 부족할 때만 말줄임하며 텍스트 확대와 웹 글꼴 재로딩을 반영한다. 공식 분류나 수치는 변경하지 않았다.
+
+analyze 무오류, 긴 이름의 실제 여러 줄 렌더링·낮은 타일·2배 글꼴 확대·업종 탐색 및 기존 차트/디자인 경계 총 15개 테스트, release 빌드 통과. 실제 alfinder.kr 제조업 중분류 지도에서 의약품·화학·자동차·운송장비 등 긴 공식 명칭 줄바꿈 확인. 최종 배포 `dpl_9hNWwQBDNaNktvXx51kdhHuUf9Qq` / https://alfinder-research-2mqiba25g-realyoungks-projects.vercel.app 승격. 공개/로컬 JS SHA256 `35648ab50b196a746d2795daade7150e373adbcdca0dae8b8e64bc8c0df05bb0`. 프런트 롤백 대상은 https://alfinder-research-jy7f94l49-realyoungks-projects.vercel.app 이다.

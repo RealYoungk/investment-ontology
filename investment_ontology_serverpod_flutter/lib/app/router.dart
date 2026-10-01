@@ -22,6 +22,7 @@ import '../features/groups/groups_page.dart';
 import '../features/market_map/market_page.dart';
 import '../features/review/review_page.dart';
 import '../features/screen/compare_page.dart';
+import '../features/market_map/industry_discovery_page.dart';
 import '../features/screen/screen_filter.dart';
 import '../features/screen/screen_page.dart';
 import '../features/themes/theme_page.dart';
@@ -131,6 +132,13 @@ abstract final class AppRoutes {
             ),
           ),
           GoRoute(
+            path: '/industries',
+            pageBuilder: (context, state) => NoTransitionPage(
+              key: const ValueKey('industries'),
+              child: IndustryDiscoveryPage(query: state.uri.queryParameters),
+            ),
+          ),
+          GoRoute(
             path: '/market',
             pageBuilder: (context, state) =>
                 const NoTransitionPage(child: MarketPage()),
@@ -192,6 +200,7 @@ abstract final class AppRoutes {
             path: '/compare',
             pageBuilder: (context, state) => NoTransitionPage(
               child: ComparePage(
+                discoveryProduct: state.uri.queryParameters['industryProduct'],
                 corpCodes: [
                   for (final c
                       in (state.uri.queryParameters['codes'] ?? '').split(','))

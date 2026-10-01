@@ -1,0 +1,21 @@
+class: IndustryActivity
+fields:
+  corpCode: String
+  companyName: String
+  market: String
+  industryCode: String?
+  productKey: String
+  productName: String
+  role: String
+  process: String
+  target: String?
+  method: String?
+  evidence: String
+  bsnsYear: int
+  rceptNo: String
+  ### Alfinder navigation category, not an assigned GICS code.
+  industryKey: String?
+  industryName: String?
+  groupName: String?
+  ### filing or ksic or unclassified. KSIC does not establish product evidence.
+  classificationBasis: String?

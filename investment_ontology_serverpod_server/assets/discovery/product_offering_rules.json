@@ -1,0 +1,3715 @@
+[
+  {
+    "id": "offering_001",
+    "industry": "semiconductor",
+    "group": "설계 IP",
+    "pattern": "반도체.{0,8}IP|설계자산|반도체.{0,8}지식재산",
+    "exclude": "",
+    "registeredSectors": [
+      "semiconductor"
+    ]
+  },
+  {
+    "id": "offering_002",
+    "industry": "semiconductor",
+    "group": "설계 서비스",
+    "pattern": "디자인하우스|반도체.{0,8}설계\\s*서비스",
+    "exclude": "",
+    "registeredSectors": [
+      "semiconductor"
+    ]
+  },
+  {
+    "id": "offering_003",
+    "industry": "semiconductor",
+    "group": "메모리 칩",
+    "pattern": "\\b(?:D?RAM|S?RAM|SDRAM|PSRAM|NAND|NOR)\\b|메모리\\s*반도체",
+    "exclude": "장비|소켓|모듈|검사|테스트",
+    "registeredSectors": [
+      "semiconductor"
+    ]
+  },
+  {
+    "id": "offering_004",
+    "industry": "semiconductor",
+    "group": "시스템·아날로그 칩",
+    "pattern": "비메모리|시스템\\s*반도체|Driver.?IC|구동IC|\\bTCON\\b|Timing.Controller|마이크로컨트롤|모션제어칩|\\bSoC\\b|수신칩|프로세서|반도체\\s*IC|앰프칩|터치스크린칩|햅틱칩|보안반도체|PUF반도체|전자집적회로",
+    "exclude": "",
+    "registeredSectors": [
+      "semiconductor"
+    ]
+  },
+  {
+    "id": "offering_005",
+    "industry": "semiconductor",
+    "group": "전력·광 반도체",
+    "pattern": "광반도체|특화반도체|GaN\\s*RF|트랜지스터|다이오드|발광소자|LED\\s*(?:패키지|개발)|Visible\\s*LED|Chip\\s*LED|UV\\s*LED",
+    "exclude": "전광판|조명",
+    "registeredSectors": [
+      "semiconductor",
+      "electronics"
+    ]
+  },
+  {
+    "id": "offering_006",
+    "industry": "semiconductor",
+    "group": "웨이퍼 제조 서비스",
+    "pattern": "파운드리|Foundry",
+    "exclude": "",
+    "registeredSectors": [
+      "semiconductor"
+    ]
+  },
+  {
+    "id": "offering_007",
+    "industry": "semiconductor",
+    "group": "패키징·테스트 서비스",
+    "pattern": "반도체.{0,8}(?:패키징|조립|테스트\\s*서비스)|골드범핑|솔더범핑|DDI\\s*Package",
+    "exclude": "",
+    "registeredSectors": [
+      "semiconductor",
+      "electronics"
+    ]
+  },
+  {
+    "id": "offering_008",
+    "industry": "semiconductor",
+    "group": "전공정 장비",
+    "pattern": "Etch\\s*System|어닐링\\s*장비|증착장비|식각장비|세정.{0,3}시스템|반도체.{0,10}(?:제조|공정).{0,8}(?:장비|설비)|플라즈마\\s*세정기",
+    "exclude": "^(?!.*반도체).*(?:OLED|LCD|디스플레이)",
+    "registeredSectors": [
+      "semiconductor",
+      "machinery"
+    ]
+  },
+  {
+    "id": "offering_009",
+    "industry": "semiconductor",
+    "group": "후공정·검사 장비",
+    "pattern": "반도체.{0,20}(?:검사장비|납도포검사)|(?:테스트|Test)\\s*핸들러|패턴결함\\s*검사|SolderBall\\s*부착|반도체.{0,12}(?:본딩|다이싱)|레이저\\s*마커",
+    "exclude": "",
+    "registeredSectors": [
+      "semiconductor",
+      "machinery"
+    ]
+  },
+  {
+    "id": "offering_010",
+    "industry": "semiconductor",
+    "group": "공정 지원 장비",
+    "pattern": "Scrubber|스크러버|Chiller|칠러|웨이퍼\\s*이송|EFEM|약액혼합공급|Chemical\\s*중앙공급|진공펌프|온습도\\s*제어|습도제어",
+    "exclude": "",
+    "registeredSectors": [
+      "semiconductor",
+      "machinery",
+      "electronics"
+    ]
+  },
+  {
+    "id": "offering_011",
+    "industry": "semiconductor",
+    "group": "검사 부품",
+    "pattern": "프로브\\s*카드|Probe\\s*Card|Test\\s*Socket|Burn.?In\\s*Socket|테스트.{0,8}소켓|Change\\s*Over\\s*Kit|세라믹\\s*STF",
+    "exclude": "",
+    "registeredSectors": [
+      "semiconductor",
+      "electronics",
+      "instruments"
+    ]
+  },
+  {
+    "id": "offering_012",
+    "industry": "semiconductor",
+    "group": "공정 부품·소모품",
+    "pattern": "히터블록|CVD.?SiC\\s*Ring|포커스링|반도체용\\s*링|실리콘부품|반도체.{0,8}부품",
+    "exclude": "세정\\s*및\\s*코팅",
+    "registeredSectors": [
+      "semiconductor",
+      "electronics",
+      "machinery"
+    ]
+  },
+  {
+    "id": "offering_013",
+    "industry": "semiconductor",
+    "group": "소재",
+    "pattern": "전구체|솔더볼|Solderball|블랭크마스크|반도체.{0,8}현상액|반도체.{0,8}소재",
+    "exclude": "배터리|이차전지|2차전지|양극",
+    "registeredSectors": [
+      "semiconductor",
+      "electronics",
+      "chemicals"
+    ]
+  },
+  {
+    "id": "offering_014",
+    "industry": "semiconductor",
+    "group": "부품 세정·코팅",
+    "pattern": "반도체.{0,15}(?:세정\\s*및\\s*코팅|보호코팅)",
+    "exclude": "",
+    "registeredSectors": [
+      "semiconductor",
+      "electronics",
+      "machinery"
+    ]
+  },
+  {
+    "id": "offering_015",
+    "industry": "medical",
+    "group": "체외진단",
+    "pattern": "체외\\s*진단|면역진단|분자진단|동반진단|예후진단|암\\s*조기진단|병원체\\s*검사|원인균\\s*검사|혈당|핵산추출|진단키트|진단시약|액상세포검사|유전체\\s*분석.{0,25}(?:진단|검사)",
+    "exclude": "",
+    "registeredSectors": [
+      "medical",
+      "pharma",
+      "research"
+    ]
+  },
+  {
+    "id": "offering_016",
+    "industry": "medical",
+    "group": "영상 진단",
+    "pattern": "엑스선|엑스레이|X.?ray|X.?Ray|\\bCT\\b|Detector|방사선\\s*진단",
+    "exclude": "",
+    "registeredSectors": [
+      "medical",
+      "pharma",
+      "research"
+    ]
+  },
+  {
+    "id": "offering_017",
+    "industry": "medical",
+    "group": "환자 감시·생체 측정",
+    "pattern": "환자.{0,4}(?:감시|모니터)|태아감시|체성분|혈압|심전도",
+    "exclude": "",
+    "registeredSectors": [
+      "medical",
+      "pharma"
+    ]
+  },
+  {
+    "id": "offering_018",
+    "industry": "medical",
+    "group": "정형외과·재활",
+    "pattern": "척추|정형외과|골접합|인공고관절|인공슬관절|재활로봇|웨어러블\\s*로봇|신체보정",
+    "exclude": "",
+    "registeredSectors": [
+      "medical",
+      "pharma"
+    ]
+  },
+  {
+    "id": "offering_019",
+    "industry": "medical",
+    "group": "치과",
+    "pattern": "치과|근관충전|구강.{0,8}(?:진단|검사)|치아|지르코니아\\s*유치관|리튬디실리케이트",
+    "exclude": "",
+    "registeredSectors": [
+      "medical",
+      "pharma"
+    ]
+  },
+  {
+    "id": "offering_020",
+    "industry": "medical",
+    "group": "수술·치료 기기",
+    "pattern": "복강경|수술기구|수술솔루션|투관침|내시경용|제세동기|심장충격기|인공호흡기|인슐린펌프|스텐트|쇄석기|자기장\\s*치료|전자약|온열치료|집속초음파|냉각마취",
+    "exclude": "",
+    "registeredSectors": [
+      "medical",
+      "pharma"
+    ]
+  },
+  {
+    "id": "offering_021",
+    "industry": "medical",
+    "group": "피부미용 기기",
+    "pattern": "레이저.{0,12}(?:의료|미용)|피부미용|미용의료기기|미용기기",
+    "exclude": "",
+    "registeredSectors": [
+      "medical",
+      "pharma"
+    ]
+  },
+  {
+    "id": "offering_022",
+    "industry": "medical",
+    "group": "의료 소모품·생체재료",
+    "pattern": "창상|드레싱|봉합사|도뇨관|체액배출|필러|인체조직|인체이식|지혈재|지혈제|혈관색전|보형물|골이식",
+    "exclude": "",
+    "registeredSectors": [
+      "medical",
+      "pharma"
+    ]
+  },
+  {
+    "id": "offering_023",
+    "industry": "medical",
+    "group": "안과 기기·렌즈",
+    "pattern": "검안기|렌즈미터|콘[텍택]트렌즈|소프트렌즈|하드렌즈",
+    "exclude": "",
+    "registeredSectors": [
+      "medical",
+      "pharma",
+      "instruments"
+    ]
+  },
+  {
+    "id": "offering_024",
+    "industry": "pharma",
+    "group": "연구·임상 지원",
+    "pattern": "비임상|생동성시험|검체\\s*분석|유효성평가|안전성평가|시판후조사|rPMS|유전체분석|유전체\\s*분석|세포\\s*전처리|세포배양배지|분석\\s*시스템|생체현미경|표지화합물|마이크로바이옴\\s*분석|연구용\\s*시약",
+    "exclude": "",
+    "registeredSectors": [
+      "pharma",
+      "medical",
+      "research"
+    ]
+  },
+  {
+    "id": "offering_025",
+    "industry": "pharma",
+    "group": "의약품·치료제",
+    "pattern": "항암제|치료제|신약|백신|수액|양약|제약\\s*제조|항생제|점안액|파스류|경피약물전달|보툴리눔|생물학적\\s*제재|약물전달\\s*플랫폼|주사제\\s*개발",
+    "exclude": "동물|가축|제조장비|개발지원",
+    "registeredSectors": [
+      "pharma",
+      "research"
+    ]
+  },
+  {
+    "id": "offering_026",
+    "industry": "pharma",
+    "group": "동물용 의약품",
+    "pattern": "동물용?\\s*(?:의약품|약품|백신|항병원)|가축.{0,4}(?:약품|백신)",
+    "exclude": "",
+    "registeredSectors": [
+      "pharma",
+      "research"
+    ]
+  },
+  {
+    "id": "offering_027",
+    "industry": "pharma",
+    "group": "신약 개발·기술이전",
+    "pattern": "ADC\\s*(?:링커|기반)|항체약물접합체|단백질\\s*분해제|유전자교정|장기\\s*재생\\s*플랫폼|PEG유도체",
+    "exclude": "",
+    "registeredSectors": [
+      "pharma",
+      "research",
+      "medical"
+    ]
+  },
+  {
+    "id": "offering_028",
+    "industry": "pharma",
+    "group": "의약 원료",
+    "pattern": "원료의약|의약\\s*원료|약리물질|알부민",
+    "exclude": "",
+    "registeredSectors": [
+      "pharma",
+      "research"
+    ]
+  },
+  {
+    "id": "offering_029",
+    "industry": "medical",
+    "group": "세포·제대혈 보관",
+    "pattern": "제대혈은행",
+    "exclude": "",
+    "registeredSectors": [
+      "pharma",
+      "medical"
+    ]
+  },
+  {
+    "id": "offering_030",
+    "industry": "electronics",
+    "group": "광학 부품",
+    "pattern": "카메라\\s*(?:모듈|윈도우)|광학\\s*렌즈|렌즈모듈",
+    "exclude": "제조검사|장비",
+    "registeredSectors": [
+      "electronics",
+      "instruments"
+    ]
+  },
+  {
+    "id": "offering_031",
+    "industry": "electronics",
+    "group": "디스플레이 부품·소재",
+    "pattern": "초박형\\s*유리|\\bUTG\\b|프리즘시트|광학시트|광기능성\\s*시트|OLED.{0,12}(?:소재|부품)|HTL|정공수송|정공주입|HIL|ITO\\s*(?:코팅|COATING)|Cover\\s*Glass|도광판|광학필름|디스플레이용\\s*플라스틱|LCDCHASSIS|CHASSIS|평판디스플레이.{0,10}필름",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics",
+      "semiconductor",
+      "chemicals"
+    ]
+  },
+  {
+    "id": "offering_032",
+    "industry": "electronics",
+    "group": "기판",
+    "pattern": "연성회로기판|인쇄회로기판|FPCA|FPCB|\\bPBA\\b|패키지\\s*기판",
+    "exclude": "장비|소재|Bonding",
+    "registeredSectors": [
+      "electronics",
+      "semiconductor"
+    ]
+  },
+  {
+    "id": "offering_033",
+    "industry": "electronics",
+    "group": "전자파 차폐·방열",
+    "pattern": "전자파\\s*차폐|\\bEMI\\b|방열\\s*(?:소재|부품)",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics",
+      "chemicals"
+    ]
+  },
+  {
+    "id": "offering_034",
+    "industry": "electronics",
+    "group": "수동·연결 부품",
+    "pattern": "스위치|리모콘|FFC|바리스터|아몰퍼스코어|자성부품|소형모터|진동모터|섬머스타트",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics"
+    ]
+  },
+  {
+    "id": "offering_035",
+    "industry": "electronics",
+    "group": "인증·보안 기기",
+    "pattern": "지문인식|바이오인식|출입통제|홈네트워크|비디오도어폰|영상보안|\\bDVR\\b|\\bNVR\\b|IP.Camera|CCTV|영상저장|IC\\s*카드|M/S\\s*카드",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics",
+      "instruments"
+    ]
+  },
+  {
+    "id": "offering_036",
+    "industry": "electronics",
+    "group": "통신 장비·부품",
+    "pattern": "네트워크\\s*장비|광\\s*전송|광모듈|중계기|광케이블|AP\\s*단말|메시통신|라우터|Router|RF\\s*부품|광통신용\\s*증폭|PLC모뎀|무선통신기기|무전기|광접속|광분배|광송수신|PAM|전력증폭|SAW\\s*Filter|Duplexer|AWG|스플리터|에코\\s*켄슬러",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics",
+      "telecom",
+      "semiconductor"
+    ]
+  },
+  {
+    "id": "offering_037",
+    "industry": "electronics",
+    "group": "기구 부품",
+    "pattern": "휴대전화\\s*케이스|휴대폰(?:용)?\\s*(?:키패드|부품)|모바일용\\s*액츄에이터|키패드|비데도어락부품",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics"
+    ]
+  },
+  {
+    "id": "offering_038",
+    "industry": "electronics",
+    "group": "전원·충전 부품",
+    "pattern": "배터리\\s*보호회로|핸드폰\\s*충전기|Battery\\s*Pack|배터리팩",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics",
+      "battery"
+    ]
+  },
+  {
+    "id": "offering_039",
+    "industry": "electronics",
+    "group": "전자 기기",
+    "pattern": "모니터|플로터|POS용프린터|헤드셋|전자칠판|전자교탁|게이밍기어|산업용\\s*PDA|금융자동화|하이패스|요금징수|교통카드단말기|블랙박스|내비게이션|각종컴퓨터",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics"
+    ]
+  },
+  {
+    "id": "offering_040",
+    "industry": "electronics",
+    "group": "생활 가전",
+    "pattern": "레인지후드|빌트인\\s*기기|냉장고|세탁기|공기청정기|보일러",
+    "exclude": "부품|모터|MOTOR|TIMER",
+    "registeredSectors": [
+      "electronics"
+    ]
+  },
+  {
+    "id": "offering_041",
+    "industry": "electronics",
+    "group": "센서",
+    "pattern": "전류센서|지자기센서|자기센서|온/습도센서",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics",
+      "semiconductor",
+      "instruments"
+    ]
+  },
+  {
+    "id": "offering_042",
+    "industry": "machinery",
+    "group": "디스플레이 제조 장비",
+    "pattern": "디스플레이.{0,8}장비|FPD.{0,20}(?:장비|Bonding)|Edge\\s*Grinder|OLED.{0,12}(?:세정|인장|이송).*장비|LCD.{0,12}제작.*시스템",
+    "exclude": "",
+    "registeredSectors": [
+      "semiconductor",
+      "electronics",
+      "machinery"
+    ]
+  },
+  {
+    "id": "offering_043",
+    "industry": "battery",
+    "group": "배터리 제조 장비",
+    "pattern": "(?:2차전지|이차전지|배터리).{0,12}(?:장비|설비|공급시스템)",
+    "exclude": "부품",
+    "registeredSectors": [
+      "semiconductor",
+      "electronics",
+      "machinery",
+      "battery"
+    ]
+  },
+  {
+    "id": "offering_044",
+    "industry": "machinery",
+    "group": "로봇·자동화",
+    "pattern": "중대형\\s*로봇|물류자동화|공장자동화",
+    "exclude": "",
+    "registeredSectors": [
+      "semiconductor",
+      "electronics",
+      "machinery"
+    ]
+  },
+  {
+    "id": "offering_045",
+    "industry": "software",
+    "group": "AI·데이터 소프트웨어",
+    "pattern": "인공지능|\\bAI\\b|AI[가-힣]|빅데이터|데이터베이스|데이터품질|데이터\\s*품질|데이터\\s*분석|데이터분석|데이터컨설팅",
+    "exclude": "의료|의사결정|진단|사이버|위협",
+    "registeredSectors": [
+      "software",
+      "telecom"
+    ]
+  },
+  {
+    "id": "offering_046",
+    "industry": "software",
+    "group": "보안 소프트웨어·서비스",
+    "pattern": "보안|방화벽|인증솔루션|인증서비스|공인인증|PKI|망간자료전송|유해사이트|위협\\s*탐지|접근\\s*제어|사이버\\s*위협",
+    "exclude": "",
+    "registeredSectors": [
+      "software",
+      "telecom"
+    ]
+  },
+  {
+    "id": "offering_047",
+    "industry": "software",
+    "group": "업무·산업 소프트웨어",
+    "pattern": "스마트팩토리|통합관리\\s*솔루션|로우코드|코딩\\s*자동화|UI/UX|UIUX|디지털트윈|자동화\\s*S/W|제어솔루션|ERP|그래프분석|성능관리|금융솔루션|금융\\s*솔루션|금융\\s*플랫폼|디지털뱅킹|모바일\\s*앱\\s*개발|원격지원|제조지능화|\\.NET|CATIA|시뮬레이터|XR\\s*(?:솔루션|가상훈련)|AR\\s*(?:개발|솔루션)|학습관리시스템|플랫폼\\s*SW",
+    "exclude": "",
+    "registeredSectors": [
+      "software",
+      "telecom",
+      "gaming"
+    ]
+  },
+  {
+    "id": "offering_048",
+    "industry": "software",
+    "group": "문서·콘텐츠 소프트웨어",
+    "pattern": "문서뷰어|문서필터|웹\\s*에디터|폰트|미디어\\s*플레이어|KM\\s*플레이어",
+    "exclude": "",
+    "registeredSectors": [
+      "software"
+    ]
+  },
+  {
+    "id": "offering_049",
+    "industry": "software",
+    "group": "의료 소프트웨어",
+    "pattern": "의료정보시스템|의료영상저장|의료.{0,10}인공지능|인공지능.{0,12}의료|의료영상.{0,15}(?:솔루션|플랫폼)|임상의사결정|스마트병원|의료데이터|헬스데이터",
+    "exclude": "",
+    "registeredSectors": [
+      "software",
+      "medical"
+    ]
+  },
+  {
+    "id": "offering_050",
+    "industry": "software",
+    "group": "IT 구축·운영",
+    "pattern": "IT\\s*(?:시스템|통합|컨설팅)|시스템\\s*(?:설계|구축|통합)|전산기기|전산장비|네트워크\\s*(?:구축|장비\\s*설치)|Network\\s*Integration|유지보수|SM,?\\s*SI",
+    "exclude": "",
+    "registeredSectors": [
+      "software",
+      "electronics",
+      "research"
+    ]
+  },
+  {
+    "id": "offering_051",
+    "industry": "software",
+    "group": "클라우드·인프라 서비스",
+    "pattern": "가상화\\s*솔루션|CLOUD|\\bIDC\\b|인터넷연동|ecloud|gDaaS",
+    "exclude": "",
+    "registeredSectors": [
+      "software"
+    ]
+  },
+  {
+    "id": "offering_052",
+    "industry": "software",
+    "group": "통신 소프트웨어",
+    "pattern": "무선인터넷플랫폼|모바일플랫폼|Mobile\\s*(?:Solution|Service)|이동통신\\s*핵심망|컨택센터.*(?:솔루션|시스템)|기업통신|운용지원솔루션|디지털\\s*방송용\\s*소프트웨어",
+    "exclude": "",
+    "registeredSectors": [
+      "software",
+      "telecom"
+    ]
+  },
+  {
+    "id": "offering_053",
+    "industry": "software",
+    "group": "인터넷 플랫폼",
+    "pattern": "포털\\s*서비스|인터넷\\s*서비스|개인방송\\s*플랫폼|1인미디어플랫폼|모바일\\s*어플리케이션",
+    "exclude": "",
+    "registeredSectors": [
+      "software"
+    ]
+  },
+  {
+    "id": "offering_054",
+    "industry": "content",
+    "group": "웹툰·출판",
+    "pattern": "웹툰|웹소설|만화\\s*(?:콘텐츠|출판)|온라인\\s*만화",
+    "exclude": "",
+    "registeredSectors": [
+      "software",
+      "content"
+    ]
+  },
+  {
+    "id": "offering_055",
+    "industry": "content",
+    "group": "음악",
+    "pattern": "음원|음악서비스",
+    "exclude": "",
+    "registeredSectors": [
+      "software",
+      "content"
+    ]
+  },
+  {
+    "id": "offering_056",
+    "industry": "business-services",
+    "group": "광고",
+    "pattern": "광고대행|광고\\s*대행|광고물\\s*제작|광고\\s*및\\s*콘텐츠",
+    "exclude": "",
+    "registeredSectors": [
+      "software",
+      "business-services",
+      "content"
+    ]
+  },
+  {
+    "id": "offering_057",
+    "industry": "business-services",
+    "group": "채용·인력 서비스",
+    "pattern": "채용|인재파견|취업포털",
+    "exclude": "",
+    "registeredSectors": [
+      "software",
+      "business-services"
+    ]
+  },
+  {
+    "id": "offering_058",
+    "industry": "business-services",
+    "group": "고객센터 운영",
+    "pattern": "콜센터\\s*운영|114전화|고객센터",
+    "exclude": "",
+    "registeredSectors": [
+      "software",
+      "telecom",
+      "business-services"
+    ]
+  },
+  {
+    "id": "offering_059",
+    "industry": "business-services",
+    "group": "복지·정보 서비스",
+    "pattern": "복리후생|권리조사|금융정보서비스|신용조회|채권추심|신용조사|개인\\s*및\\s*기업정보",
+    "exclude": "",
+    "registeredSectors": [
+      "software",
+      "business-services",
+      "finance"
+    ]
+  },
+  {
+    "id": "offering_060",
+    "industry": "software",
+    "group": "AI 데이터 구축",
+    "pattern": "언어\\s*데이터\\s*구축|인공지능\\s*데이터\\s*구축",
+    "exclude": "",
+    "registeredSectors": [
+      "software",
+      "business-services"
+    ]
+  },
+  {
+    "id": "offering_061",
+    "industry": "finance",
+    "group": "결제·송금",
+    "pattern": "전화결제|전자지불|전자결제|페이먼트|간편결제|간편송금|송금\\s*서비스|전자지갑|정산시스템|카드\\s*VAN|전자지급결제|신용카드부가통신",
+    "exclude": "",
+    "registeredSectors": [
+      "software",
+      "telecom",
+      "finance"
+    ]
+  },
+  {
+    "id": "offering_062",
+    "industry": "telecom",
+    "group": "통신 서비스",
+    "pattern": "휴대통신서비스|유무선통신사업|공중전기통신|이동전화|국제전화|무선호출서비스",
+    "exclude": "",
+    "registeredSectors": [
+      "telecom"
+    ]
+  },
+  {
+    "id": "offering_063",
+    "industry": "telecom",
+    "group": "통신 인프라·부가서비스",
+    "pattern": "공용기지국|휴대폰부가서비스|기업\\s*메시징|모바일메시징",
+    "exclude": "",
+    "registeredSectors": [
+      "telecom",
+      "software"
+    ]
+  },
+  {
+    "id": "offering_064",
+    "industry": "finance",
+    "group": "은행·저축은행",
+    "pattern": "은행|대출이자",
+    "exclude": "",
+    "registeredSectors": [
+      "finance"
+    ]
+  },
+  {
+    "id": "offering_065",
+    "industry": "finance",
+    "group": "증권",
+    "pattern": "증권업|유가증권|IB금융자문|채권인수|투자중개",
+    "exclude": "",
+    "registeredSectors": [
+      "finance"
+    ]
+  },
+  {
+    "id": "offering_066",
+    "industry": "finance",
+    "group": "벤처·사모 투자",
+    "pattern": "벤처|창업투자|투자조합|사모투자|사모펀드|\\bPEF\\b|창업자에\\s*대한\\s*투자",
+    "exclude": "",
+    "registeredSectors": [
+      "finance"
+    ]
+  },
+  {
+    "id": "offering_067",
+    "industry": "finance",
+    "group": "할부·리스 금융",
+    "pattern": "리스수입|리스수수료|할부금융|캐피탈",
+    "exclude": "",
+    "registeredSectors": [
+      "finance"
+    ]
+  },
+  {
+    "id": "offering_068",
+    "industry": "finance",
+    "group": "카드",
+    "pattern": "신용카드업|상품신용판매|카드론",
+    "exclude": "",
+    "registeredSectors": [
+      "finance"
+    ]
+  },
+  {
+    "id": "offering_069",
+    "industry": "finance",
+    "group": "생명보험",
+    "pattern": "생명보험",
+    "exclude": "",
+    "registeredSectors": [
+      "finance"
+    ]
+  },
+  {
+    "id": "offering_070",
+    "industry": "finance",
+    "group": "손해·보증보험",
+    "pattern": "손해보험|자동차보험|화재보험|보증보험|신용보험|재보험",
+    "exclude": "",
+    "registeredSectors": [
+      "finance"
+    ]
+  },
+  {
+    "id": "offering_071",
+    "industry": "finance",
+    "group": "보험 판매·중개",
+    "pattern": "보험\\s*판매|보험대리|보험.{0,6}중개",
+    "exclude": "",
+    "registeredSectors": [
+      "finance",
+      "business-services"
+    ]
+  },
+  {
+    "id": "offering_072",
+    "industry": "finance",
+    "group": "부동산 신탁",
+    "pattern": "부동산\\s*신탁",
+    "exclude": "",
+    "registeredSectors": [
+      "finance",
+      "real-estate"
+    ]
+  },
+  {
+    "id": "offering_073",
+    "industry": "finance",
+    "group": "투자회사·펀드",
+    "pattern": "신탁\\s*및\\s*집합투자|증권투자회사|금융투자|투자서비스|온라인투자연계금융",
+    "exclude": "",
+    "registeredSectors": [
+      "finance"
+    ]
+  },
+  {
+    "id": "offering_074",
+    "industry": "holdings",
+    "group": "지주회사",
+    "pattern": "지주\\s*회사|지주사업|자회사\\s*관리|자회사\\s*지분관리",
+    "exclude": "",
+    "registeredSectors": [
+      "holdings",
+      "finance",
+      "software",
+      "research"
+    ]
+  },
+  {
+    "id": "offering_075",
+    "industry": "gaming",
+    "group": "게임",
+    "pattern": "게임|미르의전설|미르4|실크로드\\s*온라인|피망|스페셜포스|한게임|배틀그라운드",
+    "exclude": "",
+    "registeredSectors": [
+      "gaming",
+      "software"
+    ]
+  },
+  {
+    "id": "offering_076",
+    "industry": "leisure",
+    "group": "골프·스포츠 서비스",
+    "pattern": "골프시뮬레이터",
+    "exclude": "",
+    "registeredSectors": [
+      "gaming",
+      "leisure"
+    ]
+  },
+  {
+    "id": "offering_077",
+    "industry": "education",
+    "group": "교육 콘텐츠·서비스",
+    "pattern": "교육서비스|온라인교육|온라인\\s*강의|온라인강의|오프라인\\s*학원|학습지|어학교육|어학원|방과후\\s*교육|교육출판|교육/훈련",
+    "exclude": "",
+    "registeredSectors": [
+      "education",
+      "software",
+      "gaming"
+    ]
+  },
+  {
+    "id": "offering_078",
+    "industry": "fashion",
+    "group": "의류",
+    "pattern": "애슬레저의류|스포츠의류",
+    "exclude": "",
+    "registeredSectors": [
+      "fashion",
+      "software"
+    ]
+  },
+  {
+    "id": "offering_079",
+    "industry": "travel",
+    "group": "여행",
+    "pattern": "^여행$",
+    "exclude": "",
+    "registeredSectors": [
+      "travel",
+      "software"
+    ]
+  },
+  {
+    "id": "offering_080",
+    "industry": "chemicals",
+    "group": "합성수지·고무",
+    "pattern": "수지|컴파운드|폴리머|폴리우레탄|플라스틱물질|실리콘 소재|실란 모노머|실리콘 레진|합성고무",
+    "exclude": "",
+    "registeredSectors": [
+      "chemicals",
+      "metals",
+      "machinery",
+      "electronics",
+      "building-materials"
+    ]
+  },
+  {
+    "id": "offering_081",
+    "industry": "chemicals",
+    "group": "기초·정밀화학",
+    "pattern": "계면활성제|발포제|촉매|석유화학제품|정밀화학|알킬벤젠|노말파라핀|과산화수소|글리콜|염소|암모니아|폴리실리콘|무수프탈산|카본블랙|불소화물|산화아연|이산화티타늄|산화철|탈산칼슘|주정|기초화합물",
+    "exclude": "",
+    "registeredSectors": [
+      "chemicals",
+      "metals",
+      "machinery",
+      "electronics",
+      "building-materials"
+    ]
+  },
+  {
+    "id": "offering_082",
+    "industry": "chemicals",
+    "group": "산업용 가스",
+    "pattern": "드라이아이스|액체탄산|고체탄산|수소액화탄산",
+    "exclude": "",
+    "registeredSectors": [
+      "chemicals",
+      "metals",
+      "machinery",
+      "electronics",
+      "building-materials"
+    ]
+  },
+  {
+    "id": "offering_083",
+    "industry": "chemicals",
+    "group": "농약·비료",
+    "pattern": "농약|비료|농자재|피해감소제",
+    "exclude": "",
+    "registeredSectors": [
+      "chemicals",
+      "metals",
+      "machinery",
+      "electronics",
+      "building-materials"
+    ]
+  },
+  {
+    "id": "offering_084",
+    "industry": "chemicals",
+    "group": "첨가제·기능성 소재",
+    "pattern": "산화방지제|안정제|식품향료|식품첨가물|껌베이스|기능성필름|보호.{0,5}필름|기능성 필름|기능성 컴파운드|합성왁스|나노 소재|SWCNT|플렉스|보안소재|잉크리본|인화지|방충방향제",
+    "exclude": "",
+    "registeredSectors": [
+      "chemicals",
+      "metals",
+      "machinery",
+      "electronics",
+      "building-materials"
+    ]
+  },
+  {
+    "id": "offering_085",
+    "industry": "chemicals",
+    "group": "필름·접착 소재",
+    "pattern": "플라스틱 필름|라미네이팅필름|양면 테이프|산업용 랩|Polyimide|PI\\(|표면처리|필름 제조",
+    "exclude": "",
+    "registeredSectors": [
+      "chemicals",
+      "metals",
+      "machinery",
+      "electronics",
+      "building-materials"
+    ]
+  },
+  {
+    "id": "offering_086",
+    "industry": "chemicals",
+    "group": "포장재·용기",
+    "pattern": "포장용|PET 용기|플라스틱 파렛트|화장품 용기|에어졸캔|병마개|알루미늄캡|금속포장용기|플라스틱캡|TRAY",
+    "exclude": "",
+    "registeredSectors": [
+      "chemicals",
+      "metals",
+      "machinery",
+      "electronics",
+      "building-materials"
+    ]
+  },
+  {
+    "id": "offering_087",
+    "industry": "fashion",
+    "group": "섬유·인조가죽",
+    "pattern": "합성피혁|인조피혁|부직포|화학섬유|화섬사|스판덱스|폴리에스테르원사|폴리에스텔 원사|가발사|난연고열사|타이어코드|산업용고무|고무벨트|유리섬유|탄소섬유",
+    "exclude": "",
+    "registeredSectors": [
+      "chemicals",
+      "metals",
+      "machinery",
+      "electronics",
+      "building-materials"
+    ]
+  },
+  {
+    "id": "offering_088",
+    "industry": "cosmetics",
+    "group": "화장품",
+    "pattern": "화장품|마스크 팩|염모제|스킨부스터|필러",
+    "exclude": "원료|용기",
+    "registeredSectors": [
+      "chemicals",
+      "metals",
+      "machinery",
+      "electronics",
+      "building-materials"
+    ]
+  },
+  {
+    "id": "offering_089",
+    "industry": "cosmetics",
+    "group": "화장품 원료",
+    "pattern": "화장품.{0,5}원료|자외선 차단제.{0,5}원료|천연물질 추출물|미생물 배양제품|바이오 소재",
+    "exclude": "",
+    "registeredSectors": [
+      "chemicals",
+      "metals",
+      "machinery",
+      "electronics",
+      "building-materials"
+    ]
+  },
+  {
+    "id": "offering_090",
+    "industry": "household",
+    "group": "생활용품",
+    "pattern": "치약|구강제품|생활용품|덴탈 케어|에어필터|마스크",
+    "exclude": "반도체|포토|블랭크|OLED",
+    "registeredSectors": [
+      "chemicals",
+      "metals",
+      "machinery",
+      "electronics",
+      "building-materials"
+    ]
+  },
+  {
+    "id": "offering_091",
+    "industry": "building-materials",
+    "group": "단열재·내장재",
+    "pattern": "보냉재|단열재|내외장재|석고보드|바닥재|인조대리석|벽지|건축외장자재|플라스틱 시트|샌드위치 패널|데크\\s*플레이트|DECK PLATE",
+    "exclude": "",
+    "registeredSectors": [
+      "chemicals",
+      "metals",
+      "machinery",
+      "electronics",
+      "building-materials"
+    ]
+  },
+  {
+    "id": "offering_092",
+    "industry": "building-materials",
+    "group": "배관·위생설비",
+    "pattern": "플라스틱 배관|파이프.{0,5}연결구|위생도기|수전금구|샤워부스|비데",
+    "exclude": "",
+    "registeredSectors": [
+      "chemicals",
+      "metals",
+      "machinery",
+      "electronics",
+      "building-materials"
+    ]
+  },
+  {
+    "id": "offering_093",
+    "industry": "building-materials",
+    "group": "창호·유리",
+    "pattern": "샷시|창호|판유리",
+    "exclude": "",
+    "registeredSectors": [
+      "chemicals",
+      "metals",
+      "machinery",
+      "electronics",
+      "building-materials"
+    ]
+  },
+  {
+    "id": "offering_094",
+    "industry": "semiconductor",
+    "group": "소재",
+    "pattern": "반도체.{0,12}(?:소재|재료|케미칼|케미컬)|CMP Slurry|포토레지스트|프리커서|전구체|반도체 식각액|Wet Chemical",
+    "exclude": "배터리|이차전지|2차전지|양극",
+    "registeredSectors": [
+      "chemicals",
+      "electronics",
+      "semiconductor"
+    ]
+  },
+  {
+    "id": "offering_095",
+    "industry": "electronics",
+    "group": "디스플레이 부품·소재",
+    "pattern": "OLED.{0,12}(?:소재|유기화합물)|광학필름|디스플레이.{0,10}(?:소재|케미컬)|투명전도성|LCD.{0,8}부품",
+    "exclude": "",
+    "registeredSectors": [
+      "chemicals",
+      "electronics"
+    ]
+  },
+  {
+    "id": "offering_096",
+    "industry": "battery",
+    "group": "배터리 소재",
+    "pattern": "전지.{0,6}소재|양극활물질|전지용 동박|황산코발트|코발트, 니켈, 리튬|음극마찰용접단자",
+    "exclude": "",
+    "registeredSectors": [
+      "chemicals",
+      "metals",
+      "battery"
+    ]
+  },
+  {
+    "id": "offering_097",
+    "industry": "battery",
+    "group": "배터리 재활용",
+    "pattern": "폐전지재활용|폐산재활용",
+    "exclude": "",
+    "registeredSectors": [
+      "chemicals",
+      "battery",
+      "environment"
+    ]
+  },
+  {
+    "id": "offering_098",
+    "industry": "energy",
+    "group": "바이오연료",
+    "pattern": "바이오디젤|바이오중유|바이오에너지",
+    "exclude": "",
+    "registeredSectors": [
+      "chemicals",
+      "energy"
+    ]
+  },
+  {
+    "id": "offering_099",
+    "industry": "metals",
+    "group": "철강 판재·강관",
+    "pattern": "강판|스틸파이프|후판|열연|냉연|스테인리스파이프|스텐레스|스테인레스|철강재|산세코일|판재류",
+    "exclude": "",
+    "registeredSectors": [
+      "metals"
+    ]
+  },
+  {
+    "id": "offering_100",
+    "industry": "metals",
+    "group": "봉강·형강·선재",
+    "pattern": "봉강|형강|철근|선재|마봉|특수강|강선",
+    "exclude": "",
+    "registeredSectors": [
+      "metals"
+    ]
+  },
+  {
+    "id": "offering_101",
+    "industry": "metals",
+    "group": "비철금속·합금",
+    "pattern": "알루미늄|알미늄|황동|아연괴|아연말|동판|동ROD|합금|탈산제|조재제|동판|동봉|동관",
+    "exclude": "",
+    "registeredSectors": [
+      "metals"
+    ]
+  },
+  {
+    "id": "offering_102",
+    "industry": "metals",
+    "group": "주조·단조",
+    "pattern": "주강|주물|단조|실린더 헤드|실린더 브록",
+    "exclude": "",
+    "registeredSectors": [
+      "metals",
+      "machinery"
+    ]
+  },
+  {
+    "id": "offering_103",
+    "industry": "metals",
+    "group": "산업용 금속부품",
+    "pattern": "볼트|너트|나사|관이음쇠|관이음|배관자재|표준 플레이트|강구|테이퍼롤러",
+    "exclude": "",
+    "registeredSectors": [
+      "metals"
+    ]
+  },
+  {
+    "id": "offering_104",
+    "industry": "machinery",
+    "group": "공작기계·공구",
+    "pattern": "공작기계|자동선반|머시닝|CNC|밀링|금속절삭|레이저가공|레이저 가공|엔드밀|절삭공구|전동공구",
+    "exclude": "",
+    "registeredSectors": [
+      "machinery",
+      "metals"
+    ]
+  },
+  {
+    "id": "offering_105",
+    "industry": "machinery",
+    "group": "금형·정밀가공",
+    "pattern": "금형|몰드베이스|프로토타입|소량생산|정밀부품",
+    "exclude": "",
+    "registeredSectors": [
+      "machinery",
+      "metals"
+    ]
+  },
+  {
+    "id": "offering_106",
+    "industry": "machinery",
+    "group": "구동·유공압 부품",
+    "pattern": "감속기|액츄에이터|엑츄에이터|트랜스미션|기어|유압|유공압|직선운동|메카트로",
+    "exclude": "",
+    "registeredSectors": [
+      "machinery",
+      "metals"
+    ]
+  },
+  {
+    "id": "offering_107",
+    "industry": "machinery",
+    "group": "산업용 설비",
+    "pattern": "열교환|가열로|관류보일러|온수보일러|공기압축기|사출성형기|사출장비|분체이송|집진기|기화기|화공 플랜트|에너지 플랜트|화공기기|저장용 탱크|믹싱플랜트|기체분리막",
+    "exclude": "",
+    "registeredSectors": [
+      "machinery",
+      "metals"
+    ]
+  },
+  {
+    "id": "offering_108",
+    "industry": "machinery",
+    "group": "물류·이송 장비",
+    "pattern": "물류자동화|물류시스템|자동화물류|Stocker|AGV|AMR|컨베이어|컨베잉|이송장비",
+    "exclude": "",
+    "registeredSectors": [
+      "machinery",
+      "metals"
+    ]
+  },
+  {
+    "id": "offering_109",
+    "industry": "machinery",
+    "group": "산업용 검사장비",
+    "pattern": "X-ray 검사|엑스레이검사|SEM|비전검사|신뢰성.{0,8}시험|측정솔루션|외관검사",
+    "exclude": "",
+    "registeredSectors": [
+      "machinery",
+      "instruments"
+    ]
+  },
+  {
+    "id": "offering_110",
+    "industry": "machinery",
+    "group": "건설기계·부품",
+    "pattern": "굴삭기|중장비|트랙롤라|트랙롤러|트랙슈|콘크리트펌프|Compact Equipment|Heavy Equipment",
+    "exclude": "",
+    "registeredSectors": [
+      "machinery",
+      "metals"
+    ]
+  },
+  {
+    "id": "offering_111",
+    "industry": "machinery",
+    "group": "클린룸·공정 환경",
+    "pattern": "클린룸|크린룸|드라이룸|클린컨베이어|질소퍼지",
+    "exclude": "",
+    "registeredSectors": [
+      "machinery"
+    ]
+  },
+  {
+    "id": "offering_112",
+    "industry": "machinery",
+    "group": "소방·안전 설비",
+    "pattern": "소화안전|소방기기|소화설비|소방자동차",
+    "exclude": "",
+    "registeredSectors": [
+      "machinery",
+      "metals"
+    ]
+  },
+  {
+    "id": "offering_113",
+    "industry": "machinery",
+    "group": "승강기",
+    "pattern": "엘리베이터|에스컬레이터",
+    "exclude": "가이드 레일",
+    "registeredSectors": [
+      "machinery"
+    ]
+  },
+  {
+    "id": "offering_114",
+    "industry": "shipbuilding",
+    "group": "선박 엔진·기자재",
+    "pattern": "선박용.*(?:엔진|기계|크레인|소화)|대형선박용엔진|선박엔진|조선기자재|선박구성부품|선박의장품|LNG선박용 단열",
+    "exclude": "",
+    "registeredSectors": [
+      "machinery",
+      "metals",
+      "shipbuilding",
+      "chemicals"
+    ]
+  },
+  {
+    "id": "offering_115",
+    "industry": "electrical",
+    "group": "발전·전력 설비",
+    "pattern": "송배전|전력설비|송전|변전|발전설비|터빈|터어빈|풍력발전타워|Wind-Tower|해상풍력 하부구조물",
+    "exclude": "",
+    "registeredSectors": [
+      "machinery",
+      "metals",
+      "electrical"
+    ]
+  },
+  {
+    "id": "offering_116",
+    "industry": "aerospace",
+    "group": "방산·항공 부품",
+    "pattern": "정밀유도무기|방위산업|방탄제품|항공기MRO|항공부품|항공기부품",
+    "exclude": "",
+    "registeredSectors": [
+      "machinery",
+      "metals",
+      "aerospace"
+    ]
+  },
+  {
+    "id": "offering_117",
+    "industry": "retail",
+    "group": "백화점·종합 유통",
+    "pattern": "백화점|대형마트|할인점|슈퍼마켓",
+    "exclude": "",
+    "registeredSectors": [
+      "retail"
+    ]
+  },
+  {
+    "id": "offering_118",
+    "industry": "retail",
+    "group": "편의점",
+    "pattern": "편의점",
+    "exclude": "",
+    "registeredSectors": [
+      "retail"
+    ]
+  },
+  {
+    "id": "offering_119",
+    "industry": "retail",
+    "group": "온라인 유통",
+    "pattern": "전자상거래|미디어커머스|판매대행|소싱|커머스|플랫폼",
+    "exclude": "",
+    "registeredSectors": [
+      "retail"
+    ]
+  },
+  {
+    "id": "offering_120",
+    "industry": "retail",
+    "group": "면세점",
+    "pattern": "면세",
+    "exclude": "",
+    "registeredSectors": [
+      "retail"
+    ]
+  },
+  {
+    "id": "offering_121",
+    "industry": "retail",
+    "group": "식품·식자재 유통",
+    "pattern": "식품|식자재|유가공|소스류|파스타류|수산물|육류|와인|음식료품",
+    "exclude": "",
+    "registeredSectors": [
+      "retail"
+    ]
+  },
+  {
+    "id": "offering_122",
+    "industry": "retail",
+    "group": "의약품·의료기기 유통",
+    "pattern": "의약품|의료기기|의료소모품|의료소모품|치과용|실험용 시약|과학기자재",
+    "exclude": "",
+    "registeredSectors": [
+      "retail"
+    ]
+  },
+  {
+    "id": "offering_123",
+    "industry": "retail",
+    "group": "전자부품·IT 유통",
+    "pattern": "반도체|소프트웨어|전자부품|메모리|스토리지|CPU|PC|Autodesk|메인보드|그래픽카드|카메라모듈",
+    "exclude": "",
+    "registeredSectors": [
+      "retail"
+    ]
+  },
+  {
+    "id": "offering_124",
+    "industry": "retail",
+    "group": "의류·신발 유통",
+    "pattern": "의류|의복|피복|셔츠|스웨터|니트|신발|레인부츠|스니커즈|겨울화|골프잡화|모피|케주얼웨어|유아동복",
+    "exclude": "",
+    "registeredSectors": [
+      "retail"
+    ]
+  },
+  {
+    "id": "offering_125",
+    "industry": "retail",
+    "group": "화장품 유통",
+    "pattern": "화장품|코스메틱",
+    "exclude": "",
+    "registeredSectors": [
+      "retail"
+    ]
+  },
+  {
+    "id": "offering_126",
+    "industry": "retail",
+    "group": "산업자재·장비 유통",
+    "pattern": "산업기자재|기계장비|유휴기계|MRO|소모성자재|건축자재|철강|열연|후판|목재|레미콘|화공약품|화공품|화학제품|합성수지|엔지니어링 플라스틱",
+    "exclude": "",
+    "registeredSectors": [
+      "retail"
+    ]
+  },
+  {
+    "id": "offering_127",
+    "industry": "retail",
+    "group": "가전·생활용품 유통",
+    "pattern": "가전|가구|소파|주방가구|압력솥|생활용품|완구|유아용품|매트|가정용 전기|자전거",
+    "exclude": "",
+    "registeredSectors": [
+      "retail"
+    ]
+  },
+  {
+    "id": "offering_128",
+    "industry": "retail",
+    "group": "자동차 유통·애프터마켓",
+    "pattern": "수입자동차|중고차|자동차 지급품|애프터마켓|자동차 관리",
+    "exclude": "",
+    "registeredSectors": [
+      "retail"
+    ]
+  },
+  {
+    "id": "offering_129",
+    "industry": "retail",
+    "group": "종합상사",
+    "pattern": "트레이딩|수출입업|수출입대행|종합무역",
+    "exclude": "",
+    "registeredSectors": [
+      "retail"
+    ]
+  },
+  {
+    "id": "offering_130",
+    "industry": "retail",
+    "group": "미술품 경매",
+    "pattern": "미술품",
+    "exclude": "",
+    "registeredSectors": [
+      "retail"
+    ]
+  },
+  {
+    "id": "offering_131",
+    "industry": "retail",
+    "group": "도서·음반 유통",
+    "pattern": "도서|음반/DVD",
+    "exclude": "",
+    "registeredSectors": [
+      "retail"
+    ]
+  },
+  {
+    "id": "offering_132",
+    "industry": "retail",
+    "group": "연료 유통",
+    "pattern": "LPG|액화석유가스|석유류|휘발유|에너지 원료|주요소운영",
+    "exclude": "",
+    "registeredSectors": [
+      "retail"
+    ]
+  },
+  {
+    "id": "offering_133",
+    "industry": "food",
+    "group": "외식·급식",
+    "pattern": "프랜차이즈|단체급식|푸드서비스|외식사업",
+    "exclude": "",
+    "registeredSectors": [
+      "retail",
+      "food"
+    ]
+  },
+  {
+    "id": "offering_134",
+    "industry": "travel",
+    "group": "호텔·숙박",
+    "pattern": "관광숙박|호텔|리조트",
+    "exclude": "",
+    "registeredSectors": [
+      "retail",
+      "travel"
+    ]
+  },
+  {
+    "id": "offering_135",
+    "industry": "electronics",
+    "group": "광학 부품",
+    "pattern": "광학부품|카메라.{0,4}(?:렌즈|모듈 부품|윈도우)|IR\\s*Filter|IR필터|교환렌즈|실리콘렌즈|카메라모듈 부품",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics",
+      "electrical",
+      "instruments"
+    ]
+  },
+  {
+    "id": "offering_136",
+    "industry": "electronics",
+    "group": "전자기기",
+    "pattern": "플로터|프린터|전자칠판|전자교탁|블루투스헤드셋|각종컴퓨터|음향반주기|OTT 멀티미디어|오디오|내비게이션|블랙박스|PDA|모니터",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics",
+      "electrical",
+      "instruments"
+    ]
+  },
+  {
+    "id": "offering_137",
+    "industry": "electronics",
+    "group": "생활가전",
+    "pattern": "로봇청소기|레인지후드|빌트인 기기|적외선 가열 조리기|뉴라이프가전|유아가전",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics",
+      "electrical",
+      "instruments"
+    ]
+  },
+  {
+    "id": "offering_138",
+    "industry": "electronics",
+    "group": "센서",
+    "pattern": "센서|이미징레이다|라이다|LiDAR|가스검지기",
+    "exclude": "패키징",
+    "registeredSectors": [
+      "electronics",
+      "electrical",
+      "instruments"
+    ]
+  },
+  {
+    "id": "offering_139",
+    "industry": "electronics",
+    "group": "기구 부품",
+    "pattern": "키패드|CHASSIS|기구부품|휴대폰부품|휴대용단말기 부품|카메라 모듈 부품|도어락부품|가전 부품|냉장고용 TIMER|전자렌지용 MOTOR",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics",
+      "electrical",
+      "instruments"
+    ]
+  },
+  {
+    "id": "offering_140",
+    "industry": "electronics",
+    "group": "수동·연결 부품",
+    "pattern": "수정진동자|수정발진기|콘덴서용|코일|리액터|노이즈필터|콘넥터|커넥터|단자설계|자성부품|자성제품|Geared Motor",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics",
+      "electrical",
+      "instruments"
+    ]
+  },
+  {
+    "id": "offering_141",
+    "industry": "electronics",
+    "group": "기판·전자조립",
+    "pattern": "PBA|PCB Assembly|FPCA|인쇄회로기판|연성회로기판|실장부품|Substrate|리드프레임|LEADFRAME",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics",
+      "electrical",
+      "instruments"
+    ]
+  },
+  {
+    "id": "offering_142",
+    "industry": "electronics",
+    "group": "디스플레이 부품·소재",
+    "pattern": "광학시트|광기능성 시트|프리즘시트|DECO Film|Cover Glass|GLASS LAMINATION|디스플레이용.*필름|FPD 패널용 Target|Metal Mask|ACF\\(",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics",
+      "electrical",
+      "instruments"
+    ]
+  },
+  {
+    "id": "offering_143",
+    "industry": "electronics",
+    "group": "통신장비·부품",
+    "pattern": "광전송|광\\s*전송|광모듈|광단국|광링크|광접속|광통신|통신용 AWG|데이터센터용 AWG|중계기|통신.*(?:단말|증폭|패키지)|무선통신기기|군납용무전기|PLC모뎀|LTE Router|라우터|교환장비|RF 부품|PAM\\)|SAW Filter|Duplexer|메시통신",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics",
+      "electrical",
+      "instruments"
+    ]
+  },
+  {
+    "id": "offering_144",
+    "industry": "electronics",
+    "group": "인증·보안 기기",
+    "pattern": "홈네트워크|비디오도어폰|스마트홈|영상저장장치|IP 카메라|카드제조|카드제조업|교통카드단말기|역무자동화|요금징수|하이패스",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics",
+      "electrical",
+      "instruments"
+    ]
+  },
+  {
+    "id": "offering_145",
+    "industry": "semiconductor",
+    "group": "검사 부품",
+    "pattern": "Probe Card|프로브카드|리노핀|Test Socket|반도체.{0,4}핀",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics",
+      "electrical",
+      "instruments",
+      "battery"
+    ]
+  },
+  {
+    "id": "offering_146",
+    "industry": "semiconductor",
+    "group": "공정 부품·소모품",
+    "pattern": "반도체.{0,8}(?:소모성 부품|용링|전극|웨이퍼 캐리어)|반도체용세금선",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics",
+      "instruments"
+    ]
+  },
+  {
+    "id": "offering_147",
+    "industry": "semiconductor",
+    "group": "공정 지원장비",
+    "pattern": "반도체장비용 유량|Chemical 공급 장치|공정 프로세스 모니터링|캐니스터",
+    "exclude": "",
+    "registeredSectors": [
+      "instruments"
+    ]
+  },
+  {
+    "id": "offering_148",
+    "industry": "semiconductor",
+    "group": "후공정·검사 장비",
+    "pattern": "WaferProber|Probe Station",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics",
+      "electrical"
+    ]
+  },
+  {
+    "id": "offering_149",
+    "industry": "machinery",
+    "group": "디스플레이 제조장비",
+    "pattern": "(?:LCD|OLED|FPD|디스플레이).{0,15}(?:검사장비|패널검사|제조 장비|공정검사장비)",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics",
+      "instruments",
+      "electrical"
+    ]
+  },
+  {
+    "id": "offering_150",
+    "industry": "machinery",
+    "group": "산업용 검사장비",
+    "pattern": "카메라모듈 제조검사용 장비|카메라모듈장비|시험장비|계측장비|모니터링 시스템",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics",
+      "instruments",
+      "electrical"
+    ]
+  },
+  {
+    "id": "offering_151",
+    "industry": "research",
+    "group": "연구장비·분석기기",
+    "pattern": "세포카운팅|세포이미징|라이브셀 이미징|현미경|홀로토모그래피|생체조직투명화",
+    "exclude": "",
+    "registeredSectors": [
+      "instruments",
+      "medical",
+      "research"
+    ]
+  },
+  {
+    "id": "offering_152",
+    "industry": "aerospace",
+    "group": "위성·항공전자",
+    "pattern": "위성탑재체|항공전자|위성운용국|전자전시스템|군용 전시기",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics",
+      "instruments",
+      "aerospace"
+    ]
+  },
+  {
+    "id": "offering_153",
+    "industry": "electrical",
+    "group": "전력기기",
+    "pattern": "배전반|변압기|차단기|개폐장치|배전자동화|고압기기|중전기기|배선기구|분전반|계전기",
+    "exclude": "",
+    "registeredSectors": [
+      "electrical"
+    ]
+  },
+  {
+    "id": "offering_154",
+    "industry": "electrical",
+    "group": "전선·케이블",
+    "pattern": "전력선|케이블|광섬유|초전도선재|동선|와이어",
+    "exclude": "",
+    "registeredSectors": [
+      "electrical"
+    ]
+  },
+  {
+    "id": "offering_155",
+    "industry": "electrical",
+    "group": "전원·전력변환",
+    "pattern": "전원장치|정류기|전원공급장치|전자변성기|전력변환|인버터",
+    "exclude": "",
+    "registeredSectors": [
+      "electrical"
+    ]
+  },
+  {
+    "id": "offering_156",
+    "industry": "electrical",
+    "group": "조명",
+    "pattern": "형광등|백열전구|실외등|LED등",
+    "exclude": "",
+    "registeredSectors": [
+      "electrical"
+    ]
+  },
+  {
+    "id": "offering_157",
+    "industry": "electrical",
+    "group": "태양광 설비",
+    "pattern": "태양광.*(?:모듈|발전시스템|인버터)|태양전지모듈",
+    "exclude": "",
+    "registeredSectors": [
+      "electrical"
+    ]
+  },
+  {
+    "id": "offering_158",
+    "industry": "electrical",
+    "group": "연료전지",
+    "pattern": "연료전지",
+    "exclude": "",
+    "registeredSectors": [
+      "electrical"
+    ]
+  },
+  {
+    "id": "offering_159",
+    "industry": "electrical",
+    "group": "전기차 충전",
+    "pattern": "전기차\\s*충전",
+    "exclude": "",
+    "registeredSectors": [
+      "electrical",
+      "instruments"
+    ]
+  },
+  {
+    "id": "offering_160",
+    "industry": "electrical",
+    "group": "전력 계측·제어",
+    "pattern": "전력량계|원격검침|적산계기|감시제어|분산제어|원전용계측",
+    "exclude": "",
+    "registeredSectors": [
+      "electrical",
+      "instruments"
+    ]
+  },
+  {
+    "id": "offering_161",
+    "industry": "battery",
+    "group": "배터리 셀·팩",
+    "pattern": "이차전지|2차전지|밧데리|축전지|1차전지|Battery Pack",
+    "exclude": "부품|소재|전구체|안전|분리막|핀|양극|음극|검사|장비",
+    "registeredSectors": [
+      "battery",
+      "electronics"
+    ]
+  },
+  {
+    "id": "offering_162",
+    "industry": "battery",
+    "group": "배터리 소재",
+    "pattern": "양극|전구체|분리막",
+    "exclude": "",
+    "registeredSectors": [
+      "battery"
+    ]
+  },
+  {
+    "id": "offering_163",
+    "industry": "battery",
+    "group": "배터리 부품",
+    "pattern": "전지.{0,15}부품|배터리.{0,15}부품|배터리 셀케이스|배터리셀 패드|Busbar|ESS Parts|ESS Module|배터리 핀",
+    "exclude": "",
+    "registeredSectors": [
+      "auto",
+      "electrical",
+      "battery",
+      "electronics"
+    ]
+  },
+  {
+    "id": "offering_164",
+    "industry": "battery",
+    "group": "배터리 제조장비",
+    "pattern": "전지.{0,12}검사장비|배터리 진단시스템|충방전 검사장비",
+    "exclude": "",
+    "registeredSectors": [
+      "electrical",
+      "instruments"
+    ]
+  },
+  {
+    "id": "offering_165",
+    "industry": "electronics",
+    "group": "수동·연결 부품",
+    "pattern": "슈퍼커패시터",
+    "exclude": "",
+    "registeredSectors": [
+      "battery"
+    ]
+  },
+  {
+    "id": "offering_166",
+    "industry": "auto",
+    "group": "차체·내외장 부품",
+    "pattern": "시트|도어|차체|범퍼|BUMPER|TRIM|몰딩|카페트|헤드라이너|헤드레스트|암레스트|의장부품|CRASH PAD",
+    "exclude": "",
+    "registeredSectors": [
+      "auto"
+    ]
+  },
+  {
+    "id": "offering_167",
+    "industry": "auto",
+    "group": "구동·엔진 부품",
+    "pattern": "엔진|기어|기아변속기|변속|동력전달|트란스밋|Clutch|Flywheel|Driveplate|ATparts|샤프트|클러치|액슬|엑슬|뒷차축|피스톤|터보차저|워터펌프|오일펌프|EGR|피스턴|실린더|크랭크|CVJOINT|연료저장",
+    "exclude": "",
+    "registeredSectors": [
+      "auto"
+    ]
+  },
+  {
+    "id": "offering_168",
+    "industry": "auto",
+    "group": "조향·제동·현가 부품",
+    "pattern": "스티어링|조향|브레이크|제동|서스펜션|쇼크|속옵서버|컨트롤 암|겹판스프링|휠",
+    "exclude": "",
+    "registeredSectors": [
+      "auto"
+    ]
+  },
+  {
+    "id": "offering_169",
+    "industry": "auto",
+    "group": "전장·전동화 부품",
+    "pattern": "스마트키|스위치|전장|전동화|인포테인먼트|케이블|램프|LED모듈|자동차용 전구|인버터|정션박스|ACTUATOR|액추에이터|파워유닛|전기차 부품",
+    "exclude": "",
+    "registeredSectors": [
+      "auto"
+    ]
+  },
+  {
+    "id": "offering_170",
+    "industry": "auto",
+    "group": "열관리·배기 부품",
+    "pattern": "에어컨필터|라디에터|오일쿨러|머플러|소음기|배기가스|배기계통|HVAC|터머스|캐니스터|케니스타",
+    "exclude": "",
+    "registeredSectors": [
+      "auto"
+    ]
+  },
+  {
+    "id": "offering_171",
+    "industry": "auto",
+    "group": "금속·고무 부품",
+    "pattern": "다이캐스팅|고무제품|방진고무|방류고무|볼트|너트|단조품|정밀강관|정밀인발강관|Bellows",
+    "exclude": "",
+    "registeredSectors": [
+      "auto"
+    ]
+  },
+  {
+    "id": "offering_172",
+    "industry": "auto",
+    "group": "특장차",
+    "pattern": "냉동.*탑차|앰블란스",
+    "exclude": "",
+    "registeredSectors": [
+      "auto"
+    ]
+  },
+  {
+    "id": "offering_173",
+    "industry": "auto",
+    "group": "완성차",
+    "pattern": "승용차|중대형버스|자동차\\(승용차|^자동차,자동차부품",
+    "exclude": "",
+    "registeredSectors": [
+      "auto"
+    ]
+  },
+  {
+    "id": "offering_174",
+    "industry": "auto",
+    "group": "자동차 부품",
+    "pattern": "자동차\\s*(?:부품|신품 부품)|자동차A/S용 부품",
+    "exclude": "",
+    "registeredSectors": [
+      "auto"
+    ]
+  },
+  {
+    "id": "offering_175",
+    "industry": "food",
+    "group": "건강기능식품",
+    "pattern": "건강기능|건강보조|홍삼|인삼식품|프로바이오틱스|콜라겐|다이어트 제품",
+    "exclude": "",
+    "registeredSectors": [
+      "food"
+    ]
+  },
+  {
+    "id": "offering_176",
+    "industry": "food",
+    "group": "사료·축산",
+    "pattern": "사료|육계|양돈|도축|통오리|정육|훈연육",
+    "exclude": "",
+    "registeredSectors": [
+      "food"
+    ]
+  },
+  {
+    "id": "offering_177",
+    "industry": "food",
+    "group": "식품 원료",
+    "pattern": "식품.{0,5}(?:원료|소재)|설탕|제당|제분|소맥분|밀가루|이스트|유지류",
+    "exclude": "",
+    "registeredSectors": [
+      "food"
+    ]
+  },
+  {
+    "id": "offering_178",
+    "industry": "food",
+    "group": "수산·수산가공",
+    "pattern": "수산물|어묵|맛살|참치|원양어업|원양수산",
+    "exclude": "",
+    "registeredSectors": [
+      "food"
+    ]
+  },
+  {
+    "id": "offering_179",
+    "industry": "food",
+    "group": "가공식품",
+    "pattern": "시리얼|영유아식|고령친화식품|대체식품|죽염|간장|커피|빵|스넥|일반식품",
+    "exclude": "",
+    "registeredSectors": [
+      "food"
+    ]
+  },
+  {
+    "id": "offering_180",
+    "industry": "food",
+    "group": "주류·주정",
+    "pattern": "주정|탁주|약주",
+    "exclude": "",
+    "registeredSectors": [
+      "food"
+    ]
+  },
+  {
+    "id": "offering_181",
+    "industry": "food",
+    "group": "담배",
+    "pattern": "담배",
+    "exclude": "",
+    "registeredSectors": [
+      "food"
+    ]
+  },
+  {
+    "id": "offering_182",
+    "industry": "agriculture",
+    "group": "농산물·재배",
+    "pattern": "토마토",
+    "exclude": "",
+    "registeredSectors": [
+      "food",
+      "agriculture"
+    ]
+  },
+  {
+    "id": "offering_183",
+    "industry": "pharma",
+    "group": "바이오 연구·제조 소재",
+    "pattern": "제약용 특수효소|바이오신소재",
+    "exclude": "",
+    "registeredSectors": [
+      "food",
+      "pharma"
+    ]
+  },
+  {
+    "id": "offering_184",
+    "industry": "fashion",
+    "group": "의류",
+    "pattern": "의류|의복|여성복|학생복|셔츠|전문복|웨어|니트류",
+    "exclude": "",
+    "registeredSectors": [
+      "fashion"
+    ]
+  },
+  {
+    "id": "offering_185",
+    "industry": "fashion",
+    "group": "속옷",
+    "pattern": "내의|란제리",
+    "exclude": "",
+    "registeredSectors": [
+      "fashion"
+    ]
+  },
+  {
+    "id": "offering_186",
+    "industry": "fashion",
+    "group": "가방·패션잡화",
+    "pattern": "가방|핸드백|지갑|모자|악세사리|잡화",
+    "exclude": "",
+    "registeredSectors": [
+      "fashion"
+    ]
+  },
+  {
+    "id": "offering_187",
+    "industry": "fashion",
+    "group": "기능성 섬유·산업용품",
+    "pattern": "침구|필터|방검복|안전복|안전용품|산업용 마스크|Wiper|포장재|부직포|폴리우레탄 폼",
+    "exclude": "",
+    "registeredSectors": [
+      "fashion"
+    ]
+  },
+  {
+    "id": "offering_188",
+    "industry": "household",
+    "group": "위생용품",
+    "pattern": "면생리대",
+    "exclude": "",
+    "registeredSectors": [
+      "fashion"
+    ]
+  },
+  {
+    "id": "offering_189",
+    "industry": "content",
+    "group": "방송·채널",
+    "pattern": "방송|케이블TV|위성방송",
+    "exclude": "",
+    "registeredSectors": [
+      "content"
+    ]
+  },
+  {
+    "id": "offering_190",
+    "industry": "content",
+    "group": "영상 제작·배급",
+    "pattern": "영화|영상 콘텐츠|영상콘텐츠|콘텐츠.{0,6}(?:제작|배급)|VFX|시각효과|Visual Effect",
+    "exclude": "",
+    "registeredSectors": [
+      "content"
+    ]
+  },
+  {
+    "id": "offering_191",
+    "industry": "content",
+    "group": "공연·매니지먼트",
+    "pattern": "공연|매니지먼트|예술관련",
+    "exclude": "",
+    "registeredSectors": [
+      "content"
+    ]
+  },
+  {
+    "id": "offering_192",
+    "industry": "content",
+    "group": "캐릭터·IP",
+    "pattern": "애니메이션|라이선스|캐릭터",
+    "exclude": "",
+    "registeredSectors": [
+      "content"
+    ]
+  },
+  {
+    "id": "offering_193",
+    "industry": "content",
+    "group": "출판·웹툰",
+    "pattern": "서적|출판|전자책|웹소설|만화출판",
+    "exclude": "",
+    "registeredSectors": [
+      "content"
+    ]
+  },
+  {
+    "id": "offering_194",
+    "industry": "content",
+    "group": "교육 콘텐츠",
+    "pattern": "참고서|어학교재|온라인강의|교재판매",
+    "exclude": "",
+    "registeredSectors": [
+      "content"
+    ]
+  },
+  {
+    "id": "offering_195",
+    "industry": "business-services",
+    "group": "전시·행사",
+    "pattern": "실감미디어|전시|테마파크",
+    "exclude": "",
+    "registeredSectors": [
+      "content",
+      "business-services"
+    ]
+  },
+  {
+    "id": "offering_196",
+    "industry": "construction",
+    "group": "주택·건축",
+    "pattern": "아파트|주택|건축|도급공사|종합건설|일반건설|건설사업",
+    "exclude": "",
+    "registeredSectors": [
+      "construction"
+    ]
+  },
+  {
+    "id": "offering_197",
+    "industry": "construction",
+    "group": "토목·기반시설",
+    "pattern": "토목|토건|토공사|도로공사|포장공사|준설|수중공사|보링|상하수도|해저케이블",
+    "exclude": "",
+    "registeredSectors": [
+      "construction"
+    ]
+  },
+  {
+    "id": "offering_198",
+    "industry": "construction",
+    "group": "인테리어",
+    "pattern": "인테리어|실내건축",
+    "exclude": "",
+    "registeredSectors": [
+      "construction"
+    ]
+  },
+  {
+    "id": "offering_199",
+    "industry": "construction",
+    "group": "플랜트·설비 공사",
+    "pattern": "플랜트|설비공사|전기공사|기전공사|발전소.*공사",
+    "exclude": "",
+    "registeredSectors": [
+      "construction"
+    ]
+  },
+  {
+    "id": "offering_200",
+    "industry": "construction",
+    "group": "설비 정비",
+    "pattern": "정비|유지보수|설비정비",
+    "exclude": "",
+    "registeredSectors": [
+      "construction"
+    ]
+  },
+  {
+    "id": "offering_201",
+    "industry": "construction",
+    "group": "설계·엔지니어링",
+    "pattern": "설계|감리|엔지니어링",
+    "exclude": "",
+    "registeredSectors": [
+      "construction"
+    ]
+  },
+  {
+    "id": "offering_202",
+    "industry": "building-materials",
+    "group": "시멘트·레미콘",
+    "pattern": "시멘트|레미콘|몰탈|콘크리트",
+    "exclude": "",
+    "registeredSectors": [
+      "building-materials"
+    ]
+  },
+  {
+    "id": "offering_203",
+    "industry": "building-materials",
+    "group": "골재·아스콘",
+    "pattern": "골재|아스콘|석회",
+    "exclude": "",
+    "registeredSectors": [
+      "building-materials"
+    ]
+  },
+  {
+    "id": "offering_204",
+    "industry": "building-materials",
+    "group": "콘크리트 구조재",
+    "pattern": "PHC파일|콘크리트파일|고강도파일|흄관|침목",
+    "exclude": "",
+    "registeredSectors": [
+      "building-materials"
+    ]
+  },
+  {
+    "id": "offering_205",
+    "industry": "building-materials",
+    "group": "내화물·세라믹",
+    "pattern": "내화|세라믹|단열벽돌",
+    "exclude": "",
+    "registeredSectors": [
+      "building-materials"
+    ]
+  },
+  {
+    "id": "offering_206",
+    "industry": "building-materials",
+    "group": "창호·유리",
+    "pattern": "강화유리",
+    "exclude": "",
+    "registeredSectors": [
+      "building-materials"
+    ]
+  },
+  {
+    "id": "offering_207",
+    "industry": "building-materials",
+    "group": "위생도기·타일",
+    "pattern": "위생도기|타일|욕실",
+    "exclude": "",
+    "registeredSectors": [
+      "building-materials"
+    ]
+  },
+  {
+    "id": "offering_208",
+    "industry": "semiconductor",
+    "group": "공정 부품·소모품",
+    "pattern": "반도체용 석영유리|반도체 제조공정용 고순도 흑연",
+    "exclude": "",
+    "registeredSectors": [
+      "building-materials"
+    ]
+  },
+  {
+    "id": "offering_209",
+    "industry": "machinery",
+    "group": "공작기계·공구",
+    "pattern": "연마석|다이아몬드공구",
+    "exclude": "",
+    "registeredSectors": [
+      "building-materials"
+    ]
+  },
+  {
+    "id": "offering_210",
+    "industry": "business-services",
+    "group": "신용평가·채권관리",
+    "pattern": "신용|채권추심|등급평정",
+    "exclude": "",
+    "registeredSectors": [
+      "business-services"
+    ]
+  },
+  {
+    "id": "offering_211",
+    "industry": "business-services",
+    "group": "시장조사",
+    "pattern": "리서치|시장조사|여론조사",
+    "exclude": "",
+    "registeredSectors": [
+      "business-services"
+    ]
+  },
+  {
+    "id": "offering_212",
+    "industry": "business-services",
+    "group": "광고·마케팅",
+    "pattern": "광고|마케팅|미디어렙",
+    "exclude": "",
+    "registeredSectors": [
+      "business-services"
+    ]
+  },
+  {
+    "id": "offering_213",
+    "industry": "business-services",
+    "group": "보안·시설관리",
+    "pattern": "경비|안전관리",
+    "exclude": "",
+    "registeredSectors": [
+      "business-services"
+    ]
+  },
+  {
+    "id": "offering_214",
+    "industry": "business-services",
+    "group": "렌탈",
+    "pattern": "렌탈|렌터카|카셰어링",
+    "exclude": "",
+    "registeredSectors": [
+      "business-services"
+    ]
+  },
+  {
+    "id": "offering_215",
+    "industry": "business-services",
+    "group": "기업 정보·운영",
+    "pattern": "ATM관리|CD-VAN|컨설팅|탄소배출권",
+    "exclude": "",
+    "registeredSectors": [
+      "business-services"
+    ]
+  },
+  {
+    "id": "offering_216",
+    "industry": "research",
+    "group": "연구·임상 지원",
+    "pattern": "유전체 분석|DNA Sequencing|Microarray|신약개발지원|의약품 품질관리|피부인체적용시험",
+    "exclude": "",
+    "registeredSectors": [
+      "business-services",
+      "research"
+    ]
+  },
+  {
+    "id": "offering_217",
+    "industry": "semiconductor",
+    "group": "패키징·테스트 서비스",
+    "pattern": "반도체 테스트|반도체 신뢰성 검사",
+    "exclude": "",
+    "registeredSectors": [
+      "business-services"
+    ]
+  },
+  {
+    "id": "offering_218",
+    "industry": "medical",
+    "group": "체외진단",
+    "pattern": "체외진단|진단시약",
+    "exclude": "",
+    "registeredSectors": [
+      "business-services"
+    ]
+  },
+  {
+    "id": "offering_219",
+    "industry": "content",
+    "group": "공연·매니지먼트",
+    "pattern": "매니지먼트",
+    "exclude": "",
+    "registeredSectors": [
+      "business-services"
+    ]
+  },
+  {
+    "id": "offering_220",
+    "industry": "content",
+    "group": "영상 제작·배급",
+    "pattern": "영상콘텐츠 제작",
+    "exclude": "",
+    "registeredSectors": [
+      "business-services"
+    ]
+  },
+  {
+    "id": "offering_221",
+    "industry": "content",
+    "group": "캐릭터·IP",
+    "pattern": "캐릭터디자인",
+    "exclude": "",
+    "registeredSectors": [
+      "business-services"
+    ]
+  },
+  {
+    "id": "offering_222",
+    "industry": "electrical",
+    "group": "전력 운영·관리",
+    "pattern": "수요관리 서비스|발전소.{0,12}정비",
+    "exclude": "",
+    "registeredSectors": [
+      "business-services"
+    ]
+  },
+  {
+    "id": "offering_223",
+    "industry": "household",
+    "group": "가구·침구",
+    "pattern": "의자|매트리스|가구|씽크상판|목재케비넷",
+    "exclude": "",
+    "registeredSectors": [
+      "household"
+    ]
+  },
+  {
+    "id": "offering_224",
+    "industry": "household",
+    "group": "종이·펄프",
+    "pattern": "원지|원단|골판지|펄프|용지|특수지|제지|지류|아트지|CCP지",
+    "exclude": "",
+    "registeredSectors": [
+      "household"
+    ]
+  },
+  {
+    "id": "offering_225",
+    "industry": "household",
+    "group": "종이 포장",
+    "pattern": "카톤팩|골판지상자|골판지 상자|박스",
+    "exclude": "",
+    "registeredSectors": [
+      "household"
+    ]
+  },
+  {
+    "id": "offering_226",
+    "industry": "household",
+    "group": "목재·보드",
+    "pattern": "MDF|목재|합판|온돌마루|바닥재",
+    "exclude": "",
+    "registeredSectors": [
+      "household"
+    ]
+  },
+  {
+    "id": "offering_227",
+    "industry": "household",
+    "group": "생활용품",
+    "pattern": "휴대폰액세서리|핸드폰 케이스|액정보호필름|화장용 스펀지|퍼프|유아|다이어리",
+    "exclude": "",
+    "registeredSectors": [
+      "household"
+    ]
+  },
+  {
+    "id": "offering_228",
+    "industry": "household",
+    "group": "스포츠·악기",
+    "pattern": "골프|피아노|현악기|전자악기",
+    "exclude": "",
+    "registeredSectors": [
+      "household"
+    ]
+  },
+  {
+    "id": "offering_229",
+    "industry": "household",
+    "group": "인쇄",
+    "pattern": "인쇄|복권",
+    "exclude": "",
+    "registeredSectors": [
+      "household"
+    ]
+  },
+  {
+    "id": "offering_230",
+    "industry": "household",
+    "group": "필터·정수기",
+    "pattern": "정수기|양전하필터",
+    "exclude": "",
+    "registeredSectors": [
+      "household"
+    ]
+  },
+  {
+    "id": "offering_231",
+    "industry": "electronics",
+    "group": "수동·연결 부품",
+    "pattern": "Magnet",
+    "exclude": "",
+    "registeredSectors": [
+      "household"
+    ]
+  },
+  {
+    "id": "offering_232",
+    "industry": "electronics",
+    "group": "디스플레이 부품·소재",
+    "pattern": "TFT-LCD BLU|몰드프레임",
+    "exclude": "",
+    "registeredSectors": [
+      "household"
+    ]
+  },
+  {
+    "id": "offering_233",
+    "industry": "fashion",
+    "group": "주얼리·시계",
+    "pattern": "주얼리|손목시계",
+    "exclude": "",
+    "registeredSectors": [
+      "household"
+    ]
+  },
+  {
+    "id": "offering_234",
+    "industry": "leisure",
+    "group": "놀이공원·레저",
+    "pattern": "놀이시설",
+    "exclude": "",
+    "registeredSectors": [
+      "household"
+    ]
+  },
+  {
+    "id": "offering_235",
+    "industry": "education",
+    "group": "교육 기기·콘텐츠",
+    "pattern": "교육용.*(?:로봇|드론)|코딩 콘텐츠",
+    "exclude": "",
+    "registeredSectors": [
+      "household",
+      "electrical"
+    ]
+  },
+  {
+    "id": "offering_236",
+    "industry": "transport",
+    "group": "육상 운송",
+    "pattern": "육상운송|고속버스|도로여객|화물자동차|탱크로리",
+    "exclude": "",
+    "registeredSectors": [
+      "transport"
+    ]
+  },
+  {
+    "id": "offering_237",
+    "industry": "transport",
+    "group": "해상 운송",
+    "pattern": "해상.*운송|해운|외항.*운송|선박대여",
+    "exclude": "",
+    "registeredSectors": [
+      "transport"
+    ]
+  },
+  {
+    "id": "offering_238",
+    "industry": "transport",
+    "group": "항공 운송",
+    "pattern": "항공운송|항공 여객|여객운송",
+    "exclude": "",
+    "registeredSectors": [
+      "transport"
+    ]
+  },
+  {
+    "id": "offering_239",
+    "industry": "transport",
+    "group": "물류·하역",
+    "pattern": "물류|하역|창고|택배|화물운송주선|화물운송알선|지상조업",
+    "exclude": "",
+    "registeredSectors": [
+      "transport"
+    ]
+  },
+  {
+    "id": "offering_240",
+    "industry": "leisure",
+    "group": "카지노",
+    "pattern": "카지노",
+    "exclude": "",
+    "registeredSectors": [
+      "leisure"
+    ]
+  },
+  {
+    "id": "offering_241",
+    "industry": "leisure",
+    "group": "골프·리조트",
+    "pattern": "골프장|스키장|리조트",
+    "exclude": "",
+    "registeredSectors": [
+      "leisure"
+    ]
+  },
+  {
+    "id": "offering_242",
+    "industry": "leisure",
+    "group": "스포츠 마케팅",
+    "pattern": "스포츠중계|스포츠마케팅",
+    "exclude": "",
+    "registeredSectors": [
+      "leisure"
+    ]
+  },
+  {
+    "id": "offering_243",
+    "industry": "aerospace",
+    "group": "위성·발사체",
+    "pattern": "위성|발사체|로켓",
+    "exclude": "",
+    "registeredSectors": [
+      "aerospace"
+    ]
+  },
+  {
+    "id": "offering_244",
+    "industry": "aerospace",
+    "group": "항공기·부품",
+    "pattern": "항공기|항공가공|날개구조물|기체부품|완제기|구조물 제작",
+    "exclude": "",
+    "registeredSectors": [
+      "aerospace"
+    ]
+  },
+  {
+    "id": "offering_245",
+    "industry": "aerospace",
+    "group": "방산 장비",
+    "pattern": "방산|항재밍",
+    "exclude": "",
+    "registeredSectors": [
+      "aerospace"
+    ]
+  },
+  {
+    "id": "offering_246",
+    "industry": "research",
+    "group": "시험·인증",
+    "pattern": "인증서비스|기술검사|방사선안전",
+    "exclude": "",
+    "registeredSectors": [
+      "research"
+    ]
+  },
+  {
+    "id": "offering_247",
+    "industry": "research",
+    "group": "유전체·바이오 분석",
+    "pattern": "유전체분석|마이크로바이옴 분석|생명정보 플랫폼",
+    "exclude": "",
+    "registeredSectors": [
+      "research"
+    ]
+  },
+  {
+    "id": "offering_248",
+    "industry": "cosmetics",
+    "group": "화장품",
+    "pattern": "화장품|보습제|마스크팩|스킨케어|메이크업|케어제품|미용패치|여성청결제",
+    "exclude": "",
+    "registeredSectors": [
+      "cosmetics"
+    ]
+  },
+  {
+    "id": "offering_249",
+    "industry": "cosmetics",
+    "group": "화장품 위탁개발·생산",
+    "pattern": "(?:화장품|마스크팩).*(?:OEM|ODM)",
+    "exclude": "",
+    "registeredSectors": [
+      "cosmetics"
+    ]
+  },
+  {
+    "id": "offering_250",
+    "industry": "cosmetics",
+    "group": "화장품 원료",
+    "pattern": "화장품 원료",
+    "exclude": "",
+    "registeredSectors": [
+      "cosmetics"
+    ]
+  },
+  {
+    "id": "offering_251",
+    "industry": "travel",
+    "group": "여행·항공권",
+    "pattern": "여행|항공권",
+    "exclude": "",
+    "registeredSectors": [
+      "travel"
+    ]
+  },
+  {
+    "id": "offering_252",
+    "industry": "travel",
+    "group": "호텔·숙박",
+    "pattern": "리조트|콘도|호텔",
+    "exclude": "",
+    "registeredSectors": [
+      "travel"
+    ]
+  },
+  {
+    "id": "offering_253",
+    "industry": "utilities",
+    "group": "가스 공급",
+    "pattern": "천연가스|도시가스|수소가스",
+    "exclude": "",
+    "registeredSectors": [
+      "utilities"
+    ]
+  },
+  {
+    "id": "offering_254",
+    "industry": "utilities",
+    "group": "전력·열 공급",
+    "pattern": "발전|전기|증기|집단에너지",
+    "exclude": "",
+    "registeredSectors": [
+      "utilities"
+    ]
+  },
+  {
+    "id": "offering_255",
+    "industry": "shipbuilding",
+    "group": "조선",
+    "pattern": "선박.*(?:건조|제조)|^선박\\(|^선박, 해양플랜트",
+    "exclude": "",
+    "registeredSectors": [
+      "shipbuilding"
+    ]
+  },
+  {
+    "id": "offering_256",
+    "industry": "shipbuilding",
+    "group": "선박 엔진·기자재",
+    "pattern": "선박.*(?:부품|기자재|배관|엔진|블록)|조선기자재|Deck House|해상용|선용원격|LPG Tank",
+    "exclude": "",
+    "registeredSectors": [
+      "shipbuilding"
+    ]
+  },
+  {
+    "id": "offering_257",
+    "industry": "real-estate",
+    "group": "부동산 임대·개발",
+    "pattern": "부동산.*(?:임대|분양|개발)",
+    "exclude": "",
+    "registeredSectors": [
+      "real-estate"
+    ]
+  },
+  {
+    "id": "offering_258",
+    "industry": "real-estate",
+    "group": "부동산 투자·운용",
+    "pattern": "부동산\\s*투자",
+    "exclude": "",
+    "registeredSectors": [
+      "real-estate"
+    ]
+  },
+  {
+    "id": "offering_259",
+    "industry": "real-estate",
+    "group": "부동산 관리",
+    "pattern": "부동산 관리",
+    "exclude": "",
+    "registeredSectors": [
+      "real-estate"
+    ]
+  },
+  {
+    "id": "offering_260",
+    "industry": "rail",
+    "group": "철도차량",
+    "pattern": "철도차량",
+    "exclude": "",
+    "registeredSectors": [
+      "rail"
+    ]
+  },
+  {
+    "id": "offering_261",
+    "industry": "rail",
+    "group": "자전거·이륜차",
+    "pattern": "자전거|이륜차|오토바이",
+    "exclude": "",
+    "registeredSectors": [
+      "rail"
+    ]
+  },
+  {
+    "id": "offering_262",
+    "industry": "agriculture",
+    "group": "종자·재배",
+    "pattern": "종자",
+    "exclude": "",
+    "registeredSectors": [
+      "agriculture"
+    ]
+  },
+  {
+    "id": "offering_263",
+    "industry": "agriculture",
+    "group": "수산·어업",
+    "pattern": "원양어업",
+    "exclude": "",
+    "registeredSectors": [
+      "agriculture"
+    ]
+  },
+  {
+    "id": "offering_264",
+    "industry": "environment",
+    "group": "폐기물 처리·재활용",
+    "pattern": "폐기물|철스크랩",
+    "exclude": "",
+    "registeredSectors": [
+      "environment"
+    ]
+  },
+  {
+    "id": "offering_265",
+    "industry": "medical",
+    "group": "체외진단",
+    "pattern": "진단 검사|암 조기진단",
+    "exclude": "",
+    "registeredSectors": [
+      "research"
+    ]
+  },
+  {
+    "id": "offering_266",
+    "industry": "pharma",
+    "group": "신약 개발·기술이전",
+    "pattern": "항암|유전자교정|약물전달 플랫폼",
+    "exclude": "",
+    "registeredSectors": [
+      "research"
+    ]
+  },
+  {
+    "id": "offering_267",
+    "industry": "construction",
+    "group": "설계·엔지니어링",
+    "pattern": "설계|감리|엔지니어링|EPC",
+    "exclude": "",
+    "registeredSectors": [
+      "research"
+    ]
+  },
+  {
+    "id": "offering_268",
+    "industry": "construction",
+    "group": "플랜트·설비 공사",
+    "pattern": "크린룸 시공|클린룸.*시공|배관설비",
+    "exclude": "",
+    "registeredSectors": [
+      "research"
+    ]
+  },
+  {
+    "id": "offering_269",
+    "industry": "construction",
+    "group": "설비 정비",
+    "pattern": "경상정비|발전설비 운전",
+    "exclude": "",
+    "registeredSectors": [
+      "research"
+    ]
+  },
+  {
+    "id": "offering_270",
+    "industry": "medical",
+    "group": "피부미용 기기",
+    "pattern": "피부미용기기",
+    "exclude": "",
+    "registeredSectors": [
+      "cosmetics"
+    ]
+  },
+  {
+    "id": "offering_271",
+    "industry": "pharma",
+    "group": "의약품·치료제",
+    "pattern": "의약품패치|질염치료제",
+    "exclude": "",
+    "registeredSectors": [
+      "cosmetics"
+    ]
+  },
+  {
+    "id": "offering_272",
+    "industry": "retail",
+    "group": "전자기기 유통",
+    "pattern": "전자제품 소매",
+    "exclude": "",
+    "registeredSectors": [
+      "other-services"
+    ]
+  },
+  {
+    "id": "offering_273",
+    "industry": "transport",
+    "group": "물류·하역",
+    "pattern": "물류주선",
+    "exclude": "",
+    "registeredSectors": [
+      "other-services"
+    ]
+  },
+  {
+    "id": "offering_274",
+    "industry": "machinery",
+    "group": "로봇·자동화",
+    "pattern": "협동로봇|산업용.*로봇|제조업용로봇|서비스로봇|휴머노이드|로봇시스템|로봇 솔루션|로봇제어",
+    "exclude": "",
+    "registeredSectors": [
+      "machinery"
+    ]
+  },
+  {
+    "id": "offering_275",
+    "industry": "electronics",
+    "group": "생활가전",
+    "pattern": "청소로봇",
+    "exclude": "",
+    "registeredSectors": [
+      "machinery"
+    ]
+  },
+  {
+    "id": "offering_276",
+    "industry": "medical",
+    "group": "정형외과·재활",
+    "pattern": "재활.*웨어러블|근력 보조.*웨어러블",
+    "exclude": "",
+    "registeredSectors": [
+      "machinery"
+    ]
+  },
+  {
+    "id": "offering_277",
+    "industry": "machinery",
+    "group": "물류·이송 장비",
+    "pattern": "전동지게차|리프트|고소작업대|견인차|스테카|파렛트",
+    "exclude": "",
+    "registeredSectors": [
+      "machinery"
+    ]
+  },
+  {
+    "id": "offering_278",
+    "industry": "machinery",
+    "group": "디스플레이 제조 장비",
+    "pattern": "(?:LCD|OLED|디스플레이).{0,20}(?:검사|증착|장비|자동화|합착)|LCD Cell Line",
+    "exclude": "",
+    "registeredSectors": [
+      "machinery",
+      "chemicals"
+    ]
+  },
+  {
+    "id": "offering_279",
+    "industry": "semiconductor",
+    "group": "후공정·검사 장비",
+    "pattern": "Dicing|Singulator|Saw & Sorter|Overlay|Dispenser|LSMB|Laser Micro Bonding",
+    "exclude": "",
+    "registeredSectors": [
+      "machinery",
+      "semiconductor"
+    ]
+  },
+  {
+    "id": "offering_280",
+    "industry": "semiconductor",
+    "group": "공정 지원 장비",
+    "pattern": "가스캐비닛|GasScrubber",
+    "exclude": "",
+    "registeredSectors": [
+      "chemicals",
+      "semiconductor"
+    ]
+  },
+  {
+    "id": "offering_281",
+    "industry": "semiconductor",
+    "group": "공정 부품·소모품",
+    "pattern": "반도체.{0,20}부품",
+    "exclude": "",
+    "registeredSectors": [
+      "metals",
+      "machinery",
+      "semiconductor"
+    ]
+  },
+  {
+    "id": "offering_282",
+    "industry": "semiconductor",
+    "group": "소재",
+    "pattern": "반도체.{0,20}현상액",
+    "exclude": "",
+    "registeredSectors": [
+      "semiconductor"
+    ]
+  },
+  {
+    "id": "offering_283",
+    "industry": "chemicals",
+    "group": "필름·접착 소재",
+    "pattern": "Bonding(?:\\s*Tape)?|Foam Pad|Gasket Pad|LED array tape|접착\\s*소재|점착\\s*소재|Nylon Film|PET Film|TAC Flim",
+    "exclude": "",
+    "registeredSectors": [
+      "chemicals"
+    ]
+  },
+  {
+    "id": "offering_284",
+    "industry": "chemicals",
+    "group": "합성수지·고무",
+    "pattern": "\\bPP\\b|엔지니어링 플라스틱",
+    "exclude": "",
+    "registeredSectors": [
+      "chemicals"
+    ]
+  },
+  {
+    "id": "offering_285",
+    "industry": "metals",
+    "group": "금속 판재·선재",
+    "pattern": "판ㆍ대|봉ㆍ선|소전",
+    "exclude": "",
+    "registeredSectors": [
+      "metals"
+    ]
+  },
+  {
+    "id": "offering_286",
+    "industry": "aerospace",
+    "group": "방산 장비",
+    "pattern": "군용탄|스포츠탄|탄약",
+    "exclude": "",
+    "registeredSectors": [
+      "metals"
+    ]
+  },
+  {
+    "id": "offering_287",
+    "industry": "cosmetics",
+    "group": "화장품",
+    "pattern": "샴푸|헤어케어",
+    "exclude": "",
+    "registeredSectors": [
+      "chemicals",
+      "cosmetics"
+    ]
+  },
+  {
+    "id": "offering_288",
+    "industry": "gaming",
+    "group": "게임",
+    "pattern": "온라인.*게임|모바일.*게임",
+    "exclude": "",
+    "registeredSectors": [
+      "software",
+      "gaming"
+    ]
+  },
+  {
+    "id": "offering_289",
+    "industry": "food",
+    "group": "건강기능식품",
+    "pattern": "건강보조식품|인삼제품",
+    "exclude": "",
+    "registeredSectors": [
+      "chemicals"
+    ]
+  },
+  {
+    "id": "offering_290",
+    "industry": "software",
+    "group": "보안 소프트웨어·서비스",
+    "pattern": "보안 솔루션",
+    "exclude": "",
+    "registeredSectors": [
+      "business-services"
+    ]
+  },
+  {
+    "id": "offering_291",
+    "industry": "software",
+    "group": "업무·산업 소프트웨어",
+    "pattern": "응용소프트웨어|소프트웨어 개발|로봇 플랫폼",
+    "exclude": "게임",
+    "registeredSectors": [
+      "software"
+    ]
+  },
+  {
+    "id": "offering_292",
+    "industry": "electronics",
+    "group": "전자 기기",
+    "pattern": "컴퓨터.*서버|POS 단말기|KIOSK 단말기",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics",
+      "machinery"
+    ]
+  },
+  {
+    "id": "offering_293",
+    "industry": "electronics",
+    "group": "기판·전자조립",
+    "pattern": "회로카드조립체",
+    "exclude": "",
+    "registeredSectors": [
+      "instruments"
+    ]
+  },
+  {
+    "id": "offering_294",
+    "industry": "electronics",
+    "group": "센서",
+    "pattern": "레이더디텍터",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics"
+    ]
+  },
+  {
+    "id": "offering_295",
+    "industry": "electrical",
+    "group": "산업용 전기·레이저",
+    "pattern": "고출력 레이저|전자가속기",
+    "exclude": "",
+    "registeredSectors": [
+      "electrical"
+    ]
+  },
+  {
+    "id": "offering_296",
+    "industry": "retail",
+    "group": "생활용품 유통",
+    "pattern": "볼.?펜|BALL POINT PEN|유성매직|보드마카|네임펜|색연필|텐트|지제품",
+    "exclude": "",
+    "registeredSectors": [
+      "retail"
+    ]
+  },
+  {
+    "id": "offering_297",
+    "industry": "retail",
+    "group": "산업자재·장비 유통",
+    "pattern": "통신장비 유통|조경수|건축석|연구실험기기|정밀.*유통|태양광기자재|전자저울|표면처리약품",
+    "exclude": "",
+    "registeredSectors": [
+      "retail"
+    ]
+  },
+  {
+    "id": "offering_298",
+    "industry": "retail",
+    "group": "전자부품·IT 유통",
+    "pattern": "광통신|셋톱박스|영상보안|그룹웨어|자료관리|s/w",
+    "exclude": "",
+    "registeredSectors": [
+      "retail"
+    ]
+  },
+  {
+    "id": "offering_299",
+    "industry": "pharma",
+    "group": "의약품·치료제",
+    "pattern": "정제,|캅셀제|크림제|조영제",
+    "exclude": "",
+    "registeredSectors": [
+      "pharma"
+    ]
+  },
+  {
+    "id": "offering_300",
+    "industry": "medical",
+    "group": "의료기기",
+    "pattern": "의료용기기제조|의료기기|진단시스템|멸균기",
+    "exclude": "",
+    "registeredSectors": [
+      "medical",
+      "pharma"
+    ]
+  },
+  {
+    "id": "offering_301",
+    "industry": "research",
+    "group": "연구·임상 지원",
+    "pattern": "산업용 효소|타겟캡처키트",
+    "exclude": "",
+    "registeredSectors": [
+      "pharma"
+    ]
+  },
+  {
+    "id": "offering_302",
+    "industry": "pharma",
+    "group": "의약 원료",
+    "pattern": "원료의약품",
+    "exclude": "",
+    "registeredSectors": [
+      "chemicals"
+    ]
+  },
+  {
+    "id": "offering_303",
+    "industry": "battery",
+    "group": "배터리 제조 장비",
+    "pattern": "2차전지.{0,15}(?:믹싱|Roll-to-Roll)|SLOT DIE|SLIT NOZZLE",
+    "exclude": "",
+    "registeredSectors": [
+      "machinery"
+    ]
+  },
+  {
+    "id": "offering_304",
+    "industry": "electronics",
+    "group": "모션 제어",
+    "pattern": "모션제어기|모션시스템|스마트제어솔루션",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics",
+      "electrical"
+    ]
+  },
+  {
+    "id": "offering_305",
+    "industry": "pharma",
+    "group": "의약품·치료제",
+    "pattern": "의약품",
+    "exclude": "원료의약품|의약품 원료|개발지원|개발 지원|제조장비|품질관리|수탁",
+    "registeredSectors": [
+      "pharma"
+    ]
+  },
+  {
+    "id": "offering_306",
+    "industry": "chemicals",
+    "group": "포장재·용기",
+    "pattern": "봉투|포장용기|트레이",
+    "exclude": "",
+    "registeredSectors": [
+      "chemicals"
+    ]
+  },
+  {
+    "id": "offering_307",
+    "industry": "software",
+    "group": "업무·산업 소프트웨어",
+    "pattern": "제어SW|스마트팩토리",
+    "exclude": "",
+    "registeredSectors": [
+      "machinery"
+    ]
+  },
+  {
+    "id": "offering_308",
+    "industry": "software",
+    "group": "IT 구축·운영",
+    "pattern": "IT 인프라",
+    "exclude": "",
+    "registeredSectors": [
+      "machinery"
+    ]
+  },
+  {
+    "id": "offering_309",
+    "industry": "machinery",
+    "group": "물류·이송 장비",
+    "pattern": "로봇물류",
+    "exclude": "",
+    "registeredSectors": [
+      "machinery"
+    ]
+  },
+  {
+    "id": "offering_310",
+    "industry": "electronics",
+    "group": "광학 부품",
+    "pattern": "Camera\\s*Module",
+    "exclude": "제조검사|장비",
+    "registeredSectors": [
+      "electronics",
+      "instruments"
+    ]
+  },
+  {
+    "id": "offering_311",
+    "industry": "electronics",
+    "group": "인증·보안 기기",
+    "pattern": "신용카드|전자화폐|스마트카드",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics",
+      "software"
+    ]
+  },
+  {
+    "id": "offering_312",
+    "industry": "software",
+    "group": "의료 소프트웨어",
+    "pattern": "보험청구|전자의무기록|EMR|의료정보\\s*플랫폼|판독\\s*보조|진단솔루션|예후.{0,3}예측\\s*솔루션",
+    "exclude": "",
+    "registeredSectors": [
+      "software",
+      "medical"
+    ]
+  },
+  {
+    "id": "offering_313",
+    "industry": "software",
+    "group": "방송·영상 소프트웨어",
+    "pattern": "UHD\\s*(?:방송|보호)솔루션|동영상\\s*편집",
+    "exclude": "",
+    "registeredSectors": [
+      "software"
+    ]
+  },
+  {
+    "id": "offering_314",
+    "industry": "software",
+    "group": "업무·산업 소프트웨어",
+    "pattern": "기업용\\s*디지털|업무관리\\s*솔루션|넷트워크.{0,10}솔루션",
+    "exclude": "",
+    "registeredSectors": [
+      "software"
+    ]
+  },
+  {
+    "id": "offering_315",
+    "industry": "pharma",
+    "group": "연구·임상 지원",
+    "pattern": "임상시험\\s*수탁|Contract Research Organization|\\bCRO\\b",
+    "exclude": "",
+    "registeredSectors": [
+      "business-services",
+      "research",
+      "pharma"
+    ]
+  },
+  {
+    "id": "offering_316",
+    "industry": "pharma",
+    "group": "의약품·치료제",
+    "pattern": "의약품\\s*제조|전문의약품|제네릭\\s*의약품",
+    "exclude": "",
+    "registeredSectors": [
+      "pharma"
+    ]
+  },
+  {
+    "id": "offering_317",
+    "industry": "medical",
+    "group": "정형외과·재활",
+    "pattern": "의료로봇사업|수술로봇|보행재활로봇|정형외과\\s*수술",
+    "exclude": "",
+    "registeredSectors": [
+      "retail",
+      "medical"
+    ]
+  },
+  {
+    "id": "offering_318",
+    "industry": "medical",
+    "group": "치과",
+    "pattern": "치과용\\s*임플란트|치과\\s*임플란트",
+    "exclude": "",
+    "registeredSectors": [
+      "medical"
+    ]
+  },
+  {
+    "id": "offering_319",
+    "industry": "machinery",
+    "group": "냉난방·냉동",
+    "pattern": "초저온냉동고|동결건조기|산업용\\s*보일러|지열냉난방",
+    "exclude": "",
+    "registeredSectors": [
+      "electrical",
+      "research",
+      "machinery"
+    ]
+  },
+  {
+    "id": "offering_320",
+    "industry": "machinery",
+    "group": "물류·이송 장비",
+    "pattern": "공정자동화설비",
+    "exclude": "",
+    "registeredSectors": [
+      "machinery"
+    ]
+  },
+  {
+    "id": "offering_321",
+    "industry": "machinery",
+    "group": "포장·식품·제약 장비",
+    "pattern": "전자동\\s*정제.{0,10}포장",
+    "exclude": "",
+    "registeredSectors": [
+      "machinery"
+    ]
+  },
+  {
+    "id": "offering_322",
+    "industry": "machinery",
+    "group": "산업용 검사장비",
+    "pattern": "축중기",
+    "exclude": "",
+    "registeredSectors": [
+      "instruments"
+    ]
+  },
+  {
+    "id": "offering_323",
+    "industry": "machinery",
+    "group": "환경·여과 장비",
+    "pattern": "전자석탈철기|자력선별기|정수기\\s*필터",
+    "exclude": "",
+    "registeredSectors": [
+      "electrical",
+      "machinery"
+    ]
+  },
+  {
+    "id": "offering_324",
+    "industry": "rail",
+    "group": "철도 신호·제어",
+    "pattern": "철도신호제어",
+    "exclude": "",
+    "registeredSectors": [
+      "electrical"
+    ]
+  },
+  {
+    "id": "offering_325",
+    "industry": "auto",
+    "group": "차체·내외장 부품",
+    "pattern": "피혁",
+    "exclude": "",
+    "registeredSectors": [
+      "auto"
+    ]
+  },
+  {
+    "id": "offering_326",
+    "industry": "auto",
+    "group": "타이어",
+    "pattern": "타이어튜브|솔리드타이어",
+    "exclude": "",
+    "registeredSectors": [
+      "chemicals",
+      "auto"
+    ]
+  },
+  {
+    "id": "offering_327",
+    "industry": "auto",
+    "group": "전장 부품",
+    "pattern": "전기배선장치|EV용\\s*(?:Main Transformer|Line Filter)|블랙박스|내비게이션|\\bADAS\\b|\\bHUD\\b",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics",
+      "electrical",
+      "software"
+    ]
+  },
+  {
+    "id": "offering_328",
+    "industry": "auto",
+    "group": "수소 저장·환경 부품",
+    "pattern": "수소승용용기|매연저감장치",
+    "exclude": "",
+    "registeredSectors": [
+      "rail",
+      "auto"
+    ]
+  },
+  {
+    "id": "offering_329",
+    "industry": "electronics",
+    "group": "디스플레이 부품·소재",
+    "pattern": "pOLED\\s*부품|전장디스플레이",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics"
+    ]
+  },
+  {
+    "id": "offering_330",
+    "industry": "electronics",
+    "group": "통신 부품",
+    "pattern": "이동통신부품|RF\\s*통신부품",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics",
+      "pharma"
+    ]
+  },
+  {
+    "id": "offering_331",
+    "industry": "electronics",
+    "group": "전자파 차폐·방열",
+    "pattern": "ShieldCan|전자파차단",
+    "exclude": "",
+    "registeredSectors": [
+      "electronics"
+    ]
+  },
+  {
+    "id": "offering_332",
+    "industry": "semiconductor",
+    "group": "메모리 모듈·저장장치",
+    "pattern": "메모리\\s*모듈|반도체기억장치",
+    "exclude": "",
+    "registeredSectors": [
+      "semiconductor",
+      "electronics"
+    ]
+  },
+  {
+    "id": "offering_333",
+    "industry": "semiconductor",
+    "group": "시스템·아날로그 칩",
+    "pattern": "멀티미디어반도체|컨트롤러\\s*IC|반도체\\s*및\\s*모듈",
+    "exclude": "",
+    "registeredSectors": [
+      "semiconductor",
+      "electronics"
+    ]
+  },
+  {
+    "id": "offering_334",
+    "industry": "semiconductor",
+    "group": "반도체 제조",
+    "pattern": "^반도체 제조$",
+    "exclude": "",
+    "registeredSectors": [
+      "semiconductor"
+    ]
+  },
+  {
+    "id": "offering_335",
+    "industry": "chemicals",
+    "group": "무기·정밀 화학",
+    "pattern": "합성다이아몬드|화학제품 및 전자재료|유기형광\\s*안료|근적외선.{0,10}안료",
+    "exclude": "",
+    "registeredSectors": [
+      "chemicals",
+      "electronics"
+    ]
+  },
+  {
+    "id": "offering_336",
+    "industry": "chemicals",
+    "group": "필름·접착 소재",
+    "pattern": "보호필름|\\bDOF\\b",
+    "exclude": "",
+    "registeredSectors": [
+      "auto",
+      "chemicals"
+    ]
+  },
+  {
+    "id": "offering_337",
+    "industry": "metals",
+    "group": "용접 소재",
+    "pattern": "용접재료",
+    "exclude": "",
+    "registeredSectors": [
+      "metals"
+    ]
+  },
+  {
+    "id": "offering_338",
+    "industry": "electrical",
+    "group": "조명 기기",
+    "pattern": "경관조명",
+    "exclude": "",
+    "registeredSectors": [
+      "metals"
+    ]
+  },
+  {
+    "id": "offering_339",
+    "industry": "construction",
+    "group": "모듈러 건축",
+    "pattern": "이동형\\s*모듈러",
+    "exclude": "",
+    "registeredSectors": [
+      "metals"
+    ]
+  },
+  {
+    "id": "offering_340",
+    "industry": "building-materials",
+    "group": "콘크리트·건축 자재",
+    "pattern": "철강보강콘크리트|식생블록|조경원예자재|교량부품|교량용케이블",
+    "exclude": "",
+    "registeredSectors": [
+      "construction",
+      "building-materials",
+      "metals"
+    ]
+  },
+  {
+    "id": "offering_341",
+    "industry": "energy",
+    "group": "석탄·광물 자원",
+    "pattern": "유연탄",
+    "exclude": "",
+    "registeredSectors": [
+      "chemicals",
+      "energy"
+    ]
+  },
+  {
+    "id": "offering_342",
+    "industry": "fashion",
+    "group": "섬유·인조가죽",
+    "pattern": "화학섬유|스판덱스|산업자재, 화학, 필름",
+    "exclude": "",
+    "registeredSectors": [
+      "chemicals"
+    ]
+  },
+  {
+    "id": "offering_343",
+    "industry": "content",
+    "group": "디지털 콘텐츠",
+    "pattern": "디지털콘텐츠",
+    "exclude": "",
+    "registeredSectors": [
+      "content"
+    ]
+  },
+  {
+    "id": "offering_344",
+    "industry": "retail",
+    "group": "온라인 유통",
+    "pattern": "축산물\\s*도소매",
+    "exclude": "",
+    "registeredSectors": [
+      "software"
+    ]
+  },
+  {
+    "id": "offering_345",
+    "industry": "finance",
+    "group": "결제·금융 서비스",
+    "pattern": "현금서비스|예금인출",
+    "exclude": "",
+    "registeredSectors": [
+      "telecom"
+    ]
+  },
+  {
+    "id": "offering_346",
+    "industry": "finance",
+    "group": "자산운용·벤처투자",
+    "pattern": "금융지주",
+    "exclude": "",
+    "registeredSectors": [
+      "holdings"
+    ]
+  },
+  {
+    "id": "offering_347",
+    "industry": "real-estate",
+    "group": "부동산 투자·운용",
+    "pattern": "부동산\\s*임대",
+    "exclude": "",
+    "registeredSectors": [
+      "finance",
+      "real-estate"
+    ]
+  }
+]

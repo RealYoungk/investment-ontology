@@ -2,6 +2,10 @@
 
 자리를 비운 동안 한 작업과 지금 상태를 정리합니다. 수치는 작성 시점 기준이고, 최신 값은 앱 **데이터** 화면 맨 위 "수집 현황"에서 봅니다.
 
+## 2026-10-01 iwinv 운영 전환
+
+alfinder.kr의 API와 전체 DB는 iwinv로 이전했다. 맥을 꺼도 운영·수집은 계속된다. 맥의 이전 DB는 조회 전용이고 FutureCall은 꺼져 있으므로 최신 운영 DB로 취급하지 않는다. 접속·백업·캐시 준비·복구 근거는 [iwinv 운영 기록](iwinv-migration.md)을 먼저 읽는다. 사용자 확정 정책은 공개 조회 유지, 개인 기능에서 가입 유도, 공유 데이터 변경은 관리자만 허용이다. 아래 과거 로그인 필수 정책보다 이번 결정이 우선한다. 개인 저장 기능과 가입 유도 UI는 이번 이전에서 추가하지 않았다. 기존 Serverpod Cloud 체험은 별도로 남아 있다.
+
 ## 2026-09-29 개요 화면 최종 정리
 
 기업 개요는 제품·사용 공정, 매출 구성, 주가, 기업정보의 질문형 4개 영역으로 통일했다. 기업정보는 기본 펼침이며 공통 여백은 영역 사이 24px / 제목 아래 12px / 카드 내부 16px다. 재무 요약 중복과 하단 온톨로지·업종 비교를 제거하고, 동일 재무 기준의 업종 중앙값을 상단 지표에 붙였다. 제품 설명은 자체 도식과 저장된 규칙 기반 프로필을 사용한다. 최종 범위와 한계는 [사업 이해 화면](business-understanding.md)의 마지막 절을 참조한다. 커밋 전 서버 235개·Flutter 110개 테스트 통과. 공개 배포는 별도다.
@@ -538,3 +542,257 @@ analyze, 관련 7개 테스트 및 설명 추가 후 관련 5개 재실행 통�
 - 사용자 요청에 따라 재무 지표/검산·적응형 상세, 재무 차트/UI, 기업 개요/메모리 사업 설명, 사업 지표 연간 추이/투자집행/수주잔고, 데이터 화면 및 관련 검증 산출물을 하나의 변경 묶음으로 준비했다. 별도 Oracle 이전 준비 문서와 SQL은 이번 커밋에서 제외하고 작업 트리에 보존한다.
 - 전체 서버 테스트에서 기존 스크리너 fixture의 자산 10억원과 자본/부채 수백원 사이 불일치가 검산에 걸렸다. fixture의 재무/시총 단위를 1,000만원으로 통일하고 자산=자본+부채를 맞췄다. 실제 검산 코드는 변경하지 않았으며 잘못된 재무상태표를 비우는 endpoint 회귀 검증을 추가했다.
 - 최종 dart analyze clean, 전체 수기 Dart 포맷 294파일 변경 없음, Flutter 186개 통과(별도 원천 스냅샷 기반 2개는 기본 실행에서 skip), 서버 383개 전체 통과. git diff check 및 후보 파일의 비밀값 문자열 점검 통과. 최근 MCP 서버 조회 정상, Flutter 마지막 hot restart 정상.
+
+## 2026-10-01 링크 공유 OG 잘림 수정
+
+- 운영 HTML에 OG 태그가 없어 로딩용 정사각형 이미지가 공유 후보가 되던 상태를 확인했다. `web/index.html`에 OG/Twitter 제목·설명·이미지·실제 크기·alt를 명시하고 `web/brand/alfinder-og-v1.png`(1730×909)를 추가했다. 로고와 이름은 중앙에 두고 가로/정사각형 크롭용 여백을 확보했다.
+- 기존 운영 빌드를 복제한 `output/og-deploy`에서 HTML/이미지만 교체해 배포했다. 배포 dpl_7vYNVBq9HQy5zJrLLFUKTDYjwbV7 / https://alfinder-research-k6qpojucs-realyoungks-projects.vercel.app → alfinder.kr 승격 완료.
+- 별도 배포 및 공개 도메인에서 HTML/PNG 바이트 일치 확인. 크롤러 User-Agent로도 OG 태그 확인. main.dart.js는 기존 운영 SHA256 `35648ab50b196a746d2795daade7150e373adbcdca0dae8b8e64bc8c0df05bb0` 그대로다. Dart 변경/재빌드 없음. 공유 앱 종류는 미확인으로 실제 메시지 카드와 해당 앱 캐시 갱신은 검증하지 않았다.
+
+## 2026-10-01 운영 웹 소스 기준·검증 배포 도입
+
+PR #82 (https://github.com/RealYoungk/investment-ontology/pull/82) 병합. origin/main `0977d2e8bfe1e3d766a4e856363ee61c2cc00637`의 GitHub Release run `36813769205` 성공 결과물로 운영 반영했다. 현재 배포 `dpl_5gNbjdkrUECEDHYqQPm8bNEQJMTc`, https://alfinder-research-ftqfmzn4w-realyoungks-projects.vercel.app → alfinder.kr. `/release.json`에서 commit/tree/workflowRun/mainJsSha256을 확인할 수 있다. 앱 SHA256 `35648ab50b196a746d2795daade7150e373adbcdca0dae8b8e64bc8c0df05bb0`은 이전 운영과 동일하다. 기존 KSIC 업종지도·줄바꿈·iwinv proxy·OG만 소스에 포함했고 신규 /industries·research·metric/generated 개발 변경은 포함하지 않았다.
+
+Release 하나로 분석·포맷·서버/Flutter 테스트·빌드·체크섬 봉인을 통합했다. main push는 자동 검증/빌드이며 운영 반영은 `scripts/release.py deploy --run <ID>`로 수행한다. 성공한 최신 main만 허용하고 운영 반영 전후 HTML/앱/메타정보/API를 확인한다. 서버 이미지 변경 시 프런트 자동 롤백을 막는다. 서버와 DB는 교체하지 않았으며 런타임 이미지 `sha256:b659e7f0fa94c7ad3dc10a230fc32590337f5067abcfb05ae9242dc4ce1cb7e9`를 배포 기록에 남겼다. 과거 서버 이미지의 소스 SHA는 소급 확정하지 않았다.
+
+GitHub deployment `6776061807`에 커밋과 이전 배포를 보관했다. 복구 대상은 `dpl_7vYNVBq9HQy5zJrLLFUKTDYjwbV7`. 로컬 상세 기록과 도구는 `/Users/realyoungk/.codex/worktrees/release-provenance/investment-ontology/output/releases/dpl_5gNbjdkrUECEDHYqQPm8bNEQJMTc.json` 및 같은 worktree의 scripts에 있다. 공유 개발 폴더의 main HEAD/인덱스는 다른 채팅의 개발 중 파일을 보호하기 위해 옮기지 않았다. 다음 통합 전 fetch 후 origin/main을 안전하게 반영한다. canonical 절차는 origin/main의 `docs/release-process.md`다. 이전 main Actions의 billing 실패 기록과 달리 이번 PR/main CI는 정상 완료했으며 결제 설정은 변경하지 않았다.
+
+### 2026-10-01 로컬 개발 서버 스키마 복구
+- 사용자 직접 실행 및 스키마 정합성 복구 지시에 따라 `research_snapshot` 누락을 해결. 생성된 `20261001051943763-research-snapshot`은 테이블·인덱스·외래키 추가만 포함.
+- 읽기 전용 DB로 서버 부팅/MCP 적용이 실패해, 로컬 PostgreSQL 전용 연결의 `PGOPTIONS`만 쓰기 허용하여 생성 SQL을 트랜잭션으로 적용. 기본 읽기 전용 설정은 변경하지 않았으며 새 연결에서 `on` 확인. FutureCall 비활성화 유지. 운영 DB 변경 없음.
+- 적용 전 스키마 백업: `/tmp/alfinder-before-research-schema.sql`. Serverpod 재시작 로그에서 최신 마이그레이션 적용 및 웹서버 8082 기동 확인.
+- 함께 발견한 research endpoint 컴파일 오류 수정: 정렬은 `orderByList`/`desc()`, DART 예산은 기존 `dartDisclosureBudget`과 positional `reached` 호출 사용.
+
+### 2026-10-01 정량 주주 변화 시각화
+- 제목만 나열하는 기업변화 타임라인의 대체로 `OwnershipChangesSection`을 개요 사업 지표 다음에 추가. 공개 governance.summary의 저장된 연간 기초/기말 보유량을 비교한다. 주식 종류별 수량 증감, 지분율 %p, 공시 비고와 원문, 연도 전환/전체 펼침. 누락/합계/음수 제외, DB 쓰기 없음.
+- 삼성전자 FY2025 및 FY2024 전환/390px 실화면 확인. 변경 analyze 및 6 tests 통과. 현재 로컬만 반영. 상세 docs/company-events-2026-10-01.md 및 outputs/ownership-changes/.
+
+- 주주 변화 기간 보완: shareholderPeriodStart/End DTO, 직전 보고서 종료 다음날~현재 결산일(산정 근거 표시), 장기간 공백/누락은 미확인. 삼성전자·금비·모아텍·마크로밀 실제 API 검증. 로컬 스냅샷 비교 가능 2,722/2,759사; 데이터 100% 아님. 서버6/Flutter7 테스트 통과.
+
+### 2026-10-01 주주 5개년 추이
+- ownershipHistory/OwnershipSnapshot 및 5개년+최신 중간보고서 차트로 개요 주주 영역 전환. 지분율/주식수 토글, 기간 선택 상세. 자료 없는 기간은 빈칸.
+- DisclosureSync에 최신 중간 최대주주 항목 수집·reportCode별 저장/정정 분리 반영. 코드만 변경, 읽기 전용 로컬 DB 수집 미실행 및 미배포. 삼성전자 최신 반기는 미수집으로 표시 중. 서버9/Flutter4 테스트 통과.
+
+### 2026-10-01 전 업종 공통 탐색
+- 새 공개 `industry.browse`: 39개 탐색 분야 + KSIC 사업군 + 기존 반도체 공시 제품을 같은 IndustryActivity로 반환. 기존 discover API는 보존. 선택 DTO 필드 자동 생성, DB 마이그레이션 없음.
+- 로컬 API 2,759개 상장사 고유 코드 전부 포함, 미분류 0개. 전체 제품 검증을 뜻하지 않음. 상세 검증: docs/all-industry-discovery-validation.md.
+- 모든 업종은 /industries 안에서 같은 기업 카드/필터/근거/비교 흐름. /companies 우회 제거. KSIC 항목은 제품·공정 미확인 표시 및 허위 DART 공시 링크 방지.
+- KSIC 10·11 전체 코드 매핑 검사, 생성 코드 3개 검사, 익명 조회 및 근거 구분 통합 테스트, Flutter 320/1280px + 디자인 경계 검증 통과. 운영 미배포, 로컬 DB 읽기 전용 유지.
+
+- 주주 추이 UI 간소화: 연도 칩 6개→드롭다운, 반복 연도별 수치/긴 설명 제거. 날짜·미수집 상태 유지. 출처/집계 기준 접힘, 각 카드 선택값+차트+유의미한 수량 변화만 노출.
+
+- 주주 노이즈 축소: 기간 중 기초/기말 지분율 5% 이상 항목(최대 6개)을 기본으로 단일 다중선 차트에 통합. 5% 미만 항목은 접힌 비교 주주 선택에서 추가 가능. 5%는 표시 필터이며 원천은 최대주주·특수관계인 자료(전체 주주 명부 아님).
+
+### 2026-10-01 finer industry browsing
+
+BusinessActivityRules now supplies exact-filing business-model/product activities to AllIndustryCatalog; KSIC fallback roles descend to level 4 and identical simplified labels merge. Local browse retains 2,759 companies; 159 have filing-derived activities. Do not call this exhaustive company business classification. See docs/all-industry-discovery-validation.md for measured coverage and exclusions. Rule tests, public endpoint integration and Chrome CDMO filter flow verified. No production deployment or DB writes.
+
+### 2026-10-01 반기 주주 수집 운영 반영 준비
+- origin/main 기반 별도 ownership-history worktree의 codex/interim-shareholders, 커밋 c5ba01c에 수집기+통합테스트 두 파일만 분리. Draft PR #84: https://github.com/RealYoungk/investment-ontology/pull/84.
+- 반기 코드11012 요청→typed 지분율 저장→동일연도 연간과 반기 공존 신규 통합검증 및 관련 16 tests 모두 통과(공유 개발 checkout). 운영 실제 수집/배포 미실행.
+- 운영 SSH 49.247.192.41:22가 두 차례 timeout, 공개 ingest/coverage와 schedule은 401. 현재 관리 IP/VPN 변경 여부 질문 대기. 방화벽 변경·권한 우회 없음.
+- 공개 운영 financial/summary에서 삼성전자 2026 반기 12개 핵심 계정 제공 확인. 2019Q3 report112005 fetchedAt=2026-10-01T02:50:05Z(11:50 KST), 삼성전자 pendingFilingCount=11. 현재 실행중인지 전체 진행률인지는 확인 불가.
+
+### 2026-10-01 user review: classification not accepted
+
+User rejected the coherence of the classification, not merely missing labels. Their CDMO/ADC/TPD examples are not a requested taxonomy. Removed local industry search and ignored legacy q filtering (next filter interaction drops q). Analyze and 3 responsive widget tests passed. Rechecked MSCI April 2026 official methodology via web and Exa. Current KSIC fallback + business model buttons mix incompatible axes; do not justify this as official GICS or completed classification. Review and proposed separation are in docs/industry-classification-review-2026-10-01.md. No new company assignments or production deploy in this follow-up.
+
+### 2026-10-01 classification v2 design (not deployed)
+
+User requested a reasoned redesign after rejecting mixed classification. `docs/industry-discovery-v2-design.md` specifies offering-based business activities, separate official company industry records, conditional facets, independent registered-only fallback, evidence and peer boundaries, all 39 entry-point scope, and Serverpod migration/API/acceptance plan. GICS April 2026 and ICB live v5.1 August 2026 checked; Exa's ICB excerpts were stale v5.0, so live original used. Six-company/seven-evidence prototype in `outputs/industry-discovery/design-v2/index.html`; source evidence JSON beside it. Static JS/data checks passed; browser file-URL access denied, so interaction testing not claimed and no workaround attempted. Existing app/DB assignments unchanged. Old design marked superseded. Proposal remains a design for user review, not an approved or completed full-company taxonomy.
+
+### 2026-10-01 actual local v2 review implementation
+
+User authorized implementing locally before review. Actual Flutter industries page now separates business/registered browsing, removes directory search, replaces detail dropdowns with conditional buttons, adds definitions and source-method disclosure. Server AllIndustryCatalog preserves every official registered row and uses DiscoveryOfferings to split semiconductor IP/design/foundry/OSAT and normalize pharma/software offerings without changing evidence. No model generation/migrations needed. All 2,759 registered rows retained, filing business coverage remains 159 companies. Relevant server/Flutter tests and targeted analyze pass; actual Chrome IP evidence and CDMO filters verified. Local only, no DB writes. See all-industry-discovery-validation.md for precise scope and outstanding design infrastructure. Standalone prototype is superseded for current UI review by http://localhost:8100/industries.
+
+## 2026-10-01 프로티나 지적 이후 전체 상장사 분류 점검
+
+사용자가 특정 사례만 고치지 말고 전 상장사를 훑어 정확하게 분류하라고 요구했다. 최신 작업은 `docs/all-industry-discovery-validation.md` 마지막 절과 `outputs/industry-discovery/census/`를 읽는다. 전체 2,759곳 API 명단/본문 조회와 누락 기록은 완료했으나, 분류는 219곳에만 하나 이상 존재하고 전체 의미 검증·사업 분류는 **미완료**다. 2,540곳 미분류 사유가 CSV에 남아 있다. 프로티나 단백질 상호작용 분석 추가, 기존 디스플레이/클라우드 오분류 경로 차단, 명시적 영위 사업 규칙 추가. 범용 표 확장은 오분류 때문에 반영하지 않았다. 서버26/Flutter9 테스트 통과. 로컬 Chrome 실화면 프로티나 근거 확인. 등록 업종 보존, 검색창 제거 유지, 데이터 변경/유료 AI/공개 배포 없음. 새 규칙은 `operating_activity_vocabulary.dart`, 재현 도구는 `tool/industry-discovery/`. 완전한 분류로 보고하지 말 것.
+
+## 2026-10-01 로컬 개발 DB 분리 완료
+
+사용자 승인으로 보관 DB investment_ontology_serverpod를 논리 복제해 investment_ontology_dev 생성. development.yaml 연결을 개발 DB로 변경, MCP 재시작 및 research/data HTTP 200, pg_stat_activity 개발 DB 연결 10개 확인. 원본 readonly=on, 개발=off; 핵심 6개 테이블 건수 일치 및 쓰기 롤백 검증 통과. futureCallExecutionEnabled=false 유지. 같은 PostgreSQL 클러스터를 공유하므로 pgdata 삭제 금지. 운영 변경 없음. docs/local-development-database.md 참조.
+
+### 2026-10-01 업종 탐색 위계·밀도 수정
+- 실제 industries 페이지에서 가용 폭 850px 이상이면 240px 사업군 선택과 기업 목록을 나란히 배치. 좁은 화면은 한 열. 반복 소개·분류 설명은 하단으로 이동.
+- 세부 제품/기술 필터는 사업군 아래 접힘으로 구분. 기존 세부 조건 URL은 펼쳐서 보존. 기업은 이름·사업·비교·근거의 간결한 행, 근거는 출처별 원문 링크가 있는 대화상자로 표시.
+- Flutter 정적 분석 및 320/1280 반응형·필터·비교·근거·디자인 경계 9 tests 통과. Serverpod MCP restart/log 확인. 실제 Chrome 연구·임상 지원 필터와 프로티나 근거 대화상자 확인. Driver health 성공, tap 응답 timeout으로 UI 결과는 Chrome에서 검증.
+- 출력 outputs/industry-discovery/census/hierarchy-local.png. 로컬만 변경. 전 상장사 의미 검증/사업 분류 미완료 상태는 그대로이며 이번 UI 변경으로 완료했다고 간주하지 않는다.
+
+### 2026-10-01 사업 탐색 단일화·반응형·분류 확장 (전체 완료 아님)
+- 사용자 결정: 등록 업종 전환 UI 제거, 사업으로 찾기만 유지. KSIC 원천 행은 서버에 보존. 이전 basis=registered/ksic 역할 URL은 사업 보기로 해석하고 다음 조작 시 제거. 디렉터리 기업 수도 공시 사업 분류 수로 수정, 0곳은 분류 준비 중.
+- PageFrame 최대 1120px, 가용 폭850 기준 사업군/결과 두 열↔한 열, 모바일 사업군 자연스러운 버튼 줄바꿈. Flutter 320/640/900/1280/1920 테스트12 통과, 실제Chrome390px 및 데스크톱에서 선택 동작/overflow 없음 확인. 스크린샷 outputs/industry-discovery/census/business-only-local.png.
+- ProductActivityVocabulary 73개 제품 정의 추가. 전자 카메라/커넥터/콘덴서/기판/전원/통신, 의료/소비재/산업재 등 명시적 자체 영위 문장에만 적용. 소제목 접두사와 법인명 정규화 보완. 부분단어(섬유제품→유제품, 원가구조→가구), 고객·원료·장비·폐업·부정문 오분류 차단. 기존 generic table parser는 재도입하지 않음.
+- 동일2759곳 corpus 전수 규칙 재실행 및 새 후보 근거 대조. API ruleVersion7: 전자6→44곳, 전체219→322곳, 공시근거365/365 원문 일치. 미분류2437(본문 있으나분류없음2325,지주제외74,본문없음38). CSV/summary 갱신. 전수 의미검증/전 사업 분류 **여전히 미완료**, 누락이 대부분이다. 완성됐다고 보고하지 말 것.
+- 서버 분류/정규화 테스트15 통과, 변경파일 dart analyze 통과. MCP restart/log 확인. 운영배포/DB쓰기/유료AI 없음. 전체 분류 완성 요구가 남아 있음.
+
+
+### 2026-10-01 연구 공시 로컬 실자료 검증
+- 사용자: 로컬은 테스트에 필요한 대표 데이터만 수집. 관리자 로그인 후 개발 DB에 삼성전자 treasury 15 / insiders 3382 / majorHoldings 41, SK하이닉스 capital 2건 저장. 네 그룹 공개 읽기·건수·DART 원문 링크 확인.
+- 자기주식 기본 총계 선택, 탭별 연구 종류 초기화, 기타주식 금액, 결정일, 교환가 정밀 표시 수정. 서버 12·Flutter 8개 테스트 및 정적 검사 통과.
+- 증거와 미완료 범위: docs/research-features-2026-10-01.md. 전체 Butler 기능 완료나 공급원 연결 완료를 주장하지 말 것. 로그인 재갱신 실패가 한 번 있었으며 재로그인 후 정상; 원인 미확정.
+
+### 2026-10-01 최소 1개 분류 연결
+- 사용자 요청: 미분류 없이 전 상장사 최소1개 분류. DiscoveryCoverage.complete가 공시 분류가 없는 기업에만 공식 KSIC 활동을 registered_activity로 연결한다. 기존 KSIC 원천/문구를 보존하며 공시 근거로 승격하지 않는다. 등록 정보도 없는 경우는 추정하지 않는다.
+- 실제 로컬 API ruleVersion8 전수집합검사: 2759/2759 탐색 가능, 누락0. 공시분류322 + 공식등록기반2437. outputs/industry-discovery/census/minimum-coverage.json. 이는 전사 세부사업 검증 완료가 아니며 이전 census의 공시분류 미완료 기록은 유효하다.
+- 기본 탐색 한 화면 유지. registered_activity 기업 행에 등록 업종 근거·세부 사업 확인 전 표시. 등록 분류를 제품 피어 근거로 사용하지 않음. raw KSIC URL 호환은 이전과 같음.
+- 변경파일 정적 분석, 서버5·Flutter12 테스트 통과. 기존 DB/운영 변경 없음.
+
+### 2026-10-01 재리뷰 불합격
+사용자가 재리뷰 요구. docs/industry-discovery-review-2026-10-01.md 참조. 실제 API2759 최소연결은 맞으나 P1 세 건: 나무가의 명시적 카메라 모듈 공시가 광학 필터에서 누락, 반도체장비12/등록장비39 등 근거별 role 분리, corpCode 단위 fallback 생략으로 삼성전자 전자기기 사업 누락. 이번 리뷰는 코드/API 전체 및 명시적 공시 반례 검사이며 전체 의미 검증 완료가 아니다. 세 문제는 아직 수정되지 않음. 최소1개 연결 완료를 실제 사업 분류 완료로 보지 말 것.
+
+### 2026-10-01 자금조달 화면 간소화
+- 사용자의 UI 리뷰 승인에 따라 ResearchSection과 결정 카드 정보 계층 재구성. 미연결 메뉴/관리 동작은 상태 접기에, 세부 조건은 카드 접기에 이동. 자금 용도 진행률 제거. 신주 발행과 기존 자기주식 교환 구분. valuation_history 설명도 근거 접기로 이동.
+- Flutter 9개 테스트·정적 검사 및 실제 IAB 확인. outputs/company-events/research-ui-simplified.png. 40조원은 DART API 원응답과 일치하지만 본문 교차검증 미완료; 상세에 보존하고 대표 조달총액으로 추정하지 않음.
+
+### 2026-10-01 재무·공시 정보 구조 분리
+- 사용자 피드백 반영: 재무에서 ValuationHistory와 ResearchSection 제거. 가치평가 계산·위젯 소스는 유지하며 새 탭은 만들지 않음. 미연결 컨센서스/거래 동향도 재무에 노출하지 않음.
+- 공시 탭은 모든 회사에서 접근 가능. 증자·사채/자사주 계획/임원/대량보유 보고를 모으고 날짜·사건·핵심 변화의 접이식 목록으로 통일. 개별 원문 버튼과 상세 조건은 펼친 뒤 표시. 주주환원의 실제 배당·자사주 변동과 지배구조 정기보고서 정보는 유지.
+- 기존 정기보고서 표는 공시의 상세 항목 접기로 보존. 데이터 미수집 상태도 구분.
+- 변경 파일 정적 검사 및 Flutter 9개 테스트 통과(320px 실제 공시 펼침 포함). IAB에서 재무 제거/공시 이동/교환사채 상세 펼침 확인. 증거 outputs/company-events/disclosures-list-ui.png. 로컬만 반영.
+
+### 2026-10-01 분류 재리뷰 결함 수정 (ruleVersion9)
+- 직전 리뷰3건 수정: 기업+분야별 fallback, 명확히 대응되는 등록/공시 사업 role 통합, 자체 제품 열거 추출. 자회사 경계 보존, 부품/고객시장/PC- PCB 오인 반례 차단.
+- 실제 API2759 모두 최소연결, 공시325곳/등록만2434곳. 근거372/372 원문 일치. 전체 세부사업 검증 완료 아님. 정적 분석·단위21통과, 실제 IAB 나무가 광학부품 확인.
+- 상세 docs/industry-discovery-review-2026-10-01.md 후속수정절, outputs/industry-discovery/census 갱신. 운영배포/DB쓰기 없음.
+
+### 2026-10-01 공시 읽기 난이도 추가 축소
+- 공시 필터를 자금조달/자사주/임원·주주/주요주주로 축약. 목록은 최근5건부터 보여주고 더보기 보존. 신주 증가 또는 기존주식 교환 비율 등 사건 의미를 한 줄로 먼저 표시. 정확한 수량·금액은 펼침 안으로 이동.
+- 출처/수집시점과 관리자 동작은 하단 접기로 모음. 카드 반복 대신 한 목록 테두리·행 구분선·통일 여백 적용. 투자 중요도를 임의 점수로 판단해 공시 데이터를 버리지는 않음.
+
+### 2026-10-01 투자자 질문 중심 정리 및 SK하이닉스 표본 수집
+- 관리자 UI에서 SK하이닉스 자사주20건, 임원·주주566건, 주요주주9건 수집. 공개 research.data 재조회로 저장 건수 확인. 전기업 수집하지 않음.
+- 공통 헤더 지표/연결별도/분류 버튼은 주가·수익성 지표 접기 안으로 이동(기준은 접힌 상태에도 표시). 개요에서 지분변화는 지배구조로 이동, 주가/뉴스/등록정보는 접고 사업·매출구성 우선.
+- 재무는 매출성장·이익률·현금유입 질문으로 안내. 지배구조는 최대주주그룹/소액주주 비중과 최대주주·특수관계인 중 상위5행(주식 종류 표시) 우선. 전체명단·관계망·경영진·출자·변화·출처 접기.
+- 주주환원은 주당배당·배당성향 두 추이와 실제 자기주식 변동 우선. 과거 공시 배당수익률 차트는 기본화면에서 제외하되 원표 유지. 출처/집계설명 접기.
+- 변경파일 정적분석 및 회귀17개 통과. 실제 네 탭 방문/표시 확인, 로컬만 반영. 증거 outputs/company-events/{returns,financial,governance}-investor-ui.png.
+
+### 2026-10-01 전체 분류 정비 ruleVersion10 — 의미 검증 미완료
+- 사용자 재차 전체 완성 요구. 39분야/사용534코드 전체의 읽기 쉬운 사업군 별칭과 제품별 정규화 적용. 의약연구/체외진단/가전 위치 정리. 직접 사업 문장·제품 매출표로 broad registered activity를 filing_activity로 구분, 세부 제품과 혼동/피어 전달 방지. 결제·환급·SPAC 추가. 기존 role URL 호환.
+- 실제 API2759 모두267사업군에 연결. 세부 공시375곳, 사업군 이상 공시918곳, 등록만1841곳. 근거1000/1000 원문 일치. 전체 세부사업 의미검증 완료를 의미하지 않음. 사용자 요구 전체는 아직 미완료이며 공식등록기반 별칭을 완성으로 보고하지 말 것.
+- docs/industry-universe-classification-2026-10-01.md / outputs/industry-discovery/census/all-companies.csv 및 universe-audit.json 최신. 기존 summary.json은 rule9 세부 제품만 세는 과거 장부임. 자동 audit_universe.py 새 전수 대조 도구.
+- 서버30/Flutter12 통과, API/로그/실제IAB 확인. 로컬만 반영. 다음 작업은 등록만1841곳의 원문 대조와 복수사업 누락·의미검증. 현재 자동 규칙 원문일치100%를 분류정확도100%로 설명하지 말 것.
+
+
+### 2026-10-01 — 공시 화면 맥락 미리보기와 노이즈 축소
+
+- 회사 공시 탭의 출처·관리 UI는 기본 비노출(`ResearchSection.showManagement=false`), 정기보고서 원시 상세표는 회사 페이지에서 제거. 원본 데이터와 개별 사건의 공시 원문 링크는 유지.
+- 자금조달·자사주·임원주주·주요주주 선택 영역에 최근 보고 날짜, 쉬운 사건명, 최근 한 건의 규모 및 수집 건수 표시. 보고 간 증감/금액을 합산하지 않음.
+- 자사주 취득·처분/보상 및 자금조달 공시명을 규칙으로 풀어씀. 결정은 계획으로 표현하고 완료/소각으로 단정하지 않음. 기본 목록은 예정 수량 중심, 원문 목적과 조건은 펼친 상세에서 표시.
+- 검증: 변경 파일 dart analyze clean, research_section_test + design_boundary_test 11 tests passed. 로컬 SK하이닉스에서 분류 전환·상세 열기·관리 UI 부재 확인. Screenshot: outputs/company-events/disclosures-preview-ui.png. 배포 없음.
+
+
+### 2026-10-01 지배구조 보유 현황 우선 UI
+- 사용자: 지배구조의 현재 스냅샷이 이해되지 않음. OwnershipSnapshotCard로 기준일·사업보고서 연도·최대주주/관계인 합계·주요 보유자와 전체 보통주 대비 막대를 한 카드로 구성. 실시간 보유로 표현하지 않음. 소액주주는 합산/스택하지 않고 상세 유지. 우선주 제외, 값 미확보는 0과 구분.
+- FY 버튼 행은 수집 연도 드롭다운으로 축소. 소액주주 및 출처는 주주 상세로 이동. 기본 데이터 선택은 기존 연간 보고서 기준 유지(반기 데이터 연동 개선은 이번 변경에 포함되지 않음).
+- 분석 clean, 모바일320/데스크톱1000 및 누락/우선주 분리/디자인 경계5 tests 통과. IAB SK하이닉스2025→2024→2025 전환 확인. outputs/company-events/governance-snapshot-ui.png. 로컬만 반영.
+
+### 2026-10-01 지배구조 5년 흐름 노출
+- 현재 보유 카드 바로 아래에 OwnershipChangesSection compact 모드로 최근5개 결산+최신 중간보고서 지분율 추이를 기본 노출. 시작/끝 실제 값과 순변화(%p), 최신 미확보 시점 별도 표시. 누락은 보간하지 않음.
+- 주주 연결은 확인된 holderCompanyId 우선, 없으면 법인표기 정규화 이름+주식종류. 우선주 분리, 동명 중복은 결측 유지. 기본은 기간말5% 이상 주주, 작은 지분은 비교 선택 가능.
+- 로컬 SK하이닉스 public API로 SK스퀘어 companyId2131 및2021~2025 ratio20.07 확인. 실제 UI 단일 시계열과2026반기 미확보 확인. 관련9 tests 통과. 증거 outputs/company-events/governance-history-ui.png. 운영배포 없음.
+
+### 2026-10-01 원문 용어 우선
+- 사용자 결정: 원문을 그대로 사용하고 쉬운 부연 설명을 작게 병기. 공시 목록/미리보기는 원문 label 우선, 목록의 설명은12px보조색. 지배구조 최대주주 및 특수관계인 원문 용어 복원+보조설명.
+- 정적 분석 clean, 관련14 tests passed. 로컬 반영.
+
+### 2026-10-01 회사 탭 시각 톤 통일
+- 사용자: 개요와 다른 섹션 UIUX톤 불일치. 공통 CompanySectionHeading 도입(20px항목명+12px보조설명), 개요/매출구성/사업지표/재무/지배구조/배당/자기주식/공시에 적용. 질문형 제목은 설명으로 분리. 공시 추가상단여백 제거.
+- CompanyDataCard로 재무 주차트·배당 차트를 개요와 같은 surface/border/radius/padding으로 맞춤. 기존 데이터·차트 기능 유지. 원문명 우선 원칙 유지.
+- 정적분석 clean, 공시/소유현황/디자인14 tests 및 재무/디자인8 tests 통과(디자인2 중복). 실제IAB 각탭 확인. 로컬만 변경.
+
+
+## 2026-10-01 전 상장사 분류 v11 후속 검증
+
+현재 로컬 상장사 2,759곳 모두 최소 분류 연결, 사업군 276개. 공시/KIND 원문 연결 2,741곳, 등록 업종 근거만 18곳. 앞선 v9/v10 통계는 역사적 값이며 현재는 `outputs/industry-discovery/census/universe-audit.json`을 기준으로 한다. 최소 분류 100%와 전사 세부 사업 의미 검증을 혼동하지 말 것. KIND 제품 원천을 종목코드로 연결했고 합병 전 스팩·완제품/부품 오탐을 차단했다. 34+12 테스트 통과, 실제 나무가 근거 창 확인. 상세 한계와 재현 명령은 `docs/industry-universe-classification-2026-10-01.md`. 운영 배포와 DB 변경 없음.
+
+### 2026-10-01 5개 탭 전체 위계 재검토
+- 사용자 재피드백: 기존 제목/카드 일부 수정으로는 위계 불일치 해결 안 됨. docs/company-five-tabs-ui-review.md에 문제/반영/검증 ledger. 공통탭 머리말22, 섹션16, 보조설명12~13, 숫자28. 개요 중복제목 제거, 재무 전차트카드, 배당카드높이동일, 자기주식카드, 상세펼치기 공통테마. 원문 용어 우선 유지.
+- 실제 IAB SK하이닉스 5탭을 기본폭 및390px 모두 방문·시각검토, 기본폭복원. 관련32tests pass. 전기업전수검토/운영배포 아님. 증거 outputs/company-events/hierarchy-*.png.
+
+### 2026-10-01 주가·수익성 지표 상시 표시
+- 사용자 결정: 공통 기업 헤더 주가·수익성 지표는 접지 않고 항상 표시. ExpansionTile을 일반 Column으로 변경. 기준 전환/지표분류/계산 상세 유지. 분석 clean, 관련8tests pass, 실제IAB 표시 확인.
+
+### 2026-10-01 개요 보조정보 카드 통일
+- 사용자 지적: 주가 흐름/관련 소식/회사 기본정보 톤 불일치. 동일 CompanyDetailDisclosure 공통 컴포넌트로 교체, surface/border/radius, 제목16/요약12, 여백/아이콘/본문패딩 통일. 주가/뉴스/기본정보 본문 기능 유지.
+- 실제 로컬 세 카드 표시 및 펼치기 확인. 정적 분석 clean. 증거 outputs/company-events/overview-secondary-cards.png.
+
+### 2026-10-01 핵심 정보 기본 노출
+- 사용자: 중요한 정보가 닫혀 있으므로 사소한 정보만 숨기기. 개요 주가/관련소식은 collapsible=false로 접기 자체 제거, 사업모델은 initiallyExpanded=true. 회사기본/원문근거/전체명단은 접기 유지. 지표/재무/지분추이 상시 표시 유지.
+- MCP restart 후 실제IAB 개요 로드만으로 사업모델·주가·최근소식 본문 노출 확인. 정적분석 clean, 사업가이드/디자인9tests pass. 로컬 반영.
+
+### 2026-10-01 공통 차트 Y축 오버플로우 수정
+- 사용자 첨부 자기주식 차트에서 긴 주식 수 Y눈금이 카드왼쪽으로 넘침. 고정64px 축여백을 실제 TextPainter 눈금폭+8px로 교체. 좌/우축 개별계산, 극단길이는각축최대40%+말줄임으로 플롯확보, 툴팁 원수치 유지. 측정/페인팅 동일10.5px스타일.
+- 큰 양수/음수/상한 여백 회귀 포함 차트+공시19tests pass, 정적분석 clean. 실제IAB 기본폭 및390px 자기주식 차트 축이 카드내부인 것 확인, viewport복원. outputs/company-events/treasury-axis-fixed.png.
+
+### 2026-10-01 사업 요약 금액 축약
+- 생산능력 등 사업 지표와 매출 구성 요약은 원화 단위를 소수 첫째 자리의 단일 단위로 표시한다(41조 2,165억 1,200만원 → 41.2조원). 공시 원래 값·단위는 툴팁에 유지한다. 외화/물리량은 원화로 환산하지 않는다.
+- financial_metrics formatter 및 관련 사업 UI 테스트 30개 통과, 대상 파일 정적 분석 정상. 로컬 SK하이닉스 개요에서 41.2조원 표시와 줄바꿈 해소 확인. 증거: outputs/company-events/compact-business-amounts.png.
+
+### 2026-10-01 기업 기본정보 상단 통합
+- 개요 하단의 회사 기본정보 카드를 제거하고 공통 CompanyHeader 아래 대표자·설립일·홈페이지·IR(있는 경우)을 Wrap으로 표시. 상세정보 버튼은 주소/연락처/등록번호/업종 및 변경 기록을 스크롤 가능한 모달에서 연다.
+- 대상 3파일 정적 분석 정상, 기존 헤더/디자인 경계 테스트 통과. 로컬 SK하이닉스에서 상단 표시와 상세정보 열기/닫기 확인. 화면: outputs/company-events/company-info-header.png.
+
+### 2026-10-01 기본정보 정렬 보완
+- 상단 기본정보를 라벨/값 열 구조로 정렬(650px 이상 3열, 좁으면 2열). 홈페이지/IR은 버튼 문구 대신 실제 주소 텍스트 링크로 표시. 상세정보는 우측 보조 액션으로 분리.
+- 정적 분석 및 기존 헤더/디자인 테스트 4개 통과. 로컬에서 대표자·설립일·홈페이지 정렬 및 링크 접근성 확인.
+
+### 2026-10-01 상세정보 인라인 통합
+- 사용자 요청으로 상세정보 버튼/모달 제거. 결산월·전화·주소를 상단 기본정보에 통합하고 등록번호/KSIC는 작은 보조 텍스트로 표시. 변경 기록만 접기 유지.
+- 정적 분석 및 기존 테스트 4개 통과, MCP hot reload 완료. 이번 변경의 브라우저 스크린샷 검증은 IAB CDP timeout으로 미완료(이전 화면 증거를 재사용하지 않음).
+
+### 2026-10-01 시장/코드/업종 통합
+- CompanyHeader의 별도 시장·종목코드 태그와 업종 텍스트를 제거하고 CompanyBasicInfo 첫 행에 시장/종목코드/업종으로 통합. 코스피 시장은 '유가증권'으로 표기.
+- 대상 파일 정적 분석 및 기존 테스트 4개 통과. 브라우저 IAB 연결 timeout이 지속되어 이번 화면 시각 검증 미완료.
+
+### 2026-10-01 헤더 지표 단순화
+- 추천/가격/성장·수익성/현금·투자 분류 토글 제거. 기존 업종별 핵심 6개는 항상 표시하고 전체 지표 보기로 나머지를 한 목록에서 펼친다. 계산식 상세 유지.
+- 자동/연결/별도 토글을 작은 계산 기준 메뉴로 변경. 실제 적용된 연결/별도 기준 표시는 유지.
+- 대상 정적 분석 및 기존 헤더 테스트 통과. IAB 연결 장애로 시각 검증은 미완료.
+
+### 2026-10-01 지표 팝업 가독성
+- MetricFormulaCard를 지표명(20)/값(30)/의미(14) → 계산 방법(15) → 입력값(14~15)/각 기준(12) → 연결·별도 기준 순서로 재구성. 입력 행 구분선과 여백 적용, 긴 값은 Wrap. 원화는 짧은 단위 표시 + 원값 툴팁. 미확보 값은 대시 대신 자료 미확보/계산 불가 사유.
+- 정적 분석 정상, 320px/1280px 팝업 및 재무 기준 변경 등 기존 테스트 8개 통과. MCP hot reload 완료. IAB 탭 연결은 여전히 timeout으로 실제 화면 시각 검증 미완료.
+
+### 2026-10-01 최신 반기 지배구조 실제 수집
+- SK하이닉스(00164779) 관리자 UI에서 기업 공시 갱신 실행. 작업162 succeeded, 총4/처리4/저장4/실패0/API4, 남은 항목0. 2026-06-30 기준 주주13행·임원10행·출자45행 확인. 최신 반기 최대주주/관계인20.5%, 5년 추이에도 반기 반영.
+- 원인: development.yaml의 futureCallExecutionEnabled:false로 수동 버튼도 예약만 남겼음. 관리자 startDisclosures의 기업 지정 실행은 이 설정일 때 동기 실행. 이전 동일기업/동일job의 대기 DisclosureRunCompanyFutureCall만 트랜잭션 잠금 후 인수. 전체 자동 수집 설정 및 admin 검사는 유지.
+- 최신 중간보고서 수집 대상에 임원/타법인출자/소액주주 추가. governance.summary의 annual 필터 제거, 대상연도/기간/접수번호로 최신 보고서 선택하고 모든 항목은 동일 접수번호에서만 읽어 기간 혼합 방지. UI 사업보고서 단정 문구를 정기보고서로 변경.
+- 서버/Flutter 대상 분석 정상, 반기 수집/최신 summary 통합 테스트 및 generated_code_test 통과. IAB 새 탭에서 실제 2026.06.30 기준 및 추이 확인. outputs/company-events/governance-2026-half-collected.png. 기존 탭13은 CDP 응답 불가, 검증탭14는 정상.
+
+
+## 2026-10-01 — 업종 탐색 전수 분류 v12 검증
+
+- 현재 로컬 2,759곳 분류 연결 2,759, 누락 0, 표시 사업군 336. 공시/KIND/발행사 근거가 있고 구체적 사업·제품은 2,756곳. 3곳은 공식 등록 기준 지주회사(현대지에프홀딩스·로스웰·윙입푸드)로 자회사 제조업을 본사에 옮기지 않음.
+- 제품 규칙 347개, 현 공시 원문 대조 매핑 152개/131곳. `reviewed_filing_offerings`는 회사·접수번호·연도·인용 일치가 필수이며 최신 보고서 변경 시 자동 적용 금지. 현재 공시 우선, 중단/계획/타사 사업 제외, 현재 양수 매출 열 확인, 중복 명칭 통합.
+- 감사: 공시 2,396건/KIND 1,587건/발행사 4건 원문 일치. 모든 보고서 전부 정독 및 의미상 100% 정확도를 주장하지 않음. `docs/industry-universe-classification-2026-10-01.md`와 `outputs/industry-audit-v12-2026-10-01/` 참조.
+- 서버 61개/Flutter 16개 테스트 통과. 1280·390 실제 브라우저 근거 창, 모바일 목록과 더보기, LG이노텍 표시 확인. DTD MaterialApp 진단 성공. 최종 cold 전체 조회 20.78초로 초기 비용 남음.
+- DB/모델/권한/배포 변경 없음. KIND 스냅샷과 현재 로컬 상장 집합에는 브릴스/수성웹툰 차이 존재. 일반 규칙 검사/원문 일치 검사를 기업 사업 전수 의미 검수로 보고하지 말 것.
+
+### 2026-10-01 업종 탐색 상단 위계 정리
+- 사용자 스크린샷의 과도한 제목/설명 층을 줄임. 업종명과 분야 바꾸기를 같은 행으로 묶고, 공시 안내 중복 문구 제거, 사업 선택은 작은 보조 라벨로 변경. 좁은 레이아웃의 선택 버튼은 글자 길이대로 Wrap, 넓은 화면의 사이드바 유지.
+- industry_discovery/design_boundary 기존 테스트 10개 통과(320~1920px). 정적 분석 오류 없음, 기존 issuer_source 링크의 중괄호 lint info 1건 있음. MCP hot reload, DTD health 정상. 실제 836px/390px 브라우저에서 줄바꿈/상단 배치 확인, 원래 viewport 복원. 증거 outputs/industry-audit-v12-2026-10-01/header-simplified.png 및 header-mobile.png.
+
+### 2026-10-01 전기업 최신 분기 지배구조와 운영 배포 인계
+- 운영 iwinv 읽기 진단: 2026 반기 filing 2,616기업/1분기 2,604기업이 있으나 지배구조 4종의 분기·반기 DisclosureReport와 DartFilingSection은 0. 단순 미완료가 아니라 구버전 수집 범위 누락. 운영 ownershipHistory endpoint도 아직 미등록.
+- 공통 DisclosureSync는 최신 연간 이후 최신 중간보고서의 최대주주/임원/타법인출자/소액주주를 모든 기업에 생성하며 연간/중간 각각 최신 순위를 유지한다. 모든 과거 분기 일괄 백필은 이번 범위 아님.
+- 예산 소진 시 disclosure 재개를 KST 00:01로 변경(재무 재개 00:05보다 먼저). 기존 예약은 즉시 소급 변경되지 않으므로 배포 후 관리자 정상 수집 경로 실행 및 새 resume 예약/대기열 검증 필요.
+- 검증: dart analyze 해당 collector/test 오류 없음. scripts/test-server.sh disclosure_sync_test.dart + generated_code_test.dart 총 20개 통과. 전기업 호출에서 재무 백필이 남아도 2개 기업의 halfYear/q1 4종 요청 검증. 최신 MCP 서버/Flutter 로그 정상.
+- 사용자 명시 승인으로 `웹페이지 광고 도입 검토`(01a0f5ee-6811-7081-ad8c-1759175568c6)에 함께 운영 배포하도록 파일/진단/검증 전달. 이 채팅은 운영 배포를 직접 실행하지 않았으며 배포 완료/전기업 수집 완료로 보고하지 않는다. 기존 일일 한도 소진으로 실제 전기업 완료는 이후 순차 처리 필요.
+
+### 2026-10-01 기업 찾기 탐색 컴포넌트 정리
+- CompanyDiscoveryNavigation의 밑줄 탭을 SegmentedButton으로 교체. 가용 폭600 이상은 제목 옆, 좁으면 제목 아래 전체 폭. 세션별 URL 필터 복원 유지.
+- IndustryDirectory의 긴 AppButton을 디자인 컴포넌트 AppNavigationTile로 교체. 이름/기업 수/chevron 분리, 키보드 HoverBuilder 유지, 대분류는 작은 보조 제목.
+- 수정 대상 분석 정상, directory/discovery/design_boundary 12tests 통과. MCP hot reload 후 실제836/390px 확인, 모바일 반도체 카드 클릭 시 URL 이동 확인 및 목록 복귀. outputs/industry-audit-v12-2026-10-01/directory-components.png 및 directory-components-mobile.png.
+
+### 2026-10-01 업종 분야 아이콘
+- 사용자 승인에 따라 IndustryDirectory의 분야 제목 옆에 18px 단색 Material outlined 아이콘 추가. 제목과 같은 textSecondary 토큰, 장식용 아이콘은 ExcludeSemantics 처리. 카드와 분류 데이터 유지. 정적 분석 정상, MCP hot reload 완료.
+
+### 2026-10-01 매출 구성 범위 오인 점검
+- 삼성전자 2026 반기 API/실제 UI에 DX·DS·SDC·Harman 4행 존재. 현재 사용자 URL은 하이닉스이며 원문은 반도체 부문 100%로 통합 공시. 삼성전자 누락은 재현되지 않음.
+- revenue_composition.dart: 금액(비율) 결합 셀의 비중 누락 수정, 현재 금액 일치 검증. 전기업에 단일 공시 부문/비중 미확인/합계 미달/합계 초과 구분 안내. 삼성전자 전용 하드코드 설명 제거. Flutter 11테스트/분석 통과, 삼성전자4행 및 하이닉스100% 실제 브라우저 확인.
+- 저장 원문 2,853건/2,725기업 읽기 전용 파서 재실행. 중복 라벨737문서는 반복/중첩표 조사 후보이고 오류 확정 아님. 추출 저장키/표 식별 완전성은 이번 UI 수정으로 해결된 것이 아니다. docs/revenue-composition-audit.md 및 outputs/revenue-audit 참조. DB 재저장/운영배포 하지 않음.
+
+### 2026-10-01 조건 검색 결과 도구 재배치
+- 상단 프리셋 영역의 Container 배경/테두리/내부 패딩 제거. 기업 수·시세 기준·시장·정렬·표·페이지 이동을 하나의 결과 영역으로 통합. 넓으면 시장 왼쪽/정렬 오른쪽, 좁으면 Wrap.
+- 대상 정적 분석 정상, 기존 screen_experience/design_boundary 12tests 통과. MCP hot reload 후836/390px 실제 화면 확인, 모바일 KOSDAQ 클릭으로 market=kosdaq URL 반영 확인. 증거 outputs/industry-audit-v12-2026-10-01/screen-result-toolbar.png.

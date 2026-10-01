@@ -140,11 +140,6 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
           CompanyDevelopmentSection(development: development),
           const SizedBox(height: AppSpace.xl),
         ],
-        SectionLabel(
-          '무엇을 팔고, 어디에 쓰이나요?',
-          accent: true,
-        ),
-        const SizedBox(height: AppSpace.md),
         if (research != null)
           CompanyResearchGuide(profile: research)
         else if (_lesson != null && development == null)

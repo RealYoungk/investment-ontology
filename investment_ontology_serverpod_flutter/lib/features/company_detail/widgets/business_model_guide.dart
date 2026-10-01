@@ -75,6 +75,7 @@ class _BusinessModelGuideState extends State<BusinessModelGuide> {
               const SizedBox(height: AppSpace.sm),
             ],
             ExpansionTile(
+              initiallyExpanded: true,
               tilePadding: EdgeInsets.zero,
               expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
               title: Text(

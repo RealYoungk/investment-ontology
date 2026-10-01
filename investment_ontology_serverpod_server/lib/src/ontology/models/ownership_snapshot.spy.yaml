@@ -1,0 +1,12 @@
+### 공시별 최대주주 현황. 미수집 보고서도 빈 행으로 표시한다.
+class: OwnershipSnapshot
+fields:
+  bsnsYear: int
+  reportCode: FinancialReportCode
+  reportName: String
+  rceptNo: String
+  periodStart: DateTime?
+  periodEnd: DateTime?
+  collected: bool
+  shareholders: List<ShareholderEntry>
+  source: Source?

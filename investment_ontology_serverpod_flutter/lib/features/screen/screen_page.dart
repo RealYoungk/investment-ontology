@@ -12,6 +12,7 @@ import '../../design/tokens.dart';
 import '../common/formatters.dart';
 import '../financials/financial_metrics.dart';
 import 'screen_filter.dart';
+import 'company_discovery_navigation.dart';
 import 'screen_presets.dart';
 
 typedef ScreenFetch = Future<ScreenPage> Function(
@@ -23,7 +24,7 @@ typedef ScreenFetch = Future<ScreenPage> Function(
 Future<ScreenPage> fetchScreen(
   ScreenFilter f, {
   int offset = 0,
-  int limit = 100,
+  int limit = 10,
 }) => client.screen.list(
   market: f.market,
   perMax: f.perMax,
@@ -85,6 +86,8 @@ class _ScreenerPageState extends State<ScreenerPage> {
   ScreenFilter? _pending;
   int _inputRevision = 0;
   int _seq = 0;
+  int _offset = 0;
+  static const _pageSize = 10;
 
   ScreenFilter get _f => _pending ?? widget.filter;
 
@@ -124,19 +127,48 @@ class _ScreenerPageState extends State<ScreenerPage> {
     _debounce = Timer(const Duration(milliseconds: 300), () => _apply(next));
   }
 
-  Future<void> _load() async {
+  Future<void> _load({int offset = 0}) async {
     final seq = ++_seq;
     setState(() => _loading = true);
     try {
-      final p = await widget.fetch(widget.filter);
+      final p = await widget.fetch(
+        widget.filter,
+        offset: offset,
+        limit: _pageSize,
+      );
       if (!mounted || seq != _seq) return;
-      setState(() => (_page = p, _error = null));
+      setState(() {
+        _page = p;
+        _offset = offset;
+        _error = null;
+      });
     } catch (e) {
       if (mounted && seq == _seq) setState(() => _error = e);
     } finally {
       if (mounted && seq == _seq) setState(() => _loading = false);
     }
   }
+
+  static const _conditionLabels = <String, (String, String)>{
+    'per': ('PER', '배 이하'),
+    'pbr': ('PBR', '배 이하'),
+    'roe': ('ROE', '% 이상'),
+    'margin': ('영업이익률', '% 이상'),
+    'rgrow': ('매출 성장률', '% 이상'),
+    'ogrow': ('영업이익 성장률', '% 이상'),
+    'debt': ('부채비율', '% 이하'),
+    'div': ('배당수익률', '% 이상'),
+    'fcf': ('FCF 수익률', '% 이상'),
+    'liq': ('거래대금', '억원 이상'),
+    'payout': ('배당성향', '% 이하'),
+    'divyears': ('연속 배당', '년 이상'),
+    'vol': ('거래량', '만주 이상'),
+    'volratio': ('평소 대비 거래량', '배 이상'),
+    'cap': ('시가총액', '억원 이상'),
+    'r3m': ('3개월 등락률', '% 이상'),
+    'r12m': ('12개월 등락률', '% 이상'),
+    'band': ('52주 가격 위치', '% 이상'),
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -145,89 +177,366 @@ class _ScreenerPageState extends State<ScreenerPage> {
     final page = _page;
     return PageFrame(
       children: [
-        PageHeading(
-          title: '스크리너',
-          subtitle:
-              '프리셋으로 기업을 찾고, 필요하면 조건을 직접 조정하세요'
-              '${page?.baseDate == null ? '' : ' · 시세 ${formatDate(page!.baseDate)}'}'
-              '${page == null ? '' : ' · 계산 가능 ${formatCount(page.universe)}개사'}',
-        ),
-        const SizedBox(height: AppSpace.xl),
-        // 위계: 범위(시장)와 보기(정렬)는 한 줄, 거르는 조건은 묶음별로 한 줄씩.
-        Wrap(
-          spacing: AppSpace.xl,
-          runSpacing: AppSpace.md,
-          crossAxisAlignment: WrapCrossAlignment.center,
+        const CompanyDiscoveryNavigation(discovery: false),
+        const SizedBox(height: AppSpace.lg),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            AppToggleGroup<Market?>(
-              label: '시장',
-              value: _f.market,
-              options: const {
-                null: '전체',
-                Market.kospi: 'KOSPI',
-                Market.kosdaq: 'KOSDAQ',
-              },
-              onChanged: (m) => _apply(_f.copyWith(market: () => m)),
-            ),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                AppSelect<ScreenSort>(
-                  label: '정렬',
-                  placeholder: '시가총액',
-                  allLabel: '시가총액',
-                  value: _f.sort == ScreenSort.marketCap ? null : _f.sort,
-                  options: const {
-                    ScreenSort.per: 'PER',
-                    ScreenSort.pbr: 'PBR',
-                    ScreenSort.roe: 'ROE',
-                    ScreenSort.operatingMargin: '영업이익률',
-                    ScreenSort.revenueGrowth: '매출 성장률',
-                    ScreenSort.operatingIncomeGrowth: '영업이익 성장률',
-                    ScreenSort.debtRatio: '부채비율',
-                    ScreenSort.dividendYield: '배당수익률',
-                    ScreenSort.fcfYield: 'FCF 수익률',
-                    ScreenSort.return3m: '3개월 주가',
-                    ScreenSort.return12m: '12개월 주가',
-                    ScreenSort.bandPosition: '52주 최저에 가까운',
-                    ScreenSort.avgTradingValue: '거래대금',
-                    ScreenSort.dividendPayout: '배당성향',
-                    ScreenSort.dividendYears: '확인된 연속 배당',
-                    ScreenSort.volume: '거래량',
-                    ScreenSort.volumeRatio: '평소 대비 거래량',
-                  },
-                  // 싼 것·높은 수익성을 먼저 보는 쪽이 자연스럽다.
-                  onChanged: (s) {
-                    final sort = s ?? ScreenSort.marketCap;
-                    _apply(
-                      _f.copyWith(
-                        sort: sort,
-                        ascending:
-                            sort == ScreenSort.per ||
-                            sort == ScreenSort.pbr ||
-                            sort == ScreenSort.dividendPayout,
-                      ),
+            Text('어떤 회사를 찾고 있나요?', style: t.sectionTitle),
+            const SizedBox(height: AppSpace.md),
+            for (final group in screenPresetGroups)
+              Padding(
+                padding: const EdgeInsets.only(bottom: AppSpace.sm),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final choices = Wrap(
+                      spacing: AppSpace.sm,
+                      runSpacing: AppSpace.sm,
+                      children: [
+                        for (final preset in screenPresets.where(
+                          (p) => p.group == group,
+                        ))
+                          Semantics(
+                            selected: preset.matches(_f),
+                            child: AppButton(
+                              key: ValueKey('preset-${preset.id}'),
+                              label: preset.title,
+                              variant: preset.matches(_f)
+                                  ? AppButtonVariant.primary
+                                  : AppButtonVariant.secondary,
+                              onPressed: () {
+                                setState(() => _inputRevision++);
+                                _apply(preset.applyTo(_f));
+                              },
+                            ),
+                          ),
+                      ],
+                    );
+                    final label = Text(
+                      group,
+                      style: t.body(12, color: c.textSecondary),
+                    );
+                    if (constraints.maxWidth < 600) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          label,
+                          const SizedBox(height: AppSpace.xs),
+                          choices,
+                        ],
+                      );
+                    }
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 100,
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 12),
+                            child: label,
+                          ),
+                        ),
+                        Expanded(child: choices),
+                      ],
                     );
                   },
                 ),
-                const SizedBox(width: AppSpace.sm),
-                AppToggleGroup<bool>(
-                  value: _f.ascending,
-                  options: const {false: '큰 순', true: '작은 순'},
-                  onChanged: (v) => _apply(_f.copyWith(ascending: v)),
+              ),
+            const SizedBox(height: AppSpace.sm),
+            Wrap(
+              spacing: AppSpace.md,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                AppButton(
+                  label: _editingConditions ? '조건 접기' : '조건 바꾸기',
+                  icon: _editingConditions ? Icons.expand_less : Icons.tune,
+                  variant: AppButtonVariant.link,
+                  onPressed: () => setState(
+                    () => _editingConditions = !_editingConditions,
+                  ),
+                ),
+                Text(
+                  _f.hasCondition
+                      ? '조건 ${_f.conditionCount}개 적용'
+                      : '조건 없이 전체 보기',
+                  style: t.body(12, color: c.textSecondary),
+                ),
+                if (ScreenPreset.matching(_f) case final preset?)
+                  Tooltip(
+                    message: preset.description,
+                    triggerMode: TooltipTriggerMode.tap,
+                    child: const Padding(
+                      padding: EdgeInsets.all(12),
+                      child: Icon(Icons.info_outline, size: 20),
+                    ),
+                  ),
+                const Tooltip(
+                  message: '찾기 예시는 미리 정해 둔 조건이에요. 선택하면 기존 숫자 조건을 바꿔요. 원하는 값으로 수정할 수 있어요. 최신 자료의 연결재무제표를 먼저 사용하고, 자료가 부족하면 가능한 경우 별도재무제표로 보완해요. 조건에 필요한 숫자가 없는 기업은 결과에서 빠져요. 지배주주 값이 없으면 전체 값을 써요. 금융업은 회계 구조가 달라 다른 업종과 단순 비교하기 어려워요.',
+                  triggerMode: TooltipTriggerMode.tap,
+                  child: Padding(
+                    padding: EdgeInsets.all(12),
+                    child: Icon(Icons.help_outline, size: 20),
+                  ),
                 ),
               ],
             ),
+            if (_f.hasCondition) ...[
+              const SizedBox(height: AppSpace.sm),
+              Wrap(
+                spacing: AppSpace.sm,
+                runSpacing: AppSpace.sm,
+                children: [
+                  for (final entry in Uri.parse(
+                    _f.location,
+                  ).queryParameters.entries)
+                    if (_conditionLabels[entry.key] case final label?)
+                      InputChip(
+                        label: Text('${label.$1} ${entry.value}${label.$2}'),
+                        onDeleted: () {
+                          final query = Map<String, String>.from(
+                            Uri.parse(_f.location).queryParameters,
+                          )..remove(entry.key);
+                          setState(() => _inputRevision++);
+                          _apply(ScreenFilter.fromQuery(query));
+                        },
+                      ),
+                ],
+              ),
+            ],
+            if (_editingConditions) ...[
+              SectionLabel(
+                _f.conditionCount == 0
+                    ? '조건 · 비우면 제한 없음'
+                    : '조건 ${_f.conditionCount}개 적용',
+                trailing: _f.hasCondition
+                    ? AppButton(
+                        label: '조건 지우기',
+                        icon: Icons.close,
+                        variant: AppButtonVariant.link,
+                        tone: c.accent,
+                        onPressed: () {
+                          setState(() => _inputRevision++);
+                          _apply(
+                            ScreenFilter(
+                              market: _f.market,
+                              sort: _f.sort,
+                              ascending: _f.ascending,
+                            ),
+                          );
+                        },
+                      )
+                    : null,
+              ),
+              const SizedBox(height: AppSpace.sm),
+              _FilterGroup(
+                label: '가격과 이익',
+                children: [
+                  _NumberField(
+                    key: ValueKey('per-$_inputRevision'),
+                    min: 0,
+                    label: 'PER 이하',
+                    help: '시가총액 ÷ 최근 12개월 순이익입니다. 연결은 지배주주 몫을 우선하며, 없으면 전체 값을 사용합니다. 순이익이 0 이하면 계산하지 않습니다.',
+                    value: _f.perMax,
+                    onChanged: (v) => _applySoon(_f.copyWith(perMax: () => v)),
+                  ),
+                  _NumberField(
+                    key: ValueKey('pbr-$_inputRevision'),
+                    min: 0,
+                    label: 'PBR 이하',
+                    help: '시가총액 ÷ 최근 보고서의 자본입니다. 연결은 지배주주 몫을 우선하며, 없으면 자본총계를 사용합니다.',
+                    value: _f.pbrMax,
+                    onChanged: (v) => _applySoon(_f.copyWith(pbrMax: () => v)),
+                  ),
+                  _NumberField(
+                    key: ValueKey('div-$_inputRevision'),
+                    min: 0,
+                    label: '배당수익률 % 이상',
+                    help: '최근 연간 공시의 현금배당금총액 ÷ 현재 시가총액 × 100입니다. 공시 당시 배당수익률과 다를 수 있습니다.',
+                    value: _f.dividendMin,
+                    onChanged: (v) =>
+                        _applySoon(_f.copyWith(dividendMin: () => v)),
+                  ),
+                  _NumberField(
+                    key: ValueKey('fcf-$_inputRevision'),
+                    label: 'FCF 수익률 % 이상',
+                    help: '최근 12개월 (영업활동 현금흐름 − 유형자산 취득) ÷ 시가총액 × 100입니다. 금융업은 현금흐름의 성격이 다릅니다.',
+                    value: _f.fcfMin,
+                    onChanged: (v) => _applySoon(_f.copyWith(fcfMin: () => v)),
+                  ),
+                ],
+              ),
+              _FilterGroup(
+                label: '수익성 · 성장',
+                children: [
+                  _NumberField(
+                    key: ValueKey('roe-$_inputRevision'),
+                    label: 'ROE % 이상',
+                    help:
+                        '최근 12개월 순이익 ÷ 최근 보고서의 자본 × 100입니다. 연결은 지배주주 몫을 우선합니다.',
+                    value: _f.roeMin,
+                    onChanged: (v) => _applySoon(_f.copyWith(roeMin: () => v)),
+                  ),
+                  _NumberField(
+                    key: ValueKey('margin-$_inputRevision'),
+                    label: '영업이익률 % 이상',
+                    help: '최근 12개월 영업이익 ÷ 매출액 × 100입니다.',
+                    value: _f.marginMin,
+                    onChanged: (v) =>
+                        _applySoon(_f.copyWith(marginMin: () => v)),
+                  ),
+                  _NumberField(
+                    key: ValueKey('rgrow-$_inputRevision'),
+                    label: '매출 성장률 % 이상',
+                    help: '올해 누적 매출과 전년 같은 기간을 비교합니다.',
+                    value: _f.revenueGrowthMin,
+                    onChanged: (v) =>
+                        _applySoon(_f.copyWith(revenueGrowthMin: () => v)),
+                  ),
+                  _NumberField(
+                    key: ValueKey('ogrow-$_inputRevision'),
+                    label: '영업이익 성장률 % 이상',
+                    help:
+                        '올해 누적 영업이익과 전년 같은 기간을 비교합니다. 전년 이익이 0 이하이면 계산하지 않습니다.',
+                    value: _f.opGrowthMin,
+                    onChanged: (v) =>
+                        _applySoon(_f.copyWith(opGrowthMin: () => v)),
+                  ),
+                ],
+              ),
+              _FilterGroup(
+                label: '안정성 · 유동성',
+                children: [
+                  _NumberField(
+                    key: ValueKey('debt-$_inputRevision'),
+                    min: 0,
+                    label: '부채비율 % 이하',
+                    help: '최근 보고서의 부채총계 ÷ 자본총계 × 100입니다.',
+                    value: _f.debtMax,
+                    onChanged: (v) => _applySoon(_f.copyWith(debtMax: () => v)),
+                  ),
+                  _NumberField(
+                    key: ValueKey('liq-$_inputRevision'),
+                    min: 0,
+                    label: '거래대금 억원 이상',
+                    help: '최근 한 달의 하루 평균 거래대금입니다.',
+                    value: _f.liquidityMin,
+                    onChanged: (v) =>
+                        _applySoon(_f.copyWith(liquidityMin: () => v)),
+                  ),
+                ],
+              ),
+              _FilterGroup(
+                label: '배당 더 보기',
+                last: false,
+                children: [
+                  _NumberField(
+                    key: ValueKey('payout-$_inputRevision'),
+                    label: '배당성향 % 이하',
+                    help: '최근 연간 공시값입니다. 이익 중 배당으로 지급한 비율이며, 적자·미수집은 제외됩니다.',
+                    min: 0,
+
+                    integer: false,
+                    value: _f.payoutMax,
+                    onChanged: (v) =>
+                        _applySoon(_f.copyWith(payoutMax: () => v)),
+                  ),
+                  _NumberField(
+                    key: ValueKey('divyears-$_inputRevision'),
+                    label: '확인된 연속 배당 년 이상',
+                    help: '최근 연간 공시의 당기·전기·전전기 현금배당금총액을 확인합니다. 최대 3년, 빈 값은 연속으로 세지 않습니다.',
+                    min: 0,
+                    max: 3,
+                    integer: true,
+                    value: _f.dividendYearsMin,
+                    onChanged: (v) =>
+                        _applySoon(_f.copyWith(dividendYearsMin: () => v)),
+                  ),
+                ],
+              ),
+              _FilterGroup(
+                label: '규모 · 거래',
+                last: false,
+                children: [
+                  _NumberField(
+                    key: ValueKey('cap-$_inputRevision'),
+                    label: '시가총액 억원 이상',
+                    help: '기업에 연결된 종목의 최근 시가총액 합계입니다.',
+                    min: 0,
+
+                    integer: false,
+                    value: _f.marketCapMin,
+                    onChanged: (v) =>
+                        _applySoon(_f.copyWith(marketCapMin: () => v)),
+                  ),
+                  _NumberField(
+                    key: ValueKey('vol-$_inputRevision'),
+                    label: '기준일 거래량 만주 이상',
+                    help: '대표 종목의 마지막 수집 거래일 거래량입니다. 거래대금과 단위가 다릅니다.',
+                    min: 0,
+
+                    integer: false,
+                    value: _f.volumeMin,
+                    onChanged: (v) =>
+                        _applySoon(_f.copyWith(volumeMin: () => v)),
+                  ),
+                  _NumberField(
+                    key: ValueKey('volratio-$_inputRevision'),
+                    label: '평소 대비 거래량 배 이상',
+                    help: '기준일 거래량 ÷ 직전 20거래일 평균. 2배는 평소의 두 배입니다. 이력 부족·주식수 큰 변동은 제외됩니다.',
+                    min: 0,
+
+                    integer: false,
+                    value: _f.volumeRatioMin,
+                    onChanged: (v) =>
+                        _applySoon(_f.copyWith(volumeRatioMin: () => v)),
+                  ),
+                ],
+              ),
+              _FilterGroup(
+                label: '주가 흐름',
+                last: true,
+                children: [
+                  _NumberField(
+                    key: ValueKey('r3m-$_inputRevision'),
+                    label: '3개월 등락률 % 이상',
+                    help: '대표 종목의 3개월 가격 변화입니다. 음수도 입력할 수 있습니다.',
+                    min: -100,
+
+                    integer: false,
+                    value: _f.return3mMin,
+                    onChanged: (v) =>
+                        _applySoon(_f.copyWith(return3mMin: () => v)),
+                  ),
+                  _NumberField(
+                    key: ValueKey('r12m-$_inputRevision'),
+                    label: '12개월 등락률 % 이상',
+                    help: '대표 종목의 12개월 가격 변화입니다. 일별 연속 상승을 뜻하지 않습니다.',
+                    min: -100,
+
+                    integer: false,
+                    value: _f.return12mMin,
+                    onChanged: (v) =>
+                        _applySoon(_f.copyWith(return12mMin: () => v)),
+                  ),
+                  _NumberField(
+                    key: ValueKey('band-$_inputRevision'),
+                    label: '52주 가격 위치 % 이상',
+                    help: '최근 1년 종가 범위에서 최저 0, 최고 100입니다. 90은 범위의 상위 10% 구간이며 신고가까지 거리와 다릅니다.',
+                    min: 0,
+                    max: 100,
+                    integer: false,
+                    value: _f.bandPositionMin,
+                    onChanged: (v) =>
+                        _applySoon(_f.copyWith(bandPositionMin: () => v)),
+                  ),
+                ],
+              ),
+            ],
           ],
         ),
         const SizedBox(height: AppSpace.lg),
         Container(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpace.md,
-            AppSpace.sm,
-            AppSpace.md,
-            AppSpace.md,
-          ),
+          padding: const EdgeInsets.all(AppSpace.md),
           decoration: BoxDecoration(
             color: c.surface,
             borderRadius: context.shape.borderRadius,
@@ -238,387 +547,142 @@ class _ScreenerPageState extends State<ScreenerPage> {
             children: [
               Wrap(
                 spacing: AppSpace.md,
-                runSpacing: AppSpace.sm,
+                runSpacing: AppSpace.xs,
+                alignment: WrapAlignment.spaceBetween,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  SizedBox(
-                    width: 280,
-                    child: DropdownButtonFormField<String>(
-                      key: ValueKey(
-                        'preset-${ScreenPreset.matching(_f)?.id ?? 'custom'}',
-                      ),
-                      initialValue: ScreenPreset.matching(_f)?.id,
-                      itemHeight: 56,
-                      menuMaxHeight: 440,
-                      selectedItemBuilder: (context) => [
-                        for (final group in screenPresetGroups) ...[
-                          const SizedBox.shrink(),
-                          for (final preset in screenPresets.where(
-                            (p) => p.group == group,
-                          ))
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(preset.title, maxLines: 2),
-                            ),
-                        ],
-                      ],
-                      isExpanded: true,
-                      style: t.body(13),
-                      decoration: const InputDecoration(
-                        labelText: '프리셋으로 값 채우기',
-                      ),
-                      hint: Text(
-                        '프리셋 선택',
-                        style: t.body(13, color: c.textSecondary),
-                      ),
-                      items: [
-                        for (final group in screenPresetGroups) ...[
-                          DropdownMenuItem<String>(
-                            enabled: false,
-                            child: Text(
-                              group,
-                              style: t.label(color: c.textMuted),
-                            ),
-                          ),
-                          for (final preset in screenPresets.where(
-                            (p) => p.group == group,
-                          ))
-                            DropdownMenuItem(
-                              value: preset.id,
-                              child: Text(preset.title, maxLines: 2),
-                            ),
-                        ],
-                      ],
-                      onChanged: (id) {
-                        if (id == null) return;
-                        final preset = screenPresets.firstWhere(
-                          (p) => p.id == id,
-                        );
-                        final next = preset.applyTo(_f);
-                        setState(() => _inputRevision++);
-                        _apply(next);
-                      },
-                    ),
-                  ),
                   Text(
-                    '선택한 조건으로 바로 찾아봅니다.',
-                    style: t.body(12, color: c.textSecondary),
+                    page == null ? '기업 목록' : '${formatCount(page.total)}개 기업',
+                    style: t.sectionTitle,
                   ),
+                  if (page != null)
+                    Text(
+                      '${page.items.isEmpty ? '' : '${_offset + 1}–${_offset + page.items.length}번째'}'
+                      '${page.baseDate == null ? '' : ' · 시세 ${formatDate(page.baseDate)}'}',
+                      style: t.numeric(12, color: c.textSecondary),
+                    ),
                 ],
               ),
-              if (ScreenPreset.matching(_f) case final preset?) ...[
-                const SizedBox(height: AppSpace.sm),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Tooltip(
-                    message: preset.description,
-                    triggerMode: TooltipTriggerMode.tap,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: AppSpace.sm,
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.info_outline,
-                            size: 18,
-                            color: c.textSecondary,
-                          ),
-                          const SizedBox(width: AppSpace.xs),
-                          Text(
-                            '이 프리셋의 조건',
-                            style: t.body(12, color: c.textSecondary),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-              const SizedBox(height: AppSpace.sm),
+              const SizedBox(height: AppSpace.md),
               Wrap(
                 spacing: AppSpace.md,
+                runSpacing: AppSpace.sm,
+                alignment: WrapAlignment.spaceBetween,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  AppButton(
-                    label: _editingConditions ? '조건 수정 닫기' : '조건 직접 수정',
-                    icon: _editingConditions ? Icons.expand_less : Icons.tune,
-                    variant: AppButtonVariant.link,
-                    onPressed: () => setState(
-                      () => _editingConditions = !_editingConditions,
-                    ),
+                  AppToggleGroup<Market?>(
+                    label: '시장',
+                    value: _f.market,
+                    options: const {
+                      null: '전체',
+                      Market.kospi: 'KOSPI',
+                      Market.kosdaq: 'KOSDAQ',
+                    },
+                    onChanged: (m) => _apply(_f.copyWith(market: () => m)),
                   ),
-                  Text(
-                    '조건 ${_f.conditionCount}개 적용',
-                    style: t.body(12, color: c.textSecondary),
-                  ),
-                  const Tooltip(
-                    message: '프리셋은 수정 가능한 예시 조건입니다. 선택하면 기존 숫자 조건을 교체합니다. 최신 기간에서 연결 우선으로 계산하며, 연결 자료가 부족하고 별도로 보완 가능하면 별도를 적용합니다.  조건에 필요한 값이 없는 기업은 제외합니다. 지배주주 값이 없으면 전체 값을 사용합니다. 금융업 등은 표준계정과 현금흐름의 성격이 달라 지표 해석에 주의가 필요합니다.',
-                    triggerMode: TooltipTriggerMode.tap,
-                    child: Padding(
-                      padding: EdgeInsets.all(12),
-                      child: Icon(Icons.help_outline, size: 20),
-                    ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      AppSelect<ScreenSort>(
+                        label: '정렬',
+                        placeholder: '시가총액',
+                        allLabel: '시가총액',
+                        value: _f.sort == ScreenSort.marketCap ? null : _f.sort,
+                        options: const {
+                          ScreenSort.per: 'PER',
+                          ScreenSort.pbr: 'PBR',
+                          ScreenSort.roe: 'ROE',
+                          ScreenSort.operatingMargin: '영업이익률',
+                          ScreenSort.revenueGrowth: '매출 성장률',
+                          ScreenSort.operatingIncomeGrowth: '영업이익 성장률',
+                          ScreenSort.debtRatio: '부채비율',
+                          ScreenSort.dividendYield: '배당수익률',
+                          ScreenSort.fcfYield: 'FCF 수익률',
+                          ScreenSort.return3m: '3개월 주가',
+                          ScreenSort.return12m: '12개월 주가',
+                          ScreenSort.bandPosition: '52주 최저에 가까운',
+                          ScreenSort.avgTradingValue: '거래대금',
+                          ScreenSort.dividendPayout: '배당성향',
+                          ScreenSort.dividendYears: '확인된 연속 배당',
+                          ScreenSort.volume: '거래량',
+                          ScreenSort.volumeRatio: '평소 대비 거래량',
+                        },
+                        // 싼 것·높은 수익성을 먼저 보는 쪽이 자연스럽다.
+                        onChanged: (s) {
+                          final sort = s ?? ScreenSort.marketCap;
+                          _apply(
+                            _f.copyWith(
+                              sort: sort,
+                              ascending:
+                                  sort == ScreenSort.per ||
+                                  sort == ScreenSort.pbr ||
+                                  sort == ScreenSort.dividendPayout,
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(width: AppSpace.sm),
+                      AppToggleGroup<bool>(
+                        value: _f.ascending,
+                        options: const {false: '큰 순', true: '작은 순'},
+                        onChanged: (v) => _apply(_f.copyWith(ascending: v)),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              if (_editingConditions) ...[
-                SectionLabel(
-                  _f.conditionCount == 0
-                      ? '조건 · 비우면 제한 없음'
-                      : '조건 ${_f.conditionCount}개 적용',
-                  trailing: _f.hasCondition
-                      ? AppButton(
-                          label: '조건 초기화',
-                          icon: Icons.close,
-                          variant: AppButtonVariant.link,
-                          tone: c.accent,
-                          onPressed: () {
-                            setState(() => _inputRevision++);
-                            _apply(
-                              ScreenFilter(
-                                market: _f.market,
-                                sort: _f.sort,
-                                ascending: _f.ascending,
-                              ),
-                            );
-                          },
-                        )
+              const SizedBox(height: AppSpace.sm),
+              if (_error != null)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const AppNotice(
+                      message: '기업 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.',
+                    ),
+                    AppButton(label: '다시 불러오기', onPressed: _load),
+                  ],
+                )
+              else ...[
+                SizedBox(
+                  height: 2,
+                  child: _loading
+                      ? const LinearProgressIndicator(minHeight: 2)
                       : null,
                 ),
                 const SizedBox(height: AppSpace.sm),
-                _FilterGroup(
-                  label: '밸류에이션',
-                  children: [
-                    _NumberField(
-                      key: ValueKey('per-$_inputRevision'),
-                      min: 0,
-                      label: 'PER 이하',
-                      help: '시가총액 ÷ 최근 12개월 순이익입니다. 연결은 지배주주 몫을 우선하며, 없으면 전체 값을 사용합니다. 순이익이 0 이하면 계산하지 않습니다.',
-                      value: _f.perMax,
-                      onChanged: (v) =>
-                          _applySoon(_f.copyWith(perMax: () => v)),
-                    ),
-                    _NumberField(
-                      key: ValueKey('pbr-$_inputRevision'),
-                      min: 0,
-                      label: 'PBR 이하',
-                      help: '시가총액 ÷ 최근 보고서의 자본입니다. 연결은 지배주주 몫을 우선하며, 없으면 자본총계를 사용합니다.',
-                      value: _f.pbrMax,
-                      onChanged: (v) =>
-                          _applySoon(_f.copyWith(pbrMax: () => v)),
-                    ),
-                    _NumberField(
-                      key: ValueKey('div-$_inputRevision'),
-                      min: 0,
-                      label: '배당수익률 % 이상',
-                      help: '최근 연간 공시의 현금배당금총액 ÷ 현재 시가총액 × 100입니다. 공시 당시 배당수익률과 다를 수 있습니다.',
-                      value: _f.dividendMin,
-                      onChanged: (v) =>
-                          _applySoon(_f.copyWith(dividendMin: () => v)),
-                    ),
-                    _NumberField(
-                      key: ValueKey('fcf-$_inputRevision'),
-                      label: 'FCF 수익률 % 이상',
-                      help: '최근 12개월 (영업활동 현금흐름 − 유형자산 취득) ÷ 시가총액 × 100입니다. 금융업은 현금흐름의 성격이 다릅니다.',
-                      value: _f.fcfMin,
-                      onChanged: (v) =>
-                          _applySoon(_f.copyWith(fcfMin: () => v)),
-                    ),
-                  ],
-                ),
-                _FilterGroup(
-                  label: '수익성 · 성장',
-                  children: [
-                    _NumberField(
-                      key: ValueKey('roe-$_inputRevision'),
-                      label: 'ROE % 이상',
-                      help: '최근 12개월 순이익 ÷ 최근 보고서의 자본 × 100입니다. 연결은 지배주주 몫을 우선합니다.',
-                      value: _f.roeMin,
-                      onChanged: (v) =>
-                          _applySoon(_f.copyWith(roeMin: () => v)),
-                    ),
-                    _NumberField(
-                      key: ValueKey('margin-$_inputRevision'),
-                      label: '영업이익률 % 이상',
-                      help: '최근 12개월 영업이익 ÷ 매출액 × 100입니다.',
-                      value: _f.marginMin,
-                      onChanged: (v) =>
-                          _applySoon(_f.copyWith(marginMin: () => v)),
-                    ),
-                    _NumberField(
-                      key: ValueKey('rgrow-$_inputRevision'),
-                      label: '매출 성장률 % 이상',
-                      help: '올해 누적 매출과 전년 같은 기간을 비교합니다.',
-                      value: _f.revenueGrowthMin,
-                      onChanged: (v) =>
-                          _applySoon(_f.copyWith(revenueGrowthMin: () => v)),
-                    ),
-                    _NumberField(
-                      key: ValueKey('ogrow-$_inputRevision'),
-                      label: '영업이익 성장률 % 이상',
-                      help: '올해 누적 영업이익과 전년 같은 기간을 비교합니다. 전년 이익이 0 이하이면 계산하지 않습니다.',
-                      value: _f.opGrowthMin,
-                      onChanged: (v) =>
-                          _applySoon(_f.copyWith(opGrowthMin: () => v)),
-                    ),
-                  ],
-                ),
-                _FilterGroup(
-                  label: '안정성 · 유동성',
-                  children: [
-                    _NumberField(
-                      key: ValueKey('debt-$_inputRevision'),
-                      min: 0,
-                      label: '부채비율 % 이하',
-                      help: '최근 보고서의 부채총계 ÷ 자본총계 × 100입니다.',
-                      value: _f.debtMax,
-                      onChanged: (v) =>
-                          _applySoon(_f.copyWith(debtMax: () => v)),
-                    ),
-                    _NumberField(
-                      key: ValueKey('liq-$_inputRevision'),
-                      min: 0,
-                      label: '거래대금 억원 이상',
-                      help: '최근 한 달의 하루 평균 거래대금입니다.',
-                      value: _f.liquidityMin,
-                      onChanged: (v) =>
-                          _applySoon(_f.copyWith(liquidityMin: () => v)),
-                    ),
-                  ],
-                ),
-                _FilterGroup(
-                  label: '배당 더 보기',
-                  last: false,
-                  children: [
-                    _NumberField(
-                      key: ValueKey('payout-$_inputRevision'),
-                      label: '배당성향 % 이하',
-                      help: '최근 연간 공시값입니다. 이익 중 배당으로 지급한 비율이며, 적자·미수집은 제외됩니다.',
-                      min: 0,
-
-                      integer: false,
-                      value: _f.payoutMax,
-                      onChanged: (v) =>
-                          _applySoon(_f.copyWith(payoutMax: () => v)),
-                    ),
-                    _NumberField(
-                      key: ValueKey('divyears-$_inputRevision'),
-                      label: '확인된 연속 배당 년 이상',
-                      help: '최근 연간 공시의 당기·전기·전전기 현금배당금총액을 확인합니다. 최대 3년, 빈 값은 연속으로 세지 않습니다.',
-                      min: 0,
-                      max: 3,
-                      integer: true,
-                      value: _f.dividendYearsMin,
-                      onChanged: (v) =>
-                          _applySoon(_f.copyWith(dividendYearsMin: () => v)),
-                    ),
-                  ],
-                ),
-                _FilterGroup(
-                  label: '규모 · 거래',
-                  last: false,
-                  children: [
-                    _NumberField(
-                      key: ValueKey('cap-$_inputRevision'),
-                      label: '시가총액 억원 이상',
-                      help: '기업에 연결된 종목의 최근 시가총액 합계입니다.',
-                      min: 0,
-
-                      integer: false,
-                      value: _f.marketCapMin,
-                      onChanged: (v) =>
-                          _applySoon(_f.copyWith(marketCapMin: () => v)),
-                    ),
-                    _NumberField(
-                      key: ValueKey('vol-$_inputRevision'),
-                      label: '기준일 거래량 만주 이상',
-                      help: '대표 종목의 마지막 수집 거래일 거래량입니다. 거래대금과 단위가 다릅니다.',
-                      min: 0,
-
-                      integer: false,
-                      value: _f.volumeMin,
-                      onChanged: (v) =>
-                          _applySoon(_f.copyWith(volumeMin: () => v)),
-                    ),
-                    _NumberField(
-                      key: ValueKey('volratio-$_inputRevision'),
-                      label: '평소 대비 거래량 배 이상',
-                      help: '기준일 거래량 ÷ 직전 20거래일 평균. 2배는 평소의 두 배입니다. 이력 부족·주식수 큰 변동은 제외됩니다.',
-                      min: 0,
-
-                      integer: false,
-                      value: _f.volumeRatioMin,
-                      onChanged: (v) =>
-                          _applySoon(_f.copyWith(volumeRatioMin: () => v)),
-                    ),
-                  ],
-                ),
-                _FilterGroup(
-                  label: '주가 흐름',
-                  last: true,
-                  children: [
-                    _NumberField(
-                      key: ValueKey('r3m-$_inputRevision'),
-                      label: '3개월 등락률 % 이상',
-                      help: '대표 종목의 3개월 가격 변화입니다. 음수도 입력할 수 있습니다.',
-                      min: -100,
-
-                      integer: false,
-                      value: _f.return3mMin,
-                      onChanged: (v) =>
-                          _applySoon(_f.copyWith(return3mMin: () => v)),
-                    ),
-                    _NumberField(
-                      key: ValueKey('r12m-$_inputRevision'),
-                      label: '12개월 등락률 % 이상',
-                      help: '대표 종목의 12개월 가격 변화입니다. 일별 연속 상승을 뜻하지 않습니다.',
-                      min: -100,
-
-                      integer: false,
-                      value: _f.return12mMin,
-                      onChanged: (v) =>
-                          _applySoon(_f.copyWith(return12mMin: () => v)),
-                    ),
-                    _NumberField(
-                      key: ValueKey('band-$_inputRevision'),
-                      label: '52주 가격 위치 % 이상',
-                      help: '최근 1년 종가 범위에서 최저 0, 최고 100입니다. 90은 범위의 상위 10% 구간이며 신고가까지 거리와 다릅니다.',
-                      min: 0,
-                      max: 100,
-                      integer: false,
-                      value: _f.bandPositionMin,
-                      onChanged: (v) =>
-                          _applySoon(_f.copyWith(bandPositionMin: () => v)),
-                    ),
-                  ],
-                ),
+                if (page != null) _ResultTable(page: page, filter: _f),
+                if (page != null && page.total > _pageSize) ...[
+                  const SizedBox(height: AppSpace.md),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      AppButton(
+                        label: '이전 10개',
+                        onPressed: _loading || _offset == 0
+                            ? null
+                            : () => _load(offset: _offset - _pageSize),
+                      ),
+                      const SizedBox(width: AppSpace.md),
+                      Text(
+                        '${_offset ~/ _pageSize + 1} / ${(page.total / _pageSize).ceil()}',
+                        style: t.body(13),
+                      ),
+                      const SizedBox(width: AppSpace.md),
+                      AppButton(
+                        label: '다음 10개',
+                        onPressed:
+                            _loading ||
+                                _offset + page.items.length >= page.total
+                            ? null
+                            : () => _load(offset: _offset + _pageSize),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ],
           ),
         ),
-        const SizedBox(height: AppSpace.md),
-        if (_error != null)
-          AppNotice(message: '스크리닝에 실패했습니다 — $_error')
-        else ...[
-          SizedBox(
-            height: 2,
-            child: _loading
-                ? const LinearProgressIndicator(minHeight: 2)
-                : null,
-          ),
-          const SizedBox(height: AppSpace.sm),
-          if (page != null)
-            Text(
-              '${formatCount(page.total)}개사'
-              '${page.total > page.items.length ? ' 중 ${formatCount(page.items.length)}개사' : ''}',
-              style: t.numeric(12.5, color: c.textSecondary),
-            ),
-          const SizedBox(height: AppSpace.sm),
-          if (page != null) _ResultTable(page: page, filter: _f),
-          const SizedBox(height: AppSpace.md),
-        ],
       ],
     );
   }
@@ -682,7 +746,10 @@ class _ResultTable extends StatelessWidget {
     final c = context.colors;
     final t = context.typo;
     if (page.items.isEmpty) {
-      return Text('조건에 맞는 기업이 없습니다.', style: t.body(13, color: c.textMuted));
+      return Text(
+        '이 조건에 맞는 기업이 아직 없어요. 조건을 줄이거나 숫자 범위를 넓혀보세요.',
+        style: t.body(13, color: c.textMuted),
+      );
     }
     String? fixed(double? v, int digits) => v?.toStringAsFixed(digits);
     final columns = <(String, String? Function(ScreenRow))>[

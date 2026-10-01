@@ -1,3 +1,5 @@
+import '../ownership_changes/ownership_changes_section.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
@@ -11,6 +13,7 @@ import '../common/formatters.dart';
 import '../financials/financial_metrics.dart';
 import 'governance_graph.dart';
 import 'governance_view.dart';
+import 'ownership_snapshot.dart';
 
 /// 기업 상세의 지배구조 탭: 주주 → 이 회사 → 출자 그래프, 다른 기업 보고서의 역방향 관계,
 /// 최대주주 · 임원 · 타법인출자 원문 표.
@@ -70,139 +73,115 @@ class _GovernanceTabState extends State<GovernanceTab> {
     if (d == null) return const LinearProgressIndicator(minHeight: 2);
     if (d.bsnsYear == null) {
       return Text(
-        '아직 이 기업의 사업보고서 주요정보를 받지 않았습니다.',
+        '아직 이 기업의 정기보고서 주요정보를 받지 않았습니다.',
         style: t.body(13, color: c.textMuted),
       );
     }
     final view = GovernanceView(d);
     final holders = view.holders();
     final investments = view.investments();
-    final registered = d.executives
-        .where((e) => e.registration != ExecutiveRegistration.unregistered)
-        .length;
-    final unregistered = d.executives.length - registered;
-    final management = investments
-        .where((n) => n.detail?.contains('경영') ?? false)
-        .length;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Wrap(
-          spacing: AppSpace.lg,
-          runSpacing: AppSpace.sm,
-          crossAxisAlignment: WrapCrossAlignment.center,
+        Row(
           children: [
-            Text(
-              'FY${d.bsnsYear} 사업보고서'
-              '${d.settlementDate == null ? '' : ' · 기준일 ${formatDate(d.settlementDate)}'}',
-              style: t.body(14, weight: FontWeight.w600),
+            const Expanded(
+              child: CompanySectionHeading(
+                '보유 현황',
+              ),
             ),
-            if (d.availableYears.length > 1 ||
-                d.availableYears.every((y) => y < DateTime.now().year))
-              AppToggleGroup<int>(
-                value: d.bsnsYear!,
-                // 지금 해의 사업보고서가 아직 없으면 그 칸을 지우지 않고 흐리게 둔다.
-                options: {
-                  for (final y in _withThisYear(d.availableYears)) y: 'FY$y',
-                },
-                disabled: {
-                  for (final y in _withThisYear(d.availableYears))
-                    if (!d.availableYears.contains(y)) y,
-                },
-                onChanged: (y) {
-                  setState(() => _year = y);
+            if (d.availableYears.length > 1)
+              DropdownButton<int>(
+                value: d.bsnsYear,
+                underline: const SizedBox.shrink(),
+                items: [
+                  for (final year in d.availableYears)
+                    DropdownMenuItem(value: year, child: Text('$year년')),
+                ],
+                onChanged: (year) {
+                  if (year == null) return;
+                  setState(() {
+                    _year = year;
+                    _data = null;
+                  });
                   _load();
                 },
               ),
           ],
         ),
         const SizedBox(height: AppSpace.md),
-        Wrap(
-          spacing: AppSpace.xl,
-          runSpacing: AppSpace.sm,
+        OwnershipSnapshotCard(data: d),
+        const SizedBox(height: AppSpace.lg),
+        OwnershipChangesSection(corpCode: widget.corpCode, compact: true),
+        const SizedBox(height: AppSpace.sm),
+        ExpansionTile(
+          title: const Text('주주별 수량·관계 상세'),
           children: [
-            _Figure(
-              label: '최대주주 및 특수관계인 (보통주)',
-              value: formatRatio(view.holderTotal()),
-            ),
-            _Figure(
-              label: '임원',
-              value:
-                  '${d.executives.length}명'
-                  '${unregistered > 0 ? ' (미등기 $unregistered)' : ''}',
-            ),
-            _Figure(
-              label: '타법인 출자',
-              value: '${investments.length}곳 (경영참여 $management)',
-            ),
+            _HolderTable(view: view, onOpen: _open),
             if (d.minorityRatio != null)
-              _Figure(
-                label: '소액주주',
-                value:
-                    '${formatRatio(d.minorityRatio)}'
-                    '${d.minorityHolders == null ? '' : ' (${formatCount(d.minorityHolders!)}명)'}',
+              Padding(
+                padding: const EdgeInsets.all(AppSpace.md),
+                child: Text(
+                  '소액주주 ${formatRatio(d.minorityRatio)}${d.minorityHolders == null ? '' : ' · ${formatCount(d.minorityHolders!)}명'}',
+                  style: t.body(13),
+                ),
               ),
+            _Sources(sources: d.sources),
           ],
         ),
-        const SizedBox(height: AppSpace.xl),
-        Align(
-          alignment: Alignment.centerRight,
-          child: AppButton(
-            label: '관계망에서 더 넓게 보기 →',
-            variant: AppButtonVariant.link,
-            tone: c.accent,
-            onPressed: () => context.go(AppRoutes.graph(widget.corpCode)),
-          ),
-        ),
-        GovernanceGraph(
-          center: widget.companyName,
-          left: holders,
-          right: investments,
-          onTap: _open,
-        ),
-        const SizedBox(height: AppSpace.sm),
-        Text(
-          '선 굵기 = 지분율 · 파랑 = 상장사 · 주황 = 인물 · 회색 = 확인되지 않은 이름 · '
-          '점선 = 추정 연결 (지분으로 이어진 기업들의 주주 명단에 같은 이름)',
-          style: t.body(11.5, color: c.textMuted),
+        const SizedBox(height: AppSpace.md),
+        ExpansionTile(
+          tilePadding: EdgeInsets.zero,
+          title: const Text('주주·출자 관계망'),
+          children: [
+            Align(
+              alignment: Alignment.centerRight,
+              child: AppButton(
+                label: '관계망에서 더 넓게 보기 →',
+                variant: AppButtonVariant.link,
+                tone: c.accent,
+                onPressed: () => context.go(AppRoutes.graph(widget.corpCode)),
+              ),
+            ),
+            GovernanceGraph(
+              center: widget.companyName,
+              left: holders,
+              right: investments,
+              onTap: _open,
+            ),
+            const SizedBox(height: AppSpace.sm),
+            Text(
+              '선 굵기 = 지분율 · 파랑 = 상장사 · 주황 = 인물 · 회색 = 확인되지 않은 이름 · '
+              '점선 = 추정 연결 (지분으로 이어진 기업들의 주주 명단에 같은 이름)',
+              style: t.body(11.5, color: c.textMuted),
+            ),
+          ],
         ),
         if (d.investors.isNotEmpty || d.holdings.isNotEmpty) ...[
-          const SizedBox(height: AppSpace.xl),
-          _ReverseLinks(data: d),
+          const SizedBox(height: AppSpace.md),
+          ExpansionTile(
+            title: const Text('다른 기업 공시에서 확인한 관계'),
+            children: [_ReverseLinks(data: d)],
+          ),
         ],
-        const SizedBox(height: AppSpace.section),
-        _HolderTable(view: view, onOpen: _open),
-        const SizedBox(height: AppSpace.section),
-        _ExecutiveTable(
-          executives: d.executives,
-          onOpenPerson: (id) => context.push(AppRoutes.person(id)),
+
+        const SizedBox(height: AppSpace.sm),
+        ExpansionTile(
+          title: const Text('경영진 명단'),
+          children: [
+            _ExecutiveTable(
+              executives: d.executives,
+              onOpenPerson: (id) => context.push(AppRoutes.person(id)),
+            ),
+          ],
         ),
-        const SizedBox(height: AppSpace.section),
-        _InvestmentTable(view: view, onOpen: _open),
-        const SizedBox(height: AppSpace.xl),
-        _Sources(sources: d.sources),
-      ],
-    );
-  }
-}
-
-class _Figure extends StatelessWidget {
-  const _Figure({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    final t = context.typo;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: t.body(12, color: c.textSecondary)),
-        const SizedBox(height: 2),
-        Text(value, style: t.numeric(18, weight: FontWeight.w600)),
+        const SizedBox(height: AppSpace.sm),
+        ExpansionTile(
+          title: const Text('다른 회사에 투자한 내역'),
+          children: [_InvestmentTable(view: view, onOpen: _open)],
+        ),
+        const SizedBox(height: AppSpace.md),
       ],
     );
   }
@@ -607,12 +586,4 @@ class _Sources extends StatelessWidget {
       ),
     );
   }
-}
-
-/// 자료가 있는 해에 지금 해를 더한다 (없으면 흐린 칸으로). 최신 해부터.
-List<int> _withThisYear(List<int> years) {
-  final thisYear = DateTime.now().year;
-  final all = {...years, if (years.isNotEmpty) thisYear}.toList()
-    ..sort((a, b) => b.compareTo(a));
-  return all;
 }

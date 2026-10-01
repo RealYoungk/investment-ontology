@@ -732,6 +732,9 @@ String documentFactKindLabel(DocumentFactKind k) => switch (k) {
   DocumentFactKind.segmentRevenue => '부문 매출',
   DocumentFactKind.rndExpense => '연구개발비',
   DocumentFactKind.rndRatio => '연구개발비 비율',
+  DocumentFactKind.segmentOperatingRevenue => '부문 손익표 매출',
+  DocumentFactKind.segmentOperatingProfit => '부문 영업이익',
+  DocumentFactKind.geographicRevenue => '지역별 매출',
 };
 
 /// 해마다 같은 항목이 있으면 흐름으로 (수주잔고·생산능력·점유율 …).

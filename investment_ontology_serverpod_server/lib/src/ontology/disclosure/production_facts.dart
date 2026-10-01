@@ -8,6 +8,7 @@ import 'market_share_facts.dart';
 import 'order_facts.dart';
 import 'investment_facts.dart';
 import 'segment_revenue.dart';
+import 'business_breakdown_facts.dart';
 
 /// 사업보고서 본문의 "생산능력·생산실적·가동률" 표를 규칙으로 읽는다 (AI 없음).
 ///
@@ -572,6 +573,35 @@ abstract final class ProductionFacts {
           status: RelationStatus.verified,
           reviewedAt: now,
           reviewedBy: '표 규칙 (비중 = 매출액 ÷ 합계 확인)',
+          createdAt: now,
+        ),
+      );
+    }
+    for (final r in BusinessBreakdownFacts.parse(
+      doc.text,
+      year: doc.bsnsYear,
+      owner: company?.name,
+      otherCompanies: others,
+    )) {
+      if (!existing.add('${r.kind.name}|${r.label}')) continue;
+      facts.add(
+        DocumentFact(
+          companyId: doc.companyId,
+          documentId: doc.id!,
+          bsnsYear: doc.bsnsYear,
+          kind: r.kind,
+          label: r.label,
+          value: r.value,
+          unit: r.unit,
+          asOf: periodEnd,
+          evidence: r.evidence,
+          sourceId: report?.sourceId,
+          extractedBy: RelationOrigin.api,
+          extractorModel: '표 규칙',
+          status: RelationStatus.verified,
+          reviewedAt: now,
+          reviewedBy: '표 규칙 (사업부문 비중·지역 매출 합계 검증)',
+          reviewNote: r.note,
           createdAt: now,
         ),
       );

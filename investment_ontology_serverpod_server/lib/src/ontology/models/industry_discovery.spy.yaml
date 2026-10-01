@@ -1,0 +1,8 @@
+class: IndustryDiscovery
+fields:
+  activities: List<IndustryActivity>
+  listedCompanyCount: int
+  documentCompanyCount: int
+  classifiedCompanyCount: int
+  ruleVersion: int
+  computedAt: DateTime

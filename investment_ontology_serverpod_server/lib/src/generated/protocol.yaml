@@ -35,6 +35,13 @@ company:
   - detail:
 companyNews:
   - recent:
+research:
+  - data:
+  - preview:
+  - importFeed:
+  - collectBatch:
+  - connectionStatus:
+  - collect:
 disclosure:
   - understanding:
   - sections:
@@ -52,6 +59,7 @@ financial:
   - report:
 governance:
   - summary:
+  - ownershipHistory:
   - searchPersons:
   - person:
   - rejectPersonLink:
@@ -60,6 +68,9 @@ graph:
 group:
   - list:
   - of:
+industry:
+  - browse:
+  - discover:
 ingest:
   - startCompanyMaster:
   - startFinancials:
@@ -74,6 +85,7 @@ ingest:
   - latestOfKinds:
   - rebuildProductionFacts:
 market:
+  - companyCapHistory:
   - industryTreemap:
   - capHistory:
   - indexHistory:

@@ -72,11 +72,10 @@ class _AboutPageState extends State<AboutPage> {
                 children: [
                   const SizedBox(height: AppSpace.section),
                   const JourneyHeading(
-                    eyebrow: '국내 상장기업을 이해하는 공간',
-                    title: '기업을 이해하는 일,\n하나의 질문에서 시작하세요.',
+                    eyebrow: '국내 상장기업을 찾고 비교하는 알파인더',
+                    title: '이 회사, 무엇으로\n돈을 벌고 있을까요?',
                     large: true,
-                    description:
-                        '아는 이름에서 투자 판단의 근거까지.\n흩어진 사업·재무·기업 관계를 이어서 살펴보세요.',
+                    description: '회사가 낸 공시와 실적을 한곳에서 살펴보세요.\n관심 기업을 찾고, 비슷한 회사와 비교할 수 있어요.',
                   ),
                   const SizedBox(height: AppSpace.xxl),
                   Align(

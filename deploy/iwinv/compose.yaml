@@ -1,0 +1,58 @@
+name: alfinder
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    secrets:
+      - postgres_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    command: [postgres, -c, shared_buffers=512MB, -c, work_mem=16MB, -c, maintenance_work_mem=128MB, -c, effective_cache_size=2GB, -c, jit=off, -c, max_connections=30, -c, max_parallel_workers_per_gather=0]
+    mem_limit: 1536m
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: '3'}
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U postgres -d postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 12
+  server:
+    profiles: [app]
+    image: ${SERVER_IMAGE:?Set the locally built Linux amd64 image}
+    restart: unless-stopped
+    depends_on:
+      postgres: {condition: service_healthy}
+    volumes:
+      - ./runtime/production.yaml:/app/config/production.yaml:ro
+      - ./runtime/passwords.yaml:/app/config/passwords.yaml:ro
+      - ./runtime/admin_emails.local:/app/config/admin_emails.local:ro
+    mem_limit: 1536m
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: '3'}
+  proxy:
+    profiles: [app]
+    image: caddy:2
+    restart: unless-stopped
+    environment:
+      API_HOST: ${API_HOST:?Set the verified API hostname pointing to this VM}
+    ports: ['80:80', '443:443', '443:443/udp']
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on: [server]
+    mem_limit: 128m
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: '3'}
+secrets:
+  postgres_password:
+    file: ./runtime/postgres_password
+volumes:
+  postgres_data:
+  caddy_data:
+  caddy_config:

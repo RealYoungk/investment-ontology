@@ -19,7 +19,7 @@ String formatKrw(BigInt? v) {
 }
 
 /// 원 단위 금액을 조·억·만원으로 끝까지 적는다: "234조 34억 3,455만원". 1만원 아래는 원.
-/// 큰 수를 자릿수 세지 않고 읽게 하려는 표기라, 값이 클수록 이 표기를 쓴다.
+/// 상세 내역용. 요약 카드에는 [formatUnitAmountCompact]를 쓴다.
 String formatKrwLong(double won) {
   if (!won.isFinite) return '—';
   final sign = won < 0 ? '-' : '';
@@ -47,6 +47,44 @@ String formatUnitAmount(double value, String unit) => switch (unit) {
   '원' => formatKrwLong(value),
   _ => '${formatDecimal(value)}$unit',
 };
+
+/// 요약 카드용 금액. 원화로 확인된 단위만 환산하며 소수 첫째 자리까지 표시한다.
+String formatUnitAmountCompact(double value, String unit) {
+  if (!value.isFinite) return '—';
+  final multiplier = switch (unit) {
+    '원' => 1.0,
+    '천원' => 1000.0,
+    '만원' => 10000.0,
+    '백만원' => 1000000.0,
+    '억원' => 100000000.0,
+    '조원' => 1000000000000.0,
+    _ => null,
+  };
+  if (multiplier == null) return formatUnitAmount(value, unit);
+  final won = value * multiplier;
+  if (!won.isFinite) return '—';
+  for (final scale in [(1e12, '조원'), (1e8, '억원'), (1e4, '만원')]) {
+    if (won.abs() >= scale.$1) {
+      final rounded = (won / scale.$1).toStringAsFixed(1);
+      return '${rounded.replaceFirst(RegExp(r'\.0$'), '')}${scale.$2}';
+    }
+  }
+  return '${formatCount(won.round())}원';
+}
+
+/// 환산하거나 반올림하지 않은 공시 값과 단위. 요약 금액의 툴팁에 사용한다.
+String formatSourceAmount(double value, String unit) {
+  if (!value.isFinite) return '—';
+  final raw = value == value.truncateToDouble()
+      ? value.toInt().toString()
+      : value.toString();
+  final parts = raw.split('.');
+  parts[0] = parts[0].replaceAllMapped(
+    RegExp(r'\B(?=(\d{3})+(?!\d))'),
+    (_) => ',',
+  );
+  return '${parts.join('.')} $unit';
+}
 
 /// 차트 눈금용 짧은 금액: 1.2조, 3,400억.
 String formatKrwShort(double v) {

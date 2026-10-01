@@ -5,6 +5,7 @@ import 'package:investment_ontology_serverpod_client/investment_ontology_serverp
 import 'package:investment_ontology_serverpod_flutter/design/app_theme.dart';
 import 'package:investment_ontology_serverpod_flutter/design/brands/ledger_brand.dart';
 import 'package:investment_ontology_serverpod_flutter/design/tokens.dart';
+import 'package:investment_ontology_serverpod_flutter/design/components/components.dart';
 import 'package:investment_ontology_serverpod_flutter/features/screen/screen_filter.dart';
 import 'package:investment_ontology_serverpod_flutter/features/screen/screen_page.dart';
 
@@ -70,7 +71,7 @@ Future<GoRouter> pumpScreen(
     MaterialApp.router(theme: theme, routerConfig: router),
   );
   await tester.pumpAndSettle();
-  if (edit) await click(tester, find.text('조건 직접 수정'));
+  if (edit) await click(tester, find.text('조건 바꾸기'));
   return router;
 }
 
@@ -86,22 +87,70 @@ Finder field(String label) => find.byWidgetPredicate(
 String value(WidgetTester tester, String label) =>
     tester.widget<TextField>(field(label)).controller!.text;
 Future<void> preset(WidgetTester tester, String title) async {
-  await click(tester, find.byType(DropdownButtonFormField<String>));
-  await tester.scrollUntilVisible(
-    find.text(title),
-    180,
-    scrollable: find.byType(Scrollable).last,
-    maxScrolls: 20,
-  );
-  await tester.scrollUntilVisible(
-    find.text(title).last,
-    160,
-    scrollable: find.byType(Scrollable).last,
-  );
-  await click(tester, find.text(title).last);
+  await click(tester, find.text(title).first);
 }
 
 void main() {
+  testWidgets('10개씩 요청하고 다음 페이지와 조건 변경을 처리한다', (tester) async {
+    final requests = <(int, int)>[];
+    await pumpScreen(tester, (f, {offset = 0, limit = 100}) async {
+      requests.add((offset, limit));
+      final row = result(21).items.single;
+      return result(21).copyWith(
+        items: List.generate(
+          offset == 20 ? 1 : 10,
+          (i) => row.copyWith(
+            company: row.company.copyWith(
+              corpCode: '${offset + i}',
+              name: '기업 ${offset + i + 1}',
+            ),
+          ),
+        ),
+      );
+    }, edit: false);
+    expect(requests.last, (0, 10));
+    expect(find.byKey(const ValueKey('preset-volume-surge')), findsOneWidget);
+    expect(find.byType(DropdownButtonFormField<String>), findsNothing);
+    await click(tester, find.text('다음 10개'));
+    expect(requests.last, (10, 10));
+    await click(tester, find.text('다음 10개'));
+    expect(requests.last, (20, 10));
+    expect(
+      tester
+          .widget<AppButton>(find.widgetWithText(AppButton, '다음 10개'))
+          .onPressed,
+      isNull,
+    );
+    await click(tester, find.text('이전 10개'));
+    expect(requests.last, (10, 10));
+    await preset(tester, '돈 잘 버는 회사');
+    expect(requests.last, (0, 10));
+  });
+  testWidgets('빠른 조건 선택 후 하나만 지워도 다른 조건은 남는다', (tester) async {
+    final router = await pumpScreen(
+      tester,
+      (filter, {offset = 0, limit = 100}) async => result(1),
+      edit: false,
+    );
+    await preset(tester, '돈 잘 버는 회사');
+    expect(find.text('ROE 10% 이상'), findsOneWidget);
+    expect(find.text('영업이익률 10% 이상'), findsOneWidget);
+    final chip = find.widgetWithText(InputChip, 'ROE 10% 이상');
+    await tester.ensureVisible(chip);
+    await tester.tap(
+      find.descendant(of: chip, matching: find.byTooltip('Delete')),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      router.routeInformationProvider.value.uri.queryParameters['roe'],
+      isNull,
+    );
+    expect(
+      router.routeInformationProvider.value.uri.queryParameters['margin'],
+      '10',
+    );
+  });
+
   testWidgets('조건은 기본으로 접히고 펼쳐 수정한 뒤 접어도 유지된다', (tester) async {
     await pumpScreen(
       tester,
@@ -109,13 +158,13 @@ void main() {
       edit: false,
     );
     expect(find.byType(TextField), findsNothing);
-    await click(tester, find.text('조건 직접 수정'));
+    await click(tester, find.text('조건 바꾸기'));
     expect(find.byType(TextField), findsNWidgets(18));
     await tester.enterText(field('PER 이하'), '12');
     await tester.pumpAndSettle(const Duration(milliseconds: 400));
-    await click(tester, find.text('조건 수정 닫기'));
+    await click(tester, find.text('조건 접기'));
     expect(find.byType(TextField), findsNothing);
-    await click(tester, find.text('조건 직접 수정'));
+    await click(tester, find.text('조건 바꾸기'));
     expect(value(tester, 'PER 이하'), '12');
   });
 
@@ -156,13 +205,13 @@ void main() {
         '15',
       );
       expect(value(tester, 'ROE % 이상'), '10');
-      expect(find.text('프리셋 선택'), findsOneWidget);
+      expect(find.byType(DropdownButtonFormField<String>), findsNothing);
       await preset(tester, '부채 부담 낮은 배당주');
       expect(value(tester, 'PER 이하'), '');
       expect(value(tester, 'ROE % 이상'), '');
       expect(value(tester, '배당수익률 % 이상'), '3');
       expect(value(tester, '부채비율 % 이하'), '100');
-      await click(tester, find.text('조건 초기화'));
+      await click(tester, find.text('조건 지우기'));
       expect(value(tester, '배당수익률 % 이상'), '');
       expect(tester.takeException(), isNull);
     });
@@ -173,10 +222,8 @@ void main() {
       (f, {offset = 0, limit = 100}) async => result(2),
     );
     tester
-        .widget<DropdownButtonFormField<String>>(
-          find.byType(DropdownButtonFormField<String>),
-        )
-        .onChanged!('volume-surge');
+        .widget<AppButton>(find.byKey(const ValueKey('preset-volume-surge')))
+        .onPressed!();
     await tester.pumpAndSettle();
     expect(value(tester, '기준일 거래량 만주 이상'), '10');
     expect(value(tester, '평소 대비 거래량 배 이상'), '2');
@@ -204,10 +251,10 @@ void main() {
   testWidgets('연속 배당 프리셋은 새 조건과 기준연도 열을 보여준다', (tester) async {
     await pumpScreen(tester, (f, {offset = 0, limit = 100}) async => result(2));
     tester
-        .widget<DropdownButtonFormField<String>>(
-          find.byType(DropdownButtonFormField<String>),
+        .widget<AppButton>(
+          find.byKey(const ValueKey('preset-dividend-history')),
         )
-        .onChanged!('dividend-history');
+        .onPressed!();
     await tester.pumpAndSettle();
     expect(value(tester, '확인된 연속 배당 년 이상'), '3');
     expect(value(tester, '배당성향 % 이하'), '70');
@@ -238,10 +285,9 @@ void main() {
     );
     await tester.enterText(field('PER 이하'), '99');
     // Select directly without waiting for the debounce, as a quick user action.
-    final dropdown = tester.widget<DropdownButtonFormField<String>>(
-      find.byType(DropdownButtonFormField<String>),
-    );
-    dropdown.onChanged!('dividend');
+    tester
+        .widget<AppButton>(find.byKey(const ValueKey('preset-dividend')))
+        .onPressed!();
     await tester.pumpAndSettle(const Duration(milliseconds: 350));
     expect(
       router.routeInformationProvider.value.uri.queryParameters['per'],
@@ -260,10 +306,9 @@ void main() {
       location: '/screen?per=12&roe=10',
     );
     await tester.enterText(field('PER 이하'), '99');
-    final dropdown = tester.widget<DropdownButtonFormField<String>>(
-      find.byType(DropdownButtonFormField<String>),
-    );
-    dropdown.onChanged!('value');
+    tester
+        .widget<AppButton>(find.byKey(const ValueKey('preset-value')))
+        .onPressed!();
     await tester.pumpAndSettle(const Duration(milliseconds: 350));
     expect(value(tester, 'PER 이하'), '12');
   });

@@ -1,4 +1,5 @@
 import '../market/comparison_date.dart';
+import '../market/company_cap_history.dart';
 
 import 'package:serverpod/serverpod.dart';
 
@@ -9,6 +10,64 @@ import '../ingest/ksic_revision.dart';
 class MarketEndpoint extends Endpoint {
   @override
   bool get requireLogin => false;
+
+  /// Monthly raw company capitalization, bounded to five years.
+  /// All observed share classes are included; a missing quote leaves a gap.
+  Future<List<CompanyMarketCap>> companyCapHistory(
+    Session session,
+    String corpCode, {
+    int years = 5,
+  }) async {
+    final company = await Company.db.findFirstRow(
+      session,
+      where: (t) => t.corpCode.equals(corpCode),
+    );
+    if (company == null) return [];
+    final securities = await Security.db.find(
+      session,
+      where: (t) => t.companyId.equals(company.id!),
+    );
+    if (securities.isEmpty) return [];
+    final ids = securities.map((s) => s.id!).toSet();
+    final last = await MarketSnapshotDay.db.findFirstRow(
+      session,
+      where: (t) => t.rowCount > 0,
+      orderBy: (t) => t.baseDate.desc(),
+    );
+    if (last == null) return [];
+    final start = DateTime.utc(
+      last.baseDate.year - years.clamp(1, 5),
+      last.baseDate.month,
+      last.baseDate.day,
+    );
+    final days = await MarketSnapshotDay.db.find(
+      session,
+      where: (t) => (t.rowCount > 0) & t.baseDate.between(start, last.baseDate),
+    );
+    final rows = await MarketSnapshot.db.find(
+      session,
+      where: (t) =>
+          t.securityId.inSet(ids) & t.baseDate.between(start, last.baseDate),
+    );
+    final spans = await session.db.unsafeQuery(
+      'SELECT "securityId", min("baseDate"), max("baseDate") FROM market_snapshot '
+      'WHERE "securityId" IN (${ids.join(',')}) GROUP BY "securityId"',
+    );
+    final sources = await Source.db.find(
+      session,
+      where: (t) => t.id.inSet(rows.map((r) => r.sourceId).toSet()),
+    );
+    return CompanyCapHistory.build(
+      marketDates: days.map((d) => d.baseDate).toList(),
+      securities: securities,
+      snapshots: rows,
+      coverage: {
+        for (final r in spans)
+          r[0] as int: (r[1] as DateTime, r[2] as DateTime),
+      },
+      sources: {for (final source in sources) source.id!: source},
+    );
+  }
 
   static const _listed = {Market.kospi, Market.kosdaq, Market.konex};
 

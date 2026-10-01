@@ -35,7 +35,7 @@ const _destinations = [
     '/companies',
     matches: ['/company/', '/reports/', '/person/'],
   ),
-  _Destination('스크리너', '/screen', matches: ['/compare']),
+  _Destination('기업 찾기', '/screen', matches: ['/compare', '/industries']),
   _Destination('관계망', '/graph'),
 ];
 
@@ -438,9 +438,14 @@ Future<_Hits> _searchAll(String query) async {
       (title: '시장', detail: '코스피 코스닥 지수 시가총액 업종', location: '/market'),
       (title: '기업', detail: '상장기업 종목 목록', location: '/companies'),
       (
-        title: '스크리너',
-        detail: 'PER PBR ROE 영업이익률 성장률 배당수익률 FCF 조건 검색',
+        title: '기업 찾기',
+        detail: '스크리너 재무 조건 PER PBR ROE 영업이익률 성장률 배당수익률 FCF',
         location: '/screen',
+      ),
+      (
+        title: '하는 일로 기업 찾기',
+        detail: '산업 업종 반도체 제품 공정',
+        location: '/industries',
       ),
       (title: '기업 비교', detail: '재무 수익성 밸류에이션 비교', location: '/compare'),
       (title: '관계망', detail: '주주 임원 고객 공급 출자 연결', location: '/graph'),

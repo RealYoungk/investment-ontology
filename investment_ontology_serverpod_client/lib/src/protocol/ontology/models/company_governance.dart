@@ -28,6 +28,8 @@ abstract class CompanyGovernance
     required this.corpCode,
     this.bsnsYear,
     this.settlementDate,
+    this.shareholderPeriodStart,
+    this.shareholderPeriodEnd,
     required this.availableYears,
     required this.shareholders,
     required this.executives,
@@ -45,6 +47,8 @@ abstract class CompanyGovernance
     required String corpCode,
     int? bsnsYear,
     DateTime? settlementDate,
+    DateTime? shareholderPeriodStart,
+    DateTime? shareholderPeriodEnd,
     required List<int> availableYears,
     required List<_i2z9gcy6.ShareholderEntry> shareholders,
     required List<_idolfb48.ExecutiveEntry> executives,
@@ -66,6 +70,17 @@ abstract class CompanyGovernance
           ? null
           : _isc.DateTimeJsonExtension.fromJson(
               jsonSerialization['settlementDate'],
+            ),
+      shareholderPeriodStart:
+          jsonSerialization['shareholderPeriodStart'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(
+              jsonSerialization['shareholderPeriodStart'],
+            ),
+      shareholderPeriodEnd: jsonSerialization['shareholderPeriodEnd'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(
+              jsonSerialization['shareholderPeriodEnd'],
             ),
       availableYears: _ilkzeueu.Protocol().deserialize<List<int>>(
         jsonSerialization['availableYears'],
@@ -111,6 +126,12 @@ abstract class CompanyGovernance
 
   DateTime? settlementDate;
 
+  /// 직전 최대주주 사업보고서 결산일 다음날로 산정. 366일을 넘는 공백이면 null.
+  DateTime? shareholderPeriodStart;
+
+  /// 최대주주 보고서 자체의 결산기준일. 다른 항목의 날짜를 대용하지 않음.
+  DateTime? shareholderPeriodEnd;
+
   /// 자료가 있는 사업연도 (최근부터)
   List<int> availableYears;
 
@@ -145,6 +166,8 @@ abstract class CompanyGovernance
     String? corpCode,
     int? bsnsYear,
     DateTime? settlementDate,
+    DateTime? shareholderPeriodStart,
+    DateTime? shareholderPeriodEnd,
     List<int>? availableYears,
     List<_i2z9gcy6.ShareholderEntry>? shareholders,
     List<_idolfb48.ExecutiveEntry>? executives,
@@ -164,6 +187,10 @@ abstract class CompanyGovernance
       'corpCode': corpCode,
       if (bsnsYear != null) 'bsnsYear': bsnsYear,
       if (settlementDate != null) 'settlementDate': settlementDate?.toJson(),
+      if (shareholderPeriodStart != null)
+        'shareholderPeriodStart': shareholderPeriodStart?.toJson(),
+      if (shareholderPeriodEnd != null)
+        'shareholderPeriodEnd': shareholderPeriodEnd?.toJson(),
       'availableYears': availableYears.toJson(),
       'shareholders': shareholders.toJson(valueToJson: (v) => v.toJson()),
       'executives': executives.toJson(valueToJson: (v) => v.toJson()),
@@ -185,6 +212,10 @@ abstract class CompanyGovernance
       'corpCode': corpCode,
       if (bsnsYear != null) 'bsnsYear': bsnsYear,
       if (settlementDate != null) 'settlementDate': settlementDate?.toJson(),
+      if (shareholderPeriodStart != null)
+        'shareholderPeriodStart': shareholderPeriodStart?.toJson(),
+      if (shareholderPeriodEnd != null)
+        'shareholderPeriodEnd': shareholderPeriodEnd?.toJson(),
       'availableYears': availableYears.toJson(),
       'shareholders': shareholders.toJson(
         valueToJson: (v) => v.toJsonForProtocol(),
@@ -218,6 +249,8 @@ class _CompanyGovernanceImpl extends CompanyGovernance {
     required String corpCode,
     int? bsnsYear,
     DateTime? settlementDate,
+    DateTime? shareholderPeriodStart,
+    DateTime? shareholderPeriodEnd,
     required List<int> availableYears,
     required List<_i2z9gcy6.ShareholderEntry> shareholders,
     required List<_idolfb48.ExecutiveEntry> executives,
@@ -233,6 +266,8 @@ class _CompanyGovernanceImpl extends CompanyGovernance {
          corpCode: corpCode,
          bsnsYear: bsnsYear,
          settlementDate: settlementDate,
+         shareholderPeriodStart: shareholderPeriodStart,
+         shareholderPeriodEnd: shareholderPeriodEnd,
          availableYears: availableYears,
          shareholders: shareholders,
          executives: executives,
@@ -254,6 +289,8 @@ class _CompanyGovernanceImpl extends CompanyGovernance {
     String? corpCode,
     Object? bsnsYear = _Undefined,
     Object? settlementDate = _Undefined,
+    Object? shareholderPeriodStart = _Undefined,
+    Object? shareholderPeriodEnd = _Undefined,
     List<int>? availableYears,
     List<_i2z9gcy6.ShareholderEntry>? shareholders,
     List<_idolfb48.ExecutiveEntry>? executives,
@@ -272,6 +309,12 @@ class _CompanyGovernanceImpl extends CompanyGovernance {
       settlementDate: settlementDate is DateTime?
           ? settlementDate
           : this.settlementDate,
+      shareholderPeriodStart: shareholderPeriodStart is DateTime?
+          ? shareholderPeriodStart
+          : this.shareholderPeriodStart,
+      shareholderPeriodEnd: shareholderPeriodEnd is DateTime?
+          ? shareholderPeriodEnd
+          : this.shareholderPeriodEnd,
       availableYears:
           availableYears ?? this.availableYears.map((e0) => e0).toList(),
       shareholders:

@@ -291,6 +291,27 @@ void main() {
       ]);
     });
 
+    test('companyCapHistory: 공개 읽기·월말 합산·원천·없는 기업', () async {
+      final rows = await endpoints.market.companyCapHistory(
+        anonymous,
+        samsung.corpCode,
+        years: 5,
+      );
+      expect(rows, hasLength(1));
+      expect(rows.single.baseDate, DateTime.utc(2026, 9, 16));
+      expect(rows.single.marketCap, BigInt.from(880));
+      expect(rows.single.securities, hasLength(2));
+      expect(rows.single.source?.id, source.id);
+      expect(
+        await endpoints.market.companyCapHistory(
+          anonymous,
+          'missing',
+          years: 5,
+        ),
+        isEmpty,
+      );
+    });
+
     test('industryTreemap: 대분류 → 그 안 기업, 기업에 안 이어진 종목은 따로', () async {
       final map = await endpoints.market.industryTreemap(sessionBuilder);
 

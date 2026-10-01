@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:serverpod/protocol.dart' as sp;
 import 'package:serverpod/serverpod.dart';
 
@@ -97,6 +99,45 @@ class IngestEndpoint extends Endpoint {
     final kind = corpCode == null
         ? DisclosureSync.kind
         : DisclosureSync.companyKind;
+    // 로컬은 예약 실행이 꺼져 있다. 명시적인 관리자 기업 수집은 요청 안에서
+    // 실행하고, 전체 자동 수집 설정은 변경하지 않는다.
+    if (corpCode != null &&
+        !session.serverpod.config.futureCallExecutionEnabled) {
+      final result = await IngestJobs.startOrRunning(session, kind);
+      if (!result.created) {
+        // 이전 버전이 남긴 동일 기업의 미실행 예약만 원자적으로 인수한다.
+        final claimed = await session.db.transaction((tx) async {
+          final entries = await sp.FutureCallEntry.db.find(
+            session,
+            where: (t) => t.name.equals('DisclosureRunCompanyFutureCall'),
+            transaction: tx,
+            lockMode: LockMode.forUpdate,
+          );
+          for (final entry in entries) {
+            final args = jsonDecode(entry.serializedObject ?? '{}');
+            if (args is Map &&
+                args['jobId'] == result.job.id &&
+                args['corpCode'] == corpCode) {
+              await sp.FutureCallEntry.db.deleteRow(
+                session,
+                entry,
+                transaction: tx,
+              );
+              return true;
+            }
+          }
+          return false;
+        });
+        if (!claimed) return result.job;
+      }
+      await DisclosureSync(
+        session,
+        DartClient(DartApiKey.read(session)!),
+        result.job.id!,
+        corpCode: corpCode,
+      ).run();
+      return (await IngestJobs.latest(session, kind))!;
+    }
     return IngestJobs.startAndSchedule(session, kind, (job) async {
       if (corpCode == null) {
         await IngestHooks.require(IngestHooks.disclosuresNow, 'disclosuresNow')(

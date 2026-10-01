@@ -31,7 +31,8 @@ webServer:
 database:
   host: localhost
   port: 8090
-  name: investment_ontology_serverpod
+  # Writable development copy; investment_ontology_serverpod remains frozen.
+  name: investment_ontology_dev
   user: postgres
   #requireSsl: true # defaults to false
   #isUnixSocket: true # defaults to false
@@ -49,11 +50,12 @@ redis:
 maxRequestSize: 524288 # The maximum size of requests allowed in bytes
 
 sessionLogs:
-  persistentEnabled: true
+  persistentEnabled: false # Keep local development logs in the console.
   consoleEnabled: true
   consoleLogFormat: text # Defaults to "json", options are "text" or "json"
 
-# futureCallExecutionEnabled: true # Defaults to true
+# Production owns automatic ingestion. Local development uses explicit runs.
+futureCallExecutionEnabled: false
 
 # 수집 작업(재무·시세·기업마스터)이 서로 기다리지 않게 한다. 같은 종류가 겹치는 것은
 # IngestJobs가 막는다.

@@ -32,6 +32,9 @@ String factKindLabel(DocumentFactKind k) => switch (k) {
   DocumentFactKind.segmentRevenue => '부문 매출',
   DocumentFactKind.rndExpense => '연구개발비',
   DocumentFactKind.rndRatio => '연구개발비 비율',
+  DocumentFactKind.segmentOperatingRevenue => '부문 손익표 매출',
+  DocumentFactKind.segmentOperatingProfit => '부문 영업이익',
+  DocumentFactKind.geographicRevenue => '지역별 매출',
 };
 
 /// 검수 큐: 사업보고서 본문에서 뽑아 둔 관계·값 가운데 사람 판단이 필요한 것.

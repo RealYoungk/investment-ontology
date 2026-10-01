@@ -1,0 +1,11 @@
+[Unit]
+Description=Alfinder PostgreSQL daily logical backup
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/alfinder
+ExecStart=/opt/alfinder/backup.sh
+Nice=10
+IOSchedulingClass=idle

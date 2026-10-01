@@ -40,6 +40,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _ihkbqpbm;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_group.dart'
     as _i7uvzrch;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_market_cap.dart'
+    as _idnoq35n;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_news_feed.dart'
     as _ic30bbzw;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/company_page.dart'
@@ -70,6 +72,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _indtcksm;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/index_history.dart'
     as _imi7bbqj;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/industry_discovery.dart'
+    as _i0di9pdr;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ingest_coverage.dart'
     as _i2drq233;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ingest_job.dart'
@@ -88,6 +92,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _isup83mn;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/overview.dart'
     as _iqnrnt8q;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ownership_snapshot.dart'
+    as _iz9gjubn;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/peer_candidates.dart'
     as _i68u57gi;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/peer_comparison.dart'
@@ -635,6 +641,94 @@ class EndpointCompanyNews extends _isc.EndpointRef {
       );
 }
 
+/// Public reads of stored source-backed data. Every collection/import is admin-only.
+/// {@category Endpoint}
+class EndpointResearch extends _isc.EndpointRef {
+  EndpointResearch(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'research';
+
+  _ida.Future<String> data(
+    String corpCode,
+    String kind,
+  ) => caller.callServerEndpoint<String>(
+    'research',
+    'data',
+    {
+      'corpCode': corpCode,
+      'kind': kind,
+    },
+  );
+
+  /// Validation and preview do not write and never fetch a user-supplied URL.
+  _ida.Future<String> preview(
+    String kind,
+    String payload,
+  ) => caller.callServerEndpoint<String>(
+    'research',
+    'preview',
+    {
+      'kind': kind,
+      'payload': payload,
+    },
+  );
+
+  _ida.Future<int> importFeed(
+    String corpCode,
+    String kind,
+    String payload,
+    String provider,
+    String sourceUrl,
+    String rightsReference,
+  ) => caller.callServerEndpoint<int>(
+    'research',
+    'importFeed',
+    {
+      'corpCode': corpCode,
+      'kind': kind,
+      'payload': payload,
+      'provider': provider,
+      'sourceUrl': sourceUrl,
+      'rightsReference': rightsReference,
+    },
+  );
+
+  /// Cursor-based batches cover the listed universe without a long HTTP request.
+  /// Re-running a cursor is safe; snapshots are immutable and content-deduplicated.
+  _ida.Future<String> collectBatch(
+    String kind, {
+    required String afterCorpCode,
+    required int limit,
+  }) => caller.callServerEndpoint<String>(
+    'research',
+    'collectBatch',
+    {
+      'kind': kind,
+      'afterCorpCode': afterCorpCode,
+      'limit': limit,
+    },
+  );
+
+  _ida.Future<String> connectionStatus() => caller.callServerEndpoint<String>(
+    'research',
+    'connectionStatus',
+    {},
+  );
+
+  _ida.Future<int> collect(
+    String corpCode,
+    String kind,
+  ) => caller.callServerEndpoint<int>(
+    'research',
+    'collect',
+    {
+      'corpCode': corpCode,
+      'kind': kind,
+    },
+  );
+}
+
 /// 정기보고서 주요정보 조회: 항목 목록 · 원문 표 · 주주환원.
 /// {@category Endpoint}
 class EndpointDisclosure extends _isc.EndpointRef {
@@ -820,6 +914,16 @@ class EndpointGovernance extends _isc.EndpointRef {
     },
   );
 
+  /// 최근 5개 사업연도 말과 그 이후의 최신 분기/반기 최대주주 현황.
+  /// 수집되지 않은 기간도 남기며 보고서 발표일로 기간 순서를 뒤집지 않는다.
+  _ida.Future<List<_iz9gjubn.OwnershipSnapshot>> ownershipHistory(
+    String corpCode,
+  ) => caller.callServerEndpoint<List<_iz9gjubn.OwnershipSnapshot>>(
+    'governance',
+    'ownershipHistory',
+    {'corpCode': corpCode},
+  );
+
   /// 이름으로 인물을 찾는다. 이어진 기업이 많은 순서로 [limit]명.
   _ida.Future<List<_i96d117e.PersonHit>> searchPersons(
     String query, {
@@ -910,6 +1014,30 @@ class EndpointGroup extends _isc.EndpointRef {
         'group',
         'of',
         {'corpCode': corpCode},
+      );
+}
+
+/// {@category Endpoint}
+class EndpointIndustry extends _isc.EndpointRef {
+  EndpointIndustry(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'industry';
+
+  /// All listed companies with explicitly separated classification evidence.
+  _ida.Future<_i0di9pdr.IndustryDiscovery> browse() =>
+      caller.callServerEndpoint<_i0di9pdr.IndustryDiscovery>(
+        'industry',
+        'browse',
+        {},
+      );
+
+  /// Evidence-backed semiconductor pilot. Shared company information is public.
+  _ida.Future<_i0di9pdr.IndustryDiscovery> discover() =>
+      caller.callServerEndpoint<_i0di9pdr.IndustryDiscovery>(
+        'industry',
+        'discover',
+        {},
       );
 }
 
@@ -1044,6 +1172,20 @@ class EndpointMarket extends _isc.EndpointRef {
 
   @override
   String get name => 'market';
+
+  /// Monthly raw company capitalization, bounded to five years.
+  /// All observed share classes are included; a missing quote leaves a gap.
+  _ida.Future<List<_idnoq35n.CompanyMarketCap>> companyCapHistory(
+    String corpCode, {
+    required int years,
+  }) => caller.callServerEndpoint<List<_idnoq35n.CompanyMarketCap>>(
+    'market',
+    'companyCapHistory',
+    {
+      'corpCode': corpCode,
+      'years': years,
+    },
+  );
 
   /// 가장 최근 기준일의 업종별 시가총액.
   ///
@@ -1534,11 +1676,13 @@ class Client extends _isc.ServerpodClientShared {
     ai = EndpointAi(this);
     company = EndpointCompany(this);
     companyNews = EndpointCompanyNews(this);
+    research = EndpointResearch(this);
     disclosure = EndpointDisclosure(this);
     financial = EndpointFinancial(this);
     governance = EndpointGovernance(this);
     graph = EndpointGraph(this);
     group = EndpointGroup(this);
+    industry = EndpointIndustry(this);
     ingest = EndpointIngest(this);
     market = EndpointMarket(this);
     review = EndpointReview(this);
@@ -1561,6 +1705,8 @@ class Client extends _isc.ServerpodClientShared {
 
   late final EndpointCompanyNews companyNews;
 
+  late final EndpointResearch research;
+
   late final EndpointDisclosure disclosure;
 
   late final EndpointFinancial financial;
@@ -1570,6 +1716,8 @@ class Client extends _isc.ServerpodClientShared {
   late final EndpointGraph graph;
 
   late final EndpointGroup group;
+
+  late final EndpointIndustry industry;
 
   late final EndpointIngest ingest;
 
@@ -1592,11 +1740,13 @@ class Client extends _isc.ServerpodClientShared {
     'ai': ai,
     'company': company,
     'companyNews': companyNews,
+    'research': research,
     'disclosure': disclosure,
     'financial': financial,
     'governance': governance,
     'graph': graph,
     'group': group,
+    'industry': industry,
     'ingest': ingest,
     'market': market,
     'review': review,

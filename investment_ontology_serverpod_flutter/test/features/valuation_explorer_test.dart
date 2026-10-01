@@ -42,13 +42,15 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tester.tap(find.text('가격'));
+      await tester.ensureVisible(find.text('전체 지표 보기'));
+      await tester.tap(find.text('전체 지표 보기'));
       await tester.pumpAndSettle();
       expect(find.text('예상 EPS·성장률 데이터 미연결'), findsOneWidget);
       await tester.ensureVisible(find.text('PSR'));
       await tester.tap(find.text('PSR'));
       await tester.pumpAndSettle();
-      expect(find.textContaining('계산식 · PSR = 10.00배'), findsOneWidget);
+      expect(find.text('계산 방법'), findsOneWidget);
+      expect(find.text('10.00배'), findsWidgets);
       expect(find.byType(Dialog), width >= 600 ? findsOneWidget : findsNothing);
       expect(
         find.byType(DraggableScrollableSheet),

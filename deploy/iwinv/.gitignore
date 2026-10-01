@@ -1,0 +1,6 @@
+runtime/
+.env
+*.dump
+*.dump.gz
+*.partial
+*.tar

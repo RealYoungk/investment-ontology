@@ -57,7 +57,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('분기'));
       await tester.pumpAndSettle();
-      expect(find.text('사업에서 현금이 남나요?'), findsOneWidget);
+      expect(find.text('현금흐름'), findsOneWidget);
       expect(find.textContaining('각 분기 3개월 동안'), findsOneWidget);
       final chartFinder = find.byType(AppColumnChart);
       final chart = tester.widget<AppColumnChart>(chartFinder);
@@ -224,15 +224,19 @@ void main() {
     await pump(data(FsDiv.consolidated, 100));
     await tester.tap(find.text('PER'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('계산식 · PER = 10.00배 · 연결'), findsOneWidget);
+    expect(find.text('계산 방법'), findsOneWidget);
+    expect(find.text('10.00배'), findsWidgets);
+    expect(find.textContaining('연결 기준'), findsWidgets);
     await tester.tap(find.byTooltip('닫기'));
     await tester.pumpAndSettle();
 
     await pump(data(FsDiv.separate, 50));
     await tester.tap(find.text('PER'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('계산식 · PER = 20.00배 · 별도'), findsOneWidget);
-    expect(find.textContaining('계산식 · PER = 10.00배 · 연결'), findsNothing);
+    expect(find.text('계산 방법'), findsOneWidget);
+    expect(find.text('20.00배'), findsWidgets);
+    expect(find.textContaining('별도 기준'), findsWidgets);
+    expect(find.text('10.00배'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 }

@@ -57,6 +57,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _iaqm8wre;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_group.dart'
     as _i4udlom4;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_market_cap.dart'
+    as _i8ke3qsu;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_news_feed.dart'
     as _igm0itx7;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/company_page.dart'
@@ -87,6 +89,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _i69nddnn;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/index_history.dart'
     as _ianfx3af;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/industry_discovery.dart'
+    as _iqqk20wh;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/ingest_coverage.dart'
     as _ixl8qyld;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/ingest_job.dart'
@@ -105,6 +109,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _i5x2f28w;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/overview.dart'
     as _i5enxcw4;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/ownership_snapshot.dart'
+    as _io4p8qqw;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/peer_candidates.dart'
     as _iju25st5;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/peer_comparison.dart'
@@ -287,6 +293,8 @@ class TestEndpoints {
 
   late final _CompanyNewsEndpoint companyNews;
 
+  late final _ResearchEndpoint research;
+
   late final _DisclosureEndpoint disclosure;
 
   late final _FinancialEndpoint financial;
@@ -296,6 +304,8 @@ class TestEndpoints {
   late final _GraphEndpoint graph;
 
   late final _GroupEndpoint group;
+
+  late final _IndustryEndpoint industry;
 
   late final _IngestEndpoint ingest;
 
@@ -343,6 +353,10 @@ class _InternalTestEndpoints extends TestEndpoints
       endpoints,
       serializationManager,
     );
+    research = _ResearchEndpoint(
+      endpoints,
+      serializationManager,
+    );
     disclosure = _DisclosureEndpoint(
       endpoints,
       serializationManager,
@@ -360,6 +374,10 @@ class _InternalTestEndpoints extends TestEndpoints
       serializationManager,
     );
     group = _GroupEndpoint(
+      endpoints,
+      serializationManager,
+    );
+    industry = _IndustryEndpoint(
       endpoints,
       serializationManager,
     );
@@ -1468,6 +1486,232 @@ class _CompanyNewsEndpoint {
   }
 }
 
+class _ResearchEndpoint {
+  _ResearchEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _is.EndpointDispatch _endpointDispatch;
+
+  final _is.SerializationManager _serializationManager;
+
+  _ida.Future<String> data(
+    _ist.TestSessionBuilder sessionBuilder,
+    String corpCode,
+    String kind,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'research',
+            method: 'data',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'research',
+          methodName: 'data',
+          parameters: _ist.testObjectToJson({
+            'corpCode': corpCode,
+            'kind': kind,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<String>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<String> preview(
+    _ist.TestSessionBuilder sessionBuilder,
+    String kind,
+    String payload,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'research',
+            method: 'preview',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'research',
+          methodName: 'preview',
+          parameters: _ist.testObjectToJson({
+            'kind': kind,
+            'payload': payload,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<String>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<int> importFeed(
+    _ist.TestSessionBuilder sessionBuilder,
+    String corpCode,
+    String kind,
+    String payload,
+    String provider,
+    String sourceUrl,
+    String rightsReference,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'research',
+            method: 'importFeed',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'research',
+          methodName: 'importFeed',
+          parameters: _ist.testObjectToJson({
+            'corpCode': corpCode,
+            'kind': kind,
+            'payload': payload,
+            'provider': provider,
+            'sourceUrl': sourceUrl,
+            'rightsReference': rightsReference,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<int>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<String> collectBatch(
+    _ist.TestSessionBuilder sessionBuilder,
+    String kind, {
+    required String afterCorpCode,
+    required int limit,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'research',
+            method: 'collectBatch',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'research',
+          methodName: 'collectBatch',
+          parameters: _ist.testObjectToJson({
+            'kind': kind,
+            'afterCorpCode': afterCorpCode,
+            'limit': limit,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<String>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<String> connectionStatus(
+    _ist.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'research',
+            method: 'connectionStatus',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'research',
+          methodName: 'connectionStatus',
+          parameters: _ist.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<String>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<int> collect(
+    _ist.TestSessionBuilder sessionBuilder,
+    String corpCode,
+    String kind,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'research',
+            method: 'collect',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'research',
+          methodName: 'collect',
+          parameters: _ist.testObjectToJson({
+            'corpCode': corpCode,
+            'kind': kind,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<int>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
 class _DisclosureEndpoint {
   _DisclosureEndpoint(
     this._endpointDispatch,
@@ -1964,6 +2208,37 @@ class _GovernanceEndpoint {
     });
   }
 
+  _ida.Future<List<_io4p8qqw.OwnershipSnapshot>> ownershipHistory(
+    _ist.TestSessionBuilder sessionBuilder,
+    String corpCode,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'governance',
+            method: 'ownershipHistory',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'governance',
+          methodName: 'ownershipHistory',
+          parameters: _ist.testObjectToJson({'corpCode': corpCode}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_io4p8qqw.OwnershipSnapshot>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
   _ida.Future<List<_iqw74hrd.PersonHit>> searchPersons(
     _ist.TestSessionBuilder sessionBuilder,
     String query, {
@@ -2180,6 +2455,77 @@ class _GroupEndpoint {
                   _localCallContext.arguments,
                 )
                 as _ida.Future<_i4udlom4.CompanyGroup?>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
+class _IndustryEndpoint {
+  _IndustryEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _is.EndpointDispatch _endpointDispatch;
+
+  final _is.SerializationManager _serializationManager;
+
+  _ida.Future<_iqqk20wh.IndustryDiscovery> browse(
+    _ist.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'industry',
+            method: 'browse',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'industry',
+          methodName: 'browse',
+          parameters: _ist.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_iqqk20wh.IndustryDiscovery>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_iqqk20wh.IndustryDiscovery> discover(
+    _ist.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'industry',
+            method: 'discover',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'industry',
+          methodName: 'discover',
+          parameters: _ist.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_iqqk20wh.IndustryDiscovery>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -2575,6 +2921,41 @@ class _MarketEndpoint {
   final _is.EndpointDispatch _endpointDispatch;
 
   final _is.SerializationManager _serializationManager;
+
+  _ida.Future<List<_i8ke3qsu.CompanyMarketCap>> companyCapHistory(
+    _ist.TestSessionBuilder sessionBuilder,
+    String corpCode, {
+    required int years,
+  }) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'market',
+            method: 'companyCapHistory',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'market',
+          methodName: 'companyCapHistory',
+          parameters: _ist.testObjectToJson({
+            'corpCode': corpCode,
+            'years': years,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_i8ke3qsu.CompanyMarketCap>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
 
   _ida.Future<_i5mpfst8.MarketCapTreemap> industryTreemap(
     _ist.TestSessionBuilder sessionBuilder, {

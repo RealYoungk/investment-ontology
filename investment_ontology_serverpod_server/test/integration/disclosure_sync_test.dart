@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/dart_client.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/endpoints/governance_endpoint.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/disclosure/disclosure_links.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/ingest/api_call_budget.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/ingest/disclosure_sync.dart';
@@ -18,6 +19,7 @@ import 'test_tools/serverpod_test_tools.dart';
 class FakeDisclosures {
   final rows = <String, List<Map<String, String>>>{};
   final calls = <String>[];
+  final reportCodes = <String>[];
 
   /// 호출마다 실행한다 (다른 수집이 동시에 호출을 쓰는 상황 흉내).
   Future<void> Function()? onCall;
@@ -77,8 +79,9 @@ class FakeDisclosures {
       final api = req.url.pathSegments.last.replaceAll('.json', '');
       final key = '$api|${q['corp_code']}|${q['bsns_year']}';
       calls.add(key);
+      reportCodes.add('$api|${q['bsns_year']}|${q['reprt_code']}');
       await onCall?.call();
-      final list = rows[key];
+      final list = rows['$key|${q['reprt_code']}'] ?? rows[key];
       final body = list == null
           ? '{"status":"013","message":"조회된 데이타가 없습니다."}'
           : jsonEncode({'status': '000', 'message': '정상', 'list': list});
@@ -298,6 +301,95 @@ void main() {
       dart.set('hyslrSttus', another, 2025, [
         holder('20260310000005', another, '김영수', '최대주주 본인', '40.00'),
       ]);
+    });
+
+    test('전체 수집은 재무 백필 중에도 각 기업의 최신 분기 지배구조를 받는다', () async {
+      for (final (corp, receipt, code) in [
+        (samsung, '20260814000001', FinancialReportCode.halfYear),
+        (life, '20260515000002', FinancialReportCode.q1),
+      ]) {
+        await filing(
+          corp,
+          receipt,
+          2026,
+          code: code,
+          financial: FilingFetchStatus.pending,
+        );
+      }
+      await runSync();
+      for (final corp in [samsung, life]) {
+        for (final api in [
+          'hyslrSttus',
+          'exctvSttus',
+          'otrCprInvstmntSttus',
+          'mrhlSttus',
+        ]) {
+          expect(dart.calls, contains('$api|$corp|2026'));
+        }
+      }
+      for (final code in ['11012', '11013']) {
+        expect(dart.reportCodes, contains('hyslrSttus|2026|$code'));
+        expect(dart.reportCodes, contains('exctvSttus|2026|$code'));
+      }
+    });
+
+    test('반기 최대주주를 11012로 수집하고 동일 연도 사업보고서와 구분 보존한다', () async {
+      const interim = '20260814000001';
+      await filing(
+        samsung,
+        interim,
+        2026,
+        code: FinancialReportCode.halfYear,
+        name: '반기보고서 (2026.06)',
+      );
+      dart.rows['hyslrSttus|$samsung|2026|11012'] = [
+        {
+          ...holder(interim, samsung, '삼성생명보험㈜', '최대주주 본인', '8.40'),
+          'stlm_dt': '2026-06-30',
+        },
+      ];
+      await runSync(corpCode: samsung);
+      expect(dart.reportCodes, contains('hyslrSttus|2026|11012'));
+      expect(dart.reportCodes, contains('exctvSttus|2026|11012'));
+      expect(dart.reportCodes, contains('otrCprInvstmntSttus|2026|11012'));
+      final half = await DisclosureReport.db.findFirstRow(
+        session,
+        where: (t) =>
+            t.rceptNo.equals(interim) &
+            t.section.equals(DartSection.largestShareholders),
+      );
+      expect(half, isNotNull);
+      expect(half!.reportCode, FinancialReportCode.halfYear);
+      expect(half.settlementDate, DateTime.utc(2026, 6, 30));
+      final entries = await ShareholderEntry.db.find(
+        session,
+        where: (t) => t.reportId.equals(half.id!),
+      );
+      expect(entries.single.ratioEnd, 8.40);
+      final current = await GovernanceEndpoint().summary(session, samsung);
+      expect(current!.shareholderPeriodEnd, DateTime.utc(2026, 6, 30));
+      expect(current.shareholders.single.ratioEnd, 8.40);
+      const annual = '20270310000001';
+      await filing(samsung, annual, 2026);
+      dart.rows['hyslrSttus|$samsung|2026|11011'] = [
+        {
+          ...holder(annual, samsung, '삼성생명보험㈜', '최대주주 본인', '8.30'),
+          'stlm_dt': '2026-12-31',
+        },
+      ];
+      await runSync(corpCode: samsung);
+      final active = await DisclosureReport.db.find(
+        session,
+        where: (t) =>
+            t.companyId.equals(ids[samsung]!) &
+            t.bsnsYear.equals(2026) &
+            t.section.equals(DartSection.largestShareholders) &
+            t.supersededById.equals(null),
+      );
+      expect(active.map((r) => r.reportCode).toSet(), {
+        FinancialReportCode.halfYear,
+        FinancialReportCode.annual,
+      });
     });
 
     test('통신 장애는 항목 재시도 횟수를 소진하지 않고 자동 재개한다', () async {
@@ -603,7 +695,7 @@ void main() {
       final job = await runSync(dailyBudget: 10);
       expect(dart.calls, hasLength(10));
       expect(job.message, contains('다음 날 이어서 받음'));
-      expect(resumes, [DateTime.utc(2026, 9, 19, 15, 5)]);
+      expect(resumes, [DateTime.utc(2026, 9, 19, 15, 1)]);
     });
 
     test('함께 도는 다른 수집이 호출을 쓰면 공용 장부를 보고 도중에 멈춘다', () async {
@@ -682,7 +774,16 @@ void main() {
         session,
         where: (t) => t.filingId.equals(halfFiling.id!),
       );
-      expect(ledger.map((r) => r.section), [DartSection.businessContent]);
+      expect(
+        ledger.map((r) => r.section),
+        unorderedEquals([
+          DartSection.businessContent,
+          DartSection.largestShareholders,
+          DartSection.executives,
+          DartSection.investments,
+          DartSection.minorityShareholders,
+        ]),
+      );
       final core = await DartFilingSection.db.findFirstRow(
         session,
         where: (t) =>

@@ -16,9 +16,14 @@ import 'peer_candidates_panel.dart';
 /// 주소에 기업이 남는다 (`/compare?codes=00126380,00164779`). 지표는 스크리너와 같은
 /// 방식으로 서버가 계산하고, 계산에 쓴 원천 값도 함께 보여 준다.
 class ComparePage extends StatefulWidget {
-  const ComparePage({super.key, required this.corpCodes});
+  const ComparePage({
+    super.key,
+    required this.corpCodes,
+    this.discoveryProduct,
+  });
 
   final List<String> corpCodes;
+  final String? discoveryProduct;
 
   @override
   State<ComparePage> createState() => _ComparePageState();
@@ -58,7 +63,10 @@ class _ComparePageState extends State<ComparePage> {
       });
       return;
     }
-    setState(() => _loading = true);
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
       final page = await client.screen.list(
         corpCodes: widget.corpCodes,
@@ -90,6 +98,14 @@ class _ComparePageState extends State<ComparePage> {
       children: [
         const PageHeading(title: '기업 비교'),
         const SizedBox(height: AppSpace.lg),
+        if (widget.discoveryProduct case final String product) ...[
+          Text('탐색 기준: $product', style: t.body(14, weight: FontWeight.w600)),
+          Text(
+            '아래 재무 지표는 해당 제품 사업만의 실적이 아닌 기업 전체 기준입니다.',
+            style: t.body(12, color: c.textSecondary),
+          ),
+          const SizedBox(height: AppSpace.md),
+        ],
         if (_rows.isNotEmpty) ...[
           Wrap(
             spacing: AppSpace.sm,
@@ -151,11 +167,13 @@ class _ComparePageState extends State<ComparePage> {
           ),
         ),
         const SizedBox(height: AppSpace.xl),
-        if (_error != null)
-          AppNotice(message: '비교하지 못했습니다 — $_error')
-        else if (widget.corpCodes.isEmpty)
+        if (_error != null) ...[
+          const AppNotice(message: '비교 데이터를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'),
+          const SizedBox(height: AppSpace.sm),
+          AppButton(label: '비교 다시 불러오기', onPressed: _load),
+        ] else if (widget.corpCodes.isEmpty)
           Text(
-            '위에서 기업을 찾아 넣으세요. 스크리너나 기업 목록에서 넘어올 수도 있습니다.',
+            '위에서 궁금한 회사를 검색해 보세요. 두 곳 이상 고르면 숫자를 나란히 비교할 수 있어요.',
             style: t.body(13, color: c.textMuted),
           )
         else if (_loading && _rows.isEmpty)

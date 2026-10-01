@@ -1,7 +1,7 @@
 # Flutter & Serverpod project
 
 This project is a Flutter app (frontend) backed by a Serverpod server (backend). Always build the app's backend with Serverpod.
-Serverpod built-in email authentication is enforced on every ontology endpoint. Authenticated users may read shared data; mutations require Scope.admin via OntologyAccess. See docs/access-control.md. Never bypass these checks for local use or tests; use authentication overrides in isolated tests.
+User decision confirmed 2026-10-01: shared company data remains publicly readable; personal account features require Serverpod email authentication, and mutations require Scope.admin via OntologyAccess. Encourage signup through personal features. See docs/access-control.md. Never bypass account or mutation checks for local use or tests; use authentication overrides in isolated tests.
 
 ## Agent skills
 
@@ -93,7 +93,7 @@ Current state (phase 1 — listed-company master, phase 2 — financials and mar
 - Phase 5 (themes): `InvestmentTheme` (table `theme`; the class is not `Theme` to avoid clashing with Flutter's `Theme`) and `ThemeMember` (company ↔ theme, a note on why, a `manual` `Source`). `endpoints/theme_endpoint.dart`; market caps come from `market/market_caps.dart` (latest snapshot day, sum of the company's securities).
 - The DART API key is read by `dart/dart_api_key.dart`: `session.passwords['dartApiKey']` (`config/passwords.yaml` under `shared:`, or `SERVERPOD_PASSWORD_dartApiKey`), falling back to the `DART_API_KEY` environment variable.
 - The 공공데이터포털 service key is read by `data_go_kr/data_go_kr_service_key.dart`: `session.passwords['dataGoKrServiceKey']` (`shared:`), falling back to `DATA_GO_KR_SERVICE_KEY`. Store the Decoding key; never write it into a `Source` URL.
-- Authentication is required even locally. Only Scope.admin can mutate shared ontology data. Administrator emails come from server-only config/admin_emails.local (ignored) or ONTOLOGY_ADMIN_EMAILS; never grant admin to the first signup. See docs/access-control.md.
+- Shared company data is publicly readable (user decision 2026-10-01). Personal account features require authentication even locally. Only Scope.admin can mutate shared ontology data. Administrator emails come from server-only config/admin_emails.local (ignored) or ONTOLOGY_ADMIN_EMAILS; never grant admin to the first signup. See docs/access-control.md.
 - Source values are normalized to the schema's types at the ingest boundary (`dart/dart_values.dart`); invalid values become null. Re-fetches record field-level diffs in `CompanyChange` (`ingest/company_changes.dart`).
 - Flutter UI:
   - `lib/design/` — design system. `tokens.dart` (semantic `AppColors`/`AppTypography`/`AppShape` theme extensions, `AppSpace`, `AppMotion`; read via `context.colors` / `context.typo` / `context.shape`), `components/` (reusable widgets; `AppDataTable` fills the available width by default and gives the remainder to the `flex` column, or the first text column — it only falls back to horizontal scrolling when the column-width estimate exceeds the box, because a flex column inside an unbounded scroll view collapses to one character per line), `brands/` (concrete colors and fonts), `app_theme.dart`.

@@ -53,6 +53,21 @@ CompanyFinancials financials(List<FinancialPeriod> periods, {BigInt? cap}) =>
     );
 
 void main() {
+  test(
+    'summary amounts compact verified KRW units and retain source precision',
+    () {
+      expect(formatUnitAmountCompact(41216512, '백만원'), '41.2조원');
+      expect(formatUnitAmountCompact(41216512000000, '원'), '41.2조원');
+      expect(formatUnitAmountCompact(41.216512, '조원'), '41.2조원');
+      expect(formatUnitAmountCompact(-123450, '백만원'), '-1234.5억원');
+      expect(formatUnitAmountCompact(0, '원'), '0원');
+      expect(formatUnitAmountCompact(4500, '원'), '4,500원');
+      expect(formatUnitAmountCompact(84.6, '%'), '84.6%');
+      expect(formatUnitAmountCompact(123, '백만 달러'), '123백만 달러');
+      expect(formatUnitAmountCompact(double.nan, '원'), '—');
+      expect(formatSourceAmount(41216512.123, '백만원'), '41,216,512.123 백만원');
+    },
+  );
   FinancialLine cashLine(String key, int amount, {String currency = 'KRW'}) =>
       line(key, amount)
         ..statement = FinancialStatementKind.cashFlow

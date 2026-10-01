@@ -1,0 +1,2138 @@
+[
+  {
+    "industry": "aerospace",
+    "code": "313"
+  },
+  {
+    "industry": "aerospace",
+    "code": "3131"
+  },
+  {
+    "industry": "aerospace",
+    "code": "31311"
+  },
+  {
+    "industry": "aerospace",
+    "code": "31321"
+  },
+  {
+    "industry": "aerospace",
+    "code": "31322"
+  },
+  {
+    "industry": "agriculture",
+    "code": "011"
+  },
+  {
+    "industry": "agriculture",
+    "code": "01123"
+  },
+  {
+    "industry": "agriculture",
+    "code": "03111"
+  },
+  {
+    "industry": "auto",
+    "code": "301"
+  },
+  {
+    "industry": "auto",
+    "code": "30121"
+  },
+  {
+    "industry": "auto",
+    "code": "302"
+  },
+  {
+    "industry": "auto",
+    "code": "303"
+  },
+  {
+    "industry": "auto",
+    "code": "30310"
+  },
+  {
+    "industry": "auto",
+    "code": "30320"
+  },
+  {
+    "industry": "auto",
+    "code": "3033"
+  },
+  {
+    "industry": "auto",
+    "code": "30331"
+  },
+  {
+    "industry": "auto",
+    "code": "30391"
+  },
+  {
+    "industry": "auto",
+    "code": "30399"
+  },
+  {
+    "industry": "auto",
+    "code": "304"
+  },
+  {
+    "industry": "battery",
+    "code": "282"
+  },
+  {
+    "industry": "battery",
+    "code": "28201"
+  },
+  {
+    "industry": "battery",
+    "code": "28202"
+  },
+  {
+    "industry": "building-materials",
+    "code": "231"
+  },
+  {
+    "industry": "building-materials",
+    "code": "2311"
+  },
+  {
+    "industry": "building-materials",
+    "code": "2312"
+  },
+  {
+    "industry": "building-materials",
+    "code": "23192"
+  },
+  {
+    "industry": "building-materials",
+    "code": "2321"
+  },
+  {
+    "industry": "building-materials",
+    "code": "23222"
+  },
+  {
+    "industry": "building-materials",
+    "code": "233"
+  },
+  {
+    "industry": "building-materials",
+    "code": "23311"
+  },
+  {
+    "industry": "building-materials",
+    "code": "23312"
+  },
+  {
+    "industry": "building-materials",
+    "code": "2332"
+  },
+  {
+    "industry": "building-materials",
+    "code": "23322"
+  },
+  {
+    "industry": "building-materials",
+    "code": "23325"
+  },
+  {
+    "industry": "building-materials",
+    "code": "239"
+  },
+  {
+    "industry": "building-materials",
+    "code": "23991"
+  },
+  {
+    "industry": "building-materials",
+    "code": "23992"
+  },
+  {
+    "industry": "building-materials",
+    "code": "23993"
+  },
+  {
+    "industry": "building-materials",
+    "code": "23999"
+  },
+  {
+    "industry": "business-services",
+    "code": "713"
+  },
+  {
+    "industry": "business-services",
+    "code": "71310"
+  },
+  {
+    "industry": "business-services",
+    "code": "71400"
+  },
+  {
+    "industry": "business-services",
+    "code": "715"
+  },
+  {
+    "industry": "business-services",
+    "code": "71531"
+  },
+  {
+    "industry": "business-services",
+    "code": "716"
+  },
+  {
+    "industry": "business-services",
+    "code": "71600"
+  },
+  {
+    "industry": "business-services",
+    "code": "732"
+  },
+  {
+    "industry": "business-services",
+    "code": "73203"
+  },
+  {
+    "industry": "business-services",
+    "code": "739"
+  },
+  {
+    "industry": "business-services",
+    "code": "7390"
+  },
+  {
+    "industry": "business-services",
+    "code": "73909"
+  },
+  {
+    "industry": "business-services",
+    "code": "741"
+  },
+  {
+    "industry": "business-services",
+    "code": "75320"
+  },
+  {
+    "industry": "business-services",
+    "code": "759"
+  },
+  {
+    "industry": "business-services",
+    "code": "75992"
+  },
+  {
+    "industry": "business-services",
+    "code": "75993"
+  },
+  {
+    "industry": "business-services",
+    "code": "76110"
+  },
+  {
+    "industry": "business-services",
+    "code": "762"
+  },
+  {
+    "industry": "business-services",
+    "code": "76310"
+  },
+  {
+    "industry": "business-services",
+    "code": "76320"
+  },
+  {
+    "industry": "chemicals",
+    "code": "201"
+  },
+  {
+    "industry": "chemicals",
+    "code": "20111"
+  },
+  {
+    "industry": "chemicals",
+    "code": "20119"
+  },
+  {
+    "industry": "chemicals",
+    "code": "20121"
+  },
+  {
+    "industry": "chemicals",
+    "code": "20129"
+  },
+  {
+    "industry": "chemicals",
+    "code": "20131"
+  },
+  {
+    "industry": "chemicals",
+    "code": "20132"
+  },
+  {
+    "industry": "chemicals",
+    "code": "20201"
+  },
+  {
+    "industry": "chemicals",
+    "code": "20202"
+  },
+  {
+    "industry": "chemicals",
+    "code": "20203"
+  },
+  {
+    "industry": "chemicals",
+    "code": "203"
+  },
+  {
+    "industry": "chemicals",
+    "code": "2031"
+  },
+  {
+    "industry": "chemicals",
+    "code": "20312"
+  },
+  {
+    "industry": "chemicals",
+    "code": "2032"
+  },
+  {
+    "industry": "chemicals",
+    "code": "204"
+  },
+  {
+    "industry": "chemicals",
+    "code": "20411"
+  },
+  {
+    "industry": "chemicals",
+    "code": "20413"
+  },
+  {
+    "industry": "chemicals",
+    "code": "20421"
+  },
+  {
+    "industry": "chemicals",
+    "code": "20422"
+  },
+  {
+    "industry": "chemicals",
+    "code": "2049"
+  },
+  {
+    "industry": "chemicals",
+    "code": "20491"
+  },
+  {
+    "industry": "chemicals",
+    "code": "20493"
+  },
+  {
+    "industry": "chemicals",
+    "code": "20494"
+  },
+  {
+    "industry": "chemicals",
+    "code": "20495"
+  },
+  {
+    "industry": "chemicals",
+    "code": "20499"
+  },
+  {
+    "industry": "chemicals",
+    "code": "205"
+  },
+  {
+    "industry": "chemicals",
+    "code": "2050"
+  },
+  {
+    "industry": "chemicals",
+    "code": "20501"
+  },
+  {
+    "industry": "chemicals",
+    "code": "221"
+  },
+  {
+    "industry": "chemicals",
+    "code": "2219"
+  },
+  {
+    "industry": "chemicals",
+    "code": "222"
+  },
+  {
+    "industry": "chemicals",
+    "code": "2221"
+  },
+  {
+    "industry": "chemicals",
+    "code": "22211"
+  },
+  {
+    "industry": "chemicals",
+    "code": "22212"
+  },
+  {
+    "industry": "chemicals",
+    "code": "22213"
+  },
+  {
+    "industry": "chemicals",
+    "code": "22214"
+  },
+  {
+    "industry": "chemicals",
+    "code": "2222"
+  },
+  {
+    "industry": "chemicals",
+    "code": "22222"
+  },
+  {
+    "industry": "chemicals",
+    "code": "22231"
+  },
+  {
+    "industry": "chemicals",
+    "code": "22232"
+  },
+  {
+    "industry": "chemicals",
+    "code": "2224"
+  },
+  {
+    "industry": "chemicals",
+    "code": "2225"
+  },
+  {
+    "industry": "chemicals",
+    "code": "22259"
+  },
+  {
+    "industry": "chemicals",
+    "code": "2229"
+  },
+  {
+    "industry": "chemicals",
+    "code": "22291"
+  },
+  {
+    "industry": "chemicals",
+    "code": "22299"
+  },
+  {
+    "industry": "construction",
+    "code": "411"
+  },
+  {
+    "industry": "construction",
+    "code": "4111"
+  },
+  {
+    "industry": "construction",
+    "code": "41112"
+  },
+  {
+    "industry": "construction",
+    "code": "4112"
+  },
+  {
+    "industry": "construction",
+    "code": "41121"
+  },
+  {
+    "industry": "construction",
+    "code": "412"
+  },
+  {
+    "industry": "construction",
+    "code": "41221"
+  },
+  {
+    "industry": "construction",
+    "code": "41225"
+  },
+  {
+    "industry": "construction",
+    "code": "421"
+  },
+  {
+    "industry": "construction",
+    "code": "422"
+  },
+  {
+    "industry": "construction",
+    "code": "423"
+  },
+  {
+    "industry": "construction",
+    "code": "42311"
+  },
+  {
+    "industry": "construction",
+    "code": "424"
+  },
+  {
+    "industry": "content",
+    "code": "581"
+  },
+  {
+    "industry": "content",
+    "code": "5811"
+  },
+  {
+    "industry": "content",
+    "code": "58111"
+  },
+  {
+    "industry": "content",
+    "code": "58113"
+  },
+  {
+    "industry": "content",
+    "code": "58190"
+  },
+  {
+    "industry": "content",
+    "code": "591"
+  },
+  {
+    "industry": "content",
+    "code": "59111"
+  },
+  {
+    "industry": "content",
+    "code": "59112"
+  },
+  {
+    "industry": "content",
+    "code": "59113"
+  },
+  {
+    "industry": "content",
+    "code": "59114"
+  },
+  {
+    "industry": "content",
+    "code": "59120"
+  },
+  {
+    "industry": "content",
+    "code": "59130"
+  },
+  {
+    "industry": "content",
+    "code": "59141"
+  },
+  {
+    "industry": "content",
+    "code": "592"
+  },
+  {
+    "industry": "content",
+    "code": "59201"
+  },
+  {
+    "industry": "content",
+    "code": "602"
+  },
+  {
+    "industry": "content",
+    "code": "60210"
+  },
+  {
+    "industry": "content",
+    "code": "60221"
+  },
+  {
+    "industry": "content",
+    "code": "60222"
+  },
+  {
+    "industry": "content",
+    "code": "60229"
+  },
+  {
+    "industry": "content",
+    "code": "603"
+  },
+  {
+    "industry": "content",
+    "code": "901"
+  },
+  {
+    "industry": "content",
+    "code": "90199"
+  },
+  {
+    "industry": "cosmetics",
+    "code": "20423"
+  },
+  {
+    "industry": "education",
+    "code": "851"
+  },
+  {
+    "industry": "education",
+    "code": "85120"
+  },
+  {
+    "industry": "education",
+    "code": "855"
+  },
+  {
+    "industry": "education",
+    "code": "8550"
+  },
+  {
+    "industry": "education",
+    "code": "85503"
+  },
+  {
+    "industry": "education",
+    "code": "85650"
+  },
+  {
+    "industry": "education",
+    "code": "85669"
+  },
+  {
+    "industry": "education",
+    "code": "857"
+  },
+  {
+    "industry": "electrical",
+    "code": "281"
+  },
+  {
+    "industry": "electrical",
+    "code": "2811"
+  },
+  {
+    "industry": "electrical",
+    "code": "28111"
+  },
+  {
+    "industry": "electrical",
+    "code": "28112"
+  },
+  {
+    "industry": "electrical",
+    "code": "28119"
+  },
+  {
+    "industry": "electrical",
+    "code": "2812"
+  },
+  {
+    "industry": "electrical",
+    "code": "28121"
+  },
+  {
+    "industry": "electrical",
+    "code": "28123"
+  },
+  {
+    "industry": "electrical",
+    "code": "283"
+  },
+  {
+    "industry": "electrical",
+    "code": "2830"
+  },
+  {
+    "industry": "electrical",
+    "code": "28302"
+  },
+  {
+    "industry": "electrical",
+    "code": "284"
+  },
+  {
+    "industry": "electrical",
+    "code": "28410"
+  },
+  {
+    "industry": "electrical",
+    "code": "28422"
+  },
+  {
+    "industry": "electronics",
+    "code": "28511"
+  },
+  {
+    "industry": "electronics",
+    "code": "28519"
+  },
+  {
+    "industry": "electronics",
+    "code": "28520"
+  },
+  {
+    "industry": "electrical",
+    "code": "289"
+  },
+  {
+    "industry": "electrical",
+    "code": "28909"
+  },
+  {
+    "industry": "electronics",
+    "code": "262"
+  },
+  {
+    "industry": "electronics",
+    "code": "2621"
+  },
+  {
+    "industry": "electronics",
+    "code": "26211"
+  },
+  {
+    "industry": "electronics",
+    "code": "26212"
+  },
+  {
+    "industry": "electronics",
+    "code": "2622"
+  },
+  {
+    "industry": "electronics",
+    "code": "26221"
+  },
+  {
+    "industry": "electronics",
+    "code": "26224"
+  },
+  {
+    "industry": "electronics",
+    "code": "2629"
+  },
+  {
+    "industry": "electronics",
+    "code": "26291"
+  },
+  {
+    "industry": "electronics",
+    "code": "26292"
+  },
+  {
+    "industry": "electronics",
+    "code": "26293"
+  },
+  {
+    "industry": "electronics",
+    "code": "26294"
+  },
+  {
+    "industry": "electronics",
+    "code": "26299"
+  },
+  {
+    "industry": "electronics",
+    "code": "263"
+  },
+  {
+    "industry": "electronics",
+    "code": "26310"
+  },
+  {
+    "industry": "electronics",
+    "code": "26323"
+  },
+  {
+    "industry": "electronics",
+    "code": "26329"
+  },
+  {
+    "industry": "electronics",
+    "code": "264"
+  },
+  {
+    "industry": "electronics",
+    "code": "2641"
+  },
+  {
+    "industry": "electronics",
+    "code": "26410"
+  },
+  {
+    "industry": "electronics",
+    "code": "2642"
+  },
+  {
+    "industry": "electronics",
+    "code": "26421"
+  },
+  {
+    "industry": "electronics",
+    "code": "26422"
+  },
+  {
+    "industry": "electronics",
+    "code": "26429"
+  },
+  {
+    "industry": "electronics",
+    "code": "265"
+  },
+  {
+    "industry": "electronics",
+    "code": "26519"
+  },
+  {
+    "industry": "electronics",
+    "code": "26529"
+  },
+  {
+    "industry": "electronics",
+    "code": "266"
+  },
+  {
+    "industry": "energy",
+    "code": "192"
+  },
+  {
+    "industry": "energy",
+    "code": "19210"
+  },
+  {
+    "industry": "energy",
+    "code": "19221"
+  },
+  {
+    "industry": "environment",
+    "code": "38220"
+  },
+  {
+    "industry": "environment",
+    "code": "38230"
+  },
+  {
+    "industry": "environment",
+    "code": "383"
+  },
+  {
+    "industry": "fashion",
+    "code": "13101"
+  },
+  {
+    "industry": "fashion",
+    "code": "132"
+  },
+  {
+    "industry": "fashion",
+    "code": "13213"
+  },
+  {
+    "industry": "fashion",
+    "code": "13219"
+  },
+  {
+    "industry": "fashion",
+    "code": "13225"
+  },
+  {
+    "industry": "fashion",
+    "code": "13402"
+  },
+  {
+    "industry": "fashion",
+    "code": "139"
+  },
+  {
+    "industry": "fashion",
+    "code": "13992"
+  },
+  {
+    "industry": "fashion",
+    "code": "13999"
+  },
+  {
+    "industry": "fashion",
+    "code": "141"
+  },
+  {
+    "industry": "fashion",
+    "code": "14111"
+  },
+  {
+    "industry": "fashion",
+    "code": "14112"
+  },
+  {
+    "industry": "fashion",
+    "code": "14120"
+  },
+  {
+    "industry": "fashion",
+    "code": "1419"
+  },
+  {
+    "industry": "fashion",
+    "code": "14199"
+  },
+  {
+    "industry": "fashion",
+    "code": "14300"
+  },
+  {
+    "industry": "fashion",
+    "code": "144"
+  },
+  {
+    "industry": "fashion",
+    "code": "151"
+  },
+  {
+    "industry": "fashion",
+    "code": "15110"
+  },
+  {
+    "industry": "fashion",
+    "code": "15121"
+  },
+  {
+    "industry": "fashion",
+    "code": "15129"
+  },
+  {
+    "industry": "fashion",
+    "code": "152"
+  },
+  {
+    "industry": "fashion",
+    "code": "15219"
+  },
+  {
+    "industry": "finance",
+    "code": "64121"
+  },
+  {
+    "industry": "finance",
+    "code": "64132"
+  },
+  {
+    "industry": "finance",
+    "code": "642"
+  },
+  {
+    "industry": "finance",
+    "code": "64201"
+  },
+  {
+    "industry": "finance",
+    "code": "64209"
+  },
+  {
+    "industry": "finance",
+    "code": "649"
+  },
+  {
+    "industry": "finance",
+    "code": "6491"
+  },
+  {
+    "industry": "finance",
+    "code": "64911"
+  },
+  {
+    "industry": "finance",
+    "code": "64913"
+  },
+  {
+    "industry": "finance",
+    "code": "64919"
+  },
+  {
+    "industry": "finance",
+    "code": "64991"
+  },
+  {
+    "industry": "finance",
+    "code": "64999"
+  },
+  {
+    "industry": "finance",
+    "code": "65110"
+  },
+  {
+    "industry": "finance",
+    "code": "65121"
+  },
+  {
+    "industry": "finance",
+    "code": "65122"
+  },
+  {
+    "industry": "finance",
+    "code": "65200"
+  },
+  {
+    "industry": "finance",
+    "code": "661"
+  },
+  {
+    "industry": "finance",
+    "code": "66121"
+  },
+  {
+    "industry": "finance",
+    "code": "6619"
+  },
+  {
+    "industry": "finance",
+    "code": "66191"
+  },
+  {
+    "industry": "finance",
+    "code": "66199"
+  },
+  {
+    "industry": "finance",
+    "code": "66202"
+  },
+  {
+    "industry": "food",
+    "code": "101"
+  },
+  {
+    "industry": "food",
+    "code": "1012"
+  },
+  {
+    "industry": "food",
+    "code": "10121"
+  },
+  {
+    "industry": "food",
+    "code": "102"
+  },
+  {
+    "industry": "food",
+    "code": "10211"
+  },
+  {
+    "industry": "food",
+    "code": "103"
+  },
+  {
+    "industry": "food",
+    "code": "1030"
+  },
+  {
+    "industry": "food",
+    "code": "104"
+  },
+  {
+    "industry": "food",
+    "code": "105"
+  },
+  {
+    "industry": "food",
+    "code": "10520"
+  },
+  {
+    "industry": "food",
+    "code": "106"
+  },
+  {
+    "industry": "food",
+    "code": "107"
+  },
+  {
+    "industry": "food",
+    "code": "108"
+  },
+  {
+    "industry": "food",
+    "code": "10897"
+  },
+  {
+    "industry": "food",
+    "code": "109"
+  },
+  {
+    "industry": "food",
+    "code": "11111"
+  },
+  {
+    "industry": "food",
+    "code": "11112"
+  },
+  {
+    "industry": "food",
+    "code": "11121"
+  },
+  {
+    "industry": "food",
+    "code": "11122"
+  },
+  {
+    "industry": "food",
+    "code": "11209"
+  },
+  {
+    "industry": "food",
+    "code": "12000"
+  },
+  {
+    "industry": "gaming",
+    "code": "5821"
+  },
+  {
+    "industry": "gaming",
+    "code": "58211"
+  },
+  {
+    "industry": "gaming",
+    "code": "58212"
+  },
+  {
+    "industry": "gaming",
+    "code": "58219"
+  },
+  {
+    "industry": "holdings",
+    "code": "64992"
+  },
+  {
+    "industry": "household",
+    "code": "161"
+  },
+  {
+    "industry": "household",
+    "code": "16101"
+  },
+  {
+    "industry": "household",
+    "code": "16102"
+  },
+  {
+    "industry": "household",
+    "code": "16211"
+  },
+  {
+    "industry": "household",
+    "code": "16212"
+  },
+  {
+    "industry": "household",
+    "code": "171"
+  },
+  {
+    "industry": "household",
+    "code": "172"
+  },
+  {
+    "industry": "household",
+    "code": "1721"
+  },
+  {
+    "industry": "household",
+    "code": "17223"
+  },
+  {
+    "industry": "household",
+    "code": "179"
+  },
+  {
+    "industry": "household",
+    "code": "17902"
+  },
+  {
+    "industry": "household",
+    "code": "1811"
+  },
+  {
+    "industry": "household",
+    "code": "182"
+  },
+  {
+    "industry": "household",
+    "code": "320"
+  },
+  {
+    "industry": "household",
+    "code": "32021"
+  },
+  {
+    "industry": "household",
+    "code": "32029"
+  },
+  {
+    "industry": "household",
+    "code": "32091"
+  },
+  {
+    "industry": "household",
+    "code": "32099"
+  },
+  {
+    "industry": "household",
+    "code": "331"
+  },
+  {
+    "industry": "household",
+    "code": "33201"
+  },
+  {
+    "industry": "household",
+    "code": "3330"
+  },
+  {
+    "industry": "household",
+    "code": "33309"
+  },
+  {
+    "industry": "household",
+    "code": "339"
+  },
+  {
+    "industry": "household",
+    "code": "33999"
+  },
+  {
+    "industry": "instruments",
+    "code": "272"
+  },
+  {
+    "industry": "instruments",
+    "code": "27211"
+  },
+  {
+    "industry": "instruments",
+    "code": "27212"
+  },
+  {
+    "industry": "instruments",
+    "code": "27213"
+  },
+  {
+    "industry": "instruments",
+    "code": "27214"
+  },
+  {
+    "industry": "instruments",
+    "code": "27215"
+  },
+  {
+    "industry": "instruments",
+    "code": "27216"
+  },
+  {
+    "industry": "instruments",
+    "code": "27219"
+  },
+  {
+    "industry": "instruments",
+    "code": "273"
+  },
+  {
+    "industry": "instruments",
+    "code": "27309"
+  },
+  {
+    "industry": "leisure",
+    "code": "911"
+  },
+  {
+    "industry": "leisure",
+    "code": "91121"
+  },
+  {
+    "industry": "leisure",
+    "code": "91249"
+  },
+  {
+    "industry": "machinery",
+    "code": "291"
+  },
+  {
+    "industry": "machinery",
+    "code": "29111"
+  },
+  {
+    "industry": "machinery",
+    "code": "29119"
+  },
+  {
+    "industry": "machinery",
+    "code": "29120"
+  },
+  {
+    "industry": "machinery",
+    "code": "29132"
+  },
+  {
+    "industry": "machinery",
+    "code": "29133"
+  },
+  {
+    "industry": "machinery",
+    "code": "29141"
+  },
+  {
+    "industry": "machinery",
+    "code": "29142"
+  },
+  {
+    "industry": "machinery",
+    "code": "29162"
+  },
+  {
+    "industry": "machinery",
+    "code": "29163"
+  },
+  {
+    "industry": "machinery",
+    "code": "29169"
+  },
+  {
+    "industry": "machinery",
+    "code": "29171"
+  },
+  {
+    "industry": "machinery",
+    "code": "29172"
+  },
+  {
+    "industry": "machinery",
+    "code": "29175"
+  },
+  {
+    "industry": "machinery",
+    "code": "29176"
+  },
+  {
+    "industry": "machinery",
+    "code": "29192"
+  },
+  {
+    "industry": "machinery",
+    "code": "29193"
+  },
+  {
+    "industry": "machinery",
+    "code": "292"
+  },
+  {
+    "industry": "machinery",
+    "code": "29210"
+  },
+  {
+    "industry": "machinery",
+    "code": "29221"
+  },
+  {
+    "industry": "machinery",
+    "code": "29222"
+  },
+  {
+    "industry": "machinery",
+    "code": "29223"
+  },
+  {
+    "industry": "machinery",
+    "code": "29229"
+  },
+  {
+    "industry": "machinery",
+    "code": "29241"
+  },
+  {
+    "industry": "machinery",
+    "code": "29242"
+  },
+  {
+    "industry": "machinery",
+    "code": "2927"
+  },
+  {
+    "industry": "machinery",
+    "code": "29272"
+  },
+  {
+    "industry": "machinery",
+    "code": "2928"
+  },
+  {
+    "industry": "machinery",
+    "code": "29280"
+  },
+  {
+    "industry": "machinery",
+    "code": "29293"
+  },
+  {
+    "industry": "machinery",
+    "code": "29299"
+  },
+  {
+    "industry": "medical",
+    "code": "271"
+  },
+  {
+    "industry": "medical",
+    "code": "2711"
+  },
+  {
+    "industry": "medical",
+    "code": "27111"
+  },
+  {
+    "industry": "medical",
+    "code": "27112"
+  },
+  {
+    "industry": "medical",
+    "code": "2719"
+  },
+  {
+    "industry": "medical",
+    "code": "27191"
+  },
+  {
+    "industry": "medical",
+    "code": "27192"
+  },
+  {
+    "industry": "medical",
+    "code": "27194"
+  },
+  {
+    "industry": "medical",
+    "code": "27199"
+  },
+  {
+    "industry": "metals",
+    "code": "241"
+  },
+  {
+    "industry": "metals",
+    "code": "2411"
+  },
+  {
+    "industry": "metals",
+    "code": "24113"
+  },
+  {
+    "industry": "metals",
+    "code": "24121"
+  },
+  {
+    "industry": "metals",
+    "code": "24122"
+  },
+  {
+    "industry": "metals",
+    "code": "24123"
+  },
+  {
+    "industry": "metals",
+    "code": "2413"
+  },
+  {
+    "industry": "metals",
+    "code": "24131"
+  },
+  {
+    "industry": "metals",
+    "code": "24133"
+  },
+  {
+    "industry": "metals",
+    "code": "2419"
+  },
+  {
+    "industry": "metals",
+    "code": "24191"
+  },
+  {
+    "industry": "metals",
+    "code": "24199"
+  },
+  {
+    "industry": "metals",
+    "code": "242"
+  },
+  {
+    "industry": "metals",
+    "code": "24212"
+  },
+  {
+    "industry": "metals",
+    "code": "24213"
+  },
+  {
+    "industry": "metals",
+    "code": "24219"
+  },
+  {
+    "industry": "metals",
+    "code": "24221"
+  },
+  {
+    "industry": "metals",
+    "code": "24222"
+  },
+  {
+    "industry": "metals",
+    "code": "24229"
+  },
+  {
+    "industry": "metals",
+    "code": "2429"
+  },
+  {
+    "industry": "metals",
+    "code": "24290"
+  },
+  {
+    "industry": "metals",
+    "code": "243"
+  },
+  {
+    "industry": "metals",
+    "code": "24312"
+  },
+  {
+    "industry": "metals",
+    "code": "251"
+  },
+  {
+    "industry": "metals",
+    "code": "2511"
+  },
+  {
+    "industry": "metals",
+    "code": "25112"
+  },
+  {
+    "industry": "metals",
+    "code": "2512"
+  },
+  {
+    "industry": "metals",
+    "code": "25130"
+  },
+  {
+    "industry": "metals",
+    "code": "252"
+  },
+  {
+    "industry": "metals",
+    "code": "25200"
+  },
+  {
+    "industry": "metals",
+    "code": "259"
+  },
+  {
+    "industry": "metals",
+    "code": "25912"
+  },
+  {
+    "industry": "metals",
+    "code": "25923"
+  },
+  {
+    "industry": "metals",
+    "code": "25924"
+  },
+  {
+    "industry": "metals",
+    "code": "25929"
+  },
+  {
+    "industry": "metals",
+    "code": "25934"
+  },
+  {
+    "industry": "metals",
+    "code": "2599"
+  },
+  {
+    "industry": "metals",
+    "code": "25991"
+  },
+  {
+    "industry": "metals",
+    "code": "25993"
+  },
+  {
+    "industry": "other-services",
+    "code": "953"
+  },
+  {
+    "industry": "other-services",
+    "code": "969"
+  },
+  {
+    "industry": "pharma",
+    "code": "211"
+  },
+  {
+    "industry": "pharma",
+    "code": "2110"
+  },
+  {
+    "industry": "pharma",
+    "code": "21100"
+  },
+  {
+    "industry": "pharma",
+    "code": "212"
+  },
+  {
+    "industry": "pharma",
+    "code": "2121"
+  },
+  {
+    "industry": "pharma",
+    "code": "21212"
+  },
+  {
+    "industry": "pharma",
+    "code": "21220"
+  },
+  {
+    "industry": "pharma",
+    "code": "21230"
+  },
+  {
+    "industry": "pharma",
+    "code": "213"
+  },
+  {
+    "industry": "pharma",
+    "code": "2130"
+  },
+  {
+    "industry": "medical",
+    "code": "21301"
+  },
+  {
+    "industry": "pharma",
+    "code": "21309"
+  },
+  {
+    "industry": "rail",
+    "code": "319"
+  },
+  {
+    "industry": "rail",
+    "code": "31910"
+  },
+  {
+    "industry": "rail",
+    "code": "31991"
+  },
+  {
+    "industry": "real-estate",
+    "code": "681"
+  },
+  {
+    "industry": "real-estate",
+    "code": "6811"
+  },
+  {
+    "industry": "real-estate",
+    "code": "68112"
+  },
+  {
+    "industry": "real-estate",
+    "code": "6812"
+  },
+  {
+    "industry": "real-estate",
+    "code": "68121"
+  },
+  {
+    "industry": "real-estate",
+    "code": "68122"
+  },
+  {
+    "industry": "research",
+    "code": "701"
+  },
+  {
+    "industry": "research",
+    "code": "7011"
+  },
+  {
+    "industry": "research",
+    "code": "70111"
+  },
+  {
+    "industry": "pharma",
+    "code": "70113"
+  },
+  {
+    "industry": "research",
+    "code": "70129"
+  },
+  {
+    "industry": "research",
+    "code": "70130"
+  },
+  {
+    "industry": "research",
+    "code": "721"
+  },
+  {
+    "industry": "research",
+    "code": "72111"
+  },
+  {
+    "industry": "research",
+    "code": "7212"
+  },
+  {
+    "industry": "research",
+    "code": "72121"
+  },
+  {
+    "industry": "research",
+    "code": "72129"
+  },
+  {
+    "industry": "research",
+    "code": "729"
+  },
+  {
+    "industry": "research",
+    "code": "7291"
+  },
+  {
+    "industry": "research",
+    "code": "72911"
+  },
+  {
+    "industry": "retail",
+    "code": "451"
+  },
+  {
+    "industry": "retail",
+    "code": "45120"
+  },
+  {
+    "industry": "retail",
+    "code": "452"
+  },
+  {
+    "industry": "retail",
+    "code": "4521"
+  },
+  {
+    "industry": "retail",
+    "code": "461"
+  },
+  {
+    "industry": "retail",
+    "code": "4610"
+  },
+  {
+    "industry": "retail",
+    "code": "46103"
+  },
+  {
+    "industry": "retail",
+    "code": "462"
+  },
+  {
+    "industry": "retail",
+    "code": "46201"
+  },
+  {
+    "industry": "retail",
+    "code": "46204"
+  },
+  {
+    "industry": "retail",
+    "code": "463"
+  },
+  {
+    "industry": "retail",
+    "code": "46313"
+  },
+  {
+    "industry": "retail",
+    "code": "4632"
+  },
+  {
+    "industry": "retail",
+    "code": "46331"
+  },
+  {
+    "industry": "retail",
+    "code": "464"
+  },
+  {
+    "industry": "retail",
+    "code": "46413"
+  },
+  {
+    "industry": "retail",
+    "code": "46414"
+  },
+  {
+    "industry": "retail",
+    "code": "46419"
+  },
+  {
+    "industry": "retail",
+    "code": "46431"
+  },
+  {
+    "industry": "retail",
+    "code": "46443"
+  },
+  {
+    "industry": "retail",
+    "code": "46452"
+  },
+  {
+    "industry": "retail",
+    "code": "46465"
+  },
+  {
+    "industry": "retail",
+    "code": "46499"
+  },
+  {
+    "industry": "retail",
+    "code": "465"
+  },
+  {
+    "industry": "retail",
+    "code": "46510"
+  },
+  {
+    "industry": "retail",
+    "code": "46521"
+  },
+  {
+    "industry": "retail",
+    "code": "46522"
+  },
+  {
+    "industry": "retail",
+    "code": "46539"
+  },
+  {
+    "industry": "retail",
+    "code": "4659"
+  },
+  {
+    "industry": "retail",
+    "code": "466"
+  },
+  {
+    "industry": "retail",
+    "code": "467"
+  },
+  {
+    "industry": "retail",
+    "code": "46712"
+  },
+  {
+    "industry": "retail",
+    "code": "46713"
+  },
+  {
+    "industry": "retail",
+    "code": "46739"
+  },
+  {
+    "industry": "retail",
+    "code": "46799"
+  },
+  {
+    "industry": "retail",
+    "code": "468"
+  },
+  {
+    "industry": "retail",
+    "code": "46800"
+  },
+  {
+    "industry": "retail",
+    "code": "471"
+  },
+  {
+    "industry": "retail",
+    "code": "47111"
+  },
+  {
+    "industry": "retail",
+    "code": "47119"
+  },
+  {
+    "industry": "retail",
+    "code": "47122"
+  },
+  {
+    "industry": "retail",
+    "code": "472"
+  },
+  {
+    "industry": "retail",
+    "code": "47320"
+  },
+  {
+    "industry": "retail",
+    "code": "474"
+  },
+  {
+    "industry": "retail",
+    "code": "4741"
+  },
+  {
+    "industry": "retail",
+    "code": "47430"
+  },
+  {
+    "industry": "retail",
+    "code": "475"
+  },
+  {
+    "industry": "retail",
+    "code": "47520"
+  },
+  {
+    "industry": "retail",
+    "code": "477"
+  },
+  {
+    "industry": "retail",
+    "code": "47711"
+  },
+  {
+    "industry": "retail",
+    "code": "478"
+  },
+  {
+    "industry": "retail",
+    "code": "47812"
+  },
+  {
+    "industry": "retail",
+    "code": "47859"
+  },
+  {
+    "industry": "retail",
+    "code": "479"
+  },
+  {
+    "industry": "retail",
+    "code": "4791"
+  },
+  {
+    "industry": "retail",
+    "code": "47911"
+  },
+  {
+    "industry": "retail",
+    "code": "47912"
+  },
+  {
+    "industry": "semiconductor",
+    "code": "261"
+  },
+  {
+    "industry": "semiconductor",
+    "code": "2611"
+  },
+  {
+    "industry": "semiconductor",
+    "code": "26112"
+  },
+  {
+    "industry": "semiconductor",
+    "code": "2612"
+  },
+  {
+    "industry": "semiconductor",
+    "code": "26129"
+  },
+  {
+    "industry": "semiconductor",
+    "code": "29271"
+  },
+  {
+    "industry": "shipbuilding",
+    "code": "311"
+  },
+  {
+    "industry": "shipbuilding",
+    "code": "3111"
+  },
+  {
+    "industry": "shipbuilding",
+    "code": "31113"
+  },
+  {
+    "industry": "shipbuilding",
+    "code": "31114"
+  },
+  {
+    "industry": "software",
+    "code": "582"
+  },
+  {
+    "industry": "software",
+    "code": "5822"
+  },
+  {
+    "industry": "software",
+    "code": "58221"
+  },
+  {
+    "industry": "software",
+    "code": "58222"
+  },
+  {
+    "industry": "software",
+    "code": "620"
+  },
+  {
+    "industry": "software",
+    "code": "6201"
+  },
+  {
+    "industry": "software",
+    "code": "62010"
+  },
+  {
+    "industry": "software",
+    "code": "6202"
+  },
+  {
+    "industry": "software",
+    "code": "62021"
+  },
+  {
+    "industry": "software",
+    "code": "62090"
+  },
+  {
+    "industry": "software",
+    "code": "631"
+  },
+  {
+    "industry": "software",
+    "code": "63112"
+  },
+  {
+    "industry": "software",
+    "code": "63120"
+  },
+  {
+    "industry": "software",
+    "code": "639"
+  },
+  {
+    "industry": "software",
+    "code": "63991"
+  },
+  {
+    "industry": "telecom",
+    "code": "612"
+  },
+  {
+    "industry": "telecom",
+    "code": "61220"
+  },
+  {
+    "industry": "telecom",
+    "code": "61299"
+  },
+  {
+    "industry": "transport",
+    "code": "492"
+  },
+  {
+    "industry": "transport",
+    "code": "49220"
+  },
+  {
+    "industry": "transport",
+    "code": "493"
+  },
+  {
+    "industry": "transport",
+    "code": "49301"
+  },
+  {
+    "industry": "transport",
+    "code": "49309"
+  },
+  {
+    "industry": "transport",
+    "code": "501"
+  },
+  {
+    "industry": "transport",
+    "code": "50112"
+  },
+  {
+    "industry": "transport",
+    "code": "511"
+  },
+  {
+    "industry": "transport",
+    "code": "529"
+  },
+  {
+    "industry": "transport",
+    "code": "52939"
+  },
+  {
+    "industry": "transport",
+    "code": "52942"
+  },
+  {
+    "industry": "transport",
+    "code": "5299"
+  },
+  {
+    "industry": "travel",
+    "code": "551"
+  },
+  {
+    "industry": "travel",
+    "code": "55103"
+  },
+  {
+    "industry": "travel",
+    "code": "752"
+  },
+  {
+    "industry": "travel",
+    "code": "75210"
+  },
+  {
+    "industry": "utilities",
+    "code": "351"
+  },
+  {
+    "industry": "utilities",
+    "code": "35120"
+  },
+  {
+    "industry": "utilities",
+    "code": "352"
+  },
+  {
+    "industry": "utilities",
+    "code": "35200"
+  },
+  {
+    "industry": "utilities",
+    "code": "35300"
+  }
+]

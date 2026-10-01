@@ -1,0 +1,42 @@
+[
+  {
+    "corpCode": "00600013",
+    "industry": "real-estate",
+    "group": "부동산 투자·운용",
+    "product": "상장 부동산 투자회사",
+    "sourceUrl": "https://re1.miraeasset.com/upload/1772173884601.pdf",
+    "sourceTitle": "미래에셋맵스리얼티 2025년 4분기 자산운용보고서",
+    "evidence": "이 투자회사는 부동산을 주된 투자대상으로 하여 수익을 추구하는 것을 목적으로 합니다.",
+    "checkedAt": "2026-10-01"
+  },
+  {
+    "corpCode": "01880801",
+    "industry": "finance",
+    "group": "인프라 투자",
+    "product": "상장 인프라 투자회사",
+    "sourceUrl": "https://kbam.co.kr/about/alternative",
+    "sourceTitle": "KB자산운용 대체투자 운용성과",
+    "evidence": "KB발해인프라투융자회사 국내금융그룹 최초 인프라펀드 유가증권시장 상장",
+    "checkedAt": "2026-10-01"
+  },
+  {
+    "corpCode": "01876251",
+    "industry": "software",
+    "group": "AI·데이터 소프트웨어",
+    "product": "AI 음성 합성·콘텐츠 제작",
+    "sourceUrl": "https://neosapience.com/ko/",
+    "sourceTitle": "네오사피엔스 공식 제품 소개",
+    "evidence": "감정까지 표현하는 AI 목소리, 타입캐스트",
+    "checkedAt": "2026-10-01"
+  },
+  {
+    "corpCode": "01588897",
+    "industry": "aerospace",
+    "group": "드론·자율비행",
+    "product": "자율비행 드론·시설물 점검",
+    "sourceUrl": "https://www.nearthlab.com/kr/enterprise",
+    "sourceTitle": "니어스랩 공식 엔터프라이즈 제품 소개",
+    "evidence": "풍력발전기 안전점검을 자동화하는 전용 자율비행 드론 하드웨어",
+    "checkedAt": "2026-10-01"
+  }
+]

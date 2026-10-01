@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:investment_ontology_serverpod_flutter/design/app_theme.dart';
 import 'package:investment_ontology_serverpod_flutter/design/components/components.dart';
@@ -50,6 +51,26 @@ Widget _app(Widget child, {double width = 400}) => MaterialApp(
 );
 
 void main() {
+  test(
+    'axis gutter contains signed large share counts and reserves plot space',
+    () {
+      const style = TextStyle(fontSize: 10.5);
+      final labels = ['20,000,000주', '-5,000,000주', '0주'];
+      final gutter = chartAxisWidth(labels, style, maxWidth: 128);
+      for (final label in labels) {
+        final p = TextPainter(
+          text: TextSpan(text: label, style: style),
+          textDirection: TextDirection.ltr,
+        )..layout();
+        expect(gutter, greaterThanOrEqualTo(p.width + 8));
+        p.dispose();
+      }
+      expect(
+        chartAxisWidth(['123456789012345678901234567890'], style, maxWidth: 80),
+        80,
+      );
+    },
+  );
   test('compact annual and interim labels all fit a mobile axis', () {
     final widths = [14.0, 14.0, 14.0, 14.0, 14.0, 14.0, 35.0];
     expect(categoryAxisLabelIndices(widths: widths, plotWidth: 258), [
@@ -231,6 +252,73 @@ void main() {
     await tester.pump();
     expect(find.text('2024'), findsWidgets);
     expect(find.text('—'), findsOneWidget, reason: '빈 값은 툴팁에 —');
+  });
+
+  testWidgets('트리맵: 세로 공간이 있으면 긴 이름을 여러 줄로 모두 표시한다', (tester) async {
+    const label = '전자부품 컴퓨터 영상 음향 및 통신장비 제조업';
+    await tester.pumpWidget(
+      _app(
+        AppTreemap<String>(
+          height: 180,
+          items: const [
+            TreemapItem(
+              id: '26',
+              label: label,
+              value: 1,
+              tooltip: '공식 중분류',
+              detail: '100조',
+            ),
+          ],
+          onTap: (_) {},
+        ),
+        width: 120,
+      ),
+    );
+    await tester.pumpAndSettle();
+    final paragraph = tester.renderObject<RenderParagraph>(find.text(label));
+    final boxes = paragraph.getBoxesForSelection(
+      const TextSelection(baseOffset: 0, extentOffset: label.length),
+    );
+    expect(boxes.map((box) => box.top).toSet().length, greaterThan(1));
+    expect(paragraph.didExceedMaxLines, isFalse);
+    expect(find.text('100조'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('트리맵: 낮은 타일과 확대 글꼴에서도 이름을 우선하며 넘치지 않는다', (tester) async {
+    const label = '전자부품 컴퓨터 영상 음향 및 통신장비 제조업';
+    for (final scale in [1.0, 2.0]) {
+      await tester.pumpWidget(
+        _app(
+          MediaQuery(
+            data: MediaQueryData(textScaler: TextScaler.linear(scale)),
+            child: AppTreemap<String>(
+              height: 45 * scale,
+              items: const [
+                TreemapItem(
+                  id: '26',
+                  label: label,
+                  value: 1,
+                  tooltip: '공식 중분류',
+                  detail: '100조',
+                ),
+              ],
+              onTap: (_) {},
+            ),
+          ),
+          width: 120,
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('100조'), findsNothing);
+      expect(tester.takeException(), isNull);
+      final paragraph = tester.renderObject<RenderParagraph>(find.text(label));
+      expect(paragraph.didExceedMaxLines, isTrue);
+      expect(
+        tester.getSize(find.text(label)).height,
+        lessThanOrEqualTo(45 * scale - 12),
+      );
+    }
   });
 
   testWidgets('트리맵: 두 단계 타일과 누르기', (tester) async {

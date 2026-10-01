@@ -105,6 +105,10 @@ void run(List<String> args) async {
   // Start the server.
   await pod.start();
 
+  // 조회 전용 배포는 작업을 복구하거나 예약하지 않는다. 같은 DB를 쓰는
+  // 수집 worker의 실행 중 작업을 끊긴 작업으로 오인하지 않도록 한다.
+  if (!pod.config.futureCallExecutionEnabled) return;
+
   // 끊긴 수집을 정리·이어받고, 시세·재무 매일 자동 수집을 예약한다.
   final session = await pod.createSession(enableLogging: false);
   try {

@@ -1,3 +1,4 @@
+import 'company_basic_info.dart';
 import '../../financials/metric_profile.dart';
 import '../../financials/metric_formula_card.dart';
 
@@ -8,7 +9,6 @@ import '../../../client.dart';
 import '../../../design/components/components.dart';
 import '../../../design/components/adaptive_detail.dart';
 import '../../../design/tokens.dart';
-import '../../common/formatters.dart';
 import '../../financials/financial_metrics.dart';
 
 /// 기업 상세 머리: 이름 · 시장 · 코드 · 업종과 핵심 지표 한 줄.
@@ -39,7 +39,6 @@ class CompanyHeader extends StatelessWidget {
     final c = context.colors;
     final t = context.typo;
     final company = detail.company;
-    final industry = detail.industryPath.lastOrNull;
     final fin = financials;
     final hasFinancials =
         fin != null && (fin.periods.isNotEmpty || fin.market != null);
@@ -58,7 +57,7 @@ class CompanyHeader extends StatelessWidget {
                 children: [
                   Text(
                     company.name,
-                    style: t.display(40, color: c.textPrimary),
+                    style: t.display(30, color: c.textPrimary),
                   ),
                   if (company.nameEng != null)
                     Padding(
@@ -84,72 +83,72 @@ class CompanyHeader extends StatelessWidget {
             ],
           ],
         ),
-        const SizedBox(height: AppSpace.md),
-        Wrap(
-          spacing: 10,
-          runSpacing: AppSpace.sm,
-          crossAxisAlignment: WrapCrossAlignment.center,
+        CompanyBasicInfo(detail: detail),
+        const SizedBox(height: AppSpace.sm),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            AppTag(
-              label: marketLabel(company.market),
-              color: marketColor(context, company.market),
-              filled: true,
-              numeric: true,
-              size: AppTagSize.medium,
-            ),
-            if (company.stockCode != null)
-              AppTag(
-                label: company.stockCode!,
-                numeric: true,
-                size: AppTagSize.medium,
-              ),
-            if (industry != null)
+            const SizedBox(height: AppSpace.md),
+            if (fin?.fsDiv != null)
               Text(
-                industry.name,
-                style: t.body(13.5, color: c.textSecondary),
+                '${fsDivLabel(fin!.fsDiv!)} 기준',
+                style: t.body(12, color: c.textMuted),
+              ),
+            const SizedBox(height: AppSpace.sm),
+            if (fin != null &&
+                fin.availableFsDivs.isNotEmpty &&
+                onBasisChanged != null) ...[
+              Row(
+                children: [
+                  PopupMenuButton<String>(
+                    tooltip: '재무 계산 기준 변경',
+                    initialValue: selectedBasis?.name ?? 'auto',
+                    onSelected: (value) => onBasisChanged!(
+                      value == 'auto' ? null : FsDiv.values.byName(value),
+                    ),
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(value: 'auto', child: Text('자동')),
+                      for (final div in fin.availableFsDivs)
+                        PopupMenuItem(
+                          value: div.name,
+                          child: Text(fsDivLabel(div)),
+                        ),
+                    ],
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSpace.xs,
+                      ),
+                      child: Text(
+                        '계산 기준: ${selectedBasis == null ? '자동' : fsDivLabel(selectedBasis!)} ▾',
+                        style: t.body(12, color: c.textMuted),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpace.sm),
+                  if (changingBasis)
+                    Text('불러오는 중…', style: t.body(12, color: c.textMuted)),
+                ],
+              ),
+              if (basisError != null)
+                Text(basisError!, style: t.body(12, color: c.textSecondary)),
+              const SizedBox(height: AppSpace.sm),
+            ],
+            if (hasFinancials)
+              _KeyStats(
+                metrics: FinancialView(fin).metrics(),
+                industryCode: company.industryCode,
+                companyName: company.name,
+                basisReason: fin.basisReason,
+                corpCode: company.corpCode,
+                fsDiv: fin.fsDiv,
+              )
+            else
+              Text(
+                '수집된 재무·시세가 없습니다.',
+                style: t.body(13, color: c.textMuted),
               ),
           ],
         ),
-        const SizedBox(height: AppSpace.xl),
-        if (fin != null &&
-            fin.availableFsDivs.isNotEmpty &&
-            onBasisChanged != null) ...[
-          Row(
-            children: [
-              AppToggleGroup<String>(
-                value: selectedBasis?.name ?? 'auto',
-                options: {
-                  'auto': '자동',
-                  for (final div in fin.availableFsDivs)
-                    div.name: fsDivLabel(div),
-                },
-                onChanged: (value) => onBasisChanged!(
-                  value == 'auto' ? null : FsDiv.values.byName(value),
-                ),
-              ),
-              const SizedBox(width: AppSpace.sm),
-              if (changingBasis)
-                Text('불러오는 중…', style: t.body(12, color: c.textMuted)),
-            ],
-          ),
-          if (basisError != null)
-            Text(basisError!, style: t.body(12, color: c.textSecondary)),
-          const SizedBox(height: AppSpace.sm),
-        ],
-        if (hasFinancials)
-          _KeyStats(
-            metrics: FinancialView(fin).metrics(),
-            industryCode: company.industryCode,
-            companyName: company.name,
-            basisReason: fin.basisReason,
-            corpCode: company.corpCode,
-            fsDiv: fin.fsDiv,
-          )
-        else
-          Text(
-            '수집된 재무·시세가 없습니다.',
-            style: t.body(13, color: c.textMuted),
-          ),
       ],
     );
   }
@@ -177,7 +176,7 @@ class _KeyStats extends StatefulWidget {
 }
 
 class _KeyStatsState extends State<_KeyStats> {
-  String _group = '추천';
+  bool _showAll = false;
   PeerComparison? _peers;
   int _request = 0;
   @override
@@ -191,7 +190,7 @@ class _KeyStatsState extends State<_KeyStats> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.corpCode != widget.corpCode ||
         oldWidget.fsDiv != widget.fsDiv) {
-      if (oldWidget.corpCode != widget.corpCode) _group = '추천';
+      if (oldWidget.corpCode != widget.corpCode) _showAll = false;
       _load();
     }
   }
@@ -239,9 +238,9 @@ class _KeyStatsState extends State<_KeyStats> {
       widget.companyName,
       widget.metrics,
     );
-    final keys = _group == '추천'
-        ? profile.keys
-        : ['marketCap', ...metricGroups[_group]!];
+    final keys = _showAll
+        ? {...profile.keys, ...widget.metrics.map((metric) => metric.key)}
+        : profile.keys;
     final metrics = [
       for (final key in keys)
         ...widget.metrics.where(
@@ -250,18 +249,15 @@ class _KeyStatsState extends State<_KeyStats> {
               metricApplies(key, widget.industryCode, widget.companyName),
         ),
     ];
+    final hasMore = widget.metrics.any(
+      (m) =>
+          !profile.keys.contains(m.key) &&
+          metricApplies(m.key, widget.industryCode, widget.companyName),
+    );
+    if (metrics.isEmpty && !hasMore) return const SizedBox.shrink();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        AppToggleGroup<String>(
-          value: _group,
-          options: {
-            for (final group in ['추천', ...metricGroups.keys]) group: group,
-          },
-          onChanged: (group) => setState(() => _group = group),
-        ),
-        const SizedBox(height: AppSpace.sm),
-
         Container(
           decoration: BoxDecoration(
             border: Border(
@@ -275,7 +271,7 @@ class _KeyStatsState extends State<_KeyStats> {
                   ? 2
                   : constraints.maxWidth < 1100
                   ? 3
-                  : (_group == '추천' ? 6 : 4);
+                  : 6;
               final cell = constraints.maxWidth / columns;
               return Wrap(
                 children: [
@@ -317,21 +313,22 @@ class _KeyStatsState extends State<_KeyStats> {
                               style: t.body(12, color: c.textSecondary),
                             ),
                             const SizedBox(height: AppSpace.xs),
-                            FittedBox(
-                              fit: BoxFit.scaleDown,
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                m.display,
-                                maxLines: 1,
-                                style: t.numeric(
-                                  20,
-                                  color: m.derived.value == null
-                                      ? c.textMuted
-                                      : c.textPrimary,
-                                  weight: FontWeight.w600,
+                            if (m.derived.value != null)
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  m.display,
+                                  maxLines: 1,
+                                  style: t.numeric(
+                                    20,
+                                    color: m.derived.value == null
+                                        ? c.textMuted
+                                        : c.textPrimary,
+                                    weight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
-                            ),
                             if (m.derived.value == null)
                               Padding(
                                 padding: const EdgeInsets.only(
@@ -353,6 +350,14 @@ class _KeyStatsState extends State<_KeyStats> {
             },
           ),
         ),
+        if (hasMore)
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: () => setState(() => _showAll = !_showAll),
+              child: Text(_showAll ? '핵심 지표만 보기' : '전체 지표 보기'),
+            ),
+          ),
       ],
     );
   }

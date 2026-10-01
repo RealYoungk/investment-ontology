@@ -1,0 +1,2777 @@
+[
+  {
+    "industry": "semiconductor",
+    "prefixes": [
+      "261"
+    ],
+    "label": "칩 설계·제조",
+    "terms": [
+      "집적회로",
+      "반도체 소자",
+      "반도체소자",
+      "반도체 칩"
+    ]
+  },
+  {
+    "industry": "semiconductor",
+    "prefixes": [
+      "29271"
+    ],
+    "label": "장비",
+    "terms": [
+      "반도체 장비",
+      "반도체 제조장비"
+    ]
+  },
+  {
+    "industry": "software",
+    "prefixes": [
+      "582"
+    ],
+    "label": "소프트웨어 제품",
+    "terms": [
+      "소프트웨어",
+      "솔루션"
+    ]
+  },
+  {
+    "industry": "software",
+    "prefixes": [
+      "620"
+    ],
+    "label": "IT 구축·운영",
+    "terms": [
+      "시스템 통합",
+      "시스템통합",
+      "IT 서비스"
+    ]
+  },
+  {
+    "industry": "software",
+    "prefixes": [
+      "6311"
+    ],
+    "label": "클라우드·인프라 서비스",
+    "terms": [
+      "호스팅",
+      "클라우드",
+      "데이터센터"
+    ]
+  },
+  {
+    "industry": "software",
+    "prefixes": [
+      "6312"
+    ],
+    "label": "인터넷 플랫폼",
+    "terms": [
+      "포털",
+      "플랫폼"
+    ]
+  },
+  {
+    "industry": "software",
+    "prefixes": [
+      "631"
+    ],
+    "label": "데이터 처리·서비스",
+    "terms": [
+      "데이터 처리"
+    ]
+  },
+  {
+    "industry": "software",
+    "prefixes": [
+      "639"
+    ],
+    "label": "데이터·정보 제공",
+    "terms": [
+      "정보 제공",
+      "데이터베이스"
+    ]
+  },
+  {
+    "industry": "pharma",
+    "prefixes": [
+      "70113"
+    ],
+    "label": "의약 연구·개발",
+    "terms": [
+      "의약",
+      "신약",
+      "바이오"
+    ]
+  },
+  {
+    "industry": "research",
+    "prefixes": [
+      "701"
+    ],
+    "label": "과학·기술 연구",
+    "terms": [
+      "연구개발"
+    ]
+  },
+  {
+    "industry": "research",
+    "prefixes": [
+      "702"
+    ],
+    "label": "사회·경제 연구",
+    "terms": [
+      "연구"
+    ]
+  },
+  {
+    "industry": "research",
+    "prefixes": [
+      "7211"
+    ],
+    "label": "건축 설계",
+    "terms": [
+      "건축설계",
+      "건축 설계"
+    ]
+  },
+  {
+    "industry": "research",
+    "prefixes": [
+      "721"
+    ],
+    "label": "설계·엔지니어링",
+    "terms": [
+      "엔지니어링",
+      "설계"
+    ]
+  },
+  {
+    "industry": "research",
+    "prefixes": [
+      "729"
+    ],
+    "label": "시험·검사",
+    "terms": [
+      "시험",
+      "검사",
+      "분석"
+    ]
+  },
+  {
+    "industry": "pharma",
+    "prefixes": [
+      "211"
+    ],
+    "label": "의약 원료",
+    "terms": [
+      "원료의약품",
+      "의약 원료"
+    ]
+  },
+  {
+    "industry": "pharma",
+    "prefixes": [
+      "212"
+    ],
+    "label": "의약품·치료제",
+    "terms": [
+      "의약품",
+      "제약"
+    ]
+  },
+  {
+    "industry": "pharma",
+    "prefixes": [
+      "2123"
+    ],
+    "label": "동물용 의약품",
+    "terms": [
+      "동물용 의약품"
+    ]
+  },
+  {
+    "industry": "medical",
+    "prefixes": [
+      "21301"
+    ],
+    "label": "체외진단",
+    "terms": [
+      "체외진단",
+      "진단시약"
+    ]
+  },
+  {
+    "industry": "pharma",
+    "prefixes": [
+      "213"
+    ],
+    "label": "의료용 소모품",
+    "terms": [
+      "의료용품",
+      "의료용 소모품"
+    ]
+  },
+  {
+    "industry": "medical",
+    "prefixes": [
+      "27111"
+    ],
+    "label": "영상 진단",
+    "terms": [
+      "X-ray",
+      "엑스레이",
+      "방사선"
+    ]
+  },
+  {
+    "industry": "medical",
+    "prefixes": [
+      "27112"
+    ],
+    "label": "진단·치료 기기",
+    "terms": [
+      "의료기기",
+      "진단기기"
+    ]
+  },
+  {
+    "industry": "medical",
+    "prefixes": [
+      "27191",
+      "27192"
+    ],
+    "label": "치과 기기·재료",
+    "terms": [
+      "치과",
+      "임플란트"
+    ]
+  },
+  {
+    "industry": "medical",
+    "prefixes": [
+      "27194"
+    ],
+    "label": "정형외과·재활 기기",
+    "terms": [
+      "정형외과",
+      "신체보정"
+    ]
+  },
+  {
+    "industry": "medical",
+    "prefixes": [
+      "271"
+    ],
+    "label": "의료기기",
+    "terms": [
+      "의료기기",
+      "의료 기기"
+    ]
+  },
+  {
+    "industry": "medical",
+    "prefixes": [
+      "86"
+    ],
+    "label": "의료 서비스",
+    "terms": [
+      "의료서비스",
+      "병원"
+    ]
+  },
+  {
+    "industry": "battery",
+    "prefixes": [
+      "28201"
+    ],
+    "label": "일차전지",
+    "terms": [
+      "일차전지",
+      "1차전지"
+    ]
+  },
+  {
+    "industry": "battery",
+    "prefixes": [
+      "28202"
+    ],
+    "label": "이차전지",
+    "terms": [
+      "이차전지",
+      "2차전지"
+    ]
+  },
+  {
+    "industry": "battery",
+    "prefixes": [
+      "282"
+    ],
+    "label": "배터리",
+    "terms": [
+      "배터리",
+      "전지"
+    ]
+  },
+  {
+    "industry": "cosmetics",
+    "prefixes": [
+      "20423"
+    ],
+    "label": "화장품",
+    "terms": [
+      "화장품"
+    ]
+  },
+  {
+    "industry": "instruments",
+    "prefixes": [
+      "27211"
+    ],
+    "label": "항법·측량 기기",
+    "terms": [
+      "레이더",
+      "항법",
+      "측량"
+    ]
+  },
+  {
+    "industry": "instruments",
+    "prefixes": [
+      "27212",
+      "27213"
+    ],
+    "label": "시험·분석 기기",
+    "terms": [
+      "분석기",
+      "측정기",
+      "시험기"
+    ]
+  },
+  {
+    "industry": "instruments",
+    "prefixes": [
+      "27214"
+    ],
+    "label": "계량 기기",
+    "terms": [
+      "계량기",
+      "계측기"
+    ]
+  },
+  {
+    "industry": "instruments",
+    "prefixes": [
+      "27215",
+      "27216"
+    ],
+    "label": "자동 측정·제어",
+    "terms": [
+      "제어장치",
+      "제어장비"
+    ]
+  },
+  {
+    "industry": "instruments",
+    "prefixes": [
+      "272"
+    ],
+    "label": "측정·시험 기기",
+    "terms": [
+      "측정",
+      "계측",
+      "시험기"
+    ]
+  },
+  {
+    "industry": "instruments",
+    "prefixes": [
+      "273"
+    ],
+    "label": "광학 기기",
+    "terms": [
+      "광학기기",
+      "광학 기기"
+    ]
+  },
+  {
+    "industry": "instruments",
+    "prefixes": [
+      "274"
+    ],
+    "label": "시계",
+    "terms": [
+      "시계"
+    ]
+  },
+  {
+    "industry": "instruments",
+    "prefixes": [
+      "27"
+    ],
+    "label": "정밀 기기",
+    "terms": [
+      "정밀기기"
+    ]
+  },
+  {
+    "industry": "telecom",
+    "prefixes": [
+      "611"
+    ],
+    "label": "유선 통신",
+    "terms": [
+      "유선통신"
+    ]
+  },
+  {
+    "industry": "telecom",
+    "prefixes": [
+      "612"
+    ],
+    "label": "무선·위성 통신",
+    "terms": [
+      "무선통신",
+      "위성통신",
+      "통신서비스"
+    ]
+  },
+  {
+    "industry": "telecom",
+    "prefixes": [
+      "61"
+    ],
+    "label": "통신 서비스",
+    "terms": [
+      "통신서비스"
+    ]
+  },
+  {
+    "industry": "agriculture",
+    "prefixes": [
+      "01123"
+    ],
+    "label": "종자·묘목",
+    "terms": [
+      "종자",
+      "묘목"
+    ]
+  },
+  {
+    "industry": "agriculture",
+    "prefixes": [
+      "01"
+    ],
+    "label": "농업·축산",
+    "terms": [
+      "농업",
+      "축산"
+    ]
+  },
+  {
+    "industry": "agriculture",
+    "prefixes": [
+      "02"
+    ],
+    "label": "임업",
+    "terms": [
+      "임업"
+    ]
+  },
+  {
+    "industry": "agriculture",
+    "prefixes": [
+      "03"
+    ],
+    "label": "어업·양식",
+    "terms": [
+      "어업",
+      "양식",
+      "원양"
+    ]
+  },
+  {
+    "industry": "food",
+    "prefixes": [
+      "101"
+    ],
+    "label": "육가공",
+    "terms": [
+      "육가공",
+      "육류"
+    ]
+  },
+  {
+    "industry": "food",
+    "prefixes": [
+      "102"
+    ],
+    "label": "수산 가공",
+    "terms": [
+      "수산물"
+    ]
+  },
+  {
+    "industry": "food",
+    "prefixes": [
+      "103"
+    ],
+    "label": "과일·채소 가공",
+    "terms": [
+      "과일",
+      "채소"
+    ]
+  },
+  {
+    "industry": "food",
+    "prefixes": [
+      "104"
+    ],
+    "label": "식용유·유제품",
+    "terms": [
+      "식용유",
+      "유제품",
+      "낙농"
+    ]
+  },
+  {
+    "industry": "food",
+    "prefixes": [
+      "105"
+    ],
+    "label": "곡물·당류",
+    "terms": [
+      "제분",
+      "전분",
+      "당류"
+    ]
+  },
+  {
+    "industry": "food",
+    "prefixes": [
+      "106"
+    ],
+    "label": "제과·제빵",
+    "terms": [
+      "제과",
+      "과자",
+      "빵"
+    ]
+  },
+  {
+    "industry": "food",
+    "prefixes": [
+      "107"
+    ],
+    "label": "간편식·도시락",
+    "terms": [
+      "도시락",
+      "간편식"
+    ]
+  },
+  {
+    "industry": "food",
+    "prefixes": [
+      "10897"
+    ],
+    "label": "건강기능식품",
+    "terms": [
+      "건강기능식품"
+    ]
+  },
+  {
+    "industry": "food",
+    "prefixes": [
+      "108"
+    ],
+    "label": "가공식품",
+    "terms": [
+      "식품"
+    ]
+  },
+  {
+    "industry": "food",
+    "prefixes": [
+      "109"
+    ],
+    "label": "사료",
+    "terms": [
+      "사료"
+    ]
+  },
+  {
+    "industry": "food",
+    "prefixes": [
+      "111"
+    ],
+    "label": "주류",
+    "terms": [
+      "주류",
+      "소주",
+      "맥주",
+      "주정"
+    ]
+  },
+  {
+    "industry": "food",
+    "prefixes": [
+      "112"
+    ],
+    "label": "음료",
+    "terms": [
+      "음료"
+    ]
+  },
+  {
+    "industry": "food",
+    "prefixes": [
+      "12"
+    ],
+    "label": "담배",
+    "terms": [
+      "담배"
+    ]
+  },
+  {
+    "industry": "fashion",
+    "prefixes": [
+      "13"
+    ],
+    "label": "섬유·원단",
+    "terms": [
+      "섬유",
+      "원단",
+      "방적"
+    ]
+  },
+  {
+    "industry": "fashion",
+    "prefixes": [
+      "14"
+    ],
+    "label": "의류",
+    "terms": [
+      "의류",
+      "의복"
+    ]
+  },
+  {
+    "industry": "fashion",
+    "prefixes": [
+      "151"
+    ],
+    "label": "가죽·가방",
+    "terms": [
+      "가죽",
+      "가방",
+      "핸드백"
+    ]
+  },
+  {
+    "industry": "fashion",
+    "prefixes": [
+      "152"
+    ],
+    "label": "신발",
+    "terms": [
+      "신발"
+    ]
+  },
+  {
+    "industry": "household",
+    "prefixes": [
+      "16"
+    ],
+    "label": "목재·합판",
+    "terms": [
+      "목재",
+      "합판"
+    ]
+  },
+  {
+    "industry": "household",
+    "prefixes": [
+      "171"
+    ],
+    "label": "종이·펄프",
+    "terms": [
+      "종이",
+      "펄프",
+      "제지"
+    ]
+  },
+  {
+    "industry": "household",
+    "prefixes": [
+      "172"
+    ],
+    "label": "포장재",
+    "terms": [
+      "골판지",
+      "종이상자",
+      "포장재"
+    ]
+  },
+  {
+    "industry": "household",
+    "prefixes": [
+      "179"
+    ],
+    "label": "종이 생활용품",
+    "terms": [
+      "위생용지",
+      "종이"
+    ]
+  },
+  {
+    "industry": "household",
+    "prefixes": [
+      "18"
+    ],
+    "label": "인쇄·복제",
+    "terms": [
+      "인쇄"
+    ]
+  },
+  {
+    "industry": "household",
+    "prefixes": [
+      "32"
+    ],
+    "label": "가구",
+    "terms": [
+      "가구"
+    ]
+  },
+  {
+    "industry": "household",
+    "prefixes": [
+      "331"
+    ],
+    "label": "귀금속·장신구",
+    "terms": [
+      "귀금속",
+      "주얼리"
+    ]
+  },
+  {
+    "industry": "household",
+    "prefixes": [
+      "332"
+    ],
+    "label": "악기",
+    "terms": [
+      "악기",
+      "피아노"
+    ]
+  },
+  {
+    "industry": "household",
+    "prefixes": [
+      "333"
+    ],
+    "label": "스포츠 용품",
+    "terms": [
+      "스포츠",
+      "운동용품"
+    ]
+  },
+  {
+    "industry": "household",
+    "prefixes": [
+      "339"
+    ],
+    "label": "생활 제품",
+    "terms": [
+      "생활용품"
+    ]
+  },
+  {
+    "industry": "chemicals",
+    "prefixes": [
+      "20121"
+    ],
+    "label": "산업용 가스",
+    "terms": [
+      "수소",
+      "산업용가스"
+    ]
+  },
+  {
+    "industry": "chemicals",
+    "prefixes": [
+      "201"
+    ],
+    "label": "기초 화학",
+    "terms": [
+      "화학제품",
+      "화학물질"
+    ]
+  },
+  {
+    "industry": "chemicals",
+    "prefixes": [
+      "202"
+    ],
+    "label": "합성수지·고무",
+    "terms": [
+      "합성수지",
+      "합성고무"
+    ]
+  },
+  {
+    "industry": "chemicals",
+    "prefixes": [
+      "2031"
+    ],
+    "label": "비료",
+    "terms": [
+      "비료"
+    ]
+  },
+  {
+    "industry": "chemicals",
+    "prefixes": [
+      "2032"
+    ],
+    "label": "농약",
+    "terms": [
+      "농약",
+      "살충제",
+      "작물보호제"
+    ]
+  },
+  {
+    "industry": "chemicals",
+    "prefixes": [
+      "203"
+    ],
+    "label": "비료·농약",
+    "terms": [
+      "비료",
+      "농약"
+    ]
+  },
+  {
+    "industry": "chemicals",
+    "prefixes": [
+      "20411",
+      "20413"
+    ],
+    "label": "도료·잉크",
+    "terms": [
+      "도료",
+      "잉크"
+    ]
+  },
+  {
+    "industry": "chemicals",
+    "prefixes": [
+      "20421"
+    ],
+    "label": "계면활성제",
+    "terms": [
+      "계면활성제"
+    ]
+  },
+  {
+    "industry": "chemicals",
+    "prefixes": [
+      "20422"
+    ],
+    "label": "세정·위생 제품",
+    "terms": [
+      "세제",
+      "치약",
+      "비누"
+    ]
+  },
+  {
+    "industry": "chemicals",
+    "prefixes": [
+      "20491"
+    ],
+    "label": "전자 소재",
+    "terms": [
+      "감광재료"
+    ]
+  },
+  {
+    "industry": "chemicals",
+    "prefixes": [
+      "20493"
+    ],
+    "label": "접착제",
+    "terms": [
+      "접착제"
+    ]
+  },
+  {
+    "industry": "chemicals",
+    "prefixes": [
+      "20494"
+    ],
+    "label": "화약",
+    "terms": [
+      "화약"
+    ]
+  },
+  {
+    "industry": "chemicals",
+    "prefixes": [
+      "20495"
+    ],
+    "label": "바이오 연료",
+    "terms": [
+      "바이오 연료",
+      "바이오디젤"
+    ]
+  },
+  {
+    "industry": "chemicals",
+    "prefixes": [
+      "204"
+    ],
+    "label": "정밀·특수 화학",
+    "terms": [
+      "화학제품",
+      "화학소재"
+    ]
+  },
+  {
+    "industry": "chemicals",
+    "prefixes": [
+      "205"
+    ],
+    "label": "화학섬유",
+    "terms": [
+      "화학섬유",
+      "합성섬유"
+    ]
+  },
+  {
+    "industry": "chemicals",
+    "prefixes": [
+      "221"
+    ],
+    "label": "고무 제품",
+    "terms": [
+      "고무"
+    ]
+  },
+  {
+    "industry": "chemicals",
+    "prefixes": [
+      "2221"
+    ],
+    "label": "플라스틱 소재",
+    "terms": [
+      "플라스틱",
+      "필름"
+    ]
+  },
+  {
+    "industry": "chemicals",
+    "prefixes": [
+      "2222"
+    ],
+    "label": "건축용 플라스틱",
+    "terms": [
+      "창호",
+      "플라스틱"
+    ]
+  },
+  {
+    "industry": "chemicals",
+    "prefixes": [
+      "2223"
+    ],
+    "label": "플라스틱 포장",
+    "terms": [
+      "용기",
+      "포장"
+    ]
+  },
+  {
+    "industry": "chemicals",
+    "prefixes": [
+      "222"
+    ],
+    "label": "플라스틱 제품",
+    "terms": [
+      "플라스틱"
+    ]
+  },
+  {
+    "industry": "building-materials",
+    "prefixes": [
+      "231"
+    ],
+    "label": "유리",
+    "terms": [
+      "유리"
+    ]
+  },
+  {
+    "industry": "building-materials",
+    "prefixes": [
+      "232"
+    ],
+    "label": "세라믹·내화재",
+    "terms": [
+      "세라믹",
+      "내화",
+      "도자기"
+    ]
+  },
+  {
+    "industry": "building-materials",
+    "prefixes": [
+      "23311"
+    ],
+    "label": "시멘트",
+    "terms": [
+      "시멘트"
+    ]
+  },
+  {
+    "industry": "building-materials",
+    "prefixes": [
+      "23312"
+    ],
+    "label": "석회·석고",
+    "terms": [
+      "석회",
+      "석고"
+    ]
+  },
+  {
+    "industry": "building-materials",
+    "prefixes": [
+      "2332"
+    ],
+    "label": "콘크리트·레미콘",
+    "terms": [
+      "콘크리트",
+      "레미콘"
+    ]
+  },
+  {
+    "industry": "building-materials",
+    "prefixes": [
+      "233"
+    ],
+    "label": "시멘트·콘크리트",
+    "terms": [
+      "시멘트",
+      "콘크리트"
+    ]
+  },
+  {
+    "industry": "building-materials",
+    "prefixes": [
+      "23991"
+    ],
+    "label": "아스콘",
+    "terms": [
+      "아스콘",
+      "아스팔트"
+    ]
+  },
+  {
+    "industry": "building-materials",
+    "prefixes": [
+      "23992"
+    ],
+    "label": "연마재",
+    "terms": [
+      "연마재"
+    ]
+  },
+  {
+    "industry": "building-materials",
+    "prefixes": [
+      "239"
+    ],
+    "label": "광물 소재",
+    "terms": [
+      "광물"
+    ]
+  },
+  {
+    "industry": "energy",
+    "prefixes": [
+      "19210"
+    ],
+    "label": "정유",
+    "terms": [
+      "정유",
+      "원유"
+    ]
+  },
+  {
+    "industry": "energy",
+    "prefixes": [
+      "19221"
+    ],
+    "label": "윤활유",
+    "terms": [
+      "윤활유"
+    ]
+  },
+  {
+    "industry": "energy",
+    "prefixes": [
+      "19"
+    ],
+    "label": "석유·연료",
+    "terms": [
+      "석유",
+      "연료"
+    ]
+  },
+  {
+    "industry": "energy",
+    "prefixes": [
+      "05",
+      "06",
+      "07",
+      "08"
+    ],
+    "label": "자원 채굴",
+    "terms": [
+      "광업",
+      "채굴"
+    ]
+  },
+  {
+    "industry": "metals",
+    "prefixes": [
+      "2411"
+    ],
+    "label": "제철·제강",
+    "terms": [
+      "제철",
+      "제강",
+      "합금철"
+    ]
+  },
+  {
+    "industry": "metals",
+    "prefixes": [
+      "2412"
+    ],
+    "label": "철강 판재·선재",
+    "terms": [
+      "압연",
+      "철강",
+      "선재"
+    ]
+  },
+  {
+    "industry": "metals",
+    "prefixes": [
+      "2413"
+    ],
+    "label": "강관",
+    "terms": [
+      "강관"
+    ]
+  },
+  {
+    "industry": "metals",
+    "prefixes": [
+      "241"
+    ],
+    "label": "철강",
+    "terms": [
+      "철강",
+      "강재"
+    ]
+  },
+  {
+    "industry": "metals",
+    "prefixes": [
+      "2421"
+    ],
+    "label": "비철금속 제련",
+    "terms": [
+      "제련",
+      "비철금속"
+    ]
+  },
+  {
+    "industry": "metals",
+    "prefixes": [
+      "2422"
+    ],
+    "label": "비철금속 가공",
+    "terms": [
+      "알루미늄",
+      "동합금",
+      "비철금속"
+    ]
+  },
+  {
+    "industry": "metals",
+    "prefixes": [
+      "242"
+    ],
+    "label": "비철금속",
+    "terms": [
+      "비철금속"
+    ]
+  },
+  {
+    "industry": "metals",
+    "prefixes": [
+      "243"
+    ],
+    "label": "주조",
+    "terms": [
+      "주조",
+      "주물"
+    ]
+  },
+  {
+    "industry": "metals",
+    "prefixes": [
+      "2511"
+    ],
+    "label": "금속 구조물",
+    "terms": [
+      "철구조물",
+      "금속구조물"
+    ]
+  },
+  {
+    "industry": "metals",
+    "prefixes": [
+      "2512",
+      "2513"
+    ],
+    "label": "보일러·산업용 용기",
+    "terms": [
+      "보일러",
+      "탱크",
+      "증기"
+    ]
+  },
+  {
+    "industry": "metals",
+    "prefixes": [
+      "251"
+    ],
+    "label": "금속 구조·설비",
+    "terms": [
+      "금속",
+      "탱크"
+    ]
+  },
+  {
+    "industry": "metals",
+    "prefixes": [
+      "252"
+    ],
+    "label": "방산·무기",
+    "terms": [
+      "방산",
+      "총포",
+      "탄약"
+    ]
+  },
+  {
+    "industry": "metals",
+    "prefixes": [
+      "2591"
+    ],
+    "label": "단조·프레스",
+    "terms": [
+      "단조",
+      "프레스"
+    ]
+  },
+  {
+    "industry": "metals",
+    "prefixes": [
+      "2592"
+    ],
+    "label": "금속 가공·표면처리",
+    "terms": [
+      "도금",
+      "절삭",
+      "금속가공"
+    ]
+  },
+  {
+    "industry": "metals",
+    "prefixes": [
+      "2593"
+    ],
+    "label": "공구",
+    "terms": [
+      "공구"
+    ]
+  },
+  {
+    "industry": "metals",
+    "prefixes": [
+      "25991"
+    ],
+    "label": "금속 포장",
+    "terms": [
+      "금속 캔",
+      "포장용기"
+    ]
+  },
+  {
+    "industry": "metals",
+    "prefixes": [
+      "259"
+    ],
+    "label": "금속 가공제품",
+    "terms": [
+      "금속"
+    ]
+  },
+  {
+    "industry": "machinery",
+    "prefixes": [
+      "2911"
+    ],
+    "label": "엔진·터빈",
+    "terms": [
+      "엔진",
+      "터빈"
+    ]
+  },
+  {
+    "industry": "machinery",
+    "prefixes": [
+      "2912",
+      "2913"
+    ],
+    "label": "유압·펌프·밸브",
+    "terms": [
+      "유압",
+      "펌프",
+      "밸브",
+      "압축기"
+    ]
+  },
+  {
+    "industry": "machinery",
+    "prefixes": [
+      "2914"
+    ],
+    "label": "베어링·동력전달",
+    "terms": [
+      "베어링",
+      "기어"
+    ]
+  },
+  {
+    "industry": "machinery",
+    "prefixes": [
+      "2916"
+    ],
+    "label": "운반·물류 설비",
+    "terms": [
+      "승강기",
+      "컨베이어",
+      "물류"
+    ]
+  },
+  {
+    "industry": "machinery",
+    "prefixes": [
+      "29171",
+      "29172"
+    ],
+    "label": "냉난방·냉동",
+    "terms": [
+      "냉동",
+      "냉방",
+      "공조"
+    ]
+  },
+  {
+    "industry": "machinery",
+    "prefixes": [
+      "29175",
+      "29176"
+    ],
+    "label": "여과·정화 설비",
+    "terms": [
+      "여과",
+      "필터"
+    ]
+  },
+  {
+    "industry": "machinery",
+    "prefixes": [
+      "291"
+    ],
+    "label": "범용 산업기계",
+    "terms": [
+      "산업기계",
+      "기계"
+    ]
+  },
+  {
+    "industry": "machinery",
+    "prefixes": [
+      "2921"
+    ],
+    "label": "농기계",
+    "terms": [
+      "농기계"
+    ]
+  },
+  {
+    "industry": "machinery",
+    "prefixes": [
+      "2922"
+    ],
+    "label": "공작기계",
+    "terms": [
+      "공작기계",
+      "절삭"
+    ]
+  },
+  {
+    "industry": "machinery",
+    "prefixes": [
+      "2924"
+    ],
+    "label": "건설·채광 장비",
+    "terms": [
+      "건설기계",
+      "굴착기"
+    ]
+  },
+  {
+    "industry": "machinery",
+    "prefixes": [
+      "29272"
+    ],
+    "label": "디스플레이 장비",
+    "terms": [
+      "디스플레이 장비"
+    ]
+  },
+  {
+    "industry": "machinery",
+    "prefixes": [
+      "2927"
+    ],
+    "label": "반도체·디스플레이 장비",
+    "terms": [
+      "반도체",
+      "디스플레이"
+    ]
+  },
+  {
+    "industry": "machinery",
+    "prefixes": [
+      "2928"
+    ],
+    "label": "산업용 로봇",
+    "terms": [
+      "로봇"
+    ]
+  },
+  {
+    "industry": "machinery",
+    "prefixes": [
+      "29293"
+    ],
+    "label": "금형",
+    "terms": [
+      "금형"
+    ]
+  },
+  {
+    "industry": "machinery",
+    "prefixes": [
+      "292"
+    ],
+    "label": "산업별 생산 장비",
+    "terms": [
+      "장비",
+      "생산설비"
+    ]
+  },
+  {
+    "industry": "machinery",
+    "prefixes": [
+      "34"
+    ],
+    "label": "기계 수리·유지보수",
+    "terms": [
+      "수리",
+      "유지보수"
+    ]
+  },
+  {
+    "industry": "electrical",
+    "prefixes": [
+      "2811"
+    ],
+    "label": "전동기·발전기·변압기",
+    "terms": [
+      "전동기",
+      "발전기",
+      "변압기"
+    ]
+  },
+  {
+    "industry": "electrical",
+    "prefixes": [
+      "2812"
+    ],
+    "label": "전력 제어·배전",
+    "terms": [
+      "배전반",
+      "전력",
+      "제어반"
+    ]
+  },
+  {
+    "industry": "electrical",
+    "prefixes": [
+      "281"
+    ],
+    "label": "전력 기기",
+    "terms": [
+      "전력",
+      "전기기기"
+    ]
+  },
+  {
+    "industry": "electrical",
+    "prefixes": [
+      "283"
+    ],
+    "label": "전선·케이블",
+    "terms": [
+      "전선",
+      "케이블"
+    ]
+  },
+  {
+    "industry": "electrical",
+    "prefixes": [
+      "284"
+    ],
+    "label": "조명",
+    "terms": [
+      "조명",
+      "램프"
+    ]
+  },
+  {
+    "industry": "electronics",
+    "prefixes": [
+      "285"
+    ],
+    "label": "전자 기기",
+    "terms": [
+      "가전",
+      "냉장고",
+      "정수기",
+      "보일러",
+      "온수기"
+    ]
+  },
+  {
+    "industry": "electrical",
+    "prefixes": [
+      "289"
+    ],
+    "label": "전기장비",
+    "terms": [
+      "전기장비"
+    ]
+  },
+  {
+    "industry": "electronics",
+    "prefixes": [
+      "2621"
+    ],
+    "label": "디스플레이",
+    "terms": [
+      "디스플레이",
+      "표시장치"
+    ]
+  },
+  {
+    "industry": "electronics",
+    "prefixes": [
+      "2622"
+    ],
+    "label": "기판",
+    "terms": [
+      "기판",
+      "PCB"
+    ]
+  },
+  {
+    "industry": "electronics",
+    "prefixes": [
+      "26291",
+      "26292",
+      "26293"
+    ],
+    "label": "수동·연결 부품",
+    "terms": [
+      "콘덴서",
+      "저항기",
+      "코일",
+      "커패시터"
+    ]
+  },
+  {
+    "industry": "electronics",
+    "prefixes": [
+      "26294"
+    ],
+    "label": "센서",
+    "terms": [
+      "센서",
+      "감지장치"
+    ]
+  },
+  {
+    "industry": "electronics",
+    "prefixes": [
+      "262"
+    ],
+    "label": "전자부품",
+    "terms": [
+      "전자부품"
+    ]
+  },
+  {
+    "industry": "electronics",
+    "prefixes": [
+      "263",
+      "265",
+      "266"
+    ],
+    "label": "전자 기기",
+    "terms": [
+      "전자기기",
+      "컴퓨터",
+      "영상",
+      "음향"
+    ]
+  },
+  {
+    "industry": "electronics",
+    "prefixes": [
+      "26422"
+    ],
+    "label": "전자 기기",
+    "terms": [
+      "이동전화",
+      "스마트폰"
+    ]
+  },
+  {
+    "industry": "electronics",
+    "prefixes": [
+      "264"
+    ],
+    "label": "통신 장비·부품",
+    "terms": [
+      "통신장비",
+      "통신 장비"
+    ]
+  },
+  {
+    "industry": "auto",
+    "prefixes": [
+      "301"
+    ],
+    "label": "완성차",
+    "terms": [
+      "자동차"
+    ]
+  },
+  {
+    "industry": "auto",
+    "prefixes": [
+      "302",
+      "3032"
+    ],
+    "label": "차체·내장",
+    "terms": [
+      "차체",
+      "내장"
+    ]
+  },
+  {
+    "industry": "auto",
+    "prefixes": [
+      "3031"
+    ],
+    "label": "엔진 부품",
+    "terms": [
+      "엔진"
+    ]
+  },
+  {
+    "industry": "auto",
+    "prefixes": [
+      "3033"
+    ],
+    "label": "구동·전장",
+    "terms": [
+      "동력전달",
+      "전장"
+    ]
+  },
+  {
+    "industry": "auto",
+    "prefixes": [
+      "30391"
+    ],
+    "label": "조향·현가",
+    "terms": [
+      "조향",
+      "현가"
+    ]
+  },
+  {
+    "industry": "auto",
+    "prefixes": [
+      "303",
+      "304"
+    ],
+    "label": "자동차 부품",
+    "terms": [
+      "자동차부품",
+      "자동차 부품"
+    ]
+  },
+  {
+    "industry": "shipbuilding",
+    "prefixes": [
+      "31114"
+    ],
+    "label": "선박 부품",
+    "terms": [
+      "선박",
+      "조선"
+    ]
+  },
+  {
+    "industry": "shipbuilding",
+    "prefixes": [
+      "311"
+    ],
+    "label": "선박 건조",
+    "terms": [
+      "선박",
+      "조선"
+    ]
+  },
+  {
+    "industry": "aerospace",
+    "prefixes": [
+      "31321"
+    ],
+    "label": "항공 엔진",
+    "terms": [
+      "항공",
+      "엔진"
+    ]
+  },
+  {
+    "industry": "aerospace",
+    "prefixes": [
+      "31322"
+    ],
+    "label": "항공 부품",
+    "terms": [
+      "항공",
+      "부품"
+    ]
+  },
+  {
+    "industry": "aerospace",
+    "prefixes": [
+      "313"
+    ],
+    "label": "항공기·우주선",
+    "terms": [
+      "항공",
+      "우주"
+    ]
+  },
+  {
+    "industry": "rail",
+    "prefixes": [
+      "312"
+    ],
+    "label": "철도차량·부품",
+    "terms": [
+      "철도"
+    ]
+  },
+  {
+    "industry": "rail",
+    "prefixes": [
+      "31910"
+    ],
+    "label": "방산 차량",
+    "terms": [
+      "전투",
+      "장갑차"
+    ]
+  },
+  {
+    "industry": "rail",
+    "prefixes": [
+      "31991"
+    ],
+    "label": "자전거·이동 보조",
+    "terms": [
+      "자전거",
+      "환자용"
+    ]
+  },
+  {
+    "industry": "rail",
+    "prefixes": [
+      "319"
+    ],
+    "label": "운송장비",
+    "terms": [
+      "운송장비"
+    ]
+  },
+  {
+    "industry": "construction",
+    "prefixes": [
+      "411"
+    ],
+    "label": "건축",
+    "terms": [
+      "건설",
+      "건축"
+    ]
+  },
+  {
+    "industry": "construction",
+    "prefixes": [
+      "412"
+    ],
+    "label": "토목·플랜트",
+    "terms": [
+      "토목",
+      "플랜트"
+    ]
+  },
+  {
+    "industry": "construction",
+    "prefixes": [
+      "421"
+    ],
+    "label": "기초·구조 공사",
+    "terms": [
+      "공사"
+    ]
+  },
+  {
+    "industry": "construction",
+    "prefixes": [
+      "422"
+    ],
+    "label": "건물 설비",
+    "terms": [
+      "설비"
+    ]
+  },
+  {
+    "industry": "construction",
+    "prefixes": [
+      "423"
+    ],
+    "label": "전기·통신 공사",
+    "terms": [
+      "전기공사",
+      "통신공사"
+    ]
+  },
+  {
+    "industry": "construction",
+    "prefixes": [
+      "424"
+    ],
+    "label": "인테리어·마감",
+    "terms": [
+      "인테리어",
+      "실내건축"
+    ]
+  },
+  {
+    "industry": "retail",
+    "prefixes": [
+      "451",
+      "452"
+    ],
+    "label": "자동차·부품 유통",
+    "terms": [
+      "자동차",
+      "부품"
+    ]
+  },
+  {
+    "industry": "retail",
+    "prefixes": [
+      "461"
+    ],
+    "label": "상품 중개",
+    "terms": [
+      "중개"
+    ]
+  },
+  {
+    "industry": "retail",
+    "prefixes": [
+      "462",
+      "463"
+    ],
+    "label": "식품·농산물 유통",
+    "terms": [
+      "식품",
+      "농산물",
+      "육류"
+    ]
+  },
+  {
+    "industry": "retail",
+    "prefixes": [
+      "46443"
+    ],
+    "label": "화장품 유통",
+    "terms": [
+      "화장품"
+    ]
+  },
+  {
+    "industry": "retail",
+    "prefixes": [
+      "464"
+    ],
+    "label": "생활용품 유통",
+    "terms": [
+      "생활용품",
+      "의류",
+      "가구"
+    ]
+  },
+  {
+    "industry": "retail",
+    "prefixes": [
+      "465"
+    ],
+    "label": "기계·IT 유통",
+    "terms": [
+      "기계",
+      "컴퓨터",
+      "장비"
+    ]
+  },
+  {
+    "industry": "retail",
+    "prefixes": [
+      "466"
+    ],
+    "label": "건자재 유통",
+    "terms": [
+      "건자재"
+    ]
+  },
+  {
+    "industry": "retail",
+    "prefixes": [
+      "46712",
+      "46713"
+    ],
+    "label": "연료 유통",
+    "terms": [
+      "연료",
+      "가스"
+    ]
+  },
+  {
+    "industry": "retail",
+    "prefixes": [
+      "4673"
+    ],
+    "label": "화학제품 유통",
+    "terms": [
+      "화학"
+    ]
+  },
+  {
+    "industry": "retail",
+    "prefixes": [
+      "467",
+      "468"
+    ],
+    "label": "종합·전문 무역",
+    "terms": [
+      "무역",
+      "도매",
+      "유통"
+    ]
+  },
+  {
+    "industry": "retail",
+    "prefixes": [
+      "47111"
+    ],
+    "label": "백화점",
+    "terms": [
+      "백화점"
+    ]
+  },
+  {
+    "industry": "retail",
+    "prefixes": [
+      "47122"
+    ],
+    "label": "편의점",
+    "terms": [
+      "편의점"
+    ]
+  },
+  {
+    "industry": "retail",
+    "prefixes": [
+      "471"
+    ],
+    "label": "종합 소매",
+    "terms": [
+      "마트",
+      "소매"
+    ]
+  },
+  {
+    "industry": "retail",
+    "prefixes": [
+      "472"
+    ],
+    "label": "식품 소매",
+    "terms": [
+      "식품"
+    ]
+  },
+  {
+    "industry": "retail",
+    "prefixes": [
+      "473"
+    ],
+    "label": "가전·IT 소매",
+    "terms": [
+      "가전"
+    ]
+  },
+  {
+    "industry": "retail",
+    "prefixes": [
+      "474"
+    ],
+    "label": "패션 소매",
+    "terms": [
+      "패션",
+      "의류"
+    ]
+  },
+  {
+    "industry": "retail",
+    "prefixes": [
+      "475"
+    ],
+    "label": "생활용품 소매",
+    "terms": [
+      "가구",
+      "생활용품"
+    ]
+  },
+  {
+    "industry": "retail",
+    "prefixes": [
+      "477"
+    ],
+    "label": "주유소·연료 소매",
+    "terms": [
+      "주유소",
+      "연료"
+    ]
+  },
+  {
+    "industry": "retail",
+    "prefixes": [
+      "478"
+    ],
+    "label": "전문 소매",
+    "terms": [
+      "소매"
+    ]
+  },
+  {
+    "industry": "retail",
+    "prefixes": [
+      "479"
+    ],
+    "label": "온라인·통신 판매",
+    "terms": [
+      "온라인",
+      "통신판매",
+      "전자상거래"
+    ]
+  },
+  {
+    "industry": "transport",
+    "prefixes": [
+      "49"
+    ],
+    "label": "육상 운송",
+    "terms": [
+      "운송",
+      "운수"
+    ]
+  },
+  {
+    "industry": "transport",
+    "prefixes": [
+      "50"
+    ],
+    "label": "해상 운송",
+    "terms": [
+      "해운",
+      "해상운송"
+    ]
+  },
+  {
+    "industry": "transport",
+    "prefixes": [
+      "51"
+    ],
+    "label": "항공 운송",
+    "terms": [
+      "항공운송",
+      "항공사"
+    ]
+  },
+  {
+    "industry": "transport",
+    "prefixes": [
+      "52"
+    ],
+    "label": "물류·운송 지원",
+    "terms": [
+      "물류",
+      "운송"
+    ]
+  },
+  {
+    "industry": "travel",
+    "prefixes": [
+      "55"
+    ],
+    "label": "숙박",
+    "terms": [
+      "호텔",
+      "리조트",
+      "숙박"
+    ]
+  },
+  {
+    "industry": "travel",
+    "prefixes": [
+      "56"
+    ],
+    "label": "외식",
+    "terms": [
+      "외식",
+      "음식점"
+    ]
+  },
+  {
+    "industry": "travel",
+    "prefixes": [
+      "752"
+    ],
+    "label": "여행",
+    "terms": [
+      "여행"
+    ]
+  },
+  {
+    "industry": "content",
+    "prefixes": [
+      "581"
+    ],
+    "label": "출판",
+    "terms": [
+      "출판"
+    ]
+  },
+  {
+    "industry": "content",
+    "prefixes": [
+      "5911"
+    ],
+    "label": "영상 제작",
+    "terms": [
+      "영상",
+      "방송프로그램",
+      "애니메이션"
+    ]
+  },
+  {
+    "industry": "content",
+    "prefixes": [
+      "5912"
+    ],
+    "label": "영상 제작 지원",
+    "terms": [
+      "영상",
+      "제작"
+    ]
+  },
+  {
+    "industry": "content",
+    "prefixes": [
+      "5913"
+    ],
+    "label": "영상 배급",
+    "terms": [
+      "배급"
+    ]
+  },
+  {
+    "industry": "content",
+    "prefixes": [
+      "5914"
+    ],
+    "label": "영화관",
+    "terms": [
+      "영화관"
+    ]
+  },
+  {
+    "industry": "content",
+    "prefixes": [
+      "591"
+    ],
+    "label": "영화·영상",
+    "terms": [
+      "영화",
+      "영상"
+    ]
+  },
+  {
+    "industry": "content",
+    "prefixes": [
+      "592"
+    ],
+    "label": "음악",
+    "terms": [
+      "음악",
+      "음원"
+    ]
+  },
+  {
+    "industry": "content",
+    "prefixes": [
+      "60"
+    ],
+    "label": "방송·스트리밍",
+    "terms": [
+      "방송",
+      "영상",
+      "스트리밍"
+    ]
+  },
+  {
+    "industry": "content",
+    "prefixes": [
+      "90"
+    ],
+    "label": "공연·예술",
+    "terms": [
+      "공연",
+      "엔터테인먼트"
+    ]
+  },
+  {
+    "industry": "content",
+    "prefixes": [
+      "58"
+    ],
+    "label": "출판·콘텐츠",
+    "terms": [
+      "콘텐츠",
+      "출판"
+    ]
+  },
+  {
+    "industry": "gaming",
+    "prefixes": [
+      "5821"
+    ],
+    "label": "게임",
+    "terms": [
+      "게임"
+    ]
+  },
+  {
+    "industry": "finance",
+    "prefixes": [
+      "641"
+    ],
+    "label": "은행·저축은행",
+    "terms": [
+      "은행"
+    ]
+  },
+  {
+    "industry": "finance",
+    "prefixes": [
+      "642"
+    ],
+    "label": "자산운용·벤처투자",
+    "terms": [
+      "투자",
+      "운용"
+    ]
+  },
+  {
+    "industry": "finance",
+    "prefixes": [
+      "6491"
+    ],
+    "label": "카드·리스·여신",
+    "terms": [
+      "여신",
+      "리스",
+      "할부",
+      "신용카드"
+    ]
+  },
+  {
+    "industry": "finance",
+    "prefixes": [
+      "649"
+    ],
+    "label": "투자·금융",
+    "terms": [
+      "금융",
+      "투자"
+    ]
+  },
+  {
+    "industry": "finance",
+    "prefixes": [
+      "6511"
+    ],
+    "label": "생명보험",
+    "terms": [
+      "생명보험"
+    ]
+  },
+  {
+    "industry": "finance",
+    "prefixes": [
+      "6512"
+    ],
+    "label": "손해·보증보험",
+    "terms": [
+      "손해보험",
+      "보증보험"
+    ]
+  },
+  {
+    "industry": "finance",
+    "prefixes": [
+      "652"
+    ],
+    "label": "재보험",
+    "terms": [
+      "재보험"
+    ]
+  },
+  {
+    "industry": "finance",
+    "prefixes": [
+      "653"
+    ],
+    "label": "연금·공제",
+    "terms": [
+      "연금",
+      "공제"
+    ]
+  },
+  {
+    "industry": "finance",
+    "prefixes": [
+      "66121"
+    ],
+    "label": "증권",
+    "terms": [
+      "증권"
+    ]
+  },
+  {
+    "industry": "finance",
+    "prefixes": [
+      "661"
+    ],
+    "label": "금융 지원",
+    "terms": [
+      "금융"
+    ]
+  },
+  {
+    "industry": "finance",
+    "prefixes": [
+      "662"
+    ],
+    "label": "보험 중개·지원",
+    "terms": [
+      "보험"
+    ]
+  },
+  {
+    "industry": "holdings",
+    "prefixes": [
+      "64992"
+    ],
+    "label": "지주회사",
+    "terms": [
+      "지주회사"
+    ]
+  },
+  {
+    "industry": "real-estate",
+    "prefixes": [
+      "6811"
+    ],
+    "label": "부동산 임대",
+    "terms": [
+      "임대"
+    ]
+  },
+  {
+    "industry": "real-estate",
+    "prefixes": [
+      "6812"
+    ],
+    "label": "부동산 개발",
+    "terms": [
+      "부동산",
+      "개발"
+    ]
+  },
+  {
+    "industry": "real-estate",
+    "prefixes": [
+      "68"
+    ],
+    "label": "부동산 운영·개발",
+    "terms": [
+      "부동산"
+    ]
+  },
+  {
+    "industry": "business-services",
+    "prefixes": [
+      "713"
+    ],
+    "label": "광고",
+    "terms": [
+      "광고"
+    ]
+  },
+  {
+    "industry": "business-services",
+    "prefixes": [
+      "714"
+    ],
+    "label": "시장조사",
+    "terms": [
+      "시장조사"
+    ]
+  },
+  {
+    "industry": "business-services",
+    "prefixes": [
+      "715"
+    ],
+    "label": "경영 지원·컨설팅",
+    "terms": [
+      "컨설팅",
+      "경영"
+    ]
+  },
+  {
+    "industry": "business-services",
+    "prefixes": [
+      "716",
+      "739"
+    ],
+    "label": "전문 서비스",
+    "terms": [
+      "서비스"
+    ]
+  },
+  {
+    "industry": "business-services",
+    "prefixes": [
+      "732"
+    ],
+    "label": "디자인",
+    "terms": [
+      "디자인"
+    ]
+  },
+  {
+    "industry": "business-services",
+    "prefixes": [
+      "741"
+    ],
+    "label": "시설 관리",
+    "terms": [
+      "시설관리",
+      "시설 관리"
+    ]
+  },
+  {
+    "industry": "business-services",
+    "prefixes": [
+      "753"
+    ],
+    "label": "보안 서비스",
+    "terms": [
+      "보안",
+      "경비"
+    ]
+  },
+  {
+    "industry": "business-services",
+    "prefixes": [
+      "75992"
+    ],
+    "label": "행사·전시",
+    "terms": [
+      "행사",
+      "전시"
+    ]
+  },
+  {
+    "industry": "business-services",
+    "prefixes": [
+      "75993"
+    ],
+    "label": "신용조사·채권추심",
+    "terms": [
+      "신용조사",
+      "채권추심"
+    ]
+  },
+  {
+    "industry": "business-services",
+    "prefixes": [
+      "759"
+    ],
+    "label": "사업 지원",
+    "terms": [
+      "사업지원",
+      "서비스"
+    ]
+  },
+  {
+    "industry": "business-services",
+    "prefixes": [
+      "761"
+    ],
+    "label": "차량·장비 렌탈",
+    "terms": [
+      "렌탈",
+      "렌터카",
+      "임대"
+    ]
+  },
+  {
+    "industry": "business-services",
+    "prefixes": [
+      "762"
+    ],
+    "label": "생활용품 렌탈",
+    "terms": [
+      "렌탈",
+      "임대"
+    ]
+  },
+  {
+    "industry": "business-services",
+    "prefixes": [
+      "763"
+    ],
+    "label": "산업 장비 렌탈",
+    "terms": [
+      "렌탈",
+      "임대"
+    ]
+  },
+  {
+    "industry": "education",
+    "prefixes": [
+      "85"
+    ],
+    "label": "교육",
+    "terms": [
+      "교육",
+      "학원"
+    ]
+  },
+  {
+    "industry": "leisure",
+    "prefixes": [
+      "9112"
+    ],
+    "label": "골프·스포츠 시설",
+    "terms": [
+      "골프",
+      "스포츠"
+    ]
+  },
+  {
+    "industry": "leisure",
+    "prefixes": [
+      "911"
+    ],
+    "label": "스포츠 서비스",
+    "terms": [
+      "스포츠"
+    ]
+  },
+  {
+    "industry": "leisure",
+    "prefixes": [
+      "912"
+    ],
+    "label": "레저·카지노",
+    "terms": [
+      "카지노",
+      "레저"
+    ]
+  },
+  {
+    "industry": "utilities",
+    "prefixes": [
+      "351"
+    ],
+    "label": "발전·전력 공급",
+    "terms": [
+      "전력",
+      "발전"
+    ]
+  },
+  {
+    "industry": "utilities",
+    "prefixes": [
+      "352"
+    ],
+    "label": "도시가스",
+    "terms": [
+      "도시가스"
+    ]
+  },
+  {
+    "industry": "utilities",
+    "prefixes": [
+      "353"
+    ],
+    "label": "열·냉난방 공급",
+    "terms": [
+      "열공급",
+      "집단에너지"
+    ]
+  },
+  {
+    "industry": "utilities",
+    "prefixes": [
+      "36"
+    ],
+    "label": "상수도",
+    "terms": [
+      "상수도"
+    ]
+  },
+  {
+    "industry": "environment",
+    "prefixes": [
+      "37"
+    ],
+    "label": "하수 처리",
+    "terms": [
+      "하수"
+    ]
+  },
+  {
+    "industry": "environment",
+    "prefixes": [
+      "382"
+    ],
+    "label": "폐기물 처리",
+    "terms": [
+      "폐기물"
+    ]
+  },
+  {
+    "industry": "environment",
+    "prefixes": [
+      "383"
+    ],
+    "label": "재활용",
+    "terms": [
+      "재활용",
+      "재생"
+    ]
+  },
+  {
+    "industry": "environment",
+    "prefixes": [
+      "38",
+      "39"
+    ],
+    "label": "환경 서비스",
+    "terms": [
+      "폐기물",
+      "환경"
+    ]
+  },
+  {
+    "industry": "other-services",
+    "prefixes": [
+      "84",
+      "87",
+      "94",
+      "95",
+      "96",
+      "97",
+      "98",
+      "99"
+    ],
+    "label": "생활·공공 서비스",
+    "terms": [
+      "서비스"
+    ]
+  }
+]

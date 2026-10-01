@@ -135,7 +135,6 @@ abstract class _CategoryChart extends StatefulWidget {
 }
 
 class _CategoryChartState extends State<_CategoryChart> {
-  static const _axisWidth = 64.0;
   static const _labelHeight = 22.0;
 
   int? _hovered;
@@ -165,14 +164,27 @@ class _CategoryChartState extends State<_CategoryChart> {
       height: widget.height,
       child: LayoutBuilder(
         builder: (context, constraints) {
+          final tickStyle = t.numeric(10.5, color: c.textMuted);
+          final leftWidth = chartAxisWidth(
+            scale.ticks.map(widget.formatValue),
+            tickStyle,
+            maxWidth: constraints.maxWidth * .4,
+          );
+          final secondary = widget.secondarySeries;
+          final rightWidth = secondary == null
+              ? 0.0
+              : chartAxisWidth(
+                  ChartScale.of(secondary.values.nonNulls).ticks
+                      .map(widget.formatSecondary),
+                  tickStyle,
+                  maxWidth: constraints.maxWidth * .4,
+                );
           final plot = Rect.fromLTWH(
-            _axisWidth,
+            leftWidth,
             8,
             math.max(
               0,
-              constraints.maxWidth -
-                  _axisWidth -
-                  (widget.secondarySeries == null ? 0 : _axisWidth),
+              constraints.maxWidth - leftWidth - rightWidth,
             ),
             math.max(0, widget.height - _labelHeight - 8),
           );
@@ -213,7 +225,7 @@ class _CategoryChartState extends State<_CategoryChart> {
                         scale: scale,
                         hovered: hovered,
                         colors: c,
-                        tickStyle: t.numeric(10.5, color: c.textMuted),
+                        tickStyle: tickStyle,
                         labelStyle: t.body(11.5, color: c.textSecondary),
                       ),
                     ),
@@ -344,7 +356,11 @@ class _ChartPainter extends CustomPainter {
                 ..strokeWidth = 1)
             : grid,
       );
-      final tp = _text(chart.formatValue(tick), tickStyle);
+      final tp = _text(
+        chart.formatValue(tick),
+        tickStyle,
+        maxWidth: math.max(0, plot.left - 8),
+      );
       tp.paint(canvas, Offset(plot.left - 8 - tp.width, y - tp.height / 2));
     }
 
@@ -356,6 +372,7 @@ class _ChartPainter extends CustomPainter {
         final tp = _text(
           chart.formatSecondary(tick),
           tickStyle.copyWith(color: secondary.color),
+          maxWidth: math.max(0, size.width - plot.right - 8),
         );
         tp.paint(canvas, Offset(plot.right + 8, y - tp.height / 2));
       }
@@ -388,11 +405,16 @@ class _ChartPainter extends CustomPainter {
     chart.paintMarks(canvas, plot, scale, hovered, colors);
   }
 
-  static TextPainter _text(String s, TextStyle style) => TextPainter(
+  static TextPainter _text(
+    String s,
+    TextStyle style, {
+    double maxWidth = double.infinity,
+  }) => TextPainter(
     text: TextSpan(text: s, style: style),
     textDirection: TextDirection.ltr,
     maxLines: 1,
-  )..layout();
+    ellipsis: '…',
+  )..layout(maxWidth: maxWidth);
 
   @override
   bool shouldRepaint(covariant _ChartPainter old) =>
@@ -732,4 +754,24 @@ class AppLineChart extends _CategoryChart {
       }
     }
   }
+}
+
+/// Reserve the rendered tick width, including sign, separators and unit.
+/// Extremely long labels are ellipsized within this gutter by the painter.
+double chartAxisWidth(
+  Iterable<String> labels,
+  TextStyle style, {
+  required double maxWidth,
+}) {
+  var width = 56.0;
+  for (final label in labels) {
+    final painter = TextPainter(
+      text: TextSpan(text: label, style: style),
+      textDirection: TextDirection.ltr,
+      maxLines: 1,
+    )..layout();
+    width = math.max(width, painter.width);
+    painter.dispose();
+  }
+  return math.min(width.ceilToDouble() + 8, math.max(0, maxWidth));
 }

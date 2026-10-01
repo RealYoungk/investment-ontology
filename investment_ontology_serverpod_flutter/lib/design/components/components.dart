@@ -13,3 +13,7 @@ export 'toggle_group.dart';
 export 'charts/app_charts.dart';
 export 'charts/app_treemap.dart';
 export 'charts/chart_scale.dart';
+
+export 'company_section_heading.dart';
+
+export 'company_detail_disclosure.dart';

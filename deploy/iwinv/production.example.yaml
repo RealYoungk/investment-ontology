@@ -1,0 +1,37 @@
+# Replace API_HOST_REPLACE before copying to runtime/production.yaml.
+# First restore/rehearsal keeps all scheduled ingestion disabled.
+apiServer:
+  port: 8080
+  publicHost: API_HOST_REPLACE
+  publicPort: 443
+  publicScheme: https
+insightsServer:
+  port: 8081
+  publicHost: localhost
+  publicPort: 8081
+  publicScheme: http
+webServer:
+  port: 8082
+  publicHost: localhost
+  publicPort: 8082
+  publicScheme: http
+database:
+  host: postgres
+  port: 5432
+  name: alfinder
+  user: alfinder
+  requireSsl: false
+  maxConnectionCount: 6
+redis:
+  enabled: false
+maxRequestSize: 524288
+sessionLogs:
+  consoleEnabled: true
+futureCallExecutionEnabled: false
+futureCall:
+  concurrencyLimit: 1
+authCookie:
+  secure: true
+  sameSite: lax
+allowedOrigins:
+  - https://alfinder.kr

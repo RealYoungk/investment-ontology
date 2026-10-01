@@ -229,7 +229,7 @@ class AppTreemap<T> extends StatelessWidget {
   }
 }
 
-/// 한 줄에 다 들어갈 때만 글자를 쓴다. 잘린 글자는 보여주지 않는다.
+/// 타일 너비에 맞춰 이름을 줄바꿈하고, 높이가 허용하는 줄까지만 표시한다.
 ///
 /// [detail](비중 등)은 이름이 들어갈 때만 쓴다. 이름 없이 숫자만 남으면 무엇의 값인지 알 수 없다.
 class _FittedLabel extends StatefulWidget {
@@ -250,7 +250,7 @@ class _FittedLabel extends StatefulWidget {
 }
 
 class _FittedLabelState extends State<_FittedLabel> {
-  /// 잰 폭에 곱하는 여유.
+  /// 웹 글꼴 로딩·반올림 차이를 위한 너비 여유.
   static const _safety = 1.05;
 
   @override
@@ -276,59 +276,56 @@ class _FittedLabelState extends State<_FittedLabel> {
       builder: (context, constraints) {
         final scaler = MediaQuery.textScalerOf(context);
         final base = DefaultTextStyle.of(context).style;
-        Size measure(String s, TextStyle? st) {
-          // Text 위젯처럼 기본 글꼴 설정을 합쳐서 잰다.
-          final painter = TextPainter(
-            text: TextSpan(text: s, style: base.merge(st)),
-            maxLines: 1,
-            textDirection: TextDirection.ltr,
-            textScaler: scaler,
-          )..layout();
-          final size = painter.size;
-          painter.dispose();
-          return size;
-        }
-
-        bool fitsWidth(Size s) => s.width * _safety <= constraints.maxWidth;
+        final direction = Directionality.of(context);
+        TextPainter measure(String text, TextStyle? style) => TextPainter(
+          text: TextSpan(text: text, style: base.merge(style)),
+          textDirection: direction,
+          textScaler: scaler,
+        )..layout(maxWidth: constraints.maxWidth / _safety);
 
         final w = widget;
-        final labelSize = measure(w.text, w.style);
-        if (labelSize.height > constraints.maxHeight) {
-          return const SizedBox.shrink();
-        }
-        // 이름이 다 안 들어가는 타일에는 앞 글자만이라도 적는다 (…로 줄여서).
-        // 큰 상자가 텅 비어 보이는 것보다 낫다. 두 글자도 안 들어가면 비운다.
-        if (!fitsWidth(labelSize)) {
-          final two = measure(w.text.characters.take(2).toString(), w.style);
-          if (!fitsWidth(two)) return const SizedBox.shrink();
-          return Text(
-            w.text,
-            style: w.style,
-            maxLines: 1,
-            softWrap: false,
-            overflow: TextOverflow.ellipsis,
-          );
-        }
-        final d = w.detail;
+        final painter = measure(w.text, w.style);
+        final lines = painter.computeLineMetrics();
+        final visibleLines = lines
+            .takeWhile(
+              (line) => line.baseline + line.descent <= constraints.maxHeight,
+            )
+            .length;
+        final fullLabelHeight = painter.height;
+        painter.dispose();
+        if (visibleLines == 0) return const SizedBox.shrink();
+
+        final fullLabelFits = visibleLines == lines.length;
         final label = Text(
           w.text,
           style: w.style,
-          maxLines: 1,
-          softWrap: false,
+          maxLines: visibleLines,
+          softWrap: true,
+          overflow: TextOverflow.ellipsis,
         );
-        if (d == null) return label;
-        final detailSize = measure(d, w.detailStyle);
-        // 작은 타일에서는 이름만 적는다.
-        if (!fitsWidth(detailSize) ||
-            labelSize.height + detailSize.height > constraints.maxHeight) {
-          return label;
-        }
+        // 이름을 먼저 온전히 보여준 뒤 남는 높이에만 부가 정보를 넣는다.
+        final detail = w.detail;
+        if (detail == null || !fullLabelFits) return label;
+        final detailPainter = measure(detail, w.detailStyle);
+        final detailLines = detailPainter.computeLineMetrics().length;
+        // 금액·기업 수는 숫자가 여러 줄로 쪼개지지 않을 때만 표시한다.
+        final detailFits =
+            detailLines == 1 &&
+            fullLabelHeight + detailPainter.height <= constraints.maxHeight;
+        detailPainter.dispose();
+        if (!detailFits) return label;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             label,
-            Text(d, style: w.detailStyle, maxLines: 1, softWrap: false),
+            Text(
+              detail,
+              style: w.detailStyle,
+              maxLines: detailLines,
+              softWrap: true,
+              overflow: TextOverflow.ellipsis,
+            ),
           ],
         );
       },

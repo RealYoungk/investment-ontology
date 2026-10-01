@@ -177,7 +177,7 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
           Text(
-            '예시 기업은 사용법을 살펴보기 위한 것으로, 투자 추천이 아닙니다.',
+            '사용법을 살펴볼 수 있는 예시예요. 투자 추천은 아니에요.',
             style: t.body(12, color: c.textSecondary),
           ),
         ],
@@ -193,15 +193,14 @@ class _HomePageState extends State<HomePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const JourneyHeading(
-                  eyebrow: '기업을 알아가는 첫걸음',
-                  title: '아는 산업에서,\n새로운 기업으로.',
-                  description:
-                      '무엇을 팔고, 얼마나 벌고, 어떻게 달라지는지.\n국내 상장기업을 공시와 숫자로 알아보세요.',
+                  eyebrow: '국내 상장기업을 찾고 비교하는 알파인더',
+                  title: '어떤 회사인지 알고,\n투자를 생각해 보세요.',
+                  description: '무엇을 팔고 얼마나 버는지, 공시와 실적을 모아 보여드려요.\n관심 기업을 찾고 다른 회사와 비교해 보세요.',
                   large: true,
                 ),
                 const SizedBox(height: AppSpace.xl),
                 Text(
-                  '기업 이름을 몰라도 괜찮습니다.',
+                  '아직 떠오르는 회사가 없어도 괜찮아요.',
                   style: t.body(14, color: c.textSecondary),
                 ),
                 const SizedBox(height: AppSpace.md),
@@ -294,10 +293,10 @@ class _HomePageState extends State<HomePage> {
           },
         ),
         const SizedBox(height: 32),
-        Text('어떤 변화가 궁금한가요?', style: t.display(26)),
+        Text('이런 회사를 찾고 있나요?', style: t.display(26)),
         const SizedBox(height: AppSpace.sm),
         Text(
-          '간단한 조건으로 시작하고, 결과에서 내 기준으로 조정하세요.',
+          '하나를 골라보세요. 결과를 보고 원하는 조건으로 바꿀 수 있어요.',
           style: t.body(14, color: c.textSecondary),
         ),
         const SizedBox(height: AppSpace.lg),

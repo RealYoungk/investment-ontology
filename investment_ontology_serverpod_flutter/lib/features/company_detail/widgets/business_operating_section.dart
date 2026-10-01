@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 
 import '../../../client.dart';
+import 'business_breakdown_panel.dart';
 import '../business/overview_catalog.dart';
 import '../../../design/components/components.dart';
 import '../../../design/tokens.dart';
 import '../../business/business_tab.dart' show documentFactKindLabel;
-import '../../financials/financial_metrics.dart' show formatUnitAmount;
+import '../../financials/financial_metrics.dart'
+    show formatUnitAmount, formatUnitAmountCompact, formatSourceAmount;
 
 const _operatingKinds = [
   DocumentFactKind.orderBacklog,
@@ -278,6 +280,7 @@ class BusinessOperatingSection extends StatefulWidget {
 
 class _BusinessOperatingSectionState extends State<BusinessOperatingSection> {
   List<List<DocumentFact>> _series = const [];
+  List<DocumentFact> _breakdowns = const [];
   List<String> _focus = const [];
   List<BusinessFactPeriod> _periods = const [];
   bool _failed = false;
@@ -301,6 +304,7 @@ class _BusinessOperatingSectionState extends State<BusinessOperatingSection> {
     final seq = ++_seq;
     setState(() {
       _series = const [];
+      _breakdowns = const [];
       _failed = false;
     });
     try {
@@ -315,6 +319,7 @@ class _BusinessOperatingSectionState extends State<BusinessOperatingSection> {
       if (mounted && seq == _seq) {
         setState(() {
           _periods = periods;
+          _breakdowns = facts;
           _focus = focus;
           _series = operatingSeries(facts, focus: focus);
         });
@@ -349,15 +354,27 @@ class _BusinessOperatingSectionState extends State<BusinessOperatingSection> {
         ),
       );
     }
-    if (_series.isEmpty) return const SizedBox.shrink();
+    if (_series.isEmpty && _breakdowns.isEmpty) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpace.xl),
-      child: OperatingMetricsList(
-        key: ValueKey((widget.corpCode, widget.dataVersion)),
-        series: _series,
-        focus: _focus,
-        periods: _periods,
-        latestReport: widget.latestReport,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          BusinessBreakdownPanel(
+            key: ValueKey(('breakdowns', widget.corpCode, widget.dataVersion)),
+            facts: _breakdowns,
+            periods: _periods,
+            latestReport: widget.latestReport,
+          ),
+          if (_series.isNotEmpty)
+            OperatingMetricsList(
+              key: ValueKey((widget.corpCode, widget.dataVersion)),
+              series: _series,
+              focus: _focus,
+              periods: _periods,
+              latestReport: widget.latestReport,
+            ),
+        ],
       ),
     );
   }
@@ -422,7 +439,10 @@ class _OperatingMetricsListState extends State<OperatingMetricsList> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SectionLabel('사업 지표는 어떻게 변했나요?', accent: true),
+        const CompanySectionHeading(
+          '사업 지표',
+          help: '생산능력은 설비의 생산 규모, 가동률은 설비를 사용한 비율입니다. 시장점유율은 해당 제품 시장에서 차지하는 비중입니다.\n\n지표마다 공시 시점과 단위가 다를 수 있으므로 표시된 기준 기간을 함께 확인하세요. 값이 없는 기간은 0으로 처리하지 않습니다.',
+        ),
         for (final series in primary) ...[
           const SizedBox(height: AppSpace.md),
           OperatingMetricCard(
@@ -537,9 +557,12 @@ class OperatingMetricCard extends StatelessWidget {
       runSpacing: AppSpace.xs,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        Text(
-          formatUnitAmount(latest.value, latest.unit),
-          style: t.numeric(20, weight: FontWeight.w700),
+        Tooltip(
+          message: formatSourceAmount(latest.value, latest.unit),
+          child: Text(
+            formatUnitAmountCompact(latest.value, latest.unit),
+            style: t.numeric(20, weight: FontWeight.w700),
+          ),
         ),
         Text(
           sourcePeriod == null

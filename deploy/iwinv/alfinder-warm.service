@@ -1,0 +1,8 @@
+[Unit]
+Description=Prime Alfinder screener cache with a read-only request
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/alfinder/warm.sh

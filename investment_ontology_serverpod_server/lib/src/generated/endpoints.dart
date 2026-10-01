@@ -40,11 +40,13 @@ import '../ontology/endpoints/account_endpoint.dart' as _io2i71g8;
 import '../ontology/endpoints/ai_endpoint.dart' as _iadofkda;
 import '../ontology/endpoints/company_endpoint.dart' as _itnisr3u;
 import '../ontology/endpoints/company_news_endpoint.dart' as _ij4mm9jr;
+import '../ontology/endpoints/company_research_endpoint.dart' as _iqx60vuh;
 import '../ontology/endpoints/disclosure_endpoint.dart' as _i23b9rs7;
 import '../ontology/endpoints/financial_endpoint.dart' as _ipit2z9y;
 import '../ontology/endpoints/governance_endpoint.dart' as _i6kw8hva;
 import '../ontology/endpoints/graph_endpoint.dart' as _ixdq71x8;
 import '../ontology/endpoints/group_endpoint.dart' as _i8zm50hy;
+import '../ontology/endpoints/industry_endpoint.dart' as _ihimn963;
 import '../ontology/endpoints/ingest_endpoint.dart' as _icbircc0;
 import '../ontology/endpoints/market_endpoint.dart' as _iaw7fzks;
 import '../ontology/endpoints/review_endpoint.dart' as _i9uttt4a;
@@ -98,6 +100,12 @@ class Endpoints extends _is.EndpointDispatch {
           'companyNews',
           null,
         ),
+      'research': _iqx60vuh.ResearchEndpoint()
+        ..initialize(
+          server,
+          'research',
+          null,
+        ),
       'disclosure': _i23b9rs7.DisclosureEndpoint()
         ..initialize(
           server,
@@ -126,6 +134,12 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'group',
+          null,
+        ),
+      'industry': _ihimn963.IndustryEndpoint()
+        ..initialize(
+          server,
+          'industry',
           null,
         ),
       'ingest': _icbircc0.IngestEndpoint()
@@ -856,6 +870,177 @@ class Endpoints extends _is.EndpointDispatch {
         ),
       },
     );
+    connectors['research'] = _is.EndpointConnector(
+      name: 'research',
+      endpoint: endpoints['research']!,
+      methodConnectors: {
+        'data': _is.MethodConnector(
+          name: 'data',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'kind': _is.ParameterDescription(
+              name: 'kind',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['research'] as _iqx60vuh.ResearchEndpoint).data(
+                    session,
+                    params['corpCode'],
+                    params['kind'],
+                  ),
+        ),
+        'preview': _is.MethodConnector(
+          name: 'preview',
+          params: {
+            'kind': _is.ParameterDescription(
+              name: 'kind',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'payload': _is.ParameterDescription(
+              name: 'payload',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['research'] as _iqx60vuh.ResearchEndpoint).preview(
+                    session,
+                    params['kind'],
+                    params['payload'],
+                  ),
+        ),
+        'importFeed': _is.MethodConnector(
+          name: 'importFeed',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'kind': _is.ParameterDescription(
+              name: 'kind',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'payload': _is.ParameterDescription(
+              name: 'payload',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'provider': _is.ParameterDescription(
+              name: 'provider',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'sourceUrl': _is.ParameterDescription(
+              name: 'sourceUrl',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'rightsReference': _is.ParameterDescription(
+              name: 'rightsReference',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['research'] as _iqx60vuh.ResearchEndpoint)
+                  .importFeed(
+                    session,
+                    params['corpCode'],
+                    params['kind'],
+                    params['payload'],
+                    params['provider'],
+                    params['sourceUrl'],
+                    params['rightsReference'],
+                  ),
+        ),
+        'collectBatch': _is.MethodConnector(
+          name: 'collectBatch',
+          params: {
+            'kind': _is.ParameterDescription(
+              name: 'kind',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'afterCorpCode': _is.ParameterDescription(
+              name: 'afterCorpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'limit': _is.ParameterDescription(
+              name: 'limit',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['research'] as _iqx60vuh.ResearchEndpoint)
+                  .collectBatch(
+                    session,
+                    params['kind'],
+                    afterCorpCode: params['afterCorpCode'],
+                    limit: params['limit'],
+                  ),
+        ),
+        'connectionStatus': _is.MethodConnector(
+          name: 'connectionStatus',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['research'] as _iqx60vuh.ResearchEndpoint)
+                  .connectionStatus(session),
+        ),
+        'collect': _is.MethodConnector(
+          name: 'collect',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'kind': _is.ParameterDescription(
+              name: 'kind',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['research'] as _iqx60vuh.ResearchEndpoint).collect(
+                    session,
+                    params['corpCode'],
+                    params['kind'],
+                  ),
+        ),
+      },
+    );
     connectors['disclosure'] = _is.EndpointConnector(
       name: 'disclosure',
       endpoint: endpoints['disclosure']!,
@@ -1198,6 +1383,26 @@ class Endpoints extends _is.EndpointDispatch {
                         bsnsYear: params['bsnsYear'],
                       ),
         ),
+        'ownershipHistory': _is.MethodConnector(
+          name: 'ownershipHistory',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['governance'] as _i6kw8hva.GovernanceEndpoint)
+                      .ownershipHistory(
+                        session,
+                        params['corpCode'],
+                      ),
+        ),
         'searchPersons': _is.MethodConnector(
           name: 'searchPersons',
           params: {
@@ -1346,6 +1551,32 @@ class Endpoints extends _is.EndpointDispatch {
                 session,
                 params['corpCode'],
               ),
+        ),
+      },
+    );
+    connectors['industry'] = _is.EndpointConnector(
+      name: 'industry',
+      endpoint: endpoints['industry']!,
+      methodConnectors: {
+        'browse': _is.MethodConnector(
+          name: 'browse',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['industry'] as _ihimn963.IndustryEndpoint)
+                  .browse(session),
+        ),
+        'discover': _is.MethodConnector(
+          name: 'discover',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['industry'] as _ihimn963.IndustryEndpoint)
+                  .discover(session),
         ),
       },
     );
@@ -1542,6 +1773,31 @@ class Endpoints extends _is.EndpointDispatch {
       name: 'market',
       endpoint: endpoints['market']!,
       methodConnectors: {
+        'companyCapHistory': _is.MethodConnector(
+          name: 'companyCapHistory',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'years': _is.ParameterDescription(
+              name: 'years',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['market'] as _iaw7fzks.MarketEndpoint)
+                  .companyCapHistory(
+                    session,
+                    params['corpCode'],
+                    years: params['years'],
+                  ),
+        ),
         'industryTreemap': _is.MethodConnector(
           name: 'industryTreemap',
           params: {

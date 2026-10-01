@@ -1,0 +1,9 @@
+[Unit]
+Description=Keep Alfinder screener cache warm after restarts
+
+[Timer]
+OnBootSec=45
+OnUnitActiveSec=120
+
+[Install]
+WantedBy=timers.target

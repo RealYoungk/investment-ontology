@@ -135,7 +135,7 @@ class DisclosureSync {
       );
       _allowance = dailyBudget - used;
       if (backlog && priorityBudget < _allowance) _allowance = priorityBudget;
-      // 재무 백필 중이면 기업마다 가장 최근 사업보고서의 핵심 항목만.
+      // 재무 백필 중에도 최신 연간 및 중간보고서의 핵심 항목은 받는다.
       final priorityOnly = backlog;
 
       Expression scope(DartFilingSectionTable t) {
@@ -268,8 +268,8 @@ class DisclosureSync {
       if (only != null) message = '${only.name}: $message';
       if (priorityOnly) {
         message += remainingScope == 0
-            ? ' · 최근 사업보고서의 핵심 항목 완료, 나머지는 재무 백필 뒤에 받음'
-            : ' · 재무 백필 중이라 최근 사업보고서의 핵심 항목부터 받는 중';
+            ? ' · 최신 정기보고서의 핵심 항목 완료, 나머지는 재무 백필 뒤에 받음'
+            : ' · 재무 백필 중이라 최신 정기보고서의 핵심 항목부터 받는 중';
       }
       if (_budgetExhausted &&
           remainingScope > 0 &&
@@ -277,7 +277,8 @@ class DisclosureSync {
           only == null) {
         final at = ApiCallBudget.nextKstMidnight(
           now,
-        ).add(const Duration(minutes: 5));
+          // 재무 재개(00:05)보다 먼저 실행해 최신 지배구조가 매일 굶지 않게 한다.
+        ).add(const Duration(minutes: 1));
         await scheduleResume?.call(at);
         message +=
             ' · ${_allowance <= 0 ? '오늘 DART 호출 한도를 다른 수집이 이미 씀' : '오늘 몫의 호출($_allowance건)을 다 씀'}, '
@@ -359,11 +360,11 @@ class DisclosureSync {
         'company': ?only?.id,
       }),
     );
-    // 주요정보 API는 연간만 유지하고, 사업 본문은 최신 연간 이후의 최신 중간보고서도 받는다.
+    // 사업 본문과 지배구조 핵심 항목은 최신 연간 이후의 최신 중간보고서도 받는다.
     await session.db.unsafeExecute(
       '''INSERT INTO dart_filing_section
         ("filingId", "companyId", "bsnsYear", section, tier, status, attempts)
-      SELECT f.id, f."companyId", f."bsnsYear", 'businessContent', 2, 'pending', 0
+      SELECT f.id, f."companyId", f."bsnsYear", s.section, s.tier, 'pending', 0
       FROM (
         SELECT DISTINCT ON ("companyId") * FROM dart_filing
         WHERE "companyId" IS NOT NULL AND "reportCode" IN ('q1','halfYear','q3')
@@ -372,7 +373,8 @@ class DisclosureSync {
         ORDER BY "companyId", "bsnsYear" DESC,
           CASE "reportCode" WHEN 'q3' THEN 3 WHEN 'halfYear' THEN 2 ELSE 1 END DESC,
           "rceptNo" DESC
-      ) f
+      ) f CROSS JOIN (VALUES ('businessContent', 2), ('largestShareholders', 0),
+        ('executives', 0), ('investments', 0), ('minorityShareholders', 0)) AS s(section, tier)
       WHERE NOT EXISTS (SELECT 1 FROM dart_filing a
         WHERE a."companyId"=f."companyId" AND a."reportCode"='annual'
           AND a."bsnsYear">=f."bsnsYear")
@@ -510,9 +512,7 @@ class DisclosureSync {
             api: info.api,
             corpCode: company.corpCode,
             bsnsYear: item.bsnsYear,
-            reportCode: FinancialCodes.reportCodeToDart(
-              FinancialReportCode.annual,
-            ),
+            reportCode: FinancialCodes.reportCodeToDart(filing.reportCode!),
           ),
         );
         status = await _store(item, filing, company, rows, byName);
@@ -606,6 +606,7 @@ class DisclosureSync {
         prepared,
         byName,
         executives,
+        reportCode: filing.reportCode!,
         reportName: rceptNo == filing.rceptNo
             ? filing.reportName
             : (await DartFiling.db.findFirstRow(
@@ -896,6 +897,7 @@ class DisclosureSync {
     Map<String, int> byName,
     List<ExecutiveEntry> executives, {
     required String reportName,
+    required FinancialReportCode reportCode,
   }) async {
     final now = DateTime.now().toUtc();
     final info = DartSections.of(item.section);
@@ -919,7 +921,7 @@ class DisclosureSync {
           section: item.section,
           rceptNo: rceptNo,
           bsnsYear: bsnsYear,
-          reportCode: FinancialReportCode.annual,
+          reportCode: reportCode,
           settlementDate: DisclosureValues.date(first['stlm_dt']),
           rowCount: prepared.rows.length,
           emptyRowCount: prepared.empty,
@@ -1013,7 +1015,7 @@ class DisclosureSync {
         where: (t) =>
             t.companyId.equals(companyId) &
             t.bsnsYear.equals(bsnsYear) &
-            t.reportCode.equals(FinancialReportCode.annual) &
+            t.reportCode.equals(reportCode) &
             t.section.equals(item.section) &
             t.supersededById.equals(null) &
             t.id.notEquals(reportId),

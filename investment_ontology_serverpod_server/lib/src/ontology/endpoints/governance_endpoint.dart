@@ -5,6 +5,8 @@ import 'package:serverpod/serverpod.dart';
 import '../../generated/protocol.dart';
 import '../auth/ontology_access.dart';
 import '../disclosure/disclosure_values.dart';
+import '../governance/ownership_period.dart';
+import '../governance/ownership_history.dart';
 
 /// 지배구조 조회: 최대주주 · 임원 · 타법인출자와 인물.
 class GovernanceEndpoint extends Endpoint {
@@ -35,17 +37,36 @@ class GovernanceEndpoint extends Endpoint {
       where: (t) =>
           t.companyId.equals(companyId) &
           t.supersededById.equals(null) &
-          t.reportCode.equals(FinancialReportCode.annual) &
           t.section.inSet(_sections),
     );
+    // 보고서 접수일이 아니라 대상 기간을 먼저 비교한다. 과거 정정공시가
+    // 최신 반기 현황을 덮거나 서로 다른 기간의 항목을 섞지 않도록 한다.
+    int periodRank(FinancialReportCode code) => switch (code) {
+      FinancialReportCode.q1 => 1,
+      FinancialReportCode.halfYear => 2,
+      FinancialReportCode.q3 => 3,
+      FinancialReportCode.annual => 4,
+    };
+    reports.sort((a, b) {
+      final yearOrder = b.bsnsYear.compareTo(a.bsnsYear);
+      if (yearOrder != 0) return yearOrder;
+      final periodOrder = periodRank(b.reportCode)
+          .compareTo(periodRank(a.reportCode));
+      if (periodOrder != 0) return periodOrder;
+      return b.rceptNo.compareTo(a.rceptNo);
+    });
     final years = {for (final r in reports) r.bsnsYear}.toList()
       ..sort((a, b) => b.compareTo(a));
     final year = bsnsYear != null && years.contains(bsnsYear)
         ? bsnsYear
         : years.firstOrNull;
 
-    DisclosureReport? report(DartSection s) =>
-        reports.where((r) => r.section == s && r.bsnsYear == year).firstOrNull;
+    final selected = reports.where((r) => r.bsnsYear == year).firstOrNull;
+    DisclosureReport? report(DartSection s) => reports
+        .where(
+          (r) => r.section == s && r.rceptNo == selected?.rceptNo,
+        )
+        .firstOrNull;
     final shareholderReport = report(DartSection.largestShareholders);
     final executiveReport = report(DartSection.executives);
     final investmentReport = report(DartSection.investments);
@@ -125,7 +146,7 @@ class GovernanceEndpoint extends Endpoint {
           t.companyId.equals(companyId) &
           t.section.equals(DartSection.minorityShareholders) &
           t.supersededById.equals(null) &
-          (year == null ? t.bsnsYear.notEquals(null) : t.bsnsYear.equals(year)),
+          t.rceptNo.equals(selected?.rceptNo ?? ''),
       orderBy: (t) => t.bsnsYear.desc(),
     );
     final minorityRow = minority == null
@@ -150,6 +171,20 @@ class GovernanceEndpoint extends Endpoint {
       bsnsYear: year,
       settlementDate: (shareholderReport ?? executiveReport ?? investmentReport)
           ?.settlementDate,
+      shareholderPeriodStart: ownershipPeriodStart(
+        shareholderReport?.settlementDate,
+        reports
+            .where(
+              (r) =>
+                  r.section == DartSection.largestShareholders &&
+                  r.reportCode == FinancialReportCode.annual &&
+                  shareholderReport != null &&
+                  r.bsnsYear < shareholderReport.bsnsYear,
+            )
+            .map((r) => r.settlementDate)
+            .nonNulls,
+      ),
+      shareholderPeriodEnd: shareholderReport?.settlementDate,
       availableYears: years,
       shareholders: shareholders,
       executives: executives,
@@ -169,6 +204,88 @@ class GovernanceEndpoint extends Endpoint {
           ? []
           : await Source.db.find(session, where: (t) => t.id.inSet(sourceIds)),
     );
+  }
+
+  /// 최근 5개 사업연도 말과 그 이후의 최신 분기/반기 최대주주 현황.
+  /// 수집되지 않은 기간도 남기며 보고서 발표일로 기간 순서를 뒤집지 않는다.
+  Future<List<OwnershipSnapshot>> ownershipHistory(
+    Session session,
+    String corpCode,
+  ) async {
+    final company = await Company.db.findFirstRow(
+      session,
+      where: (t) => t.corpCode.equals(corpCode),
+    );
+    if (company == null) return [];
+    final filings = await DartFiling.db.find(
+      session,
+      where: (t) =>
+          t.companyId.equals(company.id!) &
+          t.bsnsYear.notEquals(null) &
+          t.reportCode.notEquals(null),
+    );
+    final reports = await DisclosureReport.db.find(
+      session,
+      where: (t) =>
+          t.companyId.equals(company.id!) &
+          t.supersededById.equals(null) &
+          t.section.inSet({
+            DartSection.largestShareholders,
+            DartSection.businessContent,
+          }),
+    );
+    final holders = reports
+        .where((r) => r.section == DartSection.largestShareholders)
+        .toList();
+    final selected = selectOwnershipFilings(filings, corpCode);
+    final ids = {for (final r in holders) r.id!};
+    final rows = ids.isEmpty
+        ? <ShareholderEntry>[]
+        : await ShareholderEntry.db.find(
+            session,
+            where: (t) => t.reportId.inSet(ids),
+            orderBy: (t) => t.ord,
+          );
+    final sourceIds = {for (final r in holders) r.sourceId};
+    final sources = sourceIds.isEmpty
+        ? <Source>[]
+        : await Source.db.find(session, where: (t) => t.id.inSet(sourceIds));
+    return [
+      for (final filing in selected)
+        (() {
+          // Exact filing only: an uncollected correction must not silently show stale rows.
+          final report = holders
+              .where((r) => r.rceptNo == filing.rceptNo)
+              .firstOrNull;
+          final end =
+              report?.settlementDate ??
+              reports
+                  .where((r) => r.rceptNo == filing.rceptNo)
+                  .firstOrNull
+                  ?.settlementDate;
+          final previousAnnualEnds = reports
+              .where(
+                (r) =>
+                    r.reportCode == FinancialReportCode.annual &&
+                    r.bsnsYear < filing.bsnsYear!,
+              )
+              .map((r) => r.settlementDate)
+              .nonNulls;
+          return OwnershipSnapshot(
+            bsnsYear: filing.bsnsYear!,
+            reportCode: filing.reportCode!,
+            reportName: filing.reportName,
+            rceptNo: filing.rceptNo,
+            periodStart: ownershipPeriodStart(end, previousAnnualEnds),
+            periodEnd: end,
+            collected: report != null,
+            shareholders: report == null
+                ? []
+                : rows.where((r) => r.reportId == report.id).toList(),
+            source: sources.where((s) => s.id == report?.sourceId).firstOrNull,
+          );
+        })(),
+    ];
   }
 
   /// 이름으로 인물을 찾는다. 이어진 기업이 많은 순서로 [limit]명.

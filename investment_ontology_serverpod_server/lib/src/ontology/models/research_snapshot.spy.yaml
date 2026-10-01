@@ -1,0 +1,17 @@
+### Validated immutable research feed batches. Ratios remain computed at read time.
+class: ResearchSnapshot
+table: research_snapshot
+fields:
+  companyId: int, relation(parent=company)
+  kind: String
+  provider: String
+  payload: String
+  sourceId: int, relation(parent=source)
+  digest: String
+  createdAt: DateTime
+indexes:
+  research_snapshot_company_kind_idx:
+    fields: companyId, kind, createdAt
+  research_snapshot_digest_idx:
+    fields: companyId, kind, digest
+    unique: true

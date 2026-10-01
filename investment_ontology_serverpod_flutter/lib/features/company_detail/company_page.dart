@@ -1,3 +1,5 @@
+import '../research/research_section.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
@@ -9,7 +11,6 @@ import '../../design/components/components.dart';
 import '../../design/tokens.dart';
 import '../auth/app_viewer.dart';
 import '../business/business_tab.dart';
-import '../disclosures/disclosure_tab.dart';
 import '../financials/financial_section.dart';
 import '../governance/governance_tab.dart';
 import '../shareholder_return/shareholder_return_tab.dart';
@@ -158,12 +159,6 @@ class _CompanyPageState extends State<CompanyPage> {
     }
   }
 
-  /// 원문 표로 보여 주는 항목. 사업 본문은 개요의 원문 읽기로 연다.
-  List<DisclosureSectionInfo> get _tableSections => [
-    for (final s in _sections)
-      if (s.section != DartSection.businessContent) s,
-  ];
-
   bool _has(Set<DartSection> wanted) =>
       _sections.any((s) => wanted.contains(s.section));
 
@@ -173,7 +168,7 @@ class _CompanyPageState extends State<CompanyPage> {
     CompanyTab.financials: '재무',
     if (_has(_governanceSections)) CompanyTab.governance: '지배구조',
     if (_has(_returnSections)) CompanyTab.returns: '주주환원',
-    if (_tableSections.isNotEmpty) CompanyTab.disclosures: '공시 항목',
+    CompanyTab.disclosures: '공시',
   };
 
   @override
@@ -184,85 +179,121 @@ class _CompanyPageState extends State<CompanyPage> {
     final tabs = _tabs;
     final tab = tabs.containsKey(_tab) ? _tab : CompanyTab.overview;
 
-    return PageFrame(
-      children: [
-        if (!_loaded)
-          const LinearProgressIndicator(minHeight: 2)
-        else if (detail == null)
-          Text(
-            _error != null ? '불러오지 못했습니다: $_error' : '기업을 찾을 수 없습니다.',
-            style: t.body(14, color: c.textSecondary),
-          )
-        else ...[
-          CompanyHeader(
-            detail: detail,
-            onCompare: () => context.push(AppRoutes.compare([widget.corpCode])),
-            financials: _financials,
-            onBasisChanged: _changeBasis,
-            changingBasis: _changingBasis,
-            selectedBasis: _fsDiv,
-            basisError: _basisError,
-          ),
-          const SizedBox(height: AppSpace.lg),
-          AppTabBar<CompanyTab>(
-            tabs: tabs,
-            value: tab,
-            onChanged: (tab) => setState(() {
-              _tab = tab;
-            }),
-          ),
-          const SizedBox(height: AppSpace.xl),
-          switch (tab) {
-            CompanyTab.overview => Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                CompanyOverviewTab(
-                  key: ValueKey(_version),
-                  detail: detail,
-                  latestReport: _financials?.periods.lastOrNull,
-                  dataVersion: _version,
-                ),
-                if (_sections.isEmpty) ...[
-                  const SizedBox(height: AppSpace.section),
-                  _DisclosureFetchCard(
+    return ExpansionTileTheme(
+      data: ExpansionTileThemeData(
+        tilePadding: const EdgeInsets.symmetric(horizontal: AppSpace.md),
+        childrenPadding: const EdgeInsets.all(AppSpace.md),
+        textColor: c.textSecondary,
+        collapsedTextColor: c.textSecondary,
+        iconColor: c.textSecondary,
+        collapsedIconColor: c.textSecondary,
+        shape: Border(bottom: BorderSide(color: c.border)),
+        collapsedShape: Border(bottom: BorderSide(color: c.border)),
+      ),
+      child: PageFrame(
+        children: [
+          if (!_loaded)
+            const LinearProgressIndicator(minHeight: 2)
+          else if (detail == null)
+            Text(
+              _error != null ? '불러오지 못했습니다: $_error' : '기업을 찾을 수 없습니다.',
+              style: t.body(14, color: c.textSecondary),
+            )
+          else ...[
+            CompanyHeader(
+              detail: detail,
+              onCompare: () =>
+                  context.push(AppRoutes.compare([widget.corpCode])),
+              financials: _financials,
+              onBasisChanged: _changeBasis,
+              changingBasis: _changingBasis,
+              selectedBasis: _fsDiv,
+              basisError: _basisError,
+            ),
+            const SizedBox(height: AppSpace.lg),
+            AppTabBar<CompanyTab>(
+              tabs: tabs,
+              value: tab,
+              onChanged: (tab) => setState(() {
+                _tab = tab;
+              }),
+            ),
+            const SizedBox(height: AppSpace.xl),
+            switch (tab) {
+              CompanyTab.overview => Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  CompanyOverviewTab(
+                    key: ValueKey(_version),
+                    detail: detail,
+                    latestReport: _financials?.periods.lastOrNull,
+                    dataVersion: _version,
+                  ),
+                  if (_sections.isEmpty) ...[
+                    const SizedBox(height: AppSpace.section),
+                    _DisclosureFetchCard(
+                      corpCode: widget.corpCode,
+                      onDone: _load,
+                    ),
+                  ],
+                ],
+              ),
+              CompanyTab.governance => Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  GovernanceTab(
+                    key: ValueKey('governance-$_version'),
                     corpCode: widget.corpCode,
-                    onDone: _load,
+                    companyName: detail.company.name,
                   ),
                 ],
-              ],
-            ),
-            CompanyTab.governance => GovernanceTab(
-              key: ValueKey('governance-$_version'),
-              corpCode: widget.corpCode,
-              companyName: detail.company.name,
-            ),
-            CompanyTab.returns => ShareholderReturnTab(
-              key: ValueKey('returns-$_version'),
-              corpCode: widget.corpCode,
-            ),
-            CompanyTab.disclosures => DisclosureTab(
-              key: const ValueKey('disclosures'),
-              dataVersion: _version,
-              corpCode: widget.corpCode,
-              sections: _tableSections,
-            ),
-            CompanyTab.business => BusinessTab(
-              key: const ValueKey('business'),
-              dataVersion: _version,
-              corpCode: widget.corpCode,
-            ),
-            CompanyTab.financials => FinancialSection(
-              industryCode: detail.company.industryCode,
-              companyName: detail.company.name,
-              key: const ValueKey('financials'),
-              dataVersion: _version,
-              corpCode: widget.corpCode,
-              initialData: _financials,
-              showBasisSelector: false,
-            ),
-          },
+              ),
+              CompanyTab.returns => Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ShareholderReturnTab(
+                    key: ValueKey('returns-$_version'),
+                    corpCode: widget.corpCode,
+                  ),
+                ],
+              ),
+              CompanyTab.disclosures => Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ResearchSection(
+                    corpCode: widget.corpCode,
+                    kinds: const [
+                      'capital',
+                      'treasury',
+                      'insiders',
+                      'majorHoldings',
+                    ],
+                  ),
+                ],
+              ),
+              CompanyTab.business => BusinessTab(
+                key: const ValueKey('business'),
+                dataVersion: _version,
+                corpCode: widget.corpCode,
+              ),
+              CompanyTab.financials => Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  FinancialSection(
+                    industryCode: detail.company.industryCode,
+                    companyName: detail.company.name,
+                    key: const ValueKey('financials'),
+                    dataVersion: _version,
+                    corpCode: widget.corpCode,
+                    initialData: _financials,
+                    showBasisSelector: false,
+                  ),
+                ],
+              ),
+            },
+          ],
         ],
-      ],
+      ),
     );
   }
 }

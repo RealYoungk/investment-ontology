@@ -1,3 +1,5 @@
+import '../research/treasury_movement.dart';
+
 import 'package:flutter/material.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -118,19 +120,12 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
       (s) => s.item.contains('주당') && s.item.contains('현금배당금') && common(s),
     );
     final payout = find((s) => s.item.contains('현금배당성향'));
-    final yieldRate = find(
-      (s) => s.item.contains('현금배당수익률') && common(s),
-    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SectionLabel('배당 · 배당에 관한 사항'),
-        const SizedBox(height: AppSpace.xs),
-        Text(
-          '사업보고서마다 당기·전기·전전기 값이 있어 연도별로 모았습니다. 그 해의 사업보고서 값을 먼저 쓰고, '
-          '없으면 뒤 보고서의 전기 값을 씁니다. 배당수익률은 현재 주가 기준이 아닌 공시 값입니다.',
-          style: t.body(12, color: c.textMuted),
+        const CompanySectionHeading(
+          '배당',
         ),
         const SizedBox(height: AppSpace.md),
         if (series.isEmpty)
@@ -153,13 +148,6 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
                     years: years,
                     series: payout,
                     color: c.chartSeries2,
-                  ),
-                if (yieldRate != null)
-                  _Trend(
-                    title: '공시 기준 배당수익률',
-                    years: years,
-                    series: yieldRate,
-                    color: c.chartSeries1,
                   ),
               ];
               final columns = box.maxWidth >= 920
@@ -217,10 +205,13 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
           ),
         ],
         const SizedBox(height: AppSpace.section),
-        SectionLabel(
-          '자기주식 · 취득 및 처분 현황${d.treasuryYear == null ? '' : ' · FY${d.treasuryYear}'}',
+        CompanySectionHeading(
+          '자기주식',
+          description:
+              '취득·처분·소각에 따른 보유량 변화${d.treasuryYear == null ? '' : ' · ${d.treasuryYear}년'}',
         ),
         const SizedBox(height: AppSpace.sm),
+        CompanyDataCard(child: TreasuryMovement(rows: d.treasury)),
         if (d.treasury.isEmpty)
           Text('자기주식 자료가 없습니다.', style: t.body(13, color: c.textMuted))
         else
@@ -271,7 +262,7 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
           ),
         const SizedBox(height: AppSpace.section),
         SectionLabel(
-          '주식의 총수${d.stockTotalYear == null ? '' : ' · FY${d.stockTotalYear}'}',
+          '회사에 남아 있는 자기주식${d.stockTotalYear == null ? '' : ' · FY${d.stockTotalYear}'}',
         ),
         const SizedBox(height: AppSpace.sm),
         if (d.stockTotals.isEmpty)
@@ -310,23 +301,32 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
           ),
         ],
         const SizedBox(height: AppSpace.xl),
-        for (final s in d.sources)
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  '${s.title} · 접수 ${s.reference ?? ''}',
-                  style: t.body(11.5, color: c.textMuted),
-                ),
+        ExpansionTile(
+          title: const Text('출처와 집계 기준'),
+          children: [
+            Text(
+              '배당수익률은 현재 주가가 아닌 공시 기준입니다. 같은 연도는 해당 사업보고서 값을 우선 사용합니다.',
+              style: t.body(12, color: c.textMuted),
+            ),
+            for (final s in d.sources)
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      '${s.title} · 접수 ${s.reference ?? ''}',
+                      style: t.body(11.5, color: c.textMuted),
+                    ),
+                  ),
+                  if (s.url != null)
+                    AppButton(
+                      label: 'DART →',
+                      variant: AppButtonVariant.link,
+                      onPressed: () => launchUrl(Uri.parse(s.url!)),
+                    ),
+                ],
               ),
-              if (s.url != null)
-                AppButton(
-                  label: 'DART →',
-                  variant: AppButtonVariant.link,
-                  onPressed: () => launchUrl(Uri.parse(s.url!)),
-                ),
-            ],
-          ),
+          ],
+        ),
       ],
     );
   }
@@ -362,34 +362,38 @@ class _Trend extends StatelessWidget {
       for (final y in years) series.values.containsKey(y) ? 'FY$y' : 'FY$y 없음',
     ];
     String format(double v) => formatDividendValue(v, series.unit);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(title, style: t.body(13, weight: FontWeight.w600)),
-        const SizedBox(height: AppSpace.sm),
-        if (latestYear != null) ...[
-          Text(
-            format(series.values[latestYear]!),
-            style: t.numeric(28, weight: FontWeight.w600),
-          ),
-          Text(
-            'FY$latestYear · ${series.label}',
-            style: t.body(12, color: context.colors.textSecondary),
-          ),
-          const SizedBox(height: AppSpace.md),
+    return CompanyDataCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(title, style: t.body(13, weight: FontWeight.w600)),
+          const SizedBox(height: AppSpace.sm),
+          if (latestYear != null) ...[
+            Text(
+              format(series.values[latestYear]!),
+              style: t.numeric(28, weight: FontWeight.w600),
+            ),
+            Text(
+              'FY$latestYear · ${series.label}',
+              style: t.body(12, color: context.colors.textSecondary),
+            ),
+            const SizedBox(height: AppSpace.md),
+          ],
+          bars
+              ? AppColumnChart(
+                  height: 210,
+                  categories: categories,
+                  series: [chart],
+                  formatValue: format,
+                )
+              : AppLineChart(
+                  height: 210,
+                  categories: categories,
+                  series: chart,
+                  formatValue: format,
+                ),
         ],
-        bars
-            ? AppColumnChart(
-                categories: categories,
-                series: [chart],
-                formatValue: format,
-              )
-            : AppLineChart(
-                categories: categories,
-                series: chart,
-                formatValue: format,
-              ),
-      ],
+      ),
     );
   }
 }

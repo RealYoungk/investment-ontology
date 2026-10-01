@@ -48,7 +48,16 @@ enum DocumentFactKind implements _is.SerializableModel {
   rndExpense,
 
   /// 연구개발비 ÷ 매출액 (%), 표에 적힌 값
-  rndRatio;
+  rndRatio,
+
+  /// 사업부문 손익표의 매출 (동일 표 영업이익률 계산용)
+  segmentOperatingRevenue,
+
+  /// 사업부문 영업이익 (손실 포함)
+  segmentOperatingProfit,
+
+  /// 지역별 매출 (연결/별도 및 내수/수출 구분은 label에 보존)
+  geographicRevenue;
 
   static DocumentFactKind fromJson(String name) {
     switch (name) {
@@ -76,6 +85,12 @@ enum DocumentFactKind implements _is.SerializableModel {
         return DocumentFactKind.rndExpense;
       case 'rndRatio':
         return DocumentFactKind.rndRatio;
+      case 'segmentOperatingRevenue':
+        return DocumentFactKind.segmentOperatingRevenue;
+      case 'segmentOperatingProfit':
+        return DocumentFactKind.segmentOperatingProfit;
+      case 'geographicRevenue':
+        return DocumentFactKind.geographicRevenue;
       default:
         throw ArgumentError(
           'Value "$name" cannot be converted to "DocumentFactKind"',

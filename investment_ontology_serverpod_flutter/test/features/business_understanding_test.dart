@@ -27,6 +27,29 @@ DocumentFact fact({
 );
 
 void main() {
+  test(
+    'combined amount and ratio retains the disclosed single segment share',
+    () {
+      final combined = fact(
+        value: 131895033,
+        evidence: '반도체 부문 | 제품 외 | 131,895,033(100%)',
+      );
+      expect(revenuePresentation(combined).share, 100);
+      expect(revenueCoverageNote([combined]), contains('제품별 매출 구분은 아닙니다'));
+      expect(revenuePresentation(combined.copyWith(value: 1)).share, isNull);
+    },
+  );
+  test(
+    'partial and overlapping disclosures never imply a complete sales mix',
+    () {
+      expect(revenueCoverageNote([fact()]), contains('전체 매출 구성이 아닙니다'));
+      expect(revenueCoverageNote([fact(value: 1)]), contains('확인되지 않았습니다'));
+      expect(
+        revenueCoverageNote(List.filled(4, fact())),
+        contains('100%를 넘습니다'),
+      );
+    },
+  );
   test('retains product label from merged cells without assigning another year share', () {
     expect(revenuePresentation(fact()).label, '제품매출 · AOI');
     expect(revenuePresentation(fact()).share, 34.92);

@@ -5,6 +5,10 @@ fields:
   ### 보여 주는 사업연도. 자료가 없으면 null
   bsnsYear: int?
   settlementDate: DateTime?
+  ### 직전 최대주주 사업보고서 결산일 다음날로 산정. 366일을 넘는 공백이면 null.
+  shareholderPeriodStart: DateTime?
+  ### 최대주주 보고서 자체의 결산기준일. 다른 항목의 날짜를 대용하지 않음.
+  shareholderPeriodEnd: DateTime?
   ### 자료가 있는 사업연도 (최근부터)
   availableYears: List<int>
   shareholders: List<ShareholderEntry>

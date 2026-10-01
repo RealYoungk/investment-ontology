@@ -13,6 +13,20 @@ import 'business_operating_section.dart'
 /// A percentage is shown only when the first printed amount matches the fact.
 ({String label, double? share}) revenuePresentation(DocumentFact fact) {
   final cells = fact.evidence.split('|').map((s) => s.trim()).toList();
+  final combined = RegExp(r'^([\d,]+(?:\.\d+)?)\s*\(\s*([\d.]+)\s*%\s*\)$');
+  for (var i = 1; i < cells.length; i++) {
+    final match = combined.firstMatch(cells[i]);
+    if (match == null) continue;
+    // The first combined column is the current period; never borrow a prior ratio.
+    if (double.tryParse(match.group(1)!.replaceAll(',', '')) != fact.value) {
+      return (label: fact.label, share: null);
+    }
+    final share = double.tryParse(match.group(2)!);
+    return (
+      label: fact.label,
+      share: share != null && share <= 100 ? share : null,
+    );
+  }
   final index = cells.indexWhere(
     (s) => RegExp(r'^-?[\d,]+(?:\.\d+)?$').hasMatch(s),
   );
@@ -30,6 +44,21 @@ import 'business_operating_section.dart'
     label: labels.join(' · '),
     share: share != null && share <= 100 ? share : null,
   );
+}
+
+/// A validated row does not prove that the whole company's mix was extracted.
+String revenueCoverageNote(List<DocumentFact> rows) {
+  final shares = rows.map((f) => revenuePresentation(f).share).toList();
+  if (shares.any((s) => s == null)) {
+    return '확인된 공시 항목만 표시합니다. 전체 매출 구성은 확인되지 않았습니다.';
+  }
+  final total = shares.fold<double>(0, (sum, s) => sum + s!);
+  if (total > 101) return '공시 비중 합계가 100%를 넘습니다. 내부거래·중복 부문이 포함될 수 있습니다.';
+  if (total < 99) {
+    return '표시된 공시 비중 합계 ${total.toStringAsFixed(1)}% · 전체 매출 구성이 아닙니다.';
+  }
+  if (rows.length == 1) return '공시에서는 하나의 부문으로 묶어 표시합니다. 제품별 매출 구분은 아닙니다.';
+  return '공시의 부문 구분과 비중입니다.';
 }
 
 /// One document/year only: never combine overlapping segment tables or years.
@@ -109,10 +138,8 @@ class _RevenueCompositionState extends State<RevenueComposition> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SectionLabel('무엇으로 매출을 내나요?', accent: true),
-        const SizedBox(height: AppSpace.md),
         Container(
-          padding: const EdgeInsets.all(AppSpace.lg),
+          padding: const EdgeInsets.all(AppSpace.md),
           decoration: BoxDecoration(
             color: c.surface,
             border: Border.all(color: c.border),
@@ -121,11 +148,12 @@ class _RevenueCompositionState extends State<RevenueComposition> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                '사업별 매출 구성',
-                style: t
-                    .body(18, weight: FontWeight.w700)
-                    .copyWith(height: 1.4),
+              CompanySectionHeading(
+                '매출 구성',
+                help:
+                    '사업별 매출 규모와 공시에 적힌 비중을 비교합니다.\n\n'
+                    '${rows != null && rows.isNotEmpty ? revenueCoverageNote(rows) : '수집한 공시에서 자동 검증된 항목을 표시합니다.'}\n\n'
+                    '분기·반기는 해당 기간의 누적 매출이며, 연간 매출과 기간이 다릅니다. 비중을 임의로 100%에 맞추지 않습니다.',
               ),
               const SizedBox(height: AppSpace.sm),
               if (_failed) ...[
@@ -154,8 +182,13 @@ class _RevenueCompositionState extends State<RevenueComposition> {
                 const SizedBox(height: AppSpace.sm),
                 for (final fact in rows)
                   _RevenueRow(fact: fact, products: widget.products),
-                if (widget.corpCode == '00126380')
-                  Text('부문 간 내부거래 포함', style: t.body(11, color: c.textMuted)),
+                if (rows.any((r) => revenuePresentation(r).share == null) ||
+                    rows.fold<double>(
+                          0,
+                          (s, r) => s + (revenuePresentation(r).share ?? 0),
+                        ) <
+                        99)
+                  Text('일부 항목만 확인됨', style: t.body(11, color: c.textMuted)),
               ],
             ],
           ),
@@ -257,10 +290,13 @@ class _RevenueRow extends StatelessWidget {
               const SizedBox(width: AppSpace.sm),
               SizedBox(
                 width: wide ? 132 : 112,
-                child: Text(
-                  formatUnitAmount(fact.value, fact.unit),
-                  textAlign: TextAlign.right,
-                  style: t.numeric(13),
+                child: Tooltip(
+                  message: formatSourceAmount(fact.value, fact.unit),
+                  child: Text(
+                    formatUnitAmountCompact(fact.value, fact.unit),
+                    textAlign: TextAlign.right,
+                    style: t.numeric(13),
+                  ),
                 ),
               ),
               if (wide) ...[
@@ -279,7 +315,7 @@ class _RevenueRow extends StatelessWidget {
               ],
               const SizedBox(width: AppSpace.sm),
               SizedBox(
-                width: 46,
+                width: 60,
                 child: Text(
                   row.share == null ? '—' : '${row.share!.toStringAsFixed(1)}%',
                   textAlign: TextAlign.right,

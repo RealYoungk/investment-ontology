@@ -1,0 +1,10 @@
+{$API_HOST} {
+    encode gzip
+    header X-Alfinder-Backend iwinv
+    handle_path /api/* {
+        reverse_proxy server:8080
+    }
+    handle {
+        reverse_proxy server:8080
+    }
+}
