@@ -51,8 +51,12 @@ class DartReportName {
   /// 2026). 기간 말 월이 결산월 기준으로 3·6·9·12개월째가 아니거나 보고서 종류와
   /// 맞지 않으면 추측하지 않고 null. [fiscalMonth]가 없으면 사업보고서만 판정한다.
   ({String reportCode, int bsnsYear})? resolve(int? fiscalMonth) {
-    final fm =
-        fiscalMonth ?? (kind == DartReportKind.annual ? periodMonth : null);
+    // Each business report declares its own period end. Master fiscal month
+    // can change over time and REITs may publish multiple annual periods/year.
+    if (kind == DartReportKind.annual) {
+      return (reportCode: '11011', bsnsYear: periodYear);
+    }
+    final fm = fiscalMonth;
     if (fm == null) return null;
     // 회계연도 시작부터 기간 말까지의 개월 수 (1~12).
     final elapsed = (periodMonth - fm + 11) % 12 + 1;

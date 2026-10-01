@@ -399,6 +399,133 @@ void main() {
         FilingFetchStatus.stored,
       );
     });
+    test('same-year June and December bodies stay separate in fallback, coverage and supersession', () async {
+      final june = await filing(
+        2025,
+        '20250810000001',
+        name: '사업보고서 (2025.06)',
+      );
+      await run();
+      final december = await filing(
+        2025,
+        '20260310000001',
+        name: '사업보고서 (2025.12)',
+      );
+      await run();
+      final reports = await DisclosureReport.db.find(session);
+      expect(reports, hasLength(2));
+      expect(reports.every((r) => r.supersededById == null), isTrue);
+      final decReport = reports.singleWhere(
+        (r) => r.rceptNo == december.rceptNo,
+      );
+      // A legacy undated body is usable only through its exact source filing.
+      final juneReport = reports.singleWhere((r) => r.rceptNo == june.rceptNo);
+      await DisclosureReport.db.updateRow(
+        session,
+        juneReport.copyWith(settlementDate: null),
+      );
+      final juneAttachment = await filing(
+        2025,
+        '20260409000001',
+        name: '[첨부정정]사업보고서 (2025.06)',
+      );
+      client.documents.remove(juneAttachment.rceptNo);
+      final priorCalls = client.calls.length;
+      await run();
+      expect(client.calls.length, priorCalls);
+      expect(
+        (await DartFilingSection.db.findFirstRow(
+          session,
+          where: (t) =>
+              t.filingId.equals(juneAttachment.id!) &
+              t.section.equals(DartSection.businessContent),
+        ))!.status,
+        FilingFetchStatus.stored,
+      );
+
+      await BusinessDocument.db.deleteWhere(
+        session,
+        where: (t) => t.reportId.equals(decReport.id!),
+      );
+      await DisclosureReport.db.deleteRow(session, decReport);
+      final attachment = await filing(
+        2025,
+        '20260410000001',
+        name: '[첨부정정]사업보고서 (2025.12)',
+      );
+      client.documents.remove(attachment.rceptNo);
+      client.documents.remove(december.rceptNo);
+      final reader = SelectivePublicBody({
+        attachment.rceptNo,
+        december.rceptNo,
+      });
+      final job = await run(public: reader);
+      expect(job.processed, greaterThan(0));
+      expect(reader.receipts, isNot(contains(june.rceptNo)));
+      final section = (await DartFilingSection.db.findFirstRow(
+        session,
+        where: (t) =>
+            t.filingId.equals(attachment.id!) &
+            t.section.equals(DartSection.businessContent),
+      ))!;
+      expect(section.status, isNot(FilingFetchStatus.stored));
+    });
+    test('August attachment finds March original beyond 120 days and consumes all bounded listing pages', () async {
+      final attachment = await filing(
+        2025,
+        '20260813001590',
+        name: '[첨부정정]사업보고서 (2025.12)',
+      );
+      client.documents.remove(attachment.rceptNo);
+      client.documents['20260319000984'] = '<DOCUMENT><TITLE>II. 사업의 내용</TITLE><P>원본 제품 설명</P><TITLE>III. 재무에 관한 사항</TITLE></DOCUMENT>';
+      client.filingPages[1] = [
+        ('20260301000001', '사업보고서 (2025.06)', '20260301'),
+      ];
+      client.filingPages[2] = [
+        ('20260319000984', '사업보고서 (2025.12)', '20260319'),
+      ];
+      final job = await run();
+      expect(job.updated, 1);
+      expect(client.filingQueries.map((q) => q['page_no']), ['1', '2']);
+      expect(
+        client.filingQueries.every(
+          (q) => q['bgn_de'] == '20251201' && q['last_reprt_at'] == 'N',
+        ),
+        isTrue,
+      );
+      expect(
+        (await BusinessDocument.db.find(session)).single.rceptNo,
+        '20260319000984',
+      );
+      expect(client.calls, isNot(contains('document|20260301000001')));
+    });
+    test('attachment listing budget exhausted before next page remains pending rather than noData', () async {
+      final attachment = await filing(
+        2025,
+        '20260813001590',
+        name: '[첨부정정]사업보고서 (2025.12)',
+      );
+      client.documents.remove(attachment.rceptNo);
+      client.filingPages[1] = [
+        ('20260301000001', '사업보고서 (2025.06)', '20260301'),
+      ];
+      client.filingPages[2] = [
+        ('20260319000984', '사업보고서 (2025.12)', '20260319'),
+      ];
+      await run(daily: 2);
+      expect(client.filingQueries, hasLength(1));
+      expect(
+        (await DartFilingSection.db.findFirstRow(
+          session,
+          where: (t) =>
+              t.filingId.equals(attachment.id!) &
+              t.section.equals(DartSection.businessContent),
+        ))!.status,
+        FilingFetchStatus.pending,
+      );
+      expect(await BusinessDocument.db.count(session), 0);
+      expect(resumes, hasLength(1));
+    });
     test('noData exhaustion remains failed with total remaining instead of false success', () async {
       await filing(2025, '20260310000001');
       client.documents['20260310000001'] =

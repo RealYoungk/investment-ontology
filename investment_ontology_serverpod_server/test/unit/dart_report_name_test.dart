@@ -37,6 +37,23 @@ void main() {
       expect(resolve('분기보고서 (2026.01)'), (reportCode: '11014', bsnsYear: 2026));
     });
 
+    test('과거 결산 변경과 리츠의 두 연간 기간은 현재 개황 결산월에 의존하지 않는다', () {
+      for (final name in [
+        '사업보고서 (2025.03)',
+        '사업보고서 (2025.09)',
+        '[기재정정]사업보고서 (2025.06)',
+      ]) {
+        expect(DartReportName.parse(name)!.resolve(12), (
+          reportCode: '11011',
+          bsnsYear: 2025,
+        ));
+      }
+      expect(DartReportName.parse('사업보고서 (2024.06)')!.resolve(3), (
+        reportCode: '11011',
+        bsnsYear: 2024,
+      ));
+      expect(DartReportName.parse('분기보고서 (2025.06)')!.resolve(12), isNull);
+    });
     test('결산월과 맞지 않으면 추측하지 않는다', () {
       expect(DartReportName.parse('반기보고서 (2026.03)')!.resolve(12), isNull);
       expect(DartReportName.parse('분기보고서 (2026.06)')!.resolve(12), isNull);

@@ -103,11 +103,12 @@ class PublicFinancialXbrl {
       throw const FormatException('Not XBRL');
     }
     final end = periodEnd.toIso8601String().substring(0, 10);
-    final start = DateTime.utc(
+    final legacyStart = DateTime.utc(
       periodEnd.year - 1,
       periodEnd.month + 1,
       1,
     ).toIso8601String().substring(0, 10);
+    final start = _declaredAnnualStart(root, corpCode, end) ?? legacyStart;
     final expectedMember = consolidated
         ? 'ConsolidatedMember'
         : 'SeparateMember';
@@ -133,15 +134,16 @@ class PublicFinancialXbrl {
           .toList();
       if (dimensions.length != 1) continue;
       final d = dimensions.single;
-      String local(String value) => value.split(':').last;
-      if (!((root.getAttribute('xmlns:ifrs-full') ?? '').startsWith(
-            'http://xbrl.ifrs.org/taxonomy/',
-          )) ||
-          !(d.getAttribute('dimension') ?? '').startsWith('ifrs-full:') ||
-          !d.innerText.startsWith('ifrs-full:') ||
-          local(d.getAttribute('dimension') ?? '') !=
-              'ConsolidatedAndSeparateFinancialStatementsAxis' ||
-          local(d.innerText) != expectedMember) {
+      final axis = _qname(d, d.getAttribute('dimension') ?? '');
+      final member = _qname(d, d.innerText);
+      if (d.namespaceUri != 'http://xbrl.org/2006/xbrldi' ||
+          d.name.local != 'explicitMember' ||
+          axis == null ||
+          member == null ||
+          !_taxonomy(axis.$1, 'ifrs-full') ||
+          axis.$1 != member.$1 ||
+          axis.$2 != 'ConsolidatedAndSeparateFinancialStatementsAxis' ||
+          member.$2 != expectedMember) {
         continue;
       }
       final dates = {
@@ -182,12 +184,8 @@ class PublicFinancialXbrl {
     for (final f in root.children.whereType<XmlElement>()) {
       final account = accounts[f.name.local];
       final ns = f.namespaceUri ?? '';
-      final isDart =
-          ns.startsWith('http://dart.fss.or.kr/taxonomy/') &&
-          ns.endsWith('/ifrs/dart');
-      final isIfrs =
-          ns.startsWith('http://xbrl.ifrs.org/taxonomy/') &&
-          ns.endsWith('/ifrs-full');
+      final isDart = _taxonomy(ns, 'dart');
+      final isIfrs = _taxonomy(ns, 'ifrs-full');
       if (account == null ||
           (!isDart && !isIfrs) ||
           (f.name.local == 'OperatingIncomeLoss' && !isDart) ||
@@ -233,5 +231,197 @@ class PublicFinancialXbrl {
       throw const FormatException('Current annual core contexts missing');
     }
     return values.values.toList();
+  }
+
+  static bool _taxonomy(String namespace, String kind) {
+    final uri = Uri.tryParse(namespace);
+    if (uri == null ||
+        !const ['http', 'https'].contains(uri.scheme) ||
+        uri.userInfo.isNotEmpty ||
+        uri.hasPort ||
+        uri.hasQuery ||
+        uri.hasFragment) {
+      return false;
+    }
+    final host = kind == 'ifrs-full' ? 'xbrl.ifrs.org' : 'dart.fss.or.kr';
+    final suffix = kind == 'ifrs-full' ? 'ifrs-full' : 'ifrs/$kind';
+    return uri.host == host &&
+        RegExp('^/taxonomy/\\d{4}-\\d{2}-\\d{2}/$suffix\$').hasMatch(uri.path);
+  }
+
+  static (String, String)? _qname(XmlElement element, String value) {
+    final parts = value.trim().split(':');
+    if (parts.length != 2 || parts.any((part) => part.isEmpty)) return null;
+    for (XmlNode? node = element; node != null; node = node.parent) {
+      if (node is XmlElement) {
+        final namespace = node.getAttribute('xmlns:${parts.first}');
+        if (namespace != null) return (namespace, parts.last);
+      }
+    }
+    return null;
+  }
+
+  /// Metadata is optional only for the legacy strict twelve-month path.
+  /// A present declaration must uniquely identify the source's current annual
+  /// period; comparative values and context naming conventions are not used.
+  static String? _declaredAnnualStart(
+    XmlElement root,
+    String corpCode,
+    String end,
+  ) {
+    const xbrli = 'http://www.xbrl.org/2003/instance';
+    const xbrldi = 'http://xbrl.org/2006/xbrldi';
+    final declarations = root.children
+        .whereType<XmlElement>()
+        .where(
+          (e) => const [
+            'DocumentPeriodStartDate',
+            'DocumentPeriodEndDate',
+          ].contains(e.name.local),
+        )
+        .toList();
+    if (declarations.isEmpty) return null;
+    final contexts = <String, XmlElement>{};
+    for (final context in root.findElements('context', namespaceUri: xbrli)) {
+      final id = context.getAttribute('id');
+      if (id == null || contexts.containsKey(id)) {
+        throw const FormatException('Ambiguous XBRL context');
+      }
+      contexts[id] = context;
+    }
+    XmlElement contextOf(XmlElement fact) {
+      final context = contexts[fact.getAttribute('contextRef')];
+      if (context == null) {
+        throw const FormatException('Missing metadata context');
+      }
+      final identifiers = context.descendants
+          .whereType<XmlElement>()
+          .where((e) => e.name.local == 'identifier')
+          .toList();
+      if (identifiers.length != 1 ||
+          identifiers.single.namespaceUri != xbrli ||
+          identifiers.single.innerText != corpCode ||
+          identifiers.single.getAttribute('scheme') !=
+              'http://dart.fss.or.kr/ifrs/CIK') {
+        throw const FormatException('XBRL metadata entity mismatch');
+      }
+      return context;
+    }
+
+    List<XmlElement> dimensions(XmlElement context) => context.descendants
+        .whereType<XmlElement>()
+        .where(
+          (e) =>
+              e.name.local == 'explicitMember' || e.name.local == 'typedMember',
+        )
+        .toList();
+    bool current(XmlElement context, String namespace) {
+      final dims = dimensions(context);
+      if (dims.length != 1 ||
+          dims.single.namespaceUri != xbrldi ||
+          dims.single.name.local != 'explicitMember') {
+        return false;
+      }
+      final axis = _qname(
+        dims.single,
+        dims.single.getAttribute('dimension') ?? '',
+      );
+      final member = _qname(dims.single, dims.single.innerText);
+      return axis == (namespace, 'PeriodAxis') &&
+          member ==
+              (
+                namespace,
+                'PeriodCoveredbytheReportofCurrentFiscalYearorQuarterorHalfYearMember',
+              );
+    }
+
+    String dateOf(XmlElement context, String name) {
+      final periods = context
+          .findElements('period', namespaceUri: xbrli)
+          .toList();
+      if (periods.length != 1) {
+        throw const FormatException('Invalid metadata period');
+      }
+      final dates = periods.single
+          .findElements(name, namespaceUri: xbrli)
+          .toList();
+      if (dates.length != 1) {
+        throw const FormatException('Ambiguous metadata date');
+      }
+      final value = dates.single.innerText;
+      final parsed = DateTime.tryParse(value);
+      if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(value) ||
+          parsed == null ||
+          parsed.toIso8601String().substring(0, 10) != value) {
+        throw const FormatException('Invalid metadata date');
+      }
+      return value;
+    }
+
+    final currentFacts = <String, XmlElement>{};
+    String? metadataNamespace;
+    for (final fact in declarations) {
+      final namespace = fact.namespaceUri ?? '';
+      if (!_taxonomy(namespace, 'dart-gcd')) {
+        throw const FormatException('Untrusted reporting period metadata');
+      }
+      final context = contextOf(fact);
+      if (!current(context, namespace)) continue;
+      if (currentFacts.containsKey(fact.name.local) ||
+          (metadataNamespace != null && metadataNamespace != namespace)) {
+        throw const FormatException('Ambiguous current reporting period');
+      }
+      metadataNamespace = namespace;
+      currentFacts[fact.name.local] = fact;
+    }
+    final startFact = currentFacts['DocumentPeriodStartDate'];
+    final endFact = currentFacts['DocumentPeriodEndDate'];
+    if (startFact == null || endFact == null || metadataNamespace == null) {
+      throw const FormatException('Current reporting period metadata missing');
+    }
+    final start = startFact.innerText;
+    final declaredEnd = endFact.innerText;
+    for (final fact in [startFact, endFact]) {
+      final context = contextOf(fact);
+      if (dateOf(context, 'startDate') != start ||
+          dateOf(context, 'endDate') != declaredEnd) {
+        throw const FormatException('Declared period and context disagree');
+      }
+    }
+    if (declaredEnd != end || start.compareTo(end) > 0) {
+      throw const FormatException('Declared annual period mismatch');
+    }
+    final titles = <String>{};
+    final currencies = <String>{};
+    for (final fact in root.children.whereType<XmlElement>()) {
+      if (!const [
+        'DocumentTitle',
+        'EntityReportingCurrencyISOCode',
+      ].contains(fact.name.local)) {
+        continue;
+      }
+      if (fact.namespaceUri != metadataNamespace) {
+        throw const FormatException('Untrusted annual metadata');
+      }
+      final context = contextOf(fact);
+      final validDimensions = fact.name.local == 'DocumentTitle'
+          ? current(context, metadataNamespace)
+          : dimensions(context).isEmpty;
+      if (!validDimensions ||
+          dateOf(context, 'startDate') != start ||
+          dateOf(context, 'endDate') != end) {
+        throw const FormatException('Annual metadata context mismatch');
+      }
+      (fact.name.local == 'DocumentTitle' ? titles : currencies).add(
+        fact.innerText,
+      );
+    }
+    if (titles.isEmpty ||
+        titles.any((t) => !const ['Annual Report', '사업보고서'].contains(t)) ||
+        currencies.length != 1 ||
+        currencies.single != 'KRW') {
+      throw const FormatException('Annual title or reporting currency missing');
+    }
+    return start;
   }
 }
