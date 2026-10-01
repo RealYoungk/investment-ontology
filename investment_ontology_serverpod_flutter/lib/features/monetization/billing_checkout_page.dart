@@ -139,7 +139,7 @@ class _BillingCheckoutPageState extends State<BillingCheckoutPage> {
           Text(_message!, style: t.body(14, color: c.textSecondary)),
         if (!_busy && _status != null) ...[
           Text(
-            _status!.isTest ? '테스트 결제 · 실제 요금 청구 없음' : '월 2,900원',
+            _status!.isTest ? '테스트 결제 · 실제 요금 청구 없음' : '월 2,900원 · 부가세 포함',
             style: t.body(20, weight: FontWeight.w600),
           ),
           const SizedBox(height: AppSpace.md),
@@ -151,7 +151,7 @@ class _BillingCheckoutPageState extends State<BillingCheckoutPage> {
             Text(
               widget.replaceCard
                   ? '카드를 바꿔도 이용 기간과 해지 상태는 유지됩니다. 카드 변경으로 추가 결제하지 않습니다.'
-                  : '카드는 토스페이먼츠 결제창에서 등록합니다. 가입 후 매월 자동 결제되며, 계정 화면에서 다음 갱신을 해지할 수 있습니다.',
+                  : '카드 등록 후 첫 2,900원을 결제하고 매월 같은 기준일에 자동 갱신합니다. 해당 날짜가 없는 달은 말일입니다. 계정에서 갱신 해지할 수 있고 이미 결제한 기간까지 이용합니다. 현재 기간 안에 이메일로 환불 요청하면 해당 회차 전액을 환불하고 이용권과 다음 갱신을 종료합니다.',
               style: t.body(14, color: c.textSecondary),
             ),
             const ServiceLinks(),
@@ -177,7 +177,7 @@ class _BillingCheckoutPageState extends State<BillingCheckoutPage> {
                     ? '카드 변경하기'
                     : _status!.isTest
                     ? '테스트 카드 등록'
-                    : '카드 등록하고 시작하기',
+                    : '월 2,900원 결제하고 시작하기',
               ),
             ),
           ],

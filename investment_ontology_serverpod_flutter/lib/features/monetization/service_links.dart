@@ -12,8 +12,9 @@ class ServiceLinks extends StatelessWidget {
     children: [
       for (final item in const [
         (label: '문의', path: '/support.html'),
-        (label: '개인정보 처리 안내', path: '/data-notice.html'),
-        (label: '광고 제거 안내', path: '/membership.html'),
+        (label: '개인정보처리방침', path: '/data-notice.html'),
+        (label: '이용권 약관', path: '/membership.html'),
+        (label: '광고·쿠키 설정', path: '/cookies.html'),
       ])
         Link(
           uri: Uri.https('alfinder.kr', item.path),
