@@ -816,3 +816,5 @@ User authorized implementing locally before review. Actual Flutter industries pa
 실제 Google CMP-only 진단에서 비GDPR loaded callback의 eventStatus 누락을 확인해 이를 명시적으로 지원했다. EU 메시지 허용/거부/철회는 아직 별도 검증 조건이다.
 
 실제 AdSense tag 자체가 push 없이 광고 요청을 만드는 것을 임시 진단에서 발견했다. 최종 loader는 메시지 전용 CMP를 먼저 로드하고 동의 승인 뒤에만 AdSense tag를 로드하도록 변경했다. 이 진단의 실제 외부 요청과 모의 검증을 구분해 문서에 기록했다. 운영 flag OFF 유지.
+
+일반 Flutter Web renderer의 localhost 전용 harness로 운영 광고 위젯/JS + 인증 RPC + 격리 DB를 연결해 회원 전환9/9 확인. 조회실패·유료·해지·만료·갱신·환불·로그아웃에서 실제 DOM과 script/push 수 확인. Google/PG응답은 모의. scripts/start-ad-membership-browser.sh와 상세 검증 문서 참조.

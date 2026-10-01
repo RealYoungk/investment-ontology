@@ -69,3 +69,13 @@ Google 인증 CMP 지역별 허용/거부/철회의 실제 동작은 운영 활�
 Auto Ads OFF를 관리 화면에서 현재 확인한 뒤 별도 임시 진단 탭에서 AdSense tag만 로드했다. 애플리케이션의 ins 생성/push가 없어도 Google tag는 숨김 0×0 ins/iframe과 `/pagead/ads` 요청을 자체 생성했다. 노출된 배너는 없었고 탭을 즉시 닫았다. 따라서 **push=0은 Google 광고 요청=0을 증명하지 않는다**. 이 진단은 운영 플래그를 활성화하지 않았지만 실제 tag 네트워크 요청은 발생한 것으로 명확히 기록한다.
 
 최종 구현은 자체 opt-in → Google Funding Choices **메시지 전용** `/i/pub-…?ers=1` → CMP 명시 허용 → AdSense tag → 수동 slot 순서다. CMP 거절/불명/오류/지연/누락에서는 AdSense tag 자체를 로드하지 않는다. 메시지 전용 tag의 실제 응답과 TCF API는 앞선 진단에서 확인했다. 기존 'AdSense tag가 CMP를 로드한 뒤 push만 차단' 설명은 역사적 구현이며 이 순서로 대체된다. 공급자 message-only tag의 EU/US 실제 지역별 동작이 확인되기 전 privacy-ready는 계속 false다. Auto Ads OFF라도 AdSense tag가 만드는 내부 요청을 수동 광고 slot 요청과 구분해 Network에서 측정한다. 최종 Node/browser harness는 CMP script와 AdSense script 삽입을 각각 센다.
+
+## 실제 Flutter Web 렌더러 회원 전환 검증 (최종)
+
+추가 harness `scripts/start-ad-membership-browser.sh`는 widget-test가 아니라 일반 Flutter Web renderer로 앱을 빌드해 localhost9211에서 연다. 운영 `AdBanner`/`AdPlatform`/`ad_loader.js`/`MembershipMonitor`, 실제 인증 RPC와 격리 PostgreSQL을 연결한다. `test/web/ad_browser_transport_fixture.js`가 Google script 전송을 가로채 모의 CMP/채움으로 처리한다. PG는 기존 fixture의 모의 응답이다. 이 fixture는 출시 web assets에 포함되지 않는다.
+
+실제 DOM에서 9/9 통과: 무료 push1 → 조회실패 push1/DOM없음 → 조회성공복원 push2 → 유료 push2/DOM없음 → 유료기간 갱신해지 push2/DOM없음 → 만료 push3 → 갱신유료 push3/DOM없음 → 전액환불 push4 → 로그아웃 push5. AdSense script 삽입은 전체1회로, 정상 polling이나 유료 전환이 새 script 요청을 만들지 않는다. 광고 복원은 조회실패 회복/만료/환불/로그아웃 같은 상태 전환이며 자동 광고 새로고침 기능이 아니다.
+
+처음 추가한 widget-test의 실광고 DOM 검증은 platform DOM이 연결되지 않아 실패했다. 그 실험을 성공으로 기록하지 않고 원래 preview 기반 Chrome 결제 E2E를 유지한 뒤 일반 renderer의 별도 harness로 이 경계를 검증했다. 이 두 검증과 실제 Google 공급자 진단을 구분한다. 위 preview-only 한계는 이 추가 harness가 보완하며, 실제 Google inventory 성공/운영 PG 거래를 대신하지 않는다.
+
+재현: `bash scripts/start-ad-membership-browser.sh` 실행 → http://127.0.0.1:9211/ 열기 → `#ad-membership-result` JSON의 passed9/total9 확인 → 실행 종료. 임시 인증 파일/산출물은 종료 시 삭제된다. 다른 서버·DB·운영 키를 사용하지 않는다.
