@@ -24,6 +24,8 @@ abstract class FinancialLine
     required this.accountName,
     this.amount,
     this.cumulativeAmount,
+    this.priorSameCumulativeAmount,
+    this.priorSameUnavailableReason,
     this.currency,
     this.unavailableReason,
   });
@@ -36,6 +38,8 @@ abstract class FinancialLine
     required String accountName,
     BigInt? amount,
     BigInt? cumulativeAmount,
+    BigInt? priorSameCumulativeAmount,
+    String? priorSameUnavailableReason,
     String? currency,
     String? unavailableReason,
   }) = _FinancialLineImpl;
@@ -57,6 +61,14 @@ abstract class FinancialLine
           : _isc.BigIntJsonExtension.fromJson(
               jsonSerialization['cumulativeAmount'],
             ),
+      priorSameCumulativeAmount:
+          jsonSerialization['priorSameCumulativeAmount'] == null
+          ? null
+          : _isc.BigIntJsonExtension.fromJson(
+              jsonSerialization['priorSameCumulativeAmount'],
+            ),
+      priorSameUnavailableReason:
+          jsonSerialization['priorSameUnavailableReason'] as String?,
       currency: jsonSerialization['currency'] as String?,
       unavailableReason: jsonSerialization['unavailableReason'] as String?,
     );
@@ -77,6 +89,11 @@ abstract class FinancialLine
 
   BigInt? cumulativeAmount;
 
+  /// 같은 공시에 실린 전년 동기 누적값. 출처는 이 line의 factId/reportId.
+  BigInt? priorSameCumulativeAmount;
+
+  String? priorSameUnavailableReason;
+
   /// 원천 재무 표시 통화. 환산하지 않은 금액을 원화로 해석하지 않는다.
   String? currency;
 
@@ -94,6 +111,8 @@ abstract class FinancialLine
     String? accountName,
     BigInt? amount,
     BigInt? cumulativeAmount,
+    BigInt? priorSameCumulativeAmount,
+    String? priorSameUnavailableReason,
     String? currency,
     String? unavailableReason,
   });
@@ -109,6 +128,10 @@ abstract class FinancialLine
       if (amount != null) 'amount': amount?.toJson(),
       if (cumulativeAmount != null)
         'cumulativeAmount': cumulativeAmount?.toJson(),
+      if (priorSameCumulativeAmount != null)
+        'priorSameCumulativeAmount': priorSameCumulativeAmount?.toJson(),
+      if (priorSameUnavailableReason != null)
+        'priorSameUnavailableReason': priorSameUnavailableReason,
       if (currency != null) 'currency': currency,
       if (unavailableReason != null) 'unavailableReason': unavailableReason,
     };
@@ -126,6 +149,10 @@ abstract class FinancialLine
       if (amount != null) 'amount': amount?.toJson(),
       if (cumulativeAmount != null)
         'cumulativeAmount': cumulativeAmount?.toJson(),
+      if (priorSameCumulativeAmount != null)
+        'priorSameCumulativeAmount': priorSameCumulativeAmount?.toJson(),
+      if (priorSameUnavailableReason != null)
+        'priorSameUnavailableReason': priorSameUnavailableReason,
       if (currency != null) 'currency': currency,
       if (unavailableReason != null) 'unavailableReason': unavailableReason,
     };
@@ -148,6 +175,8 @@ class _FinancialLineImpl extends FinancialLine {
     required String accountName,
     BigInt? amount,
     BigInt? cumulativeAmount,
+    BigInt? priorSameCumulativeAmount,
+    String? priorSameUnavailableReason,
     String? currency,
     String? unavailableReason,
   }) : super._(
@@ -158,6 +187,8 @@ class _FinancialLineImpl extends FinancialLine {
          accountName: accountName,
          amount: amount,
          cumulativeAmount: cumulativeAmount,
+         priorSameCumulativeAmount: priorSameCumulativeAmount,
+         priorSameUnavailableReason: priorSameUnavailableReason,
          currency: currency,
          unavailableReason: unavailableReason,
        );
@@ -174,6 +205,8 @@ class _FinancialLineImpl extends FinancialLine {
     String? accountName,
     Object? amount = _Undefined,
     Object? cumulativeAmount = _Undefined,
+    Object? priorSameCumulativeAmount = _Undefined,
+    Object? priorSameUnavailableReason = _Undefined,
     Object? currency = _Undefined,
     Object? unavailableReason = _Undefined,
   }) {
@@ -187,6 +220,12 @@ class _FinancialLineImpl extends FinancialLine {
       cumulativeAmount: cumulativeAmount is BigInt?
           ? cumulativeAmount
           : this.cumulativeAmount,
+      priorSameCumulativeAmount: priorSameCumulativeAmount is BigInt?
+          ? priorSameCumulativeAmount
+          : this.priorSameCumulativeAmount,
+      priorSameUnavailableReason: priorSameUnavailableReason is String?
+          ? priorSameUnavailableReason
+          : this.priorSameUnavailableReason,
       currency: currency is String? ? currency : this.currency,
       unavailableReason: unavailableReason is String?
           ? unavailableReason

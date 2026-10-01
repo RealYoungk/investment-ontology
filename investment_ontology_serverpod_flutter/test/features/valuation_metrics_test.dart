@@ -12,6 +12,54 @@ Map<String, DerivedMetric> calculate(List<FinancialPeriod> periods) => {
     m.key: m,
 };
 void main() {
+  test('cash and term deposits are distinct, additive only with disclosed same-currency values', () {
+    final periods = [
+      f.period(2026, FinancialReportCode.halfYear, [
+        f.line('cash', 3364253367),
+        f.line('shortTermDeposits', 31053198747),
+        f.line('netIncome', -100),
+      ]),
+    ];
+    final m = calculate(periods);
+    expect(m['cash']!.label, '현금및현금성자산');
+    expect(m['cash']!.derived.value, 3364253367);
+    expect(m['shortTermDeposits']!.derived.value, 31053198747);
+    expect(m['cashAndDeposits']!.derived.value, 34417452114);
+    expect(m['cashAndDeposits']!.derived.inputs.length, 2);
+    expect(m['cashAndDeposits']!.derived.formula, contains('사용제한'));
+    expect(
+      MetricProfile('test', '', ['cash']).select(m.values.toList()).single.key,
+      'cashAndDeposits',
+    );
+    final missing = calculate([
+      f.period(2026, FinancialReportCode.halfYear, [f.line('cash', 33)]),
+    ]);
+    expect(missing['cashAndDeposits']!.derived.value, isNull);
+    expect(missing['shortTermDeposits']!.derived.missing, contains('단기금융상품'));
+    expect(
+      MetricProfile('test', '', [
+        'cash',
+      ]).select(missing.values.toList()).single.key,
+      'cash',
+    );
+    final zero = calculate([
+      f.period(2026, FinancialReportCode.halfYear, [
+        f.line('cash', 33),
+        f.line('shortTermDeposits', 0),
+      ]),
+    ]);
+    expect(zero['cashAndDeposits']!.derived.value, 33);
+    final mixed = calculate([
+      f.period(2026, FinancialReportCode.halfYear, [
+        f.line('cash', 33)..currency = 'KRW',
+        f.line('shortTermDeposits', 311)..currency = 'USD',
+      ]),
+    ]);
+    expect(mixed['cashAndDeposits']!.derived.value, isNull);
+    expect(mixed['cashAndDeposits']!.derived.missing, contains('통화 불일치'));
+    expect(mixed['cash']!.derived.value, 33);
+  });
+
   test('conflicted source balances are masked and retain the exact reason', () {
     const reason = '자산·부채·자본 합계 불일치 · 원천 공시 확인 필요';
     final raw = f.line('assets', 0).copyWith(unavailableReason: reason);

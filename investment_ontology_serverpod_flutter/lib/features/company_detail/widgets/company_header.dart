@@ -240,7 +240,7 @@ class _KeyStatsState extends State<_KeyStats> {
     );
     final keys = _showAll
         ? {...profile.keys, ...widget.metrics.map((metric) => metric.key)}
-        : profile.keys;
+        : profile.select(widget.metrics).map((metric) => metric.key);
     final metrics = [
       for (final key in keys)
         ...widget.metrics.where(
@@ -341,6 +341,16 @@ class _KeyStatsState extends State<_KeyStats> {
                               )
                             else
                               _benchmark(context, m.key),
+                            if (const {
+                                  'cash',
+                                  'shortTermDeposits',
+                                  'cashAndDeposits',
+                                }.contains(m.key) &&
+                                m.derived.inputs.isNotEmpty)
+                              Text(
+                                '${m.derived.inputs.first.basis.split(' · ').first} 기말',
+                                style: t.body(11, color: c.textSecondary),
+                              ),
                           ],
                         ),
                       ),

@@ -54,6 +54,58 @@ CompanyFinancials financials(List<FinancialPeriod> periods, {BigInt? cap}) =>
 
 void main() {
   test(
+    'IPO TTM uses filed prior comparison without inventing an old report',
+    () {
+      final half = line('revenue', 55, cumulative: 120)
+        ..priorSameCumulativeAmount = BigInt.from(48);
+      final view = FinancialView(
+        financials([
+          period(2025, FinancialReportCode.annual, [line('revenue', 133)]),
+          period(2026, FinancialReportCode.halfYear, [half]),
+        ]),
+      );
+      expect(view.trailing('revenue', '매출액').value, 205);
+      expect(
+        view.trailing('revenue', '매출액').inputs.last.basis,
+        contains('전년 동기 비교열'),
+      );
+      expect(view.trailingSeries('revenue').last.value, 205);
+      expect(view.period(2025, FinancialReportCode.halfYear), isNull);
+    },
+  );
+
+  test('own-period filing wins over the later comparison column', () {
+    final half = line('revenue', 55, cumulative: 120)
+      ..priorSameCumulativeAmount = BigInt.from(48);
+    final view = FinancialView(
+      financials([
+        period(2025, FinancialReportCode.halfYear, [
+          line('revenue', 30, cumulative: 50),
+        ]),
+        period(2025, FinancialReportCode.annual, [line('revenue', 133)]),
+        period(2026, FinancialReportCode.halfYear, [half]),
+      ]),
+    );
+    expect(view.trailing('revenue', '매출액').value, 203);
+  });
+
+  test('comparison fallback still rejects mixed currencies', () {
+    final half = line('revenue', 55, cumulative: 120)
+      ..priorSameCumulativeAmount = BigInt.from(48)
+      ..currency = 'USD';
+    final view = FinancialView(
+      financials([
+        period(2025, FinancialReportCode.annual, [
+          line('revenue', 133)..currency = 'KRW',
+        ]),
+        period(2026, FinancialReportCode.halfYear, [half]),
+      ]),
+    );
+    expect(view.trailing('revenue', '매출액').value, isNull);
+    expect(view.trailing('revenue', '매출액').missing, contains('통화 불일치'));
+  });
+
+  test(
     'summary amounts compact verified KRW units and retain source precision',
     () {
       expect(formatUnitAmountCompact(41216512, '백만원'), '41.2조원');

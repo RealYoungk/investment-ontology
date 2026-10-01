@@ -329,6 +329,17 @@ class FinancialView {
     return l.cumulativeAmount;
   }
 
+  /// Prefer the own-period filing; otherwise use the comparison column in
+  /// this filing. The source remains the current report, never a fake filing.
+  BigInt? _priorSame(FinancialPeriod p, String key) =>
+      cumulative(period(p.bsnsYear - 1, p.reportCode), key) ??
+      line(p, key)?.priorSameCumulativeAmount;
+
+  FinancialLine? _priorSameLine(FinancialPeriod p, String key) =>
+      cumulative(period(p.bsnsYear - 1, p.reportCode), key) != null
+      ? line(period(p.bsnsYear - 1, p.reportCode), key)
+      : line(p, key);
+
   /// 사업연도별 값. 사업보고서가 아직 없는 최근 해는 분기·반기보고서의 **누적**으로
   /// 한 칸을 더 두고(예: "2026 반기 누적"), 그것도 없으면 "없음"으로 빈 칸을 둔다 —
   /// 올해 칸이 아예 없으면 데이터가 빠진 건지 안 나온 건지 알 수 없다.
@@ -714,13 +725,13 @@ class FinancialView {
       key,
     )?.amount;
     final cur = cumulative(p, key);
-    final prev = cumulative(period(p.bsnsYear - 1, p.reportCode), key);
+    final prev = _priorSame(p, key);
     if (prevAnnual == null || cur == null || prev == null) return null;
     final currencies = {
       for (final source in [
         line(period(p.bsnsYear - 1, FinancialReportCode.annual), key),
         line(p, key),
-        line(period(p.bsnsYear - 1, p.reportCode), key),
+        _priorSameLine(p, key),
       ])
         if (source != null) source.currency ?? 'KRW',
     };
@@ -779,13 +790,13 @@ class FinancialView {
     final prevSame = period(p.bsnsYear - 1, p.reportCode);
     final a = line(prevAnnual, key)?.amount;
     final cur = cumulative(p, key);
-    final prev = cumulative(prevSame, key);
+    final prev = _priorSame(p, key);
     final code = reportCodeLabel(p.reportCode);
     final currencies = {
       for (final source in [
         line(prevAnnual, key),
         line(p, key),
-        line(prevSame, key),
+        _priorSameLine(p, key),
       ])
         if (source != null) source.currency ?? 'KRW',
     };
@@ -813,8 +824,13 @@ class FinancialView {
         MetricInput(
           '$label · ${p.bsnsYear - 1} $code 누적',
           prev,
-          prevSame == null ? '${p.bsnsYear - 1} $code 보고서 없음' : basis(prevSame),
-          currency: line(prevSame, key)?.currency ?? 'KRW',
+          cumulative(prevSame, key) != null
+              ? basis(prevSame!)
+              : prev != null
+              ? '${basis(p)} · 전년 동기 비교열'
+              : line(p, key)?.priorSameUnavailableReason ??
+                    '${p.bsnsYear - 1} $code 보고서·비교열 없음',
+          currency: _priorSameLine(p, key)?.currency ?? 'KRW',
         ),
       ],
       missing: currencies.length > 1
@@ -1155,7 +1171,19 @@ class FinancialView {
       ratio('설비투자 / 매출 = 최근 12개월 유형자산 취득 절댓값 ÷ 매출액', capexAbs, revenue),
       percent: true,
     );
-    add('cash', '보유 현금', cash, amount: true);
+    // Keep cash equivalents distinct from deposits: moving cash into a
+    // term deposit does not mean the company spent that money.
+    final deposits = latestBalance('shortTermDeposits', '단기금융상품');
+    final liquidAssets = combine(
+      '현금·단기금융상품 = 현금및현금성자산 + 단기금융상품 (같은 최근 기말)\n'
+      '단기금융상품에는 만기·사용제한이 있을 수 있어 즉시 사용 가능한 현금과 다릅니다. '
+      '기타금융자산·매출채권·장기금융상품은 포함하지 않습니다.',
+      [cash, deposits],
+      (v) => v[0] + v[1],
+    );
+    add('cash', '현금및현금성자산', cash, amount: true);
+    add('shortTermDeposits', '단기금융상품', deposits, amount: true);
+    add('cashAndDeposits', '현금·단기금융상품', liquidAssets, amount: true);
     add('ebitda', 'EBITDA(공시 계산)', ebitda, amount: true);
     add(
       'ebitdaMargin',

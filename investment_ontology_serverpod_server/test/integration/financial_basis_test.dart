@@ -100,6 +100,116 @@ void main() {
       ScreenEndpoint.serveStaleWhileRefreshing = true;
     });
 
+    test('IPO comparison columns supply TTM, with own-period precedence', () async {
+      await report(FsDiv.consolidated, 2025, FinancialReportCode.annual, {
+        revenue: 133,
+        cash: -100,
+        capex: -20,
+      });
+      final r = await report(
+        FsDiv.consolidated,
+        2026,
+        FinancialReportCode.halfYear,
+        {revenue: 120, cash: -30, capex: -10},
+      );
+      for (final f in await FinancialFact.db.find(
+        session,
+        where: (t) => t.reportId.equals(r.id!),
+      )) {
+        if (f.accountId == revenue) {
+          f.priorCumulativeAmount = BigInt.from(48);
+          f.priorQuarterAmount = BigInt.from(
+            19,
+          ); // 3 months, never use as cumulative
+        } else {
+          f.priorQuarterAmount = BigInt.from(f.accountId == cash ? -40 : 5);
+        }
+        await FinancialFact.db.updateRow(session, f);
+      }
+      final rows = await session.db.unsafeQuery(
+        'WITH ${FinancialBasis.ctes(companyId: company.id!)} SELECT acc,v FROM ttm',
+      );
+      final values = {for (final r in rows) '${r[0]}': num.parse('${r[1]}')};
+      expect(values[revenue], 205);
+      expect(values[cash], -90);
+      expect(values[capex], 25);
+      final d = await summary();
+      expect(
+        d.periods.last.lines
+            .firstWhere((l) => l.key == 'revenue')
+            .priorSameCumulativeAmount,
+        BigInt.from(48),
+      );
+      expect(d.periods.length, 2);
+      await report(FsDiv.consolidated, 2025, FinancialReportCode.halfYear, {
+        revenue: 50,
+      });
+      final own = await session.db.unsafeQuery(
+        "WITH ${FinancialBasis.ctes(companyId: company.id!)} SELECT v FROM ttm WHERE acc='$revenue'",
+      );
+      expect(num.parse('${own.single[0]}'), 203);
+    });
+
+    test('inconsistent owners comparison is blocked by both SQL and summary', () async {
+      const owners = 'ifrs-full_ProfitLossAttributableToOwnersOfParent';
+      const minority =
+          'ifrs-full_ProfitLossAttributableToNoncontrollingInterests';
+      await report(FsDiv.consolidated, 2025, FinancialReportCode.annual, {
+        owners: -2808000,
+        net: -2808000,
+      });
+      final r = await report(
+        FsDiv.consolidated,
+        2026,
+        FinancialReportCode.halfYear,
+        {owners: -2226000, net: -2226000, minority: 0},
+      );
+      for (final f in await FinancialFact.db.find(
+        session,
+        where: (t) => t.reportId.equals(r.id!),
+      )) {
+        f.priorCumulativeAmount = BigInt.from(
+          f.accountId == net ? -2716000 : 0,
+        );
+        await FinancialFact.db.updateRow(session, f);
+      }
+      final rows = await session.db.unsafeQuery(
+        "WITH ${FinancialBasis.ctes(companyId: company.id!)} SELECT v FROM ttm WHERE acc='$owners'",
+      );
+      expect(rows.single[0], isNull);
+      final d = await summary();
+      expect(
+        d.periods.last.lines
+            .firstWhere((l) => l.key == 'netIncomeOwners')
+            .priorSameUnavailableReason,
+        contains('합계 불일치'),
+      );
+    });
+
+    test('annual TTM and basis currency use the current filing despite historical currency changes', () async {
+      final old = await report(
+        FsDiv.separate,
+        2025,
+        FinancialReportCode.annual,
+        {revenue: 100},
+      );
+      for (final f in await FinancialFact.db.find(
+        session,
+        where: (t) => t.reportId.equals(old.id!),
+      )) {
+        f.currency = 'USD';
+        await FinancialFact.db.updateRow(session, f);
+      }
+      await report(FsDiv.separate, 2026, FinancialReportCode.annual, {
+        revenue: 200,
+      });
+      final rows = await session.db.unsafeQuery(
+        "WITH ${FinancialBasis.ctes(companyId: company.id!)} SELECT t.v,b.currency FROM ttm t JOIN basis_currency b ON b.id=t.id AND b.fs=t.fs WHERE t.acc='$revenue'",
+      );
+      expect(num.parse('${rows.single[0]}'), 200);
+      expect(rows.single[1], 'KRW');
+    });
+
     test('TTM capex normalizes filing signs consistently with the header', () async {
       await report(FsDiv.separate, 2025, FinancialReportCode.halfYear, {
         capex: 30,
