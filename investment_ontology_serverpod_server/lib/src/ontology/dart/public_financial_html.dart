@@ -1,3 +1,4 @@
+import 'public_issuer_legal_name.dart';
 import 'verified_historical_company_identity.dart';
 
 /// Validated strict subsets of receipt-bound annual and half-year DART HTML.
@@ -482,6 +483,7 @@ abstract final class PublicFinancialHtml {
     required DateTime periodStart,
     required DateTime periodEnd,
     required bool consolidated,
+    PublicIssuerLegalName? issuerProof,
   }) {
     _source(coverSource, receipt);
     _source(statementSource, receipt);
@@ -512,6 +514,21 @@ abstract final class PublicFinancialHtml {
     final company = RegExp(r'회사명:(.*?)(?:공동)?대표이사:')
         .firstMatch(cover)
         ?.group(1);
+    final declaredIssuer = company == null
+        ? null
+        : issuerProof?.verify(
+            receipt: receipt,
+            corpCode: corpCode,
+            masterName: companyName,
+            printedName: company,
+            coverSource: coverSource,
+            coverHtml: coverHtml,
+            periodStart: periodStart,
+            periodEnd: periodEnd,
+          );
+    if (issuerProof != null && declaredIssuer == null) {
+      throw const FormatException('Invalid raw official issuer evidence');
+    }
     final terms = RegExp(r'\(제(\d+)기(?:사업보고서)?\)').allMatches(cover).toList();
     final periods = RegExp(
       r'사업연도((?:\d{4}년\d{1,2}월\d{1,2}일|\d{4}\.\d{2}\.\d{2}))부터((?:\d{4}년\d{1,2}월\d{1,2}일|\d{4}\.\d{2}\.\d{2}))까지',
@@ -519,6 +536,7 @@ abstract final class PublicFinancialHtml {
     if (!cover.contains('사업보고서') ||
         company == null ||
         (legalName(company) != legalName(companyName) &&
+            declaredIssuer == null &&
             VerifiedHistoricalCompanyIdentity.evidence(
                   receipt: receipt,
                   corpCode: corpCode,
@@ -1127,6 +1145,13 @@ abstract final class PublicFinancialHtml {
         (row['html_provenance']
                 as Map<String, dynamic>)['historicalCompanyIdentity'] =
             historicalIdentity;
+      }
+    }
+    if (declaredIssuer != null) {
+      for (final row in result) {
+        (row['html_provenance']
+                as Map<String, dynamic>)['historicalCompanyIdentity'] =
+            declaredIssuer;
       }
     }
     return result;

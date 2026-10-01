@@ -1,3 +1,4 @@
+import 'public_issuer_legal_name.dart';
 import 'verified_historical_company_identity.dart';
 
 import 'dart:convert';
@@ -20,6 +21,7 @@ class PublicFinancialHtmlSource {
     required this.periodStart,
     required this.periodEnd,
     required this.rows,
+    this.issuerProof,
   });
 
   final String sourceReceipt;
@@ -32,6 +34,7 @@ class PublicFinancialHtmlSource {
   final DateTime periodStart;
   final DateTime periodEnd;
   final List<Map<String, dynamic>> rows;
+  final PublicIssuerLegalName? issuerProof;
 
   String get sourceDigest =>
       sha256.convert(utf8.encode('$coverHtml\n$statementHtml')).toString();
@@ -52,6 +55,7 @@ class PublicFinancialHtmlBasisNotApplicable extends FormatException {
     required this.coverHtml,
     required this.statementHtml,
     required this.evidence,
+    this.issuerProof,
   }) : super(
          'Official annual consolidated statements explicitly not applicable',
        );
@@ -67,6 +71,24 @@ class PublicFinancialHtmlBasisNotApplicable extends FormatException {
   final String coverHtml;
   final String statementHtml;
   final String evidence;
+  final PublicIssuerLegalName? issuerProof;
+  Map<String, String>? get issuerIdentityEvidence {
+    final names = RegExp(r'회사명:(.*?)(?:공동)?대표이사:')
+        .allMatches(coverHtml.replaceAll(RegExp(r'<[^>]+>|\s+|&nbsp;'), ''))
+        .toList();
+    if (names.length != 1) return null;
+    return issuerProof?.verify(
+      receipt: sourceReceipt,
+      corpCode: corpCode,
+      masterName: companyName,
+      printedName: names.single.group(1)!,
+      coverSource: coverSource,
+      coverHtml: coverHtml,
+      periodStart: periodStart,
+      periodEnd: periodEnd,
+    );
+  }
+
   String? get correctionReceipt => null;
   Uri? get correctionSource => null;
   bool get consolidated => true;
@@ -357,6 +379,7 @@ class PublicFinancialHtmlFetcher {
         DateTime.utc(periodEnd.year, periodEnd.month, periodEnd.day)) {
       throw const FormatException('Declared source end mismatch');
     }
+    PublicIssuerLegalName? issuerProof;
     if (exactAnnual) {
       String normalize(String name) => name.replaceAll(
         RegExp(r'\(주\)|㈜|주식회사|\s+'),
@@ -366,21 +389,46 @@ class PublicFinancialHtmlFetcher {
           .allMatches(text)
           .toList();
       if (printedNames.length != 1 ||
-          (normalize(printedNames.single.group(1)!) != normalize(companyName) &&
-              VerifiedHistoricalCompanyIdentity.evidence(
-                    receipt: sourceReceipt,
-                    corpCode: corpCode,
-                    currentName: companyName,
-                    printedName: printedNames.single.group(1)!,
-                    periodEnd: periodEnd,
-                    consolidated: consolidated,
-                    coverSource: coverSource,
-                    coverHtml: coverHtml,
-                  ) ==
-                  null) ||
           periodEnd.difference(periodStart).inDays < 0 ||
           periodEnd.difference(periodStart).inDays + 1 > 367) {
         throw const FormatException('Exact annual company/duration mismatch');
+      }
+      final printedName = printedNames.single.group(1)!;
+      if (normalize(printedName) != normalize(companyName) &&
+          VerifiedHistoricalCompanyIdentity.evidence(
+                receipt: sourceReceipt,
+                corpCode: corpCode,
+                currentName: companyName,
+                printedName: printedName,
+                periodEnd: periodEnd,
+                consolidated: consolidated,
+                coverSource: coverSource,
+                coverHtml: coverHtml,
+              ) ==
+              null) {
+        final overviewSource = node('I.회사의개요');
+        final overviewHtml = await get(overviewSource, referer: originalSource);
+        issuerProof = PublicIssuerLegalName(
+          shellHtml: shell,
+          shellSource: originalSource,
+          overviewHtml: overviewHtml,
+          overviewSource: overviewSource,
+        );
+        if (issuerProof.verify(
+              receipt: sourceReceipt,
+              corpCode: corpCode,
+              masterName: companyName,
+              printedName: printedName,
+              coverSource: coverSource,
+              coverHtml: coverHtml,
+              periodStart: periodStart,
+              periodEnd: periodEnd,
+            ) ==
+            null) {
+          throw const FormatException(
+            'Exact annual legal issuer corroboration failed',
+          );
+        }
       }
     }
     final statementHtml = await get(statementSource, referer: originalSource);
@@ -432,6 +480,7 @@ class PublicFinancialHtmlFetcher {
             coverHtml: coverHtml,
             statementHtml: statementHtml,
             evidence: explicitNone,
+            issuerProof: issuerProof,
           );
         }
       }
@@ -442,18 +491,32 @@ class PublicFinancialHtmlFetcher {
         : halfYear
         ? PublicFinancialHtml.parseHalfYear
         : PublicFinancialHtml.parse;
-    final rows = parse(
-      coverHtml: coverHtml,
-      statementHtml: statementHtml,
-      coverSource: coverSource,
-      statementSource: statementSource,
-      receipt: sourceReceipt,
-      corpCode: corpCode,
-      companyName: name,
-      periodStart: periodStart,
-      periodEnd: periodEnd,
-      consolidated: consolidated,
-    );
+    final rows = exactAnnual
+        ? PublicFinancialHtml.parseStandardAnnual(
+            issuerProof: issuerProof,
+            coverHtml: coverHtml,
+            statementHtml: statementHtml,
+            coverSource: coverSource,
+            statementSource: statementSource,
+            receipt: sourceReceipt,
+            corpCode: corpCode,
+            companyName: companyName,
+            periodStart: periodStart,
+            periodEnd: periodEnd,
+            consolidated: consolidated,
+          )
+        : parse(
+            coverHtml: coverHtml,
+            statementHtml: statementHtml,
+            coverSource: coverSource,
+            statementSource: statementSource,
+            receipt: sourceReceipt,
+            corpCode: corpCode,
+            companyName: name,
+            periodStart: periodStart,
+            periodEnd: periodEnd,
+            consolidated: consolidated,
+          );
     return PublicFinancialHtmlSource(
       sourceReceipt: sourceReceipt,
       correctionReceipt: halfYear || exactAnnual ? null : correctionReceipt,
@@ -465,6 +528,7 @@ class PublicFinancialHtmlFetcher {
       periodStart: periodStart,
       periodEnd: periodEnd,
       rows: rows,
+      issuerProof: issuerProof,
     );
   }
 }
