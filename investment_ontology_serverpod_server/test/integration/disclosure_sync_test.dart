@@ -22,9 +22,11 @@ class _PublicBodyFixture extends PublicBusinessDocument {
   _PublicBodyFixture({this.fail = false});
   final bool fail;
   final receipts = <String>[];
+  final errors = <String, Object>{};
   @override
   Future<PublicBusinessBody> fetch(String receipt) async {
     receipts.add(receipt);
+    if (errors[receipt] case final error?) throw error;
     if (fail) throw TimeoutException("fixture public transport timeout");
     return PublicBusinessBody(
       receipt: receipt,
@@ -813,6 +815,161 @@ void main() {
             .companiesWithLatestBusinessText,
         1,
       );
+    });
+
+    test('본문 수집 대상인 other 기업은 지배구조 이름 연결 대상에 추가하지 않는다', () async {
+      for (final corp in [life, other]) {
+        final company = (await Company.db.findById(session, ids[corp]!))!;
+        await Company.db.updateRow(
+          session,
+          company.copyWith(market: Market.other),
+        );
+      }
+      await runSync(corpCode: samsung);
+      final holder = (await ShareholderEntry.db.find(
+        session,
+        where: (t) =>
+            t.companyId.equals(ids[samsung]!) & t.holderName.equals('삼성생명보험㈜'),
+      )).single;
+      expect(holder.holderCompanyId, isNull);
+      final investment = (await InvestmentEntry.db.find(
+        session,
+        where: (t) => t.companyId.equals(ids[samsung]!),
+        orderBy: (t) => t.ord,
+      )).first;
+      expect(investment.investeeCompanyId, isNull);
+      expect(
+        (await Company.db.findById(session, ids[life]!))!.stockCode,
+        isNotNull,
+      );
+      expect(
+        (await Company.db.findById(session, ids[other]!))!.stockCode,
+        isNotNull,
+      );
+    });
+
+    test('종목코드가 있는 other 세 기업의 최신본문을 저장하고 정확 최신 집계에 포함한다', () async {
+      var count = 0;
+      for (final (corp, name, stock, receipt, code, reportName) in [
+        (
+          '00534191',
+          '코스나인',
+          '082660',
+          '20260515003027',
+          FinancialReportCode.q1,
+          '분기보고서 (2026.03)',
+        ),
+        (
+          '00139834',
+          '원풍물산',
+          '008290',
+          '20260814002734',
+          FinancialReportCode.halfYear,
+          '반기보고서 (2026.06)',
+        ),
+        (
+          '00183518',
+          '코다코',
+          '046070',
+          '20260814003077',
+          FinancialReportCode.halfYear,
+          '반기보고서 (2026.06)',
+        ),
+      ]) {
+        final company = await Company.db.insertRow(
+          session,
+          Company(
+            corpCode: corp,
+            name: name,
+            stockCode: stock,
+            market: Market.other,
+          ),
+        );
+        ids[corp] = company.id!;
+        final latest = await filing(
+          corp,
+          receipt,
+          2026,
+          code: code,
+          name: reportName,
+        );
+        final reader = _PublicBodyFixture();
+        await runSync(corpCode: corp, dailyBudget: 0, publicDocuments: reader);
+        expect(reader.receipts, [receipt]);
+        final section = (await DartFilingSection.db.find(
+          session,
+          where: (t) =>
+              t.filingId.equals(latest.id!) &
+              t.section.equals(DartSection.businessContent),
+        )).single;
+        expect(section.status, FilingFetchStatus.stored);
+        final body = (await BusinessDocument.db.find(
+          session,
+          where: (t) => t.companyId.equals(company.id!),
+        )).single;
+        expect(body.rceptNo, receipt);
+        expect(
+          (await Company.db.findById(session, company.id!))!.market,
+          Market.other,
+        );
+        count++;
+        expect(
+          (await endpoints.ingest.coverage(sessionBuilder))
+              .companiesWithLatestBusinessText,
+          count,
+        );
+      }
+    });
+
+    test('명시 첨부정정의 공개 사업노드 없음은 실제 이전 원본으로 연결한다', () async {
+      const corrected = '20260901000001';
+      await filing(samsung, corrected, 2025, name: '[첨부정정]사업보고서 (2025.12)');
+      final reader = _PublicBodyFixture()
+        ..errors[corrected] = const PublicBusinessNodeMissing();
+      await runSync(corpCode: samsung, dailyBudget: 0, publicDocuments: reader);
+      expect(reader.receipts, [corrected, rSamsung]);
+      final body = (await BusinessDocument.db.find(session)).single;
+      expect(body.rceptNo, rSamsung);
+      final source = (await Source.db.find(session)).single;
+      expect(source.reference, rSamsung);
+      expect(source.url, contains('rcpNo=$rSamsung'));
+      expect(
+        (await endpoints.ingest.coverage(sessionBuilder))
+            .companiesWithLatestBusinessText,
+        0,
+      );
+    });
+
+    test('일반 기재정정의 노드 없음과 첨부정정의 모호한 노드는 이전 원본으로 넘기지 않는다', () async {
+      for (final (receipt, name, error) in [
+        (
+          '20260901000001',
+          '[기재정정]사업보고서 (2025.12)',
+          const PublicBusinessNodeMissing(),
+        ),
+        (
+          '20260902000001',
+          '[첨부정정]사업보고서 (2025.12)',
+          const FormatException('Business section node ambiguous'),
+        ),
+      ]) {
+        final latest = await filing(samsung, receipt, 2025, name: name);
+        final reader = _PublicBodyFixture()..errors[receipt] = error;
+        await runSync(
+          corpCode: samsung,
+          dailyBudget: 0,
+          publicDocuments: reader,
+        );
+        expect(reader.receipts, [receipt]);
+        final section = (await DartFilingSection.db.find(
+          session,
+          where: (t) =>
+              t.filingId.equals(latest.id!) &
+              t.section.equals(DartSection.businessContent),
+        )).single;
+        expect(section.status, FilingFetchStatus.failed);
+      }
+      expect(await BusinessDocument.db.count(session), 0);
     });
 
     test('DART 020 호출 제한 오류 뒤에도 공개 본문을 저장하고 API는 더 부르지 않는다', () async {

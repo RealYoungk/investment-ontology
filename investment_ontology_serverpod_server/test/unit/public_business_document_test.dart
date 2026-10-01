@@ -49,6 +49,54 @@ void main() {
       expect(result.bodySha256.length, 64);
     },
   );
+  test('missing node is typed separately from ambiguous business nodes', () {
+    expect(
+      () => PublicBusinessDocument.bodyUri(
+        receipt,
+        shell.replaceFirst('II. 사업의 내용', 'I. 회사의 개요'),
+      ),
+      throwsA(isA<PublicBusinessNodeMissing>()),
+    );
+    expect(
+      () => PublicBusinessDocument.bodyUri(receipt, shell + shell),
+      throwsA(
+        isA<FormatException>().having(
+          (e) => e is PublicBusinessNodeMissing,
+          'missing',
+          false,
+        ),
+      ),
+    );
+  });
+  test('actual attachment viewer is verified missing, while error and partial shells stay strict', () {
+    final attachment = File(
+      'test/unit/fixtures/public_business/bukuk-attachment-shell.html',
+    ).readAsStringSync();
+    expect(
+      () => PublicBusinessDocument.bodyUri('20260814003889', attachment),
+      throwsA(isA<PublicBusinessNodeMissing>()),
+    );
+    for (final bad in [
+      '',
+      '<html>HTTP 200 access denied</html>',
+      shell
+          .replaceFirst('II. 사업의 내용', 'I. 회사의 개요')
+          .replaceAll("node1['length'] = \"4000\";", ''),
+      shell.replaceAll('cnt++;', ''),
+      attachment.replaceAll('20260814003889', '20260814000001'),
+    ]) {
+      expect(
+        () => PublicBusinessDocument.bodyUri(receipt, bad),
+        throwsA(
+          isA<FormatException>().having(
+            (e) => e is PublicBusinessNodeMissing,
+            'missing',
+            false,
+          ),
+        ),
+      );
+    }
+  });
   test('missing, duplicate and previous receipt shells rejected', () {
     for (final bad in [
       'viewer shell',
