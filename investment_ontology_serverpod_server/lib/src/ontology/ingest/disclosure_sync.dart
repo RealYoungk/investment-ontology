@@ -359,11 +359,11 @@ class DisclosureSync {
         'company': ?only?.id,
       }),
     );
-    // 주요정보 API는 연간만 유지하고, 사업 본문은 최신 연간 이후의 최신 중간보고서도 받는다.
+    // 사업 본문과 최대주주 현황은 최신 연간 이후의 최신 중간보고서도 받는다.
     await session.db.unsafeExecute(
       '''INSERT INTO dart_filing_section
         ("filingId", "companyId", "bsnsYear", section, tier, status, attempts)
-      SELECT f.id, f."companyId", f."bsnsYear", 'businessContent', 2, 'pending', 0
+      SELECT f.id, f."companyId", f."bsnsYear", s.section, s.tier, 'pending', 0
       FROM (
         SELECT DISTINCT ON ("companyId") * FROM dart_filing
         WHERE "companyId" IS NOT NULL AND "reportCode" IN ('q1','halfYear','q3')
@@ -372,7 +372,7 @@ class DisclosureSync {
         ORDER BY "companyId", "bsnsYear" DESC,
           CASE "reportCode" WHEN 'q3' THEN 3 WHEN 'halfYear' THEN 2 ELSE 1 END DESC,
           "rceptNo" DESC
-      ) f
+      ) f CROSS JOIN (VALUES ('businessContent', 2), ('largestShareholders', 0)) AS s(section, tier)
       WHERE NOT EXISTS (SELECT 1 FROM dart_filing a
         WHERE a."companyId"=f."companyId" AND a."reportCode"='annual'
           AND a."bsnsYear">=f."bsnsYear")
@@ -510,9 +510,7 @@ class DisclosureSync {
             api: info.api,
             corpCode: company.corpCode,
             bsnsYear: item.bsnsYear,
-            reportCode: FinancialCodes.reportCodeToDart(
-              FinancialReportCode.annual,
-            ),
+            reportCode: FinancialCodes.reportCodeToDart(filing.reportCode!),
           ),
         );
         status = await _store(item, filing, company, rows, byName);
@@ -606,6 +604,7 @@ class DisclosureSync {
         prepared,
         byName,
         executives,
+        reportCode: filing.reportCode!,
         reportName: rceptNo == filing.rceptNo
             ? filing.reportName
             : (await DartFiling.db.findFirstRow(
@@ -896,6 +895,7 @@ class DisclosureSync {
     Map<String, int> byName,
     List<ExecutiveEntry> executives, {
     required String reportName,
+    required FinancialReportCode reportCode,
   }) async {
     final now = DateTime.now().toUtc();
     final info = DartSections.of(item.section);
@@ -919,7 +919,7 @@ class DisclosureSync {
           section: item.section,
           rceptNo: rceptNo,
           bsnsYear: bsnsYear,
-          reportCode: FinancialReportCode.annual,
+          reportCode: reportCode,
           settlementDate: DisclosureValues.date(first['stlm_dt']),
           rowCount: prepared.rows.length,
           emptyRowCount: prepared.empty,
@@ -1013,7 +1013,7 @@ class DisclosureSync {
         where: (t) =>
             t.companyId.equals(companyId) &
             t.bsnsYear.equals(bsnsYear) &
-            t.reportCode.equals(FinancialReportCode.annual) &
+            t.reportCode.equals(reportCode) &
             t.section.equals(item.section) &
             t.supersededById.equals(null) &
             t.id.notEquals(reportId),
