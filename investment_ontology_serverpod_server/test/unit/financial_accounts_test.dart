@@ -24,6 +24,37 @@ FinancialFact fact(
 );
 
 void main() {
+  test(
+    'whole mixed profit/loss labels preserve signs and SQL exact mirror',
+    () {
+      for (final sign in [-1, 1]) {
+        for (final a in [
+          ('Ⅴ. 영업손익(손실)', 'operatingIncome'),
+          ('X. 당기순손익(손실)', 'netIncome'),
+        ]) {
+          final row = fact(a.$1).copyWith(amount: BigInt.from(sign * 123));
+          expect(FinancialAccounts.pick([row]).single.key, a.$2);
+          expect(FinancialAccounts.pick([row]).single.amount, row.amount);
+          expect(
+            FinancialAccounts.pick([row.copyWith(accountDetail: 'segment')]),
+            isEmpty,
+          );
+          expect(
+            FinancialAccounts.pick([
+              row.copyWith(statement: FinancialStatementKind.cashFlow),
+            ]),
+            isEmpty,
+          );
+        }
+      }
+      for (final name in ['부문영업손익(손실)', '지배기업당기순손익(손실)', '중단영업당기순손익(손실)']) {
+        expect(FinancialAccounts.pick([fact(name)]), isEmpty);
+      }
+      expect(FinancialAccounts.resolvedIdSql('f'), contains("'영업손익(손실)'"));
+      expect(FinancialAccounts.resolvedIdSql('f'), contains("'당기순손익(손실)'"));
+    },
+  );
+
   test('actual trailing numeric note maps while malformed or embedded notes remain excluded', () {
     expect(FinancialAccounts.pick([fact('매출 (주25,36)')]).single.key, 'revenue');
     for (final name in [

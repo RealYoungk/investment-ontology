@@ -833,9 +833,20 @@ abstract final class PublicFinancialHtml {
       }
       cnsPeriodProof = proofs.single;
     }
+    // A BS duration requires independently printed CE dates and totals.
+    final bsDurationCandidate =
+        periodEnd.difference(periodStart).inDays >= 364 &&
+        periodEnd.difference(periodStart).inDays <= 365 &&
+        titles.length >= 3 &&
+        titles.every(
+          (m) =>
+              m.group(2) != '현재' &&
+              sourceDate(m.group(1)!) == periodStart &&
+              sourceDate(m.group(3)!) == periodEnd,
+        );
     if (cnsPeriodProof == null &&
         (titles.length < 3 ||
-            !titles.any((m) => m.group(2) == '현재') ||
+            (!bsDurationCandidate && !titles.any((m) => m.group(2) == '현재')) ||
             titles.any(
               (m) => m.group(2) == '현재'
                   ? sourceDate(m.group(1)!) != periodEnd
@@ -860,10 +871,12 @@ abstract final class PublicFinancialHtml {
       '영업수익': ('revenue', 'CIS'),
       '영업이익': ('operating', 'CIS'),
       '영업손익': ('operating', 'CIS'),
+      '영업손익(손실)': ('operating', 'CIS'),
       '영업손실': ('operating', 'CIS'),
       '영업이익(손실)': ('operating', 'CIS'),
       '당기순이익': ('profit', 'CIS'),
       '당기순손익': ('profit', 'CIS'),
+      '당기순손익(손실)': ('profit', 'CIS'),
       '당기순손실': ('profit', 'CIS'),
       '연결당기순이익': ('profit', 'CIS'),
       '연결당기순이익(손실)': ('profit', 'CIS'),
@@ -888,7 +901,7 @@ abstract final class PublicFinancialHtml {
     }
 
     Map<String, dynamic>? datedPunctuationProof;
-    if (parenthesizedTitles.isNotEmpty) {
+    if (parenthesizedTitles.isNotEmpty || bsDurationCandidate) {
       final candidates = <Map<String, dynamic>>[];
       var supportingIndex = 0;
       for (final table in RegExp(
@@ -1014,7 +1027,9 @@ abstract final class PublicFinancialHtml {
         }
 
         candidates.add({
-          'mode': 'fully-dated-parentheses-equity-corroboration',
+          'mode': bsDurationCandidate
+              ? 'primary-bs-duration-equity-corroboration'
+              : 'fully-dated-parentheses-equity-corroboration',
           'tableIndex': index,
           'currentTerm': term,
           'periodStart': periodStart.toIso8601String().substring(0, 10),
@@ -1111,7 +1126,13 @@ abstract final class PublicFinancialHtml {
               labels.contains('매출') ||
               labels.contains('영업수익') ||
               labels.contains('수익(매출액)')) &&
-          (['영업이익', '영업이익(손실)', '영업손익', '영업손실'].any(labels.contains))) {
+          ([
+            '영업이익',
+            '영업이익(손실)',
+            '영업손익',
+            '영업손익(손실)',
+            '영업손실',
+          ].any(labels.contains))) {
         kind = 'CIS';
       } else if (labels.contains('영업활동으로인한현금흐름') ||
           labels.contains('영업활동으로인한현금흐름(순액)') ||
@@ -1128,7 +1149,7 @@ abstract final class PublicFinancialHtml {
           .where(
             (c) =>
                 RegExp(
-                  '^(?:제$term(?:\\(당\\))?기(?:기말|말)?|${periodEnd.year}년도\\(제$term기\\))\$',
+                  '^(?:제$term(?:\\(당\\))?기(?:기말|말)?|${periodEnd.year}(?:년도|연도)\\(제$term기\\))\$',
                 ).hasMatch(_compact(c.text)) ||
                 (konasolScope && kind == 'CF' && _compact(c.text) == '2025년'),
           )
@@ -1181,7 +1202,10 @@ abstract final class PublicFinancialHtml {
       final localTitles = titlePattern.allMatches(localPrefix).toList();
       if ((cnsPeriodProof == null &&
               (localTitles.isEmpty ||
-                  (kind == 'BS') != (localTitles.last.group(2) == '현재'))) ||
+                  ((kind == 'BS') != (localTitles.last.group(2) == '현재') &&
+                      !(kind == 'BS' &&
+                          bsDurationCandidate &&
+                          datedPunctuationProof != null)))) ||
           (cnsPeriodProof != null &&
               !konasolScope &&
               _compact(current.text) != '2025년도(제26기)')) {
