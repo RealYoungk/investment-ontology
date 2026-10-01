@@ -29,6 +29,31 @@ void main() {
       source.dispose();
     },
   );
+  test(
+    'failed refresh suppresses previously resolved free account ads',
+    () async {
+      final source = ValueNotifier<AppViewer?>(account);
+      var fail = false;
+      final monitor = MembershipMonitor(
+        source: source,
+        fetch: () async {
+          if (fail) throw StateError('offline');
+          return MembershipView(adFree: false, cancelAtPeriodEnd: false);
+        },
+      );
+      expect(monitor.viewer.value!.membershipResolved, false);
+      await Future<void>.delayed(Duration.zero);
+      expect(monitor.viewer.value!.membershipResolved, true);
+      fail = true;
+      await monitor.refresh();
+      expect(monitor.viewer.value!.membershipResolved, false);
+      fail = false;
+      await monitor.refresh();
+      expect(monitor.viewer.value!.membershipResolved, true);
+      monitor.dispose();
+      source.dispose();
+    },
+  );
   test('prior account response is discarded', () async {
     final source = ValueNotifier<AppViewer?>(account);
     final old = Completer<MembershipView>();

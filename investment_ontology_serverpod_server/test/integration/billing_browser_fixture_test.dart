@@ -128,14 +128,22 @@ void main() {
             'Access-Control-Allow-Headers',
             'Authorization,Content-Type',
           );
-          if (request.uri.path == '/billing_loader.js') {
+          if (request.uri.path == '/billing_loader.js' ||
+              request.uri.path == '/ad_loader.js') {
             request.response.headers.contentType = ContentType(
               'application',
               'javascript',
             );
+            if (request.uri.path == '/ad_loader.js') {
+              request.response.write(
+                await File(
+                  '../investment_ontology_serverpod_flutter/test/web/ad_browser_transport_fixture.js',
+                ).readAsString(),
+              );
+            }
             request.response.write(
               await File(
-                '../investment_ontology_serverpod_flutter/web/billing_loader.js',
+                '../investment_ontology_serverpod_flutter/web${request.uri.path}',
               ).readAsString(),
             );
             await request.response.close();

@@ -808,3 +808,13 @@ User authorized implementing locally before review. Actual Flutter industries pa
 광고 승인과 PG 계약을 기다리는 동안 서버 결제 원장·갱신/해지·카드 교체·재가입, 전액 환불 대사와 광고/쿠키 선택·가입/결제 전 고지를 구현했다. 이전 광고 준비 메모의 '결제 원장 없음'은 당시 상태이며 이제 원장 구현이 있다. 관리자 회원 관리에서 주문을 확인하고 전액 환불을 요청한다. 환불 대기는 갱신을 중단하지만 공급자 취소 확인 전 이용권을 성공/종료로 처리하지 않는다. 생성 코드는 격리 watcher에서 자동 생성했고 이번 관리자 DTO에는 DB 테이블 변경이 없다.
 
 추가 정적 분석 정상, 생성 코드 등록/원장/갱신 통합 23개, 관리자 UI/디자인 경계 4개 통과. 전체 최신 커밋의 Release CI와 운영 배포는 별도 증거를 확인해야 한다. 운영 실광고·실결제 플래그는 OFF를 유지한다. `docs/monetization-launch-readiness.md`, `docs/monetization-operations.md`에 재현·문의 환불·계약/판매자/국외 처리·보존 절차와 미확정 항목을 기록했다. 테스트 상점 성공은 운영 계약 승인과 다르다.
+
+## 2026-10-01 광고·결제 승인 전 검증 후속
+
+격리 체크아웃에서 CMP 타임아웃/후속 오류/재표시 광고 제거와 무료회원 후속 멤버십 조회 실패 차단을 보완했다. JS27/서버70/Flutter23/Chrome 결제E2E1 및 광고 browser harness11 통과. 실제 Google 지역별 CMP·계약상점 실결제는 이 통과 범위에 포함하지 않는다. 운영 광고/결제 비활성 유지. 상세 재현·각 활성화/롤백·webhook 미구현 범위는 docs/monetization-preapproval-verification.md. 기본 저장소 및 기존 광고 워크트리의 사용자 변경은 건드리지 않았다.
+
+실제 Google CMP-only 진단에서 비GDPR loaded callback의 eventStatus 누락을 확인해 이를 명시적으로 지원했다. EU 메시지 허용/거부/철회는 아직 별도 검증 조건이다.
+
+실제 AdSense tag 자체가 push 없이 광고 요청을 만드는 것을 임시 진단에서 발견했다. 최종 loader는 메시지 전용 CMP를 먼저 로드하고 동의 승인 뒤에만 AdSense tag를 로드하도록 변경했다. 이 진단의 실제 외부 요청과 모의 검증을 구분해 문서에 기록했다. 운영 flag OFF 유지.
+
+일반 Flutter Web renderer의 localhost 전용 harness로 운영 광고 위젯/JS + 인증 RPC + 격리 DB를 연결해 회원 전환9/9 확인. 조회실패·유료·해지·만료·갱신·환불·로그아웃에서 실제 DOM과 script/push 수 확인. Google/PG응답은 모의. scripts/start-ad-membership-browser.sh와 상세 검증 문서 참조.

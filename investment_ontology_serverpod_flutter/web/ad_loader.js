@@ -2,6 +2,7 @@
 (function (root) {
   'use strict';
   let scriptPromise;
+  let cmpScriptPromise;
   let publisherId;
   const slots = new WeakMap();
   const active = new Set();
@@ -25,6 +26,19 @@
       document.head.appendChild(script);
     });
     return scriptPromise;
+  }
+  function loadCmp(publisher) {
+    if (cmpScriptPromise) return cmpScriptPromise;
+    cmpScriptPromise = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.async = true;
+      // Message-only tag: AdSense itself may request inventory on load.
+      script.src = 'https://fundingchoicesmessages.google.com/i/' + publisher.replace(/^ca-/, '') + '?ers=1';
+      script.onload = resolve;
+      script.onerror = () => reject(new Error('CMP script unavailable'));
+      document.head.appendChild(script);
+    });
+    return cmpScriptPromise;
   }
   function dispose(element) {
     const state = slots.get(element);
@@ -74,9 +88,8 @@
           clearTimeout(state.timer);
           if (!root.alfinderAdConsent || !await root.alfinderAdConsent.request()) return state.finish(false);
           if (state.disposed || settled) return state.finish(false);
-          await load(publisher);
           if (state.disposed || settled || !element.isConnected || root.alfinderAdConsent.choice() !== true) return state.finish(false);
-          // Google's AdSense tag loads the account's published certified CMP.
+          // Load Google's message-only tag before any AdSense inventory code.
           // Wait for its jurisdiction and consent result; unknown/error is denied.
           const permitted = await new Promise(resolve => {
             const timer = state.cmpTimer = setTimeout(() => resolve(false), 15000);
@@ -88,18 +101,34 @@
               root.__tcfapi('addEventListener', 2, (data, ok) => {
                 if (state.disposed) return;
                 if (data?.listenerId) state.cmpListener = data.listenerId;
-                if (!ok || !data) { clearTimeout(timer); resolve(false); return; }
-                if (data.eventStatus === 'cmpuishown') { clearTimeout(timer); return; }
-                if (!['tcloaded', 'useractioncomplete'].includes(data.eventStatus)) return;
-                if (typeof data.gdprApplies !== 'boolean') return;
+                if (!ok || !data || data.cmpStatus === 'error') {
+                  clearTimeout(timer); resolve(false); dispose(element); return;
+                }
+                if (data.eventStatus === 'cmpuishown') {
+                  // A reopened consent UI invalidates the previous decision.
+                  // The initial UI keeps its deadline; late callbacks cannot push.
+                  if (state.cmpPermitted) dispose(element);
+                  return;
+                }
+                // Google's non-GDPR callback can omit eventStatus entirely.
+                const outsideGdpr = data.gdprApplies === false && data.cmpStatus === 'loaded';
+                if (!outsideGdpr && !['tcloaded', 'useractioncomplete'].includes(data.eventStatus)) return;
+                if (typeof data.gdprApplies !== 'boolean') {
+                  if (state.cmpPermitted) dispose(element);
+                  return;
+                }
                 const allowed = data.gdprApplies === false ||
                   (data.cmpId === 300 && data.purpose?.consents?.[1] === true && data.vendor?.consents?.[755] === true);
+                state.cmpPermitted = allowed;
                 clearTimeout(timer); resolve(allowed);
                 if (!allowed) dispose(element);
               });
             }});
+            loadCmp(publisher).catch(() => { clearTimeout(timer); resolve(false); dispose(element); });
           });
           if (!permitted || state.disposed || settled || root.alfinderAdConsent.choice() !== true) return state.finish(false);
+          await load(publisher);
+          if (state.disposed || settled || !element.isConnected || root.alfinderAdConsent.choice() !== true) return state.finish(false);
           // Initial inventory is contextual/non-personalized, even after opt-in.
           (root.adsbygoogle = root.adsbygoogle || []).requestNonPersonalizedAds = 1;
           state.timer = setTimeout(() => state.finish(false), 20000);
@@ -118,6 +147,7 @@
           });
           state.observer.observe(ad, { attributes: true, attributeFilter: ['data-ad-status'] });
           element.appendChild(ad);
+          state.adRequested = true;
           (root.adsbygoogle = root.adsbygoogle || []).push({});
         } catch (_) { state.finish(false); }
       };
