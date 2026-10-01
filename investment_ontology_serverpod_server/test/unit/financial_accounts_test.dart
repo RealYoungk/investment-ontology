@@ -292,6 +292,32 @@ void main() {
       expect(picked.factId, 1);
     },
   );
+  test(
+    'connected whole profit exact labels exclude positive loss and non-PL',
+    () {
+      for (final name in ['연결당기순손실', '연결당기순이익']) {
+        expect(FinancialAccounts.pick([fact(name)]).single.key, 'netIncome');
+        expect(
+          FinancialAccounts.pick([
+            fact(name, statement: FinancialStatementKind.cashFlow),
+          ]),
+          isEmpty,
+        );
+        expect(
+          FinancialAccounts.pick([
+            fact(name, statement: FinancialStatementKind.equityChanges),
+          ]),
+          isEmpty,
+        );
+      }
+      expect(
+        FinancialAccounts.pick([fact('연결당기순손실').copyWith(amount: BigInt.one)]),
+        isEmpty,
+      );
+      expect(FinancialAccounts.pick([fact('연결지배기업당기순이익')]), isEmpty);
+      expect(FinancialAccounts.pick([fact('연결기본주당순손실')]), isEmpty);
+    },
+  );
   test('EPS, comprehensive income, subtotal, other IDs and ambiguous rows are excluded', () {
     for (final f in [
       fact('기본주당이익(손실)'),

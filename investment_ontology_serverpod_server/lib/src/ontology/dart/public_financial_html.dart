@@ -577,6 +577,8 @@ abstract final class PublicFinancialHtml {
       '당기순이익': ('profit', 'CIS'),
       '당기순손익': ('profit', 'CIS'),
       '당기순손실': ('profit', 'CIS'),
+      '연결당기순이익': ('profit', 'CIS'),
+      '연결당기순손실': ('profit', 'CIS'),
       '당기순이익(손실)': ('profit', 'CIS'),
       '영업활동으로인한현금흐름': ('cfo', 'CF'),
       '영업활동현금흐름': ('cfo', 'CF'),
@@ -732,6 +734,7 @@ abstract final class PublicFinancialHtml {
         final lossLabel = const {
           '영업손실',
           '당기순손실',
+          '연결당기순손실',
         }.contains(label(row.first!.text));
         final value =
             (lossLabel ? -printedValue.abs() : printedValue) * multiplier;

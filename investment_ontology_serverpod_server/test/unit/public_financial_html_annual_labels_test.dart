@@ -39,6 +39,26 @@ void main() {
     );
   }
 
+  for (final (receipt, amount, label) in [
+    ('20260430001951', '-5291588269', '연결당기순손실'),
+    ('20260430001147', '698299790', '연결당기순이익'),
+  ]) {
+    test('actual whole connected net income $receipt', () {
+      final rows = parse(receipt, 'CFS');
+      final profit = rows.singleWhere(
+        (r) => (r['account_nm'] as String).contains(label),
+      );
+      expect(profit['thstrm_amount'], amount);
+      expect(profit['account_id'], isNull);
+      expect(profit['sj_div'], 'CIS');
+      final provenance = profit['html_provenance'] as Map;
+      expect(provenance['printedLabel'], contains(label));
+      if (label.contains('손실')) {
+        expect(provenance['printedAmountBeforeSignRule'], '5291588269');
+        expect(provenance['signRule'], 'printed-loss-label-negative-absolute');
+      }
+    });
+  }
   for (final key in values.keys) {
     final parts = key.toString().split(':');
     test('actual printed labels/periods/core values $key', () {
