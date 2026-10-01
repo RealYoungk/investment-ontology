@@ -563,7 +563,7 @@ abstract final class PublicFinancialHtml {
     final text = _compact(_text(scope));
     const titleDate = r'(?:\d{4}년\d{1,2}월\d{1,2}일|\d{4}\.\d{2}\.\d{2})';
     final titlePattern = RegExp(
-      '제$term(?:\\(당\\))?(?:당기|기)(?:기말|말)?:?($titleDate)(현재|부터($titleDate)까지)',
+      '제$term(?:\\(당\\))?(?:당기|기)(?:기말|말)?:?($titleDate)(현재|(?:부터(?=$titleDate까지)|~)($titleDate)(?:까지)?)',
     );
     final titles = titlePattern.allMatches(text).toList();
     final cnsScope =
