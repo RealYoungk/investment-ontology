@@ -13,6 +13,7 @@ import 'package:serverpod/protocol.dart' as sp;
 import '../../generated/protocol.dart';
 import '../dart/dart_client.dart';
 import '../dart/public_business_document.dart';
+import 'public_business_prefetch.dart';
 import '../dart/public_business_source_anchor.dart';
 import '../dart/dart_report_name.dart';
 import '../dart/dart_sections.dart';
@@ -106,6 +107,7 @@ class DisclosureSync {
   final bool publicFallbackEnabled;
   final bool businessOnly;
   final PublicBusinessDocument _publicDocuments;
+  PublicBusinessPrefetch? _businessPrefetch;
   int _publicAttempts = 0;
   int _publicFailureStreak = 0;
 
@@ -142,6 +144,7 @@ class DisclosureSync {
     final claimed = await IngestJobs.claim(session, jobId);
     if (claimed == null) {
       dart.close();
+      _businessPrefetch?.stop();
       _publicDocuments.close();
       return;
     }
@@ -405,6 +408,7 @@ class DisclosureSync {
     } finally {
       await _meter.flush(session);
       dart.close();
+      _businessPrefetch?.stop();
       _publicDocuments.close();
     }
   }
@@ -414,6 +418,7 @@ class DisclosureSync {
     final claimed = await IngestJobs.claim(session, jobId);
     if (claimed == null) {
       dart.close();
+      _businessPrefetch?.stop();
       _publicDocuments.close();
       return;
     }
@@ -534,15 +539,48 @@ class DisclosureSync {
         ))
           f.id!: f,
       };
-      for (final item
-          in pending
-              .take(businessBudget.clamp(0, 9000))
-              .take(businessRunLimit.clamp(1, 200))) {
+      final batch = pending
+          .take(businessBudget.clamp(0, 9000))
+          .take(businessRunLimit.clamp(1, 200))
+          .toList();
+      final existingBodies = _hasAllowance || !publicFallbackEnabled
+          ? <String>{}
+          : {
+              for (final row in await DisclosureReport.db.find(
+                session,
+                where: (t) =>
+                    t.section.equals(DartSection.businessContent) &
+                    t.rceptNo.inSet({
+                      for (final item in batch)
+                        filings[item.filingId]?.rceptNo ?? '',
+                    }),
+              ))
+                row.rceptNo,
+            };
+      if (!_hasAllowance && publicFallbackEnabled) {
+        _businessPrefetch = PublicBusinessPrefetch(
+          fetch: (receipt) => _publicDocuments.fetchWithGate(
+            receipt,
+            _businessPrefetch!.requestPermit,
+          ),
+          interval: callInterval,
+        );
+      }
+      for (var index = 0; index < batch.length; index++) {
+        final item = batch[index];
         if (await IngestJobs.isCancelled(session, jobId)) {
           job = job.copyWith(status: IngestStatus.cancelled);
+          _businessPrefetch?.stop();
+          _publicDocuments.stop();
           break;
         }
-        if ((!_hasAllowance && !_canFetchPublic) || _publicFailureStreak >= 6) {
+        if ((!_hasAllowance &&
+                !_canFetchPublic &&
+                !(_businessPrefetch?.contains(
+                      filings[item.filingId]?.rceptNo ?? '',
+                    ) ??
+                    false)) ||
+            _publicFailureStreak >= 6) {
           break;
         }
         if (!_hasAllowance &&
@@ -553,6 +591,35 @@ class DisclosureSync {
         final f = filings[item.filingId];
         final company = f == null ? null : byId[f.companyId];
         if (f == null || company == null) continue;
+        final pool = _businessPrefetch;
+        if (pool != null && !f.reportName.contains('첨부정정')) {
+          // Do not cross an attachment/fallback boundary or use shared DB sessions
+          // in HTTP workers. Reservations consume the existing per-run limit.
+          for (
+            var next = index;
+            next < batch.length &&
+                next < ((index ~/ _progressEvery) + 1) * _progressEvery;
+            next++
+          ) {
+            final candidate = filings[batch[next].filingId];
+            if (candidate == null || candidate.reportName.contains('첨부정정')) {
+              break;
+            }
+            if (!byId.containsKey(candidate.companyId) ||
+                (batch[next].lastError == _businessApiWait &&
+                    !publicAnchorIds.contains(candidate.id)) ||
+                existingBodies.contains(candidate.rceptNo) ||
+                pool.contains(candidate.rceptNo)) {
+              continue;
+            }
+            if (!_canFetchPublic ||
+                (_publicFailureStreak >= 5 && !pool.isEmpty)) {
+              break;
+            }
+            if (!pool.reserve(candidate.rceptNo)) break;
+            _publicAttempts++;
+          }
+        }
         final result = await _fetch(item, f, company, byName);
         if (result == FilingFetchStatus.pending) {
           if (await IngestJobs.isCancelled(session, jobId)) {
@@ -736,6 +803,7 @@ class DisclosureSync {
     } finally {
       await _meter.flush(session);
       dart.close();
+      _businessPrefetch?.stop();
       _publicDocuments.close();
     }
   }
@@ -1331,19 +1399,51 @@ class DisclosureSync {
       await _insertDocument(item, company, f, apiDoc);
       return FilingFetchStatus.stored;
     }
-    if (_canFetchPublic) {
+    final prefetched = _businessPrefetch?.contains(f.rceptNo) ?? false;
+    if (_canFetchPublic || prefetched) {
       if (await IngestJobs.isCancelled(session, jobId)) {
+        _businessPrefetch?.stop();
+        _publicDocuments.stop();
         return FilingFetchStatus.pending;
       }
-      _publicAttempts++;
-      final publicInterval = callInterval < const Duration(seconds: 1)
-          ? const Duration(seconds: 1)
-          : callInterval;
-      await Future<void>.delayed(publicInterval);
+      if (!prefetched) {
+        _publicAttempts++;
+        final publicInterval = callInterval < const Duration(seconds: 1)
+            ? const Duration(seconds: 1)
+            : callInterval;
+        await Future<void>.delayed(publicInterval);
+        if (await IngestJobs.isCancelled(session, jobId)) {
+          _businessPrefetch?.stop();
+          _publicDocuments.stop();
+          return FilingFetchStatus.pending;
+        }
+      }
       late final PublicBusinessBody body;
       try {
-        body = await _publicDocuments.fetch(f.rceptNo);
+        final received = prefetched
+            ? await _businessPrefetch!.take(
+                f.rceptNo,
+                beforeStart: () async {
+                  final cancelled = await IngestJobs.isCancelled(
+                    session,
+                    jobId,
+                  );
+                  if (cancelled) _publicDocuments.stop();
+                  return !cancelled;
+                },
+              )
+            : await _publicDocuments.fetch(f.rceptNo);
+        if (received == null) return FilingFetchStatus.pending;
+        body = received;
+        if (body.receipt != f.rceptNo) {
+          throw const FormatException('Foreign business receipt');
+        }
       } catch (e) {
+        if (await IngestJobs.isCancelled(session, jobId)) {
+          _businessPrefetch?.stop();
+          _publicDocuments.stop();
+          return FilingFetchStatus.pending;
+        }
         // Attachment-only receipts may contain solely the changed attachment.
         // Keep real source identity and let the existing same-period fallback run.
         if (e is PublicBusinessNodeMissing && f.reportName.contains('첨부정정')) {
@@ -1371,6 +1471,11 @@ class DisclosureSync {
         );
       }
       {
+        if (await IngestJobs.isCancelled(session, jobId)) {
+          _businessPrefetch?.stop();
+          _publicDocuments.stop();
+          return FilingFetchStatus.pending;
+        }
         _publicFailureStreak = 0;
         await _insertDocument(
           item,
