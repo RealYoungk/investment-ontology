@@ -53,6 +53,133 @@ CompanyFinancials financials(List<FinancialPeriod> periods, {BigInt? cap}) =>
     );
 
 void main() {
+  test('latest uses actual closing month rather than FY or later correction receipt', () {
+    final march = period(2026, FinancialReportCode.annual, [
+      line('revenue', 300),
+    ])..reportName = '사업보고서 (2026.03)';
+    final june = period(2026, FinancialReportCode.halfYear, [
+      line('revenue', 600),
+    ])..reportName = '반기보고서 (2026.06)';
+    final correction =
+        period(2026, FinancialReportCode.annual, [line('revenue', 301)])
+          ..reportName = '[기재정정]사업보고서 (2026.03)'
+          ..rceptNo = '20261231000001';
+    final metrics = FinancialView(financials([june, march, correction]));
+    expect(metrics.latest, same(june));
+    expect(metrics.latestInterim(), same(june));
+    final december = period(2026, FinancialReportCode.annual, [
+      line('revenue', 1200),
+    ])..reportName = '사업보고서 (2026.12)';
+    expect(
+      FinancialView(financials([december, june, correction])).latest,
+      same(december),
+    );
+  });
+
+  test(
+    'known 364 and 367 day annual ranges cannot represent twelve months',
+    () {
+      for (final name in [
+        '2026.01.02 ~ 2026.12.31 (364일)',
+        '2025.12.30 ~ 2026.12.31 (367일)',
+      ]) {
+        final annual = period(2026, FinancialReportCode.annual, [
+          line('revenue', 1200),
+        ])..periodName = name;
+        expect(
+          FinancialView(financials([annual])).trailing('revenue', '매출').missing,
+          contains('12개월 기간 아님'),
+        );
+      }
+    },
+  );
+
+  test('verified 90-day annual and unknown partial periods block TTM, growth and Q4 but preserve reported balances', () {
+    for (final name in ['2026.01.01 ~ 2026.03.31 (90일)', '원문 보고기간 확인 필요']) {
+      final annual = period(2026, FinancialReportCode.annual, [
+        line('revenue', 90),
+        line('netIncome', 9),
+        line('operatingIncome', 18),
+      ]).copyWith(periodName: name);
+      final view = FinancialView(
+        financials([
+          period(2025, FinancialReportCode.annual, [
+            line('revenue', 365),
+            line('netIncome', 36),
+          ]),
+          period(2026, FinancialReportCode.q3, [
+            line('revenue', 60, cumulative: 60),
+          ]),
+          annual,
+        ]),
+      );
+      expect(view.trailing('revenue', '매출액').value, isNull);
+      expect(
+        view.trailing('revenue', '매출액').missing,
+        contains(name.contains('90일') ? '90일' : '기간 확인 필요'),
+      );
+      expect(
+        view
+            .trailingSeries('revenue')
+            .where(
+              (p) => p.year == 2026 && p.code == FinancialReportCode.annual,
+            ),
+        isEmpty,
+      );
+      final q4 = view.quarterly().singleWhere((p) => p.label == '26.4분기');
+      expect(q4.revenue.value, isNull);
+      expect(q4.revenue.missing, contains('4분기'));
+      expect(
+        view
+            .metrics()
+            .singleWhere((m) => m.key == 'revenueGrowth')
+            .derived
+            .value,
+        isNull,
+      );
+      expect(
+        view
+            .metrics()
+            .singleWhere((m) => m.key == 'revenueGrowth')
+            .derived
+            .missing,
+        contains('계산 불가'),
+      );
+      expect(FinancialView.line(annual, 'revenue')!.amount, BigInt.from(90));
+      expect(view.latestBalance('assets', '자산').value, 1000000000);
+    }
+  });
+  test('verified full 365 or 366 day annual preserves TTM; short prior annual cannot seed interim TTM', () {
+    for (final p in [
+      period(2026, FinancialReportCode.annual, [
+        line('revenue', 365),
+      ]).copyWith(periodName: '2026.01.01 ~ 2026.12.31 (365일)'),
+      period(2024, FinancialReportCode.annual, [
+        line('revenue', 366),
+      ]).copyWith(periodName: '2024.01.01 ~ 2024.12.31 (366일)'),
+    ]) {
+      expect(
+        FinancialView(financials([p])).trailing('revenue', '매출액').value,
+        FinancialView.line(p, 'revenue')!.amount!.toDouble(),
+      );
+    }
+    final view = FinancialView(
+      financials([
+        period(2025, FinancialReportCode.annual, [
+          line('revenue', 90),
+        ]).copyWith(periodName: '2025.01.01 ~ 2025.03.31 (90일)'),
+        period(2025, FinancialReportCode.halfYear, [
+          line('revenue', 20, cumulative: 40),
+        ]),
+        period(2026, FinancialReportCode.halfYear, [
+          line('revenue', 30, cumulative: 60),
+        ]),
+      ]),
+    );
+    expect(view.trailing('revenue', '매출액').value, isNull);
+    expect(view.trailing('revenue', '매출액').missing, contains('90일'));
+  });
+
   test(
     'IPO TTM uses filed prior comparison without inventing an old report',
     () {

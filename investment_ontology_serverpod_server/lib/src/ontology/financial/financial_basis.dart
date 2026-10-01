@@ -19,13 +19,17 @@ abstract final class FinancialBasis {
       JOIN company c ON c.id=r."companyId" AND c."corpCode"=f."corpCode"
       WHERE substring(r."reportName" from '\(([0-9]{4}\.[0-9]{2})\)$')
         =substring(f."reportName" from '\(([0-9]{4}\.[0-9]{2})\)$')
-        AND substring(r."reportName" from '\(([0-9]{4})\.[0-9]{2}\)$')=r."bsnsYear"::text
+        AND (r."reportCode"<>'annual' OR substring(r."reportName" from '\(([0-9]{4})\.[0-9]{2}\)$')=r."bsnsYear"::text)
         AND substring(r."reportName" from '\([0-9]{4}\.([0-9]{2})\)$') IN
           ('01','02','03','04','05','06','07','08','09','10','11','12')
     )
   ''';
 
-  static String ctes({int? companyId, List<int>? companyIds}) {
+  static String ctes({
+    int? companyId,
+    List<int>? companyIds,
+    Set<int> blockedAnnualFlowReportIds = const {},
+  }) {
     final ids = FinancialAccounts.accountIds.map((id) => "'$id'").join(',');
     return '''
       $eligibleReportsCte, rank_code AS (
@@ -44,9 +48,9 @@ abstract final class FinancialBasis {
         ORDER BY r."companyId",r."fsDiv",r."bsnsYear",r."reportCode",r.actual_period DESC,r."rceptNo" DESC,r.id DESC
       ), candidates AS (
         SELECT DISTINCT ON (r."companyId",r."fsDiv")
-          r."companyId" AS id,r."fsDiv" AS fs,r."bsnsYear" AS y,r."reportCode" AS code,rc.rk
+          r."companyId" AS id,r."fsDiv" AS fs,r."bsnsYear" AS y,r."reportCode" AS code,rc.rk,r.actual_period
         FROM active_reports r JOIN rank_code rc ON rc.code=r."reportCode"
-        ORDER BY r."companyId",r."fsDiv",r."bsnsYear" DESC,rc.rk DESC
+        ORDER BY r."companyId",r."fsDiv",r.actual_period DESC,rc.rk DESC,r."rceptNo" DESC,r.id DESC
       ), mapped_facts AS (
         SELECT f.*, ${FinancialAccounts.resolvedIdSql('f')} AS resolved_id
         FROM candidates c JOIN active_reports r ON r."companyId"=c.id AND r."fsDiv"=c.fs
@@ -112,6 +116,7 @@ abstract final class FinancialBasis {
           ON pc."reportId"=f."reportId" AND pc.statement=f.statement
           AND pc.currency=coalesce(f.currency,'KRW')
         WHERE f.statement IN ('incomeStatement','comprehensiveIncome','cashFlow')
+          ${blockedAnnualFlowReportIds.isEmpty ? '' : 'AND f."reportId" NOT IN (${blockedAnnualFlowReportIds.join(',')})'}
       ), inc AS (
         SELECT id,fs,acc,y,code,currency,
           CASE WHEN acc='ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities'
@@ -187,11 +192,11 @@ abstract final class FinancialBasis {
         SELECT DISTINCT ON (c.id) c.id,c.fs,c.y,c.code,
           CASE WHEN c.fs='consolidated' THEN 'consolidated'
             WHEN x.id IS NULL THEN 'separate_only'
-            WHEN (x.y,x.rk)<(c.y,c.rk) THEN 'newer_separate'
+            WHEN (x.actual_period,x.rk)<(c.actual_period,c.rk) THEN 'newer_separate'
             ELSE 'incomplete_consolidated' END AS reason
         FROM coverage c LEFT JOIN coverage x ON x.id=c.id AND x.fs='consolidated'
-        ORDER BY c.id,c.y DESC,c.rk DESC,
-          (c.fs='separate' AND x.id IS NOT NULL AND x.y=c.y AND x.rk=c.rk
+        ORDER BY c.id,c.actual_period DESC,c.rk DESC,
+          (c.fs='separate' AND x.id IS NOT NULL AND x.actual_period=c.actual_period AND x.rk=c.rk
             AND (c.mask | x.mask)=c.mask AND c.mask<>x.mask) DESC,
           (c.fs='consolidated') DESC
       )

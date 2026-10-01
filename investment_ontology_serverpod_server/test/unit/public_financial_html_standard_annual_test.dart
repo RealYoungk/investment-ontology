@@ -48,6 +48,98 @@ void main() {
     );
   }
 
+  test(
+    'actual EMT 90-day annual current amounts and interval remain exact',
+    () {
+      const rec = '20260709000400';
+      final rows = PublicFinancialHtml.parseStandardAnnual(
+        coverHtml: html(rec, 'cover'),
+        statementHtml: html(rec, 'separate-statement'),
+        coverSource: Uri.parse(
+          'https://dart.fss.or.kr/report/viewer.do?rcpNo=20260709000400&dcmNo=11470039&eleId=1&offset=951&length=4480&dtd=dart4.xsd',
+        ),
+        statementSource: Uri.parse(
+          'https://dart.fss.or.kr/report/viewer.do?rcpNo=20260709000400&dcmNo=11470039&eleId=21&offset=109130&length=43771&dtd=dart4.xsd',
+        ),
+        receipt: rec,
+        corpCode: '00925967',
+        companyName: '이엠티',
+        periodStart: DateTime.utc(2026, 1, 1),
+        periodEnd: DateTime.utc(2026, 3, 31),
+        consolidated: false,
+      );
+      final amounts = {
+        for (final r in rows) r['account_nm']: r['thstrm_amount'],
+      };
+      expect(amounts['자산총계'], '165992336930');
+      expect(amounts['부채총계'], '152359058867');
+      expect(amounts['자본총계'], '13633278063');
+      expect(amounts.values, contains('22224597290'));
+      expect(amounts.values, contains('3708129672'));
+      expect(rows.every((r) => r['account_id'] == null), isTrue);
+    },
+  );
+
+  test('source-declared short annual retains amounts without annualizing', () {
+    final e = reviewed.cast<Map>().firstWhere(
+      (e) => e['receipt'] == '20250324000440' && e['basis'] == 'separate',
+    );
+    final rec = e['receipt'] as String;
+    final originalCover = html(rec, 'cover');
+    final originalBody = html(rec, 'separate-statement');
+    final baseline = parse(e);
+    for (final start in [
+      DateTime.utc(2024, 10, 1),
+      DateTime.utc(2024, 12, 31),
+    ]) {
+      final printedStart =
+          '${start.year}년${start.month.toString().padLeft(2, '0')}월${start.day.toString().padLeft(2, '0')}일';
+      String changed(String raw) => raw.replaceAll(
+        RegExp(r'2024년\s*0?1월\s*0?1일'),
+        printedStart,
+      );
+      final cover = changed(originalCover), body = changed(originalBody);
+      expect(cover, isNot(originalCover));
+      expect(body, isNot(originalBody));
+      final rows = parse(e, cover: cover, body: body, start: start);
+      expect(
+        rows.map((r) => r['thstrm_amount']).toList(),
+        baseline.map((r) => r['thstrm_amount']).toList(),
+      );
+      expect(
+        () => parse(e, cover: cover, body: originalBody, start: start),
+        throwsFormatException,
+      );
+    }
+  });
+
+  test(
+    'short annual requires exact cover interval and bounded positive days',
+    () {
+      final e = reviewed.cast<Map>().firstWhere(
+        (e) => e['receipt'] == '20250324000440' && e['basis'] == 'separate',
+      );
+      final rec = e['receipt'] as String;
+      final cover = html(rec, 'cover'), body = html(rec, 'separate-statement');
+      for (final replacement in ['2023년12월30일', '2025년01월01일']) {
+        String changed(String raw) =>
+            raw.replaceAll(RegExp(r'2024년\s*0?1월\s*0?1일'), replacement);
+        final start = replacement.startsWith('2023')
+            ? DateTime.utc(2023, 12, 30)
+            : DateTime.utc(2025, 1, 1);
+        expect(
+          () => parse(
+            e,
+            cover: changed(cover),
+            body: changed(body),
+            start: start,
+          ),
+          throwsFormatException,
+        );
+      }
+    },
+  );
+
   test('printed scaled monetary units normalize exactly with provenance', () {
     final evidence = reviewed.cast<Map>().firstWhere(
       (e) => (e['rawCurrentCoreRows'] as List).isNotEmpty,

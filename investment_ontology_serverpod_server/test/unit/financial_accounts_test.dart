@@ -24,6 +24,65 @@ FinancialFact fact(
 );
 
 void main() {
+  test(
+    'whole loss labels only resolve non-positive source-normalized amounts',
+    () {
+      final op = fact('Ⅴ. 영업손실');
+      final net = fact('Ⅹ. 당기순손실');
+      expect(FinancialAccounts.pick([op, net]).map((l) => l.key), [
+        'operatingIncome',
+        'netIncome',
+      ]);
+      op.amount = BigInt.zero;
+      net.amount = BigInt.zero;
+      expect(FinancialAccounts.pick([op, net]).length, 2);
+      op.amount = BigInt.one;
+      net.amount = BigInt.one;
+      expect(FinancialAccounts.pick([op, net]), isEmpty);
+      expect(op.accountName, 'Ⅴ. 영업손실');
+      expect(net.accountId, isNull);
+    },
+  );
+
+  test('printed ordinal labels resolve exact totals without rewriting raw names or ids', () {
+    final originals = [
+      fact('Ⅰ. 자 산 총 계', statement: FinancialStatementKind.balanceSheet),
+      fact('II. 부 채 총 계', statement: FinancialStatementKind.balanceSheet),
+      fact('Ⅲ. 영업수익'),
+      fact('V. 영업이익(손실)'),
+      fact('X. 당기순이익(손실)'),
+      fact('Ⅰ. 영업활동으로 인한 현금흐름', statement: FinancialStatementKind.cashFlow),
+    ];
+    final lines = FinancialAccounts.pick(originals);
+    expect(lines.map((l) => l.key).toSet(), {
+      'assets',
+      'liabilities',
+      'revenue',
+      'operatingIncome',
+      'netIncome',
+      'operatingCashFlow',
+    });
+    expect(lines.every((l) => l.accountId == null), isTrue);
+    for (final line in lines) {
+      expect(originals.any((f) => f.accountName == line.accountName), isTrue);
+    }
+    expect(originals.every((f) => f.accountId == null), isTrue);
+  });
+  test('ordinal normalization cannot admit subtotal, wrong statement, or duplicate totals', () {
+    expect(
+      FinancialAccounts.pick([
+        fact('Ⅰ. 자산총계'),
+        fact('I. 영업활동으로인한현금흐름'),
+        fact('X. 계속영업당기순이익'),
+        fact('IV. 지배기업소유주당기순이익'),
+        fact('Ⅴ. 영업이익(손실)', detail: 'segment'),
+        fact('Ⅰ. 매출액'),
+        fact('매출액'),
+      ]),
+      isEmpty,
+    );
+  });
+
   test('term deposits stay separate from cash equivalents and other financial assets', () {
     final lines = FinancialAccounts.pick([
       fact(
@@ -239,7 +298,6 @@ void main() {
       fact('총포괄이익'),
       fact('계속영업당기순이익(손실)'),
       fact('지배주주당기순이익(손실)'),
-      fact('당기순손실'),
       fact('당기순이익(손실)', detail: 'segment'),
       fact('당기순이익(손실)', statement: FinancialStatementKind.equityChanges),
       fact('당기순이익(손실)', accountId: 'ifrs-full_ComprehensiveIncome'),

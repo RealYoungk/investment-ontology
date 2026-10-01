@@ -3,6 +3,7 @@ import 'package:serverpod/serverpod.dart';
 import '../../generated/protocol.dart';
 import '../financial/financial_accounts.dart';
 import '../financial/financial_basis.dart';
+import '../financial/financial_source_duration.dart';
 import '../ingest/financial_facts_sync.dart';
 
 /// 기업 재무·시세 조회. 파생 지표는 계산하지 않고 원천 값만 돌려준다.
@@ -31,8 +32,13 @@ class FinancialEndpoint extends Endpoint {
     );
     if (company == null) return null;
 
+    final durations = await FinancialSourceDuration.load(
+      session,
+      companyIds: [company.id!],
+    );
+    final shortIds = durations.blockedReportIds;
     final activeIds = await session.db.unsafeQuery(
-      'WITH ${FinancialBasis.ctes(companyId: company.id!)} SELECT id FROM active_reports',
+      'WITH ${FinancialBasis.ctes(companyId: company.id!, blockedAnnualFlowReportIds: shortIds)} SELECT id FROM active_reports',
     );
     final reportIds = {for (final row in activeIds) row[0] as int};
     final reports = reportIds.isEmpty
@@ -43,7 +49,7 @@ class FinancialEndpoint extends Endpoint {
           );
     final available = {for (final r in reports) r.fsDiv};
     final selection = await session.db.unsafeQuery(
-      'WITH ${FinancialBasis.ctes(companyId: company.id!)} SELECT fs,reason FROM latest',
+      'WITH ${FinancialBasis.ctes(companyId: company.id!, blockedAnnualFlowReportIds: shortIds)} SELECT fs,reason FROM latest',
     );
     // Explicit requests never silently return another basis.
     final chosen =
@@ -97,7 +103,7 @@ class FinancialEndpoint extends Endpoint {
 
     final supersededCounts = <int, int>{};
     final correctionCounts = await session.db.unsafeQuery(
-      'WITH ${FinancialBasis.ctes(companyId: company.id!)} '
+      'WITH ${FinancialBasis.ctes(companyId: company.id!, blockedAnnualFlowReportIds: shortIds)} '
       'SELECT a.id,count(h.id) FROM active_reports a '
       'JOIN eligible_reports h ON h."companyId"=a."companyId" '
       'AND h."fsDiv"=a."fsDiv" AND h."bsnsYear"=a."bsnsYear" '
@@ -117,7 +123,10 @@ class FinancialEndpoint extends Endpoint {
           rceptNo: r.rceptNo,
           reportName: r.reportName,
           receivedDate: r.receivedDate,
-          periodName: _periodName(factsByReport[r.id] ?? const []),
+          periodName:
+              durations.ranges[r.id]?.label ??
+              (shortIds.contains(r.id) ? '원문 보고기간 확인 필요' : null) ??
+              _periodName(factsByReport[r.id] ?? const []),
           supersededCount: supersededCounts[r.id] ?? 0,
           lines: FinancialAccounts.pick(factsByReport[r.id] ?? const []),
         ),
@@ -194,6 +203,16 @@ class FinancialEndpoint extends Endpoint {
   }
 
   static int _byPeriod(FinancialReport a, FinancialReport b) {
+    final aActual = RegExp(r'\(([0-9]{4}\.[0-9]{2})\)$')
+        .firstMatch(a.reportName)
+        ?.group(1);
+    final bActual = RegExp(r'\(([0-9]{4}\.[0-9]{2})\)$')
+        .firstMatch(b.reportName)
+        ?.group(1);
+    if (aActual != null && bActual != null) {
+      final actual = aActual.compareTo(bActual);
+      if (actual != 0) return actual;
+    }
     final byYear = a.bsnsYear.compareTo(b.bsnsYear);
     if (byYear != 0) return byYear;
     return _reportOrder[a.reportCode]!.compareTo(_reportOrder[b.reportCode]!);

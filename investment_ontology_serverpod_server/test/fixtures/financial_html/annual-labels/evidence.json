@@ -1,0 +1,229 @@
+[
+  {
+    "receipt": "20260407000793",
+    "corpCode": "01309069",
+    "name": "(주)타이드",
+    "start": "2025-01-01",
+    "end": "2025-12-31",
+    "urls": {
+      "cover": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260407000793&dcmNo=11271155&eleId=1&offset=965&length=4641&dtd=dart4.xsd",
+      "consolidated": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260407000793&dcmNo=11271155&eleId=19&offset=268694&length=225&dtd=dart4.xsd"
+    },
+    "reportName": "사업보고서 (2025.12)"
+  },
+  {
+    "receipt": "20260423000673",
+    "corpCode": "00756163",
+    "name": "(주)볼빅",
+    "start": "2025-01-01",
+    "end": "2025-12-31",
+    "urls": {
+      "separate": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260423000673&dcmNo=11343853&eleId=23&offset=695514&length=113262&dtd=dart4.xsd",
+      "cover": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260423000673&dcmNo=11343853&eleId=3&offset=30864&length=4521&dtd=dart4.xsd",
+      "consolidated": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260423000673&dcmNo=11343853&eleId=21&offset=311531&length=117188&dtd=dart4.xsd"
+    },
+    "reportName": "[기재정정]사업보고서 (2025.12)"
+  },
+  {
+    "receipt": "20260429000588",
+    "corpCode": "01366824",
+    "name": "(주)제이엠멀티",
+    "start": "2025-01-01",
+    "end": "2025-12-31",
+    "urls": {
+      "separate": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260429000588&dcmNo=11353658&eleId=23&offset=519742&length=80153&dtd=dart4.xsd",
+      "cover": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260429000588&dcmNo=11353658&eleId=3&offset=19179&length=4580&dtd=dart4.xsd",
+      "consolidated": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260429000588&dcmNo=11353658&eleId=21&offset=255346&length=100570&dtd=dart4.xsd"
+    },
+    "reportName": "[기재정정]사업보고서 (2025.12)"
+  },
+  {
+    "receipt": "20260429001057",
+    "corpCode": "01085442",
+    "name": "(주)오건에코텍",
+    "start": "2025-01-01",
+    "end": "2025-12-31",
+    "urls": {
+      "separate": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260429001057&dcmNo=11355193&eleId=22&offset=700875&length=144866&dtd=dart4.xsd",
+      "cover": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260429001057&dcmNo=11355193&eleId=3&offset=4874&length=4510&dtd=dart4.xsd",
+      "consolidated": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260429001057&dcmNo=11355193&eleId=20&offset=393997&length=103535&dtd=dart4.xsd"
+    },
+    "reportName": "[기재정정]사업보고서 (2025.12)"
+  },
+  {
+    "receipt": "20260430001041",
+    "corpCode": "00302236",
+    "name": "태양3C(주)",
+    "start": "2025-01-01",
+    "end": "2025-12-31",
+    "urls": {
+      "separate": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260430001041&dcmNo=11358129&eleId=23&offset=576857&length=101911&dtd=dart4.xsd",
+      "cover": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260430001041&dcmNo=11358129&eleId=3&offset=29677&length=4507&dtd=dart4.xsd",
+      "consolidated": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260430001041&dcmNo=11358129&eleId=21&offset=267124&length=104361&dtd=dart4.xsd"
+    },
+    "reportName": "[기재정정]사업보고서 (2025.12)"
+  },
+  {
+    "receipt": "20260430001147",
+    "corpCode": "00874937",
+    "name": "(주)탑선",
+    "start": "2025-01-01",
+    "end": "2025-12-31",
+    "urls": {
+      "cover": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260430001147&dcmNo=11358351&eleId=3&offset=343744&length=4523&dtd=dart4.xsd",
+      "consolidated": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260430001147&dcmNo=11358351&eleId=21&offset=676536&length=120616&dtd=dart4.xsd"
+    },
+    "reportName": "[기재정정]사업보고서 (2025.12)"
+  },
+  {
+    "receipt": "20260430001951",
+    "corpCode": "01680131",
+    "name": "(주)아이오바이오",
+    "start": "2025-01-01",
+    "end": "2025-12-31",
+    "urls": {
+      "separate": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260430001951&dcmNo=11361091&eleId=23&offset=543726&length=71885&dtd=dart4.xsd",
+      "cover": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260430001951&dcmNo=11361091&eleId=3&offset=6370&length=4522&dtd=dart4.xsd",
+      "consolidated": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260430001951&dcmNo=11361091&eleId=21&offset=288689&length=73206&dtd=dart4.xsd"
+    },
+    "reportName": "[기재정정]사업보고서 (2025.12)"
+  },
+  {
+    "receipt": "20260504000188",
+    "corpCode": "01921199",
+    "name": "주식회사 에스테크엠",
+    "start": "2025-01-01",
+    "end": "2025-12-31",
+    "urls": {
+      "cover": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260504000188&dcmNo=11361660&eleId=1&offset=969&length=4515&dtd=dart4.xsd",
+      "consolidated": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260504000188&dcmNo=11361660&eleId=19&offset=125540&length=209&dtd=dart4.xsd"
+    },
+    "reportName": "사업보고서 (2025.12)"
+  },
+  {
+    "receipt": "20260619000106",
+    "corpCode": "00366517",
+    "name": "(주)케이씨산업",
+    "start": "2025-01-01",
+    "end": "2025-12-31",
+    "urls": {
+      "cover": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260619000106&dcmNo=11439061&eleId=3&offset=5757&length=4515&dtd=dart4.xsd",
+      "consolidated": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260619000106&dcmNo=11439061&eleId=21&offset=257659&length=206&dtd=dart4.xsd"
+    },
+    "reportName": "[기재정정]사업보고서 (2025.12)"
+  },
+  {
+    "receipt": "20260629000311",
+    "corpCode": "00578325",
+    "name": "럭스피아(주)",
+    "start": "2025-01-01",
+    "end": "2025-12-31",
+    "urls": {
+      "separate": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260629000311&dcmNo=11451891&eleId=23&offset=164423&length=66789&dtd=dart4.xsd",
+      "cover": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260629000311&dcmNo=11451891&eleId=3&offset=7009&length=4585&dtd=dart4.xsd",
+      "consolidated": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260629000311&dcmNo=11451891&eleId=21&offset=164013&length=193&dtd=dart4.xsd"
+    },
+    "reportName": "[기재정정]사업보고서 (2025.12)"
+  },
+  {
+    "receipt": "20260630000259",
+    "corpCode": "01860010",
+    "name": "오션스바이오 주식회사",
+    "start": "2025-01-01",
+    "end": "2025-12-31",
+    "urls": {
+      "separate": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260630000259&dcmNo=11453822&eleId=23&offset=470701&length=24363&dtd=dart4.xsd",
+      "cover": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260630000259&dcmNo=11453822&eleId=3&offset=14986&length=4521&dtd=dart4.xsd",
+      "consolidated": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260630000259&dcmNo=11453822&eleId=21&offset=356589&length=24187&dtd=dart4.xsd"
+    },
+    "reportName": "[기재정정]사업보고서 (2025.12)"
+  },
+  {
+    "receipt": "20260708000510",
+    "corpCode": "01035942",
+    "name": "(주)메디안디노스틱",
+    "start": "2025-01-01",
+    "end": "2025-12-31",
+    "urls": {
+      "separate": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260708000510&dcmNo=11469009&eleId=23&offset=251458&length=49709&dtd=dart4.xsd",
+      "cover": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260708000510&dcmNo=11469009&eleId=3&offset=15787&length=4568&dtd=dart4.xsd",
+      "consolidated": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260708000510&dcmNo=11469009&eleId=21&offset=251016&length=209&dtd=dart4.xsd"
+    },
+    "reportName": "[기재정정]사업보고서 (2025.12)"
+  },
+  {
+    "receipt": "20260709000504",
+    "corpCode": "01034730",
+    "name": "크로넥스(주)",
+    "start": "2025-01-01",
+    "end": "2025-12-31",
+    "urls": {
+      "separate": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260709000504&dcmNo=11470809&eleId=23&offset=424135&length=64531&dtd=dart4.xsd",
+      "cover": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260709000504&dcmNo=11470809&eleId=3&offset=36904&length=4516&dtd=dart4.xsd",
+      "consolidated": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260709000504&dcmNo=11470809&eleId=21&offset=168603&length=71468&dtd=dart4.xsd"
+    },
+    "reportName": "[기재정정]사업보고서 (2025.12)"
+  },
+  {
+    "receipt": "20260728000338",
+    "corpCode": "01924673",
+    "name": "(주)나노솔루션",
+    "start": "2025-01-01",
+    "end": "2025-12-31",
+    "urls": {
+      "cover": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260728000338&dcmNo=11497775&eleId=1&offset=958&length=4533&dtd=dart4.xsd",
+      "consolidated": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260728000338&dcmNo=11497775&eleId=19&offset=362905&length=208&dtd=dart4.xsd"
+    },
+    "reportName": "사업보고서 (2025.12)"
+  },
+  {
+    "receipt": "20260731000744",
+    "corpCode": "00565215",
+    "name": "(주)아이티센코어",
+    "start": "2025-01-01",
+    "end": "2025-12-31",
+    "urls": {
+      "separate": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260731000744&dcmNo=11505462&eleId=23&offset=267964&length=46298&dtd=dart4.xsd",
+      "cover": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260731000744&dcmNo=11505462&eleId=3&offset=75586&length=4528&dtd=dart4.xsd",
+      "consolidated": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260731000744&dcmNo=11505462&eleId=21&offset=267570&length=185&dtd=dart4.xsd"
+    },
+    "reportName": "[기재정정]사업보고서 (2025.12)"
+  },
+  {
+    "receipt": "20260804000177",
+    "corpCode": "01872459",
+    "name": "(주)본시스템즈",
+    "start": "2025-01-01",
+    "end": "2025-12-31",
+    "urls": {
+      "separate": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260804000177&dcmNo=11507996&eleId=23&offset=306758&length=87280&dtd=dart4.xsd",
+      "cover": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260804000177&dcmNo=11507996&eleId=3&offset=116737&length=4569&dtd=dart4.xsd",
+      "consolidated": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260804000177&dcmNo=11507996&eleId=21&offset=306283&length=251&dtd=dart4.xsd"
+    },
+    "reportName": "[기재정정]사업보고서 (2025.12)"
+  },
+  {
+    "receipt": "20260617000188",
+    "corpCode": "00830447",
+    "name": "(주)수프로",
+    "start": "2025-04-01",
+    "end": "2026-03-31",
+    "urls": {
+      "separate": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260617000188&dcmNo=11435684&eleId=21&offset=255680&length=39068&dtd=dart4.xsd",
+      "cover": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260617000188&dcmNo=11435684&eleId=1&offset=965&length=4547&dtd=dart4.xsd",
+      "consolidated": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260617000188&dcmNo=11435684&eleId=19&offset=255286&length=185&dtd=dart4.xsd"
+    },
+    "reportName": "사업보고서 (2026.03)"
+  },
+  {
+    "receipt": "20260709000400",
+    "corpCode": "00925967",
+    "name": "(주)이엠티",
+    "start": "2026-01-01",
+    "end": "2026-03-31",
+    "urls": {
+      "cover": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260709000400&dcmNo=11470039&eleId=1&offset=951&length=4480&dtd=dart4.xsd"
+    },
+    "reportName": "사업보고서 (2026.03)"
+  }
+]

@@ -6,6 +6,7 @@ import '../../generated/protocol.dart';
 import '../disclosure/disclosure_links.dart';
 import '../cache/single_flight.dart';
 import '../financial/financial_basis.dart';
+import '../financial/financial_source_duration.dart';
 import '../peers/peer_catalog.dart';
 
 /// 재무·시세로 기업을 거르는 스크리닝.
@@ -421,8 +422,13 @@ class ScreenEndpoint extends Endpoint {
     final markets = DisclosureLinks.listedMarkets
         .map((m) => "'${m.name}'")
         .join(', ');
+    final durations = await FinancialSourceDuration.load(
+      session,
+      companyIds: companyIds,
+    );
+    final shortIds = durations.blockedReportIds;
     final rows = await session.db.unsafeQuery('''
-      WITH ${FinancialBasis.ctes(companyIds: companyIds)}, cap AS (
+      WITH ${FinancialBasis.ctes(companyIds: companyIds, blockedAnnualFlowReportIds: shortIds)}, cap AS (
         -- 시가총액이 없는 종목(거래정지 등)은 빼고 합한다. 한 종목도 없으면 그 기업은
         -- 스크리너에 나오지 않는다 (값을 매길 수 없으므로).
         SELECT s."companyId" AS id, sum(m."marketCap"::numeric) AS cap

@@ -186,9 +186,17 @@ class PublicFinancialXbrl {
     required int bsnsYear,
     required DateTime periodEnd,
     required bool consolidated,
+    Uri? sourceUri,
   }) {
     if (periodEnd.year != bsnsYear) {
       throw const FormatException('Annual fiscal year mismatch');
+    }
+    if (sourceUri != null &&
+        (sourceUri.scheme != 'https' ||
+            sourceUri.host != 'dart.fss.or.kr' ||
+            sourceUri.path != '/pdf/download/ifrs.do' ||
+            sourceUri.queryParameters['rcp_no'] != receipt)) {
+      throw const FormatException('XBRL source receipt mismatch');
     }
     final archive = ZipDecoder().decodeBytes(zip);
     final instances = archive.files
@@ -351,6 +359,24 @@ class PublicFinancialXbrl {
         'thstrm_nm': '$start~$end',
         'thstrm_amount': value,
         'currency': 'KRW',
+        'xbrl_provenance': {
+          'source': sourceUri?.toString(),
+          'receipt': receipt,
+          'corpCode': corpCode,
+          'basis': consolidated ? 'CFS' : 'OFS',
+          'periodStart': start,
+          'periodEnd': end,
+          'contextId': f.getAttribute('contextRef'),
+          'contextInstant': account.$3 ? end : null,
+          'contextStart': account.$3 ? null : start,
+          'contextEnd': end,
+          'taxonomyNamespace': f.namespaceUri,
+          'factLocalName': f.name.local,
+          'rawAmount': value,
+          'unitRef': f.getAttribute('unitRef'),
+          'currency': 'KRW',
+          'decimals': f.getAttribute('decimals'),
+        },
       };
     }
     if (!values.containsKey('ifrs-full_Assets')) {

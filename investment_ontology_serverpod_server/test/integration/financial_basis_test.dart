@@ -27,6 +27,8 @@ void main() {
       Map<String, int> values, {
       bool superseded = false,
       bool details = false,
+      String? actualPeriod,
+      int? filingYear,
     }) async {
       final rceptNo = '${++receipt}'.padLeft(14, '0');
       final month = switch (code) {
@@ -35,7 +37,7 @@ void main() {
         FinancialReportCode.halfYear => '06',
         FinancialReportCode.q1 => '03',
       };
-      final reportName = '정기보고서 ($year.$month)';
+      final reportName = '정기보고서 (${actualPeriod ?? '$year.$month'})';
       source = await Source.db.insertRow(
         session,
         Source(
@@ -52,7 +54,7 @@ void main() {
           corpCode: company.corpCode,
           companyId: company.id,
           reportName: reportName,
-          bsnsYear: year,
+          bsnsYear: filingYear ?? year,
           reportCode: code,
           consolidatedStatus: FilingFetchStatus.stored,
           separateStatus: FilingFetchStatus.stored,
@@ -129,6 +131,64 @@ void main() {
       await session.close();
       ScreenEndpoint.clearCache();
       ScreenEndpoint.serveStaleWhileRefreshing = true;
+    });
+
+    test('non December interim accepts exact fiscal-year ledger and rejects stale reclassification', () async {
+      final correct = await report(
+        FsDiv.separate,
+        2027,
+        FinancialReportCode.q1,
+        {revenue: 700, assets: 900},
+        actualPeriod: '2026.06',
+      );
+      final wrong = await report(
+        FsDiv.separate,
+        2026,
+        FinancialReportCode.q1,
+        {revenue: 9999},
+        actualPeriod: '2026.06',
+        filingYear: 2027,
+      );
+      final eligible = await session.db.unsafeQuery(
+        'WITH ${FinancialBasis.eligibleReportsCte} SELECT id FROM eligible_reports WHERE "companyId"=${company.id}',
+      );
+      expect(eligible.map((row) => row[0]), contains(correct.id));
+      expect(eligible.map((row) => row[0]), isNot(contains(wrong.id)));
+      final summary = await FinancialEndpoint().summary(
+        session,
+        company.corpCode,
+      );
+      expect(summary!.periods.last.bsnsYear, 2027);
+      expect(
+        summary.periods.last.lines
+            .firstWhere((line) => line.key == 'revenue')
+            .amount,
+        BigInt.from(700),
+      );
+    });
+
+    test('actual closing month outranks fiscal year and correction receipt', () async {
+      await report(FsDiv.separate, 2026, FinancialReportCode.annual, {
+        revenue: 300,
+        assets: 300,
+      }, actualPeriod: '2026.03');
+      await report(FsDiv.separate, 2026, FinancialReportCode.halfYear, {
+        revenue: 600,
+        assets: 600,
+      }, actualPeriod: '2026.06');
+      await report(FsDiv.separate, 2026, FinancialReportCode.annual, {
+        revenue: 301,
+        assets: 301,
+      }, actualPeriod: '2026.03');
+      final summary = await FinancialEndpoint().summary(
+        session,
+        company.corpCode,
+      );
+      expect(summary!.periods.last.reportName, contains('2026.06'));
+      final rows = await session.db.unsafeQuery(
+        'WITH ${FinancialBasis.ctes(companyId: company.id!)} SELECT code FROM latest',
+      );
+      expect(rows.single[0], 'halfYear');
     });
 
     test('newer fabricated report period cannot hide source-bound recovery', () async {
