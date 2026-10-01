@@ -62,16 +62,30 @@ class MembershipMonitor {
         isTestMembership: status.isTest,
       );
       if (paid) {
-        _expiry = Timer(end.difference(clock()), () {
-          if (_disposed || source.value?.userId != account.userId) return;
-          viewer.value = account;
-          unawaited(refresh());
-        });
+        _scheduleExpiry(account, end);
       }
     } catch (_) {
       // Existing expiry timer still removes access if a refresh is unavailable.
       // No client-side purchase flag or local storage grants paid membership.
     }
+  }
+
+  void _scheduleExpiry(AppViewer account, DateTime end) {
+    final remaining = end.difference(clock());
+    // Browser timers overflow beyond ~24.8 days. Re-arm a bounded timer
+    // without removing paid access until the actual server expiry arrives.
+    final delay = remaining > const Duration(days: 1)
+        ? const Duration(days: 1)
+        : remaining;
+    _expiry = Timer(delay, () {
+      if (_disposed || source.value?.userId != account.userId) return;
+      if (end.isAfter(clock())) {
+        _scheduleExpiry(account, end);
+        return;
+      }
+      viewer.value = account;
+      unawaited(refresh());
+    });
   }
 
   void dispose() {

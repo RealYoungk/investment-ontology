@@ -81,6 +81,40 @@ void main() {
       source.dispose();
     });
   });
+  test('month-long membership uses bounded timers and expires offline', () {
+    fakeAsync((time) {
+      final origin = DateTime.utc(2026, 10, 1);
+      final end = origin.add(const Duration(days: 31));
+      final source = ValueNotifier<AppViewer?>(account);
+      var calls = 0;
+      final monitor = MembershipMonitor(
+        source: source,
+        clock: () => origin.add(time.elapsed),
+        fetch: () async {
+          if (calls++ > 0) throw StateError('offline');
+          return MembershipView(
+            adFree: true,
+            paidThroughUtc: end,
+            cancelAtPeriodEnd: true,
+          );
+        },
+      );
+      time.flushMicrotasks();
+      expect(
+        time.pendingTimers.every(
+          (timer) => timer.duration <= const Duration(days: 1),
+        ),
+        isTrue,
+      );
+      time.elapse(const Duration(days: 30));
+      expect(monitor.viewer.value!.paidThroughUtc, end);
+      expect(monitor.viewer.value!.isAdFree, true);
+      time.elapse(const Duration(days: 1));
+      expect(monitor.viewer.value!.isAdFree, false);
+      monitor.dispose();
+      source.dispose();
+    });
+  });
   test('latest same-account response wins', () async {
     final source = ValueNotifier<AppViewer?>(account);
     final old = Completer<MembershipView>();
