@@ -10,6 +10,8 @@ import '../../design/tokens.dart';
 import '../companies/company_filter.dart';
 import 'explore_intent.dart';
 import 'journey_widgets.dart';
+import 'daily_brief.dart';
+import 'market_pulse.dart';
 
 typedef CompanySearch = Future<List<CompanyListItem>> Function(String query);
 
@@ -25,9 +27,13 @@ class HomePage extends StatefulWidget {
     super.key,
     this.intent = ExploreIntent.overview,
     this.search,
+    this.filings,
+    this.market,
   });
   final ExploreIntent intent;
   final CompanySearch? search;
+  final FilingFeedLoad? filings;
+  final MarketPulseLoad? market;
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -99,21 +105,6 @@ class _HomePageState extends State<HomePage> {
     _focus.requestFocus();
   }
 
-  void _selectIntent(ExploreIntent intent) {
-    setState(() => _intent = intent);
-    _focus.requestFocus();
-    final target = _searchKey.currentContext;
-    if (target != null) {
-      Scrollable.ensureVisible(
-        target,
-        duration: MediaQuery.disableAnimationsOf(context)
-            ? Duration.zero
-            : AppMotion.normal,
-        alignment: 0.15,
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
@@ -121,7 +112,11 @@ class _HomePageState extends State<HomePage> {
     final search = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('찾고 있는 기업이 있나요?', key: _searchKey, style: t.display(24)),
+        Text(
+          '기업 바로 찾기',
+          key: _searchKey,
+          style: t.body(16, weight: FontWeight.w600),
+        ),
         const SizedBox(height: AppSpace.lg),
         TextField(
           key: const ValueKey('home-company-search'),
@@ -186,80 +181,75 @@ class _HomePageState extends State<HomePage> {
     return PageFrame(
       maxWidth: 1160,
       children: [
-        const SizedBox(height: AppSpace.lg),
-        LayoutBuilder(
-          builder: (context, box) {
-            final introduction = Column(
+        Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: AppSpace.md,
+          runSpacing: AppSpace.sm,
+          children: [
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const JourneyHeading(
-                  eyebrow: '국내 상장기업을 찾고 비교하는 알파인더',
-                  title: '어떤 회사인지 알고,\n투자를 생각해 보세요.',
-                  description: '무엇을 팔고 얼마나 버는지, 공시와 실적을 모아 보여드려요.\n관심 기업을 찾고 다른 회사와 비교해 보세요.',
-                  large: true,
-                ),
-                const SizedBox(height: AppSpace.xl),
-                Text(
-                  '아직 떠오르는 회사가 없어도 괜찮아요.',
-                  style: t.body(14, color: c.textSecondary),
-                ),
-                const SizedBox(height: AppSpace.md),
-                JourneyButton(
-                  label: '전체 기업 둘러보기',
-                  primary: true,
-                  onPressed: () => context.push('/companies'),
-                ),
+                Text('RESEARCH DESK', style: t.label(color: c.accent)),
+                const SizedBox(height: AppSpace.sm),
+                Text('오늘의 리서치', style: t.display(28)),
               ],
-            );
-            final entry = Container(
-              padding: const EdgeInsets.all(AppSpace.xl),
+            ),
+            TextButton(
+              onPressed: () => context.push('/about'),
+              child: const Text('처음 오셨나요? 서비스 소개 →'),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpace.xl),
+        MarketPulse(load: widget.market),
+        const SizedBox(height: AppSpace.xxl),
+        DailyBrief(load: widget.filings),
+        const SizedBox(height: AppSpace.xxl),
+        LayoutBuilder(
+          builder: (context, box) {
+            final discovery = Container(
+              padding: const EdgeInsets.all(AppSpace.lg),
               decoration: BoxDecoration(
-                color: c.surface,
-                border: Border.all(color: c.border),
+                color: c.accentSubtle,
                 borderRadius: context.shape.borderRadius,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    '익숙한 산업부터 골라보세요',
-                    style: t.body(18, weight: FontWeight.w600),
+                    '다음 탐색의 출발점',
+                    style: t.body(16, weight: FontWeight.w600),
                   ),
                   const SizedBox(height: AppSpace.sm),
                   Text(
-                    '산업 안의 기업을 규모순으로 살펴봅니다.',
+                    '궁금한 산업에서 후보를 넓혀보세요.',
                     style: t.body(12, color: c.textSecondary),
                   ),
-                  const SizedBox(height: AppSpace.lg),
+                  const SizedBox(height: AppSpace.md),
                   for (final item in const [
                     (
-                      name: '전자·반도체',
-                      detail: '전자부품 · 컴퓨터 · 통신장비',
+                      title: '전자·반도체',
+                      detail: '부품부터 장비까지',
                       code: '26',
                       icon: Icons.memory_outlined,
                     ),
                     (
-                      name: '자동차',
-                      detail: '완성차 · 차체 · 부품',
+                      title: '자동차',
+                      detail: '완성차와 부품',
                       code: '30',
                       icon: Icons.directions_car_outlined,
                     ),
                     (
-                      name: '식품',
-                      detail: '우리가 매일 먹는 것들',
+                      title: '식품',
+                      detail: '식품 제조 기업',
                       code: '10',
                       icon: Icons.restaurant_outlined,
-                    ),
-                    (
-                      name: '의약품',
-                      detail: '의약품 · 원료 · 관련 제품',
-                      code: '21',
-                      icon: Icons.medication_outlined,
                     ),
                   ])
                     _entry(
                       context,
-                      title: item.name,
+                      title: item.title,
                       detail: item.detail,
                       icon: item.icon,
                       onTap: () => context.push(
@@ -272,163 +262,115 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             );
-            if (box.maxWidth < 850) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  introduction,
-                  const SizedBox(height: AppSpace.xxl),
-                  entry,
-                ],
-              );
-            }
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(flex: 6, child: introduction),
-                const SizedBox(width: 32),
-                Expanded(flex: 5, child: entry),
-              ],
-            );
+            return box.maxWidth >= 850
+                ? Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(flex: 6, child: search),
+                      const SizedBox(width: AppSpace.xxl),
+                      Expanded(flex: 4, child: discovery),
+                    ],
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      search,
+                      const SizedBox(height: AppSpace.xl),
+                      discovery,
+                    ],
+                  );
           },
         ),
-        const SizedBox(height: 32),
-        Text('이런 회사를 찾고 있나요?', style: t.display(26)),
+        const SizedBox(height: AppSpace.xxl),
+        Text('숫자로 좁히는 후보', style: t.body(17, weight: FontWeight.w600)),
         const SizedBox(height: AppSpace.sm),
         Text(
-          '하나를 골라보세요. 결과를 보고 원하는 조건으로 바꿀 수 있어요.',
-          style: t.body(14, color: c.textSecondary),
+          '수집된 지표의 조건별 탐색 · 추천이나 순위가 아닙니다.',
+          style: t.body(12, color: c.textSecondary),
         ),
         const SizedBox(height: AppSpace.lg),
         LayoutBuilder(
-          builder: (context, box) {
-            final width = box.maxWidth < 700
-                ? box.maxWidth
-                : (box.maxWidth - AppSpace.md * 2) / 3;
-            return Wrap(
-              spacing: AppSpace.md,
-              runSpacing: AppSpace.md,
-              children: [
-                for (final item in const [
-                  (
-                    title: '매출이 늘어난 기업',
-                    detail: '최근 12개월 매출이 이전 12개월보다 10% 이상 증가',
-                    path: '/screen?rgrow=10',
-                    number: '01',
-                  ),
-                  (
-                    title: '이익을 남기는 기업',
-                    detail: '매출 100원당 영업이익 10원 이상 · 최근 12개월',
-                    path: '/screen?margin=10',
-                    number: '02',
-                  ),
-                  (
-                    title: '배당을 주는 기업',
-                    detail: '최근 연간 배당금 ÷ 최근 주가가 3% 이상',
-                    path: '/screen?div=3',
-                    number: '03',
-                  ),
-                ])
-                  SizedBox(
-                    width: width,
-                    child: Material(
-                      color: c.surface,
-                      child: InkWell(
-                        onTap: () => context.push(item.path),
-                        child: Padding(
-                          padding: const EdgeInsets.all(AppSpace.xl),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                item.number,
-                                style: t.numeric(12, color: c.accent),
-                              ),
-                              const SizedBox(height: AppSpace.lg),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      item.title,
-                                      style: t.body(
-                                        17,
-                                        weight: FontWeight.w600,
-                                      ),
-                                    ),
+          builder: (context, box) => Wrap(
+            spacing: AppSpace.md,
+            runSpacing: AppSpace.md,
+            children: [
+              for (final item in const [
+                (
+                  title: '매출이 늘어난 기업',
+                  detail: '최근 12개월 매출 성장률',
+                  value: '10% 이상',
+                  path: '/screen?rgrow=10',
+                ),
+                (
+                  title: '이익을 남기는 기업',
+                  detail: '최근 12개월 영업이익률',
+                  value: '10% 이상',
+                  path: '/screen?margin=10',
+                ),
+                (
+                  title: '배당을 주는 기업',
+                  detail: '연간 배당금 ÷ 최근 주가',
+                  value: '3% 이상',
+                  path: '/screen?div=3',
+                ),
+              ])
+                SizedBox(
+                  width: box.maxWidth < 700
+                      ? box.maxWidth
+                      : (box.maxWidth - AppSpace.md * 2) / 3,
+                  child: Material(
+                    color: c.surface,
+                    borderRadius: context.shape.borderRadius,
+                    child: InkWell(
+                      borderRadius: context.shape.borderRadius,
+                      onTap: () => context.push(item.path),
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppSpace.lg),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.title,
+                              style: t.body(15, weight: FontWeight.w600),
+                            ),
+                            const SizedBox(height: AppSpace.lg),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    item.value,
+                                    style: t.numeric(24, color: c.accent),
                                   ),
-                                  Icon(
-                                    Icons.arrow_forward,
-                                    size: 18,
-                                    color: c.textSecondary,
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: AppSpace.sm),
-                              Text(
-                                item.detail,
-                                style: t.body(13, color: c.textSecondary),
-                              ),
-                            ],
-                          ),
+                                ),
+                                Icon(
+                                  Icons.north_east,
+                                  size: 18,
+                                  color: c.accent,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: AppSpace.sm),
+                            Text(
+                              item.detail,
+                              style: t.body(12, color: c.textSecondary),
+                            ),
+                          ],
                         ),
                       ),
                     ),
                   ),
-              ],
-            );
-          },
-        ),
-        const SizedBox(height: AppSpace.sm),
-        Text(
-          '탐색을 위한 예시 조건입니다. 기업의 우열이나 투자 추천을 뜻하지 않습니다.',
-          style: t.body(12, color: c.textSecondary),
-        ),
-        const SizedBox(height: 32),
-        Divider(color: c.border),
-        const SizedBox(height: AppSpace.xxl),
-        LayoutBuilder(
-          builder: (context, box) {
-            final guide = Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('기업 하나, 이렇게 읽어보세요', style: t.display(24)),
-                const SizedBox(height: AppSpace.lg),
-                for (final intent in ExploreIntent.values)
-                  _entry(
-                    context,
-                    title: intent.question,
-                    detail: intent.description,
-                    icon: switch (intent.index) {
-                      0 => Icons.storefront_outlined,
-                      1 => Icons.trending_up,
-                      _ => Icons.compare_arrows,
-                    },
-                    onTap: () => _selectIntent(intent),
-                  ),
-                const SizedBox(height: AppSpace.sm),
-                TextButton(
-                  onPressed: () => context.push('/about'),
-                  child: const Text('서비스 사용법 →'),
                 ),
-              ],
-            );
-            if (box.maxWidth < 850) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [search, const SizedBox(height: 48), guide],
-              );
-            }
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: search),
-                const SizedBox(width: 32),
-                Expanded(child: guide),
-              ],
-            );
-          },
+            ],
+          ),
         ),
         const SizedBox(height: AppSpace.xxl),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: JourneyButton(
+            label: '기업 비교로 이어가기',
+            onPressed: () => context.go('/compare'),
+          ),
+        ),
       ],
     );
   }

@@ -10,6 +10,7 @@ import 'package:investment_ontology_serverpod_flutter/design/tokens.dart';
 import 'package:investment_ontology_serverpod_flutter/features/home/home_page.dart';
 import 'package:investment_ontology_serverpod_flutter/features/home/about_page.dart';
 import 'package:investment_ontology_serverpod_flutter/features/home/explore_intent.dart';
+import 'package:investment_ontology_serverpod_flutter/features/home/daily_brief.dart';
 
 // Avoid runtime font downloading in widget tests, preserving production colors.
 ThemeData get theme => buildAppTheme(
@@ -35,13 +36,64 @@ Future<void> pumpHome(
     MaterialApp(
       theme: theme,
       home: Scaffold(
-        body: HomePage(search: search, intent: intent),
+        body: HomePage(search: search, intent: intent, filings: () async => []),
       ),
     ),
   );
 }
 
 void main() {
+  testWidgets('정정 필터는 실제 보고서명으로 구분하며 수집 대기를 유지한다', (tester) async {
+    final rows = [
+      FilingFeedItem(
+        company: CompanyRef(id: 1, corpCode: '1', name: '원보고기업'),
+        rceptNo: '1',
+        reportName: '반기보고서',
+        financialStored: true,
+      ),
+      FilingFeedItem(
+        company: CompanyRef(id: 2, corpCode: '2', name: '정정기업'),
+        rceptNo: '2',
+        reportName: '[기재정정]반기보고서',
+        financialStored: false,
+      ),
+    ];
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: theme,
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: DailyBrief(load: () async => rows),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('원보고기업'), findsOneWidget);
+    await tester.tap(find.text('정정 보고서'));
+    await tester.pumpAndSettle();
+    expect(find.text('원보고기업'), findsNothing);
+    expect(find.text('정정기업'), findsOneWidget);
+    expect(find.textContaining('수집 대기'), findsOneWidget);
+    expect(find.text('정정 공시 / 원문 재확인'), findsOneWidget);
+  });
+  testWidgets('소개 조회 실패는 기업 수와 공시 예시 수치를 만들어내지 않는다', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: theme,
+        home: AboutPage(
+          loadScope: () async => throw Exception('offline'),
+          previewLoad: () async => throw Exception('offline'),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('2,759'), findsNothing);
+    expect(find.text('국내 상장사'), findsOneWidget);
+    expect(find.text('연결 구조를 표현한 연출 · 실제 기업 관계가 아닙니다'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('검색하지 않은 홈은 API 호출 없이 사용 목적을 보여 준다', (tester) async {
     var calls = 0;
     await pumpHome(tester, (_) async {
@@ -49,7 +101,7 @@ void main() {
       return [];
     });
     expect(calls, 0);
-    expect(find.text('어떤 회사인지 알고,\n투자를 생각해 보세요.'), findsOneWidget);
+    expect(find.text('오늘의 리서치'), findsOneWidget);
     expect(field, findsOneWidget);
     expect(tester.takeException(), isNull);
   });
@@ -66,8 +118,9 @@ void main() {
         routes: [
           GoRoute(
             path: '/home',
-            builder: (_, _) =>
-                Scaffold(body: HomePage(search: (_) async => [])),
+            builder: (_, _) => Scaffold(
+              body: HomePage(search: (_) async => [], filings: () async => []),
+            ),
           ),
           GoRoute(
             path: '/companies',
@@ -142,6 +195,8 @@ void main() {
             builder: (_, _) => Scaffold(
               body: HomePage(
                 intent: intent,
+                filings: () async => [],
+                market: () async => [],
                 search: (_) async => [
                   CompanyListItem(corpCode: '00126380', name: '삼성전자'),
                 ],
@@ -184,8 +239,12 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
       for (final page in [
-        HomePage(search: (_) async => []),
-        const AboutPage(),
+        HomePage(search: (_) async => [], filings: () async => []),
+        AboutPage(
+          previewLoad: () async => [],
+          loadScope: () async =>
+              Overview(totalListed: 2759, byMarket: [], bySection: []),
+        ),
       ]) {
         await tester.pumpWidget(
           MaterialApp(
@@ -208,7 +267,14 @@ void main() {
     final router = GoRouter(
       initialLocation: '/about',
       routes: [
-        GoRoute(path: '/about', builder: (_, _) => const AboutPage()),
+        GoRoute(
+          path: '/about',
+          builder: (_, _) => AboutPage(
+            previewLoad: () async => [],
+            loadScope: () async =>
+                Overview(totalListed: 2759, byMarket: [], bySection: []),
+          ),
+        ),
         GoRoute(
           path: '/home',
           builder: (_, state) => Scaffold(body: Text(state.uri.toString())),
@@ -219,12 +285,9 @@ void main() {
     await tester.pumpWidget(
       MaterialApp.router(theme: theme, routerConfig: router),
     );
-    final step = find.text('변화를 확인하고');
-    await tester.ensureVisible(step);
-    await tester.tap(step);
     await tester.pumpAndSettle();
     final start = find.text('재무 추이에서 시작');
-    await tester.ensureVisible(start);
+    await tester.scrollUntilVisible(start, 400);
     await tester.tap(start);
     await tester.pumpAndSettle();
     expect(find.text('/home?intent=financials'), findsOneWidget);
