@@ -2,6 +2,8 @@
 class AdConfig {
   const AdConfig({
     this.enabled = false,
+    this.siteApproved = false,
+    this.privacyReady = false,
     this.preview = false,
     this.publisher = '',
     this.slot = '',
@@ -9,6 +11,8 @@ class AdConfig {
   });
   const AdConfig.environment()
     : enabled = const bool.fromEnvironment('ADSENSE_ENABLED'),
+      siteApproved = const bool.fromEnvironment('ADSENSE_SITE_APPROVED'),
+      privacyReady = const bool.fromEnvironment('ADSENSE_PRIVACY_READY'),
       preview = const bool.fromEnvironment('AD_PLACEMENT_PREVIEW'),
       publisher = const String.fromEnvironment(
         'ADSENSE_PUBLISHER_ID',
@@ -23,6 +27,8 @@ class AdConfig {
         defaultValue: true,
       );
   final bool enabled;
+  final bool siteApproved;
+  final bool privacyReady;
   final bool preview;
   final String publisher;
   final String slot;
@@ -31,5 +37,7 @@ class AdConfig {
       RegExp(r'^ca-pub-[0-9]{16}$').hasMatch(publisher) &&
       RegExp(r'^[0-9]{10}$').hasMatch(slot);
   bool show({required bool adFree, required bool web}) =>
-      !adFree && (preview || (enabled && configured && web));
+      !adFree &&
+      (preview ||
+          (enabled && siteApproved && privacyReady && configured && web));
 }

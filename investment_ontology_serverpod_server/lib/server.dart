@@ -4,6 +4,7 @@ import 'package:serverpod_auth_idp_server/core.dart';
 import 'package:serverpod_cloud_storage/serverpod_cloud_storage.dart';
 
 import 'src/cache_busting.dart';
+import 'src/ontology/billing/billing_schedule.dart';
 import 'src/ontology/auth/admin_provisioning.dart';
 import 'src/ontology/auth/account_security.dart';
 import 'src/generated/serverpod.dart';
@@ -109,6 +110,7 @@ void run(List<String> args) async {
   final session = await pod.createSession(enableLogging: false);
   try {
     await IngestSchedule.onServerStart(session);
+    await BillingSchedule.ensure(session);
   } finally {
     await session.close();
   }

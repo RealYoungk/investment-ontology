@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../monetization/service_links.dart';
+
 import 'package:go_router/go_router.dart';
 import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
 import 'package:serverpod_auth_idp_flutter/widgets.dart';
@@ -111,6 +114,7 @@ class _SignInPageState extends State<SignInPage> {
                     builder: (context, _) =>
                         _Notices(screen: _controller.currentScreen),
                   ),
+                  const ServiceLinks(),
                   if (!widget.resetPassword) ...[
                     const SizedBox(height: AppSpace.md),
                     Align(

@@ -14,6 +14,12 @@ import 'dart:async' as _ida;
 import 'package:http/http.dart' as _i85jenna;
 import 'package:investment_ontology_serverpod_client/src/protocol/greetings/greeting.dart'
     as _iqvwj7cf;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/billing/billing_checkout_view.dart'
+    as _ieebiau0;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/billing/billing_payment_view.dart'
+    as _isqvkvoy;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/billing/membership_view.dart'
+    as _iwrn1kmb;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/account_view.dart'
     as _ih9nljg3;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ai_extraction.dart'
@@ -1114,6 +1120,89 @@ class EndpointMarket extends _isc.EndpointRef {
   );
 }
 
+/// Personal, server-derived status and guarded checkout.
+/// {@category Endpoint}
+class EndpointMembership extends _isc.EndpointRef {
+  EndpointMembership(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'membership';
+
+  _ida.Future<List<_isqvkvoy.BillingPaymentView>> paymentsForAccount(
+    String userId,
+  ) => caller.callServerEndpoint<List<_isqvkvoy.BillingPaymentView>>(
+    'membership',
+    'paymentsForAccount',
+    {'userId': userId},
+  );
+
+  _ida.Future<void> refundPayment(
+    int attemptId,
+    String expectedOrderId,
+  ) => caller.callServerEndpoint<void>(
+    'membership',
+    'refundPayment',
+    {
+      'attemptId': attemptId,
+      'expectedOrderId': expectedOrderId,
+    },
+  );
+
+  _ida.Future<_iwrn1kmb.MembershipView> status() =>
+      caller.callServerEndpoint<_iwrn1kmb.MembershipView>(
+        'membership',
+        'status',
+        {},
+      );
+
+  _ida.Future<_ieebiau0.BillingCheckoutView> beginCheckout(
+    String acceptedTestTerms,
+  ) => caller.callServerEndpoint<_ieebiau0.BillingCheckoutView>(
+    'membership',
+    'beginCheckout',
+    {'acceptedTestTerms': acceptedTestTerms},
+  );
+
+  _ida.Future<_ieebiau0.BillingCheckoutView> beginCardReplacement(
+    String acceptedTestTerms,
+  ) => caller.callServerEndpoint<_ieebiau0.BillingCheckoutView>(
+    'membership',
+    'beginCardReplacement',
+    {'acceptedTestTerms': acceptedTestTerms},
+  );
+
+  _ida.Future<void> resumeRenewal() => caller.callServerEndpoint<void>(
+    'membership',
+    'resumeRenewal',
+    {},
+  );
+
+  _ida.Future<_iwrn1kmb.MembershipView> completeCheckout(
+    String state,
+    String authKey,
+  ) => caller.callServerEndpoint<_iwrn1kmb.MembershipView>(
+    'membership',
+    'completeCheckout',
+    {
+      'state': state,
+      'authKey': authKey,
+    },
+  );
+
+  _ida.Future<void> abortCheckout(String state) =>
+      caller.callServerEndpoint<void>(
+        'membership',
+        'abortCheckout',
+        {'state': state},
+      );
+
+  _ida.Future<void> cancelRenewal() => caller.callServerEndpoint<void>(
+    'membership',
+    'cancelRenewal',
+    {},
+  );
+}
+
 /// AI 관계 검수 큐: 근거 인용을 보고 승인(verified)·거절(rejected)한다.
 ///
 /// 읽기(list · context · checks · facts · forCompany)는 로그인한 누구나 —
@@ -1541,6 +1630,7 @@ class Client extends _isc.ServerpodClientShared {
     group = EndpointGroup(this);
     ingest = EndpointIngest(this);
     market = EndpointMarket(this);
+    membership = EndpointMembership(this);
     review = EndpointReview(this);
     screen = EndpointScreen(this);
     theme = EndpointTheme(this);
@@ -1575,6 +1665,8 @@ class Client extends _isc.ServerpodClientShared {
 
   late final EndpointMarket market;
 
+  late final EndpointMembership membership;
+
   late final EndpointReview review;
 
   late final EndpointScreen screen;
@@ -1599,6 +1691,7 @@ class Client extends _isc.ServerpodClientShared {
     'group': group,
     'ingest': ingest,
     'market': market,
+    'membership': membership,
     'review': review,
     'screen': screen,
     'theme': theme,

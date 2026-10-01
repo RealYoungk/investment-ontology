@@ -108,8 +108,14 @@ class _LoginFormKoState extends State<LoginFormKo> {
                 child: const Text('비밀번호 찾기'),
               ),
             ),
-          ] else
+          ] else ...[
+            const SizedBox(height: 16),
+            Text(
+              '가입 이메일·인증 정보는 계정 생성과 보안에 사용하며 회원 탈퇴까지 보관합니다. 인증 메일은 Resend를 통해 미국에서 처리됩니다. 아래 개인정보처리방침에서 처리 경로와 권리 행사 방법을 확인하세요. 회원가입 없이도 기업 데이터를 조회할 수 있습니다.',
+              style: t.body(13, color: c.textSecondary),
+            ),
             const SizedBox(height: 24),
+          ],
           SizedBox(
             height: 48,
             child: FilledButton(

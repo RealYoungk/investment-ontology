@@ -9,6 +9,7 @@ import '../features/auth/account_page.dart';
 import '../features/auth/app_auth.dart';
 import '../features/auth/sign_in_page.dart';
 import '../features/home/about_page.dart';
+import '../features/monetization/billing_checkout_page.dart';
 import '../features/home/explore_intent.dart';
 import '../features/companies/company_filter.dart';
 import '../features/companies/company_list_page.dart';
@@ -56,7 +57,7 @@ abstract final class AppRoutes {
 
   static String afterLogin(String? next) {
     // Only known local destinations may be supplied by the login URL.
-    if (next == '/account') return next!;
+    if (next == '/account' || next == '/membership/checkout') return next!;
     final uri = Uri.tryParse(next ?? '');
     if (uri != null &&
         !uri.hasScheme &&
@@ -96,6 +97,9 @@ abstract final class AppRoutes {
       final adminOnly =
           path == '/data' || path == '/review' || path.startsWith('/admin/');
       if (adminOnly && !(viewer?.isAdmin ?? false)) return '/home';
+      if (path == '/membership/checkout' && viewer == null) {
+        return '/login?next=/membership/checkout';
+      }
       if (path == '/account' && viewer == null) return '/login?next=/account';
       if (path == '/login' && viewer != null) {
         return afterLogin(state.uri.queryParameters['next']);
@@ -113,6 +117,15 @@ abstract final class AppRoutes {
             AppShell(location: state.uri, child: child),
         routes: [
           GoRoute(path: '/account', builder: (_, _) => const AccountPage()),
+          GoRoute(
+            path: '/membership/checkout',
+            builder: (_, state) => BillingCheckoutPage(
+              state: state.uri.queryParameters['state'],
+              authKey: state.uri.queryParameters['authKey'],
+              replaceCard: state.uri.queryParameters['card'] == 'replace',
+              failed: state.uri.queryParameters.containsKey('code'),
+            ),
+          ),
           GoRoute(
             path: '/admin/accounts',
             builder: (_, _) => const AccountPage(manage: true),

@@ -1,0 +1,25 @@
+class: BillingPaymentAttempt
+table: billing_payment_attempt
+serverOnly: true
+fields:
+  subscriptionId: int, relation(parent=billing_subscription)
+  period: int
+  orderId: String
+  idempotencyKey: String
+  status: String
+  paymentKey: String?
+  paidFromUtc: DateTime
+  paidThroughUtc: DateTime
+indexes:
+  billing_payment_period_idx:
+    fields: subscriptionId, period
+    unique: true
+  billing_payment_order_idx:
+    fields: orderId
+    unique: true
+  billing_payment_idempotency_idx:
+    fields: idempotencyKey
+    unique: true
+  billing_payment_provider_idx:
+    fields: paymentKey
+    unique: true
