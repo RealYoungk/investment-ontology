@@ -13,7 +13,7 @@
 
 ## 정상 운영
 
-매일 `Billing result unknown`, `Billing refund pending`, `Billing key cleanup pending` 경고 및 해당 원장과 PG 주문을 대조한다. 자동 FutureCall 5분 주기는 사람의 장애 점검을 대체하지 않는다. 동일 주문의 결과가 불명인 동안 새 주문으로 다시 청구하지 않는다. 장애 시 신규 판매 중단과 기존 주문 대사/환불 처리를 구분하여 진행한다. 현재 활성화 플래그를 끄면 provider worker도 멈추므로 기존 거래가 있으면 대사·환불 대기 원장을 먼저 확인하고 공급자 경로로 처리한다.
+매일 `Billing result unknown`, `Billing refund pending`, `Billing key cleanup pending` 경고 및 해당 원장과 PG 주문을 대조한다. 자동 FutureCall 5분 주기는 사람의 장애 점검을 대체하지 않는다. 동일 주문의 결과가 불명인 동안 새 주문으로 다시 청구하지 않는다. 장애 시 신규 판매 중단과 기존 주문 대사/환불 처리를 구분하여 진행한다. `ALFINDER_BILLING_CHARGES_PAUSED=true`로 신규·갱신 청구를 중단하되 기존 주문 조회·대기 환불·키 삭제를 계속한다. LIVE_ENABLED=false는 provider worker도 멈추므로 기존 거래 처리용 중단 설정과 혼동하지 않는다. 현재 paid 기간의 공급자 직접 전액 취소는 5분마다 동일 주문 GET으로 대사한다. 조회 실패는 권한을 임의로 환불 처리하지 않고 안전한 원장 ID 경고를 남긴다.
 
 문의 환불은 `monetization-launch-readiness.md`의 관리자 절차를 사용한다. 문의에 카드번호/비밀번호/신분증을 요구하지 않는다. 화면의 '확인 중'은 완료가 아니다. 카드사 입금 반영과 PG 취소 확인을 구분한다.
 

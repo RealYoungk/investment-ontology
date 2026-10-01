@@ -149,7 +149,7 @@
                       if (event?.listenerId) state.gppListener = event.listenerId;
                       const ping = event?.pingData;
                       if (!ok || event?.eventName === 'error' ||
-                          (state.cmpPermitted && (event?.eventName === 'sectionChange' ||
+                          (state.cmpPermitted && (ping?.cmpStatus !== 'loaded' || event?.eventName === 'sectionChange' ||
                             ping?.signalStatus !== 'ready' || ping?.cmpDisplayStatus === 'visible'))) {
                         clearTimeout(timer); resolve(false); dispose(element); return;
                       }

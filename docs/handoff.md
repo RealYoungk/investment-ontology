@@ -823,3 +823,7 @@ User authorized implementing locally before review. Actual Flutter industries pa
 - 기업 비교를 기업 찾기 아래 독립 드로어/사이드바 메뉴로 추가. 상단 선택 영역 배경 제거, 하단 차트/수치와 후보/업종비교에 공통 카드 적용.
 - screen.list의 corpCodes 지정 조회는 선택 기업 ID를 보고서/시총/대표 종목/배당 SQL 시작부터 제한하고 전체 스크리너 캐시와 분리. 같은 계산 수식 유지, 빈/없는 코드로 전체 조회 금지. 부분/전체 값 일치와 캐시 보존 회귀 추가.
 - 다른 채팅 미커밋 재무/기업설명 변경은 제외하고 최신 main에서 분리 검증. 운영 배포 완료 근거는 후속 기록에서 확인.
+
+## 2026-10-01 광고·결제 승인 전 후속 보완
+
+main 789fbe5/운영 backend 4fd01b3의 후속 기능을 보존한 격리 체크아웃에서 미국 opt-out/GPC/GPP 요청 차단, 현재 paid 회차의 공급자 직접 취소 GET 대사(해지 회원 포함), 신규·갱신 청구만 멈추는 CHARGES_PAUSED를 추가했다. Node30, browser mock17/17, 일반 Flutter Web+인증RPC+격리DB9/9, 집중 server75 통과. 실제 Google 계정 US 메시지를 alfinder.kr에만 게시했고 EU 메시지 게시를 확인했다. 실제 Google EU 동의창은 debug gdprApplies=true여도 표시되지 않아 미완료다. 사이트 승인 때문이라고 입증되지 않았으며 message-only tag가 전체 EU/US 메시지를 지원한다는 단정을 정정했다. PRIVACY_READY/실광고/실결제는 계속 false. 자세한 증거·재현·중단 절차는 monetization-preapproval-verification.md 마지막 절. PR/최종 전체 릴리스·운영 배포 결과는 별도 증거로 기록한다.

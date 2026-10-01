@@ -196,14 +196,14 @@ test('US unknown, opt-out, missing GPP, or GPC never loads inventory',async()=>{
  assert.equal(await p,false);assert.equal(e.scripts.length,0);
 });
 test('US GPP ready permits once; a signal change invalidates before or after inventory download',async()=>{
- for(const loaded of [false,true]) {
+ for(const [loaded,signal] of [[false,'not ready'],[true,'not ready'],[true,'error']]) {
   const e=environment();e.root.googlefc.usstatesoptout.getInitialUsStatesOptOutStatus=()=>2;
   let callback;
   e.root.__gpp=(cmd,cb)=>{if(cmd==='addEventListener'){callback=cb;cb({listenerId:1,eventName:'listenerRegistered',pingData:{cmpStatus:'loaded',signalStatus:'ready'}},true);}};
   const el=e.element(),p=e.root.alfinderAds.mount(el,publisher,slot,false);await e.tick();
   assert.equal(e.scripts.length,1);
   if(loaded){e.scripts[0].onload();await e.tick();assert.equal(e.root.adsbygoogle.length,1);}
-  callback({eventName:'signalStatus',pingData:{cmpStatus:'loaded',signalStatus:'not ready'}},true);
+  callback({eventName:'signalStatus',pingData:{cmpStatus:signal==='error'?'error':'loaded',signalStatus:signal==='error'?'ready':signal}},true);
   if(!loaded){e.scripts[0].onload();await e.tick();assert.equal(e.root.adsbygoogle,undefined);}
   assert.equal(await p,false);assert.equal(el.children.length,0);
  }
