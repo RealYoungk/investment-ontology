@@ -18,7 +18,7 @@
 | 테스트/실 키 및 enable 조건 | production sandbox 플래그 차단, live 전제 모두 필수 | 단위 검증 및 코드 검토 |
 | 운영 기업 목록 새로고침 | 관찰 구간 Google/Toss 외부 요청 0 | 운영 브라우저 CDP |
 
-집중 검증: JS 24개, 서버 70개, Flutter 23개, Chrome 결제 E2E 1개 통과. 실제 브라우저 광고 harness `tool/ad-consent-check/`는 11/11 통과했다. script 수는 harness가 포착한 **삽입 시도**이며 Google 네트워크 성공 횟수가 아니다. 유료 전환 전 이미 시작한 script 요청은 되돌릴 수 없지만, 전환 후 slot push는 막는다. 실제 browser 결제 E2E의 광고는 preview 위젯이며 실제 Google 광고가 아니다. Google loader DOM/요청 시도는 별도 harness에서 검증했다.
+집중 검증: JS 25개, 서버 70개, Flutter 23개, Chrome 결제 E2E 1개 통과. 실제 브라우저 광고 harness `tool/ad-consent-check/`는 11/11 통과했다. script 수는 harness가 포착한 **삽입 시도**이며 Google 네트워크 성공 횟수가 아니다. 유료 전환 전 이미 시작한 script 요청은 되돌릴 수 없지만, 전환 후 slot push는 막는다. 실제 browser 결제 E2E의 광고는 preview 위젯이며 실제 Google 광고가 아니다. Google loader DOM/요청 시도는 별도 harness에서 검증했다.
 
 매분 정상 상태 확인은 마지막 성공한 상태를 유지한다(정상 polling마다 광고를 새로 만들지 않음). 계정 변경/복원은 즉시 미확정, 실패는 광고 차단으로 바뀐다. 만료 타이머는 권한을 제거하고 재조회가 실패하면 광고 차단을 유지한다. 새로운 유료 상태/환불은 성공한 서버 상태 응답에 반영되며 실시간 webhook push 기능은 없다.
 
@@ -57,3 +57,9 @@ Google 인증 CMP 지역별 허용/거부/철회의 실제 동작은 운영 활�
 6. 장애 시 판매 차단과 기존 주문의 조회/환불을 분리한다. 현재 LIVE_ENABLED=false는 worker도 중단하므로 대기 원장 ID와 공급자 주문을 먼저 확보하고 기존 거래를 공급자에서 정리한다. 무작정 플래그를 끄고 환불이 자동 완료된다고 안내하지 않는다. 배포 rollback은 호환되는 image로만, 원장 DB 삭제/reset은 하지 않는다. 암호화 키와 기존 멱등키를 보존한다.
 
 공식 CMP 원문: https://developers.google.com/funding-choices/fc-api-docs (built-in/Exa에서 같은 원문 확인). API_READY는 API 호출 가능, DATA_READY는 동의 데이터 준비를 의미한다. 공개 사이트의 published message와 debug query를 함께 검사한다.
+
+## 실제 Google CMP 전용 진단 (추가)
+
+운영 /cookies.html?fc=alwaysshow&fctype=gdpr의 임시 탭에 Funding Choices 메시지 전용 tag를 로드했다(광고 태그/ins/push 없음). Google /i HTTP200, 메시지 데이터 /f HTTP200, __tcfapi callback success=true, cmpId300, cmpStatus loaded, gdprApplies=false, **eventStatus 없음**을 실제로 관찰했다. Google은 이 세션을 GDPR 비적용으로 판정했다. 이것은 EU 허용/거부/철회나 AdSense 승인 증거가 아니다. 메시지/철회 API는 표시되지 않아 EU debug UI는 이 tag만으로 검증하지 못했다. EU 적용 세션과 AdSense tag의 인증 CMP 전체 흐름은 승인 후 test inventory 릴리스에서 확인해야 한다.
+
+이 실제 callback은 기존 loader의 eventStatus 필터에서 무기한 대기 후 차단될 수 있었다. gdprApplies=false이고 cmpStatus=loaded인 명시적 비적용 결과는 eventStatus 없이도 허용하도록 수정하고 회귀를 추가했다. 지역 불명, 오류, GDPR 적용 상태는 여전히 최종 이벤트와 동의가 필요하다. 임시 진단은 탭 폐쇄로 제거하며 운영 파일/광고 플래그는 변경하지 않았다. Google event URL의 opaque 식별자는 증거/로그에 저장하지 않는다.

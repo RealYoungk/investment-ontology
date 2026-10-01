@@ -97,7 +97,9 @@
                   if (state.adRequested) dispose(element);
                   return;
                 }
-                if (!['tcloaded', 'useractioncomplete'].includes(data.eventStatus)) return;
+                // Google's non-GDPR callback can omit eventStatus entirely.
+                const outsideGdpr = data.gdprApplies === false && data.cmpStatus === 'loaded';
+                if (!outsideGdpr && !['tcloaded', 'useractioncomplete'].includes(data.eventStatus)) return;
                 if (typeof data.gdprApplies !== 'boolean') {
                   if (state.adRequested) dispose(element);
                   return;

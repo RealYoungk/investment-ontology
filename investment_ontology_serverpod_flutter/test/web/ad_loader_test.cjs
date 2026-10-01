@@ -156,3 +156,10 @@ test('post-approval error, reopened UI or unknown jurisdiction removes inventory
   listener(data,!!data);await e.tick();assert.equal(el.children.length,0);assert.equal(e.root.adsbygoogle.length,1);
  }
 });
+
+test('actual Google non-GDPR loaded callback may omit eventStatus',async()=>{
+ const e=environment(),el=e.element();
+ e.root.__tcfapi=(_c,_v,cb)=>cb({gdprApplies:false,cmpId:300,cmpStatus:'loaded'},true);
+ const p=e.root.alfinderAds.mount(el,publisher,slot,true);await e.tick();e.scripts[0].onload();await e.tick();
+ assert.equal(e.root.adsbygoogle.length,1);e.root.alfinderAds.dispose(el);assert.equal(await p,false);
+});
