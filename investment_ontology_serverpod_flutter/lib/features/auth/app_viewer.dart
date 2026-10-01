@@ -11,17 +11,29 @@ class AppViewer {
     required this.userId,
     required this.isAdmin,
     this.isAdFree = false,
+    this.paidThroughUtc,
+    this.cancelAtPeriodEnd = false,
+    this.paymentAvailable = false,
+    this.isTestMembership = false,
   });
 
   AppViewer.fromScopes(this.userId, Set<String> scopeNames)
     : isAdmin = scopeNames.contains(adminScopeName),
-      isAdFree = scopeNames.contains(adFreeScopeName);
+      isAdFree = scopeNames.contains(adFreeScopeName),
+      paidThroughUtc = null,
+      cancelAtPeriodEnd = false,
+      paymentAvailable = false,
+      isTestMembership = false;
 
   final String userId;
   final bool isAdmin;
 
   /// Server-issued entitlement; independent of administrator access.
   final bool isAdFree;
+  final DateTime? paidThroughUtc;
+  final bool cancelAtPeriodEnd;
+  final bool paymentAvailable;
+  final bool isTestMembership;
 
   String get roleLabel => isAdmin ? '관리자' : '읽기 전용';
 
@@ -30,10 +42,22 @@ class AppViewer {
       other is AppViewer &&
       other.userId == userId &&
       other.isAdmin == isAdmin &&
-      other.isAdFree == isAdFree;
+      other.isAdFree == isAdFree &&
+      other.paidThroughUtc == paidThroughUtc &&
+      other.cancelAtPeriodEnd == cancelAtPeriodEnd &&
+      other.paymentAvailable == paymentAvailable &&
+      other.isTestMembership == isTestMembership;
 
   @override
-  int get hashCode => Object.hash(userId, isAdmin, isAdFree);
+  int get hashCode => Object.hash(
+    userId,
+    isAdmin,
+    isAdFree,
+    paidThroughUtc,
+    cancelAtPeriodEnd,
+    paymentAvailable,
+    isTestMembership,
+  );
 }
 
 /// 로그인 문 안쪽의 모든 화면에 [AppViewer]를 내려준다.

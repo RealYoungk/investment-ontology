@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-/// Test-key-only transport. No endpoint or scheduler invokes this in production.
+/// Provider failures carry safe codes; activation is guarded by server config.
 /// Never include provider bodies, URLs, auth keys or billing keys in errors/logs.
 class SandboxPaymentException implements Exception {
   const SandboxPaymentException(this.code, {this.uncertain = false});
@@ -28,11 +28,15 @@ class SandboxPayment {
   final int balance;
 }
 
-class TossSandboxGateway {
-  TossSandboxGateway({required String secretKey, required this.client})
-    : _authorization = 'Basic ${base64Encode(utf8.encode('$secretKey:'))}' {
-    if (!RegExp(r'^test_sk_[A-Za-z0-9]+$').hasMatch(secretKey)) {
-      throw ArgumentError('Only a Toss test secret key is accepted');
+class TossPaymentsGateway {
+  TossPaymentsGateway({
+    required String secretKey,
+    required this.client,
+    bool allowLive = false,
+  }) : _authorization = 'Basic ${base64Encode(utf8.encode('$secretKey:'))}' {
+    if (!RegExp(r'^test_sk_[A-Za-z0-9]+$').hasMatch(secretKey) &&
+        !(allowLive && RegExp(r'^live_sk_[A-Za-z0-9]+$').hasMatch(secretKey))) {
+      throw ArgumentError('Credential mode is not authorized');
     }
   }
   static const monthlyAmount = 2900;
@@ -45,11 +49,22 @@ class TossSandboxGateway {
     }
   }
 
+  void _providerKey(String value) {
+    // Provider tokens are opaque: billing keys can contain base64 + / =.
+    // Uri.pathSegments performs path escaping; do not constrain them as IDs.
+    if (value.isEmpty ||
+        value.length > 300 ||
+        value.codeUnits.any((c) => c < 33 || c > 126)) {
+      throw ArgumentError('Invalid provider reference');
+    }
+  }
+
   Future<Map<String, dynamic>> _request(
     String method,
     List<String> path, {
     Map<String, Object>? body,
     String? idempotencyKey,
+    bool allowEmpty = false,
   }) async {
     if (method == 'POST' &&
         (idempotencyKey == null ||
@@ -90,6 +105,7 @@ class TossSandboxGateway {
         uncertain: uncertain,
       );
     }
+    if (allowEmpty && response.body.isEmpty) return {};
     try {
       return jsonDecode(response.body) as Map<String, dynamic>;
     } catch (_) {
@@ -116,7 +132,7 @@ class TossSandboxGateway {
     if (value['customerKey'] != customerKey || key is! String || key.isEmpty) {
       throw const SandboxPaymentException('billing_identity', uncertain: true);
     }
-    _identifier(key);
+    _providerKey(key);
     return key;
   }
 
@@ -157,7 +173,7 @@ class TossSandboxGateway {
     required String orderId,
     required String idempotencyKey,
   }) async {
-    _identifier(billingKey);
+    _providerKey(billingKey);
     _identifier(customerKey);
     _identifier(orderId);
     if (orderId.length > 64) throw ArgumentError('Order ID is too long');
@@ -169,7 +185,7 @@ class TossSandboxGateway {
           'customerKey': customerKey,
           'amount': monthlyAmount,
           'orderId': orderId,
-          'orderName': '알파인더 광고 제거 1개월 (테스트)',
+          'orderName': '알파인더 광고 제거 1개월',
         },
         idempotencyKey: idempotencyKey,
       ),
@@ -185,6 +201,11 @@ class TossSandboxGateway {
     );
   }
 
+  Future<void> deleteBillingKey(String key) async {
+    _providerKey(key);
+    await _request('DELETE', ['v1', 'billing', key], allowEmpty: true);
+  }
+
   Future<SandboxPayment> refund({
     required String paymentKey,
     required String orderId,
@@ -196,7 +217,7 @@ class TossSandboxGateway {
       await _request(
         'POST',
         ['v1', 'payments', paymentKey, 'cancel'],
-        body: {'cancelReason': '샌드박스 전액 환불 검증'},
+        body: {'cancelReason': '광고 제거 이용권 결제 정리'},
         idempotencyKey: idempotencyKey,
       ),
       orderId,
@@ -206,4 +227,9 @@ class TossSandboxGateway {
     }
     return result;
   }
+}
+
+/// The provider verification runner never accepts a live key.
+class TossSandboxGateway extends TossPaymentsGateway {
+  TossSandboxGateway({required super.secretKey, required super.client});
 }

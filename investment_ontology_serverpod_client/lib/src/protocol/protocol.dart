@@ -53,6 +53,8 @@ import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
     as _iaic;
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
 import 'greetings/greeting.dart' as _izw8z7ou;
+import 'ontology/billing/billing_checkout_view.dart' as _iybkvk8h;
+import 'ontology/billing/membership_view.dart' as _ikugrjyl;
 import 'ontology/models/account_view.dart' as _i7n6g9s8;
 import 'ontology/models/ai_extraction.dart' as _idjojx8t;
 import 'ontology/models/ai_status.dart' as _i7c6k6qa;
@@ -180,6 +182,8 @@ import 'ontology/models/theme_member_view.dart' as _irah5hi6;
 import 'ontology/models/theme_summary.dart' as _i4ynus9k;
 import 'ontology/models/treasury_stock_entry.dart' as _injn1qca;
 export 'greetings/greeting.dart';
+export 'ontology/billing/billing_checkout_view.dart';
+export 'ontology/billing/membership_view.dart';
 export 'ontology/models/account_view.dart';
 export 'ontology/models/ai_extraction.dart';
 export 'ontology/models/ai_status.dart';
@@ -344,6 +348,12 @@ class Protocol extends _isc.SerializationManager {
 
     if (t == _izw8z7ou.Greeting) {
       return _izw8z7ou.Greeting.fromJson(data) as T;
+    }
+    if (t == _iybkvk8h.BillingCheckoutView) {
+      return _iybkvk8h.BillingCheckoutView.fromJson(data) as T;
+    }
+    if (t == _ikugrjyl.MembershipView) {
+      return _ikugrjyl.MembershipView.fromJson(data) as T;
     }
     if (t == _i7n6g9s8.AccountView) {
       return _i7n6g9s8.AccountView.fromJson(data) as T;
@@ -725,6 +735,16 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _isc.getType<_izw8z7ou.Greeting?>()) {
       return (data != null ? _izw8z7ou.Greeting.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_iybkvk8h.BillingCheckoutView?>()) {
+      return (data != null
+              ? _iybkvk8h.BillingCheckoutView.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _isc.getType<_ikugrjyl.MembershipView?>()) {
+      return (data != null ? _ikugrjyl.MembershipView.fromJson(data) : null)
+          as T;
     }
     if (t == _isc.getType<_i7n6g9s8.AccountView?>()) {
       return (data != null ? _i7n6g9s8.AccountView.fromJson(data) : null) as T;
@@ -1600,6 +1620,8 @@ class Protocol extends _isc.SerializationManager {
   static String? getClassNameForType(Type type) {
     return switch (type) {
       _izw8z7ou.Greeting => 'Greeting',
+      _iybkvk8h.BillingCheckoutView => 'BillingCheckoutView',
+      _ikugrjyl.MembershipView => 'MembershipView',
       _i7n6g9s8.AccountView => 'AccountView',
       _idjojx8t.AiExtraction => 'AiExtraction',
       _i7c6k6qa.AiStatus => 'AiStatus',
@@ -1745,6 +1767,10 @@ class Protocol extends _isc.SerializationManager {
     switch (data) {
       case _izw8z7ou.Greeting():
         return 'Greeting';
+      case _iybkvk8h.BillingCheckoutView():
+        return 'BillingCheckoutView';
+      case _ikugrjyl.MembershipView():
+        return 'MembershipView';
       case _i7n6g9s8.AccountView():
         return 'AccountView';
       case _idjojx8t.AiExtraction():
@@ -2021,6 +2047,12 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'Greeting') {
       return deserialize<_izw8z7ou.Greeting>(data['data']);
+    }
+    if (dataClassName == 'BillingCheckoutView') {
+      return deserialize<_iybkvk8h.BillingCheckoutView>(data['data']);
+    }
+    if (dataClassName == 'MembershipView') {
+      return deserialize<_ikugrjyl.MembershipView>(data['data']);
     }
     if (dataClassName == 'AccountView') {
       return deserialize<_i7n6g9s8.AccountView>(data['data']);

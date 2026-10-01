@@ -13,9 +13,13 @@ Future<void> main(List<String> args) async {
   }
 
   if (args.length != 1 ||
-      !const {'lookup', 'approve-and-refund'}.contains(args.single)) {
+      !const {
+        'lookup',
+        'approve-and-refund',
+        'charge-and-refund',
+      }.contains(args.single)) {
     stderr.writeln(
-      'Use lookup or approve-and-refund. Credentials/references must be environment variables.',
+      'Use lookup, approve-and-refund or charge-and-refund. Credentials/references must be environment variables.',
     );
     exitCode = 64;
     return;
@@ -34,11 +38,13 @@ Future<void> main(List<String> args) async {
       );
     } else {
       final customer = setting('TOSS_TEST_CUSTOMER_KEY');
-      final key = await gateway.issueBillingKey(
-        authKey: setting('TOSS_TEST_AUTH_KEY'),
-        customerKey: customer,
-        idempotencyKey: setting('TOSS_TEST_ISSUE_IDEMPOTENCY'),
-      );
+      final key = args.single == 'charge-and-refund'
+          ? setting('TOSS_TEST_BILLING_KEY')
+          : await gateway.issueBillingKey(
+              authKey: setting('TOSS_TEST_AUTH_KEY'),
+              customerKey: customer,
+              idempotencyKey: setting('TOSS_TEST_ISSUE_IDEMPOTENCY'),
+            );
       final p = await gateway.charge(
         billingKey: key,
         customerKey: customer,
@@ -64,10 +70,10 @@ Future<void> main(List<String> args) async {
   } on SandboxPaymentException catch (e) {
     stderr.writeln(e);
     exitCode = 1;
-  } catch (_) {
+  } catch (error) {
     // ArgumentError must not echo credential values into console output.
     stderr.writeln(
-      'Test setup failed. Check required variables and test-only key.',
+      'Test setup failed (${error.runtimeType}). Check required variables and test-only key.',
     );
     exitCode = 1;
   } finally {

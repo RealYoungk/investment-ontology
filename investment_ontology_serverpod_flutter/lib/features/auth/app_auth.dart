@@ -1,8 +1,9 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
 
 import '../../client.dart';
 import 'app_viewer.dart';
+import '../monetization/membership_monitor.dart';
 
 /// 클라이언트의 로그인 상태를 앱의 [AppViewer]로 옮긴다.
 ///
@@ -12,14 +13,25 @@ abstract final class AppAuth {
   static final viewer = ValueNotifier<AppViewer?>(null);
 
   static bool _bound = false;
+  static final _source = ValueNotifier<AppViewer?>(null);
+  static MembershipMonitor? _membership;
+  static AppLifecycleListener? _lifecycle;
+
+  static Future<void> refreshMembership() async => _membership?.refresh();
 
   /// [initializeClient] 뒤에 한 번.
   static void bind(FlutterAuthSessionManager auth) {
     if (_bound) return;
     _bound = true;
+    final monitor = _membership = MembershipMonitor(
+      source: _source,
+      fetch: () => client.membership.status(),
+    );
+    monitor.viewer.addListener(() => viewer.value = monitor.viewer.value);
+    _lifecycle ??= AppLifecycleListener(onResume: () => refreshMembership());
     void sync() {
       final info = auth.authInfo;
-      viewer.value = info == null
+      _source.value = info == null
           ? null
           : AppViewer.fromScopes(info.authUserId.uuid, info.scopeNames);
     }

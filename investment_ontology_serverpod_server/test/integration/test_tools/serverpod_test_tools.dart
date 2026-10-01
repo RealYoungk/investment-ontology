@@ -31,6 +31,10 @@ import 'package:investment_ontology_serverpod_server/src/generated/future_calls_
     as _i0e4uq1b;
 import 'package:investment_ontology_serverpod_server/src/generated/greetings/greeting.dart'
     as _isd101g2;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/billing/billing_checkout_view.dart'
+    as _i9ji3lii;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/billing/membership_view.dart'
+    as _irqqq4jy;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/account_view.dart'
     as _ig2zry29;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/ai_extraction.dart'
@@ -301,6 +305,8 @@ class TestEndpoints {
 
   late final _MarketEndpoint market;
 
+  late final _MembershipEndpoint membership;
+
   late final _ReviewEndpoint review;
 
   late final _ScreenEndpoint screen;
@@ -371,6 +377,10 @@ class _InternalTestEndpoints extends TestEndpoints
       endpoints,
       serializationManager,
     );
+    membership = _MembershipEndpoint(
+      endpoints,
+      serializationManager,
+    );
     review = _ReviewEndpoint(
       endpoints,
       serializationManager,
@@ -388,6 +398,8 @@ class _InternalTestEndpoints extends TestEndpoints
 
 class _FutureCalls {
   late final aiExtraction = _AiExtractionFutureCall();
+
+  late final billing = _BillingFutureCall();
 
   late final companyMaster = _CompanyMasterFutureCall();
 
@@ -2719,6 +2731,176 @@ class _MarketEndpoint {
   }
 }
 
+class _MembershipEndpoint {
+  _MembershipEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _is.EndpointDispatch _endpointDispatch;
+
+  final _is.SerializationManager _serializationManager;
+
+  _ida.Future<_irqqq4jy.MembershipView> status(
+    _ist.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'membership',
+            method: 'status',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'membership',
+          methodName: 'status',
+          parameters: _ist.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_irqqq4jy.MembershipView>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_i9ji3lii.BillingCheckoutView> beginCheckout(
+    _ist.TestSessionBuilder sessionBuilder,
+    String acceptedTestTerms,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'membership',
+            method: 'beginCheckout',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'membership',
+          methodName: 'beginCheckout',
+          parameters: _ist.testObjectToJson({
+            'acceptedTestTerms': acceptedTestTerms,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_i9ji3lii.BillingCheckoutView>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_irqqq4jy.MembershipView> completeCheckout(
+    _ist.TestSessionBuilder sessionBuilder,
+    String state,
+    String authKey,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'membership',
+            method: 'completeCheckout',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'membership',
+          methodName: 'completeCheckout',
+          parameters: _ist.testObjectToJson({
+            'state': state,
+            'authKey': authKey,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_irqqq4jy.MembershipView>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<void> abortCheckout(
+    _ist.TestSessionBuilder sessionBuilder,
+    String state,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'membership',
+            method: 'abortCheckout',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'membership',
+          methodName: 'abortCheckout',
+          parameters: _ist.testObjectToJson({'state': state}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<void> cancelRenewal(
+    _ist.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'membership',
+            method: 'cancelRenewal',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'membership',
+          methodName: 'cancelRenewal',
+          parameters: _ist.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
 class _ReviewEndpoint {
   _ReviewEndpoint(
     this._endpointDispatch,
@@ -3619,6 +3801,34 @@ class _AiExtractionFutureCall {
       await _i4o8e4lj.AiExtractionRunFutureCall().invoke(
         _localUniqueSession,
         object,
+      );
+    } finally {
+      await _localUniqueSession.close();
+    }
+  }
+}
+
+class _BillingFutureCall {
+  Future<void> run(_ist.TestSessionBuilder sessionBuilder) async {
+    var _localUniqueSession =
+        (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild();
+    try {
+      await _i4o8e4lj.BillingRunFutureCall().invoke(
+        _localUniqueSession,
+        null,
+      );
+    } finally {
+      await _localUniqueSession.close();
+    }
+  }
+
+  Future<void> scan(_ist.TestSessionBuilder sessionBuilder) async {
+    var _localUniqueSession =
+        (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild();
+    try {
+      await _i4o8e4lj.BillingScanFutureCall().invoke(
+        _localUniqueSession,
+        null,
       );
     } finally {
       await _localUniqueSession.close();

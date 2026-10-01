@@ -24,6 +24,37 @@ void main() {
     orderId: 'order_123456',
     idempotencyKey: 'attempt_123456',
   );
+  test('opaque base64 billing key is accepted and path escaped', () async {
+    final opaqueKey = 'billing+/reference==';
+    gateway = TossSandboxGateway(
+      secretKey: 'test_sk_fixture',
+      client: MockClient((r) async {
+        expect(r.url.pathSegments.last, opaqueKey);
+        expect(r.url.pathSegments.length, 3);
+        return http.Response(jsonEncode(payment()), 200);
+      }),
+    );
+    await gateway.charge(
+      billingKey: opaqueKey,
+      customerKey: 'customer_123456',
+      orderId: 'order_123456',
+      idempotencyKey: 'attempt_123456',
+    );
+  });
+  test(
+    'billing reference deletion accepts empty 204 and escapes opaque key',
+    () async {
+      gateway = TossSandboxGateway(
+        secretKey: 'test_sk_fixture',
+        client: MockClient((r) async {
+          expect(r.method, 'DELETE');
+          expect(r.url.pathSegments.last, 'opaque+/key==');
+          return http.Response('', 204);
+        }),
+      );
+      await gateway.deleteBillingKey('opaque+/key==');
+    },
+  );
   test('live credentials rejected before any network request', () {
     expect(
       () => TossSandboxGateway(

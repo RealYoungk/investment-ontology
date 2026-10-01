@@ -1,0 +1,16 @@
+class: BillingCheckout
+table: billing_checkout
+serverOnly: true
+fields:
+  ownerId: UuidValue
+  subscriptionId: int, relation(parent=billing_subscription)
+  stateHash: String
+  expiresUtc: DateTime
+  status: String
+  termsVersion: String?
+  acceptedAtUtc: DateTime?
+  issueIdempotencyKey: String
+indexes:
+  billing_checkout_state_idx:
+    fields: stateHash
+    unique: true

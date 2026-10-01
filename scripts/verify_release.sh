@@ -13,7 +13,7 @@ flutter pub get --enforce-lockfile
 dart analyze --fatal-infos
 git ls-files -z '*.dart' | python3 -c 'import sys; paths=sys.stdin.buffer.read().split(b"\0"); excluded=(b"investment_ontology_serverpod_client/", b"investment_ontology_serverpod_server/lib/src/generated/", b"investment_ontology_serverpod_server/test/integration/test_tools/"); sys.stdout.buffer.write(b"\0".join(p for p in paths if p and not p.startswith(excluded))+b"\0")' | xargs -0 dart format --output=none --set-exit-if-changed
 python3 -m unittest discover -s scripts/tests -v
-node --test investment_ontology_serverpod_flutter/test/web/ad_loader_test.cjs
+node --test investment_ontology_serverpod_flutter/test/web/*_test.cjs
 bash scripts/test-server.sh
 (cd investment_ontology_serverpod_flutter && flutter test && flutter build web --release)
 python3 scripts/prepare_public_web.py

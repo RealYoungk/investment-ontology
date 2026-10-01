@@ -78,6 +78,12 @@ market:
   - capHistory:
   - indexHistory:
   - priceHistory:
+membership:
+  - status:
+  - beginCheckout:
+  - completeCheckout:
+  - abortCheckout:
+  - cancelRenewal:
 review:
   - list:
   - decide:
