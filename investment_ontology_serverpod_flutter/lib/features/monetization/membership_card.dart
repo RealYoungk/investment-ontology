@@ -29,7 +29,7 @@ class MembershipCard extends StatelessWidget {
           Text(
             adFree
                 ? '이 계정으로 로그인하면 광고를 표시하지 않습니다.'
-                : '기업 정보는 무료로 조회할 수 있습니다. 광고 없이 이용하는 유료 옵션을 준비하고 있습니다.',
+                : '기업 정보는 무료로 조회할 수 있습니다. 광고 제거 이용권은 월 2,900원으로 준비하고 있습니다.',
             style: t.body(14, color: c.textSecondary),
           ),
           if (!adFree) ...[
