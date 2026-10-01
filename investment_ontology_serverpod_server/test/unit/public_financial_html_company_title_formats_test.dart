@@ -167,22 +167,61 @@ void main() {
       throwsFormatException,
     );
   });
-  test('year-only financial titles remain unsupported', () {
+  List<Map<String, dynamic>> parseCnsTitles({
+    String receipt = '20260319000677',
+    bool foreignScope = false,
+  }) {
     const r = '20260319000677';
-    expect(
-      () => PublicFinancialHtml.parseStandardAnnual(
-        coverHtml: fixture(r, 'cover'),
-        statementHtml: fixture(r, 'ofs'),
-        coverSource: uri(r, 'cover'),
-        statementSource: uri(r, 'ofs'),
-        receipt: r,
-        corpCode: '01116380',
-        companyName: '씨앤에스링크',
-        periodStart: DateTime.utc(2025),
-        periodEnd: DateTime.utc(2025, 12, 31),
-        consolidated: false,
-      ),
-      throwsFormatException,
+    Uri source(String node) => foreignScope
+        ? uri(r, node).replace(
+            queryParameters: {
+              ...uri(r, node).queryParameters,
+              'rcpNo': receipt,
+            },
+          )
+        : uri(r, node);
+    return PublicFinancialHtml.parseStandardAnnual(
+      coverHtml: fixture(r, 'cover'),
+      statementHtml: fixture(r, 'ofs'),
+      coverSource: source('cover'),
+      statementSource: source('ofs'),
+      receipt: receipt,
+      corpCode: '01116380',
+      companyName: '씨앤에스링크',
+      periodStart: DateTime.utc(2025),
+      periodEnd: DateTime.utc(2025, 12, 31),
+      consolidated: false,
     );
-  });
+  }
+
+  test(
+    'exact CNS year-only titles have corroborated primary period evidence',
+    () {
+      final rows = parseCnsTitles();
+      expect(rows.length, 7);
+      expect(rows.every((r) => r['account_id'] == null), isTrue);
+      final evidence =
+          (rows.first['html_provenance'] as Map)['supportingPeriodEvidence']
+              as Map;
+      expect(
+        evidence['mode'],
+        'same-document-equity-change-period-corroboration',
+      );
+      expect(evidence['currentTerm'], '26');
+      expect(evidence['periodStart'], '2025-01-01');
+      expect(evidence['periodEnd'], '2025-12-31');
+      expect(evidence['closingEquity'], '3800784543');
+      expect(evidence['currentProfit'], '1179965236');
+      expect(evidence['source'], uri('20260319000677', 'ofs').toString());
+    },
+  );
+  test(
+    'other receipt year-only titles remain unsupported even with matching URLs',
+    () {
+      expect(
+        () => parseCnsTitles(receipt: '20260319000678', foreignScope: true),
+        throwsFormatException,
+      );
+    },
+  );
 }
