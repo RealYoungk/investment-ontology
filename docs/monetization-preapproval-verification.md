@@ -83,8 +83,8 @@ Auto Ads OFF를 관리 화면에서 현재 확인한 뒤 별도 임시 진단 �
 ## 후속 보완과 검증 (2026-10-01)
 
 - Google 계정에서 기존 EU 메시지 게시와 첫 화면 거절 선택을 확인했다. 없었던 미국 메시지 `Alfinder US opt-out`을 alfinder.kr에만 만들고 기존 브랜드 로고를 등록하여 **게시됨**을 확인했다. Google 화면은 전파에 최대 1시간이 걸릴 수 있다고 안내한다. Auto Ads/사이트 승인/실광고 플래그를 변경하지 않았다.
-- GDPR 비적용이어도 미국 초기 상태 UNKNOWN/OPTED_OUT, GPC, GPP 누락이면 AdSense tag를 로드하지 않는다. DOES_NOT_APPLY만 직접 허용하며 NOT_OPTED_OUT은 GPP loaded/ready를 추가 확인한다. 이후 sectionChange/화면 재표시/신호·CMP 오류는 기존 slot과 진행 중 push를 무효화한다.
-- JavaScript 30개 통과. 실제 브라우저 DOM/운영 loader 모의 공급자 harness는 미국 불명·거부·GPC·GPP 누락·허용·철회를 추가하여 **17/17** 통과했다. 일반 Flutter Web + 인증 RPC + 격리 DB 회원 전환은 **9/9** 통과했다. Google/Toss 전송 응답 모의라는 한계는 그대로다.
+- GDPR 비적용이어도 미국 초기 상태 UNKNOWN/OPTED_OUT, GPC, GPP 누락이면 AdSense tag를 로드하지 않는다. DOES_NOT_APPLY만 직접 허용하며 NOT_OPTED_OUT은 GPP loaded/ready를 추가 확인한다. 이후 sectionChange/화면 재표시/신호·CMP 오류는 기존 slot과 진행 중 push를 무효화한다. 초기 상태 API는 pageview 시작 값을 유지하므로, 새 mount에서도 최신 GPP parsedSections의 SaleOptOut/SharingOptOut/TargetedAdvertisingOptOut 및 Gpc를 확인한다. 거부1/불명·누락이면 차단한다.
+- JavaScript 32개 통과. 실제 브라우저 DOM/운영 loader 모의 공급자 harness는 미국 불명·거부·GPC·GPP 누락·허용·철회를 추가하여 **18/18** 통과했다. 일반 Flutter Web + 인증 RPC + 격리 DB 회원 전환은 **9/9** 통과했다. Google/Toss 전송 응답 모의라는 한계는 그대로다.
 - 집중 서버 검증은 **75개** 통과했다. 공급자 직접 전액 취소를 현재 paid 기간의 동일 주문 GET으로 확인하고, 금액/통화/주문/결제 식별자/잔액0 검증 후 원장·권한·키 삭제를 반영한다. 중복 조회, 갱신 해지 상태, 조회 오류/다른 paymentKey, 만료된 기간 제외와 청구 중단 중 GET-only 복구를 검증했다. raw webhook이 권한을 주는 경로는 없다. 현재 paid 대사는 구독당 최대 월 회차 수만큼 5분마다 GET하며 가입자 증가 시 호출량을 점검한다.
 - 신규 중단 설정 `ALFINDER_BILLING_CHARGES_PAUSED=true`는 과거 주문 처리와 판매 중단을 분리한다. 실판매 전 이 설정으로 paymentAvailable=false/신규 POST0/갱신 POST0/기존 GET 및 환불 가능을 상점 테스트 환경에서 확인한다. 기존 활성화 조건을 우회하지 않으며 운영 활성화 플래그는 계속 false다.
 
@@ -95,3 +95,11 @@ Auto Ads OFF를 관리 화면에서 현재 확인한 뒤 별도 임시 진단 �
 안전한 재현: 새 임시 운영-origin 탭에서 CDP Network.setBlockedURLs로 `*googlesyndication.com/pagead/ads*`, `*doubleclick.net*`, 광고 측정 경로를 먼저 차단 → Google callbackQueue의 API_READY/DATA_READY 및 TCF/GPP 안전한 상태 필드만 관찰 → 공식 AdSense tag를 pauseAdRequests=1로 로드 → test-only 단위의 push도 중지 상태로만 진단한다. 실행 중인 운영 앱/파일/플래그는 바꾸지 않는다. 원시 Google 식별 URL/쿠키는 저장하지 않는다. 임시 탭을 닫아 주입을 제거한다. 이 진단에서 inventory를 막는 것은 성공한 실제 광고 송출 검증이 아니다. 중지된 태그로 메시지 UI가 표시되지 않으면 공급자 설치 경로 문제를 해결하고 재검증하기 전 PRIVACY_READY를 켜지 않는다.
 
 공식 설치/진단: https://support.google.com/adsense/answer/14660912?hl=en (동일 게시자·최상위 창·cross-origin referrer; 운영 header strict-origin-when-cross-origin 확인). 요청 중지 API: https://support.google.com/adsense/answer/9042142?hl=en. 미국/GPP API: https://developers.google.com/funding-choices/fc-api-docs. webhook 종류: https://docs.tosspayments.com/reference/using-api/webhook-events.
+
+### 후속 실제 US runtime 확인
+
+US 메시지 게시 후 운영 origin /cookies?fc=alwaysshow&fctype=usnat의 임시 탭에서 메시지 전용 tag가 실제 Google `Do Not Sell or Share My Personal Information` 링크·확인 창을 표시했다. Dismiss 후 GPP loaded/ready, 초기 상태 NOT_OPTED_OUT(2)를 확인했고 다시 열어 Opt out을 누르자 sectionChange 및 not ready → ready를 관찰했다. 최신 applicableSections=[7], parsed usnat의 SaleOptOut/SharingOptOut/TargetedAdvertisingOptOut은 모두1인데 **초기 API는2로 유지**되어, remount 시 최신 parsedSections까지 읽도록 보완했다. 이 구간 AdSense script/ins/inventory 요청은0이다. 실제 US 메시지 표시·거부·GPP 변화 증거이며, 정상 지역 IP 판정/허용 후 실제 광고 송출을 대신하지 않는다. 콜백은 callbackQueue에 각 키를 별도 객체로 등록해 관찰한다.
+
+EU는 별도 콜백 등록에서도 API_READY/DATA_READY와 cmpId300/loaded/gdprApplies=true만 확인되고 eventStatus·purpose/vendor 동의·동의창이 없어 미완료다. 계정에는 alfinder.kr 대상 EU 메시지 게시와 거절 버튼, 일반 파트너198개가 설정되어 있다. 새 동의 쿠키 상태와 정식 tag의 요청 중지 진단으로도 EU UI를 확인하지 못했다. 이 문제를 사이트 승인만으로 해결된다고 주장하지 않는다. US에서 동작했다는 증거도 EU 전체 통합의 보증은 아니다.
+
+운영 파비콘 별도 패치가 배포되어 있어, 새 릴리스로 이전 Flutter 아이콘이 복원되지 않도록 공개 운영 PNG8개와 동일 link meta를 격리 소스에 포함했다. 기본 체크아웃의 미커밋 변경은 손대지 않았다. 이후 배포는 별도 asset patch가 아니라 검증된 Git 파일로 재현한다.

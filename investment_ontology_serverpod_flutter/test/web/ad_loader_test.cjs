@@ -199,7 +199,7 @@ test('US GPP ready permits once; a signal change invalidates before or after inv
  for(const [loaded,signal] of [[false,'not ready'],[true,'not ready'],[true,'error']]) {
   const e=environment();e.root.googlefc.usstatesoptout.getInitialUsStatesOptOutStatus=()=>2;
   let callback;
-  e.root.__gpp=(cmd,cb)=>{if(cmd==='addEventListener'){callback=cb;cb({listenerId:1,eventName:'listenerRegistered',pingData:{cmpStatus:'loaded',signalStatus:'ready'}},true);}};
+  e.root.__gpp=(cmd,cb)=>{if(cmd==='addEventListener'){callback=cb;cb({listenerId:1,eventName:'listenerRegistered',pingData:{cmpStatus:'loaded',signalStatus:'ready',parsedSections:{usnat:{SaleOptOut:2,SharingOptOut:2,TargetedAdvertisingOptOut:2}}}},true);}};
   const el=e.element(),p=e.root.alfinderAds.mount(el,publisher,slot,false);await e.tick();
   assert.equal(e.scripts.length,1);
   if(loaded){e.scripts[0].onload();await e.tick();assert.equal(e.root.adsbygoogle.length,1);}
@@ -214,4 +214,23 @@ test('only documented CMP previews are forwarded, never activation or arbitrary 
  e.root.alfinderAds.mount(e.element(),publisher,slot,false);await e.tick();
  assert.match(e.cmpScripts[0].src,/\?ers=1&fc=alwaysshow&fctype=gdpr$/);
  assert.equal(e.cmpScripts[0].src.includes('enabled'),false);
+});
+
+
+test('cached US initial allow cannot override a current opt-out on remount',async()=>{
+ const e=environment();e.root.googlefc.usstatesoptout.getInitialUsStatesOptOutStatus=()=>2;
+ let optedOut=false;
+ e.root.__gpp=(cmd,cb)=>{if(cmd==='addEventListener')cb({listenerId:1,eventName:'listenerRegistered',pingData:{cmpStatus:'loaded',signalStatus:'ready',parsedSections:{usnat:{SaleOptOut:optedOut?1:2,SharingOptOut:optedOut?1:2,TargetedAdvertisingOptOut:optedOut?1:2}}}},true);};
+ const first=e.element();e.root.alfinderAds.mount(first,publisher,slot,false);await e.tick();assert.equal(e.scripts.length,1);
+ e.root.alfinderAds.dispose(first);optedOut=true;
+ const remount=e.root.alfinderAds.mount(e.element(),publisher,slot,false);await e.tick();
+ assert.equal(await remount,false);assert.equal(e.scripts.length,1);assert.equal(e.root.adsbygoogle,undefined);
+});
+test('ready GPP with missing or unknown parsed choices remains blocked',async()=>{
+ for(const parsedSections of [undefined,{}, {usnat:{SaleOptOut:undefined}}, {usnat:{SaleOptOut:4}}]){
+  const e=environment();e.root.googlefc.usstatesoptout.getInitialUsStatesOptOutStatus=()=>2;
+  e.root.__gpp=(cmd,cb)=>{if(cmd==='addEventListener')cb({listenerId:1,eventName:'listenerRegistered',pingData:{cmpStatus:'loaded',signalStatus:'ready',parsedSections}},true);};
+  const p=e.root.alfinderAds.mount(e.element(),publisher,slot,false);await e.tick();for(const fn of [...e.timers.values()])fn();await e.tick();
+  assert.equal(await p,false);assert.equal(e.scripts.length,0);
+ }
 });
