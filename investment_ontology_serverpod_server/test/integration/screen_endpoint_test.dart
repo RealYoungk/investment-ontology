@@ -325,6 +325,75 @@ void main() {
       );
     });
 
+    test('twenty global observed dates do not fill a missing security row from the twenty-first date', () async {
+      await volumeHistory(days: 21);
+      final security = (await Security.db.find(
+        session,
+        where: (t) => t.shortCode.equals('000001'),
+      )).single;
+      final latest = DateTime.utc(2026, 9, 16);
+      final missing = (await MarketSnapshot.db.find(
+        session,
+        where: (t) =>
+            t.securityId.equals(security.id!) &
+            t.baseDate.equals(latest.subtract(const Duration(days: 5))),
+      )).single;
+      await MarketSnapshot.db.deleteRow(session, missing);
+      final page = await endpoints.screen.list(sessionBuilder);
+      expect(
+        page.items.firstWhere((r) => r.company.name == '큰회사').volumeRatio,
+        isNull,
+      );
+    });
+
+    test('holiday ledger rows and a second security cannot alter the representative twenty-session volume', () async {
+      await volumeHistory(days: 21);
+      final holiday = (await MarketSnapshotDay.db.find(
+        session,
+        where: (t) => t.baseDate.equals(DateTime.utc(2026, 9, 15)),
+      )).single;
+      holiday.rowCount = 0;
+      await MarketSnapshotDay.db.updateRow(session, holiday);
+      final security = (await Security.db.find(
+        session,
+        where: (t) => t.shortCode.equals('000001'),
+      )).single;
+      final holidayQuote = (await MarketSnapshot.db.find(
+        session,
+        where: (t) =>
+            t.securityId.equals(security.id!) &
+            t.baseDate.equals(holiday.baseDate),
+      )).single;
+      holidayQuote.volume = BigInt.from(999999);
+      await MarketSnapshot.db.updateRow(session, holidayQuote);
+      final other = await Security.db.insertRow(
+        session,
+        Security(
+          isinCode: 'KR_OTHER',
+          shortCode: '999998',
+          name: 'another security',
+          companyId: big.id,
+          lastSeenDate: DateTime.utc(2026, 9, 16),
+        ),
+      );
+      await MarketSnapshot.db.insertRow(
+        session,
+        MarketSnapshot(
+          securityId: other.id!,
+          baseDate: DateTime.utc(2026, 9, 16),
+          marketCap: BigInt.one,
+          volume: BigInt.from(999999),
+          listedShares: BigInt.one,
+          sourceId: source.id!,
+        ),
+      );
+      final page = await endpoints.screen.list(sessionBuilder);
+      expect(
+        page.items.firstWhere((r) => r.company.name == '큰회사').volumeRatio,
+        2,
+      );
+    });
+
     for (final scenario in ['short', 'zero', 'split', 'missing']) {
       test('거래량 배수에서 $scenario 자료를 0이나 정상 값으로 대체하지 않는다', () async {
         await volumeHistory(
