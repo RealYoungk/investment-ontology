@@ -853,6 +853,18 @@ abstract final class PublicFinancialHtml {
       );
     }
 
+    // The exact TXR source prints one blank label header before three terms.
+    // This profile changes no statement, period, unit or numeric checks.
+    final txrBlankHeader =
+        receipt == '20250526000504' &&
+        corpCode == '01458161' &&
+        !consolidated &&
+        periodStart == DateTime.utc(2024) &&
+        periodEnd == DateTime.utc(2024, 12, 31) &&
+        statementSource.queryParameters['dcmNo'] == '10659954' &&
+        statementSource.queryParameters['eleId'] == '23' &&
+        statementSource.queryParameters['offset'] == '583619' &&
+        statementSource.queryParameters['length'] == '51351';
     final result = <Map<String, dynamic>>[];
     final values = <String, BigInt>{};
     final missingOptional = <Map<String, dynamic>>[];
@@ -870,7 +882,8 @@ abstract final class PublicFinancialHtml {
         dotAll: true,
       ).firstMatch(table.group(1)!);
       if (first == null ||
-          !{'과목', '구분', '계정과목'}.contains(_compact(_text(first.group(1)!)))) {
+          (!{'과목', '구분', '계정과목'}.contains(_compact(_text(first.group(1)!))) &&
+              !(txrBlankHeader && _compact(_text(first.group(1)!)).isEmpty))) {
         continue;
       }
       // A dated primary equity-change table is outside this core-row scope.
@@ -942,6 +955,17 @@ abstract final class PublicFinancialHtml {
         throw const FormatException('Ambiguous annual current header');
       }
       final current = headers.single;
+      if (txrBlankHeader && _compact(grid.first.first?.text ?? '').isEmpty) {
+        if (grid.first.length != 4 ||
+            current.column != 1 ||
+            grid.first.any(
+              (c) => c == null || c.colspan != 1 || c.rowspan != 1,
+            ) ||
+            grid.first.map((c) => _compact(c!.text)).join('|') !=
+                '|제8기|제7기|제6기') {
+          throw const FormatException('TXR blank header profile mismatch');
+        }
+      }
       if (current.column < 1 || current.colspan > 2 || current.rowspan != 1) {
         throw const FormatException('Unsupported annual current group');
       }
