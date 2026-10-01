@@ -1050,6 +1050,37 @@ class FinancialFactsSync {
             s == FilingFetchStatus.noData,
       );
 
+  /// Queue order only for four actual source fixtures validated by this revision.
+  /// A verified non-preparer CFS is eligible for evidence-backed noData, not
+  /// numeric storage; unsupported bases, completed bases and exhausted public
+  /// attempts never gain priority. Existing API/ledger attempt counters remain.
+  static bool verifiedDurationSourceRecoveryPriority(DartFiling filing) {
+    const fixtures = <String, ({String corp, int year, Set<String> bases})>{
+      '20251124000372': (corp: '01669794', year: 2024, bases: {'OFS'}),
+      '20250320001616': (corp: '00442631', year: 2024, bases: {'OFS', 'CFS'}),
+      '20250318000596': (corp: '01352575', year: 2024, bases: {'OFS', 'CFS'}),
+      '20260318001043': (corp: '01018802', year: 2025, bases: {'CFS'}),
+    };
+    final proof = fixtures[filing.rceptNo];
+    final name = DartReportName.parse(filing.reportName);
+    if (proof == null ||
+        filing.corpCode != proof.corp ||
+        filing.reportCode != FinancialReportCode.annual ||
+        filing.bsnsYear != proof.year ||
+        name?.kind != DartReportKind.annual ||
+        name?.periodYear != proof.year ||
+        name?.periodMonth != 12 ||
+        _annualPublicAttempts(filing) >= 3) {
+      return false;
+    }
+    bool needs(FilingFetchStatus status) =>
+        status == FilingFetchStatus.pending ||
+        status == FilingFetchStatus.failed ||
+        status == FilingFetchStatus.noData && !_isAnnualPublicRecovery(filing);
+    return proof.bases.contains('CFS') && needs(filing.consolidatedStatus) ||
+        proof.bases.contains('OFS') && needs(filing.separateStatus);
+  }
+
   Future<({int stored, int failed, int processed, int remaining, bool fresh})>
   _recoverAnnualApiNoData(
     Set<int> scopeIds,
@@ -1126,6 +1157,14 @@ class FinancialFactsSync {
       '20260331004755': {'OFS'},
     };
     bool verifiedParserPending(DartFiling f) {
+      if ({
+        '20251124000372',
+        '20250320001616',
+        '20250318000596',
+        '20260318001043',
+      }.contains(f.rceptNo)) {
+        return verifiedDurationSourceRecoveryPriority(f);
+      }
       if (f.rceptNo == '20250526000504') {
         return verifiedTxrRecoveryPriority(f);
       }
