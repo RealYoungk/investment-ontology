@@ -24,6 +24,91 @@ FinancialFact fact(
 );
 
 void main() {
+  test('term deposits stay separate from cash equivalents and other financial assets', () {
+    final lines = FinancialAccounts.pick([
+      fact(
+        '현금및현금성자산',
+        accountId: 'ifrs-full_CashAndCashEquivalents',
+        statement: FinancialStatementKind.balanceSheet,
+      ),
+      fact(
+        '단기금융상품',
+        accountId: 'ifrs-full_ShorttermDepositsNotClassifiedAsCashEquivalents',
+        statement: FinancialStatementKind.balanceSheet,
+      ),
+      fact(
+        '기타금융자산',
+        accountId: 'ifrs-full_OtherCurrentFinancialAssets',
+        statement: FinancialStatementKind.balanceSheet,
+      ),
+    ]);
+    expect(lines.map((l) => l.key), ['cash', 'shortTermDeposits']);
+    expect(
+      FinancialAccounts.pick([
+        fact(
+          '단기금융상품',
+          accountId:
+              'ifrs-full_ShorttermDepositsNotClassifiedAsCashEquivalents',
+          statement: FinancialStatementKind.cashFlow,
+        ),
+      ]),
+      isEmpty,
+    );
+  });
+
+  test(
+    'prior owners comparison conflicts are blocked without altering raw facts',
+    () {
+      final owners = fact(
+        '지배주주 순이익',
+        accountId: 'ifrs-full_ProfitLossAttributableToOwnersOfParent',
+      )..priorCumulativeAmount = BigInt.zero;
+      final total = fact('순이익', accountId: 'ifrs-full_ProfitLoss')
+        ..priorCumulativeAmount = BigInt.from(-2715804289);
+      final minority = fact(
+        '비지배 순이익',
+        accountId: 'ifrs-full_ProfitLossAttributableToNoncontrollingInterests',
+      )..priorCumulativeAmount = BigInt.zero;
+      final picked = FinancialAccounts.pick([owners, total, minority]);
+      final result = picked.firstWhere((l) => l.key == 'netIncomeOwners');
+      expect(result.priorSameCumulativeAmount, isNull);
+      expect(result.priorSameUnavailableReason, contains('합계 불일치'));
+      expect(result.amount, owners.amount);
+      expect(owners.priorCumulativeAmount, BigInt.zero);
+      owners.priorCumulativeAmount = total.priorCumulativeAmount;
+      expect(
+        FinancialAccounts.pick([owners, total, minority])
+            .firstWhere((l) => l.key == 'netIncomeOwners')
+            .priorSameCumulativeAmount,
+        total.priorCumulativeAmount,
+      );
+    },
+  );
+
+  test(
+    'interim P/L quarter comparisons never stand in for cumulative amounts',
+    () {
+      final revenue = fact('매출액', accountId: 'ifrs-full_Revenue')
+        ..priorQuarterAmount = BigInt.from(19);
+      expect(
+        FinancialAccounts.pick([revenue]).single.priorSameCumulativeAmount,
+        isNull,
+      );
+      revenue.reportCode = FinancialReportCode.q1;
+      expect(
+        FinancialAccounts.pick([revenue]).single.priorSameCumulativeAmount,
+        BigInt.from(19),
+      );
+      revenue.reportCode = FinancialReportCode.halfYear;
+      revenue.statement = FinancialStatementKind.cashFlow;
+      revenue.accountId = 'ifrs-full_CashFlowsFromUsedInOperatingActivities';
+      expect(
+        FinancialAccounts.pick([revenue]).single.priorSameCumulativeAmount,
+        BigInt.from(19),
+      );
+    },
+  );
+
   test(
     'alternate IFRS operating ID and Unicode spaces resolve consistently',
     () {

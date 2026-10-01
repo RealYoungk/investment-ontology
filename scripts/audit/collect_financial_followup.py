@@ -1,0 +1,35 @@
+# Read-only local API snapshot; uses existing public endpoints, never bypasses auth.
+import urllib.request,json,concurrent.futures,pathlib,time,sys
+out=pathlib.Path('outputs/financial-followup-2026-10-01/api');out.mkdir(exist_ok=True,parents=True)
+def call(route,payload):
+ req=urllib.request.Request('http://localhost:8080/'+route,data=json.dumps(payload).encode(),headers={'Content-Type':'application/json'})
+ for attempt in range(4):
+  try:
+   with urllib.request.urlopen(req,timeout=90) as r:return json.load(r)
+  except Exception:
+   if attempt==3:raise
+   time.sleep(0.5*(attempt+1))
+rows=[]
+for offset in range(0,10000,200):
+ page=call('company/list',{'limit':200,'offset':offset});rows+=page['items']
+ if len(rows)>=page['total']:break
+(out/'companies.json').write_text(json.dumps(rows,ensure_ascii=False))
+def run(row):
+ code=row['corpCode'];p=out/(code+'.json')
+ try:
+  x=call('financial/summary',{'corpCode':code})
+  tmp=p.with_suffix('.tmp');tmp.write_text(json.dumps(x,ensure_ascii=False));tmp.replace(p)
+  for basis in x['availableFsDivs']:
+   data=x if x.get('fsDiv')==basis else call('financial/summary',{'corpCode':code,'fsDiv':basis})
+   (out/(code+'_'+basis+'.json')).write_text(json.dumps(data,ensure_ascii=False))
+  return None
+ except Exception as e:return {'corpCode':code,'error':str(e)}
+if '--retry' in sys.argv:
+ failed={x['corpCode'] for x in json.loads((out/'errors.json').read_text())}
+ rows=[r for r in rows if r['corpCode'] in failed]
+errors=[]
+with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
+ for i,result in enumerate(pool.map(run,rows),1):
+  if result:errors.append(result)
+  if i%200==0:print(i,'/',len(rows),flush=True)
+(out/'errors.json').write_text(json.dumps(errors));print('done',len(rows),'errors',len(errors),flush=True)

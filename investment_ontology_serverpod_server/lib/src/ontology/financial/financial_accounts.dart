@@ -1,4 +1,5 @@
 import '../../generated/protocol.dart';
+import 'financial_comparatives.dart';
 
 /// 화면에 쓰는 핵심 계정.
 ///
@@ -67,6 +68,9 @@ abstract final class FinancialAccounts {
     FinancialAccount('amortisation', '무형자산상각비', [
       'ifrs-full_AdjustmentsForAmortisationExpense',
     ], _cf),
+    FinancialAccount('shortTermDeposits', '단기금융상품', [
+      'ifrs-full_ShorttermDepositsNotClassifiedAsCashEquivalents',
+    ], _bs),
     FinancialAccount('assets', '자산총계', ['ifrs-full_Assets'], _bs),
     FinancialAccount('liabilities', '부채총계', ['ifrs-full_Liabilities'], _bs),
     FinancialAccount('equity', '자본총계', ['ifrs-full_Equity'], _bs),
@@ -94,6 +98,7 @@ abstract final class FinancialAccounts {
 
   static final Set<String> accountIds = {
     for (final a in all) ...a.accountIds,
+    FinancialComparatives.minority,
   };
 
   // Deliberately excludes EPS, comprehensive income, continuing operations,
@@ -190,6 +195,14 @@ abstract final class FinancialAccounts {
           currency: found.currency,
           amount: found.amount,
           cumulativeAmount: found.cumulativeAmount,
+          priorSameCumulativeAmount:
+              FinancialComparatives.invalidOwners(found, facts)
+              ? null
+              : FinancialComparatives.priorSame(found),
+          priorSameUnavailableReason:
+              FinancialComparatives.invalidOwners(found, facts)
+              ? '전년 동기 지배주주·비지배주주 순이익 합계 불일치 · 원천 공시 확인 필요'
+              : null,
         ),
       );
     }
