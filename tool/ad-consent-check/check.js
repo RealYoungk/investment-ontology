@@ -11,7 +11,7 @@ document.querySelector('#run').onclick = async () => {
   w.setTimeout=(fn)=>{timers.set(++timer,fn);return timer;};w.clearTimeout=id=>timers.delete(id);
   w.alfinderAdConsent={choice:()=>choice,request:async()=>choice===true};
   w.adsbygoogle={push:()=>{pushes++;doc.querySelector('ins')?.setAttribute('data-ad-status','filled');}};
-  w.googlefc={callbackQueue:scenario==='missing'?[]:{push:item=>item.CONSENT_API_READY()}};
+  w.googlefc={usstatesoptout:{getInitialUsStatesOptOutStatus:()=>1},callbackQueue:scenario==='missing'?[]:{push:item=>{item.CONSENT_API_READY?.();item.INITIAL_US_STATES_OPT_OUT_DATA_READY?.();}}};
   w.__tcfapi=(command,_v,cb)=>{if(command!=='addEventListener')return;listener=cb;
    if(scenario==='delay')return;
    cb(scenario==='error'?null:scenario==='unknown'?{eventStatus:'tcloaded'}:{eventStatus:'tcloaded',gdprApplies:true,cmpId:300,listenerId:1,purpose:{consents:{1:true}},vendor:{consents:{755:true}}},scenario!=='error');};

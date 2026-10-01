@@ -110,6 +110,131 @@ void main() {
         },
       );
       test(
+        'provider-dashboard cancellation revokes paid canceled-period access',
+        () async {
+          await MembershipLedger.settle(
+            owned,
+            attempt.id!,
+            SandboxPayment(
+              key: 'payment-${attempt.id}',
+              orderId: attempt.orderId,
+              status: 'DONE',
+              amount: 2900,
+              balance: 2900,
+            ),
+          );
+          await MembershipLedger.cancel(owned);
+          expect((await MembershipLedger.status(owned)).adFree, true);
+          final methods = <String>[];
+          final worker = service((r) async {
+            methods.add(r.method);
+            return r.method == 'DELETE'
+                ? http.Response('', 204)
+                : response(refund: true);
+          });
+          await worker.reconcilePaid(builder.build(), sub.id!, at: now);
+          expect((await MembershipLedger.status(owned)).adFree, false);
+          expect(methods, ['GET', 'DELETE']);
+          await worker.reconcilePaid(builder.build(), sub.id!, at: now);
+          expect(methods, ['GET', 'DELETE']);
+          expect(
+            (await BillingSubscription.db.findById(
+              owned,
+              sub.id!,
+            ))!.cancelAtPeriodEnd,
+            true,
+          );
+        },
+      );
+      test(
+        'paused worker reconciles unknown payment but never sends a new charge',
+        () async {
+          await MembershipLedger.markUnknown(owned, attempt.id!);
+          final methods = <String>[];
+          final worker = BillingRenewalService(
+            allowCharges: false,
+            vault: vault,
+            gateway: TossSandboxGateway(
+              secretKey: 'test_sk_fixture',
+              client: MockClient((r) async {
+                methods.add(r.method);
+                return response();
+              }),
+            ),
+          );
+          await worker.run(builder.build(), sub.id!, at: now);
+          expect(methods, ['GET']);
+          expect((await MembershipLedger.status(owned)).adFree, true);
+          await worker.run(
+            builder.build(),
+            sub.id!,
+            at: attempt.paidThroughUtc,
+          );
+          expect(methods, ['GET']);
+        },
+      );
+      test('paid reconciliation is GET only and never recharges', () async {
+        await MembershipLedger.settle(
+          owned,
+          attempt.id!,
+          SandboxPayment(
+            key: 'payment-${attempt.id}',
+            orderId: attempt.orderId,
+            status: 'DONE',
+            amount: 2900,
+            balance: 2900,
+          ),
+        );
+        final methods = <String>[];
+        final worker = service((r) async {
+          methods.add(r.method);
+          return response();
+        });
+        await worker.reconcilePaid(builder.build(), sub.id!, at: now);
+        expect(methods, ['GET']);
+        expect((await MembershipLedger.status(owned)).adFree, true);
+        await worker.reconcilePaid(
+          builder.build(),
+          sub.id!,
+          at: attempt.paidThroughUtc,
+        );
+        expect(methods, ['GET']);
+      });
+      test(
+        'failed or mismatched provider lookup cannot invent a refund',
+        () async {
+          await MembershipLedger.settle(
+            owned,
+            attempt.id!,
+            SandboxPayment(
+              key: 'payment-${attempt.id}',
+              orderId: attempt.orderId,
+              status: 'DONE',
+              amount: 2900,
+              balance: 2900,
+            ),
+          );
+          await service((_) async => throw TimeoutException('fixture'))
+              .reconcilePaid(builder.build(), sub.id!, at: now);
+          expect((await MembershipLedger.status(owned)).adFree, true);
+          await service((_) async {
+            final wrong =
+                jsonDecode(response(refund: true).body) as Map<String, dynamic>;
+            wrong['paymentKey'] = 'wrong-payment-key';
+            return http.Response(jsonEncode(wrong), 200);
+          }).reconcilePaid(builder.build(), sub.id!, at: now);
+          expect((await MembershipLedger.status(owned)).adFree, true);
+          expect(
+            (await BillingPaymentAttempt.db.findById(
+              owned,
+              attempt.id!,
+            ))!.status,
+            'paid',
+          );
+        },
+      );
+
+      test(
         'unknown approval reconciles by GET and never sends another charge',
         () async {
           var calls = 0;

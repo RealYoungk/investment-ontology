@@ -2,6 +2,25 @@ import 'package:investment_ontology_serverpod_server/src/ontology/billing/billin
 import 'package:test/test.dart';
 
 void main() {
+  test(
+    'pause disables new charges without disabling reconciliation credentials',
+    () {
+      final environment = {
+        'ALFINDER_BILLING_SANDBOX_ENABLED': 'true',
+        'ALFINDER_BILLING_CHARGES_PAUSED': 'true',
+      };
+      expect(BillingSandboxConfig.enabledInMode('test', environment), true);
+      expect(
+        BillingSandboxConfig.chargesEnabledInMode('test', environment),
+        false,
+      );
+      expect(
+        BillingSandboxConfig.chargesEnabledInMode('production', environment),
+        false,
+      );
+    },
+  );
+
   const ready = {
     'ALFINDER_BILLING_LIVE_ENABLED': 'true',
     'ALFINDER_PG_BILLING_APPROVED': 'true',

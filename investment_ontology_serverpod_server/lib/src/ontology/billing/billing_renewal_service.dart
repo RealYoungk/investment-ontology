@@ -8,7 +8,12 @@ import 'toss_sandbox_gateway.dart';
 /// Provider worker; activation and credentials are guarded by server config.
 /// Shared by FutureCall and isolated tests; provider calls never hold DB locks.
 class BillingRenewalService {
-  BillingRenewalService({required this.gateway, required this.vault});
+  BillingRenewalService({
+    required this.gateway,
+    required this.vault,
+    this.allowCharges = true,
+  });
+  final bool allowCharges;
   final TossPaymentsGateway gateway;
   final BillingKeyVault vault;
 
@@ -76,6 +81,45 @@ class BillingRenewalService {
     await reconcileRefunds(session, subscriptionId);
   }
 
+  /// GET-only reconciliation of paid access. Provider-dashboard cancellations
+  /// need no callback payload and must also be detected after auto-renewal stops.
+  Future<void> reconcilePaid(
+    Session session,
+    int subscriptionId, {
+    DateTime? at,
+  }) async {
+    final now = at ?? DateTime.now().toUtc();
+    final rows = await BillingPaymentAttempt.db.find(
+      session,
+      where: (t) =>
+          t.subscriptionId.equals(subscriptionId) &
+          t.status.equals('paid') &
+          (t.paidFromUtc <= now) &
+          (t.paidThroughUtc > now),
+    );
+    for (final row in rows) {
+      try {
+        final payment = await gateway.lookup(row.orderId);
+        if (payment.key != row.paymentKey || payment.orderId != row.orderId) {
+          throw const SandboxPaymentException(
+            'reconcile_identity',
+            uncertain: true,
+          );
+        }
+        if (payment.status == 'CANCELED') {
+          await MembershipLedger.fullRefund(session, row.id!, payment);
+          await reconcileKeyDeletion(session, subscriptionId);
+        }
+      } on SandboxPaymentException {
+        // Failed GET never invents a refund or changes existing paid access.
+        session.log(
+          'Paid billing reconciliation pending (attempt ${row.id})',
+          level: LogLevel.warning,
+        );
+      }
+    }
+  }
+
   Future<void> reconcileRefunds(Session session, int subscriptionId) async {
     final rows = await BillingPaymentAttempt.db.find(
       session,
@@ -117,6 +161,7 @@ class BillingRenewalService {
 
   Future<void> run(Session session, int subscriptionId, {DateTime? at}) async {
     await reconcileUnknowns(session, subscriptionId);
+    if (!allowCharges) return;
     final sub = await BillingSubscription.db.findById(session, subscriptionId);
     if (sub == null ||
         sub.cancelAtPeriodEnd ||

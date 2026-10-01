@@ -34,6 +34,11 @@
       script.async = true;
       // Message-only tag: AdSense itself may request inventory on load.
       script.src = 'https://fundingchoicesmessages.google.com/i/' + publisher.replace(/^ca-/, '') + '?ers=1';
+      // Forward only Google's documented message-preview parameters.
+      const debug = new URLSearchParams(root.location?.search || '');
+      if (debug.get('fc') === 'alwaysshow' && ['gdpr', 'ccpa', 'usnat', 'usfl'].includes(debug.get('fctype'))) {
+        script.src += '&fc=alwaysshow&fctype=' + debug.get('fctype');
+      }
       script.onload = resolve;
       script.onerror = () => reject(new Error('CMP script unavailable'));
       document.head.appendChild(script);
@@ -48,6 +53,10 @@
     if (state.cmpListener && typeof root.__tcfapi === 'function') {
       root.__tcfapi('removeEventListener', 2, () => {}, state.cmpListener);
       state.cmpListener = null;
+    }
+    if (state.gppListener && typeof root.__gpp === 'function') {
+      root.__gpp('removeEventListener', () => {}, state.gppListener);
+      state.gppListener = null;
     }
     if (state.cmpResolve) state.cmpResolve(false);
     state.finish(false);
@@ -119,6 +128,39 @@
                 }
                 const allowed = data.gdprApplies === false ||
                   (data.cmpId === 300 && data.purpose?.consents?.[1] === true && data.vendor?.consents?.[755] === true);
+                if (data.gdprApplies === false && allowed) {
+                  // GDPR does not determine US opt-out. Google's explicit US
+                  // result is required; absent/unknown APIs retain the deadline.
+                  root.googlefc.callbackQueue.push({'INITIAL_US_STATES_OPT_OUT_DATA_READY': () => {
+                    if (state.disposed) return;
+                    let status;
+                    try { status = root.googlefc.usstatesoptout?.getInitialUsStatesOptOutStatus(); }
+                    catch (_) { dispose(element); return; }
+                    if (root.navigator?.globalPrivacyControl === true || status === 3 || status === 0) {
+                      clearTimeout(timer); resolve(false); dispose(element); return;
+                    }
+                    if (status === 1) {
+                      state.cmpPermitted = true;
+                      clearTimeout(timer); resolve(true); return;
+                    }
+                    if (status !== 2 || typeof root.__gpp !== 'function') return;
+                    root.__gpp('addEventListener', (event, ok) => {
+                      if (state.disposed) return;
+                      if (event?.listenerId) state.gppListener = event.listenerId;
+                      const ping = event?.pingData;
+                      if (!ok || event?.eventName === 'error' ||
+                          (state.cmpPermitted && (event?.eventName === 'sectionChange' ||
+                            ping?.signalStatus !== 'ready' || ping?.cmpDisplayStatus === 'visible'))) {
+                        clearTimeout(timer); resolve(false); dispose(element); return;
+                      }
+                      if (ping?.cmpStatus !== 'loaded' || ping?.signalStatus !== 'ready' ||
+                          ping?.cmpDisplayStatus === 'visible') return;
+                      state.cmpPermitted = true;
+                      clearTimeout(timer); resolve(true);
+                    });
+                  }});
+                  return;
+                }
                 state.cmpPermitted = allowed;
                 clearTimeout(timer); resolve(allowed);
                 if (!allowed) dispose(element);

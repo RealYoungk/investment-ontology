@@ -21,8 +21,8 @@ function environment() {
   const root={addEventListener:(name,fn)=>events[name]=fn};
   root.alfinderAdConsent={choice:()=>true,request:async()=>true};
   root.__tcfapi=(_cmd,_version,callback)=>callback({eventStatus:'tcloaded',gdprApplies:false},true);
-  root.googlefc={callbackQueue:{push:item=>item.CONSENT_API_READY()}};
-  vm.runInNewContext(source, {window:root,
+  root.googlefc={usstatesoptout:{getInitialUsStatesOptOutStatus:()=>1},callbackQueue:{push:item=>{if(item.CONSENT_API_READY)item.CONSENT_API_READY();if(item.INITIAL_US_STATES_OPT_OUT_DATA_READY)item.INITIAL_US_STATES_OPT_OUT_DATA_READY();}}};
+  vm.runInNewContext(source, {window:root,URLSearchParams,
     document:{head:{appendChild:s=>{if(s.src.includes('fundingchoicesmessages')){cmpScripts.push(s);Promise.resolve().then(()=>s.onload());}else scripts.push(s);}},createElement:()=>element()},
     requestAnimationFrame:fn=>{frames.set(++id,fn);return id;}, cancelAnimationFrame:i=>frames.delete(i),
     setTimeout:fn=>{timers.set(++id,fn);return id;}, clearTimeout:i=>timers.delete(i),
@@ -182,4 +182,36 @@ test('reopened CMP during AdSense download prevents late slot push',async()=>{
  const p=e.root.alfinderAds.mount(el,publisher,slot,true);await e.tick();assert.equal(e.scripts.length,1);
  listener({eventStatus:'cmpuishown',listenerId:8},true);e.scripts[0].onload();await e.tick();
  assert.equal(await p,false);assert.equal(e.root.adsbygoogle,undefined);assert.equal(el.children.length,0);
+});
+
+test('US unknown, opt-out, missing GPP, or GPC never loads inventory',async()=>{
+ for(const status of [0,3,undefined,2]) {
+  const e=environment();e.root.googlefc.usstatesoptout.getInitialUsStatesOptOutStatus=()=>status;
+  const p=e.root.alfinderAds.mount(e.element(),publisher,slot,false);await e.tick();
+  for(const fn of [...e.timers.values()])fn();await e.tick();
+  assert.equal(await p,false);assert.equal(e.scripts.length,0);
+ }
+ const e=environment();e.root.navigator={globalPrivacyControl:true};
+ const p=e.root.alfinderAds.mount(e.element(),publisher,slot,false);await e.tick();
+ assert.equal(await p,false);assert.equal(e.scripts.length,0);
+});
+test('US GPP ready permits once; a signal change invalidates before or after inventory download',async()=>{
+ for(const loaded of [false,true]) {
+  const e=environment();e.root.googlefc.usstatesoptout.getInitialUsStatesOptOutStatus=()=>2;
+  let callback;
+  e.root.__gpp=(cmd,cb)=>{if(cmd==='addEventListener'){callback=cb;cb({listenerId:1,eventName:'listenerRegistered',pingData:{cmpStatus:'loaded',signalStatus:'ready'}},true);}};
+  const el=e.element(),p=e.root.alfinderAds.mount(el,publisher,slot,false);await e.tick();
+  assert.equal(e.scripts.length,1);
+  if(loaded){e.scripts[0].onload();await e.tick();assert.equal(e.root.adsbygoogle.length,1);}
+  callback({eventName:'signalStatus',pingData:{cmpStatus:'loaded',signalStatus:'not ready'}},true);
+  if(!loaded){e.scripts[0].onload();await e.tick();assert.equal(e.root.adsbygoogle,undefined);}
+  assert.equal(await p,false);assert.equal(el.children.length,0);
+ }
+});
+
+test('only documented CMP previews are forwarded, never activation or arbitrary URLs',async()=>{
+ const e=environment();e.root.location={search:'?fc=alwaysshow&fctype=gdpr&enabled=true&redirect=https://other.test'};
+ e.root.alfinderAds.mount(e.element(),publisher,slot,false);await e.tick();
+ assert.match(e.cmpScripts[0].src,/\?ers=1&fc=alwaysshow&fctype=gdpr$/);
+ assert.equal(e.cmpScripts[0].src.includes('enabled'),false);
 });
