@@ -116,7 +116,7 @@ class _CoverageState extends State<_Coverage> {
           source: 'DART 전체 재무제표',
           data:
               '사업·반기·분기보고서의 연결·별도 전체 계정과 금액. 매출·이익·자산·부채·현금흐름 및 투자 지표의 기초입니다.',
-          scope: '최근 5개 사업연도를 먼저 채운 뒤 10년으로 확대합니다. 기업마다 확보한 기간은 다릅니다.',
+          scope: '기업별 최근 5개년 연간 사업보고서와 그 이후 최신 분기·반기보고서 한 건을 수집합니다. 과거 분기·반기와 10년 자동 확대는 대상에서 제외합니다.',
           detail: '매일 18:30 수집. 호출 한도에 도달하면 다음 날 00:10에 재개합니다. 보고서 처리 완료는 연결·별도에 더 이상 대기가 없다는 뜻이며, 모든 계정이나 두 재무 기준이 존재한다는 뜻은 아닙니다.',
           children: [
             _Progress(
@@ -125,11 +125,11 @@ class _CoverageState extends State<_Coverage> {
               total: v.listedCompanies,
             ),
             _Progress(
-              label: '보고서 처리',
+              label: '대상 보고서 처리',
               done: v.filingsTotal - v.filingsPending,
               total: v.filingsTotal,
               note:
-                  '미처리 ${formatCount(v.filingsPending)}건 · 아직 발견하지 못한 보고서는 분모에 포함되지 않습니다.',
+                  '미완료(대기·실패) ${formatCount(v.filingsPending)}건 · 연간 5개년과 최신 중간보고서 대상만 집계합니다. 아직 발견하지 못한 보고서는 분모에 포함되지 않습니다.',
             ),
           ],
         ),
@@ -160,12 +160,24 @@ class _CoverageState extends State<_Coverage> {
           title: '사업의 내용',
           source: 'DART 공시 원문',
           data: '원문에서 부문 매출·수주·생산능력·가동률·시장점유율·연구개발비와 매입처·매출처를 읽습니다. 수치에는 원문 단위와 근거를 보존합니다.',
-          scope:
-              '최신 사업보고서와 그 이후 최신 반기·분기보고서 본문을 수집합니다. 본문 확보와 지표 추출 완료는 서로 다릅니다.',
+          scope: '기업별 최신 정기보고서 본문을 먼저 수집합니다. 본문 확보와 지표 추출 완료는 서로 다릅니다.',
           detail: '정해진 표 구조·산술 검산을 통과한 결과를 저장합니다. 본문이 있어도 표 형식이나 검증 조건이 맞지 않으면 지표가 없을 수 있습니다. 항목별 추출 건수와 성공률은 현재 이 화면에서 집계하지 않습니다. 수동·AI 요약 작업은 보류 중입니다.',
           children: [
+            if (v.companiesWithLatestBusinessText case final latest?)
+              _Progress(
+                label: '최신 접수 본문 확보',
+                done: latest,
+                total: v.listedCompanies,
+                note: '기업별 최신 정기보고서 접수번호와 일치하는 본문을 확보한 기업 수입니다. 첨부 정정의 이전 접수 본문과 다른 기간 본문은 이 수에 포함하지 않습니다.',
+              )
+            else
+              const _Summary(
+                label: '최신 접수 본문 확보',
+                value: '집계 대기',
+                unit: '',
+              ),
             _Summary(
-              label: '본문 보유 기업',
+              label: '본문 보유 기업 · 어느 기간이든',
               value: formatCount(v.companiesWithBusinessText),
               unit: '개사',
             ),

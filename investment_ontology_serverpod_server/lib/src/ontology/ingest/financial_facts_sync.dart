@@ -50,40 +50,59 @@ class FinancialFactsSync {
   /// 먼저 채우는 햇수. 최근 5개 사업연도부터 끝낸다.
   static const historyYears = 5;
 
-  /// 최근 5개년을 다 받은 뒤 넓히는 햇수. 한 번 넓히면 되돌리지 않는다
-  /// (범위가 좁아졌다 넓어졌다 하면 공시 목록을 처음부터 다시 훑게 된다).
-  static const extendedHistoryYears = 10;
-
-  /// 사업보고서는 최근 [years]개 사업연도 (2026년·5년이면 FY2021~2025).
+  /// 사업보고서 목록 탐색의 시작 사업연도.
   static int firstAnnualYear(DateTime now, [int years = historyYears]) =>
       now.year - years;
 
-  /// 분기·반기보고서는 올해를 포함한 [years]개 사업연도 (2026년·5년이면 FY2022~2026).
+  /// 목록 탐색은 연간보고서 발견을 위해 기존 5개년 창을 유지한다.
+  /// 발견한 과거 중간보고서는 장부에 보존하지만 재무 취득 대상에는 넣지 않는다.
   static int firstInterimYear(DateTime now, [int years = historyYears]) =>
       now.year - years + 1;
 
-  /// 이번 실행에서 쓸 햇수. 최근 5개년에 받을 것이 남아 있으면 5년, 다 받았거나
-  /// 이미 넓게 훑은 적이 있으면 10년.
-  Future<int> _years(DateTime now) async {
-    final cursor = await DartFilingScan.db.findFirstRow(session);
-    final wide = DateTime.utc(
-      firstInterimYear(now, extendedHistoryYears),
-      1,
-      1,
-    );
-    if (cursor?.scannedFrom case final from? when !from.isAfter(wide)) {
-      return extendedHistoryYears;
+  /// 기업의 최근 연간 5개 사업연도와 최신 공시가 중간보고서인 경우 그 한 기간.
+  /// 각 기간은 최종 접수번호만 선택하며 기업별 결산 사업연도를 그대로 사용한다.
+  static Set<int> financialScopeIds(Iterable<DartFiling> filings) {
+    int rank(FinancialReportCode code) => switch (code) {
+      FinancialReportCode.annual => 4,
+      FinancialReportCode.q3 => 3,
+      FinancialReportCode.halfYear => 2,
+      FinancialReportCode.q1 => 1,
+    };
+    final periods = <String, DartFiling>{};
+    for (final f in filings) {
+      if (f.companyId == null || f.bsnsYear == null || f.reportCode == null) {
+        continue;
+      }
+      final key = '${f.companyId}:${f.bsnsYear}:${f.reportCode!.name}';
+      final old = periods[key];
+      if (old == null || f.rceptNo.compareTo(old.rceptNo) > 0) periods[key] = f;
     }
-    // 처음 채우는 중(장부가 비었거나 받을 것이 남음)이면 5년부터 끝낸다.
-    final total = await DartFiling.db.count(session);
-    if (total == 0) return historyYears;
-    final pending = await DartFiling.db.count(
-      session,
-      where: (t) =>
-          t.consolidatedStatus.equals(FilingFetchStatus.pending) |
-          t.separateStatus.equals(FilingFetchStatus.pending),
-    );
-    return pending == 0 ? extendedHistoryYears : historyYears;
+    final byCompany = <int, List<DartFiling>>{};
+    for (final f in periods.values) {
+      byCompany.putIfAbsent(f.companyId!, () => []).add(f);
+    }
+    final ids = <int>{};
+    for (final company in byCompany.values) {
+      company.sort((a, b) {
+        final year = b.bsnsYear!.compareTo(a.bsnsYear!);
+        return year != 0
+            ? year
+            : rank(b.reportCode!).compareTo(rank(a.reportCode!));
+      });
+      final annuals = company.where(
+        (f) => f.reportCode == FinancialReportCode.annual,
+      );
+      final latestAnnual = annuals.firstOrNull;
+      if (latestAnnual != null) {
+        final first = latestAnnual.bsnsYear! - historyYears + 1;
+        ids.addAll(
+          annuals.where((f) => f.bsnsYear! >= first).map((f) => f.id!),
+        );
+      }
+      final latest = company.first;
+      if (latest.reportCode != FinancialReportCode.annual) ids.add(latest.id!);
+    }
+    return ids;
   }
 
   static const _listedMarkets = {Market.kospi, Market.kosdaq, Market.konex};
@@ -165,11 +184,20 @@ class FinancialFactsSync {
         job = job.copyWith(status: IngestStatus.cancelled);
       }
 
+      final scopeIds = financialScopeIds(
+        await DartFiling.db.find(
+          session,
+          where: (t) =>
+              t.companyId.inSet({for (final c in companies.values) c.id!}) &
+              t.reportCode.notEquals(null),
+        ),
+      );
       final targets = job.status == IngestStatus.cancelled
           ? const <DartFiling>[]
           : await DartFiling.db.find(
               session,
               where: (t) =>
+                  t.id.inSet(scopeIds) &
                   t.reportCode.notEquals(null) &
                   (only == null
                       ? t.companyId.notEquals(null)
@@ -224,6 +252,7 @@ class FinancialFactsSync {
       final remaining = await DartFiling.db.count(
         session,
         where: (t) =>
+            t.id.inSet(scopeIds) &
             t.reportCode.notEquals(null) &
             (only == null
                 ? t.companyId.notEquals(null)
@@ -360,8 +389,8 @@ class FinancialFactsSync {
     IngestJob job,
   ) async {
     final today = DateTime.utc(now.year, now.month, now.day);
-    final years = await _years(now);
-    final earliest = DateTime.utc(firstInterimYear(now, years), 1, 1);
+    const years = historyYears;
+    final earliest = DateTime.utc(firstAnnualYear(now, years), 1, 1);
     final code = corpCode;
     if (code != null) {
       return _scanCompany(code, companies, now, earliest, today, years);

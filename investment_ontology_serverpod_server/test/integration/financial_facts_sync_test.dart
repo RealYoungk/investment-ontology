@@ -354,7 +354,7 @@ void main() {
         ('20260914', '20260917'),
         reason: '먼저 최근 며칠 공시 피드를 훑는다',
       );
-      expect(ranges[1].$1, '20220101', reason: '분기·반기 5개 사업연도 = FY2022부터');
+      expect(ranges[1].$1, '20210101', reason: '기업별 결산월의 연간 5개년을 발견하는 목록 창');
       expect(ranges.last.$2, '20260917');
       for (final (from, to) in ranges) {
         final f = DateTime.parse(from);
@@ -427,7 +427,7 @@ void main() {
         contains('20220310000008'),
       );
       final cursor = (await DartFilingScan.db.findFirstRow(session))!;
-      expect(cursor.scannedFrom, DateTime.utc(2022, 1, 1));
+      expect(cursor.scannedFrom, DateTime.utc(2021, 1, 1));
       expect(cursor.scannedThrough, DateTime.utc(2026, 9, 17));
 
       // 아직 받을 것이 남아 있으면 범위는 5개년 그대로다.
@@ -441,11 +441,11 @@ void main() {
       expect(dart.listCalls, 2, reason: '공시 피드 1회 + 다시 덮였으니 커서 7일 전부터만');
     });
 
-    test('최근 5개년을 다 받으면 10년으로 넓혀 다시 훑는다', () async {
+    test('최근 5개년을 다 받아도 10년으로 자동 확대하지 않는다', () async {
       await runSync();
       expect(
         (await DartFilingScan.db.findFirstRow(session))!.scannedFrom,
-        DateTime.utc(2022, 1, 1),
+        DateTime.utc(2021, 1, 1),
         reason: '처음에는 5개년',
       );
       // 받을 것이 남지 않은 상태에서 다시 돌리면 범위를 넓힌다.
@@ -467,8 +467,8 @@ void main() {
       await runSync();
       expect(
         (await DartFilingScan.db.findFirstRow(session))!.scannedFrom,
-        DateTime.utc(2017, 1, 1),
-        reason: '다 받았으면 10개년',
+        DateTime.utc(2021, 1, 1),
+        reason: '다 받아도 5개년',
       );
     });
 

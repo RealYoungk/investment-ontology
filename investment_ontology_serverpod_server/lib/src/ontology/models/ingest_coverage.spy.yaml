@@ -22,6 +22,8 @@ fields:
   persons: int
   ### "사업의 내용" 본문이 있는 상장사 수와, 그중 절별 요약(BusinessDigestSection)까지 있는 수
   companiesWithBusinessText: int
+  ### 최신 정기보고서 본문 확보 기업 수 (첨부정정 원본 포함)
+  companiesWithLatestBusinessText: int?
   companiesWithDigest: int
   ### 오늘(KST) DART 호출 수와 일일 한도
   dartCallsToday: int
