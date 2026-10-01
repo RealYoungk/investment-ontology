@@ -811,6 +811,8 @@ User authorized implementing locally before review. Actual Flutter industries pa
 
 ## 2026-10-01 광고·결제 승인 전 검증 후속
 
-격리 체크아웃에서 CMP 타임아웃/후속 오류/재표시 광고 제거와 무료회원 후속 멤버십 조회 실패 차단을 보완했다. JS25/서버70/Flutter23/Chrome 결제E2E1 및 광고 browser harness11 통과. 실제 Google 지역별 CMP·계약상점 실결제는 이 통과 범위에 포함하지 않는다. 운영 광고/결제 비활성 유지. 상세 재현·각 활성화/롤백·webhook 미구현 범위는 docs/monetization-preapproval-verification.md. 기본 저장소 및 기존 광고 워크트리의 사용자 변경은 건드리지 않았다.
+격리 체크아웃에서 CMP 타임아웃/후속 오류/재표시 광고 제거와 무료회원 후속 멤버십 조회 실패 차단을 보완했다. JS26/서버70/Flutter23/Chrome 결제E2E1 및 광고 browser harness11 통과. 실제 Google 지역별 CMP·계약상점 실결제는 이 통과 범위에 포함하지 않는다. 운영 광고/결제 비활성 유지. 상세 재현·각 활성화/롤백·webhook 미구현 범위는 docs/monetization-preapproval-verification.md. 기본 저장소 및 기존 광고 워크트리의 사용자 변경은 건드리지 않았다.
 
 실제 Google CMP-only 진단에서 비GDPR loaded callback의 eventStatus 누락을 확인해 이를 명시적으로 지원했다. EU 메시지 허용/거부/철회는 아직 별도 검증 조건이다.
+
+실제 AdSense tag 자체가 push 없이 광고 요청을 만드는 것을 임시 진단에서 발견했다. 최종 loader는 메시지 전용 CMP를 먼저 로드하고 동의 승인 뒤에만 AdSense tag를 로드하도록 변경했다. 이 진단의 실제 외부 요청과 모의 검증을 구분해 문서에 기록했다. 운영 flag OFF 유지.

@@ -6,9 +6,9 @@
 
 | 검증 | 결과 | 실제/모의 구분 |
 |---|---|---|
-| 동의 전·거절·동의 bridge 누락 | Google script 0, 광고 push 0 | Node 및 실제 브라우저, Google 전송 모의 |
-| 허용 + Google CMP300/목적1/vendor755 동의 | script 1, push 1 | 운영 JS/브라우저 DOM, Google 응답 모의 |
-| CMP 누락·지연·오류·지역 불명·타 CMP·vendor 미동의 | 광고 push 0, 늦은 콜백도 0 | Node + 브라우저 모의 |
+| 동의 전·거절·동의 bridge 누락 | Google CMP/AdSense script 0, 광고 push 0 | Node 및 실제 브라우저, Google 전송 모의 |
+| 허용 + Google CMP300/목적1/vendor755 동의 | CMP script 1, AdSense script 1, push 1 | 운영 JS/브라우저 DOM, Google 응답 모의 |
+| CMP 누락·지연·오류·지역 불명·타 CMP·vendor 미동의 | AdSense script 0, 광고 push 0, 늦은 콜백도 0 | Node + 브라우저 모의 |
 | 철회·다른 탭 철회·동의창 재표시·승인 후 오류 | 기존 DOM 제거, 추가 push 0 | Node, 브라우저 모의 |
 | 회원 복원·초기 조회 중/실패 | 광고 위젯 미생성, bridge 호출 안 함 | Flutter widget 회귀 |
 | 후속 무료회원 조회 실패 | 광고 차단 상태로 전환; 성공 회복 후 허용 | MembershipMonitor 회귀, 이번 수정 |
@@ -18,7 +18,7 @@
 | 테스트/실 키 및 enable 조건 | production sandbox 플래그 차단, live 전제 모두 필수 | 단위 검증 및 코드 검토 |
 | 운영 기업 목록 새로고침 | 관찰 구간 Google/Toss 외부 요청 0 | 운영 브라우저 CDP |
 
-집중 검증: JS 25개, 서버 70개, Flutter 23개, Chrome 결제 E2E 1개 통과. 실제 브라우저 광고 harness `tool/ad-consent-check/`는 11/11 통과했다. script 수는 harness가 포착한 **삽입 시도**이며 Google 네트워크 성공 횟수가 아니다. 유료 전환 전 이미 시작한 script 요청은 되돌릴 수 없지만, 전환 후 slot push는 막는다. 실제 browser 결제 E2E의 광고는 preview 위젯이며 실제 Google 광고가 아니다. Google loader DOM/요청 시도는 별도 harness에서 검증했다.
+집중 검증: JS 26개, 서버 70개, Flutter 23개, Chrome 결제 E2E 1개 통과. 실제 브라우저 광고 harness `tool/ad-consent-check/`는 11/11 통과했다. script 수는 harness가 포착한 **삽입 시도**이며 Google 네트워크 성공 횟수가 아니다. 유료 전환 전 이미 시작한 script 요청은 되돌릴 수 없지만, 전환 후 slot push는 막는다. 실제 browser 결제 E2E의 광고는 preview 위젯이며 실제 Google 광고가 아니다. Google loader DOM/요청 시도는 별도 harness에서 검증했다.
 
 매분 정상 상태 확인은 마지막 성공한 상태를 유지한다(정상 polling마다 광고를 새로 만들지 않음). 계정 변경/복원은 즉시 미확정, 실패는 광고 차단으로 바뀐다. 만료 타이머는 권한을 제거하고 재조회가 실패하면 광고 차단을 유지한다. 새로운 유료 상태/환불은 성공한 서버 상태 응답에 반영되며 실시간 webhook push 기능은 없다.
 
@@ -63,3 +63,9 @@ Google 인증 CMP 지역별 허용/거부/철회의 실제 동작은 운영 활�
 운영 /cookies.html?fc=alwaysshow&fctype=gdpr의 임시 탭에 Funding Choices 메시지 전용 tag를 로드했다(광고 태그/ins/push 없음). Google /i HTTP200, 메시지 데이터 /f HTTP200, __tcfapi callback success=true, cmpId300, cmpStatus loaded, gdprApplies=false, **eventStatus 없음**을 실제로 관찰했다. Google은 이 세션을 GDPR 비적용으로 판정했다. 이것은 EU 허용/거부/철회나 AdSense 승인 증거가 아니다. 메시지/철회 API는 표시되지 않아 EU debug UI는 이 tag만으로 검증하지 못했다. EU 적용 세션과 AdSense tag의 인증 CMP 전체 흐름은 승인 후 test inventory 릴리스에서 확인해야 한다.
 
 이 실제 callback은 기존 loader의 eventStatus 필터에서 무기한 대기 후 차단될 수 있었다. gdprApplies=false이고 cmpStatus=loaded인 명시적 비적용 결과는 eventStatus 없이도 허용하도록 수정하고 회귀를 추가했다. 지역 불명, 오류, GDPR 적용 상태는 여전히 최종 이벤트와 동의가 필요하다. 임시 진단은 탭 폐쇄로 제거하며 운영 파일/광고 플래그는 변경하지 않았다. Google event URL의 opaque 식별자는 증거/로그에 저장하지 않는다.
+
+## AdSense 태그 자체 요청 발견과 로딩 순서 수정
+
+Auto Ads OFF를 관리 화면에서 현재 확인한 뒤 별도 임시 진단 탭에서 AdSense tag만 로드했다. 애플리케이션의 ins 생성/push가 없어도 Google tag는 숨김 0×0 ins/iframe과 `/pagead/ads` 요청을 자체 생성했다. 노출된 배너는 없었고 탭을 즉시 닫았다. 따라서 **push=0은 Google 광고 요청=0을 증명하지 않는다**. 이 진단은 운영 플래그를 활성화하지 않았지만 실제 tag 네트워크 요청은 발생한 것으로 명확히 기록한다.
+
+최종 구현은 자체 opt-in → Google Funding Choices **메시지 전용** `/i/pub-…?ers=1` → CMP 명시 허용 → AdSense tag → 수동 slot 순서다. CMP 거절/불명/오류/지연/누락에서는 AdSense tag 자체를 로드하지 않는다. 메시지 전용 tag의 실제 응답과 TCF API는 앞선 진단에서 확인했다. 기존 'AdSense tag가 CMP를 로드한 뒤 push만 차단' 설명은 역사적 구현이며 이 순서로 대체된다. 공급자 message-only tag의 EU/US 실제 지역별 동작이 확인되기 전 privacy-ready는 계속 false다. Auto Ads OFF라도 AdSense tag가 만드는 내부 요청을 수동 광고 slot 요청과 구분해 Network에서 측정한다. 최종 Node/browser harness는 CMP script와 AdSense script 삽입을 각각 센다.
