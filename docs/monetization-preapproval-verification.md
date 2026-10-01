@@ -18,7 +18,7 @@
 | 테스트/실 키 및 enable 조건 | production sandbox 플래그 차단, live 전제 모두 필수 | 단위 검증 및 코드 검토 |
 | 운영 기업 목록 새로고침 | 관찰 구간 Google/Toss 외부 요청 0 | 운영 브라우저 CDP |
 
-집중 검증: JS 26개, 서버 70개, Flutter 23개, Chrome 결제 E2E 1개 통과. 실제 브라우저 광고 harness `tool/ad-consent-check/`는 11/11 통과했다. script 수는 harness가 포착한 **삽입 시도**이며 Google 네트워크 성공 횟수가 아니다. 유료 전환 전 이미 시작한 script 요청은 되돌릴 수 없지만, 전환 후 slot push는 막는다. 실제 browser 결제 E2E의 광고는 preview 위젯이며 실제 Google 광고가 아니다. Google loader DOM/요청 시도는 별도 harness에서 검증했다.
+집중 검증: JS 27개, 서버 70개, Flutter 23개, Chrome 결제 E2E 1개 통과. 실제 브라우저 광고 harness `tool/ad-consent-check/`는 11/11 통과했다. script 수는 harness가 포착한 **삽입 시도**이며 Google 네트워크 성공 횟수가 아니다. 유료 전환 전 이미 시작한 script 요청은 되돌릴 수 없지만, 전환 후 slot push는 막는다. 실제 browser 결제 E2E의 광고는 preview 위젯이며 실제 Google 광고가 아니다. Google loader DOM/요청 시도는 별도 harness에서 검증했다.
 
 매분 정상 상태 확인은 마지막 성공한 상태를 유지한다(정상 polling마다 광고를 새로 만들지 않음). 계정 변경/복원은 즉시 미확정, 실패는 광고 차단으로 바뀐다. 만료 타이머는 권한을 제거하고 재조회가 실패하면 광고 차단을 유지한다. 새로운 유료 상태/환불은 성공한 서버 상태 응답에 반영되며 실시간 webhook push 기능은 없다.
 

@@ -175,3 +175,11 @@ test('delayed CMP grants permission before AdSense script is inserted',async()=>
  await e.tick();assert.equal(e.scripts.length,1);e.scripts[0].onload();await e.tick();
  assert.equal(e.root.adsbygoogle.length,1);e.root.alfinderAds.dispose(el);await p;
 });
+
+test('reopened CMP during AdSense download prevents late slot push',async()=>{
+ const e=environment(),el=e.element();let listener;
+ e.root.__tcfapi=(cmd,_v,cb)=>{if(cmd==='addEventListener'){listener=cb;cb({eventStatus:'tcloaded',gdprApplies:false,listenerId:8},true);}};
+ const p=e.root.alfinderAds.mount(el,publisher,slot,true);await e.tick();assert.equal(e.scripts.length,1);
+ listener({eventStatus:'cmpuishown',listenerId:8},true);e.scripts[0].onload();await e.tick();
+ assert.equal(await p,false);assert.equal(e.root.adsbygoogle,undefined);assert.equal(el.children.length,0);
+});

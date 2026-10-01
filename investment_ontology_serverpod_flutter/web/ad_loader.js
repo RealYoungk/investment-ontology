@@ -107,18 +107,19 @@
                 if (data.eventStatus === 'cmpuishown') {
                   // A reopened consent UI invalidates the previous decision.
                   // The initial UI keeps its deadline; late callbacks cannot push.
-                  if (state.adRequested) dispose(element);
+                  if (state.cmpPermitted) dispose(element);
                   return;
                 }
                 // Google's non-GDPR callback can omit eventStatus entirely.
                 const outsideGdpr = data.gdprApplies === false && data.cmpStatus === 'loaded';
                 if (!outsideGdpr && !['tcloaded', 'useractioncomplete'].includes(data.eventStatus)) return;
                 if (typeof data.gdprApplies !== 'boolean') {
-                  if (state.adRequested) dispose(element);
+                  if (state.cmpPermitted) dispose(element);
                   return;
                 }
                 const allowed = data.gdprApplies === false ||
                   (data.cmpId === 300 && data.purpose?.consents?.[1] === true && data.vendor?.consents?.[755] === true);
+                state.cmpPermitted = allowed;
                 clearTimeout(timer); resolve(allowed);
                 if (!allowed) dispose(element);
               });
