@@ -1,0 +1,11 @@
+{
+  "corpCode": "00337296",
+  "receipt": "20260814002145",
+  "shellCorpIds": [
+    "00337296"
+  ],
+  "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260814002145&dcmNo=11532196&eleId=1&offset=833&length=4493&dtd=dart4.xsd",
+  "sha256": "e1649a8f41052ba5bdcd047008c95b5dcc2a1509d670a51cf6d9d7f5085a058d",
+  "actualPeriod": "2026-01-01~2026-06-30",
+  "assessment": "Actual official half-year cover retrieved. Requested company and report period must still be verified by strict cover parser."
+}

@@ -145,6 +145,24 @@ class DartClient {
     consolidated: consolidated,
   );
 
+  Future<PublicFinancialHtmlSource> fetchHalfYearHtml(
+    String receipt, {
+    required String reportName,
+    required String corpCode,
+    required String companyName,
+    required int bsnsYear,
+    required DateTime periodEnd,
+    required bool consolidated,
+  }) => PublicFinancialHtmlFetcher(_http).fetchHalfYear(
+    receipt,
+    reportName: reportName,
+    corpCode: corpCode,
+    companyName: companyName,
+    bsnsYear: bsnsYear,
+    periodEnd: periodEnd,
+    consolidated: consolidated,
+  );
+
   static Uri companyPageUrl(String corpCode) => Uri.parse(
     'https://dart.fss.or.kr/dsab007/main.do?autoSearch=true&option=corp&textCrpCik=$corpCode',
   );

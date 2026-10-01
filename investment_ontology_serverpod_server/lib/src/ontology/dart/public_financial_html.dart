@@ -1,4 +1,4 @@
-/// Validated strict subset of receipt-bound annual DART HTML statements.
+/// Validated strict subsets of receipt-bound annual and half-year DART HTML.
 /// The caller must validate corpCode against both official viewer shells; the
 /// financial HTML cover supplies the company name but contains no corpCode.
 /// HTML has no XBRL identifiers: every returned account_id remains null.
@@ -218,5 +218,327 @@ abstract final class PublicFinancialHtml {
       );
     }
     return rows;
+  }
+
+  /// Narrow half-year support with explicit period/term and a bounded header grid.
+  /// The caller validates corpCode from the official shell before supplying HTML.
+  static List<Map<String, dynamic>> parseHalfYear({
+    required String coverHtml,
+    required String statementHtml,
+    required Uri coverSource,
+    required Uri statementSource,
+    required String receipt,
+    required String corpCode,
+    required String companyName,
+    required DateTime periodStart,
+    required DateTime periodEnd,
+    required bool consolidated,
+  }) {
+    _source(coverSource, receipt);
+    _source(statementSource, receipt);
+    if (consolidated ||
+        coverSource.queryParameters['dcmNo'] !=
+            statementSource.queryParameters['dcmNo'] ||
+        !RegExp(r'^\d{8}$').hasMatch(corpCode)) {
+      throw const FormatException('Unsupported half-year basis or identity');
+    }
+    String printedDate(DateTime d) =>
+        '${d.year}년${d.month.toString().padLeft(2, '0')}월${d.day.toString().padLeft(2, '0')}일';
+    final cover = _compact(_text(coverHtml));
+    final company = RegExp(r'회사명:(.*?)대표이사:').firstMatch(cover)?.group(1);
+    final terms = RegExp(r'\(제(\d+)기(?:반기|2분기)?\)').allMatches(cover).toList();
+    if (!cover.contains('반기보고서') ||
+        terms.length != 1 ||
+        !{'(주)$companyName', '주식회사$companyName'}.contains(company) ||
+        !cover.contains(
+          '${printedDate(periodStart)}부터${printedDate(periodEnd)}까지',
+        ) ||
+        periodStart != DateTime.utc(periodEnd.year, 1, 1) ||
+        periodEnd != DateTime.utc(periodEnd.year, 6, 30)) {
+      throw const FormatException('Exact half-year cover mismatch');
+    }
+    final term = terms.single.group(1)!;
+    // Scope must be an explicitly labelled primary statement node, never notes.
+    final headings = RegExp(
+      r'<P\b[^>]*class=["\x27]section-2["\x27][^>]*>.*?</P>',
+      caseSensitive: false,
+      dotAll: true,
+    ).allMatches(statementHtml).toList();
+    final starts = headings
+        .where((m) => _compact(_text(m.group(0)!)) == '4.재무제표')
+        .toList();
+    if (starts.length != 1) {
+      throw const FormatException('Ambiguous separate statement scope');
+    }
+    final later = headings.where((m) => m.start > starts.single.start).toList();
+    final end = later.isEmpty ? statementHtml.length : later.first.start;
+    if (later.isNotEmpty &&
+        _compact(_text(later.first.group(0)!)) != '5.재무제표주석') {
+      throw const FormatException('Unexpected statement boundary');
+    }
+    final scope = statementHtml.substring(starts.single.start, end);
+    final text = _compact(_text(scope));
+    if (!text.contains('주식회사$companyName(단위:원)') ||
+        !text.contains('제$term기반기말${printedDate(periodEnd)}현재') ||
+        !text.contains(
+          '제$term기반기${printedDate(periodStart)}부터${printedDate(periodEnd)}까지',
+        )) {
+      throw const FormatException('Half-year title/basis period mismatch');
+    }
+    final titles = RegExp(
+      '제$term기반기(?:말)?(\\d{4}년\\d{2}월\\d{2}일)(현재|부터(\\d{4}년\\d{2}월\\d{2}일)까지)',
+    ).allMatches(text).toList();
+    if (titles.length < 3 ||
+        titles.any(
+          (m) => m.group(2) == '현재'
+              ? m.group(1) != printedDate(periodEnd)
+              : m.group(1) != printedDate(periodStart) ||
+                    m.group(3) != printedDate(periodEnd),
+        )) {
+      throw const FormatException('Conflicting half-year statement titles');
+    }
+    BigInt? numeric(String value) {
+      final v = value.trim();
+      if (v.isEmpty || v == '-') return null;
+      if (!RegExp(r'^\(?-?\d{1,3}(?:,\d{3})*\)?$|^-?\d+$').hasMatch(v) ||
+          v.startsWith('(') != v.endsWith(')')) {
+        throw const FormatException('Malformed current monetary cell');
+      }
+      return BigInt.parse(
+        v.replaceAll(',', '').replaceAll('(', '-').replaceAll(')', ''),
+      );
+    }
+
+    final result = <Map<String, dynamic>>[];
+    final values = <String, BigInt>{};
+    var tableIndex = 0;
+    for (final table in RegExp(
+      r'<TABLE\b[^>]*>(.*?)</TABLE>',
+      caseSensitive: false,
+      dotAll: true,
+    ).allMatches(scope)) {
+      final index = tableIndex++;
+      final rawFirstCell = RegExp(
+        r'<T[DH]\b[^>]*>(.*?)</T[DH]>',
+        caseSensitive: false,
+        dotAll: true,
+      ).firstMatch(table.group(1)!);
+      if (rawFirstCell == null ||
+          _compact(_text(rawFirstCell.group(1)!)) != '과목') {
+        continue;
+      }
+      final grid = _FinancialHtmlGrid.parse(table.group(1)!);
+      if (grid.isEmpty ||
+          grid.first.isEmpty ||
+          _compact(grid.first.first?.text ?? '') != '과목') {
+        continue;
+      }
+      final headers = grid.first
+          .whereType<_FinancialHtmlCell>()
+          .where(
+            (c) =>
+                _compact(c.text) == '제$term기반기' ||
+                _compact(c.text) == '제$term기반기말',
+          )
+          .toSet();
+      if (headers.length != 1) {
+        throw const FormatException('Ambiguous current half-year header');
+      }
+      final header = headers.single;
+      if (header.colspan != 2 || header.column != 2 || grid.first.length != 6) {
+        throw const FormatException('Unsupported half-year header layout');
+      }
+      final labels = grid
+          .map((r) => r.isEmpty ? '' : _compact(r.first?.text ?? ''))
+          .toSet();
+      final String kind;
+      final Set<String> wanted;
+      if (labels.contains('자산총계') && labels.contains('부채총계')) {
+        kind = 'BS';
+        wanted = {'자산총계', '부채총계', '자본총계'};
+      } else if (labels.contains('매출액') && labels.contains('영업이익')) {
+        kind = 'CIS';
+        wanted = {'매출액', '영업이익', '반기순이익'};
+      } else if (labels.contains('영업활동으로인한현금흐름')) {
+        kind = 'CF';
+        wanted = {'영업활동으로인한현금흐름', '유형자산의취득'};
+      } else {
+        continue;
+      }
+      final preceding = _compact(_text(scope.substring(0, table.start)));
+      final units = RegExp(r'\(단위:([^)]*)\)').allMatches(preceding).toList();
+      if (units.isEmpty || units.last.group(1) != '원') {
+        throw const FormatException('Unknown half-year unit');
+      }
+      if (kind == 'CIS' &&
+          (grid.length < 2 ||
+              !_compact(grid[1][2]?.text ?? '').startsWith('3개월') ||
+              _compact(grid[1][3]?.text ?? '') != '누적')) {
+        throw const FormatException('Ambiguous three-month/cumulative columns');
+      }
+      for (final row in grid) {
+        if (row.isEmpty || !wanted.contains(_compact(row.first?.text ?? ''))) {
+          continue;
+        }
+        if (row.length != 6 || row.any((c) => c == null)) {
+          throw const FormatException('Incomplete half-year row grid');
+        }
+        if (row[2]!.rowspan != 1 ||
+            row[3]!.rowspan != 1 ||
+            row[2]!.colspan != 1 ||
+            row[3]!.colspan != 1) {
+          throw const FormatException('Spanning current monetary cells');
+        }
+        final label = _compact(row.first!.text);
+        if (values.containsKey(label)) {
+          throw const FormatException('Duplicate half-year core row');
+        }
+        final amount = kind == 'CIS' ? numeric(row[2]!.text) : null;
+        final cumulative = kind == 'CIS' ? numeric(row[3]!.text) : null;
+        final BigInt value;
+        if (kind == 'CIS') {
+          if (amount == null || cumulative == null) {
+            throw const FormatException('Missing half-year income amount');
+          }
+          value = cumulative;
+        } else {
+          final group = row.sublist(2, 4).toSet();
+          if (group.any((c) => c!.rowspan != 1 || c.colspan != 1)) {
+            throw const FormatException('Spanning current amount');
+          }
+          final amounts = group
+              .map((c) => numeric(c!.text))
+              .whereType<BigInt>()
+              .toList();
+          if (amounts.length != 1) {
+            throw const FormatException('Ambiguous current amount group');
+          }
+          value = amounts.single;
+        }
+        values[label] = value;
+        result.add({
+          'rcept_no': receipt,
+          'corp_code': corpCode,
+          'bsns_year': '${periodEnd.year}',
+          'reprt_code': '11012',
+          'account_id': null,
+          'account_nm': row.first!.text,
+          'account_detail': '-',
+          'sj_div': kind,
+          'thstrm_nm': kind == 'CIS'
+              ? '제$term기 반기 3개월'
+              : kind == 'BS'
+              ? periodEnd.toIso8601String().substring(0, 10)
+              : '${periodStart.toIso8601String().substring(0, 10)}~${periodEnd.toIso8601String().substring(0, 10)}',
+          'thstrm_amount': (amount ?? value).toString(),
+          if (kind == 'CIS') 'thstrm_add_amount': cumulative.toString(),
+          'currency': 'KRW',
+          'html_provenance': {
+            'source': statementSource.toString(),
+            'tableIndex': index,
+            'printedLabel': row.first!.text,
+            'currentTerm': header.text,
+            'basis': 'OFS',
+            'periodStart': periodStart.toIso8601String().substring(0, 10),
+            'periodEnd': periodEnd.toIso8601String().substring(0, 10),
+            'quarterColumn': kind == 'CIS' ? row[2]!.column : null,
+            'cumulativeColumn': kind == 'CIS' ? row[3]!.column : null,
+            'printedCurrentCells': row
+                .sublist(2, 4)
+                .map((c) => c!.text)
+                .toList(),
+          },
+        });
+      }
+    }
+    if (!{
+          '자산총계',
+          '부채총계',
+          '자본총계',
+          '매출액',
+          '영업이익',
+          '반기순이익',
+          '영업활동으로인한현금흐름',
+        }.every(values.containsKey) ||
+        values['자산총계'] != values['부채총계']! + values['자본총계']!) {
+      throw const FormatException('Half-year core missing or balance mismatch');
+    }
+    return result;
+  }
+}
+
+class _FinancialHtmlCell {
+  _FinancialHtmlCell(this.text, this.column, this.rowspan, this.colspan);
+  final String text;
+  final int column, rowspan, colspan;
+}
+
+abstract final class _FinancialHtmlGrid {
+  static List<List<_FinancialHtmlCell?>> parse(String html) {
+    final rows = RegExp(
+      r'<TR\b[^>]*>(.*?)</TR>',
+      caseSensitive: false,
+      dotAll: true,
+    ).allMatches(html).toList();
+    if (rows.length > 300) {
+      throw const FormatException('Oversize financial grid');
+    }
+    final grid = <List<_FinancialHtmlCell?>>[];
+    for (var r = 0; r < rows.length; r++) {
+      while (grid.length <= r) {
+        grid.add([]);
+      }
+      var column = 0;
+      for (final cell in RegExp(
+        r'<T[DH]\b([^>]*)>(.*?)</T[DH]>',
+        caseSensitive: false,
+        dotAll: true,
+      ).allMatches(rows[r].group(1)!)) {
+        int span(String name) {
+          final matches = RegExp(
+            '$name\\s*=\\s*["\x27]?(\\d+)',
+            caseSensitive: false,
+          ).allMatches(cell.group(1)!).toList();
+          if (matches.length > 1) {
+            throw const FormatException('Duplicate cell span');
+          }
+          final n = matches.isEmpty ? 1 : int.parse(matches.single.group(1)!);
+          if (n < 1 || n > (name == 'rowspan' ? 2 : 6)) {
+            throw const FormatException('Unsupported cell span');
+          }
+          return n;
+        }
+
+        while (column < grid[r].length && grid[r][column] != null) {
+          column++;
+        }
+        final rs = span('rowspan'), cs = span('colspan');
+        if (column + cs > 10 || r + rs > rows.length) {
+          throw const FormatException('Out-of-bounds financial grid');
+        }
+        final parsed = _FinancialHtmlCell(
+          PublicFinancialHtml._text(cell.group(2)!),
+          column,
+          rs,
+          cs,
+        );
+        for (var y = r; y < r + rs; y++) {
+          while (grid.length <= y) {
+            grid.add([]);
+          }
+          while (grid[y].length < column + cs) {
+            grid[y].add(null);
+          }
+          for (var x = column; x < column + cs; x++) {
+            if (grid[y][x] != null) {
+              throw const FormatException('Overlapping financial cells');
+            }
+            grid[y][x] = parsed;
+          }
+        }
+        column += cs;
+      }
+    }
+    return grid;
   }
 }

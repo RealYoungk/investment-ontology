@@ -139,6 +139,7 @@ class FinancialFactsSync {
   int _htmlCoreRecovered = 0;
   int _calendarYearRepairCalls = 0;
   int _periodMetadataRepaired = 0;
+  int _periodNameMetadataRepaired = 0;
   static const calendarYearRepairReserve = 40;
 
   final DateTime Function() _clock;
@@ -284,6 +285,30 @@ class FinancialFactsSync {
           );
         }
       }
+      // One source-reviewed latest half-year exception; ordinary API noData
+      // ledgers remain untouched. CFS noData is explicitly preserved.
+      if (job.status != IngestStatus.cancelled) {
+        for (final f in await DartFiling.db.find(
+          session,
+          where: (t) =>
+              t.id.inSet(scopeIds) &
+              t.corpCode.equals('00337296') &
+              t.rceptNo.equals('20260814002145'),
+        )) {
+          if (_isKnownHalfYearHtmlPeriod(f) &&
+              f.separateStatus == FilingFetchStatus.noData &&
+              f.attempts < maxAttempts &&
+              !(f.lastError?.contains(_halfYearHtmlMarker) ?? false)) {
+            await DartFiling.db.updateRow(
+              session,
+              f.copyWith(
+                separateStatus: FilingFetchStatus.pending,
+                lastError: _halfYearHtmlMarker,
+              ),
+            );
+          }
+        }
+      }
       final targets = job.status == IngestStatus.cancelled
           ? const <DartFiling>[]
           : await DartFiling.db.find(
@@ -335,7 +360,8 @@ class FinancialFactsSync {
         _budgetExhausted = _apiQuotaBlocked || dart.calls >= _allowance;
         if (!_hasAllowance &&
             !_priorAnnualMismatch(filing) &&
-            !_isCalendarYearRepair(filing)) {
+            !_isCalendarYearRepair(filing) &&
+            !_isHalfYearHtmlRecovery(filing)) {
           continue;
         }
         final company = byId[filing.companyId];
@@ -403,6 +429,10 @@ class FinancialFactsSync {
       }
       if (_periodMetadataRepaired > 0) {
         message += ', 동일접수·원천값 검증 후 회계연도 메타데이터 복구 $_periodMetadataRepaired벌';
+      }
+      if (_periodNameMetadataRepaired > 0) {
+        message +=
+            ', 동일 원접수·당기 핵심 7계정 검증 후 보고기간 명칭 복구 $_periodNameMetadataRepaired벌(전체 계정값 재검증 아님)';
       }
       if (feedRows > 0) message += ', 공시 피드 $feedRows건';
       if (only != null) message = '${only.name}: $message';
@@ -737,11 +767,158 @@ class FinancialFactsSync {
       filing.reportCode == FinancialReportCode.annual &&
       (filing.lastError?.contains(_annualRecoveryMarker) ?? false);
 
+  static const _halfYearHtmlMarker = 'verified-half-html-noData-once';
+  static bool _isKnownHalfYearHtmlPeriod(DartFiling f) {
+    final period = DartReportName.parse(f.reportName);
+    return f.corpCode == '00337296' &&
+        f.rceptNo == '20260814002145' &&
+        f.reportCode == FinancialReportCode.halfYear &&
+        f.bsnsYear == 2026 &&
+        period?.kind == DartReportKind.halfYear &&
+        period?.periodYear == 2026 &&
+        period?.periodMonth == 6;
+  }
+
+  static bool _isHalfYearHtmlRecovery(DartFiling f) =>
+      _isKnownHalfYearHtmlPeriod(f) &&
+      (f.lastError?.contains(_halfYearHtmlMarker) ?? false);
+
+  Future<({int stored, bool failed})> _fetchHalfYearHtmlRecovery(
+    DartFiling filing,
+    Company company,
+  ) async {
+    if (filing.separateStatus != FilingFetchStatus.pending &&
+        filing.separateStatus != FilingFetchStatus.failed) {
+      return (stored: 0, failed: false);
+    }
+    final end = DateTime.utc(2026, 6, 30);
+    final name = company.name.replaceAll(RegExp(r'\(주\)|㈜|주식회사|\s+'), '');
+    FilingFetchStatus result;
+    var inserted = false;
+    String? error;
+    ({
+      List<Map<String, dynamic>> rows,
+      Uri statementSource,
+      Uri coverSource,
+      String digest,
+    })?
+    verified;
+    try {
+      if (name.isEmpty) {
+        throw const FormatException('Empty half-year company identity');
+      }
+      final html = await dart.fetchHalfYearHtml(
+        filing.rceptNo,
+        reportName: filing.reportName,
+        corpCode: company.corpCode,
+        companyName: company.name,
+        bsnsYear: filing.bsnsYear!,
+        periodEnd: end,
+        consolidated: false,
+      );
+      if (html.sourceReceipt != filing.rceptNo ||
+          html.correctionReceipt != null ||
+          html.correctionSource != null ||
+          html.periodEnd != end) {
+        throw const FormatException('Half-year exact-source identity mismatch');
+      }
+      final rows = PublicFinancialHtml.parseHalfYear(
+        coverHtml: html.coverHtml,
+        statementHtml: html.statementHtml,
+        coverSource: html.coverSource,
+        statementSource: html.statementSource,
+        receipt: filing.rceptNo,
+        corpCode: company.corpCode,
+        companyName: name,
+        periodStart: html.periodStart,
+        periodEnd: end,
+        consolidated: false,
+      );
+      verified = (
+        rows: rows,
+        statementSource: html.statementSource,
+        coverSource: html.coverSource,
+        digest: html.sourceDigest,
+      );
+    } catch (_) {
+      error =
+          '$_halfYearHtmlMarker; verified exact half-year HTML source failed';
+    }
+    if (verified != null) {
+      // Persistence failures must propagate, never masquerade as transport gaps.
+      final saved = await _store(
+        filing,
+        company,
+        FsDiv.separate,
+        verified.rows,
+        originalSource: verified.statementSource,
+        originalDigest: verified.digest,
+        originalFormat: 'html',
+      );
+      result = saved.status;
+      inserted = saved.inserted;
+      if (inserted) _htmlCoreRecovered++;
+      if (result == FilingFetchStatus.stored) {
+        final reference =
+            'financial-half-html-recovery:${filing.rceptNo}:separate';
+        if (await Source.db.findFirstRow(
+              session,
+              where: (t) => t.reference.equals(reference),
+            ) ==
+            null) {
+          await Source.db.insertRow(
+            session,
+            Source(
+              kind: SourceKind.dartReport,
+              reference: reference,
+              url: verified.statementSource.toString(),
+              retrievedAt: _clock().toUtc(),
+              title: jsonEncode({
+                'action': 'verified-exact-half-html-source',
+                'receipt': filing.rceptNo,
+                'corpCode': company.corpCode,
+                'reportName': filing.reportName,
+                'fsDiv': 'separate',
+                'coverSource': verified.coverSource.toString(),
+                'statementSource': verified.statementSource.toString(),
+                'originalSha256': verified.digest,
+                'coreRows': verified.rows.length,
+                'note': '손익 3개월 값과 반기 누적값, 현금흐름 누적값 보존. XBRL계정ID 미제공.',
+              }),
+            ),
+          );
+        }
+      }
+    } else {
+      result = FilingFetchStatus.failed;
+    }
+    await DartFiling.db.updateRow(
+      session,
+      filing.copyWith(
+        separateStatus: result,
+        attempts: result == FilingFetchStatus.failed
+            ? filing.attempts + 1
+            : filing.attempts,
+        lastError:
+            error ??
+            '$_halfYearHtmlMarker; verified-half-html-source:${filing.rceptNo}',
+        checkedAt: _clock().toUtc(),
+      ),
+    );
+    return (
+      stored: inserted ? 1 : 0,
+      failed: result == FilingFetchStatus.failed,
+    );
+  }
+
   /// 공시 하나의 연결·별도 재무제표를 받는다. 새로 저장한 벌 수와 실패 여부.
   Future<({int stored, bool failed})> _fetchFiling(
     DartFiling filing,
     Company company,
   ) async {
+    if (_isHalfYearHtmlRecovery(filing)) {
+      return _fetchHalfYearHtmlRecovery(filing, company);
+    }
     var next = filing;
     ({List<int> zip, Uri source})? originalAnnual;
     var stored = 0;
@@ -958,6 +1135,7 @@ class FinancialFactsSync {
               originalSource: fallback.source,
               originalDigest: fallback.digest,
               originalFormat: fallback.format,
+              verifiedAttachmentSource: fallback.correctionSource != null,
             );
             result = saved.status;
             if (saved.status == FilingFetchStatus.stored &&
@@ -1113,6 +1291,201 @@ class FinancialFactsSync {
     );
   }
 
+  /// The official linked original proves its period independently of today's
+  /// master fiscal month. Verify seven current whole-company core values only;
+  /// never claim a full-statement revalidation or rewrite amounts/sources.
+  Future<bool> _repairVerifiedOriginalPeriodName(
+    FinancialReport existing,
+    DartFiling filing,
+    Company company,
+    FsDiv div,
+    List<Map<String, dynamic>> rows,
+    Uri verifiedSource,
+    String digest,
+  ) async {
+    final oldPeriod = DartReportName.parse(existing.reportName);
+    final actual = DartReportName.parse(filing.reportName);
+    if (existing.rceptNo != filing.rceptNo ||
+        existing.companyId != company.id ||
+        existing.fsDiv != div ||
+        existing.reportCode != FinancialReportCode.annual ||
+        filing.reportCode != FinancialReportCode.annual ||
+        existing.bsnsYear != filing.bsnsYear ||
+        oldPeriod == null ||
+        actual == null ||
+        oldPeriod.kind != DartReportKind.annual ||
+        actual.kind != DartReportKind.annual ||
+        oldPeriod.periodYear != actual.periodYear ||
+        oldPeriod.periodMonth == actual.periodMonth ||
+        actual.periodYear != filing.bsnsYear ||
+        verifiedSource.scheme != 'https' ||
+        verifiedSource.host != 'dart.fss.or.kr' ||
+        verifiedSource.path != '/pdf/download/ifrs.do' ||
+        verifiedSource.queryParameters['rcp_no'] != filing.rceptNo ||
+        !RegExp(r'^[a-f0-9]{64}$').hasMatch(digest)) {
+      return false;
+    }
+    const requiredIds = {
+      'ifrs-full_Assets',
+      'ifrs-full_Liabilities',
+      'ifrs-full_Equity',
+      'ifrs-full_Revenue',
+      'dart_OperatingIncomeLoss',
+      'ifrs-full_ProfitLoss',
+      'ifrs-full_CashFlowsFromUsedInOperatingActivities',
+    };
+    final fresh = FinancialRows.toFacts(
+      rows,
+      reportId: existing.id!,
+      companyId: company.id!,
+      bsnsYear: filing.bsnsYear!,
+      reportCode: FinancialReportCode.annual,
+      fsDiv: div,
+      sourceId: existing.sourceId,
+    );
+    if (fresh.invalidAmounts != 0 ||
+        fresh.skippedRows != 0 ||
+        fresh.facts.length != 7 ||
+        fresh.facts
+            .map((f) => f.accountId)
+            .toSet()
+            .difference(requiredIds)
+            .isNotEmpty ||
+        !fresh.facts.map((f) => f.accountId).toSet().containsAll(requiredIds)) {
+      return false;
+    }
+    String group(FinancialFact f) => switch (f.statement) {
+      FinancialStatementKind.incomeStatement ||
+      FinancialStatementKind.comprehensiveIncome => 'income',
+      _ => f.statement.name,
+    };
+    return session.db.transaction((tx) async {
+      await session.db.unsafeExecute(
+        'SELECT pg_advisory_xact_lock(461101,hashtext(@key))',
+        parameters: QueryParameters.named({
+          'key': '${company.id}:${filing.bsnsYear}:annual:${div.name}',
+        }),
+        transaction: tx,
+      );
+      final current = await FinancialReport.db.findById(
+        session,
+        existing.id!,
+        transaction: tx,
+        lockMode: LockMode.forUpdate,
+      );
+      if (current == null ||
+          current.reportName != existing.reportName ||
+          current.sourceId != existing.sourceId ||
+          current.bsnsYear != existing.bsnsYear ||
+          current.supersededById != null) {
+        return false;
+      }
+      final source = await Source.db.findById(
+        session,
+        current.sourceId,
+        transaction: tx,
+      );
+      if (source == null ||
+          source.kind != SourceKind.dartReport ||
+          source.reference != filing.rceptNo ||
+          !source.title.startsWith('DART 전체 재무제표 (fnlttSinglAcntAll)')) {
+        return false;
+      }
+      final facts = await FinancialFact.db.find(
+        session,
+        where: (t) => t.reportId.equals(current.id!),
+        transaction: tx,
+        lockMode: LockMode.forUpdate,
+      );
+      if (facts.length != current.factCount ||
+          facts.any(
+            (f) =>
+                f.companyId != company.id ||
+                f.bsnsYear != existing.bsnsYear ||
+                f.reportCode != existing.reportCode ||
+                f.fsDiv != div ||
+                f.sourceId != existing.sourceId ||
+                f.supersededById != null,
+          )) {
+        return false;
+      }
+      if (await FinancialReport.db.count(
+                session,
+                where: (t) => t.supersededById.equals(current.id!),
+                transaction: tx,
+              ) >
+              0 ||
+          await FinancialFact.db.count(
+                session,
+                where: (t) =>
+                    t.supersededById.inSet({for (final f in facts) f.id!}),
+                transaction: tx,
+              ) >
+              0) {
+        return false;
+      }
+      final verified = <Map<String, dynamic>>[];
+      for (final expected in fresh.facts) {
+        final matches = facts
+            .where(
+              (f) =>
+                  f.accountId == expected.accountId &&
+                  group(f) == group(expected) &&
+                  (f.accountDetail == null || f.accountDetail == '-'),
+            )
+            .toList();
+        if (matches.length != 1 ||
+            expected.amount == null ||
+            expected.currency != 'KRW' ||
+            matches.single.amount != expected.amount ||
+            matches.single.currency != expected.currency) {
+          return false;
+        }
+        verified.add({
+          'accountId': expected.accountId,
+          'statement': group(expected),
+          'amount': expected.amount.toString(),
+          'currency': expected.currency,
+        });
+      }
+      BigInt value(String id) =>
+          fresh.facts.singleWhere((f) => f.accountId == id).amount!;
+      if (value('ifrs-full_Assets') !=
+          value('ifrs-full_Liabilities') + value('ifrs-full_Equity')) {
+        return false;
+      }
+      await FinancialReport.db.updateRow(
+        session,
+        current.copyWith(reportName: filing.reportName),
+        transaction: tx,
+      );
+      await Source.db.insertRow(
+        session,
+        Source(
+          kind: SourceKind.dartReport,
+          reference: 'financial-report-period-name-repair:${current.id}',
+          url: verifiedSource.toString(),
+          retrievedAt: _clock().toUtc(),
+          title: jsonEncode({
+            'action': 'verified-original-period-name-repair',
+            'receipt': filing.rceptNo,
+            'companyId': company.id,
+            'fsDiv': div.name,
+            'oldReportName': existing.reportName,
+            'verifiedReportName': filing.reportName,
+            'originalSourceId': current.sourceId,
+            'unchangedFacts': facts.length,
+            'verifiedCurrentCore': verified,
+            'originalSha256': digest,
+            'auditNote': '당기 whole-company 핵심 7계정만 검증; 전체 계정·비교기간 값 재검증 아님. 숫자·Source IDs·정정 연결 보존.',
+          }),
+        ),
+        transaction: tx,
+      );
+      return true;
+    });
+  }
+
   /// DART 요청 제한 초과.
   static const _limitExceeded = '020';
 
@@ -1128,6 +1501,7 @@ class FinancialFactsSync {
     Uri? originalSource,
     String? originalDigest,
     String originalFormat = 'xbrl',
+    bool verifiedAttachmentSource = false,
   }) async {
     if (rows == null || rows.isEmpty) {
       return (status: FilingFetchStatus.noData, inserted: false);
@@ -1185,6 +1559,21 @@ class FinancialFactsSync {
           existing.reportCode != filing.reportCode ||
           existing.fsDiv != div ||
           !_sameActualPeriod(existing.reportName, actualFiling.reportName)) {
+        if (verifiedAttachmentSource &&
+            originalSource != null &&
+            originalFormat == 'xbrl' &&
+            await _repairVerifiedOriginalPeriodName(
+              existing,
+              filing,
+              company,
+              div,
+              rows,
+              originalSource,
+              originalDigest!,
+            )) {
+          _periodNameMetadataRepaired++;
+          return (status: FilingFetchStatus.stored, inserted: false);
+        }
         if (rceptNo == filing.rceptNo &&
             await FinancialPeriodRepair.repair(
               session,

@@ -21,8 +21,8 @@ class PublicFinancialHtmlSource {
   });
 
   final String sourceReceipt;
-  final String correctionReceipt;
-  final Uri correctionSource;
+  final String? correctionReceipt;
+  final Uri? correctionSource;
   final String coverHtml;
   final Uri coverSource;
   final String statementHtml;
@@ -35,7 +35,7 @@ class PublicFinancialHtmlSource {
       sha256.convert(utf8.encode('$coverHtml\n$statementHtml')).toString();
 }
 
-/// Narrow public annual HTML fallback for explicit attachment corrections.
+/// Narrow public HTML transport for annual attachment originals and exact half-years.
 /// Company IDs come from each official shell; dates come from the actual cover.
 /// No account IDs, date ranges, or amounts are inferred by this transport.
 class PublicFinancialHtmlFetcher {
@@ -43,6 +43,45 @@ class PublicFinancialHtmlFetcher {
   final http.Client client;
 
   Future<PublicFinancialHtmlSource> fetchAttachmentAnnual(
+    String receipt, {
+    required String reportName,
+    required String corpCode,
+    required String companyName,
+    required int bsnsYear,
+    required DateTime periodEnd,
+    required bool consolidated,
+  }) => _fetch(
+    receipt,
+    reportName: reportName,
+    corpCode: corpCode,
+    companyName: companyName,
+    bsnsYear: bsnsYear,
+    periodEnd: periodEnd,
+    consolidated: consolidated,
+    halfYear: false,
+  );
+
+  /// Exact-receipt half-year HTML. This never follows a prior annual report.
+  Future<PublicFinancialHtmlSource> fetchHalfYear(
+    String receipt, {
+    required String reportName,
+    required String corpCode,
+    required String companyName,
+    required int bsnsYear,
+    required DateTime periodEnd,
+    required bool consolidated,
+  }) => _fetch(
+    receipt,
+    reportName: reportName,
+    corpCode: corpCode,
+    companyName: companyName,
+    bsnsYear: bsnsYear,
+    periodEnd: periodEnd,
+    consolidated: consolidated,
+    halfYear: true,
+  );
+
+  Future<PublicFinancialHtmlSource> _fetch(
     String correctionReceipt, {
     required String reportName,
     required String corpCode,
@@ -50,12 +89,17 @@ class PublicFinancialHtmlFetcher {
     required int bsnsYear,
     required DateTime periodEnd,
     required bool consolidated,
+    required bool halfYear,
   }) async {
     if (!RegExp(r'^\d{14}$').hasMatch(correctionReceipt) ||
         !RegExp(r'^\d{8}$').hasMatch(corpCode) ||
-        !reportName.startsWith('[첨부정정]사업보고서') ||
+        !(halfYear
+            ? reportName.startsWith('반기보고서')
+            : reportName.startsWith('[첨부정정]사업보고서')) ||
         periodEnd.year != bsnsYear) {
-      throw const FormatException('Not a bound annual attachment correction');
+      throw const FormatException(
+        'Not a bound supported financial HTML report',
+      );
     }
     String? cookie;
     var requested = false;
@@ -104,43 +148,51 @@ class PublicFinancialHtmlFetcher {
     final correctionSource = shellUri(correctionReceipt);
     final correctionShell = await get(correctionSource);
     document(correctionShell, correctionReceipt);
-    final family = RegExp(
-      r'<select\b[^>]*\bid=["\x27]family["\x27][^>]*>(.*?)</select>',
-      dotAll: true,
-      caseSensitive: false,
-    ).allMatches(correctionShell).toList();
-    if (family.length != 1) {
-      throw const FormatException('Ambiguous official main selection');
-    }
-    final originals = <String>[];
-    for (final option in RegExp(
-      r'<option\b([^>]*)>',
-      caseSensitive: false,
-    ).allMatches(family.single.group(1)!)) {
-      final attrs = <String, String>{};
-      for (final attr in RegExp(
-        r'([\w-]+)\s*=\s*["\x27]([^"\x27]*)["\x27]',
-      ).allMatches(option.group(1)!)) {
-        if (attrs.containsKey(attr.group(1))) {
-          throw const FormatException('Duplicate main selection attribute');
+    var sourceReceipt = correctionReceipt;
+    var originalSource = correctionSource;
+    var shell = correctionShell;
+    var dcm = document(shell, sourceReceipt);
+    if (!halfYear) {
+      final family = RegExp(
+        r'<select\b[^>]*\bid=["\x27]family["\x27][^>]*>(.*?)</select>',
+        dotAll: true,
+        caseSensitive: false,
+      ).allMatches(correctionShell).toList();
+      if (family.length != 1) {
+        throw const FormatException('Ambiguous official main selection');
+      }
+      final originals = <String>[];
+      for (final option in RegExp(
+        r'<option\b([^>]*)>',
+        caseSensitive: false,
+      ).allMatches(family.single.group(1)!)) {
+        final attrs = <String, String>{};
+        for (final attr in RegExp(
+          r'([\w-]+)\s*=\s*["\x27]([^"\x27]*)["\x27]',
+        ).allMatches(option.group(1)!)) {
+          if (attrs.containsKey(attr.group(1))) {
+            throw const FormatException('Duplicate main selection attribute');
+          }
+          attrs[attr.group(1)!] = attr.group(2)!;
         }
-        attrs[attr.group(1)!] = attr.group(2)!;
+        if (attrs['title'] != '사업보고서') continue;
+        if (!RegExp(r'^rcpNo=\d{14}$').hasMatch(attrs['value'] ?? '')) {
+          throw const FormatException(
+            'Invalid official original receipt option',
+          );
+        }
+        originals.add(attrs['value']!.substring(6));
       }
-      if (attrs['title'] != '사업보고서') continue;
-      if (!RegExp(r'^rcpNo=\d{14}$').hasMatch(attrs['value'] ?? '')) {
-        throw const FormatException('Invalid official original receipt option');
+      if (originals.length != 1 ||
+          originals.single.compareTo(correctionReceipt) >= 0) {
+        throw const FormatException('Ambiguous or nonprior annual original');
       }
-      originals.add(attrs['value']!.substring(6));
-    }
-    if (originals.length != 1 ||
-        originals.single.compareTo(correctionReceipt) >= 0) {
-      throw const FormatException('Ambiguous or nonprior annual original');
-    }
 
-    final sourceReceipt = originals.single;
-    final originalSource = shellUri(sourceReceipt);
-    final shell = await get(originalSource, referer: correctionSource);
-    final dcm = document(shell, sourceReceipt);
+      sourceReceipt = originals.single;
+      originalSource = shellUri(sourceReceipt);
+      shell = await get(originalSource, referer: correctionSource);
+      dcm = document(shell, sourceReceipt);
+    }
     Uri node(String expected) {
       final matches = <Uri>[];
       final nodes = RegExp(
@@ -180,8 +232,14 @@ class PublicFinancialHtmlFetcher {
       return matches.single;
     }
 
-    final coverSource = node('사업보고서');
-    final statementSource = node(consolidated ? '2.연결재무제표' : '4.재무제표');
+    final coverSource = node(halfYear ? '반기보고서' : '사업보고서');
+    final statementSource = node(
+      halfYear
+          ? 'III.재무에관한사항'
+          : consolidated
+          ? '2.연결재무제표'
+          : '4.재무제표',
+    );
     final coverHtml = await get(coverSource, referer: originalSource);
     final text = coverHtml
         .replaceAll(RegExp(r'<[^>]+>'), '')
@@ -215,7 +273,10 @@ class PublicFinancialHtmlFetcher {
     }
     final statementHtml = await get(statementSource, referer: originalSource);
     final name = companyName.replaceAll(RegExp(r'\(주\)|㈜|주식회사|\s+'), '');
-    final rows = PublicFinancialHtml.parse(
+    final parse = halfYear
+        ? PublicFinancialHtml.parseHalfYear
+        : PublicFinancialHtml.parse;
+    final rows = parse(
       coverHtml: coverHtml,
       statementHtml: statementHtml,
       coverSource: coverSource,
@@ -229,8 +290,8 @@ class PublicFinancialHtmlFetcher {
     );
     return PublicFinancialHtmlSource(
       sourceReceipt: sourceReceipt,
-      correctionReceipt: correctionReceipt,
-      correctionSource: correctionSource,
+      correctionReceipt: halfYear ? null : correctionReceipt,
+      correctionSource: halfYear ? null : correctionSource,
       coverHtml: coverHtml,
       coverSource: coverSource,
       statementHtml: statementHtml,

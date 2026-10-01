@@ -80,7 +80,7 @@ void main() {
         expect(result.sourceReceipt, '20240701000635');
         expect(result.correctionReceipt, '20240702000525');
         expect(
-          result.correctionSource.queryParameters['rcpNo'],
+          result.correctionSource!.queryParameters['rcpNo'],
           '20240702000525',
         );
         expect(
@@ -220,5 +220,133 @@ void main() {
       throwsFormatException,
     );
     expect(requests, hasLength(4));
+  });
+  group('exact declared half-year', () {
+    final halfShell = fixture('20260814002145-shell.html');
+    final halfCover = fixture('20260814002145-cover.html');
+    final financial = fixture('20260814002145-financial.html');
+    Future<PublicFinancialHtmlSource> half({
+      String? shell,
+      String? coverHtml,
+      bool consolidated = false,
+      DateTime? end,
+      String reportName = '반기보고서 (2026.06)',
+    }) {
+      var viewers = 0;
+      return PublicFinancialHtmlFetcher(
+        MockClient((r) async {
+          requests.add(r);
+          expect(r.url.host, 'dart.fss.or.kr');
+          expect(r.url.queryParameters.containsKey('crtfc_key'), isFalse);
+          if (r.url.path == '/dsaf001/main.do') {
+            return http.Response(
+              shell ?? halfShell,
+              200,
+              headers: {'content-type': 'text/html; charset=utf-8'},
+            );
+          }
+          expect(r.url.queryParameters['rcpNo'], '20260814002145');
+          expect(r.url.queryParameters['dcmNo'], '11532196');
+          return http.Response(
+            viewers++ == 0 ? coverHtml ?? halfCover : financial,
+            200,
+            headers: {'content-type': 'text/html; charset=utf-8'},
+          );
+        }),
+      ).fetchHalfYear(
+        '20260814002145',
+        reportName: reportName,
+        corpCode: '00337296',
+        companyName: '(주)원포유',
+        bsnsYear: 2026,
+        periodEnd: end ?? DateTime.utc(2026, 6, 30),
+        consolidated: consolidated,
+      );
+    }
+
+    test('actual source cover binds current OFS and separates quarter/cumulative cells', () async {
+      final source = await half();
+      expect(source.sourceReceipt, '20260814002145');
+      expect(source.correctionReceipt, isNull);
+      expect(source.correctionSource, isNull);
+      expect(source.periodStart, DateTime.utc(2026, 1, 1));
+      expect(source.periodEnd, DateTime.utc(2026, 6, 30));
+      expect(source.statementSource.queryParameters['eleId'], '17');
+      expect(requests, hasLength(3));
+      expect(source.rows, hasLength(8));
+      expect(
+        source.rows.every(
+          (r) => r['account_id'] == null && r['rcept_no'] == '20260814002145',
+        ),
+        isTrue,
+      );
+      final revenue = source.rows.singleWhere((r) => r['account_nm'] == '매출액');
+      expect(revenue['thstrm_amount'], '2095889269');
+      expect(revenue['thstrm_add_amount'], '6919979049');
+    });
+    test('annual report cannot enter half-year transport', () async {
+      await expectLater(
+        half(reportName: '사업보고서 (2026.06)'),
+        throwsFormatException,
+      );
+      expect(requests, isEmpty);
+    });
+    test(
+      'foreign company or another shell receipt cannot enter exact half source',
+      () async {
+        await expectLater(
+          half(
+            shell: halfShell.replaceAll(
+              "openCorpInfoNew('00337296'",
+              "openCorpInfoNew('00000001'",
+            ),
+          ),
+          throwsFormatException,
+        );
+        expect(requests, hasLength(1));
+        requests.clear();
+        await expectLater(
+          half(
+            shell: halfShell.replaceAll(
+              "openPdfDownload('20260814002145'",
+              "openPdfDownload('20260814002146'",
+            ),
+          ),
+          throwsFormatException,
+        );
+        expect(requests, hasLength(1));
+      },
+    );
+    test('cover end or printed company mismatch rejects the source', () async {
+      await expectLater(
+        half(end: DateTime.utc(2026, 9, 30)),
+        throwsFormatException,
+      );
+      expect(requests, hasLength(2));
+      requests.clear();
+      await expectLater(
+        half(coverHtml: halfCover.replaceAll('주식회사 원포유', '주식회사 다른회사')),
+        throwsFormatException,
+      );
+      expect(requests, hasLength(3));
+    });
+    test(
+      'whole financial node coordinates and requested basis stay strict',
+      () async {
+        await expectLater(
+          half(
+            shell: halfShell.replaceAll(
+              "['dcmNo'] = \"11532196\"",
+              "['dcmNo'] = \"99999999\"",
+            ),
+          ),
+          throwsFormatException,
+        );
+        expect(requests, hasLength(1));
+        requests.clear();
+        await expectLater(half(consolidated: true), throwsFormatException);
+        expect(requests, hasLength(3));
+      },
+    );
   });
 }

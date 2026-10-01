@@ -1,0 +1,21 @@
+{
+  "companyName": "원포유",
+  "corpCode": "00337296",
+  "receipt": "20260814002145",
+  "documentNo": "11532196",
+  "viewerUri": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814002145",
+  "downloadListUri": "https://dart.fss.or.kr/pdf/download/main.do?rcp_no=20260814002145&dcm_no=11532196",
+  "originalXbrlLinks": [],
+  "checkedAt": "2026-10-01T17:57:22.565970+00:00",
+  "financialBodyUri": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260814002145&dcmNo=11532196&eleId=17&offset=138492&length=339065&dtd=dart4.xsd",
+  "financialBodySha256": "92fde395f2940739f1d841b16cec37c6e70ce03dbe0717d5a1aa2ee3bcb4d4b9",
+  "periodEvidence": [],
+  "assessment": {
+    "xbrl": "No exact-receipt original XBRL link in official public download listing; not a conclusion that all other sources lack financial information.",
+    "actualPeriod": "2026-01-01~2026-06-30 half-year",
+    "statementBasis": "OFS only; printed report says consolidated statements not applicable",
+    "currency": "KRW (printed 단위: 원)",
+    "sourceFiscalMonth": 12,
+    "recovery": "Current XBRL parser cannot recover without an actual XBRL source. An independently validated printed-table reader would be a separate task."
+  }
+}
