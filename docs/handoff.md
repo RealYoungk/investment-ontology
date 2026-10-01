@@ -829,3 +829,7 @@ User authorized implementing locally before review. Actual Flutter industries pa
 main 789fbe5/운영 backend 4fd01b3의 후속 기능을 보존한 격리 체크아웃에서 미국 opt-out/GPC/GPP 요청 차단, 현재 paid 회차의 공급자 직접 취소 GET 대사(해지 회원 포함), 신규·갱신 청구만 멈추는 CHARGES_PAUSED를 추가했다. Node30, browser mock17/17, 일반 Flutter Web+인증RPC+격리DB9/9, 집중 server75 통과. 실제 Google 계정 US 메시지를 alfinder.kr에만 게시했고 EU 메시지 게시를 확인했다. 실제 Google EU 동의창은 debug gdprApplies=true여도 표시되지 않아 미완료다. 사이트 승인 때문이라고 입증되지 않았으며 message-only tag가 전체 EU/US 메시지를 지원한다는 단정을 정정했다. PRIVACY_READY/실광고/실결제는 계속 false. 자세한 증거·재현·중단 절차는 monetization-preapproval-verification.md 마지막 절. PR/최종 전체 릴리스·운영 배포 결과는 별도 증거로 기록한다.
 
 추가 실제 US 진단: 선택 거부 UI/Dismiss/Opt out과 GPP 변화 확인, inventory0. 초기 US API2는 거부 후에도 캐시되므로 최신 parsedSections 거부1을 확인하는 remount 차단 추가(Node33/browser18). EU 실제 UI는 여전히 미완료. 다른 채팅의 운영 파비콘 패치 PNG8개를 공개 운영 파일 그대로 격리 소스에 보존하여 다음 배포에서 되돌리지 않는다.
+
+### 2026-10-01 유럽 CMP 후속 진단·기본 광고 목적 조건
+
+PR90/main7cb54f3 웹과 서버53cba81 배포 및 운영 OFF 검증 완료. 이후 목적1+Google755만 확인하던 EU 기본 광고 게이트의 목적2/7/9/10·공급자 적법한 이익 및 publisher restrictions 검증 누락을 발견해 보완. Google 실제 EU UI는 아직 미검증이며 승인 때문이라는 인과는 입증되지 않았다. 공식 초기화 모드·marker·cookie reset·Referrer·게시 대상 및 정책URL 대조를 기록했다. 실제 AdSense test 진단에서 하위 프레임 요청이 탭의 차단을 벗어난 예외를 포함해 기록했으며 0 요청 통과로 주장하지 않는다. 상세: monetization-preapproval-verification.md 마지막 절. 최종 CI·PR·배포 및 외부 문의 발송 결과는 별도 최신 증거로 확인한다.

@@ -100,7 +100,7 @@ test('reject or missing consent bridge never fetches Google',async()=>{
  }
 });
 test('EU rejection or CMP failure never pushes an ad',async()=>{
- for(const data of [null,{eventStatus:'useractioncomplete',gdprApplies:true,cmpId:300,purpose:{consents:{1:false}},vendor:{consents:{755:true}}}]){
+ for(const data of [null,{eventStatus:'useractioncomplete',gdprApplies:true,cmpId:300,cmpStatus:'loaded',purpose:{consents:{1:false}},vendor:{consents:{755:true}}}]){
   const e=environment();e.root.__tcfapi=(_c,_v,cb)=>cb(data,!!data);
   const p=e.root.alfinderAds.mount(e.element(),publisher,slot,false);await e.tick();
   assert.equal(e.scripts.length,0);assert.equal(await p,false);assert.equal(e.root.adsbygoogle,undefined);
@@ -109,11 +109,11 @@ test('EU rejection or CMP failure never pushes an ad',async()=>{
 
 test('CMP opt-in permits contextual ads; later withdrawal removes filled DOM',async()=>{
  const e=environment(),el=e.element();let listener,removed=0;
- e.root.__tcfapi=(cmd,_v,cb)=>{if(cmd==='removeEventListener'){removed++;return;}listener=cb;cb({eventStatus:'tcloaded',gdprApplies:true,cmpId:300,listenerId:12,purpose:{consents:{1:true}},vendor:{consents:{755:true}}},true);};
+ e.root.__tcfapi=(cmd,_v,cb)=>{if(cmd==='removeEventListener'){removed++;return;}listener=cb;cb({eventStatus:'tcloaded',gdprApplies:true,cmpId:300,cmpStatus:'loaded',listenerId:12,purpose:{consents:{1:true},legitimateInterests:{2:true,7:true,9:true,10:true}},vendor:{consents:{755:true},legitimateInterests:{755:true}}},true);};
  const p=e.root.alfinderAds.mount(el,publisher,slot,false);await e.tick();e.scripts[0].onload();await e.tick();
  assert.equal(e.root.adsbygoogle.requestNonPersonalizedAds,1);assert.equal(e.root.adsbygoogle.length,1);
  el.children[0].setAttribute('data-ad-status','filled');e.observers[0].fn();assert.equal(await p,true);
- listener({eventStatus:'useractioncomplete',gdprApplies:true,cmpId:300,listenerId:12,purpose:{consents:{1:false}},vendor:{consents:{755:false}}},true);
+ listener({eventStatus:'useractioncomplete',gdprApplies:true,cmpId:300,cmpStatus:'loaded',listenerId:12,purpose:{consents:{1:false}},vendor:{consents:{755:false}}},true);
  assert.equal(el.children.length,0);assert.equal(removed,1);
 });
 test('local withdrawal while CMP is pending prevents late ad push',async()=>{
@@ -129,8 +129,8 @@ test('local withdrawal while CMP is pending prevents late ad push',async()=>{
 // These test both transport setup and slot pushes; a script fetch is not an ad push.
 test('CMP missing, unknown jurisdiction, wrong CMP or missing vendor cannot request inventory',async()=>{
  for(const data of [undefined,{eventStatus:'tcloaded'},
-  {eventStatus:'tcloaded',gdprApplies:true,cmpId:999,purpose:{consents:{1:true}},vendor:{consents:{755:true}}},
-  {eventStatus:'tcloaded',gdprApplies:true,cmpId:300,purpose:{consents:{1:true}}}]){
+  {eventStatus:'tcloaded',gdprApplies:true,cmpId:999,purpose:{consents:{1:true},legitimateInterests:{2:true,7:true,9:true,10:true}},vendor:{consents:{755:true},legitimateInterests:{755:true}}},
+  {eventStatus:'tcloaded',gdprApplies:true,cmpId:300,cmpStatus:'loaded',purpose:{consents:{1:true}}}]){
   const e=environment(),el=e.element();
   if(data===undefined)e.root.googlefc.callbackQueue=[];
   else e.root.__tcfapi=(_c,_v,cb)=>cb(data,true);
@@ -171,7 +171,7 @@ test('delayed CMP grants permission before AdSense script is inserted',async()=>
  e.root.__tcfapi=(cmd,_v,cb)=>{if(cmd==='addEventListener')listener=cb;};
  const p=e.root.alfinderAds.mount(el,publisher,slot,true);await e.tick();
  assert.equal(e.cmpScripts.length,1);assert.equal(e.scripts.length,0);
- listener({eventStatus:'useractioncomplete',gdprApplies:true,cmpId:300,purpose:{consents:{1:true}},vendor:{consents:{755:true}}},true);
+ listener({eventStatus:'useractioncomplete',gdprApplies:true,cmpId:300,cmpStatus:'loaded',purpose:{consents:{1:true},legitimateInterests:{2:true,7:true,9:true,10:true}},vendor:{consents:{755:true},legitimateInterests:{755:true}}},true);
  await e.tick();assert.equal(e.scripts.length,1);e.scripts[0].onload();await e.tick();
  assert.equal(e.root.adsbygoogle.length,1);e.root.alfinderAds.dispose(el);await p;
 });
@@ -240,4 +240,63 @@ test('non-GDPR results from a different CMP cannot load Google inventory',async(
  const e=environment();e.root.__tcfapi=(_c,_v,cb)=>cb({gdprApplies:false,eventStatus:'tcloaded',cmpStatus:'loaded',cmpId:999},true);
  const p=e.root.alfinderAds.mount(e.element(),publisher,slot,false);await e.tick();
  assert.equal(await p,false);assert.equal(e.scripts.length,0);
+});
+
+function euBasicConsent() {
+ return {eventStatus:'tcloaded',gdprApplies:true,cmpId:300,cmpStatus:'loaded',listenerId:21,
+  purpose:{consents:{1:true},legitimateInterests:{2:true,7:true,9:true,10:true}},
+  vendor:{consents:{755:true},legitimateInterests:{755:true}}};
+}
+for (const purpose of [2,7,9,10]) {
+ test(`EU purpose ${purpose} objection prevents AdSense script and inventory`,async()=>{
+  const e=environment(),data=euBasicConsent();data.purpose.legitimateInterests[purpose]=false;
+  e.root.__tcfapi=(cmd,_v,cb)=>{if(cmd==='addEventListener')cb(data,true);};
+  const p=e.root.alfinderAds.mount(e.element(),publisher,slot,true);await e.tick();
+  assert.equal(await p,false);assert.equal(e.scripts.length,0);assert.equal(e.root.adsbygoogle,undefined);
+ });
+}
+test('EU missing or rejected Google vendor legitimate interest prevents script loading',async()=>{
+ for(const value of [undefined,false]) {
+  const e=environment(),data=euBasicConsent();data.vendor.legitimateInterests[755]=value;
+  e.root.__tcfapi=(cmd,_v,cb)=>{if(cmd==='addEventListener')cb(data,true);};
+  const p=e.root.alfinderAds.mount(e.element(),publisher,slot,true);await e.tick();
+  assert.equal(await p,false);assert.equal(e.scripts.length,0);
+ }
+});
+test('EU consent-only publisher restrictions require each purpose consent',async()=>{
+ for(const consent of [true,false]) {
+  const e=environment(),el=e.element(),data=euBasicConsent();
+  data.publisher={restrictions:{2:{755:1},7:{755:1},9:{755:1},10:{755:1}}};
+  data.purpose.legitimateInterests={};data.vendor.legitimateInterests={};
+  Object.assign(data.purpose.consents,{2:true,7:consent,9:true,10:true});
+  e.root.__tcfapi=(cmd,_v,cb)=>{if(cmd==='addEventListener')cb(data,true);};
+  const p=e.root.alfinderAds.mount(el,publisher,slot,true);await e.tick();
+  assert.equal(e.scripts.length,consent?1:0);
+  if(consent){e.scripts[0].onload();await e.tick();assert.equal(e.root.adsbygoogle.length,1);e.root.alfinderAds.dispose(el);}
+  assert.equal(await p,false);
+ }
+});
+test('EU publisher prohibits purpose or has unknown restriction: no requests',async()=>{
+ for(const purpose of [1,2,7,9,10])for(const rule of [0,3]) {
+  const e=environment(),data=euBasicConsent();data.publisher={restrictions:{[purpose]:{755:rule}}};
+  e.root.__tcfapi=(cmd,_v,cb)=>{if(cmd==='addEventListener')cb(data,true);};
+  const p=e.root.alfinderAds.mount(e.element(),publisher,slot,true);await e.tick();
+  assert.equal(await p,false);assert.equal(e.scripts.length,0);
+ }
+});
+test('EU purpose objection after fill removes slot and never pushes again',async()=>{
+ const e=environment(),el=e.element(),data=euBasicConsent();let listener;
+ e.root.__tcfapi=(cmd,_v,cb)=>{if(cmd==='addEventListener'){listener=cb;cb(data,true);}};
+ const p=e.root.alfinderAds.mount(el,publisher,slot,true);await e.tick();e.scripts[0].onload();await e.tick();
+ el.children[0].setAttribute('data-ad-status','filled');e.observers[0].fn();assert.equal(await p,true);
+ data.eventStatus='useractioncomplete';data.purpose.legitimateInterests[7]=false;listener(data,true);
+ assert.equal(el.children.length,0);assert.equal(e.root.adsbygoogle.length,1);
+});
+test('EU loading CMP with complete purpose data cannot load an ad until loaded',async()=>{
+ const e=environment(),el=e.element(),data=euBasicConsent();let listener;
+ data.cmpStatus='loading';
+ e.root.__tcfapi=(cmd,_v,cb)=>{if(cmd==='addEventListener'){listener=cb;cb(data,true);}};
+ const p=e.root.alfinderAds.mount(el,publisher,slot,true);await e.tick();assert.equal(e.scripts.length,0);
+ data.cmpStatus='loaded';listener(data,true);await e.tick();assert.equal(e.scripts.length,1);
+ e.root.alfinderAds.dispose(el);assert.equal(await p,false);
 });

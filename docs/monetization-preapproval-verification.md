@@ -103,3 +103,13 @@ US 메시지 게시 후 운영 origin /cookies?fc=alwaysshow&fctype=usnat의 임
 EU는 별도 콜백 등록에서도 API_READY/DATA_READY와 cmpId300/loaded/gdprApplies=true만 확인되고 eventStatus·purpose/vendor 동의·동의창이 없어 미완료다. 계정에는 alfinder.kr 대상 EU 메시지 게시와 거절 버튼, 일반 파트너198개가 설정되어 있다. 새 동의 쿠키 상태와 정식 tag의 요청 중지 진단으로도 EU UI를 확인하지 못했다. 이 문제를 사이트 승인만으로 해결된다고 주장하지 않는다. US에서 동작했다는 증거도 EU 전체 통합의 보증은 아니다.
 
 운영 파비콘 별도 패치가 배포되어 있어, 새 릴리스로 이전 Flutter 아이콘이 복원되지 않도록 공개 운영 PNG8개와 동일 link meta를 격리 소스에 포함했다. 기본 체크아웃의 미커밋 변경은 손대지 않았다. 이후 배포는 별도 asset patch가 아니라 검증된 Git 파일로 재현한다.
+
+## 2026-10-01 유럽 기본 광고 목적별 게이트 후속
+
+Google의 현재 [TCF 게시자 연동 문서](https://support.google.com/adsense/answer/9804260?hl=en)는 비맞춤 광고에도 목적1 동의 외에 목적2·7·9·10의 적법한 이익(또는 CMP가 요구하는 동의)을 요구한다. Google 공급자755와 목적1만 확인하던 로컬 게이트를 보완했다. CMP loaded 상태에서 Google 공급자·목적1 동의, 목적2·7·9·10 및 공급자 적법한 이익을 확인한다. publisher.restrictions가 consent를 요구하면 그 목적의 동의를 확인하고, 금지·알 수 없는 제한은 차단한다. 부분 거부·공급자 적법한 이익 거부·후속 목적 철회에 대해 AdSense 스크립트·push·DOM을 별도로 검증한다. 이 조건이 실제 Google UI/TC 문자열 검증을 대신하지 않는다.
+
+추가 실제 진단에서 referrer 헤더·대상 사이트·32언어·198파트너·정책URL·게시 상태·최상위 배치와 FCCDCF만 초기화한 새 방문을 확인했다. 현재 AdSense 스크립트가 생성하는 ers=2 및 googlefcPresent 초기화 순서도 비교했지만 유럽 UI/eventStatus는 여전히 오지 않았다. /f/ 응답은 cookie_refresh_executable을 실행했고 메시지 UI가 없었다. 이는 서버 응답 관측이며 사이트 승인 대기가 원인이라는 증거는 아니다. 내부 ers=2 옵션을 지원된 공개 API라고 간주해 운영 코드에 적용하지 않았다.
+
+**진단의 예외를 숨기지 않는다.** 실제 AdSense 태그에서 pauseAdRequests=1 동안 CMP가 초기화되지 않았다. 이후 test-mode 진단에서 탭의 Network.setBlockedURLs가 광고 하위 프레임에 적용되지 않아 실제 광고 요청/응답이 관측됐다. 즉시 해당 진단 탭을 닫았다. 이 진단은 0 요청 통과에 포함하지 않으며 운영 플래그 변경도 없었다. 앞으로 실제 inventory 코드 진단은 하위 타깃까지 차단이 확인되지 않으면 실행하지 않는다. 메시지 전용 진단과 모의 전송 테스트는 실제 광고 요청 없이 진행했다.
+
+Google 공식 gethelp GDPR 경로는 현재 계정·한국어에서 이메일/채팅을 제공하지 않고 사용할 수 없는 커뮤니티만 제시했다. 공식 [EU 관련 FAQ](https://support.google.com/adsense/answer/11546682?hl=en)의 문의 주소와 재현 자료를 준비했다. 외부 발송은 사용자의 별도 승인을 요청했으며, 발송 또는 공급자 확인이 완료된 것으로 기록하지 않는다. 상세 안전한 증거는 기본 저장소 outputs/monetization-preapproval-01a0f73f/followup/cmp-further-diagnostic.json에 보존한다.
