@@ -1034,6 +1034,22 @@ class FinancialFactsSync {
       ) ??
       0;
 
+  /// Priority only for the exact official TXR annual fixture; never resets retries.
+  static bool verifiedTxrRecoveryPriority(DartFiling f) =>
+      f.rceptNo == '20250526000504' &&
+      f.corpCode == '01458161' &&
+      f.reportCode == FinancialReportCode.annual &&
+      f.bsnsYear == 2024 &&
+      DartReportName.parse(f.reportName)?.periodYear == 2024 &&
+      DartReportName.parse(f.reportName)?.periodMonth == 12 &&
+      _annualPublicAttempts(f) < 3 &&
+      [f.consolidatedStatus, f.separateStatus].any(
+        (s) =>
+            s == FilingFetchStatus.pending ||
+            s == FilingFetchStatus.failed ||
+            s == FilingFetchStatus.noData,
+      );
+
   Future<({int stored, int failed, int processed, int remaining, bool fresh})>
   _recoverAnnualApiNoData(
     Set<int> scopeIds,
@@ -1110,6 +1126,9 @@ class FinancialFactsSync {
       '20260331004755': {'OFS'},
     };
     bool verifiedParserPending(DartFiling f) {
+      if (f.rceptNo == '20250526000504') {
+        return verifiedTxrRecoveryPriority(f);
+      }
       if (f.rceptNo == BnkSixCoreProfile.receipt &&
           f.corpCode != BnkSixCoreProfile.corpCode) {
         return false;
