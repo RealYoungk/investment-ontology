@@ -1,0 +1,30 @@
+{
+  "corpCode": "00610861",
+  "receipt": "20260331001824",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260331001824",
+      "sha256": "12e084ecae4d32c05e0cc4467c35f98cf395ee0a3d1ffcf55995745deac30c0e"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260331001824&dcmNo=11204605&eleId=1&offset=968&length=5079&dtd=dart4.xsd",
+      "sha256": "12968f167eb8a9f1876297060bff97250ef7875927b54d8b781fecba20ffb392"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260331001824&dcmNo=11204605&eleId=19&offset=190818&length=254&dtd=dart4.xsd",
+      "sha256": "07443c816a29591c01a58e16960edb148e43650a07dff98ff7be196f3b6d3e6c"
+    }
+  ],
+  "shellCorpIds": [
+    "00610861"
+  ],
+  "coverTextStart": "사업보고서(제26기)사업연도2025년01월01일부터2025년12월31일까지금융위원회한국거래소귀중2026년03월31일제출대상법인유형:주권상장법인면제사유발생:해당사항없음회사명:코스텍시스템(주)대표이사:배준호본점소재지:경기도평택시서탄면방꼬지길231(전화)031-646-1500(홈페이지)http://kosteks.com작성책임자:(직책)부사장(성명)김용섭(전화)031-646-1585",
+  "coverDates": [
+    "제26기)사업연도2025년01월01일부터2025년12월31일까지금융위원회한국거래소귀중2026년03월31일제출"
+  ],
+  "cfsTextStart": "2.연결재무제표당사는본보고서작성기준일현재연결대상종속회사가없어해당사항이없습니다.",
+  "cfsDates": []
+}

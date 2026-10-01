@@ -1,0 +1,30 @@
+{
+  "corpCode": "01293388",
+  "receipt": "20260323001144",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260323001144",
+      "sha256": "c392b0b454d4c9718116430299b71bf21afc11efee887f65bde2c34b5201f99f"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323001144&dcmNo=11165834&eleId=1&offset=968&length=4540&dtd=dart4.xsd",
+      "sha256": "55c391361c4be509686b012ef8b85846db2f69fc8831ff88dfc8ff2a20d7cd63"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323001144&dcmNo=11165834&eleId=19&offset=258755&length=204&dtd=dart4.xsd",
+      "sha256": "2008839721d762f27fad91799c5539c03eb963f260cd76d8a0e0779568bfa231"
+    }
+  ],
+  "shellCorpIds": [
+    "01293388"
+  ],
+  "coverTextStart": "사업보고서(제10기)사업연도2025년01월01일부터2025년12월31일까지금융위원회한국거래소귀중2026년3월23일제출대상법인유형:주권상장법인면제사유발생:해당사항없음회사명:주식회사무진메디대표이사:윤태종본점소재지:경기도하남시미사강변중앙로7번안길25유테크밸리C동10층(전화)031-8027-6150(홈페이지)http://www.moogene.com작성책임자:(직책)경영관리본부장(성명)박지훈(전화)031-8027-6150",
+  "coverDates": [
+    "제10기)사업연도2025년01월01일부터2025년12월31일까지금융위원회한국거래소귀중2026년3월23일제출대"
+  ],
+  "cfsTextStart": "2.연결재무제표당사는본보고서작성기준일현재해당사항없습니다.",
+  "cfsDates": []
+}

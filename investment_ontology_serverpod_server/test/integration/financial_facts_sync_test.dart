@@ -1,3 +1,6 @@
+import '../unit/public_financial_html_cfs_none_literals_test.dart'
+    as literal_fixture;
+
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_financial_period_metadata.dart';
 
 import 'dart:convert';
@@ -434,6 +437,25 @@ class AnnualNoDataClient extends DartClient {
       periodEnd: periodEnd,
       rows: const [],
     );
+  }
+}
+
+class LiteralNoneClient extends AnnualNoDataClient {
+  LiteralNoneClient(this.index);
+  final int index;
+  @override
+  Future<PublicFinancialHtmlSource> fetchAnnualHtml(
+    String receipt, {
+    required String reportName,
+    required String corpCode,
+    required String companyName,
+    required int bsnsYear,
+    required DateTime periodEnd,
+    required bool consolidated,
+  }) {
+    if (!consolidated) throw StateError('Stored OFS must remain untouched');
+    htmlRequests++;
+    return literal_fixture.actual(index);
   }
 }
 
@@ -1220,6 +1242,128 @@ void main() {
         IngestStatus.succeeded,
       );
     });
+
+    for (var index = 0; index < literal_fixture.cases.length; index++) {
+      final i = index;
+      final proof = literal_fixture.cases[i];
+      test(
+        'actual CFS literal ${proof.$1} audits API0 and preserves stored OFS',
+        () async {
+          final c = (await Company.db.find(session)).single;
+          await Company.db.updateRow(
+            session,
+            c.copyWith(
+              corpCode: proof.$2,
+              name: proof.$3,
+              stockCode: '000001',
+              fiscalMonth: proof.$5,
+            ),
+          );
+          final filing = await DartFiling.db.insertRow(
+            session,
+            DartFiling(
+              rceptNo: proof.$1,
+              corpCode: proof.$2,
+              companyId: c.id,
+              reportName:
+                  '사업보고서 (${proof.$4}.${proof.$5.toString().padLeft(2, '0')})',
+              bsnsYear: proof.$4,
+              reportCode: FinancialReportCode.annual,
+              consolidatedStatus: FilingFetchStatus.failed,
+              lastError:
+                  'api-noData-annual-public:attempt=1; CFS: FormatException',
+              separateStatus: FilingFetchStatus.stored,
+              discoveredAt: now,
+            ),
+          );
+          final oldSource = await Source.db.insertRow(
+            session,
+            Source(
+              kind: SourceKind.dartReport,
+              title: 'Preserved OFS API source',
+              reference: proof.$1,
+              retrievedAt: now,
+            ),
+          );
+          final oldReport = await FinancialReport.db.insertRow(
+            session,
+            FinancialReport(
+              companyId: c.id!,
+              rceptNo: proof.$1,
+              fsDiv: FsDiv.separate,
+              bsnsYear: proof.$4,
+              reportCode: FinancialReportCode.annual,
+              reportName: filing.reportName,
+              factCount: 1,
+              sourceId: oldSource.id!,
+              fetchedAt: now,
+            ),
+          );
+          final oldFact = await FinancialFact.db.insertRow(
+            session,
+            FinancialFact(
+              reportId: oldReport.id!,
+              companyId: c.id!,
+              bsnsYear: proof.$4,
+              reportCode: FinancialReportCode.annual,
+              fsDiv: FsDiv.separate,
+              statement: FinancialStatementKind.balanceSheet,
+              accountId: 'ifrs-full_Assets',
+              accountName: '자산총계',
+              amount: BigInt.from(123456),
+              sourceId: oldSource.id!,
+            ),
+          );
+          final job = await IngestJob.db.insertRow(
+            session,
+            IngestJob(
+              kind: FinancialFactsSync.kind,
+              status: IngestStatus.running,
+              startedAt: now,
+            ),
+          );
+          final reader = LiteralNoneClient(i);
+          await FinancialFactsSync(
+            session,
+            reader,
+            job.id!,
+            dailyBudget: 0,
+            corpCode: proof.$2,
+            clock: () => now,
+            callInterval: Duration.zero,
+          ).run();
+          final after = (await DartFiling.db.findById(session, filing.id!))!;
+          expect(after.consolidatedStatus, FilingFetchStatus.noData);
+          expect(after.separateStatus, FilingFetchStatus.stored);
+          expect(reader.financialRequests, 0);
+          expect(reader.htmlRequests, 1);
+          expect(await FinancialReport.db.count(session), 1);
+          expect(
+            (await FinancialReport.db.findById(
+              session,
+              oldReport.id!,
+            ))!.sourceId,
+            oldSource.id,
+          );
+          final fact = (await FinancialFact.db.findById(session, oldFact.id!))!;
+          expect(fact.amount, oldFact.amount);
+          expect(fact.sourceId, oldSource.id);
+          final auditSource = (await Source.db.find(
+            session,
+            where: (t) => t.reference.equals(
+              'financial-public-basis-not-applicable:${proof.$1}:consolidated',
+            ),
+          )).single;
+          final audit = jsonDecode(auditSource.title) as Map;
+          expect(audit['evidence'], proof.$6);
+          expect(audit['sha256'], matches(r'^[a-f0-9]{64}$'));
+          expect(
+            audit['periodEnd'],
+            DateTime.utc(proof.$4, proof.$5 + 1, 0).toIso8601String(),
+          );
+        },
+      );
+    }
 
     test('annual public source checks preserve the existing full report and its extension accounts', () async {
       final c = (await Company.db.find(session)).single;

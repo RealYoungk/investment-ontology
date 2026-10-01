@@ -1,0 +1,21 @@
+{
+  "corpCode": "00304915",
+  "receipt": "20230622000218",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230622000218",
+      "sha256": "cfadbc4530008dfc08f5b439b3e18bccf33d8b88a1549f86e9bc510a20e8f46b"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230622000218&dcmNo=9323087&eleId=1&offset=812&length=4030&dtd=dart3.xsd",
+      "sha256": "68c944d1ca6ccdbd78dac847f4f3b53f7ee98f5e528caa859b3e3635cf370b62"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230622000218&dcmNo=9323087&eleId=17&offset=244155&length=148&dtd=dart3.xsd",
+      "sha256": "6e75d936f4409fe8cf735571e1ff4c241129a2388e275f3950d428c55fd363ba"
+    }
+  ]
+}
