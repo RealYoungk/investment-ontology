@@ -1,3 +1,5 @@
+import 'verified_historical_company_identity.dart';
+
 /// Validated strict subsets of receipt-bound annual and half-year DART HTML.
 /// The caller must validate corpCode against both official viewer shells; the
 /// financial HTML cover supplies the company name but contains no corpCode.
@@ -516,7 +518,18 @@ abstract final class PublicFinancialHtml {
     ).allMatches(cover).toList();
     if (!cover.contains('사업보고서') ||
         company == null ||
-        legalName(company) != legalName(companyName) ||
+        (legalName(company) != legalName(companyName) &&
+            VerifiedHistoricalCompanyIdentity.evidence(
+                  receipt: receipt,
+                  corpCode: corpCode,
+                  currentName: companyName,
+                  printedName: company,
+                  periodEnd: periodEnd,
+                  consolidated: consolidated,
+                  coverSource: coverSource,
+                  coverHtml: coverHtml,
+                ) ==
+                null) ||
         terms.length != 1 ||
         periods.length != 1 ||
         sourceDate(periods.single.group(1)!) != periodStart ||
@@ -846,6 +859,23 @@ abstract final class PublicFinancialHtml {
         (row['html_provenance']
                 as Map<String, dynamic>)['unavailableOptionalAccounts'] =
             missingOptional;
+      }
+    }
+    final historicalIdentity = VerifiedHistoricalCompanyIdentity.evidence(
+      receipt: receipt,
+      corpCode: corpCode,
+      currentName: companyName,
+      printedName: company,
+      periodEnd: periodEnd,
+      consolidated: consolidated,
+      coverSource: coverSource,
+      coverHtml: coverHtml,
+    );
+    if (historicalIdentity != null) {
+      for (final row in result) {
+        (row['html_provenance']
+                as Map<String, dynamic>)['historicalCompanyIdentity'] =
+            historicalIdentity;
       }
     }
     return result;

@@ -1,0 +1,27 @@
+{
+  "receipt": "20230321001219",
+  "corpCode": "00115694",
+  "currentName": "DB증권(주)",
+  "shellCompanyIds": [
+    "00115694"
+  ],
+  "dcmNo": "9083870",
+  "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230321001219",
+  "coverUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230321001219&dcmNo=9083870&eleId=1&offset=784&length=3924&dtd=dart3.xsd",
+  "shellSha256": "31363c96892fea8b2f2fbce73dfb2a690d99d5efe8a3f2c109abb0cc0e32fce3",
+  "coverSha256": "3cc86ccee7cd434468865a4f32e1e0f1aa57472bf8d1fc53ed796d130050fe8d",
+  "shellTitle": [
+    "DB증권/사업보고서/2023.03.21",
+    "이미지새창보기"
+  ],
+  "coverExcerpt": " 사 업 보 고 서 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; (제 41 기) 사업연도 2022년 01월 01일 &nbsp;부터 2022년 12월 31일 &nbsp;까지 금융위원회 한국거래소 귀중 2023년 &nbsp; &nbsp; &nbsp;3월 &nbsp; &nbsp; 21일 제출대상법인 유형 : 주권상장법인 면제사유발생 : 해당사항 없음 회 &nbsp; &nbsp; &nbsp;사 &nbsp; &nbsp; &nbsp;명 : DB금융투자주식회사 대 &nbsp; 표 &nbsp; &nbsp;이 &nbsp; 사 : 고원종 본 &nbsp;점 &nbsp;소 &nbsp;재 &nbsp;지 : 서울특별시 영등포구 국제금융로 8길 32 DB금융투자빌딩 (전 &nbsp;화) 02-369-3000 (홈페이지) http://www.db-fi.com 작 &nbsp;성 &nbsp;책 &nbsp;임 &nbsp;자 : (직 &nbsp;책) 경영지원실장 &nbsp; &nbsp; &nbsp; &nbsp; (성 &nbsp;명) 장 현 일 (전 &nbsp;화) 02-369-3000 ",
+  "printedCoverName": "DB금융투자주식회사",
+  "actualPeriodStart": "2022-01-01",
+  "actualPeriodEnd": "2022-12-31",
+  "diagnosis": "Historical printed company name differs from current master; exact official shell corpCode, receipt and annual closing period match.",
+  "numericVerification": "Not performed; cover metadata only",
+  "CFSSource": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230321001219&dcmNo=9083870&eleId=17&offset=427435&length=91713&dtd=dart3.xsd",
+  "CFSSha256": "65e8236b7a4e26fa2e249382c1b7def1c5c857359403d73991758e711c49d9ba",
+  "OFSSource": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230321001219&dcmNo=9083870&eleId=19&offset=1451133&length=79626&dtd=dart3.xsd",
+  "OFSSha256": "87854befc1759c25f2815dfff75bf576050006a0ff4846e89d4c0a7dbaf2a7a4"
+}

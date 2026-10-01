@@ -1,3 +1,5 @@
+import 'verified_historical_company_identity.dart';
+
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
@@ -364,7 +366,18 @@ class PublicFinancialHtmlFetcher {
           .allMatches(text)
           .toList();
       if (printedNames.length != 1 ||
-          normalize(printedNames.single.group(1)!) != normalize(companyName) ||
+          (normalize(printedNames.single.group(1)!) != normalize(companyName) &&
+              VerifiedHistoricalCompanyIdentity.evidence(
+                    receipt: sourceReceipt,
+                    corpCode: corpCode,
+                    currentName: companyName,
+                    printedName: printedNames.single.group(1)!,
+                    periodEnd: periodEnd,
+                    consolidated: consolidated,
+                    coverSource: coverSource,
+                    coverHtml: coverHtml,
+                  ) ==
+                  null) ||
           periodEnd.difference(periodStart).inDays < 0 ||
           periodEnd.difference(periodStart).inDays + 1 > 367) {
         throw const FormatException('Exact annual company/duration mismatch');
