@@ -10,8 +10,11 @@ document.head.appendChild=function(el){
   loads++; queueMicrotask(()=>mode==='error'?el.onerror():el.onload()); return el;
  } return originalAppend(el);
 };
+window.googlefc={callbackQueue:{push(item){item.CONSENT_API_READY();}}};
+window.__tcfapi=(command,version,callback)=>{if(command==='addEventListener')callback({eventStatus:'tcloaded',gdprApplies:false},true);};
 window.adsbygoogle={push(){pushes++;const ad=document.querySelector('#slot ins');if(ad)queueMicrotask(()=>ad.setAttribute('data-ad-status',mode==='unfilled'?'unfilled':'filled'));}};
 </script>
+<script src="../../investment_ontology_serverpod_flutter/web/ad_consent.js"></script>
 <script src="../../investment_ontology_serverpod_flutter/web/ad_loader.js"></script>
 <script>
 const slot=document.getElementById('slot'), result=document.getElementById('result');
