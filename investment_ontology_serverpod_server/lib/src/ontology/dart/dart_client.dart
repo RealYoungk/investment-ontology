@@ -1,3 +1,5 @@
+import 'public_financial_period_metadata.dart';
+
 import 'dart:convert';
 
 import 'package:archive/archive.dart';
@@ -90,6 +92,23 @@ class DartFilingPage {
 class DartClient {
   DartClient(this.apiKey, {http.Client? httpClient})
     : _http = httpClient ?? http.Client();
+
+  Future<PublicFinancialPeriodMetadata> fetchAnnualPeriodMetadata(
+    String receipt, {
+    required String corpCode,
+    required String companyName,
+    required String targetReceipt,
+    required DateTime periodEnd,
+    bool halfYear = false,
+  }) => PublicFinancialPeriodMetadata.fetch(
+    _http,
+    receipt: receipt,
+    corpCode: corpCode,
+    companyName: companyName,
+    targetReceipt: targetReceipt,
+    periodEnd: periodEnd,
+    halfYear: halfYear,
+  );
 
   static const baseUrl = 'https://opendart.fss.or.kr/api';
 

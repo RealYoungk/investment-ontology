@@ -558,7 +558,7 @@ class FinancialCollectionStatus extends StatelessWidget {
   Widget build(BuildContext context) {
     final v = coverage;
     final counts = [
-      ('저장 보고서', v.financialStoredFilings),
+      ('기간 일치 저장 보고서', v.financialStoredFilings),
       ('재무 API 응답 자료 없음', v.financialNoDataFilings),
       ('대기 보고서', v.financialPendingFilings),
       ('실패 보고서', v.financialFailedFilings),
@@ -571,6 +571,14 @@ class FinancialCollectionStatus extends StatelessWidget {
             count == null ? '$label · 집계 대기' : '$label ${formatCount(count)}건',
             style: context.typo.body(12, color: context.colors.textSecondary),
           ),
+        Text(
+          '실제 결산월의 숫자와 원접수 출처가 연결된 보고서만 저장 건수에 포함합니다.',
+          style: context.typo.body(11, color: context.colors.textMuted),
+        ),
+        Text(
+          'API 자료 없음은 공시 원문에 재무 숫자가 없다는 뜻이 아닙니다.',
+          style: context.typo.body(11, color: context.colors.textMuted),
+        ),
         Text(
           '대기와 실패는 기준별 상태라 한 보고서가 두 항목에 포함될 수 있습니다.',
           style: context.typo.body(11, color: context.colors.textMuted),
