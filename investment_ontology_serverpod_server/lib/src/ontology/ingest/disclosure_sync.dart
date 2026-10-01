@@ -481,11 +481,30 @@ class DisclosureSync {
         for (var i = 0; i < scopeRows.length; i++)
           scopeRows[i].toColumnMap()['id'] as int: i,
       };
+      // Confirmed existing original bodies can obtain a keyless period anchor;
+      // an old API-wait marker must not hide them from that verification path.
+      final anchorRows = publicFallbackEnabled
+          ? await session.db.unsafeQuery(
+              'SELECT DISTINCT f.id FROM dart_filing f JOIN business_document b ON b."companyId"=f."companyId" '
+              'JOIN disclosure_report d ON d.id=b."reportId" AND d."companyId"=f."companyId" '
+              'AND d."bsnsYear"=f."bsnsYear" AND d."reportCode"=f."reportCode" '
+              'WHERE f."reportName" LIKE \'%첨부정정%\' AND d.section=\'businessContent\' '
+              'AND f."reportCode" IN (\'annual\',\'halfYear\') AND b."rceptNo"<f."rceptNo" AND length(b.text)>0 '
+              'AND NOT EXISTS(SELECT 1 FROM dart_filing sf WHERE sf."companyId"=f."companyId" AND sf."rceptNo"=b."rceptNo")',
+            )
+          : [];
+      final publicAnchorIds = {
+        for (final row in anchorRows) row.toColumnMap()['id'] as int,
+      };
       final apiAvailable = _hasAllowance;
       pending.sort((a, b) {
         if (!apiAvailable) {
-          final aWait = a.lastError == _businessApiWait;
-          final bWait = b.lastError == _businessApiWait;
+          final aWait =
+              a.lastError == _businessApiWait &&
+              !publicAnchorIds.contains(a.filingId);
+          final bWait =
+              b.lastError == _businessApiWait &&
+              !publicAnchorIds.contains(b.filingId);
           if (aWait != bWait) return aWait ? 1 : -1;
         }
         final attempts = a.attempts.compareTo(b.attempts);
@@ -511,7 +530,9 @@ class DisclosureSync {
         if ((!_hasAllowance && !_canFetchPublic) || _publicFailureStreak >= 6) {
           break;
         }
-        if (!_hasAllowance && item.lastError == _businessApiWait) {
+        if (!_hasAllowance &&
+            item.lastError == _businessApiWait &&
+            !publicAnchorIds.contains(item.filingId)) {
           continue;
         }
         final f = filings[item.filingId];
