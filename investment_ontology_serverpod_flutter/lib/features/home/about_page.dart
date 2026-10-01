@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../monetization/service_links.dart';
+
 import 'package:go_router/go_router.dart';
 
 import '../../design/components/components.dart';
@@ -217,6 +220,7 @@ class _AboutPageState extends State<AboutPage> {
                     '알파인더 · 기업을 이해하고, 근거를 확인하고, 스스로 판단하기',
                     style: t.body(12, color: c.textSecondary),
                   ),
+                  const ServiceLinks(),
                 ],
               ),
             ),
