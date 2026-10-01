@@ -116,7 +116,7 @@ void main() {
       );
       expect(find.text('70.0%'), findsOneWidget);
       expect(find.text('0.0%'), findsOneWidget);
-      expect(find.text('원천 데이터 없음 1건'), findsOneWidget);
+      expect(find.text('재무 API 응답 자료 없음 1건'), findsOneWidget);
       expect(find.text('실패 보고서 1건'), findsOneWidget);
       expect(find.text('대기 본문 2건'), findsOneWidget);
       expect(tester.takeException(), isNull);

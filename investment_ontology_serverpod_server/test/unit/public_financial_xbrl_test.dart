@@ -435,4 +435,304 @@ void main() {
       });
     }
   });
+  group('official explicit attachment originals', () {
+    final examples = [
+      (
+        '20250321001370',
+        '20250110000545',
+        '01669226',
+        2024,
+        DateTime.utc(2024, 10, 31),
+        '1586401656876',
+        '2799718358',
+      ),
+      (
+        '20240118000263',
+        '20240118000098',
+        '01688896',
+        2023,
+        DateTime.utc(2023, 10, 31),
+        '742411662610',
+        '458296429',
+      ),
+    ];
+    for (final s in examples) {
+      final correctionShell = File(
+        'test/fixtures/financial_xbrl/${s.$1}-shell.html',
+      ).readAsStringSync();
+      final originalShell = File(
+        'test/fixtures/financial_xbrl/${s.$2}-shell.html',
+      ).readAsStringSync();
+      final original = File('test/fixtures/financial_xbrl/${s.$2}.zip')
+          .readAsBytesSync();
+      final requests = <http.Request>[];
+      PublicFinancialXbrl reader(String shell) => PublicFinancialXbrl(
+        MockClient((request) async {
+          requests.add(request);
+          expect(request.url.host, 'dart.fss.or.kr');
+          expect(request.url.queryParameters.containsKey('crtfc_key'), isFalse);
+          if (request.url.path == '/dsaf001/main.do') {
+            return http.Response(
+              request.url.queryParameters['rcpNo'] == s.$1
+                  ? shell
+                  : originalShell,
+              200,
+              headers: {'content-type': 'text/html; charset=utf-8'},
+            );
+          }
+          if (request.url.path == '/pdf/download/main.do') {
+            final dcm = request.url.queryParameters['dcm_no'];
+            return http.Response(
+              '<a href="/pdf/download/ifrs.do?rcp_no=${s.$2}&amp;dcm_no=$dcm&amp;lang=ko">XBRL</a>',
+              200,
+            );
+          }
+          return http.Response.bytes(original, 200);
+        }),
+      );
+      Future<
+        ({
+          List<int> zip,
+          Uri source,
+          String receipt,
+          String correctionReceipt,
+          Uri correctionSource,
+        })
+      >
+      resolve(String shell, {String? corp, DateTime? end, String? name}) =>
+          reader(shell).fetchLinkedAnnual(
+            s.$1,
+            reportName: name ?? '[첨부정정]사업보고서',
+            corpCode: corp ?? s.$3,
+            bsnsYear: s.$4,
+            periodEnd: end ?? s.$5,
+            consolidated: false,
+          );
+      test(
+        '${s.$1}: official main option retains source receipt and proven current OFS values',
+        () async {
+          requests.clear();
+          final result = await resolve(correctionShell);
+          expect(result.receipt, s.$2);
+          expect(result.correctionReceipt, s.$1);
+          expect(result.source.queryParameters['rcp_no'], s.$2);
+          expect(result.correctionSource.queryParameters['rcpNo'], s.$1);
+          final rows = PublicFinancialXbrl.parse(
+            result.zip,
+            receipt: result.receipt,
+            corpCode: s.$3,
+            bsnsYear: s.$4,
+            periodEnd: s.$5,
+            consolidated: false,
+          );
+          expect(
+            rows.singleWhere(
+              (r) => r['account_id'] == 'ifrs-full_Assets',
+            )['thstrm_amount'],
+            s.$6,
+          );
+          expect(
+            rows.singleWhere(
+              (r) => r['account_id'] == 'ifrs-full_ProfitLoss',
+            )['thstrm_amount'],
+            s.$7,
+          );
+          expect(rows.every((r) => r['rcept_no'] == s.$2), isTrue);
+          expect(requests, hasLength(4));
+        },
+      );
+      test(
+        '${s.$1}: nonattachment report cannot resolve another receipt',
+        () async {
+          requests.clear();
+          await expectLater(
+            resolve(correctionShell, name: '[기재정정]사업보고서'),
+            throwsFormatException,
+          );
+          expect(requests, isEmpty);
+        },
+      );
+      test('${s.$1}: ambiguous or nonprior original and external URL rejected', () async {
+        for (final option in [
+          '<option value="rcpNo=${s.$2}" title="사업보고서">duplicate</option>',
+          '<option value="rcpNo=${s.$1}" title="사업보고서">current</option>',
+          '<option value="https://evil.test/?rcpNo=${s.$2}" title="사업보고서">foreign</option>',
+        ]) {
+          requests.clear();
+          final shell = correctionShell.replaceFirst(
+            '</select>',
+            '$option</select>',
+          );
+          await expectLater(resolve(shell), throwsFormatException);
+          expect(requests, hasLength(1));
+        }
+      });
+      test(
+        '${s.$1}: older original from wrong source period rejected',
+        () async {
+          await expectLater(
+            resolve(correctionShell, end: DateTime.utc(s.$4, 12, 31)),
+            throwsFormatException,
+          );
+        },
+      );
+      test('${s.$1}: foreign original company rejected', () async {
+        await expectLater(
+          resolve(correctionShell, corp: '00000001'),
+          throwsFormatException,
+        );
+      });
+    }
+  });
+  group('declared source partial OFS core subset', () {
+    final bytes = File(
+      'test/fixtures/financial_xbrl/daishin_value_20250811000434.zip',
+    ).readAsBytesSync();
+    List<Map<String, dynamic>> read(List<int> zip, {bool cfs = false}) =>
+        PublicFinancialXbrl.parse(
+          zip,
+          receipt: '20250811000434',
+          corpCode: '01885222',
+          bsnsYear: 2025,
+          periodEnd: DateTime.utc(2025, 5, 31),
+          consolidated: cfs,
+        );
+    List<int> mutate(void Function(XmlElement) edit) {
+      final archive = ZipDecoder().decodeBytes(bytes);
+      final instance = archive.files.singleWhere(
+        (f) => f.name.endsWith('.xbrl'),
+      );
+      final d = XmlDocument.parse(utf8.decode(instance.content));
+      edit(d.rootElement);
+      return ZipEncoder().encodeBytes(
+        Archive()..addFile(
+          ArchiveFile.bytes(instance.name, utf8.encode(d.toXmlString())),
+        ),
+      );
+    }
+
+    XmlElement fact(XmlElement r, String name) =>
+        r.children.whereType<XmlElement>().singleWhere(
+          (e) =>
+              e.name.local == name &&
+              (e.getAttribute('contextRef') ?? '').startsWith('CFY') &&
+              (e.getAttribute('contextRef') ?? '').split('_').length == 5 &&
+              (e.getAttribute('contextRef') ?? '').endsWith(
+                '_ifrs-full_SeparateMember',
+              ),
+        );
+    test('actual CFS has seven core facts; OFS has six individually sourced facts and no inferred profit', () {
+      final cfs = read(bytes, cfs: true);
+      expect(cfs, hasLength(7));
+      expect(
+        cfs.singleWhere(
+          (r) => r['account_id'] == 'ifrs-full_ProfitLoss',
+        )['thstrm_amount'],
+        '-976838894',
+      );
+      expect(cfs.any((r) => r['xbrl_partial_core'] == true), isFalse);
+      final rows = read(bytes);
+      expect(rows, hasLength(6));
+      expect(
+        {for (final r in rows) r['account_id']: r['thstrm_amount']},
+        {
+          'ifrs-full_Assets': '291152619288',
+          'ifrs-full_Liabilities': '142776521854',
+          'ifrs-full_Equity': '148376097434',
+          'ifrs-full_Revenue': '0',
+          'dart_OperatingIncomeLoss': '-189811627',
+          'ifrs-full_CashFlowsFromUsedInOperatingActivities': '-1015309351',
+        },
+      );
+      expect(
+        rows.every(
+          (r) =>
+              r['xbrl_partial_core'] == true &&
+              r['xbrl_collection_note'] == '순손익 wholecontext 미확보, 부분 핵심계정',
+        ),
+        isTrue,
+      );
+      expect(
+        rows.every((r) => r['thstrm_nm'] == '2024-10-23~2025-05-31'),
+        isTrue,
+      );
+    });
+    test(
+      'equity component ProfitLoss is never promoted to whole-company fact',
+      () {
+        final rows = read(
+          mutate((r) {
+            for (final e in r.children.whereType<XmlElement>().where(
+              (e) =>
+                  e.name.local == 'ProfitLoss' &&
+                  (e.getAttribute('contextRef') ?? '').contains(
+                    'SeparateMember',
+                  ),
+            )) {
+              e.innerText = '123456789';
+            }
+          }),
+        );
+        expect(
+          rows.any((r) => r['account_id'] == 'ifrs-full_ProfitLoss'),
+          isFalse,
+        );
+        expect(rows, hasLength(6));
+      },
+    );
+    test('broken source balance identity cannot yield partial facts', () {
+      expect(
+        () => read(mutate((r) => fact(r, 'Equity').innerText = '148376097435')),
+        throwsFormatException,
+      );
+    });
+    test('missing declared metadata cannot activate partial subset', () {
+      expect(
+        () => read(
+          mutate(
+            (r) => r.children.removeWhere(
+              (e) =>
+                  e is XmlElement &&
+                  [
+                    'DocumentPeriodStartDate',
+                    'DocumentPeriodEndDate',
+                  ].contains(e.name.local),
+            ),
+          ),
+        ),
+        throwsFormatException,
+      );
+    });
+    test(
+      'missing sixth fact or extra dimension cannot yield partial facts',
+      () {
+        expect(
+          () => read(
+            mutate(
+              (r) => fact(r, 'CashFlowsFromUsedInOperatingActivities')
+                  .parent!
+                  .children
+                  .remove(fact(r, 'CashFlowsFromUsedInOperatingActivities')),
+            ),
+          ),
+          throwsFormatException,
+        );
+        expect(
+          () => read(
+            mutate((r) {
+              final id = fact(r, 'Revenue').getAttribute('contextRef');
+              final context = r.children.whereType<XmlElement>().singleWhere(
+                (e) => e.name.local == 'context' && e.getAttribute('id') == id,
+              );
+              final member = context.descendants
+                  .whereType<XmlElement>()
+                  .singleWhere((e) => e.name.local == 'explicitMember');
+              member.parent!.children.add(member.copy());
+            }),
+          ),
+          throwsFormatException,
+        );
+      },
+    );
+  });
 }

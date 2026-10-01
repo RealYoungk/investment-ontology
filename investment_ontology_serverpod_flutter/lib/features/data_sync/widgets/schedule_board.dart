@@ -207,7 +207,7 @@ class _DatasetCollectionControlsState extends State<DatasetCollectionControls> {
         ),
         if (widget.dataset == 'business')
           Text(
-            '공시 주요정보와 같은 수집 작업',
+            '공시 주요정보 28종과 별도로 원문을 수집합니다.',
             style: context.typo.body(11, color: context.colors.textMuted),
           ),
         if (_error != null)

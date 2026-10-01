@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:convert';
 
 import 'package:serverpod/serverpod.dart';
 
@@ -7,6 +8,7 @@ import '../dart/dart_client.dart';
 import '../dart/dart_report_name.dart';
 import '../dart/dart_values.dart';
 import '../dart/public_financial_xbrl.dart';
+import '../dart/public_financial_html.dart';
 import 'api_call_budget.dart';
 import 'financial_rows.dart';
 import 'financial_period_repair.dart';
@@ -134,6 +136,7 @@ class FinancialFactsSync {
   /// 한도 소진 시 이어받기를 예약한다. null이면 예약하지 않는다.
   final Future<void> Function(DateTime at)? scheduleResume;
   int _xbrlCoreRecovered = 0;
+  int _htmlCoreRecovered = 0;
   int _calendarYearRepairCalls = 0;
   int _periodMetadataRepaired = 0;
   static const calendarYearRepairReserve = 40;
@@ -390,6 +393,10 @@ class FinancialFactsSync {
       if (exhausted > 0) message += ', 재시도 한도에 도달한 미완료 $exhausted건';
       if (_xbrlCoreRecovered > 0) {
         message += ', 원문 XBRL 핵심계정 복구 $_xbrlCoreRecovered벌(전체 재무제표 아님)';
+      }
+      if (_htmlCoreRecovered > 0) {
+        message +=
+            ', 원문 HTML 부분 핵심계정 복구 $_htmlCoreRecovered벌(실제 인쇄 계정명, XBRL 계정 ID 미제공·전체 재무제표 아님)';
       }
       if (_calendarYearRepairCalls > 0) {
         message += ', 보고기간 조회연도 보완 $_calendarYearRepairCalls호출(최대40, 공통한도 내)';
@@ -796,7 +803,15 @@ class FinancialFactsSync {
         if (e.isFatal || e.status == 'http') rethrow;
         if ((e.status == 'mismatch' || e.status == 'receiptPeriodMismatch') &&
             filing.reportCode == FinancialReportCode.annual) {
-          ({List<Map<String, dynamic>> rows, Uri source, String digest})?
+          ({
+            List<Map<String, dynamic>> rows,
+            Uri source,
+            String digest,
+            DartFiling sourceFiling,
+            Uri? correctionSource,
+            String format,
+            Uri? coverSource,
+          })?
           fallback;
           try {
             final period = RegExp(r'\((\d{4})\.(\d{2})\)')
@@ -809,12 +824,49 @@ class FinancialFactsSync {
               int.parse(period.group(2)!) + 1,
               0,
             );
-            final original = originalAnnual ??= await dart
-                .fetchPublicAnnualXbrl(filing.rceptNo);
+            var sourceFiling = filing;
+            Uri? correctionSource;
+            ({List<int> zip, Uri source}) original;
+            try {
+              original = originalAnnual ??= await dart.fetchPublicAnnualXbrl(
+                filing.rceptNo,
+              );
+            } on FormatException {
+              if (!filing.reportName.contains('첨부정정')) rethrow;
+              final linked = await dart.fetchLinkedAnnualXbrl(
+                filing.rceptNo,
+                reportName: filing.reportName,
+                corpCode: company.corpCode,
+                bsnsYear: filing.bsnsYear!,
+                periodEnd: end,
+                consolidated: div == FsDiv.consolidated,
+              );
+              if (linked.correctionReceipt != filing.rceptNo ||
+                  linked.receipt.compareTo(filing.rceptNo) >= 0) {
+                throw const FormatException(
+                  'Attachment receipt identity mismatch',
+                );
+              }
+              PublicFinancialXbrl.parse(
+                linked.zip,
+                receipt: linked.receipt,
+                corpCode: company.corpCode,
+                bsnsYear: filing.bsnsYear!,
+                periodEnd: end,
+                consolidated: div == FsDiv.consolidated,
+              );
+              sourceFiling = await _verifiedAttachmentSource(
+                filing,
+                company,
+                linked.receipt,
+              );
+              correctionSource = linked.correctionSource;
+              original = (zip: linked.zip, source: linked.source);
+            }
             fallback = (
               rows: PublicFinancialXbrl.parse(
                 original.zip,
-                receipt: filing.rceptNo,
+                receipt: sourceFiling.rceptNo,
                 corpCode: company.corpCode,
                 bsnsYear: filing.bsnsYear!,
                 periodEnd: end,
@@ -822,24 +874,115 @@ class FinancialFactsSync {
               ),
               source: original.source,
               digest: PublicFinancialXbrl.digest(original.zip),
+              sourceFiling: sourceFiling,
+              correctionSource: correctionSource,
+              format: 'xbrl',
+              coverSource: null,
             );
+          } on FormatException {
+            if (filing.reportName.contains('첨부정정')) {
+              try {
+                final period = DartReportName.parse(filing.reportName)!;
+                final end = DateTime.utc(
+                  period.periodYear,
+                  period.periodMonth + 1,
+                  0,
+                );
+                final html = await dart.fetchAttachmentAnnualHtml(
+                  filing.rceptNo,
+                  reportName: filing.reportName,
+                  corpCode: company.corpCode,
+                  companyName: company.name,
+                  bsnsYear: filing.bsnsYear!,
+                  periodEnd: end,
+                  consolidated: div == FsDiv.consolidated,
+                );
+                if (html.correctionReceipt != filing.rceptNo ||
+                    html.sourceReceipt.compareTo(filing.rceptNo) >= 0 ||
+                    html.periodEnd != end) {
+                  throw const FormatException(
+                    'HTML attachment source identity mismatch',
+                  );
+                }
+                final htmlCompanyName = company.name.replaceAll(
+                  RegExp(r'\(주\)|㈜|주식회사|\s+'),
+                  '',
+                );
+                if (htmlCompanyName.isEmpty) {
+                  throw const FormatException('Empty HTML company identity');
+                }
+                final rows = PublicFinancialHtml.parse(
+                  coverHtml: html.coverHtml,
+                  statementHtml: html.statementHtml,
+                  coverSource: html.coverSource,
+                  statementSource: html.statementSource,
+                  receipt: html.sourceReceipt,
+                  corpCode: company.corpCode,
+                  companyName: htmlCompanyName,
+                  periodStart: html.periodStart,
+                  periodEnd: end,
+                  consolidated: div == FsDiv.consolidated,
+                );
+                final sourceFiling = await _verifiedAttachmentSource(
+                  filing,
+                  company,
+                  html.sourceReceipt,
+                );
+                fallback = (
+                  rows: rows,
+                  source: html.statementSource,
+                  digest: html.sourceDigest,
+                  sourceFiling: sourceFiling,
+                  correctionSource: html.correctionSource,
+                  format: 'html',
+                  coverSource: html.coverSource,
+                );
+              } catch (_) {
+                error =
+                    '${FinancialCodes.fsDivName(div)}: API period mismatch; exact-receipt XBRL fallback failed; verified HTML fallback failed';
+              }
+            } else {
+              error =
+                  '${FinancialCodes.fsDivName(div)}: API period mismatch; exact-receipt XBRL fallback failed';
+            }
           } catch (_) {
             error =
                 '${FinancialCodes.fsDivName(div)}: API period mismatch; exact-receipt XBRL fallback failed';
           }
           if (fallback != null) {
             final saved = await _store(
-              filing,
+              fallback.sourceFiling,
               company,
               div,
               fallback.rows,
               originalSource: fallback.source,
               originalDigest: fallback.digest,
+              originalFormat: fallback.format,
             );
             result = saved.status;
+            if (saved.status == FilingFetchStatus.stored &&
+                fallback.correctionSource != null) {
+              final marker =
+                  'verified-attachment-source:${filing.rceptNo}->${fallback.sourceFiling.rceptNo}';
+              next = next.copyWith(lastError: marker);
+              await _recordAttachmentRecovery(
+                filing,
+                fallback.sourceFiling,
+                div,
+                fallback.correctionSource!,
+                fallback.digest,
+                originalFormat: fallback.format,
+                originalSource: fallback.source,
+                coverSource: fallback.coverSource,
+              );
+            }
             if (saved.inserted) {
               stored++;
-              _xbrlCoreRecovered++;
+              if (fallback.format == 'html') {
+                _htmlCoreRecovered++;
+              } else {
+                _xbrlCoreRecovered++;
+              }
             }
           } else {
             result = FilingFetchStatus.failed;
@@ -879,6 +1022,97 @@ class FinancialFactsSync {
     return (stored: stored, failed: failed);
   }
 
+  Future<DartFiling> _verifiedAttachmentSource(
+    DartFiling target,
+    Company company,
+    String receipt,
+  ) async {
+    final existing = await DartFiling.db.findFirstRow(
+      session,
+      where: (t) => t.rceptNo.equals(receipt),
+    );
+    if (existing != null) {
+      if (existing.companyId != company.id ||
+          existing.corpCode != company.corpCode ||
+          existing.bsnsYear != target.bsnsYear ||
+          existing.reportCode != target.reportCode ||
+          !_sameActualPeriod(existing.reportName, target.reportName)) {
+        throw const FormatException('Linked source ledger period mismatch');
+      }
+      return existing;
+    }
+    final period = DartReportName.parse(target.reportName)!;
+    return DartFiling.db.insertRow(
+      session,
+      DartFiling(
+        rceptNo: receipt,
+        corpCode: company.corpCode,
+        companyId: company.id,
+        bsnsYear: target.bsnsYear,
+        reportCode: target.reportCode,
+        reportName:
+            '사업보고서 (${period.periodYear}.${period.periodMonth.toString().padLeft(2, '0')})',
+        discoveredAt: _clock().toUtc(),
+        consolidatedStatus: FilingFetchStatus.pending,
+        separateStatus: FilingFetchStatus.pending,
+        lastError: 'official-attachment-source:${target.rceptNo}',
+      ),
+    );
+  }
+
+  Future<void> _recordAttachmentRecovery(
+    DartFiling target,
+    DartFiling original,
+    FsDiv div,
+    Uri correctionSource,
+    String digest, {
+    String originalFormat = 'xbrl',
+    Uri? originalSource,
+    Uri? coverSource,
+  }) async {
+    final reference =
+        'financial-attachment-recovery:${target.rceptNo}:${div.name}';
+    if (await Source.db.findFirstRow(
+          session,
+          where: (t) => t.reference.equals(reference),
+        ) ==
+        null) {
+      await Source.db.insertRow(
+        session,
+        Source(
+          kind: SourceKind.dartReport,
+          reference: reference,
+          url: correctionSource.toString(),
+          retrievedAt: _clock().toUtc(),
+          title: jsonEncode({
+            'action': 'verified-attachment-source',
+            'targetReceipt': target.rceptNo,
+            'sourceReceipt': original.rceptNo,
+            'corpCode': target.corpCode,
+            'reportName': original.reportName,
+            'fsDiv': div.name,
+            'originalSha256': digest,
+            'originalFormat': originalFormat,
+            if (originalSource != null)
+              'originalSource': originalSource.toString(),
+            if (coverSource != null) 'coverSource': coverSource.toString(),
+          }),
+        ),
+      );
+    }
+    await DartFiling.db.updateRow(
+      session,
+      original.copyWith(
+        consolidatedStatus: div == FsDiv.consolidated
+            ? FilingFetchStatus.stored
+            : original.consolidatedStatus,
+        separateStatus: div == FsDiv.separate
+            ? FilingFetchStatus.stored
+            : original.separateStatus,
+      ),
+    );
+  }
+
   /// DART 요청 제한 초과.
   static const _limitExceeded = '020';
 
@@ -893,6 +1127,7 @@ class FinancialFactsSync {
     List<Map<String, dynamic>>? rows, {
     Uri? originalSource,
     String? originalDigest,
+    String originalFormat = 'xbrl',
   }) async {
     if (rows == null || rows.isEmpty) {
       return (status: FilingFetchStatus.noData, inserted: false);
@@ -989,6 +1224,7 @@ class FinancialFactsSync {
         reportName,
         originalSource: originalSource,
         originalDigest: originalDigest,
+        originalFormat: originalFormat,
       );
     } on DatabaseUniqueViolationException {
       // 전체 수집과 기업 하나 수집이 같은 보고서를 동시에 저장하면 늦은 쪽이 여기로 온다.
@@ -1011,10 +1247,18 @@ class FinancialFactsSync {
     String reportName, {
     Uri? originalSource,
     String? originalDigest,
+    String originalFormat = 'xbrl',
   }) async {
     final now = DateTime.now().toUtc();
     final bsnsYear = filing.bsnsYear!;
     final reportCode = filing.reportCode!;
+    final partialCore =
+        originalSource != null &&
+        rows.any((r) => r['xbrl_partial_core'] == true);
+    final partialNote = partialCore
+        ? ' · 부분 핵심계정 · 당기순손익 미확보 · '
+              '${rows.firstWhere((r) => r['xbrl_partial_core'] == true)['xbrl_collection_note']}'
+        : '';
     await session.db.transaction((tx) async {
       // 같은 (회사, 사업연도, 보고서 코드, 구분)을 동시에 처리하는 다른 실행(전체
       // 수집과 기업 하나 수집 등)과 이 트랜잭션의 대체 판정을 직렬화한다. 잠그지
@@ -1032,7 +1276,7 @@ class FinancialFactsSync {
         Source(
           kind: SourceKind.dartReport,
           title: originalSource != null
-              ? 'DART 원문 XBRL 핵심계정 · $reportName · ${FinancialCodes.fsDivName(div)} · SHA256:$originalDigest'
+              ? '${originalFormat == 'html' ? 'DART 원문 HTML 부분 핵심계정(실제 인쇄 계정명, XBRL 계정 ID 미제공)' : 'DART 원문 XBRL 핵심계정'} · $reportName · ${FinancialCodes.fsDivName(div)} · SHA256:$originalDigest$partialNote'
               : 'DART 전체 재무제표 (fnlttSinglAcntAll) · $reportName · '
                     '${FinancialCodes.fsDivName(div)}',
           reference: rceptNo,

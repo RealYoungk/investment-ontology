@@ -1,0 +1,243 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
+import 'package:http/http.dart' as http;
+
+import 'public_financial_html.dart';
+
+/// Verified source data retains the original receipt, never the attachment's.
+class PublicFinancialHtmlSource {
+  PublicFinancialHtmlSource({
+    required this.sourceReceipt,
+    required this.correctionReceipt,
+    required this.correctionSource,
+    required this.coverHtml,
+    required this.coverSource,
+    required this.statementHtml,
+    required this.statementSource,
+    required this.periodStart,
+    required this.periodEnd,
+    required this.rows,
+  });
+
+  final String sourceReceipt;
+  final String correctionReceipt;
+  final Uri correctionSource;
+  final String coverHtml;
+  final Uri coverSource;
+  final String statementHtml;
+  final Uri statementSource;
+  final DateTime periodStart;
+  final DateTime periodEnd;
+  final List<Map<String, dynamic>> rows;
+
+  String get sourceDigest =>
+      sha256.convert(utf8.encode('$coverHtml\n$statementHtml')).toString();
+}
+
+/// Narrow public annual HTML fallback for explicit attachment corrections.
+/// Company IDs come from each official shell; dates come from the actual cover.
+/// No account IDs, date ranges, or amounts are inferred by this transport.
+class PublicFinancialHtmlFetcher {
+  PublicFinancialHtmlFetcher(this.client);
+  final http.Client client;
+
+  Future<PublicFinancialHtmlSource> fetchAttachmentAnnual(
+    String correctionReceipt, {
+    required String reportName,
+    required String corpCode,
+    required String companyName,
+    required int bsnsYear,
+    required DateTime periodEnd,
+    required bool consolidated,
+  }) async {
+    if (!RegExp(r'^\d{14}$').hasMatch(correctionReceipt) ||
+        !RegExp(r'^\d{8}$').hasMatch(corpCode) ||
+        !reportName.startsWith('[첨부정정]사업보고서') ||
+        periodEnd.year != bsnsYear) {
+      throw const FormatException('Not a bound annual attachment correction');
+    }
+    String? cookie;
+    var requested = false;
+    Future<String> get(Uri uri, {Uri? referer}) async {
+      if (requested) await Future<void>.delayed(const Duration(seconds: 1));
+      requested = true;
+      final response = await client
+          .get(
+            uri,
+            headers: {
+              'User-Agent': 'InvestmentOntology/1.0',
+              'Accept': 'text/html',
+              if (cookie != null) 'Cookie': cookie!,
+              if (referer != null) 'Referer': referer.toString(),
+            },
+          )
+          .timeout(const Duration(seconds: 30));
+      if (response.statusCode != 200 ||
+          (response.request?.url.host ?? uri.host) != 'dart.fss.or.kr' ||
+          response.bodyBytes.length > 5 * 1024 * 1024) {
+        throw const FormatException('Invalid official financial HTML response');
+      }
+      final setCookie = response.headers['set-cookie'];
+      if (setCookie != null) cookie = setCookie.split(';').first;
+      return utf8.decode(response.bodyBytes);
+    }
+
+    Uri shellUri(String receipt) =>
+        Uri.https('dart.fss.or.kr', '/dsaf001/main.do', {'rcpNo': receipt});
+    String document(String shell, String receipt) {
+      final documents = RegExp("openPdfDownload\\('$receipt',\\s*'(\\d+)'\\)")
+          .allMatches(shell)
+          .map((m) => m.group(1)!)
+          .toSet();
+      final companies = RegExp(
+        r"openCorpInfoNew\('(\d{8})',\s*'winCorpInfo',\s*'/dsae001/selectPopup.ax'\)",
+      ).allMatches(shell).map((m) => m.group(1)!).toSet();
+      if (documents.length != 1 ||
+          companies.length != 1 ||
+          companies.single != corpCode) {
+        throw const FormatException('Official shell receipt/company mismatch');
+      }
+      return documents.single;
+    }
+
+    final correctionSource = shellUri(correctionReceipt);
+    final correctionShell = await get(correctionSource);
+    document(correctionShell, correctionReceipt);
+    final family = RegExp(
+      r'<select\b[^>]*\bid=["\x27]family["\x27][^>]*>(.*?)</select>',
+      dotAll: true,
+      caseSensitive: false,
+    ).allMatches(correctionShell).toList();
+    if (family.length != 1) {
+      throw const FormatException('Ambiguous official main selection');
+    }
+    final originals = <String>[];
+    for (final option in RegExp(
+      r'<option\b([^>]*)>',
+      caseSensitive: false,
+    ).allMatches(family.single.group(1)!)) {
+      final attrs = <String, String>{};
+      for (final attr in RegExp(
+        r'([\w-]+)\s*=\s*["\x27]([^"\x27]*)["\x27]',
+      ).allMatches(option.group(1)!)) {
+        if (attrs.containsKey(attr.group(1))) {
+          throw const FormatException('Duplicate main selection attribute');
+        }
+        attrs[attr.group(1)!] = attr.group(2)!;
+      }
+      if (attrs['title'] != '사업보고서') continue;
+      if (!RegExp(r'^rcpNo=\d{14}$').hasMatch(attrs['value'] ?? '')) {
+        throw const FormatException('Invalid official original receipt option');
+      }
+      originals.add(attrs['value']!.substring(6));
+    }
+    if (originals.length != 1 ||
+        originals.single.compareTo(correctionReceipt) >= 0) {
+      throw const FormatException('Ambiguous or nonprior annual original');
+    }
+
+    final sourceReceipt = originals.single;
+    final originalSource = shellUri(sourceReceipt);
+    final shell = await get(originalSource, referer: correctionSource);
+    final dcm = document(shell, sourceReceipt);
+    Uri node(String expected) {
+      final matches = <Uri>[];
+      final nodes = RegExp(
+        r'''(node[12])\['text'\]\s*=\s*"([^"]+)";(.*?)(?=node[12]\['text'\]|$)''',
+        dotAll: true,
+      ).allMatches(shell);
+      for (final block in nodes) {
+        if (block.group(2)!.replaceAll(RegExp(r'\s+'), '') != expected) {
+          continue;
+        }
+        final values = <String, String>{};
+        for (final attribute in RegExp(
+          r'''node[12]\['(rcpNo|dcmNo|eleId|offset|length|dtd)'\]\s*=\s*"([^"]+)"''',
+        ).allMatches(block.group(3)!)) {
+          if (values.containsKey(attribute.group(1))) {
+            throw const FormatException('Ambiguous financial node coordinate');
+          }
+          values[attribute.group(1)!] = attribute.group(2)!;
+        }
+        if (values['rcpNo'] != sourceReceipt ||
+            values['dcmNo'] != dcm ||
+            [
+              'eleId',
+              'offset',
+              'length',
+            ].any((k) => !RegExp(r'^\d{1,9}$').hasMatch(values[k] ?? '')) ||
+            !const ['dart3.xsd', 'dart4.xsd'].contains(values['dtd']) ||
+            int.parse(values['length']!) == 0 ||
+            int.parse(values['length']!) > 5 * 1024 * 1024) {
+          throw const FormatException('Unbound financial node coordinates');
+        }
+        matches.add(Uri.https('dart.fss.or.kr', '/report/viewer.do', values));
+      }
+      if (matches.length != 1) {
+        throw const FormatException('Missing or ambiguous financial node');
+      }
+      return matches.single;
+    }
+
+    final coverSource = node('사업보고서');
+    final statementSource = node(consolidated ? '2.연결재무제표' : '4.재무제표');
+    final coverHtml = await get(coverSource, referer: originalSource);
+    final text = coverHtml
+        .replaceAll(RegExp(r'<[^>]+>'), '')
+        .replaceAll('&nbsp;', '')
+        .replaceAll(RegExp(r'\s+'), '');
+    final periods = RegExp(
+      r'사업연도(\d{4})년(\d{2})월(\d{2})일부터(\d{4})년(\d{2})월(\d{2})일까지',
+    ).allMatches(text).toList();
+    if (periods.length != 1) {
+      throw const FormatException('Missing or ambiguous declared annual cover');
+    }
+    DateTime date(int offset) {
+      final m = periods.single;
+      final value = [
+        m.group(offset),
+        m.group(offset + 1),
+        m.group(offset + 2),
+      ].join('-');
+      final parsed = DateTime.tryParse(value);
+      if (parsed == null ||
+          parsed.toIso8601String().substring(0, 10) != value) {
+        throw const FormatException('Invalid declared cover date');
+      }
+      return DateTime.utc(parsed.year, parsed.month, parsed.day);
+    }
+
+    final periodStart = date(1);
+    if (date(4) !=
+        DateTime.utc(periodEnd.year, periodEnd.month, periodEnd.day)) {
+      throw const FormatException('Declared source end mismatch');
+    }
+    final statementHtml = await get(statementSource, referer: originalSource);
+    final name = companyName.replaceAll(RegExp(r'\(주\)|㈜|주식회사|\s+'), '');
+    final rows = PublicFinancialHtml.parse(
+      coverHtml: coverHtml,
+      statementHtml: statementHtml,
+      coverSource: coverSource,
+      statementSource: statementSource,
+      receipt: sourceReceipt,
+      corpCode: corpCode,
+      companyName: name,
+      periodStart: periodStart,
+      periodEnd: periodEnd,
+      consolidated: consolidated,
+    );
+    return PublicFinancialHtmlSource(
+      sourceReceipt: sourceReceipt,
+      correctionReceipt: correctionReceipt,
+      correctionSource: correctionSource,
+      coverHtml: coverHtml,
+      coverSource: coverSource,
+      statementHtml: statementHtml,
+      statementSource: statementSource,
+      periodStart: periodStart,
+      periodEnd: periodEnd,
+      rows: rows,
+    );
+  }
+}
