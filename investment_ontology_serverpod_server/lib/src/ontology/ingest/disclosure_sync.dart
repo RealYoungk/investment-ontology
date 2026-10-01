@@ -109,6 +109,9 @@ class DisclosureSync {
   final PublicBusinessDocument _publicDocuments;
   PublicBusinessPrefetch? _businessPrefetch;
   int _publicAttempts = 0;
+  int _publicFamilyDiscoveries = 0;
+  final _unavailableBusinessFamilies = <int>{};
+  final _verifiedBusinessFamilies = <int>{};
   int _publicFailureStreak = 0;
 
   bool get _canFetchPublic =>
@@ -525,6 +528,7 @@ class DisclosureSync {
       };
       // The existing exact-period filing ledger also allows keyless fallback,
       // even when its body has not been downloaded yet. No list API is needed.
+      final discoverableIds = <int>{};
       if (!_hasAllowance && publicFallbackEnabled) {
         for (final item in pending) {
           if (item.lastError != _businessApiWait) continue;
@@ -535,8 +539,14 @@ class DisclosureSync {
               !target.reportName.contains('첨부정정')) {
             continue;
           }
+          final period = DartReportName.parse(target.reportName);
           if ((await _knownEarlierBodyFilings(target, company)).isNotEmpty) {
             publicAnchorIds.add(item.filingId);
+          } else if (target.corpCode == company.corpCode &&
+              period != null &&
+              (period.kind == DartReportKind.annual ||
+                  period.kind == DartReportKind.halfYear)) {
+            discoverableIds.add(item.filingId);
           }
         }
       }
@@ -602,7 +612,8 @@ class DisclosureSync {
         }
         if (!_hasAllowance &&
             item.lastError == _businessApiWait &&
-            !publicAnchorIds.contains(item.filingId)) {
+            !publicAnchorIds.contains(item.filingId) &&
+            !discoverableIds.contains(item.filingId)) {
           continue;
         }
         final f = filings[item.filingId];
@@ -729,6 +740,8 @@ class DisclosureSync {
       final counts = incompleteRows.single.toColumnMap();
       final remainingAll = counts['remaining'] as int;
       final exhausted = counts['exhausted'] as int;
+      publicAnchorIds.addAll(_verifiedBusinessFamilies);
+      publicAnchorIds.removeAll(_unavailableBusinessFamilies);
       final apiOnlyWaiting =
           unfinished.isNotEmpty &&
           unfinished.every(
@@ -1168,7 +1181,31 @@ class DisclosureSync {
   ) async {
     final attachmentOnly = filing.reportName.contains("첨부정정");
     if (businessOnly && attachmentOnly && publicFallbackEnabled) {
-      await _anchorExistingBusinessSource(item, filing, company);
+      final missingKnown = (await _knownEarlierBodyFilings(
+        filing,
+        company,
+      )).isEmpty;
+      if (missingKnown &&
+          !_hasAllowance &&
+          item.lastError == _businessApiWait &&
+          (!_canFetchPublic || _publicFamilyDiscoveries >= 10)) {
+        _unavailableBusinessFamilies.add(item.filingId);
+        return FilingFetchStatus.pending;
+      }
+      await _anchorExistingBusinessSource(
+        item,
+        filing,
+        company,
+        discoverMissing:
+            item.lastError == _businessApiWait &&
+            missingKnown &&
+            !_hasAllowance &&
+            _canFetchPublic &&
+            _publicFamilyDiscoveries < 10,
+      );
+    }
+    if (_unavailableBusinessFamilies.contains(item.filingId)) {
+      return FilingFetchStatus.pending;
     }
     final candidates = [
       filing,
@@ -1210,10 +1247,13 @@ class DisclosureSync {
   Future<void> _anchorExistingBusinessSource(
     DartFilingSection item,
     DartFiling target,
-    Company company,
-  ) async {
+    Company company, {
+    bool discoverMissing = false,
+  }) async {
     final period = DartReportName.parse(target.reportName);
-    if (period == null ||
+    if (target.companyId != company.id ||
+        target.corpCode != company.corpCode ||
+        period == null ||
         !(period.kind == DartReportKind.annual ||
             period.kind == DartReportKind.halfYear) ||
         await IngestJobs.isCancelled(session, jobId)) {
@@ -1233,23 +1273,44 @@ class DisclosureSync {
         'target': target.rceptNo,
       }),
     );
-    if (rows.isEmpty) return;
-    final receipt = rows.single.toColumnMap()['rceptNo'] as String;
-    final client = businessAnchorClientFactory?.call() ?? http.Client();
+    if (rows.isEmpty && !discoverMissing) return;
+    final discovery = rows.isEmpty;
+    if (discovery) {
+      _publicFamilyDiscoveries++;
+      _publicAttempts++;
+    }
+    var receipt = discovery
+        ? ''
+        : rows.single.toColumnMap()['rceptNo'] as String;
+    final client = _CancellableBusinessAnchorClient(
+      businessAnchorClientFactory?.call() ?? http.Client(),
+      () => IngestJobs.isCancelled(session, jobId),
+    );
     try {
       final end = DateTime.utc(period.periodYear, period.periodMonth + 1, 0);
-      final metadata = await PublicBusinessSourceAnchor.verify(
-        client,
-        targetReceipt: target.rceptNo,
-        sourceReceipt: receipt,
-        corpCode: company.corpCode,
-        companyName: company.name,
-        periodEnd: end,
-        halfYear: period.kind == DartReportKind.halfYear,
-      );
+      final metadata = discovery
+          ? await PublicBusinessSourceAnchor.discover(
+              client,
+              targetReceipt: target.rceptNo,
+              corpCode: company.corpCode,
+              companyName: company.name,
+              periodEnd: end,
+              halfYear: period.kind == DartReportKind.halfYear,
+            )
+          : await PublicBusinessSourceAnchor.verify(
+              client,
+              targetReceipt: target.rceptNo,
+              sourceReceipt: receipt,
+              corpCode: company.corpCode,
+              companyName: company.name,
+              periodEnd: end,
+              halfYear: period.kind == DartReportKind.halfYear,
+            );
+      receipt = metadata.receipt;
       if (await IngestJobs.isCancelled(session, jobId)) {
         return;
       }
+      var registered = false;
       await session.db.transaction((tx) async {
         await session.db.unsafeQuery(
           'SELECT pg_advisory_xact_lock(hashtextextended(@receipt,0))',
@@ -1268,7 +1329,8 @@ class DisclosureSync {
           }),
           transaction: tx,
         );
-        if (bodyRows.isEmpty || await IngestJobs.isCancelled(session, jobId)) {
+        if ((!discovery && bodyRows.isEmpty) ||
+            await IngestJobs.isCancelled(session, jobId)) {
           return;
         }
         final current = await DartFiling.db.findById(
@@ -1330,6 +1392,7 @@ class DisclosureSync {
             retrievedAt: _clock().toUtc(),
             title: jsonEncode({
               'kind': 'verified-business-source-cover-period-metadata',
+              if (discovery) 'discovery': 'official-family-latest-same-kind',
               'sourceReceipt': receipt,
               'targetReceipt': target.rceptNo,
               'corpCode': company.corpCode,
@@ -1347,11 +1410,27 @@ class DisclosureSync {
           ),
           transaction: tx,
         );
+        registered = true;
       });
+      if (discovery && registered) {
+        _verifiedBusinessFamilies.add(target.id!);
+      }
+    } on PublicBusinessFamilyUnavailable {
+      _unavailableBusinessFamilies.add(target.id!);
+      return;
+    } on PublicBusinessFetchCancelled {
+      return;
     } on FormatException catch (error) {
+      if (discovery) _publicFailureStreak++;
       throw DartApiException(
         'businessSourceMetadata',
         '공식 원본문 메타데이터 검증 실패: ${error.message}',
+      );
+    } catch (error) {
+      if (discovery) _publicFailureStreak++;
+      throw DartApiException(
+        'businessSourceMetadata',
+        '공식 원본문 메타데이터 미취득: ${error.runtimeType}',
       );
     } finally {
       client.close();
@@ -1931,4 +2010,19 @@ class DisclosureSync {
       await Future<void>.delayed(callInterval);
     }
   }
+}
+
+/// Metadata requests remain sequential and check cancellation before each GET.
+class _CancellableBusinessAnchorClient extends http.BaseClient {
+  _CancellableBusinessAnchorClient(this.delegate, this.cancelled);
+  final http.Client delegate;
+  final Future<bool> Function() cancelled;
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    if (await cancelled()) throw const PublicBusinessFetchCancelled();
+    return delegate.send(request);
+  }
+
+  @override
+  void close() => delegate.close();
 }

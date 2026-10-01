@@ -227,6 +227,15 @@ void main() {
         dailyBudget: daily,
         publicFallbackEnabled: public != null,
         publicDocuments: public,
+        businessAnchorClientFactory: () => MockClient(
+          (r) async => http.Response.bytes(
+            utf8.encode(
+              "openCorpInfoNew('${company.corpCode}', 'winCorpInfo', '/dsae001/selectPopup.ax');openPdfDownload('${r.url.queryParameters['rcpNo']}', '1');<select id='family'></select>",
+            ),
+            200,
+            request: r,
+          ),
+        ),
         clock: () => now,
         callInterval: Duration.zero,
         scheduleResume: (at) async {
