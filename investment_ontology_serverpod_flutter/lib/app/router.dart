@@ -29,6 +29,7 @@ import '../features/screen/screen_page.dart';
 import '../features/themes/theme_page.dart';
 import '../features/themes/themes_page.dart';
 import 'app_shell.dart';
+import '../features/watchlist/watchlist_page.dart';
 
 /// 화면 주소.
 ///
@@ -59,6 +60,16 @@ abstract final class AppRoutes {
   static String afterLogin(String? next) {
     // Only known local destinations may be supplied by the login URL.
     if (next == '/account' || next == '/membership/checkout') return next!;
+    final saved = Uri.tryParse(next ?? '');
+    if (saved != null &&
+        !saved.hasScheme &&
+        !saved.hasAuthority &&
+        saved.path == '/watchlist') {
+      final code = saved.queryParameters['add'];
+      return code != null && RegExp(r'^\d{8}$').hasMatch(code)
+          ? '/watchlist?add=$code'
+          : '/watchlist';
+    }
     final uri = Uri.tryParse(next ?? '');
     if (uri != null &&
         !uri.hasScheme &&
@@ -101,6 +112,9 @@ abstract final class AppRoutes {
       if (path == '/membership/checkout' && viewer == null) {
         return '/login?next=/membership/checkout';
       }
+      if (path == '/watchlist' && viewer == null) {
+        return login(next: state.uri.toString());
+      }
       if (path == '/account' && viewer == null) return '/login?next=/account';
       if (path == '/login' && viewer != null) {
         return afterLogin(state.uri.queryParameters['next']);
@@ -118,6 +132,11 @@ abstract final class AppRoutes {
             AppShell(location: state.uri, child: child),
         routes: [
           GoRoute(path: '/account', builder: (_, _) => const AccountPage()),
+          GoRoute(
+            path: '/watchlist',
+            builder: (_, state) =>
+                WatchlistPage(addCode: state.uri.queryParameters['add']),
+          ),
           GoRoute(
             path: '/membership/checkout',
             builder: (_, state) => BillingCheckoutPage(

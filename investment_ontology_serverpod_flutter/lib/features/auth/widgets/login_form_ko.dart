@@ -51,6 +51,7 @@ class _LoginFormKoState extends State<LoginFormKo> {
           Text('이메일', style: t.body(13, weight: FontWeight.w600)),
           const SizedBox(height: 8),
           TextField(
+            key: const ValueKey('login-email'),
             controller: controller.emailController,
             enabled: !controller.isLoading,
             keyboardType: TextInputType.emailAddress,
@@ -74,6 +75,7 @@ class _LoginFormKoState extends State<LoginFormKo> {
             Text('비밀번호', style: t.body(13, weight: FontWeight.w600)),
             const SizedBox(height: 8),
             TextField(
+              key: const ValueKey('login-password'),
               controller: controller.passwordController,
               enabled: !controller.isLoading,
               obscureText: !_visible,
@@ -119,6 +121,7 @@ class _LoginFormKoState extends State<LoginFormKo> {
           SizedBox(
             height: 48,
             child: FilledButton(
+              key: const ValueKey('login-submit'),
               style: FilledButton.styleFrom(
                 shape: RoundedRectangleBorder(
                   borderRadius: context.shape.borderRadius,

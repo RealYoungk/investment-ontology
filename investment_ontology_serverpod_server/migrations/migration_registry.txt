@@ -38,3 +38,5 @@
 20261001081051533-billing-key-cleanup
 20261001081810627-billing-membership-cycles
 20261001095644874-discovery-research-integration
+20261001132114335-watchlist_notifications
+20261001134037822-watchlist_scan_cursor

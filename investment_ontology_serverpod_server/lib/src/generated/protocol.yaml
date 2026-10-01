@@ -127,3 +127,12 @@ theme:
   - addCompany:
   - removeCompany:
   - themesOf:
+watchlist:
+  - mine:
+  - add:
+  - remove:
+  - mute:
+  - prioritize:
+  - markRead:
+  - subscribePush:
+  - unsubscribePush:

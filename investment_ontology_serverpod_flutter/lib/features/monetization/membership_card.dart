@@ -86,6 +86,11 @@ class _MembershipCardState extends State<MembershipCard> {
                 : '기업 정보는 무료로 조회할 수 있습니다. 광고 제거 이용권은 월 2,900원으로 준비하고 있습니다.',
             style: t.body(14, color: c.textSecondary),
           ),
+          const SizedBox(height: AppSpace.sm),
+          Text(
+            '관심종목은 무료 3개, 결제 확인된 이용권 기간에는 20개까지 등록할 수 있습니다.',
+            style: t.body(13, color: c.textSecondary),
+          ),
           if (end != null) ...[
             const SizedBox(height: AppSpace.sm),
             Text(

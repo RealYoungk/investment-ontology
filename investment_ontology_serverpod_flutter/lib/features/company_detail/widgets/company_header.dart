@@ -1,4 +1,5 @@
 import 'company_basic_info.dart';
+import '../../watchlist/watchlist_button.dart';
 import '../../financials/metric_profile.dart';
 import '../../financials/metric_formula_card.dart';
 
@@ -82,6 +83,11 @@ class CompanyHeader extends StatelessWidget {
               ),
             ],
           ],
+        ),
+        const SizedBox(height: AppSpace.sm),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: WatchlistButton(corpCode: company.corpCode),
         ),
         CompanyBasicInfo(detail: detail),
         const SizedBox(height: AppSpace.sm),

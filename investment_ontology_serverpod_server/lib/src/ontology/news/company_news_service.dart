@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../../generated/protocol.dart';
+import 'company_news_matcher.dart';
 
 /// Request-only feed. No database writes, timer, or language-model calls.
 class CompanyNewsService {
@@ -23,8 +24,10 @@ class CompanyNewsService {
     String name,
     String id,
     String secret,
-    DateTime now,
-  ) async {
+    DateTime now, {
+    String? stockCode,
+    String? ceoName,
+  }) async {
     final response = await client
         .get(
           Uri.https('naverapihub.apigw.ntruss.com', '/search/v1/news', {
@@ -54,6 +57,15 @@ class CompanyNewsService {
       final date = parseDate(raw['pubDate']);
       if (url == null || date == null || title.isEmpty) {
         throw const FormatException('Invalid news item');
+      }
+      if (!NewsCompanyMatcher.matches(
+        name: name,
+        title: title,
+        excerpt: excerpt,
+        stockCode: stockCode,
+        ceoName: ceoName,
+      )) {
+        continue;
       }
       result.add(
         CompanyNewsItem(

@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
 
 import '../../client.dart';
 import 'app_viewer.dart';
 import '../monetization/membership_monitor.dart';
+import '../watchlist/push_platform.dart';
 
 /// 클라이언트의 로그인 상태를 앱의 [AppViewer]로 옮긴다.
 ///
@@ -31,6 +34,10 @@ abstract final class AppAuth {
     _lifecycle ??= AppLifecycleListener(onResume: () => refreshMembership());
     void sync() {
       final info = auth.authInfo;
+      if (_source.value?.userId != null &&
+          _source.value?.userId != info?.authUserId.uuid) {
+        unawaited(disablePush().catchError((Object _) {}));
+      }
       _source.value = info == null
           ? null
           : AppViewer.fromScopes(info.authUserId.uuid, info.scopeNames);
@@ -41,5 +48,16 @@ abstract final class AppAuth {
   }
 
   /// 이 기기에서 로그아웃. 서버에 알리지 못해도 기기의 로그인은 지운다.
-  static Future<void> signOut() => client.auth.signOutDevice();
+  static Future<void> signOut() async {
+    try {
+      final endpoint = await pushEndpoint();
+      if (endpoint != null) await client.watchlist.unsubscribePush(endpoint);
+    } finally {
+      try {
+        await disablePush();
+      } finally {
+        await client.auth.signOutDevice();
+      }
+    }
+  }
 }

@@ -1,0 +1,16 @@
+class: WatchlistEntry
+table: watchlist_entry
+serverOnly: true
+fields:
+  ownerId: UuidValue
+  corpCode: String
+  createdAt: DateTime, default=now
+  baselineAt: DateTime?
+  muted: bool, default=false
+  position: int, default=0
+indexes:
+  watchlist_owner_company_idx:
+    fields: ownerId, corpCode
+    unique: true
+  watchlist_company_idx:
+    fields: corpCode

@@ -94,6 +94,20 @@ abstract final class IngestSchedule {
   /// 실행되고 다음 날로 넘어가므로, 지우고 다시 걸면 그 한 번을 놓친다.
   /// 실행은 `resume`이라 같은 종류의 수집이 돌고 있으면 건너뛴다.
   static Future<void> ensureDaily(Session session) async {
+    if (!await _scheduled(session, 'watchlist_scan')) {
+      await session.serverpod.futureCalls
+          .callRecurring(identifier: 'watchlist_scan')
+          .cron('*/10 * * * *')
+          .watchlist
+          .run();
+    }
+    if (!await _scheduled(session, 'watchlist_delivery')) {
+      await session.serverpod.futureCalls
+          .callRecurring(identifier: 'watchlist_delivery')
+          .cron('* * * * *')
+          .watchlist
+          .deliver();
+    }
     if (!await _scheduled(session, companyMasterDailyId)) {
       await session.serverpod.futureCalls
           .callRecurring(identifier: companyMasterDailyId)

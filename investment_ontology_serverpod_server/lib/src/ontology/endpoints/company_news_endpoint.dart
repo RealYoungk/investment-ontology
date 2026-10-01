@@ -59,6 +59,8 @@ class CompanyNewsEndpoint extends Endpoint {
                   id,
                   secret,
                   now,
+                  stockCode: company.stockCode,
+                  ceoName: company.ceoName,
                 ),
               );
             } catch (_) {
