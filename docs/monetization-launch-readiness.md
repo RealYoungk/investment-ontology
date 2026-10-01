@@ -47,3 +47,33 @@ Serverpod 구현 시 필요한 데이터와 상태:
 ## 외부 절차
 
 계약 신청 초안은 개인 운영 폴더에 보관한다. 사업자 증명서 원본, 생년월일, 계좌, 비밀키를 저장소에 넣지 않는다. 신청 정보 전송·약관 서명·정산 정보 입력은 대상과 내용을 보여주고 필요한 승인 또는 사용자 입력을 받는다.
+
+## 승인 전 샌드박스 준비와 확인 결과
+
+2026-10-01, PR #85의 격리 워크트리에서 확인했다. 아래 테스트는 운영 정기결제 완료를 의미하지 않는다.
+
+| 대상 | 확인된 것 | 아직 확인되지 않은 것 |
+| --- | --- | --- |
+| 광고 JS 로더 | Node 9개 통과: 충전/미충전, 스크립트 실패, 좁은 폭, 시간 초과, 이탈/정리, 중복 로드 | 실제 Google 광고 채움, CMP와 동의별 네트워크 |
+| Flutter 광고 | 광고/디자인 경계 11개 통과: 폭 320~1440, 유료 상태 제거, 로그아웃 복원, 승인·개인정보 준비 플래그 | 실제 결제 원장과 로그인 세션의 연결 |
+| 토스 API 연결부 | HTTP 모의 테스트 17개 통과: 서버 고정 금액, 고객/주문/통화/응답 검증, 안정적인 멱등 키, 타임아웃 결과 불명, 조회, 환불 | 실제 카드 인증 후 승인·조회·전액 환불 |
+| 구독 규칙 | 단위 테스트 12개 통과: 월말·윤년, 만료 경계, 중복, 해지, 환불 재생, 탈퇴 후 권한 차단 | DB 트랜잭션·갱신 작업 경쟁·다중 기기 인증 |
+| 브라우저 | 실제 광고 로더를 모의 Google 응답으로 실행: 충전→유료 제거, 미충전, 스크립트 실패. 실제 토스 v2 SDK 테스트 카드 등록창 열림 | 카드 입력·약관 사용자 완료 후 공급자 API 검증 |
+
+광고 활성화에는 `ADSENSE_ENABLED=true`, `ADSENSE_SITE_APPROVED=true`, `ADSENSE_PRIVACY_READY=true`가 모두 필요하다. 두 새 플래그는 배포 준비 확인용이며 CMP나 동의 기록 자체를 구현하지 않는다. 운영 기본값은 모두 false다.
+
+재현:
+
+```sh
+node --test investment_ontology_serverpod_flutter/test/web/ad_loader_test.cjs
+cd investment_ontology_serverpod_server
+dart test test/unit/billing
+```
+
+Flutter 광고 테스트는 Flutter 패키지에서 `flutter test test/ad_monetization_test.dart test/design_boundary_test.dart`를 실행한다. 광고 JS 검증은 `scripts/verify_release.sh`에 포함했다.
+
+개발 전용 화면은 저장소 루트를 loopback HTTP로 제공한 뒤 `/tool/ad-sandbox/index.html`, `/tool/toss-sandbox/index.html`에서 실행한다. 두 화면은 Flutter `web/` 밖에 있어 출시 번들에 포함되지 않는다. 토스 화면은 test_ck_만 허용하고, 시크릿 키·카드 원문을 우리 화면에서 수집하지 않는다. 인증 성공 URL의 일회성 authKey는 비밀 값이므로 공유·로그·스크린샷에 노출하지 않는다.
+
+실제 공급자 검증 실행기는 서버 패키지의 `tool/test_toss_sandbox.dart`다. `lookup` 또는 `approve-and-refund` 모드를 사용한다. 필요한 환경변수명은 실행기 소스에 명시했다. test_sk_만 허용하며 비밀 값은 출력하지 않는다. 승인/조회/전액 환불 성공만으로 구독 권한을 지급하지 않는다. 결과 불명은 동일 주문 조회로 대사하고 새 주문으로 반복하지 않는다.
+
+현재 Serverpod MCP는 이 워크트리가 아닌 다른 개발 체크아웃에 연결되어 있고 해당 DB가 읽기 전용이다. 기존 앱을 재시작하거나 DB 설정을 바꾸지 않았다. 정기구독 판매 전에는 이 워크트리의 별도 Serverpod 실행 환경에서 위에 명시한 원장 모델·마이그레이션·인증 RPC·암호화된 빌링키·FutureCall 갱신·해지/탈퇴 처리를 구현하고 DB 경쟁 테스트 및 계정별 E2E를 완료해야 한다. 현재 추가한 순수 규칙/전송 모듈을 완성된 정기결제로 취급하지 않는다.

@@ -63,3 +63,27 @@ test('paid-account disposal during script loading prevents late ad push',async()
   await e.tick();e.root.alfinderAds.dispose(el);e.scripts[0].onload();await e.tick();
   assert.equal(await p,false);assert.equal(e.root.adsbygoogle,undefined);assert.equal(el.children.length,0);
 });
+test('narrow container waits without requesting then cancels on disposal',async()=>{
+ const e=environment(),el=e.element();el.getBoundingClientRect=()=>({width:249});
+ const p=e.root.alfinderAds.mount(el,publisher,slot,true);await e.tick();
+ assert.equal(e.scripts.length,0);e.root.alfinderAds.dispose(el);assert.equal(await p,false);
+ assert.equal(e.frames.size,0);
+});
+test('slot timeout cancels observers and prevents later pushes',async()=>{
+ const e=environment(),el=e.element();el.isConnected=false;
+ const p=e.root.alfinderAds.mount(el,publisher,slot,true);
+ for(const fn of [...e.timers.values()])fn();assert.equal(await p,false);
+ el.isConnected=true;await e.tick();assert.equal(e.scripts.length,0);
+});
+test('publisher change cannot silently reuse another publisher script',async()=>{
+ const e=environment(),el=e.element();const p=e.root.alfinderAds.mount(el,publisher,slot,true);
+ await e.tick();e.scripts[0].onload();await e.tick();e.root.alfinderAds.dispose(el);await p;
+ const next=e.element(),p2=e.root.alfinderAds.mount(next,'ca-pub-9999999999999999',slot,true);
+ await e.tick();assert.equal(await p2,false);assert.equal(e.scripts.length,1);
+});
+test('dispose after no fill clears DOM and disconnected observers',async()=>{
+ const e=environment(),el=e.element();const p=e.root.alfinderAds.mount(el,publisher,slot,true);
+ await e.tick();e.scripts[0].onload();await e.tick();
+ el.children[0].setAttribute('data-ad-status','unfilled');e.observers[0].fn();await p;
+ assert.equal(e.observers[0].disconnected,true);e.root.alfinderAds.dispose(el);assert.equal(el.children.length,0);
+});

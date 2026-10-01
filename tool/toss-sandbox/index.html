@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>Alfinder 빌링 테스트</title>
+<style>body{font:16px system-ui;max-width:700px;margin:40px auto;padding:20px;line-height:1.6}input{width:100%;box-sizing:border-box;padding:12px}button{padding:12px;margin:16px 0}pre{white-space:pre-wrap;overflow-wrap:anywhere}</style>
+<h1>토스 자동결제 테스트</h1><p>개발 전용 화면입니다. 테스트 키만 허용하며 실결제·구독 권한 지급은 하지 않습니다. 카드 정보는 토스 결제창에만 입력합니다. 시크릿 키는 이 화면에 넣지 마세요.</p>
+<label>테스트 클라이언트 키<input id="key" placeholder="test_ck_…" autocomplete="off"></label><button id="register">테스트 카드 등록창 열기</button><pre id="status" role="status"></pre>
+<script src="https://js.tosspayments.com/v2/standard"></script><script>
+const statusEl=document.querySelector('#status');
+const params=new URLSearchParams(location.search);
+if(params.has('authKey')){statusEl.textContent='토스 카드 인증 성공. 일회성 인증 값은 현재 페이지에만 있습니다. 서버 승인·조회·환불은 별도 테스트 실행기가 수행합니다.';document.querySelector('#register').disabled=true;}
+else if(params.has('code')){statusEl.textContent='토스 인증 종료: '+params.get('code');}
+document.querySelector('#register').onclick=async()=>{const key=document.querySelector('#key').value.trim();if(!/^test_ck_[A-Za-z0-9]+$/.test(key)){statusEl.textContent='test_ck_ 테스트 키만 허용합니다.';return;}if(!window.TossPayments){statusEl.textContent='토스 SDK를 불러오지 못했습니다.';return;}const customerKey='alfinder-test-'+crypto.randomUUID();try{await TossPayments(key).payment({customerKey}).requestBillingAuth({method:'CARD',successUrl:location.origin+location.pathname,failUrl:location.origin+location.pathname});}catch(e){statusEl.textContent='결제창을 열지 못했습니다: '+(e.code||'UNKNOWN');}};
+</script></html>

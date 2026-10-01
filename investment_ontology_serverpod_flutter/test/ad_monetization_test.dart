@@ -80,6 +80,8 @@ void main() {
     );
     const valid = AdConfig(
       enabled: true,
+      siteApproved: true,
+      privacyReady: true,
       publisher: 'ca-pub-1234567890123456',
       slot: '1234567890',
     );
@@ -87,6 +89,20 @@ void main() {
     expect(valid.show(adFree: true, web: true), isFalse);
     expect(valid.show(adFree: false, web: false), isFalse);
     expect(valid.testMode, isTrue);
+  });
+  test('approval and privacy gates independently prevent requests', () {
+    for (final approved in [false, true]) {
+      for (final privacy in [false, true]) {
+        final config = AdConfig(
+          enabled: true,
+          siteApproved: approved,
+          privacyReady: privacy,
+          publisher: 'ca-pub-1234567890123456',
+          slot: '1234567890',
+        );
+        expect(config.show(adFree: false, web: true), approved && privacy);
+      }
+    }
   });
   test('server-issued ad-free scope does not grant admin', () {
     final paid = AppViewer.fromScopes('reader', {adFreeScopeName});
