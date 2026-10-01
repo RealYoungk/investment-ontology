@@ -1,0 +1,89 @@
+
+
+
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko" lang="ko">
+<head>
+	<title>Download</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, user-scaleable=no">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<link rel="stylesheet" href="../css/bootstrap.min.css">
+	<link rel="stylesheet" href="../css/outside.css">
+</head>
+
+
+<body style="overflow-x:hidden;overflow-y:hidden;">
+	<!-- windowPop -->
+	<div class="windowPop">
+		<!-- title -->
+		<div class="title">
+			<h2>Download</h2>
+		</div>
+
+		<!-- messageBox -->
+		<div class="messageBox">
+			<ul>
+				
+					
+						<i class="iconInfoO"></i>
+						<li class="info">PDF 파일인 공시서류를 보시려면 Adobe Reader를 설치하셔야 합니다.
+							<div class="btnWrap">
+								<a href="https://get.adobe.com/kr/reader"><span class="btnReader"></span></a>
+							</div>
+						</li>
+					
+				
+			</ul>
+		</div>
+		<!-- //messageBox -->
+
+
+		<!-- cont -->
+		<div class="cont">
+			<div class="listCont">
+				<!-- tbWrap -->
+				<div class="tbWrap">
+					<table class="popTbList" summary="순번 회사이름 순으로 구성되어 있습니다">
+						<caption>회사이름 변경내역</caption>
+						<colgroup>
+							<col style="width:auto">
+							<col style="width:25%">
+						</colgroup>
+						<thead>
+							<tr>
+								<th scope="col"><label for="Sample00">파일명</label></th>
+								<th scope="col"><label for="Sample00">다운로드</label></th>
+							</tr>
+						</thead>
+						<tbody>
+						<tr>
+						
+							
+								<td class="tL">[아하][정정]사업보고서(2024.03.20).pdf</td>
+								<td><a class="btnFile" href="/pdf/download/pdf.do?rcp_no=20240320001370&dcm_no=9739970"></a></td>
+							
+							
+							
+						
+						</tr>
+		
+							
+						</tbody>
+					</table>
+				</div>
+				
+			</div>
+		</div>
+		<!-- //cont -->
+		
+		<!-- btnArea -->
+		<div class="btnArea">
+			<button class="btnLG" onclick="window.close();">닫기</button>
+		</div>
+	</div>
+	<!-- windowPop -->
+
+</body>
+</html>

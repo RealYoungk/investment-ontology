@@ -105,7 +105,7 @@ abstract final class FinancialAccounts {
   // owner/segment subtotals. Exact whole-loss labels require non-positive amounts.
   static const fallbackNames = <String, List<String>>{
     'interestDebtIncludingLeases': ['총차입금(리스부채포함)', '차입금및사채및리스부채합계'],
-    'revenue': ['매출액', '영업수익'],
+    'revenue': ['매출액', '영업수익', '수익(매출액)', '수익(매출액)(주30)'],
     'assets': ['자산총계'],
     'liabilities': ['부채총계'],
     'cash': ['현금및현금성자산'],
@@ -121,6 +121,7 @@ abstract final class FinancialAccounts {
       '당기순손실',
       '연결당기순손실',
       '연결당기순이익',
+      '연결당기순이익(손실)',
       '당기순이익(손실)',
       '반기순이익(손실)',
       '분기순이익(손실)',

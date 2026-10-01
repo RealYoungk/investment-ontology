@@ -493,7 +493,9 @@ abstract final class PublicFinancialHtml {
             .replaceFirst(RegExp(r'^(?:주식회사|\(주\)|㈜)'), '')
             .replaceFirst(RegExp(r'(?:주식회사|\(주\)|㈜)$'), '');
     DateTime? sourceDate(String text) {
-      final m = RegExp(r'^(\d{4})년(\d{1,2})월(\d{1,2})일$').firstMatch(text);
+      final m =
+          RegExp(r'^(\d{4})년(\d{1,2})월(\d{1,2})일$').firstMatch(text) ??
+          RegExp(r'^(\d{4})\.(\d{2})\.(\d{2})$').firstMatch(text);
       if (m == null) return null;
       final year = int.parse(m.group(1)!),
           month = int.parse(m.group(2)!),
@@ -508,7 +510,7 @@ abstract final class PublicFinancialHtml {
     final company = RegExp(r'회사명:(.*?)대표이사:').firstMatch(cover)?.group(1);
     final terms = RegExp(r'\(제(\d+)기\)').allMatches(cover).toList();
     final periods = RegExp(
-      r'사업연도(\d{4}년\d{1,2}월\d{1,2}일)부터(\d{4}년\d{1,2}월\d{1,2}일)까지',
+      r'사업연도((?:\d{4}년\d{1,2}월\d{1,2}일|\d{4}\.\d{2}\.\d{2}))부터((?:\d{4}년\d{1,2}월\d{1,2}일|\d{4}\.\d{2}\.\d{2}))까지',
     ).allMatches(cover).toList();
     if (!cover.contains('사업보고서') ||
         company == null ||
@@ -569,6 +571,7 @@ abstract final class PublicFinancialHtml {
       '부채총계': ('liabilities', 'BS'),
       '자본총계': ('equity', 'BS'),
       '매출액': ('revenue', 'CIS'),
+      '수익(매출액)': ('revenue', 'CIS'),
       '영업수익': ('revenue', 'CIS'),
       '영업이익': ('operating', 'CIS'),
       '영업손익': ('operating', 'CIS'),
@@ -578,6 +581,7 @@ abstract final class PublicFinancialHtml {
       '당기순손익': ('profit', 'CIS'),
       '당기순손실': ('profit', 'CIS'),
       '연결당기순이익': ('profit', 'CIS'),
+      '연결당기순이익(손실)': ('profit', 'CIS'),
       '연결당기순손실': ('profit', 'CIS'),
       '당기순이익(손실)': ('profit', 'CIS'),
       '영업활동으로인한현금흐름': ('cfo', 'CF'),
@@ -627,7 +631,9 @@ abstract final class PublicFinancialHtml {
           labels.contains('부채총계') &&
           labels.contains('자본총계')) {
         kind = 'BS';
-      } else if ((labels.contains('매출액') || labels.contains('영업수익')) &&
+      } else if ((labels.contains('매출액') ||
+              labels.contains('영업수익') ||
+              labels.contains('수익(매출액)')) &&
           (['영업이익', '영업이익(손실)', '영업손익', '영업손실'].any(labels.contains))) {
         kind = 'CIS';
       } else if (labels.contains('영업활동으로인한현금흐름') ||
