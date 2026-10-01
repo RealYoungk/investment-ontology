@@ -1,9 +1,10 @@
 import 'financial_accounts.dart';
+import 'financial_comparatives.dart';
 
 /// Shared SQL for the company summary, screener and comparison universe.
 /// Picks ONE basis, preserving available inputs when filling gaps; never splices consolidated and separate periods.
 abstract final class FinancialBasis {
-  static String ctes({int? companyId}) {
+  static String ctes({int? companyId, List<int>? companyIds}) {
     final ids = FinancialAccounts.accountIds.map((id) => "'$id'").join(',');
     return '''
       rank_code AS (
@@ -12,7 +13,13 @@ abstract final class FinancialBasis {
         SELECT DISTINCT ON (r."companyId",r."fsDiv",r."bsnsYear",r."reportCode") r.*
         FROM financial_report r
         WHERE r."supersededById" IS NULL
-          ${companyId == null ? '' : 'AND r."companyId" = $companyId'}
+          ${companyId != null
+        ? 'AND r."companyId" = $companyId'
+        : companyIds == null
+        ? ''
+        : companyIds.isEmpty
+        ? 'AND false'
+        : 'AND r."companyId" IN (${companyIds.join(',')})'}
         ORDER BY r."companyId",r."fsDiv",r."bsnsYear",r."reportCode",r."rceptNo" DESC,r.id DESC
       ), candidates AS (
         SELECT DISTINCT ON (r."companyId",r."fsDiv")
@@ -49,31 +56,61 @@ abstract final class FinancialBasis {
         SELECT "companyId" AS id,"fsDiv" AS fs,
           CASE WHEN count(DISTINCT coalesce(currency,'KRW'))=1
             THEN min(coalesce(currency,'KRW')) ELSE 'MIXED' END AS currency
-        FROM picked_facts GROUP BY "companyId","fsDiv"
-      ), raw_inc AS (
+        FROM picked_facts f JOIN candidates c ON c.id=f."companyId" AND c.fs=f."fsDiv"
+          AND c.y=f."bsnsYear" AND c.code=f."reportCode"
+        GROUP BY "companyId","fsDiv"
+      ), comparative_components AS MATERIALIZED (
+        SELECT x."reportId",x.statement,coalesce(x.currency,'KRW') AS currency,
+          sum(count(*) FILTER (WHERE x."accountId"='${FinancialComparatives.total}'))
+            OVER (PARTITION BY x."reportId",x.statement) AS total_count,
+          sum(count(*) FILTER (WHERE x."accountId"='${FinancialComparatives.minority}'))
+            OVER (PARTITION BY x."reportId",x.statement) AS minority_count,
+          max(${FinancialComparatives.rawSql('x')}) FILTER
+            (WHERE x."accountId"='${FinancialComparatives.total}') AS total_prior,
+          max(${FinancialComparatives.rawSql('x')}) FILTER
+            (WHERE x."accountId"='${FinancialComparatives.minority}') AS minority_prior
+        FROM financial_fact x
+        JOIN (SELECT DISTINCT "reportId" FROM picked_facts) p ON p."reportId"=x."reportId"
+        WHERE x."accountDetail" IS NULL AND x."supersededById" IS NULL
+          AND x."accountId" IN ('${FinancialComparatives.total}','${FinancialComparatives.minority}')
+        GROUP BY x."reportId",x.statement,coalesce(x.currency,'KRW')
+      ), raw_inc AS MATERIALIZED (
         SELECT f."companyId" AS id,f."fsDiv" AS fs,f.resolved_id AS acc,
           f."bsnsYear" AS y,f."reportCode" AS code,coalesce(f.currency,'KRW') AS currency,f.amount::numeric AS amt,
           CASE WHEN f."reportCode" IN ('annual','q1') OR f.statement='cashFlow'
             THEN coalesce(f."cumulativeAmount"::numeric,f.amount::numeric)
-            ELSE f."cumulativeAmount"::numeric END AS cum
-        FROM picked_facts f WHERE f.statement IN ('incomeStatement','comprehensiveIncome','cashFlow')
+            ELSE f."cumulativeAmount"::numeric END AS cum, CASE WHEN f."accountId"='${FinancialComparatives.owners}'
+              AND pc.total_count=1 AND pc.minority_count=1
+              AND abs((${FinancialComparatives.rawSql('f')})+pc.minority_prior-pc.total_prior)
+                > greatest(1000,abs(pc.total_prior)/1000000)
+            THEN NULL ELSE (${FinancialComparatives.rawSql('f')}) END AS prior_cum
+        FROM picked_facts f LEFT JOIN comparative_components pc
+          ON pc."reportId"=f."reportId" AND pc.statement=f.statement
+          AND pc.currency=coalesce(f.currency,'KRW')
+        WHERE f.statement IN ('incomeStatement','comprehensiveIncome','cashFlow')
       ), inc AS (
         SELECT id,fs,acc,y,code,currency,
           CASE WHEN acc='ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities'
             THEN abs(amt) ELSE amt END AS amt,
           CASE WHEN acc='ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities'
-            THEN abs(cum) ELSE cum END AS cum
+            THEN abs(cum) ELSE cum END AS cum,
+          CASE WHEN acc='ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities'
+            THEN abs(prior_cum) ELSE prior_cum END AS prior_cum
         FROM raw_inc
       ), raw_ttm AS MATERIALIZED (
         SELECT c.id,c.fs,i.acc,
-          CASE WHEN count(DISTINCT i.currency)>1 THEN NULL WHEN c.code='annual' THEN max(i.amt) FILTER (WHERE i.y=c.y)
+          CASE WHEN c.code='annual' THEN max(i.amt) FILTER (WHERE i.y=c.y)
+            WHEN count(DISTINCT i.currency) FILTER (WHERE i.y=c.y OR i.amt IS NOT NULL OR i.cum IS NOT NULL)>1 THEN NULL
             ELSE max(i.amt) FILTER (WHERE i.y=c.y-1 AND i.code='annual')
               +max(i.cum) FILTER (WHERE i.y=c.y)
-              -max(i.cum) FILTER (WHERE i.y=c.y-1 AND i.code=c.code) END AS v,
-          CASE WHEN count(DISTINCT i.currency)>1 THEN NULL WHEN c.code='annual' THEN max(i.amt) FILTER (WHERE i.y=c.y)
+              -coalesce(max(i.cum) FILTER (WHERE i.y=c.y-1 AND i.code=c.code),
+                max(i.prior_cum) FILTER (WHERE i.y=c.y AND i.code=c.code)) END AS v,
+          CASE WHEN c.code='annual' THEN max(i.amt) FILTER (WHERE i.y=c.y)
+            WHEN count(DISTINCT i.currency) FILTER (WHERE i.y=c.y OR i.amt IS NOT NULL OR i.cum IS NOT NULL)>1 THEN NULL
             ELSE max(i.cum) FILTER (WHERE i.y=c.y) END AS now_cum,
-          CASE WHEN count(DISTINCT i.currency)>1 THEN NULL WHEN c.code='annual' THEN max(i.amt) FILTER (WHERE i.y=c.y-1 AND i.code='annual')
-            ELSE max(i.cum) FILTER (WHERE i.y=c.y-1 AND i.code=c.code) END AS ago_cum
+          CASE WHEN count(DISTINCT i.currency) FILTER (WHERE i.y=c.y OR i.amt IS NOT NULL OR i.cum IS NOT NULL)>1 THEN NULL WHEN c.code='annual' THEN max(i.amt) FILTER (WHERE i.y=c.y-1 AND i.code='annual')
+            ELSE coalesce(max(i.cum) FILTER (WHERE i.y=c.y-1 AND i.code=c.code),
+              max(i.prior_cum) FILTER (WHERE i.y=c.y AND i.code=c.code)) END AS ago_cum
         FROM candidates c JOIN inc i ON i.id=c.id AND i.fs=c.fs
         GROUP BY c.id,c.fs,c.y,c.code,i.acc
       ), ttm AS MATERIALIZED (

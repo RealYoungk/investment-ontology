@@ -76,7 +76,18 @@ class MetricProfile {
   }
 
   List<DerivedMetric> select(List<DerivedMetric> metrics) => [
-    for (final key in keys) ...metrics.where((m) => m.key == key),
+    for (final key in keys)
+      ...metrics.where(
+        (m) =>
+            m.key ==
+            (key == 'cash' &&
+                    metrics.any(
+                      (x) =>
+                          x.key == 'cashAndDeposits' && x.derived.value != null,
+                    )
+                ? 'cashAndDeposits'
+                : key),
+      ),
   ];
 }
 
@@ -100,7 +111,9 @@ const metricDescriptions = <String, String>{
   'ocfMargin': '매출에 비해 영업현금흐름이 얼마나 남는가',
   'capexRatio': '매출 대비 유형자산 취득 부담',
   'debtRatio': '자본 대비 부채총계 · 이자부채와 다름',
-  'cash': '최근 기말 현금및현금성자산',
+  'cash': '최근 기말 현금및현금성자산 · 단기금융상품 제외',
+  'shortTermDeposits': '최근 기말 단기금융상품 · 만기·사용제한 확인 필요',
+  'cashAndDeposits': '현금및현금성자산과 단기금융상품의 합계 · 즉시 사용 가능액과 다름',
   'freeCashFlow': '영업현금흐름에서 유형자산 취득을 뺀 금액',
   'fcfYield': '시가총액 대비 설비투자 후 현금흐름',
 };
@@ -127,6 +140,8 @@ const metricGroups = <String, List<String>>{
   ],
   '현금·투자': [
     'cash',
+    'shortTermDeposits',
+    'cashAndDeposits',
     'ocfMargin',
     'capexRatio',
     'freeCashFlow',

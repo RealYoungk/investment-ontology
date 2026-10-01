@@ -69,3 +69,6 @@ __pycache__/
 # Reproducible local financial audit snapshots (large public-source data)
 outputs/metric-audit/
 outputs/metric-source-audit/
+
+# Reproducible read-only financial audit snapshots (large source corpus).
+outputs/financial-followup-2026-10-01/
