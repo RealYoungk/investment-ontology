@@ -11,17 +11,19 @@ abstract final class FinancialBasis {
     eligible_reports AS (
       SELECT r.*, substring(r."reportName" from '\(([0-9]{4}\.[0-9]{2})\)$') AS actual_period
       FROM financial_report r
-      JOIN source s ON s.id=r."sourceId" AND s.reference=r."rceptNo"
-        AND s.kind='dartReport'
+      JOIN source s ON s.id=r."sourceId"
       JOIN dart_filing f ON f."rceptNo"=r."rceptNo"
+      JOIN company c ON c.id=r."companyId"
+      -- Keep correlated provenance checks together. Independent selectivity
+      -- estimates otherwise reduce 100k valid reports to one estimated row.
+      WHERE CASE WHEN s.reference=r."rceptNo" AND s.kind='dartReport'
         AND f."companyId"=r."companyId" AND f."bsnsYear"=r."bsnsYear"
-        AND f."reportCode"=r."reportCode"
-      JOIN company c ON c.id=r."companyId" AND c."corpCode"=f."corpCode"
-      WHERE substring(r."reportName" from '\(([0-9]{4}\.[0-9]{2})\)$')
+        AND f."reportCode"=r."reportCode" AND c."corpCode"=f."corpCode"
+        AND substring(r."reportName" from '\(([0-9]{4}\.[0-9]{2})\)$')
         =substring(f."reportName" from '\(([0-9]{4}\.[0-9]{2})\)$')
         AND (r."reportCode"<>'annual' OR substring(r."reportName" from '\(([0-9]{4})\.[0-9]{2}\)$')=r."bsnsYear"::text)
         AND substring(r."reportName" from '\([0-9]{4}\.([0-9]{2})\)$') IN
-          ('01','02','03','04','05','06','07','08','09','10','11','12')
+          ('01','02','03','04','05','06','07','08','09','10','11','12') THEN true ELSE false END
     )
   ''';
 
@@ -46,30 +48,52 @@ abstract final class FinancialBasis {
         ? 'AND false'
         : 'AND r."companyId" IN (${companyIds.join(',')})'}
         ORDER BY r."companyId",r."fsDiv",r."bsnsYear",r."reportCode",r.actual_period DESC,r."rceptNo" DESC,r.id DESC
+      ), candidate_periods AS MATERIALIZED (
+        SELECT r.*,
+          first_value(r."bsnsYear") OVER newest AS candidate_year,
+          first_value(r."reportCode") OVER newest AS candidate_code
+        FROM active_reports r
+        WINDOW newest AS (PARTITION BY r."companyId",r."fsDiv"
+          ORDER BY r.actual_period DESC,
+            CASE r."reportCode" WHEN 'annual' THEN 4 WHEN 'q3' THEN 3 WHEN 'halfYear' THEN 2 ELSE 1 END DESC,
+            r."rceptNo" DESC,r.id DESC)
       ), candidates AS (
         SELECT DISTINCT ON (r."companyId",r."fsDiv")
-          r."companyId" AS id,r."fsDiv" AS fs,r."bsnsYear" AS y,r."reportCode" AS code,rc.rk,r.actual_period
-        FROM active_reports r JOIN rank_code rc ON rc.code=r."reportCode"
-        ORDER BY r."companyId",r."fsDiv",r.actual_period DESC,rc.rk DESC,r."rceptNo" DESC,r.id DESC
+          r."companyId" AS id,r."fsDiv" AS fs,r."bsnsYear" AS y,r."reportCode" AS code,
+          CASE r."reportCode" WHEN 'annual' THEN 4 WHEN 'q3' THEN 3 WHEN 'halfYear' THEN 2 ELSE 1 END AS rk,r.actual_period
+        FROM candidate_periods r
+        ORDER BY r."companyId",r."fsDiv",r.actual_period DESC,rk DESC,r."rceptNo" DESC,r.id DESC
+      ), needed_reports AS MATERIALIZED (
+        SELECT r.* FROM candidate_periods r
+        WHERE CASE WHEN (r."bsnsYear"=r.candidate_year AND r."reportCode"=r.candidate_code
+            OR r."bsnsYear"=r.candidate_year-1 AND r."reportCode" IN (r.candidate_code,'annual')) THEN true ELSE false END
       ), mapped_facts AS (
-        SELECT f.*, ${FinancialAccounts.resolvedIdSql('f')} AS resolved_id
-        FROM candidates c JOIN active_reports r ON r."companyId"=c.id AND r."fsDiv"=c.fs
-          AND (r."bsnsYear"=c.y AND r."reportCode"=c.code
-            OR r."bsnsYear"=c.y-1 AND r."reportCode" IN (c.code,'annual'))
+        SELECT f.id,f."reportId",f."companyId",f."bsnsYear",f."reportCode",f."fsDiv",
+          f.statement,f."accountId",f."accountName",f."accountDetail",f."supersededById",
+          f.currency,f.amount,f."cumulativeAmount",f."priorCumulativeAmount",f."priorQuarterAmount",
+          r.candidate_year, r.candidate_code, ${FinancialAccounts.resolvedIdSql('f')} AS resolved_id
+        FROM needed_reports r
         JOIN financial_fact f ON f."reportId"=r.id
-          AND f."sourceId"=r."sourceId" AND f."companyId"=r."companyId"
+        WHERE CASE WHEN f."sourceId"=r."sourceId" AND f."companyId"=r."companyId"
           AND f."bsnsYear"=r."bsnsYear" AND f."reportCode"=r."reportCode"
-          AND f."fsDiv"=r."fsDiv"
-        WHERE f."supersededById" IS NULL AND f."accountDetail" IS NULL
-          AND (f."accountId" IN ($ids) OR f."accountId" IS NULL)
+          AND f."fsDiv"=r."fsDiv" AND f."supersededById" IS NULL AND f."accountDetail" IS NULL
+          AND (f."accountId" IN ($ids) OR f."accountId" IS NULL) THEN true ELSE false END
       ), counted_facts AS (
         SELECT f.*, count(*) FILTER (WHERE f."accountId" IS NULL)
-          OVER (PARTITION BY f."reportId",f.resolved_id) AS fallback_count
+          OVER (PARTITION BY f."reportId",f.resolved_id) AS fallback_count,
+          count(*) FILTER (WHERE f."accountId"='${FinancialComparatives.total}')
+            OVER (PARTITION BY f."reportId",f.statement) AS total_count,
+          count(*) FILTER (WHERE f."accountId"='${FinancialComparatives.minority}')
+            OVER (PARTITION BY f."reportId",f.statement) AS minority_count,
+          max(${FinancialComparatives.rawSql('f')}) FILTER (WHERE f."accountId"='${FinancialComparatives.total}')
+            OVER (PARTITION BY f."reportId",f.statement,coalesce(f.currency,'KRW')) AS total_prior,
+          max(${FinancialComparatives.rawSql('f')}) FILTER (WHERE f."accountId"='${FinancialComparatives.minority}')
+            OVER (PARTITION BY f."reportId",f.statement,coalesce(f.currency,'KRW')) AS minority_prior
         FROM mapped_facts f
       ), picked_facts AS (
         SELECT DISTINCT ON (f."reportId",f.resolved_id) f.*
         FROM counted_facts f
-        WHERE f.resolved_id IN ($ids)
+        WHERE CASE WHEN f.resolved_id IN ($ids)
           AND (f."accountId" IS NOT NULL OR f.fallback_count=1)
           AND (
             f.resolved_id IN ('ifrs-full_Assets','ifrs-full_Liabilities','ifrs-full_Equity',
@@ -78,47 +102,30 @@ abstract final class FinancialBasis {
               'ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities') AND f.statement='cashFlow'
             OR f.resolved_id IN ('ifrs-full_Revenue','dart_OperatingIncomeLoss','ifrs-full_ProfitLoss',
               'ifrs-full_ProfitLossAttributableToOwnersOfParent') AND f.statement IN ('incomeStatement','comprehensiveIncome')
-          )
+          ) THEN true ELSE false END
         ORDER BY f."reportId",f.resolved_id,(f."accountId" IS NULL),(f."accountId" IS DISTINCT FROM f.resolved_id),CASE f.statement WHEN 'incomeStatement' THEN 0 ELSE 1 END,f.id
       ), basis_currency AS (
         SELECT "companyId" AS id,"fsDiv" AS fs,
           CASE WHEN count(DISTINCT coalesce(currency,'KRW'))=1
             THEN min(coalesce(currency,'KRW')) ELSE 'MIXED' END AS currency
-        FROM picked_facts f JOIN candidates c ON c.id=f."companyId" AND c.fs=f."fsDiv"
-          AND c.y=f."bsnsYear" AND c.code=f."reportCode"
+        FROM picked_facts f
+        WHERE CASE WHEN f.candidate_year=f."bsnsYear" AND f.candidate_code=f."reportCode" THEN true ELSE false END
         GROUP BY "companyId","fsDiv"
-      ), comparative_components AS MATERIALIZED (
-        SELECT x."reportId",x.statement,coalesce(x.currency,'KRW') AS currency,
-          sum(count(*) FILTER (WHERE x."accountId"='${FinancialComparatives.total}'))
-            OVER (PARTITION BY x."reportId",x.statement) AS total_count,
-          sum(count(*) FILTER (WHERE x."accountId"='${FinancialComparatives.minority}'))
-            OVER (PARTITION BY x."reportId",x.statement) AS minority_count,
-          max(${FinancialComparatives.rawSql('x')}) FILTER
-            (WHERE x."accountId"='${FinancialComparatives.total}') AS total_prior,
-          max(${FinancialComparatives.rawSql('x')}) FILTER
-            (WHERE x."accountId"='${FinancialComparatives.minority}') AS minority_prior
-        FROM mapped_facts x
-        JOIN (SELECT DISTINCT "reportId" FROM picked_facts) p ON p."reportId"=x."reportId"
-        WHERE x."accountDetail" IS NULL AND x."supersededById" IS NULL
-          AND x."accountId" IN ('${FinancialComparatives.total}','${FinancialComparatives.minority}')
-        GROUP BY x."reportId",x.statement,coalesce(x.currency,'KRW')
       ), raw_inc AS MATERIALIZED (
         SELECT f."companyId" AS id,f."fsDiv" AS fs,f.resolved_id AS acc,
-          f."bsnsYear" AS y,f."reportCode" AS code,coalesce(f.currency,'KRW') AS currency,f.amount::numeric AS amt,
+          f."bsnsYear" AS y,f."reportCode" AS code,f.candidate_year,f.candidate_code,coalesce(f.currency,'KRW') AS currency,f.amount::numeric AS amt,
           CASE WHEN f."reportCode" IN ('annual','q1') OR f.statement='cashFlow'
             THEN coalesce(f."cumulativeAmount"::numeric,f.amount::numeric)
             ELSE f."cumulativeAmount"::numeric END AS cum, CASE WHEN f."accountId"='${FinancialComparatives.owners}'
-              AND pc.total_count=1 AND pc.minority_count=1
-              AND abs((${FinancialComparatives.rawSql('f')})+pc.minority_prior-pc.total_prior)
-                > greatest(1000,abs(pc.total_prior)/1000000)
+              AND f.total_count=1 AND f.minority_count=1
+              AND abs((${FinancialComparatives.rawSql('f')})+f.minority_prior-f.total_prior)
+                > greatest(1000,abs(f.total_prior)/1000000)
             THEN NULL ELSE (${FinancialComparatives.rawSql('f')}) END AS prior_cum
-        FROM picked_facts f LEFT JOIN comparative_components pc
-          ON pc."reportId"=f."reportId" AND pc.statement=f.statement
-          AND pc.currency=coalesce(f.currency,'KRW')
+        FROM picked_facts f
         WHERE f.statement IN ('incomeStatement','comprehensiveIncome','cashFlow')
           ${blockedAnnualFlowReportIds.isEmpty ? '' : 'AND f."reportId" NOT IN (${blockedAnnualFlowReportIds.join(',')})'}
       ), inc AS (
-        SELECT id,fs,acc,y,code,currency,
+        SELECT id,fs,acc,y,code,candidate_year,candidate_code,currency,
           CASE WHEN acc='ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities'
             THEN abs(amt) ELSE amt END AS amt,
           CASE WHEN acc='ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities'
@@ -127,21 +134,21 @@ abstract final class FinancialBasis {
             THEN abs(prior_cum) ELSE prior_cum END AS prior_cum
         FROM raw_inc
       ), raw_ttm AS MATERIALIZED (
-        SELECT c.id,c.fs,i.acc,
-          CASE WHEN c.code='annual' THEN max(i.amt) FILTER (WHERE i.y=c.y)
-            WHEN count(DISTINCT i.currency) FILTER (WHERE i.y=c.y OR i.amt IS NOT NULL OR i.cum IS NOT NULL)>1 THEN NULL
-            ELSE max(i.amt) FILTER (WHERE i.y=c.y-1 AND i.code='annual')
-              +max(i.cum) FILTER (WHERE i.y=c.y)
-              -coalesce(max(i.cum) FILTER (WHERE i.y=c.y-1 AND i.code=c.code),
-                max(i.prior_cum) FILTER (WHERE i.y=c.y AND i.code=c.code)) END AS v,
-          CASE WHEN c.code='annual' THEN max(i.amt) FILTER (WHERE i.y=c.y)
-            WHEN count(DISTINCT i.currency) FILTER (WHERE i.y=c.y OR i.amt IS NOT NULL OR i.cum IS NOT NULL)>1 THEN NULL
-            ELSE max(i.cum) FILTER (WHERE i.y=c.y) END AS now_cum,
-          CASE WHEN count(DISTINCT i.currency) FILTER (WHERE i.y=c.y OR i.amt IS NOT NULL OR i.cum IS NOT NULL)>1 THEN NULL WHEN c.code='annual' THEN max(i.amt) FILTER (WHERE i.y=c.y-1 AND i.code='annual')
-            ELSE coalesce(max(i.cum) FILTER (WHERE i.y=c.y-1 AND i.code=c.code),
-              max(i.prior_cum) FILTER (WHERE i.y=c.y AND i.code=c.code)) END AS ago_cum
-        FROM candidates c JOIN inc i ON i.id=c.id AND i.fs=c.fs
-        GROUP BY c.id,c.fs,c.y,c.code,i.acc
+        SELECT i.id,i.fs,i.acc,
+          CASE WHEN i.candidate_code='annual' THEN max(i.amt) FILTER (WHERE i.y=i.candidate_year)
+            WHEN count(DISTINCT i.currency) FILTER (WHERE i.y=i.candidate_year OR i.amt IS NOT NULL OR i.cum IS NOT NULL)>1 THEN NULL
+            ELSE max(i.amt) FILTER (WHERE i.y=i.candidate_year-1 AND i.code='annual')
+              +max(i.cum) FILTER (WHERE i.y=i.candidate_year)
+              -coalesce(max(i.cum) FILTER (WHERE i.y=i.candidate_year-1 AND i.code=i.candidate_code),
+                max(i.prior_cum) FILTER (WHERE i.y=i.candidate_year AND i.code=i.candidate_code)) END AS v,
+          CASE WHEN i.candidate_code='annual' THEN max(i.amt) FILTER (WHERE i.y=i.candidate_year)
+            WHEN count(DISTINCT i.currency) FILTER (WHERE i.y=i.candidate_year OR i.amt IS NOT NULL OR i.cum IS NOT NULL)>1 THEN NULL
+            ELSE max(i.cum) FILTER (WHERE i.y=i.candidate_year) END AS now_cum,
+          CASE WHEN count(DISTINCT i.currency) FILTER (WHERE i.y=i.candidate_year OR i.amt IS NOT NULL OR i.cum IS NOT NULL)>1 THEN NULL WHEN i.candidate_code='annual' THEN max(i.amt) FILTER (WHERE i.y=i.candidate_year-1 AND i.code='annual')
+            ELSE coalesce(max(i.cum) FILTER (WHERE i.y=i.candidate_year-1 AND i.code=i.candidate_code),
+              max(i.prior_cum) FILTER (WHERE i.y=i.candidate_year AND i.code=i.candidate_code)) END AS ago_cum
+        FROM inc i
+        GROUP BY i.id,i.fs,i.candidate_year,i.candidate_code,i.acc
       ), ttm AS MATERIALIZED (
         SELECT id,fs,acc,
           CASE WHEN acc='ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities'
@@ -150,9 +157,8 @@ abstract final class FinancialBasis {
         FROM raw_ttm
       ), raw_bs AS MATERIALIZED (
         SELECT f."companyId" AS id,f."fsDiv" AS fs,f.resolved_id AS acc,f.amount::numeric AS v
-        FROM picked_facts f JOIN candidates c ON c.id=f."companyId" AND c.fs=f."fsDiv"
-          AND c.y=f."bsnsYear" AND c.code=f."reportCode"
-        WHERE f.statement='balanceSheet'
+        FROM picked_facts f
+        WHERE CASE WHEN f.statement='balanceSheet' AND f.candidate_year=f."bsnsYear" AND f.candidate_code=f."reportCode" THEN true ELSE false END
       ), invalid_balance AS (
         SELECT id,fs FROM raw_bs GROUP BY id,fs
         HAVING abs(max(v) FILTER(WHERE acc='ifrs-full_Assets')
