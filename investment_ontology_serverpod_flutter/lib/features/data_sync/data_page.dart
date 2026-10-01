@@ -144,7 +144,7 @@ class _CoverageState extends State<_Coverage> {
           source: 'DART 주요정보 28종',
           data: '최대주주·소액주주·임원·타법인출자·배당·자기주식·주식 총수·증자 등. 지배구조와 주주환원 화면에 사용합니다.',
           scope: '기업별 최신 사업보고서의 핵심 9종부터 처리합니다. 처리 완료에는 API의 자료 없음 응답도 포함되며, 아래 비율은 값의 확보율이 아닙니다.',
-          detail: 'API 예: hyslrSttus.json(최대주주), exctvSttus.json(임원), otrCprInvstmntSttus.json(출자), alotMatter.json(배당), tesstkAcqsDspsSttus.json(자기주식). 매일 19:00 수집, 한도 도달 시 다음 날 00:05 재개. 처리율에는 저장 완료와 API의 자료 없음 응답이 모두 포함됩니다. 전체 항목 장부에는 사업의 내용 본문도 포함됩니다.',
+          detail: 'API 예: hyslrSttus.json(최대주주), exctvSttus.json(임원), otrCprInvstmntSttus.json(출자), alotMatter.json(배당), tesstkAcqsDspsSttus.json(자기주식). 매일 19:00 수집, 한도 도달 시 다음 날 00:05 재개. 처리율에는 저장 완료와 API의 자료 없음 응답이 모두 포함됩니다. 이 집계는 공시 주요정보 28종 장부를 기준으로 합니다.',
           children: [
             _Progress(
               label: '최신 핵심 9종 처리',
@@ -152,7 +152,7 @@ class _CoverageState extends State<_Coverage> {
               total: v.prioritySections,
             ),
             _Progress(
-              label: '전체 항목 처리',
+              label: '주요정보 28종 전체 처리',
               done: v.sectionsDone,
               total: v.sections,
               note:
