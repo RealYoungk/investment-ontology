@@ -1,3 +1,5 @@
+import 'verified_historical_company_identity.dart';
+
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
@@ -364,7 +366,18 @@ class PublicFinancialHtmlFetcher {
           .allMatches(text)
           .toList();
       if (printedNames.length != 1 ||
-          normalize(printedNames.single.group(1)!) != normalize(companyName) ||
+          (normalize(printedNames.single.group(1)!) != normalize(companyName) &&
+              VerifiedHistoricalCompanyIdentity.evidence(
+                    receipt: sourceReceipt,
+                    corpCode: corpCode,
+                    currentName: companyName,
+                    printedName: printedNames.single.group(1)!,
+                    periodEnd: periodEnd,
+                    consolidated: consolidated,
+                    coverSource: coverSource,
+                    coverHtml: coverHtml,
+                  ) ==
+                  null) ||
           periodEnd.difference(periodStart).inDays < 0 ||
           periodEnd.difference(periodStart).inDays + 1 > 367) {
         throw const FormatException('Exact annual company/duration mismatch');
@@ -376,6 +389,9 @@ class PublicFinancialHtmlFetcher {
         '당사는 연결재무제표 작성법인이 아니므로 해당사항이 없습니다.',
         '해당사항 없습니다.',
         '당사는 보고서 제출일 현재 해당사항 없습니다.',
+        '당사는 본 보고서 작성기준일 현재 연결대상 종속회사가 없어 해당사항이 없습니다.',
+        '당사는 본 보고서 작성기준일 현재 해당사항 없습니다.',
+        '당사는 보고서 작성기준일 현재 해당사항이 없습니다.',
         '- 보고서 작성 기준일 현재 해당사항 없습니다.',
         '- 해당사항 없습니다.',
         '- 당사는 사업보고서 작성기준일 현재 해당사항 없습니다.',

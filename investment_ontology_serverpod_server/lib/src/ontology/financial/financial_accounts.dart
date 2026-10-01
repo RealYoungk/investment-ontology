@@ -143,7 +143,8 @@ abstract final class FinancialAccounts {
       .replaceFirst(
         RegExp(r'^[Ⅰ-ⅫIVXLCDM0-9]+[.)]'),
         '',
-      );
+      )
+      .replaceFirst(RegExp(r'\(주석[0-9]+(?:,[0-9]+)*\)$'), '');
 
   /// Shared finite mapping for SQL consumers; no fuzzy or company-specific match.
   static String resolvedIdSql(String alias) {
@@ -151,7 +152,9 @@ abstract final class FinancialAccounts {
         r'[[:space:]\u00A0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF]';
     final compact =
         "regexp_replace($alias.\"accountName\", '$spaces', '', 'g')";
-    final name = "regexp_replace($compact, '^[Ⅰ-ⅫIVXLCDM0-9]+[.)]', '')";
+    final unprefixed = "regexp_replace($compact, '^[Ⅰ-ⅫIVXLCDM0-9]+[.)]', '')";
+    final name =
+        "regexp_replace($unprefixed, '[(]주석[0-9]+(,[0-9]+)*[)]\$', '')";
     final cases = <String>[];
     for (final account in all) {
       for (final aliasId in account.accountIds.skip(1)) {

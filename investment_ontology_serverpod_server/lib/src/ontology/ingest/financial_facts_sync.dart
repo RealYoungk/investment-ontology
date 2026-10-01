@@ -689,8 +689,15 @@ class FinancialFactsSync {
       if (metadataAnchored > 0) {
         message += ', 공식 원접수 표지 기간 연결 $metadataAnchored건(숫자 변경 없음)';
       }
+      DateTime? earliestResume;
+      void requestResume(DateTime at) {
+        if (earliestResume == null || at.isBefore(earliestResume!)) {
+          earliestResume = at;
+        }
+      }
+
       if (deferredMetadataTargets.isNotEmpty && !cancelled) {
-        await scheduleResume?.call(
+        requestResume(
           now.add(
             metadataBatchDeferred
                 ? const Duration(seconds: 30)
@@ -705,7 +712,7 @@ class FinancialFactsSync {
             ', API 자료없음 연간 원문 확인 ${annualPublic.processed}건·남은 ${annualPublic.remaining}건(핵심계정 부분 수집)';
       }
       if (annualPublic.remaining > 0 && !cancelled) {
-        await scheduleResume?.call(
+        requestResume(
           now.add(
             annualPublic.fresh || metadataBatchDeferred
                 ? const Duration(seconds: 30)
@@ -718,7 +725,7 @@ class FinancialFactsSync {
             ', API 예산 소진 반기 원문 XBRL 부분 핵심7계정 ${halfPublic.processed}건·남은 ${halfPublic.remaining}건';
       }
       if (halfPublic.remaining > 0 && !cancelled) {
-        await scheduleResume?.call(
+        requestResume(
           now.add(
             halfPublic.fresh
                 ? const Duration(seconds: 30)
@@ -737,10 +744,13 @@ class FinancialFactsSync {
         final at = ApiCallBudget.nextKstMidnight(
           now,
         ).add(const Duration(minutes: 10));
-        await scheduleResume?.call(at);
+        requestResume(at);
         message +=
             ' · 일일 호출 예산($_activeBudget건) 소진, '
             '${scheduleResume != null ? '다음 날 이어서 받음' : '다음 실행에서 이어서 받음'}';
+      }
+      if (!cancelled && earliestResume != null) {
+        await scheduleResume?.call(earliestResume!);
       }
       await IngestJobs.save(
         session,
@@ -1080,10 +1090,16 @@ class FinancialFactsSync {
       '20260709000400': {'OFS'},
       '20250326000042': {'CFS'},
       '20230621000034': {'CFS'},
-      '20230622000218': {'OFS'},
+      '20230321001219': {'OFS'},
+      '20230622000218': {'CFS', 'OFS'},
+      '20260331001824': {'CFS'},
+      '20260323001144': {'CFS'},
       '20240320001370': {'CFS', 'OFS'},
       '20260316001455': {'OFS'},
       '20260319000105': {'CFS', 'OFS'},
+      '20260319000677': {'OFS'},
+      '20250321001022': {'OFS'},
+      '20240322000131': {'OFS'},
       '20260318000962': {'OFS'},
     };
     bool verifiedParserPending(DartFiling f) {
