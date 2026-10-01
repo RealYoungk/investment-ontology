@@ -1,4 +1,5 @@
 import 'public_issuer_legal_name.dart';
+import 'bnk_six_core_profile.dart';
 import 'verified_historical_company_identity.dart';
 
 /// Validated strict subsets of receipt-bound annual and half-year DART HTML.
@@ -23,9 +24,14 @@ abstract final class PublicFinancialHtml {
         uri.userInfo.isNotEmpty ||
         uri.hasFragment ||
         uri.hasPort ||
-        ['rcpNo', 'dcmNo', 'eleId', 'offset', 'length', 'dtd'].any(
-          (key) => uri.queryParametersAll[key]?.length != 1,
-        ) ||
+        [
+          'rcpNo',
+          'dcmNo',
+          'eleId',
+          'offset',
+          'length',
+          'dtd',
+        ].any((key) => uri.queryParametersAll[key]?.length != 1) ||
         !const [
           'dart3.xsd',
           'dart4.xsd',
@@ -485,6 +491,20 @@ abstract final class PublicFinancialHtml {
     required bool consolidated,
     PublicIssuerLegalName? issuerProof,
   }) {
+    if (receipt == BnkSixCoreProfile.receipt) {
+      return BnkSixCoreProfile.parse(
+        targetReceipt: receipt,
+        companyCode: corpCode,
+        companyName: companyName,
+        consolidated: consolidated,
+        start: periodStart,
+        end: periodEnd,
+        coverSource: coverSource,
+        coverHtml: coverHtml,
+        statementSource: statementSource,
+        statementHtml: statementHtml,
+      );
+    }
     _source(coverSource, receipt);
     _source(statementSource, receipt);
     if (coverSource.queryParameters['dcmNo'] !=

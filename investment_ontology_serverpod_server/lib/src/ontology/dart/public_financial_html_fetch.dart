@@ -1,4 +1,5 @@
 import 'public_issuer_legal_name.dart';
+import 'bnk_six_core_profile.dart';
 import 'verified_historical_company_identity.dart';
 
 import 'dart:convert';
@@ -381,10 +382,8 @@ class PublicFinancialHtmlFetcher {
     }
     PublicIssuerLegalName? issuerProof;
     if (exactAnnual) {
-      String normalize(String name) => name.replaceAll(
-        RegExp(r'\(주\)|㈜|주식회사|\s+'),
-        '',
-      );
+      String normalize(String name) =>
+          name.replaceAll(RegExp(r'\(주\)|㈜|주식회사|\s+'), '');
       final printedNames = RegExp(r'회사명:(.*?)(?:공동)?대표이사:')
           .allMatches(text)
           .toList();
@@ -395,6 +394,15 @@ class PublicFinancialHtmlFetcher {
       }
       final printedName = printedNames.single.group(1)!;
       if (normalize(printedName) != normalize(companyName) &&
+          !BnkSixCoreProfile.boundCover(
+            targetReceipt: sourceReceipt,
+            companyCode: corpCode,
+            companyName: companyName,
+            consolidated: consolidated,
+            end: periodEnd,
+            source: coverSource,
+            html: coverHtml,
+          ) &&
           VerifiedHistoricalCompanyIdentity.evidence(
                 receipt: sourceReceipt,
                 corpCode: corpCode,
