@@ -17,6 +17,7 @@ import '../ingest/api_call_budget.dart';
 import '../ingest/company_master_sync.dart';
 import '../ingest/disclosure_sync.dart';
 import '../ingest/financial_facts_sync.dart';
+import '../ingest/financial_collection_scope.dart';
 import '../ingest/ingest_jobs.dart';
 import '../ingest/ingest_hooks.dart';
 import '../ingest/market_snapshot_sync.dart';
@@ -189,13 +190,15 @@ class IngestEndpoint extends Endpoint {
   /// 수집 현황. 층마다 얼마나 받았는지 한 번에 센다.
   Future<IngestCoverage> coverage(Session session) async {
     final rows = await session.db.unsafeQuery('''
+      WITH ${FinancialCollectionScope.cte}
       SELECT
         (SELECT count(*) FROM company WHERE "stockCode" IS NOT NULL),
         (SELECT count(DISTINCT r."companyId") FROM financial_report r
            JOIN company c ON c.id = r."companyId" WHERE c."stockCode" IS NOT NULL),
-        (SELECT count(*) FROM dart_filing),
-        (SELECT count(*) FROM dart_filing
-           WHERE "consolidatedStatus" = 'pending' OR "separateStatus" = 'pending'),
+        (SELECT count(*) FROM financial_scope),
+        (SELECT count(*) FROM financial_scope
+           WHERE "consolidatedStatus" IN ('pending', 'failed')
+              OR "separateStatus" IN ('pending', 'failed')),
         (SELECT count(*) FROM dart_filing_section WHERE "yearRank" = 0 AND tier = 0),
         (SELECT count(*) FROM dart_filing_section
            WHERE "yearRank" = 0 AND tier = 0 AND status IN ('stored', 'noData')),
@@ -206,7 +209,19 @@ class IngestEndpoint extends Endpoint {
         (SELECT count(*) FROM ontology_relation),
         (SELECT count(*) FROM person),
         (SELECT count(DISTINCT "companyId") FROM business_document),
-        (SELECT count(DISTINCT "companyId") FROM business_digest_section)
+        (SELECT count(DISTINCT "companyId") FROM business_digest_section),
+        (SELECT count(*) FROM latest_period lp
+          JOIN dart_filing f ON f.id=lp.id
+          WHERE EXISTS (
+            SELECT 1 FROM dart_filing_section s
+            JOIN disclosure_report r ON r."companyId"=s."companyId"
+              AND r."bsnsYear"=s."bsnsYear" AND r."reportCode"=f."reportCode"
+              AND r.section='businessContent'
+            JOIN business_document b ON b."reportId"=r.id
+            WHERE s."filingId"=f.id AND s.section='businessContent'
+              AND s.status='stored' AND b."companyId"=f."companyId"
+              AND b."rceptNo"=f."rceptNo"
+          ))
     ''');
     final v = [for (final x in rows.first) (x as int?) ?? 0];
     return IngestCoverage(
@@ -224,6 +239,7 @@ class IngestEndpoint extends Endpoint {
       persons: v[11],
       companiesWithBusinessText: v[12],
       companiesWithDigest: v[13],
+      companiesWithLatestBusinessText: v[14],
       dartCallsToday: await ApiCallBudget.usedToday(session, ApiProvider.dart),
       dartDailyLimit: ApiCallBudget.dartDailyLimit,
       dartFinancialBudget: ApiCallBudget.dartFinancialBudget,

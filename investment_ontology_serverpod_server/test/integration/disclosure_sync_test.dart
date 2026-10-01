@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:archive/archive.dart';
@@ -5,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/dart_client.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_business_document.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/endpoints/governance_endpoint.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/disclosure/disclosure_links.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/ingest/api_call_budget.dart';
@@ -16,6 +18,26 @@ import 'auth_test_sessions.dart';
 import 'test_tools/serverpod_test_tools.dart';
 
 /// 가짜 DART 주요정보. `api|corp|year` → 응답 행. 없으면 013.
+class _PublicBodyFixture extends PublicBusinessDocument {
+  _PublicBodyFixture({this.fail = false});
+  final bool fail;
+  final receipts = <String>[];
+  @override
+  Future<PublicBusinessBody> fetch(String receipt) async {
+    receipts.add(receipt);
+    if (fail) throw TimeoutException("fixture public transport timeout");
+    return PublicBusinessBody(
+      receipt: receipt,
+      title: "사업보고서",
+      text: "공개 원문 제품 설명",
+      sourceUri: Uri.parse(
+        "https://dart.fss.or.kr/report/viewer.do?rcpNo=$receipt",
+      ),
+      bodySha256: "fixture-hash",
+    );
+  }
+}
+
 class FakeDisclosures {
   final rows = <String, List<Map<String, String>>>{};
   final calls = <String>[];
@@ -26,6 +48,7 @@ class FakeDisclosures {
 
   /// 접수번호 → 공시 원본 XML. 없으면 014 (파일 없음).
   final documents = <String, String>{};
+  String? documentError;
 
   /// 회사별 공시 목록 (`list.json`, 원본·정정 모두). (접수번호, 보고서 이름, 접수일)
   final filings = <String, List<(String, String, String)>>{};
@@ -40,6 +63,15 @@ class FakeDisclosures {
       if (req.url.path.endsWith('document.xml')) {
         final rcept = q['rcept_no']!;
         calls.add('document|$rcept');
+        if (documentError != null) {
+          return http.Response(
+            jsonEncode({
+              'status': documentError,
+              'message': 'fixture API error',
+            }),
+            200,
+          );
+        }
         final xml = documents[rcept];
         if (xml == null) {
           return http.Response.bytes(
@@ -131,6 +163,7 @@ void main() {
       int priorityBudget = 9000,
       int businessBudget = DisclosureSync.defaultBusinessBudget,
       String? corpCode,
+      PublicBusinessDocument? publicDocuments,
     }) async {
       final job = await IngestJob.db.insertRow(
         session,
@@ -147,6 +180,8 @@ void main() {
         dailyBudget: dailyBudget,
         priorityBudget: priorityBudget,
         businessBudget: businessBudget,
+        publicFallbackEnabled: publicDocuments != null,
+        publicDocuments: publicDocuments,
         callInterval: Duration.zero,
         clock: () => now,
         corpCode: corpCode,
@@ -191,7 +226,12 @@ void main() {
       ]) {
         final c = await Company.db.insertRow(
           session,
-          Company(corpCode: corp, name: name, market: Market.kospi),
+          Company(
+            corpCode: corp,
+            name: name,
+            stockCode: corp.substring(2),
+            market: Market.kospi,
+          ),
         );
         ids[corp] = c.id!;
       }
@@ -668,6 +708,200 @@ void main() {
       );
     });
 
+    test('본문 우선수집은 이전 연간 대신 최신 기간의 최종 접수번호만 받는다', () async {
+      final receipts = <String>[];
+      for (final corp in [samsung, life, cnt, other, another]) {
+        final receipt = '20260814${corp.substring(2)}';
+        await filing(
+          corp,
+          receipt,
+          2026,
+          code: FinancialReportCode.halfYear,
+          financial: FilingFetchStatus.pending,
+        );
+        receipts.add(receipt);
+      }
+      await filing(
+        samsung,
+        '20260515000001',
+        2026,
+        code: FinancialReportCode.q1,
+      );
+      const corrected = '20260901000001';
+      await filing(
+        samsung,
+        corrected,
+        2026,
+        code: FinancialReportCode.halfYear,
+      );
+      receipts[0] = corrected;
+      for (final receipt in receipts) {
+        dart.documents[receipt] =
+            '<DOCUMENT><BODY>'
+            '<TITLE>II. 사업의 내용</TITLE><P>최신 제품과 사업</P>'
+            '<TITLE>III. 재무에 관한 사항</TITLE></BODY></DOCUMENT>';
+      }
+      await runSync();
+      expect(
+        dart.calls.where((call) => call.startsWith('document|')),
+        unorderedEquals(receipts.map((receipt) => 'document|$receipt')),
+      );
+      expect(await BusinessDocument.db.count(session), receipts.length);
+      // 최신 본문 저장 후 남은 연간 본문이 우선 대상으로 승격되지 않는다.
+      dart.calls.clear();
+      await runSync();
+      expect(dart.calls.where((call) => call.startsWith('document|')), isEmpty);
+      expect(
+        await DartFilingSection.db.count(
+          session,
+          where: (t) =>
+              t.section.equals(DartSection.businessContent) &
+              t.status.equals(FilingFetchStatus.pending),
+        ),
+        greaterThan(0),
+      );
+    });
+
+    test('최신 본문을 먼저 받아도 공용 우선수집 예산을 넘지 않는다', () async {
+      await filing(
+        samsung,
+        '20260814000001',
+        2026,
+        code: FinancialReportCode.halfYear,
+        financial: FilingFetchStatus.pending,
+      );
+      final job = await runSync(priorityBudget: 2);
+      expect(dart.calls, hasLength(2));
+      expect(dart.calls.every((call) => call.startsWith('document|')), isTrue);
+      expect(job.status, IngestStatus.succeeded);
+    });
+
+    test('API 예산 소진 상태에서 공개 본문과 출처를 정상 저장한다', () async {
+      final reader = _PublicBodyFixture();
+      await runSync(corpCode: samsung, dailyBudget: 0, publicDocuments: reader);
+      expect(dart.calls, isEmpty);
+      expect(reader.receipts, ['20260310000001']);
+      final doc = (await BusinessDocument.db.find(session)).single;
+      expect(doc.text, '공개 원문 제품 설명');
+      final report = (await DisclosureReport.db.find(session)).single;
+      final source = await Source.db.findById(session, report.sourceId);
+      expect(source!.url, contains('rcpNo=20260310000001'));
+      expect(source.title, contains('fixture-hash'));
+      final complete = await endpoints.ingest.coverage(sessionBuilder);
+      expect(complete.companiesWithBusinessText, 1);
+      expect(complete.companiesWithLatestBusinessText, 1);
+      final correction = await filing(samsung, '20260901000001', 2025);
+      final waiting = await endpoints.ingest.coverage(sessionBuilder);
+      expect(waiting.companiesWithBusinessText, 1);
+      expect(waiting.companiesWithLatestBusinessText, 0);
+      await runSync(corpCode: samsung, dailyBudget: 0);
+      final section = (await DartFilingSection.db.find(
+        session,
+        where: (t) =>
+            t.filingId.equals(correction.id!) &
+            t.section.equals(DartSection.businessContent),
+      )).single;
+      await DartFilingSection.db.updateRow(
+        session,
+        section.copyWith(status: FilingFetchStatus.failed, attempts: 1),
+      );
+      await runSync(corpCode: samsung, dailyBudget: 0, publicDocuments: reader);
+      final retried = await DartFilingSection.db.findById(session, section.id!);
+      expect(retried!.status, FilingFetchStatus.stored);
+      expect(
+        (await endpoints.ingest.coverage(sessionBuilder))
+            .companiesWithLatestBusinessText,
+        1,
+      );
+    });
+
+    test('DART 020 호출 제한 오류 뒤에도 공개 본문을 저장하고 API는 더 부르지 않는다', () async {
+      dart.documentError = '020';
+      final reader = _PublicBodyFixture();
+      await runSync(corpCode: samsung, publicDocuments: reader);
+      expect(dart.calls, ['document|$rSamsung']);
+      expect(reader.receipts, [rSamsung]);
+      expect(await BusinessDocument.db.count(session), 1);
+    });
+
+    test('공개 원문 취득 실패를 자료 없음으로 확정하거나 이전 원문으로 대체하지 않는다', () async {
+      final latest = await filing(
+        samsung,
+        '20260814000001',
+        2026,
+        code: FinancialReportCode.halfYear,
+      );
+      final reader = _PublicBodyFixture(fail: true);
+      final job = await runSync(corpCode: samsung, publicDocuments: reader);
+      final section = (await DartFilingSection.db.find(
+        session,
+        where: (t) =>
+            t.filingId.equals(latest.id!) &
+            t.section.equals(DartSection.businessContent),
+      )).single;
+      expect(section.status, FilingFetchStatus.failed);
+      expect(section.lastError, contains('다음 실행 재시도'));
+      expect(job.status, IngestStatus.failed);
+      expect(await BusinessDocument.db.count(session), 0);
+    });
+
+    test('일반 기재정정의 최신 원문이 없으면 이전 원문은 최신 확보로 세지 않는다', () async {
+      final latest = await filing(
+        samsung,
+        '20260901000001',
+        2025,
+        name: '[기재정정]사업보고서 (2025.12)',
+      );
+      dart.documents[rSamsung] = '<TITLE AASSOCNOTE="D-0-2-0-0">II. 사업의 내용</TITLE><P>이전 본문</P><TITLE>III.</TITLE>';
+      await runSync(corpCode: samsung);
+      final section = (await DartFilingSection.db.find(
+        session,
+        where: (t) =>
+            t.filingId.equals(latest.id!) &
+            t.section.equals(DartSection.businessContent),
+      )).single;
+      expect(section.status, FilingFetchStatus.noData);
+      expect(
+        (await endpoints.ingest.coverage(sessionBuilder))
+            .companiesWithLatestBusinessText,
+        0,
+      );
+    });
+
+    test('공개 본문 6회 연속 실패하면 이번 실행의 공개 요청을 중지한다', () async {
+      for (final corp in ['00000006', '00000007']) {
+        final company = await Company.db.insertRow(
+          session,
+          Company(
+            corpCode: corp,
+            stockCode: corp.substring(2),
+            name: corp,
+            market: Market.kospi,
+          ),
+        );
+        ids[corp] = company.id!;
+        await filing(corp, '20260310${corp.substring(2)}', 2025);
+      }
+      final reader = _PublicBodyFixture(fail: true);
+      final job = await runSync(publicDocuments: reader);
+      expect(reader.receipts, hasLength(6));
+      expect(job.status, IngestStatus.failed);
+      expect(job.failed, greaterThanOrEqualTo(6));
+    });
+
+    test('기업별 최신 본문 우선수집은 요청한 기업만 대상으로 한다', () async {
+      dart.documents['20260310000001'] =
+          '<DOCUMENT><DOCUMENT-NAME>사업보고서</DOCUMENT-NAME>'
+          '<TITLE>II. 사업의 내용</TITLE><P>요청 기업의 제품 설명</P>'
+          '<TITLE>III. 재무에 관한 사항</TITLE></DOCUMENT>';
+      await runSync(corpCode: samsung);
+      expect(
+        dart.calls.where((call) => call.startsWith('document|')),
+        everyElement('document|20260310000001'),
+      );
+      expect(await BusinessDocument.db.count(session), 1);
+    });
+
     test('본문은 하루 몫만큼만 받고 나머지는 다음 날로 남긴다', () async {
       // 재무 백필이 남아 있는 상태 (그때만 본문에 하루 몫을 따로 준다).
       final old = await filing(samsung, '20250310000001', 2024);
@@ -702,7 +936,7 @@ void main() {
       // 이 수집의 몫은 1,000회지만, 호출마다 다른 수집이 100회씩 쓴다.
       dart.onCall = () => ApiCallBudget.record(session, ApiProvider.dart, 100);
       final job = await runSync(dailyBudget: 1000);
-      expect(dart.calls.length, lessThanOrEqualTo(21));
+      expect(dart.calls.length, lessThanOrEqualTo(26));
       expect(job.message, contains('다음 날 이어서 받음'));
     });
 
@@ -844,7 +1078,7 @@ void main() {
 
     test('정정공시의 원본 파일이 없으면 같은 사업연도의 이전 접수번호로 받는다', () async {
       const corrected = '20260401000001';
-      await filing(samsung, corrected, 2025);
+      await filing(samsung, corrected, 2025, name: '[첨부정정]사업보고서 (2025.12)');
       dart.documents[rSamsung] =
           '<TITLE AASSOCNOTE="D-0-2-0-0">II. 사업의 내용</TITLE><P>본문</P>'
           '<TITLE AASSOCNOTE="D-0-3-0-0">III.</TITLE>';
@@ -893,6 +1127,8 @@ void main() {
         where: (t) => t.companyId.equals(ids[life]!),
       ))!;
       expect(doc.rceptNo, original);
+      final coverage = await endpoints.ingest.coverage(sessionBuilder);
+      expect(coverage.companiesWithLatestBusinessText, 0);
     });
 
     test('한 사업연도에 정기보고서가 둘이면 이 보고서의 행만 저장한다', () async {

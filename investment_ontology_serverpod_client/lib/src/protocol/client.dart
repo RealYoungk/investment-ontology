@@ -1535,7 +1535,7 @@ class EndpointReview extends _isc.EndpointRef {
 /// 지표(PER·PBR·ROE·영업이익률)는 저장하지 않는다. 최근 12개월(TTM) 원천 값과 최근
 /// 시가총액으로 계산하고, 계산에 쓴 값도 같이 돌려준다. 기업 화면의 지표와 같은 기준이다.
 ///
-/// 전 상장사를 한 번 계산해 두고(데이터가 바뀌면 다시), 거르기·정렬은 메모리에서 한다.
+/// 조건 검색은 전체 캐시를 사용하고, 기업 비교는 선택 기업만 SQL에서 계산한다.
 /// {@category Endpoint}
 class EndpointScreen extends _isc.EndpointRef {
   EndpointScreen(_isc.EndpointCaller caller) : super(caller);

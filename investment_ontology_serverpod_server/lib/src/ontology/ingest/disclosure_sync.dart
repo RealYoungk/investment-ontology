@@ -1,12 +1,17 @@
 import '../business/business_profiles.dart';
 import '../peers/peer_catalog.dart';
 
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+
+import 'package:http/http.dart' as http;
 
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
 import '../dart/dart_client.dart';
+import '../dart/public_business_document.dart';
 import '../dart/dart_report_name.dart';
 import '../dart/dart_sections.dart';
 import '../dart/dart_values.dart';
@@ -20,6 +25,7 @@ import '../disclosure/supplier_relations.dart';
 import '../market/market_caps.dart';
 import 'api_call_budget.dart';
 import 'financial_facts_sync.dart';
+import 'financial_collection_scope.dart';
 import 'financial_rows.dart';
 import 'ingest_jobs.dart';
 
@@ -40,6 +46,8 @@ class DisclosureSync {
     int? dailyBudget,
     this.priorityBudget = ApiCallBudget.dartDisclosurePriorityBudget,
     this.businessBudget = defaultBusinessBudget,
+    this.publicFallbackEnabled = true,
+    PublicBusinessDocument? publicDocuments,
     this.callInterval = const Duration(milliseconds: 200),
     this.scheduleResume,
     this.corpCode,
@@ -50,11 +58,14 @@ class DisclosureSync {
            (corpCode == null
                ? ApiCallBudget.dartDisclosureBudget
                : ApiCallBudget.dartDailyLimit - 100),
-       _clock = clock ?? DateTime.now;
+       _clock = clock ?? DateTime.now,
+       _publicDocuments = publicDocuments ?? PublicBusinessDocument();
 
   /// 재무 백필이 끝나기를 기다리면 본문이 몇 주 동안 안 쌓이므로, 백필 중에도
-  /// 시가총액이 큰 기업부터 하루 이만큼은 받는다. 관계 추출의 재료다.
-  static const defaultBusinessBudget = 300;
+  /// 기업별 최신 정기보고서 본문을 핵심 주요정보보다 먼저 받는다. 전체 기업의
+  /// 최신 본문이 300건 상한에 막히지 않도록 공용 우선수집 몫 안에서 처리한다.
+  static const defaultBusinessBudget =
+      ApiCallBudget.dartDisclosurePriorityBudget;
 
   static const kind = 'disclosures';
 
@@ -74,8 +85,17 @@ class DisclosureSync {
   final int dailyBudget;
   final int priorityBudget;
 
-  /// 재무 백필 중에도 하루에 받는 "사업의 내용" 본문 수 (1건 = 1회 호출).
+  /// 실행마다 우선수집할 최신 "사업의 내용" 본문 수 (공용 호출 한도 안에서 처리).
   final int businessBudget;
+  final bool publicFallbackEnabled;
+  final PublicBusinessDocument _publicDocuments;
+  int _publicAttempts = 0;
+  int _publicFailureStreak = 0;
+
+  bool get _canFetchPublic =>
+      publicFallbackEnabled &&
+      _publicAttempts < businessBudget &&
+      _publicFailureStreak < 6;
   final Duration callInterval;
   final Future<void> Function(DateTime at)? scheduleResume;
 
@@ -104,6 +124,7 @@ class DisclosureSync {
     final claimed = await IngestJobs.claim(session, jobId);
     if (claimed == null) {
       dart.close();
+      _publicDocuments.close();
       return;
     }
     var job = claimed;
@@ -147,15 +168,18 @@ class DisclosureSync {
         return e;
       }
 
-      if (priorityOnly) {
-        final n = await _fetchBusinessDocuments(byId, byName);
+      {
+        final n = await _fetchBusinessDocuments(byId, byName, only: only);
         stored += n.stored;
         failed += n.failed;
         processed += n.stored + n.failed;
       }
 
       final total = await DartFilingSection.db.count(session, where: scope);
-      job = await IngestJobs.save(session, job.copyWith(total: total));
+      job = await IngestJobs.save(
+        session,
+        job.copyWith(total: processed + total),
+      );
 
       outer:
       while (true) {
@@ -333,6 +357,7 @@ class DisclosureSync {
     } finally {
       await _meter.flush(session);
       dart.close();
+      _publicDocuments.close();
     }
   }
 
@@ -414,35 +439,57 @@ class DisclosureSync {
   }
 
   /// 재무 수집이 받을 공시가 남았는지.
-  Future<bool> _financialBacklog() async =>
-      await DartFiling.db.count(
-        session,
-        where: (t) =>
-            t.reportCode.notEquals(null) &
-            t.companyId.notEquals(null) &
-            t.attempts.between(0, FinancialFactsSync.maxAttempts - 1) &
-            (t.consolidatedStatus.equals(FilingFetchStatus.pending) |
-                t.consolidatedStatus.equals(FilingFetchStatus.failed) |
-                t.separateStatus.equals(FilingFetchStatus.pending) |
-                t.separateStatus.equals(FilingFetchStatus.failed)),
-      ) >
-      0;
+  Future<bool> _financialBacklog() async {
+    final rows = await session.db.unsafeQuery(
+      '''WITH ${FinancialCollectionScope.cte}
+      SELECT EXISTS (SELECT 1 FROM financial_scope
+        WHERE attempts < @max AND
+          ("consolidatedStatus" IN ('pending','failed') OR
+           "separateStatus" IN ('pending','failed'))) AS pending''',
+      parameters: QueryParameters.named({
+        'max': FinancialFactsSync.maxAttempts,
+      }),
+    );
+    return rows.first.toColumnMap()['pending'] as bool;
+  }
 
-  /// 재무 백필 중에 "사업의 내용" 본문을 시가총액이 큰 기업부터 [businessBudget]건 받는다.
+  /// 재무 백필 중에 기업별 최신 정기보고서의 본문을 [businessBudget]건까지 받는다.
+  /// 최신 중간보고서가 있으면 이전 연간 본문은 이 우선수집에서 제외한다.
   ///
   /// 핵심 항목(tier 0)과 몫을 나눠 쓴다. 본문은 관계·값 추출의 재료라 백필이
   /// 끝날 때까지 기다리면 온톨로지가 자라지 않는다.
   Future<({int stored, int failed})> _fetchBusinessDocuments(
     Map<int, Company> byId,
-    Map<String, int> byName,
-  ) async {
-    if (businessBudget <= 0 || !_hasAllowance) return (stored: 0, failed: 0);
+    Map<String, int> byName, {
+    Company? only,
+  }) async {
+    if (businessBudget <= 0 || (!_hasAllowance && !_canFetchPublic)) {
+      return (stored: 0, failed: 0);
+    }
+    // yearRank는 연간/중간보고서별로 계산되므로 둘 다 0일 수 있다.
+    // 저장 상태와 무관하게 기업의 최신 기간·정정 접수번호를 먼저 확정한다.
+    // 최신 본문이 이미 저장됐다고 이전 연간 본문이 우선수집으로 승격되면 안 된다.
+    final latest = await session.db.unsafeQuery(
+      '''SELECT DISTINCT ON ("companyId") id FROM dart_filing
+      WHERE "companyId" IS NOT NULL AND "reportCode" IS NOT NULL
+      ORDER BY "companyId", "bsnsYear" DESC,
+        CASE "reportCode" WHEN 'annual' THEN 4 WHEN 'q3' THEN 3
+          WHEN 'halfYear' THEN 2 ELSE 1 END DESC,
+        "rceptNo" DESC''',
+    );
+    final latestIds = {
+      for (final row in latest) row.toColumnMap()['id'] as int,
+    };
+    if (latestIds.isEmpty) return (stored: 0, failed: 0);
     final pending = await DartFilingSection.db.find(
       session,
       where: (t) =>
           t.status.equals(FilingFetchStatus.pending) &
-          t.yearRank.equals(0) &
-          t.section.equals(DartSection.businessContent),
+          t.filingId.inSet(latestIds) &
+          t.section.equals(DartSection.businessContent) &
+          (only == null
+              ? t.companyId.notEquals(null)
+              : t.companyId.equals(only.id!)),
     );
     if (pending.isEmpty) return (stored: 0, failed: 0);
     final caps = await MarketCaps.latest(session, {
@@ -451,7 +498,8 @@ class DisclosureSync {
     pending.sort((a, b) {
       final x = caps.caps[a.companyId] ?? BigInt.zero;
       final y = caps.caps[b.companyId] ?? BigInt.zero;
-      return y.compareTo(x);
+      final capOrder = y.compareTo(x);
+      return capOrder != 0 ? capOrder : a.filingId.compareTo(b.filingId);
     });
     final filings = {
       for (final f in await DartFiling.db.find(
@@ -465,7 +513,7 @@ class DisclosureSync {
     var stored = 0, failed = 0;
     var done = 0;
     for (final item in pending.take(businessBudget)) {
-      if (!_hasAllowance) break;
+      if (!_hasAllowance && !_canFetchPublic) break;
       // 재무 수집과 겹쳐 돌면 시작할 때 계산한 몫만으로는 하루 한도를 넘길 수 있다.
       // 본문은 한 건에 여러 번 부를 수도 있어(정정 공시 되짚기) 자주 확인한다.
       if (done > 0 && done % _progressEvery == 0) {
@@ -476,7 +524,7 @@ class DisclosureSync {
           dailyBudget,
         )) {
           _budgetExhausted = true;
-          break;
+          if (!_canFetchPublic) break;
         }
       }
       done++;
@@ -630,17 +678,19 @@ class DisclosureSync {
     DartFiling filing,
     Company company,
   ) async {
+    final attachmentOnly = filing.reportName.contains("첨부정정");
     final candidates = [
       filing,
-      ...await DartFiling.db.find(
-        session,
-        where: (t) =>
-            t.companyId.equals(company.id!) &
-            t.bsnsYear.equals(item.bsnsYear) &
-            t.reportCode.equals(filing.reportCode) &
-            t.rceptNo.notEquals(filing.rceptNo),
-        orderByList: (t) => [t.rceptNo.desc()],
-      ),
+      if (attachmentOnly)
+        ...await DartFiling.db.find(
+          session,
+          where: (t) =>
+              t.companyId.equals(company.id!) &
+              t.bsnsYear.equals(item.bsnsYear) &
+              t.reportCode.equals(filing.reportCode) &
+              t.rceptNo.notEquals(filing.rceptNo),
+          orderByList: (t) => [t.rceptNo.desc()],
+        ),
     ];
     // 파일이 없거나(014, null) 파일은 있어도 본문이 아니면(noData — 감사보고서만 든
     // 첨부정정 zip) 다음 후보로 간다. 첨부정정이 두 번이면 첫 zip이 그렇다 (현대제철 FY2025).
@@ -655,7 +705,7 @@ class DisclosureSync {
     // 정정공시는 원본 파일이 없어(014) 여기까지 오므로, 그 회사의 같은 해 공시 목록을
     // 한 번 더 물어 원본 사업보고서를 찾는다 — 그러지 않으면 그 해 본문이 통째로 빈다.
     // 원본 공시가 파일이 없으면 정말 없는 것이다. 정정공시일 때만 원본을 찾는다.
-    if (!filing.reportName.contains('정정')) return FilingFetchStatus.noData;
+    if (!attachmentOnly) return FilingFetchStatus.noData;
     if (!_hasAllowance) return FilingFetchStatus.pending;
     for (final f in await _earlierPeriodFilings(
       filing,
@@ -682,20 +732,98 @@ class DisclosureSync {
           t.section.equals(DartSection.businessContent),
     );
     if (existing != null) return FilingFetchStatus.stored;
-    if (!_hasAllowance) return FilingFetchStatus.pending;
-    final zip = await _callDart(() => dart.fetchDocument(f.rceptNo));
-    if (zip == null) return null;
-    final doc = BusinessText.fromZip(zip, f.rceptNo);
-    if (doc == null) {
-      session.log(
-        '사업의 내용 없음 ${company.name} ${f.rceptNo} ${f.reportName}: '
-        '${BusinessText.describeZip(zip)}',
-        level: LogLevel.info,
-      );
-      return FilingFetchStatus.noData;
+    final apiAllowed = _hasAllowance;
+    Object? apiFailure;
+    StackTrace? apiFailureStack;
+    ({String title, String text})? apiDoc;
+    if (apiAllowed) {
+      try {
+        final zip = await _callDart(() => dart.fetchDocument(f.rceptNo));
+        if (zip != null) {
+          apiDoc = BusinessText.fromZip(zip, f.rceptNo);
+          if (apiDoc == null) {
+            session.log(
+              '사업의 내용 없음 ${company.name} ${f.rceptNo}: '
+              '${BusinessText.describeZip(zip)}',
+              level: LogLevel.info,
+            );
+          }
+        }
+      } catch (e, st) {
+        if (e is! DartApiException &&
+            e is! http.ClientException &&
+            e is! SocketException &&
+            e is! TimeoutException) {
+          rethrow;
+        }
+        apiFailure = e;
+        apiFailureStack = st;
+        if (e is DartApiException && e.status == '020') {
+          _budgetExhausted = true;
+        }
+        session.log(
+          'DART 원본 미취득 ${company.name} ${f.rceptNo} '
+          'status=${e is DartApiException ? e.status : e.runtimeType}',
+          level: LogLevel.warning,
+        );
+      }
     }
-    await _insertDocument(item, company, f, doc);
-    return FilingFetchStatus.stored;
+    if (apiDoc != null) {
+      await _insertDocument(item, company, f, apiDoc);
+      return FilingFetchStatus.stored;
+    }
+    if (_canFetchPublic) {
+      if (await IngestJobs.isCancelled(session, jobId)) {
+        return FilingFetchStatus.pending;
+      }
+      _publicAttempts++;
+      final publicInterval = callInterval < const Duration(seconds: 1)
+          ? const Duration(seconds: 1)
+          : callInterval;
+      await Future<void>.delayed(publicInterval);
+      late final PublicBusinessBody body;
+      try {
+        body = await _publicDocuments.fetch(f.rceptNo);
+      } catch (e) {
+        _publicFailureStreak++;
+        if (_publicFailureStreak == 6) {
+          session.log(
+            "공개 DART 본문 6회 연속 미취득 · 이번 실행 공개 요청 중지",
+            level: LogLevel.warning,
+          );
+        }
+        session.log(
+          '공개 DART 본문 미취득 ${company.name} ${f.rceptNo} '
+          'errorType=${e.runtimeType}',
+          level: LogLevel.warning,
+        );
+        throw DartApiException(
+          "publicBody",
+          "공개 원문 미취득 · ${e.runtimeType} · 다음 실행 재시도",
+        );
+      }
+      {
+        _publicFailureStreak = 0;
+        await _insertDocument(
+          item,
+          company,
+          f,
+          (title: body.title, text: body.text),
+          sourceUri: body.sourceUri,
+          bodySha256: body.bodySha256,
+        );
+        session.log(
+          '공개 DART 본문 저장 ${company.name} ${f.rceptNo} '
+          'sha256=${body.bodySha256}',
+          level: LogLevel.info,
+        );
+        return FilingFetchStatus.stored;
+      }
+    }
+    if (apiFailure != null) {
+      Error.throwWithStackTrace(apiFailure, apiFailureStack!);
+    }
+    return apiAllowed ? null : FilingFetchStatus.pending;
   }
 
   /// 정정 이전의 같은 해 사업보고서 (DART 공시 목록, 원본 포함). 최신 것부터.
@@ -749,8 +877,10 @@ class DisclosureSync {
     DartFilingSection item,
     Company company,
     DartFiling filing,
-    ({String title, String text}) doc,
-  ) async {
+    ({String title, String text}) doc, {
+    Uri? sourceUri,
+    String? bodySha256,
+  }) async {
     final period = DartReportName.parse(filing.reportName);
     if (period == null || filing.reportCode == null) {
       throw StateError('정기보고서 기간을 확인할 수 없습니다: ${filing.reportName}');
@@ -766,9 +896,12 @@ class DisclosureSync {
         session,
         Source(
           kind: SourceKind.dartReport,
-          title: 'DART 공시 원본 · ${doc.title} · ${filing.reportName}',
+          title:
+              'DART 공시 원본 · ${doc.title} · ${filing.reportName}'
+              '${bodySha256 == null ? '' : ' · 공개본문 SHA256=$bodySha256'}',
           reference: filing.rceptNo,
-          url: DartClient.filingViewerUrl(filing.rceptNo).toString(),
+          url: (sourceUri ?? DartClient.filingViewerUrl(filing.rceptNo))
+              .toString(),
           retrievedAt: now,
         ),
         transaction: tx,
@@ -836,18 +969,19 @@ class DisclosureSync {
       orderBy: (t) => t.id.desc(),
     );
     if (stored != null) {
-      // 상장사 목록·이름 키는 한 실행에서 한 번만 읽는다 (본문이 하루 300건 온다).
+      // 상장사 목록·이름 키는 한 실행에서 한 번만 읽는다.
       _companyKeys ??= await ProductionFacts.listedKeys(session);
       _listedCompanies ??= await Company.db.find(
         session,
         where: (t) => t.market.inSet(DisclosureLinks.listedMarkets),
       );
       await ProductionFacts.store(session, stored, companyKeys: _companyKeys);
-      // 연간 제품/동종기업/관계 프로필과 R&D 검산은 중간 누적값으로 바꾸지 않는다.
+      // 제품 설명은 최신 정기보고서의 제품·서비스를 따른다.
+      await BusinessProfiles.store(session, stored);
+      // 연간 동종기업/관계 프로필과 R&D 검산은 중간 누적값으로 바꾸지 않는다.
       if (filing.reportCode != FinancialReportCode.annual) return;
       await RndFacts.store(session, stored);
       await PeerProfiles.store(session, stored);
-      await BusinessProfiles.store(session, stored);
       await SupplierRelations.store(
         session,
         stored,
