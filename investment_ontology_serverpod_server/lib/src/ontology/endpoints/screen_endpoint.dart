@@ -486,6 +486,20 @@ class ScreenEndpoint extends Endpoint {
           AND m."baseDate" <= (SELECT max("baseDate") FROM market_snapshot_day WHERE "rowCount" > 0)
           AND m."closePrice" IS NOT NULL
         GROUP BY r.id
+      ), volume_days AS MATERIALIZED (
+        SELECT md."baseDate" FROM market_snapshot_day md
+        WHERE md."rowCount" > 0 AND md."baseDate" < (SELECT max("baseDate") FROM market_snapshot_day WHERE "rowCount" > 0)
+        ORDER BY md."baseDate" DESC LIMIT 20
+      ), volume_history AS (
+        SELECT r.id,
+          count(*) FILTER (WHERE m.volume::numeric >= 0) AS valid,
+          avg(m.volume::numeric) AS avg_volume,
+          count(*) FILTER (WHERE m."listedShares"::numeric > 0) AS valid_shares,
+          min(m."listedShares"::numeric) AS sh_lo,
+          max(m."listedShares"::numeric) AS sh_hi
+        FROM volume_days d JOIN market_snapshot m ON m."baseDate"=d."baseDate"
+        JOIN rep r ON r.sid=m."securityId"
+        GROUP BY r.id
       ), vol AS (
         -- Exactly the preceding 20 observed trading sessions, excluding today.
         -- Null/negative volumes, incomplete windows and share-count changes invalidate the ratio.
@@ -497,20 +511,7 @@ class ScreenEndpoint extends Endpoint {
             THEN n.volume::numeric / h.avg_volume END AS ratio
         FROM rep r JOIN market_snapshot n ON n."securityId" = r.sid
           AND n."baseDate" = (SELECT max("baseDate") FROM market_snapshot_day WHERE "rowCount" > 0)
-        LEFT JOIN LATERAL (
-          SELECT count(*) FILTER (WHERE v.volume::numeric >= 0) AS valid,
-                 avg(v.volume::numeric) AS avg_volume,
-                 count(*) FILTER (WHERE v."listedShares"::numeric > 0) AS valid_shares,
-                 min(v."listedShares"::numeric) AS sh_lo,
-                 max(v."listedShares"::numeric) AS sh_hi
-          FROM (SELECT m.volume, m."listedShares" FROM market_snapshot m
-                WHERE m."securityId" = r.sid AND m."baseDate" < n."baseDate"
-                  AND m."baseDate" IN (
-                    SELECT md."baseDate" FROM market_snapshot_day md
-                    WHERE md."rowCount" > 0 AND md."baseDate" < n."baseDate"
-                    ORDER BY md."baseDate" DESC LIMIT 20)
-                ORDER BY m."baseDate" DESC LIMIT 20) v
-        ) h ON true
+        LEFT JOIN volume_history h ON h.id=r.id
       ), dividend_report AS (
         -- Select the newest annual disclosure FIRST. Never fall back to an older
         -- positive dividend merely because the latest report is null or zero.

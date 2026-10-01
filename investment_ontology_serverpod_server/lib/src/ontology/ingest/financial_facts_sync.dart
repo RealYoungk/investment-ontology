@@ -518,6 +518,12 @@ class FinancialFactsSync {
           job.copyWith(message: 'API 자료없음 보고서 공식 원문 확인 중(최대10기간)'),
         );
       }
+      final halfPublic = !_hasAllowance && job.status != IngestStatus.cancelled
+          ? await _recoverPendingHalfXbrl(scopeIds, companies)
+          : (stored: 0, failed: 0, processed: 0, remaining: 0, fresh: false);
+      stored += halfPublic.stored;
+      failed += halfPublic.failed;
+      processed += halfPublic.processed;
       final annualPublic = job.status == IngestStatus.cancelled
           ? (stored: 0, failed: 0, processed: 0, remaining: 0, fresh: false)
           : await _recoverAnnualApiNoData(scopeIds, companies);
@@ -707,13 +713,27 @@ class FinancialFactsSync {
           ),
         );
       }
+      if (halfPublic.processed > 0 || halfPublic.remaining > 0) {
+        message +=
+            ', API 예산 소진 반기 원문 XBRL 부분 핵심7계정 ${halfPublic.processed}건·남은 ${halfPublic.remaining}건';
+      }
+      if (halfPublic.remaining > 0 && !cancelled) {
+        await scheduleResume?.call(
+          now.add(
+            halfPublic.fresh
+                ? const Duration(seconds: 30)
+                : const Duration(minutes: 15),
+          ),
+        );
+      }
       if (feedRows > 0) message += ', 공시 피드 $feedRows건';
       if (only != null) message = '${only.name}: $message';
       if (_budgetExhausted &&
           !cancelled &&
           only == null &&
           deferredMetadataTargets.isEmpty &&
-          annualPublic.remaining == 0) {
+          annualPublic.remaining == 0 &&
+          halfPublic.remaining == 0) {
         final at = ApiCallBudget.nextKstMidnight(
           now,
         ).add(const Duration(minutes: 10));
@@ -1058,6 +1078,13 @@ class FinancialFactsSync {
       '20260430001951': {'CFS'},
       '20260430001147': {'CFS'},
       '20260709000400': {'OFS'},
+      '20250326000042': {'CFS'},
+      '20230621000034': {'CFS'},
+      '20230622000218': {'OFS'},
+      '20240320001370': {'CFS', 'OFS'},
+      '20260316001455': {'OFS'},
+      '20260319000105': {'CFS', 'OFS'},
+      '20260318000962': {'OFS'},
     };
     bool verifiedParserPending(DartFiling f) {
       final bases = verifiedParserReceipts[f.rceptNo];
@@ -1189,6 +1216,166 @@ class FinancialFactsSync {
         if (!attempted.contains(f.id!) && _annualPublicAttempts(current) == 0) {
           fresh = true;
         }
+      }
+    }
+    return (
+      stored: stored,
+      failed: failed,
+      processed: processed,
+      remaining: remaining,
+      fresh: fresh,
+    );
+  }
+
+  static const _halfXbrlMarker = 'pending-half-exact-xbrl';
+
+  static int _halfXbrlAttempts(DartFiling f) =>
+      int.tryParse(
+        RegExp(r'pending-half-exact-xbrl:attempt=(\d+)')
+                .firstMatch(f.lastError ?? '')
+                ?.group(1) ??
+            '',
+      ) ??
+      0;
+
+  Future<({int stored, int failed, int processed, int remaining, bool fresh})>
+  _recoverPendingHalfXbrl(
+    Set<int> scopeIds,
+    Map<String, Company> companies,
+  ) async {
+    bool eligible(DartFiling f) =>
+        f.rceptNo == '20260813000889' &&
+        f.corpCode == '00960623' &&
+        f.attempts < maxAttempts &&
+        _halfXbrlAttempts(f) < 3 &&
+        f.reportCode == FinancialReportCode.halfYear &&
+        DartReportName.parse(f.reportName)?.kind == DartReportKind.halfYear &&
+        (f.consolidatedStatus == FilingFetchStatus.pending ||
+            f.separateStatus == FilingFetchStatus.pending ||
+            (f.lastError?.contains(_halfXbrlMarker) == true &&
+                (f.consolidatedStatus == FilingFetchStatus.failed ||
+                    f.separateStatus == FilingFetchStatus.failed)));
+    final all = await DartFiling.db.find(
+      session,
+      where: (t) =>
+          t.id.inSet(scopeIds) &
+          t.reportCode.equals(FinancialReportCode.halfYear),
+    );
+    final queue = all.where(eligible).toList()
+      ..sort(
+        (a, b) => _halfXbrlAttempts(a).compareTo(_halfXbrlAttempts(b)) != 0
+            ? _halfXbrlAttempts(a).compareTo(_halfXbrlAttempts(b))
+            : b.rceptNo.compareTo(a.rceptNo),
+      );
+    var stored = 0, failed = 0, processed = 0, consecutive = 0;
+    final attempted = <int>{};
+    for (final f in queue) {
+      if (processed >= 5 ||
+          consecutive >= 3 ||
+          await IngestJobs.isCancelled(session, jobId)) {
+        break;
+      }
+      final company = companies[f.corpCode];
+      if (company == null) continue;
+      if (processed > 0 && callInterval != Duration.zero) {
+        await Future<void>.delayed(const Duration(seconds: 1));
+      }
+      final period = DartReportName.parse(f.reportName)!;
+      final end = DateTime.utc(period.periodYear, period.periodMonth + 1, 0);
+      ({List<int> zip, Uri source})? original;
+      String? transportError;
+      try {
+        original = await dart.fetchPublicAnnualXbrl(f.rceptNo);
+      } catch (e) {
+        final clean = e is FormatException
+            ? e.message.replaceAll(RegExp(r'[\r\n\x00-\x1f]'), ' ')
+            : e.runtimeType.toString();
+        transportError = clean.substring(0, min(200, clean.length));
+      }
+      if (await IngestJobs.isCancelled(session, jobId)) break;
+      var next = f, itemFailed = false;
+      var basisProcessed = false;
+      for (final div in FsDiv.values) {
+        final status = div == FsDiv.consolidated
+            ? next.consolidatedStatus
+            : next.separateStatus;
+        if (status != FilingFetchStatus.pending &&
+            !(status == FilingFetchStatus.failed &&
+                f.lastError?.contains(_halfXbrlMarker) == true)) {
+          continue;
+        }
+        if (await IngestJobs.isCancelled(session, jobId)) break;
+        List<Map<String, dynamic>>? rows;
+        String? error = transportError;
+        if (original != null) {
+          try {
+            rows = PublicFinancialXbrl.parseHalfYear(
+              original.zip,
+              receipt: f.rceptNo,
+              corpCode: company.corpCode,
+              bsnsYear: apiRequestYear(f),
+              periodEnd: end,
+              consolidated: div == FsDiv.consolidated,
+              sourceUri: original.source,
+            );
+          } catch (e) {
+            error = e is FormatException
+                ? e.message.toString()
+                : e.runtimeType.toString();
+          }
+        }
+        if (await IngestJobs.isCancelled(session, jobId)) break;
+        basisProcessed = true;
+        if (rows == null) {
+          itemFailed = true;
+          next = next.copyWith(
+            consolidatedStatus: div == FsDiv.consolidated
+                ? FilingFetchStatus.failed
+                : null,
+            separateStatus: div == FsDiv.separate
+                ? FilingFetchStatus.failed
+                : null,
+            lastError:
+                '$_halfXbrlMarker:attempt=${_halfXbrlAttempts(f) + 1}; ${div.name}: ${error ?? 'strict source validation failed'}',
+          );
+          continue;
+        }
+        final saved = await _store(
+          f,
+          company,
+          div,
+          rows,
+          originalSource: original!.source,
+          originalDigest: PublicFinancialXbrl.digest(original.zip),
+          originalFormat: 'half-xbrl',
+        );
+        if (saved.inserted) stored++;
+        next = next.copyWith(
+          consolidatedStatus: div == FsDiv.consolidated ? saved.status : null,
+          separateStatus: div == FsDiv.separate ? saved.status : null,
+        );
+      }
+      if (!basisProcessed) break;
+      processed++;
+      attempted.add(f.id!);
+      if (itemFailed) {
+        failed++;
+        consecutive++;
+      } else {
+        consecutive = 0;
+      }
+      await DartFiling.db.updateRow(
+        session,
+        next.copyWith(attempts: f.attempts, checkedAt: _clock().toUtc()),
+      );
+    }
+    var remaining = 0;
+    var fresh = false;
+    for (final old in queue) {
+      final f = (await DartFiling.db.findById(session, old.id!))!;
+      if (eligible(f)) {
+        remaining++;
+        if (!attempted.contains(f.id!)) fresh = true;
       }
     }
     return (
@@ -2349,6 +2536,10 @@ class FinancialFactsSync {
               ))?.reportName ??
               filing.reportName.replaceFirst(RegExp(r'^(\[[^\]]+\]\s*)+'), '');
     try {
+      if (originalFormat == 'half-xbrl' &&
+          await IngestJobs.isCancelled(session, jobId)) {
+        return (status: FilingFetchStatus.pending, inserted: false);
+      }
       await _insert(
         filing,
         company,
@@ -2410,7 +2601,11 @@ class FinancialFactsSync {
         Source(
           kind: SourceKind.dartReport,
           title: originalSource != null
-              ? '${originalFormat == 'html' ? 'DART 원문 HTML 부분 핵심계정(실제 인쇄 계정명, XBRL 계정 ID 미제공)' : 'DART 원문 XBRL 핵심계정'} · $reportName · ${FinancialCodes.fsDivName(div)} · SHA256:$originalDigest$partialNote'
+              ? '${originalFormat == 'half-xbrl'
+                    ? 'DART 원문 XBRL 반기 부분 핵심7계정(손익3개월·누적6개월)'
+                    : originalFormat == 'html'
+                    ? 'DART 원문 HTML 부분 핵심계정(실제 인쇄 계정명, XBRL 계정 ID 미제공)'
+                    : 'DART 원문 XBRL 핵심계정'} · $reportName · ${FinancialCodes.fsDivName(div)} · SHA256:$originalDigest$partialNote'
               : 'DART 전체 재무제표 (fnlttSinglAcntAll) · $reportName · '
                     '${FinancialCodes.fsDivName(div)}',
           reference: rceptNo,
@@ -2420,6 +2615,37 @@ class FinancialFactsSync {
         ),
         transaction: tx,
       );
+      if (originalFormat == 'half-xbrl') {
+        await Source.db.insertRow(
+          session,
+          Source(
+            kind: SourceKind.dartReport,
+            reference: 'pending-half-xbrl-source:$rceptNo:${div.name}',
+            url: originalSource!.toString(),
+            retrievedAt: now,
+            title: jsonEncode({
+              'action':
+                  'verified-keyless-pending-half-after-api-budget-exhaustion',
+              'sourceReceipt': rceptNo,
+              'corpCode': company.corpCode,
+              'reportName': reportName,
+              'fsDiv': div.name,
+              'sha256': originalDigest,
+              'format': 'xbrl',
+              'coreRows': rows.length,
+              'coreRowProvenance': rows,
+              'savedSourceId': source.id,
+              'originalBasisStatus':
+                  (div == FsDiv.consolidated
+                          ? filing.consolidatedStatus
+                          : filing.separateStatus)
+                      .name,
+              'note': '원문 반기 부분 핵심7계정; 손익3개월·누적6개월, 현금흐름6개월. 전체 재무제표 복구 아님; CFS없음 추론 없음',
+            }),
+          ),
+          transaction: tx,
+        );
+      }
       final converted = FinancialRows.toFacts(
         rows,
         reportId: 0,

@@ -1,0 +1,9 @@
+# Exact annual company/title formats
+
+Primary source fixtures bind receipt 20260316001455 to corporate code 00445869 (유니포인트), and receipt 20260319000105 to 00321204 (지에이이노더스). Raw official shell/cover/statements, their exact public URLs and SHA-256 hashes are preserved under test/fixtures/financial_html/company-title-formats. Each declared period is 2025-01-01 through 2025-12-31. No API key or production write was used for this investigation.
+
+유니포인트 prints 공동대표이사 after its company name. The company boundary now accepts this exact label while preserving strict legal-name equality and official shell corporate identity. Its actual cover also prints '(제29기사업보고서)', now accepted as the same unique annual term. Other company identities remain rejected.
+
+지에이이노더스 prints full current statement dates as YYYY.MM.DD and its current column as '2025년도(제28기)'. The standard annual parser validates those exact dates against the expected start/end and requires the exact closing year plus cover term for the header. It does not infer dates from a year-only financial title. Its printed whole income-statement label '매출' is included as an exact revenue alias; printed account names are preserved and account_id remains null. The shared FinancialAccounts mapping drives both Dart readers and the SQL mirror. Costs, segments, customers, notes and non-income statements do not match this alias.
+
+Actual fixtures test CFS and OFS separately, source-bound normal ingest, summary revenue and screener revenue. Negative cases cover wrong company/corporate shell, wrong current year/term, conflicting dates, non-whole revenue labels and the unsupported 씨앤에스링크 year-only financial titles. Currency, monetary cell uniqueness, source identity, whole-company scope, balance identity and existing loss-sign guards remain in place. This is bounded core-account recovery, not a claim that all financial statement rows are supported.

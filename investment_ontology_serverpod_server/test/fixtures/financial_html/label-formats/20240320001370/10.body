@@ -1,0 +1,1335 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML style='border:0'>
+<HEAD>
+<TITLE></TITLE>
+<meta http-equiv="X-UA-Compatible" content="ie=edge" >
+<meta http-equiv="X-UA-TextLayoutMetrics" content="gdi" >
+<META http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="/css/report_xml.css">
+</HEAD>
+<BODY bgcolor="#FFFFFF">
+<P><BR/></P>
+<P class='section-2'><A name='toc1'>4. 재무제표</A></P>
+<P><BR/></P>
+<TABLE class='nb' width='972'>
+<COLGROUP>
+<COL width='972'></COL>
+</COLGROUP>
+<TBODY>
+<TR>
+  <TD width='972' height='20' align='CENTER' style='font-weight:bold;'>재 무 상 태 표</TD>
+</TR>
+</TBODY>
+</TABLE>
+<TABLE class='nb' width='972'>
+<COLGROUP>
+<COL width='300'></COL>
+<COL width='672'></COL>
+</COLGROUP>
+<TBODY>
+<TR>
+  <TD width='972' height='20' colspan='2' align='CENTER'>제 25(당)기말 &nbsp;2023년 03월 31일 현재</TD>
+</TR>
+<TR>
+  <TD width='972' height='20' colspan='2' align='CENTER'>제 24(전)기말 &nbsp;2022년 03월 31일 현재</TD>
+</TR>
+<TR>
+  <TD width='300' height='20' valign='BOTTOM'>주식회사 아하</TD>
+  <TD width='672' height='20' align='RIGHT' valign='BOTTOM'>(단위 : 원)</TD>
+</TR>
+</TBODY>
+</TABLE>
+<TABLE border='1' width='973'>
+<COLGROUP>
+<COL width='266'></COL>
+<COL width='120'></COL>
+<COL width='147'></COL>
+<COL width='147'></COL>
+<COL width='147'></COL>
+<COL width='146'></COL>
+</COLGROUP>
+<THEAD>
+<TR>
+  <TH width='266' height='20'>과 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;목</TH>
+  <TH width='120' height='20'>주 &nbsp;석</TH>
+  <TH width='294' height='20' colspan='2'>제 25(당)기말</TH>
+  <TH width='293' height='20' colspan='2'>제 24(전)기말</TH>
+</TR>
+</THEAD>
+<TBODY>
+<TR>
+  <TD width='266' height='20'>자 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 산</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>　</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>Ⅰ. 유동자산</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>　</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>53,508,466,359&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='146' height='20' align='RIGHT'>48,419,487,370&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;현금및현금성자산</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>4,5,6,7</TD>
+  <TD width='147' height='20' align='RIGHT'>16,902,980,158&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>12,716,282,045&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;단기금융상품</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>4,5,6,7</TD>
+  <TD width='147' height='20' align='RIGHT'>3,000,000,000&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>982,238,464&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;매출채권</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>4,5,6,9,37,39</TD>
+  <TD width='147' height='20' align='RIGHT'>1,537,662,419&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>4,284,835,620&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;기타유동금융자산</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>4,5,6,10,37</TD>
+  <TD width='147' height='20' align='RIGHT'>4,647,143,827&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>1,461,908,251&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;재고자산</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>12,39</TD>
+  <TD width='147' height='20' align='RIGHT'>24,060,497,884&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>24,872,860,694&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;기타유동자산</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>11</TD>
+  <TD width='147' height='20' align='RIGHT'>3,360,182,071&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>4,101,362,296&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>Ⅱ. 비유동자산</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>　</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>34,974,746,791&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='146' height='20' align='RIGHT'>27,626,044,638&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;장기금융상품</TD>
+  <TD width='120' height='20'><SPAN style='font-size:10pt;line-height:1.6em;'>4,5,6,8</SPAN><BR/>
+</TD>
+  <TD width='147' height='20' align='RIGHT'>2,192,300,551&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>97,729,504&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;당기손익-공정가치 측정 금융자산</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>4,5,6,8</TD>
+  <TD width='147' height='20' align='RIGHT'>119,851,268&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>107,356,832&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;기타비유동금융자산</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>4,5,6,10</TD>
+  <TD width='147' height='20' align='RIGHT'>689,071,960&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>2,876,750,240&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;종속기업투자</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>18</TD>
+  <TD width='147' height='20' align='RIGHT'>167,255,977&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>177,255,977&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;유형자산</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>13,36</TD>
+  <TD width='147' height='20' align='RIGHT'>26,619,752,788&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>19,720,411,009&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;사용권자산</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>14</TD>
+  <TD width='147' height='20' align='RIGHT'>145,832,849&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>357,862,595&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;투자부동산</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>15,35</TD>
+  <TD width='147' height='20' align='RIGHT'>803,096,594&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>1,067,431,324&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;무형자산</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>16</TD>
+  <TD width='147' height='20' align='RIGHT'>684,697,017&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>783,358,799&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;이연법인세자산</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>23,39</TD>
+  <TD width='147' height='20' align='RIGHT'>3,552,887,787&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>2,437,888,358&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>자 &nbsp; &nbsp; 산 &nbsp; &nbsp; 총 &nbsp; &nbsp; 계</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>　</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>88,483,213,150&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'>　</TD>
+  <TD width='146' height='20' align='RIGHT'>76,045,532,008&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>부 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 채</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>　</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>Ⅰ. 유동부채</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>　</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>40,945,815,331&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'>　</TD>
+  <TD width='146' height='20' align='RIGHT'>28,795,001,005&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;매입채무</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>4,5,6,39</TD>
+  <TD width='147' height='20' align='RIGHT'>3,692,263,788&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>4,497,630,940&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;기타유동금융부채</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>4,5,6,19,37</TD>
+  <TD width='147' height='20' align='RIGHT'>1,697,022,776&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>1,493,991,888&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;단기차입금</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>4,5,6,21,35,36,37</TD>
+  <TD width='147' height='20' align='RIGHT'>22,700,000,000&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>18,950,071,156&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;유동성장기부채</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>4,5,6,21,35,36,37</TD>
+  <TD width='147' height='20' align='RIGHT'>2,218,920,000&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>323,360,000&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;유동성사채</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>4,5,6,21,35,36,37</TD>
+  <TD width='147' height='20' align='RIGHT'>3,879,879,978&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>1,507,595,443&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;유동성신주인수권부사채</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>4,5,6,21</TD>
+  <TD width='147' height='20' align='RIGHT'>2,663,843,986&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;유동파생상품부채</TD>
+  <TD width='120' height='20'><SPAN style='font-size:10pt;line-height:1.6em;'>4,5,6</SPAN><BR/>
+</TD>
+  <TD width='147' height='20' align='RIGHT'>1,701,744,490&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;유동리스부채</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>4,5,6,14</TD>
+  <TD width='147' height='20' align='RIGHT'>75,559,819&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>109,725,457&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;유동기타충당부채</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>24</TD>
+  <TD width='147' height='20' align='RIGHT'>172,162,890&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>218,923,069&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;당기법인세부채</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>23,39</TD>
+  <TD width='147' height='20' align='RIGHT'>866,824,380&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>743,982,871&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;기타유동부채</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>20</TD>
+  <TD width='147' height='20' align='RIGHT'>1,277,593,224&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>949,720,181&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>Ⅱ. 비유동부채</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>　</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>12,573,054,363&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='146' height='20' align='RIGHT'>13,162,522,043&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;장기차입금</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>4,5,6,21,35,36,37</TD>
+  <TD width='147' height='20' align='RIGHT'>12,521,310,000&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>4,232,670,000&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;사채</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>4,5,6,21,35,36,37</TD>
+  <TD width='147' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>3,838,390,063&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;신주인수권부사채</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>4,5,6,21</TD>
+  <TD width='147' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>2,336,515,963&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;비유동파생상품부채</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>4,5,6</TD>
+  <TD width='147' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>2,597,032,642&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;비유동리스부채</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>4,5,6,14</TD>
+  <TD width='147' height='20' align='RIGHT'>36,744,363&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>137,913,375&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>&nbsp; &nbsp; &nbsp;기타비유동금융부채</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>4,5,6,19</TD>
+  <TD width='147' height='20' align='RIGHT'>15,000,000&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>20,000,000&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>부 &nbsp; &nbsp; 채 &nbsp; &nbsp; 총 &nbsp; &nbsp; 계</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>　</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>53,518,869,694&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='146' height='20' align='RIGHT'>41,957,523,048&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>자 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 본</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>　</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>Ⅰ. 자본금</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>1,25</TD>
+  <TD width='147' height='20' align='RIGHT'>6,375,951,500&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>6,375,951,500&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>Ⅱ. 주식발행초과금</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>25</TD>
+  <TD width='147' height='20' align='RIGHT'>13,169,103,573&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>13,169,103,573&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>Ⅲ. 기타자본항목</TD>
+  <TD width='120' height='20'>26</TD>
+  <TD width='147' height='20' align='RIGHT'>1,142,450,902&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>Ⅳ. 이익잉여금</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>27,39</TD>
+  <TD width='147' height='20' align='RIGHT'>14,276,837,481&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>14,542,953,887&nbsp;</TD>
+  <TD width='146' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>자 &nbsp; &nbsp; 본 &nbsp; &nbsp; 총 &nbsp; &nbsp; 계</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>　</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>34,964,343,456&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='146' height='20' align='RIGHT'>34,088,008,960&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='266' height='20'>부 채 와 자 본 총 계</TD>
+  <TD width='120' height='20' style='font-size:10pt;'>　</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>88,483,213,150&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='146' height='20' align='RIGHT'>76,045,532,008&nbsp;</TD>
+</TR>
+</TBODY>
+</TABLE>
+<TABLE class='nb' width='973'>
+<COLGROUP>
+<COL width='973'></COL>
+</COLGROUP>
+<TBODY>
+<TR>
+  <TD width='973' height='20' align='CENTER'>"별첨 주석은 본 재무제표의 일부입니다."</TD>
+</TR>
+</TBODY>
+</TABLE>
+<P class='pgbrk'></P>
+<TABLE class='nb' width='973'>
+<COLGROUP>
+<COL width='973'></COL>
+</COLGROUP>
+<TBODY>
+<TR>
+  <TD width='973' height='20' align='CENTER' style='font-weight:bold;'>포 괄 손 익 계 산 서</TD>
+</TR>
+</TBODY>
+</TABLE>
+<TABLE class='nb' width='973'>
+<COLGROUP>
+<COL width='300'></COL>
+<COL width='673'></COL>
+</COLGROUP>
+<TBODY>
+<TR>
+  <TD width='973' height='20' colspan='2' align='CENTER'>제 25(당)기 2022년 04월 01일부터 2023년 03월 31일까지</TD>
+</TR>
+<TR>
+  <TD width='973' height='20' colspan='2' align='CENTER'>제 24(전)기 2021년 04월 01일부터 2022년 03월 31일까지</TD>
+</TR>
+<TR>
+  <TD width='300' height='20' valign='BOTTOM'>주식회사 아하</TD>
+  <TD width='673' height='20' align='RIGHT' valign='BOTTOM'>(단위 : 원)</TD>
+</TR>
+</TBODY>
+</TABLE>
+<TABLE border='1' width='973'>
+<COLGROUP>
+<COL width='264'></COL>
+<COL width='120'></COL>
+<COL width='148'></COL>
+<COL width='147'></COL>
+<COL width='147'></COL>
+<COL width='147'></COL>
+</COLGROUP>
+<THEAD>
+<TR>
+  <TH width='264' height='20'>과 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;목</TH>
+  <TH width='120' height='20'>주 &nbsp;석</TH>
+  <TH width='295' height='20' colspan='2'>제 25(당)기</TH>
+  <TH width='294' height='20' colspan='2'>제 24(전)기</TH>
+</TR>
+</THEAD>
+<TBODY>
+<TR>
+  <TD width='264' height='20'>Ⅰ. 매출액</TD>
+  <TD width='120' height='20'>28,37,38,39</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>75,175,441,784&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'>　</TD>
+  <TD width='147' height='20' align='RIGHT'>71,023,340,901&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='264' height='20'>&nbsp; &nbsp; &nbsp;제품매출</TD>
+  <TD width='120' height='20'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>67,563,386,147&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>64,477,002,860&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'>　</TD>
+</TR>
+<TR>
+  <TD width='264' height='20'>&nbsp; &nbsp; &nbsp;상품매출</TD>
+  <TD width='120' height='20'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>7,612,055,637&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>6,546,338,041&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'>　</TD>
+</TR>
+<TR>
+  <TD width='264' height='20'>Ⅱ. 매출원가</TD>
+  <TD width='120' height='20'>30,39</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>48,156,478,971&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'>　</TD>
+  <TD width='147' height='20' align='RIGHT'>48,365,427,281&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='264' height='20'>&nbsp; &nbsp; &nbsp;제품매출원가</TD>
+  <TD width='120' height='20'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>42,517,747,441&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>42,027,316,961&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'>　</TD>
+</TR>
+<TR>
+  <TD width='264' height='20'>&nbsp; &nbsp; &nbsp;상품매출원가</TD>
+  <TD width='120' height='20'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>5,638,731,530&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>6,338,110,320&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'>　</TD>
+</TR>
+<TR>
+  <TD width='264' height='20'>Ⅲ. 매출총이익</TD>
+  <TD width='120' height='20'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>27,018,962,813&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'>　</TD>
+  <TD width='147' height='20' align='RIGHT'>22,657,913,620&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='264' height='20'>&nbsp; &nbsp; &nbsp;판매비와관리비</TD>
+  <TD width='120' height='20'>29,30,37,39</TD>
+  <TD width='148' height='20' align='RIGHT'>24,930,684,163&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>18,308,678,871&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='264' height='20'>&nbsp; &nbsp; &nbsp; &nbsp; 대손상각비</TD>
+  <TD width='120' height='20'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>275,313,733&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>122,059,621&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='264' height='20'>Ⅳ. 영업이익</TD>
+  <TD width='120' height='20'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>2,088,278,650&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'>　</TD>
+  <TD width='147' height='20' align='RIGHT'>4,349,234,749&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='264' height='20'>&nbsp; &nbsp; &nbsp;기타수익</TD>
+  <TD width='120' height='20'>6,31,37</TD>
+  <TD width='148' height='20' align='RIGHT'>948,572,167&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>570,854,861&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='264' height='20'>&nbsp; &nbsp; &nbsp; &nbsp; 대손충당금환입</TD>
+  <TD width='120' height='20'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>2,775,660&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='264' height='20'>&nbsp; &nbsp; &nbsp;기타비용</TD>
+  <TD width='120' height='20'>6,31,39</TD>
+  <TD width='148' height='20' align='RIGHT'>1,516,900,804&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>318,096,489&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='264' height='20'>&nbsp; &nbsp; &nbsp; &nbsp; 기타의대손상각비</TD>
+  <TD width='120' height='20'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>772,619,178&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>26,979,536&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='264' height='20'>&nbsp; &nbsp; &nbsp;금융수익</TD>
+  <TD width='120' height='20'>6,32,37</TD>
+  <TD width='148' height='20' align='RIGHT'>226,943,719&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>991,970,517&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='264' height='20'>&nbsp; &nbsp; &nbsp;금융비용</TD>
+  <TD width='120' height='20'>6,32</TD>
+  <TD width='148' height='20' align='RIGHT'>1,871,164,577&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>3,002,082,666&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='264' height='20'>Ⅴ. 법인세비용차감전순이익(손실)</TD>
+  <TD width='120' height='20'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>(124,270,845)</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>2,591,880,972&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='264' height='20'>Ⅵ. 법인세비용</TD>
+  <TD width='120' height='20'>23,39</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>141,845,561&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>388,369,372&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='264' height='20'>Ⅶ. 당기순이익(손실)</TD>
+  <TD width='120' height='20'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>(266,116,406)</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>2,203,511,600&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='264' height='20'>Ⅷ. 기타포괄이익(손실)</TD>
+  <TD width='120' height='20'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>-&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='264' height='20'>Ⅸ. 당기포괄이익(손실)</TD>
+  <TD width='120' height='20'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>(266,116,406)</TD>
+  <TD width='147' height='20' align='RIGHT'>　</TD>
+  <TD width='147' height='20' align='RIGHT'>2,203,511,600&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='264' height='20'>Ⅹ. 주당손익</TD>
+  <TD width='120' height='20'>33,39</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='264' height='20'>&nbsp; &nbsp; &nbsp;기본주당손익</TD>
+  <TD width='120' height='20'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>(21)</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>196&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='264' height='20'>&nbsp; &nbsp; &nbsp;희석주당손익</TD>
+  <TD width='120' height='20'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>(21)</TD>
+  <TD width='147' height='20' align='RIGHT'><BR/></TD>
+  <TD width='147' height='20' align='RIGHT'>195&nbsp;</TD>
+</TR>
+</TBODY>
+</TABLE>
+<TABLE class='nb' width='973'>
+<COLGROUP>
+<COL width='973'></COL>
+</COLGROUP>
+<TBODY>
+<TR>
+  <TD width='973' height='20' align='CENTER'>"별첨 주석은 본 재무제표의 일부입니다."</TD>
+</TR>
+</TBODY>
+</TABLE>
+<P class='pgbrk'></P>
+<TABLE class='nb' width='973'>
+<COLGROUP>
+<COL width='973'></COL>
+</COLGROUP>
+<TBODY>
+<TR>
+  <TD width='973' height='20' align='CENTER' style='font-weight:bold;'>자 본 변 동 표</TD>
+</TR>
+</TBODY>
+</TABLE>
+<TABLE class='nb' width='973'>
+<COLGROUP>
+<COL width='300'></COL>
+<COL width='673'></COL>
+</COLGROUP>
+<TBODY>
+<TR>
+  <TD width='973' height='20' colspan='2' align='CENTER'>제 25(당)기 2022년 04월 01일부터 2023년 03월 31일까지</TD>
+</TR>
+<TR>
+  <TD width='973' height='20' colspan='2' align='CENTER'>제 24(전)기 2021년 04월 01일부터 2022년 03월 31일까지</TD>
+</TR>
+<TR>
+  <TD width='300' height='20' valign='BOTTOM'>주식회사 아하</TD>
+  <TD width='673' height='20' align='RIGHT' valign='BOTTOM'>(단위 : 원)</TD>
+</TR>
+</TBODY>
+</TABLE>
+<TABLE border='1' width='974'>
+<COLGROUP>
+<COL width='237'></COL>
+<COL width='73'></COL>
+<COL width='133'></COL>
+<COL width='133'></COL>
+<COL width='133'></COL>
+<COL width='133'></COL>
+<COL width='132'></COL>
+</COLGROUP>
+<THEAD>
+<TR>
+  <TH width='237' height='20'>과 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;목</TH>
+  <TH width='73' height='20'>주 석</TH>
+  <TH width='133' height='20'>자본금</TH>
+  <TH width='133' height='20'>주식발행초과금</TH>
+  <TH width='133' height='20'>기타자본항목</TH>
+  <TH width='133' height='20'>이익잉여금</TH>
+  <TH width='132' height='20'>자본총계</TH>
+</TR>
+</THEAD>
+<TBODY>
+<TR>
+  <TD width='237' height='43'>2021.04.01(전기초)<BR/>(감사받지 않은 재무제표)</TD>
+  <TD width='73' height='43'><BR/></TD>
+  <TD width='133' height='43' align='RIGHT'>4,899,051,500&nbsp;</TD>
+  <TD width='133' height='43' align='RIGHT'>3,007,475,347&nbsp;</TD>
+  <TD width='133' height='43' align='RIGHT'>-&nbsp;</TD>
+  <TD width='133' height='43' align='RIGHT'>12,339,442,287&nbsp;</TD>
+  <TD width='132' height='43' align='RIGHT'>20,245,969,134&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='974' height='20' colspan='7'>&nbsp;총포괄손익 :&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='237' height='20'>&nbsp; 당기순이익</TD>
+  <TD width='73' height='20'>39</TD>
+  <TD width='133' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='133' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='133' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='133' height='20' align='RIGHT'>2,203,511,600&nbsp;</TD>
+  <TD width='132' height='20' align='RIGHT'>2,203,511,600&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='974' height='20' colspan='7'>&nbsp;자본에 직접 반영된 소유주와의 거래 :&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='237' height='20'>&nbsp; 전환사채의 전환</TD>
+  <TD width='73' height='20'>25</TD>
+  <TD width='133' height='20' align='RIGHT'>83,330,000&nbsp;</TD>
+  <TD width='133' height='20' align='RIGHT'>760,815,860&nbsp;</TD>
+  <TD width='133' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='133' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='132' height='20' align='RIGHT'>844,145,860&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='237' height='20'>&nbsp; 신주인수권의 행사</TD>
+  <TD width='73' height='20'>25</TD>
+  <TD width='133' height='20' align='RIGHT'>465,000,000&nbsp;</TD>
+  <TD width='133' height='20' align='RIGHT'>3,080,838,491&nbsp;</TD>
+  <TD width='133' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='133' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='132' height='20' align='RIGHT'>3,545,838,491&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='237' height='20'>&nbsp; 전환상환우선주의 전환</TD>
+  <TD width='73' height='20'>25</TD>
+  <TD width='133' height='20' align='RIGHT'>928,570,000&nbsp;</TD>
+  <TD width='133' height='20' align='RIGHT'>6,319,973,875&nbsp;</TD>
+  <TD width='133' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='133' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='132' height='20' align='RIGHT'>7,248,543,875&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='237' height='20'>2022.03.31(전기말)</TD>
+  <TD width='73' height='20'><BR/></TD>
+  <TD width='133' height='20' align='RIGHT'>6,375,951,500&nbsp;</TD>
+  <TD width='133' height='20' align='RIGHT'>13,169,103,573&nbsp;</TD>
+  <TD width='133' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='133' height='20' align='RIGHT'>14,542,953,887&nbsp;</TD>
+  <TD width='132' height='20' align='RIGHT'>34,088,008,960&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='237' height='20'>2022.04.01(당기초)</TD>
+  <TD width='73' height='20'><BR/></TD>
+  <TD width='133' height='20' align='RIGHT'>6,375,951,500&nbsp;</TD>
+  <TD width='133' height='20' align='RIGHT'>13,169,103,573&nbsp;</TD>
+  <TD width='133' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='133' height='20' align='RIGHT'>14,542,953,887&nbsp;</TD>
+  <TD width='132' height='20' align='RIGHT'>34,088,008,960&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='974' height='20' colspan='7'>&nbsp;총포괄손익 :&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='237' height='20'>&nbsp; 당기순이익</TD>
+  <TD width='73' height='20'>39</TD>
+  <TD width='133' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='133' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='133' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='133' height='20' align='RIGHT'>(266,116,406)</TD>
+  <TD width='132' height='20' align='RIGHT'>(266,116,406)</TD>
+</TR>
+<TR>
+  <TD width='974' height='20' colspan='7'>&nbsp;자본에 직접 반영된 소유주와의 거래 :&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='237' height='20'>&nbsp; 신주인수권의 소각</TD>
+  <TD width='73' height='20'>26</TD>
+  <TD width='133' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='133' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='133' height='20' align='RIGHT'>1,142,450,902&nbsp;</TD>
+  <TD width='133' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='132' height='20' align='RIGHT'>1,142,450,902&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='237' height='20'>2023.03.31(당기말)</TD>
+  <TD width='73' height='20'><BR/></TD>
+  <TD width='133' height='20' align='RIGHT'>6,375,951,500&nbsp;</TD>
+  <TD width='133' height='20' align='RIGHT'>13,169,103,573&nbsp;</TD>
+  <TD width='133' height='20' align='RIGHT'>1,142,450,902&nbsp;</TD>
+  <TD width='133' height='20' align='RIGHT'>14,276,837,481</TD>
+  <TD width='132' height='20' align='RIGHT'>34,964,343,456&nbsp;</TD>
+</TR>
+</TBODY>
+</TABLE>
+<TABLE class='nb' width='974'>
+<COLGROUP>
+<COL width='974'></COL>
+</COLGROUP>
+<TBODY>
+<TR>
+  <TD width='974' height='20' align='CENTER'>"별첨 주석은 본 재무제표의 일부입니다."</TD>
+</TR>
+</TBODY>
+</TABLE>
+<P class='pgbrk'></P>
+<TABLE class='nb' width='974'>
+<COLGROUP>
+<COL width='974'></COL>
+</COLGROUP>
+<TBODY>
+<TR>
+  <TD width='974' height='20' align='CENTER' style='font-weight:bold;'>현 금 흐 름 표</TD>
+</TR>
+</TBODY>
+</TABLE>
+<TABLE class='nb' width='973'>
+<COLGROUP>
+<COL width='300'></COL>
+<COL width='673'></COL>
+</COLGROUP>
+<TBODY>
+<TR>
+  <TD width='973' height='20' colspan='2' align='CENTER'>제 25(당)기 2022년 04월 01일부터 2023년 03월 31일까지</TD>
+</TR>
+<TR>
+  <TD width='973' height='20' colspan='2' align='CENTER'>제 24(전)기 2021년 04월 01일부터 2022년 03월 31일까지</TD>
+</TR>
+<TR>
+  <TD width='300' height='20' valign='BOTTOM'>주식회사 아하</TD>
+  <TD width='673' height='20' align='RIGHT' valign='BOTTOM'>(단위 : 원)</TD>
+</TR>
+</TBODY>
+</TABLE>
+<TABLE border='1' width='973'>
+<COLGROUP>
+<COL width='296'></COL>
+<COL width='83'></COL>
+<COL width='149'></COL>
+<COL width='149'></COL>
+<COL width='148'></COL>
+<COL width='148'></COL>
+</COLGROUP>
+<THEAD>
+<TR>
+  <TH width='296' height='20'>과 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;목</TH>
+  <TH width='83' height='20'>주 석</TH>
+  <TH width='298' height='20' colspan='2'>제 25(당)기</TH>
+  <TH width='296' height='20' colspan='2'>제 24(전)기</TH>
+</TR>
+</THEAD>
+<TBODY>
+<TR>
+  <TD width='296' height='20'>Ⅰ.영업활동으로 인한 현금흐름&nbsp;</TD>
+  <TD width='83' height='20'>34,39</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>4,539,002,022&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>10,212,871,204&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp;1.영업으로부터 창출된 현금흐름&nbsp;</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>6,758,040,936&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>11,787,433,267&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp;2.이자수취</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>68,457,020&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>49,009,512&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp;3.이자지급</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>(1,153,492,453)</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>(720,034,430)</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp;4.법인세환급(납부)</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>(1,134,003,481)</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>(903,537,145)</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>Ⅱ.투자활동으로 인한 현금흐름</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>(12,530,405,392)</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>(8,731,968,032)</TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp;1.투자활동으로 인한 현금유입액</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>1,296,094,796&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>1,015,559,277&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;단기금융상품의 감소</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>1,108,856,818&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>574,041,573&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;단기대여금의 감소</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>36,000,000&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;당기손익-공정가치 측정 금융자산 감소</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>84,947,279&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>293,699,522&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;차량운반구의 처분</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>111,818,182&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;사용권자산의 처분</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>38,236,699&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;보증금의 감소</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>64,054,000&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp;2.투자활동으로 인한 현금유출액</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>(13,826,500,188)</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>(9,747,527,309)</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;단기금융상품의 증가</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>3,126,618,354&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>903,554,622&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;단기대여금의 증가</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>225,000,000&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;당기손익-공정가치 측정 금융자산 증가</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>206,564,657&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;장기금융상품의 증가</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>2,186,976,078&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;장기대여금의 증가</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>807,591,600&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>2,240,000,000&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;종속회사투자자산의 취득</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>102,000,000&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>167,255,977&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;토지의 취득</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>111,964,891&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>4,166,343,401&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;건물의 취득</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>238,000,000&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>199,626,572&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;구축물의 취득&nbsp;</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>86,723,636&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>40,000,000&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;기계장치의 취득</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>262,000,000&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>13,930,000&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;차량운반구의 취득</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>61,964,792&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>40,840,655&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;공구와기구의 취득</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>966,000&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;비품의 취득</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>110,181,059&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>168,312,841&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;시설장치의 취득</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>11,597,000&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>5,000,000&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;금형의 취득</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>142,200,000&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>237,423,520&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;건설중인자산의 취득</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>6,244,825,783&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>264,300,000&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;투자부동산의 취득</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>505,357,185&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;무형자산의 취득</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>87,890,995&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>443,800,000&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;보증금의 증가</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>20,000,000&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>145,217,879&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>Ⅲ.재무활동으로 인한 현금흐름</TD>
+  <TD width='83' height='20'>34</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>12,258,602,114&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'>　</TD>
+  <TD width='148' height='20' align='RIGHT'>3,198,150,931&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp;1.재무활동으로 인한 현금유입액</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>19,100,000,000&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>17,035,720,953&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;단기차입금의 차입</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>8,100,000,000&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>13,671,720,953&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;장기차입금의 차입</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>11,000,000,000&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>3,284,000,000&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;임대보증금의 증가</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>10,000,000&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;신주인수권의 행사</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>70,000,000&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp;2.재무활동으로 인한 현금유출액</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>(6,841,397,886)</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>(13,837,570,022)</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;단기차입금의 상환</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>4,350,071,156&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>6,529,372,658&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;유동성사채의 상환</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>1,560,000,000&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>2,160,000,000&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;유동성장기부채의 상환</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>676,670,000&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>4,639,910,000&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;장기차입금의 상환</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>139,130,000&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;전환사채의 상환</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>-&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>184,158,156&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;신주인수권부사채의 상환</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>3,120,000&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>128,648,000&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;리스부채의 상환</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>107,406,730&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>84,481,208&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>&nbsp; &nbsp;임대보증금의 감소</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>5,000,000&nbsp;</TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>111,000,000&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>Ⅳ.현금및현금성자산의 환율변동효과</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>(80,500,631)</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>(7,262,576)</TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>Ⅴ.현금의 증가(감소)(Ⅰ+Ⅱ+Ⅲ+Ⅳ)</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>4,186,698,113&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>4,671,791,527&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>Ⅵ.기초 현금및현금성자산</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>12,716,282,045&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>8,044,490,518&nbsp;</TD>
+</TR>
+<TR>
+  <TD width='296' height='20'>Ⅶ.기말 현금및현금성자산</TD>
+  <TD width='83' height='20'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'><BR/></TD>
+  <TD width='149' height='20' align='RIGHT'>16,902,980,158&nbsp;</TD>
+  <TD width='148' height='20' align='RIGHT'><BR/></TD>
+  <TD width='148' height='20' align='RIGHT'>12,716,282,045&nbsp;</TD>
+</TR>
+</TBODY>
+</TABLE>
+<P><BR/></P>
+<P><BR/></P>
+<P><BR/></P>
+</BODY>
+</HTML>

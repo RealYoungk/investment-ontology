@@ -445,6 +445,333 @@ class PublicFinancialXbrl {
     return values.values.toList();
   }
 
+  /// Strict primary half-year core, with distinct quarter and cumulative PL.
+  static List<Map<String, dynamic>> parseHalfYear(
+    List<int> zip, {
+    required String receipt,
+    required String corpCode,
+    required int bsnsYear,
+    required DateTime periodEnd,
+    required bool consolidated,
+    Uri? sourceUri,
+  }) {
+    if (periodEnd.year != bsnsYear) {
+      throw const FormatException('Annual fiscal year mismatch');
+    }
+    if (sourceUri != null &&
+        (sourceUri.scheme != 'https' ||
+            sourceUri.host != 'dart.fss.or.kr' ||
+            sourceUri.path != '/pdf/download/ifrs.do' ||
+            sourceUri.queryParameters['rcp_no'] != receipt)) {
+      throw const FormatException('XBRL source receipt mismatch');
+    }
+    final archive = ZipDecoder().decodeBytes(zip);
+    final instances = archive.files
+        .where((f) => f.name.endsWith('.xbrl'))
+        .toList();
+    if (instances.length != 1 || instances.single.size > 20 * 1024 * 1024) {
+      throw const FormatException('Expected one bounded XBRL instance');
+    }
+    final root = XmlDocument.parse(utf8.decode(instances.single.content))
+        .rootElement;
+    const xbrli = 'http://www.xbrl.org/2003/instance';
+    if (root.name.local != 'xbrl' || root.namespaceUri != xbrli) {
+      throw const FormatException('Not XBRL');
+    }
+    final end = periodEnd.toIso8601String().substring(0, 10);
+    final declaredStart = _declaredAnnualStart(
+      root,
+      corpCode,
+      end,
+      halfYear: true,
+    );
+    if (declaredStart == null) {
+      throw const FormatException('Half-year metadata required');
+    }
+    final expectedStart = DateTime.utc(
+      periodEnd.year,
+      periodEnd.month - 5,
+      1,
+    ).toIso8601String().substring(0, 10);
+    if (declaredStart != expectedStart ||
+        periodEnd.day !=
+            DateTime.utc(periodEnd.year, periodEnd.month + 1, 0).day) {
+      throw const FormatException('Half-year exact six-month period required');
+    }
+    final quarterStart = DateTime.utc(
+      periodEnd.year,
+      periodEnd.month - 2,
+      1,
+    ).toIso8601String().substring(0, 10);
+    final quarterContexts = <String>{};
+    final start = declaredStart;
+    final expectedMember = consolidated
+        ? 'ConsolidatedMember'
+        : 'SeparateMember';
+    final contexts = <String, bool>{};
+    final contextIds = <String>{};
+    for (final c in root.findElements('context', namespaceUri: xbrli)) {
+      final contextId = c.getAttribute('id');
+      if (contextId == null || !contextIds.add(contextId)) {
+        throw const FormatException('Duplicate half-year context');
+      }
+      final identifiers = c.descendants
+          .whereType<XmlElement>()
+          .where((e) => e.name.local == 'identifier')
+          .toList();
+      if (identifiers.length != 1 ||
+          identifiers.single.innerText != corpCode ||
+          identifiers.single.getAttribute('scheme') !=
+              'http://dart.fss.or.kr/ifrs/CIK') {
+        throw const FormatException('XBRL entity mismatch');
+      }
+      final dimensions = c.descendants
+          .whereType<XmlElement>()
+          .where(
+            (e) =>
+                e.name.local == 'explicitMember' ||
+                e.name.local == 'typedMember',
+          )
+          .toList();
+      if (dimensions.length != 1) continue;
+      final d = dimensions.single;
+      final axis = _qname(d, d.getAttribute('dimension') ?? '');
+      final member = _qname(d, d.innerText);
+      if (d.namespaceUri != 'http://xbrl.org/2006/xbrldi' ||
+          d.name.local != 'explicitMember' ||
+          axis == null ||
+          member == null ||
+          !_taxonomy(axis.$1, 'ifrs-full') ||
+          axis.$1 != member.$1 ||
+          axis.$2 != 'ConsolidatedAndSeparateFinancialStatementsAxis' ||
+          member.$2 != expectedMember) {
+        continue;
+      }
+      final periods = c.findElements('period', namespaceUri: xbrli).toList();
+      if (periods.length != 1) {
+        throw const FormatException('Half-year context period ambiguous');
+      }
+      final dates = <String, String>{};
+      for (final date in periods.single.children.whereType<XmlElement>()) {
+        if (date.namespaceUri != xbrli ||
+            !const [
+              'startDate',
+              'endDate',
+              'instant',
+            ].contains(date.name.local) ||
+            dates.containsKey(date.name.local)) {
+          throw const FormatException(
+            'Duplicate or unsupported half-year date',
+          );
+        }
+        final value = date.innerText;
+        final parsed = DateTime.tryParse(value);
+        if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(value) ||
+            parsed == null ||
+            parsed.toIso8601String().substring(0, 10) != value) {
+          throw const FormatException('Invalid half-year date');
+        }
+        dates[date.name.local] = value;
+      }
+      if (!((dates.length == 1 && dates.containsKey('instant')) ||
+          (dates.length == 2 &&
+              dates.containsKey('startDate') &&
+              dates.containsKey('endDate') &&
+              dates['startDate']!.compareTo(dates['endDate']!) <= 0))) {
+        throw const FormatException(
+          'Mixed or incomplete half-year context dates',
+        );
+      }
+      final instant = dates['instant'];
+      if (instant == end) contexts[c.getAttribute('id')!] = true;
+      if (dates['startDate'] == quarterStart && dates['endDate'] == end) {
+        contexts[c.getAttribute('id')!] = false;
+        quarterContexts.add(c.getAttribute('id')!);
+      }
+      if (dates['startDate'] == start && dates['endDate'] == end) {
+        contexts[c.getAttribute('id')!] = false;
+      }
+    }
+    final units = <String, List<String>>{};
+    for (final unit in root.findElements('unit', namespaceUri: xbrli)) {
+      final id = unit.getAttribute('id');
+      if (id == null || id.isEmpty || units.containsKey(id)) {
+        throw const FormatException('Duplicate or missing half-year unit ID');
+      }
+      units[id] = unit.descendants
+          .whereType<XmlElement>()
+          .where((e) => e.name.local == 'measure')
+          .map((e) => e.innerText)
+          .toList();
+    }
+    const accounts = <String, (String, String, bool)>{
+      'Assets': ('BS', '자산총계', true),
+      'Liabilities': ('BS', '부채총계', true),
+      'Equity': ('BS', '자본총계', true),
+      'Revenue': ('CIS', '매출액', false),
+      'RevenueFromContractsWithCustomers': ('CIS', '매출액', false),
+      'OperatingIncomeLoss': ('CIS', '영업이익', false),
+      'ProfitLossFromOperatingActivities': ('CIS', '영업이익', false),
+      'ProfitLoss': ('CIS', '당기순이익', false),
+      'CashFlowsFromUsedInOperatingActivities': ('CF', '영업활동 현금흐름', false),
+      'PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities': (
+        'CF',
+        '유형자산의 취득',
+        false,
+      ),
+    };
+    final values = <String, Map<String, dynamic>>{};
+    final quarterValues = <String, Map<String, dynamic>>{};
+    for (final f in root.children.whereType<XmlElement>()) {
+      final account = accounts[f.name.local];
+      final ns = f.namespaceUri ?? '';
+      final isDart = _taxonomy(ns, 'dart');
+      final isIfrs = _taxonomy(ns, 'ifrs-full');
+      if (account == null ||
+          (!isDart && !isIfrs) ||
+          (f.name.local == 'OperatingIncomeLoss' && !isDart) ||
+          contexts[f.getAttribute('contextRef')] != account.$3) {
+        continue;
+      }
+      final isQuarter = quarterContexts.contains(f.getAttribute('contextRef'));
+      if (isQuarter && account.$1 != 'CIS') continue;
+      final targetValues = isQuarter ? quarterValues : values;
+      final measures = units[f.getAttribute('unitRef')];
+      final validMoney =
+          measures != null &&
+          measures.length == 1 &&
+          measures.single == 'iso4217:KRW' &&
+          root.getAttribute('xmlns:iso4217') ==
+              'http://www.xbrl.org/2003/iso4217' &&
+          RegExp(r'^-?\d+$').hasMatch(f.innerText.trim());
+      final decimals = int.tryParse(f.getAttribute('decimals') ?? '');
+      // Some reports also print a rounded contracts-only revenue concept.
+      // Never round it or replace exact total revenue with this alternate.
+      // It may be omitted only when the identical whole-current context,
+      // taxonomy and currency contain an exact total Revenue fact.
+      if (validMoney &&
+          isIfrs &&
+          f.name.local == 'RevenueFromContractsWithCustomers' &&
+          decimals != null &&
+          decimals < 0 &&
+          root.children.whereType<XmlElement>().any(
+            (candidate) =>
+                candidate.name.local == 'Revenue' &&
+                candidate.namespaceUri == f.namespaceUri &&
+                candidate.getAttribute('contextRef') ==
+                    f.getAttribute('contextRef') &&
+                candidate.getAttribute('unitRef') ==
+                    f.getAttribute('unitRef') &&
+                candidate.getAttribute('decimals') == '0' &&
+                RegExp(r'^-?\d+$').hasMatch(candidate.innerText.trim()),
+          )) {
+        continue;
+      }
+      if (!validMoney ||
+          !const ['0', 'INF'].contains(f.getAttribute('decimals'))) {
+        throw const FormatException(
+          'Unsupported XBRL monetary unit or precision',
+        );
+      }
+      final id = '${isDart ? 'dart' : 'ifrs-full'}_${f.name.local}';
+      final value = f.innerText.trim();
+      if (targetValues.containsKey(id)) {
+        throw const FormatException('Duplicate whole half-year fact');
+      }
+      targetValues[id] = {
+        'rcept_no': receipt,
+        'corp_code': corpCode,
+        'bsns_year': '$bsnsYear',
+        'reprt_code': '11012',
+        'account_id': id,
+        'account_nm': account.$2,
+        'account_detail': '-',
+        'sj_div': account.$1,
+        'thstrm_nm': account.$3
+            ? end
+            : '${isQuarter ? quarterStart : start}~$end',
+        'thstrm_amount': value,
+        'currency': 'KRW',
+        'xbrl_provenance': {
+          'source': sourceUri?.toString(),
+          'receipt': receipt,
+          'corpCode': corpCode,
+          'basis': consolidated ? 'CFS' : 'OFS',
+          'periodStart': start,
+          'periodEnd': end,
+          'contextId': f.getAttribute('contextRef'),
+          'contextInstant': account.$3 ? end : null,
+          'contextStart': account.$3
+              ? null
+              : (isQuarter ? quarterStart : start),
+          'contextEnd': end,
+          'taxonomyNamespace': f.namespaceUri,
+          'factLocalName': f.name.local,
+          'rawAmount': value,
+          'unitRef': f.getAttribute('unitRef'),
+          'currency': 'KRW',
+          'decimals': f.getAttribute('decimals'),
+        },
+      };
+    }
+    Map<String, dynamic> exact(
+      Map<String, Map<String, dynamic>> facts,
+      List<String> ids,
+    ) {
+      final found = ids
+          .where(facts.containsKey)
+          .map((id) => facts[id]!)
+          .toList();
+      if (found.length != 1) {
+        throw const FormatException(
+          'Half-year core account missing or ambiguous',
+        );
+      }
+      return found.single;
+    }
+
+    final assets = exact(values, ['ifrs-full_Assets']);
+    final liabilities = exact(values, ['ifrs-full_Liabilities']);
+    final equity = exact(values, ['ifrs-full_Equity']);
+    if (BigInt.parse(assets['thstrm_amount']) !=
+        BigInt.parse(liabilities['thstrm_amount']) +
+            BigInt.parse(equity['thstrm_amount'])) {
+      throw const FormatException('Half-year balance identity mismatch');
+    }
+    final result = [assets, liabilities, equity];
+    for (final ids in [
+      ['ifrs-full_Revenue', 'ifrs-full_RevenueFromContractsWithCustomers'],
+      [
+        'dart_OperatingIncomeLoss',
+        'ifrs-full_ProfitLossFromOperatingActivities',
+      ],
+      ['ifrs-full_ProfitLoss'],
+    ]) {
+      final cumulative = exact(values, ids),
+          quarter = exact(quarterValues, ids);
+      if (cumulative['account_id'] != quarter['account_id']) {
+        throw const FormatException(
+          'Half-year quarter/cumulative concept mismatch',
+        );
+      }
+      result.add({
+        ...quarter,
+        'thstrm_add_amount': cumulative['thstrm_amount'],
+        'xbrl_provenance': {
+          ...quarter['xbrl_provenance'] as Map,
+          'cumulativeContextId':
+              (cumulative['xbrl_provenance'] as Map)['contextId'],
+          'cumulativeRawAmount': cumulative['thstrm_amount'],
+          'quarterPeriodStart': quarterStart,
+        },
+      });
+    }
+    result.add(
+      exact(values, ['ifrs-full_CashFlowsFromUsedInOperatingActivities']),
+    );
+    return result;
+  }
+
   static bool _taxonomy(String namespace, String kind) {
     final uri = Uri.tryParse(namespace);
     if (uri == null ||
@@ -479,8 +806,9 @@ class PublicFinancialXbrl {
   static String? _declaredAnnualStart(
     XmlElement root,
     String corpCode,
-    String end,
-  ) {
+    String end, {
+    bool halfYear = false,
+  }) {
     const xbrli = 'http://www.xbrl.org/2003/instance';
     const xbrldi = 'http://xbrl.org/2006/xbrldi';
     final declarations = root.children
@@ -629,7 +957,13 @@ class PublicFinancialXbrl {
       );
     }
     if (titles.isEmpty ||
-        titles.any((t) => !const ['Annual Report', '사업보고서'].contains(t)) ||
+        titles.any(
+          (t) =>
+              !(halfYear
+                      ? const ['Half Year Report', '반기보고서']
+                      : const ['Annual Report', '사업보고서'])
+                  .contains(t),
+        ) ||
         currencies.length != 1 ||
         currencies.single != 'KRW') {
       throw const FormatException('Annual title or reporting currency missing');

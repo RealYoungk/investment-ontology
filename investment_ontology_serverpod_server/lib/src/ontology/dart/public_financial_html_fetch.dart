@@ -360,7 +360,9 @@ class PublicFinancialHtmlFetcher {
         RegExp(r'\(주\)|㈜|주식회사|\s+'),
         '',
       );
-      final printedNames = RegExp(r'회사명:(.*?)대표이사:').allMatches(text).toList();
+      final printedNames = RegExp(r'회사명:(.*?)(?:공동)?대표이사:')
+          .allMatches(text)
+          .toList();
       if (printedNames.length != 1 ||
           normalize(printedNames.single.group(1)!) != normalize(companyName) ||
           periodEnd.difference(periodStart).inDays < 0 ||

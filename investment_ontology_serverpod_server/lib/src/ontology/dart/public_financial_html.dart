@@ -493,7 +493,9 @@ abstract final class PublicFinancialHtml {
             .replaceFirst(RegExp(r'^(?:주식회사|\(주\)|㈜)'), '')
             .replaceFirst(RegExp(r'(?:주식회사|\(주\)|㈜)$'), '');
     DateTime? sourceDate(String text) {
-      final m = RegExp(r'^(\d{4})년(\d{1,2})월(\d{1,2})일$').firstMatch(text);
+      final m =
+          RegExp(r'^(\d{4})년(\d{1,2})월(\d{1,2})일$').firstMatch(text) ??
+          RegExp(r'^(\d{4})\.(\d{2})\.(\d{2})$').firstMatch(text);
       if (m == null) return null;
       final year = int.parse(m.group(1)!),
           month = int.parse(m.group(2)!),
@@ -505,10 +507,12 @@ abstract final class PublicFinancialHtml {
     }
 
     final cover = _compact(_text(coverHtml));
-    final company = RegExp(r'회사명:(.*?)대표이사:').firstMatch(cover)?.group(1);
-    final terms = RegExp(r'\(제(\d+)기\)').allMatches(cover).toList();
+    final company = RegExp(r'회사명:(.*?)(?:공동)?대표이사:')
+        .firstMatch(cover)
+        ?.group(1);
+    final terms = RegExp(r'\(제(\d+)기(?:사업보고서)?\)').allMatches(cover).toList();
     final periods = RegExp(
-      r'사업연도(\d{4}년\d{1,2}월\d{1,2}일)부터(\d{4}년\d{1,2}월\d{1,2}일)까지',
+      r'사업연도((?:\d{4}년\d{1,2}월\d{1,2}일|\d{4}\.\d{2}\.\d{2}))부터((?:\d{4}년\d{1,2}월\d{1,2}일|\d{4}\.\d{2}\.\d{2}))까지',
     ).allMatches(cover).toList();
     if (!cover.contains('사업보고서') ||
         company == null ||
@@ -544,8 +548,9 @@ abstract final class PublicFinancialHtml {
       after.isEmpty ? statementHtml.length : after.first.start,
     );
     final text = _compact(_text(scope));
+    const titleDate = r'(?:\d{4}년\d{1,2}월\d{1,2}일|\d{4}\.\d{2}\.\d{2})';
     final titlePattern = RegExp(
-      '제$term(?:\\(당\\))?(?:당기|기)(?:기말|말)?:?(\\d{4}년\\d{1,2}월\\d{1,2}일)(현재|부터(\\d{4}년\\d{1,2}월\\d{1,2}일)까지)',
+      '제$term(?:\\(당\\))?(?:당기|기)(?:기말|말)?:?($titleDate)(현재|부터($titleDate)까지)',
     );
     final titles = titlePattern.allMatches(text).toList();
     if (titles.length < 3 ||
@@ -569,6 +574,8 @@ abstract final class PublicFinancialHtml {
       '부채총계': ('liabilities', 'BS'),
       '자본총계': ('equity', 'BS'),
       '매출액': ('revenue', 'CIS'),
+      '매출': ('revenue', 'CIS'),
+      '수익(매출액)': ('revenue', 'CIS'),
       '영업수익': ('revenue', 'CIS'),
       '영업이익': ('operating', 'CIS'),
       '영업손익': ('operating', 'CIS'),
@@ -578,6 +585,7 @@ abstract final class PublicFinancialHtml {
       '당기순손익': ('profit', 'CIS'),
       '당기순손실': ('profit', 'CIS'),
       '연결당기순이익': ('profit', 'CIS'),
+      '연결당기순이익(손실)': ('profit', 'CIS'),
       '연결당기순손실': ('profit', 'CIS'),
       '당기순이익(손실)': ('profit', 'CIS'),
       '영업활동으로인한현금흐름': ('cfo', 'CF'),
@@ -600,6 +608,7 @@ abstract final class PublicFinancialHtml {
 
     final result = <Map<String, dynamic>>[];
     final values = <String, BigInt>{};
+    final missingOptional = <Map<String, dynamic>>[];
     final seenKinds = <String>{};
     var tableIndex = 0;
     for (final table in RegExp(
@@ -617,6 +626,27 @@ abstract final class PublicFinancialHtml {
           !{'과목', '구분', '계정과목'}.contains(_compact(_text(first.group(1)!)))) {
         continue;
       }
+      // A dated primary equity-change table is outside this core-row scope.
+      // Exclude it before numeric-grid parsing; ambiguous headings still fail
+      // through the original grid/statement checks below.
+      final prefix = _compact(_text(scope.substring(0, table.start)));
+      final equityAt = prefix.lastIndexOf('자본변동표');
+      final otherAt = [
+        prefix.lastIndexOf('재무상태표'),
+        prefix.lastIndexOf('손익계산서'),
+        prefix.lastIndexOf('현금흐름표'),
+      ].reduce((a, b) => a > b ? a : b);
+      if (equityAt >= 0 && equityAt > otherAt) {
+        final datedEquity = titlePattern
+            .allMatches(prefix.substring(equityAt))
+            .toList();
+        if (datedEquity.isNotEmpty &&
+            datedEquity.last.group(2) != '현재' &&
+            sourceDate(datedEquity.last.group(1)!) == periodStart &&
+            sourceDate(datedEquity.last.group(3)!) == periodEnd) {
+          continue;
+        }
+      }
       final grid = _FinancialHtmlGrid.parse(table.group(1)!);
       if (grid.isEmpty) continue;
       final labels = grid
@@ -627,7 +657,10 @@ abstract final class PublicFinancialHtml {
           labels.contains('부채총계') &&
           labels.contains('자본총계')) {
         kind = 'BS';
-      } else if ((labels.contains('매출액') || labels.contains('영업수익')) &&
+      } else if ((labels.contains('매출액') ||
+              labels.contains('매출') ||
+              labels.contains('영업수익') ||
+              labels.contains('수익(매출액)')) &&
           (['영업이익', '영업이익(손실)', '영업손익', '영업손실'].any(labels.contains))) {
         kind = 'CIS';
       } else if (labels.contains('영업활동으로인한현금흐름') ||
@@ -643,9 +676,9 @@ abstract final class PublicFinancialHtml {
       final headers = grid.first
           .whereType<_FinancialHtmlCell>()
           .where(
-            (c) =>
-                RegExp('^제$term(?:\\(당\\))?기(?:기말|말)?\$')
-                    .hasMatch(_compact(c.text)),
+            (c) => RegExp(
+              '^(?:제$term(?:\\(당\\))?기(?:기말|말)?|${periodEnd.year}년도\\(제$term기\\))\$',
+            ).hasMatch(_compact(c.text)),
           )
           .toSet();
       if (headers.length != 1) {
@@ -705,7 +738,8 @@ abstract final class PublicFinancialHtml {
         if (row.isEmpty) continue;
         final account = accounts[label(row.first?.text ?? '')];
         if (account == null || account.$2 != kind) continue;
-        if (values.containsKey(account.$1)) {
+        if (values.containsKey(account.$1) ||
+            missingOptional.any((m) => m['accountKey'] == account.$1)) {
           throw const FormatException(
             'Duplicate annual whole-company core row',
           );
@@ -725,6 +759,23 @@ abstract final class PublicFinancialHtml {
             .map((c) => money(c!.text))
             .whereType<BigInt>()
             .toList();
+        if (account.$1 == 'capex' &&
+            amounts.isEmpty &&
+            cells.every(
+              (c) => c!.text.trim().isEmpty || c.text.trim() == '-',
+            )) {
+          // An optional printed dash is unavailable, not inferred zero.
+          // Mandatory core rows and malformed/ambiguous numeric cells still fail.
+          missingOptional.add({
+            'accountKey': account.$1,
+            'printedLabel': row.first!.text,
+            'printedCurrentCells': cells.map((c) => c!.text).toList(),
+            'tableIndex': index,
+            'source': statementSource.toString(),
+            'reason': 'Printed optional amount unavailable; no zero or prior amount inferred',
+          });
+          continue;
+        }
         if (amounts.length != 1) {
           throw const FormatException(
             'Ambiguous annual current monetary group',
@@ -789,6 +840,13 @@ abstract final class PublicFinancialHtml {
       throw const FormatException(
         'Annual primary core missing or balance mismatch',
       );
+    }
+    if (missingOptional.isNotEmpty) {
+      for (final row in result) {
+        (row['html_provenance']
+                as Map<String, dynamic>)['unavailableOptionalAccounts'] =
+            missingOptional;
+      }
     }
     return result;
   }

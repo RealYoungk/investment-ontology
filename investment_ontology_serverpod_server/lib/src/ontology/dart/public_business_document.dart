@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
@@ -34,11 +35,25 @@ class PublicBusinessDocument {
       _ownsClient = client == null;
   final http.Client _client;
   final bool _ownsClient;
+  bool _stopped = false;
+
+  /// Prevents further shell/body GETs after the coordinator observes cancel.
+  /// An already-issued request can still finish; its result must not be stored.
+  void stop() => _stopped = true;
   void close() {
     if (_ownsClient) {
       _client.close();
     }
   }
+
+  static final _requestGateKey = Object();
+
+  /// The scoped gate covers each native shell/body GET, without mutable shared
+  /// callbacks or any database dependency in the HTTP reader.
+  Future<PublicBusinessBody> fetchWithGate(
+    String receipt,
+    Future<bool> Function() gate,
+  ) => runZoned(() => fetch(receipt), zoneValues: {_requestGateKey: gate});
 
   Future<PublicBusinessBody> fetch(String receipt) async {
     if (!RegExp(r'^\d{14}$').hasMatch(receipt)) {
@@ -54,6 +69,10 @@ class PublicBusinessDocument {
   }
 
   Future<String> _get(Uri uri, {Uri? referer}) async {
+    final gate = Zone.current[_requestGateKey] as Future<bool> Function()?;
+    if (_stopped || (gate != null && !await gate())) {
+      throw const PublicBusinessFetchCancelled();
+    }
     final response = await _client
         .get(
           uri,
@@ -64,6 +83,7 @@ class PublicBusinessDocument {
           },
         )
         .timeout(const Duration(seconds: 30));
+    if (_stopped) throw const PublicBusinessFetchCancelled();
     if (response.request?.url case final finalUri?) {
       if (finalUri.scheme != 'https' || finalUri.host != 'dart.fss.or.kr') {
         throw const FormatException('DART response redirected outside source');
@@ -189,4 +209,9 @@ class PublicBusinessDocument {
       bodySha256: sha256.convert(utf8.encode(html)).toString(),
     );
   }
+}
+
+/// A cooperative HTTP stop, not a missing source or a failed parsing attempt.
+class PublicBusinessFetchCancelled implements Exception {
+  const PublicBusinessFetchCancelled();
 }

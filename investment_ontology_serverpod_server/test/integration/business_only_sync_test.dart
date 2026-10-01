@@ -76,6 +76,53 @@ class OneTimeoutPublicBody extends SelectivePublicBody {
   }
 }
 
+class OverlappingPublicBody extends SelectivePublicBody {
+  OverlappingPublicBody() : super({});
+  final first = Completer<void>();
+  final active = <String>[];
+  int peak = 0;
+  @override
+  Future<PublicBusinessBody> fetch(String receipt) async {
+    active.add(receipt);
+    if (active.length > peak) peak = active.length;
+    if (receipts.isEmpty) {
+      receipts.add(receipt);
+      await first.future;
+    } else {
+      receipts.add(receipt);
+      first.complete();
+    }
+    active.remove(receipt);
+    return PublicBusinessBody(
+      receipt: receipt,
+      title: '사업의 내용',
+      text: '제품 원문 $receipt',
+      sourceUri: Uri.parse(
+        'https://dart.fss.or.kr/report/viewer.do?rcpNo=$receipt',
+      ),
+      bodySha256: 'fixture',
+    );
+  }
+}
+
+class ForeignReceiptPublicBody extends SelectivePublicBody {
+  ForeignReceiptPublicBody() : super({});
+  @override
+  Future<PublicBusinessBody> fetch(String receipt) =>
+      super.fetch('20260310999999');
+}
+
+class CancelAfterHttpBody extends SelectivePublicBody {
+  CancelAfterHttpBody(this.cancel) : super({});
+  final Future<void> Function() cancel;
+  @override
+  Future<PublicBusinessBody> fetch(String receipt) async {
+    final body = await super.fetch(receipt);
+    await cancel();
+    return body;
+  }
+}
+
 void main() {
   withServerpod('Business-only collection', (anonymous, endpoints) {
     late Session session;
@@ -281,6 +328,66 @@ void main() {
       expect(body.receipts.last, '20260310000001');
       expect(resumes, [now.add(const Duration(minutes: 15))]);
     });
+    test('API-zero HTTP overlap keeps exact receipt sources and sequential storage', () async {
+      await filing(2025, '20260310000001');
+      await filing(2024, '20250310000001');
+      final reader = OverlappingPublicBody();
+      final job = await run(daily: 0, public: reader);
+      expect(job.updated, 2);
+      expect(job.apiCalls, 0);
+      expect(reader.peak, 2);
+      expect(client.calls, isEmpty);
+      final docs = await BusinessDocument.db.find(session);
+      expect(docs.length, 2);
+      for (final doc in docs) {
+        expect(doc.text, contains(doc.rceptNo));
+        final report = await DisclosureReport.db.findById(
+          session,
+          doc.reportId,
+        );
+        expect(report!.rceptNo, doc.rceptNo);
+        final source = await Source.db.findById(session, report.sourceId);
+        expect(source!.reference, doc.rceptNo);
+      }
+    });
+    test(
+      'cancellation after HTTP prevents storage and the reserved second launch',
+      () async {
+        await filing(2025, '20260310000001');
+        await filing(2024, '20250310000001');
+        final reader = CancelAfterHttpBody(() async {
+          final job = (await IngestJobs.latest(
+            session,
+            DisclosureSync.businessKind,
+          ))!;
+          await IngestJob.db.updateRow(
+            session,
+            job.copyWith(status: IngestStatus.cancelled),
+          );
+        });
+        final job = await run(daily: 0, public: reader);
+        expect(job.status, IngestStatus.cancelled);
+        expect(job.updated, 0);
+        expect(reader.receipts, ['20260310000001']);
+        expect(await BusinessDocument.db.count(session), 0);
+        expect(resumes, isEmpty);
+      },
+    );
+
+    test(
+      'prefetched foreign receipt never reaches source or body storage',
+      () async {
+        await filing(2025, '20260310000001');
+        final job = await run(daily: 0, public: ForeignReceiptPublicBody());
+        expect(job.updated, 0);
+        expect(job.failed, 1);
+        expect(await BusinessDocument.db.count(session), 0);
+        final section = (await DartFilingSection.db.find(session)).single;
+        expect(section.attempts, 1);
+        expect(section.status, FilingFetchStatus.failed);
+      },
+    );
+
     test('public six-failure circuit preserves remainder and retries in 15 minutes', () async {
       for (var i = 0; i < 8; i++) {
         final c = await Company.db.insertRow(

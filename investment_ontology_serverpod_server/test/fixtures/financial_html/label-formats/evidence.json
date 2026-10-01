@@ -1,0 +1,114 @@
+{
+  "counts": [
+    {
+      "reason": "FormatException",
+      "count": 58
+    },
+    {
+      "reason": "FormatException: Annual current statement title period mismatch",
+      "count": 18
+    },
+    {
+      "reason": "api-noData-annual-public:attempt=1; 별도: API period mismatch; exact-receipt XBRL fallback failed; verified HTML fallback failed",
+      "count": 7
+    },
+    {
+      "reason": "FormatException: Exact annual company/duration mismatch",
+      "count": 6
+    },
+    {
+      "reason": "FormatException: Unsupported cell span",
+      "count": 4
+    },
+    {
+      "reason": "FormatException: Annual primary statement heading missing",
+      "count": 2
+    },
+    {
+      "reason": "FormatException: Not a bound supported financial HTML report",
+      "count": 2
+    },
+    {
+      "reason": "FormatException: Annual primary core missing or balance mismatch",
+      "count": 2
+    },
+    {
+      "reason": "FormatException: Ambiguous annual current header",
+      "count": 1
+    },
+    {
+      "reason": "FormatException: Ambiguous annual current monetary group",
+      "count": 1
+    },
+    {
+      "reason": "FormatException: Annual primary statement title mismatch",
+      "count": 1
+    },
+    {
+      "reason": "FormatException: Exact annual company/period cover mismatch",
+      "count": 1
+    }
+  ],
+  "filings": [
+    {
+      "id": 41293,
+      "corpCode": "00136101",
+      "name": "메이슨캐피탈주식회사",
+      "rceptNo": "20230621000034",
+      "reportName": "사업보고서 (2023.03)",
+      "bsnsYear": 2023,
+      "consolidatedStatus": "failed",
+      "separateStatus": "stored",
+      "lastError": "api-noData-annual-public:attempt=1; source-annual-period-reclassified; public annual source verification failed: FormatException: Annual primary core missing or balance mismatch",
+      "checkedAt": "2026-10-01T21:35:55.994179"
+    },
+    {
+      "id": 41301,
+      "corpCode": "00304915",
+      "name": "코리아에셋투자증권(주)",
+      "rceptNo": "20230622000218",
+      "reportName": "사업보고서 (2023.03)",
+      "bsnsYear": 2023,
+      "consolidatedStatus": "failed",
+      "separateStatus": "failed",
+      "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Exact annual company/period cover mismatch",
+      "checkedAt": "2026-10-01T21:35:48.528413"
+    },
+    {
+      "id": 46256,
+      "corpCode": "00677334",
+      "name": "(주)아하",
+      "rceptNo": "20240320001370",
+      "reportName": "[기재정정]사업보고서 (2023.03)",
+      "bsnsYear": 2023,
+      "consolidatedStatus": "failed",
+      "separateStatus": "failed",
+      "lastError": "api-noData-annual-public:attempt=1; source-annual-period-reclassified; public annual source verification failed: FormatException: Unsupported cell span",
+      "checkedAt": "2026-10-01T21:35:33.658193"
+    },
+    {
+      "id": 11354,
+      "corpCode": "00861100",
+      "name": "아이케이세미콘(주)",
+      "rceptNo": "20250321000195",
+      "reportName": "사업보고서 (2024.12)",
+      "bsnsYear": 2024,
+      "consolidatedStatus": "failed",
+      "separateStatus": "stored",
+      "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual primary statement heading missing",
+      "checkedAt": "2026-10-01T21:32:56.712278"
+    },
+    {
+      "id": 11745,
+      "corpCode": "00404941",
+      "name": "(주)한텍",
+      "rceptNo": "20250326000042",
+      "reportName": "[기재정정]사업보고서 (2024.12)",
+      "bsnsYear": 2024,
+      "consolidatedStatus": "failed",
+      "separateStatus": "stored",
+      "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual primary core missing or balance mismatch",
+      "checkedAt": "2026-10-01T21:31:56.357686"
+    }
+  ]
+}

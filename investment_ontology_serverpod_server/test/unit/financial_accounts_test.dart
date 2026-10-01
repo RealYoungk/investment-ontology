@@ -25,6 +25,42 @@ FinancialFact fact(
 
 void main() {
   test(
+    'exact printed whole revenue and SQL mirror excludes costs and details',
+    () {
+      for (final name in ['매출', 'Ⅰ. 매 출', 'Ⅰ.매출액(주5)']) {
+        expect(FinancialAccounts.pick([fact(name)]).single.key, 'revenue');
+      }
+      for (final name in ['매출원가', '부문매출', '고객별매출', '주석매출', '매출원가(주5)']) {
+        expect(FinancialAccounts.pick([fact(name)]), isEmpty);
+      }
+      expect(FinancialAccounts.pick([fact('매출', detail: 'segment')]), isEmpty);
+      expect(
+        FinancialAccounts.pick([
+          fact('매출', statement: FinancialStatementKind.cashFlow),
+        ]),
+        isEmpty,
+      );
+      expect(
+        FinancialAccounts.pick([fact('매출액(주5)', detail: 'notes')]),
+        isEmpty,
+      );
+      expect(
+        FinancialAccounts.pick([
+          fact('매출액(주5)', statement: FinancialStatementKind.cashFlow),
+        ]),
+        isEmpty,
+      );
+      expect(FinancialAccounts.resolvedIdSql('f'), contains("'매출액(주5)'"));
+      expect(FinancialAccounts.resolvedIdSql('f'), contains("'매출'"));
+      for (final year in [2024, 2025]) {
+        final row = fact('Ⅰ. 매 출')
+            .copyWith(bsnsYear: year, amount: BigInt.from(year * 1000));
+        expect(FinancialAccounts.pick([row]).single.amount, row.amount);
+      }
+    },
+  );
+
+  test(
     'whole loss labels only resolve non-positive source-normalized amounts',
     () {
       final op = fact('Ⅴ. 영업손실');
