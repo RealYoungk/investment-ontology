@@ -48,6 +48,7 @@ class DisclosureSync {
     int? dailyBudget,
     this.priorityBudget = ApiCallBudget.dartDisclosurePriorityBudget,
     this.businessBudget = defaultBusinessBudget,
+    this.businessRunLimit = 200,
     this.publicFallbackEnabled = true,
     this.businessOnly = false,
     PublicBusinessDocument? publicDocuments,
@@ -92,6 +93,10 @@ class DisclosureSync {
 
   /// 실행마다 우선수집할 최신 "사업의 내용" 본문 수 (공용 호출 한도 안에서 처리).
   final int businessBudget;
+
+  /// Business-only jobs yield between bounded slices so other FutureCalls run.
+  /// Daily API and public-attempt budgets remain independent of this run limit.
+  final int businessRunLimit;
   final bool publicFallbackEnabled;
   final bool businessOnly;
   final PublicBusinessDocument _publicDocuments;
@@ -490,7 +495,10 @@ class DisclosureSync {
         ))
           f.id!: f,
       };
-      for (final item in pending.take(businessBudget.clamp(0, 9000))) {
+      for (final item
+          in pending
+              .take(businessBudget.clamp(0, 9000))
+              .take(businessRunLimit.clamp(1, 200))) {
         if (await IngestJobs.isCancelled(session, jobId)) {
           job = job.copyWith(status: IngestStatus.cancelled);
           break;

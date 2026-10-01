@@ -113,6 +113,7 @@ void main() {
 
     Future<IngestJob> run({
       int limit = 9000,
+      int runLimit = 200,
       int? daily = 18000,
       PublicBusinessDocument? public,
       bool only = true,
@@ -131,6 +132,7 @@ void main() {
         j.id!,
         businessOnly: only,
         businessBudget: limit,
+        businessRunLimit: runLimit,
         dailyBudget: daily,
         publicFallbackEnabled: public != null,
         publicDocuments: public,
@@ -198,6 +200,37 @@ void main() {
       final second = await run();
       expect(second.processed, 3);
       expect(await BusinessDocument.db.count(session), 5);
+    });
+    test('independent run limit yields after two annual bodies then resumes only the remaining one', () async {
+      for (final year in [2023, 2024, 2025]) {
+        await filing(year, '${year + 1}0310000001');
+      }
+      final first = await run(runLimit: 2);
+      expect(first.total, 3);
+      expect(first.processed, 2);
+      expect(first.updated, 2);
+      expect(first.message, contains('남은 전체 1'));
+      expect(resumes, [now.add(const Duration(seconds: 30))]);
+      expect(await BusinessDocument.db.count(session), 2);
+      final firstReceipts = client.calls
+          .where((c) => c.startsWith('document|'))
+          .toList();
+      expect(firstReceipts, hasLength(2));
+      client.calls.clear();
+      resumes.clear();
+      final second = await run(runLimit: 2);
+      expect(second.total, 1);
+      expect(second.processed, 1);
+      expect(second.updated, 1);
+      expect(second.message, contains('남은 전체 0'));
+      expect(resumes, isEmpty);
+      expect(await BusinessDocument.db.count(session), 3);
+      final secondReceipts = client.calls
+          .where((c) => c.startsWith('document|'))
+          .toList();
+      expect(secondReceipts, hasLength(1));
+      expect(firstReceipts, isNot(contains(secondReceipts.single)));
+      expect(client.calls.every((c) => c.startsWith('document|')), isTrue);
     });
     test('public six-failure circuit preserves remainder and retries in 15 minutes', () async {
       for (var i = 0; i < 8; i++) {
