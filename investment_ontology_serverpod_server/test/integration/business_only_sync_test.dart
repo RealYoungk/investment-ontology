@@ -2,6 +2,7 @@ import 'package:http/http.dart' as http;
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_business_document.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/ingest/disclosure_sync.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/ingest/api_call_budget.dart';
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod/protocol.dart' as sp;
 import 'package:investment_ontology_serverpod_server/src/ontology/ingest/ingest_jobs.dart';
@@ -32,6 +33,26 @@ class ProgressPublicBody extends PublicBusinessDocument {
       receipt: receipt,
       title: '사업의 내용',
       text: '제품과 사용처 원문',
+      sourceUri: Uri.parse(
+        'https://dart.fss.or.kr/report/viewer.do?rcpNo=$receipt',
+      ),
+      bodySha256: 'fixture',
+    );
+  }
+}
+
+class SelectivePublicBody extends PublicBusinessDocument {
+  SelectivePublicBody(this.blocked);
+  final Set<String> blocked;
+  final receipts = <String>[];
+  @override
+  Future<PublicBusinessBody> fetch(String receipt) async {
+    receipts.add(receipt);
+    if (blocked.contains(receipt)) throw const PublicBusinessNodeMissing();
+    return PublicBusinessBody(
+      receipt: receipt,
+      title: '사업의 내용',
+      text: '공개 회사 제품 사업본문',
       sourceUri: Uri.parse(
         'https://dart.fss.or.kr/report/viewer.do?rcpNo=$receipt',
       ),
@@ -92,7 +113,7 @@ void main() {
 
     Future<IngestJob> run({
       int limit = 9000,
-      int daily = 18000,
+      int? daily = 18000,
       PublicBusinessDocument? public,
       bool only = true,
     }) async {
@@ -396,6 +417,95 @@ void main() {
       expect(job.message, contains('한도초과 1'));
       expect(client.calls.length, calls);
       expect(resumes, isEmpty);
+    });
+    test('API-blocked attachment first does not starve public body and waits until next midnight only when it remains alone', () async {
+      const blocked = '20260411000001', ordinary = '20250310000001';
+      await filing(2025, blocked, name: '[첨부정정]사업보고서 (2025.12)');
+      await filing(2024, ordinary);
+      final reader = SelectivePublicBody({blocked});
+      final job = await run(daily: 0, public: reader);
+      expect(reader.receipts, [blocked, ordinary]);
+      expect(client.calls, isEmpty);
+      expect(job.processed, 1);
+      expect(job.updated, 1);
+      expect(
+        (await BusinessDocument.db.find(session)).single.rceptNo,
+        ordinary,
+      );
+      final waiting = (await DartFilingSection.db.find(
+        session,
+        where: (t) => t.status.equals(FilingFetchStatus.pending),
+      )).single;
+      expect(waiting.lastError, contains('API 대기'));
+      expect(waiting.attempts, 0);
+      expect(
+        resumes.single,
+        ApiCallBudget.nextKstMidnight(now).add(const Duration(minutes: 1)),
+      );
+      resumes.clear();
+      final nextReader = SelectivePublicBody({blocked});
+      final next = await run(daily: 0, public: nextReader);
+      expect(next.processed, 0);
+      expect(nextReader.receipts, isEmpty);
+      expect(
+        resumes.single,
+        ApiCallBudget.nextKstMidnight(now).add(const Duration(minutes: 1)),
+      );
+      expect(await BusinessDocument.db.count(session), 1);
+    });
+    test('bounded public remainder gets short resume and confirmed API wait is deprioritized next run', () async {
+      const blocked = '20260411000001',
+          first = '20250310000001',
+          last = '20240310000001';
+      await filing(2025, blocked, name: '[첨부정정]사업보고서 (2025.12)');
+      await filing(2024, first);
+      await filing(2023, last);
+      final a = SelectivePublicBody({blocked});
+      final job = await run(daily: 0, limit: 2, public: a);
+      expect(a.receipts, [blocked, first]);
+      expect(job.processed, 1);
+      expect(resumes.single, now.add(const Duration(seconds: 30)));
+      resumes.clear();
+      final b = SelectivePublicBody({blocked});
+      await run(daily: 0, limit: 1, public: b);
+      expect(b.receipts, [last]);
+      expect(client.calls, isEmpty);
+      expect(
+        resumes.single,
+        ApiCallBudget.nextKstMidnight(now).add(const Duration(minutes: 1)),
+      );
+    });
+    test('business-only default uses remaining shared daily budget above disclosure allocation; explicit override is preserved', () async {
+      const receipt = '20260310000001';
+      await filing(2025, receipt);
+      await ApiCallUsage.db.insertRow(
+        session,
+        ApiCallUsage(
+          provider: ApiProvider.dart,
+          day: ApiCallBudget.kstDay(now),
+          calls: 18062,
+        ),
+      );
+      final job = await run(daily: null);
+      expect(job.updated, 1);
+      expect(client.calls, ['document|$receipt']);
+      final normal = DisclosureSync(session, client.client(), -1);
+      final business = DisclosureSync(
+        session,
+        client.client(),
+        -1,
+        businessOnly: true,
+      );
+      final override = DisclosureSync(
+        session,
+        client.client(),
+        -1,
+        businessOnly: true,
+        dailyBudget: 0,
+      );
+      expect(normal.dailyBudget, ApiCallBudget.dartDisclosureBudget);
+      expect(business.dailyBudget, ApiCallBudget.dartDailyLimit - 100);
+      expect(override.dailyBudget, 0);
     });
   });
 }
