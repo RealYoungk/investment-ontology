@@ -563,7 +563,7 @@ abstract final class PublicFinancialHtml {
     final text = _compact(_text(scope));
     const titleDate = r'(?:\d{4}년\d{1,2}월\d{1,2}일|\d{4}\.\d{2}\.\d{2})';
     final titlePattern = RegExp(
-      '제$term(?:\\(당\\))?(?:당기|기)(?:기말|말)?:?($titleDate)(현재|부터($titleDate)까지)',
+      '제$term(?:\\(당\\))?(?:당기|기)(?:기말|말)?:?($titleDate)(현재|(?:부터(?=$titleDate까지)|~)($titleDate)(?:까지)?)',
     );
     final titles = titlePattern.allMatches(text).toList();
     final cnsScope =
@@ -572,6 +572,15 @@ abstract final class PublicFinancialHtml {
         !consolidated &&
         term == '26' &&
         statementSource.queryParameters['dcmNo'] == '11148548' &&
+        statementSource.queryParameters['eleId'] == '21' &&
+        periodStart == DateTime.utc(2025, 1, 1) &&
+        periodEnd == DateTime.utc(2025, 12, 31);
+    final konasolScope =
+        receipt == '20260331004755' &&
+        corpCode == '00666329' &&
+        !consolidated &&
+        term == '29' &&
+        statementSource.queryParameters['dcmNo'] == '11215244' &&
         statementSource.queryParameters['eleId'] == '21' &&
         periodStart == DateTime.utc(2025, 1, 1) &&
         periodEnd == DateTime.utc(2025, 12, 31);
@@ -677,6 +686,101 @@ abstract final class PublicFinancialHtml {
       }
       cnsPeriodProof = candidates.single;
     }
+    if (konasolScope && titles.isEmpty) {
+      final proofs = <Map<String, dynamic>>[];
+      var tableIndex = 0;
+      for (final table in RegExp(
+        r'<TABLE\b[^>]*>(.*?)</TABLE>',
+        caseSensitive: false,
+        dotAll: true,
+      ).allMatches(scope)) {
+        final index = tableIndex++;
+        final prefix = _compact(_text(scope.substring(0, table.start)));
+        final ce = prefix.lastIndexOf('자본변동표');
+        if (ce < 0 ||
+            [
+              '재무상태표',
+              '손익계산서',
+              '현금흐름표',
+            ].any((h) => prefix.lastIndexOf(h) > ce)) {
+          continue;
+        }
+        final grid = _FinancialHtmlGrid.parse(table.group(1)!);
+        if (grid.isEmpty || _compact(grid.first.first?.text ?? '') != '과목') {
+          continue;
+        }
+        if (grid.first.length != 7 ||
+            _compact(grid.first.last?.text ?? '') != '총계' ||
+            !prefix.substring(ce).contains('(단위:원)')) {
+          throw const FormatException(
+            'Konasol supporting equity table mismatch',
+          );
+        }
+        int unique(String label) {
+          final matches = [
+            for (var r = 1; r < grid.length; r++)
+              if (_compact(grid[r].first?.text ?? '') == label) r,
+          ];
+          if (matches.length != 1) {
+            throw const FormatException('Konasol supporting date ambiguous');
+          }
+          return matches.single;
+        }
+
+        final start = unique('2025년01월01일(보고금액)');
+        final end = unique('2025년12월31일(당기말)');
+        if (start >= end ||
+            grid
+                    .skip(1)
+                    .where(
+                      (r) => _compact(r.first?.text ?? '').endsWith('(당기말)'),
+                    )
+                    .length !=
+                1) {
+          throw const FormatException('Konasol current dates conflict');
+        }
+        final profit = [
+          for (var r = start + 1; r < end; r++)
+            if (_compact(grid[r].first?.text ?? '') == '당기순이익') r,
+        ];
+        if (profit.length != 1) {
+          throw const FormatException('Konasol supporting profit ambiguous');
+        }
+        String total(int r) {
+          final cell = grid[r].last;
+          if (grid[r].length != 7 ||
+              cell == null ||
+              cell.colspan != 1 ||
+              cell.rowspan != 1 ||
+              !RegExp(r'^-?\d{1,3}(?:,\d{3})*$').hasMatch(cell.text.trim())) {
+            throw const FormatException('Konasol supporting total ambiguous');
+          }
+          return BigInt.parse(cell.text.trim().replaceAll(',', '')).toString();
+        }
+
+        proofs.add({
+          'mode': 'same-document-split-header-equity-period-corroboration',
+          'tableIndex': index,
+          'currentTerm': term,
+          'currentHeader': '제29기/(2025년);2025년/(제29기)',
+          'periodStart': '2025-01-01',
+          'periodEnd': '2025-12-31',
+          'startRow': start,
+          'endRow': end,
+          'profitRow': profit.single,
+          'closingEquity': total(end),
+          'currentProfit': total(profit.single),
+          'source': statementSource.toString(),
+          'unit': '원',
+        });
+      }
+      if (proofs.length != 1) {
+        throw const FormatException(
+          'Konasol supporting period absent or ambiguous',
+        );
+      }
+      cnsPeriodProof = proofs.single;
+    }
     if (cnsPeriodProof == null &&
         (titles.length < 3 ||
             !titles.any((m) => m.group(2) == '현재') ||
@@ -775,6 +879,11 @@ abstract final class PublicFinancialHtml {
           continue;
         }
       }
+      if (konasolScope &&
+          cnsPeriodProof != null &&
+          cnsPeriodProof['tableIndex'] == index) {
+        continue;
+      }
       final grid = _FinancialHtmlGrid.parse(table.group(1)!);
       if (grid.isEmpty) continue;
       final labels = grid
@@ -804,9 +913,11 @@ abstract final class PublicFinancialHtml {
       final headers = grid.first
           .whereType<_FinancialHtmlCell>()
           .where(
-            (c) => RegExp(
-              '^(?:제$term(?:\\(당\\))?기(?:기말|말)?|${periodEnd.year}년도\\(제$term기\\))\$',
-            ).hasMatch(_compact(c.text)),
+            (c) =>
+                RegExp(
+                  '^(?:제$term(?:\\(당\\))?기(?:기말|말)?|${periodEnd.year}년도\\(제$term기\\))\$',
+                ).hasMatch(_compact(c.text)) ||
+                (konasolScope && kind == 'CF' && _compact(c.text) == '2025년'),
           )
           .toSet();
       if (headers.length != 1) {
@@ -835,12 +946,20 @@ abstract final class PublicFinancialHtml {
       if (sectionStart < 0 || sectionKind != kind) {
         throw const FormatException('Annual primary statement heading missing');
       }
+      if (konasolScope &&
+          cnsPeriodProof != null &&
+          (current.column != 1 ||
+              grid.first.first?.rowspan != 2 ||
+              _compact(current.text) != (kind == 'CF' ? '2025년' : '제29기'))) {
+        throw const FormatException('Konasol split current header mismatch');
+      }
       final localPrefix = preceding.substring(sectionStart);
       final localTitles = titlePattern.allMatches(localPrefix).toList();
       if ((cnsPeriodProof == null &&
               (localTitles.isEmpty ||
                   (kind == 'BS') != (localTitles.last.group(2) == '현재'))) ||
           (cnsPeriodProof != null &&
+              !konasolScope &&
               _compact(current.text) != '2025년도(제26기)')) {
         throw const FormatException('Annual primary statement title mismatch');
       }
@@ -857,8 +976,9 @@ abstract final class PublicFinancialHtml {
         if (grid.length < 2 || current.colspan != 1) {
           throw const FormatException('Unsupported annual multirow header');
         }
-        final expectedPeriod =
-            '(${(periodStart.year % 100).toString().padLeft(2, '0')}.${periodStart.month.toString().padLeft(2, '0')}~${(periodEnd.year % 100).toString().padLeft(2, '0')}.${periodEnd.month.toString().padLeft(2, '0')})';
+        final expectedPeriod = konasolScope
+            ? (kind == 'CF' ? '(제29기)' : '(2025년)')
+            : '(${(periodStart.year % 100).toString().padLeft(2, '0')}.${periodStart.month.toString().padLeft(2, '0')}~${(periodEnd.year % 100).toString().padLeft(2, '0')}.${periodEnd.month.toString().padLeft(2, '0')})';
         if (_compact(grid[1][current.column]?.text ?? '') != expectedPeriod) {
           throw const FormatException(
             'Annual current subheader period mismatch',

@@ -1639,6 +1639,89 @@ void main() {
       expect(await FinancialReport.db.count(session), 0);
     });
 
+    test('verified Apex OFS precedes fresh failures without resetting API or public attempts', () async {
+      final targets = <DartFiling>[];
+      for (final (receipt, code, name, period) in [
+        ('20260318000509', '00832700', '에이펙스인텍', '2025.12'),
+      ]) {
+        final c = await company(code);
+        await Company.db.updateRow(
+          session,
+          c.copyWith(name: name, stockCode: code.substring(2)),
+        );
+        targets.add(
+          await DartFiling.db.insertRow(
+            session,
+            DartFiling(
+              rceptNo: receipt,
+              corpCode: code,
+              companyId: c.id,
+              reportName: '사업보고서 ($period)',
+              bsnsYear: int.parse(period.substring(0, 4)),
+              reportCode: FinancialReportCode.annual,
+              consolidatedStatus: FilingFetchStatus.failed,
+              separateStatus: FilingFetchStatus.failed,
+              attempts: 3,
+              lastError:
+                  'api-noData-annual-public:attempt=1; verified parser failure',
+              discoveredAt: now,
+            ),
+          ),
+        );
+      }
+      for (var i = 0; i < 7; i++) {
+        final c = await company('9${i.toString().padLeft(7, '0')}');
+        await Company.db.updateRow(
+          session,
+          c.copyWith(stockCode: '88${i.toString().padLeft(4, '0')}'),
+        );
+        await DartFiling.db.insertRow(
+          session,
+          DartFiling(
+            rceptNo: '20260930${i.toString().padLeft(6, '0')}',
+            corpCode: c.corpCode,
+            companyId: c.id,
+            reportName: '사업보고서 (2025.12)',
+            bsnsYear: 2025,
+            reportCode: FinancialReportCode.annual,
+            consolidatedStatus: FilingFetchStatus.noData,
+            separateStatus: FilingFetchStatus.noData,
+            discoveredAt: now,
+          ),
+        );
+      }
+      final reader = AnnualNoDataClient(failAll: true);
+      final job = await IngestJob.db.insertRow(
+        session,
+        IngestJob(
+          kind: FinancialFactsSync.kind,
+          status: IngestStatus.running,
+          startedAt: now,
+        ),
+      );
+      await FinancialFactsSync(
+        session,
+        reader,
+        job.id!,
+        dailyBudget: 0,
+        clock: () => now,
+        callInterval: Duration.zero,
+      ).run();
+      expect(
+        reader.attemptedReceipts.take(targets.length * 2).toSet(),
+        targets.map((f) => f.rceptNo).toSet(),
+      );
+      expect(reader.financialRequests, 0);
+      for (final target in targets) {
+        final current = (await DartFiling.db.findById(session, target.id!))!;
+        expect(current.attempts, 4);
+        expect(current.lastError, contains('attempt=2'));
+        expect(current.consolidatedStatus, FilingFetchStatus.failed);
+        expect(current.separateStatus, FilingFetchStatus.failed);
+      }
+      expect(await FinancialReport.db.count(session), 0);
+    });
+
     for (final failAll in [false, true]) {
       test(
         'annual public queue bounded policy failAll=$failAll preserves budgets and resumes fresh work',

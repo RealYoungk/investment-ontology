@@ -7,20 +7,19 @@ import 'public_financial_period_metadata.dart';
 /// Metadata-only verification of an existing original business document.
 /// Never relabels its receipt as the attachment correction.
 abstract final class PublicBusinessSourceAnchor {
-  static Future<PublicBusinessAnchorProof> verify(
+  /// Bounded discovery from the exact correction shell, followed by the same
+  /// source-family, corporation and explicit cover-period verification.
+  static Future<PublicBusinessAnchorProof> discover(
     http.Client client, {
     required String targetReceipt,
-    required String sourceReceipt,
     required String corpCode,
     required String companyName,
     required DateTime periodEnd,
     required bool halfYear,
     Duration interval = const Duration(seconds: 1),
   }) async {
-    if (!RegExp(r'^\d{14}$').hasMatch(targetReceipt) ||
-        !RegExp(r'^\d{14}$').hasMatch(sourceReceipt) ||
-        sourceReceipt.compareTo(targetReceipt) >= 0) {
-      throw const FormatException('Invalid business source receipt order');
+    if (!RegExp(r'^\d{14}$').hasMatch(targetReceipt)) {
+      throw const FormatException('Invalid business correction receipt');
     }
     final uri = Uri.https('dart.fss.or.kr', '/dsaf001/main.do', {
       'rcpNo': targetReceipt,
@@ -30,9 +29,32 @@ abstract final class PublicBusinessSourceAnchor {
     if (response.statusCode != 200 ||
         (response.request?.url ?? uri) != uri ||
         response.bodyBytes.length > 5 * 1024 * 1024) {
-      throw const FormatException('Invalid business correction shell');
+      throw const FormatException('Invalid business discovery shell');
     }
-    final shell = utf8.decode(response.bodyBytes);
+    final receipt = _latestFamilyReceipt(
+      utf8.decode(response.bodyBytes),
+      targetReceipt,
+      corpCode,
+      halfYear,
+    );
+    return verify(
+      client,
+      targetReceipt: targetReceipt,
+      sourceReceipt: receipt,
+      corpCode: corpCode,
+      companyName: companyName,
+      periodEnd: periodEnd,
+      halfYear: halfYear,
+      interval: interval,
+    );
+  }
+
+  static String _latestFamilyReceipt(
+    String shell,
+    String targetReceipt,
+    String corpCode,
+    bool halfYear,
+  ) {
     final companies = RegExp(
       r"openCorpInfoNew\('(\d{8})',\s*'winCorpInfo',\s*'/dsae001/selectPopup.ax'\)",
     ).allMatches(shell).map((m) => m.group(1)!).toSet();
@@ -59,7 +81,43 @@ abstract final class PublicBusinessSourceAnchor {
             .toSet()
             .toList()
           ..sort();
-    if (receipts.isEmpty || receipts.last != sourceReceipt) {
+    if (receipts.isEmpty) {
+      throw const PublicBusinessFamilyUnavailable();
+    }
+    if (receipts.last.compareTo(targetReceipt) >= 0) {
+      throw const FormatException('Business family receipt is not earlier');
+    }
+    return receipts.last;
+  }
+
+  static Future<PublicBusinessAnchorProof> verify(
+    http.Client client, {
+    required String targetReceipt,
+    required String sourceReceipt,
+    required String corpCode,
+    required String companyName,
+    required DateTime periodEnd,
+    required bool halfYear,
+    Duration interval = const Duration(seconds: 1),
+  }) async {
+    if (!RegExp(r'^\d{14}$').hasMatch(targetReceipt) ||
+        !RegExp(r'^\d{14}$').hasMatch(sourceReceipt) ||
+        sourceReceipt.compareTo(targetReceipt) >= 0) {
+      throw const FormatException('Invalid business source receipt order');
+    }
+    final uri = Uri.https('dart.fss.or.kr', '/dsaf001/main.do', {
+      'rcpNo': targetReceipt,
+    });
+    await Future<void>.delayed(interval);
+    final response = await client.get(uri).timeout(const Duration(seconds: 30));
+    if (response.statusCode != 200 ||
+        (response.request?.url ?? uri) != uri ||
+        response.bodyBytes.length > 5 * 1024 * 1024) {
+      throw const FormatException('Invalid business correction shell');
+    }
+    final shell = utf8.decode(response.bodyBytes);
+    if (_latestFamilyReceipt(shell, targetReceipt, corpCode, halfYear) !=
+        sourceReceipt) {
       throw const FormatException(
         'Original business receipt is not latest same-kind body',
       );
@@ -137,4 +195,11 @@ class PublicBusinessAnchorProof extends PublicFinancialPeriodMetadata {
       );
   final String? observedCoverCompany;
   final bool coverNameMatches;
+}
+
+/// A valid exact shell has no earlier same-kind candidate. This is not evidence
+/// that the filing has no business content; the normal API wait remains pending.
+class PublicBusinessFamilyUnavailable extends FormatException {
+  const PublicBusinessFamilyUnavailable()
+    : super('No earlier same-kind business family');
 }
