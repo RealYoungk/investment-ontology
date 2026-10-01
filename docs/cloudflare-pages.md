@@ -1,6 +1,6 @@
 # Cloudflare Pages 이전 준비
 
-2026-10-01: 프런트엔드는 Cloudflare Pages Free, API·DB·정기결제 작업은 기존 iwinv Serverpod를 유지한다. 현재 alfinder.kr은 기존 웹 배포를 사용한다. Cloudflare 계정 로그인·프로젝트 생성·도메인 전환은 아직 완료되지 않았다. 광고 송출과 실결제는 비활성이다.
+2026-10-01: 프런트엔드는 Cloudflare Pages Free, API·DB·정기결제 작업은 기존 iwinv Serverpod를 유지한다. 현재 alfinder.kr은 기존 웹 배포를 사용한다. Cloudflare 계정 로그인과 alfinder-web 프로젝트 배포는 완료했다. alfinder.kr 도메인 전환은 가비아 소유자 인증을 기다린다. 광고 송출과 실결제는 비활성이다.
 
 ## 무료 한도와 요청 경로
 
@@ -41,12 +41,12 @@ Pages Direct Upload의 `_worker.js`는 대시보드 업로드와 Wrangler 모두
 
 ## 이번 검증
 
-5개 transport 테스트: 정적 요청 우회, 인증/쿠키/Origin 유지·고정 upstream·오청구 재시도 방지, 401/복수 쿠키/캐시 금지, 잘못된 경로 거절. 현재 main 0c70c646 릴리스의 64개 파일로 Pages 업로드 폴더를 준비했다. Cloudflare 업로드·실제 런타임·DNS 이전은 로그인 완료 후 진행한다.
+5개 transport 테스트: 정적 요청 우회, 인증/쿠키/Origin 유지·고정 upstream·오청구 재시도 방지, 401/복수 쿠키/캐시 금지, 잘못된 경로 거절. main 0c70c646 릴리스의 64개 공개 파일을 alfinder-web.pages.dev에 배포했다. 실제 공개 RPC 200과 개인 RPC 401을 확인했다. 새 main의 연구·공시 기능을 함께 배포하기 위한 최신 CI 검증과 도메인 이전은 진행 중이다.
 
 ## 광고 활성화도 검증된 릴리스로 배포
 
 `deploy/web-build-defines.json`에는 공개 광고 ID와 빌드 플래그만 둔다. CI와 clean-main 릴리스 검증이 이 파일을 동일하게 사용하므로 수동 Flutter 빌드로 검증 절차를 우회하지 않는다. 비밀번호·PG 시크릿 키·API 토큰을 넣지 않는다. 현재 모든 활성화 플래그는 false이며 testMode는 true다.
 
-AdSense에서 alfinder.kr이 실제로 ‘준비됨’으로 바뀌고, 새 호스팅 개인정보 안내와 실제 CMP 지역 동작 검증이 완료된 뒤 `ADSENSE_ENABLED`, `ADSENSE_SITE_APPROVED`, `ADSENSE_PRIVACY_READY`를 true로 바꿔 별도 검증 릴리스를 배포한다. 최초 테스트는 `ADSENSE_TEST_MODE=true`로 확인하고 실송출 전 false로 변경한다. 심사 대기 중에는 플래그를 켜지 않는다. 한 화면에는 수동 배너 하나만 표시하며 Auto ads·고정 오버레이·자동 새로고침은 사용하지 않는다. 광고 없는 계정과 로그인 상태를 알 수 없는 경우에는 광고를 요청하지 않는 기존 계정 처리 규칙을 유지한다.
+AdSense에서 alfinder.kr이 실제로 ‘준비됨’으로 바뀌고, 새 호스팅 개인정보 안내와 실제 CMP 지역 동작 검증이 완료된 뒤 `ADSENSE_ENABLED`, `ADSENSE_SITE_APPROVED`, `ADSENSE_PRIVACY_READY`를 true로 바꿔 별도 검증 릴리스를 배포한다. 최초 테스트는 `ADSENSE_TEST_MODE=true`로 확인하고 실송출 전 false로 변경한다. 심사 대기 중에는 플래그를 켜지 않는다. 한 화면에는 수동 배너 하나만 표시하며 Auto ads·고정 오버레이·자동 새로고침은 사용하지 않는다. 광고 없는 계정에는 광고를 요청하지 않는다. 활성화 전 계정 복원·유료 권한 조회 중의 광고 억제를 실제 브라우저에서 추가 검증한다. 현재 익명 공개 화면에서도 광고 위젯을 사용할 수 있으므로 null viewer만으로 계정 조회 완료를 판단해서는 안 된다.
 
 2026-10-01 확인: Pages 프로젝트 alfinder-web 생성·64개 파일 배포. 실제 API 공개 overview 200, 비로그인 membership/status 401, ads.txt 200. Cloudflare ExecutionContext가 테스트용 HTTP 클라이언트 인자로 잘못 전달되던 문제를 수정하고 5번째 회귀 검증을 추가했다. AdSense 사이트 승인 상태는 ‘준비 중’, ads.txt는 ‘승인됨’이다. Gabia 원본 DNS 6개를 보존하고 Cloudflare에 모두 복사했다. Cloudflare NS는 johnny.ns.cloudflare.com / meg.ns.cloudflare.com이며 등록기관 소유자 인증과 DNS 전파를 기다리는 중이다. 현재 alfinder.kr의 authoritative NS는 아직 Gabia다.
