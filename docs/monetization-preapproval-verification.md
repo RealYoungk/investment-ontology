@@ -83,8 +83,8 @@ Auto Ads OFF를 관리 화면에서 현재 확인한 뒤 별도 임시 진단 �
 ## 후속 보완과 검증 (2026-10-01)
 
 - Google 계정에서 기존 EU 메시지 게시와 첫 화면 거절 선택을 확인했다. 없었던 미국 메시지 `Alfinder US opt-out`을 alfinder.kr에만 만들고 기존 브랜드 로고를 등록하여 **게시됨**을 확인했다. Google 화면은 전파에 최대 1시간이 걸릴 수 있다고 안내한다. Auto Ads/사이트 승인/실광고 플래그를 변경하지 않았다.
-- GDPR 비적용이어도 미국 초기 상태 UNKNOWN/OPTED_OUT, GPC, GPP 누락이면 AdSense tag를 로드하지 않는다. DOES_NOT_APPLY만 직접 허용하며 NOT_OPTED_OUT은 GPP loaded/ready를 추가 확인한다. 이후 sectionChange/화면 재표시/신호·CMP 오류는 기존 slot과 진행 중 push를 무효화한다. 초기 상태 API는 pageview 시작 값을 유지하므로, 새 mount에서도 최신 GPP parsedSections의 SaleOptOut/SharingOptOut/TargetedAdvertisingOptOut 및 Gpc를 확인한다. 거부1/불명·누락이면 차단한다.
-- JavaScript 32개 통과. 실제 브라우저 DOM/운영 loader 모의 공급자 harness는 미국 불명·거부·GPC·GPP 누락·허용·철회를 추가하여 **18/18** 통과했다. 일반 Flutter Web + 인증 RPC + 격리 DB 회원 전환은 **9/9** 통과했다. Google/Toss 전송 응답 모의라는 한계는 그대로다.
+- GDPR 비적용이어도 미국 초기 상태 UNKNOWN/OPTED_OUT, GPC, GPP 누락이면 AdSense tag를 로드하지 않는다. DOES_NOT_APPLY만 직접 허용하며 NOT_OPTED_OUT은 GPP loaded/ready를 추가 확인한다. 이후 sectionChange/화면 재표시/신호·CMP 오류는 기존 slot과 진행 중 push를 무효화한다. 초기 상태 API는 pageview 시작 값을 유지하므로, 새 mount에서도 Google CMP300과 최신 GPP parsedSections의 SaleOptOut/SharingOptOut/TargetedAdvertisingOptOut 및 Gpc를 확인한다. 거부1/불명·누락이면 차단한다.
+- JavaScript 33개 통과. 실제 브라우저 DOM/운영 loader 모의 공급자 harness는 미국 불명·거부·GPC·GPP 누락·허용·철회를 추가하여 **18/18** 통과했다. 일반 Flutter Web + 인증 RPC + 격리 DB 회원 전환은 **9/9** 통과했다. Google/Toss 전송 응답 모의라는 한계는 그대로다.
 - 집중 서버 검증은 **75개** 통과했다. 공급자 직접 전액 취소를 현재 paid 기간의 동일 주문 GET으로 확인하고, 금액/통화/주문/결제 식별자/잔액0 검증 후 원장·권한·키 삭제를 반영한다. 중복 조회, 갱신 해지 상태, 조회 오류/다른 paymentKey, 만료된 기간 제외와 청구 중단 중 GET-only 복구를 검증했다. raw webhook이 권한을 주는 경로는 없다. 현재 paid 대사는 구독당 최대 월 회차 수만큼 5분마다 GET하며 가입자 증가 시 호출량을 점검한다.
 - 신규 중단 설정 `ALFINDER_BILLING_CHARGES_PAUSED=true`는 과거 주문 처리와 판매 중단을 분리한다. 실판매 전 이 설정으로 paymentAvailable=false/신규 POST0/갱신 POST0/기존 GET 및 환불 가능을 상점 테스트 환경에서 확인한다. 기존 활성화 조건을 우회하지 않으며 운영 활성화 플래그는 계속 false다.
 

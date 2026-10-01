@@ -126,6 +126,9 @@
                   if (state.cmpPermitted) dispose(element);
                   return;
                 }
+                if (data.cmpId !== 300) {
+                  clearTimeout(timer); resolve(false); dispose(element); return;
+                }
                 const allowed = data.gdprApplies === false ||
                   (data.cmpId === 300 && data.purpose?.consents?.[1] === true && data.vendor?.consents?.[755] === true);
                 if (data.gdprApplies === false && allowed) {
@@ -158,17 +161,22 @@
                       // Google's initial status is cached for the pageview.
                       // Remounts must read the current parsed opt-out signals.
                       const sections = Object.entries(ping.parsedSections || {})
-                        .filter(([name]) => name.startsWith('us'))
-                        .flatMap(([, value]) => Array.isArray(value) ? value : [value]);
-                      const choices = sections.flatMap(section =>
+                        .filter(([name]) => ['usnat', 'usfl'].includes(name))
+                        .flatMap(([name, value]) => (Array.isArray(value) ? value : [value])
+                          .map(data => ({ name, data })));
+                      const choices = sections.flatMap(({ data: section }) =>
                         ['SaleOptOut', 'SharingOptOut', 'TargetedAdvertisingOptOut']
                           .filter(key => Object.prototype.hasOwnProperty.call(section || {}, key))
                           .map(key => section[key]));
-                      if (sections.some(section => section?.Gpc === true || section?.Gpc === 1) ||
+                      if (sections.some(({ data }) => data?.Gpc === true || data?.Gpc === 1) ||
                           choices.some(value => value === 1)) {
                         clearTimeout(timer); resolve(false); dispose(element); return;
                       }
-                      if (!choices.length || choices.some(value => ![0, 2].includes(value))) return;
+                      if (!sections.length || sections.some(({ name, data }) =>
+                          (name === 'usnat' ? ['SaleOptOut', 'SharingOptOut', 'TargetedAdvertisingOptOut']
+                            : ['SaleOptOut', 'TargetedAdvertisingOptOut'])
+                            .some(key => ![0, 2].includes(data?.[key]))) ||
+                          !choices.length || choices.some(value => ![0, 2].includes(value))) return;
                       state.cmpPermitted = true;
                       clearTimeout(timer); resolve(true);
                     });
