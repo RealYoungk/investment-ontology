@@ -363,14 +363,21 @@ class PublicFinancialHtmlFetcher {
       final printedNames = RegExp(r'회사명:(.*?)대표이사:').allMatches(text).toList();
       if (printedNames.length != 1 ||
           normalize(printedNames.single.group(1)!) != normalize(companyName) ||
-          periodEnd.difference(periodStart).inDays < 364 ||
-          periodEnd.difference(periodStart).inDays > 366) {
+          periodEnd.difference(periodStart).inDays < 0 ||
+          periodEnd.difference(periodStart).inDays + 1 > 367) {
         throw const FormatException('Exact annual company/duration mismatch');
       }
     }
     final statementHtml = await get(statementSource, referer: originalSource);
     if (exactAnnual && consolidated) {
-      const explicitNone = '당사는 연결재무제표 작성법인이 아니므로 해당사항이 없습니다.';
+      const explicitStatements = [
+        '당사는 연결재무제표 작성법인이 아니므로 해당사항이 없습니다.',
+        '해당사항 없습니다.',
+        '당사는 보고서 제출일 현재 해당사항 없습니다.',
+        '- 보고서 작성 기준일 현재 해당사항 없습니다.',
+        '- 해당사항 없습니다.',
+        '- 당사는 사업보고서 작성기준일 현재 해당사항 없습니다.',
+      ];
       final body = RegExp(
         r'<body\b[^>]*>(.*?)</body>',
         caseSensitive: false,
@@ -386,7 +393,11 @@ class PublicFinancialHtmlFetcher {
             .replaceAll(RegExp(r'<[^>]+>'), '')
             .replaceAll('&nbsp;', '')
             .replaceAll(RegExp(r'\s+'), '');
-        if (plain == '2.연결재무제표${explicitNone.replaceAll(' ', '')}') {
+        final matches = explicitStatements
+            .where((e) => plain == '2.연결재무제표${e.replaceAll(' ', '')}')
+            .toList();
+        if (matches.length == 1) {
+          final explicitNone = matches.single;
           throw PublicFinancialHtmlBasisNotApplicable(
             sourceReceipt: sourceReceipt,
             corpCode: corpCode,

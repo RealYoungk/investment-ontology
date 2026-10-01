@@ -102,16 +102,23 @@ abstract final class FinancialAccounts {
   };
 
   // Deliberately excludes EPS, comprehensive income, continuing operations,
-  // owner/segment subtotals and "loss" labels whose positive sign is ambiguous.
+  // owner/segment subtotals. Exact whole-loss labels require non-positive amounts.
   static const fallbackNames = <String, List<String>>{
     'interestDebtIncludingLeases': ['총차입금(리스부채포함)', '차입금및사채및리스부채합계'],
-    'revenue': ['매출액'],
+    'revenue': ['매출액', '영업수익'],
+    'assets': ['자산총계'],
+    'liabilities': ['부채총계'],
     'cash': ['현금및현금성자산'],
     'equity': ['자본총계'],
-    'operatingCashFlow': ['영업활동현금흐름'],
+    'operatingCashFlow': [
+      '영업활동현금흐름',
+      '영업활동으로인한현금흐름',
+      '영업활동으로인한현금흐름(순액)',
+    ],
     'depreciation': ['감가상각비'],
     'amortisation': ['무형자산상각비'],
     'netIncome': [
+      '당기순손실',
       '당기순이익(손실)',
       '반기순이익(손실)',
       '분기순이익(손실)',
@@ -119,18 +126,29 @@ abstract final class FinancialAccounts {
       '반기순이익',
       '분기순이익',
     ],
-    'operatingIncome': ['영업이익(손실)', '영업이익'],
+    'operatingIncome': ['영업이익(손실)', '영업이익', '영업손실'],
     'capex': ['유형자산의취득', '유형자산취득'],
   };
 
-  static String normalizedName(String name) =>
-      name.replaceAll(RegExp(r'\s+'), '');
+  static const _lossNames = ['영업손실', '당기순손실'];
+  static bool _unambiguousLoss(FinancialFact fact) =>
+      !_lossNames.contains(normalizedName(fact.accountName)) ||
+      fact.amount != null && fact.amount! <= BigInt.zero;
+
+  static String normalizedName(String name) => name
+      .replaceAll(RegExp(r'\s+'), '')
+      .replaceFirst(
+        RegExp(r'^[Ⅰ-ⅫIVXLCDM0-9]+[.)]'),
+        '',
+      );
 
   /// Shared finite mapping for SQL consumers; no fuzzy or company-specific match.
   static String resolvedIdSql(String alias) {
     const spaces =
         r'[[:space:]\u00A0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF]';
-    final name = "regexp_replace($alias.\"accountName\", '$spaces', '', 'g')";
+    final compact =
+        "regexp_replace($alias.\"accountName\", '$spaces', '', 'g')";
+    final name = "regexp_replace($compact, '^[Ⅰ-ⅫIVXLCDM0-9]+[.)]', '')";
     final cases = <String>[];
     for (final account in all) {
       for (final aliasId in account.accountIds.skip(1)) {
@@ -143,7 +161,7 @@ abstract final class FinancialAccounts {
       final labels = names.map((n) => "'$n'").join(',');
       final statements = account.statements.map((s) => "'${s.name}'").join(',');
       cases.add(
-        "WHEN $alias.\"accountId\" IS NULL AND $alias.statement IN ($statements) AND $name IN ($labels) THEN '${account.accountIds.first}'",
+        "WHEN $alias.\"accountId\" IS NULL AND $alias.statement IN ($statements) AND $name IN ($labels) AND ($name NOT IN ('영업손실','당기순손실') OR $alias.amount::numeric <= 0) THEN '${account.accountIds.first}'",
       );
     }
     return 'CASE ${cases.join(' ')} ELSE $alias."accountId" END';
@@ -179,7 +197,8 @@ abstract final class FinancialAccounts {
                         f.accountDetail == null &&
                         f.supersededById == null &&
                         account.statements.contains(f.statement) &&
-                        names.contains(normalizedName(f.accountName)),
+                        names.contains(normalizedName(f.accountName)) &&
+                        _unambiguousLoss(f),
                   )
                   .toList();
         if (candidates.length == 1) found = candidates.single;

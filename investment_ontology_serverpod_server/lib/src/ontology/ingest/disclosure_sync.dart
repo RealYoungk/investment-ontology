@@ -13,6 +13,7 @@ import 'package:serverpod/protocol.dart' as sp;
 import '../../generated/protocol.dart';
 import '../dart/dart_client.dart';
 import '../dart/public_business_document.dart';
+import '../dart/public_business_source_anchor.dart';
 import '../dart/dart_report_name.dart';
 import '../dart/dart_sections.dart';
 import '../dart/dart_values.dart';
@@ -51,6 +52,7 @@ class DisclosureSync {
     this.businessRunLimit = 200,
     this.publicFallbackEnabled = true,
     this.businessOnly = false,
+    this.businessAnchorClientFactory,
     PublicBusinessDocument? publicDocuments,
     this.callInterval = const Duration(milliseconds: 200),
     this.scheduleResume,
@@ -97,6 +99,7 @@ class DisclosureSync {
   /// Business-only jobs yield between bounded slices so other FutureCalls run.
   /// Daily API and public-attempt budgets remain independent of this run limit.
   final int businessRunLimit;
+  final http.Client Function()? businessAnchorClientFactory;
   final bool publicFallbackEnabled;
   final bool businessOnly;
   final PublicBusinessDocument _publicDocuments;
@@ -1030,6 +1033,9 @@ class DisclosureSync {
     Company company,
   ) async {
     final attachmentOnly = filing.reportName.contains("첨부정정");
+    if (businessOnly && attachmentOnly && publicFallbackEnabled) {
+      await _anchorExistingBusinessSource(item, filing, company);
+    }
     final candidates = [
       filing,
       if (attachmentOnly)
@@ -1074,6 +1080,157 @@ class DisclosureSync {
       return FilingFetchStatus.pending;
     }
     return FilingFetchStatus.noData;
+  }
+
+  Future<void> _anchorExistingBusinessSource(
+    DartFilingSection item,
+    DartFiling target,
+    Company company,
+  ) async {
+    final period = DartReportName.parse(target.reportName);
+    if (period == null ||
+        !(period.kind == DartReportKind.annual ||
+            period.kind == DartReportKind.halfYear) ||
+        await IngestJobs.isCancelled(session, jobId)) {
+      return;
+    }
+    final rows = await session.db.unsafeQuery(
+      'SELECT b."rceptNo" FROM business_document b JOIN disclosure_report d ON d.id=b."reportId" '
+      'WHERE b."companyId"=@company AND d."companyId"=@company AND d."bsnsYear"=@year '
+      'AND d."reportCode"=@code AND d.section=\'businessContent\' AND b."rceptNo"<@target '
+      'AND length(b.text)>0 AND NOT EXISTS(SELECT 1 FROM dart_filing f '
+      'WHERE f."companyId"=@company AND f."rceptNo"=b."rceptNo") '
+      'ORDER BY b."rceptNo" DESC LIMIT 1',
+      parameters: QueryParameters.named({
+        'company': company.id!,
+        'year': item.bsnsYear,
+        'code': target.reportCode!.name,
+        'target': target.rceptNo,
+      }),
+    );
+    if (rows.isEmpty) return;
+    final receipt = rows.single.toColumnMap()['rceptNo'] as String;
+    final client = businessAnchorClientFactory?.call() ?? http.Client();
+    try {
+      final end = DateTime.utc(period.periodYear, period.periodMonth + 1, 0);
+      final metadata = await PublicBusinessSourceAnchor.verify(
+        client,
+        targetReceipt: target.rceptNo,
+        sourceReceipt: receipt,
+        corpCode: company.corpCode,
+        companyName: company.name,
+        periodEnd: end,
+        halfYear: period.kind == DartReportKind.halfYear,
+      );
+      if (await IngestJobs.isCancelled(session, jobId)) {
+        return;
+      }
+      await session.db.transaction((tx) async {
+        await session.db.unsafeQuery(
+          'SELECT pg_advisory_xact_lock(hashtextextended(@receipt,0))',
+          parameters: QueryParameters.named({'receipt': receipt}),
+          transaction: tx,
+        );
+        final bodyRows = await session.db.unsafeQuery(
+          'SELECT b.id FROM business_document b JOIN disclosure_report d ON d.id=b."reportId" '
+          'WHERE b."companyId"=@company AND d."companyId"=@company AND b."rceptNo"=@receipt '
+          'AND d."bsnsYear"=@year AND d."reportCode"=@code AND d.section=\'businessContent\' AND length(b.text)>0',
+          parameters: QueryParameters.named({
+            'company': company.id!,
+            'receipt': receipt,
+            'year': item.bsnsYear,
+            'code': target.reportCode!.name,
+          }),
+          transaction: tx,
+        );
+        if (bodyRows.isEmpty || await IngestJobs.isCancelled(session, jobId)) {
+          return;
+        }
+        final current = await DartFiling.db.findById(
+          session,
+          target.id!,
+          transaction: tx,
+        );
+        if (current == null ||
+            current.rceptNo != target.rceptNo ||
+            current.companyId != company.id ||
+            current.corpCode != company.corpCode ||
+            current.bsnsYear != target.bsnsYear ||
+            current.reportCode != target.reportCode ||
+            !current.reportName.contains('첨부정정') ||
+            !_sameBodyPeriod(current.reportName, target.reportName)) {
+          throw const FormatException('Changed business anchor target');
+        }
+        final existing = await DartFiling.db.findFirstRow(
+          session,
+          where: (t) => t.rceptNo.equals(receipt),
+          transaction: tx,
+        );
+        if (existing != null) {
+          if (existing.companyId != company.id ||
+              existing.corpCode != company.corpCode ||
+              existing.bsnsYear != target.bsnsYear ||
+              existing.reportCode != target.reportCode ||
+              !_sameBodyPeriod(existing.reportName, target.reportName)) {
+            throw const FormatException(
+              'Conflicting original source receipt identity',
+            );
+          }
+          return;
+        }
+        await DartFiling.db.insertRow(
+          session,
+          DartFiling(
+            rceptNo: receipt,
+            corpCode: company.corpCode,
+            companyId: company.id,
+            reportName:
+                '${period.kind == DartReportKind.halfYear ? '반기보고서' : '사업보고서'} (${period.periodYear}.${period.periodMonth.toString().padLeft(2, '0')})',
+            bsnsYear: target.bsnsYear,
+            reportCode: target.reportCode,
+            consolidatedStatus: FilingFetchStatus.pending,
+            separateStatus: FilingFetchStatus.pending,
+            lastError: 'verified-source-cover-metadata: ${target.rceptNo}',
+            discoveredAt: _clock().toUtc(),
+          ),
+          transaction: tx,
+        );
+        await Source.db.insertRow(
+          session,
+          Source(
+            kind: SourceKind.dartReport,
+            reference:
+                'business-source-period-anchor:$receipt:${target.rceptNo}',
+            url: metadata.coverSource.toString(),
+            retrievedAt: _clock().toUtc(),
+            title: jsonEncode({
+              'kind': 'verified-business-source-cover-period-metadata',
+              'sourceReceipt': receipt,
+              'targetReceipt': target.rceptNo,
+              'corpCode': company.corpCode,
+              'shellSource': metadata.shellSource.toString(),
+              'coverSource': metadata.coverSource.toString(),
+              'sha256': metadata.digest,
+              'periodStart': metadata.periodStart.toIso8601String(),
+              'periodEnd': metadata.periodEnd.toIso8601String(),
+              'observedCoverCompany': metadata.observedCoverCompany,
+              'coverNameMatches': metadata.coverNameMatches,
+              'validationNote': metadata.coverNameMatches
+                  ? '법인코드·원접수관계·표지기간 확정; 본문 원접수와 값 유지'
+                  : '법인코드·원접수관계·표지기간 확정, 표지회사명 불일치; 회사마스터/본문 값 유지',
+            }),
+          ),
+          transaction: tx,
+        );
+      });
+    } on FormatException catch (error) {
+      throw DartApiException(
+        'businessSourceMetadata',
+        '공식 원본문 메타데이터 검증 실패: ${error.message}',
+      );
+    } finally {
+      client.close();
+    }
   }
 
   /// 공시 하나의 원본을 받아 본문을 저장한다. 파일이 없으면(014) null — 다음 후보로.

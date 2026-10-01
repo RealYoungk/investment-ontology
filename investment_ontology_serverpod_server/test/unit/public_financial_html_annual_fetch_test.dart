@@ -78,6 +78,39 @@ void main() {
   }
 
   setUp(requests.clear);
+  test(
+    'exact annual transport accepts declared 92-day period without scaling',
+    () async {
+      const receipt = '20260330001188';
+      String short(String raw) =>
+          raw.replaceAll(RegExp(r'2025년\s*0?1월\s*0?1일'), '2025년10월01일');
+      final original = await fetch();
+      requests.clear();
+      final result = await fetch(
+        cover: short(fixture(receipt, 'cover.html')),
+        statement: short(fixture(receipt, 'consolidated-statement.html')),
+      );
+      expect(result.periodStart, DateTime.utc(2025, 10, 1));
+      expect(result.periodEnd, DateTime.utc(2025, 12, 31));
+      expect(
+        result.rows.map((r) => r['thstrm_amount']).toList(),
+        original.rows.map((r) => r['thstrm_amount']).toList(),
+      );
+      expect(requests, hasLength(3));
+    },
+  );
+  test(
+    'short annual transport rejects body dates inconsistent with cover',
+    () async {
+      const receipt = '20260330001188';
+      final cover = fixture(
+        receipt,
+        'cover.html',
+      ).replaceAll(RegExp(r'2025년\s*0?1월\s*0?1일'), '2025년10월01일');
+      await expectLater(fetch(cover: cover), throwsFormatException);
+    },
+  );
+
   for (final item in [
     ('20250324000440', '00112998', '서울보증보험주식회사', true),
     ('20250324000440', '00112998', '서울보증보험주식회사', false),

@@ -300,6 +300,51 @@ class FinancialView {
   static String basis(FinancialPeriod p) =>
       '${p.bsnsYear} ${reportCodeLabel(p.reportCode)} · 접수 ${p.rceptNo}';
 
+  // The server emits this exact source-verified range. Unspecified legacy
+  // period names are never guessed to be short or rewritten as twelve months.
+  static int? _knownShortAnnualDays(FinancialPeriod? p) {
+    if (p?.reportCode != FinancialReportCode.annual) return null;
+    final match = RegExp(
+      r'^(\d{4})\.(\d{2})\.(\d{2}) ~ (\d{4})\.(\d{2})\.(\d{2}) \((\d+)일\)$',
+    ).firstMatch(p!.periodName ?? '');
+    if (match == null) return null;
+    DateTime? date(int offset) {
+      final y = int.parse(match[offset]!);
+      final m = int.parse(match[offset + 1]!);
+      final d = int.parse(match[offset + 2]!);
+      final value = DateTime.utc(y, m, d);
+      return value.year == y && value.month == m && value.day == d
+          ? value
+          : null;
+    }
+
+    final start = date(1);
+    final end = date(4);
+    if (start == null ||
+        end == null ||
+        start.isAfter(end) ||
+        end.year != p.bsnsYear) {
+      return null;
+    }
+    final days = end.difference(start).inDays + 1;
+    return days == int.parse(match[7]!) &&
+            (end != DateTime.utc(end.year, end.month + 1, 0) ||
+                start != DateTime.utc(end.year - 1, end.month + 1, 1))
+        ? days
+        : null;
+  }
+
+  static String? _shortAnnualReason(FinancialPeriod? p, String purpose) {
+    if (p?.reportCode == FinancialReportCode.annual &&
+        p?.periodName == '원문 보고기간 확인 필요') {
+      return '원문 보고기간 확인 필요 · $purpose 계산 불가';
+    }
+    final days = _knownShortAnnualDays(p);
+    return days == null
+        ? null
+        : '사업보고서 원문 기간 $days일 · 12개월 기간 아님 · $purpose 계산 불가';
+  }
+
   /// 순이익·자본은 연결이면 지배주주 몫, 별도면 회사 전체.
   String get netIncomeKey =>
       isConsolidated &&
@@ -490,6 +535,8 @@ class FinancialView {
     String key,
     String label,
   ) {
+    final shortReason = _shortAnnualReason(p, '4분기');
+    if (shortReason != null) return (value: null, missing: shortReason);
     final currentLine = line(p, key);
     final current = cumulative(p, key);
     if (current == null) {
@@ -539,22 +586,21 @@ class FinancialView {
 
   /// 마지막 사업보고서 뒤에 오는 해의 가장 최근 분기·반기보고서.
   FinancialPeriod? latestInterim() {
-    const rank = {
-      FinancialReportCode.q1: 1,
-      FinancialReportCode.halfYear: 2,
-      FinancialReportCode.q3: 3,
-    };
-    final lastAnnual = lastAnnualYear;
+    FinancialPeriod? lastAnnual;
+    for (final p in data.periods.where(
+      (p) => p.reportCode == FinancialReportCode.annual,
+    )) {
+      if (lastAnnual == null || _compareActualPeriod(p, lastAnnual) > 0) {
+        lastAnnual = p;
+      }
+    }
     FinancialPeriod? latest;
     for (final p in data.periods) {
       if (p.reportCode == FinancialReportCode.annual) continue;
-      if (lastAnnual != null && p.bsnsYear <= lastAnnual) continue;
-      if (latest == null ||
-          p.bsnsYear > latest.bsnsYear ||
-          (p.bsnsYear == latest.bsnsYear &&
-              rank[p.reportCode]! > rank[latest.reportCode]!)) {
-        latest = p;
+      if (lastAnnual != null && _compareActualPeriod(p, lastAnnual) <= 0) {
+        continue;
       }
+      if (latest == null || _compareActualPeriod(p, latest) > 0) latest = p;
     }
     return latest;
   }
@@ -632,6 +678,15 @@ class FinancialView {
 
   DerivedValue _fourthQuarter(int year, String key, String label) {
     final annual = period(year, FinancialReportCode.annual)!;
+    final shortReason = _shortAnnualReason(annual, '4분기');
+    if (shortReason != null) {
+      return DerivedValue(
+        value: null,
+        formula: '$label 4분기',
+        inputs: const [],
+        missing: shortReason,
+      );
+    }
     final q3 = period(year, FinancialReportCode.q3);
     final a = line(annual, key)?.amount;
     final c = cumulative(q3, key);
@@ -717,6 +772,15 @@ class FinancialView {
 
   /// 이 보고서 시점의 최근 12개월 값.
   double? _trailingAt(FinancialPeriod p, String key) {
+    if (_shortAnnualReason(p, '최근 12개월') != null ||
+        p.reportCode != FinancialReportCode.annual &&
+            _shortAnnualReason(
+                  period(p.bsnsYear - 1, FinancialReportCode.annual),
+                  '최근 12개월',
+                ) !=
+                null) {
+      return null;
+    }
     if (p.reportCode == FinancialReportCode.annual) {
       return line(p, key)?.amount?.toDouble();
     }
@@ -755,8 +819,25 @@ class FinancialView {
   }
 
   /// 가장 최근 보고서.
-  FinancialPeriod? get latest =>
-      data.periods.isEmpty ? null : data.periods.last;
+  FinancialPeriod? get latest => data.periods.isEmpty
+      ? null
+      : data.periods.reduce((a, b) => _compareActualPeriod(a, b) > 0 ? a : b);
+
+  static int _compareActualPeriod(FinancialPeriod a, FinancialPeriod b) {
+    final pattern = RegExp(r'\(([0-9]{4}\.[0-9]{2})\)$');
+    final am = pattern.firstMatch(a.reportName)?.group(1);
+    final bm = pattern.firstMatch(b.reportName)?.group(1);
+    if (am != null && bm != null && am != bm) return am.compareTo(bm);
+    final year = a.bsnsYear.compareTo(b.bsnsYear);
+    if (year != 0) return year;
+    const rank = {
+      FinancialReportCode.q1: 1,
+      FinancialReportCode.halfYear: 2,
+      FinancialReportCode.q3: 3,
+      FinancialReportCode.annual: 4,
+    };
+    return rank[a.reportCode]!.compareTo(rank[b.reportCode]!);
+  }
 
   /// 최근 12개월 합. 최근 보고서가 사업보고서면 그 값,
   /// 아니면 전년 사업보고서 + 올해 누적 − 전년 같은 기간 누적.
@@ -768,6 +849,22 @@ class FinancialView {
         formula: label,
         inputs: const [],
         missing: '재무 자료 없음',
+      );
+    }
+    final shortReason =
+        _shortAnnualReason(p, '최근 12개월') ??
+        (p.reportCode == FinancialReportCode.annual
+            ? null
+            : _shortAnnualReason(
+                period(p.bsnsYear - 1, FinancialReportCode.annual),
+                '최근 12개월',
+              ));
+    if (shortReason != null) {
+      return DerivedValue(
+        value: null,
+        formula: '$label 최근 12개월',
+        inputs: [MetricInput('$label 공시 기간 값', line(p, key)?.amount, basis(p))],
+        missing: shortReason,
       );
     }
     if (p.reportCode == FinancialReportCode.annual) {

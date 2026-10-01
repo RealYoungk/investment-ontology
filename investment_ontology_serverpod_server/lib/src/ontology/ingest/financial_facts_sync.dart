@@ -1045,7 +1045,33 @@ class FinancialFactsSync {
         periodRanks[companyFilings[i].id!] = i;
       }
     }
+    // Exact official fixtures verified by this parser revision. This affects
+    // queue order only: existing per-period attempts and failed-basis gates stay.
+    const verifiedParserReceipts = <String, Set<String>>{
+      '20260617000188': {'OFS'},
+      '20260731000744': {'OFS'},
+      '20260708000510': {'OFS'},
+      '20260709000504': {'CFS'},
+      '20260629000311': {'OFS'},
+      '20260423000673': {'CFS'},
+      '20260429001057': {'CFS'},
+    };
+    bool verifiedParserPending(DartFiling f) {
+      final bases = verifiedParserReceipts[f.rceptNo];
+      if (bases == null) return false;
+      bool needs(FilingFetchStatus status) =>
+          status == FilingFetchStatus.failed ||
+          status == FilingFetchStatus.pending ||
+          status == FilingFetchStatus.noData;
+      return (bases.contains('CFS') && needs(f.consolidatedStatus)) ||
+          (bases.contains('OFS') && needs(f.separateStatus));
+    }
+
     queue.sort((a, b) {
+      final priority = (verifiedParserPending(b) ? 1 : 0).compareTo(
+        verifiedParserPending(a) ? 1 : 0,
+      );
+      if (priority != 0) return priority;
       final attempts = _annualPublicAttempts(a)
           .compareTo(_annualPublicAttempts(b));
       if (attempts != 0) return attempts;
@@ -1552,6 +1578,7 @@ class FinancialFactsSync {
                 bsnsYear: filing.bsnsYear!,
                 periodEnd: end,
                 consolidated: div == FsDiv.consolidated,
+                sourceUri: original.source,
               ),
               source: original.source,
               digest: PublicFinancialXbrl.digest(original.zip),
@@ -1637,8 +1664,14 @@ class FinancialFactsSync {
                   verifiedBasisNotApplicable = absence;
                 }
               } catch (sourceError) {
+                final detail = sourceError is FormatException
+                    ? sourceError.message.toString().replaceAll(
+                        RegExp(r'[\r\n\x00-\x1f]'),
+                        ' ',
+                      )
+                    : '';
                 error =
-                    'public annual source verification failed: ${sourceError.runtimeType}';
+                    'public annual source verification failed: ${sourceError.runtimeType}${detail.isEmpty ? '' : ': ${detail.substring(0, min(200, detail.length))}'}';
                 failed = true;
               }
             } else if (filing.reportName.contains('첨부정정')) {
@@ -1769,6 +1802,7 @@ class FinancialFactsSync {
                             'thstrm_amount': row['thstrm_amount'],
                             'currency': row['currency'],
                             'html_provenance': row['html_provenance'],
+                            'xbrl_provenance': row['xbrl_provenance'],
                           },
                       ],
                       'note': '공식 원문 핵심계정 부분 수집·전체 재무제표 복구 아님. 원 API 자료없음 기록 및 기존 전체 계정·출처 보존.',

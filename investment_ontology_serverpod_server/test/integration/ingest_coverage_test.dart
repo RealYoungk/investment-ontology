@@ -61,6 +61,77 @@ void main() {
       }
     });
 
+    test(
+      'business-only ledger rows never increase major 28-section coverage',
+      () async {
+        final before = await endpoints.ingest.coverage(sessionBuilder);
+        final bodyOnly = (await Company.db.findFirstRow(
+          session,
+          where: (t) => t.corpCode.equals('00000002'),
+        ))!;
+        final statuses = [
+          FilingFetchStatus.stored,
+          FilingFetchStatus.noData,
+          FilingFetchStatus.pending,
+          FilingFetchStatus.failed,
+        ];
+        for (var i = 0; i < statuses.length; i++) {
+          final year = 2022 + i;
+          final filing = await DartFiling.db.insertRow(
+            session,
+            DartFiling(
+              rceptNo: '${year}0310000001',
+              corpCode: bodyOnly.corpCode,
+              companyId: bodyOnly.id,
+              reportName: '사업보고서 ($year.12)',
+              bsnsYear: year,
+              reportCode: FinancialReportCode.annual,
+              consolidatedStatus: FilingFetchStatus.noData,
+              separateStatus: FilingFetchStatus.noData,
+              discoveredAt: DateTime.utc(2026),
+            ),
+          );
+          await DartFilingSection.db.insertRow(
+            session,
+            DartFilingSection(
+              filingId: filing.id!,
+              companyId: bodyOnly.id!,
+              bsnsYear: year,
+              yearRank: i,
+              section: DartSection.businessContent,
+              tier: 2,
+              status: statuses[i],
+              attempts: statuses[i] == FilingFetchStatus.failed ? 3 : 0,
+            ),
+          );
+        }
+        final after = await endpoints.ingest.coverage(sessionBuilder);
+        expect(after.sections, before.sections);
+        expect(after.sectionsDone, before.sectionsDone);
+        expect(after.sectionsFailed, before.sectionsFailed);
+        expect(
+          after.companiesWithDisclosures,
+          before.companiesWithDisclosures,
+          reason: '본문만 보유한 기업은 주요정보 보유 기업이 아니다',
+        );
+        expect(after.prioritySections, before.prioritySections);
+        expect(after.prioritySectionsDone, before.prioritySectionsDone);
+        expect(
+          await DartFilingSection.db.count(session),
+          8,
+          reason: '원문 장부는 보존한다',
+        );
+        expect(after.bodyScopeTotal, before.bodyScopeTotal! + 4);
+        expect(
+          after.bodyScopeStored,
+          before.bodyScopeStored,
+          reason: '본문 장부 stored는 실제 본문 확보로 부풀리지 않는다',
+        );
+        expect(after.bodyScopeFailed, before.bodyScopeFailed! + 1);
+        expect(after.bodyScopePending, before.bodyScopePending! + 3);
+      },
+    );
+
     test('과거 중간보고서와 5개년 밖 대기는 장부에 남기고 현재 수집 현황에서 제외한다', () async {
       final company = (await Company.db.findFirstRow(
         session,

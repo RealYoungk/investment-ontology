@@ -517,8 +517,8 @@ abstract final class PublicFinancialHtml {
         periods.length != 1 ||
         sourceDate(periods.single.group(1)!) != periodStart ||
         sourceDate(periods.single.group(2)!) != periodEnd ||
-        periodEnd.difference(periodStart).inDays < 364 ||
-        periodEnd.difference(periodStart).inDays > 366) {
+        periodEnd.difference(periodStart).inDays < 0 ||
+        periodEnd.difference(periodStart).inDays + 1 > 367) {
       throw const FormatException('Exact annual company/period cover mismatch');
     }
     final term = terms.single.group(1)!;
@@ -545,7 +545,7 @@ abstract final class PublicFinancialHtml {
     );
     final text = _compact(_text(scope));
     final titlePattern = RegExp(
-      '제$term(?:\\(당\\))?(?:당기|기)(?:기말|말)?(\\d{4}년\\d{1,2}월\\d{1,2}일)(현재|부터(\\d{4}년\\d{1,2}월\\d{1,2}일)까지)',
+      '제$term(?:\\(당\\))?(?:당기|기)(?:기말|말)?:?(\\d{4}년\\d{1,2}월\\d{1,2}일)(현재|부터(\\d{4}년\\d{1,2}월\\d{1,2}일)까지)',
     );
     final titles = titlePattern.allMatches(text).toList();
     if (titles.length < 3 ||
@@ -561,7 +561,9 @@ abstract final class PublicFinancialHtml {
       );
     }
     String label(String raw) =>
-        _compact(raw).replaceFirst(RegExp(r'^[Ⅰ-ⅫIVXLCDM\d]+[.)]'), '');
+        _compact(raw)
+            .replaceFirst(RegExp(r'^[Ⅰ-ⅫIVXLCDM\d]+[.)]'), '')
+            .replaceFirst(RegExp(r'\(주(?:석)?\d+(?:,\d+)*\)$'), '');
     const accounts = {
       '자산총계': ('assets', 'BS'),
       '부채총계': ('liabilities', 'BS'),
@@ -569,10 +571,15 @@ abstract final class PublicFinancialHtml {
       '매출액': ('revenue', 'CIS'),
       '영업수익': ('revenue', 'CIS'),
       '영업이익': ('operating', 'CIS'),
+      '영업손익': ('operating', 'CIS'),
+      '영업손실': ('operating', 'CIS'),
       '영업이익(손실)': ('operating', 'CIS'),
       '당기순이익': ('profit', 'CIS'),
+      '당기순손익': ('profit', 'CIS'),
+      '당기순손실': ('profit', 'CIS'),
       '당기순이익(손실)': ('profit', 'CIS'),
       '영업활동으로인한현금흐름': ('cfo', 'CF'),
+      '영업활동현금흐름': ('cfo', 'CF'),
       '영업활동으로인한현금흐름(순액)': ('cfo', 'CF'),
       '유형자산취득': ('capex', 'CF'),
       '유형자산의취득': ('capex', 'CF'),
@@ -605,7 +612,7 @@ abstract final class PublicFinancialHtml {
         dotAll: true,
       ).firstMatch(table.group(1)!);
       if (first == null ||
-          !{'과목', '구분'}.contains(_compact(_text(first.group(1)!)))) {
+          !{'과목', '구분', '계정과목'}.contains(_compact(_text(first.group(1)!)))) {
         continue;
       }
       final grid = _FinancialHtmlGrid.parse(table.group(1)!);
@@ -619,10 +626,11 @@ abstract final class PublicFinancialHtml {
           labels.contains('자본총계')) {
         kind = 'BS';
       } else if ((labels.contains('매출액') || labels.contains('영업수익')) &&
-          (labels.contains('영업이익') || labels.contains('영업이익(손실)'))) {
+          (['영업이익', '영업이익(손실)', '영업손익', '영업손실'].any(labels.contains))) {
         kind = 'CIS';
       } else if (labels.contains('영업활동으로인한현금흐름') ||
-          labels.contains('영업활동으로인한현금흐름(순액)')) {
+          labels.contains('영업활동으로인한현금흐름(순액)') ||
+          labels.contains('영업활동현금흐름')) {
         kind = 'CF';
       } else {
         continue;
@@ -721,7 +729,12 @@ abstract final class PublicFinancialHtml {
           );
         }
         final printedValue = amounts.single;
-        final value = printedValue * multiplier;
+        final lossLabel = const {
+          '영업손실',
+          '당기순손실',
+        }.contains(label(row.first!.text));
+        final value =
+            (lossLabel ? -printedValue.abs() : printedValue) * multiplier;
         values[account.$1] = value;
         result.add({
           'rcept_no': receipt,
@@ -741,6 +754,10 @@ abstract final class PublicFinancialHtml {
             'source': statementSource.toString(),
             'tableIndex': index,
             'printedLabel': row.first!.text,
+            'signRule': lossLabel
+                ? 'printed-loss-label-negative-absolute'
+                : 'printed-numeric-sign',
+            'printedAmountBeforeSignRule': printedValue.toString(),
             'printedCurrentCells': cells.map((c) => c!.text).toList(),
             'currentColumn': current.column,
             'currentColumnSpan': current.colspan,
