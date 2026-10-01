@@ -1,0 +1,42 @@
+{
+  "id": 20839,
+  "name": "(주)엔솔바이오사이언스",
+  "market": "konex",
+  "stockCode": "140610",
+  "corpCode": "01018802",
+  "rceptNo": "20260318001043",
+  "reportName": "사업보고서 (2025.12)",
+  "actual_period": "2025.12",
+  "bsnsYear": 2025,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 1,
+  "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 1,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001043",
+      "sha256": "d3a122711a999f0a139cfa18953a861571d7ae63ddc7093499ef711e4311192d"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260318001043&dcmNo=11139683&eleId=1&offset=971&length=4501&dtd=dart4.xsd",
+      "sha256": "a79b8748cb7d13a05d226deeb05977c406b12123d465c133f986f1bea9c1dd72"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260318001043&dcmNo=11139683&eleId=19&offset=187687&length=183&dtd=dart4.xsd",
+      "sha256": "63995f16776dbacf88b6f9d434ecc124bfb67eb18db261a6740483420a8e7d99"
+    }
+  ],
+  "ownCorpIds": [
+    "01018802"
+  ],
+  "coverStart": "사 업 보 고 서 (제 25 기) 사업연도 2025년 01월 01일 부터 2025년 12월 31일 까지 금융위원회 한국거래소 귀중 2026년 03월 18일 제출대상법인 유형 : 주권상장법인 면제사유발생 : 해당사항 없음 회 사 명 : 주식회사 엔솔바이오사이언스 대 표 이 사 : 김해진 본 점 소 재 지 : 대전광역시 유성구 테크노10로 51 (전 화) 042-939-4500 (홈페이지) http://www.ensolbio.co.kr 작 성 책 임 자 : (직 책) 경영지원본부장 (성 명) 전남득 (전 화) 042-939-4500",
+  "cfsStart": "2. 연결재무제표 해당사항 없음."
+}
