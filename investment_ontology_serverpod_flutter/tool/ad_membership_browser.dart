@@ -8,13 +8,13 @@ import 'package:http/http.dart' as http;
 import 'package:web/web.dart' as web;
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 
-import '../lib/client.dart';
-import '../lib/design/app_theme.dart';
-import '../lib/design/brands/ledger_brand.dart';
-import '../lib/features/auth/app_viewer.dart';
-import '../lib/features/monetization/ad_banner.dart';
-import '../lib/features/monetization/ad_config.dart';
-import '../lib/features/monetization/membership_monitor.dart';
+import 'package:investment_ontology_serverpod_flutter/client.dart';
+import 'package:investment_ontology_serverpod_flutter/design/app_theme.dart';
+import 'package:investment_ontology_serverpod_flutter/design/brands/ledger_brand.dart';
+import 'package:investment_ontology_serverpod_flutter/features/auth/app_viewer.dart';
+import 'package:investment_ontology_serverpod_flutter/features/monetization/ad_banner.dart';
+import 'package:investment_ontology_serverpod_flutter/features/monetization/ad_config.dart';
+import 'package:investment_ontology_serverpod_flutter/features/monetization/membership_monitor.dart';
 
 @JS('alfinderAdFixture.pushes')
 external JSNumber get pushes;
@@ -91,8 +91,9 @@ Future<void> main() async {
       for (var i = 0; i < 50; i++) {
         await Future<void>.delayed(const Duration(milliseconds: 100));
         if (pushes.toDartInt == expectedPush &&
-            (web.document.querySelector('ins.adsbygoogle') != null) == slot)
+            (web.document.querySelector('ins.adsbygoogle') != null) == slot) {
           break;
+        }
       }
       final row = {
         'scenario': name,
