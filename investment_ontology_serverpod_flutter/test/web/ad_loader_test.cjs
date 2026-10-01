@@ -20,9 +20,9 @@ function environment() {
   const events={};
   const root={addEventListener:(name,fn)=>events[name]=fn};
   root.alfinderAdConsent={choice:()=>true,request:async()=>true};
-  root.__tcfapi=(_cmd,_version,callback)=>callback({eventStatus:'tcloaded',gdprApplies:false},true);
-  root.googlefc={callbackQueue:{push:item=>item.CONSENT_API_READY()}};
-  vm.runInNewContext(source, {window:root,
+  root.__tcfapi=(_cmd,_version,callback)=>callback({eventStatus:'tcloaded',gdprApplies:false,cmpId:300,cmpStatus:'loaded'},true);
+  root.googlefc={usstatesoptout:{getInitialUsStatesOptOutStatus:()=>1},callbackQueue:{push:item=>{if(item.CONSENT_API_READY)item.CONSENT_API_READY();if(item.INITIAL_US_STATES_OPT_OUT_DATA_READY)item.INITIAL_US_STATES_OPT_OUT_DATA_READY();}}};
+  vm.runInNewContext(source, {window:root,URLSearchParams,
     document:{head:{appendChild:s=>{if(s.src.includes('fundingchoicesmessages')){cmpScripts.push(s);Promise.resolve().then(()=>s.onload());}else scripts.push(s);}},createElement:()=>element()},
     requestAnimationFrame:fn=>{frames.set(++id,fn);return id;}, cancelAnimationFrame:i=>frames.delete(i),
     setTimeout:fn=>{timers.set(++id,fn);return id;}, clearTimeout:i=>timers.delete(i),
@@ -122,7 +122,7 @@ test('local withdrawal while CMP is pending prevents late ad push',async()=>{
  const p=e.root.alfinderAds.mount(el,publisher,slot,false);await e.tick();
  assert.equal(e.scripts.length,0);
  e.root.alfinderAdConsent.choice=()=>false;e.events['alfinder-ad-consent']();
- listener({eventStatus:'tcloaded',gdprApplies:false},true);await e.tick();
+ listener({eventStatus:'tcloaded',gdprApplies:false,cmpId:300,cmpStatus:'loaded'},true);await e.tick();
  assert.equal(await p,false);assert.equal(el.children.length,0);assert.equal(e.root.adsbygoogle,undefined);
 });
 
@@ -146,13 +146,13 @@ test('initial CMP UI has a deadline and late consent cannot push',async()=>{
  const p=e.root.alfinderAds.mount(el,publisher,slot,true);await e.tick();
  assert.equal(e.scripts.length,0);assert.ok(e.timers.size>0);
  for(const fn of [...e.timers.values()])fn();await e.tick();assert.equal(await p,false);
- listener({eventStatus:'useractioncomplete',gdprApplies:false},true);await e.tick();assert.equal(e.root.adsbygoogle,undefined);
+ listener({eventStatus:'useractioncomplete',gdprApplies:false,cmpId:300,cmpStatus:'loaded'},true);await e.tick();assert.equal(e.root.adsbygoogle,undefined);
 });
 test('post-approval error, reopened UI or unknown jurisdiction removes inventory',async()=>{
  for(const data of [null,{eventStatus:'cmpuishown'},{eventStatus:'tcloaded'},
   {eventStatus:'tcloaded',gdprApplies:false,cmpStatus:'error'}]){
   const e=environment(),el=e.element();let listener;
-  e.root.__tcfapi=(cmd,_v,cb)=>{if(cmd==='addEventListener'){listener=cb;cb({eventStatus:'tcloaded',gdprApplies:false,listenerId:3},true);}};
+  e.root.__tcfapi=(cmd,_v,cb)=>{if(cmd==='addEventListener'){listener=cb;cb({eventStatus:'tcloaded',gdprApplies:false,cmpId:300,cmpStatus:'loaded',listenerId:3},true);}};
   const p=e.root.alfinderAds.mount(el,publisher,slot,true);await e.tick();e.scripts[0].onload();await e.tick();
   assert.equal(e.root.adsbygoogle.length,1);el.children[0].setAttribute('data-ad-status','filled');e.observers[0].fn();assert.equal(await p,true);
   listener(data,!!data);await e.tick();assert.equal(el.children.length,0);assert.equal(e.root.adsbygoogle.length,1);
@@ -178,8 +178,66 @@ test('delayed CMP grants permission before AdSense script is inserted',async()=>
 
 test('reopened CMP during AdSense download prevents late slot push',async()=>{
  const e=environment(),el=e.element();let listener;
- e.root.__tcfapi=(cmd,_v,cb)=>{if(cmd==='addEventListener'){listener=cb;cb({eventStatus:'tcloaded',gdprApplies:false,listenerId:8},true);}};
+ e.root.__tcfapi=(cmd,_v,cb)=>{if(cmd==='addEventListener'){listener=cb;cb({eventStatus:'tcloaded',gdprApplies:false,cmpId:300,cmpStatus:'loaded',listenerId:8},true);}};
  const p=e.root.alfinderAds.mount(el,publisher,slot,true);await e.tick();assert.equal(e.scripts.length,1);
  listener({eventStatus:'cmpuishown',listenerId:8},true);e.scripts[0].onload();await e.tick();
  assert.equal(await p,false);assert.equal(e.root.adsbygoogle,undefined);assert.equal(el.children.length,0);
+});
+
+test('US unknown, opt-out, missing GPP, or GPC never loads inventory',async()=>{
+ for(const status of [0,3,undefined,2]) {
+  const e=environment();e.root.googlefc.usstatesoptout.getInitialUsStatesOptOutStatus=()=>status;
+  const p=e.root.alfinderAds.mount(e.element(),publisher,slot,false);await e.tick();
+  for(const fn of [...e.timers.values()])fn();await e.tick();
+  assert.equal(await p,false);assert.equal(e.scripts.length,0);
+ }
+ const e=environment();e.root.navigator={globalPrivacyControl:true};
+ const p=e.root.alfinderAds.mount(e.element(),publisher,slot,false);await e.tick();
+ assert.equal(await p,false);assert.equal(e.scripts.length,0);
+});
+test('US GPP ready permits once; a signal change invalidates before or after inventory download',async()=>{
+ for(const [loaded,signal] of [[false,'not ready'],[true,'not ready'],[true,'error']]) {
+  const e=environment();e.root.googlefc.usstatesoptout.getInitialUsStatesOptOutStatus=()=>2;
+  let callback;
+  e.root.__gpp=(cmd,cb)=>{if(cmd==='addEventListener'){callback=cb;cb({listenerId:1,eventName:'listenerRegistered',pingData:{cmpStatus:'loaded',signalStatus:'ready',parsedSections:{usnat:{SaleOptOut:2,SharingOptOut:2,TargetedAdvertisingOptOut:2}}}},true);}};
+  const el=e.element(),p=e.root.alfinderAds.mount(el,publisher,slot,false);await e.tick();
+  assert.equal(e.scripts.length,1);
+  if(loaded){e.scripts[0].onload();await e.tick();assert.equal(e.root.adsbygoogle.length,1);}
+  callback({eventName:'signalStatus',pingData:{cmpStatus:signal==='error'?'error':'loaded',signalStatus:signal==='error'?'ready':signal}},true);
+  if(!loaded){e.scripts[0].onload();await e.tick();assert.equal(e.root.adsbygoogle,undefined);}
+  assert.equal(await p,false);assert.equal(el.children.length,0);
+ }
+});
+
+test('only documented CMP previews are forwarded, never activation or arbitrary URLs',async()=>{
+ const e=environment();e.root.location={search:'?fc=alwaysshow&fctype=gdpr&enabled=true&redirect=https://other.test'};
+ e.root.alfinderAds.mount(e.element(),publisher,slot,false);await e.tick();
+ assert.match(e.cmpScripts[0].src,/\?ers=1&fc=alwaysshow&fctype=gdpr$/);
+ assert.equal(e.cmpScripts[0].src.includes('enabled'),false);
+});
+
+
+test('cached US initial allow cannot override a current opt-out on remount',async()=>{
+ const e=environment();e.root.googlefc.usstatesoptout.getInitialUsStatesOptOutStatus=()=>2;
+ let optedOut=false;
+ e.root.__gpp=(cmd,cb)=>{if(cmd==='addEventListener')cb({listenerId:1,eventName:'listenerRegistered',pingData:{cmpStatus:'loaded',signalStatus:'ready',parsedSections:{usnat:{SaleOptOut:optedOut?1:2,SharingOptOut:optedOut?1:2,TargetedAdvertisingOptOut:optedOut?1:2}}}},true);};
+ const first=e.element();e.root.alfinderAds.mount(first,publisher,slot,false);await e.tick();assert.equal(e.scripts.length,1);
+ e.root.alfinderAds.dispose(first);optedOut=true;
+ const remount=e.root.alfinderAds.mount(e.element(),publisher,slot,false);await e.tick();
+ assert.equal(await remount,false);assert.equal(e.scripts.length,1);assert.equal(e.root.adsbygoogle,undefined);
+});
+test('ready GPP with missing or unknown parsed choices remains blocked',async()=>{
+ for(const parsedSections of [undefined,{}, {usnat:{SaleOptOut:undefined}}, {usnat:{SaleOptOut:4}}, {usnat:{SaleOptOut:2}}]){
+  const e=environment();e.root.googlefc.usstatesoptout.getInitialUsStatesOptOutStatus=()=>2;
+  e.root.__gpp=(cmd,cb)=>{if(cmd==='addEventListener')cb({listenerId:1,eventName:'listenerRegistered',pingData:{cmpStatus:'loaded',signalStatus:'ready',parsedSections}},true);};
+  const p=e.root.alfinderAds.mount(e.element(),publisher,slot,false);await e.tick();for(const fn of [...e.timers.values()])fn();await e.tick();
+  assert.equal(await p,false);assert.equal(e.scripts.length,0);
+ }
+});
+
+
+test('non-GDPR results from a different CMP cannot load Google inventory',async()=>{
+ const e=environment();e.root.__tcfapi=(_c,_v,cb)=>cb({gdprApplies:false,eventStatus:'tcloaded',cmpStatus:'loaded',cmpId:999},true);
+ const p=e.root.alfinderAds.mount(e.element(),publisher,slot,false);await e.tick();
+ assert.equal(await p,false);assert.equal(e.scripts.length,0);
 });

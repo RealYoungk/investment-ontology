@@ -16,8 +16,10 @@
       root.alfinderAdFixture.cmpScripts++;
       queueMicrotask(() => {
         const pending = root.googlefc.callbackQueue;
-        root.googlefc.callbackQueue = {push: item => item.CONSENT_API_READY()};
-        for (const item of pending) item.CONSENT_API_READY();
+        root.googlefc.usstatesoptout = {getInitialUsStatesOptOutStatus: () => 1};
+        const dispatch = item => {item.CONSENT_API_READY?.();item.INITIAL_US_STATES_OPT_OUT_DATA_READY?.();};
+        root.googlefc.callbackQueue = {push: dispatch};
+        for (const item of pending) dispatch(item);
         element.onload();
       });
       return element;

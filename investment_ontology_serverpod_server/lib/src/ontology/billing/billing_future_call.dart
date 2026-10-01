@@ -38,6 +38,26 @@ class BillingFutureCall extends FutureCall {
           );
         }
       }
+      // Includes subscriptions canceled at period end: their paid access can
+      // still be refunded directly by the provider while renewal is disabled.
+      final now = DateTime.now().toUtc();
+      final paid = await BillingPaymentAttempt.db.find(
+        session,
+        where: (t) =>
+            t.status.equals('paid') &
+            (t.paidFromUtc <= now) &
+            (t.paidThroughUtc > now),
+      );
+      for (final id in paid.map((r) => r.subscriptionId).toSet()) {
+        try {
+          await service.reconcilePaid(session, id, at: now);
+        } catch (_) {
+          session.log(
+            'Paid billing reconciliation pending',
+            level: LogLevel.warning,
+          );
+        }
+      }
       var offset = 0;
       while (true) {
         final rows = await BillingSubscription.db.find(

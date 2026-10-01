@@ -22,6 +22,16 @@ abstract final class BillingSandboxConfig {
             false);
   }
 
+  static bool chargesEnabledInMode(
+    String mode,
+    Map<String, String> environment,
+  ) =>
+      enabledInMode(mode, environment) &&
+      environment['ALFINDER_BILLING_CHARGES_PAUSED'] != 'true';
+
+  static bool chargesEnabled(Session session) =>
+      chargesEnabledInMode(session.serverpod.runMode, Platform.environment);
+
   static bool enabled(Session session) =>
       enabledInMode(session.serverpod.runMode, Platform.environment);
   static bool isLive(Session session) =>
@@ -48,6 +58,7 @@ abstract final class BillingSandboxConfig {
         return null;
       }
       return BillingRenewalService(
+        allowCharges: chargesEnabled(session),
         gateway: TossPaymentsGateway(
           secretKey: secret,
           client: client,
@@ -61,6 +72,7 @@ abstract final class BillingSandboxConfig {
   }
 
   static BillingCheckoutService? checkout(Session session, http.Client client) {
+    if (!chargesEnabled(session)) return null;
     final worker = service(session, client);
     final live = isLive(session);
     final key =

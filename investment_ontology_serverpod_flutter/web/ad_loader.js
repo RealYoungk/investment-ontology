@@ -34,6 +34,11 @@
       script.async = true;
       // Message-only tag: AdSense itself may request inventory on load.
       script.src = 'https://fundingchoicesmessages.google.com/i/' + publisher.replace(/^ca-/, '') + '?ers=1';
+      // Forward only Google's documented message-preview parameters.
+      const debug = new URLSearchParams(root.location?.search || '');
+      if (debug.get('fc') === 'alwaysshow' && ['gdpr', 'ccpa', 'usnat', 'usfl'].includes(debug.get('fctype'))) {
+        script.src += '&fc=alwaysshow&fctype=' + debug.get('fctype');
+      }
       script.onload = resolve;
       script.onerror = () => reject(new Error('CMP script unavailable'));
       document.head.appendChild(script);
@@ -48,6 +53,10 @@
     if (state.cmpListener && typeof root.__tcfapi === 'function') {
       root.__tcfapi('removeEventListener', 2, () => {}, state.cmpListener);
       state.cmpListener = null;
+    }
+    if (state.gppListener && typeof root.__gpp === 'function') {
+      root.__gpp('removeEventListener', () => {}, state.gppListener);
+      state.gppListener = null;
     }
     if (state.cmpResolve) state.cmpResolve(false);
     state.finish(false);
@@ -117,8 +126,63 @@
                   if (state.cmpPermitted) dispose(element);
                   return;
                 }
+                if (data.cmpId !== 300) {
+                  clearTimeout(timer); resolve(false); dispose(element); return;
+                }
                 const allowed = data.gdprApplies === false ||
                   (data.cmpId === 300 && data.purpose?.consents?.[1] === true && data.vendor?.consents?.[755] === true);
+                if (data.gdprApplies === false && allowed) {
+                  // GDPR does not determine US opt-out. Google's explicit US
+                  // result is required; absent/unknown APIs retain the deadline.
+                  root.googlefc.callbackQueue.push({'INITIAL_US_STATES_OPT_OUT_DATA_READY': () => {
+                    if (state.disposed) return;
+                    let status;
+                    try { status = root.googlefc.usstatesoptout?.getInitialUsStatesOptOutStatus(); }
+                    catch (_) { dispose(element); return; }
+                    if (root.navigator?.globalPrivacyControl === true || status === 3 || status === 0) {
+                      clearTimeout(timer); resolve(false); dispose(element); return;
+                    }
+                    if (status === 1) {
+                      state.cmpPermitted = true;
+                      clearTimeout(timer); resolve(true); return;
+                    }
+                    if (status !== 2 || typeof root.__gpp !== 'function') return;
+                    root.__gpp('addEventListener', (event, ok) => {
+                      if (state.disposed) return;
+                      if (event?.listenerId) state.gppListener = event.listenerId;
+                      const ping = event?.pingData;
+                      if (!ok || event?.eventName === 'error' ||
+                          (state.cmpPermitted && (ping?.cmpStatus !== 'loaded' || event?.eventName === 'sectionChange' ||
+                            ping?.signalStatus !== 'ready' || ping?.cmpDisplayStatus === 'visible'))) {
+                        clearTimeout(timer); resolve(false); dispose(element); return;
+                      }
+                      if (ping?.cmpStatus !== 'loaded' || ping?.signalStatus !== 'ready' ||
+                          ping?.cmpDisplayStatus === 'visible') return;
+                      // Google's initial status is cached for the pageview.
+                      // Remounts must read the current parsed opt-out signals.
+                      const sections = Object.entries(ping.parsedSections || {})
+                        .filter(([name]) => ['usnat', 'usfl'].includes(name))
+                        .flatMap(([name, value]) => (Array.isArray(value) ? value : [value])
+                          .map(data => ({ name, data })));
+                      const choices = sections.flatMap(({ data: section }) =>
+                        ['SaleOptOut', 'SharingOptOut', 'TargetedAdvertisingOptOut']
+                          .filter(key => Object.prototype.hasOwnProperty.call(section || {}, key))
+                          .map(key => section[key]));
+                      if (sections.some(({ data }) => data?.Gpc === true || data?.Gpc === 1) ||
+                          choices.some(value => value === 1)) {
+                        clearTimeout(timer); resolve(false); dispose(element); return;
+                      }
+                      if (!sections.length || sections.some(({ name, data }) =>
+                          (name === 'usnat' ? ['SaleOptOut', 'SharingOptOut', 'TargetedAdvertisingOptOut']
+                            : ['SaleOptOut', 'TargetedAdvertisingOptOut'])
+                            .some(key => ![0, 2].includes(data?.[key]))) ||
+                          !choices.length || choices.some(value => ![0, 2].includes(value))) return;
+                      state.cmpPermitted = true;
+                      clearTimeout(timer); resolve(true);
+                    });
+                  }});
+                  return;
+                }
                 state.cmpPermitted = allowed;
                 clearTimeout(timer); resolve(allowed);
                 if (!allowed) dispose(element);
