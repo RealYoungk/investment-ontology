@@ -17,11 +17,14 @@ typedef ResumeScheduler = Future<void> Function(Session session, DateTime at);
 abstract final class IngestHooks {
   static Future<void> Function(Session session, int jobId, bool force)?
   companyMasterNow;
+  static ResumeScheduler? companyMasterResume;
   static JobLauncher? financialsNow;
   static CompanyJobLauncher? financialsForCompanyNow;
   static ResumeScheduler? financialsResume;
   static JobLauncher? marketSnapshotNow;
   static ResumeScheduler? marketSnapshotResume;
+  static JobLauncher? businessDocumentsNow;
+  static ResumeScheduler? businessDocumentsResume;
   static JobLauncher? disclosuresNow;
   static CompanyJobLauncher? disclosuresForCompanyNow;
   static ResumeScheduler? disclosures;

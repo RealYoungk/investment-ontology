@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/dart_client.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_financial_xbrl.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/ingest/api_call_budget.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/ingest/financial_facts_sync.dart';
 import 'package:serverpod/serverpod.dart';
@@ -22,6 +24,7 @@ class FakeDart {
   final financialCalls = <String>[];
   var listCalls = 0;
   bool offline = false;
+  bool publicXbrl = false;
 
   static String key(String corp, int year, String code, String fs) =>
       '$corp|$year|$code|$fs';
@@ -42,6 +45,26 @@ class FakeDart {
     'key',
     httpClient: MockClient((req) async {
       if (offline) throw http.ClientException('Failed host lookup');
+      if (req.url.host == 'dart.fss.or.kr') {
+        if (!publicXbrl) return http.Response('unavailable', 503);
+        if (req.url.path == '/dsaf001/main.do') {
+          return http.Response(
+            "openPdfDownload('20250409002838', '10571658')",
+            200,
+          );
+        }
+        if (req.url.path == '/pdf/download/main.do') {
+          return http.Response(
+            '<a href="/pdf/download/ifrs.do?rcp_no=20250409002838&amp;dcm_no=10571658&amp;lang=ko">XBRL</a>',
+            200,
+          );
+        }
+        return http.Response.bytes(
+          File('test/fixtures/financial_xbrl/cosnine_20250409002838.zip')
+              .readAsBytesSync(),
+          200,
+        );
+      }
       final q = req.url.queryParameters;
       if (req.url.path.endsWith('list.json')) {
         listCalls++;
@@ -539,6 +562,104 @@ void main() {
       expect(current['자산총계']!.amount, BigInt.parse('566942110000001'));
     });
 
+    test('exhausted annual mismatch recovers only from exact receipt XBRL with provenance', () async {
+      final c = (await Company.db.find(session)).single;
+      await Company.db.updateRow(
+        session,
+        c.copyWith(
+          corpCode: '00442455',
+          market: Market.other,
+          stockCode: '082660',
+        ),
+      );
+      dart.filings.clear();
+      final bad = row('20250409002838', 'BS', 'ifrs-full_Assets', '자산총계', '1')
+        ..['corp_code'] = '00442455'
+        ..['bsns_year'] = '2025';
+      for (final fs in ['CFS', 'OFS']) {
+        dart.setRows('00442455', 2024, '11011', fs, [bad]);
+      }
+      await DartFiling.db.insertRow(
+        session,
+        DartFiling(
+          rceptNo: '20250409002838',
+          corpCode: '00442455',
+          companyId: c.id,
+          reportName: '[기재정정]사업보고서 (2024.12)',
+          receivedDate: DateTime.utc(2025, 4, 9),
+          bsnsYear: 2024,
+          reportCode: FinancialReportCode.annual,
+          consolidatedStatus: FilingFetchStatus.failed,
+          separateStatus: FilingFetchStatus.failed,
+          attempts: FinancialFactsSync.maxAttempts,
+          lastError: 'DartApiException(mismatch): wrong year',
+          discoveredAt: now,
+        ),
+      );
+      dart.publicXbrl = true;
+      final job = await runSync(corpCode: '00442455', dailyBudget: 0);
+      expect(
+        dart.financialCalls,
+        isEmpty,
+        reason: 'prior verified mismatch uses only public original even with zero API allowance',
+      );
+      expect(job.status, IngestStatus.succeeded);
+      expect(job.message, contains('원문 XBRL 핵심계정 복구 2벌'));
+      final reports = await FinancialReport.db.find(session);
+      expect(reports, hasLength(2));
+      expect(
+        reports.every(
+          (r) => r.rceptNo == '20250409002838' && r.bsnsYear == 2024,
+        ),
+        isTrue,
+      );
+      final sources = await Source.db.find(
+        session,
+        where: (t) => t.reference.equals('20250409002838'),
+      );
+      expect(
+        sources.every(
+          (s) =>
+              s.title.contains('원문 XBRL') &&
+              s.title.contains('SHA256:') &&
+              s.url!.contains('/ifrs.do'),
+        ),
+        isTrue,
+      );
+      final digest = PublicFinancialXbrl.digest(
+        File('test/fixtures/financial_xbrl/cosnine_20250409002838.zip')
+            .readAsBytesSync(),
+      );
+      expect(sources.every((s) => s.title.contains('SHA256:$digest')), isTrue);
+      final facts = await FinancialFact.db.find(
+        session,
+        where: (t) => t.accountId.equals('ifrs-full_Assets'),
+      );
+      expect(
+        facts.map((f) => f.amount),
+        containsAll([BigInt.from(39024201117), BigInt.from(39283113892)]),
+      );
+      expect(
+        (await DartFiling.db.find(session)).single.attempts,
+        FinancialFactsSync.maxAttempts,
+      );
+    });
+
+    test('종목코드가 있는 기타시장 기업도 동일 재무 범위로 수집한다', () async {
+      final original = (await Company.db.find(session)).single;
+      await Company.db.updateRow(
+        session,
+        original.copyWith(market: Market.other, stockCode: '000001'),
+      );
+      final job = await runSync(corpCode: '00000001');
+      expect(job.status, IngestStatus.succeeded);
+      expect(dart.financialCalls, isNotEmpty);
+      expect(
+        (await DartFiling.db.find(session)).single.consolidatedStatus,
+        FilingFetchStatus.stored,
+      );
+    });
+
     test('빈 응답은 실패로 세고, 허용 횟수를 넘으면 더 부르지 않는다', () async {
       dart.statements[FakeDart.key('00000001', 2025, '11011', 'CFS')] = '';
 
@@ -552,8 +673,14 @@ void main() {
       expect(filing.lastError, contains('empty'));
       dart.financialCalls.clear();
 
-      await runSync();
-
+      final exhausted = await runSync();
+      expect(exhausted.status, IngestStatus.failed);
+      expect(exhausted.message, contains('남은 공시 1건'));
+      expect(exhausted.message, contains('재시도 한도'));
+      expect(
+        (await DartFiling.db.find(session)).single.attempts,
+        FinancialFactsSync.maxAttempts,
+      );
       expect(dart.financialCalls, isEmpty);
     });
 

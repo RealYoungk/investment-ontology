@@ -272,6 +272,12 @@ void main() {
           d.baseDate.day: d.rowCount,
       };
       expect(days, {15: 1, 11: 0, 10: 0});
+      final savedJob = await IngestJob.db.findFirstRow(
+        session,
+        orderBy: (t) => t.id.desc(),
+      );
+      expect(savedJob!.message, contains('남은 기준일 2일'));
+      expect(savedJob.message, contains('지수 미완료 1일'));
 
       api.priceCalls.clear();
       await run();
@@ -305,6 +311,18 @@ void main() {
           d.baseDate.day: d.rowCount,
       };
       expect(days, {10: 1});
+    });
+
+    test('최근 정상 빈 응답은 시도했어도 미완료이며 다음 실행에 다시 조회한다', () async {
+      final first = await runSync();
+      expect(first.status, IngestStatus.succeeded);
+      expect(first.processed, 1);
+      expect(first.updated, 0);
+      expect(first.message, contains('남은 기준일 1일'));
+      expect(await MarketSnapshotDay.db.count(session), 0);
+      api.priceCalls.clear();
+      await runSync();
+      expect(api.priceCalls, contains('20260916'));
     });
 
     test('통신 장애는 즉시 중단하고 예약하며 다음 실행에서 빠진 날을 복구한다', () async {

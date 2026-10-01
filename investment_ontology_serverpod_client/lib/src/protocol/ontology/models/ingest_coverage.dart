@@ -35,6 +35,25 @@ abstract class IngestCoverage
     required this.dartDailyLimit,
     required this.dartFinancialBudget,
     required this.dartDisclosurePriorityBudget,
+    this.financialStoredFilings,
+    this.financialNoDataFilings,
+    this.financialFailedFilings,
+    this.financialPendingFilings,
+    this.bodyScopeTotal,
+    this.bodyScopeStored,
+    this.bodyScopePending,
+    this.bodyScopeFailed,
+    this.marketLatestPriceDate,
+    this.marketLatestPriceSecurities,
+    this.marketLatestIndexDate,
+    this.marketLatestIndexCount,
+    this.marketScopeStart,
+    this.marketScopeThrough,
+    this.marketExpectedWeekdays,
+    this.marketPriceDaysStored,
+    this.marketIndexDaysStored,
+    this.marketHistoricalPendingDates,
+    this.marketRecentUnconfirmedDates,
   });
 
   factory IngestCoverage({
@@ -57,6 +76,25 @@ abstract class IngestCoverage
     required int dartDailyLimit,
     required int dartFinancialBudget,
     required int dartDisclosurePriorityBudget,
+    int? financialStoredFilings,
+    int? financialNoDataFilings,
+    int? financialFailedFilings,
+    int? financialPendingFilings,
+    int? bodyScopeTotal,
+    int? bodyScopeStored,
+    int? bodyScopePending,
+    int? bodyScopeFailed,
+    DateTime? marketLatestPriceDate,
+    int? marketLatestPriceSecurities,
+    DateTime? marketLatestIndexDate,
+    int? marketLatestIndexCount,
+    DateTime? marketScopeStart,
+    DateTime? marketScopeThrough,
+    int? marketExpectedWeekdays,
+    int? marketPriceDaysStored,
+    int? marketIndexDaysStored,
+    int? marketHistoricalPendingDates,
+    int? marketRecentUnconfirmedDates,
   }) = _IngestCoverageImpl;
 
   factory IngestCoverage.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -85,6 +123,50 @@ abstract class IngestCoverage
       dartFinancialBudget: jsonSerialization['dartFinancialBudget'] as int,
       dartDisclosurePriorityBudget:
           jsonSerialization['dartDisclosurePriorityBudget'] as int,
+      financialStoredFilings:
+          jsonSerialization['financialStoredFilings'] as int?,
+      financialNoDataFilings:
+          jsonSerialization['financialNoDataFilings'] as int?,
+      financialFailedFilings:
+          jsonSerialization['financialFailedFilings'] as int?,
+      financialPendingFilings:
+          jsonSerialization['financialPendingFilings'] as int?,
+      bodyScopeTotal: jsonSerialization['bodyScopeTotal'] as int?,
+      bodyScopeStored: jsonSerialization['bodyScopeStored'] as int?,
+      bodyScopePending: jsonSerialization['bodyScopePending'] as int?,
+      bodyScopeFailed: jsonSerialization['bodyScopeFailed'] as int?,
+      marketLatestPriceDate: jsonSerialization['marketLatestPriceDate'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(
+              jsonSerialization['marketLatestPriceDate'],
+            ),
+      marketLatestPriceSecurities:
+          jsonSerialization['marketLatestPriceSecurities'] as int?,
+      marketLatestIndexDate: jsonSerialization['marketLatestIndexDate'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(
+              jsonSerialization['marketLatestIndexDate'],
+            ),
+      marketLatestIndexCount:
+          jsonSerialization['marketLatestIndexCount'] as int?,
+      marketScopeStart: jsonSerialization['marketScopeStart'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(
+              jsonSerialization['marketScopeStart'],
+            ),
+      marketScopeThrough: jsonSerialization['marketScopeThrough'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(
+              jsonSerialization['marketScopeThrough'],
+            ),
+      marketExpectedWeekdays:
+          jsonSerialization['marketExpectedWeekdays'] as int?,
+      marketPriceDaysStored: jsonSerialization['marketPriceDaysStored'] as int?,
+      marketIndexDaysStored: jsonSerialization['marketIndexDaysStored'] as int?,
+      marketHistoricalPendingDates:
+          jsonSerialization['marketHistoricalPendingDates'] as int?,
+      marketRecentUnconfirmedDates:
+          jsonSerialization['marketRecentUnconfirmedDates'] as int?,
     );
   }
 
@@ -122,7 +204,7 @@ abstract class IngestCoverage
   /// "사업의 내용" 본문이 있는 상장사 수와, 그중 절별 요약(BusinessDigestSection)까지 있는 수
   int companiesWithBusinessText;
 
-  /// 최신 정기보고서 본문 확보 기업 수 (첨부정정 원본 포함)
+  /// 최신 정기보고서와 접수번호가 일치하는 본문 확보 기업 수
   int? companiesWithLatestBusinessText;
 
   int companiesWithDigest;
@@ -135,6 +217,45 @@ abstract class IngestCoverage
   int dartFinancialBudget;
 
   int dartDisclosurePriorityBudget;
+
+  /// 현재 수집 범위의 저장, 자료 없음, 실패 및 시세 장부 상태. 구버전 서버는 null.
+  int? financialStoredFilings;
+
+  int? financialNoDataFilings;
+
+  int? financialFailedFilings;
+
+  int? financialPendingFilings;
+
+  int? bodyScopeTotal;
+
+  int? bodyScopeStored;
+
+  int? bodyScopePending;
+
+  int? bodyScopeFailed;
+
+  DateTime? marketLatestPriceDate;
+
+  int? marketLatestPriceSecurities;
+
+  DateTime? marketLatestIndexDate;
+
+  int? marketLatestIndexCount;
+
+  DateTime? marketScopeStart;
+
+  DateTime? marketScopeThrough;
+
+  int? marketExpectedWeekdays;
+
+  int? marketPriceDaysStored;
+
+  int? marketIndexDaysStored;
+
+  int? marketHistoricalPendingDates;
+
+  int? marketRecentUnconfirmedDates;
 
   /// Returns a shallow copy of this [IngestCoverage]
   /// with some or all fields replaced by the given arguments.
@@ -159,6 +280,25 @@ abstract class IngestCoverage
     int? dartDailyLimit,
     int? dartFinancialBudget,
     int? dartDisclosurePriorityBudget,
+    int? financialStoredFilings,
+    int? financialNoDataFilings,
+    int? financialFailedFilings,
+    int? financialPendingFilings,
+    int? bodyScopeTotal,
+    int? bodyScopeStored,
+    int? bodyScopePending,
+    int? bodyScopeFailed,
+    DateTime? marketLatestPriceDate,
+    int? marketLatestPriceSecurities,
+    DateTime? marketLatestIndexDate,
+    int? marketLatestIndexCount,
+    DateTime? marketScopeStart,
+    DateTime? marketScopeThrough,
+    int? marketExpectedWeekdays,
+    int? marketPriceDaysStored,
+    int? marketIndexDaysStored,
+    int? marketHistoricalPendingDates,
+    int? marketRecentUnconfirmedDates,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -184,6 +324,40 @@ abstract class IngestCoverage
       'dartDailyLimit': dartDailyLimit,
       'dartFinancialBudget': dartFinancialBudget,
       'dartDisclosurePriorityBudget': dartDisclosurePriorityBudget,
+      if (financialStoredFilings != null)
+        'financialStoredFilings': financialStoredFilings,
+      if (financialNoDataFilings != null)
+        'financialNoDataFilings': financialNoDataFilings,
+      if (financialFailedFilings != null)
+        'financialFailedFilings': financialFailedFilings,
+      if (financialPendingFilings != null)
+        'financialPendingFilings': financialPendingFilings,
+      if (bodyScopeTotal != null) 'bodyScopeTotal': bodyScopeTotal,
+      if (bodyScopeStored != null) 'bodyScopeStored': bodyScopeStored,
+      if (bodyScopePending != null) 'bodyScopePending': bodyScopePending,
+      if (bodyScopeFailed != null) 'bodyScopeFailed': bodyScopeFailed,
+      if (marketLatestPriceDate != null)
+        'marketLatestPriceDate': marketLatestPriceDate?.toJson(),
+      if (marketLatestPriceSecurities != null)
+        'marketLatestPriceSecurities': marketLatestPriceSecurities,
+      if (marketLatestIndexDate != null)
+        'marketLatestIndexDate': marketLatestIndexDate?.toJson(),
+      if (marketLatestIndexCount != null)
+        'marketLatestIndexCount': marketLatestIndexCount,
+      if (marketScopeStart != null)
+        'marketScopeStart': marketScopeStart?.toJson(),
+      if (marketScopeThrough != null)
+        'marketScopeThrough': marketScopeThrough?.toJson(),
+      if (marketExpectedWeekdays != null)
+        'marketExpectedWeekdays': marketExpectedWeekdays,
+      if (marketPriceDaysStored != null)
+        'marketPriceDaysStored': marketPriceDaysStored,
+      if (marketIndexDaysStored != null)
+        'marketIndexDaysStored': marketIndexDaysStored,
+      if (marketHistoricalPendingDates != null)
+        'marketHistoricalPendingDates': marketHistoricalPendingDates,
+      if (marketRecentUnconfirmedDates != null)
+        'marketRecentUnconfirmedDates': marketRecentUnconfirmedDates,
     };
   }
 
@@ -211,6 +385,40 @@ abstract class IngestCoverage
       'dartDailyLimit': dartDailyLimit,
       'dartFinancialBudget': dartFinancialBudget,
       'dartDisclosurePriorityBudget': dartDisclosurePriorityBudget,
+      if (financialStoredFilings != null)
+        'financialStoredFilings': financialStoredFilings,
+      if (financialNoDataFilings != null)
+        'financialNoDataFilings': financialNoDataFilings,
+      if (financialFailedFilings != null)
+        'financialFailedFilings': financialFailedFilings,
+      if (financialPendingFilings != null)
+        'financialPendingFilings': financialPendingFilings,
+      if (bodyScopeTotal != null) 'bodyScopeTotal': bodyScopeTotal,
+      if (bodyScopeStored != null) 'bodyScopeStored': bodyScopeStored,
+      if (bodyScopePending != null) 'bodyScopePending': bodyScopePending,
+      if (bodyScopeFailed != null) 'bodyScopeFailed': bodyScopeFailed,
+      if (marketLatestPriceDate != null)
+        'marketLatestPriceDate': marketLatestPriceDate?.toJson(),
+      if (marketLatestPriceSecurities != null)
+        'marketLatestPriceSecurities': marketLatestPriceSecurities,
+      if (marketLatestIndexDate != null)
+        'marketLatestIndexDate': marketLatestIndexDate?.toJson(),
+      if (marketLatestIndexCount != null)
+        'marketLatestIndexCount': marketLatestIndexCount,
+      if (marketScopeStart != null)
+        'marketScopeStart': marketScopeStart?.toJson(),
+      if (marketScopeThrough != null)
+        'marketScopeThrough': marketScopeThrough?.toJson(),
+      if (marketExpectedWeekdays != null)
+        'marketExpectedWeekdays': marketExpectedWeekdays,
+      if (marketPriceDaysStored != null)
+        'marketPriceDaysStored': marketPriceDaysStored,
+      if (marketIndexDaysStored != null)
+        'marketIndexDaysStored': marketIndexDaysStored,
+      if (marketHistoricalPendingDates != null)
+        'marketHistoricalPendingDates': marketHistoricalPendingDates,
+      if (marketRecentUnconfirmedDates != null)
+        'marketRecentUnconfirmedDates': marketRecentUnconfirmedDates,
     };
   }
 
@@ -243,6 +451,25 @@ class _IngestCoverageImpl extends IngestCoverage {
     required int dartDailyLimit,
     required int dartFinancialBudget,
     required int dartDisclosurePriorityBudget,
+    int? financialStoredFilings,
+    int? financialNoDataFilings,
+    int? financialFailedFilings,
+    int? financialPendingFilings,
+    int? bodyScopeTotal,
+    int? bodyScopeStored,
+    int? bodyScopePending,
+    int? bodyScopeFailed,
+    DateTime? marketLatestPriceDate,
+    int? marketLatestPriceSecurities,
+    DateTime? marketLatestIndexDate,
+    int? marketLatestIndexCount,
+    DateTime? marketScopeStart,
+    DateTime? marketScopeThrough,
+    int? marketExpectedWeekdays,
+    int? marketPriceDaysStored,
+    int? marketIndexDaysStored,
+    int? marketHistoricalPendingDates,
+    int? marketRecentUnconfirmedDates,
   }) : super._(
          listedCompanies: listedCompanies,
          companiesWithFinancials: companiesWithFinancials,
@@ -263,6 +490,25 @@ class _IngestCoverageImpl extends IngestCoverage {
          dartDailyLimit: dartDailyLimit,
          dartFinancialBudget: dartFinancialBudget,
          dartDisclosurePriorityBudget: dartDisclosurePriorityBudget,
+         financialStoredFilings: financialStoredFilings,
+         financialNoDataFilings: financialNoDataFilings,
+         financialFailedFilings: financialFailedFilings,
+         financialPendingFilings: financialPendingFilings,
+         bodyScopeTotal: bodyScopeTotal,
+         bodyScopeStored: bodyScopeStored,
+         bodyScopePending: bodyScopePending,
+         bodyScopeFailed: bodyScopeFailed,
+         marketLatestPriceDate: marketLatestPriceDate,
+         marketLatestPriceSecurities: marketLatestPriceSecurities,
+         marketLatestIndexDate: marketLatestIndexDate,
+         marketLatestIndexCount: marketLatestIndexCount,
+         marketScopeStart: marketScopeStart,
+         marketScopeThrough: marketScopeThrough,
+         marketExpectedWeekdays: marketExpectedWeekdays,
+         marketPriceDaysStored: marketPriceDaysStored,
+         marketIndexDaysStored: marketIndexDaysStored,
+         marketHistoricalPendingDates: marketHistoricalPendingDates,
+         marketRecentUnconfirmedDates: marketRecentUnconfirmedDates,
        );
 
   /// Returns a shallow copy of this [IngestCoverage]
@@ -289,6 +535,25 @@ class _IngestCoverageImpl extends IngestCoverage {
     int? dartDailyLimit,
     int? dartFinancialBudget,
     int? dartDisclosurePriorityBudget,
+    Object? financialStoredFilings = _Undefined,
+    Object? financialNoDataFilings = _Undefined,
+    Object? financialFailedFilings = _Undefined,
+    Object? financialPendingFilings = _Undefined,
+    Object? bodyScopeTotal = _Undefined,
+    Object? bodyScopeStored = _Undefined,
+    Object? bodyScopePending = _Undefined,
+    Object? bodyScopeFailed = _Undefined,
+    Object? marketLatestPriceDate = _Undefined,
+    Object? marketLatestPriceSecurities = _Undefined,
+    Object? marketLatestIndexDate = _Undefined,
+    Object? marketLatestIndexCount = _Undefined,
+    Object? marketScopeStart = _Undefined,
+    Object? marketScopeThrough = _Undefined,
+    Object? marketExpectedWeekdays = _Undefined,
+    Object? marketPriceDaysStored = _Undefined,
+    Object? marketIndexDaysStored = _Undefined,
+    Object? marketHistoricalPendingDates = _Undefined,
+    Object? marketRecentUnconfirmedDates = _Undefined,
   }) {
     return IngestCoverage(
       listedCompanies: listedCompanies ?? this.listedCompanies,
@@ -316,6 +581,63 @@ class _IngestCoverageImpl extends IngestCoverage {
       dartFinancialBudget: dartFinancialBudget ?? this.dartFinancialBudget,
       dartDisclosurePriorityBudget:
           dartDisclosurePriorityBudget ?? this.dartDisclosurePriorityBudget,
+      financialStoredFilings: financialStoredFilings is int?
+          ? financialStoredFilings
+          : this.financialStoredFilings,
+      financialNoDataFilings: financialNoDataFilings is int?
+          ? financialNoDataFilings
+          : this.financialNoDataFilings,
+      financialFailedFilings: financialFailedFilings is int?
+          ? financialFailedFilings
+          : this.financialFailedFilings,
+      financialPendingFilings: financialPendingFilings is int?
+          ? financialPendingFilings
+          : this.financialPendingFilings,
+      bodyScopeTotal: bodyScopeTotal is int?
+          ? bodyScopeTotal
+          : this.bodyScopeTotal,
+      bodyScopeStored: bodyScopeStored is int?
+          ? bodyScopeStored
+          : this.bodyScopeStored,
+      bodyScopePending: bodyScopePending is int?
+          ? bodyScopePending
+          : this.bodyScopePending,
+      bodyScopeFailed: bodyScopeFailed is int?
+          ? bodyScopeFailed
+          : this.bodyScopeFailed,
+      marketLatestPriceDate: marketLatestPriceDate is DateTime?
+          ? marketLatestPriceDate
+          : this.marketLatestPriceDate,
+      marketLatestPriceSecurities: marketLatestPriceSecurities is int?
+          ? marketLatestPriceSecurities
+          : this.marketLatestPriceSecurities,
+      marketLatestIndexDate: marketLatestIndexDate is DateTime?
+          ? marketLatestIndexDate
+          : this.marketLatestIndexDate,
+      marketLatestIndexCount: marketLatestIndexCount is int?
+          ? marketLatestIndexCount
+          : this.marketLatestIndexCount,
+      marketScopeStart: marketScopeStart is DateTime?
+          ? marketScopeStart
+          : this.marketScopeStart,
+      marketScopeThrough: marketScopeThrough is DateTime?
+          ? marketScopeThrough
+          : this.marketScopeThrough,
+      marketExpectedWeekdays: marketExpectedWeekdays is int?
+          ? marketExpectedWeekdays
+          : this.marketExpectedWeekdays,
+      marketPriceDaysStored: marketPriceDaysStored is int?
+          ? marketPriceDaysStored
+          : this.marketPriceDaysStored,
+      marketIndexDaysStored: marketIndexDaysStored is int?
+          ? marketIndexDaysStored
+          : this.marketIndexDaysStored,
+      marketHistoricalPendingDates: marketHistoricalPendingDates is int?
+          ? marketHistoricalPendingDates
+          : this.marketHistoricalPendingDates,
+      marketRecentUnconfirmedDates: marketRecentUnconfirmedDates is int?
+          ? marketRecentUnconfirmedDates
+          : this.marketRecentUnconfirmedDates,
     );
   }
 }

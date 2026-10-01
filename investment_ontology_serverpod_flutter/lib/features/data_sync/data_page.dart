@@ -124,12 +124,18 @@ class _CoverageState extends State<_Coverage> {
               done: v.companiesWithFinancials,
               total: v.listedCompanies,
             ),
-            _Progress(
-              label: '대상 보고서 처리',
-              done: v.filingsTotal - v.filingsPending,
-              total: v.filingsTotal,
-              note:
-                  '미완료(대기·실패) ${formatCount(v.filingsPending)}건 · 연간 5개년과 최신 중간보고서 대상만 집계합니다. 아직 발견하지 못한 보고서는 분모에 포함되지 않습니다.',
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _Progress(
+                  label: '대상 보고서 처리',
+                  done: v.filingsTotal - v.filingsPending,
+                  total: v.filingsTotal,
+                  note:
+                      '미완료(대기·실패) ${formatCount(v.filingsPending)}건 · 연간 5개년과 최신 중간보고서 대상만 집계합니다. 아직 발견하지 못한 보고서는 분모에 포함되지 않습니다.',
+                ),
+                FinancialCollectionStatus(coverage: v),
+              ],
             ),
           ],
         ),
@@ -160,43 +166,24 @@ class _CoverageState extends State<_Coverage> {
           title: '사업의 내용',
           source: 'DART 공시 원문',
           data: '원문에서 부문 매출·수주·생산능력·가동률·시장점유율·연구개발비와 매입처·매출처를 읽습니다. 수치에는 원문 단위와 근거를 보존합니다.',
-          scope: '기업별 최신 정기보고서 본문을 먼저 수집합니다. 본문 확보와 지표 추출 완료는 서로 다릅니다.',
+          scope: '기업별 연간 사업보고서 최근 5개년과 그 이후 최신 분기·반기보고서 한 건의 본문을 수집합니다. 최신 본문을 먼저 받으며 본문 확보와 지표 추출 완료는 서로 다릅니다.',
           detail: '정해진 표 구조·산술 검산을 통과한 결과를 저장합니다. 본문이 있어도 표 형식이나 검증 조건이 맞지 않으면 지표가 없을 수 있습니다. 항목별 추출 건수와 성공률은 현재 이 화면에서 집계하지 않습니다. 수동·AI 요약 작업은 보류 중입니다.',
-          children: [
-            if (v.companiesWithLatestBusinessText case final latest?)
-              _Progress(
-                label: '최신 접수 본문 확보',
-                done: latest,
-                total: v.listedCompanies,
-                note: '기업별 최신 정기보고서 접수번호와 일치하는 본문을 확보한 기업 수입니다. 첨부 정정의 이전 접수 본문과 다른 기간 본문은 이 수에 포함하지 않습니다.',
-              )
-            else
-              const _Summary(
-                label: '최신 접수 본문 확보',
-                value: '집계 대기',
-                unit: '',
-              ),
-            _Summary(
-              label: '본문 보유 기업 · 어느 기간이든',
-              value: formatCount(v.companiesWithBusinessText),
-              unit: '개사',
-            ),
-          ],
+          children: [BusinessCollectionStatus(coverage: v)],
         ),
-        const _Dataset(
+        _Dataset(
           dataset: 'market',
 
           title: '시세·시장 지수',
           source: '금융위원회 시세 API',
           data:
               '전 종목 일별 주가·거래량·시가총액, 상장종목 정보와 시장 지수. 시장 화면·주가 차트·밸류에이션에 사용합니다.',
-          scope: '일별 시세는 최초 5년 범위에서 누락된 평일을 채웁니다. 실시간 시세가 아닙니다. 확보한 종목·거래일 수와 최신 시세 기준일은 현재 이 화면에서 집계하지 않습니다.',
+          scope: '최근 5년의 평일 기준일을 수집합니다. 확인 범위는 실제 시세가 저장된 최신 날짜까지이며, 휴장일 0건 응답도 처리 완료에 포함합니다. 최신 날짜 이후는 원천 게시 여부를 확인할 때까지 미확보 상태로 표시합니다.',
           detail: '주식: GetStockSecuritiesInfoService_V2/getStockPriceInfo_V2. 상장종목: GetKrxListedInfoService_V2/getItemInfo_V2. 지수: GetMarketIndexInfoService_V2/getStockMarketIndex_V2. 매일 18:00 수집합니다. 최근 상장정보의 법인번호로 종목과 기업을 연결합니다.',
-          children: [_Summary(label: '확보 범위', value: '집계 준비 전', unit: '')],
+          children: [MarketCollectionStatus(coverage: v)],
         ),
         const SizedBox(height: AppSpace.md),
         Text(
-          '기업 보유 수는 자료가 하나라도 있는 기업 수입니다. 처리율은 데이터 없음 응답을 포함하며 정확도 점수가 아닙니다.',
+          '기업 보유 수는 자료가 하나라도 있는 기업 수입니다. 재무·공시 주요정보 처리율은 원천 데이터 없음 응답을 포함합니다. 본문 확보율은 실제 본문 저장 기준이며 어느 비율도 정확도 점수가 아닙니다.',
           style: t.body(12, color: c.textSecondary),
         ),
       ],
@@ -471,6 +458,175 @@ class _Progress extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Market source dates and confirmed historical coverage; nullable old-server
+/// fields never fall back to invented zero counts or publication assertions.
+class MarketCollectionStatus extends StatelessWidget {
+  const MarketCollectionStatus({super.key, required this.coverage});
+  final IngestCoverage coverage;
+
+  @override
+  Widget build(BuildContext context) {
+    final v = coverage;
+    final t = context.typo;
+    final c = context.colors;
+    final confirmed = v.marketScopeThrough;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _Summary(
+          label: '최신 시세 기준일',
+          value: v.marketLatestPriceDate == null
+              ? '집계 대기'
+              : formatDate(v.marketLatestPriceDate),
+          unit: '',
+        ),
+        Text(
+          v.marketLatestPriceSecurities == null
+              ? '가격 종목 수 · 집계 대기'
+              : '가격 종목 ${formatCount(v.marketLatestPriceSecurities!)}개',
+          style: t.body(13, color: c.textSecondary),
+        ),
+        const SizedBox(height: AppSpace.md),
+        _Summary(
+          label: '최신 지수 기준일',
+          value: v.marketLatestIndexDate == null
+              ? '집계 대기'
+              : formatDate(v.marketLatestIndexDate),
+          unit: '',
+        ),
+        Text(
+          v.marketLatestIndexCount == null
+              ? '지수 수 · 집계 대기'
+              : '지수 ${formatCount(v.marketLatestIndexCount!)}개',
+          style: t.body(13, color: c.textSecondary),
+        ),
+        const SizedBox(height: AppSpace.md),
+        if (confirmed == null ||
+            v.marketScopeStart == null ||
+            v.marketExpectedWeekdays == null)
+          const _Summary(label: '과거 5년 확인 범위', value: '집계 대기', unit: '')
+        else ...[
+          Text(
+            '확인 범위 ${formatDate(v.marketScopeStart)} ~ ${formatDate(confirmed)}',
+            style: t.body(12, color: c.textSecondary),
+          ),
+          const SizedBox(height: AppSpace.sm),
+          if (v.marketPriceDaysStored case final done?)
+            _Progress(
+              label: '시세 기준일 처리',
+              done: done,
+              total: v.marketExpectedWeekdays!,
+              note: '실제 최신 시세 기준일까지 평일 수입니다. 휴장일 0건 응답을 포함합니다.',
+            ),
+          if (v.marketIndexDaysStored case final done?)
+            _Progress(
+              label: '지수 기준일 처리',
+              done: done,
+              total: v.marketExpectedWeekdays!,
+              note: '시세 확인 범위의 평일 수입니다. 휴장일 0건 응답을 포함합니다.',
+            ),
+        ],
+        Text(
+          v.marketHistoricalPendingDates == null
+              ? '확인 범위 미완료 · 집계 대기'
+              : '확인 범위 미완료 ${formatCount(v.marketHistoricalPendingDates!)}일',
+          style: t.body(13, color: c.textSecondary),
+        ),
+        const SizedBox(height: AppSpace.xs),
+        Text(
+          v.marketRecentUnconfirmedDates == null
+              ? '최신 이후 미확보 · 집계 대기'
+              : '최신 이후 미확보 ${formatCount(v.marketRecentUnconfirmedDates!)}일 · 원천 게시 확인 대기',
+          style: t.body(13, color: c.textSecondary),
+        ),
+        Text(
+          '최근 미확보 날짜는 원천 미게시나 휴장일로 확정한 값이 아닙니다.',
+          style: t.body(12, color: c.textMuted),
+        ),
+      ],
+    );
+  }
+}
+
+class FinancialCollectionStatus extends StatelessWidget {
+  const FinancialCollectionStatus({super.key, required this.coverage});
+  final IngestCoverage coverage;
+  @override
+  Widget build(BuildContext context) {
+    final v = coverage;
+    final counts = [
+      ('저장 보고서', v.financialStoredFilings),
+      ('원천 데이터 없음', v.financialNoDataFilings),
+      ('대기 보고서', v.financialPendingFilings),
+      ('실패 보고서', v.financialFailedFilings),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final (label, count) in counts)
+          Text(
+            count == null ? '$label · 집계 대기' : '$label ${formatCount(count)}건',
+            style: context.typo.body(12, color: context.colors.textSecondary),
+          ),
+        Text(
+          '대기와 실패는 기준별 상태라 한 보고서가 두 항목에 포함될 수 있습니다.',
+          style: context.typo.body(11, color: context.colors.textMuted),
+        ),
+      ],
+    );
+  }
+}
+
+class BusinessCollectionStatus extends StatelessWidget {
+  const BusinessCollectionStatus({super.key, required this.coverage});
+  final IngestCoverage coverage;
+  @override
+  Widget build(BuildContext context) {
+    final v = coverage;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (v.bodyScopeTotal != null && v.bodyScopeStored != null)
+          _Progress(
+            label: '연간 5개년·최신 중간 본문 확보',
+            done: v.bodyScopeStored!,
+            total: v.bodyScopeTotal!,
+            note: '실제 본문을 저장한 대상 보고서입니다. 첨부 정정에 명시 연결한 같은 기간 원본은 포함하고 데이터 없음은 포함하지 않습니다.',
+          )
+        else
+          const _Summary(label: '연간 5개년·최신 중간 본문 확보', value: '집계 대기', unit: ''),
+        Text(
+          v.bodyScopePending == null
+              ? '대기 본문 · 집계 대기'
+              : '대기 본문 ${formatCount(v.bodyScopePending!)}건',
+          style: context.typo.body(12, color: context.colors.textSecondary),
+        ),
+        Text(
+          v.bodyScopeFailed == null
+              ? '실패 본문 · 집계 대기'
+              : '실패 본문 ${formatCount(v.bodyScopeFailed!)}건',
+          style: context.typo.body(12, color: context.colors.textSecondary),
+        ),
+        const SizedBox(height: AppSpace.md),
+        if (v.companiesWithLatestBusinessText case final latest?)
+          _Progress(
+            label: '최신 접수 본문 확보',
+            done: latest,
+            total: v.listedCompanies,
+            note: '기업별 최신 정기보고서 접수번호와 일치하는 본문입니다. 첨부 정정의 이전 접수 본문과 다른 기간 본문은 이 수에 포함하지 않습니다.',
+          )
+        else
+          const _Summary(label: '최신 접수 본문 확보', value: '집계 대기', unit: ''),
+        _Summary(
+          label: '본문 보유 기업 · 어느 기간이든',
+          value: formatCount(v.companiesWithBusinessText),
+          unit: '개사',
+        ),
+      ],
     );
   }
 }

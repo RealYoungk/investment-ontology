@@ -24,6 +24,29 @@ class DisclosureFutureCall extends FutureCall {
     ).run();
   }
 
+  Future<void> runBusiness(Session session, int jobId) async {
+    final key = DartApiKey.read(session);
+    if (key == null) {
+      await IngestJobs.fail(session, jobId, 'DART API 키가 설정되지 않았습니다.');
+      return;
+    }
+    await DisclosureSync(
+      session,
+      DartClient(key),
+      jobId,
+      businessOnly: true,
+      scheduleResume: switch (IngestHooks.businessDocumentsResume) {
+        final hook? => (at) => hook(session, at),
+        null => null,
+      },
+    ).run();
+  }
+
+  Future<void> resumeBusiness(Session session) async {
+    final job = await IngestJobs.start(session, DisclosureSync.businessKind);
+    if (job != null) await runBusiness(session, job.id!);
+  }
+
   /// 기업 하나의 사업보고서 주요정보만 받는다.
   Future<void> runCompany(Session session, int jobId, String corpCode) async {
     final key = DartApiKey.read(session);

@@ -24,6 +24,8 @@ import 'future_calls_generated_models/ai_extraction_future_call_run_model.dart'
     as _iskveedf;
 import 'future_calls_generated_models/company_master_future_call_run_model.dart'
     as _i8298vau;
+import 'future_calls_generated_models/disclosure_future_call_run_business_model.dart'
+    as _ip76fxv0;
 import 'future_calls_generated_models/disclosure_future_call_run_company_model.dart'
     as _iln8mnkp;
 import 'future_calls_generated_models/disclosure_future_call_run_model.dart'
@@ -81,8 +83,12 @@ class FutureCalls extends _is.FutureCallDispatch<_FutureCallRef> {
       'BillingRunFutureCall': BillingRunFutureCall(),
       'BillingScanFutureCall': BillingScanFutureCall(),
       'CompanyMasterResumeFutureCall': CompanyMasterResumeFutureCall(),
+      'CompanyMasterRetryFutureCall': CompanyMasterRetryFutureCall(),
       'CompanyMasterRunFutureCall': CompanyMasterRunFutureCall(),
       'DisclosureRunFutureCall': DisclosureRunFutureCall(),
+      'DisclosureRunBusinessFutureCall': DisclosureRunBusinessFutureCall(),
+      'DisclosureResumeBusinessFutureCall':
+          DisclosureResumeBusinessFutureCall(),
       'DisclosureRunCompanyFutureCall': DisclosureRunCompanyFutureCall(),
       'DisclosureResumeFutureCall': DisclosureResumeFutureCall(),
       'FinancialFactsRunFutureCall': FinancialFactsRunFutureCall(),
@@ -284,6 +290,13 @@ class _CompanyMasterFutureCallDispatcher {
     );
   }
 
+  Future<void> retry() {
+    return _invokeFutureCall(
+      'CompanyMasterRetryFutureCall',
+      null,
+    );
+  }
+
   Future<void> run(
     int jobId,
     bool force,
@@ -309,6 +322,21 @@ class _DisclosureFutureCallDispatcher {
     return _invokeFutureCall(
       'DisclosureRunFutureCall',
       object,
+    );
+  }
+
+  Future<void> runBusiness(int jobId) {
+    var object = _ip76fxv0.DisclosureFutureCallRunBusinessModel(jobId: jobId);
+    return _invokeFutureCall(
+      'DisclosureRunBusinessFutureCall',
+      object,
+    );
+  }
+
+  Future<void> resumeBusiness() {
+    return _invokeFutureCall(
+      'DisclosureResumeBusinessFutureCall',
+      null,
     );
   }
 
@@ -443,6 +471,18 @@ class CompanyMasterResumeFutureCall extends _is.FutureCall
   }
 }
 
+/// 부분 실패 재시도는 성공한 기업을 다시 받지 않는 변경분만 처리한다.
+class CompanyMasterRetryFutureCall extends _is.FutureCall
+    implements _is.InvokableFutureCall {
+  @override
+  _ida.Future<void> invoke(
+    _is.Session session,
+    _is.SerializableModel? object,
+  ) async {
+    await _iouuus1c.CompanyMasterFutureCall().retry(session);
+  }
+}
+
 class CompanyMasterRunFutureCall
     extends _is.FutureCall<_i8298vau.CompanyMasterFutureCallRunModel>
     implements
@@ -476,6 +516,37 @@ class DisclosureRunFutureCall
         object.jobId,
       );
     }
+  }
+}
+
+class DisclosureRunBusinessFutureCall
+    extends _is.FutureCall<_ip76fxv0.DisclosureFutureCallRunBusinessModel>
+    implements
+        _is.InvokableFutureCall<
+          _ip76fxv0.DisclosureFutureCallRunBusinessModel
+        > {
+  @override
+  _ida.Future<void> invoke(
+    _is.Session session,
+    _ip76fxv0.DisclosureFutureCallRunBusinessModel? object,
+  ) async {
+    if (object != null) {
+      await _itvp2mss.DisclosureFutureCall().runBusiness(
+        session,
+        object.jobId,
+      );
+    }
+  }
+}
+
+class DisclosureResumeBusinessFutureCall extends _is.FutureCall
+    implements _is.InvokableFutureCall {
+  @override
+  _ida.Future<void> invoke(
+    _is.Session session,
+    _is.SerializableModel? object,
+  ) async {
+    await _itvp2mss.DisclosureFutureCall().resumeBusiness(session);
   }
 }
 

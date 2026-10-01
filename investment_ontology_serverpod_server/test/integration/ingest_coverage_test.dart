@@ -121,6 +121,15 @@ void main() {
       expect(v.listedCompanies, 2);
       expect(v.filingsTotal, 1, reason: '같은 기간의 최종 정정 접수번호만 수집 대상이다');
       expect(v.filingsPending, 1);
+      expect(v.financialStoredFilings, 1);
+      expect(v.financialPendingFilings, 1);
+      expect(v.financialFailedFilings, 0);
+      expect(v.bodyScopeTotal, 1);
+      expect(v.bodyScopeStored, 0, reason: '공시 섹션 처리와 실제 본문 저장은 별개');
+      expect(v.bodyScopePending, 1);
+      expect(v.marketLatestPriceDate, isNull);
+      expect(v.marketScopeThrough, isNull);
+
       expect(v.prioritySections, 2);
       expect(v.prioritySectionsDone, 1);
       expect(v.sections, 4);

@@ -20,6 +20,8 @@ void main() {
         IngestSchedule.companyMasterDailyId,
         IngestSchedule.marketSnapshotDailyId,
         IngestSchedule.financialsDailyId,
+        IngestSchedule.businessDocumentsDailyId,
+        IngestSchedule.disclosuresDailyId,
       }),
     );
 
@@ -56,6 +58,8 @@ void main() {
           IngestSchedule.companyMasterDailyId,
           IngestSchedule.marketSnapshotDailyId,
           IngestSchedule.financialsDailyId,
+          IngestSchedule.businessDocumentsDailyId,
+          IngestSchedule.disclosuresDailyId,
         ]),
       );
       final company = entries.firstWhere(
@@ -70,6 +74,12 @@ void main() {
       expect(market.time.toUtc().hour, 9, reason: '18:00 KST = 09:00 UTC');
       expect(market.time.toUtc().minute, 0);
       expect(market.time.isAfter(DateTime.now().toUtc()), isTrue);
+      final body = entries.firstWhere(
+        (e) => e.identifier == IngestSchedule.businessDocumentsDailyId,
+      );
+      expect(body.name, 'DisclosureResumeBusinessFutureCall');
+      expect(body.time.toUtc().hour, 9);
+      expect(body.time.toUtc().minute, 45);
     });
 
     test('서버가 켜지면 끊긴 작업을 정리하고 재무는 바로 이어받기를 예약한다', () async {

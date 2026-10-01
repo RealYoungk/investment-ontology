@@ -17,6 +17,7 @@ class FakeDart {
   final corps = <String, ({String name, String? stock, String modify})>{};
   final profiles = <String, Map<String, dynamic>>{};
   final companyCalls = <String>[];
+  final unavailable = <String>{};
 
   DartClient client() => DartClient(
     'key',
@@ -39,6 +40,9 @@ class FakeDart {
       }
       final code = req.url.queryParameters['corp_code']!;
       companyCalls.add(code);
+      if (unavailable.contains(code)) {
+        throw http.ClientException("temporary timeout");
+      }
       return http.Response.bytes(
         utf8.encode(jsonEncode({'status': '000', ...profiles[code]!})),
         200,
@@ -66,6 +70,7 @@ void main() {
   withServerpod('Given CompanyMasterSync', (sessionBuilder, endpoints) {
     late Session session;
     late FakeDart dart;
+    final resumes = <DateTime>[];
 
     Future<IngestJob> runSync({bool force = false}) async {
       final job = await IngestJob.db.insertRow(
@@ -80,18 +85,52 @@ void main() {
         session,
         dart.client(),
         job.id!,
+        scheduleResume: (at) async => resumes.add(at),
       ).run(force: force);
       return (await IngestJob.db.findById(session, job.id!))!;
     }
 
     setUp(() {
       session = sessionBuilder.build();
+      resumes.clear();
       dart = FakeDart()
         ..corps['00000001'] = (name: '상장사', stock: '000001', modify: '20260101')
         ..corps['00000002'] = (name: '폐지사', stock: '000002', modify: '20250101')
         ..corps['00000003'] = (name: '비상장', stock: null, modify: '20250101')
         ..profiles['00000001'] = profile('상장사', 'Y')
         ..profiles['00000002'] = profile('폐지사', 'E');
+    });
+
+    test('부분 실패는 실패로 남기고 날짜를 보존하여 변경분에서만 재시도한다', () async {
+      await runSync();
+      final before = (await Company.db.find(session)).single;
+      dart.corps['00000001'] = (
+        name: '상장사',
+        stock: '000001',
+        modify: '20261001',
+      );
+      dart.unavailable.add('00000001');
+      final failed = await runSync();
+      expect(failed.status, IngestStatus.failed);
+      expect(failed.failed, 1);
+      expect(resumes, hasLength(1));
+      expect(
+        (await Company.db.find(session)).single.profileUpdatedAt,
+        before.profileUpdatedAt,
+      );
+      expect(
+        (await Company.db.find(session)).single.dartModifiedDate,
+        before.dartModifiedDate,
+      );
+      dart.unavailable.clear();
+      dart.companyCalls.clear();
+      final retried = await runSync();
+      expect(retried.status, IngestStatus.succeeded);
+      expect(dart.companyCalls, ['00000001']);
+      expect(
+        (await Company.db.find(session)).single.dartModifiedDate,
+        DateTime.utc(2026, 10, 1),
+      );
     });
 
     test('상장사는 정규화해서 출처와 함께 저장, 폐지사는 장부에만', () async {

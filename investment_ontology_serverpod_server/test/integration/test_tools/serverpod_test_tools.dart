@@ -19,6 +19,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/future_calls_
     as _i7nmjhom;
 import 'package:investment_ontology_serverpod_server/src/generated/future_calls_generated_models/company_master_future_call_run_model.dart'
     as _i5djsspn;
+import 'package:investment_ontology_serverpod_server/src/generated/future_calls_generated_models/disclosure_future_call_run_business_model.dart'
+    as _imre8mrn;
 import 'package:investment_ontology_serverpod_server/src/generated/future_calls_generated_models/disclosure_future_call_run_company_model.dart'
     as _iwtdffgy;
 import 'package:investment_ontology_serverpod_server/src/generated/future_calls_generated_models/disclosure_future_call_run_model.dart'
@@ -2651,6 +2653,36 @@ class _IngestEndpoint {
     });
   }
 
+  _ida.Future<_idt86amb.IngestJob> startBusinessDocuments(
+    _ist.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'ingest',
+            method: 'startBusinessDocuments',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'ingest',
+          methodName: 'startBusinessDocuments',
+          parameters: _ist.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_idt86amb.IngestJob>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
   _ida.Future<String> rebuildDisclosureLinks(
     _ist.TestSessionBuilder sessionBuilder,
   ) async {
@@ -4362,6 +4394,19 @@ class _CompanyMasterFutureCall {
     }
   }
 
+  Future<void> retry(_ist.TestSessionBuilder sessionBuilder) async {
+    var _localUniqueSession =
+        (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild();
+    try {
+      await _i4o8e4lj.CompanyMasterRetryFutureCall().invoke(
+        _localUniqueSession,
+        null,
+      );
+    } finally {
+      await _localUniqueSession.close();
+    }
+  }
+
   Future<void> run(
     _ist.TestSessionBuilder sessionBuilder,
     int jobId,
@@ -4396,6 +4441,36 @@ class _DisclosureFutureCall {
       await _i4o8e4lj.DisclosureRunFutureCall().invoke(
         _localUniqueSession,
         object,
+      );
+    } finally {
+      await _localUniqueSession.close();
+    }
+  }
+
+  Future<void> runBusiness(
+    _ist.TestSessionBuilder sessionBuilder,
+    int jobId,
+  ) async {
+    var object = _imre8mrn.DisclosureFutureCallRunBusinessModel(jobId: jobId);
+    var _localUniqueSession =
+        (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild();
+    try {
+      await _i4o8e4lj.DisclosureRunBusinessFutureCall().invoke(
+        _localUniqueSession,
+        object,
+      );
+    } finally {
+      await _localUniqueSession.close();
+    }
+  }
+
+  Future<void> resumeBusiness(_ist.TestSessionBuilder sessionBuilder) async {
+    var _localUniqueSession =
+        (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild();
+    try {
+      await _i4o8e4lj.DisclosureResumeBusinessFutureCall().invoke(
+        _localUniqueSession,
+        null,
       );
     } finally {
       await _localUniqueSession.close();

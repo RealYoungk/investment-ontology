@@ -8,6 +8,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 import 'package:serverpod/serverpod.dart';
+import 'package:serverpod/protocol.dart' as sp;
 
 import '../../generated/protocol.dart';
 import '../dart/dart_client.dart';
@@ -26,6 +27,7 @@ import '../market/market_caps.dart';
 import 'api_call_budget.dart';
 import 'financial_facts_sync.dart';
 import 'financial_collection_scope.dart';
+import 'business_collection_scope.dart';
 import 'financial_rows.dart';
 import 'ingest_jobs.dart';
 
@@ -47,6 +49,7 @@ class DisclosureSync {
     this.priorityBudget = ApiCallBudget.dartDisclosurePriorityBudget,
     this.businessBudget = defaultBusinessBudget,
     this.publicFallbackEnabled = true,
+    this.businessOnly = false,
     PublicBusinessDocument? publicDocuments,
     this.callInterval = const Duration(milliseconds: 200),
     this.scheduleResume,
@@ -68,6 +71,7 @@ class DisclosureSync {
       ApiCallBudget.dartDisclosurePriorityBudget;
 
   static const kind = 'disclosures';
+  static const businessKind = 'business_documents';
 
   /// 기업 하나만 받는 수집.
   static const companyKind = 'disclosures_company';
@@ -88,6 +92,7 @@ class DisclosureSync {
   /// 실행마다 우선수집할 최신 "사업의 내용" 본문 수 (공용 호출 한도 안에서 처리).
   final int businessBudget;
   final bool publicFallbackEnabled;
+  final bool businessOnly;
   final PublicBusinessDocument _publicDocuments;
   int _publicAttempts = 0;
   int _publicFailureStreak = 0;
@@ -121,6 +126,7 @@ class DisclosureSync {
   final _persons = <String, int>{};
 
   Future<void> run() async {
+    if (businessOnly) return _runBusinessOnly();
     final claimed = await IngestJobs.claim(session, jobId);
     if (claimed == null) {
       dart.close();
@@ -129,6 +135,7 @@ class DisclosureSync {
     }
     var job = claimed;
     var stored = 0, noData = 0, failed = 0, processed = 0;
+    var yieldedForBusiness = false;
     try {
       final now = _clock().toUtc();
       final companies = await Company.db.find(
@@ -152,6 +159,18 @@ class DisclosureSync {
         ),
       );
 
+      if (only == null && await _businessPriorityWaiting()) {
+        await scheduleResume?.call(now.add(const Duration(minutes: 15)));
+        await IngestJobs.save(
+          session,
+          job.copyWith(
+            status: IngestStatus.succeeded,
+            finishedAt: now,
+            message: '사업본문 우선수집을 위해 주요정보 작업을 15분 뒤 이어받습니다.',
+          ),
+        );
+        return;
+      }
       await _ensureLedger(now, only);
       await _rankYears();
       await _retryFailed(only);
@@ -212,6 +231,10 @@ class DisclosureSync {
         };
         for (final item in batch) {
           if (processed % _progressEvery == 0) {
+            if (only == null && await _businessPriorityWaiting()) {
+              yieldedForBusiness = true;
+              break outer;
+            }
             if (await IngestJobs.isCancelled(session, jobId)) {
               job = job.copyWith(status: IngestStatus.cancelled);
               break outer;
@@ -295,6 +318,11 @@ class DisclosureSync {
         where: scope,
       );
       final cancelled = job.status == IngestStatus.cancelled;
+      if (yieldedForBusiness && !cancelled) {
+        await scheduleResume?.call(
+          _clock().toUtc().add(const Duration(minutes: 15)),
+        );
+      }
       var message =
           '저장 $stored건, 자료 없음 $noData건, 실패 $failed건 · 남은 항목 $remainingAll건';
       if (only != null) message = '${only.name}: $message';
@@ -367,6 +395,253 @@ class DisclosureSync {
       dart.close();
       _publicDocuments.close();
     }
+  }
+
+  /// Same bounded filing scope as financial collection; no major-information APIs.
+  Future<void> _runBusinessOnly() async {
+    final claimed = await IngestJobs.claim(session, jobId);
+    if (claimed == null) {
+      dart.close();
+      _publicDocuments.close();
+      return;
+    }
+    var job = claimed;
+    var processed = 0, stored = 0, failed = 0, noData = 0;
+    try {
+      final now = _clock().toUtc();
+      final scopeRows = await session.db.unsafeQuery(
+        '''WITH ${BusinessCollectionScope.cte}
+        SELECT id FROM business_scope
+        ORDER BY "bsnsYear" DESC,
+          CASE "reportCode" WHEN 'q3' THEN 3 WHEN 'halfYear' THEN 2
+            WHEN 'q1' THEN 1 ELSE 0 END DESC, "rceptNo" DESC''',
+      );
+      final ids = {for (final r in scopeRows) r.toColumnMap()['id'] as int};
+      if (ids.isNotEmpty) {
+        await session.db.unsafeExecute(
+          '''WITH ${BusinessCollectionScope.cte}
+          INSERT INTO dart_filing_section
+            ("filingId","companyId","bsnsYear",section,tier,status,attempts)
+          SELECT id,"companyId","bsnsYear",'businessContent',2,'pending',0
+          FROM financial_scope ON CONFLICT ("filingId",section) DO NOTHING''',
+        );
+        await session.db.unsafeExecute(
+          '''WITH ${BusinessCollectionScope.cte}
+          UPDATE dart_filing_section s SET status='pending',
+            attempts=CASE WHEN s.status='stored' THEN 0 ELSE s.attempts END
+          FROM business_scope f WHERE s."filingId"=f.id
+            AND s.section='businessContent' AND (
+              (s.status IN ('failed','noData') AND s.attempts < @max)
+              OR (s.status='stored' AND NOT f.body_stored)
+            )''',
+          parameters: QueryParameters.named({'max': maxAttempts}),
+        );
+      }
+      // Reconcile only business ledger rows with a genuinely stored period source.
+      await session.db.unsafeExecute(
+        '''WITH ${BusinessCollectionScope.cte}
+        UPDATE dart_filing_section s SET status='stored', "lastError"=NULL
+        FROM business_scope f WHERE s."filingId"=f.id
+          AND s.section='businessContent' AND f.body_stored
+          AND s.status<>'stored'
+        ''',
+      );
+      final companies = await Company.db.find(
+        session,
+        where: (t) => t.stockCode.notEquals(null),
+      );
+      final byId = {for (final c in companies) c.id!: c};
+      final byName = DisclosureLinks.companiesByName(companies);
+      _allowance =
+          dailyBudget -
+          await ApiCallBudget.usedToday(
+            session,
+            ApiProvider.dart,
+            now: now,
+          );
+      final pending = ids.isEmpty
+          ? <DartFilingSection>[]
+          : await DartFilingSection.db.find(
+              session,
+              where: (t) =>
+                  t.filingId.inSet(ids) &
+                  t.section.equals(DartSection.businessContent) &
+                  t.status.equals(FilingFetchStatus.pending),
+            );
+      final order = {
+        for (var i = 0; i < scopeRows.length; i++)
+          scopeRows[i].toColumnMap()['id'] as int: i,
+      };
+      pending.sort((a, b) => order[a.filingId]!.compareTo(order[b.filingId]!));
+      job = await IngestJobs.save(session, job.copyWith(total: pending.length));
+      final filings = {
+        for (final f in await DartFiling.db.find(
+          session,
+          where: (t) => t.id.inSet(ids.isEmpty ? {-1} : ids),
+        ))
+          f.id!: f,
+      };
+      for (final item in pending.take(businessBudget.clamp(0, 9000))) {
+        if (await IngestJobs.isCancelled(session, jobId)) {
+          job = job.copyWith(status: IngestStatus.cancelled);
+          break;
+        }
+        if ((!_hasAllowance && !_canFetchPublic) || _publicFailureStreak >= 6) {
+          break;
+        }
+        final f = filings[item.filingId];
+        final company = f == null ? null : byId[f.companyId];
+        if (f == null || company == null) continue;
+        final result = await _fetch(item, f, company, byName);
+        if (result == FilingFetchStatus.pending) break;
+        processed++;
+        switch (result) {
+          case FilingFetchStatus.stored:
+            stored++;
+          case FilingFetchStatus.failed:
+            failed++;
+          case FilingFetchStatus.noData:
+            noData++;
+            final current = await DartFilingSection.db.findById(
+              session,
+              item.id!,
+            );
+            if (current != null) {
+              await DartFilingSection.db.updateRow(
+                session,
+                current.copyWith(attempts: current.attempts + 1),
+              );
+            }
+          case FilingFetchStatus.unsupported:
+            failed++;
+          case FilingFetchStatus.pending:
+            break;
+        }
+        if (processed % _progressEvery == 0) {
+          await _meter.flush(session);
+          job = await IngestJobs.save(
+            session,
+            job.copyWith(
+              processed: processed,
+              updated: stored,
+              failed: failed,
+              apiCalls: dart.calls,
+              message:
+                  '사업본문 $processed/${pending.length} · 저장 $stored · 자료 없음 $noData · 실패 $failed',
+            ),
+          );
+          if (await ApiCallBudget.reached(
+            session,
+            ApiProvider.dart,
+            dailyBudget,
+          )) {
+            _budgetExhausted = true;
+          }
+        }
+      }
+      final unfinished = ids.isEmpty
+          ? <DartFilingSection>[]
+          : await DartFilingSection.db.find(
+              session,
+              where: (t) =>
+                  t.filingId.inSet(ids) &
+                  t.section.equals(DartSection.businessContent) &
+                  (t.status.equals(FilingFetchStatus.pending) |
+                      ((t.status.equals(FilingFetchStatus.failed) |
+                              t.status.equals(FilingFetchStatus.noData)) &
+                          t.attempts.between(0, maxAttempts - 1))),
+            );
+      final incompleteRows = await session.db.unsafeQuery(
+        '''WITH ${BusinessCollectionScope.cte}
+        SELECT count(*) AS remaining,
+          count(*) FILTER (WHERE s.status='unsupported' OR
+            (s.status IN ('failed','noData') AND s.attempts>=@max)) AS exhausted
+        FROM business_scope f LEFT JOIN dart_filing_section s
+          ON s."filingId"=f.id AND s.section='businessContent'
+        WHERE NOT f.body_stored''',
+        parameters: QueryParameters.named({'max': maxAttempts}),
+      );
+      final counts = incompleteRows.single.toColumnMap();
+      final remainingAll = counts['remaining'] as int;
+      final exhausted = counts['exhausted'] as int;
+      DateTime? resume;
+      if (unfinished.isNotEmpty && job.status != IngestStatus.cancelled) {
+        if (_publicFailureStreak >= 6 || failed > 0 || noData > 0) {
+          resume = _clock().toUtc().add(const Duration(minutes: 15));
+        } else if (_budgetExhausted && !publicFallbackEnabled) {
+          resume = ApiCallBudget.nextKstMidnight(now)
+              .add(const Duration(minutes: 1));
+        } else {
+          resume = _clock().toUtc().add(const Duration(seconds: 30));
+        }
+        await scheduleResume?.call(resume);
+      }
+      await IngestJobs.save(
+        session,
+        job.copyWith(
+          status: job.status == IngestStatus.cancelled
+              ? IngestStatus.cancelled
+              : failed > 0 || noData > 0 || exhausted > 0
+              ? IngestStatus.failed
+              : IngestStatus.succeeded,
+          processed: processed,
+          updated: stored,
+          failed: failed + noData > exhausted ? failed + noData : exhausted,
+          apiCalls: dart.calls,
+          finishedAt: _clock().toUtc(),
+          message:
+              '사업본문 저장 $stored · 자료 없음 $noData · 실패 $failed · 남은 전체 $remainingAll · 재시도 ${unfinished.length} · 한도초과 $exhausted'
+              '${resume == null ? '' : ' · 자동 이어받기 예약'}',
+        ),
+      );
+    } catch (e, st) {
+      session.log(
+        '사업본문 수집 실패',
+        level: LogLevel.error,
+        exception: e,
+        stackTrace: st,
+      );
+      if (!await IngestJobs.isCancelled(session, jobId)) {
+        await scheduleResume?.call(
+          _clock().toUtc().add(const Duration(minutes: 15)),
+        );
+      }
+      await IngestJobs.save(
+        session,
+        job.copyWith(
+          status: IngestStatus.failed,
+          processed: processed,
+          updated: stored,
+          failed: failed + 1,
+          apiCalls: dart.calls,
+          finishedAt: _clock().toUtc(),
+          message: '사업본문 실패 · 15분 후 재시도',
+        ),
+      );
+    } finally {
+      await _meter.flush(session);
+      dart.close();
+      _publicDocuments.close();
+    }
+  }
+
+  Future<bool> _businessPriorityWaiting() async {
+    if ((await IngestJobs.latest(session, businessKind))?.status ==
+        IngestStatus.running) {
+      return true;
+    }
+    // A restart may queue resumeBusiness before it creates a job. Global
+    // FutureCall concurrency=1 means an earlier 28-item call must yield here.
+    return await sp.FutureCallEntry.db.count(
+          session,
+          where: (t) =>
+              t.name.inSet({
+                'DisclosureRunBusinessFutureCall',
+                'DisclosureResumeBusinessFutureCall',
+              }) &
+              (t.time <= _clock().toUtc().add(const Duration(minutes: 1))),
+        ) >
+        0;
   }
 
   /// 사업보고서마다 28개 항목의 장부 행을 만든다. 같은 기업·사업연도에 정정공시가 있으면
@@ -521,6 +796,7 @@ class DisclosureSync {
     var stored = 0, failed = 0;
     var done = 0;
     for (final item in pending.take(businessBudget)) {
+      if (only == null && await _businessPriorityWaiting()) break;
       if (!_hasAllowance && !_canFetchPublic) break;
       // 재무 수집과 겹쳐 돌면 시작할 때 계산한 몫만으로는 하루 한도를 넘길 수 있다.
       // 본문은 한 건에 여러 번 부를 수도 있어(정정 공시 되짚기) 자주 확인한다.
