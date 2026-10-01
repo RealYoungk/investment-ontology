@@ -58,7 +58,7 @@ class DisclosureSync {
   }) : dailyBudget =
            dailyBudget ??
            // 기업 하나(28회)는 기업마스터처럼 DART 전체 한도 안에서 바로 받는다.
-           (corpCode == null
+           (corpCode == null && !businessOnly
                ? ApiCallBudget.dartDisclosureBudget
                : ApiCallBudget.dartDailyLimit - 100),
        _clock = clock ?? DateTime.now,
@@ -72,6 +72,7 @@ class DisclosureSync {
 
   static const kind = 'disclosures';
   static const businessKind = 'business_documents';
+  static const _businessApiWait = '사업본문 API 대기: 첨부정정의 공식 이전접수 탐색에 호출 예산 필요';
 
   /// 기업 하나만 받는 수집.
   static const companyKind = 'disclosures_company';
@@ -472,7 +473,15 @@ class DisclosureSync {
         for (var i = 0; i < scopeRows.length; i++)
           scopeRows[i].toColumnMap()['id'] as int: i,
       };
-      pending.sort((a, b) => order[a.filingId]!.compareTo(order[b.filingId]!));
+      final apiAvailable = _hasAllowance;
+      pending.sort((a, b) {
+        if (!apiAvailable) {
+          final aWait = a.lastError == _businessApiWait;
+          final bWait = b.lastError == _businessApiWait;
+          if (aWait != bWait) return aWait ? 1 : -1;
+        }
+        return order[a.filingId]!.compareTo(order[b.filingId]!);
+      });
       job = await IngestJobs.save(session, job.copyWith(total: pending.length));
       final filings = {
         for (final f in await DartFiling.db.find(
@@ -489,11 +498,34 @@ class DisclosureSync {
         if ((!_hasAllowance && !_canFetchPublic) || _publicFailureStreak >= 6) {
           break;
         }
+        if (!_hasAllowance && item.lastError == _businessApiWait) {
+          continue;
+        }
         final f = filings[item.filingId];
         final company = f == null ? null : byId[f.companyId];
         if (f == null || company == null) continue;
         final result = await _fetch(item, f, company, byName);
-        if (result == FilingFetchStatus.pending) break;
+        if (result == FilingFetchStatus.pending) {
+          if (await IngestJobs.isCancelled(session, jobId)) {
+            job = job.copyWith(status: IngestStatus.cancelled);
+            break;
+          }
+          // No business body was found and previous receipt discovery requires
+          // API allowance. Keep this item pending without starving other bodies.
+          if (_budgetExhausted && f.reportName.contains('첨부정정')) {
+            final current = await DartFilingSection.db.findById(
+              session,
+              item.id!,
+            );
+            if (current != null) {
+              await DartFilingSection.db.updateRow(
+                session,
+                current.copyWith(lastError: _businessApiWait),
+              );
+            }
+          }
+          continue;
+        }
         processed++;
         switch (result) {
           case FilingFetchStatus.stored:
@@ -564,11 +596,19 @@ class DisclosureSync {
       final counts = incompleteRows.single.toColumnMap();
       final remainingAll = counts['remaining'] as int;
       final exhausted = counts['exhausted'] as int;
+      final apiOnlyWaiting =
+          unfinished.isNotEmpty &&
+          unfinished.every(
+            (item) =>
+                item.status == FilingFetchStatus.pending &&
+                item.lastError == _businessApiWait,
+          );
       DateTime? resume;
       if (unfinished.isNotEmpty && job.status != IngestStatus.cancelled) {
         if (_publicFailureStreak >= 6 || failed > 0 || noData > 0) {
           resume = _clock().toUtc().add(const Duration(minutes: 15));
-        } else if (_budgetExhausted && !publicFallbackEnabled) {
+        } else if (_budgetExhausted &&
+            (!publicFallbackEnabled || apiOnlyWaiting)) {
           resume = ApiCallBudget.nextKstMidnight(now)
               .add(const Duration(minutes: 1));
         } else {
@@ -591,7 +631,11 @@ class DisclosureSync {
           finishedAt: _clock().toUtc(),
           message:
               '사업본문 저장 $stored · 자료 없음 $noData · 실패 $failed · 남은 전체 $remainingAll · 재시도 ${unfinished.length} · 한도초과 $exhausted'
-              '${resume == null ? '' : ' · 자동 이어받기 예약'}',
+              '${resume == null
+                  ? ''
+                  : apiOnlyWaiting
+                  ? ' · API 대기: 다음 KST 자정 뒤 이어받기 예약'
+                  : ' · 자동 이어받기 예약'}',
         ),
       );
     } catch (e, st) {
