@@ -8,16 +8,25 @@ import '../common/formatters.dart';
 import '../financials/financial_metrics.dart';
 import 'market_load_notice.dart';
 
-/// 업종별 시가총액 트리맵. 전체에서는 대분류 → 중분류, 대분류를 누르면 중분류 → 기업.
+typedef IndustryMapLoader = Future<MarketCapTreemap> Function(
+  String? section,
+  Market? market,
+);
+
+/// KSIC 대분류 → 중분류 → 기업. 지도와 목록이 같은 탐색 동작을 사용한다.
 class MarketCapTreemapSection extends StatefulWidget {
   const MarketCapTreemapSection({
     super.key,
     required this.market,
     required this.onSelectCompany,
+    this.dataVersion = 0,
+    this.loader,
   });
 
   final Market? market;
   final ValueChanged<String> onSelectCompany;
+  final int dataVersion;
+  final IndustryMapLoader? loader;
 
   @override
   State<MarketCapTreemapSection> createState() =>
@@ -25,16 +34,15 @@ class MarketCapTreemapSection extends StatefulWidget {
 }
 
 class _MarketCapTreemapSectionState extends State<MarketCapTreemapSection> {
-  /// 한 중분류 안에 이름을 따로 보여줄 기업 수. 나머지는 "그 외"로 묶는다.
-  static const _companiesPerDivision = 30;
-
-  /// 첫 화면에서 대분류 상자 안에 이름을 적을 기업 수.
-  static const _companiesPerSection = 14;
-
+  final _cache = <String?, MarketCapTreemap>{};
+  final _listKey = GlobalKey();
   MarketCapTreemap? _map;
   bool _failed = false;
+  bool _loading = true;
   String? _section;
+  String? _division;
   int _seq = 0;
+  int _visibleRows = 30;
 
   @override
   void initState() {
@@ -45,31 +53,74 @@ class _MarketCapTreemapSectionState extends State<MarketCapTreemapSection> {
   @override
   void didUpdateWidget(covariant MarketCapTreemapSection oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.market != widget.market) _load();
+    if (oldWidget.market != widget.market ||
+        oldWidget.dataVersion != widget.dataVersion) {
+      _cache.clear();
+      _load();
+    }
   }
 
   Future<void> _load() async {
     final seq = ++_seq;
-    setState(() => _failed = false);
+    final section = _section;
+    final cached = _cache[section];
+    setState(() {
+      _failed = false;
+      _loading = cached == null;
+      _map = cached;
+    });
+    if (cached != null) return;
     try {
-      final map = await client.market.industryTreemap(
-        sectionCode: _section,
-        market: widget.market,
-      );
+      final map =
+          await (widget.loader?.call(section, widget.market) ??
+              client.market.industryTreemap(
+                sectionCode: section,
+                market: widget.market,
+              ));
       if (mounted && seq == _seq) {
         setState(() {
+          _cache[section] = map;
           _map = map;
-          _failed = false;
+          _loading = false;
+          if (_division != null && !map.nodes.any((n) => n.code == _division)) {
+            _division = null;
+          }
         });
       }
     } catch (_) {
-      if (mounted && seq == _seq) setState(() => _failed = true);
+      if (mounted && seq == _seq) {
+        setState(() {
+          _failed = true;
+          _loading = false;
+        });
+      }
     }
   }
 
-  void _drill(String? section) {
-    setState(() => _section = section);
+  void _openSection(String? section) {
+    setState(() {
+      _section = section;
+      _division = null;
+      _visibleRows = 30;
+    });
     _load();
+  }
+
+  void _openDivision(String? division) {
+    setState(() {
+      _division = division;
+      _visibleRows = 30;
+    });
+  }
+
+  void _select(String code) {
+    if (_section == null) {
+      _openSection(code);
+    } else if (_division == null) {
+      _openDivision(code);
+    } else {
+      widget.onSelectCompany(code);
+    }
   }
 
   @override
@@ -77,297 +128,295 @@ class _MarketCapTreemapSectionState extends State<MarketCapTreemapSection> {
     final c = context.colors;
     final t = context.typo;
     final map = _map;
-
+    final division = map?.nodes.where((n) => n.code == _division).firstOrNull;
+    final nodes = division?.children ?? map?.nodes ?? <MarketCapNode>[];
+    final total = division?.marketCap ?? map?.total ?? BigInt.zero;
+    final count = nodes.fold<int>(0, (s, n) => s + n.companyCount);
+    final level = _section == null
+        ? '대분류'
+        : _division == null
+        ? '중분류'
+        : '기업';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SectionLabel(
-          '업종별 시가총액 · KSIC',
-          trailing: map?.baseDate == null
-              ? null
-              : Text(
-                  '기준일 ${formatDate(map!.baseDate)}',
-                  style: t.numeric(12, color: c.textMuted),
-                ),
+        const SectionLabel('업종 지도 · KSIC'),
+        const SizedBox(height: AppSpace.sm),
+        Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: AppSpace.xs,
+          runSpacing: AppSpace.xs,
+          children: [
+            AppButton(
+              label: '전체 업종',
+              variant: AppButtonVariant.link,
+              onPressed: _section == null ? null : () => _openSection(null),
+            ),
+            if (_section != null) ...[
+              Icon(Icons.chevron_right, size: 16, color: c.textMuted),
+              AppButton(
+                label: '$_section ${map?.sectionName ?? ''}',
+                variant: AppButtonVariant.link,
+                onPressed: _division == null ? null : () => _openDivision(null),
+              ),
+            ],
+            if (division != null) ...[
+              Icon(Icons.chevron_right, size: 16, color: c.textMuted),
+              Text(
+                '${division.code} ${division.name}',
+                style: t.body(13, weight: FontWeight.w600),
+              ),
+            ],
+          ],
         ),
         const SizedBox(height: AppSpace.sm),
         if (_failed)
-          MarketLoadNotice(subject: '업종별 시가총액', retry: _load)
-        else if (map == null)
+          MarketLoadNotice(subject: '업종 지도', retry: _load)
+        else if (_loading || map == null)
           const LinearProgressIndicator(minHeight: 2)
         else if (map.baseDate == null)
-          Text(
-            '아직 시세를 수집하지 않았습니다.',
-            style: t.body(13, color: c.textMuted),
-          )
+          Text('아직 시세를 수집하지 않았습니다.', style: t.body(13, color: c.textMuted))
         else ...[
-          _Breadcrumb(map: map, onBack: () => _drill(null)),
+          Wrap(
+            spacing: AppSpace.lg,
+            runSpacing: AppSpace.xs,
+            children: [
+              Text(
+                '시가총액 ${formatKrw(total)}',
+                style: t.numeric(16, weight: FontWeight.w600),
+              ),
+              Text(
+                '${formatCount(count)}개사 · $level별 보기',
+                style: t.body(13, color: c.textSecondary),
+              ),
+              Text(
+                '기준일 ${formatDate(map.baseDate!)}',
+                style: t.numeric(12, color: c.textMuted),
+              ),
+            ],
+          ),
           const SizedBox(height: AppSpace.sm),
-          if (map.nodes.isEmpty)
-            Text(
-              '기업에 연결된 종목 시세가 없습니다.',
-              style: t.body(13, color: c.textMuted),
-            )
+          Text(
+            _division != null
+                ? '기업을 선택하면 상세 정보를 볼 수 있어요.'
+                : _section != null
+                ? '중분류를 선택해 소속 기업을 살펴보세요.'
+                : '대분류를 선택해 업종을 좁혀보세요.',
+            style: t.body(13, color: c.textSecondary),
+          ),
+          const SizedBox(height: AppSpace.md),
+          if (nodes.isEmpty)
+            Text('기업에 연결된 종목 시세가 없습니다.', style: t.body(13, color: c.textMuted))
           else
             LayoutBuilder(
               builder: (context, constraints) => AppTreemap<String>(
-                items: _items(map, constraints.maxWidth),
-                height: 440,
+                items: _items(nodes, total),
+                height: constraints.maxWidth < 600 ? 320 : 440,
                 onTap: (item) {
-                  if (item.id.startsWith('corp:')) {
-                    widget.onSelectCompany(item.id.substring(5));
-                  } else if (map.sectionCode == null) {
-                    // 대분류 머리글이나 '그 외' 타일 → 그 대분류로 들어간다.
-                    final section = item.id.split('/').first;
-                    if (section != '-') _drill(section);
+                  if (item.id == '__more__') {
+                    final listContext = _listKey.currentContext;
+                    if (listContext != null) {
+                      Scrollable.ensureVisible(listContext);
+                    }
+                  } else {
+                    _select(item.id);
                   }
                 },
               ),
             ),
           const SizedBox(height: AppSpace.sm),
           _Footnote(map: map),
-          _NodeTable(map: map),
+          const SizedBox(height: AppSpace.lg),
+          Text(
+            '$level 목록 · 시가총액 순',
+            key: _listKey,
+            style: t.body(14, weight: FontWeight.w600),
+          ),
+          const SizedBox(height: AppSpace.sm),
+          _NodeTable(
+            nodes: nodes.take(_visibleRows).toList(),
+            total: total,
+            companies: _division != null,
+            onSelect: _select,
+          ),
+          if (nodes.length > _visibleRows) ...[
+            const SizedBox(height: AppSpace.sm),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: AppButton(
+                label: '더 보기 (${formatCount(nodes.length - _visibleRows)}개 남음)',
+                onPressed: () => setState(() => _visibleRows += 30),
+              ),
+            ),
+          ],
         ],
       ],
     );
   }
 
-  List<TreemapItem<String>> _items(MarketCapTreemap map, double width) {
-    // 좁은 화면에서는 타일이 작아 이름이 안 보이므로 덜 넣는다.
-    final perSection = width < 700 ? 6 : _companiesPerSection;
-    final total = map.total.toDouble();
-    String share(BigInt cap) => total <= 0
-        ? ''
-        : '${(cap.toDouble() / total * 100).toStringAsFixed(1)}%';
-    String tip(String name, BigInt cap, int count) =>
-        '$name\n시가총액 ${formatKrw(cap)} · 비중 ${share(cap)} · ${formatCount(count)}개사';
-
-    if (map.sectionCode == null) {
-      return [
-        for (final section in map.nodes)
-          TreemapItem(
-            id: section.code,
-            label: '${section.code} ${section.name}',
-            value: section.marketCap.toDouble(),
-            tooltip:
-                '${tip(section.name, section.marketCap, section.companyCount)}\n눌러서 중분류·기업 보기',
-            tappable: section.code != '-',
-            children: [
-              for (final company in section.children.take(perSection))
-                _companyItem(company, share),
-              if (section.children.length > perSection ||
-                  section.companyCount > section.children.length)
-                _rest(
-                  section.children.skip(perSection).toList(),
-                  section,
-                  id: '${section.code}/more',
-                ),
-            ],
-          ),
-      ];
-    }
-
+  List<TreemapItem<String>> _items(List<MarketCapNode> nodes, BigInt total) {
+    final companies = _division != null;
+    final shown = companies ? nodes.take(30).toList() : nodes;
+    final rest = companies ? nodes.skip(30).toList() : <MarketCapNode>[];
+    String share(BigInt cap) => total <= BigInt.zero
+        ? '0.0%'
+        : '${(cap.toDouble() / total.toDouble() * 100).toStringAsFixed(1)}%';
     return [
-      for (final division in map.nodes)
+      for (final node in shown)
         TreemapItem(
-          id: division.code,
-          label: '${division.code} ${division.name}',
-          value: division.marketCap.toDouble(),
-          tooltip: tip(
-            division.name,
-            division.marketCap,
-            division.companyCount,
-          ),
-          tappable: false,
-          children: [
-            for (final company in division.children.take(_companiesPerDivision))
-              _companyItem(company, share),
-            if (division.children.length > _companiesPerDivision)
-              _rest(
-                division.children.skip(_companiesPerDivision).toList(),
-                null,
-              ),
-          ],
+          id: node.code,
+          label: companies ? node.name : '${node.code} ${node.name}',
+          value: node.marketCap.toDouble(),
+          detail:
+              '${formatKrw(node.marketCap)}${companies ? '' : ' · ${formatCount(node.companyCount)}개사'}',
+          tooltip:
+              '${node.name}\n시가총액 ${formatKrw(node.marketCap)} · 비중 ${share(node.marketCap)}\n'
+              '${companies ? '눌러서 기업 상세 보기' : '${formatCount(node.companyCount)}개사 · 눌러서 하위 분류 보기'}',
+        ),
+      if (rest.isNotEmpty)
+        TreemapItem(
+          id: '__more__',
+          label: '그 외 ${formatCount(rest.length)}개사',
+          detail: '아래 목록 보기',
+          value: rest.fold(BigInt.zero, (s, n) => s + n.marketCap).toDouble(),
+          tooltip: '작은 기업은 아래 기업 목록에서 모두 찾아볼 수 있어요.',
         ),
     ];
-  }
-
-  static TreemapItem<String> _companyItem(
-    MarketCapNode company,
-    String Function(BigInt) share,
-  ) => TreemapItem(
-    id: 'corp:${company.code}',
-    label: company.name,
-    detail: formatKrw(company.marketCap),
-    value: company.marketCap.toDouble(),
-    tooltip:
-        '${company.name} (${marketLabel(company.market)})\n'
-        '시가총액 ${formatKrw(company.marketCap)} · 비중 ${share(company.marketCap)}\n'
-        '눌러서 기업 상세 열기',
-  );
-
-  /// 남은 기업을 한 칸으로. 첫 화면에서는 눌러서 그 업종 전체를 본다.
-  static TreemapItem<String> _rest(
-    List<MarketCapNode> rest,
-    MarketCapNode? section, {
-    String id = '',
-  }) {
-    final cap = rest.fold(BigInt.zero, (s, n) => s + n.marketCap);
-    final hidden = section == null
-        ? rest.length
-        : section.companyCount - (section.children.length - rest.length);
-    final total = section == null
-        ? cap
-        : section.marketCap -
-              section.children
-                  .take(section.children.length - rest.length)
-                  .fold(BigInt.zero, (s, n) => s + n.marketCap);
-    return TreemapItem(
-      id: id,
-      label: '그 외 ${formatCount(hidden)}개사',
-      detail: formatKrw(total),
-      value: total.toDouble(),
-      tooltip: section == null
-          ? '그 외 ${formatCount(hidden)}개사 합계 ${formatKrw(total)}'
-          : '${section.name}의 나머지 ${formatCount(hidden)}개사 합계 ${formatKrw(total)}\n눌러서 이 업종 전체 보기',
-      tappable: section != null,
-    );
-  }
-}
-
-class _Breadcrumb extends StatelessWidget {
-  const _Breadcrumb({required this.map, required this.onBack});
-
-  final MarketCapTreemap map;
-  final VoidCallback onBack;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    final t = context.typo;
-    final total = Text(
-      '합계 ${formatKrw(map.total)}',
-      style: t.numeric(13, weight: FontWeight.w600),
-    );
-    if (map.sectionCode == null) {
-      return Row(
-        children: [
-          Text('전체 업종', style: t.body(13, weight: FontWeight.w600)),
-          const Spacer(),
-          total,
-        ],
-      );
-    }
-    return Row(
-      children: [
-        AppButton(
-          label: '← 전체 업종',
-          variant: AppButtonVariant.link,
-          tone: c.accent,
-          onPressed: onBack,
-        ),
-        const SizedBox(width: AppSpace.sm),
-        Expanded(
-          child: Text(
-            '${map.sectionCode} ${map.sectionName ?? ''}',
-            style: t.body(13, weight: FontWeight.w600),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        total,
-      ],
-    );
   }
 }
 
 class _Footnote extends StatelessWidget {
   const _Footnote({required this.map});
-
   final MarketCapTreemap map;
 
   @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    final t = context.typo;
-    return Text(
-      [
-        '면적 = 기업 시가총액 (발행 종목 보통주·우선주 등의 시가총액 합)',
-        '업종명 ${map.industryRevision}',
-        if (map.unlinkedSecurityCount > 0)
-          '기업에 연결되지 않은 종목 ${formatCount(map.unlinkedSecurityCount)}개 '
-              '(${formatKrw(map.unlinkedMarketCap)})는 제외',
-        if (map.source != null) '출처 ${map.source!.title}',
-      ].join(' · '),
-      style: t.body(11.5, color: c.textMuted),
-    );
-  }
+  Widget build(BuildContext context) => Text(
+    [
+      '면적 = 시가총액 · 색은 등락률을 나타내지 않습니다',
+      '공식 한국표준산업분류 ${map.industryRevision}',
+      '기업 시가총액은 보통주·우선주 등 발행 종목의 합계',
+      if (map.unlinkedSecurityCount > 0)
+        '기업 미연결 종목 ${formatCount(map.unlinkedSecurityCount)}개 (${formatKrw(map.unlinkedMarketCap)}) 제외',
+      if (map.source != null) '출처 ${map.source!.title}',
+    ].join(' · '),
+    style: context.typo.body(11.5, color: context.colors.textMuted),
+  );
 }
 
-/// 트리맵과 같은 값을 표로.
+/// 작은 타일도 같은 동작으로 탐색할 수 있도록 목록을 항상 펼친다.
 class _NodeTable extends StatelessWidget {
-  const _NodeTable({required this.map});
-
-  final MarketCapTreemap map;
+  const _NodeTable({
+    required this.nodes,
+    required this.total,
+    required this.companies,
+    required this.onSelect,
+  });
+  final List<MarketCapNode> nodes;
+  final BigInt total;
+  final bool companies;
+  final ValueChanged<String> onSelect;
 
   @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    final t = context.typo;
-    final total = map.total.toDouble();
-    return Theme(
-      data: Theme.of(context).copyWith(dividerColor: c.border),
-      child: ExpansionTile(
-        tilePadding: EdgeInsets.zero,
-        dense: true,
-        title: Text('표로 보기', style: t.body(12.5, color: c.textSecondary)),
-        children: [
-          for (final node in map.nodes)
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 5),
-              decoration: BoxDecoration(
-                border: Border(bottom: BorderSide(color: c.border, width: 0.8)),
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final wide = constraints.maxWidth >= 600;
+      if (!wide) {
+        return Column(
+          children: [
+            for (final node in nodes)
+              HoverBuilder(
+                onTap: () => onSelect(node.code),
+                builder: (context, hovered) => Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: AppSpace.md,
+                    horizontal: AppSpace.sm,
+                  ),
+                  decoration: BoxDecoration(
+                    color: hovered ? context.colors.surfaceHover : null,
+                    border: Border(
+                      bottom: BorderSide(color: context.colors.border),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        companies
+                            ? '${node.name} →'
+                            : '${node.code} ${node.name} →',
+                        style: context.typo.body(
+                          13,
+                          color: context.colors.accent,
+                          weight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpace.xs),
+                      Wrap(
+                        spacing: AppSpace.md,
+                        runSpacing: AppSpace.xs,
+                        children: [
+                          Text(
+                            formatKrw(node.marketCap),
+                            style: context.typo.numeric(13),
+                          ),
+                          if (!companies)
+                            Text(
+                              '${formatCount(node.companyCount)}개사',
+                              style: context.typo.body(
+                                12,
+                                color: context.colors.textSecondary,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 48,
-                    child: Text(
-                      node.code,
-                      style: t.numeric(12, weight: FontWeight.w700),
-                    ),
-                  ),
-                  Expanded(child: Text(node.name, style: t.body(12.5))),
-                  SizedBox(
-                    width: 80,
-                    child: Text(
-                      '${formatCount(node.companyCount)}개사',
-                      textAlign: TextAlign.right,
-                      style: t.numeric(12, color: c.textSecondary),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 140,
-                    child: Text(
-                      formatKrw(node.marketCap),
-                      textAlign: TextAlign.right,
-                      style: t.numeric(12),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 64,
-                    child: Text(
-                      total <= 0
-                          ? ''
-                          : '${(node.marketCap.toDouble() / total * 100).toStringAsFixed(1)}%',
-                      textAlign: TextAlign.right,
-                      style: t.numeric(12, color: c.textSecondary),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          ],
+        );
+      }
+      return AppDataTable(
+        columns: [
+          AppColumn(companies ? '기업' : '업종', flex: true),
+          if (!companies && wide) const AppColumn('기업 수', numeric: true),
+          const AppColumn('시가총액', numeric: true),
+          if (wide) const AppColumn('비중', numeric: true),
         ],
-      ),
-    );
-  }
+        rows: [
+          for (final node in nodes)
+            AppRow([
+              AppButton(
+                label: companies
+                    ? '${node.name} →'
+                    : '${node.code} ${node.name} →',
+                variant: AppButtonVariant.link,
+                tone: context.colors.accent,
+                onPressed: () => onSelect(node.code),
+              ),
+              if (!companies && wide)
+                AppDataTable.text(
+                  context,
+                  '${formatCount(node.companyCount)}개사',
+                  numeric: true,
+                ),
+              AppDataTable.text(
+                context,
+                formatKrw(node.marketCap),
+                numeric: true,
+              ),
+              if (wide)
+                AppDataTable.text(
+                  context,
+                  total <= BigInt.zero
+                      ? '—'
+                      : '${(node.marketCap.toDouble() / total.toDouble() * 100).toStringAsFixed(1)}%',
+                  numeric: true,
+                ),
+            ]),
+        ],
+      );
+    },
+  );
 }

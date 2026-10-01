@@ -131,7 +131,7 @@ class _MarketPageState extends State<MarketPage> {
         ValueListenableBuilder<int>(
           valueListenable: IngestMonitor.instance.dataVersion,
           builder: (context, version, _) => MarketCapTreemapSection(
-            key: ValueKey('treemap-$version'),
+            dataVersion: version,
             market: _market,
             onSelectCompany: (corpCode) =>
                 context.push(AppRoutes.company(corpCode)),
