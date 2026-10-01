@@ -1,5 +1,7 @@
 # 광고·월 2,900원 광고 제거: 승인 전 검증
 
+현재 공식 태그 수정과 검증 범위는 마지막 2026-10-02 절을 우선한다. 앞선 메시지 전용 태그의 script 수와 배포 기록은 당시 이력이다.
+
 검증일: 2026-10-01 KST. PR #87 당시 웹 c1b7034는 후속 배포 7d6d236으로 대체되었다. 이번 후속 변경은 main 789fbe5와 운영 백엔드 4fd01b3의 기능을 포함하며 프런트·백엔드를 모두 변경한다. 아래 기존 수치는 당시 증거이고 후속 결과는 마지막 절에서 구분한다. 기본 체크아웃의 다른 작업과 기존 광고 워크트리는 수정하지 않았다.
 
 ## 완료 범위와 증거
@@ -68,7 +70,7 @@ Google 인증 CMP 지역별 허용/거부/철회의 실제 동작은 운영 활�
 
 Auto Ads OFF를 관리 화면에서 현재 확인한 뒤 별도 임시 진단 탭에서 AdSense tag만 로드했다. 애플리케이션의 ins 생성/push가 없어도 Google tag는 숨김 0×0 ins/iframe과 `/pagead/ads` 요청을 자체 생성했다. 노출된 배너는 없었고 탭을 즉시 닫았다. 따라서 **push=0은 Google 광고 요청=0을 증명하지 않는다**. 이 진단은 운영 플래그를 활성화하지 않았지만 실제 tag 네트워크 요청은 발생한 것으로 명확히 기록한다.
 
-최종 구현은 자체 opt-in → Google Funding Choices **메시지 전용** `/i/pub-…?ers=1` → CMP 명시 허용 → AdSense tag → 수동 slot 순서다. CMP 거절/불명/오류/지연/누락에서는 AdSense tag 자체를 로드하지 않는다. 메시지 전용 tag의 실제 응답과 TCF API는 앞선 진단에서 확인했다. 기존 'AdSense tag가 CMP를 로드한 뒤 push만 차단' 설명은 역사적 구현이며 이 순서로 대체된다. 공급자 message-only tag의 EU/US 실제 지역별 동작이 확인되기 전 privacy-ready는 계속 false다. Auto Ads OFF라도 AdSense tag가 만드는 내부 요청을 수동 광고 slot 요청과 구분해 Network에서 측정한다. 최종 Node/browser harness는 CMP script와 AdSense script 삽입을 각각 센다.
+당시 구현은 자체 opt-in → Google Funding Choices **메시지 전용** `/i/pub-…?ers=1` → CMP 명시 허용 → AdSense tag → 수동 slot 순서다. CMP 거절/불명/오류/지연/누락에서는 AdSense tag 자체를 로드하지 않는다. 메시지 전용 tag의 실제 응답과 TCF API는 앞선 진단에서 확인했다. 기존 'AdSense tag가 CMP를 로드한 뒤 push만 차단' 설명은 역사적 구현이며 이 순서로 대체된다. 공급자 message-only tag의 EU/US 실제 지역별 동작이 확인되기 전 privacy-ready는 계속 false다. Auto Ads OFF라도 AdSense tag가 만드는 내부 요청을 수동 광고 slot 요청과 구분해 Network에서 측정한다. 최종 Node/browser harness는 CMP script와 AdSense script 삽입을 각각 센다.
 
 ## 실제 Flutter Web 렌더러 회원 전환 검증 (최종)
 
@@ -113,3 +115,14 @@ Google의 현재 [TCF 게시자 연동 문서](https://support.google.com/adsens
 **진단의 예외를 숨기지 않는다.** 실제 AdSense 태그에서 pauseAdRequests=1 동안 CMP가 초기화되지 않았다. 이후 test-mode 진단에서 탭의 Network.setBlockedURLs가 광고 하위 프레임에 적용되지 않아 실제 광고 요청/응답이 관측됐다. 즉시 해당 진단 탭을 닫았다. 이 진단은 0 요청 통과에 포함하지 않으며 운영 플래그 변경도 없었다. 앞으로 실제 inventory 코드 진단은 하위 타깃까지 차단이 확인되지 않으면 실행하지 않는다. 메시지 전용 진단과 모의 전송 테스트는 실제 광고 요청 없이 진행했다.
 
 Google 공식 gethelp GDPR 경로는 현재 계정·한국어에서 이메일/채팅을 제공하지 않고 사용할 수 없는 커뮤니티만 제시했다. 공식 [EU 관련 FAQ](https://support.google.com/adsense/answer/11546682?hl=en)의 문의 주소와 재현 자료를 준비했다. 외부 발송은 사용자의 별도 승인을 요청했으며, 발송 또는 공급자 확인이 완료된 것으로 기록하지 않는다. 상세 안전한 증거는 기본 저장소 outputs/monetization-preapproval-01a0f73f/followup/cmp-further-diagnostic.json에 보존한다.
+
+
+## 2026-10-02 공식 AdSense 설치 경로 정정
+
+Google [EU 메시지 설치 문제 해결](https://support.google.com/adsense/answer/14660912?hl=en)은 최신 AdSense 태그·동일 계정·top window·교차 출처 Referrer를 요구하며 별도 Privacy & messaging 태그 지침은 광고 차단 회복 메시지에만 해당한다고 명시한다. [FC API](https://developers.google.com/funding-choices/fc-api-docs)의 callbackQueue를 사용하되 `/i/...` 메시지 전용 태그를 앱이 직접 삽입하는 코드를 제거했다. [요청 중지 API](https://support.google.com/adsense/answer/7670312?hl=en)와 [공식 비동기 예시](https://support.google.com/adsense/answer/9042142?hl=en)에 따라 무료 회원·자체 opt-in 후 AdSense 태그 삽입 전 pauseAdRequests=1을 설정하고 onload에서도 유지한다. 명시적 CMP 허용 뒤에만 non-personalized 요청과 수동 slot 하나를 생성하고 pauseAdRequests=0으로 재개한다. 거부·누락·오류·지연·철회·유료 전환은 중지하며 추가 push를 하지 않는다. 자체 거부·유료/회원 조회 미확정에는 Google 태그 자체를 로드하지 않는다. 이미 시작한 요청의 소급 취소를 주장하지 않는다.
+
+Node 검증은 실제 callbackQueue처럼 비동기 배열 큐가 태그 로드 뒤 실행되는 경로를 추가했다. Google 전송 모의인 브라우저 fixture도 공식 태그가 CMP 콜백을 제공하도록 변경했다. 따라서 CMP 거부의 올바른 기대값은 ‘중지된 공식 태그 1, inventory push 0’이며, 과거의 ‘AdSense 태그 0’ 수치는 새 흐름의 기준이 아니다. 실제 Google 태그 내부 네트워크 0은 별도 측정이 필요하며 mock push=0으로 대신하지 않는다.
+
+실제 계정 점검: alfinder.kr 준비 중, ads.txt 승인됨, 게시된 Alfinder EU consent, 첫 화면 거부 버튼, 32개 언어, 일반 광고 파트너198개를 확인했다. referrer 정책과 게시자 ID도 일치했다. 계정 파트너 0이나 다른 게시자 ID가 원인이라는 증거는 없다. 공식 태그+pause와 inventory 제한 CSP를 적용한 임시 운영-origin 진단에서는 실제 EU 동의 UI를 확인하지 못했다. 임시 탭은 폐쇄했다. 이 진단은 CSP가 개입하므로 전체 공급자 동작 통과도 아니고 승인 대기만이 원인이라는 증거도 아니다. 운영 광고·결제 플래그는 그대로 OFF다.
+
+[자동 동의 철회 링크 공식 문서](https://support.google.com/adsense/answer/10959060?hl=en-GB)는 승인된 사이트에만 자동 링크가 추가된다고 명시한다. 이는 자동 링크 조건이며 EU 메시지 전체가 승인 전에 불가능하다는 문구로 확대하지 않는다. 승인 후 새 세션/강제 GDPR에서 실제 거절→허용→재표시→철회, 한국 정상 방문, TCF 목적/vendor·US/GPP 상태 및 전체 프레임의 inventory 요청을 확인한다. 실제 UI 미검증이 남아 있어 승인 전 준비 전부 완료라고 표현하지 않는다.

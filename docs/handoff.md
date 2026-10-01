@@ -833,3 +833,8 @@ main 789fbe5/운영 backend 4fd01b3의 후속 기능을 보존한 격리 체크�
 ### 2026-10-01 유럽 CMP 후속 진단·기본 광고 목적 조건
 
 PR90/main7cb54f3 웹과 서버53cba81 배포 및 운영 OFF 검증 완료. 이후 목적1+Google755만 확인하던 EU 기본 광고 게이트의 목적2/7/9/10·공급자 적법한 이익 및 publisher restrictions 검증 누락을 발견해 보완. Google 실제 EU UI는 아직 미검증이며 승인 때문이라는 인과는 입증되지 않았다. 공식 초기화 모드·marker·cookie reset·Referrer·게시 대상 및 정책URL 대조를 기록했다. 실제 AdSense test 진단에서 하위 프레임 요청이 탭의 차단을 벗어난 예외를 포함해 기록했으며 0 요청 통과로 주장하지 않는다. 상세: monetization-preapproval-verification.md 마지막 절. 최종 CI·PR·배포 및 외부 문의 발송 결과는 별도 최신 증거로 확인한다.
+
+
+### 2026-10-02 공식 Google 태그 경로 보완
+
+EU 공식 설치 문서와 pauseAdRequests API에 맞춰 앱의 메시지 전용 태그 삽입을 제거하고 공식 AdSense 태그를 중지 상태로 초기화한다. 회원·자체 동의 게이트 유지, CMP 명시 허용 때만 수동 slot1 재개, 오류·철회·유료 전환은 중지. 실제 Google EU UI는 미완료이며 승인 탓으로 단정하지 않는다. 활성화 플래그 OFF 유지. 최신 검증 및 배포 근거는 monetization-preapproval-verification.md 마지막 절과 해당 PR을 따른다.

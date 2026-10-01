@@ -6,6 +6,10 @@ const path = require('node:path');
 const source = fs.readFileSync(path.join(__dirname, '../../web/ad_loader.js'), 'utf8');
 const publisher = 'ca-pub-1234567890123456';
 const slot = '1234567890';
+function noInventory(e) {
+ assert.equal(e.root.adsbygoogle?.length || 0, 0);
+ if(e.root.adsbygoogle) assert.equal(e.root.adsbygoogle.pauseAdRequests,1);
+}
 function environment() {
   const scripts = [], cmpScripts = [], frames = new Map(), timers = new Map(), observers = [];
   let id = 0;
@@ -23,7 +27,7 @@ function environment() {
   root.__tcfapi=(_cmd,_version,callback)=>callback({eventStatus:'tcloaded',gdprApplies:false,cmpId:300,cmpStatus:'loaded'},true);
   root.googlefc={usstatesoptout:{getInitialUsStatesOptOutStatus:()=>1},callbackQueue:{push:item=>{if(item.CONSENT_API_READY)item.CONSENT_API_READY();if(item.INITIAL_US_STATES_OPT_OUT_DATA_READY)item.INITIAL_US_STATES_OPT_OUT_DATA_READY();}}};
   vm.runInNewContext(source, {window:root,URLSearchParams,
-    document:{head:{appendChild:s=>{if(s.src.includes('fundingchoicesmessages')){cmpScripts.push(s);Promise.resolve().then(()=>s.onload());}else scripts.push(s);}},createElement:()=>element()},
+    document:{head:{appendChild:s=>{if(s.src.includes('fundingchoicesmessages')){cmpScripts.push(s);Promise.resolve().then(()=>s.onload());}else {assert.equal(root.adsbygoogle.pauseAdRequests,1);scripts.push(s);}}},createElement:()=>element()},
     requestAnimationFrame:fn=>{frames.set(++id,fn);return id;}, cancelAnimationFrame:i=>frames.delete(i),
     setTimeout:fn=>{timers.set(++id,fn);return id;}, clearTimeout:i=>timers.delete(i),
     MutationObserver:class {constructor(fn){this.fn=fn;observers.push(this);} observe(){} disconnect(){this.disconnected=true;}}
@@ -32,15 +36,15 @@ function environment() {
   return {root,scripts,cmpScripts,frames,timers,observers,element,tick,events};
 }
 test('loading local bridge and invalid IDs never request ads', async()=>{
-  const e=environment();assert.equal(e.scripts.length,0);
+  const e=environment();noInventory(e);
   assert.equal(await e.root.alfinderAds.mount(e.element(),'bad',slot,true),false);
-  assert.equal(e.scripts.length,0);
+  noInventory(e);
 });
 test('dispose before attachment cancels loading',async()=>{
   const e=environment(),el=e.element();el.isConnected=false;
   const p=e.root.alfinderAds.mount(el,publisher,slot,true);
   e.root.alfinderAds.dispose(el);await e.tick();assert.equal(await p,false);
-  assert.equal(e.scripts.length,0);assert.equal(e.frames.size,0);
+  noInventory(e);assert.equal(e.frames.size,0);
 });
 test('loads once, test mode is explicit, never refreshes same element',async()=>{
   const e=environment(),el=e.element();
@@ -65,19 +69,19 @@ test('no fill and script failure resolve false without retries',async()=>{
 test('paid-account disposal during script loading prevents late ad push',async()=>{
   const e=environment(),el=e.element();const p=e.root.alfinderAds.mount(el,publisher,slot,true);
   await e.tick();e.root.alfinderAds.dispose(el);e.scripts[0].onload();await e.tick();
-  assert.equal(await p,false);assert.equal(e.root.adsbygoogle,undefined);assert.equal(el.children.length,0);
+  assert.equal(await p,false);noInventory(e);assert.equal(el.children.length,0);
 });
 test('narrow container waits without requesting then cancels on disposal',async()=>{
  const e=environment(),el=e.element();el.getBoundingClientRect=()=>({width:249});
  const p=e.root.alfinderAds.mount(el,publisher,slot,true);await e.tick();
- assert.equal(e.scripts.length,0);e.root.alfinderAds.dispose(el);assert.equal(await p,false);
+ noInventory(e);e.root.alfinderAds.dispose(el);assert.equal(await p,false);
  assert.equal(e.frames.size,0);
 });
 test('slot timeout cancels observers and prevents later pushes',async()=>{
  const e=environment(),el=e.element();el.isConnected=false;
  const p=e.root.alfinderAds.mount(el,publisher,slot,true);
  for(const fn of [...e.timers.values()])fn();assert.equal(await p,false);
- el.isConnected=true;await e.tick();assert.equal(e.scripts.length,0);
+ el.isConnected=true;await e.tick();noInventory(e);
 });
 test('publisher change cannot silently reuse another publisher script',async()=>{
  const e=environment(),el=e.element();const p=e.root.alfinderAds.mount(el,publisher,slot,true);
@@ -96,14 +100,36 @@ test('reject or missing consent bridge never fetches Google',async()=>{
  for(const consent of [undefined,{choice:()=>false,request:async()=>false}]) {
   const e=environment();e.root.alfinderAdConsent=consent;
   const p=e.root.alfinderAds.mount(e.element(),publisher,slot,false);await e.tick();
-  assert.equal(await p,false);assert.equal(e.scripts.length,0);
+  assert.equal(await p,false);noInventory(e);assert.equal(e.scripts.length,0);
  }
+});
+
+test('realistic queued CMP rejection keeps the loaded official tag paused',async()=>{
+ const e=environment(),el=e.element();e.root.googlefc.callbackQueue=[];
+ const p=e.root.alfinderAds.mount(el,publisher,slot,false);await e.tick();
+ assert.equal(e.scripts.length,1);noInventory(e);
+ e.scripts[0].onload();await e.tick();noInventory(e);
+ e.root.__tcfapi=(cmd,_v,cb)=>{if(cmd==='addEventListener')cb({...euBasicConsent(),purpose:{consents:{1:false}}},true);};
+ e.root.googlefc.callbackQueue[0].CONSENT_API_READY();await e.tick();
+ assert.equal(await p,false);noInventory(e);assert.equal(el.children.length,0);
+});
+
+test('realistic queued CMP consent resumes once and withdrawal pauses immediately',async()=>{
+ const e=environment(),el=e.element();e.root.googlefc.callbackQueue=[];let listener;
+ e.root.__tcfapi=(cmd,_v,cb)=>{if(cmd==='addEventListener'){listener=cb;cb(euBasicConsent(),true);}};
+ const p=e.root.alfinderAds.mount(el,publisher,slot,true);await e.tick();
+ noInventory(e);e.scripts[0].onload();await e.tick();noInventory(e);
+ e.root.googlefc.callbackQueue[0].CONSENT_API_READY();await e.tick();
+ assert.equal(e.root.adsbygoogle.pauseAdRequests,0);assert.equal(e.root.adsbygoogle.length,1);
+ listener({...euBasicConsent(),eventStatus:'useractioncomplete',purpose:{consents:{1:false}}},true);
+ assert.equal(await p,false);assert.equal(e.root.adsbygoogle.pauseAdRequests,1);
+ assert.equal(e.root.adsbygoogle.length,1);assert.equal(el.children.length,0);
 });
 test('EU rejection or CMP failure never pushes an ad',async()=>{
  for(const data of [null,{eventStatus:'useractioncomplete',gdprApplies:true,cmpId:300,cmpStatus:'loaded',purpose:{consents:{1:false}},vendor:{consents:{755:true}}}]){
   const e=environment();e.root.__tcfapi=(_c,_v,cb)=>cb(data,!!data);
   const p=e.root.alfinderAds.mount(e.element(),publisher,slot,false);await e.tick();
-  assert.equal(e.scripts.length,0);assert.equal(await p,false);assert.equal(e.root.adsbygoogle,undefined);
+  noInventory(e);assert.equal(await p,false);noInventory(e);
  }
 });
 
@@ -120,10 +146,10 @@ test('local withdrawal while CMP is pending prevents late ad push',async()=>{
  const e=environment(),el=e.element();let listener;
  e.root.__tcfapi=(cmd,_v,cb)=>{if(cmd==='addEventListener')listener=cb;};
  const p=e.root.alfinderAds.mount(el,publisher,slot,false);await e.tick();
- assert.equal(e.scripts.length,0);
+ noInventory(e);
  e.root.alfinderAdConsent.choice=()=>false;e.events['alfinder-ad-consent']();
  listener({eventStatus:'tcloaded',gdprApplies:false,cmpId:300,cmpStatus:'loaded'},true);await e.tick();
- assert.equal(await p,false);assert.equal(el.children.length,0);assert.equal(e.root.adsbygoogle,undefined);
+ assert.equal(await p,false);assert.equal(el.children.length,0);noInventory(e);
 });
 
 // These test both transport setup and slot pushes; a script fetch is not an ad push.
@@ -135,18 +161,18 @@ test('CMP missing, unknown jurisdiction, wrong CMP or missing vendor cannot requ
   if(data===undefined)e.root.googlefc.callbackQueue=[];
   else e.root.__tcfapi=(_c,_v,cb)=>cb(data,true);
   const p=e.root.alfinderAds.mount(el,publisher,slot,true);await e.tick();
-  assert.equal(e.scripts.length,0);
+  noInventory(e);
   for(const fn of [...e.timers.values()])fn();await e.tick();
-  assert.equal(await p,false);assert.equal(e.root.adsbygoogle,undefined);assert.equal(el.children.length,0);
+  assert.equal(await p,false);noInventory(e);assert.equal(el.children.length,0);
  }
 });
 test('initial CMP UI has a deadline and late consent cannot push',async()=>{
  const e=environment(),el=e.element();let listener;
  e.root.__tcfapi=(cmd,_v,cb)=>{if(cmd==='addEventListener'){listener=cb;cb({eventStatus:'cmpuishown',listenerId:3},true);}};
  const p=e.root.alfinderAds.mount(el,publisher,slot,true);await e.tick();
- assert.equal(e.scripts.length,0);assert.ok(e.timers.size>0);
+ noInventory(e);assert.ok(e.timers.size>0);
  for(const fn of [...e.timers.values()])fn();await e.tick();assert.equal(await p,false);
- listener({eventStatus:'useractioncomplete',gdprApplies:false,cmpId:300,cmpStatus:'loaded'},true);await e.tick();assert.equal(e.root.adsbygoogle,undefined);
+ listener({eventStatus:'useractioncomplete',gdprApplies:false,cmpId:300,cmpStatus:'loaded'},true);await e.tick();noInventory(e);
 });
 test('post-approval error, reopened UI or unknown jurisdiction removes inventory',async()=>{
  for(const data of [null,{eventStatus:'cmpuishown'},{eventStatus:'tcloaded'},
@@ -166,11 +192,11 @@ test('actual Google non-GDPR loaded callback may omit eventStatus',async()=>{
  assert.equal(e.root.adsbygoogle.length,1);e.root.alfinderAds.dispose(el);assert.equal(await p,false);
 });
 
-test('delayed CMP grants permission before AdSense script is inserted',async()=>{
+test('delayed CMP holds requests paused while the official tag initializes',async()=>{
  const e=environment(),el=e.element();let listener;
  e.root.__tcfapi=(cmd,_v,cb)=>{if(cmd==='addEventListener')listener=cb;};
  const p=e.root.alfinderAds.mount(el,publisher,slot,true);await e.tick();
- assert.equal(e.cmpScripts.length,1);assert.equal(e.scripts.length,0);
+ assert.equal(e.cmpScripts.length,0);assert.equal(e.scripts.length,1);noInventory(e);
  listener({eventStatus:'useractioncomplete',gdprApplies:true,cmpId:300,cmpStatus:'loaded',purpose:{consents:{1:true},legitimateInterests:{2:true,7:true,9:true,10:true}},vendor:{consents:{755:true},legitimateInterests:{755:true}}},true);
  await e.tick();assert.equal(e.scripts.length,1);e.scripts[0].onload();await e.tick();
  assert.equal(e.root.adsbygoogle.length,1);e.root.alfinderAds.dispose(el);await p;
@@ -181,19 +207,19 @@ test('reopened CMP during AdSense download prevents late slot push',async()=>{
  e.root.__tcfapi=(cmd,_v,cb)=>{if(cmd==='addEventListener'){listener=cb;cb({eventStatus:'tcloaded',gdprApplies:false,cmpId:300,cmpStatus:'loaded',listenerId:8},true);}};
  const p=e.root.alfinderAds.mount(el,publisher,slot,true);await e.tick();assert.equal(e.scripts.length,1);
  listener({eventStatus:'cmpuishown',listenerId:8},true);e.scripts[0].onload();await e.tick();
- assert.equal(await p,false);assert.equal(e.root.adsbygoogle,undefined);assert.equal(el.children.length,0);
+ assert.equal(await p,false);noInventory(e);assert.equal(el.children.length,0);
 });
 
-test('US unknown, opt-out, missing GPP, or GPC never loads inventory',async()=>{
+test('US unknown, opt-out, missing GPP, or GPC never resumes inventory',async()=>{
  for(const status of [0,3,undefined,2]) {
   const e=environment();e.root.googlefc.usstatesoptout.getInitialUsStatesOptOutStatus=()=>status;
   const p=e.root.alfinderAds.mount(e.element(),publisher,slot,false);await e.tick();
   for(const fn of [...e.timers.values()])fn();await e.tick();
-  assert.equal(await p,false);assert.equal(e.scripts.length,0);
+  assert.equal(await p,false);noInventory(e);
  }
  const e=environment();e.root.navigator={globalPrivacyControl:true};
  const p=e.root.alfinderAds.mount(e.element(),publisher,slot,false);await e.tick();
- assert.equal(await p,false);assert.equal(e.scripts.length,0);
+ assert.equal(await p,false);noInventory(e);
 });
 test('US GPP ready permits once; a signal change invalidates before or after inventory download',async()=>{
  for(const [loaded,signal] of [[false,'not ready'],[true,'not ready'],[true,'error']]) {
@@ -204,16 +230,20 @@ test('US GPP ready permits once; a signal change invalidates before or after inv
   assert.equal(e.scripts.length,1);
   if(loaded){e.scripts[0].onload();await e.tick();assert.equal(e.root.adsbygoogle.length,1);}
   callback({eventName:'signalStatus',pingData:{cmpStatus:signal==='error'?'error':'loaded',signalStatus:signal==='error'?'ready':signal}},true);
-  if(!loaded){e.scripts[0].onload();await e.tick();assert.equal(e.root.adsbygoogle,undefined);}
+  if(!loaded){e.scripts[0].onload();await e.tick();noInventory(e);}
   assert.equal(await p,false);assert.equal(el.children.length,0);
  }
 });
 
-test('only documented CMP previews are forwarded, never activation or arbitrary URLs',async()=>{
+test('uses only the official tag and keeps requests paused during initialization',async()=>{
  const e=environment();e.root.location={search:'?fc=alwaysshow&fctype=gdpr&enabled=true&redirect=https://other.test'};
- e.root.alfinderAds.mount(e.element(),publisher,slot,false);await e.tick();
- assert.match(e.cmpScripts[0].src,/\?ers=1&fc=alwaysshow&fctype=gdpr$/);
- assert.equal(e.cmpScripts[0].src.includes('enabled'),false);
+ let listener;e.root.__tcfapi=(cmd,_v,cb)=>{if(cmd==='addEventListener')listener=cb;};
+ const p=e.root.alfinderAds.mount(e.element(),publisher,slot,false);await e.tick();
+ assert.equal(e.cmpScripts.length,0);
+ assert.equal(e.scripts[0].src,'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+publisher);
+ assert.equal(e.root.adsbygoogle.pauseAdRequests,1);noInventory(e);
+ e.scripts[0].onload();await e.tick();noInventory(e);
+ for(const fn of [...e.timers.values()])fn();await e.tick();assert.equal(await p,false);
 });
 
 
@@ -224,14 +254,14 @@ test('cached US initial allow cannot override a current opt-out on remount',asyn
  const first=e.element();e.root.alfinderAds.mount(first,publisher,slot,false);await e.tick();assert.equal(e.scripts.length,1);
  e.root.alfinderAds.dispose(first);optedOut=true;
  const remount=e.root.alfinderAds.mount(e.element(),publisher,slot,false);await e.tick();
- assert.equal(await remount,false);assert.equal(e.scripts.length,1);assert.equal(e.root.adsbygoogle,undefined);
+ assert.equal(await remount,false);assert.equal(e.scripts.length,1);noInventory(e);
 });
 test('ready GPP with missing or unknown parsed choices remains blocked',async()=>{
  for(const parsedSections of [undefined,{}, {usnat:{SaleOptOut:undefined}}, {usnat:{SaleOptOut:4}}, {usnat:{SaleOptOut:2}}]){
   const e=environment();e.root.googlefc.usstatesoptout.getInitialUsStatesOptOutStatus=()=>2;
   e.root.__gpp=(cmd,cb)=>{if(cmd==='addEventListener')cb({listenerId:1,eventName:'listenerRegistered',pingData:{cmpStatus:'loaded',signalStatus:'ready',parsedSections}},true);};
   const p=e.root.alfinderAds.mount(e.element(),publisher,slot,false);await e.tick();for(const fn of [...e.timers.values()])fn();await e.tick();
-  assert.equal(await p,false);assert.equal(e.scripts.length,0);
+  assert.equal(await p,false);noInventory(e);
  }
 });
 
@@ -239,7 +269,7 @@ test('ready GPP with missing or unknown parsed choices remains blocked',async()=
 test('non-GDPR results from a different CMP cannot load Google inventory',async()=>{
  const e=environment();e.root.__tcfapi=(_c,_v,cb)=>cb({gdprApplies:false,eventStatus:'tcloaded',cmpStatus:'loaded',cmpId:999},true);
  const p=e.root.alfinderAds.mount(e.element(),publisher,slot,false);await e.tick();
- assert.equal(await p,false);assert.equal(e.scripts.length,0);
+ assert.equal(await p,false);noInventory(e);
 });
 
 function euBasicConsent() {
@@ -248,19 +278,19 @@ function euBasicConsent() {
   vendor:{consents:{755:true},legitimateInterests:{755:true}}};
 }
 for (const purpose of [2,7,9,10]) {
- test(`EU purpose ${purpose} objection prevents AdSense script and inventory`,async()=>{
+ test(`EU purpose ${purpose} objection prevents inventory and keeps requests paused`,async()=>{
   const e=environment(),data=euBasicConsent();data.purpose.legitimateInterests[purpose]=false;
   e.root.__tcfapi=(cmd,_v,cb)=>{if(cmd==='addEventListener')cb(data,true);};
   const p=e.root.alfinderAds.mount(e.element(),publisher,slot,true);await e.tick();
-  assert.equal(await p,false);assert.equal(e.scripts.length,0);assert.equal(e.root.adsbygoogle,undefined);
+  assert.equal(await p,false);noInventory(e);noInventory(e);
  });
 }
-test('EU missing or rejected Google vendor legitimate interest prevents script loading',async()=>{
+test('EU missing or rejected Google vendor legitimate interest prevents ad inventory',async()=>{
  for(const value of [undefined,false]) {
   const e=environment(),data=euBasicConsent();data.vendor.legitimateInterests[755]=value;
   e.root.__tcfapi=(cmd,_v,cb)=>{if(cmd==='addEventListener')cb(data,true);};
   const p=e.root.alfinderAds.mount(e.element(),publisher,slot,true);await e.tick();
-  assert.equal(await p,false);assert.equal(e.scripts.length,0);
+  assert.equal(await p,false);noInventory(e);
  }
 });
 test('EU consent-only publisher restrictions require each purpose consent',async()=>{
@@ -281,7 +311,7 @@ test('EU publisher prohibits purpose or has unknown restriction: no requests',as
   const e=environment(),data=euBasicConsent();data.publisher={restrictions:{[purpose]:{755:rule}}};
   e.root.__tcfapi=(cmd,_v,cb)=>{if(cmd==='addEventListener')cb(data,true);};
   const p=e.root.alfinderAds.mount(e.element(),publisher,slot,true);await e.tick();
-  assert.equal(await p,false);assert.equal(e.scripts.length,0);
+  assert.equal(await p,false);noInventory(e);
  }
 });
 test('EU purpose objection after fill removes slot and never pushes again',async()=>{
@@ -296,7 +326,7 @@ test('EU loading CMP with complete purpose data cannot load an ad until loaded',
  const e=environment(),el=e.element(),data=euBasicConsent();let listener;
  data.cmpStatus='loading';
  e.root.__tcfapi=(cmd,_v,cb)=>{if(cmd==='addEventListener'){listener=cb;cb(data,true);}};
- const p=e.root.alfinderAds.mount(el,publisher,slot,true);await e.tick();assert.equal(e.scripts.length,0);
+ const p=e.root.alfinderAds.mount(el,publisher,slot,true);await e.tick();noInventory(e);
  data.cmpStatus='loaded';listener(data,true);await e.tick();assert.equal(e.scripts.length,1);
  e.root.alfinderAds.dispose(el);assert.equal(await p,false);
 });

@@ -2,7 +2,6 @@
 (function (root) {
   'use strict';
   let scriptPromise;
-  let cmpScriptPromise;
   let publisherId;
   const slots = new WeakMap();
   const active = new Set();
@@ -30,39 +29,28 @@
     if (publisherId && publisherId !== publisher) return Promise.reject(new Error('Publisher mismatch'));
     if (scriptPromise) return scriptPromise;
     publisherId = publisher;
+    pauseRequests();
     scriptPromise = new Promise((resolve, reject) => {
       const script = document.createElement('script');
       script.async = true;
       script.crossOrigin = 'anonymous';
       script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + publisher;
       const timeout = setTimeout(() => reject(new Error('Ad script timeout')), 15000);
-      script.onload = () => { clearTimeout(timeout); resolve(); };
+      script.onload = () => { pauseRequests(); clearTimeout(timeout); resolve(); };
       script.onerror = () => { clearTimeout(timeout); reject(new Error('Ad script unavailable')); };
       document.head.appendChild(script);
     });
     return scriptPromise;
   }
-  function loadCmp(publisher) {
-    if (cmpScriptPromise) return cmpScriptPromise;
-    cmpScriptPromise = new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.async = true;
-      // Message-only tag: AdSense itself may request inventory on load.
-      script.src = 'https://fundingchoicesmessages.google.com/i/' + publisher.replace(/^ca-/, '') + '?ers=1';
-      // Forward only Google's documented message-preview parameters.
-      const debug = new URLSearchParams(root.location?.search || '');
-      if (debug.get('fc') === 'alwaysshow' && ['gdpr', 'ccpa', 'usnat', 'usfl'].includes(debug.get('fctype'))) {
-        script.src += '&fc=alwaysshow&fctype=' + debug.get('fctype');
-      }
-      script.onload = resolve;
-      script.onerror = () => reject(new Error('CMP script unavailable'));
-      document.head.appendChild(script);
-    });
-    return cmpScriptPromise;
+  function pauseRequests() {
+    // Google documents this public API for waiting for consent with the
+    // official AdSense tag. Set it before tag insertion and every ad push.
+    (root.adsbygoogle = root.adsbygoogle || []).pauseAdRequests = 1;
   }
   function dispose(element) {
     const state = slots.get(element);
     if (!state) return;
+    pauseRequests();
     state.disposed = true;
     if (state.cmpTimer) clearTimeout(state.cmpTimer);
     if (state.cmpListener && typeof root.__tcfapi === 'function') {
@@ -88,6 +76,7 @@
       let settled = false;
       state.finish = ok => {
         if (settled) return;
+        if (!ok) pauseRequests();
         if (!ok && state.cmpListener && typeof root.__tcfapi === 'function') {
           root.__tcfapi('removeEventListener', 2, () => {}, state.cmpListener);
           state.cmpListener = null;
@@ -113,8 +102,8 @@
           if (!root.alfinderAdConsent || !await root.alfinderAdConsent.request()) return state.finish(false);
           if (state.disposed || settled) return state.finish(false);
           if (state.disposed || settled || !element.isConnected || root.alfinderAdConsent.choice() !== true) return state.finish(false);
-          // Load Google's message-only tag before any AdSense inventory code.
-          // Wait for its jurisdiction and consent result; unknown/error is denied.
+          // The official AdSense tag initializes the account's Google CMP.
+          // Register callbacks first; requests remain paused until permission.
           const permitted = await new Promise(resolve => {
             const timer = state.cmpTimer = setTimeout(() => resolve(false), 15000);
             state.cmpResolve = resolve;
@@ -207,7 +196,8 @@
                 if (!allowed) dispose(element);
               });
             }});
-            loadCmp(publisher).catch(() => { clearTimeout(timer); resolve(false); dispose(element); });
+            if (state.disposed || settled) return;
+            load(publisher).catch(() => { clearTimeout(timer); resolve(false); dispose(element); });
           });
           if (!permitted || state.disposed || settled || root.alfinderAdConsent.choice() !== true) return state.finish(false);
           await load(publisher);
@@ -231,7 +221,8 @@
           state.observer.observe(ad, { attributes: true, attributeFilter: ['data-ad-status'] });
           element.appendChild(ad);
           state.adRequested = true;
-          (root.adsbygoogle = root.adsbygoogle || []).push({});
+          (root.adsbygoogle = root.adsbygoogle || []).pauseAdRequests = 0;
+          root.adsbygoogle.push({});
         } catch (_) { state.finish(false); }
       };
       state.frame = requestAnimationFrame(attach);
