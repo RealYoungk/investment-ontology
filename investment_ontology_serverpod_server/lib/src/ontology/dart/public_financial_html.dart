@@ -566,14 +566,126 @@ abstract final class PublicFinancialHtml {
       '제$term(?:\\(당\\))?(?:당기|기)(?:기말|말)?:?($titleDate)(현재|부터($titleDate)까지)',
     );
     final titles = titlePattern.allMatches(text).toList();
-    if (titles.length < 3 ||
-        !titles.any((m) => m.group(2) == '현재') ||
-        titles.any(
-          (m) => m.group(2) == '현재'
-              ? sourceDate(m.group(1)!) != periodEnd
-              : sourceDate(m.group(1)!) != periodStart ||
-                    sourceDate(m.group(3)!) != periodEnd,
-        )) {
+    final cnsScope =
+        receipt == '20260319000677' &&
+        corpCode == '01116380' &&
+        !consolidated &&
+        term == '26' &&
+        statementSource.queryParameters['dcmNo'] == '11148548' &&
+        statementSource.queryParameters['eleId'] == '21' &&
+        periodStart == DateTime.utc(2025, 1, 1) &&
+        periodEnd == DateTime.utc(2025, 12, 31);
+    Map<String, dynamic>? cnsPeriodProof;
+    if (cnsScope && titles.isEmpty) {
+      final candidates = <Map<String, dynamic>>[];
+      var supportingIndex = 0;
+      for (final table in RegExp(
+        r'<TABLE\b[^>]*>(.*?)</TABLE>',
+        caseSensitive: false,
+        dotAll: true,
+      ).allMatches(scope)) {
+        final index = supportingIndex++;
+        final preceding = _compact(_text(scope.substring(0, table.start)));
+        final ce = preceding.lastIndexOf('자본변동표');
+        if (ce < 0 ||
+            [
+              '재무상태표',
+              '손익계산서',
+              '현금흐름표',
+            ].any((h) => preceding.lastIndexOf(h) > ce)) {
+          continue;
+        }
+        final grid = _FinancialHtmlGrid.parse(table.group(1)!);
+        if (grid.isEmpty || _compact(grid.first.first?.text ?? '') != '과목') {
+          continue;
+        }
+        if (grid.first.length != 6 ||
+            _compact(grid.first.last?.text ?? '') != '총계' ||
+            !preceding.substring(ce).contains('(단위:원)')) {
+          throw const FormatException('CNS supporting equity table mismatch');
+        }
+        int uniqueRow(String printed) {
+          final positions = [
+            for (var i = 1; i < grid.length; i++)
+              if (_compact(grid[i].first?.text ?? '') == printed) i,
+          ];
+          if (positions.length != 1) {
+            throw const FormatException('CNS supporting date ambiguous');
+          }
+          return positions.single;
+        }
+
+        for (final marker in ['(당기초)', '(당기말)']) {
+          if (grid
+                  .skip(1)
+                  .where((r) => _compact(r.first?.text ?? '').endsWith(marker))
+                  .length !=
+              1) {
+            throw const FormatException(
+              'CNS supporting current dates conflict',
+            );
+          }
+        }
+        final startRow = uniqueRow('2025.1.1(당기초)');
+        final endRow = uniqueRow('2025.12.31(당기말)');
+        if (startRow >= endRow) {
+          throw const FormatException('CNS supporting dates reversed');
+        }
+        final profitRows = [
+          for (var i = startRow + 1; i < endRow; i++)
+            if (_compact(grid[i].first?.text ?? '') == '당기순이익(손실)') i,
+        ];
+        if (profitRows.length != 1) {
+          throw const FormatException('CNS supporting profit ambiguous');
+        }
+        String total(int row) {
+          if (grid[row].length != 6 ||
+              grid[row].last == null ||
+              grid[row].last!.colspan != 1 ||
+              grid[row].last!.rowspan != 1) {
+            throw const FormatException(
+              'CNS supporting monetary cell ambiguous',
+            );
+          }
+          final v = grid[row].last!.text.trim();
+          if (!RegExp(r'^-?\d{1,3}(?:,\d{3})*$').hasMatch(v)) {
+            throw const FormatException('CNS supporting amount invalid');
+          }
+          return BigInt.parse(v.replaceAll(',', '')).toString();
+        }
+
+        candidates.add({
+          'mode': 'same-document-equity-change-period-corroboration',
+          'tableIndex': index,
+          'currentTerm': term,
+          'currentHeader': '2025년도(제26기)',
+          'periodStart': '2025-01-01',
+          'periodEnd': '2025-12-31',
+          'startRow': startRow,
+          'endRow': endRow,
+          'profitRow': profitRows.single,
+          'closingEquity': total(endRow),
+          'currentProfit': total(profitRows.single),
+          'source': statementSource.toString(),
+          'unit': '원',
+        });
+      }
+      if (candidates.length != 1) {
+        throw const FormatException(
+          'CNS supporting period absent or ambiguous',
+        );
+      }
+      cnsPeriodProof = candidates.single;
+    }
+    if (cnsPeriodProof == null &&
+        (titles.length < 3 ||
+            !titles.any((m) => m.group(2) == '현재') ||
+            titles.any(
+              (m) => m.group(2) == '현재'
+                  ? sourceDate(m.group(1)!) != periodEnd
+                  : sourceDate(m.group(1)!) != periodStart ||
+                        sourceDate(m.group(3)!) != periodEnd,
+            ))) {
       throw const FormatException(
         'Annual current statement title period mismatch',
       );
@@ -650,6 +762,9 @@ abstract final class PublicFinancialHtml {
         prefix.lastIndexOf('현금흐름표'),
       ].reduce((a, b) => a > b ? a : b);
       if (equityAt >= 0 && equityAt > otherAt) {
+        if (cnsPeriodProof != null && index == cnsPeriodProof['tableIndex']) {
+          continue;
+        }
         final datedEquity = titlePattern
             .allMatches(prefix.substring(equityAt))
             .toList();
@@ -722,8 +837,11 @@ abstract final class PublicFinancialHtml {
       }
       final localPrefix = preceding.substring(sectionStart);
       final localTitles = titlePattern.allMatches(localPrefix).toList();
-      if (localTitles.isEmpty ||
-          (kind == 'BS') != (localTitles.last.group(2) == '현재')) {
+      if ((cnsPeriodProof == null &&
+              (localTitles.isEmpty ||
+                  (kind == 'BS') != (localTitles.last.group(2) == '현재'))) ||
+          (cnsPeriodProof != null &&
+              _compact(current.text) != '2025년도(제26기)')) {
         throw const FormatException('Annual primary statement title mismatch');
       }
       final units = RegExp(r'\(단위:([^)]*)\)').allMatches(localPrefix).toList();
@@ -853,6 +971,19 @@ abstract final class PublicFinancialHtml {
       throw const FormatException(
         'Annual primary core missing or balance mismatch',
       );
+    }
+    if (cnsPeriodProof != null) {
+      if (values['equity'].toString() != cnsPeriodProof['closingEquity'] ||
+          values['profit'].toString() != cnsPeriodProof['currentProfit']) {
+        throw const FormatException(
+          'CNS supporting equity/profit contradiction',
+        );
+      }
+      for (final row in result) {
+        (row['html_provenance']
+                as Map<String, dynamic>)['supportingPeriodEvidence'] =
+            cnsPeriodProof;
+      }
     }
     if (missingOptional.isNotEmpty) {
       for (final row in result) {
