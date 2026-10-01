@@ -1,0 +1,74 @@
+[
+  {
+    "receipt": "20250324000440",
+    "corpCode": "00112998",
+    "name": "서울보증보험",
+    "sourcePeriod": "2024.12",
+    "basis": "consolidated",
+    "nodeTitle": "2. 연결재무제표",
+    "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250324000440&dcmNo=10453435&eleId=17&offset=362415&length=96805&dtd=dart4.xsd",
+    "sha256": "7b650a568c20577ea7fb3d04cc9b95ceddbe464536b855a535dc9f4ec5fa99d4",
+    "tables": 8,
+    "textLength": 20171
+  },
+  {
+    "receipt": "20250324000440",
+    "corpCode": "00112998",
+    "name": "서울보증보험",
+    "sourcePeriod": "2024.12",
+    "basis": "separate",
+    "nodeTitle": "4. 재무제표",
+    "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250324000440&dcmNo=10453435&eleId=19&offset=1366455&length=85971&dtd=dart4.xsd",
+    "sha256": "2f067a440bba15a68b6c364ff5c0254d71c735d72de54160ed5f336abc25e952",
+    "tables": 11,
+    "textLength": 18026
+  },
+  {
+    "receipt": "20260330001188",
+    "corpCode": "01565364",
+    "name": "폴레드",
+    "sourcePeriod": "2025.12",
+    "basis": "consolidated",
+    "nodeTitle": "2. 연결재무제표",
+    "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001188&dcmNo=11196132&eleId=19&offset=214567&length=55511&dtd=dart4.xsd",
+    "sha256": "40432e0bb1fadad829d6958b50cb4702c9aeaeff90551f45b694f7cebcc1cd42",
+    "tables": 12,
+    "textLength": 11113
+  },
+  {
+    "receipt": "20260330001188",
+    "corpCode": "01565364",
+    "name": "폴레드",
+    "sourcePeriod": "2025.12",
+    "basis": "separate",
+    "nodeTitle": "4. 재무제표",
+    "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001188&dcmNo=11196132&eleId=21&offset=690944&length=46814&dtd=dart4.xsd",
+    "sha256": "987040c90be0a366eb6daca1badcd971ebdc3134e11b3e08415a63e6ce34cb5c",
+    "tables": 12,
+    "textLength": 8930
+  },
+  {
+    "receipt": "20260922000230",
+    "corpCode": "00910202",
+    "name": "대동고려삼",
+    "sourcePeriod": "2026.06",
+    "basis": "consolidated",
+    "nodeTitle": "2. 연결재무제표",
+    "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260922000230&dcmNo=11588250&eleId=19&offset=210855&length=207&dtd=dart4.xsd",
+    "sha256": "e2070059f6cdb6da8d8cf451625203336d16e858fb02b516ccf8fcf61e03a90c",
+    "tables": 0,
+    "textLength": 99
+  },
+  {
+    "receipt": "20260922000230",
+    "corpCode": "00910202",
+    "name": "대동고려삼",
+    "sourcePeriod": "2026.06",
+    "basis": "separate",
+    "nodeTitle": "4. 재무제표",
+    "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260922000230&dcmNo=11588250&eleId=21&offset=211294&length=94554&dtd=dart4.xsd",
+    "sha256": "8f62f65f20a3fdc87750ddb29bda27d984e73f8ad55549619031c285030350f4",
+    "tables": 9,
+    "textLength": 19950
+  }
+]

@@ -1,0 +1,285 @@
+{
+  "corpCode": "00855093",
+  "name": "선진",
+  "receipt": "20250318001380",
+  "expectedPeriod": "2024.12",
+  "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250318001380",
+  "downloadUrl": "https://dart.fss.or.kr/pdf/download/main.do?rcp_no=20250318001380&dcm_no=10425343",
+  "shellCompanyIds": [
+    "00855093"
+  ],
+  "xbrlLinks": [
+    "/pdf/download/ifrs.do?rcp_no=20250318001380&dcm_no=10425343&lang=ko"
+  ],
+  "sourceValuesReviewed": false,
+  "coverUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250318001380&dcmNo=10425343&eleId=1&offset=956&length=4471&dtd=dart4.xsd",
+  "coverSha256": "15fac79424f85856215ddd18c786948eabd9933c0074f4ef8146dc2688da1b42",
+  "xbrlUrl": "https://dart.fss.or.kr/pdf/download/ifrs.do?rcp_no=20250318001380&dcm_no=10425343&lang=ko",
+  "xbrlSha256": "ff901a73e9e9c5b92778c649ced8d02c1be4a09fbcc8b18f6b073a2cfc0e6c3c",
+  "cfsUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250318001380&dcmNo=10425343&eleId=19&offset=358743&length=237449&dtd=dart4.xsd",
+  "cfsSha256": "749e44299fd040913a7b18d48002475489a3b49ce3beec218f4ba209f3db3496",
+  "ofsUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250318001380&dcmNo=10425343&eleId=68&offset=2225657&length=173467&dtd=dart4.xsd",
+  "ofsSha256": "45b36cddca5432055ebf677c5ff40f0bee95724ec9406f5cb82dfd5ba0836d06",
+  "wholeCurrentCoreFacts": [
+    {
+      "name": "Liabilities",
+      "contextRef": "CFY2024eFY_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_ConsolidatedMember",
+      "unitRef": "KRW",
+      "decimals": "0",
+      "nil": null,
+      "value": "820884083784",
+      "companyEntity": [
+        "00855093"
+      ],
+      "start": [],
+      "end": [
+        "2024-12-31"
+      ]
+    },
+    {
+      "name": "Assets",
+      "contextRef": "CFY2024eFY_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_ConsolidatedMember",
+      "unitRef": "KRW",
+      "decimals": "0",
+      "nil": null,
+      "value": "1284229686805",
+      "companyEntity": [
+        "00855093"
+      ],
+      "start": [],
+      "end": [
+        "2024-12-31"
+      ]
+    },
+    {
+      "name": "OperatingIncomeLoss",
+      "contextRef": "CFY2024dFY_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_ConsolidatedMember",
+      "unitRef": "KRW",
+      "decimals": "0",
+      "nil": null,
+      "value": "124085515096",
+      "companyEntity": [
+        "00855093"
+      ],
+      "start": [
+        "2024-01-01"
+      ],
+      "end": [
+        "2024-12-31"
+      ]
+    },
+    {
+      "name": "Revenue",
+      "contextRef": "CFY2024dFY_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_ConsolidatedMember",
+      "unitRef": "KRW",
+      "decimals": "0",
+      "nil": null,
+      "value": "1681370807177",
+      "companyEntity": [
+        "00855093"
+      ],
+      "start": [
+        "2024-01-01"
+      ],
+      "end": [
+        "2024-12-31"
+      ]
+    },
+    {
+      "name": "CashFlowsFromUsedInOperatingActivities",
+      "contextRef": "CFY2024dFY_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_ConsolidatedMember",
+      "unitRef": "KRW",
+      "decimals": "0",
+      "nil": null,
+      "value": "122582294279",
+      "companyEntity": [
+        "00855093"
+      ],
+      "start": [
+        "2024-01-01"
+      ],
+      "end": [
+        "2024-12-31"
+      ]
+    },
+    {
+      "name": "ProfitLoss",
+      "contextRef": "CFY2024dFY_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_ConsolidatedMember",
+      "unitRef": "KRW",
+      "decimals": "0",
+      "nil": null,
+      "value": "6642150612",
+      "companyEntity": [
+        "00855093"
+      ],
+      "start": [
+        "2024-01-01"
+      ],
+      "end": [
+        "2024-12-31"
+      ]
+    },
+    {
+      "name": "Equity",
+      "contextRef": "CFY2024eFY_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_ConsolidatedMember",
+      "unitRef": "KRW",
+      "decimals": "0",
+      "nil": null,
+      "value": "463345603021",
+      "companyEntity": [
+        "00855093"
+      ],
+      "start": [],
+      "end": [
+        "2024-12-31"
+      ]
+    },
+    {
+      "name": "RevenueFromContractsWithCustomers",
+      "contextRef": "CFY2024dFY_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_SeparateMember",
+      "unitRef": "KRW",
+      "decimals": "-3",
+      "nil": null,
+      "value": "1016312023000",
+      "companyEntity": [
+        "00855093"
+      ],
+      "start": [
+        "2024-01-01"
+      ],
+      "end": [
+        "2024-12-31"
+      ]
+    },
+    {
+      "name": "Revenue",
+      "contextRef": "CFY2024dFY_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_SeparateMember",
+      "unitRef": "KRW",
+      "decimals": "0",
+      "nil": null,
+      "value": "1016312023275",
+      "companyEntity": [
+        "00855093"
+      ],
+      "start": [
+        "2024-01-01"
+      ],
+      "end": [
+        "2024-12-31"
+      ]
+    },
+    {
+      "name": "CashFlowsFromUsedInOperatingActivities",
+      "contextRef": "CFY2024dFY_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_SeparateMember",
+      "unitRef": "KRW",
+      "decimals": "0",
+      "nil": null,
+      "value": "103732650784",
+      "companyEntity": [
+        "00855093"
+      ],
+      "start": [
+        "2024-01-01"
+      ],
+      "end": [
+        "2024-12-31"
+      ]
+    },
+    {
+      "name": "Assets",
+      "contextRef": "CFY2024eFY_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_SeparateMember",
+      "unitRef": "KRW",
+      "decimals": "0",
+      "nil": null,
+      "value": "904888047067",
+      "companyEntity": [
+        "00855093"
+      ],
+      "start": [],
+      "end": [
+        "2024-12-31"
+      ]
+    },
+    {
+      "name": "Liabilities",
+      "contextRef": "CFY2024eFY_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_SeparateMember",
+      "unitRef": "KRW",
+      "decimals": "0",
+      "nil": null,
+      "value": "447315816589",
+      "companyEntity": [
+        "00855093"
+      ],
+      "start": [],
+      "end": [
+        "2024-12-31"
+      ]
+    },
+    {
+      "name": "Equity",
+      "contextRef": "CFY2024eFY_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_SeparateMember",
+      "unitRef": "KRW",
+      "decimals": "0",
+      "nil": null,
+      "value": "457572230478",
+      "companyEntity": [
+        "00855093"
+      ],
+      "start": [],
+      "end": [
+        "2024-12-31"
+      ]
+    },
+    {
+      "name": "OperatingIncomeLoss",
+      "contextRef": "CFY2024dFY_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_SeparateMember",
+      "unitRef": "KRW",
+      "decimals": "0",
+      "nil": null,
+      "value": "48805191044",
+      "companyEntity": [
+        "00855093"
+      ],
+      "start": [
+        "2024-01-01"
+      ],
+      "end": [
+        "2024-12-31"
+      ]
+    },
+    {
+      "name": "ProfitLoss",
+      "contextRef": "CFY2024dFY_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_SeparateMember",
+      "unitRef": "KRW",
+      "decimals": "0",
+      "nil": null,
+      "value": "12958346777",
+      "companyEntity": [
+        "00855093"
+      ],
+      "start": [
+        "2024-01-01"
+      ],
+      "end": [
+        "2024-12-31"
+      ]
+    },
+    {
+      "name": "RevenueFromContractsWithCustomers",
+      "contextRef": "CFY2024dFY_ifrs-full_ConsolidatedAndSeparateFinancialStatementsAxis_ifrs-full_ConsolidatedMember",
+      "unitRef": "KRW",
+      "decimals": "-3",
+      "nil": null,
+      "value": "1674356853000",
+      "companyEntity": [
+        "00855093"
+      ],
+      "start": [
+        "2024-01-01"
+      ],
+      "end": [
+        "2024-12-31"
+      ]
+    }
+  ]
+}

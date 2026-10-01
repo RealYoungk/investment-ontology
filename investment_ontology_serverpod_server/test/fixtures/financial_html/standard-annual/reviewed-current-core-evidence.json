@@ -1,0 +1,2121 @@
+[
+  {
+    "receipt": "20250324000440",
+    "corpCode": "00112998",
+    "name": "서울보증보험",
+    "sourcePeriod": "2024.12",
+    "basis": "consolidated",
+    "nodeTitle": "2. 연결재무제표",
+    "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250324000440&dcmNo=10453435&eleId=17&offset=362415&length=96805&dtd=dart4.xsd",
+    "sha256": "7b650a568c20577ea7fb3d04cc9b95ceddbe464536b855a535dc9f4ec5fa99d4",
+    "tables": 8,
+    "textLength": 20171,
+    "rawCurrentCoreRows": [
+      {
+        "account_id": null,
+        "printedAccountName": "자산총계",
+        "statement": "BS",
+        "unit": "원",
+        "currentPrintedAmount": "9,333,598,065,076",
+        "currentAmount": "9333598065076",
+        "tableIndex": 1,
+        "rowIndex": 20,
+        "cellIndex": 3,
+        "rowExactTexts": [
+          "자산총계",
+          "",
+          "",
+          "9,333,598,065,076",
+          "",
+          "9,129,738,234,359"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "288",
+              "height": "23"
+            }
+          },
+          {
+            "text": "주석",
+            "attrs": {
+              "width": "103",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제 58(당)기 기말",
+            "attrs": {
+              "width": "303",
+              "height": "23",
+              "colspan": "2"
+            }
+          },
+          {
+            "text": "제 57(전)기 기말",
+            "attrs": {
+              "width": "301",
+              "height": "23",
+              "colspan": "2"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250324000440&dcmNo=10453435&eleId=17&offset=362415&length=96805&dtd=dart4.xsd",
+        "rawSha256": "7b650a568c20577ea7fb3d04cc9b95ceddbe464536b855a535dc9f4ec5fa99d4"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "부채총계",
+        "statement": "BS",
+        "unit": "원",
+        "currentPrintedAmount": "4,158,132,454,250",
+        "currentAmount": "4158132454250",
+        "tableIndex": 1,
+        "rowIndex": 33,
+        "cellIndex": 3,
+        "rowExactTexts": [
+          "부채총계",
+          "",
+          "",
+          "4,158,132,454,250",
+          "",
+          "3,929,350,699,874"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "288",
+              "height": "23"
+            }
+          },
+          {
+            "text": "주석",
+            "attrs": {
+              "width": "103",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제 58(당)기 기말",
+            "attrs": {
+              "width": "303",
+              "height": "23",
+              "colspan": "2"
+            }
+          },
+          {
+            "text": "제 57(전)기 기말",
+            "attrs": {
+              "width": "301",
+              "height": "23",
+              "colspan": "2"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250324000440&dcmNo=10453435&eleId=17&offset=362415&length=96805&dtd=dart4.xsd",
+        "rawSha256": "7b650a568c20577ea7fb3d04cc9b95ceddbe464536b855a535dc9f4ec5fa99d4"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "자본총계",
+        "statement": "BS",
+        "unit": "원",
+        "currentPrintedAmount": "5,175,465,610,826",
+        "currentAmount": "5175465610826",
+        "tableIndex": 1,
+        "rowIndex": 40,
+        "cellIndex": 3,
+        "rowExactTexts": [
+          "자본총계",
+          "",
+          "",
+          "5,175,465,610,826",
+          "",
+          "5,200,387,534,485"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "288",
+              "height": "23"
+            }
+          },
+          {
+            "text": "주석",
+            "attrs": {
+              "width": "103",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제 58(당)기 기말",
+            "attrs": {
+              "width": "303",
+              "height": "23",
+              "colspan": "2"
+            }
+          },
+          {
+            "text": "제 57(전)기 기말",
+            "attrs": {
+              "width": "301",
+              "height": "23",
+              "colspan": "2"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250324000440&dcmNo=10453435&eleId=17&offset=362415&length=96805&dtd=dart4.xsd",
+        "rawSha256": "7b650a568c20577ea7fb3d04cc9b95ceddbe464536b855a535dc9f4ec5fa99d4"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "Ⅰ.영업수익",
+        "statement": "PL",
+        "unit": "원",
+        "currentPrintedAmount": "2,751,329,743,970",
+        "currentAmount": "2751329743970",
+        "tableIndex": 3,
+        "rowIndex": 1,
+        "cellIndex": 3,
+        "rowExactTexts": [
+          "Ⅰ.영업수익",
+          "",
+          "",
+          "2,751,329,743,970",
+          "",
+          "2,610,239,065,447"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "401",
+              "height": "23"
+            }
+          },
+          {
+            "text": "주석",
+            "attrs": {
+              "width": "67",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제 58(당) 기",
+            "attrs": {
+              "width": "272",
+              "height": "23",
+              "colspan": "2"
+            }
+          },
+          {
+            "text": "제 57(전) 기",
+            "attrs": {
+              "width": "271",
+              "height": "23",
+              "colspan": "2"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250324000440&dcmNo=10453435&eleId=17&offset=362415&length=96805&dtd=dart4.xsd",
+        "rawSha256": "7b650a568c20577ea7fb3d04cc9b95ceddbe464536b855a535dc9f4ec5fa99d4"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "Ⅲ. 영업이익",
+        "statement": "PL",
+        "unit": "원",
+        "currentPrintedAmount": "279,662,786,859",
+        "currentAmount": "279662786859",
+        "tableIndex": 3,
+        "rowIndex": 31,
+        "cellIndex": 3,
+        "rowExactTexts": [
+          "Ⅲ. 영업이익",
+          "",
+          "",
+          "279,662,786,859",
+          "",
+          "524,100,300,406"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "401",
+              "height": "23"
+            }
+          },
+          {
+            "text": "주석",
+            "attrs": {
+              "width": "67",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제 58(당) 기",
+            "attrs": {
+              "width": "272",
+              "height": "23",
+              "colspan": "2"
+            }
+          },
+          {
+            "text": "제 57(전) 기",
+            "attrs": {
+              "width": "271",
+              "height": "23",
+              "colspan": "2"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250324000440&dcmNo=10453435&eleId=17&offset=362415&length=96805&dtd=dart4.xsd",
+        "rawSha256": "7b650a568c20577ea7fb3d04cc9b95ceddbe464536b855a535dc9f4ec5fa99d4"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "Ⅶ. 당기순이익",
+        "statement": "PL",
+        "unit": "원",
+        "currentPrintedAmount": "213,274,020,304",
+        "currentAmount": "213274020304",
+        "tableIndex": 3,
+        "rowIndex": 37,
+        "cellIndex": 3,
+        "rowExactTexts": [
+          "Ⅶ. 당기순이익",
+          "",
+          "",
+          "213,274,020,304",
+          "",
+          "417,932,917,044"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "401",
+              "height": "23"
+            }
+          },
+          {
+            "text": "주석",
+            "attrs": {
+              "width": "67",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제 58(당) 기",
+            "attrs": {
+              "width": "272",
+              "height": "23",
+              "colspan": "2"
+            }
+          },
+          {
+            "text": "제 57(전) 기",
+            "attrs": {
+              "width": "271",
+              "height": "23",
+              "colspan": "2"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250324000440&dcmNo=10453435&eleId=17&offset=362415&length=96805&dtd=dart4.xsd",
+        "rawSha256": "7b650a568c20577ea7fb3d04cc9b95ceddbe464536b855a535dc9f4ec5fa99d4"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "Ⅰ. 영업활동으로 인한 현금흐름",
+        "statement": "CF",
+        "unit": "원",
+        "currentPrintedAmount": "314,976,598,861",
+        "currentAmount": "314976598861",
+        "tableIndex": 7,
+        "rowIndex": 1,
+        "cellIndex": 2,
+        "rowExactTexts": [
+          "Ⅰ. 영업활동으로 인한 현금흐름",
+          "",
+          "314,976,598,861",
+          "",
+          "540,874,597,756"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "379",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제 58(당) 기",
+            "attrs": {
+              "width": "286",
+              "height": "23",
+              "colspan": "2"
+            }
+          },
+          {
+            "text": "제 57(전) 기",
+            "attrs": {
+              "width": "286",
+              "height": "23",
+              "colspan": "2"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250324000440&dcmNo=10453435&eleId=17&offset=362415&length=96805&dtd=dart4.xsd",
+        "rawSha256": "7b650a568c20577ea7fb3d04cc9b95ceddbe464536b855a535dc9f4ec5fa99d4"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "1. 유형자산 취득",
+        "statement": "CF",
+        "unit": "원",
+        "currentPrintedAmount": "(10,072,577,266)",
+        "currentAmount": "-10072577266",
+        "tableIndex": 7,
+        "rowIndex": 55,
+        "cellIndex": 1,
+        "rowExactTexts": [
+          "1. 유형자산 취득",
+          "(10,072,577,266)",
+          "",
+          "(11,951,959,482)",
+          ""
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "379",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제 58(당) 기",
+            "attrs": {
+              "width": "286",
+              "height": "23",
+              "colspan": "2"
+            }
+          },
+          {
+            "text": "제 57(전) 기",
+            "attrs": {
+              "width": "286",
+              "height": "23",
+              "colspan": "2"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250324000440&dcmNo=10453435&eleId=17&offset=362415&length=96805&dtd=dart4.xsd",
+        "rawSha256": "7b650a568c20577ea7fb3d04cc9b95ceddbe464536b855a535dc9f4ec5fa99d4"
+      }
+    ],
+    "bsIdentity": true,
+    "fullFinancialStatementExtracted": false,
+    "sourceAbsenceClaim": false,
+    "CFSExplicitNotApplicable": false
+  },
+  {
+    "receipt": "20250324000440",
+    "corpCode": "00112998",
+    "name": "서울보증보험",
+    "sourcePeriod": "2024.12",
+    "basis": "separate",
+    "nodeTitle": "4. 재무제표",
+    "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250324000440&dcmNo=10453435&eleId=19&offset=1366455&length=85971&dtd=dart4.xsd",
+    "sha256": "2f067a440bba15a68b6c364ff5c0254d71c735d72de54160ed5f336abc25e952",
+    "tables": 11,
+    "textLength": 18026,
+    "rawCurrentCoreRows": [
+      {
+        "account_id": null,
+        "printedAccountName": "자산총계",
+        "statement": "BS",
+        "unit": "원",
+        "currentPrintedAmount": "9,302,947,931,038",
+        "currentAmount": "9302947931038",
+        "tableIndex": 1,
+        "rowIndex": 18,
+        "cellIndex": 3,
+        "rowExactTexts": [
+          "자산총계",
+          "",
+          "",
+          "9,302,947,931,038",
+          "",
+          "9,097,969,145,081"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "293",
+              "height": "23",
+              "valign": "TOP"
+            }
+          },
+          {
+            "text": "주석",
+            "attrs": {
+              "width": "92",
+              "height": "23",
+              "valign": "TOP"
+            }
+          },
+          {
+            "text": "제 58(당)기 기말",
+            "attrs": {
+              "width": "297",
+              "height": "23",
+              "colspan": "2",
+              "valign": "TOP"
+            }
+          },
+          {
+            "text": "제 57(전)기 기말",
+            "attrs": {
+              "width": "297",
+              "height": "23",
+              "colspan": "2",
+              "valign": "TOP"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250324000440&dcmNo=10453435&eleId=19&offset=1366455&length=85971&dtd=dart4.xsd",
+        "rawSha256": "2f067a440bba15a68b6c364ff5c0254d71c735d72de54160ed5f336abc25e952"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "부채총계",
+        "statement": "BS",
+        "unit": "원",
+        "currentPrintedAmount": "4,144,657,340,450",
+        "currentAmount": "4144657340450",
+        "tableIndex": 1,
+        "rowIndex": 31,
+        "cellIndex": 3,
+        "rowExactTexts": [
+          "부채총계",
+          "",
+          "",
+          "4,144,657,340,450",
+          "",
+          "3,912,775,332,443"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "293",
+              "height": "23",
+              "valign": "TOP"
+            }
+          },
+          {
+            "text": "주석",
+            "attrs": {
+              "width": "92",
+              "height": "23",
+              "valign": "TOP"
+            }
+          },
+          {
+            "text": "제 58(당)기 기말",
+            "attrs": {
+              "width": "297",
+              "height": "23",
+              "colspan": "2",
+              "valign": "TOP"
+            }
+          },
+          {
+            "text": "제 57(전)기 기말",
+            "attrs": {
+              "width": "297",
+              "height": "23",
+              "colspan": "2",
+              "valign": "TOP"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250324000440&dcmNo=10453435&eleId=19&offset=1366455&length=85971&dtd=dart4.xsd",
+        "rawSha256": "2f067a440bba15a68b6c364ff5c0254d71c735d72de54160ed5f336abc25e952"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "자본총계",
+        "statement": "BS",
+        "unit": "원",
+        "currentPrintedAmount": "5,158,290,590,588",
+        "currentAmount": "5158290590588",
+        "tableIndex": 1,
+        "rowIndex": 36,
+        "cellIndex": 3,
+        "rowExactTexts": [
+          "자본총계",
+          "",
+          "",
+          "5,158,290,590,588",
+          "",
+          "5,185,193,812,638"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "293",
+              "height": "23",
+              "valign": "TOP"
+            }
+          },
+          {
+            "text": "주석",
+            "attrs": {
+              "width": "92",
+              "height": "23",
+              "valign": "TOP"
+            }
+          },
+          {
+            "text": "제 58(당)기 기말",
+            "attrs": {
+              "width": "297",
+              "height": "23",
+              "colspan": "2",
+              "valign": "TOP"
+            }
+          },
+          {
+            "text": "제 57(전)기 기말",
+            "attrs": {
+              "width": "297",
+              "height": "23",
+              "colspan": "2",
+              "valign": "TOP"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250324000440&dcmNo=10453435&eleId=19&offset=1366455&length=85971&dtd=dart4.xsd",
+        "rawSha256": "2f067a440bba15a68b6c364ff5c0254d71c735d72de54160ed5f336abc25e952"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "Ⅰ.영업수익",
+        "statement": "PL",
+        "unit": "원",
+        "currentPrintedAmount": "2,724,601,914,959",
+        "currentAmount": "2724601914959",
+        "tableIndex": 4,
+        "rowIndex": 1,
+        "cellIndex": 3,
+        "rowExactTexts": [
+          "Ⅰ.영업수익",
+          "",
+          "",
+          "2,724,601,914,959",
+          "",
+          "2,583,837,263,728"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "401",
+              "height": "23"
+            }
+          },
+          {
+            "text": "주석",
+            "attrs": {
+              "width": "63",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제 58(당) 기",
+            "attrs": {
+              "width": "266",
+              "height": "23",
+              "colspan": "2"
+            }
+          },
+          {
+            "text": "제 57(전) 기",
+            "attrs": {
+              "width": "265",
+              "height": "23",
+              "colspan": "2"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250324000440&dcmNo=10453435&eleId=19&offset=1366455&length=85971&dtd=dart4.xsd",
+        "rawSha256": "2f067a440bba15a68b6c364ff5c0254d71c735d72de54160ed5f336abc25e952"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "Ⅲ. 영업이익",
+        "statement": "PL",
+        "unit": "원",
+        "currentPrintedAmount": "274,436,812,087",
+        "currentAmount": "274436812087",
+        "tableIndex": 4,
+        "rowIndex": 31,
+        "cellIndex": 3,
+        "rowExactTexts": [
+          "Ⅲ. 영업이익",
+          "",
+          "",
+          "274,436,812,087",
+          "",
+          "519,116,502,258"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "401",
+              "height": "23"
+            }
+          },
+          {
+            "text": "주석",
+            "attrs": {
+              "width": "63",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제 58(당) 기",
+            "attrs": {
+              "width": "266",
+              "height": "23",
+              "colspan": "2"
+            }
+          },
+          {
+            "text": "제 57(전) 기",
+            "attrs": {
+              "width": "265",
+              "height": "23",
+              "colspan": "2"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250324000440&dcmNo=10453435&eleId=19&offset=1366455&length=85971&dtd=dart4.xsd",
+        "rawSha256": "2f067a440bba15a68b6c364ff5c0254d71c735d72de54160ed5f336abc25e952"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "Ⅶ. 당기순이익",
+        "statement": "PL",
+        "unit": "원",
+        "currentPrintedAmount": "210,955,000,581",
+        "currentAmount": "210955000581",
+        "tableIndex": 4,
+        "rowIndex": 37,
+        "cellIndex": 3,
+        "rowExactTexts": [
+          "Ⅶ. 당기순이익",
+          "",
+          "",
+          "210,955,000,581",
+          "",
+          "416,419,160,429"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "401",
+              "height": "23"
+            }
+          },
+          {
+            "text": "주석",
+            "attrs": {
+              "width": "63",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제 58(당) 기",
+            "attrs": {
+              "width": "266",
+              "height": "23",
+              "colspan": "2"
+            }
+          },
+          {
+            "text": "제 57(전) 기",
+            "attrs": {
+              "width": "265",
+              "height": "23",
+              "colspan": "2"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250324000440&dcmNo=10453435&eleId=19&offset=1366455&length=85971&dtd=dart4.xsd",
+        "rawSha256": "2f067a440bba15a68b6c364ff5c0254d71c735d72de54160ed5f336abc25e952"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "Ⅰ. 영업활동으로 인한 현금흐름",
+        "statement": "CF",
+        "unit": "원",
+        "currentPrintedAmount": "331,057,904,768",
+        "currentAmount": "331057904768",
+        "tableIndex": 10,
+        "rowIndex": 1,
+        "cellIndex": 2,
+        "rowExactTexts": [
+          "Ⅰ. 영업활동으로 인한 현금흐름",
+          "",
+          "331,057,904,768",
+          "",
+          "539,432,304,369"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "379",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제 58(당) 기",
+            "attrs": {
+              "width": "286",
+              "height": "23",
+              "colspan": "2"
+            }
+          },
+          {
+            "text": "제 57(전) 기",
+            "attrs": {
+              "width": "286",
+              "height": "23",
+              "colspan": "2"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250324000440&dcmNo=10453435&eleId=19&offset=1366455&length=85971&dtd=dart4.xsd",
+        "rawSha256": "2f067a440bba15a68b6c364ff5c0254d71c735d72de54160ed5f336abc25e952"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "1. 유형자산 취득",
+        "statement": "CF",
+        "unit": "원",
+        "currentPrintedAmount": "(9,790,413,636)",
+        "currentAmount": "-9790413636",
+        "tableIndex": 10,
+        "rowIndex": 54,
+        "cellIndex": 1,
+        "rowExactTexts": [
+          "1. 유형자산 취득",
+          "(9,790,413,636)",
+          "",
+          "(11,778,622,317)",
+          ""
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "379",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제 58(당) 기",
+            "attrs": {
+              "width": "286",
+              "height": "23",
+              "colspan": "2"
+            }
+          },
+          {
+            "text": "제 57(전) 기",
+            "attrs": {
+              "width": "286",
+              "height": "23",
+              "colspan": "2"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250324000440&dcmNo=10453435&eleId=19&offset=1366455&length=85971&dtd=dart4.xsd",
+        "rawSha256": "2f067a440bba15a68b6c364ff5c0254d71c735d72de54160ed5f336abc25e952"
+      }
+    ],
+    "bsIdentity": true,
+    "fullFinancialStatementExtracted": false,
+    "sourceAbsenceClaim": false,
+    "CFSExplicitNotApplicable": false
+  },
+  {
+    "receipt": "20260330001188",
+    "corpCode": "01565364",
+    "name": "폴레드",
+    "sourcePeriod": "2025.12",
+    "basis": "consolidated",
+    "nodeTitle": "2. 연결재무제표",
+    "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001188&dcmNo=11196132&eleId=19&offset=214567&length=55511&dtd=dart4.xsd",
+    "sha256": "40432e0bb1fadad829d6958b50cb4702c9aeaeff90551f45b694f7cebcc1cd42",
+    "tables": 12,
+    "textLength": 11113,
+    "rawCurrentCoreRows": [
+      {
+        "account_id": null,
+        "printedAccountName": "자 산 총 계",
+        "statement": "BS",
+        "unit": "원",
+        "currentPrintedAmount": "54,158,857,291",
+        "currentAmount": "54158857291",
+        "tableIndex": 1,
+        "rowIndex": 15,
+        "cellIndex": 2,
+        "rowExactTexts": [
+          "자 산 총 계",
+          "",
+          "54,158,857,291",
+          "51,856,502,270"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "174",
+              "height": "23"
+            }
+          },
+          {
+            "text": "주 석",
+            "attrs": {
+              "width": "93",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제7(당)기말",
+            "attrs": {
+              "width": "151",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제6(전)기말",
+            "attrs": {
+              "width": "151",
+              "height": "23"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001188&dcmNo=11196132&eleId=19&offset=214567&length=55511&dtd=dart4.xsd",
+        "rawSha256": "40432e0bb1fadad829d6958b50cb4702c9aeaeff90551f45b694f7cebcc1cd42"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "부 채 총 계",
+        "statement": "BS",
+        "unit": "원",
+        "currentPrintedAmount": "16,805,766,656",
+        "currentAmount": "16805766656",
+        "tableIndex": 1,
+        "rowIndex": 32,
+        "cellIndex": 2,
+        "rowExactTexts": [
+          "부 채 총 계",
+          "",
+          "16,805,766,656",
+          "26,440,852,689"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "174",
+              "height": "23"
+            }
+          },
+          {
+            "text": "주 석",
+            "attrs": {
+              "width": "93",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제7(당)기말",
+            "attrs": {
+              "width": "151",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제6(전)기말",
+            "attrs": {
+              "width": "151",
+              "height": "23"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001188&dcmNo=11196132&eleId=19&offset=214567&length=55511&dtd=dart4.xsd",
+        "rawSha256": "40432e0bb1fadad829d6958b50cb4702c9aeaeff90551f45b694f7cebcc1cd42"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "자 본 총 계",
+        "statement": "BS",
+        "unit": "원",
+        "currentPrintedAmount": "37,353,090,635",
+        "currentAmount": "37353090635",
+        "tableIndex": 1,
+        "rowIndex": 41,
+        "cellIndex": 2,
+        "rowExactTexts": [
+          "자 본 총 계",
+          "",
+          "37,353,090,635",
+          "25,415,649,581"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "174",
+              "height": "23"
+            }
+          },
+          {
+            "text": "주 석",
+            "attrs": {
+              "width": "93",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제7(당)기말",
+            "attrs": {
+              "width": "151",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제6(전)기말",
+            "attrs": {
+              "width": "151",
+              "height": "23"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001188&dcmNo=11196132&eleId=19&offset=214567&length=55511&dtd=dart4.xsd",
+        "rawSha256": "40432e0bb1fadad829d6958b50cb4702c9aeaeff90551f45b694f7cebcc1cd42"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "I. 매출액",
+        "statement": "PL",
+        "unit": "원",
+        "currentPrintedAmount": "79,932,547,802",
+        "currentAmount": "79932547802",
+        "tableIndex": 4,
+        "rowIndex": 1,
+        "cellIndex": 2,
+        "rowExactTexts": [
+          "I. 매출액",
+          "22",
+          "79,932,547,802",
+          "52,807,887,766"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "359",
+              "height": "23"
+            }
+          },
+          {
+            "text": "주 석",
+            "attrs": {
+              "width": "49",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제7(당)기",
+            "attrs": {
+              "width": "144",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제6(전)기",
+            "attrs": {
+              "width": "128",
+              "height": "23"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001188&dcmNo=11196132&eleId=19&offset=214567&length=55511&dtd=dart4.xsd",
+        "rawSha256": "40432e0bb1fadad829d6958b50cb4702c9aeaeff90551f45b694f7cebcc1cd42"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "V. 영업이익",
+        "statement": "PL",
+        "unit": "원",
+        "currentPrintedAmount": "10,424,590,797",
+        "currentAmount": "10424590797",
+        "tableIndex": 4,
+        "rowIndex": 5,
+        "cellIndex": 2,
+        "rowExactTexts": [
+          "V. 영업이익",
+          "",
+          "10,424,590,797",
+          "6,199,775,237"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "359",
+              "height": "23"
+            }
+          },
+          {
+            "text": "주 석",
+            "attrs": {
+              "width": "49",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제7(당)기",
+            "attrs": {
+              "width": "144",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제6(전)기",
+            "attrs": {
+              "width": "128",
+              "height": "23"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001188&dcmNo=11196132&eleId=19&offset=214567&length=55511&dtd=dart4.xsd",
+        "rawSha256": "40432e0bb1fadad829d6958b50cb4702c9aeaeff90551f45b694f7cebcc1cd42"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "IX. 당기순이익",
+        "statement": "PL",
+        "unit": "원",
+        "currentPrintedAmount": "8,362,410,126",
+        "currentAmount": "8362410126",
+        "tableIndex": 4,
+        "rowIndex": 16,
+        "cellIndex": 2,
+        "rowExactTexts": [
+          "IX. 당기순이익",
+          "",
+          "8,362,410,126",
+          "542,835,370"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "359",
+              "height": "23"
+            }
+          },
+          {
+            "text": "주 석",
+            "attrs": {
+              "width": "49",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제7(당)기",
+            "attrs": {
+              "width": "144",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제6(전)기",
+            "attrs": {
+              "width": "128",
+              "height": "23"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001188&dcmNo=11196132&eleId=19&offset=214567&length=55511&dtd=dart4.xsd",
+        "rawSha256": "40432e0bb1fadad829d6958b50cb4702c9aeaeff90551f45b694f7cebcc1cd42"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "I. 영업활동으로 인한 현금흐름",
+        "statement": "CF",
+        "unit": "원",
+        "currentPrintedAmount": "9,346,546,632",
+        "currentAmount": "9346546632",
+        "tableIndex": 10,
+        "rowIndex": 1,
+        "cellIndex": 2,
+        "rowExactTexts": [
+          "I. 영업활동으로 인한 현금흐름",
+          "",
+          "9,346,546,632",
+          "4,828,801,584"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "368",
+              "height": "23"
+            }
+          },
+          {
+            "text": "주석",
+            "attrs": {
+              "width": "45",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제7(당)기",
+            "attrs": {
+              "width": "193",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제6(전)기",
+            "attrs": {
+              "width": "193",
+              "height": "23"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001188&dcmNo=11196132&eleId=19&offset=214567&length=55511&dtd=dart4.xsd",
+        "rawSha256": "40432e0bb1fadad829d6958b50cb4702c9aeaeff90551f45b694f7cebcc1cd42"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "유형자산의 취득",
+        "statement": "CF",
+        "unit": "원",
+        "currentPrintedAmount": "(752,189,916)",
+        "currentAmount": "-752189916",
+        "tableIndex": 10,
+        "rowIndex": 18,
+        "cellIndex": 2,
+        "rowExactTexts": [
+          "유형자산의 취득",
+          "",
+          "(752,189,916)",
+          "(312,398,972)"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "368",
+              "height": "23"
+            }
+          },
+          {
+            "text": "주석",
+            "attrs": {
+              "width": "45",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제7(당)기",
+            "attrs": {
+              "width": "193",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제6(전)기",
+            "attrs": {
+              "width": "193",
+              "height": "23"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001188&dcmNo=11196132&eleId=19&offset=214567&length=55511&dtd=dart4.xsd",
+        "rawSha256": "40432e0bb1fadad829d6958b50cb4702c9aeaeff90551f45b694f7cebcc1cd42"
+      }
+    ],
+    "bsIdentity": true,
+    "fullFinancialStatementExtracted": false,
+    "sourceAbsenceClaim": false,
+    "CFSExplicitNotApplicable": false
+  },
+  {
+    "receipt": "20260330001188",
+    "corpCode": "01565364",
+    "name": "폴레드",
+    "sourcePeriod": "2025.12",
+    "basis": "separate",
+    "nodeTitle": "4. 재무제표",
+    "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001188&dcmNo=11196132&eleId=21&offset=690944&length=46814&dtd=dart4.xsd",
+    "sha256": "987040c90be0a366eb6daca1badcd971ebdc3134e11b3e08415a63e6ce34cb5c",
+    "tables": 12,
+    "textLength": 8930,
+    "rawCurrentCoreRows": [
+      {
+        "account_id": null,
+        "printedAccountName": "자 산 총 계",
+        "statement": "BS",
+        "unit": "원",
+        "currentPrintedAmount": "39,063,122,507",
+        "currentAmount": "39063122507",
+        "tableIndex": 1,
+        "rowIndex": 16,
+        "cellIndex": 2,
+        "rowExactTexts": [
+          "자 산 총 계",
+          "",
+          "39,063,122,507",
+          "42,274,328,955"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "159",
+              "height": "23"
+            }
+          },
+          {
+            "text": "주 석",
+            "attrs": {
+              "width": "85",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제7(당)기말",
+            "attrs": {
+              "width": "168",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제6(전)기말",
+            "attrs": {
+              "width": "167",
+              "height": "23"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001188&dcmNo=11196132&eleId=21&offset=690944&length=46814&dtd=dart4.xsd",
+        "rawSha256": "987040c90be0a366eb6daca1badcd971ebdc3134e11b3e08415a63e6ce34cb5c"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "부 채 총 계",
+        "statement": "BS",
+        "unit": "원",
+        "currentPrintedAmount": "8,558,128,284",
+        "currentAmount": "8558128284",
+        "tableIndex": 1,
+        "rowIndex": 31,
+        "cellIndex": 2,
+        "rowExactTexts": [
+          "부 채 총 계",
+          "",
+          "8,558,128,284",
+          "18,996,691,446"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "159",
+              "height": "23"
+            }
+          },
+          {
+            "text": "주 석",
+            "attrs": {
+              "width": "85",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제7(당)기말",
+            "attrs": {
+              "width": "168",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제6(전)기말",
+            "attrs": {
+              "width": "167",
+              "height": "23"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001188&dcmNo=11196132&eleId=21&offset=690944&length=46814&dtd=dart4.xsd",
+        "rawSha256": "987040c90be0a366eb6daca1badcd971ebdc3134e11b3e08415a63e6ce34cb5c"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "자 본 총 계",
+        "statement": "BS",
+        "unit": "원",
+        "currentPrintedAmount": "30,504,994,223",
+        "currentAmount": "30504994223",
+        "tableIndex": 1,
+        "rowIndex": 37,
+        "cellIndex": 2,
+        "rowExactTexts": [
+          "자 본 총 계",
+          "",
+          "30,504,994,223",
+          "23,277,637,509"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "159",
+              "height": "23"
+            }
+          },
+          {
+            "text": "주 석",
+            "attrs": {
+              "width": "85",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제7(당)기말",
+            "attrs": {
+              "width": "168",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제6(전)기말",
+            "attrs": {
+              "width": "167",
+              "height": "23"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001188&dcmNo=11196132&eleId=21&offset=690944&length=46814&dtd=dart4.xsd",
+        "rawSha256": "987040c90be0a366eb6daca1badcd971ebdc3134e11b3e08415a63e6ce34cb5c"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "I. 매출액",
+        "statement": "PL",
+        "unit": "원",
+        "currentPrintedAmount": "42,280,253,446",
+        "currentAmount": "42280253446",
+        "tableIndex": 4,
+        "rowIndex": 1,
+        "cellIndex": 2,
+        "rowExactTexts": [
+          "I. 매출액",
+          "22",
+          "42,280,253,446",
+          "32,530,688,295"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "244",
+              "height": "23"
+            }
+          },
+          {
+            "text": "주 석",
+            "attrs": {
+              "width": "49",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제 7(당)기",
+            "attrs": {
+              "width": "144",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제 6(전)기",
+            "attrs": {
+              "width": "138",
+              "height": "23"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001188&dcmNo=11196132&eleId=21&offset=690944&length=46814&dtd=dart4.xsd",
+        "rawSha256": "987040c90be0a366eb6daca1badcd971ebdc3134e11b3e08415a63e6ce34cb5c"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "V. 영업이익",
+        "statement": "PL",
+        "unit": "원",
+        "currentPrintedAmount": "4,571,399,846",
+        "currentAmount": "4571399846",
+        "tableIndex": 4,
+        "rowIndex": 5,
+        "cellIndex": 2,
+        "rowExactTexts": [
+          "V. 영업이익",
+          "",
+          "4,571,399,846",
+          "3,753,931,628"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "244",
+              "height": "23"
+            }
+          },
+          {
+            "text": "주 석",
+            "attrs": {
+              "width": "49",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제 7(당)기",
+            "attrs": {
+              "width": "144",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제 6(전)기",
+            "attrs": {
+              "width": "138",
+              "height": "23"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001188&dcmNo=11196132&eleId=21&offset=690944&length=46814&dtd=dart4.xsd",
+        "rawSha256": "987040c90be0a366eb6daca1badcd971ebdc3134e11b3e08415a63e6ce34cb5c"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "VIII. 당기순이익(손실)",
+        "statement": "PL",
+        "unit": "원",
+        "currentPrintedAmount": "3,642,822,576",
+        "currentAmount": "3642822576",
+        "tableIndex": 4,
+        "rowIndex": 14,
+        "cellIndex": 2,
+        "rowExactTexts": [
+          "VIII. 당기순이익(손실)",
+          "",
+          "3,642,822,576",
+          "(1,555,851,917)"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "244",
+              "height": "23"
+            }
+          },
+          {
+            "text": "주 석",
+            "attrs": {
+              "width": "49",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제 7(당)기",
+            "attrs": {
+              "width": "144",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제 6(전)기",
+            "attrs": {
+              "width": "138",
+              "height": "23"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001188&dcmNo=11196132&eleId=21&offset=690944&length=46814&dtd=dart4.xsd",
+        "rawSha256": "987040c90be0a366eb6daca1badcd971ebdc3134e11b3e08415a63e6ce34cb5c"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "Ⅰ. 영업활동으로 인한 현금흐름",
+        "statement": "CF",
+        "unit": "원",
+        "currentPrintedAmount": "3,649,598,924",
+        "currentAmount": "3649598924",
+        "tableIndex": 10,
+        "rowIndex": 1,
+        "cellIndex": 2,
+        "rowExactTexts": [
+          "Ⅰ. 영업활동으로 인한 현금흐름",
+          "",
+          "3,649,598,924",
+          "2,765,186,568"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "313",
+              "height": "23"
+            }
+          },
+          {
+            "text": "주석",
+            "attrs": {
+              "width": "41",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제 7(당)기",
+            "attrs": {
+              "width": "128",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제 6(전)기",
+            "attrs": {
+              "width": "120",
+              "height": "23"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001188&dcmNo=11196132&eleId=21&offset=690944&length=46814&dtd=dart4.xsd",
+        "rawSha256": "987040c90be0a366eb6daca1badcd971ebdc3134e11b3e08415a63e6ce34cb5c"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "유형자산의 취득",
+        "statement": "CF",
+        "unit": "원",
+        "currentPrintedAmount": "(328,604,742)",
+        "currentAmount": "-328604742",
+        "tableIndex": 10,
+        "rowIndex": 18,
+        "cellIndex": 2,
+        "rowExactTexts": [
+          "유형자산의 취득",
+          "",
+          "(328,604,742)",
+          "(135,877,774)"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "과 목",
+            "attrs": {
+              "width": "313",
+              "height": "23"
+            }
+          },
+          {
+            "text": "주석",
+            "attrs": {
+              "width": "41",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제 7(당)기",
+            "attrs": {
+              "width": "128",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제 6(전)기",
+            "attrs": {
+              "width": "120",
+              "height": "23"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001188&dcmNo=11196132&eleId=21&offset=690944&length=46814&dtd=dart4.xsd",
+        "rawSha256": "987040c90be0a366eb6daca1badcd971ebdc3134e11b3e08415a63e6ce34cb5c"
+      }
+    ],
+    "bsIdentity": true,
+    "fullFinancialStatementExtracted": false,
+    "sourceAbsenceClaim": false,
+    "CFSExplicitNotApplicable": false
+  },
+  {
+    "receipt": "20260922000230",
+    "corpCode": "00910202",
+    "name": "대동고려삼",
+    "sourcePeriod": "2026.06",
+    "basis": "consolidated",
+    "nodeTitle": "2. 연결재무제표",
+    "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260922000230&dcmNo=11588250&eleId=19&offset=210855&length=207&dtd=dart4.xsd",
+    "sha256": "e2070059f6cdb6da8d8cf451625203336d16e858fb02b516ccf8fcf61e03a90c",
+    "tables": 0,
+    "textLength": 99,
+    "rawCurrentCoreRows": [],
+    "bsIdentity": null,
+    "fullFinancialStatementExtracted": false,
+    "sourceAbsenceClaim": false,
+    "CFSExplicitNotApplicable": true
+  },
+  {
+    "receipt": "20260922000230",
+    "corpCode": "00910202",
+    "name": "대동고려삼",
+    "sourcePeriod": "2026.06",
+    "basis": "separate",
+    "nodeTitle": "4. 재무제표",
+    "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260922000230&dcmNo=11588250&eleId=21&offset=211294&length=94554&dtd=dart4.xsd",
+    "sha256": "8f62f65f20a3fdc87750ddb29bda27d984e73f8ad55549619031c285030350f4",
+    "tables": 9,
+    "textLength": 19950,
+    "rawCurrentCoreRows": [
+      {
+        "account_id": null,
+        "printedAccountName": "자산총계",
+        "statement": "BS",
+        "unit": "원",
+        "currentPrintedAmount": "68,666,288,952",
+        "currentAmount": "68666288952",
+        "tableIndex": 2,
+        "rowIndex": 58,
+        "cellIndex": 3,
+        "rowExactTexts": [
+          "자산총계",
+          "75,888,272,648",
+          "73,053,859,723",
+          "68,666,288,952"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "구 분",
+            "attrs": {
+              "width": "174",
+              "height": "53",
+              "rowspan": "2"
+            }
+          },
+          {
+            "text": "제23기",
+            "attrs": {
+              "width": "131",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제24기",
+            "attrs": {
+              "width": "130",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제25기",
+            "attrs": {
+              "width": "130",
+              "height": "23"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260922000230&dcmNo=11588250&eleId=21&offset=211294&length=94554&dtd=dart4.xsd",
+        "rawSha256": "8f62f65f20a3fdc87750ddb29bda27d984e73f8ad55549619031c285030350f4"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "부채총계",
+        "statement": "BS",
+        "unit": "원",
+        "currentPrintedAmount": "41,588,122,390",
+        "currentAmount": "41588122390",
+        "tableIndex": 2,
+        "rowIndex": 80,
+        "cellIndex": 3,
+        "rowExactTexts": [
+          "부채총계",
+          "45,490,550,913",
+          "46,046,358,714",
+          "41,588,122,390"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "구 분",
+            "attrs": {
+              "width": "174",
+              "height": "53",
+              "rowspan": "2"
+            }
+          },
+          {
+            "text": "제23기",
+            "attrs": {
+              "width": "131",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제24기",
+            "attrs": {
+              "width": "130",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제25기",
+            "attrs": {
+              "width": "130",
+              "height": "23"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260922000230&dcmNo=11588250&eleId=21&offset=211294&length=94554&dtd=dart4.xsd",
+        "rawSha256": "8f62f65f20a3fdc87750ddb29bda27d984e73f8ad55549619031c285030350f4"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "자본총계",
+        "statement": "BS",
+        "unit": "원",
+        "currentPrintedAmount": "27,078,166,562",
+        "currentAmount": "27078166562",
+        "tableIndex": 2,
+        "rowIndex": 96,
+        "cellIndex": 3,
+        "rowExactTexts": [
+          "자본총계",
+          "30,397,721,735",
+          "27,007,501,009",
+          "27,078,166,562"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "구 분",
+            "attrs": {
+              "width": "174",
+              "height": "53",
+              "rowspan": "2"
+            }
+          },
+          {
+            "text": "제23기",
+            "attrs": {
+              "width": "131",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제24기",
+            "attrs": {
+              "width": "130",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제25기",
+            "attrs": {
+              "width": "130",
+              "height": "23"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260922000230&dcmNo=11588250&eleId=21&offset=211294&length=94554&dtd=dart4.xsd",
+        "rawSha256": "8f62f65f20a3fdc87750ddb29bda27d984e73f8ad55549619031c285030350f4"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "매출액",
+        "statement": "PL",
+        "unit": "원",
+        "currentPrintedAmount": "45,403,350,932",
+        "currentAmount": "45403350932",
+        "tableIndex": 4,
+        "rowIndex": 2,
+        "cellIndex": 3,
+        "rowExactTexts": [
+          "매출액",
+          "46,065,659,201",
+          "45,733,563,009",
+          "45,403,350,932"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "구 분",
+            "attrs": {
+              "width": "179",
+              "height": "53",
+              "rowspan": "2"
+            }
+          },
+          {
+            "text": "제23기",
+            "attrs": {
+              "width": "130",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제24기",
+            "attrs": {
+              "width": "129",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제25기",
+            "attrs": {
+              "width": "129",
+              "height": "23"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260922000230&dcmNo=11588250&eleId=21&offset=211294&length=94554&dtd=dart4.xsd",
+        "rawSha256": "8f62f65f20a3fdc87750ddb29bda27d984e73f8ad55549619031c285030350f4"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "영업이익",
+        "statement": "PL",
+        "unit": "원",
+        "currentPrintedAmount": "1,944,977,345",
+        "currentAmount": "1944977345",
+        "tableIndex": 4,
+        "rowIndex": 33,
+        "cellIndex": 3,
+        "rowExactTexts": [
+          "영업이익",
+          "2,430,093,992",
+          "1,173,208,646",
+          "1,944,977,345"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "구 분",
+            "attrs": {
+              "width": "179",
+              "height": "53",
+              "rowspan": "2"
+            }
+          },
+          {
+            "text": "제23기",
+            "attrs": {
+              "width": "130",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제24기",
+            "attrs": {
+              "width": "129",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제25기",
+            "attrs": {
+              "width": "129",
+              "height": "23"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260922000230&dcmNo=11588250&eleId=21&offset=211294&length=94554&dtd=dart4.xsd",
+        "rawSha256": "8f62f65f20a3fdc87750ddb29bda27d984e73f8ad55549619031c285030350f4"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "당기순이익",
+        "statement": "PL",
+        "unit": "원",
+        "currentPrintedAmount": "293,937,962",
+        "currentAmount": "293937962",
+        "tableIndex": 4,
+        "rowIndex": 59,
+        "cellIndex": 3,
+        "rowExactTexts": [
+          "당기순이익",
+          "484,438,676",
+          "(1,417,747,798)",
+          "293,937,962"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "구 분",
+            "attrs": {
+              "width": "179",
+              "height": "53",
+              "rowspan": "2"
+            }
+          },
+          {
+            "text": "제23기",
+            "attrs": {
+              "width": "130",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제24기",
+            "attrs": {
+              "width": "129",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제25기",
+            "attrs": {
+              "width": "129",
+              "height": "23"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260922000230&dcmNo=11588250&eleId=21&offset=211294&length=94554&dtd=dart4.xsd",
+        "rawSha256": "8f62f65f20a3fdc87750ddb29bda27d984e73f8ad55549619031c285030350f4"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "Ⅰ. 영업활동으로인한현금흐름",
+        "statement": "CF",
+        "unit": "원",
+        "currentPrintedAmount": "3,539,077,391",
+        "currentAmount": "3539077391",
+        "tableIndex": 6,
+        "rowIndex": 2,
+        "cellIndex": 3,
+        "rowExactTexts": [
+          "Ⅰ. 영업활동으로인한현금흐름",
+          "2,721,985,157",
+          "3,303,404,426",
+          "3,539,077,391"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "구 분",
+            "attrs": {
+              "width": "257",
+              "height": "53",
+              "rowspan": "2"
+            }
+          },
+          {
+            "text": "제23기",
+            "attrs": {
+              "width": "124",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제24기",
+            "attrs": {
+              "width": "124",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제25기",
+            "attrs": {
+              "width": "116",
+              "height": "23"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260922000230&dcmNo=11588250&eleId=21&offset=211294&length=94554&dtd=dart4.xsd",
+        "rawSha256": "8f62f65f20a3fdc87750ddb29bda27d984e73f8ad55549619031c285030350f4"
+      },
+      {
+        "account_id": null,
+        "printedAccountName": "유형자산의취득",
+        "statement": "CF",
+        "unit": "원",
+        "currentPrintedAmount": "897,908,445",
+        "currentAmount": "897908445",
+        "tableIndex": 6,
+        "rowIndex": 54,
+        "cellIndex": 3,
+        "rowExactTexts": [
+          "유형자산의취득",
+          "2,025,582,115",
+          "910,778,874",
+          "897,908,445"
+        ],
+        "currentHeaderGroup": [
+          {
+            "text": "구 분",
+            "attrs": {
+              "width": "257",
+              "height": "53",
+              "rowspan": "2"
+            }
+          },
+          {
+            "text": "제23기",
+            "attrs": {
+              "width": "124",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제24기",
+            "attrs": {
+              "width": "124",
+              "height": "23"
+            }
+          },
+          {
+            "text": "제25기",
+            "attrs": {
+              "width": "116",
+              "height": "23"
+            }
+          }
+        ],
+        "sourceUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260922000230&dcmNo=11588250&eleId=21&offset=211294&length=94554&dtd=dart4.xsd",
+        "rawSha256": "8f62f65f20a3fdc87750ddb29bda27d984e73f8ad55549619031c285030350f4"
+      }
+    ],
+    "bsIdentity": true,
+    "fullFinancialStatementExtracted": false,
+    "sourceAbsenceClaim": false,
+    "CFSExplicitNotApplicable": false
+  }
+]

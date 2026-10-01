@@ -465,6 +465,313 @@ abstract final class PublicFinancialHtml {
     }
     return result;
   }
+
+  /// Standard annual layouts verified against five primary CFS/OFS examples.
+  /// Requires current-term monetary groups, whole-income rows and printed units.
+  /// This intentionally does not accept arbitrary financial prose or notes.
+  static List<Map<String, dynamic>> parseStandardAnnual({
+    required String coverHtml,
+    required String statementHtml,
+    required Uri coverSource,
+    required Uri statementSource,
+    required String receipt,
+    required String corpCode,
+    required String companyName,
+    required DateTime periodStart,
+    required DateTime periodEnd,
+    required bool consolidated,
+  }) {
+    _source(coverSource, receipt);
+    _source(statementSource, receipt);
+    if (coverSource.queryParameters['dcmNo'] !=
+            statementSource.queryParameters['dcmNo'] ||
+        !RegExp(r'^\d{8}$').hasMatch(corpCode)) {
+      throw const FormatException('Annual document identity mismatch');
+    }
+    String legalName(String name) =>
+        _compact(name)
+            .replaceFirst(RegExp(r'^(?:주식회사|\(주\)|㈜)'), '')
+            .replaceFirst(RegExp(r'(?:주식회사|\(주\)|㈜)$'), '');
+    DateTime? sourceDate(String text) {
+      final m = RegExp(r'^(\d{4})년(\d{1,2})월(\d{1,2})일$').firstMatch(text);
+      if (m == null) return null;
+      final year = int.parse(m.group(1)!),
+          month = int.parse(m.group(2)!),
+          day = int.parse(m.group(3)!);
+      final date = DateTime.utc(year, month, day);
+      return date.year == year && date.month == month && date.day == day
+          ? date
+          : null;
+    }
+
+    final cover = _compact(_text(coverHtml));
+    final company = RegExp(r'회사명:(.*?)대표이사:').firstMatch(cover)?.group(1);
+    final terms = RegExp(r'\(제(\d+)기\)').allMatches(cover).toList();
+    final periods = RegExp(
+      r'사업연도(\d{4}년\d{1,2}월\d{1,2}일)부터(\d{4}년\d{1,2}월\d{1,2}일)까지',
+    ).allMatches(cover).toList();
+    if (!cover.contains('사업보고서') ||
+        company == null ||
+        legalName(company) != legalName(companyName) ||
+        terms.length != 1 ||
+        periods.length != 1 ||
+        sourceDate(periods.single.group(1)!) != periodStart ||
+        sourceDate(periods.single.group(2)!) != periodEnd ||
+        periodEnd.difference(periodStart).inDays < 364 ||
+        periodEnd.difference(periodStart).inDays > 366) {
+      throw const FormatException('Exact annual company/period cover mismatch');
+    }
+    final term = terms.single.group(1)!;
+    final expected = consolidated ? '2.연결재무제표' : '4.재무제표';
+    final next = consolidated ? '3.연결재무제표주석' : '5.재무제표주석';
+    final headings = RegExp(
+      r'<P\b[^>]*class=["\x27]section-2["\x27][^>]*>.*?</P>',
+      caseSensitive: false,
+      dotAll: true,
+    ).allMatches(statementHtml).toList();
+    final starts = headings
+        .where((m) => _compact(_text(m.group(0)!)) == expected)
+        .toList();
+    if (starts.length != 1) {
+      throw const FormatException('Annual statement basis scope mismatch');
+    }
+    final after = headings.where((m) => m.start > starts.single.start).toList();
+    if (after.isNotEmpty && _compact(_text(after.first.group(0)!)) != next) {
+      throw const FormatException('Unexpected annual statement boundary');
+    }
+    final scope = statementHtml.substring(
+      starts.single.start,
+      after.isEmpty ? statementHtml.length : after.first.start,
+    );
+    final text = _compact(_text(scope));
+    final titlePattern = RegExp(
+      '제$term(?:\\(당\\))?(?:당기|기)(?:기말|말)?(\\d{4}년\\d{1,2}월\\d{1,2}일)(현재|부터(\\d{4}년\\d{1,2}월\\d{1,2}일)까지)',
+    );
+    final titles = titlePattern.allMatches(text).toList();
+    if (titles.length < 3 ||
+        !titles.any((m) => m.group(2) == '현재') ||
+        titles.any(
+          (m) => m.group(2) == '현재'
+              ? sourceDate(m.group(1)!) != periodEnd
+              : sourceDate(m.group(1)!) != periodStart ||
+                    sourceDate(m.group(3)!) != periodEnd,
+        )) {
+      throw const FormatException(
+        'Annual current statement title period mismatch',
+      );
+    }
+    String label(String raw) =>
+        _compact(raw).replaceFirst(RegExp(r'^[Ⅰ-ⅫIVXLCDM\d]+[.)]'), '');
+    const accounts = {
+      '자산총계': ('assets', 'BS'),
+      '부채총계': ('liabilities', 'BS'),
+      '자본총계': ('equity', 'BS'),
+      '매출액': ('revenue', 'CIS'),
+      '영업수익': ('revenue', 'CIS'),
+      '영업이익': ('operating', 'CIS'),
+      '영업이익(손실)': ('operating', 'CIS'),
+      '당기순이익': ('profit', 'CIS'),
+      '당기순이익(손실)': ('profit', 'CIS'),
+      '영업활동으로인한현금흐름': ('cfo', 'CF'),
+      '영업활동으로인한현금흐름(순액)': ('cfo', 'CF'),
+      '유형자산취득': ('capex', 'CF'),
+      '유형자산의취득': ('capex', 'CF'),
+    };
+    BigInt? money(String text) {
+      final v = text.trim();
+      if (v.isEmpty || v == '-') return null;
+      if (!RegExp(r'^\(?-?\d{1,3}(?:,\d{3})*\)?$|^-?\d+$').hasMatch(v) ||
+          v.startsWith('(') != v.endsWith(')')) {
+        throw const FormatException('Malformed annual current amount');
+      }
+      return BigInt.parse(
+        v.replaceAll(',', '').replaceAll('(', '-').replaceAll(')', ''),
+      );
+    }
+
+    final result = <Map<String, dynamic>>[];
+    final values = <String, BigInt>{};
+    final seenKinds = <String>{};
+    var tableIndex = 0;
+    for (final table in RegExp(
+      r'<TABLE\b[^>]*>(.*?)</TABLE>',
+      caseSensitive: false,
+      dotAll: true,
+    ).allMatches(scope)) {
+      final index = tableIndex++;
+      final first = RegExp(
+        r'<T[DH]\b[^>]*>(.*?)</T[DH]>',
+        caseSensitive: false,
+        dotAll: true,
+      ).firstMatch(table.group(1)!);
+      if (first == null ||
+          !{'과목', '구분'}.contains(_compact(_text(first.group(1)!)))) {
+        continue;
+      }
+      final grid = _FinancialHtmlGrid.parse(table.group(1)!);
+      if (grid.isEmpty) continue;
+      final labels = grid
+          .map((r) => r.isEmpty ? '' : label(r.first?.text ?? ''))
+          .toSet();
+      final String kind;
+      if (labels.contains('자산총계') &&
+          labels.contains('부채총계') &&
+          labels.contains('자본총계')) {
+        kind = 'BS';
+      } else if ((labels.contains('매출액') || labels.contains('영업수익')) &&
+          (labels.contains('영업이익') || labels.contains('영업이익(손실)'))) {
+        kind = 'CIS';
+      } else if (labels.contains('영업활동으로인한현금흐름') ||
+          labels.contains('영업활동으로인한현금흐름(순액)')) {
+        kind = 'CF';
+      } else {
+        continue;
+      }
+      if (!seenKinds.add(kind)) {
+        throw const FormatException('Duplicate annual primary statement');
+      }
+      final headers = grid.first
+          .whereType<_FinancialHtmlCell>()
+          .where(
+            (c) =>
+                RegExp('^제$term(?:\\(당\\))?기(?:기말|말)?\$')
+                    .hasMatch(_compact(c.text)),
+          )
+          .toSet();
+      if (headers.length != 1) {
+        throw const FormatException('Ambiguous annual current header');
+      }
+      final current = headers.single;
+      if (current.column < 1 || current.colspan > 2 || current.rowspan != 1) {
+        throw const FormatException('Unsupported annual current group');
+      }
+      final preceding = _compact(_text(scope.substring(0, table.start)));
+      final statementTitles = {
+        '재무상태표': 'BS',
+        '손익계산서': 'CIS',
+        '자본변동표': 'CE',
+        '현금흐름표': 'CF',
+      };
+      var sectionStart = -1;
+      String? sectionKind;
+      for (final title in statementTitles.entries) {
+        final at = preceding.lastIndexOf(title.key);
+        if (at > sectionStart) {
+          sectionStart = at;
+          sectionKind = title.value;
+        }
+      }
+      if (sectionStart < 0 || sectionKind != kind) {
+        throw const FormatException('Annual primary statement heading missing');
+      }
+      final localPrefix = preceding.substring(sectionStart);
+      final localTitles = titlePattern.allMatches(localPrefix).toList();
+      if (localTitles.isEmpty ||
+          (kind == 'BS') != (localTitles.last.group(2) == '현재')) {
+        throw const FormatException('Annual primary statement title mismatch');
+      }
+      final units = RegExp(r'\(단위:([^)]*)\)').allMatches(localPrefix).toList();
+      final printedUnit = units.isEmpty ? null : units.last.group(1);
+      final multiplier = switch (printedUnit) {
+        '원' => BigInt.one,
+        '천원' => BigInt.from(1000),
+        '백만원' => BigInt.from(1000000),
+        _ => throw const FormatException('Unsupported annual monetary unit'),
+      };
+      // A second logical header row must bind current term to actual year/month.
+      if (grid.first.first?.rowspan == 2) {
+        if (grid.length < 2 || current.colspan != 1) {
+          throw const FormatException('Unsupported annual multirow header');
+        }
+        final expectedPeriod =
+            '(${(periodStart.year % 100).toString().padLeft(2, '0')}.${periodStart.month.toString().padLeft(2, '0')}~${(periodEnd.year % 100).toString().padLeft(2, '0')}.${periodEnd.month.toString().padLeft(2, '0')})';
+        if (_compact(grid[1][current.column]?.text ?? '') != expectedPeriod) {
+          throw const FormatException(
+            'Annual current subheader period mismatch',
+          );
+        }
+      }
+      for (final row in grid.skip(1)) {
+        if (row.isEmpty) continue;
+        final account = accounts[label(row.first?.text ?? '')];
+        if (account == null || account.$2 != kind) continue;
+        if (values.containsKey(account.$1)) {
+          throw const FormatException(
+            'Duplicate annual whole-company core row',
+          );
+        }
+        if (row.length != grid.first.length ||
+            row.any((c) => c == null) ||
+            current.column + current.colspan > row.length) {
+          throw const FormatException('Incomplete annual current row');
+        }
+        final cells = row
+            .sublist(current.column, current.column + current.colspan)
+            .toSet();
+        if (cells.any((c) => c!.rowspan != 1 || c.colspan != 1)) {
+          throw const FormatException('Spanning annual current monetary cell');
+        }
+        final amounts = cells
+            .map((c) => money(c!.text))
+            .whereType<BigInt>()
+            .toList();
+        if (amounts.length != 1) {
+          throw const FormatException(
+            'Ambiguous annual current monetary group',
+          );
+        }
+        final printedValue = amounts.single;
+        final value = printedValue * multiplier;
+        values[account.$1] = value;
+        result.add({
+          'rcept_no': receipt,
+          'corp_code': corpCode,
+          'bsns_year': '${periodEnd.year}',
+          'reprt_code': '11011',
+          'account_id': null,
+          'account_nm': row.first!.text,
+          'account_detail': '-',
+          'sj_div': kind,
+          'thstrm_nm': kind == 'BS'
+              ? periodEnd.toIso8601String().substring(0, 10)
+              : '${periodStart.toIso8601String().substring(0, 10)}~${periodEnd.toIso8601String().substring(0, 10)}',
+          'thstrm_amount': value.toString(),
+          'currency': 'KRW',
+          'html_provenance': {
+            'source': statementSource.toString(),
+            'tableIndex': index,
+            'printedLabel': row.first!.text,
+            'printedCurrentCells': cells.map((c) => c!.text).toList(),
+            'currentColumn': current.column,
+            'currentColumnSpan': current.colspan,
+            'currentHeader': current.text,
+            'basis': consolidated ? 'CFS' : 'OFS',
+            'unit': printedUnit,
+            'unitMultiplier': multiplier.toString(),
+            'printedAmount': printedValue.toString(),
+            'normalizedUnit': '원',
+            'periodStart': periodStart.toIso8601String().substring(0, 10),
+            'periodEnd': periodEnd.toIso8601String().substring(0, 10),
+          },
+        });
+      }
+    }
+    if (!{
+          'assets',
+          'liabilities',
+          'equity',
+          'revenue',
+          'operating',
+          'profit',
+          'cfo',
+        }.every(values.containsKey) ||
+        values['assets'] != values['liabilities']! + values['equity']!) {
+      throw const FormatException(
+        'Annual primary core missing or balance mismatch',
+      );
+    }
+    return result;
+  }
 }
 
 class _FinancialHtmlCell {

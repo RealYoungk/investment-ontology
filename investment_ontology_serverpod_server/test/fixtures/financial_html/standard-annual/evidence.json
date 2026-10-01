@@ -1,0 +1,56 @@
+[
+  {
+    "market": "kospi",
+    "name": "서울보증보험",
+    "corpCode": "00112998",
+    "receipt": "20250324000440",
+    "sourcePeriod": "2024.12",
+    "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250324000440",
+    "downloadListUrl": "https://dart.fss.or.kr/pdf/download/main.do?rcp_no=20250324000440&dcm_no=10453435",
+    "exactXbrlLinks": [],
+    "shellCompanyIds": [
+      "00112998"
+    ],
+    "coverUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250324000440&dcmNo=10453435&eleId=1&offset=959&length=4383&dtd=dart4.xsd",
+    "coverSha256": "b61205ea38256cbdc26649571d93f764db378c4de0e36e7ade7c9d7561648c2a",
+    "coverText": " 사 업 보 고 서 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; (제 58 기) 사업연도 2024년 01월 01일 &nbsp;부터 2024년 12월 31일 &nbsp;까지 금융위원회 한국거래소 귀중 2025년 &nbsp;3월 &nbsp;24일 제출대상법인 유형 : 주권상장법인 면제사유발생 : 해당사항 없음 회 &nbsp; &nbsp; &nbsp;사 &nbsp; &nbsp; &nbsp;명 : 서울보증보험 주식회사 대 &nbsp; 표 &nbsp; &nbsp;이 &nbsp; 사 : 이 명 순 본 &nbsp;점 &nbsp;소 &nbsp;재 &nbsp;지 : 서울특별시 종로구 김상옥로 29 (연지동) (전 &nbsp;화) 02-3671-7000 (홈페이지) http://www.sgic.co.kr 작 &nbsp;성 &nbsp;책 &nbsp;임 &nbsp;자 : (직 &nbsp;책) 경영기획본부장 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;(성 &nbsp;명) 이 상 규 (전 &nbsp;화) 02-3671-7800 ",
+    "sourceChecked": true,
+    "apiBothNoDataDoesNotProveMissingSource": true
+  },
+  {
+    "market": "kosdaq",
+    "name": "폴레드",
+    "corpCode": "01565364",
+    "receipt": "20260330001188",
+    "sourcePeriod": "2025.12",
+    "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260330001188",
+    "downloadListUrl": "https://dart.fss.or.kr/pdf/download/main.do?rcp_no=20260330001188&dcm_no=11196132",
+    "exactXbrlLinks": [],
+    "shellCompanyIds": [
+      "01565364"
+    ],
+    "coverUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001188&dcmNo=11196132&eleId=1&offset=962&length=4516&dtd=dart4.xsd",
+    "coverSha256": "d49060ac4ee1db8787c89e3ee4d8301ed7f364ae8ecbb95ca89b9b4ec9125558",
+    "coverText": " 사 업 보 고 서 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; (제 7기) 사업연도 2025년 01월 01일 &nbsp;부터 2025년 12월 31일 &nbsp;까지 금융위원회 한국거래소 귀중 2026년 &nbsp; &nbsp; &nbsp;3월 &nbsp; &nbsp; 30일 제출대상법인 유형 : 증권 모집ㆍ매출법인 면제사유발생 : 해당사항 없음 회 &nbsp; &nbsp; &nbsp;사 &nbsp; &nbsp; &nbsp;명 : 주식회사 폴레드 대 &nbsp; 표 &nbsp; &nbsp;이 &nbsp; 사 : 이 형 무 본 &nbsp;점 &nbsp;소 &nbsp;재 &nbsp;지 : 충청남도 서산시 운산면 장생동로 523 (전 &nbsp;화) 1600-7420 (홈페이지) http://www.poled.kr 작 &nbsp;성 &nbsp;책 &nbsp;임 &nbsp;자 : (직 &nbsp;책) 센터장 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;(성 &nbsp;명) 서 희 찬 (전 &nbsp;화) 1600-7420 ",
+    "sourceChecked": true,
+    "apiBothNoDataDoesNotProveMissingSource": true
+  },
+  {
+    "market": "konex",
+    "name": "대동고려삼",
+    "corpCode": "00910202",
+    "receipt": "20260922000230",
+    "sourcePeriod": "2026.06",
+    "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260922000230",
+    "downloadListUrl": "https://dart.fss.or.kr/pdf/download/main.do?rcp_no=20260922000230&dcm_no=11588250",
+    "exactXbrlLinks": [],
+    "shellCompanyIds": [
+      "00910202"
+    ],
+    "coverUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260922000230&dcmNo=11588250&eleId=1&offset=958&length=4518&dtd=dart4.xsd",
+    "coverSha256": "85a9ff466ea946116a71c644b9876a9465dc6b4ce6616ef79119ffef4ba0fc06",
+    "coverText": " 사 업 보 고 서 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; (제 25 기) 사업연도 2025년 07월 01일 &nbsp;부터 2026년 06월 30일 &nbsp;까지 금융위원회 한국거래소 귀중 2026 년 &nbsp; 09 월 &nbsp; 22 일 제출대상법인 유형 : 주권상장법인 면제사유발생 : 해당사항 없음 회 &nbsp; &nbsp; &nbsp;사 &nbsp; &nbsp; &nbsp;명 : 대동고려삼주식회사 대 &nbsp; 표 &nbsp; &nbsp;이 &nbsp; 사 : 최 성 근 본 &nbsp;점 &nbsp;소 &nbsp;재 &nbsp;지 : 충청남도 금산군 군북면 군북로 586 (전 &nbsp;화) 041-753-8803 (홈페이지) http://www.ddkorea.co.kr 작 &nbsp;성 &nbsp;책 &nbsp;임 &nbsp;자 : (직 &nbsp;책) &nbsp;이 &nbsp;사 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;(성 &nbsp;명) &nbsp;이 종 익 (전 &nbsp;화) &nbsp;041-753-8803 ",
+    "sourceChecked": true,
+    "apiBothNoDataDoesNotProveMissingSource": true
+  }
+]
