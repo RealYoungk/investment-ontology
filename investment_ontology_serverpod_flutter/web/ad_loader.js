@@ -6,6 +6,21 @@
   let publisherId;
   const slots = new WeakMap();
   const active = new Set();
+  function permitsBasicAds(data) {
+    // Google defaults flexible purposes 2/7/9/10 to legitimate interest.
+    // Publisher restrictions can require consent instead, or prohibit use.
+    const restrictions = data.publisher?.restrictions || {};
+    const restriction = purpose => restrictions[purpose]?.[755];
+    if (data.purpose?.consents?.[1] !== true || data.vendor?.consents?.[755] !== true ||
+        ![undefined, 1].includes(restriction(1))) return false;
+    return [2, 7, 9, 10].every(purpose => {
+      const rule = restriction(purpose);
+      if (rule === 1) return data.purpose?.consents?.[purpose] === true;
+      if (rule !== undefined && rule !== 2) return false;
+      return data.purpose?.legitimateInterests?.[purpose] === true &&
+        data.vendor?.legitimateInterests?.[755] === true;
+    });
+  }
   root.addEventListener('alfinder-ad-consent', () => {
     if (root.alfinderAdConsent?.choice() !== true) {
       for (const element of [...active]) dispose(element);
@@ -119,6 +134,10 @@
                   if (state.cmpPermitted) dispose(element);
                   return;
                 }
+                if (data.cmpStatus !== 'loaded') {
+                  if (state.cmpPermitted) dispose(element);
+                  return;
+                }
                 // Google's non-GDPR callback can omit eventStatus entirely.
                 const outsideGdpr = data.gdprApplies === false && data.cmpStatus === 'loaded';
                 if (!outsideGdpr && !['tcloaded', 'useractioncomplete'].includes(data.eventStatus)) return;
@@ -130,7 +149,7 @@
                   clearTimeout(timer); resolve(false); dispose(element); return;
                 }
                 const allowed = data.gdprApplies === false ||
-                  (data.cmpId === 300 && data.purpose?.consents?.[1] === true && data.vendor?.consents?.[755] === true);
+                  permitsBasicAds(data);
                 if (data.gdprApplies === false && allowed) {
                   // GDPR does not determine US opt-out. Google's explicit US
                   // result is required; absent/unknown APIs retain the deadline.
