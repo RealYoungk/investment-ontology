@@ -1,0 +1,9 @@
+# Missing regular-report public discovery
+
+The existing authenticated business_documents job may discover listed companies with no regular DartFiling. The helper reads the official company A002 navigation, exact report shell, actual cover and business body. It requires the official corporation identifier, unique annual/half-year report family, own receipt/document coordinates, actual cover period and fiscal-year mapping. Offering documents, asset-management reports and external company websites are not registered as regular filings.
+
+Registration is a normal-ingest transaction with receipt advisory lock, current job/company revalidation and receipt conflict checks. It records the actual source receipt and metadata evidence; it does not fabricate financial values or insert a body under another receipt. The normal business collector then stores the actual body. Existing 28-section behavior and authorization are unchanged.
+
+Each run attempts at most 20 missing companies and four public GETs per company, at least one second apart in production. Six technical failures stop further discovery. Failed discovery retries after 15 minutes; unidentifiable navigation is cached until the next KST day. The audit explicitly distinguishes identification failure from source absence and collection completion. Remaining discovery counts are included in job messages; technical discovery errors make the job failed and schedule backoff. A company-scoped job only explores that company.
+
+The primary fixture is 덕산넵코어스 00960623, receipt 20260813000889, half-year 2026-01-01 through 2026-06-30. The actual body SHA-256 is 16854e467ae793b4b62f2bb9111407d131744a5e636d6dea941564e84c439989. Tests preserve the raw official navigation, shell, cover and body. No OpenDART key/API call is required. Financial amounts remain unverified by this path.
