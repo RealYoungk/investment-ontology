@@ -99,3 +99,5 @@ Flutter `lib/features/monetization/`, 공통 `PageFrameLeadScope`, `AppViewer`,
 Chrome AdSense에서 실제 게시자 `pub-4209548390738211` 확인. 장기 미사용 계정을 재활성화하고 `alfinder.kr`을 사이트 목록에 추가했다. 제공된 ads.txt와 소유 확인 메타태그를 추가했다. 소유 확인과 심사 제출은 운영 배포 후 진행한다. 승인 전 광고 요청은 계속 비활성화한다.
 
 사용자 확정: 광고 제거 월 2,900원, 기존 PG 계약 없음. 자동결제는 토스페이먼츠 공식 v2 빌링 문서 기준 별도 리스크 검토와 계약이 필요하다. 실제 결제·정기 갱신·환불 구현 및 가맹점 개통은 아직 미완료다. https://docs.tosspayments.com/guides/v2/billing
+
+AdSense 광고 단위 `alfinder-content-top` 생성 완료: `3239020318`. alfinder.kr 자동 광고는 사용 안 함으로 확인. 실제 ID를 기본 설정에 연결했지만 ADSENSE_ENABLED 기본값은 false이며 심사 승인과 개인정보 안내 준비 전에는 활성화하지 않는다.

@@ -10,8 +10,14 @@ class AdConfig {
   const AdConfig.environment()
     : enabled = const bool.fromEnvironment('ADSENSE_ENABLED'),
       preview = const bool.fromEnvironment('AD_PLACEMENT_PREVIEW'),
-      publisher = const String.fromEnvironment('ADSENSE_PUBLISHER_ID'),
-      slot = const String.fromEnvironment('ADSENSE_SLOT_ID'),
+      publisher = const String.fromEnvironment(
+        'ADSENSE_PUBLISHER_ID',
+        defaultValue: 'ca-pub-4209548390738211',
+      ),
+      slot = const String.fromEnvironment(
+        'ADSENSE_SLOT_ID',
+        defaultValue: '3239020318',
+      ),
       testMode = const bool.fromEnvironment(
         'ADSENSE_TEST_MODE',
         defaultValue: true,
