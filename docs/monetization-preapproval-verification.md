@@ -1,0 +1,59 @@
+# 광고·월 2,900원 광고 제거: 승인 전 검증
+
+검증일: 2026-10-01 KST. 운영과 GitHub main을 조회해 웹 7f7ae2170d98f4c239326f2c1a9259b520190906을 확인했다. Cloudflare 이전 기록의 백엔드는 e89e684이며 이번 변경은 프런트엔드다. 기본 체크아웃의 다른 작업과 기존 광고 워크트리는 수정하지 않았다.
+
+## 완료 범위와 증거
+
+| 검증 | 결과 | 실제/모의 구분 |
+|---|---|---|
+| 동의 전·거절·동의 bridge 누락 | Google script 0, 광고 push 0 | Node 및 실제 브라우저, Google 전송 모의 |
+| 허용 + Google CMP300/목적1/vendor755 동의 | script 1, push 1 | 운영 JS/브라우저 DOM, Google 응답 모의 |
+| CMP 누락·지연·오류·지역 불명·타 CMP·vendor 미동의 | 광고 push 0, 늦은 콜백도 0 | Node + 브라우저 모의 |
+| 철회·다른 탭 철회·동의창 재표시·승인 후 오류 | 기존 DOM 제거, 추가 push 0 | Node, 브라우저 모의 |
+| 회원 복원·초기 조회 중/실패 | 광고 위젯 미생성, bridge 호출 안 함 | Flutter widget 회귀 |
+| 후속 무료회원 조회 실패 | 광고 차단 상태로 전환; 성공 회복 후 허용 | MembershipMonitor 회귀, 이번 수정 |
+| 유료·갱신 해지·만료·환불·카드 변경·재가입 | paid period 해지 후 유지, 만료/환불 제거 | 실제 Chrome + 인증 RPC + 격리 PostgreSQL, PG 모의 |
+| 로그인/로그아웃·계정 전환·늦은 응답 | 다른 계정의 결제 state 사용 불가, 오래된 결과 폐기 | Chrome/RPC/DB 및 Flutter 회귀 |
+| 중복 콜백·동시 갱신·결과 불명·전액 환불·탈퇴 | 한 주문/멱등키, 동일 주문 조회, 확인 전 성공 처리 안 함 | 서버 집중 70개, HTTP 공급자 모의 |
+| 테스트/실 키 및 enable 조건 | production sandbox 플래그 차단, live 전제 모두 필수 | 단위 검증 및 코드 검토 |
+| 운영 기업 목록 새로고침 | 관찰 구간 Google/Toss 외부 요청 0 | 운영 브라우저 CDP |
+
+집중 검증: JS 24개, 서버 70개, Flutter 23개, Chrome 결제 E2E 1개 통과. 실제 브라우저 광고 harness `tool/ad-consent-check/`는 11/11 통과했다. script 수는 harness가 포착한 **삽입 시도**이며 Google 네트워크 성공 횟수가 아니다. 유료 전환 전 이미 시작한 script 요청은 되돌릴 수 없지만, 전환 후 slot push는 막는다. 실제 browser 결제 E2E의 광고는 preview 위젯이며 실제 Google 광고가 아니다. Google loader DOM/요청 시도는 별도 harness에서 검증했다.
+
+매분 정상 상태 확인은 마지막 성공한 상태를 유지한다(정상 polling마다 광고를 새로 만들지 않음). 계정 변경/복원은 즉시 미확정, 실패는 광고 차단으로 바뀐다. 만료 타이머는 권한을 제거하고 재조회가 실패하면 광고 차단을 유지한다. 새로운 유료 상태/환불은 성공한 서버 상태 응답에 반영되며 실시간 webhook push 기능은 없다.
+
+재현:
+
+```sh
+node --test investment_ontology_serverpod_flutter/test/web/*_test.cjs
+bash scripts/test-server.sh test/unit/billing test/integration/billing_checkout_test.dart test/integration/billing_renewal_test.dart test/integration/membership_ledger_test.dart test/unit/generated_code_test.dart
+(cd investment_ontology_serverpod_flutter && flutter test test/ad_monetization_test.dart test/membership_monitor_test.dart test/billing_checkout_page_test.dart test/design_boundary_test.dart)
+bash scripts/test-billing-browser.sh
+python3 -m http.server 9210 --bind 127.0.0.1
+# /tool/ad-consent-check/ → 전체 검증 실행 (출시 번들 밖)
+```
+
+## 남은 외부 검증
+
+실제 Toss 테스트 승인·조회·전액 취소는 기존 기록의 완료 증거이며 이번 실행에서 다시 실거래하지 않았다. 계약 대상 상점 승인/운영키 연결/실거래는 확인하지 않았다. 개발자 테스트 상점과 계약 상점을 구분한다.
+
+Google 인증 CMP 지역별 허용/거부/철회의 실제 동작은 운영 활성화 전 필수다. 모의 __tcfapi는 Google runtime을 검증하지 않는다. 승인 상태는 이전 확인의 준비중이며 이번 문서가 준비됨을 선언하지 않는다. 운영 빌드의 광고 플래그가 false라 일반 방문 및 debug query만으로 Google CMP가 로드되지 않는다. 실제 Google 테스트 결과는 별도 항목에 기록하고, 없는 결과를 모의 통과로 채우지 않는다.
+
+## 광고 활성화 순서 / 중단
+
+1. AdSense Sites에서 alfinder.kr 준비됨, 수동 단위 3239020318, ads.txt 승인, 지급 설정과 Auto Ads OFF를 증거로 기록한다. Google 계정 메시지 게시와 첫 화면 거부 버튼을 확인한다. 판매자·쿠키/국외 처리 고지와 실제 지역 CMP 검증을 완료한다.
+2. 모든 광고 플래그 OFF 상태를 기본으로 유지한다. 승인 후 별도 PR에서 `deploy/web-build-defines.json`의 ENABLED/SITE_APPROVED/PRIVACY_READY를 모두 true, TEST_MODE=true로 만들고 동일 clean release 검증을 통과한다. ID는 기존 공개값 유지. 외부 승인 플래그는 검증 증거 없이 true로 만들지 않는다.
+3. 검증된 artifact를 Cloudflare 미리보기/운영에 배포. 한국 정상 방문과 `?fc=alwaysshow&fctype=gdpr`, 적용 지역별 새 쿠키 세션에서 자체 미선택/거절 0 script, 허용 후 CMP 거절 0 inventory, CMP 허용 1 test push, 철회 제거/추가 0, 유료/초기 조회중/실패 0 request를 브라우저 Network로 확인한다. CMP가 지역을 판정하지 못하면 광고 차단이 정상이다. 단순 배너 숨김만으로 통과시키지 않는다.
+4. test inventory 확인 후 별도 검증 릴리스에서 TEST_MODE=false. 광고 클릭으로 테스트하지 않는다. 고정/overlay/자동 새로고침/Auto Ads를 추가하지 않는다.
+5. 장애 시 ENABLED=false인 검증 릴리스 배포 또는 Cloudflare의 이전 비활성 deployment를 rollback. 열린 구버전 탭은 이미 로드된 JS가 남으므로 새로고침 필요. 철회 이전 요청을 네트워크에서 취소했다고 주장하지 않는다. 기존 Vercel 배포는 보존한다.
+
+## 결제 활성화 순서 / 중단
+
+1. PG 자동결제 계약 승인, 계약상점 test/live 키 구분, 판매자 연락처/신고 적용 여부, 개인정보 위탁/국외 처리, 최종 약관 버전, 문의 전액 환불 운영, 암호화 키 복구 사본과 거래기록 보존/파기 책임을 확정한다. 미확정 고지를 완료 처리하지 않는다.
+2. 상점 test 키로 최초 승인/GET/취소, 카드 변경 추가청구0, 월말/윤년 갱신, 해지 후 재청구0, 재개, 재가입, 중복 callback/동시 갱신, timeout/동일 주문 대사, 두 계정 격리를 반복한다. 실물 카드 등록은 사람이 수행한다. 원장 모델/마이그레이션 및 FutureCall 등록 확인.
+3. 서버 전용 production 환경에 LIVE_ENABLED/PG_BILLING_APPROVED/BILLING_PRIVACY_READY=true와 비어 있지 않은 TERMS_VERSION을 설정한다. live_sk_/live_ck_와 base64 32바이트 암호화 키를 서버 비밀 설정에만 둔다. sandbox flag로 production이 열리지 않는다. 암호화키를 임의 교체하지 않는다. 가격 KRW2900은 서버 상수이다.
+4. 정상 인증 계정 status paymentAvailable을 확인하고 승인된 운영 검증 거래의 주문/금액/통화/고객/승인 및 취소잔액0을 확인한다. callback URL 방문만으로 권한을 발급하지 않는다. 관리자 환불은 Scope.admin 필수다. 인증/권한을 임시 우회하지 않는다.
+5. webhook 수신 구현은 없다. webhook payload가 권한을 주지 않으며 중복 webhook 처리 통과라고 주장하지 않는다. 공급자 직접 취소는 관리자 환불 확인의 GET 대사로 반영하고 5분 worker의 unknown/refund/key cleanup와 1분 계정 조회를 모니터한다. 향후 webhook은 별도 인증·재조회·멱등성 검증 없이는 추가하지 않는다.
+6. 장애 시 판매 차단과 기존 주문의 조회/환불을 분리한다. 현재 LIVE_ENABLED=false는 worker도 중단하므로 대기 원장 ID와 공급자 주문을 먼저 확보하고 기존 거래를 공급자에서 정리한다. 무작정 플래그를 끄고 환불이 자동 완료된다고 안내하지 않는다. 배포 rollback은 호환되는 image로만, 원장 DB 삭제/reset은 하지 않는다. 암호화 키와 기존 멱등키를 보존한다.
+
+공식 CMP 원문: https://developers.google.com/funding-choices/fc-api-docs (built-in/Exa에서 같은 원문 확인). API_READY는 API 호출 가능, DATA_READY는 동의 데이터 준비를 의미한다. 공개 사이트의 published message와 debug query를 함께 검사한다.

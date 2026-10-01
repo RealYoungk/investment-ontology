@@ -124,3 +124,35 @@ test('local withdrawal while CMP is pending prevents late ad push',async()=>{
  listener({eventStatus:'tcloaded',gdprApplies:false},true);await e.tick();
  assert.equal(await p,false);assert.equal(el.children.length,0);assert.equal(e.root.adsbygoogle,undefined);
 });
+
+// These test both transport setup and slot pushes; a script fetch is not an ad push.
+test('CMP missing, unknown jurisdiction, wrong CMP or missing vendor cannot request inventory',async()=>{
+ for(const data of [undefined,{eventStatus:'tcloaded'},
+  {eventStatus:'tcloaded',gdprApplies:true,cmpId:999,purpose:{consents:{1:true}},vendor:{consents:{755:true}}},
+  {eventStatus:'tcloaded',gdprApplies:true,cmpId:300,purpose:{consents:{1:true}}}]){
+  const e=environment(),el=e.element();
+  if(data===undefined)e.root.googlefc.callbackQueue=[];
+  else e.root.__tcfapi=(_c,_v,cb)=>cb(data,true);
+  const p=e.root.alfinderAds.mount(el,publisher,slot,true);await e.tick();e.scripts[0].onload();await e.tick();
+  for(const fn of [...e.timers.values()])fn();await e.tick();
+  assert.equal(await p,false);assert.equal(e.root.adsbygoogle,undefined);assert.equal(el.children.length,0);
+ }
+});
+test('initial CMP UI has a deadline and late consent cannot push',async()=>{
+ const e=environment(),el=e.element();let listener;
+ e.root.__tcfapi=(cmd,_v,cb)=>{if(cmd==='addEventListener'){listener=cb;cb({eventStatus:'cmpuishown',listenerId:3},true);}};
+ const p=e.root.alfinderAds.mount(el,publisher,slot,true);await e.tick();e.scripts[0].onload();await e.tick();
+ assert.ok(e.timers.size>0);
+ for(const fn of [...e.timers.values()])fn();await e.tick();assert.equal(await p,false);
+ listener({eventStatus:'useractioncomplete',gdprApplies:false},true);await e.tick();assert.equal(e.root.adsbygoogle,undefined);
+});
+test('post-approval error, reopened UI or unknown jurisdiction removes inventory',async()=>{
+ for(const data of [null,{eventStatus:'cmpuishown'},{eventStatus:'tcloaded'},
+  {eventStatus:'tcloaded',gdprApplies:false,cmpStatus:'error'}]){
+  const e=environment(),el=e.element();let listener;
+  e.root.__tcfapi=(cmd,_v,cb)=>{if(cmd==='addEventListener'){listener=cb;cb({eventStatus:'tcloaded',gdprApplies:false,listenerId:3},true);}};
+  const p=e.root.alfinderAds.mount(el,publisher,slot,true);await e.tick();e.scripts[0].onload();await e.tick();
+  assert.equal(e.root.adsbygoogle.length,1);el.children[0].setAttribute('data-ad-status','filled');e.observers[0].fn();assert.equal(await p,true);
+  listener(data,!!data);await e.tick();assert.equal(el.children.length,0);assert.equal(e.root.adsbygoogle.length,1);
+ }
+});

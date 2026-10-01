@@ -88,10 +88,20 @@
               root.__tcfapi('addEventListener', 2, (data, ok) => {
                 if (state.disposed) return;
                 if (data?.listenerId) state.cmpListener = data.listenerId;
-                if (!ok || !data) { clearTimeout(timer); resolve(false); return; }
-                if (data.eventStatus === 'cmpuishown') { clearTimeout(timer); return; }
+                if (!ok || !data || data.cmpStatus === 'error') {
+                  clearTimeout(timer); resolve(false); dispose(element); return;
+                }
+                if (data.eventStatus === 'cmpuishown') {
+                  // A reopened consent UI invalidates the previous decision.
+                  // The initial UI keeps its deadline; late callbacks cannot push.
+                  if (state.adRequested) dispose(element);
+                  return;
+                }
                 if (!['tcloaded', 'useractioncomplete'].includes(data.eventStatus)) return;
-                if (typeof data.gdprApplies !== 'boolean') return;
+                if (typeof data.gdprApplies !== 'boolean') {
+                  if (state.adRequested) dispose(element);
+                  return;
+                }
                 const allowed = data.gdprApplies === false ||
                   (data.cmpId === 300 && data.purpose?.consents?.[1] === true && data.vendor?.consents?.[755] === true);
                 clearTimeout(timer); resolve(allowed);
@@ -118,6 +128,7 @@
           });
           state.observer.observe(ad, { attributes: true, attributeFilter: ['data-ad-status'] });
           element.appendChild(ad);
+          state.adRequested = true;
           (root.adsbygoogle = root.adsbygoogle || []).push({});
         } catch (_) { state.finish(false); }
       };

@@ -1,6 +1,6 @@
 # Cloudflare Pages 이전 준비
 
-2026-10-01: 프런트엔드는 Cloudflare Pages Free, API·DB·정기결제 작업은 기존 iwinv Serverpod를 유지한다. 현재 alfinder.kr은 기존 웹 배포를 사용한다. Cloudflare 계정 로그인과 alfinder-web 프로젝트 배포는 완료했다. alfinder.kr 도메인 전환은 가비아 소유자 인증을 기다린다. 광고 송출과 실결제는 비활성이다.
+2026-10-01: 프런트엔드는 Cloudflare Pages Free, API·DB·정기결제 작업은 기존 iwinv Serverpod를 유지한다. alfinder.kr은 Cloudflare Pages로 전환 완료했다. 당시 Active·SSL·인증 API와 파일 체크섬은 output/cloudflare/migration-production-state.json에 기록되어 있다. 2026-10-01 이번 조회에서도 운영 release.json과 GitHub main은 7f7ae217이다. 아래 DNS 대기 기록은 이전 이력이다. 광고 송출과 실결제는 비활성이다.
 
 ## 무료 한도와 요청 경로
 
@@ -50,3 +50,5 @@ Pages Direct Upload의 `_worker.js`는 대시보드 업로드와 Wrangler 모두
 AdSense에서 alfinder.kr이 실제로 ‘준비됨’으로 바뀌고, 새 호스팅 개인정보 안내와 실제 CMP 지역 동작 검증이 완료된 뒤 `ADSENSE_ENABLED`, `ADSENSE_SITE_APPROVED`, `ADSENSE_PRIVACY_READY`를 true로 바꿔 별도 검증 릴리스를 배포한다. 최초 테스트는 `ADSENSE_TEST_MODE=true`로 확인하고 실송출 전 false로 변경한다. 심사 대기 중에는 플래그를 켜지 않는다. 한 화면에는 수동 배너 하나만 표시하며 Auto ads·고정 오버레이·자동 새로고침은 사용하지 않는다. 광고 없는 계정에는 광고를 요청하지 않는다. 활성화 전 계정 복원·유료 권한 조회 중의 광고 억제를 실제 브라우저에서 추가 검증한다. 앱 시작 전 인증 복원을 완료하고, 로그인 계정의 membershipResolved가 false인 동안 광고를 억제한다. 유료 권한 조회가 실패해도 억제를 유지하며, 성공 응답 뒤에만 무료 계정에 광고를 허용한다.
 
 2026-10-01 확인: Pages 프로젝트 alfinder-web 생성·64개 파일 배포. 실제 API 공개 overview 200, 비로그인 membership/status 401, ads.txt 200. Cloudflare ExecutionContext가 테스트용 HTTP 클라이언트 인자로 잘못 전달되던 문제를 수정하고 5번째 회귀 검증을 추가했다. AdSense 사이트 승인 상태는 ‘준비 중’, ads.txt는 ‘승인됨’이다. Gabia 원본 DNS 6개를 보존하고 Cloudflare에 모두 복사했다. Cloudflare NS는 johnny.ns.cloudflare.com / meg.ns.cloudflare.com이며 가비아에서 두 NS로 설정 완료를 확인했고 Cloudflare 활성화 및 DNS 전파를 기다린다. 현재 alfinder.kr의 authoritative NS는 아직 Gabia다.
+
+최신 승인 전 검증·활성화·롤백은 [monetization-preapproval-verification.md](monetization-preapproval-verification.md)를 따른다.
