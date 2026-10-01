@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
@@ -22,6 +23,7 @@ class FakeDart {
   final filings = <Filing>[];
   final statements = <String, String>{};
   final financialCalls = <String>[];
+  Future<void> Function(String key)? beforeFinancialResponse;
 
   static String key(String corp, int year, String code, String fs) =>
       '$corp|$year|$code|$fs';
@@ -77,9 +79,10 @@ class FakeDart {
         q['fs_div']!,
       );
       financialCalls.add(k);
-      return _body(
-        statements[k] ?? '{"status":"013","message":"조회된 데이타가 없습니다."}',
-      );
+      final response =
+          statements[k] ?? '{"status":"013","message":"조회된 데이타가 없습니다."}';
+      await beforeFinancialResponse?.call(k);
+      return _body(response);
     }),
   );
 
@@ -231,9 +234,36 @@ void main() {
     test(
       '역순(정정 먼저, 원본 나중)으로 들어와도 접수번호가 더 큰 쪽만 활성으로 남는다',
       () async {
-        // 정정본을 먼저 받는다 (예: 뒤늦게 넓힌 백필 구간에서 더 오래된 원본을
-        // 나중에 발견하는 경우). fnlttSinglAcntAll은 접수번호를 받지 않으므로,
-        // 같은 회사·연도·코드 조회는 그 시점 DART가 돌려주는 내용을 그대로 받는다.
+        // 원본 수집 요청은 먼저 시작했지만 응답은 정정본보다 늦게 도착한다.
+        // 새로운 실행은 최신 정정만 선택하고, 이미 실행 중인 원본 요청은 자신의
+        // 응답·출처 그대로 저장한 뒤 더 최신 보고서에 연결해야 한다.
+        final originalRequested = Completer<void>();
+        final releaseOriginal = Completer<void>();
+        dart.beforeFinancialResponse = (key) async {
+          if (key.endsWith('|CFS')) {
+            originalRequested.complete();
+            await releaseOriginal.future;
+          }
+        };
+        dart.filings.add((
+          corp: '00000001',
+          name: '사업보고서 (2025.12)',
+          rcept: '20260310000001',
+          date: '20260310',
+        ));
+        dart.setRows('00000001', 2025, '11011', 'CFS', [
+          row('20260310000001', 'BS', 'ifrs-full_Assets', '자산총계', '1'),
+          row(
+            '20260310000001',
+            'IS',
+            'dart_OperatingIncomeLoss',
+            '영업이익',
+            '100',
+          ),
+        ]);
+        final originalRun = runSync();
+        await originalRequested.future;
+        dart.beforeFinancialResponse = null;
         dart.filings.add((
           corp: '00000001',
           name: '[기재정정]사업보고서 (2025.12)',
@@ -251,28 +281,8 @@ void main() {
           ),
         ]);
         await runSync();
-
-        // 원본을 나중에 발견한다. 실제로 이 시점에 DART를 다시 조회하면 이미
-        // 정정된 값이 돌아오지만, 여기서는 그 구간을 뒤늦게 채우는 원본 그대로의
-        // 응답을 흉내낸다 — 대체 판정이 원본이 어느 쪽으로 저장되든 접수번호만
-        // 보고 정확히 동작하는지가 이 테스트의 요점이다.
-        dart.filings.add((
-          corp: '00000001',
-          name: '사업보고서 (2025.12)',
-          rcept: '20260310000001',
-          date: '20260310',
-        ));
-        dart.setRows('00000001', 2025, '11011', 'CFS', [
-          row('20260310000001', 'BS', 'ifrs-full_Assets', '자산총계', '1'),
-          row(
-            '20260310000001',
-            'IS',
-            'dart_OperatingIncomeLoss',
-            '영업이익',
-            '100',
-          ),
-        ]);
-        await runSync();
+        releaseOriginal.complete();
+        await originalRun;
 
         final reports = {
           for (final r in await FinancialReport.db.find(session)) r.rceptNo: r,
@@ -328,9 +338,61 @@ void main() {
     test(
       '세 버전이 뒤섞인 순서로 들어와도 접수번호가 가장 큰 하나만 활성으로 남고, 변하지 않은 값도 최종본으로 바로 이어진다',
       () async {
-        // 도착 순서: 최신(rcept 002, 9/15) → 원본(rcept 001, 3/10) → 중간 정정
-        // (rcept 003, 6/10). 접수번호 사전식 비교가 실제 접수일 순서와 일치하도록
-        // 접수번호 앞 8자리를 접수일과 맞춘다.
+        // 세 실행의 대상은 각 시작 시점의 최신 접수번호다. 원본과 중간 정정
+        // 요청을 대기시킨 뒤 최신 정정을 먼저 저장해 응답 도착 순서를 뒤집는다.
+        final originalRequested = Completer<void>();
+        final middleRequested = Completer<void>();
+        final releaseOriginal = Completer<void>();
+        final releaseMiddle = Completer<void>();
+        dart.beforeFinancialResponse = (key) async {
+          if (key.endsWith('|CFS')) {
+            originalRequested.complete();
+            await releaseOriginal.future;
+          }
+        };
+        dart.filings.add((
+          corp: '00000001',
+          name: '사업보고서 (2025.12)',
+          rcept: '20260310000001',
+          date: '20260310',
+        ));
+        dart.setRows('00000001', 2025, '11011', 'CFS', [
+          row('20260310000001', 'BS', 'ifrs-full_Assets', '자산총계', '1'),
+          row(
+            '20260310000001',
+            'IS',
+            'dart_OperatingIncomeLoss',
+            '영업이익',
+            '100',
+          ),
+        ]);
+        final originalRun = runSync();
+        await originalRequested.future;
+        dart.beforeFinancialResponse = (key) async {
+          if (key.endsWith('|CFS')) {
+            middleRequested.complete();
+            await releaseMiddle.future;
+          }
+        };
+        dart.filings.add((
+          corp: '00000001',
+          name: '[기재정정]사업보고서 (2025.12)',
+          rcept: '20260610000003',
+          date: '20260610',
+        ));
+        dart.setRows('00000001', 2025, '11011', 'CFS', [
+          row('20260610000003', 'BS', 'ifrs-full_Assets', '자산총계', '2'),
+          row(
+            '20260610000003',
+            'IS',
+            'dart_OperatingIncomeLoss',
+            '영업이익',
+            '100',
+          ),
+        ]);
+        final middleRun = runSync();
+        await middleRequested.future;
+        dart.beforeFinancialResponse = null;
         dart.filings.add((
           corp: '00000001',
           name: '[기재정정]사업보고서 (2025.12)',
@@ -348,42 +410,10 @@ void main() {
           ),
         ]);
         await runSync();
-
-        dart.filings.add((
-          corp: '00000001',
-          name: '사업보고서 (2025.12)',
-          rcept: '20260310000001',
-          date: '20260310',
-        ));
-        dart.setRows('00000001', 2025, '11011', 'CFS', [
-          row('20260310000001', 'BS', 'ifrs-full_Assets', '자산총계', '1'),
-          row(
-            '20260310000001',
-            'IS',
-            'dart_OperatingIncomeLoss',
-            '영업이익',
-            '100',
-          ),
-        ]);
-        await runSync();
-
-        dart.filings.add((
-          corp: '00000001',
-          name: '[기재정정]사업보고서 (2025.12)',
-          rcept: '20260610000003',
-          date: '20260610',
-        ));
-        dart.setRows('00000001', 2025, '11011', 'CFS', [
-          row('20260610000003', 'BS', 'ifrs-full_Assets', '자산총계', '2'),
-          row(
-            '20260610000003',
-            'IS',
-            'dart_OperatingIncomeLoss',
-            '영업이익',
-            '100',
-          ),
-        ]);
-        await runSync();
+        releaseMiddle.complete();
+        await middleRun;
+        releaseOriginal.complete();
+        await originalRun;
 
         final reports = {
           for (final r in await FinancialReport.db.find(session)) r.rceptNo: r,

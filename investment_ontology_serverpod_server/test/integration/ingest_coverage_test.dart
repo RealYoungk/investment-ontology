@@ -61,10 +61,65 @@ void main() {
       }
     });
 
+    test('과거 중간보고서와 5개년 밖 대기는 장부에 남기고 현재 수집 현황에서 제외한다', () async {
+      final company = (await Company.db.findFirstRow(
+        session,
+        where: (t) => t.corpCode.equals('00000001'),
+      ))!;
+      Future<DartFiling> add(
+        String receipt,
+        int year,
+        FinancialReportCode code,
+      ) => DartFiling.db.insertRow(
+        session,
+        DartFiling(
+          companyId: company.id,
+          corpCode: company.corpCode,
+          rceptNo: receipt,
+          bsnsYear: year,
+          reportCode: code,
+          reportName: '정기보고서',
+          consolidatedStatus: FilingFetchStatus.pending,
+          separateStatus: FilingFetchStatus.pending,
+          discoveredAt: DateTime.utc(2026),
+        ),
+      );
+      final historical = await add(
+        '20241114000001',
+        2024,
+        FinancialReportCode.q3,
+      );
+      final beyondFive = await add(
+        '20200310000001',
+        2019,
+        FinancialReportCode.annual,
+      );
+      final q1 = await add('20260514000001', 2026, FinancialReportCode.q1);
+      await add('20260814000001', 2026, FinancialReportCode.halfYear);
+      final coverage = await endpoints.ingest.coverage(sessionBuilder);
+      expect(coverage.filingsTotal, 2, reason: '최종 FY2025 연간 + 최신 FY2026 반기');
+      expect(coverage.filingsPending, 2);
+      expect(
+        await DartFiling.db.count(session),
+        6,
+        reason: '과거 공시 장부는 삭제하지 않는다',
+      );
+      for (final filing in [historical, beyondFive, q1]) {
+        expect(
+          (await DartFiling.db.findById(
+            session,
+            filing.id!,
+          ))!.consolidatedStatus,
+          FilingFetchStatus.pending,
+          reason: '범위 밖 자료를 수집 완료로 바꾸지 않는다',
+        );
+      }
+    });
+
     test('층마다 받은 수와 전체 수를 센다', () async {
       final v = await endpoints.ingest.coverage(sessionBuilder);
       expect(v.listedCompanies, 2);
-      expect(v.filingsTotal, 2);
+      expect(v.filingsTotal, 1, reason: '같은 기간의 최종 정정 접수번호만 수집 대상이다');
       expect(v.filingsPending, 1);
       expect(v.prioritySections, 2);
       expect(v.prioritySectionsDone, 1);
