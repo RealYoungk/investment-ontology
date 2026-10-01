@@ -2,6 +2,12 @@
 # Same validation for GitHub Actions and a clean, pinned local checkout.
 set -euo pipefail
 cd "$(dirname "$0")/.."
+if [[ -n "$(git status --porcelain --untracked-files=all)" ]]; then
+  echo 'Release validation requires a clean checkout.' >&2
+  exit 1
+fi
+export ALFINDER_BUILD_COMMIT
+ALFINDER_BUILD_COMMIT="$(git rev-parse HEAD)"
 flutter --version --machine | python3 -c 'import json,sys; version=json.load(sys.stdin)["frameworkVersion"]; assert version == "3.47.5", "Expected Flutter 3.47.5, got " + version'
 flutter pub get --enforce-lockfile
 dart analyze --fatal-infos

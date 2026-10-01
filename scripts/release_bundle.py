@@ -43,6 +43,8 @@ def seal(directory):
     if git('status', '--porcelain', '--untracked-files=all'):
         raise SystemExit('Refusing to seal a dirty source tree. Commit all build inputs first.')
     commit = git('rev-parse', 'HEAD')
+    if os.environ.get('ALFINDER_BUILD_COMMIT') != commit:
+        raise SystemExit('Run verify_release.sh: commit must stay unchanged throughout validation/build.')
     if os.environ.get('GITHUB_SHA', commit) != commit:
         raise SystemExit('Checkout does not match GITHUB_SHA')
     output = directory / '.vercel/output'

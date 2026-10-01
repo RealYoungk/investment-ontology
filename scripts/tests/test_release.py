@@ -75,6 +75,12 @@ class ReleaseGuardTests(unittest.TestCase):
             with self.assertRaises(SystemExit):
                 release_bundle.seal(Path('/unused'))
 
+    def test_commit_change_during_build_is_rejected(self):
+        with patch.object(release_bundle, 'git', side_effect=['', 'b' * 40]), \
+             patch.dict(release_bundle.os.environ, {'ALFINDER_BUILD_COMMIT': 'a' * 40}):
+            with self.assertRaises(SystemExit):
+                release_bundle.seal(Path('/unused'))
+
     def test_safe_bundle_extracts(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
