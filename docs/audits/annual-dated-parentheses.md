@@ -1,0 +1,9 @@
+# Fully dated annual title punctuation
+
+Generic full-date grammar accepts balanced parentheses around a statement's exact annual dates, preserving existing term/date captures and every whole-core/current-column/unit/source/basis guard. This does not accept a year-only heading. Unbalanced punctuation and any current title with different source start/end are rejected.
+
+When the new punctuation is used, the same official statement scope must also contain exactly one dated primary CE table with one-row unmerged whole-total header, unique current actual start/end rows in order, and one current profit row between them. Only the explicitly printed final total is used; no component sums/NCI inference. CE net must equal CIS net, CE ending equity must equal BS equity, and the existing BS identity must hold. The source URL, unit, CE row/table positions, actual dates and values are retained in each row's supportingPeriodEvidence. The parser does not annualize any amount or create a TTM period.
+
+Primary fixture: 태양기계 corp00442631, receipt20250320001616, OFS term35, 2024-01-01..12-31. The source prints BS instant, and CIS/CE/CF term35 `(2024.01.01부터2024.12.31까지)` durations. Verified whole won amounts: assets45,196,505,945; liabilities28,155,449,143; equity17,041,056,802; revenue35,139,145,847; operating income2,077,871,656; net788,713,757; operating cash flow2,757,334,697. CE printed current net and final equity match. Raw official shell/cover/OFS/CFS URLs and SHA remain in fixture/proof.json.
+
+No new external GET/API/production database writes. No fetcher/sync/priority/generated changes. Unit regressions include wrong duration/term/year-only/unbalanced parentheses/company/basis/CE current date duplication/CE equity or profit conflict/missing mandatory revenue/mixed monetary units. Existing CNS/Konasol/full-date rules remain protected by related regression suites.
