@@ -817,6 +817,79 @@ void main() {
       );
     });
 
+    test('종목코드가 있는 other 세 기업의 최신본문을 저장하고 정확 최신 집계에 포함한다', () async {
+      var count = 0;
+      for (final (corp, name, stock, receipt, code, reportName) in [
+        (
+          '00534191',
+          '코스나인',
+          '082660',
+          '20260515003027',
+          FinancialReportCode.q1,
+          '분기보고서 (2026.03)',
+        ),
+        (
+          '00139834',
+          '원풍물산',
+          '008290',
+          '20260814002734',
+          FinancialReportCode.halfYear,
+          '반기보고서 (2026.06)',
+        ),
+        (
+          '00183518',
+          '코다코',
+          '046070',
+          '20260814003077',
+          FinancialReportCode.halfYear,
+          '반기보고서 (2026.06)',
+        ),
+      ]) {
+        final company = await Company.db.insertRow(
+          session,
+          Company(
+            corpCode: corp,
+            name: name,
+            stockCode: stock,
+            market: Market.other,
+          ),
+        );
+        ids[corp] = company.id!;
+        final latest = await filing(
+          corp,
+          receipt,
+          2026,
+          code: code,
+          name: reportName,
+        );
+        final reader = _PublicBodyFixture();
+        await runSync(corpCode: corp, dailyBudget: 0, publicDocuments: reader);
+        expect(reader.receipts, [receipt]);
+        final section = (await DartFilingSection.db.find(
+          session,
+          where: (t) =>
+              t.filingId.equals(latest.id!) &
+              t.section.equals(DartSection.businessContent),
+        )).single;
+        expect(section.status, FilingFetchStatus.stored);
+        final body = (await BusinessDocument.db.find(
+          session,
+          where: (t) => t.companyId.equals(company.id!),
+        )).single;
+        expect(body.rceptNo, receipt);
+        expect(
+          (await Company.db.findById(session, company.id!))!.market,
+          Market.other,
+        );
+        count++;
+        expect(
+          (await endpoints.ingest.coverage(sessionBuilder))
+              .companiesWithLatestBusinessText,
+          count,
+        );
+      }
+    });
+
     test('명시 첨부정정의 공개 사업노드 없음은 실제 이전 원본으로 연결한다', () async {
       const corrected = '20260901000001';
       await filing(samsung, corrected, 2025, name: '[첨부정정]사업보고서 (2025.12)');

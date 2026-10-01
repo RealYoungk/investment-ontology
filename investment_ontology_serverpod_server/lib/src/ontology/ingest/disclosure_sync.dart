@@ -133,7 +133,11 @@ class DisclosureSync {
       final now = _clock().toUtc();
       final companies = await Company.db.find(
         session,
-        where: (t) => t.market.inSet(DisclosureLinks.listedMarkets),
+        // Financial/latest-body scope keeps companies with a listed security
+        // code even if DART's current market classification is "other".
+        where: (t) =>
+            t.market.inSet(DisclosureLinks.listedMarkets) |
+            t.stockCode.notEquals(null),
       );
       final byId = {for (final c in companies) c.id!: c};
       final only = corpCode == null
