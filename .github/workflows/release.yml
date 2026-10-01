@@ -33,4 +33,5 @@ jobs:
           name: web-release-${{ github.sha }}
           path: output/web-release.tar.gz
           retention-days: 30
+          compression-level: 0
           if-no-files-found: error
