@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:http/http.dart' as http;
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_business_document.dart';
@@ -58,6 +60,19 @@ class SelectivePublicBody extends PublicBusinessDocument {
       ),
       bodySha256: 'fixture',
     );
+  }
+}
+
+class OneTimeoutPublicBody extends SelectivePublicBody {
+  OneTimeoutPublicBody(this.timeoutReceipt) : super({});
+  final String timeoutReceipt;
+  @override
+  Future<PublicBusinessBody> fetch(String receipt) async {
+    if (receipt == timeoutReceipt) {
+      receipts.add(receipt);
+      throw TimeoutException('source fixture timeout');
+    }
+    return super.fetch(receipt);
   }
 }
 
@@ -231,6 +246,40 @@ void main() {
       expect(secondReceipts, hasLength(1));
       expect(firstReceipts, isNot(contains(secondReceipts.single)));
       expect(client.calls.every((c) => c.startsWith('document|')), isTrue);
+    });
+    test('fresh bodies proceed after one timeout and failed-only remainder backs off', () async {
+      for (final year in [2023, 2024, 2025]) {
+        await filing(year, '${year + 1}0310000001');
+      }
+      final body = OneTimeoutPublicBody('20260310000001');
+      final first = await run(runLimit: 1, daily: 0, public: body);
+      expect(first.failed, 1);
+      expect(first.updated, 0);
+      expect(resumes, [now.add(const Duration(seconds: 30))]);
+      expect(body.receipts, ['20260310000001']);
+      resumes.clear();
+      final second = await run(runLimit: 1, daily: 0, public: body);
+      expect(second.updated, 1);
+      expect(second.failed, 0);
+      expect(body.receipts.last, '20250310000001');
+      expect(resumes, [now.add(const Duration(seconds: 30))]);
+      resumes.clear();
+      final third = await run(runLimit: 1, daily: 0, public: body);
+      expect(third.updated, 1);
+      expect(third.failed, 0);
+      expect(body.receipts.last, '20240310000001');
+      expect(resumes, [now.add(const Duration(minutes: 15))]);
+      expect(await BusinessDocument.db.count(session), 2);
+      final section = await DartFilingSection.db.findFirstRow(
+        session,
+        where: (t) => t.attempts.equals(1),
+      );
+      expect(section!.attempts, 1);
+      resumes.clear();
+      final fourth = await run(runLimit: 1, daily: 0, public: body);
+      expect(fourth.failed, 1);
+      expect(body.receipts.last, '20260310000001');
+      expect(resumes, [now.add(const Duration(minutes: 15))]);
     });
     test('public six-failure circuit preserves remainder and retries in 15 minutes', () async {
       for (var i = 0; i < 8; i++) {
