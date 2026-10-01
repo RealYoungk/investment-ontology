@@ -12,7 +12,7 @@ async function withDeadline(promise, ms) {
   } finally { clearTimeout(timer); }
 }
 
-const upstreamHost = 'investment-ontology.tailb7d6da.ts.net';
+const upstreamHost = 'alfinder-api.49.247.192.41.sslip.io';
 let resolvedAddresses;
 let resolvedUntil = 0;
 let resolving;
