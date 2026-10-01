@@ -128,7 +128,27 @@ class FinancialEndpoint extends Endpoint {
               (shortIds.contains(r.id) ? '원문 보고기간 확인 필요' : null) ??
               _periodName(factsByReport[r.id] ?? const []),
           supersededCount: supersededCounts[r.id] ?? 0,
-          lines: FinancialAccounts.pick(factsByReport[r.id] ?? const []),
+          lines: [
+            for (final line in FinancialAccounts.pick(
+              factsByReport[r.id] ?? const [],
+            ))
+              if (shortIds.contains(r.id) &&
+                  line.statement != FinancialStatementKind.balanceSheet)
+                FinancialLine(
+                  key: line.key,
+                  factId: line.factId,
+                  statement: line.statement,
+                  accountId: line.accountId,
+                  accountName: line.accountName,
+                  currency: line.currency,
+                  unavailableReason:
+                      '${durations.ranges[r.id]?.label ?? '원문 보고기간 확인 필요'} · 12개월 계산 입력을 제공하지 않습니다. 원문 보고서를 열어 공시 금액을 확인하세요.',
+                  priorSameUnavailableReason:
+                      '${durations.ranges[r.id]?.label ?? '원문 보고기간 확인 필요'} · 보고기간이 확인된 12개월 계산 입력이 아닙니다.',
+                )
+              else
+                line,
+          ],
         ),
     ];
 

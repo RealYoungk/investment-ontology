@@ -144,12 +144,27 @@ void main() {
           fsDiv: FsDiv.separate,
         ))!;
         expect(summary.periods.single.periodName, label);
-        expect(
-          summary.periods.single.lines
-              .singleWhere((l) => l.key == 'revenue')
-              .amount,
-          BigInt.from(22224597290),
+        final flow = summary.periods.single.lines.singleWhere(
+          (l) => l.key == 'revenue',
         );
+        expect(flow.amount, isNull);
+        expect(flow.cumulativeAmount, isNull);
+        expect(flow.priorSameCumulativeAmount, isNull);
+        expect(flow.unavailableReason, contains(label));
+        expect(flow.unavailableReason, contains('원문 보고서'));
+        expect(flow.factId, greaterThan(0));
+        // Legacy clients use annual amount directly, without periodName guards.
+        final legacyTtm = flow.amount?.toDouble();
+        final legacyQ4 = legacyTtm == null ? null : legacyTtm - 10;
+        final legacyGrowth = legacyTtm == null ? null : legacyTtm / 100 - 1;
+        expect([legacyTtm, legacyQ4, legacyGrowth], everyElement(isNull));
+        for (final line in summary.periods.single.lines.where(
+          (l) => l.statement != FinancialStatementKind.balanceSheet,
+        )) {
+          expect(line.amount, isNull);
+          expect(line.cumulativeAmount, isNull);
+          expect(line.priorSameCumulativeAmount, isNull);
+        }
         expect(
           summary.periods.single.lines
               .singleWhere((l) => l.key == 'assets')
@@ -174,6 +189,12 @@ void main() {
         expect(screen.netIncome, isNull);
         final detail = (await FinancialEndpoint().report(session, report.id!))!;
         expect(detail.facts.where((f) => f.amount != null).length, rows.length);
+        final raw = detail.facts.singleWhere((f) => f.id == flow.factId);
+        expect(raw.amount, BigInt.from(22224597290));
+        expect(raw.currency, flow.currency);
+        expect(raw.accountName, flow.accountName);
+        expect(raw.sourceId, source.id);
+        expect(detail.source?.id, source.id);
       }
 
       await check('원문 보고기간 확인 필요');
