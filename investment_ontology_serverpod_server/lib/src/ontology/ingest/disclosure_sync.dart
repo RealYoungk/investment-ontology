@@ -146,7 +146,11 @@ class DisclosureSync {
       if (corpCode != null && only == null) {
         throw StateError('상장사 원장에 없는 기업: $corpCode');
       }
-      final byName = DisclosureLinks.companiesByName(companies);
+      final byName = DisclosureLinks.companiesByName(
+        companies.where(
+          (c) => DisclosureLinks.listedMarkets.contains(c.market),
+        ),
+      );
 
       await _ensureLedger(now, only);
       await _rankYears();

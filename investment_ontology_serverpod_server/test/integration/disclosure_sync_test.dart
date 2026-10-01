@@ -817,6 +817,37 @@ void main() {
       );
     });
 
+    test('본문 수집 대상인 other 기업은 지배구조 이름 연결 대상에 추가하지 않는다', () async {
+      for (final corp in [life, other]) {
+        final company = (await Company.db.findById(session, ids[corp]!))!;
+        await Company.db.updateRow(
+          session,
+          company.copyWith(market: Market.other),
+        );
+      }
+      await runSync(corpCode: samsung);
+      final holder = (await ShareholderEntry.db.find(
+        session,
+        where: (t) =>
+            t.companyId.equals(ids[samsung]!) & t.holderName.equals('삼성생명보험㈜'),
+      )).single;
+      expect(holder.holderCompanyId, isNull);
+      final investment = (await InvestmentEntry.db.find(
+        session,
+        where: (t) => t.companyId.equals(ids[samsung]!),
+        orderBy: (t) => t.ord,
+      )).first;
+      expect(investment.investeeCompanyId, isNull);
+      expect(
+        (await Company.db.findById(session, ids[life]!))!.stockCode,
+        isNotNull,
+      );
+      expect(
+        (await Company.db.findById(session, ids[other]!))!.stockCode,
+        isNotNull,
+      );
+    });
+
     test('종목코드가 있는 other 세 기업의 최신본문을 저장하고 정확 최신 집계에 포함한다', () async {
       var count = 0;
       for (final (corp, name, stock, receipt, code, reportName) in [
