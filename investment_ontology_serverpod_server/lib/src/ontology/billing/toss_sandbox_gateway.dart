@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'billing_gateway.dart';
+
 import 'package:http/http.dart' as http;
 
 /// Provider failures carry safe codes; activation is guarded by server config.
@@ -28,7 +30,11 @@ class SandboxPayment {
   final int balance;
 }
 
-class TossPaymentsGateway {
+class TossPaymentsGateway implements BillingGateway {
+  @override
+  String get provider => 'toss';
+  @override
+  Duration get safeReplayWindow => const Duration(days: 14);
   TossPaymentsGateway({
     required String secretKey,
     required this.client,
@@ -113,8 +119,10 @@ class TossPaymentsGateway {
     }
   }
 
+  @override
   Future<String> issueBillingKey({
     required String authKey,
+    String? issueId,
     required String customerKey,
     required String idempotencyKey,
   }) async {
@@ -140,7 +148,8 @@ class TossPaymentsGateway {
     if (value['orderId'] != orderId ||
         value['type'] != 'BILLING' ||
         value['currency'] != 'KRW' ||
-        value['totalAmount'] != monthlyAmount ||
+        value['totalAmount'] is! int ||
+        (value['totalAmount'] as int) <= 0 ||
         value['paymentKey'] is! String ||
         (value['paymentKey'] as String).isEmpty ||
         value['balanceAmount'] is! int ||
@@ -151,10 +160,11 @@ class TossPaymentsGateway {
         }.contains(value['status'])) {
       throw const SandboxPaymentException('payment_identity', uncertain: true);
     }
+    final total = value['totalAmount'] as int;
     final balance = value['balanceAmount'] as int;
     if (balance < 0 ||
-        balance > monthlyAmount ||
-        (value['status'] == 'DONE' && balance != monthlyAmount) ||
+        balance > total ||
+        (value['status'] == 'DONE' && balance != total) ||
         (value['status'] == 'CANCELED' && balance != 0)) {
       throw const SandboxPaymentException('payment_balance', uncertain: true);
     }
@@ -162,13 +172,15 @@ class TossPaymentsGateway {
       key: value['paymentKey'] as String,
       orderId: orderId,
       status: value['status'] as String,
-      amount: monthlyAmount,
+      amount: total,
       balance: balance,
     );
   }
 
+  @override
   Future<SandboxPayment> charge({
     required String billingKey,
+    int amountKrw = monthlyAmount,
     required String customerKey,
     required String orderId,
     required String idempotencyKey,
@@ -183,7 +195,7 @@ class TossPaymentsGateway {
         ['v1', 'billing', billingKey],
         body: {
           'customerKey': customerKey,
-          'amount': monthlyAmount,
+          'amount': amountKrw,
           'orderId': orderId,
           'orderName': '알파인더 광고 제거 1개월',
         },
@@ -193,6 +205,7 @@ class TossPaymentsGateway {
     );
   }
 
+  @override
   Future<SandboxPayment> lookup(String orderId) async {
     _identifier(orderId);
     return _payment(
@@ -201,11 +214,13 @@ class TossPaymentsGateway {
     );
   }
 
+  @override
   Future<void> deleteBillingKey(String key) async {
     _providerKey(key);
     await _request('DELETE', ['v1', 'billing', key], allowEmpty: true);
   }
 
+  @override
   Future<SandboxPayment> refund({
     required String paymentKey,
     required String orderId,

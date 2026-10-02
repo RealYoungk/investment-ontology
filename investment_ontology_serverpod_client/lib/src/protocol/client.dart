@@ -1308,11 +1308,15 @@ class EndpointMembership extends _isc.EndpointRef {
       );
 
   _ida.Future<_ieebiau0.BillingCheckoutView> beginCheckout(
-    String acceptedTestTerms,
-  ) => caller.callServerEndpoint<_ieebiau0.BillingCheckoutView>(
+    String acceptedTestTerms, {
+    int? expectedAmountKrw,
+  }) => caller.callServerEndpoint<_ieebiau0.BillingCheckoutView>(
     'membership',
     'beginCheckout',
-    {'acceptedTestTerms': acceptedTestTerms},
+    {
+      'acceptedTestTerms': acceptedTestTerms,
+      'expectedAmountKrw': expectedAmountKrw,
+    },
   );
 
   _ida.Future<_ieebiau0.BillingCheckoutView> beginCardReplacement(
@@ -1353,6 +1357,22 @@ class EndpointMembership extends _isc.EndpointRef {
     'cancelRenewal',
     {},
   );
+}
+
+/// Public pricing only; account entitlements stay on MembershipEndpoint.
+/// {@category Endpoint}
+class EndpointMembershipOffer extends _isc.EndpointRef {
+  EndpointMembershipOffer(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'membershipOffer';
+
+  _ida.Future<_iwrn1kmb.MembershipView> offer() =>
+      caller.callServerEndpoint<_iwrn1kmb.MembershipView>(
+        'membershipOffer',
+        'offer',
+        {},
+      );
 }
 
 /// AI 관계 검수 큐: 근거 인용을 보고 승인(verified)·거절(rejected)한다.
@@ -1859,6 +1879,7 @@ class Client extends _isc.ServerpodClientShared {
     ingest = EndpointIngest(this);
     market = EndpointMarket(this);
     membership = EndpointMembership(this);
+    membershipOffer = EndpointMembershipOffer(this);
     review = EndpointReview(this);
     screen = EndpointScreen(this);
     theme = EndpointTheme(this);
@@ -1900,6 +1921,8 @@ class Client extends _isc.ServerpodClientShared {
 
   late final EndpointMembership membership;
 
+  late final EndpointMembershipOffer membershipOffer;
+
   late final EndpointReview review;
 
   late final EndpointScreen screen;
@@ -1929,6 +1952,7 @@ class Client extends _isc.ServerpodClientShared {
     'ingest': ingest,
     'market': market,
     'membership': membership,
+    'membershipOffer': membershipOffer,
     'review': review,
     'screen': screen,
     'theme': theme,

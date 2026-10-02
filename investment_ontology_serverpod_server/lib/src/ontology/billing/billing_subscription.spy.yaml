@@ -11,6 +11,13 @@ fields:
   encryptedKeyPendingDeletion: String?
   nextPeriod: int, default=0
   cycleStartPeriod: int, default=0
+  priceLocked: bool, default=false
+  priceKrw: int, default=2900
+  priceVersion: String, default='legacy-2900'
+  provider: String, default='toss'
+  graceThroughUtc: DateTime?
+  retryAfterUtc: DateTime?
+  billingPausedUtc: DateTime?
 indexes:
   billing_subscription_owner_idx:
     fields: ownerId

@@ -1,4 +1,4 @@
-import 'package:investment_ontology_serverpod_server/src/ontology/billing/billing_sandbox_config.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/billing/billing_provider_config.dart';
 import 'package:test/test.dart';
 
 void main() {

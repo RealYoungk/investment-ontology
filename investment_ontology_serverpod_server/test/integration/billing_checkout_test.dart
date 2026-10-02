@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
-import 'package:investment_ontology_serverpod_server/src/ontology/billing/billing_checkout_service.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/billing/billing_checkout_flow.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/billing/billing_key_vault.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/billing/billing_renewal_service.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/billing/membership_ledger.dart';
@@ -153,7 +153,7 @@ void main() {
             owned,
             state: view.state,
             authKey: 'fixture-auth',
-            at: now.add(const Duration(minutes: 10)),
+            at: now.add(const Duration(minutes: 30)),
           ),
           throwsStateError,
         );

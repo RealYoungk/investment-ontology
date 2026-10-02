@@ -5,13 +5,37 @@ import '../../design/components/components.dart';
 import '../../design/tokens.dart';
 import '../auth/app_auth.dart';
 import 'membership_availability.dart';
+import '../../client.dart';
 
-class MembershipPlansPage extends StatelessWidget {
+import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
+
+class MembershipPlansPage extends StatefulWidget {
   const MembershipPlansPage({
     super.key,
     this.checkoutEnabled = membershipCheckoutEnabled,
+    this.loadOffer,
   });
   final bool checkoutEnabled;
+  final Future<MembershipView> Function()? loadOffer;
+  @override
+  State<MembershipPlansPage> createState() => _MembershipPlansPageState();
+}
+
+class _MembershipPlansPageState extends State<MembershipPlansPage> {
+  MembershipView? _offer;
+  @override
+  void initState() {
+    super.initState();
+    _loadOffer();
+  }
+
+  Future<void> _loadOffer() async {
+    try {
+      final value = await (widget.loadOffer ?? client.membershipOffer.offer)();
+      if (mounted) setState(() => _offer = value);
+    } catch (_) {}
+  }
+
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: AppAuth.viewer,
@@ -34,7 +58,7 @@ class MembershipPlansPage extends StatelessWidget {
         const SizedBox(height: AppSpace.md),
         LayoutBuilder(
           builder: (context, box) => Text(
-            '관심 있는 기업을,\n더 오래 지켜보세요.',
+            '먼저 가입할수록,\n더 좋은 가격으로.',
             textAlign: TextAlign.center,
             style: t
                 .display(box.maxWidth < 600 ? 32 : 44, color: c.textPrimary)
@@ -43,7 +67,7 @@ class MembershipPlansPage extends StatelessWidget {
         ),
         const SizedBox(height: AppSpace.md),
         Text(
-          '투자 후보부터 보유 기업까지.\n나의 기업 목록을 넓히고, 리서치에 집중하세요.',
+          '새로운 기능이 더해질수록 신규 가입 요금도 올라갑니다.\n지금 가입한 요금으로, 앞으로 추가되는 기능까지 이용하세요.',
           textAlign: TextAlign.center,
           style: t.body(15, color: c.textSecondary).copyWith(height: 1.6),
         ),
@@ -59,7 +83,7 @@ class MembershipPlansPage extends StatelessWidget {
               borderRadius: BorderRadius.circular(24),
             ),
             child: Text(
-              '월간 구독 · 언제든 갱신 해지',
+              '얼리버드 혜택 · 구독을 유지하면 가입 가격 그대로',
               style: t.body(12, color: c.textSecondary),
             ),
           ),
@@ -74,8 +98,12 @@ class MembershipPlansPage extends StatelessWidget {
             );
             final member = MembershipPlanCard(
               premium: true,
+              amountKrw: _offer?.currentPriceKrw ?? 4900,
               current: paid,
-              onSelect: paid || checkoutEnabled
+              onSelect:
+                  paid ||
+                      (widget.checkoutEnabled &&
+                          _offer?.paymentAvailable == true)
                   ? () =>
                         context.push(paid ? '/account' : '/membership/checkout')
                   : null,
@@ -123,12 +151,18 @@ class MembershipPlansPage extends StatelessWidget {
           answer: '계정에서 언제든 다음 갱신을 해지할 수 있습니다. 이미 결제한 기간까지 멤버십이 유지되며, 이용 기간이 끝나면 무료 플랜으로 전환됩니다.',
         ),
         const _PlanQuestion(
+          question: '얼리버드 요금은 계속 유지되나요?',
+          answer: '네. 새로운 기능이 더해지면 신규 가입 요금은 단계적으로 올라갑니다. 기존 구독자는 구독을 유지하는 동안 가입 당시 월 요금으로 앞으로 추가되는 기능도 함께 이용할 수 있습니다. 해지 후 이용 기간이 끝나 재가입하면 재가입 시 표시된 요금이 적용됩니다.',
+        ),
+        const _PlanQuestion(
           question: '환불은 어떻게 요청하나요?',
           answer: '현재 이용 기간 안에 문의 이메일로 요청하면 해당 회차 전액을 환불합니다. 환불이 완료되면 멤버십과 다음 갱신이 종료됩니다. 상세 조건은 결제 전 이용권 약관에서 확인할 수 있습니다.',
         ),
         const SizedBox(height: AppSpace.xl),
         Text(
-          '멤버십은 출시 준비 중입니다. 지금은 무료 플랜으로 이용할 수 있습니다.',
+          _offer?.paymentAvailable == true
+              ? '결제 전 가입 가격과 자동 갱신 조건을 확인하세요.'
+              : '멤버십은 출시 준비 중입니다. 지금은 무료 플랜으로 이용할 수 있습니다.',
           textAlign: TextAlign.center,
           style: t.body(12, color: c.textMuted),
         ),
@@ -143,7 +177,9 @@ class MembershipPlanCard extends StatelessWidget {
     required this.premium,
     required this.current,
     required this.onSelect,
+    this.amountKrw = 4900,
   });
+  final int amountKrw;
   final bool premium;
   final bool current;
   final VoidCallback? onSelect;
@@ -207,7 +243,12 @@ class MembershipPlanCard extends StatelessWidget {
             TextSpan(
               children: [
                 TextSpan(
-                  text: premium ? '2,900' : '0',
+                  text: premium
+                      ? amountKrw.toString().replaceAllMapped(
+                          RegExp(r'(\d)(?=(\d{3})+$)'),
+                          (m) => '${m[1]},',
+                        )
+                      : '0',
                   style: t.numeric(40, weight: FontWeight.w700),
                 ),
                 TextSpan(
@@ -219,9 +260,21 @@ class MembershipPlanCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            premium ? '부가세 포함 · 매월 자동 갱신' : '기간 제한 없이 무료',
+            premium ? '얼리버드 · 부가세 포함 · 매월 자동 갱신' : '기간 제한 없이 무료',
             style: t.body(12, color: c.textMuted),
           ),
+          if (premium) ...[
+            const SizedBox(height: AppSpace.sm),
+            Text(
+              '구독을 유지하면 가입 가격 그대로',
+              style: t.body(13, color: c.accent, weight: FontWeight.w600),
+            ),
+            const SizedBox(height: AppSpace.xs),
+            Text(
+              '앞으로 추가되는 기능도 가입한 요금으로 이용',
+              style: t.body(12, color: c.textSecondary),
+            ),
+          ],
           const SizedBox(height: AppSpace.lg),
           SizedBox(
             height: 48,
@@ -239,7 +292,7 @@ class MembershipPlanCard extends StatelessWidget {
                           ? '멤버십 관리'
                           : onSelect == null
                           ? '멤버십 출시 준비 중'
-                          : '멤버십으로 업그레이드',
+                          : '얼리버드 가격으로 시작하기',
                     ),
                   )
                 : OutlinedButton(

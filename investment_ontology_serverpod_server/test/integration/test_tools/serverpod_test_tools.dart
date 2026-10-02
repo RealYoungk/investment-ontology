@@ -323,6 +323,8 @@ class TestEndpoints {
 
   late final _MembershipEndpoint membership;
 
+  late final _MembershipOfferEndpoint membershipOffer;
+
   late final _ReviewEndpoint review;
 
   late final _ScreenEndpoint screen;
@@ -404,6 +406,10 @@ class _InternalTestEndpoints extends TestEndpoints
       serializationManager,
     );
     membership = _MembershipEndpoint(
+      endpoints,
+      serializationManager,
+    );
+    membershipOffer = _MembershipOfferEndpoint(
       endpoints,
       serializationManager,
     );
@@ -3264,8 +3270,9 @@ class _MembershipEndpoint {
 
   _ida.Future<_i9ji3lii.BillingCheckoutView> beginCheckout(
     _ist.TestSessionBuilder sessionBuilder,
-    String acceptedTestTerms,
-  ) async {
+    String acceptedTestTerms, {
+    int? expectedAmountKrw,
+  }) async {
     return _ist.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
           (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
@@ -3279,6 +3286,7 @@ class _MembershipEndpoint {
           methodName: 'beginCheckout',
           parameters: _ist.testObjectToJson({
             'acceptedTestTerms': acceptedTestTerms,
+            'expectedAmountKrw': expectedAmountKrw,
           }),
           serializationManager: _serializationManager,
         );
@@ -3447,6 +3455,47 @@ class _MembershipEndpoint {
                   _localCallContext.arguments,
                 )
                 as _ida.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
+class _MembershipOfferEndpoint {
+  _MembershipOfferEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _is.EndpointDispatch _endpointDispatch;
+
+  final _is.SerializationManager _serializationManager;
+
+  _ida.Future<_irqqq4jy.MembershipView> offer(
+    _ist.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'membershipOffer',
+            method: 'offer',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'membershipOffer',
+          methodName: 'offer',
+          parameters: _ist.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_irqqq4jy.MembershipView>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

@@ -25,7 +25,13 @@ abstract class BillingCheckout
     this.termsVersion,
     this.acceptedAtUtc,
     required this.issueIdempotencyKey,
-  }) : replaceCard = replaceCard ?? false;
+    int? amountKrw,
+    String? priceVersion,
+    String? provider,
+  }) : replaceCard = replaceCard ?? false,
+       amountKrw = amountKrw ?? 2900,
+       priceVersion = priceVersion ?? 'legacy-2900',
+       provider = provider ?? 'toss';
 
   factory BillingCheckout({
     int? id,
@@ -38,6 +44,9 @@ abstract class BillingCheckout
     String? termsVersion,
     DateTime? acceptedAtUtc,
     required String issueIdempotencyKey,
+    int? amountKrw,
+    String? priceVersion,
+    String? provider,
   }) = _BillingCheckoutImpl;
 
   factory BillingCheckout.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -62,6 +71,9 @@ abstract class BillingCheckout
               jsonSerialization['acceptedAtUtc'],
             ),
       issueIdempotencyKey: jsonSerialization['issueIdempotencyKey'] as String,
+      amountKrw: jsonSerialization['amountKrw'] as int?,
+      priceVersion: jsonSerialization['priceVersion'] as String?,
+      provider: jsonSerialization['provider'] as String?,
     );
   }
 
@@ -90,6 +102,12 @@ abstract class BillingCheckout
 
   String issueIdempotencyKey;
 
+  int amountKrw;
+
+  String priceVersion;
+
+  String provider;
+
   @override
   _is.Table<int?> get table => t;
 
@@ -107,6 +125,9 @@ abstract class BillingCheckout
     String? termsVersion,
     DateTime? acceptedAtUtc,
     String? issueIdempotencyKey,
+    int? amountKrw,
+    String? priceVersion,
+    String? provider,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -122,6 +143,9 @@ abstract class BillingCheckout
       if (termsVersion != null) 'termsVersion': termsVersion,
       if (acceptedAtUtc != null) 'acceptedAtUtc': acceptedAtUtc?.toJson(),
       'issueIdempotencyKey': issueIdempotencyKey,
+      'amountKrw': amountKrw,
+      'priceVersion': priceVersion,
+      'provider': provider,
     };
   }
 
@@ -172,6 +196,9 @@ class _BillingCheckoutImpl extends BillingCheckout {
     String? termsVersion,
     DateTime? acceptedAtUtc,
     required String issueIdempotencyKey,
+    int? amountKrw,
+    String? priceVersion,
+    String? provider,
   }) : super._(
          id: id,
          ownerId: ownerId,
@@ -183,6 +210,9 @@ class _BillingCheckoutImpl extends BillingCheckout {
          termsVersion: termsVersion,
          acceptedAtUtc: acceptedAtUtc,
          issueIdempotencyKey: issueIdempotencyKey,
+         amountKrw: amountKrw,
+         priceVersion: priceVersion,
+         provider: provider,
        );
 
   /// Returns a shallow copy of this [BillingCheckout]
@@ -200,6 +230,9 @@ class _BillingCheckoutImpl extends BillingCheckout {
     Object? termsVersion = _Undefined,
     Object? acceptedAtUtc = _Undefined,
     String? issueIdempotencyKey,
+    int? amountKrw,
+    String? priceVersion,
+    String? provider,
   }) {
     return BillingCheckout(
       id: id is int? ? id : this.id,
@@ -214,6 +247,9 @@ class _BillingCheckoutImpl extends BillingCheckout {
           ? acceptedAtUtc
           : this.acceptedAtUtc,
       issueIdempotencyKey: issueIdempotencyKey ?? this.issueIdempotencyKey,
+      amountKrw: amountKrw ?? this.amountKrw,
+      priceVersion: priceVersion ?? this.priceVersion,
+      provider: provider ?? this.provider,
     );
   }
 }
@@ -270,6 +306,21 @@ class BillingCheckoutUpdateTable extends _is.UpdateTable<BillingCheckoutTable> {
         table.issueIdempotencyKey,
         value,
       );
+
+  _is.ColumnValue<int, int> amountKrw(int value) => _is.ColumnValue(
+    table.amountKrw,
+    value,
+  );
+
+  _is.ColumnValue<String, String> priceVersion(String value) => _is.ColumnValue(
+    table.priceVersion,
+    value,
+  );
+
+  _is.ColumnValue<String, String> provider(String value) => _is.ColumnValue(
+    table.provider,
+    value,
+  );
 }
 
 class BillingCheckoutTable extends _is.Table<int?> {
@@ -313,6 +364,21 @@ class BillingCheckoutTable extends _is.Table<int?> {
       'issueIdempotencyKey',
       this,
     );
+    amountKrw = _is.ColumnInt(
+      'amountKrw',
+      this,
+      hasDefault: true,
+    );
+    priceVersion = _is.ColumnString(
+      'priceVersion',
+      this,
+      hasDefault: true,
+    );
+    provider = _is.ColumnString(
+      'provider',
+      this,
+      hasDefault: true,
+    );
   }
 
   late final BillingCheckoutUpdateTable updateTable;
@@ -335,6 +401,12 @@ class BillingCheckoutTable extends _is.Table<int?> {
 
   late final _is.ColumnString issueIdempotencyKey;
 
+  late final _is.ColumnInt amountKrw;
+
+  late final _is.ColumnString priceVersion;
+
+  late final _is.ColumnString provider;
+
   @override
   List<_is.Column> get columns => [
     id,
@@ -347,6 +419,9 @@ class BillingCheckoutTable extends _is.Table<int?> {
     termsVersion,
     acceptedAtUtc,
     issueIdempotencyKey,
+    amountKrw,
+    priceVersion,
+    provider,
   ];
 }
 

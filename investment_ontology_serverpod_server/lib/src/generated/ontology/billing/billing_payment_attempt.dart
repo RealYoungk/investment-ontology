@@ -10,6 +10,8 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart'
+    as _i4yshtjp;
 import 'package:serverpod/serverpod.dart' as _is;
 
 abstract class BillingPaymentAttempt
@@ -24,7 +26,16 @@ abstract class BillingPaymentAttempt
     this.paymentKey,
     required this.paidFromUtc,
     required this.paidThroughUtc,
-  });
+    int? amountKrw,
+    String? priceVersion,
+    String? provider,
+    int? retryCount,
+    this.chargeStartedUtc,
+    this.failedOrderIds,
+  }) : amountKrw = amountKrw ?? 2900,
+       priceVersion = priceVersion ?? 'legacy-2900',
+       provider = provider ?? 'toss',
+       retryCount = retryCount ?? 0;
 
   factory BillingPaymentAttempt({
     int? id,
@@ -36,6 +47,12 @@ abstract class BillingPaymentAttempt
     String? paymentKey,
     required DateTime paidFromUtc,
     required DateTime paidThroughUtc,
+    int? amountKrw,
+    String? priceVersion,
+    String? provider,
+    int? retryCount,
+    DateTime? chargeStartedUtc,
+    List<String>? failedOrderIds,
   }) = _BillingPaymentAttemptImpl;
 
   factory BillingPaymentAttempt.fromJson(
@@ -55,6 +72,20 @@ abstract class BillingPaymentAttempt
       paidThroughUtc: _is.DateTimeJsonExtension.fromJson(
         jsonSerialization['paidThroughUtc'],
       ),
+      amountKrw: jsonSerialization['amountKrw'] as int?,
+      priceVersion: jsonSerialization['priceVersion'] as String?,
+      provider: jsonSerialization['provider'] as String?,
+      retryCount: jsonSerialization['retryCount'] as int?,
+      chargeStartedUtc: jsonSerialization['chargeStartedUtc'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(
+              jsonSerialization['chargeStartedUtc'],
+            ),
+      failedOrderIds: jsonSerialization['failedOrderIds'] == null
+          ? null
+          : _i4yshtjp.Protocol().deserialize<List<String>>(
+              jsonSerialization['failedOrderIds'],
+            ),
     );
   }
 
@@ -81,6 +112,18 @@ abstract class BillingPaymentAttempt
 
   DateTime paidThroughUtc;
 
+  int amountKrw;
+
+  String priceVersion;
+
+  String provider;
+
+  int retryCount;
+
+  DateTime? chargeStartedUtc;
+
+  List<String>? failedOrderIds;
+
   @override
   _is.Table<int?> get table => t;
 
@@ -97,6 +140,12 @@ abstract class BillingPaymentAttempt
     String? paymentKey,
     DateTime? paidFromUtc,
     DateTime? paidThroughUtc,
+    int? amountKrw,
+    String? priceVersion,
+    String? provider,
+    int? retryCount,
+    DateTime? chargeStartedUtc,
+    List<String>? failedOrderIds,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -111,6 +160,13 @@ abstract class BillingPaymentAttempt
       if (paymentKey != null) 'paymentKey': paymentKey,
       'paidFromUtc': paidFromUtc.toJson(),
       'paidThroughUtc': paidThroughUtc.toJson(),
+      'amountKrw': amountKrw,
+      'priceVersion': priceVersion,
+      'provider': provider,
+      'retryCount': retryCount,
+      if (chargeStartedUtc != null)
+        'chargeStartedUtc': chargeStartedUtc?.toJson(),
+      if (failedOrderIds != null) 'failedOrderIds': failedOrderIds?.toJson(),
     };
   }
 
@@ -160,6 +216,12 @@ class _BillingPaymentAttemptImpl extends BillingPaymentAttempt {
     String? paymentKey,
     required DateTime paidFromUtc,
     required DateTime paidThroughUtc,
+    int? amountKrw,
+    String? priceVersion,
+    String? provider,
+    int? retryCount,
+    DateTime? chargeStartedUtc,
+    List<String>? failedOrderIds,
   }) : super._(
          id: id,
          subscriptionId: subscriptionId,
@@ -170,6 +232,12 @@ class _BillingPaymentAttemptImpl extends BillingPaymentAttempt {
          paymentKey: paymentKey,
          paidFromUtc: paidFromUtc,
          paidThroughUtc: paidThroughUtc,
+         amountKrw: amountKrw,
+         priceVersion: priceVersion,
+         provider: provider,
+         retryCount: retryCount,
+         chargeStartedUtc: chargeStartedUtc,
+         failedOrderIds: failedOrderIds,
        );
 
   /// Returns a shallow copy of this [BillingPaymentAttempt]
@@ -186,6 +254,12 @@ class _BillingPaymentAttemptImpl extends BillingPaymentAttempt {
     Object? paymentKey = _Undefined,
     DateTime? paidFromUtc,
     DateTime? paidThroughUtc,
+    int? amountKrw,
+    String? priceVersion,
+    String? provider,
+    int? retryCount,
+    Object? chargeStartedUtc = _Undefined,
+    Object? failedOrderIds = _Undefined,
   }) {
     return BillingPaymentAttempt(
       id: id is int? ? id : this.id,
@@ -197,6 +271,16 @@ class _BillingPaymentAttemptImpl extends BillingPaymentAttempt {
       paymentKey: paymentKey is String? ? paymentKey : this.paymentKey,
       paidFromUtc: paidFromUtc ?? this.paidFromUtc,
       paidThroughUtc: paidThroughUtc ?? this.paidThroughUtc,
+      amountKrw: amountKrw ?? this.amountKrw,
+      priceVersion: priceVersion ?? this.priceVersion,
+      provider: provider ?? this.provider,
+      retryCount: retryCount ?? this.retryCount,
+      chargeStartedUtc: chargeStartedUtc is DateTime?
+          ? chargeStartedUtc
+          : this.chargeStartedUtc,
+      failedOrderIds: failedOrderIds is List<String>?
+          ? failedOrderIds
+          : this.failedOrderIds?.map((e0) => e0).toList(),
     );
   }
 }
@@ -247,6 +331,39 @@ class BillingPaymentAttemptUpdateTable
         table.paidThroughUtc,
         value,
       );
+
+  _is.ColumnValue<int, int> amountKrw(int value) => _is.ColumnValue(
+    table.amountKrw,
+    value,
+  );
+
+  _is.ColumnValue<String, String> priceVersion(String value) => _is.ColumnValue(
+    table.priceVersion,
+    value,
+  );
+
+  _is.ColumnValue<String, String> provider(String value) => _is.ColumnValue(
+    table.provider,
+    value,
+  );
+
+  _is.ColumnValue<int, int> retryCount(int value) => _is.ColumnValue(
+    table.retryCount,
+    value,
+  );
+
+  _is.ColumnValue<DateTime, DateTime> chargeStartedUtc(DateTime? value) =>
+      _is.ColumnValue(
+        table.chargeStartedUtc,
+        value,
+      );
+
+  _is.ColumnValue<List<String>, List<String>> failedOrderIds(
+    List<String>? value,
+  ) => _is.ColumnValue(
+    table.failedOrderIds,
+    value,
+  );
 }
 
 class BillingPaymentAttemptTable extends _is.Table<int?> {
@@ -285,6 +402,34 @@ class BillingPaymentAttemptTable extends _is.Table<int?> {
       'paidThroughUtc',
       this,
     );
+    amountKrw = _is.ColumnInt(
+      'amountKrw',
+      this,
+      hasDefault: true,
+    );
+    priceVersion = _is.ColumnString(
+      'priceVersion',
+      this,
+      hasDefault: true,
+    );
+    provider = _is.ColumnString(
+      'provider',
+      this,
+      hasDefault: true,
+    );
+    retryCount = _is.ColumnInt(
+      'retryCount',
+      this,
+      hasDefault: true,
+    );
+    chargeStartedUtc = _is.ColumnDateTime(
+      'chargeStartedUtc',
+      this,
+    );
+    failedOrderIds = _is.ColumnSerializable<List<String>>(
+      'failedOrderIds',
+      this,
+    );
   }
 
   late final BillingPaymentAttemptUpdateTable updateTable;
@@ -305,6 +450,18 @@ class BillingPaymentAttemptTable extends _is.Table<int?> {
 
   late final _is.ColumnDateTime paidThroughUtc;
 
+  late final _is.ColumnInt amountKrw;
+
+  late final _is.ColumnString priceVersion;
+
+  late final _is.ColumnString provider;
+
+  late final _is.ColumnInt retryCount;
+
+  late final _is.ColumnDateTime chargeStartedUtc;
+
+  late final _is.ColumnSerializable<List<String>> failedOrderIds;
+
   @override
   List<_is.Column> get columns => [
     id,
@@ -316,6 +473,12 @@ class BillingPaymentAttemptTable extends _is.Table<int?> {
     paymentKey,
     paidFromUtc,
     paidThroughUtc,
+    amountKrw,
+    priceVersion,
+    provider,
+    retryCount,
+    chargeStartedUtc,
+    failedOrderIds,
   ];
 }
 

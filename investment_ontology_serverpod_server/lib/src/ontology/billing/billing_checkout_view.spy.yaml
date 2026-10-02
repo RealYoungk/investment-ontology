@@ -3,3 +3,9 @@ fields:
   state: String
   customerKey: String
   clientKey: String
+  provider: String, default='toss'
+  storeId: String?
+  channelKey: String?
+  issueId: String?
+  amountKrw: int, default=2900
+  priceVersion: String, default='legacy-2900'

@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:investment_ontology_serverpod_flutter/design/app_theme.dart';
 import 'package:investment_ontology_serverpod_flutter/design/brands/ledger_brand.dart';
 import 'package:investment_ontology_serverpod_flutter/features/monetization/membership_plans_page.dart';
+
+Future<MembershipView> offer() async => MembershipView(
+  adFree: false,
+  cancelAtPeriodEnd: false,
+  paymentAvailable: true,
+  currentPriceKrw: 4900,
+);
 
 void main() {
   testWidgets('launch gate keeps public upgrade button disabled', (
@@ -12,7 +20,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         theme: buildAppTheme(ledgerBrand),
-        home: const Scaffold(body: MembershipPlansPage()),
+        home: Scaffold(body: MembershipPlansPage(loadOffer: offer)),
       ),
     );
     await tester.pumpAndSettle();
@@ -33,8 +41,11 @@ void main() {
         routes: [
           GoRoute(
             path: '/membership',
-            builder: (_, _) => const Scaffold(
-              body: MembershipPlansPage(checkoutEnabled: true),
+            builder: (_, _) => Scaffold(
+              body: MembershipPlansPage(
+                checkoutEnabled: true,
+                loadOffer: offer,
+              ),
             ),
           ),
           GoRoute(
@@ -56,8 +67,8 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
-      await tester.ensureVisible(find.text('멤버십으로 업그레이드'));
-      await tester.tap(find.text('멤버십으로 업그레이드'));
+      await tester.ensureVisible(find.text('얼리버드 가격으로 시작하기'));
+      await tester.tap(find.text('얼리버드 가격으로 시작하기'));
       await tester.pumpAndSettle();
       expect(find.text('confirmation'), findsOneWidget);
     },

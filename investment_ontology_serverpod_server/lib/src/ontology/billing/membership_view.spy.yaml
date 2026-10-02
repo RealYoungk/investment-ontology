@@ -6,3 +6,8 @@ fields:
   paymentAvailable: bool, default=false
   termsVersion: String?
   isTest: bool, default=false
+  currentPriceKrw: int, default=4900
+  appliedPriceKrw: int?
+  nextChargeUtc: DateTime?
+  graceThroughUtc: DateTime?
+  priceProtected: bool, default=false

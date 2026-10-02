@@ -20,7 +20,30 @@
       const operation = new URL(location.href).searchParams.get('card') === 'replace' ? '?card=replace' : '';
       history.replaceState(history.state, '', location.pathname + operation);
     },
-    async start(clientKey, customerKey, state) {
+    async start(clientKey, customerKey, state, provider, storeId, channelKey, issueId) {
+      if (provider === 'portone') {
+        if (!storeId || !channelKey || !issueId || !state || !customerKey) throw new Error('Invalid checkout');
+        if (!window.PortOne) {
+          await new Promise((resolve, reject) => {
+            const node = document.createElement('script');
+            node.src = 'https://cdn.portone.io/v2/browser-sdk.js';
+            const timer = setTimeout(() => { node.remove(); reject(new Error('SDK timeout')); }, 12000);
+            node.onload = () => { clearTimeout(timer); resolve(); };
+            node.onerror = () => { clearTimeout(timer); node.remove(); reject(new Error('SDK unavailable')); };
+            document.head.appendChild(node);
+          });
+        }
+        const callback = new URL('/membership/checkout', location.origin);
+        callback.searchParams.set('state', state);
+        if (new URL(location.href).searchParams.get('card') === 'replace') callback.searchParams.set('card', 'replace');
+        const result = await window.PortOne.requestIssueBillingKey({storeId, channelKey,
+          billingKeyMethod: 'CARD', issueId, issueName: '알파인더 월간 멤버십',
+          customer: {customerId: customerKey}, redirectUrl: callback.href});
+        if (!result || result.code || !result.billingKey) throw new Error('Card registration incomplete');
+        callback.searchParams.set('authKey', result.billingKey);
+        location.assign(callback.href);
+        return;
+      }
       if (!/^(test|live)_ck_[A-Za-z0-9]+$/.test(clientKey) || !state || !customerKey) throw new Error('Invalid checkout');
       if (clientKey.startsWith('live_') && location.protocol !== 'https:') throw new Error('HTTPS required');
       await sdk();
