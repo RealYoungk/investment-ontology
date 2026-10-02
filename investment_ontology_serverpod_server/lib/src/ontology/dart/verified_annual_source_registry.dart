@@ -66,6 +66,229 @@ abstract final class VerifiedAnnualSourceRegistry {
       declaredPeriodStart: '2020-04-01',
       declaredPeriodEnd: '2021-03-31',
     ),
+    AnnualSourceCacheEntry(
+      receipt: '20250319000137',
+      corpCode: '00321204',
+      companyName: '지에이이노더스(주)',
+      year: 2024,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20250319000137-cfs',
+      manifestDigest:
+          '0522ae8561a6a4ba581e7d0183ff8a1d4bc020223d856ffbfe8113880e0efd37',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20220323001368',
+      corpCode: '00980043',
+      companyName: '(주)비큐에이아이',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220323001368-cfs',
+      manifestDigest:
+          '6771a18600a099aebbe1e4c8d7c7c7b13eca5efeb920a985db6606ab18628a67',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20220316000897',
+      corpCode: '00156859',
+      companyName: '다올투자증권(주)',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220316000897-cfs',
+      manifestDigest:
+          'f1e323beca808d8342c996dc83ed17e836ed1251304e2a34a8b24edd519ab13b',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20220322000542',
+      corpCode: '00321204',
+      companyName: '지에이이노더스(주)',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220322000542-cfs',
+      manifestDigest:
+          'ea7b32b897870d5ef975718a2bfb6767f496a6d4902c6caf432f3263fb4cd1b6',
+      ruleVersion: 'first-direct-issuer-exact-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: true,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20220429000083',
+      corpCode: '01085442',
+      companyName: '(주)오건에코텍',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220429000083-cfs',
+      manifestDigest:
+          'c56957bd6021eb6335f32f06c86c7c1228b41e123f155b4d76273c9b9ed43871',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20230321000275',
+      corpCode: '00321204',
+      companyName: '지에이이노더스(주)',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20230321000275-cfs',
+      manifestDigest:
+          'a2ebabe4fb66afa64709bc32d806f6e8ae65b481aa32b1d6c094a58e429d5d1e',
+      ruleVersion: 'first-direct-issuer-exact-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: true,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20250319000137',
+      corpCode: '00321204',
+      companyName: '지에이이노더스(주)',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250319000137-ofs',
+      manifestDigest:
+          '24e688c5a2c0676f74556745cf99968387acca496abe530a71694b4550aedd1c',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20220323001368',
+      corpCode: '00980043',
+      companyName: '(주)비큐에이아이',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220323001368-ofs',
+      manifestDigest:
+          'f39b357ced4f6dd1231550787fa626f9912f7687ed8b7a291e76a8301d1ae428',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20220318000943',
+      corpCode: '01109690',
+      companyName: '도부(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220318000943-ofs',
+      manifestDigest:
+          'ce40f87988f7627721876052469a06a873055be01a1b225952a37296f9355ad8',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20241227000654',
+      corpCode: '01109690',
+      companyName: '도부(주)',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20241227000654-ofs',
+      manifestDigest:
+          'cd60803ee87e249ed7df3de89518a98011294ecfb05fd3e5217e8dbf2e4f42a7',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20230728000135',
+      corpCode: '01109690',
+      companyName: '도부(주)',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230728000135-ofs',
+      manifestDigest:
+          '881d782de7fe77912071b506980791cf5249f9589984d507ee4e7e893b76631f',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20220316000897',
+      corpCode: '00156859',
+      companyName: '다올투자증권(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220316000897-ofs',
+      manifestDigest:
+          'df688fd4d31d15a3f7e4ad870a32e2853a6ade51fcbd7adbabc8b496a5435598',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20230314000624',
+      corpCode: '00978075',
+      companyName: '(주)머니무브',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230314000624-ofs',
+      manifestDigest:
+          '0466d7d5772b5a0fbb141de80fdb11d3bfc555d7f24fd5f7128f6feac92e1a87',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20240319000167',
+      corpCode: '00978075',
+      companyName: '(주)머니무브',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20240319000167-ofs',
+      manifestDigest:
+          'b526582109d09a57fff37c61f11c5b8f5eb65e952adde1f4af7869fd100b026f',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20230321000275',
+      corpCode: '00321204',
+      companyName: '지에이이노더스(주)',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230321000275-ofs',
+      manifestDigest:
+          '136d755ceb7bf58721a45edc85adb8ec12d4a4c4bfadc509ebaca6a71299ab99',
+      ruleVersion: 'first-direct-issuer-exact-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: true,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20221026000437',
+      corpCode: '00978075',
+      companyName: '(주)머니무브',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20221026000437-ofs',
+      manifestDigest:
+          'b7125d3432504b1ca3883a38f2e4f2a994ac9250df72a4597edf185433167bc6',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
 
     AnnualSourceCacheEntry(
       receipt: '20220322000542',

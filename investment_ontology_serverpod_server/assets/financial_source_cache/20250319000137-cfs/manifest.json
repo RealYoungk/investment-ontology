@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "00321204",
+  "receipt": "20250319000137",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2024,
+  "periodStart": "2024-01-01",
+  "periodEnd": "2024-12-31",
+  "ruleVersion": "primary-historical-issuer-whole-seven-v1",
+  "sources": [
+    {
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250319000137",
+      "sha256": "29a2d98248974fb888b2fe2316ad9b6a2823468ffed529803cdfc79b3da13332",
+      "file": "shell.html",
+      "label": "shell"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250319000137&dcmNo=10426502&eleId=1&offset=955&length=4553&dtd=dart4.xsd",
+      "sha256": "ae457d14778f56c530a2fabff2eee4a3073938914c2278aab0a4841ce84f2939",
+      "file": "cover.html",
+      "label": "cover"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250319000137&dcmNo=10426502&eleId=19&offset=221320&length=107272&dtd=dart4.xsd",
+      "sha256": "c1e5b678d85a80073d1bf7b24afd359cbc766e5a381a2bad3034c00f92c9a6af",
+      "file": "cfs.html",
+      "label": "cfs"
+    }
+  ],
+  "retrievalProof": "동일 공식 접수·회사·실제 연간기간·전체회사 직접 핵심계정 및 회계식 검증. 해당 고정 접수만 회사명 증거 옵트인. 숫자/기간/기존Source 변경 없음."
+}
