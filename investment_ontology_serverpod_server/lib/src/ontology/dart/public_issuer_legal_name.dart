@@ -279,6 +279,12 @@ class PublicIssuerLegalName {
       // A later history, change notice or subsidiary paragraph cannot supply it.
       final firstLiteralPatterns = [
         RegExp(
+          r'^당사의 명칭은 "([가-힣㈜() ]+)"이며, 영문으로는 "[A-Za-z0-9.,& -]+ \(약호 [A-Za-z0-9.,& -]+\)"로 표기합니다\.$',
+        ),
+        RegExp(
+          r'^- 당사의 명칭은 "([가-힣㈜() ]+)" 이며 영문 명칭은 "[A-Za-z0-9.,& -]+" 입니다\.$',
+        ),
+        RegExp(
           r"^당사의 명칭은 '([가-힣㈜() ]+)'이며 영문으로 '[A-Za-z0-9.,& -]+'로 표기합니다\. 단, 약식으로 표기할 경우 '[가-힣㈜() ]+' 또는 '[A-Za-z0-9.,& -]+'라 표기합니다\.$",
         ),
         RegExp(
@@ -325,6 +331,21 @@ class PublicIssuerLegalName {
             final tail = _text(following.first.group(1)!);
             if (RegExp(r"^또한 영문으로는 '[A-Za-z0-9.,& -]+'라 표기합니다\.$")
                 .hasMatch(tail)) {
+              firstText = '$t $tail';
+            }
+          }
+        }
+        if (RegExp(r'^당사의 명칭은 "[가-힣㈜() ]+"이며,$').hasMatch(t)) {
+          final following = RegExp(
+            r'<p\b[^>]*>(.*?)</p>',
+            caseSensitive: false,
+            dotAll: true,
+          ).allMatches(section).where((v) => v.start > p.start).toList();
+          if (following.isNotEmpty) {
+            final tail = _text(following.first.group(1)!);
+            if (RegExp(
+              r'^영문으로는 "[A-Za-z0-9.,& -]+ \(약호 [A-Za-z0-9.,& -]+\)"로 표기합니다\.$',
+            ).hasMatch(tail)) {
               firstText = '$t $tail';
             }
           }
