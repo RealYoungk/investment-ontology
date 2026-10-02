@@ -32,7 +32,9 @@ class _MacroPageState extends State<MacroPage> {
   List<MacroSeriesView>? _data;
   bool _loading = true, _failed = false;
   int _seq = 0;
-  String get _selected => widget.query['series'] ?? 'DCOILBRENTEU';
+  String get _selected => widget.query['series'] == 'DEXKOUS'
+      ? 'EXIM_USDKRW'
+      : widget.query['series'] ?? 'DCOILBRENTEU';
   int get _days {
     final requested = int.tryParse(widget.query['days'] ?? '');
     return const [30, 90, 365, 1095].contains(requested) ? requested! : 365;
@@ -484,7 +486,7 @@ class MacroDetail extends StatelessWidget {
                   ),
                   if (series.source != null)
                     Text(
-                      '수신 ${series.source!.retrievedAt.toLocal()} · 서버 캐시 6시간',
+                      '수신 ${series.source!.retrievedAt.toLocal()} · 서버 캐시 1시간',
                       style: t.body(11, color: c.textMuted),
                     ),
                   Text(

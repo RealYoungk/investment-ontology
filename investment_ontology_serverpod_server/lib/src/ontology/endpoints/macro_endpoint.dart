@@ -1,13 +1,13 @@
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
-import '../market/macro_data.dart';
+import '../market/macro_sources.dart';
 
-/// Public official market context, no mutations or account data.
+/// Public official market context, read from direct sources with bounded caching.
 class MacroEndpoint extends Endpoint {
   @override
   bool get requireLogin => false;
 
   Future<List<MacroSeriesView>> overview(Session session) =>
-      MacroData.shared.overview();
+      MacroData.forSession(session).overview();
 }
