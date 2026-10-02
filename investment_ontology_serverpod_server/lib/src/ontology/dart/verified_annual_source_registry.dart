@@ -30,6 +30,30 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20240401000698',
+      corpCode: '01229240',
+      companyName: '(주)가이아코퍼레이션',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20240401000698-ofs-audit',
+      manifestDigest:
+          '038df934bb06262ac308a300e88f14f9f1564ada362ed63ee4f0517e0f4af1ca',
+      ruleVersion: 'same-receipt-audit-immutable-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220315000038',
+      corpCode: '01035942',
+      companyName: '(주)메디안디노스틱',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220315000038-cfs-audit',
+      manifestDigest:
+          '0453c972c5618d4406878a7fe195a382522d32128164c4b01fe18bbe9fc47399',
+      ruleVersion: 'same-receipt-audit-immutable-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: "20250331002057",
       corpCode: "01229240",
       companyName: "(주)가이아코퍼레이션",

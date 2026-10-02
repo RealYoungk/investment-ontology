@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 
 import '../../generated/protocol.dart';
 import 'dart_report_name.dart';
+import 'same_receipt_audit_source.dart';
 import 'public_financial_html_fetch.dart';
 import 'verified_annual_source_registry.dart';
 
@@ -135,11 +136,26 @@ final class VerifiedAnnualSourceCache {
         manifest['ruleVersion'] != entry.ruleVersion) {
       throw const FormatException('Cached annual declared identity mismatch');
     }
+    final linkedAudit =
+        entry.ruleVersion == 'same-receipt-audit-immutable-v1' &&
+        SameReceiptAuditSource.eligible(
+          receipt: entry.receipt,
+          corpCode: entry.corpCode,
+          consolidated: basis == FsDiv.consolidated,
+          start: start,
+          end: end,
+        );
+    final expectedDocuments = linkedAudit ? 4 : 3;
     final documents = <Uri, List<int>>{};
     final labels = <String>{};
     for (final source in manifest['sources'] as List) {
       final label = source['label'];
-      if (!{'shell', 'cover', entry.statementLabel}.contains(label) ||
+      if (!{
+            'shell',
+            'cover',
+            entry.statementLabel,
+            if (linkedAudit) 'auditShell',
+          }.contains(label) ||
           !labels.add(label as String) ||
           source['file'] != '$label.html') {
         throw const FormatException('Unknown cached annual document');
@@ -152,10 +168,13 @@ final class VerifiedAnnualSourceCache {
       }
       documents[uri] = bytes;
     }
-    if (documents.length != 3) {
+    if (documents.length != expectedDocuments) {
       throw const FormatException('Cached annual package incomplete');
     }
-    final client = _PinnedRawClient(documents);
+    final client = _PinnedRawClient(
+      documents,
+      maximumRequests: expectedDocuments,
+    );
     try {
       final numeric = await PublicFinancialHtmlFetcher(client).fetchAnnual(
         entry.receipt,
@@ -167,7 +186,7 @@ final class VerifiedAnnualSourceCache {
         consolidated: basis == FsDiv.consolidated,
       );
       if (entry.absenceLiteral != null ||
-          client.requests != 3 ||
+          client.requests != expectedDocuments ||
           numeric.sourceReceipt != entry.receipt ||
           numeric.periodStart != start ||
           numeric.periodEnd != end ||
@@ -199,13 +218,16 @@ final class VerifiedAnnualSourceCache {
 }
 
 class _PinnedRawClient extends http.BaseClient {
-  _PinnedRawClient(this.documents);
+  _PinnedRawClient(this.documents, {this.maximumRequests = 3});
+  final int maximumRequests;
   final Map<Uri, List<int>> documents;
   int requests = 0;
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
     final bytes = documents[request.url];
-    if (request.method != 'GET' || bytes == null || ++requests > 3) {
+    if (request.method != 'GET' ||
+        bytes == null ||
+        ++requests > maximumRequests) {
       throw const FormatException('Unpinned cached annual source request');
     }
     return http.StreamedResponse(

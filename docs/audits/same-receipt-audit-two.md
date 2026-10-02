@@ -11,3 +11,13 @@ main shell, main cover, audit shell, audit statements의 고정 공식 URI와 �
 정상 수집 큐의 정확 receipt/corp/FY/basis만 우선한다. API/공개 재시도 횟수나 한도를 초기화하지 않는다. 같은 기간의 일반 이전 보고서를 추정 매핑하지 않는다. 기존 반대 기준의 Source/report/fact는 변경하지 않는다.
 
 검증: 공식 raw transport·두 current8·회사/접수/기준/기간/URI/원문 변경 음성, 정상 API0 수집 저장·실제 audit 출처 감사·summary 매출·반대 기준 JSON 불변·attempts3 보존 격리 DB 2건 통과. 운영 변경은 하지 않았다.
+
+## 재시도 상한 이후의 정확 원문 패키지 재검증
+
+운영 읽기 감사 당시 두 대상은 공개 시도 2회였다. 배포 전 기존 본문의 날짜 충돌로 3회에 도달하면 일반 공개 큐 및 정확 우선순위에서도 제외된다. 두 후보를 기존 `VerifiedAnnualSourceRegistry` 고정 공식 패키지에 등록하여 이 경우에만 원문을 한 번 재검증한다.
+
+조건은 기존과 동일한 공개 시도 정확히 3회, 실제 5개년 범위 안의 annual/company/year/month/basis, 아직 failed/pending인 해당 기준이다. manifest SHA 및 ruleVersion별 감사 Source가 있으면 성공·실패 모두 다시 실행하지 않는다. 요청에서 패키지를 제출하거나 임의로 범위를 넓힐 수 없다. 공개·API 횟수를 초기화하거나 상한을 늘리지 않는다.
+
+일반 패키지는 계속 shell/cover/statement 3개다. 정확 두 감사 프로필에만 main shell/cover/audit shell/statement 4개를 요구한다. 네 원문 해시와 좌표는 기존 정확 감사 프로필에서도 다시 검증한다. 로컬에 보존한 공식 raw를 사용하므로 네트워크 및 DART API 호출은 0이다.
+
+추가 검증: 기존·신규 registry 단위 317건 통과. 상한3으로 초기화한 격리 정상 수집 DB 2건에서 실제 현재8행·감사 dcm Source·반대 기준 숫자/Source 불변·재실행 멱등을 확인했다. 1회 재검증 감사에는 기존 공개/일반 시도3과 networkRequests0을 기록한다. 운영 재시도나 DB 수정은 하지 않았다.
