@@ -50,5 +50,5 @@
   ],
   "sourceRole": "same_receipt_audit",
   "scopeNote": "Candidate assets only; not active registry or operational completion",
-  "expectedRowsSha256": "9bdfbcd26248314452f5467155d4f41d26be4ade98e62e318c632ced08b11975"
+  "expectedRowsSha256": "4ee48344d171048fcdf45d9fd37872083652a662fe5f13133beda89354266e6c"
 }

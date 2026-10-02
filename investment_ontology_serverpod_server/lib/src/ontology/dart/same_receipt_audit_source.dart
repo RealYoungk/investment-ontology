@@ -23,6 +23,30 @@ abstract final class SameReceiptAuditSource {
           String statementSha,
         })
       >{
+        '20220321001430': (
+          corp: '01396931',
+          year: 2021,
+          consolidated: false,
+          cover: 'https://dart.fss.or.kr/report/viewer.do?rcpNo=20220321001430&dcmNo=8487172&eleId=1&offset=798&length=4030&dtd=dart3.xsd',
+          coverSha: 'fd7f9d5313aef4901e73b1aac51852792fc9d92535de264f6ce507098de962fd',
+          shellSha: 'e42046b41b98cd1c248c875df490612324dc4ed84666058822376f38012a139e',
+          auditShell: 'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220321001430&dcmNo=8487171',
+          auditShellSha: '7d83be310f1ab62e87b217fd919a1153dd0b158dc553974150afe3e7437504bb',
+          statement: 'https://dart.fss.or.kr/report/viewer.do?rcpNo=20220321001430&dcmNo=8487171&eleId=3&offset=10707&length=280333&dtd=dart3.xsd',
+          statementSha: '6ba91ca87535d582a4df4f698367348055168bf28d400c5cd35c86b48ff57260',
+        ),
+        '20220328000884': (
+          corp: '01353848',
+          year: 2021,
+          consolidated: false,
+          cover: 'https://dart.fss.or.kr/report/viewer.do?rcpNo=20220321000630&dcmNo=8482170&eleId=1&offset=807&length=4027&dtd=dart3.xsd',
+          coverSha: '6b6ae646ac07f9228dc540cb530cedc8b598a6e99bec531b7585c3dc262db212',
+          shellSha: 'c18e2ea3a9c809a4f6bcb8a60e13ae89139ca2c61241059de7c3df47e6409556',
+          auditShell: 'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220328000884&dcmNo=8509455',
+          auditShellSha: 'c18e2ea3a9c809a4f6bcb8a60e13ae89139ca2c61241059de7c3df47e6409556',
+          statement: 'https://dart.fss.or.kr/report/viewer.do?rcpNo=20220328000884&dcmNo=8509455&eleId=4&offset=17039&length=459391&dtd=dart3.xsd',
+          statementSha: 'ec448029556f192bfb55ea9a2019569c87ecec4723f6b56ef398a6314d8d9fc3',
+        ),
         '20260313001347': (
           corp: '01872459',
           year: 2025,
@@ -286,12 +310,15 @@ abstract final class SameReceiptAuditSource {
       '20250318000507',
       '20250321001749',
       '20250407004206',
+      '20220321001430',
+      '20220328000884',
     }.contains(receipt)) {
       return null;
     }
     if (_sha(raw) != profiles[receipt]!.statementSha) {
       throw const FormatException('Audit CE raw source changed');
     }
+    final year = profiles[receipt]!.year;
     String compact(String value) =>
         value.replaceAll(RegExp(r'<[^>]*>|\s+|&nbsp;'), '');
     final proofs = <Map<String, dynamic>>[];
@@ -315,16 +342,18 @@ abstract final class SameReceiptAuditSource {
               (attributes: cell.group(1)!, text: compact(cell.group(2)!)),
           ],
       ];
-      if (rows.isEmpty || rows.first.isEmpty || rows.first.last.text != '총계') {
+      if (rows.isEmpty ||
+          rows.first.isEmpty ||
+          rows.first.last.text != (receipt == '20220328000884' ? '합계' : '총계')) {
         continue;
       }
       final starts = [
         for (var i = 1; i < rows.length; i++)
-          if (rows[i].isNotEmpty && rows[i].first.text == '2024.01.01(당기초)') i,
+          if (rows[i].isNotEmpty && rows[i].first.text == '$year.01.01(당기초)') i,
       ];
       final ends = [
         for (var i = 1; i < rows.length; i++)
-          if (rows[i].isNotEmpty && rows[i].first.text == '2024.12.31(당기말)') i,
+          if (rows[i].isNotEmpty && rows[i].first.text == '$year.12.31(당기말)') i,
       ];
       if (starts.isEmpty && ends.isEmpty) {
         continue;
@@ -366,9 +395,11 @@ abstract final class SameReceiptAuditSource {
         throw const FormatException('Audit CE whole net/equity conflict');
       }
       proofs.add({
-        'mode': 'immutable-three-audit-whole-CE-v1',
-        'periodStart': '2024-01-01',
-        'periodEnd': '2024-12-31',
+        'mode': {'20220321001430', '20220328000884'}.contains(receipt)
+            ? 'immutable-source-bound-audit-whole-CE-v1'
+            : 'immutable-three-audit-whole-CE-v1',
+        'periodStart': '$year-01-01',
+        'periodEnd': '$year-12-31',
         'currentProfit': profit.toString(),
         'closingEquity': equity.toString(),
         'printedCurrentProfit': rows[nets.single].last.text,
@@ -397,6 +428,8 @@ abstract final class SameReceiptAuditSource {
       'actualStatementSource': p.statement,
       'statementSha256': p.statementSha,
       'mainStatementConflict': switch (receipt) {
+        '20220321001430' => 'main flow titles print an instant instead of a duration; original printed dates unchanged',
+        '20220328000884' => 'main CE cell span is unsupported; corrected audit printed values used without modifying original main tables',
         '20260331004637' => 'main PL printed term conflicts with cover and current columns; no term or amount corrected',
         '20260326000605' => 'main BS liabilities and CE profit conflict; original cells unchanged',
         '20240320000531' =>

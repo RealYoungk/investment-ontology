@@ -50,5 +50,5 @@
   ],
   "sourceRole": "corrected_audit",
   "scopeNote": "Candidate assets only; not active registry or operational completion",
-  "expectedRowsSha256": "cff20dcf863d9631ec0b56968de2e1c7a1f72756b473223bcb43cfa342f0a586"
+  "expectedRowsSha256": "34de8bcdd14013bd033c8eeab61ff52914f2a13ff5898a072c9527a11599f7d5"
 }

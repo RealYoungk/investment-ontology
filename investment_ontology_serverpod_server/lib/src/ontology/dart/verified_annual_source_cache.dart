@@ -15,6 +15,7 @@ import 'public_financial_html_fetch.dart';
 import 'verified_annual_source_registry.dart';
 import 'same_receipt_audit_source.dart';
 import 'linked_correction_audit_source.dart';
+import 'header18_linked_primary_source.dart';
 import 'pureun_six_core_profile.dart';
 import 'historical_primary_cfs_absence.dart';
 
@@ -130,6 +131,16 @@ final class VerifiedAnnualSourceCache {
     final rawManifest = await _read('${entry.assetDirectory}/manifest.json');
     if (sha256.convert(rawManifest).toString() != entry.manifestDigest) {
       throw const FormatException('Cached annual manifest digest mismatch');
+    }
+    if (entry.ruleVersion == Header18LinkedPrimarySource.primaryRule ||
+        entry.ruleVersion == Header18LinkedPrimarySource.absenceRule) {
+      return Header18LinkedPrimarySource.verify(
+        entry: entry,
+        company: company,
+        filing: filing,
+        rawManifest: rawManifest,
+        read: _read,
+      );
     }
     final manifest = jsonDecode(utf8.decode(rawManifest)) as Map;
     final start = entry.periodStart, end = entry.periodEnd;

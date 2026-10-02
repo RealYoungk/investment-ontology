@@ -1,7 +1,9 @@
 import 'dart:convert';
+
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/dart/header18_linked_primary_source.dart';
 import 'package:test/test.dart';
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/verified_annual_source_cache.dart';
@@ -240,7 +242,11 @@ void main() {
             where: (t) => t.reference.equals(entry.auditReference),
           );
           final actualReceipt =
-              entry.ruleVersion == 'linked-correction-audit-immutable-v1'
+              entry.ruleVersion == Header18LinkedPrimarySource.primaryRule
+              ? Header18LinkedPrimarySource
+                        .profiles['${entry.receipt}:${entry.statementLabel}']!['money']
+                    as String
+              : entry.ruleVersion == 'linked-correction-audit-immutable-v1'
               ? LinkedCorrectionAuditSource.originalFor(entry.receipt)
               : entry.receipt;
           final sourceReports = await FinancialReport.db.find(
@@ -276,14 +282,22 @@ void main() {
                     .readAsStringSync(),
               );
               final statement = (manifest['sources'] as List).singleWhere(
-                (s) => s['label'] == entry.statementLabel,
+                (s) =>
+                    s['label'] ==
+                    (entry.ruleVersion ==
+                            Header18LinkedPrimarySource.primaryRule
+                        ? (manifest['sourceRole'] ==
+                                  'original_primary_with_current_audit_witness'
+                              ? 'primary'
+                              : 'audit')
+                        : entry.statementLabel),
               );
               expect(source.reference, actualReceipt);
               expect(source.url, statement['url']);
               final cover = File('${entry.assetDirectory}/cover.html')
                       .readAsStringSync(),
                   body = File(
-                    '${entry.assetDirectory}/${entry.statementLabel}.html',
+                    '${entry.assetDirectory}/${statement['file']}',
                   ).readAsStringSync();
               expect(
                 source.title,
@@ -441,6 +455,81 @@ void main() {
                 entry.corpCode,
                 fsDiv: entry.basis,
               );
+              if (entry.ruleVersion ==
+                  Header18LinkedPrimarySource.primaryRule) {
+                final expected = jsonDecode(
+                  File('${entry.assetDirectory}/expected-rows.json')
+                      .readAsStringSync(),
+                ) as List;
+                expect(facts, hasLength(expected.length));
+                final keys = [
+                  'assets',
+                  'liabilities',
+                  'equity',
+                  'revenue',
+                  'operatingIncome',
+                  'netIncome',
+                  'operatingCashFlow',
+                  'capex',
+                ];
+                for (var i = 0; i < expected.length; i++) {
+                  final row = expected[i] as Map;
+                  final fact = facts.singleWhere(
+                    (f) => f.accountName == row['account_nm'],
+                  );
+                  expect(
+                    fact.amount,
+                    BigInt.parse(row['thstrm_amount'] as String),
+                  );
+                  expect(fact.reportId, report.id);
+                  expect(report.rceptNo, actualReceipt);
+                  expect(fact.bsnsYear, entry.year);
+                  final line = summary!.periods.single.lines.singleWhere(
+                    (l) => l.key == keys[i],
+                  );
+                  expect(line.amount, fact.amount);
+                  expect(line.accountName, fact.accountName);
+                }
+                final sql = await session.db.unsafeQuery(
+                  'SELECT ${FinancialAccounts.resolvedIdSql('f')} FROM financial_fact f WHERE f."reportId"=${report.id}',
+                );
+                expect(
+                  sql.where((r) => r[0] != null),
+                  hasLength(expected.length),
+                );
+                expect(
+                  sql.where((r) => r[0] == 'ifrs-full_ProfitLoss'),
+                  hasLength(1),
+                );
+                final scopeAudit = (await Source.db.find(
+                  session,
+                  where: (t) => t.reference.equals(
+                    'financial-api-noData-source:${entry.receipt}:${entry.basis.name}',
+                  ),
+                )).single;
+                final scope = jsonDecode(scopeAudit.title);
+                expect(scope['sourceReceipt'], actualReceipt);
+                for (final row in scope['coreRowProvenance']) {
+                  final proof = row['html_provenance']['linkedPrimaryEvidence'];
+                  expect(proof['targetReceipt'], entry.receipt);
+                  expect(proof['sourceReceipt'], actualReceipt);
+                  expect(proof['sourceRole'], manifest['sourceRole']);
+                  expect(
+                    proof['originalCoverReceipt'],
+                    manifest['originalReceipt'],
+                  );
+                  expect(proof['kind'], switch (manifest['sourceRole']) {
+                    'same_receipt_audit' =>
+                      'exact-original-receipt-audit-with-correction-family',
+                    'corrected_audit' =>
+                      'exact-corrected-audit-with-original-cover',
+                    _ => 'exact-original-primary-with-current-audit-witness',
+                  });
+                  expect(proof['auditSource'], isNotEmpty);
+                  expect(proof['auditSha256'], hasLength(64));
+                }
+              }
+
               if ({
                 '20220310001159',
                 '20230309000772',

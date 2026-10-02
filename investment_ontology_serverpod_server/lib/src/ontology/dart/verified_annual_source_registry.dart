@@ -54,6 +54,241 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20220322000265',
+      corpCode: '01396931',
+      companyName: '주식회사 유엑스엔',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20220322000265-ofs-header18',
+      manifestDigest:
+          '0c12f71f2ae2c8c367cf209d761be9dea53d06a948677f6a60891078e3681be4',
+      ruleVersion: 'header18-linked-direct-whole-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220324000876',
+      corpCode: '01397620',
+      companyName: '주식회사 루닛',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20220324000876-cfs-header18',
+      manifestDigest:
+          'ab52277dd9d4858b075580e53fa224e4d514fe3bd7f5ee6a72ba73c61ee16477',
+      ruleVersion: 'header18-linked-direct-whole-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220324000876',
+      corpCode: '01397620',
+      companyName: '주식회사 루닛',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20220324000876-ofs-header18',
+      manifestDigest:
+          '93da5692428b5332075d89b10dd702f4b60a7646e3116ec411a0da20571dc42e',
+      ruleVersion: 'header18-linked-direct-whole-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220328000884',
+      corpCode: '01353848',
+      companyName: '(주)이노벡스',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20220328000884-ofs-header18',
+      manifestDigest:
+          '4de2cc81b6350d2e5aaa6e4c919ee38cb9bb7c9892b642fcc467d6cb77fb36ee',
+      ruleVersion: 'header18-linked-direct-whole-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20221213000195',
+      corpCode: '00311216',
+      companyName: '에이치엔에스하이텍(주)',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20221213000195-cfs-header18',
+      manifestDigest:
+          '7d1e652fd413b4598aa8b91db7eed526e6bc1ab2b06581088c385f188a4b8ad1',
+      ruleVersion: 'header18-linked-direct-whole-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20221213000195',
+      corpCode: '00311216',
+      companyName: '에이치엔에스하이텍(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20221213000195-ofs-header18',
+      manifestDigest:
+          '6c41defb7b2b123b7abb3e490ebe22e6f10193cddd9ffa8983b4a74e7686ffa0',
+      ruleVersion: 'header18-linked-direct-whole-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230323001121',
+      corpCode: '00976615',
+      companyName: '(주)틸론',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20230323001121-cfs-header18',
+      manifestDigest:
+          '63bead4f55ed89ceb2b5a32ac62f1954f8f3d184bfdbfa81cd6a94b08617e5eb',
+      ruleVersion: 'header18-linked-direct-whole-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230323001121',
+      corpCode: '00976615',
+      companyName: '(주)틸론',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20230323001121-ofs-header18',
+      manifestDigest:
+          '79868de23a397e2b2b0f1217a72f7ddf7fd11c537647756226ffdc2474f9de48',
+      ruleVersion: 'header18-linked-direct-whole-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250327000068',
+      corpCode: '01466832',
+      companyName: '(주)라피치',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20250327000068-ofs-header18',
+      manifestDigest:
+          '0c214d0977b4b91a550dda162a544b24386807c6e94b731deee8334d3baaec90',
+      ruleVersion: 'header18-linked-direct-whole-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260320001301',
+      corpCode: '01466832',
+      companyName: '(주)라피치',
+      year: 2025,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20260320001301-ofs-header18',
+      manifestDigest:
+          '84f63ded1b530584b1ffa9da3db4807bc72e7c74f6ebe0a04c84b410829b10ff',
+      ruleVersion: 'header18-linked-direct-whole-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260323000764',
+      corpCode: '01229240',
+      companyName: '(주)가이아코퍼레이션',
+      year: 2025,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20260323000764-cfs-header18',
+      manifestDigest:
+          '50293af1fc3287e8df9dd0f1f2afe297657586c28e11d05227bf653dc00dad24',
+      ruleVersion: 'header18-linked-direct-whole-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260323000764',
+      corpCode: '01229240',
+      companyName: '(주)가이아코퍼레이션',
+      year: 2025,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20260323000764-ofs-header18',
+      manifestDigest:
+          'cecf6877b154cb9a424cb6265512c491388f0ea3c6fffe949bc308ee68ec5ee3',
+      ruleVersion: 'header18-linked-direct-whole-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260324000715',
+      corpCode: '00929228',
+      companyName: '(주)엔에스컴퍼니',
+      year: 2025,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20260324000715-ofs-header18',
+      manifestDigest:
+          '6eac7bf6e5d727b4058f4103cae575a01f01fd7b3819395b583d9429534c2588',
+      ruleVersion: 'header18-linked-direct-whole-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220322000265',
+      corpCode: '01396931',
+      companyName: '주식회사 유엑스엔',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20220322000265-cfs-header18',
+      manifestDigest:
+          '27e185774c6e623594fa3c40099c1733fff94631a063cb8ead03fec8a0864cf2',
+      ruleVersion: 'header18-linked-explicit-absence-v1',
+      absenceLiteral: '당사는 사업보고서 작성 기준일 현재 해당사항이 없습니다.',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220328000884',
+      corpCode: '01353848',
+      companyName: '(주)이노벡스',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20220328000884-cfs-header18',
+      manifestDigest:
+          '7232bb79571aefd16637e0f9f65394885879d0ee3eccf595765e7c893a73f2a1',
+      ruleVersion: 'header18-linked-explicit-absence-v1',
+      absenceLiteral: '해 당 사 항 없 음',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250327000068',
+      corpCode: '01466832',
+      companyName: '(주)라피치',
+      year: 2024,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20250327000068-cfs-header18',
+      manifestDigest:
+          '388d996da4eecee2aaacbdd42c038d9264849b5d90e90065329e337e737fea75',
+      ruleVersion: 'header18-linked-explicit-absence-v1',
+      absenceLiteral: '당사는 사업보고서 제출일 현재 해당사항이 없습니다.',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260320001301',
+      corpCode: '01466832',
+      companyName: '(주)라피치',
+      year: 2025,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20260320001301-cfs-header18',
+      manifestDigest:
+          '3f79096aa61c191199311fb9755a7560d66b01b6541ff80221d163938b43b80c',
+      ruleVersion: 'header18-linked-explicit-absence-v1',
+      absenceLiteral: '당사는 사업보고서 제출일 현재 해당사항이 없습니다.',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260324000715',
+      corpCode: '00929228',
+      companyName: '(주)엔에스컴퍼니',
+      year: 2025,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20260324000715-cfs-header18',
+      manifestDigest:
+          '4d1d4c245791a126ebe7f96a1be6682e1e77923161d1d22e5febb8dbfd242437',
+      ruleVersion: 'header18-linked-explicit-absence-v1',
+      absenceLiteral: '해당사항 없음.',
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20260804000177',
       corpCode: '01872459',
       companyName: '(주)본시스템즈',

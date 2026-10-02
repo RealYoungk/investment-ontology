@@ -1,6 +1,7 @@
 import '../dart/imgt_explicit_revenue_missing.dart';
 import '../dart/verified_annual_source_cache.dart';
 import '../dart/linked_correction_audit_source.dart';
+import '../dart/header18_linked_primary_source.dart';
 import '../dart/verified_annual_source_registry.dart';
 import '../dart/verified_half_basis_absence.dart';
 import '../financial/financial_accounts.dart';
@@ -2964,15 +2965,25 @@ class FinancialFactsSync {
         if (numeric != null) {
           var numericFiling = current;
           if (numeric.sourceReceipt != current.rceptNo) {
-            if (!LinkedCorrectionAuditSource.eligible(
+            final linkedPrimary = Header18LinkedPrimarySource.sourceEligible(
+              receipt: current.rceptNo,
+              corp: currentCompany.corpCode,
+              basis: entry.basis,
+              start: numeric.periodStart,
+              end: numeric.periodEnd,
+              sourceReceipt: numeric.sourceReceipt,
+            );
+            final linkedAudit =
+                LinkedCorrectionAuditSource.eligible(
                   receipt: current.rceptNo,
                   corpCode: currentCompany.corpCode,
                   consolidated: entry.basis == FsDiv.consolidated,
                   start: numeric.periodStart,
                   end: numeric.periodEnd,
-                ) ||
-                numeric.sourceReceipt !=
-                    LinkedCorrectionAuditSource.originalFor(current.rceptNo)) {
+                ) &&
+                numeric.sourceReceipt ==
+                    LinkedCorrectionAuditSource.originalFor(current.rceptNo);
+            if (!linkedPrimary && !linkedAudit) {
               throw const FormatException(
                 'Cached numeric original receipt unverified',
               );

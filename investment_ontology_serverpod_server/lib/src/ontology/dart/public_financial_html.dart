@@ -939,7 +939,25 @@ abstract final class PublicFinancialHtml {
         )) {
       throw const FormatException('SK exact consolidated source mismatch');
     }
-    _source(coverSource, receipt);
+    final exactCoverAudit = SameReceiptAuditSource.bound(
+      receipt: receipt,
+      corpCode: corpCode,
+      consolidated: consolidated,
+      start: periodStart,
+      end: periodEnd,
+      coverSource: coverSource,
+      coverHtml: coverHtml,
+      statementSource: statementSource,
+      statementHtml: statementHtml,
+    );
+    // Only a compiled byte-pinned attachment can have an earlier main cover.
+    _source(
+      coverSource,
+      exactCoverAudit
+          ? Uri.parse(SameReceiptAuditSource.profiles[receipt]!.cover)
+                .queryParameters['rcpNo']!
+          : receipt,
+    );
     _source(statementSource, receipt);
     final skIdentity = skSignetIdentity?.verify(
       targetReceipt: receipt,

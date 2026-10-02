@@ -1,7 +1,9 @@
 import 'dart:convert';
+
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/dart/header18_linked_primary_source.dart';
 import 'package:test/test.dart';
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/verified_annual_source_cache.dart';
@@ -32,7 +34,7 @@ Company company(AnnualSourceCacheEntry e) => Company(
 );
 void main() {
   test('compiled receipt plus basis registry has unique audit identities', () {
-    expect(VerifiedAnnualSourceRegistry.entries.length, 156);
+    expect(VerifiedAnnualSourceRegistry.entries.length, 174);
     expect(
       VerifiedAnnualSourceRegistry.entries
           .map((e) => e.auditReference)
@@ -61,17 +63,22 @@ void main() {
         final result = await cache.verifyRegistered(f, company(e), e.basis);
         expect(
           reads,
-          4 +
-              (e.requiresIssuerOverview ? 1 : 0) +
-              (e.requiresOwnOfsWitness ? 1 : 0) +
-              (e.ruleVersion == 'same-receipt-audit-immutable-v1' ? 1 : 0) +
-              (e.ruleVersion == 'linked-correction-audit-immutable-v1'
-                  ? 2
-                  : 0) +
-              (e.ruleVersion == 'linked-correction-audit-immutable-v1' &&
-                      LinkedCorrectionAuditSource.witnessUri(e.receipt) != null
-                  ? 1
-                  : 0),
+          e.ruleVersion.startsWith('header18-linked-')
+              ? (e.absenceLiteral == null ? 8 : 5)
+              : 4 +
+                    (e.requiresIssuerOverview ? 1 : 0) +
+                    (e.requiresOwnOfsWitness ? 1 : 0) +
+                    (e.ruleVersion == 'same-receipt-audit-immutable-v1'
+                        ? 1
+                        : 0) +
+                    (e.ruleVersion == 'linked-correction-audit-immutable-v1'
+                        ? 2
+                        : 0) +
+                    (e.ruleVersion == 'linked-correction-audit-immutable-v1' &&
+                            LinkedCorrectionAuditSource.witnessUri(e.receipt) !=
+                                null
+                        ? 1
+                        : 0),
         );
         expect(f.toJson(), before);
         final manifest = jsonDecode(
@@ -103,7 +110,12 @@ void main() {
             a.evidence.replaceAll(RegExp(r'\s+'), ''),
             e.absenceLiteral!.replaceAll(RegExp(r'\s+'), ''),
           );
-          expect(a.sourceReceipt, e.receipt);
+          expect(
+            a.sourceReceipt,
+            e.ruleVersion == Header18LinkedPrimarySource.absenceRule
+                ? Header18LinkedPrimarySource.originalFor(e.receipt, e.basis)
+                : e.receipt,
+          );
           expect(a.corpCode, e.corpCode);
           expect(a.periodStart, e.periodStart);
           expect(a.periodEnd, e.periodEnd);
@@ -112,7 +124,10 @@ void main() {
           final n = result.numeric!;
           expect(
             n.sourceReceipt,
-            e.ruleVersion == 'linked-correction-audit-immutable-v1'
+            e.ruleVersion == Header18LinkedPrimarySource.primaryRule
+                ? Header18LinkedPrimarySource
+                      .profiles['${e.receipt}:${e.statementLabel}']!['money']
+                : e.ruleVersion == 'linked-correction-audit-immutable-v1'
                 ? LinkedCorrectionAuditSource.originalFor(e.receipt)
                 : e.receipt,
           );
