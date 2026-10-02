@@ -148,6 +148,12 @@ abstract final class GneOwnAuditSource {
           'coverSha256': coverSha,
           'shellSha256': shellSha,
           'basis': 'OFS',
+          'sourceRole': 'exact-target-own-audit-primary',
+          'ceWholeProof': {
+            'tableIndex': 12,
+            'wholeNetIncome': '377901260',
+            'closingWholeEquity': '4699304316',
+          },
           'tableIndex': a.$1,
           'currentColumn': 2,
           'currentHeader': header.single[1],

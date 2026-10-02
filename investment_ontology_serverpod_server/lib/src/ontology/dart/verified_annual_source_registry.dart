@@ -54,6 +54,18 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20260429001010',
+      corpCode: '01188749',
+      companyName: '주식회사 지앤이헬스케어',
+      year: 2025,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/gne-own-audit-2025-ofs',
+      manifestDigest:
+          'cbd1ba85e2fc37d9ef8827b1545813a7f1f3aa3aa761fa6905292fc9a018e8cc',
+      ruleVersion: 'gne-own-audit-whole7-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20220322000265',
       corpCode: '01396931',
       companyName: '주식회사 유엑스엔',

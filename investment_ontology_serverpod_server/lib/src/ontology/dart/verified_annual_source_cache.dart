@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'gne_own_audit_source.dart';
+
 import 'public_financial_html.dart';
 import 'source_verified_partial_core.dart';
 import 'sk_signet_identity.dart';
@@ -204,6 +206,39 @@ final class VerifiedAnnualSourceCache {
     }
     if (documents.length != documentCount || labels.length != documentCount) {
       throw const FormatException('Cached annual package incomplete');
+    }
+    if (entry.ruleVersion == 'gne-own-audit-whole7-v1') {
+      String raw(String uri) => utf8.decode(documents[Uri.parse(uri)]!);
+      final cover = raw(GneOwnAuditSource.coverUri),
+          statement = raw(GneOwnAuditSource.statementUri);
+      final rows = GneOwnAuditSource.parse(
+        shell: raw(GneOwnAuditSource.shellUri),
+        cover: cover,
+        statement: statement,
+        shellSource: Uri.parse(GneOwnAuditSource.shellUri),
+        coverSource: Uri.parse(GneOwnAuditSource.coverUri),
+        statementSource: Uri.parse(GneOwnAuditSource.statementUri),
+        sourceReceipt: entry.receipt,
+        corpCode: company.corpCode,
+        periodStart: start,
+        periodEnd: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: cover,
+          coverSource: Uri.parse(GneOwnAuditSource.coverUri),
+          statementHtml: statement,
+          statementSource: Uri.parse(GneOwnAuditSource.statementUri),
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
     }
     if (entry.requiresOwnOfsWitness) {
       if (entry.ruleVersion != 'historical-issuer-cfs-none-own-ofs-v1' ||

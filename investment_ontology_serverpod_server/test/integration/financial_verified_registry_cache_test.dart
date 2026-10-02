@@ -26,6 +26,7 @@ void main() {
             ? 'pending-rejection-and-rerun'
             : 'success-and-rerun',
         if ({
+          '20260429001010',
           '20250320001633',
           '20230714000217',
           '20240319000287',
@@ -455,6 +456,53 @@ void main() {
                 entry.corpCode,
                 fsDiv: entry.basis,
               );
+              if (entry.ruleVersion == 'gne-own-audit-whole7-v1') {
+                const expected = {
+                  'assets': '6973822992',
+                  'liabilities': '2274518676',
+                  'equity': '4699304316',
+                  'revenue': '4896995158',
+                  'operatingIncome': '371658968',
+                  'netIncome': '377901260',
+                  'operatingCashFlow': '701750215',
+                };
+                expect(facts, hasLength(7));
+                for (final value in expected.entries) {
+                  expect(
+                    summary!.periods.single.lines
+                        .singleWhere((l) => l.key == value.key)
+                        .amount,
+                    BigInt.parse(value.value),
+                  );
+                }
+                final sql = await session.db.unsafeQuery(
+                  'SELECT ${FinancialAccounts.resolvedIdSql('f')} FROM financial_fact f WHERE f."reportId"=${report.id}',
+                );
+                expect(sql.where((r) => r[0] != null), hasLength(7));
+                final audit = (await Source.db.find(
+                  session,
+                  where: (t) => t.reference.equals(
+                    'financial-api-noData-source:${entry.receipt}:${entry.basis.name}',
+                  ),
+                )).single;
+                final rows =
+                    jsonDecode(audit.title)['coreRowProvenance'] as List;
+                expect(rows, hasLength(7));
+                for (final row in rows) {
+                  expect(
+                    row['html_provenance']['sourceReceipt'],
+                    entry.receipt,
+                  );
+                  expect(
+                    row['html_provenance']['sourceRole'],
+                    'exact-target-own-audit-primary',
+                  );
+                  expect(
+                    row['html_provenance']['ceWholeProof']['wholeNetIncome'],
+                    '377901260',
+                  );
+                }
+              }
               if (entry.ruleVersion ==
                   Header18LinkedPrimarySource.primaryRule) {
                 final expected = jsonDecode(
