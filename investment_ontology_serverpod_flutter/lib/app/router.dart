@@ -67,6 +67,25 @@ abstract final class AppRoutes {
     if (saved != null &&
         !saved.hasScheme &&
         !saved.hasAuthority &&
+        saved.path == '/membership/checkout') {
+      // Preserve an account-bound PG callback across session expiry. Unknown
+      // parameters and duplicate identity values cannot enter the checkout.
+      const allowed = {'state', 'authKey', 'billingKey', 'card', 'code'};
+      if (saved.queryParametersAll.values.any((v) => v.length != 1)) {
+        return '/membership/checkout';
+      }
+      return Uri(
+        path: saved.path,
+        queryParameters: {
+          for (final entry in saved.queryParameters.entries)
+            if (allowed.contains(entry.key) && entry.value.length <= 512)
+              entry.key: entry.value,
+        },
+      ).toString();
+    }
+    if (saved != null &&
+        !saved.hasScheme &&
+        !saved.hasAuthority &&
         saved.path == '/watchlist') {
       final code = saved.queryParameters['add'];
       return code != null && RegExp(r'^\d{8}$').hasMatch(code)
@@ -113,7 +132,7 @@ abstract final class AppRoutes {
           path == '/data' || path == '/review' || path.startsWith('/admin/');
       if (adminOnly && !(viewer?.isAdmin ?? false)) return '/home';
       if (path == '/membership/checkout' && viewer == null) {
-        return '/login?next=/membership/checkout';
+        return login(next: state.uri.toString());
       }
       if ((path == '/watchlist' || path == '/notifications') &&
           viewer == null) {

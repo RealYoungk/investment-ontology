@@ -47,65 +47,79 @@ class CompanyHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Wrap(
-                spacing: AppSpace.lg,
-                runSpacing: AppSpace.sm,
-                crossAxisAlignment: WrapCrossAlignment.end,
-                children: [
-                  Text(
-                    company.name,
-                    style: t.display(30, color: c.textPrimary),
-                  ),
-                  if (company.nameEng != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
-                      child: Text(
-                        company.nameEng!,
-                        style: t.body(13.5, color: c.textSecondary),
-                      ),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final name = Wrap(
+              spacing: AppSpace.lg,
+              runSpacing: AppSpace.sm,
+              crossAxisAlignment: WrapCrossAlignment.end,
+              children: [
+                Text(company.name, style: t.display(30, color: c.textPrimary)),
+                if (company.nameEng != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Text(
+                      company.nameEng!,
+                      style: t.body(13.5, color: c.textSecondary),
                     ),
+                  ),
+              ],
+            );
+            final actions = Wrap(
+              spacing: AppSpace.sm,
+              runSpacing: AppSpace.sm,
+              alignment: WrapAlignment.end,
+              children: [
+                WatchlistButton(corpCode: company.corpCode),
+                if (onCompare != null)
+                  Tooltip(
+                    message: '다른 기업과 비교',
+                    child: AppButton(
+                      icon: Icons.business_outlined,
+                      label: '기업비교',
+                      onPressed: onCompare,
+                    ),
+                  ),
+              ],
+            );
+            if (constraints.maxWidth < 650) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  name,
+                  const SizedBox(height: AppSpace.sm),
+                  Align(alignment: Alignment.centerRight, child: actions),
                 ],
-              ),
-            ),
-            if (onCompare != null) ...[
-              const SizedBox(width: AppSpace.md),
-              Tooltip(
-                message: '다른 기업과 비교',
-                child: AppButton(
-                  icon: Icons.business_outlined,
-                  label: '비교',
-                  onPressed: onCompare,
-                ),
-              ),
-            ],
-          ],
-        ),
-        const SizedBox(height: AppSpace.sm),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: WatchlistButton(corpCode: company.corpCode),
+              );
+            }
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: name),
+                const SizedBox(width: AppSpace.md),
+                actions,
+              ],
+            );
+          },
         ),
         CompanyBasicInfo(detail: detail),
         const SizedBox(height: AppSpace.sm),
         Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SizedBox(height: AppSpace.md),
-            if (fin?.fsDiv != null)
-              Text(
-                '${fsDivLabel(fin!.fsDiv!)} 기준',
-                style: t.body(12, color: c.textMuted),
-              ),
-            const SizedBox(height: AppSpace.sm),
-            if (fin != null &&
-                fin.availableFsDivs.isNotEmpty &&
-                onBasisChanged != null) ...[
-              Row(
-                children: [
+            Wrap(
+              spacing: AppSpace.md,
+              runSpacing: AppSpace.xs,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                if (fin?.fsDiv != null)
+                  Text(
+                    '${fsDivLabel(fin!.fsDiv!)} 기준',
+                    style: t.body(12, color: c.textMuted),
+                  ),
+                if (fin != null &&
+                    fin.availableFsDivs.isNotEmpty &&
+                    onBasisChanged != null)
                   PopupMenuButton<String>(
                     tooltip: '재무 계산 기준 변경',
                     initialValue: selectedBasis?.name ?? 'auto',
@@ -130,15 +144,13 @@ class CompanyHeader extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(width: AppSpace.sm),
-                  if (changingBasis)
-                    Text('불러오는 중…', style: t.body(12, color: c.textMuted)),
-                ],
-              ),
-              if (basisError != null)
-                Text(basisError!, style: t.body(12, color: c.textSecondary)),
-              const SizedBox(height: AppSpace.sm),
-            ],
+                if (changingBasis)
+                  Text('불러오는 중…', style: t.body(12, color: c.textMuted)),
+              ],
+            ),
+            if (basisError != null)
+              Text(basisError!, style: t.body(12, color: c.textSecondary)),
+            const SizedBox(height: AppSpace.xs),
             if (hasFinancials)
               _KeyStats(
                 metrics: FinancialView(fin).metrics(),
@@ -149,10 +161,7 @@ class CompanyHeader extends StatelessWidget {
                 fsDiv: fin.fsDiv,
               )
             else
-              Text(
-                '수집된 재무·시세가 없습니다.',
-                style: t.body(13, color: c.textMuted),
-              ),
+              Text('수집된 재무·시세가 없습니다.', style: t.body(13, color: c.textMuted)),
           ],
         ),
       ],

@@ -25,6 +25,7 @@ class CompanyBasicInfo extends StatelessWidget {
         _BasicField(label: '종목코드', value: company.stockCode!),
       if (detail.industryPath.isNotEmpty)
         _BasicField(label: '업종', value: detail.industryPath.last.name),
+
       if (company.ceoName?.trim().isNotEmpty == true)
         _BasicField(label: '대표자', value: company.ceoName!),
       if (company.establishedDate != null)
@@ -42,68 +43,165 @@ class CompanyBasicInfo extends StatelessWidget {
       if (company.irUrl?.trim().isNotEmpty == true)
         _BasicField(label: 'IR', value: company.irUrl!, url: company.irUrl),
     ];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const SizedBox(height: AppSpace.md),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final columns = constraints.maxWidth >= 650 ? 3 : 2;
-            final width =
-                (constraints.maxWidth - AppSpace.lg * (columns - 1)) / columns;
-            return Wrap(
-              spacing: AppSpace.lg,
-              runSpacing: AppSpace.md,
-              children: [
-                for (final field in fields)
-                  SizedBox(width: width, child: field),
-              ],
-            );
-          },
-        ),
-        if (company.address?.trim().isNotEmpty == true) ...[
+    var expanded = false;
+    return StatefulBuilder(
+      key: ValueKey(company.corpCode),
+      builder: (context, setState) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
           const SizedBox(height: AppSpace.md),
-          _BasicField(label: '주소', value: company.address!),
-        ],
-        const SizedBox(height: AppSpace.md),
-        Wrap(
-          spacing: AppSpace.lg,
-          runSpacing: AppSpace.xs,
-          children: [
-            if (company.jurirNo?.trim().isNotEmpty == true)
-              Text(
-                '법인등록번호 ${company.jurirNo}',
-                style: context.typo.body(11, color: context.colors.textMuted),
-              ),
-            if (company.bizrNo?.trim().isNotEmpty == true)
-              Text(
-                '사업자등록번호 ${company.bizrNo}',
-                style: context.typo.body(11, color: context.colors.textMuted),
-              ),
-            if (detail.industryPath.isNotEmpty)
-              Tooltip(
-                message: detail.industryPath
-                    .map((item) => item.name)
-                    .join(' › '),
+          Wrap(
+            spacing: AppSpace.sm,
+            runSpacing: AppSpace.xs,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              if (company.homepageUrl?.trim().isNotEmpty == true)
+                _QuickLink(
+                  label: '홈페이지',
+                  hint: company.homepageUrl!,
+                  uri: Uri.parse(
+                    company.homepageUrl!.trim().startsWith('http')
+                        ? company.homepageUrl!.trim()
+                        : 'https://${company.homepageUrl!.trim()}',
+                  ),
+                ),
+              if (company.phone?.trim().isNotEmpty == true)
+                _QuickLink(
+                  label: '전화',
+                  hint: company.phone!,
+                  uri: Uri(
+                    scheme: 'tel',
+                    path: company.phone!.replaceAll(RegExp(r'[^0-9+]'), ''),
+                  ),
+                ),
+              if (company.address?.trim().isNotEmpty == true)
+                _QuickLink(
+                  label: '본사 위치',
+                  hint: company.address!,
+                  uri: Uri.parse(
+                    'https://map.naver.com/p/search/${Uri.encodeComponent(company.address!.trim())}',
+                  ),
+                ),
+              TextButton(
+                onPressed: () => setState(() => expanded = !expanded),
                 child: Text(
-                  'KSIC ${detail.industryPath.last.code}',
-                  style: context.typo.body(11, color: context.colors.textMuted),
+                  expanded ? '기본정보 접기 ▴' : '기본정보 더보기 ▾',
+                  style: context.typo.body(
+                    12,
+                    color: context.colors.textSecondary,
+                  ),
                 ),
               ),
-          ],
-        ),
-        if (detail.changes.isNotEmpty)
-          ExpansionTile(
-            tilePadding: EdgeInsets.zero,
-            title: Text(
-              '기본정보 변경 기록',
-              style: context.typo.body(11, color: context.colors.textMuted),
-            ),
-            children: [_ChangeHistory(changes: detail.changes)],
+            ],
           ),
-      ],
+          if (expanded) ...[
+            const SizedBox(height: AppSpace.sm),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final columns = constraints.maxWidth >= 650
+                    ? 3
+                    : constraints.maxWidth >= 400
+                    ? 2
+                    : 1;
+                final width =
+                    (constraints.maxWidth - AppSpace.lg * (columns - 1)) /
+                    columns;
+                return Wrap(
+                  spacing: AppSpace.lg,
+                  runSpacing: AppSpace.md,
+                  children: [
+                    for (final field in fields)
+                      SizedBox(width: width, child: field),
+                  ],
+                );
+              },
+            ),
+            if (company.address?.trim().isNotEmpty == true) ...[
+              const SizedBox(height: AppSpace.md),
+              _BasicField(
+                label: '주소 · 네이버지도',
+                value: company.address!,
+                url:
+                    'https://map.naver.com/p/search/${Uri.encodeComponent(company.address!.trim())}',
+              ),
+            ],
+            const SizedBox(height: AppSpace.md),
+            Wrap(
+              spacing: AppSpace.lg,
+              runSpacing: AppSpace.xs,
+              children: [
+                if (company.jurirNo?.trim().isNotEmpty == true)
+                  Tooltip(
+                    message: '인터넷등기소에서 법인등록번호로 검색해 주세요.',
+                    child: _BasicField(
+                      label: '법인등록번호 · 인터넷등기소',
+                      value: company.jurirNo!,
+                      url: 'https://www.iros.go.kr/',
+                    ),
+                  ),
+                if (company.bizrNo?.trim().isNotEmpty == true)
+                  Text(
+                    '사업자등록번호 ${company.bizrNo}',
+                    style: context.typo.body(
+                      11,
+                      color: context.colors.textMuted,
+                    ),
+                  ),
+                if (detail.industryPath.isNotEmpty)
+                  Tooltip(
+                    message: detail.industryPath
+                        .map((item) => item.name)
+                        .join(' › '),
+                    child: Text(
+                      'KSIC ${detail.industryPath.last.code}',
+                      style: context.typo.body(
+                        11,
+                        color: context.colors.textMuted,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            if (detail.changes.isNotEmpty)
+              ExpansionTile(
+                tilePadding: EdgeInsets.zero,
+                title: Text(
+                  '기본정보 변경 기록',
+                  style: context.typo.body(11, color: context.colors.textMuted),
+                ),
+                children: [_ChangeHistory(changes: detail.changes)],
+              ),
+          ],
+        ],
+      ),
     );
   }
+}
+
+class _QuickLink extends StatelessWidget {
+  const _QuickLink({
+    required this.label,
+    required this.hint,
+    required this.uri,
+  });
+  final String label;
+  final String hint;
+  final Uri uri;
+
+  @override
+  Widget build(BuildContext context) => Tooltip(
+    message: hint,
+    child: Semantics(
+      link: true,
+      child: TextButton(
+        onPressed: () => launchUrl(uri, mode: LaunchMode.externalApplication),
+        child: Text(
+          '$label ↗',
+          style: context.typo.body(12, color: context.colors.textSecondary),
+        ),
+      ),
+    ),
+  );
 }
 
 class _BasicField extends StatelessWidget {
@@ -124,9 +222,7 @@ class _BasicField extends StatelessWidget {
       display,
       style: context.typo
           .body(13, color: context.colors.textPrimary)
-          .copyWith(
-            decoration: url == null ? null : TextDecoration.underline,
-          ),
+          .copyWith(decoration: url == null ? null : TextDecoration.underline),
     );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,8 +244,12 @@ class _BasicField extends StatelessWidget {
                       ? url!.trim()
                       : 'https://${url!.trim()}',
                 ),
+                mode: LaunchMode.externalApplication,
               ),
-              child: text,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppSpace.xs),
+                child: text,
+              ),
             ),
           ),
       ],
@@ -172,10 +272,7 @@ class _ChangeHistory extends StatelessWidget {
         const SectionLabel('기본정보 변경 기록'),
         const SizedBox(height: AppSpace.sm),
         if (changes.isEmpty)
-          Text(
-            '기록된 기본정보 변경이 없습니다.',
-            style: t.body(13, color: c.textMuted),
-          )
+          Text('기록된 기본정보 변경이 없습니다.', style: t.body(13, color: c.textMuted))
         else
           for (final change in changes)
             Container(

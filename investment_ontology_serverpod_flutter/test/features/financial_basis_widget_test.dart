@@ -147,7 +147,7 @@ void main() {
     });
   }
 
-  testWidgets('재무 탭은 두 이익률을 실적 차트에 합치고 중복 표를 제거한다', (tester) async {
+  testWidgets('재무 탭 차트를 유지하며 실적 표를 펼치고 접는다', (tester) async {
     final value = fixtures.financials([
       for (final year in [2023, 2024, 2025])
         fixtures.period(year, FinancialReportCode.annual, [
@@ -177,7 +177,19 @@ void main() {
     expect(charts.first.additionalLineSeries.single.values.first, -.3);
     expect(charts.last.additionalLineSeries.single.values, [-.3, -.3, -.3]);
     expect(charts.last.additionalLineSeries.single.isDashed, isTrue);
-    expect(find.text('표로 보기'), findsNothing);
+    expect(find.text('표로 보기'), findsNWidgets(3));
+    expect(find.byType(AppDataTable), findsNothing);
+    await tester.ensureVisible(find.text('표로 보기').first);
+    await tester.tap(find.text('표로 보기').first);
+    await tester.pumpAndSettle();
+    expect(find.byType(AppDataTable), findsOneWidget);
+    expect(find.text('당기순이익'), findsWidgets);
+    expect(find.text('-20.0%'), findsNWidgets(3));
+    expect(find.textContaining('단위: 백만원'), findsOneWidget);
+    await tester.tap(find.text('표로 보기').first);
+    await tester.pumpAndSettle();
+    expect(find.byType(AppDataTable), findsNothing);
+    await tester.ensureVisible(find.text('분기'));
     expect(find.text('수익성 · 최근 12개월'), findsNothing);
     await tester.tap(find.text('분기'));
     await tester.pumpAndSettle();
