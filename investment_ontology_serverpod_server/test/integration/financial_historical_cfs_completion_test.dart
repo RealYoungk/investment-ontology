@@ -218,16 +218,24 @@ void main() {
             )).single;
             expect(typed.url, PureunStatement.url);
             expect(jsonDecode(typed.title)['sha256'], isNotEmpty);
+            final separateAudit = (await Source.db.find(
+              session,
+              where: (t) => t.reference.equals(
+                'financial-api-noData-source:$receipt:separate',
+              ),
+            )).single;
+            final separateEvidence = jsonDecode(separateAudit.title) as Map;
+            expect(separateEvidence['coreRows'], 6);
+            expect(separateEvidence['missingRequiredAccounts'], ['revenue']);
+            expect(separateEvidence['uncollectedOptionalAccounts'], ['capex']);
             final summary = await endpoints.financial.summary(
               builder,
               e.corpCode,
               fsDiv: FsDiv.separate,
             );
             expect(
-              summary!.periods.single.lines
-                  .singleWhere((l) => l.key == 'revenue')
-                  .amount,
-              isNull,
+              summary!.periods.single.lines.where((l) => l.key == 'revenue'),
+              isEmpty,
             );
           }
           await run(0);

@@ -49,7 +49,7 @@ void main() {
   withServerpod('푸른 exact partial six normal ingestion', (builder, endpoints) {
     for (final publicAttempt in [1, 3]) {
       test(
-        'public$publicAttempt API0 preserves failed CFS and stores exact OFS6 with partial audit and public summary',
+        'public$publicAttempt API0 preserves independent CFS source status and stores exact OFS6 with partial audit and public summary',
         () async {
           final s = builder.build();
           try {
@@ -102,7 +102,26 @@ void main() {
             final filing = (await DartFiling.db.findById(s, f.id!))!;
             expect(filing.attempts, publicAttempt == 3 ? 3 : 4);
             expect(filing.separateStatus, FilingFetchStatus.stored);
-            expect(filing.consolidatedStatus, FilingFetchStatus.failed);
+            expect(
+              filing.consolidatedStatus,
+              publicAttempt == 3
+                  ? FilingFetchStatus.noData
+                  : FilingFetchStatus.failed,
+            );
+            final cfsProofs = await Source.db.find(
+              s,
+              where: (t) => t.reference.equals(
+                'financial-public-basis-not-applicable:${PureunSixCoreProfile.receipt}:consolidated',
+              ),
+            );
+            expect(cfsProofs, hasLength(publicAttempt == 3 ? 1 : 0));
+            if (publicAttempt == 3) {
+              expect(
+                cfsProofs.single.url,
+                'https://dart.fss.or.kr/report/viewer.do?rcpNo=20230315000460&dcmNo=9057394&eleId=17&offset=137261&length=142&dtd=dart3.xsd',
+              );
+              expect(jsonDecode(cfsProofs.single.title)['sha256'], isNotEmpty);
+            }
             expect(
               filing.lastError,
               contains('attempt=${publicAttempt == 3 ? 3 : 2}'),
