@@ -795,6 +795,20 @@ abstract final class VerifiedAnnualSourceRegistry {
       requiresIssuerOverview: true,
     ),
     AnnualSourceCacheEntry(
+      receipt: '20230321001219',
+      corpCode: '00115694',
+      companyName: 'DB증권(주)',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20230321001219-cfs-exact-issuer',
+      manifestDigest:
+          '425b09ef7e29ef6dfb75fae2384213f8f304eaed9ce0fac35c66135ecdf50825',
+      ruleVersion: 'db-fy22-exact-self-declared-issuer-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: true,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20260804000177',
       corpCode: '01872459',
       companyName: '(주)본시스템즈',

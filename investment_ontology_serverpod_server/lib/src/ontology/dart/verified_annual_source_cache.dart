@@ -1,3 +1,5 @@
+import 'db_fy22_whole_current_source.dart';
+import 'db_fy22_exact_issuer_identity.dart';
 import 'woori_investment_2021_source.dart';
 import 'db_exact_issuer_identity.dart';
 
@@ -360,6 +362,57 @@ final class VerifiedAnnualSourceCache {
           coverHtml: raw['cover']!,
           coverSource: coverUri,
           statementHtml: raw['ofs']!,
+          statementSource: statementUri,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == 'db-fy22-exact-self-declared-issuer-v1') {
+      final raw = <String, String>{};
+      for (final source in manifest['sources'] as List) {
+        final label = source['label'] as String;
+        if (source['url'] != DbFy22ExactIssuerIdentity.urls[label]) {
+          throw const FormatException('Exact DB issuer URI mismatch');
+        }
+        raw[label] = utf8.decode(documents[Uri.parse(source['url'])]!);
+      }
+      final identity = DbFy22ExactIssuerIdentity.verify(
+        raw,
+        receipt: entry.receipt,
+        corp: company.corpCode,
+        currentName: company.name,
+        consolidated: basis == FsDiv.consolidated,
+        start: start,
+        end: end,
+      );
+      final coverUri = Uri.parse(DbFy22ExactIssuerIdentity.urls['cover']!);
+      final statementUri = Uri.parse(DbFy22ExactIssuerIdentity.urls['cfs']!);
+      final rows = DbFy22WholeCurrentSource.parse(
+        cover: raw['cover']!,
+        body: raw['cfs']!,
+        coverSource: coverUri,
+        statementSource: statementUri,
+        receipt: entry.receipt,
+        corpCode: company.corpCode,
+        companyName: company.name,
+        start: start,
+        end: end,
+        consolidated: true,
+      );
+      for (final row in rows) {
+        (row['html_provenance'] as Map)['exactIssuerIdentity'] = identity;
+      }
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raw['cover']!,
+          coverSource: coverUri,
+          statementHtml: raw['cfs']!,
           statementSource: statementUri,
           periodStart: start,
           periodEnd: end,

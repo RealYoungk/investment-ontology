@@ -310,6 +310,51 @@ void main() {
                 session,
                 where: (t) => t.reportId.equals(report.id!),
               );
+              if (entry.ruleVersion ==
+                  'db-fy22-exact-self-declared-issuer-v1') {
+                expect(report.bsnsYear, 2022);
+                expect(report.fsDiv, FsDiv.consolidated);
+                expect(facts.length, 8);
+                final expected = {
+                  '자산총계': '9757370294448',
+                  '부채총계': '8710072105027',
+                  '자본총계': '1047298189421',
+                  '영업수익': '1223166577309',
+                  '영업이익': '23824123353',
+                  '당기순이익': '10770184612',
+                  'Ⅰ.영업활동으로인한현금흐름': '-116571056767',
+                };
+                for (final e in expected.entries) {
+                  expect(
+                    facts
+                        .singleWhere(
+                          (f) =>
+                              f.accountName.replaceAll(RegExp(r'\s+'), '') ==
+                              e.key,
+                        )
+                        .amount,
+                    BigInt.parse(e.value),
+                  );
+                }
+                expect(
+                  facts.singleWhere((f) => f.accountName == '유형자산의 취득').amount,
+                  BigInt.parse('-3687283186'),
+                );
+                final a = (await Source.db.findFirstRow(
+                  session,
+                  where: (t) => t.reference.equals(
+                    'financial-api-noData-source:${entry.receipt}:consolidated',
+                  ),
+                ))!;
+                final rows = jsonDecode(a.title)['coreRowProvenance'] as List;
+                final proof =
+                    rows.first['html_provenance']['exactIssuerIdentity'];
+                expect(proof['corpCode'], '00115694');
+                expect(proof['globalAlias'], false);
+                expect(proof['sourceIndependentCheckCount'], 15);
+                expect(proof['flowCaptionPrintedStart'], true);
+                expect(proof['fullStatementCollected'], false);
+              }
               if (entry.ruleVersion == 'db-exact-self-declared-issuer-v1') {
                 expect(report.bsnsYear, 2021);
                 expect(report.fsDiv, FsDiv.separate);
@@ -491,6 +536,41 @@ void main() {
                 entry.corpCode,
                 fsDiv: entry.basis,
               );
+              if (entry.ruleVersion ==
+                  'db-fy22-exact-self-declared-issuer-v1') {
+                final keys = [
+                  'assets',
+                  'liabilities',
+                  'equity',
+                  'revenue',
+                  'operatingIncome',
+                  'netIncome',
+                  'operatingCashFlow',
+                  'capex',
+                ];
+                final amounts = [
+                  '9757370294448',
+                  '8710072105027',
+                  '1047298189421',
+                  '1223166577309',
+                  '23824123353',
+                  '10770184612',
+                  '-116571056767',
+                  '-3687283186',
+                ];
+                for (var i = 0; i < keys.length; i++) {
+                  expect(
+                    summary!.periods.single.lines
+                        .singleWhere((l) => l.key == keys[i])
+                        .amount,
+                    BigInt.parse(amounts[i]),
+                  );
+                }
+                final sql = await session.db.unsafeQuery(
+                  'SELECT ${FinancialAccounts.resolvedIdSql('f')} FROM financial_fact f WHERE f."reportId"=${report.id}',
+                );
+                expect(sql.where((r) => r[0] != null), hasLength(8));
+              }
               if ({
                 'exact-printed-current-annual-v1',
                 'exact-insurance-current-annual-v1',
