@@ -18,4 +18,6 @@
 
 - 순수 신규27 + 기존 optional CAPEX5 = 32 PASS (io-exact-seven-pure-final.log).
 - 정적 분석 0 issue, format 완료.
-- 정상 queue/cache DB2 테스트 작성: API0/attempt3 보존, CFS failed 보존, 실제 Source URI·핵심7/원형명칭·SQL매핑·공개summary·재생멱등. 실행은 root 슬롯 허용 대기.
+- 정상 queue/cache DB2 PASS: API0/원래 numeric attempts=7와 public attempt3 marker 보존, CFS failed 보존, 실제 Source URI·핵심7/원형명칭·SQL매핑·공개summary·재생멱등 검증. `/private/tmp/io-exact-seven-db2.log`에 9초·2 PASS 및 tearDown 기록. 해당 작업트리 테스트 PostgreSQL 프로세스0 확인. 이 결과는 격리 DB 회귀이며 운영 수집완료 주장 아닙니다.
+
+기존 시장 식별자 27bdfba9 후속 DB3도 별도 승인 슬롯에서 PASS: unmatched CRNO 충돌 DB-only job, saved CRNO stock fallback 거부, fresh listing code/ISIN 우회 거부. 가격·지수·Source 원장 불변 및 우선주 동일 CRNO 허용. `/private/tmp/io-market-relink-conflict-db3.log`, 해당 PG0 확인. 시장 생산코드 추가 수정 없음.
