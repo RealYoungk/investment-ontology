@@ -9,3 +9,9 @@
 2021 연결은 CF 기말과 BS 현금이 1백만원 다르므로 제외한다. 2022 별도는 직접 전체 매출 행이 없어 제외한다. 이 실제 원문을 음성 fixture로 보존했다.
 
 검증: 순수 18개 및 registry 집중 2개 통과, 변경 파일 분석 문제 0, 포맷 완료. 격리 정상큐 DB1은 2026-10-03 setUpAll에서 macOS semaphore 한도(semget)로 PostgreSQL 기동 실패하여 본문 0개 실행했다. 부모의 안전한 환경 정리 후 승인된 재시도 역시 같은 setUpAll semget 환경 실패였다. 이후 추가 실행하지 않았고 환경/IPC/설정 변경하지 않았다. DB 저장 검증을 통과했다고 주장하지 않는다.
+
+## 단독 슬롯 최종 정상 저장 검증
+
+2026-10-03 부모의 203 게이트 DB 정상 종료 이후 승인된 단독 슬롯에서 기존 정상 큐 DB1을 한 번 실행하여 PASS했다. 로그: `/private/tmp/io-nh-normal-db-final.log`, exit 0, 실제 테스트 본문 1개 통과. 원문 8계정 및 Source URL/원접수/단위/원형 과목/null ID, summary·SQL 8개, 기존 실패 연결 기준 원형과 API/public 카운터, API 호출 0, 동일 접수 재실행 updated 0을 검증했다. 앞선 setUpAll 두 번 실패는 별도 환경 실행 이력으로 보존한다.
+
+테스트 종료 후 본 작업 dataPath의 postmaster PID 96700은 이미 종료되어 ps에 없었고 pg_ctl fast 확인도 No such process였다. 본 작업 PG 0, 다른 PG·IPC·설정 변경 0. 운영 DB 저장·배포를 실행한 결과가 아닌 격리 정상 저장 검증이다.
