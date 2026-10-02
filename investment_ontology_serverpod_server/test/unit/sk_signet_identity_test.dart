@@ -37,7 +37,26 @@ void main() {
     'official whole source retains actual labels and direct rename proof',
     () {
       final rows = parse();
-      expect(rows.length, 8);
+      final expected = <String, String>{
+        '자산총계': '230642631079',
+        '부채총계': '335708768291',
+        '자본총계': '-105066137212',
+        'Ⅰ. 매출액(주석19)': '74401016313',
+        'Ⅴ. 영업이익(손실)': '-245159821034',
+        'Ⅹ. 당기순이익(손실) (주석16)': '-246554897630',
+        'I. 영업활동으로 인한 현금흐름': '-66891998445',
+      };
+      expect({
+        for (final r in rows) r['account_nm']: r['thstrm_amount'],
+      }, expected);
+      expect(rows.length, 7);
+      // Source prints separate PPE categories; no whole PPE acquisition amount.
+      expect(raw('ofs'), contains('시설물의 취득'));
+      expect(raw('ofs'), contains('기계장치의 취득'));
+      expect(
+        rows.any((r) => (r['account_nm'] as String).contains('취득')),
+        false,
+      );
       expect(rows.every((r) => r['account_id'] == null), true);
       for (final row in rows) {
         final p =
