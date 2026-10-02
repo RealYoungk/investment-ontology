@@ -5,6 +5,9 @@ set -euo pipefail
 project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$project_root/investment_ontology_serverpod_server"
 export SERVERPOD_PASSWORD_database=serverpod-isolated-test-only
+# Native build hooks may resolve the shared Flutter workspace in a child pub process.
+export FLUTTER_ROOT="${FLUTTER_ROOT:-$(python3 -c 'import pathlib,shutil; print(pathlib.Path(shutil.which("flutter")).resolve().parent.parent)')}"
+export PUB_ENVIRONMENT="${PUB_ENVIRONMENT:+$PUB_ENVIRONMENT:}flutter_cli"
 if (( $# > 0 )); then
   exec dart test "$@"
 fi

@@ -7,3 +7,5 @@ fields:
   treasury: BigInt?
   ### 유통주식수
   outstanding: BigInt?
+  ### 정관상 발행할 수 있는 주식의 총수 (발행 계획이나 확정 희석 물량 아님)
+  authorized: BigInt?
