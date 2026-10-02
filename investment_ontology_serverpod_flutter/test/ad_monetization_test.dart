@@ -104,6 +104,31 @@ void main() {
     expect(find.byType(AdBanner), findsNothing);
     expect(slot, findsNothing);
   });
+  testWidgets('visible publisher content keeps the same slot through refresh', (
+    tester,
+  ) async {
+    await tester.pumpWidget(app());
+    final before = tester.element(find.byType(AdBanner));
+    const refresh = AdContentState(
+      loading: true,
+      failed: false,
+      itemCount: 50,
+      contentRemainsVisible: true,
+    );
+    await tester.pumpWidget(app(allowLeading: refresh.allowsAd));
+    expect(tester.element(find.byType(AdBanner)), same(before));
+    expect(slot, findsOneWidget);
+    await tester.pumpWidget(app());
+    expect(tester.element(find.byType(AdBanner)), same(before));
+    const failed = AdContentState(
+      loading: false,
+      failed: true,
+      itemCount: 50,
+      contentRemainsVisible: true,
+    );
+    await tester.pumpWidget(app(allowLeading: failed.allowsAd));
+    expect(find.byType(AdBanner), findsNothing);
+  });
   test('requires valid IDs and opt-in; preview never implies live ads', () {
     expect(const AdConfig().show(adFree: false, web: true), isFalse);
     expect(

@@ -160,7 +160,10 @@ class _CompanyListPageState extends State<CompanyListPage> {
         final compact = constraints.maxWidth < 980;
         return PageFrame(
           allowLeading: AdContentState(
+            // The table keeps actual rows visible during a background refresh.
+            // Keep the existing slot; do not turn refresh into another ad request.
             loading: _loading,
+            contentRemainsVisible: _page != null,
             failed: _error != null,
             itemCount: _page?.items.length ?? 0,
           ).allowsAd,
