@@ -23,6 +23,18 @@ abstract final class SameReceiptAuditSource {
           String statementSha,
         })
       >{
+        '20260313001347': (
+          corp: '01872459',
+          year: 2025,
+          consolidated: false,
+          cover: 'https://dart.fss.or.kr/report/viewer.do?rcpNo=20260313001347&dcmNo=11122741&eleId=1&offset=955&length=4569&dtd=dart4.xsd',
+          coverSha: '1750ed0a9c501ba0e16d6028e4c88b1868a152fb6b73af64297b95def48c1e4a',
+          shellSha: '5c17b101d83400f61e538a5b938c5c7e7def0718b9889fe2e2d478e5c356b613',
+          auditShell: 'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260313001347&dcmNo=11122740',
+          auditShellSha: 'a88b161841691a94cfaf3f7913041dc610eb25ece66ae542d4596ebbafb6ecb7',
+          statement: 'https://dart.fss.or.kr/report/viewer.do?rcpNo=20260313001347&dcmNo=11122740&eleId=3&offset=12961&length=170359&dtd=dart4.xsd',
+          statementSha: '4c139584178c48020ae65e468e0c8953b40f4230352115ec04d49e8196d777d4',
+        ),
         '20250317000704': (
           corp: '00963000',
           year: 2024,

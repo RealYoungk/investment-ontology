@@ -167,6 +167,9 @@ final class VerifiedAnnualSourceCache {
       entry.statementLabel,
       if (linkedAudit || correctionAudit) 'auditShell',
       if (correctionAudit) 'originalShell',
+      if (correctionAudit &&
+          LinkedCorrectionAuditSource.witnessUri(entry.receipt) != null)
+        'targetOfs',
       if (entry.requiresIssuerOverview) 'overview',
       if (entry.requiresOwnOfsWitness) 'issuer-ofs',
     };
@@ -289,7 +292,7 @@ final class VerifiedAnnualSourceCache {
           client.requests != documentCount ||
           numeric.sourceReceipt !=
               (correctionAudit
-                  ? LinkedCorrectionAuditSource.original
+                  ? LinkedCorrectionAuditSource.originalFor(entry.receipt)
                   : entry.receipt) ||
           numeric.periodStart != start ||
           numeric.periodEnd != end ||

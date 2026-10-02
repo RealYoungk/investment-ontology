@@ -10,6 +10,8 @@ import 'package:investment_ontology_serverpod_server/src/ontology/ingest/financi
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/pureun_six_core_profile.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/financial/financial_accounts.dart';
 
+import 'package:investment_ontology_serverpod_server/src/ontology/dart/linked_correction_audit_source.dart';
+
 import 'financial_html_company_title_formats_test.dart' show SourceClient;
 import 'auth_test_sessions.dart';
 import 'test_tools/serverpod_test_tools.dart';
@@ -237,10 +239,14 @@ void main() {
             session,
             where: (t) => t.reference.equals(entry.auditReference),
           );
+          final actualReceipt =
+              entry.ruleVersion == 'linked-correction-audit-immutable-v1'
+              ? LinkedCorrectionAuditSource.originalFor(entry.receipt)
+              : entry.receipt;
           final sourceReports = await FinancialReport.db.find(
             session,
             where: (t) =>
-                t.rceptNo.equals(entry.receipt) & t.fsDiv.equals(entry.basis),
+                t.rceptNo.equals(actualReceipt) & t.fsDiv.equals(entry.basis),
           );
           final result = entry.basis == FsDiv.consolidated
               ? ledger.consolidatedStatus
@@ -272,7 +278,7 @@ void main() {
               final statement = (manifest['sources'] as List).singleWhere(
                 (s) => s['label'] == entry.statementLabel,
               );
-              expect(source.reference, entry.receipt);
+              expect(source.reference, actualReceipt);
               expect(source.url, statement['url']);
               final cover = File('${entry.assetDirectory}/cover.html')
                       .readAsStringSync(),
@@ -289,6 +295,41 @@ void main() {
                 session,
                 where: (t) => t.reportId.equals(report.id!),
               );
+              if (entry.receipt == LinkedCorrectionAuditSource.bonTarget &&
+                  entry.basis == FsDiv.separate) {
+                expect(report.rceptNo, LinkedCorrectionAuditSource.bonOriginal);
+                expect(report.bsnsYear, 2025);
+                final expected = jsonDecode(
+                  File('${entry.assetDirectory}/expected-rows.json')
+                      .readAsStringSync(),
+                ) as List;
+                expect(facts, hasLength(7));
+                for (final pair in expected) {
+                  final fact = facts.singleWhere(
+                    (f) => f.accountName == pair[0],
+                  );
+                  expect(fact.amount, BigInt.parse(pair[1] as String));
+                  expect(fact.accountId, isNull);
+                }
+                final originAudit = await Source.db.findFirstRow(
+                  session,
+                  where: (t) => t.reference.equals(
+                    'financial-api-noData-source:${LinkedCorrectionAuditSource.bonOriginal}:separate',
+                  ),
+                );
+                expect(originAudit, isNotNull);
+                final payload = jsonDecode(originAudit!.title);
+                final proofs = payload['coreRowProvenance'] as List;
+                expect(proofs, hasLength(7));
+                for (final row in proofs) {
+                  final comparison =
+                      row['html_provenance']['linkedTargetWholeCoreComparison'];
+                  expect(comparison['targetReceipt'], entry.receipt);
+                  expect(comparison['sourceReceipt'], actualReceipt);
+                  expect(comparison['matchingDirectAccounts'], hasLength(7));
+                  expect(comparison['allStatementValuesCompared'], false);
+                }
+              }
               if ({
                 '20220323000557',
                 '20240321001908',

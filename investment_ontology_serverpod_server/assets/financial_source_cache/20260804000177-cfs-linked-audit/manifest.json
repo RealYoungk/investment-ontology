@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20260804000177",
+  "corpCode": "01872459",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2025,
+  "periodStart": "2025-01-01",
+  "periodEnd": "2025-12-31",
+  "ruleVersion": "verified-basis-not-applicable-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260804000177",
+      "file": "shell.html",
+      "sha256": "425e15ccdab67f4ba361a82917a3f54f63963c7ca36c48b560a07652fb629c1c"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260804000177&dcmNo=11507996&eleId=3&offset=116737&length=4569&dtd=dart4.xsd",
+      "file": "cover.html",
+      "sha256": "1750ed0a9c501ba0e16d6028e4c88b1868a152fb6b73af64297b95def48c1e4a"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260804000177&dcmNo=11507996&eleId=21&offset=306283&length=251&dtd=dart4.xsd",
+      "file": "cfs.html",
+      "sha256": "e8e996fe13bc1132e95c3c9cbb3566bd322a0644eb7e1b66d777658073ba662f"
+    }
+  ],
+  "absenceLiteral": "당사는 보고서 제출일 현재 해당사항 없습니다."
+}

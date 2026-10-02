@@ -1,3 +1,4 @@
+import 'bon_linked_audit_current_proof.dart';
 import 'exact_cover_executive_role.dart';
 import 'pureun_exact_basis_absence.dart';
 import 'primary_historical_issuer.dart';
@@ -280,10 +281,16 @@ class PublicFinancialHtmlFetcher {
           start: DateTime.utc(bsnsYear),
           end: periodEnd,
         )) {
-      sourceReceipt = LinkedCorrectionAuditSource.verifyTarget(correctionShell);
+      sourceReceipt = LinkedCorrectionAuditSource.verifyTarget(
+        correctionShell,
+        receipt: correctionReceipt,
+      );
       originalSource = shellUri(sourceReceipt);
       shell = await get(originalSource, referer: correctionSource);
-      LinkedCorrectionAuditSource.verifyOriginal(shell);
+      LinkedCorrectionAuditSource.verifyOriginal(
+        shell,
+        receipt: correctionReceipt,
+      );
     }
     var dcm = document(shell, sourceReceipt);
     if (!halfYear && !exactAnnual) {
@@ -713,6 +720,30 @@ class PublicFinancialHtmlFetcher {
             periodEnd: periodEnd,
             consolidated: consolidated,
           );
+    final witnessUri = exactAnnual
+        ? LinkedCorrectionAuditSource.witnessUri(correctionReceipt)
+        : null;
+    if (witnessUri != null) {
+      final witness = await get(witnessUri, referer: correctionSource);
+      final proof = BonLinkedAuditCurrentProof.verify(
+        targetReceipt: correctionReceipt,
+        sourceReceipt: sourceReceipt,
+        corpCode: corpCode,
+        consolidated: consolidated,
+        start: periodStart,
+        end: periodEnd,
+        source: statementSource,
+        sourceBody: statementHtml,
+        targetSource: witnessUri,
+        targetBody: witness,
+        rows: rows,
+      );
+      for (final row in rows) {
+        (row['html_provenance']
+                as Map<String, dynamic>)['linkedTargetWholeCoreComparison'] =
+            proof;
+      }
+    }
     return PublicFinancialHtmlSource(
       sourceReceipt: sourceReceipt,
       correctionReceipt: sourceReceipt != correctionReceipt

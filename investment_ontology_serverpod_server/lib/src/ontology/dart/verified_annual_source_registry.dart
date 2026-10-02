@@ -54,6 +54,32 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20260804000177',
+      corpCode: '01872459',
+      companyName: '(주)본시스템즈',
+      year: 2025,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20260804000177-ofs-linked-audit',
+      manifestDigest:
+          '8cf8b9cd641f655aff834ca3d0ec6cfa7fbf8364a31fb4b410d2aaebbd2458e1',
+      ruleVersion: 'linked-correction-audit-immutable-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260804000177',
+      corpCode: '01872459',
+      companyName: '(주)본시스템즈',
+      year: 2025,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20260804000177-cfs-linked-audit',
+      manifestDigest:
+          '6f613aed9a944a5d6527f5b1990ee974553cc77681705065d0f72f696c84a2d4',
+      ruleVersion: 'verified-basis-not-applicable-v1',
+      absenceLiteral: '당사는 보고서 제출일 현재 해당사항 없습니다.',
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20250321000964',
       corpCode: '00991225',
       companyName: '(주)더콘텐츠온',

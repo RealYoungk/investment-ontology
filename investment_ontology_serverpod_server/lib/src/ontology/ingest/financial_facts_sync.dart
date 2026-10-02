@@ -1126,6 +1126,7 @@ class FinancialFactsSync {
         '20230315001270': (corp: '00340096', year: 2022, bases: {'OFS'}),
         '20240320001438': (corp: '00963000', year: 2023, bases: {'OFS'}),
         '20250317000968': (corp: '00963000', year: 2024, bases: {'OFS'}),
+        '20260804000177': (corp: '01872459', year: 2025, bases: {'CFS', 'OFS'}),
         '20260316001360': (corp: '00614089', year: 2025, bases: {'OFS'}),
         '20260323000673': (corp: '01063237', year: 2025, bases: {'OFS'}),
         '20250321000751': (corp: '01020269', year: 2024, bases: {'CFS'}),
@@ -2376,7 +2377,9 @@ class FinancialFactsSync {
                       end: html.periodEnd,
                     ) &&
                     html.sourceReceipt ==
-                        LinkedCorrectionAuditSource.original &&
+                        LinkedCorrectionAuditSource.originalFor(
+                          filing.rceptNo,
+                        ) &&
                     html.correctionReceipt == filing.rceptNo &&
                     html.correctionSource ==
                         Uri.parse(
@@ -2573,9 +2576,10 @@ class FinancialFactsSync {
               );
             }
             if (saved.status == FilingFetchStatus.stored &&
-                filing.rceptNo == LinkedCorrectionAuditSource.target &&
+                (filing.rceptNo == LinkedCorrectionAuditSource.target ||
+                    filing.rceptNo == LinkedCorrectionAuditSource.bonTarget) &&
                 fallback.sourceFiling.rceptNo ==
-                    LinkedCorrectionAuditSource.original) {
+                    LinkedCorrectionAuditSource.originalFor(filing.rceptNo)) {
               await _recordVerifiedAnnualNumericSource(
                 fallback.sourceFiling,
                 company,
@@ -2967,7 +2971,8 @@ class FinancialFactsSync {
                   start: numeric.periodStart,
                   end: numeric.periodEnd,
                 ) ||
-                numeric.sourceReceipt != LinkedCorrectionAuditSource.original) {
+                numeric.sourceReceipt !=
+                    LinkedCorrectionAuditSource.originalFor(current.rceptNo)) {
               throw const FormatException(
                 'Cached numeric original receipt unverified',
               );
