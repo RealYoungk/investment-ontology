@@ -1,3 +1,4 @@
+import 'innovex_exact_basis_absence.dart';
 import 'same_receipt_audit_source.dart';
 import 'public_issuer_legal_name.dart';
 import 'bnk_six_core_profile.dart';
@@ -513,6 +514,32 @@ class PublicFinancialHtmlFetcher {
         '- 해당사항이 없습니다.',
         '- 당사는 사업보고서 작성기준일 현재 해당사항 없습니다.',
       ];
+      final exactTableNone = InnovexExactBasisAbsence.matches(
+        receipt: sourceReceipt,
+        corp: corpCode,
+        start: periodStart,
+        end: periodEnd,
+        coverSource: coverSource,
+        cover: coverHtml,
+        statementSource: statementSource,
+        body: statementHtml,
+      );
+      if (exactTableNone) {
+        throw PublicFinancialHtmlBasisNotApplicable(
+          sourceReceipt: sourceReceipt,
+          corpCode: corpCode,
+          companyName: companyName,
+          reportName: reportName,
+          periodStart: periodStart,
+          periodEnd: periodEnd,
+          coverSource: coverSource,
+          statementSource: statementSource,
+          coverHtml: coverHtml,
+          statementHtml: statementHtml,
+          evidence: '해당사항없음',
+          issuerProof: issuerProof,
+        );
+      }
       final body = RegExp(
         r'<body\b[^>]*>(.*?)</body>',
         caseSensitive: false,

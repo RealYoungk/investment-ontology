@@ -36,6 +36,18 @@ abstract final class VerifiedAnnualSourceRegistry {
       corpCode: '01353848',
       companyName: '(주)이노벡스',
       year: 2025,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20260331004637-cfs',
+      manifestDigest:
+          '860e0517968f3d135fef46c645d0972607496b666acde1ef05ba18b069316a90',
+      ruleVersion: 'innovex-exact-table-basis-absence-v1',
+      absenceLiteral: '해당사항없음',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260331004637',
+      corpCode: '01353848',
+      companyName: '(주)이노벡스',
+      year: 2025,
       basis: FsDiv.separate,
       assetDirectory: 'assets/financial_source_cache/20260331004637-ofs',
       manifestDigest:
