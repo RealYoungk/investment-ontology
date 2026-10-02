@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 
-/// Two immutable same-receipt official attachment profiles. No date correction
+/// Four immutable same-receipt official attachment profiles. No date correction
 /// or inferred earlier filing is allowed. Main cover and attached statements
 /// retain their own document coordinates and raw hashes.
 abstract final class SameReceiptAuditSource {
@@ -23,6 +23,30 @@ abstract final class SameReceiptAuditSource {
           String statementSha,
         })
       >{
+        '20260309001820': (
+          corp: '01205514',
+          year: 2025,
+          consolidated: false,
+          cover: 'https://dart.fss.or.kr/report/viewer.do?rcpNo=20260309001820&dcmNo=11101399&eleId=1&offset=967&length=4517&dtd=dart4.xsd',
+          coverSha: '579d370d7615d73b911a9815fc0ae8cb768b34703cfa4edcc34f3f361630e958',
+          shellSha: '5c6664eea671901321f7927b809378806fa339020308e534b61e53e0b7b98b08',
+          auditShell: 'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260309001820&dcmNo=11101398',
+          auditShellSha: '10e45cee1a4baa18f330c627ac0f0c6d4339d65ed0acac0870742dc13ba76ab2',
+          statement: 'https://dart.fss.or.kr/report/viewer.do?rcpNo=20260309001820&dcmNo=11101398&eleId=3&offset=13577&length=191794&dtd=dart4.xsd',
+          statementSha: 'eac6fe6ec2c8de35595ae83679aac55e3d649b9e37915a9555023e5aa305adff',
+        ),
+        '20240321000933': (
+          corp: '01206717',
+          year: 2023,
+          consolidated: true,
+          cover: 'https://dart.fss.or.kr/report/viewer.do?rcpNo=20240321000933&dcmNo=9748926&eleId=1&offset=952&length=4096&dtd=dart4.xsd',
+          coverSha: 'f9b3ac9d9bf3ef514f8f8383fc465522a6a748c631c7a68fbc2a902c35a1b99b',
+          shellSha: 'e0470da3b22112b61938dc66725e2db2e530392b80824b806e3aca97146bd397',
+          auditShell: 'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240321000933&dcmNo=9748925',
+          auditShellSha: 'bba1c27bda19afd261ba3a535b5be4c55670360661fb560ee9c65ed654f5d248',
+          statement: 'https://dart.fss.or.kr/report/viewer.do?rcpNo=20240321000933&dcmNo=9748925&eleId=3&offset=11318&length=303186&dtd=dart4.xsd',
+          statementSha: 'a2653cd002f967ea82a1d99fc2eae7fea50884e1f98f2db6fafe9e952aa87d18',
+        ),
         '20240401000698': (
           corp: '01229240',
           year: 2023,
@@ -118,8 +142,14 @@ abstract final class SameReceiptAuditSource {
       'auditShellSha256': p.auditShellSha,
       'actualStatementSource': p.statement,
       'statementSha256': p.statementSha,
-      'mainStatementConflict':
+      'mainStatementConflict': switch (receipt) {
+        '20260309001820' =>
+          'main flow term differs from BS; no printed term is corrected',
+        '20240321000933' =>
+          'main CE prints an inconsistent end year; no raw date is corrected',
+        _ =>
           'main CIS prints an inconsistent end year; no raw date is corrected',
+      },
       'periodStart': '${p.year}-01-01',
       'periodEnd': '${p.year}-12-31',
     };

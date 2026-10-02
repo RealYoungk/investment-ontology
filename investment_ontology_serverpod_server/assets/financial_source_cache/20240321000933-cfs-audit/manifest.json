@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "01206717",
+  "receipt": "20240321000933",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2023,
+  "periodStart": "2023-01-01",
+  "periodEnd": "2023-12-31",
+  "ruleVersion": "same-receipt-audit-immutable-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240321000933",
+      "sha256": "e0470da3b22112b61938dc66725e2db2e530392b80824b806e3aca97146bd397"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240321000933&dcmNo=9748926&eleId=1&offset=952&length=4096&dtd=dart4.xsd",
+      "sha256": "f9b3ac9d9bf3ef514f8f8383fc465522a6a748c631c7a68fbc2a902c35a1b99b"
+    },
+    {
+      "label": "auditShell",
+      "file": "auditShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240321000933&dcmNo=9748925",
+      "sha256": "bba1c27bda19afd261ba3a535b5be4c55670360661fb560ee9c65ed654f5d248"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240321000933&dcmNo=9748925&eleId=3&offset=11318&length=303186&dtd=dart4.xsd",
+      "sha256": "a2653cd002f967ea82a1d99fc2eae7fea50884e1f98f2db6fafe9e952aa87d18"
+    }
+  ],
+  "retrievalProof": "동일 접수 select#att 유일 공식감사 원문; 실제 whole7·BS/CE·기간·원 검증. main 표제 수정없음"
+}

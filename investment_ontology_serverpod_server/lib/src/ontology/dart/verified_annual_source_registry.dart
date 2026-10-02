@@ -44,6 +44,30 @@ abstract final class VerifiedAnnualSourceRegistry {
       absenceLiteral: null,
     ),
     AnnualSourceCacheEntry(
+      receipt: '20260309001820',
+      corpCode: '01205514',
+      companyName: '(주)큐라켐',
+      year: 2025,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20260309001820-ofs-audit',
+      manifestDigest:
+          'ac70052d7ba6516a5c8331ece9c9af8c3c6d3e6c7de722d6e09904ec3fdc85ef',
+      ruleVersion: 'same-receipt-audit-immutable-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240321000933',
+      corpCode: '01206717',
+      companyName: '(주)마이크로엔엑스',
+      year: 2023,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20240321000933-cfs-audit',
+      manifestDigest:
+          'c45e30742851582e98865e412d4d490e9e9df826dfa084fd9461459bef816628',
+      ruleVersion: 'same-receipt-audit-immutable-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20250319000477',
       corpCode: '01518506',
       companyName: '(주)타조이엔터테인먼트',
