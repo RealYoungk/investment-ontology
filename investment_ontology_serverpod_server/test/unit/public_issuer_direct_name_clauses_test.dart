@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:test/test.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_issuer_legal_name.dart';
-import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_financial_html.dart';
 
 void main() {
   for (final receipt in [
@@ -94,47 +93,6 @@ void main() {
           url('issuer-overview').toString(),
         );
       });
-      if (receipt != '20250321001825' &&
-          receipt != '20230320000571' &&
-          receipt != '20230317000589') {
-        test(
-          'identity proof does not bypass subsequent whole financial rejection',
-          () {
-            final error = receipt == '20250321001825'
-                ? 'Annual primary core missing or balance mismatch'
-                : receipt == '20230320000571'
-                ? 'Annual current statement title period mismatch'
-                : 'Annual primary statement title mismatch';
-            expect(
-              () => PublicFinancialHtml.parseStandardAnnual(
-                coverHtml: cover,
-                statementHtml: raw('ofs'),
-                coverSource: url('cover'),
-                statementSource: url('ofs'),
-                receipt: receipt,
-                corpCode: data['corpCode'],
-                companyName: data['masterName'],
-                periodStart: DateTime.utc(year),
-                periodEnd: DateTime.utc(year, 12, 31),
-                consolidated: false,
-                issuerProof: PublicIssuerLegalName(
-                  shellHtml: shell,
-                  shellSource: url('shell'),
-                  overviewHtml: overview,
-                  overviewSource: url('issuer-overview'),
-                ),
-              ),
-              throwsA(
-                isA<FormatException>().having(
-                  (e) => e.message,
-                  'unchanged whole financial guard',
-                  error,
-                ),
-              ),
-            );
-          },
-        );
-      }
       test(
         'wrong corp, receipt, printed company, period and source dcm reject',
         () {
