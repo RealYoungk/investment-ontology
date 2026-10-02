@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "01518506",
+  "receipt": "20250319000477",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2024,
+  "periodStart": "2024-01-01",
+  "periodEnd": "2024-12-31",
+  "ruleVersion": "tajoy-exact-dot-cover-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250319000477",
+      "sha256": "98524aa84871958abba4c7686a056452bb488c5d2fb43e79794b2a5cdd045d0d"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250319000477&dcmNo=10427734&eleId=1&offset=961&length=4550&dtd=dart4.xsd",
+      "sha256": "4a33a7bbf1db0773f104368c5bfe8bc4b202e6d403dc9d3801d2de943ed95ad7"
+    },
+    {
+      "label": "ofs",
+      "file": "ofs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250319000477&dcmNo=10427734&eleId=21&offset=110862&length=55101&dtd=dart4.xsd",
+      "sha256": "4fc8fae46714402502fb267f3ea1216d44040069b41cdecb74e98a83a6a9287b"
+    },
+    {
+      "label": "overview",
+      "file": "overview.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250319000477&dcmNo=10427734&eleId=3&offset=6086&length=40846&dtd=dart4.xsd",
+      "sha256": "610e3a80b45158da1003f418c80e2febc99c1b6a00a2c290ced1e49aafe8981a"
+    }
+  ],
+  "retrievalProof": "동일 공식 접수 shell·표지·회사개요·별도 재무제표 원문. 직접 법적명칭 및 당기 7계정 검증."
+}

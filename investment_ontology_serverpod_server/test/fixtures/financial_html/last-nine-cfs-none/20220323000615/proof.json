@@ -1,0 +1,64 @@
+{
+  "id": 29529,
+  "name": "이성씨엔아이(주)",
+  "market": "konex",
+  "stockCode": "379390",
+  "corpCode": "01365384",
+  "rceptNo": "20220323000615",
+  "reportName": "사업보고서 (2021.12)",
+  "actual_period": "2021.12",
+  "bsnsYear": 2021,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 1,
+  "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 1,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220323000615",
+      "sha256": "c511760eee4f75cb38c347919241140226731b71d63e5d76399b21bc91f61714"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220323000615&dcmNo=8495898&eleId=1&offset=811&length=4029&dtd=dart3.xsd",
+      "sha256": "2af04217cb2fa7181cecfba6a2addc5682c5f865297414ff265c5a4d83e1c103"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220323000615&dcmNo=8495898&eleId=19&offset=191102&length=155&dtd=dart3.xsd",
+      "sha256": "64b1b73e7de4e7131e427d03f6ee0305036ad9ee53fb0f61212383e5752dc62a"
+    }
+  ],
+  "shellCorpIds": [
+    "01365384"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20220323000615",
+        "dcmNo": "8495898",
+        "eleId": "1",
+        "offset": "811",
+        "length": "4029",
+        "dtd": "dart3.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20220323000615",
+        "dcmNo": "8495898",
+        "eleId": "19",
+        "offset": "191102",
+        "length": "155",
+        "dtd": "dart3.xsd"
+      }
+    }
+  ]
+}

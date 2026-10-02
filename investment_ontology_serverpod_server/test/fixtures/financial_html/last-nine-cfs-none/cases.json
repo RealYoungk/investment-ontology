@@ -1,0 +1,650 @@
+[
+  {
+    "id": 29746,
+    "name": "주식회사 타스컴",
+    "market": "konex",
+    "stockCode": "336040",
+    "corpCode": "01118139",
+    "rceptNo": "20220328001074",
+    "reportName": "사업보고서 (2021.12)",
+    "actual_period": "2021.12",
+    "bsnsYear": 2021,
+    "reportCode": "annual",
+    "consolidatedStatus": "failed",
+    "separateStatus": "stored",
+    "attempts": 1,
+    "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+    "consolidated_period_stored": false,
+    "separate_period_stored": true,
+    "public_attempts": 1,
+    "classification": "순수 비적용 문구",
+    "exactSectionText": "2. 연결재무제표 당사는 사업보고서 작성 기준일 현재 해당사항 없습니다.",
+    "coverPrintedDates": [
+      "2021년 01월 01일",
+      "2021년 12월 31일",
+      "2022년 03월28일"
+    ],
+    "coverText": " 사 업 보 고 서 (제 8 기) 사업연도 2021년 01월 01일 부터 2021년 12월 31일 까지 금융위원회 한국거래소 귀중 2022년 03월28일 제출대상법인 유형 : 주권상장법인 면제사유발생 : 해당사항 없음 회 사 명 : 주식회사 타스컴 대 표 이 사 : LEESONG ALEX INKEUN (이인근) 본 점 소 재 지 : 경기도 안양시 동안구 학의로 268, 824호(안양메가벨리) (전 화) 031-433-6620 (홈페이지) http://www.yidobio.com 작 성 책 임 자 : (직 책) 상무 (성 명) 엄 보 열 (전 화) 031-433-6620 ",
+    "sources": [
+      {
+        "label": "shell",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220328001074",
+        "sha256": "9e49dfdeb5746a4ccc761846762475fd26133a99533848a0da5a1684104331cb"
+      },
+      {
+        "label": "cover",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220328001074&dcmNo=8510167&eleId=1&offset=799&length=4031&dtd=dart3.xsd",
+        "sha256": "3adbc94138e6343bfc83851e2854c0943ecd3b5c07d0c52b6b636793d64eab85"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220328001074&dcmNo=8510167&eleId=19&offset=323926&length=158&dtd=dart3.xsd",
+        "sha256": "4d76a8c7b46a899a9dd28c2c879a0c9cbabc82815eb51d8b43bcf3dfdca7ab73"
+      }
+    ],
+    "shellCorpIds": [
+      "01118139"
+    ],
+    "selectedNodes": [
+      {
+        "label": "사 업 보 고 서",
+        "coords": {
+          "rcpNo": "20220328001074",
+          "dcmNo": "8510167",
+          "eleId": "1",
+          "offset": "799",
+          "length": "4031",
+          "dtd": "dart3.xsd"
+        }
+      },
+      {
+        "label": "2. 연결재무제표",
+        "coords": {
+          "rcpNo": "20220328001074",
+          "dcmNo": "8510167",
+          "eleId": "19",
+          "offset": "323926",
+          "length": "158",
+          "dtd": "dart3.xsd"
+        }
+      }
+    ],
+    "rawSHAMatched": true
+  },
+  {
+    "id": 29672,
+    "name": "(주)씨알푸드",
+    "market": "konex",
+    "stockCode": "236030",
+    "corpCode": "01085187",
+    "rceptNo": "20220324000019",
+    "reportName": "사업보고서 (2021.12)",
+    "actual_period": "2021.12",
+    "bsnsYear": 2021,
+    "reportCode": "annual",
+    "consolidatedStatus": "failed",
+    "separateStatus": "stored",
+    "attempts": 1,
+    "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+    "consolidated_period_stored": false,
+    "separate_period_stored": true,
+    "public_attempts": 1,
+    "classification": "순수 비적용 문구",
+    "exactSectionText": "2. 연결재무제표 당사는 해당사항 없습니다.",
+    "coverPrintedDates": [
+      "2021년 01월 01일",
+      "2021년 12월 31일",
+      "2022년 03월 24일"
+    ],
+    "coverText": " 사 업 보 고 서 (제 15 기) 사업연도 2021년 01월 01일 부터 2021년 12월 31일 까지 금융위원회 한국거래소 귀중 2022년 03월 24일 제출대상법인 유형 : 주권상장법인 면제사유발생 : 해당사항 없음 회 사 명 : 주식회사 씨알푸드 대 표 이 사 : 이 상 범 본 점 소 재 지 : 충청북도 제천시 바이오밸리1로 85 (전 화)043-645-4100 (홈페이지) http://www.crfood.co.kr 작 성 책 임 자 : (직 책) 차장 (성 명) 곽현수 (전 화) 043-645-4100 ",
+    "sources": [
+      {
+        "label": "shell",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220324000019",
+        "sha256": "1ba0940a6fb1e9a153e87857c7932303d3d98698615ae44f9470d7d305a86218"
+      },
+      {
+        "label": "cover",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220324000019&dcmNo=8500481&eleId=1&offset=793&length=4027&dtd=dart3.xsd",
+        "sha256": "993a5b95bcb7e8322277f7a6dce98673570598d892b4910fd0042ed3d6a950c3"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220324000019&dcmNo=8500481&eleId=19&offset=193139&length=133&dtd=dart3.xsd",
+        "sha256": "1868e7bd0213c420c8ae3ca6044dc72a62aaf7ae945c59813f698370ba7a1ee1"
+      }
+    ],
+    "shellCorpIds": [
+      "01085187"
+    ],
+    "selectedNodes": [
+      {
+        "label": "사 업 보 고 서",
+        "coords": {
+          "rcpNo": "20220324000019",
+          "dcmNo": "8500481",
+          "eleId": "1",
+          "offset": "793",
+          "length": "4027",
+          "dtd": "dart3.xsd"
+        }
+      },
+      {
+        "label": "2. 연결재무제표",
+        "coords": {
+          "rcpNo": "20220324000019",
+          "dcmNo": "8500481",
+          "eleId": "19",
+          "offset": "193139",
+          "length": "133",
+          "dtd": "dart3.xsd"
+        }
+      }
+    ],
+    "rawSHAMatched": true
+  },
+  {
+    "id": 29529,
+    "name": "이성씨엔아이(주)",
+    "market": "konex",
+    "stockCode": "379390",
+    "corpCode": "01365384",
+    "rceptNo": "20220323000615",
+    "reportName": "사업보고서 (2021.12)",
+    "actual_period": "2021.12",
+    "bsnsYear": 2021,
+    "reportCode": "annual",
+    "consolidatedStatus": "failed",
+    "separateStatus": "stored",
+    "attempts": 1,
+    "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+    "consolidated_period_stored": false,
+    "separate_period_stored": true,
+    "public_attempts": 1,
+    "classification": "순수 비적용 문구",
+    "exactSectionText": "2. 연결재무제표 당사는 보고서 제출일 현재 해당 사항이 없습니다.",
+    "coverPrintedDates": [
+      "2021년 01월 01일",
+      "2021년 12월 31일",
+      "2022년 03월 23일"
+    ],
+    "coverText": " 사 업 보 고 서 (제 6 기) 사업연도 2021년 01월 01일 부터 2021년 12월 31일 까지 금융위원회 한국거래소 귀중 2022년 03월 23일 제출대상법인 유형 : 주권상장법인 면제사유발생 : 해당사항 없음 회 사 명 : 이성씨엔아이 주식회사 대 표 이 사 : 박기선 본 점 소 재 지 : 부산광역시 기장군 기장읍 청강로 58 (전 화) 051-724-8031 (홈페이지) http://www.iscni.co.kr 작 성 책 임 자 : (직 책) 이사 (성 명) 유신희 (전 화) 070-4706-2077 ",
+    "sources": [
+      {
+        "label": "shell",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220323000615",
+        "sha256": "c511760eee4f75cb38c347919241140226731b71d63e5d76399b21bc91f61714"
+      },
+      {
+        "label": "cover",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220323000615&dcmNo=8495898&eleId=1&offset=811&length=4029&dtd=dart3.xsd",
+        "sha256": "2af04217cb2fa7181cecfba6a2addc5682c5f865297414ff265c5a4d83e1c103"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220323000615&dcmNo=8495898&eleId=19&offset=191102&length=155&dtd=dart3.xsd",
+        "sha256": "64b1b73e7de4e7131e427d03f6ee0305036ad9ee53fb0f61212383e5752dc62a"
+      }
+    ],
+    "shellCorpIds": [
+      "01365384"
+    ],
+    "selectedNodes": [
+      {
+        "label": "사 업 보 고 서",
+        "coords": {
+          "rcpNo": "20220323000615",
+          "dcmNo": "8495898",
+          "eleId": "1",
+          "offset": "811",
+          "length": "4029",
+          "dtd": "dart3.xsd"
+        }
+      },
+      {
+        "label": "2. 연결재무제표",
+        "coords": {
+          "rcpNo": "20220323000615",
+          "dcmNo": "8495898",
+          "eleId": "19",
+          "offset": "191102",
+          "length": "155",
+          "dtd": "dart3.xsd"
+        }
+      }
+    ],
+    "rawSHAMatched": true
+  },
+  {
+    "id": 29429,
+    "name": "유화증권(주)",
+    "market": "kospi",
+    "stockCode": "003460",
+    "corpCode": "00145190",
+    "rceptNo": "20220322000927",
+    "reportName": "[기재정정]사업보고서 (2021.12)",
+    "actual_period": "2021.12",
+    "bsnsYear": 2021,
+    "reportCode": "annual",
+    "consolidatedStatus": "failed",
+    "separateStatus": "stored",
+    "attempts": 2,
+    "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+    "consolidated_period_stored": false,
+    "separate_period_stored": true,
+    "public_attempts": 2,
+    "classification": "순수 비적용 문구",
+    "exactSectionText": "2. 연결재무제표 ※ 해당사항 없음.",
+    "coverPrintedDates": [
+      "2021년 01월 01일",
+      "2021년 12월 31일",
+      "2022년 3월 17일"
+    ],
+    "coverText": " 사 업 보 고 서 (제 61 기) 사업연도 2021년 01월 01일 부터 2021년 12월 31일 까지 금융위원회 한국거래소 귀중 2022년 3월 17일 제출대상법인 유형 : 주권상장법인 면제사유발생 : 해당사항 없음 회 사 명 : 유화증권 주식회사 대 표 이 사 : 윤 경 립 본 점 소 재 지 : 서울특별시 영등포구 국제금융로2길 36 (전 화) 02 - 3770 - 0100 (홈페이지) http://www.yhs.co.kr 작 성 책 임 자 : (직 책) 이사 (성 명) 신재혁 (전 화) 02 - 3770 - 0095 ",
+    "sources": [
+      {
+        "label": "shell",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220322000927",
+        "sha256": "3f54a16332d787ec2e086dea5253814e207a7e3c3aa8718772289432d6d45198"
+      },
+      {
+        "label": "cover",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000927&dcmNo=8492512&eleId=3&offset=11678&length=4034&dtd=dart3.xsd",
+        "sha256": "649c0dfb5d6efba13074dfd72aa71b8df873bc95d6b44ff74c919e209fd9da8e"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000927&dcmNo=8492512&eleId=19&offset=194825&length=163&dtd=dart3.xsd",
+        "sha256": "507c953e0f3a1f2e87ca32e4cf3f64a38891001a626b956e3106705c246aa6b7"
+      }
+    ],
+    "shellCorpIds": [
+      "00145190"
+    ],
+    "selectedNodes": [
+      {
+        "label": "사 업 보 고 서",
+        "coords": {
+          "rcpNo": "20220322000927",
+          "dcmNo": "8492512",
+          "eleId": "3",
+          "offset": "11678",
+          "length": "4034",
+          "dtd": "dart3.xsd"
+        }
+      },
+      {
+        "label": "2. 연결재무제표",
+        "coords": {
+          "rcpNo": "20220322000927",
+          "dcmNo": "8492512",
+          "eleId": "19",
+          "offset": "194825",
+          "length": "163",
+          "dtd": "dart3.xsd"
+        }
+      }
+    ],
+    "rawSHAMatched": true
+  },
+  {
+    "id": 29423,
+    "name": "인바이츠바이오코아(주)",
+    "market": "konex",
+    "stockCode": "216400",
+    "corpCode": "00537221",
+    "rceptNo": "20220322000896",
+    "reportName": "사업보고서 (2021.12)",
+    "actual_period": "2021.12",
+    "bsnsYear": 2021,
+    "reportCode": "annual",
+    "consolidatedStatus": "failed",
+    "separateStatus": "stored",
+    "attempts": 2,
+    "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+    "consolidated_period_stored": false,
+    "separate_period_stored": true,
+    "public_attempts": 2,
+    "classification": "순수 비적용 문구",
+    "exactSectionText": "2. 연결재무제표 -. 사업보고서 작성기준일 현재 해당사항 없습니다.",
+    "coverPrintedDates": [
+      "2021년 01월 01일",
+      "2021년 12월 31일",
+      "2022년 03월 22일"
+    ],
+    "coverText": " 사 업 보 고 서 (제 21 기) 사업연도 2021년 01월 01일 부터 2021년 12월 31일 까지 금융위원회 한국거래소 귀중 2022년 03월 22일 제출대상법인 유형 : 주권상장법인 면제사유발생 : 해당사항 없음 회 사 명 : 인바이츠바이오코아 주식회사 대 표 이 사 : 신 용 규 본 점 소 재 지 : 서울시 금천구 디지털로 9길 33 (가산동, IT미래타워 8층) (전 화)02-2027-6200 (홈페이지) https://www.bio-core.com 작 성 책 임 자 : (직 책) 전무이사 (성 명) 홍 문 기 (전 화) 02-2027-6200 ",
+    "sources": [
+      {
+        "label": "shell",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220322000896",
+        "sha256": "51c0a2c0471c82c6e688b55cfb42e17bc246a561044602c3b8f7fbef7677c345"
+      },
+      {
+        "label": "cover",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000896&dcmNo=8492358&eleId=1&offset=812&length=4046&dtd=dart3.xsd",
+        "sha256": "68f0c49c135396a5b6dffdeec7b5fb1749ff4776fbd76b825ac59cf28c893137"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000896&dcmNo=8492358&eleId=19&offset=323858&length=151&dtd=dart3.xsd",
+        "sha256": "ee048080fb60b827302366125e8216baa25e91a56ce29f203b97b378f1a0b39e"
+      }
+    ],
+    "shellCorpIds": [
+      "00537221"
+    ],
+    "selectedNodes": [
+      {
+        "label": "사 업 보 고 서",
+        "coords": {
+          "rcpNo": "20220322000896",
+          "dcmNo": "8492358",
+          "eleId": "1",
+          "offset": "812",
+          "length": "4046",
+          "dtd": "dart3.xsd"
+        }
+      },
+      {
+        "label": "2. 연결재무제표",
+        "coords": {
+          "rcpNo": "20220322000896",
+          "dcmNo": "8492358",
+          "eleId": "19",
+          "offset": "323858",
+          "length": "151",
+          "dtd": "dart3.xsd"
+        }
+      }
+    ],
+    "rawSHAMatched": true
+  },
+  {
+    "id": 29364,
+    "name": "(주)유니포인트",
+    "market": "konex",
+    "stockCode": "121060",
+    "corpCode": "00445869",
+    "rceptNo": "20220322000703",
+    "reportName": "사업보고서 (2021.12)",
+    "actual_period": "2021.12",
+    "bsnsYear": 2021,
+    "reportCode": "annual",
+    "consolidatedStatus": "failed",
+    "separateStatus": "stored",
+    "attempts": 1,
+    "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+    "consolidated_period_stored": false,
+    "separate_period_stored": true,
+    "public_attempts": 1,
+    "classification": "순수 비적용 문구",
+    "exactSectionText": "2. 연결재무제표 - 해당사항 없음",
+    "coverPrintedDates": [
+      "2021년 01월 01일",
+      "2021년 12월 31일",
+      "2022 년 3 월 22 일"
+    ],
+    "coverText": " 사 업 보 고 서 (제 25 기 사업보고서) 사업연도 2021년 01월 01일 부터 2021년 12월 31일 까지 금융위원회 한국거래소 귀중 2022 년 3 월 22 일 제출대상법인 유형 : 주권상장법인 면제사유발생 : 해당사항 없음 회 사 명 : 주식회사 유니포인트 대 표 이 사 : 권 은 영 본 점 소 재 지 : 서울특별시 동작구 남부순환로 2049, 네오티스 빌딩 2층 (전 화) 02-6676-5500 (홈페이지) http://www.unipoint.co.kr 작 성 책 임 자 : (직 책) 대리 (성 명) 황규형 (전 화) 02-6676-5572 ",
+    "sources": [
+      {
+        "label": "shell",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220322000703",
+        "sha256": "f33edefeb52402f6e1ef9d82967dcc8928637d25e4d20aa878603231e53a4e03"
+      },
+      {
+        "label": "cover",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000703&dcmNo=8491100&eleId=1&offset=805&length=4045&dtd=dart3.xsd",
+        "sha256": "9c35a2458d8bb27118ab485477d3a535c963d188ad5040e73f823feafa29b559"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000703&dcmNo=8491100&eleId=19&offset=178934&length=129&dtd=dart3.xsd",
+        "sha256": "bb5361d17f427856b9e5af6adcc6e781ce2cfba4e3f004ad2db04b04958c6114"
+      }
+    ],
+    "shellCorpIds": [
+      "00445869"
+    ],
+    "selectedNodes": [
+      {
+        "label": "사 업 보 고 서",
+        "coords": {
+          "rcpNo": "20220322000703",
+          "dcmNo": "8491100",
+          "eleId": "1",
+          "offset": "805",
+          "length": "4045",
+          "dtd": "dart3.xsd"
+        }
+      },
+      {
+        "label": "2. 연결재무제표",
+        "coords": {
+          "rcpNo": "20220322000703",
+          "dcmNo": "8491100",
+          "eleId": "19",
+          "offset": "178934",
+          "length": "129",
+          "dtd": "dart3.xsd"
+        }
+      }
+    ],
+    "rawSHAMatched": true
+  },
+  {
+    "id": 29281,
+    "name": "에스비아이인베스트먼트(주)",
+    "market": "kosdaq",
+    "stockCode": "019550",
+    "corpCode": "00156910",
+    "rceptNo": "20220322000302",
+    "reportName": "사업보고서 (2021.12)",
+    "actual_period": "2021.12",
+    "bsnsYear": 2021,
+    "reportCode": "annual",
+    "consolidatedStatus": "failed",
+    "separateStatus": "stored",
+    "attempts": 2,
+    "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+    "consolidated_period_stored": false,
+    "separate_period_stored": true,
+    "public_attempts": 2,
+    "classification": "순수 비적용 문구",
+    "exactSectionText": "2. 연결재무제표 - 연결재무제표 작성대상이 아닙니다.",
+    "coverPrintedDates": [
+      "2021년 01월 01일",
+      "2021년 12월 31일",
+      "2022년 3월 22일"
+    ],
+    "coverText": " 사 업 보 고 서 (제 36 기) 사업연도 2021년 01월 01일 부터 2021년 12월 31일 까지 금융위원회 한국거래소 귀중 2022년 3월 22일 제출대상법인 유형 : 주권상장법인 면제사유발생 : 해당사항 없음 회 사 명 : 에스비아이인베스트먼트 주식회사 대 표 이 사 : 이준효 소우 에이이치로 본 점 소 재 지 : 서울시 강남구 테헤란로 509 NC타워 14층 (전 화) 02-2139-9254 (홈페이지) http://www.sbik.co.kr 작 성 책 임 자 : (직 책) 경영지원본부장 (성 명) 남윤선 (전 화) 02-2139-9200 ",
+    "sources": [
+      {
+        "label": "shell",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220322000302",
+        "sha256": "5ed6473049ca6d11d54f10e518c580ef2f9a9304eeddc37e42d195a561c14b1a"
+      },
+      {
+        "label": "cover",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000302&dcmNo=8489122&eleId=1&offset=811&length=4045&dtd=dart3.xsd",
+        "sha256": "ca8c8dd33fc5b3af405ee966fdf67cf9d1878881b288bbb7b724ce00dbf56b42"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000302&dcmNo=8489122&eleId=17&offset=117427&length=141&dtd=dart3.xsd",
+        "sha256": "12d1a88583ba72e77d6d5acd8aa4e8520073b31e5367396cb04f42ce74920820"
+      }
+    ],
+    "shellCorpIds": [
+      "00156910"
+    ],
+    "selectedNodes": [
+      {
+        "label": "사 업 보 고 서",
+        "coords": {
+          "rcpNo": "20220322000302",
+          "dcmNo": "8489122",
+          "eleId": "1",
+          "offset": "811",
+          "length": "4045",
+          "dtd": "dart3.xsd"
+        }
+      },
+      {
+        "label": "2. 연결재무제표",
+        "coords": {
+          "rcpNo": "20220322000302",
+          "dcmNo": "8489122",
+          "eleId": "17",
+          "offset": "117427",
+          "length": "141",
+          "dtd": "dart3.xsd"
+        }
+      }
+    ],
+    "rawSHAMatched": true
+  },
+  {
+    "id": 28856,
+    "name": "(주)루켄테크놀러지스",
+    "market": "konex",
+    "stockCode": "162120",
+    "corpCode": "00886792",
+    "rceptNo": "20220318000876",
+    "reportName": "사업보고서 (2021.12)",
+    "actual_period": "2021.12",
+    "bsnsYear": 2021,
+    "reportCode": "annual",
+    "consolidatedStatus": "failed",
+    "separateStatus": "stored",
+    "attempts": 1,
+    "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+    "consolidated_period_stored": false,
+    "separate_period_stored": true,
+    "public_attempts": 1,
+    "classification": "순수 비적용 문구",
+    "exactSectionText": "2. 연결재무제표 해당사항이 없습니다.",
+    "coverPrintedDates": [
+      "2021년 01월 01일",
+      "2021년 12월 31일",
+      "2022년 3 월 18 일"
+    ],
+    "coverText": " 사 업 보 고 서 (제 15 기) 사업연도 2021년 01월 01일 부터 2021년 12월 31일 까지 금융위원회 한국거래소 귀중 2022년 3 월 18 일 제출대상법인 유형 : 주권상장법인 면제사유발생 : 해당사항 없음 회 사 명 : 주식회사 루켄테크놀러지스 대 표 이 사 : 안윤태 본 점 소 재 지 : 경기도 용인시 처인구 양지면 중부대로 2670번길 53-8 (전 화)031-366-1853 (홈페이지) http://www.luken.co.kr 작 성 책 임 자 : (직 책) 대표이사 (성 명) 안 윤 태 (전 화) 031-366-1853 ",
+    "sources": [
+      {
+        "label": "shell",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220318000876",
+        "sha256": "e6cfbe3408b4eb1a031de66f9560caeb8d2cc1d8baae8d354f32389b617ca489"
+      },
+      {
+        "label": "cover",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220318000876&dcmNo=8478395&eleId=1&offset=808&length=4043&dtd=dart3.xsd",
+        "sha256": "d8198d05b6aa232d3e66c6bc5b79de8b2595bbdedbf5a8c1eb1d03403a2d3b83"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220318000876&dcmNo=8478395&eleId=19&offset=188506&length=131&dtd=dart3.xsd",
+        "sha256": "a508e21708b99c1c1b8d458000c7cc1b5ad7e663ab09f35b3168faee0d240186"
+      }
+    ],
+    "shellCorpIds": [
+      "00886792"
+    ],
+    "selectedNodes": [
+      {
+        "label": "사 업 보 고 서",
+        "coords": {
+          "rcpNo": "20220318000876",
+          "dcmNo": "8478395",
+          "eleId": "1",
+          "offset": "808",
+          "length": "4043",
+          "dtd": "dart3.xsd"
+        }
+      },
+      {
+        "label": "2. 연결재무제표",
+        "coords": {
+          "rcpNo": "20220318000876",
+          "dcmNo": "8478395",
+          "eleId": "19",
+          "offset": "188506",
+          "length": "131",
+          "dtd": "dart3.xsd"
+        }
+      }
+    ],
+    "rawSHAMatched": true
+  },
+  {
+    "id": 28849,
+    "name": "선바이오(주)",
+    "market": "kosdaq",
+    "stockCode": "067370",
+    "corpCode": "00407036",
+    "rceptNo": "20220318000845",
+    "reportName": "사업보고서 (2021.12)",
+    "actual_period": "2021.12",
+    "bsnsYear": 2021,
+    "reportCode": "annual",
+    "consolidatedStatus": "failed",
+    "separateStatus": "stored",
+    "attempts": 2,
+    "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+    "consolidated_period_stored": false,
+    "separate_period_stored": true,
+    "public_attempts": 2,
+    "classification": "순수 비적용 문구",
+    "exactSectionText": "2. 연결재무제표 해당사항없음",
+    "coverPrintedDates": [
+      "2021년 01월 01일",
+      "2021년 12월 31일",
+      "2022 년 3 월 18 일"
+    ],
+    "coverText": " 사 업 보 고 서 (제 25기) 사업연도 2021년 01월 01일 부터 2021년 12월 31일 까지 금융위원회 한국거래소 귀중 2022 년 3 월 18 일 제출대상법인 유형 : 주권상장법인 면제사유발생 : 해당사항 없음 회 사 명 : 선바이오 주식회사 대 표 이 사 : 노 광 본 점 소 재 지 : 경기도 군포시 산본로 95 (전 화) 031-423-5467 (홈페이지) http://www.sunbio.com 작 성 책 임 자 : (직 책) 이사 (성 명) 안응호 (전 화) 031-423-5467 ",
+    "sources": [
+      {
+        "label": "shell",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220318000845",
+        "sha256": "04b0117d14bd58ecfe7386c40156de0bd62b0ed95f3dcf78be7901546817d1b3"
+      },
+      {
+        "label": "cover",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220318000845&dcmNo=8478192&eleId=1&offset=793&length=4000&dtd=dart3.xsd",
+        "sha256": "ce797081755842c669ca5d36c8272c6826fed320d0cf14a85d3ef3752c79c920"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220318000845&dcmNo=8478192&eleId=19&offset=307003&length=126&dtd=dart3.xsd",
+        "sha256": "523f66688592930bb02ee168f9439fad54ff23d6b8e2710ffd2b4ad6fd06d9b2"
+      }
+    ],
+    "shellCorpIds": [
+      "00407036"
+    ],
+    "selectedNodes": [
+      {
+        "label": "사 업 보 고 서",
+        "coords": {
+          "rcpNo": "20220318000845",
+          "dcmNo": "8478192",
+          "eleId": "1",
+          "offset": "793",
+          "length": "4000",
+          "dtd": "dart3.xsd"
+        }
+      },
+      {
+        "label": "2. 연결재무제표",
+        "coords": {
+          "rcpNo": "20220318000845",
+          "dcmNo": "8478192",
+          "eleId": "19",
+          "offset": "307003",
+          "length": "126",
+          "dtd": "dart3.xsd"
+        }
+      }
+    ],
+    "rawSHAMatched": true
+  }
+]

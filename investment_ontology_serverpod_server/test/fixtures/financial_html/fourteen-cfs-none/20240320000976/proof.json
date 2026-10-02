@@ -1,0 +1,64 @@
+{
+  "id": 1099,
+  "name": "(주)라피치",
+  "market": "konex",
+  "stockCode": "403360",
+  "corpCode": "01466832",
+  "rceptNo": "20240320000976",
+  "reportName": "사업보고서 (2023.12)",
+  "actual_period": "2023.12",
+  "bsnsYear": 2023,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 1,
+  "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 1,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240320000976",
+      "sha256": "66131f21c1cad56f3cd0718cf1e177ce92ebc7feb6eb93b15145ae3ec83c1663"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240320000976&dcmNo=9737478&eleId=1&offset=957&length=4080&dtd=dart4.xsd",
+      "sha256": "acc885b6b6b28f1435ff10554fb583baacc79cf5e0f274a03aa539fe2bf59162"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240320000976&dcmNo=9737478&eleId=19&offset=152509&length=192&dtd=dart4.xsd",
+      "sha256": "092c63ea3a462414dd34452327e3c2dd4944d9270b0a34d979295e04dcae5ff3"
+    }
+  ],
+  "shellCorpIds": [
+    "01466832"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20240320000976",
+        "dcmNo": "9737478",
+        "eleId": "1",
+        "offset": "957",
+        "length": "4080",
+        "dtd": "dart4.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20240320000976",
+        "dcmNo": "9737478",
+        "eleId": "19",
+        "offset": "152509",
+        "length": "192",
+        "dtd": "dart4.xsd"
+      }
+    }
+  ]
+}

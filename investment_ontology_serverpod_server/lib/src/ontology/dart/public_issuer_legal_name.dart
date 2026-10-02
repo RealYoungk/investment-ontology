@@ -122,7 +122,17 @@ class PublicIssuerLegalName {
         '${d.year}년${d.month.toString().padLeft(2, '0')}월${d.day.toString().padLeft(2, '0')}일';
     if (names.length != 1 ||
         normalize(names.single.group(1)!) != normalize(printedName) ||
-        !cover.contains('사업연도${date(periodStart)}부터${date(periodEnd)}까지')) {
+        !(cover.contains('사업연도${date(periodStart)}부터${date(periodEnd)}까지') ||
+            (receipt == '20230308000311' &&
+                corpCode == '01476219' &&
+                periodStart == DateTime.utc(2022) &&
+                periodEnd == DateTime.utc(2022, 12, 31) &&
+                cover.contains('사업연도2022.01.01부터2022.12.31까지')) ||
+            (receipt == '20250319000477' &&
+                corpCode == '01518506' &&
+                periodStart == DateTime.utc(2024) &&
+                periodEnd == DateTime.utc(2024, 12, 31) &&
+                cover.contains('사업연도2024.01.01부터2024.12.31까지')))) {
       return null;
     }
     final bodies = RegExp(
@@ -152,7 +162,7 @@ class PublicIssuerLegalName {
     ).allMatches(overviewBody).toList();
     final headings = <RegExpMatch>[];
     for (final p in paragraphs) {
-      if (RegExp(r'^(?:\d+\.|[가-힣]\.)\s*회사의\s*(?:법적[ㆍ·]상업적\s*)?명칭$')
+      if (RegExp(r'^(?:\d+\s*\.|[가-힣]\.)\s*회사의\s*(?:법적(?:[ㆍ·]|,\s*)상업적\s*)?명칭$')
           .hasMatch(_text(p.group(1)!))) {
         headings.add(p);
       }
@@ -263,7 +273,60 @@ class PublicIssuerLegalName {
               RegExp(r'주식회사|\(주\)|㈜').hasMatch(colon.group(1)!)
           ? colon
           : null;
-      final naming = m ?? direct ?? quoted ?? literalColon;
+      // Exact first-paragraph declarations of the issuer's printed legal name.
+      // A later history, change notice or subsidiary paragraph cannot supply it.
+      final firstLiteralPatterns = [
+        if ((receipt == '20230315000997' && corpCode == '01601222') ||
+            (receipt == '20230308000311' && corpCode == '01476219'))
+          RegExp(
+            r"^당사의 명칭은 '([가-힣0-9 ]+주식회사)'입니다\.(?: 영문으로는 '[A-Za-z0-9 ]+'(?:\(약호 [A-Za-z0-9 Ⅷ]+\))?(?:이라|라) 표기(?:합니다| 합니다)\.)?$",
+          ),
+        RegExp(
+          r"^당사의 명칭은 '([가-힣㈜() ]+)' 이라고 표기합니다\. 또한 영문으로는 '[A-Za-z0-9.,& -]+'라 표기합니다\.$",
+        ),
+        RegExp(
+          r'^당사의 명칭은 ([가-힣㈜() ]+) 라고 표기합니다\. 또한 영문으로는 [A-Za-z0-9.,& -]+ 라 표기합니다\.$',
+        ),
+        RegExp(
+          r'^당사의 명칭은 ([가-힣㈜() ]+)(?:이며|이고), 영문명은 [A-Za-z0-9.,& -]+ 입니다\.$',
+        ),
+        RegExp(r'^당사의 명칭은 "([^"()]+)"이며, 영문으로는 "[A-Za-z0-9.,& -]+"로 표기합니다\.$'),
+        RegExp(
+          r'^당사의 명칭은 "([^"()]+)"이라고 하고, 영문으로 "[A-Za-z0-9.,& -]+"라고 표기합니다 \.$',
+        ),
+      ];
+      RegExpMatch? firstLiteral;
+      if (firstDeclaration.start == p.start) {
+        // A1 prints the English continuation after a BR, which becomes the
+        // immediately following paragraph. Join only these two exact clauses;
+        // history, proposals and unrelated later paragraphs remain excluded.
+        var firstText = t;
+        if (RegExp(r"^당사의 명칭은 '[가-힣㈜() ]+' 이라고 표기합니다\.$").hasMatch(t)) {
+          final following = RegExp(
+            r'<p\b[^>]*>(.*?)</p>',
+            caseSensitive: false,
+            dotAll: true,
+          ).allMatches(section).where((v) => v.start > p.start).toList();
+          if (following.isNotEmpty) {
+            final tail = _text(following.first.group(1)!);
+            if (RegExp(r"^또한 영문으로는 '[A-Za-z0-9.,& -]+'라 표기합니다\.$")
+                .hasMatch(tail)) {
+              firstText = '$t $tail';
+            }
+          }
+        }
+        final matches = firstLiteralPatterns
+            .map((pattern) => pattern.firstMatch(firstText))
+            .whereType<RegExpMatch>()
+            .toList();
+        if (matches.length == 1 &&
+            RegExp(r'주식회사|\(주\)|㈜').hasMatch(matches.single.group(1)!) &&
+            !RegExp(r'자회사|종속회사|계열회사|예정|변경|가정|조건|향후')
+                .hasMatch(matches.single.group(1)!)) {
+          firstLiteral = matches.single;
+        }
+      }
+      final naming = m ?? direct ?? quoted ?? literalColon ?? firstLiteral;
       if (naming != null) {
         candidates.add(naming.group(1)!);
         quotes.add(t);

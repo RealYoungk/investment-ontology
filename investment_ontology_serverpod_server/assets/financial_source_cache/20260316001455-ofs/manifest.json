@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "00445869",
+  "receipt": "20260316001455",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2025,
+  "periodStart": "2025-01-01",
+  "periodEnd": "2025-12-31",
+  "ruleVersion": "verified-standard-annual-eight-core-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260316001455",
+      "sha256": "268e5428767282fb0af57ea8871e40c705b29cd71f12685a06c043ca576aca3f",
+      "file": "shell.html"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260316001455&dcmNo=11129058&eleId=1&offset=964&length=4541&dtd=dart4.xsd",
+      "sha256": "2788fca0a2c22f377fecab10c8f2c527358637502ac8da965f6c658a72fefac2",
+      "file": "cover.html"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260316001455&dcmNo=11129058&eleId=21&offset=229240&length=37541&dtd=dart4.xsd",
+      "sha256": "c4478cc1f4d39058041e3d08b0dc9c8a895f3cda1c33b513b70154a3d331fe2b",
+      "file": "ofs.html"
+    }
+  ],
+  "retrievalProof": "Official exact receipt shell/actual OFS from unipoint-bonsystems audit; correct annual cover from period-three audit same official URI and SHA; no grammar extension"
+}

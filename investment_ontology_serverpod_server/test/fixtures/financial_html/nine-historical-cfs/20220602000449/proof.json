@@ -1,0 +1,64 @@
+{
+  "id": 32058,
+  "name": "(주)유비온",
+  "market": "kosdaq",
+  "stockCode": "084440",
+  "corpCode": "00531078",
+  "rceptNo": "20220602000449",
+  "reportName": "[기재정정]사업보고서 (2021.09)",
+  "actual_period": "2021.09",
+  "bsnsYear": 2021,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 2,
+  "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 2,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220602000449",
+      "sha256": "8eebfa8d0229fad94568b77a1d9b1e52071eb6dc38b5ee09cc2e1866dfc427dd"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220602000449&dcmNo=8689389&eleId=3&offset=71521&length=4035&dtd=dart3.xsd",
+      "sha256": "cf42361d1f15b581af51f30f121c82b4bd01245e08d61d354dcaa379aa8f8855"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220602000449&dcmNo=8689389&eleId=21&offset=197250&length=128&dtd=dart3.xsd",
+      "sha256": "a4b5511b01a8d571eee593083c2c53445f8362558948f96edcf5d8386765aeea"
+    }
+  ],
+  "shellCorpIds": [
+    "00531078"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20220602000449",
+        "dcmNo": "8689389",
+        "eleId": "3",
+        "offset": "71521",
+        "length": "4035",
+        "dtd": "dart3.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20220602000449",
+        "dcmNo": "8689389",
+        "eleId": "21",
+        "offset": "197250",
+        "length": "128",
+        "dtd": "dart3.xsd"
+      }
+    }
+  ]
+}

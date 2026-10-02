@@ -1,0 +1,51 @@
+{
+  "receipt": "20241104000113",
+  "corpCode": "01518506",
+  "companyName": "(주)타조이엔터테인먼트",
+  "bsnsYear": 2023,
+  "basis": "ofs",
+  "shellCorpIds": [
+    "01518506"
+  ],
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20241104000113",
+      "sha256": "2c7c80383ca5c4e96a84aaf91d853950135263f8d31fc89e47cb325182eeeb4a"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20241104000113&dcmNo=10167808&eleId=1&offset=961&length=4368&dtd=dart4.xsd",
+      "sha256": "8bef9d7790481251ec5e51972de1847b71dec865c5b12a278f78d884a82b5aef"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20241104000113&dcmNo=10167808&eleId=21&offset=102037&length=48512&dtd=dart4.xsd",
+      "sha256": "daabc99b171205492cee40d266f38b7d471882dc806b7ffb6b8c6e8af0968771"
+    },
+    {
+      "label": "overview",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20241104000113&dcmNo=10167808&eleId=3&offset=5876&length=38226&dtd=dart4.xsd",
+      "sha256": "89a227eaeaf0103949564c719e2458bea5105fd4ad6f393dc86f9127e5cf5d1b"
+    }
+  ],
+  "printedCoverName": "주식회사타조엔터테인먼트",
+  "actualDates": [
+    "2023-01-01",
+    "2023-12-31"
+  ],
+  "overviewNode": {
+    "text": "I. 회사의 개요",
+    "id": "3",
+    "rcpNo": "20241104000113",
+    "dcmNo": "10167808",
+    "eleId": "3",
+    "offset": "5876",
+    "length": "38226",
+    "dtd": "dart4.xsd",
+    "tocNo": "3",
+    "atocId": "3"
+  },
+  "overviewSource": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20241104000113&dcmNo=10167808&eleId=3&offset=5876&length=38226&dtd=dart4.xsd",
+  "overviewSha256": "89a227eaeaf0103949564c719e2458bea5105fd4ad6f393dc86f9127e5cf5d1b"
+}

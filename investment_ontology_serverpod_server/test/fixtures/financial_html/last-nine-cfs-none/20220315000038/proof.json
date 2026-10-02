@@ -1,0 +1,64 @@
+{
+  "id": 28256,
+  "name": "(주)메디안디노스틱",
+  "market": "konex",
+  "stockCode": "233250",
+  "corpCode": "01035942",
+  "rceptNo": "20220315000038",
+  "reportName": "사업보고서 (2021.12)",
+  "actual_period": "2021.12",
+  "bsnsYear": 2021,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 1,
+  "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 1,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220315000038",
+      "sha256": "26c51e0e227cf2998245524bed52e2947ecd3d8b8b3534ccf7f0312df975538d"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220315000038&dcmNo=8458314&eleId=1&offset=801&length=4039&dtd=dart3.xsd",
+      "sha256": "a46453d9c9ae7398d12d7d73494c367ca40f74fc82a52cdee6ad60898aa933a9"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220315000038&dcmNo=8458314&eleId=19&offset=255653&length=47686&dtd=dart3.xsd",
+      "sha256": "9d7cfe641c0591744fb3bc95c12a53c903783bbf19ea2cf4204a070127121cf2"
+    }
+  ],
+  "shellCorpIds": [
+    "01035942"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20220315000038",
+        "dcmNo": "8458314",
+        "eleId": "1",
+        "offset": "801",
+        "length": "4039",
+        "dtd": "dart3.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20220315000038",
+        "dcmNo": "8458314",
+        "eleId": "19",
+        "offset": "255653",
+        "length": "47686",
+        "dtd": "dart3.xsd"
+      }
+    }
+  ]
+}

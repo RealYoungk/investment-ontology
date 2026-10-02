@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "01085187",
+  "receipt": "20250326000875",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2024,
+  "periodStart": "2024-01-01",
+  "periodEnd": "2024-12-31",
+  "ruleVersion": "exact-annual-cache-registry-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250326000875",
+      "sha256": "3a3ca25897cf9bc409cc29f79086f9b7f3334cbcecdbf37586b90c06d2b01678"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250326000875&dcmNo=10462044&eleId=1&offset=952&length=4511&dtd=dart4.xsd",
+      "sha256": "cba66ab10e469183ea6a072122ddc113f49f4517f6b3bca4380c945624c60b3e"
+    },
+    {
+      "label": "ofs",
+      "file": "ofs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250326000875&dcmNo=10462044&eleId=21&offset=213443&length=98311&dtd=dart4.xsd",
+      "sha256": "1e406f3814b9aba016ca8d86910554ab3c9ba01af819cae3bfad4957dd9dd8c6"
+    }
+  ],
+  "retrievalProof": "official-exact-shell-cover-ofs; reviewed fixture innovex-crfood/20250326000875; no opposite-basis reuse"
+}

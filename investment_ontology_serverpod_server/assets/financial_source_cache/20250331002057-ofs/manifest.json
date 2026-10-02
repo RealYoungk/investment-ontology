@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "01229240",
+  "receipt": "20250331002057",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2024,
+  "periodStart": "2024-01-01",
+  "periodEnd": "2024-12-31",
+  "ruleVersion": "exact-annual-cache-registry-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250331002057",
+      "sha256": "923eb9a70a225f643e50fe3596db89a8b167db7e185773abe082fa298e3df438"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250331002057&dcmNo=10483367&eleId=1&offset=972&length=4615&dtd=dart4.xsd",
+      "sha256": "b9a1e9d3a7b910969e861c60c35bb5d3736ce347898ad71217b49c10c75055f7"
+    },
+    {
+      "label": "ofs",
+      "file": "ofs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250331002057&dcmNo=10483367&eleId=21&offset=485006&length=46532&dtd=dart4.xsd",
+      "sha256": "fd7a4d44dbdf280bf313c6c2dc4e75f6a003902203625a6201d57931ffb73444"
+    }
+  ],
+  "retrievalProof": "official-exact-shell-cover-ofs; reviewed fixture gaia-pandora-labels/20250331002057; no opposite-basis reuse"
+}

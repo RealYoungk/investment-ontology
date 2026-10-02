@@ -1,0 +1,64 @@
+{
+  "id": 11415,
+  "name": "(주) 탈로스",
+  "market": "konex",
+  "stockCode": "434190",
+  "corpCode": "01020269",
+  "rceptNo": "20250321000751",
+  "reportName": "사업보고서 (2024.12)",
+  "actual_period": "2024.12",
+  "bsnsYear": 2024,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 2,
+  "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 2,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250321000751",
+      "sha256": "3635299c9fa95ef4c785f98a377b2b616fbecea5866c00c6ceb2c371f31585b0"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321000751&dcmNo=10444590&eleId=1&offset=951&length=4513&dtd=dart4.xsd",
+      "sha256": "b817031ec84d55cfa52bb8774995d5cf1eaa1f0488afaeb4620597cff8bd93a1"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321000751&dcmNo=10444590&eleId=19&offset=196449&length=182&dtd=dart4.xsd",
+      "sha256": "3a4bb772e2e8e2d06e9f248d0e6fec01314122faa2b892bbcf4515fb24b15b88"
+    }
+  ],
+  "shellCorpIds": [
+    "01020269"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20250321000751",
+        "dcmNo": "10444590",
+        "eleId": "1",
+        "offset": "951",
+        "length": "4513",
+        "dtd": "dart4.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20250321000751",
+        "dcmNo": "10444590",
+        "eleId": "19",
+        "offset": "196449",
+        "length": "182",
+        "dtd": "dart4.xsd"
+      }
+    }
+  ]
+}

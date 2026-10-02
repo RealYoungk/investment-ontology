@@ -1,0 +1,64 @@
+{
+  "id": 21569,
+  "name": "(주)한국미라클피플사",
+  "market": "konex",
+  "stockCode": "331660",
+  "corpCode": "01363924",
+  "rceptNo": "20260320000168",
+  "reportName": "사업보고서 (2025.12)",
+  "actual_period": "2025.12",
+  "bsnsYear": 2025,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 2,
+  "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 2,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260320000168",
+      "sha256": "fd38ad671c7ffdc0182fcea80c3521d66614fca9f4c413d69f7a4e6370ac410c"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260320000168&dcmNo=11154475&eleId=1&offset=967&length=4513&dtd=dart4.xsd",
+      "sha256": "3227917fac9bbde9b6f269edf9159ac71e1d9138001b7afaad5f3ff6d430d06c"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260320000168&dcmNo=11154475&eleId=19&offset=124065&length=188&dtd=dart4.xsd",
+      "sha256": "1868e7bd0213c420c8ae3ca6044dc72a62aaf7ae945c59813f698370ba7a1ee1"
+    }
+  ],
+  "shellCorpIds": [
+    "01363924"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20260320000168",
+        "dcmNo": "11154475",
+        "eleId": "1",
+        "offset": "967",
+        "length": "4513",
+        "dtd": "dart4.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20260320000168",
+        "dcmNo": "11154475",
+        "eleId": "19",
+        "offset": "124065",
+        "length": "188",
+        "dtd": "dart4.xsd"
+      }
+    }
+  ]
+}

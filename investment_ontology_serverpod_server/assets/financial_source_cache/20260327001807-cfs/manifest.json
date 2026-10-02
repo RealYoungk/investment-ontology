@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "01018617",
+  "receipt": "20260327001807",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2025,
+  "periodStart": "2025-01-01",
+  "periodEnd": "2025-12-31",
+  "ruleVersion": "medyssey-exact-CF-current-header-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260327001807",
+      "sha256": "75b49bfb8ac2f2254869306f397db5a3615d188a817561628e0a3590bb65cdb9",
+      "file": "shell.html"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260327001807&dcmNo=11192320&eleId=3&offset=22330&length=4506&dtd=dart4.xsd",
+      "sha256": "4f7c6fa0bb5bcbc8c6c24033fd27d097e68025c850d5d0feabffb09ffd2c0f79",
+      "file": "cover.html"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260327001807&dcmNo=11192320&eleId=21&offset=428967&length=78464&dtd=dart4.xsd",
+      "sha256": "ba208f94b93afa92b64e1f1e2cc92a8053661cfb0183202471a0d13ff73475a5",
+      "file": "cfs.html"
+    }
+  ],
+  "retrievalProof": "official exact shell/cover/CFS cached before this candidate; CF raw missing opening parenthesis preserved; whole CE proof mandatory"
+}

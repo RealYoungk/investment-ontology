@@ -1,0 +1,64 @@
+{
+  "id": 38568,
+  "name": "태양3C(주)",
+  "market": "konex",
+  "stockCode": "052960",
+  "corpCode": "00302236",
+  "rceptNo": "20230322001276",
+  "reportName": "사업보고서 (2022.12)",
+  "actual_period": "2022.12",
+  "bsnsYear": 2022,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 2,
+  "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 2,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230322001276",
+      "sha256": "1733b8cc0089c7e609784caac1e07faa2d40573c0b6d7a22dd73ccf48d30e7d5"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230322001276&dcmNo=9092376&eleId=1&offset=799&length=4018&dtd=dart3.xsd",
+      "sha256": "45472e77ca21da338e97f629d7e48c5d43964bb6614437d7a481229f5c67fed4"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230322001276&dcmNo=9092376&eleId=19&offset=185477&length=163&dtd=dart3.xsd",
+      "sha256": "60538e944394cbdf6313424595a0ac7be0715afc9cad4bf368607ea48990ca78"
+    }
+  ],
+  "shellCorpIds": [
+    "00302236"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20230322001276",
+        "dcmNo": "9092376",
+        "eleId": "1",
+        "offset": "799",
+        "length": "4018",
+        "dtd": "dart3.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20230322001276",
+        "dcmNo": "9092376",
+        "eleId": "19",
+        "offset": "185477",
+        "length": "163",
+        "dtd": "dart3.xsd"
+      }
+    }
+  ]
+}

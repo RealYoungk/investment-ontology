@@ -1,0 +1,64 @@
+{
+  "id": 41407,
+  "name": "우양에이치씨(주)",
+  "market": "kosdaq",
+  "stockCode": "101970",
+  "corpCode": "00450931",
+  "rceptNo": "20230718000394",
+  "reportName": "[기재정정]사업보고서 (2022.12)",
+  "actual_period": "2022.12",
+  "bsnsYear": 2022,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 2,
+  "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 2,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230718000394",
+      "sha256": "ec0bb8fc9b631be14fa25248e7704acf11a4a4c4573d846049aa317769fb530b"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230718000394&dcmNo=9353483&eleId=3&offset=3536&length=4056&dtd=dart3.xsd",
+      "sha256": "ab9d5e27032592748ce3b0151a0d13a7b8dc94ddc5633deb5f82efaf80aa1895"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230718000394&dcmNo=9353483&eleId=21&offset=194551&length=152&dtd=dart3.xsd",
+      "sha256": "7f3e22c3ab5b800ab70580f1904e0adfffbfb932d09bb61ef2f98303b83bb38c"
+    }
+  ],
+  "shellCorpIds": [
+    "00450931"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20230718000394",
+        "dcmNo": "9353483",
+        "eleId": "3",
+        "offset": "3536",
+        "length": "4056",
+        "dtd": "dart3.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20230718000394",
+        "dcmNo": "9353483",
+        "eleId": "21",
+        "offset": "194551",
+        "length": "152",
+        "dtd": "dart3.xsd"
+      }
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "id": 28856,
+  "name": "(주)루켄테크놀러지스",
+  "market": "konex",
+  "stockCode": "162120",
+  "corpCode": "00886792",
+  "rceptNo": "20220318000876",
+  "reportName": "사업보고서 (2021.12)",
+  "actual_period": "2021.12",
+  "bsnsYear": 2021,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 1,
+  "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 1,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220318000876",
+      "sha256": "e6cfbe3408b4eb1a031de66f9560caeb8d2cc1d8baae8d354f32389b617ca489"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220318000876&dcmNo=8478395&eleId=1&offset=808&length=4043&dtd=dart3.xsd",
+      "sha256": "d8198d05b6aa232d3e66c6bc5b79de8b2595bbdedbf5a8c1eb1d03403a2d3b83"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220318000876&dcmNo=8478395&eleId=19&offset=188506&length=131&dtd=dart3.xsd",
+      "sha256": "a508e21708b99c1c1b8d458000c7cc1b5ad7e663ab09f35b3168faee0d240186"
+    }
+  ],
+  "shellCorpIds": [
+    "00886792"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20220318000876",
+        "dcmNo": "8478395",
+        "eleId": "1",
+        "offset": "808",
+        "length": "4043",
+        "dtd": "dart3.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20220318000876",
+        "dcmNo": "8478395",
+        "eleId": "19",
+        "offset": "188506",
+        "length": "131",
+        "dtd": "dart3.xsd"
+      }
+    }
+  ]
+}

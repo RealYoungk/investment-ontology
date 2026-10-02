@@ -1,3 +1,4 @@
+import 'same_receipt_audit_source.dart';
 import 'public_issuer_legal_name.dart';
 import 'bnk_six_core_profile.dart';
 import 'verified_historical_company_identity.dart';
@@ -181,7 +182,7 @@ class PublicFinancialHtmlFetcher {
     if (!RegExp(r'^\d{14}$').hasMatch(correctionReceipt) ||
         !RegExp(r'^\d{8}$').hasMatch(corpCode) ||
         !(exactAnnual
-            ? RegExp(r'^(?:\[기재정정\])?사업보고서\s*\(\d{4}\.\d{2}\)$')
+            ? RegExp(r'^(?:\[(?:기재정정|첨부추가)\])?사업보고서\s*\(\d{4}\.\d{2}\)$')
                       .hasMatch(reportName) &&
                   reportName.endsWith(
                     '(${periodEnd.year}.${periodEnd.month.toString().padLeft(2, '0')})',
@@ -340,7 +341,7 @@ class PublicFinancialHtmlFetcher {
     }
 
     final coverSource = node(halfYear ? '반기보고서' : '사업보고서');
-    final statementSource = node(
+    var statementSource = node(
       halfYear
           ? 'III.재무에관한사항'
           : consolidated
@@ -439,6 +440,24 @@ class PublicFinancialHtmlFetcher {
         }
       }
     }
+    if (exactAnnual &&
+        SameReceiptAuditSource.eligible(
+          receipt: sourceReceipt,
+          corpCode: corpCode,
+          consolidated: consolidated,
+          start: periodStart,
+          end: periodEnd,
+        )) {
+      final auditShellSource = SameReceiptAuditSource.auditShell(
+        sourceReceipt,
+        shell,
+      );
+      final auditShell = await get(auditShellSource, referer: originalSource);
+      statementSource = SameReceiptAuditSource.statement(
+        sourceReceipt,
+        auditShell,
+      );
+    }
     final statementHtml = await get(statementSource, referer: originalSource);
     if (exactAnnual && consolidated) {
       const explicitStatements = [
@@ -460,6 +479,20 @@ class PublicFinancialHtmlFetcher {
         '당사는 본 보고서 작성기준일 현재 해당사항 없습니다.',
         '당사는 보고서 작성기준일 현재 해당사항이 없습니다.',
         '- 보고서 작성 기준일 현재 해당사항 없습니다.',
+        '당사는 보고서 작성기준일 현재 해당사항 없습니다.',
+        '-. 사업보고서 작성기준일 현재 해당사항 없습니다.',
+        '당사는 사업보고서 작성 기준일 현재 해당사항 없습니다.',
+        '당사는 사업보고서 작성 기준일 현재 해당사항이 없습니다.',
+        '당사는 연결재무제표 대상 법인이 아닙니다.',
+        '당사는 작성기준일 현재 해당 사항이 없습니다.',
+        '※ 해당사항 없음.',
+        '당사는 본 보고서 제출일 현재 해당사항 없습니다.',
+        '- 연결재무제표 작성대상이 아닙니다.',
+        '해당사항 없습니다',
+        '"해당사항 없음"',
+        '당사는 보고서 제출일 현재 해당사항이 없습니다.',
+        '"해당사항 없습니다"',
+        '보고서 작성기준일 현재 해당사항이 없습니다.',
         '- 해당사항 없습니다.',
         '- 해당사항이 없습니다.',
         '- 당사는 사업보고서 작성기준일 현재 해당사항 없습니다.',

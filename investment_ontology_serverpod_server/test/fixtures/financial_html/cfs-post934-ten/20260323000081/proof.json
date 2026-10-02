@@ -1,0 +1,64 @@
+{
+  "id": 21796,
+  "name": "주식회사 타임기술",
+  "market": "konex",
+  "stockCode": "318660",
+  "corpCode": "01345724",
+  "rceptNo": "20260323000081",
+  "reportName": "사업보고서 (2025.12)",
+  "actual_period": "2025.12",
+  "bsnsYear": 2025,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 2,
+  "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 2,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260323000081",
+      "sha256": "a3f2165dc40eaa7abec6c5a32a120226d281bd971c9a18e2bcfa9a144d92b494"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323000081&dcmNo=11160753&eleId=1&offset=966&length=4531&dtd=dart4.xsd",
+      "sha256": "5ed1b1b58f876dc931d20c2c8b85549d3b8066fd1bc327d00a96eba6801549d0"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323000081&dcmNo=11160753&eleId=19&offset=199918&length=208&dtd=dart4.xsd",
+      "sha256": "24d604b1135c3ee80fcc999f993afc424858d421b3e90b8da5672cf04105c7f6"
+    }
+  ],
+  "shellCorpIds": [
+    "01345724"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20260323000081",
+        "dcmNo": "11160753",
+        "eleId": "1",
+        "offset": "966",
+        "length": "4531",
+        "dtd": "dart4.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20260323000081",
+        "dcmNo": "11160753",
+        "eleId": "19",
+        "offset": "199918",
+        "length": "208",
+        "dtd": "dart4.xsd"
+      }
+    }
+  ]
+}

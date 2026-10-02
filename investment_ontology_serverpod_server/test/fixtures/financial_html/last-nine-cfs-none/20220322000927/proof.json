@@ -1,0 +1,64 @@
+{
+  "id": 29429,
+  "name": "유화증권(주)",
+  "market": "kospi",
+  "stockCode": "003460",
+  "corpCode": "00145190",
+  "rceptNo": "20220322000927",
+  "reportName": "[기재정정]사업보고서 (2021.12)",
+  "actual_period": "2021.12",
+  "bsnsYear": 2021,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 2,
+  "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 2,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220322000927",
+      "sha256": "3f54a16332d787ec2e086dea5253814e207a7e3c3aa8718772289432d6d45198"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000927&dcmNo=8492512&eleId=3&offset=11678&length=4034&dtd=dart3.xsd",
+      "sha256": "649c0dfb5d6efba13074dfd72aa71b8df873bc95d6b44ff74c919e209fd9da8e"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000927&dcmNo=8492512&eleId=19&offset=194825&length=163&dtd=dart3.xsd",
+      "sha256": "507c953e0f3a1f2e87ca32e4cf3f64a38891001a626b956e3106705c246aa6b7"
+    }
+  ],
+  "shellCorpIds": [
+    "00145190"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20220322000927",
+        "dcmNo": "8492512",
+        "eleId": "3",
+        "offset": "11678",
+        "length": "4034",
+        "dtd": "dart3.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20220322000927",
+        "dcmNo": "8492512",
+        "eleId": "19",
+        "offset": "194825",
+        "length": "163",
+        "dtd": "dart3.xsd"
+      }
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+# Runtime raw hashes require byte-exact checkout on every platform.
+*.html -text
+*.json -text

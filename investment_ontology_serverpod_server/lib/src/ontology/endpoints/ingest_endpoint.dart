@@ -1,3 +1,5 @@
+import '../ingest/latest_business_body_coverage.dart';
+
 import 'dart:convert';
 
 import 'package:serverpod/protocol.dart' as sp;
@@ -229,16 +231,7 @@ class IngestEndpoint extends Endpoint {
         (SELECT count(DISTINCT "companyId") FROM business_digest_section),
         (SELECT count(*) FROM latest_period lp
           JOIN dart_filing f ON f.id=lp.id
-          WHERE EXISTS (
-            SELECT 1 FROM dart_filing_section s
-            JOIN disclosure_report r ON r."companyId"=s."companyId"
-              AND r."bsnsYear"=s."bsnsYear" AND r."reportCode"=f."reportCode"
-              AND r.section='businessContent'
-            JOIN business_document b ON b."reportId"=r.id
-            WHERE s."filingId"=f.id AND s.section='businessContent'
-              AND s.status='stored' AND b."companyId"=f."companyId"
-              AND b."rceptNo"=f."rceptNo"
-          )),
+          WHERE ${LatestBusinessBodyCoverage.existsSql('f')}),
         (SELECT count(*) FROM financial_scope WHERE
           ("consolidatedStatus"='stored' AND consolidated_period_stored)
           OR ("separateStatus"='stored' AND separate_period_stored)),

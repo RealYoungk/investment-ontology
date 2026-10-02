@@ -1,0 +1,64 @@
+{
+  "id": 1651,
+  "name": "(주)질경이",
+  "market": "konex",
+  "stockCode": "233990",
+  "corpCode": "01063556",
+  "rceptNo": "20240321000985",
+  "reportName": "사업보고서 (2023.12)",
+  "actual_period": "2023.12",
+  "bsnsYear": 2023,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 2,
+  "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 2,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240321000985",
+      "sha256": "eacf2d0efcfcb2426987c32e0e203fed9fc8ae18af5cd3c65c2d68f64c432e80"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240321000985&dcmNo=9749152&eleId=1&offset=954&length=4072&dtd=dart4.xsd",
+      "sha256": "3887c2f90938ce615244bb3aae5f55563518fe98b486a73a40712d7f687c0080"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240321000985&dcmNo=9749152&eleId=19&offset=172563&length=38186&dtd=dart4.xsd",
+      "sha256": "bcf375a74095c3382931f9d56c3a2627f3ceae7dfcd90c9eff753141d677dadc"
+    }
+  ],
+  "shellCorpIds": [
+    "01063556"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20240321000985",
+        "dcmNo": "9749152",
+        "eleId": "1",
+        "offset": "954",
+        "length": "4072",
+        "dtd": "dart4.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20240321000985",
+        "dcmNo": "9749152",
+        "eleId": "19",
+        "offset": "172563",
+        "length": "38186",
+        "dtd": "dart4.xsd"
+      }
+    }
+  ]
+}

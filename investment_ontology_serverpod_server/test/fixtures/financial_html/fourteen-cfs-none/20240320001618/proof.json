@@ -1,0 +1,64 @@
+{
+  "id": 1329,
+  "name": "(주)로지스몬",
+  "market": "konex",
+  "stockCode": "223220",
+  "corpCode": "01060735",
+  "rceptNo": "20240320001618",
+  "reportName": "사업보고서 (2023.12)",
+  "actual_period": "2023.12",
+  "bsnsYear": 2023,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 1,
+  "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 1,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240320001618",
+      "sha256": "0e1d0ca3d25d589cffafa48121a1272544db400d75d6f149c90396b6e91e1244"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240320001618&dcmNo=9741783&eleId=1&offset=966&length=4046&dtd=dart4.xsd",
+      "sha256": "61d739e41eddc552bfe60b6e767e0a92750c3eb210b49a2658b5961f1b978a90"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240320001618&dcmNo=9741783&eleId=19&offset=110781&length=155&dtd=dart4.xsd",
+      "sha256": "c6d1d702a1bf058d304e7f3418a682c718ac6f9a318eccc100188a141f506d42"
+    }
+  ],
+  "shellCorpIds": [
+    "01060735"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20240320001618",
+        "dcmNo": "9741783",
+        "eleId": "1",
+        "offset": "966",
+        "length": "4046",
+        "dtd": "dart4.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20240320001618",
+        "dcmNo": "9741783",
+        "eleId": "19",
+        "offset": "110781",
+        "length": "155",
+        "dtd": "dart4.xsd"
+      }
+    }
+  ]
+}

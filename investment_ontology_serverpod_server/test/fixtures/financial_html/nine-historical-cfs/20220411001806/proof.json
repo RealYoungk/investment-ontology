@@ -1,0 +1,64 @@
+{
+  "id": 29857,
+  "name": "(주)틸론",
+  "market": "konex",
+  "stockCode": "217880",
+  "corpCode": "00976615",
+  "rceptNo": "20220411001806",
+  "reportName": "[기재정정]사업보고서 (2021.12)",
+  "actual_period": "2021.12",
+  "bsnsYear": 2021,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 2,
+  "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 2,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220411001806",
+      "sha256": "0893bc7e4d5f05b464fd43588b21dc138dee780f0be7074525cf534ff953de86"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220411001806&dcmNo=8591649&eleId=3&offset=2990&length=4022&dtd=dart3.xsd",
+      "sha256": "c1a845df919c10fdf8a0903352a6e292a00e66c5142a850743c41abde2fdd21e"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220411001806&dcmNo=8591649&eleId=21&offset=269722&length=133&dtd=dart3.xsd",
+      "sha256": "f4434b7f006097dba4cc9213c468a9d249c4bda0cb4343584d406409f5a1c57d"
+    }
+  ],
+  "shellCorpIds": [
+    "00976615"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20220411001806",
+        "dcmNo": "8591649",
+        "eleId": "3",
+        "offset": "2990",
+        "length": "4022",
+        "dtd": "dart3.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20220411001806",
+        "dcmNo": "8591649",
+        "eleId": "21",
+        "offset": "269722",
+        "length": "133",
+        "dtd": "dart3.xsd"
+      }
+    }
+  ]
+}
