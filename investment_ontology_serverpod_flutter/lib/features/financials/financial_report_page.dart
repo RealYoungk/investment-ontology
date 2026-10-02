@@ -54,12 +54,22 @@ class _FinancialReportPageState extends State<FinancialReportPage> {
               );
             }
             final detail = snap.data;
+            if (snap.hasError) {
+              return Center(
+                child: ReadFailureNotice(
+                  subject: '재무 보고서',
+                  retry: () async {
+                    final future = _fetch();
+                    setState(() => _future = future);
+                    await future;
+                  },
+                ),
+              );
+            }
             if (detail == null) {
               return Center(
                 child: Text(
-                  snap.hasError
-                      ? '불러오지 못했습니다: ${snap.error}'
-                      : '보고서를 찾을 수 없습니다.',
+                  '보고서를 찾을 수 없습니다.',
                   style: context.typo.body(14),
                 ),
               );

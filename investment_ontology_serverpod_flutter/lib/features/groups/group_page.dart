@@ -68,12 +68,12 @@ class _GroupPageState extends State<GroupPage> {
         if (!_loaded)
           const LinearProgressIndicator(minHeight: 2)
         else if (g == null)
-          Text(
-            _error != null
-                ? '불러오지 못했습니다: $_error'
-                : '이 기업은 아직 어느 지분 묶음에도 없습니다.',
-            style: t.body(14, color: c.textSecondary),
-          )
+          (_error != null
+              ? ReadFailureNotice(subject: '상세 정보', retry: _load)
+              : Text(
+                  '이 기업은 아직 어느 지분 묶음에도 없습니다.',
+                  style: t.body(14, color: c.textSecondary),
+                ))
         else ...[
           Text('${g.anchor.name} 묶음', style: t.display(40)),
           const SizedBox(height: AppSpace.sm),

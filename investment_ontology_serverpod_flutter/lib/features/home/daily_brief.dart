@@ -5,6 +5,7 @@ import 'package:investment_ontology_serverpod_client/investment_ontology_serverp
 import '../../app/ingest_monitor.dart';
 import '../../client.dart';
 import '../../design/tokens.dart';
+import '../../design/components/read_failure_notice.dart';
 import '../common/formatters.dart';
 
 typedef FilingFeedLoad = Future<List<FilingFeedItem>> Function();
@@ -86,11 +87,7 @@ class _DailyBriefState extends State<DailyBrief> {
           ),
           const SizedBox(height: AppSpace.md),
           if (_loading) const LinearProgressIndicator(minHeight: 2),
-          if (_failed)
-            Text(
-              '최근 공시를 불러오지 못했어요. 새로고침으로 다시 시도해 주세요.',
-              style: t.body(13, color: c.textSecondary),
-            ),
+          if (_failed) ReadFailureNotice(subject: '최근 공시', retry: _load),
           if (!_loading && !_failed && _items?.isEmpty == true)
             Text('수집된 최근 정기보고서가 아직 없습니다.', style: t.body(14)),
           Wrap(

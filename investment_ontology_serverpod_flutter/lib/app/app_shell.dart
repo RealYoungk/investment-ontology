@@ -455,6 +455,11 @@ Future<_Hits> _searchAll(String query) async {
   final links = <_SearchLink>[
     for (final item in const [
       (title: '시장', detail: '코스피 코스닥 지수 시가총액 업종', location: '/market'),
+      (
+        title: '시장 지표',
+        detail: '원유 브렌트 WTI 환율 달러 국채 금리 매크로',
+        location: '/market/indicators',
+      ),
       (title: '기업', detail: '상장기업 종목 목록', location: '/companies'),
       (
         title: '기업 찾기',

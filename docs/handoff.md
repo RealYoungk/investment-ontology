@@ -892,3 +892,6 @@ XBRL이 없는 명시 첨부정정은 공식 양쪽 viewer의 기업코드와 �
 영상 영역에 Flutter 포스터와 로딩 안내를 덮고, metadata만이 아니라 loadeddata/seeked/canplay에서 readyState >= HAVE_CURRENT_DATA 및 seeking 해제 후 공개한다. 30초 대기 또는 HTTP/미디어 오류에는 spinner를 멈추고 미리보기 안내를 유지한다. 늦게 준비되면 정상 영상으로 회복하며 화면 해제 시 fetch·타이머·리스너·blob URL을 정리한다. 소개 문구·탐색 버튼은 영상과 독립적으로 계속 사용할 수 있다. 전체 blob 방식은 스크롤로 임의 프레임을 탐색하는 기존 동작을 보존하기 위해 유지했다.
 
 격리 정적 빌드에서 영상 12초 지연→준비 완료, HTTP 503 미리보기 유지 및 관련 Flutter 20개 테스트 확인. 최종 검증/운영 증거는 기본 저장소 `outputs/about-video-readiness/`에 보존한다. 실제 광고/결제 설정, 서버·DB는 이 변경 범위에 포함하지 않는다.
+
+## Macro and read recovery release 2026-10-02
+Official FRED macro indicators, beginner definitions and read-only bounded retries; docs/macro-indicators.md and docs/request-recovery.md. No new DB migration.

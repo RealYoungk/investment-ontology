@@ -172,11 +172,9 @@ class _ComparePageState extends State<ComparePage> {
           ),
         ),
         const SizedBox(height: AppSpace.xl),
-        if (_error != null) ...[
-          const AppNotice(message: '비교 데이터를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'),
-          const SizedBox(height: AppSpace.sm),
-          AppButton(label: '비교 다시 불러오기', onPressed: _load),
-        ] else if (widget.corpCodes.isEmpty)
+        if (_error != null)
+          ReadFailureNotice(subject: '비교 데이터', retry: _load)
+        else if (widget.corpCodes.isEmpty)
           Text(
             '위에서 궁금한 회사를 검색해 보세요. 두 곳 이상 고르면 숫자를 나란히 비교할 수 있어요.',
             style: t.body(13, color: c.textMuted),

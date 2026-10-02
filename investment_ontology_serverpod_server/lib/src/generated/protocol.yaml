@@ -85,6 +85,8 @@ ingest:
   - schedule:
   - latestOfKinds:
   - rebuildProductionFacts:
+macro:
+  - overview:
 market:
   - companyCapHistory:
   - industryTreemap:

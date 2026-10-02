@@ -85,14 +85,21 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
   @override
   void initState() {
     super.initState();
-    client.disclosure
-        .shareholderReturn(widget.corpCode)
-        .then((d) {
-          if (mounted) setState(() => _data = d);
-        })
-        .catchError((Object e) {
-          if (mounted) setState(() => _error = e);
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final data = await client.disclosure.shareholderReturn(widget.corpCode);
+      if (mounted) {
+        setState(() {
+          _data = data;
+          _error = null;
         });
+      }
+    } catch (error) {
+      if (mounted) setState(() => _error = error);
+    }
   }
 
   @override
@@ -101,7 +108,7 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
     final t = context.typo;
     final d = _data;
     if (_error != null) {
-      return AppNotice(message: '주주환원을 불러오지 못했습니다 — $_error');
+      return ReadFailureNotice(subject: '주주환원', retry: _load);
     }
     if (d == null) return const LinearProgressIndicator(minHeight: 2);
 
@@ -119,7 +126,9 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
     final dps = find(
       (s) => s.item.contains('주당') && s.item.contains('현금배당금') && common(s),
     );
-    final yield = find((s) => s.item.contains('현금배당수익률') && common(s));
+    final yield = find(
+      (s) => s.item.contains('현금배당수익률') && common(s),
+    );
     final payout = find((s) => s.item.contains('현금배당성향'));
 
     return Column(

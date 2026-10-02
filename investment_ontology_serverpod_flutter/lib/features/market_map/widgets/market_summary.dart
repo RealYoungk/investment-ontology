@@ -12,11 +12,13 @@ class MarketSummary extends StatelessWidget {
     required this.overview,
     required this.selected,
     required this.onSelect,
+    this.failed = false,
   });
 
   static const _markets = [Market.kospi, Market.kosdaq, Market.konex];
 
   final Overview? overview;
+  final bool failed;
   final Market? selected;
   final ValueChanged<Market> onSelect;
 
@@ -30,7 +32,9 @@ class MarketSummary extends StatelessWidget {
         final heading = PageHeading(
           title: '시장',
           subtitle: o == null
-              ? '불러오는 중…'
+              ? failed
+                    ? '시장 요약을 불러오지 못했어요'
+                    : '불러오는 중…'
               : '국내 상장 ${formatCount(o.totalListed)}개사',
         );
         final figures = [

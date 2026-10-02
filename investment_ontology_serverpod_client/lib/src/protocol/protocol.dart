@@ -41,6 +41,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _idevncao;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/investment_theme.dart'
     as _izhmhfon;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/macro_series_view.dart'
+    as _ijzi50sx;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/market_cap_point.dart'
     as _i140v7gk;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ownership_snapshot.dart'
@@ -140,6 +142,7 @@ import 'ontology/models/ingest_schedule_entry.dart' as _ilyxu1av;
 import 'ontology/models/ingest_status.dart' as _imojj26x;
 import 'ontology/models/investment_entry.dart' as _i9p8kpm7;
 import 'ontology/models/investment_theme.dart' as _i57inxpq;
+import 'ontology/models/macro_series_view.dart' as _id0q6lal;
 import 'ontology/models/market.dart' as _iyzzhewo;
 import 'ontology/models/market_cap_node.dart' as _i1tskjhh;
 import 'ontology/models/market_cap_point.dart' as _igdvszti;
@@ -278,6 +281,7 @@ export 'ontology/models/ingest_schedule_entry.dart';
 export 'ontology/models/ingest_status.dart';
 export 'ontology/models/investment_entry.dart';
 export 'ontology/models/investment_theme.dart';
+export 'ontology/models/macro_series_view.dart';
 export 'ontology/models/market.dart';
 export 'ontology/models/market_cap_node.dart';
 export 'ontology/models/market_cap_point.dart';
@@ -615,6 +619,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _i57inxpq.InvestmentTheme) {
       return _i57inxpq.InvestmentTheme.fromJson(data) as T;
+    }
+    if (t == _id0q6lal.MacroSeriesView) {
+      return _id0q6lal.MacroSeriesView.fromJson(data) as T;
     }
     if (t == _iyzzhewo.Market) {
       return _iyzzhewo.Market.fromJson(data) as T;
@@ -1105,6 +1112,10 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _isc.getType<_i57inxpq.InvestmentTheme?>()) {
       return (data != null ? _i57inxpq.InvestmentTheme.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_id0q6lal.MacroSeriesView?>()) {
+      return (data != null ? _id0q6lal.MacroSeriesView.fromJson(data) : null)
           as T;
     }
     if (t == _isc.getType<_iyzzhewo.Market?>()) {
@@ -1684,6 +1695,12 @@ class Protocol extends _isc.SerializationManager {
     if (t == List<String>) {
       return (data as List).map((e) => deserialize<String>(e)).toList() as T;
     }
+    if (t == List<_ijzi50sx.MacroSeriesView>) {
+      return (data as List)
+              .map((e) => deserialize<_ijzi50sx.MacroSeriesView>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_idnoq35n.CompanyMarketCap>) {
       return (data as List)
               .map((e) => deserialize<_idnoq35n.CompanyMarketCap>(e))
@@ -1828,6 +1845,7 @@ class Protocol extends _isc.SerializationManager {
       _imojj26x.IngestStatus => 'IngestStatus',
       _i9p8kpm7.InvestmentEntry => 'InvestmentEntry',
       _i57inxpq.InvestmentTheme => 'InvestmentTheme',
+      _id0q6lal.MacroSeriesView => 'MacroSeriesView',
       _iyzzhewo.Market => 'Market',
       _i1tskjhh.MarketCapNode => 'MarketCapNode',
       _igdvszti.MarketCapPoint => 'MarketCapPoint',
@@ -2065,6 +2083,8 @@ class Protocol extends _isc.SerializationManager {
         return 'InvestmentEntry';
       case _i57inxpq.InvestmentTheme():
         return 'InvestmentTheme';
+      case _id0q6lal.MacroSeriesView():
+        return 'MacroSeriesView';
       case _iyzzhewo.Market():
         return 'Market';
       case _i1tskjhh.MarketCapNode():
@@ -2444,6 +2464,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'InvestmentTheme') {
       return deserialize<_i57inxpq.InvestmentTheme>(data['data']);
+    }
+    if (dataClassName == 'MacroSeriesView') {
+      return deserialize<_id0q6lal.MacroSeriesView>(data['data']);
     }
     if (dataClassName == 'Market') {
       return deserialize<_iyzzhewo.Market>(data['data']);

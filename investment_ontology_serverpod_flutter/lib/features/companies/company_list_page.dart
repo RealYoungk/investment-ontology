@@ -178,7 +178,13 @@ class _CompanyListPageState extends State<CompanyListPage> {
             _buildToolbar(context),
             const SizedBox(height: AppSpace.md),
             if (_error != null) ...[
-              AppNotice(message: '서버에 연결하지 못했습니다 — $_error'),
+              ReadFailureNotice(
+                subject: '기업 목록',
+                retry: () async {
+                  await _loadOverview();
+                  await _loadPage();
+                },
+              ),
               const SizedBox(height: AppSpace.md),
             ],
             if (_page != null)

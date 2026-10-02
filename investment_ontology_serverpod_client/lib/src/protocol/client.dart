@@ -88,6 +88,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _idevncao;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/investment_theme.dart'
     as _izhmhfon;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/macro_series_view.dart'
+    as _ijzi50sx;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/market.dart'
     as _iamn97sz;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/market_cap_point.dart'
@@ -1181,6 +1183,22 @@ class EndpointIngest extends _isc.EndpointRef {
       );
 }
 
+/// Public official market context, no mutations or account data.
+/// {@category Endpoint}
+class EndpointMacro extends _isc.EndpointRef {
+  EndpointMacro(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'macro';
+
+  _ida.Future<List<_ijzi50sx.MacroSeriesView>> overview() =>
+      caller.callServerEndpoint<List<_ijzi50sx.MacroSeriesView>>(
+        'macro',
+        'overview',
+        {},
+      );
+}
+
 /// 시세 조회.
 /// {@category Endpoint}
 class EndpointMarket extends _isc.EndpointRef {
@@ -1877,6 +1895,7 @@ class Client extends _isc.ServerpodClientShared {
     group = EndpointGroup(this);
     industry = EndpointIndustry(this);
     ingest = EndpointIngest(this);
+    macro = EndpointMacro(this);
     market = EndpointMarket(this);
     membership = EndpointMembership(this);
     membershipOffer = EndpointMembershipOffer(this);
@@ -1917,6 +1936,8 @@ class Client extends _isc.ServerpodClientShared {
 
   late final EndpointIngest ingest;
 
+  late final EndpointMacro macro;
+
   late final EndpointMarket market;
 
   late final EndpointMembership membership;
@@ -1950,6 +1971,7 @@ class Client extends _isc.ServerpodClientShared {
     'group': group,
     'industry': industry,
     'ingest': ingest,
+    'macro': macro,
     'market': market,
     'membership': membership,
     'membershipOffer': membershipOffer,

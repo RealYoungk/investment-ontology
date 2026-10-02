@@ -68,7 +68,7 @@ class _GovernanceTabState extends State<GovernanceTab> {
     final t = context.typo;
     final d = _data;
     if (_error != null) {
-      return AppNotice(message: '지배구조를 불러오지 못했습니다 — $_error');
+      return ReadFailureNotice(subject: '지배구조', retry: _load);
     }
     if (d == null) return const LinearProgressIndicator(minHeight: 2);
     if (d.bsnsYear == null) {
