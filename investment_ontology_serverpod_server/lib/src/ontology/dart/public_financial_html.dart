@@ -799,7 +799,166 @@ abstract final class PublicFinancialHtml {
         statementSource.queryParameters['eleId'] == '23' &&
         periodStart == DateTime.utc(2025, 1, 1) &&
         periodEnd == DateTime.utc(2025, 12, 31);
+    final rootlocScope =
+        receipt == '20260323000661' &&
+        corpCode == '01262023' &&
+        !consolidated &&
+        term == '12' &&
+        coverSource.queryParameters['dcmNo'] == '11163088' &&
+        coverSource.queryParameters['eleId'] == '1' &&
+        statementSource.queryParameters['dcmNo'] == '11163088' &&
+        statementSource.queryParameters['eleId'] == '21' &&
+        statementSource.queryParameters['offset'] == '200508' &&
+        statementSource.queryParameters['length'] == '78783' &&
+        periodStart == DateTime.utc(2025) &&
+        periodEnd == DateTime.utc(2025, 12, 31);
     Map<String, dynamic>? cnsPeriodProof;
+    if (rootlocScope && titles.isEmpty) {
+      final proofs = <Map<String, dynamic>>[];
+      var tableIndex = 0;
+      for (final table in RegExp(
+        r'<TABLE\b[^>]*>(.*?)</TABLE>',
+        caseSensitive: false,
+        dotAll: true,
+      ).allMatches(scope)) {
+        final index = tableIndex++;
+        final prefix = _compact(_text(scope.substring(0, table.start)));
+        final ce = prefix.lastIndexOf('자본변동표');
+        if (ce < 0 ||
+            [
+              '재무상태표',
+              '손익계산서',
+              '현금흐름표',
+            ].any((h) => prefix.lastIndexOf(h) > ce)) {
+          continue;
+        }
+        if (RegExp(r'\(단위:([^)]*)\)')
+                .allMatches(prefix.substring(ce))
+                .map((m) => m.group(1))
+                .toList()
+                .join('|') !=
+            '천원') {
+          throw const FormatException('Rootloc CE unit mismatch');
+        }
+        final rawRows = RegExp(
+          r'<TR\b[^>]*>(.*?)</TR>',
+          caseSensitive: false,
+          dotAll: true,
+        ).allMatches(table.group(1)!).toList();
+        List<RegExpMatch> cells(int row) => RegExp(
+          r'<T[DH]\b([^>]*)>(.*?)</T[DH]>',
+          caseSensitive: false,
+          dotAll: true,
+        ).allMatches(rawRows[row].group(1)!).toList();
+        final header = cells(0)
+            .map((c) => _compact(_text(c.group(2)!)))
+            .join('|');
+        if (header != '구분|과목|자본금|자본잉여금|자본조정|기타포괄손익누계액|이익잉여금|총계') {
+          throw const FormatException('Rootloc CE whole header mismatch');
+        }
+        final startRows = [
+          for (var i = 1; i < rawRows.length; i++)
+            if (cells(i).length == 8 &&
+                _compact(_text(cells(i)[0].group(2)!)) == '2025년도(제12기)')
+              i,
+        ];
+        if (startRows.length != 1) {
+          throw const FormatException('Rootloc CE current block ambiguous');
+        }
+        final start = startRows.single;
+        final first = cells(start);
+        if (!RegExp(
+              r'''^\s*[^>]*rowspan=['"]7['"][^>]*$''',
+              caseSensitive: false,
+            ).hasMatch(first[0].group(1)!) ||
+            _compact(_text(first[1].group(2)!)) != '2025.1.1(기초)' ||
+            start + 6 >= rawRows.length) {
+          throw const FormatException('Rootloc CE start mismatch');
+        }
+        final end = start + 6;
+        if (cells(end).length != 7 ||
+            _compact(_text(cells(end)[0].group(2)!)) != '2025.12.31(기말)') {
+          throw const FormatException('Rootloc CE end mismatch');
+        }
+        for (var i = start + 1; i <= end; i++) {
+          if (cells(i).length != 7 ||
+              cells(i).any(
+                (c) => RegExp(
+                  r'(?:rowspan|colspan)\s*=',
+                  caseSensitive: false,
+                ).hasMatch(c.group(1)!),
+              )) {
+            throw const FormatException(
+              'Rootloc CE current block shape mismatch',
+            );
+          }
+        }
+        for (final date in ['2025.1.1(기초)', '2025.12.31(기말)']) {
+          if (rawRows
+                  .where((r) => _compact(_text(r.group(1)!)).contains(date))
+                  .length !=
+              1) {
+            throw const FormatException('Rootloc CE current dates ambiguous');
+          }
+        }
+        final profits = [
+          for (var i = start + 1; i < end; i++)
+            if (cells(i).length == 7 &&
+                _compact(_text(cells(i)[0].group(2)!)) == '당기순손실')
+              i,
+        ];
+        if (profits.length != 1) {
+          throw const FormatException('Rootloc CE whole profit ambiguous');
+        }
+        String total(int row) {
+          final cs = cells(row);
+          if (cs.length != 7 ||
+              cs.any(
+                (c) => RegExp(
+                  r'(?:rowspan|colspan)\s*=',
+                  caseSensitive: false,
+                ).hasMatch(c.group(1)!),
+              )) {
+            throw const FormatException(
+              'Rootloc CE whole monetary span ambiguous',
+            );
+          }
+          final value = _text(cs.last.group(2)!).trim();
+          if (!RegExp(r'^(?:-?\d{1,3}(?:,\d{3})*|\(\d{1,3}(?:,\d{3})*\))$')
+              .hasMatch(value)) {
+            throw const FormatException('Rootloc CE whole amount invalid');
+          }
+          final amount = value.startsWith('(')
+              ? -BigInt.parse(
+                  value.substring(1, value.length - 1).replaceAll(',', ''),
+                )
+              : BigInt.parse(value.replaceAll(',', ''));
+          return (amount * BigInt.from(1000)).toString();
+        }
+
+        proofs.add({
+          'mode': 'exact-rootloc-year-term-whole-ce-period',
+          'tableIndex': index,
+          'currentTerm': term,
+          'currentHeader': '2025년도(제12기)',
+          'periodStart': '2025-01-01',
+          'periodEnd': '2025-12-31',
+          'startRow': start,
+          'endRow': end,
+          'profitRow': profits.single,
+          'totalColumn': 7,
+          'unit': '천원',
+          'unitMultiplier': '1000',
+          'closingEquity': total(end),
+          'currentProfit': total(profits.single),
+          'source': statementSource.toString(),
+        });
+      }
+      if (proofs.length != 1) {
+        throw const FormatException('Rootloc CE source ambiguous');
+      }
+      cnsPeriodProof = proofs.single;
+    }
     if ((cnsScope || cronexScope) && titles.isEmpty) {
       final candidates = <Map<String, dynamic>>[];
       var supportingIndex = 0;
@@ -1431,7 +1590,11 @@ abstract final class PublicFinancialHtml {
                         current.colspan != 2 ||
                         _compact(current.text) !=
                             (kind == 'BS' ? '제14(당)기말' : '제14(당)기'))
-                  : _compact(current.text) != '2025년도(제26기)'))) {
+                  : (rootlocScope
+                        ? (current.column != 3 ||
+                              current.colspan != 1 ||
+                              _compact(current.text) != '2025년도(제12기)')
+                        : _compact(current.text) != '2025년도(제26기)')))) {
         throw const FormatException('Annual primary statement title mismatch');
       }
       final units = RegExp(r'\(단위:([^)]*)\)').allMatches(localPrefix).toList();
