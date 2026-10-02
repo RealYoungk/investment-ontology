@@ -30,13 +30,13 @@ Company company(AnnualSourceCacheEntry e) => Company(
 );
 void main() {
   test('compiled receipt plus basis registry has unique audit identities', () {
-    expect(VerifiedAnnualSourceRegistry.entries.length, 52);
+    expect(VerifiedAnnualSourceRegistry.entries.length, 72);
     expect(
       VerifiedAnnualSourceRegistry.entries
           .map((e) => e.auditReference)
           .toSet()
           .length,
-      52,
+      VerifiedAnnualSourceRegistry.entries.length,
     );
     final gaia = VerifiedAnnualSourceRegistry.entries
         .where((e) => e.receipt == '20250331002057')
@@ -101,6 +101,15 @@ void main() {
           expect(result.absence, isNull);
           final n = result.numeric!;
           expect(n.sourceReceipt, e.receipt);
+          if (e.ruleVersion == 'verified-current-period-whole-annual-v1') {
+            final expected = jsonDecode(
+              File('${e.assetDirectory}/expected-rows.json').readAsStringSync(),
+            );
+            expect(
+              n.rows.map((r) => [r['account_nm'], r['thstrm_amount']]).toList(),
+              expected,
+            );
+          }
           expect(
             n.rows.length,
             e.receipt == '20230315000460' ? 6 : inInclusiveRange(7, 8),
