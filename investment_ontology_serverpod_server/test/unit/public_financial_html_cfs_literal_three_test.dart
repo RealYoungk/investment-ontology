@@ -73,8 +73,9 @@ Future<PublicFinancialHtmlSource> actual(
           (s) => s['label'] == label,
         )['url'],
       );
-      if (company == null)
+      if (company == null) {
         expect(r.url.queryParameters, expected.queryParameters);
+      }
       return http.Response.bytes(
         utf8.encode(
           r.url.path == '/dsaf001/main.do'
