@@ -15,6 +15,7 @@ abstract final class _RevenuePartialAnnual {
     required DateTime end,
     required bool consolidated,
     bool requireWhole = false,
+    bool strictCfsWholeHeader = false,
   }) {
     String compact(String value) => PublicFinancialHtml._compact(value);
     String normalized(String value) => FinancialAccounts.normalizedName(value);
@@ -70,6 +71,7 @@ abstract final class _RevenuePartialAnnual {
       '영업손익': ('operating', 'CIS'),
       '영업손실': ('operating', 'CIS'),
       '당기순이익': ('profit', 'CIS'),
+      '연결당기순이익': ('profit', 'CIS'),
       '당기순이익(손실)': ('profit', 'CIS'),
       '당기순손실': ('profit', 'CIS'),
       '영업활동으로인한현금흐름': ('cfo', 'CF'),
@@ -412,6 +414,39 @@ abstract final class _RevenuePartialAnnual {
           (compact(g.first.last?.text ?? '') != '총계' && !ofWhole)) {
         continue;
       }
+      if (strictCfsWholeHeader) {
+        final whole =
+            g.length > 2 &&
+            g[0].length == 8 &&
+            g[1].length == 8 &&
+            compact(g[0][0]?.text ?? '') == '과목' &&
+            g[0][0]?.rowspan == 2 &&
+            g[0][0]?.colspan == 1 &&
+            identical(g[0][0], g[1][0]) &&
+            compact(g[0][1]?.text ?? '') == '지배기업소유주지분' &&
+            g[0][1]?.colspan == 5 &&
+            g[0][1]?.rowspan == 1 &&
+            [for (var c = 1; c <= 5; c++) identical(g[0][1], g[0][c])]
+                .every((v) => v) &&
+            compact(g[0][6]?.text ?? '') == '비지배지분' &&
+            compact(g[0][7]?.text ?? '') == '총계' &&
+            [6, 7].every(
+              (c) =>
+                  g[0][c]?.colspan == 1 &&
+                  g[0][c]?.rowspan == 2 &&
+                  identical(g[0][c], g[1][c]),
+            ) &&
+            [for (var c = 1; c <= 5; c++) compact(g[1][c]?.text ?? '')]
+                    .join('|') ==
+                '자본금|연결자본잉여금|연결자본조정|연결기타포괄손익누계액|연결이익잉여금' &&
+            [
+              for (var c = 1; c <= 5; c++)
+                g[1][c]?.rowspan == 1 && g[1][c]?.colspan == 1,
+            ].every((v) => v);
+        if (!whole) {
+          throw const FormatException('Exact CFS whole CE hierarchy mismatch');
+        }
+      }
       final context = caption(t.start, 'CE');
       if (!context.caption.startsWith(consolidated ? '연결자본변동표' : '자본변동표')) {
         continue;
@@ -437,7 +472,7 @@ abstract final class _RevenuePartialAnnual {
       final profits = g
           .sublist(starts.single + 1, ends.single)
           .where(
-            (r) => {'당기순이익', '당기순손실', '당기순이익(손실)'}.contains(
+            (r) => {'당기순이익', '연결당기순이익', '당기순손실', '당기순이익(손실)'}.contains(
               normalized(r.first?.text ?? '')
                   .replaceFirst(RegExp(r'^\([0-9]+\)'), ''),
             ),
@@ -468,6 +503,43 @@ abstract final class _RevenuePartialAnnual {
         return value * context.multiplier;
       }
 
+      if (strictCfsWholeHeader) {
+        final profitCells = profits.single;
+        if ([for (var c = 1; c <= 4; c++) compact(profitCells[c]?.text ?? '')]
+            .any((v) => v != '-')) {
+          throw const FormatException(
+            'Exact CFS profit whole attribution ambiguous',
+          );
+        }
+        BigInt explicit(int c, List<_FinancialHtmlCell?> row) {
+          if (row[c] == null ||
+              row[c]!.column != c ||
+              row[c]!.colspan != 1 ||
+              row[c]!.rowspan != 1) {
+            throw const FormatException('Exact CFS component column ambiguous');
+          }
+          final v = money(row[c]!.text);
+          if (v == null) {
+            throw const FormatException('Exact CFS component unavailable');
+          }
+          return v;
+        }
+
+        if (explicit(5, profitCells) + explicit(6, profitCells) !=
+            explicit(7, profitCells)) {
+          throw const FormatException(
+            'Exact CFS parent and NCI profit total conflict',
+          );
+        }
+        final closing = g[ends.single];
+        if ([for (var c = 1; c <= 6; c++) explicit(c, closing)]
+                .fold(BigInt.zero, (a, b) => a + b) !=
+            explicit(7, closing)) {
+          throw const FormatException(
+            'Exact CFS closing components total conflict',
+          );
+        }
+      }
       final profit = whole(profits.single), equity = whole(g[ends.single]);
       if (profit != values['profit'] || equity != values['equity']) {
         throw const FormatException(
@@ -520,6 +592,8 @@ abstract final class _RevenuePartialAnnual {
         'wholeCE': wholeProofs.single,
         if (fullRecovery) 'primaryBlankHeaders': blankHeaders.toList(),
         if (fullRecovery) 'printedProfitAnnotation': annotatedWholeProfit,
+        if (strictCfsWholeHeader)
+          'wholeCfsHierarchy': 'own-parent-components5-nci6-whole-total7',
         if (fullRecovery)
           'uncollectedOptional': values.containsKey('capex')
               ? <String>[]

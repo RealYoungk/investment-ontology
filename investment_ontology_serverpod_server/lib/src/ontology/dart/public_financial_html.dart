@@ -1,4 +1,5 @@
 import 'annual_equity_period.dart';
+import 'samsungfire_cfs_source.dart';
 import 'historical_cfs_whole_proof.dart';
 import 'primary_historical_issuer.dart';
 
@@ -1687,6 +1688,38 @@ abstract final class PublicFinancialHtml {
         periodEnd.difference(periodStart).inDays >= 364 &&
         periodEnd.difference(periodStart).inDays <= 365 &&
         text.contains('제$term기(${periodEnd.year}년)');
+    if (SamsungFireCfsSource.matches(
+      receipt: receipt,
+      corpCode: corpCode,
+      consolidated: consolidated,
+      start: periodStart,
+      end: periodEnd,
+      coverSource: coverSource,
+      statementSource: statementSource,
+      coverHtml: coverHtml,
+      statementHtml: statementHtml,
+    )) {
+      final rows = _RevenuePartialAnnual.parse(
+        html: scope,
+        originalHtml: statementHtml,
+        originalCover: coverHtml,
+        source: statementSource,
+        receipt: receipt,
+        corp: corpCode,
+        term: term,
+        start: periodStart,
+        end: periodEnd,
+        consolidated: true,
+        requireWhole: true,
+        strictCfsWholeHeader: true,
+      );
+      if (rows == null) {
+        throw const FormatException(
+          'Exact consolidated whole accounts unavailable',
+        );
+      }
+      return rows;
+    }
     final exactInnovexOfs =
         receipt == '20250320001369' &&
         corpCode == '01353848' &&

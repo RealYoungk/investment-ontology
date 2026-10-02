@@ -406,12 +406,27 @@ void main() {
                 final coreRows =
                     jsonDecode(sourceAudit.title)['coreRowProvenance'] as List;
                 final profit = coreRows.singleWhere(
-                  (r) => r['account_nm'].toString().startsWith('Vlll.'),
+                  (r) => r['account_nm'].toString().contains('당기순이익 (대손'),
                 );
                 expect(
                   profit['html_provenance']['wholeCoreProof']['printedProfitAnnotation'],
                   true,
                 );
+                if (entry.basis == FsDiv.consolidated) {
+                  final proof = profit['html_provenance']['wholeCoreProof'];
+                  expect(
+                    proof['wholeCfsHierarchy'],
+                    'own-parent-components5-nci6-whole-total7',
+                  );
+                  expect(proof['wholeCE']['wholeColumn'], 7);
+                  expect(proof['wholeCE']['wholeProfit'], expected[5][1]);
+                  expect(proof['wholeCE']['closingEquity'], expected[2][1]);
+                  expect(
+                    proof['wholeCE']['printedProfitCells'][6],
+                    isNot(proof['wholeCE']['printedProfitCells'][7]),
+                  );
+                }
+
                 expect(
                   profit['html_provenance']['printedCurrentCells'].where(
                     (c) => c.toString().replaceAll(',', '') == expected[5][1],

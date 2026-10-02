@@ -58,6 +58,30 @@ abstract final class VerifiedAnnualSourceRegistry {
       corpCode: '00139214',
       companyName: '삼성화재해상보험(주)',
       year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220310001159-cfs',
+      manifestDigest:
+          '38c54494525e7e45bbc0b9c48aaa45b014f9831014c52081845ccb7828d34044',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230309000772',
+      corpCode: '00139214',
+      companyName: '삼성화재해상보험(주)',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20230309000772-cfs',
+      manifestDigest:
+          'b31d4ef063e973e8dad6197297e0668f81c2d154e1165a5fa1d51a31d3e9d097',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220310001159',
+      corpCode: '00139214',
+      companyName: '삼성화재해상보험(주)',
+      year: 2021,
       basis: FsDiv.separate,
       assetDirectory: 'assets/financial_source_cache/20220310001159-ofs',
       manifestDigest:
