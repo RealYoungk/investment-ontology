@@ -2,6 +2,7 @@ import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
 import 'billing_key_vault.dart';
+import 'billing_gateway.dart';
 import 'membership_ledger.dart';
 import 'toss_sandbox_gateway.dart';
 
@@ -14,12 +15,16 @@ class BillingRenewalService {
     this.allowCharges = true,
   });
   final bool allowCharges;
-  final TossPaymentsGateway gateway;
+  final BillingGateway gateway;
   final BillingKeyVault vault;
 
   Future<void> reconcileKeyDeletion(Session session, int subscriptionId) async {
     final sub = await BillingSubscription.db.findById(session, subscriptionId);
-    if (sub == null || sub.encryptedKeyPendingDeletion == null) return;
+    if (sub == null ||
+        sub.provider != gateway.provider ||
+        sub.encryptedKeyPendingDeletion == null) {
+      return;
+    }
     for (final envelope in MembershipLedger.pendingKeys(
       sub.encryptedKeyPendingDeletion,
     )) {
@@ -56,21 +61,33 @@ class BillingRenewalService {
     }
   }
 
-  Future<void> reconcileUnknowns(Session session, int subscriptionId) async {
+  Future<void> reconcileUnknowns(
+    Session session,
+    int subscriptionId, {
+    DateTime? at,
+  }) async {
     final rows = await BillingPaymentAttempt.db.find(
       session,
       where: (t) =>
           t.subscriptionId.equals(subscriptionId) & t.status.equals('unknown'),
     );
     for (final row in rows) {
+      if (row.provider != gateway.provider) continue;
       try {
         final payment = await gateway.lookup(row.orderId);
         if (payment.status == 'DONE') {
-          await MembershipLedger.settle(session, row.id!, payment);
+          await MembershipLedger.settle(session, row.id!, payment, at: at);
         } else if (payment.status == 'CANCELED') {
           await MembershipLedger.fullRefund(session, row.id!, payment);
         }
-      } on SandboxPaymentException {
+      } on SandboxPaymentException catch (error) {
+        if (!error.uncertain && error.code == 'declined') {
+          await MembershipLedger.decline(
+            session,
+            row.id!,
+            at ?? DateTime.now().toUtc(),
+          );
+        }
         // Cancellation/deletion must not stop reconciliation of a past charge.
         session.log(
           'Billing result unknown (attempt ${row.id})',
@@ -98,6 +115,7 @@ class BillingRenewalService {
           (t.paidThroughUtc > now),
     );
     for (final row in rows) {
+      if (row.provider != gateway.provider) continue;
       try {
         final payment = await gateway.lookup(row.orderId);
         if (payment.key != row.paymentKey || payment.orderId != row.orderId) {
@@ -128,7 +146,7 @@ class BillingRenewalService {
           t.status.inSet({'refundRequired', 'refundRequested'}),
     );
     for (final row in rows) {
-      if (row.paymentKey == null) continue;
+      if (row.paymentKey == null || row.provider != gateway.provider) continue;
       try {
         // Lookup first recovers a cancel whose response was lost, even after
         // the provider's idempotency window expired.
@@ -160,7 +178,13 @@ class BillingRenewalService {
   }
 
   Future<void> run(Session session, int subscriptionId, {DateTime? at}) async {
-    await reconcileUnknowns(session, subscriptionId);
+    await MembershipLedger.updatePause(
+      session,
+      subscriptionId,
+      !allowCharges,
+      at ?? DateTime.now().toUtc(),
+    );
+    await reconcileUnknowns(session, subscriptionId, at: at);
     if (!allowCharges) return;
     final sub = await BillingSubscription.db.findById(session, subscriptionId);
     if (sub == null ||
@@ -175,31 +199,40 @@ class BillingRenewalService {
       subscriptionId,
       at: at,
     );
-    if (row == null || !const {'pending', 'unknown'}.contains(row.status)) {
+    if (row == null ||
+        !const {'pending', 'unknown', 'declined'}.contains(row.status)) {
       return;
     }
     try {
       SandboxPayment payment;
-      if (row.status == 'unknown' ||
-          (at ?? DateTime.now().toUtc()).difference(row.paidFromUtc) >
-              const Duration(days: 14)) {
-        // Idempotency expires after 15 days. Never POST an old unknown order.
+      if (row.provider != gateway.provider) return;
+      if (row.status == 'unknown' || row.chargeStartedUtc != null) {
+        // Provider idempotency windows are finite. Unknown orders use GET only.
         await MembershipLedger.markUnknown(session, row.id!);
         payment = await gateway.lookup(row.orderId);
       } else {
+        final dispatched = await MembershipLedger.dispatch(
+          session,
+          row.id!,
+          at ?? DateTime.now().toUtc(),
+        );
+        if (dispatched == null) return;
         final reference = await vault.open(
           sub.ownerId.toString(),
           sub.encryptedBillingKey!,
         );
         payment = await gateway.charge(
+          amountKrw: row.amountKrw,
           billingKey: reference,
           customerKey: sub.customerKey!,
-          orderId: row.orderId,
-          idempotencyKey: row.idempotencyKey,
+          orderId: dispatched.orderId,
+          idempotencyKey: row.retryCount == 0
+              ? row.idempotencyKey
+              : '${row.idempotencyKey}-${row.retryCount}',
         );
       }
       if (payment.status == 'DONE') {
-        await MembershipLedger.settle(session, row.id!, payment);
+        await MembershipLedger.settle(session, row.id!, payment, at: at);
         await reconcileRefunds(session, subscriptionId);
       }
       // Canceled/partial results cannot grant access. Reconciliation remains
@@ -207,8 +240,16 @@ class BillingRenewalService {
       else {
         await MembershipLedger.markUnknown(session, row.id!);
       }
-    } on SandboxPaymentException {
-      await MembershipLedger.markUnknown(session, row.id!);
+    } on SandboxPaymentException catch (error) {
+      if (!error.uncertain && error.code == 'declined') {
+        await MembershipLedger.decline(
+          session,
+          row.id!,
+          at ?? DateTime.now().toUtc(),
+        );
+      } else {
+        await MembershipLedger.markUnknown(session, row.id!);
+      }
       session.log(
         'Billing result unknown (attempt ${row.id})',
         level: LogLevel.warning,

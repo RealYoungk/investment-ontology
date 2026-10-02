@@ -50,6 +50,7 @@ import '../ontology/endpoints/industry_endpoint.dart' as _ihimn963;
 import '../ontology/endpoints/ingest_endpoint.dart' as _icbircc0;
 import '../ontology/endpoints/market_endpoint.dart' as _iaw7fzks;
 import '../ontology/endpoints/membership_endpoint.dart' as _i4hwwhem;
+import '../ontology/endpoints/membership_offer_endpoint.dart' as _ilgl7tj9;
 import '../ontology/endpoints/review_endpoint.dart' as _i9uttt4a;
 import '../ontology/endpoints/screen_endpoint.dart' as _ilgabfhk;
 import '../ontology/endpoints/theme_endpoint.dart' as _iqaca509;
@@ -160,6 +161,12 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'membership',
+          null,
+        ),
+      'membershipOffer': _ilgl7tj9.MembershipOfferEndpoint()
+        ..initialize(
+          server,
+          'membershipOffer',
           null,
         ),
       'review': _i9uttt4a.ReviewEndpoint()
@@ -1999,6 +2006,11 @@ class Endpoints extends _is.EndpointDispatch {
               type: _is.getType<String>(),
               nullable: false,
             ),
+            'expectedAmountKrw': _is.ParameterDescription(
+              name: 'expectedAmountKrw',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
           },
           call:
               (
@@ -2009,6 +2021,7 @@ class Endpoints extends _is.EndpointDispatch {
                       .beginCheckout(
                         session,
                         params['acceptedTestTerms'],
+                        expectedAmountKrw: params['expectedAmountKrw'],
                       ),
         ),
         'beginCardReplacement': _is.MethodConnector(
@@ -2098,6 +2111,24 @@ class Endpoints extends _is.EndpointDispatch {
               ) async =>
                   (endpoints['membership'] as _i4hwwhem.MembershipEndpoint)
                       .cancelRenewal(session),
+        ),
+      },
+    );
+    connectors['membershipOffer'] = _is.EndpointConnector(
+      name: 'membershipOffer',
+      endpoint: endpoints['membershipOffer']!,
+      methodConnectors: {
+        'offer': _is.MethodConnector(
+          name: 'offer',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['membershipOffer']
+                          as _ilgl7tj9.MembershipOfferEndpoint)
+                      .offer(session),
         ),
       },
     );

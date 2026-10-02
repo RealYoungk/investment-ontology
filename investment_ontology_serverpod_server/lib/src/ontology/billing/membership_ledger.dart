@@ -6,6 +6,7 @@ import 'package:serverpod_auth_idp_server/core.dart';
 import '../../generated/protocol.dart';
 import '../auth/ontology_access.dart';
 import 'subscription_rules.dart';
+import 'subscription_pricing.dart';
 import 'billing_key_vault.dart';
 import 'toss_sandbox_gateway.dart';
 
@@ -107,6 +108,13 @@ abstract final class MembershipLedger {
     lockMode: LockMode.forUpdate,
   );
 
+  static DateTime? _graceEnd(BillingSubscription sub, DateTime now) =>
+      sub.graceThroughUtc?.add(
+        sub.billingPausedUtc != null && now.isAfter(sub.billingPausedUtc!)
+            ? now.difference(sub.billingPausedUtc!)
+            : Duration.zero,
+      );
+
   static Future<MembershipView> status(Session session, {DateTime? at}) async {
     final id = owner(session);
     final now = at ?? DateTime.now().toUtc();
@@ -127,10 +135,30 @@ abstract final class MembershipLedger {
         limit: 1,
         transaction: tx,
       );
+      final graceEnd = _graceEnd(sub, now);
+      final grace =
+          !sub.cancelAtPeriodEnd && graceEnd != null && graceEnd.isAfter(now);
+      final entitled = payments.isNotEmpty || grace;
+      final protected =
+          entitled ||
+          (!sub.cancelAtPeriodEnd &&
+              sub.priceLocked &&
+              (graceEnd == null || graceEnd.isAfter(now)));
       return MembershipView(
-        adFree: payments.isNotEmpty,
-        paidThroughUtc: payments.firstOrNull?.paidThroughUtc,
+        adFree: entitled,
+        paidThroughUtc:
+            payments.firstOrNull?.paidThroughUtc ?? (grace ? graceEnd : null),
         cancelAtPeriodEnd: sub.cancelAtPeriodEnd,
+        currentPriceKrw: SubscriptionPricing.currentAmount,
+        appliedPriceKrw: protected ? sub.priceKrw : null,
+        priceProtected: protected,
+        nextChargeUtc: sub.cancelAtPeriodEnd || !entitled
+            ? null
+            : SubscriptionRules.boundary(
+                sub.originUtc,
+                sub.nextPeriod - sub.cycleStartPeriod,
+              ),
+        graceThroughUtc: grace ? graceEnd : null,
       );
     });
   }
@@ -142,6 +170,8 @@ abstract final class MembershipLedger {
       final sub = await _subscription(session, id, tx);
       if (sub == null) return;
       sub.cancelAtPeriodEnd = true;
+      sub.graceThroughUtc = null;
+      sub.retryAfterUtc = null;
       await BillingSubscription.db.updateRow(session, sub, transaction: tx);
     });
   }
@@ -150,6 +180,9 @@ abstract final class MembershipLedger {
   static Future<BillingSubscription> prepareCheckout(
     Session session, {
     bool replaceCard = false,
+    int priceKrw = 2900,
+    String priceVersion = 'legacy-2900',
+    String provider = 'toss',
     DateTime? at,
   }) async {
     final id = owner(session);
@@ -164,6 +197,9 @@ abstract final class MembershipLedger {
           BillingSubscription(
             ownerId: id,
             originUtc: now,
+            priceKrw: priceKrw,
+            priceVersion: priceVersion,
+            provider: provider,
             customerKey: 'alfinder-${Uuid().v4()}',
           ),
           transaction: tx,
@@ -197,12 +233,25 @@ abstract final class MembershipLedger {
       );
       if (refund != null) throw StateError('Refund pending');
       if (replaceCard) {
-        if (paid == null || sub.encryptedKeyPendingDeletion != null) {
+        if ((paid == null &&
+                !(sub.graceThroughUtc?.isAfter(now) ?? false) &&
+                (sub.cancelAtPeriodEnd || !sub.priceLocked)) ||
+            sub.encryptedKeyPendingDeletion != null) {
           throw StateError('Card replacement is unavailable');
         }
         return sub;
       }
-      if (paid != null) throw StateError('Membership is already active');
+      if (sub.graceThroughUtc?.isAfter(now) ?? false) {
+        throw StateError('Use card replacement during grace');
+      }
+      if (paid != null ||
+          (!sub.cancelAtPeriodEnd &&
+              sub.priceLocked &&
+              sub.graceThroughUtc == null)) {
+        throw StateError(
+          'Membership is already active or renewal delayed; use card replacement',
+        );
+      }
       final rows = await BillingPaymentAttempt.db.find(
         session,
         where: (t) => t.subscriptionId.equals(sub.id!),
@@ -221,7 +270,10 @@ abstract final class MembershipLedger {
       if (rows.isNotEmpty &&
           rows.first.status == 'pending' &&
           rows.first.paidThroughUtc.isAfter(now) &&
-          !sub.cancelAtPeriodEnd) {
+          !sub.cancelAtPeriodEnd &&
+          sub.priceKrw == priceKrw &&
+          sub.priceVersion == priceVersion &&
+          sub.provider == provider) {
         return sub;
       }
       if (sub.encryptedKeyPendingDeletion != null) {
@@ -235,6 +287,16 @@ abstract final class MembershipLedger {
       sub.encryptedBillingKey = null;
       sub.nextPeriod = rows.isEmpty ? 0 : rows.first.period + 1;
       sub.cycleStartPeriod = sub.nextPeriod;
+      if (sub.provider != provider && sub.encryptedKeyPendingDeletion != null) {
+        throw StateError('Previous provider key cleanup required');
+      }
+      sub.provider = provider;
+      sub.priceLocked = false;
+      sub.priceKrw = priceKrw;
+      sub.priceVersion = priceVersion;
+      sub.graceThroughUtc = null;
+      sub.retryAfterUtc = null;
+      sub.billingPausedUtc = null;
       sub.originUtc = now;
       sub.cancelAtPeriodEnd = false;
       return BillingSubscription.db.updateRow(session, sub, transaction: tx);
@@ -331,6 +393,18 @@ abstract final class MembershipLedger {
         transaction: tx,
       );
       if (prior != null) return prior; // Stable identity for every retry.
+      final scheduledThrough = SubscriptionRules.boundary(
+        sub.originUtc,
+        period - sub.cycleStartPeriod + 1,
+      );
+      if (!scheduledThrough.isAfter(now) &&
+          period == sub.nextPeriod &&
+          sub.priceLocked) {
+        // System delay does not back-bill a missed month or discard the price.
+        sub.originUtc = now;
+        sub.cycleStartPeriod = period;
+        await BillingSubscription.db.updateRow(session, sub, transaction: tx);
+      }
       final from = SubscriptionRules.boundary(
         sub.originUtc,
         period - sub.cycleStartPeriod,
@@ -346,9 +420,12 @@ abstract final class MembershipLedger {
         BillingPaymentAttempt(
           subscriptionId: sub.id!,
           period: period,
-          orderId: 'alfinder-$nonce',
+          orderId: 'af${nonce.replaceAll('-', '')}',
           idempotencyKey: 'charge-$nonce',
           status: 'pending',
+          amountKrw: sub.priceKrw,
+          priceVersion: sub.priceVersion,
+          provider: sub.provider,
           paidFromUtc: from,
           paidThroughUtc: through,
         ),
@@ -361,8 +438,9 @@ abstract final class MembershipLedger {
   static Future<void> settle(
     Session session,
     int attemptId,
-    SandboxPayment payment,
-  ) async {
+    SandboxPayment payment, {
+    DateTime? at,
+  }) async {
     await session.db.transaction((tx) async {
       final first = await BillingPaymentAttempt.db.findById(
         session,
@@ -398,8 +476,8 @@ abstract final class MembershipLedger {
       if (row == null ||
           sub == null ||
           payment.orderId != row.orderId ||
-          payment.amount != SubscriptionRules.amountKrw ||
-          payment.balance != SubscriptionRules.amountKrw ||
+          payment.amount != row.amountKrw ||
+          payment.balance != row.amountKrw ||
           payment.status != 'DONE' ||
           payment.key.isEmpty) {
         throw StateError('Payment proof does not match attempt');
@@ -422,12 +500,33 @@ abstract final class MembershipLedger {
         transaction: tx,
       );
       row.paymentKey = payment.key;
-      row.status = sub.deleted || refund != null || user == null || user.blocked
+      final confirmedAt = at ?? DateTime.now().toUtc();
+      final graceEnd = _graceEnd(sub, confirmedAt);
+      row.status =
+          sub.deleted ||
+              refund != null ||
+              user == null ||
+              user.blocked ||
+              row.period < sub.cycleStartPeriod ||
+              (graceEnd != null && !graceEnd.isAfter(confirmedAt))
           ? 'refundRequired'
           : 'paid';
+      if (row.status == 'paid' &&
+          !sub.cancelAtPeriodEnd &&
+          !row.paidThroughUtc.isAfter(confirmedAt)) {
+        // A delayed confirmation provides a full paid month from recovery,
+        // instead of charging again for an already elapsed access period.
+        sub.originUtc = confirmedAt;
+        sub.cycleStartPeriod = row.period;
+        row.paidFromUtc = confirmedAt;
+        row.paidThroughUtc = SubscriptionRules.boundary(confirmedAt, 1);
+      }
       await BillingPaymentAttempt.db.updateRow(session, row, transaction: tx);
       if (row.status == 'paid' && sub.nextPeriod <= row.period) {
         sub.nextPeriod = row.period + 1;
+        sub.priceLocked = true;
+        sub.graceThroughUtc = null;
+        sub.retryAfterUtc = null;
         await BillingSubscription.db.updateRow(session, sub, transaction: tx);
       }
     });
@@ -484,6 +583,155 @@ abstract final class MembershipLedger {
         row.status = 'unknown';
         await BillingPaymentAttempt.db.updateRow(session, row, transaction: tx);
       }
+    });
+  }
+
+  /// Suspend grace time while the server explicitly pauses charging.
+  static Future<void> updatePause(
+    Session session,
+    int id,
+    bool paused,
+    DateTime now,
+  ) async {
+    await session.db.transaction((tx) async {
+      final sub = await BillingSubscription.db.findById(
+        session,
+        id,
+        transaction: tx,
+        lockMode: LockMode.forUpdate,
+      );
+      if (sub == null || sub.deleted || sub.cancelAtPeriodEnd) return;
+      if (paused && sub.billingPausedUtc == null) {
+        if (sub.graceThroughUtc == null || sub.graceThroughUtc!.isAfter(now)) {
+          sub.billingPausedUtc = now;
+        }
+      } else if (!paused && sub.billingPausedUtc != null) {
+        final duration = now.difference(sub.billingPausedUtc!);
+        if (!duration.isNegative) {
+          sub.graceThroughUtc = sub.graceThroughUtc?.add(duration);
+          sub.retryAfterUtc = sub.retryAfterUtc?.add(duration);
+        }
+        sub.billingPausedUtc = null;
+      } else {
+        return;
+      }
+      await BillingSubscription.db.updateRow(session, sub, transaction: tx);
+    });
+  }
+
+  /// Claim one dispatch before network I/O. A crash leaves an unknown order
+  /// for GET reconciliation, never an unbounded second POST.
+  static Future<BillingPaymentAttempt?> dispatch(
+    Session session,
+    int attemptId,
+    DateTime now,
+  ) async {
+    return session.db.transaction((tx) async {
+      final first = await BillingPaymentAttempt.db.findById(
+        session,
+        attemptId,
+        transaction: tx,
+      );
+      if (first == null) return null;
+      final sub = await BillingSubscription.db.findById(
+        session,
+        first.subscriptionId,
+        transaction: tx,
+        lockMode: LockMode.forUpdate,
+      );
+      final row = await BillingPaymentAttempt.db.findById(
+        session,
+        attemptId,
+        transaction: tx,
+        lockMode: LockMode.forUpdate,
+      );
+      if (sub == null ||
+          row == null ||
+          sub.deleted ||
+          sub.cancelAtPeriodEnd ||
+          !{'pending', 'declined'}.contains(row.status) ||
+          row.chargeStartedUtc != null ||
+          (sub.retryAfterUtc?.isAfter(now) ?? false)) {
+        return null;
+      }
+      if (sub.graceThroughUtc != null && !sub.graceThroughUtc!.isAfter(now)) {
+        row.status = 'expired';
+        sub.cancelAtPeriodEnd = true;
+        await BillingPaymentAttempt.db.updateRow(session, row, transaction: tx);
+        await BillingSubscription.db.updateRow(session, sub, transaction: tx);
+        return null;
+      }
+      if (row.status == 'declined') {
+        // A confirmed FAILED order gets a new permanent provider identity.
+        // Unknown orders never reach this branch and never receive a new ID.
+        row.failedOrderIds = [...?row.failedOrderIds, row.orderId];
+        row.orderId = 'af${Uuid().v4().replaceAll('-', '')}';
+      }
+      if (!row.paidThroughUtc.isAfter(now)) {
+        sub.originUtc = now;
+        sub.cycleStartPeriod = row.period;
+        row.paidFromUtc = now;
+        row.paidThroughUtc = SubscriptionRules.boundary(now, 1);
+        await BillingSubscription.db.updateRow(session, sub, transaction: tx);
+      }
+      row.chargeStartedUtc = now;
+      row.status = 'unknown';
+      return BillingPaymentAttempt.db.updateRow(session, row, transaction: tx);
+    });
+  }
+
+  static Future<void> decline(
+    Session session,
+    int attemptId,
+    DateTime now,
+  ) async {
+    await session.db.transaction((tx) async {
+      final first = await BillingPaymentAttempt.db.findById(
+        session,
+        attemptId,
+        transaction: tx,
+      );
+      if (first == null) return;
+      final sub = await BillingSubscription.db.findById(
+        session,
+        first.subscriptionId,
+        transaction: tx,
+        lockMode: LockMode.forUpdate,
+      );
+      final row = await BillingPaymentAttempt.db.findById(
+        session,
+        attemptId,
+        transaction: tx,
+        lockMode: LockMode.forUpdate,
+      );
+      if (sub == null ||
+          row == null ||
+          !{'pending', 'unknown', 'declined'}.contains(row.status)) {
+        return;
+      }
+      if (row.status == 'declined') {
+        return; // Replayed failure does not consume a retry.
+      }
+      row.chargeStartedUtc = null;
+      final renewal = sub.priceLocked;
+      if (!renewal || sub.cancelAtPeriodEnd || sub.deleted) {
+        row.status = 'expired';
+        sub.cancelAtPeriodEnd = true;
+      } else {
+        sub.graceThroughUtc ??= row.paidFromUtc.add(SubscriptionPricing.grace);
+        const days = [1, 3, 6];
+        if (!_graceEnd(sub, now)!.isAfter(now)) {
+          row.status = 'expired';
+          sub.cancelAtPeriodEnd = true;
+        } else {
+          row.status = 'declined';
+          sub.retryAfterUtc = row.retryCount >= days.length
+              ? sub.graceThroughUtc
+              : row.paidFromUtc.add(Duration(days: days[row.retryCount++]));
+        }
+      }
+      await BillingPaymentAttempt.db.updateRow(session, row, transaction: tx);
+      await BillingSubscription.db.updateRow(session, sub, transaction: tx);
     });
   }
 
@@ -573,7 +821,7 @@ abstract final class MembershipLedger {
           (row.paymentKey != null && row.paymentKey != payment.key) ||
           payment.key.isEmpty ||
           row.orderId != payment.orderId ||
-          payment.amount != SubscriptionRules.amountKrw ||
+          payment.amount != row.amountKrw ||
           payment.balance != 0 ||
           payment.status != 'CANCELED') {
         throw StateError('Refund proof does not match attempt');

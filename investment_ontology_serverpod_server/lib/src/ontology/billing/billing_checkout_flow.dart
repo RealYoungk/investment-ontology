@@ -17,7 +17,12 @@ class BillingCheckoutService {
     required this.clientKey,
     this.termsVersion = 'sandbox-v1',
     bool allowLive = false,
+    this.amountKrw = 2900,
+    this.priceVersion = 'legacy-2900',
+    this.storeId,
+    this.channelKey,
   }) {
+    if (worker.gateway.provider == 'portone') return;
     if (!RegExp(r'^test_ck_[A-Za-z0-9]+$').hasMatch(clientKey) &&
         !(allowLive && RegExp(r'^live_ck_[A-Za-z0-9]+$').hasMatch(clientKey))) {
       throw ArgumentError('Test client key required');
@@ -26,23 +31,39 @@ class BillingCheckoutService {
   final BillingRenewalService worker;
   final String clientKey;
   final String termsVersion;
+  final int amountKrw;
+  final String priceVersion;
+  final String? storeId;
+  final String? channelKey;
   Future<String> _hash(String state) async =>
       base64Encode((await Sha256().hash(utf8.encode(state))).bytes);
+
+  Future<String> _issueId(String state) async =>
+      'af${(await Sha256().hash(utf8.encode(state))).bytes.take(16).map((b) => b.toRadixString(16).padLeft(2, '0')).join()}';
 
   Future<BillingCheckoutView> begin(
     Session session, {
     required String acceptedTestTerms,
     DateTime? at,
     bool replaceCard = false,
+    int? expectedAmountKrw,
   }) async {
     if (acceptedTestTerms != termsVersion) {
       throw StateError('Test terms confirmation required');
+    }
+    if (!replaceCard &&
+        ((worker.gateway.provider == 'portone' && expectedAmountKrw == null) ||
+            (expectedAmountKrw != null && expectedAmountKrw != amountKrw))) {
+      throw StateError('Price changed; review the new offer');
     }
     final owner = MembershipLedger.owner(session);
     final now = at ?? DateTime.now().toUtc();
     final prepared = await MembershipLedger.prepareCheckout(
       session,
       replaceCard: replaceCard,
+      priceKrw: amountKrw,
+      priceVersion: priceVersion,
+      provider: worker.gateway.provider,
       at: now,
     );
     if (!replaceCard) {
@@ -96,7 +117,10 @@ class BillingCheckoutService {
           ownerId: owner,
           subscriptionId: sub.id!,
           stateHash: hash,
-          expiresUtc: now.add(const Duration(minutes: 10)),
+          expiresUtc: now.add(const Duration(minutes: 30)),
+          amountKrw: sub.priceKrw,
+          priceVersion: sub.priceVersion,
+          provider: sub.provider,
           status: 'waiting',
           replaceCard: replaceCard,
           termsVersion: termsVersion,
@@ -109,6 +133,12 @@ class BillingCheckoutService {
         state: state,
         customerKey: sub.customerKey!,
         clientKey: clientKey,
+        provider: worker.gateway.provider,
+        storeId: storeId,
+        channelKey: channelKey,
+        issueId: await _issueId(state),
+        amountKrw: sub.priceKrw,
+        priceVersion: sub.priceVersion,
       );
     });
   }
@@ -185,8 +215,14 @@ class BillingCheckoutService {
           sub.customerKey == null) {
         throw StateError('Subscription unavailable');
       }
+      if (sub.provider != worker.gateway.provider ||
+          challenge.provider != sub.provider ||
+          challenge.amountKrw != sub.priceKrw) {
+        throw StateError('Checkout provider or price mismatch');
+      }
       issued = await worker.gateway.issueBillingKey(
         authKey: authKey,
+        issueId: await _issueId(state),
         customerKey: sub.customerKey!,
         idempotencyKey: challenge.issueIdempotencyKey,
       );

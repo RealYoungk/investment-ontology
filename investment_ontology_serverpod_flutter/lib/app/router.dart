@@ -152,7 +152,9 @@ abstract final class AppRoutes {
             path: '/membership/checkout',
             builder: (_, state) => BillingCheckoutPage(
               state: state.uri.queryParameters['state'],
-              authKey: state.uri.queryParameters['authKey'],
+              authKey:
+                  state.uri.queryParameters['authKey'] ??
+                  state.uri.queryParameters['billingKey'],
               replaceCard: state.uri.queryParameters['card'] == 'replace',
               failed: state.uri.queryParameters.containsKey('code'),
             ),

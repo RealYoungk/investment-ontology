@@ -58,6 +58,9 @@ class _MembershipCardState extends State<MembershipCard> {
     final viewer = context.viewer;
     final adFree = viewer?.isAdFree ?? false;
     final end = viewer?.paidThroughUtc?.toLocal();
+    final price = (viewer?.appliedPriceKrw ?? viewer?.currentPriceKrw ?? 4900)
+        .toString()
+        .replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+$)'), (m) => '${m[1]},');
     final c = context.colors;
     final t = context.typo;
     return Container(
@@ -82,8 +85,8 @@ class _MembershipCardState extends State<MembershipCard> {
                 : (viewer?.paymentAvailable ?? false)
                 ? viewer!.isTestMembership
                       ? '이용권 테스트를 사용할 수 있습니다. 실제 요금이 청구되지 않습니다.'
-                      : '월 2,900원으로 광고 없이 이용할 수 있습니다.'
-                : '기업 정보는 무료로 조회할 수 있습니다. 광고 제거 이용권은 월 2,900원으로 준비하고 있습니다.',
+                      : '월 $price원으로 광고 없이 이용할 수 있습니다.'
+                : '기업 정보는 무료로 조회할 수 있습니다. 광고 제거 이용권은 월 $price원으로 준비하고 있습니다.',
             style: t.body(14, color: c.textSecondary),
           ),
           const SizedBox(height: AppSpace.sm),
@@ -91,6 +94,28 @@ class _MembershipCardState extends State<MembershipCard> {
             '관심종목은 무료 3개, 결제 확인된 이용권 기간에는 20개까지 등록할 수 있습니다.',
             style: t.body(13, color: c.textSecondary),
           ),
+          if (viewer?.priceProtected ?? false) ...[
+            const SizedBox(height: AppSpace.sm),
+            Text(
+              '적용 요금 월 $price원 · 구독 유지 중 가입 가격 보호',
+              style: t.body(14, weight: FontWeight.w600),
+            ),
+          ],
+          if (viewer?.graceThroughUtc != null) ...[
+            const SizedBox(height: AppSpace.sm),
+            Text(
+              '갱신 결제에 실패했습니다. 7일 유예 기간 안에 결제 카드를 확인하세요. 가입 가격과 멤버십은 유예 기간까지 유지됩니다.',
+              style: t.body(13, color: c.textSecondary),
+            ),
+          ],
+          if (viewer?.nextChargeUtc != null &&
+              !(viewer?.cancelAtPeriodEnd ?? false)) ...[
+            const SizedBox(height: AppSpace.sm),
+            Text(
+              '다음 결제 기준일 ${viewer!.nextChargeUtc!.toLocal().year}.${viewer.nextChargeUtc!.toLocal().month}.${viewer.nextChargeUtc!.toLocal().day}',
+              style: t.body(13, color: c.textSecondary),
+            ),
+          ],
           if (end != null) ...[
             const SizedBox(height: AppSpace.sm),
             Text(

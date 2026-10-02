@@ -101,6 +101,8 @@ membership:
   - completeCheckout:
   - abortCheckout:
   - cancelRenewal:
+membershipOffer:
+  - offer:
 review:
   - list:
   - decide:

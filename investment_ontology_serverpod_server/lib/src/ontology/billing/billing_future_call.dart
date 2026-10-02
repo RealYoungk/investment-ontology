@@ -2,22 +2,36 @@ import 'package:http/http.dart' as http;
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
-import 'billing_sandbox_config.dart';
+import 'billing_provider_config.dart';
+import 'billing_renewal_service.dart';
 
 class BillingFutureCall extends FutureCall {
   Future<void> run(Session session) => scan(session);
   Future<void> scan(Session session) async {
     final client = http.Client();
     try {
-      final service = BillingSandboxConfig.service(session, client);
-      if (service == null) return;
+      Future<BillingRenewalService?> serviceFor(
+        int id, {
+        String? provider,
+      }) async {
+        final sub = await BillingSubscription.db.findById(session, id);
+        return sub == null
+            ? null
+            : BillingSandboxConfig.service(
+                session,
+                client,
+                provider: provider ?? sub.provider,
+              );
+      }
+
       final cleanup = await BillingSubscription.db.find(
         session,
         where: (t) => t.encryptedKeyPendingDeletion.notEquals(null),
       );
       for (final row in cleanup) {
         try {
-          await service.reconcileKeyDeletion(session, row.id!);
+          await (await serviceFor(row.id!))
+              ?.reconcileKeyDeletion(session, row.id!);
         } catch (_) {
           session.log('Billing key cleanup pending', level: LogLevel.warning);
         }
@@ -28,9 +42,15 @@ class BillingFutureCall extends FutureCall {
         where: (t) =>
             t.status.inSet({'refundRequired', 'refundRequested', 'unknown'}),
       );
-      for (final id in refunds.map((r) => r.subscriptionId).toSet()) {
+      for (final item
+          in refunds
+              .map((r) => (id: r.subscriptionId, provider: r.provider))
+              .toSet()) {
         try {
-          await service.reconcileUnknowns(session, id);
+          await (await serviceFor(
+            item.id,
+            provider: item.provider,
+          ))?.reconcileUnknowns(session, item.id);
         } catch (_) {
           session.log(
             'Billing reconciliation pending',
@@ -48,9 +68,15 @@ class BillingFutureCall extends FutureCall {
             (t.paidFromUtc <= now) &
             (t.paidThroughUtc > now),
       );
-      for (final id in paid.map((r) => r.subscriptionId).toSet()) {
+      for (final item
+          in paid
+              .map((r) => (id: r.subscriptionId, provider: r.provider))
+              .toSet()) {
         try {
-          await service.reconcilePaid(session, id, at: now);
+          await (await serviceFor(
+            item.id,
+            provider: item.provider,
+          ))?.reconcilePaid(session, item.id, at: now);
         } catch (_) {
           session.log(
             'Paid billing reconciliation pending',
@@ -72,7 +98,7 @@ class BillingFutureCall extends FutureCall {
         );
         for (final row in rows) {
           try {
-            await service.run(session, row.id!);
+            await (await serviceFor(row.id!))?.run(session, row.id!);
           } catch (_) {
             session.log(
               'Billing worker failed; inspect durable ledger',

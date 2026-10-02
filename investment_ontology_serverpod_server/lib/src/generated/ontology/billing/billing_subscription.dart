@@ -25,10 +25,21 @@ abstract class BillingSubscription
     this.encryptedKeyPendingDeletion,
     int? nextPeriod,
     int? cycleStartPeriod,
+    bool? priceLocked,
+    int? priceKrw,
+    String? priceVersion,
+    String? provider,
+    this.graceThroughUtc,
+    this.retryAfterUtc,
+    this.billingPausedUtc,
   }) : cancelAtPeriodEnd = cancelAtPeriodEnd ?? false,
        deleted = deleted ?? false,
        nextPeriod = nextPeriod ?? 0,
-       cycleStartPeriod = cycleStartPeriod ?? 0;
+       cycleStartPeriod = cycleStartPeriod ?? 0,
+       priceLocked = priceLocked ?? false,
+       priceKrw = priceKrw ?? 2900,
+       priceVersion = priceVersion ?? 'legacy-2900',
+       provider = provider ?? 'toss';
 
   factory BillingSubscription({
     int? id,
@@ -41,6 +52,13 @@ abstract class BillingSubscription
     String? encryptedKeyPendingDeletion,
     int? nextPeriod,
     int? cycleStartPeriod,
+    bool? priceLocked,
+    int? priceKrw,
+    String? priceVersion,
+    String? provider,
+    DateTime? graceThroughUtc,
+    DateTime? retryAfterUtc,
+    DateTime? billingPausedUtc,
   }) = _BillingSubscriptionImpl;
 
   factory BillingSubscription.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -66,6 +84,27 @@ abstract class BillingSubscription
           jsonSerialization['encryptedKeyPendingDeletion'] as String?,
       nextPeriod: jsonSerialization['nextPeriod'] as int?,
       cycleStartPeriod: jsonSerialization['cycleStartPeriod'] as int?,
+      priceLocked: jsonSerialization['priceLocked'] == null
+          ? null
+          : _is.BoolJsonExtension.fromJson(jsonSerialization['priceLocked']),
+      priceKrw: jsonSerialization['priceKrw'] as int?,
+      priceVersion: jsonSerialization['priceVersion'] as String?,
+      provider: jsonSerialization['provider'] as String?,
+      graceThroughUtc: jsonSerialization['graceThroughUtc'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(
+              jsonSerialization['graceThroughUtc'],
+            ),
+      retryAfterUtc: jsonSerialization['retryAfterUtc'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(
+              jsonSerialization['retryAfterUtc'],
+            ),
+      billingPausedUtc: jsonSerialization['billingPausedUtc'] == null
+          ? null
+          : _is.DateTimeJsonExtension.fromJson(
+              jsonSerialization['billingPausedUtc'],
+            ),
     );
   }
 
@@ -94,6 +133,20 @@ abstract class BillingSubscription
 
   int cycleStartPeriod;
 
+  bool priceLocked;
+
+  int priceKrw;
+
+  String priceVersion;
+
+  String provider;
+
+  DateTime? graceThroughUtc;
+
+  DateTime? retryAfterUtc;
+
+  DateTime? billingPausedUtc;
+
   @override
   _is.Table<int?> get table => t;
 
@@ -111,6 +164,13 @@ abstract class BillingSubscription
     String? encryptedKeyPendingDeletion,
     int? nextPeriod,
     int? cycleStartPeriod,
+    bool? priceLocked,
+    int? priceKrw,
+    String? priceVersion,
+    String? provider,
+    DateTime? graceThroughUtc,
+    DateTime? retryAfterUtc,
+    DateTime? billingPausedUtc,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -128,6 +188,14 @@ abstract class BillingSubscription
         'encryptedKeyPendingDeletion': encryptedKeyPendingDeletion,
       'nextPeriod': nextPeriod,
       'cycleStartPeriod': cycleStartPeriod,
+      'priceLocked': priceLocked,
+      'priceKrw': priceKrw,
+      'priceVersion': priceVersion,
+      'provider': provider,
+      if (graceThroughUtc != null) 'graceThroughUtc': graceThroughUtc?.toJson(),
+      if (retryAfterUtc != null) 'retryAfterUtc': retryAfterUtc?.toJson(),
+      if (billingPausedUtc != null)
+        'billingPausedUtc': billingPausedUtc?.toJson(),
     };
   }
 
@@ -178,6 +246,13 @@ class _BillingSubscriptionImpl extends BillingSubscription {
     String? encryptedKeyPendingDeletion,
     int? nextPeriod,
     int? cycleStartPeriod,
+    bool? priceLocked,
+    int? priceKrw,
+    String? priceVersion,
+    String? provider,
+    DateTime? graceThroughUtc,
+    DateTime? retryAfterUtc,
+    DateTime? billingPausedUtc,
   }) : super._(
          id: id,
          ownerId: ownerId,
@@ -189,6 +264,13 @@ class _BillingSubscriptionImpl extends BillingSubscription {
          encryptedKeyPendingDeletion: encryptedKeyPendingDeletion,
          nextPeriod: nextPeriod,
          cycleStartPeriod: cycleStartPeriod,
+         priceLocked: priceLocked,
+         priceKrw: priceKrw,
+         priceVersion: priceVersion,
+         provider: provider,
+         graceThroughUtc: graceThroughUtc,
+         retryAfterUtc: retryAfterUtc,
+         billingPausedUtc: billingPausedUtc,
        );
 
   /// Returns a shallow copy of this [BillingSubscription]
@@ -206,6 +288,13 @@ class _BillingSubscriptionImpl extends BillingSubscription {
     Object? encryptedKeyPendingDeletion = _Undefined,
     int? nextPeriod,
     int? cycleStartPeriod,
+    bool? priceLocked,
+    int? priceKrw,
+    String? priceVersion,
+    String? provider,
+    Object? graceThroughUtc = _Undefined,
+    Object? retryAfterUtc = _Undefined,
+    Object? billingPausedUtc = _Undefined,
   }) {
     return BillingSubscription(
       id: id is int? ? id : this.id,
@@ -222,6 +311,19 @@ class _BillingSubscriptionImpl extends BillingSubscription {
           : this.encryptedKeyPendingDeletion,
       nextPeriod: nextPeriod ?? this.nextPeriod,
       cycleStartPeriod: cycleStartPeriod ?? this.cycleStartPeriod,
+      priceLocked: priceLocked ?? this.priceLocked,
+      priceKrw: priceKrw ?? this.priceKrw,
+      priceVersion: priceVersion ?? this.priceVersion,
+      provider: provider ?? this.provider,
+      graceThroughUtc: graceThroughUtc is DateTime?
+          ? graceThroughUtc
+          : this.graceThroughUtc,
+      retryAfterUtc: retryAfterUtc is DateTime?
+          ? retryAfterUtc
+          : this.retryAfterUtc,
+      billingPausedUtc: billingPausedUtc is DateTime?
+          ? billingPausedUtc
+          : this.billingPausedUtc,
     );
   }
 }
@@ -278,6 +380,44 @@ class BillingSubscriptionUpdateTable
     table.cycleStartPeriod,
     value,
   );
+
+  _is.ColumnValue<bool, bool> priceLocked(bool value) => _is.ColumnValue(
+    table.priceLocked,
+    value,
+  );
+
+  _is.ColumnValue<int, int> priceKrw(int value) => _is.ColumnValue(
+    table.priceKrw,
+    value,
+  );
+
+  _is.ColumnValue<String, String> priceVersion(String value) => _is.ColumnValue(
+    table.priceVersion,
+    value,
+  );
+
+  _is.ColumnValue<String, String> provider(String value) => _is.ColumnValue(
+    table.provider,
+    value,
+  );
+
+  _is.ColumnValue<DateTime, DateTime> graceThroughUtc(DateTime? value) =>
+      _is.ColumnValue(
+        table.graceThroughUtc,
+        value,
+      );
+
+  _is.ColumnValue<DateTime, DateTime> retryAfterUtc(DateTime? value) =>
+      _is.ColumnValue(
+        table.retryAfterUtc,
+        value,
+      );
+
+  _is.ColumnValue<DateTime, DateTime> billingPausedUtc(DateTime? value) =>
+      _is.ColumnValue(
+        table.billingPausedUtc,
+        value,
+      );
 }
 
 class BillingSubscriptionTable extends _is.Table<int?> {
@@ -324,6 +464,38 @@ class BillingSubscriptionTable extends _is.Table<int?> {
       this,
       hasDefault: true,
     );
+    priceLocked = _is.ColumnBool(
+      'priceLocked',
+      this,
+      hasDefault: true,
+    );
+    priceKrw = _is.ColumnInt(
+      'priceKrw',
+      this,
+      hasDefault: true,
+    );
+    priceVersion = _is.ColumnString(
+      'priceVersion',
+      this,
+      hasDefault: true,
+    );
+    provider = _is.ColumnString(
+      'provider',
+      this,
+      hasDefault: true,
+    );
+    graceThroughUtc = _is.ColumnDateTime(
+      'graceThroughUtc',
+      this,
+    );
+    retryAfterUtc = _is.ColumnDateTime(
+      'retryAfterUtc',
+      this,
+    );
+    billingPausedUtc = _is.ColumnDateTime(
+      'billingPausedUtc',
+      this,
+    );
   }
 
   late final BillingSubscriptionUpdateTable updateTable;
@@ -346,6 +518,20 @@ class BillingSubscriptionTable extends _is.Table<int?> {
 
   late final _is.ColumnInt cycleStartPeriod;
 
+  late final _is.ColumnBool priceLocked;
+
+  late final _is.ColumnInt priceKrw;
+
+  late final _is.ColumnString priceVersion;
+
+  late final _is.ColumnString provider;
+
+  late final _is.ColumnDateTime graceThroughUtc;
+
+  late final _is.ColumnDateTime retryAfterUtc;
+
+  late final _is.ColumnDateTime billingPausedUtc;
+
   @override
   List<_is.Column> get columns => [
     id,
@@ -358,6 +544,13 @@ class BillingSubscriptionTable extends _is.Table<int?> {
     encryptedKeyPendingDeletion,
     nextPeriod,
     cycleStartPeriod,
+    priceLocked,
+    priceKrw,
+    priceVersion,
+    provider,
+    graceThroughUtc,
+    retryAfterUtc,
+    billingPausedUtc,
   ];
 }
 

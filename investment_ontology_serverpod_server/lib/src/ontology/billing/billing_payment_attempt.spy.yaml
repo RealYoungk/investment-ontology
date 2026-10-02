@@ -10,6 +10,12 @@ fields:
   paymentKey: String?
   paidFromUtc: DateTime
   paidThroughUtc: DateTime
+  amountKrw: int, default=2900
+  priceVersion: String, default='legacy-2900'
+  provider: String, default='toss'
+  retryCount: int, default=0
+  chargeStartedUtc: DateTime?
+  failedOrderIds: List<String>?
 indexes:
   billing_payment_period_idx:
     fields: subscriptionId, period
