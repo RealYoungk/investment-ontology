@@ -872,3 +872,6 @@ XBRL이 없는 명시 첨부정정은 공식 양쪽 viewer의 기업코드와 �
 `codex/watchlist-notifications` (main 기반 분리 워크트리)에 개인 관심종목, 무료 3개/유료 20개, 공시 알림함과 Web Push를 구현했다. 자세한 동작·설정·미포함 항목은 `docs/watchlist-notifications-plan.md` 참조. 뉴스는 동명 일반명사 회귀 필터를 강화했고 뉴스 푸시는 보류했다. 운영 자동 수집은 DART 키와 futureCall 실행, 기기 알림은 VAPID 키 및 사용자 권한이 필요하다. 기존 작업 브랜치를 전환하거나 stash하지 않았다.
 
 로컬 검증에서 CLI 4.0.3이 `serverpod_test` 4.0.0에 없는 `ephemeralDatabase` 인자를 생성했다. 프로젝트와 같은 4.0.0 CLI를 사용해 생성/실행하면 해결된다. 생성 파일을 손으로 수정하지 않는다. 원래 전역 CLI는 변경하지 않았다.
+### 2026-10-02 AdSense 거절 사유 대응
+
+실제 이메일·Sites 화면에서 alfinder.kr은 `주의 필요 / 게시자 콘텐츠가 없는 화면에 Google 게재 광고`(12:11 KST). 초기 로딩 HTML/기본 접근성 DOM에 읽을 본문이 부족한 상태와 데이터 상태에 무관한 광고 lead를 확인했다. 공개 HTML 리서치 안내·자료, Flutter 공식 웹 접근성 기본 활성화, 정상 본문 때만 광고 lead 마운트, robots/sitemap을 준비했다. Google 판단의 유일한 원인이라고 단정하지 않는다. 실광고·실결제 OFF 유지. 전체 검증·운영 배포·재심사 제출의 완료 여부와 증거는 `adsense-review-remediation-2026-10-02.md` 최신 항목을 따른다.

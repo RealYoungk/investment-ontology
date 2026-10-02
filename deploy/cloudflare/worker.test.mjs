@@ -58,3 +58,22 @@ test('runtime execution context is not used as the HTTP client', async () => {
     assert.equal(await response.text(), 'ok');
   } finally { globalThis.fetch = original; }
 });
+
+test('public entry serves the same real HTML without running or redirecting to Flutter', async () => {
+  for (const path of ['/', '/index.html']) {
+    let served;
+    const response = await handleRequest(new Request('https://alfinder.kr' + path),
+      {ASSETS: {fetch: async request => { served = new URL(request.url).pathname; return new Response('<article>Publisher content</article>'); }}}, () => assert.fail());
+    assert.equal(served, '/start');
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('cache-control'), 'no-store');
+    assert.match(await response.text(), /Publisher content/);
+  }
+});
+
+test('interactive deep links still use the existing application asset routing', async () => {
+  let served;
+  await handleRequest(new Request('https://alfinder.kr/company/00126380'),
+    {ASSETS: {fetch: async request => { served = request.url; return new Response('application'); }}}, () => assert.fail());
+  assert.equal(served, 'https://alfinder.kr/company/00126380');
+});

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:investment_ontology_serverpod_flutter/features/monetization/ad_content_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:investment_ontology_serverpod_flutter/features/monetization/ad_config.dart';
 import 'package:investment_ontology_serverpod_flutter/features/monetization/ad_banner.dart';
@@ -51,6 +52,7 @@ void main() {
     AppViewer? viewer,
     AdConfig config = preview,
     double scale = 1,
+    bool allowLeading = true,
   }) => MaterialApp(
     theme: buildAppTheme(_brand()),
     home: AppViewerScope(
@@ -61,6 +63,7 @@ void main() {
           body: PageFrameLeadScope(
             leading: AdBanner(config: config),
             child: PageFrame(
+              allowLeading: allowLeading,
               children: [
                 const MembershipCard(),
                 for (var i = 0; i < 30; i++)
@@ -72,6 +75,35 @@ void main() {
       ),
     ),
   );
+  testWidgets('content loading, empty and errors never mount an ad slot', (
+    tester,
+  ) async {
+    for (final state in [
+      const AdContentState(loading: true, failed: false, itemCount: 0),
+      const AdContentState(loading: true, failed: false, itemCount: 50),
+      const AdContentState(loading: false, failed: false, itemCount: 0),
+      const AdContentState(loading: false, failed: true, itemCount: 0),
+      const AdContentState(loading: false, failed: true, itemCount: 50),
+    ]) {
+      await tester.pumpWidget(app(allowLeading: state.allowsAd));
+      expect(slot, findsNothing);
+      expect(find.byType(AdBanner), findsNothing);
+    }
+    await tester.pumpWidget(
+      app(
+        allowLeading: const AdContentState(
+          loading: false,
+          failed: false,
+          itemCount: 50,
+        ).allowsAd,
+      ),
+    );
+    expect(slot, findsOneWidget);
+    // Subsequent refresh/error removes the already mounted platform, not just its label.
+    await tester.pumpWidget(app(allowLeading: false));
+    expect(find.byType(AdBanner), findsNothing);
+    expect(slot, findsNothing);
+  });
   test('requires valid IDs and opt-in; preview never implies live ads', () {
     expect(const AdConfig().show(adFree: false, web: true), isFalse);
     expect(
