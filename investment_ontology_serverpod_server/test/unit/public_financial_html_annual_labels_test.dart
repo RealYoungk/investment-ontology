@@ -108,9 +108,45 @@ void main() {
       throwsFormatException,
     );
   });
+  test(
+    'Cronex exact OFS has seven whole-period core accounts and dated CE proof',
+    () {
+      const receipt = '20260709000504';
+      final rows = parse(receipt, 'OFS');
+      final amounts = rows.map((r) => r['thstrm_amount']).toList();
+      for (final amount in [
+        '14237907303',
+        '12371090488',
+        '1866816815',
+        '5534042425',
+        '641909126',
+        '-2569130760',
+        '461278058',
+      ]) {
+        expect(amounts.where((v) => v == amount), hasLength(1));
+      }
+      for (final row in rows) {
+        expect(row['account_id'], isNull);
+        expect(row['currency'], 'KRW');
+        final provenance = row['html_provenance'] as Map;
+        expect(provenance['currentColumn'], 1);
+        expect(provenance['currentColumnSpan'], 2);
+        final proof = provenance['supportingPeriodEvidence'] as Map;
+        expect(
+          proof['mode'],
+          'exact-cronex-undated-title-equity-period-corroboration',
+        );
+        expect(proof['periodStart'], '2025-01-01');
+        expect(proof['periodEnd'], '2025-12-31');
+        expect(proof['currentProfit'], '-2569130760');
+        expect(proof['closingEquity'], '1866816815');
+        expect(proof['source'], item(receipt)['urls']['separate']);
+        expect(provenance['printedCurrentCells'], isNotEmpty);
+      }
+    },
+  );
   for (final key in [
     '20260804000177:OFS',
-    '20260709000504:OFS',
     '20260630000259:CFS',
     '20260630000259:OFS',
   ]) {
