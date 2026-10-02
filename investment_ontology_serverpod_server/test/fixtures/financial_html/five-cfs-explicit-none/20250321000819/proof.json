@@ -1,0 +1,27 @@
+{
+  "receipt": "20250321000819",
+  "corpCode": "00929228",
+  "companyName": "(주)엔에스컴퍼니",
+  "bsnsYear": 2024,
+  "basis": "cfs",
+  "shellCorpIds": [
+    "00929228"
+  ],
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250321000819",
+      "sha256": "483e9f5b02b76d49a50f07bd13066b4213826af0d620fa0e95dd7e0d327b6431"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321000819&dcmNo=10444895&eleId=1&offset=954&length=4589&dtd=dart4.xsd",
+      "sha256": "dea40f89f5f179c2b1cee7a146a9626730ebe3883db41c7c77fdfd0f9183a5ad"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321000819&dcmNo=10444895&eleId=19&offset=431752&length=185&dtd=dart4.xsd",
+      "sha256": "795cce1a6e556d4728c705a743b03fee29b915cc4374ca1d40b4b014b9cf0c81"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "receipt": "20240328001866",
+  "corpCode": "01085187",
+  "companyName": "(주)씨알푸드",
+  "bsnsYear": 2023,
+  "basis": "cfs",
+  "shellCorpIds": [
+    "01085187"
+  ],
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240328001866",
+      "sha256": "bf19658113b2c6362c011932cb544f6f502902c7ad714da83c50953d0be7ee3f"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240328001866&dcmNo=9778671&eleId=1&offset=952&length=4038&dtd=dart4.xsd",
+      "sha256": "8edb933a8e91190fa0d5e2fbf7b652b57b19c2c1387d30b6baa4e93ad9343ddf"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240328001866&dcmNo=9778671&eleId=19&offset=216277&length=145&dtd=dart4.xsd",
+      "sha256": "1868e7bd0213c420c8ae3ca6044dc72a62aaf7ae945c59813f698370ba7a1ee1"
+    }
+  ]
+}
