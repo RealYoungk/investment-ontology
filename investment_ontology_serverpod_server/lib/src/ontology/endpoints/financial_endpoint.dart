@@ -20,6 +20,26 @@ class FinancialEndpoint extends Endpoint {
     FinancialReportCode.annual: 3,
   };
 
+  /// Same five-annual-years/latest-interim target selection as normal ingestion.
+  /// Select final revisions before testing status: an older pending correction
+  /// must not appear when the active final revision is already complete.
+  static int activePendingFilingCount(Iterable<DartFiling> filings) {
+    final rows = filings.toList();
+    final ids = FinancialFactsSync.financialScopeIds(rows);
+    return rows
+        .where(
+          (f) =>
+              ids.contains(f.id) &&
+              f.attempts >= 0 &&
+              f.attempts < FinancialFactsSync.maxAttempts &&
+              (f.consolidatedStatus == FilingFetchStatus.pending ||
+                  f.separateStatus == FilingFetchStatus.pending ||
+                  f.consolidatedStatus == FilingFetchStatus.failed ||
+                  f.separateStatus == FilingFetchStatus.failed),
+        )
+        .length;
+  }
+
   /// 기업의 기간별 핵심 계정과 최근 시가총액.
   ///
   /// [fsDiv]가 없으면 최신 기간과 계산 가능성을 공통 규칙으로 판단한다.
@@ -191,17 +211,13 @@ class FinancialEndpoint extends Endpoint {
       session,
       where: (t) => t.companyId.equals(company.id!),
     );
-    final pending = await DartFiling.db.count(
-      session,
-      where: (t) =>
-          t.companyId.equals(company.id!) &
-          t.reportCode.notEquals(null) &
-          t.attempts.between(0, FinancialFactsSync.maxAttempts - 1) &
-          (t.consolidatedStatus.equals(FilingFetchStatus.pending) |
-              t.separateStatus.equals(FilingFetchStatus.pending) |
-              t.consolidatedStatus.equals(FilingFetchStatus.failed) |
-              t.separateStatus.equals(FilingFetchStatus.failed)),
-    );
+    final companyFilings = company.stockCode == null
+        ? <DartFiling>[]
+        : await DartFiling.db.find(
+            session,
+            where: (t) => t.companyId.equals(company.id!),
+          );
+    final pending = activePendingFilingCount(companyFilings);
 
     return CompanyFinancials(
       corpCode: corpCode,
