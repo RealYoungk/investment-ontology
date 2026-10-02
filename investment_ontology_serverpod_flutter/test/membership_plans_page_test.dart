@@ -29,6 +29,31 @@ void main() {
     expect(tester.widget<FilledButton>(button).onPressed, isNull);
   });
 
+  testWidgets('prebuilt checkout remains disabled until server approval', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildAppTheme(ledgerBrand),
+        home: Scaffold(
+          body: MembershipPlansPage(
+            checkoutEnabled: true,
+            loadOffer: () async => MembershipView(
+              adFree: false,
+              cancelAtPeriodEnd: false,
+              paymentAvailable: false,
+              currentPriceKrw: 4900,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final button = find.widgetWithText(FilledButton, '멤버십 출시 준비 중');
+    expect(button, findsOneWidget);
+    expect(tester.widget<FilledButton>(button).onPressed, isNull);
+  });
+
   testWidgets(
     'mobile plan selection navigates to confirmation without starting payment',
     (tester) async {

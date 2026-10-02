@@ -16,7 +16,14 @@ abstract final class BillingSandboxConfig {
     if (const {'development', 'test', 'staging'}.contains(mode)) {
       return environment['ALFINDER_BILLING_SANDBOX_ENABLED'] == 'true';
     }
+    final provider = environment['ALFINDER_BILLING_PROVIDER'];
+    final approvedChannel =
+        provider == 'toss' ||
+        (provider == 'portone' &&
+            environment['PORTONE_CONTRACT_PG'] == 'kcp_v2' &&
+            environment['PORTONE_LIVE_CHANNEL_VERIFIED'] == 'true');
     return mode == 'production' &&
+        approvedChannel &&
         environment['ALFINDER_BILLING_LIVE_ENABLED'] == 'true' &&
         environment['ALFINDER_PG_BILLING_APPROVED'] == 'true' &&
         environment['ALFINDER_BILLING_PRIVACY_READY'] == 'true' &&

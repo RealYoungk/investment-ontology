@@ -1,4 +1,4 @@
-/// Explicit launch gate. Production builds stay view-only until enabled.
+/// Build-time emergency gate. Server paymentAvailable remains the live gate.
 const membershipCheckoutEnabled = bool.fromEnvironment(
   'MEMBERSHIP_CHECKOUT_ENABLED',
   defaultValue: false,
