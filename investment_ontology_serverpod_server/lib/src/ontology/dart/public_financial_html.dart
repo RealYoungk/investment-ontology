@@ -638,8 +638,19 @@ abstract final class PublicFinancialHtml {
         statementSource.queryParameters['eleId'] == '21' &&
         periodStart == DateTime.utc(2025, 1, 1) &&
         periodEnd == DateTime.utc(2025, 12, 31);
+    final cronexScope =
+        receipt == '20260709000504' &&
+        corpCode == '01034730' &&
+        !consolidated &&
+        term == '14' &&
+        coverSource.queryParameters['dcmNo'] == '11470809' &&
+        coverSource.queryParameters['eleId'] == '3' &&
+        statementSource.queryParameters['dcmNo'] == '11470809' &&
+        statementSource.queryParameters['eleId'] == '23' &&
+        periodStart == DateTime.utc(2025, 1, 1) &&
+        periodEnd == DateTime.utc(2025, 12, 31);
     Map<String, dynamic>? cnsPeriodProof;
-    if (cnsScope && titles.isEmpty) {
+    if ((cnsScope || cronexScope) && titles.isEmpty) {
       final candidates = <Map<String, dynamic>>[];
       var supportingIndex = 0;
       for (final table in RegExp(
@@ -689,8 +700,12 @@ abstract final class PublicFinancialHtml {
             );
           }
         }
-        final startRow = uniqueRow('2025.1.1(당기초)');
-        final endRow = uniqueRow('2025.12.31(당기말)');
+        final startRow = uniqueRow(
+          cronexScope ? '2025년01월01일(당기초)' : '2025.1.1(당기초)',
+        );
+        final endRow = uniqueRow(
+          cronexScope ? '2025년12월31일(당기말)' : '2025.12.31(당기말)',
+        );
         if (startRow >= endRow) {
           throw const FormatException('CNS supporting dates reversed');
         }
@@ -711,17 +726,27 @@ abstract final class PublicFinancialHtml {
             );
           }
           final v = grid[row].last!.text.trim();
-          if (!RegExp(r'^-?\d{1,3}(?:,\d{3})*$').hasMatch(v)) {
+          if (!(cronexScope
+                  ? RegExp(r'^(?:-?\d{1,3}(?:,\d{3})*|\(\d{1,3}(?:,\d{3})*\))$')
+                  : RegExp(r'^-?\d{1,3}(?:,\d{3})*$'))
+              .hasMatch(v)) {
             throw const FormatException('CNS supporting amount invalid');
           }
-          return BigInt.parse(v.replaceAll(',', '')).toString();
+          return (v.startsWith('(')
+                  ? -BigInt.parse(
+                      v.substring(1, v.length - 1).replaceAll(',', ''),
+                    )
+                  : BigInt.parse(v.replaceAll(',', '')))
+              .toString();
         }
 
         candidates.add({
-          'mode': 'same-document-equity-change-period-corroboration',
+          'mode': cronexScope
+              ? 'exact-cronex-undated-title-equity-period-corroboration'
+              : 'same-document-equity-change-period-corroboration',
           'tableIndex': index,
           'currentTerm': term,
-          'currentHeader': '2025년도(제26기)',
+          'currentHeader': cronexScope ? '제14(당)기' : '2025년도(제26기)',
           'periodStart': '2025-01-01',
           'periodEnd': '2025-12-31',
           'startRow': startRow,
@@ -1229,7 +1254,12 @@ abstract final class PublicFinancialHtml {
                           datedPunctuationProof != null)))) ||
           (cnsPeriodProof != null &&
               !konasolScope &&
-              _compact(current.text) != '2025년도(제26기)')) {
+              (cronexScope
+                  ? (current.column != 1 ||
+                        current.colspan != 2 ||
+                        _compact(current.text) !=
+                            (kind == 'BS' ? '제14(당)기말' : '제14(당)기'))
+                  : _compact(current.text) != '2025년도(제26기)'))) {
         throw const FormatException('Annual primary statement title mismatch');
       }
       final units = RegExp(r'\(단위:([^)]*)\)').allMatches(localPrefix).toList();
