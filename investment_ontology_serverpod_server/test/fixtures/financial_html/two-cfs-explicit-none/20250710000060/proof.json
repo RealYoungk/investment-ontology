@@ -1,0 +1,83 @@
+{
+  "corpCode": "00445869",
+  "receipt": "20250710000060",
+  "shellCorpCodes": [
+    "00445869"
+  ],
+  "sources": [
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=3&offset=12898&length=4616&dtd=dart4.xsd",
+      "sha256": "3797855e0cd4f7a91a590f02b5edf268f465e05549137c2124cbf5ccb49b406a"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=21&offset=223635&length=184&dtd=dart4.xsd",
+      "sha256": "bb5361d17f427856b9e5af6adcc6e781ce2cfba4e3f004ad2db04b04958c6114"
+    },
+    {
+      "label": "overview",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=6&offset=18210&length=10349&dtd=dart4.xsd",
+      "sha256": "46c526f3ad509b2c1cb810d75337df8f07d603f39d67a386e2da850f3c22223f"
+    },
+    {
+      "label": "issuer-overview",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=5&offset=18083&length=104678&dtd=dart4.xsd",
+      "sha256": "8101e639fc4a506f892a6e93b5b38e7f92a6e1b07a52842133e61e890056e340"
+    }
+  ],
+  "nodes": {
+    "정정신고(보고)": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=1&offset=1015&length=11373&dtd=dart4.xsd",
+    "【대표이사등의확인】": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=4&offset=17618&length=461&dtd=dart4.xsd",
+    "사업보고서": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=3&offset=12898&length=4616&dtd=dart4.xsd",
+    "I.회사의개요": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=5&offset=18083&length=104678&dtd=dart4.xsd",
+    "1.회사의개요": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=6&offset=18210&length=10349&dtd=dart4.xsd",
+    "2.회사의연혁": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=7&offset=28563&length=24324&dtd=dart4.xsd",
+    "3.자본금변동사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=8&offset=52891&length=14971&dtd=dart4.xsd",
+    "4.주식의총수등": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=9&offset=67866&length=35818&dtd=dart4.xsd",
+    "5.정관에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=10&offset=103688&length=19059&dtd=dart4.xsd",
+    "II.사업의내용": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=11&offset=122765&length=94448&dtd=dart4.xsd",
+    "1.사업의개요": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=12&offset=123145&length=3081&dtd=dart4.xsd",
+    "2.주요제품및서비스": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=13&offset=126230&length=12966&dtd=dart4.xsd",
+    "3.원재료및생산설비": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=14&offset=139200&length=11003&dtd=dart4.xsd",
+    "4.매출및수주상황": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=15&offset=150207&length=27780&dtd=dart4.xsd",
+    "5.위험관리및파생거래": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=16&offset=177991&length=812&dtd=dart4.xsd",
+    "6.주요계약및연구개발활동": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=17&offset=178807&length=23670&dtd=dart4.xsd",
+    "7.기타참고사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=18&offset=202481&length=14692&dtd=dart4.xsd",
+    "III.재무에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=19&offset=217217&length=404163&dtd=dart4.xsd",
+    "1.요약재무정보": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=20&offset=217376&length=6052&dtd=dart4.xsd",
+    "2.연결재무제표": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=21&offset=223635&length=184&dtd=dart4.xsd",
+    "3.연결재무제표주석": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=22&offset=223823&length=200&dtd=dart4.xsd",
+    "4.재무제표": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=23&offset=224027&length=37570&dtd=dart4.xsd",
+    "5.재무제표주석": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=24&offset=261601&length=267580&dtd=dart4.xsd",
+    "6.배당에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=25&offset=529211&length=15991&dtd=dart4.xsd",
+    "7.증권의발행을통한자금조달에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=26&offset=545206&length=47498&dtd=dart4.xsd",
+    "8.기타재무에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=29&offset=592708&length=28658&dtd=dart4.xsd",
+    "IV.이사의경영진단및분석의견": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=30&offset=621384&length=19021&dtd=dart4.xsd",
+    "V.회계감사인의감사의견등": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=31&offset=640409&length=45646&dtd=dart4.xsd",
+    "1.외부감사에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=32&offset=640591&length=17983&dtd=dart4.xsd",
+    "2.내부통제에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=33&offset=658578&length=27463&dtd=dart4.xsd",
+    "VI.이사회등회사의기관에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=34&offset=686059&length=31289&dtd=dart4.xsd",
+    "1.이사회에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=35&offset=686260&length=10312&dtd=dart4.xsd",
+    "2.감사제도에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=36&offset=696576&length=7880&dtd=dart4.xsd",
+    "3.주주총회등에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=37&offset=704460&length=12874&dtd=dart4.xsd",
+    "VII.주주에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=38&offset=717352&length=25585&dtd=dart4.xsd",
+    "VIII.임원및직원등에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=39&offset=742941&length=42607&dtd=dart4.xsd",
+    "1.임원및직원등의현황": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=40&offset=743118&length=23137&dtd=dart4.xsd",
+    "2.임원의보수등": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=41&offset=766259&length=19275&dtd=dart4.xsd",
+    "IX.계열회사등에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=42&offset=785552&length=9538&dtd=dart4.xsd",
+    "X.대주주등과의거래내용": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=43&offset=795094&length=3639&dtd=dart4.xsd",
+    "XI.그밖에투자자보호를위하여필요한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=44&offset=798737&length=10323&dtd=dart4.xsd",
+    "1.공시내용진행및변경사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=45&offset=798939&length=241&dtd=dart4.xsd",
+    "2.우발부채등에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=46&offset=799184&length=7547&dtd=dart4.xsd",
+    "3.제재등과관련된사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=47&offset=806735&length=378&dtd=dart4.xsd",
+    "4.작성기준일이후발생한주요사항등기타사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=48&offset=807117&length=1929&dtd=dart4.xsd",
+    "XII.상세표": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=49&offset=809064&length=19460&dtd=dart4.xsd",
+    "1.연결대상종속회사현황(상세)": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=50&offset=809217&length=3401&dtd=dart4.xsd",
+    "2.계열회사현황(상세)": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=51&offset=812622&length=3588&dtd=dart4.xsd",
+    "3.타법인출자현황(상세)": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=52&offset=816214&length=12296&dtd=dart4.xsd",
+    "【전문가의확인】": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=53&offset=828528&length=493&dtd=dart4.xsd",
+    "1.전문가의확인": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=54&offset=828666&length=168&dtd=dart4.xsd",
+    "2.전문가와의이해관계": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250710000060&dcmNo=10718218&eleId=55&offset=828838&length=169&dtd=dart4.xsd"
+  }
+}
