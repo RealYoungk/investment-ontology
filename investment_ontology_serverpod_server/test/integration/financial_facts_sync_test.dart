@@ -274,6 +274,15 @@ class ExactPublicOriginalClient extends AttachmentOriginalClient {
 class SuntechHtmlClient extends AttachmentOriginalClient {
   SuntechHtmlClient() : super('20260317000808', const []);
   int numericCalls = 0;
+  final publicReceipts = <String>[];
+  @override
+  Future<({List<int> zip, Uri source})> fetchPublicAnnualXbrl(
+    String receipt,
+  ) async {
+    publicReceipts.add(receipt);
+    throw const FormatException("No exact XBRL");
+  }
+
   @override
   Future<List<Map<String, dynamic>>> fetchFinancialStatements({
     required String corpCode,
@@ -2615,12 +2624,37 @@ void main() {
       );
     });
 
-    test('Suntech actual original uses raw CE period-only proof without assigning its unit or consuming API retries', () async {
+    test('Suntech exact queue priority precedes ten generic annuals without resetting attempts or source identity', () async {
       final base = (await Company.db.find(session)).single;
       final company = await Company.db.updateRow(
         session,
         base.copyWith(corpCode: '00963000', name: '썬테크', fiscalMonth: 12),
       );
+      for (var i = 0; i < 10; i++) {
+        final other = await Company.db.insertRow(
+          session,
+          Company(
+            corpCode: '008880${i.toString().padLeft(2, '0')}',
+            name: 'ordinary$i',
+            market: Market.kospi,
+            fiscalMonth: 12,
+          ),
+        );
+        await DartFiling.db.insertRow(
+          session,
+          DartFiling(
+            rceptNo: '2026031900${i.toString().padLeft(4, '0')}',
+            corpCode: other.corpCode,
+            companyId: other.id,
+            reportName: '사업보고서 (2025.12)',
+            bsnsYear: 2025,
+            reportCode: FinancialReportCode.annual,
+            consolidatedStatus: FilingFetchStatus.noData,
+            separateStatus: FilingFetchStatus.noData,
+            discoveredAt: now,
+          ),
+        );
+      }
       final target = await DartFiling.db.insertRow(
         session,
         DartFiling(
@@ -2633,7 +2667,7 @@ void main() {
           consolidatedStatus: FilingFetchStatus.failed,
           separateStatus: FilingFetchStatus.failed,
           attempts: 3,
-          lastError: 'DartApiException(receiptPeriodMismatch)',
+          lastError: 'api-noData-annual-public:attempt=2; DartApiException(receiptPeriodMismatch)',
           discoveredAt: now,
         ),
       );
@@ -2651,11 +2685,12 @@ void main() {
         reader,
         job.id!,
         dailyBudget: 0,
-        corpCode: company.corpCode,
         clock: () => now,
         callInterval: Duration.zero,
       ).run();
       expect(reader.numericCalls, 0);
+      expect(reader.publicReceipts.first, '20260318000344');
+      expect(reader.publicReceipts.any((r) => r != '20260318000344'), isTrue);
       final reports = await FinancialReport.db.find(session);
       expect(reports, hasLength(2));
       for (final report in reports) {

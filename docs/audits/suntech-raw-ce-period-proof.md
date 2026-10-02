@@ -16,3 +16,7 @@ Direct current values:
 `financial-attachment-recovery` Source audit now retains primary `coreRowProvenance`, including the raw CE period evidence, printed unknown unit, raw whole values, and explicit false currency/multiplier/CE-value-storage flags. Source URLs and digests refer to the original annual, not a fabricated target receipt.
 
 Validation: actual two-basis fixtures and wrong-unit/zero/CE-value/prior-header/date/duplicate/corporation/receipt/source negatives: 20 pure tests pass. Single isolated normal-ingestion DB regression passes with official shell/family/cover/body fixtures, API numeric calls zero, attempts still 3, actual original Source IDs, both bases stored, and unknown CE-unit evidence retained. API/public retry budgets and scheduling are unchanged. No production writes or network/API requests were used.
+
+## Exact queue priority
+
+The later correction target 20260318000344 is in the finite verified-source priority map for corporation 00963000, annual2025.12, CFS and OFS. Actual financial Source remains original20260317000808. This changes ordering only: API attempts are not reset and public-source attempt limit remains3. Wrong corporation, original source receipt, report kind, year/month, public attempt3 and completed bases do not gain priority. A normal-ingestion fixture with ten ordinary annuals registered first confirms the exact target is attempted first and actual original financials are stored; API calls remain0 and prior API attempts remain3.
