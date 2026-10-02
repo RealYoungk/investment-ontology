@@ -14,6 +14,7 @@ abstract final class _RevenuePartialAnnual {
     required DateTime start,
     required DateTime end,
     required bool consolidated,
+    bool requireWhole = false,
   }) {
     String compact(String value) => PublicFinancialHtml._compact(value);
     String normalized(String value) => FinancialAccounts.normalizedName(value);
@@ -27,6 +28,36 @@ abstract final class _RevenuePartialAnnual {
       }
       return BigInt.parse(
         v.replaceAll(',', '').replaceAll('(', '-').replaceAll(')', ''),
+      );
+    }
+
+    String gridBody(String raw) {
+      if (!requireWhole ||
+          consolidated ||
+          !compact(PublicFinancialHtml._text(raw)).contains('지배기업소유주지분')) {
+        return raw;
+      }
+      return raw.replaceAllMapped(
+        RegExp(
+          r'<TR\b[^>]*>\s*<TD\b([^>]*)>(.*?)</TD>\s*</TR>',
+          caseSensitive: false,
+          dotAll: true,
+        ),
+        (m) {
+          final attrs = m[1]!;
+          final spans = RegExp(
+            r'colspan\s*=\s*["\x27]?(\d+)',
+            caseSensitive: false,
+          ).allMatches(attrs).toList();
+          if (spans.length != 1 ||
+              spans.single[1] != '7' ||
+              RegExp(r'rowspan\s*=', caseSensitive: false).hasMatch(attrs) ||
+              compact(PublicFinancialHtml._text(m[2]!)) !=
+                  '자본에직접반영된소유주와의거래등:') {
+            return m[0]!;
+          }
+          return '';
+        },
       );
     }
 
@@ -44,11 +75,16 @@ abstract final class _RevenuePartialAnnual {
       '영업활동으로인한현금흐름': ('cfo', 'CF'),
       '영업활동현금흐름': ('cfo', 'CF'),
       '영업활동으로부터의현금흐름': ('cfo', 'CF'),
+      '유형자산취득': ('capex', 'CF'),
+      '유형자산의취득': ('capex', 'CF'),
     };
     const revenueNames = {'매출', '매출액', '영업수익', '수익(매출액)'};
     final values = <String, BigInt>{};
     final rows = <Map<String, dynamic>>[];
     final statements = <String>{};
+    final blankHeaders = <String>{};
+    var annotatedWholeProfit = false;
+    var fullwidthGrossPrefix = false;
     Map<String, dynamic>? missing;
     final tables = RegExp(
       r'<TABLE\b[^>]*>(.*?)</TABLE>',
@@ -110,7 +146,7 @@ abstract final class _RevenuePartialAnnual {
 
     for (var tableIndex = 0; tableIndex < tables.length; tableIndex++) {
       final t = tables[tableIndex];
-      final g = _FinancialHtmlGrid.parse(t[1]!);
+      final g = _FinancialHtmlGrid.parse(gridBody(t[1]!));
       if (g.isEmpty) continue;
       final names = g.map((r) => normalized(r.first?.text ?? '')).toSet();
       final kind = names.containsAll({'자산총계', '부채총계', '자본총계'})
@@ -126,6 +162,17 @@ abstract final class _RevenuePartialAnnual {
         throw const FormatException(
           'Partial duplicate whole primary statement',
         );
+      }
+      final blank = compact(g.first.first?.text ?? '').isEmpty;
+      if (blank) {
+        if (g.first.length != 4 ||
+            g.first.any((c) => c == null || c.colspan != 1 || c.rowspan != 1) ||
+            compact(g.first[1]!.text) != '제$term기' ||
+            compact(g.first[2]!.text) != '제${int.parse(term) - 1}기' ||
+            compact(g.first[3]!.text) != '제${int.parse(term) - 2}기') {
+          throw const FormatException('Whole blank primary header unsupported');
+        }
+        blankHeaders.add(kind);
       }
       final context = caption(t.start, kind);
       final current = g.first
@@ -171,18 +218,56 @@ abstract final class _RevenuePartialAnnual {
         }
         if (grossRows.isNotEmpty) {
           final cells = currentCells(grossRows.single);
+          fullwidthGrossPrefix = RegExp(r'^[Ⅰ-ⅫIVXLCDM]+．')
+              .hasMatch(compact(grossRows.single.first!.text));
           if (cells.any(
                 (c) => compact(c.text).isNotEmpty && compact(c.text) != '-',
               ) ||
               cells.where((c) => compact(c.text) == '-').length != 1) {
-            // A numeric total must use the full-core path, never partial fallback.
-            return null;
+            final amounts = cells
+                .map((c) => money(c.text))
+                .whereType<BigInt>()
+                .toList();
+            if (amounts.length != 1) {
+              return null;
+            }
+            values['revenue'] = amounts.single * context.multiplier;
+            rows.add({
+              'rcept_no': receipt,
+              'corp_code': corp,
+              'bsns_year': '${end.year}',
+              'reprt_code': '11011',
+              'account_id': null,
+              'account_nm': grossRows.single.first!.text,
+              'account_detail': '-',
+              'sj_div': 'CIS',
+              'thstrm_nm':
+                  '${start.toIso8601String().substring(0, 10)}~${end.toIso8601String().substring(0, 10)}',
+              'thstrm_amount': values['revenue'].toString(),
+              'currency': 'KRW',
+              'html_provenance': {
+                'source': source.toString(),
+                'tableIndex': tableIndex,
+                'printedLabel': grossRows.single.first!.text,
+                'currentColumn': header.column,
+                'currentColumnSpan': header.colspan,
+                'currentHeader': header.text,
+                'printedCurrentCells': cells.map((c) => c.text).toList(),
+                'basis': consolidated ? 'CFS' : 'OFS',
+                'unit': context.unit,
+                'unitMultiplier': context.multiplier.toString(),
+                'normalizedUnit': '원',
+                'periodStart': start.toIso8601String().substring(0, 10),
+                'periodEnd': end.toIso8601String().substring(0, 10),
+              },
+            });
+          } else {
+            missing = {
+              'reason': 'printed-dash-unavailable',
+              'printedLabel': grossRows.single.first!.text,
+              'printedCurrentCells': cells.map((c) => c.text).toList(),
+            };
           }
-          missing = {
-            'reason': 'printed-dash-unavailable',
-            'printedLabel': grossRows.single.first!.text,
-            'printedCurrentCells': cells.map((c) => c.text).toList(),
-          };
         } else {
           missing = {
             'reason': 'no-recognized-single-whole-revenue-row',
@@ -195,8 +280,15 @@ abstract final class _RevenuePartialAnnual {
         }
       }
       for (final r in g.skip(1)) {
-        final role = roles[normalized(r.first?.text ?? '')];
+        final printed = r.first?.text ?? '';
+        if (RegExp(FinancialAccounts.adjustedProfitAnnotation).hasMatch(
+          compact(printed).replaceFirst(RegExp(r'^[Ⅰ-ⅫIVXLCDM0-9]+[.)．]'), ''),
+        )) {
+          annotatedWholeProfit = true;
+        }
+        final role = roles[normalized(printed)];
         if (role == null || role.$2 != kind) continue;
+        if (role.$1 == 'capex' && !values.containsKey('revenue')) continue;
         if (values.containsKey(role.$1)) {
           throw const FormatException('Partial duplicate mandatory core');
         }
@@ -249,8 +341,20 @@ abstract final class _RevenuePartialAnnual {
         });
       }
     }
-    if (missing == null ||
-        values.length != 6 ||
+    final fullRecovery = values.containsKey('revenue');
+    if (requireWhole && !fullRecovery) {
+      return null;
+    }
+    if (fullRecovery &&
+        !(blankHeaders.containsAll({'BS', 'CIS', 'CF'}) &&
+                blankHeaders.length == 3 ||
+            annotatedWholeProfit ||
+            fullwidthGrossPrefix)) {
+      return null;
+    }
+    if ((!fullRecovery && missing == null) ||
+        values.length !=
+            (fullRecovery ? (values.containsKey('capex') ? 8 : 7) : 6) ||
         !values.keys.toSet().containsAll({
           'assets',
           'liabilities',
@@ -287,10 +391,24 @@ abstract final class _RevenuePartialAnnual {
     }
 
     for (var i = 0; i < tables.length; i++) {
-      final t = tables[i], g = _FinancialHtmlGrid.parse(t[1]!);
+      final t = tables[i], g = _FinancialHtmlGrid.parse(gridBody(t[1]!));
+      final ofWhole =
+          fullRecovery &&
+          !consolidated &&
+          g.length > 2 &&
+          compact(g.first.first?.text ?? '') == '과목' &&
+          g.first.first?.rowspan == 2 &&
+          g.first.length == 7 &&
+          compact(g.first.last?.text ?? '') == '지배기업소유주지분' &&
+          g.first.last?.colspan == 6 &&
+          compact(g[1].last?.text ?? '') == '합계' &&
+          !g
+              .take(2)
+              .expand((r) => r)
+              .any((c) => compact(c?.text ?? '').contains('비지배'));
       if (g.isEmpty ||
           !{'과목', '과목(주1)'}.contains(compact(g.first.first?.text ?? '')) ||
-          compact(g.first.last?.text ?? '') != '총계') {
+          (compact(g.first.last?.text ?? '') != '총계' && !ofWhole)) {
         continue;
       }
       final context = caption(t.start, 'CE');
@@ -366,6 +484,13 @@ abstract final class _RevenuePartialAnnual {
         'unit': context.unit,
         'currentStartLabel': g[starts.single].first!.text,
         'currentEndLabel': g[ends.single].first!.text,
+        if (ofWhole)
+          'wholeOFSHeaderRows': g
+              .take(2)
+              .map((r) => r.map((c) => c?.text).toList())
+              .toList(),
+        if (ofWhole) 'classificationLiteral': '자본에 직접 반영된 소유주와의 거래 등:',
+        if (ofWhole) 'classificationSourceUnmodified': true,
       });
     }
     if (wholeProofs.length != 1) {
@@ -373,8 +498,12 @@ abstract final class _RevenuePartialAnnual {
     }
     final bodySha = sha256.convert(utf8.encode(originalHtml)).toString();
     for (final row in rows) {
-      (row['html_provenance'] as Map<String, dynamic>)['partialCoreProof'] = {
-        'rule': 'source-six-with-unavailable-whole-revenue-v1',
+      (row['html_provenance'] as Map<String, dynamic>)[fullRecovery
+          ? 'wholeCoreProof'
+          : 'partialCoreProof'] = {
+        'rule': fullRecovery
+            ? 'whole-core-independent-ce-v1'
+            : 'source-six-with-unavailable-whole-revenue-v1',
         'corpCode': corp,
         'receipt': receipt,
         'basis': consolidated ? 'CFS' : 'OFS',
@@ -385,9 +514,15 @@ abstract final class _RevenuePartialAnnual {
             .toString(),
         'periodStart': start.toIso8601String().substring(0, 10),
         'periodEnd': end.toIso8601String().substring(0, 10),
-        'missingAccount': 'revenue',
-        'revenueUnavailable': missing,
+        if (!fullRecovery) 'missingAccount': 'revenue',
+        if (!fullRecovery) 'revenueUnavailable': missing,
         'wholeCE': wholeProofs.single,
+        if (fullRecovery) 'primaryBlankHeaders': blankHeaders.toList(),
+        if (fullRecovery) 'printedProfitAnnotation': annotatedWholeProfit,
+        if (fullRecovery)
+          'uncollectedOptional': values.containsKey('capex')
+              ? <String>[]
+              : ['capex'],
       };
     }
     return rows;

@@ -174,6 +174,58 @@ abstract final class VerifiedAnnualSourceRegistry {
       absenceLiteral: null,
     ),
     AnnualSourceCacheEntry(
+      receipt: '20220315000921',
+      corpCode: '00113359',
+      companyName: '교보증권(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20220315000921-ofs-whole-ce',
+      manifestDigest:
+          '020fd38e788825d63f34c83fc33ec01775a218c8fcfeef379c4b9d076b5bffea',
+      ruleVersion: 'whole-core-independent-ce-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220315001266',
+      corpCode: '00162416',
+      companyName: '한양증권(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20220315001266-ofs-whole-ce',
+      manifestDigest:
+          '259c9d9455f6168f91daf99315f74ca89861c00ff784f0d8645a7372b8baa85f',
+      ruleVersion: 'whole-core-independent-ce-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220315001273',
+      corpCode: '00148610',
+      companyName: '한화투자증권(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20220315001273-ofs-whole-ce',
+      manifestDigest:
+          'cfa09723d50c61a8da4f92eb8bd51bd6cc4665203bdb8152d64c21d19bae79f0',
+      ruleVersion: 'whole-core-independent-ce-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230317000614',
+      corpCode: '01023822',
+      companyName: '(주)메디젠휴먼케어',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20230317000614-ofs-whole-ce',
+      manifestDigest:
+          '7167a7756def58cc1a111a0a0b5ae36894e0209ea0d9c1e10d12061d384b11c1',
+      ruleVersion: 'whole-core-independent-ce-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20210629000260',
       corpCode: '00677334',
       companyName: '(주)아하',

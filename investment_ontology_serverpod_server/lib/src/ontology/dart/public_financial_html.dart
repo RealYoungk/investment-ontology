@@ -2094,6 +2094,64 @@ abstract final class PublicFinancialHtml {
     var yearTermHeaderUsed = false;
     var datedCurrentHeaderUsed = false;
     final seenKinds = <String>{};
+    final grammarTables = RegExp(
+      r'<TABLE\b[^>]*>(.*?)</TABLE>',
+      caseSensitive: false,
+      dotAll: true,
+    ).allMatches(scope).toList();
+    var blankPrimaryHeaders = 0;
+    var printedWholeAnnotation = false;
+    for (final t in grammarTables) {
+      final first = RegExp(
+        r'<TR\b[^>]*>(.*?)</TR>',
+        caseSensitive: false,
+        dotAll: true,
+      ).firstMatch(t[1]!);
+      final cells = first == null
+          ? <RegExpMatch>[]
+          : RegExp(
+              r'<T[DH]\b[^>]*>(.*?)</T[DH]>',
+              caseSensitive: false,
+              dotAll: true,
+            ).allMatches(first[1]!).toList();
+      if (cells.length == 4 &&
+          _compact(_text(cells.first[1]!)).isEmpty &&
+          _compact(_text(cells[1][1]!)) == '제$term기') {
+        blankPrimaryHeaders++;
+      }
+      for (final c in RegExp(
+        r'<T[DH]\b[^>]*>(.*?)</T[DH]>',
+        caseSensitive: false,
+        dotAll: true,
+      ).allMatches(t[1]!)) {
+        final printed = _compact(_text(c[1]!))
+            .replaceFirst(RegExp(r'^[Ⅰ-ⅫIVXLCDM0-9]+[.)．]'), '');
+        if (RegExp(FinancialAccounts.adjustedProfitAnnotation)
+            .hasMatch(printed)) {
+          printedWholeAnnotation = true;
+        }
+      }
+    }
+    final hasWholeGrammarCandidate =
+        blankPrimaryHeaders == 3 || printedWholeAnnotation;
+    // A complete fallback must independently prove all seven values and whole CE;
+    // it does not share the six-core missing-revenue completion semantics.
+    final recoveredWhole = hasWholeGrammarCandidate
+        ? _RevenuePartialAnnual.parse(
+            html: scope,
+            originalHtml: statementHtml,
+            originalCover: coverHtml,
+            source: statementSource,
+            receipt: receipt,
+            corp: corpCode,
+            term: term,
+            start: periodStart,
+            end: periodEnd,
+            consolidated: consolidated,
+            requireWhole: true,
+          )
+        : null;
+    if (recoveredWhole != null) return recoveredWhole;
     var tableIndex = 0;
     for (final table in RegExp(
       r'<TABLE\b[^>]*>(.*?)</TABLE>',
