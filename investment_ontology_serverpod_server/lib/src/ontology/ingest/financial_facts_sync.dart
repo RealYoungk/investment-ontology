@@ -1,3 +1,5 @@
+import '../dart/verified_half_basis_absence.dart';
+import '../financial/financial_accounts.dart';
 import '../dart/bnk_six_core_profile.dart';
 
 import 'dart:math';
@@ -518,6 +520,12 @@ class FinancialFactsSync {
         job = await IngestJobs.save(
           session,
           job.copyWith(message: 'API 자료없음 보고서 공식 원문 확인 중(최대10기간)'),
+        );
+      }
+      if (job.status != IngestStatus.cancelled) {
+        processed += await _classifyVerifiedHalfBasisAbsence(
+          scopeIds,
+          companies,
         );
       }
       final halfPublic = !_hasAllowance && job.status != IngestStatus.cancelled
@@ -1050,6 +1058,62 @@ class FinancialFactsSync {
             s == FilingFetchStatus.noData,
       );
 
+  /// Queue order only for exact actual source fixtures validated by this revision.
+  /// A verified non-preparer CFS is eligible for evidence-backed noData, not
+  /// numeric storage; unsupported bases, completed bases and exhausted public
+  /// attempts never gain priority. Existing API/ledger attempt counters remain.
+  static bool verifiedDurationSourceRecoveryPriority(DartFiling filing) {
+    const fixtures = <String, ({String corp, int year, Set<String> bases})>{
+      '20250325000306': (corp: '01290132', year: 2024, bases: {'OFS'}),
+      '20251124000372': (corp: '01669794', year: 2024, bases: {'OFS'}),
+      '20250320001616': (corp: '00442631', year: 2024, bases: {'OFS', 'CFS'}),
+      '20250318000596': (corp: '01352575', year: 2024, bases: {'OFS', 'CFS'}),
+      '20260318001043': (corp: '01018802', year: 2025, bases: {'CFS'}),
+      '20260318001370': (corp: '01507722', year: 2025, bases: {'CFS'}),
+      '20260318000161': (corp: '00533809', year: 2025, bases: {'CFS'}),
+      '20260313000656': (corp: '00393618', year: 2025, bases: {'CFS'}),
+      '20260316001089': (corp: '01187458', year: 2025, bases: {'CFS'}),
+      '20260309001126': (corp: '00965062', year: 2025, bases: {'CFS'}),
+      '20251127001320': (corp: '01507722', year: 2024, bases: {'CFS'}),
+      '20251127001311': (corp: '01507722', year: 2023, bases: {'CFS'}),
+      '20250319000677': (corp: '01187458', year: 2024, bases: {'CFS'}),
+      '20250318000162': (corp: '00533809', year: 2024, bases: {'CFS'}),
+      '20250314001680': (corp: '00965062', year: 2024, bases: {'CFS'}),
+      '20250314001180': (corp: '00393618', year: 2024, bases: {'CFS'}),
+      '20240320000695': (corp: '01187458', year: 2023, bases: {'CFS'}),
+      '20240318000263': (corp: '00533809', year: 2023, bases: {'CFS'}),
+      '20240315000148': (corp: '00393618', year: 2023, bases: {'CFS'}),
+      '20240313000197': (corp: '00965062', year: 2023, bases: {'CFS'}),
+      '20230711000155': (corp: '01507722', year: 2022, bases: {'CFS'}),
+      '20230327000966': (corp: '00533809', year: 2022, bases: {'CFS'}),
+      '20230323001231': (corp: '01187458', year: 2022, bases: {'CFS'}),
+      '20230317000730': (corp: '00965062', year: 2022, bases: {'CFS'}),
+      '20230317000450': (corp: '00393618', year: 2022, bases: {'CFS'}),
+      '20220722000193': (corp: '00533809', year: 2021, bases: {'CFS'}),
+      '20220321000662': (corp: '01187458', year: 2021, bases: {'CFS'}),
+      '20220318000594': (corp: '00965062', year: 2021, bases: {'CFS'}),
+      '20220317000026': (corp: '00393618', year: 2021, bases: {'CFS'}),
+    };
+    final proof = fixtures[filing.rceptNo];
+    final name = DartReportName.parse(filing.reportName);
+    if (proof == null ||
+        filing.corpCode != proof.corp ||
+        filing.reportCode != FinancialReportCode.annual ||
+        filing.bsnsYear != proof.year ||
+        name?.kind != DartReportKind.annual ||
+        name?.periodYear != proof.year ||
+        name?.periodMonth != 12 ||
+        _annualPublicAttempts(filing) >= 3) {
+      return false;
+    }
+    bool needs(FilingFetchStatus status) =>
+        status == FilingFetchStatus.pending ||
+        status == FilingFetchStatus.failed ||
+        status == FilingFetchStatus.noData && !_isAnnualPublicRecovery(filing);
+    return proof.bases.contains('CFS') && needs(filing.consolidatedStatus) ||
+        proof.bases.contains('OFS') && needs(filing.separateStatus);
+  }
+
   Future<({int stored, int failed, int processed, int remaining, bool fresh})>
   _recoverAnnualApiNoData(
     Set<int> scopeIds,
@@ -1126,6 +1190,39 @@ class FinancialFactsSync {
       '20260331004755': {'OFS'},
     };
     bool verifiedParserPending(DartFiling f) {
+      if ({
+        '20250325000306',
+        '20251124000372',
+        '20250320001616',
+        '20250318000596',
+        '20260318001043',
+        '20260318001370',
+        '20260318000161',
+        '20260313000656',
+        '20260316001089',
+        '20260309001126',
+        '20251127001320',
+        '20251127001311',
+        '20250319000677',
+        '20250318000162',
+        '20250314001680',
+        '20250314001180',
+        '20240320000695',
+        '20240318000263',
+        '20240315000148',
+        '20240313000197',
+        '20230711000155',
+        '20230327000966',
+        '20230323001231',
+        '20230317000730',
+        '20230317000450',
+        '20220722000193',
+        '20220321000662',
+        '20220318000594',
+        '20220317000026',
+      }.contains(f.rceptNo)) {
+        return verifiedDurationSourceRecoveryPriority(f);
+      }
       if (f.rceptNo == '20250526000504') {
         return verifiedTxrRecoveryPriority(f);
       }
@@ -1277,6 +1374,276 @@ class FinancialFactsSync {
       remaining: remaining,
       fresh: fresh,
     );
+  }
+
+  Future<bool> _verifiedDuksanSeparateSource(
+    DartFiling f, {
+    Transaction? transaction,
+  }) async {
+    final reports = await FinancialReport.db.find(
+      session,
+      where: (t) =>
+          t.rceptNo.equals(f.rceptNo) & t.fsDiv.equals(FsDiv.separate),
+      transaction: transaction,
+    );
+    if (reports.length != 1) return false;
+    final r = reports.single;
+    if (r.id != 115176 ||
+        r.factCount != 7 ||
+        r.companyId != f.companyId ||
+        r.bsnsYear != 2026 ||
+        r.reportCode != FinancialReportCode.halfYear ||
+        r.reportName != '반기보고서 (2026.06)' ||
+        r.supersededById != null) {
+      return false;
+    }
+    final source = await Source.db.findById(
+      session,
+      r.sourceId,
+      transaction: transaction,
+    );
+    if (source == null ||
+        source.kind != SourceKind.dartReport ||
+        source.reference != f.rceptNo) {
+      return false;
+    }
+    final uri = Uri.tryParse(source.url ?? '');
+    if (uri == null ||
+        uri.scheme != 'https' ||
+        uri.hasPort ||
+        uri.host != 'dart.fss.or.kr' ||
+        uri.path != '/pdf/download/ifrs.do' ||
+        uri.queryParameters['rcp_no'] != f.rceptNo ||
+        uri.queryParameters['dcm_no'] != '11523776' ||
+        uri.queryParametersAll['rcp_no']?.length != 1 ||
+        uri.queryParametersAll['dcm_no']?.length != 1) {
+      return false;
+    }
+    final facts = await FinancialFact.db.find(
+      session,
+      where: (t) => t.reportId.equals(r.id!),
+      transaction: transaction,
+    );
+    if (facts.length != 7) return false;
+    if (facts.any(
+      (x) =>
+          x.sourceId != r.sourceId ||
+          x.companyId != f.companyId ||
+          x.fsDiv != FsDiv.separate ||
+          x.currency != 'KRW' ||
+          x.supersededById != null,
+    )) {
+      return false;
+    }
+    final picked = FinancialAccounts.pick(facts);
+    const expected = {
+      'assets': '62819162719',
+      'liabilities': '31242471301',
+      'equity': '31576691418',
+      'revenue': '11795577500',
+      'operatingIncome': '523580344',
+      'netIncome': '482854478',
+      'operatingCashFlow': '-4053641467',
+    };
+    for (final e in expected.entries) {
+      final matches = picked.where((x) => x.key == e.key).toList();
+      if (matches.length != 1 ||
+          matches.single.amount != BigInt.parse(e.value)) {
+        return false;
+      }
+    }
+    const cumulative = {
+      'revenue': '23769258694',
+      'operatingIncome': '750396681',
+      'netIncome': '725163143',
+    };
+    for (final e in cumulative.entries) {
+      if (picked.singleWhere((x) => x.key == e.key).cumulativeAmount !=
+          BigInt.parse(e.value)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  Future<int> _classifyVerifiedHalfBasisAbsence(
+    Set<int> scopeIds,
+    Map<String, Company> companies,
+  ) async {
+    const receipt = VerifiedHalfBasisAbsence.receipt;
+    const attemptRef =
+        'financial-public-half-basis-classification-attempt:$receipt:CFS';
+    const proofRef = 'financial-public-half-basis-not-applicable:$receipt:CFS';
+    final f = await DartFiling.db.findFirstRow(
+      session,
+      where: (t) => t.rceptNo.equals(receipt),
+    );
+    final company = companies[VerifiedHalfBasisAbsence.corpCode];
+    bool eligible(DartFiling x) =>
+        scopeIds.contains(x.id) &&
+        company != null &&
+        x.companyId == company.id &&
+        x.corpCode == VerifiedHalfBasisAbsence.corpCode &&
+        x.reportName == '반기보고서 (2026.06)' &&
+        x.reportCode == FinancialReportCode.halfYear &&
+        x.bsnsYear == 2026 &&
+        x.consolidatedStatus == FilingFetchStatus.failed &&
+        x.separateStatus == FilingFetchStatus.stored &&
+        _halfXbrlAttempts(x) == 3;
+    if (f == null ||
+        !eligible(f) ||
+        await IngestJobs.isCancelled(session, jobId)) {
+      return 0;
+    }
+    Source? attempt;
+    await session.db.transaction((tx) async {
+      await session.db.unsafeQuery(
+        'SELECT pg_advisory_xact_lock(hashtextextended(@receipt,0))',
+        parameters: QueryParameters.named({'receipt': receipt}),
+        transaction: tx,
+      );
+      if (await IngestJobs.isCancelled(session, jobId)) return;
+      final current = await DartFiling.db.findById(
+        session,
+        f.id!,
+        transaction: tx,
+      );
+      if (current == null ||
+          !eligible(current) ||
+          !await _verifiedDuksanSeparateSource(current, transaction: tx)) {
+        return;
+      }
+      if (await Source.db.findFirstRow(
+            session,
+            where: (t) => t.reference.equals(attemptRef),
+            transaction: tx,
+          ) !=
+          null) {
+        return;
+      }
+      attempt = await Source.db.insertRow(
+        session,
+        Source(
+          kind: SourceKind.dartReport,
+          reference: attemptRef,
+          url: DartClient.filingViewerUrl(receipt).toString(),
+          retrievedAt: _clock().toUtc(),
+          title: jsonEncode({
+            'action': 'one-time-source-basis-classification',
+            'receipt': receipt,
+            'corpCode': f.corpCode,
+            'status': 'started',
+            'numericAttempt': 3,
+            'preservedSeparateReport': 115176,
+          }),
+        ),
+        transaction: tx,
+      );
+    });
+    if (attempt == null) return 0;
+    try {
+      final proof = await dart.classifyVerifiedHalfBasisAbsence(
+        receipt: receipt,
+        corpCode: f.corpCode,
+        companyName: company!.name,
+        cancelled: () => IngestJobs.isCancelled(session, jobId),
+      );
+      if (await IngestJobs.isCancelled(session, jobId)) {
+        throw VerifiedHalfBasisCancelled();
+      }
+      await session.db.transaction((tx) async {
+        final current = await DartFiling.db.findById(
+          session,
+          f.id!,
+          transaction: tx,
+        );
+        if (await IngestJobs.isCancelled(session, jobId) ||
+            current == null ||
+            !eligible(current) ||
+            !await _verifiedDuksanSeparateSource(current, transaction: tx)) {
+          throw VerifiedHalfBasisCancelled();
+        }
+        if (proof.cover.receipt != receipt ||
+            proof.cover.corpCode != f.corpCode ||
+            proof.cover.periodStart != DateTime.utc(2026) ||
+            proof.cover.periodEnd != DateTime.utc(2026, 6, 30) ||
+            proof.statementSha256 != VerifiedHalfBasisAbsence.bodySha ||
+            proof.statementSource !=
+                Uri.https('dart.fss.or.kr', '/report/viewer.do', {
+                  'rcpNo': receipt,
+                  'dcmNo': '11523776',
+                  'eleId': '19',
+                  'offset': '155297',
+                  'length': '182',
+                  'dtd': 'dart4.xsd',
+                })) {
+          throw const FormatException('Invalid typed source classification');
+        }
+        await Source.db.insertRow(
+          session,
+          Source(
+            kind: SourceKind.dartReport,
+            reference: proofRef,
+            url: proof.statementSource.toString(),
+            retrievedAt: _clock().toUtc(),
+            title: jsonEncode({
+              'action': 'official-exact-half-consolidated-not-applicable',
+              'receipt': receipt,
+              'corpCode': f.corpCode,
+              'basis': 'CFS',
+              'periodStart': proof.cover.periodStart.toIso8601String(),
+              'periodEnd': proof.cover.periodEnd.toIso8601String(),
+              'shellSource': proof.cover.shellSource.toString(),
+              'coverSource': proof.cover.coverSource.toString(),
+              'coverSha256': VerifiedHalfBasisAbsence.coverSha,
+              'metadataSha256': proof.cover.digest,
+              'statementSource': proof.statementSource.toString(),
+              'sha256': proof.statementSha256,
+              'evidence': '해당사항 없음.',
+              'numericAttemptPreserved': 3,
+              'preservedSeparateReport': 115176,
+            }),
+          ),
+          transaction: tx,
+        );
+        await DartFiling.db.updateRow(
+          session,
+          current.copyWith(
+            consolidatedStatus: FilingFetchStatus.noData,
+            lastError:
+                '연결 원문 명시 비적용 확인 완료 [$proofRef]; pending-half-exact-xbrl:attempt=3',
+          ),
+          transaction: tx,
+        );
+        await Source.db.updateRow(
+          session,
+          attempt!.copyWith(
+            title: jsonEncode({
+              'action': 'one-time-source-basis-classification',
+              'receipt': receipt,
+              'status': 'resolved',
+              'proofReference': proofRef,
+              'numericAttempt': 3,
+            }),
+          ),
+          transaction: tx,
+        );
+      });
+    } catch (e) {
+      await Source.db.updateRow(
+        session,
+        attempt!.copyWith(
+          title: jsonEncode({
+            'action': 'one-time-source-basis-classification',
+            'receipt': receipt,
+            'status': e is VerifiedHalfBasisCancelled ? 'cancelled' : 'failed',
+            'errorType': e.runtimeType.toString(),
+            'numericAttempt': 3,
+          }),
+        ),
+      );
+    }
+    return 1;
   }
 
   static const _halfXbrlMarker = 'pending-half-exact-xbrl';

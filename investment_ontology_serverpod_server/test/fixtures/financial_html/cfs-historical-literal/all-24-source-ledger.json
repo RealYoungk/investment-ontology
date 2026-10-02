@@ -1,0 +1,1541 @@
+{
+  "readScope": "Every exact24 shell/cover/CFS independently inspected, no numeric statement inference",
+  "rows": [
+    {
+      "id": 20971,
+      "name": "주식회사 켈스",
+      "market": "konex",
+      "stockCode": "402420",
+      "corpCode": "01507722",
+      "rceptNo": "20260318001370",
+      "reportName": "사업보고서 (2025.12)",
+      "actual_period": "2025.12",
+      "bsnsYear": 2025,
+      "reportCode": "annual",
+      "consolidatedStatus": "failed",
+      "separateStatus": "stored",
+      "attempts": 1,
+      "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+      "consolidated_period_stored": false,
+      "separate_period_stored": true,
+      "public_attempts": 1,
+      "coverageClass": "one-source-basis-stored",
+      "errorGroup": "Annual current statement title period mismatch",
+      "publicAttemptClass": "below-three",
+      "reviewedBasis": "CFS",
+      "readProofPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/financial-incomplete-20261002-083015/cfs-six-literal-review/20260318001370/proof.json",
+      "sources": [
+        {
+          "label": "shell",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001370",
+          "sha256": "94eff01913d858001087ce977352d0e1245503bd36474390993e5864fc08a467"
+        },
+        {
+          "label": "cover",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260318001370&dcmNo=11142209&eleId=1&offset=964&length=4534&dtd=dart4.xsd",
+          "sha256": "b328441cfd646dffdf2db625e766f793410b3dc4e7a800b761e3ffa448d044a5"
+        },
+        {
+          "label": "cfs",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260318001370&dcmNo=11142209&eleId=19&offset=297816&length=263&dtd=dart4.xsd",
+          "sha256": "248fc132c8817770c0ab0460f6aa0db314ee0f8d440a9a2f9cf2d2f43cffe950"
+        }
+      ],
+      "ownCorpIds": [
+        "01507722"
+      ],
+      "coverDeclaredPeriods": [
+        [
+          "2025-01-01",
+          "2025-12-31"
+        ]
+      ],
+      "coverAnnualType": true,
+      "printedCoverName": "주식회사켈스",
+      "legalNameMatchesCurrentMaster": true,
+      "periodMatchesExpected": true,
+      "proofErrors": [],
+      "wholeRequestedBodyText": "2. 연결재무제표 당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+      "evidenceQuote": "당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+      "tablePresent": false,
+      "scriptStylePresent": false,
+      "digitsOutsideHeading": false,
+      "sourceMetadataVerified": true,
+      "ownReceiptURLsVerified": true,
+      "coverAndRequestedStatementSameDcm": true,
+      "classification": "pure-absence-supported-literal"
+    },
+    {
+      "id": 20617,
+      "name": "주식회사 바스칸바이오제약",
+      "market": "konex",
+      "stockCode": "354390",
+      "corpCode": "00533809",
+      "rceptNo": "20260318000161",
+      "reportName": "사업보고서 (2025.12)",
+      "actual_period": "2025.12",
+      "bsnsYear": 2025,
+      "reportCode": "annual",
+      "consolidatedStatus": "failed",
+      "separateStatus": "stored",
+      "attempts": 1,
+      "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+      "consolidated_period_stored": false,
+      "separate_period_stored": true,
+      "public_attempts": 1,
+      "coverageClass": "one-source-basis-stored",
+      "errorGroup": "Annual current statement title period mismatch",
+      "publicAttemptClass": "below-three",
+      "reviewedBasis": "CFS",
+      "readProofPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/financial-incomplete-20261002-083015/cfs-six-literal-review/20260318000161/proof.json",
+      "sources": [
+        {
+          "label": "shell",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318000161",
+          "sha256": "c13cb3ce8baa4fbdd414a340ecf1dcab65c7622971f800de2976df2740529250"
+        },
+        {
+          "label": "cover",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260318000161&dcmNo=11134807&eleId=1&offset=970&length=4522&dtd=dart4.xsd",
+          "sha256": "9393ae66ba028f1ae9d1eb6697a53fb5ad2dfd4ca3d4ac2bfa7aa6dae33e4036"
+        },
+        {
+          "label": "cfs",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260318000161&dcmNo=11134807&eleId=19&offset=277467&length=203&dtd=dart4.xsd",
+          "sha256": "54054a572a75f2bb8a432abf112568b4f3538671a0a88b5a756d6430efac861f"
+        }
+      ],
+      "ownCorpIds": [
+        "00533809"
+      ],
+      "coverDeclaredPeriods": [
+        [
+          "2025-01-01",
+          "2025-12-31"
+        ]
+      ],
+      "coverAnnualType": true,
+      "printedCoverName": "(주)바스칸바이오제약",
+      "legalNameMatchesCurrentMaster": true,
+      "periodMatchesExpected": true,
+      "proofErrors": [],
+      "wholeRequestedBodyText": "2. 연결재무제표 당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+      "evidenceQuote": "당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+      "tablePresent": false,
+      "scriptStylePresent": false,
+      "digitsOutsideHeading": false,
+      "sourceMetadataVerified": true,
+      "ownReceiptURLsVerified": true,
+      "coverAndRequestedStatementSameDcm": true,
+      "classification": "pure-absence-supported-literal"
+    },
+    {
+      "id": 20408,
+      "name": "(주)에스알바이오텍",
+      "market": "konex",
+      "stockCode": "270210",
+      "corpCode": "01187458",
+      "rceptNo": "20260316001089",
+      "reportName": "사업보고서 (2025.12)",
+      "actual_period": "2025.12",
+      "bsnsYear": 2025,
+      "reportCode": "annual",
+      "consolidatedStatus": "failed",
+      "separateStatus": "stored",
+      "attempts": 1,
+      "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+      "consolidated_period_stored": false,
+      "separate_period_stored": true,
+      "public_attempts": 1,
+      "coverageClass": "one-source-basis-stored",
+      "errorGroup": "Annual current statement title period mismatch",
+      "publicAttemptClass": "below-three",
+      "reviewedBasis": "CFS",
+      "readProofPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/financial-incomplete-20261002-083015/cfs-six-literal-review/20260316001089/proof.json",
+      "sources": [
+        {
+          "label": "shell",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260316001089",
+          "sha256": "184bd9a8dd5f0128144405e73edc5c21b0750036c0f7986cb2dbd286c8c96255"
+        },
+        {
+          "label": "cover",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260316001089&dcmNo=11127083&eleId=1&offset=960&length=4520&dtd=dart4.xsd",
+          "sha256": "342c2b3a90f9915118955b0c1e013153363ba14e3114e5ef3eec79de7446dc4d"
+        },
+        {
+          "label": "cfs",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260316001089&dcmNo=11127083&eleId=19&offset=169355&length=274&dtd=dart4.xsd",
+          "sha256": "08a065206cb23bf52c542aaf1e9c874e3135d00d2598ed7bff5fa760fa7fe7fc"
+        }
+      ],
+      "ownCorpIds": [
+        "01187458"
+      ],
+      "coverDeclaredPeriods": [
+        [
+          "2025-01-01",
+          "2025-12-31"
+        ]
+      ],
+      "coverAnnualType": true,
+      "printedCoverName": "주식회사에스알바이오텍",
+      "legalNameMatchesCurrentMaster": true,
+      "periodMatchesExpected": true,
+      "proofErrors": [],
+      "wholeRequestedBodyText": "2. 연결재무제표 공시서류작성기준일 현재 해당사항이 없습니다.",
+      "evidenceQuote": "공시서류작성기준일 현재 해당사항이 없습니다.",
+      "tablePresent": false,
+      "scriptStylePresent": false,
+      "digitsOutsideHeading": false,
+      "sourceMetadataVerified": true,
+      "ownReceiptURLsVerified": true,
+      "coverAndRequestedStatementSameDcm": true,
+      "classification": "pure-absence-supported-literal"
+    },
+    {
+      "id": 20280,
+      "name": "(주)제노텍",
+      "market": "konex",
+      "stockCode": "066830",
+      "corpCode": "00393618",
+      "rceptNo": "20260313000656",
+      "reportName": "사업보고서 (2025.12)",
+      "actual_period": "2025.12",
+      "bsnsYear": 2025,
+      "reportCode": "annual",
+      "consolidatedStatus": "failed",
+      "separateStatus": "stored",
+      "attempts": 1,
+      "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+      "consolidated_period_stored": false,
+      "separate_period_stored": true,
+      "public_attempts": 1,
+      "coverageClass": "one-source-basis-stored",
+      "errorGroup": "Annual current statement title period mismatch",
+      "publicAttemptClass": "below-three",
+      "reviewedBasis": "CFS",
+      "readProofPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/financial-incomplete-20261002-083015/cfs-six-literal-review/20260313000656/proof.json",
+      "sources": [
+        {
+          "label": "shell",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260313000656",
+          "sha256": "0dd7efc5658ead7cb5658ec08e48fb5bb4f96c575d0fc6830255523bf9ebf04d"
+        },
+        {
+          "label": "cover",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260313000656&dcmNo=11119752&eleId=1&offset=965&length=4512&dtd=dart4.xsd",
+          "sha256": "fe8866b77df45ccdae195cb11ddba9ea06156cbc207e76a0a7f17a5c268e00e1"
+        },
+        {
+          "label": "cfs",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260313000656&dcmNo=11119752&eleId=19&offset=163878&length=212&dtd=dart4.xsd",
+          "sha256": "18feb67d13c0133dc57f6e61f53b6def7359f9298cf13930e806f531cc971e7e"
+        }
+      ],
+      "ownCorpIds": [
+        "00393618"
+      ],
+      "coverDeclaredPeriods": [
+        [
+          "2025-01-01",
+          "2025-12-31"
+        ]
+      ],
+      "coverAnnualType": true,
+      "printedCoverName": "주식회사제노텍",
+      "legalNameMatchesCurrentMaster": true,
+      "periodMatchesExpected": true,
+      "proofErrors": [],
+      "wholeRequestedBodyText": "2. 연결재무제표 당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+      "evidenceQuote": "당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+      "tablePresent": false,
+      "scriptStylePresent": false,
+      "digitsOutsideHeading": false,
+      "sourceMetadataVerified": true,
+      "ownReceiptURLsVerified": true,
+      "coverAndRequestedStatementSameDcm": true,
+      "classification": "pure-absence-supported-literal"
+    },
+    {
+      "id": 20077,
+      "name": "(주)코셋",
+      "market": "konex",
+      "stockCode": "189350",
+      "corpCode": "00965062",
+      "rceptNo": "20260309001126",
+      "reportName": "사업보고서 (2025.12)",
+      "actual_period": "2025.12",
+      "bsnsYear": 2025,
+      "reportCode": "annual",
+      "consolidatedStatus": "failed",
+      "separateStatus": "stored",
+      "attempts": 1,
+      "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+      "consolidated_period_stored": false,
+      "separate_period_stored": true,
+      "public_attempts": 1,
+      "coverageClass": "one-source-basis-stored",
+      "errorGroup": "Annual current statement title period mismatch",
+      "publicAttemptClass": "below-three",
+      "reviewedBasis": "CFS",
+      "readProofPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/financial-incomplete-20261002-083015/cfs-six-literal-review/20260309001126/proof.json",
+      "sources": [
+        {
+          "label": "shell",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260309001126",
+          "sha256": "54a900d2517a91dce6079935c00e7664be66e9bce7d022cc7188f80a6df25671"
+        },
+        {
+          "label": "cover",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260309001126&dcmNo=11099116&eleId=1&offset=964&length=4535&dtd=dart4.xsd",
+          "sha256": "45d9a8b6d19fac08c8ccd7cd821b05001751a6e1a5656d871f69f36716c09142"
+        },
+        {
+          "label": "cfs",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260309001126&dcmNo=11099116&eleId=19&offset=186454&length=213&dtd=dart4.xsd",
+          "sha256": "be0f4d5f96a666b6406e4e21f853b39670c094f298c890d41f3ab91cf45e74b4"
+        }
+      ],
+      "ownCorpIds": [
+        "00965062"
+      ],
+      "coverDeclaredPeriods": [
+        [
+          "2025-01-01",
+          "2025-12-31"
+        ]
+      ],
+      "coverAnnualType": true,
+      "printedCoverName": "주식회사코셋",
+      "legalNameMatchesCurrentMaster": true,
+      "periodMatchesExpected": true,
+      "proofErrors": [],
+      "wholeRequestedBodyText": "2. 연결재무제표 해당사항이 없습니다.",
+      "evidenceQuote": "해당사항이 없습니다.",
+      "tablePresent": false,
+      "scriptStylePresent": false,
+      "digitsOutsideHeading": false,
+      "sourceMetadataVerified": true,
+      "ownReceiptURLsVerified": true,
+      "coverAndRequestedStatementSameDcm": true,
+      "classification": "pure-absence-supported-literal"
+    },
+    {
+      "id": 19894,
+      "name": "주식회사 켈스",
+      "market": "konex",
+      "stockCode": "402420",
+      "corpCode": "01507722",
+      "rceptNo": "20251127001320",
+      "reportName": "[기재정정]사업보고서 (2024.12)",
+      "actual_period": "2024.12",
+      "bsnsYear": 2024,
+      "reportCode": "annual",
+      "consolidatedStatus": "failed",
+      "separateStatus": "stored",
+      "attempts": 1,
+      "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+      "consolidated_period_stored": false,
+      "separate_period_stored": true,
+      "public_attempts": 1,
+      "coverageClass": "one-source-basis-stored",
+      "errorGroup": "Annual current statement title period mismatch",
+      "publicAttemptClass": "below-three",
+      "reviewedBasis": "CFS",
+      "readProofPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/financial-incomplete-20261002-083015/cfs-next-five-readonly/20251127001320/proof.json",
+      "sources": [
+        {
+          "label": "shell",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20251127001320",
+          "sha256": "8f181a24b94c649f585ba7d4bf9a985fe2965c985b78949bab514c1a83c4e3b3"
+        },
+        {
+          "label": "cover",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20251127001320&dcmNo=10900436&eleId=3&offset=15178&length=4538&dtd=dart4.xsd",
+          "sha256": "b377926d02b79199c93430fe61b6d7f52e5bc2fab1824579221b0b2d9e977211"
+        },
+        {
+          "label": "cfs",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20251127001320&dcmNo=10900436&eleId=21&offset=311503&length=263&dtd=dart4.xsd",
+          "sha256": "248fc132c8817770c0ab0460f6aa0db314ee0f8d440a9a2f9cf2d2f43cffe950"
+        }
+      ],
+      "ownCorpIds": [
+        "01507722"
+      ],
+      "coverDeclaredPeriods": [
+        [
+          "2024-01-01",
+          "2024-12-31"
+        ]
+      ],
+      "coverAnnualType": true,
+      "printedCoverName": "주식회사켈스",
+      "legalNameMatchesCurrentMaster": true,
+      "periodMatchesExpected": true,
+      "proofErrors": [],
+      "wholeRequestedBodyText": "2. 연결재무제표 당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+      "evidenceQuote": "당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+      "tablePresent": false,
+      "scriptStylePresent": false,
+      "digitsOutsideHeading": false,
+      "sourceMetadataVerified": true,
+      "ownReceiptURLsVerified": true,
+      "coverAndRequestedStatementSameDcm": true,
+      "classification": "pure-absence-supported-literal"
+    },
+    {
+      "id": 19893,
+      "name": "주식회사 켈스",
+      "market": "konex",
+      "stockCode": "402420",
+      "corpCode": "01507722",
+      "rceptNo": "20251127001311",
+      "reportName": "[기재정정]사업보고서 (2023.12)",
+      "actual_period": "2023.12",
+      "bsnsYear": 2023,
+      "reportCode": "annual",
+      "consolidatedStatus": "failed",
+      "separateStatus": "stored",
+      "attempts": 1,
+      "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+      "consolidated_period_stored": false,
+      "separate_period_stored": true,
+      "public_attempts": 1,
+      "coverageClass": "one-source-basis-stored",
+      "errorGroup": "Annual current statement title period mismatch",
+      "publicAttemptClass": "below-three",
+      "reviewedBasis": "CFS",
+      "readProofPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/financial-incomplete-20261002-083015/cfs-next-five-readonly/20251127001311/proof.json",
+      "sources": [
+        {
+          "label": "shell",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20251127001311",
+          "sha256": "0996a8d81bf8e3030e4b6b6a3cb65328d6d91f5b8fbd0184579cc05c644b882e"
+        },
+        {
+          "label": "cover",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20251127001311&dcmNo=10900400&eleId=3&offset=4672&length=4496&dtd=dart4.xsd",
+          "sha256": "2f472d93141b0a58b6a6623a2457bde704e83bfaf1c3433b0030899ecb347cc7"
+        },
+        {
+          "label": "cfs",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20251127001311&dcmNo=10900400&eleId=21&offset=290381&length=263&dtd=dart4.xsd",
+          "sha256": "248fc132c8817770c0ab0460f6aa0db314ee0f8d440a9a2f9cf2d2f43cffe950"
+        }
+      ],
+      "ownCorpIds": [
+        "01507722"
+      ],
+      "coverDeclaredPeriods": [
+        [
+          "2023-01-01",
+          "2023-12-31"
+        ]
+      ],
+      "coverAnnualType": true,
+      "printedCoverName": "주식회사켈스",
+      "legalNameMatchesCurrentMaster": true,
+      "periodMatchesExpected": true,
+      "proofErrors": [],
+      "wholeRequestedBodyText": "2. 연결재무제표 당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+      "evidenceQuote": "당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+      "tablePresent": false,
+      "scriptStylePresent": false,
+      "digitsOutsideHeading": false,
+      "sourceMetadataVerified": true,
+      "ownReceiptURLsVerified": true,
+      "coverAndRequestedStatementSameDcm": true,
+      "classification": "pure-absence-supported-literal"
+    },
+    {
+      "id": 10783,
+      "name": "(주)에스알바이오텍",
+      "market": "konex",
+      "stockCode": "270210",
+      "corpCode": "01187458",
+      "rceptNo": "20250319000677",
+      "reportName": "사업보고서 (2024.12)",
+      "actual_period": "2024.12",
+      "bsnsYear": 2024,
+      "reportCode": "annual",
+      "consolidatedStatus": "failed",
+      "separateStatus": "stored",
+      "attempts": 1,
+      "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+      "consolidated_period_stored": false,
+      "separate_period_stored": true,
+      "public_attempts": 1,
+      "coverageClass": "one-source-basis-stored",
+      "errorGroup": "Annual current statement title period mismatch",
+      "publicAttemptClass": "below-three",
+      "reviewedBasis": "CFS",
+      "readProofPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/financial-incomplete-20261002-083015/cfs-next-five-readonly/20250319000677/proof.json",
+      "sources": [
+        {
+          "label": "shell",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250319000677",
+          "sha256": "d000d508cc5cc3fb2ad203139cabe82318b07d553cb5fab07a33c731d61dae54"
+        },
+        {
+          "label": "cover",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250319000677&dcmNo=10428665&eleId=1&offset=960&length=4522&dtd=dart4.xsd",
+          "sha256": "8b33d9d95ca1096710af0a6989815dbcf6882c45810b2517a24f2e51cc860444"
+        },
+        {
+          "label": "cfs",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250319000677&dcmNo=10428665&eleId=19&offset=180215&length=314&dtd=dart4.xsd",
+          "sha256": "4cbc54d5b9342f6b91c5a048081777840a73e9f5b0738c109d61fd5a6c031be3"
+        }
+      ],
+      "ownCorpIds": [
+        "01187458"
+      ],
+      "coverDeclaredPeriods": [
+        [
+          "2024-01-01",
+          "2024-12-31"
+        ]
+      ],
+      "coverAnnualType": true,
+      "printedCoverName": "주식회사에스알바이오텍",
+      "legalNameMatchesCurrentMaster": true,
+      "periodMatchesExpected": true,
+      "proofErrors": [],
+      "wholeRequestedBodyText": "2. 연결재무제표 공시서류작성기준일 현재 해당사항이 없습니다.",
+      "evidenceQuote": "공시서류작성기준일 현재 해당사항이 없습니다.",
+      "tablePresent": false,
+      "scriptStylePresent": false,
+      "digitsOutsideHeading": false,
+      "sourceMetadataVerified": true,
+      "ownReceiptURLsVerified": true,
+      "coverAndRequestedStatementSameDcm": true,
+      "classification": "pure-absence-supported-literal"
+    },
+    {
+      "id": 10301,
+      "name": "주식회사 바스칸바이오제약",
+      "market": "konex",
+      "stockCode": "354390",
+      "corpCode": "00533809",
+      "rceptNo": "20250318000162",
+      "reportName": "사업보고서 (2024.12)",
+      "actual_period": "2024.12",
+      "bsnsYear": 2024,
+      "reportCode": "annual",
+      "consolidatedStatus": "failed",
+      "separateStatus": "stored",
+      "attempts": 1,
+      "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+      "consolidated_period_stored": false,
+      "separate_period_stored": true,
+      "public_attempts": 1,
+      "coverageClass": "one-source-basis-stored",
+      "errorGroup": "Annual current statement title period mismatch",
+      "publicAttemptClass": "below-three",
+      "reviewedBasis": "CFS",
+      "readProofPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/financial-incomplete-20261002-083015/cfs-history-remaining-readonly/20250318000162/proof.json",
+      "sources": [
+        {
+          "label": "shell",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250318000162",
+          "sha256": "6c59059eebc0ffb662149c2e7523d802bcaf5c7b7c83461e2f4dfc83ac025b11"
+        },
+        {
+          "label": "cover",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250318000162&dcmNo=10417579&eleId=1&offset=959&length=4522&dtd=dart4.xsd",
+          "sha256": "48a756511055e97835f127f9699111240008ca5a3250446600dc9da2c62bdca2"
+        },
+        {
+          "label": "cfs",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250318000162&dcmNo=10417579&eleId=19&offset=260309&length=203&dtd=dart4.xsd",
+          "sha256": "54054a572a75f2bb8a432abf112568b4f3538671a0a88b5a756d6430efac861f"
+        }
+      ],
+      "ownCorpIds": [
+        "00533809"
+      ],
+      "coverDeclaredPeriods": [
+        [
+          "2024-01-01",
+          "2024-12-31"
+        ]
+      ],
+      "coverAnnualType": true,
+      "printedCoverName": "(주)바스칸바이오제약",
+      "legalNameMatchesCurrentMaster": true,
+      "periodMatchesExpected": true,
+      "proofErrors": [],
+      "wholeRequestedBodyText": "2. 연결재무제표 당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+      "evidenceQuote": "당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+      "tablePresent": false,
+      "scriptStylePresent": false,
+      "digitsOutsideHeading": false,
+      "sourceMetadataVerified": true,
+      "ownReceiptURLsVerified": true,
+      "coverAndRequestedStatementSameDcm": true,
+      "classification": "pure-absence-supported-literal"
+    },
+    {
+      "id": 10095,
+      "name": "(주)코셋",
+      "market": "konex",
+      "stockCode": "189350",
+      "corpCode": "00965062",
+      "rceptNo": "20250314001680",
+      "reportName": "사업보고서 (2024.12)",
+      "actual_period": "2024.12",
+      "bsnsYear": 2024,
+      "reportCode": "annual",
+      "consolidatedStatus": "failed",
+      "separateStatus": "stored",
+      "attempts": 1,
+      "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+      "consolidated_period_stored": false,
+      "separate_period_stored": true,
+      "public_attempts": 1,
+      "coverageClass": "one-source-basis-stored",
+      "errorGroup": "Annual current statement title period mismatch",
+      "publicAttemptClass": "below-three",
+      "reviewedBasis": "CFS",
+      "readProofPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/financial-incomplete-20261002-083015/cfs-history-remaining-readonly/20250314001680/proof.json",
+      "sources": [
+        {
+          "label": "shell",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250314001680",
+          "sha256": "f36e36349c3e97363f77389ffb5ed55eda2141c226fd60a5528ac9a33794f934"
+        },
+        {
+          "label": "cover",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250314001680&dcmNo=10411221&eleId=1&offset=953&length=4542&dtd=dart4.xsd",
+          "sha256": "6085404e7790bb69f188cf8827a9756af757c64f84abd8b20ec6da3019531fcc"
+        },
+        {
+          "label": "cfs",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250314001680&dcmNo=10411221&eleId=19&offset=186364&length=213&dtd=dart4.xsd",
+          "sha256": "be0f4d5f96a666b6406e4e21f853b39670c094f298c890d41f3ab91cf45e74b4"
+        }
+      ],
+      "ownCorpIds": [
+        "00965062"
+      ],
+      "coverDeclaredPeriods": [
+        [
+          "2024-01-01",
+          "2024-12-31"
+        ]
+      ],
+      "coverAnnualType": true,
+      "printedCoverName": "주식회사코셋",
+      "legalNameMatchesCurrentMaster": true,
+      "periodMatchesExpected": true,
+      "proofErrors": [],
+      "wholeRequestedBodyText": "2. 연결재무제표 해당사항이 없습니다.",
+      "evidenceQuote": "해당사항이 없습니다.",
+      "tablePresent": false,
+      "scriptStylePresent": false,
+      "digitsOutsideHeading": false,
+      "sourceMetadataVerified": true,
+      "ownReceiptURLsVerified": true,
+      "coverAndRequestedStatementSameDcm": true,
+      "classification": "pure-absence-supported-literal"
+    },
+    {
+      "id": 10041,
+      "name": "(주)제노텍",
+      "market": "konex",
+      "stockCode": "066830",
+      "corpCode": "00393618",
+      "rceptNo": "20250314001180",
+      "reportName": "사업보고서 (2024.12)",
+      "actual_period": "2024.12",
+      "bsnsYear": 2024,
+      "reportCode": "annual",
+      "consolidatedStatus": "failed",
+      "separateStatus": "stored",
+      "attempts": 1,
+      "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+      "consolidated_period_stored": false,
+      "separate_period_stored": true,
+      "public_attempts": 1,
+      "coverageClass": "one-source-basis-stored",
+      "errorGroup": "Annual current statement title period mismatch",
+      "publicAttemptClass": "below-three",
+      "reviewedBasis": "CFS",
+      "readProofPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/financial-incomplete-20261002-083015/cfs-history-remaining-readonly/20250314001180/proof.json",
+      "sources": [
+        {
+          "label": "shell",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250314001180",
+          "sha256": "dec650d90263c295f87572a516440466143dcfee432d9f1263fd3702f924fa7c"
+        },
+        {
+          "label": "cover",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250314001180&dcmNo=10408824&eleId=1&offset=954&length=4508&dtd=dart4.xsd",
+          "sha256": "b6050ec619226fbb68cb2527281fac331afa7cebd6083c43aab21f585205aa16"
+        },
+        {
+          "label": "cfs",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250314001180&dcmNo=10408824&eleId=19&offset=167322&length=244&dtd=dart4.xsd",
+          "sha256": "9a276504f1737c5c9c3169087ef4036d190c39e065125d928edc9bc253c9e625"
+        }
+      ],
+      "ownCorpIds": [
+        "00393618"
+      ],
+      "coverDeclaredPeriods": [
+        [
+          "2024-01-01",
+          "2024-12-31"
+        ]
+      ],
+      "coverAnnualType": true,
+      "printedCoverName": "주식회사제노텍",
+      "legalNameMatchesCurrentMaster": true,
+      "periodMatchesExpected": true,
+      "proofErrors": [],
+      "wholeRequestedBodyText": "2. 연결재무제표 당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+      "evidenceQuote": "당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+      "tablePresent": false,
+      "scriptStylePresent": false,
+      "digitsOutsideHeading": false,
+      "sourceMetadataVerified": true,
+      "ownReceiptURLsVerified": true,
+      "coverAndRequestedStatementSameDcm": true,
+      "classification": "pure-absence-supported-literal"
+    },
+    {
+      "id": 997,
+      "name": "(주)에스알바이오텍",
+      "market": "konex",
+      "stockCode": "270210",
+      "corpCode": "01187458",
+      "rceptNo": "20240320000695",
+      "reportName": "사업보고서 (2023.12)",
+      "actual_period": "2023.12",
+      "bsnsYear": 2023,
+      "reportCode": "annual",
+      "consolidatedStatus": "failed",
+      "separateStatus": "stored",
+      "attempts": 1,
+      "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+      "consolidated_period_stored": false,
+      "separate_period_stored": true,
+      "public_attempts": 1,
+      "coverageClass": "one-source-basis-stored",
+      "errorGroup": "Annual current statement title period mismatch",
+      "publicAttemptClass": "below-three",
+      "reviewedBasis": "CFS",
+      "readProofPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/financial-incomplete-20261002-083015/cfs-history-remaining-readonly/20240320000695/proof.json",
+      "sources": [
+        {
+          "label": "shell",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240320000695",
+          "sha256": "6b59e929a66cbf27c0cdeaf2c4cfd1d5056ab650e17fba26df8d65d1d8ee2027"
+        },
+        {
+          "label": "cover",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240320000695&dcmNo=9735710&eleId=1&offset=960&length=4049&dtd=dart4.xsd",
+          "sha256": "4be741d7b848f59b9c6f460ff262e2b17559c008a24813931f9c89d3a2d544a7"
+        },
+        {
+          "label": "cfs",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240320000695&dcmNo=9735710&eleId=19&offset=167682&length=158&dtd=dart4.xsd",
+          "sha256": "7eeca1eed67569e59ddce7a2b01759388303fa3fa2283c8bac21a17841829520"
+        }
+      ],
+      "ownCorpIds": [
+        "01187458"
+      ],
+      "coverDeclaredPeriods": [
+        [
+          "2023-01-01",
+          "2023-12-31"
+        ]
+      ],
+      "coverAnnualType": true,
+      "printedCoverName": "주식회사에스알바이오텍",
+      "legalNameMatchesCurrentMaster": true,
+      "periodMatchesExpected": true,
+      "proofErrors": [],
+      "wholeRequestedBodyText": "2. 연결재무제표 - 해당사항 없음.",
+      "evidenceQuote": "- 해당사항 없음.",
+      "tablePresent": false,
+      "scriptStylePresent": false,
+      "digitsOutsideHeading": false,
+      "sourceMetadataVerified": true,
+      "ownReceiptURLsVerified": true,
+      "coverAndRequestedStatementSameDcm": true,
+      "classification": "pure-absence-unlisted-exact-literal"
+    },
+    {
+      "id": 534,
+      "name": "주식회사 바스칸바이오제약",
+      "market": "konex",
+      "stockCode": "354390",
+      "corpCode": "00533809",
+      "rceptNo": "20240318000263",
+      "reportName": "사업보고서 (2023.12)",
+      "actual_period": "2023.12",
+      "bsnsYear": 2023,
+      "reportCode": "annual",
+      "consolidatedStatus": "failed",
+      "separateStatus": "stored",
+      "attempts": 1,
+      "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+      "consolidated_period_stored": false,
+      "separate_period_stored": true,
+      "public_attempts": 1,
+      "coverageClass": "one-source-basis-stored",
+      "errorGroup": "Annual current statement title period mismatch",
+      "publicAttemptClass": "below-three",
+      "reviewedBasis": "CFS",
+      "readProofPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/financial-incomplete-20261002-083015/cfs-history-remaining-readonly/20240318000263/proof.json",
+      "sources": [
+        {
+          "label": "shell",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240318000263",
+          "sha256": "678dd51cebb62bfbb58d64d64b08dd59bd68f9b5fd7227422b6a19278e0c15f0"
+        },
+        {
+          "label": "cover",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240318000263&dcmNo=9724162&eleId=1&offset=959&length=4049&dtd=dart4.xsd",
+          "sha256": "6da1ba06e176084abd8b0b3b0d36b9c538f5deffddd326087513401a455c4fe3"
+        },
+        {
+          "label": "cfs",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240318000263&dcmNo=9724162&eleId=19&offset=275313&length=160&dtd=dart4.xsd",
+          "sha256": "54054a572a75f2bb8a432abf112568b4f3538671a0a88b5a756d6430efac861f"
+        }
+      ],
+      "ownCorpIds": [
+        "00533809"
+      ],
+      "coverDeclaredPeriods": [
+        [
+          "2023-01-01",
+          "2023-12-31"
+        ]
+      ],
+      "coverAnnualType": true,
+      "printedCoverName": "(주)바스칸바이오제약",
+      "legalNameMatchesCurrentMaster": true,
+      "periodMatchesExpected": true,
+      "proofErrors": [],
+      "wholeRequestedBodyText": "2. 연결재무제표 당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+      "evidenceQuote": "당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+      "tablePresent": false,
+      "scriptStylePresent": false,
+      "digitsOutsideHeading": false,
+      "sourceMetadataVerified": true,
+      "ownReceiptURLsVerified": true,
+      "coverAndRequestedStatementSameDcm": true,
+      "classification": "pure-absence-supported-literal"
+    },
+    {
+      "id": 394,
+      "name": "(주)제노텍",
+      "market": "konex",
+      "stockCode": "066830",
+      "corpCode": "00393618",
+      "rceptNo": "20240315000148",
+      "reportName": "사업보고서 (2023.12)",
+      "actual_period": "2023.12",
+      "bsnsYear": 2023,
+      "reportCode": "annual",
+      "consolidatedStatus": "failed",
+      "separateStatus": "stored",
+      "attempts": 1,
+      "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+      "consolidated_period_stored": false,
+      "separate_period_stored": true,
+      "public_attempts": 1,
+      "coverageClass": "one-source-basis-stored",
+      "errorGroup": "Annual current statement title period mismatch",
+      "publicAttemptClass": "below-three",
+      "reviewedBasis": "CFS",
+      "readProofPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/financial-incomplete-20261002-083015/cfs-history-remaining-readonly/20240315000148/proof.json",
+      "sources": [
+        {
+          "label": "shell",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240315000148",
+          "sha256": "1a08e52c89beabab5849dba47d23889a9d483e68362dd23929127012a937a907"
+        },
+        {
+          "label": "cover",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240315000148&dcmNo=9719501&eleId=1&offset=954&length=4037&dtd=dart4.xsd",
+          "sha256": "072979c3eac95aa7f8f8099286be4f154be656a000f41bcebb2bb323e400e18c"
+        },
+        {
+          "label": "cfs",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240315000148&dcmNo=9719501&eleId=19&offset=172088&length=160&dtd=dart4.xsd",
+          "sha256": "54054a572a75f2bb8a432abf112568b4f3538671a0a88b5a756d6430efac861f"
+        }
+      ],
+      "ownCorpIds": [
+        "00393618"
+      ],
+      "coverDeclaredPeriods": [
+        [
+          "2023-01-01",
+          "2023-12-31"
+        ]
+      ],
+      "coverAnnualType": true,
+      "printedCoverName": "주식회사제노텍",
+      "legalNameMatchesCurrentMaster": true,
+      "periodMatchesExpected": true,
+      "proofErrors": [],
+      "wholeRequestedBodyText": "2. 연결재무제표 당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+      "evidenceQuote": "당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+      "tablePresent": false,
+      "scriptStylePresent": false,
+      "digitsOutsideHeading": false,
+      "sourceMetadataVerified": true,
+      "ownReceiptURLsVerified": true,
+      "coverAndRequestedStatementSameDcm": true,
+      "classification": "pure-absence-supported-literal"
+    },
+    {
+      "id": 138,
+      "name": "(주)코셋",
+      "market": "konex",
+      "stockCode": "189350",
+      "corpCode": "00965062",
+      "rceptNo": "20240313000197",
+      "reportName": "사업보고서 (2023.12)",
+      "actual_period": "2023.12",
+      "bsnsYear": 2023,
+      "reportCode": "annual",
+      "consolidatedStatus": "failed",
+      "separateStatus": "stored",
+      "attempts": 1,
+      "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+      "consolidated_period_stored": false,
+      "separate_period_stored": true,
+      "public_attempts": 1,
+      "coverageClass": "one-source-basis-stored",
+      "errorGroup": "Annual current statement title period mismatch",
+      "publicAttemptClass": "below-three",
+      "reviewedBasis": "CFS",
+      "readProofPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/financial-incomplete-20261002-083015/cfs-history-remaining-readonly/20240313000197/proof.json",
+      "sources": [
+        {
+          "label": "shell",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240313000197",
+          "sha256": "a6b3980040258cb1fd721515312287db86935e0b7a386f33cc3152cf0907b6d2"
+        },
+        {
+          "label": "cover",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240313000197&dcmNo=9705152&eleId=1&offset=953&length=4066&dtd=dart4.xsd",
+          "sha256": "2ff8cd41dff86f1aaca9107cb2afa105548a63fda2c324a9a685fce77979eff8"
+        },
+        {
+          "label": "cfs",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240313000197&dcmNo=9705152&eleId=19&offset=176348&length=169&dtd=dart4.xsd",
+          "sha256": "be0f4d5f96a666b6406e4e21f853b39670c094f298c890d41f3ab91cf45e74b4"
+        }
+      ],
+      "ownCorpIds": [
+        "00965062"
+      ],
+      "coverDeclaredPeriods": [
+        [
+          "2023-01-01",
+          "2023-12-31"
+        ]
+      ],
+      "coverAnnualType": true,
+      "printedCoverName": "주식회사코셋",
+      "legalNameMatchesCurrentMaster": true,
+      "periodMatchesExpected": true,
+      "proofErrors": [],
+      "wholeRequestedBodyText": "2. 연결재무제표 해당사항이 없습니다.",
+      "evidenceQuote": "해당사항이 없습니다.",
+      "tablePresent": false,
+      "scriptStylePresent": false,
+      "digitsOutsideHeading": false,
+      "sourceMetadataVerified": true,
+      "ownReceiptURLsVerified": true,
+      "coverAndRequestedStatementSameDcm": true,
+      "classification": "pure-absence-supported-literal"
+    },
+    {
+      "id": 41326,
+      "name": "주식회사 켈스",
+      "market": "konex",
+      "stockCode": "402420",
+      "corpCode": "01507722",
+      "rceptNo": "20230711000155",
+      "reportName": "[기재정정]사업보고서 (2022.12)",
+      "actual_period": "2022.12",
+      "bsnsYear": 2022,
+      "reportCode": "annual",
+      "consolidatedStatus": "failed",
+      "separateStatus": "stored",
+      "attempts": 1,
+      "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+      "consolidated_period_stored": false,
+      "separate_period_stored": true,
+      "public_attempts": 1,
+      "coverageClass": "one-source-basis-stored",
+      "errorGroup": "Annual current statement title period mismatch",
+      "publicAttemptClass": "below-three",
+      "reviewedBasis": "CFS",
+      "readProofPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/financial-incomplete-20261002-083015/cfs-history-remaining-readonly/20230711000155/proof.json",
+      "sources": [
+        {
+          "label": "shell",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230711000155",
+          "sha256": "de77644c56876e44b563a3be6771cacea454858ac1f775200299c82ebd24cefc"
+        },
+        {
+          "label": "cover",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230711000155&dcmNo=9345266&eleId=3&offset=3377&length=4053&dtd=dart3.xsd",
+          "sha256": "b5de3fa89eaa6b63b8d428d4b6da5347fa6d27f31006d825e2b88363ca828ad0"
+        },
+        {
+          "label": "cfs",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230711000155&dcmNo=9345266&eleId=21&offset=256271&length=205&dtd=dart3.xsd",
+          "sha256": "248fc132c8817770c0ab0460f6aa0db314ee0f8d440a9a2f9cf2d2f43cffe950"
+        }
+      ],
+      "ownCorpIds": [
+        "01507722"
+      ],
+      "coverDeclaredPeriods": [
+        [
+          "2022-01-01",
+          "2022-12-31"
+        ]
+      ],
+      "coverAnnualType": true,
+      "printedCoverName": "주식회사켈스",
+      "legalNameMatchesCurrentMaster": true,
+      "periodMatchesExpected": true,
+      "proofErrors": [],
+      "wholeRequestedBodyText": "2. 연결재무제표 당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+      "evidenceQuote": "당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+      "tablePresent": false,
+      "scriptStylePresent": false,
+      "digitsOutsideHeading": false,
+      "sourceMetadataVerified": true,
+      "ownReceiptURLsVerified": true,
+      "coverAndRequestedStatementSameDcm": true,
+      "classification": "pure-absence-supported-literal"
+    },
+    {
+      "id": 38904,
+      "name": "주식회사 바스칸바이오제약",
+      "market": "konex",
+      "stockCode": "354390",
+      "corpCode": "00533809",
+      "rceptNo": "20230327000966",
+      "reportName": "사업보고서 (2022.12)",
+      "actual_period": "2022.12",
+      "bsnsYear": 2022,
+      "reportCode": "annual",
+      "consolidatedStatus": "failed",
+      "separateStatus": "stored",
+      "attempts": 1,
+      "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+      "consolidated_period_stored": false,
+      "separate_period_stored": true,
+      "public_attempts": 1,
+      "coverageClass": "one-source-basis-stored",
+      "errorGroup": "Annual current statement title period mismatch",
+      "publicAttemptClass": "below-three",
+      "reviewedBasis": "CFS",
+      "readProofPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/financial-incomplete-20261002-083015/cfs-history-remaining-readonly/20230327000966/proof.json",
+      "sources": [
+        {
+          "label": "shell",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230327000966",
+          "sha256": "dc992888cdfcb317dd32b1a548fd2beeb59a51890f605320d0e47cf3a004b6ce"
+        },
+        {
+          "label": "cover",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230327000966&dcmNo=9106689&eleId=1&offset=803&length=4035&dtd=dart3.xsd",
+          "sha256": "d15359e1f896254945063068bc8c868a13735ba7eee3367ebd6ed1bb09e8806a"
+        },
+        {
+          "label": "cfs",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230327000966&dcmNo=9106689&eleId=19&offset=278923&length=148&dtd=dart3.xsd",
+          "sha256": "54054a572a75f2bb8a432abf112568b4f3538671a0a88b5a756d6430efac861f"
+        }
+      ],
+      "ownCorpIds": [
+        "00533809"
+      ],
+      "coverDeclaredPeriods": [
+        [
+          "2022-01-01",
+          "2022-12-31"
+        ]
+      ],
+      "coverAnnualType": true,
+      "printedCoverName": "(주)바스칸바이오제약",
+      "legalNameMatchesCurrentMaster": true,
+      "periodMatchesExpected": true,
+      "proofErrors": [],
+      "wholeRequestedBodyText": "2. 연결재무제표 당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+      "evidenceQuote": "당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+      "tablePresent": false,
+      "scriptStylePresent": false,
+      "digitsOutsideHeading": false,
+      "sourceMetadataVerified": true,
+      "ownReceiptURLsVerified": true,
+      "coverAndRequestedStatementSameDcm": true,
+      "classification": "pure-absence-supported-literal"
+    },
+    {
+      "id": 38767,
+      "name": "(주)에스알바이오텍",
+      "market": "konex",
+      "stockCode": "270210",
+      "corpCode": "01187458",
+      "rceptNo": "20230323001231",
+      "reportName": "사업보고서 (2022.12)",
+      "actual_period": "2022.12",
+      "bsnsYear": 2022,
+      "reportCode": "annual",
+      "consolidatedStatus": "failed",
+      "separateStatus": "stored",
+      "attempts": 1,
+      "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+      "consolidated_period_stored": false,
+      "separate_period_stored": true,
+      "public_attempts": 1,
+      "coverageClass": "one-source-basis-stored",
+      "errorGroup": "Annual current statement title period mismatch",
+      "publicAttemptClass": "below-three",
+      "reviewedBasis": "CFS",
+      "readProofPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/financial-incomplete-20261002-083015/cfs-history-remaining-readonly/20230323001231/proof.json",
+      "sources": [
+        {
+          "label": "shell",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230323001231",
+          "sha256": "8c4f858f5ecfa82e20a9bad54bc10976a8e83f8fe4bbdbd2cfe3229e9bb89315"
+        },
+        {
+          "label": "cover",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230323001231&dcmNo=9098077&eleId=1&offset=815&length=4039&dtd=dart3.xsd",
+          "sha256": "06ec8ac110b8d39090704843ff2e906617f4bfe57200a4debdabb4834f08857c"
+        },
+        {
+          "label": "cfs",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230323001231&dcmNo=9098077&eleId=19&offset=152759&length=146&dtd=dart3.xsd",
+          "sha256": "7eeca1eed67569e59ddce7a2b01759388303fa3fa2283c8bac21a17841829520"
+        }
+      ],
+      "ownCorpIds": [
+        "01187458"
+      ],
+      "coverDeclaredPeriods": [
+        [
+          "2022-01-01",
+          "2022-12-31"
+        ]
+      ],
+      "coverAnnualType": true,
+      "printedCoverName": "주식회사에스알바이오텍",
+      "legalNameMatchesCurrentMaster": true,
+      "periodMatchesExpected": true,
+      "proofErrors": [],
+      "wholeRequestedBodyText": "2. 연결재무제표 - 해당사항 없음.",
+      "evidenceQuote": "- 해당사항 없음.",
+      "tablePresent": false,
+      "scriptStylePresent": false,
+      "digitsOutsideHeading": false,
+      "sourceMetadataVerified": true,
+      "ownReceiptURLsVerified": true,
+      "coverAndRequestedStatementSameDcm": true,
+      "classification": "pure-absence-unlisted-exact-literal"
+    },
+    {
+      "id": 37604,
+      "name": "(주)코셋",
+      "market": "konex",
+      "stockCode": "189350",
+      "corpCode": "00965062",
+      "rceptNo": "20230317000730",
+      "reportName": "사업보고서 (2022.12)",
+      "actual_period": "2022.12",
+      "bsnsYear": 2022,
+      "reportCode": "annual",
+      "consolidatedStatus": "failed",
+      "separateStatus": "stored",
+      "attempts": 1,
+      "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+      "consolidated_period_stored": false,
+      "separate_period_stored": true,
+      "public_attempts": 1,
+      "coverageClass": "one-source-basis-stored",
+      "errorGroup": "Annual current statement title period mismatch",
+      "publicAttemptClass": "below-three",
+      "reviewedBasis": "CFS",
+      "readProofPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/financial-incomplete-20261002-083015/cfs-history-remaining-readonly/20230317000730/proof.json",
+      "sources": [
+        {
+          "label": "shell",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230317000730",
+          "sha256": "d45cccee0b54a3232e7c69862ee00533ba75beb4b0d992f0ac1f6f87db9b266f"
+        },
+        {
+          "label": "cover",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230317000730&dcmNo=9070709&eleId=1&offset=808&length=4055&dtd=dart3.xsd",
+          "sha256": "9d85ccf9b6aa349dcedb55ec229df93f54ae77cca1c7608fcd383ecd3558a9b5"
+        },
+        {
+          "label": "cfs",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230317000730&dcmNo=9070709&eleId=19&offset=138942&length=157&dtd=dart3.xsd",
+          "sha256": "be0f4d5f96a666b6406e4e21f853b39670c094f298c890d41f3ab91cf45e74b4"
+        }
+      ],
+      "ownCorpIds": [
+        "00965062"
+      ],
+      "coverDeclaredPeriods": [
+        [
+          "2022-01-01",
+          "2022-12-31"
+        ]
+      ],
+      "coverAnnualType": true,
+      "printedCoverName": "주식회사코셋",
+      "legalNameMatchesCurrentMaster": true,
+      "periodMatchesExpected": true,
+      "proofErrors": [],
+      "wholeRequestedBodyText": "2. 연결재무제표 해당사항이 없습니다.",
+      "evidenceQuote": "해당사항이 없습니다.",
+      "tablePresent": false,
+      "scriptStylePresent": false,
+      "digitsOutsideHeading": false,
+      "sourceMetadataVerified": true,
+      "ownReceiptURLsVerified": true,
+      "coverAndRequestedStatementSameDcm": true,
+      "classification": "pure-absence-supported-literal"
+    },
+    {
+      "id": 37567,
+      "name": "(주)제노텍",
+      "market": "konex",
+      "stockCode": "066830",
+      "corpCode": "00393618",
+      "rceptNo": "20230317000450",
+      "reportName": "사업보고서 (2022.12)",
+      "actual_period": "2022.12",
+      "bsnsYear": 2022,
+      "reportCode": "annual",
+      "consolidatedStatus": "failed",
+      "separateStatus": "stored",
+      "attempts": 1,
+      "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+      "consolidated_period_stored": false,
+      "separate_period_stored": true,
+      "public_attempts": 1,
+      "coverageClass": "one-source-basis-stored",
+      "errorGroup": "Annual current statement title period mismatch",
+      "publicAttemptClass": "below-three",
+      "reviewedBasis": "CFS",
+      "readProofPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/financial-incomplete-20261002-083015/cfs-history-remaining-readonly/20230317000450/proof.json",
+      "sources": [
+        {
+          "label": "shell",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230317000450",
+          "sha256": "4db52f9cc5c477288c8aa3e668a0ac90e9f7ef4bf65edce191c40dfa49743e1c"
+        },
+        {
+          "label": "cover",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230317000450&dcmNo=9069489&eleId=1&offset=798&length=4024&dtd=dart3.xsd",
+          "sha256": "5f1d930bcef19917d4326cd2758f8c587f3f3cc4f45b07a3554dcee4631f405e"
+        },
+        {
+          "label": "cfs",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230317000450&dcmNo=9069489&eleId=19&offset=180782&length=150&dtd=dart3.xsd",
+          "sha256": "eb81dadaca797d68de183e6d6e475546284757e8fd426827b3562bb2f35431bc"
+        }
+      ],
+      "ownCorpIds": [
+        "00393618"
+      ],
+      "coverDeclaredPeriods": [
+        [
+          "2022-01-01",
+          "2022-12-31"
+        ]
+      ],
+      "coverAnnualType": true,
+      "printedCoverName": "주식회사제노텍",
+      "legalNameMatchesCurrentMaster": true,
+      "periodMatchesExpected": true,
+      "proofErrors": [],
+      "wholeRequestedBodyText": "2. 연결재무제표 당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+      "evidenceQuote": "당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+      "tablePresent": false,
+      "scriptStylePresent": false,
+      "digitsOutsideHeading": false,
+      "sourceMetadataVerified": true,
+      "ownReceiptURLsVerified": true,
+      "coverAndRequestedStatementSameDcm": true,
+      "classification": "pure-absence-supported-literal"
+    },
+    {
+      "id": 32165,
+      "name": "주식회사 바스칸바이오제약",
+      "market": "konex",
+      "stockCode": "354390",
+      "corpCode": "00533809",
+      "rceptNo": "20220722000193",
+      "reportName": "사업보고서 (2021.12)",
+      "actual_period": "2021.12",
+      "bsnsYear": 2021,
+      "reportCode": "annual",
+      "consolidatedStatus": "failed",
+      "separateStatus": "stored",
+      "attempts": 1,
+      "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+      "consolidated_period_stored": false,
+      "separate_period_stored": true,
+      "public_attempts": 1,
+      "coverageClass": "one-source-basis-stored",
+      "errorGroup": "Annual current statement title period mismatch",
+      "publicAttemptClass": "below-three",
+      "reviewedBasis": "CFS",
+      "readProofPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/financial-incomplete-20261002-083015/cfs-history-remaining-readonly/20220722000193/proof.json",
+      "sources": [
+        {
+          "label": "shell",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220722000193",
+          "sha256": "23e8946d24137b7627e033d7adc9f45f15f7d474eb828f1ae9c8c24bfe27c441"
+        },
+        {
+          "label": "cover",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220722000193&dcmNo=8743402&eleId=1&offset=800&length=4037&dtd=dart3.xsd",
+          "sha256": "195e92b1f3a83c91bf40c7c121d49ffab6704559db29598d9fdfcd1336740128"
+        },
+        {
+          "label": "cfs",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220722000193&dcmNo=8743402&eleId=19&offset=246205&length=156&dtd=dart3.xsd",
+          "sha256": "817d2ada31a5464f9558e89a0672e131ccf2acfdc66bebcdb86dbb054a5988d5"
+        }
+      ],
+      "ownCorpIds": [
+        "00533809"
+      ],
+      "coverDeclaredPeriods": [
+        [
+          "2021-01-01",
+          "2021-12-31"
+        ]
+      ],
+      "coverAnnualType": true,
+      "printedCoverName": "주식회사바스칸바이오제약",
+      "legalNameMatchesCurrentMaster": true,
+      "periodMatchesExpected": true,
+      "proofErrors": [],
+      "wholeRequestedBodyText": "2. 연결재무제표 당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+      "evidenceQuote": "당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+      "tablePresent": false,
+      "scriptStylePresent": false,
+      "digitsOutsideHeading": false,
+      "sourceMetadataVerified": true,
+      "ownReceiptURLsVerified": true,
+      "coverAndRequestedStatementSameDcm": true,
+      "classification": "pure-absence-supported-literal"
+    },
+    {
+      "id": 28996,
+      "name": "(주)에스알바이오텍",
+      "market": "konex",
+      "stockCode": "270210",
+      "corpCode": "01187458",
+      "rceptNo": "20220321000662",
+      "reportName": "사업보고서 (2021.12)",
+      "actual_period": "2021.12",
+      "bsnsYear": 2021,
+      "reportCode": "annual",
+      "consolidatedStatus": "failed",
+      "separateStatus": "stored",
+      "attempts": 1,
+      "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+      "consolidated_period_stored": false,
+      "separate_period_stored": true,
+      "public_attempts": 1,
+      "coverageClass": "one-source-basis-stored",
+      "errorGroup": "Annual current statement title period mismatch",
+      "publicAttemptClass": "below-three",
+      "reviewedBasis": "CFS",
+      "readProofPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/financial-incomplete-20261002-083015/cfs-history-remaining-readonly/20220321000662/proof.json",
+      "sources": [
+        {
+          "label": "shell",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220321000662",
+          "sha256": "6649e8c9924bad09ccdc5fe84cda8d88e631bc27fcbf4687892cbec9daf84b5e"
+        },
+        {
+          "label": "cover",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220321000662&dcmNo=8482339&eleId=1&offset=810&length=4085&dtd=dart3.xsd",
+          "sha256": "6dea7a9832ba58160d51514c71dd056e57f6e906c0b139ab92e77ce1ff3a2c45"
+        },
+        {
+          "label": "cfs",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220321000662&dcmNo=8482339&eleId=19&offset=149942&length=166&dtd=dart3.xsd",
+          "sha256": "af064f79c5461aaf048bdabc7e654e049b92dade84ad975af071e04039189fd0"
+        }
+      ],
+      "ownCorpIds": [
+        "01187458"
+      ],
+      "coverDeclaredPeriods": [
+        [
+          "2021-01-01",
+          "2021-12-31"
+        ]
+      ],
+      "coverAnnualType": true,
+      "printedCoverName": "주식회사에스알바이오텍",
+      "legalNameMatchesCurrentMaster": true,
+      "periodMatchesExpected": true,
+      "proofErrors": [],
+      "wholeRequestedBodyText": "2. 연결재무제표 - 해당사항 없음.",
+      "evidenceQuote": "- 해당사항 없음.",
+      "tablePresent": false,
+      "scriptStylePresent": false,
+      "digitsOutsideHeading": false,
+      "sourceMetadataVerified": true,
+      "ownReceiptURLsVerified": true,
+      "coverAndRequestedStatementSameDcm": true,
+      "classification": "pure-absence-unlisted-exact-literal"
+    },
+    {
+      "id": 28796,
+      "name": "(주)코셋",
+      "market": "konex",
+      "stockCode": "189350",
+      "corpCode": "00965062",
+      "rceptNo": "20220318000594",
+      "reportName": "사업보고서 (2021.12)",
+      "actual_period": "2021.12",
+      "bsnsYear": 2021,
+      "reportCode": "annual",
+      "consolidatedStatus": "failed",
+      "separateStatus": "stored",
+      "attempts": 1,
+      "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+      "consolidated_period_stored": false,
+      "separate_period_stored": true,
+      "public_attempts": 1,
+      "coverageClass": "one-source-basis-stored",
+      "errorGroup": "Annual current statement title period mismatch",
+      "publicAttemptClass": "below-three",
+      "reviewedBasis": "CFS",
+      "readProofPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/financial-incomplete-20261002-083015/cfs-history-remaining-readonly/20220318000594/proof.json",
+      "sources": [
+        {
+          "label": "shell",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220318000594",
+          "sha256": "193b48ba70d5285d44484d3aca478db4b12cb33e786ac6542df5c591bff91877"
+        },
+        {
+          "label": "cover",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220318000594&dcmNo=8476854&eleId=1&offset=794&length=4063&dtd=dart3.xsd",
+          "sha256": "d162ef53954dab3f7284ea686cc8d539bace52da765c9fbef2ba4b6d3b907696"
+        },
+        {
+          "label": "cfs",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220318000594&dcmNo=8476854&eleId=19&offset=145834&length=175&dtd=dart3.xsd",
+          "sha256": "00f73f622c530111157041db02ff75612475a026abf38da486af051e0876e2d6"
+        }
+      ],
+      "ownCorpIds": [
+        "00965062"
+      ],
+      "coverDeclaredPeriods": [
+        [
+          "2021-01-01",
+          "2021-12-31"
+        ]
+      ],
+      "coverAnnualType": true,
+      "printedCoverName": "주식회사코셋",
+      "legalNameMatchesCurrentMaster": true,
+      "periodMatchesExpected": true,
+      "proofErrors": [],
+      "wholeRequestedBodyText": "2. 연결재무제표 해당사항이 없습니다.",
+      "evidenceQuote": "해당사항이 없습니다.",
+      "tablePresent": false,
+      "scriptStylePresent": false,
+      "digitsOutsideHeading": false,
+      "sourceMetadataVerified": true,
+      "ownReceiptURLsVerified": true,
+      "coverAndRequestedStatementSameDcm": true,
+      "classification": "pure-absence-supported-literal"
+    },
+    {
+      "id": 28482,
+      "name": "(주)제노텍",
+      "market": "konex",
+      "stockCode": "066830",
+      "corpCode": "00393618",
+      "rceptNo": "20220317000026",
+      "reportName": "사업보고서 (2021.12)",
+      "actual_period": "2021.12",
+      "bsnsYear": 2021,
+      "reportCode": "annual",
+      "consolidatedStatus": "failed",
+      "separateStatus": "stored",
+      "attempts": 1,
+      "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+      "consolidated_period_stored": false,
+      "separate_period_stored": true,
+      "public_attempts": 1,
+      "coverageClass": "one-source-basis-stored",
+      "errorGroup": "Annual current statement title period mismatch",
+      "publicAttemptClass": "below-three",
+      "reviewedBasis": "CFS",
+      "readProofPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/financial-incomplete-20261002-083015/cfs-history-remaining-readonly/20220317000026/proof.json",
+      "sources": [
+        {
+          "label": "shell",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220317000026",
+          "sha256": "1e48c3549cd04653441ec0d9136d88cbd0236ff8d6f25f2c0288f59079b759b1"
+        },
+        {
+          "label": "cover",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000026&dcmNo=8468315&eleId=1&offset=806&length=4030&dtd=dart3.xsd",
+          "sha256": "1c2ae6749d0e7f363534caaaaa6e9a0dd20df8fa1a976113c023d4373ef4b028"
+        },
+        {
+          "label": "cfs",
+          "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000026&dcmNo=8468315&eleId=19&offset=208416&length=156&dtd=dart3.xsd",
+          "sha256": "91d1afb895348794e93727080a883af1f7f2e4412cbb3f7a66d381e460d44809"
+        }
+      ],
+      "ownCorpIds": [
+        "00393618"
+      ],
+      "coverDeclaredPeriods": [
+        [
+          "2021-01-01",
+          "2021-12-31"
+        ]
+      ],
+      "coverAnnualType": true,
+      "printedCoverName": "주식회사제노텍",
+      "legalNameMatchesCurrentMaster": true,
+      "periodMatchesExpected": true,
+      "proofErrors": [],
+      "wholeRequestedBodyText": "2. 연결재무제표 당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+      "evidenceQuote": "당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+      "tablePresent": false,
+      "scriptStylePresent": false,
+      "digitsOutsideHeading": false,
+      "sourceMetadataVerified": true,
+      "ownReceiptURLsVerified": true,
+      "coverAndRequestedStatementSameDcm": true,
+      "classification": "pure-absence-supported-literal"
+    }
+  ]
+}

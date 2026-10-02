@@ -1,0 +1,45 @@
+{
+  "id": 997,
+  "name": "(주)에스알바이오텍",
+  "market": "konex",
+  "stockCode": "270210",
+  "corpCode": "01187458",
+  "rceptNo": "20240320000695",
+  "reportName": "사업보고서 (2023.12)",
+  "actual_period": "2023.12",
+  "bsnsYear": 2023,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 1,
+  "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 1,
+  "coverageClass": "one-source-basis-stored",
+  "errorGroup": "Annual current statement title period mismatch",
+  "publicAttemptClass": "below-three",
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240320000695",
+      "sha256": "6b59e929a66cbf27c0cdeaf2c4cfd1d5056ab650e17fba26df8d65d1d8ee2027"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240320000695&dcmNo=9735710&eleId=1&offset=960&length=4049&dtd=dart4.xsd",
+      "sha256": "4be741d7b848f59b9c6f460ff262e2b17559c008a24813931f9c89d3a2d544a7"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240320000695&dcmNo=9735710&eleId=19&offset=167682&length=158&dtd=dart4.xsd",
+      "sha256": "7eeca1eed67569e59ddce7a2b01759388303fa3fa2283c8bac21a17841829520"
+    }
+  ],
+  "ownCorpIds": [
+    "01187458"
+  ],
+  "coverStart": "사 업 보 고 서 (제 17 기) 사업연도 2023년 01월 01일 부터 2023년 12월 31일 까지 금융위원회 한국거래소 귀중 2024년 03월 20일 제출대상법인 유형 : 주권상장법인 면제사유발생 : 해당사항 없음 회 사 명 : 주식회사 에스알바이오텍 대 표 이 사 : 이소형 본 점 소 재 지 : 경기도 성남시 중원구 둔촌대로 484, B101호 (전 화) 031-726-3134 (홈페이지) http://srbiotek.co.kr 작 성 책 임 자 : (직 책) 대리 (성 명) 유진 (전 화) 070-4923-8415",
+  "cfsStart": "2. 연결재무제표 - 해당사항 없음."
+}

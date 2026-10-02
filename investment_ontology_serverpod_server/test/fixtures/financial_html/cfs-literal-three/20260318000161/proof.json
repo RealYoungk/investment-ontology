@@ -1,0 +1,45 @@
+{
+  "id": 20617,
+  "name": "주식회사 바스칸바이오제약",
+  "market": "konex",
+  "stockCode": "354390",
+  "corpCode": "00533809",
+  "rceptNo": "20260318000161",
+  "reportName": "사업보고서 (2025.12)",
+  "actual_period": "2025.12",
+  "bsnsYear": 2025,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 1,
+  "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 1,
+  "coverageClass": "one-source-basis-stored",
+  "errorGroup": "Annual current statement title period mismatch",
+  "publicAttemptClass": "below-three",
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318000161",
+      "sha256": "c13cb3ce8baa4fbdd414a340ecf1dcab65c7622971f800de2976df2740529250"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260318000161&dcmNo=11134807&eleId=1&offset=970&length=4522&dtd=dart4.xsd",
+      "sha256": "9393ae66ba028f1ae9d1eb6697a53fb5ad2dfd4ca3d4ac2bfa7aa6dae33e4036"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260318000161&dcmNo=11134807&eleId=19&offset=277467&length=203&dtd=dart4.xsd",
+      "sha256": "54054a572a75f2bb8a432abf112568b4f3538671a0a88b5a756d6430efac861f"
+    }
+  ],
+  "ownCorpIds": [
+    "00533809"
+  ],
+  "coverStart": "사 업 보 고 서 (제 40 기) 사업연도 2025년 01월 01일 부터 2025년 12월 31일 까지 금융위원회 한국거래소 귀중 2026년 03월 18일 제출대상법인 유형 : 주권상장법인 면제사유발생 : 해당사항 없음 회 사 명 : (주)바스칸바이오제약 대 표 이 사 : 이법표 본 점 소 재 지 : 경기도 안성시 원곡면 원당로 354(17557) (전 화) 031-692-2900 (홈페이지) http://www.baskhanbio.com 작 성 책 임 자 : (직 책) 상무 (성 명) 장재영 (전 화) 070-8873-0600",
+  "cfsStart": "2. 연결재무제표 당사는 사업보고서 제출일 현재 해당사항이 없습니다."
+}

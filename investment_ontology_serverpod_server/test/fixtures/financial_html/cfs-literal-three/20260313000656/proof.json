@@ -1,0 +1,45 @@
+{
+  "id": 20280,
+  "name": "(주)제노텍",
+  "market": "konex",
+  "stockCode": "066830",
+  "corpCode": "00393618",
+  "rceptNo": "20260313000656",
+  "reportName": "사업보고서 (2025.12)",
+  "actual_period": "2025.12",
+  "bsnsYear": 2025,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 1,
+  "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 1,
+  "coverageClass": "one-source-basis-stored",
+  "errorGroup": "Annual current statement title period mismatch",
+  "publicAttemptClass": "below-three",
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260313000656",
+      "sha256": "0dd7efc5658ead7cb5658ec08e48fb5bb4f96c575d0fc6830255523bf9ebf04d"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260313000656&dcmNo=11119752&eleId=1&offset=965&length=4512&dtd=dart4.xsd",
+      "sha256": "fe8866b77df45ccdae195cb11ddba9ea06156cbc207e76a0a7f17a5c268e00e1"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260313000656&dcmNo=11119752&eleId=19&offset=163878&length=212&dtd=dart4.xsd",
+      "sha256": "18feb67d13c0133dc57f6e61f53b6def7359f9298cf13930e806f531cc971e7e"
+    }
+  ],
+  "ownCorpIds": [
+    "00393618"
+  ],
+  "coverStart": "사 업 보 고 서 (제 29 기) 사업연도 2025년 01월 01일 부터 2025년 12월 31일 까지 금융위원회 한국거래소 귀중 2026 년 3 월 13일 제출대상법인 유형 : 주권상장법인 면제사유발생 : 해당사항 없음 회 사 명 : 주식회사 제노텍 대 표 이 사 : 김 재 종 본 점 소 재 지 : 대전광역시 유성구 가정북로 26-69 (장동) (전 화)042-862-8404 (홈페이지) http://www.genotech.co.kr 작 성 책 임 자 : (직 책) 전무 (성 명) 김 일 수 (전 화)042-862-8404",
+  "cfsStart": "2. 연결재무제표 당사는 사업보고서 제출일 현재 해당사항이 없습니다."
+}

@@ -1,0 +1,26 @@
+{
+  "receipt": "20250325000306",
+  "corpCode": "01290132",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250325000306",
+      "sha256": "28165bf4b3af68e4807c12abd6c3d2c4b29b85657cfdbb3131ba207c74271a5e"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250325000306&dcmNo=10456067&eleId=3&offset=4658&length=4591&dtd=dart4.xsd",
+      "sha256": "c404f3d63fd03d5c10e7c540cfd73a8f2e5ad7d5c5c03b4bdf68326c73f78782"
+    },
+    {
+      "label": "overview",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250325000306&dcmNo=10456067&eleId=5&offset=11662&length=149723&dtd=dart4.xsd",
+      "sha256": "4892cb19483d5d0670954ee33d21ce51e0911f7894a4f0bab30c583d8d64f55b"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250325000306&dcmNo=10456067&eleId=23&offset=385307&length=94573&dtd=dart4.xsd",
+      "sha256": "6f929700baccc07131bd1621e6ae4e0275bee48e5a3172388686783445c4888b"
+    }
+  ]
+}
