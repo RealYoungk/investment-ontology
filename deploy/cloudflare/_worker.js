@@ -7,6 +7,15 @@ const HOP_HEADERS = ['connection', 'transfer-encoding', 'keep-alive',
 
 export async function handleRequest(request, env, send = fetch) {
   const url = new URL(request.url);
+  // Pages strips .html from static names: keep plans and legal terms distinct.
+  if (url.pathname === '/membership' || url.pathname === '/membership.html') {
+    const assetUrl = new URL(request.url);
+    assetUrl.pathname = url.pathname === '/membership' ? '/home' : '/membership';
+    const asset = await env.ASSETS.fetch(new Request(assetUrl, request));
+    const headers = new Headers(asset.headers);
+    headers.set('Cache-Control', 'no-store');
+    return new Response(asset.body, {status: asset.status, headers});
+  }
   // The public entry page is real HTML for all users, including without JS.
   // Interactive application routes keep their existing Flutter SPA fallback.
   if (url.pathname === '/' || url.pathname === '/index.html') {
