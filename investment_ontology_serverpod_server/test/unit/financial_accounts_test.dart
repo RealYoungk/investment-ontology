@@ -25,6 +25,36 @@ FinancialFact fact(
 
 void main() {
   test(
+    'printed whole cash outflow exact alias preserves source and SQL mirror',
+    () {
+      final row = fact(
+        '영업활동으로부터의 순현금유출',
+        statement: FinancialStatementKind.cashFlow,
+      );
+      final line = FinancialAccounts.pick([row]).single;
+      expect(line.key, 'operatingCashFlow');
+      expect(line.accountName, row.accountName);
+      expect(line.accountId, isNull);
+      expect(
+        FinancialAccounts.resolvedIdSql('f'),
+        contains("'영업활동으로부터의순현금유출'"),
+      );
+      expect(FinancialAccounts.pick([fact(row.accountName)]), isEmpty);
+      expect(
+        FinancialAccounts.pick([row.copyWith(accountDetail: 'segment')]),
+        isEmpty,
+      );
+      expect(FinancialAccounts.pick([row, row.copyWith(id: 2)]), isEmpty);
+      expect(
+        FinancialAccounts.pick([
+          row.copyWith(accountName: '영업활동으로부터의 순현금유출 주석'),
+        ]),
+        isEmpty,
+      );
+    },
+  );
+
+  test(
     'whole mixed profit/loss labels preserve signs and SQL exact mirror',
     () {
       for (final sign in [-1, 1]) {

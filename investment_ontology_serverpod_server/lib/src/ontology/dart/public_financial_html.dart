@@ -1791,6 +1791,17 @@ abstract final class PublicFinancialHtml {
         statementSource.queryParameters['eleId'] == '23' &&
         statementSource.queryParameters['offset'] == '583619' &&
         statementSource.queryParameters['length'] == '51351';
+    final novmetaHeading =
+        receipt == '20260320000871' &&
+        corpCode == '01065785' &&
+        !consolidated &&
+        term == '16' &&
+        periodStart == DateTime.utc(2025) &&
+        periodEnd == DateTime.utc(2025, 12, 31) &&
+        statementSource.queryParameters['dcmNo'] == '11157401' &&
+        statementSource.queryParameters['eleId'] == '21' &&
+        statementSource.queryParameters['offset'] == '429403' &&
+        statementSource.queryParameters['length'] == '46142';
     final result = <Map<String, dynamic>>[];
     final values = <String, BigInt>{};
     final missingOptional = <Map<String, dynamic>>[];
@@ -1990,8 +2001,39 @@ abstract final class PublicFinancialHtml {
       }
       for (final row in grid.skip(1)) {
         if (row.isEmpty) continue;
-        final account = accounts[label(row.first?.text ?? '')];
+        final account =
+            novmetaHeading &&
+                kind == 'CF' &&
+                label(row.first?.text ?? '') == '영업활동으로부터의순현금유출'
+            ? ('cfo', 'CF')
+            : accounts[label(row.first?.text ?? '')];
         if (account == null || account.$2 != kind) continue;
+        // This exact source has a section caption with all three year cells
+        // empty, followed by a separately printed whole-company CFO total.
+        if (novmetaHeading &&
+            kind == 'CF' &&
+            label(row.first?.text ?? '') == '영업활동현금흐름') {
+          final totals = grid
+              .where(
+                (r) =>
+                    r.isNotEmpty &&
+                    label(r.first?.text ?? '') == '영업활동으로부터의순현금유출',
+              )
+              .toList();
+          if (row.length != 4 ||
+              current.column != 1 ||
+              current.colspan != 1 ||
+              row.any((c) => c == null || c.rowspan != 1 || c.colspan != 1) ||
+              row.skip(1).any((c) => c!.text.trim().isNotEmpty) ||
+              totals.length != 1 ||
+              grid.indexOf(totals.single) <= grid.indexOf(row)) {
+            throw const FormatException(
+              'Novmeta empty CF section caption mismatch',
+            );
+          }
+          continue;
+        }
+
         if (values.containsKey(account.$1) ||
             missingOptional.any((m) => m['accountKey'] == account.$1)) {
           throw const FormatException(
