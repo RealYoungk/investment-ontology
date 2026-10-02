@@ -7,13 +7,13 @@ import 'package:http/http.dart' as http;
 import '../../generated/protocol.dart';
 import 'dart_report_name.dart';
 import 'public_financial_html_fetch.dart';
+import 'verified_annual_source_registry.dart';
 
-/// One reviewed immutable official raw package; never accepts submitted rows.
-/// Its raw HTTP adapter has no network client and serves only three pinned URIs.
+/// Only compiled, byte-pinned official packages; the adapter has no network.
 final class VerifiedAnnualSourceCache {
   VerifiedAnnualSourceCache({Future<List<int>> Function(String)? readAsset})
     : _read = readAsset ?? ((path) => File(path).readAsBytes());
-
+  final Future<List<int>> Function(String) _read;
   static const receipt = '20260323001652';
   static const corpCode = '01020269';
   static const ruleVersion = 'talos-cfs-pure-literal-v1';
@@ -22,189 +22,176 @@ final class VerifiedAnnualSourceCache {
   static const assetDirectory = 'assets/financial_source_cache/talos-cfs-2025';
   static const auditReference =
       'financial-cache-replay:$manifestDigest:$receipt:consolidated:$ruleVersion';
-  final Future<List<int>> Function(String) _read;
   static const pimReceipt = '20250321001900';
   static const pimCorpCode = '00765897';
   static const pimRuleVersion = 'pim-cfs-whole-ce-v1';
   static const pimManifestDigest =
       'c964aef1f97af016e1d54595c8b05c5fb5762bc80ab02cc363b504ea1c62ac80';
   static const pimAssetDirectory = 'assets/financial_source_cache/pim-cfs-2024';
-  static bool isPim(DartFiling filing) => filing.rceptNo == pimReceipt;
-  static String digestFor(DartFiling filing) =>
-      isPim(filing) ? pimManifestDigest : manifestDigest;
-  static String ruleFor(DartFiling filing) =>
-      isPim(filing) ? pimRuleVersion : ruleVersion;
-  static String referenceFor(DartFiling filing) =>
-      'financial-cache-replay:${digestFor(filing)}:${filing.rceptNo}:consolidated:${ruleFor(filing)}';
-  static bool eligibleAny(DartFiling filing) =>
-      isPim(filing) ? eligiblePim(filing) : eligible(filing);
-  static bool eligiblePim(DartFiling filing) {
-    final report = DartReportName.parse(filing.reportName);
-    final attempts = RegExp(r'api-noData-annual-public:attempt=(\d+);')
-        .firstMatch(filing.lastError ?? '');
-    return filing.rceptNo == pimReceipt &&
-        filing.corpCode == pimCorpCode &&
-        filing.bsnsYear == 2024 &&
-        filing.reportCode == FinancialReportCode.annual &&
-        report?.kind == DartReportKind.annual &&
-        report?.periodYear == 2024 &&
-        report?.periodMonth == 12 &&
-        attempts?.group(1) == '3' &&
-        (filing.consolidatedStatus == FilingFetchStatus.failed ||
-            filing.consolidatedStatus == FilingFetchStatus.pending);
-  }
 
-  static bool eligible(DartFiling filing) {
+  static bool isPim(DartFiling filing) => filing.rceptNo == pimReceipt;
+  static String digestFor(
+    DartFiling filing, [
+    FsDiv basis = FsDiv.consolidated,
+  ]) => _entry(filing, basis).manifestDigest;
+  static String ruleFor(
+    DartFiling filing, [
+    FsDiv basis = FsDiv.consolidated,
+  ]) => _entry(filing, basis).ruleVersion;
+  static String referenceFor(
+    DartFiling filing, [
+    FsDiv basis = FsDiv.consolidated,
+  ]) => _entry(filing, basis).auditReference;
+  static AnnualSourceCacheEntry _entry(DartFiling filing, FsDiv basis) =>
+      VerifiedAnnualSourceRegistry.find(filing.rceptNo, basis) ??
+      (throw const FormatException('Unknown immutable annual package'));
+  static bool eligible(DartFiling filing) =>
+      filing.rceptNo == receipt &&
+      eligibleFor(filing, _entry(filing, FsDiv.consolidated));
+  static bool eligiblePim(DartFiling filing) =>
+      filing.rceptNo == pimReceipt &&
+      eligibleFor(filing, _entry(filing, FsDiv.consolidated));
+  static bool eligibleAny(DartFiling filing) => VerifiedAnnualSourceRegistry
+      .entries
+      .any((entry) => eligibleFor(filing, entry));
+  static bool eligibleFor(DartFiling filing, AnnualSourceCacheEntry entry) {
+    if (!identical(
+      VerifiedAnnualSourceRegistry.find(entry.receipt, entry.basis),
+      entry,
+    )) {
+      return false;
+    }
     final report = DartReportName.parse(filing.reportName);
     final attempts = RegExp(r'api-noData-annual-public:attempt=(\d+);')
         .firstMatch(filing.lastError ?? '');
-    return filing.rceptNo == receipt &&
-        filing.corpCode == corpCode &&
-        filing.bsnsYear == 2025 &&
+    final status = entry.basis == FsDiv.consolidated
+        ? filing.consolidatedStatus
+        : filing.separateStatus;
+    return filing.rceptNo == entry.receipt &&
+        filing.corpCode == entry.corpCode &&
+        filing.bsnsYear == entry.year &&
         filing.reportCode == FinancialReportCode.annual &&
         report?.kind == DartReportKind.annual &&
-        report?.periodYear == 2025 &&
+        report?.periodYear == entry.year &&
         report?.periodMonth == 12 &&
         attempts?.group(1) == '3' &&
-        (filing.consolidatedStatus == FilingFetchStatus.failed ||
-            filing.consolidatedStatus == FilingFetchStatus.pending);
+        (status == FilingFetchStatus.failed ||
+            status == FilingFetchStatus.pending);
   }
 
   Future<PublicFinancialHtmlBasisNotApplicable> verify(
-    DartFiling filing,
-    Company company,
+    DartFiling f,
+    Company c,
   ) async {
-    if (!eligible(filing) ||
-        company.corpCode != corpCode ||
-        filing.companyId != company.id ||
-        company.stockCode == null) {
+    if (!eligible(f)) {
       throw const FormatException('Cached annual scope identity mismatch');
     }
-    final manifestBytes = await _read('$assetDirectory/manifest.json');
-    if (sha256.convert(manifestBytes).toString() != manifestDigest) {
-      throw const FormatException('Cached annual manifest digest mismatch');
-    }
-    final manifest = jsonDecode(utf8.decode(manifestBytes)) as Map;
-    if (manifest['receipt'] != receipt ||
-        manifest['corpCode'] != corpCode ||
-        manifest['basis'] != 'consolidated' ||
-        manifest['kind'] != 'annual' ||
-        manifest['year'] != 2025 ||
-        manifest['periodStart'] != '2025-01-01' ||
-        manifest['periodEnd'] != '2025-12-31' ||
-        manifest['ruleVersion'] != ruleVersion) {
-      throw const FormatException('Cached annual declared identity mismatch');
-    }
-    final documents = <Uri, List<int>>{};
-    for (final source in manifest['sources'] as List) {
-      final label = source['label'];
-      if (!{'shell', 'cover', 'cfs'}.contains(label) ||
-          source['file'] != '$label.html') {
-        throw const FormatException('Unknown cached annual document');
-      }
-      final uri = Uri.parse(source['url'] as String);
-      final raw = await _read('$assetDirectory/${source['file']}');
-      if (documents.containsKey(uri) ||
-          sha256.convert(raw).toString() != source['sha256']) {
-        throw const FormatException('Cached annual raw digest mismatch');
-      }
-      documents[uri] = raw;
-    }
-    if (documents.length != 3) {
-      throw const FormatException('Cached annual package incomplete');
-    }
-    final client = _PinnedRawClient(documents);
-    try {
-      await PublicFinancialHtmlFetcher(client).fetchAnnual(
-        receipt,
-        reportName: filing.reportName,
-        corpCode: company.corpCode,
-        companyName: company.name,
-        bsnsYear: filing.bsnsYear!,
-        periodEnd: DateTime.utc(2025, 12, 31),
-        consolidated: true,
-      );
-    } on PublicFinancialHtmlBasisNotApplicable catch (verified) {
-      if (client.requests != 3 ||
-          verified.sourceReceipt != receipt ||
-          verified.corpCode != corpCode ||
-          verified.periodStart != DateTime.utc(2025) ||
-          verified.periodEnd != DateTime.utc(2025, 12, 31) ||
-          verified.evidence.replaceAll(' ', '') != '해당사항없음') {
-        throw const FormatException('Cached annual verified absence mismatch');
-      }
-      return verified;
-    } finally {
-      client.close();
-    }
-    throw const FormatException('Cached annual expected typed absence missing');
+    final result = await verifyRegistered(f, c, FsDiv.consolidated);
+    return result.absence ??
+        (throw const FormatException(
+          'Cached annual expected typed absence missing',
+        ));
   }
 
-  Future<PublicFinancialHtmlSource> verifyPim(
-    DartFiling filing,
-    Company company,
-  ) async {
-    if (!eligiblePim(filing) ||
-        company.corpCode != pimCorpCode ||
+  Future<PublicFinancialHtmlSource> verifyPim(DartFiling f, Company c) async {
+    if (!eligiblePim(f)) {
+      throw const FormatException('Cached annual scope identity mismatch');
+    }
+    final result = await verifyRegistered(f, c, FsDiv.consolidated);
+    return result.numeric ??
+        (throw const FormatException(
+          'Cached annual expected numeric source missing',
+        ));
+  }
+
+  Future<
+    ({
+      PublicFinancialHtmlSource? numeric,
+      PublicFinancialHtmlBasisNotApplicable? absence,
+    })
+  >
+  verifyRegistered(DartFiling filing, Company company, FsDiv basis) async {
+    final entry = _entry(filing, basis);
+    if (!eligibleFor(filing, entry) ||
+        company.corpCode != entry.corpCode ||
         filing.companyId != company.id ||
         company.stockCode == null) {
       throw const FormatException('Cached annual scope identity mismatch');
     }
-    final manifestBytes = await _read('$pimAssetDirectory/manifest.json');
-    if (sha256.convert(manifestBytes).toString() != pimManifestDigest) {
+    final rawManifest = await _read('${entry.assetDirectory}/manifest.json');
+    if (sha256.convert(rawManifest).toString() != entry.manifestDigest) {
       throw const FormatException('Cached annual manifest digest mismatch');
     }
-    final manifest = jsonDecode(utf8.decode(manifestBytes)) as Map;
-    if (manifest['receipt'] != pimReceipt ||
-        manifest['corpCode'] != pimCorpCode ||
-        manifest['basis'] != 'consolidated' ||
+    final manifest = jsonDecode(utf8.decode(rawManifest)) as Map;
+    final start = DateTime.utc(entry.year),
+        end = DateTime.utc(entry.year, 12, 31);
+    if (manifest['receipt'] != entry.receipt ||
+        manifest['corpCode'] != entry.corpCode ||
+        manifest['basis'] != basis.name ||
         manifest['kind'] != 'annual' ||
-        manifest['year'] != 2024 ||
-        manifest['periodStart'] != '2024-01-01' ||
-        manifest['periodEnd'] != '2024-12-31' ||
-        manifest['ruleVersion'] != pimRuleVersion) {
+        manifest['year'] != entry.year ||
+        manifest['periodStart'] != '${entry.year}-01-01' ||
+        manifest['periodEnd'] != '${entry.year}-12-31' ||
+        manifest['ruleVersion'] != entry.ruleVersion) {
       throw const FormatException('Cached annual declared identity mismatch');
     }
     final documents = <Uri, List<int>>{};
+    final labels = <String>{};
     for (final source in manifest['sources'] as List) {
       final label = source['label'];
-      if (!{'shell', 'cover', 'cfs'}.contains(label) ||
+      if (!{'shell', 'cover', entry.statementLabel}.contains(label) ||
+          !labels.add(label as String) ||
           source['file'] != '$label.html') {
         throw const FormatException('Unknown cached annual document');
       }
-      final uri = Uri.parse(source['url'] as String);
-      final raw = await _read('$pimAssetDirectory/${source['file']}');
+      final uri = Uri.parse(source['url'] as String),
+          bytes = await _read('${entry.assetDirectory}/${source['file']}');
       if (documents.containsKey(uri) ||
-          sha256.convert(raw).toString() != source['sha256']) {
+          sha256.convert(bytes).toString() != source['sha256']) {
         throw const FormatException('Cached annual raw digest mismatch');
       }
-      documents[uri] = raw;
+      documents[uri] = bytes;
     }
     if (documents.length != 3) {
       throw const FormatException('Cached annual package incomplete');
     }
     final client = _PinnedRawClient(documents);
     try {
-      final verified = await PublicFinancialHtmlFetcher(client).fetchAnnual(
-        pimReceipt,
+      final numeric = await PublicFinancialHtmlFetcher(client).fetchAnnual(
+        entry.receipt,
         reportName: filing.reportName,
         corpCode: company.corpCode,
         companyName: company.name,
         bsnsYear: filing.bsnsYear!,
-        periodEnd: DateTime.utc(2024, 12, 31),
-        consolidated: true,
+        periodEnd: end,
+        consolidated: basis == FsDiv.consolidated,
       );
-      if (client.requests != 3 ||
-          verified.sourceReceipt != pimReceipt ||
-          verified.periodStart != DateTime.utc(2024) ||
-          verified.periodEnd != DateTime.utc(2024, 12, 31) ||
-          verified.rows.length < 7 ||
-          verified.rows.any((r) => r['account_id'] != null)) {
+      if (entry.absenceLiteral != null ||
+          client.requests != 3 ||
+          numeric.sourceReceipt != entry.receipt ||
+          numeric.periodStart != start ||
+          numeric.periodEnd != end ||
+          numeric.rows.length < 7 ||
+          numeric.rows.length > 8 ||
+          numeric.rows.any((r) => r['account_id'] != null)) {
         throw const FormatException(
           'Cached annual verified numeric scope mismatch',
         );
       }
-      return verified;
+      return (numeric: numeric, absence: null);
+    } on PublicFinancialHtmlBasisNotApplicable catch (absence) {
+      if (entry.absenceLiteral == null ||
+          basis != FsDiv.consolidated ||
+          client.requests != 3 ||
+          absence.sourceReceipt != entry.receipt ||
+          absence.corpCode != entry.corpCode ||
+          absence.periodStart != start ||
+          absence.periodEnd != end ||
+          absence.evidence.replaceAll(RegExp(r'\s+'), '') !=
+              entry.absenceLiteral!.replaceAll(RegExp(r'\s+'), '')) {
+        throw const FormatException('Cached annual verified absence mismatch');
+      }
+      return (numeric: null, absence: absence);
     } finally {
       client.close();
     }

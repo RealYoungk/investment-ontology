@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "01352575",
+  "receipt": "20260323000876",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2025,
+  "periodStart": "2025-01-01",
+  "periodEnd": "2025-12-31",
+  "ruleVersion": "exact-annual-cache-registry-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260323000876",
+      "sha256": "943da22225a11b200bd1c4c9a40967a4651703f673244910adee9319175cb51b"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323000876&dcmNo=11164188&eleId=1&offset=966&length=20822&dtd=dart4.xsd",
+      "sha256": "98450b83213c7ed02fb61766eb05e39d873ae83fb74edb784e0c2e524b5b14d9"
+    },
+    {
+      "label": "ofs",
+      "file": "ofs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323000876&dcmNo=11164188&eleId=21&offset=204473&length=103440&dtd=dart4.xsd",
+      "sha256": "eda4980fc6ca91bc964c78588b64899a18a8cb47fe2ec2324b756d78105d8bbe"
+    }
+  ],
+  "retrievalProof": "official-exact-shell-cover-ofs; reviewed fixture bioten-current-source; no opposite-basis reuse"
+}

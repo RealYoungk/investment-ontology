@@ -1,4 +1,5 @@
 import '../dart/verified_annual_source_cache.dart';
+import '../dart/verified_annual_source_registry.dart';
 import '../dart/verified_half_basis_absence.dart';
 import '../financial/financial_accounts.dart';
 import '../dart/bnk_six_core_profile.dart';
@@ -533,7 +534,7 @@ class FinancialFactsSync {
         );
       }
       final cached = job.status == IngestStatus.cancelled
-          ? (processed: 0, failed: 0, stored: 0)
+          ? (processed: 0, failed: 0, stored: 0, remaining: 0)
           : await _replayVerifiedAnnualSourceCache(scopeIds, companies);
       processed += cached.processed;
       failed += cached.failed;
@@ -733,6 +734,19 @@ class FinancialFactsSync {
         );
         message +=
             ', 원접수 표지 확인 20건 묶음 이후 ${deferredMetadataTargets.length}건 다음 실행 재개';
+      }
+      if (cached.processed > 0 || cached.remaining > 0) {
+        message +=
+            ', 고정 공식 원문 재검증 ${cached.processed}건·남은 ${cached.remaining}건(연결·별도 구분별 한 번)';
+      }
+      if (cached.remaining > 0 && !cancelled) {
+        requestResume(
+          resumeNow.add(
+            cached.stored > 0 || (cached.processed > 0 && cached.failed == 0)
+                ? const Duration(seconds: 30)
+                : const Duration(minutes: 15),
+          ),
+        );
       }
       if (annualPublic.processed > 0 || annualPublic.remaining > 0) {
         message +=
@@ -2614,37 +2628,38 @@ class FinancialFactsSync {
   }
 
   /// A finite raw recomputation, not an additional public/API fetch attempt.
-  Future<({int processed, int failed, int stored})>
+  Future<({int processed, int failed, int stored, int remaining})>
   _replayVerifiedAnnualSourceCache(
     Set<int> scopeIds,
     Map<String, Company> companies,
   ) async {
-    if (await IngestJobs.isCancelled(session, jobId) ||
-        (corpCode != null &&
-            !{
-              VerifiedAnnualSourceCache.corpCode,
-              VerifiedAnnualSourceCache.pimCorpCode,
-            }.contains(corpCode))) {
-      return (processed: 0, failed: 0, stored: 0);
+    if (await IngestJobs.isCancelled(session, jobId)) {
+      return (processed: 0, failed: 0, stored: 0, remaining: 0);
     }
-    final candidates = await DartFiling.db.find(
+    final entries = VerifiedAnnualSourceRegistry.entries
+        .where((e) => corpCode == null || e.corpCode == corpCode)
+        .toList();
+    final filings = await DartFiling.db.find(
       session,
       where: (t) =>
           t.id.inSet(scopeIds) &
-          t.rceptNo.inSet({
-            VerifiedAnnualSourceCache.receipt,
-            VerifiedAnnualSourceCache.pimReceipt,
-          }),
+          t.rceptNo.inSet(entries.map((e) => e.receipt).toSet()),
     );
+    final candidates = [
+      for (final filing in filings)
+        for (final entry in entries)
+          if (entry.receipt == filing.rceptNo) (filing: filing, entry: entry),
+    ];
     var processed = 0, failed = 0, stored = 0, consecutiveFailures = 0;
-    for (final f in candidates) {
+    for (final candidate in candidates) {
+      final f = candidate.filing, entry = candidate.entry;
       if (processed >= 10 ||
           consecutiveFailures >= 6 ||
           await IngestJobs.isCancelled(session, jobId)) {
         break;
       }
-      if (!VerifiedAnnualSourceCache.eligibleAny(f)) continue;
-      final auditReference = VerifiedAnnualSourceCache.referenceFor(f);
+      if (!VerifiedAnnualSourceCache.eligibleFor(f, entry)) continue;
+      final auditReference = entry.auditReference;
       final company = companies[f.corpCode];
       if (company == null) continue;
       final outcome = await session.db.transaction((tx) async {
@@ -2683,7 +2698,7 @@ class FinancialFactsSync {
         if (current == null ||
             currentCompany == null ||
             active.isEmpty ||
-            !VerifiedAnnualSourceCache.eligibleAny(current) ||
+            !VerifiedAnnualSourceCache.eligibleFor(current, entry) ||
             current.companyId != currentCompany.id ||
             currentCompany.corpCode != current.corpCode) {
           return 'skipped';
@@ -2696,8 +2711,7 @@ class FinancialFactsSync {
           final existing = await FinancialReport.db.findFirstRow(
             session,
             where: (t) =>
-                t.rceptNo.equals(current.rceptNo) &
-                t.fsDiv.equals(FsDiv.consolidated),
+                t.rceptNo.equals(current.rceptNo) & t.fsDiv.equals(entry.basis),
             transaction: tx,
           );
           if (existing != null) {
@@ -2705,11 +2719,11 @@ class FinancialFactsSync {
               'Cached source conflicts with existing CFS report',
             );
           }
-          if (VerifiedAnnualSourceCache.isPim(current)) {
+          if (entry.absenceLiteral == null) {
             final orphan = await Source.db.findFirstRow(
               session,
               where: (t) => t.reference.equals(
-                'financial-api-noData-source:${current.rceptNo}:consolidated',
+                'financial-api-noData-source:${current.rceptNo}:${entry.basis.name}',
               ),
               transaction: tx,
             );
@@ -2718,15 +2732,23 @@ class FinancialFactsSync {
                 'Cached numeric source conflicts with existing period audit',
               );
             }
-            numeric = await _sourceCache.verifyPim(current, currentCompany);
+            numeric = (await _sourceCache.verifyRegistered(
+              current,
+              currentCompany,
+              entry.basis,
+            )).numeric;
           } else {
-            verified = await _sourceCache.verify(current, currentCompany);
+            verified = (await _sourceCache.verifyRegistered(
+              current,
+              currentCompany,
+              entry.basis,
+            )).absence;
           }
           if (verified != null) {
             final existingAudits = await Source.db.find(
               session,
               where: (t) => t.reference.equals(
-                'financial-public-basis-not-applicable:${current.rceptNo}:consolidated',
+                'financial-public-basis-not-applicable:${current.rceptNo}:${entry.basis.name}',
               ),
               transaction: tx,
             );
@@ -2742,7 +2764,7 @@ class FinancialFactsSync {
                   audit.url != verified.statementSource.toString() ||
                   payload['receipt'] != verified.sourceReceipt ||
                   payload['corpCode'] != verified.corpCode ||
-                  payload['fsDiv'] != FsDiv.consolidated.name ||
+                  payload['fsDiv'] != entry.basis.name ||
                   payload['periodStart'] !=
                       verified.periodStart.toIso8601String() ||
                   payload['periodEnd'] !=
@@ -2766,7 +2788,7 @@ class FinancialFactsSync {
           final stored = await _store(
             current,
             currentCompany,
-            FsDiv.consolidated,
+            entry.basis,
             numeric.rows,
             originalSource: numeric.statementSource,
             originalDigest: numeric.sourceDigest,
@@ -2781,7 +2803,7 @@ class FinancialFactsSync {
           await _recordVerifiedAnnualNumericSource(
             current,
             currentCompany,
-            FsDiv.consolidated,
+            entry.basis,
             sourceReceipt: numeric.sourceReceipt,
             source: numeric.statementSource,
             format: 'html',
@@ -2807,11 +2829,11 @@ class FinancialFactsSync {
             title: jsonEncode({
               'action': 'one-time-immutable-official-source-cache-revalidation',
               'status': status,
-              'manifestDigest': VerifiedAnnualSourceCache.digestFor(current),
-              'ruleVersion': VerifiedAnnualSourceCache.ruleFor(current),
+              'manifestDigest': entry.manifestDigest,
+              'ruleVersion': entry.ruleVersion,
               'receipt': current.rceptNo,
               'corpCode': current.corpCode,
-              'fsDiv': FsDiv.consolidated.name,
+              'fsDiv': entry.basis.name,
               'publicAttemptPreserved': _annualPublicAttempts(current),
               'generalAttemptPreserved': current.attempts,
               'reportName': current.reportName,
@@ -2843,7 +2865,12 @@ class FinancialFactsSync {
           await DartFiling.db.updateRow(
             session,
             current.copyWith(
-              consolidatedStatus: FilingFetchStatus.stored,
+              consolidatedStatus: entry.basis == FsDiv.consolidated
+                  ? FilingFetchStatus.stored
+                  : current.consolidatedStatus,
+              separateStatus: entry.basis == FsDiv.separate
+                  ? FilingFetchStatus.stored
+                  : current.separateStatus,
               checkedAt: _clock().toUtc(),
             ),
             transaction: tx,
@@ -2851,14 +2878,19 @@ class FinancialFactsSync {
         } else if (verified != null) {
           await _storeVerifiedBasisAbsence(
             current,
-            FsDiv.consolidated,
+            entry.basis,
             verified,
             transaction: tx,
           );
           await DartFiling.db.updateRow(
             session,
             current.copyWith(
-              consolidatedStatus: FilingFetchStatus.noData,
+              consolidatedStatus: entry.basis == FsDiv.consolidated
+                  ? FilingFetchStatus.noData
+                  : current.consolidatedStatus,
+              separateStatus: entry.basis == FsDiv.separate
+                  ? FilingFetchStatus.noData
+                  : current.separateStatus,
               checkedAt: _clock().toUtc(),
             ),
             transaction: tx,
@@ -2885,7 +2917,43 @@ class FinancialFactsSync {
         consecutiveFailures = 0;
       }
     }
-    return (processed: processed, failed: failed, stored: stored);
+    var remaining = 0;
+    if (!await IngestJobs.isCancelled(session, jobId)) {
+      final active = await session.db.unsafeQuery(
+        'WITH ${FinancialCollectionScope.cte} SELECT id FROM financial_scope',
+      );
+      final activeIds = {for (final row in active) row[0] as int};
+      for (final candidate in candidates) {
+        if (!activeIds.contains(candidate.filing.id)) continue;
+        final current = await DartFiling.db.findById(
+          session,
+          candidate.filing.id!,
+        );
+        final company = current?.companyId == null
+            ? null
+            : await Company.db.findById(session, current!.companyId!);
+        if (current != null &&
+            company != null &&
+            company.corpCode == current.corpCode &&
+            company.stockCode != null &&
+            companies.containsKey(current.corpCode) &&
+            VerifiedAnnualSourceCache.eligibleFor(current, candidate.entry) &&
+            await Source.db.findFirstRow(
+                  session,
+                  where: (t) =>
+                      t.reference.equals(candidate.entry.auditReference),
+                ) ==
+                null) {
+          remaining++;
+        }
+      }
+    }
+    return (
+      processed: processed,
+      failed: failed,
+      stored: stored,
+      remaining: remaining,
+    );
   }
 
   Future<DartFiling> _verifiedAttachmentSource(
