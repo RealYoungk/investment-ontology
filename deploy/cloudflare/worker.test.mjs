@@ -59,12 +59,12 @@ test('runtime execution context is not used as the HTTP client', async () => {
   } finally { globalThis.fetch = original; }
 });
 
-test('public entry serves the same real HTML without running or redirecting to Flutter', async () => {
+test('public entry opens the application without a methodology gate', async () => {
   for (const path of ['/', '/index.html']) {
     let served;
     const response = await handleRequest(new Request('https://alfinder.kr' + path),
       {ASSETS: {fetch: async request => { served = new URL(request.url).pathname; return new Response('<article>Publisher content</article>'); }}}, () => assert.fail());
-    assert.equal(served, '/start');
+    assert.equal(served, '/home');
     assert.equal(response.status, 200);
     assert.equal(response.headers.get('cache-control'), 'no-store');
     assert.match(await response.text(), /Publisher content/);

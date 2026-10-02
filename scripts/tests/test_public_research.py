@@ -42,3 +42,16 @@ class PublicResearchTests(unittest.TestCase):
         self.assertIn('https://alfinder.kr/', locations)
         self.assertEqual(len(locations), len(set(locations)))
         self.assertIn('https://alfinder.kr/research/trailing-metrics', locations)
+
+    def test_application_entry_has_readable_no_script_navigation_and_ownership(self):
+        html = (WEB / 'index.html').read_text()
+        fallback = html.split('<noscript>', 1)[1].split('</noscript>', 1)[0]
+        document = Content()
+        document.feed(fallback)
+        self.assertIn('/start', document.links)
+        self.assertIn('/research/filing-basics', document.links)
+        self.assertIn('JavaScript', fallback)
+        self.assertIn('#splash { display: none; }', fallback)
+        self.assertIn('<meta name="google-adsense-account" content="ca-pub-4209548390738211">', html)
+        self.assertEqual((WEB / 'ads.txt').read_text().strip(), 'google.com, pub-4209548390738211, DIRECT, f08c47fec0942fa0')
+        self.assertIn('href="https://alfinder.kr/start"', (WEB / 'start.html').read_text())
