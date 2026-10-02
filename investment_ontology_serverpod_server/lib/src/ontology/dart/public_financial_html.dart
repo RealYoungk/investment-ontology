@@ -1721,6 +1721,7 @@ abstract final class PublicFinancialHtml {
     );
     datedPunctuationProof ??= animediProof;
     if (datedPunctuationProof == null &&
+        genericEquityPeriod == null &&
         (exactInnovexOfs ||
             parenthesizedTitles.isNotEmpty ||
             bsDurationCandidate ||
@@ -3584,6 +3585,10 @@ abstract final class PublicFinancialHtml {
       }
     }
     if (genericEquityPeriod != null) {
+      if (bsDurationCandidate) {
+        genericEquityPeriod['mode'] =
+            'primary-bs-duration-equity-corroboration';
+      }
       if (values['equity'].toString() != genericEquityPeriod['closingEquity'] ||
           values['profit'].toString() != genericEquityPeriod['currentProfit']) {
         throw const FormatException(

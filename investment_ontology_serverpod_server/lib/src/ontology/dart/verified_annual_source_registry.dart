@@ -1701,6 +1701,30 @@ abstract final class VerifiedAnnualSourceRegistry {
       ruleVersion: 'verified-current-period-whole-annual-v1',
       absenceLiteral: null,
     ),
+    AnnualSourceCacheEntry(
+      receipt: '20230322000366',
+      corpCode: '00442631',
+      companyName: '태양기계(주)',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230322000366-ofs',
+      manifestDigest:
+          '1e0e1ad7733d6376c9d1ac69fc1c640e35b1165cf8e5f425a36f01b52dcbe4e8',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20231018000215',
+      corpCode: '01352575',
+      companyName: '바이오텐(주)',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20231018000215-ofs',
+      manifestDigest:
+          'e40ffdadbde0fce98afa2453235c4c10e23c11803dbeee93429f209e97f0a19d',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
   ];
   static AnnualSourceCacheEntry? find(String receipt, FsDiv basis) {
     for (final entry in entries) {

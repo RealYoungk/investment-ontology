@@ -64,7 +64,14 @@ abstract final class AnnualEquityPeriod {
       '이익잉여금(결손금)',
       '이익잉여금(또는결손금)',
     };
+    String datedLabel(String v) => v.replaceFirst(
+      RegExp(
+        r'^(?:(?:VIII|VII|VI|IV|III|II|IX|XII|XI|X|V|I)|[ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫ])\.(?=\d{4}(?:년|\.))',
+      ),
+      '',
+    );
     DateTime? date(String v) {
+      v = datedLabel(v);
       final m = RegExp(
         r'^(\d{4})(?:년|\.)(\d{1,2})(?:월|\.)(\d{1,2})(?:일)?',
       ).firstMatch(v);
@@ -109,6 +116,9 @@ abstract final class AnnualEquityPeriod {
         continue;
       }
       final local = prefix.substring(ce);
+      final explicitlyDatedCe =
+          RegExp(r'\d{4}(?:년|\.)\d{1,2}(?:월|\.)\d{1,2}').hasMatch(local) &&
+          primaryDatesMatch(local, 'CE', start, end);
       final units = RegExp(r'\(단위[:：]([^)]*)\)').allMatches(local).toList();
       if (units.length != 1) continue;
       final multiplier = switch (units.single[1]) {
@@ -159,12 +169,16 @@ abstract final class AnnualEquityPeriod {
       final begin = <int>[], finish = <int>[];
       for (var i = 1; i < rows.length; i++) {
         if (rows[i].length != header.length) continue;
-        final label = rows[i].first;
+        final label = datedLabel(rows[i].first);
         if (date(label) == start &&
             RegExp(r'\((?:당기초|기초|보고금액)\)$').hasMatch(label)) {
           begin.add(i);
         }
-        if (date(label) == end && RegExp(r'\((?:당기말|기말)\)$').hasMatch(label)) {
+        if (date(label) == end &&
+            (RegExp(r'\((?:당기말|기말)\)$').hasMatch(label) ||
+                (explicitlyDatedCe &&
+                    RegExp(r'^\d{4}(?:년|\.)\d{1,2}(?:월|\.)\d{1,2}(?:일)?$')
+                        .hasMatch(label)))) {
           finish.add(i);
         }
       }
@@ -188,7 +202,9 @@ abstract final class AnnualEquityPeriod {
               '당기순손익',
               '당기순이익(손실)',
               '당기순손익(손실)',
-            }.contains(rows[i].first)) {
+            }.contains(
+              rows[i].first.replaceFirst(RegExp(r'^[1-9]\d?\.(?=당기순)'), ''),
+            )) {
           profits.add(i);
         }
       }
@@ -205,6 +221,8 @@ abstract final class AnnualEquityPeriod {
         'startRow': begin.single,
         'endRow': finish.single,
         'profitRow': profits.single,
+        'printedProfitLabel': rows[profits.single].first,
+        'printedClosingLabel': rows[finish.single].first,
         'wholeTotalColumn': header.length - 1,
         'wholeHeader': header.join('|'),
         'closingEquity': (equity * multiplier).toString(),
