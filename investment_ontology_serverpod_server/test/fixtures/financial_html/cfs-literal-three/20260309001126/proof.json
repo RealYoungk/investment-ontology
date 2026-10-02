@@ -1,0 +1,45 @@
+{
+  "id": 20077,
+  "name": "(주)코셋",
+  "market": "konex",
+  "stockCode": "189350",
+  "corpCode": "00965062",
+  "rceptNo": "20260309001126",
+  "reportName": "사업보고서 (2025.12)",
+  "actual_period": "2025.12",
+  "bsnsYear": 2025,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 1,
+  "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 1,
+  "coverageClass": "one-source-basis-stored",
+  "errorGroup": "Annual current statement title period mismatch",
+  "publicAttemptClass": "below-three",
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260309001126",
+      "sha256": "54a900d2517a91dce6079935c00e7664be66e9bce7d022cc7188f80a6df25671"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260309001126&dcmNo=11099116&eleId=1&offset=964&length=4535&dtd=dart4.xsd",
+      "sha256": "45d9a8b6d19fac08c8ccd7cd821b05001751a6e1a5656d871f69f36716c09142"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260309001126&dcmNo=11099116&eleId=19&offset=186454&length=213&dtd=dart4.xsd",
+      "sha256": "be0f4d5f96a666b6406e4e21f853b39670c094f298c890d41f3ab91cf45e74b4"
+    }
+  ],
+  "ownCorpIds": [
+    "00965062"
+  ],
+  "coverStart": "사 업 보 고 서 (제 27 기) 사업연도 2025년 01월 01일 부터 2025년 12월 31일 까지 금융위원회 한국거래소 귀중 2026년 3월 9일 제출대상법인 유형 : 주권상장법인 면제사유발생 : 해당사항 없음 회 사 명 : 주식회사 코셋 대 표 이 사 : 오치형 본 점 소 재 지 : 광주광역시 북구 첨단벤처로60번길 39(대촌동) (전 화)062-975-8811 (홈페이지) http://www.coset.com 작 성 책 임 자 : (직 책)경영지원팀장 (성 명)윤민기 (전 화)062-975-8811",
+  "cfsStart": "2. 연결재무제표 해당사항이 없습니다."
+}

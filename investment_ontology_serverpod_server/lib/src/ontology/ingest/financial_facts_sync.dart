@@ -1058,7 +1058,7 @@ class FinancialFactsSync {
             s == FilingFetchStatus.noData,
       );
 
-  /// Queue order only for four actual source fixtures validated by this revision.
+  /// Queue order only for exact actual source fixtures validated by this revision.
   /// A verified non-preparer CFS is eligible for evidence-backed noData, not
   /// numeric storage; unsupported bases, completed bases and exhausted public
   /// attempts never gain priority. Existing API/ledger attempt counters remain.
@@ -1068,6 +1068,11 @@ class FinancialFactsSync {
       '20250320001616': (corp: '00442631', year: 2024, bases: {'OFS', 'CFS'}),
       '20250318000596': (corp: '01352575', year: 2024, bases: {'OFS', 'CFS'}),
       '20260318001043': (corp: '01018802', year: 2025, bases: {'CFS'}),
+      '20260318001370': (corp: '01507722', year: 2025, bases: {'CFS'}),
+      '20260318000161': (corp: '00533809', year: 2025, bases: {'CFS'}),
+      '20260313000656': (corp: '00393618', year: 2025, bases: {'CFS'}),
+      '20260316001089': (corp: '01187458', year: 2025, bases: {'CFS'}),
+      '20260309001126': (corp: '00965062', year: 2025, bases: {'CFS'}),
     };
     final proof = fixtures[filing.rceptNo];
     final name = DartReportName.parse(filing.reportName);
@@ -1170,6 +1175,11 @@ class FinancialFactsSync {
         '20250320001616',
         '20250318000596',
         '20260318001043',
+        '20260318001370',
+        '20260318000161',
+        '20260313000656',
+        '20260316001089',
+        '20260309001126',
       }.contains(f.rceptNo)) {
         return verifiedDurationSourceRecoveryPriority(f);
       }

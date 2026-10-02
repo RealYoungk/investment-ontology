@@ -30,6 +30,11 @@ void main() {
     ('20250320001616', '00442631', 2024, {'OFS', 'CFS'}),
     ('20250318000596', '01352575', 2024, {'OFS', 'CFS'}),
     ('20260318001043', '01018802', 2025, {'CFS'}),
+    ('20260318001370', '01507722', 2025, {'CFS'}),
+    ('20260318000161', '00533809', 2025, {'CFS'}),
+    ('20260313000656', '00393618', 2025, {'CFS'}),
+    ('20260316001089', '01187458', 2025, {'CFS'}),
+    ('20260309001126', '00965062', 2025, {'CFS'}),
   ]) {
     test('exact verified $receipt priority retains ledger/public attempts', () {
       final f = filing(receipt, corp, year);
@@ -105,7 +110,7 @@ void main() {
       () {
         for (final f in [
           filing(receipt, '00000001', year),
-          filing('${receipt.substring(0, 13)}9', corp, year),
+          filing('20990101000000', corp, year),
           filing(receipt, corp, year + 1),
           filing(receipt, corp, year, code: FinancialReportCode.halfYear),
           filing(receipt, corp, year, name: '반기보고서 ($year.12)'),
