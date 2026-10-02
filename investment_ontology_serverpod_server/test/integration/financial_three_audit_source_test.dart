@@ -27,7 +27,37 @@ class ThreeAuditClient extends SourceClient {
     required bool consolidated,
   }) async {
     requested.add('$receipt:${consolidated ? 'CFS' : 'OFS'}');
-    final dir = 'assets/financial_source_cache/$receipt-${'ofs'}-audit';
+    if (consolidated) {
+      final dir = 'test/fixtures/financial_html/three-audit-cfs-proof/$receipt';
+      final proof = jsonDecode(File('$dir/proof.json').readAsStringSync());
+      final cfs = jsonDecode(File('$dir/cfs-proof.json').readAsStringSync());
+      final sources = proof['sources'] as List;
+      final files = <String, List<int>>{
+        'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=$receipt': File(
+          '$dir/shell.html',
+        ).readAsBytesSync(),
+        sources.singleWhere((x) => x['label'] == 'cover')['url']: File(
+          '$dir/cover.html',
+        ).readAsBytesSync(),
+        cfs['url']: File('$dir/cfs.html').readAsBytesSync(),
+      };
+      return PublicFinancialHtmlFetcher(
+        MockClient((req) async {
+          final raw = files[req.url.toString()];
+          if (raw == null) throw const FormatException('Unbound CFS source');
+          return http.Response.bytes(raw, 200, request: req);
+        }),
+      ).fetchAnnual(
+        receipt,
+        reportName: reportName,
+        corpCode: corpCode,
+        companyName: companyName,
+        bsnsYear: bsnsYear,
+        periodEnd: periodEnd,
+        consolidated: true,
+      );
+    }
+    final dir = 'assets/financial_source_cache/$receipt-ofs-audit';
     if (!File('$dir/manifest.json').existsSync()) {
       throw const FormatException('Unsupported source');
     }
@@ -80,7 +110,7 @@ void main() {
           () async {
             final session = builder.asAdmin.build(),
                 now = DateTime.utc(2026, 10, 2);
-            final dir = 'assets/financial_source_cache/$receipt-${'ofs'}-audit';
+            final dir = 'assets/financial_source_cache/$receipt-ofs-audit';
             final manifest = jsonDecode(
               File('$dir/manifest.json').readAsStringSync(),
             );
@@ -234,7 +264,14 @@ void main() {
               callInterval: Duration.zero,
             ).run();
             if (publicAttempt == 2) {
-              expect(reader.requested.first, '$receipt:OFS');
+              expect(
+                reader.requested
+                    .where((r) => r.startsWith('$receipt:'))
+                    .toList(),
+                receipt == '20250407004206'
+                    ? ['$receipt:OFS']
+                    : ['$receipt:CFS', '$receipt:OFS'],
+              );
             } else {
               expect(
                 reader.requested.where((r) => r.startsWith('$receipt:')),
@@ -242,6 +279,35 @@ void main() {
               );
             }
             expect(reader.calls, 0);
+            final none = await Source.db.find(
+              session,
+              where: (t) => t.reference.equals(
+                'financial-public-basis-not-applicable:$receipt:consolidated',
+              ),
+            );
+            if (receipt != '20250407004206' && publicAttempt == 2) {
+              expect(none, hasLength(1));
+              final proof = jsonDecode(
+                File(
+                  'test/fixtures/financial_html/three-audit-cfs-proof/$receipt/cfs-proof.json',
+                ).readAsStringSync(),
+              );
+              expect(none.single.url, proof['url']);
+              final payload = jsonDecode(none.single.title);
+              expect(payload['corpCode'], p['corp']);
+              expect(payload['receipt'], receipt);
+              expect(payload['periodStart'], '2024-01-01T00:00:00.000Z');
+              expect(payload['periodEnd'], '2024-12-31T00:00:00.000Z');
+              expect(
+                payload['evidence'],
+                receipt == '20250318000507'
+                    ? '당사는 연결재무제표 작성대상 법인이 아니므로 해당사항이 없습니다.'
+                    : '- 당사는 사업보고서 작성기준일 현재 해당사항 없습니다.',
+              );
+            } else {
+              expect(none, isEmpty);
+            }
+
             expect((await IngestJob.db.findById(session, job.id!))!.updated, 1);
             final stored = (await FinancialReport.db.find(
               session,
