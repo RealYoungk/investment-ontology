@@ -22,10 +22,7 @@ class _DataPageState extends State<DataPage> {
   Widget build(BuildContext context) => const PageFrame(
     maxWidth: 1120,
     children: [
-      PageHeading(
-        title: '데이터',
-        subtitle: '수집된 자료와 자동 갱신 상태를 확인합니다.',
-      ),
+      PageHeading(title: '데이터', subtitle: '수집된 자료와 자동 갱신 상태를 확인합니다.'),
       SizedBox(height: AppSpace.section),
       ScheduleBoard(child: _Coverage()),
     ],
@@ -624,7 +621,7 @@ class BusinessCollectionStatus extends StatelessWidget {
             label: '최신 접수 본문 확보',
             done: latest,
             total: v.listedCompanies,
-            note: '기업별 최신 정기보고서 접수번호와 일치하는 본문입니다. 첨부 정정의 이전 접수 본문과 다른 기간 본문은 이 수에 포함하지 않습니다.',
+            note: '기업별 최신 정기보고서 본문 또는 첨부 정정에 공식 연결된 같은 기간의 원본문입니다. 연결 근거가 없는 이전 접수와 다른 기간 본문은 포함하지 않습니다.',
           )
         else
           const _Summary(label: '최신 접수 본문 확보', value: '집계 대기', unit: ''),
