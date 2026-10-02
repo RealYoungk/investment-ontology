@@ -150,7 +150,12 @@ class _BondTrendsCardState extends State<BondTrendsCard> {
           ),
           const SizedBox(height: AppSpace.md),
           if (_error != null)
-            ReadFailureNotice(subject: '전환사채 추이', retry: _load)
+            Column(
+              children: [
+                const Text('전환사채 추이를 불러오지 못했습니다.'),
+                AppButton(label: '다시 불러오기', onPressed: _load),
+              ],
+            )
           else if (_data == null)
             const Text('전환사채 잔액 추이를 확인 중입니다.')
           else if (points.isEmpty)
@@ -223,9 +228,7 @@ class _BondTrendsCardState extends State<BondTrendsCard> {
                 series: ChartSeries(
                   label: '권면 잔액',
                   color: c.chartSeries1,
-                  values: [
-                    for (final p in points) _chartValue(p, selected),
-                  ],
+                  values: points.map((p) => _chartValue(p, selected)).toList(),
                 ),
                 formatValue: (v) =>
                     '${v.toStringAsFixed(v.abs() < 10 ? 1 : 0)}억',

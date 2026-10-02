@@ -28,6 +28,12 @@ ai:
   - submit:
   - submitDigest:
   - submitFacts:
+bond:
+  - trends:
+  - collect:
+capital:
+  - summary:
+  - collect:
 company:
   - overview:
   - divisions:

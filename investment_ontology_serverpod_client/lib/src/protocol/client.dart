@@ -625,7 +625,6 @@ class EndpointCapital extends _isc.EndpointRef {
   );
 }
 
-
 /// 상장사 조회.
 /// {@category Endpoint}
 class EndpointCompany extends _isc.EndpointRef {
@@ -700,7 +699,8 @@ class EndpointCompanyNews extends _isc.EndpointRef {
       );
 }
 
-/// Public reads of stored source-backed data. Every collection/import is admin-only.
+/// Public source-backed reads populate missing DART cache entries.
+/// Explicit collection/import remains admin-only.
 /// {@category Endpoint}
 class EndpointResearch extends _isc.EndpointRef {
   EndpointResearch(_isc.EndpointCaller caller) : super(caller);
@@ -1232,7 +1232,7 @@ class EndpointIngest extends _isc.EndpointRef {
       );
 }
 
-/// Public official market context, no mutations or account data.
+/// Public official market context, read from direct sources with bounded caching.
 /// {@category Endpoint}
 class EndpointMacro extends _isc.EndpointRef {
   EndpointMacro(_isc.EndpointCaller caller) : super(caller);
@@ -1968,7 +1968,9 @@ class Client extends _isc.ServerpodClientShared {
   late final EndpointAi ai;
 
   late final EndpointBond bond;
+
   late final EndpointCapital capital;
+
   late final EndpointCompany company;
 
   late final EndpointCompanyNews companyNews;
