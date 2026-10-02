@@ -219,7 +219,14 @@ void main() {
             clock: () => now,
             callInterval: Duration.zero,
           ).run();
-          expect(reader.requested, isEmpty);
+          expect(
+            reader.requested.where((r) => r.startsWith('$receipt:')),
+            isEmpty,
+          );
+          expect(
+            reader.requested.where((r) => r.startsWith('20260930')),
+            hasLength(12),
+          );
           expect(reader.calls, 0);
           final stored = (await FinancialReport.db.find(
             session,
