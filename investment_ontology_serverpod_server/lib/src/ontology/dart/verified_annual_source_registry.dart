@@ -102,6 +102,45 @@ abstract final class VerifiedAnnualSourceRegistry {
       absenceLiteral: null,
     ),
     AnnualSourceCacheEntry(
+      receipt: '20220331001729',
+      corpCode: '00965318',
+      companyName: '(주)이노시뮬레이션',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220331001729-ofs-core50',
+      manifestDigest:
+          'f4c769cbb5b5db2192a3cb6d2073ce099bfcd2d60b5215f9be719cf7ce57674e',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20220315001273',
+      corpCode: '00148610',
+      companyName: '한화투자증권(주)',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220315001273-cfs-core50',
+      manifestDigest:
+          '7b82873a9a353f3680653dc825dc0f41f468a5647ab7f563366e0456de4f9874',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20220315000921',
+      corpCode: '00113359',
+      companyName: '교보증권(주)',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220315000921-cfs-core50',
+      manifestDigest:
+          'e550393be98cb725a01acb310b21a58238bb158a43e044fd5893708f350965be',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20220310001159',
       corpCode: '00139214',
       companyName: '삼성화재해상보험(주)',

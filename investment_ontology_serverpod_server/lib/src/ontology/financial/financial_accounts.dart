@@ -132,6 +132,7 @@ abstract final class FinancialAccounts {
     'depreciation': ['감가상각비'],
     'amortisation': ['무형자산상각비'],
     'netIncome': [
+      '당기순손익',
       '당기순손실',
       '연결당기순손실',
       '연결당기순이익',

@@ -24,6 +24,29 @@ FinancialFact fact(
 );
 
 void main() {
+  test('exact whole current profit label retains raw name and SQL mirror', () {
+    final row = fact('IX. 당기순손익')
+        .copyWith(amount: BigInt.parse('144126968419'));
+    final line = FinancialAccounts.pick([row]).single;
+    expect(line.key, 'netIncome');
+    expect(line.amount, row.amount);
+    expect(line.accountName, row.accountName);
+    expect(FinancialAccounts.resolvedIdSql('f'), contains("'당기순손익'"));
+    for (final bad in ['부문당기순손익', '지배기업당기순손익', '중단영업당기순손익', '당기순손익 참고']) {
+      expect(FinancialAccounts.pick([fact(bad)]), isEmpty);
+    }
+    expect(
+      FinancialAccounts.pick([
+        row.copyWith(statement: FinancialStatementKind.cashFlow),
+      ]),
+      isEmpty,
+    );
+    expect(
+      FinancialAccounts.pick([row.copyWith(accountDetail: 'segment')]),
+      isEmpty,
+    );
+  });
+
   test('whole profit double adjustment label uses cell value and finite SQL mirror', () {
     const label =
         'Vlll. 당기순이익 (대손준비금 반영후 조정이익 당기: 1,144,141,987,193원 전기: 1,070,462,117,853원)(비상위험준비금 반영후 조정이익 당기: 1,030,159,127,157원 전기: 980,036,103,376원)';
