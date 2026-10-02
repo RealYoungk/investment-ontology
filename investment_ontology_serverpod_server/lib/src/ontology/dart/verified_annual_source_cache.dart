@@ -149,11 +149,6 @@ final class VerifiedAnnualSourceCache {
           start: start,
           end: end,
         );
-    if (linkedAudit && entry.requiresIssuerOverview) {
-      throw const FormatException(
-        'Conflicting cached annual fourth document profiles',
-      );
-    }
     final requiredLabels = {
       'shell',
       'cover',

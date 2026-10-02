@@ -23,6 +23,18 @@ abstract final class SameReceiptAuditSource {
           String statementSha,
         })
       >{
+        '20250321001825': (
+          corp: '00990396',
+          year: 2024,
+          consolidated: true,
+          cover: 'https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001825&dcmNo=10450233&eleId=1&offset=941&length=4572&dtd=dart4.xsd',
+          coverSha: '696165e71f7637724caa97c6111151161e02b825778dfe10c9e20ba00ad0925a',
+          shellSha: '823435d92599722683943aba9ab9e8d05f00039b4639c5ae949768f6337f451f',
+          auditShell: 'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250321001825&dcmNo=10450232',
+          auditShellSha: 'd32f8c204641b32d9e2ab7f70619cbfc6bf3adc54619490a8ecab1711c0c29fd',
+          statement: 'https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001825&dcmNo=10450232&eleId=3&offset=11140&length=410842&dtd=dart4.xsd',
+          statementSha: 'ba4464ec6f7ac21b6627e95aae17fc8051809fc70399df985d2dcc5916dacf48',
+        ),
         '20260309001820': (
           corp: '01205514',
           year: 2025,
@@ -143,6 +155,8 @@ abstract final class SameReceiptAuditSource {
       'actualStatementSource': p.statement,
       'statementSha256': p.statementSha,
       'mainStatementConflict': switch (receipt) {
+        '20250321001825' =>
+          'main CE profit and OCI labels conflict; raw labels remain unchanged',
         '20260309001820' =>
           'main flow term differs from BS; no printed term is corrected',
         '20240321000933' =>
