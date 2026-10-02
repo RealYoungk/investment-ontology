@@ -14,6 +14,62 @@ Widget app(Widget child) => MaterialApp(
   home: Scaffold(body: SingleChildScrollView(child: child)),
 );
 void main() {
+  testWidgets('queued acquisition retries and displays the stored result', (
+    t,
+  ) async {
+    var calls = 0;
+    await t.pumpWidget(
+      app(
+        ResearchSection(
+          corpCode: '00126380',
+          kinds: const ['treasury'],
+          loader: (_, _) async => jsonEncode(
+            ++calls == 1
+                ? {
+                    'state': 'collecting',
+                    'retryAfterSeconds': 5,
+                    'message': '수집 대기 중',
+                    'rows': [],
+                  }
+                : {'state': 'ready', 'rows': []},
+          ),
+        ),
+      ),
+    );
+    await t.pumpAndSettle();
+    expect(find.text('수집 대기 중'), findsOneWidget);
+    expect(find.text('수집 범위에 해당 보고가 없습니다.'), findsNothing);
+    await t.pump(const Duration(seconds: 5));
+    await t.pumpAndSettle();
+    expect(calls, 2);
+    expect(find.text('수집 범위에 해당 보고가 없습니다.'), findsOneWidget);
+    await t.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('leaving a pending company cancels the retry timer', (t) async {
+    var calls = 0;
+    await t.pumpWidget(
+      app(
+        ResearchSection(
+          corpCode: '00126380',
+          kinds: const ['treasury'],
+          loader: (_, _) async {
+            calls++;
+            return jsonEncode({
+              'state': 'collecting',
+              'retryAfterSeconds': 5,
+              'rows': [],
+            });
+          },
+        ),
+      ),
+    );
+    await t.pumpAndSettle();
+    await t.pumpWidget(const SizedBox());
+    await t.pump(const Duration(seconds: 6));
+    expect(calls, 1);
+  });
+
   test('plain wording keeps disposal separate from cancellation', () {
     expect(
       researchPlainTitle({'api': 'tsstkDpDecsn', 'reason': '독립이사 보수 지급'}),
