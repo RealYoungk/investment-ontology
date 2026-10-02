@@ -54,6 +54,54 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20250321000964',
+      corpCode: '00991225',
+      companyName: '(주)더콘텐츠온',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250321000964-ofs',
+      manifestDigest:
+          '7fd49f310a9c6e28d60201fb279bcfdf8e177824c117b6b8d2aec4a1dc34012e',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260323001088',
+      corpCode: '00991225',
+      companyName: '(주)더콘텐츠온',
+      year: 2025,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20260323001088-ofs',
+      manifestDigest:
+          '7f8a26cd3ffac702507bc570794cad17df9dfd85efb9102123336a4988ce6e77',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240321001908',
+      corpCode: '00991225',
+      companyName: '(주)더콘텐츠온',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20240321001908-ofs',
+      manifestDigest:
+          '1c9caad26cb2bac542a96229c17d67e7ccdf59b8c7753bfb463a505991e35345',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220323000557',
+      corpCode: '00991225',
+      companyName: '(주)더콘텐츠온',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220323000557-ofs',
+      manifestDigest:
+          'c2750fe672d0198eb2eefad8fb7d4443e6aebb57d85509e9d17de40c2335f557',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20220310001159',
       corpCode: '00139214',
       companyName: '삼성화재해상보험(주)',

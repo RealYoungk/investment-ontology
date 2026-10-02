@@ -1,3 +1,4 @@
+import 'contents_on_corroborated_flow_period.dart';
 import 'annual_equity_period.dart';
 import 'samsungfire_cfs_source.dart';
 import 'historical_cfs_whole_proof.dart';
@@ -904,6 +905,20 @@ abstract final class PublicFinancialHtml {
         : null;
     final doznProof = receipt == DoznCorroboratedFlowPeriod.receipt
         ? DoznCorroboratedFlowPeriod.verify(
+            cover: coverHtml,
+            body: statementHtml,
+            coverSource: coverSource,
+            statementSource: statementSource,
+            targetReceipt: receipt,
+            companyCode: corpCode,
+            consolidated: consolidated,
+            start: periodStart,
+            end: periodEnd,
+          )
+        : null;
+    final contentsOnProof =
+        ContentsOnCorroboratedFlowPeriod.profiles.containsKey(receipt)
+        ? ContentsOnCorroboratedFlowPeriod.verify(
             cover: coverHtml,
             body: statementHtml,
             coverSource: coverSource,
@@ -2494,7 +2509,8 @@ abstract final class PublicFinancialHtml {
               genericEquityPeriod == null &&
               (localTitles.isEmpty ||
                   ((kind == 'BS') != (localTitles.last.group(2) == '현재') &&
-                      !(doznProof != null && kind != 'BS') &&
+                      !((doznProof != null || contentsOnProof != null) &&
+                          kind != 'BS') &&
                       !(kind == 'BS' &&
                           bsDurationCandidate &&
                           datedPunctuationProof != null)))) ||
@@ -3633,6 +3649,17 @@ abstract final class PublicFinancialHtml {
         (row['html_provenance']
                 as Map<String, dynamic>)['supportingPeriodEvidence'] =
             doznProof;
+      }
+    }
+    if (contentsOnProof != null) {
+      if (values['equity'].toString() != contentsOnProof['closingEquity'] ||
+          values['profit'].toString() != contentsOnProof['currentProfit']) {
+        throw const FormatException('ContentsOn primary/CE contradiction');
+      }
+      for (final row in result) {
+        (row['html_provenance']
+                as Map<String, dynamic>)['supportingPeriodEvidence'] =
+            contentsOnProof;
       }
     }
     if (genericEquityPeriod != null) {
