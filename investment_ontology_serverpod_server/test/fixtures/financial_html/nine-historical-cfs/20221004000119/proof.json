@@ -1,0 +1,64 @@
+{
+  "id": 34611,
+  "name": "(주)로지스몬",
+  "market": "konex",
+  "stockCode": "223220",
+  "corpCode": "01060735",
+  "rceptNo": "20221004000119",
+  "reportName": "[기재정정]사업보고서 (2021.12)",
+  "actual_period": "2021.12",
+  "bsnsYear": 2021,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 1,
+  "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 1,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20221004000119",
+      "sha256": "69ba63a75392f672e5324c21e763fa6fdb259da2565fd3653834e026af774a1b"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20221004000119&dcmNo=8825294&eleId=3&offset=26747&length=4520&dtd=dart3.xsd",
+      "sha256": "7aeafd7c741262668f472dbe0c8510a405a06c7267fec65d192242e784a4a655"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20221004000119&dcmNo=8825294&eleId=21&offset=172688&length=143&dtd=dart3.xsd",
+      "sha256": "c6d1d702a1bf058d304e7f3418a682c718ac6f9a318eccc100188a141f506d42"
+    }
+  ],
+  "shellCorpIds": [
+    "01060735"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20221004000119",
+        "dcmNo": "8825294",
+        "eleId": "3",
+        "offset": "26747",
+        "length": "4520",
+        "dtd": "dart3.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20221004000119",
+        "dcmNo": "8825294",
+        "eleId": "21",
+        "offset": "172688",
+        "length": "143",
+        "dtd": "dart3.xsd"
+      }
+    }
+  ]
+}

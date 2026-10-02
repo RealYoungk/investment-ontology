@@ -1,0 +1,64 @@
+{
+  "id": 34573,
+  "name": "팸텍주식회사",
+  "market": "kosdaq",
+  "stockCode": "271830",
+  "corpCode": "01146220",
+  "rceptNo": "20220919000208",
+  "reportName": "[기재정정]사업보고서 (2021.12)",
+  "actual_period": "2021.12",
+  "bsnsYear": 2021,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 2,
+  "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 2,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220919000208",
+      "sha256": "72d3d60dddec22c3e7b625d6d217846fc649b17df628f88c06f4b8d73f3374c1"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220919000208&dcmNo=8810644&eleId=3&offset=17435&length=4043&dtd=dart3.xsd",
+      "sha256": "21a4366b7bf80b1e0c60a4652ec81c6058fb19294670d88aa55414befbd5de9c"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220919000208&dcmNo=8810644&eleId=21&offset=118936&length=129&dtd=dart3.xsd",
+      "sha256": "62cd0fac30eedcfe1e899cd77b22b935e30aa6c8e60701e523c56d81650ecd4a"
+    }
+  ],
+  "shellCorpIds": [
+    "01146220"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20220919000208",
+        "dcmNo": "8810644",
+        "eleId": "3",
+        "offset": "17435",
+        "length": "4043",
+        "dtd": "dart3.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20220919000208",
+        "dcmNo": "8810644",
+        "eleId": "21",
+        "offset": "118936",
+        "length": "129",
+        "dtd": "dart3.xsd"
+      }
+    }
+  ]
+}

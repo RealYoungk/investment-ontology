@@ -1099,6 +1099,15 @@ class FinancialFactsSync {
   /// attempts never gain priority. Existing API/ledger attempt counters remain.
   static const _verifiedDurationSourceFixtures =
       <String, ({String corp, int year, Set<String> bases})>{
+        '20260709000400': (corp: '00925967', year: 2026, bases: {'CFS'}),
+        '20250806000052': (corp: '00756163', year: 2021, bases: {'CFS'}),
+        '20221004000119': (corp: '01060735', year: 2021, bases: {'CFS'}),
+        '20220930000228': (corp: '00963000', year: 2021, bases: {'CFS'}),
+        '20220919000208': (corp: '01146220', year: 2021, bases: {'CFS'}),
+        '20220616000321': (corp: '01524507', year: 2021, bases: {'CFS'}),
+        '20220602000449': (corp: '00531078', year: 2021, bases: {'CFS'}),
+        '20220411001806': (corp: '00976615', year: 2021, bases: {'CFS'}),
+        '20220330001266': (corp: '01351080', year: 2021, bases: {'CFS'}),
         '20260323000673': (corp: '01063237', year: 2025, bases: {'OFS'}),
         '20250321000751': (corp: '01020269', year: 2024, bases: {'CFS'}),
         '20250321000101': (corp: '01867749', year: 2024, bases: {'CFS'}),
@@ -1212,7 +1221,12 @@ class FinancialFactsSync {
         filing.bsnsYear != proof.year ||
         name?.kind != DartReportKind.annual ||
         name?.periodYear != proof.year ||
-        name?.periodMonth != 12 ||
+        name?.periodMonth !=
+            switch (filing.rceptNo) {
+              '20260709000400' => 3,
+              '20220602000449' => 9,
+              _ => 12,
+            } ||
         _annualPublicAttempts(filing) >= 3) {
       return false;
     }

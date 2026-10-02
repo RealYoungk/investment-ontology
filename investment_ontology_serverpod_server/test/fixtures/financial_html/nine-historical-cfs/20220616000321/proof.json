@@ -1,0 +1,64 @@
+{
+  "id": 32077,
+  "name": "(주)핀텔",
+  "market": "kosdaq",
+  "stockCode": "291810",
+  "corpCode": "01524507",
+  "rceptNo": "20220616000321",
+  "reportName": "[기재정정]사업보고서 (2021.12)",
+  "actual_period": "2021.12",
+  "bsnsYear": 2021,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 2,
+  "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 2,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220616000321",
+      "sha256": "6dd07f5bb69490127705c221f20310a28ca3b03a8e2b2c02427c5f3c30723ef1"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220616000321&dcmNo=8702906&eleId=3&offset=51864&length=4056&dtd=dart3.xsd",
+      "sha256": "6416ba814a59baadffe132d6e09d059831a40350a0fb85f78e81ea8ceea9b117"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220616000321&dcmNo=8702906&eleId=21&offset=170702&length=146&dtd=dart3.xsd",
+      "sha256": "7900f992d17b8f93a8872ccd0cd1f3e1dd5ab0befd23bb8eefe5638125f5820e"
+    }
+  ],
+  "shellCorpIds": [
+    "01524507"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20220616000321",
+        "dcmNo": "8702906",
+        "eleId": "3",
+        "offset": "51864",
+        "length": "4056",
+        "dtd": "dart3.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20220616000321",
+        "dcmNo": "8702906",
+        "eleId": "21",
+        "offset": "170702",
+        "length": "146",
+        "dtd": "dart3.xsd"
+      }
+    }
+  ]
+}
