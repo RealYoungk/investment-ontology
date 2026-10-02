@@ -289,6 +289,47 @@ void main() {
                 session,
                 where: (t) => t.reportId.equals(report.id!),
               );
+              if ({
+                '20220323000557',
+                '20240321001908',
+                '20250321000964',
+                '20260323001088',
+              }.contains(entry.receipt)) {
+                final expected = jsonDecode(
+                  File('${entry.assetDirectory}/expected-rows.json')
+                      .readAsStringSync(),
+                ) as List;
+                expect(facts, hasLength(8));
+                for (final pair in expected) {
+                  final fact = facts.singleWhere(
+                    (f) => f.accountName == pair[0],
+                  );
+                  expect(fact.amount, BigInt.parse(pair[1] as String));
+                  expect(fact.bsnsYear, entry.year);
+                }
+                final periodAudit = await Source.db.findFirstRow(
+                  session,
+                  where: (t) => t.reference.equals(
+                    'financial-api-noData-source:${entry.receipt}:${entry.basis.name}',
+                  ),
+                );
+                expect(periodAudit, isNotNull);
+                final payload = jsonDecode(periodAudit!.title);
+                expect(payload['sourceReceipt'], entry.receipt);
+                final provenance = payload['coreRowProvenance'] as List;
+                expect(provenance, hasLength(8));
+                for (final row in provenance) {
+                  final proof =
+                      row['html_provenance']['supportingPeriodEvidence'];
+                  expect(
+                    proof['policy'],
+                    'contents-on-exact-cover-ce-cash-corroboration-v1',
+                  );
+                  expect(proof['flowCaptionPrintedStart'], false);
+                  expect(proof['periodStart'], '${entry.year}-01-01');
+                  expect(proof['periodEnd'], '${entry.year}-12-31');
+                }
+              }
               final exactPureunSix =
                   entry.receipt == PureunSixCoreProfile.receipt &&
                   entry.corpCode == PureunSixCoreProfile.corpCode &&
