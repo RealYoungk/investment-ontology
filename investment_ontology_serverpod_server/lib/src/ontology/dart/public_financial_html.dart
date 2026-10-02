@@ -1251,6 +1251,19 @@ abstract final class PublicFinancialHtml {
         periodEnd.difference(periodStart).inDays >= 364 &&
         periodEnd.difference(periodStart).inDays <= 365 &&
         text.contains('제$term기(${periodEnd.year}년)');
+    final exactPimCfs =
+        receipt == '20250321001900' &&
+        corpCode == '00765897' &&
+        consolidated &&
+        term == '24' &&
+        periodStart == DateTime.utc(2024) &&
+        periodEnd == DateTime.utc(2024, 12, 31) &&
+        coverSource.queryParameters['dcmNo'] == '10450768' &&
+        coverSource.queryParameters['eleId'] == '1' &&
+        statementSource.queryParameters['dcmNo'] == '10450768' &&
+        statementSource.queryParameters['eleId'] == '19' &&
+        statementSource.queryParameters['offset'] == '204544' &&
+        statementSource.queryParameters['length'] == '68462';
     Map<String, dynamic>? datedPunctuationProof = _suntechRawCePeriod(
       receipt: receipt,
       corpCode: corpCode,
@@ -1297,22 +1310,57 @@ abstract final class PublicFinancialHtml {
             !{'과목', '구분'}.contains(_compact(grid.first.first?.text ?? ''))) {
           continue;
         }
-        if (grid.first.length < 3 ||
-            !{
-              '총계',
-              '합계',
-              '자본합계',
-            }.contains(_compact(grid.first.last?.text ?? '')) ||
-            grid.first.any(
-              (c) => c == null || c.rowspan != 1 || c.colspan != 1,
-            ) ||
-            grid.first.any((c) => _compact(c?.text ?? '').contains('비지배'))) {
+        final pimWholeHeader =
+            exactPimCfs &&
+            grid.length >= 2 &&
+            grid[0].length == 9 &&
+            grid[1].length == 9 &&
+            _compact(grid[0][0]?.text ?? '') == '구분' &&
+            grid[0][0]?.rowspan == 2 &&
+            grid[0][0]?.colspan == 1 &&
+            identical(grid[0][0], grid[1][0]) &&
+            _compact(grid[0][1]?.text ?? '') == '지배기업소유주지분' &&
+            grid[0][1]?.colspan == 6 &&
+            grid[0][1]?.rowspan == 1 &&
+            [for (var c = 1; c <= 6; c++) identical(grid[0][1], grid[0][c])]
+                .every((v) => v) &&
+            _compact(grid[0][7]?.text ?? '') == '비지배지분' &&
+            _compact(grid[0][8]?.text ?? '') == '합계' &&
+            [7, 8].every(
+              (c) =>
+                  grid[0][c]?.rowspan == 2 &&
+                  grid[0][c]?.colspan == 1 &&
+                  identical(grid[0][c], grid[1][c]),
+            ) &&
+            [for (var c = 1; c <= 6; c++) _compact(grid[1][c]?.text ?? '')]
+                    .join('|') ==
+                '자본금|자본잉여금|기타자본|기타포괄손익누계액|이익잉여금|합계' &&
+            [
+              for (var c = 1; c <= 6; c++)
+                grid[1][c]?.rowspan == 1 && grid[1][c]?.colspan == 1,
+            ].every((v) => v);
+        if (!pimWholeHeader &&
+            (grid.first.length < 3 ||
+                !{
+                  '총계',
+                  '합계',
+                  '자본합계',
+                }.contains(_compact(grid.first.last?.text ?? '')) ||
+                grid.first.any(
+                  (c) => c == null || c.rowspan != 1 || c.colspan != 1,
+                ) ||
+                grid.first.any(
+                  (c) => _compact(c?.text ?? '').contains('비지배'),
+                ))) {
           throw const FormatException(
             'Dated punctuation supporting whole equity header mismatch',
           );
         }
         final units = RegExp(r'\(단위:([^)]*)\)').allMatches(local).toList();
         final unit = units.isEmpty ? null : units.last.group(1);
+        if (pimWholeHeader && unit != '원') {
+          throw const FormatException('PIM whole equity unit mismatch');
+        }
         final multiplier = switch (unit) {
           '원' => BigInt.one,
           '천원' => BigInt.from(1000),
@@ -1393,12 +1441,17 @@ abstract final class PublicFinancialHtml {
         }
 
         candidates.add({
-          'mode': termYearHeaderCandidate
+          'mode': pimWholeHeader
+              ? 'exact-pim-cfs-span-whole-equity-corroboration'
+              : termYearHeaderCandidate
               ? 'full-annual-term-year-whole-equity-corroboration'
               : bsDurationCandidate
               ? 'primary-bs-duration-equity-corroboration'
               : 'fully-dated-parentheses-equity-corroboration',
           'tableIndex': index,
+          if (pimWholeHeader) 'wholeTotalColumn': 8,
+          if (pimWholeHeader) 'parentSubtotalColumn': 6,
+          if (pimWholeHeader) 'nonControllingColumn': 7,
           'currentTerm': term,
           'periodStart': periodStart.toIso8601String().substring(0, 10),
           'periodEnd': periodEnd.toIso8601String().substring(0, 10),
