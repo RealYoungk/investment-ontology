@@ -32,6 +32,19 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20250319000477',
+      corpCode: '01518506',
+      companyName: '(주)타조이엔터테인먼트',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250319000477-ofs',
+      manifestDigest:
+          '0a2cb730752e8c50e46d95550125a539ed2429b46822da21b085d872b9025c84',
+      ruleVersion: 'tajoy-exact-dot-cover-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: true,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20240401000698',
       corpCode: '01229240',
       companyName: '(주)가이아코퍼레이션',

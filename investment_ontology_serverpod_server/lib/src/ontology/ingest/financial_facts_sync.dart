@@ -1181,6 +1181,7 @@ class FinancialFactsSync {
         '20260330001850': (corp: '01579020', year: 2025, bases: {'CFS', 'OFS'}),
         '20230315000997': (corp: '01601222', year: 2022, bases: {'OFS'}),
         '20230308000311': (corp: '01476219', year: 2022, bases: {'OFS'}),
+        '20250319000477': (corp: '01518506', year: 2024, bases: {'OFS'}),
         '20260320000871': (corp: '01065785', year: 2025, bases: {'CFS', 'OFS'}),
         '20230320001037': (corp: '00296290', year: 2022, bases: {'CFS'}),
         '20230321000972': (corp: '01063556', year: 2022, bases: {'CFS'}),

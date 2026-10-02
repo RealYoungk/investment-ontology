@@ -127,7 +127,12 @@ class PublicIssuerLegalName {
                 corpCode == '01476219' &&
                 periodStart == DateTime.utc(2022) &&
                 periodEnd == DateTime.utc(2022, 12, 31) &&
-                cover.contains('사업연도2022.01.01부터2022.12.31까지')))) {
+                cover.contains('사업연도2022.01.01부터2022.12.31까지')) ||
+            (receipt == '20250319000477' &&
+                corpCode == '01518506' &&
+                periodStart == DateTime.utc(2024) &&
+                periodEnd == DateTime.utc(2024, 12, 31) &&
+                cover.contains('사업연도2024.01.01부터2024.12.31까지')))) {
       return null;
     }
     final bodies = RegExp(
