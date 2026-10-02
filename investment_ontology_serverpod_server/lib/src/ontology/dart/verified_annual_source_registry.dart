@@ -13,6 +13,7 @@ final class AnnualSourceCacheEntry {
     required this.ruleVersion,
     required this.absenceLiteral,
     this.requiresIssuerOverview = false,
+    this.requiresCashScopeNotes = false,
     this.requiresOwnOfsWitness = false,
     this.declaredPeriodStart,
     this.declaredPeriodEnd,
@@ -27,6 +28,7 @@ final class AnnualSourceCacheEntry {
   final FsDiv basis;
   final String? absenceLiteral;
   final bool requiresIssuerOverview;
+  final bool requiresCashScopeNotes;
   final bool requiresOwnOfsWitness;
   final String? declaredPeriodStart, declaredPeriodEnd;
   DateTime get periodStart => declaredPeriodStart == null
@@ -53,6 +55,20 @@ final class AnnualSourceCacheEntry {
 
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
+    AnnualSourceCacheEntry(
+      receipt: '20230316001545',
+      corpCode: '00110893',
+      companyName: '대신증권(주)',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20230316001545-ofs-daishin',
+      manifestDigest:
+          'c14278e41ce4c40b7521f4ca0b11ea0b563a047cdfa9f2dc42a64ffab96b15e9',
+      ruleVersion: 'daishin-2022-exact-cash-scope-whole-eight-v1',
+      absenceLiteral: null,
+      requiresCashScopeNotes: true,
+    ),
     AnnualSourceCacheEntry(
       receipt: '20220315000644',
       corpCode: '00120182',

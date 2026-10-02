@@ -18,6 +18,7 @@ import 'package:http/http.dart' as http;
 
 import '../../generated/protocol.dart';
 import 'nh_2021_exact_source.dart';
+import 'daishin_2022_exact_source.dart';
 import 'dart_report_name.dart';
 import 'public_financial_html_fetch.dart';
 import 'verified_annual_source_registry.dart';
@@ -190,6 +191,7 @@ final class VerifiedAnnualSourceCache {
           LinkedCorrectionAuditSource.witnessUri(entry.receipt) != null)
         'targetOfs',
       if (entry.requiresIssuerOverview) 'overview',
+      if (entry.requiresCashScopeNotes) 'notes',
       if (entry.requiresOwnOfsWitness) 'issuer-ofs',
     };
     final documentCount = requiredLabels.length;
@@ -212,6 +214,41 @@ final class VerifiedAnnualSourceCache {
     }
     if (documents.length != documentCount || labels.length != documentCount) {
       throw const FormatException('Cached annual package incomplete');
+    }
+    if (entry.ruleVersion == Daishin2022ExactSource.rule) {
+      final src = manifest['sources'] as List;
+      final uris = <String, Uri>{
+        for (final s in src)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raws = <String, String>{
+        for (final s in src)
+          s['label'] as String: utf8.decode(documents[uris[s['label']]]!),
+      };
+      final rows = Daishin2022ExactSource.parse(
+        raw: raws,
+        uris: uris,
+        receipt: entry.receipt,
+        corp: company.corpCode,
+        start: start,
+        end: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raws['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raws['ofs']!,
+          statementSource: uris['ofs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
     }
     if (entry.ruleVersion == Nh2021ExactSource.rule) {
       final src = manifest['sources'] as List;

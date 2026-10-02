@@ -67,6 +67,7 @@ void main() {
               ? (e.absenceLiteral == null ? 8 : 5)
               : 4 +
                     (e.requiresIssuerOverview ? 1 : 0) +
+                    (e.requiresCashScopeNotes ? 1 : 0) +
                     (e.requiresOwnOfsWitness ? 1 : 0) +
                     (e.ruleVersion == 'same-receipt-audit-immutable-v1'
                         ? 1
@@ -209,6 +210,7 @@ void main() {
             'cover.html',
             '${e.statementLabel}.html',
             if (e.requiresIssuerOverview) 'overview.html',
+            if (e.requiresCashScopeNotes) 'notes.html',
             if (e.ruleVersion == 'same-receipt-audit-immutable-v1')
               'auditShell.html',
           ]

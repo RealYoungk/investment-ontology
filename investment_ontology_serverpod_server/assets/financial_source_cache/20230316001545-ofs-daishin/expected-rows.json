@@ -1,0 +1,50 @@
+[
+  {
+    "account_id": null,
+    "account_nm": "자 산 총 계",
+    "sj_div": "BS",
+    "thstrm_amount": "13561139399000"
+  },
+  {
+    "account_id": null,
+    "account_nm": "부 채 총 계",
+    "sj_div": "BS",
+    "thstrm_amount": "11511801876000"
+  },
+  {
+    "account_id": null,
+    "account_nm": "자 본 총 계",
+    "sj_div": "BS",
+    "thstrm_amount": "2049337523000"
+  },
+  {
+    "account_id": null,
+    "account_nm": "Ⅰ. 영업수익",
+    "sj_div": "CIS",
+    "thstrm_amount": "3107330022000"
+  },
+  {
+    "account_id": null,
+    "account_nm": "Ⅲ. 영업이익",
+    "sj_div": "CIS",
+    "thstrm_amount": "88877753000"
+  },
+  {
+    "account_id": null,
+    "account_nm": "Ⅶ. 당기순이익 (대손준비금반영후 조정이익 당기: 87,133백만원 전기: 178,664백만원)(주석23)",
+    "sj_div": "CIS",
+    "thstrm_amount": "86474236000"
+  },
+  {
+    "account_id": null,
+    "account_nm": "Ⅰ. 영업활동으로부터의 현금흐름",
+    "sj_div": "CF",
+    "thstrm_amount": "382074231000"
+  },
+  {
+    "account_id": null,
+    "account_nm": "9. 유형자산의 취득",
+    "sj_div": "CF",
+    "thstrm_amount": "14288414000"
+  }
+]
