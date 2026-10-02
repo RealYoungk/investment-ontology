@@ -11,6 +11,7 @@ class ServiceLinks extends StatelessWidget {
     runSpacing: 4,
     children: [
       for (final item in const [
+        (label: '리서치 안내', path: '/'),
         (label: '문의', path: '/support.html'),
         (label: '개인정보처리방침', path: '/data-notice.html'),
         (label: '이용권 약관', path: '/membership.html'),

@@ -9,6 +9,7 @@ class PageFrame extends StatelessWidget {
     required this.children,
     this.maxWidth = 1280,
     this.controller,
+    this.allowLeading = true,
   });
 
   /// 이보다 좁으면 좌우 여백을 줄인다.
@@ -17,6 +18,9 @@ class PageFrame extends StatelessWidget {
   final List<Widget> children;
   final double maxWidth;
   final ScrollController? controller;
+
+  /// Do not mount a supplied lead while publisher content is unavailable.
+  final bool allowLeading;
 
   static double gutter(double width) =>
       width < compactBreakpoint ? AppSpace.lg : AppSpace.xxl;
@@ -40,7 +44,7 @@ class PageFrame extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  ?PageFrameLeadScope.of(context),
+                  if (allowLeading) ?PageFrameLeadScope.of(context),
                   ...children,
                 ],
               ),
