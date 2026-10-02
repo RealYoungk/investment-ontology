@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 
+import 'same_receipt_audit_source.dart';
 import 'public_issuer_legal_name.dart';
 import 'bnk_six_core_profile.dart';
 import 'verified_historical_company_identity.dart';
@@ -828,8 +829,20 @@ abstract final class PublicFinancialHtml {
     }
     _source(coverSource, receipt);
     _source(statementSource, receipt);
-    if (coverSource.queryParameters['dcmNo'] !=
-            statementSource.queryParameters['dcmNo'] ||
+    final linkedAudit = SameReceiptAuditSource.bound(
+      receipt: receipt,
+      corpCode: corpCode,
+      consolidated: consolidated,
+      start: periodStart,
+      end: periodEnd,
+      coverSource: coverSource,
+      coverHtml: coverHtml,
+      statementSource: statementSource,
+      statementHtml: statementHtml,
+    );
+    if ((!linkedAudit &&
+            coverSource.queryParameters['dcmNo'] !=
+                statementSource.queryParameters['dcmNo']) ||
         !RegExp(r'^\d{8}$').hasMatch(corpCode)) {
       throw const FormatException('Annual document identity mismatch');
     }
@@ -898,10 +911,20 @@ abstract final class PublicFinancialHtml {
       throw const FormatException('Exact annual company/period cover mismatch');
     }
     final term = terms.single.group(1)!;
-    final expected = consolidated ? '2.연결재무제표' : '4.재무제표';
-    final next = consolidated ? '3.연결재무제표주석' : '5.재무제표주석';
+    final expected = linkedAudit
+        ? (consolidated ? '(첨부)연결재무제표' : '(첨부)재무제표')
+        : consolidated
+        ? '2.연결재무제표'
+        : '4.재무제표';
+    final next = linkedAudit
+        ? '주석'
+        : consolidated
+        ? '3.연결재무제표주석'
+        : '5.재무제표주석';
     final headings = RegExp(
-      r'<P\b[^>]*class=["\x27]section-2["\x27][^>]*>.*?</P>',
+      linkedAudit
+          ? r'<P\b[^>]*class=["\x27]section-[12]["\x27][^>]*>.*?</P>'
+          : r'<P\b[^>]*class=["\x27]section-2["\x27][^>]*>.*?</P>',
       caseSensitive: false,
       dotAll: true,
     ).allMatches(statementHtml).toList();
@@ -2095,6 +2118,10 @@ abstract final class PublicFinancialHtml {
             'thstrm_amount': null,
             'currency': 'KRW',
             'html_provenance': {
+              if (linkedAudit)
+                'sameReceiptAuditSource': SameReceiptAuditSource.evidence(
+                  receipt,
+                ),
               'source': statementSource.toString(),
               'tableIndex': index,
               'printedLabel': row.first!.text,
@@ -2159,6 +2186,10 @@ abstract final class PublicFinancialHtml {
           'thstrm_amount': value.toString(),
           'currency': 'KRW',
           'html_provenance': {
+            if (linkedAudit)
+              'sameReceiptAuditSource': SameReceiptAuditSource.evidence(
+                receipt,
+              ),
             'source': statementSource.toString(),
             'tableIndex': index,
             'printedLabel': row.first!.text,

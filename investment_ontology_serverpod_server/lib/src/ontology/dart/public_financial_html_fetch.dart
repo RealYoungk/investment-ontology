@@ -1,3 +1,4 @@
+import 'same_receipt_audit_source.dart';
 import 'public_issuer_legal_name.dart';
 import 'bnk_six_core_profile.dart';
 import 'verified_historical_company_identity.dart';
@@ -340,7 +341,7 @@ class PublicFinancialHtmlFetcher {
     }
 
     final coverSource = node(halfYear ? '반기보고서' : '사업보고서');
-    final statementSource = node(
+    var statementSource = node(
       halfYear
           ? 'III.재무에관한사항'
           : consolidated
@@ -438,6 +439,24 @@ class PublicFinancialHtmlFetcher {
           );
         }
       }
+    }
+    if (exactAnnual &&
+        SameReceiptAuditSource.eligible(
+          receipt: sourceReceipt,
+          corpCode: corpCode,
+          consolidated: consolidated,
+          start: periodStart,
+          end: periodEnd,
+        )) {
+      final auditShellSource = SameReceiptAuditSource.auditShell(
+        sourceReceipt,
+        shell,
+      );
+      final auditShell = await get(auditShellSource, referer: originalSource);
+      statementSource = SameReceiptAuditSource.statement(
+        sourceReceipt,
+        auditShell,
+      );
     }
     final statementHtml = await get(statementSource, referer: originalSource);
     if (exactAnnual && consolidated) {
