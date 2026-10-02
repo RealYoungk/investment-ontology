@@ -9,7 +9,7 @@ void main() {
   for (final r in ['20220322000542', '20220429000083']) {
     test('$r immutable own annual OFS and guards', () async {
       final e = VerifiedAnnualSourceRegistry.entries.singleWhere(
-        (x) => x.receipt == r,
+        (x) => x.receipt == r && x.basis == FsDiv.separate,
       );
       final f = DartFiling(
         id: 1,

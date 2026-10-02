@@ -2134,6 +2134,8 @@ abstract final class PublicFinancialHtml {
     }
     final hasWholeGrammarCandidate =
         !yBiologicsBlankHeader &&
+        !txrBlankHeader &&
+        !redwoodsBlankHeader &&
         (blankPrimaryHeaders == 3 || printedWholeAnnotation);
     // A complete fallback must independently prove all seven values and whole CE;
     // it does not share the six-core missing-revenue completion semantics.
