@@ -1630,6 +1630,7 @@ abstract final class PublicFinancialHtml {
       '매출': ('revenue', 'CIS'),
       '수익(매출액)': ('revenue', 'CIS'),
       '영업수익': ('revenue', 'CIS'),
+      '영업수익:': ('revenue', 'CIS'),
       '영업이익': ('operating', 'CIS'),
       '영업손익': ('operating', 'CIS'),
       '영업손익(손실)': ('operating', 'CIS'),
@@ -2237,6 +2238,7 @@ abstract final class PublicFinancialHtml {
       } else if ((labels.contains('매출액') ||
               labels.contains('매출') ||
               labels.contains('영업수익') ||
+              labels.contains('영업수익:') ||
               labels.contains('수익(매출액)')) &&
           ([
             '영업이익',
@@ -2523,7 +2525,10 @@ abstract final class PublicFinancialHtml {
                 .where(
                   (r) =>
                       r.isNotEmpty &&
-                      label(r.first?.text ?? '') == '영업활동으로부터의순현금유출',
+                      const {
+                        '영업활동으로부터의순현금유출',
+                        '영업활동으로인한순현금흐름액',
+                      }.contains(label(r.first?.text ?? '')),
                 )
                 .toList()
           : <List<_FinancialHtmlCell?>>[];
@@ -2554,7 +2559,10 @@ abstract final class PublicFinancialHtml {
         final account =
             (novmetaHeading || printedCfCaption) &&
                 kind == 'CF' &&
-                label(row.first?.text ?? '') == '영업활동으로부터의순현금유출'
+                const {
+                  '영업활동으로부터의순현금유출',
+                  '영업활동으로인한순현금흐름액',
+                }.contains(label(row.first?.text ?? ''))
             ? ('cfo', 'CF')
             : accounts[effectiveAccountLabel];
         if (account == null || account.$2 != kind) continue;
@@ -2568,7 +2576,10 @@ abstract final class PublicFinancialHtml {
               .where(
                 (r) =>
                     r.isNotEmpty &&
-                    label(r.first?.text ?? '') == '영업활동으로부터의순현금유출',
+                    const {
+                      '영업활동으로부터의순현금유출',
+                      '영업활동으로인한순현금흐름액',
+                    }.contains(label(r.first?.text ?? '')),
               )
               .toList();
           if (row.length != 4 ||

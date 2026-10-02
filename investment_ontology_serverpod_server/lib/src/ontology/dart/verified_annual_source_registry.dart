@@ -54,6 +54,30 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20220317000713',
+      corpCode: '00148993',
+      companyName: '하이트진로홀딩스(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220317000713-ofs',
+      manifestDigest:
+          '475b8918b3e7900c9bd5ed247046226df4ab798a1b1b98955dc1d23f8be6406f',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250320001147',
+      corpCode: '00663289',
+      companyName: '위월드(주)',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250320001147-ofs',
+      manifestDigest:
+          'acd714473a36c35cfe8cb9261d78caa23faad7405673e5ca1c7fdab8185c6371',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20220331002887',
       corpCode: '01366824',
       companyName: '(주)제이엠멀티',
