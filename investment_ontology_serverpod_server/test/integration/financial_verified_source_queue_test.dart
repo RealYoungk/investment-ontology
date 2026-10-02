@@ -1,6 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
+
+import '../unit/public_issuer_two_grammars_test.dart' as legal;
+
 import 'package:test/test.dart';
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_financial_html.dart';
@@ -31,8 +36,35 @@ class QueueClient extends SourceClient {
           '20250321001900',
           '20260323001652',
           '20260331003389',
+          '20260330001331',
+          '20260319001111',
         }.contains(receipt)) {
       throw const FormatException('Unverified queue source');
+    }
+    if ({'20260330001331', '20260319001111'}.contains(receipt)) {
+      return PublicFinancialHtmlFetcher(
+        MockClient((request) async {
+          final label = [
+            'shell',
+            'cover',
+            'overview',
+            'ofs',
+          ].singleWhere((n) => legal.uri(receipt, n) == request.url);
+          return http.Response.bytes(
+            utf8.encode(legal.raw(receipt, label)),
+            200,
+            request: request,
+          );
+        }),
+      ).fetchAnnual(
+        receipt,
+        reportName: reportName,
+        corpCode: corpCode,
+        companyName: companyName,
+        bsnsYear: bsnsYear,
+        periodEnd: periodEnd,
+        consolidated: false,
+      );
     }
     final pim = receipt == '20250321001900';
     final dir =
@@ -80,7 +112,7 @@ class QueueClient extends SourceClient {
 
 void main() {
   withServerpod('Verified source queue dispatch', (builder, endpoints) {
-    test('late PIM, Talos and Daeju exact OFS sources beat ten generic newer failures', () async {
+    test('late five verified exact OFS sources beat ten generic newer failures', () async {
       final session = builder.asAdmin.build();
       final now = DateTime.utc(2026, 10, 2);
       await ApiCallUsage.db.insertRow(
@@ -91,16 +123,24 @@ void main() {
           calls: 20000,
         ),
       );
-      for (final i in List.generate(13, (i) => i)) {
+      for (final i in List.generate(15, (i) => i)) {
         final actual = i >= 10;
-        final receipt = i == 12
+        final receipt = i == 14
+            ? '20260319001111'
+            : i == 13
+            ? '20260330001331'
+            : i == 12
             ? '20260331003389'
             : i == 10
             ? '20250321001900'
             : i == 11
             ? '20260323001652'
             : '20260930${i.toString().padLeft(6, '0')}';
-        final corp = i == 12
+        final corp = i == 14
+            ? '01188730'
+            : i == 13
+            ? '01118643'
+            : i == 12
             ? '00414540'
             : i == 10
             ? '00765897'
@@ -112,7 +152,11 @@ void main() {
           session,
           Company(
             corpCode: corp,
-            name: i == 12
+            name: i == 14
+                ? 'SK시그넷'
+                : i == 13
+                ? '솔루믹스'
+                : i == 12
                 ? '대주이엔티(주)'
                 : i == 10
                 ? '한국피아이엠'
@@ -159,7 +203,11 @@ void main() {
         clock: () => now,
         callInterval: Duration.zero,
       ).run();
-      expect(reader.requested.take(6).toSet(), {
+      expect(reader.requested.take(10).toSet(), {
+        '20260330001331:CFS',
+        '20260330001331:OFS',
+        '20260319001111:CFS',
+        '20260319001111:OFS',
         '20260331003389:CFS',
         '20260331003389:OFS',
         '20250321001900:CFS',
@@ -169,10 +217,10 @@ void main() {
       });
       expect(
         reader.requested.length,
-        18,
-      ); // Three verified periods + six failed CFS/OFS periods.
+        20,
+      ); // Five verified periods + five failed CFS/OFS periods.
       final reports = await FinancialReport.db.find(session);
-      expect(reports.length, 3);
+      expect(reports.length, 5);
       for (final r in reports) {
         final source = (await Source.db.findById(session, r.sourceId))!;
         expect(source.reference, r.rceptNo);
