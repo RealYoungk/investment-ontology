@@ -360,6 +360,66 @@ void main() {
                 fsDiv: entry.basis,
               );
               if ({
+                '20220310001159',
+                '20230309000772',
+              }.contains(entry.receipt)) {
+                final expected = jsonDecode(
+                  File('${entry.assetDirectory}/expected-rows.json')
+                      .readAsStringSync(),
+                ) as List;
+                expect(facts, hasLength(8));
+                final keys = [
+                  'assets',
+                  'liabilities',
+                  'equity',
+                  'revenue',
+                  'operatingIncome',
+                  'netIncome',
+                  'operatingCashFlow',
+                  'capex',
+                ];
+                for (var i = 0; i < keys.length; i++) {
+                  final f = facts.singleWhere(
+                    (f) => f.accountName == expected[i][0],
+                  );
+                  expect(f.amount, BigInt.parse(expected[i][1]));
+                  final line = summary!.periods.single.lines.singleWhere(
+                    (l) => l.key == keys[i],
+                  );
+                  expect(line.amount, f.amount);
+                  expect(line.accountName, f.accountName);
+                }
+                final sql = await session.db.unsafeQuery(
+                  'SELECT ${FinancialAccounts.resolvedIdSql('f')} FROM financial_fact f WHERE f."reportId"=${report.id}',
+                );
+                expect(sql.where((r) => r[0] != null), hasLength(8));
+                expect(
+                  sql.where((r) => r[0] == 'ifrs-full_ProfitLoss'),
+                  hasLength(1),
+                );
+                final sourceAudit = (await Source.db.find(
+                  session,
+                  where: (t) => t.reference.equals(
+                    'financial-api-noData-source:${entry.receipt}:${entry.basis.name}',
+                  ),
+                )).single;
+                final coreRows =
+                    jsonDecode(sourceAudit.title)['coreRowProvenance'] as List;
+                final profit = coreRows.singleWhere(
+                  (r) => r['account_nm'].toString().startsWith('Vlll.'),
+                );
+                expect(
+                  profit['html_provenance']['wholeCoreProof']['printedProfitAnnotation'],
+                  true,
+                );
+                expect(
+                  profit['html_provenance']['printedCurrentCells'].where(
+                    (c) => c.toString().replaceAll(',', '') == expected[5][1],
+                  ),
+                  hasLength(1),
+                );
+              }
+              if ({
                 '20240320000248',
                 '20230323000586',
               }.contains(entry.receipt)) {

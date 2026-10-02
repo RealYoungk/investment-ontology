@@ -282,7 +282,8 @@ abstract final class _RevenuePartialAnnual {
       for (final r in g.skip(1)) {
         final printed = r.first?.text ?? '';
         if (RegExp(FinancialAccounts.adjustedProfitAnnotation).hasMatch(
-          compact(printed).replaceFirst(RegExp(r'^[Ⅰ-ⅫIVXLCDM0-9]+[.)．]'), ''),
+          compact(printed)
+              .replaceFirst(RegExp(r'^(Vlll|lll|[Ⅰ-ⅫIVXLCDM0-9]+)[.)．]'), ''),
         )) {
           annotatedWholeProfit = true;
         }

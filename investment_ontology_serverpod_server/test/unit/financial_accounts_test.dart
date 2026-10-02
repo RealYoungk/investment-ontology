@@ -24,6 +24,39 @@ FinancialFact fact(
 );
 
 void main() {
+  test('whole profit double adjustment label uses cell value and finite SQL mirror', () {
+    const label =
+        'Vlll. 당기순이익 (대손준비금 반영후 조정이익 당기: 1,144,141,987,193원 전기: 1,070,462,117,853원)(비상위험준비금 반영후 조정이익 당기: 1,030,159,127,157원 전기: 980,036,103,376원)';
+    final row = fact(label).copyWith(amount: BigInt.parse('1141384898627'));
+    final line = FinancialAccounts.pick([row]).single;
+    expect(line.key, 'netIncome');
+    expect(line.accountName, label);
+    expect(line.amount, row.amount);
+    expect(
+      FinancialAccounts.resolvedIdSql('f'),
+      contains(FinancialAccounts.adjustedProfitAnnotation),
+    );
+    for (final bad in [
+      label.replaceFirst('비상위험', '기타'),
+      '$label 참고',
+      label.replaceFirst('원 전기', '달러 전기'),
+      label.replaceFirst('당기순이익', '조정이익'),
+      label.replaceFirst('Vlll.', 'Vllll.'),
+    ]) {
+      expect(FinancialAccounts.pick([fact(bad)]), isEmpty);
+    }
+    expect(
+      FinancialAccounts.pick([
+        row.copyWith(statement: FinancialStatementKind.cashFlow),
+      ]),
+      isEmpty,
+    );
+    expect(
+      FinancialAccounts.pick([row.copyWith(accountDetail: 'segment')]),
+      isEmpty,
+    );
+  });
+
   test('exact whole CFO 순현금흐름 alias preserves raw name and SQL mirror', () {
     final row = fact(
       '영업활동으로 인한 순현금흐름',

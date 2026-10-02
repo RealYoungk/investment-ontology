@@ -54,6 +54,30 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20220310001159',
+      corpCode: '00139214',
+      companyName: '삼성화재해상보험(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220310001159-ofs',
+      manifestDigest:
+          'a0dc0bb3ebeaca222c9c32da8aaa965df6326612a1555f21cc9c3d0647bd9726',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230309000772',
+      corpCode: '00139214',
+      companyName: '삼성화재해상보험(주)',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230309000772-ofs',
+      manifestDigest:
+          'bec8f39c4ac5ab70934e68d21f4ec144c6ad7686796f754972b5e1aa0160e40d',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20220317000713',
       corpCode: '00148993',
       companyName: '하이트진로홀딩스(주)',

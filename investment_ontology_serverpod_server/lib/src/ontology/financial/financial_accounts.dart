@@ -156,13 +156,13 @@ abstract final class FinancialAccounts {
 
   // Only the printed whole-profit annotation; its adjusted numbers are never used.
   static const adjustedProfitAnnotation =
-      r'^당기순(이익|손익)[(]대손준비금반영후조정이익:?(당기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원전기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원(전전기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원)?|제[0-9]+기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)백만원,제[0-9]+기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)백만원,제[0-9]+기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)백만원)[)]$';
+      r'^(?:당기순(이익|손익)[(]대손준비금반영후조정이익:?(당기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원전기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원(전전기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원)?|제[0-9]+기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)백만원,제[0-9]+기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)백만원,제[0-9]+기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)백만원)[)]|당기순이익[(]대손준비금반영후조정이익당기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원전기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원[)][(]비상위험준비금반영후조정이익당기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원전기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원[)])$';
 
   static String normalizedName(String name) {
     final clean = name
         .replaceAll(RegExp(r'\s+'), '')
         .replaceFirst(
-          RegExp(r'^[Ⅰ-ⅫIVXLCDM0-9]+[.)．]'),
+          RegExp(r'^(Vlll|lll|[Ⅰ-ⅫIVXLCDM0-9]+)[.)．]'),
           '',
         )
         .replaceFirst(
@@ -178,7 +178,8 @@ abstract final class FinancialAccounts {
         r'[[:space:]\u00A0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF]';
     final compact =
         "regexp_replace($alias.\"accountName\", '$spaces', '', 'g')";
-    final unprefixed = "regexp_replace($compact, '^[Ⅰ-ⅫIVXLCDM0-9]+[.)．]', '')";
+    final unprefixed =
+        "regexp_replace($compact, '^(Vlll|lll|[Ⅰ-ⅫIVXLCDM0-9]+)[.)．]', '')";
     final unannotated =
         "regexp_replace($unprefixed, '([(]주(석)?[0-9]+(,[0-9]+)*[)]|<주석[0-9]+>)\$', '')";
     final name =

@@ -2129,7 +2129,7 @@ abstract final class PublicFinancialHtml {
         dotAll: true,
       ).allMatches(t[1]!)) {
         final printed = _compact(_text(c[1]!))
-            .replaceFirst(RegExp(r'^[Ⅰ-ⅫIVXLCDM0-9]+[.)．]'), '');
+            .replaceFirst(RegExp(r'^(Vlll|lll|[Ⅰ-ⅫIVXLCDM0-9]+)[.)．]'), '');
         if (RegExp(FinancialAccounts.adjustedProfitAnnotation)
             .hasMatch(printed)) {
           printedWholeAnnotation = true;

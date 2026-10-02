@@ -24,24 +24,50 @@ void main() {
             periodEnd: DateTime.utc(e['year'], 12, 31),
             consolidated: false,
           );
-      if (e['corp'] == '00139214') {
-        expect(
-          parse,
-          throwsA(
-            isA<FormatException>().having(
-              (x) => x.message,
-              'reason',
-              'Annual primary core missing or balance mismatch',
-            ),
-          ),
-        );
-      } else {
-        final rows = parse();
-        expect(rows.length, inInclusiveRange(7, 8));
-        final proof = rows.first['html_provenance']['supportingPeriodEvidence'];
-        expect(proof['periodEnd'], '${e['year']}-12-31');
-      }
+      final rows = parse();
+      expect(rows.length, inInclusiveRange(7, 8));
+      final proof =
+          rows.first['html_provenance'][e['corp'] == '00139214'
+              ? 'wholeCoreProof'
+              : 'supportingPeriodEvidence'];
+      expect(proof['periodEnd'], '${e['year']}-12-31');
     });
+    if (e['corp'] == '00139214') {
+      test('${e['receipt']} adjusted note figures are never core amounts', () {
+        final cover = File('$dir/${e['receipt']}/cover.html')
+            .readAsStringSync();
+        final original = File('$dir/${e['receipt']}/ofs.html')
+            .readAsStringSync();
+        List<Map<String, dynamic>> parse(String body) =>
+            PublicFinancialHtml.parseStandardAnnual(
+              coverHtml: cover,
+              statementHtml: body,
+              coverSource: Uri.parse(e['coverUrl']),
+              statementSource: Uri.parse(e['ofsUrl']),
+              receipt: e['receipt'],
+              corpCode: e['corp'],
+              companyName: e['name'],
+              periodStart: DateTime.utc(e['year']),
+              periodEnd: DateTime.utc(e['year'], 12, 31),
+              consolidated: false,
+            );
+        final expected = parse(original);
+        // Only literal annotation occurrences, including identical copies outside core.
+        final altered = original
+            .replaceAll('1,144,141,987,193', '1,144,141,987,194')
+            .replaceAll('1,070,462,117,853', '1,070,462,117,854');
+        expect(
+          parse(altered).map((r) => r['thstrm_amount']).toList(),
+          expected.map((r) => r['thstrm_amount']).toList(),
+        );
+        expect(
+          expected.singleWhere(
+            (r) => r['account_nm'].toString().startsWith('Vlll.'),
+          )['thstrm_amount'],
+          '${e['year'] == 2021 ? 1092584640430 : 1141384898627}',
+        );
+      });
+    }
     for (final mutation in [
       'wrong-current-closing',
       'whole-total-missing',

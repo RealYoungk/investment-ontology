@@ -7,3 +7,5 @@
 실제 태양기계2022(20230322000366) 및 BioTen2022(20231018000215) OFS만 whole7~8 양성으로 immutable cache에 추가했다. 삼성화재2021/2022는 CE 날짜/순익행을 식별하더라도 primary 순익의 두 조정 주석이 현행 지원 범위 밖이어서 전체 핵심계정 거부 유지하며 캐시에 추가하지 않았다. 조정이익을 당기 순익으로 대체하지 않는다.
 
 검증: 공식4원문 및 날짜/whole총계/통화/숫자순번 음성, 기존 BioTen2024 mode 회귀, compiled registry 경계, 정상 큐·cache DB2 PASS. API·attempt·기존 반대basis/Source/숫자 불변, 테스트 PostgreSQL 종료. 운영 변경 없음.
+
+후속: 삼성화재 두 원문은 별도 `samsungfire-double-adjustment-label.md`의 엄격한 조정주석 라벨·인쇄 순번 지원으로 whole8 검증이 가능해졌다. Roman 후보 단계의 미지원 판정은 당시 규칙에 한정되며, 후속 후보에서는 직접 순익 셀과 CE 값으로 검산한다.
