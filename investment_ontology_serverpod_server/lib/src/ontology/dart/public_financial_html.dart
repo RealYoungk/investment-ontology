@@ -2074,6 +2074,7 @@ abstract final class PublicFinancialHtml {
     final result = <Map<String, dynamic>>[];
     final values = <String, BigInt>{};
     final missingOptional = <Map<String, dynamic>>[];
+    var yearTermHeaderUsed = false;
     final seenKinds = <String>{};
     var tableIndex = 0;
     for (final table in RegExp(
@@ -2166,6 +2167,15 @@ abstract final class PublicFinancialHtml {
       if (!seenKinds.add(kind)) {
         throw const FormatException('Duplicate annual primary statement');
       }
+      final yearTermHeaders = !consolidated && kind == 'BS'
+          ? grid.first
+                .whereType<_FinancialHtmlCell>()
+                .where(
+                  (c) => _compact(c.text) == '${periodEnd.year}년제$term(당)기말',
+                )
+                .toSet()
+          : <_FinancialHtmlCell>{};
+      if (yearTermHeaders.isNotEmpty) yearTermHeaderUsed = true;
       final headers = grid.first
           .whereType<_FinancialHtmlCell>()
           .where(
@@ -2176,6 +2186,7 @@ abstract final class PublicFinancialHtml {
                 (genericEquityPeriod != null &&
                     (_compact(c.text) == '${periodEnd.year}년' ||
                         _compact(c.text) == '${periodEnd.year}년도')) ||
+                yearTermHeaders.contains(c) ||
                 (animediProof != null &&
                     _compact(c.text) ==
                         '제$term기(${periodEnd.year}년${kind == 'BS' ? '말' : ''})') ||
@@ -2560,6 +2571,101 @@ abstract final class PublicFinancialHtml {
       throw const FormatException(
         'Annual primary core missing or balance mismatch',
       );
+    }
+    if (yearTermHeaderUsed) {
+      final proofs = <Map<String, dynamic>>[];
+      for (final t in RegExp(
+        r'<TABLE\b[^>]*>(.*?)</TABLE>',
+        caseSensitive: false,
+        dotAll: true,
+      ).allMatches(statementHtml)) {
+        final prefix = _compact(_text(statementHtml.substring(0, t.start)));
+        final ceAt = prefix.lastIndexOf('자본변동표');
+        if (ceAt < 0) {
+          continue;
+        }
+        final caption = prefix.substring(ceAt);
+        if (!caption.startsWith('자본변동표제$term기') ||
+            !caption.endsWith('(단위:원)')) {
+          continue;
+        }
+        final g = _FinancialHtmlGrid.parse(t.group(1)!);
+        if (g.isEmpty ||
+            g.first.length != 6 ||
+            _compact(g.first.first?.text ?? '') != '과목' ||
+            _compact(g.first.last?.text ?? '') != '총계') {
+          continue;
+        }
+        int unique(String text) {
+          final hits = [
+            for (var i = 1; i < g.length; i++)
+              if (_compact(g[i].first?.text ?? '') == text) i,
+          ];
+          return hits.length == 1 ? hits.single : -1;
+        }
+
+        final start = unique(
+          '${periodStart.year}.${periodStart.month}.${periodStart.day}(당기초)',
+        );
+        final end = unique(
+          '${periodEnd.year}.${periodEnd.month}.${periodEnd.day}(당기말)',
+        );
+        if (start < 0 || end <= start) {
+          continue;
+        }
+        final profitRows = g
+            .sublist(start + 1, end)
+            .where(
+              (r) => const {
+                '당기순이익',
+                '당기순손실',
+                '당기순이익(손실)',
+              }.contains(_compact(r.first?.text ?? '')),
+            )
+            .toList();
+        if (profitRows.length != 1) {
+          continue;
+        }
+        BigInt whole(List<_FinancialHtmlCell?> row) {
+          if (row.length != 6 ||
+              row.any((c) => c == null || c.colspan != 1 || c.rowspan != 1)) {
+            throw const FormatException(
+              'Year term supporting CE whole column ambiguity',
+            );
+          }
+          final amount = money(row.last!.text);
+          if (amount == null) {
+            throw const FormatException(
+              'Year term supporting CE missing total',
+            );
+          }
+          return amount;
+        }
+
+        final profit = whole(profitRows.single), equity = whole(g[end]);
+        proofs.add({
+          'rule': 'year-term-bs-with-independent-ofs-ce-v1',
+          'wholeColumn': 5,
+          'currentStartLabel': g[start].first!.text,
+          'currentEndLabel': g[end].first!.text,
+          'wholeProfit': profit.toString(),
+          'closingEquity': equity.toString(),
+          'printedProfitCells': profitRows.single.map((c) => c!.text).toList(),
+          'printedClosingCells': g[end].map((c) => c!.text).toList(),
+        });
+      }
+      if (proofs.length != 1 ||
+          proofs.single['wholeProfit'] != values['profit'].toString() ||
+          proofs.single['closingEquity'] != values['equity'].toString()) {
+        throw const FormatException(
+          'Year term supporting CE profit equity contradiction',
+        );
+      }
+      for (final row in result) {
+        (row['html_provenance']
+                as Map<String, dynamic>)['supportingWholeEquityEvidence'] =
+            proofs.single;
+      }
     }
     if (spacMissingRevenue) {
       if (missingRevenue == null) {
