@@ -102,9 +102,9 @@ void main() {
       periodEnd: DateTime.utc(2024, 12, 31),
       consolidated: false,
     );
-    expect(calls, ['shell', 'cover', 'overview', 'ofs']);
+    expect(calls, ['shell', 'cover', 'ofs']);
     expect(result.rows, hasLength(7));
-    expect(result.issuerProof, isNotNull);
+    expect(result.primaryIssuerProof, isNotNull);
     final rows = PublicFinancialHtml.parseStandardAnnual(
       coverHtml: result.coverHtml,
       statementHtml: result.statementHtml,
@@ -117,11 +117,12 @@ void main() {
       periodEnd: result.periodEnd,
       consolidated: false,
       issuerProof: result.issuerProof,
+      primaryIssuerProof: result.primaryIssuerProof,
     );
     expect(rows, result.rows);
     expect(result.correctionReceipt, isNull);
   });
-  test('transport issuer failure does not fetch numeric statement or become noData', () async {
+  test('inconsistent primary issuer and invalid overview remain failure, never noData', () async {
     const rec = '20251124000372';
     final calls = <String>[];
     final fetcher = PublicFinancialHtmlFetcher(
@@ -135,7 +136,9 @@ void main() {
         calls.add(label);
         return http.Response.bytes(
           utf8.encode(
-            label == 'overview'
+            label == 'ofs'
+                ? raw(rec, label).replaceAll('아이엘', '다른회사')
+                : label == 'overview'
                 ? raw(rec, label).replaceAll('한글', '영문')
                 : raw(rec, label),
           ),
@@ -162,7 +165,7 @@ void main() {
         ),
       ),
     );
-    expect(calls, ['shell', 'cover', 'overview']);
+    expect(calls, ['shell', 'cover', 'ofs', 'overview']);
   });
 
   for (final receipt in ['20230315000460', '20251124000372']) {

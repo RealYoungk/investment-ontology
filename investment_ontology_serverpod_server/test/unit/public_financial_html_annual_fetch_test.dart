@@ -218,7 +218,7 @@ void main() {
     await expectLater(fetch(corp: '99999999'), throwsFormatException);
     expect(requests, hasLength(1));
   });
-  test('foreign company cover cannot reach statements', () async {
+  test('foreign company cover cannot validate primary statements', () async {
     await expectLater(
       fetch(
         cover: fixture(
@@ -228,8 +228,8 @@ void main() {
       ),
       throwsFormatException,
     );
-    expect(requests, hasLength(3));
-    // One issuer-overview check is allowed; financial statements remain unfetched.
+    expect(requests, hasLength(4));
+    // Primary issuer captions and overview both fail; no numeric source is returned.
     expect(
       requests.last.url,
       Uri.parse(
@@ -375,8 +375,8 @@ void main() {
         ),
         genericOnly,
       );
-      expect(requests, hasLength(3));
-      // One issuer-overview check is allowed; financial statements remain unfetched.
+      expect(requests, hasLength(4));
+      // A pure absence body cannot prove a different cover issuer.
       expect(
         requests.last.url,
         Uri.parse(

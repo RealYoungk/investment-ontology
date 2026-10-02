@@ -1,3 +1,5 @@
+import 'primary_historical_issuer.dart';
+
 import 'dart:convert';
 
 import 'animedi_ce_source.dart';
@@ -820,6 +822,7 @@ abstract final class PublicFinancialHtml {
     required DateTime periodEnd,
     required bool consolidated,
     PublicIssuerLegalName? issuerProof,
+    PrimaryHistoricalIssuer? primaryIssuerProof,
     SkSignetIdentity? skSignetIdentity,
   }) {
     if (receipt == BnkSixCoreProfile.receipt) {
@@ -976,6 +979,20 @@ abstract final class PublicFinancialHtml {
             periodStart: periodStart,
             periodEnd: periodEnd,
           );
+    final primaryIssuer = primaryIssuerProof?.verify(
+      receipt: receipt,
+      corp: corpCode,
+      consolidated: consolidated,
+      coverSource: coverSource,
+      cover: coverHtml,
+      statementSource: statementSource,
+      statement: statementHtml,
+      start: periodStart,
+      end: periodEnd,
+    );
+    if (primaryIssuerProof != null && primaryIssuer == null) {
+      throw const FormatException('Invalid primary historical issuer proof');
+    }
     if (issuerProof != null && declaredIssuer == null) {
       throw const FormatException('Invalid raw official issuer evidence');
     }
@@ -987,6 +1004,7 @@ abstract final class PublicFinancialHtml {
         company == null ||
         (legalName(company) != legalName(companyName) &&
             declaredIssuer == null &&
+            primaryIssuer == null &&
             skIdentity == null &&
             VerifiedHistoricalCompanyIdentity.evidence(
                   receipt: receipt,
@@ -3216,6 +3234,14 @@ abstract final class PublicFinancialHtml {
         (row['html_provenance']
                 as Map<String, dynamic>)['historicalCompanyIdentity'] =
             declaredIssuer;
+      }
+    }
+    if (primaryIssuer != null) {
+      for (final row in result) {
+        (row['html_provenance'] as Map)['primaryHistoricalIssuer'] = {
+          ...primaryIssuer,
+          'currentMasterName': companyName,
+        };
       }
     }
     return result;
