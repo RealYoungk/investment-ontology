@@ -139,6 +139,59 @@ abstract final class VerifiedAnnualSourceRegistry {
       ruleVersion: 'verified-current-period-whole-annual-v1',
       absenceLiteral: null,
     ),
+    AnnualSourceCacheEntry(
+      receipt: '20220317001218',
+      corpCode: '01113499',
+      companyName: '(주)아이티센피엔에스',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220317001218-cfs',
+      manifestDigest:
+          '81d86f9caf2c3b5ecdb7441b05f24d15cb582fbb883f80378d01b2bc7e2fa9a3',
+      ruleVersion: 'two-historical-issuer-pure-none-v1',
+      absenceLiteral: '당사는 사업보고서 제출기준일 현재 해당사항 없습니다.',
+      requiresIssuerOverview: true,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220816000416',
+      corpCode: '01188730',
+      companyName: 'SK시그넷(주)',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220816000416-cfs',
+      manifestDigest:
+          '7200e76b69c0c13fa83aeb992944f14738dcdf868332f51ad02d2f8e18811323',
+      ruleVersion: 'two-historical-issuer-pure-none-v1',
+      absenceLiteral: '당사는 연결재무제표 작성대상 법인이 아니므로 해당사항이 없습니다.',
+      requiresIssuerOverview: true,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20220317001218',
+      corpCode: '01113499',
+      companyName: '(주)아이티센피엔에스',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220317001218-ofs',
+      manifestDigest:
+          '25b11ba3d8ec30ced1faa1c2f24448f63b0383c7237c30acc7e734049befc27a',
+      ruleVersion: 'two-historical-issuer-whole-annual-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: true,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220816000416',
+      corpCode: '01188730',
+      companyName: 'SK시그넷(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220816000416-ofs',
+      manifestDigest:
+          'be5a584ca60041032fc5be67c9755a05121c035ef197909972e817d5e0605ea6',
+      ruleVersion: 'two-historical-issuer-whole-annual-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: true,
+    ),
 
     AnnualSourceCacheEntry(
       receipt: '20220310001159',

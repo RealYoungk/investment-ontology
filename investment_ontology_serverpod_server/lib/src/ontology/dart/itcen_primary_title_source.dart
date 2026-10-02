@@ -13,26 +13,45 @@ abstract final class ItcenPrimaryTitleSource {
     required String term,
     required Uri source,
   }) =>
-      receipt == '20230317000589' &&
       corpCode == '01113499' &&
       !consolidated &&
-      start == DateTime.utc(2022) &&
-      end == DateTime.utc(2022, 12, 31) &&
-      term == '12' &&
       source.scheme == 'https' &&
       source.host == 'dart.fss.or.kr' &&
       !source.hasPort &&
       source.path == '/report/viewer.do' &&
       source.queryParameters['rcpNo'] == receipt &&
-      source.queryParameters['dcmNo'] == '9069985' &&
-      source.queryParameters['eleId'] == '21' &&
-      source.queryParameters['offset'] == '500047' &&
-      source.queryParameters['length'] == '45711';
+      source.queryParameters['dtd'] == 'dart3.xsd' &&
+      source.queryParametersAll.length == 6 &&
+      source.queryParametersAll.values.every((v) => v.length == 1) &&
+      ((receipt == '20230317000589' &&
+              start == DateTime.utc(2022) &&
+              end == DateTime.utc(2022, 12, 31) &&
+              term == '12' &&
+              source.queryParameters['dcmNo'] == '9069985' &&
+              source.queryParameters['eleId'] == '21' &&
+              source.queryParameters['offset'] == '500047' &&
+              source.queryParameters['length'] == '45711') ||
+          (receipt == '20220317001218' &&
+              start == DateTime.utc(2021) &&
+              end == DateTime.utc(2021, 12, 31) &&
+              term == '11' &&
+              source.queryParameters['dcmNo'] == '8473959' &&
+              source.queryParameters['eleId'] == '21' &&
+              source.queryParameters['offset'] == '514664' &&
+              source.queryParameters['length'] == '50297'));
   static void verifyRaw(String cover, String statement) {
-    if (sha256.convert(utf8.encode(cover)).toString() !=
-            '7ac6cb9a408ce4a99571b42209e598828d6c41b67e3a6bac29b782886dde72b5' ||
-        sha256.convert(utf8.encode(statement)).toString() !=
-            '8d36e4ac98eb0a6da4353da24b4fc1cdcacd19badaf1cb5990303584d18e531c') {
+    final pair = [
+      sha256.convert(utf8.encode(cover)).toString(),
+      sha256.convert(utf8.encode(statement)).toString(),
+    ];
+    if (!((pair[0] ==
+                '7ac6cb9a408ce4a99571b42209e598828d6c41b67e3a6bac29b782886dde72b5' &&
+            pair[1] ==
+                '8d36e4ac98eb0a6da4353da24b4fc1cdcacd19badaf1cb5990303584d18e531c') ||
+        (pair[0] ==
+                'cb728172f36470ac3dfef74e3322921313b620553386a5eb0ac92cfffc2f335c' &&
+            pair[1] ==
+                'eeb2eb7efbefb1993db2e3d7f8daf778fcbbc2cb439d299e48c84d59e6a1dc26'))) {
       throw const FormatException('ITcen pinned official raw SHA mismatch');
     }
   }

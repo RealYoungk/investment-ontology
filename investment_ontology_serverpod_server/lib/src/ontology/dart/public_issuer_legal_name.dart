@@ -1,3 +1,5 @@
+import 'exact_cover_executive_role.dart';
+
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
@@ -117,7 +119,9 @@ class PublicIssuerLegalName {
       return null;
     }
     final cover = _text(coverHtml).replaceAll(' ', '');
-    final names = RegExp(r'회사명:(.*?)(?:공동)?대표이사:').allMatches(cover).toList();
+    final names = ExactCoverExecutiveRole.names(coverHtml)
+        .allMatches(cover)
+        .toList();
     String date(DateTime d) =>
         '${d.year}년${d.month.toString().padLeft(2, '0')}월${d.day.toString().padLeft(2, '0')}일';
     if (names.length != 1 ||
@@ -278,6 +282,15 @@ class PublicIssuerLegalName {
       // Exact first-paragraph declarations of the issuer's printed legal name.
       // A later history, change notice or subsidiary paragraph cannot supply it.
       final firstLiteralPatterns = [
+        if (receipt == '20220816000416' &&
+            corpCode == '01188730' &&
+            sha256.convert(utf8.encode(coverHtml)).toString() ==
+                '0a421d3cc8f069bed67bdfbe86b33ab51011f90c5c2ab16edb4744b479b20d92' &&
+            sha256.convert(utf8.encode(overviewHtml)).toString() ==
+                '427c00d4ea8d7aa6c14338953bfe179443a20d1b424589db458ffa766b6560cd')
+          RegExp(
+            r'^당사의 명칭은 (주식회사 시그넷이브이)라고 표기합니다\. 또한 영문으로는 SIGNET EV INC\.라고 표기합니다\.$',
+          ),
         RegExp(
           r'^당사의 명칭은 "([가-힣㈜() ]+)"이며, 영문으로는 "[A-Za-z0-9.,& -]+ \(약호 [A-Za-z0-9.,& -]+\)"로 표기합니다\.$',
         ),

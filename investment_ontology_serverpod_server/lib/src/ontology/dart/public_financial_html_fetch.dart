@@ -1,3 +1,4 @@
+import 'exact_cover_executive_role.dart';
 import 'pureun_exact_basis_absence.dart';
 import 'primary_historical_issuer.dart';
 import 'innovex_exact_basis_absence.dart';
@@ -81,7 +82,7 @@ class PublicFinancialHtmlBasisNotApplicable extends FormatException {
   final String evidence;
   final PublicIssuerLegalName? issuerProof;
   Map<String, String>? get issuerIdentityEvidence {
-    final names = RegExp(r'회사명:(.*?)(?:공동)?대표이사:')
+    final names = ExactCoverExecutiveRole.names(coverHtml)
         .allMatches(coverHtml.replaceAll(RegExp(r'<[^>]+>|\s+|&nbsp;'), ''))
         .toList();
     if (names.length != 1) return null;
@@ -412,7 +413,7 @@ class PublicFinancialHtmlFetcher {
     if (exactAnnual) {
       String normalize(String name) =>
           name.replaceAll(RegExp(r'\(주\)|㈜|주식회사|\s+'), '');
-      final printedNames = RegExp(r'회사명:(.*?)(?:공동)?대표이사:')
+      final printedNames = ExactCoverExecutiveRole.names(coverHtml)
           .allMatches(text)
           .toList();
       if (printedNames.length != 1 ||
@@ -542,6 +543,12 @@ class PublicFinancialHtmlFetcher {
             periodEnd.year == 2022 &&
             periodEnd.month == 12 &&
             periodEnd.day == 31)
+          '당사는 사업보고서 제출기준일 현재 해당사항 없습니다.',
+        if (sourceReceipt == '20220317001218' &&
+            corpCode == '01113499' &&
+            bsnsYear == 2021 &&
+            periodStart == DateTime.utc(2021) &&
+            periodEnd == DateTime.utc(2021, 12, 31))
           '당사는 사업보고서 제출기준일 현재 해당사항 없습니다.',
         '※ 해당사항 없습니다.',
         '당사는 연결재무제표 작성대상법인에 해당하지 않습니다.',

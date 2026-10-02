@@ -1,4 +1,5 @@
 import 'contents_on_corroborated_flow_period.dart';
+import 'exact_cover_executive_role.dart';
 import 'annual_equity_period.dart';
 import 'samsungfire_cfs_source.dart';
 import 'historical_cfs_whole_proof.dart';
@@ -988,7 +989,7 @@ abstract final class PublicFinancialHtml {
     }
 
     final cover = _compact(_text(coverHtml));
-    final company = RegExp(r'회사명:(.*?)(?:공동)?대표이사:')
+    final company = ExactCoverExecutiveRole.names(coverHtml)
         .firstMatch(cover)
         ?.group(1);
     final declaredIssuer = company == null
@@ -3321,7 +3322,9 @@ abstract final class PublicFinancialHtml {
           continue;
         }
         final local = preceding.substring(ce);
-        if (!local.contains('제12(당)기2022년1월1일부터2022년12월31일까지') ||
+        if (!local.contains(
+              '제$term(당)기${periodEnd.year}년1월1일부터${periodEnd.year}년12월31일까지',
+            ) ||
             !local.endsWith('주식회사시큐센(단위:원)') ||
             grid.first.length != 6 ||
             grid.first.map((c) => _compact(c?.text ?? '')).join('|') !=
@@ -3344,8 +3347,8 @@ abstract final class PublicFinancialHtml {
           return found.single;
         }
 
-        final start = unique('2022.01.01(당기초)'),
-            end = unique('2022.12.31(당기말)');
+        final start = unique('${periodEnd.year}.01.01(당기초)'),
+            end = unique('${periodEnd.year}.12.31(당기말)');
         final profits = [
           for (var i = start + 1; i < end; i++)
             if (_compact(grid[i].first?.text ?? '') == '당기순이익') i,
@@ -3374,10 +3377,10 @@ abstract final class PublicFinancialHtml {
           'receipt': receipt,
           'corpCode': corpCode,
           'source': statementSource.toString(),
-          'rawHeader': '제12(당)기 / 직접 TABLE 제목',
+          'rawHeader': '제$term(당)기 / 직접 TABLE 제목',
           'currentTerm': term,
-          'periodStart': '2022-01-01',
-          'periodEnd': '2022-12-31',
+          'periodStart': '${periodEnd.year}-01-01',
+          'periodEnd': '${periodEnd.year}-12-31',
           'totalColumn': 5,
           'currentProfit': whole(profits.single).toString(),
           'closingEquity': whole(end).toString(),
