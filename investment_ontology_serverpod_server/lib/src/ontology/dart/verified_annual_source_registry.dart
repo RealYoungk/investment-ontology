@@ -52,6 +52,42 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20230317000745',
+      corpCode: '01065785',
+      companyName: '(주)노브메타파마',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230317000745-ofs',
+      manifestDigest:
+          'b9da398ef3b4b721c8dafebf712eed887d73325ae3caafb7e6939f91fecd91e1',
+      ruleVersion: 'direct-net-cfo-after-empty-caption-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240320001114',
+      corpCode: '01065785',
+      companyName: '(주)노브메타파마',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20240320001114-ofs',
+      manifestDigest:
+          '4f06002798f3ee56e02979048262644823e30d003fe0f9d6ef01945923d338c8',
+      ruleVersion: 'direct-net-cfo-after-empty-caption-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250314001145',
+      corpCode: '01065785',
+      companyName: '(주)노브메타파마',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250314001145-ofs',
+      manifestDigest:
+          '2c432ebb600d8c01aff1e616d588122401c30f124680b40e85068e263d55792d',
+      ruleVersion: 'direct-net-cfo-after-empty-caption-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20210629000260',
       corpCode: '00677334',
       companyName: '(주)아하',

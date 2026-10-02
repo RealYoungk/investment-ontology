@@ -2356,15 +2356,49 @@ abstract final class PublicFinancialHtml {
           );
         }
       }
+      // A blank section caption is not an amount. Accept it only when this
+      // same dated primary table has one later explicitly named net CFO row.
+      final cfCaptions = kind == 'CF'
+          ? grid
+                .skip(1)
+                .where(
+                  (r) =>
+                      r.isNotEmpty && label(r.first?.text ?? '') == '영업활동현금흐름',
+                )
+                .toList()
+          : <List<_FinancialHtmlCell?>>[];
+      final cfNetTotals = kind == 'CF'
+          ? grid
+                .skip(1)
+                .where(
+                  (r) =>
+                      r.isNotEmpty &&
+                      label(r.first?.text ?? '') == '영업활동으로부터의순현금유출',
+                )
+                .toList()
+          : <List<_FinancialHtmlCell?>>[];
+      final printedCfCaption =
+          (receipt != '20260320000871' || novmetaHeading) &&
+          cfCaptions.length == 1 &&
+          cfNetTotals.length == 1 &&
+          cfCaptions.single.length == grid.first.length &&
+          cfCaptions.single.every((c) => c != null && c.rowspan == 1) &&
+          cfCaptions.single.skip(1).every((c) => c!.text.trim().isEmpty) &&
+          grid.indexOf(cfCaptions.single) < grid.indexOf(cfNetTotals.single) &&
+          cfNetTotals.single.length == grid.first.length &&
+          cfNetTotals.single.every(
+            (c) => c != null && c.rowspan == 1 && c.colspan == 1,
+          );
       for (final row in grid.skip(1)) {
         if (row.isEmpty) continue;
         final account =
-            novmetaHeading &&
+            (novmetaHeading || printedCfCaption) &&
                 kind == 'CF' &&
                 label(row.first?.text ?? '') == '영업활동으로부터의순현금유출'
             ? ('cfo', 'CF')
             : accounts[label(row.first?.text ?? '')];
         if (account == null || account.$2 != kind) continue;
+        if (printedCfCaption && identical(row, cfCaptions.single)) continue;
         // This exact source has a section caption with all three year cells
         // empty, followed by a separately printed whole-company CFO total.
         if (novmetaHeading &&
