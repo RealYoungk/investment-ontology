@@ -1,3 +1,4 @@
+import 'woori_investment_2021_source.dart';
 import 'db_exact_issuer_identity.dart';
 
 import 'dart:convert';
@@ -208,6 +209,44 @@ final class VerifiedAnnualSourceCache {
     }
     if (documents.length != documentCount || labels.length != documentCount) {
       throw const FormatException('Cached annual package incomplete');
+    }
+    if (entry.ruleVersion == WooriInvestment2021Source.rule) {
+      final src = manifest['sources'] as List;
+      Uri uri(String label) => Uri.parse(
+        src.singleWhere((s) => s['label'] == label)['url'] as String,
+      );
+      final sh = uri('shell'),
+          co = uri('cover'),
+          st = uri(basis == FsDiv.consolidated ? 'cfs' : 'ofs');
+      String raw(Uri u) => utf8.decode(documents[u]!);
+      final rows = WooriInvestment2021Source.parse(
+        shell: raw(sh),
+        cover: raw(co),
+        statement: raw(st),
+        shellSource: sh,
+        coverSource: co,
+        statementSource: st,
+        sourceReceipt: entry.receipt,
+        corpCode: company.corpCode,
+        periodStart: start,
+        periodEnd: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raw(co),
+          coverSource: co,
+          statementHtml: raw(st),
+          statementSource: st,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
     }
     if (entry.ruleVersion == 'gne-own-audit-whole7-v1') {
       String raw(String uri) => utf8.decode(documents[Uri.parse(uri)]!);

@@ -119,6 +119,18 @@ abstract final class VerifiedAnnualSourceRegistry {
       absenceLiteral: null,
     ),
     AnnualSourceCacheEntry(
+      receipt: '20220715000446',
+      corpCode: '00231664',
+      companyName: '우리기술투자(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220715000446-ofs',
+      manifestDigest:
+          'ad372989a3f8a7f97137ebc8fdb10be3ca16ca977ab2afea40688b4d58dc20bc',
+      ruleVersion: 'woori-investment-2021-whole7-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20230323001437',
       corpCode: '01363924',
       companyName: '(주)한국미라클피플사',
