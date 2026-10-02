@@ -32,6 +32,31 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20260316001455',
+      corpCode: '00445869',
+      companyName: '(주)유니포인트',
+      year: 2025,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20260316001455-ofs',
+      manifestDigest:
+          '1bb3549b45b4a7a9ed87fcb8a726a08d5fceba24d51935b6664ef0d0a6b1274a',
+      ruleVersion: 'verified-standard-annual-eight-core-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260326000677',
+      corpCode: '01290132',
+      companyName: '주식회사 인터로이드',
+      year: 2025,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20260326000677-ofs',
+      manifestDigest:
+          '8454f74ea0318b0de07318a7b70f8c456044320b9fc82b994c1ab934d646e49c',
+      ruleVersion: 'verified-standard-annual-eight-core-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20260327001807',
       corpCode: '01018617',
       companyName: '(주)메디쎄이',
