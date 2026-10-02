@@ -1251,6 +1251,21 @@ abstract final class PublicFinancialHtml {
         periodEnd.difference(periodStart).inDays >= 364 &&
         periodEnd.difference(periodStart).inDays <= 365 &&
         text.contains('제$term기(${periodEnd.year}년)');
+    final exactInnovexOfs =
+        receipt == '20250320001369' &&
+        corpCode == '01353848' &&
+        !consolidated &&
+        term == '12' &&
+        periodStart == DateTime.utc(2024) &&
+        periodEnd == DateTime.utc(2024, 12, 31) &&
+        coverSource.queryParameters['dcmNo'] == '10439334' &&
+        coverSource.queryParameters['eleId'] == '1' &&
+        coverSource.queryParameters['offset'] == '955' &&
+        coverSource.queryParameters['length'] == '4504' &&
+        statementSource.queryParameters['dcmNo'] == '10439334' &&
+        statementSource.queryParameters['eleId'] == '21' &&
+        statementSource.queryParameters['offset'] == '203049' &&
+        statementSource.queryParameters['length'] == '51955';
     final exactPimCfs =
         receipt == '20250321001900' &&
         corpCode == '00765897' &&
@@ -1276,7 +1291,8 @@ abstract final class PublicFinancialHtml {
       consolidated: consolidated,
     );
     if (datedPunctuationProof == null &&
-        (parenthesizedTitles.isNotEmpty ||
+        (exactInnovexOfs ||
+            parenthesizedTitles.isNotEmpty ||
             bsDurationCandidate ||
             termYearHeaderCandidate)) {
       final candidates = <Map<String, dynamic>>[];
@@ -1305,7 +1321,74 @@ abstract final class PublicFinancialHtml {
             sourceDate(ceTitles.single.group(3)!) != periodEnd) {
           continue;
         }
-        final grid = _FinancialHtmlGrid.parse(table.group(1)!);
+        // Only this source's literal, nonnumeric CE separator rows may span seven.
+        // Headers and numeric rows still use the unchanged bounded grid parser.
+        var equityHtml = table.group(1)!;
+        if (exactInnovexOfs) {
+          equityHtml = equityHtml.replaceAllMapped(
+            RegExp(
+              r'<TR\b[^>]*>(.*?)</TR>',
+              caseSensitive: false,
+              dotAll: true,
+            ),
+            (row) {
+              final cells = RegExp(
+                r'<T[DH]\b([^>]*)>(.*?)</T[DH]>',
+                caseSensitive: false,
+                dotAll: true,
+              ).allMatches(row.group(1)!).toList();
+              if (cells.length == 1 &&
+                  RegExp(
+                    r'''colspan\s*=\s*['"]?7(?:['"]|\s|$)''',
+                    caseSensitive: false,
+                  ).hasMatch(cells.single.group(1)!)) {
+                if (RegExp(
+                          r'colspan',
+                          caseSensitive: false,
+                        ).allMatches(cells.single.group(1)!).length !=
+                        1 ||
+                    !{
+                      '총포괄손익:',
+                      '자본에직접반영된소유주와의거래등:',
+                    }.contains(_compact(_text(cells.single.group(2)!))) ||
+                    RegExp(
+                      r'rowspan',
+                      caseSensitive: false,
+                    ).hasMatch(cells.single.group(1)!)) {
+                  throw const FormatException('Innovex CE separator mismatch');
+                }
+                return '';
+              }
+              return row.group(0)!;
+            },
+          );
+        }
+        final grid = _FinancialHtmlGrid.parse(equityHtml);
+        final innovexWholeHeader =
+            exactInnovexOfs &&
+            grid.length >= 2 &&
+            grid[0].length == 7 &&
+            grid[1].length == 7 &&
+            _compact(grid[0][0]?.text ?? '') == '과목' &&
+            grid[0][0]?.rowspan == 2 &&
+            grid[0][0]?.colspan == 1 &&
+            identical(grid[0][0], grid[1][0]) &&
+            _compact(grid[0][1]?.text ?? '') == '자본' &&
+            grid[0][1]?.rowspan == 1 &&
+            grid[0][1]?.colspan == 6 &&
+            [for (var c = 1; c <= 6; c++) identical(grid[0][1], grid[0][c])]
+                .every((v) => v) &&
+            [for (var c = 1; c <= 6; c++) _compact(grid[1][c]?.text ?? '')]
+                    .join('|') ==
+                '자본금|자본잉여금|자본조정|기타자본|이익잉여금(결손금)|합계' &&
+            [
+              for (var c = 1; c <= 6; c++)
+                grid[1][c]?.rowspan == 1 && grid[1][c]?.colspan == 1,
+            ].every((v) => v);
+        if (exactInnovexOfs && !innovexWholeHeader) {
+          throw const FormatException('Innovex CE whole header mismatch');
+        }
+
         if (grid.isEmpty ||
             !{'과목', '구분'}.contains(_compact(grid.first.first?.text ?? ''))) {
           continue;
@@ -1340,6 +1423,7 @@ abstract final class PublicFinancialHtml {
                 grid[1][c]?.rowspan == 1 && grid[1][c]?.colspan == 1,
             ].every((v) => v);
         if (!pimWholeHeader &&
+            !innovexWholeHeader &&
             (grid.first.length < 3 ||
                 !{
                   '총계',
@@ -1358,7 +1442,7 @@ abstract final class PublicFinancialHtml {
         }
         final units = RegExp(r'\(단위:([^)]*)\)').allMatches(local).toList();
         final unit = units.isEmpty ? null : units.last.group(1);
-        if (pimWholeHeader && unit != '원') {
+        if ((pimWholeHeader || innovexWholeHeader) && unit != '원') {
           throw const FormatException('PIM whole equity unit mismatch');
         }
         final multiplier = switch (unit) {
@@ -1370,9 +1454,17 @@ abstract final class PublicFinancialHtml {
           ),
         };
         DateTime? rowDate(String text) {
-          final m = RegExp(
-            r'^(\d{4})(?:년|\.)(\d{1,2})(?:월|\.)(\d{1,2})(?:일)?(?:\(보고금액\)|\(당기초\)|\(당기말\)|\(기초자본\)|\(기말자본\)|잔액)$',
-          ).firstMatch(_compact(text));
+          final m =
+              RegExp(
+                r'^(\d{4})(?:년|\.)(\d{1,2})(?:월|\.)(\d{1,2})(?:일)?(?:\(보고금액\)|\(당기초\)|\(당기말\)|\(기초자본\)|\(기말자본\)|잔액)$',
+              ).firstMatch(
+                innovexWholeHeader
+                    ? _compact(text).replaceFirst(
+                        RegExp(r'^Ⅲ\.(?=\d{4}\.\d{2}\.\d{2}\(기말자본\)$)'),
+                        '',
+                      )
+                    : _compact(text),
+              );
           if (m == null) return null;
           final d = DateTime.utc(
             int.parse(m[1]!),
@@ -1441,7 +1533,9 @@ abstract final class PublicFinancialHtml {
         }
 
         candidates.add({
-          'mode': pimWholeHeader
+          'mode': innovexWholeHeader
+              ? 'exact-innovex-ofs-whole-equity-corroboration'
+              : pimWholeHeader
               ? 'exact-pim-cfs-span-whole-equity-corroboration'
               : termYearHeaderCandidate
               ? 'full-annual-term-year-whole-equity-corroboration'
@@ -1449,6 +1543,8 @@ abstract final class PublicFinancialHtml {
               ? 'primary-bs-duration-equity-corroboration'
               : 'fully-dated-parentheses-equity-corroboration',
           'tableIndex': index,
+          if (innovexWholeHeader) 'wholeTotalColumn': 6,
+          if (innovexWholeHeader) 'literalSeparatorRowsExcluded': true,
           if (pimWholeHeader) 'wholeTotalColumn': 8,
           if (pimWholeHeader) 'parentSubtotalColumn': 6,
           if (pimWholeHeader) 'nonControllingColumn': 7,
