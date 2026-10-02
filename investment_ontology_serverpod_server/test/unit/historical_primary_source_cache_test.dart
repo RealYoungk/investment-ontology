@@ -87,8 +87,8 @@ void main() {
         expect(VerifiedAnnualSourceCache.eligibleFor(f, e), false);
       }
       expect(
-        VerifiedAnnualSourceRegistry.find(e.receipt, FsDiv.consolidated),
-        isNull,
+        VerifiedAnnualSourceRegistry.find(e.receipt, FsDiv.consolidated)!.basis,
+        FsDiv.consolidated,
       );
     });
   }

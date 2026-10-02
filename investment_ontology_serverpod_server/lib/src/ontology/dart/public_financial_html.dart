@@ -1,3 +1,4 @@
+import 'historical_cfs_whole_proof.dart';
 import 'primary_historical_issuer.dart';
 
 import 'dart:convert';
@@ -1589,13 +1590,12 @@ abstract final class PublicFinancialHtml {
         'Annual current statement title period mismatch',
       );
     }
-    String label(String raw) =>
-        _compact(raw)
-            .replaceFirst(RegExp(r'^[Ⅰ-ⅫIVXLCDM\d]+[.)]'), '')
-            .replaceFirst(
-              RegExp(r'(?:\(주(?:석)?[0-9]+(?:,[0-9]+)*\)|<주석[0-9]+>)$'),
-              '',
-            );
+    String label(String raw) => _compact(raw)
+        .replaceFirst(RegExp(r'^[Ⅰ-ⅫIVXLCDM\d]+[.)]'), '')
+        .replaceFirst(
+          RegExp(r'(?:\(주(?:석)?[0-9]+(?:,[0-9]+)*\)|<주석[0-9]+>)$'),
+          '',
+        );
     const accounts = {
       '자산총계': ('assets', 'BS'),
       '부채총계': ('liabilities', 'BS'),
@@ -3234,6 +3234,23 @@ abstract final class PublicFinancialHtml {
         (row['html_provenance']
                 as Map<String, dynamic>)['historicalCompanyIdentity'] =
             declaredIssuer;
+      }
+    }
+    if (consolidated && HistoricalCfsWholeProof.eligible(receipt)) {
+      final wholeProof = HistoricalCfsWholeProof.verify(
+        receipt: receipt,
+        corp: corpCode,
+        start: periodStart,
+        end: periodEnd,
+        source: statementSource,
+        html: statementHtml,
+        netIncome: values['profit']!,
+        equity: values['equity']!,
+      );
+      for (final row in result) {
+        (row['html_provenance']
+                as Map<String, dynamic>)['supportingPeriodEvidence'] =
+            wholeProof;
       }
     }
     if (primaryIssuer != null) {

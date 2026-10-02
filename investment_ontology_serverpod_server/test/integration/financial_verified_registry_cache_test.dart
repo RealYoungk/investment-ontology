@@ -312,7 +312,7 @@ void main() {
                 final partialAudit = (await Source.db.find(
                   session,
                   where: (t) => t.reference.equals(
-                    'financial-api-noData-source:${entry.receipt}:separate',
+                    'financial-api-noData-source:${entry.receipt}:${entry.basis.name}',
                   ),
                 )).single;
                 final partial = jsonDecode(partialAudit.title);
@@ -431,7 +431,9 @@ void main() {
               }.contains(entry.receipt)) {
                 final cases = jsonDecode(
                   File(
-                    'test/fixtures/financial_html/primary-historical-issuer/cases.json',
+                    entry.basis == FsDiv.consolidated
+                        ? 'test/fixtures/financial_html/historical-cfs-source/cases.json'
+                        : 'test/fixtures/financial_html/primary-historical-issuer/cases.json',
                   ).readAsStringSync(),
                 ) as List;
                 final proof = cases.singleWhere(
@@ -448,7 +450,7 @@ void main() {
                 final coreAudit = (await Source.db.find(
                   session,
                   where: (t) => t.reference.equals(
-                    'financial-api-noData-source:${entry.receipt}:separate',
+                    'financial-api-noData-source:${entry.receipt}:${entry.basis.name}',
                   ),
                 )).single;
                 final rows =

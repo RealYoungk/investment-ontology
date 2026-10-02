@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20240319000287",
+  "corpCode": "00321204",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2023,
+  "periodStart": "2023-01-01",
+  "periodEnd": "2023-12-31",
+  "ruleVersion": "primary-historical-issuer-whole-seven-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240319000287",
+      "sha256": "2692781552bfa633a2b39fdd9d6b0fb43c58406233eabb335ddabb4151767bd5"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240319000287&dcmNo=9729336&eleId=1&offset=955&length=4076&dtd=dart4.xsd",
+      "sha256": "6ca9a73a83f863bd055167f4f4a8712edf0bf4f0e7f213ffc1231ab63772abcf"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240319000287&dcmNo=9729336&eleId=19&offset=196240&length=103475&dtd=dart4.xsd",
+      "sha256": "913c63362c29784cbd022fa89ca7a28ec1c6202678e2e79a44e8b3547ca2f8b3"
+    }
+  ],
+  "retrievalProof": "고유 owncorp/같은 원접수 CFS 6좌표. 실제 원문과 표지 명시 기간을 원형 고정. CFS와 OFS를 독립 검증."
+}

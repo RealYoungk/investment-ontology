@@ -112,7 +112,9 @@ final class PrimaryHistoricalIssuer {
           .toList();
       if (titles.isEmpty) return null;
       final title = titles.first[1]!;
-      final suffix = consolidated ? '(?:와그종속기업|및그종속기업|와그종속회사|및그종속회사)' : '';
+      final suffix = consolidated
+          ? '(?:와그종속기업|과그종속기업|및그종속기업|와그종속회사|과그종속회사|및그종속회사)'
+          : '';
       if (!RegExp('(?:회사명:)?${RegExp.escape(name)}$suffix\$').hasMatch(title) ||
           !title.contains('${end.year}')) {
         return null;

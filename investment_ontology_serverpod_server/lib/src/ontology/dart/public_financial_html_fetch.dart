@@ -1,3 +1,4 @@
+import 'pureun_exact_basis_absence.dart';
 import 'primary_historical_issuer.dart';
 import 'innovex_exact_basis_absence.dart';
 import 'same_receipt_audit_source.dart';
@@ -571,7 +572,19 @@ class PublicFinancialHtmlFetcher {
         statementSource: statementSource,
         body: statementHtml,
       );
-      if (exactTableNone) {
+      final exactPureunNone = PureunExactBasisAbsence.matches(
+        receipt: sourceReceipt,
+        corp: corpCode,
+        shellSource: originalSource,
+        shell: shell,
+        start: periodStart,
+        end: periodEnd,
+        coverSource: coverSource,
+        cover: coverHtml,
+        statementSource: statementSource,
+        body: statementHtml,
+      );
+      if (exactTableNone || exactPureunNone) {
         throw PublicFinancialHtmlBasisNotApplicable(
           sourceReceipt: sourceReceipt,
           corpCode: corpCode,
@@ -583,7 +596,9 @@ class PublicFinancialHtmlFetcher {
           statementSource: statementSource,
           coverHtml: coverHtml,
           statementHtml: statementHtml,
-          evidence: '해당사항없음',
+          evidence: exactPureunNone
+              ? PureunExactBasisAbsence.evidence
+              : '해당사항없음',
           issuerProof: issuerProof,
         );
       }
