@@ -2194,6 +2194,47 @@ abstract final class PublicFinancialHtml {
       } else {
         continue;
       }
+      // A standalone CF continuation may contain only the explicitly named
+      // before-prior term. It is not another current company statement.
+      // Require its complete printed duration as well as the exclusive header;
+      // a missing/ambiguous current header is never silently discarded.
+      if (kind == 'CF') {
+        final priorTerm = int.tryParse(term);
+        final priorHeaders = grid.first.whereType<_FinancialHtmlCell>().toSet();
+        final monetaryHeaders = priorHeaders
+            .map((c) => _compact(c.text))
+            .where((text) => text != '과목')
+            .toSet();
+        if (priorTerm != null &&
+            priorTerm > 2 &&
+            monetaryHeaders.length == 1 &&
+            monetaryHeaders.single == '제${priorTerm - 2}(전전)기') {
+          final pastStart = DateTime.utc(
+            periodStart.year - 2,
+            periodStart.month,
+            periodStart.day,
+          );
+          final pastEnd = DateTime.utc(
+            periodEnd.year - 2,
+            periodEnd.month,
+            periodEnd.day,
+          );
+          final priorPattern = RegExp(
+            '제${priorTerm - 2}(?:\\(전전\\))?기:?($titleDate)(부터|~)($titleDate)(?:까지)?',
+          );
+          final cfHeadingAt = prefix.lastIndexOf('현금흐름표');
+          final printedRanges = priorPattern
+              .allMatches(cfHeadingAt < 0 ? '' : prefix.substring(cfHeadingAt))
+              .where(
+                (m) =>
+                    m.group(2) != '현재' &&
+                    sourceDate(m.group(1)!) == pastStart &&
+                    sourceDate(m.group(3)!) == pastEnd,
+              )
+              .toList();
+          if (printedRanges.isNotEmpty && seenKinds.contains('CF')) continue;
+        }
+      }
       if (!seenKinds.add(kind)) {
         throw const FormatException('Duplicate annual primary statement');
       }

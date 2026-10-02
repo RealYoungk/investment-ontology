@@ -1553,6 +1553,30 @@ abstract final class VerifiedAnnualSourceRegistry {
       ruleVersion: "pim-cfs-whole-ce-v1",
       absenceLiteral: null,
     ),
+    AnnualSourceCacheEntry(
+      receipt: '20220317000866',
+      corpCode: '00123772',
+      companyName: '부국증권(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220317000866-ofs',
+      manifestDigest:
+          '6538d0cf5c50724aafe471dc4ca315bfa749593f33cac99dac223a90b6617cdf',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230328000107',
+      corpCode: '00123772',
+      companyName: '부국증권(주)',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230328000107-ofs',
+      manifestDigest:
+          'c7a3b0f55810e28f53bd68cd0a5d8278fedbe93312ec02812b72e7d8c0aa9394',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
   ];
   static AnnualSourceCacheEntry? find(String receipt, FsDiv basis) {
     for (final entry in entries) {
