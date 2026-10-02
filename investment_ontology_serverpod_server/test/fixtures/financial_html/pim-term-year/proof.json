@@ -1,0 +1,83 @@
+{
+  "receipt": "20250321001900",
+  "corpCode": "00765897",
+  "name": "한국피아이엠",
+  "ownCorp": [
+    "00765897"
+  ],
+  "nodes": {
+    "사업보고서": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=1&offset=957&length=4536&dtd=dart4.xsd",
+    "【대표이사등의확인】": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=2&offset=5614&length=498&dtd=dart4.xsd",
+    "I.회사의개요": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=3&offset=6116&length=69080&dtd=dart4.xsd",
+    "1.회사의개요": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=4&offset=6243&length=16251&dtd=dart4.xsd",
+    "2.회사의연혁": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=5&offset=22498&length=15092&dtd=dart4.xsd",
+    "3.자본금변동사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=6&offset=37594&length=5217&dtd=dart4.xsd",
+    "4.주식의총수등": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=7&offset=42815&length=25316&dtd=dart4.xsd",
+    "5.정관에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=8&offset=68135&length=7047&dtd=dart4.xsd",
+    "II.사업의내용": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=9&offset=75200&length=105144&dtd=dart4.xsd",
+    "1.사업의개요": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=10&offset=75597&length=3036&dtd=dart4.xsd",
+    "2.주요제품및서비스": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=11&offset=78637&length=4263&dtd=dart4.xsd",
+    "3.원재료및생산설비": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=12&offset=82904&length=29054&dtd=dart4.xsd",
+    "4.매출및수주상황": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=13&offset=111962&length=9531&dtd=dart4.xsd",
+    "5.위험관리및파생거래": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=14&offset=121497&length=34301&dtd=dart4.xsd",
+    "6.주요계약및연구개발활동": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=15&offset=155802&length=8371&dtd=dart4.xsd",
+    "7.기타참고사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=16&offset=164177&length=16127&dtd=dart4.xsd",
+    "III.재무에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=17&offset=180348&length=1066744&dtd=dart4.xsd",
+    "1.요약재무정보": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=18&offset=180507&length=23830&dtd=dart4.xsd",
+    "2.연결재무제표": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=19&offset=204544&length=68462&dtd=dart4.xsd",
+    "3.연결재무제표주석": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=20&offset=273010&length=382420&dtd=dart4.xsd",
+    "4.재무제표": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=21&offset=655434&length=54456&dtd=dart4.xsd",
+    "5.재무제표주석": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=22&offset=709894&length=370913&dtd=dart4.xsd",
+    "6.배당에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=23&offset=1080837&length=21859&dtd=dart4.xsd",
+    "7.증권의발행을통한자금조달에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=24&offset=1102700&length=72763&dtd=dart4.xsd",
+    "8.기타재무에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=27&offset=1175467&length=71611&dtd=dart4.xsd",
+    "IV.이사의경영진단및분석의견": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=28&offset=1247096&length=27751&dtd=dart4.xsd",
+    "V.회계감사인의감사의견등": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=29&offset=1274851&length=17172&dtd=dart4.xsd",
+    "1.외부감사에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=30&offset=1275033&length=14156&dtd=dart4.xsd",
+    "2.내부통제에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=31&offset=1289193&length=2816&dtd=dart4.xsd",
+    "VI.이사회등회사의기관에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=32&offset=1292027&length=74674&dtd=dart4.xsd",
+    "1.이사회에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=33&offset=1292228&length=44430&dtd=dart4.xsd",
+    "2.감사제도에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=34&offset=1336662&length=20439&dtd=dart4.xsd",
+    "3.주주총회등에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=35&offset=1357105&length=9582&dtd=dart4.xsd",
+    "VII.주주에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=36&offset=1366705&length=19457&dtd=dart4.xsd",
+    "VIII.임원및직원등에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=37&offset=1386166&length=78588&dtd=dart4.xsd",
+    "1.임원및직원등의현황": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=38&offset=1386343&length=39575&dtd=dart4.xsd",
+    "2.임원의보수등": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=39&offset=1425922&length=38818&dtd=dart4.xsd",
+    "IX.계열회사등에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=40&offset=1464758&length=12561&dtd=dart4.xsd",
+    "X.대주주등과의거래내용": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=41&offset=1477323&length=830&dtd=dart4.xsd",
+    "XI.그밖에투자자보호를위하여필요한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=42&offset=1478157&length=3870&dtd=dart4.xsd",
+    "1.공시내용진행및변경사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=43&offset=1478385&length=251&dtd=dart4.xsd",
+    "2.우발부채등에관한사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=44&offset=1478640&length=1150&dtd=dart4.xsd",
+    "3.제재등과관련된사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=45&offset=1479794&length=396&dtd=dart4.xsd",
+    "4.작성기준일이후발생한주요사항등기타사항": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=46&offset=1480194&length=1819&dtd=dart4.xsd",
+    "XII.상세표": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=47&offset=1482031&length=21522&dtd=dart4.xsd",
+    "1.연결대상종속회사현황(상세)": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=48&offset=1482184&length=5039&dtd=dart4.xsd",
+    "2.계열회사현황(상세)": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=49&offset=1487227&length=3858&dtd=dart4.xsd",
+    "3.타법인출자현황(상세)": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=50&offset=1491089&length=12450&dtd=dart4.xsd",
+    "【전문가의확인】": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=51&offset=1503557&length=591&dtd=dart4.xsd",
+    "1.전문가의확인": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=52&offset=1503721&length=204&dtd=dart4.xsd",
+    "2.전문가와의이해관계": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=53&offset=1503929&length=205&dtd=dart4.xsd"
+  },
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250321001900",
+      "sha256": "398693abd8ebdcaba7e99885cb25d40f8610c972396fa45890b7b281128612d9",
+      "bytes": 67446
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=1&offset=957&length=4536&dtd=dart4.xsd",
+      "sha256": "5b92bc88a334a3b2c85fcea0d14de2ac39132cd1c019ff3c1dc5347a8b46303f",
+      "bytes": 4837
+    },
+    {
+      "label": "OFS",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=21&offset=655434&length=54456&dtd=dart4.xsd",
+      "sha256": "5088184ee77cf3ed5c7ad60097299c87c2e7eeb07c399863296c8fa6036536fa",
+      "bytes": 46340
+    }
+  ],
+  "cover": "사 업 보 고 서 (제 24 기) 사업연도 2024년 01월 01일 부터 2024년 12월 31일 까지 금융위원회 한국거래소 귀중 2025년 3월 21일 제출대상법인 유형 : 주권상장법인 면제사유발생 : 해당사항 없음 회 사 명 : 한국피아이엠 주식회사 대 표 이 사 : 송준호 본 점 소 재 지 : 대구광역시 달성군 다사읍 세천로8길 26 (전 화) 053-586-9600 (홈페이지) http://www.pimkorea.com 작 성 책 임 자 : (직 책) 전무이사 (성 명) 정 재 옥 (전 화) 053-859-2640",
+  "statementPrefix": "4. 재무제표 재무상태표 제24기 2024.12.31 현재 제23기 2023.12.31 현재 제22기 2022.12.31 현재 (감사받지 아니한 재무제표) 한국피아이엠 주식회사 (단위 : 원) 과목 제24기 (2024년) 제23기 (2023년) 제22(전)기말 (감사받지 아니한 재무제표) 자산 - - I. 유동자산 21,529,662,168 16,881,864,032 17,670,365,094 현금및현금성자산 2,738,978,804 488,356,708 469,304,299 단기금융상품 - - 50,077,161 매출채권 6,928,199,067 5,264,146,268 7,610,261,933 기타금융자산 856,671,115 1,143,974,415 366,426,798 기타유동자산 596,619,753 1,082,700,542 2,516,707,219 재고자산 10,409,193,429 8,902,686,099 6,657,587,684 II. 비유동자산 34,783,411,982 34,405,534,048 36,076,931,484 장기금융상품 - - 10,299,231 기타비유동금융자산 5,427,795,886 6,635,960,842 7,354,282,279 장기매출채권 - - - 유형자산 25,704,451,385 26,003,384,728 26,937,648,909 무형자산 267,036,581 190,550,782 236,788,371 사용권자산 78,588,130 17,104,677 34,069,751 당기손익-공정가치 측정 금융자산 209,040,000 309,040,000 309,040,000 종속기업투자 3,096,500,000 1,185,500,000 1,185,500,000 이연법인세자산 - 63,993,019 9,302,943 자산총계 56,313,074,150 51,287,398,080 53,747,296,578 부채 - - - I. 유동부채 14,097,575,719 24,722,065,338 31,049,979,611 매입채무 1,808,352,659 2,434,511,865 1,383,807,801 기타금융부채 1,275,856,014 1,381,659,869 1,641,550,199 유동리스부채 26,367,686 16,715,000 17,706,333 기타유동부채 173,045,282 129,378,040 1,780,612,832 당기법인세부채 611,488,872 95,"
+}
