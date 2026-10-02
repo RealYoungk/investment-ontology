@@ -1,0 +1,80 @@
+{
+  "cfs": "failed",
+  "ofs": "failed",
+  "corp": "00886792",
+  "name": "(주)루켄테크놀러지스",
+  "year": 2025,
+  "error": "api-noData-annual-public:attempt=3; public annual source verification failed: FormatException: Ambiguous annual current header",
+  "receipt": "20260323000759",
+  "attempts": 3,
+  "reportCode": "annual",
+  "reportName": "사업보고서 (2025.12)",
+  "actualPeriod": "2025.12",
+  "cfsPeriodStored": false,
+  "ofsPeriodStored": false,
+  "snapshotNote": "과거241건 목록이며 현재238건의 개별 상태와 구분",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260323000759",
+      "sha256": "50780999516f695c663acbb18a41a22128fcd2a912babbfd4fcad5b2998e9054",
+      "bytes": 70238
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323000759&dcmNo=11163570&eleId=1&offset=972&length=4583&dtd=dart4.xsd",
+      "sha256": "e7454c81bdb2c322184c52f3a89cdf9fd7a6becab53c023d42b12ad6ebf23b05",
+      "bytes": 4954
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323000759&dcmNo=11163570&eleId=19&offset=263550&length=53530&dtd=dart4.xsd",
+      "sha256": "d8b02942ff1020c0d13df2fc0d1dd7bf216fac797587d58ce7ccafb6f3cb11d0",
+      "bytes": 57053
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323000759&dcmNo=11163570&eleId=21&offset=666057&length=49305&dtd=dart4.xsd",
+      "sha256": "416408fcc37400268ea63a0989e6f3078bea2cc9e2fade54a91c445c14594c4b",
+      "bytes": 50883
+    }
+  ],
+  "ownCorpIds": [
+    "00886792"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20260323000759",
+        "dcmNo": "11163570",
+        "eleId": "1",
+        "offset": "972",
+        "length": "4583",
+        "dtd": "dart4.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20260323000759",
+        "dcmNo": "11163570",
+        "eleId": "19",
+        "offset": "263550",
+        "length": "53530",
+        "dtd": "dart4.xsd"
+      }
+    },
+    {
+      "label": "4. 재무제표",
+      "coords": {
+        "rcpNo": "20260323000759",
+        "dcmNo": "11163570",
+        "eleId": "21",
+        "offset": "666057",
+        "length": "49305",
+        "dtd": "dart4.xsd"
+      }
+    }
+  ]
+}
