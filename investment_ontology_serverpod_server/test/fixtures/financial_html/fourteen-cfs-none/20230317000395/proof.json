@@ -1,0 +1,64 @@
+{
+  "id": 37560,
+  "name": "케이피항공산업(주)",
+  "market": "kosdaq",
+  "stockCode": "288180",
+  "corpCode": "01101254",
+  "rceptNo": "20230317000395",
+  "reportName": "사업보고서 (2022.12)",
+  "actual_period": "2022.12",
+  "bsnsYear": 2022,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 2,
+  "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 2,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230317000395",
+      "sha256": "8c2b0de990e9a07e1ca002f61164778809f712d87e9d5d00a60a5d2f43accf40"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230317000395&dcmNo=9069273&eleId=1&offset=813&length=4050&dtd=dart3.xsd",
+      "sha256": "103c422aa2463b7e52d43d53a64a8497263177adb29550d6824efdde32a22772"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230317000395&dcmNo=9069273&eleId=19&offset=99488&length=127&dtd=dart3.xsd",
+      "sha256": "3a4bb772e2e8e2d06e9f248d0e6fec01314122faa2b892bbcf4515fb24b15b88"
+    }
+  ],
+  "shellCorpIds": [
+    "01101254"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20230317000395",
+        "dcmNo": "9069273",
+        "eleId": "1",
+        "offset": "813",
+        "length": "4050",
+        "dtd": "dart3.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20230317000395",
+        "dcmNo": "9069273",
+        "eleId": "19",
+        "offset": "99488",
+        "length": "127",
+        "dtd": "dart3.xsd"
+      }
+    }
+  ]
+}

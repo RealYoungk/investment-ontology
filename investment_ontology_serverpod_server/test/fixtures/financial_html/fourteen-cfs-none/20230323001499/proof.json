@@ -1,0 +1,64 @@
+{
+  "id": 38832,
+  "name": "유화증권(주)",
+  "market": "kospi",
+  "stockCode": "003460",
+  "corpCode": "00145190",
+  "rceptNo": "20230323001499",
+  "reportName": "사업보고서 (2022.12)",
+  "actual_period": "2022.12",
+  "bsnsYear": 2022,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 2,
+  "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 2,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230323001499",
+      "sha256": "998b716051f14f1792bbe6144fcfe8bfc56fd2a32820b2941b1ca90dbd17c752"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230323001499&dcmNo=9099578&eleId=1&offset=807&length=4041&dtd=dart3.xsd",
+      "sha256": "2a05d617bb624cdd3b3f746e07c28c1ac976e885f28a589dc4e4e16226ef9561"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230323001499&dcmNo=9099578&eleId=17&offset=182789&length=171&dtd=dart3.xsd",
+      "sha256": "afee927ef09ca94674d57d0ee1d43af639954a6367a6a5ed8d4fa3e9cc0031bc"
+    }
+  ],
+  "shellCorpIds": [
+    "00145190"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20230323001499",
+        "dcmNo": "9099578",
+        "eleId": "1",
+        "offset": "807",
+        "length": "4041",
+        "dtd": "dart3.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20230323001499",
+        "dcmNo": "9099578",
+        "eleId": "17",
+        "offset": "182789",
+        "length": "171",
+        "dtd": "dart3.xsd"
+      }
+    }
+  ]
+}

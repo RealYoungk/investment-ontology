@@ -1,0 +1,64 @@
+{
+  "id": 41398,
+  "name": "(주)라피치",
+  "market": "konex",
+  "stockCode": "403360",
+  "corpCode": "01466832",
+  "rceptNo": "20230717000306",
+  "reportName": "[기재정정]사업보고서 (2022.12)",
+  "actual_period": "2022.12",
+  "bsnsYear": 2022,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 1,
+  "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 1,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230717000306",
+      "sha256": "25de7f5914a3739b421e19b8c52e5c772014c4e1d6780abddc79b67d69178ab8"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230717000306&dcmNo=9351987&eleId=3&offset=5113&length=4019&dtd=dart3.xsd",
+      "sha256": "e459c4b3845b41ce497e4f3b7ad239a7374283cd89d00fc7869065344685c86b"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230717000306&dcmNo=9351987&eleId=21&offset=125630&length=148&dtd=dart3.xsd",
+      "sha256": "54054a572a75f2bb8a432abf112568b4f3538671a0a88b5a756d6430efac861f"
+    }
+  ],
+  "shellCorpIds": [
+    "01466832"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20230717000306",
+        "dcmNo": "9351987",
+        "eleId": "3",
+        "offset": "5113",
+        "length": "4019",
+        "dtd": "dart3.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20230717000306",
+        "dcmNo": "9351987",
+        "eleId": "21",
+        "offset": "125630",
+        "length": "148",
+        "dtd": "dart3.xsd"
+      }
+    }
+  ]
+}
