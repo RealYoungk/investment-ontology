@@ -1,0 +1,27 @@
+{
+  "receipt": "20250407003814",
+  "corpCode": "01119651",
+  "companyName": "(주)엘리비젼",
+  "bsnsYear": 2024,
+  "basis": "cfs",
+  "shellCorpIds": [
+    "01119651"
+  ],
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250407003814",
+      "sha256": "8e741f7ce39482777edfe83dfbc04c751e534f7b898dbc243680bba0df8ec465"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250407003814&dcmNo=10550968&eleId=1&offset=957&length=4508&dtd=dart4.xsd",
+      "sha256": "a46b4f5bcfe978eecd9d7a9c6b132ce7c315ee2ecca0b342294086289861da38"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250407003814&dcmNo=10550968&eleId=19&offset=150266&length=184&dtd=dart4.xsd",
+      "sha256": "aa64c406c32cb55f75309caca414854ee2be5dd5bbfaef9b9b6db45a93557ebd"
+    }
+  ]
+}
