@@ -330,15 +330,25 @@ void main() {
               }
               if (entry.receipt == '20250320001633') {
                 final lines = summary!.periods.single.lines;
-                final expected = {
-                  'revenue': '74401016313',
-                  'operatingIncome': '-245159821034',
-                  'netIncome': '-246554897630',
-                  'assets': '230642631079',
-                  'liabilities': '335708768291',
-                  'equity': '-105066137212',
-                  'operatingCashFlow': '-66891998445',
-                };
+                final expected = entry.basis == FsDiv.consolidated
+                    ? {
+                        'revenue': '83805774666',
+                        'operatingIncome': '-242762417908',
+                        'netIncome': '-244070248163',
+                        'assets': '243910853554',
+                        'liabilities': '346677333242',
+                        'equity': '-102766479688',
+                        'operatingCashFlow': '-66690869744',
+                      }
+                    : {
+                        'revenue': '74401016313',
+                        'operatingIncome': '-245159821034',
+                        'netIncome': '-246554897630',
+                        'assets': '230642631079',
+                        'liabilities': '335708768291',
+                        'equity': '-105066137212',
+                        'operatingCashFlow': '-66891998445',
+                      };
                 for (final pair in expected.entries) {
                   expect(
                     lines.singleWhere((l) => l.key == pair.key).amount,
@@ -346,7 +356,13 @@ void main() {
                   );
                 }
                 expect(
-                  facts.any((f) => f.accountName.contains('매출액(주석19)')),
+                  facts.any(
+                    (f) => f.accountName.contains(
+                      entry.basis == FsDiv.consolidated
+                          ? '매출액(주석17)'
+                          : '매출액(주석19)',
+                    ),
+                  ),
                   true,
                 );
               }
@@ -506,11 +522,11 @@ void main() {
                           : FsDiv.separate,
                     )!;
                     return sum +
-                        (e.requiresIssuerOverview ||
-                                e.ruleVersion ==
-                                    'same-receipt-audit-immutable-v1'
-                            ? 5
-                            : 4);
+                        4 +
+                        (e.requiresIssuerOverview ? 1 : 0) +
+                        (e.ruleVersion == 'same-receipt-audit-immutable-v1'
+                            ? 1
+                            : 0);
                   }),
           );
           expect(client.calls, 0);
