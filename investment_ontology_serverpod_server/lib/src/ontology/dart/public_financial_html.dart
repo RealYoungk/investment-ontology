@@ -845,6 +845,9 @@ abstract final class PublicFinancialHtml {
           caseSensitive: false,
           dotAll: true,
         ).allMatches(table.group(1)!).toList();
+        if (rawRows.isEmpty) {
+          throw const FormatException('Rootloc CE rows missing');
+        }
         List<RegExpMatch> cells(int row) => RegExp(
           r'<T[DH]\b([^>]*)>(.*?)</T[DH]>',
           caseSensitive: false,

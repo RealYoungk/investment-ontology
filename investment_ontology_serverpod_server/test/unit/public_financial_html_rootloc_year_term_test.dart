@@ -74,6 +74,16 @@ void main() {
   ]) {
     test(m.$1, () => expect(() => parse(body: m.$2), throwsFormatException));
   }
+  test('empty CE table is a guarded format error', () {
+    final tables = RegExp(
+      r'<TABLE\b[^>]*>.*?</TABLE>',
+      caseSensitive: false,
+      dotAll: true,
+    ).allMatches(body).toList();
+    final ce = tables.singleWhere((t) => t.group(0)!.contains('2025.1.1(기초)'));
+    final empty = body.replaceRange(ce.start, ce.end, '<TABLE></TABLE>');
+    expect(() => parse(body: empty), throwsFormatException);
+  });
   test(
     'wrong corporation',
     () => expect(() => parse(corp: '00126380'), throwsFormatException),
