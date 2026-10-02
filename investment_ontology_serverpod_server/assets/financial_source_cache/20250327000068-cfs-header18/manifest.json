@@ -1,0 +1,42 @@
+{
+  "targetReceipt": "20250327000068",
+  "originalReceipt": "20250318000867",
+  "numericSourceReceipt": "20250318000867",
+  "corpCode": "01466832",
+  "companyName": "(주)라피치",
+  "basis": "cfs",
+  "year": 2024,
+  "periodStart": "2024-01-01",
+  "periodEnd": "2024-12-31",
+  "kind": "annual",
+  "ruleVersion": "header18-linked-explicit-absence-v1",
+  "sources": [
+    {
+      "label": "targetShell",
+      "file": "targetShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250327000068",
+      "sha256": "300f4a09948934df1f92c6795c42fce2b477c6188d2000cfe43c90b287c6ae08"
+    },
+    {
+      "label": "originalShell",
+      "file": "originalShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250318000867",
+      "sha256": "6f949b65077d2c6b2f44a047e3b9d252d491f05ec2282954e19c618177676b8e"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250318000867&dcmNo=10421584&eleId=1&offset=956&length=4596&dtd=dart4.xsd",
+      "sha256": "45a88e5e4796ddbbc9ef2848f95fbe19515cd6f1c2bfbb00b7f01e597b120d68"
+    },
+    {
+      "label": "primary",
+      "file": "primary.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250318000867&dcmNo=10421584&eleId=19&offset=154066&length=237&dtd=dart4.xsd",
+      "sha256": "092c63ea3a462414dd34452327e3c2dd4944d9270b0a34d979295e04dcae5ff3"
+    }
+  ],
+  "sourceRole": "original_primary_explicit_absence",
+  "scopeNote": "Candidate assets only; not active registry or operational completion",
+  "absenceLiteral": "당사는 사업보고서 제출일 현재 해당사항이 없습니다."
+}

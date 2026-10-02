@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20260804000177",
+  "corpCode": "01872459",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2025,
+  "periodStart": "2025-01-01",
+  "periodEnd": "2025-12-31",
+  "ruleVersion": "linked-correction-audit-immutable-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260804000177",
+      "file": "shell.html",
+      "sha256": "425e15ccdab67f4ba361a82917a3f54f63963c7ca36c48b560a07652fb629c1c"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260313001347&dcmNo=11122741&eleId=1&offset=955&length=4569&dtd=dart4.xsd",
+      "file": "cover.html",
+      "sha256": "1750ed0a9c501ba0e16d6028e4c88b1868a152fb6b73af64297b95def48c1e4a"
+    },
+    {
+      "label": "auditShell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260313001347&dcmNo=11122740",
+      "file": "auditShell.html",
+      "sha256": "a88b161841691a94cfaf3f7913041dc610eb25ece66ae542d4596ebbafb6ecb7"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260313001347&dcmNo=11122740&eleId=3&offset=12961&length=170359&dtd=dart4.xsd",
+      "file": "ofs.html",
+      "sha256": "4c139584178c48020ae65e468e0c8953b40f4230352115ec04d49e8196d777d4"
+    },
+    {
+      "label": "originalShell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260313001347",
+      "file": "originalShell.html",
+      "sha256": "5c17b101d83400f61e538a5b938c5c7e7def0718b9889fe2e2d478e5c356b613"
+    },
+    {
+      "label": "targetOfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260804000177&dcmNo=11507996&eleId=23&offset=306758&length=87280&dtd=dart4.xsd",
+      "file": "targetOfs.html",
+      "sha256": "1d6c98634e35ce0e727de9573c60e6570d83a9f07dd2e48dd1557895158810dd"
+    }
+  ],
+  "absenceLiteral": null
+}

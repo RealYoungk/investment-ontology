@@ -1,0 +1,54 @@
+{
+  "targetReceipt": "20221213000195",
+  "originalReceipt": "20220322000963",
+  "numericSourceReceipt": "20220322000963",
+  "corpCode": "00311216",
+  "companyName": "에이치엔에스하이텍(주)",
+  "basis": "ofs",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "kind": "annual",
+  "ruleVersion": "header18-linked-direct-whole-v1",
+  "sources": [
+    {
+      "label": "targetShell",
+      "file": "targetShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20221213000195",
+      "sha256": "627a51563b9a0fc6715f3a4f0b3792374529e077c5f0e1ad70b75688b3bf2f35"
+    },
+    {
+      "label": "originalShell",
+      "file": "originalShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220322000963",
+      "sha256": "426c383d28bae3a7a73067bb6c0bcbb05863135d3dfea32a11487fe2e357f077"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000963&dcmNo=8492708&eleId=1&offset=798&length=4017&dtd=dart3.xsd",
+      "sha256": "fd9e53274396512a4102e9b9d6a6cdb6d77cbad557f8beb39e5860449bf7c872"
+    },
+    {
+      "label": "primary",
+      "file": "primary.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000963&dcmNo=8492708&eleId=21&offset=652559&length=54995&dtd=dart3.xsd",
+      "sha256": "f191a0df11c38415e33aa27acd6e53f06e697fd62194095a02813709ab684038"
+    },
+    {
+      "label": "auditShell",
+      "file": "auditShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220322000963&dcmNo=8492706",
+      "sha256": "229bbee0cdbf28f2b790b9a88667f6b19a867cdbe0af485d91bcfdd5620fa705"
+    },
+    {
+      "label": "audit",
+      "file": "audit.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000963&dcmNo=8492706&eleId=3&offset=11110&length=387555&dtd=dart3.xsd",
+      "sha256": "24784a5cb3bafa04e04cee689e591c54affe27cb0f74fb5dfd35f508cf21c792"
+    }
+  ],
+  "sourceRole": "original_primary_with_current_audit_witness",
+  "scopeNote": "Candidate assets only; not active registry or operational completion",
+  "expectedRowsSha256": "362ef08b28f308f140452d672ea9bd1ec1d484a1df5638bd76e4100e23c210c7"
+}

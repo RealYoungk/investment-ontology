@@ -1,0 +1,71 @@
+{
+  "cfs": "noData",
+  "ofs": "failed",
+  "corp": "01065785",
+  "name": "(주)노브메타파마",
+  "year": 2024,
+  "receipt": "20250314001145",
+  "attempts": 3,
+  "reportCode": "annual",
+  "reportName": "사업보고서 (2024.12)",
+  "actualPeriod": "2024.12",
+  "cfsPeriodStored": false,
+  "ofsPeriodStored": false,
+  "path": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/rare-shape-source-corpus/20250314001145/ofs.html",
+  "cover": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/rare-shape-source-corpus/20250314001145/cover.html",
+  "shell": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/rare-shape-source-corpus/20250314001145/shell.html",
+  "coverUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250314001145&dcmNo=10408660&eleId=1&offset=957&length=4481&dtd=dart4.xsd",
+  "ofsUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250314001145&dcmNo=10408660&eleId=21&offset=494026&length=58234&dtd=dart4.xsd",
+  "sources": [
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250314001145&dcmNo=10408660&eleId=1&offset=957&length=4481&dtd=dart4.xsd",
+      "sha256": "a76c529480cc1276833d746b868b8e91942ca3a821f8000fef1d8b84b86d98bc"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250314001145&dcmNo=10408660&eleId=19&offset=493574&length=214&dtd=dart4.xsd",
+      "sha256": "1899332739a56971a49f76606f002f10b2c3ac990aaf1ea8f9b1ce491226dde4"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250314001145&dcmNo=10408660&eleId=21&offset=494026&length=58234&dtd=dart4.xsd",
+      "sha256": "a701d4cd0384c426d5e0ae44a2241c3ada604bc22bbf96956f3215c8cbb9ddfa"
+    }
+  ],
+  "gets": 4,
+  "expectedRows": [
+    [
+      "자산 총계",
+      "4648526686"
+    ],
+    [
+      "부채 총계",
+      "2891939029"
+    ],
+    [
+      "자본 총계",
+      "1756587657"
+    ],
+    [
+      "매출액",
+      "45315000"
+    ],
+    [
+      "영업손실",
+      "-5540552457"
+    ],
+    [
+      "당기순손실",
+      "-5604649777"
+    ],
+    [
+      "영업활동으로부터의 순현금유출",
+      "-5117726193"
+    ],
+    [
+      "유형자산의 취득",
+      "-16998764"
+    ]
+  ]
+}

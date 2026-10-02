@@ -1,3 +1,5 @@
+import 'exact_cover_executive_role.dart';
+
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
@@ -82,7 +84,7 @@ final class PrimaryHistoricalIssuer {
       return null;
     }
     final c = text(cover);
-    final names = RegExp(r'회사명:(.*?)(?:공동)?대표이사:').allMatches(c).toList();
+    final names = ExactCoverExecutiveRole.names(cover).allMatches(c).toList();
     if (names.length != 1 || names.single[1]!.isEmpty) return null;
     final name = names.single[1]!;
     final dates = RegExp(

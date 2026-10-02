@@ -1,0 +1,38 @@
+{
+  "cfs": "failed",
+  "ofs": "failed",
+  "corp": "00162416",
+  "name": "한양증권(주)",
+  "year": 2021,
+  "error": "api-noData-annual-public:attempt=3; public annual source verification failed: FormatException: Annual primary core missing or balance mismatch",
+  "receipt": "20220315001266",
+  "attempts": 3,
+  "reportCode": "annual",
+  "reportName": "사업보고서 (2021.12)",
+  "actualPeriod": "2021.12",
+  "cfsPeriodStored": false,
+  "ofsPeriodStored": false,
+  "path": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/core50-source-corpus/20220315001266/ofs.html",
+  "cover": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/core50-source-corpus/20220315001266/cover.html",
+  "shell": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/core50-source-corpus/20220315001266/shell.html",
+  "coverUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220315001266&dcmNo=8462555&eleId=1&offset=779&length=4029&dtd=dart3.xsd",
+  "ofsUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220315001266&dcmNo=8462555&eleId=19&offset=291454&length=42444&dtd=dart3.xsd",
+  "sources": [
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220315001266&dcmNo=8462555&eleId=1&offset=779&length=4029&dtd=dart3.xsd",
+      "sha256": "cf242a467c53988c5f040d125e7a559f7e0463988e48e990931e2036c5961cd2"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220315001266&dcmNo=8462555&eleId=17&offset=291183&length=130&dtd=dart3.xsd",
+      "sha256": "283b55f1ac335ae51236582d4a8f8af950f722290eaaac9147e6e2f3912e3aef"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220315001266&dcmNo=8462555&eleId=19&offset=291454&length=42444&dtd=dart3.xsd",
+      "sha256": "035a851a27bb7cb682671f6d98b548d820fe6971d33f81840a66f96692c61505"
+    }
+  ],
+  "gets": 4
+}

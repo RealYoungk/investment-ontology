@@ -1,7 +1,9 @@
 import 'dart:convert';
+
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/dart/header18_linked_primary_source.dart';
 import 'package:test/test.dart';
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/verified_annual_source_cache.dart';
@@ -9,6 +11,8 @@ import 'package:investment_ontology_serverpod_server/src/ontology/dart/verified_
 import 'package:investment_ontology_serverpod_server/src/ontology/ingest/financial_facts_sync.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/pureun_six_core_profile.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/financial/financial_accounts.dart';
+
+import 'package:investment_ontology_serverpod_server/src/ontology/dart/linked_correction_audit_source.dart';
 
 import 'financial_html_company_title_formats_test.dart' show SourceClient;
 import 'auth_test_sessions.dart';
@@ -18,7 +22,9 @@ void main() {
   withServerpod('Registry cache normal admin ingest', (builder, endpoints) {
     for (final entry in VerifiedAnnualSourceRegistry.entries) {
       final scenarios = [
-        'success-and-rerun',
+        entry.ruleVersion == 'source-six-with-unavailable-whole-revenue-v1'
+            ? 'pending-rejection-and-rerun'
+            : 'success-and-rerun',
         if ({
           '20250320001633',
           '20230714000217',
@@ -90,7 +96,8 @@ void main() {
                     fsDiv: opposite,
                     bsnsYear: entry.year,
                     reportCode: FinancialReportCode.annual,
-                    reportName: '사업보고서 (${entry.year}.12)',
+                    reportName:
+                        '사업보고서 (${entry.year}.${entry.periodEnd.month.toString().padLeft(2, '0')})',
                     factCount: 1,
                     invalidAmountCount: 0,
                     sourceId: oldSource.id!,
@@ -144,7 +151,8 @@ void main() {
               companyId: company.id,
               corpCode: entry.corpCode,
               rceptNo: entry.receipt,
-              reportName: '사업보고서 (${entry.year}.12)',
+              reportName:
+                  '사업보고서 (${entry.year}.${entry.periodEnd.month.toString().padLeft(2, '0')})',
               bsnsYear: entry.year,
               reportCode: FinancialReportCode.annual,
               consolidatedStatus: entry.basis == FsDiv.consolidated
@@ -233,10 +241,18 @@ void main() {
             session,
             where: (t) => t.reference.equals(entry.auditReference),
           );
+          final actualReceipt =
+              entry.ruleVersion == Header18LinkedPrimarySource.primaryRule
+              ? Header18LinkedPrimarySource
+                        .profiles['${entry.receipt}:${entry.statementLabel}']!['money']
+                    as String
+              : entry.ruleVersion == 'linked-correction-audit-immutable-v1'
+              ? LinkedCorrectionAuditSource.originalFor(entry.receipt)
+              : entry.receipt;
           final sourceReports = await FinancialReport.db.find(
             session,
             where: (t) =>
-                t.rceptNo.equals(entry.receipt) & t.fsDiv.equals(entry.basis),
+                t.rceptNo.equals(actualReceipt) & t.fsDiv.equals(entry.basis),
           );
           final result = entry.basis == FsDiv.consolidated
               ? ledger.consolidatedStatus
@@ -266,14 +282,22 @@ void main() {
                     .readAsStringSync(),
               );
               final statement = (manifest['sources'] as List).singleWhere(
-                (s) => s['label'] == entry.statementLabel,
+                (s) =>
+                    s['label'] ==
+                    (entry.ruleVersion ==
+                            Header18LinkedPrimarySource.primaryRule
+                        ? (manifest['sourceRole'] ==
+                                  'original_primary_with_current_audit_witness'
+                              ? 'primary'
+                              : 'audit')
+                        : entry.statementLabel),
               );
-              expect(source.reference, entry.receipt);
+              expect(source.reference, actualReceipt);
               expect(source.url, statement['url']);
               final cover = File('${entry.assetDirectory}/cover.html')
                       .readAsStringSync(),
                   body = File(
-                    '${entry.assetDirectory}/${entry.statementLabel}.html',
+                    '${entry.assetDirectory}/${statement['file']}',
                   ).readAsStringSync();
               expect(
                 source.title,
@@ -285,6 +309,82 @@ void main() {
                 session,
                 where: (t) => t.reportId.equals(report.id!),
               );
+              if (entry.receipt == LinkedCorrectionAuditSource.bonTarget &&
+                  entry.basis == FsDiv.separate) {
+                expect(report.rceptNo, LinkedCorrectionAuditSource.bonOriginal);
+                expect(report.bsnsYear, 2025);
+                final expected = jsonDecode(
+                  File('${entry.assetDirectory}/expected-rows.json')
+                      .readAsStringSync(),
+                ) as List;
+                expect(facts, hasLength(7));
+                for (final pair in expected) {
+                  final fact = facts.singleWhere(
+                    (f) => f.accountName == pair[0],
+                  );
+                  expect(fact.amount, BigInt.parse(pair[1] as String));
+                  expect(fact.accountId, isNull);
+                }
+                final originAudit = await Source.db.findFirstRow(
+                  session,
+                  where: (t) => t.reference.equals(
+                    'financial-api-noData-source:${LinkedCorrectionAuditSource.bonOriginal}:separate',
+                  ),
+                );
+                expect(originAudit, isNotNull);
+                final payload = jsonDecode(originAudit!.title);
+                final proofs = payload['coreRowProvenance'] as List;
+                expect(proofs, hasLength(7));
+                for (final row in proofs) {
+                  final comparison =
+                      row['html_provenance']['linkedTargetWholeCoreComparison'];
+                  expect(comparison['targetReceipt'], entry.receipt);
+                  expect(comparison['sourceReceipt'], actualReceipt);
+                  expect(comparison['matchingDirectAccounts'], hasLength(7));
+                  expect(comparison['allStatementValuesCompared'], false);
+                }
+              }
+              if ({
+                '20220323000557',
+                '20240321001908',
+                '20250321000964',
+                '20260323001088',
+              }.contains(entry.receipt)) {
+                final expected = jsonDecode(
+                  File('${entry.assetDirectory}/expected-rows.json')
+                      .readAsStringSync(),
+                ) as List;
+                expect(facts, hasLength(8));
+                for (final pair in expected) {
+                  final fact = facts.singleWhere(
+                    (f) => f.accountName == pair[0],
+                  );
+                  expect(fact.amount, BigInt.parse(pair[1] as String));
+                  expect(fact.bsnsYear, entry.year);
+                }
+                final periodAudit = await Source.db.findFirstRow(
+                  session,
+                  where: (t) => t.reference.equals(
+                    'financial-api-noData-source:${entry.receipt}:${entry.basis.name}',
+                  ),
+                );
+                expect(periodAudit, isNotNull);
+                final payload = jsonDecode(periodAudit!.title);
+                expect(payload['sourceReceipt'], entry.receipt);
+                final provenance = payload['coreRowProvenance'] as List;
+                expect(provenance, hasLength(8));
+                for (final row in provenance) {
+                  final proof =
+                      row['html_provenance']['supportingPeriodEvidence'];
+                  expect(
+                    proof['policy'],
+                    'contents-on-exact-cover-ce-cash-corroboration-v1',
+                  );
+                  expect(proof['flowCaptionPrintedStart'], false);
+                  expect(proof['periodStart'], '${entry.year}-01-01');
+                  expect(proof['periodEnd'], '${entry.year}-12-31');
+                }
+              }
               final exactPureunSix =
                   entry.receipt == PureunSixCoreProfile.receipt &&
                   entry.corpCode == PureunSixCoreProfile.corpCode &&
@@ -355,6 +455,156 @@ void main() {
                 entry.corpCode,
                 fsDiv: entry.basis,
               );
+              if (entry.ruleVersion ==
+                  Header18LinkedPrimarySource.primaryRule) {
+                final expected = jsonDecode(
+                  File('${entry.assetDirectory}/expected-rows.json')
+                      .readAsStringSync(),
+                ) as List;
+                expect(facts, hasLength(expected.length));
+                final keys = [
+                  'assets',
+                  'liabilities',
+                  'equity',
+                  'revenue',
+                  'operatingIncome',
+                  'netIncome',
+                  'operatingCashFlow',
+                  'capex',
+                ];
+                for (var i = 0; i < expected.length; i++) {
+                  final row = expected[i] as Map;
+                  final fact = facts.singleWhere(
+                    (f) => f.accountName == row['account_nm'],
+                  );
+                  expect(
+                    fact.amount,
+                    BigInt.parse(row['thstrm_amount'] as String),
+                  );
+                  expect(fact.reportId, report.id);
+                  expect(report.rceptNo, actualReceipt);
+                  expect(fact.bsnsYear, entry.year);
+                  final line = summary!.periods.single.lines.singleWhere(
+                    (l) => l.key == keys[i],
+                  );
+                  expect(line.amount, fact.amount);
+                  expect(line.accountName, fact.accountName);
+                }
+                final sql = await session.db.unsafeQuery(
+                  'SELECT ${FinancialAccounts.resolvedIdSql('f')} FROM financial_fact f WHERE f."reportId"=${report.id}',
+                );
+                expect(
+                  sql.where((r) => r[0] != null),
+                  hasLength(expected.length),
+                );
+                expect(
+                  sql.where((r) => r[0] == 'ifrs-full_ProfitLoss'),
+                  hasLength(1),
+                );
+                final scopeAudit = (await Source.db.find(
+                  session,
+                  where: (t) => t.reference.equals(
+                    'financial-api-noData-source:${entry.receipt}:${entry.basis.name}',
+                  ),
+                )).single;
+                final scope = jsonDecode(scopeAudit.title);
+                expect(scope['sourceReceipt'], actualReceipt);
+                for (final row in scope['coreRowProvenance']) {
+                  final proof = row['html_provenance']['linkedPrimaryEvidence'];
+                  expect(proof['targetReceipt'], entry.receipt);
+                  expect(proof['sourceReceipt'], actualReceipt);
+                  expect(proof['sourceRole'], manifest['sourceRole']);
+                  expect(
+                    proof['originalCoverReceipt'],
+                    manifest['originalReceipt'],
+                  );
+                  expect(proof['kind'], switch (manifest['sourceRole']) {
+                    'same_receipt_audit' =>
+                      'exact-original-receipt-audit-with-correction-family',
+                    'corrected_audit' =>
+                      'exact-corrected-audit-with-original-cover',
+                    _ => 'exact-original-primary-with-current-audit-witness',
+                  });
+                  expect(proof['auditSource'], isNotEmpty);
+                  expect(proof['auditSha256'], hasLength(64));
+                }
+              }
+
+              if ({
+                '20220310001159',
+                '20230309000772',
+              }.contains(entry.receipt)) {
+                final expected = jsonDecode(
+                  File('${entry.assetDirectory}/expected-rows.json')
+                      .readAsStringSync(),
+                ) as List;
+                expect(facts, hasLength(8));
+                final keys = [
+                  'assets',
+                  'liabilities',
+                  'equity',
+                  'revenue',
+                  'operatingIncome',
+                  'netIncome',
+                  'operatingCashFlow',
+                  'capex',
+                ];
+                for (var i = 0; i < keys.length; i++) {
+                  final f = facts.singleWhere(
+                    (f) => f.accountName == expected[i][0],
+                  );
+                  expect(f.amount, BigInt.parse(expected[i][1]));
+                  final line = summary!.periods.single.lines.singleWhere(
+                    (l) => l.key == keys[i],
+                  );
+                  expect(line.amount, f.amount);
+                  expect(line.accountName, f.accountName);
+                }
+                final sql = await session.db.unsafeQuery(
+                  'SELECT ${FinancialAccounts.resolvedIdSql('f')} FROM financial_fact f WHERE f."reportId"=${report.id}',
+                );
+                expect(sql.where((r) => r[0] != null), hasLength(8));
+                expect(
+                  sql.where((r) => r[0] == 'ifrs-full_ProfitLoss'),
+                  hasLength(1),
+                );
+                final sourceAudit = (await Source.db.find(
+                  session,
+                  where: (t) => t.reference.equals(
+                    'financial-api-noData-source:${entry.receipt}:${entry.basis.name}',
+                  ),
+                )).single;
+                final coreRows =
+                    jsonDecode(sourceAudit.title)['coreRowProvenance'] as List;
+                final profit = coreRows.singleWhere(
+                  (r) => r['account_nm'].toString().contains('당기순이익 (대손'),
+                );
+                expect(
+                  profit['html_provenance']['wholeCoreProof']['printedProfitAnnotation'],
+                  true,
+                );
+                if (entry.basis == FsDiv.consolidated) {
+                  final proof = profit['html_provenance']['wholeCoreProof'];
+                  expect(
+                    proof['wholeCfsHierarchy'],
+                    'own-parent-components5-nci6-whole-total7',
+                  );
+                  expect(proof['wholeCE']['wholeColumn'], 7);
+                  expect(proof['wholeCE']['wholeProfit'], expected[5][1]);
+                  expect(proof['wholeCE']['closingEquity'], expected[2][1]);
+                  expect(
+                    proof['wholeCE']['printedProfitCells'][6],
+                    isNot(proof['wholeCE']['printedProfitCells'][7]),
+                  );
+                }
+
+                expect(
+                  profit['html_provenance']['printedCurrentCells'].where(
+                    (c) => c.toString().replaceAll(',', '') == expected[5][1],
+                  ),
+                  hasLength(1),
+                );
+              }
               if ({
                 '20240320000248',
                 '20230323000586',
@@ -500,6 +750,40 @@ void main() {
               )).length,
               1,
             );
+          } else if (scenario == 'pending-rejection-and-rerun') {
+            expect(audits, hasLength(1));
+            final payload = jsonDecode(audits.single.title);
+            expect(payload['status'], 'failed');
+            expect(
+              payload['failureReason'],
+              contains('storage pending approved partial metadata'),
+            );
+            expect(sourceReports, isEmpty);
+            expect(result, FilingFetchStatus.failed);
+            expect(
+              await Source.db.find(
+                session,
+                where: (t) => t.reference.equals(
+                  'financial-api-noData-source:${entry.receipt}:${entry.basis.name}',
+                ),
+              ),
+              isEmpty,
+            );
+            final auditBefore = audits.single.toJson();
+            await run();
+            expect(reads, firstReads);
+            final after = await Source.db.find(
+              session,
+              where: (t) => t.reference.equals(entry.auditReference),
+            );
+            expect(after, hasLength(1));
+            expect(after.single.toJson(), auditBefore);
+            final replayLedger = await DartFiling.db.findById(
+              session,
+              target.id!,
+            );
+            expect(replayLedger!.attempts, 7);
+            expect(replayLedger.lastError, contains('attempt=3'));
           } else if (scenario == 'sha-failed-and-rerun') {
             expect(audits.length, 1);
             expect(jsonDecode(audits.single.title)['status'], 'failed');
@@ -577,7 +861,8 @@ void main() {
                   companyId: company.id,
                   corpCode: entry.corpCode,
                   rceptNo: entry.receipt,
-                  reportName: '사업보고서 (${entry.year}.12)',
+                  reportName:
+                      '사업보고서 (${entry.year}.${entry.periodEnd.month.toString().padLeft(2, '0')})',
                   bsnsYear: entry.year,
                   reportCode: FinancialReportCode.annual,
                   consolidatedStatus: FilingFetchStatus.failed,
@@ -637,12 +922,17 @@ void main() {
                           ? FsDiv.consolidated
                           : FsDiv.separate,
                     )!;
+                    // Derive the I/O contract from the byte-pinned package:
+                    // one manifest, each declared raw source once, and the
+                    // independently hashed expected-row proof when present.
+                    final manifest = jsonDecode(
+                      File('${e.assetDirectory}/manifest.json')
+                          .readAsStringSync(),
+                    );
                     return sum +
-                        4 +
-                        (e.requiresIssuerOverview ? 1 : 0) +
-                        (e.ruleVersion == 'same-receipt-audit-immutable-v1'
-                            ? 1
-                            : 0);
+                        1 +
+                        (manifest['sources'] as List).length +
+                        (manifest['expectedRowsSha256'] != null ? 1 : 0);
                   }),
           );
           expect(client.calls, 0);

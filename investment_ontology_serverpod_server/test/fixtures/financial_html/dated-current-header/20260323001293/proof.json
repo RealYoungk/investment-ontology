@@ -1,0 +1,80 @@
+{
+  "cfs": "stored",
+  "ofs": "failed",
+  "corp": "00541862",
+  "name": "(주)판도라티비",
+  "year": 2025,
+  "error": "api-noData-annual-public:attempt=3; public annual source verification failed: FormatException: Ambiguous annual current header",
+  "receipt": "20260323001293",
+  "attempts": 3,
+  "reportCode": "annual",
+  "reportName": "사업보고서 (2025.12)",
+  "actualPeriod": "2025.12",
+  "cfsPeriodStored": true,
+  "ofsPeriodStored": false,
+  "snapshotNote": "과거241건 목록이며 현재238건의 개별 상태와 구분",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260323001293",
+      "sha256": "751482c1c36b49045a5fa585f1458ac119529d01276368870ac6c9be011ee8c5",
+      "bytes": 70207
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323001293&dcmNo=11166834&eleId=1&offset=969&length=4538&dtd=dart4.xsd",
+      "sha256": "91e783e7495450be0439ab5fefc5ddf0fa6dad32a5cca28ca59b7a5effe2a1ca",
+      "bytes": 4810
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323001293&dcmNo=11166834&eleId=19&offset=199070&length=45461&dtd=dart4.xsd",
+      "sha256": "948280e74ee27cc6f027401327543ade036479c73e05bf33d9e9ebfd6631b402",
+      "bytes": 39584
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323001293&dcmNo=11166834&eleId=21&offset=578017&length=44326&dtd=dart4.xsd",
+      "sha256": "e2ee5952f63fafc3ebfbb65034aa053dbaa250b5edc550b29d5359a3a510b9d5",
+      "bytes": 39159
+    }
+  ],
+  "ownCorpIds": [
+    "00541862"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20260323001293",
+        "dcmNo": "11166834",
+        "eleId": "1",
+        "offset": "969",
+        "length": "4538",
+        "dtd": "dart4.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20260323001293",
+        "dcmNo": "11166834",
+        "eleId": "19",
+        "offset": "199070",
+        "length": "45461",
+        "dtd": "dart4.xsd"
+      }
+    },
+    {
+      "label": "4. 재무제표",
+      "coords": {
+        "rcpNo": "20260323001293",
+        "dcmNo": "11166834",
+        "eleId": "21",
+        "offset": "578017",
+        "length": "44326",
+        "dtd": "dart4.xsd"
+      }
+    }
+  ]
+}

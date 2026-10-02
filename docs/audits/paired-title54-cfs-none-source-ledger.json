@@ -1,0 +1,437 @@
+[
+  {
+    "receipt": "20220321001162",
+    "corp": "01188749",
+    "name": "(주)지앤이헬스케어",
+    "year": 2021,
+    "literal": "상기 내역과 관련하여 본 보고서 제출 기준일 현재 해당사항 없습니다.",
+    "ofsRule": "verified-current-period-whole-annual-v1",
+    "requiresOverview": false,
+    "sources": [
+      {
+        "label": "shell",
+        "file": "shell.html",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220321001162",
+        "sha256": "22003c4284d727a745f22bdc3e6ed1fb05f998ed5084c383c7a1f8c2f1015e97"
+      },
+      {
+        "label": "cover",
+        "file": "cover.html",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220321001162&dcmNo=8485274&eleId=1&offset=799&length=4031&dtd=dart3.xsd",
+        "sha256": "f42fd407a2215b77e861d2b454e8fc831196f9d1d6c5c22415f59d393f72af07"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220321001162&dcmNo=8485274&eleId=19&offset=164022&length=209&dtd=dart3.xsd",
+        "sha256": "2ce9610fad04139ddee24b5ba694cd7d72c4d0886cb2ffd4996840019fdcf180",
+        "file": "cfs.html"
+      }
+    ]
+  },
+  {
+    "receipt": "20220322000589",
+    "corp": "00929228",
+    "name": "(주)엔에스컴퍼니",
+    "year": 2021,
+    "literal": "해당사항 없습니다.",
+    "ofsRule": "verified-current-period-whole-annual-v1",
+    "requiresOverview": false,
+    "sources": [
+      {
+        "label": "shell",
+        "file": "shell.html",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220322000589",
+        "sha256": "246992c5092c16eba25df861c828ffdc468f88c3086b2f49a57dba4198c1165f"
+      },
+      {
+        "label": "cover",
+        "file": "cover.html",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000589&dcmNo=8490465&eleId=1&offset=809&length=4035&dtd=dart3.xsd",
+        "sha256": "d7b980189c4d34a89c4394d2aebcd4b7169c61cf6db840df8805b5dc79c967e3"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000589&dcmNo=8490465&eleId=19&offset=390953&length=129&dtd=dart3.xsd",
+        "sha256": "d1427bcc7679e56ef15edd073306fa2e0917a8462d988e20ee40c10556df865e",
+        "file": "cfs.html"
+      }
+    ]
+  },
+  {
+    "receipt": "20220329000316",
+    "corp": "01034730",
+    "name": "크로넥스(주)",
+    "year": 2021,
+    "literal": "당사는 해당사항 없습니다.",
+    "ofsRule": "verified-current-period-whole-annual-v1",
+    "requiresOverview": false,
+    "sources": [
+      {
+        "label": "shell",
+        "file": "shell.html",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220329000316",
+        "sha256": "cc17e661edbc380fc313131db763d26e23dbabd9d4c8d3aff7b631b67494ceb0"
+      },
+      {
+        "label": "cover",
+        "file": "cover.html",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220329000316&dcmNo=8511277&eleId=3&offset=40233&length=4028&dtd=dart3.xsd",
+        "sha256": "2294cf4d2c6574eb65aea9ca2ee53effb757ce88b782a8f82456607b94ded77d"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220329000316&dcmNo=8511277&eleId=21&offset=147616&length=134&dtd=dart3.xsd",
+        "sha256": "b7d9f2d2d3625656738481433bcd4e34ff89a4cc229d13e5b3b41a38db8359d4",
+        "file": "cfs.html"
+      }
+    ]
+  },
+  {
+    "receipt": "20220330000929",
+    "corp": "01116380",
+    "name": "(주)씨앤에스링크",
+    "year": 2021,
+    "literal": "해당사항 없습니다.",
+    "ofsRule": "verified-current-period-whole-annual-v1",
+    "requiresOverview": false,
+    "sources": [
+      {
+        "label": "shell",
+        "file": "shell.html",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220330000929",
+        "sha256": "17267202e1f8d5243f9270b9f889a18c62f785edfcef8f5092e03f3aed94e34b"
+      },
+      {
+        "label": "cover",
+        "file": "cover.html",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220330000929&dcmNo=8517628&eleId=3&offset=35558&length=4137&dtd=dart3.xsd",
+        "sha256": "a7e72813bbe9e75df63806d4570d58635030ed8c529b9d5fb589b858830c54a6"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220330000929&dcmNo=8517628&eleId=21&offset=300010&length=164&dtd=dart3.xsd",
+        "sha256": "17bb4e8f40e0d50932750bee0f9b9590c48dce6930063972f70bdbd17237f9db",
+        "file": "cfs.html"
+      }
+    ]
+  },
+  {
+    "receipt": "20220624000490",
+    "corp": "00611286",
+    "name": "(주)블루탑",
+    "year": 2021,
+    "literal": "상기 내역과 관련하여 본 보고서 제출 기준일 현재 해당사항 없습니다.",
+    "ofsRule": "verified-current-period-whole-annual-v1",
+    "requiresOverview": false,
+    "sources": [
+      {
+        "label": "shell",
+        "file": "shell.html",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220624000490",
+        "sha256": "53f3cc9eeacb99a210a7a6a856905134ee13f173ce0cef9ad2ecb9999b8eb7f7"
+      },
+      {
+        "label": "cover",
+        "file": "cover.html",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220624000490&dcmNo=8712586&eleId=3&offset=310701&length=4006&dtd=dart3.xsd",
+        "sha256": "cc263fe60a2c8ee4e1522f1075031c4e8f0d12794b39ad94ef98797ed002a32b"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220624000490&dcmNo=8712586&eleId=21&offset=514359&length=166&dtd=dart3.xsd",
+        "sha256": "2abf38026e3b14264132c68bbc395c1d38d56a9852c620a100f3939169ea21b9",
+        "file": "cfs.html"
+      }
+    ]
+  },
+  {
+    "receipt": "20230323001068",
+    "corp": "00611286",
+    "name": "(주)블루탑",
+    "year": 2022,
+    "literal": "상기 내역과 관련하여 본 보고서 제출 기준일 현재 해당사항 없습니다.",
+    "ofsRule": "verified-current-period-whole-annual-v1",
+    "requiresOverview": false,
+    "sources": [
+      {
+        "label": "shell",
+        "file": "shell.html",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230323001068",
+        "sha256": "cfde5116de00b6415dff86579645e8d6a686f7f8188d0359306324d74b0a21a9"
+      },
+      {
+        "label": "cover",
+        "file": "cover.html",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230323001068&dcmNo=9097266&eleId=1&offset=798&length=3996&dtd=dart3.xsd",
+        "sha256": "b2a90a1b0b685b5725a70d131e373ffbc7845a05afea9357a4b224148670ac52"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230323001068&dcmNo=9097266&eleId=19&offset=182037&length=166&dtd=dart3.xsd",
+        "sha256": "2abf38026e3b14264132c68bbc395c1d38d56a9852c620a100f3939169ea21b9",
+        "file": "cfs.html"
+      }
+    ]
+  },
+  {
+    "receipt": "20230327000728",
+    "corp": "00929228",
+    "name": "(주)엔에스컴퍼니",
+    "year": 2022,
+    "literal": "해당사항 없습니다.",
+    "ofsRule": "verified-current-period-whole-annual-v1",
+    "requiresOverview": false,
+    "sources": [
+      {
+        "label": "shell",
+        "file": "shell.html",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230327000728",
+        "sha256": "4ce53baa1f4c4fa1f3143bd9fdca6f30da22f9f6250fa0012f2e64d3cc28cb45"
+      },
+      {
+        "label": "cover",
+        "file": "cover.html",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230327000728&dcmNo=9106218&eleId=3&offset=16797&length=4082&dtd=dart3.xsd",
+        "sha256": "e1902666bf0c4308400a1b4e72fb733d1fafd05450e5bb05958867c101f58e29"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230327000728&dcmNo=9106218&eleId=21&offset=428007&length=130&dtd=dart3.xsd",
+        "sha256": "4de02713653c5bc04adf9fb14f62a3a3fed5a926029f40a31f5f8ef3d26366dc",
+        "file": "cfs.html"
+      }
+    ]
+  },
+  {
+    "receipt": "20240321000503",
+    "corp": "01116380",
+    "name": "(주)씨앤에스링크",
+    "year": 2023,
+    "literal": "해당사항 없습니다.",
+    "ofsRule": "verified-current-period-whole-annual-v1",
+    "requiresOverview": false,
+    "sources": [
+      {
+        "label": "shell",
+        "file": "shell.html",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240321000503",
+        "sha256": "f9789ac99bd155d1b226cab06ac723629f0a1caca66584db12a5112d9d49625c"
+      },
+      {
+        "label": "cover",
+        "file": "cover.html",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240321000503&dcmNo=9746987&eleId=1&offset=968&length=4149&dtd=dart4.xsd",
+        "sha256": "86369d881884161ff0e03f2434fdde91dc17086a8b85b1aef6a5f69fc717e77e"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240321000503&dcmNo=9746987&eleId=19&offset=286167&length=158&dtd=dart4.xsd",
+        "sha256": "810a964976fc84f50f7e476d1a5f46ec695ef696a980699e4df5ab3ea31ff5fc",
+        "file": "cfs.html"
+      }
+    ]
+  },
+  {
+    "receipt": "20240321001467",
+    "corp": "00611286",
+    "name": "(주)블루탑",
+    "year": 2023,
+    "literal": "상기 내역과 관련하여 본 보고서 제출 기준일 현재 해당사항 없습니다.",
+    "ofsRule": "verified-current-period-whole-annual-v1",
+    "requiresOverview": false,
+    "sources": [
+      {
+        "label": "shell",
+        "file": "shell.html",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240321001467",
+        "sha256": "da2ecbeed9b13514a731faf1dff11f9cac48f4b6d1c5cbeeb7971d975b4c54d4"
+      },
+      {
+        "label": "cover",
+        "file": "cover.html",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240321001467&dcmNo=9752006&eleId=1&offset=954&length=4007&dtd=dart4.xsd",
+        "sha256": "951f7fbf0dbab3f2a529af36bbe57a2d269890bf7d8017e013a045100b559d49"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240321001467&dcmNo=9752006&eleId=19&offset=196864&length=178&dtd=dart4.xsd",
+        "sha256": "2abf38026e3b14264132c68bbc395c1d38d56a9852c620a100f3939169ea21b9",
+        "file": "cfs.html"
+      }
+    ]
+  },
+  {
+    "receipt": "20250318000656",
+    "corp": "00978075",
+    "name": "(주)머니무브",
+    "year": 2024,
+    "literal": "※ 당사는 주식회사의 외부감사에 관한 법률 제1조의2에 의한 연결재무제표 작성대상 법인이 아닙니다.",
+    "ofsRule": "verified-current-period-whole-annual-v1",
+    "requiresOverview": false,
+    "sources": [
+      {
+        "label": "shell",
+        "file": "shell.html",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250318000656",
+        "sha256": "8c0c89e3c7fb9021b833c567a06a9659445f68f11fe866bd7af0f88844cd6582"
+      },
+      {
+        "label": "cover",
+        "file": "cover.html",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250318000656&dcmNo=10420032&eleId=1&offset=955&length=4723&dtd=dart4.xsd",
+        "sha256": "3301bcccc26805c487dee94c39d8904c1ec03ed8d3ba8a8c9dffc6483614e1d8"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250318000656&dcmNo=10420032&eleId=17&offset=134604&length=268&dtd=dart4.xsd",
+        "sha256": "b439875db3b3b2627f133f783396ea144d622f84b5ea615137a17a79e816625e",
+        "file": "cfs.html"
+      }
+    ]
+  },
+  {
+    "receipt": "20250320000656",
+    "corp": "01116380",
+    "name": "(주)씨앤에스링크",
+    "year": 2024,
+    "literal": "해당사항 없습니다.",
+    "ofsRule": "verified-current-period-whole-annual-v1",
+    "requiresOverview": false,
+    "sources": [
+      {
+        "label": "shell",
+        "file": "shell.html",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250320000656",
+        "sha256": "cbfac97af0a30c4dbea8ad65fc3b11a8f6ab2a5fa270e282666a3e93c4e0bcf8"
+      },
+      {
+        "label": "cover",
+        "file": "cover.html",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250320000656&dcmNo=10434339&eleId=1&offset=957&length=4610&dtd=dart4.xsd",
+        "sha256": "32bd37bf8c037fbfce433ac168e4ca4d1940e604c4e35003b5211fde2a4e205c"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250320000656&dcmNo=10434339&eleId=19&offset=257831&length=202&dtd=dart4.xsd",
+        "sha256": "810a964976fc84f50f7e476d1a5f46ec695ef696a980699e4df5ab3ea31ff5fc",
+        "file": "cfs.html"
+      }
+    ]
+  },
+  {
+    "receipt": "20250321000943",
+    "corp": "00611286",
+    "name": "(주)블루탑",
+    "year": 2024,
+    "literal": "상기 내역과 관련하여 본 보고서 제출 기준일 현재 해당사항 없습니다.",
+    "ofsRule": "verified-current-period-whole-annual-v1",
+    "requiresOverview": false,
+    "sources": [
+      {
+        "label": "shell",
+        "file": "shell.html",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250321000943",
+        "sha256": "853155e13b7dbecbbdcd49fc83e85dc463fc3eb9aa49cd187281d002f726d354"
+      },
+      {
+        "label": "cover",
+        "file": "cover.html",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321000943&dcmNo=10445565&eleId=1&offset=954&length=4480&dtd=dart4.xsd",
+        "sha256": "24f1100cd286e6438f2b2591362b7396847c8bef3be577ff08d1d12bfd65990c"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321000943&dcmNo=10445565&eleId=19&offset=186394&length=221&dtd=dart4.xsd",
+        "sha256": "2abf38026e3b14264132c68bbc395c1d38d56a9852c620a100f3939169ea21b9",
+        "file": "cfs.html"
+      }
+    ]
+  },
+  {
+    "receipt": "20250321001385",
+    "corp": "01034730",
+    "name": "크로넥스(주)",
+    "year": 2024,
+    "literal": "당사는 해당사항 없습니다.",
+    "ofsRule": "verified-current-period-whole-annual-v1",
+    "requiresOverview": false,
+    "sources": [
+      {
+        "label": "shell",
+        "file": "shell.html",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250321001385",
+        "sha256": "5502f757614f67159b8ffff34d656f24c38173abda3d7834e92fe4a4135cdda8"
+      },
+      {
+        "label": "cover",
+        "file": "cover.html",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001385&dcmNo=10447920&eleId=1&offset=957&length=4519&dtd=dart4.xsd",
+        "sha256": "43f5f4c762e53821dc31ba296b7650e6c71ddf71faf433a77938d1a19ac3d384"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001385&dcmNo=10447920&eleId=19&offset=122798&length=196&dtd=dart4.xsd",
+        "sha256": "23454a8d1288d1feae403ae3ade784a5e743ff9edd2ece566eff1d97317e9e8c",
+        "file": "cfs.html"
+      }
+    ]
+  },
+  {
+    "receipt": "20260323000673",
+    "corp": "01063237",
+    "name": "(주)플럼라인생명과학",
+    "year": 2025,
+    "literal": "보고서 제출일 현재 해당사항 없습니다.",
+    "ofsRule": "verified-current-period-whole-annual-v1",
+    "requiresOverview": false,
+    "sources": [
+      {
+        "label": "shell",
+        "file": "shell.html",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260323000673",
+        "sha256": "7b2292740f9f6e72f7a1f32d35f3c13fb7d370dda07c665f1d4f2d0ac82c57cd"
+      },
+      {
+        "label": "cover",
+        "file": "cover.html",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323000673&dcmNo=11163121&eleId=1&offset=970&length=4522&dtd=dart4.xsd",
+        "sha256": "6839f37116784c9ca995b351e7b1a8fc11f694cf747b4bbf80b246612ae72151"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323000673&dcmNo=11163121&eleId=19&offset=205913&length=205&dtd=dart4.xsd",
+        "sha256": "6b1ee1dc9b1cbd7235519e4c613af2a6fba0838338d3c631b188e8da944a0c0e",
+        "file": "cfs.html"
+      }
+    ]
+  },
+  {
+    "receipt": "20260323001028",
+    "corp": "00611286",
+    "name": "(주)블루탑",
+    "year": 2025,
+    "literal": "상기 내역과 관련하여 본 보고서 제출 기준일 현재 해당사항 없습니다.",
+    "ofsRule": "verified-current-period-whole-annual-v1",
+    "requiresOverview": false,
+    "sources": [
+      {
+        "label": "shell",
+        "file": "shell.html",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260323001028",
+        "sha256": "b93fe4bedc02427b1208bc4c5eb26d853a735f6c6d6c3e74468149e77a2b6991"
+      },
+      {
+        "label": "cover",
+        "file": "cover.html",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323001028&dcmNo=11165149&eleId=1&offset=965&length=4480&dtd=dart4.xsd",
+        "sha256": "f1bb03da239f9b377e4bba52c9a992bdf376e8258200f2b928281431f30c6c0f"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323001028&dcmNo=11165149&eleId=19&offset=204137&length=221&dtd=dart4.xsd",
+        "sha256": "2abf38026e3b14264132c68bbc395c1d38d56a9852c620a100f3939169ea21b9",
+        "file": "cfs.html"
+      }
+    ]
+  }
+]

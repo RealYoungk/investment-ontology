@@ -1,0 +1,54 @@
+{
+  "targetReceipt": "20230323001121",
+  "originalReceipt": "20230323000812",
+  "numericSourceReceipt": "20230323000812",
+  "corpCode": "00976615",
+  "companyName": "(주)틸론",
+  "basis": "cfs",
+  "year": 2022,
+  "periodStart": "2022-01-01",
+  "periodEnd": "2022-12-31",
+  "kind": "annual",
+  "ruleVersion": "header18-linked-direct-whole-v1",
+  "sources": [
+    {
+      "label": "targetShell",
+      "file": "targetShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230323001121",
+      "sha256": "cd5904538d4ff7ca06c84c1247d131f8278b47395232f54fe8facee2658d0ec1"
+    },
+    {
+      "label": "originalShell",
+      "file": "originalShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230323000812",
+      "sha256": "8996d484926950d4e3320ea1e553e514b92443d3b535be3a5065afdbdda83859"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230323000812&dcmNo=9095964&eleId=1&offset=808&length=4099&dtd=dart3.xsd",
+      "sha256": "959f4d849fa2bc6cb8fc56c861d68cec176e74d66aa3f7ea1456ea866fcdf65b"
+    },
+    {
+      "label": "primary",
+      "file": "primary.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230323000812&dcmNo=9095964&eleId=19&offset=313138&length=66741&dtd=dart3.xsd",
+      "sha256": "7a09358715245a122044084f281af2d90fe83b5cc03ca4d8da83f9240554f376"
+    },
+    {
+      "label": "auditShell",
+      "file": "auditShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230323000812&dcmNo=9095963",
+      "sha256": "2c7bb5953300ece25b2d74fb1b57ea9e6e08d0e3e53b1b859eb28d236cff5ee6"
+    },
+    {
+      "label": "audit",
+      "file": "audit.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230323000812&dcmNo=9095963&eleId=3&offset=12811&length=470833&dtd=dart3.xsd",
+      "sha256": "630a9a3af270500c03b877277487198a144fb6605af7c7887522f10ce91ce2e3"
+    }
+  ],
+  "sourceRole": "original_primary_with_current_audit_witness",
+  "scopeNote": "Candidate assets only; not active registry or operational completion",
+  "expectedRowsSha256": "4fcc0423ae386545aa320072aeba26b45c1e7899307d85da6ef2bfdf1fd93ef4"
+}

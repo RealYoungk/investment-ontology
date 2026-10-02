@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20250328002132",
+  "corpCode": "01396931",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2024,
+  "periodStart": "2024-01-01",
+  "periodEnd": "2024-12-31",
+  "ruleVersion": "dated-current-column-whole-equity-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250328002132",
+      "sha256": "0c5c27c0cb17abe1ed1b0279a8135b9680d2ded32c43aac942886b79a2b3599e",
+      "file": "shell.html"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250328002132&dcmNo=10475938&eleId=3&offset=12619&length=4552&dtd=dart4.xsd",
+      "sha256": "3813aea26332dcec6425701fe62fee0f2cd2d08d07d0bce1a543aaf7ba8a5272",
+      "file": "cover.html"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250328002132&dcmNo=10475938&eleId=23&offset=459435&length=64165&dtd=dart4.xsd",
+      "sha256": "086652f2700778b3f0f1ab09c00c581e1fc043a27cf4cdc657951b77cce7e05f",
+      "file": "ofs.html"
+    }
+  ],
+  "retrievalProof": "공식 원접수 owncorp/같은dcm 표지와 primary BS/CIS/CF 직접현재열·전체7, 독립CE 당기순익/기말자본 대조. 원문보존."
+}

@@ -1,0 +1,47 @@
+{
+  "cfs": "failed",
+  "ofs": "failed",
+  "corp": "01226234",
+  "name": "(주)와이바이오로직스",
+  "year": 2022,
+  "error": "api-noData-annual-public:attempt=3; public annual source verification failed: FormatException: Exact annual legal issuer corroboration failed",
+  "receipt": "20230414002057",
+  "attempts": 3,
+  "reportCode": "annual",
+  "reportName": "사업보고서 (2022.12)",
+  "actualPeriod": "2022.12",
+  "cfsPeriodStored": false,
+  "ofsPeriodStored": false,
+  "sources": [
+    {
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230414002057",
+      "sha256": "e04572bf55fe0784ca7adaffd267845471c7bd91308fb533ffe7f74c72bd8f6c",
+      "file": "shell.html",
+      "label": "shell"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230414002057&dcmNo=9232198&eleId=1&offset=816&length=4054&dtd=dart3.xsd",
+      "sha256": "a4aa9f277213620b3701d4e8a66b29527c0bf9cb99b6b205795e763b6fe2e2a0",
+      "file": "cover.html",
+      "label": "cover"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230414002057&dcmNo=9232198&eleId=3&offset=5362&length=78332&dtd=dart3.xsd",
+      "sha256": "389127b0b1d3f98eacfbf4dcef6fda1bc12de8bbccfd853c475df2d018bbeb03",
+      "file": "overview.html",
+      "label": "overview"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230414002057&dcmNo=9232198&eleId=21&offset=206375&length=38970&dtd=dart3.xsd",
+      "sha256": "0b5f2ec8f857f5c488b36095dcdad364a171deaa3c63b606b15a28a530eee8e5",
+      "file": "ofs.html",
+      "label": "ofs"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230414002057&dcmNo=9232198&eleId=19&offset=206100&length=132&dtd=dart3.xsd",
+      "sha256": "a7b1af1a1af6c7777b8cee2680243afcefc3cbea5be05ce5eb66c13225a79ca1",
+      "file": "cfs.html"
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "targetReceipt": "20220328000884",
+  "originalReceipt": "20220321000630",
+  "numericSourceReceipt": "20220328000884",
+  "corpCode": "01353848",
+  "companyName": "(주)이노벡스",
+  "basis": "ofs",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "kind": "annual",
+  "ruleVersion": "header18-linked-direct-whole-v1",
+  "sources": [
+    {
+      "label": "targetShell",
+      "file": "targetShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220328000884",
+      "sha256": "c18e2ea3a9c809a4f6bcb8a60e13ae89139ca2c61241059de7c3df47e6409556"
+    },
+    {
+      "label": "originalShell",
+      "file": "originalShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220321000630",
+      "sha256": "f03cacc97c44b2f00929105c9aa2c1e0156713eb06f628538aaabddee033f2c1"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220321000630&dcmNo=8482170&eleId=1&offset=807&length=4027&dtd=dart3.xsd",
+      "sha256": "6b6ae646ac07f9228dc540cb530cedc8b598a6e99bec531b7585c3dc262db212"
+    },
+    {
+      "label": "primary",
+      "file": "primary.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220321000630&dcmNo=8482170&eleId=21&offset=194115&length=55459&dtd=dart3.xsd",
+      "sha256": "aa5da49bdefef927bbc8b1eaf7e512cda8e03f39e529d4822e3216e5aee6fb5a"
+    },
+    {
+      "label": "auditShell",
+      "file": "auditShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220328000884&dcmNo=8509455",
+      "sha256": "c18e2ea3a9c809a4f6bcb8a60e13ae89139ca2c61241059de7c3df47e6409556"
+    },
+    {
+      "label": "audit",
+      "file": "audit.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220328000884&dcmNo=8509455&eleId=4&offset=17039&length=459391&dtd=dart3.xsd",
+      "sha256": "ec448029556f192bfb55ea9a2019569c87ecec4723f6b56ef398a6314d8d9fc3"
+    }
+  ],
+  "sourceRole": "corrected_audit",
+  "scopeNote": "Candidate assets only; not active registry or operational completion",
+  "expectedRowsSha256": "34de8bcdd14013bd033c8eeab61ff52914f2a13ff5898a072c9527a11599f7d5"
+}

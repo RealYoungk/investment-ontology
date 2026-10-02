@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20220324000600",
+  "corpCode": "00296290",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "ruleVersion": "verified-current-period-whole-annual-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220324000600",
+      "sha256": "d1a8873adcb475d2ad34e3026befffb847cbcdf378a9585ffd8331791cb64892"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220324000600&dcmNo=8502035&eleId=3&offset=13103&length=4031&dtd=dart3.xsd",
+      "sha256": "e1f89dfccb9fb2a58dc79c19eae8b7690fa530441cea5dc3a15970b95a441f84"
+    },
+    {
+      "label": "ofs",
+      "file": "ofs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220324000600&dcmNo=8502035&eleId=21&offset=2100640&length=80700&dtd=dart3.xsd",
+      "sha256": "2a5f60da0d12167d39208758bb3e389f13a5d0d7f907dcba50540fae2919abf8"
+    }
+  ],
+  "retrievalProof": "Official same-receipt shell, cover, and separate statement bytes. Unique current columns, printed units, direct whole totals and independent dated equity evidence where required; no inferred missing values."
+}

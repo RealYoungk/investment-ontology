@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'public_financial_html.dart';
+import 'source_verified_partial_core.dart';
 import 'sk_signet_identity.dart';
 
 import 'dart:io';
@@ -13,7 +14,10 @@ import 'dart_report_name.dart';
 import 'public_financial_html_fetch.dart';
 import 'verified_annual_source_registry.dart';
 import 'same_receipt_audit_source.dart';
+import 'linked_correction_audit_source.dart';
+import 'header18_linked_primary_source.dart';
 import 'pureun_six_core_profile.dart';
+import 'historical_primary_cfs_absence.dart';
 
 /// Only compiled, byte-pinned official packages; the adapter has no network.
 final class VerifiedAnnualSourceCache {
@@ -79,7 +83,7 @@ final class VerifiedAnnualSourceCache {
         filing.reportCode == FinancialReportCode.annual &&
         report?.kind == DartReportKind.annual &&
         report?.periodYear == entry.year &&
-        report?.periodMonth == 12 &&
+        report?.periodMonth == entry.periodEnd.month &&
         attempts?.group(1) == '3' &&
         (status == FilingFetchStatus.failed ||
             status == FilingFetchStatus.pending);
@@ -128,19 +132,37 @@ final class VerifiedAnnualSourceCache {
     if (sha256.convert(rawManifest).toString() != entry.manifestDigest) {
       throw const FormatException('Cached annual manifest digest mismatch');
     }
+    if (entry.ruleVersion == Header18LinkedPrimarySource.primaryRule ||
+        entry.ruleVersion == Header18LinkedPrimarySource.absenceRule) {
+      return Header18LinkedPrimarySource.verify(
+        entry: entry,
+        company: company,
+        filing: filing,
+        rawManifest: rawManifest,
+        read: _read,
+      );
+    }
     final manifest = jsonDecode(utf8.decode(rawManifest)) as Map;
-    final start = DateTime.utc(entry.year),
-        end = DateTime.utc(entry.year, 12, 31);
+    final start = entry.periodStart, end = entry.periodEnd;
     if (manifest['receipt'] != entry.receipt ||
         manifest['corpCode'] != entry.corpCode ||
         manifest['basis'] != basis.name ||
         manifest['kind'] != 'annual' ||
         manifest['year'] != entry.year ||
-        manifest['periodStart'] != '${entry.year}-01-01' ||
-        manifest['periodEnd'] != '${entry.year}-12-31' ||
+        manifest['periodStart'] != start.toIso8601String().substring(0, 10) ||
+        manifest['periodEnd'] != end.toIso8601String().substring(0, 10) ||
         manifest['ruleVersion'] != entry.ruleVersion) {
       throw const FormatException('Cached annual declared identity mismatch');
     }
+    final correctionAudit =
+        entry.ruleVersion == 'linked-correction-audit-immutable-v1' &&
+        LinkedCorrectionAuditSource.eligible(
+          receipt: entry.receipt,
+          corpCode: entry.corpCode,
+          consolidated: basis == FsDiv.consolidated,
+          start: start,
+          end: end,
+        );
     final linkedAudit =
         entry.ruleVersion == 'same-receipt-audit-immutable-v1' &&
         SameReceiptAuditSource.eligible(
@@ -154,8 +176,13 @@ final class VerifiedAnnualSourceCache {
       'shell',
       'cover',
       entry.statementLabel,
-      if (linkedAudit) 'auditShell',
+      if (linkedAudit || correctionAudit) 'auditShell',
+      if (correctionAudit) 'originalShell',
+      if (correctionAudit &&
+          LinkedCorrectionAuditSource.witnessUri(entry.receipt) != null)
+        'targetOfs',
       if (entry.requiresIssuerOverview) 'overview',
+      if (entry.requiresOwnOfsWitness) 'issuer-ofs',
     };
     final documentCount = requiredLabels.length;
     final documents = <Uri, List<int>>{};
@@ -177,6 +204,41 @@ final class VerifiedAnnualSourceCache {
     }
     if (documents.length != documentCount || labels.length != documentCount) {
       throw const FormatException('Cached annual package incomplete');
+    }
+    if (entry.requiresOwnOfsWitness) {
+      if (entry.ruleVersion != 'historical-issuer-cfs-none-own-ofs-v1' ||
+          basis != FsDiv.consolidated ||
+          entry.absenceLiteral == null ||
+          !entry.requiresIssuerOverview) {
+        throw const FormatException('Invalid compiled issuer witness scope');
+      }
+      Uri uri(String label) => Uri.parse(
+        (manifest['sources'] as List).singleWhere(
+              (x) => x['label'] == label,
+            )['url']
+            as String,
+      );
+      String raw(String label) => utf8.decode(documents[uri(label)]!);
+      final absence = HistoricalPrimaryCfsAbsence.verify(
+        receipt: entry.receipt,
+        corpCode: entry.corpCode,
+        currentName: company.name,
+        reportName: filing.reportName,
+        start: start,
+        end: end,
+        shellSource: uri('shell'),
+        shell: raw('shell'),
+        coverSource: uri('cover'),
+        cover: raw('cover'),
+        ofsSource: uri('issuer-ofs'),
+        ofs: raw('issuer-ofs'),
+        overviewSource: uri('overview'),
+        overview: raw('overview'),
+        cfsSource: uri('cfs'),
+        cfs: raw('cfs'),
+        expectedLiteral: entry.absenceLiteral!,
+      );
+      return (numeric: null, absence: absence);
     }
     if (entry.ruleVersion == 'sk-signet-direct-rename-event-v1') {
       String raw(String label) => utf8.decode(
@@ -234,10 +296,15 @@ final class VerifiedAnnualSourceCache {
         consolidated: basis == FsDiv.consolidated,
         allowPrimaryHistoricalIssuer:
             entry.ruleVersion == 'primary-historical-issuer-whole-seven-v1',
+        allowSourceVerifiedPartialCore:
+            entry.ruleVersion == 'source-six-with-unavailable-whole-revenue-v1',
       );
       if (entry.absenceLiteral != null ||
           client.requests != documentCount ||
-          numeric.sourceReceipt != entry.receipt ||
+          numeric.sourceReceipt !=
+              (correctionAudit
+                  ? LinkedCorrectionAuditSource.originalFor(entry.receipt)
+                  : entry.receipt) ||
           numeric.periodStart != start ||
           numeric.periodEnd != end ||
           (numeric.rows.length < 7 &&
@@ -250,7 +317,21 @@ final class VerifiedAnnualSourceCache {
                 basis: basis.name,
                 year: filing.bsnsYear!,
                 reportName: filing.reportName,
-              )) ||
+              ) &&
+              !(entry.ruleVersion ==
+                      'source-six-with-unavailable-whole-revenue-v1' &&
+                  SourceVerifiedPartialCore.verifiedRows(
+                    numeric.rows,
+                    sourceDigest: numeric.sourceDigest,
+                    bodySha256: sha256
+                        .convert(utf8.encode(numeric.statementHtml))
+                        .toString(),
+                    sourceUrl: numeric.statementSource.toString(),
+                    companyCode: company.corpCode,
+                    targetReceipt: filing.rceptNo,
+                    basis: basis.name,
+                    year: filing.bsnsYear!,
+                  ))) ||
           numeric.rows.length > 8 ||
           numeric.rows.any((r) => r['account_id'] != null)) {
         throw const FormatException(

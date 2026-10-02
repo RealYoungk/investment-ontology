@@ -13,7 +13,10 @@ final class AnnualSourceCacheEntry {
     required this.ruleVersion,
     required this.absenceLiteral,
     this.requiresIssuerOverview = false,
-  });
+    this.requiresOwnOfsWitness = false,
+    this.declaredPeriodStart,
+    this.declaredPeriodEnd,
+  }) : assert((declaredPeriodStart == null) == (declaredPeriodEnd == null));
   final String receipt,
       corpCode,
       companyName,
@@ -24,6 +27,25 @@ final class AnnualSourceCacheEntry {
   final FsDiv basis;
   final String? absenceLiteral;
   final bool requiresIssuerOverview;
+  final bool requiresOwnOfsWitness;
+  final String? declaredPeriodStart, declaredPeriodEnd;
+  DateTime get periodStart => declaredPeriodStart == null
+      ? DateTime.utc(year)
+      : _declaredDate(declaredPeriodStart!);
+  DateTime get periodEnd => declaredPeriodEnd == null
+      ? DateTime.utc(year, 12, 31)
+      : _declaredDate(declaredPeriodEnd!);
+  static DateTime _declaredDate(String value) {
+    if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(value)) {
+      throw const FormatException('Invalid compiled annual calendar date');
+    }
+    final date = DateTime.parse('${value}T00:00:00Z');
+    if (date.toIso8601String().substring(0, 10) != value) {
+      throw const FormatException('Invalid compiled annual calendar date');
+    }
+    return date;
+  }
+
   String get statementLabel => basis == FsDiv.consolidated ? 'cfs' : 'ofs';
   String get auditReference =>
       'financial-cache-replay:$manifestDigest:$receipt:${basis.name}:$ruleVersion';
@@ -31,6 +53,1694 @@ final class AnnualSourceCacheEntry {
 
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
+    AnnualSourceCacheEntry(
+      receipt: '20220322000265',
+      corpCode: '01396931',
+      companyName: '주식회사 유엑스엔',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20220322000265-ofs-header18',
+      manifestDigest:
+          '0c12f71f2ae2c8c367cf209d761be9dea53d06a948677f6a60891078e3681be4',
+      ruleVersion: 'header18-linked-direct-whole-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220324000876',
+      corpCode: '01397620',
+      companyName: '주식회사 루닛',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20220324000876-cfs-header18',
+      manifestDigest:
+          'ab52277dd9d4858b075580e53fa224e4d514fe3bd7f5ee6a72ba73c61ee16477',
+      ruleVersion: 'header18-linked-direct-whole-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220324000876',
+      corpCode: '01397620',
+      companyName: '주식회사 루닛',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20220324000876-ofs-header18',
+      manifestDigest:
+          '93da5692428b5332075d89b10dd702f4b60a7646e3116ec411a0da20571dc42e',
+      ruleVersion: 'header18-linked-direct-whole-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220328000884',
+      corpCode: '01353848',
+      companyName: '(주)이노벡스',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20220328000884-ofs-header18',
+      manifestDigest:
+          '4de2cc81b6350d2e5aaa6e4c919ee38cb9bb7c9892b642fcc467d6cb77fb36ee',
+      ruleVersion: 'header18-linked-direct-whole-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20221213000195',
+      corpCode: '00311216',
+      companyName: '에이치엔에스하이텍(주)',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20221213000195-cfs-header18',
+      manifestDigest:
+          '7d1e652fd413b4598aa8b91db7eed526e6bc1ab2b06581088c385f188a4b8ad1',
+      ruleVersion: 'header18-linked-direct-whole-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20221213000195',
+      corpCode: '00311216',
+      companyName: '에이치엔에스하이텍(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20221213000195-ofs-header18',
+      manifestDigest:
+          '6c41defb7b2b123b7abb3e490ebe22e6f10193cddd9ffa8983b4a74e7686ffa0',
+      ruleVersion: 'header18-linked-direct-whole-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230323001121',
+      corpCode: '00976615',
+      companyName: '(주)틸론',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20230323001121-cfs-header18',
+      manifestDigest:
+          '63bead4f55ed89ceb2b5a32ac62f1954f8f3d184bfdbfa81cd6a94b08617e5eb',
+      ruleVersion: 'header18-linked-direct-whole-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230323001121',
+      corpCode: '00976615',
+      companyName: '(주)틸론',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20230323001121-ofs-header18',
+      manifestDigest:
+          '79868de23a397e2b2b0f1217a72f7ddf7fd11c537647756226ffdc2474f9de48',
+      ruleVersion: 'header18-linked-direct-whole-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250327000068',
+      corpCode: '01466832',
+      companyName: '(주)라피치',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20250327000068-ofs-header18',
+      manifestDigest:
+          '0c214d0977b4b91a550dda162a544b24386807c6e94b731deee8334d3baaec90',
+      ruleVersion: 'header18-linked-direct-whole-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260320001301',
+      corpCode: '01466832',
+      companyName: '(주)라피치',
+      year: 2025,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20260320001301-ofs-header18',
+      manifestDigest:
+          '84f63ded1b530584b1ffa9da3db4807bc72e7c74f6ebe0a04c84b410829b10ff',
+      ruleVersion: 'header18-linked-direct-whole-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260323000764',
+      corpCode: '01229240',
+      companyName: '(주)가이아코퍼레이션',
+      year: 2025,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20260323000764-cfs-header18',
+      manifestDigest:
+          '50293af1fc3287e8df9dd0f1f2afe297657586c28e11d05227bf653dc00dad24',
+      ruleVersion: 'header18-linked-direct-whole-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260323000764',
+      corpCode: '01229240',
+      companyName: '(주)가이아코퍼레이션',
+      year: 2025,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20260323000764-ofs-header18',
+      manifestDigest:
+          'cecf6877b154cb9a424cb6265512c491388f0ea3c6fffe949bc308ee68ec5ee3',
+      ruleVersion: 'header18-linked-direct-whole-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260324000715',
+      corpCode: '00929228',
+      companyName: '(주)엔에스컴퍼니',
+      year: 2025,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20260324000715-ofs-header18',
+      manifestDigest:
+          '6eac7bf6e5d727b4058f4103cae575a01f01fd7b3819395b583d9429534c2588',
+      ruleVersion: 'header18-linked-direct-whole-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220322000265',
+      corpCode: '01396931',
+      companyName: '주식회사 유엑스엔',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20220322000265-cfs-header18',
+      manifestDigest:
+          '27e185774c6e623594fa3c40099c1733fff94631a063cb8ead03fec8a0864cf2',
+      ruleVersion: 'header18-linked-explicit-absence-v1',
+      absenceLiteral: '당사는 사업보고서 작성 기준일 현재 해당사항이 없습니다.',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220328000884',
+      corpCode: '01353848',
+      companyName: '(주)이노벡스',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20220328000884-cfs-header18',
+      manifestDigest:
+          '7232bb79571aefd16637e0f9f65394885879d0ee3eccf595765e7c893a73f2a1',
+      ruleVersion: 'header18-linked-explicit-absence-v1',
+      absenceLiteral: '해 당 사 항 없 음',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250327000068',
+      corpCode: '01466832',
+      companyName: '(주)라피치',
+      year: 2024,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20250327000068-cfs-header18',
+      manifestDigest:
+          '388d996da4eecee2aaacbdd42c038d9264849b5d90e90065329e337e737fea75',
+      ruleVersion: 'header18-linked-explicit-absence-v1',
+      absenceLiteral: '당사는 사업보고서 제출일 현재 해당사항이 없습니다.',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260320001301',
+      corpCode: '01466832',
+      companyName: '(주)라피치',
+      year: 2025,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20260320001301-cfs-header18',
+      manifestDigest:
+          '3f79096aa61c191199311fb9755a7560d66b01b6541ff80221d163938b43b80c',
+      ruleVersion: 'header18-linked-explicit-absence-v1',
+      absenceLiteral: '당사는 사업보고서 제출일 현재 해당사항이 없습니다.',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260324000715',
+      corpCode: '00929228',
+      companyName: '(주)엔에스컴퍼니',
+      year: 2025,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20260324000715-cfs-header18',
+      manifestDigest:
+          '4d1d4c245791a126ebe7f96a1be6682e1e77923161d1d22e5febb8dbfd242437',
+      ruleVersion: 'header18-linked-explicit-absence-v1',
+      absenceLiteral: '해당사항 없음.',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220321001162',
+      corpCode: '01188749',
+      companyName: '(주)지앤이헬스케어',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220321001162-cfs',
+      manifestDigest:
+          '2c2dff77dfce97afeb3c2684f05eac957a7161972196370d6293775a167d56aa',
+      ruleVersion: 'paired-own-cfs-pure-none-v1',
+      absenceLiteral: "상기 내역과 관련하여 본 보고서 제출 기준일 현재 해당사항 없습니다.",
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220322000589',
+      corpCode: '00929228',
+      companyName: '(주)엔에스컴퍼니',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220322000589-cfs',
+      manifestDigest:
+          '0ada8016a4b1b2e314e7147dee36b08487514b531ad75f4cbbd359ec847b30cf',
+      ruleVersion: 'paired-own-cfs-pure-none-v1',
+      absenceLiteral: "해당사항 없습니다.",
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220329000316',
+      corpCode: '01034730',
+      companyName: '크로넥스(주)',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220329000316-cfs',
+      manifestDigest:
+          '5d05acf60696e4a2d18db957752b612f3422fe784fabffcbb5f1bbd77eb08e77',
+      ruleVersion: 'paired-own-cfs-pure-none-v1',
+      absenceLiteral: "당사는 해당사항 없습니다.",
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220330000929',
+      corpCode: '01116380',
+      companyName: '(주)씨앤에스링크',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220330000929-cfs',
+      manifestDigest:
+          'faff8a181e4117cbfc38e7d9cd01dbb9c181d148f5fa7b51bb1195dfa467a99d',
+      ruleVersion: 'paired-own-cfs-pure-none-v1',
+      absenceLiteral: "해당사항 없습니다.",
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220624000490',
+      corpCode: '00611286',
+      companyName: '(주)블루탑',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220624000490-cfs',
+      manifestDigest:
+          'e0b0bd3a4d7e7bd3141b1e8cbb349b7e1cf5c269bda7a83277c9d903ae84dfdd',
+      ruleVersion: 'paired-own-cfs-pure-none-v1',
+      absenceLiteral: "상기 내역과 관련하여 본 보고서 제출 기준일 현재 해당사항 없습니다.",
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230323001068',
+      corpCode: '00611286',
+      companyName: '(주)블루탑',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20230323001068-cfs',
+      manifestDigest:
+          'd6de333f2aab248cabf96a862aa83c741d2014b281fe0910118583eecc7a08ec',
+      ruleVersion: 'paired-own-cfs-pure-none-v1',
+      absenceLiteral: "상기 내역과 관련하여 본 보고서 제출 기준일 현재 해당사항 없습니다.",
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230327000728',
+      corpCode: '00929228',
+      companyName: '(주)엔에스컴퍼니',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20230327000728-cfs',
+      manifestDigest:
+          '12c5a657eb6b1d44da881331d40c5d4c8f2b3d85bf33099555a852ec0c1a61cd',
+      ruleVersion: 'paired-own-cfs-pure-none-v1',
+      absenceLiteral: "해당사항 없습니다.",
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240321000503',
+      corpCode: '01116380',
+      companyName: '(주)씨앤에스링크',
+      year: 2023,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20240321000503-cfs',
+      manifestDigest:
+          'ab017550d8a1be2f69e3dde04074c42a8fd8809cf25203337debd902698a7967',
+      ruleVersion: 'paired-own-cfs-pure-none-v1',
+      absenceLiteral: "해당사항 없습니다.",
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240321001467',
+      corpCode: '00611286',
+      companyName: '(주)블루탑',
+      year: 2023,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20240321001467-cfs',
+      manifestDigest:
+          '2ca3747a57538bc889240530c1e4a78687c40c1f7cc1882486d2531e8135fcaf',
+      ruleVersion: 'paired-own-cfs-pure-none-v1',
+      absenceLiteral: "상기 내역과 관련하여 본 보고서 제출 기준일 현재 해당사항 없습니다.",
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250318000656',
+      corpCode: '00978075',
+      companyName: '(주)머니무브',
+      year: 2024,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20250318000656-cfs',
+      manifestDigest:
+          'a09592818aa4667cfeeee09ba3882fcdf32d8380b9cd0aaf444dbbe7c8418972',
+      ruleVersion: 'paired-own-cfs-pure-none-v1',
+      absenceLiteral: "※ 당사는 주식회사의 외부감사에 관한 법률 제1조의2에 의한 연결재무제표 작성대상 법인이 아닙니다.",
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250320000656',
+      corpCode: '01116380',
+      companyName: '(주)씨앤에스링크',
+      year: 2024,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20250320000656-cfs',
+      manifestDigest:
+          '449ee2560bedf581c8073bf9039cfd9403548c6860f7fb83813e73f2977fb44b',
+      ruleVersion: 'paired-own-cfs-pure-none-v1',
+      absenceLiteral: "해당사항 없습니다.",
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250321000943',
+      corpCode: '00611286',
+      companyName: '(주)블루탑',
+      year: 2024,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20250321000943-cfs',
+      manifestDigest:
+          'd70dee95d64b3a151d99aa2a709dc0a0a169bae2b8ae62271bad017584d6a5a4',
+      ruleVersion: 'paired-own-cfs-pure-none-v1',
+      absenceLiteral: "상기 내역과 관련하여 본 보고서 제출 기준일 현재 해당사항 없습니다.",
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250321001385',
+      corpCode: '01034730',
+      companyName: '크로넥스(주)',
+      year: 2024,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20250321001385-cfs',
+      manifestDigest:
+          '9658149cae00238039348585849160e2e366a9c2a5fa790ba84f990fd1134066',
+      ruleVersion: 'paired-own-cfs-pure-none-v1',
+      absenceLiteral: "당사는 해당사항 없습니다.",
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260323000673',
+      corpCode: '01063237',
+      companyName: '(주)플럼라인생명과학',
+      year: 2025,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20260323000673-cfs',
+      manifestDigest:
+          'be485fa6a9068d5532af08f5e238fafa9acdeb22d6b03b3d351c0f12e60fc007',
+      ruleVersion: 'paired-own-cfs-pure-none-v1',
+      absenceLiteral: "보고서 제출일 현재 해당사항 없습니다.",
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260323001028',
+      corpCode: '00611286',
+      companyName: '(주)블루탑',
+      year: 2025,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20260323001028-cfs',
+      manifestDigest:
+          '6c67e98effc2b14396a6dbed66aa29df3b5de78d0782ba5c10d82b67d4d4e933',
+      ruleVersion: 'paired-own-cfs-pure-none-v1',
+      absenceLiteral: "상기 내역과 관련하여 본 보고서 제출 기준일 현재 해당사항 없습니다.",
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20260804000177',
+      corpCode: '01872459',
+      companyName: '(주)본시스템즈',
+      year: 2025,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20260804000177-ofs-linked-audit',
+      manifestDigest:
+          '8cf8b9cd641f655aff834ca3d0ec6cfa7fbf8364a31fb4b410d2aaebbd2458e1',
+      ruleVersion: 'linked-correction-audit-immutable-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260804000177',
+      corpCode: '01872459',
+      companyName: '(주)본시스템즈',
+      year: 2025,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20260804000177-cfs-linked-audit',
+      manifestDigest:
+          '6f613aed9a944a5d6527f5b1990ee974553cc77681705065d0f72f696c84a2d4',
+      ruleVersion: 'verified-basis-not-applicable-v1',
+      absenceLiteral: '당사는 보고서 제출일 현재 해당사항 없습니다.',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250321000964',
+      corpCode: '00991225',
+      companyName: '(주)더콘텐츠온',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250321000964-ofs',
+      manifestDigest:
+          '7fd49f310a9c6e28d60201fb279bcfdf8e177824c117b6b8d2aec4a1dc34012e',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260323001088',
+      corpCode: '00991225',
+      companyName: '(주)더콘텐츠온',
+      year: 2025,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20260323001088-ofs',
+      manifestDigest:
+          '7f8a26cd3ffac702507bc570794cad17df9dfd85efb9102123336a4988ce6e77',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240321001908',
+      corpCode: '00991225',
+      companyName: '(주)더콘텐츠온',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20240321001908-ofs',
+      manifestDigest:
+          '1c9caad26cb2bac542a96229c17d67e7ccdf59b8c7753bfb463a505991e35345',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220323000557',
+      corpCode: '00991225',
+      companyName: '(주)더콘텐츠온',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220323000557-ofs',
+      manifestDigest:
+          'c2750fe672d0198eb2eefad8fb7d4443e6aebb57d85509e9d17de40c2335f557',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220331001729',
+      corpCode: '00965318',
+      companyName: '(주)이노시뮬레이션',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220331001729-ofs-core50',
+      manifestDigest:
+          'f4c769cbb5b5db2192a3cb6d2073ce099bfcd2d60b5215f9be719cf7ce57674e',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20220315001273',
+      corpCode: '00148610',
+      companyName: '한화투자증권(주)',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220315001273-cfs-core50',
+      manifestDigest:
+          '7b82873a9a353f3680653dc825dc0f41f468a5647ab7f563366e0456de4f9874',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20220315000921',
+      corpCode: '00113359',
+      companyName: '교보증권(주)',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220315000921-cfs-core50',
+      manifestDigest:
+          'e550393be98cb725a01acb310b21a58238bb158a43e044fd5893708f350965be',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220317001218',
+      corpCode: '01113499',
+      companyName: '(주)아이티센피엔에스',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220317001218-cfs',
+      manifestDigest:
+          '81d86f9caf2c3b5ecdb7441b05f24d15cb582fbb883f80378d01b2bc7e2fa9a3',
+      ruleVersion: 'two-historical-issuer-pure-none-v1',
+      absenceLiteral: '당사는 사업보고서 제출기준일 현재 해당사항 없습니다.',
+      requiresIssuerOverview: true,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220816000416',
+      corpCode: '01188730',
+      companyName: 'SK시그넷(주)',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220816000416-cfs',
+      manifestDigest:
+          '7200e76b69c0c13fa83aeb992944f14738dcdf868332f51ad02d2f8e18811323',
+      ruleVersion: 'two-historical-issuer-pure-none-v1',
+      absenceLiteral: '당사는 연결재무제표 작성대상 법인이 아니므로 해당사항이 없습니다.',
+      requiresIssuerOverview: true,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20220317001218',
+      corpCode: '01113499',
+      companyName: '(주)아이티센피엔에스',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220317001218-ofs',
+      manifestDigest:
+          '25b11ba3d8ec30ced1faa1c2f24448f63b0383c7237c30acc7e734049befc27a',
+      ruleVersion: 'two-historical-issuer-whole-annual-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: true,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220816000416',
+      corpCode: '01188730',
+      companyName: 'SK시그넷(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220816000416-ofs',
+      manifestDigest:
+          'be5a584ca60041032fc5be67c9755a05121c035ef197909972e817d5e0605ea6',
+      ruleVersion: 'two-historical-issuer-whole-annual-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: true,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20220310001159',
+      corpCode: '00139214',
+      companyName: '삼성화재해상보험(주)',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220310001159-cfs',
+      manifestDigest:
+          '38c54494525e7e45bbc0b9c48aaa45b014f9831014c52081845ccb7828d34044',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230309000772',
+      corpCode: '00139214',
+      companyName: '삼성화재해상보험(주)',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20230309000772-cfs',
+      manifestDigest:
+          'b31d4ef063e973e8dad6197297e0668f81c2d154e1165a5fa1d51a31d3e9d097',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220310001159',
+      corpCode: '00139214',
+      companyName: '삼성화재해상보험(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220310001159-ofs',
+      manifestDigest:
+          'a0dc0bb3ebeaca222c9c32da8aaa965df6326612a1555f21cc9c3d0647bd9726',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230309000772',
+      corpCode: '00139214',
+      companyName: '삼성화재해상보험(주)',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230309000772-ofs',
+      manifestDigest:
+          'bec8f39c4ac5ab70934e68d21f4ec144c6ad7686796f754972b5e1aa0160e40d',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220317000713',
+      corpCode: '00148993',
+      companyName: '하이트진로홀딩스(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220317000713-ofs',
+      manifestDigest:
+          '475b8918b3e7900c9bd5ed247046226df4ab798a1b1b98955dc1d23f8be6406f',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250320001147',
+      corpCode: '00663289',
+      companyName: '위월드(주)',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250320001147-ofs',
+      manifestDigest:
+          'acd714473a36c35cfe8cb9261d78caa23faad7405673e5ca1c7fdab8185c6371',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220315001280',
+      corpCode: '00340096',
+      companyName: '미래에셋벤처투자 주식회사',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20220315001280-ofs-unit-audit',
+      manifestDigest:
+          '223ac4dc5a23d0e45474151ce109e5a23935aab2af3a985573d67427bb4082e9',
+      ruleVersion: 'same-receipt-audit-immutable-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230315001270',
+      corpCode: '00340096',
+      companyName: '미래에셋벤처투자 주식회사',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20230315001270-ofs-unit-audit',
+      manifestDigest:
+          'c0de2904892a81a0f3ea1df620ebad402d46b1367cc61bc6b5b5edffb5445c55',
+      ruleVersion: 'same-receipt-audit-immutable-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240320001438',
+      corpCode: '00963000',
+      companyName: '(주)썬테크',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20240320001438-ofs-unit-audit',
+      manifestDigest:
+          '1cbccbc3819aee09c5db7c44d0ebb490040aa05c09147e3dc9bad1e8614a4187',
+      ruleVersion: 'same-receipt-audit-immutable-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250317000968',
+      corpCode: '00963000',
+      companyName: '(주)썬테크',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20250317000968-ofs-unit-audit',
+      manifestDigest:
+          'f3589a692d162b730860cdc01ed6dec88e9bf1e8d7b2572328f85a53d9ebdbaa',
+      ruleVersion: 'linked-correction-audit-immutable-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20220331002887',
+      corpCode: '01366824',
+      companyName: '(주)제이엠멀티',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220331002887-ofs-dated',
+      manifestDigest:
+          'cc009545df5f05deb25be83638547dc7818f9ae01030ce22e627ca568a6abc94',
+      ruleVersion: 'dated-current-column-whole-equity-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230427000895',
+      corpCode: '01366824',
+      companyName: '(주)제이엠멀티',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230427000895-ofs-dated',
+      manifestDigest:
+          'e25c170f32a4487cb4c8a9860bcba124ded98bae6e931dbf329012849f65adfc',
+      ruleVersion: 'dated-current-column-whole-equity-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220331003444',
+      corpCode: '01085026',
+      companyName: '(주)유진테크놀로지',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220331003444-cfs-dated',
+      manifestDigest:
+          '5bd5b689d1892329cad4b8190ea0d476c969e2cd74eceda76eb15428faf93d81',
+      ruleVersion: 'dated-current-column-whole-equity-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250328002132',
+      corpCode: '01396931',
+      companyName: '주식회사 유엑스엔',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250328002132-ofs-dated',
+      manifestDigest:
+          '451058162cc899c518d152eb4a22f39f0c3ac80aad6d960302edf6eb533b8e40',
+      ruleVersion: 'dated-current-column-whole-equity-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240320001359',
+      corpCode: '01281541',
+      companyName: '(주)에피바이오텍',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20240320001359-ofs-dated',
+      manifestDigest:
+          'e6828d29c4a1278a60fcfe4fb55228bb2ac2d3d576af63353fe9094e7eb291ea',
+      ruleVersion: 'dated-current-column-whole-equity-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240704000080',
+      corpCode: '00666329',
+      companyName: '(주)코나솔',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20240704000080-ofs-dated',
+      manifestDigest:
+          '7593ba54398d4cebc7d51968e1952b01b8bfe51d72e195a81a859cbe91088ce8',
+      ruleVersion: 'dated-current-column-whole-equity-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220331000273',
+      corpCode: '01258020',
+      companyName: '주식회사 에스바이오메딕스',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220331000273-ofs',
+      manifestDigest:
+          '137fa08e66011e310d9715f95f75a9ba61b43ffa9ede7f3c73962b7dd33cb425',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230314001218',
+      corpCode: '00135917',
+      companyName: '한화손해보험(주)',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230314001218-ofs',
+      manifestDigest:
+          'd040c3da0b3f99a86a9c06c900ab74852497b745c28429170539bb2295ab66c8',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230321001131',
+      corpCode: '01596425',
+      companyName: '에스케이스퀘어 주식회사',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230321001131-ofs',
+      manifestDigest:
+          '4598f4a55d49e356990970bd31093ceb8a3d2c12b0b71fa607806e2dd7c89e2a',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230323000050',
+      corpCode: '01258020',
+      companyName: '주식회사 에스바이오메딕스',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230323000050-ofs',
+      manifestDigest:
+          '26ce948ba039b311eea4c4e612efc8f5506dabc07251499ff1e1f08a25c7450a',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240320000922',
+      corpCode: '01020269',
+      companyName: '(주) 탈로스',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20240320000922-ofs',
+      manifestDigest:
+          'ac2b8c8d6d79a07a02bd0e4da7e33358c0ca0a8956c3a1555999f0a04d2280ae',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250321000195',
+      corpCode: '00861100',
+      companyName: '아이케이세미콘(주)',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250321000195-ofs',
+      manifestDigest:
+          'b5398ad6d1e8ca9fc585062a74b812e5f3c8400dd31e82996f1fd205041c82a1',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250424000405',
+      corpCode: '00756163',
+      companyName: '(주)볼빅',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250424000405-ofs',
+      manifestDigest:
+          '0ffcba9b6f2656f99de483dd7308dd6aa3a5ae8c0e4b1c651400b10c307a784b',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230317000745',
+      corpCode: '01065785',
+      companyName: '(주)노브메타파마',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230317000745-ofs',
+      manifestDigest:
+          'b9da398ef3b4b721c8dafebf712eed887d73325ae3caafb7e6939f91fecd91e1',
+      ruleVersion: 'direct-net-cfo-after-empty-caption-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240320001114',
+      corpCode: '01065785',
+      companyName: '(주)노브메타파마',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20240320001114-ofs',
+      manifestDigest:
+          '4f06002798f3ee56e02979048262644823e30d003fe0f9d6ef01945923d338c8',
+      ruleVersion: 'direct-net-cfo-after-empty-caption-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250314001145',
+      corpCode: '01065785',
+      companyName: '(주)노브메타파마',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250314001145-ofs',
+      manifestDigest:
+          '2c432ebb600d8c01aff1e616d588122401c30f124680b40e85068e263d55792d',
+      ruleVersion: 'direct-net-cfo-after-empty-caption-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220315000921',
+      corpCode: '00113359',
+      companyName: '교보증권(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20220315000921-ofs-whole-ce',
+      manifestDigest:
+          '020fd38e788825d63f34c83fc33ec01775a218c8fcfeef379c4b9d076b5bffea',
+      ruleVersion: 'whole-core-independent-ce-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220315001266',
+      corpCode: '00162416',
+      companyName: '한양증권(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20220315001266-ofs-whole-ce',
+      manifestDigest:
+          '259c9d9455f6168f91daf99315f74ca89861c00ff784f0d8645a7372b8baa85f',
+      ruleVersion: 'whole-core-independent-ce-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220315001273',
+      corpCode: '00148610',
+      companyName: '한화투자증권(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20220315001273-ofs-whole-ce',
+      manifestDigest:
+          'cfa09723d50c61a8da4f92eb8bd51bd6cc4665203bdb8152d64c21d19bae79f0',
+      ruleVersion: 'whole-core-independent-ce-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230317000614',
+      corpCode: '01023822',
+      companyName: '(주)메디젠휴먼케어',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20230317000614-ofs-whole-ce',
+      manifestDigest:
+          '7167a7756def58cc1a111a0a0b5ae36894e0209ea0d9c1e10d12061d384b11c1',
+      ruleVersion: 'whole-core-independent-ce-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20210629000260',
+      corpCode: '00677334',
+      companyName: '(주)아하',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20210629000260-cfs',
+      manifestDigest:
+          '1f6dabbfbf5c20e732272adf1197aa79b34fc9345c5defad281e204b49ace3af',
+      ruleVersion: 'exact-declared-fiscal-period-annual-v1',
+      absenceLiteral: '- 해당사항 없음.',
+      requiresIssuerOverview: true,
+      declaredPeriodStart: '2020-04-01',
+      declaredPeriodEnd: '2021-03-31',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20241227000654',
+      corpCode: '01109690',
+      companyName: '도부(주)',
+      year: 2023,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20241227000654-cfs',
+      manifestDigest:
+          '7a9088c68fd7f7b2084f16d74495854ff280e23370c21ddcd7a6a5cad8d9d0c1',
+      ruleVersion: 'historical-issuer-cfs-none-own-ofs-v1',
+      absenceLiteral: '당사는 해당사항 없습니다.',
+      requiresIssuerOverview: true,
+      requiresOwnOfsWitness: true,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20230728000135',
+      corpCode: '01109690',
+      companyName: '도부(주)',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20230728000135-cfs',
+      manifestDigest:
+          '13a936d4124005214991973e2685ca22c4c2ef1114b28aec9b5630e34dc08448',
+      ruleVersion: 'historical-issuer-cfs-none-own-ofs-v1',
+      absenceLiteral: '당사는 해당사항 없습니다.',
+      requiresIssuerOverview: true,
+      requiresOwnOfsWitness: true,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20220318000943',
+      corpCode: '01109690',
+      companyName: '도부(주)',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220318000943-cfs',
+      manifestDigest:
+          '0e1544e0fc8cb53dcfd3d567a72a3721532f3aff2c4e41edda7ed4c81a9d59e6',
+      ruleVersion: 'historical-issuer-cfs-none-own-ofs-v1',
+      absenceLiteral: '당사는 해당사항 없습니다.',
+      requiresIssuerOverview: true,
+      requiresOwnOfsWitness: true,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20240319000167',
+      corpCode: '00978075',
+      companyName: '(주)머니무브',
+      year: 2023,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20240319000167-cfs',
+      manifestDigest:
+          '811c8ab51df14c3f6edc84ddaed28dd85a113f72219c5c5ba39efd75ed3b018b',
+      ruleVersion: 'historical-issuer-cfs-none-own-ofs-v1',
+      absenceLiteral: '※ 당사는 주식회사의 외부감사에 관한 법률 제1조의2에 의한 연결재무제표 작성대상 법인이 아닙니다.',
+      requiresIssuerOverview: true,
+      requiresOwnOfsWitness: true,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20230314000624',
+      corpCode: '00978075',
+      companyName: '(주)머니무브',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20230314000624-cfs',
+      manifestDigest:
+          'a843ca20b09301235585a5607ed369d42a599b6bd033d1aa242b33b551c8242e',
+      ruleVersion: 'historical-issuer-cfs-none-own-ofs-v1',
+      absenceLiteral: '당사는 주식회사의 외부감사에 관한 법률 제1조의2에 의한 연결재무제표 작성대상 법인이 아닙니다.',
+      requiresIssuerOverview: true,
+      requiresOwnOfsWitness: true,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20221026000437',
+      corpCode: '00978075',
+      companyName: '(주)머니무브',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20221026000437-cfs',
+      manifestDigest:
+          '1481f723211f4029a6898dc5a415cc8b64d0d3e75b342a1d89cf64273a0d3a0f',
+      ruleVersion: 'historical-issuer-cfs-none-own-ofs-v1',
+      absenceLiteral: '당사는 주식회사의 외부감사에 관한 법률 제1조의2에 의한 연결재무제표 작성대상 법인이 아닙니다.',
+      requiresIssuerOverview: true,
+      requiresOwnOfsWitness: true,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20250319000137',
+      corpCode: '00321204',
+      companyName: '지에이이노더스(주)',
+      year: 2024,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20250319000137-cfs',
+      manifestDigest:
+          '0522ae8561a6a4ba581e7d0183ff8a1d4bc020223d856ffbfe8113880e0efd37',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20220323001368',
+      corpCode: '00980043',
+      companyName: '(주)비큐에이아이',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220323001368-cfs',
+      manifestDigest:
+          '6771a18600a099aebbe1e4c8d7c7c7b13eca5efeb920a985db6606ab18628a67',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20220316000897',
+      corpCode: '00156859',
+      companyName: '다올투자증권(주)',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220316000897-cfs',
+      manifestDigest:
+          'f1e323beca808d8342c996dc83ed17e836ed1251304e2a34a8b24edd519ab13b',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20220322000542',
+      corpCode: '00321204',
+      companyName: '지에이이노더스(주)',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220322000542-cfs',
+      manifestDigest:
+          'ea7b32b897870d5ef975718a2bfb6767f496a6d4902c6caf432f3263fb4cd1b6',
+      ruleVersion: 'first-direct-issuer-exact-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: true,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20220429000083',
+      corpCode: '01085442',
+      companyName: '(주)오건에코텍',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220429000083-cfs',
+      manifestDigest:
+          'c56957bd6021eb6335f32f06c86c7c1228b41e123f155b4d76273c9b9ed43871',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20230321000275',
+      corpCode: '00321204',
+      companyName: '지에이이노더스(주)',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20230321000275-cfs',
+      manifestDigest:
+          'a2ebabe4fb66afa64709bc32d806f6e8ae65b481aa32b1d6c094a58e429d5d1e',
+      ruleVersion: 'first-direct-issuer-exact-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: true,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20250319000137',
+      corpCode: '00321204',
+      companyName: '지에이이노더스(주)',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250319000137-ofs',
+      manifestDigest:
+          '24e688c5a2c0676f74556745cf99968387acca496abe530a71694b4550aedd1c',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20220323001368',
+      corpCode: '00980043',
+      companyName: '(주)비큐에이아이',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220323001368-ofs',
+      manifestDigest:
+          'f39b357ced4f6dd1231550787fa626f9912f7687ed8b7a291e76a8301d1ae428',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20220318000943',
+      corpCode: '01109690',
+      companyName: '도부(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220318000943-ofs',
+      manifestDigest:
+          'ce40f87988f7627721876052469a06a873055be01a1b225952a37296f9355ad8',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20241227000654',
+      corpCode: '01109690',
+      companyName: '도부(주)',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20241227000654-ofs',
+      manifestDigest:
+          'cd60803ee87e249ed7df3de89518a98011294ecfb05fd3e5217e8dbf2e4f42a7',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20230728000135',
+      corpCode: '01109690',
+      companyName: '도부(주)',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230728000135-ofs',
+      manifestDigest:
+          '881d782de7fe77912071b506980791cf5249f9589984d507ee4e7e893b76631f',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20220316000897',
+      corpCode: '00156859',
+      companyName: '다올투자증권(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220316000897-ofs',
+      manifestDigest:
+          'df688fd4d31d15a3f7e4ad870a32e2853a6ade51fcbd7adbabc8b496a5435598',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20230314000624',
+      corpCode: '00978075',
+      companyName: '(주)머니무브',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230314000624-ofs',
+      manifestDigest:
+          '0466d7d5772b5a0fbb141de80fdb11d3bfc555d7f24fd5f7128f6feac92e1a87',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20240319000167',
+      corpCode: '00978075',
+      companyName: '(주)머니무브',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20240319000167-ofs',
+      manifestDigest:
+          'b526582109d09a57fff37c61f11c5b8f5eb65e952adde1f4af7869fd100b026f',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20230321000275',
+      corpCode: '00321204',
+      companyName: '지에이이노더스(주)',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230321000275-ofs',
+      manifestDigest:
+          '136d755ceb7bf58721a45edc85adb8ec12d4a4c4bfadc509ebaca6a71299ab99',
+      ruleVersion: 'first-direct-issuer-exact-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: true,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20221026000437',
+      corpCode: '00978075',
+      companyName: '(주)머니무브',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20221026000437-ofs',
+      manifestDigest:
+          'b7125d3432504b1ca3883a38f2e4f2a994ac9250df72a4597edf185433167bc6',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20220322000542',
+      corpCode: '00321204',
+      companyName: '지에이이노더스(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220322000542-ofs',
+      manifestDigest:
+          'c19939757336da7bf0ad377f7ee7f28aca62bdb5bb8ec60b7c3d7208618295af',
+      ruleVersion: 'first-direct-issuer-exact-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: true,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220429000083',
+      corpCode: '01085442',
+      companyName: '(주)오건에코텍',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220429000083-ofs',
+      manifestDigest:
+          'cad99399acf5b6b4ba220f5460e88f213b1a5a715c5c81dc8f892fb4e8c191a8',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20210629000260',
+      corpCode: '00677334',
+      companyName: '(주)아하',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20210629000260-ofs',
+      manifestDigest:
+          'd6865d92ad6f7f97160a0f7f975fdd57160da2b00388b6a533f1e14ec87c7fb0',
+      ruleVersion: 'exact-declared-fiscal-period-annual-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: true,
+      declaredPeriodStart: '2020-04-01',
+      declaredPeriodEnd: '2021-03-31',
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20230314001271',
+      corpCode: '00148832',
+      companyName: '(주)제주은행',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230314001271-ofs-six',
+      manifestDigest:
+          '6e210abde63b1bba439dac8764c2a77452ee54dfdf78e0e48d46ffc798fd49e5',
+      ruleVersion: 'source-six-with-unavailable-whole-revenue-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230309000572',
+      corpCode: '00104856',
+      companyName: '삼성증권(주)',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230309000572-ofs-six',
+      manifestDigest:
+          '6a91f64a2296877b3baaafcd50c5d2fe62e157b283faec46c3be2a2660c3ef08',
+      ruleVersion: 'source-six-with-unavailable-whole-revenue-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230323001133',
+      corpCode: '01185867',
+      companyName: '퓨쳐메디신 주식회사',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230323001133-ofs-six',
+      manifestDigest:
+          'bfc3e4be2515e16fa30780059f1c43d7b5a7583cfa82bcc241f3a20d2320fea7',
+      ruleVersion: 'source-six-with-unavailable-whole-revenue-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260323000759',
+      corpCode: '00886792',
+      companyName: '(주)루켄테크놀러지스',
+      year: 2025,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20260323000759-cfs',
+      manifestDigest:
+          '6b482725c50269d1a28eba86e1efba4bf7eb6d3bd3c87f876915cde04194bdcb',
+      ruleVersion: 'dated-current-column-whole-equity-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260323000759',
+      corpCode: '00886792',
+      companyName: '(주)루켄테크놀러지스',
+      year: 2025,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20260323000759-ofs',
+      manifestDigest:
+          '02c6e41f4cc9b487dbb85ee72d5d463605478196215de5b2979ca8b92dd053a2',
+      ruleVersion: 'dated-current-column-whole-equity-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260330001644',
+      corpCode: '00669450',
+      companyName: '(주)바이오프로테크',
+      year: 2025,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20260330001644-cfs',
+      manifestDigest:
+          '24bbfafc4c005721cb88cb9c2028ba78247bbb209518851d7e55961213c0089a',
+      ruleVersion: 'dated-current-column-whole-equity-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260330001644',
+      corpCode: '00669450',
+      companyName: '(주)바이오프로테크',
+      year: 2025,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20260330001644-ofs',
+      manifestDigest:
+          '6b42e35e743a60de918968ca4b0bda000a675360a16a7953c065b7447a36965e',
+      ruleVersion: 'dated-current-column-whole-equity-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20250321001653',
+      corpCode: '00886792',
+      companyName: '(주)루켄테크놀러지스',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250321001653-ofs',
+      manifestDigest:
+          'cb34c4f3e7f6ce095f3996235c438bd3086bd128e607ec0bfc3dac3dfb71901f',
+      ruleVersion: 'year-term-bs-with-independent-ofs-ce-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20230414002057',
+      corpCode: '01226234',
+      companyName: '(주)와이바이오로직스',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230414002057-ofs',
+      manifestDigest:
+          'd08e7be8a9fc2f1ad21bc1cd78f625cbde65300b55742b56513a9691042c5c9e',
+      ruleVersion: 'bilingual-issuer-exact-eight-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: true,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230414002057',
+      corpCode: '01226234',
+      companyName: '(주)와이바이오로직스',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20230414002057-cfs',
+      manifestDigest:
+          'bf6bb7a802b0fb45369e4088dda93777ab0b0ddd5bdad9d61a69508409d49ee1',
+      ruleVersion: 'bilingual-issuer-exact-pure-none-v1',
+      absenceLiteral: '*해당사항이 없습니다.',
+      requiresIssuerOverview: true,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20220321001162',
+      corpCode: '01188749',
+      companyName: '(주)지앤이헬스케어',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220321001162-ofs',
+      manifestDigest:
+          '23d5d04a3bf92c28477eaf1bdc5d58efa3a638abd2c06b04caddcf1cf18b0b17',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220322000589',
+      corpCode: '00929228',
+      companyName: '(주)엔에스컴퍼니',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220322000589-ofs',
+      manifestDigest:
+          'e6334d0b35fc35057dba132bfcbff313b156d74e087084df03873edbccbebfca',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220324000600',
+      corpCode: '00296290',
+      companyName: '키움증권(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220324000600-ofs',
+      manifestDigest:
+          '9d133f359aecb3de0044a7dcf7dccf4a551231d15625bf59f27b181ed8961cb6',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220329000316',
+      corpCode: '01034730',
+      companyName: '크로넥스(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220329000316-ofs',
+      manifestDigest:
+          '4f46f69d089adb1eaf223bc4a3322c12d6cbf9e5333ffa7fda5919d0d2a28ac5',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220330000929',
+      corpCode: '01116380',
+      companyName: '(주)씨앤에스링크',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220330000929-ofs',
+      manifestDigest:
+          '704ed386874daa63f44c162f21f4a01257d89f65276ae4e0226ba04bdae08e3b',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220624000490',
+      corpCode: '00611286',
+      companyName: '(주)블루탑',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220624000490-ofs',
+      manifestDigest:
+          'b0ed8367bed929ee84e243e4fac98c1c4581a22cf77af28236c7b2b6840eb7a7',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230323001068',
+      corpCode: '00611286',
+      companyName: '(주)블루탑',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230323001068-ofs',
+      manifestDigest:
+          '09e864b7e01f77dd780efc265ce0403fa424975cb42bde39c59359ac9266d775',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230327000728',
+      corpCode: '00929228',
+      companyName: '(주)엔에스컴퍼니',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230327000728-ofs',
+      manifestDigest:
+          '3fafcb0cfcb9982f644044390480c815a9fc6a140e2b077994b55571535235c8',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230724000233',
+      corpCode: '01034730',
+      companyName: '크로넥스(주)',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230724000233-ofs',
+      manifestDigest:
+          '272c7e1e5ca80208c22fc817e18f29160192a206c218677bff402ad08a74ee14',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240320000871',
+      corpCode: '01034730',
+      companyName: '크로넥스(주)',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20240320000871-ofs',
+      manifestDigest:
+          '2c6427bb6b94b6186131c097573b3d1d000c0d6a50bbf8bedeee1de25c37983d',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240321000503',
+      corpCode: '01116380',
+      companyName: '(주)씨앤에스링크',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20240321000503-ofs',
+      manifestDigest:
+          'f71185174b681dd38f9767638574956f28885f0c8d9882e55509265066d06ad9',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240321000985',
+      corpCode: '01063556',
+      companyName: '(주)질경이',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20240321000985-ofs',
+      manifestDigest:
+          'c96c3d5fd6ca940c7078301f8259f5a61d42e871f10c4effedce2a48c34bfa23',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240321001467',
+      corpCode: '00611286',
+      companyName: '(주)블루탑',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20240321001467-ofs',
+      manifestDigest:
+          '20a7a4bee5a52def06486aaf2acd976f793b3d77d4cc8e781574bf20de2a4198',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250318000656',
+      corpCode: '00978075',
+      companyName: '(주)머니무브',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250318000656-ofs',
+      manifestDigest:
+          'ff7902a7472fc569ee33daf93635711d87f4c09ecd57eafeaa8b8c368b3686be',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250320000656',
+      corpCode: '01116380',
+      companyName: '(주)씨앤에스링크',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250320000656-ofs',
+      manifestDigest:
+          '29d9486d16e2defff57653d7c7364a2df8b35492ebba3bacb2eb5033528b318d',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250321000943',
+      corpCode: '00611286',
+      companyName: '(주)블루탑',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250321000943-ofs',
+      manifestDigest:
+          '8a0862b12295c37500b6f067ef9f1a8d97575ecf95e9621f503dbfe22657cd73',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250321001155',
+      corpCode: '01680131',
+      companyName: '(주)아이오바이오',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250321001155-ofs',
+      manifestDigest:
+          'e4fd4ad74b59c7fcd24a324bb732c406fd6a0dd78145cb1f5eb62f15c3fbd318',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250321001385',
+      corpCode: '01034730',
+      companyName: '크로넥스(주)',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250321001385-ofs',
+      manifestDigest:
+          '3c60442e6215ef44ee697f400bb79466c39e90d8ad3351526fc0352ab77b0c46',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260323000673',
+      corpCode: '01063237',
+      companyName: '(주)플럼라인생명과학',
+      year: 2025,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20260323000673-ofs',
+      manifestDigest:
+          '9a1b4f509f34c437e61b2abae61371b119fdecadc1de048cdb06c5db0fa8264f',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260323001028',
+      corpCode: '00611286',
+      companyName: '(주)블루탑',
+      year: 2025,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20260323001028-ofs',
+      manifestDigest:
+          'bbda4e8bc9b857db3d9485256fd8e81b31e256a9b515698aa7c5bb441cf1b863',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+
     AnnualSourceCacheEntry(
       receipt: '20240319000287',
       corpCode: '00321204',
@@ -626,15 +2336,15 @@ abstract final class VerifiedAnnualSourceRegistry {
       absenceLiteral: "당사는 해당사항 없습니다.",
     ),
     AnnualSourceCacheEntry(
-      receipt: "20250320001369",
-      corpCode: "01353848",
-      companyName: "(주)이노벡스",
+      receipt: '20250320001369',
+      corpCode: '01353848',
+      companyName: '(주)이노벡스',
       year: 2024,
       basis: FsDiv.separate,
-      assetDirectory: "assets/financial_source_cache/20250320001369-ofs",
+      assetDirectory: 'assets/financial_source_cache/20250320001369-ofs',
       manifestDigest:
-          "6662ccdfa7589ee3afbf2486a4ecd1d1732047cbebd1708a306aca04a651f82c",
-      ruleVersion: "exact-annual-cache-registry-v1",
+          '32b19ee0512bbdfd5b6ffb247752a5c8c42cc05f88e424a96975eda5230d5376',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
       absenceLiteral: null,
     ),
     AnnualSourceCacheEntry(
@@ -671,6 +2381,66 @@ abstract final class VerifiedAnnualSourceRegistry {
       manifestDigest:
           "c964aef1f97af016e1d54595c8b05c5fb5762bc80ab02cc363b504ea1c62ac80",
       ruleVersion: "pim-cfs-whole-ce-v1",
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220317000866',
+      corpCode: '00123772',
+      companyName: '부국증권(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220317000866-ofs',
+      manifestDigest:
+          '6538d0cf5c50724aafe471dc4ca315bfa749593f33cac99dac223a90b6617cdf',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230328000107',
+      corpCode: '00123772',
+      companyName: '부국증권(주)',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230328000107-ofs',
+      manifestDigest:
+          'c7a3b0f55810e28f53bd68cd0a5d8278fedbe93312ec02812b72e7d8c0aa9394',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230322000366',
+      corpCode: '00442631',
+      companyName: '태양기계(주)',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230322000366-ofs',
+      manifestDigest:
+          '1e0e1ad7733d6376c9d1ac69fc1c640e35b1165cf8e5f425a36f01b52dcbe4e8',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20231018000215',
+      corpCode: '01352575',
+      companyName: '바이오텐(주)',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20231018000215-ofs',
+      manifestDigest:
+          'e40ffdadbde0fce98afa2453235c4c10e23c11803dbeee93429f209e97f0a19d',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220318000715',
+      corpCode: '01065785',
+      companyName: '(주)노브메타파마',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220318000715-cfs',
+      manifestDigest:
+          'b60b828a55787036a9137ce5bbcf146dffa673601730c16b7355213911ba2397',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
       absenceLiteral: null,
     ),
   ];

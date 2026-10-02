@@ -1,0 +1,41 @@
+{
+  "cfs": "failed",
+  "ofs": "failed",
+  "corp": "00990396",
+  "name": "(주)레드우즈",
+  "year": 2021,
+  "error": "api-noData-annual-public:attempt=3; public annual source verification failed: FormatException: Exact annual legal issuer corroboration failed",
+  "receipt": "20220321001531",
+  "attempts": 3,
+  "reportCode": "annual",
+  "reportName": "사업보고서 (2021.12)",
+  "actualPeriod": "2021.12",
+  "cfsPeriodStored": false,
+  "ofsPeriodStored": false,
+  "sources": [
+    {
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220321001531",
+      "sha256": "3f55149064d7fecabdb84eb888e0fda27b86df3c843ea4e1260af126282fb99c",
+      "file": "shell.html",
+      "label": "shell"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220321001531&dcmNo=8487979&eleId=1&offset=799&length=4031&dtd=dart3.xsd",
+      "sha256": "03113371af43d6375e54f319c74d271b972fc8e30ea52fcf8e8aae22cc42a5db",
+      "file": "cover.html",
+      "label": "cover"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220321001531&dcmNo=8487979&eleId=3&offset=5334&length=55050&dtd=dart3.xsd",
+      "sha256": "e2fad8405d1123e00ddc0e023981ceef8e89fc69ec5855065d131ad380fda6a3",
+      "file": "overview.html",
+      "label": "overview"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220321001531&dcmNo=8487979&eleId=21&offset=488654&length=49824&dtd=dart3.xsd",
+      "sha256": "38d9690a2b0ebf23fe39d78f43c7069c12a3c947e92efe906ef9ad0d9c96509e",
+      "file": "ofs.html",
+      "label": "ofs"
+    }
+  ]
+}

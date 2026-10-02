@@ -238,6 +238,12 @@ class MarketSnapshotSync {
         }
       }
 
+      // A master can arrive after its security and price days. Reuse saved
+      // identifiers without fetching prices or replacing their source.
+      if (!cancelled && !await IngestJobs.isCancelled(session, jobId)) {
+        linked += await _linkExistingSecurities(securities);
+      }
+
       final remaining = await _pendingPriceDates(targetDates);
       final priceDays = await MarketSnapshotDay.db.find(
         session,
@@ -623,6 +629,65 @@ class MarketSnapshotSync {
       );
     });
   }
+
+  /// Link only unlinked saved securities. Duplicate or conflicting master
+  /// identifiers remain unlinked; original security/price sources are kept.
+  Future<int> _linkExistingSecurities(Map<String, Security> securities) =>
+      session.db.transaction((tx) async {
+        final companies = await Company.db.find(
+          session,
+          where: (t) =>
+              t.market.inSet({Market.kospi, Market.kosdaq, Market.konex}),
+          transaction: tx,
+        );
+        final byCrno = <String, Set<int>>{};
+        final byCode = <String, Set<int>>{};
+        for (final company in companies) {
+          final crno = digits(company.jurirNo);
+          if (crno != null) (byCrno[crno] ??= {}).add(company.id!);
+          final code = company.stockCode;
+          if (code != null) (byCode[code] ??= {}).add(company.id!);
+        }
+        final updates = <Security>[];
+        for (final security in await Security.db.find(
+          session,
+          where: (t) => t.companyId.equals(null),
+          transaction: tx,
+        )) {
+          final crno = digits(security.crno);
+          final crnoMatches = crno == null ? null : byCrno[crno];
+          final codeMatches = byCode[security.shortCode];
+          if ((crnoMatches?.length ?? 0) > 1 ||
+              (codeMatches?.length ?? 0) > 1) {
+            continue;
+          }
+          final byNumber = crnoMatches?.singleOrNull;
+          final byStock = codeMatches?.singleOrNull;
+          if (byNumber != null && byStock != null && byNumber != byStock) {
+            continue;
+          }
+          final companyId = byNumber ?? byStock;
+          if (companyId == null) continue;
+          updates.add(
+            security.copyWith(
+              companyId: companyId,
+              linkBasis: byNumber != null
+                  ? SecurityLinkBasis.crno
+                  : SecurityLinkBasis.dartStockCode,
+            ),
+          );
+        }
+        if (updates.isNotEmpty) {
+          for (final updated in await Security.db.update(
+            session,
+            updates,
+            transaction: tx,
+          )) {
+            securities[updated.isinCode] = updated;
+          }
+        }
+        return updates.length;
+      });
 
   /// 법인등록번호로 잇지 못한 종목을 DART 종목코드, 그다음 ISIN 발행체 코드로 잇는다.
   ///

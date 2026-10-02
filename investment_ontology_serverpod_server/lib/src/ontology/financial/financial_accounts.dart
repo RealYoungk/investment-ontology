@@ -105,23 +105,34 @@ abstract final class FinancialAccounts {
   // owner/segment subtotals. Exact whole-loss labels require non-positive amounts.
   static const fallbackNames = <String, List<String>>{
     'interestDebtIncludingLeases': ['총차입금(리스부채포함)', '차입금및사채및리스부채합계'],
-    'revenue': ['매출', '매출액', '매출액(주5)', '영업수익', '수익(매출액)', '수익(매출액)(주30)'],
-    'assets': ['자산총계'],
-    'liabilities': ['부채총계'],
+    'revenue': [
+      '매출',
+      '매출액',
+      '매출액(주5)',
+      '영업수익',
+      '영업수익:',
+      '수익(매출액)',
+      '수익(매출액)(주30)',
+    ],
+    'assets': ['자산총계', '[자산총계]'],
+    'liabilities': ['부채총계', '[부채총계]'],
     'cash': ['현금및현금성자산'],
     'equity': ['자본총계'],
     'operatingCashFlow': [
       '영업활동현금흐름',
       '영업활동순현금흐름',
       '영업활동으로인한순현금흐름',
+      '영업활동으로인한순현금흐름액',
       '영업활동으로부터의순현금유출',
       '영업활동으로인한현금흐름',
+      '영업활동으로부터의현금흐름',
       '영업활동으로인한현금흐름(1+2+3)',
       '영업활동으로인한현금흐름(순액)',
     ],
     'depreciation': ['감가상각비'],
     'amortisation': ['무형자산상각비'],
     'netIncome': [
+      '당기순손익',
       '당기순손실',
       '연결당기순손실',
       '연결당기순이익',
@@ -135,7 +146,7 @@ abstract final class FinancialAccounts {
       '반기순이익',
       '분기순이익',
     ],
-    'operatingIncome': ['영업이익(손실)', '영업손익(손실)', '영업이익', '영업손실'],
+    'operatingIncome': ['영업이익(손실)', '영업손익(손실)', '영업이익', '영업손익', '영업손실'],
     'capex': ['유형자산의취득', '유형자산취득'],
   };
 
@@ -144,16 +155,26 @@ abstract final class FinancialAccounts {
       !_lossNames.contains(normalizedName(fact.accountName)) ||
       fact.amount != null && fact.amount! <= BigInt.zero;
 
-  static String normalizedName(String name) => name
-      .replaceAll(RegExp(r'\s+'), '')
-      .replaceFirst(
-        RegExp(r'^[Ⅰ-ⅫIVXLCDM0-9]+[.)]'),
-        '',
-      )
-      .replaceFirst(
-        RegExp(r'(?:\(주(?:석)?[0-9]+(?:,[0-9]+)*\)|<주석[0-9]+>)$'),
-        '',
-      );
+  // Only the printed whole-profit annotation; its adjusted numbers are never used.
+  static const adjustedProfitAnnotation =
+      r'^(?:당기순(이익|손익)[(]대손준비금반영후조정이익:?(당기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원전기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원(전전기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원)?|제[0-9]+기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)백만원,제[0-9]+기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)백만원,제[0-9]+기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)백만원)[)]|(?:연결)?당기순이익[(]대손준비금반영후조정이익당기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원전기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원[)][(]비상위험준비금반영후조정이익당기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원전기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원[)])$';
+
+  static String normalizedName(String name) {
+    if (name.replaceAll(RegExp(r'\s+'), '') == 'III..영업이익') {
+      return '영업이익';
+    }
+    final clean = name
+        .replaceAll(RegExp(r'\s+'), '')
+        .replaceFirst(
+          RegExp(r'^(Vlll|lll|[Ⅰ-ⅫIVXLCDM0-9]+)[.)．]'),
+          '',
+        )
+        .replaceFirst(
+          RegExp(r'(?:\(주(?:석)?[0-9]+(?:,[0-9]+)*\)|<주석[0-9]+>)$'),
+          '',
+        );
+    return RegExp(adjustedProfitAnnotation).hasMatch(clean) ? '당기순이익' : clean;
+  }
 
   /// Shared finite mapping for SQL consumers; no fuzzy or company-specific match.
   static String resolvedIdSql(String alias) {
@@ -161,9 +182,12 @@ abstract final class FinancialAccounts {
         r'[[:space:]\u00A0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF]';
     final compact =
         "regexp_replace($alias.\"accountName\", '$spaces', '', 'g')";
-    final unprefixed = "regexp_replace($compact, '^[Ⅰ-ⅫIVXLCDM0-9]+[.)]', '')";
-    final name =
+    final unprefixed =
+        "regexp_replace($compact, '^(Vlll|lll|[Ⅰ-ⅫIVXLCDM0-9]+)[.)．]', '')";
+    final unannotated =
         "regexp_replace($unprefixed, '([(]주(석)?[0-9]+(,[0-9]+)*[)]|<주석[0-9]+>)\$', '')";
+    final name =
+        "CASE WHEN $compact = 'III..영업이익' THEN '영업이익' WHEN $unannotated ~ '$adjustedProfitAnnotation' THEN '당기순이익' ELSE $unannotated END";
     final cases = <String>[];
     for (final account in all) {
       for (final aliasId in account.accountIds.skip(1)) {

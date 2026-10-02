@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20220315001273",
+  "corpCode": "00148610",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "ruleVersion": "whole-core-independent-ce-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220315001273",
+      "sha256": "03ab59dcf35b690272da2783fbbe89e7d0b7d11c85c3e69223fe407045e17fe9",
+      "file": "shell.html"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220315001273&dcmNo=8462599&eleId=1&offset=795&length=4009&dtd=dart3.xsd",
+      "sha256": "bdff226d3d675efa90d56daae0e7951beb7ade8c72ffa4f70ad72b955735ed6b",
+      "file": "cover.html"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220315001273&dcmNo=8462599&eleId=19&offset=1575901&length=79236&dtd=dart3.xsd",
+      "sha256": "1a0dceecaf6cf7081e0547eb853730a3dcf5c5a317791b8643c80935efb6f396",
+      "file": "ofs.html"
+    }
+  ],
+  "retrievalProof": "원문 전체7 직접금액/당기기수·날짜/각 표 단위·BS항등식·독립CE전체순익/기말자본 일치. 조정주석 숫자·부모NCI·비교연도 대체 금지. 원본bytes SHA 보존."
+}

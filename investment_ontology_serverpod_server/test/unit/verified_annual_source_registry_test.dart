@@ -1,10 +1,13 @@
 import 'dart:convert';
+
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/dart/header18_linked_primary_source.dart';
 import 'package:test/test.dart';
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/verified_annual_source_cache.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/dart/linked_correction_audit_source.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/verified_annual_source_registry.dart';
 
 DartFiling filing(AnnualSourceCacheEntry e) => DartFiling(
@@ -14,7 +17,8 @@ DartFiling filing(AnnualSourceCacheEntry e) => DartFiling(
   rceptNo: e.receipt,
   bsnsYear: e.year,
   reportCode: FinancialReportCode.annual,
-  reportName: '사업보고서 (${e.year}.12)',
+  reportName:
+      '사업보고서 (${e.year}.${e.periodEnd.month.toString().padLeft(2, '0')})',
   consolidatedStatus: FilingFetchStatus.failed,
   separateStatus: FilingFetchStatus.failed,
   attempts: 7,
@@ -30,13 +34,13 @@ Company company(AnnualSourceCacheEntry e) => Company(
 );
 void main() {
   test('compiled receipt plus basis registry has unique audit identities', () {
-    expect(VerifiedAnnualSourceRegistry.entries.length, 52);
+    expect(VerifiedAnnualSourceRegistry.entries.length, 189);
     expect(
       VerifiedAnnualSourceRegistry.entries
           .map((e) => e.auditReference)
           .toSet()
           .length,
-      52,
+      VerifiedAnnualSourceRegistry.entries.length,
     );
     final gaia = VerifiedAnnualSourceRegistry.entries
         .where((e) => e.receipt == '20250331002057')
@@ -59,9 +63,22 @@ void main() {
         final result = await cache.verifyRegistered(f, company(e), e.basis);
         expect(
           reads,
-          4 +
-              (e.requiresIssuerOverview ? 1 : 0) +
-              (e.ruleVersion == 'same-receipt-audit-immutable-v1' ? 1 : 0),
+          e.ruleVersion.startsWith('header18-linked-')
+              ? (e.absenceLiteral == null ? 8 : 5)
+              : 4 +
+                    (e.requiresIssuerOverview ? 1 : 0) +
+                    (e.requiresOwnOfsWitness ? 1 : 0) +
+                    (e.ruleVersion == 'same-receipt-audit-immutable-v1'
+                        ? 1
+                        : 0) +
+                    (e.ruleVersion == 'linked-correction-audit-immutable-v1'
+                        ? 2
+                        : 0) +
+                    (e.ruleVersion == 'linked-correction-audit-immutable-v1' &&
+                            LinkedCorrectionAuditSource.witnessUri(e.receipt) !=
+                                null
+                        ? 1
+                        : 0),
         );
         expect(f.toJson(), before);
         final manifest = jsonDecode(
@@ -93,20 +110,50 @@ void main() {
             a.evidence.replaceAll(RegExp(r'\s+'), ''),
             e.absenceLiteral!.replaceAll(RegExp(r'\s+'), ''),
           );
-          expect(a.sourceReceipt, e.receipt);
+          expect(
+            a.sourceReceipt,
+            e.ruleVersion == Header18LinkedPrimarySource.absenceRule
+                ? Header18LinkedPrimarySource.originalFor(e.receipt, e.basis)
+                : e.receipt,
+          );
           expect(a.corpCode, e.corpCode);
-          expect(a.periodStart, DateTime.utc(e.year));
-          expect(a.periodEnd, DateTime.utc(e.year, 12, 31));
+          expect(a.periodStart, e.periodStart);
+          expect(a.periodEnd, e.periodEnd);
         } else {
           expect(result.absence, isNull);
           final n = result.numeric!;
-          expect(n.sourceReceipt, e.receipt);
+          expect(
+            n.sourceReceipt,
+            e.ruleVersion == Header18LinkedPrimarySource.primaryRule
+                ? Header18LinkedPrimarySource
+                      .profiles['${e.receipt}:${e.statementLabel}']!['money']
+                : e.ruleVersion == 'linked-correction-audit-immutable-v1'
+                ? LinkedCorrectionAuditSource.originalFor(e.receipt)
+                : e.receipt,
+          );
+          expect(
+            n.rows.every((row) => row['rcept_no'] == n.sourceReceipt),
+            true,
+          );
+          if (e.ruleVersion == 'verified-current-period-whole-annual-v1') {
+            final expected = jsonDecode(
+              File('${e.assetDirectory}/expected-rows.json').readAsStringSync(),
+            );
+            expect(
+              n.rows.map((r) => [r['account_nm'], r['thstrm_amount']]).toList(),
+              expected,
+            );
+          }
           expect(
             n.rows.length,
-            e.receipt == '20230315000460' ? 6 : inInclusiveRange(7, 8),
+            e.receipt == '20230315000460' ||
+                    e.ruleVersion ==
+                        'source-six-with-unavailable-whole-revenue-v1'
+                ? 6
+                : inInclusiveRange(7, 8),
           );
-          expect(n.periodStart, DateTime.utc(e.year));
-          expect(n.periodEnd, DateTime.utc(e.year, 12, 31));
+          expect(n.periodStart, e.periodStart);
+          expect(n.periodEnd, e.periodEnd);
           expect(
             n.rows.every(
               (r) => r['account_id'] == null && r['currency'] == 'KRW',
@@ -150,21 +197,35 @@ void main() {
         expect(VerifiedAnnualSourceCache.eligibleFor(mutated, e), false);
       });
     }
-    for (final label in [
-      'manifest.json',
-      'shell.html',
-      'cover.html',
-      '${e.statementLabel}.html',
-      if (e.requiresIssuerOverview) 'overview.html',
-      if (e.ruleVersion == 'same-receipt-audit-immutable-v1') 'auditShell.html',
-    ]) {
+    final linkedPrimaryManifest = e.ruleVersion.startsWith('header18-linked-')
+        ? jsonDecode(
+            File('${e.assetDirectory}/manifest.json').readAsStringSync(),
+          ) as Map
+        : null;
+    final mutationLabels = linkedPrimaryManifest == null
+        ? [
+            'manifest.json',
+            'shell.html',
+            'cover.html',
+            '${e.statementLabel}.html',
+            if (e.requiresIssuerOverview) 'overview.html',
+            if (e.ruleVersion == 'same-receipt-audit-immutable-v1')
+              'auditShell.html',
+          ]
+        : [
+            'manifest.json',
+            for (final source in linkedPrimaryManifest['sources'] as List)
+              source['file'] as String,
+            if (e.absenceLiteral == null) 'expected-rows.json',
+          ];
+    for (final label in mutationLabels) {
       test(
         'altered pinned bytes ${e.receipt}:${e.basis.name}:$label reject',
         () async {
           final c = VerifiedAnnualSourceCache(
             readAsset: (p) async {
               final bytes = await File(p).readAsBytes();
-              return p.endsWith(label) ? [...bytes, 32] : bytes;
+              return p == '${e.assetDirectory}/$label' ? [...bytes, 32] : bytes;
             },
           );
           await expectLater(

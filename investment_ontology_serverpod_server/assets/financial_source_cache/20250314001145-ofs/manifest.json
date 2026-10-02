@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20250314001145",
+  "corpCode": "01065785",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2024,
+  "periodStart": "2024-01-01",
+  "periodEnd": "2024-12-31",
+  "ruleVersion": "direct-net-cfo-after-empty-caption-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250314001145",
+      "sha256": "d30113344f2229ca1880623f643dfe3d36c8c558b1c9965d7cf51e056b0ec7b3"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250314001145&dcmNo=10408660&eleId=1&offset=957&length=4481&dtd=dart4.xsd",
+      "sha256": "a76c529480cc1276833d746b868b8e91942ca3a821f8000fef1d8b84b86d98bc"
+    },
+    {
+      "label": "ofs",
+      "file": "ofs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250314001145&dcmNo=10408660&eleId=21&offset=494026&length=58234&dtd=dart4.xsd",
+      "sha256": "a701d4cd0384c426d5e0ae44a2241c3ada604bc22bbf96956f3215c8cbb9ddfa"
+    }
+  ],
+  "retrievalProof": "Same own receipt shell, cover and whole dated separate primary statements; blank CF caption skipped only for uniquely printed later net CFO; no calculated amount."
+}

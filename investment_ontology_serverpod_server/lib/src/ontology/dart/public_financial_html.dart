@@ -1,3 +1,7 @@
+import 'contents_on_corroborated_flow_period.dart';
+import 'exact_cover_executive_role.dart';
+import 'annual_equity_period.dart';
+import 'samsungfire_cfs_source.dart';
 import 'historical_cfs_whole_proof.dart';
 import 'primary_historical_issuer.dart';
 
@@ -7,6 +11,7 @@ import 'animedi_ce_source.dart';
 
 import 'package:crypto/crypto.dart';
 
+import 'dated_current_header_proof.dart';
 import 'dozn_corroborated_flow_period.dart';
 import 'protia_printed_current_period.dart';
 import 'redwoods_blank_header_source.dart';
@@ -17,6 +22,9 @@ import 'public_issuer_legal_name.dart';
 import 'bnk_six_core_profile.dart';
 import 'pureun_six_core_profile.dart';
 import 'verified_historical_company_identity.dart';
+
+import '../financial/financial_accounts.dart';
+part 'revenue_partial_annual.dart';
 
 /// Validated strict subsets of receipt-bound annual and half-year DART HTML.
 /// The caller must validate corpCode against both official viewer shells; the
@@ -825,6 +833,8 @@ abstract final class PublicFinancialHtml {
     PublicIssuerLegalName? issuerProof,
     PrimaryHistoricalIssuer? primaryIssuerProof,
     SkSignetIdentity? skSignetIdentity,
+    // Opt-in proof inspection only; this does not authorize six-core storage.
+    bool allowSourceVerifiedPartialCore = false,
   }) {
     if (receipt == BnkSixCoreProfile.receipt) {
       return BnkSixCoreProfile.parse(
@@ -907,6 +917,20 @@ abstract final class PublicFinancialHtml {
             end: periodEnd,
           )
         : null;
+    final contentsOnProof =
+        ContentsOnCorroboratedFlowPeriod.profiles.containsKey(receipt)
+        ? ContentsOnCorroboratedFlowPeriod.verify(
+            cover: coverHtml,
+            body: statementHtml,
+            coverSource: coverSource,
+            statementSource: statementSource,
+            targetReceipt: receipt,
+            companyCode: corpCode,
+            consolidated: consolidated,
+            start: periodStart,
+            end: periodEnd,
+          )
+        : null;
     if (receipt == '20250320001633' &&
         consolidated &&
         !VerifiedHistoricalCompanyIdentity.boundSkConsolidated(
@@ -915,7 +939,25 @@ abstract final class PublicFinancialHtml {
         )) {
       throw const FormatException('SK exact consolidated source mismatch');
     }
-    _source(coverSource, receipt);
+    final exactCoverAudit = SameReceiptAuditSource.bound(
+      receipt: receipt,
+      corpCode: corpCode,
+      consolidated: consolidated,
+      start: periodStart,
+      end: periodEnd,
+      coverSource: coverSource,
+      coverHtml: coverHtml,
+      statementSource: statementSource,
+      statementHtml: statementHtml,
+    );
+    // Only a compiled byte-pinned attachment can have an earlier main cover.
+    _source(
+      coverSource,
+      exactCoverAudit
+          ? Uri.parse(SameReceiptAuditSource.profiles[receipt]!.cover)
+                .queryParameters['rcpNo']!
+          : receipt,
+    );
     _source(statementSource, receipt);
     final skIdentity = skSignetIdentity?.verify(
       targetReceipt: receipt,
@@ -953,7 +995,7 @@ abstract final class PublicFinancialHtml {
     DateTime? sourceDate(String text) {
       final m =
           RegExp(r'^(\d{4})년(\d{1,2})월(\d{1,2})일$').firstMatch(text) ??
-          RegExp(r'^(\d{4})\.(\d{2})\.(\d{2})$').firstMatch(text);
+          RegExp(r'^(\d{4})\.(\d{1,2})\.(\d{1,2})$').firstMatch(text);
       if (m == null) return null;
       final year = int.parse(m.group(1)!),
           month = int.parse(m.group(2)!),
@@ -965,7 +1007,7 @@ abstract final class PublicFinancialHtml {
     }
 
     final cover = _compact(_text(coverHtml));
-    final company = RegExp(r'회사명:(.*?)(?:공동)?대표이사:')
+    final company = ExactCoverExecutiveRole.names(coverHtml)
         .firstMatch(cover)
         ?.group(1);
     final declaredIssuer = company == null
@@ -1027,12 +1069,7 @@ abstract final class PublicFinancialHtml {
       throw const FormatException('Exact annual company/period cover mismatch');
     }
     final printedTerm = terms.single.group(1)!;
-    final term =
-        receipt == '20230308000311' &&
-            corpCode == '01476219' &&
-            printedTerm == '03'
-        ? '3'
-        : printedTerm;
+    final term = BigInt.parse(printedTerm).toString();
     final expected = linkedAudit
         ? (consolidated ? '(첨부)연결재무제표' : '(첨부)재무제표')
         : consolidated
@@ -1065,7 +1102,7 @@ abstract final class PublicFinancialHtml {
       after.isEmpty ? statementHtml.length : after.first.start,
     );
     final text = _compact(_text(scope));
-    const titleDate = r'(?:\d{4}년\d{1,2}월\d{1,2}일|\d{4}\.\d{2}\.\d{2})';
+    const titleDate = r'(?:\d{4}년\d{1,2}월\d{1,2}일|\d{4}\.\d{1,2}\.\d{1,2})';
     final medysseyScope =
         receipt == '20260327001807' &&
         corpCode == '01018617' &&
@@ -1120,7 +1157,9 @@ abstract final class PublicFinancialHtml {
         ? '당기'
         : kiwoomRepeatedTermScope
         ? '제$term기\\(당\\)기'
-        : '제$term(?:\\(당\\))?(?:당기|기)';
+        : consolidated
+        ? '제$term(?:\\(당\\))?(?:당기|기)'
+        : '(?:제$term(?:\\(당\\))?(?:당기|기)(?:\\(당\\)기)?|(?<![0-9(])당기)';
     final titlePattern = RegExp(
       '$titleTerm${spacMissingRevenue ? '(?:말)?' : '(?:기말|말)?'}:?\\(?($titleDate)(현재|(?:부터(?=$titleDate까지)|~)($titleDate)(?:까지)?)\\)?',
     );
@@ -1566,6 +1605,28 @@ abstract final class PublicFinancialHtml {
       }
       cnsPeriodProof = proofs.single;
     }
+    // Undated primary captions still require the same document's full dated
+    // equity block and unchanged, unique printed current-term columns.
+    final genericEquityPeriod =
+        !{
+              // Existing receipt-bound proofs must retain their complete identity guards.
+              '11148548', '11215244', '11470809', '11163088', '9082268',
+            }.contains(statementSource.queryParameters['dcmNo']) &&
+            cnsPeriodProof == null &&
+            titles.every(
+              (m) => m.group(2) == '현재'
+                  ? sourceDate(m.group(1)!) == periodEnd
+                  : sourceDate(m.group(1)!) == periodStart &&
+                        sourceDate(m.group(3)!) == periodEnd,
+            )
+        ? AnnualEquityPeriod.verify(
+            scope: scope,
+            term: term,
+            start: periodStart,
+            end: periodEnd,
+            consolidated: consolidated,
+          )
+        : null;
     // A BS duration requires independently printed CE dates and totals.
     final bsDurationCandidate =
         periodEnd.difference(periodStart).inDays >= 364 &&
@@ -1578,6 +1639,7 @@ abstract final class PublicFinancialHtml {
               sourceDate(m.group(3)!) == periodEnd,
         );
     if (cnsPeriodProof == null &&
+        genericEquityPeriod == null &&
         (titles.length < 3 ||
             (!bsDurationCandidate && !titles.any((m) => m.group(2) == '현재')) ||
             titles.any(
@@ -1591,12 +1653,16 @@ abstract final class PublicFinancialHtml {
       );
     }
     String label(String raw) =>
-        _compact(raw)
-            .replaceFirst(RegExp(r'^[Ⅰ-ⅫIVXLCDM\d]+[.)]'), '')
-            .replaceFirst(
-              RegExp(r'(?:\(주(?:석)?[0-9]+(?:,[0-9]+)*\)|<주석[0-9]+>)$'),
-              '',
-            );
+        linkedAudit &&
+            receipt == '20220315001280' &&
+            _compact(raw) == 'III..영업이익'
+        ? '영업이익'
+        : _compact(raw)
+              .replaceFirst(RegExp(r'^[Ⅰ-ⅫIVXLCDM\d]+[.)]'), '')
+              .replaceFirst(
+                RegExp(r'(?:\(주(?:석)?[0-9]+(?:,[0-9]+)*\)|<주석[0-9]+>)$'),
+                '',
+              );
     const accounts = {
       '자산총계': ('assets', 'BS'),
       '부채총계': ('liabilities', 'BS'),
@@ -1605,6 +1671,7 @@ abstract final class PublicFinancialHtml {
       '매출': ('revenue', 'CIS'),
       '수익(매출액)': ('revenue', 'CIS'),
       '영업수익': ('revenue', 'CIS'),
+      '영업수익:': ('revenue', 'CIS'),
       '영업이익': ('operating', 'CIS'),
       '영업손익': ('operating', 'CIS'),
       '영업손익(손실)': ('operating', 'CIS'),
@@ -1636,6 +1703,10 @@ abstract final class PublicFinancialHtml {
         v = '(${v.substring(1, v.length - 1).trim()})';
       }
       if (v.isEmpty || v == '-') return null;
+      // Whitespace after an explicit minus is printed sign padding, not digits.
+      if (RegExp(r'^-\s+(?:\d{1,3}(?:,\d{3})*|\d+)$').hasMatch(v)) {
+        v = '-${v.substring(1).trim()}';
+      }
       if (!RegExp(r'^\(?-?\d{1,3}(?:,\d{3})*\)?$|^-?\d+$').hasMatch(v) ||
           v.startsWith('(') != v.endsWith(')')) {
         throw const FormatException('Malformed annual current amount');
@@ -1651,6 +1722,38 @@ abstract final class PublicFinancialHtml {
         periodEnd.difference(periodStart).inDays >= 364 &&
         periodEnd.difference(periodStart).inDays <= 365 &&
         text.contains('제$term기(${periodEnd.year}년)');
+    if (SamsungFireCfsSource.matches(
+      receipt: receipt,
+      corpCode: corpCode,
+      consolidated: consolidated,
+      start: periodStart,
+      end: periodEnd,
+      coverSource: coverSource,
+      statementSource: statementSource,
+      coverHtml: coverHtml,
+      statementHtml: statementHtml,
+    )) {
+      final rows = _RevenuePartialAnnual.parse(
+        html: scope,
+        originalHtml: statementHtml,
+        originalCover: coverHtml,
+        source: statementSource,
+        receipt: receipt,
+        corp: corpCode,
+        term: term,
+        start: periodStart,
+        end: periodEnd,
+        consolidated: true,
+        requireWhole: true,
+        strictCfsWholeHeader: true,
+      );
+      if (rows == null) {
+        throw const FormatException(
+          'Exact consolidated whole accounts unavailable',
+        );
+      }
+      return rows;
+    }
     final exactInnovexOfs =
         receipt == '20250320001369' &&
         corpCode == '01353848' &&
@@ -1692,6 +1795,7 @@ abstract final class PublicFinancialHtml {
     );
     datedPunctuationProof ??= animediProof;
     if (datedPunctuationProof == null &&
+        genericEquityPeriod == null &&
         (exactInnovexOfs ||
             parenthesizedTitles.isNotEmpty ||
             bsDurationCandidate ||
@@ -1968,6 +2072,19 @@ abstract final class PublicFinancialHtml {
       }
       datedPunctuationProof = candidates.single;
     }
+    // Raw proof is recomputed after normal issuer/source/basis validation.
+    // It supplies no caller flag, inferred column, amount or relaxed span cap.
+    final datedCurrentProof = DatedCurrentHeaderProof.verify(
+      coverHtml: coverHtml,
+      statementHtml: statementHtml,
+      coverSource: coverSource,
+      statementSource: statementSource,
+      receipt: receipt,
+      companyName: companyName,
+      start: periodStart,
+      end: periodEnd,
+      consolidated: consolidated,
+    );
     // The exact TXR source prints one blank label header before three terms.
     // This profile changes no statement, period, unit or numeric checks.
     final itcenTitleScope = ItcenPrimaryTitleSource.eligible(
@@ -1994,6 +2111,23 @@ abstract final class PublicFinancialHtml {
     if (redwoodsBlankHeader) {
       RedwoodsBlankHeaderSource.verifyRaw(coverHtml, statementHtml);
     }
+    // One immutable official source prints blank account header cells.
+    // Never infer a generic blank-header account table from numeric rows.
+    final yBiologicsBlankHeader =
+        receipt == '20230414002057' &&
+        corpCode == '01226234' &&
+        !consolidated &&
+        term == '15' &&
+        periodStart == DateTime.utc(2022) &&
+        periodEnd == DateTime.utc(2022, 12, 31) &&
+        coverSource.toString() ==
+            'https://dart.fss.or.kr/report/viewer.do?rcpNo=20230414002057&dcmNo=9232198&eleId=1&offset=816&length=4054&dtd=dart3.xsd' &&
+        statementSource.toString() ==
+            'https://dart.fss.or.kr/report/viewer.do?rcpNo=20230414002057&dcmNo=9232198&eleId=21&offset=206375&length=38970&dtd=dart3.xsd' &&
+        sha256.convert(utf8.encode(coverHtml)).toString() ==
+            'a4aa9f277213620b3701d4e8a66b29527c0bf9cb99b6b205795e763b6fe2e2a0' &&
+        sha256.convert(utf8.encode(statementHtml)).toString() ==
+            '0b5f2ec8f857f5c488b36095dcdad364a171deaa3c63b606b15a28a530eee8e5';
     final txrBlankHeader =
         receipt == '20250526000504' &&
         corpCode == '01458161' &&
@@ -2032,7 +2166,70 @@ abstract final class PublicFinancialHtml {
     final result = <Map<String, dynamic>>[];
     final values = <String, BigInt>{};
     final missingOptional = <Map<String, dynamic>>[];
+    var yearTermHeaderUsed = false;
+    var datedCurrentHeaderUsed = false;
     final seenKinds = <String>{};
+    final grammarTables = RegExp(
+      r'<TABLE\b[^>]*>(.*?)</TABLE>',
+      caseSensitive: false,
+      dotAll: true,
+    ).allMatches(scope).toList();
+    var blankPrimaryHeaders = 0;
+    var printedWholeAnnotation = false;
+    for (final t in grammarTables) {
+      final first = RegExp(
+        r'<TR\b[^>]*>(.*?)</TR>',
+        caseSensitive: false,
+        dotAll: true,
+      ).firstMatch(t[1]!);
+      final cells = first == null
+          ? <RegExpMatch>[]
+          : RegExp(
+              r'<T[DH]\b[^>]*>(.*?)</T[DH]>',
+              caseSensitive: false,
+              dotAll: true,
+            ).allMatches(first[1]!).toList();
+      if (cells.length == 4 &&
+          _compact(_text(cells.first[1]!)).isEmpty &&
+          _compact(_text(cells[1][1]!)) == '제$term기') {
+        blankPrimaryHeaders++;
+      }
+      for (final c in RegExp(
+        r'<T[DH]\b[^>]*>(.*?)</T[DH]>',
+        caseSensitive: false,
+        dotAll: true,
+      ).allMatches(t[1]!)) {
+        final printed = _compact(_text(c[1]!))
+            .replaceFirst(RegExp(r'^(Vlll|lll|[Ⅰ-ⅫIVXLCDM0-9]+)[.)．]'), '');
+        if (RegExp(FinancialAccounts.adjustedProfitAnnotation)
+            .hasMatch(printed)) {
+          printedWholeAnnotation = true;
+        }
+      }
+    }
+    final hasWholeGrammarCandidate =
+        !yBiologicsBlankHeader &&
+        !txrBlankHeader &&
+        !redwoodsBlankHeader &&
+        (blankPrimaryHeaders == 3 || printedWholeAnnotation);
+    // A complete fallback must independently prove all seven values and whole CE;
+    // it does not share the six-core missing-revenue completion semantics.
+    final recoveredWhole = hasWholeGrammarCandidate
+        ? _RevenuePartialAnnual.parse(
+            html: scope,
+            originalHtml: statementHtml,
+            originalCover: coverHtml,
+            source: statementSource,
+            receipt: receipt,
+            corp: corpCode,
+            term: term,
+            start: periodStart,
+            end: periodEnd,
+            consolidated: consolidated,
+            requireWhole: true,
+          )
+        : null;
+    if (recoveredWhole != null) return recoveredWhole;
     var tableIndex = 0;
     for (final table in RegExp(
       r'<TABLE\b[^>]*>(.*?)</TABLE>',
@@ -2047,7 +2244,9 @@ abstract final class PublicFinancialHtml {
       ).firstMatch(table.group(1)!);
       if (first == null ||
           (!{'과목', '구분', '계정과목'}.contains(_compact(_text(first.group(1)!))) &&
-              !((txrBlankHeader || redwoodsBlankHeader) &&
+              !((txrBlankHeader ||
+                      redwoodsBlankHeader ||
+                      yBiologicsBlankHeader) &&
                   _compact(_text(first.group(1)!)).isEmpty))) {
         continue;
       }
@@ -2062,9 +2261,17 @@ abstract final class PublicFinancialHtml {
         prefix.lastIndexOf('현금흐름표'),
       ].reduce((a, b) => a > b ? a : b);
       if (equityAt >= 0 && equityAt > otherAt) {
+        if (datedCurrentProof != null &&
+            index == datedCurrentProof['equityTableIndex']) {
+          continue;
+        }
         // Exact Dozn CFS CE (9 columns) is independently verified, including
         // its whole profit/equity and immutable raw SHA, before this loop.
         if (doznProof != null && consolidated && index == 7) continue;
+        if (genericEquityPeriod != null &&
+            index == genericEquityPeriod['tableIndex']) {
+          continue;
+        }
         if (cnsPeriodProof != null && index == cnsPeriodProof['tableIndex']) {
           continue;
         }
@@ -2088,14 +2295,23 @@ abstract final class PublicFinancialHtml {
       final labels = grid
           .map((r) => r.isEmpty ? '' : label(r.first?.text ?? ''))
           .toSet();
+      final provedKinds = datedCurrentProof == null
+          ? <String>[]
+          : (datedCurrentProof['tables'] as Map).entries
+                .where((e) => (e.value as Map)['tableIndex'] == index)
+                .map((e) => e.key as String)
+                .toList();
       final String kind;
-      if (labels.contains('자산총계') &&
+      if (provedKinds.length == 1) {
+        kind = provedKinds.single;
+      } else if (labels.contains('자산총계') &&
           labels.contains('부채총계') &&
           labels.contains('자본총계')) {
         kind = 'BS';
       } else if ((labels.contains('매출액') ||
               labels.contains('매출') ||
               labels.contains('영업수익') ||
+              labels.contains('영업수익:') ||
               labels.contains('수익(매출액)')) &&
           ([
             '영업이익',
@@ -2115,16 +2331,82 @@ abstract final class PublicFinancialHtml {
       } else {
         continue;
       }
+      // A standalone CF continuation may contain only the explicitly named
+      // before-prior term. It is not another current company statement.
+      // Require its complete printed duration as well as the exclusive header;
+      // a missing/ambiguous current header is never silently discarded.
+      if (kind == 'CF') {
+        final priorTerm = int.tryParse(term);
+        final priorHeaders = grid.first.whereType<_FinancialHtmlCell>().toSet();
+        final monetaryHeaders = priorHeaders
+            .map((c) => _compact(c.text))
+            .where((text) => text != '과목')
+            .toSet();
+        if (priorTerm != null &&
+            priorTerm > 2 &&
+            monetaryHeaders.length == 1 &&
+            monetaryHeaders.single == '제${priorTerm - 2}(전전)기') {
+          final pastStart = DateTime.utc(
+            periodStart.year - 2,
+            periodStart.month,
+            periodStart.day,
+          );
+          final pastEnd = DateTime.utc(
+            periodEnd.year - 2,
+            periodEnd.month,
+            periodEnd.day,
+          );
+          final priorPattern = RegExp(
+            '제${priorTerm - 2}(?:\\(전전\\))?기:?($titleDate)(부터|~)($titleDate)(?:까지)?',
+          );
+          final cfHeadingAt = prefix.lastIndexOf('현금흐름표');
+          final printedRanges = priorPattern
+              .allMatches(cfHeadingAt < 0 ? '' : prefix.substring(cfHeadingAt))
+              .where(
+                (m) =>
+                    m.group(2) != '현재' &&
+                    sourceDate(m.group(1)!) == pastStart &&
+                    sourceDate(m.group(3)!) == pastEnd,
+              )
+              .toList();
+          if (printedRanges.isNotEmpty && seenKinds.contains('CF')) continue;
+        }
+      }
       if (!seenKinds.add(kind)) {
         throw const FormatException('Duplicate annual primary statement');
       }
+      final yearTermHeaders = !consolidated && kind == 'BS'
+          ? grid.first
+                .whereType<_FinancialHtmlCell>()
+                .where(
+                  (c) => _compact(c.text) == '${periodEnd.year}년제$term(당)기말',
+                )
+                .toSet()
+          : <_FinancialHtmlCell>{};
+      if (yearTermHeaders.isNotEmpty) yearTermHeaderUsed = true;
+      bool provedCurrentHeader(_FinancialHtmlCell c) {
+        final matches =
+            datedCurrentProof != null &&
+            (datedCurrentProof['tables'] as Map)[kind]['tableIndex'] == index &&
+            (datedCurrentProof['tables'] as Map)[kind]['column'] == c.column &&
+            (datedCurrentProof['tables'] as Map)[kind]['header'] ==
+                _compact(c.text);
+        if (matches) datedCurrentHeaderUsed = true;
+        return matches;
+      }
+
       final headers = grid.first
           .whereType<_FinancialHtmlCell>()
           .where(
             (c) =>
                 RegExp(
-                  '^(?:제$term(?:\\(당\\))?기(?:기말|말)?|${periodEnd.year}(?:년도|연도)\\(제$term기\\))\$',
+                  '^(?:제$term(?:\\(당\\))?기${consolidated ? '' : r'(?:\(당\)기)?'}(?:기말|말)?|${periodEnd.year}(?:년도|연도)\\(제$term기\\))\$',
                 ).hasMatch(_compact(c.text)) ||
+                (genericEquityPeriod != null &&
+                    (_compact(c.text) == '${periodEnd.year}년' ||
+                        _compact(c.text) == '${periodEnd.year}년도')) ||
+                yearTermHeaders.contains(c) ||
+                provedCurrentHeader(c) ||
                 (animediProof != null &&
                     _compact(c.text) ==
                         '제$term기(${periodEnd.year}년${kind == 'BS' ? '말' : ''})') ||
@@ -2231,10 +2513,23 @@ abstract final class PublicFinancialHtml {
             )
           : preceding.substring(sectionStart);
       final localTitles = titlePattern.allMatches(localPrefix).toList();
+      if (genericEquityPeriod != null &&
+          !AnnualEquityPeriod.primaryDatesMatch(
+            localPrefix,
+            kind,
+            periodStart,
+            periodEnd,
+          )) {
+        throw const FormatException(
+          'Independent equity conflicts with primary printed dates',
+        );
+      }
       if ((cnsPeriodProof == null &&
+              genericEquityPeriod == null &&
               (localTitles.isEmpty ||
                   ((kind == 'BS') != (localTitles.last.group(2) == '현재') &&
-                      !(doznProof != null && kind != 'BS') &&
+                      !((doznProof != null || contentsOnProof != null) &&
+                          kind != 'BS') &&
                       !(kind == 'BS' &&
                           bsDurationCandidate &&
                           datedPunctuationProof != null)))) ||
@@ -2273,21 +2568,79 @@ abstract final class PublicFinancialHtml {
         final expectedPeriod = konasolScope
             ? (kind == 'CF' ? '(제29기)' : '(2025년)')
             : '(${(periodStart.year % 100).toString().padLeft(2, '0')}.${periodStart.month.toString().padLeft(2, '0')}~${(periodEnd.year % 100).toString().padLeft(2, '0')}.${periodEnd.month.toString().padLeft(2, '0')})';
-        if (_compact(grid[1][current.column]?.text ?? '') != expectedPeriod) {
+        final provedSubheader = datedCurrentProof == null
+            ? null
+            : (datedCurrentProof['tables'] as Map)[kind]['subheader'];
+        final subheaderMatches =
+            provedCurrentHeader(current) &&
+            provedSubheader != null &&
+            provedSubheader == _compact(grid[1][current.column]?.text ?? '');
+        if (_compact(grid[1][current.column]?.text ?? '') != expectedPeriod &&
+            !subheaderMatches) {
           throw const FormatException(
             'Annual current subheader period mismatch',
           );
         }
       }
+      // A blank section caption is not an amount. Accept it only when this
+      // same dated primary table has one later explicitly named net CFO row.
+      final cfCaptions = kind == 'CF'
+          ? grid
+                .skip(1)
+                .where(
+                  (r) =>
+                      r.isNotEmpty && label(r.first?.text ?? '') == '영업활동현금흐름',
+                )
+                .toList()
+          : <List<_FinancialHtmlCell?>>[];
+      final cfNetTotals = kind == 'CF'
+          ? grid
+                .skip(1)
+                .where(
+                  (r) =>
+                      r.isNotEmpty &&
+                      const {
+                        '영업활동으로부터의순현금유출',
+                        '영업활동으로인한순현금흐름액',
+                      }.contains(label(r.first?.text ?? '')),
+                )
+                .toList()
+          : <List<_FinancialHtmlCell?>>[];
+      final printedCfCaption =
+          (receipt != '20260320000871' || novmetaHeading) &&
+          cfCaptions.length == 1 &&
+          cfNetTotals.length == 1 &&
+          cfCaptions.single.length == grid.first.length &&
+          cfCaptions.single.every((c) => c != null && c.rowspan == 1) &&
+          cfCaptions.single.skip(1).every((c) => c!.text.trim().isEmpty) &&
+          grid.indexOf(cfCaptions.single) < grid.indexOf(cfNetTotals.single) &&
+          cfNetTotals.single.length == grid.first.length &&
+          cfNetTotals.single.every(
+            (c) => c != null && c.rowspan == 1 && c.colspan == 1,
+          );
       for (final row in grid.skip(1)) {
         if (row.isEmpty) continue;
+        final rawAccountLabel = label(row.first?.text ?? '');
+        // Brackets qualify only in the independently proved whole BS table.
+        // The persisted account name remains exactly as printed.
+        final effectiveAccountLabel =
+            datedCurrentProof != null &&
+                kind == 'BS' &&
+                provedKinds.length == 1 &&
+                const {'[자산총계]', '[부채총계]'}.contains(rawAccountLabel)
+            ? rawAccountLabel.substring(1, rawAccountLabel.length - 1)
+            : rawAccountLabel;
         final account =
-            novmetaHeading &&
+            (novmetaHeading || printedCfCaption) &&
                 kind == 'CF' &&
-                label(row.first?.text ?? '') == '영업활동으로부터의순현금유출'
+                const {
+                  '영업활동으로부터의순현금유출',
+                  '영업활동으로인한순현금흐름액',
+                }.contains(label(row.first?.text ?? ''))
             ? ('cfo', 'CF')
-            : accounts[label(row.first?.text ?? '')];
+            : accounts[effectiveAccountLabel];
         if (account == null || account.$2 != kind) continue;
+        if (printedCfCaption && identical(row, cfCaptions.single)) continue;
         // This exact source has a section caption with all three year cells
         // empty, followed by a separately printed whole-company CFO total.
         if (novmetaHeading &&
@@ -2297,7 +2650,10 @@ abstract final class PublicFinancialHtml {
               .where(
                 (r) =>
                     r.isNotEmpty &&
-                    label(r.first?.text ?? '') == '영업활동으로부터의순현금유출',
+                    const {
+                      '영업활동으로부터의순현금유출',
+                      '영업활동으로인한순현금흐름액',
+                    }.contains(label(r.first?.text ?? '')),
               )
               .toList();
           if (row.length != 4 ||
@@ -2405,6 +2761,14 @@ abstract final class PublicFinancialHtml {
           });
           continue;
         }
+        if (account.$1 == 'revenue' &&
+            amounts.isEmpty &&
+            cells.every(
+              (c) => c!.text.trim().isEmpty || c.text.trim() == '-',
+            ) &&
+            cells.where((c) => c!.text.trim() == '-').length == 1) {
+          continue;
+        }
         if (amounts.length != 1) {
           throw const FormatException(
             'Ambiguous annual current monetary group',
@@ -2494,9 +2858,143 @@ abstract final class PublicFinancialHtml {
               values.containsKey(key),
         ) ||
         values['assets'] != values['liabilities']! + values['equity']!) {
+      final partial = _RevenuePartialAnnual.parse(
+        html: scope,
+        originalHtml: statementHtml,
+        originalCover: coverHtml,
+        source: statementSource,
+        receipt: receipt,
+        corp: corpCode,
+        term: term,
+        start: periodStart,
+        end: periodEnd,
+        consolidated: consolidated,
+        requireWhole: !allowSourceVerifiedPartialCore,
+      );
+      if (partial != null) {
+        if (primaryIssuer != null) {
+          for (final row in partial) {
+            (row['html_provenance'] as Map)['primaryHistoricalIssuer'] = {
+              ...primaryIssuer,
+              'currentMasterName': companyName,
+            };
+          }
+        }
+        return partial;
+      }
       throw const FormatException(
         'Annual primary core missing or balance mismatch',
       );
+    }
+    if (yearTermHeaderUsed && !datedCurrentHeaderUsed) {
+      final proofs = <Map<String, dynamic>>[];
+      for (final t in RegExp(
+        r'<TABLE\b[^>]*>(.*?)</TABLE>',
+        caseSensitive: false,
+        dotAll: true,
+      ).allMatches(statementHtml)) {
+        final prefix = _compact(_text(statementHtml.substring(0, t.start)));
+        final ceAt = prefix.lastIndexOf('자본변동표');
+        if (ceAt < 0) {
+          continue;
+        }
+        final caption = prefix.substring(ceAt);
+        if (!caption.startsWith('자본변동표제$term기') ||
+            !caption.endsWith('(단위:원)')) {
+          continue;
+        }
+        final g = _FinancialHtmlGrid.parse(t.group(1)!);
+        if (g.isEmpty ||
+            g.first.length != 6 ||
+            _compact(g.first.first?.text ?? '') != '과목' ||
+            _compact(g.first.last?.text ?? '') != '총계') {
+          continue;
+        }
+        int unique(String text) {
+          final hits = [
+            for (var i = 1; i < g.length; i++)
+              if (_compact(g[i].first?.text ?? '') == text) i,
+          ];
+          return hits.length == 1 ? hits.single : -1;
+        }
+
+        final start = unique(
+          '${periodStart.year}.${periodStart.month}.${periodStart.day}(당기초)',
+        );
+        final end = unique(
+          '${periodEnd.year}.${periodEnd.month}.${periodEnd.day}(당기말)',
+        );
+        if (start < 0 || end <= start) {
+          continue;
+        }
+        final profitRows = g
+            .sublist(start + 1, end)
+            .where(
+              (r) => const {
+                '당기순이익',
+                '당기순손실',
+                '당기순이익(손실)',
+              }.contains(_compact(r.first?.text ?? '')),
+            )
+            .toList();
+        if (profitRows.length != 1) {
+          continue;
+        }
+        BigInt whole(List<_FinancialHtmlCell?> row) {
+          if (row.length != 6 ||
+              row.any((c) => c == null || c.colspan != 1 || c.rowspan != 1)) {
+            throw const FormatException(
+              'Year term supporting CE whole column ambiguity',
+            );
+          }
+          final amount = money(row.last!.text);
+          if (amount == null) {
+            throw const FormatException(
+              'Year term supporting CE missing total',
+            );
+          }
+          return amount;
+        }
+
+        final profit = whole(profitRows.single), equity = whole(g[end]);
+        proofs.add({
+          'rule': 'year-term-bs-with-independent-ofs-ce-v1',
+          'wholeColumn': 5,
+          'currentStartLabel': g[start].first!.text,
+          'currentEndLabel': g[end].first!.text,
+          'wholeProfit': profit.toString(),
+          'closingEquity': equity.toString(),
+          'printedProfitCells': profitRows.single.map((c) => c!.text).toList(),
+          'printedClosingCells': g[end].map((c) => c!.text).toList(),
+        });
+      }
+      if (proofs.length != 1 ||
+          proofs.single['wholeProfit'] != values['profit'].toString() ||
+          proofs.single['closingEquity'] != values['equity'].toString()) {
+        throw const FormatException(
+          'Year term supporting CE profit equity contradiction',
+        );
+      }
+      for (final row in result) {
+        (row['html_provenance']
+                as Map<String, dynamic>)['supportingWholeEquityEvidence'] =
+            proofs.single;
+      }
+    }
+    if (datedCurrentProof != null) {
+      final proved = datedCurrentProof['core'] as Map;
+      for (final key in proved.keys) {
+        if (values[key]?.toString() != proved[key]) {
+          throw const FormatException(
+            'Dated current whole primary amount conflict',
+          );
+        }
+      }
+      for (final row in result) {
+        (row['html_provenance']
+                as Map<String, dynamic>)['supportingWholeCurrentEvidence'] =
+            datedCurrentProof;
+      }
     }
     if (spacMissingRevenue) {
       if (missingRevenue == null) {
@@ -2842,7 +3340,9 @@ abstract final class PublicFinancialHtml {
           continue;
         }
         final local = preceding.substring(ce);
-        if (!local.contains('제12(당)기2022년1월1일부터2022년12월31일까지') ||
+        if (!local.contains(
+              '제$term(당)기${periodEnd.year}년1월1일부터${periodEnd.year}년12월31일까지',
+            ) ||
             !local.endsWith('주식회사시큐센(단위:원)') ||
             grid.first.length != 6 ||
             grid.first.map((c) => _compact(c?.text ?? '')).join('|') !=
@@ -2865,8 +3365,8 @@ abstract final class PublicFinancialHtml {
           return found.single;
         }
 
-        final start = unique('2022.01.01(당기초)'),
-            end = unique('2022.12.31(당기말)');
+        final start = unique('${periodEnd.year}.01.01(당기초)'),
+            end = unique('${periodEnd.year}.12.31(당기말)');
         final profits = [
           for (var i = start + 1; i < end; i++)
             if (_compact(grid[i].first?.text ?? '') == '당기순이익') i,
@@ -2895,10 +3395,10 @@ abstract final class PublicFinancialHtml {
           'receipt': receipt,
           'corpCode': corpCode,
           'source': statementSource.toString(),
-          'rawHeader': '제12(당)기 / 직접 TABLE 제목',
+          'rawHeader': '제$term(당)기 / 직접 TABLE 제목',
           'currentTerm': term,
-          'periodStart': '2022-01-01',
-          'periodEnd': '2022-12-31',
+          'periodStart': '${periodEnd.year}-01-01',
+          'periodEnd': '${periodEnd.year}-12-31',
           'totalColumn': 5,
           'currentProfit': whole(profits.single).toString(),
           'closingEquity': whole(end).toString(),
@@ -3170,6 +3670,41 @@ abstract final class PublicFinancialHtml {
         (row['html_provenance']
                 as Map<String, dynamic>)['supportingPeriodEvidence'] =
             doznProof;
+      }
+    }
+    if (contentsOnProof != null) {
+      if (values['equity'].toString() != contentsOnProof['closingEquity'] ||
+          values['profit'].toString() != contentsOnProof['currentProfit']) {
+        throw const FormatException('ContentsOn primary/CE contradiction');
+      }
+      for (final row in result) {
+        (row['html_provenance']
+                as Map<String, dynamic>)['supportingPeriodEvidence'] =
+            contentsOnProof;
+      }
+    }
+    if (genericEquityPeriod != null) {
+      if (bsDurationCandidate) {
+        genericEquityPeriod['mode'] =
+            'primary-bs-duration-equity-corroboration';
+      } else if (parenthesizedTitles.isNotEmpty) {
+        // Keep the established printed-caption provenance while the independent
+        // whole-equity proof still validates the same current dates and totals.
+        genericEquityPeriod['equityValidationRule'] =
+            genericEquityPeriod['mode'];
+        genericEquityPeriod['mode'] =
+            'fully-dated-parentheses-equity-corroboration';
+      }
+      if (values['equity'].toString() != genericEquityPeriod['closingEquity'] ||
+          values['profit'].toString() != genericEquityPeriod['currentProfit']) {
+        throw const FormatException(
+          'Independent printed equity/profit contradiction',
+        );
+      }
+      for (final row in result) {
+        (row['html_provenance']
+                as Map<String, dynamic>)['supportingPeriodEvidence'] =
+            genericEquityPeriod;
       }
     }
     if (cnsPeriodProof != null) {

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "00156859",
+  "receipt": "20220316000897",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "ruleVersion": "primary-historical-issuer-whole-seven-v1",
+  "sources": [
+    {
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220316000897",
+      "sha256": "5f6362a5bd97772e84f646a81dbf7765d03b6ada01381a6b2ac3ee31d083a5c6",
+      "file": "shell.html",
+      "label": "shell"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220316000897&dcmNo=8465962&eleId=1&offset=811&length=4029&dtd=dart3.xsd",
+      "sha256": "a04093b9e10411dce88b6cddb128e6b018c85a17d8661f45e9d4fb0edb709a0b",
+      "file": "cover.html",
+      "label": "cover"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220316000897&dcmNo=8465962&eleId=19&offset=1518160&length=63480&dtd=dart3.xsd",
+      "sha256": "8ef9c73fd240a674f67e81a99cc146b550607e0403ec1f72b63e4394a93b08f2",
+      "file": "ofs.html",
+      "label": "ofs"
+    }
+  ],
+  "retrievalProof": "동일 공식 접수·회사·실제 연간기간·전체회사 직접 핵심계정 및 회계식 검증. 해당 고정 접수만 회사명 증거 옵트인. 숫자/기간/기존Source 변경 없음."
+}

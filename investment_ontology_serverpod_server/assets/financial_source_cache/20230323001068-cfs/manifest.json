@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20230323001068",
+  "corpCode": "00611286",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2022,
+  "periodStart": "2022-01-01",
+  "periodEnd": "2022-12-31",
+  "ruleVersion": "paired-own-cfs-pure-none-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230323001068",
+      "sha256": "cfde5116de00b6415dff86579645e8d6a686f7f8188d0359306324d74b0a21a9"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230323001068&dcmNo=9097266&eleId=1&offset=798&length=3996&dtd=dart3.xsd",
+      "sha256": "b2a90a1b0b685b5725a70d131e373ffbc7845a05afea9357a4b224148670ac52"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230323001068&dcmNo=9097266&eleId=19&offset=182037&length=166&dtd=dart3.xsd",
+      "sha256": "2abf38026e3b14264132c68bbc395c1d38d56a9852c620a100f3939169ea21b9",
+      "file": "cfs.html"
+    }
+  ],
+  "retrievalProof": "같은 원접수 고유 CFS 0TABLE 직접 비작성 literal. 반대 OFS package는 독립 검증이며 등록 자체로 완료 주장하지 않음."
+}
