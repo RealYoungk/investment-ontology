@@ -177,7 +177,8 @@ void main() {
           expect(stored.reportCode, FinancialReportCode.annual);
           expect(stored.rceptNo, receipt);
           expect(stored.fsDiv, FsDiv.separate);
-          expect((await IngestJob.db.findById(session, job.id!))!.updated, 2);
+          // Only the numeric OFS report increments updated; CFS is verified absence.
+          expect((await IngestJob.db.findById(session, job.id!))!.updated, 1);
           final expected = [
             "8360130649",
             "18944344124",
