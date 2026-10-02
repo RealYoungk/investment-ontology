@@ -13,7 +13,7 @@ Google 발신 이메일과 최신 Sites 화면에서 alfinder.kr은 **주의 필
 - [Google JavaScript 처리](https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics): 초기 HTML과 렌더링 DOM을 구분한다. Search 문서가 AdSense 심사 알고리즘을 입증하는 것은 아니다.
 - [Flutter 3.47 웹 접근성](https://docs.flutter.dev/ui/accessibility/web-accessibility): `SemanticsBinding.instance.ensureSemantics()`로 실제 화면 텍스트·의미를 HTML DOM에 노출한다.
 
-Cloudflare `/`와 `/index.html`은 JavaScript·로그인·API 없이 읽는 실제 HTML 리서치 안내를 제공한다. 모든 방문자에게 같은 본문을 제공하며 기존 `/home`·`/market`·`/companies`·상세 앱 경로는 유지한다. 공시 기준 맞추기, TTM·PER·PBR 입력, 사업 지표 근거 읽기 자료를 제공하고 실제 앱·DART 원문으로 연결한다. 설명용 숫자는 가상 예시이며 앱 계산식과 대조했다. 특정 기업의 AI 요약·수동 데이터 입력을 재개하지 않는다.
+후속 공식 영상 점검으로 Cloudflare `/`와 `/index.html`은 기존 앱 홈으로 직접 진입하도록 복원했다. `/start`는 JavaScript·로그인·API 없이 읽는 실제 HTML 리서치 안내이며 앱 서비스 링크와 로딩 실패/no-JS 안내에서 선택적으로 연결한다. 모든 방문자에게 같은 동작을 제공하며 `/home`·`/market`·`/companies`·상세 앱 경로를 유지한다. 공시 기준 맞추기, TTM·PER·PBR 입력, 사업 지표 근거 읽기 자료를 제공하고 실제 앱·DART 원문으로 연결한다. 설명용 숫자는 가상 예시이며 앱 계산식과 대조했다. 특정 기업의 AI 요약·수동 데이터 입력을 재개하지 않는다.
 
 웹 접근성을 기본 활성화한다. 시장은 정상 조회된 상장사 수 양수, 기업 목록은 정상 조회된 현재 목록 비어 있지 않음일 때만 광고 lead를 마운트한다. 초기 조회 중·빈 결과·후속 오류는 lead를 제거해 플랫폼을 dispose한다. 이미 조회한 실제 본문이 화면에 남아 있는 백그라운드 갱신은 기존 슬롯을 유지하며 새 광고 요청을 만들지 않는다. 기존 동의·회원·승인 게이트도 유지한다. 실제 robots.txt·sitemap.xml을 제공하고 앱 서비스 링크에 읽기 자료를 연결한다. 읽기 자료·로그인·결제·오류·소개에 광고를 추가하지 않는다.
 
@@ -27,4 +27,15 @@ Cloudflare `/`와 `/index.html`은 JavaScript·로그인·API 없이 읽는 실�
 
 실제 Sites가 준비됨인지 확인한 후 공식 태그로 지역별 허용·거부·철회를 검증한다. 유료·회원 조회 중·오류·빈 본문에서 불필요한 광고 요청이 없어야 한다. 실제 Google 요청과 모의 fixture 결과를 구분한다. 검증 후 `monetization-operations.md`와 `monetization-preapproval-verification.md`의 활성화 절차를 따른다. PG 승인·운영 키·고지 확인 전 결제를 켜지 않는다.
 
-콘텐츠·동의 장애 시 광고 플래그 false로 빌드·배포한다. 이번 Worker/웹 변경은 이전 Pages 배포로 롤백 가능하다. DB 스키마·결제 원장·운영 키 변경이 없다. 공개 진입 롤백은 기존 Flutter 홈 진입으로 복귀한다. 과거 Vercel 배포는 보존하며 이번 공개 진입 변경은 Cloudflare를 대상으로 한다.
+콘텐츠·동의 장애 시 광고 플래그 false로 빌드·배포한다. 이번 Worker/웹 변경은 이전 Pages 배포로 롤백 가능하다. DB 스키마·결제 원장·운영 키 변경이 없다. 공개 진입 롤백은 기존 Flutter 홈 진입으로 복귀한다. 롤백은 현재 Cloudflare Pages의 실제 이전 배포 목록을 사용한다. 다른 채팅의 Vercel 삭제 기록이 있으므로 과거 Vercel 보존을 현재 롤백 수단으로 가정하지 않는다.
+
+
+## 공식 이메일 영상 기준 후속 점검
+
+2026-10-02 메일의 [Google 공식 영상](https://www.youtube.com/watch?v=lZUG0XGlZZY) 한국어 전체 자막(0:05–3:44)을 읽었다. 전체 승인 재생목록 시청 완료를 의미하지 않는다. 영상의 기준은 올바른 코드, 공개 접근/정상 로딩/robots, 독창적이고 유용한 콘텐츠, 쉬운 탐색이며 사이트 전체를 검토한다. 첫 화면을 안내 글로 바꾸라는 요구는 없다. 루트 교체는 이전 대응의 추정이었으므로 앱 직접 진입을 복원한다.
+
+최신 [사이트 연결 문서](https://support.google.com/adsense/answer/7584263?hl=en)는 공식 광고 코드 외에 ads.txt와 google-adsense-account 메타 태그를 허용한다. 현재 게시자 ID는 이 두 방식 및 수동 광고 loader의 공식 URL과 일치한다. 사이트 소유권/ads.txt 확인과 광고 게재 승인은 분리한다. 승인/동의 게이트를 true로 위장하거나 인기 페이지에 실제 광고를 미리 요청하지 않는다.
+
+영상의 로그인 제거 권고는 비공개 계정/관리 API의 인증 제거로 적용하지 않는다. 공유 기업·시장 데이터는 이미 익명 조회 가능하고, 계정·관심기업·멤버십은 인증을 유지한다. 준비중/빈 결과/오류 및 계정·결제 화면에는 광고를 만들지 않는다. 루트에 한 페이지를 추가했다고 사이트 전체의 가치·독창성이나 승인 여부를 입증하지 않는다.
+
+JavaScript 미사용에서는 정체된 splash 대신 읽기 자료 링크를 제공한다. JS 실행 사용자에게는 기존 앱 홈이 열리며, 앱 로딩 지연 시 별도 안내로 갈 수 있다. 크롤러 User-Agent에 따른 본문 분기는 없다. 서비스 페이지 내부 링크와 각 원문/출처는 점검하지만 전체 2,759개 기업의 모든 표·그래프/내용을 수동 심사 완료했다고 주장하지 않는다.
