@@ -82,10 +82,11 @@ abstract final class IssuerDocumentsFeed {
       company = corp;
       officialUrl(text('officialUrl', 1000), corp);
       final start = date('periodStart'), end = date('periodEnd');
-      final published = date('publishedAt');
+      final published = raw['publishedAt'] == null ? null : date('publishedAt');
       if (start.compareTo(end) > 0 ||
-          published.compareTo(end) < 0 ||
-          DateTime.parse(published).isAfter(DateTime.now().toUtc())) {
+          (published != null &&
+              (published.compareTo(end) < 0 ||
+                  DateTime.parse(published).isAfter(DateTime.now().toUtc())))) {
         throw const FormatException('보고기간/게시일 모순');
       }
       text('title', 300);

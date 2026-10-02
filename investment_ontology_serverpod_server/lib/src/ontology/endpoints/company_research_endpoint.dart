@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:crypto/crypto.dart';
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
@@ -10,6 +9,7 @@ import '../dart/dart_api_key.dart';
 import '../dart/dart_client.dart';
 import '../ingest/api_call_budget.dart';
 import '../research/research_feed.dart';
+import '../research/research_snapshot_store.dart';
 import '../research/issuer_documents_feed.dart';
 import '../research/dart_research.dart';
 import '../research/kis_research_client.dart';
@@ -143,7 +143,7 @@ class ResearchEndpoint extends Endpoint {
       throw IngestException(message: '출처는 인증정보·쿼리가 없는 HTTPS 주소로 입력하세요.');
     }
     await _checkSecurities(session, c, rows);
-    return _store(
+    return ResearchSnapshotStore.store(
       session,
       c,
       kind,
@@ -170,75 +170,6 @@ class ResearchEndpoint extends Endpoint {
     )) {
       throw IngestException(message: '자료에 해당 기업 소속이 아닌 종목코드가 있습니다.');
     }
-  }
-
-  Future<int> _store(
-    Session session,
-    Company c,
-    String kind,
-    List<Map<String, dynamic>> rows,
-    String provider,
-    String url,
-    String reference,
-    SourceKind sourceKind,
-  ) async {
-    final payload = jsonEncode(rows);
-    final digest = sha256
-        .convert(utf8.encode('$provider|$url|$reference|$payload'))
-        .toString();
-    return session.db.transaction((tx) async {
-      // Serialize same-company writers, retaining previous batches for audit.
-      await session.db.unsafeQuery(
-        'SELECT id FROM company WHERE id = @id FOR UPDATE',
-        parameters: QueryParameters.named({'id': c.id!}),
-        transaction: tx,
-      );
-      final latest = await ResearchSnapshot.db.findFirstRow(
-        session,
-        where: (t) => t.companyId.equals(c.id!) & t.kind.equals(kind),
-        orderByList: (t) => [t.createdAt.desc(), t.id.desc()],
-        transaction: tx,
-      );
-      final previousSource = latest == null
-          ? null
-          : await Source.db.findById(session, latest.sourceId, transaction: tx);
-      if (latest?.payload == payload &&
-          latest?.provider == provider &&
-          previousSource?.url == url &&
-          previousSource?.reference == reference) {
-        return latest!.id!;
-      }
-      final now = DateTime.now().toUtc();
-      // Reverting to an older payload is a new observation, not a stale return.
-      final observationDigest = sha256
-          .convert(utf8.encode('$digest|${latest?.id ?? 0}'))
-          .toString();
-      final source = await Source.db.insertRow(
-        session,
-        Source(
-          kind: sourceKind,
-          title: '$provider · $kind',
-          reference: reference,
-          url: url,
-          retrievedAt: now,
-        ),
-        transaction: tx,
-      );
-      final result = await ResearchSnapshot.db.insertRow(
-        session,
-        ResearchSnapshot(
-          companyId: c.id!,
-          kind: kind,
-          provider: provider,
-          payload: payload,
-          sourceId: source.id!,
-          digest: observationDigest,
-          createdAt: now,
-        ),
-        transaction: tx,
-      );
-      return result.id!;
-    });
   }
 
   /// Cursor-based batches cover the listed universe without a long HTTP request.
@@ -359,7 +290,7 @@ class ResearchEndpoint extends Endpoint {
           rows.sort(
             (a, b) => (a['date'] as String).compareTo(b['date'] as String),
           );
-          return await _store(
+          return await ResearchSnapshotStore.store(
             session,
             c,
             kind,
@@ -403,7 +334,7 @@ class ResearchEndpoint extends Endpoint {
         );
       }
       if (securities.isEmpty) throw IngestException(message: '연결된 종목이 없습니다.');
-      return await _store(
+      return await ResearchSnapshotStore.store(
         session,
         c,
         kind,

@@ -4,6 +4,7 @@ import '../dart/dart_api_key.dart';
 import '../dart/dart_client.dart';
 import 'disclosure_sync.dart';
 import 'ingest_jobs.dart';
+import 'issuer_documents_sync.dart';
 import 'ingest_hooks.dart';
 
 class DisclosureFutureCall extends FutureCall {
@@ -25,6 +26,11 @@ class DisclosureFutureCall extends FutureCall {
   }
 
   Future<void> runBusiness(Session session, int jobId) async {
+    await IssuerDocumentsSync.run(
+      session,
+      cancelled: () => IngestJobs.isCancelled(session, jobId),
+    );
+    if (await IngestJobs.isCancelled(session, jobId)) return;
     final key = DartApiKey.read(session);
     if (key == null) {
       await IngestJobs.fail(session, jobId, 'DART API 키가 설정되지 않았습니다.');
