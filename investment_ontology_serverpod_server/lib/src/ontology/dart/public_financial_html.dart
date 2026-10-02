@@ -8,6 +8,7 @@ import 'animedi_ce_source.dart';
 
 import 'package:crypto/crypto.dart';
 
+import 'dated_current_header_proof.dart';
 import 'dozn_corroborated_flow_period.dart';
 import 'protia_printed_current_period.dart';
 import 'redwoods_blank_header_source.dart';
@@ -1996,6 +1997,19 @@ abstract final class PublicFinancialHtml {
       }
       datedPunctuationProof = candidates.single;
     }
+    // Raw proof is recomputed after normal issuer/source/basis validation.
+    // It supplies no caller flag, inferred column, amount or relaxed span cap.
+    final datedCurrentProof = DatedCurrentHeaderProof.verify(
+      coverHtml: coverHtml,
+      statementHtml: statementHtml,
+      coverSource: coverSource,
+      statementSource: statementSource,
+      receipt: receipt,
+      companyName: companyName,
+      start: periodStart,
+      end: periodEnd,
+      consolidated: consolidated,
+    );
     // The exact TXR source prints one blank label header before three terms.
     // This profile changes no statement, period, unit or numeric checks.
     final itcenTitleScope = ItcenPrimaryTitleSource.eligible(
@@ -2078,6 +2092,7 @@ abstract final class PublicFinancialHtml {
     final values = <String, BigInt>{};
     final missingOptional = <Map<String, dynamic>>[];
     var yearTermHeaderUsed = false;
+    var datedCurrentHeaderUsed = false;
     final seenKinds = <String>{};
     var tableIndex = 0;
     for (final table in RegExp(
@@ -2110,6 +2125,10 @@ abstract final class PublicFinancialHtml {
         prefix.lastIndexOf('현금흐름표'),
       ].reduce((a, b) => a > b ? a : b);
       if (equityAt >= 0 && equityAt > otherAt) {
+        if (datedCurrentProof != null &&
+            index == datedCurrentProof['equityTableIndex']) {
+          continue;
+        }
         // Exact Dozn CFS CE (9 columns) is independently verified, including
         // its whole profit/equity and immutable raw SHA, before this loop.
         if (doznProof != null && consolidated && index == 7) continue;
@@ -2140,8 +2159,16 @@ abstract final class PublicFinancialHtml {
       final labels = grid
           .map((r) => r.isEmpty ? '' : label(r.first?.text ?? ''))
           .toSet();
+      final provedKinds = datedCurrentProof == null
+          ? <String>[]
+          : (datedCurrentProof['tables'] as Map).entries
+                .where((e) => (e.value as Map)['tableIndex'] == index)
+                .map((e) => e.key as String)
+                .toList();
       final String kind;
-      if (labels.contains('자산총계') &&
+      if (provedKinds.length == 1) {
+        kind = provedKinds.single;
+      } else if (labels.contains('자산총계') &&
           labels.contains('부채총계') &&
           labels.contains('자본총계')) {
         kind = 'BS';
@@ -2179,6 +2206,17 @@ abstract final class PublicFinancialHtml {
                 .toSet()
           : <_FinancialHtmlCell>{};
       if (yearTermHeaders.isNotEmpty) yearTermHeaderUsed = true;
+      bool provedCurrentHeader(_FinancialHtmlCell c) {
+        final matches =
+            datedCurrentProof != null &&
+            (datedCurrentProof['tables'] as Map)[kind]['tableIndex'] == index &&
+            (datedCurrentProof['tables'] as Map)[kind]['column'] == c.column &&
+            (datedCurrentProof['tables'] as Map)[kind]['header'] ==
+                _compact(c.text);
+        if (matches) datedCurrentHeaderUsed = true;
+        return matches;
+      }
+
       final headers = grid.first
           .whereType<_FinancialHtmlCell>()
           .where(
@@ -2190,6 +2228,7 @@ abstract final class PublicFinancialHtml {
                     (_compact(c.text) == '${periodEnd.year}년' ||
                         _compact(c.text) == '${periodEnd.year}년도')) ||
                 yearTermHeaders.contains(c) ||
+                provedCurrentHeader(c) ||
                 (animediProof != null &&
                     _compact(c.text) ==
                         '제$term기(${periodEnd.year}년${kind == 'BS' ? '말' : ''})') ||
@@ -2391,12 +2430,22 @@ abstract final class PublicFinancialHtml {
           );
       for (final row in grid.skip(1)) {
         if (row.isEmpty) continue;
+        final rawAccountLabel = label(row.first?.text ?? '');
+        // Brackets qualify only in the independently proved whole BS table.
+        // The persisted account name remains exactly as printed.
+        final effectiveAccountLabel =
+            datedCurrentProof != null &&
+                kind == 'BS' &&
+                provedKinds.length == 1 &&
+                const {'[자산총계]', '[부채총계]'}.contains(rawAccountLabel)
+            ? rawAccountLabel.substring(1, rawAccountLabel.length - 1)
+            : rawAccountLabel;
         final account =
             (novmetaHeading || printedCfCaption) &&
                 kind == 'CF' &&
                 label(row.first?.text ?? '') == '영업활동으로부터의순현금유출'
             ? ('cfo', 'CF')
-            : accounts[label(row.first?.text ?? '')];
+            : accounts[effectiveAccountLabel];
         if (account == null || account.$2 != kind) continue;
         if (printedCfCaption && identical(row, cfCaptions.single)) continue;
         // This exact source has a section caption with all three year cells
@@ -2640,7 +2689,7 @@ abstract final class PublicFinancialHtml {
         'Annual primary core missing or balance mismatch',
       );
     }
-    if (yearTermHeaderUsed) {
+    if (yearTermHeaderUsed && !datedCurrentHeaderUsed) {
       final proofs = <Map<String, dynamic>>[];
       for (final t in RegExp(
         r'<TABLE\b[^>]*>(.*?)</TABLE>',
@@ -2733,6 +2782,21 @@ abstract final class PublicFinancialHtml {
         (row['html_provenance']
                 as Map<String, dynamic>)['supportingWholeEquityEvidence'] =
             proofs.single;
+      }
+    }
+    if (datedCurrentProof != null) {
+      final proved = datedCurrentProof['core'] as Map;
+      for (final key in proved.keys) {
+        if (values[key]?.toString() != proved[key]) {
+          throw const FormatException(
+            'Dated current whole primary amount conflict',
+          );
+        }
+      }
+      for (final row in result) {
+        (row['html_provenance']
+                as Map<String, dynamic>)['supportingWholeCurrentEvidence'] =
+            datedCurrentProof;
       }
     }
     if (spacMissingRevenue) {

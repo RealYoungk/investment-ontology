@@ -106,8 +106,8 @@ abstract final class FinancialAccounts {
   static const fallbackNames = <String, List<String>>{
     'interestDebtIncludingLeases': ['총차입금(리스부채포함)', '차입금및사채및리스부채합계'],
     'revenue': ['매출', '매출액', '매출액(주5)', '영업수익', '수익(매출액)', '수익(매출액)(주30)'],
-    'assets': ['자산총계'],
-    'liabilities': ['부채총계'],
+    'assets': ['자산총계', '[자산총계]'],
+    'liabilities': ['부채총계', '[부채총계]'],
     'cash': ['현금및현금성자산'],
     'equity': ['자본총계'],
     'operatingCashFlow': [

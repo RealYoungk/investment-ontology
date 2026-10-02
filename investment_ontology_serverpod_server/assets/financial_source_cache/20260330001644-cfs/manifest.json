@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20260330001644",
+  "corpCode": "00669450",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2025,
+  "periodStart": "2025-01-01",
+  "periodEnd": "2025-12-31",
+  "ruleVersion": "dated-current-column-whole-equity-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260330001644",
+      "sha256": "f4fbac4e9bdc11419f8a30db5451a4fd2aae88f6f25cd72b1ba4e21771839e13",
+      "file": "shell.html"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001644&dcmNo=11198054&eleId=3&offset=32857&length=4529&dtd=dart4.xsd",
+      "sha256": "0692f68913cd411e68d697ce975abc80d7f9c952c17fcb2df5d5e1eb10b22a00",
+      "file": "cover.html"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001644&dcmNo=11198054&eleId=21&offset=442208&length=55984&dtd=dart4.xsd",
+      "sha256": "b1872bcd4fb2daf66bf3c69e7e6e751ab9e7a3678ed2260354797c0361110a98",
+      "file": "cfs.html"
+    }
+  ],
+  "retrievalProof": "공식 owncorp/원접수/동일dcm 표지와 각 BS/CIS/CF 현재 열 및 CE 전체 순손익·기말자본을 정확대조. 인쇄계정·단위·부호 보존, NCI/지배기업 대체 없음."
+}

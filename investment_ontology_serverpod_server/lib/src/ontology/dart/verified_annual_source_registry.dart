@@ -490,6 +490,55 @@ abstract final class VerifiedAnnualSourceRegistry {
       absenceLiteral: null,
     ),
     AnnualSourceCacheEntry(
+      receipt: '20260323000759',
+      corpCode: '00886792',
+      companyName: '(주)루켄테크놀러지스',
+      year: 2025,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20260323000759-cfs',
+      manifestDigest:
+          '6b482725c50269d1a28eba86e1efba4bf7eb6d3bd3c87f876915cde04194bdcb',
+      ruleVersion: 'dated-current-column-whole-equity-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260323000759',
+      corpCode: '00886792',
+      companyName: '(주)루켄테크놀러지스',
+      year: 2025,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20260323000759-ofs',
+      manifestDigest:
+          '02c6e41f4cc9b487dbb85ee72d5d463605478196215de5b2979ca8b92dd053a2',
+      ruleVersion: 'dated-current-column-whole-equity-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260330001644',
+      corpCode: '00669450',
+      companyName: '(주)바이오프로테크',
+      year: 2025,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20260330001644-cfs',
+      manifestDigest:
+          '24bbfafc4c005721cb88cb9c2028ba78247bbb209518851d7e55961213c0089a',
+      ruleVersion: 'dated-current-column-whole-equity-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20260330001644',
+      corpCode: '00669450',
+      companyName: '(주)바이오프로테크',
+      year: 2025,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20260330001644-ofs',
+      manifestDigest:
+          '6b42e35e743a60de918968ca4b0bda000a675360a16a7953c065b7447a36965e',
+      ruleVersion: 'dated-current-column-whole-equity-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20250321001653',
       corpCode: '00886792',
       companyName: '(주)루켄테크놀러지스',
