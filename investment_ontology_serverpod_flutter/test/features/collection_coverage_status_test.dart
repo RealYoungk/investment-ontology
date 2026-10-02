@@ -117,6 +117,10 @@ void main() {
       expect(find.text('70.0%'), findsOneWidget);
       expect(find.text('0.0%'), findsOneWidget);
       expect(find.text('재무 API 응답 자료 없음 1건'), findsOneWidget);
+      expect(find.text('기간 일치 저장 보고서 7건'), findsOneWidget);
+      expect(find.textContaining('금액 계정이 하나 이상'), findsOneWidget);
+      expect(find.textContaining('한 기준의 자료만 있어도'), findsOneWidget);
+      expect(find.textContaining('핵심7개 확보율이 아닙니다'), findsOneWidget);
       expect(find.text('실패 보고서 1건'), findsOneWidget);
       expect(find.text('대기 본문 2건'), findsOneWidget);
       expect(tester.takeException(), isNull);
