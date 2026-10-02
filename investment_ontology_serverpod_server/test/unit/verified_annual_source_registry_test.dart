@@ -59,10 +59,9 @@ void main() {
         final result = await cache.verifyRegistered(f, company(e), e.basis);
         expect(
           reads,
-          (e.requiresIssuerOverview ||
-                  e.ruleVersion == 'same-receipt-audit-immutable-v1')
-              ? 5
-              : 4,
+          4 +
+              (e.requiresIssuerOverview ? 1 : 0) +
+              (e.ruleVersion == 'same-receipt-audit-immutable-v1' ? 1 : 0),
         );
         expect(f.toJson(), before);
         final manifest = jsonDecode(
