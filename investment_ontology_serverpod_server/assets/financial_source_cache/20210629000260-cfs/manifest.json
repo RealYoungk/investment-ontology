@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20210629000260",
+  "corpCode": "00677334",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2021,
+  "periodStart": "2020-04-01",
+  "periodEnd": "2021-03-31",
+  "ruleVersion": "exact-declared-fiscal-period-annual-v1",
+  "sources": [
+    {
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20210629000260",
+      "sha256": "cd7b3a9fa1baa1c732fa4def7d9dc9ad92889d05f4a485d32b1169d9b6cab586",
+      "file": "shell.html",
+      "label": "shell"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20210629000260&dcmNo=8124457&eleId=3&offset=2918&length=4024&dtd=dart3.xsd",
+      "sha256": "9b93aea12df265145243404460e996191cf839a32d973687cdb3277e079f8857",
+      "file": "cover.html",
+      "label": "cover"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20210629000260&dcmNo=8124457&eleId=16&offset=169792&length=130&dtd=dart3.xsd",
+      "sha256": "5d22948342ace82d720e0c96e3c640b730413b0e219d3515999dd1a88944046e"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20210629000260&dcmNo=8124457&eleId=5&offset=7437&length=80499&dtd=dart3.xsd",
+      "sha256": "28c54f9a5734d1998575de22dec22f9383c91d48ccc020cd7758c27f74824d71",
+      "file": "overview.html",
+      "label": "overview"
+    }
+  ],
+  "retrievalProof": "Official same receipt and historical March cover. Pure complete consolidated section declares non-applicability; no financial table or numerical content."
+}

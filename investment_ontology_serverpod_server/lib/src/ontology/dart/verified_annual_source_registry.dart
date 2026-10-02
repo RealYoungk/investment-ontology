@@ -52,6 +52,22 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20210629000260',
+      corpCode: '00677334',
+      companyName: '(주)아하',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20210629000260-cfs',
+      manifestDigest:
+          '1f6dabbfbf5c20e732272adf1197aa79b34fc9345c5defad281e204b49ace3af',
+      ruleVersion: 'exact-declared-fiscal-period-annual-v1',
+      absenceLiteral: '- 해당사항 없음.',
+      requiresIssuerOverview: true,
+      declaredPeriodStart: '2020-04-01',
+      declaredPeriodEnd: '2021-03-31',
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20220322000542',
       corpCode: '00321204',
       companyName: '지에이이노더스(주)',
