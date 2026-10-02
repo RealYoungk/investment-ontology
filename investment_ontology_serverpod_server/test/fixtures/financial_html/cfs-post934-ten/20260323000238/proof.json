@@ -1,0 +1,64 @@
+{
+  "id": 21801,
+  "name": "(주)유비씨",
+  "market": "konex",
+  "stockCode": "495810",
+  "corpCode": "01867749",
+  "rceptNo": "20260323000238",
+  "reportName": "사업보고서 (2025.12)",
+  "actual_period": "2025.12",
+  "bsnsYear": 2025,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 2,
+  "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 2,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260323000238",
+      "sha256": "9ea7b1432206bd0725fa3376fff1c00abae187f1661bf17ce480f85a4e655661"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323000238&dcmNo=11161281&eleId=1&offset=967&length=4575&dtd=dart4.xsd",
+      "sha256": "355eb15b6ed510adedf2b377ff3d6af9879ae6588b41d95528ca0f70ebdc9fb2"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323000238&dcmNo=11161281&eleId=19&offset=185089&length=244&dtd=dart4.xsd",
+      "sha256": "c757833cbc94614c3f6c91250bb4216d2b1ad86831fd171bf4403b986f0b9fb2"
+    }
+  ],
+  "shellCorpIds": [
+    "01867749"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20260323000238",
+        "dcmNo": "11161281",
+        "eleId": "1",
+        "offset": "967",
+        "length": "4575",
+        "dtd": "dart4.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20260323000238",
+        "dcmNo": "11161281",
+        "eleId": "19",
+        "offset": "185089",
+        "length": "244",
+        "dtd": "dart4.xsd"
+      }
+    }
+  ]
+}

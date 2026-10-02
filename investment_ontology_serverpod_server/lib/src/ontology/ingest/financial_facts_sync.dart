@@ -757,6 +757,7 @@ class FinancialFactsSync {
           resumeNow.add(
             annualPublic.fresh ||
                     annualPublic.stored > 0 ||
+                    (annualPublic.processed > 0 && annualPublic.failed == 0) ||
                     cached.stored > 0 ||
                     metadataBatchDeferred
                 ? const Duration(seconds: 30)
@@ -1118,6 +1119,16 @@ class FinancialFactsSync {
         '20240808000099': (corp: '00565215', year: 2023, bases: {'OFS'}),
         '20230323000665': (corp: '01026616', year: 2022, bases: {'OFS'}),
         '20250320001369': (corp: '01353848', year: 2024, bases: {'OFS'}),
+        '20260323000238': (corp: '01867749', year: 2025, bases: {'CFS'}),
+        '20260323001434': (corp: '01281541', year: 2025, bases: {'CFS'}),
+        '20260323000522': (corp: '01156795', year: 2025, bases: {'CFS'}),
+        '20260323000750': (corp: '01583953', year: 2025, bases: {'CFS'}),
+        '20260324001035': (corp: '01023822', year: 2025, bases: {'CFS'}),
+        '20260323000081': (corp: '01345724', year: 2025, bases: {'CFS'}),
+        '20260320000168': (corp: '01363924', year: 2025, bases: {'CFS'}),
+        '20260323001181': (corp: '01396931', year: 2025, bases: {'CFS'}),
+        '20260319000875': (corp: '01060735', year: 2025, bases: {'CFS'}),
+        '20260327001816': (corp: '01085187', year: 2025, bases: {'CFS'}),
         '20250326000875': (corp: '01085187', year: 2024, bases: {'OFS'}),
         '20250409000365': (corp: '00925967', year: 2024, bases: {'OFS'}),
         '20250407003814': (corp: '01119651', year: 2024, bases: {'CFS'}),
@@ -1396,10 +1407,10 @@ class FinancialFactsSync {
       failed += result.failed ? 1 : 0;
       processed++;
       attempted.add(f.id!);
-      final anySuccess =
-          updated.consolidatedStatus == FilingFetchStatus.stored ||
-          updated.separateStatus == FilingFetchStatus.stored;
-      consecutiveFailures = anySuccess ? 0 : consecutiveFailures + 1;
+      // Only this attempt's stored values or verified completion are progress.
+      // A report already stored in the other basis cannot clear this failure.
+      final progressed = result.stored > 0 || !result.failed;
+      consecutiveFailures = progressed ? 0 : consecutiveFailures + 1;
     }
     var remaining = 0;
     var fresh = false;

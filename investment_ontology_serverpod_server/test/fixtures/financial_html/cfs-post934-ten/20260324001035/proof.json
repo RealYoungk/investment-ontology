@@ -1,0 +1,64 @@
+{
+  "id": 22273,
+  "name": "(주)메디젠휴먼케어",
+  "market": "konex",
+  "stockCode": "236340",
+  "corpCode": "01023822",
+  "rceptNo": "20260324001035",
+  "reportName": "사업보고서 (2025.12)",
+  "actual_period": "2025.12",
+  "bsnsYear": 2025,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 2,
+  "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 2,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260324001035",
+      "sha256": "b2c08a7f5251d9d7b85d66ebb54a1ba815841c8140e46aee396ada3e41480d28"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260324001035&dcmNo=11174529&eleId=1&offset=966&length=4510&dtd=dart4.xsd",
+      "sha256": "871046d929d1b50710cfa6148ef6090928a97cda88880bc62df38018cf6e2efb"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260324001035&dcmNo=11174529&eleId=19&offset=285270&length=188&dtd=dart4.xsd",
+      "sha256": "357c04bad9bd413a5dd5a4490529ed40856fdd7e278157d94cdd14a015c9aebf"
+    }
+  ],
+  "shellCorpIds": [
+    "01023822"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20260324001035",
+        "dcmNo": "11174529",
+        "eleId": "1",
+        "offset": "966",
+        "length": "4510",
+        "dtd": "dart4.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20260324001035",
+        "dcmNo": "11174529",
+        "eleId": "19",
+        "offset": "285270",
+        "length": "188",
+        "dtd": "dart4.xsd"
+      }
+    }
+  ]
+}

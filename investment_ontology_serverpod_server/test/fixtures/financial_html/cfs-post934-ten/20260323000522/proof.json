@@ -1,0 +1,64 @@
+{
+  "id": 21822,
+  "name": "(주)프로젠",
+  "market": "konex",
+  "stockCode": "296160",
+  "corpCode": "01156795",
+  "rceptNo": "20260323000522",
+  "reportName": "사업보고서 (2025.12)",
+  "actual_period": "2025.12",
+  "bsnsYear": 2025,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 2,
+  "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 2,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260323000522",
+      "sha256": "c51ad58d0370871c7ef5060c67611501b75b5cdc14abb00e7a924a57481ead2b"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323000522&dcmNo=11162341&eleId=1&offset=965&length=4525&dtd=dart4.xsd",
+      "sha256": "26e98ee8d55bb0d8d06b806ff375be22d009aaac1768726c4e38977299cf8588"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323000522&dcmNo=11162341&eleId=19&offset=305104&length=222&dtd=dart4.xsd",
+      "sha256": "241e0d841baf61f53b2572ec059fdee80f03db958d12ef1b2a24a3bd7ebe8138"
+    }
+  ],
+  "shellCorpIds": [
+    "01156795"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20260323000522",
+        "dcmNo": "11162341",
+        "eleId": "1",
+        "offset": "965",
+        "length": "4525",
+        "dtd": "dart4.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20260323000522",
+        "dcmNo": "11162341",
+        "eleId": "19",
+        "offset": "305104",
+        "length": "222",
+        "dtd": "dart4.xsd"
+      }
+    }
+  ]
+}
