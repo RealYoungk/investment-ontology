@@ -127,7 +127,9 @@ class _MembershipCardState extends State<MembershipCard> {
             FilledButton(
               onPressed: () => context.push('/membership'),
               child: Text(
-                viewer!.isTestMembership ? '이용권 테스트' : '관심기업 20개로 늘리기',
+                (viewer?.isTestMembership ?? false)
+                    ? '이용권 테스트'
+                    : '관심기업 20개로 늘리기',
               ),
             ),
           ],
