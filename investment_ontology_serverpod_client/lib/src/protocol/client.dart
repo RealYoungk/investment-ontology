@@ -602,6 +602,29 @@ class EndpointBond extends _isc.EndpointRef {
       );
 }
 
+/// {@category Endpoint}
+class EndpointCapital extends _isc.EndpointRef {
+  EndpointCapital(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'capital';
+
+  /// Public, stored-only read. Current report supersedes older snapshots.
+  _ida.Future<String> summary(String corpCode) =>
+      caller.callServerEndpoint<String>(
+        'capital',
+        'summary',
+        {'corpCode': corpCode},
+      );
+
+  /// Explicit administrator collection: one latest report, public source only.
+  _ida.Future<int> collect(String corpCode) => caller.callServerEndpoint<int>(
+    'capital',
+    'collect',
+    {'corpCode': corpCode},
+  );
+}
+
 /// 상장사 조회.
 /// {@category Endpoint}
 class EndpointCompany extends _isc.EndpointRef {
@@ -676,7 +699,8 @@ class EndpointCompanyNews extends _isc.EndpointRef {
       );
 }
 
-/// Public reads of stored source-backed data. Every collection/import is admin-only.
+/// Public source-backed reads populate missing DART cache entries.
+/// Explicit collection/import remains admin-only.
 /// {@category Endpoint}
 class EndpointResearch extends _isc.EndpointRef {
   EndpointResearch(_isc.EndpointCaller caller) : super(caller);
@@ -1208,7 +1232,7 @@ class EndpointIngest extends _isc.EndpointRef {
       );
 }
 
-/// Public official market context, no mutations or account data.
+/// Public official market context, read from direct sources with bounded caching.
 /// {@category Endpoint}
 class EndpointMacro extends _isc.EndpointRef {
   EndpointMacro(_isc.EndpointCaller caller) : super(caller);
@@ -1911,6 +1935,7 @@ class Client extends _isc.ServerpodClientShared {
     account = EndpointAccount(this);
     ai = EndpointAi(this);
     bond = EndpointBond(this);
+    capital = EndpointCapital(this);
     company = EndpointCompany(this);
     companyNews = EndpointCompanyNews(this);
     research = EndpointResearch(this);
@@ -1943,6 +1968,8 @@ class Client extends _isc.ServerpodClientShared {
   late final EndpointAi ai;
 
   late final EndpointBond bond;
+
+  late final EndpointCapital capital;
 
   late final EndpointCompany company;
 
@@ -1990,6 +2017,7 @@ class Client extends _isc.ServerpodClientShared {
     'account': account,
     'ai': ai,
     'bond': bond,
+    'capital': capital,
     'company': company,
     'companyNews': companyNews,
     'research': research,

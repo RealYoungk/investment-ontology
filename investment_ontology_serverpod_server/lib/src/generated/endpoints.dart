@@ -39,6 +39,7 @@ import '../greetings/greeting_endpoint.dart' as _il624ik7;
 import '../ontology/endpoints/account_endpoint.dart' as _io2i71g8;
 import '../ontology/endpoints/ai_endpoint.dart' as _iadofkda;
 import '../ontology/endpoints/bond_endpoint.dart' as _iuax3zj5;
+import '../ontology/endpoints/capital_endpoint.dart' as _idxbctvq;
 import '../ontology/endpoints/company_endpoint.dart' as _itnisr3u;
 import '../ontology/endpoints/company_news_endpoint.dart' as _ij4mm9jr;
 import '../ontology/endpoints/company_research_endpoint.dart' as _iqx60vuh;
@@ -97,6 +98,12 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'bond',
+          null,
+        ),
+      'capital': _idxbctvq.CapitalEndpoint()
+        ..initialize(
+          server,
+          'capital',
           null,
         ),
       'company': _itnisr3u.CompanyEndpoint()
@@ -803,6 +810,50 @@ class Endpoints extends _is.EndpointDispatch {
                 session,
                 params['corpCode'],
               ),
+        ),
+      },
+    );
+    connectors['capital'] = _is.EndpointConnector(
+      name: 'capital',
+      endpoint: endpoints['capital']!,
+      methodConnectors: {
+        'summary': _is.MethodConnector(
+          name: 'summary',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['capital'] as _idxbctvq.CapitalEndpoint).summary(
+                    session,
+                    params['corpCode'],
+                  ),
+        ),
+        'collect': _is.MethodConnector(
+          name: 'collect',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['capital'] as _idxbctvq.CapitalEndpoint).collect(
+                    session,
+                    params['corpCode'],
+                  ),
         ),
       },
     );

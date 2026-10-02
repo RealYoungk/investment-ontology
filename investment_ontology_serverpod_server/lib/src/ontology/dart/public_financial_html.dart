@@ -1590,12 +1590,13 @@ abstract final class PublicFinancialHtml {
         'Annual current statement title period mismatch',
       );
     }
-    String label(String raw) => _compact(raw)
-        .replaceFirst(RegExp(r'^[Ⅰ-ⅫIVXLCDM\d]+[.)]'), '')
-        .replaceFirst(
-          RegExp(r'(?:\(주(?:석)?[0-9]+(?:,[0-9]+)*\)|<주석[0-9]+>)$'),
-          '',
-        );
+    String label(String raw) =>
+        _compact(raw)
+            .replaceFirst(RegExp(r'^[Ⅰ-ⅫIVXLCDM\d]+[.)]'), '')
+            .replaceFirst(
+              RegExp(r'(?:\(주(?:석)?[0-9]+(?:,[0-9]+)*\)|<주석[0-9]+>)$'),
+              '',
+            );
     const accounts = {
       '자산총계': ('assets', 'BS'),
       '부채총계': ('liabilities', 'BS'),

@@ -303,6 +303,8 @@ class TestEndpoints {
 
   late final _BondEndpoint bond;
 
+  late final _CapitalEndpoint capital;
+
   late final _CompanyEndpoint company;
 
   late final _CompanyNewsEndpoint companyNews;
@@ -368,6 +370,10 @@ class _InternalTestEndpoints extends TestEndpoints
       serializationManager,
     );
     bond = _BondEndpoint(
+      endpoints,
+      serializationManager,
+    );
+    capital = _CapitalEndpoint(
       endpoints,
       serializationManager,
     );
@@ -1403,6 +1409,79 @@ class _BondEndpoint {
                   _localCallContext.arguments,
                 )
                 as _ida.Future<String>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
+class _CapitalEndpoint {
+  _CapitalEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _is.EndpointDispatch _endpointDispatch;
+
+  final _is.SerializationManager _serializationManager;
+
+  _ida.Future<String> summary(
+    _ist.TestSessionBuilder sessionBuilder,
+    String corpCode,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'capital',
+            method: 'summary',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'capital',
+          methodName: 'summary',
+          parameters: _ist.testObjectToJson({'corpCode': corpCode}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<String>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<int> collect(
+    _ist.TestSessionBuilder sessionBuilder,
+    String corpCode,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'capital',
+            method: 'collect',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'capital',
+          methodName: 'collect',
+          parameters: _ist.testObjectToJson({'corpCode': corpCode}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<int>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
