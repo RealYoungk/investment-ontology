@@ -32,6 +32,19 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20250320001633',
+      corpCode: '01188730',
+      companyName: 'SK시그넷 주식회사',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250320001633-ofs',
+      manifestDigest:
+          '4af751dc147cf412979eb5f238166b78c8f878c2458edfb74c37e353438509da',
+      ruleVersion: 'sk-signet-direct-rename-event-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: true,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20260316001455',
       corpCode: '00445869',
       companyName: '(주)유니포인트',

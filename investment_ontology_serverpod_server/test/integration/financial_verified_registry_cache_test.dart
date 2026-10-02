@@ -17,6 +17,7 @@ void main() {
     for (final entry in VerifiedAnnualSourceRegistry.entries) {
       final scenarios = [
         'success-and-rerun',
+        if (entry.receipt == '20250320001633') 'sha-failed-and-rerun',
         if (entry.receipt == '20260323000661' ||
             entry.receipt == '20260323000763') ...[
           'sha-failed-and-rerun',
@@ -290,6 +291,28 @@ void main() {
                 entry.corpCode,
                 fsDiv: entry.basis,
               );
+              if (entry.receipt == '20250320001633') {
+                final lines = summary!.periods.single.lines;
+                final expected = {
+                  'revenue': '74401016313',
+                  'operatingIncome': '-245159821034',
+                  'netIncome': '-246554897630',
+                  'assets': '230642631079',
+                  'liabilities': '335708768291',
+                  'equity': '-105066137212',
+                  'operatingCashFlow': '-66891998445',
+                };
+                for (final pair in expected.entries) {
+                  expect(
+                    lines.singleWhere((l) => l.key == pair.key).amount,
+                    BigInt.parse(pair.value),
+                  );
+                }
+                expect(
+                  facts.any((f) => f.accountName.contains('매출액(주석19)')),
+                  true,
+                );
+              }
               expect(
                 summary!.periods.single.lines
                     .singleWhere((l) => l.key == 'netIncome')

@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'sk_signet_identity.dart';
+
 import 'package:crypto/crypto.dart';
 
 import 'same_receipt_audit_source.dart';
@@ -812,6 +814,7 @@ abstract final class PublicFinancialHtml {
     required DateTime periodEnd,
     required bool consolidated,
     PublicIssuerLegalName? issuerProof,
+    SkSignetIdentity? skSignetIdentity,
   }) {
     if (receipt == BnkSixCoreProfile.receipt) {
       return BnkSixCoreProfile.parse(
@@ -829,6 +832,18 @@ abstract final class PublicFinancialHtml {
     }
     _source(coverSource, receipt);
     _source(statementSource, receipt);
+    final skIdentity = skSignetIdentity?.verify(
+      targetReceipt: receipt,
+      companyCode: corpCode,
+      masterName: companyName,
+      consolidated: consolidated,
+      start: periodStart,
+      end: periodEnd,
+      cover: coverHtml,
+      statement: statementHtml,
+      coverSource: coverSource,
+      statementSource: statementSource,
+    );
     final linkedAudit = SameReceiptAuditSource.bound(
       receipt: receipt,
       corpCode: corpCode,
@@ -891,6 +906,7 @@ abstract final class PublicFinancialHtml {
         company == null ||
         (legalName(company) != legalName(companyName) &&
             declaredIssuer == null &&
+            skIdentity == null &&
             VerifiedHistoricalCompanyIdentity.evidence(
                   receipt: receipt,
                   corpCode: corpCode,
@@ -2800,6 +2816,11 @@ abstract final class PublicFinancialHtml {
         (row['html_provenance']
                 as Map<String, dynamic>)['historicalCompanyIdentity'] =
             historicalIdentity;
+      }
+    }
+    if (skIdentity != null) {
+      for (final row in result) {
+        (row['html_provenance'] as Map)['issuerIdentityEvidence'] = skIdentity;
       }
     }
     if (declaredIssuer != null) {
