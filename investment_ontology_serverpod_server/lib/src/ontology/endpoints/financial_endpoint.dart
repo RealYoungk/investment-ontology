@@ -104,9 +104,12 @@ class FinancialEndpoint extends Endpoint {
     }
 
     final explicitMissingReasons = <int, String>{};
-    if (company.corpCode == ImgtExplicitRevenueMissing.corp) {
+    if ({
+      ImgtExplicitRevenueMissing.corp,
+      ...ImgtExplicitRevenueMissing.spac.values.map((p) => p.corp),
+    }.contains(company.corpCode)) {
       for (final r in selected.where(
-        (r) => r.rceptNo == ImgtExplicitRevenueMissing.receipt,
+        (r) => ImgtExplicitRevenueMissing.supports(company.corpCode, r.rceptNo),
       )) {
         final source = await Source.db.findById(session, r.sourceId);
         final audit = await Source.db.findFirstRow(

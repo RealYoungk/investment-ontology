@@ -1179,6 +1179,8 @@ class FinancialFactsSync {
         '20220322000487': (corp: '00521433', year: 2021, bases: {'OFS'}),
         '20220321000166': (corp: '01117422', year: 2021, bases: {'OFS'}),
         '20260330001850': (corp: '01579020', year: 2025, bases: {'CFS', 'OFS'}),
+        '20230315000997': (corp: '01601222', year: 2022, bases: {'OFS'}),
+        '20230308000311': (corp: '01476219', year: 2022, bases: {'OFS'}),
         '20260320000871': (corp: '01065785', year: 2025, bases: {'CFS', 'OFS'}),
         '20230320001037': (corp: '00296290', year: 2022, bases: {'CFS'}),
         '20230321000972': (corp: '01063556', year: 2022, bases: {'CFS'}),
@@ -2639,7 +2641,9 @@ class FinancialFactsSync {
                 {
                   if (row['html_provenance'] is Map &&
                       (row['html_provenance'] as Map)['partialCoreRule'] ==
-                          ImgtExplicitRevenueMissing.rule) ...{
+                          ImgtExplicitRevenueMissing.ruleFor(
+                            filing.rceptNo,
+                          )) ...{
                     'rcept_no': row['rcept_no'],
                     'corp_code': row['corp_code'],
                     'bsns_year': row['bsns_year'],

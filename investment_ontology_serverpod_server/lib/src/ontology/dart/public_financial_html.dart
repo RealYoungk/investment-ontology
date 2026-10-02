@@ -910,7 +910,13 @@ abstract final class PublicFinancialHtml {
         periodEnd.difference(periodStart).inDays + 1 > 367) {
       throw const FormatException('Exact annual company/period cover mismatch');
     }
-    final term = terms.single.group(1)!;
+    final printedTerm = terms.single.group(1)!;
+    final term =
+        receipt == '20230308000311' &&
+            corpCode == '01476219' &&
+            printedTerm == '03'
+        ? '3'
+        : printedTerm;
     final expected = linkedAudit
         ? (consolidated ? '(첨부)연결재무제표' : '(첨부)재무제표')
         : consolidated
@@ -959,11 +965,30 @@ abstract final class PublicFinancialHtml {
         statementSource.queryParameters['length'] == '107240' &&
         periodStart == DateTime.utc(2022) &&
         periodEnd == DateTime.utc(2022, 12, 31);
+    final spacMissingRevenue =
+        !consolidated &&
+        periodStart == DateTime.utc(2022) &&
+        periodEnd == DateTime.utc(2022, 12, 31) &&
+        ((receipt == '20230315000997' &&
+                corpCode == '01601222' &&
+                term == '2' &&
+                statementSource.toString() ==
+                    'https://dart.fss.or.kr/report/viewer.do?rcpNo=20230315000997&dcmNo=9059566&eleId=21&offset=123918&length=36101&dtd=dart3.xsd') ||
+            (receipt == '20230308000311' &&
+                corpCode == '01476219' &&
+                term == '3' &&
+                statementSource.toString() ==
+                    'https://dart.fss.or.kr/report/viewer.do?rcpNo=20230308000311&dcmNo=9041541&eleId=21&offset=99116&length=33528&dtd=dart3.xsd'));
+    if (spacMissingRevenue && declaredIssuer == null) {
+      throw const FormatException(
+        'SPAC partial source requires official issuer declaration',
+      );
+    }
     final titleTerm = kiwoomRepeatedTermScope
         ? '제$term기\\(당\\)기'
         : '제$term(?:\\(당\\))?(?:당기|기)';
     final titlePattern = RegExp(
-      '$titleTerm(?:기말|말)?:?\\(?($titleDate)(현재|(?:부터(?=$titleDate까지)|~)($titleDate)(?:까지)?)\\)?',
+      '$titleTerm${spacMissingRevenue ? '(?:말)?' : '(?:기말|말)?'}:?\\(?($titleDate)(현재|(?:부터(?=$titleDate까지)|~)($titleDate)(?:까지)?)\\)?',
     );
     final titles = titlePattern.allMatches(text).toList();
     final parenthesizedTitles = titles
@@ -1464,6 +1489,7 @@ abstract final class PublicFinancialHtml {
       '영업활동으로인한현금흐름': ('cfo', 'CF'),
       '영업활동현금흐름': ('cfo', 'CF'),
       '영업활동순현금흐름': ('cfo', 'CF'),
+      '영업활동으로인한순현금흐름': ('cfo', 'CF'),
       '영업활동으로인한현금흐름(순액)': ('cfo', 'CF'),
       '유형자산취득': ('capex', 'CF'),
       '유형자산의취득': ('capex', 'CF'),
@@ -1915,7 +1941,8 @@ abstract final class PublicFinancialHtml {
           labels.contains('영업활동으로인한현금흐름') ||
           labels.contains('영업활동으로인한현금흐름(순액)') ||
           labels.contains('영업활동현금흐름') ||
-          labels.contains('영업활동순현금흐름')) {
+          labels.contains('영업활동순현금흐름') ||
+          (spacMissingRevenue && labels.contains('영업활동으로인한순현금흐름'))) {
         kind = 'CF';
       } else {
         continue;
@@ -2092,15 +2119,18 @@ abstract final class PublicFinancialHtml {
             .map((c) => money(c!.text))
             .whereType<BigInt>()
             .toList();
-        if (imgtMissingRevenue &&
+        if ((imgtMissingRevenue || spacMissingRevenue) &&
             account.$1 == 'revenue' &&
             kind == 'CIS' &&
             label(row.first!.text) == '영업수익') {
           if (missingRevenue != null ||
               current.column != 2 ||
-              current.colspan != 1 ||
-              cells.length != 1 ||
-              cells.single!.text.trim() != '-') {
+              current.colspan != (spacMissingRevenue ? 2 : 1) ||
+              cells.length != (spacMissingRevenue ? 2 : 1) ||
+              cells.where((c) => c!.text.trim() == '-').length != 1 ||
+              cells.any(
+                (c) => c!.text.trim().isNotEmpty && c.text.trim() != '-',
+              )) {
             throw const FormatException(
               'IMGT explicit missing revenue cell mismatch',
             );
@@ -2108,13 +2138,13 @@ abstract final class PublicFinancialHtml {
           missingRevenue = {
             'rcept_no': receipt,
             'corp_code': corpCode,
-            'bsns_year': '2025',
+            'bsns_year': '${periodEnd.year}',
             'reprt_code': '11011',
             'account_id': null,
             'account_nm': row.first!.text,
             'account_detail': '-',
             'sj_div': 'CIS',
-            'thstrm_nm': '2025-01-01~2025-12-31',
+            'thstrm_nm': '${periodEnd.year}-01-01~${periodEnd.year}-12-31',
             'thstrm_amount': null,
             'currency': 'KRW',
             'html_provenance': {
@@ -2126,16 +2156,18 @@ abstract final class PublicFinancialHtml {
               'tableIndex': index,
               'printedLabel': row.first!.text,
               'currentColumn': 2,
-              'currentColumnSpan': 1,
+              'currentColumnSpan': current.colspan,
               'currentHeader': current.text,
-              'printedCurrentCells': ['-'],
+              'printedCurrentCells': [for (final c in cells) c!.text.trim()],
               'basis': consolidated ? 'CFS' : 'OFS',
               'unit': printedUnit,
-              'periodStart': '2025-01-01',
-              'periodEnd': '2025-12-31',
+              'periodStart': '${periodEnd.year}-01-01',
+              'periodEnd': '${periodEnd.year}-12-31',
               'explicitMissingAmount': 'printed-dash-no-zero-or-prior',
               'missingRequiredAccount': 'revenue',
-              'partialCoreRule': 'imgt-explicit-revenue-null-v1',
+              'partialCoreRule': spacMissingRevenue
+                  ? 'spac-explicit-revenue-null-v1'
+                  : 'imgt-explicit-revenue-null-v1',
             },
           };
           continue;
@@ -2223,7 +2255,7 @@ abstract final class PublicFinancialHtml {
         }.every(
           (key) =>
               key == 'revenue' &&
-                  imgtMissingRevenue &&
+                  (imgtMissingRevenue || spacMissingRevenue) &&
                   missingRevenue != null ||
               values.containsKey(key),
         ) ||
@@ -2231,6 +2263,116 @@ abstract final class PublicFinancialHtml {
       throw const FormatException(
         'Annual primary core missing or balance mismatch',
       );
+    }
+    if (spacMissingRevenue) {
+      if (missingRevenue == null) {
+        throw const FormatException('SPAC revenue missing printed dash');
+      }
+      final proofs = <Map<String, dynamic>>[];
+      for (final t in RegExp(
+        r'<TABLE\b[^>]*>(.*?)</TABLE>',
+        caseSensitive: false,
+        dotAll: true,
+      ).allMatches(scope)) {
+        final prefix = _compact(_text(scope.substring(0, t.start)));
+        final ce = prefix.lastIndexOf('자본변동표');
+        if (ce < 0 ||
+            [
+              '재무상태표',
+              '손익계산서',
+              '현금흐름표',
+            ].any((h) => prefix.lastIndexOf(h) > ce)) {
+          continue;
+        }
+        final g = _FinancialHtmlGrid.parse(t[1]!);
+        if (g.isEmpty || _compact(g.first.first?.text ?? '') != '과목') {
+          continue;
+        }
+        final local = prefix.substring(ce);
+        final ts = titlePattern.allMatches(local).toList();
+        if (ts.length != 1 ||
+            ts.single.group(2) == '현재' ||
+            sourceDate(ts.single.group(1)!) != periodStart ||
+            sourceDate(ts.single.group(3)!) != periodEnd ||
+            !local.endsWith('(단위:원)') ||
+            !local.contains(company)) {
+          throw const FormatException('SPAC CE issuer period unit mismatch');
+        }
+        final cp = receipt == '20230315000997';
+        final expected = cp
+            ? '과목|자본금|기타불입자본|기타불입자본|이익잉여금(결손금)|총계'
+            : '과목|주석|자본금|자본잉여금|기타자본항목|이익잉여금|총계';
+        if (g.first.map((c) => _compact(c?.text ?? '')).join('|') != expected) {
+          throw const FormatException('SPAC CE whole header mismatch');
+        }
+        final startLabel = cp ? '2022.01.01(당기초)' : '2022년01월01일(당기초)';
+        final endLabel = cp ? '2022.12.31(당기말)' : '2022년12월31일(당기말)';
+        int one(String v) {
+          final rows = [
+            for (var i = 1; i < g.length; i++)
+              if (_compact(g[i].first?.text ?? '') == v) i,
+          ];
+          if (rows.length != 1) {
+            throw const FormatException('SPAC CE date ambiguous');
+          }
+          return rows.single;
+        }
+
+        final start = one(startLabel), end = one(endLabel);
+        final marked = [
+          for (var i = 1; i < g.length; i++)
+            if (_compact(g[i].first?.text ?? '').contains('당기초') ||
+                _compact(g[i].first?.text ?? '').contains('당기말'))
+              i,
+        ];
+        if (marked.length != 2 || start >= end) {
+          throw const FormatException('SPAC CE current range conflict');
+        }
+        final ps = [
+          for (var i = start + 1; i < end; i++)
+            if (_compact(g[i].first?.text ?? '') ==
+                (cp ? '당기순이익' : '당기순이익(손실)'))
+              i,
+        ];
+        if (ps.length != 1) {
+          throw const FormatException('SPAC CE whole profit ambiguous');
+        }
+        BigInt whole(int r) {
+          if (g[r].length != g.first.length ||
+              g[r].any((c) => c == null || c.rowspan != 1 || c.colspan != 1)) {
+            throw const FormatException('SPAC CE row shape mismatch');
+          }
+          final v = money(g[r].last!.text);
+          if (v == null) {
+            throw const FormatException('SPAC CE current amount missing');
+          }
+          return v;
+        }
+
+        if (whole(end) != values['equity'] ||
+            whole(ps.single) != values['profit']) {
+          throw const FormatException('SPAC CE whole net equity conflict');
+        }
+        proofs.add({
+          'mode': 'spac-explicit-revenue-null-v1',
+          'wholeTotalColumn': g.first.length - 1,
+          'source': statementSource.toString(),
+          'periodStart': '2022-01-01',
+          'periodEnd': '2022-12-31',
+          'unit': '원',
+          'currentProfit': whole(ps.single).toString(),
+          'closingEquity': whole(end).toString(),
+        });
+      }
+      if (proofs.length != 1) {
+        throw const FormatException('SPAC CE proof absent or ambiguous');
+      }
+      result.add(missingRevenue);
+      for (final row in result) {
+        (row['html_provenance']
+                as Map<String, dynamic>)['supportingPeriodEvidence'] =
+            proofs.single;
+      }
     }
     if (imgtMissingRevenue) {
       if (missingRevenue == null) {

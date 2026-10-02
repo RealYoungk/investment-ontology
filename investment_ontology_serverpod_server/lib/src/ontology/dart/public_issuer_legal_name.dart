@@ -122,7 +122,12 @@ class PublicIssuerLegalName {
         '${d.year}년${d.month.toString().padLeft(2, '0')}월${d.day.toString().padLeft(2, '0')}일';
     if (names.length != 1 ||
         normalize(names.single.group(1)!) != normalize(printedName) ||
-        !cover.contains('사업연도${date(periodStart)}부터${date(periodEnd)}까지')) {
+        !(cover.contains('사업연도${date(periodStart)}부터${date(periodEnd)}까지') ||
+            (receipt == '20230308000311' &&
+                corpCode == '01476219' &&
+                periodStart == DateTime.utc(2022) &&
+                periodEnd == DateTime.utc(2022, 12, 31) &&
+                cover.contains('사업연도2022.01.01부터2022.12.31까지')))) {
       return null;
     }
     final bodies = RegExp(
@@ -266,6 +271,11 @@ class PublicIssuerLegalName {
       // Exact first-paragraph declarations of the issuer's printed legal name.
       // A later history, change notice or subsidiary paragraph cannot supply it.
       final firstLiteralPatterns = [
+        if ((receipt == '20230315000997' && corpCode == '01601222') ||
+            (receipt == '20230308000311' && corpCode == '01476219'))
+          RegExp(
+            r"^당사의 명칭은 '([가-힣0-9 ]+주식회사)'입니다\.(?: 영문으로는 '[A-Za-z0-9 ]+'(?:\(약호 [A-Za-z0-9 Ⅷ]+\))?(?:이라|라) 표기(?:합니다| 합니다)\.)?$",
+          ),
         RegExp(
           r"^당사의 명칭은 '([가-힣㈜() ]+)' 이라고 표기합니다\. 또한 영문으로는 '[A-Za-z0-9.,& -]+'라 표기합니다\.$",
         ),
