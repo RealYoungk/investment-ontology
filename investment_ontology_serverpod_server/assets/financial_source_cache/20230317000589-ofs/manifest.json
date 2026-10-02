@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20230317000589",
+  "corpCode": "01113499",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2022,
+  "periodStart": "2022-01-01",
+  "periodEnd": "2022-12-31",
+  "ruleVersion": "itcen-exact-primary-title-notice-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230317000589",
+      "sha256": "ad5d9e392178fcbe19a16a11671c2fc55102d30a267940ae6a925485aea52657",
+      "file": "shell.html"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230317000589&dcmNo=9069985&eleId=1&offset=800&length=4030&dtd=dart3.xsd",
+      "sha256": "7ac6cb9a408ce4a99571b42209e598828d6c41b67e3a6bac29b782886dde72b5",
+      "file": "cover.html"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230317000589&dcmNo=9069985&eleId=21&offset=500047&length=45711&dtd=dart3.xsd",
+      "sha256": "8d36e4ac98eb0a6da4353da24b4fc1cdcacd19badaf1cb5990303584d18e531c",
+      "file": "ofs.html"
+    },
+    {
+      "label": "overview",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230317000589&dcmNo=9069985&eleId=3&offset=5352&length=132763&dtd=dart3.xsd",
+      "sha256": "5aa1ae30d4e7769c7a4cb085899bf421a7eabb17002f512bb56be61f8a928241",
+      "file": "overview.html"
+    }
+  ],
+  "retrievalProof": "동일 원접수 직접 법적명칭 및 실제 title TABLE/current12/whole8/BSCE; 승인고지 절 제목 오인을 좁게 구분; cached raw only"
+}

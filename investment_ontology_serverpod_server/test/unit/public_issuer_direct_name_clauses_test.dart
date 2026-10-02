@@ -94,7 +94,9 @@ void main() {
           url('issuer-overview').toString(),
         );
       });
-      if (receipt != '20250321001825' && receipt != '20230320000571') {
+      if (receipt != '20250321001825' &&
+          receipt != '20230320000571' &&
+          receipt != '20230317000589') {
         test(
           'identity proof does not bypass subsequent whole financial rejection',
           () {

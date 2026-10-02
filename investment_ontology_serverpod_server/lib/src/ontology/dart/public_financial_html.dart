@@ -5,6 +5,7 @@ import 'package:crypto/crypto.dart';
 import 'dozn_corroborated_flow_period.dart';
 import 'protia_printed_current_period.dart';
 import 'redwoods_blank_header_source.dart';
+import 'itcen_primary_title_source.dart';
 import 'sk_signet_identity.dart';
 import 'same_receipt_audit_source.dart';
 import 'public_issuer_legal_name.dart';
@@ -1897,6 +1898,18 @@ abstract final class PublicFinancialHtml {
     }
     // The exact TXR source prints one blank label header before three terms.
     // This profile changes no statement, period, unit or numeric checks.
+    final itcenTitleScope = ItcenPrimaryTitleSource.eligible(
+      receipt: receipt,
+      corpCode: corpCode,
+      consolidated: consolidated,
+      start: periodStart,
+      end: periodEnd,
+      term: term,
+      source: statementSource,
+    );
+    if (itcenTitleScope) {
+      ItcenPrimaryTitleSource.verifyRaw(coverHtml, statementHtml);
+    }
     final redwoodsBlankHeader = RedwoodsBlankHeaderSource.eligible(
       receipt: receipt,
       corpCode: corpCode,
@@ -2133,7 +2146,12 @@ abstract final class PublicFinancialHtml {
               _compact(current.text) != (kind == 'CF' ? '2025년' : '제29기'))) {
         throw const FormatException('Konasol split current header mismatch');
       }
-      final localPrefix = preceding.substring(sectionStart);
+      final localPrefix = itcenTitleScope
+          ? ItcenPrimaryTitleSource.primaryPrefix(
+              scope.substring(0, table.start),
+              kind,
+            )
+          : preceding.substring(sectionStart);
       final localTitles = titlePattern.allMatches(localPrefix).toList();
       if ((cnsPeriodProof == null &&
               (localTitles.isEmpty ||
@@ -2696,6 +2714,105 @@ abstract final class PublicFinancialHtml {
           proofs.single['closingEquity'] != values['equity'].toString()) {
         throw const FormatException(
           'Redwoods CE whole profit/equity contradiction',
+        );
+      }
+      for (final row in result) {
+        (row['html_provenance']
+                as Map<String, dynamic>)['supportingPeriodEvidence'] =
+            proofs.single;
+      }
+    }
+    if (itcenTitleScope) {
+      final proofs = <Map<String, dynamic>>[];
+      for (final table in RegExp(
+        r'<TABLE\b[^>]*>(.*?)</TABLE>',
+        caseSensitive: false,
+        dotAll: true,
+      ).allMatches(scope)) {
+        final preceding = _compact(_text(scope.substring(0, table.start)));
+        final ce = preceding.lastIndexOf('자본변동표');
+        if (ce < 0 ||
+            [
+              '재무상태표',
+              '손익계산서',
+              '현금흐름표',
+            ].any((h) => preceding.lastIndexOf(h) > ce)) {
+          continue;
+        }
+        final grid = _FinancialHtmlGrid.parse(table[1]!);
+        if (grid.isEmpty ||
+            grid.first.isEmpty ||
+            _compact(grid.first.first?.text ?? '') != '과목') {
+          continue;
+        }
+        final local = preceding.substring(ce);
+        if (!local.contains('제12(당)기2022년1월1일부터2022년12월31일까지') ||
+            !local.endsWith('주식회사시큐센(단위:원)') ||
+            grid.first.length != 6 ||
+            grid.first.map((c) => _compact(c?.text ?? '')).join('|') !=
+                '과목|자본금|주식발행초과금|기타자본|결손금|총계' ||
+            grid.first.any(
+              (c) => c == null || c.colspan != 1 || c.rowspan != 1,
+            )) {
+          throw const FormatException(
+            'ITcen whole CE header/period/unit mismatch',
+          );
+        }
+        int unique(String label) {
+          final found = [
+            for (var i = 1; i < grid.length; i++)
+              if (_compact(grid[i].first?.text ?? '') == label) i,
+          ];
+          if (found.length != 1) {
+            throw const FormatException('ITcen CE date ambiguous');
+          }
+          return found.single;
+        }
+
+        final start = unique('2022.01.01(당기초)'),
+            end = unique('2022.12.31(당기말)');
+        final profits = [
+          for (var i = start + 1; i < end; i++)
+            if (_compact(grid[i].first?.text ?? '') == '당기순이익') i,
+        ];
+        if (start >= end || profits.length != 1) {
+          throw const FormatException(
+            'ITcen CE current whole profit ambiguous',
+          );
+        }
+        BigInt whole(int i) {
+          if (grid[i].length != 6 ||
+              grid[i][5] == null ||
+              grid[i][5]!.colspan != 1 ||
+              grid[i][5]!.rowspan != 1) {
+            throw const FormatException('ITcen CE whole column mismatch');
+          }
+          final v = money(grid[i][5]!.text);
+          if (v == null) {
+            throw const FormatException('ITcen CE money missing');
+          }
+          return v;
+        }
+
+        proofs.add({
+          'mode': 'exact-itcen-structural-primary-title-whole-CE',
+          'receipt': receipt,
+          'corpCode': corpCode,
+          'source': statementSource.toString(),
+          'rawHeader': '제12(당)기 / 직접 TABLE 제목',
+          'currentTerm': term,
+          'periodStart': '2022-01-01',
+          'periodEnd': '2022-12-31',
+          'totalColumn': 5,
+          'currentProfit': whole(profits.single).toString(),
+          'closingEquity': whole(end).toString(),
+        });
+      }
+      if (proofs.length != 1 ||
+          proofs.single['currentProfit'] != values['profit'].toString() ||
+          proofs.single['closingEquity'] != values['equity'].toString()) {
+        throw const FormatException(
+          'ITcen CE whole profit/equity contradiction',
         );
       }
       for (final row in result) {

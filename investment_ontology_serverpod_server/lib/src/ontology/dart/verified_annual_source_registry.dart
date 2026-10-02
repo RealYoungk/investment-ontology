@@ -32,6 +32,19 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20230317000589',
+      corpCode: '01113499',
+      companyName: '(주)아이티센피엔에스',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230317000589-ofs',
+      manifestDigest:
+          'd8d42047c961229821229c6a3f27bb114c1185a4587550de1d2fdf77436718d7',
+      ruleVersion: 'itcen-exact-primary-title-notice-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: true,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20230320000571',
       corpCode: '01267958',
       companyName: '주식회사 프로티아',
