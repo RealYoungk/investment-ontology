@@ -1058,10 +1058,12 @@ abstract final class PublicFinancialHtml {
       '당기순손익': ('profit', 'CIS'),
       '당기순손익(손실)': ('profit', 'CIS'),
       '당기순손실': ('profit', 'CIS'),
+      '연결당기순손익': ('profit', 'CIS'),
       '연결당기순이익': ('profit', 'CIS'),
       '연결당기순이익(손실)': ('profit', 'CIS'),
       '연결당기순손실': ('profit', 'CIS'),
       '당기순이익(손실)': ('profit', 'CIS'),
+      '영업활동으로인한현금흐름(1+2+3)': ('cfo', 'CF'),
       '영업활동으로인한현금흐름': ('cfo', 'CF'),
       '영업활동현금흐름': ('cfo', 'CF'),
       '영업활동순현금흐름': ('cfo', 'CF'),
@@ -1338,7 +1340,8 @@ abstract final class PublicFinancialHtml {
             '영업손실',
           ].any(labels.contains))) {
         kind = 'CIS';
-      } else if (labels.contains('영업활동으로인한현금흐름') ||
+      } else if (labels.contains('영업활동으로인한현금흐름(1+2+3)') ||
+          labels.contains('영업활동으로인한현금흐름') ||
           labels.contains('영업활동으로인한현금흐름(순액)') ||
           labels.contains('영업활동현금흐름') ||
           labels.contains('영업활동순현금흐름')) {
