@@ -13,6 +13,7 @@ import '../features/financials/financial_metrics.dart';
 import 'ingest_monitor.dart';
 import '../features/monetization/ad_banner.dart';
 import 'router.dart';
+import '../features/watchlist/notification_bell.dart';
 
 /// 맨 위 메뉴 한 칸.
 class _Destination {
@@ -39,6 +40,7 @@ const _destinations = [
   _Destination('기업 찾기', '/screen', matches: ['/industries']),
   _Destination('기업 비교', '/compare'),
   _Destination('관계망', '/graph'),
+  _Destination('관심종목', '/watchlist', matches: ['/notifications']),
 ];
 
 /// 모든 화면을 감싸는 틀: 맨 위 메뉴(시장 · 기업 · 스크리너 · 관계망 · 데이터) + 본문.
@@ -160,6 +162,7 @@ class _DeskNavigation extends StatelessWidget {
     Icons.filter_alt_outlined,
     Icons.compare_arrows_outlined,
     Icons.hub_outlined,
+    Icons.star_border,
     Icons.account_tree_outlined,
     Icons.bookmarks_outlined,
     Icons.storage_outlined,
@@ -373,6 +376,8 @@ class _TopBar extends StatelessWidget {
           const Spacer(),
           if (desktop) const _GlobalSearch() else const _MobileSearchButton(),
           const SizedBox(width: 12),
+          const NotificationBell(),
+          const SizedBox(width: AppSpace.xs),
           const _Account(),
         ],
       ),

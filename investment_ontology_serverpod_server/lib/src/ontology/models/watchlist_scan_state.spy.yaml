@@ -1,0 +1,14 @@
+class: WatchlistScanState
+table: watchlist_scan_state
+serverOnly: true
+fields:
+  key: String
+  lastSuccessAt: DateTime?
+  scanDay: DateTime?
+  nextPage: int, default=1
+  leaseUntil: DateTime?
+  status: String, default='waiting'
+indexes:
+  watchlist_scan_key_idx:
+    fields: key
+    unique: true

@@ -197,12 +197,12 @@ void main() {
         app(viewer: AppViewer.fromScopes('paid', {adFreeScopeName})),
       );
       expect(slot, findsNothing);
-      expect(find.text('광고 없이 이용 중'), findsOneWidget);
+      expect(find.text('멤버십 이용 중'), findsOneWidget);
       await tester.pumpWidget(
         app(viewer: const AppViewer(userId: 'free', isAdmin: false)),
       );
       expect(slot, findsOneWidget);
-      expect(find.text('무료 이용'), findsOneWidget);
+      expect(find.text('무료 플랜 · 관심기업 3개'), findsOneWidget);
       expect(find.text('아직 결제할 수 없으며, 요금이 청구되지 않습니다.'), findsOneWidget);
       await tester.pumpWidget(app());
       expect(slot, findsOneWidget);

@@ -4,6 +4,7 @@ import 'package:serverpod_auth_idp_server/providers/email.dart';
 
 import '../../generated/protocol.dart';
 import '../auth/ontology_access.dart';
+import '../watchlist/watchlist_service.dart';
 import '../billing/membership_ledger.dart';
 import '../auth/auth_mail_delivery.dart';
 
@@ -139,6 +140,7 @@ class AccountEndpoint extends Endpoint {
       if (current.blocked || current.scopes.contains(Scope.admin)) {
         throw StateError('현재 계정 상태에서는 탈퇴할 수 없습니다.');
       }
+      await WatchlistService.deleteOwner(session, verifiedId, tx);
       await MembershipLedger.beforeDelete(session, verifiedId, tx);
       await const AuthUsers().delete(
         session,

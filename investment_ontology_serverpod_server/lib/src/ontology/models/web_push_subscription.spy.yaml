@@ -1,0 +1,15 @@
+class: WebPushSubscription
+table: web_push_subscription
+serverOnly: true
+fields:
+  ownerId: UuidValue
+  endpoint: String
+  p256dh: String
+  auth: String
+  createdAt: DateTime, default=now
+indexes:
+  web_push_endpoint_idx:
+    fields: endpoint
+    unique: true
+  web_push_owner_idx:
+    fields: ownerId

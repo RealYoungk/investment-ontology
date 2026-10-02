@@ -153,6 +153,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _i39abacz;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/theme_summary.dart'
     as _iy65bs9o;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/watchlist_view.dart'
+    as _i3b3h5jl;
 import 'package:serverpod/serverpod.dart' as _is;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _iacs;
@@ -326,6 +328,8 @@ class TestEndpoints {
   late final _ScreenEndpoint screen;
 
   late final _ThemeEndpoint theme;
+
+  late final _WatchlistEndpoint watchlist;
 }
 
 class _InternalTestEndpoints extends TestEndpoints
@@ -415,6 +419,10 @@ class _InternalTestEndpoints extends TestEndpoints
       endpoints,
       serializationManager,
     );
+    watchlist = _WatchlistEndpoint(
+      endpoints,
+      serializationManager,
+    );
   }
 }
 
@@ -430,6 +438,8 @@ class _FutureCalls {
   late final financialFacts = _FinancialFactsFutureCall();
 
   late final marketSnapshot = _MarketSnapshotFutureCall();
+
+  late final watchlist = _WatchlistFutureCall();
 }
 
 class _EmailIdpEndpoint {
@@ -4329,6 +4339,274 @@ class _ThemeEndpoint {
   }
 }
 
+class _WatchlistEndpoint {
+  _WatchlistEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _is.EndpointDispatch _endpointDispatch;
+
+  final _is.SerializationManager _serializationManager;
+
+  _ida.Future<_i3b3h5jl.WatchlistView> mine(
+    _ist.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'watchlist',
+            method: 'mine',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'watchlist',
+          methodName: 'mine',
+          parameters: _ist.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_i3b3h5jl.WatchlistView>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<void> add(
+    _ist.TestSessionBuilder sessionBuilder,
+    String corpCode,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'watchlist',
+            method: 'add',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'watchlist',
+          methodName: 'add',
+          parameters: _ist.testObjectToJson({'corpCode': corpCode}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<void> remove(
+    _ist.TestSessionBuilder sessionBuilder,
+    String corpCode,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'watchlist',
+            method: 'remove',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'watchlist',
+          methodName: 'remove',
+          parameters: _ist.testObjectToJson({'corpCode': corpCode}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<void> mute(
+    _ist.TestSessionBuilder sessionBuilder,
+    String corpCode,
+    bool muted,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'watchlist',
+            method: 'mute',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'watchlist',
+          methodName: 'mute',
+          parameters: _ist.testObjectToJson({
+            'corpCode': corpCode,
+            'muted': muted,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<void> prioritize(
+    _ist.TestSessionBuilder sessionBuilder,
+    String corpCode,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'watchlist',
+            method: 'prioritize',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'watchlist',
+          methodName: 'prioritize',
+          parameters: _ist.testObjectToJson({'corpCode': corpCode}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<void> markRead(
+    _ist.TestSessionBuilder sessionBuilder,
+    int noticeId,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'watchlist',
+            method: 'markRead',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'watchlist',
+          methodName: 'markRead',
+          parameters: _ist.testObjectToJson({'noticeId': noticeId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<void> subscribePush(
+    _ist.TestSessionBuilder sessionBuilder,
+    String endpoint,
+    String p256dh,
+    String auth,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'watchlist',
+            method: 'subscribePush',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'watchlist',
+          methodName: 'subscribePush',
+          parameters: _ist.testObjectToJson({
+            'endpoint': endpoint,
+            'p256dh': p256dh,
+            'auth': auth,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<void> unsubscribePush(
+    _ist.TestSessionBuilder sessionBuilder,
+    String endpoint,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'watchlist',
+            method: 'unsubscribePush',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'watchlist',
+          methodName: 'unsubscribePush',
+          parameters: _ist.testObjectToJson({'endpoint': endpoint}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
 class _AiExtractionFutureCall {
   Future<void> run(
     _ist.TestSessionBuilder sessionBuilder,
@@ -4588,6 +4866,47 @@ class _MarketSnapshotFutureCall {
         (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild();
     try {
       await _i4o8e4lj.MarketSnapshotResumeFutureCall().invoke(
+        _localUniqueSession,
+        null,
+      );
+    } finally {
+      await _localUniqueSession.close();
+    }
+  }
+}
+
+class _WatchlistFutureCall {
+  Future<void> run(_ist.TestSessionBuilder sessionBuilder) async {
+    var _localUniqueSession =
+        (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild();
+    try {
+      await _i4o8e4lj.WatchlistRunFutureCall().invoke(
+        _localUniqueSession,
+        null,
+      );
+    } finally {
+      await _localUniqueSession.close();
+    }
+  }
+
+  Future<void> scan(_ist.TestSessionBuilder sessionBuilder) async {
+    var _localUniqueSession =
+        (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild();
+    try {
+      await _i4o8e4lj.WatchlistScanFutureCall().invoke(
+        _localUniqueSession,
+        null,
+      );
+    } finally {
+      await _localUniqueSession.close();
+    }
+  }
+
+  Future<void> deliver(_ist.TestSessionBuilder sessionBuilder) async {
+    var _localUniqueSession =
+        (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild();
+    try {
+      await _i4o8e4lj.WatchlistDeliverFutureCall().invoke(
         _localUniqueSession,
         null,
       );

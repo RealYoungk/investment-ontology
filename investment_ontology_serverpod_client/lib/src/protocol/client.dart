@@ -134,6 +134,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _i33gd2p5;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/theme_summary.dart'
     as _ihj01hrs;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/watchlist_view.dart'
+    as _iyid6mkm;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _iacc;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
@@ -1728,6 +1730,80 @@ class EndpointTheme extends _isc.EndpointRef {
       );
 }
 
+/// {@category Endpoint}
+class EndpointWatchlist extends _isc.EndpointRef {
+  EndpointWatchlist(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'watchlist';
+
+  _ida.Future<_iyid6mkm.WatchlistView> mine() =>
+      caller.callServerEndpoint<_iyid6mkm.WatchlistView>(
+        'watchlist',
+        'mine',
+        {},
+      );
+
+  _ida.Future<void> add(String corpCode) => caller.callServerEndpoint<void>(
+    'watchlist',
+    'add',
+    {'corpCode': corpCode},
+  );
+
+  _ida.Future<void> remove(String corpCode) => caller.callServerEndpoint<void>(
+    'watchlist',
+    'remove',
+    {'corpCode': corpCode},
+  );
+
+  _ida.Future<void> mute(
+    String corpCode,
+    bool muted,
+  ) => caller.callServerEndpoint<void>(
+    'watchlist',
+    'mute',
+    {
+      'corpCode': corpCode,
+      'muted': muted,
+    },
+  );
+
+  /// Move a saved company into the active tier after membership expiry.
+  _ida.Future<void> prioritize(String corpCode) =>
+      caller.callServerEndpoint<void>(
+        'watchlist',
+        'prioritize',
+        {'corpCode': corpCode},
+      );
+
+  _ida.Future<void> markRead(int noticeId) => caller.callServerEndpoint<void>(
+    'watchlist',
+    'markRead',
+    {'noticeId': noticeId},
+  );
+
+  _ida.Future<void> subscribePush(
+    String endpoint,
+    String p256dh,
+    String auth,
+  ) => caller.callServerEndpoint<void>(
+    'watchlist',
+    'subscribePush',
+    {
+      'endpoint': endpoint,
+      'p256dh': p256dh,
+      'auth': auth,
+    },
+  );
+
+  _ida.Future<void> unsubscribePush(String endpoint) =>
+      caller.callServerEndpoint<void>(
+        'watchlist',
+        'unsubscribePush',
+        {'endpoint': endpoint},
+      );
+}
+
 class Modules {
   Modules(Client client) {
     serverpod_auth_idp = _iaic.Caller(client);
@@ -1786,6 +1862,7 @@ class Client extends _isc.ServerpodClientShared {
     review = EndpointReview(this);
     screen = EndpointScreen(this);
     theme = EndpointTheme(this);
+    watchlist = EndpointWatchlist(this);
     modules = Modules(this);
   }
 
@@ -1829,6 +1906,8 @@ class Client extends _isc.ServerpodClientShared {
 
   late final EndpointTheme theme;
 
+  late final EndpointWatchlist watchlist;
+
   late final Modules modules;
 
   @override
@@ -1853,6 +1932,7 @@ class Client extends _isc.ServerpodClientShared {
     'review': review,
     'screen': screen,
     'theme': theme,
+    'watchlist': watchlist,
   };
 
   @override

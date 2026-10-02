@@ -53,6 +53,7 @@ import '../ontology/endpoints/membership_endpoint.dart' as _i4hwwhem;
 import '../ontology/endpoints/review_endpoint.dart' as _i9uttt4a;
 import '../ontology/endpoints/screen_endpoint.dart' as _ilgabfhk;
 import '../ontology/endpoints/theme_endpoint.dart' as _iqaca509;
+import '../ontology/endpoints/watchlist_endpoint.dart' as _ia3gawxy;
 export 'future_calls.dart' show ServerpodFutureCallsGetter;
 
 class Endpoints extends _is.EndpointDispatch {
@@ -177,6 +178,12 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'theme',
+          null,
+        ),
+      'watchlist': _ia3gawxy.WatchlistEndpoint()
+        ..initialize(
+          server,
+          'watchlist',
           null,
         ),
     };
@@ -2851,6 +2858,173 @@ class Endpoints extends _is.EndpointDispatch {
                   (endpoints['theme'] as _iqaca509.ThemeEndpoint).themesOf(
                     session,
                     params['corpCode'],
+                  ),
+        ),
+      },
+    );
+    connectors['watchlist'] = _is.EndpointConnector(
+      name: 'watchlist',
+      endpoint: endpoints['watchlist']!,
+      methodConnectors: {
+        'mine': _is.MethodConnector(
+          name: 'mine',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['watchlist'] as _ia3gawxy.WatchlistEndpoint)
+                  .mine(session),
+        ),
+        'add': _is.MethodConnector(
+          name: 'add',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['watchlist'] as _ia3gawxy.WatchlistEndpoint).add(
+                    session,
+                    params['corpCode'],
+                  ),
+        ),
+        'remove': _is.MethodConnector(
+          name: 'remove',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['watchlist'] as _ia3gawxy.WatchlistEndpoint)
+                  .remove(
+                    session,
+                    params['corpCode'],
+                  ),
+        ),
+        'mute': _is.MethodConnector(
+          name: 'mute',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'muted': _is.ParameterDescription(
+              name: 'muted',
+              type: _is.getType<bool>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['watchlist'] as _ia3gawxy.WatchlistEndpoint).mute(
+                    session,
+                    params['corpCode'],
+                    params['muted'],
+                  ),
+        ),
+        'prioritize': _is.MethodConnector(
+          name: 'prioritize',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['watchlist'] as _ia3gawxy.WatchlistEndpoint)
+                  .prioritize(
+                    session,
+                    params['corpCode'],
+                  ),
+        ),
+        'markRead': _is.MethodConnector(
+          name: 'markRead',
+          params: {
+            'noticeId': _is.ParameterDescription(
+              name: 'noticeId',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['watchlist'] as _ia3gawxy.WatchlistEndpoint)
+                  .markRead(
+                    session,
+                    params['noticeId'],
+                  ),
+        ),
+        'subscribePush': _is.MethodConnector(
+          name: 'subscribePush',
+          params: {
+            'endpoint': _is.ParameterDescription(
+              name: 'endpoint',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'p256dh': _is.ParameterDescription(
+              name: 'p256dh',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'auth': _is.ParameterDescription(
+              name: 'auth',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['watchlist'] as _ia3gawxy.WatchlistEndpoint)
+                  .subscribePush(
+                    session,
+                    params['endpoint'],
+                    params['p256dh'],
+                    params['auth'],
+                  ),
+        ),
+        'unsubscribePush': _is.MethodConnector(
+          name: 'unsubscribePush',
+          params: {
+            'endpoint': _is.ParameterDescription(
+              name: 'endpoint',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['watchlist'] as _ia3gawxy.WatchlistEndpoint)
+                  .unsubscribePush(
+                    session,
+                    params['endpoint'],
                   ),
         ),
       },

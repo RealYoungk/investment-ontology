@@ -1,0 +1,11 @@
+class: WatchlistView
+fields:
+  companies: List<WatchlistCompanyView>
+  updates: List<WatchlistUpdateView>
+  limit: int
+  paid: bool
+  scanStatus: String
+  workerEnabled: bool
+  lastCheckedAt: DateTime?
+  pushConfigured: bool
+  vapidPublicKey: String?

@@ -1,0 +1,9 @@
+class: WatchlistCompanyView
+fields:
+  corpCode: String
+  name: String
+  stockCode: String?
+  muted: bool
+  monitoringReady: bool
+  active: bool
+  unreadCount: int

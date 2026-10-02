@@ -111,6 +111,7 @@ import 'ontology/models/company_news_item.dart' as _iiky47zh;
 import 'ontology/models/company_page.dart' as _iaj9eyri;
 import 'ontology/models/company_ref.dart' as _i4gnucl8;
 import 'ontology/models/company_sort.dart' as _ia2izjbq;
+import 'ontology/models/company_update_event.dart' as _imekx6jw;
 import 'ontology/models/dart_corp_status.dart' as _ir49pw6i;
 import 'ontology/models/dart_disclosure.dart' as _iw06ztex;
 import 'ontology/models/dart_filing.dart' as _itki3qdq;
@@ -212,6 +213,15 @@ import 'ontology/models/theme_member.dart' as _irm69cop;
 import 'ontology/models/theme_member_view.dart' as _irah5hi6;
 import 'ontology/models/theme_summary.dart' as _i4ynus9k;
 import 'ontology/models/treasury_stock_entry.dart' as _injn1qca;
+import 'ontology/models/watchlist_company_view.dart' as _is2pxpv6;
+import 'ontology/models/watchlist_entry.dart' as _ifdswvvk;
+import 'ontology/models/watchlist_error.dart' as _ivan2n9m;
+import 'ontology/models/watchlist_notice.dart' as _ir9lzbhq;
+import 'ontology/models/watchlist_scan_state.dart' as _ib3gp2rv;
+import 'ontology/models/watchlist_update_view.dart' as _ijbmrc2g;
+import 'ontology/models/watchlist_view.dart' as _iyb0jzxs;
+import 'ontology/models/web_push_delivery.dart' as _izbcz2l0;
+import 'ontology/models/web_push_subscription.dart' as _i4aoc7n4;
 export 'greetings/greeting.dart';
 export 'ontology/billing/billing_checkout.dart';
 export 'ontology/billing/billing_checkout_view.dart';
@@ -248,6 +258,7 @@ export 'ontology/models/company_news_item.dart';
 export 'ontology/models/company_page.dart';
 export 'ontology/models/company_ref.dart';
 export 'ontology/models/company_sort.dart';
+export 'ontology/models/company_update_event.dart';
 export 'ontology/models/dart_corp_status.dart';
 export 'ontology/models/dart_disclosure.dart';
 export 'ontology/models/dart_filing.dart';
@@ -349,6 +360,15 @@ export 'ontology/models/theme_member.dart';
 export 'ontology/models/theme_member_view.dart';
 export 'ontology/models/theme_summary.dart';
 export 'ontology/models/treasury_stock_entry.dart';
+export 'ontology/models/watchlist_company_view.dart';
+export 'ontology/models/watchlist_entry.dart';
+export 'ontology/models/watchlist_error.dart';
+export 'ontology/models/watchlist_notice.dart';
+export 'ontology/models/watchlist_scan_state.dart';
+export 'ontology/models/watchlist_update_view.dart';
+export 'ontology/models/watchlist_view.dart';
+export 'ontology/models/web_push_delivery.dart';
+export 'ontology/models/web_push_subscription.dart';
 
 class Protocol extends _is.DatabaseSerializationManager {
   Protocol._();
@@ -1454,6 +1474,92 @@ class Protocol extends _is.DatabaseSerializationManager {
             _isp.IndexElementDefinition(
               type: _isp.IndexElementDefinitionType.column,
               definition: 'changedAt',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'company_update_event',
+      dartName: 'CompanyUpdateEvent',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'corpCode',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'receipt',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'title',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'url',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'publishedAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: 'discoveredAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'company_update_receipt_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'receipt',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'company_update_company_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'corpCode',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'discoveredAt',
             ),
           ],
           type: 'btree',
@@ -5516,6 +5622,442 @@ class Protocol extends _is.DatabaseSerializationManager {
       ],
       managed: true,
     ),
+    _isp.TableDefinition(
+      name: 'watchlist_entry',
+      dartName: 'WatchlistEntry',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'ownerId',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'corpCode',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'baselineAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'muted',
+          columnType: _isp.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'false',
+        ),
+        _isp.ColumnDefinition(
+          name: 'position',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'watchlist_owner_company_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'ownerId',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'corpCode',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'watchlist_company_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'corpCode',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'watchlist_notice',
+      dartName: 'WatchlistNotice',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'ownerId',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'eventId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'corpCode',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+        _isp.ColumnDefinition(
+          name: 'readAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'watchlist_notice_fk_0',
+          columns: ['eventId'],
+          referenceTable: 'company_update_event',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.cascade,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'watchlist_notice_owner_event_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'ownerId',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'eventId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'watchlist_notice_owner_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'ownerId',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'createdAt',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'watchlist_scan_state',
+      dartName: 'WatchlistScanState',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'key',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'lastSuccessAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'scanDay',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'nextPage',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '1',
+        ),
+        _isp.ColumnDefinition(
+          name: 'leaseUntil',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'status',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+          columnDefault: '\'waiting\'',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'watchlist_scan_key_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'key',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'web_push_delivery',
+      dartName: 'WebPushDelivery',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'noticeId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'subscriptionId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'status',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+          columnDefault: '\'pending\'',
+        ),
+        _isp.ColumnDefinition(
+          name: 'attempts',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
+          name: 'nextAttemptAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+      ],
+      foreignKeys: [
+        _isp.ForeignKeyDefinition(
+          constraintName: 'web_push_delivery_fk_0',
+          columns: ['noticeId'],
+          referenceTable: 'watchlist_notice',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.cascade,
+          matchType: null,
+        ),
+        _isp.ForeignKeyDefinition(
+          constraintName: 'web_push_delivery_fk_1',
+          columns: ['subscriptionId'],
+          referenceTable: 'web_push_subscription',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _isp.ForeignKeyAction.noAction,
+          onDelete: _isp.ForeignKeyAction.cascade,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'web_push_delivery_unique_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'noticeId',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'subscriptionId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'web_push_delivery_pending_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'status',
+            ),
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'nextAttemptAt',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'web_push_subscription',
+      dartName: 'WebPushSubscription',
+      schema: 'public',
+      module: 'investment_ontology_serverpod',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'ownerId',
+          columnType: _isp.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _isp.ColumnDefinition(
+          name: 'endpoint',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'p256dh',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'auth',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'now',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'web_push_endpoint_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'endpoint',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'web_push_owner_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'ownerId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
     ..._iais.Protocol.targetTableDefinitions,
     ..._iacs.Protocol.targetTableDefinitions,
     ..._isp.Protocol.targetTableDefinitions,
@@ -5680,6 +6222,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (t == _ia2izjbq.CompanySort) {
       return _ia2izjbq.CompanySort.fromJson(data) as T;
+    }
+    if (t == _imekx6jw.CompanyUpdateEvent) {
+      return _imekx6jw.CompanyUpdateEvent.fromJson(data) as T;
     }
     if (t == _ir49pw6i.DartCorpStatus) {
       return _ir49pw6i.DartCorpStatus.fromJson(data) as T;
@@ -5984,6 +6529,33 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _injn1qca.TreasuryStockEntry) {
       return _injn1qca.TreasuryStockEntry.fromJson(data) as T;
     }
+    if (t == _is2pxpv6.WatchlistCompanyView) {
+      return _is2pxpv6.WatchlistCompanyView.fromJson(data) as T;
+    }
+    if (t == _ifdswvvk.WatchlistEntry) {
+      return _ifdswvvk.WatchlistEntry.fromJson(data) as T;
+    }
+    if (t == _ivan2n9m.WatchlistError) {
+      return _ivan2n9m.WatchlistError.fromJson(data) as T;
+    }
+    if (t == _ir9lzbhq.WatchlistNotice) {
+      return _ir9lzbhq.WatchlistNotice.fromJson(data) as T;
+    }
+    if (t == _ib3gp2rv.WatchlistScanState) {
+      return _ib3gp2rv.WatchlistScanState.fromJson(data) as T;
+    }
+    if (t == _ijbmrc2g.WatchlistUpdateView) {
+      return _ijbmrc2g.WatchlistUpdateView.fromJson(data) as T;
+    }
+    if (t == _iyb0jzxs.WatchlistView) {
+      return _iyb0jzxs.WatchlistView.fromJson(data) as T;
+    }
+    if (t == _izbcz2l0.WebPushDelivery) {
+      return _izbcz2l0.WebPushDelivery.fromJson(data) as T;
+    }
+    if (t == _i4aoc7n4.WebPushSubscription) {
+      return _i4aoc7n4.WebPushSubscription.fromJson(data) as T;
+    }
     if (t == _is.getType<_iskveedf.AiExtractionFutureCallRunModel?>()) {
       return (data != null
               ? _iskveedf.AiExtractionFutureCallRunModel.fromJson(data)
@@ -6176,6 +6748,10 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (t == _is.getType<_ia2izjbq.CompanySort?>()) {
       return (data != null ? _ia2izjbq.CompanySort.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_imekx6jw.CompanyUpdateEvent?>()) {
+      return (data != null ? _imekx6jw.CompanyUpdateEvent.fromJson(data) : null)
+          as T;
     }
     if (t == _is.getType<_ir49pw6i.DartCorpStatus?>()) {
       return (data != null ? _ir49pw6i.DartCorpStatus.fromJson(data) : null)
@@ -6562,6 +7138,48 @@ class Protocol extends _is.DatabaseSerializationManager {
       return (data != null ? _injn1qca.TreasuryStockEntry.fromJson(data) : null)
           as T;
     }
+    if (t == _is.getType<_is2pxpv6.WatchlistCompanyView?>()) {
+      return (data != null
+              ? _is2pxpv6.WatchlistCompanyView.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _is.getType<_ifdswvvk.WatchlistEntry?>()) {
+      return (data != null ? _ifdswvvk.WatchlistEntry.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_ivan2n9m.WatchlistError?>()) {
+      return (data != null ? _ivan2n9m.WatchlistError.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_ir9lzbhq.WatchlistNotice?>()) {
+      return (data != null ? _ir9lzbhq.WatchlistNotice.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_ib3gp2rv.WatchlistScanState?>()) {
+      return (data != null ? _ib3gp2rv.WatchlistScanState.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_ijbmrc2g.WatchlistUpdateView?>()) {
+      return (data != null
+              ? _ijbmrc2g.WatchlistUpdateView.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _is.getType<_iyb0jzxs.WatchlistView?>()) {
+      return (data != null ? _iyb0jzxs.WatchlistView.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_izbcz2l0.WebPushDelivery?>()) {
+      return (data != null ? _izbcz2l0.WebPushDelivery.fromJson(data) : null)
+          as T;
+    }
+    if (t == _is.getType<_i4aoc7n4.WebPushSubscription?>()) {
+      return (data != null
+              ? _i4aoc7n4.WebPushSubscription.fromJson(data)
+              : null)
+          as T;
+    }
     if (t == List<_inylkhjt.BusinessSection>) {
       return (data as List)
               .map((e) => deserialize<_inylkhjt.BusinessSection>(e))
@@ -6830,6 +7448,18 @@ class Protocol extends _is.DatabaseSerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_is2pxpv6.WatchlistCompanyView>) {
+      return (data as List)
+              .map((e) => deserialize<_is2pxpv6.WatchlistCompanyView>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_ijbmrc2g.WatchlistUpdateView>) {
+      return (data as List)
+              .map((e) => deserialize<_ijbmrc2g.WatchlistUpdateView>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_ig2zry29.AccountView>) {
       return (data as List)
               .map((e) => deserialize<_ig2zry29.AccountView>(e))
@@ -7033,6 +7663,7 @@ class Protocol extends _is.DatabaseSerializationManager {
       _iaj9eyri.CompanyPage => 'CompanyPage',
       _i4gnucl8.CompanyRef => 'CompanyRef',
       _ia2izjbq.CompanySort => 'CompanySort',
+      _imekx6jw.CompanyUpdateEvent => 'CompanyUpdateEvent',
       _ir49pw6i.DartCorpStatus => 'DartCorpStatus',
       _iw06ztex.DartDisclosure => 'DartDisclosure',
       _itki3qdq.DartFiling => 'DartFiling',
@@ -7134,6 +7765,15 @@ class Protocol extends _is.DatabaseSerializationManager {
       _irah5hi6.ThemeMemberView => 'ThemeMemberView',
       _i4ynus9k.ThemeSummary => 'ThemeSummary',
       _injn1qca.TreasuryStockEntry => 'TreasuryStockEntry',
+      _is2pxpv6.WatchlistCompanyView => 'WatchlistCompanyView',
+      _ifdswvvk.WatchlistEntry => 'WatchlistEntry',
+      _ivan2n9m.WatchlistError => 'WatchlistError',
+      _ir9lzbhq.WatchlistNotice => 'WatchlistNotice',
+      _ib3gp2rv.WatchlistScanState => 'WatchlistScanState',
+      _ijbmrc2g.WatchlistUpdateView => 'WatchlistUpdateView',
+      _iyb0jzxs.WatchlistView => 'WatchlistView',
+      _izbcz2l0.WebPushDelivery => 'WebPushDelivery',
+      _i4aoc7n4.WebPushSubscription => 'WebPushSubscription',
       _ => null,
     };
   }
@@ -7239,6 +7879,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'CompanyRef';
       case _ia2izjbq.CompanySort():
         return 'CompanySort';
+      case _imekx6jw.CompanyUpdateEvent():
+        return 'CompanyUpdateEvent';
       case _ir49pw6i.DartCorpStatus():
         return 'DartCorpStatus';
       case _iw06ztex.DartDisclosure():
@@ -7441,6 +8083,24 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'ThemeSummary';
       case _injn1qca.TreasuryStockEntry():
         return 'TreasuryStockEntry';
+      case _is2pxpv6.WatchlistCompanyView():
+        return 'WatchlistCompanyView';
+      case _ifdswvvk.WatchlistEntry():
+        return 'WatchlistEntry';
+      case _ivan2n9m.WatchlistError():
+        return 'WatchlistError';
+      case _ir9lzbhq.WatchlistNotice():
+        return 'WatchlistNotice';
+      case _ib3gp2rv.WatchlistScanState():
+        return 'WatchlistScanState';
+      case _ijbmrc2g.WatchlistUpdateView():
+        return 'WatchlistUpdateView';
+      case _iyb0jzxs.WatchlistView():
+        return 'WatchlistView';
+      case _izbcz2l0.WebPushDelivery():
+        return 'WebPushDelivery';
+      case _i4aoc7n4.WebPushSubscription():
+        return 'WebPushSubscription';
     }
     className = _iais.Protocol().getClassNameForObject(data);
     if (className != null) {
@@ -7612,6 +8272,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'CompanySort') {
       return deserialize<_ia2izjbq.CompanySort>(data['data']);
+    }
+    if (dataClassName == 'CompanyUpdateEvent') {
+      return deserialize<_imekx6jw.CompanyUpdateEvent>(data['data']);
     }
     if (dataClassName == 'DartCorpStatus') {
       return deserialize<_ir49pw6i.DartCorpStatus>(data['data']);
@@ -7916,6 +8579,33 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (dataClassName == 'TreasuryStockEntry') {
       return deserialize<_injn1qca.TreasuryStockEntry>(data['data']);
     }
+    if (dataClassName == 'WatchlistCompanyView') {
+      return deserialize<_is2pxpv6.WatchlistCompanyView>(data['data']);
+    }
+    if (dataClassName == 'WatchlistEntry') {
+      return deserialize<_ifdswvvk.WatchlistEntry>(data['data']);
+    }
+    if (dataClassName == 'WatchlistError') {
+      return deserialize<_ivan2n9m.WatchlistError>(data['data']);
+    }
+    if (dataClassName == 'WatchlistNotice') {
+      return deserialize<_ir9lzbhq.WatchlistNotice>(data['data']);
+    }
+    if (dataClassName == 'WatchlistScanState') {
+      return deserialize<_ib3gp2rv.WatchlistScanState>(data['data']);
+    }
+    if (dataClassName == 'WatchlistUpdateView') {
+      return deserialize<_ijbmrc2g.WatchlistUpdateView>(data['data']);
+    }
+    if (dataClassName == 'WatchlistView') {
+      return deserialize<_iyb0jzxs.WatchlistView>(data['data']);
+    }
+    if (dataClassName == 'WebPushDelivery') {
+      return deserialize<_izbcz2l0.WebPushDelivery>(data['data']);
+    }
+    if (dataClassName == 'WebPushSubscription') {
+      return deserialize<_i4aoc7n4.WebPushSubscription>(data['data']);
+    }
     if (dataClassName.startsWith('serverpod_auth_idp.')) {
       data['className'] = dataClassName.substring(19);
       return _iais.Protocol().deserializeByClassName(data);
@@ -7983,6 +8673,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return _ipen255x.Company.t;
       case _isfozywu.CompanyChange:
         return _isfozywu.CompanyChange.t;
+      case _imekx6jw.CompanyUpdateEvent:
+        return _imekx6jw.CompanyUpdateEvent.t;
       case _ir49pw6i.DartCorpStatus:
         return _ir49pw6i.DartCorpStatus.t;
       case _iw06ztex.DartDisclosure:
@@ -8051,6 +8743,16 @@ class Protocol extends _is.DatabaseSerializationManager {
         return _irm69cop.ThemeMember.t;
       case _injn1qca.TreasuryStockEntry:
         return _injn1qca.TreasuryStockEntry.t;
+      case _ifdswvvk.WatchlistEntry:
+        return _ifdswvvk.WatchlistEntry.t;
+      case _ir9lzbhq.WatchlistNotice:
+        return _ir9lzbhq.WatchlistNotice.t;
+      case _ib3gp2rv.WatchlistScanState:
+        return _ib3gp2rv.WatchlistScanState.t;
+      case _izbcz2l0.WebPushDelivery:
+        return _izbcz2l0.WebPushDelivery.t;
+      case _i4aoc7n4.WebPushSubscription:
+        return _i4aoc7n4.WebPushSubscription.t;
     }
     return null;
   }

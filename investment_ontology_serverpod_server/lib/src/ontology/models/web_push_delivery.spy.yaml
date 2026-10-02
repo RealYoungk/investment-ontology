@@ -1,0 +1,15 @@
+class: WebPushDelivery
+table: web_push_delivery
+serverOnly: true
+fields:
+  noticeId: int, relation(parent=watchlist_notice, onDelete=Cascade)
+  subscriptionId: int, relation(parent=web_push_subscription, onDelete=Cascade)
+  status: String, default='pending'
+  attempts: int, default=0
+  nextAttemptAt: DateTime, default=now
+indexes:
+  web_push_delivery_unique_idx:
+    fields: noticeId, subscriptionId
+    unique: true
+  web_push_delivery_pending_idx:
+    fields: status, nextAttemptAt
