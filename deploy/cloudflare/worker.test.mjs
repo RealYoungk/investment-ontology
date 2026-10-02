@@ -77,3 +77,17 @@ test('interactive deep links still use the existing application asset routing', 
     {ASSETS: {fetch: async request => { served = request.url; return new Response('application'); }}}, () => assert.fail());
   assert.equal(served, 'https://alfinder.kr/company/00126380');
 });
+
+test('membership plans do not collide with the Pages-normalized legal HTML', async () => {
+  for (const [path, assetPath] of [['/membership', '/home'], ['/membership.html', '/membership']]) {
+    let served;
+    const response = await handleRequest(new Request('https://alfinder.kr' + path),
+      {ASSETS: {fetch: async request => { served = new URL(request.url).pathname; return new Response(assetPath); }}}, () => assert.fail());
+    assert.equal(served, assetPath);
+    assert.equal(await response.text(), assetPath);
+    assert.equal(response.headers.get('cache-control'), 'no-store');
+  }
+  const routes = JSON.parse(await readFile(new URL('./_routes.json', import.meta.url), 'utf8'));
+  assert.ok(routes.include.includes('/membership'));
+  assert.ok(routes.include.includes('/membership.html'));
+});

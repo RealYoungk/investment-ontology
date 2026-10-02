@@ -100,7 +100,9 @@ class _MarketPageState extends State<MarketPage> {
         ?.name;
     return PageFrame(
       allowLeading: AdContentState(
+        // Existing summary remains publisher content during background refresh.
         loading: _loadingOverview,
+        contentRemainsVisible: overview != null,
         failed: _failed,
         itemCount: overview?.totalListed ?? 0,
       ).allowsAd,
