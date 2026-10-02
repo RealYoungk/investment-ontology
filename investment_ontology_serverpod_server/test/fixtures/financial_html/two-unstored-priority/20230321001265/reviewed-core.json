@@ -1,0 +1,49 @@
+{
+  "receipt": "20230321001265",
+  "corpCode": "01344363",
+  "companyName": "(주)다원넥스뷰",
+  "start": "2022-01-01T00:00:00.000Z",
+  "end": "2022-12-31T00:00:00.000Z",
+  "rows": [
+    {
+      "label": "자산총계",
+      "amount": "10686076289",
+      "statement": "BS"
+    },
+    {
+      "label": "부채총계",
+      "amount": "12943687007",
+      "statement": "BS"
+    },
+    {
+      "label": "자본총계",
+      "amount": "-2257610718",
+      "statement": "BS"
+    },
+    {
+      "label": "매출액",
+      "amount": "10991070063",
+      "statement": "CIS"
+    },
+    {
+      "label": "영업이익",
+      "amount": "1087688808",
+      "statement": "CIS"
+    },
+    {
+      "label": "당기순이익",
+      "amount": "-842078770",
+      "statement": "CIS"
+    },
+    {
+      "label": "영업활동으로 인한 현금흐름",
+      "amount": "-276653350",
+      "statement": "CF"
+    },
+    {
+      "label": "유형자산의 취득",
+      "amount": "-305928969",
+      "statement": "CF"
+    }
+  ]
+}

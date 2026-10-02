@@ -1066,48 +1066,60 @@ class FinancialFactsSync {
   /// A verified non-preparer CFS is eligible for evidence-backed noData, not
   /// numeric storage; unsupported bases, completed bases and exhausted public
   /// attempts never gain priority. Existing API/ledger attempt counters remain.
+  static const _verifiedDurationSourceFixtures =
+      <String, ({String corp, int year, Set<String> bases})>{
+        // Exact attachment target; actual financial Source remains its original annual.
+        '20260318000344': (corp: '00963000', year: 2025, bases: {'CFS', 'OFS'}),
+        '20230321001265': (corp: '01344363', year: 2022, bases: {'OFS'}),
+        '20220819000262': (corp: '00450931', year: 2021, bases: {'OFS'}),
+        '20220316000721': (corp: '00337296', year: 2021, bases: {'OFS'}),
+        '20220322000487': (corp: '00521433', year: 2021, bases: {'OFS'}),
+        '20220321000166': (corp: '01117422', year: 2021, bases: {'OFS'}),
+        '20230320001037': (corp: '00296290', year: 2022, bases: {'CFS'}),
+        '20260330001331': (corp: '01118643', year: 2025, bases: {'OFS'}),
+        '20260319001111': (corp: '01188730', year: 2025, bases: {'OFS'}),
+        '20260331003389': (corp: '00414540', year: 2025, bases: {'OFS'}),
+        '20260323001652': (corp: '01020269', year: 2025, bases: {'OFS'}),
+        '20260709000504': (corp: '01034730', year: 2025, bases: {'OFS'}),
+        '20250321001900': (corp: '00765897', year: 2024, bases: {'OFS'}),
+        '20260319000348': (corp: '00521433', year: 2025, bases: {'OFS'}),
+        '20260319000707': (corp: '00553025', year: 2025, bases: {'CFS'}),
+        '20260323001028': (corp: '00611286', year: 2025, bases: {'OFS'}),
+        '20250321001632': (corp: '00816696', year: 2024, bases: {'OFS'}),
+        '20250321000468': (corp: '01117422', year: 2024, bases: {'OFS'}),
+        '20250325000306': (corp: '01290132', year: 2024, bases: {'OFS'}),
+        '20251124000372': (corp: '01669794', year: 2024, bases: {'OFS'}),
+        '20250320001616': (corp: '00442631', year: 2024, bases: {'OFS', 'CFS'}),
+        '20250318000596': (corp: '01352575', year: 2024, bases: {'OFS', 'CFS'}),
+        '20260318001043': (corp: '01018802', year: 2025, bases: {'CFS'}),
+        '20260318001370': (corp: '01507722', year: 2025, bases: {'CFS'}),
+        '20260318000161': (corp: '00533809', year: 2025, bases: {'CFS'}),
+        '20260313000656': (corp: '00393618', year: 2025, bases: {'CFS'}),
+        '20260316001089': (corp: '01187458', year: 2025, bases: {'CFS'}),
+        '20260309001126': (corp: '00965062', year: 2025, bases: {'CFS'}),
+        '20251127001320': (corp: '01507722', year: 2024, bases: {'CFS'}),
+        '20251127001311': (corp: '01507722', year: 2023, bases: {'CFS'}),
+        '20250319000677': (corp: '01187458', year: 2024, bases: {'CFS'}),
+        '20250318000162': (corp: '00533809', year: 2024, bases: {'CFS'}),
+        '20250314001680': (corp: '00965062', year: 2024, bases: {'CFS'}),
+        '20250314001180': (corp: '00393618', year: 2024, bases: {'CFS'}),
+        '20240320000695': (corp: '01187458', year: 2023, bases: {'CFS'}),
+        '20240318000263': (corp: '00533809', year: 2023, bases: {'CFS'}),
+        '20240315000148': (corp: '00393618', year: 2023, bases: {'CFS'}),
+        '20240313000197': (corp: '00965062', year: 2023, bases: {'CFS'}),
+        '20230711000155': (corp: '01507722', year: 2022, bases: {'CFS'}),
+        '20230327000966': (corp: '00533809', year: 2022, bases: {'CFS'}),
+        '20230323001231': (corp: '01187458', year: 2022, bases: {'CFS'}),
+        '20230317000730': (corp: '00965062', year: 2022, bases: {'CFS'}),
+        '20230317000450': (corp: '00393618', year: 2022, bases: {'CFS'}),
+        '20220722000193': (corp: '00533809', year: 2021, bases: {'CFS'}),
+        '20220321000662': (corp: '01187458', year: 2021, bases: {'CFS'}),
+        '20220318000594': (corp: '00965062', year: 2021, bases: {'CFS'}),
+        '20220317000026': (corp: '00393618', year: 2021, bases: {'CFS'}),
+      };
+
   static bool verifiedDurationSourceRecoveryPriority(DartFiling filing) {
-    const fixtures = <String, ({String corp, int year, Set<String> bases})>{
-      '20220316000721': (corp: '00337296', year: 2021, bases: {'OFS'}),
-      '20220322000487': (corp: '00521433', year: 2021, bases: {'OFS'}),
-      '20220321000166': (corp: '01117422', year: 2021, bases: {'OFS'}),
-      '20250321001900': (corp: '00765897', year: 2024, bases: {'OFS'}),
-      '20260319000348': (corp: '00521433', year: 2025, bases: {'OFS'}),
-      '20260319000707': (corp: '00553025', year: 2025, bases: {'CFS'}),
-      '20260323001028': (corp: '00611286', year: 2025, bases: {'OFS'}),
-      '20250321001632': (corp: '00816696', year: 2024, bases: {'OFS'}),
-      '20250321000468': (corp: '01117422', year: 2024, bases: {'OFS'}),
-      '20250325000306': (corp: '01290132', year: 2024, bases: {'OFS'}),
-      '20251124000372': (corp: '01669794', year: 2024, bases: {'OFS'}),
-      '20250320001616': (corp: '00442631', year: 2024, bases: {'OFS', 'CFS'}),
-      '20250318000596': (corp: '01352575', year: 2024, bases: {'OFS', 'CFS'}),
-      '20260318001043': (corp: '01018802', year: 2025, bases: {'CFS'}),
-      '20260318001370': (corp: '01507722', year: 2025, bases: {'CFS'}),
-      '20260318000161': (corp: '00533809', year: 2025, bases: {'CFS'}),
-      '20260313000656': (corp: '00393618', year: 2025, bases: {'CFS'}),
-      '20260316001089': (corp: '01187458', year: 2025, bases: {'CFS'}),
-      '20260309001126': (corp: '00965062', year: 2025, bases: {'CFS'}),
-      '20251127001320': (corp: '01507722', year: 2024, bases: {'CFS'}),
-      '20251127001311': (corp: '01507722', year: 2023, bases: {'CFS'}),
-      '20250319000677': (corp: '01187458', year: 2024, bases: {'CFS'}),
-      '20250318000162': (corp: '00533809', year: 2024, bases: {'CFS'}),
-      '20250314001680': (corp: '00965062', year: 2024, bases: {'CFS'}),
-      '20250314001180': (corp: '00393618', year: 2024, bases: {'CFS'}),
-      '20240320000695': (corp: '01187458', year: 2023, bases: {'CFS'}),
-      '20240318000263': (corp: '00533809', year: 2023, bases: {'CFS'}),
-      '20240315000148': (corp: '00393618', year: 2023, bases: {'CFS'}),
-      '20240313000197': (corp: '00965062', year: 2023, bases: {'CFS'}),
-      '20230711000155': (corp: '01507722', year: 2022, bases: {'CFS'}),
-      '20230327000966': (corp: '00533809', year: 2022, bases: {'CFS'}),
-      '20230323001231': (corp: '01187458', year: 2022, bases: {'CFS'}),
-      '20230317000730': (corp: '00965062', year: 2022, bases: {'CFS'}),
-      '20230317000450': (corp: '00393618', year: 2022, bases: {'CFS'}),
-      '20220722000193': (corp: '00533809', year: 2021, bases: {'CFS'}),
-      '20220321000662': (corp: '01187458', year: 2021, bases: {'CFS'}),
-      '20220318000594': (corp: '00965062', year: 2021, bases: {'CFS'}),
-      '20220317000026': (corp: '00393618', year: 2021, bases: {'CFS'}),
-    };
-    final proof = fixtures[filing.rceptNo];
+    final proof = _verifiedDurationSourceFixtures[filing.rceptNo];
     final name = DartReportName.parse(filing.reportName);
     if (proof == null ||
         filing.corpCode != proof.corp ||
@@ -1203,37 +1215,7 @@ class FinancialFactsSync {
       '20260331004755': {'OFS'},
     };
     bool verifiedParserPending(DartFiling f) {
-      if ({
-        '20250325000306',
-        '20251124000372',
-        '20250320001616',
-        '20250318000596',
-        '20260318001043',
-        '20260318001370',
-        '20260318000161',
-        '20260313000656',
-        '20260316001089',
-        '20260309001126',
-        '20251127001320',
-        '20251127001311',
-        '20250319000677',
-        '20250318000162',
-        '20250314001680',
-        '20250314001180',
-        '20240320000695',
-        '20240318000263',
-        '20240315000148',
-        '20240313000197',
-        '20230711000155',
-        '20230327000966',
-        '20230323001231',
-        '20230317000730',
-        '20230317000450',
-        '20220722000193',
-        '20220321000662',
-        '20220318000594',
-        '20220317000026',
-      }.contains(f.rceptNo)) {
+      if (_verifiedDurationSourceFixtures.containsKey(f.rceptNo)) {
         return verifiedDurationSourceRecoveryPriority(f);
       }
       if (f.rceptNo == '20250526000504') {
@@ -2330,7 +2312,13 @@ class FinancialFactsSync {
                 if (htmlCompanyName.isEmpty) {
                   throw const FormatException('Empty HTML company identity');
                 }
-                final rows = PublicFinancialHtml.parse(
+                final parseOriginal =
+                    html.sourceReceipt == '20260317000808' &&
+                        company.corpCode == '00963000' &&
+                        end == DateTime.utc(2025, 12, 31)
+                    ? PublicFinancialHtml.parseStandardAnnual
+                    : PublicFinancialHtml.parse;
+                final rows = parseOriginal(
                   coverHtml: html.coverHtml,
                   statementHtml: html.statementHtml,
                   coverSource: html.coverSource,
@@ -2465,6 +2453,7 @@ class FinancialFactsSync {
                 originalFormat: fallback.format,
                 originalSource: fallback.source,
                 coverSource: fallback.coverSource,
+                coreRows: fallback.rows,
               );
             }
             if (saved.inserted) {
@@ -2600,6 +2589,7 @@ class FinancialFactsSync {
     String originalFormat = 'xbrl',
     Uri? originalSource,
     Uri? coverSource,
+    List<Map<String, dynamic>>? coreRows,
   }) async {
     final reference =
         'financial-attachment-recovery:${target.rceptNo}:${div.name}';
@@ -2627,6 +2617,16 @@ class FinancialFactsSync {
             if (originalSource != null)
               'originalSource': originalSource.toString(),
             if (coverSource != null) 'coverSource': coverSource.toString(),
+            if (coreRows != null)
+              'coreRowProvenance': [
+                for (final row in coreRows)
+                  {
+                    'account_nm': row['account_nm'],
+                    'thstrm_amount': row['thstrm_amount'],
+                    'currency': row['currency'],
+                    'html_provenance': row['html_provenance'],
+                  },
+              ],
           }),
         ),
       );

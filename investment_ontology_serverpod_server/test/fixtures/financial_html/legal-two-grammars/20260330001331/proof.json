@@ -1,0 +1,36 @@
+{
+  "rceptNo": "20260330001331",
+  "corpCode": "01118643",
+  "name": "솔루믹스",
+  "bsnsYear": 2025,
+  "reviewedBasis": "ofs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260330001331",
+      "sha256": "8f14f28b85a5d572a56fb783d04d20b6ddab997ae9d416c59f0360d4f47ca451",
+      "reused": true
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001331&dcmNo=11196712&eleId=1&offset=970&length=4508&dtd=dart4.xsd",
+      "sha256": "5b5cb66e7aab18591f915f7382c8d0be4bd2b57841eb505e9cee256d4590bea4",
+      "reused": true
+    },
+    {
+      "label": "overview",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001331&dcmNo=11196712&eleId=3&offset=6042&length=71476&dtd=dart4.xsd",
+      "sha256": "e14dd7208071220a22c54398f3f766e3f8ee05ced10559967d28f6188774054e",
+      "reused": true
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001331&dcmNo=11196712&eleId=21&offset=499703&length=41399&dtd=dart4.xsd",
+      "sha256": "f302f6137517ff164651dc9e7a8c4f92cb5223208e7c2894d9d3d0cae36d87fd",
+      "reused": false
+    }
+  ],
+  "shellCorpIds": [
+    "01118643"
+  ]
+}

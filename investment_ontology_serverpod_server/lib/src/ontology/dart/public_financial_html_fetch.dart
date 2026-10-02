@@ -501,7 +501,12 @@ class PublicFinancialHtmlFetcher {
       }
     }
     final name = companyName.replaceAll(RegExp(r'\(주\)|㈜|주식회사|\s+'), '');
-    final parse = exactAnnual
+    final suntechOriginal =
+        !halfYear &&
+        sourceReceipt == '20260317000808' &&
+        corpCode == '00963000' &&
+        periodEnd == DateTime.utc(2025, 12, 31);
+    final parse = (exactAnnual || suntechOriginal)
         ? PublicFinancialHtml.parseStandardAnnual
         : halfYear
         ? PublicFinancialHtml.parseHalfYear
