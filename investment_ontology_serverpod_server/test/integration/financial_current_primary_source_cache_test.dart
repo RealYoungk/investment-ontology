@@ -41,7 +41,9 @@ void main() {
         "20250319000137",
       ];
       final entries = VerifiedAnnualSourceRegistry.entries
-          .where((x) => receipts.contains(x.receipt))
+          .where(
+            (x) => receipts.contains(x.receipt) && x.absenceLiteral == null,
+          )
           .toList();
       final companies = <String, Company>{};
       for (final r in receipts) {
@@ -147,7 +149,37 @@ void main() {
             s,
             where: (t) => t.rceptNo.equals(r),
           )).single;
-          expect(f.consolidatedStatus, FilingFetchStatus.failed);
+          final none = VerifiedAnnualSourceRegistry.find(r, FsDiv.consolidated);
+          expect(
+            f.consolidatedStatus,
+            none?.requiresOwnOfsWitness == true
+                ? FilingFetchStatus.noData
+                : FilingFetchStatus.failed,
+          );
+          if (none?.requiresOwnOfsWitness == true) {
+            final source = (await Source.db.find(
+              s,
+              where: (t) => t.reference.equals(
+                'financial-public-basis-not-applicable:$r:consolidated',
+              ),
+            )).single;
+            final audit = jsonDecode(source.title);
+            expect(
+              audit['historicalCompanyIdentity']['primaryWitnessSource'],
+              contains('rcpNo=$r'),
+            );
+            expect(
+              audit['historicalCompanyIdentity']['usage'],
+              contains('no CFS amount inference'),
+            );
+            expect(
+              await Source.db.find(
+                s,
+                where: (t) => t.reference.equals(none!.auditReference),
+              ),
+              hasLength(1),
+            );
+          }
           expect(
             await FinancialReport.db.find(
               s,

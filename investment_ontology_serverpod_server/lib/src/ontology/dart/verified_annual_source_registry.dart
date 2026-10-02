@@ -13,6 +13,7 @@ final class AnnualSourceCacheEntry {
     required this.ruleVersion,
     required this.absenceLiteral,
     this.requiresIssuerOverview = false,
+    this.requiresOwnOfsWitness = false,
     this.declaredPeriodStart,
     this.declaredPeriodEnd,
   }) : assert((declaredPeriodStart == null) == (declaredPeriodEnd == null));
@@ -26,6 +27,7 @@ final class AnnualSourceCacheEntry {
   final FsDiv basis;
   final String? absenceLiteral;
   final bool requiresIssuerOverview;
+  final bool requiresOwnOfsWitness;
   final String? declaredPeriodStart, declaredPeriodEnd;
   DateTime get periodStart => declaredPeriodStart == null
       ? DateTime.utc(year)
@@ -186,6 +188,96 @@ abstract final class VerifiedAnnualSourceRegistry {
       declaredPeriodStart: '2020-04-01',
       declaredPeriodEnd: '2021-03-31',
     ),
+    AnnualSourceCacheEntry(
+      receipt: '20241227000654',
+      corpCode: '01109690',
+      companyName: '도부(주)',
+      year: 2023,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20241227000654-cfs',
+      manifestDigest:
+          '7a9088c68fd7f7b2084f16d74495854ff280e23370c21ddcd7a6a5cad8d9d0c1',
+      ruleVersion: 'historical-issuer-cfs-none-own-ofs-v1',
+      absenceLiteral: '당사는 해당사항 없습니다.',
+      requiresIssuerOverview: true,
+      requiresOwnOfsWitness: true,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20230728000135',
+      corpCode: '01109690',
+      companyName: '도부(주)',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20230728000135-cfs',
+      manifestDigest:
+          '13a936d4124005214991973e2685ca22c4c2ef1114b28aec9b5630e34dc08448',
+      ruleVersion: 'historical-issuer-cfs-none-own-ofs-v1',
+      absenceLiteral: '당사는 해당사항 없습니다.',
+      requiresIssuerOverview: true,
+      requiresOwnOfsWitness: true,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20220318000943',
+      corpCode: '01109690',
+      companyName: '도부(주)',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220318000943-cfs',
+      manifestDigest:
+          '0e1544e0fc8cb53dcfd3d567a72a3721532f3aff2c4e41edda7ed4c81a9d59e6',
+      ruleVersion: 'historical-issuer-cfs-none-own-ofs-v1',
+      absenceLiteral: '당사는 해당사항 없습니다.',
+      requiresIssuerOverview: true,
+      requiresOwnOfsWitness: true,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20240319000167',
+      corpCode: '00978075',
+      companyName: '(주)머니무브',
+      year: 2023,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20240319000167-cfs',
+      manifestDigest:
+          '811c8ab51df14c3f6edc84ddaed28dd85a113f72219c5c5ba39efd75ed3b018b',
+      ruleVersion: 'historical-issuer-cfs-none-own-ofs-v1',
+      absenceLiteral: '※ 당사는 주식회사의 외부감사에 관한 법률 제1조의2에 의한 연결재무제표 작성대상 법인이 아닙니다.',
+      requiresIssuerOverview: true,
+      requiresOwnOfsWitness: true,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20230314000624',
+      corpCode: '00978075',
+      companyName: '(주)머니무브',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20230314000624-cfs',
+      manifestDigest:
+          'a843ca20b09301235585a5607ed369d42a599b6bd033d1aa242b33b551c8242e',
+      ruleVersion: 'historical-issuer-cfs-none-own-ofs-v1',
+      absenceLiteral: '당사는 주식회사의 외부감사에 관한 법률 제1조의2에 의한 연결재무제표 작성대상 법인이 아닙니다.',
+      requiresIssuerOverview: true,
+      requiresOwnOfsWitness: true,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20221026000437',
+      corpCode: '00978075',
+      companyName: '(주)머니무브',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20221026000437-cfs',
+      manifestDigest:
+          '1481f723211f4029a6898dc5a415cc8b64d0d3e75b342a1d89cf64273a0d3a0f',
+      ruleVersion: 'historical-issuer-cfs-none-own-ofs-v1',
+      absenceLiteral: '당사는 주식회사의 외부감사에 관한 법률 제1조의2에 의한 연결재무제표 작성대상 법인이 아닙니다.',
+      requiresIssuerOverview: true,
+      requiresOwnOfsWitness: true,
+    ),
+
     AnnualSourceCacheEntry(
       receipt: '20250319000137',
       corpCode: '00321204',

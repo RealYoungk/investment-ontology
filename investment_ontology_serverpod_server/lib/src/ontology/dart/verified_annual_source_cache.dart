@@ -15,6 +15,7 @@ import 'public_financial_html_fetch.dart';
 import 'verified_annual_source_registry.dart';
 import 'same_receipt_audit_source.dart';
 import 'pureun_six_core_profile.dart';
+import 'historical_primary_cfs_absence.dart';
 
 /// Only compiled, byte-pinned official packages; the adapter has no network.
 final class VerifiedAnnualSourceCache {
@@ -156,6 +157,7 @@ final class VerifiedAnnualSourceCache {
       entry.statementLabel,
       if (linkedAudit) 'auditShell',
       if (entry.requiresIssuerOverview) 'overview',
+      if (entry.requiresOwnOfsWitness) 'issuer-ofs',
     };
     final documentCount = requiredLabels.length;
     final documents = <Uri, List<int>>{};
@@ -177,6 +179,41 @@ final class VerifiedAnnualSourceCache {
     }
     if (documents.length != documentCount || labels.length != documentCount) {
       throw const FormatException('Cached annual package incomplete');
+    }
+    if (entry.requiresOwnOfsWitness) {
+      if (entry.ruleVersion != 'historical-issuer-cfs-none-own-ofs-v1' ||
+          basis != FsDiv.consolidated ||
+          entry.absenceLiteral == null ||
+          !entry.requiresIssuerOverview) {
+        throw const FormatException('Invalid compiled issuer witness scope');
+      }
+      Uri uri(String label) => Uri.parse(
+        (manifest['sources'] as List).singleWhere(
+              (x) => x['label'] == label,
+            )['url']
+            as String,
+      );
+      String raw(String label) => utf8.decode(documents[uri(label)]!);
+      final absence = HistoricalPrimaryCfsAbsence.verify(
+        receipt: entry.receipt,
+        corpCode: entry.corpCode,
+        currentName: company.name,
+        reportName: filing.reportName,
+        start: start,
+        end: end,
+        shellSource: uri('shell'),
+        shell: raw('shell'),
+        coverSource: uri('cover'),
+        cover: raw('cover'),
+        ofsSource: uri('issuer-ofs'),
+        ofs: raw('issuer-ofs'),
+        overviewSource: uri('overview'),
+        overview: raw('overview'),
+        cfsSource: uri('cfs'),
+        cfs: raw('cfs'),
+        expectedLiteral: entry.absenceLiteral!,
+      );
+      return (numeric: null, absence: absence);
     }
     if (entry.ruleVersion == 'sk-signet-direct-rename-event-v1') {
       String raw(String label) => utf8.decode(
