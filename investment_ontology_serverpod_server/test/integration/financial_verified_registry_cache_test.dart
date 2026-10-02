@@ -491,6 +491,56 @@ void main() {
                 entry.corpCode,
                 fsDiv: entry.basis,
               );
+              if (entry.ruleVersion == 'exact-printed-current-annual-v1') {
+                final cells =
+                    jsonDecode(
+                          File(
+                            '${entry.assetDirectory}/current-cell-evidence.json',
+                          ).readAsStringSync(),
+                        )['rows']
+                        as List;
+                final keys = [
+                  'assets',
+                  'liabilities',
+                  'equity',
+                  'revenue',
+                  'operatingIncome',
+                  'netIncome',
+                  'operatingCashFlow',
+                ];
+                expect(facts, hasLength(7));
+                for (var i = 0; i < cells.length; i++) {
+                  final cell = cells[i] as Map;
+                  final fact = facts.singleWhere(
+                    (f) => f.accountName == cell['printedLabel'],
+                  );
+                  expect(fact.amount, BigInt.parse(cell['amount'] as String));
+                  final line = summary!.periods.single.lines.singleWhere(
+                    (l) => l.key == keys[i],
+                  );
+                  expect(line.amount, fact.amount);
+                  expect(line.accountName, fact.accountName);
+                }
+                final sql = await session.db.unsafeQuery(
+                  'SELECT ${FinancialAccounts.resolvedIdSql('f')} FROM financial_fact f WHERE f."reportId"=${report.id}',
+                );
+                expect(sql.where((r) => r[0] != null), hasLength(7));
+                final proofAudit = (await Source.db.find(
+                  session,
+                  where: (t) => t.reference.equals(
+                    'financial-api-noData-source:${entry.receipt}:${entry.basis.name}',
+                  ),
+                )).single;
+                final proof = jsonDecode(proofAudit.title) as Map;
+                expect(
+                  (proof['coreRowProvenance'] as List).every(
+                    (row) =>
+                        row['html_provenance']['supportingPeriodEvidence']['flowCaptionPrintedStart'] ==
+                        true,
+                  ),
+                  true,
+                );
+              }
               if (entry.ruleVersion == 'gne-own-audit-whole7-v1') {
                 const expected = {
                   'assets': '6973822992',

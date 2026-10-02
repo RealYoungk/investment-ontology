@@ -54,6 +54,58 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20230331004027',
+      corpCode: '01085026',
+      companyName: "(주)유진테크놀로지",
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20230331004027-cfs-dated-current',
+      manifestDigest:
+          'b4459013f9c7307498a2f2008f7049ea10097a452f27089aec8ff0af0ae50e58',
+      ruleVersion: 'exact-printed-current-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230331004027',
+      corpCode: '01085026',
+      companyName: "(주)유진테크놀로지",
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20230331004027-ofs-dated-current',
+      manifestDigest:
+          'd2351069ad13e4fa03df19a3159cf3bbc64d4f125e3f7f4e74ed722470410ae2',
+      ruleVersion: 'exact-printed-current-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240314000984',
+      corpCode: '01344363',
+      companyName: "(주)다원넥스뷰",
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20240314000984-ofs-dated-current',
+      manifestDigest:
+          '4270074c9fc0fc0abf23c217df15ac00773f34c8cdbb18be1ea68521458f5593',
+      ruleVersion: 'exact-printed-current-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240401003353',
+      corpCode: '01497373',
+      companyName: "주식회사 아이엠비디엑스",
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20240401003353-ofs-dated-current',
+      manifestDigest:
+          '0d240205557728e8626f2e36997b8c71ab4760984c177006ab320eec5ddd57c2',
+      ruleVersion: 'exact-printed-current-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20260429001010',
       corpCode: '01188749',
       companyName: '주식회사 지앤이헬스케어',

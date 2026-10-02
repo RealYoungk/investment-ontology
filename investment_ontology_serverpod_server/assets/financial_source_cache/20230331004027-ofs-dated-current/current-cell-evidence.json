@@ -1,0 +1,39 @@
+{
+  "rows": [
+    {
+      "printedLabel": "자산총계",
+      "amount": "44488821857",
+      "currentCell": "44,488,821,857"
+    },
+    {
+      "printedLabel": "부채총계",
+      "amount": "32057746189",
+      "currentCell": "32,057,746,189"
+    },
+    {
+      "printedLabel": "자본총계",
+      "amount": "12431075668",
+      "currentCell": "12,431,075,668"
+    },
+    {
+      "printedLabel": "Ⅰ.매출액",
+      "amount": "29539868816",
+      "currentCell": "29,539,868,816"
+    },
+    {
+      "printedLabel": "Ⅳ.영업이익(손실)",
+      "amount": "760534331",
+      "currentCell": "760,534,331"
+    },
+    {
+      "printedLabel": "Ⅶ.당기순이익(손실)",
+      "amount": "-127346785",
+      "currentCell": "(127,346,785)"
+    },
+    {
+      "printedLabel": "Ⅰ.영업활동으로인한현금흐름",
+      "amount": "-2260637390",
+      "currentCell": "(2,260,637,390)"
+    }
+  ]
+}
