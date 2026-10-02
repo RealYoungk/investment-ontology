@@ -88,7 +88,7 @@ void main() {
       throwsFormatException,
     );
   });
-  for (final bad in ['corp', 'year', 'period', 'basis']) {
+  for (final bad in ['corp', 'year', 'period']) {
     test('reject wrong $bad', () async {
       final f = target(
         corp: bad == 'corp' ? '99999999' : '01353848',
@@ -101,10 +101,35 @@ void main() {
         VerifiedAnnualSourceCache().verifyRegistered(
           f,
           c,
-          bad == 'basis' ? FsDiv.consolidated : FsDiv.separate,
+          FsDiv.separate,
         ),
         throwsFormatException,
       );
     });
   }
+  test(
+    'CFS chooses own nonpreparation source without OFS numeric rows',
+    () async {
+      final f = target(
+        corp: '01353848',
+        receipt: '20260331004637',
+        year: 2025,
+        name: '사업보고서 (2025.12)',
+      );
+      final c = company(corp: '01353848', name: '(주)이노벡스');
+      final result = await VerifiedAnnualSourceCache().verifyRegistered(
+        f,
+        c,
+        FsDiv.consolidated,
+      );
+      expect(result.numeric, isNull);
+      expect(result.absence, isNotNull);
+      expect(
+        result.absence!.statementSource.queryParameters['dcmNo'],
+        '11214858',
+      );
+      expect(result.absence!.statementSource.queryParameters['eleId'], '19');
+      expect(result.absence!.evidence.replaceAll(RegExp(r'\s+'), ''), '해당사항없음');
+    },
+  );
 }
