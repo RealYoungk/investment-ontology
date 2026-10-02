@@ -1,0 +1,45 @@
+{
+  "id": 11463,
+  "name": "(주)메디젠휴먼케어",
+  "market": "konex",
+  "stockCode": "236340",
+  "corpCode": "01023822",
+  "rceptNo": "20250321001022",
+  "reportName": "사업보고서 (2024.12)",
+  "actual_period": "2024.12",
+  "bsnsYear": 2024,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 2,
+  "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 2,
+  "coverageClass": "one-source-basis-stored",
+  "errorGroup": "Annual current statement title period mismatch",
+  "publicAttemptClass": "below-three",
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250321001022",
+      "sha256": "b6d06dc7b3a19638df2c56363ca82600f18862ae01c3d161cb3b445e88067a14"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001022&dcmNo=10445973&eleId=1&offset=955&length=4510&dtd=dart4.xsd",
+      "sha256": "d8f84546a24cdffeb624815f74635709e42e21478135106af7ff2f9618c5bd23"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001022&dcmNo=10445973&eleId=19&offset=280046&length=188&dtd=dart4.xsd",
+      "sha256": "357c04bad9bd413a5dd5a4490529ed40856fdd7e278157d94cdd14a015c9aebf"
+    }
+  ],
+  "ownCorpIds": [
+    "01023822"
+  ],
+  "coverStart": "사 업 보 고 서 (제 13 기) 사업연도 2024년 01월 01일 부터 2024년 12월 31일 까지 금융위원회 한국거래소 귀중 2025년 03월 21일 제출대상법인 유형 : 주권상장법인 면제사유발생 : 해당사항 없음 회 사 명 : 주식회사 메디젠휴먼케어 대 표 이 사 : 신동직 본 점 소 재 지 : 서울특별시 송파구 정의로7길 6 (전 화) 02-555-9806 (홈페이지) http://www.medizencare.com 작 성 책 임 자 : (직 책) 대표이사 (성 명) 신동직 (전 화) 02-555-9806",
+  "cfsStart": "2. 연결재무제표 - 해당사항이 없습니다."
+}

@@ -1,0 +1,23 @@
+{
+  "receipt": "20250331002057",
+  "shellCorpIds": [
+    "01229240"
+  ],
+  "sources": [
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250331002057&dcmNo=10483367&eleId=1&offset=972&length=4615&dtd=dart4.xsd",
+      "sha256": "b9a1e9d3a7b910969e861c60c35bb5d3736ce347898ad71217b49c10c75055f7"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250331002057&dcmNo=10483367&eleId=19&offset=188857&length=56560&dtd=dart4.xsd",
+      "sha256": "d66c0d76ee6660a080dc8de58e3ed4af2c74ef9a1118e477295736b320882126"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250331002057&dcmNo=10483367&eleId=21&offset=485006&length=46532&dtd=dart4.xsd",
+      "sha256": "fd7a4d44dbdf280bf313c6c2dc4e75f6a003902203625a6201d57931ffb73444"
+    }
+  ]
+}

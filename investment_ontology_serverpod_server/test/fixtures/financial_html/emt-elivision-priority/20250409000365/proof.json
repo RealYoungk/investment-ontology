@@ -1,0 +1,27 @@
+{
+  "receipt": "20250409000365",
+  "corpCode": "00925967",
+  "companyName": "(주)이엠티",
+  "bsnsYear": 2024,
+  "basis": "ofs",
+  "shellCorpIds": [
+    "00925967"
+  ],
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250409000365",
+      "sha256": "36cc0dfc36978dbda3778850fed0a928e267ea416c0157d8c762f21a8c6e9761"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250409000365&dcmNo=10564332&eleId=3&offset=4686&length=4481&dtd=dart4.xsd",
+      "sha256": "a193bc2ac79ac7ad0dce88fd2f5642f5af9fe8b343c5a5e547ef8839150b13fc"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250409000365&dcmNo=10564332&eleId=23&offset=97820&length=47966&dtd=dart4.xsd",
+      "sha256": "35ef58d368cd90b8854130300c91e9679e1d37a5a9c4640e4f1514fca858652c"
+    }
+  ]
+}

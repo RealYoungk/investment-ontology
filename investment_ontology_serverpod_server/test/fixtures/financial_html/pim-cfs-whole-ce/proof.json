@@ -1,0 +1,23 @@
+{
+  "receipt": "20250321001900",
+  "corpCode": "00765897",
+  "companyName": "한국피아이엠",
+  "bsnsYear": 2024,
+  "shellCorpIds": [
+    "00765897"
+  ],
+  "sources": [
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=1&offset=957&length=4536&dtd=dart4.xsd",
+      "sha256": "5b92bc88a334a3b2c85fcea0d14de2ac39132cd1c019ff3c1dc5347a8b46303f",
+      "retrievedNow": false
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001900&dcmNo=10450768&eleId=19&offset=204544&length=68462&dtd=dart4.xsd",
+      "sha256": "fe0f9de2ddc5b446449d6ef265006aae964cec61d124c90557c860bca269280e",
+      "retrievedNow": true
+    }
+  ]
+}

@@ -799,7 +799,169 @@ abstract final class PublicFinancialHtml {
         statementSource.queryParameters['eleId'] == '23' &&
         periodStart == DateTime.utc(2025, 1, 1) &&
         periodEnd == DateTime.utc(2025, 12, 31);
+    final rootlocScope =
+        receipt == '20260323000661' &&
+        corpCode == '01262023' &&
+        !consolidated &&
+        term == '12' &&
+        coverSource.queryParameters['dcmNo'] == '11163088' &&
+        coverSource.queryParameters['eleId'] == '1' &&
+        statementSource.queryParameters['dcmNo'] == '11163088' &&
+        statementSource.queryParameters['eleId'] == '21' &&
+        statementSource.queryParameters['offset'] == '200508' &&
+        statementSource.queryParameters['length'] == '78783' &&
+        periodStart == DateTime.utc(2025) &&
+        periodEnd == DateTime.utc(2025, 12, 31);
     Map<String, dynamic>? cnsPeriodProof;
+    if (rootlocScope && titles.isEmpty) {
+      final proofs = <Map<String, dynamic>>[];
+      var tableIndex = 0;
+      for (final table in RegExp(
+        r'<TABLE\b[^>]*>(.*?)</TABLE>',
+        caseSensitive: false,
+        dotAll: true,
+      ).allMatches(scope)) {
+        final index = tableIndex++;
+        final prefix = _compact(_text(scope.substring(0, table.start)));
+        final ce = prefix.lastIndexOf('자본변동표');
+        if (ce < 0 ||
+            [
+              '재무상태표',
+              '손익계산서',
+              '현금흐름표',
+            ].any((h) => prefix.lastIndexOf(h) > ce)) {
+          continue;
+        }
+        if (RegExp(r'\(단위:([^)]*)\)')
+                .allMatches(prefix.substring(ce))
+                .map((m) => m.group(1))
+                .toList()
+                .join('|') !=
+            '천원') {
+          throw const FormatException('Rootloc CE unit mismatch');
+        }
+        final rawRows = RegExp(
+          r'<TR\b[^>]*>(.*?)</TR>',
+          caseSensitive: false,
+          dotAll: true,
+        ).allMatches(table.group(1)!).toList();
+        if (rawRows.isEmpty) {
+          throw const FormatException('Rootloc CE rows missing');
+        }
+        List<RegExpMatch> cells(int row) => RegExp(
+          r'<T[DH]\b([^>]*)>(.*?)</T[DH]>',
+          caseSensitive: false,
+          dotAll: true,
+        ).allMatches(rawRows[row].group(1)!).toList();
+        final header = cells(0)
+            .map((c) => _compact(_text(c.group(2)!)))
+            .join('|');
+        if (header != '구분|과목|자본금|자본잉여금|자본조정|기타포괄손익누계액|이익잉여금|총계') {
+          throw const FormatException('Rootloc CE whole header mismatch');
+        }
+        final startRows = [
+          for (var i = 1; i < rawRows.length; i++)
+            if (cells(i).length == 8 &&
+                _compact(_text(cells(i)[0].group(2)!)) == '2025년도(제12기)')
+              i,
+        ];
+        if (startRows.length != 1) {
+          throw const FormatException('Rootloc CE current block ambiguous');
+        }
+        final start = startRows.single;
+        final first = cells(start);
+        if (!RegExp(
+              r'''^\s*[^>]*rowspan=['"]7['"][^>]*$''',
+              caseSensitive: false,
+            ).hasMatch(first[0].group(1)!) ||
+            _compact(_text(first[1].group(2)!)) != '2025.1.1(기초)' ||
+            start + 6 >= rawRows.length) {
+          throw const FormatException('Rootloc CE start mismatch');
+        }
+        final end = start + 6;
+        if (cells(end).length != 7 ||
+            _compact(_text(cells(end)[0].group(2)!)) != '2025.12.31(기말)') {
+          throw const FormatException('Rootloc CE end mismatch');
+        }
+        for (var i = start + 1; i <= end; i++) {
+          if (cells(i).length != 7 ||
+              cells(i).any(
+                (c) => RegExp(
+                  r'(?:rowspan|colspan)\s*=',
+                  caseSensitive: false,
+                ).hasMatch(c.group(1)!),
+              )) {
+            throw const FormatException(
+              'Rootloc CE current block shape mismatch',
+            );
+          }
+        }
+        for (final date in ['2025.1.1(기초)', '2025.12.31(기말)']) {
+          if (rawRows
+                  .where((r) => _compact(_text(r.group(1)!)).contains(date))
+                  .length !=
+              1) {
+            throw const FormatException('Rootloc CE current dates ambiguous');
+          }
+        }
+        final profits = [
+          for (var i = start + 1; i < end; i++)
+            if (cells(i).length == 7 &&
+                _compact(_text(cells(i)[0].group(2)!)) == '당기순손실')
+              i,
+        ];
+        if (profits.length != 1) {
+          throw const FormatException('Rootloc CE whole profit ambiguous');
+        }
+        String total(int row) {
+          final cs = cells(row);
+          if (cs.length != 7 ||
+              cs.any(
+                (c) => RegExp(
+                  r'(?:rowspan|colspan)\s*=',
+                  caseSensitive: false,
+                ).hasMatch(c.group(1)!),
+              )) {
+            throw const FormatException(
+              'Rootloc CE whole monetary span ambiguous',
+            );
+          }
+          final value = _text(cs.last.group(2)!).trim();
+          if (!RegExp(r'^(?:-?\d{1,3}(?:,\d{3})*|\(\d{1,3}(?:,\d{3})*\))$')
+              .hasMatch(value)) {
+            throw const FormatException('Rootloc CE whole amount invalid');
+          }
+          final amount = value.startsWith('(')
+              ? -BigInt.parse(
+                  value.substring(1, value.length - 1).replaceAll(',', ''),
+                )
+              : BigInt.parse(value.replaceAll(',', ''));
+          return (amount * BigInt.from(1000)).toString();
+        }
+
+        proofs.add({
+          'mode': 'exact-rootloc-year-term-whole-ce-period',
+          'tableIndex': index,
+          'currentTerm': term,
+          'currentHeader': '2025년도(제12기)',
+          'periodStart': '2025-01-01',
+          'periodEnd': '2025-12-31',
+          'startRow': start,
+          'endRow': end,
+          'profitRow': profits.single,
+          'totalColumn': 7,
+          'unit': '천원',
+          'unitMultiplier': '1000',
+          'closingEquity': total(end),
+          'currentProfit': total(profits.single),
+          'source': statementSource.toString(),
+        });
+      }
+      if (proofs.length != 1) {
+        throw const FormatException('Rootloc CE source ambiguous');
+      }
+      cnsPeriodProof = proofs.single;
+    }
     if ((cnsScope || cronexScope) && titles.isEmpty) {
       final candidates = <Map<String, dynamic>>[];
       var supportingIndex = 0;
@@ -1058,10 +1220,12 @@ abstract final class PublicFinancialHtml {
       '당기순손익': ('profit', 'CIS'),
       '당기순손익(손실)': ('profit', 'CIS'),
       '당기순손실': ('profit', 'CIS'),
+      '연결당기순손익': ('profit', 'CIS'),
       '연결당기순이익': ('profit', 'CIS'),
       '연결당기순이익(손실)': ('profit', 'CIS'),
       '연결당기순손실': ('profit', 'CIS'),
       '당기순이익(손실)': ('profit', 'CIS'),
+      '영업활동으로인한현금흐름(1+2+3)': ('cfo', 'CF'),
       '영업활동으로인한현금흐름': ('cfo', 'CF'),
       '영업활동현금흐름': ('cfo', 'CF'),
       '영업활동순현금흐름': ('cfo', 'CF'),
@@ -1087,6 +1251,34 @@ abstract final class PublicFinancialHtml {
         periodEnd.difference(periodStart).inDays >= 364 &&
         periodEnd.difference(periodStart).inDays <= 365 &&
         text.contains('제$term기(${periodEnd.year}년)');
+    final exactInnovexOfs =
+        receipt == '20250320001369' &&
+        corpCode == '01353848' &&
+        !consolidated &&
+        term == '12' &&
+        periodStart == DateTime.utc(2024) &&
+        periodEnd == DateTime.utc(2024, 12, 31) &&
+        coverSource.queryParameters['dcmNo'] == '10439334' &&
+        coverSource.queryParameters['eleId'] == '1' &&
+        coverSource.queryParameters['offset'] == '955' &&
+        coverSource.queryParameters['length'] == '4504' &&
+        statementSource.queryParameters['dcmNo'] == '10439334' &&
+        statementSource.queryParameters['eleId'] == '21' &&
+        statementSource.queryParameters['offset'] == '203049' &&
+        statementSource.queryParameters['length'] == '51955';
+    final exactPimCfs =
+        receipt == '20250321001900' &&
+        corpCode == '00765897' &&
+        consolidated &&
+        term == '24' &&
+        periodStart == DateTime.utc(2024) &&
+        periodEnd == DateTime.utc(2024, 12, 31) &&
+        coverSource.queryParameters['dcmNo'] == '10450768' &&
+        coverSource.queryParameters['eleId'] == '1' &&
+        statementSource.queryParameters['dcmNo'] == '10450768' &&
+        statementSource.queryParameters['eleId'] == '19' &&
+        statementSource.queryParameters['offset'] == '204544' &&
+        statementSource.queryParameters['length'] == '68462';
     Map<String, dynamic>? datedPunctuationProof = _suntechRawCePeriod(
       receipt: receipt,
       corpCode: corpCode,
@@ -1099,7 +1291,8 @@ abstract final class PublicFinancialHtml {
       consolidated: consolidated,
     );
     if (datedPunctuationProof == null &&
-        (parenthesizedTitles.isNotEmpty ||
+        (exactInnovexOfs ||
+            parenthesizedTitles.isNotEmpty ||
             bsDurationCandidate ||
             termYearHeaderCandidate)) {
       final candidates = <Map<String, dynamic>>[];
@@ -1128,27 +1321,130 @@ abstract final class PublicFinancialHtml {
             sourceDate(ceTitles.single.group(3)!) != periodEnd) {
           continue;
         }
-        final grid = _FinancialHtmlGrid.parse(table.group(1)!);
+        // Only this source's literal, nonnumeric CE separator rows may span seven.
+        // Headers and numeric rows still use the unchanged bounded grid parser.
+        var equityHtml = table.group(1)!;
+        if (exactInnovexOfs) {
+          equityHtml = equityHtml.replaceAllMapped(
+            RegExp(
+              r'<TR\b[^>]*>(.*?)</TR>',
+              caseSensitive: false,
+              dotAll: true,
+            ),
+            (row) {
+              final cells = RegExp(
+                r'<T[DH]\b([^>]*)>(.*?)</T[DH]>',
+                caseSensitive: false,
+                dotAll: true,
+              ).allMatches(row.group(1)!).toList();
+              if (cells.length == 1 &&
+                  RegExp(
+                    r'''colspan\s*=\s*['"]?7(?:['"]|\s|$)''',
+                    caseSensitive: false,
+                  ).hasMatch(cells.single.group(1)!)) {
+                if (RegExp(
+                          r'colspan',
+                          caseSensitive: false,
+                        ).allMatches(cells.single.group(1)!).length !=
+                        1 ||
+                    !{
+                      '총포괄손익:',
+                      '자본에직접반영된소유주와의거래등:',
+                    }.contains(_compact(_text(cells.single.group(2)!))) ||
+                    RegExp(
+                      r'rowspan',
+                      caseSensitive: false,
+                    ).hasMatch(cells.single.group(1)!)) {
+                  throw const FormatException('Innovex CE separator mismatch');
+                }
+                return '';
+              }
+              return row.group(0)!;
+            },
+          );
+        }
+        final grid = _FinancialHtmlGrid.parse(equityHtml);
+        final innovexWholeHeader =
+            exactInnovexOfs &&
+            grid.length >= 2 &&
+            grid[0].length == 7 &&
+            grid[1].length == 7 &&
+            _compact(grid[0][0]?.text ?? '') == '과목' &&
+            grid[0][0]?.rowspan == 2 &&
+            grid[0][0]?.colspan == 1 &&
+            identical(grid[0][0], grid[1][0]) &&
+            _compact(grid[0][1]?.text ?? '') == '자본' &&
+            grid[0][1]?.rowspan == 1 &&
+            grid[0][1]?.colspan == 6 &&
+            [for (var c = 1; c <= 6; c++) identical(grid[0][1], grid[0][c])]
+                .every((v) => v) &&
+            [for (var c = 1; c <= 6; c++) _compact(grid[1][c]?.text ?? '')]
+                    .join('|') ==
+                '자본금|자본잉여금|자본조정|기타자본|이익잉여금(결손금)|합계' &&
+            [
+              for (var c = 1; c <= 6; c++)
+                grid[1][c]?.rowspan == 1 && grid[1][c]?.colspan == 1,
+            ].every((v) => v);
+        if (exactInnovexOfs && !innovexWholeHeader) {
+          throw const FormatException('Innovex CE whole header mismatch');
+        }
+
         if (grid.isEmpty ||
             !{'과목', '구분'}.contains(_compact(grid.first.first?.text ?? ''))) {
           continue;
         }
-        if (grid.first.length < 3 ||
-            !{
-              '총계',
-              '합계',
-              '자본합계',
-            }.contains(_compact(grid.first.last?.text ?? '')) ||
-            grid.first.any(
-              (c) => c == null || c.rowspan != 1 || c.colspan != 1,
-            ) ||
-            grid.first.any((c) => _compact(c?.text ?? '').contains('비지배'))) {
+        final pimWholeHeader =
+            exactPimCfs &&
+            grid.length >= 2 &&
+            grid[0].length == 9 &&
+            grid[1].length == 9 &&
+            _compact(grid[0][0]?.text ?? '') == '구분' &&
+            grid[0][0]?.rowspan == 2 &&
+            grid[0][0]?.colspan == 1 &&
+            identical(grid[0][0], grid[1][0]) &&
+            _compact(grid[0][1]?.text ?? '') == '지배기업소유주지분' &&
+            grid[0][1]?.colspan == 6 &&
+            grid[0][1]?.rowspan == 1 &&
+            [for (var c = 1; c <= 6; c++) identical(grid[0][1], grid[0][c])]
+                .every((v) => v) &&
+            _compact(grid[0][7]?.text ?? '') == '비지배지분' &&
+            _compact(grid[0][8]?.text ?? '') == '합계' &&
+            [7, 8].every(
+              (c) =>
+                  grid[0][c]?.rowspan == 2 &&
+                  grid[0][c]?.colspan == 1 &&
+                  identical(grid[0][c], grid[1][c]),
+            ) &&
+            [for (var c = 1; c <= 6; c++) _compact(grid[1][c]?.text ?? '')]
+                    .join('|') ==
+                '자본금|자본잉여금|기타자본|기타포괄손익누계액|이익잉여금|합계' &&
+            [
+              for (var c = 1; c <= 6; c++)
+                grid[1][c]?.rowspan == 1 && grid[1][c]?.colspan == 1,
+            ].every((v) => v);
+        if (!pimWholeHeader &&
+            !innovexWholeHeader &&
+            (grid.first.length < 3 ||
+                !{
+                  '총계',
+                  '합계',
+                  '자본합계',
+                }.contains(_compact(grid.first.last?.text ?? '')) ||
+                grid.first.any(
+                  (c) => c == null || c.rowspan != 1 || c.colspan != 1,
+                ) ||
+                grid.first.any(
+                  (c) => _compact(c?.text ?? '').contains('비지배'),
+                ))) {
           throw const FormatException(
             'Dated punctuation supporting whole equity header mismatch',
           );
         }
         final units = RegExp(r'\(단위:([^)]*)\)').allMatches(local).toList();
         final unit = units.isEmpty ? null : units.last.group(1);
+        if ((pimWholeHeader || innovexWholeHeader) && unit != '원') {
+          throw const FormatException('PIM whole equity unit mismatch');
+        }
         final multiplier = switch (unit) {
           '원' => BigInt.one,
           '천원' => BigInt.from(1000),
@@ -1158,9 +1454,17 @@ abstract final class PublicFinancialHtml {
           ),
         };
         DateTime? rowDate(String text) {
-          final m = RegExp(
-            r'^(\d{4})(?:년|\.)(\d{1,2})(?:월|\.)(\d{1,2})(?:일)?(?:\(보고금액\)|\(당기초\)|\(당기말\)|\(기초자본\)|\(기말자본\)|잔액)$',
-          ).firstMatch(_compact(text));
+          final m =
+              RegExp(
+                r'^(\d{4})(?:년|\.)(\d{1,2})(?:월|\.)(\d{1,2})(?:일)?(?:\(보고금액\)|\(당기초\)|\(당기말\)|\(기초자본\)|\(기말자본\)|잔액)$',
+              ).firstMatch(
+                innovexWholeHeader
+                    ? _compact(text).replaceFirst(
+                        RegExp(r'^Ⅲ\.(?=\d{4}\.\d{2}\.\d{2}\(기말자본\)$)'),
+                        '',
+                      )
+                    : _compact(text),
+              );
           if (m == null) return null;
           final d = DateTime.utc(
             int.parse(m[1]!),
@@ -1229,12 +1533,21 @@ abstract final class PublicFinancialHtml {
         }
 
         candidates.add({
-          'mode': termYearHeaderCandidate
+          'mode': innovexWholeHeader
+              ? 'exact-innovex-ofs-whole-equity-corroboration'
+              : pimWholeHeader
+              ? 'exact-pim-cfs-span-whole-equity-corroboration'
+              : termYearHeaderCandidate
               ? 'full-annual-term-year-whole-equity-corroboration'
               : bsDurationCandidate
               ? 'primary-bs-duration-equity-corroboration'
               : 'fully-dated-parentheses-equity-corroboration',
           'tableIndex': index,
+          if (innovexWholeHeader) 'wholeTotalColumn': 6,
+          if (innovexWholeHeader) 'literalSeparatorRowsExcluded': true,
+          if (pimWholeHeader) 'wholeTotalColumn': 8,
+          if (pimWholeHeader) 'parentSubtotalColumn': 6,
+          if (pimWholeHeader) 'nonControllingColumn': 7,
           'currentTerm': term,
           'periodStart': periodStart.toIso8601String().substring(0, 10),
           'periodEnd': periodEnd.toIso8601String().substring(0, 10),
@@ -1338,7 +1651,8 @@ abstract final class PublicFinancialHtml {
             '영업손실',
           ].any(labels.contains))) {
         kind = 'CIS';
-      } else if (labels.contains('영업활동으로인한현금흐름') ||
+      } else if (labels.contains('영업활동으로인한현금흐름(1+2+3)') ||
+          labels.contains('영업활동으로인한현금흐름') ||
           labels.contains('영업활동으로인한현금흐름(순액)') ||
           labels.contains('영업활동현금흐름') ||
           labels.contains('영업활동순현금흐름')) {
@@ -1428,7 +1742,11 @@ abstract final class PublicFinancialHtml {
                         current.colspan != 2 ||
                         _compact(current.text) !=
                             (kind == 'BS' ? '제14(당)기말' : '제14(당)기'))
-                  : _compact(current.text) != '2025년도(제26기)'))) {
+                  : (rootlocScope
+                        ? (current.column != 3 ||
+                              current.colspan != 1 ||
+                              _compact(current.text) != '2025년도(제12기)')
+                        : _compact(current.text) != '2025년도(제26기)')))) {
         throw const FormatException('Annual primary statement title mismatch');
       }
       final units = RegExp(r'\(단위:([^)]*)\)').allMatches(localPrefix).toList();
