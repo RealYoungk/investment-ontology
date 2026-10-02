@@ -1657,6 +1657,10 @@ abstract final class PublicFinancialHtml {
         v = '(${v.substring(1, v.length - 1).trim()})';
       }
       if (v.isEmpty || v == '-') return null;
+      // Whitespace after an explicit minus is printed sign padding, not digits.
+      if (RegExp(r'^-\s+(?:\d{1,3}(?:,\d{3})*|\d+)$').hasMatch(v)) {
+        v = '-${v.substring(1).trim()}';
+      }
       if (!RegExp(r'^\(?-?\d{1,3}(?:,\d{3})*\)?$|^-?\d+$').hasMatch(v) ||
           v.startsWith('(') != v.endsWith(')')) {
         throw const FormatException('Malformed annual current amount');
@@ -2015,6 +2019,23 @@ abstract final class PublicFinancialHtml {
     if (redwoodsBlankHeader) {
       RedwoodsBlankHeaderSource.verifyRaw(coverHtml, statementHtml);
     }
+    // One immutable official source prints blank account header cells.
+    // Never infer a generic blank-header account table from numeric rows.
+    final yBiologicsBlankHeader =
+        receipt == '20230414002057' &&
+        corpCode == '01226234' &&
+        !consolidated &&
+        term == '15' &&
+        periodStart == DateTime.utc(2022) &&
+        periodEnd == DateTime.utc(2022, 12, 31) &&
+        coverSource.toString() ==
+            'https://dart.fss.or.kr/report/viewer.do?rcpNo=20230414002057&dcmNo=9232198&eleId=1&offset=816&length=4054&dtd=dart3.xsd' &&
+        statementSource.toString() ==
+            'https://dart.fss.or.kr/report/viewer.do?rcpNo=20230414002057&dcmNo=9232198&eleId=21&offset=206375&length=38970&dtd=dart3.xsd' &&
+        sha256.convert(utf8.encode(coverHtml)).toString() ==
+            'a4aa9f277213620b3701d4e8a66b29527c0bf9cb99b6b205795e763b6fe2e2a0' &&
+        sha256.convert(utf8.encode(statementHtml)).toString() ==
+            '0b5f2ec8f857f5c488b36095dcdad364a171deaa3c63b606b15a28a530eee8e5';
     final txrBlankHeader =
         receipt == '20250526000504' &&
         corpCode == '01458161' &&
@@ -2068,7 +2089,9 @@ abstract final class PublicFinancialHtml {
       ).firstMatch(table.group(1)!);
       if (first == null ||
           (!{'과목', '구분', '계정과목'}.contains(_compact(_text(first.group(1)!))) &&
-              !((txrBlankHeader || redwoodsBlankHeader) &&
+              !((txrBlankHeader ||
+                      redwoodsBlankHeader ||
+                      yBiologicsBlankHeader) &&
                   _compact(_text(first.group(1)!)).isEmpty))) {
         continue;
       }

@@ -32,6 +32,33 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20230414002057',
+      corpCode: '01226234',
+      companyName: '(주)와이바이오로직스',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230414002057-ofs',
+      manifestDigest:
+          'd08e7be8a9fc2f1ad21bc1cd78f625cbde65300b55742b56513a9691042c5c9e',
+      ruleVersion: 'bilingual-issuer-exact-eight-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: true,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230414002057',
+      corpCode: '01226234',
+      companyName: '(주)와이바이오로직스',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20230414002057-cfs',
+      manifestDigest:
+          'bf6bb7a802b0fb45369e4088dda93777ab0b0ddd5bdad9d61a69508409d49ee1',
+      ruleVersion: 'bilingual-issuer-exact-pure-none-v1',
+      absenceLiteral: '*해당사항이 없습니다.',
+      requiresIssuerOverview: true,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20220321001162',
       corpCode: '01188749',
       companyName: '(주)지앤이헬스케어',

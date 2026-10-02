@@ -163,7 +163,7 @@ class PublicIssuerLegalName {
     final headings = <RegExpMatch>[];
     for (final p in paragraphs) {
       if (RegExp(
-        r'^(?:\d+\s*\.|[가-힣]\.)\s*회사의\s*(?:법적\s*(?:[ㆍ·]|,)\s*상업적\s*)?명칭$',
+        r'^(?:\d+\s*\.|[가-힣]\s*\.)\s*회사의\s*(?:법적\s*(?:[ㆍ·]|,)\s*상업적\s*)?명칭$',
       ).hasMatch(_text(p.group(1)!))) {
         headings.add(p);
       }
@@ -220,6 +220,7 @@ class PublicIssuerLegalName {
       return null;
     }
     final candidates = <String>[], quotes = <String>[];
+    String? declaredEnglishName;
     for (final tr in RegExp(
       r'<tr\b[^>]*>(.*?)</tr>',
       caseSensitive: false,
@@ -278,6 +279,12 @@ class PublicIssuerLegalName {
       // A later history, change notice or subsidiary paragraph cannot supply it.
       final firstLiteralPatterns = [
         RegExp(
+          r"^당사의 명칭은 '([가-힣㈜() ]+)'이며 영문으로 '[A-Za-z0-9.,& -]+'로 표기합니다\. 단, 약식으로 표기할 경우 '[가-힣㈜() ]+' 또는 '[A-Za-z0-9.,& -]+'라 표기합니다\.$",
+        ),
+        RegExp(
+          r"^당사의 명칭은 '([가-힣㈜() ]+)'이며, 영문으로는 '[A-Za-z0-9.,& -]+'로 표기합니다\.$",
+        ),
+        RegExp(
           r"^회사의 명칭은 '([^']+)' 이며, 영문으로는 '[A-Za-z0-9.,& -]+'로 표기합니다\.$",
         ),
         RegExp(
@@ -333,20 +340,48 @@ class PublicIssuerLegalName {
           firstLiteral = matches.single;
         }
       }
-      final naming = m ?? direct ?? quoted ?? literalColon ?? firstLiteral;
+      // A bilingual cover is corroborated only by the first direct declaration
+      // printing both names. English is compared as printed, never translated.
+      final bilingualMatch = firstDeclaration.start == p.start
+          ? RegExp(
+              r'^당사의 명칭은 "([가-힣㈜() ]+)"라고 표기합니다\. 또한 영문으로는 ([A-Za-z0-9.,& -]+)라 표기합니다\.$',
+            ).firstMatch(t)
+          : null;
+      final bilingual =
+          bilingualMatch != null &&
+              RegExp(r'주식회사|\(주\)|㈜').hasMatch(bilingualMatch.group(1)!) &&
+              !RegExp(r'자회사|종속회사|계열회사|예정|변경|가정|조건|향후')
+                  .hasMatch(bilingualMatch.group(1)!)
+          ? bilingualMatch
+          : null;
+      if (bilingual != null) declaredEnglishName = bilingual.group(2)!;
+      final naming =
+          m ?? direct ?? quoted ?? literalColon ?? firstLiteral ?? bilingual;
       if (naming != null) {
         candidates.add(naming.group(1)!);
         quotes.add(t);
       }
     }
-    if (candidates.length != 1 ||
-        normalize(candidates.single) != normalize(printedName)) {
-      return null;
+    if (candidates.length != 1) return null;
+    var samePrintedIssuer =
+        normalize(candidates.single) == normalize(printedName);
+    if (!samePrintedIssuer && declaredEnglishName != null) {
+      final bilingualCover = RegExp(
+        r'^(.+?)\(([A-Za-z0-9.,& -]+)\)$',
+      ).firstMatch(printedName);
+      String printedEnglish(String s) => s.replaceAll(RegExp(r'[,\s]+'), '');
+      samePrintedIssuer =
+          bilingualCover != null &&
+          normalize(bilingualCover.group(1)!) == normalize(candidates.single) &&
+          printedEnglish(bilingualCover.group(2)!) ==
+              printedEnglish(declaredEnglishName);
     }
+    if (!samePrintedIssuer) return null;
     return {
       'currentName': masterName,
       'printedHistoricalName': printedName,
       'declaredLegalName': candidates.single,
+      'declaredEnglishName': ?declaredEnglishName,
       'receipt': receipt,
       'corpCode': corpCode,
       'periodStart': periodStart.toIso8601String().substring(0, 10),
