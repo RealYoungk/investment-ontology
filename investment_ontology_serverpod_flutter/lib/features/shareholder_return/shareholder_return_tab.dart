@@ -85,14 +85,16 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
   @override
   void initState() {
     super.initState();
-    client.disclosure
-        .shareholderReturn(widget.corpCode)
-        .then((d) {
-          if (mounted) setState(() => _data = d);
-        })
-        .catchError((Object e) {
-          if (mounted) setState(() => _error = e);
-        });
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final data = await client.disclosure.shareholderReturn(widget.corpCode);
+      if (mounted) setState(() { _data = data; _error = null; });
+    } catch (error) {
+      if (mounted) setState(() => _error = error);
+    }
   }
 
   @override
@@ -101,7 +103,7 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
     final t = context.typo;
     final d = _data;
     if (_error != null) {
-      return AppNotice(message: '주주환원을 불러오지 못했습니다 — $_error');
+      return ReadFailureNotice(subject: '주주환원', retry: _load);
     }
     if (d == null) return const LinearProgressIndicator(minHeight: 2);
 
@@ -119,6 +121,9 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
     final dps = find(
       (s) => s.item.contains('주당') && s.item.contains('현금배당금') && common(s),
     );
+    final yield = find(
+      (s) => s.item.contains('현금배당수익률') && common(s),
+    );
     final payout = find((s) => s.item.contains('현금배당성향'));
 
     return Column(
@@ -130,6 +135,14 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
           LayoutBuilder(
             builder: (context, box) {
               final trends = <Widget>[
+                if (yield != null)
+                  _Trend(
+                    title: '배당수익률 · 주가 대비 (공시 기준)',
+                    help: '주당 현금배당금 ÷ 주가 × 100입니다. 아래 값과 추이는 공시 당시 기준이며 최신 주가로 계산한 수익률은 아닙니다.',
+                    years: years,
+                    series: yield,
+                    color: c.chartSeries3,
+                  ),
                 if (dps != null)
                   _Trend(
                     title: '한 주당 받은 현금배당',
@@ -140,7 +153,7 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
                   ),
                 if (payout != null)
                   _Trend(
-                    title: '이익 중 배당한 비율',
+                    title: '배당성향 · 이익 대비',
                     years: years,
                     series: payout,
                     color: c.chartSeries2,
@@ -163,6 +176,10 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
               );
             },
           ),
+          if (yield == null)
+            AppNotice(
+              message: '공시 기준 배당수익률 자료가 아직 없습니다. 배당수익률은 주가 대비 배당금의 비율입니다.',
+            ),
           const SizedBox(height: AppSpace.lg),
           ExpansionTile(
             tilePadding: EdgeInsets.zero,
@@ -355,6 +372,7 @@ class _Trend extends StatelessWidget {
     required this.series,
     required this.color,
     this.bars = false,
+    this.help,
   });
 
   final String title;
@@ -362,6 +380,7 @@ class _Trend extends StatelessWidget {
   final DividendSeries series;
   final Color color;
   final bool bars;
+  final String? help;
 
   @override
   Widget build(BuildContext context) {
@@ -382,7 +401,7 @@ class _Trend extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(title, style: t.body(13, weight: FontWeight.w600)),
+          CompanySectionHeading(title, help: help),
           const SizedBox(height: AppSpace.sm),
           if (latestYear != null) ...[
             Text(
