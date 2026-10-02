@@ -17,7 +17,8 @@ class CompanyMasterSync {
     this.jobId, {
     this.dailyLimit = ApiCallBudget.dartDailyLimit - 100,
     this.scheduleResume,
-  });
+    DateTime Function()? clock,
+  }) : _clock = clock ?? DateTime.now;
 
   static const kind = 'company_master';
 
@@ -56,6 +57,10 @@ class CompanyMasterSync {
 
   /// 이 수집이 오늘 쓸 수 있는 DART 호출 상한 (재무 수집 등 다른 수집과 합산, 약간 여유).
   final int dailyLimit;
+  final DateTime Function() _clock;
+  int get _activeLimit => dailyLimit < ApiCallBudget.dartDailyLimit
+      ? dailyLimit
+      : ApiCallBudget.dartDailyLimit;
 
   /// 일시적 개황 실패 뒤 변경분을 재시도한다. 성공한 기업은 변경일로 제외된다.
   final Future<void> Function(DateTime at)? scheduleResume;
@@ -72,6 +77,28 @@ class CompanyMasterSync {
     }
     var job = claimed;
     try {
+      // corpCode.xml consumes the same shared DART allowance as company.json.
+      // Leave master/change-date ledgers intact when no request can be made.
+      if (await _isCancelled()) return;
+      if (await ApiCallBudget.usedToday(session, ApiProvider.dart) >=
+          _activeLimit) {
+        if (await _isCancelled()) return;
+        await scheduleResume?.call(
+          ApiCallBudget.nextKstMidnight(_clock().toUtc())
+              .add(const Duration(minutes: 10)),
+        );
+        await _save(
+          job.copyWith(
+            status: IngestStatus.failed,
+            finishedAt: _clock().toUtc(),
+            apiCalls: dart.calls,
+            message:
+                'DART 일일 호출 한도에 닿아 고유번호 목록 요청 전 대기. '
+                '기업 변경일과 미완료 상태를 보존하고 내일 변경분을 재개합니다.',
+          ),
+        );
+        return;
+      }
       await KsicSeeder.seed(session);
 
       final corpCodes = await dart.fetchCorpCodes();
@@ -98,8 +125,6 @@ class CompanyMasterSync {
       job = await _save(job.copyWith(total: targets.length));
 
       // 재무 수집이 같은 날 DART 한도를 많이 썼으면 남은 만큼만 쓰고 멈춘다.
-      final allowance =
-          dailyLimit - await ApiCallBudget.usedToday(session, ApiProvider.dart);
       var limitReached = false;
       var processed = 0, updated = 0, failed = 0;
       final failures = <String>[];
@@ -108,7 +133,9 @@ class CompanyMasterSync {
           job = job.copyWith(status: IngestStatus.cancelled);
           break;
         }
-        if (dart.calls >= allowance) {
+        await _meter.flush(session);
+        if (await ApiCallBudget.usedToday(session, ApiProvider.dart) >=
+            _activeLimit) {
           limitReached = true;
           break;
         }
@@ -153,7 +180,7 @@ class CompanyMasterSync {
         // 전체 갱신이 끝나지 않았으므로 성공으로 남기지 않는다 (다음 수집이 다시 전체 갱신).
         // 받은 기업은 저장되어 있고, 변경분 수집은 변경일이 남은 기업을 다시 고른다.
         await scheduleResume?.call(
-          ApiCallBudget.nextKstMidnight(DateTime.now().toUtc())
+          ApiCallBudget.nextKstMidnight(_clock().toUtc())
               .add(const Duration(minutes: 10)),
         );
         await _save(
@@ -163,7 +190,7 @@ class CompanyMasterSync {
             updated: updated,
             failed: failed,
             apiCalls: dart.calls,
-            finishedAt: DateTime.now().toUtc(),
+            finishedAt: _clock().toUtc(),
             message:
                 'DART 일일 호출 한도에 닿아 ${targets.length}건 중 $processed건에서 멈춤. '
                 '받은 것은 저장되어 있습니다. 내일 다시 수집하면 남은 기업을 받습니다.',
@@ -178,7 +205,7 @@ class CompanyMasterSync {
           scheduleResume != null;
       if (retryScheduled) {
         await scheduleResume!(
-          DateTime.now().toUtc().add(const Duration(minutes: 15)),
+          _clock().toUtc().add(const Duration(minutes: 15)),
         );
       }
       await _save(
@@ -192,7 +219,7 @@ class CompanyMasterSync {
           updated: updated,
           failed: failed,
           apiCalls: dart.calls,
-          finishedAt: DateTime.now().toUtc(),
+          finishedAt: _clock().toUtc(),
           message: failures.isEmpty
               ? '${force ? '전체 갱신' : '변경분'} 대상 ${targets.length}건 (고유번호 중 종목코드 보유 ${withStock.length}건)'
               : '기업개황 $failed건 미완료${retryScheduled ? ' · 15분 뒤 변경분 재시도 예약' : ' · 다음 변경분 수집에서 재시도'}. 실패 예시: ${failures.join(' / ')}',
@@ -202,7 +229,7 @@ class CompanyMasterSync {
       if (e is DartApiException && e.status == _limitExceeded) {
         // 기업개황 목록(corpCode.xml)부터 한도에 걸린 경우.
         await scheduleResume?.call(
-          ApiCallBudget.nextKstMidnight(DateTime.now().toUtc())
+          ApiCallBudget.nextKstMidnight(_clock().toUtc())
               .add(const Duration(minutes: 10)),
         );
         await fail(
@@ -269,7 +296,7 @@ class CompanyMasterSync {
       'N' => Market.konex,
       _ => Market.other,
     };
-    final now = DateTime.now().toUtc();
+    final now = _clock().toUtc();
 
     return session.db.transaction((tx) async {
       final nextStatus = DartCorpStatus(

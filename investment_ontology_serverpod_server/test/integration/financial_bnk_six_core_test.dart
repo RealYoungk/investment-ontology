@@ -1,0 +1,213 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:test/test.dart';
+import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/dart/bnk_six_core_profile.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_financial_html_fetch.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/financial/financial_accounts.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/financial/financial_source_duration.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/ingest/financial_facts_sync.dart';
+
+import 'financial_facts_sync_test.dart' show AnnualNoDataClient;
+import 'test_tools/serverpod_test_tools.dart';
+
+class BnkClient extends AnnualNoDataClient {
+  @override
+  Future<PublicFinancialHtmlSource> fetchAnnualHtml(
+    String receipt, {
+    required String reportName,
+    required String corpCode,
+    required String companyName,
+    required int bsnsYear,
+    required DateTime periodEnd,
+    required bool consolidated,
+  }) async {
+    attemptedReceipts.add(receipt);
+    if (consolidated) {
+      throw const FormatException('CFS not supported by verified OFS profile');
+    }
+    return PublicFinancialHtmlSource(
+      sourceReceipt: receipt,
+      correctionReceipt: null,
+      correctionSource: null,
+      coverHtml: File('test/fixtures/financial_html/bnk-six-core/cover.html')
+          .readAsStringSync(),
+      coverSource: Uri.parse(BnkSixCoreProfile.coverUri),
+      statementHtml: File('test/fixtures/financial_html/bnk-six-core/OFS.html')
+          .readAsStringSync(),
+      statementSource: Uri.parse(BnkSixCoreProfile.statementUri),
+      periodStart: DateTime.utc(2022, 1, 1),
+      periodEnd: periodEnd,
+      rows: const [],
+    );
+  }
+}
+
+void main() {
+  withServerpod('BNK exact partial six normal ingestion', (builder, endpoints) {
+    test('API0 preserves failed CFS and stores exact OFS6 with partial audit and public summary', () async {
+      final s = builder.build();
+      try {
+        final now = DateTime.utc(2026, 10, 2);
+        final c = await Company.db.insertRow(
+          s,
+          Company(
+            corpCode: BnkSixCoreProfile.corpCode,
+            name: '(주)BNK금융지주',
+            market: Market.kospi,
+            stockCode: '138930',
+            fiscalMonth: 12,
+          ),
+        );
+        final f = await DartFiling.db.insertRow(
+          s,
+          DartFiling(
+            rceptNo: BnkSixCoreProfile.receipt,
+            corpCode: c.corpCode,
+            companyId: c.id,
+            reportName: '사업보고서 (2022.12)',
+            bsnsYear: 2022,
+            reportCode: FinancialReportCode.annual,
+            consolidatedStatus: FilingFetchStatus.failed,
+            separateStatus: FilingFetchStatus.failed,
+            attempts: 3,
+            lastError:
+                'api-noData-annual-public:attempt=1; verified parser failure',
+            discoveredAt: now,
+          ),
+        );
+        final job = await IngestJob.db.insertRow(
+          s,
+          IngestJob(
+            kind: FinancialFactsSync.kind,
+            status: IngestStatus.running,
+            startedAt: now,
+          ),
+        );
+        final client = BnkClient();
+        await FinancialFactsSync(
+          s,
+          client,
+          job.id!,
+          dailyBudget: 0,
+          clock: () => now,
+          callInterval: Duration.zero,
+        ).run();
+        expect(client.financialRequests, 0);
+        final filing = (await DartFiling.db.findById(s, f.id!))!;
+        expect(filing.attempts, 4);
+        expect(filing.separateStatus, FilingFetchStatus.stored);
+        expect(filing.consolidatedStatus, FilingFetchStatus.failed);
+        expect(filing.lastError, contains('attempt=2'));
+        final report = (await FinancialReport.db.find(s)).single;
+        expect(report.factCount, 6);
+        expect(report.fsDiv, FsDiv.separate);
+        final source = (await Source.db.findById(s, report.sourceId))!;
+        expect(source.title, startsWith(BnkSixCoreProfile.title));
+        expect(source.reference, BnkSixCoreProfile.receipt);
+        expect(source.url, BnkSixCoreProfile.statementUri);
+        final audit = (await Source.db.find(
+          s,
+          where: (t) => t.reference.equals(
+            'financial-api-noData-source:${BnkSixCoreProfile.receipt}:separate',
+          ),
+        )).single;
+        final evidence = jsonDecode(audit.title) as Map;
+        expect(evidence['coreRows'], 6);
+        expect(evidence['missingRequiredAccounts'], ['revenue']);
+        expect(evidence['uncollectedOptionalAccounts'], ['capex']);
+        expect(
+          BnkSixCoreProfile.storedProof(
+            evidence['coreRowProvenance'],
+            sourceDigest: evidence['sha256'],
+            sourceUrl: source.url!,
+            companyCode: c.corpCode,
+            targetReceipt: report.rceptNo,
+            basis: report.fsDiv.name,
+            year: report.bsnsYear,
+            reportName: report.reportName,
+          ),
+          isTrue,
+        );
+        final duration = FinancialSourceDuration.validate(
+          report: report,
+          company: c,
+          reportSource: source,
+          audit: audit,
+        );
+        expect(duration?.days, 365);
+        final facts = await FinancialFact.db.find(
+          s,
+          where: (t) => t.reportId.equals(report.id!),
+        );
+        expect(facts, hasLength(6));
+        final picked = FinancialAccounts.pick(facts);
+        expect(
+          picked.any((p) => p.key == 'revenue' || p.key == 'capex'),
+          isFalse,
+        );
+        expect(
+          picked.singleWhere((p) => p.key == 'netIncome').amount,
+          BigInt.parse('305256302474'),
+        );
+        final summary = await endpoints.financial.summary(
+          builder,
+          c.corpCode,
+          fsDiv: FsDiv.separate,
+        );
+        expect(summary, isNotNull);
+        final lines = summary!.periods.single.lines;
+        expect(
+          lines.singleWhere((l) => l.key == 'netIncome').amount,
+          BigInt.parse('305256302474'),
+        );
+        expect(
+          lines.any((l) => l.key == 'revenue' || l.key == 'capex'),
+          isFalse,
+        );
+        final security = await Security.db.insertRow(
+          s,
+          Security(
+            isinCode: 'KR7138930003',
+            shortCode: '138930',
+            name: c.name,
+            market: Market.kospi,
+            companyId: c.id,
+            lastSeenDate: now,
+          ),
+        );
+        await MarketSnapshot.db.insertRow(
+          s,
+          MarketSnapshot(
+            securityId: security.id!,
+            baseDate: now,
+            marketCap: BigInt.parse('1000000000000'),
+            closePrice: BigInt.from(10000),
+            sourceId: source.id!,
+          ),
+        );
+        await MarketSnapshotDay.db.insertRow(
+          s,
+          MarketSnapshotDay(
+            baseDate: now,
+            rowCount: 1,
+            sourceId: source.id,
+            fetchedAt: now,
+          ),
+        );
+        final page = await endpoints.screen.list(
+          builder,
+          corpCodes: [c.corpCode],
+        );
+        final item = page.items.single;
+        expect(item.revenue, isNull);
+        expect(item.operatingMargin, isNull);
+        expect(item.revenueGrowth, isNull);
+        expect(item.fcfYield, isNull);
+      } finally {
+        await s.close();
+      }
+    });
+  });
+}

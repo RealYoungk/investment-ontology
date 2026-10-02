@@ -1,0 +1,127 @@
+{
+  "receipt": "20250526000504",
+  "corpCode": "01458161",
+  "publicGets": 4,
+  "company": "(주)티엑스알로보틱스",
+  "periodStart": "2024-01-01",
+  "periodEnd": "2024-12-31",
+  "term": 8,
+  "cfs": {
+    "exactNode": "2. 연결재무제표",
+    "text": "- 해당사항이 없습니다.",
+    "numericCoreAvailable": false,
+    "recoveryAllowed": false
+  },
+  "ofs": {
+    "exactNode": "4. 재무제표",
+    "unit": "원",
+    "header": [
+      "",
+      "제 8 기",
+      "제 7 기",
+      "제 6 기"
+    ],
+    "rows": [
+      {
+        "kind": "assets",
+        "printedLabel": "자산총계",
+        "printedCurrent": "73,247,389,526",
+        "observedAmountWon": "73247389526",
+        "tableIndex": 1,
+        "rowIndex": 16,
+        "currentLogicalColumn": 1
+      },
+      {
+        "kind": "liabilities",
+        "printedLabel": "부채총계",
+        "printedCurrent": "43,335,936,253",
+        "observedAmountWon": "43335936253",
+        "tableIndex": 1,
+        "rowIndex": 30,
+        "currentLogicalColumn": 1
+      },
+      {
+        "kind": "equity",
+        "printedLabel": "자본총계",
+        "printedCurrent": "29,911,453,273",
+        "observedAmountWon": "29911453273",
+        "tableIndex": 1,
+        "rowIndex": 38,
+        "currentLogicalColumn": 1
+      },
+      {
+        "kind": "revenue",
+        "printedLabel": "매출 (주25,36)",
+        "printedCurrent": "57,227,363,835",
+        "observedAmountWon": "57227363835",
+        "tableIndex": 3,
+        "rowIndex": 1,
+        "currentLogicalColumn": 1
+      },
+      {
+        "kind": "operatingProfit",
+        "printedLabel": "영업이익",
+        "printedCurrent": "5,268,076,346",
+        "observedAmountWon": "5268076346",
+        "tableIndex": 3,
+        "rowIndex": 5,
+        "currentLogicalColumn": 1
+      },
+      {
+        "kind": "netProfit",
+        "printedLabel": "당기순이익",
+        "printedCurrent": "3,836,401,497",
+        "observedAmountWon": "3836401497",
+        "tableIndex": 3,
+        "rowIndex": 12,
+        "currentLogicalColumn": 1
+      },
+      {
+        "kind": "operatingCashFlow",
+        "printedLabel": "영업활동 현금흐름",
+        "printedCurrent": "(9,281,444,009)",
+        "observedAmountWon": "-9281444009",
+        "tableIndex": 7,
+        "rowIndex": 1,
+        "currentLogicalColumn": 1
+      }
+    ],
+    "balanceIdentity": true,
+    "scopeAmbiguity": {
+      "currentNonControllingInterest": "0",
+      "priorNonControllingInterest": "-1432704582",
+      "cashFlowHistoricalConsolidationScopeLabel": "연결범위변동으로 인한 증가",
+      "observation": "별도 목차에 과거 비지배지분 및 연결범위변동 행이 있으므로 목차 기반 관측값이며 CFS로 재분류/재사용하지 않음"
+    }
+  },
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250526000504",
+      "responseUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250526000504",
+      "status": 200,
+      "sha256": "995bc3d90fad5590eb475e8388d9514b066172b54c374a76de4687f95bdca943"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250526000504&dcmNo=10659954&eleId=3&offset=274976&length=4501&dtd=dart4.xsd",
+      "responseUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250526000504&dcmNo=10659954&eleId=3&offset=274976&length=4501&dtd=dart4.xsd",
+      "status": 200,
+      "sha256": "8ddb84cb26b16811768603025ffc97113ed607d30c9f2a99a5183ff6621a9078"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250526000504&dcmNo=10659954&eleId=21&offset=583203&length=196&dtd=dart4.xsd",
+      "responseUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250526000504&dcmNo=10659954&eleId=21&offset=583203&length=196&dtd=dart4.xsd",
+      "status": 200,
+      "sha256": "3cdbb45d444f1f52a7768ec9a122157a592ab0ba468d6a1805688f2178c61d11"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250526000504&dcmNo=10659954&eleId=23&offset=583619&length=51351&dtd=dart4.xsd",
+      "responseUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250526000504&dcmNo=10659954&eleId=23&offset=583619&length=51351&dtd=dart4.xsd",
+      "status": 200,
+      "sha256": "c50f3549f97bd443dbc3cfa17a18b57843791024e0a00adef6f7185f95070515"
+    }
+  ]
+}

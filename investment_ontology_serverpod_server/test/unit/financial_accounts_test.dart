@@ -24,6 +24,18 @@ FinancialFact fact(
 );
 
 void main() {
+  test('actual trailing numeric note maps while malformed or embedded notes remain excluded', () {
+    expect(FinancialAccounts.pick([fact('매출 (주25,36)')]).single.key, 'revenue');
+    for (final name in [
+      '매출(주25,X)',
+      '매출(주25,,36)',
+      '매출(주25,36)기타',
+      '(주25,36)매출',
+    ]) {
+      expect(FinancialAccounts.pick([fact(name)]), isEmpty);
+    }
+  });
+
   test(
     'exact printed whole revenue and SQL mirror excludes costs and details',
     () {

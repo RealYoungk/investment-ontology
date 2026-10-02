@@ -1,3 +1,5 @@
+import '../dart/bnk_six_core_profile.dart';
+
 import 'dart:math';
 import 'dart:convert';
 
@@ -1032,6 +1034,22 @@ class FinancialFactsSync {
       ) ??
       0;
 
+  /// Priority only for the exact official TXR annual fixture; never resets retries.
+  static bool verifiedTxrRecoveryPriority(DartFiling f) =>
+      f.rceptNo == '20250526000504' &&
+      f.corpCode == '01458161' &&
+      f.reportCode == FinancialReportCode.annual &&
+      f.bsnsYear == 2024 &&
+      DartReportName.parse(f.reportName)?.periodYear == 2024 &&
+      DartReportName.parse(f.reportName)?.periodMonth == 12 &&
+      _annualPublicAttempts(f) < 3 &&
+      [f.consolidatedStatus, f.separateStatus].any(
+        (s) =>
+            s == FilingFetchStatus.pending ||
+            s == FilingFetchStatus.failed ||
+            s == FilingFetchStatus.noData,
+      );
+
   Future<({int stored, int failed, int processed, int remaining, bool fresh})>
   _recoverAnnualApiNoData(
     Set<int> scopeIds,
@@ -1078,6 +1096,8 @@ class FinancialFactsSync {
     // Exact official fixtures verified by this parser revision. This affects
     // queue order only: existing per-period attempts and failed-basis gates stay.
     const verifiedParserReceipts = <String, Set<String>>{
+      '20230309000759': {'OFS'},
+      '20250320001633': {'OFS'},
       '20260318000509': {'OFS'},
       '20260617000188': {'OFS'},
       '20260731000744': {'OFS'},
@@ -1106,8 +1126,18 @@ class FinancialFactsSync {
       '20260331004755': {'OFS'},
     };
     bool verifiedParserPending(DartFiling f) {
+      if (f.rceptNo == '20250526000504') {
+        return verifiedTxrRecoveryPriority(f);
+      }
+      if (f.rceptNo == BnkSixCoreProfile.receipt &&
+          f.corpCode != BnkSixCoreProfile.corpCode) {
+        return false;
+      }
       final bases = verifiedParserReceipts[f.rceptNo];
       if (bases == null) return false;
+      if (f.rceptNo == '20250320001633' && f.corpCode != '01188730') {
+        return false;
+      }
       if (f.rceptNo == '20260318000509' && f.corpCode != '00832700') {
         return false;
       }
@@ -1827,6 +1857,7 @@ class FinancialFactsSync {
                   );
                 }
                 final rows = PublicFinancialHtml.parseStandardAnnual(
+                  issuerProof: html.issuerProof,
                   coverHtml: html.coverHtml,
                   statementHtml: html.statementHtml,
                   coverSource: html.coverSource,
@@ -1861,7 +1892,9 @@ class FinancialFactsSync {
                     uri.queryParameters['rcpNo'] == filing.rceptNo &&
                     RegExp(r'^\d+$')
                         .hasMatch(uri.queryParameters['dcmNo'] ?? '');
-                if (div != FsDiv.consolidated ||
+                if ((absence.issuerProof != null &&
+                        absence.issuerIdentityEvidence == null) ||
+                    div != FsDiv.consolidated ||
                     absence.sourceReceipt != filing.rceptNo ||
                     absence.corpCode != company.corpCode ||
                     absence.reportName != filing.reportName ||
@@ -2006,6 +2039,21 @@ class FinancialFactsSync {
                       'sha256': fallback.digest,
                       'coverSource': fallback.coverSource?.toString(),
                       'coreRows': fallback.rows.length,
+                      if (BnkSixCoreProfile.storedProof(
+                        fallback.rows,
+                        sourceDigest: fallback.digest,
+                        sourceUrl: fallback.source.toString(),
+                        companyCode: company.corpCode,
+                        targetReceipt: filing.rceptNo,
+                        basis: div.name,
+                        year: filing.bsnsYear!,
+                        reportName: filing.reportName,
+                      )) ...{
+                        'missingRequiredAccounts': ['revenue'],
+                        'uncollectedOptionalAccounts': ['capex'],
+                        'missingReason':
+                            '해당 정확원문 전체 손익표에 매출 총액 행 없음; 합산·0 대체 없음',
+                      },
                       'coreRowProvenance': [
                         for (final row in fallback.rows)
                           {
@@ -2076,6 +2124,9 @@ class FinancialFactsSync {
                     'periodStart': absence.periodStart.toIso8601String(),
                     'periodEnd': absence.periodEnd.toIso8601String(),
                     'evidence': absence.evidence,
+                    if (absence.issuerIdentityEvidence != null)
+                      'historicalCompanyIdentity':
+                          absence.issuerIdentityEvidence,
                     'note': '공식 원문에 연결 작성 비적용이 명시됨. 원 API 자료없음 상태 보존; 빈 파싱 결과로 부재를 추정하지 않음.',
                   }),
                 ),
@@ -2626,7 +2677,7 @@ class FinancialFactsSync {
               ? '${originalFormat == 'half-xbrl'
                     ? 'DART 원문 XBRL 반기 부분 핵심7계정(손익3개월·누적6개월)'
                     : originalFormat == 'html'
-                    ? 'DART 원문 HTML 부분 핵심계정(실제 인쇄 계정명, XBRL 계정 ID 미제공)'
+                    ? (BnkSixCoreProfile.storedProof(rows, sourceDigest: originalDigest ?? '', sourceUrl: originalSource.toString(), companyCode: company.corpCode, targetReceipt: rceptNo, basis: div.name, year: bsnsYear, reportName: reportName) ? BnkSixCoreProfile.title : 'DART 원문 HTML 부분 핵심계정(실제 인쇄 계정명, XBRL 계정 ID 미제공)')
                     : 'DART 원문 XBRL 핵심계정'} · $reportName · ${FinancialCodes.fsDivName(div)} · SHA256:$originalDigest$partialNote'
               : 'DART 전체 재무제표 (fnlttSinglAcntAll) · $reportName · '
                     '${FinancialCodes.fsDivName(div)}',

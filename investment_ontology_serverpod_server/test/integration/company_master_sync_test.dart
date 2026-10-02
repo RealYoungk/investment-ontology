@@ -17,12 +17,14 @@ class FakeDart {
   final corps = <String, ({String name, String? stock, String modify})>{};
   final profiles = <String, Map<String, dynamic>>{};
   final companyCalls = <String>[];
+  var listCalls = 0;
   final unavailable = <String>{};
 
   DartClient client() => DartClient(
     'key',
     httpClient: MockClient((req) async {
       if (req.url.path.endsWith('corpCode.xml')) {
+        listCalls++;
         final xml = StringBuffer('<result>');
         corps.forEach((code, c) {
           xml.write(
@@ -245,6 +247,128 @@ void main() {
         ),
       );
       expect(await CompanyMasterSync.isFullRefreshDue(session), isTrue);
+    });
+
+    for (final (used, configured) in [(19900, 19900), (20000, 25000), (0, 0)]) {
+      test(
+        'quota before list blocks both GETs at used $used/config $configured',
+        () async {
+          await ApiCallBudget.record(session, ApiProvider.dart, used);
+          final now = DateTime.now().toUtc();
+          final job = await IngestJob.db.insertRow(
+            session,
+            IngestJob(
+              kind: CompanyMasterSync.kind,
+              status: IngestStatus.running,
+              startedAt: now,
+            ),
+          );
+          await CompanyMasterSync(
+            session,
+            dart.client(),
+            job.id!,
+            dailyLimit: configured,
+            clock: () => now,
+            scheduleResume: (at) async => resumes.add(at),
+          ).run(force: false);
+          final result = (await IngestJob.db.findById(session, job.id!))!;
+          expect(dart.listCalls, 0);
+          expect(dart.companyCalls, isEmpty);
+          expect(result.apiCalls, 0);
+          expect(result.status, IngestStatus.failed);
+          expect(result.message, contains('목록 요청 전'));
+          expect(resumes, [
+            ApiCallBudget.nextKstMidnight(now).add(const Duration(minutes: 10)),
+          ]);
+          expect(
+            await ApiCallBudget.usedToday(session, ApiProvider.dart),
+            used,
+          );
+        },
+      );
+    }
+    test(
+      'cancelled quota job makes no GET and no resume reservation',
+      () async {
+        await ApiCallBudget.record(session, ApiProvider.dart, 20000);
+        final now = DateTime.now().toUtc();
+        final job = await IngestJob.db.insertRow(
+          session,
+          IngestJob(
+            kind: CompanyMasterSync.kind,
+            status: IngestStatus.cancelled,
+            startedAt: now,
+          ),
+        );
+        await CompanyMasterSync(
+          session,
+          dart.client(),
+          job.id!,
+          scheduleResume: (at) async => resumes.add(at),
+        ).run(force: false);
+        expect(dart.listCalls, 0);
+        expect(dart.companyCalls, isEmpty);
+        expect(resumes, isEmpty);
+        expect(
+          (await IngestJob.db.findById(session, job.id!))!.status,
+          IngestStatus.cancelled,
+        );
+      },
+    );
+    test('quota deferral preserves change dates and next-day delta resumes only remaining changed issuer', () async {
+      await runSync();
+      final before = (await Company.db.find(session)).single;
+      final statusBefore = await DartCorpStatus.db.find(session);
+      dart.corps['00000001'] = (
+        name: '상장사',
+        stock: '000001',
+        modify: '20261002',
+      );
+      dart.profiles['00000001'] = profile('상장사', 'Y', ceo: '새대표');
+      dart.listCalls = 0;
+      dart.companyCalls.clear();
+      final used = await ApiCallBudget.usedToday(session, ApiProvider.dart);
+      await ApiCallBudget.record(session, ApiProvider.dart, 20000 - used);
+      final blocked = await runSync();
+      expect(blocked.status, IngestStatus.failed);
+      expect(dart.listCalls, 0);
+      expect(dart.companyCalls, isEmpty);
+      expect(
+        (await Company.db.findById(session, before.id!))!.dartModifiedDate,
+        before.dartModifiedDate,
+      );
+      expect(
+        (await Company.db.findById(session, before.id!))!.profileUpdatedAt,
+        before.profileUpdatedAt,
+      );
+      final unchanged = await DartCorpStatus.db.find(session);
+      expect(
+        unchanged.map((s) => s.toJson()),
+        statusBefore.map((s) => s.toJson()),
+      );
+      // Isolated-test clock rollover: retain today's usage record as yesterday,
+      // matching the KST day key change; no master/status ledger is reset.
+      final usage = (await ApiCallUsage.db.find(session)).single;
+      await ApiCallUsage.db.updateRow(
+        session,
+        usage.copyWith(
+          day: ApiCallBudget.kstDay(
+            DateTime.now().toUtc().subtract(const Duration(days: 1)),
+          ),
+        ),
+      );
+      dart.companyCalls.clear();
+      resumes.clear();
+      final resumed = await runSync();
+      expect(resumed.status, IngestStatus.succeeded);
+      expect(dart.listCalls, 1);
+      expect(dart.companyCalls, ['00000001']);
+      expect(resumes, isEmpty);
+      expect((await Company.db.findById(session, before.id!))!.ceoName, '새대표');
+      expect(
+        (await Company.db.findById(session, before.id!))!.dartModifiedDate,
+        DateTime.utc(2026, 10, 2),
+      );
     });
 
     test('DART 요청 제한(020)이면 멈추고 한도 안내와 함께 실패로 남긴다', () async {

@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import '../dart/bnk_six_core_profile.dart';
+
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
@@ -90,8 +92,22 @@ class FinancialSourceDuration {
         }
       }
       final rows = json['coreRowProvenance'];
+      final exactSix =
+          json['format'] == 'html' &&
+          reportSource.title.startsWith(BnkSixCoreProfile.title) &&
+          json['coverSource'] == BnkSixCoreProfile.coverUri &&
+          BnkSixCoreProfile.storedProof(
+            rows,
+            sourceDigest: json['sha256'],
+            sourceUrl: reportSource.url ?? '',
+            companyCode: company.corpCode,
+            targetReceipt: report.rceptNo,
+            basis: report.fsDiv.name,
+            year: report.bsnsYear,
+            reportName: report.reportName,
+          );
       if (rows is! List ||
-          rows.length < 7 ||
+          (rows.length < 7 && !exactSix) ||
           rows.length > 8 ||
           json['coreRows'] != rows.length) {
         return null;

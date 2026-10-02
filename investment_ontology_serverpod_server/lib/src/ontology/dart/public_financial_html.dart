@@ -1,3 +1,5 @@
+import 'public_issuer_legal_name.dart';
+import 'bnk_six_core_profile.dart';
 import 'verified_historical_company_identity.dart';
 
 /// Validated strict subsets of receipt-bound annual and half-year DART HTML.
@@ -22,9 +24,14 @@ abstract final class PublicFinancialHtml {
         uri.userInfo.isNotEmpty ||
         uri.hasFragment ||
         uri.hasPort ||
-        ['rcpNo', 'dcmNo', 'eleId', 'offset', 'length', 'dtd'].any(
-          (key) => uri.queryParametersAll[key]?.length != 1,
-        ) ||
+        [
+          'rcpNo',
+          'dcmNo',
+          'eleId',
+          'offset',
+          'length',
+          'dtd',
+        ].any((key) => uri.queryParametersAll[key]?.length != 1) ||
         !const [
           'dart3.xsd',
           'dart4.xsd',
@@ -482,7 +489,22 @@ abstract final class PublicFinancialHtml {
     required DateTime periodStart,
     required DateTime periodEnd,
     required bool consolidated,
+    PublicIssuerLegalName? issuerProof,
   }) {
+    if (receipt == BnkSixCoreProfile.receipt) {
+      return BnkSixCoreProfile.parse(
+        targetReceipt: receipt,
+        companyCode: corpCode,
+        companyName: companyName,
+        consolidated: consolidated,
+        start: periodStart,
+        end: periodEnd,
+        coverSource: coverSource,
+        coverHtml: coverHtml,
+        statementSource: statementSource,
+        statementHtml: statementHtml,
+      );
+    }
     _source(coverSource, receipt);
     _source(statementSource, receipt);
     if (coverSource.queryParameters['dcmNo'] !=
@@ -512,6 +534,21 @@ abstract final class PublicFinancialHtml {
     final company = RegExp(r'회사명:(.*?)(?:공동)?대표이사:')
         .firstMatch(cover)
         ?.group(1);
+    final declaredIssuer = company == null
+        ? null
+        : issuerProof?.verify(
+            receipt: receipt,
+            corpCode: corpCode,
+            masterName: companyName,
+            printedName: company,
+            coverSource: coverSource,
+            coverHtml: coverHtml,
+            periodStart: periodStart,
+            periodEnd: periodEnd,
+          );
+    if (issuerProof != null && declaredIssuer == null) {
+      throw const FormatException('Invalid raw official issuer evidence');
+    }
     final terms = RegExp(r'\(제(\d+)기(?:사업보고서)?\)').allMatches(cover).toList();
     final periods = RegExp(
       r'사업연도((?:\d{4}년\d{1,2}월\d{1,2}일|\d{4}\.\d{2}\.\d{2}))부터((?:\d{4}년\d{1,2}월\d{1,2}일|\d{4}\.\d{2}\.\d{2}))까지',
@@ -519,6 +556,7 @@ abstract final class PublicFinancialHtml {
     if (!cover.contains('사업보고서') ||
         company == null ||
         (legalName(company) != legalName(companyName) &&
+            declaredIssuer == null &&
             VerifiedHistoricalCompanyIdentity.evidence(
                   receipt: receipt,
                   corpCode: corpCode,
@@ -563,9 +601,23 @@ abstract final class PublicFinancialHtml {
     final text = _compact(_text(scope));
     const titleDate = r'(?:\d{4}년\d{1,2}월\d{1,2}일|\d{4}\.\d{2}\.\d{2})';
     final titlePattern = RegExp(
-      '제$term(?:\\(당\\))?(?:당기|기)(?:기말|말)?:?($titleDate)(현재|(?:부터(?=$titleDate까지)|~)($titleDate)(?:까지)?)',
+      '제$term(?:\\(당\\))?(?:당기|기)(?:기말|말)?:?\\(?($titleDate)(현재|(?:부터(?=$titleDate까지)|~)($titleDate)(?:까지)?)\\)?',
     );
     final titles = titlePattern.allMatches(text).toList();
+    final parenthesizedTitles = titles
+        .where(
+          (m) =>
+              (m.group(0)!.replaceAll('(당)', '').contains('(') ||
+              m.group(0)!.replaceAll('(당)', '').contains(')')),
+        )
+        .toList();
+    if (parenthesizedTitles.any((m) {
+      final t = m.group(0)!.replaceAll('(당)', '');
+      return '('.allMatches(t).length != 1 || ')'.allMatches(t).length != 1;
+    })) {
+      throw const FormatException('Unbalanced annual dated title punctuation');
+    }
+
     final cnsScope =
         receipt == '20260319000677' &&
         corpCode == '01116380' &&
@@ -835,6 +887,166 @@ abstract final class PublicFinancialHtml {
       );
     }
 
+    Map<String, dynamic>? datedPunctuationProof;
+    if (parenthesizedTitles.isNotEmpty) {
+      final candidates = <Map<String, dynamic>>[];
+      var supportingIndex = 0;
+      for (final table in RegExp(
+        r'<TABLE\b[^>]*>(.*?)</TABLE>',
+        caseSensitive: false,
+        dotAll: true,
+      ).allMatches(scope)) {
+        final index = supportingIndex++;
+        final prefix = _compact(_text(scope.substring(0, table.start)));
+        final ceAt = prefix.lastIndexOf('자본변동표');
+        if (ceAt < 0 ||
+            [
+              '재무상태표',
+              '손익계산서',
+              '현금흐름표',
+            ].any((h) => prefix.lastIndexOf(h) > ceAt)) {
+          continue;
+        }
+        final local = prefix.substring(ceAt);
+        final ceTitles = titlePattern.allMatches(local).toList();
+        if (ceTitles.length != 1 ||
+            ceTitles.single.group(2) == '현재' ||
+            sourceDate(ceTitles.single.group(1)!) != periodStart ||
+            sourceDate(ceTitles.single.group(3)!) != periodEnd) {
+          continue;
+        }
+        final grid = _FinancialHtmlGrid.parse(table.group(1)!);
+        if (grid.isEmpty ||
+            !{'과목', '구분'}.contains(_compact(grid.first.first?.text ?? ''))) {
+          continue;
+        }
+        if (grid.first.length < 3 ||
+            !{
+              '총계',
+              '합계',
+              '자본합계',
+            }.contains(_compact(grid.first.last?.text ?? '')) ||
+            grid.first.any(
+              (c) => c == null || c.rowspan != 1 || c.colspan != 1,
+            ) ||
+            grid.first.any((c) => _compact(c?.text ?? '').contains('비지배'))) {
+          throw const FormatException(
+            'Dated punctuation supporting whole equity header mismatch',
+          );
+        }
+        final units = RegExp(r'\(단위:([^)]*)\)').allMatches(local).toList();
+        final unit = units.isEmpty ? null : units.last.group(1);
+        final multiplier = switch (unit) {
+          '원' => BigInt.one,
+          '천원' => BigInt.from(1000),
+          '백만원' => BigInt.from(1000000),
+          _ => throw const FormatException(
+            'Unsupported supporting equity unit',
+          ),
+        };
+        DateTime? rowDate(String text) {
+          final m = RegExp(
+            r'^(\d{4})(?:년|\.)(\d{1,2})(?:월|\.)(\d{1,2})(?:일)?(?:\(보고금액\)|\(당기초\)|\(당기말\)|\(기초자본\)|\(기말자본\)|잔액)$',
+          ).firstMatch(_compact(text));
+          if (m == null) return null;
+          final d = DateTime.utc(
+            int.parse(m[1]!),
+            int.parse(m[2]!),
+            int.parse(m[3]!),
+          );
+          return d.year == int.parse(m[1]!) &&
+                  d.month == int.parse(m[2]!) &&
+                  d.day == int.parse(m[3]!)
+              ? d
+              : null;
+        }
+
+        int uniqueDate(DateTime date) {
+          final found = [
+            for (var r = 1; r < grid.length; r++)
+              if (rowDate(grid[r].first?.text ?? '') == date) r,
+          ];
+          if (found.length != 1) {
+            throw const FormatException(
+              'Dated punctuation supporting actual date ambiguous',
+            );
+          }
+          return found.single;
+        }
+
+        final start = uniqueDate(periodStart), end = uniqueDate(periodEnd);
+        if (start >= end) {
+          throw const FormatException(
+            'Dated punctuation supporting date order mismatch',
+          );
+        }
+        final profit = [
+          for (var r = start + 1; r < end; r++)
+            if ({
+              '당기순이익',
+              '당기순이익(손실)',
+              '당기순손실',
+            }.contains(_compact(grid[r].first?.text ?? '')))
+              r,
+        ];
+        if (profit.length != 1) {
+          throw const FormatException(
+            'Dated punctuation supporting current profit ambiguous',
+          );
+        }
+        String whole(int r) {
+          final cell = grid[r].last;
+          if (grid[r].length != grid.first.length ||
+              cell == null ||
+              cell.colspan != 1 ||
+              cell.rowspan != 1) {
+            throw const FormatException(
+              'Dated punctuation supporting total ambiguous',
+            );
+          }
+          final v = money(cell.text);
+          if (v == null) {
+            throw const FormatException(
+              'Dated punctuation supporting total unavailable',
+            );
+          }
+          return (v * multiplier).toString();
+        }
+
+        candidates.add({
+          'mode': 'fully-dated-parentheses-equity-corroboration',
+          'tableIndex': index,
+          'currentTerm': term,
+          'periodStart': periodStart.toIso8601String().substring(0, 10),
+          'periodEnd': periodEnd.toIso8601String().substring(0, 10),
+          'startRow': start,
+          'endRow': end,
+          'profitRow': profit.single,
+          'closingEquity': whole(end),
+          'currentProfit': whole(profit.single),
+          'source': statementSource.toString(),
+          'unit': unit,
+        });
+      }
+      if (candidates.length != 1) {
+        throw const FormatException(
+          'Dated punctuation supporting equity absent or ambiguous',
+        );
+      }
+      datedPunctuationProof = candidates.single;
+    }
+    // The exact TXR source prints one blank label header before three terms.
+    // This profile changes no statement, period, unit or numeric checks.
+    final txrBlankHeader =
+        receipt == '20250526000504' &&
+        corpCode == '01458161' &&
+        !consolidated &&
+        periodStart == DateTime.utc(2024) &&
+        periodEnd == DateTime.utc(2024, 12, 31) &&
+        statementSource.queryParameters['dcmNo'] == '10659954' &&
+        statementSource.queryParameters['eleId'] == '23' &&
+        statementSource.queryParameters['offset'] == '583619' &&
+        statementSource.queryParameters['length'] == '51351';
     final result = <Map<String, dynamic>>[];
     final values = <String, BigInt>{};
     final missingOptional = <Map<String, dynamic>>[];
@@ -852,7 +1064,8 @@ abstract final class PublicFinancialHtml {
         dotAll: true,
       ).firstMatch(table.group(1)!);
       if (first == null ||
-          !{'과목', '구분', '계정과목'}.contains(_compact(_text(first.group(1)!)))) {
+          (!{'과목', '구분', '계정과목'}.contains(_compact(_text(first.group(1)!))) &&
+              !(txrBlankHeader && _compact(_text(first.group(1)!)).isEmpty))) {
         continue;
       }
       // A dated primary equity-change table is outside this core-row scope.
@@ -924,6 +1137,17 @@ abstract final class PublicFinancialHtml {
         throw const FormatException('Ambiguous annual current header');
       }
       final current = headers.single;
+      if (txrBlankHeader && _compact(grid.first.first?.text ?? '').isEmpty) {
+        if (grid.first.length != 4 ||
+            current.column != 1 ||
+            grid.first.any(
+              (c) => c == null || c.colspan != 1 || c.rowspan != 1,
+            ) ||
+            grid.first.map((c) => _compact(c!.text)).join('|') !=
+                '|제8기|제7기|제6기') {
+          throw const FormatException('TXR blank header profile mismatch');
+        }
+      }
       if (current.column < 1 || current.colspan > 2 || current.rowspan != 1) {
         throw const FormatException('Unsupported annual current group');
       }
@@ -1105,6 +1329,22 @@ abstract final class PublicFinancialHtml {
             cnsPeriodProof;
       }
     }
+
+    if (datedPunctuationProof != null) {
+      if (values['equity'].toString() !=
+              datedPunctuationProof['closingEquity'] ||
+          values['profit'].toString() !=
+              datedPunctuationProof['currentProfit']) {
+        throw const FormatException(
+          'Dated punctuation supporting equity/profit contradiction',
+        );
+      }
+      for (final row in result) {
+        (row['html_provenance']
+                as Map<String, dynamic>)['supportingPeriodEvidence'] =
+            datedPunctuationProof;
+      }
+    }
     if (missingOptional.isNotEmpty) {
       for (final row in result) {
         (row['html_provenance']
@@ -1127,6 +1367,13 @@ abstract final class PublicFinancialHtml {
         (row['html_provenance']
                 as Map<String, dynamic>)['historicalCompanyIdentity'] =
             historicalIdentity;
+      }
+    }
+    if (declaredIssuer != null) {
+      for (final row in result) {
+        (row['html_provenance']
+                as Map<String, dynamic>)['historicalCompanyIdentity'] =
+            declaredIssuer;
       }
     }
     return result;

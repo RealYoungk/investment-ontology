@@ -1,0 +1,29 @@
+{
+  "receipt": "20250320001633",
+  "corpCode": "01188730",
+  "currentName": "SK시그넷(주)",
+  "shellCompanyIds": [
+    "01188730"
+  ],
+  "dcmNo": "10440936",
+  "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250320001633",
+  "coverUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250320001633&dcmNo=10440936&eleId=1&offset=958&length=4511&dtd=dart4.xsd",
+  "shellSha256": "1871e674e5287a4b2405e1e659ae8271c22838ae615972f44e4e602c9e1040c4",
+  "coverSha256": "397be826b3698513bf845fe91851584fc70520480c1763c9638c778c9e40d3b6",
+  "shellTitle": [
+    "SK시그넷/사업보고서/2025.03.20",
+    "이미지새창보기"
+  ],
+  "coverExcerpt": " 사 업 보 고 서 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; (제 9 기) 사업연도 2024년 01월 01일 &nbsp;부터 2024년 12월 31일 &nbsp;까지 금융위원회 한국거래소 귀중 2025 년 &nbsp; &nbsp;3 월 &nbsp; 20 일 제출대상법인 유형 : 주권상장법인 면제사유발생 : 해당사항 없음 회 &nbsp; &nbsp; &nbsp;사 &nbsp; &nbsp; &nbsp;명 : 에스케이시그넷 주식회사 대 &nbsp; 표 &nbsp; &nbsp;이 &nbsp; 사 : 신 정 호 본 &nbsp;점 &nbsp;소 &nbsp;재 &nbsp;지 : 전라남도 영광군 대마면 전기차로 49 (전 &nbsp;화) 061-872-7052 (홈페이지) http://www.sksignet.com 작 &nbsp;성 &nbsp;책 &nbsp;임 &nbsp;자 : (직 &nbsp;책) 재무실장 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; (성 &nbsp;명) 윤 종 열 (전 &nbsp;화) 02-6676-0710 ",
+  "printedCoverName": "에스케이시그넷주식회사",
+  "representativeDelimiter": "대표이사:",
+  "currentNormalized": "SK시그넷",
+  "printedNormalized": "에스케이시그넷",
+  "actualPeriodStart": "2024-01-01",
+  "actualPeriodEnd": "2024-12-31",
+  "classification": "Hangul transliteration 에스케이 vs SK, ordinary representative delimiter; not proven historical rename",
+  "parserDiagnosis": "Exact printed/current company-name mismatch after legal-form normalization",
+  "financialRowsReviewed": false,
+  "OFSSource": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250320001633&dcmNo=10440936&eleId=21&offset=556438&length=95968&dtd=dart4.xsd",
+  "sha256": "72602a99390b6e61aafd1b1da710ce5aeb6432c390e0f6d279c0753ba24a58a2"
+}
