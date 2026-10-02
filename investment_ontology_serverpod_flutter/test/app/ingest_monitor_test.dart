@@ -23,6 +23,30 @@ IngestJob _job(int id, IngestStatus status) => IngestJob(
 );
 
 void main() {
+  testWidgets('DB 전용 종목 재연결 완료도 공통 데이터 버전을 갱신한다', (tester) async {
+    final server = _FakeServer();
+    final monitor = IngestMonitor.test(
+      fetch: (kinds) {
+        expect(kinds, contains('market_security_relink'));
+        return server.fetch(kinds);
+      },
+    );
+    monitor.start();
+    server.calls[0].complete([
+      _job(91, IngestStatus.running).copyWith(kind: 'market_security_relink'),
+    ]);
+    await tester.pump();
+    expect(monitor.running.value, isTrue);
+    monitor.poke();
+    server.calls[1].complete([
+      _job(91, IngestStatus.succeeded).copyWith(kind: 'market_security_relink'),
+    ]);
+    await tester.pump();
+    expect(monitor.dataVersion.value, 1);
+    expect(monitor.running.value, isFalse);
+    monitor.dispose();
+  });
+
   // testWidgets의 가짜 시계로 3초·15초 타이머를 기다리지 않고 넘긴다.
   testWidgets('겹친 확인이 거꾸로 돌아오면 옛 응답은 버린다', (tester) async {
     final server = _FakeServer();
