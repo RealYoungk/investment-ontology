@@ -27,8 +27,20 @@ final serverUrl = _resolveServerUrl();
 /// 4. 나머지는 Serverpod 기본 (assets/config.json → localhost:8080).
 Future<String> _resolveServerUrl() async {
   const fromEnv = String.fromEnvironment('SERVER_URL');
-  if (fromEnv.isNotEmpty) return fromEnv;
   final base = Uri.base;
+  if (fromEnv.isNotEmpty) {
+    final configured = Uri.parse(fromEnv);
+    // A LAN browser must call the laptop, rather than its own localhost.
+    if (kIsWeb &&
+        base.scheme == 'http' &&
+        base.host.isNotEmpty &&
+        base.host != 'localhost' &&
+        base.host != '127.0.0.1' &&
+        (configured.host == 'localhost' || configured.host == '127.0.0.1')) {
+      return configured.replace(host: base.host).toString();
+    }
+    return fromEnv;
+  }
   if (kIsWeb && base.host.isNotEmpty) {
     if (base.scheme == 'https') return '${base.origin}/api/';
     if (base.scheme == 'http' &&
@@ -62,7 +74,11 @@ Future<void> initializeClient() async {
           },
         )
         ..connectivityMonitor = FlutterConnectivityMonitor()
-        ..authSessionManager = FlutterAuthSessionManager();
+        ..authSessionManager = FlutterAuthSessionManager(
+          storage: const bool.fromEnvironment('LOCAL_PREVIEW_SESSION')
+              ? _PreviewSessionStorage()
+              : null,
+        );
   if (kIsWeb) client.cookieAuth = true;
   // 저장된 로그인을 되살리고 서버에 확인한 뒤에야 첫 화면을 정한다 (로그인 문이 로그인
   // 화면과 앱 사이를 깜빡이지 않게). 서버가 늦거나 꺼져 있으면 시간 초과가 밖으로
@@ -70,4 +86,15 @@ Future<void> initializeClient() async {
   try {
     await client.auth.initialize();
   } catch (_) {}
+}
+
+/// Explicit isolated-review build only: no credentials are persisted on HTTP.
+class _PreviewSessionStorage implements ClientAuthSuccessStorage {
+  AuthSuccess? _value;
+  @override
+  Future<AuthSuccess?> get() async => _value;
+  @override
+  Future<void> set(AuthSuccess? data) async {
+    _value = data;
+  }
 }

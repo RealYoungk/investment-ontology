@@ -72,7 +72,7 @@ class _MembershipCardState extends State<MembershipCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            adFree ? '광고 없이 이용 중' : '무료 이용',
+            adFree ? '멤버십 이용 중' : '무료 플랜 · 관심기업 3개',
             style: t.body(18, weight: FontWeight.w600),
           ),
           const SizedBox(height: AppSpace.sm),
@@ -122,12 +122,12 @@ class _MembershipCardState extends State<MembershipCard> {
               child: const Text('결제 카드 변경'),
             ),
           const ServiceLinks(),
-          if (!adFree && (viewer?.paymentAvailable ?? false)) ...[
+          if (!adFree) ...[
             const SizedBox(height: AppSpace.sm),
             FilledButton(
-              onPressed: () => context.push('/membership/checkout'),
+              onPressed: () => context.push('/membership'),
               child: Text(
-                viewer!.isTestMembership ? '이용권 테스트' : '광고 제거 이용권 시작하기',
+                viewer!.isTestMembership ? '이용권 테스트' : '관심기업 20개로 늘리기',
               ),
             ),
           ],

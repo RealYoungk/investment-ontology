@@ -6,6 +6,7 @@ import '../../app/router.dart';
 import '../../design/components/components.dart';
 import '../auth/app_auth.dart';
 import 'watchlist_store.dart';
+import '../monetization/membership_offer.dart';
 
 class WatchlistButton extends StatelessWidget {
   const WatchlistButton({super.key, required this.corpCode});
@@ -36,7 +37,11 @@ class WatchlistButton extends StatelessWidget {
                   try {
                     await store.toggle(corpCode);
                   } on WatchlistError catch (e) {
-                    if (context.mounted) {
+                    if (context.mounted &&
+                        e.code == 'limit' &&
+                        store.view?.paid == false) {
+                      await showMembershipOffer(context);
+                    } else if (context.mounted) {
                       ScaffoldMessenger.of(context)
                           .showSnackBar(SnackBar(content: Text(e.message)));
                     }

@@ -49,8 +49,12 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('무료 · 0/3개'), findsOneWidget);
-      expect(find.textContaining('아직 관심종목이 없습니다'), findsOneWidget);
+      expect(find.text('무료 플랜 · 최대 3개 기업'), findsOneWidget);
+      expect(find.text('새 공시가 오면 여기에 모아드려요'), findsOneWidget);
+      await tester.tap(find.text('종목 0'));
+      await tester.pumpAndSettle();
+      expect(find.text('첫 기업을 담아보세요'), findsOneWidget);
+      expect(find.byTooltip('알림 설정'), findsNothing);
       expect(tester.takeException(), isNull);
     },
   );

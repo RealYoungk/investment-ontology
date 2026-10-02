@@ -10,6 +10,7 @@ import '../features/auth/app_auth.dart';
 import '../features/auth/sign_in_page.dart';
 import '../features/home/about_page.dart';
 import '../features/monetization/billing_checkout_page.dart';
+import '../features/monetization/membership_plans_page.dart';
 import '../features/home/explore_intent.dart';
 import '../features/companies/company_filter.dart';
 import '../features/companies/company_list_page.dart';
@@ -30,6 +31,7 @@ import '../features/themes/theme_page.dart';
 import '../features/themes/themes_page.dart';
 import 'app_shell.dart';
 import '../features/watchlist/watchlist_page.dart';
+import '../features/watchlist/notification_bell.dart';
 
 /// 화면 주소.
 ///
@@ -112,7 +114,8 @@ abstract final class AppRoutes {
       if (path == '/membership/checkout' && viewer == null) {
         return '/login?next=/membership/checkout';
       }
-      if (path == '/watchlist' && viewer == null) {
+      if ((path == '/watchlist' || path == '/notifications') &&
+          viewer == null) {
         return login(next: state.uri.toString());
       }
       if (path == '/account' && viewer == null) return '/login?next=/account';
@@ -131,11 +134,19 @@ abstract final class AppRoutes {
         builder: (context, state, child) =>
             AppShell(location: state.uri, child: child),
         routes: [
+          GoRoute(
+            path: '/notifications',
+            builder: (_, _) => const NotificationsPage(),
+          ),
           GoRoute(path: '/account', builder: (_, _) => const AccountPage()),
           GoRoute(
             path: '/watchlist',
             builder: (_, state) =>
                 WatchlistPage(addCode: state.uri.queryParameters['add']),
+          ),
+          GoRoute(
+            path: '/membership',
+            builder: (_, _) => const MembershipPlansPage(),
           ),
           GoRoute(
             path: '/membership/checkout',

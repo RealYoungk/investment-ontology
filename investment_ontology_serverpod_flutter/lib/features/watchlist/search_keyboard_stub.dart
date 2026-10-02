@@ -1,0 +1,2 @@
+void prepareSearchKeyboard() {}
+void releaseSearchKeyboard() {}
