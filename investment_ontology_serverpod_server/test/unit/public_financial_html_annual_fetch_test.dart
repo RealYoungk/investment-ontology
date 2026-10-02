@@ -315,14 +315,18 @@ void main() {
     },
   );
   test(
-    'generic not-applicable sentence cannot prove non-preparer status',
+    'qualified not-applicable sentence cannot prove non-preparer status',
     () async {
       await expectLater(
         explicitNone(
-          body: fixture(
-            '20260922000230',
-            'consolidated-statement.html',
-          ).replaceAll('당사는 연결재무제표 작성법인이 아니므로 해당사항이 없습니다.', '해당사항이 없습니다.'),
+          body:
+              fixture(
+                '20260922000230',
+                'consolidated-statement.html',
+              ).replaceAll(
+                '당사는 연결재무제표 작성법인이 아니므로 해당사항이 없습니다.',
+                '해당사항이 없습니다. 자세한 사항은 주석을 참조하십시오.',
+              ),
         ),
         genericOnly,
       );
