@@ -1064,6 +1064,7 @@ class FinancialFactsSync {
   /// attempts never gain priority. Existing API/ledger attempt counters remain.
   static bool verifiedDurationSourceRecoveryPriority(DartFiling filing) {
     const fixtures = <String, ({String corp, int year, Set<String> bases})>{
+      '20250325000306': (corp: '01290132', year: 2024, bases: {'OFS'}),
       '20251124000372': (corp: '01669794', year: 2024, bases: {'OFS'}),
       '20250320001616': (corp: '00442631', year: 2024, bases: {'OFS', 'CFS'}),
       '20250318000596': (corp: '01352575', year: 2024, bases: {'OFS', 'CFS'}),
@@ -1073,6 +1074,25 @@ class FinancialFactsSync {
       '20260313000656': (corp: '00393618', year: 2025, bases: {'CFS'}),
       '20260316001089': (corp: '01187458', year: 2025, bases: {'CFS'}),
       '20260309001126': (corp: '00965062', year: 2025, bases: {'CFS'}),
+      '20251127001320': (corp: '01507722', year: 2024, bases: {'CFS'}),
+      '20251127001311': (corp: '01507722', year: 2023, bases: {'CFS'}),
+      '20250319000677': (corp: '01187458', year: 2024, bases: {'CFS'}),
+      '20250318000162': (corp: '00533809', year: 2024, bases: {'CFS'}),
+      '20250314001680': (corp: '00965062', year: 2024, bases: {'CFS'}),
+      '20250314001180': (corp: '00393618', year: 2024, bases: {'CFS'}),
+      '20240320000695': (corp: '01187458', year: 2023, bases: {'CFS'}),
+      '20240318000263': (corp: '00533809', year: 2023, bases: {'CFS'}),
+      '20240315000148': (corp: '00393618', year: 2023, bases: {'CFS'}),
+      '20240313000197': (corp: '00965062', year: 2023, bases: {'CFS'}),
+      '20230711000155': (corp: '01507722', year: 2022, bases: {'CFS'}),
+      '20230327000966': (corp: '00533809', year: 2022, bases: {'CFS'}),
+      '20230323001231': (corp: '01187458', year: 2022, bases: {'CFS'}),
+      '20230317000730': (corp: '00965062', year: 2022, bases: {'CFS'}),
+      '20230317000450': (corp: '00393618', year: 2022, bases: {'CFS'}),
+      '20220722000193': (corp: '00533809', year: 2021, bases: {'CFS'}),
+      '20220321000662': (corp: '01187458', year: 2021, bases: {'CFS'}),
+      '20220318000594': (corp: '00965062', year: 2021, bases: {'CFS'}),
+      '20220317000026': (corp: '00393618', year: 2021, bases: {'CFS'}),
     };
     final proof = fixtures[filing.rceptNo];
     final name = DartReportName.parse(filing.reportName);
@@ -1171,6 +1191,7 @@ class FinancialFactsSync {
     };
     bool verifiedParserPending(DartFiling f) {
       if ({
+        '20250325000306',
         '20251124000372',
         '20250320001616',
         '20250318000596',
@@ -1180,6 +1201,25 @@ class FinancialFactsSync {
         '20260313000656',
         '20260316001089',
         '20260309001126',
+        '20251127001320',
+        '20251127001311',
+        '20250319000677',
+        '20250318000162',
+        '20250314001680',
+        '20250314001180',
+        '20240320000695',
+        '20240318000263',
+        '20240315000148',
+        '20240313000197',
+        '20230711000155',
+        '20230327000966',
+        '20230323001231',
+        '20230317000730',
+        '20230317000450',
+        '20220722000193',
+        '20220321000662',
+        '20220318000594',
+        '20220317000026',
       }.contains(f.rceptNo)) {
         return verifiedDurationSourceRecoveryPriority(f);
       }
