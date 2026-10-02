@@ -1,0 +1,37 @@
+{
+  "receipt": "20240409003743",
+  "corpCode": "01022142",
+  "companyName": "엠디바이스 주식회사",
+  "bsnsYear": 2022,
+  "basis": "ofs",
+  "shellCorpIds": [
+    "01022142"
+  ],
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240409003743",
+      "sha256": "cc85af092eff2c55b535dc0118a16a6f70c19c315e266164f9ec180fd8488e6d"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240409003743&dcmNo=9872375&eleId=3&offset=41680&length=4082&dtd=dart4.xsd",
+      "sha256": "727ff284be20f5cb04290b49563f44710fbcc1ee6e66fad674cae4307192338a"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240409003743&dcmNo=9872375&eleId=23&offset=106889&length=73900&dtd=dart4.xsd",
+      "sha256": "124ab8dd69b00257d3838bd32a8cb68c3bd02c64031fa6ae2507bf282777efff"
+    },
+    {
+      "label": "overview",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240409003743&dcmNo=9872375&eleId=5&offset=46267&length=42719&dtd=dart4.xsd",
+      "sha256": "fecfea211149ebc7031af1200b43fa1989a31d58f46525a22846e891dc692950"
+    }
+  ],
+  "actualDates": [
+    "2022-01-01",
+    "2022-12-31"
+  ],
+  "printedCoverName": "주식회사메가일렉트로닉스"
+}
