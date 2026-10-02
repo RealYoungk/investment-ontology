@@ -84,7 +84,9 @@ void main() {
           client,
           id,
           dailyBudget: 0,
-          clock: () => now,
+          clock: () => client.htmlRequests == 0
+              ? now
+              : now.add(const Duration(minutes: 20)),
           callInterval: Duration.zero,
           scheduleResume: (at) async {
             resumes.add(at);
@@ -96,7 +98,7 @@ void main() {
           expect(await FinancialReport.db.count(session), 20);
           expect(current.updated, 20);
           expect(current.processed, 10);
-          expect(resumes, [now.add(const Duration(seconds: 30))]);
+          expect(resumes, [now.add(const Duration(minutes: 20, seconds: 30))]);
           final untouched = await DartFiling.db.find(
             session,
             where: (t) =>
@@ -107,7 +109,7 @@ void main() {
           expect(await FinancialReport.db.count(session), 0);
           expect(current.updated, 0);
           expect(current.processed, 6); // circuit unchanged
-          expect(resumes, [now.add(const Duration(minutes: 15))]);
+          expect(resumes, [now.add(const Duration(minutes: 35))]);
           for (var round = 0; round < 4; round++) {
             resumes.clear();
             final j = await IngestJob.db.insertRow(

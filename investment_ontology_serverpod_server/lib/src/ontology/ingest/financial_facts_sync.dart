@@ -699,6 +699,8 @@ class FinancialFactsSync {
       if (metadataAnchored > 0) {
         message += ', 공식 원접수 표지 기간 연결 $metadataAnchored건(숫자 변경 없음)';
       }
+      // Source reads may outlast either delay; reserve from the current time.
+      final resumeNow = _clock().toUtc();
       DateTime? earliestResume;
       void requestResume(DateTime at) {
         if (earliestResume == null || at.isBefore(earliestResume!)) {
@@ -708,7 +710,7 @@ class FinancialFactsSync {
 
       if (deferredMetadataTargets.isNotEmpty && !cancelled) {
         requestResume(
-          now.add(
+          resumeNow.add(
             metadataBatchDeferred
                 ? const Duration(seconds: 30)
                 : const Duration(minutes: 15),
@@ -723,7 +725,7 @@ class FinancialFactsSync {
       }
       if (annualPublic.remaining > 0 && !cancelled) {
         requestResume(
-          now.add(
+          resumeNow.add(
             annualPublic.fresh ||
                     annualPublic.stored > 0 ||
                     metadataBatchDeferred
@@ -738,7 +740,7 @@ class FinancialFactsSync {
       }
       if (halfPublic.remaining > 0 && !cancelled) {
         requestResume(
-          now.add(
+          resumeNow.add(
             halfPublic.fresh
                 ? const Duration(seconds: 30)
                 : const Duration(minutes: 15),
@@ -754,7 +756,7 @@ class FinancialFactsSync {
           annualPublic.remaining == 0 &&
           halfPublic.remaining == 0) {
         final at = ApiCallBudget.nextKstMidnight(
-          now,
+          resumeNow,
         ).add(const Duration(minutes: 10));
         requestResume(at);
         message +=
