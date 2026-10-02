@@ -102,6 +102,59 @@ abstract final class VerifiedAnnualSourceRegistry {
       absenceLiteral: null,
     ),
     AnnualSourceCacheEntry(
+      receipt: '20220315001280',
+      corpCode: '00340096',
+      companyName: '미래에셋벤처투자 주식회사',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20220315001280-ofs-unit-audit',
+      manifestDigest:
+          '223ac4dc5a23d0e45474151ce109e5a23935aab2af3a985573d67427bb4082e9',
+      ruleVersion: 'same-receipt-audit-immutable-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230315001270',
+      corpCode: '00340096',
+      companyName: '미래에셋벤처투자 주식회사',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20230315001270-ofs-unit-audit',
+      manifestDigest:
+          'c0de2904892a81a0f3ea1df620ebad402d46b1367cc61bc6b5b5edffb5445c55',
+      ruleVersion: 'same-receipt-audit-immutable-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240320001438',
+      corpCode: '00963000',
+      companyName: '(주)썬테크',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20240320001438-ofs-unit-audit',
+      manifestDigest:
+          '1cbccbc3819aee09c5db7c44d0ebb490040aa05c09147e3dc9bad1e8614a4187',
+      ruleVersion: 'same-receipt-audit-immutable-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250317000968',
+      corpCode: '00963000',
+      companyName: '(주)썬테크',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20250317000968-ofs-unit-audit',
+      manifestDigest:
+          'f3589a692d162b730860cdc01ed6dec88e9bf1e8d7b2572328f85a53d9ebdbaa',
+      ruleVersion: 'linked-correction-audit-immutable-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20220331002887',
       corpCode: '01366824',
       companyName: '(주)제이엠멀티',

@@ -5,6 +5,7 @@ import 'package:crypto/crypto.dart';
 import 'package:test/test.dart';
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/verified_annual_source_cache.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/dart/linked_correction_audit_source.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/verified_annual_source_registry.dart';
 
 DartFiling filing(AnnualSourceCacheEntry e) => DartFiling(
@@ -31,7 +32,7 @@ Company company(AnnualSourceCacheEntry e) => Company(
 );
 void main() {
   test('compiled receipt plus basis registry has unique audit identities', () {
-    expect(VerifiedAnnualSourceRegistry.entries.length, 136);
+    expect(VerifiedAnnualSourceRegistry.entries.length, 140);
     expect(
       VerifiedAnnualSourceRegistry.entries
           .map((e) => e.auditReference)
@@ -63,7 +64,8 @@ void main() {
           4 +
               (e.requiresIssuerOverview ? 1 : 0) +
               (e.requiresOwnOfsWitness ? 1 : 0) +
-              (e.ruleVersion == 'same-receipt-audit-immutable-v1' ? 1 : 0),
+              (e.ruleVersion == 'same-receipt-audit-immutable-v1' ? 1 : 0) +
+              (e.ruleVersion == 'linked-correction-audit-immutable-v1' ? 2 : 0),
         );
         expect(f.toJson(), before);
         final manifest = jsonDecode(
@@ -102,7 +104,16 @@ void main() {
         } else {
           expect(result.absence, isNull);
           final n = result.numeric!;
-          expect(n.sourceReceipt, e.receipt);
+          expect(
+            n.sourceReceipt,
+            e.ruleVersion == 'linked-correction-audit-immutable-v1'
+                ? LinkedCorrectionAuditSource.original
+                : e.receipt,
+          );
+          expect(
+            n.rows.every((row) => row['rcept_no'] == n.sourceReceipt),
+            true,
+          );
           if (e.ruleVersion == 'verified-current-period-whole-annual-v1') {
             final expected = jsonDecode(
               File('${e.assetDirectory}/expected-rows.json').readAsStringSync(),

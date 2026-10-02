@@ -14,6 +14,7 @@ import 'dart_report_name.dart';
 import 'public_financial_html_fetch.dart';
 import 'verified_annual_source_registry.dart';
 import 'same_receipt_audit_source.dart';
+import 'linked_correction_audit_source.dart';
 import 'pureun_six_core_profile.dart';
 import 'historical_primary_cfs_absence.dart';
 
@@ -142,6 +143,15 @@ final class VerifiedAnnualSourceCache {
         manifest['ruleVersion'] != entry.ruleVersion) {
       throw const FormatException('Cached annual declared identity mismatch');
     }
+    final correctionAudit =
+        entry.ruleVersion == 'linked-correction-audit-immutable-v1' &&
+        LinkedCorrectionAuditSource.eligible(
+          receipt: entry.receipt,
+          corpCode: entry.corpCode,
+          consolidated: basis == FsDiv.consolidated,
+          start: start,
+          end: end,
+        );
     final linkedAudit =
         entry.ruleVersion == 'same-receipt-audit-immutable-v1' &&
         SameReceiptAuditSource.eligible(
@@ -155,7 +165,8 @@ final class VerifiedAnnualSourceCache {
       'shell',
       'cover',
       entry.statementLabel,
-      if (linkedAudit) 'auditShell',
+      if (linkedAudit || correctionAudit) 'auditShell',
+      if (correctionAudit) 'originalShell',
       if (entry.requiresIssuerOverview) 'overview',
       if (entry.requiresOwnOfsWitness) 'issuer-ofs',
     };
@@ -276,7 +287,10 @@ final class VerifiedAnnualSourceCache {
       );
       if (entry.absenceLiteral != null ||
           client.requests != documentCount ||
-          numeric.sourceReceipt != entry.receipt ||
+          numeric.sourceReceipt !=
+              (correctionAudit
+                  ? LinkedCorrectionAuditSource.original
+                  : entry.receipt) ||
           numeric.periodStart != start ||
           numeric.periodEnd != end ||
           (numeric.rows.length < 7 &&

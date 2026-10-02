@@ -159,6 +159,9 @@ abstract final class FinancialAccounts {
       r'^(?:당기순(이익|손익)[(]대손준비금반영후조정이익:?(당기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원전기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원(전전기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원)?|제[0-9]+기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)백만원,제[0-9]+기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)백만원,제[0-9]+기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)백만원)[)]|당기순이익[(]대손준비금반영후조정이익당기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원전기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원[)][(]비상위험준비금반영후조정이익당기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원전기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원[)])$';
 
   static String normalizedName(String name) {
+    if (name.replaceAll(RegExp(r'\s+'), '') == 'III..영업이익') {
+      return '영업이익';
+    }
     final clean = name
         .replaceAll(RegExp(r'\s+'), '')
         .replaceFirst(
@@ -183,7 +186,7 @@ abstract final class FinancialAccounts {
     final unannotated =
         "regexp_replace($unprefixed, '([(]주(석)?[0-9]+(,[0-9]+)*[)]|<주석[0-9]+>)\$', '')";
     final name =
-        "CASE WHEN $unannotated ~ '$adjustedProfitAnnotation' THEN '당기순이익' ELSE $unannotated END";
+        "CASE WHEN $compact = 'III..영업이익' THEN '영업이익' WHEN $unannotated ~ '$adjustedProfitAnnotation' THEN '당기순이익' ELSE $unannotated END";
     final cases = <String>[];
     for (final account in all) {
       for (final aliasId in account.accountIds.skip(1)) {

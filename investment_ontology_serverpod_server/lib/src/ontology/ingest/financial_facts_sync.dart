@@ -1,5 +1,6 @@
 import '../dart/imgt_explicit_revenue_missing.dart';
 import '../dart/verified_annual_source_cache.dart';
+import '../dart/linked_correction_audit_source.dart';
 import '../dart/verified_annual_source_registry.dart';
 import '../dart/verified_half_basis_absence.dart';
 import '../financial/financial_accounts.dart';
@@ -1121,6 +1122,10 @@ class FinancialFactsSync {
         '20220602000449': (corp: '00531078', year: 2021, bases: {'CFS'}),
         '20220411001806': (corp: '00976615', year: 2021, bases: {'CFS'}),
         '20220330001266': (corp: '01351080', year: 2021, bases: {'CFS'}),
+        '20220315001280': (corp: '00340096', year: 2021, bases: {'OFS'}),
+        '20230315001270': (corp: '00340096', year: 2022, bases: {'OFS'}),
+        '20240320001438': (corp: '00963000', year: 2023, bases: {'OFS'}),
+        '20250317000968': (corp: '00963000', year: 2024, bases: {'OFS'}),
         '20260316001360': (corp: '00614089', year: 2025, bases: {'OFS'}),
         '20260323000673': (corp: '01063237', year: 2025, bases: {'OFS'}),
         '20250321000751': (corp: '01020269', year: 2024, bases: {'CFS'}),
@@ -2362,9 +2367,25 @@ class FinancialFactsSync {
                   periodEnd: end,
                   consolidated: div == FsDiv.consolidated,
                 );
-                if (html.sourceReceipt != filing.rceptNo ||
-                    html.correctionReceipt != null ||
-                    html.correctionSource != null ||
+                final verifiedLinkedAudit =
+                    LinkedCorrectionAuditSource.eligible(
+                      receipt: filing.rceptNo,
+                      corpCode: company.corpCode,
+                      consolidated: div == FsDiv.consolidated,
+                      start: html.periodStart,
+                      end: html.periodEnd,
+                    ) &&
+                    html.sourceReceipt ==
+                        LinkedCorrectionAuditSource.original &&
+                    html.correctionReceipt == filing.rceptNo &&
+                    html.correctionSource ==
+                        Uri.parse(
+                          'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${filing.rceptNo}',
+                        );
+                if ((!verifiedLinkedAudit &&
+                        (html.sourceReceipt != filing.rceptNo ||
+                            html.correctionReceipt != null ||
+                            html.correctionSource != null)) ||
                     html.periodEnd != end) {
                   throw const FormatException(
                     'Exact annual HTML source identity mismatch',
@@ -2376,7 +2397,7 @@ class FinancialFactsSync {
                   statementHtml: html.statementHtml,
                   coverSource: html.coverSource,
                   statementSource: html.statementSource,
-                  receipt: filing.rceptNo,
+                  receipt: html.sourceReceipt,
                   corpCode: company.corpCode,
                   companyName: company.name,
                   periodStart: html.periodStart,
@@ -2387,8 +2408,14 @@ class FinancialFactsSync {
                   rows: rows,
                   source: html.statementSource,
                   digest: html.sourceDigest,
-                  sourceFiling: filing,
-                  correctionSource: null,
+                  sourceFiling: verifiedLinkedAudit
+                      ? await _verifiedAttachmentSource(
+                          filing,
+                          company,
+                          html.sourceReceipt,
+                        )
+                      : filing,
+                  correctionSource: html.correctionSource,
                   format: 'html',
                   coverSource: html.coverSource,
                 );
@@ -2535,6 +2562,22 @@ class FinancialFactsSync {
                 _isAnnualPublicRecovery(filing)) {
               await _recordVerifiedAnnualNumericSource(
                 filing,
+                company,
+                div,
+                sourceReceipt: fallback.sourceFiling.rceptNo,
+                source: fallback.source,
+                format: fallback.format,
+                digest: fallback.digest,
+                rows: fallback.rows,
+                coverSource: fallback.coverSource,
+              );
+            }
+            if (saved.status == FilingFetchStatus.stored &&
+                filing.rceptNo == LinkedCorrectionAuditSource.target &&
+                fallback.sourceFiling.rceptNo ==
+                    LinkedCorrectionAuditSource.original) {
+              await _recordVerifiedAnnualNumericSource(
+                fallback.sourceFiling,
                 company,
                 div,
                 sourceReceipt: fallback.sourceFiling.rceptNo,
@@ -2915,8 +2958,29 @@ class FinancialFactsSync {
         }
         if (await IngestJobs.isCancelled(session, jobId)) return 'skipped';
         if (numeric != null) {
+          var numericFiling = current;
+          if (numeric.sourceReceipt != current.rceptNo) {
+            if (!LinkedCorrectionAuditSource.eligible(
+                  receipt: current.rceptNo,
+                  corpCode: currentCompany.corpCode,
+                  consolidated: entry.basis == FsDiv.consolidated,
+                  start: numeric.periodStart,
+                  end: numeric.periodEnd,
+                ) ||
+                numeric.sourceReceipt != LinkedCorrectionAuditSource.original) {
+              throw const FormatException(
+                'Cached numeric original receipt unverified',
+              );
+            }
+            numericFiling = await _verifiedAttachmentSource(
+              current,
+              currentCompany,
+              numeric.sourceReceipt,
+              transaction: tx,
+            );
+          }
           final stored = await _store(
-            current,
+            numericFiling,
             currentCompany,
             entry.basis,
             numeric.rows,
@@ -2942,6 +3006,20 @@ class FinancialFactsSync {
             coverSource: numeric.coverSource,
             transaction: tx,
           );
+          if (numericFiling.rceptNo != current.rceptNo) {
+            await _recordVerifiedAnnualNumericSource(
+              numericFiling,
+              currentCompany,
+              entry.basis,
+              sourceReceipt: numeric.sourceReceipt,
+              source: numeric.statementSource,
+              format: 'html',
+              digest: numeric.sourceDigest,
+              rows: numeric.rows,
+              coverSource: numeric.coverSource,
+              transaction: tx,
+            );
+          }
           _htmlCoreRecovered++;
         }
         final status = numeric != null
@@ -3089,11 +3167,28 @@ class FinancialFactsSync {
   Future<DartFiling> _verifiedAttachmentSource(
     DartFiling target,
     Company company,
-    String receipt,
-  ) async {
+    String receipt, {
+    Transaction? transaction,
+  }) async {
+    if (transaction != null) {
+      await session.db.unsafeQuery(
+        'SELECT pg_advisory_xact_lock(hashtextextended(@receipt,0))',
+        parameters: QueryParameters.named({'receipt': receipt}),
+        transaction: transaction,
+      );
+      final all = await DartFiling.db.find(
+        session,
+        where: (t) => t.rceptNo.equals(receipt),
+        transaction: transaction,
+      );
+      if (all.length > 1) {
+        throw const FormatException('Ambiguous original receipt ledger');
+      }
+    }
     final existing = await DartFiling.db.findFirstRow(
       session,
       where: (t) => t.rceptNo.equals(receipt),
+      transaction: transaction,
     );
     if (existing != null) {
       if (existing.companyId != company.id ||
@@ -3121,6 +3216,7 @@ class FinancialFactsSync {
         separateStatus: FilingFetchStatus.pending,
         lastError: 'official-attachment-source:${target.rceptNo}',
       ),
+      transaction: transaction,
     );
   }
 

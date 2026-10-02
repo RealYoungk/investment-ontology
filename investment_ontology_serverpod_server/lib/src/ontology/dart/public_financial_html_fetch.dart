@@ -2,6 +2,7 @@ import 'pureun_exact_basis_absence.dart';
 import 'primary_historical_issuer.dart';
 import 'innovex_exact_basis_absence.dart';
 import 'same_receipt_audit_source.dart';
+import 'linked_correction_audit_source.dart';
 import 'public_issuer_legal_name.dart';
 import 'bnk_six_core_profile.dart';
 import 'verified_historical_company_identity.dart';
@@ -270,6 +271,19 @@ class PublicFinancialHtmlFetcher {
     var sourceReceipt = correctionReceipt;
     var originalSource = correctionSource;
     var shell = correctionShell;
+    if (exactAnnual &&
+        LinkedCorrectionAuditSource.eligible(
+          receipt: correctionReceipt,
+          corpCode: corpCode,
+          consolidated: consolidated,
+          start: DateTime.utc(bsnsYear),
+          end: periodEnd,
+        )) {
+      sourceReceipt = LinkedCorrectionAuditSource.verifyTarget(correctionShell);
+      originalSource = shellUri(sourceReceipt);
+      shell = await get(originalSource, referer: correctionSource);
+      LinkedCorrectionAuditSource.verifyOriginal(shell);
+    }
     var dcm = document(shell, sourceReceipt);
     if (!halfYear && !exactAnnual) {
       final family = RegExp(
@@ -694,8 +708,12 @@ class PublicFinancialHtmlFetcher {
           );
     return PublicFinancialHtmlSource(
       sourceReceipt: sourceReceipt,
-      correctionReceipt: halfYear || exactAnnual ? null : correctionReceipt,
-      correctionSource: halfYear || exactAnnual ? null : correctionSource,
+      correctionReceipt: sourceReceipt != correctionReceipt
+          ? correctionReceipt
+          : (halfYear || exactAnnual ? null : correctionReceipt),
+      correctionSource: sourceReceipt != correctionReceipt
+          ? correctionSource
+          : (halfYear || exactAnnual ? null : correctionSource),
       coverHtml: coverHtml,
       coverSource: coverSource,
       statementHtml: statementHtml,
