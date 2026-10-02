@@ -4,6 +4,7 @@ import '../dart/verified_annual_source_registry.dart';
 import '../dart/verified_half_basis_absence.dart';
 import '../financial/financial_accounts.dart';
 import '../dart/bnk_six_core_profile.dart';
+import '../dart/pureun_six_core_profile.dart';
 
 import 'dart:math';
 import 'dart:convert';
@@ -1319,6 +1320,7 @@ class FinancialFactsSync {
     // queue order only: existing per-period attempts and failed-basis gates stay.
     const verifiedParserReceipts = <String, Set<String>>{
       '20230309000759': {'OFS'},
+      '20230315000460': {'OFS'},
       '20250320001633': {'CFS', 'OFS'},
       '20260318000509': {'OFS'},
       '20260617000188': {'OFS'},
@@ -1358,6 +1360,10 @@ class FinancialFactsSync {
       }
       if (f.rceptNo == BnkSixCoreProfile.receipt &&
           f.corpCode != BnkSixCoreProfile.corpCode) {
+        return false;
+      }
+      if (f.rceptNo == PureunSixCoreProfile.receipt &&
+          f.corpCode != PureunSixCoreProfile.corpCode) {
         return false;
       }
       final bases = verifiedParserReceipts[f.rceptNo];
@@ -2653,6 +2659,20 @@ class FinancialFactsSync {
               'uncollectedOptionalAccounts': ['capex'],
               'missingReason': '해당 정확원문 전체 손익표에 매출 총액 행 없음; 합산·0 대체 없음',
             },
+            if (PureunSixCoreProfile.storedProof(
+              rows,
+              sourceDigest: digest,
+              sourceUrl: source.toString(),
+              companyCode: company.corpCode,
+              targetReceipt: filing.rceptNo,
+              basis: div.name,
+              year: filing.bsnsYear!,
+              reportName: filing.reportName,
+            )) ...{
+              'missingRequiredAccounts': ['revenue'],
+              'uncollectedOptionalAccounts': ['capex'],
+              'missingReason': '해당 정확원문 전체 손익표에 매출 총액 행 없음; 합산·0 대체 없음',
+            },
             'coreRowProvenance': [
               for (final row in rows)
                 {
@@ -3587,7 +3607,11 @@ class FinancialFactsSync {
               ? '${originalFormat == 'half-xbrl'
                     ? 'DART 원문 XBRL 반기 부분 핵심7계정(손익3개월·누적6개월)'
                     : originalFormat == 'html'
-                    ? (BnkSixCoreProfile.storedProof(rows, sourceDigest: originalDigest ?? '', sourceUrl: originalSource.toString(), companyCode: company.corpCode, targetReceipt: rceptNo, basis: div.name, year: bsnsYear, reportName: reportName) ? BnkSixCoreProfile.title : 'DART 원문 HTML 부분 핵심계정(실제 인쇄 계정명, XBRL 계정 ID 미제공)')
+                    ? (BnkSixCoreProfile.storedProof(rows, sourceDigest: originalDigest ?? '', sourceUrl: originalSource.toString(), companyCode: company.corpCode, targetReceipt: rceptNo, basis: div.name, year: bsnsYear, reportName: reportName)
+                          ? BnkSixCoreProfile.title
+                          : PureunSixCoreProfile.storedProof(rows, sourceDigest: originalDigest ?? '', sourceUrl: originalSource.toString(), companyCode: company.corpCode, targetReceipt: rceptNo, basis: div.name, year: bsnsYear, reportName: reportName)
+                          ? PureunSixCoreProfile.title
+                          : 'DART 원문 HTML 부분 핵심계정(실제 인쇄 계정명, XBRL 계정 ID 미제공)')
                     : 'DART 원문 XBRL 핵심계정'} · $reportName · ${FinancialCodes.fsDivName(div)} · SHA256:$originalDigest$partialNote'
               : 'DART 전체 재무제표 (fnlttSinglAcntAll) · $reportName · '
                     '${FinancialCodes.fsDivName(div)}',

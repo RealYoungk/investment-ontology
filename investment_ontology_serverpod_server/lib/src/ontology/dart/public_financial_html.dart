@@ -12,6 +12,7 @@ import 'sk_signet_identity.dart';
 import 'same_receipt_audit_source.dart';
 import 'public_issuer_legal_name.dart';
 import 'bnk_six_core_profile.dart';
+import 'pureun_six_core_profile.dart';
 import 'verified_historical_company_identity.dart';
 
 /// Validated strict subsets of receipt-bound annual and half-year DART HTML.
@@ -823,6 +824,34 @@ abstract final class PublicFinancialHtml {
   }) {
     if (receipt == BnkSixCoreProfile.receipt) {
       return BnkSixCoreProfile.parse(
+        targetReceipt: receipt,
+        companyCode: corpCode,
+        companyName: companyName,
+        consolidated: consolidated,
+        start: periodStart,
+        end: periodEnd,
+        coverSource: coverSource,
+        coverHtml: coverHtml,
+        statementSource: statementSource,
+        statementHtml: statementHtml,
+      );
+    }
+    if (receipt == PureunSixCoreProfile.receipt) {
+      if (issuerProof != null &&
+          issuerProof.verify(
+                receipt: receipt,
+                corpCode: corpCode,
+                masterName: companyName,
+                printedName: '(주)푸른상호저축은행',
+                coverSource: coverSource,
+                coverHtml: coverHtml,
+                periodStart: periodStart,
+                periodEnd: periodEnd,
+              ) ==
+              null) {
+        throw const FormatException('Invalid raw official issuer evidence');
+      }
+      return PureunSixCoreProfile.parse(
         targetReceipt: receipt,
         companyCode: corpCode,
         companyName: companyName,

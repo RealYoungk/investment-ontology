@@ -32,6 +32,19 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20230315000460',
+      corpCode: '00124805',
+      companyName: '(주)푸른저축은행',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230315000460-ofs-six',
+      manifestDigest:
+          'e9244070d8c44343a9434546a2af9091a38dcc75649d01a16ace1b2cdc9c73b1',
+      ruleVersion: 'pureun-exact-six-primary-raw-ce-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: true,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20260331004637',
       corpCode: '01353848',
       companyName: '(주)이노벡스',
