@@ -88,8 +88,8 @@ void main() {
                 'paymentKey': 'payment-$id',
                 'type': 'BILLING',
                 'currency': 'KRW',
-                'totalAmount': 2900,
-                'balanceAmount': 2900,
+                'totalAmount': body['amount'],
+                'balanceAmount': body['amount'],
                 'status': 'DONE',
               };
             }
@@ -133,6 +133,7 @@ void main() {
             request.response.headers.contentType = ContentType(
               'application',
               'javascript',
+              charset: 'utf-8',
             );
             if (request.uri.path == '/ad_loader.js') {
               request.response.write(
