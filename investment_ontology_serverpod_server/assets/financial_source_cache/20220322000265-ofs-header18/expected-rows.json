@@ -1,0 +1,44 @@
+[
+  {
+    "account_nm": "자      산         총      계",
+    "account_id": null,
+    "thstrm_amount": "42977113374",
+    "sj_div": "BS"
+  },
+  {
+    "account_nm": "부      채         총      계",
+    "account_id": null,
+    "thstrm_amount": "12010686496",
+    "sj_div": "BS"
+  },
+  {
+    "account_nm": "자      본         총      계",
+    "account_id": null,
+    "thstrm_amount": "30966426878",
+    "sj_div": "BS"
+  },
+  {
+    "account_nm": "매출액",
+    "account_id": null,
+    "thstrm_amount": "56363636",
+    "sj_div": "CIS"
+  },
+  {
+    "account_nm": "영업이익(손실)",
+    "account_id": null,
+    "thstrm_amount": "-3032272213",
+    "sj_div": "CIS"
+  },
+  {
+    "account_nm": "당기순이익(손실)",
+    "account_id": null,
+    "thstrm_amount": "-3138417386",
+    "sj_div": "CIS"
+  },
+  {
+    "account_nm": "영업활동으로 인한 현금흐름",
+    "account_id": null,
+    "thstrm_amount": "-2182903690",
+    "sj_div": "CF"
+  }
+]

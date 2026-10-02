@@ -1,0 +1,54 @@
+{
+  "targetReceipt": "20260323000764",
+  "originalReceipt": "20260323000737",
+  "numericSourceReceipt": "20260323000737",
+  "corpCode": "01229240",
+  "companyName": "(주)가이아코퍼레이션",
+  "basis": "ofs",
+  "year": 2025,
+  "periodStart": "2025-01-01",
+  "periodEnd": "2025-12-31",
+  "kind": "annual",
+  "ruleVersion": "header18-linked-direct-whole-v1",
+  "sources": [
+    {
+      "label": "targetShell",
+      "file": "targetShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260323000764",
+      "sha256": "c5ddbc4a1d20f9994d521e10fe9e90f7422ce974abec851a8516e84b1da6ae8d"
+    },
+    {
+      "label": "originalShell",
+      "file": "originalShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260323000737",
+      "sha256": "07697ed8d0b851cd6a21d57b8ee47f521d3a2f98c6e7e849df781c270f478e66"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323000737&dcmNo=11163439&eleId=1&offset=970&length=4527&dtd=dart4.xsd",
+      "sha256": "ab4c09bb38c42251830f09fcd97f732dd7b069df209a9fdc71b5d35825cd0de6"
+    },
+    {
+      "label": "primary",
+      "file": "primary.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323000737&dcmNo=11163439&eleId=21&offset=431003&length=37699&dtd=dart4.xsd",
+      "sha256": "77dea6f7c31398cb679474adb57c04a716c98239716283a0cc19fdb083f02847"
+    },
+    {
+      "label": "auditShell",
+      "file": "auditShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260323000737&dcmNo=11163437",
+      "sha256": "ef6848523b07d4b51c31599c130961a1a33899ea3cdfda5ac702a732e399863f"
+    },
+    {
+      "label": "audit",
+      "file": "audit.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323000737&dcmNo=11163437&eleId=3&offset=11277&length=300436&dtd=dart4.xsd",
+      "sha256": "8b8245074f860df339342e7843be91e553b8ef592dccf8fe2131cef159a830c8"
+    }
+  ],
+  "sourceRole": "original_primary_with_current_audit_witness",
+  "scopeNote": "Candidate assets only; not active registry or operational completion",
+  "expectedRowsSha256": "5e4fd1d026edfbc0a6cc162f5e74dbd9ff413192042c585f5bb1e30e3da51f35"
+}

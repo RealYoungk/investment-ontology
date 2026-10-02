@@ -1,0 +1,54 @@
+{
+  "targetReceipt": "20220324000876",
+  "originalReceipt": "20220322000350",
+  "numericSourceReceipt": "20220322000350",
+  "corpCode": "01397620",
+  "companyName": "주식회사 루닛",
+  "basis": "ofs",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "kind": "annual",
+  "ruleVersion": "header18-linked-direct-whole-v1",
+  "sources": [
+    {
+      "label": "targetShell",
+      "file": "targetShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220324000876",
+      "sha256": "c2c3eaebfc6aaf67dbf23d93d902d0326faa654a9ffef2c79e60055f35582dc3"
+    },
+    {
+      "label": "originalShell",
+      "file": "originalShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220322000350",
+      "sha256": "a39b8f20cff5e6d83fa65478cb025018fd1284708d9654036fb8f0f2c8e467f9"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000350&dcmNo=8489342&eleId=1&offset=791&length=4122&dtd=dart3.xsd",
+      "sha256": "b02d42cfe093b3f641dfc3edf62f76b1d269f371f7a22e39a7e37f678799a4b1"
+    },
+    {
+      "label": "primary",
+      "file": "primary.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000350&dcmNo=8489342&eleId=21&offset=641778&length=41115&dtd=dart3.xsd",
+      "sha256": "902a874b5aae0edd8f50c31952c59f79899bc88f8f5026d5115d98ac853628ff"
+    },
+    {
+      "label": "auditShell",
+      "file": "auditShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220322000350&dcmNo=8489340",
+      "sha256": "e59246df606d59b21e050e841ae269b0a2ed7fa994de70f56b4f9812a04ec1ba"
+    },
+    {
+      "label": "audit",
+      "file": "audit.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000350&dcmNo=8489340&eleId=3&offset=13389&length=380205&dtd=dart3.xsd",
+      "sha256": "86592aed8229d9da6e36c6863d6c0e21d62199e1feb6b40ca0b2181026fc6abf"
+    }
+  ],
+  "sourceRole": "original_primary_with_current_audit_witness",
+  "scopeNote": "Candidate assets only; not active registry or operational completion",
+  "expectedRowsSha256": "175370a593ab55ac7b340d88269db2dbf1275735632a362ffc4e60d5bb96f8ed"
+}

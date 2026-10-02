@@ -1,0 +1,54 @@
+{
+  "targetReceipt": "20260320001301",
+  "originalReceipt": "20260311003697",
+  "numericSourceReceipt": "20260311003697",
+  "corpCode": "01466832",
+  "companyName": "(주)라피치",
+  "basis": "ofs",
+  "year": 2025,
+  "periodStart": "2025-01-01",
+  "periodEnd": "2025-12-31",
+  "kind": "annual",
+  "ruleVersion": "header18-linked-direct-whole-v1",
+  "sources": [
+    {
+      "label": "targetShell",
+      "file": "targetShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260320001301",
+      "sha256": "517d781845e7800389c4fb43bb9f353f0b64a93458c97b61a947319570fab849"
+    },
+    {
+      "label": "originalShell",
+      "file": "originalShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260311003697",
+      "sha256": "b0c1fc81b2212b2a74603238f15d10989cce383e9a5217f86d2d056a775dcd1d"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260311003697&dcmNo=11107750&eleId=1&offset=967&length=4438&dtd=dart4.xsd",
+      "sha256": "0690ba0bd50c89095001574c8460a4e41ba6509e38ff1ab3224106721b203c2c"
+    },
+    {
+      "label": "primary",
+      "file": "primary.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260311003697&dcmNo=11107750&eleId=21&offset=161413&length=56100&dtd=dart4.xsd",
+      "sha256": "e373b2141d1ac8a6a8f2ff453458e6d36128696cf9cb6722e960bd492ab8d11a"
+    },
+    {
+      "label": "auditShell",
+      "file": "auditShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260311003697&dcmNo=11107749",
+      "sha256": "c546f1e426a279e90b87f8b5205738f65142b07d9b4c5eb02a33ceb03231dc89"
+    },
+    {
+      "label": "audit",
+      "file": "audit.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260311003697&dcmNo=11107749&eleId=3&offset=9607&length=349754&dtd=dart4.xsd",
+      "sha256": "e5b59c0e1e00e62d97588812c6a65c4a4bc437548a7e7fb124b02a4e28576edd"
+    }
+  ],
+  "sourceRole": "original_primary_with_current_audit_witness",
+  "scopeNote": "Candidate assets only; not active registry or operational completion",
+  "expectedRowsSha256": "a3b15c7b7b7d8039d15806e06d951f00bdbbe922c9ca50082f2a65eba2b50ed6"
+}

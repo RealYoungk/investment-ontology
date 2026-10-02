@@ -1,0 +1,200 @@
+[
+  {
+    "directory": "assets/financial_source_cache/20220322000265-ofs-header18",
+    "manifestSha256": "c43d9b50eb28bc93306ab3a07f568d2ed396ee71930a48d163ff76650512c737",
+    "targetReceipt": "20220322000265",
+    "originalReceipt": "20220321001430",
+    "corpCode": "01396931",
+    "basis": "ofs",
+    "year": 2021,
+    "numeric": true,
+    "sourceRole": "same_receipt_audit"
+  },
+  {
+    "directory": "assets/financial_source_cache/20220324000876-cfs-header18",
+    "manifestSha256": "ab52277dd9d4858b075580e53fa224e4d514fe3bd7f5ee6a72ba73c61ee16477",
+    "targetReceipt": "20220324000876",
+    "originalReceipt": "20220322000350",
+    "corpCode": "01397620",
+    "basis": "cfs",
+    "year": 2021,
+    "numeric": true,
+    "sourceRole": "original_primary_with_current_audit_witness"
+  },
+  {
+    "directory": "assets/financial_source_cache/20220324000876-ofs-header18",
+    "manifestSha256": "93da5692428b5332075d89b10dd702f4b60a7646e3116ec411a0da20571dc42e",
+    "targetReceipt": "20220324000876",
+    "originalReceipt": "20220322000350",
+    "corpCode": "01397620",
+    "basis": "ofs",
+    "year": 2021,
+    "numeric": true,
+    "sourceRole": "original_primary_with_current_audit_witness"
+  },
+  {
+    "directory": "assets/financial_source_cache/20220328000884-ofs-header18",
+    "manifestSha256": "b7bbfea739464604579c382f3df1304bf12a76e5af1ea42fba0aa9d33252e656",
+    "targetReceipt": "20220328000884",
+    "originalReceipt": "20220321000630",
+    "corpCode": "01353848",
+    "basis": "ofs",
+    "year": 2021,
+    "numeric": true,
+    "sourceRole": "corrected_audit"
+  },
+  {
+    "directory": "assets/financial_source_cache/20221213000195-cfs-header18",
+    "manifestSha256": "7d1e652fd413b4598aa8b91db7eed526e6bc1ab2b06581088c385f188a4b8ad1",
+    "targetReceipt": "20221213000195",
+    "originalReceipt": "20220322000963",
+    "corpCode": "00311216",
+    "basis": "cfs",
+    "year": 2021,
+    "numeric": true,
+    "sourceRole": "original_primary_with_current_audit_witness"
+  },
+  {
+    "directory": "assets/financial_source_cache/20221213000195-ofs-header18",
+    "manifestSha256": "6c41defb7b2b123b7abb3e490ebe22e6f10193cddd9ffa8983b4a74e7686ffa0",
+    "targetReceipt": "20221213000195",
+    "originalReceipt": "20220322000963",
+    "corpCode": "00311216",
+    "basis": "ofs",
+    "year": 2021,
+    "numeric": true,
+    "sourceRole": "original_primary_with_current_audit_witness"
+  },
+  {
+    "directory": "assets/financial_source_cache/20230323001121-cfs-header18",
+    "manifestSha256": "63bead4f55ed89ceb2b5a32ac62f1954f8f3d184bfdbfa81cd6a94b08617e5eb",
+    "targetReceipt": "20230323001121",
+    "originalReceipt": "20230323000812",
+    "corpCode": "00976615",
+    "basis": "cfs",
+    "year": 2022,
+    "numeric": true,
+    "sourceRole": "original_primary_with_current_audit_witness"
+  },
+  {
+    "directory": "assets/financial_source_cache/20230323001121-ofs-header18",
+    "manifestSha256": "79868de23a397e2b2b0f1217a72f7ddf7fd11c537647756226ffdc2474f9de48",
+    "targetReceipt": "20230323001121",
+    "originalReceipt": "20230323000812",
+    "corpCode": "00976615",
+    "basis": "ofs",
+    "year": 2022,
+    "numeric": true,
+    "sourceRole": "original_primary_with_current_audit_witness"
+  },
+  {
+    "directory": "assets/financial_source_cache/20250327000068-ofs-header18",
+    "manifestSha256": "0c214d0977b4b91a550dda162a544b24386807c6e94b731deee8334d3baaec90",
+    "targetReceipt": "20250327000068",
+    "originalReceipt": "20250318000867",
+    "corpCode": "01466832",
+    "basis": "ofs",
+    "year": 2024,
+    "numeric": true,
+    "sourceRole": "original_primary_with_current_audit_witness"
+  },
+  {
+    "directory": "assets/financial_source_cache/20260320001301-ofs-header18",
+    "manifestSha256": "84f63ded1b530584b1ffa9da3db4807bc72e7c74f6ebe0a04c84b410829b10ff",
+    "targetReceipt": "20260320001301",
+    "originalReceipt": "20260311003697",
+    "corpCode": "01466832",
+    "basis": "ofs",
+    "year": 2025,
+    "numeric": true,
+    "sourceRole": "original_primary_with_current_audit_witness"
+  },
+  {
+    "directory": "assets/financial_source_cache/20260323000764-cfs-header18",
+    "manifestSha256": "50293af1fc3287e8df9dd0f1f2afe297657586c28e11d05227bf653dc00dad24",
+    "targetReceipt": "20260323000764",
+    "originalReceipt": "20260323000737",
+    "corpCode": "01229240",
+    "basis": "cfs",
+    "year": 2025,
+    "numeric": true,
+    "sourceRole": "original_primary_with_current_audit_witness"
+  },
+  {
+    "directory": "assets/financial_source_cache/20260323000764-ofs-header18",
+    "manifestSha256": "cecf6877b154cb9a424cb6265512c491388f0ea3c6fffe949bc308ee68ec5ee3",
+    "targetReceipt": "20260323000764",
+    "originalReceipt": "20260323000737",
+    "corpCode": "01229240",
+    "basis": "ofs",
+    "year": 2025,
+    "numeric": true,
+    "sourceRole": "original_primary_with_current_audit_witness"
+  },
+  {
+    "directory": "assets/financial_source_cache/20260324000715-ofs-header18",
+    "manifestSha256": "6eac7bf6e5d727b4058f4103cae575a01f01fd7b3819395b583d9429534c2588",
+    "targetReceipt": "20260324000715",
+    "originalReceipt": "20260323000900",
+    "corpCode": "00929228",
+    "basis": "ofs",
+    "year": 2025,
+    "numeric": true,
+    "sourceRole": "original_primary_with_current_audit_witness"
+  },
+  {
+    "directory": "assets/financial_source_cache/20220322000265-cfs-header18",
+    "manifestSha256": "27e185774c6e623594fa3c40099c1733fff94631a063cb8ead03fec8a0864cf2",
+    "targetReceipt": "20220322000265",
+    "originalReceipt": "20220321001430",
+    "corpCode": "01396931",
+    "basis": "cfs",
+    "year": 2021,
+    "numeric": false,
+    "sourceRole": "original_primary_explicit_absence"
+  },
+  {
+    "directory": "assets/financial_source_cache/20220328000884-cfs-header18",
+    "manifestSha256": "7232bb79571aefd16637e0f9f65394885879d0ee3eccf595765e7c893a73f2a1",
+    "targetReceipt": "20220328000884",
+    "originalReceipt": "20220321000630",
+    "corpCode": "01353848",
+    "basis": "cfs",
+    "year": 2021,
+    "numeric": false,
+    "sourceRole": "original_primary_explicit_absence"
+  },
+  {
+    "directory": "assets/financial_source_cache/20250327000068-cfs-header18",
+    "manifestSha256": "388d996da4eecee2aaacbdd42c038d9264849b5d90e90065329e337e737fea75",
+    "targetReceipt": "20250327000068",
+    "originalReceipt": "20250318000867",
+    "corpCode": "01466832",
+    "basis": "cfs",
+    "year": 2024,
+    "numeric": false,
+    "sourceRole": "original_primary_explicit_absence"
+  },
+  {
+    "directory": "assets/financial_source_cache/20260320001301-cfs-header18",
+    "manifestSha256": "3f79096aa61c191199311fb9755a7560d66b01b6541ff80221d163938b43b80c",
+    "targetReceipt": "20260320001301",
+    "originalReceipt": "20260311003697",
+    "corpCode": "01466832",
+    "basis": "cfs",
+    "year": 2025,
+    "numeric": false,
+    "sourceRole": "original_primary_explicit_absence"
+  },
+  {
+    "directory": "assets/financial_source_cache/20260324000715-cfs-header18",
+    "manifestSha256": "4d1d4c245791a126ebe7f96a1be6682e1e77923161d1d22e5febb8dbfd242437",
+    "targetReceipt": "20260324000715",
+    "originalReceipt": "20260323000900",
+    "corpCode": "00929228",
+    "basis": "cfs",
+    "year": 2025,
+    "numeric": false,
+    "sourceRole": "original_primary_explicit_absence"
+  }
+]

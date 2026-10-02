@@ -1,0 +1,42 @@
+{
+  "targetReceipt": "20260324000715",
+  "originalReceipt": "20260323000900",
+  "numericSourceReceipt": "20260323000900",
+  "corpCode": "00929228",
+  "companyName": "(주)엔에스컴퍼니",
+  "basis": "cfs",
+  "year": 2025,
+  "periodStart": "2025-01-01",
+  "periodEnd": "2025-12-31",
+  "kind": "annual",
+  "ruleVersion": "header18-linked-explicit-absence-v1",
+  "sources": [
+    {
+      "label": "targetShell",
+      "file": "targetShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260324000715",
+      "sha256": "a4e50cda1b921a4fd563f0961d8d0d9dc70632de4a4e959e80e5a11eecc594d4"
+    },
+    {
+      "label": "originalShell",
+      "file": "originalShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260323000900",
+      "sha256": "97449b25bdde79372a6ef1e4f46f33d19db86554ca9da312432816ec7957a74f"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323000900&dcmNo=11164290&eleId=1&offset=968&length=4515&dtd=dart4.xsd",
+      "sha256": "1cbe4ac7ada97608576372fc7e5fe80412d52164c7cd39d5c288348417a799f2"
+    },
+    {
+      "label": "primary",
+      "file": "primary.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323000900&dcmNo=11164290&eleId=19&offset=442959&length=183&dtd=dart4.xsd",
+      "sha256": "63995f16776dbacf88b6f9d434ecc124bfb67eb18db261a6740483420a8e7d99"
+    }
+  ],
+  "sourceRole": "original_primary_explicit_absence",
+  "scopeNote": "Candidate assets only; not active registry or operational completion",
+  "absenceLiteral": "해당사항 없음."
+}

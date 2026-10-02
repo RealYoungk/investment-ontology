@@ -1,0 +1,42 @@
+{
+  "targetReceipt": "20220328000884",
+  "originalReceipt": "20220321000630",
+  "numericSourceReceipt": "20220321000630",
+  "corpCode": "01353848",
+  "companyName": "(주)이노벡스",
+  "basis": "cfs",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "kind": "annual",
+  "ruleVersion": "header18-linked-explicit-absence-v1",
+  "sources": [
+    {
+      "label": "targetShell",
+      "file": "targetShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220328000884",
+      "sha256": "c18e2ea3a9c809a4f6bcb8a60e13ae89139ca2c61241059de7c3df47e6409556"
+    },
+    {
+      "label": "originalShell",
+      "file": "originalShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220321000630",
+      "sha256": "f03cacc97c44b2f00929105c9aa2c1e0156713eb06f628538aaabddee033f2c1"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220321000630&dcmNo=8482170&eleId=1&offset=807&length=4027&dtd=dart3.xsd",
+      "sha256": "6b6ae646ac07f9228dc540cb530cedc8b598a6e99bec531b7585c3dc262db212"
+    },
+    {
+      "label": "primary",
+      "file": "primary.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220321000630&dcmNo=8482170&eleId=19&offset=193372&length=366&dtd=dart3.xsd",
+      "sha256": "e7de72d71d6291a2dc74082c833d0f28c413f106ed3162e3f66272ad1dc1e36d"
+    }
+  ],
+  "sourceRole": "original_primary_explicit_absence",
+  "scopeNote": "Candidate assets only; not active registry or operational completion",
+  "absenceLiteral": "해 당 사 항 없 음"
+}
