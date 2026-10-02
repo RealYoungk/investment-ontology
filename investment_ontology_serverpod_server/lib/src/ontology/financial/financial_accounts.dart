@@ -112,6 +112,7 @@ abstract final class FinancialAccounts {
     'equity': ['자본총계'],
     'operatingCashFlow': [
       '영업활동현금흐름',
+      '영업활동순현금흐름',
       '영업활동으로인한현금흐름',
       '영업활동으로인한현금흐름(순액)',
     ],

@@ -884,6 +884,7 @@ abstract final class PublicFinancialHtml {
       '당기순이익(손실)': ('profit', 'CIS'),
       '영업활동으로인한현금흐름': ('cfo', 'CF'),
       '영업활동현금흐름': ('cfo', 'CF'),
+      '영업활동순현금흐름': ('cfo', 'CF'),
       '영업활동으로인한현금흐름(순액)': ('cfo', 'CF'),
       '유형자산취득': ('capex', 'CF'),
       '유형자산의취득': ('capex', 'CF'),
@@ -1136,7 +1137,8 @@ abstract final class PublicFinancialHtml {
         kind = 'CIS';
       } else if (labels.contains('영업활동으로인한현금흐름') ||
           labels.contains('영업활동으로인한현금흐름(순액)') ||
-          labels.contains('영업활동현금흐름')) {
+          labels.contains('영업활동현금흐름') ||
+          labels.contains('영업활동순현금흐름')) {
         kind = 'CF';
       } else {
         continue;

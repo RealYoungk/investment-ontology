@@ -136,7 +136,13 @@ class PublicIssuerLegalName {
         ).hasMatch(bodies.single.group(1)!)) {
       return null;
     }
-    final overviewBody = bodies.single.group(1)!;
+    // DART may print heading and direct declaration in one P separated by BR.
+    final overviewBody = bodies.single
+        .group(1)!
+        .replaceAll(
+          RegExp(r'<br\s*/?>', caseSensitive: false),
+          '</p><p>',
+        );
     // Only a direct issuer naming paragraph, bounded by the next paragraph heading.
     final paragraphs = RegExp(
       r'<p\b[^>]*>(.*?)</p>',
@@ -226,8 +232,12 @@ class PublicIssuerLegalName {
       final t = _text(p.group(1)!);
       final m = RegExp(r"^(?:당사|당 회사|당 저축은행)의 명칭은 '([^']+)'이라고 표기합니다\.$")
           .firstMatch(t);
-      if (m != null) {
-        candidates.add(m.group(1)!);
+      final direct = RegExp(
+        r"^당사의 법적[ㆍ·]상업적 명칭은 '([^']+)'으로 표기하며, 영문으로는 '[^']+'\s*로 표기합니다\.$",
+      ).firstMatch(t);
+      final naming = m ?? direct;
+      if (naming != null) {
+        candidates.add(naming.group(1)!);
         quotes.add(t);
       }
     }
