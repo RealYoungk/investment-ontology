@@ -16,3 +16,9 @@
 검증 결과: exact priority 양성/회사·접수·연도·종류·기간·다른 basis·cap 음성 16개 PASS. 두 캐시 actual8/공통 scope 거부/3원문·manifest byte변조 음성 및 audit identity 유일성 29개 PASS. owned 파일 정적 분석 0.
 
 표지 파일 선택 주의: 유니포인트 제공 폴더의 cover.html은 대표이사 확인서였으므로 사용하지 않았다. 같은 공식 표지 URI를 증명한 financial-failures-readonly-20261002/period-three/20260316001455/cover.html(SHA 2788fca0a2c22f377fecab10c8f2c527358637502ac8da965f6c658a72fefac2)을 byte 그대로 패키징했다. 원문·URI·기간·파서 수정은 없다. 최초 잘못된 파일의 strict 거부 후 정확한 원문 재검증이 통과했다.
+
+## 정상 저장 후속 검증
+
+격리 DB4 통과: 두 exact OFS 각각 normal public2→3 transport + cap3 immutable cache 정상job 저장/재실행을 검증했다. normal 경로는 원문 actual8 모든금액·Source 공식 URI/원접수·current FY2025/annual/OFS·행 provenance source/period/unit·매출 summary·job.updated1을 대조한다. 일반 attempt3/공개 attempt3/일일 API 원장20000과 반대 basis Source/report/fact 전체 JSON은 불변이다. 반대 basis 보존은 명시 합성 sentinel이며 운영 비공개 DB 원형 반출 검증이 아니다. 캐시 경로는 source combined SHA·같은 정상 저장/updated1·재실행 updated0/읽기·중복audit0을 공용 회귀로 확인했다.
+
+첫 DB 실행의 유니포인트 테스트 매출 기대값0 잔존은 실제 인쇄 매출58,346,049,641원으로 수정했고 전체8금액 직접 대조를 추가해 재실행4 PASS를 확인했다. 생산 코드 수정은 없다. API·공개 GET·운영 DB 쓰기0이며 현재 DB 프로세스0/슬롯 해제다.
