@@ -94,8 +94,8 @@ void main() {
         ),
       );
       await t.pumpAndSettle();
-      expect(find.text('서버 보존: 연간 12/15 · 최신 3/3'), findsOneWidget);
-      expect(find.textContaining('2021~2023 원문 미확보'), findsOneWidget);
+      expect(find.text('서버 보존: 과거 재무 원문 12개 · 최신 3/3'), findsOneWidget);
+      expect(find.textContaining('2021~2023 자체 원문 미확보'), findsOneWidget);
       await t.tap(find.text('맥쿼리인프라'));
       await t.pumpAndSettle();
       expect(find.text('2025-01-01 ~ 2025-12-31'), findsOneWidget);
@@ -141,7 +141,7 @@ void main() {
         );
       }
       await t.pumpAndSettle();
-      expect(find.text('서버 보존: 연간 0/15 · 최신 0/3'), findsOneWidget);
+      expect(find.text('서버 보존: 과거 재무 원문 0개 · 최신 0/3'), findsOneWidget);
     },
   );
 }

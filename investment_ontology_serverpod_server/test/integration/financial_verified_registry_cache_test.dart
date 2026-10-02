@@ -445,7 +445,12 @@ void main() {
                           ? FsDiv.consolidated
                           : FsDiv.separate,
                     )!;
-                    return sum + (e.requiresIssuerOverview ? 5 : 4);
+                    return sum +
+                        (e.requiresIssuerOverview ||
+                                e.ruleVersion ==
+                                    'same-receipt-audit-immutable-v1'
+                            ? 5
+                            : 4);
                   }),
           );
           expect(client.calls, 0);
@@ -480,6 +485,9 @@ void main() {
             );
           }
         },
+        // Ten bounded packages retain the real one-second source cadence;
+        // four-document packages need more than the default thirty seconds.
+        timeout: const Timeout(Duration(seconds: 90)),
       );
     }
   });

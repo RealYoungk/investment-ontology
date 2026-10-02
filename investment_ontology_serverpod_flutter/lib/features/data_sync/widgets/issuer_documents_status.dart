@@ -165,15 +165,14 @@ class _IssuerDocumentsStatusState extends State<IssuerDocumentsStatus> {
   @override
   Widget build(BuildContext context) {
     final rows = _rows.values.expand((r) => r).toList();
-    final annual = rows
+    final historical = rows
         .where(
           (r) =>
               r['documentType'] == 'auditReport' &&
-              RegExp(r'^202[1-5]-01-01$').hasMatch(r['periodStart']) &&
-              r['periodEnd'] ==
-                  '${(r['periodStart'] as String).substring(0, 4)}-12-31',
+              RegExp(r'^202[1-5]-').hasMatch(r['periodStart']) &&
+              RegExp(r'^202[1-5]-').hasMatch(r['periodEnd']),
         )
-        .map((r) => '${r['corpCode']}|${r['periodEnd']}')
+        .map((r) => '${r['officialUrl']}|${r['sha256']}')
         .toSet()
         .length;
     final latest = rows
@@ -200,9 +199,11 @@ class _IssuerDocumentsStatusState extends State<IssuerDocumentsStatus> {
           children: [
             Text('공식 별도 원문', style: context.typo.sectionTitle),
             const SizedBox(height: AppSpace.sm),
-            const Text('투자회사 3곳 · 2021~2025 연간 원문과 최신 원문'),
-            Text('서버 보존: 연간 $annual/15 · 최신 $latest/3'),
-            const Text('KB발해인프라 2021~2023 원문 미확보 · 재무 숫자 추출 대기'),
+            const Text('투자회사 3곳 · 2021~2025 과거 재무 원문과 최신 원문'),
+            Text('서버 보존: 과거 재무 원문 $historical개 · 최신 $latest/3'),
+            const Text(
+              'KB발해인프라 2021~2023 자체 원문 미확보(결산기간별 확인 중) · 재무 숫자 추출 대기',
+            ),
             const Text(
               '정기보고서·사업본문·재무 숫자 집계에 포함하지 않습니다. 최신 원문에는 3개월·6개월 자료가 포함됩니다.',
             ),
