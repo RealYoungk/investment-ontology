@@ -734,8 +734,26 @@ abstract final class PublicFinancialHtml {
     );
     final text = _compact(_text(scope));
     const titleDate = r'(?:\d{4}년\d{1,2}월\d{1,2}일|\d{4}\.\d{2}\.\d{2})';
+    final kiwoomRepeatedTermScope =
+        receipt == '20230320001037' &&
+        corpCode == '00296290' &&
+        consolidated &&
+        term == '24' &&
+        coverSource.queryParameters['dcmNo'] == '9077489' &&
+        coverSource.queryParameters['eleId'] == '1' &&
+        coverSource.queryParameters['offset'] == '796' &&
+        coverSource.queryParameters['length'] == '4038' &&
+        statementSource.queryParameters['dcmNo'] == '9077489' &&
+        statementSource.queryParameters['eleId'] == '17' &&
+        statementSource.queryParameters['offset'] == '905295' &&
+        statementSource.queryParameters['length'] == '107240' &&
+        periodStart == DateTime.utc(2022) &&
+        periodEnd == DateTime.utc(2022, 12, 31);
+    final titleTerm = kiwoomRepeatedTermScope
+        ? '제$term기\\(당\\)기'
+        : '제$term(?:\\(당\\))?(?:당기|기)';
     final titlePattern = RegExp(
-      '제$term(?:\\(당\\))?(?:당기|기)(?:기말|말)?:?\\(?($titleDate)(현재|(?:부터(?=$titleDate까지)|~)($titleDate)(?:까지)?)\\)?',
+      '$titleTerm(?:기말|말)?:?\\(?($titleDate)(현재|(?:부터(?=$titleDate까지)|~)($titleDate)(?:까지)?)\\)?',
     );
     final titles = titlePattern.allMatches(text).toList();
     final parenthesizedTitles = titles
@@ -1340,6 +1358,9 @@ abstract final class PublicFinancialHtml {
                 ).hasMatch(_compact(c.text)) ||
                 (termYearHeaderCandidate &&
                     _compact(c.text) == '제$term기(${periodEnd.year}년)') ||
+                (kiwoomRepeatedTermScope &&
+                    kind == 'CF' &&
+                    _compact(c.text) == '제24기(당)기') ||
                 (konasolScope && kind == 'CF' && _compact(c.text) == '2025년') ||
                 (datedPunctuationProof?['mode'] ==
                         'exact-suntech-unscaled-raw-ce-period-corroboration' &&
@@ -1538,6 +1559,136 @@ abstract final class PublicFinancialHtml {
       throw const FormatException(
         'Annual primary core missing or balance mismatch',
       );
+    }
+    if (kiwoomRepeatedTermScope) {
+      final ceProofs = <Map<String, dynamic>>[];
+      for (final table in RegExp(
+        r'<TABLE\b[^>]*>(.*?)</TABLE>',
+        caseSensitive: false,
+        dotAll: true,
+      ).allMatches(scope)) {
+        final preceding = _compact(_text(scope.substring(0, table.start)));
+        final ce = preceding.lastIndexOf('연결자본변동표');
+        if (ce < 0 ||
+            [
+              '재무상태표',
+              '손익계산서',
+              '현금흐름표',
+            ].any((t) => preceding.lastIndexOf(t) > ce)) {
+          continue;
+        }
+        var body = table.group(1)!;
+        // Explicit nonnumeric category captions occupy all nine CE columns.
+        body = body.replaceAllMapped(
+          RegExp(r'<TR\b[^>]*>.*?</TR>', caseSensitive: false, dotAll: true),
+          (m) {
+            final cells = RegExp(
+              r'<T[DH]\b([^>]*)>(.*?)</T[DH]>',
+              caseSensitive: false,
+              dotAll: true,
+            ).allMatches(m[0]!).toList();
+            return cells.length == 1 &&
+                    {
+                      '총포괄이익:',
+                      '기타포괄손익:',
+                      '자본에인식된주주거래:',
+                    }.contains(_compact(_text(cells.single[2]!)))
+                ? ''
+                : m[0]!;
+          },
+        );
+        final grid = _FinancialHtmlGrid.parse(body);
+        if (grid.length < 3 ||
+            grid.first.isEmpty ||
+            _compact(grid.first.first?.text ?? '') != '과목') {
+          continue;
+        }
+        if (grid.first.length != 9 ||
+            grid[1].length != 9 ||
+            grid[0][0]?.rowspan != 2 ||
+            grid[0][1]?.colspan != 6 ||
+            _compact(grid[0][1]?.text ?? '') != '지배주주지분' ||
+            _compact(grid[0][7]?.text ?? '') != '비지배지분' ||
+            _compact(grid[0][8]?.text ?? '') != '총계' ||
+            _compact(grid[1][6]?.text ?? '') != '합계') {
+          throw const FormatException(
+            'Kiwoom supporting whole CE header mismatch',
+          );
+        }
+        final local = preceding.substring(ce);
+        final localDates = titlePattern.allMatches(local).toList();
+        if (localDates.length != 1 ||
+            localDates.single[2] == '현재' ||
+            sourceDate(localDates.single[1]!) != periodStart ||
+            sourceDate(localDates.single[3]!) != periodEnd ||
+            !local.endsWith('(단위:원)')) {
+          throw const FormatException(
+            'Kiwoom supporting CE period/unit mismatch',
+          );
+        }
+        int uniqueLabel(String label) {
+          final found = [
+            for (var i = 2; i < grid.length; i++)
+              if (_compact(grid[i].first?.text ?? '') == label) i,
+          ];
+          if (found.length != 1) {
+            throw const FormatException('Kiwoom supporting CE date ambiguous');
+          }
+          return found.single;
+        }
+
+        final start = uniqueLabel('2022년1월1일(당기초)');
+        final end = uniqueLabel('2022년12월31일(당기말)');
+        final profit = [
+          for (var i = start + 1; i < end; i++)
+            if (_compact(grid[i].first?.text ?? '') == '당기순이익') i,
+        ];
+        if (start >= end || profit.length != 1) {
+          throw const FormatException(
+            'Kiwoom supporting CE current profit ambiguous',
+          );
+        }
+        BigInt whole(int i) {
+          if (grid[i].length != 9 ||
+              grid[i][8] == null ||
+              grid[i][8]!.colspan != 1 ||
+              grid[i][8]!.rowspan != 1) {
+            throw const FormatException('Kiwoom supporting CE total ambiguous');
+          }
+          final v = money(grid[i][8]!.text);
+          if (v == null) {
+            throw const FormatException(
+              'Kiwoom supporting CE whole amount missing',
+            );
+          }
+          return v;
+        }
+
+        ceProofs.add({
+          'mode': 'exact-repeated-term-CFS-whole-CE',
+          'receipt': receipt,
+          'corpCode': corpCode,
+          'source': statementSource.toString(),
+          'currentTerm': term,
+          'periodStart': '2022-01-01',
+          'periodEnd': '2022-12-31',
+          'totalColumn': 8,
+          'currentProfit': whole(profit.single).toString(),
+          'closingEquity': whole(end).toString(),
+        });
+      }
+      if (ceProofs.length != 1 ||
+          ceProofs.single['currentProfit'] != values['profit'].toString() ||
+          ceProofs.single['closingEquity'] != values['equity'].toString()) {
+        throw const FormatException(
+          'Kiwoom supporting whole CE profit/equity contradiction',
+        );
+      }
+      for (final row in result) {
+        (row['html_provenance']
+                as Map<String, dynamic>)['supportingPeriodEvidence'] =
+            ceProofs.single;
+      }
     }
     if (cnsPeriodProof != null) {
       if (values['equity'].toString() != cnsPeriodProof['closingEquity'] ||
