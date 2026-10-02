@@ -35,6 +35,30 @@ abstract final class SameReceiptAuditSource {
           statement: 'https://dart.fss.or.kr/report/viewer.do?rcpNo=20260331004637&dcmNo=11214857&eleId=3&offset=10407&length=362889&dtd=dart4.xsd',
           statementSha: 'e4ed7d6fe2972a93f83850a4851703e9e5b1ed0fb6f6bfffbe77998bcc989d3a',
         ),
+        '20260326000605': (
+          corp: '01139497',
+          year: 2025,
+          consolidated: false,
+          cover: 'https://dart.fss.or.kr/report/viewer.do?rcpNo=20260326000605&dcmNo=11181548&eleId=1&offset=968&length=4510&dtd=dart4.xsd',
+          coverSha: '5c3eb5213fc6604378086b3d197f3c0df17999f5e2b0b46c73d3e9f577e6de9e',
+          shellSha: 'f5403eafe39b869fe2c6cd8dacfa89fccb69fcb54d442a4a5b59bd3ff4a28c10',
+          auditShell: 'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260326000605&dcmNo=11181547',
+          auditShellSha: '22ab8e0120c7c961e7bccae2d6a5afdf094216ca098fe81eddd5d2fb493337e1',
+          statement: 'https://dart.fss.or.kr/report/viewer.do?rcpNo=20260326000605&dcmNo=11181547&eleId=3&offset=11960&length=284718&dtd=dart4.xsd',
+          statementSha: '5e2477a86b076214e1202442ac519839f146a367e9e64de9127586564858fe9d',
+        ),
+        '20240320000531': (
+          corp: '00663289',
+          year: 2023,
+          consolidated: false,
+          cover: 'https://dart.fss.or.kr/report/viewer.do?rcpNo=20240320000531&dcmNo=9734828&eleId=1&offset=951&length=4019&dtd=dart4.xsd',
+          coverSha: '63ac5c0c71119bc54a7b07a0490314edb16b8131873524173f7f67a63329b808',
+          shellSha: '81aa7ce62bb5eb32e0d215e3a6b2c2b220e98d0df798d8f31317867f2061ac76',
+          auditShell: 'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240320000531&dcmNo=9734827',
+          auditShellSha: '81d09a6e3351ee12cfcee4ef2d37eae9294f06e6ac0a79fa7302040f87c75e9a',
+          statement: 'https://dart.fss.or.kr/report/viewer.do?rcpNo=20240320000531&dcmNo=9734827&eleId=3&offset=9072&length=272623&dtd=dart4.xsd',
+          statementSha: '56511bd096ce263eb303a6aec63b7e9cece305eb80b3f2da4186d90ff131ba6d',
+        ),
         '20250321001825': (
           corp: '00990396',
           year: 2024,
@@ -168,6 +192,9 @@ abstract final class SameReceiptAuditSource {
       'statementSha256': p.statementSha,
       'mainStatementConflict': switch (receipt) {
         '20260331004637' => 'main PL printed term conflicts with cover and current columns; no term or amount corrected',
+        '20260326000605' => 'main BS liabilities and CE profit conflict; original cells unchanged',
+        '20240320000531' =>
+          'main BS asset total conflicts; original cells unchanged',
         '20250321001825' =>
           'main CE profit and OCI labels conflict; raw labels remain unchanged',
         '20260309001820' =>

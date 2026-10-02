@@ -56,6 +56,30 @@ abstract final class VerifiedAnnualSourceRegistry {
       absenceLiteral: null,
     ),
     AnnualSourceCacheEntry(
+      receipt: '20260326000605',
+      corpCode: '01139497',
+      companyName: '주식회사 에스제이켐',
+      year: 2025,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20260326000605-ofs-audit',
+      manifestDigest:
+          'fa91eb53273f49231f8fc1a3e00dffd79905384b21248f60dd45153555a74473',
+      ruleVersion: 'same-receipt-audit-immutable-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240320000531',
+      corpCode: '00663289',
+      companyName: '위월드(주)',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20240320000531-ofs-audit',
+      manifestDigest:
+          '5d5c8b02196fc40f3691b4e496db02049223060a2928e0a0059bba383f99930e',
+      ruleVersion: 'same-receipt-audit-immutable-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20250328001780',
       corpCode: '01563667',
       companyName: '(주)더즌',
