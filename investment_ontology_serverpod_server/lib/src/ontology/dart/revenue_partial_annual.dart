@@ -89,7 +89,14 @@ abstract final class _RevenuePartialAnnual {
         );
       }
       final body = prefix.substring(title.start);
-      final unit = RegExp(r'\(단위[:：](원|천원|백만원)\)$').firstMatch(body)?[1];
+      final ceUnits = kind == 'CE'
+          ? RegExp(r'\(단위[:：]([^)]*)\)').allMatches(body).toList()
+          : <RegExpMatch>[];
+      // A declared CE may print prior/current equity tables consecutively under
+      // one own statement heading and one explicit money-unit caption.
+      final unit = kind == 'CE'
+          ? (ceUnits.length == 1 ? ceUnits.single[1] : null)
+          : RegExp(r'\(단위[:：](원|천원|백만원)\)$').firstMatch(body)?[1];
       final multiplier = switch (unit) {
         '원' => BigInt.one,
         '천원' => BigInt.from(1000),
@@ -257,9 +264,15 @@ abstract final class _RevenuePartialAnnual {
     }
     final wholeProofs = <Map<String, dynamic>>[];
     DateTime? rowDate(String raw) {
-      final m = RegExp(
-        r'^(\d{4})(?:년|\.)(\d{1,2})(?:월|\.)(\d{1,2})(?:일)?(?:\(당기초\)|\(당기말\))?$',
-      ).firstMatch(compact(raw));
+      final m =
+          RegExp(
+            r'^(\d{4})(?:년|\.)(\d{1,2})(?:월|\.)(\d{1,2})(?:일)?(?:\(당기초\)|\(당기말\)|\(전기말\)|\(기초자본\)|\(기말자본\))?$',
+          ).firstMatch(
+            compact(raw).replaceFirst(
+              RegExp(r'^[Ⅰ-ⅫIVXLCDM]+[.)](?=20[0-9]{2}(?:년|\.))'),
+              '',
+            ),
+          );
       if (m == null) return null;
       final d = DateTime.utc(
         int.parse(m[1]!),
@@ -290,8 +303,11 @@ abstract final class _RevenuePartialAnnual {
       ];
       final ends = [
         for (var r = 1; r < g.length; r++)
-          if (rowDate(g[r].first?.text ?? '') == end) r,
+          if (rowDate(g[r].first?.text ?? '') == end &&
+              !compact(g[r].first?.text ?? '').endsWith('(전기말)'))
+            r,
       ];
+      if (ends.isEmpty) continue;
       if (starts.length != 1 ||
           ends.length != 1 ||
           ends.single <= starts.single) {

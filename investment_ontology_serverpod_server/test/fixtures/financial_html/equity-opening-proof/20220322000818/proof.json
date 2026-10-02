@@ -1,0 +1,38 @@
+{
+  "cfs": "failed",
+  "ofs": "failed",
+  "corp": "00980122",
+  "name": "(주)JB금융지주",
+  "year": 2021,
+  "error": "api-noData-annual-public:attempt=3; public annual source verification failed: FormatException: Annual primary core missing or balance mismatch",
+  "receipt": "20220322000818",
+  "attempts": 3,
+  "reportCode": "annual",
+  "reportName": "사업보고서 (2021.12)",
+  "actualPeriod": "2021.12",
+  "cfsPeriodStored": false,
+  "ofsPeriodStored": false,
+  "path": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/core50-source-corpus/20220322000818/ofs.html",
+  "cover": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/core50-source-corpus/20220322000818/cover.html",
+  "shell": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/core50-source-corpus/20220322000818/shell.html",
+  "coverUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000818&dcmNo=8491809&eleId=1&offset=798&length=4113&dtd=dart3.xsd",
+  "ofsUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000818&dcmNo=8491809&eleId=19&offset=3418106&length=65274&dtd=dart3.xsd",
+  "sources": [
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000818&dcmNo=8491809&eleId=1&offset=798&length=4113&dtd=dart3.xsd",
+      "sha256": "8ac515589d0bce5fab77dcfe756e46d527e1a6f76b7990231846862310626e35"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000818&dcmNo=8491809&eleId=17&offset=1030340&length=102363&dtd=dart3.xsd",
+      "sha256": "9a29f07e5a0a38483fb055ffb6adf251897f8f4ba03d5f2142a06c94d0af1067"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000818&dcmNo=8491809&eleId=19&offset=3418106&length=65274&dtd=dart3.xsd",
+      "sha256": "79a741da9dc8b808eddac8bf3b64e0700ee46db8564313267187da6d4aa7ccd3"
+    }
+  ],
+  "gets": 4
+}

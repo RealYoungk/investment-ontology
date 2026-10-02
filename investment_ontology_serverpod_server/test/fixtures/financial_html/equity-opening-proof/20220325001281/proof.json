@@ -1,0 +1,38 @@
+{
+  "cfs": "failed",
+  "ofs": "failed",
+  "corp": "00688996",
+  "name": "(주)KB금융지주",
+  "year": 2021,
+  "error": "api-noData-annual-public:attempt=3; public annual source verification failed: FormatException: Annual primary core missing or balance mismatch",
+  "receipt": "20220325001281",
+  "attempts": 3,
+  "reportCode": "annual",
+  "reportName": "[기재정정]사업보고서 (2021.12)",
+  "actualPeriod": "2021.12",
+  "cfsPeriodStored": false,
+  "ofsPeriodStored": false,
+  "path": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/core50-source-corpus/20220325001281/ofs.html",
+  "cover": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/core50-source-corpus/20220325001281/cover.html",
+  "shell": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/core50-source-corpus/20220325001281/shell.html",
+  "coverUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220325001281&dcmNo=8506660&eleId=3&offset=37376&length=4028&dtd=dart3.xsd",
+  "ofsUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220325001281&dcmNo=8506660&eleId=21&offset=4442367&length=78556&dtd=dart3.xsd",
+  "sources": [
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220325001281&dcmNo=8506660&eleId=3&offset=37376&length=4028&dtd=dart3.xsd",
+      "sha256": "b3b8b54e79aaf3e8692611b4bddd8a0b5794f80a865549601c1c32edec610f92"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220325001281&dcmNo=8506660&eleId=19&offset=2364208&length=156709&dtd=dart3.xsd",
+      "sha256": "1f32cbaccdd1cbecb5caabc1596728a5e5d32b9383ceea78af2248721fd8be8d"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220325001281&dcmNo=8506660&eleId=21&offset=4442367&length=78556&dtd=dart3.xsd",
+      "sha256": "22cc3f4294868bd01358554c14c9e2f17c45526297cdb6cb3e27cbd809fadbef"
+    }
+  ],
+  "gets": 4
+}

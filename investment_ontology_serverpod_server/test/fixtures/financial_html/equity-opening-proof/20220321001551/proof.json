@@ -1,0 +1,38 @@
+{
+  "cfs": "noData",
+  "ofs": "failed",
+  "corp": "01344363",
+  "name": "(주)다원넥스뷰",
+  "year": 2021,
+  "error": "api-noData-annual-public:attempt=3; public annual source verification failed: FormatException: Annual primary core missing or balance mismatch",
+  "receipt": "20220321001551",
+  "attempts": 3,
+  "reportCode": "annual",
+  "reportName": "사업보고서 (2021.12)",
+  "actualPeriod": "2021.12",
+  "cfsPeriodStored": false,
+  "ofsPeriodStored": false,
+  "path": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/core50-source-corpus/20220321001551/ofs.html",
+  "cover": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/core50-source-corpus/20220321001551/cover.html",
+  "shell": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/core50-source-corpus/20220321001551/shell.html",
+  "coverUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220321001551&dcmNo=8488145&eleId=1&offset=797&length=3953&dtd=dart3.xsd",
+  "ofsUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220321001551&dcmNo=8488145&eleId=21&offset=193426&length=65432&dtd=dart3.xsd",
+  "sources": [
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220321001551&dcmNo=8488145&eleId=1&offset=797&length=3953&dtd=dart3.xsd",
+      "sha256": "feef621fcdc884ddf366a8721f908c168fbb1dc6ef999ddb5bd04b7599521ab8"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220321001551&dcmNo=8488145&eleId=19&offset=193135&length=127&dtd=dart3.xsd",
+      "sha256": "3a4bb772e2e8e2d06e9f248d0e6fec01314122faa2b892bbcf4515fb24b15b88"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220321001551&dcmNo=8488145&eleId=21&offset=193426&length=65432&dtd=dart3.xsd",
+      "sha256": "cdfa495cb2a9b976ad2b6c38d0ee6cff8e1e81ce1af467a22ca65381e161e20c"
+    }
+  ],
+  "gets": 4
+}
