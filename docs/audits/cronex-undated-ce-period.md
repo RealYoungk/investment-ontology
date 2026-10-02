@@ -7,3 +7,5 @@
 실제7: 자산14237907303=부채12371090488+자본1866816815, 매출5534042425, 영업641909126, 순익-2569130760, CFO461278058. Optional유형자산취득은 실제행이 있을 때만 기존규칙으로 반환한다. 표지365기간·CE조건과 다른회사/기간/기수/현재열/단위/CE-only금액모순을 단위검증한다. 기존CNS/코나솔/일반연간회귀 유지. DB검증 및 운영저장은 이번 범위에서 실행하지 않았다. API/외부GET/운영쓰기0.
 
 큐라켐의 기수모순, 오션스바이오의BS-only노드 및 다른접수 무날짜제목은 범위밖이다.
+
+후속 normal-ingest 격리회귀: API budget0/외부HTTP금지 FakeDartClient로 실제fixture parse후 기존 FinancialFactsSync 저장경로 사용. 정확OFSstored/CFS미검증failed 유지, report.source는 dartReport/actualreceipt/actualOFSURI, 모든facts sourceId동일·accountIdnull·printedName보존 확인. Sourceaudit의 exactCE모드와2025.01.01~12.31 보존, summary순익-2569130760/자본1866816815·summary와SQLscreen 매출5534042425·summary/SQL CFO461278058 확인. DB1PASS, parser13+finitepriority195=208단위PASS. 정확접수/corp/FY2025.12/OFS priority1 추가, 다른회사·기간·kind·basis·stored·verifiednoData·publicattempt3 제한 유지(횟수reset0/publicmax10/통상order0). 운영저장은 실행하지 않았다.
