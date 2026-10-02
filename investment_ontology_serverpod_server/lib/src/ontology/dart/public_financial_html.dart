@@ -1511,7 +1511,12 @@ abstract final class PublicFinancialHtml {
       '유형자산의취득': ('capex', 'CF'),
     };
     BigInt? money(String text) {
-      final v = text.trim();
+      var v = text.trim();
+      // Printed padding inside negative parentheses is layout, not a digit separator.
+      // Keep internal digit whitespace malformed: "(1 000)" must never become 1000.
+      if (v.startsWith('(') && v.endsWith(')')) {
+        v = '(${v.substring(1, v.length - 1).trim()})';
+      }
       if (v.isEmpty || v == '-') return null;
       if (!RegExp(r'^\(?-?\d{1,3}(?:,\d{3})*\)?$|^-?\d+$').hasMatch(v) ||
           v.startsWith('(') != v.endsWith(')')) {
