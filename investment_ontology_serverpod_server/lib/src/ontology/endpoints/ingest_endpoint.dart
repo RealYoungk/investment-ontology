@@ -24,6 +24,7 @@ import '../ingest/market_collection_coverage.dart';
 import '../ingest/ingest_jobs.dart';
 import '../ingest/ingest_hooks.dart';
 import '../ingest/market_snapshot_sync.dart';
+import '../ingest/market_security_relink.dart';
 
 /// 외부 원천 수집 제어.
 ///
@@ -314,6 +315,13 @@ class IngestEndpoint extends Endpoint {
         '매일 18:00',
         'market_snapshot_daily',
         'market_snapshot_resume',
+      ),
+      (
+        MarketSecurityRelink.kind,
+        '기존 종목 재연결',
+        '기업 기본정보 변경 후 · 시세 API 호출 없음',
+        'market_security_relink_now',
+        MarketSecurityRelink.resumeId,
       ),
       (
         FinancialFactsSync.kind,

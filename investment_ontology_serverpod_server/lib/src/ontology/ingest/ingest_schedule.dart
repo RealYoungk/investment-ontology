@@ -10,6 +10,7 @@ import 'company_master_sync.dart';
 import 'financial_facts_sync.dart';
 import 'ingest_jobs.dart';
 import 'market_snapshot_sync.dart';
+import 'market_security_relink.dart';
 import 'ingest_hooks.dart';
 import '../peers/peer_catalog.dart';
 
@@ -81,6 +82,17 @@ abstract final class IngestSchedule {
                     latest.failed > 0))) {
           await resume(session, soon);
         }
+      }
+    }
+    // Existing dispatcher, no new generated FutureCall method. A crashed
+    // enqueue is recovered only if a verified unlinked master match remains.
+    if (!r.rerunning.contains(MarketSecurityRelink.kind)) {
+      final latest = await IngestJobs.latest(
+        session,
+        MarketSecurityRelink.kind,
+      );
+      if (latest?.status != IngestStatus.cancelled) {
+        await MarketSecurityRelink.requestIfNeeded(session);
       }
     }
     await ensureDaily(session);
@@ -204,6 +216,18 @@ abstract final class IngestSchedule {
       .marketSnapshot
       .run(jobId);
 
+  static Future<void> marketSecurityRelinkLater(
+    Session session,
+    int jobId,
+    DateTime at,
+  ) async {
+    await session.serverpod.futureCalls.cancel(MarketSecurityRelink.resumeId);
+    await session.serverpod.futureCalls
+        .callAtTime(at, identifier: MarketSecurityRelink.resumeId)
+        .marketSnapshot
+        .run(jobId);
+  }
+
   static Future<void> marketSnapshotResume(Session session, DateTime at) async {
     await session.serverpod.futureCalls.cancel(marketSnapshotResumeId);
     await session.serverpod.futureCalls
@@ -270,6 +294,7 @@ abstract final class IngestSchedule {
     IngestHooks.financialsResume = financialsResume;
     IngestHooks.marketSnapshotNow = marketSnapshotNow;
     IngestHooks.marketSnapshotResume = marketSnapshotResume;
+    IngestHooks.marketSecurityRelinkLater = marketSecurityRelinkLater;
     IngestHooks.businessDocumentsNow = businessDocumentsNow;
     IngestHooks.businessDocumentsResume = businessDocumentsResume;
     IngestHooks.disclosuresNow = disclosuresNow;
