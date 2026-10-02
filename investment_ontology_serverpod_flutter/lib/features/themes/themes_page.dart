@@ -119,7 +119,7 @@ class _ThemesPageState extends State<ThemesPage> {
           ),
         const SizedBox(height: AppSpace.xl),
         if (_error != null)
-          AppNotice(message: '테마를 불러오지 못했습니다 — $_error')
+          ReadFailureNotice(subject: '테마', retry: _load)
         else if (themes == null)
           const LinearProgressIndicator(minHeight: 2)
         else if (themes.isEmpty)

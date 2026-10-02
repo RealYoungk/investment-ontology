@@ -107,7 +107,7 @@ class _FinancialSectionState extends State<FinancialSection> {
         child: LinearProgressIndicator(minHeight: 2),
       );
     } else if (_error != null) {
-      body = AppNotice(message: '재무를 불러오지 못했습니다 — $_error');
+      body = ReadFailureNotice(subject: '재무', retry: _load);
     } else if (data == null || (data.periods.isEmpty && data.market == null)) {
       body = Text(
         data == null || data.filingCount == 0

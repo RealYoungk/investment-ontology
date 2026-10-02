@@ -633,15 +633,7 @@ class _ScreenerPageState extends State<ScreenerPage> {
               ),
               const SizedBox(height: AppSpace.sm),
               if (_error != null)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const AppNotice(
-                      message: '기업 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.',
-                    ),
-                    AppButton(label: '다시 불러오기', onPressed: _load),
-                  ],
-                )
+                ReadFailureNotice(subject: '기업 목록', retry: _load)
               else ...[
                 SizedBox(
                   height: 2,

@@ -195,10 +195,12 @@ class _CompanyPageState extends State<CompanyPage> {
           if (!_loaded)
             const LinearProgressIndicator(minHeight: 2)
           else if (detail == null)
-            Text(
-              _error != null ? '불러오지 못했습니다: $_error' : '기업을 찾을 수 없습니다.',
-              style: t.body(14, color: c.textSecondary),
-            )
+            (_error != null
+                ? ReadFailureNotice(subject: '상세 정보', retry: _load)
+                : Text(
+                    '기업을 찾을 수 없습니다.',
+                    style: t.body(14, color: c.textSecondary),
+                  ))
           else ...[
             CompanyHeader(
               detail: detail,

@@ -105,7 +105,7 @@ class _BusinessTabState extends State<BusinessTab> {
     final t = context.typo;
     final content = _content;
     if (_error != null) {
-      return AppNotice(message: '사업의 내용을 불러오지 못했습니다 — $_error');
+      return ReadFailureNotice(subject: '사업의 내용', retry: _load);
     }
     if (!_loaded) return const LinearProgressIndicator(minHeight: 2);
     if (content == null) {

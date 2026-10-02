@@ -13,6 +13,7 @@ import '../financials/financial_metrics.dart';
 import 'market_cap_treemap_section.dart';
 import 'market_load_notice.dart';
 import 'widgets/index_trend.dart';
+import '../macro/macro_snapshot.dart';
 import 'widgets/industry_distribution.dart';
 import 'widgets/market_cap_trend.dart';
 import 'widgets/market_summary.dart';
@@ -109,6 +110,7 @@ class _MarketPageState extends State<MarketPage> {
       children: [
         MarketSummary(
           overview: overview,
+          failed: _failed,
           selected: _market,
           onSelect: (m) {
             setState(() => _market = _market == m ? null : m);
@@ -119,6 +121,8 @@ class _MarketPageState extends State<MarketPage> {
           const SizedBox(height: AppSpace.lg),
           MarketLoadNotice(subject: '시장 정보', retry: _loadOverview),
         ],
+        const SizedBox(height: AppSpace.section),
+        const MacroSnapshot(),
         const SizedBox(height: AppSpace.section),
         ValueListenableBuilder<int>(
           valueListenable: IngestMonitor.instance.dataVersion,

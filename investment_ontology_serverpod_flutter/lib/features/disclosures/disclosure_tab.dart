@@ -143,7 +143,7 @@ class _DisclosureTabState extends State<DisclosureTab> {
     final t = context.typo;
     final table = _table;
     if (_error != null) {
-      return AppNotice(message: '표를 불러오지 못했습니다 — $_error');
+      return ReadFailureNotice(subject: '표', retry: _load);
     }
     if (table == null) return const LinearProgressIndicator(minHeight: 2);
     return AnimatedOpacity(
