@@ -28,7 +28,7 @@ CompanyNewsFeed feed(DateTime now, {String status = 'ok'}) => CompanyNewsFeed(
 );
 void main() {
   test(
-    'Naver sends server credentials and parses safe original excerpts',
+    'Naver sends server credentials, parses excerpts and drops unrelated companies',
     () async {
       final client = MockClient((request) async {
         expect(request.headers['X-NCP-APIGW-API-KEY-ID'], 'test-id');
@@ -61,12 +61,12 @@ void main() {
         'test-secret',
         DateTime.utc(2026, 9, 30),
       );
-      expect(items, hasLength(2));
+      expect(items, hasLength(1));
       expect(items.first.title, '성호전자 공급계약 & 양산');
       expect(items.first.publishedAt, DateTime.utc(2026, 9, 29));
       expect(items.first.excerpt, '성호전자 "신제품"');
       expect(items.first.url, contains('utm_source'));
-      expect(items.last.title, '다른 기업 뉴스');
+      expect(items.any((item) => item.title == '다른 기업 뉴스'), isFalse);
     },
   );
   test(

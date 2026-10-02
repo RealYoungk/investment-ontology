@@ -20,6 +20,7 @@ import '../ontology/ingest/company_master_future_call.dart' as _iouuus1c;
 import '../ontology/ingest/disclosure_future_call.dart' as _itvp2mss;
 import '../ontology/ingest/financial_facts_future_call.dart' as _iqtu3y45;
 import '../ontology/ingest/market_snapshot_future_call.dart' as _i3rk8q0z;
+import '../ontology/watchlist/watchlist_future_call.dart' as _iwo2pqlf;
 import 'future_calls_generated_models/ai_extraction_future_call_run_model.dart'
     as _iskveedf;
 import 'future_calls_generated_models/company_master_future_call_run_model.dart'
@@ -97,6 +98,9 @@ class FutureCalls extends _is.FutureCallDispatch<_FutureCallRef> {
       'FinancialFactsResumeFutureCall': FinancialFactsResumeFutureCall(),
       'MarketSnapshotRunFutureCall': MarketSnapshotRunFutureCall(),
       'MarketSnapshotResumeFutureCall': MarketSnapshotResumeFutureCall(),
+      'WatchlistRunFutureCall': WatchlistRunFutureCall(),
+      'WatchlistScanFutureCall': WatchlistScanFutureCall(),
+      'WatchlistDeliverFutureCall': WatchlistDeliverFutureCall(),
     };
     _futureCallManager = futureCallManager;
     _serverId = serverId;
@@ -236,6 +240,8 @@ class _FutureCallRef {
   late final marketSnapshot = _MarketSnapshotFutureCallDispatcher(
     _invokeFutureCall,
   );
+
+  late final watchlist = _WatchlistFutureCallDispatcher(_invokeFutureCall);
 }
 
 class _AiExtractionFutureCallDispatcher {
@@ -413,6 +419,33 @@ class _MarketSnapshotFutureCallDispatcher {
   Future<void> resume() {
     return _invokeFutureCall(
       'MarketSnapshotResumeFutureCall',
+      null,
+    );
+  }
+}
+
+class _WatchlistFutureCallDispatcher {
+  _WatchlistFutureCallDispatcher(this._invokeFutureCall);
+
+  final _InvokeFutureCall _invokeFutureCall;
+
+  Future<void> run() {
+    return _invokeFutureCall(
+      'WatchlistRunFutureCall',
+      null,
+    );
+  }
+
+  Future<void> scan() {
+    return _invokeFutureCall(
+      'WatchlistScanFutureCall',
+      null,
+    );
+  }
+
+  Future<void> deliver() {
+    return _invokeFutureCall(
+      'WatchlistDeliverFutureCall',
       null,
     );
   }
@@ -661,5 +694,38 @@ class MarketSnapshotResumeFutureCall extends _is.FutureCall
     _is.SerializableModel? object,
   ) async {
     await _i3rk8q0z.MarketSnapshotFutureCall().resume(session);
+  }
+}
+
+class WatchlistRunFutureCall extends _is.FutureCall
+    implements _is.InvokableFutureCall {
+  @override
+  _ida.Future<void> invoke(
+    _is.Session session,
+    _is.SerializableModel? object,
+  ) async {
+    await _iwo2pqlf.WatchlistFutureCall().run(session);
+  }
+}
+
+class WatchlistScanFutureCall extends _is.FutureCall
+    implements _is.InvokableFutureCall {
+  @override
+  _ida.Future<void> invoke(
+    _is.Session session,
+    _is.SerializableModel? object,
+  ) async {
+    await _iwo2pqlf.WatchlistFutureCall().scan(session);
+  }
+}
+
+class WatchlistDeliverFutureCall extends _is.FutureCall
+    implements _is.InvokableFutureCall {
+  @override
+  _ida.Future<void> invoke(
+    _is.Session session,
+    _is.SerializableModel? object,
+  ) async {
+    await _iwo2pqlf.WatchlistFutureCall().deliver(session);
   }
 }

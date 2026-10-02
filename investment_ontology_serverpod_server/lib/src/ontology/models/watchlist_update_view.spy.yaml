@@ -1,0 +1,10 @@
+class: WatchlistUpdateView
+fields:
+  noticeId: int
+  corpCode: String
+  companyName: String
+  title: String
+  url: String
+  publishedAt: DateTime
+  discoveredAt: DateTime
+  read: bool

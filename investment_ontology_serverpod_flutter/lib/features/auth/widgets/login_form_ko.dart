@@ -18,6 +18,16 @@ class LoginFormKo extends StatefulWidget {
 
 class _LoginFormKoState extends State<LoginFormKo> {
   bool _visible = false;
+  final _emailFocus = FocusNode();
+  final _passwordFocus = FocusNode();
+
+  @override
+  void dispose() {
+    _emailFocus.dispose();
+    _passwordFocus.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = widget.controller;
@@ -29,7 +39,12 @@ class _LoginFormKoState extends State<LoginFormKo> {
         (registration || controller.passwordController.text.isNotEmpty) &&
         !controller.isLoading;
     void submit() {
-      if (!ready) return;
+      // Autofill can update controllers between the last build and submission.
+      if (controller.isLoading ||
+          controller.emailController.text.trim().isEmpty ||
+          (!registration && controller.passwordController.text.isEmpty)) {
+        return;
+      }
       if (registration) {
         controller.startRegistration();
       } else {
@@ -51,17 +66,21 @@ class _LoginFormKoState extends State<LoginFormKo> {
           Text('이메일', style: t.body(13, weight: FontWeight.w600)),
           const SizedBox(height: 8),
           TextField(
+            key: const ValueKey('login-email'),
             controller: controller.emailController,
+            focusNode: _emailFocus,
             enabled: !controller.isLoading,
             keyboardType: TextInputType.emailAddress,
-            autofillHints: const [AutofillHints.username],
+            autofillHints: const [AutofillHints.username, AutofillHints.email],
+            textCapitalization: TextCapitalization.none,
+            enableSuggestions: false,
             autocorrect: false,
             textInputAction: registration
                 ? TextInputAction.done
                 : TextInputAction.next,
             onSubmitted: registration
                 ? (_) => submit()
-                : (_) => FocusScope.of(context).nextFocus(),
+                : (_) => _passwordFocus.requestFocus(),
             decoration: InputDecoration(
               hintText: 'name@example.com',
               errorText: controller.error is InvalidEmailException
@@ -74,7 +93,9 @@ class _LoginFormKoState extends State<LoginFormKo> {
             Text('비밀번호', style: t.body(13, weight: FontWeight.w600)),
             const SizedBox(height: 8),
             TextField(
+              key: const ValueKey('login-password'),
               controller: controller.passwordController,
+              focusNode: _passwordFocus,
               enabled: !controller.isLoading,
               obscureText: !_visible,
               autofillHints: const [AutofillHints.password],
@@ -119,6 +140,7 @@ class _LoginFormKoState extends State<LoginFormKo> {
           SizedBox(
             height: 48,
             child: FilledButton(
+              key: const ValueKey('login-submit'),
               style: FilledButton.styleFrom(
                 shape: RoundedRectangleBorder(
                   borderRadius: context.shape.borderRadius,

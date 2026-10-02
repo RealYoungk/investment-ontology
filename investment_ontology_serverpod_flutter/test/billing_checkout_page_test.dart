@@ -22,6 +22,7 @@ void main() {
     await pump(
       tester,
       BillingCheckoutPage(
+        checkoutEnabled: true,
         loadStatus: () async =>
             MembershipView(adFree: false, cancelAtPeriodEnd: false),
       ),
@@ -37,6 +38,7 @@ void main() {
       await pump(
         tester,
         BillingCheckoutPage(
+          checkoutEnabled: true,
           loadStatus: () async => MembershipView(
             adFree: false,
             cancelAtPeriodEnd: false,
@@ -59,8 +61,10 @@ void main() {
       final button = find.widgetWithText(FilledButton, '테스트 카드 등록');
       expect(tester.widget<FilledButton>(button).onPressed, isNull);
       expect(accepted, isEmpty);
+      await tester.ensureVisible(find.byType(CheckboxListTile));
       await tester.tap(find.byType(CheckboxListTile));
       await tester.pump();
+      await tester.ensureVisible(button);
       await tester.tap(button);
       await tester.pumpAndSettle();
       expect(accepted, ['sandbox-v1']);
@@ -76,6 +80,7 @@ void main() {
       await pump(
         tester,
         BillingCheckoutPage(
+          checkoutEnabled: true,
           state: 'fixture-state',
           authKey: 'fixture-auth',
           completeCheckout: (s, a) async {
@@ -95,7 +100,10 @@ void main() {
       );
       expect(completed, 1);
       expect(refreshed, 1);
-      expect(find.text('광고 제거 이용권이 적용되었습니다.'), findsOneWidget);
+      expect(
+        find.text('멤버십이 적용되었습니다. 관심기업을 20개까지 등록할 수 있습니다.'),
+        findsOneWidget,
+      );
       expect(find.byType(FilledButton), findsNothing);
     },
   );
@@ -107,6 +115,7 @@ void main() {
     await pump(
       tester,
       BillingCheckoutPage(
+        checkoutEnabled: true,
         loadStatus: () async => MembershipView(
           adFree: false,
           cancelAtPeriodEnd: false,

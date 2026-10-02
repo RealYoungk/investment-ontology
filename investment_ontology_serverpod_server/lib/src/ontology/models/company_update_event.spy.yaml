@@ -1,0 +1,16 @@
+class: CompanyUpdateEvent
+table: company_update_event
+serverOnly: true
+fields:
+  corpCode: String
+  receipt: String
+  title: String
+  url: String
+  publishedAt: DateTime
+  discoveredAt: DateTime, default=now
+indexes:
+  company_update_receipt_idx:
+    fields: receipt
+    unique: true
+  company_update_company_idx:
+    fields: corpCode, discoveredAt

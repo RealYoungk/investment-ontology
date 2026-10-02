@@ -1,0 +1,15 @@
+class: WatchlistNotice
+table: watchlist_notice
+serverOnly: true
+fields:
+  ownerId: UuidValue
+  eventId: int, relation(parent=company_update_event, onDelete=Cascade)
+  corpCode: String
+  createdAt: DateTime, default=now
+  readAt: DateTime?
+indexes:
+  watchlist_notice_owner_event_idx:
+    fields: ownerId, eventId
+    unique: true
+  watchlist_notice_owner_idx:
+    fields: ownerId, createdAt

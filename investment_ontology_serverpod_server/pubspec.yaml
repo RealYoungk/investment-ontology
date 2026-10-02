@@ -13,6 +13,7 @@ dependencies:
   cp949_codec: ^1.0.2
   crypto: ^3.0.6
   cryptography: ^2.9.0
+  pointycastle: ^4.0.0
   http: ^1.6.0
   serverpod: 4.0.0
   serverpod_auth_idp_server: 4.0.0

@@ -192,6 +192,10 @@ import 'ontology/models/theme_member.dart' as _irm69cop;
 import 'ontology/models/theme_member_view.dart' as _irah5hi6;
 import 'ontology/models/theme_summary.dart' as _i4ynus9k;
 import 'ontology/models/treasury_stock_entry.dart' as _injn1qca;
+import 'ontology/models/watchlist_company_view.dart' as _is2pxpv6;
+import 'ontology/models/watchlist_error.dart' as _ivan2n9m;
+import 'ontology/models/watchlist_update_view.dart' as _ijbmrc2g;
+import 'ontology/models/watchlist_view.dart' as _iyb0jzxs;
 export 'greetings/greeting.dart';
 export 'ontology/billing/billing_checkout_view.dart';
 export 'ontology/billing/billing_payment_view.dart';
@@ -326,6 +330,10 @@ export 'ontology/models/theme_member.dart';
 export 'ontology/models/theme_member_view.dart';
 export 'ontology/models/theme_summary.dart';
 export 'ontology/models/treasury_stock_entry.dart';
+export 'ontology/models/watchlist_company_view.dart';
+export 'ontology/models/watchlist_error.dart';
+export 'ontology/models/watchlist_update_view.dart';
+export 'ontology/models/watchlist_view.dart';
 export 'client.dart';
 
 class Protocol extends _isc.SerializationManager {
@@ -763,6 +771,18 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _injn1qca.TreasuryStockEntry) {
       return _injn1qca.TreasuryStockEntry.fromJson(data) as T;
+    }
+    if (t == _is2pxpv6.WatchlistCompanyView) {
+      return _is2pxpv6.WatchlistCompanyView.fromJson(data) as T;
+    }
+    if (t == _ivan2n9m.WatchlistError) {
+      return _ivan2n9m.WatchlistError.fromJson(data) as T;
+    }
+    if (t == _ijbmrc2g.WatchlistUpdateView) {
+      return _ijbmrc2g.WatchlistUpdateView.fromJson(data) as T;
+    }
+    if (t == _iyb0jzxs.WatchlistView) {
+      return _iyb0jzxs.WatchlistView.fromJson(data) as T;
     }
     if (t == _isc.getType<_izw8z7ou.Greeting?>()) {
       return (data != null ? _izw8z7ou.Greeting.fromJson(data) : null) as T;
@@ -1277,6 +1297,26 @@ class Protocol extends _isc.SerializationManager {
       return (data != null ? _injn1qca.TreasuryStockEntry.fromJson(data) : null)
           as T;
     }
+    if (t == _isc.getType<_is2pxpv6.WatchlistCompanyView?>()) {
+      return (data != null
+              ? _is2pxpv6.WatchlistCompanyView.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _isc.getType<_ivan2n9m.WatchlistError?>()) {
+      return (data != null ? _ivan2n9m.WatchlistError.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_ijbmrc2g.WatchlistUpdateView?>()) {
+      return (data != null
+              ? _ijbmrc2g.WatchlistUpdateView.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _isc.getType<_iyb0jzxs.WatchlistView?>()) {
+      return (data != null ? _iyb0jzxs.WatchlistView.fromJson(data) : null)
+          as T;
+    }
     if (t == List<_inylkhjt.BusinessSection>) {
       return (data as List)
               .map((e) => deserialize<_inylkhjt.BusinessSection>(e))
@@ -1542,6 +1582,18 @@ class Protocol extends _isc.SerializationManager {
     if (t == List<_irah5hi6.ThemeMemberView>) {
       return (data as List)
               .map((e) => deserialize<_irah5hi6.ThemeMemberView>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_is2pxpv6.WatchlistCompanyView>) {
+      return (data as List)
+              .map((e) => deserialize<_is2pxpv6.WatchlistCompanyView>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_ijbmrc2g.WatchlistUpdateView>) {
+      return (data as List)
+              .map((e) => deserialize<_ijbmrc2g.WatchlistUpdateView>(e))
               .toList()
           as T;
     }
@@ -1828,6 +1880,10 @@ class Protocol extends _isc.SerializationManager {
       _irah5hi6.ThemeMemberView => 'ThemeMemberView',
       _i4ynus9k.ThemeSummary => 'ThemeSummary',
       _injn1qca.TreasuryStockEntry => 'TreasuryStockEntry',
+      _is2pxpv6.WatchlistCompanyView => 'WatchlistCompanyView',
+      _ivan2n9m.WatchlistError => 'WatchlistError',
+      _ijbmrc2g.WatchlistUpdateView => 'WatchlistUpdateView',
+      _iyb0jzxs.WatchlistView => 'WatchlistView',
       _ => null,
     };
   }
@@ -2113,6 +2169,14 @@ class Protocol extends _isc.SerializationManager {
         return 'ThemeSummary';
       case _injn1qca.TreasuryStockEntry():
         return 'TreasuryStockEntry';
+      case _is2pxpv6.WatchlistCompanyView():
+        return 'WatchlistCompanyView';
+      case _ivan2n9m.WatchlistError():
+        return 'WatchlistError';
+      case _ijbmrc2g.WatchlistUpdateView():
+        return 'WatchlistUpdateView';
+      case _iyb0jzxs.WatchlistView():
+        return 'WatchlistView';
     }
     className = _iaic.Protocol().getClassNameForObject(data);
     if (className != null) {
@@ -2536,6 +2600,18 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'TreasuryStockEntry') {
       return deserialize<_injn1qca.TreasuryStockEntry>(data['data']);
+    }
+    if (dataClassName == 'WatchlistCompanyView') {
+      return deserialize<_is2pxpv6.WatchlistCompanyView>(data['data']);
+    }
+    if (dataClassName == 'WatchlistError') {
+      return deserialize<_ivan2n9m.WatchlistError>(data['data']);
+    }
+    if (dataClassName == 'WatchlistUpdateView') {
+      return deserialize<_ijbmrc2g.WatchlistUpdateView>(data['data']);
+    }
+    if (dataClassName == 'WatchlistView') {
+      return deserialize<_iyb0jzxs.WatchlistView>(data['data']);
     }
     if (dataClassName.startsWith('serverpod_auth_idp.')) {
       data['className'] = dataClassName.substring(19);

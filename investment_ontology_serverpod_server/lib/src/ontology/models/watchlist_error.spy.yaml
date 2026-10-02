@@ -1,0 +1,4 @@
+exception: WatchlistError
+fields:
+  code: String
+  message: String
