@@ -71,7 +71,7 @@ void main() {
         final u = Uri.parse(source['url']);
         expect(u.host, 'dart.fss.or.kr');
         expect(u.queryParameters['rcpNo'], c['rceptNo']);
-        if (source['label'] != 'shell')
+        if (source['label'] != 'shell') {
           expect(u.queryParameters.keys.toSet(), {
             'rcpNo',
             'dcmNo',
@@ -80,6 +80,7 @@ void main() {
             'length',
             'dtd',
           });
+        }
       }
     });
     test('actual nine pure CFS ${c['rceptNo']} sameperiod source-bound', () async {
