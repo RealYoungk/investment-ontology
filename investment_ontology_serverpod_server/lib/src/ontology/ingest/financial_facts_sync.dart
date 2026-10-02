@@ -1314,7 +1314,7 @@ class FinancialFactsSync {
     // queue order only: existing per-period attempts and failed-basis gates stay.
     const verifiedParserReceipts = <String, Set<String>>{
       '20230309000759': {'OFS'},
-      '20250320001633': {'OFS'},
+      '20250320001633': {'CFS', 'OFS'},
       '20260318000509': {'OFS'},
       '20260617000188': {'OFS'},
       '20260731000744': {'OFS'},

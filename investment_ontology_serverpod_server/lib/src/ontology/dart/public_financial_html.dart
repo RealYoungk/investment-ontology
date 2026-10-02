@@ -874,6 +874,14 @@ abstract final class PublicFinancialHtml {
             end: periodEnd,
           )
         : null;
+    if (receipt == '20250320001633' &&
+        consolidated &&
+        !VerifiedHistoricalCompanyIdentity.boundSkConsolidated(
+          statementSource,
+          statementHtml,
+        )) {
+      throw const FormatException('SK exact consolidated source mismatch');
+    }
     _source(coverSource, receipt);
     _source(statementSource, receipt);
     final skIdentity = skSignetIdentity?.verify(

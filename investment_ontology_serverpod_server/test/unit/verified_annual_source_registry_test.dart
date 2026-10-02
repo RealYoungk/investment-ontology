@@ -30,13 +30,13 @@ Company company(AnnualSourceCacheEntry e) => Company(
 );
 void main() {
   test('compiled receipt plus basis registry has unique audit identities', () {
-    expect(VerifiedAnnualSourceRegistry.entries.length, 34);
+    expect(VerifiedAnnualSourceRegistry.entries.length, 35);
     expect(
       VerifiedAnnualSourceRegistry.entries
           .map((e) => e.auditReference)
           .toSet()
           .length,
-      34,
+      35,
     );
     final gaia = VerifiedAnnualSourceRegistry.entries
         .where((e) => e.receipt == '20250331002057')
