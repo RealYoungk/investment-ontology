@@ -32,6 +32,19 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20250321001653',
+      corpCode: '00886792',
+      companyName: '(주)루켄테크놀러지스',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250321001653-ofs',
+      manifestDigest:
+          'cb34c4f3e7f6ce095f3996235c438bd3086bd128e607ec0bfc3dac3dfb71901f',
+      ruleVersion: 'year-term-bs-with-independent-ofs-ce-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20230414002057',
       corpCode: '01226234',
       companyName: '(주)와이바이오로직스',

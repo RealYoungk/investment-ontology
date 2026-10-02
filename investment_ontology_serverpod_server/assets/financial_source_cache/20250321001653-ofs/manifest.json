@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20250321001653",
+  "corpCode": "00886792",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2024,
+  "periodStart": "2024-01-01",
+  "periodEnd": "2024-12-31",
+  "ruleVersion": "year-term-bs-with-independent-ofs-ce-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250321001653",
+      "sha256": "1732b809b038763e18126c2ffb00f37f8ec03dcd9904a2d8e1cce8c60c1da4aa",
+      "file": "shell.html"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001653&dcmNo=10449285&eleId=1&offset=956&length=4568&dtd=dart4.xsd",
+      "sha256": "9fe8be2b4798f6e1d0a7936d4a82fa9b7c1b4bdde10f6e48aeff13e2ce758576",
+      "file": "cover.html"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001653&dcmNo=10449285&eleId=21&offset=715884&length=49841&dtd=dart4.xsd",
+      "sha256": "8c0502e47ccd9f3f0a58431baebed17387174bde470f5a5be2114211f009ec84",
+      "file": "ofs.html"
+    }
+  ],
+  "retrievalProof": "원문 연도·기수 현재 BS 열과 독립 OFS CE 전체 총계의 순손익·기말자본을 직접 검증. 원문 HTML/SHA/6좌표를 변경하지 않음."
+}
