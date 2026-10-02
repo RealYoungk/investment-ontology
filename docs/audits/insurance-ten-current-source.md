@@ -23,7 +23,7 @@ NI 라벨 8개의 정확한 전체 인쇄 문자열만 기존 공용 Dart/SQL fa
 
 원문 읽기 근거: root outputs/filing-collection-priority/b18-insurance-ten-independent-readonly-20261003/ledger.json, review.md, live-target-metadata.json. raw 30개와 manifest·현재셀 기대값은 assets/financial_source_cache/*-insurance-current/에 고정한다. 전체 주석·PDF·모든 세부행의 완전 검산을 했다는 뜻은 아니다.
 
-검증: 보험15 순수 테스트 121 PASS, analyze No issues, Dart7파일 format0. 순수 실제 10+기존5 파서 양성, 독립 표 단위·기간·CE/CF·BS 현금 셀 변조, 잘못된 법인·접수·기준·URI·표지·라벨 거부 및 캐시 cap3 원문 계약. 정상 큐 DB10은 테스트를 작성했으며 슬롯 허가 전 실행하지 않는다.
+검증: 보험15 순수 테스트 121 PASS, analyze No issues, Dart7파일 format0. 순수 실제 10+기존5 파서 양성, 독립 표 단위·기간·CE/CF·BS 현금 셀 변조, 잘못된 법인·접수·기준·URI·표지·라벨 거부 및 캐시 cap3 원문 계약. 슬롯 허가 후 전용 격리 DB에서 정상 큐 10기준 모두 PASS(exit0, 33초, tearDownAll 완료). 실제 7계정/인쇄 이름/null ID/Source 단위·현재셀·미인쇄 FX 감사, summary7/SQL7, 반대 기준 synthetic 보존 sentinel, API0/attempts 불변 및 once-audit 재실행 멱등성을 검증했다. 전용 postmaster PID89539 종료(PG0)를 확인했다. 운영 DB 변경·배포는 하지 않았다. 전체 순수 합회귀 3,229 PASS, 최종 보험15 순수 121 PASS이다. 근거 로그: `/private/tmp/io-insurance-ten-db.log`, `/private/tmp/io-insurance-ten-unit-final.log`, `/private/tmp/io-insurance-ten-exact-final.log`; root 감사 기록: `outputs/filing-collection-priority/b18-insurance-ten-independent-readonly-20261003/candidate-validation.json` (검증 대상 코드 커밋 `7df09d669349714e750b0cc62f60fedbfbc92994`).
 
 ## 새 finite NI 원형 (Dart/SQL 공유)
 
