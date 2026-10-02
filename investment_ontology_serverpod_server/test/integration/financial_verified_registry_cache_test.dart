@@ -17,6 +17,12 @@ void main() {
     for (final entry in VerifiedAnnualSourceRegistry.entries) {
       final scenarios = [
         'success-and-rerun',
+        if ({
+          '20250320001633',
+          '20240320000248',
+          '20230323000586',
+        }.contains(entry.receipt))
+          'sha-failed-and-rerun',
         if (entry.receipt == '20260323000661' ||
             entry.receipt == '20260323000763') ...[
           'sha-failed-and-rerun',
@@ -290,6 +296,76 @@ void main() {
                 entry.corpCode,
                 fsDiv: entry.basis,
               );
+              if ({
+                '20240320000248',
+                '20230323000586',
+              }.contains(entry.receipt)) {
+                final expected = entry.year == 2023
+                    ? {
+                        'revenue': '1123621115',
+                        'operatingIncome': '-3961736811',
+                        'netIncome': '-4419372266',
+                        'assets': '7473929363',
+                        'liabilities': '3939848819',
+                        'equity': '3534080544',
+                        'operatingCashFlow': '-3336089290',
+                      }
+                    : {
+                        'revenue': '655390090',
+                        'operatingIncome': '-6470740465',
+                        'netIncome': '-7014810066',
+                        'assets': '9264697013',
+                        'liabilities': '3836415588',
+                        'equity': '5428281425',
+                        'operatingCashFlow': '-5385272003',
+                      };
+                for (final e in expected.entries) {
+                  expect(
+                    summary!.periods.single.lines
+                        .singleWhere((l) => l.key == e.key)
+                        .amount,
+                    BigInt.parse(e.value),
+                  );
+                }
+              }
+              if (entry.receipt == '20250320001633') {
+                final lines = summary!.periods.single.lines;
+                final expected = entry.basis == FsDiv.consolidated
+                    ? {
+                        'revenue': '83805774666',
+                        'operatingIncome': '-242762417908',
+                        'netIncome': '-244070248163',
+                        'assets': '243910853554',
+                        'liabilities': '346677333242',
+                        'equity': '-102766479688',
+                        'operatingCashFlow': '-66690869744',
+                      }
+                    : {
+                        'revenue': '74401016313',
+                        'operatingIncome': '-245159821034',
+                        'netIncome': '-246554897630',
+                        'assets': '230642631079',
+                        'liabilities': '335708768291',
+                        'equity': '-105066137212',
+                        'operatingCashFlow': '-66891998445',
+                      };
+                for (final pair in expected.entries) {
+                  expect(
+                    lines.singleWhere((l) => l.key == pair.key).amount,
+                    BigInt.parse(pair.value),
+                  );
+                }
+                expect(
+                  facts.any(
+                    (f) => f.accountName.contains(
+                      entry.basis == FsDiv.consolidated
+                          ? '매출액(주석17)'
+                          : '매출액(주석19)',
+                    ),
+                  ),
+                  true,
+                );
+              }
               expect(
                 summary!.periods.single.lines
                     .singleWhere((l) => l.key == 'netIncome')
@@ -446,11 +522,11 @@ void main() {
                           : FsDiv.separate,
                     )!;
                     return sum +
-                        (e.requiresIssuerOverview ||
-                                e.ruleVersion ==
-                                    'same-receipt-audit-immutable-v1'
-                            ? 5
-                            : 4);
+                        4 +
+                        (e.requiresIssuerOverview ? 1 : 0) +
+                        (e.ruleVersion == 'same-receipt-audit-immutable-v1'
+                            ? 1
+                            : 0);
                   }),
           );
           expect(client.calls, 0);

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "01188730",
+  "receipt": "20250320001633",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2024,
+  "periodStart": "2024-01-01",
+  "periodEnd": "2024-12-31",
+  "ruleVersion": "sk-signet-exact-consolidated-source-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250320001633",
+      "sha256": "1871e674e5287a4b2405e1e659ae8271c22838ae615972f44e4e602c9e1040c4",
+      "file": "shell.html"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250320001633&dcmNo=10440936&eleId=1&offset=958&length=4511&dtd=dart4.xsd",
+      "sha256": "397be826b3698513bf845fe91851584fc70520480c1763c9638c778c9e40d3b6",
+      "file": "cover.html"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250320001633&dcmNo=10440936&eleId=19&offset=204119&length=101809&dtd=dart4.xsd",
+      "sha256": "463c1dea92866224008c5e4f8bb8745e8defd3266c49c5902db423f8194f9a54"
+    }
+  ],
+  "retrievalProof": "공식 own shell node19 연결 원문. 실제 FY2024 원단위 whole7 및 BS/CE equity·CIS/CE loss 직접값 일치. 기존 OFS를 대체하지 않음."
+}

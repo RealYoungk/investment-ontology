@@ -1,3 +1,4 @@
+import 'innovex_exact_basis_absence.dart';
 import 'same_receipt_audit_source.dart';
 import 'public_issuer_legal_name.dart';
 import 'bnk_six_core_profile.dart';
@@ -460,7 +461,23 @@ class PublicFinancialHtmlFetcher {
     }
     final statementHtml = await get(statementSource, referer: originalSource);
     if (exactAnnual && consolidated) {
-      const explicitStatements = [
+      final explicitStatements = [
+        if (sourceReceipt == '20230320000571' &&
+            corpCode == '01267958' &&
+            bsnsYear == 2022 &&
+            periodStart == DateTime.utc(2022) &&
+            periodEnd.year == 2022 &&
+            periodEnd.month == 12 &&
+            periodEnd.day == 31)
+          '당사는 연결대상 종속회사가 존재하지 않으므로, 한국채택국제회계기준의 주된 재무제표인 연결기준의 재무정보를 기재하지 않습니다.',
+        if (sourceReceipt == '20230317000589' &&
+            corpCode == '01113499' &&
+            bsnsYear == 2022 &&
+            periodStart == DateTime.utc(2022) &&
+            periodEnd.year == 2022 &&
+            periodEnd.month == 12 &&
+            periodEnd.day == 31)
+          '당사는 사업보고서 제출기준일 현재 해당사항 없습니다.',
         '당사는 연결재무제표 작성법인이 아니므로 해당사항이 없습니다.',
         '해당사항 없습니다.',
         '해당사항이 없습니다.',
@@ -497,6 +514,32 @@ class PublicFinancialHtmlFetcher {
         '- 해당사항이 없습니다.',
         '- 당사는 사업보고서 작성기준일 현재 해당사항 없습니다.',
       ];
+      final exactTableNone = InnovexExactBasisAbsence.matches(
+        receipt: sourceReceipt,
+        corp: corpCode,
+        start: periodStart,
+        end: periodEnd,
+        coverSource: coverSource,
+        cover: coverHtml,
+        statementSource: statementSource,
+        body: statementHtml,
+      );
+      if (exactTableNone) {
+        throw PublicFinancialHtmlBasisNotApplicable(
+          sourceReceipt: sourceReceipt,
+          corpCode: corpCode,
+          companyName: companyName,
+          reportName: reportName,
+          periodStart: periodStart,
+          periodEnd: periodEnd,
+          coverSource: coverSource,
+          statementSource: statementSource,
+          coverHtml: coverHtml,
+          statementHtml: statementHtml,
+          evidence: '해당사항없음',
+          issuerProof: issuerProof,
+        );
+      }
       final body = RegExp(
         r'<body\b[^>]*>(.*?)</body>',
         caseSensitive: false,

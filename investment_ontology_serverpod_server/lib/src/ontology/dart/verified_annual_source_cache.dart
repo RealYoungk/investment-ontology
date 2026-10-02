@@ -1,4 +1,8 @@
 import 'dart:convert';
+
+import 'public_financial_html.dart';
+import 'sk_signet_identity.dart';
+
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
@@ -145,11 +149,6 @@ final class VerifiedAnnualSourceCache {
           start: start,
           end: end,
         );
-    if (linkedAudit && entry.requiresIssuerOverview) {
-      throw const FormatException(
-        'Conflicting cached annual fourth document profiles',
-      );
-    }
     final requiredLabels = {
       'shell',
       'cover',
@@ -177,6 +176,50 @@ final class VerifiedAnnualSourceCache {
     }
     if (documents.length != documentCount || labels.length != documentCount) {
       throw const FormatException('Cached annual package incomplete');
+    }
+    if (entry.ruleVersion == 'sk-signet-direct-rename-event-v1') {
+      String raw(String label) => utf8.decode(
+        documents[Uri.parse(
+          label == 'shell'
+              ? 'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${entry.receipt}'
+              : SkSignetIdentity.urls[label]!,
+        )]!,
+      );
+      final cover = raw('cover'), statement = raw('ofs');
+      final coverUri = Uri.parse(SkSignetIdentity.urls['cover']!),
+          statementUri = Uri.parse(SkSignetIdentity.urls['ofs']!);
+      final rows = PublicFinancialHtml.parseStandardAnnual(
+        coverHtml: cover,
+        statementHtml: statement,
+        coverSource: coverUri,
+        statementSource: statementUri,
+        receipt: entry.receipt,
+        corpCode: company.corpCode,
+        companyName: company.name,
+        periodStart: start,
+        periodEnd: end,
+        consolidated: false,
+        skSignetIdentity: SkSignetIdentity(
+          shell: raw('shell'),
+          overview: raw('overview'),
+          overviewSource: Uri.parse(SkSignetIdentity.urls['overview']!),
+        ),
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: cover,
+          coverSource: coverUri,
+          statementHtml: statement,
+          statementSource: statementUri,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
     }
     final client = _PinnedRawClient(documents, maxRequests: documentCount);
     try {

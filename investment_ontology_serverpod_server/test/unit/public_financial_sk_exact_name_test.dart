@@ -33,7 +33,84 @@ List<Map<String, dynamic>> actualSk({
   );
 }
 
+List<Map<String, dynamic>> consolidatedSk({
+  String? body,
+  Uri? statementSource,
+}) {
+  const path = 'assets/financial_source_cache/20250320001633-cfs';
+  final manifest = jsonDecode(File('$path/manifest.json').readAsStringSync());
+  final docs = {for (final v in manifest['sources']) v['label']: v};
+  return PublicFinancialHtml.parseStandardAnnual(
+    coverHtml: File('$path/cover.html').readAsStringSync(),
+    statementHtml: body ?? File('$path/cfs.html').readAsStringSync(),
+    coverSource: Uri.parse(docs['cover']['url']),
+    statementSource: statementSource ?? Uri.parse(docs['cfs']['url']),
+    receipt: '20250320001633',
+    corpCode: '01188730',
+    companyName: 'SK시그넷(주)',
+    periodStart: DateTime.utc(2024),
+    periodEnd: DateTime.utc(2024, 12, 31),
+    consolidated: true,
+  );
+}
+
 void main() {
+  test('CFS exact source rejects altered money, dates and OFS coordinates', () {
+    final raw = File(
+      'assets/financial_source_cache/20250320001633-cfs/cfs.html',
+    ).readAsStringSync();
+    expect(
+      () => consolidatedSk(
+        body: raw.replaceFirst('83,805,774,666', '83,805,774,665'),
+      ),
+      throwsFormatException,
+    );
+    expect(
+      () => consolidatedSk(body: raw.replaceFirst('2024', '2023')),
+      throwsFormatException,
+    );
+    expect(
+      () => consolidatedSk(
+        statementSource: Uri.parse(
+          'https://dart.fss.or.kr/report/viewer.do?rcpNo=20250320001633&dcmNo=10440936&eleId=21&offset=310000&length=10&dtd=dart4.xsd',
+        ),
+      ),
+      throwsFormatException,
+    );
+  });
+  test(
+    'actual consolidated source preserves independent current whole seven',
+    () {
+      const path = 'assets/financial_source_cache/20250320001633-cfs';
+      final rows = PublicFinancialHtml.parseStandardAnnual(
+        coverHtml: File('$path/cover.html').readAsStringSync(),
+        statementHtml: File('$path/cfs.html').readAsStringSync(),
+        coverSource: Uri.parse(
+          'https://dart.fss.or.kr/report/viewer.do?rcpNo=20250320001633&dcmNo=10440936&eleId=1&offset=958&length=4511&dtd=dart4.xsd',
+        ),
+        statementSource: Uri.parse(
+          'https://dart.fss.or.kr/report/viewer.do?rcpNo=20250320001633&dcmNo=10440936&eleId=19&offset=204119&length=101809&dtd=dart4.xsd',
+        ),
+        receipt: '20250320001633',
+        corpCode: '01188730',
+        companyName: 'SK시그넷(주)',
+        periodStart: DateTime.utc(2024),
+        periodEnd: DateTime.utc(2024, 12, 31),
+        consolidated: true,
+      );
+      expect(rows.length, 7);
+      expect(rows.map((r) => r['thstrm_amount']).toSet(), {
+        '243910853554',
+        '346677333242',
+        '-102766479688',
+        '83805774666',
+        '-242762417908',
+        '-244070248163',
+        '-66690869744',
+      });
+      expect(rows.every((r) => r['account_id'] == null), isTrue);
+    },
+  );
   test(
     'official shell and actual source fetch preserve normal current-name call',
     () async {

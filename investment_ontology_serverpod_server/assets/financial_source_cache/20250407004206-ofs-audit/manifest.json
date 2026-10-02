@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "00414540",
+  "receipt": "20250407004206",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2024,
+  "periodStart": "2024-01-01",
+  "periodEnd": "2024-12-31",
+  "ruleVersion": "same-receipt-audit-immutable-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250407004206",
+      "sha256": "be2400f94a412a701299427432cf5bab20cfe609da80456059874fe136bb9716",
+      "file": "shell.html"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250407004206&dcmNo=10552120&eleId=1&offset=957&length=4523&dtd=dart4.xsd",
+      "sha256": "a879b6466261e9687fe7a7810ba374b813e3001388f94fd773c56d4cd9c9f241",
+      "file": "cover.html"
+    },
+    {
+      "label": "auditShell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250407004206&dcmNo=10552118",
+      "sha256": "c115d8c4841181670d3429888c9539db55164704a9f8129180753c67670f924f",
+      "file": "auditShell.html"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250407004206&dcmNo=10552118&eleId=3&offset=13040&length=412264&dtd=dart4.xsd",
+      "sha256": "39407fdf69db473a95073f8eb06d22b8e303c5f066c6b96a2b34bf4d0b52d8a5",
+      "file": "ofs.html"
+    }
+  ]
+}
