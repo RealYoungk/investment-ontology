@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'public_financial_html.dart';
+import 'source_verified_partial_core.dart';
 import 'sk_signet_identity.dart';
 
 import 'dart:io';
@@ -250,7 +251,21 @@ final class VerifiedAnnualSourceCache {
                 basis: basis.name,
                 year: filing.bsnsYear!,
                 reportName: filing.reportName,
-              )) ||
+              ) &&
+              !(entry.ruleVersion ==
+                      'source-six-with-unavailable-whole-revenue-v1' &&
+                  SourceVerifiedPartialCore.verifiedRows(
+                    numeric.rows,
+                    sourceDigest: numeric.sourceDigest,
+                    bodySha256: sha256
+                        .convert(utf8.encode(numeric.statementHtml))
+                        .toString(),
+                    sourceUrl: numeric.statementSource.toString(),
+                    companyCode: company.corpCode,
+                    targetReceipt: filing.rceptNo,
+                    basis: basis.name,
+                    year: filing.bsnsYear!,
+                  ))) ||
           numeric.rows.length > 8 ||
           numeric.rows.any((r) => r['account_id'] != null)) {
         throw const FormatException(

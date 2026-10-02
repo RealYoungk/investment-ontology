@@ -116,6 +116,7 @@ abstract final class FinancialAccounts {
       '영업활동으로인한순현금흐름',
       '영업활동으로부터의순현금유출',
       '영업활동으로인한현금흐름',
+      '영업활동으로부터의현금흐름',
       '영업활동으로인한현금흐름(1+2+3)',
       '영업활동으로인한현금흐름(순액)',
     ],
@@ -135,7 +136,7 @@ abstract final class FinancialAccounts {
       '반기순이익',
       '분기순이익',
     ],
-    'operatingIncome': ['영업이익(손실)', '영업손익(손실)', '영업이익', '영업손실'],
+    'operatingIncome': ['영업이익(손실)', '영업손익(손실)', '영업이익', '영업손익', '영업손실'],
     'capex': ['유형자산의취득', '유형자산취득'],
   };
 
@@ -144,16 +145,23 @@ abstract final class FinancialAccounts {
       !_lossNames.contains(normalizedName(fact.accountName)) ||
       fact.amount != null && fact.amount! <= BigInt.zero;
 
-  static String normalizedName(String name) => name
-      .replaceAll(RegExp(r'\s+'), '')
-      .replaceFirst(
-        RegExp(r'^[Ⅰ-ⅫIVXLCDM0-9]+[.)]'),
-        '',
-      )
-      .replaceFirst(
-        RegExp(r'(?:\(주(?:석)?[0-9]+(?:,[0-9]+)*\)|<주석[0-9]+>)$'),
-        '',
-      );
+  // Only the printed whole-profit annotation; its adjusted numbers are never used.
+  static const adjustedProfitAnnotation =
+      r'^당기순이익[(]대손준비금반영후조정이익(당기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원전기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원전전기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원|제[0-9]+기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)백만원,제[0-9]+기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)백만원,제[0-9]+기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)백만원)[)]$';
+
+  static String normalizedName(String name) {
+    final clean = name
+        .replaceAll(RegExp(r'\s+'), '')
+        .replaceFirst(
+          RegExp(r'^[Ⅰ-ⅫIVXLCDM0-9]+[.)]'),
+          '',
+        )
+        .replaceFirst(
+          RegExp(r'(?:\(주(?:석)?[0-9]+(?:,[0-9]+)*\)|<주석[0-9]+>)$'),
+          '',
+        );
+    return RegExp(adjustedProfitAnnotation).hasMatch(clean) ? '당기순이익' : clean;
+  }
 
   /// Shared finite mapping for SQL consumers; no fuzzy or company-specific match.
   static String resolvedIdSql(String alias) {
@@ -162,8 +170,10 @@ abstract final class FinancialAccounts {
     final compact =
         "regexp_replace($alias.\"accountName\", '$spaces', '', 'g')";
     final unprefixed = "regexp_replace($compact, '^[Ⅰ-ⅫIVXLCDM0-9]+[.)]', '')";
-    final name =
+    final unannotated =
         "regexp_replace($unprefixed, '([(]주(석)?[0-9]+(,[0-9]+)*[)]|<주석[0-9]+>)\$', '')";
+    final name =
+        "CASE WHEN $unannotated ~ '$adjustedProfitAnnotation' THEN '당기순이익' ELSE $unannotated END";
     final cases = <String>[];
     for (final account in all) {
       for (final aliasId in account.accountIds.skip(1)) {

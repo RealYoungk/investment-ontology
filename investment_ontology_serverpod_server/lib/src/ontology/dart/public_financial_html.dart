@@ -19,6 +19,9 @@ import 'bnk_six_core_profile.dart';
 import 'pureun_six_core_profile.dart';
 import 'verified_historical_company_identity.dart';
 
+import '../financial/financial_accounts.dart';
+part 'revenue_partial_annual.dart';
+
 /// Validated strict subsets of receipt-bound annual and half-year DART HTML.
 /// The caller must validate corpCode against both official viewer shells; the
 /// financial HTML cover supplies the company name but contains no corpCode.
@@ -2479,6 +2482,14 @@ abstract final class PublicFinancialHtml {
           });
           continue;
         }
+        if (account.$1 == 'revenue' &&
+            amounts.isEmpty &&
+            cells.every(
+              (c) => c!.text.trim().isEmpty || c.text.trim() == '-',
+            ) &&
+            cells.where((c) => c!.text.trim() == '-').length == 1) {
+          continue;
+        }
         if (amounts.length != 1) {
           throw const FormatException(
             'Ambiguous annual current monetary group',
@@ -2568,6 +2579,29 @@ abstract final class PublicFinancialHtml {
               values.containsKey(key),
         ) ||
         values['assets'] != values['liabilities']! + values['equity']!) {
+      final partial = _RevenuePartialAnnual.parse(
+        html: scope,
+        originalHtml: statementHtml,
+        originalCover: coverHtml,
+        source: statementSource,
+        receipt: receipt,
+        corp: corpCode,
+        term: term,
+        start: periodStart,
+        end: periodEnd,
+        consolidated: consolidated,
+      );
+      if (partial != null) {
+        if (primaryIssuer != null) {
+          for (final row in partial) {
+            (row['html_provenance'] as Map)['primaryHistoricalIssuer'] = {
+              ...primaryIssuer,
+              'currentMasterName': companyName,
+            };
+          }
+        }
+        return partial;
+      }
       throw const FormatException(
         'Annual primary core missing or balance mismatch',
       );

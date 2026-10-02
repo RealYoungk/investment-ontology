@@ -32,6 +32,42 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20230314001271',
+      corpCode: '00148832',
+      companyName: '(주)제주은행',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230314001271-ofs-six',
+      manifestDigest:
+          '6e210abde63b1bba439dac8764c2a77452ee54dfdf78e0e48d46ffc798fd49e5',
+      ruleVersion: 'source-six-with-unavailable-whole-revenue-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230309000572',
+      corpCode: '00104856',
+      companyName: '삼성증권(주)',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230309000572-ofs-six',
+      manifestDigest:
+          '6a91f64a2296877b3baaafcd50c5d2fe62e157b283faec46c3be2a2660c3ef08',
+      ruleVersion: 'source-six-with-unavailable-whole-revenue-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230323001133',
+      corpCode: '01185867',
+      companyName: '퓨쳐메디신 주식회사',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230323001133-ofs-six',
+      manifestDigest:
+          'bfc3e4be2515e16fa30780059f1c43d7b5a7583cfa82bcc241f3a20d2320fea7',
+      ruleVersion: 'source-six-with-unavailable-whole-revenue-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20250321001653',
       corpCode: '00886792',
       companyName: '(주)루켄테크놀러지스',
