@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-import 'sk_signet_identity.dart';
-
 import 'package:crypto/crypto.dart';
 
 import 'dozn_corroborated_flow_period.dart';
+import 'redwoods_blank_header_source.dart';
+import 'sk_signet_identity.dart';
 import 'same_receipt_audit_source.dart';
 import 'public_issuer_legal_name.dart';
 import 'bnk_six_core_profile.dart';
@@ -1881,6 +1881,18 @@ abstract final class PublicFinancialHtml {
     }
     // The exact TXR source prints one blank label header before three terms.
     // This profile changes no statement, period, unit or numeric checks.
+    final redwoodsBlankHeader = RedwoodsBlankHeaderSource.eligible(
+      receipt: receipt,
+      corpCode: corpCode,
+      consolidated: consolidated,
+      start: periodStart,
+      end: periodEnd,
+      term: term,
+      source: statementSource,
+    );
+    if (redwoodsBlankHeader) {
+      RedwoodsBlankHeaderSource.verifyRaw(coverHtml, statementHtml);
+    }
     final txrBlankHeader =
         receipt == '20250526000504' &&
         corpCode == '01458161' &&
@@ -1934,7 +1946,8 @@ abstract final class PublicFinancialHtml {
       ).firstMatch(table.group(1)!);
       if (first == null ||
           (!{'과목', '구분', '계정과목'}.contains(_compact(_text(first.group(1)!))) &&
-              !(txrBlankHeader && _compact(_text(first.group(1)!)).isEmpty))) {
+              !((txrBlankHeader || redwoodsBlankHeader) &&
+                  _compact(_text(first.group(1)!)).isEmpty))) {
         continue;
       }
       // A dated primary equity-change table is outside this core-row scope.
@@ -2038,6 +2051,18 @@ abstract final class PublicFinancialHtml {
               _compact(grid.first[4]?.text ?? '') != '제22(전)기말' ||
               _compact(grid.first[6]?.text ?? '') != '제21(전전)기말')) {
         throw const FormatException('Medyssey primary current column mismatch');
+      }
+      if (redwoodsBlankHeader &&
+          _compact(grid.first.first?.text ?? '').isEmpty) {
+        final header = grid.first.map((c) => _compact(c?.text ?? '')).join('|');
+        if (grid.first.length != 4 ||
+            current.column != 1 ||
+            grid.first.any(
+              (c) => c == null || c.colspan != 1 || c.rowspan != 1,
+            ) ||
+            !{'|제15기말|제14기말|제13기말', '|제15기|제14기|제13기'}.contains(header)) {
+          throw const FormatException('Redwoods blank current header mismatch');
+        }
       }
       if (txrBlankHeader && _compact(grid.first.first?.text ?? '').isEmpty) {
         if (grid.first.length != 4 ||
@@ -2545,6 +2570,105 @@ abstract final class PublicFinancialHtml {
         throw const FormatException('IMGT CE proof absent or ambiguous');
       }
       result.add(missingRevenue);
+      for (final row in result) {
+        (row['html_provenance']
+                as Map<String, dynamic>)['supportingPeriodEvidence'] =
+            proofs.single;
+      }
+    }
+    if (redwoodsBlankHeader) {
+      final proofs = <Map<String, dynamic>>[];
+      for (final table in RegExp(
+        r'<TABLE\b[^>]*>(.*?)</TABLE>',
+        caseSensitive: false,
+        dotAll: true,
+      ).allMatches(scope)) {
+        final preceding = _compact(_text(scope.substring(0, table.start)));
+        final ce = preceding.lastIndexOf('자본변동표');
+        if (ce < 0 ||
+            [
+              '재무상태표',
+              '손익계산서',
+              '현금흐름표',
+            ].any((h) => preceding.lastIndexOf(h) > ce)) {
+          continue;
+        }
+        final grid = _FinancialHtmlGrid.parse(table[1]!);
+        if (grid.isEmpty ||
+            grid.first.isEmpty ||
+            _compact(grid.first.first?.text ?? '').isNotEmpty) {
+          continue;
+        }
+        final local = preceding.substring(ce);
+        if (!local.contains('제15기2024년01월01일부터2024년12월31일까지') ||
+            !local.endsWith('뿌리깊은나무들주식회사(단위:원)') ||
+            grid.first.length != 7 ||
+            grid.first.map((c) => _compact(c?.text ?? '')).join('|') !=
+                '|자본금|자본잉여금|기타자본|기타포괄손익|이익잉여금(결손금)|합계' ||
+            grid.first.any(
+              (c) => c == null || c.colspan != 1 || c.rowspan != 1,
+            )) {
+          throw const FormatException(
+            'Redwoods whole CE header/period/unit mismatch',
+          );
+        }
+        int unique(String label) {
+          final found = [
+            for (var i = 1; i < grid.length; i++)
+              if (_compact(grid[i].first?.text ?? '') == label) i,
+          ];
+          if (found.length != 1) {
+            throw const FormatException('Redwoods CE date ambiguous');
+          }
+          return found.single;
+        }
+
+        final start = unique('2024년1월1일(당기초)'),
+            end = unique('2024년12월31일(당기말)');
+        final profits = [
+          for (var i = start + 1; i < end; i++)
+            if (_compact(grid[i].first?.text ?? '') == '당기순이익(손실)') i,
+        ];
+        if (start >= end || profits.length != 1) {
+          throw const FormatException(
+            'Redwoods CE current whole profit ambiguous',
+          );
+        }
+        BigInt whole(int i) {
+          if (grid[i].length != 7 ||
+              grid[i][6] == null ||
+              grid[i][6]!.colspan != 1 ||
+              grid[i][6]!.rowspan != 1) {
+            throw const FormatException('Redwoods CE whole column mismatch');
+          }
+          final v = money(grid[i][6]!.text);
+          if (v == null) {
+            throw const FormatException('Redwoods CE money missing');
+          }
+          return v;
+        }
+
+        proofs.add({
+          'mode': 'exact-redwoods-blank-current-header-whole-CE',
+          'receipt': receipt,
+          'corpCode': corpCode,
+          'source': statementSource.toString(),
+          'rawHeader': '빈 첫 헤더 / 제15기',
+          'currentTerm': term,
+          'periodStart': '2024-01-01',
+          'periodEnd': '2024-12-31',
+          'totalColumn': 6,
+          'currentProfit': whole(profits.single).toString(),
+          'closingEquity': whole(end).toString(),
+        });
+      }
+      if (proofs.length != 1 ||
+          proofs.single['currentProfit'] != values['profit'].toString() ||
+          proofs.single['closingEquity'] != values['equity'].toString()) {
+        throw const FormatException(
+          'Redwoods CE whole profit/equity contradiction',
+        );
+      }
       for (final row in result) {
         (row['html_provenance']
                 as Map<String, dynamic>)['supportingPeriodEvidence'] =

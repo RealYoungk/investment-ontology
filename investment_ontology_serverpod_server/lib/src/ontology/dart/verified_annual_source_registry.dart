@@ -32,6 +32,19 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20250321001825',
+      corpCode: '00990396',
+      companyName: '(주)레드우즈',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250321001825-ofs',
+      manifestDigest:
+          '85abe4e38762fe4ae48ff4607a4abbfee4b65c405a961e9e0fed50914921402d',
+      ruleVersion: 'redwoods-exact-blank-header-CE-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: true,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20250320001633',
       corpCode: '01188730',
       companyName: 'SK시그넷 주식회사',

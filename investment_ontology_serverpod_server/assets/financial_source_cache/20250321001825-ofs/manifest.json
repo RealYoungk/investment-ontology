@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "00990396",
+  "receipt": "20250321001825",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2024,
+  "periodStart": "2024-01-01",
+  "periodEnd": "2024-12-31",
+  "ruleVersion": "redwoods-exact-blank-header-CE-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250321001825",
+      "sha256": "823435d92599722683943aba9ab9e8d05f00039b4639c5ae949768f6337f451f",
+      "file": "shell.html"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001825&dcmNo=10450233&eleId=1&offset=941&length=4572&dtd=dart4.xsd",
+      "sha256": "696165e71f7637724caa97c6111151161e02b825778dfe10c9e20ba00ad0925a",
+      "file": "cover.html"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001825&dcmNo=10450233&eleId=21&offset=633900&length=51670&dtd=dart4.xsd",
+      "sha256": "c63592b1a91cd5bf858bbcde8f9855ca971f2cb0325aa1d7037d1265f22036b4",
+      "file": "ofs.html"
+    },
+    {
+      "label": "overview",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001825&dcmNo=10450233&eleId=3&offset=6086&length=136321&dtd=dart4.xsd",
+      "sha256": "b7d7ee5bbf7a5cb19a3f09700be69d6dcb2f55db9e6174205d4587eb71102da1",
+      "file": "overview.html"
+    }
+  ],
+  "retrievalProof": "공식 원접수 shell/cover/OFS/I.company 직접 법적명칭; 전체7 및 원문capex/BSCE 실제대조; 기존 raw bytes 재사용"
+}
