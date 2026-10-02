@@ -50,6 +50,17 @@ void main() {
               startedAt: now,
             ),
           );
+          // The recent disclosure feed retains a separate reserve despite
+          // dailyBudget=0. Seed the exhausted shared day to prove API0 recovery.
+          final usage = await ApiCallUsage.db.insertRow(
+            session,
+            ApiCallUsage(
+              provider: ApiProvider.dart,
+              day: '2026-10-02',
+              calls: 20000,
+            ),
+          );
+          final usageBefore = usage.toJson();
           final client = SourceClient();
           await FinancialFactsSync(
             session,
@@ -92,7 +103,10 @@ void main() {
                 after.separateStatus == FilingFetchStatus.failed,
             false,
           );
-          expect(await ApiCallUsage.db.find(session), isEmpty);
+          expect(
+            (await ApiCallUsage.db.find(session)).single.toJson(),
+            usageBefore,
+          );
         },
       );
     }
