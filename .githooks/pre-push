@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+hook_directory="$(cd "$(dirname "$0")" && pwd)"
+exec python3 "$hook_directory/../scripts/check_push.py"

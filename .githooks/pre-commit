@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+# Resolve the installed hook's script, while Git commands inspect the calling index.
+hook_directory="$(cd "$(dirname "$0")" && pwd)"
+exec python3 "$hook_directory/../scripts/check_staged.py"
