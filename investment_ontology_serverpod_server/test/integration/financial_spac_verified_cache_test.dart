@@ -20,7 +20,7 @@ void main() {
     endpoints,
   ) {
     for (final entry in VerifiedAnnualSourceRegistry.entries.where(
-      (e) => e.requiresIssuerOverview,
+      (e) => e.ruleVersion == 'spac-explicit-revenue-null-cache-v1',
     )) {
       final scenarios = [
         'success-and-rerun',
