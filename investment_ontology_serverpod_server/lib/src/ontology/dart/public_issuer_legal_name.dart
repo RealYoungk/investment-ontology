@@ -162,8 +162,9 @@ class PublicIssuerLegalName {
     ).allMatches(overviewBody).toList();
     final headings = <RegExpMatch>[];
     for (final p in paragraphs) {
-      if (RegExp(r'^(?:\d+\s*\.|[가-힣]\.)\s*회사의\s*(?:법적(?:[ㆍ·]|,\s*)상업적\s*)?명칭$')
-          .hasMatch(_text(p.group(1)!))) {
+      if (RegExp(
+        r'^(?:\d+\s*\.|[가-힣]\.)\s*회사의\s*(?:법적\s*(?:[ㆍ·]|,)\s*상업적\s*)?명칭$',
+      ).hasMatch(_text(p.group(1)!))) {
         headings.add(p);
       }
     }
@@ -276,6 +277,12 @@ class PublicIssuerLegalName {
       // Exact first-paragraph declarations of the issuer's printed legal name.
       // A later history, change notice or subsidiary paragraph cannot supply it.
       final firstLiteralPatterns = [
+        RegExp(
+          r"^회사의 명칭은 '([^']+)' 이며, 영문으로는 '[A-Za-z0-9.,& -]+'로 표기합니다\.$",
+        ),
+        RegExp(
+          r"^당사의 한글 명칭은 '([^']+)'이며, 영문으로는 '[A-Za-z0-9.,& -]+'로 표기합니다\.$",
+        ),
         if ((receipt == '20230315000997' && corpCode == '01601222') ||
             (receipt == '20230308000311' && corpCode == '01476219'))
           RegExp(
