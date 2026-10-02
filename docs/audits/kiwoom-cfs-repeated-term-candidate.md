@@ -11,3 +11,13 @@
 직접계정: 자산48,037,301,112,929/부채43,444,207,177,999/자본4,593,093,934,930/영업수익8,942,353,665,382/영업이익656,424,566,711/whole순익508,170,326,221/영업CF-2,011,805,579,287원. 모두raw인쇄이름/account_id null/단위원/원접수와URI/CFsign 그대로8행(유형자산취득포함). 전체계정복구라고표시하지 않는다.
 
 단위16개(실제positive+기간·기수·회사·원URI·unit·parent/NCI대체·whole행부재·CE열/기간negatives) 및 기존날짜괄호/BSduration/법적명칭회귀 합계53 PASS. 전체서버 analyze0, format/diffcheck PASS. 공시교정·attemptreset·priority·시간예약·할당량 변경0. 다음 실제queue/normalDB 검증은 별도승인 후 수행해야 한다.
+
+## 별도 승인 후 정상 fetch/큐 검증
+
+49d68fea 이후 정확CFS finite priority(00296290/20230320001037/annualFY2022.12/CFS만)를 추가했다. Generic10을 먼저 넣은 뒤 target을 넣어도 첫원문요청은 targetCFS이고 OFS원문요청은0. 정상 PublicFinancialHtmlFetcher가 기존raw shell/cover/CFS3개 exact URI를 mock GET로 조회·검증한다(외부GET0). whole7+capex8행이 직접인쇄금액/원화/null accountID로 정상저장된다.
+
+production report115358/Source233799의 저장snapshot을isolatedDB의관계ID만생성하여 seed한다. 그 보고서·Source·8개fact의wholeJSON(before/after)이모두불변이다. snapshot값/period/인쇄이름/비교기간/출처원형을변경하지않는다. testSource.retrievedAt만synthetic시계값이며운영원본Source조회전체라고주장하지않는다.
+
+새 audit financial-api-noData-source:20230320001037:consolidated에 exactcorp/sourceReceipt/coreRows8/HTML·rawprovenance 및 각행 supportingPeriodEvidence(전체총계8열, 순익508170326221, 마감자본4593093934930) 보존을검증했다. summary연결순익/자본과SQL계정매핑도동일. APIattempt3불변, public2→정상attempt3(최대3),20kusage/API0불변. pendingreset·임의noData처리·부모순익대체없음.
+
+격리normalDB1 PASS(3초),priorityunit220 PASS, 전체서버analyze0/formatdiffcheckPASS. 운영쓰기·외부API/GET0. 초기49후속후보와분리commit로검토한다.
