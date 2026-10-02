@@ -1,0 +1,64 @@
+{
+  "id": 28849,
+  "name": "선바이오(주)",
+  "market": "kosdaq",
+  "stockCode": "067370",
+  "corpCode": "00407036",
+  "rceptNo": "20220318000845",
+  "reportName": "사업보고서 (2021.12)",
+  "actual_period": "2021.12",
+  "bsnsYear": 2021,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 2,
+  "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 2,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220318000845",
+      "sha256": "04b0117d14bd58ecfe7386c40156de0bd62b0ed95f3dcf78be7901546817d1b3"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220318000845&dcmNo=8478192&eleId=1&offset=793&length=4000&dtd=dart3.xsd",
+      "sha256": "ce797081755842c669ca5d36c8272c6826fed320d0cf14a85d3ef3752c79c920"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220318000845&dcmNo=8478192&eleId=19&offset=307003&length=126&dtd=dart3.xsd",
+      "sha256": "523f66688592930bb02ee168f9439fad54ff23d6b8e2710ffd2b4ad6fd06d9b2"
+    }
+  ],
+  "shellCorpIds": [
+    "00407036"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20220318000845",
+        "dcmNo": "8478192",
+        "eleId": "1",
+        "offset": "793",
+        "length": "4000",
+        "dtd": "dart3.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20220318000845",
+        "dcmNo": "8478192",
+        "eleId": "19",
+        "offset": "307003",
+        "length": "126",
+        "dtd": "dart3.xsd"
+      }
+    }
+  ]
+}

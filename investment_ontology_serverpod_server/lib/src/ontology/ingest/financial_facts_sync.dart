@@ -1099,6 +1099,15 @@ class FinancialFactsSync {
   /// attempts never gain priority. Existing API/ledger attempt counters remain.
   static const _verifiedDurationSourceFixtures =
       <String, ({String corp, int year, Set<String> bases})>{
+        '20220328001074': (corp: '01118139', year: 2021, bases: {'CFS'}),
+        '20220324000019': (corp: '01085187', year: 2021, bases: {'CFS'}),
+        '20220323000615': (corp: '01365384', year: 2021, bases: {'CFS'}),
+        '20220322000927': (corp: '00145190', year: 2021, bases: {'CFS'}),
+        '20220322000896': (corp: '00537221', year: 2021, bases: {'CFS'}),
+        '20220322000703': (corp: '00445869', year: 2021, bases: {'CFS'}),
+        '20220322000302': (corp: '00156910', year: 2021, bases: {'CFS'}),
+        '20220318000876': (corp: '00886792', year: 2021, bases: {'CFS'}),
+        '20220318000845': (corp: '00407036', year: 2021, bases: {'CFS'}),
         '20260709000400': (corp: '00925967', year: 2026, bases: {'CFS'}),
         '20250806000052': (corp: '00756163', year: 2021, bases: {'CFS'}),
         '20221004000119': (corp: '01060735', year: 2021, bases: {'CFS'}),
