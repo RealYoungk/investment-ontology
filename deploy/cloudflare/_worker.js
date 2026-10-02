@@ -7,6 +7,16 @@ const HOP_HEADERS = ['connection', 'transfer-encoding', 'keep-alive',
 
 export async function handleRequest(request, env, send = fetch) {
   const url = new URL(request.url);
+  // The public entry page is real HTML for all users, including without JS.
+  // Interactive application routes keep their existing Flutter SPA fallback.
+  if (url.pathname === '/' || url.pathname === '/index.html') {
+    const assetUrl = new URL(request.url);
+    assetUrl.pathname = '/start';
+    const asset = await env.ASSETS.fetch(new Request(assetUrl, request));
+    const headers = new Headers(asset.headers);
+    headers.set('Cache-Control', 'no-store');
+    return new Response(asset.body, {status: asset.status, headers});
+  }
   if (url.pathname !== '/api' && !url.pathname.startsWith('/api/')) {
     return env.ASSETS.fetch(request);
   }

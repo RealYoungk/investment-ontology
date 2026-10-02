@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/semantics.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -35,6 +37,9 @@ void main() async {
   final theme = buildAppTheme(researchDeskBrand);
   await GoogleFonts.pendingFonts();
   runApp(MyApp(theme: theme));
+  // Official Flutter web accessibility API: expose the real rendered content
+  // as semantic HTML for every visitor, without requiring a hidden-button click.
+  if (kIsWeb) SemanticsBinding.instance.ensureSemantics();
 }
 
 class MyApp extends StatelessWidget {

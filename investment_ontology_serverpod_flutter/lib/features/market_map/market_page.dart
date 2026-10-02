@@ -16,6 +16,7 @@ import 'widgets/index_trend.dart';
 import 'widgets/industry_distribution.dart';
 import 'widgets/market_cap_trend.dart';
 import 'widgets/market_summary.dart';
+import '../monetization/ad_content_state.dart';
 
 /// 시장: 시장별 상장사 수 · 업종 분포 · 업종별 시가총액 트리맵. 탐색의 시작점.
 ///
@@ -64,7 +65,7 @@ class _MarketPageState extends State<MarketPage> {
     } catch (_) {
       if (mounted) setState(() => _failed = true);
     } finally {
-      _loadingOverview = false;
+      if (mounted) setState(() => _loadingOverview = false);
     }
   }
 
@@ -98,6 +99,11 @@ class _MarketPageState extends State<MarketPage> {
         .firstOrNull
         ?.name;
     return PageFrame(
+      allowLeading: AdContentState(
+        loading: _loadingOverview,
+        failed: _failed,
+        itemCount: overview?.totalListed ?? 0,
+      ).allowsAd,
       children: [
         MarketSummary(
           overview: overview,

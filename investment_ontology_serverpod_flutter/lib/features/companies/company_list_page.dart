@@ -12,6 +12,7 @@ import '../../design/tokens.dart';
 import '../common/formatters.dart';
 import 'company_filter.dart';
 import 'widgets/company_table.dart';
+import '../monetization/ad_content_state.dart';
 
 /// 기업: 검색 · 시장 · 업종 필터 · 정렬 + 상장사 목록. 필터는 주소에 남는다.
 class CompanyListPage extends StatefulWidget {
@@ -158,6 +159,11 @@ class _CompanyListPageState extends State<CompanyListPage> {
       builder: (context, constraints) {
         final compact = constraints.maxWidth < 980;
         return PageFrame(
+          allowLeading: AdContentState(
+            loading: _loading,
+            failed: _error != null,
+            itemCount: _page?.items.length ?? 0,
+          ).allowsAd,
           children: [
             PageHeading(
               title: '기업',
