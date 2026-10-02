@@ -271,6 +271,8 @@ final class VerifiedAnnualSourceCache {
         consolidated: basis == FsDiv.consolidated,
         allowPrimaryHistoricalIssuer:
             entry.ruleVersion == 'primary-historical-issuer-whole-seven-v1',
+        allowSourceVerifiedPartialCore:
+            entry.ruleVersion == 'source-six-with-unavailable-whole-revenue-v1',
       );
       if (entry.absenceLiteral != null ||
           client.requests != documentCount ||

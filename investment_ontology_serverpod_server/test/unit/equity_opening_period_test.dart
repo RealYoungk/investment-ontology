@@ -56,6 +56,7 @@ void main() {
     );
     List<Map<String, dynamic>> parse(String html) =>
         PublicFinancialHtml.parseStandardAnnual(
+          allowSourceVerifiedPartialCore: true,
           coverHtml: cover,
           statementHtml: html,
           coverSource: uri('cover'),
@@ -100,6 +101,7 @@ void main() {
       );
       expect(
         () => PublicFinancialHtml.parseStandardAnnual(
+          allowSourceVerifiedPartialCore: true,
           coverHtml: File('$root/${c.$1}/cover.html').readAsStringSync(),
           statementHtml: File('$root/${c.$1}/ofs.html').readAsStringSync(),
           coverSource: uri('cover'),

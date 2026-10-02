@@ -830,6 +830,8 @@ abstract final class PublicFinancialHtml {
     PublicIssuerLegalName? issuerProof,
     PrimaryHistoricalIssuer? primaryIssuerProof,
     SkSignetIdentity? skSignetIdentity,
+    // Opt-in proof inspection only; this does not authorize six-core storage.
+    bool allowSourceVerifiedPartialCore = false,
   }) {
     if (receipt == BnkSixCoreProfile.receipt) {
       return BnkSixCoreProfile.parse(
@@ -2795,6 +2797,7 @@ abstract final class PublicFinancialHtml {
         start: periodStart,
         end: periodEnd,
         consolidated: consolidated,
+        requireWhole: !allowSourceVerifiedPartialCore,
       );
       if (partial != null) {
         if (primaryIssuer != null) {

@@ -63,7 +63,9 @@ void main() {
       String? html,
       String? owner,
       bool cfs = false,
+      bool allowPartial = true,
     }) => PublicFinancialHtml.parseStandardAnnual(
+      allowSourceVerifiedPartialCore: allowPartial,
       coverHtml: cover,
       statementHtml: html ?? raw,
       coverSource: uri('cover'),
@@ -91,6 +93,9 @@ void main() {
       basis: basis ?? 'separate',
       year: 2022,
     );
+    test('actual $rec whole-only default rejects missing revenue', () {
+      expect(() => parse(allowPartial: false), throwsFormatException);
+    });
     test(
       'actual $rec six numeric rows revenue unavailable and independent whole CE',
       () {
