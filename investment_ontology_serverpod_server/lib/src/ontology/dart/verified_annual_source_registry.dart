@@ -32,6 +32,18 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20260331004637',
+      corpCode: '01353848',
+      companyName: '(주)이노벡스',
+      year: 2025,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20260331004637-ofs',
+      manifestDigest:
+          'b9113e16adfae70150eada4410889a5ee3e135ceb2588c0011c64534241b9e20',
+      ruleVersion: 'same-receipt-audit-immutable-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20250328001780',
       corpCode: '01563667',
       companyName: '(주)더즌',

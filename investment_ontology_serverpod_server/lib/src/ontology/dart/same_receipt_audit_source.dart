@@ -23,6 +23,18 @@ abstract final class SameReceiptAuditSource {
           String statementSha,
         })
       >{
+        '20260331004637': (
+          corp: '01353848',
+          year: 2025,
+          consolidated: false,
+          cover: 'https://dart.fss.or.kr/report/viewer.do?rcpNo=20260331004637&dcmNo=11214858&eleId=1&offset=966&length=4501&dtd=dart4.xsd',
+          coverSha: '8ec3dd27078969973fe62845b9f1291c356e7eaf55fcd5329283cf47d5d31f13',
+          shellSha: 'e4a204f7b2d3c9728718e048093aee7da406f4652958c302da9caea895e5bd55',
+          auditShell: 'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260331004637&dcmNo=11214857',
+          auditShellSha: '83c1c13555022cc4e063c4e4291e619508b5ffb33e23db73f6c37cd22669a035',
+          statement: 'https://dart.fss.or.kr/report/viewer.do?rcpNo=20260331004637&dcmNo=11214857&eleId=3&offset=10407&length=362889&dtd=dart4.xsd',
+          statementSha: 'e4ed7d6fe2972a93f83850a4851703e9e5b1ed0fb6f6bfffbe77998bcc989d3a',
+        ),
         '20250321001825': (
           corp: '00990396',
           year: 2024,
@@ -155,6 +167,7 @@ abstract final class SameReceiptAuditSource {
       'actualStatementSource': p.statement,
       'statementSha256': p.statementSha,
       'mainStatementConflict': switch (receipt) {
+        '20260331004637' => 'main PL printed term conflicts with cover and current columns; no term or amount corrected',
         '20250321001825' =>
           'main CE profit and OCI labels conflict; raw labels remain unchanged',
         '20260309001820' =>
