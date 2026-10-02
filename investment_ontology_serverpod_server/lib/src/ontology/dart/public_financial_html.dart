@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
+
 import 'public_issuer_legal_name.dart';
 import 'bnk_six_core_profile.dart';
 import 'verified_historical_company_identity.dart';
@@ -480,6 +484,134 @@ abstract final class PublicFinancialHtml {
   /// Standard annual layouts verified against five primary CFS/OFS examples.
   /// Requires current-term monetary groups, whole-income rows and printed units.
   /// This intentionally does not accept arbitrary financial prose or notes.
+  /// Exact raw CE cells corroborate a dated period only. No CE currency,
+  /// monetary scale or FinancialFact is assigned by this source profile.
+  static Map<String, dynamic>? _suntechRawCePeriod({
+    required String receipt,
+    required String corpCode,
+    required String coverHtml,
+    required String statementHtml,
+    required Uri coverSource,
+    required Uri statementSource,
+    required DateTime start,
+    required DateTime end,
+    required bool consolidated,
+  }) {
+    if (receipt != '20260317000808' || corpCode != '00963000') return null;
+    void guard(bool ok, String reason) {
+      if (!ok) throw FormatException('Suntech exact raw CE period: $reason');
+    }
+
+    final expectedSource = consolidated
+        ? 'https://dart.fss.or.kr/report/viewer.do?rcpNo=20260317000808&dcmNo=11133658&eleId=19&offset=329146&length=114169&dtd=dart4.xsd'
+        : 'https://dart.fss.or.kr/report/viewer.do?rcpNo=20260317000808&dcmNo=11133658&eleId=21&offset=518605&length=97424&dtd=dart4.xsd';
+    guard(
+      start == DateTime.utc(2025, 1, 1) && end == DateTime.utc(2025, 12, 31),
+      'actual annual interval mismatch',
+    );
+    guard(
+      coverSource.toString() ==
+              'https://dart.fss.or.kr/report/viewer.do?rcpNo=20260317000808&dcmNo=11133658&eleId=1&offset=965&length=4492&dtd=dart4.xsd' &&
+          sha256.convert(utf8.encode(coverHtml)).toString() == '0c5c9784d78f754e8509079d4b2e479288c1cef7def0e357ec1d2a6e39c729c4',
+      'cover identity mismatch',
+    );
+    guard(
+      statementSource.toString() == expectedSource &&
+          sha256.convert(utf8.encode(statementHtml)).toString() ==
+              (consolidated
+                  ? 'dcb53fe25355b082817de8530aa548c674603b88c72edcbd64cb64d0ce311de3'
+                  : '77af198724aa9d4a8ff849d35b172d37bbc44853e71c43f1c19191ac734555d8'),
+      'immutable whole source mismatch',
+    );
+    final tables = RegExp(
+      r'<TABLE\b[^>]*>(.*?)</TABLE>',
+      caseSensitive: false,
+      dotAll: true,
+    ).allMatches(statementHtml).toList();
+    guard(tables.length > 7, 'primary tables missing');
+    final local = _compact(_text(statementHtml.substring(0, tables[5].start)))
+        .split('자본변동표')
+        .last;
+    guard(
+      local == '제30기2025년01월01일부터2025년12월31일까지제29기2024년01월01일부터2024년12월31일까지' &&
+          !local.contains('단위'),
+      'explicit CE annual dates or unit evidence changed',
+    );
+    final grid = _FinancialHtmlGrid.parse(tables[5].group(1)!);
+    final header = grid.first.map((c) => _compact(c?.text ?? '')).toList();
+    guard(
+      header.join('|') ==
+              (consolidated
+                  ? '과목|자본금|자본잉여금|자본조정|기타포괄손익누계액|이익잉여금|비지배주주지분|총계'
+                  : '과목|자본금|자본잉여금|자본조정|기타포괄손익누계액|이익잉여금|총계') &&
+          grid.first.every(
+            (c) => c != null && c.colspan == 1 && c.rowspan == 1,
+          ),
+      'whole CE hierarchy mismatch',
+    );
+    int one(String label) {
+      final found = [
+        for (var r = 1; r < grid.length; r++)
+          if (_compact(grid[r].first?.text ?? '') == label) r,
+      ];
+      guard(found.length == 1, 'actual current date ambiguous');
+      return found.single;
+    }
+
+    final a = one('2025.01.01(당기초)'), b = one('2025.12.31(당기말)');
+    guard(a < b, 'actual dates reversed');
+    final profits = [
+      for (var r = a + 1; r < b; r++)
+        if (_compact(grid[r].first?.text ?? '') == '당기순이익') r,
+    ];
+    guard(profits.length == 1, 'current whole profit ambiguous');
+    String raw(int r) {
+      guard(
+        grid[r].length == header.length &&
+            grid[r].last != null &&
+            grid[r].last!.colspan == 1 &&
+            grid[r].last!.rowspan == 1,
+        'whole CE total column mismatch',
+      );
+      final v = grid[r].last!.text.trim();
+      guard(
+        RegExp(r'^\(?-?\d{1,3}(?:,\d{3})*\)?$').hasMatch(v) &&
+            v.startsWith('(') == v.endsWith(')'),
+        'raw whole numeric cell unavailable',
+      );
+      return v;
+    }
+
+    final rawProfit = raw(profits.single), rawEquity = raw(b);
+    guard(
+      rawProfit == (consolidated ? '(2,164,078,292)' : '(1,757,381,648)') &&
+          rawEquity == (consolidated ? '3,483,092,950' : '3,233,567,289'),
+      'raw CE whole values changed',
+    );
+    String rawNumeric(String v) =>
+        v.replaceAll(',', '').replaceAll('(', '-').replaceAll(')', '');
+    return {
+      'mode': 'exact-suntech-unscaled-raw-ce-period-corroboration',
+      'source': expectedSource,
+      'periodStart': '2025-01-01',
+      'periodEnd': '2025-12-31',
+      'currentTerm': '30',
+      'startRow': a,
+      'endRow': b,
+      'profitRow': profits.single,
+      'currentProfit': rawNumeric(rawProfit),
+      'closingEquity': rawNumeric(rawEquity),
+      'printedRawProfit': rawProfit,
+      'printedRawClosingEquity': rawEquity,
+      'unit': null,
+      'unitStatus': 'not-printed-unknown',
+      'currencyAssigned': false,
+      'multiplierAssigned': false,
+      'financialValuesStoredFromCE': false,
+      'note': '단위 미기재 CE의 raw 전체 숫자와 날짜를 원 단위 primary 표와 직접 교차검증. 단위 차용·배율 변환·CE 값 저장 없음.',
+    };
+  }
+
   static List<Map<String, dynamic>> parseStandardAnnual({
     required String coverHtml,
     required String statementHtml,
@@ -937,10 +1069,21 @@ abstract final class PublicFinancialHtml {
         periodEnd.difference(periodStart).inDays >= 364 &&
         periodEnd.difference(periodStart).inDays <= 365 &&
         text.contains('제$term기(${periodEnd.year}년)');
-    Map<String, dynamic>? datedPunctuationProof;
-    if (parenthesizedTitles.isNotEmpty ||
-        bsDurationCandidate ||
-        termYearHeaderCandidate) {
+    Map<String, dynamic>? datedPunctuationProof = _suntechRawCePeriod(
+      receipt: receipt,
+      corpCode: corpCode,
+      coverHtml: coverHtml,
+      statementHtml: statementHtml,
+      coverSource: coverSource,
+      statementSource: statementSource,
+      start: periodStart,
+      end: periodEnd,
+      consolidated: consolidated,
+    );
+    if (datedPunctuationProof == null &&
+        (parenthesizedTitles.isNotEmpty ||
+            bsDurationCandidate ||
+            termYearHeaderCandidate)) {
       final candidates = <Map<String, dynamic>>[];
       var supportingIndex = 0;
       for (final table in RegExp(
@@ -1197,7 +1340,12 @@ abstract final class PublicFinancialHtml {
                 ).hasMatch(_compact(c.text)) ||
                 (termYearHeaderCandidate &&
                     _compact(c.text) == '제$term기(${periodEnd.year}년)') ||
-                (konasolScope && kind == 'CF' && _compact(c.text) == '2025년'),
+                (konasolScope && kind == 'CF' && _compact(c.text) == '2025년') ||
+                (datedPunctuationProof?['mode'] ==
+                        'exact-suntech-unscaled-raw-ce-period-corroboration' &&
+                    consolidated &&
+                    ((kind == 'BS' && _compact(c.text) == '제30(당)기(연결)') ||
+                        (kind == 'CF' && _compact(c.text) == '제30(당)'))),
           )
           .toSet();
       if (headers.length != 1) {

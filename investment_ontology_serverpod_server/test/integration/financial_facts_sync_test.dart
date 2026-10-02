@@ -271,6 +271,82 @@ class ExactPublicOriginalClient extends AttachmentOriginalClient {
   }
 }
 
+class SuntechHtmlClient extends AttachmentOriginalClient {
+  SuntechHtmlClient() : super('20260317000808', const []);
+  int numericCalls = 0;
+  @override
+  Future<List<Map<String, dynamic>>> fetchFinancialStatements({
+    required String corpCode,
+    required int bsnsYear,
+    required String reportCode,
+    required String fsDiv,
+  }) async {
+    numericCalls++;
+    throw StateError('No repeat API call allowed');
+  }
+
+  @override
+  Future<
+    ({
+      List<int> zip,
+      Uri source,
+      String receipt,
+      String correctionReceipt,
+      Uri correctionSource,
+    })
+  >
+  fetchLinkedAnnualXbrl(
+    String receipt, {
+    required String reportName,
+    required String corpCode,
+    required int bsnsYear,
+    required DateTime periodEnd,
+    required bool consolidated,
+  }) async => throw const FormatException('No XBRL');
+  @override
+  Future<PublicFinancialHtmlSource> fetchAttachmentAnnualHtml(
+    String receipt, {
+    required String reportName,
+    required String corpCode,
+    required String companyName,
+    required int bsnsYear,
+    required DateTime periodEnd,
+    required bool consolidated,
+  }) async {
+    final mock = MockClient((request) async {
+      final u = request.url;
+      final name = u.path == '/dsaf001/main.do'
+          ? (u.queryParameters['rcpNo'] == '20260318000344'
+                ? 'target-shell.html'
+                : 'shell.html')
+          : u.queryParameters['eleId'] == '1'
+          ? 'cover.html'
+          : consolidated
+          ? 'CFS.html'
+          : 'OFS.html';
+      return http.Response.bytes(
+        File('test/fixtures/financial_html/suntech-raw-ce/$name')
+            .readAsBytesSync(),
+        200,
+        request: request,
+      );
+    });
+    try {
+      return await PublicFinancialHtmlFetcher(mock).fetchAttachmentAnnual(
+        receipt,
+        reportName: reportName,
+        corpCode: corpCode,
+        companyName: companyName,
+        bsnsYear: bsnsYear,
+        periodEnd: periodEnd,
+        consolidated: consolidated,
+      );
+    } finally {
+      mock.close();
+    }
+  }
+}
+
 class AttachmentHtmlClient extends AttachmentOriginalClient {
   AttachmentHtmlClient() : super('20240701000635', const []);
   int htmlCalls = 0;
@@ -2539,6 +2615,85 @@ void main() {
       );
     });
 
+    test('Suntech actual original uses raw CE period-only proof without assigning its unit or consuming API retries', () async {
+      final base = (await Company.db.find(session)).single;
+      final company = await Company.db.updateRow(
+        session,
+        base.copyWith(corpCode: '00963000', name: '썬테크', fiscalMonth: 12),
+      );
+      final target = await DartFiling.db.insertRow(
+        session,
+        DartFiling(
+          rceptNo: '20260318000344',
+          corpCode: company.corpCode,
+          companyId: company.id,
+          reportName: '[첨부정정]사업보고서 (2025.12)',
+          bsnsYear: 2025,
+          reportCode: FinancialReportCode.annual,
+          consolidatedStatus: FilingFetchStatus.failed,
+          separateStatus: FilingFetchStatus.failed,
+          attempts: 3,
+          lastError: 'DartApiException(receiptPeriodMismatch)',
+          discoveredAt: now,
+        ),
+      );
+      final job = await IngestJob.db.insertRow(
+        session,
+        IngestJob(
+          kind: FinancialFactsSync.kind,
+          status: IngestStatus.running,
+          startedAt: now,
+        ),
+      );
+      final reader = SuntechHtmlClient();
+      await FinancialFactsSync(
+        session,
+        reader,
+        job.id!,
+        dailyBudget: 0,
+        corpCode: company.corpCode,
+        clock: () => now,
+        callInterval: Duration.zero,
+      ).run();
+      expect(reader.numericCalls, 0);
+      final reports = await FinancialReport.db.find(session);
+      expect(reports, hasLength(2));
+      for (final report in reports) {
+        expect(report.rceptNo, '20260317000808');
+        final source = (await Source.db.findById(session, report.sourceId))!;
+        expect(source.reference, '20260317000808');
+        expect(source.url, contains('dcmNo=11133658'));
+        final facts = await FinancialFact.db.find(
+          session,
+          where: (t) => t.reportId.equals(report.id!),
+        );
+        expect(facts.length, greaterThanOrEqualTo(7));
+        expect(
+          facts.every((f) => f.accountId == null && f.currency == 'KRW'),
+          isTrue,
+        );
+        expect(facts.every((f) => f.accountName.isNotEmpty), isTrue);
+        final audit = (await Source.db.findFirstRow(
+          session,
+          where: (t) => t.reference.equals(
+            'financial-attachment-recovery:20260318000344:${report.fsDiv.name}',
+          ),
+        ))!;
+        final rows = jsonDecode(audit.title)['coreRowProvenance'] as List;
+        expect(rows.length, greaterThanOrEqualTo(7));
+        for (final row in rows) {
+          final ce = row['html_provenance']['supportingPeriodEvidence'];
+          expect(ce['unit'], isNull);
+          expect(ce['currencyAssigned'], false);
+          expect(ce['multiplierAssigned'], false);
+          expect(ce['financialValuesStoredFromCE'], false);
+        }
+      }
+      final done = (await DartFiling.db.findById(session, target.id!))!;
+      expect(done.attempts, 3);
+      expect(done.consolidatedStatus, FilingFetchStatus.stored);
+      expect(done.separateStatus, FilingFetchStatus.stored);
+    });
     test('verified missing-XBRL attachment HTML stores actual original printed account labels without invented IDs', () async {
       final c = (await Company.db.find(session)).single;
       await Company.db.updateRow(

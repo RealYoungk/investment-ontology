@@ -2307,7 +2307,13 @@ class FinancialFactsSync {
                 if (htmlCompanyName.isEmpty) {
                   throw const FormatException('Empty HTML company identity');
                 }
-                final rows = PublicFinancialHtml.parse(
+                final parseOriginal =
+                    html.sourceReceipt == '20260317000808' &&
+                        company.corpCode == '00963000' &&
+                        end == DateTime.utc(2025, 12, 31)
+                    ? PublicFinancialHtml.parseStandardAnnual
+                    : PublicFinancialHtml.parse;
+                final rows = parseOriginal(
                   coverHtml: html.coverHtml,
                   statementHtml: html.statementHtml,
                   coverSource: html.coverSource,
@@ -2442,6 +2448,7 @@ class FinancialFactsSync {
                 originalFormat: fallback.format,
                 originalSource: fallback.source,
                 coverSource: fallback.coverSource,
+                coreRows: fallback.rows,
               );
             }
             if (saved.inserted) {
@@ -2577,6 +2584,7 @@ class FinancialFactsSync {
     String originalFormat = 'xbrl',
     Uri? originalSource,
     Uri? coverSource,
+    List<Map<String, dynamic>>? coreRows,
   }) async {
     final reference =
         'financial-attachment-recovery:${target.rceptNo}:${div.name}';
@@ -2604,6 +2612,16 @@ class FinancialFactsSync {
             if (originalSource != null)
               'originalSource': originalSource.toString(),
             if (coverSource != null) 'coverSource': coverSource.toString(),
+            if (coreRows != null)
+              'coreRowProvenance': [
+                for (final row in coreRows)
+                  {
+                    'account_nm': row['account_nm'],
+                    'thstrm_amount': row['thstrm_amount'],
+                    'currency': row['currency'],
+                    'html_provenance': row['html_provenance'],
+                  },
+              ],
           }),
         ),
       );
