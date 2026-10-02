@@ -1982,7 +1982,9 @@ void main() {
             job.id!,
             dailyBudget: 0,
             corpCode: '01565364',
-            clock: () => now,
+            clock: () => reader.htmlRequests == 0
+                ? now
+                : now.add(const Duration(hours: 18)),
             callInterval: Duration.zero,
             scheduleResume: (at) async => scheduled.add(at),
           ).run();
@@ -2019,7 +2021,10 @@ void main() {
             expect(source.title, contains('HTML 부분 핵심계정'));
           }
           if (failSeparate) {
-            expect(scheduled, contains(now.add(const Duration(minutes: 15))));
+            expect(
+              scheduled,
+              contains(now.add(const Duration(hours: 18, seconds: 30))),
+            );
           }
           expect(
             (await IngestJob.db.findById(session, job.id!))!.message,

@@ -12,6 +12,8 @@ abstract final class PublicFinancialHtml {
       .replaceAll('&nbsp;', ' ')
       .replaceAll('&#160;', ' ')
       .replaceAll('&amp;', '&')
+      .replaceAll('&lt;', '<')
+      .replaceAll('&gt;', '>')
       .replaceAll(RegExp(r'\s+'), ' ')
       .trim();
   static String _compact(String text) => text.replaceAll(RegExp(r'\s+'), '');
@@ -860,7 +862,10 @@ abstract final class PublicFinancialHtml {
     String label(String raw) =>
         _compact(raw)
             .replaceFirst(RegExp(r'^[Ⅰ-ⅫIVXLCDM\d]+[.)]'), '')
-            .replaceFirst(RegExp(r'\(주(?:석)?\d+(?:,\d+)*\)$'), '');
+            .replaceFirst(
+              RegExp(r'(?:\(주(?:석)?[0-9]+(?:,[0-9]+)*\)|<주석[0-9]+>)$'),
+              '',
+            );
     const accounts = {
       '자산총계': ('assets', 'BS'),
       '부채총계': ('liabilities', 'BS'),
@@ -901,8 +906,16 @@ abstract final class PublicFinancialHtml {
       );
     }
 
+    // A term(year) header is one group, not two independent current columns.
+    // Require a full printed annual interval and independent whole CE totals.
+    final termYearHeaderCandidate =
+        periodEnd.difference(periodStart).inDays >= 364 &&
+        periodEnd.difference(periodStart).inDays <= 365 &&
+        text.contains('제$term기(${periodEnd.year}년)');
     Map<String, dynamic>? datedPunctuationProof;
-    if (parenthesizedTitles.isNotEmpty || bsDurationCandidate) {
+    if (parenthesizedTitles.isNotEmpty ||
+        bsDurationCandidate ||
+        termYearHeaderCandidate) {
       final candidates = <Map<String, dynamic>>[];
       var supportingIndex = 0;
       for (final table in RegExp(
@@ -997,10 +1010,12 @@ abstract final class PublicFinancialHtml {
         final profit = [
           for (var r = start + 1; r < end; r++)
             if ({
-              '당기순이익',
-              '당기순이익(손실)',
-              '당기순손실',
-            }.contains(_compact(grid[r].first?.text ?? '')))
+                  '당기순이익',
+                  '당기순이익(손실)',
+                  '당기순손실',
+                }.contains(_compact(grid[r].first?.text ?? '')) ||
+                (termYearHeaderCandidate &&
+                    _compact(grid[r].first?.text ?? '') == '당기순손익'))
               r,
         ];
         if (profit.length != 1) {
@@ -1028,7 +1043,9 @@ abstract final class PublicFinancialHtml {
         }
 
         candidates.add({
-          'mode': bsDurationCandidate
+          'mode': termYearHeaderCandidate
+              ? 'full-annual-term-year-whole-equity-corroboration'
+              : bsDurationCandidate
               ? 'primary-bs-duration-equity-corroboration'
               : 'fully-dated-parentheses-equity-corroboration',
           'tableIndex': index,
@@ -1153,6 +1170,8 @@ abstract final class PublicFinancialHtml {
                 RegExp(
                   '^(?:제$term(?:\\(당\\))?기(?:기말|말)?|${periodEnd.year}(?:년도|연도)\\(제$term기\\))\$',
                 ).hasMatch(_compact(c.text)) ||
+                (termYearHeaderCandidate &&
+                    _compact(c.text) == '제$term기(${periodEnd.year}년)') ||
                 (konasolScope && kind == 'CF' && _compact(c.text) == '2025년'),
           )
           .toSet();

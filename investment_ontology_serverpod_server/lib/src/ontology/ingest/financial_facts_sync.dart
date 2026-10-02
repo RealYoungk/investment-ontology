@@ -699,6 +699,8 @@ class FinancialFactsSync {
       if (metadataAnchored > 0) {
         message += ', 공식 원접수 표지 기간 연결 $metadataAnchored건(숫자 변경 없음)';
       }
+      // Source reads may outlast either delay; reserve from the current time.
+      final resumeNow = _clock().toUtc();
       DateTime? earliestResume;
       void requestResume(DateTime at) {
         if (earliestResume == null || at.isBefore(earliestResume!)) {
@@ -708,7 +710,7 @@ class FinancialFactsSync {
 
       if (deferredMetadataTargets.isNotEmpty && !cancelled) {
         requestResume(
-          now.add(
+          resumeNow.add(
             metadataBatchDeferred
                 ? const Duration(seconds: 30)
                 : const Duration(minutes: 15),
@@ -723,8 +725,10 @@ class FinancialFactsSync {
       }
       if (annualPublic.remaining > 0 && !cancelled) {
         requestResume(
-          now.add(
-            annualPublic.fresh || metadataBatchDeferred
+          resumeNow.add(
+            annualPublic.fresh ||
+                    annualPublic.stored > 0 ||
+                    metadataBatchDeferred
                 ? const Duration(seconds: 30)
                 : const Duration(minutes: 15),
           ),
@@ -736,7 +740,7 @@ class FinancialFactsSync {
       }
       if (halfPublic.remaining > 0 && !cancelled) {
         requestResume(
-          now.add(
+          resumeNow.add(
             halfPublic.fresh
                 ? const Duration(seconds: 30)
                 : const Duration(minutes: 15),
@@ -752,7 +756,7 @@ class FinancialFactsSync {
           annualPublic.remaining == 0 &&
           halfPublic.remaining == 0) {
         final at = ApiCallBudget.nextKstMidnight(
-          now,
+          resumeNow,
         ).add(const Duration(minutes: 10));
         requestResume(at);
         message +=
@@ -1064,6 +1068,15 @@ class FinancialFactsSync {
   /// attempts never gain priority. Existing API/ledger attempt counters remain.
   static bool verifiedDurationSourceRecoveryPriority(DartFiling filing) {
     const fixtures = <String, ({String corp, int year, Set<String> bases})>{
+      '20220316000721': (corp: '00337296', year: 2021, bases: {'OFS'}),
+      '20220322000487': (corp: '00521433', year: 2021, bases: {'OFS'}),
+      '20220321000166': (corp: '01117422', year: 2021, bases: {'OFS'}),
+      '20250321001900': (corp: '00765897', year: 2024, bases: {'OFS'}),
+      '20260319000348': (corp: '00521433', year: 2025, bases: {'OFS'}),
+      '20260319000707': (corp: '00553025', year: 2025, bases: {'CFS'}),
+      '20260323001028': (corp: '00611286', year: 2025, bases: {'OFS'}),
+      '20250321001632': (corp: '00816696', year: 2024, bases: {'OFS'}),
+      '20250321000468': (corp: '01117422', year: 2024, bases: {'OFS'}),
       '20250325000306': (corp: '01290132', year: 2024, bases: {'OFS'}),
       '20251124000372': (corp: '01669794', year: 2024, bases: {'OFS'}),
       '20250320001616': (corp: '00442631', year: 2024, bases: {'OFS', 'CFS'}),
