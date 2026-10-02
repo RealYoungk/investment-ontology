@@ -92,7 +92,7 @@ class _DisclosureTabState extends State<DisclosureTab> {
         final wide = constraints.maxWidth >= 900;
         final table = KeyedSubtree(
           key: _tableAnchor,
-          child: _buildTable(context),
+          child: CompanyDataCard(child: _buildTable(context)),
         );
         if (!wide) {
           return Column(
@@ -157,7 +157,7 @@ class _DisclosureTabState extends State<DisclosureTab> {
             runSpacing: AppSpace.sm,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Text(table.label, style: t.body(16, weight: FontWeight.w700)),
+              Text(table.label, style: t.body(13, weight: FontWeight.w600)),
               if (table.years.length > 1 ||
                   table.years.first < DateTime.now().year)
                 AppToggleGroup<int>(
