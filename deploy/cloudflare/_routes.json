@@ -3,6 +3,8 @@
   "include": [
     "/",
     "/index.html",
+    "/membership",
+    "/membership.html",
     "/api",
     "/api/*"
   ],
