@@ -1,3 +1,4 @@
+import 'bond_trends_card.dart';
 import '../ownership_changes/ownership_changes_section.dart';
 
 import 'package:flutter/material.dart';
@@ -72,9 +73,16 @@ class _GovernanceTabState extends State<GovernanceTab> {
     }
     if (d == null) return const LinearProgressIndicator(minHeight: 2);
     if (d.bsnsYear == null) {
-      return Text(
-        '아직 이 기업의 정기보고서 주요정보를 받지 않았습니다.',
-        style: t.body(13, color: c.textMuted),
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            '아직 이 기업의 정기보고서 주요정보를 받지 않았습니다.',
+            style: t.body(13, color: c.textMuted),
+          ),
+          const SizedBox(height: AppSpace.md),
+          BondTrendsCard(corpCode: widget.corpCode),
+        ],
       );
     }
     final view = GovernanceView(d);
@@ -114,6 +122,8 @@ class _GovernanceTabState extends State<GovernanceTab> {
             ],
           ),
         ),
+        const SizedBox(height: AppSpace.lg),
+        BondTrendsCard(corpCode: widget.corpCode),
         const SizedBox(height: AppSpace.lg),
         OwnershipChangesSection(corpCode: widget.corpCode, compact: true),
         const SizedBox(height: AppSpace.sm),

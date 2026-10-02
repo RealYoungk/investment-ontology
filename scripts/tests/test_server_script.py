@@ -22,7 +22,7 @@ class ServerTestScriptTest(unittest.TestCase):
         subprocess.run(['git', 'init', '-q', str(self.root)], check=True)
         self.bin = self.root / 'bin'
         self.bin.mkdir()
-        mock = self.bin / 'dart'
+        mock = self.bin / 'flutter'
         mock.write_text('#!/usr/bin/env python3\nimport json,os,sys\nwith open(os.environ["CALLS"],"a") as f: f.write(json.dumps(sys.argv[1:])+"\\n")\nsys.exit(7 if os.environ.get("FAIL") else 0)\n')
         mock.chmod(0o755)
         self.calls = self.root / 'calls.jsonl'
@@ -48,15 +48,15 @@ class ServerTestScriptTest(unittest.TestCase):
         result = self.run_script()
         self.assertEqual(result.returncode, 0, result.stderr)
         calls = self.read_calls()
-        self.assertEqual([len(x) - 1 for x in calls], [25, 25, 4])
-        flattened = [name for call in calls for name in call[1:]]
+        self.assertEqual([len(x) - 3 for x in calls], [25, 25, 4])
+        flattened = [name for call in calls for name in call[3:]]
         self.assertCountEqual(flattened, names + [extra])
         self.assertEqual(len(set(flattened)), 54)
-        self.assertTrue(all(x[0] == 'test' for x in calls))
+        self.assertTrue(all(x[:3] == ['pub', 'run', 'test'] for x in calls))
 
     def test_focused_arguments_unchanged(self):
         self.assertEqual(self.run_script('test/a_test.dart', '--plain-name', 'a b').returncode, 0)
-        self.assertEqual(self.read_calls(), [['test', 'test/a_test.dart', '--plain-name', 'a b']])
+        self.assertEqual(self.read_calls(), [['pub', 'run', 'test', 'test/a_test.dart', '--plain-name', 'a b']])
 
     def test_failed_batch_stops_before_next_batch(self):
         self.files(53)

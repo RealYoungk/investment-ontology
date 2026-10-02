@@ -38,6 +38,7 @@ import '../auth/jwt_refresh_endpoint.dart' as _inwq3ztq;
 import '../greetings/greeting_endpoint.dart' as _il624ik7;
 import '../ontology/endpoints/account_endpoint.dart' as _io2i71g8;
 import '../ontology/endpoints/ai_endpoint.dart' as _iadofkda;
+import '../ontology/endpoints/bond_endpoint.dart' as _iuax3zj5;
 import '../ontology/endpoints/company_endpoint.dart' as _itnisr3u;
 import '../ontology/endpoints/company_news_endpoint.dart' as _ij4mm9jr;
 import '../ontology/endpoints/company_research_endpoint.dart' as _iqx60vuh;
@@ -90,6 +91,12 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'ai',
+          null,
+        ),
+      'bond': _iuax3zj5.BondEndpoint()
+        ..initialize(
+          server,
+          'bond',
           null,
         ),
       'company': _itnisr3u.CompanyEndpoint()
@@ -753,6 +760,48 @@ class Endpoints extends _is.EndpointDispatch {
                 params['documentId'],
                 params['answer'],
                 model: params['model'],
+              ),
+        ),
+      },
+    );
+    connectors['bond'] = _is.EndpointConnector(
+      name: 'bond',
+      endpoint: endpoints['bond']!,
+      methodConnectors: {
+        'trends': _is.MethodConnector(
+          name: 'trends',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['bond'] as _iuax3zj5.BondEndpoint).trends(
+                session,
+                params['corpCode'],
+              ),
+        ),
+        'collect': _is.MethodConnector(
+          name: 'collect',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['bond'] as _iuax3zj5.BondEndpoint).collect(
+                session,
+                params['corpCode'],
               ),
         ),
       },

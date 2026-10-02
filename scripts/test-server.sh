@@ -5,8 +5,10 @@ set -euo pipefail
 project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$project_root/investment_ontology_serverpod_server"
 export SERVERPOD_PASSWORD_database=serverpod-isolated-test-only
+# Refresh Flutter workspace SDK metadata before each package:test VM runner.
+# Plain dart test can lose Flutter SDK resolution during native asset bootstrap.
 if (( $# > 0 )); then
-  exec dart test "$@"
+  exec flutter pub run test "$@"
 fi
 
 # Each test runner owns compiler temporaries until it exits. Sequential bounded
@@ -47,5 +49,5 @@ batch_size=25
 for (( start=0; start<${#tests[@]}; start+=batch_size )); do
   batch=("${tests[@]:start:batch_size}")
   echo "Server test batch $((start / batch_size + 1)): ${#batch[@]} files (${#tests[@]} total)"
-  dart test "${batch[@]}"
+  flutter pub run test "${batch[@]}"
 done

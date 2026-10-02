@@ -107,6 +107,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _irm0258u;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/investment_theme.dart'
     as _in6y0ur2;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/macro_series_view.dart'
+    as _ikb4l1o7;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/market.dart'
     as _iyonaxpd;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/market_cap_point.dart'
@@ -299,6 +301,8 @@ class TestEndpoints {
 
   late final _AiEndpoint ai;
 
+  late final _BondEndpoint bond;
+
   late final _CompanyEndpoint company;
 
   late final _CompanyNewsEndpoint companyNews;
@@ -318,6 +322,8 @@ class TestEndpoints {
   late final _IndustryEndpoint industry;
 
   late final _IngestEndpoint ingest;
+
+  late final _MacroEndpoint macro;
 
   late final _MarketEndpoint market;
 
@@ -361,6 +367,10 @@ class _InternalTestEndpoints extends TestEndpoints
       endpoints,
       serializationManager,
     );
+    bond = _BondEndpoint(
+      endpoints,
+      serializationManager,
+    );
     company = _CompanyEndpoint(
       endpoints,
       serializationManager,
@@ -398,6 +408,10 @@ class _InternalTestEndpoints extends TestEndpoints
       serializationManager,
     );
     ingest = _IngestEndpoint(
+      endpoints,
+      serializationManager,
+    );
+    macro = _MacroEndpoint(
       endpoints,
       serializationManager,
     );
@@ -1308,6 +1322,79 @@ class _AiEndpoint {
             'answer': answer,
             'model': model,
           }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<String>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
+class _BondEndpoint {
+  _BondEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _is.EndpointDispatch _endpointDispatch;
+
+  final _is.SerializationManager _serializationManager;
+
+  _ida.Future<String> trends(
+    _ist.TestSessionBuilder sessionBuilder,
+    String corpCode,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'bond',
+            method: 'trends',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'bond',
+          methodName: 'trends',
+          parameters: _ist.testObjectToJson({'corpCode': corpCode}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<String>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<String> collect(
+    _ist.TestSessionBuilder sessionBuilder,
+    String corpCode,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'bond',
+            method: 'collect',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'bond',
+          methodName: 'collect',
+          parameters: _ist.testObjectToJson({'corpCode': corpCode}),
           serializationManager: _serializationManager,
         );
         var _localReturnValue =
@@ -2966,6 +3053,47 @@ class _IngestEndpoint {
                   _localCallContext.arguments,
                 )
                 as _ida.Future<String>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
+class _MacroEndpoint {
+  _MacroEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _is.EndpointDispatch _endpointDispatch;
+
+  final _is.SerializationManager _serializationManager;
+
+  _ida.Future<List<_ikb4l1o7.MacroSeriesView>> overview(
+    _ist.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'macro',
+            method: 'overview',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'macro',
+          methodName: 'overview',
+          parameters: _ist.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<List<_ikb4l1o7.MacroSeriesView>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

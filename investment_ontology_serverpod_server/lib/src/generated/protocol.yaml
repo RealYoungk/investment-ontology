@@ -28,6 +28,9 @@ ai:
   - submit:
   - submitDigest:
   - submitFacts:
+bond:
+  - trends:
+  - collect:
 company:
   - overview:
   - divisions:

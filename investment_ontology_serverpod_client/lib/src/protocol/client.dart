@@ -577,6 +577,31 @@ class EndpointAi extends _isc.EndpointRef {
   );
 }
 
+/// {@category Endpoint}
+class EndpointBond extends _isc.EndpointRef {
+  EndpointBond(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'bond';
+
+  /// Public, stored-only read. Missing final corrections remain visible gaps.
+  _ida.Future<String> trends(String corpCode) =>
+      caller.callServerEndpoint<String>(
+        'bond',
+        'trends',
+        {'corpCode': corpCode},
+      );
+
+  /// Resume at most six reports per call; shared writes always require admin.
+  /// Does not widen the financial collection scope or start a global backfill.
+  _ida.Future<String> collect(String corpCode) =>
+      caller.callServerEndpoint<String>(
+        'bond',
+        'collect',
+        {'corpCode': corpCode},
+      );
+}
+
 /// 상장사 조회.
 /// {@category Endpoint}
 class EndpointCompany extends _isc.EndpointRef {
@@ -1885,6 +1910,7 @@ class Client extends _isc.ServerpodClientShared {
     greeting = EndpointGreeting(this);
     account = EndpointAccount(this);
     ai = EndpointAi(this);
+    bond = EndpointBond(this);
     company = EndpointCompany(this);
     companyNews = EndpointCompanyNews(this);
     research = EndpointResearch(this);
@@ -1915,6 +1941,8 @@ class Client extends _isc.ServerpodClientShared {
   late final EndpointAccount account;
 
   late final EndpointAi ai;
+
+  late final EndpointBond bond;
 
   late final EndpointCompany company;
 
@@ -1961,6 +1989,7 @@ class Client extends _isc.ServerpodClientShared {
     'greeting': greeting,
     'account': account,
     'ai': ai,
+    'bond': bond,
     'company': company,
     'companyNews': companyNews,
     'research': research,
