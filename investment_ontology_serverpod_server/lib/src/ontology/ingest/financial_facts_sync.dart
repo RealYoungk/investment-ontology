@@ -1066,6 +1066,9 @@ class FinancialFactsSync {
   /// attempts never gain priority. Existing API/ledger attempt counters remain.
   static bool verifiedDurationSourceRecoveryPriority(DartFiling filing) {
     const fixtures = <String, ({String corp, int year, Set<String> bases})>{
+      '20220316000721': (corp: '00337296', year: 2021, bases: {'OFS'}),
+      '20220322000487': (corp: '00521433', year: 2021, bases: {'OFS'}),
+      '20220321000166': (corp: '01117422', year: 2021, bases: {'OFS'}),
       '20250321001900': (corp: '00765897', year: 2024, bases: {'OFS'}),
       '20260319000348': (corp: '00521433', year: 2025, bases: {'OFS'}),
       '20260319000707': (corp: '00553025', year: 2025, bases: {'CFS'}),
