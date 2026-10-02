@@ -16,6 +16,7 @@ abstract final class MarketSecurityRelink {
     List<Company> companies,
     List<Security> securities,
   ) {
+    final byId = {for (final c in companies) c.id!: c};
     final byCrno = <String, Set<int>>{};
     final byCode = <String, Set<int>>{};
     for (final c in companies) {
@@ -37,7 +38,11 @@ abstract final class MarketSecurityRelink {
       final code = codes?.singleOrNull;
       if (number != null && code != null && number != code) continue;
       final id = number ?? code;
-      if (id != null) {
+      if (id != null &&
+          MarketSnapshotSync.registrationNumbersAgree(
+            s.crno,
+            byId[id]?.jurirNo,
+          )) {
         result[s.id!] = number != null
             ? SecurityLinkBasis.crno
             : SecurityLinkBasis.dartStockCode;

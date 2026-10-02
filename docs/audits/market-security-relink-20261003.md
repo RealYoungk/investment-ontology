@@ -34,3 +34,11 @@
 - 최종 scoped analyze 0, format 13 files/0 changed, diff check 통과.
 
 로그: `/private/tmp/io-market-security-relink-db-final.log`, `/private/tmp/io-market-security-relink-flutter-final.log`. 운영 데이터에 재연결이 완료됐다는 주장은 하지 않는다.
+
+## 후속 식별번호 충돌 보강
+
+독립 리뷰에서 발견한 반례: 종목에 유효한 CRNO가 있지만 어떤 회사에도 일치하지 않는 경우, 종목코드 후보가 고유해도 그 회사의 유효한 jurirNo와 종목 CRNO가 다르면 연결해서는 안 된다. 두 번호가 모두 존재할 때는 반드시 같아야 한다. 한쪽 번호가 없거나 0뿐인 경우에는 정확한 종목코드 대체 연결을 유지한다. CRNO가 같은 우선주는 종목코드가 달라도 CRNO로 연결한다.
+
+동일 조건을 DB-only matches와 정상 MarketSnapshotSync의 기존 종목 재연결에 적용했다. 정상 listing의 `_linkRemaining`이 앞서 종목코드/ISIN으로 연결할 수 있으므로 그 두 후보 경로에도 같은 번호 동의 조건을 적용했다. API 요청·원장·Source·기존 예산/취소 정책은 바꾸지 않았다.
+
+후속 순수 6 PASS 및 scoped analyze 0. 신규 정상 DB 회귀 3개를 작성했다. 이 문서 갱신 시점에는 root 전체 게이트의 DB 독점 때문에 신규 DB3는 아직 실행하지 않았다. 기존 DB23 PASS와 후속 미실행 DB3를 구분한다.

@@ -177,6 +177,29 @@ void main() {
       expect(await rawLedgers(), raw);
     });
     test(
+      'unmatched conflicting number changes no links, sources or ledgers',
+      () async {
+        security = await Security.db.updateRow(
+          session,
+          security.copyWith(crno: '9999999999999'),
+        );
+        final before = security.toJson(),
+            raw = await rawLedgers(),
+            original = await counts();
+        await MarketSecurityRelink.requestIfNeeded(session);
+        expect(launched, isEmpty);
+        final j = await start();
+        await MarketSnapshotFutureCall().run(session, j.id!);
+        expect((await job(j.id!)).updated, 0);
+        expect(
+          (await Security.db.findById(session, security.id!))!.toJson(),
+          before,
+        );
+        expect(await rawLedgers(), raw);
+        expect(await counts(), original);
+      },
+    );
+    test(
       'concurrent master requests coalesce, then no-match request is skipped',
       () async {
         await Future.wait([

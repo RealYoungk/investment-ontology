@@ -86,6 +86,36 @@ void main() {
       isEmpty,
     );
   });
+  test('unmatched nonempty CRNO contradicts an exact stock-code candidate', () {
+    expect(
+      MarketSecurityRelink.matches(
+        [company(1)],
+        [security(1, number: '77777')],
+      ),
+      isEmpty,
+    );
+  });
+  test(
+    'either missing or zero-only CRNO still permits exact stock fallback',
+    () {
+      for (final number in [null, '00000']) {
+        expect(
+          MarketSecurityRelink.matches(
+            [company(1)],
+            [security(1, number: number)],
+          ),
+          {1: SecurityLinkBasis.dartStockCode},
+        );
+        expect(
+          MarketSecurityRelink.matches(
+            [company(1, number: number)],
+            [security(1, number: '77777')],
+          ),
+          {1: SecurityLinkBasis.dartStockCode},
+        );
+      }
+    },
+  );
   test('unlisted company and already linked security are never reassigned', () {
     expect(
       MarketSecurityRelink.matches(
