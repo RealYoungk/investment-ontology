@@ -1,0 +1,36 @@
+{
+  "rceptNo": "20260319001111",
+  "corpCode": "01188730",
+  "name": "SK시그넷",
+  "bsnsYear": 2025,
+  "reviewedBasis": "ofs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260319001111",
+      "sha256": "b066e3240ec9ba6e15ccdee310129e58a8b3ac322574724a98dc01204267f94c",
+      "reused": false
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260319001111&dcmNo=11151584&eleId=1&offset=969&length=4497&dtd=dart4.xsd",
+      "sha256": "2e98d181d5881b55c62cd9917658c99ed26552a00a5c2dd8bae8358be02f07c1",
+      "reused": false
+    },
+    {
+      "label": "overview",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260319001111&dcmNo=11151584&eleId=3&offset=6017&length=113784&dtd=dart4.xsd",
+      "sha256": "ee98d3dd694cfbef140e0692161358a4a68fe07da9e82e062cf3af6c6646f031",
+      "reused": false
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260319001111&dcmNo=11151584&eleId=21&offset=555585&length=95670&dtd=dart4.xsd",
+      "sha256": "6812aa35876814173d9e217a112707bc3c1ab2fffda60d0dc8554e43ff1f298d",
+      "reused": false
+    }
+  ],
+  "shellCorpIds": [
+    "01188730"
+  ]
+}

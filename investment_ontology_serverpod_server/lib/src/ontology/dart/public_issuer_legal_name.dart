@@ -20,6 +20,7 @@ class PublicIssuerLegalName {
       .replaceAll('&nbsp;', ' ')
       .replaceAll('&#160;', ' ')
       .replaceAll('&amp;', '&')
+      .replaceAll('&quot;', '"')
       .replaceAll(RegExp(r'\s+'), ' ')
       .trim();
   static String normalize(String s) =>
@@ -235,7 +236,34 @@ class PublicIssuerLegalName {
       final direct = RegExp(
         r"^당사의 법적[ㆍ·]상업적 명칭은 '([^']+)'으로 표기하며, 영문으로는 '[^']+'\s*로 표기합니다\.$",
       ).firstMatch(t);
-      final naming = m ?? direct;
+      final quoted = RegExp(
+        r'^당사의 명칭은 "([^"()]+)" 이며, 영문으로 "[^"()]+"로 표기합니다\.$',
+      ).firstMatch(t);
+      final colon = RegExp(
+        r'^:\s*([^():]+)\(영문명\s*:\s*[^()]+\)$',
+      ).firstMatch(t);
+      // A colon declaration is only the first nonempty paragraph after the
+      // unique naming heading; history, proposals and other paragraphs cannot
+      // supply its name. English is printed context, never transliteration.
+      final firstDeclaration =
+          RegExp(
+                r'<p\b[^>]*>(.*?)</p>',
+                caseSensitive: false,
+                dotAll: true,
+              )
+              .allMatches(section)
+              .firstWhere(
+                (v) => _text(v.group(1)!).isNotEmpty,
+                orElse: () => p,
+              );
+      final literalColon =
+          colon != null &&
+              firstDeclaration.start == p.start &&
+              RegExp(r'[가-힣]').hasMatch(colon.group(1)!) &&
+              RegExp(r'주식회사|\(주\)|㈜').hasMatch(colon.group(1)!)
+          ? colon
+          : null;
+      final naming = m ?? direct ?? quoted ?? literalColon;
       if (naming != null) {
         candidates.add(naming.group(1)!);
         quotes.add(t);
