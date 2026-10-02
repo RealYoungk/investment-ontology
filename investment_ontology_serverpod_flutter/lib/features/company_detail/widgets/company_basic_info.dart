@@ -50,49 +50,74 @@ class CompanyBasicInfo extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const SizedBox(height: AppSpace.md),
-          Wrap(
-            spacing: AppSpace.sm,
-            runSpacing: AppSpace.xs,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              if (company.homepageUrl?.trim().isNotEmpty == true)
-                _QuickLink(
-                  label: '홈페이지',
-                  hint: company.homepageUrl!,
-                  uri: Uri.parse(
-                    company.homepageUrl!.trim().startsWith('http')
-                        ? company.homepageUrl!.trim()
-                        : 'https://${company.homepageUrl!.trim()}',
-                  ),
-                ),
-              if (company.phone?.trim().isNotEmpty == true)
-                _QuickLink(
-                  label: '전화',
-                  hint: company.phone!,
-                  uri: Uri(
-                    scheme: 'tel',
-                    path: company.phone!.replaceAll(RegExp(r'[^0-9+]'), ''),
-                  ),
-                ),
-              if (company.address?.trim().isNotEmpty == true)
-                _QuickLink(
-                  label: '본사 위치',
-                  hint: company.address!,
-                  uri: Uri.parse(
-                    'https://map.naver.com/p/search/${Uri.encodeComponent(company.address!.trim())}',
-                  ),
-                ),
-              TextButton(
-                onPressed: () => setState(() => expanded = !expanded),
-                child: Text(
-                  expanded ? '기본정보 접기 ▴' : '기본정보 더보기 ▾',
-                  style: context.typo.body(
-                    12,
-                    color: context.colors.textSecondary,
-                  ),
-                ),
-              ),
-            ],
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final compact = constraints.maxWidth < 480;
+              return Wrap(
+                spacing: AppSpace.sm,
+                runSpacing: AppSpace.xs,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  if (company.homepageUrl?.trim().isNotEmpty == true)
+                    _QuickLink(
+                      label: '홈페이지',
+                      icon: Icons.language_outlined,
+                      compact: compact,
+                      hint: company.homepageUrl!,
+                      uri: Uri.parse(
+                        company.homepageUrl!.trim().startsWith('http')
+                            ? company.homepageUrl!.trim()
+                            : 'https://${company.homepageUrl!.trim()}',
+                      ),
+                    ),
+                  if (company.phone?.trim().isNotEmpty == true)
+                    _QuickLink(
+                      label: '전화',
+                      icon: Icons.call_outlined,
+                      compact: compact,
+                      hint: company.phone!,
+                      uri: Uri(
+                        scheme: 'tel',
+                        path: company.phone!.replaceAll(RegExp(r'[^0-9+]'), ''),
+                      ),
+                    ),
+                  if (company.address?.trim().isNotEmpty == true)
+                    _QuickLink(
+                      label: '본사 위치',
+                      icon: Icons.location_on_outlined,
+                      compact: compact,
+                      hint: company.address!,
+                      uri: Uri.parse(
+                        'https://map.naver.com/p/search/${Uri.encodeComponent(company.address!.trim())}',
+                      ),
+                    ),
+                  if (compact)
+                    IconButton(
+                      tooltip: expanded ? '기본정보 접기' : '기본정보 더보기',
+                      onPressed: () => setState(() => expanded = !expanded),
+                      icon: Icon(
+                        expanded ? Icons.expand_less : Icons.info_outline,
+                      ),
+                      color: context.colors.textSecondary,
+                    )
+                  else
+                    TextButton.icon(
+                      onPressed: () => setState(() => expanded = !expanded),
+                      icon: Icon(
+                        expanded ? Icons.expand_less : Icons.info_outline,
+                        size: 18,
+                      ),
+                      label: Text(
+                        expanded ? '기본정보 접기' : '기본정보 더보기',
+                        style: context.typo.body(
+                          12,
+                          color: context.colors.textSecondary,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
           ),
           if (expanded) ...[
             const SizedBox(height: AppSpace.sm),
@@ -183,25 +208,44 @@ class _QuickLink extends StatelessWidget {
     required this.label,
     required this.hint,
     required this.uri,
+    required this.icon,
+    required this.compact,
   });
   final String label;
   final String hint;
   final Uri uri;
+  final IconData icon;
+  final bool compact;
 
   @override
-  Widget build(BuildContext context) => Tooltip(
-    message: hint,
-    child: Semantics(
+  Widget build(BuildContext context) {
+    Future<bool> onPressed() =>
+        launchUrl(uri, mode: LaunchMode.externalApplication);
+    return Semantics(
       link: true,
-      child: TextButton(
-        onPressed: () => launchUrl(uri, mode: LaunchMode.externalApplication),
-        child: Text(
-          '$label ↗',
-          style: context.typo.body(12, color: context.colors.textSecondary),
-        ),
-      ),
-    ),
-  );
+      child: compact
+          ? IconButton(
+              tooltip: '$label · $hint',
+              onPressed: onPressed,
+              icon: Icon(icon),
+              color: context.colors.textSecondary,
+            )
+          : Tooltip(
+              message: hint,
+              child: TextButton.icon(
+                onPressed: onPressed,
+                icon: Icon(icon, size: 18),
+                label: Text(
+                  label,
+                  style: context.typo.body(
+                    12,
+                    color: context.colors.textSecondary,
+                  ),
+                ),
+              ),
+            ),
+    );
+  }
 }
 
 class _BasicField extends StatelessWidget {
@@ -222,7 +266,9 @@ class _BasicField extends StatelessWidget {
       display,
       style: context.typo
           .body(13, color: context.colors.textPrimary)
-          .copyWith(decoration: url == null ? null : TextDecoration.underline),
+          .copyWith(
+            decoration: url == null ? null : TextDecoration.underline,
+          ),
     );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -272,7 +318,10 @@ class _ChangeHistory extends StatelessWidget {
         const SectionLabel('기본정보 변경 기록'),
         const SizedBox(height: AppSpace.sm),
         if (changes.isEmpty)
-          Text('기록된 기본정보 변경이 없습니다.', style: t.body(13, color: c.textMuted))
+          Text(
+            '기록된 기본정보 변경이 없습니다.',
+            style: t.body(13, color: c.textMuted),
+          )
         else
           for (final change in changes)
             Container(
