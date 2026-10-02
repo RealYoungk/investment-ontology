@@ -365,7 +365,154 @@ abstract final class CompanySearch {
     ),
   );
 
+  // Corrections are separate from literal matching. A real company named with
+  // the user's spelling must outrank an inferred pronunciation or keyboard hit.
   static int? rank(Company company, String query) {
+    final direct = _directRank(company, query);
+    if (direct != null) return direct;
+    final variant = query.replaceAll('애스', '에스');
+    if (variant != query) {
+      final corrected = _directRank(company, variant);
+      if (corrected != null) return 10 + corrected;
+    }
+    // Avoid interpreting short acronyms/codes/punctuation as Korean keystrokes.
+    // Preserve shifted double consonants/vowels; all-uppercase input is Caps Lock.
+    final width = String.fromCharCodes(
+      query.runes.map((r) => r >= 0xff01 && r <= 0xff5e ? r - 0xfee0 : r),
+    ).trim().replaceAll(RegExp(r'[\s\-‐‑–—]'), '');
+    if (!RegExp(r'^[a-zA-Z]{4,80}$').hasMatch(width)) return null;
+    final keys = width == width.toUpperCase()
+        ? width.toLowerCase()
+        : width.replaceAllMapped(
+            RegExp(r'[A-Z]'),
+            (m) => 'REQTWOP'.contains(m[0]!) ? m[0]! : m[0]!.toLowerCase(),
+          );
+    var best = 99;
+    for (final name in {
+      normalize(company.name),
+      _spokenName(company.name),
+    }) {
+      for (final spelling in {name, name.replaceAll('에스', '애스')}) {
+        final keyboard = _keyboardKeys(spelling);
+        if (keyboard == null) continue;
+        final score = keyboard == keys
+            ? 10
+            : keyboard.startsWith(keys)
+            ? 11
+            : keyboard.contains(keys)
+            ? 13
+            : null;
+        if (score != null && score < best) best = score;
+      }
+    }
+    return best == 99 ? null : best;
+  }
+
+  static String _spokenName(String name) {
+    var value = normalize(name);
+    // Known name words keep their reading; remaining ASCII letters are initials.
+    for (final entry in _words.entries) {
+      value = value.replaceAll(entry.value, entry.key);
+    }
+    return value.replaceAllMapped(RegExp(r'[a-z]'), (m) => _letters[m[0]]!);
+  }
+
+  // Compare keystrokes against the indexed name rather than guessing syllable
+  // boundaries in a mistyped query (e.g. dpt can mean 엣 or the start of 에스).
+  // Unicode Hangul decomposition also covers compound vowels and final clusters.
+  static String? _keyboardKeys(String name) {
+    const leads = [
+      'r',
+      'R',
+      's',
+      'e',
+      'E',
+      'f',
+      'a',
+      'q',
+      'Q',
+      't',
+      'T',
+      'd',
+      'w',
+      'W',
+      'c',
+      'z',
+      'x',
+      'v',
+      'g',
+    ];
+    const vowels = [
+      'k',
+      'o',
+      'i',
+      'O',
+      'j',
+      'p',
+      'u',
+      'P',
+      'h',
+      'hk',
+      'ho',
+      'hl',
+      'y',
+      'n',
+      'nj',
+      'np',
+      'nl',
+      'b',
+      'm',
+      'ml',
+      'l',
+    ];
+    const tails = [
+      '',
+      'r',
+      'R',
+      'rt',
+      's',
+      'sw',
+      'sg',
+      'e',
+      'f',
+      'fr',
+      'fa',
+      'fq',
+      'ft',
+      'fx',
+      'fv',
+      'fg',
+      'a',
+      'q',
+      'qt',
+      't',
+      'T',
+      'd',
+      'w',
+      'c',
+      'z',
+      'x',
+      'v',
+      'g',
+    ];
+    final output = StringBuffer();
+    var syllables = 0;
+    for (final rune in name.runes) {
+      if (rune < 0xac00 || rune > 0xd7a3) {
+        output.writeCharCode(rune);
+        continue;
+      }
+      final index = rune - 0xac00;
+      output
+        ..write(leads[index ~/ 588])
+        ..write(vowels[(index % 588) ~/ 28])
+        ..write(tails[index % 28]);
+      syllables++;
+    }
+    return syllables >= 2 ? output.toString() : null;
+  }
+
+  static int? _directRank(Company company, String query) {
     final q = normalize(query);
     if (q.isEmpty) return null;
     final name = normalize(company.name);
