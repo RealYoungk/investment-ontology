@@ -54,6 +54,136 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20220308000939',
+      corpCode: '00126256',
+      companyName: "삼성생명보험(주)",
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20220308000939-cfs-insurance-current',
+      manifestDigest:
+          'aa79d3e76106c362a292d4902a5f574c5d737ce26c41df05c655794c3cde7653',
+      ruleVersion: 'exact-insurance-current-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220308000939',
+      corpCode: '00126256',
+      companyName: "삼성생명보험(주)",
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20220308000939-ofs-insurance-current',
+      manifestDigest:
+          '3ac3313940005f63bbba1435a03bd62a4b77d4a44dba272b9cebf6ebf8815088',
+      ruleVersion: 'exact-insurance-current-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220323000792',
+      corpCode: '00113562',
+      companyName: "롯데손해보험(주)",
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20220323000792-ofs-insurance-current',
+      manifestDigest:
+          '18300be4e431b471151a128ab1851b38b574fe4ea7f8ce7cb342675a7dbf3bc9',
+      ruleVersion: 'exact-insurance-current-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20221017000313',
+      corpCode: '00112332',
+      companyName: "미래에셋생명보험(주)",
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20221017000313-cfs-insurance-current',
+      manifestDigest:
+          'e3f56aad630f96aae78d02ea127af2294351ec1b7a453808a7fe0eed5e8d49f9',
+      ruleVersion: 'exact-insurance-current-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20221017000313',
+      corpCode: '00112332',
+      companyName: "미래에셋생명보험(주)",
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20221017000313-ofs-insurance-current',
+      manifestDigest:
+          '9629cd0e732f7f5f1eaa74fcb53f56e322eda8c8aad0d3fee0c8e68604359665',
+      ruleVersion: 'exact-insurance-current-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230309000797',
+      corpCode: '00164973',
+      companyName: "현대해상화재보험(주)",
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20230309000797-cfs-insurance-current',
+      manifestDigest:
+          '54db342ac880400eaf32c5226837aa3c525c241b5bcfa2a90af7d8865772fee6',
+      ruleVersion: 'exact-insurance-current-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230309000797',
+      corpCode: '00164973',
+      companyName: "현대해상화재보험(주)",
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20230309000797-ofs-insurance-current',
+      manifestDigest:
+          'c3396f7c9406473f0809bf2338cccdb2c34b919db539a40b40f1365832e6bf9a',
+      ruleVersion: 'exact-insurance-current-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230317001035',
+      corpCode: '00112332',
+      companyName: "미래에셋생명보험(주)",
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20230317001035-cfs-insurance-current',
+      manifestDigest:
+          '2a00fef4e1a276258a5a9c25f846ce066f01ef1b248c31d6b1fba05eff0c08db',
+      ruleVersion: 'exact-insurance-current-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230317001035',
+      corpCode: '00112332',
+      companyName: "미래에셋생명보험(주)",
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20230317001035-ofs-insurance-current',
+      manifestDigest:
+          '100992c9d42ce5986c3cc3d4f9883f3bdd143b610ddd514583ff2fb111b17486',
+      ruleVersion: 'exact-insurance-current-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230323001495',
+      corpCode: '00113562',
+      companyName: "롯데손해보험(주)",
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20230323001495-ofs-insurance-current',
+      manifestDigest:
+          '2f5049acb5a9ddb95634818386032dc6eedee1984851022aa4ed8938db1a553c',
+      ruleVersion: 'exact-insurance-current-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20220816002204',
       corpCode: '00164973',
       companyName: "현대해상화재보험(주)",

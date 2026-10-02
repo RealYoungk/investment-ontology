@@ -544,6 +544,44 @@ void main() {
                   true,
                 );
               }
+              if (entry.ruleVersion == 'exact-insurance-current-annual-v1') {
+                final audit = (await Source.db.find(
+                  session,
+                  where: (t) => t.reference.equals(
+                    'financial-api-noData-source:${entry.receipt}:${entry.basis.name}',
+                  ),
+                )).single;
+                final provenanceRows =
+                    jsonDecode(audit.title)['coreRowProvenance'] as List;
+                final missingFx =
+                    {
+                      '20221017000313',
+                      '20230317001035',
+                    }.contains(entry.receipt) &&
+                    entry.basis == FsDiv.separate;
+                for (final row in provenanceRows) {
+                  final meta = row['html_provenance'] as Map;
+                  final proof = meta['supportingPeriodEvidence'] as Map;
+                  expect(proof['fullStatementCollected'], false);
+                  expect(proof['exchangeCashMissingNotAssumedZero'], missingFx);
+                  expect(proof['exchangeCashPrinted'], !missingFx);
+                  expect(proof['exchangeCash'], missingFx ? isNull : isNotNull);
+                  expect(
+                    meta['printedUnit'],
+                    entry.receipt == '20220308000939' ||
+                            entry.receipt == '20230308000737'
+                        ? '백만원'
+                        : '원',
+                  );
+                  expect(meta['currentCell'], isNotEmpty);
+                }
+                expect(
+                  summary!.periods.single.lines.where(
+                    (line) => line.key == 'capex',
+                  ),
+                  isEmpty,
+                );
+              }
               if (entry.ruleVersion == 'gne-own-audit-whole7-v1') {
                 const expected = {
                   'assets': '6973822992',

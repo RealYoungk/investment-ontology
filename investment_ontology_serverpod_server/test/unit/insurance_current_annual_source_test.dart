@@ -77,6 +77,10 @@ void main() {
         ]),
       );
 
+      final normalizedNI = FinancialAccounts.normalizedName(
+        rows[5]['account_nm'] as String,
+      );
+      expect(FinancialAccounts.resolvedIdSql('f'), contains(normalizedNI));
       final cells =
           jsonDecode(
                 File('$dir/current-cell-evidence.json').readAsStringSync(),
@@ -144,6 +148,39 @@ void main() {
               as Map)['supportingPeriodEvidence']['fullStatementCollected'],
           false,
         );
+      },
+    );
+    test(
+      '$receipt $basis directly printed FX remains nullable, never invented',
+      () {
+        final rows = parse();
+        final proof =
+            (rows.first['html_provenance'] as Map)['supportingPeriodEvidence']
+                as Map;
+        final observed = p['fxObserved'] != false;
+        expect(proof['exchangeCashPrinted'], observed);
+        expect(proof['exchangeCashMissingNotAssumedZero'], !observed);
+        expect(proof['exchangeCash'], observed ? isNotNull : isNull);
+        expect(proof['fullStatementCollected'], false);
+        expect(proof['optionalAccountsNotCollected'], ['capex']);
+        for (final c in [...(p['cash'] as List), p['bsCash']]) {
+          final printed = (c['expected'] as List)[c['column'] as int] as String;
+          expect(
+            () => parse(b: body.replaceAll(printed, '999,998,997')),
+            throwsFormatException,
+          );
+        }
+        for (final row in [
+          p['ceOpeningRow'],
+          p['ceClosingRow'],
+          p['ceNiRow'],
+        ]) {
+          final printed = (row as List).last as String;
+          expect(
+            () => parse(b: body.replaceAll(printed, '998,997,996')),
+            throwsFormatException,
+          );
+        }
       },
     );
     for (final token in ['단위', '${p['year']}년']) {

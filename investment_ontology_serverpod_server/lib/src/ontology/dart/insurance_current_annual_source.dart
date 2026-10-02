@@ -4,7 +4,7 @@ import 'package:crypto/crypto.dart';
 
 import 'insurance_current_annual_profiles.dart';
 
-/// Five exact official statements. This is not a general current-header grammar.
+/// Fifteen exact official statements. This is not a general current-header grammar.
 /// All dates are printed; the raw source and selected current cells remain intact.
 abstract final class InsuranceCurrentAnnualSource {
   static const rule = 'exact-insurance-current-annual-v1';
@@ -138,8 +138,10 @@ abstract final class InsuranceCurrentAnnualSource {
       'independent CE current dates/whole-column mismatch',
     );
     guard(
-      RegExp('^$year[.]0?1[.]0?1').hasMatch(opening.first) &&
-          RegExp('^$year[.]12[.]31').hasMatch(closing.first) &&
+      RegExp('^(?:[IVX]+[.])?$year(?:[.]0?1[.]0?1|년0?1월0?1일)')
+              .hasMatch(opening.first) &&
+          RegExp('^(?:[IVX]+[.])?$year(?:[.]12[.]31|년12월31일)')
+              .hasMatch(closing.first) &&
           (p['ceOpening'] as int) < (p['ceNi'] as int) &&
           (p['ceNi'] as int) < (p['ceClosing'] as int),
       'CE annual interval mismatch',
@@ -151,17 +153,30 @@ abstract final class InsuranceCurrentAnnualSource {
       'BS/CIS/CE whole contradiction',
     );
     final fxInNet = p['fxInNet'] as bool;
+    // Missing printed FX is not a zero-valued fact. Exact OFS profiles check
+    // only the directly printed activity sum/change and opening/closing cash.
+    final fxObserved = p['fxObserved'] != false;
+    guard(cash.length == (fxObserved ? 6 : 5), 'cash evidence count');
+    guard(!fxInNet || fxObserved, 'FX-in-change proof missing');
+    final exchange = fxObserved ? cf[2] : null;
+    final change = cf[fxObserved ? 3 : 2];
+    final cashOpening = cf[fxObserved ? 4 : 3];
+    final cashClosing = cf[fxObserved ? 5 : 4];
+    var activities = values[6] + cf[0] + cf[1];
+    if (fxInNet && exchange != null) activities += exchange;
+    var rolledCash = cashOpening + change;
+    if (!fxInNet && exchange != null) rolledCash += exchange;
     guard(
-      values[6] + cf[0] + cf[1] + (fxInNet ? cf[2] : BigInt.zero) == cf[3] &&
-          cf[4] + cf[3] + (fxInNet ? BigInt.zero : cf[2]) == cf[5],
+      activities == change && rolledCash == cashClosing,
       'CF activity/FX/cash contradiction',
     );
     final bsCash = p['bsCash'] as Map,
         bs = checked(bsCash),
         column = bsCash['column'] as int;
     guard(
-      money(bs[column]) == cf[5] &&
-          money(bs.skip(column + 1).firstWhere((x) => x.isNotEmpty)) == cf[4],
+      money(bs[column]) == cashClosing &&
+          money(bs.skip(column + 1).firstWhere((x) => x.isNotEmpty)) ==
+              cashOpening,
       'BS current/prior cash contradiction',
     );
     final equityRow = checked(core[2]);
@@ -196,10 +211,12 @@ abstract final class InsuranceCurrentAnnualSource {
       'openingEquity': money(opening.last).toString(),
       'closingEquity': values[2].toString(),
       'currentProfit': values[5].toString(),
-      'openingCash': cf[4].toString(),
-      'closingCash': cf[5].toString(),
-      'cashIncrease': cf[3].toString(),
-      'exchangeCash': cf[2].toString(),
+      'openingCash': cashOpening.toString(),
+      'closingCash': cashClosing.toString(),
+      'cashIncrease': change.toString(),
+      'exchangeCash': exchange?.toString(),
+      'exchangeCashPrinted': fxObserved,
+      'exchangeCashMissingNotAssumedZero': !fxObserved,
       'sourceSha256': p['bodySha'],
       'collectedAccounts': [
         'assets',
