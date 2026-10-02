@@ -54,6 +54,20 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20220315000644',
+      corpCode: '00120182',
+      companyName: '엔에이치투자증권(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220315000644-ofs-nh',
+      manifestDigest:
+          '8b44c10a1d2904ad4e265a4625699acaea7242ca8654b7cb3cb8715216f07473',
+      ruleVersion: 'nh-2021-exact-whole-eight-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: true,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20220308000939',
       corpCode: '00126256',
       companyName: "삼성생명보험(주)",

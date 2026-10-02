@@ -132,6 +132,8 @@ abstract final class FinancialAccounts {
     'depreciation': ['감가상각비'],
     'amortisation': ['무형자산상각비'],
     'netIncome': [
+      // Exact NH FY2021 OFS whole NI, independently equal to CE total.
+      '당기순이익(대손준비금반영후조정이익:당기:782,640백만원,전기:484,955백만원,전전기:418,256백만원)',
       // Exact insurance whole NI cells, independently equal to pinned CE totals.
       "당기순이익(손실)(비상위험준비금반영후조정이익(손실)당기:114,199,225,967원전기:(-)24,215,079,079원대손준비금반영후조정이익(손실)당기:120,125,439,090원전기:(-)28,815,936,079원)",
       "당기순이익(대손준비금반영후조정이익당기:75,781,712,981원,전기:77,699,663,310원)",
