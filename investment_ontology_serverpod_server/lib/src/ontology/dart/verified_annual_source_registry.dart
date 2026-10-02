@@ -54,6 +54,71 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20220816002204',
+      corpCode: '00164973',
+      companyName: "현대해상화재보험(주)",
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20220816002204-cfs-insurance-current',
+      manifestDigest:
+          '493fdec6d7cc3462b67e0296feb51402446e839a493c94182a157cbdea1bf8cf',
+      ruleVersion: 'exact-insurance-current-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220816002204',
+      corpCode: '00164973',
+      companyName: "현대해상화재보험(주)",
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20220816002204-ofs-insurance-current',
+      manifestDigest:
+          'b777195be3aeb7e8f1134ff91ed38598ed51e111fee69f0a11442382640f88cd',
+      ruleVersion: 'exact-insurance-current-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230308000737',
+      corpCode: '00126256',
+      companyName: "삼성생명보험(주)",
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20230308000737-cfs-insurance-current',
+      manifestDigest:
+          '7b10ae292694a93e0c7f8a3cdab3f8e4d96bbb0956aa3db78035d40fa3912333',
+      ruleVersion: 'exact-insurance-current-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230308000737',
+      corpCode: '00126256',
+      companyName: "삼성생명보험(주)",
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20230308000737-ofs-insurance-current',
+      manifestDigest:
+          '0512ba45aa2c062fb0aa91999ca6ed3ce5b2317a1f56051a3feb535b74ad21c1',
+      ruleVersion: 'exact-insurance-current-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230322000851',
+      corpCode: '00231664',
+      companyName: "우리기술투자(주)",
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20230322000851-cfs-insurance-current',
+      manifestDigest:
+          '7b02f66718de2ee500f17c1faa4043fd31243d9ddb2d6e68fe42d9ce954e40ce',
+      ruleVersion: 'exact-insurance-current-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20230323001437',
       corpCode: '01363924',
       companyName: '(주)한국미라클피플사',

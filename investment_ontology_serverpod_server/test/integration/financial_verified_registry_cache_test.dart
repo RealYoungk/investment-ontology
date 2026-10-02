@@ -491,7 +491,10 @@ void main() {
                 entry.corpCode,
                 fsDiv: entry.basis,
               );
-              if (entry.ruleVersion == 'exact-printed-current-annual-v1') {
+              if ({
+                'exact-printed-current-annual-v1',
+                'exact-insurance-current-annual-v1',
+              }.contains(entry.ruleVersion)) {
                 final cells =
                     jsonDecode(
                           File(

@@ -1,3 +1,4 @@
+import 'insurance_current_annual_source.dart';
 import 'exact_seven_cash_source.dart';
 import 'printed_current_annual_source.dart';
 import 'contents_on_corroborated_flow_period.dart';
@@ -850,6 +851,20 @@ abstract final class PublicFinancialHtml {
         statementSource: statementSource,
         coverHtml: coverHtml,
         statementHtml: statementHtml,
+      );
+    }
+    if (InsuranceCurrentAnnualSource.matches(receipt, consolidated)) {
+      return InsuranceCurrentAnnualSource.parse(
+        receipt: receipt,
+        corpCode: corpCode,
+        companyName: companyName,
+        cover: coverHtml,
+        body: statementHtml,
+        coverSource: coverSource,
+        statementSource: statementSource,
+        start: periodStart,
+        end: periodEnd,
+        consolidated: consolidated,
       );
     }
     if (PrintedCurrentAnnualSource.matches(receipt, consolidated)) {
