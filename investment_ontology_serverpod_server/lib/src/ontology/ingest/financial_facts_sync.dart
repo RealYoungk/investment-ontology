@@ -2858,6 +2858,9 @@ class FinancialFactsSync {
               currentCompany,
               entry.basis,
             )).numeric;
+            if (numeric != null) {
+              _rejectUnapprovedGenericPartialCore(numeric.rows);
+            }
           } else {
             verified = (await _sourceCache.verifyRegistered(
               current,
@@ -3389,6 +3392,24 @@ class FinancialFactsSync {
       ) >
       0;
 
+  // Generic six-core parsing remains inspectable, but its storage metadata
+  // contract is not approved. Existing separately approved partial profiles
+  // have distinct proof markers and are unaffected.
+  static void _rejectUnapprovedGenericPartialCore(
+    List<Map<String, dynamic>> rows,
+  ) {
+    for (final row in rows) {
+      final provenance = row['html_provenance'];
+      final proof = provenance is Map ? provenance['partialCoreProof'] : null;
+      if (proof is Map &&
+          proof['rule'] == 'source-six-with-unavailable-whole-revenue-v1') {
+        throw const FormatException(
+          'Generic six-core source storage pending approved partial metadata; collection remains incomplete',
+        );
+      }
+    }
+  }
+
   /// 응답을 저장한다. 같은 접수번호·구분을 이미 저장했으면 넣지 않는다.
   Future<({FilingFetchStatus status, bool inserted})> _store(
     DartFiling filing,
@@ -3404,6 +3425,7 @@ class FinancialFactsSync {
     if (rows == null || rows.isEmpty) {
       return (status: FilingFetchStatus.noData, inserted: false);
     }
+    _rejectUnapprovedGenericPartialCore(rows);
     final rceptNos = {
       for (final r in rows) ?DartValues.text(r['rcept_no']),
     };

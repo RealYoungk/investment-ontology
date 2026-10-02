@@ -18,7 +18,9 @@ void main() {
   withServerpod('Registry cache normal admin ingest', (builder, endpoints) {
     for (final entry in VerifiedAnnualSourceRegistry.entries) {
       final scenarios = [
-        'success-and-rerun',
+        entry.ruleVersion == 'source-six-with-unavailable-whole-revenue-v1'
+            ? 'pending-rejection-and-rerun'
+            : 'success-and-rerun',
         if ({
           '20250320001633',
           '20230714000217',
@@ -502,6 +504,40 @@ void main() {
               )).length,
               1,
             );
+          } else if (scenario == 'pending-rejection-and-rerun') {
+            expect(audits, hasLength(1));
+            final payload = jsonDecode(audits.single.title);
+            expect(payload['status'], 'failed');
+            expect(
+              payload['failureReason'],
+              contains('storage pending approved partial metadata'),
+            );
+            expect(sourceReports, isEmpty);
+            expect(result, FilingFetchStatus.failed);
+            expect(
+              await Source.db.find(
+                session,
+                where: (t) => t.reference.equals(
+                  'financial-api-noData-source:${entry.receipt}:${entry.basis.name}',
+                ),
+              ),
+              isEmpty,
+            );
+            final auditBefore = audits.single.toJson();
+            await run();
+            expect(reads, firstReads);
+            final after = await Source.db.find(
+              session,
+              where: (t) => t.reference.equals(entry.auditReference),
+            );
+            expect(after, hasLength(1));
+            expect(after.single.toJson(), auditBefore);
+            final replayLedger = await DartFiling.db.findById(
+              session,
+              target.id!,
+            );
+            expect(replayLedger!.attempts, 7);
+            expect(replayLedger.lastError, contains('attempt=3'));
           } else if (scenario == 'sha-failed-and-rerun') {
             expect(audits.length, 1);
             expect(jsonDecode(audits.single.title)['status'], 'failed');
