@@ -922,12 +922,17 @@ void main() {
                           ? FsDiv.consolidated
                           : FsDiv.separate,
                     )!;
+                    // Derive the I/O contract from the byte-pinned package:
+                    // one manifest, each declared raw source once, and the
+                    // independently hashed expected-row proof when present.
+                    final manifest = jsonDecode(
+                      File('${e.assetDirectory}/manifest.json')
+                          .readAsStringSync(),
+                    );
                     return sum +
-                        4 +
-                        (e.requiresIssuerOverview ? 1 : 0) +
-                        (e.ruleVersion == 'same-receipt-audit-immutable-v1'
-                            ? 1
-                            : 0);
+                        1 +
+                        (manifest['sources'] as List).length +
+                        (manifest['expectedRowsSha256'] != null ? 1 : 0);
                   }),
           );
           expect(client.calls, 0);
