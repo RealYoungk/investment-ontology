@@ -577,6 +577,55 @@ class EndpointAi extends _isc.EndpointRef {
   );
 }
 
+/// {@category Endpoint}
+class EndpointBond extends _isc.EndpointRef {
+  EndpointBond(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'bond';
+
+  /// Public, stored-only read. Missing final corrections remain visible gaps.
+  _ida.Future<String> trends(String corpCode) =>
+      caller.callServerEndpoint<String>(
+        'bond',
+        'trends',
+        {'corpCode': corpCode},
+      );
+
+  /// Resume at most six reports per call; shared writes always require admin.
+  /// Does not widen the financial collection scope or start a global backfill.
+  _ida.Future<String> collect(String corpCode) =>
+      caller.callServerEndpoint<String>(
+        'bond',
+        'collect',
+        {'corpCode': corpCode},
+      );
+}
+
+/// {@category Endpoint}
+class EndpointCapital extends _isc.EndpointRef {
+  EndpointCapital(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'capital';
+
+  /// Public, stored-only read. Current report supersedes older snapshots.
+  _ida.Future<String> summary(String corpCode) =>
+      caller.callServerEndpoint<String>(
+        'capital',
+        'summary',
+        {'corpCode': corpCode},
+      );
+
+  /// Explicit administrator collection: one latest report, public source only.
+  _ida.Future<int> collect(String corpCode) => caller.callServerEndpoint<int>(
+    'capital',
+    'collect',
+    {'corpCode': corpCode},
+  );
+}
+
+
 /// 상장사 조회.
 /// {@category Endpoint}
 class EndpointCompany extends _isc.EndpointRef {
@@ -1885,6 +1934,8 @@ class Client extends _isc.ServerpodClientShared {
     greeting = EndpointGreeting(this);
     account = EndpointAccount(this);
     ai = EndpointAi(this);
+    bond = EndpointBond(this);
+    capital = EndpointCapital(this);
     company = EndpointCompany(this);
     companyNews = EndpointCompanyNews(this);
     research = EndpointResearch(this);
@@ -1916,6 +1967,8 @@ class Client extends _isc.ServerpodClientShared {
 
   late final EndpointAi ai;
 
+  late final EndpointBond bond;
+  late final EndpointCapital capital;
   late final EndpointCompany company;
 
   late final EndpointCompanyNews companyNews;
@@ -1961,6 +2014,8 @@ class Client extends _isc.ServerpodClientShared {
     'greeting': greeting,
     'account': account,
     'ai': ai,
+    'bond': bond,
+    'capital': capital,
     'company': company,
     'companyNews': companyNews,
     'research': research,

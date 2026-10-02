@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Fast commit gate: check the index without changing the working tree."""
+import json
 import shutil
 import subprocess
 import tempfile
@@ -37,6 +38,20 @@ def main():
             destination = snapshot / name
             destination.parent.mkdir(parents=True, exist_ok=True)
             destination.write_bytes(content.stdout)
+        # Resolve imported formatter settings exactly as the real checkout does.
+        repository = Path(subprocess.check_output(
+            ["git", "rev-parse", "--show-toplevel"], text=True).strip())
+        config_path = repository / ".dart_tool/package_config.json"
+        if not config_path.exists():
+            raise SystemExit("Run flutter pub get before the commit format gate.")
+        config = json.loads(config_path.read_text())
+        for package in config["packages"]:
+            uri = package["rootUri"]
+            if ":" not in uri:
+                package["rootUri"] = (config_path.parent / uri).resolve().as_uri()
+        target = snapshot / ".dart_tool/package_config.json"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(json.dumps(config))
         run("dart", "format", "--output=none", "--set-exit-if-changed", *dart_paths,
             cwd=snapshot)
     print("Staged whitespace and Dart formatting checks passed.")

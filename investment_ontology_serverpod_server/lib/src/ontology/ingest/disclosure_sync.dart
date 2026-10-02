@@ -19,6 +19,8 @@ import '../dart/dart_report_name.dart';
 import '../dart/dart_sections.dart';
 import '../dart/dart_values.dart';
 import '../disclosure/business_text.dart';
+import '../disclosure/capital_structure_parser.dart';
+import '../disclosure/capital_structure_store.dart';
 import '../disclosure/disclosure_links.dart';
 import '../disclosure/disclosure_rows.dart';
 import '../disclosure/disclosure_values.dart';
@@ -1459,6 +1461,19 @@ class DisclosureSync {
         final zip = await _callDart(() => dart.fetchDocument(f.rceptNo));
         if (zip != null) {
           apiDoc = BusinessText.fromZip(zip, f.rceptNo);
+          try {
+            final capitalXml = CapitalStructureParser.fromZip(
+              zip,
+              f.rceptNo,
+              company.name,
+            );
+            await CapitalStructureStore.save(session, company, f, capitalXml);
+          } on FormatException catch (e) {
+            session.log(
+              '자본 표 추출 보류 ${company.corpCode}/${f.rceptNo}: ${e.message}',
+              level: LogLevel.warning,
+            );
+          }
           if (apiDoc == null) {
             session.log(
               '사업의 내용 없음 ${company.name} ${f.rceptNo}: '

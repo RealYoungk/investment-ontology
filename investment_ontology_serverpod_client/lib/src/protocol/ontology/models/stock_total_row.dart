@@ -20,6 +20,7 @@ abstract class StockTotalRow
     this.issued,
     this.treasury,
     this.outstanding,
+    this.authorized,
   });
 
   factory StockTotalRow({
@@ -27,6 +28,7 @@ abstract class StockTotalRow
     BigInt? issued,
     BigInt? treasury,
     BigInt? outstanding,
+    BigInt? authorized,
   }) = _StockTotalRowImpl;
 
   factory StockTotalRow.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -41,6 +43,9 @@ abstract class StockTotalRow
       outstanding: jsonSerialization['outstanding'] == null
           ? null
           : _isc.BigIntJsonExtension.fromJson(jsonSerialization['outstanding']),
+      authorized: jsonSerialization['authorized'] == null
+          ? null
+          : _isc.BigIntJsonExtension.fromJson(jsonSerialization['authorized']),
     );
   }
 
@@ -54,6 +59,9 @@ abstract class StockTotalRow
   /// 유통주식수
   BigInt? outstanding;
 
+  /// 정관상 발행할 수 있는 주식의 총수 (발행 계획이나 확정 희석 물량 아님)
+  BigInt? authorized;
+
   /// Returns a shallow copy of this [StockTotalRow]
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
@@ -62,6 +70,7 @@ abstract class StockTotalRow
     BigInt? issued,
     BigInt? treasury,
     BigInt? outstanding,
+    BigInt? authorized,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -71,6 +80,7 @@ abstract class StockTotalRow
       if (issued != null) 'issued': issued?.toJson(),
       if (treasury != null) 'treasury': treasury?.toJson(),
       if (outstanding != null) 'outstanding': outstanding?.toJson(),
+      if (authorized != null) 'authorized': authorized?.toJson(),
     };
   }
 
@@ -82,6 +92,7 @@ abstract class StockTotalRow
       if (issued != null) 'issued': issued?.toJson(),
       if (treasury != null) 'treasury': treasury?.toJson(),
       if (outstanding != null) 'outstanding': outstanding?.toJson(),
+      if (authorized != null) 'authorized': authorized?.toJson(),
     };
   }
 
@@ -99,11 +110,13 @@ class _StockTotalRowImpl extends StockTotalRow {
     BigInt? issued,
     BigInt? treasury,
     BigInt? outstanding,
+    BigInt? authorized,
   }) : super._(
          kind: kind,
          issued: issued,
          treasury: treasury,
          outstanding: outstanding,
+         authorized: authorized,
        );
 
   /// Returns a shallow copy of this [StockTotalRow]
@@ -115,12 +128,14 @@ class _StockTotalRowImpl extends StockTotalRow {
     Object? issued = _Undefined,
     Object? treasury = _Undefined,
     Object? outstanding = _Undefined,
+    Object? authorized = _Undefined,
   }) {
     return StockTotalRow(
       kind: kind ?? this.kind,
       issued: issued is BigInt? ? issued : this.issued,
       treasury: treasury is BigInt? ? treasury : this.treasury,
       outstanding: outstanding is BigInt? ? outstanding : this.outstanding,
+      authorized: authorized is BigInt? ? authorized : this.authorized,
     );
   }
 }
