@@ -64,6 +64,10 @@ void main() {
         (rows.first['html_provenance'] as Map)['supportingPeriodEvidence']
             as Map;
     expect(p['mode'], 'fully-dated-parentheses-equity-corroboration');
+    expect(
+      p['equityValidationRule'],
+      'separate-independent-printed-equity-period-v1',
+    );
     expect(p['closingEquity'], '17041056802');
     expect(p['currentProfit'], '788713757');
   });

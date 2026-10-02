@@ -3606,6 +3606,13 @@ abstract final class PublicFinancialHtml {
       if (bsDurationCandidate) {
         genericEquityPeriod['mode'] =
             'primary-bs-duration-equity-corroboration';
+      } else if (parenthesizedTitles.isNotEmpty) {
+        // Keep the established printed-caption provenance while the independent
+        // whole-equity proof still validates the same current dates and totals.
+        genericEquityPeriod['equityValidationRule'] =
+            genericEquityPeriod['mode'];
+        genericEquityPeriod['mode'] =
+            'fully-dated-parentheses-equity-corroboration';
       }
       if (values['equity'].toString() != genericEquityPeriod['closingEquity'] ||
           values['profit'].toString() != genericEquityPeriod['currentProfit']) {
