@@ -52,6 +52,33 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20220322000542',
+      corpCode: '00321204',
+      companyName: '지에이이노더스(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220322000542-ofs',
+      manifestDigest:
+          'c19939757336da7bf0ad377f7ee7f28aca62bdb5bb8ec60b7c3d7208618295af',
+      ruleVersion: 'first-direct-issuer-exact-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: true,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220429000083',
+      corpCode: '01085442',
+      companyName: '(주)오건에코텍',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220429000083-ofs',
+      manifestDigest:
+          'cad99399acf5b6b4ba220f5460e88f213b1a5a715c5c81dc8f892fb4e8c191a8',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20210629000260',
       corpCode: '00677334',
       companyName: '(주)아하',
