@@ -69,12 +69,47 @@ void main() {
         throwsA(isA<FormatException>()),
       ),
     );
-    test(
-      '$receipt never reuses OFS for CFS',
-      () => expect(
-        () => verify(filing(entry), basis: FsDiv.consolidated),
+    test('$receipt never reuses OFS for CFS', () async {
+      final cfs = VerifiedAnnualSourceRegistry.find(
+        receipt,
+        FsDiv.consolidated,
+      );
+      if (cfs == null) {
+        expect(
+          () => verify(filing(entry), basis: FsDiv.consolidated),
+          throwsA(isA<FormatException>()),
+        );
+        return;
+      }
+      final paths = <String>[];
+      final result = await VerifiedAnnualSourceCache(
+        readAsset: (path) async {
+          paths.add(path);
+          return File(path).readAsBytesSync();
+        },
+      ).verifyRegistered(filing(entry), company(entry), FsDiv.consolidated);
+      expect(
+        paths.every((path) => path.startsWith('${cfs.assetDirectory}/')),
+        true,
+      );
+      expect(
+        result.numeric!.rows.every(
+          (row) => row['html_provenance']['basis'] == 'CFS',
+        ),
+        true,
+      );
+      expect(
+        result.numeric!.statementSource,
+        isNot((await verify(filing(entry))).numeric.statementSource),
+      );
+      expect(
+        () => VerifiedAnnualSourceCache(
+          readAsset: (path) async => path.endsWith('cfs.html')
+              ? File('${entry.assetDirectory}/ofs.html').readAsBytesSync()
+              : File(path).readAsBytesSync(),
+        ).verifyRegistered(filing(entry), company(entry), FsDiv.consolidated),
         throwsA(isA<FormatException>()),
-      ),
-    );
+      );
+    });
   }
 }
