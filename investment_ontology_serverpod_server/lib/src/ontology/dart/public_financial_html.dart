@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
 import 'dozn_corroborated_flow_period.dart';
+import 'protia_printed_current_period.dart';
 import 'redwoods_blank_header_source.dart';
 import 'sk_signet_identity.dart';
 import 'same_receipt_audit_source.dart';
@@ -831,6 +832,19 @@ abstract final class PublicFinancialHtml {
         statementHtml: statementHtml,
       );
     }
+    final protiaProof = receipt == ProtiaPrintedCurrentPeriod.receipt
+        ? ProtiaPrintedCurrentPeriod.verify(
+            targetReceipt: receipt,
+            companyCode: corpCode,
+            consolidated: consolidated,
+            start: periodStart,
+            end: periodEnd,
+            coverSource: coverSource,
+            statementSource: statementSource,
+            cover: coverHtml,
+            body: statementHtml,
+          )
+        : null;
     final doznProof = receipt == DoznCorroboratedFlowPeriod.receipt
         ? DoznCorroboratedFlowPeriod.verify(
             cover: coverHtml,
@@ -1030,7 +1044,9 @@ abstract final class PublicFinancialHtml {
         'SPAC partial source requires official issuer declaration',
       );
     }
-    final titleTerm = kiwoomRepeatedTermScope
+    final titleTerm = protiaProof != null
+        ? '당기'
+        : kiwoomRepeatedTermScope
         ? '제$term기\\(당\\)기'
         : '제$term(?:\\(당\\))?(?:당기|기)';
     final titlePattern = RegExp(
@@ -2021,6 +2037,8 @@ abstract final class PublicFinancialHtml {
                 RegExp(
                   '^(?:제$term(?:\\(당\\))?기(?:기말|말)?|${periodEnd.year}(?:년도|연도)\\(제$term기\\))\$',
                 ).hasMatch(_compact(c.text)) ||
+                (protiaProof != null &&
+                    _compact(c.text) == (kind == 'BS' ? '당기말' : '당기')) ||
                 (termYearHeaderCandidate &&
                     _compact(c.text) == '제$term기(${periodEnd.year}년)') ||
                 (medysseyScope &&
@@ -2041,6 +2059,17 @@ abstract final class PublicFinancialHtml {
         throw const FormatException('Ambiguous annual current header');
       }
       final current = headers.single;
+      if (protiaProof != null &&
+          (current.column != 2 ||
+              current.colspan != 1 ||
+              current.rowspan != 1 ||
+              grid.first.length != 4 ||
+              _compact(grid.first[0]?.text ?? '') != '구분' ||
+              _compact(grid.first[1]?.text ?? '') != '주석')) {
+        throw const FormatException(
+          'Protia unique printed primary current column mismatch',
+        );
+      }
       if (medysseyScope &&
           (current.column != 2 ||
               current.colspan != 2 ||
@@ -2902,6 +2931,19 @@ abstract final class PublicFinancialHtml {
         (row['html_provenance']
                 as Map<String, dynamic>)['supportingPeriodEvidence'] =
             ceProofs.single;
+      }
+    }
+    if (protiaProof != null) {
+      if (values['equity'].toString() != protiaProof['closingEquity'] ||
+          values['profit'].toString() != protiaProof['currentProfit']) {
+        throw const FormatException(
+          'Protia extracted primary/CE contradiction',
+        );
+      }
+      for (final row in result) {
+        (row['html_provenance']
+                as Map<String, dynamic>)['supportingPeriodEvidence'] =
+            protiaProof;
       }
     }
     if (doznProof != null) {

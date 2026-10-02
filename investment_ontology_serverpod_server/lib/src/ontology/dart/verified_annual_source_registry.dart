@@ -32,6 +32,19 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20230320000571',
+      corpCode: '01267958',
+      companyName: '주식회사 프로티아',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230320000571-ofs',
+      manifestDigest:
+          '3d4440f7426f4f83842bb2f95ed53dd223b803f451113ffbc720a56a37a41152',
+      ruleVersion: 'protia-printed-current-full-period-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: true,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20250321001825',
       corpCode: '00990396',
       companyName: '(주)레드우즈',

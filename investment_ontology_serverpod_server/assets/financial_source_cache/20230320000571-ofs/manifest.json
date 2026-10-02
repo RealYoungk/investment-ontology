@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "01267958",
+  "receipt": "20230320000571",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2022,
+  "periodStart": "2022-01-01",
+  "periodEnd": "2022-12-31",
+  "ruleVersion": "protia-printed-current-full-period-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230320000571",
+      "sha256": "5a22dd8a7bfa7910068f79f2205f1b86e45467dd917f453cdba5c5d374e3b169"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230320000571&dcmNo=9074672&eleId=1&offset=800&length=4077&dtd=dart3.xsd",
+      "sha256": "6d17e2cdba6665d2fa575ed2e83da25cbcea6c4562e1311e6e81673374252890"
+    },
+    {
+      "label": "ofs",
+      "file": "ofs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230320000571&dcmNo=9074672&eleId=21&offset=352125&length=42899&dtd=dart3.xsd",
+      "sha256": "e7aee95915b0715675aac1af27b6b5763f0a7106dc1c8b7f86ece54e39bcd715"
+    },
+    {
+      "label": "overview",
+      "file": "overview.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230320000571&dcmNo=9074672&eleId=3&offset=20803&length=70974&dtd=dart3.xsd",
+      "sha256": "e9ad4a2e0c6d3702bfd8fd4819fc042968399ee0443911caf27f0c0705cfd79f"
+    }
+  ],
+  "retrievalProof": "공식 동일 접수의 표지·회사개요·별도 원문. 당기/당기말 직접 날짜와 유일 현재열 및 BS/CE/CIS 교차검증, 숫자기수 합성 없음."
+}
