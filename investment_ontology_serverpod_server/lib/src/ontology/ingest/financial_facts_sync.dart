@@ -1100,6 +1100,11 @@ class FinancialFactsSync {
   static const _verifiedDurationSourceFixtures =
       <String, ({String corp, int year, Set<String> bases})>{
         '20260323000673': (corp: '01063237', year: 2025, bases: {'OFS'}),
+        '20250321000751': (corp: '01020269', year: 2024, bases: {'CFS'}),
+        '20250321000101': (corp: '01867749', year: 2024, bases: {'CFS'}),
+        '20250320001652': (corp: '01118139', year: 2024, bases: {'CFS'}),
+        '20240322000131': (corp: '00867034', year: 2023, bases: {'CFS', 'OFS'}),
+        '20240322000095': (corp: '01118139', year: 2023, bases: {'CFS'}),
         '20250710000060': (corp: '00445869', year: 2024, bases: {'CFS'}),
         '20250321001022': (corp: '01023822', year: 2024, bases: {'CFS'}),
         '20250321001939': (corp: '01156795', year: 2024, bases: {'CFS'}),
@@ -1129,7 +1134,7 @@ class FinancialFactsSync {
         '20260323001181': (corp: '01396931', year: 2025, bases: {'CFS'}),
         '20260319000875': (corp: '01060735', year: 2025, bases: {'CFS'}),
         '20260327001816': (corp: '01085187', year: 2025, bases: {'CFS'}),
-        '20250326000875': (corp: '01085187', year: 2024, bases: {'OFS'}),
+        '20250326000875': (corp: '01085187', year: 2024, bases: {'CFS', 'OFS'}),
         '20250409000365': (corp: '00925967', year: 2024, bases: {'OFS'}),
         '20250407003814': (corp: '01119651', year: 2024, bases: {'CFS'}),
         '20220316000721': (corp: '00337296', year: 2021, bases: {'OFS'}),
