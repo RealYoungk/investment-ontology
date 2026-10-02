@@ -32,6 +32,45 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20250328001780',
+      corpCode: '01563667',
+      companyName: '(주)더즌',
+      year: 2024,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20250328001780-cfs',
+      manifestDigest:
+          '2e0f1abccb7098ddde384ba98a1b47f1d14f9294f8c15ffaae85232ac3a6e962',
+      ruleVersion: 'dozn-exact-cover-ce-cash-cfs-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230320000571',
+      corpCode: '01267958',
+      companyName: '주식회사 프로티아',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20230320000571-cfs',
+      manifestDigest:
+          '4b416ccec3c5d967a939b8e9dfcda9913e31370485dec224125d236d9cc9fe13',
+      ruleVersion: 'exact-issuer-CFS-explicit-none-v1',
+      absenceLiteral: '당사는 연결대상 종속회사가 존재하지 않으므로, 한국채택국제회계기준의 주된 재무제표인 연결기준의 재무정보를 기재하지 않습니다.',
+      requiresIssuerOverview: true,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230317000589',
+      corpCode: '01113499',
+      companyName: '(주)아이티센피엔에스',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20230317000589-cfs',
+      manifestDigest:
+          '27acf6db60c7483886ce589f126718fb88d3f59a29f98fc79988e4c14666c751',
+      ruleVersion: 'exact-issuer-CFS-explicit-none-v1',
+      absenceLiteral: '당사는 사업보고서 제출기준일 현재 해당사항 없습니다.',
+      requiresIssuerOverview: true,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20250321001825',
       corpCode: '00990396',
       companyName: '(주)레드우즈',

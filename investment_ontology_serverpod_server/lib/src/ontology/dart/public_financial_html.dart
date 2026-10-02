@@ -2013,6 +2013,9 @@ abstract final class PublicFinancialHtml {
         prefix.lastIndexOf('현금흐름표'),
       ].reduce((a, b) => a > b ? a : b);
       if (equityAt >= 0 && equityAt > otherAt) {
+        // Exact Dozn CFS CE (9 columns) is independently verified, including
+        // its whole profit/equity and immutable raw SHA, before this loop.
+        if (doznProof != null && consolidated && index == 7) continue;
         if (cnsPeriodProof != null && index == cnsPeriodProof['tableIndex']) {
           continue;
         }

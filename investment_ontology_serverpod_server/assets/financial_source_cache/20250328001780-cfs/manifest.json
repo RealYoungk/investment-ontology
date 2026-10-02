@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20250328001780",
+  "corpCode": "01563667",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2024,
+  "periodStart": "2024-01-01",
+  "periodEnd": "2024-12-31",
+  "ruleVersion": "dozn-exact-cover-ce-cash-cfs-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250328001780",
+      "sha256": "f3636c12ec045e904e10e3cbe0386e142afc5a80255452c3be2477990df4e327"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250328001780&dcmNo=10474522&eleId=1&offset=950&length=4543&dtd=dart4.xsd",
+      "sha256": "e8bc263ff9e02446abb967017bd2459d352fa7518b3591cb4c5890c7d08d3b80"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250328001780&dcmNo=10474522&eleId=19&offset=202829&length=70331&dtd=dart4.xsd",
+      "sha256": "39948296402bc3478a4388387ba6482d6beecfe0cb7510aed5453ee29a42e7c9"
+    }
+  ],
+  "retrievalProof": "official own CFS node from unique shell; four-CFS readonly boundedGET source ledger; direct numeric or literal classified separately"
+}
