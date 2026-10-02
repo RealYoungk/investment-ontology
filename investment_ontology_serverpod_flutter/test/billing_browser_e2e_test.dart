@@ -122,6 +122,7 @@ void main() {
       BillingCheckoutView? launched;
       await show(
         BillingCheckoutPage(
+          checkoutEnabled: true,
           key: const ValueKey('first'),
           launch: (v) async {
             launched = v;
@@ -131,8 +132,10 @@ void main() {
       expect(find.byKey(const ValueKey('ad-placement-slot')), findsOneWidget);
       final start = find.widgetWithText(FilledButton, '테스트 카드 등록');
       expect(tester.widget<FilledButton>(start).onPressed, isNull);
+      await tester.ensureVisible(find.byType(CheckboxListTile));
       await tester.tap(find.byType(CheckboxListTile));
       await tester.pump();
+      await tester.ensureVisible(start);
       await tester.tap(start);
       await waitFor(() => launched != null);
       final first = launched!;
@@ -150,13 +153,17 @@ void main() {
       auth.token = f['token'] as String;
       await show(
         BillingCheckoutPage(
+          checkoutEnabled: true,
           key: const ValueKey('callback'),
           state: first.state,
           authKey: 'fixture-auth',
           refresh: monitor.refresh,
         ),
       );
-      expect(find.text('광고 제거 이용권이 적용되었습니다.'), findsOneWidget);
+      expect(
+        find.text('멤버십이 적용되었습니다. 관심기업을 20개까지 등록할 수 있습니다.'),
+        findsOneWidget,
+      );
       expect(find.byKey(const ValueKey('ad-placement-slot')), findsNothing);
       expect((await control('stats'))['charges'], 1);
       await io(client.membership.cancelRenewal);
@@ -168,6 +175,7 @@ void main() {
       );
       await show(
         BillingCheckoutPage(
+          checkoutEnabled: true,
           key: const ValueKey('card'),
           replaceCard: true,
           state: replacement.state,
@@ -202,6 +210,7 @@ void main() {
       );
       await show(
         BillingCheckoutPage(
+          checkoutEnabled: true,
           key: const ValueKey('restart'),
           state: restart.state,
           authKey: 'fixture-rejoin',
