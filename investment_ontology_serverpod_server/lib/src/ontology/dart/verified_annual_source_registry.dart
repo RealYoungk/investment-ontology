@@ -54,6 +54,33 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20230323001437',
+      corpCode: '01363924',
+      companyName: '(주)한국미라클피플사',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20230323001437-ofs-exact-seven',
+      manifestDigest:
+          'd1e08fc06f798ad6577545e32d49816a938f18217327bbca2f1c70df08cf1f3a',
+      ruleVersion: 'exact-seven-bs-ce-cash-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230315000894',
+      corpCode: '00162416',
+      companyName: '한양증권(주)',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20230315000894-ofs-exact-seven',
+      manifestDigest:
+          '2acceec4fe4bba202a473b2a7ad9a516b96cb8e122e1258b856bab3e3c8b4568',
+      ruleVersion: 'exact-seven-bs-ce-cash-annual-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20230331004027',
       corpCode: '01085026',
       companyName: "(주)유진테크놀로지",

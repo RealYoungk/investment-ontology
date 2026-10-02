@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "01363924",
+  "receipt": "20230323001437",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2022,
+  "periodStart": "2022-01-01",
+  "periodEnd": "2022-12-31",
+  "ruleVersion": "exact-seven-bs-ce-cash-annual-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230323001437",
+      "sha256": "bd18eac8ce25d32e9a8067b2d2dfa5417de627eb85d640560c54292780154394"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230323001437&dcmNo=9099217&eleId=1&offset=800&length=4032&dtd=dart3.xsd",
+      "sha256": "713acdb39a4248430e40c17a545040c588481f64c8f2078e7c1020347dcaf2ec"
+    },
+    {
+      "label": "ofs",
+      "file": "ofs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230323001437&dcmNo=9099217&eleId=21&offset=141092&length=43326&dtd=dart3.xsd",
+      "sha256": "12b509e2f5437f593b694082795a76aad3f7277c4078aa00bc495c2910113207"
+    }
+  ],
+  "retrievalProof": "Existing core50 exact own shell/cover/OFS; independent BS CE and current/prior cash proof; no opposite-basis reuse"
+}

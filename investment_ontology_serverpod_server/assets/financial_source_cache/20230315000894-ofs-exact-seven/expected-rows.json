@@ -1,0 +1,37 @@
+[
+  {
+    "account_nm": "자 산 총 계",
+    "thstrm_amount": "1502891064305",
+    "sj_div": "BS"
+  },
+  {
+    "account_nm": "부 채 총 계",
+    "thstrm_amount": "1043504162865",
+    "sj_div": "BS"
+  },
+  {
+    "account_nm": "자 본 총 계",
+    "thstrm_amount": "459386901440",
+    "sj_div": "BS"
+  },
+  {
+    "account_nm": "Ⅰ.영업수익",
+    "thstrm_amount": "1117144964059",
+    "sj_div": "CIS"
+  },
+  {
+    "account_nm": "Ⅲ.영업이익",
+    "thstrm_amount": "37196834948",
+    "sj_div": "CIS"
+  },
+  {
+    "account_nm": "Ⅷ.당기순이익 (대손준비금반영 후 조정이익 당 기: 25,894,824,085원 전 기: 76,378,389,687원",
+    "thstrm_amount": "24033307547",
+    "sj_div": "CIS"
+  },
+  {
+    "account_nm": "Ⅰ.영업활동으로 인한 현금흐름",
+    "thstrm_amount": "-150348093",
+    "sj_div": "CF"
+  }
+]
