@@ -1850,6 +1850,18 @@ abstract final class VerifiedAnnualSourceRegistry {
       ruleVersion: 'verified-current-period-whole-annual-v1',
       absenceLiteral: null,
     ),
+    AnnualSourceCacheEntry(
+      receipt: '20220318000715',
+      corpCode: '01065785',
+      companyName: '(주)노브메타파마',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220318000715-cfs',
+      manifestDigest:
+          'b60b828a55787036a9137ce5bbcf146dffa673601730c16b7355213911ba2397',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
   ];
   static AnnualSourceCacheEntry? find(String receipt, FsDiv basis) {
     for (final entry in entries) {
