@@ -10,6 +10,7 @@ import '../dart/dart_api_key.dart';
 import '../dart/dart_client.dart';
 import '../ingest/api_call_budget.dart';
 import '../research/research_feed.dart';
+import '../research/issuer_documents_feed.dart';
 import '../research/dart_research.dart';
 import '../research/kis_research_client.dart';
 
@@ -57,6 +58,7 @@ class ResearchEndpoint extends Endpoint {
       return jsonEncode({
         'state': 'notCollected',
         'message': switch (kind) {
+          'issuerDocuments' => '공식 원문 문서 수집 전입니다. 재무 계정은 추출하지 않습니다.',
           'consensus' => '공개 제공이 허용된 컨센서스 공급원을 아직 연결하지 않았습니다.',
           'insiders' || 'majorHoldings' => 'DART 보유변동 보고 수집 전입니다.',
           'capital' || 'treasury' => '최근 5년 주요사항보고서 수집 전입니다.',
@@ -109,6 +111,28 @@ class ResearchEndpoint extends Endpoint {
         rightsReference.trim().isEmpty ||
         rightsReference.length > 500) {
       throw IngestException(message: '공급원과 공개 제공 권한의 근거를 입력하세요.');
+    }
+    if (kind == 'issuerDocuments') {
+      if (rows.any((r) => r['corpCode'] != corpCode)) {
+        throw IngestException(message: '원문 메타데이터의 회사가 다릅니다.');
+      }
+      final root = Uri.tryParse(sourceUrl);
+      if (root == null ||
+          root.scheme != 'https' ||
+          root.host != IssuerDocumentsFeed.hosts[corpCode] ||
+          root.hasPort ||
+          RegExp(r'^https://[^/]+:').hasMatch(sourceUrl) ||
+          root.userInfo.isNotEmpty ||
+          root.hasQuery ||
+          root.hasFragment) {
+        throw IngestException(message: '공식 회사의 HTTPS 목록 주소가 필요합니다.');
+      }
+      if (rightsReference !=
+          'official-links-metadata-only;no-redistribution-license-asserted') {
+        throw IngestException(
+          message: '원본 재배포 권한을 주장하지 않는 링크·메타데이터 공개 계약이 필요합니다.',
+        );
+      }
     }
     final uri = Uri.tryParse(sourceUrl);
     if (uri?.scheme != 'https' ||
