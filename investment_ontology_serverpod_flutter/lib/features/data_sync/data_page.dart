@@ -7,6 +7,7 @@ import '../common/formatters.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
 import 'widgets/data_reference.dart';
+import 'widgets/issuer_documents_status.dart';
 import 'widgets/schedule_board.dart';
 
 /// 데이터: 원천별 수집 상태와 실행 버튼.
@@ -166,6 +167,7 @@ class _CoverageState extends State<_Coverage> {
           detail: '정해진 표 구조·산술 검산을 통과한 결과를 저장합니다. 본문이 있어도 표 형식이나 검증 조건이 맞지 않으면 지표가 없을 수 있습니다. 항목별 추출 건수와 성공률은 현재 이 화면에서 집계하지 않습니다. 수동·AI 요약 작업은 보류 중입니다.',
           children: [BusinessCollectionStatus(coverage: v)],
         ),
+        const IssuerDocumentsStatus(),
         _Dataset(
           dataset: 'market',
 

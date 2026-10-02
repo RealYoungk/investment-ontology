@@ -1,0 +1,7 @@
+# Private raw cache; deployment requires the checks documented in the audit.
+services:
+  server:
+    environment:
+      ISSUER_DOCUMENT_CACHE_DIR: /var/lib/alfinder/issuer-documents
+    volumes:
+      - /opt/alfinder/issuer-documents:/var/lib/alfinder/issuer-documents:rw
