@@ -612,6 +612,193 @@ abstract final class PublicFinancialHtml {
     };
   }
 
+  // This source prints current dates in separate title tables and the term
+  // only in each monetary table's current column. No dates are inferred.
+  static Map<String, dynamic> _jilgyungyiDatedPeriod(
+    String scope,
+    Uri source,
+    DateTime start,
+    DateTime end,
+  ) {
+    void guard(bool ok, String message) {
+      if (!ok) throw FormatException('Jilgyungyi dated source $message');
+    }
+
+    final matches = RegExp(
+      r'<TABLE\b[^>]*>(.*?)</TABLE>',
+      caseSensitive: false,
+      dotAll: true,
+    ).allMatches(scope).toList();
+    final seen = <String>{};
+    Map<String, dynamic>? proof;
+    for (var index = 0; index < matches.length; index++) {
+      final table = matches[index];
+      final first = RegExp(
+        r'<T[DH]\b[^>]*>(.*?)</T[DH]>',
+        caseSensitive: false,
+        dotAll: true,
+      ).firstMatch(table.group(1)!);
+      if (first == null || !{'과목', '구분'}.contains(_compact(_text(first[1]!)))) {
+        continue;
+      }
+      final prefix = _compact(_text(scope.substring(0, table.start)));
+      var at = -1;
+      String? kind;
+      for (final title in {
+        '재무상태표': 'BS',
+        '손익계산서': 'CIS',
+        '자본변동표': 'CE',
+        '현금흐름표': 'CF',
+      }.entries) {
+        final found = prefix.lastIndexOf(title.key);
+        if (found > at) {
+          at = found;
+          kind = title.value;
+        }
+      }
+      guard(
+        at >= 0 && kind != null && seen.add(kind),
+        'statement absent or duplicated',
+      );
+      final local = prefix.substring(at);
+      final dates = RegExp(
+        r'당기(말)?:((\d{4})년(\d{1,2})월(\d{1,2})일)(현재|부터(\d{4})년(\d{1,2})월(\d{1,2})일까지)',
+      ).allMatches(local).toList();
+      guard(dates.length == 1, 'current date ambiguous');
+      final date = dates.single;
+      final firstDate = DateTime.utc(
+        int.parse(date[3]!),
+        int.parse(date[4]!),
+        int.parse(date[5]!),
+      );
+      guard(
+        firstDate.year == int.parse(date[3]!) &&
+            firstDate.month == int.parse(date[4]!) &&
+            firstDate.day == int.parse(date[5]!),
+        'invalid printed calendar date',
+      );
+      guard(
+        kind == 'BS'
+            ? date[1] == '말' && date[6] == '현재' && firstDate == end
+            : date[1] == null &&
+                  date[6] != '현재' &&
+                  firstDate == start &&
+                  int.parse(date[7]!) == end.year &&
+                  int.parse(date[8]!) == end.month &&
+                  int.parse(date[9]!) == end.day,
+        'printed period conflict',
+      );
+      guard(
+        local.contains('주식회사질경이와그종속기업'),
+        'printed consolidated company missing',
+      );
+      final units = RegExp(r'\(단위:([^)]*)\)').allMatches(local).toList();
+      guard(units.length == 1 && units.single[1] == '원', 'unit conflict');
+      final grid = _FinancialHtmlGrid.parse(table.group(1)!);
+      guard(grid.isNotEmpty, 'empty monetary table');
+      if (kind != 'CE') {
+        final headers = grid.first
+            .whereType<_FinancialHtmlCell>()
+            .where((c) => _compact(c.text) == '제10(당)기')
+            .toSet();
+        final markedCurrent = grid.first
+            .whereType<_FinancialHtmlCell>()
+            .where((c) => _compact(c.text).contains('(당)'))
+            .toSet();
+        guard(
+          markedCurrent.length == 1 &&
+              markedCurrent.single ==
+                  (headers.length == 1 ? headers.single : null),
+          'conflicting explicitly current term',
+        );
+        guard(headers.length == 1, 'current term ambiguous');
+        final current = headers.single;
+        guard(
+          current.column == 2 &&
+              current.rowspan == 1 &&
+              current.colspan == (kind == 'CIS' ? 1 : 2),
+          'current column shape conflict',
+        );
+        continue;
+      }
+      guard(
+        grid.first.length == 7 &&
+            grid.first.map((c) => _compact(c?.text ?? '')).join('|') ==
+                '구분|주석|자본금|기타자본항목|결손금|비지배지분|합계' &&
+            grid.first.every(
+              (c) => c != null && c.rowspan == 1 && c.colspan == 1,
+            ),
+        'whole CE header mismatch',
+      );
+      int one(String label) {
+        final found = [
+          for (var r = 1; r < grid.length; r++)
+            if (_compact(grid[r].first?.text ?? '') == label) r,
+        ];
+        guard(found.length == 1, 'CE date ambiguous');
+        return found.single;
+      }
+
+      for (final marker in ['(당기초)', '(당기말)']) {
+        guard(
+          grid
+                  .skip(1)
+                  .where((r) => _compact(r.first?.text ?? '').endsWith(marker))
+                  .length ==
+              1,
+          'contradictory current CE dates',
+        );
+      }
+      final a = one('2022.1.1(당기초)'), b = one('2022.12.31(당기말)');
+      guard(a < b, 'CE date order');
+      final profits = [
+        for (var r = a + 1; r < b; r++)
+          if (_compact(grid[r].first?.text ?? '') == '당기순손실') r,
+      ];
+      guard(profits.length == 1, 'whole current CE profit ambiguous');
+      String total(int r) {
+        guard(
+          grid[r].length == 7 &&
+              grid[r].last != null &&
+              grid[r].last!.colspan == 1 &&
+              grid[r].last!.rowspan == 1,
+          'whole CE total shape',
+        );
+        final v = _compact(grid[r].last!.text);
+        guard(
+          RegExp(r'^\(?-?\d{1,3}(?:,\d{3})*\)?$').hasMatch(v) &&
+              v.startsWith('(') == v.endsWith(')'),
+          'whole CE amount missing',
+        );
+        return BigInt.parse(
+          v.replaceAll(',', '').replaceAll('(', '-').replaceAll(')', ''),
+        ).toString();
+      }
+
+      proof = {
+        'mode': 'exact-jilgyungyi-independent-dated-title-current-term',
+        'tableIndex': index,
+        'source': source.toString(),
+        'periodStart': '2022-01-01',
+        'periodEnd': '2022-12-31',
+        'currentTerm': '10',
+        'currentProfit': total(profits.single),
+        'closingEquity': total(b),
+        'wholeTotalColumn': 6,
+        'nonControllingColumn': 5,
+        'startRow': a,
+        'endRow': b,
+        'profitRow': profits.single,
+        'unit': '원',
+      };
+    }
+    guard(
+      seen.length == 4 && proof != null,
+      'four dated statements/CE evidence missing',
+    );
+    return proof!;
+  }
+
   static List<Map<String, dynamic>> parseStandardAnnual({
     required String coverHtml,
     required String statementHtml,
@@ -812,7 +999,32 @@ abstract final class PublicFinancialHtml {
         statementSource.queryParameters['length'] == '78783' &&
         periodStart == DateTime.utc(2025) &&
         periodEnd == DateTime.utc(2025, 12, 31);
+    final jilgyungyiScope =
+        receipt == '20230321000972' &&
+        corpCode == '01063556' &&
+        consolidated &&
+        term == '10' &&
+        periodStart == DateTime.utc(2022) &&
+        periodEnd == DateTime.utc(2022, 12, 31) &&
+        coverSource.queryParameters['dcmNo'] == '9082268' &&
+        coverSource.queryParameters['eleId'] == '1' &&
+        coverSource.queryParameters['offset'] == '798' &&
+        coverSource.queryParameters['length'] == '4073' &&
+        statementSource.queryParameters['dcmNo'] == '9082268' &&
+        statementSource.queryParameters['eleId'] == '19' &&
+        statementSource.queryParameters['offset'] == '142981' &&
+        statementSource.queryParameters['length'] == '42001' &&
+        coverSource.queryParameters['dtd'] == 'dart3.xsd' &&
+        statementSource.queryParameters['dtd'] == 'dart3.xsd';
     Map<String, dynamic>? cnsPeriodProof;
+    if (jilgyungyiScope) {
+      cnsPeriodProof = _jilgyungyiDatedPeriod(
+        scope,
+        statementSource,
+        periodStart,
+        periodEnd,
+      );
+    }
     if (rootlocScope && titles.isEmpty) {
       final proofs = <Map<String, dynamic>>[];
       var tableIndex = 0;
@@ -1737,7 +1949,12 @@ abstract final class PublicFinancialHtml {
                           datedPunctuationProof != null)))) ||
           (cnsPeriodProof != null &&
               !konasolScope &&
-              (cronexScope
+              (jilgyungyiScope
+                  ? (current.column != 2 ||
+                        current.rowspan != 1 ||
+                        current.colspan != (kind == 'CIS' ? 1 : 2) ||
+                        _compact(current.text) != '제10(당)기')
+                  : cronexScope
                   ? (current.column != 1 ||
                         current.colspan != 2 ||
                         _compact(current.text) !=
