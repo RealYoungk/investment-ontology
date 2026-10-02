@@ -7,3 +7,6 @@ investment_ontology_serverpod_server/assets/ksic/*.json linguist-generated=true
 pubspec.lock linguist-generated=true
 
 investment_ontology_serverpod_server/test/fixtures/financial_html/spac-explicit-revenue-null/**/*.html -text
+
+investment_ontology_serverpod_server/assets/financial_source_cache/20230315000997-ofs/*.html -text
+investment_ontology_serverpod_server/assets/financial_source_cache/20230308000311-ofs/*.html -text

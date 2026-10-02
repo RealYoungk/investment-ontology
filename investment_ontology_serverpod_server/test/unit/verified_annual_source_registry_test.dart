@@ -30,13 +30,13 @@ Company company(AnnualSourceCacheEntry e) => Company(
 );
 void main() {
   test('compiled receipt plus basis registry has unique audit identities', () {
-    expect(VerifiedAnnualSourceRegistry.entries.length, 19);
+    expect(VerifiedAnnualSourceRegistry.entries.length, 21);
     expect(
       VerifiedAnnualSourceRegistry.entries
           .map((e) => e.auditReference)
           .toSet()
           .length,
-      19,
+      21,
     );
     final gaia = VerifiedAnnualSourceRegistry.entries
         .where((e) => e.receipt == '20250331002057')
@@ -59,7 +59,10 @@ void main() {
         final result = await cache.verifyRegistered(f, company(e), e.basis);
         expect(
           reads,
-          e.ruleVersion == 'same-receipt-audit-immutable-v1' ? 5 : 4,
+          (e.requiresIssuerOverview ||
+                  e.ruleVersion == 'same-receipt-audit-immutable-v1')
+              ? 5
+              : 4,
         );
         expect(f.toJson(), before);
         final manifest = jsonDecode(
@@ -150,6 +153,8 @@ void main() {
       'shell.html',
       'cover.html',
       '${e.statementLabel}.html',
+      if (e.requiresIssuerOverview) 'overview.html',
+      if (e.ruleVersion == 'same-receipt-audit-immutable-v1') 'auditShell.html',
     ]) {
       test(
         'altered pinned bytes ${e.receipt}:${e.basis.name}:$label reject',

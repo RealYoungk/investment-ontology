@@ -12,6 +12,7 @@ final class AnnualSourceCacheEntry {
     required this.manifestDigest,
     required this.ruleVersion,
     required this.absenceLiteral,
+    this.requiresIssuerOverview = false,
   });
   final String receipt,
       corpCode,
@@ -22,6 +23,7 @@ final class AnnualSourceCacheEntry {
   final int year;
   final FsDiv basis;
   final String? absenceLiteral;
+  final bool requiresIssuerOverview;
   String get statementLabel => basis == FsDiv.consolidated ? 'cfs' : 'ofs';
   String get auditReference =>
       'financial-cache-replay:$manifestDigest:$receipt:${basis.name}:$ruleVersion';
@@ -52,6 +54,32 @@ abstract final class VerifiedAnnualSourceRegistry {
           '0453c972c5618d4406878a7fe195a382522d32128164c4b01fe18bbe9fc47399',
       ruleVersion: 'same-receipt-audit-immutable-v1',
       absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230315000997',
+      corpCode: '01601222',
+      companyName: '씨피시스템(주)',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230315000997-ofs',
+      manifestDigest:
+          'c864059c2a2a33177784905c4c1e57edcc25dad9f54043d279aee121b03f855c',
+      ruleVersion: 'spac-explicit-revenue-null-cache-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: true,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230308000311',
+      corpCode: '01476219',
+      companyName: '(주)코스텍시스',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230308000311-ofs',
+      manifestDigest:
+          '29ddb7e5f721caec0b36f04b12478f00173a2b91d94fb2e94215c3ed4cc7121a',
+      ruleVersion: 'spac-explicit-revenue-null-cache-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: true,
     ),
     AnnualSourceCacheEntry(
       receipt: "20250331002057",

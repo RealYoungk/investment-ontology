@@ -433,7 +433,21 @@ void main() {
             where: (t) => t.reference.like('financial-cache-replay:%'),
           );
           expect(audits.length, failAll ? 6 : 10);
-          expect(reads, failAll ? 6 : 40);
+          expect(
+            reads,
+            failAll
+                ? 6
+                : audits.fold<int>(0, (sum, a) {
+                    final data = jsonDecode(a.title);
+                    final e = VerifiedAnnualSourceRegistry.find(
+                      data['receipt'],
+                      data['fsDiv'] == 'consolidated'
+                          ? FsDiv.consolidated
+                          : FsDiv.separate,
+                    )!;
+                    return sum + (e.requiresIssuerOverview ? 5 : 4);
+                  }),
+          );
           expect(client.calls, 0);
           expect((await ApiCallUsage.db.find(session)).single.calls, 20000);
           final numeric = audits
@@ -447,7 +461,7 @@ void main() {
           expect(
             finished.message,
             contains(
-              '고정 공식 원문 재검증 ${audits.length}건·남은 ${17 - audits.length}건',
+              '고정 공식 원문 재검증 ${audits.length}건·남은 ${VerifiedAnnualSourceRegistry.entries.length - audits.length}건',
             ),
           );
           expect(resumes, [
