@@ -32,6 +32,18 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20260327001807',
+      corpCode: '01018617',
+      companyName: '(주)메디쎄이',
+      year: 2025,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20260327001807-cfs',
+      manifestDigest:
+          '00225c89f1ddca77ccb45f60113fb9669c8edc0a36ca8268e9b1f2eed6e31563',
+      ruleVersion: 'medyssey-exact-CF-current-header-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20250319000477',
       corpCode: '01518506',
       companyName: '(주)타조이엔터테인먼트',

@@ -950,6 +950,22 @@ abstract final class PublicFinancialHtml {
     );
     final text = _compact(_text(scope));
     const titleDate = r'(?:\d{4}년\d{1,2}월\d{1,2}일|\d{4}\.\d{2}\.\d{2})';
+    final medysseyScope =
+        receipt == '20260327001807' &&
+        corpCode == '01018617' &&
+        consolidated &&
+        term == '23' &&
+        periodStart == DateTime.utc(2025) &&
+        periodEnd == DateTime.utc(2025, 12, 31) &&
+        coverSource.queryParameters['dcmNo'] == '11192320' &&
+        coverSource.queryParameters['eleId'] == '3' &&
+        coverSource.queryParameters['offset'] == '22330' &&
+        coverSource.queryParameters['length'] == '4506' &&
+        statementSource.queryParameters['eleId'] == '21' &&
+        statementSource.queryParameters['offset'] == '428967' &&
+        statementSource.queryParameters['length'] == '78464' &&
+        coverSource.queryParameters['dtd'] == 'dart4.xsd' &&
+        statementSource.queryParameters['dtd'] == 'dart4.xsd';
     final kiwoomRepeatedTermScope =
         receipt == '20230320001037' &&
         corpCode == '00296290' &&
@@ -1959,6 +1975,9 @@ abstract final class PublicFinancialHtml {
                 ).hasMatch(_compact(c.text)) ||
                 (termYearHeaderCandidate &&
                     _compact(c.text) == '제$term기(${periodEnd.year}년)') ||
+                (medysseyScope &&
+                    kind == 'CF' &&
+                    _compact(c.text) == '제23당)기말') ||
                 (kiwoomRepeatedTermScope &&
                     kind == 'CF' &&
                     _compact(c.text) == '제24기(당)기') ||
@@ -1974,6 +1993,17 @@ abstract final class PublicFinancialHtml {
         throw const FormatException('Ambiguous annual current header');
       }
       final current = headers.single;
+      if (medysseyScope &&
+          (current.column != 2 ||
+              current.colspan != 2 ||
+              current.rowspan != 1 ||
+              grid.first.length != 8 ||
+              _compact(grid.first[0]?.text ?? '') != '과목' ||
+              _compact(grid.first[1]?.text ?? '') != '주석' ||
+              _compact(grid.first[4]?.text ?? '') != '제22(전)기말' ||
+              _compact(grid.first[6]?.text ?? '') != '제21(전전)기말')) {
+        throw const FormatException('Medyssey primary current column mismatch');
+      }
       if (txrBlankHeader && _compact(grid.first.first?.text ?? '').isEmpty) {
         if (grid.first.length != 4 ||
             current.column != 1 ||
@@ -2479,6 +2509,105 @@ abstract final class PublicFinancialHtml {
         throw const FormatException('IMGT CE proof absent or ambiguous');
       }
       result.add(missingRevenue);
+      for (final row in result) {
+        (row['html_provenance']
+                as Map<String, dynamic>)['supportingPeriodEvidence'] =
+            proofs.single;
+      }
+    }
+    if (medysseyScope) {
+      final proofs = <Map<String, dynamic>>[];
+      for (final table in RegExp(
+        r'<TABLE\b[^>]*>(.*?)</TABLE>',
+        caseSensitive: false,
+        dotAll: true,
+      ).allMatches(scope)) {
+        final preceding = _compact(_text(scope.substring(0, table.start)));
+        final ce = preceding.lastIndexOf('연결자본변동표');
+        if (ce < 0 ||
+            [
+              '재무상태표',
+              '손익계산서',
+              '현금흐름표',
+            ].any((h) => preceding.lastIndexOf(h) > ce)) {
+          continue;
+        }
+        final grid = _FinancialHtmlGrid.parse(table[1]!);
+        if (grid.isEmpty ||
+            grid.first.isEmpty ||
+            _compact(grid.first.first?.text ?? '') != '과목') {
+          continue;
+        }
+        final local = preceding.substring(ce);
+        if (!local.contains('제23(당)기:2025년01월01일부터2025년12월31일까지') ||
+            !local.endsWith('주식회사메디쎄이와그종속기업(단위:원)') ||
+            grid.first.length != 8 ||
+            grid.first.map((c) => _compact(c?.text ?? '')).join('|') !=
+                '과목|주석|자본금|자본잉여금|기타자본구성요소|기타포괄손익누계액|이익잉여금|총계' ||
+            grid.first.any(
+              (c) => c == null || c.colspan != 1 || c.rowspan != 1,
+            )) {
+          throw const FormatException(
+            'Medyssey whole CE header/period/unit mismatch',
+          );
+        }
+        int unique(String label) {
+          final found = [
+            for (var i = 1; i < grid.length; i++)
+              if (_compact(grid[i].first?.text ?? '') == label) i,
+          ];
+          if (found.length != 1) {
+            throw const FormatException('Medyssey CE date ambiguous');
+          }
+          return found.single;
+        }
+
+        final start = unique('2025.01.01(당기초)'),
+            end = unique('2025.12.31(당기말)');
+        final profits = [
+          for (var i = start + 1; i < end; i++)
+            if (_compact(grid[i].first?.text ?? '') == '당기순이익') i,
+        ];
+        if (start >= end || profits.length != 1) {
+          throw const FormatException(
+            'Medyssey CE current whole profit ambiguous',
+          );
+        }
+        BigInt whole(int i) {
+          if (grid[i].length != 8 ||
+              grid[i][7] == null ||
+              grid[i][7]!.colspan != 1 ||
+              grid[i][7]!.rowspan != 1) {
+            throw const FormatException('Medyssey CE whole column mismatch');
+          }
+          final v = money(grid[i][7]!.text);
+          if (v == null) {
+            throw const FormatException('Medyssey CE money missing');
+          }
+          return v;
+        }
+
+        proofs.add({
+          'mode': 'exact-medyssey-CF-current-header-whole-CE',
+          'receipt': receipt,
+          'corpCode': corpCode,
+          'source': statementSource.toString(),
+          'rawHeader': '제 23당) 기말',
+          'currentTerm': term,
+          'periodStart': '2025-01-01',
+          'periodEnd': '2025-12-31',
+          'totalColumn': 7,
+          'currentProfit': whole(profits.single).toString(),
+          'closingEquity': whole(end).toString(),
+        });
+      }
+      if (proofs.length != 1 ||
+          proofs.single['currentProfit'] != values['profit'].toString() ||
+          proofs.single['closingEquity'] != values['equity'].toString()) {
+        throw const FormatException(
+          'Medyssey CE whole profit/equity contradiction',
+        );
+      }
       for (final row in result) {
         (row['html_provenance']
                 as Map<String, dynamic>)['supportingPeriodEvidence'] =
