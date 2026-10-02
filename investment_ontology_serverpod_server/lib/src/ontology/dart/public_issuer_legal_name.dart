@@ -152,7 +152,7 @@ class PublicIssuerLegalName {
     ).allMatches(overviewBody).toList();
     final headings = <RegExpMatch>[];
     for (final p in paragraphs) {
-      if (RegExp(r'^(?:\d+\.|[가-힣]\.)\s*회사의\s*(?:법적[ㆍ·]상업적\s*)?명칭$')
+      if (RegExp(r'^(?:\d+\s*\.|[가-힣]\.)\s*회사의\s*(?:법적(?:[ㆍ·]|,\s*)상업적\s*)?명칭$')
           .hasMatch(_text(p.group(1)!))) {
         headings.add(p);
       }
@@ -263,7 +263,34 @@ class PublicIssuerLegalName {
               RegExp(r'주식회사|\(주\)|㈜').hasMatch(colon.group(1)!)
           ? colon
           : null;
-      final naming = m ?? direct ?? quoted ?? literalColon;
+      // Exact first-paragraph declarations of the issuer's printed legal name.
+      // A later history, change notice or subsidiary paragraph cannot supply it.
+      final firstLiteralPatterns = [
+        RegExp(
+          r'^당사의 명칭은 ([가-힣㈜() ]+) 라고 표기합니다\. 또한 영문으로는 [A-Za-z0-9.,& -]+ 라 표기합니다\.$',
+        ),
+        RegExp(
+          r'^당사의 명칭은 ([가-힣㈜() ]+)(?:이며|이고), 영문명은 [A-Za-z0-9.,& -]+ 입니다\.$',
+        ),
+        RegExp(r'^당사의 명칭은 "([^"()]+)"이며, 영문으로는 "[A-Za-z0-9.,& -]+"로 표기합니다\.$'),
+        RegExp(
+          r'^당사의 명칭은 "([^"()]+)"이라고 하고, 영문으로 "[A-Za-z0-9.,& -]+"라고 표기합니다 \.$',
+        ),
+      ];
+      RegExpMatch? firstLiteral;
+      if (firstDeclaration.start == p.start) {
+        final matches = firstLiteralPatterns
+            .map((pattern) => pattern.firstMatch(t))
+            .whereType<RegExpMatch>()
+            .toList();
+        if (matches.length == 1 &&
+            RegExp(r'주식회사|\(주\)|㈜').hasMatch(matches.single.group(1)!) &&
+            !RegExp(r'자회사|종속회사|계열회사|예정|변경|가정|조건|향후')
+                .hasMatch(matches.single.group(1)!)) {
+          firstLiteral = matches.single;
+        }
+      }
+      final naming = m ?? direct ?? quoted ?? literalColon ?? firstLiteral;
       if (naming != null) {
         candidates.add(naming.group(1)!);
         quotes.add(t);

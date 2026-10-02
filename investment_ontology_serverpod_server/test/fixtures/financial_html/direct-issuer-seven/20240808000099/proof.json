@@ -1,0 +1,51 @@
+{
+  "receipt": "20240808000099",
+  "corpCode": "00565215",
+  "companyName": "(주)아이티센코어",
+  "bsnsYear": 2023,
+  "basis": "ofs",
+  "shellCorpIds": [
+    "00565215"
+  ],
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240808000099",
+      "sha256": "bb2b0410ed0ef04bd31045eefb4a5cccf1635217347aae6c078b18a0ce13cc01"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240808000099&dcmNo=10053539&eleId=3&offset=4064&length=4050&dtd=dart4.xsd",
+      "sha256": "bbc6cb412c236f585ef7b01f846779db9776c20c04c6ae37b0442c5f8bfe0189"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240808000099&dcmNo=10053539&eleId=23&offset=183763&length=48060&dtd=dart4.xsd",
+      "sha256": "a581e579666af3e28cef5a5125a1d459060bc56c7c26d8059bc35ffc6358b47a"
+    },
+    {
+      "label": "overview",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240808000099&dcmNo=10053539&eleId=5&offset=8647&length=81334&dtd=dart4.xsd",
+      "sha256": "4e73cd015035fefc535b8c39f0be85995ec8927820d403511787abe586608851"
+    }
+  ],
+  "printedCoverName": "주식회사굿센",
+  "actualDates": [
+    "2023-01-01",
+    "2023-12-31"
+  ],
+  "overviewNode": {
+    "text": "I. 회사의 개요",
+    "id": "5",
+    "rcpNo": "20240808000099",
+    "dcmNo": "10053539",
+    "eleId": "5",
+    "offset": "8647",
+    "length": "81334",
+    "dtd": "dart4.xsd",
+    "tocNo": "5",
+    "atocId": "3"
+  },
+  "overviewSource": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240808000099&dcmNo=10053539&eleId=5&offset=8647&length=81334&dtd=dart4.xsd",
+  "overviewSha256": "4e73cd015035fefc535b8c39f0be85995ec8927820d403511787abe586608851"
+}
