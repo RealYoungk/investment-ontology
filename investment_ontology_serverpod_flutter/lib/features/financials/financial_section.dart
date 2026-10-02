@@ -350,6 +350,31 @@ class _TrendCharts extends StatelessWidget {
               series: series,
               formatValue: (v) => _financialAmount(v, currency),
             ),
+          _FinancialTable(
+            currency: currency,
+            labels: [for (final p in points) p.label],
+            columns: [
+              '매출액',
+              '영업이익',
+              '당기순이익',
+              if (showMargin) '영업이익률',
+              if (showMargin) '순이익률',
+            ],
+            values: [
+              for (final p in points)
+                [
+                  p.revenue.value,
+                  p.operatingIncome.value,
+                  p.netIncome?.value,
+                  if (showMargin) p.operatingMargin,
+                  if (showMargin) p.netMargin,
+                ],
+            ],
+            percentColumns: showMargin ? const {3, 4} : const {},
+            note: isQuarterly
+                ? '각 분기 3개월 실적 · 4분기는 연간 − 3분기 누적으로 계산합니다.'
+                : '각 사업연도의 연간 실적입니다.',
+          ),
           for (final note in notes) ...[
             const SizedBox(height: AppSpace.xs),
             Text(note, style: t.body(11.5, color: c.textMuted)),
@@ -493,6 +518,29 @@ class _TrailingChart extends StatelessWidget {
               formatValue: (v) => _financialAmount(v, currency),
               height: 180,
             ),
+          _FinancialTable(
+            currency: currency,
+            labels: [for (final r in revenue) r.label],
+            columns: [
+              '매출액',
+              '영업이익',
+              '당기순이익',
+              if (showMargin) '영업이익률',
+              if (showMargin) '순이익률',
+            ],
+            values: [
+              for (final r in revenue)
+                [
+                  r.value,
+                  byLabel[r.label],
+                  netByLabel[r.label],
+                  if (showMargin) ratio(byLabel[r.label], r.value),
+                  if (showMargin) ratio(netByLabel[r.label], r.value),
+                ],
+            ],
+            percentColumns: showMargin ? const {3, 4} : const {},
+            note: '각 시점까지 최근 12개월(TTM) 실적입니다.',
+          ),
         ],
       ),
     );
@@ -587,19 +635,15 @@ class _CashFlowChart extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text(
-                  '현금흐름',
-                  style: t.body(13, weight: FontWeight.w600),
-                ),
+                child: Text('현금흐름', style: t.body(13, weight: FontWeight.w600)),
               ),
               IconButton(
                 icon: Icon(Icons.info_outline, size: 18, color: c.textMuted),
                 tooltip: '현금흐름 읽는 법',
                 onPressed: () => showAdaptiveDetail(
                   context: context,
-                  builder: (context) => _CashFlowExplanation(
-                    isQuarterly: isQuarterly,
-                  ),
+                  builder: (context) =>
+                      _CashFlowExplanation(isQuarterly: isQuarterly),
                 ),
               ),
             ],
@@ -649,6 +693,21 @@ class _CashFlowChart extends StatelessWidget {
               ],
               formatValue: (v) => _financialAmount(v, currency),
             ),
+          _FinancialTable(
+            currency: currency,
+            labels: [for (final p in points) p.label],
+            columns: const ['영업활동 현금흐름', '유형자산 취득', '잉여현금흐름'],
+            values: [
+              for (final p in points) [p.operating, p.capex, p.free],
+            ],
+            note: isQuarterly
+                ? '각 분기 3개월 금액 · 누적값에서 직전 누적값을 차감합니다.'
+                : '각 사업연도의 연간 금액입니다.',
+            missingNotes: {
+              for (final p in points)
+                if (p.missing != null) '${p.label}: ${p.missing}',
+            }.toList(),
+          ),
         ],
       ),
     );
@@ -723,6 +782,98 @@ class _CashFlowExplanation extends StatelessWidget {
               style: t.body(12, color: c.textSecondary),
             ),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+/// 차트와 동일한 계산 결과를 일정한 단위로 비교한다.
+class _FinancialTable extends StatelessWidget {
+  const _FinancialTable({
+    required this.currency,
+    required this.labels,
+    required this.columns,
+    required this.values,
+    required this.note,
+    this.percentColumns = const {},
+    this.missingNotes = const [],
+  });
+
+  final String currency;
+  final List<String> labels;
+  final List<String> columns;
+  final List<List<double?>> values;
+  final String note;
+  final Set<int> percentColumns;
+  final List<String> missingNotes;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Material(
+      type: MaterialType.transparency,
+      child: ExpansionTile(
+        tilePadding: EdgeInsets.zero,
+        childrenPadding: const EdgeInsets.only(bottom: AppSpace.sm),
+        title: Text(
+          '표로 보기',
+          style: context.typo.body(12, color: c.textSecondary),
+        ),
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              '$note\n단위: ${currency == 'KRW' ? '백만원' : currency} · —는 해당 기간의 값 미확보 · 금액은 소수 첫째 자리 반올림',
+              style: context.typo.body(11.5, color: c.textMuted),
+            ),
+          ),
+          const SizedBox(height: AppSpace.sm),
+          AppDataTable(
+            columns: [
+              const AppColumn('기간', minWidth: 90),
+              for (final column in columns)
+                AppColumn(column, numeric: true, minWidth: 115),
+            ],
+            rows: [
+              for (final (rowIndex, label) in labels.indexed)
+                AppRow([
+                  AppDataTable.text(context, label, nowrap: true),
+                  for (final (columnIndex, value) in values[rowIndex].indexed)
+                    value == null
+                        ? AppDataTable.text(context, null, numeric: true)
+                        : Tooltip(
+                            message: percentColumns.contains(columnIndex)
+                                ? formatPercent(value)
+                                : formatSourceAmount(
+                                    value,
+                                    currency == 'KRW' ? '원' : currency,
+                                  ),
+                            child: AppDataTable.text(
+                              context,
+                              percentColumns.contains(columnIndex)
+                                  ? formatPercent(value)
+                                  : (value / (currency == 'KRW' ? 1000000 : 1))
+                                        .toStringAsFixed(1)
+                                        .replaceAllMapped(
+                                          RegExp(r'\B(?=(\d{3})+(?!\d))'),
+                                          (_) => ',',
+                                        ),
+                              numeric: true,
+                              nowrap: true,
+                            ),
+                          ),
+                ]),
+            ],
+          ),
+          for (final missing in missingNotes)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                missing,
+                style: context.typo.body(11.5, color: c.textMuted),
+              ),
+            ),
         ],
       ),
     );
