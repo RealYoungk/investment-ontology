@@ -4,6 +4,7 @@ import 'sk_signet_identity.dart';
 
 import 'package:crypto/crypto.dart';
 
+import 'dozn_corroborated_flow_period.dart';
 import 'same_receipt_audit_source.dart';
 import 'public_issuer_legal_name.dart';
 import 'bnk_six_core_profile.dart';
@@ -830,6 +831,19 @@ abstract final class PublicFinancialHtml {
         statementHtml: statementHtml,
       );
     }
+    final doznProof = receipt == DoznCorroboratedFlowPeriod.receipt
+        ? DoznCorroboratedFlowPeriod.verify(
+            cover: coverHtml,
+            body: statementHtml,
+            coverSource: coverSource,
+            statementSource: statementSource,
+            targetReceipt: receipt,
+            companyCode: corpCode,
+            consolidated: consolidated,
+            start: periodStart,
+            end: periodEnd,
+          )
+        : null;
     _source(coverSource, receipt);
     _source(statementSource, receipt);
     final skIdentity = skSignetIdentity?.verify(
@@ -2070,6 +2084,7 @@ abstract final class PublicFinancialHtml {
       if ((cnsPeriodProof == null &&
               (localTitles.isEmpty ||
                   ((kind == 'BS') != (localTitles.last.group(2) == '현재') &&
+                      !(doznProof != null && kind != 'BS') &&
                       !(kind == 'BS' &&
                           bsDurationCandidate &&
                           datedPunctuationProof != null)))) ||
@@ -2763,6 +2778,19 @@ abstract final class PublicFinancialHtml {
         (row['html_provenance']
                 as Map<String, dynamic>)['supportingPeriodEvidence'] =
             ceProofs.single;
+      }
+    }
+    if (doznProof != null) {
+      if (values['equity'].toString() != doznProof['closingEquity'] ||
+          values['profit'].toString() != doznProof['currentProfit']) {
+        throw const FormatException(
+          'Dozn primary/CE whole values contradiction',
+        );
+      }
+      for (final row in result) {
+        (row['html_provenance']
+                as Map<String, dynamic>)['supportingPeriodEvidence'] =
+            doznProof;
       }
     }
     if (cnsPeriodProof != null) {

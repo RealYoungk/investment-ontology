@@ -45,6 +45,18 @@ abstract final class VerifiedAnnualSourceRegistry {
       requiresIssuerOverview: true,
     ),
     AnnualSourceCacheEntry(
+      receipt: '20250328001780',
+      corpCode: '01563667',
+      companyName: '(주)더즌',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250328001780-ofs',
+      manifestDigest:
+          '15d5fb21359a75b1680eb1d699a7f8cc3768cb53645395b85a35e01945f62360',
+      ruleVersion: 'dozn-exact-cover-ce-cash-corroboration-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20260316001455',
       corpCode: '00445869',
       companyName: '(주)유니포인트',
