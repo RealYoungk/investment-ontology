@@ -1,3 +1,4 @@
+import 'verified_half_basis_absence.dart';
 import 'public_financial_period_metadata.dart';
 
 import 'dart:convert';
@@ -180,6 +181,19 @@ class DartClient {
     bsnsYear: bsnsYear,
     periodEnd: periodEnd,
     consolidated: consolidated,
+  );
+
+  Future<VerifiedHalfBasisAbsence> classifyVerifiedHalfBasisAbsence({
+    required String receipt,
+    required String corpCode,
+    required String companyName,
+    required Future<bool> Function() cancelled,
+  }) => VerifiedHalfBasisAbsence.fetch(
+    _http,
+    targetReceipt: receipt,
+    targetCorpCode: corpCode,
+    companyName: companyName,
+    cancelled: cancelled,
   );
 
   Future<PublicFinancialHtmlSource> fetchHalfYearHtml(
