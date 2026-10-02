@@ -133,10 +133,12 @@ class _ThemePageState extends State<ThemePage> {
         if (!_loaded)
           const LinearProgressIndicator(minHeight: 2)
         else if (d == null)
-          Text(
-            _error != null ? '불러오지 못했습니다: $_error' : '테마를 찾을 수 없습니다.',
-            style: t.body(14, color: c.textSecondary),
-          )
+          (_error != null
+              ? ReadFailureNotice(subject: '상세 정보', retry: _load)
+              : Text(
+                  '테마를 찾을 수 없습니다.',
+                  style: t.body(14, color: c.textSecondary),
+                ))
         else ...[
           Wrap(
             spacing: AppSpace.lg,

@@ -1,0 +1,12 @@
+### Official daily observations; cache only, no shared ontology mutation.
+class: MacroSeriesView
+fields:
+  seriesId: String
+  name: String
+  group: String
+  unit: String
+  rate: bool
+  source: Source?
+  points: List<IndexPoint>
+  status: String
+  message: String?

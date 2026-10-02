@@ -306,7 +306,7 @@ class _ReviewQueuePageState extends State<ReviewQueuePage> {
             ),
             const SizedBox(height: AppSpace.lg),
             if (_error != null)
-              AppNotice(message: '검수 큐를 불러오지 못했습니다 — $_error')
+              ReadFailureNotice(subject: '검수 큐', retry: _load)
             else if (_showFacts) ...[
               if (facts == null)
                 const LinearProgressIndicator(minHeight: 2)
@@ -822,10 +822,9 @@ class _EvidenceState extends State<_Evidence> {
             ),
             if (_error != null)
               Expanded(
-                child: Text(
-                  '맥락을 불러오지 못했습니다 — $_error',
-                  style: t.body(11.5, color: c.textMuted),
-                  overflow: TextOverflow.ellipsis,
+                child: TextButton(
+                  onPressed: _loading ? null : _load,
+                  child: const Text('원문 맥락 다시 불러오기'),
                 ),
               ),
           ],

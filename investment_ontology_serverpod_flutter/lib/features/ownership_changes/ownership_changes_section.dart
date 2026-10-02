@@ -123,12 +123,7 @@ class _OwnershipChangesSectionState extends State<OwnershipChangesSection> {
   Widget build(BuildContext context) {
     final c = context.colors, t = context.typo, data = _data;
     if (_failed) {
-      return Column(
-        children: [
-          const AppNotice(message: '주주 추이를 불러오지 못했습니다.'),
-          TextButton(onPressed: _load, child: const Text('다시 시도')),
-        ],
-      );
+      return ReadFailureNotice(subject: '주주 추이', retry: _load);
     }
     if (data == null) {
       return const LinearProgressIndicator(minHeight: 2);

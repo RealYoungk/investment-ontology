@@ -48,6 +48,7 @@ import '../ontology/endpoints/graph_endpoint.dart' as _ixdq71x8;
 import '../ontology/endpoints/group_endpoint.dart' as _i8zm50hy;
 import '../ontology/endpoints/industry_endpoint.dart' as _ihimn963;
 import '../ontology/endpoints/ingest_endpoint.dart' as _icbircc0;
+import '../ontology/endpoints/macro_endpoint.dart' as _ii38wwy2;
 import '../ontology/endpoints/market_endpoint.dart' as _iaw7fzks;
 import '../ontology/endpoints/membership_endpoint.dart' as _i4hwwhem;
 import '../ontology/endpoints/membership_offer_endpoint.dart' as _ilgl7tj9;
@@ -149,6 +150,12 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'ingest',
+          null,
+        ),
+      'macro': _ii38wwy2.MacroEndpoint()
+        ..initialize(
+          server,
+          'macro',
           null,
         ),
       'market': _iaw7fzks.MarketEndpoint()
@@ -1797,6 +1804,22 @@ class Endpoints extends _is.EndpointDispatch {
                     session,
                     corpCode: params['corpCode'],
                   ),
+        ),
+      },
+    );
+    connectors['macro'] = _is.EndpointConnector(
+      name: 'macro',
+      endpoint: endpoints['macro']!,
+      methodConnectors: {
+        'overview': _is.MethodConnector(
+          name: 'overview',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['macro'] as _ii38wwy2.MacroEndpoint)
+                  .overview(session),
         ),
       },
     );

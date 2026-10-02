@@ -151,7 +151,7 @@ class _GraphPageState extends State<GraphPage> {
             style: t.body(13, color: c.textMuted),
           )
         else if (_error != null)
-          AppNotice(message: '관계망을 불러오지 못했습니다 — $_error')
+          ReadFailureNotice(subject: '관계망', retry: _load)
         else if (g == null)
           const LinearProgressIndicator(minHeight: 2)
         else ...[
