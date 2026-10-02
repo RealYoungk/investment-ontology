@@ -7,7 +7,7 @@ import subprocess
 import tempfile
 import unittest
 
-SCRIPT = Path(__file__).with_name('test-server.sh')
+SCRIPT = Path(__file__).resolve().parents[1] / 'test-server.sh'
 
 
 class ServerTestScriptTest(unittest.TestCase):
