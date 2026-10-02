@@ -16,11 +16,11 @@ export async function handleRequest(request, env, send = fetch) {
     headers.set('Cache-Control', 'no-store');
     return new Response(asset.body, {status: asset.status, headers});
   }
-  // The public entry page is real HTML for all users, including without JS.
-  // Interactive application routes keep their existing Flutter SPA fallback.
+  // Keep the existing application home as the public entry.
+  // /start remains a linked, readable methodology page, not a required gate.
   if (url.pathname === '/' || url.pathname === '/index.html') {
     const assetUrl = new URL(request.url);
-    assetUrl.pathname = '/start';
+    assetUrl.pathname = '/home';
     const asset = await env.ASSETS.fetch(new Request(assetUrl, request));
     const headers = new Headers(asset.headers);
     headers.set('Cache-Control', 'no-store');

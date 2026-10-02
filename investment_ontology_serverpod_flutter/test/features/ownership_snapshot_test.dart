@@ -37,6 +37,70 @@ CompanyGovernance data(List<ShareholderEntry> holders) => CompanyGovernance(
 );
 
 void main() {
+  testWidgets(
+    'minor holders start folded and show shares and same-report change',
+    (tester) async {
+      final d = data([
+        holder('주요 관계인', 1.2),
+        holder(
+          '소량 관계인',
+          0,
+        ).copyWith(sharesBegin: BigInt.from(100), sharesEnd: BigInt.from(180)),
+      ]).copyWith(shareholderPeriodStart: DateTime(2025, 1, 1));
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: buildAppTheme(ledgerBrand),
+          home: Scaffold(body: OwnershipSnapshotCard(data: d)),
+        ),
+      );
+      expect(find.text('주요 관계인'), findsOneWidget);
+      expect(find.text('소량 관계인'), findsNothing);
+      await tester.tap(find.text('소량 보유 관계인 1명'));
+      await tester.pumpAndSettle();
+      expect(find.text('180주'), findsOneWidget);
+      expect(find.text('2025.01.01보다 80주 증가'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: buildAppTheme(ledgerBrand),
+          home: Scaffold(
+            body: OwnershipSnapshotCard(data: data(d.shareholders)),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('180주'), findsOneWidget);
+      expect(find.textContaining('주 증가'), findsNothing);
+      expect(find.textContaining('기초 대비'), findsNothing);
+      final missing = data([
+        holder('소량 관계인', 0).copyWith(sharesEnd: BigInt.from(180)),
+      ]);
+      expect(
+        snapshotQuantities(missing, snapshotHolders(missing).single).change,
+        isNull,
+      );
+    },
+  );
+  test(
+    'no top-five cutoff; retain rounded-zero and unknown common holders',
+    () {
+      final rows = [
+        for (var i = 0; i < 7; i++) holder('관계인$i', 0.1),
+        holder(
+          '임원',
+          0,
+        ).copyWith(sharesEnd: BigInt.from(80), relationText: '계열회사 임원'),
+        holder('미공시 관계인', null),
+        holder('처분 완료', 0).copyWith(sharesEnd: BigInt.zero),
+        holder('우선주만', 3, kind: '우선주'),
+      ];
+      final names = snapshotHolders(data(rows)).map((h) => h.name).toList();
+      expect(names, hasLength(9));
+      expect(names, containsAll(['관계인6', '임원', '미공시 관계인']));
+      expect(names, isNot(contains('처분 완료')));
+      expect(names, isNot(contains('우선주만')));
+    },
+  );
   for (final width in [320.0, 1000.0]) {
     testWidgets('snapshot keeps date and common share basis at $width', (
       tester,
@@ -63,7 +127,8 @@ void main() {
         ),
       );
       expect(find.textContaining('2025.12.31 기준'), findsOneWidget);
-      expect(find.text('최대주주회사 외 관계인'), findsOneWidget);
+      expect(find.text('최대주주회사'), findsOneWidget);
+      expect(find.text('관계인'), findsOneWidget);
       expect(find.text('우선주보유자'), findsNothing);
       final bar = tester.widget<LinearProgressIndicator>(
         find.byType(LinearProgressIndicator),

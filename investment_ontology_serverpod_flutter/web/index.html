@@ -86,6 +86,24 @@
   <script src="push_bridge.js"></script>
 </head>
 <body>
+  <noscript>
+    <style>#splash { display: none; }</style>
+    <main style="max-width: 760px; margin: 40px auto; padding: 24px; font-family: sans-serif; line-height: 1.8">
+      <h1>알파인더 기업 리서치</h1>
+      <p>알파인더는 국내 상장사의 재무·지배구조·기업 관계를 DART 공시와 공개 시장 데이터로 탐색하는 도구입니다. 기업·시장 공용 데이터는 로그인 없이 조회할 수 있습니다.</p>
+      <p>기업 탐색 앱에는 JavaScript가 필요합니다. JavaScript를 사용할 수 없다면 아래 자료에서 공시의 기간·단위·출처와 지표를 확인하는 방법을 읽을 수 있습니다.</p>
+      <nav aria-label="리서치 읽기 자료">
+        <ul>
+          <li><a href="/start">서비스 이용 및 리서치 안내</a></li>
+          <li><a href="/research/filing-basics">공시의 기간·연결·별도·단위 맞추기</a></li>
+          <li><a href="/research/trailing-metrics">TTM·PER·PBR 계산식 읽기</a></li>
+          <li><a href="/research/business-evidence">수주·부문 매출·가동률 근거 읽기</a></li>
+          <li><a href="/support.html">문의·운영자 안내</a></li>
+          <li><a href="/data-notice.html">개인정보처리방침</a></li>
+        </ul>
+      </nav>
+    </main>
+  </noscript>
   <!-- Local bridge only: no advertising request until an eligible slot mounts. -->
   <script src="ad_consent.js"></script>
   <script src="ad_loader.js"></script>
@@ -98,6 +116,7 @@
       <div class="slow" hidden>
         <p class="hint" role="status">연결이 늦어지고 있어요.<br>네트워크 연결을 확인해 주세요.</p>
         <button type="button" id="splash-retry">다시 불러오기</button>
+        <p><a href="/start">리서치 안내 읽기</a></p>
       </div>
     </div>
   </div>
