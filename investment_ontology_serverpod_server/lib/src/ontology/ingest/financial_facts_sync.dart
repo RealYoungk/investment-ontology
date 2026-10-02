@@ -724,7 +724,9 @@ class FinancialFactsSync {
       if (annualPublic.remaining > 0 && !cancelled) {
         requestResume(
           now.add(
-            annualPublic.fresh || metadataBatchDeferred
+            annualPublic.fresh ||
+                    annualPublic.stored > 0 ||
+                    metadataBatchDeferred
                 ? const Duration(seconds: 30)
                 : const Duration(minutes: 15),
           ),
