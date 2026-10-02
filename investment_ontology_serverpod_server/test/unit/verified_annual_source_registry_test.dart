@@ -197,21 +197,35 @@ void main() {
         expect(VerifiedAnnualSourceCache.eligibleFor(mutated, e), false);
       });
     }
-    for (final label in [
-      'manifest.json',
-      'shell.html',
-      'cover.html',
-      '${e.statementLabel}.html',
-      if (e.requiresIssuerOverview) 'overview.html',
-      if (e.ruleVersion == 'same-receipt-audit-immutable-v1') 'auditShell.html',
-    ]) {
+    final linkedPrimaryManifest = e.ruleVersion.startsWith('header18-linked-')
+        ? jsonDecode(
+            File('${e.assetDirectory}/manifest.json').readAsStringSync(),
+          ) as Map
+        : null;
+    final mutationLabels = linkedPrimaryManifest == null
+        ? [
+            'manifest.json',
+            'shell.html',
+            'cover.html',
+            '${e.statementLabel}.html',
+            if (e.requiresIssuerOverview) 'overview.html',
+            if (e.ruleVersion == 'same-receipt-audit-immutable-v1')
+              'auditShell.html',
+          ]
+        : [
+            'manifest.json',
+            for (final source in linkedPrimaryManifest['sources'] as List)
+              source['file'] as String,
+            if (e.absenceLiteral == null) 'expected-rows.json',
+          ];
+    for (final label in mutationLabels) {
       test(
         'altered pinned bytes ${e.receipt}:${e.basis.name}:$label reject',
         () async {
           final c = VerifiedAnnualSourceCache(
             readAsset: (p) async {
               final bytes = await File(p).readAsBytes();
-              return p.endsWith(label) ? [...bytes, 32] : bytes;
+              return p == '${e.assetDirectory}/$label' ? [...bytes, 32] : bytes;
             },
           );
           await expectLater(
