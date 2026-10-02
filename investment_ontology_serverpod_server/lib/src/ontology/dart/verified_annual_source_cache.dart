@@ -232,6 +232,8 @@ final class VerifiedAnnualSourceCache {
         bsnsYear: filing.bsnsYear!,
         periodEnd: end,
         consolidated: basis == FsDiv.consolidated,
+        allowPrimaryHistoricalIssuer:
+            entry.ruleVersion == 'primary-historical-issuer-whole-seven-v1',
       );
       if (entry.absenceLiteral != null ||
           client.requests != documentCount ||

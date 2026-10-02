@@ -66,6 +66,7 @@ void main() {
           bsnsYear: c['year'],
           periodEnd: DateTime.utc(c['year'], 12, 31),
           consolidated: false,
+          allowPrimaryHistoricalIssuer: true,
         );
         expect(result.rows.length, greaterThanOrEqualTo(7));
         expect(fetched.length, 3);

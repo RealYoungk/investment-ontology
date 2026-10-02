@@ -140,6 +140,7 @@ class PublicFinancialHtmlFetcher {
     required int bsnsYear,
     required DateTime periodEnd,
     required bool consolidated,
+    bool allowPrimaryHistoricalIssuer = false,
   }) => _fetch(
     receipt,
     reportName: reportName,
@@ -150,6 +151,7 @@ class PublicFinancialHtmlFetcher {
     consolidated: consolidated,
     halfYear: false,
     exactAnnual: true,
+    allowPrimaryHistoricalIssuer: allowPrimaryHistoricalIssuer,
   );
 
   /// Exact-receipt half-year HTML. This never follows a prior annual report.
@@ -182,6 +184,7 @@ class PublicFinancialHtmlFetcher {
     required bool consolidated,
     required bool halfYear,
     bool exactAnnual = false,
+    bool allowPrimaryHistoricalIssuer = false,
   }) async {
     if (!RegExp(r'^\d{14}$').hasMatch(correctionReceipt) ||
         !RegExp(r'^\d{8}$').hasMatch(corpCode) ||
@@ -428,7 +431,7 @@ class PublicFinancialHtmlFetcher {
           start: periodStart,
           end: periodEnd,
         );
-        if (!usesLinkedAudit) {
+        if (allowPrimaryHistoricalIssuer && !usesLinkedAudit) {
           primaryStatement = await get(
             statementSource,
             referer: originalSource,

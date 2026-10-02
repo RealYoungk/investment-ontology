@@ -19,6 +19,8 @@ void main() {
         'success-and-rerun',
         if ({
           '20250320001633',
+          '20230714000217',
+          '20240319000287',
           '20240320000248',
           '20230323000586',
         }.contains(entry.receipt))
@@ -365,6 +367,61 @@ void main() {
                   ),
                   true,
                 );
+              }
+              if ({
+                '20230714000217',
+                '20240319000287',
+              }.contains(entry.receipt)) {
+                final cases = jsonDecode(
+                  File(
+                    'test/fixtures/financial_html/primary-historical-issuer/cases.json',
+                  ).readAsStringSync(),
+                ) as List;
+                final proof = cases.singleWhere(
+                  (p) => p['receipt'] == entry.receipt,
+                );
+                final expected = proof['expectedRows'] as List;
+                expect(facts, hasLength(7));
+                for (final pair in expected) {
+                  final fact = facts.singleWhere(
+                    (f) => f.accountName == pair[0],
+                  );
+                  expect(fact.amount, BigInt.parse(pair[1]));
+                }
+                final coreAudit = (await Source.db.find(
+                  session,
+                  where: (t) => t.reference.equals(
+                    'financial-api-noData-source:${entry.receipt}:separate',
+                  ),
+                )).single;
+                final rows =
+                    jsonDecode(coreAudit.title)['coreRowProvenance'] as List;
+                expect(rows, hasLength(7));
+                for (final row in rows) {
+                  final identity =
+                      row['html_provenance']['primaryHistoricalIssuer'];
+                  expect(identity['receipt'], entry.receipt);
+                  expect(identity['corpCode'], entry.corpCode);
+                  expect(identity['currentMasterName'], entry.companyName);
+                  expect(identity['statementSource'], statement['url']);
+                }
+                const keys = [
+                  'assets',
+                  'liabilities',
+                  'equity',
+                  'revenue',
+                  'operatingIncome',
+                  'netIncome',
+                  'operatingCashFlow',
+                ];
+                for (var i = 0; i < keys.length; i++) {
+                  expect(
+                    summary!.periods.single.lines
+                        .singleWhere((l) => l.key == keys[i])
+                        .amount,
+                    BigInt.parse(expected[i][1]),
+                  );
+                }
               }
               expect(
                 summary!.periods.single.lines
