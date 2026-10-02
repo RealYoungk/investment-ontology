@@ -18,3 +18,7 @@
 일반 colspan/rowspan 상한은 그대로입니다. CE 분류행의 숫자·다른 colspan·NCI·종료일 모순을 허용하지 않습니다. 메디젠/다원 FY2021 원문 날짜 모순도 계속 거부합니다. 100기준 순수 진단은 최초15 → CE변경25 → 전체7문법29통과이며 기존15 모두 유지했습니다. 기존 교보 CFS의 전각 영업수익을 이제 직접 인식할 수 있어 6계정 대신 전체7로 판독하지만, 별도 CFS 패키지는 이 커밋에서 추가하지 않았습니다.
 
 고정 cache4 패키지는 원접수 shell/corp, 표지/당기 범위, OFS 정확6좌표 URL, 각 raw SHA와 manifest SHA를 재검증합니다. 공개 API·DB 저장 실행은 별도 승인된 정상 작업자가 수행해야 하며 본 작업은 재무 저장 완료를 주장하지 않습니다.
+
+## 통합 정상 수집 검증
+
+Root 통합본 `9a6ab9ac`에서 4개 receipt를 `financial_verified_registry_cache_test.dart` 정상 큐로 실행해 4 PASS를 확인했다. 격리 test DB와 admin test session만 사용했고 운영 DB 변경은 없다. API 호출량 20,000·재시도 한도 도달 상황에서도 고정 원문 검증 후 직접 계정을 저장하고, 반대 basis의 기존 데이터 및 반복 실행의 불변성을 검사했다. 로그: `/private/tmp/io-whole-four-normal-db.log`. 운영 복구 완료를 의미하지 않는다.
