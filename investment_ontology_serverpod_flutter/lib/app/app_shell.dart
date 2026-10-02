@@ -129,11 +129,7 @@ class _AppShellState extends State<AppShell> {
                     _TopBar(destinations: destinations, desktop: desktop),
                     Expanded(
                       child: PageFrameLeadScope(
-                        leading:
-                            const {
-                              '/market',
-                              '/companies',
-                            }.contains(path)
+                        leading: const {'/market', '/companies'}.contains(path)
                             ? const AdBanner()
                             : null,
                         child: widget.child,
@@ -435,12 +431,16 @@ typedef _Hits = ({
   List<CompanyListItem> companies,
   List<PersonHit> persons,
   List<_SearchLink> links,
+  int companyTotal,
+  String query,
 });
 
 const _noHits = (
   companies: <CompanyListItem>[],
   persons: <PersonHit>[],
   links: <_SearchLink>[],
+  companyTotal: 0,
+  query: '',
 );
 
 /// 기업은 시가총액 순 8곳, 인물은 이어진 기업이 많은 순 4명.
@@ -472,7 +472,13 @@ Future<_Hits> _searchAll(String query) async {
     ])
       if (matches('${item.title} ${item.detail}')) item,
   ];
-  return (companies: page.items, persons: persons, links: links);
+  return (
+    companies: page.items,
+    persons: persons,
+    links: links,
+    companyTotal: page.total,
+    query: query,
+  );
 }
 
 /// 검색 결과 목록: 기업 다음에 인물.
@@ -639,13 +645,29 @@ class _SearchResults extends StatelessWidget {
         (hits.companies.isNotEmpty ||
             hits.persons.isNotEmpty ||
             hits.links.isNotEmpty)) {
-      return _HitList(
-        hits: hits,
-        selectedIndex: selectedIndex,
-        selectedKey: selectedKey,
-        onCompany: onCompany,
-        onPerson: onPerson,
-        onLocation: onLocation,
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _HitList(
+            hits: hits,
+            selectedIndex: selectedIndex,
+            selectedKey: selectedKey,
+            onCompany: onCompany,
+            onPerson: onPerson,
+            onLocation: onLocation,
+          ),
+          if (hits.companyTotal > hits.companies.length)
+            TextButton(
+              onPressed: () => onLocation(
+                Uri(
+                  path: '/companies',
+                  queryParameters: {'q': hits.query, 'sort': 'marketCap'},
+                ).toString(),
+              ),
+              child: Text('기업 검색 결과 ${hits.companyTotal}개 모두 보기'),
+            ),
+        ],
       );
     }
     return Semantics(
