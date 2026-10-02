@@ -533,10 +533,11 @@ class FinancialFactsSync {
         );
       }
       final cached = job.status == IngestStatus.cancelled
-          ? (processed: 0, failed: 0)
+          ? (processed: 0, failed: 0, stored: 0)
           : await _replayVerifiedAnnualSourceCache(scopeIds, companies);
       processed += cached.processed;
       failed += cached.failed;
+      stored += cached.stored;
       final halfPublic = !_hasAllowance && job.status != IngestStatus.cancelled
           ? await _recoverPendingHalfXbrl(scopeIds, companies)
           : (stored: 0, failed: 0, processed: 0, remaining: 0, fresh: false);
@@ -742,6 +743,7 @@ class FinancialFactsSync {
           resumeNow.add(
             annualPublic.fresh ||
                     annualPublic.stored > 0 ||
+                    cached.stored > 0 ||
                     metadataBatchDeferred
                 ? const Duration(seconds: 30)
                 : const Duration(minutes: 15),
@@ -2611,7 +2613,8 @@ class FinancialFactsSync {
   }
 
   /// A finite raw recomputation, not an additional public/API fetch attempt.
-  Future<({int processed, int failed})> _replayVerifiedAnnualSourceCache(
+  Future<({int processed, int failed, int stored})>
+  _replayVerifiedAnnualSourceCache(
     Set<int> scopeIds,
     Map<String, Company> companies,
   ) async {
@@ -2621,7 +2624,7 @@ class FinancialFactsSync {
               VerifiedAnnualSourceCache.corpCode,
               VerifiedAnnualSourceCache.pimCorpCode,
             }.contains(corpCode))) {
-      return (processed: 0, failed: 0);
+      return (processed: 0, failed: 0, stored: 0);
     }
     final candidates = await DartFiling.db.find(
       session,
@@ -2632,7 +2635,7 @@ class FinancialFactsSync {
             VerifiedAnnualSourceCache.pimReceipt,
           }),
     );
-    var processed = 0, failed = 0, consecutiveFailures = 0;
+    var processed = 0, failed = 0, stored = 0, consecutiveFailures = 0;
     for (final f in candidates) {
       if (processed >= 10 ||
           consecutiveFailures >= 6 ||
@@ -2872,6 +2875,7 @@ class FinancialFactsSync {
         return status;
       });
       if (outcome == 'skipped') continue;
+      if (outcome == 'completed-source-numeric') stored++;
       processed++;
       if (outcome == 'failed') {
         failed++;
@@ -2880,7 +2884,7 @@ class FinancialFactsSync {
         consecutiveFailures = 0;
       }
     }
-    return (processed: processed, failed: failed);
+    return (processed: processed, failed: failed, stored: stored);
   }
 
   Future<DartFiling> _verifiedAttachmentSource(

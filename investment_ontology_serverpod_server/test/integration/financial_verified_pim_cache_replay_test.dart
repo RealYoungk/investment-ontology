@@ -124,6 +124,7 @@ void main() {
           );
         }
         var reads = 0;
+        var runs = 0;
         Future<void> run() async {
           final job = await IngestJob.db.insertRow(
             session,
@@ -159,6 +160,17 @@ void main() {
             callInterval: Duration.zero,
             sourceCache: cache,
           ).run();
+          final finished = (await IngestJob.db.findById(session, job.id!))!;
+          final expectedStored = scenario.startsWith('success') && runs == 0
+              ? 1
+              : 0;
+          expect(finished.updated, expectedStored);
+          if (scenario != 'cancel-during-read') {
+            expect(finished.message, contains('저장한 재무제표 $expectedStored벌'));
+          } else {
+            expect(finished.status, IngestStatus.cancelled);
+          }
+          runs++;
           expect(client.calls, 0);
           expect((await ApiCallUsage.db.find(session)).single.calls, 20000);
         }
