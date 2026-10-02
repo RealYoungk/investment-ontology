@@ -181,7 +181,7 @@ class PublicFinancialHtmlFetcher {
     if (!RegExp(r'^\d{14}$').hasMatch(correctionReceipt) ||
         !RegExp(r'^\d{8}$').hasMatch(corpCode) ||
         !(exactAnnual
-            ? RegExp(r'^(?:\[기재정정\])?사업보고서\s*\(\d{4}\.\d{2}\)$')
+            ? RegExp(r'^(?:\[(?:기재정정|첨부추가)\])?사업보고서\s*\(\d{4}\.\d{2}\)$')
                       .hasMatch(reportName) &&
                   reportName.endsWith(
                     '(${periodEnd.year}.${periodEnd.month.toString().padLeft(2, '0')})',
