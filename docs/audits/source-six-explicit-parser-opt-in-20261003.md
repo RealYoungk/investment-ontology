@@ -5,3 +5,5 @@
 `allowSourceVerifiedPartialCore` 기본값은 false. 정확 compiled registry의 source-six rule 패키지는 기존 receipt/corp/period/URI/SHA 검증 후에만 true를 전달해 원문 검증 결과를 읽는다. 이 옵션은 저장 승인이 아니며 정상 Sync 저장 거부는 유지된다. BNK/Pureun/IMGT 기존 승인 부분 경로는 수정하지 않았다.
 
 optional-capex 필수 매출 대시 거부, 공통6 명시 양성/기본 거부, 정확 캐시 검증, BNK/Pureun/IMGT 및 whole7/8·CE·기간 회귀 10개 suite 242 PASS. 일반 공개 fetch가 3개 실제 원문을 기본 거부하는 직접 검증도 추가했다. 운영 및 DB 변경 없음. 정상 큐 DB 슬롯은 별도 순서 대기 중이다.
+
+후속 정상 큐 DB 5건 재검증 PASS: generic 부분6 3건은 실패 감사·미저장·기존 시도/반대 기준/재실행 불변, 기존 승인 Pureun·BNK는 정상 저장. 로그 `/private/tmp/io-partial-opt-in-guard-db.log`. 단일 runner concurrency1, teardown 종료 후 DB 슬롯 반환. API0·운영 변경0.
