@@ -50,7 +50,22 @@ void main() {
       ]) {
         expect(VerifiedAnnualSourceCache.eligibleFor(bad, e), isFalse);
       }
-      expect(VerifiedAnnualSourceRegistry.find(r, FsDiv.consolidated), isNull);
+      final cfs = VerifiedAnnualSourceRegistry.find(r, FsDiv.consolidated)!;
+      expect(cfs.basis, FsDiv.consolidated);
+      final consolidated = await cache.verifyRegistered(
+        f,
+        c,
+        FsDiv.consolidated,
+      );
+      expect(consolidated.absence, isNull);
+      expect(consolidated.numeric!.rows.length, inInclusiveRange(7, 8));
+      expect(consolidated.numeric!.sourceReceipt, r);
+      expect(
+        consolidated.numeric!.rows.every(
+          (row) => row['html_provenance']['basis'] == 'CFS',
+        ),
+        isTrue,
+      );
     });
   }
 }
