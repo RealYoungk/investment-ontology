@@ -267,6 +267,9 @@ class PublicIssuerLegalName {
       // A later history, change notice or subsidiary paragraph cannot supply it.
       final firstLiteralPatterns = [
         RegExp(
+          r"^당사의 명칭은 '([가-힣㈜() ]+)' 이라고 표기합니다\. 또한 영문으로는 '[A-Za-z0-9.,& -]+'라 표기합니다\.$",
+        ),
+        RegExp(
           r'^당사의 명칭은 ([가-힣㈜() ]+) 라고 표기합니다\. 또한 영문으로는 [A-Za-z0-9.,& -]+ 라 표기합니다\.$',
         ),
         RegExp(
@@ -279,8 +282,26 @@ class PublicIssuerLegalName {
       ];
       RegExpMatch? firstLiteral;
       if (firstDeclaration.start == p.start) {
+        // A1 prints the English continuation after a BR, which becomes the
+        // immediately following paragraph. Join only these two exact clauses;
+        // history, proposals and unrelated later paragraphs remain excluded.
+        var firstText = t;
+        if (RegExp(r"^당사의 명칭은 '[가-힣㈜() ]+' 이라고 표기합니다\.$").hasMatch(t)) {
+          final following = RegExp(
+            r'<p\b[^>]*>(.*?)</p>',
+            caseSensitive: false,
+            dotAll: true,
+          ).allMatches(section).where((v) => v.start > p.start).toList();
+          if (following.isNotEmpty) {
+            final tail = _text(following.first.group(1)!);
+            if (RegExp(r"^또한 영문으로는 '[A-Za-z0-9.,& -]+'라 표기합니다\.$")
+                .hasMatch(tail)) {
+              firstText = '$t $tail';
+            }
+          }
+        }
         final matches = firstLiteralPatterns
-            .map((pattern) => pattern.firstMatch(t))
+            .map((pattern) => pattern.firstMatch(firstText))
             .whereType<RegExpMatch>()
             .toList();
         if (matches.length == 1 &&
