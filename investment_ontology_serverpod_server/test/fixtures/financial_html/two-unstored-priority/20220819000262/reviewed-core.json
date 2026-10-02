@@ -1,0 +1,44 @@
+{
+  "receipt": "20220819000262",
+  "corpCode": "00450931",
+  "companyName": "우양에이치씨(주)",
+  "start": "2021-01-01T00:00:00.000Z",
+  "end": "2021-12-31T00:00:00.000Z",
+  "rows": [
+    {
+      "label": "자 산 총 계",
+      "amount": "249374443230",
+      "statement": "BS"
+    },
+    {
+      "label": "부 채 총 계",
+      "amount": "127569621387",
+      "statement": "BS"
+    },
+    {
+      "label": "자 본 총 계",
+      "amount": "121804821843",
+      "statement": "BS"
+    },
+    {
+      "label": "매출액",
+      "amount": "99851983058",
+      "statement": "CIS"
+    },
+    {
+      "label": "영업이익(손실)",
+      "amount": "215964334",
+      "statement": "CIS"
+    },
+    {
+      "label": "당기순이익(손실)",
+      "amount": "134059370",
+      "statement": "CIS"
+    },
+    {
+      "label": "I. 영업활동으로 인한 현금흐름",
+      "amount": "17649778531",
+      "statement": "CF"
+    }
+  ]
+}

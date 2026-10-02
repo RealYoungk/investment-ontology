@@ -1070,6 +1070,8 @@ class FinancialFactsSync {
       <String, ({String corp, int year, Set<String> bases})>{
         // Exact attachment target; actual financial Source remains its original annual.
         '20260318000344': (corp: '00963000', year: 2025, bases: {'CFS', 'OFS'}),
+        '20230321001265': (corp: '01344363', year: 2022, bases: {'OFS'}),
+        '20220819000262': (corp: '00450931', year: 2021, bases: {'OFS'}),
         '20220316000721': (corp: '00337296', year: 2021, bases: {'OFS'}),
         '20220322000487': (corp: '00521433', year: 2021, bases: {'OFS'}),
         '20220321000166': (corp: '01117422', year: 2021, bases: {'OFS'}),
