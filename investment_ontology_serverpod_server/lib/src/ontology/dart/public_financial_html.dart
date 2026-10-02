@@ -1,4 +1,5 @@
 import 'insurance_current_annual_source.dart';
+import 'known_annual_source_conflict.dart';
 import 'exact_seven_cash_source.dart';
 import 'printed_current_annual_source.dart';
 import 'contents_on_corroborated_flow_period.dart';
@@ -839,6 +840,17 @@ abstract final class PublicFinancialHtml {
     // Opt-in proof inspection only; this does not authorize six-core storage.
     bool allowSourceVerifiedPartialCore = false,
   }) {
+    KnownAnnualSourceConflicts.verify(
+      receipt: receipt,
+      corpCode: corpCode,
+      consolidated: consolidated,
+      start: periodStart,
+      end: periodEnd,
+      coverSource: coverSource,
+      statementSource: statementSource,
+      coverHtml: coverHtml,
+      statementHtml: statementHtml,
+    );
     if (!consolidated && ExactSevenCashSource.eligible(receipt)) {
       return ExactSevenCashSource.parse(
         receipt: receipt,
