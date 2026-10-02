@@ -1,3 +1,5 @@
+import '../dart/imgt_explicit_revenue_missing.dart';
+
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
@@ -101,6 +103,33 @@ class FinancialEndpoint extends Endpoint {
       (factsByReport[f.reportId] ??= []).add(f);
     }
 
+    final explicitMissingReasons = <int, String>{};
+    if (company.corpCode == ImgtExplicitRevenueMissing.corp) {
+      for (final r in selected.where(
+        (r) => r.rceptNo == ImgtExplicitRevenueMissing.receipt,
+      )) {
+        final source = await Source.db.findById(session, r.sourceId);
+        final audit = await Source.db.findFirstRow(
+          session,
+          where: (t) => t.reference.equals(
+            'financial-api-noData-source:${r.rceptNo}:${r.fsDiv.name}',
+          ),
+        );
+        if (source == null || audit == null) continue;
+        final reportFacts = factsByReport[r.id] ?? const <FinancialFact>[];
+        for (final line in FinancialAccounts.pick(reportFacts)) {
+          final reason = ImgtExplicitRevenueMissing.reason(
+            company: company.corpCode,
+            report: r,
+            source: source,
+            audit: audit,
+            facts: reportFacts,
+            line: line,
+          );
+          if (reason != null) explicitMissingReasons[line.factId] = reason;
+        }
+      }
+    }
     final supersededCounts = <int, int>{};
     final correctionCounts = await session.db.unsafeQuery(
       'WITH ${FinancialBasis.ctes(companyId: company.id!, blockedAnnualFlowReportIds: shortIds)} '
@@ -147,7 +176,10 @@ class FinancialEndpoint extends Endpoint {
                       '${durations.ranges[r.id]?.label ?? '원문 보고기간 확인 필요'} · 보고기간이 확인된 12개월 계산 입력이 아닙니다.',
                 )
               else
-                line,
+                (line
+                  ..unavailableReason =
+                      explicitMissingReasons[line.factId] ??
+                      line.unavailableReason),
           ],
         ),
     ];

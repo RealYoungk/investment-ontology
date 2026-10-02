@@ -1802,6 +1802,20 @@ abstract final class PublicFinancialHtml {
         statementSource.queryParameters['eleId'] == '21' &&
         statementSource.queryParameters['offset'] == '429403' &&
         statementSource.queryParameters['length'] == '46142';
+    final imgtMissingRevenue =
+        receipt == '20260330001850' &&
+        corpCode == '01579020' &&
+        term == '16' &&
+        periodStart == DateTime.utc(2025) &&
+        periodEnd == DateTime.utc(2025, 12, 31) &&
+        statementSource.queryParameters['dcmNo'] == '11198920' &&
+        statementSource.queryParameters['eleId'] ==
+            (consolidated ? '19' : '21') &&
+        statementSource.queryParameters['offset'] ==
+            (consolidated ? '354048' : '739348') &&
+        statementSource.queryParameters['length'] ==
+            (consolidated ? '51356' : '45486');
+    Map<String, dynamic>? missingRevenue;
     final result = <Map<String, dynamic>>[];
     final values = <String, BigInt>{};
     final missingOptional = <Map<String, dynamic>>[];
@@ -2055,6 +2069,50 @@ abstract final class PublicFinancialHtml {
             .map((c) => money(c!.text))
             .whereType<BigInt>()
             .toList();
+        if (imgtMissingRevenue &&
+            account.$1 == 'revenue' &&
+            kind == 'CIS' &&
+            label(row.first!.text) == '영업수익') {
+          if (missingRevenue != null ||
+              current.column != 2 ||
+              current.colspan != 1 ||
+              cells.length != 1 ||
+              cells.single!.text.trim() != '-') {
+            throw const FormatException(
+              'IMGT explicit missing revenue cell mismatch',
+            );
+          }
+          missingRevenue = {
+            'rcept_no': receipt,
+            'corp_code': corpCode,
+            'bsns_year': '2025',
+            'reprt_code': '11011',
+            'account_id': null,
+            'account_nm': row.first!.text,
+            'account_detail': '-',
+            'sj_div': 'CIS',
+            'thstrm_nm': '2025-01-01~2025-12-31',
+            'thstrm_amount': null,
+            'currency': 'KRW',
+            'html_provenance': {
+              'source': statementSource.toString(),
+              'tableIndex': index,
+              'printedLabel': row.first!.text,
+              'currentColumn': 2,
+              'currentColumnSpan': 1,
+              'currentHeader': current.text,
+              'printedCurrentCells': ['-'],
+              'basis': consolidated ? 'CFS' : 'OFS',
+              'unit': printedUnit,
+              'periodStart': '2025-01-01',
+              'periodEnd': '2025-12-31',
+              'explicitMissingAmount': 'printed-dash-no-zero-or-prior',
+              'missingRequiredAccount': 'revenue',
+              'partialCoreRule': 'imgt-explicit-revenue-null-v1',
+            },
+          };
+          continue;
+        }
         if (account.$1 == 'capex' &&
             amounts.isEmpty &&
             cells.every(
@@ -2131,11 +2189,128 @@ abstract final class PublicFinancialHtml {
           'operating',
           'profit',
           'cfo',
-        }.every(values.containsKey) ||
+        }.every(
+          (key) =>
+              key == 'revenue' &&
+                  imgtMissingRevenue &&
+                  missingRevenue != null ||
+              values.containsKey(key),
+        ) ||
         values['assets'] != values['liabilities']! + values['equity']!) {
       throw const FormatException(
         'Annual primary core missing or balance mismatch',
       );
+    }
+    if (imgtMissingRevenue) {
+      if (missingRevenue == null) {
+        throw const FormatException(
+          'IMGT revenue must be explicitly unavailable',
+        );
+      }
+      final proofs = <Map<String, dynamic>>[];
+      for (final t in RegExp(
+        r'<TABLE\b[^>]*>(.*?)</TABLE>',
+        caseSensitive: false,
+        dotAll: true,
+      ).allMatches(scope)) {
+        final prefix = _compact(_text(scope.substring(0, t.start)));
+        final ce = prefix.lastIndexOf('자본변동표');
+        if (ce < 0 ||
+            [
+              '재무상태표',
+              '손익계산서',
+              '현금흐름표',
+            ].any((h) => prefix.lastIndexOf(h) > ce)) {
+          continue;
+        }
+        final g = _FinancialHtmlGrid.parse(t[1]!);
+        if (g.isEmpty ||
+            g.first.isEmpty ||
+            _compact(g.first.first?.text ?? '') != '과목') {
+          continue;
+        }
+        final local = prefix.substring(ce);
+        if (!local.contains('제16(당)기2025년1월1일부터2025년12월31일까지') ||
+            !local.endsWith('(단위:원)') ||
+            !local.contains(consolidated ? '주식회사아이엠지티와그종속기업' : '주식회사아이엠지티')) {
+          throw const FormatException('IMGT CE issuer period unit mismatch');
+        }
+        final header = consolidated
+            ? '과목|자본금|자본잉여금|기타자본구성요소|결손금|지배기업소유주지분|비지배지분|총계'
+            : '과목|자본금|자본잉여금|기타자본구성요소|결손금|총계';
+        if (g.first.map((c) => _compact(c?.text ?? '')).join('|') != header ||
+            g.first.any((c) => c == null || c.rowspan != 1 || c.colspan != 1)) {
+          throw const FormatException('IMGT CE whole header mismatch');
+        }
+        int one(String label) {
+          final rows = [
+            for (var i = 1; i < g.length; i++)
+              if (_compact(g[i].first?.text ?? '') == label) i,
+          ];
+          if (rows.length != 1) {
+            throw const FormatException('IMGT CE explicit date ambiguous');
+          }
+          return rows.single;
+        }
+
+        final before = one('2025년1월1일(당기초,수정전)');
+        final restated = one('2025년1월1일(당기초,재작성)');
+        final end = one('2025년12월31일(당기말)');
+        final marked = [
+          for (var i = 1; i < g.length; i++)
+            if (_compact(g[i].first?.text ?? '').contains('당기초') ||
+                _compact(g[i].first?.text ?? '').contains('당기말'))
+              i,
+        ];
+        if (marked.length != 3 || before >= restated || restated >= end) {
+          throw const FormatException('IMGT CE restatement sequence mismatch');
+        }
+        final profit = [
+          for (var i = restated + 1; i < end; i++)
+            if (_compact(g[i].first?.text ?? '') ==
+                (consolidated ? '당기순이익(손실)' : '당기순손실'))
+              i,
+        ];
+        if (profit.length != 1) {
+          throw const FormatException('IMGT CE current whole profit ambiguous');
+        }
+        BigInt whole(int r) {
+          if (g[r].length != g.first.length ||
+              g[r].any((c) => c == null || c.rowspan != 1 || c.colspan != 1)) {
+            throw const FormatException('IMGT CE current row shape mismatch');
+          }
+          final v = money(g[r].last!.text);
+          if (v == null) {
+            throw const FormatException('IMGT CE whole amount unavailable');
+          }
+          return v;
+        }
+
+        if (whole(end) != values['equity'] ||
+            whole(profit.single) != values['profit']) {
+          throw const FormatException('IMGT CE whole profit equity conflict');
+        }
+        proofs.add({
+          'mode': 'imgt-explicit-revenue-null-v1',
+          'wholeTotalColumn': g.first.length - 1,
+          'currentProfit': whole(profit.single).toString(),
+          'closingEquity': whole(end).toString(),
+          'restatementStartLabels': [
+            '2025년1월1일(당기초,수정전)',
+            '2025년1월1일(당기초,재작성)',
+          ],
+          'source': statementSource.toString(),
+        });
+      }
+      if (proofs.length != 1) {
+        throw const FormatException('IMGT CE proof absent or ambiguous');
+      }
+      result.add(missingRevenue);
+      for (final row in result) {
+        (row['html_provenance']
+                as Map<String, dynamic>)['supportingPeriodEvidence'] =
+            proofs.single;
+      }
     }
     if (kiwoomRepeatedTermScope) {
       final ceProofs = <Map<String, dynamic>>[];

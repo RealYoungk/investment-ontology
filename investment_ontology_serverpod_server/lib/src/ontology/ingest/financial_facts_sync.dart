@@ -1,3 +1,4 @@
+import '../dart/imgt_explicit_revenue_missing.dart';
 import '../dart/verified_annual_source_cache.dart';
 import '../dart/verified_annual_source_registry.dart';
 import '../dart/verified_half_basis_absence.dart';
@@ -1175,6 +1176,7 @@ class FinancialFactsSync {
         '20220316000721': (corp: '00337296', year: 2021, bases: {'OFS'}),
         '20220322000487': (corp: '00521433', year: 2021, bases: {'OFS'}),
         '20220321000166': (corp: '01117422', year: 2021, bases: {'OFS'}),
+        '20260330001850': (corp: '01579020', year: 2025, bases: {'CFS', 'OFS'}),
         '20260320000871': (corp: '01065785', year: 2025, bases: {'CFS', 'OFS'}),
         '20230320001037': (corp: '00296290', year: 2022, bases: {'CFS'}),
         '20230321000972': (corp: '01063556', year: 2022, bases: {'CFS'}),
@@ -2633,6 +2635,15 @@ class FinancialFactsSync {
             'coreRowProvenance': [
               for (final row in rows)
                 {
+                  if (row['html_provenance'] is Map &&
+                      (row['html_provenance'] as Map)['partialCoreRule'] ==
+                          ImgtExplicitRevenueMissing.rule) ...{
+                    'rcept_no': row['rcept_no'],
+                    'corp_code': row['corp_code'],
+                    'bsns_year': row['bsns_year'],
+                    'reprt_code': row['reprt_code'],
+                    'sj_div': row['sj_div'],
+                  },
                   'account_nm': row['account_nm'],
                   'account_id': row['account_id'],
                   'thstrm_amount': row['thstrm_amount'],
@@ -3518,7 +3529,18 @@ class FinancialFactsSync {
     final partialCore =
         originalSource != null &&
         rows.any((r) => r['xbrl_partial_core'] == true);
-    final partialNote = partialCore
+    final explicitMissingRevenue =
+        originalFormat == 'html' &&
+        ImgtExplicitRevenueMissing.rowsProof(
+          rows,
+          company.corpCode,
+          rceptNo,
+          div,
+          originalSource,
+        );
+    final partialNote = explicitMissingRevenue
+        ? ' · ${ImgtExplicitRevenueMissing.note}'
+        : partialCore
         ? ' · 부분 핵심계정 · 당기순손익 미확보 · '
               '${rows.firstWhere((r) => r['xbrl_partial_core'] == true)['xbrl_collection_note']}'
         : '';
