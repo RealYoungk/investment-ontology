@@ -2412,6 +2412,24 @@ abstract final class PublicFinancialHtml {
         });
       }
     }
+    if (linkedAudit) {
+      if (values['equity'] == null || values['profit'] == null) {
+        throw const FormatException('Audit whole core missing');
+      }
+      final proof = SameReceiptAuditSource.verifiedWholeEquity(
+        receipt,
+        statementHtml,
+        values['equity']!,
+        values['profit']!,
+      );
+      if (proof != null) {
+        for (final row in result) {
+          (row['html_provenance']
+                  as Map<String, dynamic>)['supportingWholeEquityEvidence'] =
+              proof;
+        }
+      }
+    }
     if (!{
           'assets',
           'liabilities',

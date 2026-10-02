@@ -56,6 +56,18 @@ abstract final class VerifiedAnnualSourceRegistry {
       absenceLiteral: null,
     ),
     AnnualSourceCacheEntry(
+      receipt: '20250318000507',
+      corpCode: '01281541',
+      companyName: '(주)에피바이오텍',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250318000507-ofs-audit',
+      manifestDigest:
+          '0dd5d276f0250c917b2e5811e67e5be0466ce326a8db56f8e14452bed357a3b9',
+      ruleVersion: 'same-receipt-audit-immutable-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20260326000605',
       corpCode: '01139497',
       companyName: '주식회사 에스제이켐',
@@ -68,6 +80,18 @@ abstract final class VerifiedAnnualSourceRegistry {
       absenceLiteral: null,
     ),
     AnnualSourceCacheEntry(
+      receipt: '20250321001749',
+      corpCode: '00366517',
+      companyName: '(주)케이씨산업',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250321001749-ofs-audit',
+      manifestDigest:
+          '62507ae47740ef6e90c941bda61ba955ce15bac1ba70eed707c19661621e01c6',
+      ruleVersion: 'same-receipt-audit-immutable-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20240320000531',
       corpCode: '00663289',
       companyName: '위월드(주)',
@@ -76,6 +100,18 @@ abstract final class VerifiedAnnualSourceRegistry {
       assetDirectory: 'assets/financial_source_cache/20240320000531-ofs-audit',
       manifestDigest:
           '5d5c8b02196fc40f3691b4e496db02049223060a2928e0a0059bba383f99930e',
+      ruleVersion: 'same-receipt-audit-immutable-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250407004206',
+      corpCode: '00414540',
+      companyName: '대주이엔티(주)',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250407004206-ofs-audit',
+      manifestDigest:
+          'a9508331d9aad30682d1e057eb4198dcf821036a1ae14773cb10802a232f5f0f',
       ruleVersion: 'same-receipt-audit-immutable-v1',
       absenceLiteral: null,
     ),
