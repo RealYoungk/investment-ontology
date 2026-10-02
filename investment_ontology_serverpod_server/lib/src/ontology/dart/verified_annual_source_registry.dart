@@ -52,6 +52,90 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20220331000273',
+      corpCode: '01258020',
+      companyName: '주식회사 에스바이오메딕스',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220331000273-ofs',
+      manifestDigest:
+          '137fa08e66011e310d9715f95f75a9ba61b43ffa9ede7f3c73962b7dd33cb425',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230314001218',
+      corpCode: '00135917',
+      companyName: '한화손해보험(주)',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230314001218-ofs',
+      manifestDigest:
+          'd040c3da0b3f99a86a9c06c900ab74852497b745c28429170539bb2295ab66c8',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230321001131',
+      corpCode: '01596425',
+      companyName: '에스케이스퀘어 주식회사',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230321001131-ofs',
+      manifestDigest:
+          '4598f4a55d49e356990970bd31093ceb8a3d2c12b0b71fa607806e2dd7c89e2a',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230323000050',
+      corpCode: '01258020',
+      companyName: '주식회사 에스바이오메딕스',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230323000050-ofs',
+      manifestDigest:
+          '26ce948ba039b311eea4c4e612efc8f5506dabc07251499ff1e1f08a25c7450a',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240320000922',
+      corpCode: '01020269',
+      companyName: '(주) 탈로스',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20240320000922-ofs',
+      manifestDigest:
+          'ac2b8c8d6d79a07a02bd0e4da7e33358c0ca0a8956c3a1555999f0a04d2280ae',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250321000195',
+      corpCode: '00861100',
+      companyName: '아이케이세미콘(주)',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250321000195-ofs',
+      manifestDigest:
+          'b5398ad6d1e8ca9fc585062a74b812e5f3c8400dd31e82996f1fd205041c82a1',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250424000405',
+      corpCode: '00756163',
+      companyName: '(주)볼빅',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250424000405-ofs',
+      manifestDigest:
+          '0ffcba9b6f2656f99de483dd7308dd6aa3a5ae8c0e4b1c651400b10c307a784b',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20230317000745',
       corpCode: '01065785',
       companyName: '(주)노브메타파마',
