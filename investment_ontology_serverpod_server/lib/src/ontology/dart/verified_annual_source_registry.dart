@@ -13,7 +13,9 @@ final class AnnualSourceCacheEntry {
     required this.ruleVersion,
     required this.absenceLiteral,
     this.requiresIssuerOverview = false,
-  });
+    this.declaredPeriodStart,
+    this.declaredPeriodEnd,
+  }) : assert((declaredPeriodStart == null) == (declaredPeriodEnd == null));
   final String receipt,
       corpCode,
       companyName,
@@ -24,6 +26,24 @@ final class AnnualSourceCacheEntry {
   final FsDiv basis;
   final String? absenceLiteral;
   final bool requiresIssuerOverview;
+  final String? declaredPeriodStart, declaredPeriodEnd;
+  DateTime get periodStart => declaredPeriodStart == null
+      ? DateTime.utc(year)
+      : _declaredDate(declaredPeriodStart!);
+  DateTime get periodEnd => declaredPeriodEnd == null
+      ? DateTime.utc(year, 12, 31)
+      : _declaredDate(declaredPeriodEnd!);
+  static DateTime _declaredDate(String value) {
+    if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(value)) {
+      throw const FormatException('Invalid compiled annual calendar date');
+    }
+    final date = DateTime.parse('${value}T00:00:00Z');
+    if (date.toIso8601String().substring(0, 10) != value) {
+      throw const FormatException('Invalid compiled annual calendar date');
+    }
+    return date;
+  }
+
   String get statementLabel => basis == FsDiv.consolidated ? 'cfs' : 'ofs';
   String get auditReference =>
       'financial-cache-replay:$manifestDigest:$receipt:${basis.name}:$ruleVersion';
@@ -31,6 +51,22 @@ final class AnnualSourceCacheEntry {
 
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
+    AnnualSourceCacheEntry(
+      receipt: '20210629000260',
+      corpCode: '00677334',
+      companyName: '(주)아하',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20210629000260-ofs',
+      manifestDigest:
+          'd6865d92ad6f7f97160a0f7f975fdd57160da2b00388b6a533f1e14ec87c7fb0',
+      ruleVersion: 'exact-declared-fiscal-period-annual-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: true,
+      declaredPeriodStart: '2020-04-01',
+      declaredPeriodEnd: '2021-03-31',
+    ),
+
     AnnualSourceCacheEntry(
       receipt: '20230314001271',
       corpCode: '00148832',

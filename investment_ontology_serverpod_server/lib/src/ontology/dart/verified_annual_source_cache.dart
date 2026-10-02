@@ -80,7 +80,7 @@ final class VerifiedAnnualSourceCache {
         filing.reportCode == FinancialReportCode.annual &&
         report?.kind == DartReportKind.annual &&
         report?.periodYear == entry.year &&
-        report?.periodMonth == 12 &&
+        report?.periodMonth == entry.periodEnd.month &&
         attempts?.group(1) == '3' &&
         (status == FilingFetchStatus.failed ||
             status == FilingFetchStatus.pending);
@@ -130,15 +130,14 @@ final class VerifiedAnnualSourceCache {
       throw const FormatException('Cached annual manifest digest mismatch');
     }
     final manifest = jsonDecode(utf8.decode(rawManifest)) as Map;
-    final start = DateTime.utc(entry.year),
-        end = DateTime.utc(entry.year, 12, 31);
+    final start = entry.periodStart, end = entry.periodEnd;
     if (manifest['receipt'] != entry.receipt ||
         manifest['corpCode'] != entry.corpCode ||
         manifest['basis'] != basis.name ||
         manifest['kind'] != 'annual' ||
         manifest['year'] != entry.year ||
-        manifest['periodStart'] != '${entry.year}-01-01' ||
-        manifest['periodEnd'] != '${entry.year}-12-31' ||
+        manifest['periodStart'] != start.toIso8601String().substring(0, 10) ||
+        manifest['periodEnd'] != end.toIso8601String().substring(0, 10) ||
         manifest['ruleVersion'] != entry.ruleVersion) {
       throw const FormatException('Cached annual declared identity mismatch');
     }

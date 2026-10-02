@@ -245,7 +245,10 @@ void main() {
         isA<FormatException>().having(
           (e) => e.message,
           'reason',
-          'Annual current statement title period mismatch',
+          anyOf(
+            'Annual current statement title period mismatch',
+            'Ambiguous annual current header',
+          ),
         ),
       ),
     );

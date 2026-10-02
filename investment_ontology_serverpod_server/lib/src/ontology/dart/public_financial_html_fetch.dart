@@ -526,7 +526,6 @@ class PublicFinancialHtmlFetcher {
             periodEnd.month == 12 &&
             periodEnd.day == 31)
           '당사는 사업보고서 제출기준일 현재 해당사항 없습니다.',
-        '* 해당사항이 없습니다.',
         '※ 해당사항 없습니다.',
         '당사는 연결재무제표 작성대상법인에 해당하지 않습니다.',
         '"해당사항 없습니다."',

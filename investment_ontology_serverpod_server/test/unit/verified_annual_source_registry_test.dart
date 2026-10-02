@@ -14,7 +14,8 @@ DartFiling filing(AnnualSourceCacheEntry e) => DartFiling(
   rceptNo: e.receipt,
   bsnsYear: e.year,
   reportCode: FinancialReportCode.annual,
-  reportName: '사업보고서 (${e.year}.12)',
+  reportName:
+      '사업보고서 (${e.year}.${e.periodEnd.month.toString().padLeft(2, '0')})',
   consolidatedStatus: FilingFetchStatus.failed,
   separateStatus: FilingFetchStatus.failed,
   attempts: 7,
@@ -30,7 +31,7 @@ Company company(AnnualSourceCacheEntry e) => Company(
 );
 void main() {
   test('compiled receipt plus basis registry has unique audit identities', () {
-    expect(VerifiedAnnualSourceRegistry.entries.length, 78);
+    expect(VerifiedAnnualSourceRegistry.entries.length, 79);
     expect(
       VerifiedAnnualSourceRegistry.entries
           .map((e) => e.auditReference)
@@ -95,8 +96,8 @@ void main() {
           );
           expect(a.sourceReceipt, e.receipt);
           expect(a.corpCode, e.corpCode);
-          expect(a.periodStart, DateTime.utc(e.year));
-          expect(a.periodEnd, DateTime.utc(e.year, 12, 31));
+          expect(a.periodStart, e.periodStart);
+          expect(a.periodEnd, e.periodEnd);
         } else {
           expect(result.absence, isNull);
           final n = result.numeric!;
@@ -118,8 +119,8 @@ void main() {
                 ? 6
                 : inInclusiveRange(7, 8),
           );
-          expect(n.periodStart, DateTime.utc(e.year));
-          expect(n.periodEnd, DateTime.utc(e.year, 12, 31));
+          expect(n.periodStart, e.periodStart);
+          expect(n.periodEnd, e.periodEnd);
           expect(
             n.rows.every(
               (r) => r['account_id'] == null && r['currency'] == 'KRW',

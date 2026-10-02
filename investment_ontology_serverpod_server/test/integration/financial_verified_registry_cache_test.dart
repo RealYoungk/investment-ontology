@@ -90,7 +90,8 @@ void main() {
                     fsDiv: opposite,
                     bsnsYear: entry.year,
                     reportCode: FinancialReportCode.annual,
-                    reportName: '사업보고서 (${entry.year}.12)',
+                    reportName:
+                        '사업보고서 (${entry.year}.${entry.periodEnd.month.toString().padLeft(2, '0')})',
                     factCount: 1,
                     invalidAmountCount: 0,
                     sourceId: oldSource.id!,
@@ -144,7 +145,8 @@ void main() {
               companyId: company.id,
               corpCode: entry.corpCode,
               rceptNo: entry.receipt,
-              reportName: '사업보고서 (${entry.year}.12)',
+              reportName:
+                  '사업보고서 (${entry.year}.${entry.periodEnd.month.toString().padLeft(2, '0')})',
               bsnsYear: entry.year,
               reportCode: FinancialReportCode.annual,
               consolidatedStatus: entry.basis == FsDiv.consolidated
@@ -577,7 +579,8 @@ void main() {
                   companyId: company.id,
                   corpCode: entry.corpCode,
                   rceptNo: entry.receipt,
-                  reportName: '사업보고서 (${entry.year}.12)',
+                  reportName:
+                      '사업보고서 (${entry.year}.${entry.periodEnd.month.toString().padLeft(2, '0')})',
                   bsnsYear: entry.year,
                   reportCode: FinancialReportCode.annual,
                   consolidatedStatus: FilingFetchStatus.failed,
