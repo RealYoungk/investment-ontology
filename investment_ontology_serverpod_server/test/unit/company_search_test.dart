@@ -61,4 +61,53 @@ void main() {
       expect(CompanySearch.rank(oil, query), isNull, reason: query);
     }
   });
+  test('bounded spelling correction stays behind literal matches', () {
+    expect(CompanySearch.rank(oil, '애스'), 11);
+    expect(CompanySearch.rank(oil, '애스오일'), 10);
+    final literal = Company(corpCode: 'literal', name: '애스오일');
+    expect(CompanySearch.rank(literal, '애스오일'), 0);
+    expect(CompanySearch.rank(oil, '애'), isNull);
+    expect(CompanySearch.rank(oil, '010951'), isNull);
+  });
+  test('two-set keyboard mistakes cover names and shared spoken aliases', () {
+    for (final (name, keys) in [
+      ('S-Oil(주)', 'dptmdhdlf'),
+      ('S-Oil(주)', 'dotmdhdlf'),
+      ('S-Oil(주)', 'DPTMDHDLF'),
+      ('S-Oil(주)', 'dptm dhdlf'),
+      ('S-Oil(주)', 'ｄｐｔｍｄｈｄｌｆ'),
+      ('값꿰', 'rkqtRnp'),
+      ('쌍용', 'Tkddyd'),
+      ('삼성전자(주)', 'tkatjdwjswk'),
+      ('LG화학', 'dpfwlghkgkr'),
+      ('SK하이닉스', 'dptmzpdlgkdlslrtm'),
+      ('케이티앤지', 'zpdlxldoswl'),
+      ('ABC바이오', 'dpdlqlTlqkdldh'),
+    ]) {
+      expect(
+        CompanySearch.rank(Company(corpCode: 'fixture', name: name), keys),
+        10,
+        reason: '$name / $keys',
+      );
+    }
+    expect(CompanySearch.rank(oil, 'dptm'), 11);
+    final literal = Company(corpCode: 'literal', name: 'dptmdhdlf');
+    expect(CompanySearch.rank(literal, 'dptmdhdlf'), 0);
+    for (final key in [
+      's',
+      'sk',
+      'lg',
+      'dp',
+      '010950x',
+      '%dptm',
+      'zzzz',
+      'dptm오일',
+    ]) {
+      expect(
+        CompanySearch.rank(Company(corpCode: 'fixture', name: '삼성전자'), key),
+        isNull,
+        reason: key,
+      );
+    }
+  });
 }
