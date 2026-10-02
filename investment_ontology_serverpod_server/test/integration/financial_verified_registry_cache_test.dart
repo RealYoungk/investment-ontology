@@ -310,6 +310,41 @@ void main() {
                 session,
                 where: (t) => t.reportId.equals(report.id!),
               );
+              if (entry.ruleVersion == 'db-exact-self-declared-issuer-v1') {
+                expect(report.bsnsYear, 2021);
+                expect(report.fsDiv, FsDiv.separate);
+                expect(facts.length, 8);
+                expect(
+                  facts.singleWhere((f) => f.accountName == '영업수익').amount,
+                  BigInt.parse('1278947330226'),
+                );
+                expect(
+                  facts.singleWhere((f) => f.accountName == '당기순이익').amount,
+                  BigInt.parse('97649026187'),
+                );
+                final identityAudit = (await Source.db.findFirstRow(
+                  session,
+                  where: (t) => t.reference.equals(
+                    'financial-api-noData-source:${entry.receipt}:separate',
+                  ),
+                ))!;
+                final provenance =
+                    jsonDecode(identityAudit.title)['coreRowProvenance']
+                        as List;
+                expect(
+                  provenance.every(
+                    (row) =>
+                        row['html_provenance']['exactIssuerIdentity']['corpCode'] ==
+                        '00115694',
+                  ),
+                  isTrue,
+                );
+                expect(
+                  provenance
+                      .first['html_provenance']['exactIssuerIdentity']['selfDeclaredName'],
+                  '디비금융투자 주식회사',
+                );
+              }
               if (entry.receipt == LinkedCorrectionAuditSource.bonTarget &&
                   entry.basis == FsDiv.separate) {
                 expect(report.rceptNo, LinkedCorrectionAuditSource.bonOriginal);

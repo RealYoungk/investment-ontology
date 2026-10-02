@@ -1,3 +1,5 @@
+import 'db_exact_issuer_identity.dart';
+
 import 'dart:convert';
 
 import 'gne_own_audit_source.dart';
@@ -233,6 +235,57 @@ final class VerifiedAnnualSourceCache {
           coverSource: Uri.parse(GneOwnAuditSource.coverUri),
           statementHtml: statement,
           statementSource: Uri.parse(GneOwnAuditSource.statementUri),
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == 'db-exact-self-declared-issuer-v1') {
+      final raw = <String, String>{};
+      for (final source in manifest['sources'] as List) {
+        final label = source['label'] as String;
+        if (source['url'] != DbExactIssuerIdentity.urls[label]) {
+          throw const FormatException('Exact DB issuer URI mismatch');
+        }
+        raw[label] = utf8.decode(documents[Uri.parse(source['url'])]!);
+      }
+      final identity = DbExactIssuerIdentity.verify(
+        raw,
+        receipt: entry.receipt,
+        corp: company.corpCode,
+        currentName: company.name,
+        consolidated: basis == FsDiv.consolidated,
+        start: start,
+        end: end,
+      );
+      final coverUri = Uri.parse(DbExactIssuerIdentity.urls['cover']!);
+      final statementUri = Uri.parse(DbExactIssuerIdentity.urls['ofs']!);
+      final rows = PublicFinancialHtml.parseStandardAnnual(
+        coverHtml: raw['cover']!,
+        statementHtml: raw['ofs']!,
+        coverSource: coverUri,
+        statementSource: statementUri,
+        receipt: entry.receipt,
+        corpCode: company.corpCode,
+        companyName: 'DB금융투자주식회사',
+        periodStart: start,
+        periodEnd: end,
+        consolidated: false,
+      );
+      for (final row in rows) {
+        (row['html_provenance'] as Map)['exactIssuerIdentity'] = identity;
+      }
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raw['cover']!,
+          coverSource: coverUri,
+          statementHtml: raw['ofs']!,
+          statementSource: statementUri,
           periodStart: start,
           periodEnd: end,
           rows: rows,
