@@ -17,7 +17,12 @@ void main() {
     for (final entry in VerifiedAnnualSourceRegistry.entries) {
       final scenarios = [
         'success-and-rerun',
-        if (entry.receipt == '20250320001633') 'sha-failed-and-rerun',
+        if ({
+          '20250320001633',
+          '20240320000248',
+          '20230323000586',
+        }.contains(entry.receipt))
+          'sha-failed-and-rerun',
         if (entry.receipt == '20260323000661' ||
             entry.receipt == '20260323000763') ...[
           'sha-failed-and-rerun',
@@ -291,6 +296,38 @@ void main() {
                 entry.corpCode,
                 fsDiv: entry.basis,
               );
+              if ({
+                '20240320000248',
+                '20230323000586',
+              }.contains(entry.receipt)) {
+                final expected = entry.year == 2023
+                    ? {
+                        'revenue': '1123621115',
+                        'operatingIncome': '-3961736811',
+                        'netIncome': '-4419372266',
+                        'assets': '7473929363',
+                        'liabilities': '3939848819',
+                        'equity': '3534080544',
+                        'operatingCashFlow': '-3336089290',
+                      }
+                    : {
+                        'revenue': '655390090',
+                        'operatingIncome': '-6470740465',
+                        'netIncome': '-7014810066',
+                        'assets': '9264697013',
+                        'liabilities': '3836415588',
+                        'equity': '5428281425',
+                        'operatingCashFlow': '-5385272003',
+                      };
+                for (final e in expected.entries) {
+                  expect(
+                    summary!.periods.single.lines
+                        .singleWhere((l) => l.key == e.key)
+                        .amount,
+                    BigInt.parse(e.value),
+                  );
+                }
+              }
               if (entry.receipt == '20250320001633') {
                 final lines = summary!.periods.single.lines;
                 final expected = {

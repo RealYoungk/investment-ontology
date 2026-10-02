@@ -32,6 +32,30 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20240320000248',
+      corpCode: '01507810',
+      companyName: '애니메디솔루션 주식회사',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20240320000248-ofs',
+      manifestDigest:
+          'd632b2421d0db1e3121ee5cb1ae7c32d249673f8c09b4f13a37c5636a87bd544',
+      ruleVersion: 'animedi-exact-ce-separator-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230323000586',
+      corpCode: '01507810',
+      companyName: '애니메디솔루션 주식회사',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230323000586-ofs',
+      manifestDigest:
+          '4e88cc22cd3a4fc6e269b289135bd52cc08b7a020992a6ab8d4efe641f4ba8e3',
+      ruleVersion: 'animedi-exact-ce-separator-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20230317000589',
       corpCode: '01113499',
       companyName: '(주)아이티센피엔에스',

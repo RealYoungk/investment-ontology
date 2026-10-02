@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'animedi_ce_source.dart';
+
 import 'package:crypto/crypto.dart';
 
 import 'dozn_corroborated_flow_period.dart';
@@ -833,6 +835,19 @@ abstract final class PublicFinancialHtml {
         statementHtml: statementHtml,
       );
     }
+    final animediProof = AnimediCeSource.profiles.containsKey(receipt)
+        ? AnimediCeSource.verify(
+            receipt: receipt,
+            corp: corpCode,
+            consolidated: consolidated,
+            start: periodStart,
+            end: periodEnd,
+            coverSource: coverSource,
+            statementSource: statementSource,
+            cover: coverHtml,
+            statement: statementHtml,
+          )
+        : null;
     final protiaProof = receipt == ProtiaPrintedCurrentPeriod.receipt
         ? ProtiaPrintedCurrentPeriod.verify(
             targetReceipt: receipt,
@@ -1519,13 +1534,12 @@ abstract final class PublicFinancialHtml {
         'Annual current statement title period mismatch',
       );
     }
-    String label(String raw) =>
-        _compact(raw)
-            .replaceFirst(RegExp(r'^[Ⅰ-ⅫIVXLCDM\d]+[.)]'), '')
-            .replaceFirst(
-              RegExp(r'(?:\(주(?:석)?[0-9]+(?:,[0-9]+)*\)|<주석[0-9]+>)$'),
-              '',
-            );
+    String label(String raw) => _compact(raw)
+        .replaceFirst(RegExp(r'^[Ⅰ-ⅫIVXLCDM\d]+[.)]'), '')
+        .replaceFirst(
+          RegExp(r'(?:\(주(?:석)?[0-9]+(?:,[0-9]+)*\)|<주석[0-9]+>)$'),
+          '',
+        );
     const accounts = {
       '자산총계': ('assets', 'BS'),
       '부채총계': ('liabilities', 'BS'),
@@ -1619,6 +1633,7 @@ abstract final class PublicFinancialHtml {
       end: periodEnd,
       consolidated: consolidated,
     );
+    datedPunctuationProof ??= animediProof;
     if (datedPunctuationProof == null &&
         (exactInnovexOfs ||
             parenthesizedTitles.isNotEmpty ||
@@ -2050,6 +2065,9 @@ abstract final class PublicFinancialHtml {
                 RegExp(
                   '^(?:제$term(?:\\(당\\))?기(?:기말|말)?|${periodEnd.year}(?:년도|연도)\\(제$term기\\))\$',
                 ).hasMatch(_compact(c.text)) ||
+                (animediProof != null &&
+                    _compact(c.text) ==
+                        '제$term기(${periodEnd.year}년${kind == 'BS' ? '말' : ''})') ||
                 (protiaProof != null &&
                     _compact(c.text) == (kind == 'BS' ? '당기말' : '당기')) ||
                 (termYearHeaderCandidate &&
