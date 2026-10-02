@@ -32,6 +32,84 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20240319000287',
+      corpCode: '00321204',
+      companyName: '지에이이노더스(주)',
+      year: 2023,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20240319000287-cfs',
+      manifestDigest:
+          '606510ba7f33eccf95ee72098282cb03789fad1f23b8202a65ad83715d738408',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230714000217',
+      corpCode: '01085442',
+      companyName: '(주)오건에코텍',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20230714000217-cfs',
+      manifestDigest:
+          'b7f1fdbdd411241e33d6111de2f8c7dde905e7a71b6d08409acff0eda88e8f11',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: false,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230315000460',
+      corpCode: '00124805',
+      companyName: '(주)푸른저축은행',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20230315000460-cfs',
+      manifestDigest:
+          '2b4a6a18f38b0428287229a61478982c78cd6e0b0670f9d3024a8df6ebb7f25a',
+      ruleVersion: 'pureun-exact-colon-primary-none-v1',
+      absenceLiteral: ': 해당사항 없음',
+      requiresIssuerOverview: true,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20230714000217',
+      corpCode: '01085442',
+      companyName: '(주)오건에코텍',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230714000217-ofs',
+      manifestDigest:
+          '3edb4b03a58ef810f82783ac49123569be0f14fe18ab026799d5d531e51a4a89',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240319000287',
+      corpCode: '00321204',
+      companyName: '지에이이노더스(주)',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20240319000287-ofs',
+      manifestDigest:
+          '859889a6635e71d000b975714b83a7cfba5832c523e8e305cd067eb4aece1aca',
+      ruleVersion: 'primary-historical-issuer-whole-seven-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20230315000460',
+      corpCode: '00124805',
+      companyName: '(주)푸른저축은행',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230315000460-ofs-six',
+      manifestDigest:
+          'e9244070d8c44343a9434546a2af9091a38dcc75649d01a16ace1b2cdc9c73b1',
+      ruleVersion: 'pureun-exact-six-primary-raw-ce-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: true,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20260331004637',
       corpCode: '01353848',
       companyName: '(주)이노벡스',

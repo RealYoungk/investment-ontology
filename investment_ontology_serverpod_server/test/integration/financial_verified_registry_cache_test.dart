@@ -7,6 +7,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/verified_annual_source_cache.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/verified_annual_source_registry.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/ingest/financial_facts_sync.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/dart/pureun_six_core_profile.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/financial/financial_accounts.dart';
 
 import 'financial_html_company_title_formats_test.dart' show SourceClient;
 import 'auth_test_sessions.dart';
@@ -19,6 +21,8 @@ void main() {
         'success-and-rerun',
         if ({
           '20250320001633',
+          '20230714000217',
+          '20240319000287',
           '20240320000248',
           '20230323000586',
         }.contains(entry.receipt))
@@ -281,7 +285,62 @@ void main() {
                 session,
                 where: (t) => t.reportId.equals(report.id!),
               );
-              expect(facts.length, inInclusiveRange(7, 8));
+              final exactPureunSix =
+                  entry.receipt == PureunSixCoreProfile.receipt &&
+                  entry.corpCode == PureunSixCoreProfile.corpCode &&
+                  entry.year == 2022 &&
+                  entry.basis == FsDiv.separate &&
+                  entry.ruleVersion == 'pureun-exact-six-primary-raw-ce-v1';
+              if (exactPureunSix) {
+                expect(facts, hasLength(6));
+                final accounts = FinancialAccounts.pick(facts);
+                expect(
+                  accounts.map((a) => a.key).toSet(),
+                  PureunSixCoreProfile.amounts.keys.toSet(),
+                );
+                for (final a in accounts) {
+                  expect(
+                    a.amount,
+                    BigInt.parse(PureunSixCoreProfile.amounts[a.key]!),
+                  );
+                }
+                expect(
+                  accounts.any((a) => a.key == 'revenue' || a.key == 'capex'),
+                  isFalse,
+                );
+                expect(source.title, startsWith(PureunSixCoreProfile.title));
+                final partialAudit = (await Source.db.find(
+                  session,
+                  where: (t) => t.reference.equals(
+                    'financial-api-noData-source:${entry.receipt}:${entry.basis.name}',
+                  ),
+                )).single;
+                final partial = jsonDecode(partialAudit.title);
+                expect(partial['coreRows'], 6);
+                expect(partial['missingRequiredAccounts'], ['revenue']);
+                expect(partial['uncollectedOptionalAccounts'], ['capex']);
+                expect(
+                  PureunSixCoreProfile.storedProof(
+                    partial['coreRowProvenance'],
+                    sourceDigest: partial['sha256'],
+                    sourceUrl: source.url!,
+                    companyCode: company.corpCode,
+                    targetReceipt: report.rceptNo,
+                    basis: report.fsDiv.name,
+                    year: report.bsnsYear,
+                    reportName: report.reportName,
+                  ),
+                  isTrue,
+                );
+                for (final row in partial['coreRowProvenance']) {
+                  expect(
+                    row['html_provenance']['pureunSixCore']['cePrintedUnit'],
+                    'unknown',
+                  );
+                }
+              } else {
+                expect(facts.length, inInclusiveRange(7, 8));
+              }
               expect(
                 facts.every(
                   (f) =>
@@ -365,6 +424,63 @@ void main() {
                   ),
                   true,
                 );
+              }
+              if ({
+                '20230714000217',
+                '20240319000287',
+              }.contains(entry.receipt)) {
+                final cases = jsonDecode(
+                  File(
+                    entry.basis == FsDiv.consolidated
+                        ? 'test/fixtures/financial_html/historical-cfs-source/cases.json'
+                        : 'test/fixtures/financial_html/primary-historical-issuer/cases.json',
+                  ).readAsStringSync(),
+                ) as List;
+                final proof = cases.singleWhere(
+                  (p) => p['receipt'] == entry.receipt,
+                );
+                final expected = proof['expectedRows'] as List;
+                expect(facts, hasLength(7));
+                for (final pair in expected) {
+                  final fact = facts.singleWhere(
+                    (f) => f.accountName == pair[0],
+                  );
+                  expect(fact.amount, BigInt.parse(pair[1]));
+                }
+                final coreAudit = (await Source.db.find(
+                  session,
+                  where: (t) => t.reference.equals(
+                    'financial-api-noData-source:${entry.receipt}:${entry.basis.name}',
+                  ),
+                )).single;
+                final rows =
+                    jsonDecode(coreAudit.title)['coreRowProvenance'] as List;
+                expect(rows, hasLength(7));
+                for (final row in rows) {
+                  final identity =
+                      row['html_provenance']['primaryHistoricalIssuer'];
+                  expect(identity['receipt'], entry.receipt);
+                  expect(identity['corpCode'], entry.corpCode);
+                  expect(identity['currentMasterName'], entry.companyName);
+                  expect(identity['statementSource'], statement['url']);
+                }
+                const keys = [
+                  'assets',
+                  'liabilities',
+                  'equity',
+                  'revenue',
+                  'operatingIncome',
+                  'netIncome',
+                  'operatingCashFlow',
+                ];
+                for (var i = 0; i < keys.length; i++) {
+                  expect(
+                    summary!.periods.single.lines
+                        .singleWhere((l) => l.key == keys[i])
+                        .amount,
+                    BigInt.parse(expected[i][1]),
+                  );
+                }
               }
               expect(
                 summary!.periods.single.lines

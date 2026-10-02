@@ -1,3 +1,6 @@
+import 'historical_cfs_whole_proof.dart';
+import 'primary_historical_issuer.dart';
+
 import 'dart:convert';
 
 import 'animedi_ce_source.dart';
@@ -12,6 +15,7 @@ import 'sk_signet_identity.dart';
 import 'same_receipt_audit_source.dart';
 import 'public_issuer_legal_name.dart';
 import 'bnk_six_core_profile.dart';
+import 'pureun_six_core_profile.dart';
 import 'verified_historical_company_identity.dart';
 
 /// Validated strict subsets of receipt-bound annual and half-year DART HTML.
@@ -819,10 +823,39 @@ abstract final class PublicFinancialHtml {
     required DateTime periodEnd,
     required bool consolidated,
     PublicIssuerLegalName? issuerProof,
+    PrimaryHistoricalIssuer? primaryIssuerProof,
     SkSignetIdentity? skSignetIdentity,
   }) {
     if (receipt == BnkSixCoreProfile.receipt) {
       return BnkSixCoreProfile.parse(
+        targetReceipt: receipt,
+        companyCode: corpCode,
+        companyName: companyName,
+        consolidated: consolidated,
+        start: periodStart,
+        end: periodEnd,
+        coverSource: coverSource,
+        coverHtml: coverHtml,
+        statementSource: statementSource,
+        statementHtml: statementHtml,
+      );
+    }
+    if (receipt == PureunSixCoreProfile.receipt) {
+      if (issuerProof != null &&
+          issuerProof.verify(
+                receipt: receipt,
+                corpCode: corpCode,
+                masterName: companyName,
+                printedName: '(주)푸른상호저축은행',
+                coverSource: coverSource,
+                coverHtml: coverHtml,
+                periodStart: periodStart,
+                periodEnd: periodEnd,
+              ) ==
+              null) {
+        throw const FormatException('Invalid raw official issuer evidence');
+      }
+      return PureunSixCoreProfile.parse(
         targetReceipt: receipt,
         companyCode: corpCode,
         companyName: companyName,
@@ -947,6 +980,20 @@ abstract final class PublicFinancialHtml {
             periodStart: periodStart,
             periodEnd: periodEnd,
           );
+    final primaryIssuer = primaryIssuerProof?.verify(
+      receipt: receipt,
+      corp: corpCode,
+      consolidated: consolidated,
+      coverSource: coverSource,
+      cover: coverHtml,
+      statementSource: statementSource,
+      statement: statementHtml,
+      start: periodStart,
+      end: periodEnd,
+    );
+    if (primaryIssuerProof != null && primaryIssuer == null) {
+      throw const FormatException('Invalid primary historical issuer proof');
+    }
     if (issuerProof != null && declaredIssuer == null) {
       throw const FormatException('Invalid raw official issuer evidence');
     }
@@ -958,6 +1005,7 @@ abstract final class PublicFinancialHtml {
         company == null ||
         (legalName(company) != legalName(companyName) &&
             declaredIssuer == null &&
+            primaryIssuer == null &&
             skIdentity == null &&
             VerifiedHistoricalCompanyIdentity.evidence(
                   receipt: receipt,
@@ -1542,13 +1590,12 @@ abstract final class PublicFinancialHtml {
         'Annual current statement title period mismatch',
       );
     }
-    String label(String raw) =>
-        _compact(raw)
-            .replaceFirst(RegExp(r'^[Ⅰ-ⅫIVXLCDM\d]+[.)]'), '')
-            .replaceFirst(
-              RegExp(r'(?:\(주(?:석)?[0-9]+(?:,[0-9]+)*\)|<주석[0-9]+>)$'),
-              '',
-            );
+    String label(String raw) => _compact(raw)
+        .replaceFirst(RegExp(r'^[Ⅰ-ⅫIVXLCDM\d]+[.)]'), '')
+        .replaceFirst(
+          RegExp(r'(?:\(주(?:석)?[0-9]+(?:,[0-9]+)*\)|<주석[0-9]+>)$'),
+          '',
+        );
     const accounts = {
       '자산총계': ('assets', 'BS'),
       '부채총계': ('liabilities', 'BS'),
@@ -3187,6 +3234,31 @@ abstract final class PublicFinancialHtml {
         (row['html_provenance']
                 as Map<String, dynamic>)['historicalCompanyIdentity'] =
             declaredIssuer;
+      }
+    }
+    if (consolidated && HistoricalCfsWholeProof.eligible(receipt)) {
+      final wholeProof = HistoricalCfsWholeProof.verify(
+        receipt: receipt,
+        corp: corpCode,
+        start: periodStart,
+        end: periodEnd,
+        source: statementSource,
+        html: statementHtml,
+        netIncome: values['profit']!,
+        equity: values['equity']!,
+      );
+      for (final row in result) {
+        (row['html_provenance']
+                as Map<String, dynamic>)['supportingPeriodEvidence'] =
+            wholeProof;
+      }
+    }
+    if (primaryIssuer != null) {
+      for (final row in result) {
+        (row['html_provenance'] as Map)['primaryHistoricalIssuer'] = {
+          ...primaryIssuer,
+          'currentMasterName': companyName,
+        };
       }
     }
     return result;

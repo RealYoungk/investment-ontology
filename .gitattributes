@@ -10,3 +10,8 @@ investment_ontology_serverpod_server/test/fixtures/financial_html/spac-explicit-
 
 investment_ontology_serverpod_server/assets/financial_source_cache/20230315000997-ofs/*.html -text
 investment_ontology_serverpod_server/assets/financial_source_cache/20230308000311-ofs/*.html -text
+
+# Official financial HTML is byte-pinned source evidence; preserve its original
+# line endings and whitespace instead of treating it as authored code.
+investment_ontology_serverpod_server/assets/financial_source_cache/**/*.html -text whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+investment_ontology_serverpod_server/test/fixtures/financial_html/**/*.html -text whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol

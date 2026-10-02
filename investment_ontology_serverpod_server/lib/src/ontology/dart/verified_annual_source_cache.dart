@@ -13,6 +13,7 @@ import 'dart_report_name.dart';
 import 'public_financial_html_fetch.dart';
 import 'verified_annual_source_registry.dart';
 import 'same_receipt_audit_source.dart';
+import 'pureun_six_core_profile.dart';
 
 /// Only compiled, byte-pinned official packages; the adapter has no network.
 final class VerifiedAnnualSourceCache {
@@ -231,13 +232,25 @@ final class VerifiedAnnualSourceCache {
         bsnsYear: filing.bsnsYear!,
         periodEnd: end,
         consolidated: basis == FsDiv.consolidated,
+        allowPrimaryHistoricalIssuer:
+            entry.ruleVersion == 'primary-historical-issuer-whole-seven-v1',
       );
       if (entry.absenceLiteral != null ||
           client.requests != documentCount ||
           numeric.sourceReceipt != entry.receipt ||
           numeric.periodStart != start ||
           numeric.periodEnd != end ||
-          numeric.rows.length < 7 ||
+          (numeric.rows.length < 7 &&
+              !PureunSixCoreProfile.storedProof(
+                numeric.rows,
+                sourceDigest: numeric.sourceDigest,
+                sourceUrl: numeric.statementSource.toString(),
+                companyCode: company.corpCode,
+                targetReceipt: filing.rceptNo,
+                basis: basis.name,
+                year: filing.bsnsYear!,
+                reportName: filing.reportName,
+              )) ||
           numeric.rows.length > 8 ||
           numeric.rows.any((r) => r['account_id'] != null)) {
         throw const FormatException(
