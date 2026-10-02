@@ -2491,7 +2491,15 @@ abstract final class PublicFinancialHtml {
         final expectedPeriod = konasolScope
             ? (kind == 'CF' ? '(제29기)' : '(2025년)')
             : '(${(periodStart.year % 100).toString().padLeft(2, '0')}.${periodStart.month.toString().padLeft(2, '0')}~${(periodEnd.year % 100).toString().padLeft(2, '0')}.${periodEnd.month.toString().padLeft(2, '0')})';
-        if (_compact(grid[1][current.column]?.text ?? '') != expectedPeriod) {
+        final provedSubheader = datedCurrentProof == null
+            ? null
+            : (datedCurrentProof['tables'] as Map)[kind]['subheader'];
+        final subheaderMatches =
+            provedCurrentHeader(current) &&
+            provedSubheader != null &&
+            provedSubheader == _compact(grid[1][current.column]?.text ?? '');
+        if (_compact(grid[1][current.column]?.text ?? '') != expectedPeriod &&
+            !subheaderMatches) {
           throw const FormatException(
             'Annual current subheader period mismatch',
           );

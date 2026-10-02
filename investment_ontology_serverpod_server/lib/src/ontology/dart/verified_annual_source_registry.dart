@@ -54,6 +54,78 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20220331002887',
+      corpCode: '01366824',
+      companyName: '(주)제이엠멀티',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220331002887-ofs-dated',
+      manifestDigest:
+          'cc009545df5f05deb25be83638547dc7818f9ae01030ce22e627ca568a6abc94',
+      ruleVersion: 'dated-current-column-whole-equity-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230427000895',
+      corpCode: '01366824',
+      companyName: '(주)제이엠멀티',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230427000895-ofs-dated',
+      manifestDigest:
+          'e25c170f32a4487cb4c8a9860bcba124ded98bae6e931dbf329012849f65adfc',
+      ruleVersion: 'dated-current-column-whole-equity-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220331003444',
+      corpCode: '01085026',
+      companyName: '(주)유진테크놀로지',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220331003444-cfs-dated',
+      manifestDigest:
+          '5bd5b689d1892329cad4b8190ea0d476c969e2cd74eceda76eb15428faf93d81',
+      ruleVersion: 'dated-current-column-whole-equity-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250328002132',
+      corpCode: '01396931',
+      companyName: '주식회사 유엑스엔',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250328002132-ofs-dated',
+      manifestDigest:
+          '451058162cc899c518d152eb4a22f39f0c3ac80aad6d960302edf6eb533b8e40',
+      ruleVersion: 'dated-current-column-whole-equity-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240320001359',
+      corpCode: '01281541',
+      companyName: '(주)에피바이오텍',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20240320001359-ofs-dated',
+      manifestDigest:
+          'e6828d29c4a1278a60fcfe4fb55228bb2ac2d3d576af63353fe9094e7eb291ea',
+      ruleVersion: 'dated-current-column-whole-equity-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240704000080',
+      corpCode: '00666329',
+      companyName: '(주)코나솔',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20240704000080-ofs-dated',
+      manifestDigest:
+          '7593ba54398d4cebc7d51968e1952b01b8bfe51d72e195a81a859cbe91088ce8',
+      ruleVersion: 'dated-current-column-whole-equity-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20220331000273',
       corpCode: '01258020',
       companyName: '주식회사 에스바이오메딕스',

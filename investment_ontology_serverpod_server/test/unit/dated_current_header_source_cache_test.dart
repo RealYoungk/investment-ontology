@@ -57,7 +57,7 @@ void main() {
           case 'corp':
             f.corpCode = '00000000';
           case 'year':
-            f.bsnsYear = 2024;
+            f.bsnsYear = e.year - 1;
           case 'quarter':
             f.reportCode = FinancialReportCode.halfYear;
           case 'receipt':
@@ -94,7 +94,7 @@ void main() {
             case 'corp':
               x.corpCode = '00000000';
             case 'year':
-              x.bsnsYear = 2024;
+              x.bsnsYear = e.year - 1;
             case 'quarter':
               x.reportCode = FinancialReportCode.halfYear;
             case 'exhausted':

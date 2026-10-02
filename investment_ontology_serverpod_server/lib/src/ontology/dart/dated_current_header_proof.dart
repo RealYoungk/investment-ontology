@@ -101,14 +101,41 @@ abstract final class DatedCurrentHeaderProof {
                 '제$term(당)기말',
                 '${end.year}년(제$term기)',
                 '${end.year}년제$term(당)기말',
+                '${end.year}연도',
+                '${end.year}년도(제$term기말)',
+                '제$term기(당)기말',
               }
-            : {'당기', '제$term기', '제$term(당)기'};
+            : {
+                '당기',
+                '제$term기',
+                '제$term(당)기',
+                '${end.year}연도',
+                '${end.year}년',
+                '${end.year}년제$term기',
+                '${end.year}년도(제$term기말)',
+                '${end.year}년도(제$term(당)기말)',
+                '제$term기(당)기',
+              };
+        if (kind == 'BS') accepted.add('${end.year}년');
         final candidates = rows.first
             .toSet()
             .where((c) => accepted.contains(c.text))
             .toList();
-        if (candidates.length != 1 || candidates.single.span != 1) return null;
+        if (candidates.length != 1 ||
+            (candidates.single.span != 1 &&
+                !(kind == 'CF' && candidates.single.span == 2))) {
+          return null;
+        }
         final current = candidates.single;
+        String? currentSubheader;
+        if (rows.first.first.height == 2) {
+          if (rows.length < 2 || rows[1].length <= current.column) return null;
+          final sub = rows[1][current.column];
+          if (sub.span != 1 || !{'제$term기', '(제$term기)'}.contains(sub.text)) {
+            return null;
+          }
+          currentSubheader = sub.text;
+        }
         final expected = switch (kind) {
           'BS' => ['assets', 'liabilities', 'equity'],
           'CIS' => ['revenue', 'operating', 'profit'],
@@ -122,9 +149,19 @@ abstract final class DatedCurrentHeaderProof {
               matching.single.length <= current.column) {
             return null;
           }
-          final cell = matching.single[current.column];
-          final money = _amount(cell.text);
-          if (cell.span != 1 || money == null) return null;
+          final currentCells = matching.single
+              .skip(current.column)
+              .take(current.span)
+              .toSet()
+              .toList();
+          if (currentCells.length != current.span ||
+              currentCells.any((c) => c.span != 1 || c.height != 1)) {
+            return null;
+          }
+          final numeric = currentCells.where((c) => c.text.isNotEmpty).toList();
+          if (numeric.length != 1) return null;
+          final money = _amount(numeric.single.text);
+          if (money == null) return null;
           amounts[key] = money * scale;
         }
         proofs[kind] = {
@@ -132,6 +169,7 @@ abstract final class DatedCurrentHeaderProof {
           'column': current.column,
           'header': current.text,
           'unit': unit.single[1],
+          'subheader': ?currentSubheader,
         };
       }
       if (proofs.length != 3 ||
@@ -252,10 +290,10 @@ abstract final class DatedCurrentHeaderProof {
     DateTime end,
   ) {
     final expected = RegExp(
-      '^(?:재무상태표|손익계산서|자본변동표|현금흐름표)제$term(?:\\(당\\))?기(?:말)?',
+      '^(?:재무상태표|손익계산서|자본변동표|현금흐름표)제$term(?:\\(당\\))?기(?:말)?[:：]?',
     );
     if (!expected.hasMatch(local)) return false;
-    final dates = RegExp(r'(\d{4})년(\d{1,2})월(\d{1,2})일')
+    final dates = RegExp(r'(\d{4})(?:년|\.)(\d{1,2})(?:월|\.)(\d{1,2})(?:일)?')
         .allMatches(local)
         .toList();
     if (kind == 'BS') return dates.isNotEmpty && _date(dates.first, 1) == end;
@@ -293,9 +331,11 @@ abstract final class DatedCurrentHeaderProof {
     }
     bool labelDate(String v, DateTime d, String suffix) {
       final m = RegExp(
-        r'^(\d{4})\.(\d{1,2})\.(\d{1,2})\((당기초|당기말)\)(?:\(감사받지아니한재무제표\))?$',
+        r'^(\d{4})(?:년|\.)(\d{1,2})(?:월|\.)(\d{1,2})(?:일)?\((당기초|당기말|보고금액)\)(?:\(감사받지아니한재무제표\)|\(감사받지아니함\))?$',
       ).firstMatch(v);
-      return m != null && _date(m, 1) == d && m[4] == suffix;
+      return m != null &&
+          _date(m, 1) == d &&
+          (m[4] == suffix || (suffix == '당기초' && m[4] == '보고금액'));
     }
 
     final begins = <int>[], ends = <int>[];
@@ -397,7 +437,7 @@ abstract final class DatedCurrentHeaderProof {
             col + width > 12) {
           throw const FormatException('span');
         }
-        final cell = _Cell(_text(td[2]!), col, width);
+        final cell = _Cell(_text(td[2]!), col, width, height);
         for (var y = row; y < row + height; y++) {
           for (var x = col; x < col + width; x++) {
             if (occupied.containsKey('$y:$x')) {
@@ -428,8 +468,9 @@ abstract final class DatedCurrentHeaderProof {
 }
 
 class _Cell {
-  const _Cell(this.text, this.column, this.span);
+  const _Cell(this.text, this.column, this.span, this.height);
   final String text;
   final int column;
   final int span;
+  final int height;
 }
