@@ -875,3 +875,8 @@ XBRL이 없는 명시 첨부정정은 공식 양쪽 viewer의 기업코드와 �
 ### 2026-10-02 AdSense 거절 사유 대응
 
 실제 이메일·Sites 화면에서 alfinder.kr은 `주의 필요 / 게시자 콘텐츠가 없는 화면에 Google 게재 광고`(12:11 KST). 초기 로딩 HTML/기본 접근성 DOM에 읽을 본문이 부족한 상태와 데이터 상태에 무관한 광고 lead를 확인했다. 공개 HTML 리서치 안내·자료, Flutter 공식 웹 접근성 기본 활성화, 정상 본문 때만 광고 lead 마운트, robots/sitemap을 준비했다. Google 판단의 유일한 원인이라고 단정하지 않는다. 실광고·실결제 OFF 유지. 전체 검증·운영 배포·재심사 제출의 완료 여부와 증거는 `adsense-review-remediation-2026-10-02.md` 최신 항목을 따른다.
+
+
+## 2026-10-02 discovery 브랜치 정리
+
+원래 탐색/기업 리서치 커밋은 main에 포함됐고 마지막 재무 수정도 4fd01b3d로 반영됐다. 기본 폴더에는 다른 채팅의 후속 변경과 원문 산출물이 남아 있다. 별도 codex/discovery-release-cleanup에서 완료된 지배구조/공시/주주환원 UI와 수집 범위 문서만 분리한다. 기업 설명·수집·광고 PR 및 기본 체크아웃은 보존한다. 분류와 종료 기준은 docs/discovery-release-cleanup-2026-10-02.md 참조.

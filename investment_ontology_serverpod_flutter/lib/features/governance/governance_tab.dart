@@ -84,34 +84,36 @@ class _GovernanceTabState extends State<GovernanceTab> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            const Expanded(
-              child: CompanySectionHeading(
-                '보유 현황',
+        OwnershipSnapshotCard(
+          data: d,
+          header: Row(
+            children: [
+              const Expanded(
+                child: CompanySectionHeading(
+                  '보유 현황',
+                  help: '정기보고서에 기재된 최대주주와 특수관계인을 표시합니다. 지분율 5% 미만도 포함하며, 회사의 모든 주주를 뜻하지는 않습니다.\n\n지분율이 0.00%여도 보유 주식 수가 확인되면 표시합니다. 기준일 이후 변동은 공시에서 확인할 수 있습니다.',
+                ),
               ),
-            ),
-            if (d.availableYears.length > 1)
-              DropdownButton<int>(
-                value: d.bsnsYear,
-                underline: const SizedBox.shrink(),
-                items: [
-                  for (final year in d.availableYears)
-                    DropdownMenuItem(value: year, child: Text('$year년')),
-                ],
-                onChanged: (year) {
-                  if (year == null) return;
-                  setState(() {
-                    _year = year;
-                    _data = null;
-                  });
-                  _load();
-                },
-              ),
-          ],
+              if (d.availableYears.length > 1)
+                DropdownButton<int>(
+                  value: d.bsnsYear,
+                  underline: const SizedBox.shrink(),
+                  items: [
+                    for (final year in d.availableYears)
+                      DropdownMenuItem(value: year, child: Text('$year년')),
+                  ],
+                  onChanged: (year) {
+                    if (year == null) return;
+                    setState(() {
+                      _year = year;
+                      _data = null;
+                    });
+                    _load();
+                  },
+                ),
+            ],
+          ),
         ),
-        const SizedBox(height: AppSpace.md),
-        OwnershipSnapshotCard(data: d),
         const SizedBox(height: AppSpace.lg),
         OwnershipChangesSection(corpCode: widget.corpCode, compact: true),
         const SizedBox(height: AppSpace.sm),

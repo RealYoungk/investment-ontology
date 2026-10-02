@@ -24,7 +24,7 @@ class CompanySectionHeading extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: context.typo.body(16, weight: FontWeight.w600),
+              style: context.typo.body(13, weight: FontWeight.w600),
             ),
           ),
           if (help != null)

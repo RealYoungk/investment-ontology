@@ -124,10 +124,6 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const CompanySectionHeading(
-          '배당',
-        ),
-        const SizedBox(height: AppSpace.md),
         if (series.isEmpty)
           Text('배당 자료가 없습니다.', style: t.body(13, color: c.textMuted))
         else ...[
@@ -205,13 +201,19 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
           ),
         ],
         const SizedBox(height: AppSpace.section),
-        CompanySectionHeading(
-          '자기주식',
-          description:
-              '취득·처분·소각에 따른 보유량 변화${d.treasuryYear == null ? '' : ' · ${d.treasuryYear}년'}',
+        CompanyDataCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              CompanySectionHeading(
+                '자기주식${d.treasuryYear == null ? '' : ' · ${d.treasuryYear}년'}',
+                help: '취득은 회사가 자기 주식을 사들이는 것, 처분은 팔거나 이전하는 것, 소각은 주식을 없애는 것입니다. 처분과 소각은 다릅니다.\n\n이 차트는 해당 기간의 실제 보유량 변화를 보여줍니다.',
+              ),
+              const SizedBox(height: AppSpace.md),
+              TreasuryMovement(rows: d.treasury),
+            ],
+          ),
         ),
-        const SizedBox(height: AppSpace.sm),
-        CompanyDataCard(child: TreasuryMovement(rows: d.treasury)),
         if (d.treasury.isEmpty)
           Text('자기주식 자료가 없습니다.', style: t.body(13, color: c.textMuted))
         else
@@ -261,45 +263,59 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
             ],
           ),
         const SizedBox(height: AppSpace.section),
-        SectionLabel(
-          '회사에 남아 있는 자기주식${d.stockTotalYear == null ? '' : ' · FY${d.stockTotalYear}'}',
-        ),
-        const SizedBox(height: AppSpace.sm),
-        if (d.stockTotals.isEmpty)
-          Text('주식 총수 자료가 없습니다.', style: t.body(13, color: c.textMuted))
-        else ...[
-          _StockComposition(rows: d.stockTotals),
-          const SizedBox(height: AppSpace.md),
-          ExpansionTile(
-            tilePadding: EdgeInsets.zero,
-            title: Text(
-              '주식 수량 상세 보기',
-              style: t.body(14, weight: FontWeight.w600),
-            ),
+        CompanyDataCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              AppDataTable(
-                columns: const [
-                  AppColumn('구분', flex: true),
-                  AppColumn('발행주식의 총수', numeric: true, flex: true),
-                  AppColumn('자기주식수', numeric: true, flex: true),
-                  AppColumn('유통주식수', numeric: true, flex: true),
-                ],
-                rows: [
-                  for (final r in d.stockTotals)
-                    AppRow(emphasized: r.kind.replaceAll(' ', '') == '합계', [
-                      AppDataTable.text(context, r.kind),
-                      for (final v in [r.issued, r.treasury, r.outstanding])
-                        AppDataTable.text(
-                          context,
-                          v == null ? null : formatCount(v.toInt()),
-                          numeric: true,
-                        ),
-                    ]),
-                ],
+              CompanySectionHeading(
+                '회사에 남아 있는 자기주식${d.stockTotalYear == null ? '' : ' · FY${d.stockTotalYear}'}',
               ),
+              const SizedBox(height: AppSpace.sm),
+              if (d.stockTotals.isEmpty)
+                Text('주식 총수 자료가 없습니다.', style: t.body(13, color: c.textMuted))
+              else ...[
+                _StockComposition(rows: d.stockTotals),
+                const SizedBox(height: AppSpace.md),
+                ExpansionTile(
+                  tilePadding: EdgeInsets.zero,
+                  title: Text(
+                    '주식 수량 상세 보기',
+                    style: t.body(14, weight: FontWeight.w600),
+                  ),
+                  children: [
+                    AppDataTable(
+                      columns: const [
+                        AppColumn('구분', flex: true),
+                        AppColumn('발행주식의 총수', numeric: true, flex: true),
+                        AppColumn('자기주식수', numeric: true, flex: true),
+                        AppColumn('유통주식수', numeric: true, flex: true),
+                      ],
+                      rows: [
+                        for (final r in d.stockTotals)
+                          AppRow(
+                            emphasized: r.kind.replaceAll(' ', '') == '합계',
+                            [
+                              AppDataTable.text(context, r.kind),
+                              for (final v in [
+                                r.issued,
+                                r.treasury,
+                                r.outstanding,
+                              ])
+                                AppDataTable.text(
+                                  context,
+                                  v == null ? null : formatCount(v.toInt()),
+                                  numeric: true,
+                                ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
             ],
           ),
-        ],
+        ),
         const SizedBox(height: AppSpace.xl),
         ExpansionTile(
           title: const Text('출처와 집계 기준'),
