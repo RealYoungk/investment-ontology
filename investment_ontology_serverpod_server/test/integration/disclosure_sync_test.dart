@@ -33,7 +33,8 @@ class _PublicBodyFixture extends PublicBusinessDocument {
       title: "사업보고서",
       text: "공개 원문 제품 설명",
       sourceUri: Uri.parse(
-        "https://dart.fss.or.kr/report/viewer.do?rcpNo=$receipt",
+        // Synthetic coordinates, same six-field shape as bodyUri(receipt, shell).
+        "https://dart.fss.or.kr/report/viewer.do?rcpNo=$receipt&dcmNo=10000001&eleId=9&offset=1000&length=2048&dtd=dart4.xsd",
       ),
       bodySha256: "fixture-hash",
     );
