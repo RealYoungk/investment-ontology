@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
 import 'package:test/test.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/dart/dart_api_key.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/ingest/api_call_budget.dart';
 
 import 'auth_test_sessions.dart';
 import 'test_tools/serverpod_test_tools.dart';
@@ -19,10 +21,25 @@ void main() {
         await endpoints.research.data(
           builder.asAnonymous,
           '00999991',
-          'capital',
+          'consensus',
         ),
       );
       expect(empty['state'], 'notCollected');
+      await ApiCallBudget.record(session, ApiProvider.dart, 19900);
+      final deferred = jsonDecode(
+        await endpoints.research.data(
+          builder.asAnonymous,
+          '00999991',
+          'capital',
+        ),
+      );
+      expect(
+        deferred['state'],
+        DartApiKey.read(session) == null ? 'notConfigured' : 'budgetExhausted',
+      );
+      expect(deferred['rows'], isEmpty);
+      expect(await ResearchSnapshot.db.count(session), 0);
+      expect(await ApiCallBudget.usedToday(session, ApiProvider.dart), 19900);
       await expectLater(
         endpoints.research.collect(builder.asReader, '00999991', 'capital'),
         throwsA(anything),

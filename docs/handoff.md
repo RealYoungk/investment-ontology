@@ -895,3 +895,7 @@ XBRL이 없는 명시 첨부정정은 공식 양쪽 viewer의 기업코드와 �
 
 ## Macro and read recovery release 2026-10-02
 Official FRED macro indicators, beginner definitions and read-only bounded retries; docs/macro-indicators.md and docs/request-recovery.md. No new DB migration.
+
+## 2026-10-02 조회 기업의 공시 우선 수집
+
+사용자 요청으로 research.data의 DART 네 항목은 미수집 때 원천을 조회해 출처와 함께 저장한다. 기존 저장값과 빈 성공 응답은 재사용한다. 동일 요청 공유·한 항목 동시 수집·실패5분·공유 장부19,900회 제한과 KST 자정 재시도를 적용했다. 수집 대기/실패/한도 소진/설정 미완료를 화면에 구분한다. 명시적 collect/import/batch의 관리자 검사는 유지한다. 전 기업 자동 research 배치 및 기존 스냅샷 자동 갱신은 별도 과제다. 구현·당일 운영 상태·검증은 docs/research-on-demand-2026-10-02.md. 배포 성공은 릴리스 기록 및 공개 API 증거로 확인한다.

@@ -14,12 +14,68 @@ import '../research/issuer_documents_feed.dart';
 import '../research/dart_research.dart';
 import '../research/kis_research_client.dart';
 
-/// Public reads of stored source-backed data. Every collection/import is admin-only.
+/// Public source-backed reads populate missing DART cache entries.
+/// Explicit collection/import remains admin-only.
 class ResearchEndpoint extends Endpoint {
   @override
   bool get requireLogin => false;
   static final _busy = <String>{};
   static KisResearchClient? _kis;
+  static final _retryAfter = <String, DateTime>{};
+  static final _loading = <String, Future<int>>{};
+
+  Future<String?> _fillMissing(
+    Session session,
+    String corpCode,
+    String kind,
+  ) async {
+    if (!DartResearch.apis.containsKey(kind)) return null;
+    if (DartApiKey.read(session) == null) return 'notConfigured';
+    final lock = '$corpCode/$kind';
+    final now = DateTime.now().toUtc();
+    _retryAfter.removeWhere((_, until) => !until.isAfter(now));
+    if (await ApiCallBudget.reached(
+      session,
+      ApiProvider.dart,
+      ApiCallBudget.dartDailyLimit - 100,
+    )) {
+      return 'budgetExhausted';
+    }
+    if (_retryAfter.containsKey(lock)) return 'retryLater';
+    final existing = _loading[lock];
+    if (existing != null) {
+      // The originating request owns its Session and completes the cache write.
+      try {
+        await existing;
+        return null;
+      } catch (_) {
+        return 'retryLater';
+      }
+    }
+    if (_loading.isNotEmpty || _busy.contains(lock)) return 'collecting';
+    // Concurrent reads share this request-owned acquisition.
+    // ignore: unawaited_futures
+    final pending = _collect(session, corpCode, kind, onDemand: true);
+    _loading[lock] = pending;
+    try {
+      await pending;
+      return null;
+    } catch (e) {
+      if (_retryAfter.length >= 512) _retryAfter.remove(_retryAfter.keys.first);
+      _retryAfter[lock] = DateTime.now().toUtc().add(
+        const Duration(minutes: 5),
+      );
+      session.log(
+        'DART research cache fill failed: $corpCode/$kind (${e.runtimeType})',
+        level: LogLevel.warning,
+      );
+      return 'retryLater';
+    } finally {
+      // Completed above; removal does not start another asynchronous operation.
+      // ignore: unawaited_futures
+      _loading.remove(lock);
+    }
+  }
 
   Future<Company> _company(Session session, String corpCode) async {
     if (!RegExp(r'^\d{8}$').hasMatch(corpCode)) {
@@ -55,17 +111,43 @@ class ResearchEndpoint extends Endpoint {
       });
     }
     if (snapshot == null) {
-      return jsonEncode({
-        'state': 'notCollected',
-        'message': switch (kind) {
-          'issuerDocuments' => '공식 원문 문서 수집 전입니다. 재무 계정은 추출하지 않습니다.',
-          'consensus' => '공개 제공이 허용된 컨센서스 공급원을 아직 연결하지 않았습니다.',
-          'insiders' || 'majorHoldings' => 'DART 보유변동 보고 수집 전입니다.',
-          'capital' || 'treasury' => '최근 5년 주요사항보고서 수집 전입니다.',
-          _ => '수급·공매도 API 설정과 서비스 제공 권한 확인 후 수집할 수 있습니다.',
-        },
-        'rows': [],
-      });
+      final state = await _fillMissing(session, corpCode, kind);
+      if (state == null && DartResearch.apis.containsKey(kind)) {
+        snapshot = await ResearchSnapshot.db.findFirstRow(
+          session,
+          where: (t) => t.companyId.equals(company.id!) & t.kind.equals(kind),
+          orderByList: (t) => [t.createdAt.desc(), t.id.desc()],
+        );
+      }
+      if (snapshot == null) {
+        return jsonEncode({
+          'retryAfterSeconds': state == 'budgetExhausted'
+              ? ApiCallBudget.nextKstMidnight(DateTime.now())
+                        .difference(DateTime.now().toUtc())
+                        .inSeconds +
+                    5
+              : state == 'collecting'
+              ? 5
+              : state == 'retryLater'
+              ? 300
+              : null,
+          'state': state ?? 'notCollected',
+          'message': switch (state) {
+            'notConfigured' => 'DART 연결 설정이 없어 수집을 시작하지 못했습니다.',
+            'budgetExhausted' => '오늘 DART 수집 한도를 소진했습니다. 내일 조회 시 다시 수집합니다.',
+            'collecting' => '다른 공시 수집이 진행 중입니다. 잠시 후 다시 확인합니다.',
+            'retryLater' => '공시 수집을 완료하지 못했습니다. 잠시 후 다시 시도합니다.',
+            _ => switch (kind) {
+              'issuerDocuments' => '공식 원문 문서 수집 전입니다. 재무 계정은 추출하지 않습니다.',
+              'consensus' => '공개 제공이 허용된 컨센서스 공급원을 아직 연결하지 않았습니다.',
+              'insiders' || 'majorHoldings' => 'DART 보유변동 보고 수집 전입니다.',
+              'capital' || 'treasury' => '최근 5년 주요사항보고서 수집 전입니다.',
+              _ => '수급·공매도 API 설정과 서비스 제공 권한 확인 후 수집할 수 있습니다.',
+            },
+          },
+          'rows': [],
+        });
+      }
     }
     final source = await Source.db.findById(session, snapshot.sourceId);
     return jsonEncode({
@@ -230,6 +312,20 @@ class ResearchEndpoint extends Endpoint {
 
   Future<int> collect(Session session, String corpCode, String kind) async {
     OntologyAccess.requireAdmin(session);
+    return _collect(session, corpCode, kind);
+  }
+
+  // Only server-selected DART APIs are reachable from the public cache path.
+  // User payloads, URLs, force refreshes, batches and KIS are never accepted there.
+  Future<int> _collect(
+    Session session,
+    String corpCode,
+    String kind, {
+    bool onDemand = false,
+  }) async {
+    final budget = onDemand
+        ? ApiCallBudget.dartDailyLimit - 100
+        : ApiCallBudget.dartDisclosureBudget;
     if (!DartResearch.apis.containsKey(kind) &&
         !{'flows', 'shorts'}.contains(kind)) {
       throw IngestException(message: '자동 수집 대상이 아닙니다.');
@@ -248,11 +344,7 @@ class ResearchEndpoint extends Endpoint {
         if (key == null) {
           throw IngestException(message: 'DART API 키가 설정되지 않았습니다.');
         }
-        if (await ApiCallBudget.reached(
-          session,
-          ApiProvider.dart,
-          ApiCallBudget.dartDisclosureBudget,
-        )) {
+        if (await ApiCallBudget.reached(session, ApiProvider.dart, budget)) {
           throw IngestException(message: '오늘 DART 수집 예산을 소진했습니다.');
         }
         final dart = DartClient(key);
@@ -266,7 +358,7 @@ class ResearchEndpoint extends Endpoint {
             if (await ApiCallBudget.reached(
               session,
               ApiProvider.dart,
-              ApiCallBudget.dartDisclosureBudget,
+              budget,
             )) {
               throw IngestException(
                 message: '오늘 DART 수집 예산을 소진했습니다. 기존 자료는 유지됩니다.',

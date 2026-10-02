@@ -1,6 +1,7 @@
 import 'research_import.dart';
 
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -27,7 +28,7 @@ const researchLabels = {
   'lending': '대차 잔고',
 };
 
-/// Reads stored snapshots only. Opening a company never consumes provider quota.
+/// Missing DART snapshots are acquired and cached by the server on first read.
 class ResearchSection extends StatefulWidget {
   const ResearchSection({
     super.key,
@@ -47,6 +48,7 @@ class ResearchSection extends StatefulWidget {
 class _ResearchSectionState extends State<ResearchSection> {
   final _feeds = <String, Map<String, dynamic>>{};
   int _request = 0;
+  Timer? _retryTimer;
   String? _collecting, _error;
   late String _kind = widget.kinds.first;
   int _limit = 5;
@@ -78,11 +80,13 @@ class _ResearchSectionState extends State<ResearchSection> {
   @override
   void dispose() {
     _request++;
+    _retryTimer?.cancel();
     IngestMonitor.instance.dataVersion.removeListener(_load);
     super.dispose();
   }
 
   Future<void> _load() async {
+    _retryTimer?.cancel();
     final request = ++_request, corp = widget.corpCode;
     final values = await Future.wait(
       widget.kinds.map((kind) async {
@@ -106,6 +110,14 @@ class _ResearchSectionState extends State<ResearchSection> {
     setState(() {
       _feeds.addEntries(values);
     });
+    final retryDelays = values
+        .map((v) => v.value['retryAfterSeconds'])
+        .whereType<int>()
+        .where((n) => n > 0);
+    if (retryDelays.isNotEmpty) {
+      final seconds = retryDelays.reduce((a, b) => a < b ? a : b);
+      _retryTimer = Timer(Duration(seconds: seconds), _load);
+    }
   }
 
   Future<void> _collect() async {
@@ -221,7 +233,11 @@ class _ResearchSectionState extends State<ResearchSection> {
                     ),
                   ),
                 ),
-                if (feed['state'] == 'error')
+                if ({
+                  'error',
+                  'retryLater',
+                  'collecting',
+                }.contains(feed['state']))
                   TextButton(onPressed: _load, child: const Text('다시 시도')),
               ],
             )
@@ -718,7 +734,15 @@ String researchPlainTitle(Map<String, dynamic> row) {
 String researchOverview(String kind, Map<String, dynamic>? feed) {
   if (feed == null) return '확인 중…';
   if (feed['state'] != 'ready') {
-    return feed['state'] == 'error' ? '불러오기 실패' : '아직 수집된 자료가 없어요';
+    return switch (feed['state']) {
+      'error' => '불러오기 실패',
+      'collecting' => '수집 대기 중…',
+      'retryLater' => '수집 지연 · 재시도 예정',
+      'budgetExhausted' => '오늘 수집 한도 소진 · 내일 재개',
+      'notConfigured' => '수집 연결 미설정',
+      'schemaPending' => '저장소 준비 중',
+      _ => '아직 수집하지 않은 자료예요',
+    };
   }
   final rows = ((feed['rows'] as List?) ?? []).cast<Map<String, dynamic>>();
   if (rows.isEmpty) return '수집 범위에서 해당 공시가 없어요';
