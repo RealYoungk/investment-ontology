@@ -56,6 +56,19 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20230321001131',
+      corpCode: '01596425',
+      companyName: '에스케이스퀘어 주식회사',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20230321001131-cfs-current',
+      manifestDigest:
+          '0bdebc5bb33bb484f65e9fe60c0f09019052609f8c1f4ccf2c39280d8148b74a',
+      ruleVersion: 'sk-square-2022-own-current-eight-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20220324000600',
       corpCode: '00296290',
       companyName: '키움증권(주)',

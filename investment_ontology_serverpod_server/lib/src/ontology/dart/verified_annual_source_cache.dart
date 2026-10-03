@@ -17,6 +17,7 @@ import 'talos_2022_exact_source.dart';
 import 'exact_current_row_profiles.dart';
 import 'anymedi_audit_period_source.dart';
 import 'sk_square_short_annual_source.dart';
+import 'sk_square_2022_current_source.dart';
 import 'exact_aone_annual_source.dart';
 import 'exact_current_cfs_source.dart';
 import 'db_fy22_whole_current_source.dart';
@@ -1223,6 +1224,42 @@ final class VerifiedAnnualSourceCache {
           coverSource: uriByLabel['cover']!,
           statementHtml: rawByLabel['ofs']!,
           statementSource: uriByLabel['ofs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == SkSquare2022CurrentSource.rule) {
+      final sourceMaps = (manifest['sources'] as List).cast<Map>();
+      final uriByLabel = <String, Uri>{
+        for (final s in sourceMaps)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final rawByLabel = <String, String>{
+        for (final s in sourceMaps)
+          s['label'] as String: utf8.decode(documents[uriByLabel[s['label']]]!),
+      };
+      final rows = SkSquare2022CurrentSource.parse(
+        receipt: entry.receipt,
+        corpCode: company.corpCode,
+        companyName: company.name,
+        consolidated: basis == FsDiv.consolidated,
+        start: start,
+        end: end,
+        raw: rawByLabel,
+        uris: uriByLabel,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: rawByLabel['cover']!,
+          coverSource: uriByLabel['cover']!,
+          statementHtml: rawByLabel['cfs']!,
+          statementSource: uriByLabel['cfs']!,
           periodStart: start,
           periodEnd: end,
           rows: rows,
