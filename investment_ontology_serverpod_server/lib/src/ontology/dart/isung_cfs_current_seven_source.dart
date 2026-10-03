@@ -178,6 +178,19 @@ abstract final class IsungCfsCurrentSevenSource {
     ];
   }
 
+  /// Exact projection persisted by the existing numeric-source audit writer.
+  static List<Map<String, dynamic>> sourceAuditRows(String receipt) => [
+    for (final row in expectedRows(receipt))
+      {
+        'account_nm': row['account_nm'],
+        'account_id': row['account_id'],
+        'thstrm_amount': row['thstrm_amount'],
+        'currency': row['currency'],
+        'html_provenance': row['html_provenance'],
+        'xbrl_provenance': row['xbrl_provenance'],
+      },
+  ];
+
   static Map<String, dynamic> _row(
     Map cell,
     List tables,

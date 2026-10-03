@@ -25,15 +25,9 @@ abstract final class IsungCfsSourceScope {
     for (var i = 0; i < 7; i++) {
       final row = rows[i], e = c['core'][i];
       if (row is! Map ||
-          row['corp_code'] != '01365384' ||
-          row['rcept_no'] != j['targetReceipt'] ||
-          row['fs_div'] != 'CFS' ||
-          row['bsns_year'] != '${c['year']}' ||
-          row['reprt_code'] != '11011' ||
           row['thstrm_amount'] != e['value'] ||
           row['account_nm'] != e['label'] ||
-          row['sj_div'] != e['kind'] ||
-          row['ord'] != '${e['physicalOrd']}' ||
+          row['currency'] != 'KRW' ||
           row['account_id'] != null) {
         return null;
       }
@@ -43,6 +37,8 @@ abstract final class IsungCfsSourceScope {
           p['sourceSha256'] != c['sha'] ||
           p['sourceReceipt'] != j['targetReceipt'] ||
           p['ruleVersion'] != 'isung-own-cfs-exact-current-seven-v1' ||
+          p['physicalOrd'] != e['physicalOrd'] ||
+          p['printedLabel'] != e['label'] ||
           p['tableIndex'] != e['table'] ||
           p['rowIndex'] != e['row'] ||
           p['column'] != e['column'] ||

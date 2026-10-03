@@ -334,7 +334,7 @@ class FinancialEndpoint extends Endpoint {
       }
       try {
         final v = jsonDecode(source.title);
-        final expected = IsungCfsCurrentSevenSource.expectedRows(
+        final expected = IsungCfsCurrentSevenSource.sourceAuditRows(
           report.rceptNo,
         );
         return v is Map &&

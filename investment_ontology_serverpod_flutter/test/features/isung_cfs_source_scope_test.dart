@@ -21,9 +21,19 @@ void main() {
         'format': 'html',
         'sha256': evidence['sourceDigest'],
         'coreRows': 7,
-        'coreRowProvenance': jsonDecode(
-          File('$dir/expected-rows.json').readAsStringSync(),
-        ),
+        'coreRowProvenance': [
+          for (final r in jsonDecode(
+            File('$dir/expected-rows.json').readAsStringSync(),
+          ) as List)
+            {
+              'account_nm': r['account_nm'],
+              'account_id': r['account_id'],
+              'thstrm_amount': r['thstrm_amount'],
+              'currency': r['currency'],
+              'html_provenance': r['html_provenance'],
+              'xbrl_provenance': r['xbrl_provenance'],
+            },
+        ],
       };
     }
 

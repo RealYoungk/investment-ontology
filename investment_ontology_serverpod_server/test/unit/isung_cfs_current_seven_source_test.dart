@@ -83,7 +83,9 @@ void main() {
           'format': 'html',
           'sha256': actual.sourceDigest,
           'coreRows': 7,
-          'coreRowProvenance': actual.rows,
+          'coreRowProvenance': IsungCfsCurrentSevenSource.sourceAuditRows(
+            receipt,
+          ),
         };
         Source source(Map p) => Source(
           kind: SourceKind.dartReport,
@@ -148,7 +150,9 @@ void main() {
             false,
           );
         }
-        final changed = jsonDecode(jsonEncode(actual.rows)) as List;
+        final changed = jsonDecode(
+          jsonEncode(IsungCfsCurrentSevenSource.sourceAuditRows(receipt)),
+        ) as List;
         changed.first['html_provenance']['sourceSha256'] = actual.sourceDigest;
         expect(
           FinancialEndpoint.validPartialScopeSource(
