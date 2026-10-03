@@ -56,6 +56,31 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20250321001653',
+      corpCode: '00886792',
+      companyName: '(주)루켄테크놀러지스',
+      year: 2024,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20250321001653-cfs',
+      manifestDigest:
+          'e0cd29ec82a7da0660aacb49fcec36d386dd57a2f172a79990d8fe22aa8f8529',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220331003444',
+      corpCode: '01085026',
+      companyName: '(주)유진테크놀로지',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220331003444-ofs',
+      manifestDigest:
+          'e33e8b53e3b8079c1d3a4afd1121970f09516825503815eb188a163bcd7c6e98',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20220317000713',
       corpCode: '00148993',
       companyName: '하이트진로홀딩스(주)',

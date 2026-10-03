@@ -652,6 +652,20 @@ final class VerifiedAnnualSourceCache {
           };
         }
       }
+      // Exact independently checked packages retain the partial eight-account scope.
+      if ((entry.receipt == '20250321001653' &&
+              entry.corpCode == '00886792' &&
+              basis == FsDiv.consolidated) ||
+          (entry.receipt == '20220331003444' &&
+              entry.corpCode == '01085026' &&
+              basis == FsDiv.separate)) {
+        for (final row in numeric.rows) {
+          final proof = row['html_provenance'] as Map<String, dynamic>;
+          proof['fullStatementCollected'] = false;
+          proof['uncollectedOptionalAccounts'] = <String>[];
+          proof['allStatementRowsVerified'] = false;
+        }
+      }
       return (numeric: numeric, absence: null);
     } on PublicFinancialHtmlBasisNotApplicable catch (absence) {
       if (entry.absenceLiteral == null ||
