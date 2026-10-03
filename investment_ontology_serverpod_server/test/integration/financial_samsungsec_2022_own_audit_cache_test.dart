@@ -108,8 +108,12 @@ void main() {
 
         final first = await run();
         expect(first.status, IngestStatus.failed);
-        expect(first.updated, 1);
         final after = (await DartFiling.db.findById(session, filing.id!))!;
+        expect(
+          first.updated,
+          1,
+          reason: '${first.message}; ${after.lastError}',
+        );
         expect(after.consolidatedStatus, FilingFetchStatus.stored);
         expect(after.separateStatus, FilingFetchStatus.failed);
         expect(after.attempts, 7);
