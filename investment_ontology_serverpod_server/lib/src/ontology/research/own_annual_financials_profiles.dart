@@ -171,6 +171,7 @@ abstract final class OwnAnnualFinancialsProfiles {
       ],
       "unextractedMetrics": [],
       "auditCell": null,
+      "cashSectionCells": [],
     },
     {
       "corpCode": "01564514",
@@ -386,6 +387,7 @@ abstract final class OwnAnnualFinancialsProfiles {
       ],
       "unextractedMetrics": [],
       "auditCell": null,
+      "cashSectionCells": [],
     },
     {
       "corpCode": "01564514",
@@ -546,6 +548,7 @@ abstract final class OwnAnnualFinancialsProfiles {
         },
       ],
       "auditCell": null,
+      "cashSectionCells": [],
     },
     {
       "corpCode": "01564514",
@@ -706,6 +709,7 @@ abstract final class OwnAnnualFinancialsProfiles {
         },
       ],
       "auditCell": null,
+      "cashSectionCells": [],
     },
     {
       "corpCode": "01564514",
@@ -866,6 +870,7 @@ abstract final class OwnAnnualFinancialsProfiles {
         },
       ],
       "auditCell": null,
+      "cashSectionCells": [],
     },
     {
       "corpCode": "01586923",
@@ -1038,6 +1043,7 @@ abstract final class OwnAnnualFinancialsProfiles {
       ],
       "unextractedMetrics": [],
       "auditCell": null,
+      "cashSectionCells": [],
     },
     {
       "corpCode": "01586923",
@@ -1210,6 +1216,7 @@ abstract final class OwnAnnualFinancialsProfiles {
       ],
       "unextractedMetrics": [],
       "auditCell": null,
+      "cashSectionCells": [],
     },
     {
       "corpCode": "01586923",
@@ -1382,6 +1389,7 @@ abstract final class OwnAnnualFinancialsProfiles {
       ],
       "unextractedMetrics": [],
       "auditCell": null,
+      "cashSectionCells": [],
     },
     {
       "corpCode": "01586923",
@@ -1553,6 +1561,14 @@ abstract final class OwnAnnualFinancialsProfiles {
       ],
       "unextractedMetrics": [],
       "auditCell": null,
+      "cashSectionCells": [
+        {
+          "tableOrdinal": 15,
+          "rowOrdinal": 12,
+          "cellOrdinal": 0,
+          "printedText": "2. 투자활동으로 인한 현금유출액",
+        },
+      ],
     },
     {
       "corpCode": "01586923",
@@ -1743,6 +1759,14 @@ abstract final class OwnAnnualFinancialsProfiles {
       ],
       "unextractedMetrics": [],
       "auditCell": null,
+      "cashSectionCells": [
+        {
+          "tableOrdinal": 15,
+          "rowOrdinal": 11,
+          "cellOrdinal": 0,
+          "printedText": "2. 투자활동으로 인한 현금유출액",
+        },
+      ],
     },
     {
       "corpCode": "01722066",
@@ -1914,6 +1938,7 @@ abstract final class OwnAnnualFinancialsProfiles {
       ],
       "unextractedMetrics": [],
       "auditCell": null,
+      "cashSectionCells": [],
     },
     {
       "corpCode": "01722066",
@@ -2085,6 +2110,7 @@ abstract final class OwnAnnualFinancialsProfiles {
       ],
       "unextractedMetrics": [],
       "auditCell": null,
+      "cashSectionCells": [],
     },
     {
       "corpCode": "01722066",
@@ -2275,6 +2301,7 @@ abstract final class OwnAnnualFinancialsProfiles {
       ],
       "unextractedMetrics": [],
       "auditCell": null,
+      "cashSectionCells": [],
     },
     {
       "corpCode": "01867688",
@@ -2446,6 +2473,7 @@ abstract final class OwnAnnualFinancialsProfiles {
       ],
       "unextractedMetrics": [],
       "auditCell": null,
+      "cashSectionCells": [],
     },
     {
       "corpCode": "01867688",
@@ -2617,6 +2645,7 @@ abstract final class OwnAnnualFinancialsProfiles {
       ],
       "unextractedMetrics": [],
       "auditCell": null,
+      "cashSectionCells": [],
     },
     {
       "corpCode": "01867688",
@@ -2804,6 +2833,7 @@ abstract final class OwnAnnualFinancialsProfiles {
       ],
       "unextractedMetrics": [],
       "auditCell": null,
+      "cashSectionCells": [],
     },
     {
       "corpCode": "01867688",
@@ -2991,6 +3021,7 @@ abstract final class OwnAnnualFinancialsProfiles {
       ],
       "unextractedMetrics": [],
       "auditCell": null,
+      "cashSectionCells": [],
     },
     {
       "corpCode": "01876251",
@@ -3181,6 +3212,7 @@ abstract final class OwnAnnualFinancialsProfiles {
       ],
       "unextractedMetrics": [],
       "auditCell": null,
+      "cashSectionCells": [],
     },
     {
       "corpCode": "01876251",
@@ -3371,6 +3403,7 @@ abstract final class OwnAnnualFinancialsProfiles {
       ],
       "unextractedMetrics": [],
       "auditCell": null,
+      "cashSectionCells": [],
     },
     {
       "corpCode": "01876251",
@@ -3531,6 +3564,7 @@ abstract final class OwnAnnualFinancialsProfiles {
         },
       ],
       "auditCell": null,
+      "cashSectionCells": [],
     },
   ];
 }

@@ -130,6 +130,13 @@ void main() {
       );
       expect(BigInt.parse(a['amountInteger']).isNegative, isFalse);
       expect(a['cashDirection'], 'outflow');
+      expect(row['cashDirectionProof'][0]['printedText'], '2. 투자활동으로 인한 현금유출액');
+      final bad = jsonDecode(jsonEncode(row)) as Map<String, dynamic>;
+      bad['cashDirectionProof'][0]['printedText'] = '투자활동 현금유입액';
+      expect(
+        () => OwnAnnualFinancialsHtml.validateRows([bad]),
+        throwsFormatException,
+      );
       expect(a['printedSignConvention'], 'positiveOutflowMagnitude');
     }
     for (final p in OwnAnnualFinancialsProfiles.rows.where(

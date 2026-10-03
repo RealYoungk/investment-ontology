@@ -50,6 +50,7 @@ abstract final class OwnAnnualFinancialsHtml {
     'accountingStandard': p['accountingStandard'],
     'auditOpinionUrl': p['auditOpinionUrl'],
     'auditOpinionSha256': p['auditOpinionSha256'],
+    'cashDirectionProof': p['cashSectionCells'],
     'observationRole': 'currentOwn',
     'currency': 'KRW',
     'printedUnit': '원',
@@ -131,6 +132,14 @@ abstract final class OwnAnnualFinancialsHtml {
           tables[auditCell['tableOrdinal']][auditCell['rowOrdinal']][auditCell['cellOrdinal']] !=
               auditCell['printedText']) {
         throw const FormatException('Own annual current auditor cell mismatch');
+      }
+      for (final proof in p['cashSectionCells'] as List) {
+        if (tables[proof['tableOrdinal']][proof['rowOrdinal']][proof['cellOrdinal']] !=
+            proof['printedText']) {
+          throw const FormatException(
+            'Own annual printed cash-outflow section mismatch',
+          );
+        }
       }
       final accounts = <Map<String, dynamic>>[];
       for (final a in p['accounts'] as List) {

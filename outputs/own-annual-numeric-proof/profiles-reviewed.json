@@ -244,7 +244,8 @@
       }
     ],
     "unextractedMetrics": [],
-    "auditCell": null
+    "auditCell": null,
+    "cashSectionCells": []
   },
   {
     "corpCode": "01564514",
@@ -497,7 +498,8 @@
       }
     ],
     "unextractedMetrics": [],
-    "auditCell": null
+    "auditCell": null,
+    "cashSectionCells": []
   },
   {
     "corpCode": "01564514",
@@ -714,7 +716,8 @@
         "reason": "noPrimaryPrintedTotalCell; component acquisitions not summed"
       }
     ],
-    "auditCell": null
+    "auditCell": null,
+    "cashSectionCells": []
   },
   {
     "corpCode": "01564514",
@@ -931,7 +934,8 @@
         "reason": "noPrimaryPrintedTotalCell; component acquisitions not summed"
       }
     ],
-    "auditCell": null
+    "auditCell": null,
+    "cashSectionCells": []
   },
   {
     "corpCode": "01564514",
@@ -1148,7 +1152,8 @@
         "reason": "noPrimaryPrintedTotalCell; component acquisitions not summed"
       }
     ],
-    "auditCell": null
+    "auditCell": null,
+    "cashSectionCells": []
   },
   {
     "corpCode": "01586923",
@@ -1398,7 +1403,8 @@
       }
     ],
     "unextractedMetrics": [],
-    "auditCell": null
+    "auditCell": null,
+    "cashSectionCells": []
   },
   {
     "corpCode": "01586923",
@@ -1648,7 +1654,8 @@
       }
     ],
     "unextractedMetrics": [],
-    "auditCell": null
+    "auditCell": null,
+    "cashSectionCells": []
   },
   {
     "corpCode": "01586923",
@@ -1898,7 +1905,8 @@
       }
     ],
     "unextractedMetrics": [],
-    "auditCell": null
+    "auditCell": null,
+    "cashSectionCells": []
   },
   {
     "corpCode": "01586923",
@@ -2145,7 +2153,15 @@
       }
     ],
     "unextractedMetrics": [],
-    "auditCell": null
+    "auditCell": null,
+    "cashSectionCells": [
+      {
+        "tableOrdinal": 15,
+        "rowOrdinal": 12,
+        "cellOrdinal": 0,
+        "printedText": "2. 투자활동으로 인한 현금유출액"
+      }
+    ]
   },
   {
     "corpCode": "01586923",
@@ -2398,7 +2414,15 @@
       }
     ],
     "unextractedMetrics": [],
-    "auditCell": null
+    "auditCell": null,
+    "cashSectionCells": [
+      {
+        "tableOrdinal": 15,
+        "rowOrdinal": 11,
+        "cellOrdinal": 0,
+        "printedText": "2. 투자활동으로 인한 현금유출액"
+      }
+    ]
   },
   {
     "corpCode": "01722066",
@@ -2645,7 +2669,8 @@
       }
     ],
     "unextractedMetrics": [],
-    "auditCell": null
+    "auditCell": null,
+    "cashSectionCells": []
   },
   {
     "corpCode": "01722066",
@@ -2892,7 +2917,8 @@
       }
     ],
     "unextractedMetrics": [],
-    "auditCell": null
+    "auditCell": null,
+    "cashSectionCells": []
   },
   {
     "corpCode": "01722066",
@@ -3145,7 +3171,8 @@
       }
     ],
     "unextractedMetrics": [],
-    "auditCell": null
+    "auditCell": null,
+    "cashSectionCells": []
   },
   {
     "corpCode": "01867688",
@@ -3384,7 +3411,8 @@
       }
     ],
     "unextractedMetrics": [],
-    "auditCell": null
+    "auditCell": null,
+    "cashSectionCells": []
   },
   {
     "corpCode": "01867688",
@@ -3623,7 +3651,8 @@
       }
     ],
     "unextractedMetrics": [],
-    "auditCell": null
+    "auditCell": null,
+    "cashSectionCells": []
   },
   {
     "corpCode": "01867688",
@@ -3868,7 +3897,8 @@
       }
     ],
     "unextractedMetrics": [],
-    "auditCell": null
+    "auditCell": null,
+    "cashSectionCells": []
   },
   {
     "corpCode": "01867688",
@@ -4113,7 +4143,8 @@
       }
     ],
     "unextractedMetrics": [],
-    "auditCell": null
+    "auditCell": null,
+    "cashSectionCells": []
   },
   {
     "corpCode": "01876251",
@@ -4366,7 +4397,8 @@
       }
     ],
     "unextractedMetrics": [],
-    "auditCell": null
+    "auditCell": null,
+    "cashSectionCells": []
   },
   {
     "corpCode": "01876251",
@@ -4619,7 +4651,8 @@
       }
     ],
     "unextractedMetrics": [],
-    "auditCell": null
+    "auditCell": null,
+    "cashSectionCells": []
   },
   {
     "corpCode": "01876251",
@@ -4836,6 +4869,7 @@
         "reason": "noPrimaryPrintedTotalCell; component acquisitions not summed"
       }
     ],
-    "auditCell": null
+    "auditCell": null,
+    "cashSectionCells": []
   }
 ]

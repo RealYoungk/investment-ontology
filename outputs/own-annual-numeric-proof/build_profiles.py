@@ -23,6 +23,11 @@ for d in rows:
    a={'metric':metric,'statement':['BS','IS','CF'][n],'amountScope':'instant' if n==0 else 'cumulative','cashDirection':'outflow' if pos==1 and n==2 else None,'incomeDirection':'printedSigned' if n==1 and pos>0 else None,'tableOrdinal':ti,'rowOrdinal':ri,'cellOrdinal':ci,'accountLabel':cs[0],'headerCells':ts[ti][0],'rowLength':len(cs),'printedSignConvention':'positiveOutflowMagnitude' if n==2 and pos==1 and value>0 else 'signedAmount'}
    p['accounts'].append(a);cells.append({'corpCode':d['corpCode'],'providerReceipt':receipt,'basis':d['basis'],'periodStart':d['periodStart'],'periodEnd':d['periodEnd'],'accountingStandard':d['accountingStandard'],'officialUrl':d['statementURI'],'sha256':d['statementSHA256'],**a,'printedAmount':raw,'amountInteger':str(value),'rowCells':cs})
  values={r['metric']:int(r['amountInteger']) for r in cells if r['providerReceipt']==receipt};assert values['assets']==values['liabilities']+values['equity'],receipt
+ p['cashSectionCells']=[]
+ if receipt in ['20230404002934','20220404002339']:
+  ri=12 if receipt=='20230404002934' else 11
+  assert ts[15][ri][0]=='2. 투자활동으로 인한 현금유출액'
+  p['cashSectionCells']=[{'tableOrdinal':15,'rowOrdinal':ri,'cellOrdinal':0,'printedText':ts[15][ri][0]}]
  profiles.append(p)
  for role,name in [('shell','shell.html'),('own-statement','statement.html')]:
   raw=(src/receipt/name).read_bytes();assert hashlib.sha256(raw).hexdigest()==source[role]['sha256'];shutil.copyfile(src/receipt/name,s/'test/fixtures/issuer_documents/dart'/f'{receipt}-own-{name}')
