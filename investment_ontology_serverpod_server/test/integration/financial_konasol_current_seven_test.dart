@@ -79,7 +79,11 @@ void main() {
           ).run();
           expect(client.calls, 0);
           final result = (await IngestJob.db.findById(session, j.id!))!;
-          expect(result.status, IngestStatus.succeeded);
+          // OFS recovery succeeds, while this unapproved exhausted CFS basis
+          // must keep the overall job incomplete on both initial run and replay.
+          expect(result.status, IngestStatus.failed);
+          expect(result.failed, 0);
+          expect(result.message, contains('재시도 한도에 도달한 미완료 1건'));
           return result;
         }
 
