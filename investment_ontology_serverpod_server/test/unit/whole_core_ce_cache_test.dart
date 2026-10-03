@@ -92,16 +92,34 @@ void main() {
         paths.every((path) => path.startsWith('${cfs.assetDirectory}/')),
         true,
       );
-      expect(
-        result.numeric!.rows.every(
-          (row) => row['html_provenance']['basis'] == 'CFS',
-        ),
-        true,
-      );
-      expect(
-        result.numeric!.statementSource,
-        isNot((await verify(filing(entry))).numeric.statementSource),
-      );
+      if (cfs.absenceLiteral != null) {
+        expect(result.numeric, isNull);
+        final absence = result.absence!;
+        expect(absence.corpCode, entry.corpCode);
+        expect(absence.sourceReceipt, receipt);
+        expect(absence.periodStart, DateTime.utc(entry.year));
+        expect(absence.periodEnd, DateTime.utc(entry.year, 12, 31));
+        expect(
+          absence.evidence.replaceAll(RegExp(r'\s+'), ''),
+          cfs.absenceLiteral!.replaceAll(RegExp(r'\s+'), ''),
+        );
+        expect(
+          absence.statementSource,
+          isNot((await verify(filing(entry))).numeric.statementSource),
+        );
+      } else {
+        expect(result.absence, isNull);
+        expect(
+          result.numeric!.rows.every(
+            (row) => row['html_provenance']['basis'] == 'CFS',
+          ),
+          true,
+        );
+        expect(
+          result.numeric!.statementSource,
+          isNot((await verify(filing(entry))).numeric.statementSource),
+        );
+      }
       expect(
         () => VerifiedAnnualSourceCache(
           readAsset: (path) async => path.endsWith('cfs.html')
