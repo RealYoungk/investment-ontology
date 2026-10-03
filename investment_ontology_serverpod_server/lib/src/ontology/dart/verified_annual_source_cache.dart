@@ -1,3 +1,4 @@
+import 'verified_historical_company_identity.dart';
 import 'talos_2021_current_seven_source.dart';
 import 'talos_2022_exact_source.dart';
 import 'exact_current_row_profiles.dart';
@@ -810,6 +811,67 @@ final class VerifiedAnnualSourceCache {
           rows: rows,
         ),
         absence: null,
+      );
+    }
+    if (entry.ruleVersion == 'historical-receipt-bound-cfs-explicit-none-v1') {
+      final sources = manifest['sources'] as List;
+      Uri source(String label) => Uri.parse(
+        sources.singleWhere((x) => x['label'] == label)['url'] as String,
+      );
+      String raw(String label) => utf8.decode(documents[source(label)]!);
+      final contracts = <String, (String, String, String)>{
+        '20220329001197': ('주식회사 로보쓰리', '2.연결재무제표해당사항없습니다.', '해당사항 없습니다.'),
+        '20220321000965': (
+          '주식회사 프로테옴텍',
+          '2.연결재무제표당사는연결대상종속회사가존재하지않으므로,한국채택국제회계기준의주된재무제표인연결기준의재무정보를기재하지않습니다.',
+          '당사는 연결대상 종속회사가 존재하지 않으므로, 한국채택국제회계기준의 주된 재무제표인 연결기준의 재무정보를 기재하지 않습니다.',
+        ),
+        '20230328000161': (
+          '주식회사 씨유박스',
+          '2.연결재무제표당사는사업보고서제출일현재해당사항없습니다.',
+          '당사는 사업보고서 제출일 현재 해당사항 없습니다.',
+        ),
+      };
+      final contract = contracts[entry.receipt];
+      final printed = raw('cfs').replaceAll(RegExp(r'<[^>]*>|\s+|&nbsp;'), '');
+      if (contract == null ||
+          basis != FsDiv.consolidated ||
+          documentCount != 3 ||
+          start != DateTime.utc(entry.year, 1, 1) ||
+          end != DateTime.utc(entry.year, 12, 31) ||
+          printed != contract.$2 ||
+          entry.absenceLiteral != contract.$3 ||
+          VerifiedHistoricalCompanyIdentity.evidence(
+                receipt: entry.receipt,
+                corpCode: company.corpCode,
+                currentName: company.name,
+                printedName: contract.$1,
+                periodEnd: end,
+                consolidated: true,
+                coverSource: source('cover'),
+                coverHtml: raw('cover'),
+              ) ==
+              null ||
+          !raw('shell').contains("openCorpInfoNew('${entry.corpCode}'")) {
+        throw const FormatException(
+          'Historical exact own CFS absence binding mismatch',
+        );
+      }
+      return (
+        numeric: null,
+        absence: PublicFinancialHtmlBasisNotApplicable(
+          sourceReceipt: entry.receipt,
+          corpCode: company.corpCode,
+          companyName: company.name,
+          reportName: filing.reportName,
+          periodStart: start,
+          periodEnd: end,
+          coverSource: source('cover'),
+          statementSource: source('cfs'),
+          coverHtml: raw('cover'),
+          statementHtml: raw('cfs'),
+          evidence: contract.$3,
+        ),
       );
     }
     final client = _PinnedRawClient(documents, maxRequests: documentCount);

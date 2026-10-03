@@ -56,6 +56,42 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20220329001197',
+      corpCode: '01118643',
+      companyName: '(주)솔루믹스',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220329001197-cfs-historical-exact-none',
+      manifestDigest:
+          'de3264994875249eeb164017cf4f9f727df0fe4e04297ed8b5387def0880aa40',
+      ruleVersion: 'historical-receipt-bound-cfs-explicit-none-v1',
+      absenceLiteral: '해당사항 없습니다.',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220321000965',
+      corpCode: '01267958',
+      companyName: '주식회사 프로티아',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220321000965-cfs-historical-exact-none',
+      manifestDigest:
+          'c742c829a294580424367d8767a1e97c2cc50d694b69ffab76f45937d827fbf4',
+      ruleVersion: 'historical-receipt-bound-cfs-explicit-none-v1',
+      absenceLiteral: '당사는 연결대상 종속회사가 존재하지 않으므로, 한국채택국제회계기준의 주된 재무제표인 연결기준의 재무정보를 기재하지 않습니다.',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230328000161',
+      corpCode: '01315042',
+      companyName: '(주)시선에이아이',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20230328000161-cfs-historical-exact-none',
+      manifestDigest:
+          '9a2f5f4370226787df407427c9f9c1bafd4715b521ee011965cc8145a0642394',
+      ruleVersion: 'historical-receipt-bound-cfs-explicit-none-v1',
+      absenceLiteral: '당사는 사업보고서 제출일 현재 해당사항 없습니다.',
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20250321001155',
       corpCode: '01680131',
       companyName: '(주)아이오바이오',

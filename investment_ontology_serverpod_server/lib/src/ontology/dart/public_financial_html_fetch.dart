@@ -88,7 +88,7 @@ class PublicFinancialHtmlBasisNotApplicable extends FormatException {
         .allMatches(coverHtml.replaceAll(RegExp(r'<[^>]+>|\s+|&nbsp;'), ''))
         .toList();
     if (names.length != 1) return null;
-    return issuerProof?.verify(
+    final legal = issuerProof?.verify(
       receipt: sourceReceipt,
       corpCode: corpCode,
       masterName: companyName,
@@ -98,6 +98,17 @@ class PublicFinancialHtmlBasisNotApplicable extends FormatException {
       periodStart: periodStart,
       periodEnd: periodEnd,
     );
+    return legal ??
+        VerifiedHistoricalCompanyIdentity.evidence(
+          receipt: sourceReceipt,
+          corpCode: corpCode,
+          currentName: companyName,
+          printedName: names.single.group(1)!,
+          periodEnd: periodEnd,
+          consolidated: true,
+          coverSource: coverSource,
+          coverHtml: coverHtml,
+        );
   }
 
   String? get correctionReceipt => null;
