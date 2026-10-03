@@ -64,6 +64,7 @@ void main() {
             File('test/fixtures/issuer_documents/dart/$path').readAsBytesSync(),
             200,
             headers: {'content-type': 'text/html; charset=utf-8'},
+            request: request,
           );
         }),
       );
@@ -77,7 +78,7 @@ void main() {
             cancelled: () async => false,
           );
       final first = await collect();
-      expect(first.failedCompanies, 0);
+      expect(first.failedCompanies, 0, reason: first.reasons.join("; "));
       expect(first.financialFailedCompanies, 0);
       expect(first.ownAnnualFailedCompanies, 0);
       expect(first.storedDocuments, 25);
