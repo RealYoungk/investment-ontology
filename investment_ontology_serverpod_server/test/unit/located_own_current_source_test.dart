@@ -113,8 +113,26 @@ void main() {
             'format': 'html',
             'sha256': result.numeric!.sourceDigest,
             'coreRows': 7,
-            'coreRowProvenance': result.numeric!.rows,
+            'coreRowProvenance': [
+              for (final r in result.numeric!.rows)
+                {
+                  'account_nm': r['account_nm'],
+                  'account_id': r['account_id'],
+                  'thstrm_amount': r['thstrm_amount'],
+                  'currency': r['currency'],
+                  'html_provenance': r['html_provenance'],
+                  'xbrl_provenance': r['xbrl_provenance'],
+                },
+            ],
           };
+          expect((payload['coreRowProvenance'] as List).first.keys.toSet(), {
+            'account_nm',
+            'account_id',
+            'thstrm_amount',
+            'currency',
+            'html_provenance',
+            'xbrl_provenance',
+          });
           Source scoped(Map value) => Source(
             kind: SourceKind.dartReport,
             reference: 'financial-api-noData-source:${e.receipt}:${basis.name}',

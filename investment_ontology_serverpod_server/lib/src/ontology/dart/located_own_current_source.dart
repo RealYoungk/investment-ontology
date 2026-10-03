@@ -162,6 +162,7 @@ abstract final class LocatedOwnCurrentSource {
             r['html_provenance'] is! Map ||
             r['account_nm'] != c['label'] ||
             r['account_id'] != null ||
+            r['currency'] != 'KRW' ||
             r['thstrm_amount'] !=
                 (c['literal'] as String)
                     .replaceAll(',', '')

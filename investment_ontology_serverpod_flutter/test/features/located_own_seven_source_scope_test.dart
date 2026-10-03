@@ -24,6 +24,8 @@ void main() {
           {
             'account_nm': c['label'],
             'account_id': null,
+            'currency': 'KRW',
+            'xbrl_provenance': null,
             'thstrm_amount': (c['literal'] as String)
                 .replaceAll(',', '')
                 .replaceAll('(', '-')
