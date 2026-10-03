@@ -28,7 +28,11 @@ class NotPresentedClient extends SourceClient {
   }) {
     publicCalls++;
     return actual.fetchNotPresented(
-      actual.notPresentedCases.singleWhere((e) => e['receipt'] == receipt),
+      actual.notPresentedCases.singleWhere(
+        (e) =>
+            e['receipt'] == receipt &&
+            e['basis'] == (consolidated ? 'cfs' : 'ofs'),
+      ),
       corp: corpCode,
       cfs: consolidated,
     );
