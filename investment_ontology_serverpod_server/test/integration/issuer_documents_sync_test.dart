@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:test/test.dart';
+import 'package:serverpod/protocol.dart' as sp;
+import 'package:investment_ontology_serverpod_server/src/ontology/ingest/ingest_schedule.dart';
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/research/issuer_documents_collector.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/ingest/issuer_documents_sync.dart';
@@ -31,6 +33,108 @@ void main() {
   String manifest(List<Map<String, dynamic>> d) =>
       jsonEncode({...asset, 'documents': d});
   withServerpod('공식 투자회사 원문 독립 보존', (builder, endpoints) {
+    test('first issuer source fails while others store; separate raw failure remains visible without altering body counts', () async {
+      final session = builder.build();
+      addTearDown(session.close);
+      final cache = await Directory.systemTemp.createTemp('issuer-partial-db-');
+      addTearDown(() => cache.delete(recursive: true));
+      for (final code in paths.keys) {
+        await Company.db.insertRow(
+          session,
+          Company(corpCode: code, name: code, market: Market.kospi),
+        );
+      }
+      final collector = IssuerDocumentsCollector(
+        cache: cache,
+        delay: (_) async {},
+        client: MockClient((r) async {
+          final d = docs.singleWhere(
+            (d) => (d['metadata'] as Map)['officialUrl'] == r.url.toString(),
+          );
+          final code = (d['metadata'] as Map)['corpCode'] as String;
+          if (code == '00435297') return http.Response('', 503, request: r);
+          return http.Response.bytes(
+            File('test/fixtures/issuer_documents/${paths[code]}')
+                .readAsBytesSync(),
+            200,
+            request: r,
+          );
+        }),
+      );
+      addTearDown(collector.client.close);
+      final result = await IssuerDocumentsSync.collectAndStore(
+        session,
+        manifestText: manifest(docs),
+        collector: collector,
+        cancelled: () async => false,
+      );
+      expect(result.failedCompanies, 1);
+      expect(result.storedCompanies, 2);
+      expect(result.storedDocuments, 2);
+      expect(await ResearchSnapshot.db.count(session), 2);
+      final job = await IngestJob.db.insertRow(
+        session,
+        IngestJob(
+          kind: 'business_documents',
+          status: IngestStatus.succeeded,
+          startedAt: DateTime.now().toUtc(),
+          processed: 7,
+          updated: 6,
+          failed: 0,
+          apiCalls: 4,
+          message: '사업본문 저장 6',
+        ),
+      );
+      final budgetAt = DateTime.now().toUtc().add(const Duration(days: 1));
+      await IngestSchedule.businessDocumentsResume(session, budgetAt);
+      final budgetBefore = await sp.FutureCallEntry.db.find(
+        session,
+        where: (t) =>
+            t.identifier.equals(IngestSchedule.businessDocumentsResumeId),
+      );
+      await IssuerDocumentsSync.recordResult(session, job.id!, result);
+      final budgetAfter = await sp.FutureCallEntry.db.find(
+        session,
+        where: (t) =>
+            t.identifier.equals(IngestSchedule.businessDocumentsResumeId),
+      );
+      expect(budgetAfter.single.id, budgetBefore.single.id);
+      expect(budgetAfter.single.time, budgetBefore.single.time);
+      final recorded = (await IngestJob.db.findById(session, job.id!))!;
+      expect(recorded.status, IngestStatus.failed);
+      expect(
+        [
+          recorded.processed,
+          recorded.updated,
+          recorded.failed,
+          recorded.apiCalls,
+        ],
+        [7, 6, 0, 4],
+      );
+      expect(recorded.message, contains('사업본문 저장 6'));
+      expect(
+        recorded.message,
+        contains('공식 별도 원문: 회사 보존 2 · 문서 보존 2 · 회사 실패 1'),
+      );
+      final setup = IssuerDocumentsResult()
+        ..setupFailed = true
+        ..reasons.add('비공개 영속 cache 경로 미설정');
+      await IssuerDocumentsSync.recordResult(session, job.id!, setup);
+      final setupRecorded = (await IngestJob.db.findById(session, job.id!))!;
+      expect(setupRecorded.status, IngestStatus.failed);
+      expect(setupRecorded.message, contains('회사 실패 0 · 준비 실패 1'));
+      expect(setupRecorded.failed, 0);
+      await IngestJob.db.updateRow(
+        session,
+        recorded.copyWith(status: IngestStatus.cancelled, message: '사용자 취소'),
+      );
+      await IssuerDocumentsSync.recordResult(session, job.id!, result);
+      expect(
+        (await IngestJob.db.findById(session, job.id!))!.message,
+        '사용자 취소',
+      );
+    });
+
     test('pinned own audit chapter stores metadata, replays without GET and fails closed on partial fetch', () async {
       final session = builder.build();
       addTearDown(session.close);
@@ -87,12 +191,65 @@ void main() {
         cancelled: () async => false,
       );
       expect(await IssuerDocumentsSync.hasPending(session), isTrue);
-      await expectLater(store(), throwsFormatException);
+      final failure = await IssuerDocumentsSync.collectAndStore(
+        session,
+        manifestText: jsonEncode({
+          'schemaVersion': 1,
+          'documents': [doc],
+        }),
+        collector: collector,
+        cancelled: () async => false,
+      );
+      expect(failure.failedCompanies, 1);
+      expect(failure.storedDocuments, 0);
       expect(await ResearchSnapshot.db.count(session), 0);
       failBody = false;
       await store();
       final saved = await ResearchSnapshot.db.find(session);
       expect(saved.length, 1);
+      final ownManifest = jsonEncode({
+        'schemaVersion': 1,
+        'documents': [doc],
+      });
+      expect(
+        await IssuerDocumentsSync.hasPending(
+          session,
+          cache: cache,
+          manifestText: ownManifest,
+        ),
+        isFalse,
+      );
+      final primary = File(
+        '${cache.path}/${(doc['metadata'] as Map)['sha256']}.html',
+      );
+      final originalBytes = await primary.readAsBytes();
+      await primary.delete();
+      expect(
+        await IssuerDocumentsSync.hasPending(
+          session,
+          cache: cache,
+          manifestText: ownManifest,
+        ),
+        isTrue,
+      );
+      await primary.writeAsString('corrupt private cache');
+      expect(
+        await IssuerDocumentsSync.hasPending(
+          session,
+          cache: cache,
+          manifestText: ownManifest,
+        ),
+        isTrue,
+      );
+      final corrupt = await IssuerDocumentsSync.collectAndStore(
+        session,
+        manifestText: ownManifest,
+        collector: collector,
+        cancelled: () async => false,
+      );
+      expect(corrupt.failedCompanies, 1);
+      expect(await ResearchSnapshot.db.count(session), 1);
+      await primary.writeAsBytes(originalBytes);
       final sourceCount = await Source.db.count(session);
       final observations = gets;
       await store();
@@ -263,14 +420,14 @@ void main() {
           (r) async => http.Response('%PDF-wrong', 200, request: r),
         ),
       );
-      await expectLater(
-        IssuerDocumentsSync.collectAndStore(
+      expect(
+        (await IssuerDocumentsSync.collectAndStore(
           session,
           manifestText: manifest([docs.first]),
           collector: wrong,
           cancelled: () async => false,
-        ),
-        throwsFormatException,
+        )).failedCompanies,
+        1,
       );
       final additional = all.firstWhere(
         (d) =>
@@ -282,14 +439,14 @@ void main() {
         delay: (_) async {},
         client: MockClient((r) async => http.Response('', 503, request: r)),
       );
-      await expectLater(
-        IssuerDocumentsSync.collectAndStore(
+      expect(
+        (await IssuerDocumentsSync.collectAndStore(
           session,
           manifestText: manifest([docs.first, additional]),
           collector: unavailable,
           cancelled: () async => false,
-        ),
-        throwsFormatException,
+        )).failedCompanies,
+        1,
       );
       expect(
         jsonDecode(
