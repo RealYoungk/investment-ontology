@@ -8,6 +8,7 @@ import '../../design/tokens.dart';
 import '../common/formatters.dart';
 import 'financial_metrics.dart';
 import 'metric_profile.dart';
+import 'issuer_financials_section.dart';
 
 String _financialAmount(double value, String currency) => currency == 'KRW'
     ? formatKrwShort(value)
@@ -111,7 +112,9 @@ class _FinancialSectionState extends State<FinancialSection> {
     } else if (data == null || (data.periods.isEmpty && data.market == null)) {
       body = Text(
         data == null || data.filingCount == 0
-            ? '아직 재무·시세를 수집하지 않았습니다.'
+            ? widget.corpCode == '01801026'
+                  ? '정기보고서 API 재무 데이터는 아직 없습니다.'
+                  : '아직 재무·시세를 수집하지 않았습니다.'
             : '정기보고서 ${formatCount(data.filingCount)}건 중 '
                   '${formatCount(data.pendingFilingCount)}건을 아직 받지 않았습니다.',
         style: t.body(13, color: c.textMuted),
@@ -120,7 +123,16 @@ class _FinancialSectionState extends State<FinancialSection> {
       body = _content(context, FinancialView(data));
     }
 
-    return body;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        body,
+        IssuerFinancialsSection(
+          corpCode: widget.corpCode,
+          dataVersion: widget.dataVersion,
+        ),
+      ],
+    );
   }
 
   Widget _content(BuildContext context, FinancialView view) {
