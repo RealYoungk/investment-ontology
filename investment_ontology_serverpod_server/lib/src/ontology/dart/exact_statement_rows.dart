@@ -35,6 +35,11 @@ final class ExactStatementRows {
       ? List.unmodifiable(value.map(_freeze))
       : value;
   static const rule = 'exact-current-primary-row-enrichment-v1';
+  static const receipts = {
+    '20250320000036',
+    '20230321000015',
+    '20220310001159',
+  };
   static bool eligible(String receipt, FsDiv basis) =>
       (const {'20250320000036', '20230321000015'}.contains(receipt) &&
           basis == FsDiv.separate) ||
@@ -215,7 +220,7 @@ final class ExactStatementRows {
             'account_id': null,
             'account_nm': label,
             'account_detail': kind == 'SCE' ? details[group.single - 1] : null,
-            'ord': ti * 100000 + ri * 100 + group.first,
+            'ord': '${ti * 100000 + ri * 100 + group.first}',
             'thstrm_nm': kind == 'BS'
                 ? to
                 : kind == 'SCE' && ri == first

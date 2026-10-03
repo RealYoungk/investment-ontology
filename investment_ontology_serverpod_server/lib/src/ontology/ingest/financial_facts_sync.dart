@@ -2887,53 +2887,55 @@ class FinancialFactsSync {
     final filings = await DartFiling.db.find(
       session,
       where: (t) =>
-          t.id.inSet(scopeIds) &
-          t.rceptNo.inSet({'20250320000036', '20220310001159'}),
+          t.id.inSet(scopeIds) & t.rceptNo.inSet(ExactStatementRows.receipts),
     );
     for (final filing in filings) {
       if (await IngestJobs.isCancelled(session, jobId)) break;
       final company = companies[filing.corpCode];
-      final basis = filing.rceptNo == '20250320000036'
-          ? FsDiv.separate
-          : FsDiv.consolidated;
-      if (company == null ||
-          (basis == FsDiv.separate
-                  ? filing.separateStatus
-                  : filing.consolidatedStatus) !=
-              FilingFetchStatus.stored) {
-        continue;
-      }
-      final report = await FinancialReport.db.findFirstRow(
-        session,
-        where: (t) => t.rceptNo.equals(filing.rceptNo) & t.fsDiv.equals(basis),
-      );
-      if (report == null || report.supersededById != null) continue;
-      try {
-        final prepared = await ExactStatementRows.prepare(
-          filing,
-          company,
-          basis,
-        );
-        final added = await ExactStatementEnrichment.append(
-          session,
-          jobId: jobId,
-          report: report,
-          filing: filing,
-          company: company,
-          prepared: prepared,
-        );
-        if (added > 0) {
-          periods++;
-          facts += added;
+      for (final basis in FsDiv.values.where(
+        (basis) => ExactStatementRows.eligible(filing.rceptNo, basis),
+      )) {
+        if (await IngestJobs.isCancelled(session, jobId)) break;
+        if (company == null ||
+            (basis == FsDiv.separate
+                    ? filing.separateStatus
+                    : filing.consolidatedStatus) !=
+                FilingFetchStatus.stored) {
+          continue;
         }
-      } catch (e, st) {
-        failed++;
-        session.log(
-          '고정 당기 원문 행 보완 실패: ${filing.rceptNo}',
-          level: LogLevel.warning,
-          exception: e,
-          stackTrace: st,
+        final report = await FinancialReport.db.findFirstRow(
+          session,
+          where: (t) =>
+              t.rceptNo.equals(filing.rceptNo) & t.fsDiv.equals(basis),
         );
+        if (report == null || report.supersededById != null) continue;
+        try {
+          final prepared = await ExactStatementRows.prepare(
+            filing,
+            company,
+            basis,
+          );
+          final added = await ExactStatementEnrichment.append(
+            session,
+            jobId: jobId,
+            report: report,
+            filing: filing,
+            company: company,
+            prepared: prepared,
+          );
+          if (added > 0) {
+            periods++;
+            facts += added;
+          }
+        } catch (e, st) {
+          failed++;
+          session.log(
+            '고정 당기 원문 행 보완 실패: ${filing.rceptNo}',
+            level: LogLevel.warning,
+            exception: e,
+            stackTrace: st,
+          );
+        }
       }
     }
     return (periods: periods, facts: facts, failed: failed);

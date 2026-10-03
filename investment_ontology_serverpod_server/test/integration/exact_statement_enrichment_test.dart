@@ -157,6 +157,15 @@ void main() {
               where: (t) => t.reportId.equals(report.id!),
             );
             expect(all, hasLength(8 + count));
+            final additional = all
+                .where((f) => f.sourceId != original.id)
+                .toList();
+            expect(additional.every((f) => f.ord != null), true);
+            expect(additional.map((f) => f.ord).toSet(), hasLength(count));
+            expect(
+              (await IngestJob.db.findById(session, job.id!))!.status,
+              IngestStatus.succeeded,
+            );
             expect(
               all
                   .where(
@@ -201,6 +210,10 @@ void main() {
               clock: () => now,
               callInterval: Duration.zero,
             ).run();
+            expect(
+              (await IngestJob.db.findById(session, retry.id!))!.status,
+              IngestStatus.succeeded,
+            );
             expect([
               for (final s in await Source.db.find(session)) s.toJson(),
             ], sourcesBefore);
