@@ -79,7 +79,8 @@ def upload(directory, commit, production_environment=False):
     if not urls:
         raise ValueError('Could not identify one immutable Pages upload URL')
     # List by explicit URL rather than assuming latest means our upload.
-    values = api('/deployments?per_page=100')
+    values = [value for page in range(1, 5)
+              for value in api(f'/deployments?per_page=25&page={page}')]
     matches = [value for value in values if value.get('url') in urls]
     if len(matches) != 1:
         raise ValueError('Pages upload result is not uniquely bound to the project')
