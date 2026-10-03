@@ -89,7 +89,8 @@
           "amountScope": "cumulative",
           "cashDirection": "outflow"
         }
-      ]
+      ],
+      "documentType": "auditReport"
     },
     {
       "corpCode": "01801026",
@@ -174,7 +175,8 @@
           "amountScope": "cumulative",
           "cashDirection": "outflow"
         }
-      ]
+      ],
+      "documentType": "auditReport"
     },
     {
       "corpCode": "01801026",
@@ -259,7 +261,8 @@
           "amountScope": "cumulative",
           "cashDirection": "outflow"
         }
-      ]
+      ],
+      "documentType": "auditReport"
     },
     {
       "corpCode": "01801026",
@@ -344,7 +347,8 @@
           "amountScope": "cumulative",
           "cashDirection": "outflow"
         }
-      ]
+      ],
+      "documentType": "prospectus"
     },
     {
       "corpCode": "01801026",
@@ -429,7 +433,8 @@
           "amountScope": "cumulative",
           "cashDirection": "outflow"
         }
-      ]
+      ],
+      "documentType": "prospectus"
     }
   ]
 }

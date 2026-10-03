@@ -1,0 +1,1124 @@
+[
+  {
+    "corpCode": "01564514",
+    "snapshot": {
+      "state": "ready",
+      "provider": "verified-primary-html-rule",
+      "source": {
+        "kind": "officialFile",
+        "url": "https://dart.fss.or.kr"
+      },
+      "rows": [
+        {
+          "corpCode": "01564514",
+          "providerReceipt": "20260908000396",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-06-30",
+          "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260908000396&dcmNo=11571139&eleId=38&offset=2570476&length=406508&dtd=dart4.xsd",
+          "sha256": "3a02bab0ebc6d09b57126fd366f05a5480f0558af5106a48b00303e9bd7c66d8",
+          "documentType": "securitiesRegistrationStatement",
+          "basis": "OFS",
+          "periodKind": "halfYear",
+          "auditStatus": "notStated",
+          "numericState": "partialCore",
+          "extractedBy": "fixedHtmlRule",
+          "currency": "KRW",
+          "printedUnit": "원",
+          "precisionUnit": "1",
+          "regularReportCode": null,
+          "xbrlAccountId": null,
+          "publicContent": "sourceLinkAndValues",
+          "unextractedMetrics": [],
+          "accounts": [
+            {
+              "metric": "assets",
+              "accountLabel": "자산총계",
+              "amountInteger": "58757003937",
+              "printedAmount": "58,757,003,937",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "liabilities",
+              "accountLabel": "부채총계",
+              "amountInteger": "17272236608",
+              "printedAmount": "17,272,236,608",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "equity",
+              "accountLabel": "자본총계",
+              "amountInteger": "41484767329",
+              "printedAmount": "41,484,767,329",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "revenue",
+              "accountLabel": "Ⅰ. 매출액",
+              "amountInteger": "28803044313",
+              "printedAmount": "28,803,044,313",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "operatingProfit",
+              "accountLabel": "Ⅴ. 영업이익(손실)",
+              "amountInteger": "1155385411",
+              "printedAmount": "1,155,385,411",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": "printedSigned"
+            },
+            {
+              "metric": "netProfit",
+              "accountLabel": "Ⅷ. 당기순이익(손실)",
+              "amountInteger": "1503645065",
+              "printedAmount": "1,503,645,065",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": "printedSigned"
+            },
+            {
+              "metric": "operatingCashFlow",
+              "accountLabel": "Ⅰ. 영업활동으로 인한 현금흐름",
+              "amountInteger": "3301944506",
+              "printedAmount": "3,301,944,506",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "propertyPlantEquipmentAcquisitions",
+              "accountLabel": "유형자산의 취득",
+              "amountInteger": "-484161220",
+              "printedAmount": "(484,161,220)",
+              "amountScope": "cumulative",
+              "cashDirection": "outflow",
+              "incomeDirection": null
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "corpCode": "01586923",
+    "snapshot": {
+      "state": "ready",
+      "provider": "verified-primary-html-rule",
+      "source": {
+        "kind": "officialFile",
+        "url": "https://dart.fss.or.kr"
+      },
+      "rows": [
+        {
+          "corpCode": "01586923",
+          "providerReceipt": "20260729000518",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-06-30",
+          "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260729000518&dcmNo=11500718&eleId=38&offset=3776410&length=343977&dtd=dart4.xsd",
+          "sha256": "674d0c699dc8442f40d527ae8629b235531e8e2f1cb885a8eeb2cd8a9d0d4715",
+          "documentType": "securitiesRegistrationStatement",
+          "basis": "OFS",
+          "periodKind": "halfYear",
+          "auditStatus": "reviewed",
+          "numericState": "partialCore",
+          "extractedBy": "fixedHtmlRule",
+          "currency": "KRW",
+          "printedUnit": "원",
+          "precisionUnit": "1",
+          "regularReportCode": null,
+          "xbrlAccountId": null,
+          "publicContent": "sourceLinkAndValues",
+          "unextractedMetrics": [],
+          "accounts": [
+            {
+              "metric": "assets",
+              "accountLabel": "자산총계",
+              "amountInteger": "20941306070",
+              "printedAmount": "20,941,306,070",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "liabilities",
+              "accountLabel": "부채총계",
+              "amountInteger": "4247528914",
+              "printedAmount": "4,247,528,914",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "equity",
+              "accountLabel": "자본 총계",
+              "amountInteger": "16693777156",
+              "printedAmount": "16,693,777,156",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "revenue",
+              "accountLabel": "매출액",
+              "amountInteger": "4922148616",
+              "printedAmount": "4,922,148,616",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "operatingProfit",
+              "accountLabel": "영업이익(손실)",
+              "amountInteger": "-9247155988",
+              "printedAmount": "(9,247,155,988)",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": "printedSigned"
+            },
+            {
+              "metric": "netProfit",
+              "accountLabel": "당기순이익(손실)",
+              "amountInteger": "-9505976907",
+              "printedAmount": "(9,505,976,907)",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": "printedSigned"
+            },
+            {
+              "metric": "operatingCashFlow",
+              "accountLabel": "I. 영업활동으로 인한 현금흐름",
+              "amountInteger": "-9740459725",
+              "printedAmount": "(9,740,459,725)",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "propertyPlantEquipmentAcquisitions",
+              "accountLabel": "유형자산의 취득",
+              "amountInteger": "-582759578",
+              "printedAmount": "(582,759,578)",
+              "amountScope": "cumulative",
+              "cashDirection": "outflow",
+              "incomeDirection": null
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "corpCode": "01722066",
+    "snapshot": {
+      "state": "ready",
+      "provider": "verified-primary-html-rule",
+      "source": {
+        "kind": "officialFile",
+        "url": "https://dart.fss.or.kr"
+      },
+      "rows": [
+        {
+          "corpCode": "01722066",
+          "providerReceipt": "20260903000077",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-06-30",
+          "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260903000077&dcmNo=11565099&eleId=38&offset=4255347&length=760771&dtd=dart4.xsd",
+          "sha256": "d39f730351a671b358cac789c9eb67562c607d1ff2885410e53c6c0784048894",
+          "documentType": "securitiesRegistrationStatement",
+          "basis": "CFS",
+          "periodKind": "halfYear",
+          "auditStatus": "reviewed",
+          "numericState": "partialCore",
+          "extractedBy": "fixedHtmlRule",
+          "currency": "KRW",
+          "printedUnit": "원",
+          "precisionUnit": "1",
+          "regularReportCode": null,
+          "xbrlAccountId": null,
+          "publicContent": "sourceLinkAndValues",
+          "unextractedMetrics": [],
+          "accounts": [
+            {
+              "metric": "assets",
+              "accountLabel": "자 산 총 계",
+              "amountInteger": "16871596746",
+              "printedAmount": "16,871,596,746",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "liabilities",
+              "accountLabel": "부 채 총 계",
+              "amountInteger": "6800115993",
+              "printedAmount": "6,800,115,993",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "equity",
+              "accountLabel": "자 본 총 계",
+              "amountInteger": "10071480753",
+              "printedAmount": "10,071,480,753",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "revenue",
+              "accountLabel": "매출",
+              "amountInteger": "9978188672",
+              "printedAmount": "9,978,188,672",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "operatingProfit",
+              "accountLabel": "영업이익",
+              "amountInteger": "-859202738",
+              "printedAmount": "(859,202,738)",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": "printedSigned"
+            },
+            {
+              "metric": "netProfit",
+              "accountLabel": "반기순이익(손실)",
+              "amountInteger": "-857524265",
+              "printedAmount": "(857,524,265)",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": "printedSigned"
+            },
+            {
+              "metric": "operatingCashFlow",
+              "accountLabel": "영업활동으로 인한 현금흐름",
+              "amountInteger": "966513047",
+              "printedAmount": "966,513,047",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "propertyPlantEquipmentAcquisitions",
+              "accountLabel": "유형자산의 취득",
+              "amountInteger": "-368913361",
+              "printedAmount": "(368,913,361)",
+              "amountScope": "cumulative",
+              "cashDirection": "outflow",
+              "incomeDirection": null
+            }
+          ]
+        },
+        {
+          "corpCode": "01722066",
+          "providerReceipt": "20260903000077",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-06-30",
+          "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260903000077&dcmNo=11565099&eleId=38&offset=4255347&length=760771&dtd=dart4.xsd",
+          "sha256": "d39f730351a671b358cac789c9eb67562c607d1ff2885410e53c6c0784048894",
+          "documentType": "securitiesRegistrationStatement",
+          "basis": "OFS",
+          "periodKind": "halfYear",
+          "auditStatus": "reviewed",
+          "numericState": "partialCore",
+          "extractedBy": "fixedHtmlRule",
+          "currency": "KRW",
+          "printedUnit": "원",
+          "precisionUnit": "1",
+          "regularReportCode": null,
+          "xbrlAccountId": null,
+          "publicContent": "sourceLinkAndValues",
+          "unextractedMetrics": [],
+          "accounts": [
+            {
+              "metric": "assets",
+              "accountLabel": "자 산 총 계",
+              "amountInteger": "16851260073",
+              "printedAmount": "16,851,260,073",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "liabilities",
+              "accountLabel": "부 채 총 계",
+              "amountInteger": "6800115993",
+              "printedAmount": "6,800,115,993",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "equity",
+              "accountLabel": "자 본 총 계",
+              "amountInteger": "10051144080",
+              "printedAmount": "10,051,144,080",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "revenue",
+              "accountLabel": "매출",
+              "amountInteger": "9978188672",
+              "printedAmount": "9,978,188,672",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "operatingProfit",
+              "accountLabel": "영업이익",
+              "amountInteger": "-848207454",
+              "printedAmount": "(848,207,454)",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": "printedSigned"
+            },
+            {
+              "metric": "netProfit",
+              "accountLabel": "당기순이익",
+              "amountInteger": "-846422153",
+              "printedAmount": "(846,422,153)",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": "printedSigned"
+            },
+            {
+              "metric": "operatingCashFlow",
+              "accountLabel": "영업활동으로 인한 현금흐름",
+              "amountInteger": "975371662",
+              "printedAmount": "975,371,662",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "propertyPlantEquipmentAcquisitions",
+              "accountLabel": "유형자산의 취득",
+              "amountInteger": "-368913361",
+              "printedAmount": "(368,913,361)",
+              "amountScope": "cumulative",
+              "cashDirection": "outflow",
+              "incomeDirection": null
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "corpCode": "01867688",
+    "snapshot": {
+      "state": "ready",
+      "provider": "verified-primary-html-rule",
+      "source": {
+        "kind": "officialFile",
+        "url": "https://dart.fss.or.kr"
+      },
+      "rows": [
+        {
+          "corpCode": "01867688",
+          "providerReceipt": "20260903000071",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-06-30",
+          "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260903000071&dcmNo=11565114&eleId=38&offset=1594582&length=688460&dtd=dart4.xsd",
+          "sha256": "bd2bcdef3ec0e9bd420f532f26330606a5386681f5b2026aae160f8efb910fa1",
+          "documentType": "securitiesRegistrationStatement",
+          "basis": "CFS",
+          "periodKind": "halfYear",
+          "auditStatus": "audited",
+          "numericState": "partialCore",
+          "extractedBy": "fixedHtmlRule",
+          "currency": "KRW",
+          "printedUnit": "원",
+          "precisionUnit": "1",
+          "regularReportCode": null,
+          "xbrlAccountId": null,
+          "publicContent": "sourceLinkAndValues",
+          "unextractedMetrics": [],
+          "accounts": [
+            {
+              "metric": "assets",
+              "accountLabel": "자산총계",
+              "amountInteger": "50644974326",
+              "printedAmount": "50,644,974,326",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "liabilities",
+              "accountLabel": "부채총계",
+              "amountInteger": "5634881597",
+              "printedAmount": "5,634,881,597",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "equity",
+              "accountLabel": "자본총계",
+              "amountInteger": "45010092729",
+              "printedAmount": "45,010,092,729",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "revenue",
+              "accountLabel": "매출액",
+              "amountInteger": "33173987383",
+              "printedAmount": "33,173,987,383",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "operatingProfit",
+              "accountLabel": "영업이익",
+              "amountInteger": "3041412668",
+              "printedAmount": "3,041,412,668",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": "printedSigned"
+            },
+            {
+              "metric": "netProfit",
+              "accountLabel": "당기순이익",
+              "amountInteger": "3674779830",
+              "printedAmount": "3,674,779,830",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": "printedSigned"
+            },
+            {
+              "metric": "operatingCashFlow",
+              "accountLabel": "I. 영업활동 현금흐름",
+              "amountInteger": "2803651187",
+              "printedAmount": "2,803,651,187",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "propertyPlantEquipmentAcquisitions",
+              "accountLabel": "유형자산의 취득",
+              "amountInteger": "-112123511",
+              "printedAmount": "-112,123,511",
+              "amountScope": "cumulative",
+              "cashDirection": "outflow",
+              "incomeDirection": null
+            }
+          ]
+        },
+        {
+          "corpCode": "01867688",
+          "providerReceipt": "20260903000071",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-06-30",
+          "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260903000071&dcmNo=11565114&eleId=38&offset=1594582&length=688460&dtd=dart4.xsd",
+          "sha256": "bd2bcdef3ec0e9bd420f532f26330606a5386681f5b2026aae160f8efb910fa1",
+          "documentType": "securitiesRegistrationStatement",
+          "basis": "OFS",
+          "periodKind": "halfYear",
+          "auditStatus": "audited",
+          "numericState": "partialCore",
+          "extractedBy": "fixedHtmlRule",
+          "currency": "KRW",
+          "printedUnit": "원",
+          "precisionUnit": "1",
+          "regularReportCode": null,
+          "xbrlAccountId": null,
+          "publicContent": "sourceLinkAndValues",
+          "unextractedMetrics": [],
+          "accounts": [
+            {
+              "metric": "assets",
+              "accountLabel": "자산총계",
+              "amountInteger": "49580458803",
+              "printedAmount": "49,580,458,803",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "liabilities",
+              "accountLabel": "부채총계",
+              "amountInteger": "5634881597",
+              "printedAmount": "5,634,881,597",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "equity",
+              "accountLabel": "자본총계",
+              "amountInteger": "43945577206",
+              "printedAmount": "43,945,577,206",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "revenue",
+              "accountLabel": "매출액",
+              "amountInteger": "33173987383",
+              "printedAmount": "33,173,987,383",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "operatingProfit",
+              "accountLabel": "영업이익",
+              "amountInteger": "3043018453",
+              "printedAmount": "3,043,018,453",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": "printedSigned"
+            },
+            {
+              "metric": "netProfit",
+              "accountLabel": "당기순이익",
+              "amountInteger": "3615121612",
+              "printedAmount": "3,615,121,612",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": "printedSigned"
+            },
+            {
+              "metric": "operatingCashFlow",
+              "accountLabel": "영업활동 현금흐름",
+              "amountInteger": "2805407457",
+              "printedAmount": "2,805,407,457",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "propertyPlantEquipmentAcquisitions",
+              "accountLabel": "유형자산의 취득",
+              "amountInteger": "-112123511",
+              "printedAmount": "-112,123,511",
+              "amountScope": "cumulative",
+              "cashDirection": "outflow",
+              "incomeDirection": null
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "corpCode": "01876251",
+    "snapshot": {
+      "state": "ready",
+      "provider": "verified-primary-html-rule",
+      "source": {
+        "kind": "officialFile",
+        "url": "https://dart.fss.or.kr"
+      },
+      "rows": [
+        {
+          "corpCode": "01876251",
+          "providerReceipt": "20260907000079",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-06-30",
+          "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260907000079&dcmNo=11568667&eleId=38&offset=2311786&length=742641&dtd=dart4.xsd",
+          "sha256": "d7ff0ae1c16a9c38a8f3c7d90598bb28b991694ca5120629ad69c0464b5ae339",
+          "documentType": "securitiesRegistrationStatement",
+          "basis": "CFS",
+          "periodKind": "halfYear",
+          "auditStatus": "reviewed",
+          "numericState": "partialCore",
+          "extractedBy": "fixedHtmlRule",
+          "currency": "KRW",
+          "printedUnit": "원",
+          "precisionUnit": "1",
+          "regularReportCode": null,
+          "xbrlAccountId": null,
+          "publicContent": "sourceLinkAndValues",
+          "unextractedMetrics": [],
+          "accounts": [
+            {
+              "metric": "assets",
+              "accountLabel": "자 산 총 계",
+              "amountInteger": "25100645950",
+              "printedAmount": "25,100,645,950",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "liabilities",
+              "accountLabel": "부 채 총 계",
+              "amountInteger": "9800224968",
+              "printedAmount": "9,800,224,968",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "equity",
+              "accountLabel": "자본총계",
+              "amountInteger": "15300420982",
+              "printedAmount": "15,300,420,982",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "revenue",
+              "accountLabel": "Ⅰ. 영업수익",
+              "amountInteger": "6000674704",
+              "printedAmount": "6,000,674,704",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "operatingProfit",
+              "accountLabel": "Ⅲ. 영업손실",
+              "amountInteger": "-3359172391",
+              "printedAmount": "(3,359,172,391)",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": "printedSigned"
+            },
+            {
+              "metric": "netProfit",
+              "accountLabel": "Ⅴ. 당기순이익(손실)",
+              "amountInteger": "-2586564294",
+              "printedAmount": "(2,586,564,294)",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": "printedSigned"
+            },
+            {
+              "metric": "operatingCashFlow",
+              "accountLabel": "Ⅰ. 영업활동으로 인한 현금흐름",
+              "amountInteger": "-2369177159",
+              "printedAmount": "(2,369,177,159)",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "propertyPlantEquipmentAcquisitions",
+              "accountLabel": "유형자산의 취득",
+              "amountInteger": "-3628660272",
+              "printedAmount": "(3,628,660,272)",
+              "amountScope": "cumulative",
+              "cashDirection": "outflow",
+              "incomeDirection": null
+            }
+          ]
+        },
+        {
+          "corpCode": "01876251",
+          "providerReceipt": "20260907000079",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-06-30",
+          "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260907000079&dcmNo=11568667&eleId=38&offset=2311786&length=742641&dtd=dart4.xsd",
+          "sha256": "d7ff0ae1c16a9c38a8f3c7d90598bb28b991694ca5120629ad69c0464b5ae339",
+          "documentType": "securitiesRegistrationStatement",
+          "basis": "OFS",
+          "periodKind": "halfYear",
+          "auditStatus": "reviewed",
+          "numericState": "partialCore",
+          "extractedBy": "fixedHtmlRule",
+          "currency": "KRW",
+          "printedUnit": "원",
+          "precisionUnit": "1",
+          "regularReportCode": null,
+          "xbrlAccountId": null,
+          "publicContent": "sourceLinkAndValues",
+          "unextractedMetrics": [],
+          "accounts": [
+            {
+              "metric": "assets",
+              "accountLabel": "자 산 총 계",
+              "amountInteger": "25372329594",
+              "printedAmount": "25,372,329,594",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "liabilities",
+              "accountLabel": "부 채 총 계",
+              "amountInteger": "10398734819",
+              "printedAmount": "10,398,734,819",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "equity",
+              "accountLabel": "자 본 총 계",
+              "amountInteger": "14973594775",
+              "printedAmount": "14,973,594,775",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "revenue",
+              "accountLabel": "Ⅰ. 영업수익",
+              "amountInteger": "6000674704",
+              "printedAmount": "6,000,674,704",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "operatingProfit",
+              "accountLabel": "Ⅲ. 영업손실",
+              "amountInteger": "-3387815087",
+              "printedAmount": "(3,387,815,087)",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": "printedSigned"
+            },
+            {
+              "metric": "netProfit",
+              "accountLabel": "Ⅴ. 당기순이익(손실)",
+              "amountInteger": "-2616811897",
+              "printedAmount": "(2,616,811,897)",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": "printedSigned"
+            },
+            {
+              "metric": "operatingCashFlow",
+              "accountLabel": "Ⅰ. 영업활동으로 인한 현금흐름",
+              "amountInteger": "-2403689138",
+              "printedAmount": "(2,403,689,138)",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "propertyPlantEquipmentAcquisitions",
+              "accountLabel": "유형자산의 취득",
+              "amountInteger": "-3623932830",
+              "printedAmount": "(3,623,932,830)",
+              "amountScope": "cumulative",
+              "cashDirection": "outflow",
+              "incomeDirection": null
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "corpCode": "02029258",
+    "snapshot": {
+      "state": "ready",
+      "provider": "verified-primary-html-rule",
+      "source": {
+        "kind": "officialFile",
+        "url": "https://dart.fss.or.kr"
+      },
+      "rows": [
+        {
+          "corpCode": "02029258",
+          "providerReceipt": "20260828000997",
+          "periodStart": "2026-05-08",
+          "periodEnd": "2026-06-30",
+          "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260828000997&dcmNo=11557126&eleId=38&offset=850854&length=101084&dtd=dart4.xsd",
+          "sha256": "73e522c45d096c13dfdaba30eb031b5a00f7e4e89174896795f371dce2517f88",
+          "documentType": "securitiesRegistrationStatement",
+          "basis": "OFS",
+          "periodKind": "sinceIncorporation",
+          "auditStatus": "notStated",
+          "numericState": "partialCore",
+          "extractedBy": "fixedHtmlRule",
+          "currency": "KRW",
+          "printedUnit": "원",
+          "precisionUnit": "1",
+          "regularReportCode": null,
+          "xbrlAccountId": null,
+          "publicContent": "sourceLinkAndValues",
+          "unextractedMetrics": [
+            {
+              "metric": "revenue",
+              "reason": "printedDash"
+            },
+            {
+              "metric": "propertyPlantEquipmentAcquisitions",
+              "reason": "noPrimaryPrintedCell"
+            }
+          ],
+          "accounts": [
+            {
+              "metric": "assets",
+              "accountLabel": "자 산 총 계",
+              "amountInteger": "3141202624",
+              "printedAmount": "3,141,202,624",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "liabilities",
+              "accountLabel": "부 채 총 계",
+              "amountInteger": "1225301934",
+              "printedAmount": "1,225,301,934",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "equity",
+              "accountLabel": "자 본 총 계",
+              "amountInteger": "1915900690",
+              "printedAmount": "1,915,900,690",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "operatingProfit",
+              "accountLabel": "Ⅲ. 영업손실",
+              "amountInteger": "10124400",
+              "printedAmount": "10,124,400",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": "lossMagnitude"
+            },
+            {
+              "metric": "netProfit",
+              "accountLabel": "Ⅷ. 반기순손실",
+              "amountInteger": "12302939",
+              "printedAmount": "12,302,939",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": "lossMagnitude"
+            },
+            {
+              "metric": "operatingCashFlow",
+              "accountLabel": "Ⅰ. 영업활동으로 인한 현금흐름",
+              "amountInteger": "-425086",
+              "printedAmount": "(425,086)",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": null
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "corpCode": "02030166",
+    "snapshot": {
+      "state": "ready",
+      "provider": "verified-primary-html-rule",
+      "source": {
+        "kind": "officialFile",
+        "url": "https://dart.fss.or.kr"
+      },
+      "rows": [
+        {
+          "corpCode": "02030166",
+          "providerReceipt": "20260729000264",
+          "periodStart": "2026-05-06",
+          "periodEnd": "2026-06-30",
+          "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260729000264&dcmNo=11499549&eleId=34&offset=734714&length=87993&dtd=dart4.xsd",
+          "sha256": "f890c8a9c090be1a08c46cc78e3295a5597f2e25c3e9252092d13b4bfd75c890",
+          "documentType": "securitiesRegistrationStatement",
+          "basis": "OFS",
+          "periodKind": "sinceIncorporation",
+          "auditStatus": "audited",
+          "numericState": "partialCore",
+          "extractedBy": "fixedHtmlRule",
+          "currency": "KRW",
+          "printedUnit": "원",
+          "precisionUnit": "1",
+          "regularReportCode": null,
+          "xbrlAccountId": null,
+          "publicContent": "sourceLinkAndValues",
+          "unextractedMetrics": [
+            {
+              "metric": "revenue",
+              "reason": "printedDash"
+            },
+            {
+              "metric": "propertyPlantEquipmentAcquisitions",
+              "reason": "noPrimaryPrintedCell"
+            }
+          ],
+          "accounts": [
+            {
+              "metric": "assets",
+              "accountLabel": "자산총계",
+              "amountInteger": "2973971981",
+              "printedAmount": "2,973,971,981",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "liabilities",
+              "accountLabel": "부채총계",
+              "amountInteger": "1740011146",
+              "printedAmount": "1,740,011,146",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "equity",
+              "accountLabel": "자본총계",
+              "amountInteger": "1233960835",
+              "printedAmount": "1,233,960,835",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "operatingProfit",
+              "accountLabel": "III.영업이익(손실)",
+              "amountInteger": "-19340390",
+              "printedAmount": "(19,340,390)",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": "printedSigned"
+            },
+            {
+              "metric": "netProfit",
+              "accountLabel": "VIII.당기순이익",
+              "amountInteger": "-30428499",
+              "printedAmount": "(30,428,499)",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": "printedSigned"
+            },
+            {
+              "metric": "operatingCashFlow",
+              "accountLabel": "I.영업활동으로 인한 현금흐름",
+              "amountInteger": "-19121159",
+              "printedAmount": "(19,121,159)",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": null
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "corpCode": "02032155",
+    "snapshot": {
+      "state": "ready",
+      "provider": "verified-primary-html-rule",
+      "source": {
+        "kind": "officialFile",
+        "url": "https://dart.fss.or.kr"
+      },
+      "rows": [
+        {
+          "corpCode": "02032155",
+          "providerReceipt": "20260824000116",
+          "periodStart": "2026-05-26",
+          "periodEnd": "2026-06-30",
+          "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260824000116&dcmNo=11547879&eleId=36&offset=936623&length=91749&dtd=dart4.xsd",
+          "sha256": "48c51ca06e3934b0da65a1801bf727d77b7b66dc2f4630386b9f70cb0de8347b",
+          "documentType": "securitiesRegistrationStatement",
+          "basis": "OFS",
+          "periodKind": "sinceIncorporation",
+          "auditStatus": "reviewed",
+          "numericState": "partialCore",
+          "extractedBy": "fixedHtmlRule",
+          "currency": "KRW",
+          "printedUnit": "원",
+          "precisionUnit": "1",
+          "regularReportCode": null,
+          "xbrlAccountId": null,
+          "publicContent": "sourceLinkAndValues",
+          "unextractedMetrics": [
+            {
+              "metric": "revenue",
+              "reason": "printedDash"
+            },
+            {
+              "metric": "propertyPlantEquipmentAcquisitions",
+              "reason": "noPrimaryPrintedCell"
+            }
+          ],
+          "accounts": [
+            {
+              "metric": "assets",
+              "accountLabel": "자 산 총 계",
+              "amountInteger": "2587154188",
+              "printedAmount": "2,587,154,188",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "liabilities",
+              "accountLabel": "부 채 총 계",
+              "amountInteger": "2033800595",
+              "printedAmount": "2,033,800,595",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "equity",
+              "accountLabel": "자 본 총 계",
+              "amountInteger": "553353593",
+              "printedAmount": "553,353,593",
+              "amountScope": "instant",
+              "cashDirection": null,
+              "incomeDirection": null
+            },
+            {
+              "metric": "operatingProfit",
+              "accountLabel": "Ⅲ.영업손실",
+              "amountInteger": "-9261490",
+              "printedAmount": "(9,261,490)",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": "printedSigned"
+            },
+            {
+              "metric": "netProfit",
+              "accountLabel": "Ⅷ.반기순손실",
+              "amountInteger": "-11865402",
+              "printedAmount": "(11,865,402)",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": "printedSigned"
+            },
+            {
+              "metric": "operatingCashFlow",
+              "accountLabel": "Ⅰ. 영업활동 현금흐름",
+              "amountInteger": "-9379812",
+              "printedAmount": "(9,379,812)",
+              "amountScope": "cumulative",
+              "cashDirection": null,
+              "incomeDirection": null
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

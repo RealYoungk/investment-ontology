@@ -7,6 +7,7 @@ import '../../client.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
 import 'financial_metrics.dart' show formatKrwLong;
+import 'issuer_financial_source_registry.dart';
 
 /// Stored alternate-source current observations; never substitutes regular reports.
 class IssuerFinancialsSection extends StatefulWidget {
@@ -45,7 +46,7 @@ class _IssuerFinancialsSectionState extends State<IssuerFinancialsSection> {
 
   Future<void> _load() async {
     final request = ++_request;
-    if (widget.corpCode != '01801026') return;
+    if (!IssuerFinancialSourceRegistry.supportsCorp(widget.corpCode)) return;
     setState(() {
       _rows = null;
       _error = null;
@@ -79,7 +80,9 @@ class _IssuerFinancialsSectionState extends State<IssuerFinancialsSection> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.corpCode != '01801026') return const SizedBox.shrink();
+    if (!IssuerFinancialSourceRegistry.supportsCorp(widget.corpCode)) {
+      return const SizedBox.shrink();
+    }
     final rows = _rows;
     return Padding(
       padding: const EdgeInsets.only(top: AppSpace.xl),
@@ -89,7 +92,7 @@ class _IssuerFinancialsSectionState extends State<IssuerFinancialsSection> {
           Text('별도 공식 원문 핵심 재무', style: context.typo.body(16)),
           const SizedBox(height: AppSpace.sm),
           const AppNotice(
-            message: '감사보고서·투자설명서의 현재기간 핵심 8계정입니다. 전체 재무제표·비교기간은 미추출이며 정기보고서 집계·TTM에 포함하지 않습니다. 2021·2022년 자체 연간 원문은 아직 확인되지 않았습니다.',
+            message: '공식 원문의 현재기간 핵심계정 일부입니다. 전체 재무제표·비교기간은 미추출이며 정기보고서 집계·TTM에 포함하지 않습니다. 각 문서의 현재기간만 표시하며, 문서 내 비교기간과 미확인 연간자료는 포함하지 않습니다.',
           ),
           const SizedBox(height: AppSpace.md),
           if (_error != null)
@@ -110,48 +113,44 @@ class _IssuerFinancialsSectionState extends State<IssuerFinancialsSection> {
 }
 
 List<Map<String, dynamic>> validateIssuerFinancialRows(dynamic raw) {
-  const receipts = {
-    '20250326000929': '2023-12-31',
-    '20250408002564': '2024-12-31',
-    '20260403003880': '2025-12-31',
-    '20260916000240': '2026-06-30',
-  };
   if (raw is! List || raw.isEmpty || raw.length > 5) {
     throw const FormatException('Missing alternate financial rows');
   }
   final seen = <String>{};
   final rows = raw.map((value) {
     final row = Map<String, dynamic>.from(value as Map);
-    final uri = Uri.tryParse('${row['officialUrl']}');
-    if (row['corpCode'] != '01801026' ||
+    final matches = IssuerFinancialSourceRegistry.rows.where(
+      (r) =>
+          r['corpCode'] == row['corpCode'] &&
+          r['providerReceipt'] == row['providerReceipt'],
+    );
+    if (matches.length != 1) {
+      throw const FormatException('Unsupported alternate numeric issuer');
+    }
+    final pin = matches.single;
+    if ([
+          'corpCode',
+          'providerReceipt',
+          'periodStart',
+          'periodEnd',
+          'officialUrl',
+          'sha256',
+          'documentType',
+          'periodKind',
+          'auditStatus',
+        ].any((k) => row[k] != pin[k]) ||
+        !(pin['bases'] as List).contains(row['basis']) ||
         row['numericState'] != 'partialCore' ||
         row['extractedBy'] != 'fixedHtmlRule' ||
         row['currency'] != 'KRW' ||
         row['printedUnit'] != '원' ||
         row['precisionUnit'] != '1' ||
-        row['periodStart'] != '${row['periodEnd'].substring(0, 4)}-01-01' ||
-        row['periodKind'] !=
-            (row['providerReceipt'] == '20260916000240'
-                ? 'halfYear'
-                : 'ownAnnual') ||
-        row['auditStatus'] !=
-            (row['providerReceipt'] == '20260916000240'
-                ? 'reviewed'
-                : 'audited') ||
         row['regularReportCode'] != null ||
         row['xbrlAccountId'] != null ||
         row['publicContent'] != 'sourceLinkAndValues' ||
-        receipts[row['providerReceipt']] != row['periodEnd'] ||
-        !{'CFS', 'OFS'}.contains(row['basis']) ||
-        row['providerReceipt'] != '20260916000240' && row['basis'] != 'OFS' ||
-        uri?.scheme != 'https' ||
-        uri?.host != 'dart.fss.or.kr' ||
-        uri?.path != '/report/viewer.do' ||
-        uri?.queryParameters['rcpNo'] != row['providerReceipt'] ||
-        !RegExp(r'^[a-f0-9]{64}$').hasMatch('${row['sha256']}') ||
         !seen.add('${row['providerReceipt']}|${row['basis']}') ||
         row['accounts'] is! List ||
-        (row['accounts'] as List).length != 8) {
+        (row['accounts'] as List).length != pin['accountCount']) {
       throw const FormatException('Alternate source/period mismatch');
     }
     for (final a in row['accounts'] as List) {
@@ -187,7 +186,13 @@ class _PeriodCard extends StatelessWidget {
           style: context.typo.body(14),
         ),
         subtitle: Text(
-          annual ? '자체 감사보고서 · 현재기간' : '투자설명서 · 검토된 반기 누적 6개월',
+          annual
+              ? '자체 감사보고서 · 현재기간'
+              : '${row['documentType'] == 'prospectus' ? '투자설명서' : '증권신고서'} · ${row['periodKind'] == 'sinceIncorporation' ? '설립일부터 누적' : '반기 누적 6개월'} · ${row['auditStatus'] == 'reviewed'
+                    ? '검토'
+                    : row['auditStatus'] == 'audited'
+                    ? '원문 적정 의견'
+                    : '원문 의견 미표기'}',
           style: context.typo.body(12, color: context.colors.textSecondary),
         ),
         children: [
@@ -198,9 +203,19 @@ class _PeriodCard extends StatelessWidget {
                 label: '${a['accountLabel']}',
                 labelWidth: 136,
                 value:
-                    '${formatKrwLong(double.parse(a['amountInteger']))}${a['cashDirection'] == 'outflow' ? ' (유출)' : ''}',
+                    '${formatKrwLong(double.parse(a['amountInteger']))}${a['cashDirection'] == 'outflow'
+                        ? ' (유출)'
+                        : a['incomeDirection'] == 'lossMagnitude'
+                        ? ' (손실)'
+                        : ''}',
                 numeric: true,
               ),
+            ),
+          if (row['unextractedMetrics'] is List &&
+              (row['unextractedMetrics'] as List).isNotEmpty)
+            Text(
+              '매출의 대시 표기와 확인되지 않은 유형자산 취득액은 0으로 채우지 않았습니다.',
+              style: context.typo.body(12, color: context.colors.textMuted),
             ),
           Text(
             '금액은 원문 부호를 유지합니다. 자산·부채·자본은 기말, 손익·현금흐름은 누적입니다.',

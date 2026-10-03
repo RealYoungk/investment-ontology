@@ -28,7 +28,7 @@ void main() {
                 key: ValueKey(payload ?? code),
                 corpCode: code,
                 loader: (corp, kind) async {
-                  expect(corp, '01801026');
+                  expect(corp, code);
                   expect(kind, 'issuerFinancials');
                   return payload ?? fixture;
                 },
@@ -83,6 +83,37 @@ void main() {
       expect(find.byType(ExpansionTile), findsNothing);
       expect(find.text('별도 공식 원문 핵심 재무'), findsNothing);
       expect(t.takeException(), isNull);
+    },
+  );
+  testWidgets(
+    'all eight IPO issuers render their source-bound current basis and incorporation scope at 320px',
+    (t) async {
+      final companies = jsonDecode(
+        File('test/fixtures/ipo-eight-current-core.json').readAsStringSync(),
+      ) as List;
+      for (final company in companies) {
+        final snapshot = company['snapshot'] as Map;
+        await pump(t, code: company['corpCode'], payload: jsonEncode(snapshot));
+        expect(
+          find.byType(ExpansionTile),
+          findsNWidgets((snapshot['rows'] as List).length),
+        );
+        if (company['corpCode'].startsWith('020')) {
+          expect(find.textContaining('설립일부터 누적'), findsOneWidget);
+          expect(find.textContaining('반기 누적 6개월'), findsNothing);
+        }
+        if (company['corpCode'] == '01564514' ||
+            company['corpCode'] == '02029258') {
+          expect(find.textContaining('원문 의견 미표기'), findsOneWidget);
+        }
+        await t.tap(find.byType(ExpansionTile).first);
+        await t.pumpAndSettle();
+        if (company['corpCode'] == '02029258') {
+          expect(find.textContaining('(손실)'), findsWidgets);
+          expect(find.textContaining('0으로 채우지 않았습니다'), findsOneWidget);
+        }
+        expect(t.takeException(), isNull, reason: company['corpCode']);
+      }
     },
   );
   test('counterpart, source, basis, year and fake regular-report metadata fail closed', () {
