@@ -70,6 +70,10 @@ void main() {
                             'exact-anymedi-current-ofs-audit-period-eight-v1'
                         ? 3
                         : 0) +
+                    (e.ruleVersion ==
+                            'samsungsec-2022-own-audit-current-eight-v1'
+                        ? 2
+                        : 0) +
                     (e.requiresIssuerOverview ? 1 : 0) +
                     (e.requiresCashScopeNotes ? 1 : 0) +
                     (e.requiresOwnOfsWitness ? 1 : 0) +
@@ -97,6 +101,21 @@ void main() {
               .toString(),
           e.manifestDigest,
         );
+        if (e.ruleVersion == 'samsungsec-2022-own-audit-current-eight-v1') {
+          expect(
+            [
+              for (final source in manifest['sources'])
+                [source['label'], source['file']],
+            ],
+            [
+              ['shell', 'shell.html'],
+              ['cover', 'cover.html'],
+              ['auditShell', 'audit-shell.html'],
+              ['cfs', 'audit-primary.html'],
+              ['main', 'main-cfs.html'],
+            ],
+          );
+        }
         for (final source in manifest['sources']) {
           expect(
             sha256
@@ -202,42 +221,37 @@ void main() {
         expect(VerifiedAnnualSourceCache.eligibleFor(mutated, e), false);
       });
     }
-    final linkedPrimaryManifest = e.ruleVersion.startsWith('header18-linked-')
-        ? jsonDecode(
-            File('${e.assetDirectory}/manifest.json').readAsStringSync(),
-          ) as Map
-        : null;
-    final mutationLabels = linkedPrimaryManifest == null
-        ? [
-            'manifest.json',
-            'shell.html',
-            'cover.html',
-            '${e.statementLabel}.html',
-            if (e.requiresIssuerOverview) 'overview.html',
-            if (e.requiresCashScopeNotes) 'notes.html',
-            if (e.ruleVersion == 'same-receipt-audit-immutable-v1')
-              'auditShell.html',
-          ]
-        : [
-            'manifest.json',
-            for (final source in linkedPrimaryManifest['sources'] as List)
-              source['file'] as String,
-            if (e.absenceLiteral == null) 'expected-rows.json',
-          ];
+    final mutationManifest = jsonDecode(
+      File('${e.assetDirectory}/manifest.json').readAsStringSync(),
+    ) as Map;
+    final mutationLabels = <String>{
+      'manifest.json',
+      for (final source in mutationManifest['sources'] as List)
+        source['file'] as String,
+      if (e.ruleVersion.startsWith('header18-linked-') &&
+          e.absenceLiteral == null)
+        'expected-rows.json',
+    };
     for (final label in mutationLabels) {
       test(
         'altered pinned bytes ${e.receipt}:${e.basis.name}:$label reject',
         () async {
+          var mutated = false;
           final c = VerifiedAnnualSourceCache(
             readAsset: (p) async {
               final bytes = await File(p).readAsBytes();
-              return p == '${e.assetDirectory}/$label' ? [...bytes, 32] : bytes;
+              if (p == '${e.assetDirectory}/$label') {
+                mutated = true;
+                return [...bytes, 32];
+              }
+              return bytes;
             },
           );
           await expectLater(
             c.verifyRegistered(filing(e), company(e), e.basis),
             throwsFormatException,
           );
+          expect(mutated, isTrue, reason: 'Pinned file must actually be read');
         },
       );
     }
