@@ -46,6 +46,10 @@ void main() {
       expect(corrected['metadata']['publishedAt'], '2026-03-31');
       expect(corrected['proof']['fileSavedAt'], isNotNull);
       expect(
+        IssuerDocumentsSync.sourceEvidenceAt(corrected),
+        DateTime.parse(corrected['proof']['fileSavedAt']),
+      );
+      expect(
         corrected['proof']['downloadedAt'],
         isNull,
         reason: 'Do not invent GET completion timestamp from file mtime',

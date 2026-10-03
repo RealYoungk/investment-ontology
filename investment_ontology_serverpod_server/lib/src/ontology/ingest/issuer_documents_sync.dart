@@ -106,6 +106,14 @@ class IssuerDocumentsSync {
     });
   }
 
+  /// A cache file timestamp is explicitly distinct from a captured GET time.
+  static DateTime sourceEvidenceAt(Map<String, dynamic> document) {
+    final proof = document['proof'] as Map;
+    return DateTime.parse(
+      (proof['downloadedAt'] ?? proof['fileSavedAt']) as String,
+    );
+  }
+
   static bool canResumeAtStartup({
     required IngestStatus? latestStatus,
     required bool rerunning,
@@ -245,8 +253,7 @@ class IssuerDocumentsSync {
         final first = rows.first;
         final downloadedAt = entry.value
             .map(
-              (d) =>
-                  DateTime.parse((d['proof'] as Map)['downloadedAt'] as String),
+              (d) => sourceEvidenceAt(d),
             )
             .reduce((a, b) => a.isAfter(b) ? a : b);
         await ResearchSnapshotStore.store(
