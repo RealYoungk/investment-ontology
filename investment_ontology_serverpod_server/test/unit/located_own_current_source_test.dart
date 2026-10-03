@@ -162,6 +162,18 @@ void main() {
           expect(provenance['tableIndex'], c['table']);
           expect(provenance['rowIndex'], c['row']);
           expect(provenance['fullStatementVerified'], false);
+          expect(provenance['periodStart'], m['periodStart']);
+          expect(provenance['periodEnd'], m['periodEnd']);
+          if (m['supportingNoteScope'] != null) {
+            expect(provenance['supportingNoteScope'], m['supportingNoteScope']);
+            expect(
+              provenance['sourceCaptionDifference'],
+              m['sourceCaptionDifference'],
+            );
+            expect(provenance['crossPrecisionEqualityClaim'], false);
+            expect(provenance['roundingCauseInferred'], false);
+            expect(provenance['notesVerified'], false);
+          }
           expect(provenance['detailEnrichmentApproved'], false);
           expect(
             provenance['sourceDetailAnomalies'],
@@ -170,6 +182,68 @@ void main() {
         }
       },
     );
+    test(
+      '${e.receipt}:${basis.name} exact declared period accepted and other basis refused',
+      () {
+        expect(
+          LocatedOwnCurrentSource.sourceEligible(
+            receipt: e.receipt,
+            corp: e.corpCode,
+            basis: basis,
+            start: e.periodStart,
+            end: e.periodEnd,
+            sourceReceipt: m['sourceReceipt'] as String,
+          ),
+          true,
+        );
+        if (profile['requiresOwnNotes'] == true) {
+          expect(
+            LocatedOwnCurrentSource.sourceEligible(
+              receipt: e.receipt,
+              corp: e.corpCode,
+              basis: FsDiv.consolidated,
+              start: e.periodStart,
+              end: e.periodEnd,
+              sourceReceipt: m['sourceReceipt'] as String,
+            ),
+            false,
+          );
+          expect(
+            LocatedOwnCurrentSource.sourceEligible(
+              receipt: e.receipt,
+              corp: e.corpCode,
+              basis: basis,
+              start: e.periodStart.add(const Duration(days: 1)),
+              end: e.periodEnd,
+              sourceReceipt: m['sourceReceipt'] as String,
+            ),
+            false,
+          );
+        }
+      },
+    );
+    if (profile['requiresOwnNotes'] == true) {
+      test(
+        '${e.receipt}:${basis.name} actual cache rejects wrong period and other basis',
+        () async {
+          final cache = VerifiedAnnualSourceCache(
+            readAsset: (p) => File(p).readAsBytes(),
+          );
+          await expectLater(
+            cache.verifyRegistered(
+              filing(e).copyWith(reportName: '사업보고서 (${e.year}.06)'),
+              company(e),
+              basis,
+            ),
+            throwsFormatException,
+          );
+          await expectLater(
+            cache.verifyRegistered(filing(e), company(e), FsDiv.consolidated),
+            throwsFormatException,
+          );
+        },
+      );
+    }
     for (final f in [
       'manifest.json',
       ...(m['sources'] as List).map((s) => s['file'] as String),

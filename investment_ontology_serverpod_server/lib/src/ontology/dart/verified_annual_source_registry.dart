@@ -80,6 +80,35 @@ abstract final class VerifiedAnnualSourceRegistry {
       absenceLiteral: null,
     ),
     AnnualSourceCacheEntry(
+      receipt: '20220615000399',
+      corpCode: '00136721',
+      companyName: '신영증권(주)',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220615000399-ofs-located-own-current',
+      manifestDigest:
+          '4ef91342e5fa142840264cbaae4fe3908b0e5ca8344cccd1d7990a9bec649e34',
+      ruleVersion: 'located-own-current-eight-v1',
+      absenceLiteral: null,
+      declaredPeriodStart: '2021-04-01',
+      declaredPeriodEnd: '2022-03-31',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250320000572',
+      corpCode: '01063556',
+      companyName: '(주)질경이',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250320000572-ofs-located-own-current',
+      manifestDigest:
+          'efc418d6d201129512833d82eb693890e427f516d55b666a81827efcbaaa0c8b',
+      ruleVersion: 'located-own-current-eight-v1',
+      absenceLiteral: null,
+      declaredPeriodStart: '2024-01-01',
+      declaredPeriodEnd: '2024-12-31',
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20220302000461',
       corpCode: '01476219',
       companyName: '(주)코스텍시스',

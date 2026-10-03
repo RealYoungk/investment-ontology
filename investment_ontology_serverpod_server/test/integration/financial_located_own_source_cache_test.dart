@@ -34,7 +34,7 @@ void main() {
             corpCode: firstProfile['corp'],
             name: firstProfile['name'],
             stockCode: '123456',
-            fiscalMonth: 12,
+            fiscalMonth: firstProfile['receipt'] == '20220615000399' ? 3 : 12,
             market: Market.konex,
           ),
         );
@@ -65,7 +65,8 @@ void main() {
             rceptNo: receipt,
             bsnsYear: firstProfile['year'],
             reportCode: FinancialReportCode.annual,
-            reportName: '사업보고서 (${firstProfile['year']}.12)',
+            reportName:
+                '사업보고서 (${firstProfile['year']}.${firstProfile['receipt'] == '20220615000399' ? '03' : '12'})',
             consolidatedStatus: FilingFetchStatus.failed,
             separateStatus: FilingFetchStatus.failed,
             attempts: 7,
@@ -240,6 +241,20 @@ void main() {
             expect(provenance['rowIndex'], c['row']);
             expect(provenance['fullStatementVerified'], false);
             expect(provenance['detailEnrichmentApproved'], false);
+            expect(provenance['periodStart'], manifest['periodStart']);
+            expect(provenance['periodEnd'], manifest['periodEnd']);
+            if (manifest['supportingNoteScope'] != null) {
+              expect(
+                provenance['supportingNoteScope'],
+                manifest['supportingNoteScope'],
+              );
+              expect(
+                provenance['sourceCaptionDifference'],
+                manifest['sourceCaptionDifference'],
+              );
+              expect(provenance['roundingCauseInferred'], false);
+              expect(provenance['notesVerified'], false);
+            }
             expect(
               provenance['sourceDetailAnomalies'],
               manifest['sourceDetailAnomalies'],
@@ -250,6 +265,12 @@ void main() {
             company.corpCode,
             fsDiv: basis,
           ))!;
+          if (firstProfile['receipt'] == '20220615000399') {
+            expect(
+              summary.periods.single.periodName,
+              '2021.04.01 ~ 2022.03.31 (365일)',
+            );
+          }
           expect(summary.periods.single.lines.map((l) => l.key).toSet(), {
             'assets',
             'liabilities',
@@ -302,6 +323,12 @@ void main() {
             company.corpCode,
             fsDiv: FsDiv.separate,
           ))!;
+          if (firstProfile['receipt'] == '20220615000399') {
+            expect(
+              summary.periods.single.periodName,
+              '2021.04.01 ~ 2022.03.31 (365일)',
+            );
+          }
           expect(summary.periods.single.lines.map((l) => l.key).toSet(), {
             'assets',
             'liabilities',
