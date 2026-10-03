@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20240320001200",
+  "corpCode": "01396931",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2023,
+  "periodStart": "2023-01-01",
+  "periodEnd": "2023-12-31",
+  "ruleVersion": "uxn-2023-own-current-eight-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240320001200",
+      "sha256": "9a7f2ee6217acb28619d10fb0d4a793ac2d402aad986dbe15de38c8007e0ec7c",
+      "file": "shell.html"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240320001200&dcmNo=9738846&eleId=1&offset=957&length=4664&dtd=dart4.xsd",
+      "sha256": "495686bea5c9dd5b0957c0a0e3d33bd0dcb3485cbfb6a8ce77c7dff9bbbc0206",
+      "file": "cover.html"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240320001200&dcmNo=9738846&eleId=21&offset=502665&length=50296&dtd=dart4.xsd",
+      "sha256": "90ff02a27e145f72eb629cfc3b38a7a3e5f94362e3865c91f1afe5d4e24bcab3",
+      "file": "ofs.html"
+    }
+  ]
+}

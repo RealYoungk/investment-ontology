@@ -1,3 +1,4 @@
+import 'uxn_2023_exact_source.dart';
 import 'heungkuk_current_exact_source.dart';
 import 'verified_historical_company_identity.dart';
 import 'talos_2021_current_seven_source.dart';
@@ -293,6 +294,39 @@ final class VerifiedAnnualSourceCache {
         for (final e in uris.entries) e.key: utf8.decode(documents[e.value]!),
       };
       final rows = Talos2021CurrentSevenSource.parse(
+        raw: raw,
+        uris: uris,
+        receipt: entry.receipt,
+        corp: company.corpCode,
+        start: start,
+        end: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raw['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raw['ofs']!,
+          statementSource: uris['ofs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == Uxn2023ExactSource.rule) {
+      final uris = <String, Uri>{
+        for (final s in manifest['sources'] as List)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raw = <String, String>{
+        for (final e in uris.entries) e.key: utf8.decode(documents[e.value]!),
+      };
+      final rows = Uxn2023ExactSource.parse(
         raw: raw,
         uris: uris,
         receipt: entry.receipt,

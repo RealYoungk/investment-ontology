@@ -210,6 +210,20 @@ abstract final class VerifiedAnnualSourceRegistry {
     ),
 
     AnnualSourceCacheEntry(
+      receipt: '20240320001200',
+      corpCode: '01396931',
+      companyName: '주식회사 유엑스엔',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20240320001200-ofs-own-current-eight',
+      manifestDigest:
+          '7115fb95870841a5e141a677e40f1179beac5902f6f455c397a5bade8e3a147a',
+      ruleVersion: 'uxn-2023-own-current-eight-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20230718000182',
       corpCode: '01020269',
       companyName: '(주) 탈로스',
