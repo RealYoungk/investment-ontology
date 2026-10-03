@@ -202,33 +202,48 @@ void main() {
       },
     );
     for (final bad in ['issuer', 'period', 'basis', 'sha', 'notStored']) {
-      test('$receipt rejects $bad', () async {
-        final f = stored(), c = company(e);
-        if (bad == 'issuer') c.name = '다른 회사';
-        if (bad == 'period') f.bsnsYear = f.bsnsYear! - 1;
-        if (bad == 'notStored') {
-          f.separateStatus = FilingFetchStatus.pending;
-          f.consolidatedStatus = FilingFetchStatus.pending;
-        }
-        expect(
-          () => ExactStatementRows.prepare(
-            f,
-            c,
-            bad == 'basis'
-                ? (basis == FsDiv.separate
-                      ? FsDiv.consolidated
-                      : FsDiv.separate)
-                : basis,
-            readAsset: (path) async {
-              final bytes = await File(path).readAsBytes();
-              return bad == 'sha' && path.endsWith('${e.statementLabel}.html')
-                  ? [...bytes, 32]
-                  : bytes;
-            },
-          ),
-          throwsA(isA<FormatException>()),
-        );
-      });
+      test(
+        '$receipt rejects ${bad == 'basis' && receipt == '20220310001159' ? 'opposite-basis source bytes' : bad}',
+        () async {
+          final f = stored(), c = company(e);
+          if (bad == 'issuer') c.name = '다른 회사';
+          if (bad == 'period') f.bsnsYear = f.bsnsYear! - 1;
+          if (bad == 'notStored') {
+            f.separateStatus = FilingFetchStatus.pending;
+            f.consolidatedStatus = FilingFetchStatus.pending;
+          }
+          expect(
+            () => ExactStatementRows.prepare(
+              f,
+              c,
+              bad == 'basis'
+                  ? (basis == FsDiv.separate
+                        ? FsDiv.consolidated
+                        : FsDiv.separate)
+                  : basis,
+              readAsset: (path) async {
+                // Both Samsung bases now have independent approved profiles.
+                // Serving CFS bytes to the OFS request must still be rejected.
+                if (bad == 'basis' &&
+                    receipt == '20220310001159' &&
+                    path.endsWith('20220310001159-ofs/ofs.html')) {
+                  return File(
+                    path.replaceFirst(
+                      '20220310001159-ofs/ofs.html',
+                      '20220310001159-cfs/cfs.html',
+                    ),
+                  ).readAsBytes();
+                }
+                final bytes = await File(path).readAsBytes();
+                return bad == 'sha' && path.endsWith('${e.statementLabel}.html')
+                    ? [...bytes, 32]
+                    : bytes;
+              },
+            ),
+            throwsA(isA<FormatException>()),
+          );
+        },
+      );
     }
   }
 }

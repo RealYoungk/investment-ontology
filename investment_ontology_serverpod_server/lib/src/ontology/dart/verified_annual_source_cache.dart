@@ -153,8 +153,10 @@ final class VerifiedAnnualSourceCache {
   ) async {
     final entry = _entry(filing, basis);
     final exact =
-        (filing.rceptNo == '20250320000036' && basis == FsDiv.separate) ||
-        (filing.rceptNo == '20220310001159' && basis == FsDiv.consolidated);
+        (const {'20250320000036', '20230321000015'}.contains(filing.rceptNo) &&
+            basis == FsDiv.separate) ||
+        (filing.rceptNo == '20220310001159' &&
+            (basis == FsDiv.consolidated || basis == FsDiv.separate));
     final report = DartReportName.parse(filing.reportName);
     if (!exact ||
         filing.corpCode != entry.corpCode ||

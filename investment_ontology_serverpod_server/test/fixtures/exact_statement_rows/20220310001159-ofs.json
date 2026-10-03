@@ -1,0 +1,3797 @@
+{
+  "scope": "Independent Python HTMLParser physical cell inventory and explicit source-specific hierarchy equations; full statement false",
+  "bodySha256": "05d682e305415fba8d7a09d782d3a9185b93417db830a59bf0f03cb652138aa2",
+  "numericCurrentMonetaryCells": [
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 2,
+      "column": 2,
+      "printedLabel": "I. 현금및예치금(주석4,5,6,7,28)",
+      "amount": "1345621453025"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 3,
+      "column": 2,
+      "printedLabel": "II. 금융자산",
+      "amount": "75819299534412"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 4,
+      "column": 1,
+      "printedLabel": "1. 당기손익인식금융자산(주석4,5,8)",
+      "amount": "858051904674"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 5,
+      "column": 1,
+      "printedLabel": "2. 매도가능금융자산(주석4,5,7,9,28)",
+      "amount": "46826111297783"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 6,
+      "column": 1,
+      "printedLabel": "3. 만기보유금융자산(주석4,5,10)",
+      "amount": "134713819995"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 7,
+      "column": 1,
+      "printedLabel": "4. 대출채권(주석4,5,11,13,43)",
+      "amount": "26698135711041"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 8,
+      "column": 1,
+      "printedLabel": "5. 기타수취채권(주석4,5,12,13,28,43)",
+      "amount": "1302286800919"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 9,
+      "column": 2,
+      "printedLabel": "III. 관계종속기업투자(주석14,43)",
+      "amount": "571851107306"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 10,
+      "column": 2,
+      "printedLabel": "IV. 파생상품자산(주석4,5,15)",
+      "amount": "15263423075"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 11,
+      "column": 2,
+      "printedLabel": "V. 재보험자산(주석16,42)",
+      "amount": "1009258454555"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 12,
+      "column": 2,
+      "printedLabel": "VI. 투자부동산(주석17,18)",
+      "amount": "241446817013"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 13,
+      "column": 2,
+      "printedLabel": "VII. 유형자산(주석7,18,19,39)",
+      "amount": "684815363010"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 14,
+      "column": 2,
+      "printedLabel": "VIII. 무형자산(주석20)",
+      "amount": "218689032888"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 16,
+      "column": 2,
+      "printedLabel": "X. 순확정급여자산(주석25)",
+      "amount": "60663313069"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 18,
+      "column": 2,
+      "printedLabel": "XII. 이연법인세자산(주석40)",
+      "amount": "17006938408"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 19,
+      "column": 2,
+      "printedLabel": "XIII. 기타자산(주석22)",
+      "amount": "2456004784018"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 20,
+      "column": 2,
+      "printedLabel": "XIV. 특별계정자산(주석44)",
+      "amount": "10944892504836"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 21,
+      "column": 2,
+      "printedLabel": "자 산 총 계",
+      "amount": "93384812725615"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 23,
+      "column": 2,
+      "printedLabel": "I. 보험계약부채(주석4,23)",
+      "amount": "60639466710571"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 24,
+      "column": 2,
+      "printedLabel": "II. 금융부채(주석4,5,24,28,39,42,43)",
+      "amount": "1229980952467"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 25,
+      "column": 2,
+      "printedLabel": "III. 파생상품부채(주석4,5,15)",
+      "amount": "196769764050"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 26,
+      "column": 2,
+      "printedLabel": "IV. 충당부채(주석27)",
+      "amount": "65972782049"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 27,
+      "column": 2,
+      "printedLabel": "V. 당기법인세부채(주석40)",
+      "amount": "172607023617"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 28,
+      "column": 2,
+      "printedLabel": "VI. 이연법인세부채(주석40)",
+      "amount": "2776104326897"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 29,
+      "column": 2,
+      "printedLabel": "VII. 기타부채(주석26)",
+      "amount": "535236215883"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 30,
+      "column": 2,
+      "printedLabel": "VIII. 특별계정부채(주석44)",
+      "amount": "12368448009828"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 31,
+      "column": 2,
+      "printedLabel": "부 채 총 계",
+      "amount": "77984585785362"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 33,
+      "column": 2,
+      "printedLabel": "I. 자본금(주석29)",
+      "amount": "26473418500"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 34,
+      "column": 2,
+      "printedLabel": "II. 자본잉여금(주석30)",
+      "amount": "939233350327"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 35,
+      "column": 2,
+      "printedLabel": "III. 자본조정(주석31)",
+      "amount": "-1483503688276"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 36,
+      "column": 2,
+      "printedLabel": "IV. 기타포괄손익누계액(주석32)",
+      "amount": "5844064626233"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 37,
+      "column": 2,
+      "printedLabel": "V. 이익잉여금(주석33) (대손준비금 적립예정액: 22,122,522,577 원 기적립액: 228,047,420,753 원) (비상위험준비금 적립예정액: 112,548,537,054 원 기적립액: 2,348,491,078,338 원)",
+      "amount": "10073959233469"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 38,
+      "column": 2,
+      "printedLabel": "자 본 총 계",
+      "amount": "15400226940253"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 39,
+      "column": 2,
+      "printedLabel": "부 채 와 자 본 총 계",
+      "amount": "93384812725615"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 1,
+      "column": 2,
+      "printedLabel": "I. 영업수익",
+      "amount": "23967024499195"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 2,
+      "column": 1,
+      "printedLabel": "1. 보험영업수익",
+      "amount": "20966509822969"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 3,
+      "column": 1,
+      "printedLabel": "(1) 보험료수익(주석4,34,43)",
+      "amount": "19929641761136"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 4,
+      "column": 1,
+      "printedLabel": "(2) 재보험금수익(주석34,42,43)",
+      "amount": "717218204456"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 5,
+      "column": 1,
+      "printedLabel": "(3) 재보험자산환입액(전입액)(주석16)",
+      "amount": "160399272202"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 6,
+      "column": 1,
+      "printedLabel": "(4) 구상이익(손실)(주석22)",
+      "amount": "6139595474"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 7,
+      "column": 1,
+      "printedLabel": "(5) 수입경비(주석35)",
+      "amount": "140132712541"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 8,
+      "column": 1,
+      "printedLabel": "(6) 외환거래이익",
+      "amount": "12978277160"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 9,
+      "column": 1,
+      "printedLabel": "2. 투자영업수익(주석37)",
+      "amount": "2709452477409"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 10,
+      "column": 1,
+      "printedLabel": "(1) 이자수익",
+      "amount": "1697462180500"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 11,
+      "column": 1,
+      "printedLabel": "(2) 배당금수익",
+      "amount": "510485685540"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 12,
+      "column": 1,
+      "printedLabel": "(3) 금융상품평가및처분이익",
+      "amount": "151405079472"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 13,
+      "column": 1,
+      "printedLabel": "(4) 파생상품거래및평가이익",
+      "amount": "19640685904"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 14,
+      "column": 1,
+      "printedLabel": "(5) 손상차손환입",
+      "amount": "320370118"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 15,
+      "column": 1,
+      "printedLabel": "(6) 임대료수익",
+      "amount": "30815545416"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 16,
+      "column": 1,
+      "printedLabel": "(7) 수수료수익",
+      "amount": "5065313273"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 17,
+      "column": 1,
+      "printedLabel": "(8) 외환거래이익",
+      "amount": "290445197353"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 19,
+      "column": 1,
+      "printedLabel": "(10) 투자영업잡이익",
+      "amount": "3812419833"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 20,
+      "column": 1,
+      "printedLabel": "3. 특별계정수입수수료",
+      "amount": "46962915080"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 21,
+      "column": 1,
+      "printedLabel": "4. 특별계정수익(주석44)",
+      "amount": "244099283737"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 22,
+      "column": 2,
+      "printedLabel": "II. 영업비용",
+      "amount": "22506864154063"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 23,
+      "column": 1,
+      "printedLabel": "1. 보험영업비용",
+      "amount": "21648601950974"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 24,
+      "column": 1,
+      "printedLabel": "(1) 지급보험금및환급금(주석34,43)",
+      "amount": "14457973891874"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 25,
+      "column": 1,
+      "printedLabel": "(2) 재보험료비용(주석34,42,43)",
+      "amount": "1222654978552"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 26,
+      "column": 1,
+      "printedLabel": "(3) 보험계약부채전입액(주석23)",
+      "amount": "1221244998601"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 27,
+      "column": 1,
+      "printedLabel": "(4) 손해조사비(주석36)",
+      "amount": "621594582868"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 28,
+      "column": 1,
+      "printedLabel": "(5) 지급경비(주석36)",
+      "amount": "4115022422833"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 29,
+      "column": 1,
+      "printedLabel": "(6) 외환거래손실",
+      "amount": "10111076246"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 30,
+      "column": 1,
+      "printedLabel": "2. 투자영업비용(주석37)",
+      "amount": "612304435030"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 31,
+      "column": 1,
+      "printedLabel": "(1) 이자비용",
+      "amount": "20156018458"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 32,
+      "column": 1,
+      "printedLabel": "(2) 금융상품평가및처분손실",
+      "amount": "58187326195"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 33,
+      "column": 1,
+      "printedLabel": "(3) 파생상품거래및평가손실",
+      "amount": "281875517848"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 34,
+      "column": 1,
+      "printedLabel": "(4) 손상차손",
+      "amount": "56181111449"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 35,
+      "column": 1,
+      "printedLabel": "(5) 재산관리비(주석36)",
+      "amount": "147458737619"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 36,
+      "column": 1,
+      "printedLabel": "(6) 부동산관리비",
+      "amount": "14136559719"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 37,
+      "column": 1,
+      "printedLabel": "(7) 부동산감가상각비",
+      "amount": "6323693573"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 38,
+      "column": 1,
+      "printedLabel": "(8) 외환거래손실",
+      "amount": "26876908798"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 40,
+      "column": 1,
+      "printedLabel": "(10) 투자영업잡손실",
+      "amount": "1108561371"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 41,
+      "column": 1,
+      "printedLabel": "3. 특별계정지급수수료",
+      "amount": "1858484322"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 42,
+      "column": 1,
+      "printedLabel": "4. 특별계정비용(주석44)",
+      "amount": "244099283737"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 43,
+      "column": 2,
+      "printedLabel": "lll. 영업이익",
+      "amount": "1460160345132"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 44,
+      "column": 2,
+      "printedLabel": "lV. 영업외수익(주석38)",
+      "amount": "20244806441"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 45,
+      "column": 2,
+      "printedLabel": "V. 영업외비용(주석38)",
+      "amount": "6315531057"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 46,
+      "column": 2,
+      "printedLabel": "Vl. 법인세차감전순이익",
+      "amount": "1474089620516"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 47,
+      "column": 2,
+      "printedLabel": "Vll. 법인세비용(주석40)",
+      "amount": "381504980086"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 48,
+      "column": 2,
+      "printedLabel": "Vlll. 당기순이익 (대손준비금 반영후 조정이익 당기: 1,070,462,117,853 원 전기: 746,332,419,486 원) (비상위험준비금 반영후 조정이익 당기: 980,036,103,376 원 전기: 650,950,732,012 원)",
+      "amount": "1092584640430"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 49,
+      "column": 2,
+      "printedLabel": "lX. 기타포괄손익",
+      "amount": "-1556018230268"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 50,
+      "column": 1,
+      "printedLabel": "1. 후속적으로 당기손익으로 재분류되지 않는 항목",
+      "amount": "-3421863979"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 51,
+      "column": 1,
+      "printedLabel": "2. 후속적으로 당기손익으로 재분류되는 항목",
+      "amount": "-1552596366289"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 52,
+      "column": 2,
+      "printedLabel": "X. 당기총포괄손익",
+      "amount": "-463433589838"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 19,
+      "column": 1,
+      "printedLabel": "V. 2021년 01월 01일 (당기초)",
+      "amount": "26473418500"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 19,
+      "column": 2,
+      "printedLabel": "V. 2021년 01월 01일 (당기초)",
+      "amount": "939233350327"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 19,
+      "column": 3,
+      "printedLabel": "V. 2021년 01월 01일 (당기초)",
+      "amount": "-1483503688276"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 19,
+      "column": 4,
+      "printedLabel": "V. 2021년 01월 01일 (당기초)",
+      "amount": "7400082856501"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 19,
+      "column": 5,
+      "printedLabel": "V. 2021년 01월 01일 (당기초)",
+      "amount": "9355471739939"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 19,
+      "column": 6,
+      "printedLabel": "V. 2021년 01월 01일 (당기초)",
+      "amount": "16237757676991"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 20,
+      "column": 5,
+      "printedLabel": "1. 연차배당",
+      "amount": "-374097146900"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 20,
+      "column": 6,
+      "printedLabel": "1. 연차배당",
+      "amount": "-374097146900"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 21,
+      "column": 5,
+      "printedLabel": "2. 당기순이익",
+      "amount": "1092584640430"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 21,
+      "column": 6,
+      "printedLabel": "2. 당기순이익",
+      "amount": "1092584640430"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 22,
+      "column": 4,
+      "printedLabel": "3. 매도가능금융자산평가손익",
+      "amount": "-1383727791236"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 22,
+      "column": 6,
+      "printedLabel": "3. 매도가능금융자산평가손익",
+      "amount": "-1383727791236"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 23,
+      "column": 4,
+      "printedLabel": "4. 해외사업환산손익",
+      "amount": "8546182515"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 23,
+      "column": 6,
+      "printedLabel": "4. 해외사업환산손익",
+      "amount": "8546182515"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 24,
+      "column": 4,
+      "printedLabel": "5. 현금흐름위험회피파생손익",
+      "amount": "-10097594920"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 24,
+      "column": 6,
+      "printedLabel": "5. 현금흐름위험회피파생손익",
+      "amount": "-10097594920"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 25,
+      "column": 4,
+      "printedLabel": "6. 특별계정기타포괄손익",
+      "amount": "-167317162648"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 25,
+      "column": 6,
+      "printedLabel": "6. 특별계정기타포괄손익",
+      "amount": "-167317162648"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 26,
+      "column": 4,
+      "printedLabel": "7. 확정급여제도 재측정요소",
+      "amount": "-3421863979"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 26,
+      "column": 6,
+      "printedLabel": "7. 확정급여제도 재측정요소",
+      "amount": "-3421863979"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 27,
+      "column": 1,
+      "printedLabel": "VI. 2021년 12월 31일 (당기말)",
+      "amount": "26473418500"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 27,
+      "column": 2,
+      "printedLabel": "VI. 2021년 12월 31일 (당기말)",
+      "amount": "939233350327"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 27,
+      "column": 3,
+      "printedLabel": "VI. 2021년 12월 31일 (당기말)",
+      "amount": "-1483503688276"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 27,
+      "column": 4,
+      "printedLabel": "VI. 2021년 12월 31일 (당기말)",
+      "amount": "5844064626233"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 27,
+      "column": 5,
+      "printedLabel": "VI. 2021년 12월 31일 (당기말)",
+      "amount": "10073959233469"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 27,
+      "column": 6,
+      "printedLabel": "VI. 2021년 12월 31일 (당기말)",
+      "amount": "15400226940253"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 1,
+      "column": 2,
+      "printedLabel": "I. 영업활동으로 인한 현금흐름",
+      "amount": "1256776062904"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 2,
+      "column": 1,
+      "printedLabel": "(1) 당기순이익",
+      "amount": "1092584640430"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 3,
+      "column": 1,
+      "printedLabel": "(2) 손익조정항목",
+      "amount": "850226787288"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 4,
+      "column": 1,
+      "printedLabel": "금융상품평가및처분손실",
+      "amount": "54353732649"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 6,
+      "column": 1,
+      "printedLabel": "외화환산손실",
+      "amount": "19213722844"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 7,
+      "column": 1,
+      "printedLabel": "대손상각비",
+      "amount": "5592151215"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 8,
+      "column": 1,
+      "printedLabel": "파생상품거래및평가손실",
+      "amount": "274060049237"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 9,
+      "column": 1,
+      "printedLabel": "신계약비상각비",
+      "amount": "1310899566120"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 10,
+      "column": 1,
+      "printedLabel": "감가상각비",
+      "amount": "133208092072"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 11,
+      "column": 1,
+      "printedLabel": "유형자산처분손실",
+      "amount": "23202333"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 12,
+      "column": 1,
+      "printedLabel": "리스계약해지손실",
+      "amount": "423186411"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 14,
+      "column": 1,
+      "printedLabel": "기타비용",
+      "amount": "11761437903"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 15,
+      "column": 1,
+      "printedLabel": "무형자산상각비",
+      "amount": "137791023049"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 16,
+      "column": 1,
+      "printedLabel": "무형자산손상차손",
+      "amount": "15301500"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 17,
+      "column": 1,
+      "printedLabel": "이자비용",
+      "amount": "20156018458"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 18,
+      "column": 1,
+      "printedLabel": "복구충당부채순전입액",
+      "amount": "532023416"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 19,
+      "column": 1,
+      "printedLabel": "퇴직급여",
+      "amount": "33649218119"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 20,
+      "column": 1,
+      "printedLabel": "법인세비용",
+      "amount": "381504980086"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 21,
+      "column": 1,
+      "printedLabel": "금융자산손상차손",
+      "amount": "56181111449"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 24,
+      "column": 1,
+      "printedLabel": "보험계약부채전입액",
+      "amount": "1221244998601"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 25,
+      "column": 1,
+      "printedLabel": "재보험자산환입액(전입액)",
+      "amount": "-160399272202"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 26,
+      "column": 1,
+      "printedLabel": "금융상품평가및처분이익",
+      "amount": "-146945339238"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 29,
+      "column": 1,
+      "printedLabel": "이자수익",
+      "amount": "-1697462180500"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 30,
+      "column": 1,
+      "printedLabel": "외화환산이익",
+      "amount": "-256750599349"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 31,
+      "column": 1,
+      "printedLabel": "기타수익",
+      "amount": "-11033135071"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 32,
+      "column": 1,
+      "printedLabel": "파생상품거래및평가이익",
+      "amount": "-19448292565"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 33,
+      "column": 1,
+      "printedLabel": "유형자산처분이익",
+      "amount": "-203846200"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 34,
+      "column": 1,
+      "printedLabel": "리스계약해지이익",
+      "amount": "-1271196607"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 35,
+      "column": 1,
+      "printedLabel": "무형자산처분이익",
+      "amount": "-19918495"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 36,
+      "column": 1,
+      "printedLabel": "무형자산손상차손환입",
+      "amount": "-223966933"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 38,
+      "column": 1,
+      "printedLabel": "구상이익",
+      "amount": "-6139595474"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 39,
+      "column": 1,
+      "printedLabel": "배당금수익",
+      "amount": "-510485685540"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 40,
+      "column": 1,
+      "printedLabel": "(3) 자산부채증감",
+      "amount": "-2642689184984"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 41,
+      "column": 1,
+      "printedLabel": "예치금의 감소(증가)",
+      "amount": "-38447658456"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 42,
+      "column": 1,
+      "printedLabel": "당기손익인식금융자산의 감소(증가)",
+      "amount": "204946565143"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 43,
+      "column": 1,
+      "printedLabel": "대출채권의 감소(증가)",
+      "amount": "-890179465720"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 44,
+      "column": 1,
+      "printedLabel": "기타수취채권의 감소(증가)",
+      "amount": "-72848871017"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 45,
+      "column": 1,
+      "printedLabel": "기타자산의 감소(증가)",
+      "amount": "-1469722380049"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 46,
+      "column": 1,
+      "printedLabel": "특별계정자산의 감소(증가)",
+      "amount": "-693462194341"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 47,
+      "column": 1,
+      "printedLabel": "기타금융부채의 증가(감소)",
+      "amount": "250714244525"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 48,
+      "column": 1,
+      "printedLabel": "매매목적파생상품의 증가(감소)",
+      "amount": "347605501"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 49,
+      "column": 1,
+      "printedLabel": "충당부채의 증가(감소)",
+      "amount": "-10555316331"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 50,
+      "column": 1,
+      "printedLabel": "기타부채의 증가(감소)",
+      "amount": "94327122366"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 51,
+      "column": 1,
+      "printedLabel": "특별계정부채의 증가(감소)",
+      "amount": "42247775346"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 52,
+      "column": 1,
+      "printedLabel": "퇴직금의 지급",
+      "amount": "-26491679870"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 53,
+      "column": 1,
+      "printedLabel": "확정급여부채의 증가(감소)",
+      "amount": "478975389"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 54,
+      "column": 1,
+      "printedLabel": "사외적립자산의 감소(증가)",
+      "amount": "-34043907470"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 55,
+      "column": 1,
+      "printedLabel": "(4) 이자의 수취",
+      "amount": "1745898643808"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 56,
+      "column": 1,
+      "printedLabel": "(5) 이자의 지급",
+      "amount": "-2031719400"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 57,
+      "column": 1,
+      "printedLabel": "(6) 배당금 수입",
+      "amount": "510485685540"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 58,
+      "column": 1,
+      "printedLabel": "(7) 법인세 납부액",
+      "amount": "-297698789778"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 59,
+      "column": 2,
+      "printedLabel": "II. 투자활동으로 인한 현금흐름",
+      "amount": "-1180962291221"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 60,
+      "column": 1,
+      "printedLabel": "1. 투자활동으로 인한 현금유입액",
+      "amount": "8585115556997"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 61,
+      "column": 1,
+      "printedLabel": "매도가능금융자산의 처분",
+      "amount": "5812418519577"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 63,
+      "column": 1,
+      "printedLabel": "관계종속기업투자주식의 감소",
+      "amount": "42524250"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 64,
+      "column": 1,
+      "printedLabel": "위험회피활동으로 인한 현금유입",
+      "amount": "2772322409901"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 66,
+      "column": 1,
+      "printedLabel": "유형자산의 처분",
+      "amount": "220688774"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 67,
+      "column": 1,
+      "printedLabel": "무형자산의 처분",
+      "amount": "111414495"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 69,
+      "column": 1,
+      "printedLabel": "2. 투자활동으로 인한 현금유출액",
+      "amount": "-9766077848218"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 70,
+      "column": 1,
+      "printedLabel": "매도가능금융자산의 취득",
+      "amount": "6935785036461"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 73,
+      "column": 1,
+      "printedLabel": "위험회피활동으로 인한 현금유출",
+      "amount": "2797770965146"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 74,
+      "column": 1,
+      "printedLabel": "투자부동산의 취득",
+      "amount": "1239624755"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 75,
+      "column": 1,
+      "printedLabel": "유형자산의 취득",
+      "amount": "24513857308"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 76,
+      "column": 1,
+      "printedLabel": "무형자산의 취득",
+      "amount": "6768364548"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 77,
+      "column": 2,
+      "printedLabel": "III. 재무활동으로 인한 현금흐름",
+      "amount": "-454021230773"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 80,
+      "column": 1,
+      "printedLabel": "2. 재무활동으로 인한 현금유출액",
+      "amount": "-454021230773"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 81,
+      "column": 1,
+      "printedLabel": "리스부채 상환",
+      "amount": "79924083873"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 83,
+      "column": 1,
+      "printedLabel": "배당금 지급",
+      "amount": "374097146900"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 84,
+      "column": 2,
+      "printedLabel": "IV. 외화표시 현금및현금성자산에 대한 환율변동효과",
+      "amount": "17824484055"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 85,
+      "column": 2,
+      "printedLabel": "V. 현금및현금성자산의 증가(감소) (l+ll+lll+IV)",
+      "amount": "-360382975035"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 86,
+      "column": 2,
+      "printedLabel": "VI. 기초의 현금및현금성자산",
+      "amount": "1245717430818"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 87,
+      "column": 2,
+      "printedLabel": "VII. 기말의 현금및현금성자산 (V+VI)",
+      "amount": "885334455783"
+    }
+  ],
+  "sourceURI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220310001159&dcmNo=8450801&eleId=19&offset=1563418&length=132549&dtd=dart3.xsd",
+  "hierarchyChecks": [
+    {
+      "tableIndex": 1,
+      "targetRow": 3,
+      "targetPrintedLabel": "II. 금융자산",
+      "terms": [
+        {
+          "row": 4,
+          "sign": 1,
+          "printed": [
+            "858,051,904,674",
+            ""
+          ],
+          "amount": "858051904674"
+        },
+        {
+          "row": 5,
+          "sign": 1,
+          "printed": [
+            "46,826,111,297,783",
+            ""
+          ],
+          "amount": "46826111297783"
+        },
+        {
+          "row": 6,
+          "sign": 1,
+          "printed": [
+            "134,713,819,995",
+            ""
+          ],
+          "amount": "134713819995"
+        },
+        {
+          "row": 7,
+          "sign": 1,
+          "printed": [
+            "26,698,135,711,041",
+            ""
+          ],
+          "amount": "26698135711041"
+        },
+        {
+          "row": 8,
+          "sign": 1,
+          "printed": [
+            "1,302,286,800,919",
+            ""
+          ],
+          "amount": "1302286800919"
+        }
+      ],
+      "delta": "0",
+      "missingCellsRetainedNull": true
+    },
+    {
+      "tableIndex": 1,
+      "targetRow": 21,
+      "targetPrintedLabel": "자 산 총 계",
+      "terms": [
+        {
+          "row": 2,
+          "sign": 1,
+          "printed": [
+            "",
+            "1,345,621,453,025"
+          ],
+          "amount": "1345621453025"
+        },
+        {
+          "row": 3,
+          "sign": 1,
+          "printed": [
+            "",
+            "75,819,299,534,412"
+          ],
+          "amount": "75819299534412"
+        },
+        {
+          "row": 9,
+          "sign": 1,
+          "printed": [
+            "",
+            "571,851,107,306"
+          ],
+          "amount": "571851107306"
+        },
+        {
+          "row": 10,
+          "sign": 1,
+          "printed": [
+            "",
+            "15,263,423,075"
+          ],
+          "amount": "15263423075"
+        },
+        {
+          "row": 11,
+          "sign": 1,
+          "printed": [
+            "",
+            "1,009,258,454,555"
+          ],
+          "amount": "1009258454555"
+        },
+        {
+          "row": 12,
+          "sign": 1,
+          "printed": [
+            "",
+            "241,446,817,013"
+          ],
+          "amount": "241446817013"
+        },
+        {
+          "row": 13,
+          "sign": 1,
+          "printed": [
+            "",
+            "684,815,363,010"
+          ],
+          "amount": "684815363010"
+        },
+        {
+          "row": 14,
+          "sign": 1,
+          "printed": [
+            "",
+            "218,689,032,888"
+          ],
+          "amount": "218689032888"
+        },
+        {
+          "row": 15,
+          "sign": 1,
+          "printed": [
+            "",
+            "-"
+          ],
+          "amount": null
+        },
+        {
+          "row": 16,
+          "sign": 1,
+          "printed": [
+            "",
+            "60,663,313,069"
+          ],
+          "amount": "60663313069"
+        },
+        {
+          "row": 17,
+          "sign": 1,
+          "printed": [
+            "",
+            "-"
+          ],
+          "amount": null
+        },
+        {
+          "row": 18,
+          "sign": 1,
+          "printed": [
+            "",
+            "17,006,938,408"
+          ],
+          "amount": "17006938408"
+        },
+        {
+          "row": 19,
+          "sign": 1,
+          "printed": [
+            "",
+            "2,456,004,784,018"
+          ],
+          "amount": "2456004784018"
+        },
+        {
+          "row": 20,
+          "sign": 1,
+          "printed": [
+            "",
+            "10,944,892,504,836"
+          ],
+          "amount": "10944892504836"
+        }
+      ],
+      "delta": "0",
+      "missingCellsRetainedNull": true
+    },
+    {
+      "tableIndex": 1,
+      "targetRow": 31,
+      "targetPrintedLabel": "부 채 총 계",
+      "terms": [
+        {
+          "row": 23,
+          "sign": 1,
+          "printed": [
+            "",
+            "60,639,466,710,571"
+          ],
+          "amount": "60639466710571"
+        },
+        {
+          "row": 24,
+          "sign": 1,
+          "printed": [
+            "",
+            "1,229,980,952,467"
+          ],
+          "amount": "1229980952467"
+        },
+        {
+          "row": 25,
+          "sign": 1,
+          "printed": [
+            "",
+            "196,769,764,050"
+          ],
+          "amount": "196769764050"
+        },
+        {
+          "row": 26,
+          "sign": 1,
+          "printed": [
+            "",
+            "65,972,782,049"
+          ],
+          "amount": "65972782049"
+        },
+        {
+          "row": 27,
+          "sign": 1,
+          "printed": [
+            "",
+            "172,607,023,617"
+          ],
+          "amount": "172607023617"
+        },
+        {
+          "row": 28,
+          "sign": 1,
+          "printed": [
+            "",
+            "2,776,104,326,897"
+          ],
+          "amount": "2776104326897"
+        },
+        {
+          "row": 29,
+          "sign": 1,
+          "printed": [
+            "",
+            "535,236,215,883"
+          ],
+          "amount": "535236215883"
+        },
+        {
+          "row": 30,
+          "sign": 1,
+          "printed": [
+            "",
+            "12,368,448,009,828"
+          ],
+          "amount": "12368448009828"
+        }
+      ],
+      "delta": "0",
+      "missingCellsRetainedNull": true
+    },
+    {
+      "tableIndex": 1,
+      "targetRow": 38,
+      "targetPrintedLabel": "자 본 총 계",
+      "terms": [
+        {
+          "row": 33,
+          "sign": 1,
+          "printed": [
+            "",
+            "26,473,418,500"
+          ],
+          "amount": "26473418500"
+        },
+        {
+          "row": 34,
+          "sign": 1,
+          "printed": [
+            "",
+            "939,233,350,327"
+          ],
+          "amount": "939233350327"
+        },
+        {
+          "row": 35,
+          "sign": 1,
+          "printed": [
+            "",
+            "(1,483,503,688,276)"
+          ],
+          "amount": "-1483503688276"
+        },
+        {
+          "row": 36,
+          "sign": 1,
+          "printed": [
+            "",
+            "5,844,064,626,233"
+          ],
+          "amount": "5844064626233"
+        },
+        {
+          "row": 37,
+          "sign": 1,
+          "printed": [
+            "",
+            "10,073,959,233,469"
+          ],
+          "amount": "10073959233469"
+        }
+      ],
+      "delta": "0",
+      "missingCellsRetainedNull": true
+    },
+    {
+      "tableIndex": 1,
+      "targetRow": 39,
+      "targetPrintedLabel": "부 채 와 자 본 총 계",
+      "terms": [
+        {
+          "row": 31,
+          "sign": 1,
+          "printed": [
+            "",
+            "77,984,585,785,362"
+          ],
+          "amount": "77984585785362"
+        },
+        {
+          "row": 38,
+          "sign": 1,
+          "printed": [
+            "",
+            "15,400,226,940,253"
+          ],
+          "amount": "15400226940253"
+        }
+      ],
+      "delta": "0",
+      "missingCellsRetainedNull": true
+    },
+    {
+      "tableIndex": 3,
+      "targetRow": 1,
+      "targetPrintedLabel": "I. 영업수익",
+      "terms": [
+        {
+          "row": 2,
+          "sign": 1,
+          "printed": [
+            "20,966,509,822,969",
+            ""
+          ],
+          "amount": "20966509822969"
+        },
+        {
+          "row": 9,
+          "sign": 1,
+          "printed": [
+            "2,709,452,477,409",
+            ""
+          ],
+          "amount": "2709452477409"
+        },
+        {
+          "row": 20,
+          "sign": 1,
+          "printed": [
+            "46,962,915,080",
+            ""
+          ],
+          "amount": "46962915080"
+        },
+        {
+          "row": 21,
+          "sign": 1,
+          "printed": [
+            "244,099,283,737",
+            ""
+          ],
+          "amount": "244099283737"
+        }
+      ],
+      "delta": "0",
+      "missingCellsRetainedNull": true
+    },
+    {
+      "tableIndex": 3,
+      "targetRow": 2,
+      "targetPrintedLabel": "1. 보험영업수익",
+      "terms": [
+        {
+          "row": 3,
+          "sign": 1,
+          "printed": [
+            "19,929,641,761,136",
+            ""
+          ],
+          "amount": "19929641761136"
+        },
+        {
+          "row": 4,
+          "sign": 1,
+          "printed": [
+            "717,218,204,456",
+            ""
+          ],
+          "amount": "717218204456"
+        },
+        {
+          "row": 5,
+          "sign": 1,
+          "printed": [
+            "160,399,272,202",
+            ""
+          ],
+          "amount": "160399272202"
+        },
+        {
+          "row": 6,
+          "sign": 1,
+          "printed": [
+            "6,139,595,474",
+            ""
+          ],
+          "amount": "6139595474"
+        },
+        {
+          "row": 7,
+          "sign": 1,
+          "printed": [
+            "140,132,712,541",
+            ""
+          ],
+          "amount": "140132712541"
+        },
+        {
+          "row": 8,
+          "sign": 1,
+          "printed": [
+            "12,978,277,160",
+            ""
+          ],
+          "amount": "12978277160"
+        }
+      ],
+      "delta": "0",
+      "missingCellsRetainedNull": true
+    },
+    {
+      "tableIndex": 3,
+      "targetRow": 9,
+      "targetPrintedLabel": "2. 투자영업수익(주석37)",
+      "terms": [
+        {
+          "row": 10,
+          "sign": 1,
+          "printed": [
+            "1,697,462,180,500",
+            ""
+          ],
+          "amount": "1697462180500"
+        },
+        {
+          "row": 11,
+          "sign": 1,
+          "printed": [
+            "510,485,685,540",
+            ""
+          ],
+          "amount": "510485685540"
+        },
+        {
+          "row": 12,
+          "sign": 1,
+          "printed": [
+            "151,405,079,472",
+            ""
+          ],
+          "amount": "151405079472"
+        },
+        {
+          "row": 13,
+          "sign": 1,
+          "printed": [
+            "19,640,685,904",
+            ""
+          ],
+          "amount": "19640685904"
+        },
+        {
+          "row": 14,
+          "sign": 1,
+          "printed": [
+            "320,370,118",
+            ""
+          ],
+          "amount": "320370118"
+        },
+        {
+          "row": 15,
+          "sign": 1,
+          "printed": [
+            "30,815,545,416",
+            ""
+          ],
+          "amount": "30815545416"
+        },
+        {
+          "row": 16,
+          "sign": 1,
+          "printed": [
+            "5,065,313,273",
+            ""
+          ],
+          "amount": "5065313273"
+        },
+        {
+          "row": 17,
+          "sign": 1,
+          "printed": [
+            "290,445,197,353",
+            ""
+          ],
+          "amount": "290445197353"
+        },
+        {
+          "row": 18,
+          "sign": 1,
+          "printed": [
+            "-",
+            ""
+          ],
+          "amount": null
+        },
+        {
+          "row": 19,
+          "sign": 1,
+          "printed": [
+            "3,812,419,833",
+            ""
+          ],
+          "amount": "3812419833"
+        }
+      ],
+      "delta": "0",
+      "missingCellsRetainedNull": true
+    },
+    {
+      "tableIndex": 3,
+      "targetRow": 22,
+      "targetPrintedLabel": "II. 영업비용",
+      "terms": [
+        {
+          "row": 23,
+          "sign": 1,
+          "printed": [
+            "21,648,601,950,974",
+            ""
+          ],
+          "amount": "21648601950974"
+        },
+        {
+          "row": 30,
+          "sign": 1,
+          "printed": [
+            "612,304,435,030",
+            ""
+          ],
+          "amount": "612304435030"
+        },
+        {
+          "row": 41,
+          "sign": 1,
+          "printed": [
+            "1,858,484,322",
+            ""
+          ],
+          "amount": "1858484322"
+        },
+        {
+          "row": 42,
+          "sign": 1,
+          "printed": [
+            "244,099,283,737",
+            ""
+          ],
+          "amount": "244099283737"
+        }
+      ],
+      "delta": "0",
+      "missingCellsRetainedNull": true
+    },
+    {
+      "tableIndex": 3,
+      "targetRow": 23,
+      "targetPrintedLabel": "1. 보험영업비용",
+      "terms": [
+        {
+          "row": 24,
+          "sign": 1,
+          "printed": [
+            "14,457,973,891,874",
+            ""
+          ],
+          "amount": "14457973891874"
+        },
+        {
+          "row": 25,
+          "sign": 1,
+          "printed": [
+            "1,222,654,978,552",
+            ""
+          ],
+          "amount": "1222654978552"
+        },
+        {
+          "row": 26,
+          "sign": 1,
+          "printed": [
+            "1,221,244,998,601",
+            ""
+          ],
+          "amount": "1221244998601"
+        },
+        {
+          "row": 27,
+          "sign": 1,
+          "printed": [
+            "621,594,582,868",
+            ""
+          ],
+          "amount": "621594582868"
+        },
+        {
+          "row": 28,
+          "sign": 1,
+          "printed": [
+            "4,115,022,422,833",
+            ""
+          ],
+          "amount": "4115022422833"
+        },
+        {
+          "row": 29,
+          "sign": 1,
+          "printed": [
+            "10,111,076,246",
+            ""
+          ],
+          "amount": "10111076246"
+        }
+      ],
+      "delta": "0",
+      "missingCellsRetainedNull": true
+    },
+    {
+      "tableIndex": 3,
+      "targetRow": 30,
+      "targetPrintedLabel": "2. 투자영업비용(주석37)",
+      "terms": [
+        {
+          "row": 31,
+          "sign": 1,
+          "printed": [
+            "20,156,018,458",
+            ""
+          ],
+          "amount": "20156018458"
+        },
+        {
+          "row": 32,
+          "sign": 1,
+          "printed": [
+            "58,187,326,195",
+            ""
+          ],
+          "amount": "58187326195"
+        },
+        {
+          "row": 33,
+          "sign": 1,
+          "printed": [
+            "281,875,517,848",
+            ""
+          ],
+          "amount": "281875517848"
+        },
+        {
+          "row": 34,
+          "sign": 1,
+          "printed": [
+            "56,181,111,449",
+            ""
+          ],
+          "amount": "56181111449"
+        },
+        {
+          "row": 35,
+          "sign": 1,
+          "printed": [
+            "147,458,737,619",
+            ""
+          ],
+          "amount": "147458737619"
+        },
+        {
+          "row": 36,
+          "sign": 1,
+          "printed": [
+            "14,136,559,719",
+            ""
+          ],
+          "amount": "14136559719"
+        },
+        {
+          "row": 37,
+          "sign": 1,
+          "printed": [
+            "6,323,693,573",
+            ""
+          ],
+          "amount": "6323693573"
+        },
+        {
+          "row": 38,
+          "sign": 1,
+          "printed": [
+            "26,876,908,798",
+            ""
+          ],
+          "amount": "26876908798"
+        },
+        {
+          "row": 39,
+          "sign": 1,
+          "printed": [
+            "-",
+            ""
+          ],
+          "amount": null
+        },
+        {
+          "row": 40,
+          "sign": 1,
+          "printed": [
+            "1,108,561,371",
+            ""
+          ],
+          "amount": "1108561371"
+        }
+      ],
+      "delta": "0",
+      "missingCellsRetainedNull": true
+    },
+    {
+      "tableIndex": 3,
+      "targetRow": 43,
+      "targetPrintedLabel": "lll. 영업이익",
+      "terms": [
+        {
+          "row": 1,
+          "sign": 1,
+          "printed": [
+            "",
+            "23,967,024,499,195"
+          ],
+          "amount": "23967024499195"
+        },
+        {
+          "row": 22,
+          "sign": -1,
+          "printed": [
+            "",
+            "22,506,864,154,063"
+          ],
+          "amount": "22506864154063"
+        }
+      ],
+      "delta": "0",
+      "missingCellsRetainedNull": true
+    },
+    {
+      "tableIndex": 3,
+      "targetRow": 46,
+      "targetPrintedLabel": "Vl. 법인세차감전순이익",
+      "terms": [
+        {
+          "row": 43,
+          "sign": 1,
+          "printed": [
+            "",
+            "1,460,160,345,132"
+          ],
+          "amount": "1460160345132"
+        },
+        {
+          "row": 44,
+          "sign": 1,
+          "printed": [
+            "",
+            "20,244,806,441"
+          ],
+          "amount": "20244806441"
+        },
+        {
+          "row": 45,
+          "sign": -1,
+          "printed": [
+            "",
+            "6,315,531,057"
+          ],
+          "amount": "6315531057"
+        }
+      ],
+      "delta": "0",
+      "missingCellsRetainedNull": true
+    },
+    {
+      "tableIndex": 3,
+      "targetRow": 48,
+      "targetPrintedLabel": "Vlll. 당기순이익 (대손준비금 반영후 조정이익 당기: 1,070,462,117,853 원 전기: 746,332,419,486 원) (비상위험준비금 반영후 조정이익 당기: 980,036,103,376 원 전기: 650,950,732,012 원)",
+      "terms": [
+        {
+          "row": 46,
+          "sign": 1,
+          "printed": [
+            "",
+            "1,474,089,620,516"
+          ],
+          "amount": "1474089620516"
+        },
+        {
+          "row": 47,
+          "sign": -1,
+          "printed": [
+            "",
+            "381,504,980,086"
+          ],
+          "amount": "381504980086"
+        }
+      ],
+      "delta": "0",
+      "missingCellsRetainedNull": true
+    },
+    {
+      "tableIndex": 3,
+      "targetRow": 49,
+      "targetPrintedLabel": "lX. 기타포괄손익",
+      "terms": [
+        {
+          "row": 50,
+          "sign": 1,
+          "printed": [
+            "(3,421,863,979)",
+            ""
+          ],
+          "amount": "-3421863979"
+        },
+        {
+          "row": 51,
+          "sign": 1,
+          "printed": [
+            "(1,552,596,366,289)",
+            ""
+          ],
+          "amount": "-1552596366289"
+        }
+      ],
+      "delta": "0",
+      "missingCellsRetainedNull": true
+    },
+    {
+      "tableIndex": 3,
+      "targetRow": 52,
+      "targetPrintedLabel": "X. 당기총포괄손익",
+      "terms": [
+        {
+          "row": 48,
+          "sign": 1,
+          "printed": [
+            "",
+            "1,092,584,640,430"
+          ],
+          "amount": "1092584640430"
+        },
+        {
+          "row": 49,
+          "sign": 1,
+          "printed": [
+            "",
+            "(1,556,018,230,268)"
+          ],
+          "amount": "-1556018230268"
+        }
+      ],
+      "delta": "0",
+      "missingCellsRetainedNull": true
+    },
+    {
+      "tableIndex": 7,
+      "targetRow": 3,
+      "targetPrintedLabel": "(2) 손익조정항목",
+      "terms": [
+        {
+          "row": 4,
+          "sign": 1,
+          "printed": [
+            "54,353,732,649",
+            ""
+          ],
+          "amount": "54353732649"
+        },
+        {
+          "row": 5,
+          "sign": 1,
+          "printed": [
+            "-",
+            ""
+          ],
+          "amount": null
+        },
+        {
+          "row": 6,
+          "sign": 1,
+          "printed": [
+            "19,213,722,844",
+            ""
+          ],
+          "amount": "19213722844"
+        },
+        {
+          "row": 7,
+          "sign": 1,
+          "printed": [
+            "5,592,151,215",
+            ""
+          ],
+          "amount": "5592151215"
+        },
+        {
+          "row": 8,
+          "sign": 1,
+          "printed": [
+            "274,060,049,237",
+            ""
+          ],
+          "amount": "274060049237"
+        },
+        {
+          "row": 9,
+          "sign": 1,
+          "printed": [
+            "1,310,899,566,120",
+            ""
+          ],
+          "amount": "1310899566120"
+        },
+        {
+          "row": 10,
+          "sign": 1,
+          "printed": [
+            "133,208,092,072",
+            ""
+          ],
+          "amount": "133208092072"
+        },
+        {
+          "row": 11,
+          "sign": 1,
+          "printed": [
+            "23,202,333",
+            ""
+          ],
+          "amount": "23202333"
+        },
+        {
+          "row": 12,
+          "sign": 1,
+          "printed": [
+            "423,186,411",
+            ""
+          ],
+          "amount": "423186411"
+        },
+        {
+          "row": 13,
+          "sign": 1,
+          "printed": [
+            "-",
+            ""
+          ],
+          "amount": null
+        },
+        {
+          "row": 14,
+          "sign": 1,
+          "printed": [
+            "11,761,437,903",
+            ""
+          ],
+          "amount": "11761437903"
+        },
+        {
+          "row": 15,
+          "sign": 1,
+          "printed": [
+            "137,791,023,049",
+            ""
+          ],
+          "amount": "137791023049"
+        },
+        {
+          "row": 16,
+          "sign": 1,
+          "printed": [
+            "15,301,500",
+            ""
+          ],
+          "amount": "15301500"
+        },
+        {
+          "row": 17,
+          "sign": 1,
+          "printed": [
+            "20,156,018,458",
+            ""
+          ],
+          "amount": "20156018458"
+        },
+        {
+          "row": 18,
+          "sign": 1,
+          "printed": [
+            "532,023,416",
+            ""
+          ],
+          "amount": "532023416"
+        },
+        {
+          "row": 19,
+          "sign": 1,
+          "printed": [
+            "33,649,218,119",
+            ""
+          ],
+          "amount": "33649218119"
+        },
+        {
+          "row": 20,
+          "sign": 1,
+          "printed": [
+            "381,504,980,086",
+            ""
+          ],
+          "amount": "381504980086"
+        },
+        {
+          "row": 21,
+          "sign": 1,
+          "printed": [
+            "56,181,111,449",
+            ""
+          ],
+          "amount": "56181111449"
+        },
+        {
+          "row": 22,
+          "sign": 1,
+          "printed": [
+            "-",
+            ""
+          ],
+          "amount": null
+        },
+        {
+          "row": 23,
+          "sign": 1,
+          "printed": [
+            "-",
+            ""
+          ],
+          "amount": null
+        },
+        {
+          "row": 24,
+          "sign": 1,
+          "printed": [
+            "1,221,244,998,601",
+            ""
+          ],
+          "amount": "1221244998601"
+        },
+        {
+          "row": 25,
+          "sign": 1,
+          "printed": [
+            "(160,399,272,202)",
+            ""
+          ],
+          "amount": "-160399272202"
+        },
+        {
+          "row": 26,
+          "sign": 1,
+          "printed": [
+            "(146,945,339,238)",
+            ""
+          ],
+          "amount": "-146945339238"
+        },
+        {
+          "row": 27,
+          "sign": 1,
+          "printed": [
+            "-",
+            ""
+          ],
+          "amount": null
+        },
+        {
+          "row": 28,
+          "sign": 1,
+          "printed": [
+            "-",
+            ""
+          ],
+          "amount": null
+        },
+        {
+          "row": 29,
+          "sign": 1,
+          "printed": [
+            "(1,697,462,180,500)",
+            ""
+          ],
+          "amount": "-1697462180500"
+        },
+        {
+          "row": 30,
+          "sign": 1,
+          "printed": [
+            "(256,750,599,349)",
+            ""
+          ],
+          "amount": "-256750599349"
+        },
+        {
+          "row": 31,
+          "sign": 1,
+          "printed": [
+            "(11,033,135,071)",
+            ""
+          ],
+          "amount": "-11033135071"
+        },
+        {
+          "row": 32,
+          "sign": 1,
+          "printed": [
+            "(19,448,292,565)",
+            ""
+          ],
+          "amount": "-19448292565"
+        },
+        {
+          "row": 33,
+          "sign": 1,
+          "printed": [
+            "(203,846,200)",
+            ""
+          ],
+          "amount": "-203846200"
+        },
+        {
+          "row": 34,
+          "sign": 1,
+          "printed": [
+            "(1,271,196,607)",
+            ""
+          ],
+          "amount": "-1271196607"
+        },
+        {
+          "row": 35,
+          "sign": 1,
+          "printed": [
+            "(19,918,495)",
+            ""
+          ],
+          "amount": "-19918495"
+        },
+        {
+          "row": 36,
+          "sign": 1,
+          "printed": [
+            "(223,966,933)",
+            ""
+          ],
+          "amount": "-223966933"
+        },
+        {
+          "row": 37,
+          "sign": 1,
+          "printed": [
+            "-",
+            ""
+          ],
+          "amount": null
+        },
+        {
+          "row": 38,
+          "sign": 1,
+          "printed": [
+            "(6,139,595,474)",
+            ""
+          ],
+          "amount": "-6139595474"
+        },
+        {
+          "row": 39,
+          "sign": 1,
+          "printed": [
+            "(510,485,685,540)",
+            ""
+          ],
+          "amount": "-510485685540"
+        }
+      ],
+      "delta": "0",
+      "missingCellsRetainedNull": true
+    },
+    {
+      "tableIndex": 7,
+      "targetRow": 40,
+      "targetPrintedLabel": "(3) 자산부채증감",
+      "terms": [
+        {
+          "row": 41,
+          "sign": 1,
+          "printed": [
+            "(38,447,658,456)",
+            ""
+          ],
+          "amount": "-38447658456"
+        },
+        {
+          "row": 42,
+          "sign": 1,
+          "printed": [
+            "204,946,565,143",
+            ""
+          ],
+          "amount": "204946565143"
+        },
+        {
+          "row": 43,
+          "sign": 1,
+          "printed": [
+            "(890,179,465,720)",
+            ""
+          ],
+          "amount": "-890179465720"
+        },
+        {
+          "row": 44,
+          "sign": 1,
+          "printed": [
+            "(72,848,871,017)",
+            ""
+          ],
+          "amount": "-72848871017"
+        },
+        {
+          "row": 45,
+          "sign": 1,
+          "printed": [
+            "(1,469,722,380,049)",
+            ""
+          ],
+          "amount": "-1469722380049"
+        },
+        {
+          "row": 46,
+          "sign": 1,
+          "printed": [
+            "(693,462,194,341)",
+            ""
+          ],
+          "amount": "-693462194341"
+        },
+        {
+          "row": 47,
+          "sign": 1,
+          "printed": [
+            "250,714,244,525",
+            ""
+          ],
+          "amount": "250714244525"
+        },
+        {
+          "row": 48,
+          "sign": 1,
+          "printed": [
+            "347,605,501",
+            ""
+          ],
+          "amount": "347605501"
+        },
+        {
+          "row": 49,
+          "sign": 1,
+          "printed": [
+            "(10,555,316,331)",
+            ""
+          ],
+          "amount": "-10555316331"
+        },
+        {
+          "row": 50,
+          "sign": 1,
+          "printed": [
+            "94,327,122,366",
+            ""
+          ],
+          "amount": "94327122366"
+        },
+        {
+          "row": 51,
+          "sign": 1,
+          "printed": [
+            "42,247,775,346",
+            ""
+          ],
+          "amount": "42247775346"
+        },
+        {
+          "row": 52,
+          "sign": 1,
+          "printed": [
+            "(26,491,679,870)",
+            ""
+          ],
+          "amount": "-26491679870"
+        },
+        {
+          "row": 53,
+          "sign": 1,
+          "printed": [
+            "478,975,389",
+            ""
+          ],
+          "amount": "478975389"
+        },
+        {
+          "row": 54,
+          "sign": 1,
+          "printed": [
+            "(34,043,907,470)",
+            ""
+          ],
+          "amount": "-34043907470"
+        }
+      ],
+      "delta": "0",
+      "missingCellsRetainedNull": true
+    },
+    {
+      "tableIndex": 7,
+      "targetRow": 1,
+      "targetPrintedLabel": "I. 영업활동으로 인한 현금흐름",
+      "terms": [
+        {
+          "row": 2,
+          "sign": 1,
+          "printed": [
+            "1,092,584,640,430",
+            ""
+          ],
+          "amount": "1092584640430"
+        },
+        {
+          "row": 3,
+          "sign": 1,
+          "printed": [
+            "850,226,787,288",
+            ""
+          ],
+          "amount": "850226787288"
+        },
+        {
+          "row": 40,
+          "sign": 1,
+          "printed": [
+            "(2,642,689,184,984)",
+            ""
+          ],
+          "amount": "-2642689184984"
+        },
+        {
+          "row": 55,
+          "sign": 1,
+          "printed": [
+            "1,745,898,643,808",
+            ""
+          ],
+          "amount": "1745898643808"
+        },
+        {
+          "row": 56,
+          "sign": 1,
+          "printed": [
+            "(2,031,719,400)",
+            ""
+          ],
+          "amount": "-2031719400"
+        },
+        {
+          "row": 57,
+          "sign": 1,
+          "printed": [
+            "510,485,685,540",
+            ""
+          ],
+          "amount": "510485685540"
+        },
+        {
+          "row": 58,
+          "sign": 1,
+          "printed": [
+            "(297,698,789,778)",
+            ""
+          ],
+          "amount": "-297698789778"
+        }
+      ],
+      "delta": "0",
+      "missingCellsRetainedNull": true
+    },
+    {
+      "tableIndex": 7,
+      "targetRow": 60,
+      "targetPrintedLabel": "1. 투자활동으로 인한 현금유입액",
+      "terms": [
+        {
+          "row": 61,
+          "sign": 1,
+          "printed": [
+            "5,812,418,519,577",
+            ""
+          ],
+          "amount": "5812418519577"
+        },
+        {
+          "row": 62,
+          "sign": 1,
+          "printed": [
+            "-",
+            ""
+          ],
+          "amount": null
+        },
+        {
+          "row": 63,
+          "sign": 1,
+          "printed": [
+            "42,524,250",
+            ""
+          ],
+          "amount": "42524250"
+        },
+        {
+          "row": 64,
+          "sign": 1,
+          "printed": [
+            "2,772,322,409,901",
+            ""
+          ],
+          "amount": "2772322409901"
+        },
+        {
+          "row": 65,
+          "sign": 1,
+          "printed": [
+            "-",
+            ""
+          ],
+          "amount": null
+        },
+        {
+          "row": 66,
+          "sign": 1,
+          "printed": [
+            "220,688,774",
+            ""
+          ],
+          "amount": "220688774"
+        },
+        {
+          "row": 67,
+          "sign": 1,
+          "printed": [
+            "111,414,495",
+            ""
+          ],
+          "amount": "111414495"
+        },
+        {
+          "row": 68,
+          "sign": 1,
+          "printed": [
+            "-",
+            ""
+          ],
+          "amount": null
+        }
+      ],
+      "delta": "0",
+      "missingCellsRetainedNull": true
+    },
+    {
+      "tableIndex": 7,
+      "targetRow": 69,
+      "targetPrintedLabel": "2. 투자활동으로 인한 현금유출액",
+      "terms": [
+        {
+          "row": 70,
+          "sign": -1,
+          "printed": [
+            "6,935,785,036,461",
+            ""
+          ],
+          "amount": "6935785036461"
+        },
+        {
+          "row": 71,
+          "sign": -1,
+          "printed": [
+            "-",
+            ""
+          ],
+          "amount": null
+        },
+        {
+          "row": 72,
+          "sign": -1,
+          "printed": [
+            "-",
+            ""
+          ],
+          "amount": null
+        },
+        {
+          "row": 73,
+          "sign": -1,
+          "printed": [
+            "2,797,770,965,146",
+            ""
+          ],
+          "amount": "2797770965146"
+        },
+        {
+          "row": 74,
+          "sign": -1,
+          "printed": [
+            "1,239,624,755",
+            ""
+          ],
+          "amount": "1239624755"
+        },
+        {
+          "row": 75,
+          "sign": -1,
+          "printed": [
+            "24,513,857,308",
+            ""
+          ],
+          "amount": "24513857308"
+        },
+        {
+          "row": 76,
+          "sign": -1,
+          "printed": [
+            "6,768,364,548",
+            ""
+          ],
+          "amount": "6768364548"
+        }
+      ],
+      "delta": "0",
+      "missingCellsRetainedNull": true
+    },
+    {
+      "tableIndex": 7,
+      "targetRow": 59,
+      "targetPrintedLabel": "II. 투자활동으로 인한 현금흐름",
+      "terms": [
+        {
+          "row": 60,
+          "sign": 1,
+          "printed": [
+            "8,585,115,556,997",
+            ""
+          ],
+          "amount": "8585115556997"
+        },
+        {
+          "row": 69,
+          "sign": 1,
+          "printed": [
+            "(9,766,077,848,218)",
+            ""
+          ],
+          "amount": "-9766077848218"
+        }
+      ],
+      "delta": "0",
+      "missingCellsRetainedNull": true
+    },
+    {
+      "tableIndex": 7,
+      "targetRow": 78,
+      "targetPrintedLabel": "1. 재무활동으로 인한 현금유입액",
+      "terms": [
+        {
+          "row": 79,
+          "sign": 1,
+          "printed": [
+            "-",
+            ""
+          ],
+          "amount": null
+        }
+      ],
+      "delta": null,
+      "missingCellsRetainedNull": true
+    },
+    {
+      "tableIndex": 7,
+      "targetRow": 80,
+      "targetPrintedLabel": "2. 재무활동으로 인한 현금유출액",
+      "terms": [
+        {
+          "row": 81,
+          "sign": -1,
+          "printed": [
+            "79,924,083,873",
+            ""
+          ],
+          "amount": "79924083873"
+        },
+        {
+          "row": 82,
+          "sign": -1,
+          "printed": [
+            "-",
+            ""
+          ],
+          "amount": null
+        },
+        {
+          "row": 83,
+          "sign": -1,
+          "printed": [
+            "374,097,146,900",
+            ""
+          ],
+          "amount": "374097146900"
+        }
+      ],
+      "delta": "0",
+      "missingCellsRetainedNull": true
+    },
+    {
+      "tableIndex": 7,
+      "targetRow": 77,
+      "targetPrintedLabel": "III. 재무활동으로 인한 현금흐름",
+      "terms": [
+        {
+          "row": 78,
+          "sign": 1,
+          "printed": [
+            "-",
+            ""
+          ],
+          "amount": null
+        },
+        {
+          "row": 80,
+          "sign": 1,
+          "printed": [
+            "(454,021,230,773)",
+            ""
+          ],
+          "amount": "-454021230773"
+        }
+      ],
+      "delta": "0",
+      "missingCellsRetainedNull": true
+    },
+    {
+      "tableIndex": 7,
+      "targetRow": 85,
+      "targetPrintedLabel": "V. 현금및현금성자산의 증가(감소) (l+ll+lll+IV)",
+      "terms": [
+        {
+          "row": 1,
+          "sign": 1,
+          "printed": [
+            "",
+            "1,256,776,062,904"
+          ],
+          "amount": "1256776062904"
+        },
+        {
+          "row": 59,
+          "sign": 1,
+          "printed": [
+            "",
+            "(1,180,962,291,221)"
+          ],
+          "amount": "-1180962291221"
+        },
+        {
+          "row": 77,
+          "sign": 1,
+          "printed": [
+            "",
+            "(454,021,230,773)"
+          ],
+          "amount": "-454021230773"
+        },
+        {
+          "row": 84,
+          "sign": 1,
+          "printed": [
+            "",
+            "17,824,484,055"
+          ],
+          "amount": "17824484055"
+        }
+      ],
+      "delta": "0",
+      "missingCellsRetainedNull": true
+    },
+    {
+      "tableIndex": 7,
+      "targetRow": 87,
+      "targetPrintedLabel": "VII. 기말의 현금및현금성자산 (V+VI)",
+      "terms": [
+        {
+          "row": 85,
+          "sign": 1,
+          "printed": [
+            "",
+            "(360,382,975,035)"
+          ],
+          "amount": "-360382975035"
+        },
+        {
+          "row": 86,
+          "sign": 1,
+          "printed": [
+            "",
+            "1,245,717,430,818"
+          ],
+          "amount": "1245717430818"
+        }
+      ],
+      "delta": "0",
+      "missingCellsRetainedNull": true
+    },
+    {
+      "kind": "CE-component",
+      "component": "자본금",
+      "openingCoordinate": [
+        5,
+        19,
+        1
+      ],
+      "closingCoordinate": [
+        5,
+        27,
+        1
+      ],
+      "movementCoordinates": [
+        [
+          5,
+          20,
+          1
+        ],
+        [
+          5,
+          21,
+          1
+        ],
+        [
+          5,
+          22,
+          1
+        ],
+        [
+          5,
+          23,
+          1
+        ],
+        [
+          5,
+          24,
+          1
+        ],
+        [
+          5,
+          25,
+          1
+        ],
+        [
+          5,
+          26,
+          1
+        ]
+      ],
+      "delta": "0",
+      "unavailableMovementCoordinates": [
+        [
+          5,
+          20,
+          1
+        ],
+        [
+          5,
+          21,
+          1
+        ],
+        [
+          5,
+          22,
+          1
+        ],
+        [
+          5,
+          23,
+          1
+        ],
+        [
+          5,
+          24,
+          1
+        ],
+        [
+          5,
+          25,
+          1
+        ],
+        [
+          5,
+          26,
+          1
+        ]
+      ],
+      "missingCellsNotConvertedToZero": true
+    },
+    {
+      "kind": "CE-component",
+      "component": "자본잉여금",
+      "openingCoordinate": [
+        5,
+        19,
+        2
+      ],
+      "closingCoordinate": [
+        5,
+        27,
+        2
+      ],
+      "movementCoordinates": [
+        [
+          5,
+          20,
+          2
+        ],
+        [
+          5,
+          21,
+          2
+        ],
+        [
+          5,
+          22,
+          2
+        ],
+        [
+          5,
+          23,
+          2
+        ],
+        [
+          5,
+          24,
+          2
+        ],
+        [
+          5,
+          25,
+          2
+        ],
+        [
+          5,
+          26,
+          2
+        ]
+      ],
+      "delta": "0",
+      "unavailableMovementCoordinates": [
+        [
+          5,
+          20,
+          2
+        ],
+        [
+          5,
+          21,
+          2
+        ],
+        [
+          5,
+          22,
+          2
+        ],
+        [
+          5,
+          23,
+          2
+        ],
+        [
+          5,
+          24,
+          2
+        ],
+        [
+          5,
+          25,
+          2
+        ],
+        [
+          5,
+          26,
+          2
+        ]
+      ],
+      "missingCellsNotConvertedToZero": true
+    },
+    {
+      "kind": "CE-component",
+      "component": "자본조정",
+      "openingCoordinate": [
+        5,
+        19,
+        3
+      ],
+      "closingCoordinate": [
+        5,
+        27,
+        3
+      ],
+      "movementCoordinates": [
+        [
+          5,
+          20,
+          3
+        ],
+        [
+          5,
+          21,
+          3
+        ],
+        [
+          5,
+          22,
+          3
+        ],
+        [
+          5,
+          23,
+          3
+        ],
+        [
+          5,
+          24,
+          3
+        ],
+        [
+          5,
+          25,
+          3
+        ],
+        [
+          5,
+          26,
+          3
+        ]
+      ],
+      "delta": "0",
+      "unavailableMovementCoordinates": [
+        [
+          5,
+          20,
+          3
+        ],
+        [
+          5,
+          21,
+          3
+        ],
+        [
+          5,
+          22,
+          3
+        ],
+        [
+          5,
+          23,
+          3
+        ],
+        [
+          5,
+          24,
+          3
+        ],
+        [
+          5,
+          25,
+          3
+        ],
+        [
+          5,
+          26,
+          3
+        ]
+      ],
+      "missingCellsNotConvertedToZero": true
+    },
+    {
+      "kind": "CE-component",
+      "component": "기타포괄 손익누계액",
+      "openingCoordinate": [
+        5,
+        19,
+        4
+      ],
+      "closingCoordinate": [
+        5,
+        27,
+        4
+      ],
+      "movementCoordinates": [
+        [
+          5,
+          20,
+          4
+        ],
+        [
+          5,
+          21,
+          4
+        ],
+        [
+          5,
+          22,
+          4
+        ],
+        [
+          5,
+          23,
+          4
+        ],
+        [
+          5,
+          24,
+          4
+        ],
+        [
+          5,
+          25,
+          4
+        ],
+        [
+          5,
+          26,
+          4
+        ]
+      ],
+      "delta": "0",
+      "unavailableMovementCoordinates": [
+        [
+          5,
+          20,
+          4
+        ],
+        [
+          5,
+          21,
+          4
+        ]
+      ],
+      "missingCellsNotConvertedToZero": true
+    },
+    {
+      "kind": "CE-component",
+      "component": "이익잉여금",
+      "openingCoordinate": [
+        5,
+        19,
+        5
+      ],
+      "closingCoordinate": [
+        5,
+        27,
+        5
+      ],
+      "movementCoordinates": [
+        [
+          5,
+          20,
+          5
+        ],
+        [
+          5,
+          21,
+          5
+        ],
+        [
+          5,
+          22,
+          5
+        ],
+        [
+          5,
+          23,
+          5
+        ],
+        [
+          5,
+          24,
+          5
+        ],
+        [
+          5,
+          25,
+          5
+        ],
+        [
+          5,
+          26,
+          5
+        ]
+      ],
+      "delta": "0",
+      "unavailableMovementCoordinates": [
+        [
+          5,
+          22,
+          5
+        ],
+        [
+          5,
+          23,
+          5
+        ],
+        [
+          5,
+          24,
+          5
+        ],
+        [
+          5,
+          25,
+          5
+        ],
+        [
+          5,
+          26,
+          5
+        ]
+      ],
+      "missingCellsNotConvertedToZero": true
+    },
+    {
+      "kind": "CE-component",
+      "component": "총 계",
+      "openingCoordinate": [
+        5,
+        19,
+        6
+      ],
+      "closingCoordinate": [
+        5,
+        27,
+        6
+      ],
+      "movementCoordinates": [
+        [
+          5,
+          20,
+          6
+        ],
+        [
+          5,
+          21,
+          6
+        ],
+        [
+          5,
+          22,
+          6
+        ],
+        [
+          5,
+          23,
+          6
+        ],
+        [
+          5,
+          24,
+          6
+        ],
+        [
+          5,
+          25,
+          6
+        ],
+        [
+          5,
+          26,
+          6
+        ]
+      ],
+      "delta": "0",
+      "unavailableMovementCoordinates": [],
+      "missingCellsNotConvertedToZero": true
+    },
+    {
+      "kind": "CE-whole-row",
+      "tableIndex": 5,
+      "rowIndex": 19,
+      "printedLabel": "V. 2021년 01월 01일 (당기초)",
+      "delta": "0",
+      "wholePrintedAmount": "16237757676991",
+      "nullWholeNotFabricated": true
+    },
+    {
+      "kind": "CE-whole-row",
+      "tableIndex": 5,
+      "rowIndex": 20,
+      "printedLabel": "1. 연차배당",
+      "delta": "0",
+      "wholePrintedAmount": "-374097146900",
+      "nullWholeNotFabricated": true
+    },
+    {
+      "kind": "CE-whole-row",
+      "tableIndex": 5,
+      "rowIndex": 21,
+      "printedLabel": "2. 당기순이익",
+      "delta": "0",
+      "wholePrintedAmount": "1092584640430",
+      "nullWholeNotFabricated": true
+    },
+    {
+      "kind": "CE-whole-row",
+      "tableIndex": 5,
+      "rowIndex": 22,
+      "printedLabel": "3. 매도가능금융자산평가손익",
+      "delta": "0",
+      "wholePrintedAmount": "-1383727791236",
+      "nullWholeNotFabricated": true
+    },
+    {
+      "kind": "CE-whole-row",
+      "tableIndex": 5,
+      "rowIndex": 23,
+      "printedLabel": "4. 해외사업환산손익",
+      "delta": "0",
+      "wholePrintedAmount": "8546182515",
+      "nullWholeNotFabricated": true
+    },
+    {
+      "kind": "CE-whole-row",
+      "tableIndex": 5,
+      "rowIndex": 24,
+      "printedLabel": "5. 현금흐름위험회피파생손익",
+      "delta": "0",
+      "wholePrintedAmount": "-10097594920",
+      "nullWholeNotFabricated": true
+    },
+    {
+      "kind": "CE-whole-row",
+      "tableIndex": 5,
+      "rowIndex": 25,
+      "printedLabel": "6. 특별계정기타포괄손익",
+      "delta": "0",
+      "wholePrintedAmount": "-167317162648",
+      "nullWholeNotFabricated": true
+    },
+    {
+      "kind": "CE-whole-row",
+      "tableIndex": 5,
+      "rowIndex": 26,
+      "printedLabel": "7. 확정급여제도 재측정요소",
+      "delta": "0",
+      "wholePrintedAmount": "-3421863979",
+      "nullWholeNotFabricated": true
+    },
+    {
+      "kind": "CE-whole-row",
+      "tableIndex": 5,
+      "rowIndex": 27,
+      "printedLabel": "VI. 2021년 12월 31일 (당기말)",
+      "delta": "0",
+      "wholePrintedAmount": "15400226940253",
+      "nullWholeNotFabricated": true
+    }
+  ]
+}

@@ -19,6 +19,8 @@ void main() {
     for (final (receipt, basis, count) in [
       ('20250320000036', FsDiv.separate, 116),
       ('20220310001159', FsDiv.consolidated, 204),
+      ('20230321000015', FsDiv.separate, 115),
+      ('20220310001159', FsDiv.separate, 174),
     ]) {
       for (final scenario in [
         'normal-worker-idempotent',
@@ -26,7 +28,7 @@ void main() {
         'core-conflict',
         'newer-final',
       ]) {
-        test('$receipt:$scenario preserves original rows and sources', () async {
+        test('$receipt:${basis.name}:$scenario sources', () async {
           final session = builder.asAdmin.build(),
               now = DateTime.utc(2026, 10, 3);
           final entry = VerifiedAnnualSourceRegistry.find(receipt, basis)!;
