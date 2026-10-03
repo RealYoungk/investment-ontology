@@ -148,7 +148,7 @@ void main() {
         }
       },
     );
-    test('$r other basis and company not eligible', () {
+    test('$r other basis and company not eligible', () async {
       expect(
         VerifiedAnnualSourceCache.eligibleFor(
           filing(e).copyWith(corpCode: '00000000'),
@@ -156,7 +156,31 @@ void main() {
         ),
         false,
       );
-      expect(VerifiedAnnualSourceRegistry.find(r, FsDiv.consolidated), isNull);
+      final opposite = VerifiedAnnualSourceRegistry.find(r, FsDiv.consolidated);
+      if (r == '20250317000968') {
+        expect(opposite, isNotNull);
+        expect(opposite!.basis, FsDiv.consolidated);
+        expect(opposite.assetDirectory, isNot(e.assetDirectory));
+        expect(opposite.manifestDigest, isNot(e.manifestDigest));
+        final verified = await VerifiedAnnualSourceCache().verifyRegistered(
+          filing(opposite),
+          company(opposite),
+          FsDiv.consolidated,
+        );
+        expect(verified.absence, isNull);
+        expect(verified.numeric!.rows, hasLength(8));
+        final original = await VerifiedAnnualSourceCache().verifyRegistered(
+          filing(e),
+          company(e),
+          FsDiv.separate,
+        );
+        expect(
+          verified.numeric!.statementSource.toString(),
+          isNot(original.numeric!.statementSource.toString()),
+        );
+      } else {
+        expect(opposite, isNull);
+      }
     });
   }
   test('literal double Roman dot whole operating label only', () {

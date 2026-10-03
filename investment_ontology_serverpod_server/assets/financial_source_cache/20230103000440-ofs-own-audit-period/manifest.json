@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20230103000440",
+  "corpCode": "01507810",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "ruleVersion": "exact-anymedi-current-ofs-audit-period-eight-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230103000440",
+      "sha256": "a6e4d9a4ab5812d21cd68eeaf5dedc3c6cf9f6a96fd7bc52aa29e5976a1863fd"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230103000440&dcmNo=8931786&eleId=3&offset=68797&length=4037&dtd=dart3.xsd",
+      "sha256": "65a5c99e07f3d3dbb4f90d58d9874191bef1c0d8c4a22903a7c37d8d591fb780"
+    },
+    {
+      "label": "ofs",
+      "file": "ofs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230103000440&dcmNo=8931786&eleId=23&offset=320451&length=61445&dtd=dart3.xsd",
+      "sha256": "3facf96c38b2918f37a05d084b05ebe146e9fc1b07f312c2b4d770dbae9546d6"
+    },
+    {
+      "label": "audit-shell",
+      "file": "audit-shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20221226000436&dcmNo=8921665",
+      "sha256": "4a2a6c19e0094bd379e82dd8454b99419275081a7aff46bbc9a6ef93bf66a1d4"
+    },
+    {
+      "label": "audit-opinion",
+      "file": "audit-opinion.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20221226000436&dcmNo=8921665&eleId=2&offset=7045&length=4554&dtd=dart3.xsd",
+      "sha256": "c888bfea3ba196afd485945f3f3e5f6ab40f67bf08d403192e9ef7eb4e0df7cf"
+    },
+    {
+      "label": "audit-statement",
+      "file": "audit-statement.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20221226000436&dcmNo=8921665&eleId=3&offset=11629&length=344915&dtd=dart3.xsd",
+      "sha256": "a12df57a4c0d27828bddeba057170b51a4a159ffb99c65450138da7fc40df20c"
+    }
+  ],
+  "retrievalProof": "Own target OFS amounts; cover prints Dec21 conflict preserved, own BS/CIS/CE/CF print Dec31, explicitly linked own audit confirms Dec31. Six URI/SHA sources; 30 exact equations zero. Partial8 only; audit never numeric Source receipt."
+}

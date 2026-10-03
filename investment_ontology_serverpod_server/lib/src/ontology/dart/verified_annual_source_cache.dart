@@ -1,3 +1,29 @@
+import 'suntech_cf_current_eight_source.dart';
+import 'isung_cfs_current_seven_source.dart';
+import 'filing_series_current_eight_source.dart';
+import 'futuremedicine_own_eight_source.dart';
+import 'located_own_current_source.dart';
+import 'samsungsec_2021_own_audit_source.dart';
+import 'db_yuanta_own_eight_source.dart';
+import 'koreainvestment_own_eight_source.dart';
+import 'ls_kiwoom_current_source.dart';
+import 'samsungsec_2022_own_audit_source.dart';
+import 'koreanre_2021_own_ofs_source.dart';
+import 'koreanre_2022_current_eight_source.dart';
+import 'isung_current_seven_source.dart';
+import 'tomato_2021_current_eight_source.dart';
+import 'daishin_2021_exact_source.dart';
+import 'cns_micro_current_seven_source.dart';
+import 'uxn_2023_exact_source.dart';
+import 'heungkuk_current_exact_source.dart';
+import 'verified_historical_company_identity.dart';
+import 'talos_2021_current_seven_source.dart';
+import 'talos_2022_exact_source.dart';
+import 'exact_current_row_profiles.dart';
+import 'anymedi_audit_period_source.dart';
+import 'sk_square_short_annual_source.dart';
+import 'sk_square_2022_current_source.dart';
+import 'filing_series_cfs_absence.dart';
 import 'exact_aone_annual_source.dart';
 import 'exact_current_cfs_source.dart';
 import 'db_fy22_whole_current_source.dart';
@@ -139,9 +165,75 @@ final class VerifiedAnnualSourceCache {
         company.stockCode == null) {
       throw const FormatException('Cached annual scope identity mismatch');
     }
+    return _verifyBound(entry, filing, company, basis);
+  }
+
+  /// Existing reports may be enriched only for these independently bound
+  /// current-row packages. The normal failed/pending replay gate is unchanged.
+  Future<PublicFinancialHtmlSource> verifyExistingRows(
+    DartFiling filing,
+    Company company,
+    FsDiv basis,
+  ) async {
+    final entry = _entry(filing, basis);
+    final exact =
+        (const {'20250320000036', '20230321000015'}.contains(filing.rceptNo) &&
+            basis == FsDiv.separate) ||
+        (filing.rceptNo == '20220310001159' &&
+            (basis == FsDiv.consolidated || basis == FsDiv.separate)) ||
+        ExactCurrentRowProfiles.find(filing.rceptNo, basis) != null;
+    final report = DartReportName.parse(filing.reportName);
+    if (!exact ||
+        filing.corpCode != entry.corpCode ||
+        company.corpCode != entry.corpCode ||
+        company.name != entry.companyName ||
+        company.stockCode == null ||
+        filing.companyId != company.id ||
+        filing.bsnsYear != entry.year ||
+        filing.reportCode != FinancialReportCode.annual ||
+        report?.kind != DartReportKind.annual ||
+        report?.periodYear != entry.year ||
+        report?.periodMonth != 12 ||
+        (basis == FsDiv.separate
+                ? filing.separateStatus
+                : filing.consolidatedStatus) !=
+            FilingFetchStatus.stored) {
+      throw const FormatException('Existing row enrichment identity mismatch');
+    }
+    final result = await _verifyBound(entry, filing, company, basis);
+    return result.numeric ??
+        (throw const FormatException(
+          'Existing row enrichment needs numeric source',
+        ));
+  }
+
+  Future<
+    ({
+      PublicFinancialHtmlSource? numeric,
+      PublicFinancialHtmlBasisNotApplicable? absence,
+    })
+  >
+  _verifyBound(
+    AnnualSourceCacheEntry entry,
+    DartFiling filing,
+    Company company,
+    FsDiv basis,
+  ) async {
     final rawManifest = await _read('${entry.assetDirectory}/manifest.json');
     if (sha256.convert(rawManifest).toString() != entry.manifestDigest) {
       throw const FormatException('Cached annual manifest digest mismatch');
+    }
+    if (entry.ruleVersion == LocatedOwnCurrentSource.rule ||
+        entry.ruleVersion == LocatedOwnCurrentSource.printedLossRule ||
+        entry.ruleVersion == LocatedOwnCurrentSource.partialRule ||
+        entry.ruleVersion == LocatedOwnCurrentSource.absenceRule) {
+      return LocatedOwnCurrentSource.verify(
+        entry: entry,
+        company: company,
+        filing: filing,
+        rawManifest: rawManifest,
+        read: _read,
+      );
     }
     if (entry.ruleVersion == Header18LinkedPrimarySource.primaryRule ||
         entry.ruleVersion == Header18LinkedPrimarySource.absenceRule) {
@@ -183,7 +275,34 @@ final class VerifiedAnnualSourceCache {
           start: start,
           end: end,
         );
+    final samsungAuditFiles =
+        entry.ruleVersion == SamsungSec2022OwnAuditSource.rule
+        ? const <String, String>{
+            'shell': 'shell.html',
+            'cover': 'cover.html',
+            'auditShell': 'audit-shell.html',
+            'cfs': 'audit-primary.html',
+            'main': 'main-cfs.html',
+          }
+        : const <String, String>{};
+    final samsung2021Files =
+        entry.ruleVersion == SamsungSec2021OwnAuditSource.rule
+        ? <String, String>{
+            'shell': 'shell.html',
+            'cover': 'cover.html',
+            'auditShell': 'audit-shell.html',
+            entry.statementLabel: 'audit-primary.html',
+            'main': 'main-${entry.statementLabel}.html',
+          }
+        : const <String, String>{};
     final requiredLabels = {
+      ...samsung2021Files.keys,
+      ...samsungAuditFiles.keys,
+      if (entry.ruleVersion == AnyMediAuditPeriodSource.rule) ...{
+        'audit-shell',
+        'audit-opinion',
+        'audit-statement',
+      },
       'shell',
       'cover',
       entry.statementLabel,
@@ -203,7 +322,10 @@ final class VerifiedAnnualSourceCache {
       final label = source['label'];
       if (!requiredLabels.contains(label) ||
           !labels.add(label as String) ||
-          source['file'] != '$label.html') {
+          source['file'] !=
+              (samsung2021Files[label] ??
+                  samsungAuditFiles[label] ??
+                  '$label.html')) {
         throw const FormatException('Unknown cached annual document');
       }
       final uri = Uri.parse(source['url'] as String),
@@ -216,6 +338,241 @@ final class VerifiedAnnualSourceCache {
     }
     if (documents.length != documentCount || labels.length != documentCount) {
       throw const FormatException('Cached annual package incomplete');
+    }
+
+    if (entry.ruleVersion == FilingSeriesCurrentEightSource.rule) {
+      final uris = <String, Uri>{
+        for (final s in manifest['sources'] as List)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raw = <String, String>{
+        for (final e in uris.entries) e.key: utf8.decode(documents[e.value]!),
+      };
+      final rows = FilingSeriesCurrentEightSource.parse(
+        raw: raw,
+        uris: uris,
+        receipt: entry.receipt,
+        corpCode: company.corpCode,
+        companyName: company.name,
+        start: start,
+        end: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raw['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raw[entry.statementLabel]!,
+          statementSource: uris[entry.statementLabel]!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == FuturemedicineOwnEightSource.rule) {
+      final uris = <String, Uri>{
+        for (final s in manifest['sources'] as List)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raw = <String, String>{
+        for (final e in uris.entries) e.key: utf8.decode(documents[e.value]!),
+      };
+      final rows = FuturemedicineOwnEightSource.parse(
+        raw: raw,
+        uris: uris,
+        receipt: entry.receipt,
+        corpCode: company.corpCode,
+        companyName: company.name,
+        start: start,
+        end: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raw['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raw[entry.statementLabel]!,
+          statementSource: uris[entry.statementLabel]!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (LsKiwoomCurrentSource.supports(entry.ruleVersion)) {
+      final uris = <String, Uri>{
+        for (final s in manifest['sources'] as List)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raw = <String, String>{
+        for (final e in uris.entries) e.key: utf8.decode(documents[e.value]!),
+      };
+      final rows = LsKiwoomCurrentSource.parse(
+        raw: raw,
+        uris: uris,
+        receipt: entry.receipt,
+        corp: company.corpCode,
+        companyName: company.name,
+        start: start,
+        end: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raw['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raw[entry.statementLabel]!,
+          statementSource: uris[entry.statementLabel]!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == Talos2021CurrentSevenSource.rule) {
+      final uris = <String, Uri>{
+        for (final s in manifest['sources'] as List)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raw = <String, String>{
+        for (final e in uris.entries) e.key: utf8.decode(documents[e.value]!),
+      };
+      final rows = Talos2021CurrentSevenSource.parse(
+        raw: raw,
+        uris: uris,
+        receipt: entry.receipt,
+        corp: company.corpCode,
+        start: start,
+        end: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raw['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raw['ofs']!,
+          statementSource: uris['ofs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (CnsMicroCurrentSevenSource.supports(entry.ruleVersion)) {
+      final uris = <String, Uri>{
+        for (final s in manifest['sources'] as List)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raw = <String, String>{
+        for (final e in uris.entries) e.key: utf8.decode(documents[e.value]!),
+      };
+      final rows = CnsMicroCurrentSevenSource.parse(
+        raw: raw,
+        uris: uris,
+        receipt: entry.receipt,
+        corp: company.corpCode,
+        start: start,
+        end: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raw['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raw['ofs']!,
+          statementSource: uris['ofs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == Uxn2023ExactSource.rule) {
+      final uris = <String, Uri>{
+        for (final s in manifest['sources'] as List)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raw = <String, String>{
+        for (final e in uris.entries) e.key: utf8.decode(documents[e.value]!),
+      };
+      final rows = Uxn2023ExactSource.parse(
+        raw: raw,
+        uris: uris,
+        receipt: entry.receipt,
+        corp: company.corpCode,
+        start: start,
+        end: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raw['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raw['ofs']!,
+          statementSource: uris['ofs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == Talos2022ExactSource.rule) {
+      final uris = <String, Uri>{
+        for (final s in manifest['sources'] as List)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raw = <String, String>{
+        for (final e in uris.entries) e.key: utf8.decode(documents[e.value]!),
+      };
+      final rows = Talos2022ExactSource.parse(
+        raw: raw,
+        uris: uris,
+        receipt: entry.receipt,
+        corp: company.corpCode,
+        start: start,
+        end: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raw['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raw['ofs']!,
+          statementSource: uris['ofs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
     }
     if (entry.ruleVersion == ExactCurrentCfsSource.rule) {
       final uris = <String, Uri>{
@@ -244,6 +601,427 @@ final class VerifiedAnnualSourceCache {
           coverSource: uris['cover']!,
           statementHtml: raw['cfs']!,
           statementSource: uris['cfs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (HeungkukCurrentExactSource.supports(entry.ruleVersion)) {
+      final src = manifest['sources'] as List;
+      final uris = <String, Uri>{
+        for (final s in src)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raws = <String, String>{
+        for (final s in src)
+          s['label'] as String: utf8.decode(documents[uris[s['label']]]!),
+      };
+      final rows = HeungkukCurrentExactSource.parse(
+        raw: raws,
+        uris: uris,
+        receipt: entry.receipt,
+        corp: company.corpCode,
+        start: start,
+        end: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raws['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raws['ofs']!,
+          statementSource: uris['ofs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == SuntechCfCurrentEightSource.rule) {
+      final src = manifest['sources'] as List;
+      final uris = <String, Uri>{
+        for (final s in src)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raws = <String, String>{
+        for (final s in src)
+          s['label'] as String: utf8.decode(documents[uris[s['label']]]!),
+      };
+      final rows = SuntechCfCurrentEightSource.parse(
+        raw: raws,
+        uris: uris,
+        receipt: entry.receipt,
+        corp: company.corpCode,
+        start: start,
+        end: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raws['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raws['cfs']!,
+          statementSource: uris['cfs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == IsungCfsCurrentSevenSource.rule) {
+      final src = manifest['sources'] as List;
+      final uris = <String, Uri>{
+        for (final s in src)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raws = <String, String>{
+        for (final s in src)
+          s['label'] as String: utf8.decode(documents[uris[s['label']]]!),
+      };
+      final rows = IsungCfsCurrentSevenSource.parse(
+        raw: raws,
+        uris: uris,
+        receipt: entry.receipt,
+        corp: company.corpCode,
+        start: start,
+        end: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raws['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raws['cfs']!,
+          statementSource: uris['cfs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == IsungCurrentSevenSource.rule) {
+      final src = manifest['sources'] as List;
+      final uris = <String, Uri>{
+        for (final s in src)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raws = <String, String>{
+        for (final s in src)
+          s['label'] as String: utf8.decode(documents[uris[s['label']]]!),
+      };
+      final rows = IsungCurrentSevenSource.parse(
+        raw: raws,
+        uris: uris,
+        receipt: entry.receipt,
+        corp: company.corpCode,
+        start: start,
+        end: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raws['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raws['ofs']!,
+          statementSource: uris['ofs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == KoreanRe2021OwnOfsSource.rule) {
+      final src = manifest['sources'] as List;
+      final uris = <String, Uri>{
+        for (final s in src)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raws = <String, String>{
+        for (final s in src)
+          s['label'] as String: utf8.decode(documents[uris[s['label']]]!),
+      };
+      final rows = KoreanRe2021OwnOfsSource.parse(
+        raw: raws,
+        uris: uris,
+        receipt: entry.receipt,
+        corp: company.corpCode,
+        start: start,
+        end: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raws['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raws[basis == FsDiv.consolidated ? 'cfs' : 'ofs']!,
+          statementSource: uris[basis == FsDiv.consolidated ? 'cfs' : 'ofs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == SamsungSec2021OwnAuditSource.rule) {
+      final src = manifest['sources'] as List;
+      final uris = <String, Uri>{
+        for (final s in src)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raws = <String, String>{
+        for (final s in src)
+          s['label'] as String: utf8.decode(documents[uris[s['label']]]!),
+      };
+      final rows = SamsungSec2021OwnAuditSource.parse(
+        raw: raws,
+        uris: uris,
+        receipt: entry.receipt,
+        corp: company.corpCode,
+        start: start,
+        end: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raws['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raws[basis == FsDiv.consolidated ? 'cfs' : 'ofs']!,
+          statementSource: uris[basis == FsDiv.consolidated ? 'cfs' : 'ofs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == SamsungSec2022OwnAuditSource.rule) {
+      final src = manifest['sources'] as List;
+      final uris = <String, Uri>{
+        for (final s in src)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raws = <String, String>{
+        for (final s in src)
+          s['label'] as String: utf8.decode(documents[uris[s['label']]]!),
+      };
+      final rows = SamsungSec2022OwnAuditSource.parse(
+        raw: raws,
+        uris: uris,
+        receipt: entry.receipt,
+        corp: company.corpCode,
+        start: start,
+        end: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raws['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raws[basis == FsDiv.consolidated ? 'cfs' : 'ofs']!,
+          statementSource: uris[basis == FsDiv.consolidated ? 'cfs' : 'ofs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == DbYuantaOwnEightSource.rule) {
+      final src = manifest['sources'] as List;
+      final uris = <String, Uri>{
+        for (final s in src)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raws = <String, String>{
+        for (final s in src)
+          s['label'] as String: utf8.decode(documents[uris[s['label']]]!),
+      };
+      final rows = DbYuantaOwnEightSource.parse(
+        receipt: entry.receipt,
+        corpCode: company.corpCode,
+        companyName: company.name,
+        consolidated: basis == FsDiv.consolidated,
+        start: start,
+        end: end,
+        raw: raws,
+        uris: uris,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raws['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raws['cfs']!,
+          statementSource: uris['cfs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == KoreaInvestmentOwnEightSource.rule) {
+      final src = manifest['sources'] as List;
+      final uris = <String, Uri>{
+        for (final s in src)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raws = <String, String>{
+        for (final s in src)
+          s['label'] as String: utf8.decode(documents[uris[s['label']]]!),
+      };
+      final rows = KoreaInvestmentOwnEightSource.parse(
+        raw: raws,
+        uris: uris,
+        receipt: entry.receipt,
+        corp: company.corpCode,
+        start: start,
+        end: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raws['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raws[basis == FsDiv.consolidated ? 'cfs' : 'ofs']!,
+          statementSource: uris[basis == FsDiv.consolidated ? 'cfs' : 'ofs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == KoreanRe2022CurrentEightSource.rule) {
+      final src = manifest['sources'] as List;
+      final uris = <String, Uri>{
+        for (final s in src)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raws = <String, String>{
+        for (final s in src)
+          s['label'] as String: utf8.decode(documents[uris[s['label']]]!),
+      };
+      final rows = KoreanRe2022CurrentEightSource.parse(
+        raw: raws,
+        uris: uris,
+        receipt: entry.receipt,
+        corp: company.corpCode,
+        start: start,
+        end: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raws['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raws[basis == FsDiv.consolidated ? 'cfs' : 'ofs']!,
+          statementSource: uris[basis == FsDiv.consolidated ? 'cfs' : 'ofs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == Tomato2021CurrentEightSource.rule) {
+      final src = manifest['sources'] as List;
+      final uris = <String, Uri>{
+        for (final s in src)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raws = <String, String>{
+        for (final s in src)
+          s['label'] as String: utf8.decode(documents[uris[s['label']]]!),
+      };
+      final rows = Tomato2021CurrentEightSource.parse(
+        raw: raws,
+        uris: uris,
+        receipt: entry.receipt,
+        corp: company.corpCode,
+        start: start,
+        end: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raws['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raws['cfs']!,
+          statementSource: uris['cfs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (Daishin2021ExactSource.supports(entry.ruleVersion)) {
+      final src = manifest['sources'] as List;
+      final uris = <String, Uri>{
+        for (final s in src)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raws = <String, String>{
+        for (final s in src)
+          s['label'] as String: utf8.decode(documents[uris[s['label']]]!),
+      };
+      final rows = Daishin2021ExactSource.parse(
+        raw: raws,
+        uris: uris,
+        receipt: entry.receipt,
+        corp: company.corpCode,
+        start: start,
+        end: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raws['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raws[basis == FsDiv.consolidated ? 'cfs' : 'ofs']!,
+          statementSource: uris[basis == FsDiv.consolidated ? 'cfs' : 'ofs']!,
           periodStart: start,
           periodEnd: end,
           rows: rows,
@@ -607,6 +1385,202 @@ final class VerifiedAnnualSourceCache {
           rows: rows,
         ),
         absence: null,
+      );
+    }
+    if (entry.ruleVersion == FilingSeriesCfsAbsence.rule) {
+      final uris = <String, Uri>{
+        for (final s in manifest['sources'] as List)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raw = <String, String>{
+        for (final e in uris.entries) e.key: utf8.decode(documents[e.value]!),
+      };
+      if (basis != FsDiv.consolidated || entry.absenceLiteral != '해당사항 없습니다.') {
+        throw const FormatException(
+          'Invalid finite filing-series absence basis/literal',
+        );
+      }
+      return (
+        numeric: null,
+        absence: FilingSeriesCfsAbsence.verify(
+          receipt: entry.receipt,
+          corp: company.corpCode,
+          currentName: company.name,
+          reportName: filing.reportName,
+          start: start,
+          end: end,
+          raw: raw,
+          uris: uris,
+        ),
+      );
+    }
+    if (entry.ruleVersion == SkSquare2022CurrentSource.rule) {
+      final sourceMaps = (manifest['sources'] as List).cast<Map>();
+      final uriByLabel = <String, Uri>{
+        for (final s in sourceMaps)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final rawByLabel = <String, String>{
+        for (final s in sourceMaps)
+          s['label'] as String: utf8.decode(documents[uriByLabel[s['label']]]!),
+      };
+      final rows = SkSquare2022CurrentSource.parse(
+        receipt: entry.receipt,
+        corpCode: company.corpCode,
+        companyName: company.name,
+        consolidated: basis == FsDiv.consolidated,
+        start: start,
+        end: end,
+        raw: rawByLabel,
+        uris: uriByLabel,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: rawByLabel['cover']!,
+          coverSource: uriByLabel['cover']!,
+          statementHtml: rawByLabel['cfs']!,
+          statementSource: uriByLabel['cfs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == SkSquareShortAnnualSource.rule) {
+      final sourceMaps = (manifest['sources'] as List).cast<Map>();
+      final uriByLabel = <String, Uri>{
+        for (final s in sourceMaps)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final rawByLabel = <String, String>{
+        for (final s in sourceMaps)
+          s['label'] as String: utf8.decode(documents[uriByLabel[s['label']]]!),
+      };
+      final rows = SkSquareShortAnnualSource.parse(
+        receipt: entry.receipt,
+        corpCode: company.corpCode,
+        companyName: company.name,
+        consolidated: basis == FsDiv.consolidated,
+        start: start,
+        end: end,
+        raw: rawByLabel,
+        uris: uriByLabel,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: rawByLabel['cover']!,
+          coverSource: uriByLabel['cover']!,
+          statementHtml: rawByLabel['cfs']!,
+          statementSource: uriByLabel['cfs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == AnyMediAuditPeriodSource.rule) {
+      final sourceMaps = (manifest['sources'] as List).cast<Map>();
+      final uriByLabel = <String, Uri>{
+        for (final s in sourceMaps)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final rawByLabel = <String, String>{
+        for (final s in sourceMaps)
+          s['label'] as String: utf8.decode(documents[uriByLabel[s['label']]]!),
+      };
+      final rows = AnyMediAuditPeriodSource.parse(
+        receipt: entry.receipt,
+        corpCode: company.corpCode,
+        companyName: company.name,
+        consolidated: basis == FsDiv.consolidated,
+        start: start,
+        end: end,
+        raw: rawByLabel,
+        uris: uriByLabel,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: rawByLabel['cover']!,
+          coverSource: uriByLabel['cover']!,
+          statementHtml: rawByLabel['ofs']!,
+          statementSource: uriByLabel['ofs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == 'historical-receipt-bound-cfs-explicit-none-v1') {
+      final sources = manifest['sources'] as List;
+      Uri source(String label) => Uri.parse(
+        sources.singleWhere((x) => x['label'] == label)['url'] as String,
+      );
+      String raw(String label) => utf8.decode(documents[source(label)]!);
+      final contracts = <String, (String, String, String)>{
+        '20220329001197': ('주식회사 로보쓰리', '2.연결재무제표해당사항없습니다.', '해당사항 없습니다.'),
+        '20220321000965': (
+          '주식회사 프로테옴텍',
+          '2.연결재무제표당사는연결대상종속회사가존재하지않으므로,한국채택국제회계기준의주된재무제표인연결기준의재무정보를기재하지않습니다.',
+          '당사는 연결대상 종속회사가 존재하지 않으므로, 한국채택국제회계기준의 주된 재무제표인 연결기준의 재무정보를 기재하지 않습니다.',
+        ),
+        '20230328000161': (
+          '주식회사 씨유박스',
+          '2.연결재무제표당사는사업보고서제출일현재해당사항없습니다.',
+          '당사는 사업보고서 제출일 현재 해당사항 없습니다.',
+        ),
+      };
+      final contract = contracts[entry.receipt];
+      final printed = raw('cfs').replaceAll(RegExp(r'<[^>]*>|\s+|&nbsp;'), '');
+      if (contract == null ||
+          basis != FsDiv.consolidated ||
+          documentCount != 3 ||
+          start != DateTime.utc(entry.year, 1, 1) ||
+          end != DateTime.utc(entry.year, 12, 31) ||
+          printed != contract.$2 ||
+          entry.absenceLiteral != contract.$3 ||
+          VerifiedHistoricalCompanyIdentity.evidence(
+                receipt: entry.receipt,
+                corpCode: company.corpCode,
+                currentName: company.name,
+                printedName: contract.$1,
+                periodEnd: end,
+                consolidated: true,
+                coverSource: source('cover'),
+                coverHtml: raw('cover'),
+              ) ==
+              null ||
+          !raw('shell').contains("openCorpInfoNew('${entry.corpCode}'")) {
+        throw const FormatException(
+          'Historical exact own CFS absence binding mismatch',
+        );
+      }
+      return (
+        numeric: null,
+        absence: PublicFinancialHtmlBasisNotApplicable(
+          sourceReceipt: entry.receipt,
+          corpCode: company.corpCode,
+          companyName: company.name,
+          reportName: filing.reportName,
+          periodStart: start,
+          periodEnd: end,
+          coverSource: source('cover'),
+          statementSource: source('cfs'),
+          coverHtml: raw('cover'),
+          statementHtml: raw('cfs'),
+          evidence: contract.$3,
+        ),
       );
     }
     final client = _PinnedRawClient(documents, maxRequests: documentCount);

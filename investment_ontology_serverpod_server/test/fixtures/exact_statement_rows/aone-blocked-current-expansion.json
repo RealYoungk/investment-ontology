@@ -1,0 +1,526 @@
+{
+  "scope": "negative guard only; original core sources unchanged; not approved",
+  "profiles": [
+    {
+      "package": "20220330000851-ofs-exact-aone",
+      "corpCode": "00614089",
+      "receipt": "20220330000851",
+      "year": 2021,
+      "basis": "separate",
+      "URI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220330000851&dcmNo=8517381&eleId=21&offset=194856&length=70111&dtd=dart3.xsd",
+      "SHA256": "d17523b0b3223ba4b8720e659b7be3361ee7e9aca8c3f1ab366eb0a9b76fcbf2",
+      "fullStatementVerified": false,
+      "currentRows": [
+        {
+          "statement": "SCE",
+          "tableIndex": 11,
+          "rowIndex": 17,
+          "columns": [
+            2
+          ],
+          "rawRow": [
+            "재평가잉여금 대체",
+            "-",
+            "(2,108,790,912)",
+            "2,108,790,91",
+            "-",
+            "-"
+          ],
+          "printedLabel": "재평가잉여금 대체",
+          "printedCurrentCells": [
+            "(2,108,790,912)"
+          ],
+          "amount": "-2108790912",
+          "state": "current-integer-cell",
+          "currentHeader": [
+            "과 목",
+            "자본금",
+            "자본잉여금",
+            "이익잉여금",
+            "기타자본구성요소",
+            "총 계"
+          ],
+          "unitEvidence": [
+            "회사명 : 주식회사 에이원알폼",
+            "(단위 : 원)"
+          ],
+          "periodStart": "2021-01-01",
+          "periodEnd": "2021-12-31",
+          "valueAsOf": null,
+          "component": "자본잉여금",
+          "URI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220330000851&dcmNo=8517381&eleId=21&offset=194856&length=70111&dtd=dart3.xsd",
+          "SHA256": "d17523b0b3223ba4b8720e659b7be3361ee7e9aca8c3f1ab366eb0a9b76fcbf2",
+          "numericAccepted": false
+        },
+        {
+          "statement": "SCE",
+          "tableIndex": 11,
+          "rowIndex": 17,
+          "columns": [
+            3
+          ],
+          "rawRow": [
+            "재평가잉여금 대체",
+            "-",
+            "(2,108,790,912)",
+            "2,108,790,91",
+            "-",
+            "-"
+          ],
+          "printedLabel": "재평가잉여금 대체",
+          "printedCurrentCells": [
+            "2,108,790,91"
+          ],
+          "amount": null,
+          "state": "malformed-printed-numeric-or-ambiguous-group",
+          "currentHeader": [
+            "과 목",
+            "자본금",
+            "자본잉여금",
+            "이익잉여금",
+            "기타자본구성요소",
+            "총 계"
+          ],
+          "unitEvidence": [
+            "회사명 : 주식회사 에이원알폼",
+            "(단위 : 원)"
+          ],
+          "periodStart": "2021-01-01",
+          "periodEnd": "2021-12-31",
+          "valueAsOf": null,
+          "component": "이익잉여금",
+          "URI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220330000851&dcmNo=8517381&eleId=21&offset=194856&length=70111&dtd=dart3.xsd",
+          "SHA256": "d17523b0b3223ba4b8720e659b7be3361ee7e9aca8c3f1ab366eb0a9b76fcbf2",
+          "numericAccepted": false
+        }
+      ],
+      "approvedEnrichment": false
+    },
+    {
+      "package": "20240318000135-ofs-exact-aone",
+      "corpCode": "00614089",
+      "receipt": "20240318000135",
+      "year": 2023,
+      "basis": "separate",
+      "URI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240318000135&dcmNo=9723769&eleId=21&offset=221878&length=63289&dtd=dart4.xsd",
+      "SHA256": "83dd8083c583839abff4da0633d8f449bb10c0a777aef469406803012f18f6bc",
+      "fullStatementVerified": false,
+      "currentRows": [
+        {
+          "statement": "CF",
+          "tableIndex": 15,
+          "rowIndex": 44,
+          "columns": [
+            1
+          ],
+          "rawRow": [
+            "II. 투자활동으로 인한 현금흐름",
+            "(22,872,283,789)",
+            "(19,373,012,483)",
+            "(7,813,694,511)"
+          ],
+          "printedLabel": "II. 투자활동으로 인한 현금흐름",
+          "printedCurrentCells": [
+            "(22,872,283,789)"
+          ],
+          "amount": "-22872283789",
+          "state": "current-integer-cell",
+          "currentHeader": [
+            "과 목",
+            "제19(당)기 ( K-IFRS )",
+            "제18(전)기 ( K-IFRS )",
+            "제17(전전)기 ( K-IFRS )"
+          ],
+          "unitEvidence": [
+            "회사명 : 주식회사 에이원알폼",
+            "(단위 : 원)"
+          ],
+          "periodStart": "2023-01-01",
+          "periodEnd": "2023-12-31",
+          "valueAsOf": null,
+          "component": null,
+          "URI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240318000135&dcmNo=9723769&eleId=21&offset=221878&length=63289&dtd=dart4.xsd",
+          "SHA256": "83dd8083c583839abff4da0633d8f449bb10c0a777aef469406803012f18f6bc",
+          "numericAccepted": false
+        },
+        {
+          "statement": "CF",
+          "tableIndex": 15,
+          "rowIndex": 45,
+          "columns": [
+            1
+          ],
+          "rawRow": [
+            "금융자산의 취득",
+            "(10,201,640,000)",
+            "(423,876,945)",
+            "(6,247,278,937)"
+          ],
+          "printedLabel": "금융자산의 취득",
+          "printedCurrentCells": [
+            "(10,201,640,000)"
+          ],
+          "amount": "-10201640000",
+          "state": "current-integer-cell",
+          "currentHeader": [
+            "과 목",
+            "제19(당)기 ( K-IFRS )",
+            "제18(전)기 ( K-IFRS )",
+            "제17(전전)기 ( K-IFRS )"
+          ],
+          "unitEvidence": [
+            "회사명 : 주식회사 에이원알폼",
+            "(단위 : 원)"
+          ],
+          "periodStart": "2023-01-01",
+          "periodEnd": "2023-12-31",
+          "valueAsOf": null,
+          "component": null,
+          "URI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240318000135&dcmNo=9723769&eleId=21&offset=221878&length=63289&dtd=dart4.xsd",
+          "SHA256": "83dd8083c583839abff4da0633d8f449bb10c0a777aef469406803012f18f6bc",
+          "numericAccepted": false
+        },
+        {
+          "statement": "CF",
+          "tableIndex": 15,
+          "rowIndex": 46,
+          "columns": [
+            1
+          ],
+          "rawRow": [
+            "금융자산의 처분",
+            "5,482,269,370",
+            "267,899,886",
+            "7,819,344,788"
+          ],
+          "printedLabel": "금융자산의 처분",
+          "printedCurrentCells": [
+            "5,482,269,370"
+          ],
+          "amount": "5482269370",
+          "state": "current-integer-cell",
+          "currentHeader": [
+            "과 목",
+            "제19(당)기 ( K-IFRS )",
+            "제18(전)기 ( K-IFRS )",
+            "제17(전전)기 ( K-IFRS )"
+          ],
+          "unitEvidence": [
+            "회사명 : 주식회사 에이원알폼",
+            "(단위 : 원)"
+          ],
+          "periodStart": "2023-01-01",
+          "periodEnd": "2023-12-31",
+          "valueAsOf": null,
+          "component": null,
+          "URI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240318000135&dcmNo=9723769&eleId=21&offset=221878&length=63289&dtd=dart4.xsd",
+          "SHA256": "83dd8083c583839abff4da0633d8f449bb10c0a777aef469406803012f18f6bc",
+          "numericAccepted": false
+        },
+        {
+          "statement": "CF",
+          "tableIndex": 15,
+          "rowIndex": 47,
+          "columns": [
+            1
+          ],
+          "rawRow": [
+            "대여금의 감소",
+            "2,000,004",
+            "28,562,504",
+            "25,125,004"
+          ],
+          "printedLabel": "대여금의 감소",
+          "printedCurrentCells": [
+            "2,000,004"
+          ],
+          "amount": "2000004",
+          "state": "current-integer-cell",
+          "currentHeader": [
+            "과 목",
+            "제19(당)기 ( K-IFRS )",
+            "제18(전)기 ( K-IFRS )",
+            "제17(전전)기 ( K-IFRS )"
+          ],
+          "unitEvidence": [
+            "회사명 : 주식회사 에이원알폼",
+            "(단위 : 원)"
+          ],
+          "periodStart": "2023-01-01",
+          "periodEnd": "2023-12-31",
+          "valueAsOf": null,
+          "component": null,
+          "URI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240318000135&dcmNo=9723769&eleId=21&offset=221878&length=63289&dtd=dart4.xsd",
+          "SHA256": "83dd8083c583839abff4da0633d8f449bb10c0a777aef469406803012f18f6bc",
+          "numericAccepted": false
+        },
+        {
+          "statement": "CF",
+          "tableIndex": 15,
+          "rowIndex": 48,
+          "columns": [
+            1
+          ],
+          "rawRow": [
+            "유형자산의 취득",
+            "(30,517,387,059)",
+            "(33,161,523,168)",
+            "(21,709,035,981)"
+          ],
+          "printedLabel": "유형자산의 취득",
+          "printedCurrentCells": [
+            "(30,517,387,059)"
+          ],
+          "amount": "-30517387059",
+          "state": "current-integer-cell",
+          "currentHeader": [
+            "과 목",
+            "제19(당)기 ( K-IFRS )",
+            "제18(전)기 ( K-IFRS )",
+            "제17(전전)기 ( K-IFRS )"
+          ],
+          "unitEvidence": [
+            "회사명 : 주식회사 에이원알폼",
+            "(단위 : 원)"
+          ],
+          "periodStart": "2023-01-01",
+          "periodEnd": "2023-12-31",
+          "valueAsOf": null,
+          "component": null,
+          "URI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240318000135&dcmNo=9723769&eleId=21&offset=221878&length=63289&dtd=dart4.xsd",
+          "SHA256": "83dd8083c583839abff4da0633d8f449bb10c0a777aef469406803012f18f6bc",
+          "numericAccepted": false
+        },
+        {
+          "statement": "CF",
+          "tableIndex": 15,
+          "rowIndex": 49,
+          "columns": [
+            1
+          ],
+          "rawRow": [
+            "유형자산의 처분",
+            "12,454,432,196",
+            "13,910,625,240",
+            "12,787,843,492"
+          ],
+          "printedLabel": "유형자산의 처분",
+          "printedCurrentCells": [
+            "12,454,432,196"
+          ],
+          "amount": "12454432196",
+          "state": "current-integer-cell",
+          "currentHeader": [
+            "과 목",
+            "제19(당)기 ( K-IFRS )",
+            "제18(전)기 ( K-IFRS )",
+            "제17(전전)기 ( K-IFRS )"
+          ],
+          "unitEvidence": [
+            "회사명 : 주식회사 에이원알폼",
+            "(단위 : 원)"
+          ],
+          "periodStart": "2023-01-01",
+          "periodEnd": "2023-12-31",
+          "valueAsOf": null,
+          "component": null,
+          "URI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240318000135&dcmNo=9723769&eleId=21&offset=221878&length=63289&dtd=dart4.xsd",
+          "SHA256": "83dd8083c583839abff4da0633d8f449bb10c0a777aef469406803012f18f6bc",
+          "numericAccepted": false
+        },
+        {
+          "statement": "CF",
+          "tableIndex": 15,
+          "rowIndex": 50,
+          "columns": [
+            1
+          ],
+          "rawRow": [
+            "무형자산의 취득",
+            "(1,988,700)",
+            "-",
+            "-"
+          ],
+          "printedLabel": "무형자산의 취득",
+          "printedCurrentCells": [
+            "(1,988,700)"
+          ],
+          "amount": "-1988700",
+          "state": "current-integer-cell",
+          "currentHeader": [
+            "과 목",
+            "제19(당)기 ( K-IFRS )",
+            "제18(전)기 ( K-IFRS )",
+            "제17(전전)기 ( K-IFRS )"
+          ],
+          "unitEvidence": [
+            "회사명 : 주식회사 에이원알폼",
+            "(단위 : 원)"
+          ],
+          "periodStart": "2023-01-01",
+          "periodEnd": "2023-12-31",
+          "valueAsOf": null,
+          "component": null,
+          "URI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240318000135&dcmNo=9723769&eleId=21&offset=221878&length=63289&dtd=dart4.xsd",
+          "SHA256": "83dd8083c583839abff4da0633d8f449bb10c0a777aef469406803012f18f6bc",
+          "numericAccepted": false
+        },
+        {
+          "statement": "CF",
+          "tableIndex": 15,
+          "rowIndex": 51,
+          "columns": [
+            1
+          ],
+          "rawRow": [
+            "보증금의 회수",
+            "66,462,000",
+            "5,300,000",
+            "182,100,286"
+          ],
+          "printedLabel": "보증금의 회수",
+          "printedCurrentCells": [
+            "66,462,000"
+          ],
+          "amount": "66462000",
+          "state": "current-integer-cell",
+          "currentHeader": [
+            "과 목",
+            "제19(당)기 ( K-IFRS )",
+            "제18(전)기 ( K-IFRS )",
+            "제17(전전)기 ( K-IFRS )"
+          ],
+          "unitEvidence": [
+            "회사명 : 주식회사 에이원알폼",
+            "(단위 : 원)"
+          ],
+          "periodStart": "2023-01-01",
+          "periodEnd": "2023-12-31",
+          "valueAsOf": null,
+          "component": null,
+          "URI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240318000135&dcmNo=9723769&eleId=21&offset=221878&length=63289&dtd=dart4.xsd",
+          "SHA256": "83dd8083c583839abff4da0633d8f449bb10c0a777aef469406803012f18f6bc",
+          "numericAccepted": false
+        },
+        {
+          "statement": "CF",
+          "tableIndex": 15,
+          "rowIndex": 52,
+          "columns": [
+            1
+          ],
+          "rawRow": [
+            "보증금의 지급",
+            "(155,531,600)",
+            "-",
+            "(671,793,163)"
+          ],
+          "printedLabel": "보증금의 지급",
+          "printedCurrentCells": [
+            "(155,531,600)"
+          ],
+          "amount": "-155531600",
+          "state": "current-integer-cell",
+          "currentHeader": [
+            "과 목",
+            "제19(당)기 ( K-IFRS )",
+            "제18(전)기 ( K-IFRS )",
+            "제17(전전)기 ( K-IFRS )"
+          ],
+          "unitEvidence": [
+            "회사명 : 주식회사 에이원알폼",
+            "(단위 : 원)"
+          ],
+          "periodStart": "2023-01-01",
+          "periodEnd": "2023-12-31",
+          "valueAsOf": null,
+          "component": null,
+          "URI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240318000135&dcmNo=9723769&eleId=21&offset=221878&length=63289&dtd=dart4.xsd",
+          "SHA256": "83dd8083c583839abff4da0633d8f449bb10c0a777aef469406803012f18f6bc",
+          "numericAccepted": false
+        }
+      ],
+      "approvedEnrichment": false
+    }
+  ],
+  "nonzeroHierarchy": {
+    "package": "20240318000135-ofs-exact-aone",
+    "URI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240318000135&dcmNo=9723769&eleId=21&offset=221878&length=63289&dtd=dart4.xsd",
+    "SHA256": "83dd8083c583839abff4da0633d8f449bb10c0a777aef469406803012f18f6bc",
+    "nonzero": [
+      {
+        "tableIndex": 15,
+        "targetRow": 44,
+        "targetPrintedLabel": "II. 투자활동으로 인한 현금흐름",
+        "terms": [
+          {
+            "row": 45,
+            "sign": 1,
+            "printed": [
+              "(10,201,640,000)"
+            ],
+            "amount": "-10201640000"
+          },
+          {
+            "row": 46,
+            "sign": 1,
+            "printed": [
+              "5,482,269,370"
+            ],
+            "amount": "5482269370"
+          },
+          {
+            "row": 47,
+            "sign": 1,
+            "printed": [
+              "2,000,004"
+            ],
+            "amount": "2000004"
+          },
+          {
+            "row": 48,
+            "sign": 1,
+            "printed": [
+              "(30,517,387,059)"
+            ],
+            "amount": "-30517387059"
+          },
+          {
+            "row": 49,
+            "sign": 1,
+            "printed": [
+              "12,454,432,196"
+            ],
+            "amount": "12454432196"
+          },
+          {
+            "row": 50,
+            "sign": 1,
+            "printed": [
+              "(1,988,700)"
+            ],
+            "amount": "-1988700"
+          },
+          {
+            "row": 51,
+            "sign": 1,
+            "printed": [
+              "66,462,000"
+            ],
+            "amount": "66462000"
+          },
+          {
+            "row": 52,
+            "sign": 1,
+            "printed": [
+              "(155,531,600)"
+            ],
+            "amount": "-155531600"
+          }
+        ],
+        "delta": "900000",
+        "missingCellsRetainedNull": true
+      }
+    ]
+  }
+}

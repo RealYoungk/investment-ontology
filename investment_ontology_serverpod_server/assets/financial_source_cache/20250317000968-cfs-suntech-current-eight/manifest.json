@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20250317000968",
+  "corpCode": "00963000",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2024,
+  "periodStart": "2024-01-01",
+  "periodEnd": "2024-12-31",
+  "ruleVersion": "suntech-2024-own-cfs-source-aware-eight-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250317000968",
+      "sha256": "c8a826539faf81a8c7c7f8d3067638cb6aa1d7ca128efffced85e4fdfe7543f0"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250317000968&dcmNo=10416653&eleId=3&offset=6204&length=4722&dtd=dart4.xsd",
+      "sha256": "c6b71098e75b306dbab1792393e253aad54e1aec41a137ae983fc28a1494ef4a"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250317000968&dcmNo=10416653&eleId=21&offset=313848&length=112976&dtd=dart4.xsd",
+      "sha256": "6bd9bfe052c4008bde313b8696ef8627f433f785694875583206202c82e199a1"
+    }
+  ]
+}

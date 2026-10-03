@@ -1,3 +1,12 @@
+import 'suntech_cf_source_scope.dart';
+import 'solumix_current_loss_source_scope.dart';
+import 'isung_cfs_source_scope.dart';
+import 'located_own_seven_source_scope.dart';
+
+import 'dart:convert';
+
+import 'ls_kiwoom_source_scope.dart';
+
 import 'package:flutter/widgets.dart';
 
 import '../../design/components/components.dart';
@@ -10,6 +19,50 @@ class FinancialSourceScopeNotice extends StatelessWidget {
 
   static String? messageFor(String? title) {
     if (title == null) return null;
+    final separator = title.indexOf(' · {');
+    final structured = separator >= 0 ? title.substring(separator + 3) : title;
+    try {
+      final decoded = jsonDecode(structured);
+      if (decoded is Map) {
+        final exact =
+            SuntechCfSourceScope.message(decoded) ??
+            SolumixCurrentLossSourceScope.message(decoded) ??
+            IsungCfsSourceScope.message(decoded) ??
+            LocatedOwnSevenSourceScope.message(decoded) ??
+            LsKiwoomSourceScope.message(decoded);
+        if (exact != null) return exact;
+      }
+      if (decoded is Map &&
+          decoded['action'] ==
+              'verified-keyless-annual-source-after-api-noData' &&
+          const {
+                '20250305000164': '01205514',
+                '20250331003105': '00666329',
+                '20240306000708': '01205514',
+                '20221027000409': '01020269',
+              }[decoded['targetReceipt']] ==
+              decoded['corpCode'] &&
+          decoded['fsDiv'] == 'separate' &&
+          decoded['coreRows'] == 7) {
+        final provenance = decoded['coreRowProvenance'];
+        final seven =
+            provenance is List &&
+            provenance.any(
+              (row) =>
+                  row is Map &&
+                  row['html_provenance'] is Map &&
+                  (row['html_provenance'] as Map)['partialCore7'] == true,
+            );
+        if (seven) {
+          if (decoded['targetReceipt'] == '20221027000409') {
+            return '공식 원문의 핵심 7개 계정을 천원 단위에서 원으로 변환해 수집했습니다. 원문에 인쇄된 일부 합계의 1천원 차이는 그대로 보존했습니다. 유형자산 취득 총액은 0과 세부 취득액이 충돌해 미확보이며, FCF와 FCF 수익률은 계산하지 않습니다. 세부 계정 전체와 주석은 검증을 마치지 않았습니다.';
+          }
+          return '공식 원문에서 핵심 7개 계정을 검증해 수집했습니다. 세부 계정 전체와 주석은 검증을 마치지 않았습니다. 유형자산 취득 총액은 미확보입니다. 일부 자산 취득액을 전체 설비투자로 대신하지 않으며, FCF와 FCF 수익률은 계산하지 않습니다.';
+        }
+      }
+    } on FormatException {
+      // Plain source titles remain supported without inferring coverage.
+    }
     if (const [
       'DART 원문 HTML 부분 핵심계정',
       'DART 원문 XBRL 핵심계정',

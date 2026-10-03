@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20230316001454",
+  "corpCode": "00103176",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2022,
+  "periodStart": "2022-01-01",
+  "periodEnd": "2022-12-31",
+  "ruleVersion": "heungkuk-2022-own-current-cash-eight-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230316001454",
+      "sha256": "6e33d78691cc799be4dd3fc97e3f73c5640d759d7fb71ff6ff624ecba09c7cab"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001454&dcmNo=9067589&eleId=1&offset=811&length=4018&dtd=dart3.xsd",
+      "sha256": "d2e3f16f701c310b67d00c083eaa4c0304ae38943ce3debf1ae1a74460ebda84"
+    },
+    {
+      "label": "ofs",
+      "file": "ofs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001454&dcmNo=9067589&eleId=19&offset=212198&length=72349&dtd=dart3.xsd",
+      "sha256": "904ded609ffa2c68f8a36feea9a44dfc7ae9e02d1d260951cf85d5f83681ccea"
+    },
+    {
+      "label": "notes",
+      "file": "notes.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001454&dcmNo=9067589&eleId=20&offset=284551&length=815671&dtd=dart3.xsd",
+      "sha256": "ffe6f5e164f0645b8a5bb8bcfcafaff94ba53100cbafb16aa8fa67fe058a7943"
+    }
+  ],
+  "scope": "Current direct eight accounts only; cash/deposit reconciliation exact selected own notes; whole statements/notes not verified; 2021 prior note cash discrepancy retained."
+}

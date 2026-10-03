@@ -24,6 +24,44 @@ FinancialFact fact(
 );
 
 void main() {
+  test('printed (8) capex label uses finite CF fallback and SQL mirror', () {
+    const label = '(8)유형자산의취득';
+    final row = fact(
+      label,
+      statement: FinancialStatementKind.cashFlow,
+    ).copyWith(amount: BigInt.parse('14057193562'));
+    final line = FinancialAccounts.pick([row]).single;
+    expect(line.key, 'capex');
+    expect(line.amount, row.amount);
+    expect(line.accountName, label);
+    expect(line.factId, row.id);
+    expect(line.accountId, isNull);
+    final sql = FinancialAccounts.resolvedIdSql('f');
+    expect(sql, contains("'(8)유형자산의취득'"));
+    expect(sql, contains("f.statement IN ('cashFlow')"));
+    for (final statement in FinancialStatementKind.values) {
+      if (statement == FinancialStatementKind.cashFlow) continue;
+      expect(
+        FinancialAccounts.pick([row.copyWith(statement: statement)]),
+        isEmpty,
+      );
+    }
+    for (final name in ['(10)유형자산의취득', '(8)유형자산의취득 참고', '(8)사용권자산의취득']) {
+      expect(
+        FinancialAccounts.pick([row.copyWith(accountName: name)]),
+        isEmpty,
+      );
+      expect(sql, isNot(contains("'$name'")));
+    }
+    expect(
+      FinancialAccounts.pick([row.copyWith(accountDetail: 'segment')]),
+      isEmpty,
+    );
+    expect(
+      FinancialAccounts.pick([row.copyWith(accountId: 'unapproved-ID')]),
+      isEmpty,
+    );
+  });
   test('exact whole current profit label retains raw name and SQL mirror', () {
     final row = fact('IX. 당기순손익')
         .copyWith(amount: BigInt.parse('144126968419'));

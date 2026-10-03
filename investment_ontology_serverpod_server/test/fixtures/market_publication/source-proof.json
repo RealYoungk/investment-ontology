@@ -1,0 +1,15 @@
+{
+  "publication": {
+    "url": "https://www.data.go.kr/data/15094808/openapi.do",
+    "sha256": "4548a63193890157adf3d4cd7ffedc25c6558ec018341328c574aafd05f7ed6a",
+    "readScope": "publication schedule paragraph: next business day after 13:00 KST; Friday and Monday-holiday examples"
+  },
+  "governmentCalendar": {
+    "url": "https://www.kasi.re.kr/publication/post/newsMaterial/32031",
+    "sha256": "9f898c745b6406dc23d3f9b9d0b01df8575dcfc3264cb39be7123b4872397860",
+    "readScope": "2026 public-holiday long-weekend paragraph only; partial holiday calendar, not KRX trading-calendar substitution"
+  },
+  "retrievedAt": "2026-10-03",
+  "sourceCalendarCoverage": "partial-known-public-holidays;unknown-dates-still-retry",
+  "assurance": "expected-recheck-time-only;not-guaranteed-publication-or-no-data"
+}

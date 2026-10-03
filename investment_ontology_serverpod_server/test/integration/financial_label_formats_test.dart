@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:serverpod/serverpod.dart';
 import 'package:test/test.dart';
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/financial/financial_accounts.dart';
@@ -46,9 +49,11 @@ void main() {
             ),
           );
           for (final fact in facts) {
-            final name = fact.accountName.replaceAll("'", "''");
             final result = await session.db.unsafeQuery(
-              'SELECT ${FinancialAccounts.resolvedIdSql('f')} FROM (SELECT NULL::text AS "accountId", \'$name\'::text AS "accountName", \'${fact.statement.name}\'::text AS statement, \'${fact.amount}\'::text AS amount) f',
+              'SELECT ${FinancialAccounts.resolvedIdSql('f')} FROM jsonb_populate_record(NULL::financial_fact, @fact::jsonb) f',
+              parameters: QueryParameters.named({
+                'fact': jsonEncode(fact.toJson()),
+              }),
             );
             final line = picked.where((l) => l.accountName == fact.accountName);
             if (line.isNotEmpty) {

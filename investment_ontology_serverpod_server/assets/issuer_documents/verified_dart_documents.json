@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "scope": "fixed12 actual DART financial chapters; 9IPOlatest+Brils3 ownaudit; financial values not extracted; split2 not bound",
+  "scope": "fixed32 DART chapters: 9 latest IPO + 23 own annual audit appendices; numeric state independently partial, no full original assertion",
   "documents": [
     {
       "metadata": {
@@ -442,6 +442,766 @@
           "eleId": "36",
           "offset": "3288099",
           "length": "797472",
+          "dtd": "dart4.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01564514",
+        "title": "주식회사 글로벌테크놀로지 2025년 별도 감사보고서 재무제표 첨부(일부)",
+        "documentType": "auditReport",
+        "provider": "DART",
+        "providerReceipt": "20260410001866",
+        "providerDocumentId": null,
+        "periodStart": "2025-01-01",
+        "periodEnd": "2025-12-31",
+        "publishedAt": "2026-04-10",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260410001866&dcmNo=11305991&eleId=3&offset=11127&length=432783&dtd=dart4.xsd",
+        "sha256": "76d143df64fc6467fdb4f50f164c1b61ef5d3ad0aaba7d85ac8b27bb0e326cdb",
+        "issuerQuote": "주식회사 글로벌테크놀로지",
+        "periodQuote": "2025년 01월 01일 부터 2025년 12월 31일 까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "fileSavedAt": "2026-10-03T04:06:50.912258+00:00",
+        "timestampEvidence": "local retrieved statement file mtime; exact GET completion time not captured",
+        "readScope": "printed own issuer, current annual cover dates and independent audit opinion; full notes not reviewed",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial statement appendix and official issuer shell; not whole original or separate audit-opinion node",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260410001866",
+        "shellSha256": "7bdaeff55a360000a388030dad2ed9cbca17490d87a80779ff0eb6f826b2d829",
+        "shellCorpCode": "01564514",
+        "node": {
+          "rcpNo": "20260410001866",
+          "dcmNo": "11305991",
+          "eleId": "3",
+          "offset": "11127",
+          "length": "432783",
+          "dtd": "dart4.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01564514",
+        "title": "주식회사 글로벌테크놀로지 2024년 별도 감사보고서 재무제표 첨부(일부)",
+        "documentType": "auditReport",
+        "provider": "DART",
+        "providerReceipt": "20250411001241",
+        "providerDocumentId": null,
+        "periodStart": "2024-01-01",
+        "periodEnd": "2024-12-31",
+        "publishedAt": "2025-04-11",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250411001241&dcmNo=10584957&eleId=3&offset=11328&length=475465&dtd=dart4.xsd",
+        "sha256": "77683ec0e093c6f79e35eb309a7322d92652378b490f9a564518183742ab9ebb",
+        "issuerQuote": "주식회사 글로벌테크놀로지",
+        "periodQuote": "2024년 01월 01일 부터 2024년 12월 31일 까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "fileSavedAt": "2026-10-03T04:06:52.396012+00:00",
+        "timestampEvidence": "local retrieved statement file mtime; exact GET completion time not captured",
+        "readScope": "printed own issuer, current annual cover dates and independent audit opinion; full notes not reviewed",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial statement appendix and official issuer shell; not whole original or separate audit-opinion node",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250411001241",
+        "shellSha256": "adc1f5fbfc4dffbb87742b2fc817b05259fcdcf15d522ae0d5221e91511b7470",
+        "shellCorpCode": "01564514",
+        "node": {
+          "rcpNo": "20250411001241",
+          "dcmNo": "10584957",
+          "eleId": "3",
+          "offset": "11328",
+          "length": "475465",
+          "dtd": "dart4.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01564514",
+        "title": "솔루션코리아컴퍼니 주식회사 2023년 별도 감사보고서 재무제표 첨부(일부)",
+        "documentType": "auditReport",
+        "provider": "DART",
+        "providerReceipt": "20240411002263",
+        "providerDocumentId": null,
+        "periodStart": "2023-01-01",
+        "periodEnd": "2023-12-31",
+        "publishedAt": "2024-04-11",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240411002263&dcmNo=9880388&eleId=3&offset=11766&length=159888&dtd=dart4.xsd",
+        "sha256": "ffdfd44b911c0ba53726e7cb1868672eece9205e8a516e0da29e267138ca7526",
+        "issuerQuote": "솔루션코리아컴퍼니 주식회사",
+        "periodQuote": "2023년 01월 01일 부터 2023년 12월 31일 까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "fileSavedAt": "2026-10-03T04:06:53.556324+00:00",
+        "timestampEvidence": "local retrieved statement file mtime; exact GET completion time not captured",
+        "readScope": "printed own issuer, current annual cover dates and independent audit opinion; full notes not reviewed",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial statement appendix and official issuer shell; not whole original or separate audit-opinion node",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240411002263",
+        "shellSha256": "2804721f08b11fe453efc019780205b52182e48f0509196bcf97ef28be40211e",
+        "shellCorpCode": "01564514",
+        "node": {
+          "rcpNo": "20240411002263",
+          "dcmNo": "9880388",
+          "eleId": "3",
+          "offset": "11766",
+          "length": "159888",
+          "dtd": "dart4.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01564514",
+        "title": "솔루션코리아컴퍼니 주식회사 2022년 별도 감사보고서 재무제표 첨부(일부)",
+        "documentType": "auditReport",
+        "provider": "DART",
+        "providerReceipt": "20230410002829",
+        "providerDocumentId": null,
+        "periodStart": "2022-01-01",
+        "periodEnd": "2022-12-31",
+        "publishedAt": "2023-04-10",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230410002829&dcmNo=9197061&eleId=3&offset=11544&length=154354&dtd=dart3.xsd",
+        "sha256": "c5709c290ed0f3cb12bc143a892a16e42ae0866c75672b8e261667f286e89e4e",
+        "issuerQuote": "솔루션코리아컴퍼니 주식회사",
+        "periodQuote": "2022년 01월 01일 부터 2022년 12월 31일 까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "fileSavedAt": "2026-10-03T04:06:55.033786+00:00",
+        "timestampEvidence": "local retrieved statement file mtime; exact GET completion time not captured",
+        "readScope": "printed own issuer, current annual cover dates and independent audit opinion; full notes not reviewed",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial statement appendix and official issuer shell; not whole original or separate audit-opinion node",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230410002829",
+        "shellSha256": "3cc81df390998dbb7f3674ca69593d4bb3e0a62c91702f8641a76f0061dd6f2c",
+        "shellCorpCode": "01564514",
+        "node": {
+          "rcpNo": "20230410002829",
+          "dcmNo": "9197061",
+          "eleId": "3",
+          "offset": "11544",
+          "length": "154354",
+          "dtd": "dart3.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01564514",
+        "title": "솔루션코리아컴퍼니 주식회사 2021년 별도 감사보고서 재무제표 첨부(일부)",
+        "documentType": "auditReport",
+        "provider": "DART",
+        "providerReceipt": "20220411000504",
+        "providerDocumentId": null,
+        "periodStart": "2021-01-01",
+        "periodEnd": "2021-12-31",
+        "publishedAt": "2022-04-11",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220411000504&dcmNo=8589043&eleId=3&offset=11539&length=156612&dtd=dart3.xsd",
+        "sha256": "12de82724181dd8adfefe86696537da922b9aeb8bfe589958b328b2e7442a222",
+        "issuerQuote": "솔루션코리아컴퍼니 주식회사",
+        "periodQuote": "2021년 01월 01일 부터 2021년 12월 31일 까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "fileSavedAt": "2026-10-03T04:06:56.281096+00:00",
+        "timestampEvidence": "local retrieved statement file mtime; exact GET completion time not captured",
+        "readScope": "printed own issuer, current annual cover dates and independent audit opinion; full notes not reviewed",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial statement appendix and official issuer shell; not whole original or separate audit-opinion node",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220411000504",
+        "shellSha256": "3fa7a65b3271caf9f852c427547728167869bade70a49b1f63759d7f4f8f77cc",
+        "shellCorpCode": "01564514",
+        "node": {
+          "rcpNo": "20220411000504",
+          "dcmNo": "8589043",
+          "eleId": "3",
+          "offset": "11539",
+          "length": "156612",
+          "dtd": "dart3.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01586923",
+        "title": "주식회사 스카이랩스 2025년 별도 감사보고서 재무제표 첨부(일부)",
+        "documentType": "auditReport",
+        "provider": "DART",
+        "providerReceipt": "20260401004471",
+        "providerDocumentId": null,
+        "periodStart": "2025-01-01",
+        "periodEnd": "2025-12-31",
+        "publishedAt": "2026-04-01",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260401004471&dcmNo=11229723&eleId=3&offset=10958&length=358051&dtd=dart4.xsd",
+        "sha256": "ec205e6caa99f39a71ab198bbc97b15925ef7187ac0507289f54cd0fdc9b7821",
+        "issuerQuote": "주식회사 스카이랩스",
+        "periodQuote": "2025년 01월 01일 부터 2025년 12월 31일 까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "fileSavedAt": "2026-10-03T04:06:57.527772+00:00",
+        "timestampEvidence": "local retrieved statement file mtime; exact GET completion time not captured",
+        "readScope": "printed own issuer, current annual cover dates and independent audit opinion; full notes not reviewed",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial statement appendix and official issuer shell; not whole original or separate audit-opinion node",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260401004471",
+        "shellSha256": "4e32134a9d26411522548cbc57ed99e21477bf39df15aaf18787ba1ae52c855f",
+        "shellCorpCode": "01586923",
+        "node": {
+          "rcpNo": "20260401004471",
+          "dcmNo": "11229723",
+          "eleId": "3",
+          "offset": "10958",
+          "length": "358051",
+          "dtd": "dart4.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01586923",
+        "title": "주식회사 스카이랩스 2024년 별도 감사보고서 재무제표 첨부(일부)",
+        "documentType": "auditReport",
+        "provider": "DART",
+        "providerReceipt": "20250404003093",
+        "providerDocumentId": null,
+        "periodStart": "2024-01-01",
+        "periodEnd": "2024-12-31",
+        "publishedAt": "2025-04-04",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250404003093&dcmNo=10536302&eleId=3&offset=10967&length=355408&dtd=dart4.xsd",
+        "sha256": "ad87e5e03fc5f049acbe09fa2ab5d9e6236f4864a961b9cba09412acc72959e1",
+        "issuerQuote": "주식회사 스카이랩스",
+        "periodQuote": "2024년 01월 01일 부터 2024년 12월 31일 까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "fileSavedAt": "2026-10-03T04:06:58.780422+00:00",
+        "timestampEvidence": "local retrieved statement file mtime; exact GET completion time not captured",
+        "readScope": "printed own issuer, current annual cover dates and independent audit opinion; full notes not reviewed",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial statement appendix and official issuer shell; not whole original or separate audit-opinion node",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250404003093",
+        "shellSha256": "dc13d6f19e6cebdd2ea703369d0fc99d888d4ae5189c7065d28c60d6e7102e42",
+        "shellCorpCode": "01586923",
+        "node": {
+          "rcpNo": "20250404003093",
+          "dcmNo": "10536302",
+          "eleId": "3",
+          "offset": "10967",
+          "length": "355408",
+          "dtd": "dart4.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01586923",
+        "title": "주식회사 스카이랩스 2023년 별도 감사보고서 재무제표 첨부(일부)",
+        "documentType": "auditReport",
+        "provider": "DART",
+        "providerReceipt": "20240405003959",
+        "providerDocumentId": null,
+        "periodStart": "2023-01-01",
+        "periodEnd": "2023-12-31",
+        "publishedAt": "2024-04-08",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240405003959&dcmNo=9849097&eleId=3&offset=10555&length=385844&dtd=dart4.xsd",
+        "sha256": "b31e2d74336a8c15d7a8b8d334ddf1e2d23d5fefd8712924618cf2734139d205",
+        "issuerQuote": "주식회사 스카이랩스",
+        "periodQuote": "2023년 01월 01일 부터 2023년 12월 31일 까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "fileSavedAt": "2026-10-03T04:07:00.353628+00:00",
+        "timestampEvidence": "local retrieved statement file mtime; exact GET completion time not captured",
+        "readScope": "printed own issuer, current annual cover dates and independent audit opinion; full notes not reviewed",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial statement appendix and official issuer shell; not whole original or separate audit-opinion node",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240405003959",
+        "shellSha256": "a1ff4c6db5a13ed21c623d51ab47bf6f4437a619272f0738c7935bf0b4c9e798",
+        "shellCorpCode": "01586923",
+        "node": {
+          "rcpNo": "20240405003959",
+          "dcmNo": "9849097",
+          "eleId": "3",
+          "offset": "10555",
+          "length": "385844",
+          "dtd": "dart4.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01586923",
+        "title": "주식회사 스카이랩스 2022년 별도 감사보고서 재무제표 첨부(일부)",
+        "documentType": "auditReport",
+        "provider": "DART",
+        "providerReceipt": "20230404002934",
+        "providerDocumentId": null,
+        "periodStart": "2022-01-01",
+        "periodEnd": "2022-12-31",
+        "publishedAt": "2023-04-04",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230404002934&dcmNo=9158036&eleId=3&offset=11465&length=325100&dtd=dart3.xsd",
+        "sha256": "aa393cdc7c4571df691774af777e3ef5559eb89c3666aa868197bf076ac1024a",
+        "issuerQuote": "주식회사 스카이랩스",
+        "periodQuote": "2022년 01월 01일 부터 2022년 12월 31일 까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "fileSavedAt": "2026-10-03T04:07:01.806791+00:00",
+        "timestampEvidence": "local retrieved statement file mtime; exact GET completion time not captured",
+        "readScope": "printed own issuer, current annual cover dates and independent audit opinion; full notes not reviewed",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial statement appendix and official issuer shell; not whole original or separate audit-opinion node",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230404002934",
+        "shellSha256": "f59c3ba8307f7bc5a671b7087a494a00395ccc9dfbc4acf29467293e74acdff5",
+        "shellCorpCode": "01586923",
+        "node": {
+          "rcpNo": "20230404002934",
+          "dcmNo": "9158036",
+          "eleId": "3",
+          "offset": "11465",
+          "length": "325100",
+          "dtd": "dart3.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01586923",
+        "title": "주식회사 스카이랩스 2021년 별도 감사보고서 재무제표 첨부(일부)",
+        "documentType": "auditReport",
+        "provider": "DART",
+        "providerReceipt": "20220404002339",
+        "providerDocumentId": null,
+        "periodStart": "2021-01-01",
+        "periodEnd": "2021-12-31",
+        "publishedAt": "2022-04-04",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220404002339&dcmNo=8548998&eleId=3&offset=11400&length=382420&dtd=dart3.xsd",
+        "sha256": "f41bd2202e06d4a9949040fc60fb60dc53b0e40b35cc278bd3120f7c88d12173",
+        "issuerQuote": "주식회사 스카이랩스",
+        "periodQuote": "2021년 01월 01일 부터 2021년 12월 31일 까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "fileSavedAt": "2026-10-03T04:07:03.238668+00:00",
+        "timestampEvidence": "local retrieved statement file mtime; exact GET completion time not captured",
+        "readScope": "printed own issuer, current annual cover dates and independent audit opinion; full notes not reviewed",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial statement appendix and official issuer shell; not whole original or separate audit-opinion node",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220404002339",
+        "shellSha256": "6dc37c5b70314d2b97d2e7da7d2fe792d2e869eaae513fb0cc6b0c4d574a7035",
+        "shellCorpCode": "01586923",
+        "node": {
+          "rcpNo": "20220404002339",
+          "dcmNo": "8548998",
+          "eleId": "3",
+          "offset": "11400",
+          "length": "382420",
+          "dtd": "dart3.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01722066",
+        "title": "빅웨이브로보틱스 주식회사 2025년 별도 감사보고서 재무제표 첨부(일부)",
+        "documentType": "auditReport",
+        "provider": "DART",
+        "providerReceipt": "20260313000455",
+        "providerDocumentId": null,
+        "periodStart": "2025-01-01",
+        "periodEnd": "2025-12-31",
+        "publishedAt": "2026-03-13",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260313000455&dcmNo=11119060&eleId=3&offset=11885&length=314785&dtd=dart4.xsd",
+        "sha256": "a62d4001d8220d20395af9574ed54520dd37bbcf7eca903c4aecdb1f34f64d40",
+        "issuerQuote": "빅웨이브로보틱스 주식회사",
+        "periodQuote": "2025년 01월 01일 부터 2025년 12월 31일 까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "fileSavedAt": "2026-10-03T04:07:04.520760+00:00",
+        "timestampEvidence": "local retrieved statement file mtime; exact GET completion time not captured",
+        "readScope": "printed own issuer, current annual cover dates and independent audit opinion; full notes not reviewed",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial statement appendix and official issuer shell; not whole original or separate audit-opinion node",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260313000455",
+        "shellSha256": "845d72b9eb22e3ecaebd12de41a366e5a1f1309546e471386b4bb71baf5c589a",
+        "shellCorpCode": "01722066",
+        "node": {
+          "rcpNo": "20260313000455",
+          "dcmNo": "11119060",
+          "eleId": "3",
+          "offset": "11885",
+          "length": "314785",
+          "dtd": "dart4.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01722066",
+        "title": "빅웨이브로보틱스 주식회사 2024년 별도 감사보고서 재무제표 첨부(일부)",
+        "documentType": "auditReport",
+        "provider": "DART",
+        "providerReceipt": "20250331001961",
+        "providerDocumentId": null,
+        "periodStart": "2024-01-01",
+        "periodEnd": "2024-12-31",
+        "publishedAt": "2025-03-31",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250331001961&dcmNo=10483104&eleId=3&offset=11367&length=333383&dtd=dart4.xsd",
+        "sha256": "95ea1e71eeadb172ae3ab55d7cd3fb5f0287fd5ca68128c75aca1f7bc684febe",
+        "issuerQuote": "빅웨이브로보틱스 주식회사",
+        "periodQuote": "2024년 01월 01일 부터 2024년 12월 31일 까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "fileSavedAt": "2026-10-03T04:07:05.702169+00:00",
+        "timestampEvidence": "local retrieved statement file mtime; exact GET completion time not captured",
+        "readScope": "printed own issuer, current annual cover dates and independent audit opinion; full notes not reviewed",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial statement appendix and official issuer shell; not whole original or separate audit-opinion node",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250331001961",
+        "shellSha256": "4e3bbdc59f052d1b8738cb469a8c309525ab8be551cc1abff66e2c4346b17348",
+        "shellCorpCode": "01722066",
+        "node": {
+          "rcpNo": "20250331001961",
+          "dcmNo": "10483104",
+          "eleId": "3",
+          "offset": "11367",
+          "length": "333383",
+          "dtd": "dart4.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01722066",
+        "title": "빅웨이브로보틱스 주식회사 2023년 별도 감사보고서 재무제표 첨부(일부)",
+        "documentType": "auditReport",
+        "provider": "DART",
+        "providerReceipt": "20240328001877",
+        "providerDocumentId": null,
+        "periodStart": "2023-01-01",
+        "periodEnd": "2023-12-31",
+        "publishedAt": "2024-03-29",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240328001877&dcmNo=9778720&eleId=3&offset=9921&length=326522&dtd=dart4.xsd",
+        "sha256": "91c7e0cf3c39f2bbecde4a173f03db34661eba28761aa7d70f54476da82fef43",
+        "issuerQuote": "빅웨이브로보틱스 주식회사",
+        "periodQuote": "2023년 01월 01일 부터 2023년 12월 31일 까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "fileSavedAt": "2026-10-03T04:07:07.143922+00:00",
+        "timestampEvidence": "local retrieved statement file mtime; exact GET completion time not captured",
+        "readScope": "printed own issuer, current annual cover dates and independent audit opinion; full notes not reviewed",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial statement appendix and official issuer shell; not whole original or separate audit-opinion node",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240328001877",
+        "shellSha256": "0512910767170ffe503a9fdb2ead8ffd747e6e64188ee78268b6b7a7e184b0c1",
+        "shellCorpCode": "01722066",
+        "node": {
+          "rcpNo": "20240328001877",
+          "dcmNo": "9778720",
+          "eleId": "3",
+          "offset": "9921",
+          "length": "326522",
+          "dtd": "dart4.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01867688",
+        "title": "주식회사 와이즈플래닛컴퍼니와 그 종속회사 2025년 연결 감사보고서 재무제표 첨부(일부)",
+        "documentType": "auditReport",
+        "provider": "DART",
+        "providerReceipt": "20260331003617",
+        "providerDocumentId": null,
+        "periodStart": "2025-01-01",
+        "periodEnd": "2025-12-31",
+        "publishedAt": "2026-03-31",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260331003617&dcmNo=11210810&eleId=3&offset=11294&length=336164&dtd=dart4.xsd",
+        "sha256": "fd89b99965c3aeb5f473ff33259ef925c50c3c0a7b0622ab75b36b34c2d21c72",
+        "issuerQuote": "주식회사 와이즈플래닛컴퍼니와 그 종속회사",
+        "periodQuote": "2025년 01월 01일 부터 2025년 12월 31일 까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "fileSavedAt": "2026-10-03T04:07:08.302010+00:00",
+        "timestampEvidence": "local retrieved statement file mtime; exact GET completion time not captured",
+        "readScope": "printed own issuer, current annual cover dates and independent audit opinion; full notes not reviewed",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial statement appendix and official issuer shell; not whole original or separate audit-opinion node",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260331003617",
+        "shellSha256": "91e30e2cbc690d5941c21b0f0e6af9624c062a3d38e83c16bda2e4d18430f095",
+        "shellCorpCode": "01867688",
+        "node": {
+          "rcpNo": "20260331003617",
+          "dcmNo": "11210810",
+          "eleId": "3",
+          "offset": "11294",
+          "length": "336164",
+          "dtd": "dart4.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01867688",
+        "title": "주식회사 와이즈플래닛컴퍼니 2025년 별도 감사보고서 재무제표 첨부(일부)",
+        "documentType": "auditReport",
+        "provider": "DART",
+        "providerReceipt": "20260331003584",
+        "providerDocumentId": null,
+        "periodStart": "2025-01-01",
+        "periodEnd": "2025-12-31",
+        "publishedAt": "2026-03-31",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260331003584&dcmNo=11210703&eleId=3&offset=11460&length=329146&dtd=dart4.xsd",
+        "sha256": "c3401594581401f8e0689314092eaadff7dfde854d26c600aa43248b2924e72e",
+        "issuerQuote": "주식회사 와이즈플래닛컴퍼니",
+        "periodQuote": "2025년 01월 01일 부터 2025년 12월 31일 까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "fileSavedAt": "2026-10-03T04:07:09.678255+00:00",
+        "timestampEvidence": "local retrieved statement file mtime; exact GET completion time not captured",
+        "readScope": "printed own issuer, current annual cover dates and independent audit opinion; full notes not reviewed",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial statement appendix and official issuer shell; not whole original or separate audit-opinion node",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260331003584",
+        "shellSha256": "6a6a994b2636f96ceefa5753fc229ebfa52b040fc549b032e7375da1cb69fbed",
+        "shellCorpCode": "01867688",
+        "node": {
+          "rcpNo": "20260331003584",
+          "dcmNo": "11210703",
+          "eleId": "3",
+          "offset": "11460",
+          "length": "329146",
+          "dtd": "dart4.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01867688",
+        "title": "주식회사 와이즈플래닛컴퍼니와 그 종속회사 2024년 연결 감사보고서 재무제표 첨부(일부)",
+        "documentType": "auditReport",
+        "provider": "DART",
+        "providerReceipt": "20260331003319",
+        "providerDocumentId": null,
+        "periodStart": "2024-01-01",
+        "periodEnd": "2024-12-31",
+        "publishedAt": "2026-03-31",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260331003319&dcmNo=11209737&eleId=4&offset=58651&length=381513&dtd=dart4.xsd",
+        "sha256": "723f156f3d050127234dce3c34182e215716ebb2d80880c9fd126aacc9237b4f",
+        "issuerQuote": "주식회사 와이즈플래닛컴퍼니와 그 종속회사",
+        "periodQuote": "2024년 01월 01일 부터 2024년 12월 31일 까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "fileSavedAt": "2026-10-03T04:07:10.932458+00:00",
+        "timestampEvidence": "local retrieved statement file mtime; exact GET completion time not captured",
+        "readScope": "printed own issuer, current annual cover dates and independent audit opinion; full notes not reviewed",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial statement appendix and official issuer shell; not whole original or separate audit-opinion node",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260331003319",
+        "shellSha256": "e6bde24eb0d2af5b110d6ca19b6b6f32f4fe87736fde19e845e0037260ae2091",
+        "shellCorpCode": "01867688",
+        "node": {
+          "rcpNo": "20260331003319",
+          "dcmNo": "11209737",
+          "eleId": "4",
+          "offset": "58651",
+          "length": "381513",
+          "dtd": "dart4.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01867688",
+        "title": "주식회사 와이즈플래닛컴퍼니 2024년 별도 감사보고서 재무제표 첨부(일부)",
+        "documentType": "auditReport",
+        "provider": "DART",
+        "providerReceipt": "20250331002334",
+        "providerDocumentId": null,
+        "periodStart": "2024-01-01",
+        "periodEnd": "2024-12-31",
+        "publishedAt": "2025-03-31",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250331002334&dcmNo=10484481&eleId=3&offset=11261&length=330112&dtd=dart4.xsd",
+        "sha256": "43cec783a322b2cb141fef736e947aba05b62e794e62332251af1a5e4b12383f",
+        "issuerQuote": "주식회사 와이즈플래닛컴퍼니",
+        "periodQuote": "2024년 01월 01일 부터 2024년 12월 31일 까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "fileSavedAt": "2026-10-03T04:07:12.291906+00:00",
+        "timestampEvidence": "local retrieved statement file mtime; exact GET completion time not captured",
+        "readScope": "printed own issuer, current annual cover dates and independent audit opinion; full notes not reviewed",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial statement appendix and official issuer shell; not whole original or separate audit-opinion node",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250331002334",
+        "shellSha256": "6fba8e6ad897ff37df25517836c29688a9fe57eb918bbd6d74e2e5df148cbcd4",
+        "shellCorpCode": "01867688",
+        "node": {
+          "rcpNo": "20250331002334",
+          "dcmNo": "10484481",
+          "eleId": "3",
+          "offset": "11261",
+          "length": "330112",
+          "dtd": "dart4.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01876251",
+        "title": "네오사피엔스 주식회사와 그 종속회사 2025년 연결 감사보고서 재무제표 첨부(일부)",
+        "documentType": "auditReport",
+        "provider": "DART",
+        "providerReceipt": "20260401004316",
+        "providerDocumentId": null,
+        "periodStart": "2025-01-01",
+        "periodEnd": "2025-12-31",
+        "publishedAt": "2026-04-01",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260401004316&dcmNo=11229249&eleId=3&offset=10316&length=408013&dtd=dart4.xsd",
+        "sha256": "4c108a7714327c0ea26d8f3d3c7375f8481ff8190dd3ec03514a1ddadf6fac83",
+        "issuerQuote": "네오사피엔스 주식회사와 그 종속회사",
+        "periodQuote": "2025년 01월 01일 부터 2025년 12월 31일 까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "fileSavedAt": "2026-10-03T04:07:13.775743+00:00",
+        "timestampEvidence": "local retrieved statement file mtime; exact GET completion time not captured",
+        "readScope": "printed own issuer, current annual cover dates and independent audit opinion; full notes not reviewed",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial statement appendix and official issuer shell; not whole original or separate audit-opinion node",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260401004316",
+        "shellSha256": "a5218d35f309737a44dcf2221855f20f03205de9d3e71af82524e86e4e2f5b16",
+        "shellCorpCode": "01876251",
+        "node": {
+          "rcpNo": "20260401004316",
+          "dcmNo": "11229249",
+          "eleId": "3",
+          "offset": "10316",
+          "length": "408013",
+          "dtd": "dart4.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01876251",
+        "title": "네오사피엔스 주식회사 2025년 별도 감사보고서 재무제표 첨부(일부)",
+        "documentType": "auditReport",
+        "provider": "DART",
+        "providerReceipt": "20260401003842",
+        "providerDocumentId": null,
+        "periodStart": "2025-01-01",
+        "periodEnd": "2025-12-31",
+        "publishedAt": "2026-04-01",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260401003842&dcmNo=11227680&eleId=3&offset=10851&length=409504&dtd=dart4.xsd",
+        "sha256": "6c45bcfbf45d22e5121c09f030426f6bad372dda883876e769b29dbae3198452",
+        "issuerQuote": "네오사피엔스 주식회사",
+        "periodQuote": "2025년 01월 01일 부터 2025년 12월 31일 까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "fileSavedAt": "2026-10-03T04:07:15.079730+00:00",
+        "timestampEvidence": "local retrieved statement file mtime; exact GET completion time not captured",
+        "readScope": "printed own issuer, current annual cover dates and independent audit opinion; full notes not reviewed",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial statement appendix and official issuer shell; not whole original or separate audit-opinion node",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260401003842",
+        "shellSha256": "d75b5f7972bf932e9e662061d1c5ff834025a1578d52ff6320efeb85638f6c36",
+        "shellCorpCode": "01876251",
+        "node": {
+          "rcpNo": "20260401003842",
+          "dcmNo": "11227680",
+          "eleId": "3",
+          "offset": "10851",
+          "length": "409504",
+          "dtd": "dart4.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01876251",
+        "title": "네오사피엔스 주식회사 2024년 별도 감사보고서 재무제표 첨부(일부)",
+        "documentType": "auditReport",
+        "provider": "DART",
+        "providerReceipt": "20250403002104",
+        "providerDocumentId": null,
+        "periodStart": "2024-01-01",
+        "periodEnd": "2024-12-31",
+        "publishedAt": "2025-04-03",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250403002104&dcmNo=10522053&eleId=3&offset=12213&length=201455&dtd=dart4.xsd",
+        "sha256": "3eb8884cf03c9e6c0c77e291ac4b4ae4935d7c444675a534293bb8e6bf347910",
+        "issuerQuote": "네오사피엔스 주식회사",
+        "periodQuote": "2024년 01월 01일 부터 2024년 12월 31일 까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "fileSavedAt": "2026-10-03T04:07:16.380645+00:00",
+        "timestampEvidence": "local retrieved statement file mtime; exact GET completion time not captured",
+        "readScope": "printed own issuer, current annual cover dates and independent audit opinion; full notes not reviewed",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial statement appendix and official issuer shell; not whole original or separate audit-opinion node",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250403002104",
+        "shellSha256": "5734eab591718188ca56e02c1a18faa1ab2404dd6c70d2fa6c5676adcaea6d8e",
+        "shellCorpCode": "01876251",
+        "node": {
+          "rcpNo": "20250403002104",
+          "dcmNo": "10522053",
+          "eleId": "3",
+          "offset": "12213",
+          "length": "201455",
           "dtd": "dart4.xsd"
         }
       }

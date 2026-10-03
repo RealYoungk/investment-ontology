@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20220516001812",
+  "corpCode": "00110893",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "ruleVersion": "daishin-2021-cfs-exact-cash-scope-eight-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220516001812",
+      "sha256": "d75e24df1980c162785f40dc17875abca930f6fea362876cef82e455469fe784"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220516001812&dcmNo=8664820&eleId=3&offset=267417&length=4032&dtd=dart3.xsd",
+      "sha256": "0cb333f7084941ed1c862b65b37fc3da1cd7241d5bc3396885701e46a7e90d95"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220516001812&dcmNo=8664820&eleId=19&offset=1225630&length=87529&dtd=dart3.xsd",
+      "sha256": "f7fcb555e61003197c47d13bea5333619336953e2902003390e8529960ee29ae"
+    },
+    {
+      "label": "notes",
+      "file": "notes.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220516001812&dcmNo=8664820&eleId=20&offset=1313163&length=1545295&dtd=dart3.xsd",
+      "sha256": "5abccce3468d8a1d445e4e01a9adf451496d702ddd67ff71d84d5c9647092c27"
+    }
+  ]
+}

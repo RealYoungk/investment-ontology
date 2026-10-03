@@ -899,3 +899,7 @@ Official FRED macro indicators, beginner definitions and read-only bounded retri
 ## 2026-10-02 조회 기업의 공시 우선 수집
 
 사용자 요청으로 research.data의 DART 네 항목은 미수집 때 원천을 조회해 출처와 함께 저장한다. 기존 저장값과 빈 성공 응답은 재사용한다. 동일 요청 공유·한 항목 동시 수집·실패5분·공유 장부19,900회 제한과 KST 자정 재시도를 적용했다. 수집 대기/실패/한도 소진/설정 미완료를 화면에 구분한다. 명시적 collect/import/batch의 관리자 검사는 유지한다. 전 기업 자동 research 배치 및 기존 스냅샷 자동 갱신은 별도 과제다. 구현·당일 운영 상태·검증은 docs/research-on-demand-2026-10-02.md. 배포 성공은 릴리스 기록 및 공개 API 증거로 확인한다.
+
+## 2026-10-03 운영 배포 경로 일치
+
+프런트엔드는 이미 Cloudflare Pages `alfinder-web`으로 이전되어 있으며, Vercel 조회 404를 서버/데이터 장애로 해석하지 않는다. `scripts/release.py`의 status/deploy/rollback을 Pages 경로로 맞췄다. 성공한 최신 main·봉인 산출물·동일 커밋 깨끗한 준비·미리보기 SHA4/API/401·운영 상태/백엔드 변경 차단·production 이전 기록·실제운영 재검증은 유지한다. Pages는 preview를 promote하지 않으므로 동일 패키지를 production에 재업로드하고, rollback은 이전 production만 허용한다. 구현 테스트와 실제 배포는 구분하며 이번 스크립트 변경 자체는 배포하지 않았다. [운영 절차](cloudflare-pages.md) 참조.

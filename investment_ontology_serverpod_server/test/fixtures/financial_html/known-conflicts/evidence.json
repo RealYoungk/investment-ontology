@@ -54,5 +54,30 @@
     "defaultParser": "accepted8",
     "defaultMockFetcher": "accepted8",
     "DBStoreRun": false
+  },
+  {
+    "receipt": "20240320001438",
+    "corpCode": "00963000",
+    "name": "(주)썬테크",
+    "reportName": "사업보고서 (2023.12)",
+    "basis": "cfs",
+    "sources": [
+      {
+        "label": "cover",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240320001438&dcmNo=9740410&eleId=1&offset=954&length=4592&dtd=dart4.xsd",
+        "sha256": "779a3a6cff8c09e3ed3660cd48e812803e0ecc623fc20736c8c4887e30734363",
+        "file": "test/fixtures/financial_html/known-conflicts/20240320001438/cover.html",
+        "actualSha256": "779a3a6cff8c09e3ed3660cd48e812803e0ecc623fc20736c8c4887e30734363",
+        "matchesAcquisitionLedger": true
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240320001438&dcmNo=9740410&eleId=19&offset=329275&length=109490&dtd=dart4.xsd",
+        "sha256": "8a55352ab6ab28b50e276f0e70fee937a739cedf33ddbac8fbd9d09844503a65",
+        "file": "test/fixtures/financial_html/known-conflicts/20240320001438/cfs.html",
+        "actualSha256": "8a55352ab6ab28b50e276f0e70fee937a739cedf33ddbac8fbd9d09844503a65",
+        "matchesAcquisitionLedger": true
+      }
+    ]
   }
 ]

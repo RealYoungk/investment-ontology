@@ -1,3 +1,5 @@
+import 'package:investment_ontology_serverpod_flutter/features/financials/split_plan_source_registry.dart';
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -36,36 +38,41 @@ Widget app(Widget child) => MaterialApp(
   home: Scaffold(body: SingleChildScrollView(child: child)),
 );
 void main() {
-  test('all twelve pinned DART chapters require exact own issuer metadata', () {
-    expect(issuerDocumentFunds.length, 12);
-    expect(reviewedDartIssuerMetadata.length, 12);
-    for (final row in reviewedDartIssuerMetadata) {
-      final corp = row['corpCode'] as String;
-      expect(issuerDocumentRows(ready(corp, [row]), corp), [row]);
-      for (final change in [
-        {'provider': 'officialIR'},
-        {'periodStart': '2021-01-01'},
-        {'sha256': '0' * 64},
-        {'publicContent': 'fullText'},
-        {'officialUrl': '${row['officialUrl']}&extra=1'},
-        {'numericState': 'complete'},
-      ]) {
-        expect(
-          () => issuerDocumentRows(
-            ready(corp, [
-              {...row, ...change},
-            ]),
-            corp,
-          ),
-          throwsFormatException,
-        );
+  test(
+    'all thirty-two pinned DART chapters require exact own issuer metadata',
+    () {
+      expect(issuerDocumentFunds.length, 14);
+      expect(reviewedDartIssuerMetadata.length, 32);
+      for (final row in reviewedDartIssuerMetadata) {
+        final corp = row['corpCode'] as String;
+        expect(issuerDocumentRows(ready(corp, [row]), corp), [row]);
+        for (final change in [
+          {'provider': 'officialIR'},
+          {'periodStart': '2099-01-01'},
+          {'sha256': '0' * 64},
+          {'publicContent': 'fullText'},
+          {'officialUrl': '${row['officialUrl']}&extra=1'},
+          {'numericState': 'complete'},
+        ]) {
+          expect(
+            () => issuerDocumentRows(
+              ready(corp, [
+                {...row, ...change},
+              ]),
+              corp,
+            ),
+            throwsFormatException,
+          );
+        }
       }
-    }
-  });
+    },
+  );
   test('actual fifteen metadata rows preserve twelve annual and three latest documents', () {
     final rows = actualRows();
     expect(rows.length, 15);
-    for (final corp in issuerDocumentFunds.keys) {
+    for (final corp in issuerDocumentFunds.keys.where(
+      (c) => !SplitPlanSourceRegistry.supports(c),
+    )) {
       final own = rows.where((r) => r['corpCode'] == corp).toList();
       expect(issuerDocumentRows(ready(corp, own), corp), own);
     }
@@ -107,6 +114,26 @@ void main() {
       throwsFormatException,
     );
   });
+  test(
+    'split2 data page keeps source actor and excludes regular/numeric history',
+    () {
+      for (final row in SplitPlanSourceRegistry.rows) {
+        final input = jsonEncode({
+          'state': 'ready',
+          'provider': 'verified-delegated-split-plan',
+          'source': {
+            'kind': 'officialFile',
+            'url': 'https://kind.krx.co.kr',
+            'reference': 'parent-submitted-split-plan;link-only;no-own-period-or-numeric-assertion',
+          },
+          'rows': [row],
+        });
+        expect(issuerDocumentRows(input, row['corpCode'] as String), [row]);
+        expect(row.containsKey('periodStart'), false);
+        expect(row['annualPeriodCount'], 0);
+      }
+    },
+  );
   testWidgets(
     '320px shows honest independent counts and missing historical years',
     (t) async {
@@ -131,7 +158,7 @@ void main() {
         find.text('서버 보존: 과거 감사 원문 12개 · 최신 투자회사 원문 3/3 · 전체 15개'),
         findsOneWidget,
       );
-      expect(find.textContaining('2021~2023 자체 원문 미확보'), findsOneWidget);
+      expect(find.textContaining('2021~2023 당해 감사보고서 원문 미확보'), findsOneWidget);
       await t.tap(find.text('맥쿼리인프라'));
       await t.pumpAndSettle();
       expect(find.text('2025-01-01 ~ 2025-12-31'), findsOneWidget);
@@ -167,7 +194,7 @@ void main() {
       await t.pumpAndSettle();
       expect(find.text('저장된 문서 없음'), findsOneWidget);
       expect(find.text('서버 수집 전'), findsOneWidget);
-      expect(find.text('원문 상태 확인 실패'), findsNWidgets(10));
+      expect(find.text('원문 상태 확인 실패'), findsNWidgets(12));
       for (final entry in old.entries) {
         entry.value.complete(
           ready(

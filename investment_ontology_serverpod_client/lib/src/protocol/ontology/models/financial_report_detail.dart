@@ -23,6 +23,7 @@ abstract class FinancialReportDetail
   FinancialReportDetail._({
     required this.report,
     this.source,
+    this.sources,
     required this.facts,
     required this.history,
   });
@@ -30,6 +31,7 @@ abstract class FinancialReportDetail
   factory FinancialReportDetail({
     required _irspo4dx.FinancialReport report,
     _i5ra8lvy.Source? source,
+    List<_i5ra8lvy.Source>? sources,
     required List<_iy7yplk2.FinancialFact> facts,
     required List<_irspo4dx.FinancialReport> history,
   }) = _FinancialReportDetailImpl;
@@ -46,6 +48,11 @@ abstract class FinancialReportDetail
           : _ilkzeueu.Protocol().deserialize<_i5ra8lvy.Source>(
               jsonSerialization['source'],
             ),
+      sources: jsonSerialization['sources'] == null
+          ? null
+          : _ilkzeueu.Protocol().deserialize<List<_i5ra8lvy.Source>>(
+              jsonSerialization['sources'],
+            ),
       facts: _ilkzeueu.Protocol().deserialize<List<_iy7yplk2.FinancialFact>>(
         jsonSerialization['facts'],
       ),
@@ -60,6 +67,9 @@ abstract class FinancialReportDetail
 
   _i5ra8lvy.Source? source;
 
+  /// 사실의 실제 출처들. 원본 보고서 출처와 추가 보완 출처를 함께 보존한다.
+  List<_i5ra8lvy.Source>? sources;
+
   List<_iy7yplk2.FinancialFact> facts;
 
   /// 같은 기업·기간·연결구분의 보고서 (접수번호 순, 이 보고서 포함)
@@ -71,6 +81,7 @@ abstract class FinancialReportDetail
   FinancialReportDetail copyWith({
     _irspo4dx.FinancialReport? report,
     _i5ra8lvy.Source? source,
+    List<_i5ra8lvy.Source>? sources,
     List<_iy7yplk2.FinancialFact>? facts,
     List<_irspo4dx.FinancialReport>? history,
   });
@@ -80,6 +91,8 @@ abstract class FinancialReportDetail
       '__className__': 'FinancialReportDetail',
       'report': report.toJson(),
       if (source != null) 'source': source?.toJson(),
+      if (sources != null)
+        'sources': sources?.toJson(valueToJson: (v) => v.toJson()),
       'facts': facts.toJson(valueToJson: (v) => v.toJson()),
       'history': history.toJson(valueToJson: (v) => v.toJson()),
     };
@@ -91,6 +104,8 @@ abstract class FinancialReportDetail
       '__className__': 'FinancialReportDetail',
       'report': report.toJsonForProtocol(),
       if (source != null) 'source': source?.toJsonForProtocol(),
+      if (sources != null)
+        'sources': sources?.toJson(valueToJson: (v) => v.toJsonForProtocol()),
       'facts': facts.toJson(valueToJson: (v) => v.toJsonForProtocol()),
       'history': history.toJson(valueToJson: (v) => v.toJsonForProtocol()),
     };
@@ -108,11 +123,13 @@ class _FinancialReportDetailImpl extends FinancialReportDetail {
   _FinancialReportDetailImpl({
     required _irspo4dx.FinancialReport report,
     _i5ra8lvy.Source? source,
+    List<_i5ra8lvy.Source>? sources,
     required List<_iy7yplk2.FinancialFact> facts,
     required List<_irspo4dx.FinancialReport> history,
   }) : super._(
          report: report,
          source: source,
+         sources: sources,
          facts: facts,
          history: history,
        );
@@ -124,12 +141,16 @@ class _FinancialReportDetailImpl extends FinancialReportDetail {
   FinancialReportDetail copyWith({
     _irspo4dx.FinancialReport? report,
     Object? source = _Undefined,
+    Object? sources = _Undefined,
     List<_iy7yplk2.FinancialFact>? facts,
     List<_irspo4dx.FinancialReport>? history,
   }) {
     return FinancialReportDetail(
       report: report ?? this.report.copyWith(),
       source: source is _i5ra8lvy.Source? ? source : this.source?.copyWith(),
+      sources: sources is List<_i5ra8lvy.Source>?
+          ? sources
+          : this.sources?.map((e0) => e0.copyWith()).toList(),
       facts: facts ?? this.facts.map((e0) => e0.copyWith()).toList(),
       history: history ?? this.history.map((e0) => e0.copyWith()).toList(),
     );

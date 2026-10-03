@@ -1,0 +1,8 @@
+{
+  "id": 987,
+  "kind": "dartReport",
+  "reference": "financial-source-conflict:20250324000541:separate",
+  "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250324000541&dcmNo=10453838&eleId=21&offset=542179&length=62162&dtd=dart4.xsd",
+  "retrievedAt": "2026-10-03T00:00:00.000Z",
+  "title": "{\"action\": \"verified-primary-source-conflict\", \"targetReceipt\": \"20250324000541\", \"corpCode\": \"01109690\", \"fsDiv\": \"separate\", \"reportName\": \"사업보고서 (2024.12)\", \"status\": \"failed\", \"financialFactsStored\": false, \"evidence\": {\"corpCode\": \"01109690\", \"consolidated\": false, \"year\": 2024, \"coverSource\": \"https://dart.fss.or.kr/report/viewer.do?rcpNo=20250324000541&dcmNo=10453838&eleId=1&offset=955&length=4572&dtd=dart4.xsd\", \"statementSource\": \"https://dart.fss.or.kr/report/viewer.do?rcpNo=20250324000541&dcmNo=10453838&eleId=21&offset=542179&length=62162&dtd=dart4.xsd\", \"coverSha256\": \"d1ce204fe71edcbaf822117d9d2d52b103d9559004ac9c2d2385d0b54f379b82\", \"statementSha256\": \"7e8d331b085aa3df62ded276a617b80d456085d77c0ab32c6df3da653de67e6a\", \"reason\": \"독립 자본변동표 기말 총자본과 재무상태표 총자본이 원 단위로 불일치\", \"balanceEquity\": \"834482799\", \"balanceCurrentColumn\": 3, \"equityWholeColumn\": 5, \"unit\": \"원\", \"printedBalanceLabel\": \"자       본       총       계\", \"equityStatementClosing\": \"834482800\", \"printedClosingLabel\": \"2024.12.31(당기말)\", \"receipt\": \"20250324000541\", \"periodStart\": \"2024-01-01\", \"periodEnd\": \"2024-12-31\", \"financialFactsStored\": false}}"
+}

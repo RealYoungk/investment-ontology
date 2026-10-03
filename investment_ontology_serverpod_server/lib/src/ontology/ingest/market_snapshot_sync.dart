@@ -1,3 +1,5 @@
+import 'market_publication_timing.dart';
+
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
@@ -167,8 +169,13 @@ class MarketSnapshotSync {
           );
           if (items == null) break;
           if (items.isEmpty &&
-              today.difference(date) <= publishGrace &&
-              !today.difference(date).isNegative) {
+              !today.difference(date).isNegative &&
+              (today.difference(date) <= publishGrace ||
+                  (!await _hasLaterDay(date) &&
+                      MarketPublicationTiming.withinExpectedResponseWindow(
+                        date,
+                        now,
+                      )))) {
             _recentEmptyDates.add(date);
           }
           if (items.isNotEmpty) {
@@ -284,22 +291,28 @@ class MarketSnapshotSync {
           client.calls < _allowance &&
           _recentEmptyDates.isNotEmpty &&
           scheduleResume != null) {
-        final at = now.add(const Duration(hours: 1));
+        final at = MarketPublicationTiming.retryAt(now, _recentEmptyDates);
+        message +=
+            ' · ${MarketPublicationTiming.estimateMessage(now, _recentEmptyDates)}';
         var dailyAt = DateTime.utc(today.year, today.month, today.day, 9);
         if (!dailyAt.isAfter(now)) {
           dailyAt = dailyAt.add(const Duration(days: 1));
         }
         const retryNote = '최근 미확보 기준일 1시간 후 재확인';
+        const publicationRetryNote = '공개예상시각 이후 재확인 예약';
         final recentRetries = await IngestJob.db.count(
           session,
           where: (t) =>
               t.kind.equals(kind) &
               (t.startedAt >= now.subtract(const Duration(days: 1))) &
-              t.message.like('%$retryNote%'),
+              (t.message.like('%$retryNote%') |
+                  t.message.like('%$publicationRetryNote%')),
         );
         if (at.isBefore(dailyAt) && recentRetries < 24) {
           await scheduleResume!(at);
-          message += ' · $retryNote';
+          message += at == now.add(const Duration(hours: 1))
+              ? ' · $retryNote'
+              : ' · $publicationRetryNote(입수 보장 아님)';
         }
       }
       if (failures.isNotEmpty) message += ' · 실패 예시: ${failures.join(' / ')}';
@@ -536,7 +549,12 @@ class MarketSnapshotSync {
         // Empty index responses do not establish publication or holiday status.
         if (items.isEmpty) {
           final age = kstDate(_clock().toUtc()).difference(day.baseDate);
-          if (!age.isNegative && age <= publishGrace) {
+          if (!age.isNegative &&
+              (age <= publishGrace ||
+                  MarketPublicationTiming.withinExpectedResponseWindow(
+                    day.baseDate,
+                    _clock().toUtc(),
+                  ))) {
             _recentEmptyDates.add(day.baseDate);
           }
           continue;

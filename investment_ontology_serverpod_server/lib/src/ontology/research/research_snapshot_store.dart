@@ -42,6 +42,7 @@ abstract final class ResearchSnapshotStore {
           : await Source.db.findById(session, latest.sourceId, transaction: tx);
       if (latest?.payload == payload &&
           latest?.provider == provider &&
+          previousSource?.kind == sourceKind &&
           previousSource?.url == url &&
           previousSource?.reference == reference) {
         return latest!.id!;

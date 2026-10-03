@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20230323001465",
+  "corpCode": "00113191",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2022,
+  "periodStart": "2022-01-01",
+  "periodEnd": "2022-12-31",
+  "ruleVersion": "koreanre-2022-exact-current-eight-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230323001465",
+      "sha256": "cb3f2a77312db9780c565a00f88710faa9798d85d604f00880aee9edbcca9941"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230323001465&dcmNo=9099353&eleId=1&offset=803&length=4030&dtd=dart3.xsd",
+      "sha256": "01a7d47d9ccd89fd496680cec779b3903d846484bf8227f984b60b8d814bbee4",
+      "file": "cover.html"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230323001465&dcmNo=9099353&eleId=17&offset=210754&length=95594&dtd=dart3.xsd",
+      "sha256": "48e9bdc978b4d8abf67f3aaa075b57e8c931bc3a4cd9bdbdc033519a8bcaeef4",
+      "file": "cfs.html"
+    }
+  ]
+}

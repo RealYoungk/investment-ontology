@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20220321001531",
+  "corpCode": "00990396",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "ruleVersion": "exact-numeric-filing-series-current-eight-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220321001531",
+      "sha256": "3f55149064d7fecabdb84eb888e0fda27b86df3c843ea4e1260af126282fb99c"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220321001531&dcmNo=8487979&eleId=1&offset=799&length=4031&dtd=dart3.xsd",
+      "sha256": "03113371af43d6375e54f319c74d271b972fc8e30ea52fcf8e8aae22cc42a5db"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220321001531&dcmNo=8487979&eleId=19&offset=143292&length=57366&dtd=dart3.xsd",
+      "sha256": "4d043d32789c254714c90654083eebf79176fb942b89f254f370add633901dbc"
+    }
+  ],
+  "retrievalProof": "Own current core8 and seven fully numeric equations only; exact filing-series ownership, no jurir or operating-history continuity; full detail hierarchy/notes unverified"
+}

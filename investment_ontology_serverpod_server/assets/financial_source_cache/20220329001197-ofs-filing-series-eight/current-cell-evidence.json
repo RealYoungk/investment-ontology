@@ -1,0 +1,516 @@
+{
+  "receipt": "20220329001197",
+  "corp": "01118643",
+  "name": "(주)솔루믹스",
+  "year": 2021,
+  "basis": "separate",
+  "statement": "ofs",
+  "unit": "원",
+  "multiplier": "1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220329001197",
+      "sha256": "88625eb0bdef0f62a8c32df0c9dc718ba1f8215eedba3a4405c832f96beeb377"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220329001197&dcmNo=8514239&eleId=3&offset=24923&length=4004&dtd=dart3.xsd",
+      "sha256": "cbbd67fb9cb6378c14c955c8959d2fd76ac6222f6983c685ea7ab37568d99357"
+    },
+    {
+      "label": "ofs",
+      "file": "ofs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220329001197&dcmNo=8514239&eleId=23&offset=196007&length=30468&dtd=dart3.xsd",
+      "sha256": "17460bfe190a0b5e1ec650665ec024619db64bc4539f5c690a03a2fb3f53769a"
+    }
+  ],
+  "core": [
+    {
+      "table": 1,
+      "row": 14,
+      "column": 2,
+      "raw": "7,196,246,873",
+      "printedLabel": "자산총계",
+      "amount": "7196246873",
+      "expected": [
+        "자산총계",
+        "",
+        "7,196,246,873",
+        "1,921,240,879"
+      ],
+      "role": "A",
+      "kind": "BS"
+    },
+    {
+      "table": 1,
+      "row": 23,
+      "column": 2,
+      "raw": "487,642,114",
+      "printedLabel": "부채총계",
+      "amount": "487642114",
+      "expected": [
+        "부채총계",
+        "",
+        "487,642,114",
+        "162,468,747"
+      ],
+      "role": "L",
+      "kind": "BS"
+    },
+    {
+      "table": 1,
+      "row": 29,
+      "column": 2,
+      "raw": "6,708,604,759",
+      "printedLabel": "자본총계",
+      "amount": "6708604759",
+      "expected": [
+        "자본총계",
+        "",
+        "6,708,604,759",
+        "1,758,772,132"
+      ],
+      "role": "E",
+      "kind": "BS"
+    },
+    {
+      "table": 4,
+      "row": 1,
+      "column": 2,
+      "raw": "90,552,276",
+      "printedLabel": "I.제품매출액",
+      "amount": "90552276",
+      "expected": [
+        "I.제품매출액",
+        "",
+        "90,552,276",
+        "1,207,596,492"
+      ],
+      "role": "Rproduct",
+      "kind": "CIS"
+    },
+    {
+      "table": 4,
+      "row": 5,
+      "column": 2,
+      "raw": "(1,462,706,911)",
+      "printedLabel": "IV.영업이익(손실)",
+      "amount": "-1462706911",
+      "expected": [
+        "IV.영업이익(손실)",
+        "",
+        "(1,462,706,911)",
+        "(450,847,677)"
+      ],
+      "role": "OP",
+      "kind": "CIS"
+    },
+    {
+      "table": 4,
+      "row": 12,
+      "column": 2,
+      "raw": "(1,469,436,487)",
+      "printedLabel": "VII.당기순이익(손실)",
+      "amount": "-1469436487",
+      "expected": [
+        "VII.당기순이익(손실)",
+        "",
+        "(1,469,436,487)",
+        "(471,741,063)"
+      ],
+      "role": "NI",
+      "kind": "CIS"
+    },
+    {
+      "table": 10,
+      "row": 1,
+      "column": 2,
+      "raw": "(847,433,956)",
+      "printedLabel": "I.영업활동으로인한현금흐름",
+      "amount": "-847433956",
+      "expected": [
+        "I.영업활동으로인한현금흐름",
+        "",
+        "(847,433,956)",
+        "(223,332,655)"
+      ],
+      "role": "CFO",
+      "kind": "CF"
+    },
+    {
+      "table": 10,
+      "row": 16,
+      "column": 2,
+      "raw": "173,072,000",
+      "printedLabel": "유형자산의취득",
+      "amount": "173072000",
+      "expected": [
+        "유형자산의취득",
+        "",
+        "173,072,000",
+        "-"
+      ],
+      "role": "ppePurchaseSigned",
+      "kind": "CF"
+    }
+  ],
+  "checks": [
+    {
+      "name": "BS",
+      "terms": [
+        {
+          "table": 1,
+          "row": 14,
+          "column": 2,
+          "raw": "7,196,246,873",
+          "printedLabel": "자산총계",
+          "amount": "7196246873",
+          "expected": [
+            "자산총계",
+            "",
+            "7,196,246,873",
+            "1,921,240,879"
+          ],
+          "sign": 1
+        },
+        {
+          "table": 1,
+          "row": 23,
+          "column": 2,
+          "raw": "487,642,114",
+          "printedLabel": "부채총계",
+          "amount": "487642114",
+          "expected": [
+            "부채총계",
+            "",
+            "487,642,114",
+            "162,468,747"
+          ],
+          "sign": -1
+        },
+        {
+          "table": 1,
+          "row": 29,
+          "column": 2,
+          "raw": "6,708,604,759",
+          "printedLabel": "자본총계",
+          "amount": "6708604759",
+          "expected": [
+            "자본총계",
+            "",
+            "6,708,604,759",
+            "1,758,772,132"
+          ],
+          "sign": -1
+        }
+      ]
+    },
+    {
+      "name": "NI-CE",
+      "terms": [
+        {
+          "table": 4,
+          "row": 12,
+          "column": 2,
+          "raw": "(1,469,436,487)",
+          "printedLabel": "VII.당기순이익(손실)",
+          "amount": "-1469436487",
+          "expected": [
+            "VII.당기순이익(손실)",
+            "",
+            "(1,469,436,487)",
+            "(471,741,063)"
+          ],
+          "sign": 1
+        },
+        {
+          "table": 7,
+          "row": 7,
+          "column": 5,
+          "raw": "(1,469,436,487)",
+          "printedLabel": "당기순이익(손실)",
+          "amount": "-1469436487",
+          "expected": [
+            "당기순이익(손실)",
+            "-",
+            "-",
+            "-",
+            "(1,469,436,487)",
+            "(1,469,436,487)"
+          ],
+          "sign": -1
+        }
+      ]
+    },
+    {
+      "name": "NI-CF",
+      "terms": [
+        {
+          "table": 4,
+          "row": 12,
+          "column": 2,
+          "raw": "(1,469,436,487)",
+          "printedLabel": "VII.당기순이익(손실)",
+          "amount": "-1469436487",
+          "expected": [
+            "VII.당기순이익(손실)",
+            "",
+            "(1,469,436,487)",
+            "(471,741,063)"
+          ],
+          "sign": 1
+        },
+        {
+          "table": 10,
+          "row": 3,
+          "column": 2,
+          "raw": "(1,469,436,487)",
+          "printedLabel": "가.당기순이익(손실)",
+          "amount": "-1469436487",
+          "expected": [
+            "가.당기순이익(손실)",
+            "",
+            "(1,469,436,487)",
+            "(471,741,063)"
+          ],
+          "sign": -1
+        }
+      ]
+    },
+    {
+      "name": "E-CE",
+      "terms": [
+        {
+          "table": 1,
+          "row": 29,
+          "column": 2,
+          "raw": "6,708,604,759",
+          "printedLabel": "자본총계",
+          "amount": "6708604759",
+          "expected": [
+            "자본총계",
+            "",
+            "6,708,604,759",
+            "1,758,772,132"
+          ],
+          "sign": 1
+        },
+        {
+          "table": 7,
+          "row": 9,
+          "column": 5,
+          "raw": "6,708,604,759",
+          "printedLabel": "2021.12.31(당기말)",
+          "amount": "6708604759",
+          "expected": [
+            "2021.12.31(당기말)",
+            "8,038,971,000",
+            "5,771,390,357",
+            "-",
+            "(7,101,756,598)",
+            "6,708,604,759"
+          ],
+          "sign": -1
+        }
+      ]
+    },
+    {
+      "name": "cashroll",
+      "terms": [
+        {
+          "table": 10,
+          "row": 28,
+          "column": 2,
+          "raw": "31,753,366",
+          "printedLabel": "VI.기초의현금및현금성자산",
+          "amount": "31753366",
+          "expected": [
+            "VI.기초의현금및현금성자산",
+            "",
+            "31,753,366",
+            "317,418,737"
+          ],
+          "sign": 1
+        },
+        {
+          "table": 10,
+          "row": 27,
+          "column": 2,
+          "raw": "2,710,059,654",
+          "printedLabel": "V.현금및현금성자산의증가(감소)(Ⅰ＋Ⅱ＋Ⅲ+Ⅳ)",
+          "amount": "2710059654",
+          "expected": [
+            "V.현금및현금성자산의증가(감소)(Ⅰ＋Ⅱ＋Ⅲ+Ⅳ)",
+            "",
+            "2,710,059,654",
+            "(285,665,371)"
+          ],
+          "sign": 1
+        },
+        {
+          "table": 10,
+          "row": 29,
+          "column": 2,
+          "raw": "2,741,813,020",
+          "printedLabel": "VII.기말의현금및현금성자산",
+          "amount": "2741813020",
+          "expected": [
+            "VII.기말의현금및현금성자산",
+            "",
+            "2,741,813,020",
+            "31,753,366"
+          ],
+          "sign": -1
+        }
+      ]
+    },
+    {
+      "name": "BScash",
+      "terms": [
+        {
+          "table": 1,
+          "row": 3,
+          "column": 2,
+          "raw": "2,741,813,020",
+          "printedLabel": "현금및현금성자산",
+          "amount": "2741813020",
+          "expected": [
+            "현금및현금성자산",
+            "3,29",
+            "2,741,813,020",
+            "31,753,366"
+          ],
+          "sign": 1
+        },
+        {
+          "table": 10,
+          "row": 29,
+          "column": 2,
+          "raw": "2,741,813,020",
+          "printedLabel": "VII.기말의현금및현금성자산",
+          "amount": "2741813020",
+          "expected": [
+            "VII.기말의현금및현금성자산",
+            "",
+            "2,741,813,020",
+            "31,753,366"
+          ],
+          "sign": -1
+        }
+      ]
+    }
+  ],
+  "headers": [
+    {
+      "table": 0,
+      "rows": [
+        [
+          "재무상태표"
+        ],
+        [
+          "제19(당)기말2021년12월31일현재"
+        ],
+        [
+          "제18(전)기말2020년12월31일현재"
+        ],
+        [
+          "주식회사로보쓰리",
+          "(단위:원)"
+        ]
+      ]
+    },
+    {
+      "table": 3,
+      "rows": [
+        [
+          "포괄손익계산서"
+        ],
+        [
+          "제19(당)기2021년1월1일부터2021년12월31일까지"
+        ],
+        [
+          "제18(전)기2020년1월1일부터2020년12월31일까지"
+        ],
+        [
+          "주식회사로보쓰리",
+          "(단위:원)"
+        ]
+      ]
+    },
+    {
+      "table": 6,
+      "rows": [
+        [
+          "자본변동표"
+        ],
+        [
+          "제19(당)기2021년1월1일부터2021년12월31일까지"
+        ],
+        [
+          "제18(전)기2020년1월1일부터2020년12월31일까지"
+        ],
+        [
+          "주식회사로보쓰리",
+          "(단위:원)"
+        ]
+      ]
+    },
+    {
+      "table": 9,
+      "rows": [
+        [
+          "현금흐름표"
+        ],
+        [
+          "제19(당)기2021년1월1일부터2021년12월31일까지"
+        ],
+        [
+          "제18(전)기2020년1월1일부터2020년12월31일까지"
+        ],
+        [
+          "주식회사로보쓰리",
+          "(단위:원)"
+        ]
+      ]
+    }
+  ],
+  "coverName": "주식회사로보쓰리",
+  "currentShellName": "솔루믹스",
+  "compoundDigest": "1774035f001279fcf344be6ff535fb2cfcfc0666d10060da59c3af2d41faa5fe",
+  "readScope": "Own direct current8, six fully numeric zero equations. PPE positive printed magnitude is explicitly within negative investing cash outflows. FX printed dash remains unknown, not zero; CFflow incl FX not a fully numeric proof. Filing-series-only identity; no jurir/operating-history continuity/full detail/notes verification.",
+  "printedMissingTermScope": {
+    "table": 10,
+    "row": 26,
+    "column": 2,
+    "label": "IV.현금및현금성자산의환율변동효과",
+    "raw": "-",
+    "numericValue": null,
+    "storedAsZero": false,
+    "fullyNumericEquationVerified": false
+  },
+  "outflowMagnitudeEvidence": {
+    "table": 10,
+    "row": 12,
+    "column": 2,
+    "expected": [
+      "2.투자활동으로인한현금유출액",
+      "",
+      "(2,646,775,504)",
+      "(262,332,716)"
+    ],
+    "signedTotal": "-2646775504",
+    "printedMagnitudeComponentSum": "2646775504",
+    "componentRows": [
+      13,
+      14,
+      15,
+      16,
+      17,
+      18
+    ]
+  },
+  "printedFilingActor": "주식회사 로보쓰리"
+}

@@ -23,6 +23,88 @@ abstract final class VerifiedHistoricalCompanyIdentity {
     required Uri coverSource,
     required String coverHtml,
   }) {
+    if (receipt == '20220329001197' &&
+        corpCode == '01118643' &&
+        periodEnd == DateTime.utc(2021, 12, 31) &&
+        normalize(currentName) == '솔루믹스' &&
+        normalize(printedName) == '로보쓰리' &&
+        coverSource.toString() ==
+            'https://dart.fss.or.kr/report/viewer.do?rcpNo=20220329001197&dcmNo=8514239&eleId=3&offset=24923&length=4004&dtd=dart3.xsd' &&
+        sha256.convert(utf8.encode(coverHtml)).toString() ==
+            'cbbd67fb9cb6378c14c955c8959d2fd76ac6222f6983c685ea7ab37568d99357') {
+      return {
+        'currentName': currentName,
+        'printedHistoricalName': printedName,
+        'receipt': receipt,
+        'corpCode': corpCode,
+        'periodEnd': '2021-12-31',
+        'basis': consolidated ? 'CFS' : 'OFS',
+        'evidence': '2023.03.31 Robo3→Robo3 AI & Robotics; 2024.03.27→Robo3 AI; 2026.03.30→Solumix. Actual official final change notice read, no proposed-vote substitution.',
+        'coverSha256':
+            'cbbd67fb9cb6378c14c955c8959d2fd76ac6222f6983c685ea7ab37568d99357',
+        'historicalOwnShellSha256':
+            '88625eb0bdef0f62a8c32df0c9dc718ba1f8215eedba3a4405c832f96beeb377',
+        'legalNameEvidenceSource': 'https://kind.krx.co.kr/external/2026/03/30/001272/20260330003364/33013.htm',
+        'legalNameEvidenceSha256':
+            '9cec3f5c7ae448095c373189612fde0d7127eee025f2924a064343b5d88c80f6',
+        'numericApproval': 'false',
+      };
+    }
+    if (receipt == '20220321000965' &&
+        corpCode == '01267958' &&
+        periodEnd == DateTime.utc(2021, 12, 31) &&
+        normalize(currentName) == '프로티아' &&
+        normalize(printedName) == '프로테옴텍' &&
+        coverSource.toString() ==
+            'https://dart.fss.or.kr/report/viewer.do?rcpNo=20220321000965&dcmNo=8484101&eleId=1&offset=797&length=4078&dtd=dart3.xsd' &&
+        sha256.convert(utf8.encode(coverHtml)).toString() ==
+            '4a3355b27eeca7a1e56350bdeb0565f61b5486b1c9bceefcdc507d4d118ab3a3') {
+      return {
+        'currentName': currentName,
+        'printedHistoricalName': printedName,
+        'receipt': receipt,
+        'corpCode': corpCode,
+        'periodEnd': '2021-12-31',
+        'basis': consolidated ? 'CFS' : 'OFS',
+        'evidence': 'Official change listing explicitly prints Proteometech→Protia, listing date2023-11-15; own historical DART shell has exactcorp01267958.',
+        'coverSha256':
+            '4a3355b27eeca7a1e56350bdeb0565f61b5486b1c9bceefcdc507d4d118ab3a3',
+        'historicalOwnShellSha256':
+            'da6b0accb8b3df3d584b028438baa5347f9ab16b78f0347cb71d919ed5a3d7f0',
+        'legalNameEvidenceSource': 'https://kind.krx.co.kr/external/2023/11/10/000765/20231110001790/70765.htm',
+        'legalNameEvidenceSha256':
+            '0593f8582101e41e127067476f2f6f02d8191ef9d797c16e8348471a455dcaa5',
+        'numericApproval': 'false',
+      };
+    }
+    if (receipt == '20230328000161' &&
+        corpCode == '01315042' &&
+        periodEnd == DateTime.utc(2022, 12, 31) &&
+        normalize(currentName) == '시선에이아이' &&
+        normalize(printedName) == '씨유박스' &&
+        consolidated &&
+        coverSource.toString() ==
+            'https://dart.fss.or.kr/report/viewer.do?rcpNo=20230328000161&dcmNo=9107520&eleId=3&offset=68972&length=4035&dtd=dart3.xsd' &&
+        sha256.convert(utf8.encode(coverHtml)).toString() ==
+            '4b07b798a585689b102478a7fe0173c66227c46964887de59b92dd39fd154d20') {
+      return {
+        'currentName': currentName,
+        'printedHistoricalName': printedName,
+        'receipt': receipt,
+        'corpCode': corpCode,
+        'periodEnd': '2022-12-31',
+        'basis': consolidated ? 'CFS' : 'OFS',
+        'evidence': 'Official change notice explicitly prints CUBOX→SECERN AI, shareholder meeting2025-03-26; own historical DART shell has exactcorp01315042.',
+        'coverSha256':
+            '4b07b798a585689b102478a7fe0173c66227c46964887de59b92dd39fd154d20',
+        'historicalOwnShellSha256':
+            '4eb0888dd921cd86c226e37c8f6845bdebbf305d9da3b192bb410f1e7e98a1c0',
+        'legalNameEvidenceSource': 'https://kind.krx.co.kr/external/2025/03/26/000453/20250227001255/70659.htm',
+        'legalNameEvidenceSha256':
+            'dfdb7ddf7159555fbeb1d8d6a8d0b0602c0c7d992d97710a9702473fac62553d',
+        'numericApproval': 'false',
+      };
+    }
     if (receipt == '20250320001633' &&
         corpCode == '01188730' &&
         periodEnd == DateTime.utc(2024, 12, 31) &&

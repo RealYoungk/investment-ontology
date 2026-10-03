@@ -1,0 +1,5 @@
+# Aiobio FY2024 own CFS absence
+
+Receipt 20250321001155, corporation 01680131, calendar FY2024. Its complete own CFS paragraph states that the issuer prepares general Korean accounting-standard statements and has no consolidated subsidiaries, referring to its statement note 21. The original own filing shell corporation, printed issuer, fiscal cover, complete body, source URIs and SHA digests are pinned independently. The already approved separate statement is not copied or rewritten.
+
+Typed CFS absence creates no numeric report or facts. No conclusion is drawn for other years. Referenced note 21 has not been read by this change; the explicit body absence is the direct evidence. Pure normal-cache tests pass 29 cases across the four paragraph profiles. The initial test incorrectly required all evidence to contain 해당사항; the exact original Aiobio sentence does not contain that word. This expectation was corrected to each compiled source literal, with the failed log preserved. Post-format analysis of four changed Dart files reports no issues. DB validation remains pending; HTTP/API/DB calls are zero. All financial completion remains false.

@@ -1,0 +1,36 @@
+{
+  "receipt": "20230721000635",
+  "sourceReceipt": "20230721000635",
+  "corpCode": "01579020",
+  "companyName": "(주)아이엠지티",
+  "ownCoverActor": "주식회사아이엠지티",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2022,
+  "periodStart": "2022-01-01",
+  "periodEnd": "2022-12-31",
+  "ruleVersion": "located-own-explicit-cfs-absence-v1",
+  "absenceLiteral": "2. 연결재무제표 당사는 사업보고서 기준일 현재 해당사항 없습니다.",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230721000635",
+      "sha256": "cec9d9246dfef1dcae196a69b2ba3dc4febdaaafc31356072dd42bfeb7758822"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230721000635&dcmNo=9358597&eleId=1&offset=797&length=4100&dtd=dart3.xsd",
+      "sha256": "234dd2ef7127b4aff7ec827224352bd21e9f1c13d131559ddc60aaeb5f2d90d3"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230721000635&dcmNo=9358597&eleId=19&offset=175318&length=187&dtd=dart3.xsd",
+      "sha256": "f419727d81470d24e33e16ba80aee9f1a9a229a808a05b55a4fababb47f709bc"
+    }
+  ],
+  "fullStatementCollected": false,
+  "notesVerified": false
+}

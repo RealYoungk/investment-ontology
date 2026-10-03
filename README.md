@@ -228,3 +228,5 @@ flutter test
 | [지배구조 설계](docs/phase3-governance.md) | 공시 주요정보와 관계 그래프 |
 | [배포 안내](docs/deploy.md) · [VPS 구성](deploy/README.md) | 로컬 외 환경의 운영 구성 |
 | [작업 기록](docs/handoff.md) | 과거 결정, 변경 내역과 후속 작업 |
+
+운영 프런트엔드는 Cloudflare Pages `alfinder-web`이며 API·DB는 iwinv Serverpod를 유지합니다. 성공한 main 릴리스의 배포·검증·롤백은 [Cloudflare 운영 배포](docs/cloudflare-pages.md)를 따릅니다. `scripts/release.py`의 기본 대상도 Cloudflare Pages입니다.

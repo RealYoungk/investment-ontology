@@ -1,3 +1,5 @@
+import 'split_plan_documents_sync.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -6,16 +8,28 @@ import 'package:crypto/crypto.dart';
 
 import '../../generated/protocol.dart';
 import '../research/issuer_documents_collector.dart';
+import '../research/retrospective_fund_contract.dart';
 import '../research/research_snapshot_store.dart';
 import 'ingest_jobs.dart';
+import 'issuer_financials_sync.dart';
+import 'own_annual_financials_sync.dart';
 
 class IssuerDocumentsResult {
   int storedCompanies = 0, storedDocuments = 0, failedCompanies = 0;
+  int financialPeriodGroups = 0, financialFailedCompanies = 0;
+  int ownAnnualPeriodGroups = 0, ownAnnualFailedCompanies = 0;
+  int financialQuarantinedPeriodGroups = 0;
+  int splitDocuments = 0, splitFailedCompanies = 0;
   bool cancelled = false, setupFailed = false;
-  bool get hasFailure => setupFailed || failedCompanies > 0;
+  bool get hasFailure =>
+      setupFailed ||
+      splitFailedCompanies > 0 ||
+      failedCompanies > 0 ||
+      financialFailedCompanies > 0 ||
+      ownAnnualFailedCompanies > 0;
   final reasons = <String>[];
   String get message =>
-      '공식 별도 원문: 회사 보존 $storedCompanies · 문서 보존 $storedDocuments · 회사 실패 $failedCompanies · 준비 실패 ${setupFailed ? 1 : 0} · 재무 숫자 미추출${cancelled ? ' · 취소' : ''}${reasons.isEmpty ? '' : ' · ${reasons.join('; ')}'}';
+      '분할 대행 원문 보존 $splitDocuments · 분할 원문 회사 실패 $splitFailedCompanies · 공식 별도 원문: 회사 보존 $storedCompanies · 문서 보존 $storedDocuments · 회사 실패 $failedCompanies · 준비 실패 ${setupFailed ? 1 : 0} · 원문 메타데이터 숫자 미추출 · 별도 핵심재무 기간·basis $financialPeriodGroups · 별도 재무 회사 실패 $financialFailedCompanies · 자체 연간 핵심재무 기간·basis $ownAnnualPeriodGroups · 자체 연간 재무 회사 실패 $ownAnnualFailedCompanies · 펀드 현금 범위 격리 $financialQuarantinedPeriodGroups기간(금액 목록 제외)${cancelled ? ' · 취소' : ''}${reasons.isEmpty ? '' : ' · ${reasons.join('; ')}'}';
 }
 
 /// Internal scheduled worker. Stores raw metadata only, without touching body or
@@ -48,12 +62,25 @@ class IssuerDocumentsSync {
     _running = true;
     final collector = IssuerDocumentsCollector(cache: Directory(cachePath));
     try {
-      return await collectAndStore(
+      final result = await collectAndStore(
         session,
         manifestText: await combinedManifestText(),
         collector: collector,
         cancelled: cancelled,
       );
+      if (result.cancelled || await cancelled()) {
+        return result..cancelled = true;
+      }
+      final split = await SplitPlanDocumentsSync.collect(
+        session,
+        collector,
+        cancelled,
+      );
+      result.splitDocuments = split.stored;
+      result.splitFailedCompanies = split.failed;
+      result.cancelled = split.cancelled;
+      result.reasons.addAll(split.reasons);
+      return result;
     } catch (e, st) {
       // Counts remain separate from regular business-body period counts.
       session.log(
@@ -101,6 +128,19 @@ class IssuerDocumentsSync {
         ...(dart['documents'] as List),
       ],
     });
+  }
+
+  /// A cache file timestamp is explicitly distinct from a captured GET time.
+  static DateTime sourceEvidenceAt(Map<String, dynamic> document) {
+    final proof = document['proof'] as Map;
+    return DateTime.parse(
+      (proof['downloadedAt'] ??
+              proof['fileSavedAt'] ??
+              (RetrospectiveFundContract.supports(document)
+                  ? proof['verifiedAt']
+                  : null))
+          as String,
+    );
   }
 
   static bool canResumeAtStartup({
@@ -181,8 +221,30 @@ class IssuerDocumentsSync {
           source?.reference != reference) {
         return true;
       }
+      if (await IssuerFinancialsSync.pending(
+        session,
+        company,
+        cache,
+        docs
+            .where((d) => (d['metadata'] as Map)['corpCode'] == entry.key)
+            .toList(),
+      )) {
+        return true;
+      }
+      if (await OwnAnnualFinancialsSync.pending(
+        session,
+        company,
+        cache,
+        docs
+            .where((d) => (d['metadata'] as Map)['corpCode'] == entry.key)
+            .toList(),
+      )) {
+        return true;
+      }
     }
-    return false;
+    return manifestText == null
+        ? SplitPlanDocumentsSync.pending(session, cache)
+        : false;
   }
 
   /// Internal dependency-injected execution, also exercised in isolated tests.
@@ -232,8 +294,7 @@ class IssuerDocumentsSync {
         final first = rows.first;
         final downloadedAt = entry.value
             .map(
-              (d) =>
-                  DateTime.parse((d['proof'] as Map)['downloadedAt'] as String),
+              (d) => sourceEvidenceAt(d),
             )
             .reduce((a, b) => a.isAfter(b) ? a : b);
         await ResearchSnapshotStore.store(
@@ -255,6 +316,48 @@ class IssuerDocumentsSync {
         );
         result.storedCompanies++;
         result.storedDocuments += entry.value.length;
+        try {
+          result.financialPeriodGroups += await IssuerFinancialsSync.store(
+            session,
+            company,
+            collector.cache,
+            entry.value,
+            cancelled,
+            onQuarantined: (count) =>
+                result.financialQuarantinedPeriodGroups += count,
+          );
+        } catch (e, st) {
+          if (await cancelled()) return result..cancelled = true;
+          result.financialFailedCompanies++;
+          result.reasons.add('${entry.key}: 별도 핵심재무 검증 실패 (${e.runtimeType})');
+          session.log(
+            '별도 핵심 재무 실패 ${entry.key}',
+            level: LogLevel.warning,
+            exception: e,
+            stackTrace: st,
+          );
+        }
+        try {
+          result.ownAnnualPeriodGroups += await OwnAnnualFinancialsSync.store(
+            session,
+            company,
+            collector.cache,
+            entry.value,
+            cancelled,
+          );
+        } catch (e, st) {
+          if (await cancelled()) return result..cancelled = true;
+          result.ownAnnualFailedCompanies++;
+          result.reasons.add(
+            '${entry.key}: 자체 연간 핵심재무 검증 실패 (${e.runtimeType})',
+          );
+          session.log(
+            '자체 연간 재무 실패 ${entry.key}',
+            level: LogLevel.warning,
+            exception: e,
+            stackTrace: st,
+          );
+        }
       } catch (e, st) {
         if (await cancelled()) return result..cancelled = true;
         result.failedCompanies++;

@@ -1,0 +1,4875 @@
+[
+  {
+    "corpCode": "01564514",
+    "providerReceipt": "20260410001866",
+    "basis": "OFS",
+    "periodKind": "ownAnnual",
+    "auditStatus": "audited",
+    "auditProof": "해당 연도의 자체 감사보고서 · 비교기간은 미추출",
+    "accountingStandard": "KIFRS",
+    "auditOpinionUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260410001866&dcmNo=11305991&eleId=2&offset=7055&length=4042&dtd=dart4.xsd",
+    "auditOpinionSha256": "7df4a6ed1d2b86096a594f31b8b6eb37b8e45a9f721f7dc89c8b29acfec2935e",
+    "contextTables": [
+      {
+        "tableOrdinal": 0,
+        "rows": [
+          [
+            "주식회사 글로벌테크놀로지"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 1,
+        "rows": [
+          [
+            "제 13 기"
+          ],
+          [
+            "2025년 01월 01일",
+            "부터"
+          ],
+          [
+            "2025년 12월 31일",
+            "까지"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 5,
+        "rows": [
+          [
+            "재 무 상 태 표"
+          ],
+          [
+            "제 13(당) 기 : 2025년 12월 31일 현재"
+          ],
+          [
+            "제 12(전) 기 : 2024년 12월 31일 현재"
+          ],
+          [
+            "주식회사 글로벌테크놀로지",
+            "(단위: 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 8,
+        "rows": [
+          [
+            "포 괄 손 익 계 산 서"
+          ],
+          [
+            "제 13(당) 기 : 2025년 01월 01일부터 2025년 12월 31일까지"
+          ],
+          [
+            "제 12(전) 기 : 2024년 01월 01일부터 2024년 12월 31일까지"
+          ],
+          [
+            "주식회사 글로벌테크놀로지",
+            "(단위: 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 14,
+        "rows": [
+          [
+            "현 금 흐 름 표"
+          ],
+          [
+            "제 13(당) 기 : 2025년 01월 01일부터 2025년 12월 31일까지"
+          ],
+          [
+            "제 12(전) 기 : 2024년 01월 01일부터 2024년 12월 31일까지"
+          ],
+          [
+            "주식회사 글로벌테크놀로지",
+            "(단위: 원)"
+          ]
+        ]
+      }
+    ],
+    "accounts": [
+      {
+        "metric": "assets",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 19,
+        "cellOrdinal": 2,
+        "accountLabel": "자산총계",
+        "headerCells": [
+          "과목",
+          "주석",
+          "제 13(당) 기",
+          "제 12(전) 기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "liabilities",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 36,
+        "cellOrdinal": 2,
+        "accountLabel": "부채총계",
+        "headerCells": [
+          "과목",
+          "주석",
+          "제 13(당) 기",
+          "제 12(전) 기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "equity",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 42,
+        "cellOrdinal": 2,
+        "accountLabel": "자본총계",
+        "headerCells": [
+          "과목",
+          "주석",
+          "제 13(당) 기",
+          "제 12(전) 기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "revenue",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 9,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅰ. 매출액",
+        "headerCells": [
+          "과목",
+          "주석",
+          "제 13(당) 기",
+          "제 12(전) 기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 5,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅴ. 영업손실",
+        "headerCells": [
+          "과목",
+          "주석",
+          "제 13(당) 기",
+          "제 12(전) 기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "netProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 12,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅷ. 당기순손실",
+        "headerCells": [
+          "과목",
+          "주석",
+          "제 13(당) 기",
+          "제 12(전) 기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingCashFlow",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅰ. 영업활동으로 인한 현금흐름",
+        "headerCells": [
+          "구분",
+          "주석",
+          "제 13(당) 기",
+          "제 12(전) 기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "propertyPlantEquipmentAcquisitions",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": "outflow",
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 14,
+        "cellOrdinal": 2,
+        "accountLabel": "유형자산의 취득",
+        "headerCells": [
+          "구분",
+          "주석",
+          "제 13(당) 기",
+          "제 12(전) 기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      }
+    ],
+    "unextractedMetrics": [],
+    "auditCell": null,
+    "cashSectionCells": []
+  },
+  {
+    "corpCode": "01564514",
+    "providerReceipt": "20250411001241",
+    "basis": "OFS",
+    "periodKind": "ownAnnual",
+    "auditStatus": "audited",
+    "auditProof": "해당 연도의 자체 감사보고서 · 비교기간은 미추출",
+    "accountingStandard": "KIFRS",
+    "auditOpinionUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250411001241&dcmNo=10584957&eleId=2&offset=6055&length=5243&dtd=dart4.xsd",
+    "auditOpinionSha256": "76a47501eabd8f2650de188d685415195f20f0816e412e0fe871840d3c83d351",
+    "contextTables": [
+      {
+        "tableOrdinal": 0,
+        "rows": [
+          [
+            "주식회사 글로벌테크놀로지 (구, 솔루션코리아컴퍼니 주식회사)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 1,
+        "rows": [
+          [
+            "제 12 기"
+          ],
+          [
+            "2024년 01월 01일",
+            "부터"
+          ],
+          [
+            "2024년 12월 31일",
+            "까지"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 5,
+        "rows": [
+          [
+            "재 무 상 태 표"
+          ],
+          [
+            "제 12(당) 기 : 2024년 12월 31일 현재"
+          ],
+          [
+            "제 11(전) 기 : 2023년 12월 31일 현재"
+          ],
+          [
+            "제 11(전) 기초 : 2023년 01월 01일 현재"
+          ],
+          [
+            "주식회사 글로벌테크놀로지",
+            "(단위: 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 8,
+        "rows": [
+          [
+            "포 괄 손 익 계 산 서"
+          ],
+          [
+            "제 12(당) 기 : 2024년 01월 01일부터 2024년 12월 31일까지"
+          ],
+          [
+            "제 11(전) 기 : 2023년 01월 01일부터 2023년 12월 31일까지"
+          ],
+          [
+            "주식회사 글로벌테크놀로지",
+            "(단위: 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 14,
+        "rows": [
+          [
+            "현 금 흐 름 표"
+          ],
+          [
+            "제 12(당) 기 : 2024년 01월 01일부터 2024년 12월 31일까지"
+          ],
+          [
+            "제 11(전) 기 : 2023년 01월 01일부터 2023년 12월 31일까지"
+          ],
+          [
+            "주식회사 글로벌테크놀로지",
+            "(단위: 원)"
+          ]
+        ]
+      }
+    ],
+    "accounts": [
+      {
+        "metric": "assets",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 20,
+        "cellOrdinal": 2,
+        "accountLabel": "자산총계",
+        "headerCells": [
+          "과목",
+          "주석",
+          "제 12(당) 기",
+          "제 11(전) 기 \"감사받지 아니한 재무제표\"",
+          "제 11(전) 기초 \"감사받지 아니한 재무제표\""
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "liabilities",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 37,
+        "cellOrdinal": 2,
+        "accountLabel": "부채총계",
+        "headerCells": [
+          "과목",
+          "주석",
+          "제 12(당) 기",
+          "제 11(전) 기 \"감사받지 아니한 재무제표\"",
+          "제 11(전) 기초 \"감사받지 아니한 재무제표\""
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "equity",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 43,
+        "cellOrdinal": 2,
+        "accountLabel": "자본총계",
+        "headerCells": [
+          "과목",
+          "주석",
+          "제 12(당) 기",
+          "제 11(전) 기 \"감사받지 아니한 재무제표\"",
+          "제 11(전) 기초 \"감사받지 아니한 재무제표\""
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "revenue",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 9,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅰ. 매출액",
+        "headerCells": [
+          "과목",
+          "주석",
+          "제 12(당) 기",
+          "제 11(전) 기 \"감사받지 아니한 재무제표\""
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 5,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅴ. 영업이익(손실)",
+        "headerCells": [
+          "과목",
+          "주석",
+          "제 12(당) 기",
+          "제 11(전) 기 \"감사받지 아니한 재무제표\""
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "netProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 12,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅷ. 당기순이익(손실)",
+        "headerCells": [
+          "과목",
+          "주석",
+          "제 12(당) 기",
+          "제 11(전) 기 \"감사받지 아니한 재무제표\""
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingCashFlow",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅰ. 영업활동으로 인한 현금흐름",
+        "headerCells": [
+          "구분",
+          "주석",
+          "제 12(당) 기",
+          "제 11(전) 기 \"감사받지 아니한 재무제표\""
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "propertyPlantEquipmentAcquisitions",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": "outflow",
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 14,
+        "cellOrdinal": 2,
+        "accountLabel": "유형자산의 취득",
+        "headerCells": [
+          "구분",
+          "주석",
+          "제 12(당) 기",
+          "제 11(전) 기 \"감사받지 아니한 재무제표\""
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      }
+    ],
+    "unextractedMetrics": [],
+    "auditCell": null,
+    "cashSectionCells": []
+  },
+  {
+    "corpCode": "01564514",
+    "providerReceipt": "20240411002263",
+    "basis": "OFS",
+    "periodKind": "ownAnnual",
+    "auditStatus": "audited",
+    "auditProof": "해당 연도의 자체 감사보고서 · 비교기간은 미추출",
+    "accountingStandard": "Korean-GAAP",
+    "auditOpinionUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240411002263&dcmNo=9880388&eleId=2&offset=7132&length=4604&dtd=dart4.xsd",
+    "auditOpinionSha256": "67b98c06933bca64ef327317aa1309275d677b64fa23122db41265ca2a17dd03",
+    "contextTables": [
+      {
+        "tableOrdinal": 0,
+        "rows": [
+          [
+            "솔루션코리아컴퍼니 주식회사"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 1,
+        "rows": [
+          [
+            "제 11 (당) 기"
+          ],
+          [
+            "2023년 01월 01일",
+            "부터"
+          ],
+          [
+            "2023년 12월 31일",
+            "까지"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 5,
+        "rows": [
+          [
+            "제 11 (당) 기 2023년 12월 31일 현재"
+          ],
+          [
+            "제 10 (전) 기 2022년 12월 31일 현재"
+          ],
+          [
+            "솔루션코리아컴퍼니 주식회사",
+            "(단위 : 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 8,
+        "rows": [
+          [
+            "제 11 (당) 기 2023년 01월 01일부터 2023년 12월 31일까지"
+          ],
+          [
+            "제 10 (전) 기 2022년 01월 01일부터 2022년 12월 31일까지"
+          ],
+          [
+            "솔루션코리아컴퍼니 주식회사",
+            "(단위 : 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 14,
+        "rows": [
+          [
+            "제 11 (당) 기 2023년 01월 01일부터 2023년 12월 31일까지"
+          ],
+          [
+            "제 10 (전) 기 2022년 01월 01일부터 2022년 12월 31일까지"
+          ],
+          [
+            "솔루션코리아컴퍼니 주식회사",
+            "(단위 : 원)"
+          ]
+        ]
+      }
+    ],
+    "accounts": [
+      {
+        "metric": "assets",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 29,
+        "cellOrdinal": 2,
+        "accountLabel": "자 산 총 계",
+        "headerCells": [
+          "과 목",
+          "제 11 (당) 기",
+          "제 10 (전) 기"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "liabilities",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 43,
+        "cellOrdinal": 2,
+        "accountLabel": "부 채 총 계",
+        "headerCells": [
+          "과 목",
+          "제 11 (당) 기",
+          "제 10 (전) 기"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "equity",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 50,
+        "cellOrdinal": 2,
+        "accountLabel": "자 본 총 계",
+        "headerCells": [
+          "과 목",
+          "제 11 (당) 기",
+          "제 10 (전) 기"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "revenue",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 9,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅰ. 매출액(주4)",
+        "headerCells": [
+          "과 목",
+          "제 11 (당) 기",
+          "제 10 (전) 기"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 28,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅴ. 영업이익",
+        "headerCells": [
+          "과 목",
+          "제 11 (당) 기",
+          "제 10 (전) 기"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "netProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 44,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅹ. 당기순이익",
+        "headerCells": [
+          "과 목",
+          "제 11 (당) 기",
+          "제 10 (전) 기"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingCashFlow",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅰ. 영업활동으로 인한 현금흐름",
+        "headerCells": [
+          "과 목",
+          "제 11 (당) 기",
+          "제 10 (전) 기"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      }
+    ],
+    "unextractedMetrics": [
+      {
+        "metric": "propertyPlantEquipmentAcquisitions",
+        "reason": "noPrimaryPrintedTotalCell; component acquisitions not summed"
+      }
+    ],
+    "auditCell": null,
+    "cashSectionCells": []
+  },
+  {
+    "corpCode": "01564514",
+    "providerReceipt": "20230410002829",
+    "basis": "OFS",
+    "periodKind": "ownAnnual",
+    "auditStatus": "audited",
+    "auditProof": "해당 연도의 자체 감사보고서 · 비교기간은 미추출",
+    "accountingStandard": "Korean-GAAP",
+    "auditOpinionUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230410002829&dcmNo=9197061&eleId=2&offset=7109&length=4405&dtd=dart3.xsd",
+    "auditOpinionSha256": "0983e91cfc0893bea5e1b281e019ffb76ac79799e8a1e4c3a1ac575acab8980b",
+    "contextTables": [
+      {
+        "tableOrdinal": 0,
+        "rows": [
+          [
+            "솔루션코리아컴퍼니 주식회사"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 1,
+        "rows": [
+          [
+            "제 10 (당) 기"
+          ],
+          [
+            "2022년 01월 01일",
+            "부터"
+          ],
+          [
+            "2022년 12월 31일",
+            "까지"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 5,
+        "rows": [
+          [
+            "제 10 (당) 기 2022년 12월 31일 현재"
+          ],
+          [
+            "제 9 (전) 기 2021년 12월 31일 현재"
+          ],
+          [
+            "솔루션코리아컴퍼니 주식회사",
+            "(단위 : 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 8,
+        "rows": [
+          [
+            "제 10 (당) 기 2022년 01월 01일부터 2022년 12월 31일까지"
+          ],
+          [
+            "제 9 (전) 기 2021년 01월 01일부터 2021년 12월 31일까지"
+          ],
+          [
+            "솔루션코리아컴퍼니 주식회사",
+            "(단위 : 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 14,
+        "rows": [
+          [
+            "제 10 (당) 기 2022년 01월 01일부터 2022년 12월 31일까지"
+          ],
+          [
+            "제 9 (전) 기 2021년 01월 01일부터 2021년 12월 31일까지"
+          ],
+          [
+            "솔루션코리아컴퍼니 주식회사",
+            "(단위 : 원)"
+          ]
+        ]
+      }
+    ],
+    "accounts": [
+      {
+        "metric": "assets",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 29,
+        "cellOrdinal": 2,
+        "accountLabel": "자 산 총 계",
+        "headerCells": [
+          "과 목",
+          "제 10 (당) 기",
+          "제 9 (전) 기"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "liabilities",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 43,
+        "cellOrdinal": 2,
+        "accountLabel": "부 채 총 계",
+        "headerCells": [
+          "과 목",
+          "제 10 (당) 기",
+          "제 9 (전) 기"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "equity",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 50,
+        "cellOrdinal": 2,
+        "accountLabel": "자 본 총 계",
+        "headerCells": [
+          "과 목",
+          "제 10 (당) 기",
+          "제 9 (전) 기"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "revenue",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 9,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅰ. 매출액(주4)",
+        "headerCells": [
+          "과 목",
+          "제 10 (당) 기",
+          "제 9 (전) 기"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 28,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅴ. 영업이익",
+        "headerCells": [
+          "과 목",
+          "제 10 (당) 기",
+          "제 9 (전) 기"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "netProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 46,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅹ. 당기순이익",
+        "headerCells": [
+          "과 목",
+          "제 10 (당) 기",
+          "제 9 (전) 기"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingCashFlow",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅰ. 영업활동으로 인한 현금흐름",
+        "headerCells": [
+          "과 목",
+          "제 10 (당) 기",
+          "제 9 (전) 기"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      }
+    ],
+    "unextractedMetrics": [
+      {
+        "metric": "propertyPlantEquipmentAcquisitions",
+        "reason": "noPrimaryPrintedTotalCell; component acquisitions not summed"
+      }
+    ],
+    "auditCell": null,
+    "cashSectionCells": []
+  },
+  {
+    "corpCode": "01564514",
+    "providerReceipt": "20220411000504",
+    "basis": "OFS",
+    "periodKind": "ownAnnual",
+    "auditStatus": "audited",
+    "auditProof": "해당 연도의 자체 감사보고서 · 비교기간은 미추출",
+    "accountingStandard": "Korean-GAAP",
+    "auditOpinionUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220411000504&dcmNo=8589043&eleId=2&offset=7050&length=4459&dtd=dart3.xsd",
+    "auditOpinionSha256": "a25f79a2ac7d5b7ba04aeba1352ac4fbbd6c8f224ea6e58d1ded9b87138c1fdc",
+    "contextTables": [
+      {
+        "tableOrdinal": 0,
+        "rows": [
+          [
+            "솔루션코리아컴퍼니 주식회사"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 1,
+        "rows": [
+          [
+            "제 9 (당) 기"
+          ],
+          [
+            "2021년 01월 01일",
+            "부터"
+          ],
+          [
+            "2021년 12월 31일",
+            "까지"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 5,
+        "rows": [
+          [
+            "제 9 (당) 기 2021년 12월 31일 현재"
+          ],
+          [
+            "제 8 (전) 기 2020년 12월 31일 현재"
+          ],
+          [
+            "솔루션코리아컴퍼니 주식회사",
+            "(단위 : 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 8,
+        "rows": [
+          [
+            "제 9 (당) 기 2021년 01월 01일부터 2021년 12월 31일까지"
+          ],
+          [
+            "제 8 (전) 기 2020년 01월 01일부터 2020년 12월 31일까지"
+          ],
+          [
+            "솔루션코리아컴퍼니 주식회사",
+            "(단위 : 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 14,
+        "rows": [
+          [
+            "제 9 (당) 기 2021년 01월 01일부터 2021년 12월 31일까지"
+          ],
+          [
+            "제 8 (전) 기 2020년 01월 01일부터 2020년 12월 31일까지"
+          ],
+          [
+            "솔루션코리아컴퍼니 주식회사",
+            "(단위 : 원)"
+          ]
+        ]
+      }
+    ],
+    "accounts": [
+      {
+        "metric": "assets",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 29,
+        "cellOrdinal": 2,
+        "accountLabel": "자 산 총 계",
+        "headerCells": [
+          "과 목",
+          "제 9 (당) 기",
+          "제 8 (전) 기 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "liabilities",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 43,
+        "cellOrdinal": 2,
+        "accountLabel": "부 채 총 계",
+        "headerCells": [
+          "과 목",
+          "제 9 (당) 기",
+          "제 8 (전) 기 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "equity",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 50,
+        "cellOrdinal": 2,
+        "accountLabel": "자 본 총 계",
+        "headerCells": [
+          "과 목",
+          "제 9 (당) 기",
+          "제 8 (전) 기 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "revenue",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 9,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅰ. 매출액",
+        "headerCells": [
+          "과 목",
+          "제 9 (당) 기",
+          "제 8 (전) 기 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 28,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅴ. 영업이익",
+        "headerCells": [
+          "과 목",
+          "제 9 (당) 기",
+          "제 8 (전) 기 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "netProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 45,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅹ. 당기순이익",
+        "headerCells": [
+          "과 목",
+          "제 9 (당) 기",
+          "제 8 (전) 기 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingCashFlow",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅰ. 영업활동으로 인한 현금흐름",
+        "headerCells": [
+          "과 목",
+          "제 9 (당) 기",
+          "제 8 (전) 기 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      }
+    ],
+    "unextractedMetrics": [
+      {
+        "metric": "propertyPlantEquipmentAcquisitions",
+        "reason": "noPrimaryPrintedTotalCell; component acquisitions not summed"
+      }
+    ],
+    "auditCell": null,
+    "cashSectionCells": []
+  },
+  {
+    "corpCode": "01586923",
+    "providerReceipt": "20260401004471",
+    "basis": "OFS",
+    "periodKind": "ownAnnual",
+    "auditStatus": "audited",
+    "auditProof": "해당 연도의 자체 감사보고서 · 비교기간은 미추출",
+    "accountingStandard": "KIFRS",
+    "auditOpinionUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260401004471&dcmNo=11229723&eleId=2&offset=6838&length=4090&dtd=dart4.xsd",
+    "auditOpinionSha256": "5c62cdb5e96a821c5ef8b26ba2e7f7c1ac71848961119b8231f233254fb526eb",
+    "contextTables": [
+      {
+        "tableOrdinal": 0,
+        "rows": [
+          [
+            "주식회사 스카이랩스"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 1,
+        "rows": [
+          [
+            "제 11(당) 기"
+          ],
+          [
+            "2025년 01월 01일",
+            "부터"
+          ],
+          [
+            "2025년 12월 31일",
+            "까지"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 5,
+        "rows": [
+          [
+            "재 무 상 태 표"
+          ],
+          [
+            "제11(당)기말 2025년 12월 31일 현재"
+          ],
+          [
+            "제10(전)기말 2024년 12월 31일 현재"
+          ],
+          [
+            ""
+          ],
+          [
+            "회사명 : 주식회사 스카이랩스",
+            "(단위 : 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 8,
+        "rows": [
+          [
+            "포 괄 손 익 계 산 서"
+          ],
+          [
+            "제11(당)기 2025년 1월 1일부터 2025년 12월 31일까지"
+          ],
+          [
+            "제10(전)기 2024년 1월 1일부터 2024년 12월 31일까지"
+          ],
+          [
+            "회사명 : 주식회사 스카이랩스",
+            "(단위 : 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 14,
+        "rows": [
+          [
+            "현 금 흐 름 표"
+          ],
+          [
+            "제11(당)기 2025년 1월 1일부터 2025년 12월 31일까지"
+          ],
+          [
+            "제10(전)기 2024년 1월 1일부터 2024년 12월 31일까지"
+          ],
+          [
+            "회사명 : 주식회사 스카이랩스",
+            "(단위 : 원)"
+          ]
+        ]
+      }
+    ],
+    "accounts": [
+      {
+        "metric": "assets",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 12,
+        "cellOrdinal": 3,
+        "accountLabel": "자 산 총 계",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제 11(당) 기말",
+          "제 10(전) 기말"
+        ],
+        "rowLength": 6,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "liabilities",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 25,
+        "cellOrdinal": 3,
+        "accountLabel": "부 채 총 계",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제 11(당) 기말",
+          "제 10(전) 기말"
+        ],
+        "rowLength": 6,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "equity",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 31,
+        "cellOrdinal": 3,
+        "accountLabel": "자 본 총 계",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제 11(당) 기말",
+          "제 10(전) 기말"
+        ],
+        "rowLength": 6,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "revenue",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 9,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "I. 매출액",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제11(당)기",
+          "제10(전)기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 5,
+        "cellOrdinal": 2,
+        "accountLabel": "V.영업이익(손실)",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제11(당)기",
+          "제10(전)기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "netProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 13,
+        "cellOrdinal": 2,
+        "accountLabel": "lX.당기순이익(손실)",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제11(당)기",
+          "제10(전)기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingCashFlow",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "I. 영업활동으로 인한 현금흐름",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제11(당)기",
+          "제10(전)기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "propertyPlantEquipmentAcquisitions",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": "outflow",
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 13,
+        "cellOrdinal": 2,
+        "accountLabel": "유형자산의 취득",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제11(당)기",
+          "제10(전)기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      }
+    ],
+    "unextractedMetrics": [],
+    "auditCell": null,
+    "cashSectionCells": []
+  },
+  {
+    "corpCode": "01586923",
+    "providerReceipt": "20250404003093",
+    "basis": "OFS",
+    "periodKind": "ownAnnual",
+    "auditStatus": "audited",
+    "auditProof": "해당 연도의 자체 감사보고서 · 비교기간은 미추출",
+    "accountingStandard": "KIFRS",
+    "auditOpinionUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250404003093&dcmNo=10536302&eleId=2&offset=6844&length=4093&dtd=dart4.xsd",
+    "auditOpinionSha256": "c8a5cb534a46b2d811ae57530bd25cd5b0dad42aca0ace9970a0291b64ed0b32",
+    "contextTables": [
+      {
+        "tableOrdinal": 0,
+        "rows": [
+          [
+            "주식회사 스카이랩스"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 1,
+        "rows": [
+          [
+            "제 10(당) 기"
+          ],
+          [
+            "2024년 01월 01일",
+            "부터"
+          ],
+          [
+            "2024년 12월 31일",
+            "까지"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 5,
+        "rows": [
+          [
+            "재 무 상 태 표"
+          ],
+          [
+            "제10(당)기말 2024년 12월 31일 현재"
+          ],
+          [
+            "제09(전)기말 2023년 12월 31일 현재"
+          ],
+          [
+            ""
+          ],
+          [
+            "회사명 : 주식회사 스카이랩스",
+            "(단위 : 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 8,
+        "rows": [
+          [
+            "포 괄 손 익 계 산 서"
+          ],
+          [
+            "제10(당)기 2024년 1월 1일부터 2024년 12월 31일까지"
+          ],
+          [
+            "제09(전)기 2023년 1월 1일부터 2023년 12월 31일까지"
+          ],
+          [
+            "회사명 : 주식회사 스카이랩스",
+            "(단위 : 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 14,
+        "rows": [
+          [
+            "현 금 흐 름 표"
+          ],
+          [
+            "제10(당)기 2024년 1월 1일부터 2024년 12월 31일까지"
+          ],
+          [
+            "제09(전)기 2023년 1월 1일부터 2023년 12월 31일까지"
+          ],
+          [
+            "회사명 : 주식회사 스카이랩스",
+            "(단위 : 원)"
+          ]
+        ]
+      }
+    ],
+    "accounts": [
+      {
+        "metric": "assets",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 12,
+        "cellOrdinal": 3,
+        "accountLabel": "자 산 총 계",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제 10(당) 기말",
+          "제 9(당) 기말"
+        ],
+        "rowLength": 6,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "liabilities",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 25,
+        "cellOrdinal": 3,
+        "accountLabel": "부 채 총 계",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제 10(당) 기말",
+          "제 9(당) 기말"
+        ],
+        "rowLength": 6,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "equity",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 31,
+        "cellOrdinal": 3,
+        "accountLabel": "자 본 총 계",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제 10(당) 기말",
+          "제 9(당) 기말"
+        ],
+        "rowLength": 6,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "revenue",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 9,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "I. 매출액",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제10(당)기",
+          "제9(당)기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 5,
+        "cellOrdinal": 2,
+        "accountLabel": "V.영업이익(손실)",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제10(당)기",
+          "제9(당)기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "netProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 13,
+        "cellOrdinal": 2,
+        "accountLabel": "lX.당기순이익(손실)",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제10(당)기",
+          "제9(당)기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingCashFlow",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "I. 영업활동으로 인한 현금흐름",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제10(당)기",
+          "제09(당)기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "propertyPlantEquipmentAcquisitions",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": "outflow",
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 12,
+        "cellOrdinal": 2,
+        "accountLabel": "유형자산의 취득",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제10(당)기",
+          "제09(당)기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      }
+    ],
+    "unextractedMetrics": [],
+    "auditCell": null,
+    "cashSectionCells": []
+  },
+  {
+    "corpCode": "01586923",
+    "providerReceipt": "20240405003959",
+    "basis": "OFS",
+    "periodKind": "ownAnnual",
+    "auditStatus": "audited",
+    "auditProof": "해당 연도의 자체 감사보고서 · 비교기간은 미추출",
+    "accountingStandard": "KIFRS",
+    "auditOpinionUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240405003959&dcmNo=9849097&eleId=2&offset=6448&length=4077&dtd=dart4.xsd",
+    "auditOpinionSha256": "91799150463dfc221f94b07f8a21c44eba07d68263de715aafbdba074253e859",
+    "contextTables": [
+      {
+        "tableOrdinal": 0,
+        "rows": [
+          [
+            "주식회사 스카이랩스"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 1,
+        "rows": [
+          [
+            "제 9(당) 기"
+          ],
+          [
+            "2023년 01월 01일",
+            "부터"
+          ],
+          [
+            "2023년 12월 31일",
+            "까지"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 5,
+        "rows": [
+          [
+            "재 무 상 태 표"
+          ],
+          [
+            "제9(당)기말 2023년 12월 31일 현재"
+          ],
+          [
+            "제8(전)기말 2022년 12월 31일 현재"
+          ],
+          [
+            ""
+          ],
+          [
+            "회사명 : 주식회사 스카이랩스",
+            "(단위 : 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 8,
+        "rows": [
+          [
+            "포 괄 손 익 계 산 서"
+          ],
+          [
+            "제9(당)기 2023년 1월 1일부터 2023년 12월 31일까지"
+          ],
+          [
+            "제8(전)기 2022년 1월 1일부터 2022년 12월 31일까지"
+          ],
+          [
+            "회사명 : 주식회사 스카이랩스",
+            "(단위 : 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 14,
+        "rows": [
+          [
+            "현 금 흐 름 표"
+          ],
+          [
+            "제9(당)기 2023년 1월 1일부터 2023년 12월 31일까지"
+          ],
+          [
+            "제8(전)기 2022년 1월 1일부터 2022년 12월 31일까지"
+          ],
+          [
+            "회사명 : 주식회사 스카이랩스",
+            "(단위 : 원)"
+          ]
+        ]
+      }
+    ],
+    "accounts": [
+      {
+        "metric": "assets",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 12,
+        "cellOrdinal": 3,
+        "accountLabel": "자 산 총 계",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제 9(당) 기말",
+          "제 8(전) 기말"
+        ],
+        "rowLength": 6,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "liabilities",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 25,
+        "cellOrdinal": 3,
+        "accountLabel": "부 채 총 계",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제 9(당) 기말",
+          "제 8(전) 기말"
+        ],
+        "rowLength": 6,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "equity",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 31,
+        "cellOrdinal": 3,
+        "accountLabel": "자 본 총 계",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제 9(당) 기말",
+          "제 8(전) 기말"
+        ],
+        "rowLength": 6,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "revenue",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 9,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "I. 매출액",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제9(당)기",
+          "제8(전)기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 5,
+        "cellOrdinal": 2,
+        "accountLabel": "V. 영업이익(손실)",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제9(당)기",
+          "제8(전)기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "netProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 13,
+        "cellOrdinal": 2,
+        "accountLabel": "lX.당기순이익(손실)",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제9(당)기",
+          "제8(전)기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingCashFlow",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "I. 영업활동으로 인한 현금흐름",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제9(당)기",
+          "제8(전)기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "propertyPlantEquipmentAcquisitions",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": "outflow",
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 14,
+        "cellOrdinal": 2,
+        "accountLabel": "유형자산의 취득",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제9(당)기",
+          "제8(전)기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      }
+    ],
+    "unextractedMetrics": [],
+    "auditCell": null,
+    "cashSectionCells": []
+  },
+  {
+    "corpCode": "01586923",
+    "providerReceipt": "20230404002934",
+    "basis": "OFS",
+    "periodKind": "ownAnnual",
+    "auditStatus": "audited",
+    "auditProof": "해당 연도의 자체 감사보고서 · 비교기간은 미추출",
+    "accountingStandard": "KIFRS",
+    "auditOpinionUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230404002934&dcmNo=9158036&eleId=2&offset=6868&length=4567&dtd=dart3.xsd",
+    "auditOpinionSha256": "b71b8d9ddaa6bb4861ff0245723609547eeece56f2292fc54ad2952d401cb8e4",
+    "contextTables": [
+      {
+        "tableOrdinal": 0,
+        "rows": [
+          [
+            "주식회사 스카이랩스"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 1,
+        "rows": [
+          [
+            "제 8 기"
+          ],
+          [
+            "2022년 01월 01일",
+            "부터"
+          ],
+          [
+            "2022년 12월 31일",
+            "까지"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 5,
+        "rows": [
+          [
+            "재 무 상 태 표"
+          ],
+          [
+            "제8(당)기말 2022년 12월 31일 현재"
+          ],
+          [
+            "제7(전)기말 2021년 12월 31일 현재"
+          ],
+          [
+            "주식회사 스카이랩스",
+            "(단위 : 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 8,
+        "rows": [
+          [
+            "포 괄 손 익 계 산 서"
+          ],
+          [
+            "제8(당)기 2022년 1월 1일부터 2022년 12월 31일까지"
+          ],
+          [
+            "제7(전)기 2021년 1월 1일부터 2021년 12월 31일까지"
+          ],
+          [
+            "주식회사 스카이랩스",
+            "(단위 : 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 14,
+        "rows": [
+          [
+            "현 금 흐 름 표"
+          ],
+          [
+            "제8(당)기 2022년 1월 1일부터 2022년 12월 31일까지"
+          ],
+          [
+            "제7(전)기 2021년 1월 1일부터 2021년 12월 31일까지"
+          ],
+          [
+            "주식회사 스카이랩스",
+            "(단위 : 원)"
+          ]
+        ]
+      }
+    ],
+    "accounts": [
+      {
+        "metric": "assets",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 13,
+        "cellOrdinal": 3,
+        "accountLabel": "자 산 총 계",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제 8(당) 기말",
+          "제 7(전) 기말"
+        ],
+        "rowLength": 6,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "liabilities",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 26,
+        "cellOrdinal": 3,
+        "accountLabel": "부 채 총 계",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제 8(당) 기말",
+          "제 7(전) 기말"
+        ],
+        "rowLength": 6,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "equity",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 32,
+        "cellOrdinal": 3,
+        "accountLabel": "자 본 총 계",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제 8(당) 기말",
+          "제 7(전) 기말"
+        ],
+        "rowLength": 6,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "revenue",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 9,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "I. 매출액",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제8(당)기",
+          "제 7(전) 기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 5,
+        "cellOrdinal": 2,
+        "accountLabel": "V.영업이익(손실)",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제8(당)기",
+          "제 7(전) 기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "netProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 13,
+        "cellOrdinal": 2,
+        "accountLabel": "IX.당기순이익(손실)",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제8(당)기",
+          "제 7(전) 기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingCashFlow",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "I. 영업활동으로 인한 현금흐름",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제8(당)기",
+          "제7(전)기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "propertyPlantEquipmentAcquisitions",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": "outflow",
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 14,
+        "cellOrdinal": 2,
+        "accountLabel": "유형자산의 취득",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제8(당)기",
+          "제7(전)기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "positiveOutflowMagnitude"
+      }
+    ],
+    "unextractedMetrics": [],
+    "auditCell": null,
+    "cashSectionCells": [
+      {
+        "tableOrdinal": 15,
+        "rowOrdinal": 12,
+        "cellOrdinal": 0,
+        "printedText": "2. 투자활동으로 인한 현금유출액"
+      }
+    ]
+  },
+  {
+    "corpCode": "01586923",
+    "providerReceipt": "20220404002339",
+    "basis": "OFS",
+    "periodKind": "ownAnnual",
+    "auditStatus": "audited",
+    "auditProof": "해당 연도의 자체 감사보고서 · 비교기간은 미추출",
+    "accountingStandard": "KIFRS",
+    "auditOpinionUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220404002339&dcmNo=8548998&eleId=2&offset=6808&length=4562&dtd=dart3.xsd",
+    "auditOpinionSha256": "fe2d5b240184e7a30a652df0287b5f5e7e7ddccd8951994b898ffe50c86bc1e9",
+    "contextTables": [
+      {
+        "tableOrdinal": 0,
+        "rows": [
+          [
+            "주식회사 스카이랩스"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 1,
+        "rows": [
+          [
+            "제 7 기"
+          ],
+          [
+            "2021년 01월 01일",
+            "부터"
+          ],
+          [
+            "2021년 12월 31일",
+            "까지"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 5,
+        "rows": [
+          [
+            "재 무 상 태 표"
+          ],
+          [
+            "제7(당)기말 2021년 12월 31일 현재"
+          ],
+          [
+            "제6(전)기말 2020년 12월 31일 현재"
+          ],
+          [
+            "제6(전)기초 2020년 01월 01일 현재"
+          ],
+          [
+            "주식회사 스카이랩스",
+            "(단위 : 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 8,
+        "rows": [
+          [
+            "포 괄 손 익 계 산 서"
+          ],
+          [
+            "제7(당)기 2021년 1월 1일부터 2021년 12월 31일까지"
+          ],
+          [
+            "제6(전)기 2020년 1월 1일부터 2020년 12월 31일까지"
+          ],
+          [
+            "주식회사 스카이랩스",
+            "(단위 : 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 14,
+        "rows": [
+          [
+            "현 금 흐 름 표"
+          ],
+          [
+            "제7(당)기 2021년 1월 1일부터 2021년 12월 31일까지"
+          ],
+          [
+            "제6(전)기 2020년 1월 1일부터 2020년 12월 31일까지"
+          ],
+          [
+            "주식회사 스카이랩스",
+            "(단위 : 원)"
+          ]
+        ]
+      }
+    ],
+    "accounts": [
+      {
+        "metric": "assets",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 13,
+        "cellOrdinal": 3,
+        "accountLabel": "자 산 총 계",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제 7(당) 기말",
+          "제 6(전) 기말 (감사받지 아니한 재무제표)",
+          "제 6(전) 기초 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 8,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "liabilities",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 29,
+        "cellOrdinal": 3,
+        "accountLabel": "부 채 총 계",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제 7(당) 기말",
+          "제 6(전) 기말 (감사받지 아니한 재무제표)",
+          "제 6(전) 기초 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 8,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "equity",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 35,
+        "cellOrdinal": 3,
+        "accountLabel": "자 본 총 계",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제 7(당) 기말",
+          "제 6(전) 기말 (감사받지 아니한 재무제표)",
+          "제 6(전) 기초 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 8,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "revenue",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 9,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "I. 매출액",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제7(당)기",
+          "제 6(전) 기 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 5,
+        "cellOrdinal": 2,
+        "accountLabel": "V.영업손익",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제7(당)기",
+          "제 6(전) 기 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "netProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 12,
+        "cellOrdinal": 2,
+        "accountLabel": "VIII.당기순손실",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제7(당)기",
+          "제 6(전) 기 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingCashFlow",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "I. 영업활동으로 인한 현금흐름",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제7(당)기",
+          "제6(전)기 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "propertyPlantEquipmentAcquisitions",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": "outflow",
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 13,
+        "cellOrdinal": 2,
+        "accountLabel": "유형자산의 취득",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제7(당)기",
+          "제6(전)기 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "positiveOutflowMagnitude"
+      }
+    ],
+    "unextractedMetrics": [],
+    "auditCell": null,
+    "cashSectionCells": [
+      {
+        "tableOrdinal": 15,
+        "rowOrdinal": 11,
+        "cellOrdinal": 0,
+        "printedText": "2. 투자활동으로 인한 현금유출액"
+      }
+    ]
+  },
+  {
+    "corpCode": "01722066",
+    "providerReceipt": "20260313000455",
+    "basis": "OFS",
+    "periodKind": "ownAnnual",
+    "auditStatus": "audited",
+    "auditProof": "해당 연도의 자체 감사보고서 · 비교기간은 미추출",
+    "accountingStandard": "KIFRS",
+    "auditOpinionUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260313000455&dcmNo=11119060&eleId=2&offset=7738&length=4117&dtd=dart4.xsd",
+    "auditOpinionSha256": "5435fd26afcbb7172e1059e774d3eb2bd5fe639aeac8358287b5e3151f501f52",
+    "contextTables": [
+      {
+        "tableOrdinal": 0,
+        "rows": [
+          [
+            "빅웨이브로보틱스 주식회사"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 1,
+        "rows": [
+          [
+            "제 6 기"
+          ],
+          [
+            "2025년 01월 01일",
+            "부터"
+          ],
+          [
+            "2025년 12월 31일",
+            "까지"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 5,
+        "rows": [
+          [
+            "재 무 상 태 표"
+          ],
+          [
+            "제 6(당) 기 2025년 12월 31일 현재"
+          ],
+          [
+            "제 5(전) 기 2024년 12월 31일 현재"
+          ],
+          [
+            "빅웨이브로보틱스 주식회사",
+            "(단위 : 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 8,
+        "rows": [
+          [
+            "포 괄 손 익 계 산 서"
+          ],
+          [
+            "제 6(당) 기 2025년 1월 1일부터 2025년 12월 31일까지"
+          ],
+          [
+            "제 5(전) 기 2024년 1월 1일부터 2024년 12월 31일까지"
+          ],
+          [
+            "빅웨이브로보틱스 주식회사",
+            "(단위 : 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 14,
+        "rows": [
+          [
+            "현 금 흐 름 표"
+          ],
+          [
+            "제 6(당) 기 2025년 1월 1일부터 2025년 12월 31일까지"
+          ],
+          [
+            "제 5(전) 기 2024년 1월 1일부터 2024년 12월 31일까지"
+          ],
+          [
+            "빅웨이브로보틱스 주식회사",
+            "(단위 : 원)"
+          ]
+        ]
+      }
+    ],
+    "accounts": [
+      {
+        "metric": "assets",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 16,
+        "cellOrdinal": 2,
+        "accountLabel": "자 산 총 계",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제6(당)기말",
+          "제5(전)기말"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "liabilities",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 26,
+        "cellOrdinal": 2,
+        "accountLabel": "부 채 총 계",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제6(당)기말",
+          "제5(전)기말"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "equity",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 32,
+        "cellOrdinal": 2,
+        "accountLabel": "자 본 총 계",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제6(당)기말",
+          "제5(전)기말"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "revenue",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 9,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "매출",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제6(당)기",
+          "제5(전)기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 5,
+        "cellOrdinal": 2,
+        "accountLabel": "영업이익",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제6(당)기",
+          "제5(전)기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "netProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 12,
+        "cellOrdinal": 2,
+        "accountLabel": "당기순이익",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제6(당)기",
+          "제5(전)기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingCashFlow",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "영업활동으로 인한 현금흐름",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제6(당)기",
+          "제5(전)기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "propertyPlantEquipmentAcquisitions",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": "outflow",
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 10,
+        "cellOrdinal": 2,
+        "accountLabel": "유형자산의 취득",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제6(당)기",
+          "제5(전)기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      }
+    ],
+    "unextractedMetrics": [],
+    "auditCell": null,
+    "cashSectionCells": []
+  },
+  {
+    "corpCode": "01722066",
+    "providerReceipt": "20250331001961",
+    "basis": "OFS",
+    "periodKind": "ownAnnual",
+    "auditStatus": "audited",
+    "auditProof": "해당 연도의 자체 감사보고서 · 비교기간은 미추출",
+    "accountingStandard": "KIFRS",
+    "auditOpinionUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250331001961&dcmNo=10483104&eleId=2&offset=7076&length=4261&dtd=dart4.xsd",
+    "auditOpinionSha256": "43cf9358bc522f57fa9ba3780df346abd1e63843218f6420405a48253ce83b85",
+    "contextTables": [
+      {
+        "tableOrdinal": 0,
+        "rows": [
+          [
+            "빅웨이브로보틱스 주식회사"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 1,
+        "rows": [
+          [
+            "제 5 기"
+          ],
+          [
+            "2024년 01월 01일",
+            "부터"
+          ],
+          [
+            "2024년 12월 31일",
+            "까지"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 5,
+        "rows": [
+          [
+            "재 무 상 태 표"
+          ],
+          [
+            "제 5(당) 기 2024년 12월 31일 현재"
+          ],
+          [
+            "제 4(전) 기 2023년 12월 31일 현재"
+          ],
+          [
+            "빅웨이브로보틱스 주식회사",
+            "(단위 : 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 8,
+        "rows": [
+          [
+            "포 괄 손 익 계 산 서"
+          ],
+          [
+            "제 5(당) 기 2024년 1월 1일부터 2024년 12월 31일까지"
+          ],
+          [
+            "제 4(전) 기 2023년 1월 1일부터 2023년 12월 31일까지"
+          ],
+          [
+            "빅웨이브로보틱스 주식회사",
+            "(단위 : 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 14,
+        "rows": [
+          [
+            "현 금 흐 름 표"
+          ],
+          [
+            "제 5(당) 기 2024년 1월 1일부터 2024년 12월 31일까지"
+          ],
+          [
+            "제 4(전) 기 2023년 1월 1일부터 2023년 12월 31일까지"
+          ],
+          [
+            "빅웨이브로보틱스 주식회사",
+            "(단위 : 원)"
+          ]
+        ]
+      }
+    ],
+    "accounts": [
+      {
+        "metric": "assets",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 16,
+        "cellOrdinal": 2,
+        "accountLabel": "자 산 총 계",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제5(당)기말",
+          "제4(전)기말"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "liabilities",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 28,
+        "cellOrdinal": 2,
+        "accountLabel": "부 채 총 계",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제5(당)기말",
+          "제4(전)기말"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "equity",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 34,
+        "cellOrdinal": 2,
+        "accountLabel": "자 본 총 계",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제5(당)기말",
+          "제4(전)기말"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "revenue",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 9,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "매출",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제5(당)기",
+          "제4(전)기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 5,
+        "cellOrdinal": 2,
+        "accountLabel": "영업손실",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제5(당)기",
+          "제4(전)기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "netProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 12,
+        "cellOrdinal": 2,
+        "accountLabel": "당기순손실",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제5(당)기",
+          "제4(전)기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingCashFlow",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "영업활동으로 인한 현금흐름",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제5(당)기",
+          "제4(전)기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "propertyPlantEquipmentAcquisitions",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": "outflow",
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 10,
+        "cellOrdinal": 2,
+        "accountLabel": "유형자산의 취득",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제5(당)기",
+          "제4(전)기"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      }
+    ],
+    "unextractedMetrics": [],
+    "auditCell": null,
+    "cashSectionCells": []
+  },
+  {
+    "corpCode": "01722066",
+    "providerReceipt": "20240328001877",
+    "basis": "OFS",
+    "periodKind": "ownAnnual",
+    "auditStatus": "audited",
+    "auditProof": "해당 연도의 자체 감사보고서 · 비교기간은 미추출",
+    "accountingStandard": "KIFRS",
+    "auditOpinionUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240328001877&dcmNo=9778720&eleId=2&offset=5786&length=4105&dtd=dart4.xsd",
+    "auditOpinionSha256": "bd32be733ab385b88cbaf398f2c4ac8398dc4c5dfa11df99fb820e42cf5d5d52",
+    "contextTables": [
+      {
+        "tableOrdinal": 0,
+        "rows": [
+          [
+            "빅웨이브로보틱스 주식회사"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 1,
+        "rows": [
+          [
+            "제 4 기"
+          ],
+          [
+            "2023년 01월 01일",
+            "부터"
+          ],
+          [
+            "2023년 12월 31일",
+            "까지"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 6,
+        "rows": [
+          [
+            "재 무 상 태 표"
+          ],
+          [
+            "제 4 기 기말 2023년 12월 31일 현재"
+          ],
+          [
+            "제 3 기 기말 2022년 12월 31일 현재"
+          ],
+          [
+            "제 3 기 기초 2022년 01월 01일 현재"
+          ],
+          [
+            "빅웨이브로보틱스 주식회사",
+            "(단위 : 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 9,
+        "rows": [
+          [
+            "포 괄 손 익 계 산 서"
+          ],
+          [
+            "제 4 기 2023년 1월 1일부터 2023년 12월 31일까지"
+          ],
+          [
+            "제 3 기 2022년 1월 1일부터 2022년 12월 31일까지"
+          ],
+          [
+            "빅웨이브로보틱스 주식회사",
+            "(단위 : 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 15,
+        "rows": [
+          [
+            "현 금 흐 름 표"
+          ],
+          [
+            "제 4 기 2023년 1월 1일부터 2023년 12월 31일까지"
+          ],
+          [
+            "제 3 기 2022년 1월 1일부터 2022년 12월 31일까지"
+          ],
+          [
+            "빅웨이브로보틱스 주식회사",
+            "(단위 : 원)"
+          ]
+        ]
+      }
+    ],
+    "accounts": [
+      {
+        "metric": "assets",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 7,
+        "rowOrdinal": 15,
+        "cellOrdinal": 2,
+        "accountLabel": "자 산 총 계",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제4(당)기말",
+          "제3(전)기말 (감사받지 아니한 재무제표)",
+          "제3(전)기초 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "liabilities",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 7,
+        "rowOrdinal": 29,
+        "cellOrdinal": 2,
+        "accountLabel": "부 채 총 계",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제4(당)기말",
+          "제3(전)기말 (감사받지 아니한 재무제표)",
+          "제3(전)기초 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "equity",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 7,
+        "rowOrdinal": 35,
+        "cellOrdinal": 2,
+        "accountLabel": "자 본 총 계",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제4(당)기말",
+          "제3(전)기말 (감사받지 아니한 재무제표)",
+          "제3(전)기초 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "revenue",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 10,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "매출",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제4(당)기",
+          "제3(전)기 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 10,
+        "rowOrdinal": 5,
+        "cellOrdinal": 2,
+        "accountLabel": "영업손실",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제4(당)기",
+          "제3(전)기 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "netProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 10,
+        "rowOrdinal": 12,
+        "cellOrdinal": 2,
+        "accountLabel": "당기순손실",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제4(당)기",
+          "제3(전)기 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingCashFlow",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 16,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "영업활동으로 인한 현금흐름",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제4(당)기",
+          "제3(전)기 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "propertyPlantEquipmentAcquisitions",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": "outflow",
+        "incomeDirection": null,
+        "tableOrdinal": 16,
+        "rowOrdinal": 10,
+        "cellOrdinal": 2,
+        "accountLabel": "유형자산의 취득",
+        "headerCells": [
+          "과 목",
+          "주 석",
+          "제4(당)기",
+          "제3(전)기 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      }
+    ],
+    "unextractedMetrics": [],
+    "auditCell": null,
+    "cashSectionCells": []
+  },
+  {
+    "corpCode": "01867688",
+    "providerReceipt": "20260331003617",
+    "basis": "CFS",
+    "periodKind": "ownAnnual",
+    "auditStatus": "audited",
+    "auditProof": "해당 연도의 자체 감사보고서 · 비교기간은 미추출",
+    "accountingStandard": "KIFRS",
+    "auditOpinionUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260331003617&dcmNo=11210810&eleId=2&offset=6885&length=4379&dtd=dart4.xsd",
+    "auditOpinionSha256": "6fa5c9988a94a5044b2e7c5a9666bc986122d080378c4e511c8923213cb242ef",
+    "contextTables": [
+      {
+        "tableOrdinal": 0,
+        "rows": [
+          [
+            "주식회사 와이즈플래닛컴퍼니와 그 종속회사"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 1,
+        "rows": [
+          [
+            "제 13 기"
+          ],
+          [
+            "2025년 01월 01일",
+            "부터"
+          ],
+          [
+            "2025년 12월 31일",
+            "까지"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 5,
+        "rows": [
+          [
+            "연 결 재 무 상 태 표"
+          ],
+          [
+            "제 13(당) 기말 2025년 12월 31일 현재"
+          ],
+          [
+            "제 12(전) 기말 2024년 12월 31일 현재"
+          ],
+          [
+            "주식회사 와이즈플래닛컴퍼니와 그 종속회사",
+            "(단위: 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 8,
+        "rows": [
+          [
+            "연 결 포 괄 손 익 계 산 서"
+          ],
+          [
+            "제 13(당) 기 2025년 01월 01일부터 2025년 12월 31일까지"
+          ],
+          [
+            "제 12(전) 기 2024년 01월 01일부터 2024년 12월 31일까지"
+          ],
+          [
+            "주식회사 와이즈플래닛컴퍼니와 그 종속회사",
+            "(단위: 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 14,
+        "rows": [
+          [
+            "연 결 현 금 흐 름 표"
+          ],
+          [
+            "제 13(당) 기 2025년 01월 01일부터 2025년 12월 31일까지"
+          ],
+          [
+            "제 12(전) 기 2024년 01월 01일부터 2024년 12월 31일까지"
+          ],
+          [
+            "주식회사 와이즈플래닛컴퍼니와 그 종속회사",
+            "(단위: 원)"
+          ]
+        ]
+      }
+    ],
+    "accounts": [
+      {
+        "metric": "assets",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 19,
+        "cellOrdinal": 2,
+        "accountLabel": "자 산 총 계",
+        "headerCells": [
+          "과 목",
+          "제 13(당) 기말",
+          "제 12(전) 기말"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "liabilities",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 34,
+        "cellOrdinal": 2,
+        "accountLabel": "부 채 총 계",
+        "headerCells": [
+          "과 목",
+          "제 13(당) 기말",
+          "제 12(전) 기말"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "equity",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 42,
+        "cellOrdinal": 2,
+        "accountLabel": "자 본 총 계",
+        "headerCells": [
+          "과 목",
+          "제 13(당) 기말",
+          "제 12(전) 기말"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "revenue",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 9,
+        "rowOrdinal": 1,
+        "cellOrdinal": 1,
+        "accountLabel": "I. 영업수익(주석30,31)",
+        "headerCells": [
+          "과 목",
+          "제 13(당) 기",
+          "제 12(전) 기"
+        ],
+        "rowLength": 3,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 3,
+        "cellOrdinal": 1,
+        "accountLabel": "III. 영업이익",
+        "headerCells": [
+          "과 목",
+          "제 13(당) 기",
+          "제 12(전) 기"
+        ],
+        "rowLength": 3,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "netProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 10,
+        "cellOrdinal": 1,
+        "accountLabel": "V. 당기순이익",
+        "headerCells": [
+          "과 목",
+          "제 13(당) 기",
+          "제 12(전) 기"
+        ],
+        "rowLength": 3,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingCashFlow",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "I. 영업활동 현금흐름",
+        "headerCells": [
+          "과 목",
+          "제 13(당) 기",
+          "제 12(전) 기"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "propertyPlantEquipmentAcquisitions",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": "outflow",
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 16,
+        "cellOrdinal": 1,
+        "accountLabel": "유형자산의 취득",
+        "headerCells": [
+          "과 목",
+          "제 13(당) 기",
+          "제 12(전) 기"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      }
+    ],
+    "unextractedMetrics": [],
+    "auditCell": null,
+    "cashSectionCells": []
+  },
+  {
+    "corpCode": "01867688",
+    "providerReceipt": "20260331003584",
+    "basis": "OFS",
+    "periodKind": "ownAnnual",
+    "auditStatus": "audited",
+    "auditProof": "해당 연도의 자체 감사보고서 · 비교기간은 미추출",
+    "accountingStandard": "KIFRS",
+    "auditOpinionUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260331003584&dcmNo=11210703&eleId=2&offset=7269&length=4161&dtd=dart4.xsd",
+    "auditOpinionSha256": "529c32290e57c8558fe6d2a0a3981d67e647163a968ea151716438ec4294b058",
+    "contextTables": [
+      {
+        "tableOrdinal": 0,
+        "rows": [
+          [
+            "주식회사 와이즈플래닛컴퍼니"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 1,
+        "rows": [
+          [
+            "제 13 기"
+          ],
+          [
+            "2025년 01월 01일",
+            "부터"
+          ],
+          [
+            "2025년 12월 31일",
+            "까지"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 5,
+        "rows": [
+          [
+            "재 무 상 태 표"
+          ],
+          [
+            "제 13(당) 기말 2025년 12월 31일 현재"
+          ],
+          [
+            "제 12(전) 기말 2024년 12월 31일 현재"
+          ],
+          [
+            "주식회사 와이즈플래닛컴퍼니",
+            "(단위 : 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 8,
+        "rows": [
+          [
+            "포 괄 손 익 계 산 서"
+          ],
+          [
+            "제 13(당) 기 2025년 01월 01일부터 2025년 12월 31일까지"
+          ],
+          [
+            "제 12(전) 기 2024년 01월 01일부터 2024년 12월 31일까지"
+          ],
+          [
+            "주식회사 와이즈플래닛컴퍼니",
+            "(단위 : 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 14,
+        "rows": [
+          [
+            "현 금 흐 름 표"
+          ],
+          [
+            "제 13(당) 기 2025년 01월 01일부터 2025년 12월 31일까지"
+          ],
+          [
+            "제 12(전) 기 2024년 01월 01일부터 2024년 12월 31일까지"
+          ],
+          [
+            "주식회사 와이즈플래닛컴퍼니",
+            "(단위 : 원)"
+          ]
+        ]
+      }
+    ],
+    "accounts": [
+      {
+        "metric": "assets",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 18,
+        "cellOrdinal": 2,
+        "accountLabel": "자 산 총 계",
+        "headerCells": [
+          "과 목",
+          "제 13(당) 기말",
+          "제 12(전) 기말"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "liabilities",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 31,
+        "cellOrdinal": 2,
+        "accountLabel": "부 채 총 계",
+        "headerCells": [
+          "과 목",
+          "제 13(당) 기말",
+          "제 12(전) 기말"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "equity",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 37,
+        "cellOrdinal": 2,
+        "accountLabel": "자 본 총 계",
+        "headerCells": [
+          "과 목",
+          "제 13(당) 기말",
+          "제 12(전) 기말"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "revenue",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 9,
+        "rowOrdinal": 1,
+        "cellOrdinal": 1,
+        "accountLabel": "I. 영업수익(주석29,30)",
+        "headerCells": [
+          "과 목",
+          "제 13(당) 기",
+          "제 12(전) 기"
+        ],
+        "rowLength": 3,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 3,
+        "cellOrdinal": 1,
+        "accountLabel": "III. 영업이익",
+        "headerCells": [
+          "과 목",
+          "제 13(당) 기",
+          "제 12(전) 기"
+        ],
+        "rowLength": 3,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "netProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 10,
+        "cellOrdinal": 1,
+        "accountLabel": "V. 당기순이익",
+        "headerCells": [
+          "과 목",
+          "제 13(당) 기",
+          "제 12(전) 기"
+        ],
+        "rowLength": 3,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingCashFlow",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "I. 영업활동 현금흐름",
+        "headerCells": [
+          "과 목",
+          "제 13(당) 기",
+          "제 12(전) 기"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "propertyPlantEquipmentAcquisitions",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": "outflow",
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 15,
+        "cellOrdinal": 1,
+        "accountLabel": "유형자산의 취득",
+        "headerCells": [
+          "과 목",
+          "제 13(당) 기",
+          "제 12(전) 기"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      }
+    ],
+    "unextractedMetrics": [],
+    "auditCell": null,
+    "cashSectionCells": []
+  },
+  {
+    "corpCode": "01867688",
+    "providerReceipt": "20260331003319",
+    "basis": "CFS",
+    "periodKind": "ownAnnual",
+    "auditStatus": "audited",
+    "auditProof": "해당 연도의 자체 감사보고서 · 비교기간은 미추출",
+    "accountingStandard": "KIFRS",
+    "auditOpinionUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260331003319&dcmNo=11209737&eleId=3&offset=54121&length=4500&dtd=dart4.xsd",
+    "auditOpinionSha256": "87fb246478f42b3d6b381b059909d43b41bfc84be76577c3d7ff905e3fe17d1c",
+    "contextTables": [
+      {
+        "tableOrdinal": 0,
+        "rows": [
+          [
+            "주식회사 와이즈플래닛컴퍼니와 그 종속회사"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 1,
+        "rows": [
+          [
+            "제 12 기"
+          ],
+          [
+            "2024년 01월 01일",
+            "부터"
+          ],
+          [
+            "2024년 12월 31일",
+            "까지"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 5,
+        "rows": [
+          [
+            "연 결 재 무 상 태 표"
+          ],
+          [
+            "제 12(당) 기말 2024년 12월 31일 현재"
+          ],
+          [
+            "제 11(전) 기말 2023년 12월 31일 현재"
+          ],
+          [
+            "제 11(전) 기초 2023년 01월 01일 현재"
+          ],
+          [
+            "주식회사 와이즈플래닛컴퍼니와 그 종속회사",
+            "(단위: 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 8,
+        "rows": [
+          [
+            "연 결 포 괄 손 익 계 산 서"
+          ],
+          [
+            "제 12(당) 기 2024년 01월 01일부터 2024년 12월 31일까지"
+          ],
+          [
+            "제 11(전) 기 2023년 01월 01일부터 2023년 12월 31일까지"
+          ],
+          [
+            "주식회사 와이즈플래닛컴퍼니와 그 종속회사",
+            "(단위: 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 14,
+        "rows": [
+          [
+            "연 결 현 금 흐 름 표"
+          ],
+          [
+            "제 12(당) 기 2024년 01월 01일부터 2024년 12월 31일까지"
+          ],
+          [
+            "제 11(전) 기 2023년 01월 01일부터 2023년 12월 31일까지"
+          ],
+          [
+            "주식회사 와이즈플래닛컴퍼니와 그 종속회사",
+            "(단위: 원)"
+          ]
+        ]
+      }
+    ],
+    "accounts": [
+      {
+        "metric": "assets",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 19,
+        "cellOrdinal": 2,
+        "accountLabel": "자 산 총 계",
+        "headerCells": [
+          "과 목",
+          "제 12(당) 기말",
+          "제 11(전) 기말 (감사받지 아니한 재무제표)",
+          "제 11(전) 기초 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 7,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "liabilities",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 34,
+        "cellOrdinal": 2,
+        "accountLabel": "부 채 총 계",
+        "headerCells": [
+          "과 목",
+          "제 12(당) 기말",
+          "제 11(전) 기말 (감사받지 아니한 재무제표)",
+          "제 11(전) 기초 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 7,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "equity",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 42,
+        "cellOrdinal": 2,
+        "accountLabel": "자 본 총 계",
+        "headerCells": [
+          "과 목",
+          "제 12(당) 기말",
+          "제 11(전) 기말 (감사받지 아니한 재무제표)",
+          "제 11(전) 기초 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 7,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "revenue",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 9,
+        "rowOrdinal": 1,
+        "cellOrdinal": 1,
+        "accountLabel": "I. 영업수익(주석31)",
+        "headerCells": [
+          "과 목",
+          "제 12(당) 기",
+          "제 11(전) 기 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 3,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 3,
+        "cellOrdinal": 1,
+        "accountLabel": "III. 영업이익",
+        "headerCells": [
+          "과 목",
+          "제 12(당) 기",
+          "제 11(전) 기 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 3,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "netProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 10,
+        "cellOrdinal": 1,
+        "accountLabel": "V. 당기순이익",
+        "headerCells": [
+          "과 목",
+          "제 12(당) 기",
+          "제 11(전) 기 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 3,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingCashFlow",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "I. 영업활동 현금흐름",
+        "headerCells": [
+          "과 목",
+          "제 12(당) 기",
+          "제 11(전) 기 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "propertyPlantEquipmentAcquisitions",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": "outflow",
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 15,
+        "cellOrdinal": 1,
+        "accountLabel": "유형자산의 취득",
+        "headerCells": [
+          "과 목",
+          "제 12(당) 기",
+          "제 11(전) 기 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      }
+    ],
+    "unextractedMetrics": [],
+    "auditCell": null,
+    "cashSectionCells": []
+  },
+  {
+    "corpCode": "01867688",
+    "providerReceipt": "20250331002334",
+    "basis": "OFS",
+    "periodKind": "ownAnnual",
+    "auditStatus": "audited",
+    "auditProof": "해당 연도의 자체 감사보고서 · 비교기간은 미추출",
+    "accountingStandard": "KIFRS",
+    "auditOpinionUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250331002334&dcmNo=10484481&eleId=2&offset=6702&length=4529&dtd=dart4.xsd",
+    "auditOpinionSha256": "2dafcecb399bf39911b6fff1ef9595234cfeb766dc926b7710491f6c409dc748",
+    "contextTables": [
+      {
+        "tableOrdinal": 0,
+        "rows": [
+          [
+            "주식회사 와이즈플래닛컴퍼니"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 1,
+        "rows": [
+          [
+            "제 12 기"
+          ],
+          [
+            "2024년 01월 01일",
+            "부터"
+          ],
+          [
+            "2024년 12월 31일",
+            "까지"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 5,
+        "rows": [
+          [
+            "재 무 상 태 표"
+          ],
+          [
+            "제 12(당) 기말 2024년 12월 31일 현재"
+          ],
+          [
+            "제 11(전) 기말 2023년 12월 31일 현재"
+          ],
+          [
+            "제 11(전) 기초 2023년 01월 01일 현재"
+          ],
+          [
+            "주식회사 와이즈플래닛컴퍼니",
+            "(단위 : 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 8,
+        "rows": [
+          [
+            "포 괄 손 익 계 산 서"
+          ],
+          [
+            "제 12(당) 기 2024년 01월 01일부터 2024년 12월 31일까지"
+          ],
+          [
+            "제 11(전) 기 2023년 01월 01일부터 2023년 12월 31일까지"
+          ],
+          [
+            "주식회사 와이즈플래닛컴퍼니",
+            "(단위 : 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 14,
+        "rows": [
+          [
+            "현 금 흐 름 표"
+          ],
+          [
+            "제 12(당) 기 2024년 01월 01일부터 2024년 12월 31일까지"
+          ],
+          [
+            "제 11(전) 기 2023년 01월 01일부터 2023년 12월 31일까지"
+          ],
+          [
+            "주식회사 와이즈플래닛컴퍼니",
+            "(단위 : 원)"
+          ]
+        ]
+      }
+    ],
+    "accounts": [
+      {
+        "metric": "assets",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 17,
+        "cellOrdinal": 2,
+        "accountLabel": "자 산 총 계",
+        "headerCells": [
+          "과 목",
+          "제 12(당) 기말",
+          "제 11(전) 기말 (감사받지 아니한 재무제표)",
+          "제 11(전) 기초 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 7,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "liabilities",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 30,
+        "cellOrdinal": 2,
+        "accountLabel": "부 채 총 계",
+        "headerCells": [
+          "과 목",
+          "제 12(당) 기말",
+          "제 11(전) 기말 (감사받지 아니한 재무제표)",
+          "제 11(전) 기초 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 7,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "equity",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 36,
+        "cellOrdinal": 2,
+        "accountLabel": "자 본 총 계",
+        "headerCells": [
+          "과 목",
+          "제 12(당) 기말",
+          "제 11(전) 기말 (감사받지 아니한 재무제표)",
+          "제 11(전) 기초 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 7,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "revenue",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 9,
+        "rowOrdinal": 1,
+        "cellOrdinal": 1,
+        "accountLabel": "I. 영업수익 (주석28)",
+        "headerCells": [
+          "과 목",
+          "제 12(당) 기",
+          "제 11(전) 기 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 3,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 3,
+        "cellOrdinal": 1,
+        "accountLabel": "III. 영업이익",
+        "headerCells": [
+          "과 목",
+          "제 12(당) 기",
+          "제 11(전) 기 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 3,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "netProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 10,
+        "cellOrdinal": 1,
+        "accountLabel": "V. 당기순이익",
+        "headerCells": [
+          "과 목",
+          "제 12(당) 기",
+          "제 11(전) 기 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 3,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingCashFlow",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "I. 영업활동 현금흐름",
+        "headerCells": [
+          "과 목",
+          "제 12(당) 기",
+          "제 11(전) 기 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "propertyPlantEquipmentAcquisitions",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": "outflow",
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 15,
+        "cellOrdinal": 1,
+        "accountLabel": "유형자산의 취득",
+        "headerCells": [
+          "과 목",
+          "제 12(당) 기",
+          "제 11(전) 기 (감사받지 아니한 재무제표)"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      }
+    ],
+    "unextractedMetrics": [],
+    "auditCell": null,
+    "cashSectionCells": []
+  },
+  {
+    "corpCode": "01876251",
+    "providerReceipt": "20260401004316",
+    "basis": "CFS",
+    "periodKind": "ownAnnual",
+    "auditStatus": "audited",
+    "auditProof": "해당 연도의 자체 감사보고서 · 비교기간은 미추출",
+    "accountingStandard": "KIFRS",
+    "auditOpinionUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260401004316&dcmNo=11229249&eleId=2&offset=5840&length=4446&dtd=dart4.xsd",
+    "auditOpinionSha256": "5d3b6401fda28087c25c94f94b105621668939d75ed7e7d965583c497fa87694",
+    "contextTables": [
+      {
+        "tableOrdinal": 0,
+        "rows": [
+          [
+            "네오사피엔스 주식회사와 그 종속회사"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 1,
+        "rows": [
+          [
+            "제 9 기"
+          ],
+          [
+            "2025년 01월 01일",
+            "부터"
+          ],
+          [
+            "2025년 12월 31일",
+            "까지"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 5,
+        "rows": [
+          [
+            "연 결 재 무 상 태 표"
+          ],
+          [
+            "제 9(당) 기말 : 2025년 12월 31일 현재"
+          ],
+          [
+            "제 8(전) 기말 : 2024년 12월 31일 현재"
+          ],
+          [
+            "제 8(전) 기초 : 2024년 01월 01일 현재"
+          ],
+          [
+            "네오사피엔스 주식회사와 그 종속회사",
+            "(단위: 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 8,
+        "rows": [
+          [
+            "연 결 포 괄 손 익 계 산 서"
+          ],
+          [
+            "제 9(당) 기 : 2025년 01월 01일부터 2025년 12월 31일까지"
+          ],
+          [
+            "제 8(전) 기 : 2024년 01월 01일부터 2024년 12월 31일까지"
+          ],
+          [
+            "네오사피엔스 주식회사와 그 종속회사",
+            "(단위: 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 14,
+        "rows": [
+          [
+            "연 결 현 금 흐 름 표"
+          ],
+          [
+            "제 9(당) 기: 2025년 01월 01일부터 2025년 12월 31일까지"
+          ],
+          [
+            "제 8(전) 기: 2024년 01월 01일부터 2024년 12월 31일까지"
+          ],
+          [
+            "네오사피엔스 주식회사와 그 종속회사",
+            "(단위: 원)"
+          ]
+        ]
+      }
+    ],
+    "accounts": [
+      {
+        "metric": "assets",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 18,
+        "cellOrdinal": 2,
+        "accountLabel": "자산총계",
+        "headerCells": [
+          "과목",
+          "주석",
+          "제 9(당) 기",
+          "제 8(전) 기 \"감사받지 아니한 재무제표\"",
+          "제 8(전) 기초 \"감사받지 아니한 재무제표\""
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "liabilities",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 32,
+        "cellOrdinal": 2,
+        "accountLabel": "부채총계",
+        "headerCells": [
+          "과목",
+          "주석",
+          "제 9(당) 기",
+          "제 8(전) 기 \"감사받지 아니한 재무제표\"",
+          "제 8(전) 기초 \"감사받지 아니한 재무제표\""
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "equity",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 39,
+        "cellOrdinal": 2,
+        "accountLabel": "자본총계",
+        "headerCells": [
+          "과목",
+          "주석",
+          "제 9(당) 기",
+          "제 8(전) 기 \"감사받지 아니한 재무제표\"",
+          "제 8(전) 기초 \"감사받지 아니한 재무제표\""
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "revenue",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 9,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅰ. 영업수익",
+        "headerCells": [
+          "과목",
+          "주석",
+          "제 9(당) 기",
+          "제 8(전) 기 \"감사받지 아니한 재무제표\""
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 3,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅲ. 영업손실",
+        "headerCells": [
+          "과목",
+          "주석",
+          "제 9(당) 기",
+          "제 8(전) 기 \"감사받지 아니한 재무제표\""
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "netProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 10,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅴ. 당기순손실",
+        "headerCells": [
+          "과목",
+          "주석",
+          "제 9(당) 기",
+          "제 8(전) 기 \"감사받지 아니한 재무제표\""
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingCashFlow",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 1,
+        "cellOrdinal": 3,
+        "accountLabel": "Ⅰ. 영업활동으로 인한 현금흐름",
+        "headerCells": [
+          "구분",
+          "주석",
+          "제 9(당) 기",
+          "제 8(전) 기 \"감사받지 아니한 재무제표\""
+        ],
+        "rowLength": 6,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "propertyPlantEquipmentAcquisitions",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": "outflow",
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 14,
+        "cellOrdinal": 2,
+        "accountLabel": "유형자산의 취득",
+        "headerCells": [
+          "구분",
+          "주석",
+          "제 9(당) 기",
+          "제 8(전) 기 \"감사받지 아니한 재무제표\""
+        ],
+        "rowLength": 6,
+        "printedSignConvention": "signedAmount"
+      }
+    ],
+    "unextractedMetrics": [],
+    "auditCell": null,
+    "cashSectionCells": []
+  },
+  {
+    "corpCode": "01876251",
+    "providerReceipt": "20260401003842",
+    "basis": "OFS",
+    "periodKind": "ownAnnual",
+    "auditStatus": "audited",
+    "auditProof": "해당 연도의 자체 감사보고서 · 비교기간은 미추출",
+    "accountingStandard": "KIFRS",
+    "auditOpinionUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260401003842&dcmNo=11227680&eleId=2&offset=6305&length=4516&dtd=dart4.xsd",
+    "auditOpinionSha256": "0f4c69df63ec644a3713e63b00d33d12ee5649ecd0bdea0b7061927ef4323cbe",
+    "contextTables": [
+      {
+        "tableOrdinal": 0,
+        "rows": [
+          [
+            "네오사피엔스 주식회사"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 1,
+        "rows": [
+          [
+            "제 9 기"
+          ],
+          [
+            "2025년 01월 01일",
+            "부터"
+          ],
+          [
+            "2025년 12월 31일",
+            "까지"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 5,
+        "rows": [
+          [
+            "재 무 상 태 표"
+          ],
+          [
+            "제 9(당) 기말 : 2025년 12월 31일 현재"
+          ],
+          [
+            "제 8(전) 기말 : 2024년 12월 31일 현재"
+          ],
+          [
+            "제 8(전) 기초 : 2024년 01월 01일 현재"
+          ],
+          [
+            "네오사피엔스 주식회사",
+            "(단위: 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 8,
+        "rows": [
+          [
+            "포 괄 손 익 계 산 서"
+          ],
+          [
+            "제 9(당) 기 : 2025년 01월 01일부터 2025년 12월 31일까지"
+          ],
+          [
+            "제 8(전) 기 : 2024년 01월 01일부터 2024년 12월 31일까지"
+          ],
+          [
+            "네오사피엔스 주식회사",
+            "(단위: 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 14,
+        "rows": [
+          [
+            "현 금 흐 름 표"
+          ],
+          [
+            "제 9(당) 기: 2025년 01월 01일부터 2025년 12월 31일까지"
+          ],
+          [
+            "제 8(전) 기: 2024년 01월 01일부터 2024년 12월 31일까지"
+          ],
+          [
+            "네오사피엔스 주식회사",
+            "(단위: 원)"
+          ]
+        ]
+      }
+    ],
+    "accounts": [
+      {
+        "metric": "assets",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 19,
+        "cellOrdinal": 2,
+        "accountLabel": "자산총계",
+        "headerCells": [
+          "과목",
+          "주석",
+          "제 9(당) 기",
+          "제 8(전) 기 \"감사받지 아니한 재무제표\"",
+          "제 8(전) 기초 \"감사받지 아니한 재무제표\""
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "liabilities",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 32,
+        "cellOrdinal": 2,
+        "accountLabel": "부채총계",
+        "headerCells": [
+          "과목",
+          "주석",
+          "제 9(당) 기",
+          "제 8(전) 기 \"감사받지 아니한 재무제표\"",
+          "제 8(전) 기초 \"감사받지 아니한 재무제표\""
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "equity",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 38,
+        "cellOrdinal": 2,
+        "accountLabel": "자본총계",
+        "headerCells": [
+          "과목",
+          "주석",
+          "제 9(당) 기",
+          "제 8(전) 기 \"감사받지 아니한 재무제표\"",
+          "제 8(전) 기초 \"감사받지 아니한 재무제표\""
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "revenue",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 9,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅰ. 영업수익",
+        "headerCells": [
+          "과목",
+          "주석",
+          "제 9(당) 기",
+          "제 8(전) 기 \"감사받지 아니한 재무제표\""
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 3,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅲ. 영업손실",
+        "headerCells": [
+          "과목",
+          "주석",
+          "제 9(당) 기",
+          "제 8(전) 기 \"감사받지 아니한 재무제표\""
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "netProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 10,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅴ. 당기순손실",
+        "headerCells": [
+          "과목",
+          "주석",
+          "제 9(당) 기",
+          "제 8(전) 기 \"감사받지 아니한 재무제표\""
+        ],
+        "rowLength": 4,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingCashFlow",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 1,
+        "cellOrdinal": 3,
+        "accountLabel": "Ⅰ. 영업활동으로 인한 현금흐름",
+        "headerCells": [
+          "구분",
+          "주석",
+          "제 9(당) 기",
+          "제 8(전) 기 \"감사받지 아니한 재무제표\""
+        ],
+        "rowLength": 6,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "propertyPlantEquipmentAcquisitions",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": "outflow",
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 13,
+        "cellOrdinal": 2,
+        "accountLabel": "유형자산의 취득",
+        "headerCells": [
+          "구분",
+          "주석",
+          "제 9(당) 기",
+          "제 8(전) 기 \"감사받지 아니한 재무제표\""
+        ],
+        "rowLength": 6,
+        "printedSignConvention": "signedAmount"
+      }
+    ],
+    "unextractedMetrics": [],
+    "auditCell": null,
+    "cashSectionCells": []
+  },
+  {
+    "corpCode": "01876251",
+    "providerReceipt": "20250403002104",
+    "basis": "OFS",
+    "periodKind": "ownAnnual",
+    "auditStatus": "audited",
+    "auditProof": "해당 연도의 자체 감사보고서 · 비교기간은 미추출",
+    "accountingStandard": "Korean-GAAP",
+    "auditOpinionUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250403002104&dcmNo=10522053&eleId=2&offset=7648&length=4535&dtd=dart4.xsd",
+    "auditOpinionSha256": "613ffd65e5f7f2c0e1dc848f2bff794604d485ab4daa736766b9b8919f8454b7",
+    "contextTables": [
+      {
+        "tableOrdinal": 0,
+        "rows": [
+          [
+            "네오사피엔스 주식회사"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 1,
+        "rows": [
+          [
+            "제 8 기"
+          ],
+          [
+            "2024년 01월 01일",
+            "부터"
+          ],
+          [
+            "2024년 12월 31일",
+            "까지"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 5,
+        "rows": [
+          [
+            "제 8(당) 기 2024년 12월 31일 현재"
+          ],
+          [
+            "제 7(전) 기 2023년 12월 31일 현재"
+          ],
+          [
+            "네오사피엔스 주식회사",
+            "(단위 : 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 8,
+        "rows": [
+          [
+            "제 8(당) 기 2024년 01월 01일부터 2024년 12월 31일까지"
+          ],
+          [
+            "제 7(전) 기 2023년 01월 01일부터 2023년 12월 31일까지"
+          ],
+          [
+            "네오사피엔스 주식회사",
+            "(단위 : 원)"
+          ]
+        ]
+      },
+      {
+        "tableOrdinal": 14,
+        "rows": [
+          [
+            "제 8(당) 기 2024년 01월 01일부터 2024년 12월 31일까지"
+          ],
+          [
+            "제 7(전) 기 2023년 01월 01일부터 2023년 12월 31일까지"
+          ],
+          [
+            "네오사피엔스 주식회사",
+            "(단위 : 원)"
+          ]
+        ]
+      }
+    ],
+    "accounts": [
+      {
+        "metric": "assets",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 31,
+        "cellOrdinal": 2,
+        "accountLabel": "자산총계",
+        "headerCells": [
+          "과 목",
+          "제 8(당) 기",
+          "제 7(전) 기"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "liabilities",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 43,
+        "cellOrdinal": 2,
+        "accountLabel": "부채총계",
+        "headerCells": [
+          "과 목",
+          "제 8(당) 기",
+          "제 7(전) 기"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "equity",
+        "statement": "BS",
+        "amountScope": "instant",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 6,
+        "rowOrdinal": 52,
+        "cellOrdinal": 2,
+        "accountLabel": "자본총계",
+        "headerCells": [
+          "과 목",
+          "제 8(당) 기",
+          "제 7(전) 기"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "revenue",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 9,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅰ. 영업수익",
+        "headerCells": [
+          "과 목",
+          "제 8(당) 기",
+          "제 7(전) 기"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 31,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅲ .영업이익(손실)",
+        "headerCells": [
+          "과 목",
+          "제 8(당) 기",
+          "제 7(전) 기"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "netProfit",
+        "statement": "IS",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": "printedSigned",
+        "tableOrdinal": 9,
+        "rowOrdinal": 47,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅷ .당기순이익(손실)",
+        "headerCells": [
+          "과 목",
+          "제 8(당) 기",
+          "제 7(전) 기"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      },
+      {
+        "metric": "operatingCashFlow",
+        "statement": "CF",
+        "amountScope": "cumulative",
+        "cashDirection": null,
+        "incomeDirection": null,
+        "tableOrdinal": 15,
+        "rowOrdinal": 1,
+        "cellOrdinal": 2,
+        "accountLabel": "Ⅰ.영업활동으로인한현금흐름",
+        "headerCells": [
+          "과 목",
+          "제 8(당) 기",
+          "제 7(전) 기"
+        ],
+        "rowLength": 5,
+        "printedSignConvention": "signedAmount"
+      }
+    ],
+    "unextractedMetrics": [
+      {
+        "metric": "propertyPlantEquipmentAcquisitions",
+        "reason": "noPrimaryPrintedTotalCell; component acquisitions not summed"
+      }
+    ],
+    "auditCell": null,
+    "cashSectionCells": []
+  }
+]

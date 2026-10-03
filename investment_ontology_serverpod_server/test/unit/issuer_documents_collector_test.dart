@@ -10,16 +10,16 @@ import 'package:investment_ontology_serverpod_server/src/ontology/research/issue
 void main() {
   final source = File('assets/issuer_documents/verified_fund_documents.json')
       .readAsStringSync();
-  test('actual 12 annual plus 3 latest retain amounts null and independent provider IDs', () {
+  test('actual 12 annual plus 3 latest (MKIF own half-year results) and 1 exact retrospective source retain amounts null and independent provider IDs', () {
     final rows = IssuerDocumentsCollector.manifest(source)
         .map((d) => d['metadata'] as Map)
         .toList();
-    expect(rows, hasLength(15));
+    expect(rows, hasLength(16));
     expect(
       rows.where((r) => '${r['periodEnd']}'.startsWith('2026')),
       hasLength(3),
     );
-    expect(rows.where((r) => r['corpCode'] == '01880801'), hasLength(3));
+    expect(rows.where((r) => r['corpCode'] == '01880801'), hasLength(4));
     for (final r in rows) {
       expect(r['financialValues'], isNull);
       expect(r['numericState'], 'notExtracted');
@@ -31,11 +31,16 @@ void main() {
       )['periodStart'],
       '2026-01-01',
     );
+    final kb = rows.singleWhere(
+      (r) => r['corpCode'] == '01880801' && r['periodEnd'] == '2026-06-30',
+    );
+    expect(kb['documentType'], 'operatingReport');
+    expect(kb['periodStart'], '2026-01-01');
+    expect(kb['providerReceipt'], isNull);
+    expect(kb['providerDocumentId'], isNull);
     expect(
-      rows.singleWhere(
-        (r) => r['providerReceipt'] == '20260731001211',
-      )['providerDocumentId'],
-      '20260729002004',
+      kb['officialUrl'],
+      'https://kbif.co.kr/upload/2026/7/20260731043629001933.pdf',
     );
   });
   test('future acquisition evidence and financial promotion reject', () {

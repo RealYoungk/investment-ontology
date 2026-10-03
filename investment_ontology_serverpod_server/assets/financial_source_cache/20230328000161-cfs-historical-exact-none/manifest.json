@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20230328000161",
+  "corpCode": "01315042",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2022,
+  "periodStart": "2022-01-01",
+  "periodEnd": "2022-12-31",
+  "ruleVersion": "historical-receipt-bound-cfs-explicit-none-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230328000161",
+      "sha256": "4eb0888dd921cd86c226e37c8f6845bdebbf305d9da3b192bb410f1e7e98a1c0"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230328000161&dcmNo=9107520&eleId=3&offset=68972&length=4035&dtd=dart3.xsd",
+      "sha256": "4b07b798a585689b102478a7fe0173c66227c46964887de59b92dd39fd154d20"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230328000161&dcmNo=9107520&eleId=21&offset=301149&length=154&dtd=dart3.xsd",
+      "sha256": "61781bdbbe73e9d61a18fc1dd642958dae06327055c233586bfa8a264678c867"
+    }
+  ],
+  "absenceEvidence": "당사는 사업보고서 제출일 현재 해당사항 없습니다.",
+  "retrievalProof": "Exact own shell corp identity, own calendar-period cover, actual current CFS explicit absence; independently read official change notice. No numeric report or OFS substitution."
+}

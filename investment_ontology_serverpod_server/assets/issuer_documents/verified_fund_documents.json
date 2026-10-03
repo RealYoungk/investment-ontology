@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "scope": "fixed reviewed 12 annual PDFs plus latest document for each of 3 funds; no automatic discovery",
+  "scope": "fixed five annual years plus latest own financial-results source for MKIF; other approved fund sources and exact retrospective source; no historical interim expansion",
   "missingAnnualDocuments": {
     "01880801": [
       2021,
@@ -311,56 +311,6 @@
     },
     {
       "metadata": {
-        "corpCode": "00435297",
-        "title": "2026년 2분기 자산운용보고서",
-        "documentType": "assetManagementReport",
-        "provider": "officialIR",
-        "providerReceipt": null,
-        "providerDocumentId": null,
-        "periodStart": "2026-04-01",
-        "periodEnd": "2026-06-30",
-        "publishedAt": "2026-07-29",
-        "officialUrl": "https://www.mkif.com/assets/mkif/ko-kr/investor-centre/public-filings-and-reports/2026/mkif-quarterly-asset-management-report-2026-2q-kor.pdf",
-        "sha256": "eb1d54cdf31ba90a4fa8e5291ed4b9fcf69f587e3564328dcae696bc71946897",
-        "issuerQuote": "맥쿼리한국인프라투융자회사",
-        "periodQuote": "2026년 4월 1일부터 2026년 6월 30일까지",
-        "numericState": "notExtracted",
-        "financialValues": null,
-        "publicContent": "linkOnly"
-      },
-      "proof": {
-        "downloadedAt": "2026-10-02T03:44:58.044976+00:00",
-        "readScope": "text cover p1",
-        "periodProof": "printed PDF cover, no filename inference"
-      }
-    },
-    {
-      "metadata": {
-        "corpCode": "01880801",
-        "title": "KB발해인프라투융자회사 자산운용보고서",
-        "documentType": "assetManagementReport",
-        "provider": "KIND",
-        "providerReceipt": "20260731001211",
-        "providerDocumentId": "20260729002004",
-        "periodStart": "2026-04-01",
-        "periodEnd": "2026-06-30",
-        "publishedAt": "2026-07-31",
-        "officialUrl": "https://kbif.co.kr/upload/2026/7/20260731043643009885.pdf",
-        "sha256": "5c5d34dd1871ef41c85da19acc8eb344b7bea88bc60474507754291097248990",
-        "issuerQuote": "KB발해인프라투융자회사",
-        "periodQuote": "2026.04.01 ~ 2026.06.30",
-        "numericState": "notExtracted",
-        "financialValues": null,
-        "publicContent": "linkOnly"
-      },
-      "proof": {
-        "downloadedAt": "2026-10-02T03:45:13.634157+00:00",
-        "readScope": "text cover p1",
-        "periodProof": "printed PDF cover, no filename inference"
-      }
-    },
-    {
-      "metadata": {
         "corpCode": "00600013",
         "title": "미래에셋맵스리얼티부동산공모투자회사 재무제표 감사보고서",
         "documentType": "auditReport",
@@ -382,6 +332,85 @@
         "downloadedAt": "2026-10-02T03:45:16.973203+00:00",
         "readScope": "text cover p1",
         "periodProof": "printed PDF cover, no filename inference"
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01880801",
+        "title": "[정정]투자설명서(집합투자증권-회사형)",
+        "documentType": "prospectus",
+        "provider": "officialIR",
+        "providerReceipt": null,
+        "providerDocumentId": null,
+        "periodStart": "2021-07-01",
+        "periodEnd": "2023-12-31",
+        "publishedAt": "2024-11-15",
+        "officialUrl": "https://kbif.co.kr/upload/2024/11/20241115105341013630.pdf",
+        "sha256": "f156281de6902b32ca7773eaad4cb5ba3b03869cffea9edba81371cb7f9f7e8a",
+        "issuerQuote": "케이비발해인프라투융자회사",
+        "periodQuote": "제35기(2023.01.01~2023.12.31) / 제34기(2022.07.01~2022.12.31) / 제33기(2022.01.01~2022.06.30) / 제32기(2021.07.01~2021.12.31)",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": null,
+        "verifiedAt": "2026-10-03T05:07:28.578065+00:00",
+        "evidenceOrigin": "exact-local-original-from-official-source;downloadTimestampNotClaimed",
+        "readScope": "text and visual physical pages 265-269; correction date p1",
+        "periodProof": "printed audited fiscal terms 35/34/33/32; source range not fiscal duration"
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "00435297",
+        "title": "MKIF 2026년 상반기 비감사 별도 재무실적",
+        "documentType": "operatingReport",
+        "provider": "officialIR",
+        "providerReceipt": null,
+        "providerDocumentId": null,
+        "periodStart": "2026-01-01",
+        "periodEnd": "2026-06-30",
+        "publishedAt": "2026-07-29",
+        "officialUrl": "https://www.mkif.com/assets/mkif/en/investor-centre/public-filings-and-reports/2026/ir-release-2607-1h-2026-financial-traffic-results-eng.pdf",
+        "sha256": "6ca659a9b5f54e2c27fc0359e44babc1e98d1b604ccc78a43269c095d226a87b",
+        "issuerQuote": "Macquarie Korea Infrastructure Fund",
+        "periodQuote": "For the six months ended 30 June 2026",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "readScope": "own issuer p1; own financial appendix p4 BS and p5 cumulative PL only",
+        "periodProof": "printed own six months ended 30 June 2026; unaudited non-consolidated",
+        "sourceReadScope": "partialFinancialResultsOnly;CECFnotPrinted;notRegularHalfYearReport",
+        "downloadedAt": "2026-10-03T05:46:24.070090+00:00"
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01880801",
+        "title": "KB발해인프라 2026년 상반기 회계상 재무실적",
+        "documentType": "operatingReport",
+        "provider": "officialIR",
+        "providerReceipt": null,
+        "providerDocumentId": null,
+        "periodStart": "2026-01-01",
+        "periodEnd": "2026-06-30",
+        "publishedAt": "2026-07-31",
+        "officialUrl": "https://kbif.co.kr/upload/2026/7/20260731043629001933.pdf",
+        "sha256": "a96534db3ab73fd7145cd8c05b7f8194edd885e4547417cc57fb59dbe651da61",
+        "issuerQuote": "KB발해인프라투융자회사",
+        "periodQuote": "2026년 상반기",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": "2026-10-03T05:52:11.635077Z",
+        "readScope": "own issuer p1; own appendix p13 BS and p15 cumulative accounting PL only",
+        "periodProof": "printed own 2026 H1 columns; accounting versus tax separated; audit status unprinted",
+        "sourceReadScope": "partialFinancialResultsOnly;CECFnotPrinted;notRegularHalfYearReport"
       }
     }
   ]

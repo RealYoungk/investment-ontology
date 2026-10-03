@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 
-/// One exact primary CFS section; does not generalize colon absence grammar.
+/// Two exact own annual CFS sections; no generalized colon absence grammar.
 abstract final class PureunExactBasisAbsence {
   static const receipt = '20230315000460';
   static const corp = '00124805';
@@ -21,21 +21,32 @@ abstract final class PureunExactBasisAbsence {
     required Uri statementSource,
     required String body,
   }) {
-    if (receipt != PureunExactBasisAbsence.receipt ||
+    final own2021 = receipt == '20220308000292';
+    final year = own2021 ? 2021 : 2022;
+    if ((!own2021 && receipt != PureunExactBasisAbsence.receipt) ||
         corp != PureunExactBasisAbsence.corp ||
-        start != DateTime.utc(2022) ||
-        end != DateTime.utc(2022, 12, 31) ||
+        start != DateTime.utc(year) ||
+        end != DateTime.utc(year, 12, 31) ||
         shellSource !=
             Uri.https('dart.fss.or.kr', '/dsaf001/main.do', {
               'rcpNo': receipt,
             }) ||
         sha256.convert(utf8.encode(shell)).toString() !=
-            'ccbe266d86938e9b79cf00ee806ed59e1caf04eabf06098ad5367690597f7a83' ||
+            (own2021
+                ? '5b5e1b14eb3d91370410bfe494fa101f77eb8c217476fc1c1ee129c5a874499c'
+                : 'ccbe266d86938e9b79cf00ee806ed59e1caf04eabf06098ad5367690597f7a83') ||
         coverSource.toString() !=
-            'https://dart.fss.or.kr/report/viewer.do?rcpNo=20230315000460&dcmNo=9057394&eleId=1&offset=814&length=4035&dtd=dart3.xsd' ||
+            (own2021
+                ? 'https://dart.fss.or.kr/report/viewer.do?rcpNo=20220308000292&dcmNo=8445080&eleId=1&offset=811&length=4036&dtd=dart3.xsd'
+                : 'https://dart.fss.or.kr/report/viewer.do?rcpNo=20230315000460&dcmNo=9057394&eleId=1&offset=814&length=4035&dtd=dart3.xsd') ||
         sha256.convert(utf8.encode(cover)).toString() !=
-            '535cde2bfccf39b211ea8587cc5c8d9bbcd2dc247edf9b864451a98742bfa270' ||
-        statementSource.toString() != statementUrl ||
+            (own2021
+                ? '26baec5f40bbc13a62f3beeae66fe5dfe2f6171ba61b1af343c3cc48aa061cd3'
+                : '535cde2bfccf39b211ea8587cc5c8d9bbcd2dc247edf9b864451a98742bfa270') ||
+        statementSource.toString() !=
+            (own2021
+                ? 'https://dart.fss.or.kr/report/viewer.do?rcpNo=20220308000292&dcmNo=8445080&eleId=17&offset=139044&length=142&dtd=dart3.xsd'
+                : statementUrl) ||
         sha256.convert(utf8.encode(body)).toString() !=
             'cf005f3305904d45d46b12c425f201e2154565a66d0b6fa55eff4f68f02426ae') {
       return false;

@@ -1,4 +1,5 @@
 import 'reviewed_dart_issuer_sources.dart';
+import 'retrospective_fund_contract.dart';
 
 /// Metadata-only official documents. Never creates financial reports or facts.
 /// Content evidence is prepared offline; this validator is not a PDF parser.
@@ -121,7 +122,11 @@ abstract final class IssuerDocumentsFeed {
               {
                 'securitiesRegistrationStatement',
                 'prospectus',
-              }.contains(raw['documentType'])) ||
+              }.contains(raw['documentType']) &&
+              !RetrospectiveFundContract.same(
+                raw,
+                RetrospectiveFundContract.data['metadata'],
+              )) ||
           !{'officialIR', 'KIND', 'DART'}.contains(text('provider', 20))) {
         throw const FormatException('원문 종류/제공처 오류');
       }

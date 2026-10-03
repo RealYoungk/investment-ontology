@@ -1,3 +1,4 @@
+import 'own_paragraph_cfs_absence.dart';
 import 'bon_linked_audit_current_proof.dart';
 import 'exact_cover_executive_role.dart';
 import 'pureun_exact_basis_absence.dart';
@@ -87,7 +88,7 @@ class PublicFinancialHtmlBasisNotApplicable extends FormatException {
         .allMatches(coverHtml.replaceAll(RegExp(r'<[^>]+>|\s+|&nbsp;'), ''))
         .toList();
     if (names.length != 1) return null;
-    return issuerProof?.verify(
+    final legal = issuerProof?.verify(
       receipt: sourceReceipt,
       corpCode: corpCode,
       masterName: companyName,
@@ -97,6 +98,17 @@ class PublicFinancialHtmlBasisNotApplicable extends FormatException {
       periodStart: periodStart,
       periodEnd: periodEnd,
     );
+    return legal ??
+        VerifiedHistoricalCompanyIdentity.evidence(
+          receipt: sourceReceipt,
+          corpCode: corpCode,
+          currentName: companyName,
+          printedName: names.single.group(1)!,
+          periodEnd: periodEnd,
+          consolidated: true,
+          coverSource: coverSource,
+          coverHtml: coverHtml,
+        );
   }
 
   String? get correctionReceipt => null;
@@ -610,6 +622,16 @@ class PublicFinancialHtmlFetcher {
         statementSource: statementSource,
         body: statementHtml,
       );
+      final ownParagraphNone = OwnParagraphCfsAbsence.evidence(
+        receipt: sourceReceipt,
+        corp: corpCode,
+        start: periodStart,
+        end: periodEnd,
+        coverSource: coverSource,
+        cover: coverHtml,
+        statementSource: statementSource,
+        body: statementHtml,
+      );
       final exactPureunNone = PureunExactBasisAbsence.matches(
         receipt: sourceReceipt,
         corp: corpCode,
@@ -622,7 +644,7 @@ class PublicFinancialHtmlFetcher {
         statementSource: statementSource,
         body: statementHtml,
       );
-      if (exactTableNone || exactPureunNone) {
+      if (exactTableNone || exactPureunNone || ownParagraphNone != null) {
         throw PublicFinancialHtmlBasisNotApplicable(
           sourceReceipt: sourceReceipt,
           corpCode: corpCode,
@@ -634,9 +656,9 @@ class PublicFinancialHtmlFetcher {
           statementSource: statementSource,
           coverHtml: coverHtml,
           statementHtml: statementHtml,
-          evidence: exactPureunNone
-              ? PureunExactBasisAbsence.evidence
-              : '해당사항없음',
+          evidence:
+              ownParagraphNone ??
+              (exactPureunNone ? PureunExactBasisAbsence.evidence : '해당사항없음'),
           issuerProof: issuerProof,
         );
       }

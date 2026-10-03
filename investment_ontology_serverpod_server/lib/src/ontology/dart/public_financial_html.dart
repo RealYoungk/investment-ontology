@@ -1,3 +1,7 @@
+import 'known_annual_source_not_presented.dart';
+import 'curachem_restated_current_seven_source.dart';
+import 'konasol_current_seven_source.dart';
+import 'curachem_current_seven_source.dart';
 import 'insurance_current_annual_source.dart';
 import 'known_annual_source_conflict.dart';
 import 'exact_seven_cash_source.dart';
@@ -840,6 +844,17 @@ abstract final class PublicFinancialHtml {
     // Opt-in proof inspection only; this does not authorize six-core storage.
     bool allowSourceVerifiedPartialCore = false,
   }) {
+    KnownAnnualSourcesNotPresented.verify(
+      receipt: receipt,
+      corpCode: corpCode,
+      consolidated: consolidated,
+      start: periodStart,
+      end: periodEnd,
+      coverSource: coverSource,
+      statementSource: statementSource,
+      coverHtml: coverHtml,
+      statementHtml: statementHtml,
+    );
     KnownAnnualSourceConflicts.verify(
       receipt: receipt,
       corpCode: corpCode,
@@ -877,6 +892,48 @@ abstract final class PublicFinancialHtml {
         start: periodStart,
         end: periodEnd,
         consolidated: consolidated,
+      );
+    }
+    if (receipt == KonasolCurrentSevenSource.receipt) {
+      return KonasolCurrentSevenSource.parse(
+        targetReceipt: receipt,
+        companyCode: corpCode,
+        companyName: companyName,
+        consolidated: consolidated,
+        start: periodStart,
+        end: periodEnd,
+        coverSource: coverSource,
+        statementSource: statementSource,
+        cover: coverHtml,
+        body: statementHtml,
+      );
+    }
+    if (receipt == CurachemRestatedCurrentSevenSource.receipt) {
+      return CurachemRestatedCurrentSevenSource.parse(
+        targetReceipt: receipt,
+        companyCode: corpCode,
+        companyName: companyName,
+        consolidated: consolidated,
+        start: periodStart,
+        end: periodEnd,
+        coverSource: coverSource,
+        statementSource: statementSource,
+        cover: coverHtml,
+        body: statementHtml,
+      );
+    }
+    if (receipt == CurachemCurrentSevenSource.receipt) {
+      return CurachemCurrentSevenSource.parse(
+        targetReceipt: receipt,
+        companyCode: corpCode,
+        companyName: companyName,
+        consolidated: consolidated,
+        start: periodStart,
+        end: periodEnd,
+        coverSource: coverSource,
+        statementSource: statementSource,
+        cover: coverHtml,
+        body: statementHtml,
       );
     }
     if (PrintedCurrentAnnualSource.matches(receipt, consolidated)) {

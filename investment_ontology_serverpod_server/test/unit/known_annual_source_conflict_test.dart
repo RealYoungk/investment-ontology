@@ -80,12 +80,15 @@ void main() {
             expect(x.evidence['balanceEquity'], '834482799');
             expect(x.evidence['equityStatementClosing'], '834482800');
             expect(x.evidence['equityWholeColumn'], 5);
+          } else if (e['receipt'] == '20240320001438') {
+            expect(x.evidence['rawWholeEquityRollDifference'], '-50000000');
+            expect(x.evidence['ceUnitPrinted'], false);
           } else {
             expect(x.evidence['printedClosingLabel'], '202.12.31 (당기말)');
             expect(x.evidence['wholeEquity'], '7,178,098,852');
             expect(x.evidence['wholeColumn'], 7);
           }
-          expect(x.evidence['unit'], '원');
+          if (e['receipt'] != '20240320001438') expect(x.evidence['unit'], '원');
         }
       }
     },

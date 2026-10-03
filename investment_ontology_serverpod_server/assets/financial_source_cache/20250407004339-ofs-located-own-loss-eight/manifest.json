@@ -1,0 +1,1631 @@
+{
+  "receipt": "20250407004339",
+  "sourceReceipt": "20250407004208",
+  "corpCode": "01118643",
+  "companyName": "(주)솔루믹스",
+  "ownCoverActor": "주식회사로보쓰리에이아이",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2024,
+  "periodStart": "2024-01-01",
+  "periodEnd": "2024-12-31",
+  "ruleVersion": "located-own-printed-loss-current-eight-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250407004339",
+      "sha256": "dbd2bc1a345c7e54ffc09b5b83288537a55321d53d9a8fd6dd5345d5f7b0ffa9"
+    },
+    {
+      "label": "originalShell",
+      "file": "originalShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250407004208",
+      "sha256": "27eb1cab4b657d8a350cadb047e7743ecb47e75244818c9b31491540b954243b"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250407004208&dcmNo=10552128&eleId=1&offset=959&length=4494&dtd=dart4.xsd",
+      "sha256": "87f8d01b836a114296f1702e109f5665767bfdac20384503c6a48863a40f456e"
+    },
+    {
+      "label": "ofs",
+      "file": "ofs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250407004208&dcmNo=10552128&eleId=21&offset=535164&length=43797&dtd=dart4.xsd",
+      "sha256": "13f346389d0f93f9b5b2abc9d89c2547540afd5a1c595cfcc78471a24a71bfb7"
+    }
+  ],
+  "tables": [
+    [
+      [
+        "재무상태표"
+      ],
+      [
+        "제22(당)기말2024년12월31일현재"
+      ],
+      [
+        "제21(전)기말2023년12월31일현재"
+      ],
+      [
+        "주식회사로보쓰리에이아이",
+        "(단위:원)"
+      ]
+    ],
+    [
+      [
+        "과목",
+        "주석",
+        "제22(당)기말",
+        "제21(전)기말"
+      ],
+      [
+        "자산",
+        "",
+        "",
+        ""
+      ],
+      [
+        "I.유동자산",
+        "",
+        "4,773,990,251",
+        "3,846,238,095"
+      ],
+      [
+        "현금및현금성자산",
+        "3,31",
+        "3,575,407",
+        "1,650,925,907"
+      ],
+      [
+        "단기금융자산",
+        "4,16,18,30,31",
+        "10,105",
+        "1,195,712,574"
+      ],
+      [
+        "매출채권및수취채권",
+        "7,31",
+        "4,686,809,855",
+        "773,018,50"
+      ],
+      [
+        "당기법인세자산",
+        "",
+        "803,730",
+        "1,342,310"
+      ],
+      [
+        "재고자산",
+        "8",
+        "64,468,461",
+        "208,028,539"
+      ],
+      [
+        "기타유동자산",
+        "9",
+        "18,322,693",
+        "17,210,257"
+      ],
+      [
+        "II.비유동자산",
+        "",
+        "1,974,552,195",
+        "972,485,056"
+      ],
+      [
+        "장기금융상품",
+        "4,31",
+        "1,338,856,330",
+        "799,688,266"
+      ],
+      [
+        "관계기업투자주식",
+        "5",
+        "19,846,212",
+        "27,808,755"
+      ],
+      [
+        "종속기업투자주식",
+        "6",
+        "-",
+        "-"
+      ],
+      [
+        "장기매출채권및수취채권",
+        "7,31",
+        "192,591,337",
+        "300,000"
+      ],
+      [
+        "유형자산",
+        "10,12",
+        "368,893,562",
+        "30,135,696"
+      ],
+      [
+        "무형자산",
+        "11",
+        "54,364,754",
+        "114,552,339"
+      ],
+      [
+        "이연법인세자산",
+        "",
+        "-",
+        "-"
+      ],
+      [
+        "자산총계",
+        "",
+        "6,748,542,446",
+        "4,818,723,151"
+      ],
+      [
+        "부채",
+        "",
+        "",
+        ""
+      ],
+      [
+        "I.유동부채",
+        "",
+        "4,932,767,438",
+        "1,823,470,922"
+      ],
+      [
+        "매입채무및기타채무",
+        "13,18,31",
+        "1,012,592,868",
+        "612,260,794"
+      ],
+      [
+        "단기차입금",
+        "14,31",
+        "80,020,000",
+        "300,000,000"
+      ],
+      [
+        "전환사채",
+        "16,31",
+        "2,437,587,324",
+        "715,009,328"
+      ],
+      [
+        "파생상품부채",
+        "16,31",
+        "1,147,957,396",
+        "191,627,180"
+      ],
+      [
+        "기타유동부채",
+        "15",
+        "8,143,050",
+        "4,573,620"
+      ],
+      [
+        "유동성리스부채",
+        "12",
+        "246,466,800",
+        "-"
+      ],
+      [
+        "II.비유동부채",
+        "",
+        "197,881,951",
+        "19,100,000"
+      ],
+      [
+        "확정급여채무",
+        "17",
+        "33,510,933",
+        "-"
+      ],
+      [
+        "비유동리스부채",
+        "12",
+        "134,371,018",
+        "-"
+      ],
+      [
+        "기타비유동부채",
+        "15",
+        "30,000,000",
+        "19,100,000"
+      ],
+      [
+        "이연법인세부채",
+        "",
+        "-",
+        "-"
+      ],
+      [
+        "부채총계",
+        "",
+        "5,130,649,389",
+        "1,842,570,922"
+      ],
+      [
+        "자본",
+        "",
+        "",
+        ""
+      ],
+      [
+        "I.자본금",
+        "1,19",
+        "8,403,652,400",
+        "4,527,170,600"
+      ],
+      [
+        "II.자본잉여금",
+        "20",
+        "22,833,732,085",
+        "12,984,189,321"
+      ],
+      [
+        "Ⅲ.자본조정",
+        "20",
+        "-",
+        "35,433,040"
+      ],
+      [
+        "Ⅳ.결손금",
+        "21",
+        "(29,619,491,428)",
+        "(14,570,640,732)"
+      ],
+      [
+        "자본총계",
+        "",
+        "1,617,893,057",
+        "2,976,152,229"
+      ],
+      [
+        "부채및자본총계",
+        "",
+        "6,748,542,446",
+        "4,818,723,151"
+      ]
+    ],
+    [
+      [
+        "주석참조"
+      ]
+    ],
+    [
+      [
+        "포괄손익계산서"
+      ],
+      [
+        "제22(당)기2024년1월1일부터2024년12월31일까지"
+      ],
+      [
+        "제21(전)기2023년1월1일부터2023년12월31일까지"
+      ],
+      [
+        "주식회사로보쓰리에이아이",
+        "(단위:원)"
+      ]
+    ],
+    [
+      [
+        "과목",
+        "주석",
+        "제22(당)기",
+        "제21(전)기"
+      ],
+      [
+        "I.매출액",
+        "",
+        "579,284,000",
+        "821,032,726"
+      ],
+      [
+        "II.매출원가",
+        "22,24",
+        "665,740,078",
+        "888,759,136"
+      ],
+      [
+        "III.매출총이익",
+        "",
+        "(86,456,078)",
+        "(67,726,410)"
+      ],
+      [
+        "판매비와관리비",
+        "23,24",
+        "1,454,968,702",
+        "1,922,697,986"
+      ],
+      [
+        "IV.영업손실",
+        "",
+        "1,541,424,780",
+        "1,990,424,396"
+      ],
+      [
+        "기타수익",
+        "25",
+        "25,186,621",
+        "420,388"
+      ],
+      [
+        "기타비용",
+        "25",
+        "8,753,456,108",
+        "610,331,123"
+      ],
+      [
+        "관계기업지분법손익",
+        "5",
+        "(4,879,150,303)",
+        "(5,591,245)"
+      ],
+      [
+        "금융수익",
+        "26",
+        "1,571,883,442",
+        "1,065,034,108"
+      ],
+      [
+        "금융비용",
+        "26",
+        "1,471,889,568",
+        "1,680,515,100"
+      ],
+      [
+        "V.법인세비용차감전순손실",
+        "",
+        "15,048,850,696",
+        "3,221,407,368"
+      ],
+      [
+        "VI.법인세비용(이익)",
+        "27",
+        "-",
+        "-"
+      ],
+      [
+        "VII.당기순손실",
+        "",
+        "15,048,850,696",
+        "3,221,407,368"
+      ],
+      [
+        "VIII.기타포괄손익",
+        "",
+        "-",
+        "-"
+      ],
+      [
+        "IX.총포괄손실",
+        "",
+        "15,048,850,696",
+        "3,221,407,368"
+      ],
+      [
+        "X.주당이익(손실)",
+        "28",
+        "-",
+        ""
+      ],
+      [
+        "기본주당순이익(손실)",
+        "",
+        "(440)",
+        "(154)"
+      ],
+      [
+        "희석주당순이익(손실)",
+        "",
+        "(440)",
+        "(154)"
+      ]
+    ],
+    [
+      [
+        "주석참조"
+      ]
+    ],
+    [
+      [
+        "자본변동표"
+      ],
+      [
+        "제22(당)기2024년1월1일부터2024년12월31일까지"
+      ],
+      [
+        "제21(전)기2023년1월1일부터2023년12월31일까지"
+      ],
+      [
+        "주식회사로보쓰리에이아이",
+        "(단위:원)"
+      ]
+    ],
+    [
+      [
+        "과목",
+        "자본금",
+        "자본잉여금",
+        "자본조정",
+        "결손금",
+        "총계"
+      ],
+      [
+        "2023.01.01(전기초)",
+        "9,348,490,000",
+        "5,962,869,171",
+        "64,041,129",
+        "(11,349,233,364)",
+        "4,026,166,936"
+      ],
+      [
+        "유상증자",
+        "1,633,229,500",
+        "566,771,250",
+        "-",
+        "-",
+        "2,200,000,750"
+      ],
+      [
+        "무상감자",
+        "(6,454,548,900)",
+        "6,454,548,900",
+        "-",
+        "-",
+        "-"
+      ],
+      [
+        "주식선택권",
+        "-",
+        "-",
+        "(28,608,089)",
+        "-",
+        "(28,608,089)"
+      ],
+      [
+        "당기순이익(손실)",
+        "-",
+        "-",
+        "-",
+        "(3,221,407,368)",
+        "(3,221,407,368)"
+      ],
+      [
+        "2023.12.31(전기말)",
+        "4,527,170,600",
+        "12,984,189,321",
+        "35,433,040",
+        "(14,570,640,732)",
+        "2,976,152,229"
+      ],
+      [
+        "2024.01.01(당기초)",
+        "4,527,170,600",
+        "12,984,189,321",
+        "35,433,040",
+        "(14,570,640,732)",
+        "2,976,152,229"
+      ],
+      [
+        "유상증자",
+        "3,620,727,800",
+        "9,179,273,700",
+        "-",
+        "-",
+        "12,800,001,500"
+      ],
+      [
+        "전환사채전환",
+        "255,754,000",
+        "670,269,064",
+        "-",
+        "-",
+        "926,023,064"
+      ],
+      [
+        "주식선택권",
+        "-",
+        "-",
+        "(35,433,040)",
+        "-",
+        "(35,433,040)"
+      ],
+      [
+        "당기순이익(손실)",
+        "-",
+        "-",
+        "-",
+        "(15,048,850,696)",
+        "(15,048,850,696)"
+      ],
+      [
+        "2024.12.31(당기말)",
+        "8,403,652,400",
+        "22,833,732,085",
+        "-",
+        "(29,619,491,428)",
+        "1,617,893,057"
+      ]
+    ],
+    [
+      [
+        "주석참조"
+      ]
+    ],
+    [
+      [
+        "현금흐름표"
+      ],
+      [
+        "제22(당)기2024년1월1일부터2024년12월31일까지"
+      ],
+      [
+        "제21(전)기2023년1월1일부터2023년12월31일까지"
+      ],
+      [
+        "주식회사로보쓰리에이아이",
+        "(단위:원)"
+      ]
+    ],
+    [
+      [
+        "과목",
+        "주석",
+        "제22(당)기",
+        "제21(전)기"
+      ],
+      [
+        "I.영업활동으로인한현금흐름",
+        "",
+        "(1,615,783,238)",
+        "(418,986,778)"
+      ],
+      [
+        "1.영업에서창출된현금흐름",
+        "",
+        "(1,575,323,616)",
+        "(405,053,885)"
+      ],
+      [
+        "가.당기순이익",
+        "",
+        "(15,048,850,696)",
+        "(3,221,407,368)"
+      ],
+      [
+        "나.당기순이익(손실)에대한조정",
+        "29",
+        "13,728,549,806",
+        "1,673,310,005"
+      ],
+      [
+        "다.영업활동자산,부채의증감",
+        "29",
+        "(255,022,726)",
+        "1,143,043,478"
+      ],
+      [
+        "2.이자의수취",
+        "",
+        "25,620,843",
+        "19,621,338"
+      ],
+      [
+        "3.배당금의수취",
+        "",
+        "361",
+        "(33,139,541)"
+      ],
+      [
+        "4.이자의지급",
+        "",
+        "(66,619,406)",
+        "(414,690)"
+      ],
+      [
+        "5.법인세의납부",
+        "",
+        "538,580",
+        "-"
+      ],
+      [
+        "II.투자활동으로인한현금흐름",
+        "",
+        "(16,883,911,234)",
+        "(2,080,963,848)"
+      ],
+      [
+        "1.투자활동으로인한현금유입액",
+        "",
+        "7,384,526,869",
+        "26,514,112,137"
+      ],
+      [
+        "단기대여금의감소",
+        "",
+        "5,746,509,119",
+        "-"
+      ],
+      [
+        "단기금융상품의감소",
+        "",
+        "50,000,000",
+        "-"
+      ],
+      [
+        "당기손익측정공정가치금융자산의처분",
+        "",
+        "997,526,691",
+        "26,509,112,137"
+      ],
+      [
+        "종속기업투자주식의처분",
+        "",
+        "100,000,000",
+        "-"
+      ],
+      [
+        "보증금의감소",
+        "",
+        "306,770,000",
+        "5,000,000"
+      ],
+      [
+        "유형자산의처분",
+        "",
+        "183,721,059",
+        "-"
+      ],
+      [
+        "사용권자산의처분",
+        "",
+        "-",
+        "-"
+      ],
+      [
+        "2.투자활동으로인한현금유출액",
+        "",
+        "(24,268,438,103)",
+        "(28,595,075,985)"
+      ],
+      [
+        "단기대여금의증가",
+        "",
+        "9,093,529,119",
+        "445,000,000"
+      ],
+      [
+        "당기손익측정공정가치금융자산의증가",
+        "",
+        "1,127,464,069",
+        "28,055,735,361"
+      ],
+      [
+        "관계기업투자주식의취득",
+        "",
+        "6,243,480,000",
+        "33,400,000"
+      ],
+      [
+        "종속기업투자주식의취득",
+        "",
+        "7,400,000,000",
+        "-"
+      ],
+      [
+        "유형자산의취득",
+        "",
+        "195,994,915",
+        "-"
+      ],
+      [
+        "무형자산의취득",
+        "",
+        "-",
+        "60,940,624"
+      ],
+      [
+        "보증금의증가",
+        "",
+        "207,970,000",
+        "-"
+      ],
+      [
+        "III.재무활동으로인한현금흐름",
+        "",
+        "16,852,343,972",
+        "2,400,000,750"
+      ],
+      [
+        "1.재무활동으로인한현금유입액",
+        "",
+        "19,650,781,500",
+        "2,500,000,750"
+      ],
+      [
+        "단기차입금의증가",
+        "",
+        "1,440,780,000",
+        "300,000,000"
+      ],
+      [
+        "전환사채의발행",
+        "",
+        "5,380,000,000",
+        "-"
+      ],
+      [
+        "임대보증금의증가",
+        "",
+        "30,000,000",
+        "-"
+      ],
+      [
+        "유상증자",
+        "",
+        "12,800,001,500",
+        "2,200,000,750"
+      ],
+      [
+        "2.재무활동으로인한현금유출액",
+        "",
+        "(2,798,437,528)",
+        "(100,000,000)"
+      ],
+      [
+        "단기차입금의감소",
+        "",
+        "1,660,760,000",
+        "-"
+      ],
+      [
+        "전환사채의상환",
+        "",
+        "1,000,000,000",
+        "-"
+      ],
+      [
+        "리스부채의감소",
+        "",
+        "137,677,528",
+        "100,000,000"
+      ],
+      [
+        "Ⅳ.현금및현금성자산에대한환율변동효과",
+        "",
+        "-",
+        "-"
+      ],
+      [
+        "V.현금의증가(Ⅰ+Ⅱ+Ⅲ+IV)",
+        "",
+        "(1,647,350,500)",
+        "(99,949,876)"
+      ],
+      [
+        "VI.기초의현금",
+        "",
+        "1,650,925,907",
+        "1,750,875,783"
+      ],
+      [
+        "VII.기말의현금",
+        "",
+        "3,575,407",
+        "1,650,925,907"
+      ]
+    ]
+  ],
+  "core": [
+    {
+      "table": 1,
+      "row": 17,
+      "column": 2,
+      "label": "자산총계",
+      "literal": "6,748,542,446",
+      "value": 6748542446,
+      "key": "assets",
+      "derivedInterpretation": 6748542446,
+      "signRule": "none",
+      "kind": "BS",
+      "signNormalization": "none"
+    },
+    {
+      "table": 1,
+      "row": 31,
+      "column": 2,
+      "label": "부채총계",
+      "literal": "5,130,649,389",
+      "value": 5130649389,
+      "key": "liabilities",
+      "derivedInterpretation": 5130649389,
+      "signRule": "none",
+      "kind": "BS",
+      "signNormalization": "none"
+    },
+    {
+      "table": 1,
+      "row": 37,
+      "column": 2,
+      "label": "자본총계",
+      "literal": "1,617,893,057",
+      "value": 1617893057,
+      "key": "equity",
+      "derivedInterpretation": 1617893057,
+      "signRule": "none",
+      "kind": "BS",
+      "signNormalization": "none"
+    },
+    {
+      "table": 4,
+      "row": 1,
+      "column": 2,
+      "label": "I.매출액",
+      "literal": "579,284,000",
+      "value": 579284000,
+      "key": "revenue",
+      "derivedInterpretation": 579284000,
+      "signRule": "none",
+      "kind": "CIS",
+      "signNormalization": "none"
+    },
+    {
+      "table": 4,
+      "row": 5,
+      "column": 2,
+      "label": "IV.영업손실",
+      "literal": "1,541,424,780",
+      "value": 1541424780,
+      "key": "operatingIncome",
+      "derivedInterpretation": -1541424780,
+      "signRule": "explicitLossMagnitudeOnly",
+      "kind": "CIS",
+      "signNormalization": "explicitPrintedLossMagnitudeCorroborated"
+    },
+    {
+      "table": 4,
+      "row": 13,
+      "column": 2,
+      "label": "VII.당기순손실",
+      "literal": "15,048,850,696",
+      "value": 15048850696,
+      "key": "netIncome",
+      "derivedInterpretation": -15048850696,
+      "signRule": "explicitLossMagnitudeOnly",
+      "kind": "CIS",
+      "signNormalization": "explicitPrintedLossMagnitudeCorroborated"
+    },
+    {
+      "table": 10,
+      "row": 1,
+      "column": 2,
+      "label": "I.영업활동으로인한현금흐름",
+      "literal": "(1,615,783,238)",
+      "value": -1615783238,
+      "key": "operatingCashFlow",
+      "derivedInterpretation": -1615783238,
+      "signRule": "none",
+      "kind": "CF",
+      "signNormalization": "none"
+    },
+    {
+      "table": 10,
+      "row": 24,
+      "column": 2,
+      "label": "유형자산의취득",
+      "literal": "195,994,915",
+      "value": 195994915,
+      "key": "capex",
+      "derivedInterpretation": 195994915,
+      "signRule": "none",
+      "kind": "CF",
+      "signNormalization": "none"
+    }
+  ],
+  "checks": [
+    {
+      "label": "A=L+E",
+      "total": {
+        "table": 1,
+        "row": 17,
+        "column": 2,
+        "label": "자산총계",
+        "literal": "6,748,542,446",
+        "value": 6748542446
+      },
+      "terms": [
+        {
+          "table": 1,
+          "row": 31,
+          "column": 2,
+          "label": "부채총계",
+          "literal": "5,130,649,389",
+          "value": 5130649389,
+          "coefficient": 1
+        },
+        {
+          "table": 1,
+          "row": 37,
+          "column": 2,
+          "label": "자본총계",
+          "literal": "1,617,893,057",
+          "value": 1617893057,
+          "coefficient": 1
+        }
+      ],
+      "residual": 0,
+      "omittedPrintedDashCells": [],
+      "dashNumericFactCreated": false
+    },
+    {
+      "label": "PLgross",
+      "total": {
+        "table": 4,
+        "row": 3,
+        "column": 2,
+        "label": "III.매출총이익",
+        "literal": "(86,456,078)",
+        "value": -86456078
+      },
+      "terms": [
+        {
+          "table": 4,
+          "row": 1,
+          "column": 2,
+          "label": "I.매출액",
+          "literal": "579,284,000",
+          "value": 579284000,
+          "coefficient": 1
+        },
+        {
+          "table": 4,
+          "row": 2,
+          "column": 2,
+          "label": "II.매출원가",
+          "literal": "665,740,078",
+          "value": 665740078,
+          "coefficient": -1
+        }
+      ],
+      "residual": 0,
+      "omittedPrintedDashCells": [],
+      "dashNumericFactCreated": false
+    },
+    {
+      "label": "PrintedOPLossMagnitude",
+      "total": {
+        "table": 4,
+        "row": 5,
+        "column": 2,
+        "label": "IV.영업손실",
+        "literal": "1,541,424,780",
+        "value": 1541424780
+      },
+      "terms": [
+        {
+          "table": 4,
+          "row": 4,
+          "column": 2,
+          "label": "판매비와관리비",
+          "literal": "1,454,968,702",
+          "value": 1454968702,
+          "coefficient": 1
+        },
+        {
+          "table": 4,
+          "row": 3,
+          "column": 2,
+          "label": "III.매출총이익",
+          "literal": "(86,456,078)",
+          "value": -86456078,
+          "coefficient": -1
+        }
+      ],
+      "residual": 0,
+      "omittedPrintedDashCells": [],
+      "dashNumericFactCreated": false
+    },
+    {
+      "label": "PrintedPretaxLossMagnitude",
+      "total": {
+        "table": 4,
+        "row": 11,
+        "column": 2,
+        "label": "V.법인세비용차감전순손실",
+        "literal": "15,048,850,696",
+        "value": 15048850696
+      },
+      "terms": [
+        {
+          "table": 4,
+          "row": 5,
+          "column": 2,
+          "label": "IV.영업손실",
+          "literal": "1,541,424,780",
+          "value": 1541424780,
+          "coefficient": 1
+        },
+        {
+          "table": 4,
+          "row": 6,
+          "column": 2,
+          "label": "기타수익",
+          "literal": "25,186,621",
+          "value": 25186621,
+          "coefficient": -1
+        },
+        {
+          "table": 4,
+          "row": 7,
+          "column": 2,
+          "label": "기타비용",
+          "literal": "8,753,456,108",
+          "value": 8753456108,
+          "coefficient": 1
+        },
+        {
+          "table": 4,
+          "row": 8,
+          "column": 2,
+          "label": "관계기업지분법손익",
+          "literal": "(4,879,150,303)",
+          "value": -4879150303,
+          "coefficient": -1
+        },
+        {
+          "table": 4,
+          "row": 9,
+          "column": 2,
+          "label": "금융수익",
+          "literal": "1,571,883,442",
+          "value": 1571883442,
+          "coefficient": -1
+        },
+        {
+          "table": 4,
+          "row": 10,
+          "column": 2,
+          "label": "금융비용",
+          "literal": "1,471,889,568",
+          "value": 1471889568,
+          "coefficient": 1
+        }
+      ],
+      "residual": 0,
+      "omittedPrintedDashCells": [],
+      "dashNumericFactCreated": false
+    },
+    {
+      "label": "PrintedNILossMagnitude",
+      "total": {
+        "table": 4,
+        "row": 13,
+        "column": 2,
+        "label": "VII.당기순손실",
+        "literal": "15,048,850,696",
+        "value": 15048850696
+      },
+      "terms": [
+        {
+          "table": 4,
+          "row": 11,
+          "column": 2,
+          "label": "V.법인세비용차감전순손실",
+          "literal": "15,048,850,696",
+          "value": 15048850696,
+          "coefficient": 1
+        }
+      ],
+      "residual": 0,
+      "omittedPrintedDashCells": [
+        {
+          "table": 4,
+          "row": 12,
+          "column": 2,
+          "label": "VI.법인세비용(이익)",
+          "literal": "-",
+          "value": null
+        }
+      ],
+      "dashNumericFactCreated": false
+    },
+    {
+      "label": "NILossCEIndependent",
+      "total": {
+        "table": 4,
+        "row": 13,
+        "column": 2,
+        "label": "VII.당기순손실",
+        "literal": "15,048,850,696",
+        "value": 15048850696
+      },
+      "terms": [
+        {
+          "table": 7,
+          "row": 11,
+          "column": 5,
+          "label": "당기순이익(손실)",
+          "literal": "(15,048,850,696)",
+          "value": -15048850696,
+          "coefficient": -1
+        }
+      ],
+      "residual": 0,
+      "omittedPrintedDashCells": [],
+      "dashNumericFactCreated": false
+    },
+    {
+      "label": "NILossCFIndependent",
+      "total": {
+        "table": 4,
+        "row": 13,
+        "column": 2,
+        "label": "VII.당기순손실",
+        "literal": "15,048,850,696",
+        "value": 15048850696
+      },
+      "terms": [
+        {
+          "table": 10,
+          "row": 3,
+          "column": 2,
+          "label": "가.당기순이익",
+          "literal": "(15,048,850,696)",
+          "value": -15048850696,
+          "coefficient": -1
+        }
+      ],
+      "residual": 0,
+      "omittedPrintedDashCells": [],
+      "dashNumericFactCreated": false
+    },
+    {
+      "label": "CEopeningPriorBS",
+      "total": {
+        "table": 7,
+        "row": 7,
+        "column": 5,
+        "label": "2024.01.01(당기초)",
+        "literal": "2,976,152,229",
+        "value": 2976152229
+      },
+      "terms": [
+        {
+          "table": 1,
+          "row": 37,
+          "column": 3,
+          "label": "자본총계",
+          "literal": "2,976,152,229",
+          "value": 2976152229,
+          "coefficient": 1
+        }
+      ],
+      "residual": 0,
+      "omittedPrintedDashCells": [],
+      "dashNumericFactCreated": false
+    },
+    {
+      "label": "CEclosingBS",
+      "total": {
+        "table": 7,
+        "row": 12,
+        "column": 5,
+        "label": "2024.12.31(당기말)",
+        "literal": "1,617,893,057",
+        "value": 1617893057
+      },
+      "terms": [
+        {
+          "table": 1,
+          "row": 37,
+          "column": 2,
+          "label": "자본총계",
+          "literal": "1,617,893,057",
+          "value": 1617893057,
+          "coefficient": 1
+        }
+      ],
+      "residual": 0,
+      "omittedPrintedDashCells": [],
+      "dashNumericFactCreated": false
+    },
+    {
+      "label": "CEroll",
+      "total": {
+        "table": 7,
+        "row": 12,
+        "column": 5,
+        "label": "2024.12.31(당기말)",
+        "literal": "1,617,893,057",
+        "value": 1617893057
+      },
+      "terms": [
+        {
+          "table": 7,
+          "row": 7,
+          "column": 5,
+          "label": "2024.01.01(당기초)",
+          "literal": "2,976,152,229",
+          "value": 2976152229,
+          "coefficient": 1
+        },
+        {
+          "table": 7,
+          "row": 8,
+          "column": 5,
+          "label": "유상증자",
+          "literal": "12,800,001,500",
+          "value": 12800001500,
+          "coefficient": 1
+        },
+        {
+          "table": 7,
+          "row": 9,
+          "column": 5,
+          "label": "전환사채전환",
+          "literal": "926,023,064",
+          "value": 926023064,
+          "coefficient": 1
+        },
+        {
+          "table": 7,
+          "row": 10,
+          "column": 5,
+          "label": "주식선택권",
+          "literal": "(35,433,040)",
+          "value": -35433040,
+          "coefficient": 1
+        },
+        {
+          "table": 7,
+          "row": 11,
+          "column": 5,
+          "label": "당기순이익(손실)",
+          "literal": "(15,048,850,696)",
+          "value": -15048850696,
+          "coefficient": 1
+        }
+      ],
+      "residual": 0,
+      "omittedPrintedDashCells": [],
+      "dashNumericFactCreated": false
+    },
+    {
+      "label": "CFOgenerated",
+      "total": {
+        "table": 10,
+        "row": 2,
+        "column": 2,
+        "label": "1.영업에서창출된현금흐름",
+        "literal": "(1,575,323,616)",
+        "value": -1575323616
+      },
+      "terms": [
+        {
+          "table": 10,
+          "row": 3,
+          "column": 2,
+          "label": "가.당기순이익",
+          "literal": "(15,048,850,696)",
+          "value": -15048850696,
+          "coefficient": 1
+        },
+        {
+          "table": 10,
+          "row": 4,
+          "column": 2,
+          "label": "나.당기순이익(손실)에대한조정",
+          "literal": "13,728,549,806",
+          "value": 13728549806,
+          "coefficient": 1
+        },
+        {
+          "table": 10,
+          "row": 5,
+          "column": 2,
+          "label": "다.영업활동자산,부채의증감",
+          "literal": "(255,022,726)",
+          "value": -255022726,
+          "coefficient": 1
+        }
+      ],
+      "residual": 0,
+      "omittedPrintedDashCells": [],
+      "dashNumericFactCreated": false
+    },
+    {
+      "label": "CFO",
+      "total": {
+        "table": 10,
+        "row": 1,
+        "column": 2,
+        "label": "I.영업활동으로인한현금흐름",
+        "literal": "(1,615,783,238)",
+        "value": -1615783238
+      },
+      "terms": [
+        {
+          "table": 10,
+          "row": 2,
+          "column": 2,
+          "label": "1.영업에서창출된현금흐름",
+          "literal": "(1,575,323,616)",
+          "value": -1575323616,
+          "coefficient": 1
+        },
+        {
+          "table": 10,
+          "row": 6,
+          "column": 2,
+          "label": "2.이자의수취",
+          "literal": "25,620,843",
+          "value": 25620843,
+          "coefficient": 1
+        },
+        {
+          "table": 10,
+          "row": 7,
+          "column": 2,
+          "label": "3.배당금의수취",
+          "literal": "361",
+          "value": 361,
+          "coefficient": 1
+        },
+        {
+          "table": 10,
+          "row": 8,
+          "column": 2,
+          "label": "4.이자의지급",
+          "literal": "(66,619,406)",
+          "value": -66619406,
+          "coefficient": 1
+        },
+        {
+          "table": 10,
+          "row": 9,
+          "column": 2,
+          "label": "5.법인세의납부",
+          "literal": "538,580",
+          "value": 538580,
+          "coefficient": 1
+        }
+      ],
+      "residual": 0,
+      "omittedPrintedDashCells": [],
+      "dashNumericFactCreated": false
+    },
+    {
+      "label": "CFI",
+      "total": {
+        "table": 10,
+        "row": 10,
+        "column": 2,
+        "label": "II.투자활동으로인한현금흐름",
+        "literal": "(16,883,911,234)",
+        "value": -16883911234
+      },
+      "terms": [
+        {
+          "table": 10,
+          "row": 11,
+          "column": 2,
+          "label": "1.투자활동으로인한현금유입액",
+          "literal": "7,384,526,869",
+          "value": 7384526869,
+          "coefficient": 1
+        },
+        {
+          "table": 10,
+          "row": 19,
+          "column": 2,
+          "label": "2.투자활동으로인한현금유출액",
+          "literal": "(24,268,438,103)",
+          "value": -24268438103,
+          "coefficient": 1
+        }
+      ],
+      "residual": 0,
+      "omittedPrintedDashCells": [],
+      "dashNumericFactCreated": false
+    },
+    {
+      "label": "CFF",
+      "total": {
+        "table": 10,
+        "row": 27,
+        "column": 2,
+        "label": "III.재무활동으로인한현금흐름",
+        "literal": "16,852,343,972",
+        "value": 16852343972
+      },
+      "terms": [
+        {
+          "table": 10,
+          "row": 28,
+          "column": 2,
+          "label": "1.재무활동으로인한현금유입액",
+          "literal": "19,650,781,500",
+          "value": 19650781500,
+          "coefficient": 1
+        },
+        {
+          "table": 10,
+          "row": 33,
+          "column": 2,
+          "label": "2.재무활동으로인한현금유출액",
+          "literal": "(2,798,437,528)",
+          "value": -2798437528,
+          "coefficient": 1
+        }
+      ],
+      "residual": 0,
+      "omittedPrintedDashCells": [],
+      "dashNumericFactCreated": false
+    },
+    {
+      "label": "CFdeltaWithoutInventedFX",
+      "total": {
+        "table": 10,
+        "row": 38,
+        "column": 2,
+        "label": "V.현금의증가(Ⅰ+Ⅱ+Ⅲ+IV)",
+        "literal": "(1,647,350,500)",
+        "value": -1647350500
+      },
+      "terms": [
+        {
+          "table": 10,
+          "row": 1,
+          "column": 2,
+          "label": "I.영업활동으로인한현금흐름",
+          "literal": "(1,615,783,238)",
+          "value": -1615783238,
+          "coefficient": 1
+        },
+        {
+          "table": 10,
+          "row": 10,
+          "column": 2,
+          "label": "II.투자활동으로인한현금흐름",
+          "literal": "(16,883,911,234)",
+          "value": -16883911234,
+          "coefficient": 1
+        },
+        {
+          "table": 10,
+          "row": 27,
+          "column": 2,
+          "label": "III.재무활동으로인한현금흐름",
+          "literal": "16,852,343,972",
+          "value": 16852343972,
+          "coefficient": 1
+        }
+      ],
+      "residual": 0,
+      "omittedPrintedDashCells": [],
+      "dashNumericFactCreated": false
+    },
+    {
+      "label": "CFroll",
+      "total": {
+        "table": 10,
+        "row": 40,
+        "column": 2,
+        "label": "VII.기말의현금",
+        "literal": "3,575,407",
+        "value": 3575407
+      },
+      "terms": [
+        {
+          "table": 10,
+          "row": 39,
+          "column": 2,
+          "label": "VI.기초의현금",
+          "literal": "1,650,925,907",
+          "value": 1650925907,
+          "coefficient": 1
+        },
+        {
+          "table": 10,
+          "row": 38,
+          "column": 2,
+          "label": "V.현금의증가(Ⅰ+Ⅱ+Ⅲ+IV)",
+          "literal": "(1,647,350,500)",
+          "value": -1647350500,
+          "coefficient": 1
+        }
+      ],
+      "residual": 0,
+      "omittedPrintedDashCells": [],
+      "dashNumericFactCreated": false
+    },
+    {
+      "label": "CFclosingBS",
+      "total": {
+        "table": 10,
+        "row": 40,
+        "column": 2,
+        "label": "VII.기말의현금",
+        "literal": "3,575,407",
+        "value": 3575407
+      },
+      "terms": [
+        {
+          "table": 1,
+          "row": 3,
+          "column": 2,
+          "label": "현금및현금성자산",
+          "literal": "3,575,407",
+          "value": 3575407,
+          "coefficient": 1
+        }
+      ],
+      "residual": 0,
+      "omittedPrintedDashCells": [],
+      "dashNumericFactCreated": false
+    },
+    {
+      "label": "CFopeningPriorBS",
+      "total": {
+        "table": 10,
+        "row": 39,
+        "column": 2,
+        "label": "VI.기초의현금",
+        "literal": "1,650,925,907",
+        "value": 1650925907
+      },
+      "terms": [
+        {
+          "table": 1,
+          "row": 3,
+          "column": 3,
+          "label": "현금및현금성자산",
+          "literal": "1,650,925,907",
+          "value": 1650925907,
+          "coefficient": 1
+        }
+      ],
+      "residual": 0,
+      "omittedPrintedDashCells": [],
+      "dashNumericFactCreated": false
+    }
+  ],
+  "sourceDetailAnomalies": [],
+  "unverifiedNonCoreCells": [
+    {
+      "table": 1,
+      "row": 5,
+      "column": 3,
+      "literal": "773,018,50",
+      "problem": "malformedPriorComparativeNumericGrouping",
+      "numericCorrection": false,
+      "amountExtracted": false
+    }
+  ],
+  "ownIssuerFilingSeriesEvidence": {
+    "policy": "exact-own-filing-series-current-rows-v1",
+    "identityScope": "official-DART-filing-series-only",
+    "ownCoverActor": "주식회사로보쓰리에이아이",
+    "currentName": "(주)솔루믹스",
+    "corpCode": "01118643",
+    "ownShellCorpProof": "01118643",
+    "sourceReceipt": "20250407004208",
+    "targetReceipt": "20250407004339",
+    "ownShellSource": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250407004208",
+    "ownShellSha256": "27eb1cab4b657d8a350cadb047e7743ecb47e75244818c9b31491540b954243b",
+    "coverSource": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250407004208&dcmNo=10552128&eleId=1&offset=959&length=4494&dtd=dart4.xsd",
+    "coverSha256": "87f8d01b836a114296f1702e109f5665767bfdac20384503c6a48863a40f456e",
+    "jurirContinuityVerified": false,
+    "operatingHistoryContinuityVerified": false
+  },
+  "fullStatementCollected": false,
+  "notesVerified": false,
+  "detailHierarchyVerified": false,
+  "detailEnrichmentApproved": false,
+  "summaryPrecisionSourceNotUsed": false,
+  "sourceCaptionDifference": null,
+  "sourceScopeNotice": "자체 공식 원문 당기 핵심 8개만 검증했습니다. 양수로 인쇄된 영업손실·순손실 크기는 명시 손실 라벨, 자체 손익 산식과 음수 CE·CF 순손실로 부호를 적용하고 원문 양수 셀을 보존합니다. 인쇄 회사명 로보쓰리에이아이와 현재명 솔루믹스의 동일 공시 법인코드만 확인했으며 법인·사업 연혁 연속성을 주장하지 않습니다. 전기 비교 매출채권의 773,018,50 오기와 FX 대시를 수정·0변환하지 않았습니다. 전체 상세·주석 완료가 아닙니다."
+}

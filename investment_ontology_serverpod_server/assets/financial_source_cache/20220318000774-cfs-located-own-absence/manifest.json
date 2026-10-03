@@ -1,0 +1,42 @@
+{
+  "receipt": "20220318000774",
+  "sourceReceipt": "20220310001176",
+  "corpCode": "01466832",
+  "companyName": "(주)라피치",
+  "ownCoverActor": "주식회사예스피치",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "ruleVersion": "located-own-explicit-cfs-absence-v1",
+  "absenceLiteral": "2. 연결재무제표 당사는 사업보고서 제출일 현재 해당사항이 없습니다.",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220318000774",
+      "sha256": "df88afdc1022793d1e41655bf162706b8b41324972fbf7311494eb7026d0b1a0"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220310001176&dcmNo=8450862&eleId=1&offset=798&length=4021&dtd=dart3.xsd",
+      "sha256": "74551f83a80572937f1c14d6cc46c3115ce6e92dc45a921aec04f77a2177cf3d"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220310001176&dcmNo=8450862&eleId=19&offset=186668&length=148&dtd=dart3.xsd",
+      "sha256": "54054a572a75f2bb8a432abf112568b4f3538671a0a88b5a756d6430efac861f"
+    },
+    {
+      "label": "originalShell",
+      "file": "originalShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220310001176",
+      "sha256": "c55fca6bbbdfb0d753b69ff491a7c72b9c8517e081f8b04cbb1ccba142dc4d70"
+    }
+  ],
+  "fullStatementCollected": false,
+  "notesVerified": false
+}
