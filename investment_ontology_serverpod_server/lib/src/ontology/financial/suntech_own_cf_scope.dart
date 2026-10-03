@@ -160,7 +160,7 @@ abstract final class SuntechOwnCfScope {
       f.supersededById == null &&
       f.accountDetail == null;
   static String apiSourceSql(String f) =>
-      "EXISTS (SELECT 1 FROM financial_report ar JOIN company ac ON ac.id=ar.\"companyId\" JOIN source ass ON ass.id=ar.\"sourceId\" WHERE ar.id=$f.\"reportId\" AND ac.id=$f.\"companyId\" AND ac.\"corpCode\"='$corp' AND ac.name='(주)썬테크' AND ar.\"rceptNo\"='$receipt' AND ar.\"bsnsYear\"=2024 AND ar.\"reportCode\"='annual' AND ar.\"fsDiv\"='consolidated' AND ar.\"supersededById\" IS NULL AND ar.\"reportName\"=${_q(reportNames.single)} AND ar.\"sourceId\"=$f.\"sourceId\" AND ass.kind='dartReport' AND ass.reference='$receipt' AND ass.url=${_q(apiUrl)} AND ass.title=${_q(apiTitle)} AND $f.currency='KRW'";
+      "EXISTS (SELECT 1 FROM financial_report ar JOIN company ac ON ac.id=ar.\"companyId\" JOIN source ass ON ass.id=ar.\"sourceId\" WHERE ar.id=$f.\"reportId\" AND ac.id=$f.\"companyId\" AND ac.\"corpCode\"='$corp' AND ac.name='(주)썬테크' AND ar.\"rceptNo\"='$receipt' AND ar.\"bsnsYear\"=2024 AND ar.\"reportCode\"='annual' AND ar.\"fsDiv\"='consolidated' AND ar.\"supersededById\" IS NULL AND ar.\"reportName\"=${_q(reportNames.single)} AND ar.\"sourceId\"=$f.\"sourceId\" AND ass.kind='dartReport' AND ass.reference='$receipt' AND ass.url=${_q(apiUrl)} AND ass.title=${_q(apiTitle)} AND $f.currency='KRW')";
   static String _q(String value) => "'${value.replaceAll("'", "''")}'";
   static String boundReportSql(String f) =>
       "NOT (${apiSourceSql(f)}) AND EXISTS (SELECT 1 FROM financial_report bound_report WHERE bound_report.id=$f.\"reportId\" AND bound_report.\"rceptNo\"='$receipt' AND bound_report.\"fsDiv\"='consolidated')";

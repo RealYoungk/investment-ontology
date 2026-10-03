@@ -196,7 +196,8 @@ class FinancialEndpoint extends Endpoint {
       )) {
         final source = await Source.db.findById(session, r.sourceId);
         if (source != null &&
-            SuntechOwnCfScope.validSource(company, r, source)) {
+            (SuntechOwnCfScope.validSource(company, r, source) ||
+                SuntechOwnCfScope.validApiSource(company, r, source))) {
           exactRevenueSources[r.id!] = source;
         }
       }
