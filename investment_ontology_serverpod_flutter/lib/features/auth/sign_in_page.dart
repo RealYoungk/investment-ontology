@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../monetization/service_links.dart';
+import '../common/service_footer.dart';
 
 import 'package:go_router/go_router.dart';
 import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
-import 'package:serverpod_auth_idp_flutter/widgets.dart';
 
 import '../../client.dart';
 import '../../design/components/components.dart';
@@ -18,9 +17,9 @@ import 'widgets/verification_form_ko.dart';
 ///
 /// 이메일 로그인·가입·비밀번호 재설정을 한 카드 안에서 오가며, Serverpod의
 /// [EmailAuthController] 위에 화면만 새로 그린다 — 인증 호출은 그대로 컨트롤러가 한다.
-/// 로그인 화면이 맨 먼저 보인다([EmailAuthController]의 기본 시작 화면). 패키지가 이미
-/// 지역화된 가입·재설정 시작 폼은 재사용한다. 나머지는 한국어 문구와 작은 화면의
-/// 높이에 맞춰 구성하고 내장 컨트롤러의 인증·비밀번호 검증 로직을 사용한다.
+/// 로그인 화면이 맨 먼저 보인다([EmailAuthController]의 기본 시작 화면).
+/// 모든 단계는 Shad 위젯과 한국어 문구로 구성하며, 내장 컨트롤러의
+/// 인증·비밀번호 검증 로직을 사용한다.
 ///
 /// 가입하면 일반 회원이다. 관리자 권한은 서버에서만 부여한다.
 class SignInPage extends StatefulWidget {
@@ -82,7 +81,7 @@ class _SignInPageState extends State<SignInPage> {
                           child: ShadIconButton.ghost(
                             semanticLabel: '이전 화면',
                             onPressed: () => Navigator.of(context).maybePop(),
-                            icon: const Icon(Icons.arrow_back),
+                            icon: const Icon(LucideIcons.arrowLeft),
                           ),
                         ),
                       ),
@@ -93,63 +92,122 @@ class _SignInPageState extends State<SignInPage> {
               )
             : null,
         backgroundColor: c.background,
-        body: Center(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.all(
-              MediaQuery.sizeOf(context).width < 480
-                  ? AppSpace.md
-                  : AppSpace.xl,
-            ),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    'alfinder',
-                    style: t.display(22).copyWith(color: c.accent),
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final padding = MediaQuery.sizeOf(context).width < 480
+                ? AppSpace.md
+                : AppSpace.xl;
+            return SingleChildScrollView(
+              padding: EdgeInsets.all(padding),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: (constraints.maxHeight - padding * 2).clamp(
+                    0,
+                    double.infinity,
                   ),
-                  const SizedBox(height: AppSpace.lg),
-                  DataPanel(
-                    child: ListenableBuilder(
-                      listenable: _controller,
-                      builder: (context, _) => Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          _RegistrationProgress(
-                            screen: _controller.currentScreen,
-                          ),
-                          _AuthFlowScreen(controller: _controller),
-                        ],
-                      ),
-                    ),
-                  ),
-                  ListenableBuilder(
-                    listenable: _controller,
-                    builder: (context, _) =>
-                        _Notices(screen: _controller.currentScreen),
-                  ),
-                  const ServiceLinks(),
-                  if (!widget.resetPassword) ...[
-                    const SizedBox(height: AppSpace.md),
-                    Align(
-                      alignment: Alignment.center,
-                      child: ShadButton.ghost(
-                        onPressed: () => context.go('/home'),
-                        child: Flexible(
-                          child: Text(
-                            '둘러보기',
-                            style: t.body(13, color: c.textSecondary),
+                ),
+                child: IntrinsicHeight(
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 440),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Semantics(
+                                  label: '알파인더 홈',
+                                  button: true,
+                                  child: ShadButton.ghost(
+                                    onPressed: () => context.go('/home'),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: AppSpace.sm,
+                                    ),
+                                    height: 64,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Image.asset(
+                                          'assets/brand/alfinder-logo.png',
+                                          width: 48,
+                                          height: 48,
+                                          fit: BoxFit.contain,
+                                          excludeFromSemantics: true,
+                                        ),
+                                        const SizedBox(width: AppSpace.sm),
+                                        Text('알파인더', style: t.display(24)),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: AppSpace.sm),
+                                Text(
+                                  '좋은 기업을 찾는 투자 리서치',
+                                  textAlign: TextAlign.center,
+                                  style: t.body(13, color: c.textSecondary),
+                                ),
+                                const SizedBox(height: AppSpace.xl),
+                                ShadCard(
+                                  padding: EdgeInsets.all(
+                                    MediaQuery.sizeOf(context).width < 480
+                                        ? AppSpace.lg
+                                        : AppSpace.xl,
+                                  ),
+                                  child: ListenableBuilder(
+                                    listenable: _controller,
+                                    builder: (context, _) => Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        _RegistrationProgress(
+                                          screen: _controller.currentScreen,
+                                        ),
+                                        _AuthFlowScreen(
+                                          controller: _controller,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                ListenableBuilder(
+                                  listenable: _controller,
+                                  builder: (context, _) => _Notices(
+                                    screen: _controller.currentScreen,
+                                  ),
+                                ),
+                                if (!widget.resetPassword) ...[
+                                  const SizedBox(height: AppSpace.md),
+                                  Align(
+                                    alignment: Alignment.center,
+                                    child: ShadButton.ghost(
+                                      onPressed: () => context.go('/home'),
+                                      child: Flexible(
+                                        child: Text(
+                                          '회원가입 없이 둘러보기',
+                                          style: t.body(
+                                            13,
+                                            color: c.textSecondary,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                ],
+                      const SizedBox(height: AppSpace.xl),
+                      const ServiceFooter(compact: true),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ),
     );
@@ -178,7 +236,8 @@ class _AuthFlowScreen extends StatelessWidget {
       EmailFlowScreen.completeRegistration => PasswordSetupKo(
         controller: controller,
       ),
-      EmailFlowScreen.requestPasswordReset => RequestPasswordResetForm(
+      EmailFlowScreen.requestPasswordReset => LoginFormKo(
+        reset: true,
         controller: controller,
       ),
       EmailFlowScreen.verifyPasswordReset => VerificationFormKo(
