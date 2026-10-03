@@ -1,3 +1,4 @@
+import '../financial/hanwha_own_net_income_scope.dart';
 import '../financial/suntech_own_cf_scope.dart';
 import '../dart/isung_cfs_current_seven_source.dart';
 import '../financial/solumix_own_revenue_scope.dart';
@@ -186,7 +187,9 @@ class FinancialEndpoint extends Endpoint {
         final source = await Source.db.findById(session, r.sourceId);
         if (source != null &&
             SolumixOwnRevenueScope.validSource(company, r, source)) {
-          exactRevenueSources[r.id!] = source;
+          {
+            exactRevenueSources[r.id!] = source;
+          }
         }
       }
     }
@@ -198,6 +201,24 @@ class FinancialEndpoint extends Endpoint {
         if (source != null &&
             (SuntechOwnCfScope.validSource(company, r, source) ||
                 SuntechOwnCfScope.validApiSource(company, r, source))) {
+          {
+            exactRevenueSources[r.id!] = source;
+          }
+        }
+      }
+    }
+    if (company.corpCode == HanwhaOwnNetIncomeScope.corp) {
+      for (final r in selected.where(
+        (r) => r.rceptNo == HanwhaOwnNetIncomeScope.receipt,
+      )) {
+        final source = await Source.db.findById(session, r.sourceId);
+        if (source != null &&
+            (HanwhaOwnNetIncomeScope.validSource(company, r, source) ||
+                HanwhaOwnNetIncomeScope.validStandardApiSource(
+                  company,
+                  r,
+                  source,
+                ))) {
           exactRevenueSources[r.id!] = source;
         }
       }

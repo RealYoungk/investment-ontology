@@ -1,3 +1,4 @@
+import '../financial/hanwha_own_net_income_scope.dart';
 import '../financial/suntech_own_cf_scope.dart';
 import '../financial/solumix_own_revenue_scope.dart';
 import '../dart/located_own_current_source.dart';
@@ -4259,7 +4260,19 @@ class FinancialFactsSync {
       digest: originalDigest,
       reportName: reportName,
     );
-    final partialNote = exactSuntechScope != null
+    final exactHanwhaScope = HanwhaOwnNetIncomeScope.storedScope(
+      rows: rows,
+      receipt: rceptNo,
+      corp: company.corpCode,
+      companyName: company.name,
+      consolidated: div == FsDiv.consolidated,
+      source: originalSource,
+      digest: originalDigest,
+      reportName: reportName,
+    );
+    final partialNote = exactHanwhaScope != null
+        ? ' · ${jsonEncode(exactHanwhaScope)}'
+        : exactSuntechScope != null
         ? ' · ${jsonEncode(exactSuntechScope)}'
         : exactSolumixScope != null
         ? ' · ${jsonEncode(exactSolumixScope)}'

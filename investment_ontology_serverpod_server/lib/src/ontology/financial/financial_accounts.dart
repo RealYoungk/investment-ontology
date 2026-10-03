@@ -1,3 +1,4 @@
+import 'hanwha_own_net_income_scope.dart';
 import 'suntech_own_cf_scope.dart';
 import 'solumix_own_revenue_scope.dart';
 import '../../generated/protocol.dart';
@@ -205,6 +206,8 @@ abstract final class FinancialAccounts {
     final name =
         "CASE WHEN $compact = 'III..영업이익' THEN '영업이익' WHEN $unannotated = '$exactHanyangPrintedProfit' OR $unannotated ~ '$adjustedProfitAnnotation' THEN '당기순이익' ELSE $unannotated END";
     final cases = <String>[
+      "WHEN ${HanwhaOwnNetIncomeScope.sqlCondition(alias)} THEN 'ifrs-full_ProfitLoss'",
+      "WHEN ${HanwhaOwnNetIncomeScope.boundReportSql(alias)} AND NOT ${HanwhaOwnNetIncomeScope.standardApiSql(alias)} AND ($alias.\"accountId\" IN ('ifrs-full_ProfitLoss') OR $name IN ('당기순이익','당기순손실','당기순손익','연결당기순이익','연결당기순손실')) THEN NULL",
       "WHEN ${SuntechOwnCfScope.sqlCondition(alias, 'netIncome')} THEN 'ifrs-full_ProfitLoss'",
       "WHEN ${SuntechOwnCfScope.sqlCondition(alias, 'capex')} THEN 'ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities'",
       "WHEN ${SuntechOwnCfScope.boundReportSql(alias)} AND ($alias.\"accountId\" IN ('ifrs-full_ProfitLoss','ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities') OR $name IN ('당기순이익','당기순손실','연결당기순이익','연결당기순손실','유형자산의증가')) THEN NULL",
@@ -221,6 +224,8 @@ abstract final class FinancialAccounts {
       if (names == null || account.accountIds.isEmpty) continue;
       final finiteRevenueExclusion = account.key == 'revenue'
           ? " AND NOT EXISTS (SELECT 1 FROM financial_report bound_report WHERE bound_report.id=$alias.\"reportId\" AND bound_report.\"rceptNo\"='${SolumixOwnRevenueScope.receipt}')"
+          : account.key == 'netIncome'
+          ? " AND NOT EXISTS (SELECT 1 FROM financial_report bound_report WHERE bound_report.id=$alias.\"reportId\" AND bound_report.\"rceptNo\"='${HanwhaOwnNetIncomeScope.receipt}' AND bound_report.\"fsDiv\"='separate')"
           : '';
       final labels = names.map((n) => "'$n'").join(',');
       final statements = account.statements.map((s) => "'${s.name}'").join(',');
@@ -276,9 +281,23 @@ abstract final class FinancialAccounts {
         }
         found = candidates.single;
       }
+      final hanBound =
+          account.key == 'netIncome' &&
+          report?.rceptNo == HanwhaOwnNetIncomeScope.receipt &&
+          report?.fsDiv == FsDiv.separate;
+      final hanApi =
+          hanBound &&
+          company != null &&
+          report != null &&
+          source != null &&
+          HanwhaOwnNetIncomeScope.validStandardApiSource(
+            company,
+            report,
+            source,
+          );
       search:
       for (final id in account.accountIds) {
-        if (sunBound) break;
+        if (sunBound || (hanBound && !hanApi)) break;
         for (final statement in account.statements) {
           for (final f in facts) {
             if (f.accountId == id &&
@@ -296,7 +315,10 @@ abstract final class FinancialAccounts {
         final candidates =
             names == null ||
                 (account.key == 'revenue' &&
-                    report?.rceptNo == SolumixOwnRevenueScope.receipt)
+                    report?.rceptNo == SolumixOwnRevenueScope.receipt) ||
+                (account.key == 'netIncome' &&
+                    report?.rceptNo == HanwhaOwnNetIncomeScope.receipt &&
+                    report?.fsDiv == FsDiv.separate)
             ? <FinancialFact>[]
             : facts
                   .where(
@@ -310,6 +332,24 @@ abstract final class FinancialAccounts {
                   )
                   .toList();
         if (candidates.length == 1) found = candidates.single;
+      }
+      if (found == null &&
+          account.key == 'netIncome' &&
+          company != null &&
+          report != null &&
+          source != null) {
+        final candidates = facts
+            .where((f) => HanwhaOwnNetIncomeScope.candidate(f, company, report))
+            .toList();
+        if (candidates.length == 1 &&
+            HanwhaOwnNetIncomeScope.validFact(
+              candidates.single,
+              company,
+              report,
+              source,
+            )) {
+          found = candidates.single;
+        }
       }
       if (found == null &&
           account.key == 'revenue' &&

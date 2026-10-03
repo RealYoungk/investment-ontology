@@ -1,3 +1,4 @@
+import 'package:investment_ontology_serverpod_server/src/ontology/financial/hanwha_own_net_income_scope.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/financial/financial_accounts.dart';
 
 import 'dart:convert';
@@ -197,20 +198,58 @@ void main() {
                   ? FinancialStatementKind.cashFlow
                   : FinancialStatementKind.comprehensiveIncome,
               accountName: r['account_nm'] as String,
+              ord: int.parse(r['ord'] as String),
+              periodName: r['thstrm_dt'] as String,
+              currency: 'KRW',
               amount: BigInt.parse(r['thstrm_amount'] as String),
               sourceId: 1,
             ),
         ];
-        expect(FinancialAccounts.pick(facts).map((l) => l.key).toSet(), {
-          'assets',
-          'liabilities',
-          'equity',
-          'revenue',
-          'operatingIncome',
-          'netIncome',
-          'operatingCashFlow',
-          if (!partial) 'capex',
-        });
+        expect(
+          FinancialAccounts.pick(
+            facts,
+            company: e.receipt == HanwhaOwnNetIncomeScope.receipt
+                ? company(e)
+                : null,
+            report: e.receipt == HanwhaOwnNetIncomeScope.receipt
+                ? FinancialReport(
+                    id: 1,
+                    companyId: 1,
+                    bsnsYear: e.year,
+                    reportCode: FinancialReportCode.annual,
+                    fsDiv: basis,
+                    rceptNo: e.receipt,
+                    reportName: '사업보고서 (2022.12)',
+                    sourceId: 1,
+                    factCount: 8,
+                    invalidAmountCount: 0,
+                    fetchedAt: DateTime.utc(2026),
+                  )
+                : null,
+            source: e.receipt == HanwhaOwnNetIncomeScope.receipt
+                ? Source(
+                    id: 1,
+                    kind: SourceKind.dartReport,
+                    reference: e.receipt,
+                    url: HanwhaOwnNetIncomeScope.url,
+                    title: HanwhaOwnNetIncomeScope.sourceTitle(
+                      '사업보고서 (2022.12)',
+                    ),
+                    retrievedAt: DateTime.utc(2026),
+                  )
+                : null,
+          ).map((l) => l.key).toSet(),
+          {
+            'assets',
+            'liabilities',
+            'equity',
+            'revenue',
+            'operatingIncome',
+            'netIncome',
+            'operatingCashFlow',
+            if (!partial) 'capex',
+          },
+        );
         expect(
           LocatedOwnCurrentSource.storedScope(
             rows: result.numeric!.rows,
