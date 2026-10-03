@@ -26,6 +26,7 @@ void main() {
             ? 'pending-rejection-and-rerun'
             : 'success-and-rerun',
         if ({
+          '20260429001010',
           '20250320001633',
           '20230714000217',
           '20240319000287',
@@ -309,6 +310,86 @@ void main() {
                 session,
                 where: (t) => t.reportId.equals(report.id!),
               );
+              if (entry.ruleVersion ==
+                  'db-fy22-exact-self-declared-issuer-v1') {
+                expect(report.bsnsYear, 2022);
+                expect(report.fsDiv, FsDiv.consolidated);
+                expect(facts.length, 8);
+                final expected = {
+                  '자산총계': '9757370294448',
+                  '부채총계': '8710072105027',
+                  '자본총계': '1047298189421',
+                  '영업수익': '1223166577309',
+                  '영업이익': '23824123353',
+                  '당기순이익': '10770184612',
+                  'Ⅰ.영업활동으로인한현금흐름': '-116571056767',
+                };
+                for (final e in expected.entries) {
+                  expect(
+                    facts
+                        .singleWhere(
+                          (f) =>
+                              f.accountName.replaceAll(RegExp(r'\s+'), '') ==
+                              e.key,
+                        )
+                        .amount,
+                    BigInt.parse(e.value),
+                  );
+                }
+                expect(
+                  facts.singleWhere((f) => f.accountName == '유형자산의 취득').amount,
+                  BigInt.parse('-3687283186'),
+                );
+                final a = (await Source.db.findFirstRow(
+                  session,
+                  where: (t) => t.reference.equals(
+                    'financial-api-noData-source:${entry.receipt}:consolidated',
+                  ),
+                ))!;
+                final rows = jsonDecode(a.title)['coreRowProvenance'] as List;
+                final proof =
+                    rows.first['html_provenance']['exactIssuerIdentity'];
+                expect(proof['corpCode'], '00115694');
+                expect(proof['globalAlias'], false);
+                expect(proof['sourceIndependentCheckCount'], 15);
+                expect(proof['flowCaptionPrintedStart'], true);
+                expect(proof['fullStatementCollected'], false);
+              }
+              if (entry.ruleVersion == 'db-exact-self-declared-issuer-v1') {
+                expect(report.bsnsYear, 2021);
+                expect(report.fsDiv, FsDiv.separate);
+                expect(facts.length, 8);
+                expect(
+                  facts.singleWhere((f) => f.accountName == '영업수익').amount,
+                  BigInt.parse('1278947330226'),
+                );
+                expect(
+                  facts.singleWhere((f) => f.accountName == '당기순이익').amount,
+                  BigInt.parse('97649026187'),
+                );
+                final identityAudit = (await Source.db.findFirstRow(
+                  session,
+                  where: (t) => t.reference.equals(
+                    'financial-api-noData-source:${entry.receipt}:separate',
+                  ),
+                ))!;
+                final provenance =
+                    jsonDecode(identityAudit.title)['coreRowProvenance']
+                        as List;
+                expect(
+                  provenance.every(
+                    (row) =>
+                        row['html_provenance']['exactIssuerIdentity']['corpCode'] ==
+                        '00115694',
+                  ),
+                  isTrue,
+                );
+                expect(
+                  provenance
+                      .first['html_provenance']['exactIssuerIdentity']['selfDeclaredName'],
+                  '디비금융투자 주식회사',
+                );
+              }
               if (entry.receipt == LinkedCorrectionAuditSource.bonTarget &&
                   entry.basis == FsDiv.separate) {
                 expect(report.rceptNo, LinkedCorrectionAuditSource.bonOriginal);
@@ -455,6 +536,179 @@ void main() {
                 entry.corpCode,
                 fsDiv: entry.basis,
               );
+              if (entry.ruleVersion ==
+                  'db-fy22-exact-self-declared-issuer-v1') {
+                final keys = [
+                  'assets',
+                  'liabilities',
+                  'equity',
+                  'revenue',
+                  'operatingIncome',
+                  'netIncome',
+                  'operatingCashFlow',
+                  'capex',
+                ];
+                final amounts = [
+                  '9757370294448',
+                  '8710072105027',
+                  '1047298189421',
+                  '1223166577309',
+                  '23824123353',
+                  '10770184612',
+                  '-116571056767',
+                  '-3687283186',
+                ];
+                for (var i = 0; i < keys.length; i++) {
+                  expect(
+                    summary!.periods.single.lines
+                        .singleWhere((l) => l.key == keys[i])
+                        .amount,
+                    BigInt.parse(amounts[i]),
+                  );
+                }
+                final sql = await session.db.unsafeQuery(
+                  'SELECT ${FinancialAccounts.resolvedIdSql('f')} FROM financial_fact f WHERE f."reportId"=${report.id}',
+                );
+                expect(sql.where((r) => r[0] != null), hasLength(8));
+              }
+              if ({
+                'exact-printed-current-annual-v1',
+                'exact-insurance-current-annual-v1',
+              }.contains(entry.ruleVersion)) {
+                final cells =
+                    jsonDecode(
+                          File(
+                            '${entry.assetDirectory}/current-cell-evidence.json',
+                          ).readAsStringSync(),
+                        )['rows']
+                        as List;
+                final keys = [
+                  'assets',
+                  'liabilities',
+                  'equity',
+                  'revenue',
+                  'operatingIncome',
+                  'netIncome',
+                  'operatingCashFlow',
+                ];
+                expect(facts, hasLength(7));
+                for (var i = 0; i < cells.length; i++) {
+                  final cell = cells[i] as Map;
+                  final fact = facts.singleWhere(
+                    (f) => f.accountName == cell['printedLabel'],
+                  );
+                  expect(fact.amount, BigInt.parse(cell['amount'] as String));
+                  final line = summary!.periods.single.lines.singleWhere(
+                    (l) => l.key == keys[i],
+                  );
+                  expect(line.amount, fact.amount);
+                  expect(line.accountName, fact.accountName);
+                }
+                final sql = await session.db.unsafeQuery(
+                  'SELECT ${FinancialAccounts.resolvedIdSql('f')} FROM financial_fact f WHERE f."reportId"=${report.id}',
+                );
+                expect(sql.where((r) => r[0] != null), hasLength(7));
+                final proofAudit = (await Source.db.find(
+                  session,
+                  where: (t) => t.reference.equals(
+                    'financial-api-noData-source:${entry.receipt}:${entry.basis.name}',
+                  ),
+                )).single;
+                final proof = jsonDecode(proofAudit.title) as Map;
+                expect(
+                  (proof['coreRowProvenance'] as List).every(
+                    (row) =>
+                        row['html_provenance']['supportingPeriodEvidence']['flowCaptionPrintedStart'] ==
+                        true,
+                  ),
+                  true,
+                );
+              }
+              if (entry.ruleVersion == 'exact-insurance-current-annual-v1') {
+                final audit = (await Source.db.find(
+                  session,
+                  where: (t) => t.reference.equals(
+                    'financial-api-noData-source:${entry.receipt}:${entry.basis.name}',
+                  ),
+                )).single;
+                final provenanceRows =
+                    jsonDecode(audit.title)['coreRowProvenance'] as List;
+                final missingFx =
+                    {
+                      '20221017000313',
+                      '20230317001035',
+                    }.contains(entry.receipt) &&
+                    entry.basis == FsDiv.separate;
+                for (final row in provenanceRows) {
+                  final meta = row['html_provenance'] as Map;
+                  final proof = meta['supportingPeriodEvidence'] as Map;
+                  expect(proof['fullStatementCollected'], false);
+                  expect(proof['exchangeCashMissingNotAssumedZero'], missingFx);
+                  expect(proof['exchangeCashPrinted'], !missingFx);
+                  expect(proof['exchangeCash'], missingFx ? isNull : isNotNull);
+                  expect(
+                    meta['printedUnit'],
+                    entry.receipt == '20220308000939' ||
+                            entry.receipt == '20230308000737'
+                        ? '백만원'
+                        : '원',
+                  );
+                  expect(meta['currentCell'], isNotEmpty);
+                }
+                expect(
+                  summary!.periods.single.lines.where(
+                    (line) => line.key == 'capex',
+                  ),
+                  isEmpty,
+                );
+              }
+              if (entry.ruleVersion == 'gne-own-audit-whole7-v1') {
+                const expected = {
+                  'assets': '6973822992',
+                  'liabilities': '2274518676',
+                  'equity': '4699304316',
+                  'revenue': '4896995158',
+                  'operatingIncome': '371658968',
+                  'netIncome': '377901260',
+                  'operatingCashFlow': '701750215',
+                };
+                expect(facts, hasLength(7));
+                for (final value in expected.entries) {
+                  expect(
+                    summary!.periods.single.lines
+                        .singleWhere((l) => l.key == value.key)
+                        .amount,
+                    BigInt.parse(value.value),
+                  );
+                }
+                final sql = await session.db.unsafeQuery(
+                  'SELECT ${FinancialAccounts.resolvedIdSql('f')} FROM financial_fact f WHERE f."reportId"=${report.id}',
+                );
+                expect(sql.where((r) => r[0] != null), hasLength(7));
+                final audit = (await Source.db.find(
+                  session,
+                  where: (t) => t.reference.equals(
+                    'financial-api-noData-source:${entry.receipt}:${entry.basis.name}',
+                  ),
+                )).single;
+                final rows =
+                    jsonDecode(audit.title)['coreRowProvenance'] as List;
+                expect(rows, hasLength(7));
+                for (final row in rows) {
+                  expect(
+                    row['html_provenance']['sourceReceipt'],
+                    entry.receipt,
+                  );
+                  expect(
+                    row['html_provenance']['sourceRole'],
+                    'exact-target-own-audit-primary',
+                  );
+                  expect(
+                    row['html_provenance']['ceWholeProof']['wholeNetIncome'],
+                    '377901260',
+                  );
+                }
+              }
               if (entry.ruleVersion ==
                   Header18LinkedPrimarySource.primaryRule) {
                 final expected = jsonDecode(

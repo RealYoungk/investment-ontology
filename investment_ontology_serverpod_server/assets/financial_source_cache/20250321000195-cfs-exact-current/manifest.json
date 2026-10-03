@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20250321000195",
+  "corpCode": "00861100",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2024,
+  "periodStart": "2024-01-01",
+  "periodEnd": "2024-12-31",
+  "ruleVersion": "exact-current-cfs-seven-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250321000195",
+      "sha256": "27e8ae0ce0961df55eb3bd1d309ba9fab573eeea9484653cdaf05afa31e99c96"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321000195&dcmNo=10442352&eleId=1&offset=960&length=4524&dtd=dart4.xsd",
+      "sha256": "8e5986b20bba902373efe09e67fe4bb952dbb4e694db0e45c85663b47125a14b"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321000195&dcmNo=10442352&eleId=19&offset=186651&length=60050&dtd=dart4.xsd",
+      "sha256": "431bb6dc80646d7f9e478b5503c85a14e128b32ec2404e066479763a6639a7c6"
+    }
+  ],
+  "retrievalProof": "Own same-receipt shell/cover unique consolidated node. Independently printed annual dates and four units; direct whole seven, current CE and current/prior cash checks. All statement rows not collected."
+}

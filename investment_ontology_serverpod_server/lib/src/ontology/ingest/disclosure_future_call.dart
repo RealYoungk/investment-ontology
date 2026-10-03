@@ -26,7 +26,7 @@ class DisclosureFutureCall extends FutureCall {
   }
 
   Future<void> runBusiness(Session session, int jobId) async {
-    await IssuerDocumentsSync.run(
+    final rawResult = await IssuerDocumentsSync.run(
       session,
       cancelled: () => IngestJobs.isCancelled(session, jobId),
     );
@@ -34,6 +34,7 @@ class DisclosureFutureCall extends FutureCall {
     final key = DartApiKey.read(session);
     if (key == null) {
       await IngestJobs.fail(session, jobId, 'DART API 키가 설정되지 않았습니다.');
+      await IssuerDocumentsSync.recordResult(session, jobId, rawResult);
       return;
     }
     await DisclosureSync(
@@ -46,6 +47,7 @@ class DisclosureFutureCall extends FutureCall {
         null => null,
       },
     ).run();
+    await IssuerDocumentsSync.recordResult(session, jobId, rawResult);
   }
 
   Future<void> resumeBusiness(Session session) async {

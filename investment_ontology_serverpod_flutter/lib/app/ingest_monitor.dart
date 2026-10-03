@@ -32,6 +32,7 @@ class IngestMonitor {
     'financial_facts',
     'financial_facts_company',
     'market_snapshot',
+    'market_security_relink',
     'business_documents',
     'charter_notices',
     'disclosures',

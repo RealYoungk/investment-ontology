@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../app/ingest_monitor.dart';
+import 'reviewed_issuer_document_metadata.dart';
 import '../../../../client.dart';
 import '../../../../design/tokens.dart';
 
@@ -11,6 +12,15 @@ const issuerDocumentFunds = {
   '00435297': '맥쿼리인프라',
   '01880801': 'KB발해인프라',
   '00600013': '맵스리얼티',
+  '01564514': "주식회사 글로벌테크놀로지",
+  '01586923': "주식회사 스카이랩스",
+  '01722066': "빅웨이브로보틱스 주식회사",
+  '01867688': "주식회사 와이즈플래닛컴퍼니",
+  '01876251': "네오사피엔스 주식회사",
+  '02029258': "한국제17호기업인수목적 주식회사",
+  '02030166': "엔에이치기업인수목적34호 주식회사",
+  '02032155': "케이비제34호기업인수목적 주식회사",
+  '01801026': "주식회사 브릴스",
 };
 const _hosts = {
   '00435297': 'www.mkif.com',
@@ -34,7 +44,12 @@ List<Map<String, dynamic>> issuerDocumentRows(String raw, String corp) {
   }
   final sourceUri = Uri.tryParse(source['url']?.toString() ?? '');
   if (sourceUri?.scheme != 'https' ||
-      sourceUri?.host != _hosts[corp] ||
+      !(_hosts[corp] == sourceUri?.host ||
+          reviewedDartIssuerMetadata.any(
+            (r) =>
+                r['corpCode'] == corp &&
+                source['url'] == 'https://dart.fss.or.kr',
+          )) ||
       sourceUri!.hasPort ||
       sourceUri.userInfo.isNotEmpty) {
     throw const FormatException('출처 회사 오류');
@@ -56,6 +71,23 @@ List<Map<String, dynamic>> issuerDocumentRows(String raw, String corp) {
           d.toIso8601String().substring(0, 10) != v) {
         throw FormatException('$key 오류');
       }
+    }
+    if (r['provider'] == 'DART' ||
+        reviewedDartIssuerMetadata.any(
+          (p) => p['officialUrl'] == r['officialUrl'],
+        )) {
+      final matches = reviewedDartIssuerMetadata.where(
+        (p) => p['corpCode'] == corp && p['officialUrl'] == r['officialUrl'],
+      );
+      if (matches.length != 1 ||
+          r.length != matches.single.length ||
+          matches.single.entries.any(
+            (e) => jsonEncode(r[e.key]) != jsonEncode(e.value),
+          ) ||
+          !seen.add('${r['officialUrl']}|${r['sha256']}')) {
+        throw const FormatException('고정 DART 메타데이터 검증 실패');
+      }
+      return r;
     }
     final u = Uri.tryParse(r['officialUrl']?.toString() ?? '');
     if (r['corpCode'] != corp ||
@@ -199,13 +231,15 @@ class _IssuerDocumentsStatusState extends State<IssuerDocumentsStatus> {
           children: [
             Text('공식 별도 원문', style: context.typo.sectionTitle),
             const SizedBox(height: AppSpace.sm),
-            const Text('투자회사 3곳 · 2021~2025 과거 재무 원문과 최신 원문'),
-            Text('서버 보존: 과거 재무 원문 $historical개 · 최신 $latest/3'),
+            const Text('투자회사·신규 상장회사 12곳 · 공식 재무 원문 및 읽은 재무 장'),
+            Text(
+              '서버 보존: 과거 감사 원문 $historical개 · 최신 투자회사 원문 $latest/3 · 전체 ${rows.length}개',
+            ),
             const Text(
               'KB발해인프라 2021~2023 자체 원문 미확보(결산기간별 확인 중) · 재무 숫자 추출 대기',
             ),
             const Text(
-              '정기보고서·사업본문·재무 숫자 집계에 포함하지 않습니다. 최신 원문에는 3개월·6개월 자료가 포함됩니다.',
+              '정기보고서·사업본문·재무 숫자 집계에 포함하지 않습니다. DART 자료는 읽은 재무 장만 보존하며 전체 원문 확보를 뜻하지 않습니다. 분할회사 2곳과 자체 과거 원문 미확보 기간은 해결 전입니다.',
             ),
             for (final entry in issuerDocumentFunds.entries)
               ExpansionTile(

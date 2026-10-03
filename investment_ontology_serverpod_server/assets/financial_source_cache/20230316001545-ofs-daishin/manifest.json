@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20230316001545",
+  "corpCode": "00110893",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2022,
+  "periodStart": "2022-01-01",
+  "periodEnd": "2022-12-31",
+  "ruleVersion": "daishin-2022-exact-cash-scope-whole-eight-v1",
+  "sources": [
+    {
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230316001545",
+      "sha256": "e949368ffbfe28ffa297e9b8778db6c3bf68bfc72ba02d33f3d949570f5393f2",
+      "file": "shell.html",
+      "label": "shell"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001545&dcmNo=9068010&eleId=1&offset=796&length=4032&dtd=dart3.xsd",
+      "sha256": "c95cb328b2cd3e097a5b9d8b53b0c52a5abacf383a0fffa6f0482416bdb6c514",
+      "file": "cover.html",
+      "label": "cover"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001545&dcmNo=9068010&eleId=19&offset=2645588&length=65913&dtd=dart3.xsd",
+      "sha256": "8d6067c712462c9ca615a357aa53f713a8fe4453c78181f1c5865b5179dce404",
+      "file": "ofs.html",
+      "label": "ofs"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001545&dcmNo=9068010&eleId=20&offset=2711505&length=998963&dtd=dart3.xsd",
+      "sha256": "f2c3f95e45c947316fa0e725086c1e297d97f16e17ef7be073d6156bb6cfdf9b",
+      "file": "notes.html",
+      "label": "notes"
+    }
+  ]
+}

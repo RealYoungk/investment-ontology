@@ -1,0 +1,270 @@
+{
+  "receipt": "20250320000036",
+  "corpCode": "00614089",
+  "name": "주식회사 에이원큐브텍",
+  "bsnsYear": 2024,
+  "basis": "separate",
+  "reportName": "[기재정정]사업보고서 (2024.12)",
+  "classification": "이 감사에서 원문 위치/검산 근거 미매핑 — 원천 부재는 미확정",
+  "final27": false,
+  "numericAccepted": false,
+  "fullOriginalIndependentReview": false,
+  "newOwnSourceNodeBound": true,
+  "source": {
+    "path": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/header-api40-source-ledger-20261003/20250320000036/ofs.html",
+    "sha256": "3d6e6c42e2ca18af9e0bdc9c141c659ed6b5ebcbb0afd6b3a02f41024a91d117",
+    "metadataSHA": "3d6e6c42e2ca18af9e0bdc9c141c659ed6b5ebcbb0afd6b3a02f41024a91d117",
+    "sourceURI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250320000036&dcmNo=10431938&eleId=23&offset=294264&length=70935&dtd=dart4.xsd",
+    "coverPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/header-api40-source-ledger-20261003/20250320000036/cover.html",
+    "coverURI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250320000036&dcmNo=10431938&eleId=3&offset=14097&length=4513&dtd=dart4.xsd",
+    "shellPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/header-api40-source-ledger-20261003/20250320000036/shell.html"
+  },
+  "independentDirect8": [
+    {
+      "role": "assets",
+      "rowIndex": 20,
+      "column": 2,
+      "rawRow": [
+        "자 산 총 계",
+        "",
+        "55,416,845,226",
+        "74,917,425,635",
+        "73,589,447,734"
+      ],
+      "amountKRW": "55416845226"
+    },
+    {
+      "role": "liabilities",
+      "rowIndex": 36,
+      "column": 2,
+      "rawRow": [
+        "부 채 총 계",
+        "",
+        "21,201,173,855",
+        "24,894,111,375",
+        "27,454,051,789"
+      ],
+      "amountKRW": "21201173855"
+    },
+    {
+      "role": "equity",
+      "rowIndex": 42,
+      "column": 2,
+      "rawRow": [
+        "자 본 총 계",
+        "",
+        "34,215,671,371",
+        "50,023,314,260",
+        "46,135,395,945"
+      ],
+      "amountKRW": "34215671371"
+    },
+    {
+      "role": "revenue",
+      "rowIndex": 50,
+      "column": 2,
+      "rawRow": [
+        "Ⅰ. 매출액",
+        "21,28",
+        "19,577,213,210",
+        "37,188,335,277",
+        "36,089,165,279"
+      ],
+      "amountKRW": "19577213210"
+    },
+    {
+      "role": "operating",
+      "rowIndex": 56,
+      "column": 2,
+      "rawRow": [
+        "Ⅴ. 영업이익",
+        "",
+        "(11,100,249,561)",
+        "1,352,634,157",
+        "2,671,590,621"
+      ],
+      "amountKRW": "-11100249561"
+    },
+    {
+      "role": "netIncome",
+      "rowIndex": 65,
+      "column": 2,
+      "rawRow": [
+        "Ⅷ. 당기순이익",
+        "",
+        "(15,195,086,593)",
+        "4,827,953,039",
+        "10,531,411,353"
+      ],
+      "amountKRW": "-15195086593"
+    },
+    {
+      "role": "cfo",
+      "rowIndex": 102,
+      "column": 1,
+      "rawRow": [
+        "I. 영업활동으로 인한 현금흐름",
+        "8,763,478,703",
+        "24,725,864,923",
+        "25,782,384,120"
+      ],
+      "amountKRW": "8763478703"
+    },
+    {
+      "role": "capex",
+      "rowIndex": 152,
+      "column": 1,
+      "rawRow": [
+        "유형자산의 취득",
+        "(20,164,953,975)",
+        "(30,517,387,059)",
+        "(33,161,523,168)"
+      ],
+      "amountKRW": "-20164953975"
+    }
+  ],
+  "wholeCE": {
+    "opening": [
+      "2024.1.1(당기초)",
+      "3,469,241,000",
+      "30,964,218,842",
+      "(482,875,126)",
+      "16,072,729,544",
+      "50,023,314,260"
+    ],
+    "NI": [
+      "당기순이익",
+      "-",
+      "-",
+      "-",
+      "(15,195,086,593)",
+      "(15,195,086,593)"
+    ],
+    "closing": [
+      "2024.12.31(당기말)",
+      "3,469,241,000",
+      "30,964,218,842",
+      "(725,023,555)",
+      "507,235,084",
+      "34,215,671,371"
+    ],
+    "wholeColumn": 5,
+    "numericMovementRows": [
+      [
+        "당기순이익",
+        "-",
+        "-",
+        "-",
+        "(15,195,086,593)",
+        "(15,195,086,593)"
+      ],
+      [
+        "확정급여제도의 재측정요소",
+        "-",
+        "-",
+        "-",
+        "(370,407,867)",
+        "(370,407,867)"
+      ],
+      [
+        "자기주식 취득",
+        "-",
+        "-",
+        "(242,148,429)",
+        "-",
+        "(242,148,429)"
+      ]
+    ]
+  },
+  "cashRows": [
+    {
+      "rowIndex": 102,
+      "row": [
+        "I. 영업활동으로 인한 현금흐름",
+        "8,763,478,703",
+        "24,725,864,923",
+        "25,782,384,120"
+      ]
+    },
+    {
+      "rowIndex": 148,
+      "row": [
+        "II. 투자활동으로 인한 현금흐름",
+        "(7,078,295,602)",
+        "(22,872,283,789)",
+        "(19,373,012,483)"
+      ]
+    },
+    {
+      "rowIndex": 157,
+      "row": [
+        "III. 재무활동으로 인한 현금흐름",
+        "(2,785,467,577)",
+        "(3,875,071,476)",
+        "(3,272,462,207)"
+      ]
+    },
+    {
+      "rowIndex": 174,
+      "row": [
+        "IV. 현금및현금성자산의 증가",
+        "(1,100,284,476)",
+        "(2,021,490,342)",
+        "3,136,909,430"
+      ]
+    },
+    {
+      "rowIndex": 175,
+      "row": [
+        "V. 기초의 현금및현금성자산",
+        "3,636,973,216",
+        "5,658,463,558",
+        "2,521,554,128"
+      ]
+    },
+    {
+      "rowIndex": 176,
+      "row": [
+        "VI. 현금및현금성자산의 환율변동효과",
+        "-",
+        "-",
+        "-"
+      ]
+    },
+    {
+      "rowIndex": 177,
+      "row": [
+        "VII. 기말의 현금및현금성자산",
+        "2,536,688,740",
+        "3,636,973,216",
+        "5,658,463,558"
+      ]
+    }
+  ],
+  "differences": {
+    "balance": 0,
+    "wholeNI": 0,
+    "wholeClosingEquity": 0,
+    "wholeEquityRoll": 0,
+    "currentActivitiesMinusPrintedIncrease": 0,
+    "currentCashRoll": 0,
+    "currentBSCash": 0,
+    "priorActivitiesMinusPrintedIncrease": 0,
+    "priorCashRoll": 0,
+    "priorBSCash": 0,
+    "priorClosingCurrentOpening": 0
+  },
+  "printedFXCurrent": "-",
+  "printedFXPrior": "-",
+  "missingFXPreservedNull": true,
+  "FXNotInferredZero": true,
+  "currentPrintedCashRollNoFXNumeric": true,
+  "sourcePositiveCurrentSeven": true,
+  "fullStatementCollected": false,
+  "registerProfile": false,
+  "blocker": "Specific historical issuer identity plus ambiguous primary current headers needs exact source profile; current FX unprinted must remain null.",
+  "newGET": 0,
+  "DB": 0,
+  "API": 0,
+  "sourcePositiveCurrentEight": true
+}

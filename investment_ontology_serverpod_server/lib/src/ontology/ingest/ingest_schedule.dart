@@ -4,12 +4,15 @@ import 'package:serverpod/protocol.dart' as sp;
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/future_calls.dart';
-import '../../generated/protocol.dart' show IngestStatus;
+import '../../generated/protocol.dart'
+    show IngestStatus, MarketSnapshotDay, MarketIndexDay;
 import 'disclosure_sync.dart';
 import 'company_master_sync.dart';
 import 'financial_facts_sync.dart';
 import 'ingest_jobs.dart';
+import 'issuer_documents_sync.dart';
 import 'market_snapshot_sync.dart';
+import 'market_security_relink.dart';
 import 'ingest_hooks.dart';
 import 'charter_hooks.dart';
 import '../peers/peer_catalog.dart';
@@ -88,9 +91,66 @@ abstract final class IngestSchedule {
         }
       }
     }
+    // Existing dispatcher, no new generated FutureCall method. A crashed
+    // enqueue is recovered only if a verified unlinked master match remains.
+    if (!r.rerunning.contains(MarketSecurityRelink.kind)) {
+      final latest = await IngestJobs.latest(
+        session,
+        MarketSecurityRelink.kind,
+      );
+      if (latest?.status != IngestStatus.cancelled) {
+        await MarketSecurityRelink.requestIfNeeded(session);
+      }
+    }
+    await resumeMissingLatestMarket(session);
+    final businessLatest = await IngestJobs.latest(
+      session,
+      DisclosureSync.businessKind,
+    );
+    if (IssuerDocumentsSync.canResumeAtStartup(
+          latestStatus: businessLatest?.status,
+          rerunning: r.rerunning.contains(DisclosureSync.businessKind),
+          queued: await _scheduled(session, businessDocumentsResumeId),
+        ) &&
+        await IssuerDocumentsSync.hasPending(session)) {
+      await businessDocumentsResume(session, soon);
+    }
     await ensureDaily(session);
     await PeerProfiles.backfill(session);
     await BusinessProfiles.backfill(session);
+  }
+
+  /// A successful old job does not prove the latest weekday has been fetched.
+  /// Reuse normal ingest and its publication/budget/holiday retry rules. Never
+  /// stamp a missing day as an empty holiday or change an existing ledger.
+  static Future<void> resumeMissingLatestMarket(
+    Session session, {
+    DateTime? now,
+  }) async {
+    if (await _scheduled(session, marketSnapshotResumeId)) return;
+    final latest = await IngestJobs.latest(session, MarketSnapshotSync.kind);
+    if (latest?.status != IngestStatus.succeeded) return;
+    final instant = (now ?? DateTime.now()).toUtc();
+    var target = MarketSnapshotSync.kstDate(instant).subtract(
+      const Duration(days: 1),
+    );
+    while (target.weekday == DateTime.saturday ||
+        target.weekday == DateTime.sunday) {
+      target = target.subtract(const Duration(days: 1));
+    }
+    final price = await MarketSnapshotDay.db.findFirstRow(
+      session,
+      where: (t) => t.baseDate.equals(target),
+    );
+    final index = await MarketIndexDay.db.findFirstRow(
+      session,
+      where: (t) => t.baseDate.equals(target),
+    );
+    if (price != null && index != null) return;
+    await marketSnapshotResume(
+      session,
+      instant.add(const Duration(seconds: 10)),
+    );
   }
 
   /// 매일 자동 수집 예약이 없으면 건다. 서버가 켜질 때마다 부른다.
@@ -209,6 +269,18 @@ abstract final class IngestSchedule {
       .marketSnapshot
       .run(jobId);
 
+  static Future<void> marketSecurityRelinkLater(
+    Session session,
+    int jobId,
+    DateTime at,
+  ) async {
+    await session.serverpod.futureCalls.cancel(MarketSecurityRelink.resumeId);
+    await session.serverpod.futureCalls
+        .callAtTime(at, identifier: MarketSecurityRelink.resumeId)
+        .marketSnapshot
+        .run(jobId);
+  }
+
   static Future<void> marketSnapshotResume(Session session, DateTime at) async {
     await session.serverpod.futureCalls.cancel(marketSnapshotResumeId);
     await session.serverpod.futureCalls
@@ -276,6 +348,7 @@ abstract final class IngestSchedule {
     IngestHooks.financialsResume = financialsResume;
     IngestHooks.marketSnapshotNow = marketSnapshotNow;
     IngestHooks.marketSnapshotResume = marketSnapshotResume;
+    IngestHooks.marketSecurityRelinkLater = marketSecurityRelinkLater;
     IngestHooks.businessDocumentsNow = businessDocumentsNow;
     IngestHooks.businessDocumentsResume = businessDocumentsResume;
     IngestHooks.disclosuresNow = disclosuresNow;

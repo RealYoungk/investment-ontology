@@ -96,6 +96,15 @@ class MarketSnapshotSync {
     return (d == null || d.isEmpty || RegExp(r'^0+$').hasMatch(d)) ? null : d;
   }
 
+  /// A stock-code fallback may fill a missing number, never contradict one.
+  static bool registrationNumbersAgree(
+    String? securityCrno,
+    String? companyCrno,
+  ) {
+    final security = digits(securityCrno), company = digits(companyCrno);
+    return security == null || company == null || security == company;
+  }
+
   /// ISIN의 발행체 코드. 국내 주식 ISIN은 `KR7` + 발행체 5자리 + 종목 구분 + … 이다.
   static String? isinIssuer(String isin) =>
       RegExp(r'^KR7[0-9A-Z]{9}$').hasMatch(isin) ? isin.substring(3, 8) : null;
@@ -632,62 +641,65 @@ class MarketSnapshotSync {
 
   /// Link only unlinked saved securities. Duplicate or conflicting master
   /// identifiers remain unlinked; original security/price sources are kept.
-  Future<int> _linkExistingSecurities(Map<String, Security> securities) =>
-      session.db.transaction((tx) async {
-        final companies = await Company.db.find(
-          session,
-          where: (t) =>
-              t.market.inSet({Market.kospi, Market.kosdaq, Market.konex}),
-          transaction: tx,
-        );
-        final byCrno = <String, Set<int>>{};
-        final byCode = <String, Set<int>>{};
-        for (final company in companies) {
-          final crno = digits(company.jurirNo);
-          if (crno != null) (byCrno[crno] ??= {}).add(company.id!);
-          final code = company.stockCode;
-          if (code != null) (byCode[code] ??= {}).add(company.id!);
-        }
-        final updates = <Security>[];
-        for (final security in await Security.db.find(
-          session,
-          where: (t) => t.companyId.equals(null),
-          transaction: tx,
-        )) {
-          final crno = digits(security.crno);
-          final crnoMatches = crno == null ? null : byCrno[crno];
-          final codeMatches = byCode[security.shortCode];
-          if ((crnoMatches?.length ?? 0) > 1 ||
-              (codeMatches?.length ?? 0) > 1) {
-            continue;
-          }
-          final byNumber = crnoMatches?.singleOrNull;
-          final byStock = codeMatches?.singleOrNull;
-          if (byNumber != null && byStock != null && byNumber != byStock) {
-            continue;
-          }
-          final companyId = byNumber ?? byStock;
-          if (companyId == null) continue;
-          updates.add(
-            security.copyWith(
-              companyId: companyId,
-              linkBasis: byNumber != null
-                  ? SecurityLinkBasis.crno
-                  : SecurityLinkBasis.dartStockCode,
-            ),
-          );
-        }
-        if (updates.isNotEmpty) {
-          for (final updated in await Security.db.update(
-            session,
-            updates,
-            transaction: tx,
-          )) {
-            securities[updated.isinCode] = updated;
-          }
-        }
-        return updates.length;
-      });
+  Future<int> _linkExistingSecurities(
+    Map<String, Security> securities,
+  ) => session.db.transaction((tx) async {
+    final companies = await Company.db.find(
+      session,
+      where: (t) => t.market.inSet({Market.kospi, Market.kosdaq, Market.konex}),
+      transaction: tx,
+    );
+    final byId = {for (final company in companies) company.id!: company};
+    final byCrno = <String, Set<int>>{};
+    final byCode = <String, Set<int>>{};
+    for (final company in companies) {
+      final crno = digits(company.jurirNo);
+      if (crno != null) (byCrno[crno] ??= {}).add(company.id!);
+      final code = company.stockCode;
+      if (code != null) (byCode[code] ??= {}).add(company.id!);
+    }
+    final updates = <Security>[];
+    for (final security in await Security.db.find(
+      session,
+      where: (t) => t.companyId.equals(null),
+      transaction: tx,
+    )) {
+      final crno = digits(security.crno);
+      final crnoMatches = crno == null ? null : byCrno[crno];
+      final codeMatches = byCode[security.shortCode];
+      if ((crnoMatches?.length ?? 0) > 1 || (codeMatches?.length ?? 0) > 1) {
+        continue;
+      }
+      final byNumber = crnoMatches?.singleOrNull;
+      final byStock = codeMatches?.singleOrNull;
+      if (byNumber != null && byStock != null && byNumber != byStock) {
+        continue;
+      }
+      final companyId = byNumber ?? byStock;
+      if (companyId == null ||
+          !registrationNumbersAgree(security.crno, byId[companyId]?.jurirNo)) {
+        continue;
+      }
+      updates.add(
+        security.copyWith(
+          companyId: companyId,
+          linkBasis: byNumber != null
+              ? SecurityLinkBasis.crno
+              : SecurityLinkBasis.dartStockCode,
+        ),
+      );
+    }
+    if (updates.isNotEmpty) {
+      for (final updated in await Security.db.update(
+        session,
+        updates,
+        transaction: tx,
+      )) {
+        securities[updated.isinCode] = updated;
+      }
+    }
+    return updates.length;
+  });
 
   /// 법인등록번호로 잇지 못한 종목을 DART 종목코드, 그다음 ISIN 발행체 코드로 잇는다.
   ///
@@ -697,6 +709,7 @@ class MarketSnapshotSync {
     Map<String, Security> securities,
     Map<String, int> byStockCode, {
     required Transaction transaction,
+    required Map<int, String?> registrationNumbers,
   }) async {
     final updates = <String, Security>{};
     void link(Security s, int companyId, SecurityLinkBasis basis) {
@@ -711,6 +724,7 @@ class MarketSnapshotSync {
       }
       final byCode = byStockCode[s.shortCode];
       if (byCode != null &&
+          registrationNumbersAgree(s.crno, registrationNumbers[byCode]) &&
           (s.companyId != byCode ||
               s.linkBasis != SecurityLinkBasis.dartStockCode)) {
         link(s, byCode, SecurityLinkBasis.dartStockCode);
@@ -735,7 +749,12 @@ class MarketSnapshotSync {
       }
       final candidates = issuers[isinIssuer(s.isinCode)];
       // 한 발행체 코드가 여러 기업에 걸리면 추측하지 않는다.
-      if (candidates != null && candidates.length == 1) {
+      if (candidates != null &&
+          candidates.length == 1 &&
+          registrationNumbersAgree(
+            s.crno,
+            registrationNumbers[candidates.single],
+          )) {
         if (s.companyId != candidates.single ||
             s.linkBasis != SecurityLinkBasis.isinIssuer) {
           link(s, candidates.single, SecurityLinkBasis.isinIssuer);
@@ -849,7 +868,14 @@ class MarketSnapshotSync {
           securities[s.isinCode] = s;
         }
       }
-      await _linkRemaining(securities, byStockCode, transaction: tx);
+      await _linkRemaining(
+        securities,
+        byStockCode,
+        transaction: tx,
+        registrationNumbers: {
+          for (final company in listed) company.id!: company.jurirNo,
+        },
+      );
       return securities.values.where((s) => s.companyId != null).length;
     });
   }

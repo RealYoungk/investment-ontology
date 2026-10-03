@@ -15,3 +15,6 @@ investment_ontology_serverpod_server/assets/financial_source_cache/2023030800031
 # line endings and whitespace instead of treating it as authored code.
 investment_ontology_serverpod_server/assets/financial_source_cache/**/*.html -text whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
 investment_ontology_serverpod_server/test/fixtures/financial_html/**/*.html -text whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+
+# Reviewed issuer HTML fixtures must retain their pinned official bytes.
+investment_ontology_serverpod_server/test/fixtures/issuer_documents/dart/*.html -text whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol

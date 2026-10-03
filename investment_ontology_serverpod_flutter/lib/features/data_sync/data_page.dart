@@ -667,7 +667,7 @@ class FinancialCollectionStatus extends StatelessWidget {
             style: context.typo.body(12, color: context.colors.textSecondary),
           ),
         Text(
-          '실제 결산월의 숫자와 원접수 출처가 연결된 보고서만 저장 건수에 포함합니다.',
+          '실제 결산월·원접수 출처와 연결된 금액 계정이 하나 이상 있는 보고서 수입니다. 연결·별도 중 한 기준의 자료만 있어도 포함하며, 전체 계정이나 핵심7개 확보율이 아닙니다.',
           style: context.typo.body(11, color: context.colors.textMuted),
         ),
         Text(

@@ -1,4 +1,13 @@
+import 'exact_aone_annual_source.dart';
+import 'exact_current_cfs_source.dart';
+import 'db_fy22_whole_current_source.dart';
+import 'db_fy22_exact_issuer_identity.dart';
+import 'woori_investment_2021_source.dart';
+import 'db_exact_issuer_identity.dart';
+
 import 'dart:convert';
+
+import 'gne_own_audit_source.dart';
 
 import 'public_financial_html.dart';
 import 'source_verified_partial_core.dart';
@@ -10,6 +19,8 @@ import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
 
 import '../../generated/protocol.dart';
+import 'nh_2021_exact_source.dart';
+import 'daishin_2022_exact_source.dart';
 import 'dart_report_name.dart';
 import 'public_financial_html_fetch.dart';
 import 'verified_annual_source_registry.dart';
@@ -182,6 +193,7 @@ final class VerifiedAnnualSourceCache {
           LinkedCorrectionAuditSource.witnessUri(entry.receipt) != null)
         'targetOfs',
       if (entry.requiresIssuerOverview) 'overview',
+      if (entry.requiresCashScopeNotes) 'notes',
       if (entry.requiresOwnOfsWitness) 'issuer-ofs',
     };
     final documentCount = requiredLabels.length;
@@ -204,6 +216,283 @@ final class VerifiedAnnualSourceCache {
     }
     if (documents.length != documentCount || labels.length != documentCount) {
       throw const FormatException('Cached annual package incomplete');
+    }
+    if (entry.ruleVersion == ExactCurrentCfsSource.rule) {
+      final uris = <String, Uri>{
+        for (final s in manifest['sources'] as List)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raw = <String, String>{
+        for (final s in uris.entries) s.key: utf8.decode(documents[s.value]!),
+      };
+      final rows = ExactCurrentCfsSource.parse(
+        receipt: entry.receipt,
+        corpCode: company.corpCode,
+        companyName: company.name,
+        consolidated: basis == FsDiv.consolidated,
+        start: start,
+        end: end,
+        raw: raw,
+        uris: uris,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raw['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raw['cfs']!,
+          statementSource: uris['cfs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == Daishin2022ExactSource.rule) {
+      final src = manifest['sources'] as List;
+      final uris = <String, Uri>{
+        for (final s in src)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raws = <String, String>{
+        for (final s in src)
+          s['label'] as String: utf8.decode(documents[uris[s['label']]]!),
+      };
+      final rows = Daishin2022ExactSource.parse(
+        raw: raws,
+        uris: uris,
+        receipt: entry.receipt,
+        corp: company.corpCode,
+        start: start,
+        end: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raws['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raws['ofs']!,
+          statementSource: uris['ofs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == Nh2021ExactSource.rule) {
+      final src = manifest['sources'] as List;
+      final uris = <String, Uri>{
+        for (final s in src)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raws = <String, String>{
+        for (final s in src)
+          s['label'] as String: utf8.decode(documents[uris[s['label']]]!),
+      };
+      final rows = Nh2021ExactSource.parse(
+        raw: raws,
+        uris: uris,
+        receipt: entry.receipt,
+        corp: company.corpCode,
+        start: start,
+        end: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raws['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raws['ofs']!,
+          statementSource: uris['ofs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == WooriInvestment2021Source.rule) {
+      final src = manifest['sources'] as List;
+      Uri uri(String label) => Uri.parse(
+        src.singleWhere((s) => s['label'] == label)['url'] as String,
+      );
+      final sh = uri('shell'),
+          co = uri('cover'),
+          st = uri(basis == FsDiv.consolidated ? 'cfs' : 'ofs');
+      String raw(Uri u) => utf8.decode(documents[u]!);
+      final rows = WooriInvestment2021Source.parse(
+        shell: raw(sh),
+        cover: raw(co),
+        statement: raw(st),
+        shellSource: sh,
+        coverSource: co,
+        statementSource: st,
+        sourceReceipt: entry.receipt,
+        corpCode: company.corpCode,
+        periodStart: start,
+        periodEnd: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raw(co),
+          coverSource: co,
+          statementHtml: raw(st),
+          statementSource: st,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == 'gne-own-audit-whole7-v1') {
+      String raw(String uri) => utf8.decode(documents[Uri.parse(uri)]!);
+      final cover = raw(GneOwnAuditSource.coverUri),
+          statement = raw(GneOwnAuditSource.statementUri);
+      final rows = GneOwnAuditSource.parse(
+        shell: raw(GneOwnAuditSource.shellUri),
+        cover: cover,
+        statement: statement,
+        shellSource: Uri.parse(GneOwnAuditSource.shellUri),
+        coverSource: Uri.parse(GneOwnAuditSource.coverUri),
+        statementSource: Uri.parse(GneOwnAuditSource.statementUri),
+        sourceReceipt: entry.receipt,
+        corpCode: company.corpCode,
+        periodStart: start,
+        periodEnd: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: cover,
+          coverSource: Uri.parse(GneOwnAuditSource.coverUri),
+          statementHtml: statement,
+          statementSource: Uri.parse(GneOwnAuditSource.statementUri),
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == 'db-exact-self-declared-issuer-v1') {
+      final raw = <String, String>{};
+      for (final source in manifest['sources'] as List) {
+        final label = source['label'] as String;
+        if (source['url'] != DbExactIssuerIdentity.urls[label]) {
+          throw const FormatException('Exact DB issuer URI mismatch');
+        }
+        raw[label] = utf8.decode(documents[Uri.parse(source['url'])]!);
+      }
+      final identity = DbExactIssuerIdentity.verify(
+        raw,
+        receipt: entry.receipt,
+        corp: company.corpCode,
+        currentName: company.name,
+        consolidated: basis == FsDiv.consolidated,
+        start: start,
+        end: end,
+      );
+      final coverUri = Uri.parse(DbExactIssuerIdentity.urls['cover']!);
+      final statementUri = Uri.parse(DbExactIssuerIdentity.urls['ofs']!);
+      final rows = PublicFinancialHtml.parseStandardAnnual(
+        coverHtml: raw['cover']!,
+        statementHtml: raw['ofs']!,
+        coverSource: coverUri,
+        statementSource: statementUri,
+        receipt: entry.receipt,
+        corpCode: company.corpCode,
+        companyName: 'DB금융투자주식회사',
+        periodStart: start,
+        periodEnd: end,
+        consolidated: false,
+      );
+      for (final row in rows) {
+        (row['html_provenance'] as Map)['exactIssuerIdentity'] = identity;
+      }
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raw['cover']!,
+          coverSource: coverUri,
+          statementHtml: raw['ofs']!,
+          statementSource: statementUri,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == 'db-fy22-exact-self-declared-issuer-v1') {
+      final raw = <String, String>{};
+      for (final source in manifest['sources'] as List) {
+        final label = source['label'] as String;
+        if (source['url'] != DbFy22ExactIssuerIdentity.urls[label]) {
+          throw const FormatException('Exact DB issuer URI mismatch');
+        }
+        raw[label] = utf8.decode(documents[Uri.parse(source['url'])]!);
+      }
+      final identity = DbFy22ExactIssuerIdentity.verify(
+        raw,
+        receipt: entry.receipt,
+        corp: company.corpCode,
+        currentName: company.name,
+        consolidated: basis == FsDiv.consolidated,
+        start: start,
+        end: end,
+      );
+      final coverUri = Uri.parse(DbFy22ExactIssuerIdentity.urls['cover']!);
+      final statementUri = Uri.parse(DbFy22ExactIssuerIdentity.urls['cfs']!);
+      final rows = DbFy22WholeCurrentSource.parse(
+        cover: raw['cover']!,
+        body: raw['cfs']!,
+        coverSource: coverUri,
+        statementSource: statementUri,
+        receipt: entry.receipt,
+        corpCode: company.corpCode,
+        companyName: company.name,
+        start: start,
+        end: end,
+        consolidated: true,
+      );
+      for (final row in rows) {
+        (row['html_provenance'] as Map)['exactIssuerIdentity'] = identity;
+      }
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raw['cover']!,
+          coverSource: coverUri,
+          statementHtml: raw['cfs']!,
+          statementSource: statementUri,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
     }
     if (entry.requiresOwnOfsWitness) {
       if (entry.ruleVersion != 'historical-issuer-cfs-none-own-ofs-v1' ||
@@ -284,6 +573,42 @@ final class VerifiedAnnualSourceCache {
         absence: null,
       );
     }
+    if (entry.ruleVersion == ExactAoneAnnualSource.rule) {
+      final sourceMaps = (manifest['sources'] as List).cast<Map>();
+      final uriByLabel = <String, Uri>{
+        for (final s in sourceMaps)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final rawByLabel = <String, String>{
+        for (final s in sourceMaps)
+          s['label'] as String: utf8.decode(documents[uriByLabel[s['label']]]!),
+      };
+      final rows = ExactAoneAnnualSource.parse(
+        receipt: entry.receipt,
+        corpCode: company.corpCode,
+        companyName: company.name,
+        consolidated: basis == FsDiv.consolidated,
+        start: start,
+        end: end,
+        raw: rawByLabel,
+        uris: uriByLabel,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: rawByLabel['cover']!,
+          coverSource: uriByLabel['cover']!,
+          statementHtml: rawByLabel['ofs']!,
+          statementSource: uriByLabel['ofs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
     final client = _PinnedRawClient(documents, maxRequests: documentCount);
     try {
       final numeric = await PublicFinancialHtmlFetcher(client).fetchAnnual(
@@ -337,6 +662,46 @@ final class VerifiedAnnualSourceCache {
         throw const FormatException(
           'Cached annual verified numeric scope mismatch',
         );
+      }
+      // Exact eight-account package: ordinary parsing and immutable guards
+      // above are still required, and all statement rows remain uncollected.
+      if (entry.receipt == '20220317000713' &&
+          entry.corpCode == '00148993' &&
+          basis == FsDiv.consolidated) {
+        for (final row in numeric.rows) {
+          final proof = row['html_provenance'] as Map<String, dynamic>;
+          proof['fullStatementCollected'] = false;
+          proof['uncollectedOptionalAccounts'] = <String>[];
+          proof['independentWholeCurrentEvidence'] = {
+            'periodStart': '2021-01-01',
+            'periodEnd': '2021-12-31',
+            'source': numeric.statementSource.toString(),
+            'sourceSha256': '5288be65cbc6388214c4f5150a2f29ae9b1833a28120afee8459da45cedca898',
+            'wholeEquityColumn': 9,
+            'currentProfit': '67355184309',
+            'openingEquity': '1060384697419',
+            'closingEquity': '1087375061719',
+            'openingCash': '266139295663',
+            'closingCash': '476020981941',
+            'cashIncrease': '209881686278',
+            'exchangeCash': '853243026',
+            'allStatementRowsVerified': false,
+          };
+        }
+      }
+      // Exact independently checked packages retain the partial eight-account scope.
+      if ((entry.receipt == '20250321001653' &&
+              entry.corpCode == '00886792' &&
+              basis == FsDiv.consolidated) ||
+          (entry.receipt == '20220331003444' &&
+              entry.corpCode == '01085026' &&
+              basis == FsDiv.separate)) {
+        for (final row in numeric.rows) {
+          final proof = row['html_provenance'] as Map<String, dynamic>;
+          proof['fullStatementCollected'] = false;
+          proof['uncollectedOptionalAccounts'] = <String>[];
+          proof['allStatementRowsVerified'] = false;
+        }
       }
       return (numeric: numeric, absence: null);
     } on PublicFinancialHtmlBasisNotApplicable catch (absence) {

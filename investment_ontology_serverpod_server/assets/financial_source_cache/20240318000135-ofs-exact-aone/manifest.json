@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20240318000135",
+  "corpCode": "00614089",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2023,
+  "periodStart": "2023-01-01",
+  "periodEnd": "2023-12-31",
+  "ruleVersion": "exact-aone-current-ofs-eight-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240318000135",
+      "sha256": "922780895f3dc4fef8e8175a00c473d6d4ddc31a2fe3ca17ce60f100c9d47955"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240318000135&dcmNo=9723769&eleId=1&offset=957&length=4040&dtd=dart4.xsd",
+      "sha256": "c4cc25d039a9147d6c9a75bc6952fff46b631eb68041b7951aef5b8e282b9566"
+    },
+    {
+      "label": "ofs",
+      "file": "ofs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240318000135&dcmNo=9723769&eleId=21&offset=221878&length=63289&dtd=dart4.xsd",
+      "sha256": "83dd8083c583839abff4da0633d8f449bb10c0a777aef469406803012f18f6bc"
+    }
+  ],
+  "retrievalProof": "Own corp shell+unique current cover/OFS node; historical printed issuer 에이원알폼 independently validated. Current direct8/wholeCE and current/prior reported cash roll eleven exact differences0; FX dash/blank retainednull, no inferredzero. Partial8 scope."
+}

@@ -132,6 +132,23 @@ abstract final class FinancialAccounts {
     'depreciation': ['감가상각비'],
     'amortisation': ['무형자산상각비'],
     'netIncome': [
+      // Exact NH FY2021 OFS whole NI, independently equal to CE total.
+      '당기순이익(대손준비금반영후조정이익:당기:782,640백만원,전기:484,955백만원,전전기:418,256백만원)',
+      '당기순이익(대손준비금반영후조정이익당기:87,133백만원전기:178,664백만원)',
+      // Exact insurance whole NI cells, independently equal to pinned CE totals.
+      "당기순이익(손실)(비상위험준비금반영후조정이익(손실)당기:114,199,225,967원전기:(-)24,215,079,079원대손준비금반영후조정이익(손실)당기:120,125,439,090원전기:(-)28,815,936,079원)",
+      "당기순이익(대손준비금반영후조정이익당기:75,781,712,981원,전기:77,699,663,310원)",
+      "당기순이익(대손준비금반영후조정이익당기:92,823,564,486원,전기:90,024,490,823원)",
+      "당기순이익(주석23)(비상위험준비금반영후조정이익당기:465,707,342,599원전기:330,317,307,787원대손준비금반영후조정이익당기:562,246,349,804원전기:405,964,567,689원)",
+      "당기순이익(주석23)(비상위험준비금반영후조정이익당기:452,051,776,492원전기:336,102,116,734원대손준비금반영후조정이익당기:548,543,201,146원전기:411,689,146,425원",
+      "당기순이익(대손준비금반영후조정이익당기:58,458,197,450원,전기:75,781,712,981원)",
+      "당기순이익(대손준비금반영후조정이익당기:57,113,704,745원,전기:92,823,564,486)",
+      "당기순이익(손실)(비상위험준비금반영후조정이익(손실)당기:(-)64,149,087,377원전기:114,199,225,967원대손준비금반영후조정이익(손실)당기:(-)55,543,106,206원전기:120,125,439,090원))",
+      // Exact whole NI labels independently checked against immutable CE totals.
+      "당기순이익(주석23)(비상위험준비금반영후조정이익당기:330,317,307,787원전기:248,252,980,147원대손준비금반영후조정이익당기:405,964,567,689원전기:331,157,062,319원)",
+      "당기순이익(주석23)(비상위험준비금반영후조정이익당기:336,102,116,734원전기:222,542,621,783원대손준비금반영후조정이익당기:411,689,146,425원전기:305,558,393,253원)",
+      "당기연결순이익",
+
       '당기순손익',
       '당기순손실',
       '연결당기순손실',
@@ -159,6 +176,9 @@ abstract final class FinancialAccounts {
   static const adjustedProfitAnnotation =
       r'^(?:당기순(이익|손익)[(]대손준비금반영후조정이익:?(당기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원전기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원(전전기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원)?|제[0-9]+기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)백만원,제[0-9]+기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)백만원,제[0-9]+기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)백만원)[)]|(?:연결)?당기순이익[(]대손준비금반영후조정이익당기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원전기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원[)][(]비상위험준비금반영후조정이익당기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원전기:([0-9]+|[0-9]{1,3}(,[0-9]{3})*)원[)])$';
 
+  static const exactHanyangPrintedProfit =
+      '당기순이익(대손준비금반영후조정이익당기:25,894,824,085원전기:76,378,389,687원';
+
   static String normalizedName(String name) {
     if (name.replaceAll(RegExp(r'\s+'), '') == 'III..영업이익') {
       return '영업이익';
@@ -173,7 +193,10 @@ abstract final class FinancialAccounts {
           RegExp(r'(?:\(주(?:석)?[0-9]+(?:,[0-9]+)*\)|<주석[0-9]+>)$'),
           '',
         );
-    return RegExp(adjustedProfitAnnotation).hasMatch(clean) ? '당기순이익' : clean;
+    return clean == exactHanyangPrintedProfit ||
+            RegExp(adjustedProfitAnnotation).hasMatch(clean)
+        ? '당기순이익'
+        : clean;
   }
 
   /// Shared finite mapping for SQL consumers; no fuzzy or company-specific match.
@@ -187,7 +210,7 @@ abstract final class FinancialAccounts {
     final unannotated =
         "regexp_replace($unprefixed, '([(]주(석)?[0-9]+(,[0-9]+)*[)]|<주석[0-9]+>)\$', '')";
     final name =
-        "CASE WHEN $compact = 'III..영업이익' THEN '영업이익' WHEN $unannotated ~ '$adjustedProfitAnnotation' THEN '당기순이익' ELSE $unannotated END";
+        "CASE WHEN $compact = 'III..영업이익' THEN '영업이익' WHEN $unannotated = '$exactHanyangPrintedProfit' OR $unannotated ~ '$adjustedProfitAnnotation' THEN '당기순이익' ELSE $unannotated END";
     final cases = <String>[];
     for (final account in all) {
       for (final aliasId in account.accountIds.skip(1)) {

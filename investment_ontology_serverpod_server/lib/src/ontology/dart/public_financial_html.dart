@@ -1,3 +1,7 @@
+import 'insurance_current_annual_source.dart';
+import 'known_annual_source_conflict.dart';
+import 'exact_seven_cash_source.dart';
+import 'printed_current_annual_source.dart';
 import 'contents_on_corroborated_flow_period.dart';
 import 'exact_cover_executive_role.dart';
 import 'annual_equity_period.dart';
@@ -836,6 +840,59 @@ abstract final class PublicFinancialHtml {
     // Opt-in proof inspection only; this does not authorize six-core storage.
     bool allowSourceVerifiedPartialCore = false,
   }) {
+    KnownAnnualSourceConflicts.verify(
+      receipt: receipt,
+      corpCode: corpCode,
+      consolidated: consolidated,
+      start: periodStart,
+      end: periodEnd,
+      coverSource: coverSource,
+      statementSource: statementSource,
+      coverHtml: coverHtml,
+      statementHtml: statementHtml,
+    );
+    if (!consolidated && ExactSevenCashSource.eligible(receipt)) {
+      return ExactSevenCashSource.parse(
+        receipt: receipt,
+        corpCode: corpCode,
+        companyName: companyName,
+        consolidated: consolidated,
+        start: periodStart,
+        end: periodEnd,
+        coverSource: coverSource,
+        statementSource: statementSource,
+        coverHtml: coverHtml,
+        statementHtml: statementHtml,
+      );
+    }
+    if (InsuranceCurrentAnnualSource.matches(receipt, consolidated)) {
+      return InsuranceCurrentAnnualSource.parse(
+        receipt: receipt,
+        corpCode: corpCode,
+        companyName: companyName,
+        cover: coverHtml,
+        body: statementHtml,
+        coverSource: coverSource,
+        statementSource: statementSource,
+        start: periodStart,
+        end: periodEnd,
+        consolidated: consolidated,
+      );
+    }
+    if (PrintedCurrentAnnualSource.matches(receipt, consolidated)) {
+      return PrintedCurrentAnnualSource.parse(
+        receipt: receipt,
+        corpCode: corpCode,
+        companyName: companyName,
+        cover: coverHtml,
+        body: statementHtml,
+        coverSource: coverSource,
+        statementSource: statementSource,
+        start: periodStart,
+        end: periodEnd,
+        consolidated: consolidated,
+      );
+    }
     if (receipt == BnkSixCoreProfile.receipt) {
       return BnkSixCoreProfile.parse(
         targetReceipt: receipt,

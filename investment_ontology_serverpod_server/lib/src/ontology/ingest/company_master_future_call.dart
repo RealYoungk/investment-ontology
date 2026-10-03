@@ -5,6 +5,7 @@ import '../dart/dart_client.dart';
 import 'company_master_sync.dart';
 import 'ingest_jobs.dart';
 import 'ingest_hooks.dart';
+import 'market_security_relink.dart';
 
 class CompanyMasterFutureCall extends FutureCall {
   /// 매일 기업 마스터 갱신. 같은 종류의 실행 중 작업이 있으면 중복하지 않는다.
@@ -39,5 +40,6 @@ class CompanyMasterFutureCall extends FutureCall {
           ? null
           : (at) => IngestHooks.companyMasterResume!(session, at),
     ).run(force: force);
+    await MarketSecurityRelink.afterMasterCompletion(session, jobId);
   }
 }

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "01085026",
+  "receipt": "20230331004027",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2022,
+  "periodStart": "2022-01-01",
+  "periodEnd": "2022-12-31",
+  "ruleVersion": "exact-printed-current-annual-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230331004027",
+      "sha256": "fbb23dcf2b5d39f640bce5f0bec4bfbc6162f8ca98e61c862d7d89b60be9715d"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230331004027&dcmNo=9134443&eleId=1&offset=815&length=4057&dtd=dart3.xsd",
+      "sha256": "95e221bde40ac001c0cc9a9201974cb52a031a7b815590b1c9fe840da7176d8b"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230331004027&dcmNo=9134443&eleId=19&offset=166878&length=56843&dtd=dart3.xsd",
+      "sha256": "c1d63fafb290812e7ca9dba92435fee69c84f0d330213e8de7e891d6d0467f24"
+    }
+  ],
+  "retrievalProof": "현재열 문법에 한정한 원문 SHA 고정. 각 표 인쇄 원 단위·완전 연간 날짜·CE NI/E·CF/BS 현금 검산. 시작일은 실제 인쇄되어 있음."
+}

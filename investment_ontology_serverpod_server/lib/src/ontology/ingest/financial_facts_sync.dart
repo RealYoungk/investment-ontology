@@ -1,3 +1,4 @@
+import '../dart/known_annual_source_conflict.dart';
 import '../dart/imgt_explicit_revenue_missing.dart';
 import '../dart/verified_annual_source_cache.dart';
 import '../dart/linked_correction_audit_source.dart';
@@ -2454,6 +2455,14 @@ class FinancialFactsSync {
                   verifiedBasisNotApplicable = absence;
                 }
               } catch (sourceError) {
+                if (sourceError is KnownAnnualSourceConflict) {
+                  await _recordKnownSourceConflict(
+                    filing,
+                    company,
+                    div,
+                    sourceError,
+                  );
+                }
                 final detail = sourceError is FormatException
                     ? sourceError.message.toString().replaceAll(
                         RegExp(r'[\r\n\x00-\x1f]'),
@@ -2660,6 +2669,64 @@ class FinancialFactsSync {
       );
     }
     return (stored: stored, failed: failed);
+  }
+
+  /// Failed primary-source audit only; never creates financial rows.
+  Future<void> _recordKnownSourceConflict(
+    DartFiling filing,
+    Company company,
+    FsDiv div,
+    KnownAnnualSourceConflict conflict,
+  ) async {
+    final proof = conflict.evidence;
+    final period = DartReportName.parse(filing.reportName);
+    if (proof['receipt'] != filing.rceptNo ||
+        proof['corpCode'] != company.corpCode ||
+        proof['year'] != filing.bsnsYear ||
+        proof['consolidated'] != (div == FsDiv.consolidated) ||
+        filing.reportCode != FinancialReportCode.annual ||
+        period == null ||
+        period.periodYear != proof['year'] ||
+        period.periodMonth != 12 ||
+        await IngestJobs.isCancelled(session, jobId)) {
+      return;
+    }
+    final reference = 'financial-source-conflict:${filing.rceptNo}:${div.name}';
+    await session.db.transaction((tx) async {
+      await session.db.unsafeQuery(
+        'SELECT pg_advisory_xact_lock(hashtext(@ref))',
+        parameters: QueryParameters.named({'ref': reference}),
+        transaction: tx,
+      );
+      if (await Source.db.findFirstRow(
+            session,
+            where: (t) => t.reference.equals(reference),
+            transaction: tx,
+          ) !=
+          null) {
+        return;
+      }
+      await Source.db.insertRow(
+        session,
+        Source(
+          kind: SourceKind.dartReport,
+          reference: reference,
+          url: conflict.evidence['statementSource'] as String,
+          retrievedAt: _clock().toUtc(),
+          title: jsonEncode({
+            'action': 'verified-primary-source-conflict',
+            'targetReceipt': filing.rceptNo,
+            'reportName': filing.reportName,
+            'corpCode': company.corpCode,
+            'fsDiv': div.name,
+            'evidence': conflict.evidence,
+            'status': 'failed',
+            'financialFactsStored': false,
+          }),
+        ),
+        transaction: tx,
+      );
+    });
   }
 
   /// Reuses the exact same typed source-evidence store as normal HTTP recovery.

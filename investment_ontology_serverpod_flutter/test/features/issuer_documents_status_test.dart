@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:investment_ontology_serverpod_flutter/design/app_theme.dart';
 import 'package:investment_ontology_serverpod_flutter/design/brands/ledger_brand.dart';
 import 'package:investment_ontology_serverpod_flutter/features/data_sync/widgets/issuer_documents_status.dart';
+import 'package:investment_ontology_serverpod_flutter/features/data_sync/widgets/reviewed_issuer_document_metadata.dart';
 
 List<Map<String, dynamic>> actualRows() =>
     ((jsonDecode(File('test/fixtures/issuer_documents.json').readAsStringSync())
@@ -19,7 +20,13 @@ String ready(String corp, List<Map<String, dynamic>> rows) => jsonEncode({
   'source': {
     'kind': 'officialFile',
     'url': rows.isEmpty
-        ? 'https://www.mkif.com'
+        ? (reviewedDartIssuerMetadata.any((r) => r['corpCode'] == corp)
+              ? 'https://dart.fss.or.kr'
+              : {
+                  '00435297': 'https://www.mkif.com',
+                  '01880801': 'https://kbif.co.kr',
+                  '00600013': 'https://re1.miraeasset.com',
+                }[corp])
         : Uri.parse(rows.first['officialUrl'] as String).origin,
   },
   'rows': rows,
@@ -29,6 +36,32 @@ Widget app(Widget child) => MaterialApp(
   home: Scaffold(body: SingleChildScrollView(child: child)),
 );
 void main() {
+  test('all twelve pinned DART chapters require exact own issuer metadata', () {
+    expect(issuerDocumentFunds.length, 12);
+    expect(reviewedDartIssuerMetadata.length, 12);
+    for (final row in reviewedDartIssuerMetadata) {
+      final corp = row['corpCode'] as String;
+      expect(issuerDocumentRows(ready(corp, [row]), corp), [row]);
+      for (final change in [
+        {'provider': 'officialIR'},
+        {'periodStart': '2021-01-01'},
+        {'sha256': '0' * 64},
+        {'publicContent': 'fullText'},
+        {'officialUrl': '${row['officialUrl']}&extra=1'},
+        {'numericState': 'complete'},
+      ]) {
+        expect(
+          () => issuerDocumentRows(
+            ready(corp, [
+              {...row, ...change},
+            ]),
+            corp,
+          ),
+          throwsFormatException,
+        );
+      }
+    }
+  });
   test('actual fifteen metadata rows preserve twelve annual and three latest documents', () {
     final rows = actualRows();
     expect(rows.length, 15);
@@ -94,7 +127,10 @@ void main() {
         ),
       );
       await t.pumpAndSettle();
-      expect(find.text('서버 보존: 과거 재무 원문 12개 · 최신 3/3'), findsOneWidget);
+      expect(
+        find.text('서버 보존: 과거 감사 원문 12개 · 최신 투자회사 원문 3/3 · 전체 15개'),
+        findsOneWidget,
+      );
       expect(find.textContaining('2021~2023 자체 원문 미확보'), findsOneWidget);
       await t.tap(find.text('맥쿼리인프라'));
       await t.pumpAndSettle();
@@ -131,7 +167,7 @@ void main() {
       await t.pumpAndSettle();
       expect(find.text('저장된 문서 없음'), findsOneWidget);
       expect(find.text('서버 수집 전'), findsOneWidget);
-      expect(find.text('원문 상태 확인 실패'), findsOneWidget);
+      expect(find.text('원문 상태 확인 실패'), findsNWidgets(10));
       for (final entry in old.entries) {
         entry.value.complete(
           ready(
@@ -141,7 +177,10 @@ void main() {
         );
       }
       await t.pumpAndSettle();
-      expect(find.text('서버 보존: 과거 재무 원문 0개 · 최신 0/3'), findsOneWidget);
+      expect(
+        find.text('서버 보존: 과거 감사 원문 0개 · 최신 투자회사 원문 0/3 · 전체 0개'),
+        findsOneWidget,
+      );
     },
   );
 }

@@ -8,6 +8,7 @@ import '../../design/components/components.dart';
 import '../../design/tokens.dart';
 import '../common/formatters.dart';
 import 'financial_metrics.dart';
+import 'financial_source_scope_notice.dart';
 
 /// 재무 보고서 원문 표: 재무제표별 모든 계정과 금액 열, 같은 기간의 정정 이력.
 class FinancialReportPage extends StatefulWidget {
@@ -127,6 +128,11 @@ class _FinancialReportPageState extends State<FinancialReportPage> {
           '${report.invalidAmountCount > 0 ? ' · 정수가 아니어서 비운 금액 ${report.invalidAmountCount}개' : ''}',
           style: t.numeric(12, color: c.textSecondary),
         ),
+        if (FinancialSourceScopeNotice.messageFor(detail.source?.title) !=
+            null) ...[
+          const SizedBox(height: AppSpace.md),
+          FinancialSourceScopeNotice(sourceTitle: detail.source?.title),
+        ],
         if (report.supersededById != null) ...[
           const SizedBox(height: AppSpace.md),
           AppNotice(

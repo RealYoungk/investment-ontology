@@ -1,0 +1,30 @@
+{
+  "receipt": "20260429001010",
+  "corpCode": "01188749",
+  "year": 2025,
+  "basis": "separate",
+  "kind": "annual",
+  "periodStart": "2025-01-01",
+  "periodEnd": "2025-12-31",
+  "ruleVersion": "gne-own-audit-whole7-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260429001010",
+      "sha256": "5a2bd4be0201430f7ca7baf961f68c55b47328c4c48340830abdf710e6962709"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260429001010&dcmNo=11355074&eleId=2&offset=34814&length=2054&dtd=dart4.xsd",
+      "sha256": "df7590ebfd844c8d4e20963a21f8d8011671aafd93b4f7e87fc878051d6d7d87"
+    },
+    {
+      "label": "ofs",
+      "file": "ofs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260429001010&dcmNo=11355074&eleId=4&offset=44211&length=229638&dtd=dart4.xsd",
+      "sha256": "d9ec17630416bf4b16452eae6558e001662ce22ef139ce2a81ecdbca9e9e52c1"
+    }
+  ]
+}
