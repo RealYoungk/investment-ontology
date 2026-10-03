@@ -19,6 +19,16 @@ void main() {
       () async {
         final session = builder.asAdmin.build(),
             now = DateTime.utc(2026, 10, 3);
+        // dailyBudget=0 leaves the separate filing-feed reserve available.
+        // Exhaust the shared day explicitly so API0 covers both budgets.
+        await ApiCallUsage.db.insertRow(
+          session,
+          ApiCallUsage(
+            provider: ApiProvider.dart,
+            day: '2026-10-03',
+            calls: 20000,
+          ),
+        );
         final e = VerifiedAnnualSourceRegistry.find(
           '20240306000708',
           FsDiv.separate,
