@@ -56,6 +56,20 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20240409003743',
+      corpCode: '01022142',
+      companyName: "엠디바이스 주식회사",
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20240409003743-cfs-own-overview-none',
+      manifestDigest:
+          '5225566c83e6272eacc924e2f68faa4129845f92e5a4c5c92069c2d6cdc702d8',
+      ruleVersion: 'own-primary-cfs-explicit-absence-legal-overview-v1',
+      absenceLiteral: "\"해당사항 없습니다.\"",
+      requiresIssuerOverview: true,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20230718000182',
       corpCode: '01020269',
       companyName: "(주) 탈로스",

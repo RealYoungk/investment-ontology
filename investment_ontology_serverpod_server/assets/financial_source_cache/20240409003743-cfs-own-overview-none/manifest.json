@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20240409003743",
+  "corpCode": "01022142",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2022,
+  "periodStart": "2022-01-01",
+  "periodEnd": "2022-12-31",
+  "ruleVersion": "own-primary-cfs-explicit-absence-legal-overview-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240409003743",
+      "sha256": "cc85af092eff2c55b535dc0118a16a6f70c19c315e266164f9ec180fd8488e6d"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240409003743&dcmNo=9872375&eleId=3&offset=41680&length=4082&dtd=dart4.xsd",
+      "sha256": "727ff284be20f5cb04290b49563f44710fbcc1ee6e66fad674cae4307192338a"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240409003743&dcmNo=9872375&eleId=21&offset=106590&length=144&dtd=dart4.xsd",
+      "sha256": "1966784a5eecc6b9efd714b6fbb6d8207d5302dfaa3d8a734a541cf98256128f"
+    },
+    {
+      "label": "overview",
+      "file": "overview.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240409003743&dcmNo=9872375&eleId=5&offset=46267&length=42719&dtd=dart4.xsd",
+      "sha256": "fecfea211149ebc7031af1200b43fa1989a31d58f46525a22846e891dc692950"
+    }
+  ],
+  "absenceEvidence": "\"해당사항 없습니다.\"",
+  "retrievalProof": "Own primary original CFS explicit absence, target same receipt own cover+shell+overview legal issuer witness. Four unique own observed URI/SHA and actual cover2022Jan1-Dec31. Default transport typed absence; no numeric/OFS transplant. All prior cached originals; newGET/API/DB0."
+}
