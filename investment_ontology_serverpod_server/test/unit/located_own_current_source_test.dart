@@ -223,7 +223,7 @@ void main() {
                   : FinancialStatementKind.comprehensiveIncome,
               accountName: r['account_nm'] as String,
               ord: int.parse(r['ord'] as String),
-              periodName: r['thstrm_dt'] as String,
+              periodName: r['thstrm_nm'] as String,
               currency: 'KRW',
               amount: BigInt.parse(r['thstrm_amount'] as String),
               sourceId: 1,
