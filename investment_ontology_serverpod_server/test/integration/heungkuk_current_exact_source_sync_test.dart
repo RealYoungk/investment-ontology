@@ -170,14 +170,14 @@ void main() {
         final originalSource = (await Source.db.find(
           s,
           where: (t) => t.reference.equals(
-            'financial-api-noData-source:${e.receipt}:OFS',
+            'financial-api-noData-source:${e.receipt}:${e.basis.name}',
           ),
         )).single;
         expect(originalSource.url, source.url);
         final originalProof = jsonDecode(originalSource.title) as Map;
         expect(originalProof['corpCode'], e.corpCode);
         expect(originalProof['targetReceipt'], e.receipt);
-        expect(originalProof['fsDiv'], 'OFS');
+        expect(originalProof['fsDiv'], e.basis.name);
         final rowProofs = originalProof['coreRowProvenance'] as List;
         expect(rowProofs, hasLength(8));
         for (final rowProof in rowProofs) {
