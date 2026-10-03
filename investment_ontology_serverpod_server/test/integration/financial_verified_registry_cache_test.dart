@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:investment_ontology_serverpod_server/src/ontology/dart/located_own_current_source.dart';
+
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
@@ -284,6 +286,16 @@ void main() {
             session,
             where: (t) => t.reference.equals(entry.auditReference),
           );
+          final locatedProfiles = LocatedOwnCurrentSource.profiles
+              .where(
+                (p) =>
+                    p['receipt'] == entry.receipt &&
+                    p['basis'] == entry.basis.name,
+              )
+              .toList();
+          final locatedSourceReceipt = locatedProfiles.isEmpty
+              ? null
+              : (locatedProfiles.single['sourceReceipt'] as String);
           final actualReceipt =
               entry.ruleVersion == Header18LinkedPrimarySource.primaryRule
               ? Header18LinkedPrimarySource
@@ -291,7 +303,7 @@ void main() {
                     as String
               : entry.ruleVersion == 'linked-correction-audit-immutable-v1'
               ? LinkedCorrectionAuditSource.originalFor(entry.receipt)
-              : entry.receipt;
+              : locatedSourceReceipt ?? entry.receipt;
           final sourceReports = await FinancialReport.db.find(
             session,
             where: (t) =>
@@ -336,6 +348,32 @@ void main() {
                         : entry.statementLabel),
               );
               expect(source.reference, actualReceipt);
+              if (locatedSourceReceipt != null &&
+                  locatedSourceReceipt != entry.receipt) {
+                expect(manifest['sourceReceipt'], locatedSourceReceipt);
+                expect(report.rceptNo, locatedSourceReceipt);
+                final scopeSource = (await Source.db.find(
+                  session,
+                  where: (t) => t.reference.equals(
+                    'financial-api-noData-source:${entry.receipt}:${entry.basis.name}',
+                  ),
+                )).single;
+                final scope = jsonDecode(scopeSource.title) as Map;
+                expect(scope['targetReceipt'], entry.receipt);
+                expect(scope['sourceReceipt'], locatedSourceReceipt);
+                expect(scopeSource.url, statement['url']);
+                for (final row in scope['coreRowProvenance'] as List) {
+                  expect(
+                    row['html_provenance']['sourceReceipt'],
+                    locatedSourceReceipt,
+                  );
+                  expect(
+                    row['html_provenance']['targetReceipt'],
+                    entry.receipt,
+                  );
+                }
+              }
+
               expect(source.url, statement['url']);
               final cover = File('${entry.assetDirectory}/cover.html')
                       .readAsStringSync(),

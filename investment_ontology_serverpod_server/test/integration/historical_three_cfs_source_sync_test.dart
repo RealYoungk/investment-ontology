@@ -152,7 +152,9 @@ void main() {
               'Ⅴ.영업이익(손실)': '651728876',
               'Ⅷ.당기순손실': '-771791959',
               'I.영업활동으로인한현금흐름': '1030287321',
-              '유형자산의취득': '-190134090',
+              // Own CF prints (190,134,090) under cash outflows; the exact
+              // ppePurchaseSigned rule stores its acquisition magnitude.
+              '유형자산의취득': '190134090',
             },
           };
           for (final cell in originalPrinted[e.receipt]!.entries) {
