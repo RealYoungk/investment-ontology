@@ -47,7 +47,9 @@ void main() {
                         as String,
                 establishedDate: parent
                     ? null
-                    : DateTime.parse(row['actualEstablishedDate'] as String),
+                    : DateTime.parse(
+                        '${row['actualEstablishedDate']}T00:00:00Z',
+                      ),
                 profileSourceId: source.id,
               ),
             );
@@ -91,10 +93,12 @@ void main() {
               : (mode == 'corruptFirst' || mode == 'wrongSource')
               ? 1
               : 2,
+          reason: result.reasons.join(' / '),
         );
         expect(
           result.failed,
           (mode == 'corruptFirst' || mode == 'wrongSource') ? 1 : 0,
+          reason: result.reasons.join(' / '),
         );
         if (mode == 'valid') {
           final before = (await ResearchSnapshot.db.find(session))
