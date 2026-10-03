@@ -34,7 +34,7 @@ Company company(AnnualSourceCacheEntry e) => Company(
 );
 void main() {
   test('compiled receipt plus basis registry has unique audit identities', () {
-    expect(VerifiedAnnualSourceRegistry.entries.length, 226);
+    expect(VerifiedAnnualSourceRegistry.entries.length, 227);
     expect(
       VerifiedAnnualSourceRegistry.entries
           .map((e) => e.auditReference)
@@ -66,6 +66,10 @@ void main() {
           e.ruleVersion.startsWith('header18-linked-')
               ? (e.absenceLiteral == null ? 8 : 5)
               : 4 +
+                    (e.ruleVersion ==
+                            'exact-anymedi-current-ofs-audit-period-eight-v1'
+                        ? 3
+                        : 0) +
                     (e.requiresIssuerOverview ? 1 : 0) +
                     (e.requiresCashScopeNotes ? 1 : 0) +
                     (e.requiresOwnOfsWitness ? 1 : 0) +

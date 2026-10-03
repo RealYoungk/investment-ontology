@@ -56,6 +56,21 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20230103000440',
+      corpCode: '01507810',
+      companyName: '애니메디솔루션(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20230103000440-ofs-own-audit-period',
+      manifestDigest:
+          '2e904a6368f411ebe6cbc0033b5b6aa9fc4da7f8fb9370540727f51884a37706',
+      ruleVersion: 'exact-anymedi-current-ofs-audit-period-eight-v1',
+      absenceLiteral: null,
+      declaredPeriodStart: '2021-01-01',
+      declaredPeriodEnd: '2021-12-31',
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20220317000691',
       corpCode: '01596425',
       companyName: '에스케이스퀘어 주식회사',
