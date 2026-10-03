@@ -56,6 +56,19 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20230309000572',
+      corpCode: '00104856',
+      companyName: '삼성증권(주)',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20230309000572-cfs-samsungsec-own-audit-current-eight',
+      manifestDigest:
+          'e5fa64f996412c0798b184b8e23fbbe0812525e223a96a33d61e54abe3fb4674',
+      ruleVersion: 'samsungsec-2022-own-audit-current-eight-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20220816002265',
       corpCode: '00113191',
       companyName: '코리안리재보험(주)',

@@ -1,3 +1,4 @@
+import 'samsungsec_2022_own_audit_source.dart';
 import 'koreanre_2021_own_ofs_source.dart';
 import 'koreanre_2022_current_eight_source.dart';
 import 'isung_current_seven_source.dart';
@@ -538,6 +539,41 @@ final class VerifiedAnnualSourceCache {
           s['label'] as String: utf8.decode(documents[uris[s['label']]]!),
       };
       final rows = KoreanRe2021OwnOfsSource.parse(
+        raw: raws,
+        uris: uris,
+        receipt: entry.receipt,
+        corp: company.corpCode,
+        start: start,
+        end: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raws['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raws[basis == FsDiv.consolidated ? 'cfs' : 'ofs']!,
+          statementSource: uris[basis == FsDiv.consolidated ? 'cfs' : 'ofs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == SamsungSec2022OwnAuditSource.rule) {
+      final src = manifest['sources'] as List;
+      final uris = <String, Uri>{
+        for (final s in src)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raws = <String, String>{
+        for (final s in src)
+          s['label'] as String: utf8.decode(documents[uris[s['label']]]!),
+      };
+      final rows = SamsungSec2022OwnAuditSource.parse(
         raw: raws,
         uris: uris,
         receipt: entry.receipt,
