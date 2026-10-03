@@ -184,14 +184,14 @@ void main() {
             (x) => x['label'] == 'cfs',
           )['url'];
           expect(detail.source!.url, expectedUri);
-          expect(
-            detail.sources!.any(
-              (s) =>
-                  s.reference ==
-                  'financial-api-noData-source:$receipt:consolidated',
+          final audit = await Source.db.findFirstRow(
+            session,
+            where: (t) => t.reference.equals(
+              'financial-api-noData-source:$receipt:consolidated',
             ),
-            true,
           );
+          expect(audit, isNotNull);
+          expect(audit!.url, expectedUri);
           final summary = (await endpoints.financial.summary(
             builder,
             c.corpCode,
