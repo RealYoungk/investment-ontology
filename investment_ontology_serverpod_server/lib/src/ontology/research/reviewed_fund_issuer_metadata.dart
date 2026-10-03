@@ -3,6 +3,25 @@ abstract final class ReviewedFundIssuerMetadata {
   static const documents = <Map<String, dynamic>>[
     {
       "corpCode": "00435297",
+      "title": "MKIF 2026년 상반기 비감사 별도 재무실적",
+      "documentType": "operatingReport",
+      "provider": "officialIR",
+      "providerReceipt": null,
+      "providerDocumentId": null,
+      "periodStart": "2026-01-01",
+      "periodEnd": "2026-06-30",
+      "publishedAt": "2026-07-29",
+      "officialUrl": "https://www.mkif.com/assets/mkif/en/investor-centre/public-filings-and-reports/2026/ir-release-2607-1h-2026-financial-traffic-results-eng.pdf",
+      "sha256":
+          "6ca659a9b5f54e2c27fc0359e44babc1e98d1b604ccc78a43269c095d226a87b",
+      "issuerQuote": "Macquarie Korea Infrastructure Fund",
+      "periodQuote": "For the six months ended 30 June 2026",
+      "numericState": "notExtracted",
+      "financialValues": null,
+      "publicContent": "linkOnly",
+    },
+    {
+      "corpCode": "00435297",
       "title": "맥쿼리한국인프라투융자회사 재무제표",
       "documentType": "auditReport",
       "provider": "officialIR",

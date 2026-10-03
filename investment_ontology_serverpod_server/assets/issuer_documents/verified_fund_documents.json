@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "scope": "fixed reviewed 12 annual PDFs plus latest document for each of 3 funds and one retrospective corrected prospectus; no automatic discovery",
+  "scope": "fixed five annual years plus latest own financial-results source for MKIF; other approved fund sources and exact retrospective source; no historical interim expansion",
   "missingAnnualDocuments": {
     "01880801": [
       2021,
@@ -311,31 +311,6 @@
     },
     {
       "metadata": {
-        "corpCode": "00435297",
-        "title": "2026년 2분기 자산운용보고서",
-        "documentType": "assetManagementReport",
-        "provider": "officialIR",
-        "providerReceipt": null,
-        "providerDocumentId": null,
-        "periodStart": "2026-04-01",
-        "periodEnd": "2026-06-30",
-        "publishedAt": "2026-07-29",
-        "officialUrl": "https://www.mkif.com/assets/mkif/ko-kr/investor-centre/public-filings-and-reports/2026/mkif-quarterly-asset-management-report-2026-2q-kor.pdf",
-        "sha256": "eb1d54cdf31ba90a4fa8e5291ed4b9fcf69f587e3564328dcae696bc71946897",
-        "issuerQuote": "맥쿼리한국인프라투융자회사",
-        "periodQuote": "2026년 4월 1일부터 2026년 6월 30일까지",
-        "numericState": "notExtracted",
-        "financialValues": null,
-        "publicContent": "linkOnly"
-      },
-      "proof": {
-        "downloadedAt": "2026-10-02T03:44:58.044976+00:00",
-        "readScope": "text cover p1",
-        "periodProof": "printed PDF cover, no filename inference"
-      }
-    },
-    {
-      "metadata": {
         "corpCode": "01880801",
         "title": "KB발해인프라투융자회사 자산운용보고서",
         "documentType": "assetManagementReport",
@@ -409,6 +384,32 @@
         "evidenceOrigin": "exact-local-original-from-official-source;downloadTimestampNotClaimed",
         "readScope": "text and visual physical pages 265-269; correction date p1",
         "periodProof": "printed audited fiscal terms 35/34/33/32; source range not fiscal duration"
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "00435297",
+        "title": "MKIF 2026년 상반기 비감사 별도 재무실적",
+        "documentType": "operatingReport",
+        "provider": "officialIR",
+        "providerReceipt": null,
+        "providerDocumentId": null,
+        "periodStart": "2026-01-01",
+        "periodEnd": "2026-06-30",
+        "publishedAt": "2026-07-29",
+        "officialUrl": "https://www.mkif.com/assets/mkif/en/investor-centre/public-filings-and-reports/2026/ir-release-2607-1h-2026-financial-traffic-results-eng.pdf",
+        "sha256": "6ca659a9b5f54e2c27fc0359e44babc1e98d1b604ccc78a43269c095d226a87b",
+        "issuerQuote": "Macquarie Korea Infrastructure Fund",
+        "periodQuote": "For the six months ended 30 June 2026",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "readScope": "own issuer p1; own financial appendix p4 BS and p5 cumulative PL only",
+        "periodProof": "printed own six months ended 30 June 2026; unaudited non-consolidated",
+        "sourceReadScope": "partialFinancialResultsOnly;CECFnotPrinted;notRegularHalfYearReport",
+        "downloadedAt": "2026-10-03T05:46:24.070090+00:00"
       }
     }
   ]

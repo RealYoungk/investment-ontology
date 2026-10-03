@@ -1,3 +1,5 @@
+import '../research/mkif_halfyear_five.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -23,6 +25,7 @@ abstract final class IssuerFinancialsSync {
   static const reference =
       'source-bound-partial-current-core;no-api-report-or-xbrl-assertion';
   static bool supports(Map<String, dynamic> doc) =>
+      MkifHalfYearFive.supports(doc) ||
       IssuerFinancialsHtml.supports(doc) ||
       IpoIssuerFinancialsHtml.supports(doc) ||
       FundFinancialsText.supports(doc) ||
@@ -41,6 +44,19 @@ abstract final class IssuerFinancialsSync {
     final rows = <Map<String, dynamic>>[];
     for (final d in documents.where(supports)) {
       final m = d['metadata'] as Map, p = d['proof'] as Map;
+      if (MkifHalfYearFive.supports(d)) {
+        final pdf = await File('${cache.path}/${m['sha256']}.pdf')
+            .readAsBytes();
+        MkifHalfYearFive.verifyPdf(m, pdf);
+        rows.add(
+          MkifHalfYearFive.parseRaw(
+            m,
+            await File('${cache.path}/${m['sha256']}.halfyear-results.txt')
+                .readAsBytes(),
+          ),
+        );
+        continue;
+      }
       if (RetrospectiveFundFinancials.supports(d)) {
         final pdf = File('${cache.path}/${m['sha256']}.pdf');
         final text = File('${cache.path}/${m['sha256']}.retrospective.txt');

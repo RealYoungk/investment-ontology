@@ -10,7 +10,7 @@ import 'package:investment_ontology_serverpod_server/src/ontology/research/issue
 void main() {
   final source = File('assets/issuer_documents/verified_fund_documents.json')
       .readAsStringSync();
-  test('actual 12 annual plus 3 latest and 1 exact retrospective source retain amounts null and independent provider IDs', () {
+  test('actual 12 annual plus 3 latest (MKIF own half-year results) and 1 exact retrospective source retain amounts null and independent provider IDs', () {
     final rows = IssuerDocumentsCollector.manifest(source)
         .map((d) => d['metadata'] as Map)
         .toList();

@@ -1,3 +1,4 @@
+import 'mkif_halfyear_five.dart';
 import 'issuer_financials_html.dart';
 import 'fund_financials_text.dart';
 import 'infrastructure_fund_financials.dart';
@@ -16,6 +17,7 @@ abstract final class IssuerFinancialsFeed {
               r is Map &&
               {
                 InfrastructureFundFinancials.category,
+                MkifHalfYearFive.category,
                 ScannedFundFinancials.category,
                 RetrospectiveFundContract.category,
               }.contains(r['categorySchema']),
@@ -48,6 +50,12 @@ abstract final class IssuerFinancialsFeed {
           .where((r) => r['categorySchema'] == ScannedFundFinancials.category)
           .toList();
       return [
+        if (input.any((r) => r['categorySchema'] == MkifHalfYearFive.category))
+          ...MkifHalfYearFive.validateRows(
+            input
+                .where((r) => r['categorySchema'] == MkifHalfYearFive.category)
+                .toList(),
+          ),
         if (text.isNotEmpty) ...InfrastructureFundFinancials.validateRows(text),
         if (scans.isNotEmpty) ...ScannedFundFinancials.validateRows(scans),
         if (retrospective.isNotEmpty)

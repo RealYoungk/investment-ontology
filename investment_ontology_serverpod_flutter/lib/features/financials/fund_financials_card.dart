@@ -96,7 +96,9 @@ class FundFinancialsCard extends StatelessWidget {
   final Map<String, dynamic> row;
   @override
   Widget build(BuildContext context) {
-    final quarantine = row['numericState'] == 'pendingCashScope',
+    final halfYear =
+            row['categorySchema'] == 'printedUnauditedHalfYearFundCategories',
+        quarantine = row['numericState'] == 'pendingCashScope',
         v = row['validation'] as Map;
     return Padding(
       padding: const EdgeInsets.only(top: AppSpace.md),
@@ -107,10 +109,20 @@ class FundFinancialsCard extends StatelessWidget {
           style: context.typo.body(14),
         ),
         subtitle: Text(
-          '${row['periodKind'] == 'ownSixMonthFiscalYear' ? '자체 6개월 회계연도' : '자체 12개월 회계연도'} · ${quarantine ? '현금 범위 불일치로 격리' : '펀드 인쇄 계정 일부'} · 감사의견 미추출',
+          halfYear
+              ? '상반기 비감사 별도 · 인쇄 5계정 · 정기 반기보고서 대체 아님'
+              : '${row['periodKind'] == 'ownSixMonthFiscalYear' ? '자체 6개월 회계연도' : '자체 12개월 회계연도'} · ${quarantine ? '현금 범위 불일치로 격리' : '펀드 인쇄 계정 일부'} · 감사의견 미추출',
           style: context.typo.body(12, color: context.colors.textSecondary),
         ),
         children: [
+          if (halfYear) ...[
+            AppNotice(message: '${row['completenessNote']}'),
+            for (final missing in row['unextractedMetrics'] as List)
+              Text(
+                '${missing['reason']}',
+                style: context.typo.body(12, color: context.colors.textMuted),
+              ),
+          ],
           if (row['categorySchema'] == 'printedScannedFundCategories')
             AppNotice(
               message:
@@ -130,7 +142,7 @@ class FundFinancialsCard extends StatelessWidget {
               Tooltip(
                 message: row['categorySchema'] == 'printedScannedFundCategories'
                     ? '원시 OCR: ${a['ocrText']} / ${a['independentOcrText']} · 원본 PDF ${a['pageOrdinal']}쪽 · OCR observation ${a['ocrRowIndex']} · bbox ${a['koBoundingBox']}'
-                    : '${a['printedAmount']}원 · 원문 PDF ${a['pageOrdinal']}쪽, 추출 ${a['lineOrdinal']}행',
+                    : '${a['printedAmount']}${halfYear ? '백만원' : '원'} · 원문 PDF ${a['pageOrdinal']}쪽, 추출 ${a['lineOrdinal']}행',
                 child: KeyValueRow(
                   label: '${a['accountLabel']}',
                   labelWidth: 136,

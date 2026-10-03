@@ -1,3 +1,5 @@
+import 'mkif_halfyear_five_validator.dart';
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -166,6 +168,7 @@ class _IssuerFinancialsSectionState extends State<IssuerFinancialsSection> {
               if ({
                 'printedFundCategories',
                 'printedInfrastructureFundCategories',
+                MkifHalfYearFiveValidator.category,
                 'printedScannedFundCategories',
                 RetrospectiveFundContract.category,
               }.contains(row['categorySchema']))
@@ -193,6 +196,7 @@ List<Map<String, dynamic>> validateIssuerFinancialRows(
             r is Map &&
             {
               'printedInfrastructureFundCategories',
+              MkifHalfYearFiveValidator.category,
               'printedScannedFundCategories',
               RetrospectiveFundContract.category,
             }.contains(r['categorySchema']),
@@ -222,6 +226,17 @@ List<Map<String, dynamic>> validateIssuerFinancialRows(
             .where((r) => r['categorySchema'] == 'printedScannedFundCategories')
             .toList();
     return [
+      if (raw.any(
+        (r) => r['categorySchema'] == MkifHalfYearFiveValidator.category,
+      ))
+        ...MkifHalfYearFiveValidator.validateRows(
+          raw
+              .where(
+                (r) =>
+                    r['categorySchema'] == MkifHalfYearFiveValidator.category,
+              )
+              .toList(),
+        ),
       if (text.isNotEmpty) ...validateInfrastructureFundRows(text),
       if (scans.isNotEmpty) ...validateScannedFundRows(scans),
       if (retrospective.isNotEmpty)
