@@ -234,7 +234,14 @@ void main() {
               .singleWhere(
                 (r) => (r['account_nm'] as String).contains('연결당기순손실'),
               );
-          expect(niRow['sj_div'], entry.year == 2022 ? 'CIS' : 'IS');
+          expect(
+            detail.facts
+                .singleWhere((f) => f.accountName.contains('연결당기순손실'))
+                .statement,
+            entry.year == 2022
+                ? FinancialStatementKind.comprehensiveIncome
+                : FinancialStatementKind.incomeStatement,
+          );
           expect(
             niRow['html_provenance']['currentCell'],
             entry.year == 2022 ? '(1,637,586,127)' : '1,509,318,876',
