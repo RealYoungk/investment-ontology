@@ -1,6 +1,7 @@
 import 'samsungsec_2021_own_audit_source.dart';
 import 'db_yuanta_own_eight_source.dart';
 import 'koreainvestment_own_eight_source.dart';
+import 'ls_kiwoom_current_source.dart';
 import 'samsungsec_2022_own_audit_source.dart';
 import 'koreanre_2021_own_ofs_source.dart';
 import 'koreanre_2022_current_eight_source.dart';
@@ -320,6 +321,40 @@ final class VerifiedAnnualSourceCache {
       throw const FormatException('Cached annual package incomplete');
     }
 
+    if (LsKiwoomCurrentSource.supports(entry.ruleVersion)) {
+      final uris = <String, Uri>{
+        for (final s in manifest['sources'] as List)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raw = <String, String>{
+        for (final e in uris.entries) e.key: utf8.decode(documents[e.value]!),
+      };
+      final rows = LsKiwoomCurrentSource.parse(
+        raw: raw,
+        uris: uris,
+        receipt: entry.receipt,
+        corp: company.corpCode,
+        companyName: company.name,
+        start: start,
+        end: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raw['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raw[entry.statementLabel]!,
+          statementSource: uris[entry.statementLabel]!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
     if (entry.ruleVersion == Talos2021CurrentSevenSource.rule) {
       final uris = <String, Uri>{
         for (final s in manifest['sources'] as List)

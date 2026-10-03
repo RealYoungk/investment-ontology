@@ -1,3 +1,4 @@
+import '../dart/ls_kiwoom_current_source.dart';
 import '../dart/known_annual_conflict_cache.dart';
 
 import 'dart:io';
@@ -4197,7 +4198,18 @@ class FinancialFactsSync {
           div,
           originalSource,
         );
-    final partialNote = explicitMissingRevenue
+    final exactLsKiwoomScope = LsKiwoomCurrentSource.storedScope(
+      rows: rows,
+      receipt: rceptNo,
+      corp: company.corpCode,
+      companyName: company.name,
+      consolidated: div == FsDiv.consolidated,
+      source: originalSource,
+      digest: originalDigest,
+    );
+    final partialNote = exactLsKiwoomScope != null
+        ? ' · ${jsonEncode(exactLsKiwoomScope)}'
+        : explicitMissingRevenue
         ? ' · ${ImgtExplicitRevenueMissing.note}'
         : partialCore
         ? ' · 부분 핵심계정 · 당기순손익 미확보 · '

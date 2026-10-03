@@ -56,6 +56,82 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20220324000600',
+      corpCode: '00296290',
+      companyName: '키움증권(주)',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20220324000600-cfs-ls-kiwoom-current',
+      manifestDigest:
+          'd864ae78850ef0773e838235a0f81c7113e2d80d7059074a4be3a3ffefe20d4e',
+      ruleVersion: 'kiwoom-2021-own-cfs-current-eight-v1',
+      absenceLiteral: null,
+      requiresCashScopeNotes: true,
+      requiresIssuerOverview: false,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230316001115',
+      corpCode: '00330424',
+      companyName: '엘에스증권(주)',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20230316001115-cfs-ls-kiwoom-current',
+      manifestDigest:
+          '3875083e630d78ac1834498633c53f6cbf0562434e53d2f93f82a7893a87595b',
+      ruleVersion: 'ls-ebest-2022-own-cfs-current-seven-v1',
+      absenceLiteral: null,
+      requiresCashScopeNotes: true,
+      requiresIssuerOverview: true,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230316001115',
+      corpCode: '00330424',
+      companyName: '엘에스증권(주)',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20230316001115-ofs-ls-kiwoom-current',
+      manifestDigest:
+          'eac209daf32be7f249c78f3f209788381522f0a9e9e385ca59213796cd76466e',
+      ruleVersion: 'ls-ebest-2022-own-ofs-current-seven-v1',
+      absenceLiteral: null,
+      requiresCashScopeNotes: true,
+      requiresIssuerOverview: true,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220317000673',
+      corpCode: '00330424',
+      companyName: '엘에스증권(주)',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20220317000673-cfs-ls-kiwoom-current',
+      manifestDigest:
+          'f474a7ab8e05b738de923c2f3e8d35d76d3b826ed79e9ee7dbda0a5fb55c8e02',
+      ruleVersion: 'ls-ebest-2021-own-cfs-current-seven-v1',
+      absenceLiteral: null,
+      requiresCashScopeNotes: true,
+      requiresIssuerOverview: true,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220317000673',
+      corpCode: '00330424',
+      companyName: '엘에스증권(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20220317000673-ofs-ls-kiwoom-current',
+      manifestDigest:
+          '188f9f09f04f52de2d0d90699a1a84728424526ba33aeceab7b82a6f36cf8791',
+      ruleVersion: 'ls-ebest-2021-own-ofs-current-seven-v1',
+      absenceLiteral: null,
+      requiresCashScopeNotes: true,
+      requiresIssuerOverview: true,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20250320000814',
       corpCode: '00432102',
       companyName: '한국투자금융지주(주)',

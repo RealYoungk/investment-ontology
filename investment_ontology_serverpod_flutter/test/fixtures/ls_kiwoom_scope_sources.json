@@ -1,0 +1,1728 @@
+[
+  {
+    "action": "verified-keyless-annual-source-after-api-noData",
+    "targetReceipt": "20220324000600",
+    "sourceReceipt": "20220324000600",
+    "corpCode": "00296290",
+    "fsDiv": "consolidated",
+    "coreRows": 8,
+    "coreRowProvenance": [
+      {
+        "account_nm": "영 업 수 익",
+        "html_provenance": {
+          "ruleVersion": "kiwoom-2021-own-cfs-current-eight-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220324000600&dcmNo=8502035&eleId=19&offset=912123&length=103978&dtd=dart3.xsd",
+          "sourceSha256": "ae5d0f8cbff86058ceb9819c801e302b06eed5b7b221834ac7caadba14a32cf1",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2021-01-01",
+          "periodEnd": "2021-12-31",
+          "basis": "CFS",
+          "partialCore7": false,
+          "currentCore8": true,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220324000600&dcmNo=8502035&eleId=20&offset=1016105&length=1084531&dtd=dart3.xsd",
+            "sha256": "0e6e482426b7eccb96b8fc5736312d17207368ddfb7673e90ca4089066f9e201",
+            "receipt": "20220324000600",
+            "corpCode": "00296290",
+            "periodEnd": "2021-12-31",
+            "basis": "CFS",
+            "note": "17. 현금 및 예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "-1",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": 156,
+              "bsWonMinusNoteCombinedTimes1000": -7
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "영 업 이 익",
+        "html_provenance": {
+          "ruleVersion": "kiwoom-2021-own-cfs-current-eight-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220324000600&dcmNo=8502035&eleId=19&offset=912123&length=103978&dtd=dart3.xsd",
+          "sourceSha256": "ae5d0f8cbff86058ceb9819c801e302b06eed5b7b221834ac7caadba14a32cf1",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2021-01-01",
+          "periodEnd": "2021-12-31",
+          "basis": "CFS",
+          "partialCore7": false,
+          "currentCore8": true,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220324000600&dcmNo=8502035&eleId=20&offset=1016105&length=1084531&dtd=dart3.xsd",
+            "sha256": "0e6e482426b7eccb96b8fc5736312d17207368ddfb7673e90ca4089066f9e201",
+            "receipt": "20220324000600",
+            "corpCode": "00296290",
+            "periodEnd": "2021-12-31",
+            "basis": "CFS",
+            "note": "17. 현금 및 예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "-1",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": 156,
+              "bsWonMinusNoteCombinedTimes1000": -7
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "당 기 순 이 익 (대손준비금 반영후 조정이익 당기: 903,901,167천원, 전기: 680,651,395천원)",
+        "html_provenance": {
+          "ruleVersion": "kiwoom-2021-own-cfs-current-eight-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220324000600&dcmNo=8502035&eleId=19&offset=912123&length=103978&dtd=dart3.xsd",
+          "sourceSha256": "ae5d0f8cbff86058ceb9819c801e302b06eed5b7b221834ac7caadba14a32cf1",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2021-01-01",
+          "periodEnd": "2021-12-31",
+          "basis": "CFS",
+          "partialCore7": false,
+          "currentCore8": true,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220324000600&dcmNo=8502035&eleId=20&offset=1016105&length=1084531&dtd=dart3.xsd",
+            "sha256": "0e6e482426b7eccb96b8fc5736312d17207368ddfb7673e90ca4089066f9e201",
+            "receipt": "20220324000600",
+            "corpCode": "00296290",
+            "periodEnd": "2021-12-31",
+            "basis": "CFS",
+            "note": "17. 현금 및 예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "-1",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": 156,
+              "bsWonMinusNoteCombinedTimes1000": -7
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "자 산 총 계",
+        "html_provenance": {
+          "ruleVersion": "kiwoom-2021-own-cfs-current-eight-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220324000600&dcmNo=8502035&eleId=19&offset=912123&length=103978&dtd=dart3.xsd",
+          "sourceSha256": "ae5d0f8cbff86058ceb9819c801e302b06eed5b7b221834ac7caadba14a32cf1",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2021-01-01",
+          "periodEnd": "2021-12-31",
+          "basis": "CFS",
+          "partialCore7": false,
+          "currentCore8": true,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220324000600&dcmNo=8502035&eleId=20&offset=1016105&length=1084531&dtd=dart3.xsd",
+            "sha256": "0e6e482426b7eccb96b8fc5736312d17207368ddfb7673e90ca4089066f9e201",
+            "receipt": "20220324000600",
+            "corpCode": "00296290",
+            "periodEnd": "2021-12-31",
+            "basis": "CFS",
+            "note": "17. 현금 및 예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "-1",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": 156,
+              "bsWonMinusNoteCombinedTimes1000": -7
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "부 채 총 계",
+        "html_provenance": {
+          "ruleVersion": "kiwoom-2021-own-cfs-current-eight-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220324000600&dcmNo=8502035&eleId=19&offset=912123&length=103978&dtd=dart3.xsd",
+          "sourceSha256": "ae5d0f8cbff86058ceb9819c801e302b06eed5b7b221834ac7caadba14a32cf1",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2021-01-01",
+          "periodEnd": "2021-12-31",
+          "basis": "CFS",
+          "partialCore7": false,
+          "currentCore8": true,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220324000600&dcmNo=8502035&eleId=20&offset=1016105&length=1084531&dtd=dart3.xsd",
+            "sha256": "0e6e482426b7eccb96b8fc5736312d17207368ddfb7673e90ca4089066f9e201",
+            "receipt": "20220324000600",
+            "corpCode": "00296290",
+            "periodEnd": "2021-12-31",
+            "basis": "CFS",
+            "note": "17. 현금 및 예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "-1",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": 156,
+              "bsWonMinusNoteCombinedTimes1000": -7
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "자 본 총 계",
+        "html_provenance": {
+          "ruleVersion": "kiwoom-2021-own-cfs-current-eight-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220324000600&dcmNo=8502035&eleId=19&offset=912123&length=103978&dtd=dart3.xsd",
+          "sourceSha256": "ae5d0f8cbff86058ceb9819c801e302b06eed5b7b221834ac7caadba14a32cf1",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2021-01-01",
+          "periodEnd": "2021-12-31",
+          "basis": "CFS",
+          "partialCore7": false,
+          "currentCore8": true,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220324000600&dcmNo=8502035&eleId=20&offset=1016105&length=1084531&dtd=dart3.xsd",
+            "sha256": "0e6e482426b7eccb96b8fc5736312d17207368ddfb7673e90ca4089066f9e201",
+            "receipt": "20220324000600",
+            "corpCode": "00296290",
+            "periodEnd": "2021-12-31",
+            "basis": "CFS",
+            "note": "17. 현금 및 예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "-1",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": 156,
+              "bsWonMinusNoteCombinedTimes1000": -7
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "영업활동으로 인한 현금흐름 (주석41)",
+        "html_provenance": {
+          "ruleVersion": "kiwoom-2021-own-cfs-current-eight-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220324000600&dcmNo=8502035&eleId=19&offset=912123&length=103978&dtd=dart3.xsd",
+          "sourceSha256": "ae5d0f8cbff86058ceb9819c801e302b06eed5b7b221834ac7caadba14a32cf1",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2021-01-01",
+          "periodEnd": "2021-12-31",
+          "basis": "CFS",
+          "partialCore7": false,
+          "currentCore8": true,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220324000600&dcmNo=8502035&eleId=20&offset=1016105&length=1084531&dtd=dart3.xsd",
+            "sha256": "0e6e482426b7eccb96b8fc5736312d17207368ddfb7673e90ca4089066f9e201",
+            "receipt": "20220324000600",
+            "corpCode": "00296290",
+            "periodEnd": "2021-12-31",
+            "basis": "CFS",
+            "note": "17. 현금 및 예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "-1",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": 156,
+              "bsWonMinusNoteCombinedTimes1000": -7
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "7. 유형자산의 취득",
+        "html_provenance": {
+          "ruleVersion": "kiwoom-2021-own-cfs-current-eight-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220324000600&dcmNo=8502035&eleId=19&offset=912123&length=103978&dtd=dart3.xsd",
+          "sourceSha256": "ae5d0f8cbff86058ceb9819c801e302b06eed5b7b221834ac7caadba14a32cf1",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2021-01-01",
+          "periodEnd": "2021-12-31",
+          "basis": "CFS",
+          "partialCore7": false,
+          "currentCore8": true,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220324000600&dcmNo=8502035&eleId=20&offset=1016105&length=1084531&dtd=dart3.xsd",
+            "sha256": "0e6e482426b7eccb96b8fc5736312d17207368ddfb7673e90ca4089066f9e201",
+            "receipt": "20220324000600",
+            "corpCode": "00296290",
+            "periodEnd": "2021-12-31",
+            "basis": "CFS",
+            "note": "17. 현금 및 예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "-1",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": 156,
+              "bsWonMinusNoteCombinedTimes1000": -7
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
+    "action": "verified-keyless-annual-source-after-api-noData",
+    "targetReceipt": "20230316001115",
+    "sourceReceipt": "20230316001115",
+    "corpCode": "00330424",
+    "fsDiv": "consolidated",
+    "coreRows": 7,
+    "coreRowProvenance": [
+      {
+        "account_nm": "I. 영업수익",
+        "html_provenance": {
+          "ruleVersion": "ls-ebest-2022-own-cfs-current-seven-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001115&dcmNo=9065788&eleId=17&offset=317594&length=51185&dtd=dart3.xsd",
+          "sourceSha256": "8d44e40d162128bc586cb5eaaa9a3b265b9fefc9ec314d2fc32c1e1373ba4092",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2022-01-01",
+          "periodEnd": "2022-12-31",
+          "basis": "CFS",
+          "partialCore7": true,
+          "currentCore8": false,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001115&dcmNo=9065788&eleId=18&offset=368783&length=1182206&dtd=dart3.xsd",
+            "sha256": "4fa8d600d687caa71f84eb26c55b40b3377113f332eb058662f16cb90d1f5f35",
+            "receipt": "20230316001115",
+            "corpCode": "00330424",
+            "periodEnd": "2022-12-31",
+            "basis": "CFS",
+            "note": "5. 현금및예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "0",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": 147,
+              "bsWonMinusNoteCombinedTimes1000": -12
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "III. 영업이익",
+        "html_provenance": {
+          "ruleVersion": "ls-ebest-2022-own-cfs-current-seven-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001115&dcmNo=9065788&eleId=17&offset=317594&length=51185&dtd=dart3.xsd",
+          "sourceSha256": "8d44e40d162128bc586cb5eaaa9a3b265b9fefc9ec314d2fc32c1e1373ba4092",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2022-01-01",
+          "periodEnd": "2022-12-31",
+          "basis": "CFS",
+          "partialCore7": true,
+          "currentCore8": false,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001115&dcmNo=9065788&eleId=18&offset=368783&length=1182206&dtd=dart3.xsd",
+            "sha256": "4fa8d600d687caa71f84eb26c55b40b3377113f332eb058662f16cb90d1f5f35",
+            "receipt": "20230316001115",
+            "corpCode": "00330424",
+            "periodEnd": "2022-12-31",
+            "basis": "CFS",
+            "note": "5. 현금및예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "0",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": 147,
+              "bsWonMinusNoteCombinedTimes1000": -12
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "VIII. 당기순이익 (대손준비금 반영후 조정이익: 당기 35,862,295천원 전기 153,367,335천원)",
+        "html_provenance": {
+          "ruleVersion": "ls-ebest-2022-own-cfs-current-seven-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001115&dcmNo=9065788&eleId=17&offset=317594&length=51185&dtd=dart3.xsd",
+          "sourceSha256": "8d44e40d162128bc586cb5eaaa9a3b265b9fefc9ec314d2fc32c1e1373ba4092",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2022-01-01",
+          "periodEnd": "2022-12-31",
+          "basis": "CFS",
+          "partialCore7": true,
+          "currentCore8": false,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001115&dcmNo=9065788&eleId=18&offset=368783&length=1182206&dtd=dart3.xsd",
+            "sha256": "4fa8d600d687caa71f84eb26c55b40b3377113f332eb058662f16cb90d1f5f35",
+            "receipt": "20230316001115",
+            "corpCode": "00330424",
+            "periodEnd": "2022-12-31",
+            "basis": "CFS",
+            "note": "5. 현금및예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "0",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": 147,
+              "bsWonMinusNoteCombinedTimes1000": -12
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "자 산 총 계",
+        "html_provenance": {
+          "ruleVersion": "ls-ebest-2022-own-cfs-current-seven-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001115&dcmNo=9065788&eleId=17&offset=317594&length=51185&dtd=dart3.xsd",
+          "sourceSha256": "8d44e40d162128bc586cb5eaaa9a3b265b9fefc9ec314d2fc32c1e1373ba4092",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2022-01-01",
+          "periodEnd": "2022-12-31",
+          "basis": "CFS",
+          "partialCore7": true,
+          "currentCore8": false,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001115&dcmNo=9065788&eleId=18&offset=368783&length=1182206&dtd=dart3.xsd",
+            "sha256": "4fa8d600d687caa71f84eb26c55b40b3377113f332eb058662f16cb90d1f5f35",
+            "receipt": "20230316001115",
+            "corpCode": "00330424",
+            "periodEnd": "2022-12-31",
+            "basis": "CFS",
+            "note": "5. 현금및예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "0",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": 147,
+              "bsWonMinusNoteCombinedTimes1000": -12
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "부 채 총 계",
+        "html_provenance": {
+          "ruleVersion": "ls-ebest-2022-own-cfs-current-seven-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001115&dcmNo=9065788&eleId=17&offset=317594&length=51185&dtd=dart3.xsd",
+          "sourceSha256": "8d44e40d162128bc586cb5eaaa9a3b265b9fefc9ec314d2fc32c1e1373ba4092",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2022-01-01",
+          "periodEnd": "2022-12-31",
+          "basis": "CFS",
+          "partialCore7": true,
+          "currentCore8": false,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001115&dcmNo=9065788&eleId=18&offset=368783&length=1182206&dtd=dart3.xsd",
+            "sha256": "4fa8d600d687caa71f84eb26c55b40b3377113f332eb058662f16cb90d1f5f35",
+            "receipt": "20230316001115",
+            "corpCode": "00330424",
+            "periodEnd": "2022-12-31",
+            "basis": "CFS",
+            "note": "5. 현금및예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "0",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": 147,
+              "bsWonMinusNoteCombinedTimes1000": -12
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "자 본 총 계",
+        "html_provenance": {
+          "ruleVersion": "ls-ebest-2022-own-cfs-current-seven-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001115&dcmNo=9065788&eleId=17&offset=317594&length=51185&dtd=dart3.xsd",
+          "sourceSha256": "8d44e40d162128bc586cb5eaaa9a3b265b9fefc9ec314d2fc32c1e1373ba4092",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2022-01-01",
+          "periodEnd": "2022-12-31",
+          "basis": "CFS",
+          "partialCore7": true,
+          "currentCore8": false,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001115&dcmNo=9065788&eleId=18&offset=368783&length=1182206&dtd=dart3.xsd",
+            "sha256": "4fa8d600d687caa71f84eb26c55b40b3377113f332eb058662f16cb90d1f5f35",
+            "receipt": "20230316001115",
+            "corpCode": "00330424",
+            "periodEnd": "2022-12-31",
+            "basis": "CFS",
+            "note": "5. 현금및예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "0",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": 147,
+              "bsWonMinusNoteCombinedTimes1000": -12
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "I. 영업활동으로 인한 현금흐름",
+        "html_provenance": {
+          "ruleVersion": "ls-ebest-2022-own-cfs-current-seven-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001115&dcmNo=9065788&eleId=17&offset=317594&length=51185&dtd=dart3.xsd",
+          "sourceSha256": "8d44e40d162128bc586cb5eaaa9a3b265b9fefc9ec314d2fc32c1e1373ba4092",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2022-01-01",
+          "periodEnd": "2022-12-31",
+          "basis": "CFS",
+          "partialCore7": true,
+          "currentCore8": false,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001115&dcmNo=9065788&eleId=18&offset=368783&length=1182206&dtd=dart3.xsd",
+            "sha256": "4fa8d600d687caa71f84eb26c55b40b3377113f332eb058662f16cb90d1f5f35",
+            "receipt": "20230316001115",
+            "corpCode": "00330424",
+            "periodEnd": "2022-12-31",
+            "basis": "CFS",
+            "note": "5. 현금및예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "0",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": 147,
+              "bsWonMinusNoteCombinedTimes1000": -12
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
+    "action": "verified-keyless-annual-source-after-api-noData",
+    "targetReceipt": "20230316001115",
+    "sourceReceipt": "20230316001115",
+    "corpCode": "00330424",
+    "fsDiv": "separate",
+    "coreRows": 7,
+    "coreRowProvenance": [
+      {
+        "account_nm": "I. 영업수익",
+        "html_provenance": {
+          "ruleVersion": "ls-ebest-2022-own-ofs-current-seven-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001115&dcmNo=9065788&eleId=19&offset=1550993&length=49562&dtd=dart3.xsd",
+          "sourceSha256": "9ddb6225c54b8354c06f53beff0d1a079ccff0552b7a7baeeb226555e4cf2ba3",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2022-01-01",
+          "periodEnd": "2022-12-31",
+          "basis": "OFS",
+          "partialCore7": true,
+          "currentCore8": false,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001115&dcmNo=9065788&eleId=20&offset=1600559&length=1297367&dtd=dart3.xsd",
+            "sha256": "9f4ec1b943d03c1a950386a406db341344a65e4296e401c899805c77355d362a",
+            "receipt": "20230316001115",
+            "corpCode": "00330424",
+            "periodEnd": "2022-12-31",
+            "basis": "OFS",
+            "note": "5. 현금및예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "0",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": -32,
+              "bsWonMinusNoteCombinedTimes1000": -191
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "III. 영업이익",
+        "html_provenance": {
+          "ruleVersion": "ls-ebest-2022-own-ofs-current-seven-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001115&dcmNo=9065788&eleId=19&offset=1550993&length=49562&dtd=dart3.xsd",
+          "sourceSha256": "9ddb6225c54b8354c06f53beff0d1a079ccff0552b7a7baeeb226555e4cf2ba3",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2022-01-01",
+          "periodEnd": "2022-12-31",
+          "basis": "OFS",
+          "partialCore7": true,
+          "currentCore8": false,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001115&dcmNo=9065788&eleId=20&offset=1600559&length=1297367&dtd=dart3.xsd",
+            "sha256": "9f4ec1b943d03c1a950386a406db341344a65e4296e401c899805c77355d362a",
+            "receipt": "20230316001115",
+            "corpCode": "00330424",
+            "periodEnd": "2022-12-31",
+            "basis": "OFS",
+            "note": "5. 현금및예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "0",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": -32,
+              "bsWonMinusNoteCombinedTimes1000": -191
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "VIII. 당기순이익 (대손준비금 반영후 조정이익: 당기 35,776,373천원 전기 153,214,707천원)",
+        "html_provenance": {
+          "ruleVersion": "ls-ebest-2022-own-ofs-current-seven-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001115&dcmNo=9065788&eleId=19&offset=1550993&length=49562&dtd=dart3.xsd",
+          "sourceSha256": "9ddb6225c54b8354c06f53beff0d1a079ccff0552b7a7baeeb226555e4cf2ba3",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2022-01-01",
+          "periodEnd": "2022-12-31",
+          "basis": "OFS",
+          "partialCore7": true,
+          "currentCore8": false,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001115&dcmNo=9065788&eleId=20&offset=1600559&length=1297367&dtd=dart3.xsd",
+            "sha256": "9f4ec1b943d03c1a950386a406db341344a65e4296e401c899805c77355d362a",
+            "receipt": "20230316001115",
+            "corpCode": "00330424",
+            "periodEnd": "2022-12-31",
+            "basis": "OFS",
+            "note": "5. 현금및예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "0",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": -32,
+              "bsWonMinusNoteCombinedTimes1000": -191
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "자 산 총 계",
+        "html_provenance": {
+          "ruleVersion": "ls-ebest-2022-own-ofs-current-seven-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001115&dcmNo=9065788&eleId=19&offset=1550993&length=49562&dtd=dart3.xsd",
+          "sourceSha256": "9ddb6225c54b8354c06f53beff0d1a079ccff0552b7a7baeeb226555e4cf2ba3",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2022-01-01",
+          "periodEnd": "2022-12-31",
+          "basis": "OFS",
+          "partialCore7": true,
+          "currentCore8": false,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001115&dcmNo=9065788&eleId=20&offset=1600559&length=1297367&dtd=dart3.xsd",
+            "sha256": "9f4ec1b943d03c1a950386a406db341344a65e4296e401c899805c77355d362a",
+            "receipt": "20230316001115",
+            "corpCode": "00330424",
+            "periodEnd": "2022-12-31",
+            "basis": "OFS",
+            "note": "5. 현금및예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "0",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": -32,
+              "bsWonMinusNoteCombinedTimes1000": -191
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "부 채 총 계",
+        "html_provenance": {
+          "ruleVersion": "ls-ebest-2022-own-ofs-current-seven-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001115&dcmNo=9065788&eleId=19&offset=1550993&length=49562&dtd=dart3.xsd",
+          "sourceSha256": "9ddb6225c54b8354c06f53beff0d1a079ccff0552b7a7baeeb226555e4cf2ba3",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2022-01-01",
+          "periodEnd": "2022-12-31",
+          "basis": "OFS",
+          "partialCore7": true,
+          "currentCore8": false,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001115&dcmNo=9065788&eleId=20&offset=1600559&length=1297367&dtd=dart3.xsd",
+            "sha256": "9f4ec1b943d03c1a950386a406db341344a65e4296e401c899805c77355d362a",
+            "receipt": "20230316001115",
+            "corpCode": "00330424",
+            "periodEnd": "2022-12-31",
+            "basis": "OFS",
+            "note": "5. 현금및예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "0",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": -32,
+              "bsWonMinusNoteCombinedTimes1000": -191
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "자 본 총 계",
+        "html_provenance": {
+          "ruleVersion": "ls-ebest-2022-own-ofs-current-seven-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001115&dcmNo=9065788&eleId=19&offset=1550993&length=49562&dtd=dart3.xsd",
+          "sourceSha256": "9ddb6225c54b8354c06f53beff0d1a079ccff0552b7a7baeeb226555e4cf2ba3",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2022-01-01",
+          "periodEnd": "2022-12-31",
+          "basis": "OFS",
+          "partialCore7": true,
+          "currentCore8": false,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001115&dcmNo=9065788&eleId=20&offset=1600559&length=1297367&dtd=dart3.xsd",
+            "sha256": "9f4ec1b943d03c1a950386a406db341344a65e4296e401c899805c77355d362a",
+            "receipt": "20230316001115",
+            "corpCode": "00330424",
+            "periodEnd": "2022-12-31",
+            "basis": "OFS",
+            "note": "5. 현금및예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "0",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": -32,
+              "bsWonMinusNoteCombinedTimes1000": -191
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "I. 영업활동으로 인한 현금흐름",
+        "html_provenance": {
+          "ruleVersion": "ls-ebest-2022-own-ofs-current-seven-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001115&dcmNo=9065788&eleId=19&offset=1550993&length=49562&dtd=dart3.xsd",
+          "sourceSha256": "9ddb6225c54b8354c06f53beff0d1a079ccff0552b7a7baeeb226555e4cf2ba3",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2022-01-01",
+          "periodEnd": "2022-12-31",
+          "basis": "OFS",
+          "partialCore7": true,
+          "currentCore8": false,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230316001115&dcmNo=9065788&eleId=20&offset=1600559&length=1297367&dtd=dart3.xsd",
+            "sha256": "9f4ec1b943d03c1a950386a406db341344a65e4296e401c899805c77355d362a",
+            "receipt": "20230316001115",
+            "corpCode": "00330424",
+            "periodEnd": "2022-12-31",
+            "basis": "OFS",
+            "note": "5. 현금및예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "0",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": -32,
+              "bsWonMinusNoteCombinedTimes1000": -191
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
+    "action": "verified-keyless-annual-source-after-api-noData",
+    "targetReceipt": "20220317000673",
+    "sourceReceipt": "20220317000673",
+    "corpCode": "00330424",
+    "fsDiv": "consolidated",
+    "coreRows": 7,
+    "coreRowProvenance": [
+      {
+        "account_nm": "I. 영업수익",
+        "html_provenance": {
+          "ruleVersion": "ls-ebest-2021-own-cfs-current-seven-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=17&offset=310337&length=50806&dtd=dart3.xsd",
+          "sourceSha256": "d25c41ed9b04442c369574587e0ada0284289a519999d2906af66a68ae42aa8d",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2021-01-01",
+          "periodEnd": "2021-12-31",
+          "basis": "CFS",
+          "partialCore7": true,
+          "currentCore8": false,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=18&offset=361147&length=1067963&dtd=dart3.xsd",
+            "sha256": "435949050d81ff2a6678b428b6c021efe42417d6122ef308067e8dd91f7b9824",
+            "receipt": "20220317000673",
+            "corpCode": "00330424",
+            "periodEnd": "2021-12-31",
+            "basis": "CFS",
+            "note": "5. 현금및예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "0",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": -161,
+              "bsWonMinusNoteCombinedTimes1000": -484
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "III. 영업이익",
+        "html_provenance": {
+          "ruleVersion": "ls-ebest-2021-own-cfs-current-seven-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=17&offset=310337&length=50806&dtd=dart3.xsd",
+          "sourceSha256": "d25c41ed9b04442c369574587e0ada0284289a519999d2906af66a68ae42aa8d",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2021-01-01",
+          "periodEnd": "2021-12-31",
+          "basis": "CFS",
+          "partialCore7": true,
+          "currentCore8": false,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=18&offset=361147&length=1067963&dtd=dart3.xsd",
+            "sha256": "435949050d81ff2a6678b428b6c021efe42417d6122ef308067e8dd91f7b9824",
+            "receipt": "20220317000673",
+            "corpCode": "00330424",
+            "periodEnd": "2021-12-31",
+            "basis": "CFS",
+            "note": "5. 현금및예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "0",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": -161,
+              "bsWonMinusNoteCombinedTimes1000": -484
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "VIII. 당기순이익 (대손준비금 반영후 조정이익: 당기 153,367,335천원 전기 121,709,052천원)",
+        "html_provenance": {
+          "ruleVersion": "ls-ebest-2021-own-cfs-current-seven-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=17&offset=310337&length=50806&dtd=dart3.xsd",
+          "sourceSha256": "d25c41ed9b04442c369574587e0ada0284289a519999d2906af66a68ae42aa8d",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2021-01-01",
+          "periodEnd": "2021-12-31",
+          "basis": "CFS",
+          "partialCore7": true,
+          "currentCore8": false,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=18&offset=361147&length=1067963&dtd=dart3.xsd",
+            "sha256": "435949050d81ff2a6678b428b6c021efe42417d6122ef308067e8dd91f7b9824",
+            "receipt": "20220317000673",
+            "corpCode": "00330424",
+            "periodEnd": "2021-12-31",
+            "basis": "CFS",
+            "note": "5. 현금및예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "0",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": -161,
+              "bsWonMinusNoteCombinedTimes1000": -484
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "자 산 총 계",
+        "html_provenance": {
+          "ruleVersion": "ls-ebest-2021-own-cfs-current-seven-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=17&offset=310337&length=50806&dtd=dart3.xsd",
+          "sourceSha256": "d25c41ed9b04442c369574587e0ada0284289a519999d2906af66a68ae42aa8d",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2021-01-01",
+          "periodEnd": "2021-12-31",
+          "basis": "CFS",
+          "partialCore7": true,
+          "currentCore8": false,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=18&offset=361147&length=1067963&dtd=dart3.xsd",
+            "sha256": "435949050d81ff2a6678b428b6c021efe42417d6122ef308067e8dd91f7b9824",
+            "receipt": "20220317000673",
+            "corpCode": "00330424",
+            "periodEnd": "2021-12-31",
+            "basis": "CFS",
+            "note": "5. 현금및예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "0",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": -161,
+              "bsWonMinusNoteCombinedTimes1000": -484
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "부 채 총 계",
+        "html_provenance": {
+          "ruleVersion": "ls-ebest-2021-own-cfs-current-seven-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=17&offset=310337&length=50806&dtd=dart3.xsd",
+          "sourceSha256": "d25c41ed9b04442c369574587e0ada0284289a519999d2906af66a68ae42aa8d",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2021-01-01",
+          "periodEnd": "2021-12-31",
+          "basis": "CFS",
+          "partialCore7": true,
+          "currentCore8": false,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=18&offset=361147&length=1067963&dtd=dart3.xsd",
+            "sha256": "435949050d81ff2a6678b428b6c021efe42417d6122ef308067e8dd91f7b9824",
+            "receipt": "20220317000673",
+            "corpCode": "00330424",
+            "periodEnd": "2021-12-31",
+            "basis": "CFS",
+            "note": "5. 현금및예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "0",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": -161,
+              "bsWonMinusNoteCombinedTimes1000": -484
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "자 본 총 계",
+        "html_provenance": {
+          "ruleVersion": "ls-ebest-2021-own-cfs-current-seven-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=17&offset=310337&length=50806&dtd=dart3.xsd",
+          "sourceSha256": "d25c41ed9b04442c369574587e0ada0284289a519999d2906af66a68ae42aa8d",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2021-01-01",
+          "periodEnd": "2021-12-31",
+          "basis": "CFS",
+          "partialCore7": true,
+          "currentCore8": false,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=18&offset=361147&length=1067963&dtd=dart3.xsd",
+            "sha256": "435949050d81ff2a6678b428b6c021efe42417d6122ef308067e8dd91f7b9824",
+            "receipt": "20220317000673",
+            "corpCode": "00330424",
+            "periodEnd": "2021-12-31",
+            "basis": "CFS",
+            "note": "5. 현금및예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "0",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": -161,
+              "bsWonMinusNoteCombinedTimes1000": -484
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "I. 영업활동으로 인한 현금흐름",
+        "html_provenance": {
+          "ruleVersion": "ls-ebest-2021-own-cfs-current-seven-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=17&offset=310337&length=50806&dtd=dart3.xsd",
+          "sourceSha256": "d25c41ed9b04442c369574587e0ada0284289a519999d2906af66a68ae42aa8d",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2021-01-01",
+          "periodEnd": "2021-12-31",
+          "basis": "CFS",
+          "partialCore7": true,
+          "currentCore8": false,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=18&offset=361147&length=1067963&dtd=dart3.xsd",
+            "sha256": "435949050d81ff2a6678b428b6c021efe42417d6122ef308067e8dd91f7b9824",
+            "receipt": "20220317000673",
+            "corpCode": "00330424",
+            "periodEnd": "2021-12-31",
+            "basis": "CFS",
+            "note": "5. 현금및예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "0",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": -161,
+              "bsWonMinusNoteCombinedTimes1000": -484
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
+    "action": "verified-keyless-annual-source-after-api-noData",
+    "targetReceipt": "20220317000673",
+    "sourceReceipt": "20220317000673",
+    "corpCode": "00330424",
+    "fsDiv": "separate",
+    "coreRows": 7,
+    "coreRowProvenance": [
+      {
+        "account_nm": "I. 영업수익",
+        "html_provenance": {
+          "ruleVersion": "ls-ebest-2021-own-ofs-current-seven-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=19&offset=1429114&length=55332&dtd=dart3.xsd",
+          "sourceSha256": "d84d32f7cc81af284c23b00448bcdbd944f1d4479469250c3338784d9e2b5107",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2021-01-01",
+          "periodEnd": "2021-12-31",
+          "basis": "OFS",
+          "partialCore7": true,
+          "currentCore8": false,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=20&offset=1484450&length=1164331&dtd=dart3.xsd",
+            "sha256": "b77eae291dad4095e6a8d0cf252dc152db86355e2c8ac98589cd6312d44a04db",
+            "receipt": "20220317000673",
+            "corpCode": "00330424",
+            "periodEnd": "2021-12-31",
+            "basis": "OFS",
+            "note": "5. 현금및예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "0",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": -115,
+              "bsWonMinusNoteCombinedTimes1000": 257
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "III. 영업이익",
+        "html_provenance": {
+          "ruleVersion": "ls-ebest-2021-own-ofs-current-seven-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=19&offset=1429114&length=55332&dtd=dart3.xsd",
+          "sourceSha256": "d84d32f7cc81af284c23b00448bcdbd944f1d4479469250c3338784d9e2b5107",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2021-01-01",
+          "periodEnd": "2021-12-31",
+          "basis": "OFS",
+          "partialCore7": true,
+          "currentCore8": false,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=20&offset=1484450&length=1164331&dtd=dart3.xsd",
+            "sha256": "b77eae291dad4095e6a8d0cf252dc152db86355e2c8ac98589cd6312d44a04db",
+            "receipt": "20220317000673",
+            "corpCode": "00330424",
+            "periodEnd": "2021-12-31",
+            "basis": "OFS",
+            "note": "5. 현금및예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "0",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": -115,
+              "bsWonMinusNoteCombinedTimes1000": 257
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "VIII. 당기순이익 (대손준비금 반영후 조정이익: 당기 153,214,707천원 전기 121,089,623천원)",
+        "html_provenance": {
+          "ruleVersion": "ls-ebest-2021-own-ofs-current-seven-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=19&offset=1429114&length=55332&dtd=dart3.xsd",
+          "sourceSha256": "d84d32f7cc81af284c23b00448bcdbd944f1d4479469250c3338784d9e2b5107",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2021-01-01",
+          "periodEnd": "2021-12-31",
+          "basis": "OFS",
+          "partialCore7": true,
+          "currentCore8": false,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=20&offset=1484450&length=1164331&dtd=dart3.xsd",
+            "sha256": "b77eae291dad4095e6a8d0cf252dc152db86355e2c8ac98589cd6312d44a04db",
+            "receipt": "20220317000673",
+            "corpCode": "00330424",
+            "periodEnd": "2021-12-31",
+            "basis": "OFS",
+            "note": "5. 현금및예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "0",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": -115,
+              "bsWonMinusNoteCombinedTimes1000": 257
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "자 산 총 계",
+        "html_provenance": {
+          "ruleVersion": "ls-ebest-2021-own-ofs-current-seven-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=19&offset=1429114&length=55332&dtd=dart3.xsd",
+          "sourceSha256": "d84d32f7cc81af284c23b00448bcdbd944f1d4479469250c3338784d9e2b5107",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2021-01-01",
+          "periodEnd": "2021-12-31",
+          "basis": "OFS",
+          "partialCore7": true,
+          "currentCore8": false,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=20&offset=1484450&length=1164331&dtd=dart3.xsd",
+            "sha256": "b77eae291dad4095e6a8d0cf252dc152db86355e2c8ac98589cd6312d44a04db",
+            "receipt": "20220317000673",
+            "corpCode": "00330424",
+            "periodEnd": "2021-12-31",
+            "basis": "OFS",
+            "note": "5. 현금및예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "0",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": -115,
+              "bsWonMinusNoteCombinedTimes1000": 257
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "부 채 총 계",
+        "html_provenance": {
+          "ruleVersion": "ls-ebest-2021-own-ofs-current-seven-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=19&offset=1429114&length=55332&dtd=dart3.xsd",
+          "sourceSha256": "d84d32f7cc81af284c23b00448bcdbd944f1d4479469250c3338784d9e2b5107",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2021-01-01",
+          "periodEnd": "2021-12-31",
+          "basis": "OFS",
+          "partialCore7": true,
+          "currentCore8": false,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=20&offset=1484450&length=1164331&dtd=dart3.xsd",
+            "sha256": "b77eae291dad4095e6a8d0cf252dc152db86355e2c8ac98589cd6312d44a04db",
+            "receipt": "20220317000673",
+            "corpCode": "00330424",
+            "periodEnd": "2021-12-31",
+            "basis": "OFS",
+            "note": "5. 현금및예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "0",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": -115,
+              "bsWonMinusNoteCombinedTimes1000": 257
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "자 본 총 계",
+        "html_provenance": {
+          "ruleVersion": "ls-ebest-2021-own-ofs-current-seven-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=19&offset=1429114&length=55332&dtd=dart3.xsd",
+          "sourceSha256": "d84d32f7cc81af284c23b00448bcdbd944f1d4479469250c3338784d9e2b5107",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2021-01-01",
+          "periodEnd": "2021-12-31",
+          "basis": "OFS",
+          "partialCore7": true,
+          "currentCore8": false,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=20&offset=1484450&length=1164331&dtd=dart3.xsd",
+            "sha256": "b77eae291dad4095e6a8d0cf252dc152db86355e2c8ac98589cd6312d44a04db",
+            "receipt": "20220317000673",
+            "corpCode": "00330424",
+            "periodEnd": "2021-12-31",
+            "basis": "OFS",
+            "note": "5. 현금및예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "0",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": -115,
+              "bsWonMinusNoteCombinedTimes1000": 257
+            }
+          }
+        }
+      },
+      {
+        "account_nm": "I. 영업활동으로 인한 현금흐름",
+        "html_provenance": {
+          "ruleVersion": "ls-ebest-2021-own-ofs-current-seven-v1",
+          "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=19&offset=1429114&length=55332&dtd=dart3.xsd",
+          "sourceSha256": "d84d32f7cc81af284c23b00448bcdbd944f1d4479469250c3338784d9e2b5107",
+          "unit": "원",
+          "unitMultiplier": "1",
+          "periodStart": "2021-01-01",
+          "periodEnd": "2021-12-31",
+          "basis": "OFS",
+          "partialCore7": true,
+          "currentCore8": false,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "notesVerified": false,
+          "wholeNetIncomeExact": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "cashScopeEvidence": {
+            "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=20&offset=1484450&length=1164331&dtd=dart3.xsd",
+            "sha256": "b77eae291dad4095e6a8d0cf252dc152db86355e2c8ac98589cd6312d44a04db",
+            "receipt": "20220317000673",
+            "corpCode": "00330424",
+            "periodEnd": "2021-12-31",
+            "basis": "OFS",
+            "note": "5. 현금및예치금",
+            "printedUnit": "천원",
+            "statementUnit": "원",
+            "combinedSubtotalResidual": "0",
+            "cashDetailResidual": "0",
+            "depositDetailResidual": "0",
+            "crossPrecisionEqualityClaim": false,
+            "roundingCauseClaim": false,
+            "allNotesVerified": false,
+            "rawPrintedPrecisionDifferences": {
+              "cfWonMinusNoteCashTimes1000": -115,
+              "bsWonMinusNoteCombinedTimes1000": 257
+            }
+          }
+        }
+      }
+    ]
+  }
+]

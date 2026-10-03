@@ -1,0 +1,42 @@
+{
+  "receipt": "20220317000673",
+  "corpCode": "00330424",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "ruleVersion": "ls-ebest-2021-own-cfs-current-seven-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220317000673",
+      "sha256": "898190d37b6426e9ed396d378122e132497e01fc00dd04d42911854f8a7bc86f"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=1&offset=811&length=4042&dtd=dart3.xsd",
+      "sha256": "e5e5a18339cdcecbccf6fcd0c51d7fd2611f6753835a5b68bc5526acd3bb521f"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=17&offset=310337&length=50806&dtd=dart3.xsd",
+      "sha256": "d25c41ed9b04442c369574587e0ada0284289a519999d2906af66a68ae42aa8d"
+    },
+    {
+      "label": "notes",
+      "file": "notes.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=18&offset=361147&length=1067963&dtd=dart3.xsd",
+      "sha256": "435949050d81ff2a6678b428b6c021efe42417d6122ef308067e8dd91f7b9824"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000673&dcmNo=8470739&eleId=3&offset=5377&length=85664&dtd=dart3.xsd",
+      "sha256": "e9790ef02468da3dd78b2aabfc438a9608cb500ea58ea513bc6cb409f564437d",
+      "file": "overview.html",
+      "label": "overview"
+    }
+  ]
+}

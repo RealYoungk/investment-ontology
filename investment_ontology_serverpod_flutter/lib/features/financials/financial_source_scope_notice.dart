@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'ls_kiwoom_source_scope.dart';
+
 import 'package:flutter/widgets.dart';
 
 import '../../design/components/components.dart';
@@ -16,6 +18,10 @@ class FinancialSourceScopeNotice extends StatelessWidget {
     final structured = separator >= 0 ? title.substring(separator + 3) : title;
     try {
       final decoded = jsonDecode(structured);
+      if (decoded is Map) {
+        final exact = LsKiwoomSourceScope.message(decoded);
+        if (exact != null) return exact;
+      }
       if (decoded is Map &&
           decoded['action'] ==
               'verified-keyless-annual-source-after-api-noData' &&
