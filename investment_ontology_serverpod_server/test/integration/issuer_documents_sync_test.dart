@@ -135,6 +135,118 @@ void main() {
       );
     });
 
+    test('four pinned Brils sources collect five separate current financial groups without fabricating regular reports', () async {
+      final session = builder.build();
+      addTearDown(session.close);
+      final cache = await Directory.systemTemp.createTemp(
+        'issuer-financial-five-db-',
+      );
+      addTearDown(() => cache.delete(recursive: true));
+      final own = IssuerDocumentsCollector.manifest(
+        File('assets/issuer_documents/verified_dart_documents.json')
+            .readAsStringSync(),
+      ).where((d) => (d['metadata'] as Map)['corpCode'] == '01801026').toList();
+      expect(own.length, 4);
+      await Company.db.insertRow(
+        session,
+        Company(corpCode: '01801026', name: '브릴스', market: Market.kosdaq),
+      );
+      var gets = 0;
+      final collector = IssuerDocumentsCollector(
+        cache: cache,
+        delay: (_) async {},
+        client: MockClient((request) async {
+          gets++;
+          final url = request.url.toString();
+          final doc = own.singleWhere(
+            (d) =>
+                (d['metadata'] as Map)['officialUrl'] == url ||
+                (d['proof'] as Map)['shellUrl'] == url,
+          );
+          final metadata = doc['metadata'] as Map;
+          final receipt = metadata['providerReceipt'] as String;
+          final prefix = receipt == '20260403003880' ? 'brils2025' : receipt;
+          final kind = metadata['officialUrl'] == url ? 'financial' : 'shell';
+          return http.Response.bytes(
+            File('test/fixtures/issuer_documents/dart/$prefix-$kind.html')
+                .readAsBytesSync(),
+            200,
+            request: request,
+          );
+        }),
+      );
+      addTearDown(collector.client.close);
+      final manifest = jsonEncode({'schemaVersion': 1, 'documents': own});
+      Future<IssuerDocumentsResult> collect(bool cancelled) =>
+          IssuerDocumentsSync.collectAndStore(
+            session,
+            manifestText: manifest,
+            collector: collector,
+            cancelled: () async => cancelled,
+          );
+      final result = await collect(false);
+      expect(result.storedDocuments, 4);
+      expect(result.financialPeriodGroups, 5);
+      expect(result.hasFailure, isFalse);
+      expect(gets, 8);
+      final data = jsonDecode(
+        await endpoints.research.data(
+          builder.asAnonymous,
+          '01801026',
+          'issuerFinancials',
+        ),
+      ) as Map;
+      final rows = data['rows'] as List;
+      expect(rows.length, 5);
+      expect(rows.expand((r) => r['accounts'] as List).length, 40);
+      expect(
+        rows
+            .where((r) => r['periodEnd'] == '2026-06-30')
+            .map((r) => r['basis'])
+            .toSet(),
+        {'CFS', 'OFS'},
+      );
+      expect(await ResearchSnapshot.db.count(session), 2);
+      expect(
+        await IssuerDocumentsSync.hasPending(
+          session,
+          cache: cache,
+          manifestText: manifest,
+        ),
+        isFalse,
+      );
+      final snapshots = (await ResearchSnapshot.db.find(session))
+          .map((r) => jsonEncode(r.toJson()))
+          .toList();
+      await collect(false);
+      await collect(true);
+      expect(gets, 8);
+      expect(
+        (await ResearchSnapshot.db.find(session))
+            .map((r) => jsonEncode(r.toJson()))
+            .toList(),
+        snapshots,
+      );
+      await expectLater(
+        endpoints.research.importFeed(
+          builder.asAdmin,
+          '01801026',
+          'issuerFinancials',
+          jsonEncode(rows),
+          'verified-primary-html-rule',
+          'https://dart.fss.or.kr',
+          'source-bound-partial-current-core;no-api-report-or-xbrl-assertion',
+        ),
+        throwsA(isA<IngestException>()),
+      );
+      expect(await ResearchSnapshot.db.count(session), 2);
+      expect(await FinancialReport.db.count(session), 0);
+      expect(await FinancialFact.db.count(session), 0);
+      expect(await DartFiling.db.count(session), 0);
+      expect(await BusinessDocument.db.count(session), 0);
+      expect(await ApiCallUsage.db.count(session), 0);
+    });
+
     test('pinned own audit chapter stores metadata, replays without GET and fails closed on partial fetch', () async {
       final session = builder.build();
       addTearDown(session.close);
