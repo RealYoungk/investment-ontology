@@ -56,6 +56,19 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20220317000713',
+      corpCode: '00148993',
+      companyName: '하이트진로홀딩스(주)',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220317000713-cfs',
+      manifestDigest:
+          'f3b5715036643e86a519d7b858904b2f8cdbc1088a160acde89333bd0a819835',
+      ruleVersion: 'verified-current-period-whole-annual-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20250321000195',
       corpCode: '00861100',
       companyName: '아이케이세미콘(주)',

@@ -626,6 +626,32 @@ final class VerifiedAnnualSourceCache {
           'Cached annual verified numeric scope mismatch',
         );
       }
+      // Exact eight-account package: ordinary parsing and immutable guards
+      // above are still required, and all statement rows remain uncollected.
+      if (entry.receipt == '20220317000713' &&
+          entry.corpCode == '00148993' &&
+          basis == FsDiv.consolidated) {
+        for (final row in numeric.rows) {
+          final proof = row['html_provenance'] as Map<String, dynamic>;
+          proof['fullStatementCollected'] = false;
+          proof['uncollectedOptionalAccounts'] = <String>[];
+          proof['independentWholeCurrentEvidence'] = {
+            'periodStart': '2021-01-01',
+            'periodEnd': '2021-12-31',
+            'source': numeric.statementSource.toString(),
+            'sourceSha256': '5288be65cbc6388214c4f5150a2f29ae9b1833a28120afee8459da45cedca898',
+            'wholeEquityColumn': 9,
+            'currentProfit': '67355184309',
+            'openingEquity': '1060384697419',
+            'closingEquity': '1087375061719',
+            'openingCash': '266139295663',
+            'closingCash': '476020981941',
+            'cashIncrease': '209881686278',
+            'exchangeCash': '853243026',
+            'allStatementRowsVerified': false,
+          };
+        }
+      }
       return (numeric: numeric, absence: null);
     } on PublicFinancialHtmlBasisNotApplicable catch (absence) {
       if (entry.absenceLiteral == null ||

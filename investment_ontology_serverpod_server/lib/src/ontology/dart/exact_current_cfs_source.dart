@@ -233,6 +233,8 @@ abstract final class ExactCurrentCfsSource {
             'periodEnd': '2024-12-31',
             'printedLabel': core[i]['printedLabel'],
             'printedUnit': '원',
+            'fullStatementCollected': false,
+            'uncollectedOptionalAccounts': ['capex'],
             'multiplier': '1',
             'rowIndex': core[i]['rowIndex'],
             'column': core[i]['column'],
