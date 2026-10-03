@@ -1,0 +1,15 @@
+# Exact current statement enrichment
+
+Separate from the frozen 225-package release. This opt-in compiled profile is limited to Aone2024 OFS (20250320000036/corp00614089) and SamsungFire2021 CFS (20220310001159/corp00139214). It does not widen the five-annual/latest-interim collection scope.
+
+The normal financial worker verifies the existing report's pinned original eight core rows using the existing strict annual source verifier. It then maps additional directly printed current monetary cells:116 for Aone,204 for SamsungFire. These counts include individual CE components rather than economically distinct account names. XBRL IDs remain null. EPS and explicit missing cells remain only in the immutable source-coordinate ledger; no zero or unit inference is performed. CE opening/closing cells retain their actual point dates, while movements carry the actual annual interval. The FY2024 BS term-marker contradiction remains visible.
+
+Each append is tied to original receipt, issuer, actual year/basis and byte-pinned official HTML. The Source payload preserves printed headers, raw rows, cells, physical coordinates, component header paths and printed amounts. Existing core facts, report source, Source rows and lineage are not overwritten. A new immutable enrichment Source owns only the added facts. A single transaction locks the job, filing, period and report, verifies the original core and either appends all mapped facts or rolls back. A repeated run verifies stored enrichment coordinates and adds zero.
+
+The source ledger explicitly retains fullStatementCollected:false, allStatementRowsVerified:false and notesCollected:false. Current primary rows are a narrower scope than all statement periods, notes, attachments or the entire filing. Original report partial notices remain valid.
+
+The normal duplicate `_store` operation is not used to append facts; it correctly preserves existing reports. The worker's dedicated enrichment phase operates only on stored, active exact profiles already inside financial_scope. Failures contribute to a failed job and a bounded result message rather than scheduling a new retry loop. Ordinary core/API counts are not relabeled as whole-row coverage.
+
+Pure verification compares every numeric current monetary coordinate to an independently enumerated Python HTMLParser inventory, covering124/212 printed cells including the original eight. Additional checks reconcile primary BS hierarchy, profit chains, CF cash roll and each current CE component movement and printed whole total. Missing CE cells remain null; an observed numeric reconciliation does not reinterpret them as known zero.
+
+DB enrichment validation and the report-detail sources DTO generation must pass before this cohort can be released. No production mutation or completion claim follows from pure tests. The optional sources DTO exposes actual per-row Source records; it must be normally generated, never manually patched into generated code. Existing canonical core summary computation remains on its original report source.

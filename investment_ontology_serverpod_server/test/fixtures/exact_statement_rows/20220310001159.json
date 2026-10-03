@@ -1,0 +1,1702 @@
+{
+  "scope": "independent Python HTMLParser cell inventory, exact current blocks; no all-row verification assertion",
+  "bodySha256": "48a5a3b134b1f86a9fe8d06322c28095d9ec497164703fcd50be06918b6badc6",
+  "numericCurrentMonetaryCells": [
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 2,
+      "column": 2,
+      "printedLabel": "I. 현금및예치금(주석4,5,6,7,28)",
+      "amount": "1733734341558"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 3,
+      "column": 2,
+      "printedLabel": "II. 금융자산",
+      "amount": "75635862806420"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 4,
+      "column": 1,
+      "printedLabel": "1. 당기손익인식금융자산(주석4,5,8)",
+      "amount": "1989586385800"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 5,
+      "column": 1,
+      "printedLabel": "2. 매도가능금융자산(주석4,5,7,9,28)",
+      "amount": "44912034859785"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 6,
+      "column": 1,
+      "printedLabel": "3. 만기보유금융자산(주석4,5,10)",
+      "amount": "175638129035"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 7,
+      "column": 1,
+      "printedLabel": "4. 대출채권(주석4,5,11,13,43)",
+      "amount": "27245717119885"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 8,
+      "column": 1,
+      "printedLabel": "5. 기타수취채권(주석4,5,12,13,28,43)",
+      "amount": "1312886311915"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 9,
+      "column": 2,
+      "printedLabel": "III. 관계기업투자(주석14,43)",
+      "amount": "287860458102"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 10,
+      "column": 2,
+      "printedLabel": "IV. 파생상품자산(주석4,5,15)",
+      "amount": "23528420742"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 11,
+      "column": 2,
+      "printedLabel": "V. 재보험자산(주석16,42)",
+      "amount": "1153837042703"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 12,
+      "column": 2,
+      "printedLabel": "VI. 투자부동산(주석17,18)",
+      "amount": "919737714879"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 13,
+      "column": 2,
+      "printedLabel": "VII. 유형자산(주석7,18,19,39)",
+      "amount": "791132418675"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 14,
+      "column": 2,
+      "printedLabel": "VIII. 무형자산(주석20)",
+      "amount": "224304003426"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 15,
+      "column": 2,
+      "printedLabel": "IX. 매각예정자산(주석21)",
+      "amount": "629751654602"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 16,
+      "column": 2,
+      "printedLabel": "X. 순확정급여자산(주석25)",
+      "amount": "77670948436"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 17,
+      "column": 2,
+      "printedLabel": "XI. 당기법인세자산(주석40)",
+      "amount": "1060657624"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 18,
+      "column": 2,
+      "printedLabel": "XII. 이연법인세자산(주석40)",
+      "amount": "40523724369"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 19,
+      "column": 2,
+      "printedLabel": "XIII. 기타자산(주석22)",
+      "amount": "2470114414080"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 20,
+      "column": 2,
+      "printedLabel": "XIV. 특별계정자산(주석44)",
+      "amount": "10944892504836"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 21,
+      "column": 2,
+      "printedLabel": "자 산 총 계",
+      "amount": "94934011110452"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 23,
+      "column": 2,
+      "printedLabel": "I. 보험계약부채(주석4,23)",
+      "amount": "60876109429118"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 24,
+      "column": 2,
+      "printedLabel": "II. 금융부채(주석4,5,24,28,39,42,43)",
+      "amount": "1889758901294"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 25,
+      "column": 2,
+      "printedLabel": "III. 파생상품부채(주석4,5,15)",
+      "amount": "229760951294"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 26,
+      "column": 2,
+      "printedLabel": "IV. 충당부채(주석27)",
+      "amount": "68178365551"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 27,
+      "column": 2,
+      "printedLabel": "V. 당기법인세부채(주석40)",
+      "amount": "174722131579"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 28,
+      "column": 2,
+      "printedLabel": "VI. 이연법인세부채(주석40)",
+      "amount": "2735203404157"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 29,
+      "column": 2,
+      "printedLabel": "VII. 기타부채(주석26)",
+      "amount": "611047248480"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 30,
+      "column": 2,
+      "printedLabel": "VIII. 매각예정부채(주석21)",
+      "amount": "488450888434"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 31,
+      "column": 2,
+      "printedLabel": "IX. 특별계정부채(주석44)",
+      "amount": "12368448009828"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 32,
+      "column": 2,
+      "printedLabel": "부 채 총 계",
+      "amount": "79441679329735"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 34,
+      "column": 2,
+      "printedLabel": "I. 지배기업지분",
+      "amount": "15467008869690"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 35,
+      "column": 1,
+      "printedLabel": "1. 자본금(주석29)",
+      "amount": "26473418500"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 36,
+      "column": 1,
+      "printedLabel": "2. 연결자본잉여금(주석30)",
+      "amount": "939233350327"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 37,
+      "column": 1,
+      "printedLabel": "3. 연결자본조정(주석31)",
+      "amount": "-1487219924864"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 38,
+      "column": 1,
+      "printedLabel": "4. 연결기타포괄손익누계액(주석32)",
+      "amount": "5717828814082"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 39,
+      "column": 1,
+      "printedLabel": "5. 연결이익잉여금(주석33) (대손준비금 적립예정액: 22,122,522,577 원 기적립액: 228,047,420,753 원) (비상위험준비금 적립예정액: 112,548,537,054 원 기적립액: 2,348,491,078,338 원)",
+      "amount": "10270693211645"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 40,
+      "column": 2,
+      "printedLabel": "II. 비지배지분",
+      "amount": "25322911027"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 41,
+      "column": 2,
+      "printedLabel": "자 본 총 계",
+      "amount": "15492331780717"
+    },
+    {
+      "statement": "BS",
+      "tableIndex": 1,
+      "rowIndex": 42,
+      "column": 2,
+      "printedLabel": "부 채 와 자 본 총 계",
+      "amount": "94934011110452"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 1,
+      "column": 2,
+      "printedLabel": "I. 영업수익",
+      "amount": "24444257521333"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 2,
+      "column": 1,
+      "printedLabel": "1. 보험영업수익",
+      "amount": "21255457261252"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 3,
+      "column": 1,
+      "printedLabel": "(1) 보험료수익(주석4,34,43)",
+      "amount": "20106066001421"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 4,
+      "column": 1,
+      "printedLabel": "(2) 재보험금수익(주석34,42,43)",
+      "amount": "733032400969"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 5,
+      "column": 1,
+      "printedLabel": "(3) 재보험자산전입액(환입액)(주석16)",
+      "amount": "193546314449"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 6,
+      "column": 1,
+      "printedLabel": "(4) 구상이익(주석22)",
+      "amount": "6139595474"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 7,
+      "column": 1,
+      "printedLabel": "(5) 수입경비(주석35)",
+      "amount": "200079761361"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 8,
+      "column": 1,
+      "printedLabel": "(6) 외환거래이익",
+      "amount": "16593187578"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 9,
+      "column": 1,
+      "printedLabel": "2. 투자영업수익(주석37)",
+      "amount": "2897738061264"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 10,
+      "column": 1,
+      "printedLabel": "(1) 이자수익",
+      "amount": "1740569291765"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 11,
+      "column": 1,
+      "printedLabel": "(2) 배당금수익",
+      "amount": "465437962374"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 12,
+      "column": 1,
+      "printedLabel": "(3) 금융상품평가및처분이익",
+      "amount": "216467492237"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 13,
+      "column": 1,
+      "printedLabel": "(4) 파생상품거래및평가이익",
+      "amount": "30081285620"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 14,
+      "column": 1,
+      "printedLabel": "(5) 손상차손환입",
+      "amount": "320370118"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 15,
+      "column": 1,
+      "printedLabel": "(6) 임대료수익",
+      "amount": "71029558917"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 16,
+      "column": 1,
+      "printedLabel": "(7) 수수료수익",
+      "amount": "5065313273"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 17,
+      "column": 1,
+      "printedLabel": "(8) 외환거래이익",
+      "amount": "358505606683"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 19,
+      "column": 1,
+      "printedLabel": "(10) 투자영업잡이익",
+      "amount": "10261180277"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 20,
+      "column": 1,
+      "printedLabel": "3. 특별계정수입수수료",
+      "amount": "46962915080"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 21,
+      "column": 1,
+      "printedLabel": "4. 특별계정수익(주석44)",
+      "amount": "244099283737"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 22,
+      "column": 2,
+      "printedLabel": "II. 영업비용",
+      "amount": "22937395785260"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 23,
+      "column": 1,
+      "printedLabel": "1. 보험영업비용",
+      "amount": "21915744438380"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 24,
+      "column": 1,
+      "printedLabel": "(1) 지급보험금및환급금(주석34,43)",
+      "amount": "14496495268225"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 25,
+      "column": 1,
+      "printedLabel": "(2) 재보험료비용(주석34,42,43)",
+      "amount": "1331332042415"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 26,
+      "column": 1,
+      "printedLabel": "(3) 보험계약부채전입액(주석23)",
+      "amount": "1258096697435"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 27,
+      "column": 1,
+      "printedLabel": "(4) 손해조사비(주석36)",
+      "amount": "662048929039"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 28,
+      "column": 1,
+      "printedLabel": "(5) 지급경비(주석36)",
+      "amount": "4151578320018"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 29,
+      "column": 1,
+      "printedLabel": "(6) 외환거래손실",
+      "amount": "16193181248"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 30,
+      "column": 1,
+      "printedLabel": "2. 투자영업비용(주석37)",
+      "amount": "775693578821"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 31,
+      "column": 1,
+      "printedLabel": "(1) 이자비용",
+      "amount": "59175208865"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 32,
+      "column": 1,
+      "printedLabel": "(2) 금융상품평가및처분손실",
+      "amount": "60650549004"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 33,
+      "column": 1,
+      "printedLabel": "(3) 파생상품거래및평가손실",
+      "amount": "345196553393"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 34,
+      "column": 1,
+      "printedLabel": "(4) 손상차손",
+      "amount": "56181111449"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 35,
+      "column": 1,
+      "printedLabel": "(5) 재산관리비(주석36)",
+      "amount": "168366996387"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 36,
+      "column": 1,
+      "printedLabel": "(6) 부동산관리비",
+      "amount": "14136559719"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 37,
+      "column": 1,
+      "printedLabel": "(7) 부동산감가상각비",
+      "amount": "12711770962"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 38,
+      "column": 1,
+      "printedLabel": "(8) 외환거래손실",
+      "amount": "54196340817"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 40,
+      "column": 1,
+      "printedLabel": "(10) 투자영업잡손실",
+      "amount": "5078488225"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 41,
+      "column": 1,
+      "printedLabel": "3. 특별계정지급수수료",
+      "amount": "1858484322"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 42,
+      "column": 1,
+      "printedLabel": "4. 특별계정비용(주석44)",
+      "amount": "244099283737"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 43,
+      "column": 2,
+      "printedLabel": "lll. 영업이익",
+      "amount": "1506861736073"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 44,
+      "column": 2,
+      "printedLabel": "IV. 영업외수익(주석38)",
+      "amount": "24421580805"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 45,
+      "column": 2,
+      "printedLabel": "V. 영업외비용(주석38)",
+      "amount": "30995273839"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 46,
+      "column": 2,
+      "printedLabel": "VI. 법인세차감전계속영업순이익",
+      "amount": "1500288043039"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 47,
+      "column": 2,
+      "printedLabel": "VII. 계속영업법인세비용(주석40)",
+      "amount": "389003037160"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 48,
+      "column": 2,
+      "printedLabel": "VIII. 계속영업당기순이익",
+      "amount": "1111285005879"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 49,
+      "column": 2,
+      "printedLabel": "lX. 세후중단영업손익(주석21)",
+      "amount": "13425305328"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 50,
+      "column": 2,
+      "printedLabel": "X. 연결당기순이익 (대손준비금 반영후 조정이익 당기: 1,102,587,788,630 원 전기: 736,801,555,452 원) (비상위험준비금 반영후 조정이익 당기: 1,012,161,774,153 원 전기: 641,419,867,978 원)",
+      "amount": "1124710311207"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 51,
+      "column": 2,
+      "printedLabel": "XI. 연결기타포괄손익",
+      "amount": "-1540854377190"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 52,
+      "column": 1,
+      "printedLabel": "1. 후속적으로 당기손익으로 재분류되지 않는 항목",
+      "amount": "-2394627051"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 53,
+      "column": 1,
+      "printedLabel": "2. 후속적으로 당기손익으로 재분류되는 항목",
+      "amount": "-1538459750139"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 54,
+      "column": 2,
+      "printedLabel": "XII. 연결당기총포괄손익",
+      "amount": "-416144065983"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 56,
+      "column": 1,
+      "printedLabel": "지배기업주주지분순이익",
+      "amount": "1108793116746"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 57,
+      "column": 1,
+      "printedLabel": "비지배지분순이익",
+      "amount": "2491889133"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 59,
+      "column": 1,
+      "printedLabel": "지배기업주주지분순이익",
+      "amount": "1122218422074"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 60,
+      "column": 1,
+      "printedLabel": "비지배지분순이익",
+      "amount": "2491889133"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 62,
+      "column": 1,
+      "printedLabel": "지배기업주주지분총포괄이익",
+      "amount": "-420774296092"
+    },
+    {
+      "statement": "CIS",
+      "tableIndex": 3,
+      "rowIndex": 63,
+      "column": 1,
+      "printedLabel": "비지배지분총포괄이익",
+      "amount": "4630230109"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 24,
+      "column": 1,
+      "printedLabel": "V. 2021년 01월 01일(당기초)",
+      "amount": "26473418500"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 24,
+      "column": 2,
+      "printedLabel": "V. 2021년 01월 01일(당기초)",
+      "amount": "939233350327"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 24,
+      "column": 3,
+      "printedLabel": "V. 2021년 01월 01일(당기초)",
+      "amount": "-1487219924864"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 24,
+      "column": 4,
+      "printedLabel": "V. 2021년 01월 01일(당기초)",
+      "amount": "7260821532248"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 24,
+      "column": 5,
+      "printedLabel": "V. 2021년 01월 01일(당기초)",
+      "amount": "9521647377050"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 24,
+      "column": 6,
+      "printedLabel": "V. 2021년 01월 01일(당기초)",
+      "amount": "21578986628"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 24,
+      "column": 7,
+      "printedLabel": "V. 2021년 01월 01일(당기초)",
+      "amount": "16282534739889"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 25,
+      "column": 5,
+      "printedLabel": "1. 연차배당",
+      "amount": "-374097146900"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 25,
+      "column": 6,
+      "printedLabel": "1. 연차배당",
+      "amount": "-886305710"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 25,
+      "column": 7,
+      "printedLabel": "1. 연차배당",
+      "amount": "-374983452610"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 26,
+      "column": 5,
+      "printedLabel": "2. 연결당기순이익",
+      "amount": "1122218422074"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 26,
+      "column": 6,
+      "printedLabel": "2. 연결당기순이익",
+      "amount": "2491889133"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 26,
+      "column": 7,
+      "printedLabel": "2. 연결당기순이익",
+      "amount": "1124710311207"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 27,
+      "column": 4,
+      "printedLabel": "3. 매도가능금융자산평가손익",
+      "amount": "-1417003595273"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 27,
+      "column": 6,
+      "printedLabel": "3. 매도가능금융자산평가손익",
+      "amount": "26842736"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 27,
+      "column": 7,
+      "printedLabel": "3. 매도가능금융자산평가손익",
+      "amount": "-1416976752537"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 28,
+      "column": 4,
+      "printedLabel": "4. 관계기업의기타포괄손익",
+      "amount": "5707322921"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 28,
+      "column": 7,
+      "printedLabel": "4. 관계기업의기타포괄손익",
+      "amount": "5707322921"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 29,
+      "column": 4,
+      "printedLabel": "5. 해외사업환산손익",
+      "amount": "48112938805"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 29,
+      "column": 6,
+      "printedLabel": "5. 해외사업환산손익",
+      "amount": "2092732213"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 29,
+      "column": 7,
+      "printedLabel": "5. 해외사업환산손익",
+      "amount": "50205671018"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 30,
+      "column": 4,
+      "printedLabel": "6. 현금흐름위험회피파생손익",
+      "amount": "-10097594920"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 30,
+      "column": 7,
+      "printedLabel": "6. 현금흐름위험회피파생손익",
+      "amount": "-10097594920"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 31,
+      "column": 4,
+      "printedLabel": "7. 특별계정기타포괄손익",
+      "amount": "-167317162648"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 31,
+      "column": 7,
+      "printedLabel": "7. 특별계정기타포괄손익",
+      "amount": "-167317162648"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 32,
+      "column": 4,
+      "printedLabel": "8. 확정급여제도 재측정요소",
+      "amount": "-2394627051"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 32,
+      "column": 6,
+      "printedLabel": "8. 확정급여제도 재측정요소",
+      "amount": "18766027"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 32,
+      "column": 7,
+      "printedLabel": "8. 확정급여제도 재측정요소",
+      "amount": "-2375861024"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 33,
+      "column": 5,
+      "printedLabel": "9. 연결범위조정 등",
+      "amount": "924559421"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 33,
+      "column": 7,
+      "printedLabel": "9. 연결범위조정 등",
+      "amount": "924559421"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 34,
+      "column": 1,
+      "printedLabel": "VI. 2021년 12월 31일(당기말)",
+      "amount": "26473418500"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 34,
+      "column": 2,
+      "printedLabel": "VI. 2021년 12월 31일(당기말)",
+      "amount": "939233350327"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 34,
+      "column": 3,
+      "printedLabel": "VI. 2021년 12월 31일(당기말)",
+      "amount": "-1487219924864"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 34,
+      "column": 4,
+      "printedLabel": "VI. 2021년 12월 31일(당기말)",
+      "amount": "5717828814082"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 34,
+      "column": 5,
+      "printedLabel": "VI. 2021년 12월 31일(당기말)",
+      "amount": "10270693211645"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 34,
+      "column": 6,
+      "printedLabel": "VI. 2021년 12월 31일(당기말)",
+      "amount": "25322911027"
+    },
+    {
+      "statement": "SCE",
+      "tableIndex": 5,
+      "rowIndex": 34,
+      "column": 7,
+      "printedLabel": "VI. 2021년 12월 31일(당기말)",
+      "amount": "15492331780717"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 1,
+      "column": 2,
+      "printedLabel": "I. 영업활동으로 인한 현금흐름",
+      "amount": "794485202415"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 2,
+      "column": 1,
+      "printedLabel": "(1) 연결당기순이익",
+      "amount": "1124710311207"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 3,
+      "column": 1,
+      "printedLabel": "(2) 손익조정항목",
+      "amount": "900554446652"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 4,
+      "column": 1,
+      "printedLabel": "금융상품평가및처분손실",
+      "amount": "56075005625"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 5,
+      "column": 1,
+      "printedLabel": "외화환산손실",
+      "amount": "34538194785"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 6,
+      "column": 1,
+      "printedLabel": "대손상각비",
+      "amount": "6779482191"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 7,
+      "column": 1,
+      "printedLabel": "관계기업투자관련비용",
+      "amount": "24454762936"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 8,
+      "column": 1,
+      "printedLabel": "파생상품거래및평가손실",
+      "amount": "335643511474"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 9,
+      "column": 1,
+      "printedLabel": "신계약비상각비",
+      "amount": "1310899566120"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 10,
+      "column": 1,
+      "printedLabel": "감가상각비",
+      "amount": "156426233592"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 11,
+      "column": 1,
+      "printedLabel": "유형자산처분손실",
+      "amount": "231434826"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 12,
+      "column": 1,
+      "printedLabel": "리스계약해지손실",
+      "amount": "476313810"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 13,
+      "column": 1,
+      "printedLabel": "무형자산처분손실",
+      "amount": "3000"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 14,
+      "column": 1,
+      "printedLabel": "무형자산손상차손",
+      "amount": "15301500"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 17,
+      "column": 1,
+      "printedLabel": "기타비용",
+      "amount": "11777796411"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 18,
+      "column": 1,
+      "printedLabel": "무형자산상각비",
+      "amount": "138170331941"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 19,
+      "column": 1,
+      "printedLabel": "이자비용",
+      "amount": "59336255865"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 20,
+      "column": 1,
+      "printedLabel": "복구충당부채순전입액",
+      "amount": "541454784"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 21,
+      "column": 1,
+      "printedLabel": "퇴직급여",
+      "amount": "48110963943"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 22,
+      "column": 1,
+      "printedLabel": "법인세비용",
+      "amount": "392604814812"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 23,
+      "column": 1,
+      "printedLabel": "금융자산손상차손",
+      "amount": "56181111449"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 24,
+      "column": 1,
+      "printedLabel": "보험계약부채전입액",
+      "amount": "1252090372000"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 25,
+      "column": 1,
+      "printedLabel": "재보험자산환입액(전입액)",
+      "amount": "-190593348717"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 26,
+      "column": 1,
+      "printedLabel": "금융상품평가및처분이익",
+      "amount": "-209803584385"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 27,
+      "column": 1,
+      "printedLabel": "이자수익",
+      "amount": "-1750392225364"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 28,
+      "column": 1,
+      "printedLabel": "외화환산이익",
+      "amount": "-314595392437"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 29,
+      "column": 1,
+      "printedLabel": "관계기업투자관련이익",
+      "amount": "-4498165007"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 30,
+      "column": 1,
+      "printedLabel": "파생상품거래및평가이익",
+      "amount": "-27970553438"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 31,
+      "column": 1,
+      "printedLabel": "유형자산처분이익",
+      "amount": "-369718116"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 32,
+      "column": 1,
+      "printedLabel": "리스계약해지이익",
+      "amount": "-1274697630"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 33,
+      "column": 1,
+      "printedLabel": "무형자산처분이익",
+      "amount": "-103631695"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 34,
+      "column": 1,
+      "printedLabel": "무형자산손상차손환입",
+      "amount": "-223966933"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 36,
+      "column": 1,
+      "printedLabel": "구상이익",
+      "amount": "-6139595474"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 37,
+      "column": 1,
+      "printedLabel": "배당금수익",
+      "amount": "-465437962374"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 38,
+      "column": 1,
+      "printedLabel": "기타수익",
+      "amount": "-12395622842"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 40,
+      "column": 1,
+      "printedLabel": "(3) 자산부채증감",
+      "amount": "-3165024956576"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 41,
+      "column": 1,
+      "printedLabel": "예치금의 감소(증가)",
+      "amount": "-419449970783"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 42,
+      "column": 1,
+      "printedLabel": "당기손익인식금융자산의 감소(증가)",
+      "amount": "-188410843941"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 43,
+      "column": 1,
+      "printedLabel": "대출채권의 감소(증가)",
+      "amount": "-840068350333"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 44,
+      "column": 1,
+      "printedLabel": "기타수취채권의 감소(증가)",
+      "amount": "-42838033113"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 45,
+      "column": 1,
+      "printedLabel": "기타자산의 감소(증가)",
+      "amount": "-1474600333091"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 46,
+      "column": 1,
+      "printedLabel": "특별계정자산의 감소(증가)",
+      "amount": "-693462194341"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 47,
+      "column": 1,
+      "printedLabel": "기타금융부채의 증가(감소)",
+      "amount": "368160046486"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 48,
+      "column": 1,
+      "printedLabel": "매매목적파생상품의 증가(감소)",
+      "amount": "4401803551"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 49,
+      "column": 1,
+      "printedLabel": "충당부채의 증가(감소)",
+      "amount": "-10886280183"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 50,
+      "column": 1,
+      "printedLabel": "기타부채의 증가(감소)",
+      "amount": "116507172879"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 51,
+      "column": 1,
+      "printedLabel": "특별계정부채의 증가(감소)",
+      "amount": "42247775346"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 52,
+      "column": 1,
+      "printedLabel": "퇴직금의 지급",
+      "amount": "-31096232049"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 53,
+      "column": 1,
+      "printedLabel": "확정급여채무의 증가(감소)",
+      "amount": "-1253386530"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 54,
+      "column": 1,
+      "printedLabel": "사외적립자산의 감소(증가)",
+      "amount": "-50919766114"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 55,
+      "column": 1,
+      "printedLabel": "해외사업환산손익의 증가(감소)",
+      "amount": "56643635640"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 56,
+      "column": 1,
+      "printedLabel": "(4) 이자의 수취",
+      "amount": "1786243642553"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 57,
+      "column": 1,
+      "printedLabel": "(5) 이자의 지급",
+      "amount": "-8389244245"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 58,
+      "column": 1,
+      "printedLabel": "(6) 배당금 수입",
+      "amount": "465437962374"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 59,
+      "column": 1,
+      "printedLabel": "(7) 법인세 납부액",
+      "amount": "-309046959550"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 60,
+      "column": 2,
+      "printedLabel": "II. 투자활동으로 인한 현금흐름",
+      "amount": "-1065021635828"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 61,
+      "column": 1,
+      "printedLabel": "1. 투자활동으로 인한 현금유입액",
+      "amount": "8553041179891"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 62,
+      "column": 1,
+      "printedLabel": "매도가능금융자산의 처분",
+      "amount": "5778835392892"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 64,
+      "column": 1,
+      "printedLabel": "관계기업투자주식의 감소",
+      "amount": "760856280"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 65,
+      "column": 1,
+      "printedLabel": "위험회피활동으로 인한 현금유입",
+      "amount": "2772322409901"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 67,
+      "column": 1,
+      "printedLabel": "유형자산의 처분",
+      "amount": "823124661"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 68,
+      "column": 1,
+      "printedLabel": "무형자산의 처분",
+      "amount": "299396157"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 70,
+      "column": 1,
+      "printedLabel": "2. 투자활동으로 인한 현금유출액",
+      "amount": "-9618062815719"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 71,
+      "column": 1,
+      "printedLabel": "매도가능금융자산의 취득",
+      "amount": "6533114602904"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 74,
+      "column": 1,
+      "printedLabel": "위험회피활동으로 인한 현금유출",
+      "amount": "2796098730812"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 75,
+      "column": 1,
+      "printedLabel": "투자부동산의 취득",
+      "amount": "252389380754"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 76,
+      "column": 1,
+      "printedLabel": "유형자산의 취득",
+      "amount": "28307877078"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 77,
+      "column": 1,
+      "printedLabel": "무형자산의 취득",
+      "amount": "8152224171"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 78,
+      "column": 2,
+      "printedLabel": "III. 재무활동으로 인한 현금흐름",
+      "amount": "-115230138547"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 79,
+      "column": 1,
+      "printedLabel": "1. 재무활동으로 인한 현금유입액",
+      "amount": "354049716899"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 81,
+      "column": 1,
+      "printedLabel": "유상증자 선수금",
+      "amount": "354049716899"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 82,
+      "column": 1,
+      "printedLabel": "2. 재무활동으로 인한 현금유출액",
+      "amount": "-469279855446"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 84,
+      "column": 1,
+      "printedLabel": "배당금 지급",
+      "amount": "374983452610"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 85,
+      "column": 1,
+      "printedLabel": "리스부채 상환",
+      "amount": "94296402836"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 86,
+      "column": 2,
+      "printedLabel": "lV. 외화표시 현금및현금성자산에 대한 환율변동효과",
+      "amount": "51029016872"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 87,
+      "column": 2,
+      "printedLabel": "V. 현금및현금성자산의 증가(감소) (l+ll+lll+lV)",
+      "amount": "-334737555088"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 88,
+      "column": 2,
+      "printedLabel": "VI. 기초의 현금및현금성자산",
+      "amount": "1376365770547"
+    },
+    {
+      "statement": "CF",
+      "tableIndex": 7,
+      "rowIndex": 89,
+      "column": 2,
+      "printedLabel": "VII. 기말의 현금및현금성자산 (V+Vl)",
+      "amount": "1041628215459"
+    }
+  ]
+}

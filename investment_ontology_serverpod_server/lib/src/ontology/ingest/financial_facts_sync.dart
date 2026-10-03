@@ -1,4 +1,6 @@
 import '../dart/known_annual_source_conflict.dart';
+import '../dart/exact_statement_rows.dart';
+import 'exact_statement_enrichment.dart';
 import '../dart/imgt_explicit_revenue_missing.dart';
 import '../dart/verified_annual_source_cache.dart';
 import '../dart/linked_correction_audit_source.dart';
@@ -544,6 +546,8 @@ class FinancialFactsSync {
       processed += cached.processed;
       failed += cached.failed;
       stored += cached.stored;
+      final enriched = await _enrichStoredExactStatements(scopeIds, companies);
+      failed += enriched.failed;
       final halfPublic = !_hasAllowance && job.status != IngestStatus.cancelled
           ? await _recoverPendingHalfXbrl(scopeIds, companies)
           : (stored: 0, failed: 0, processed: 0, remaining: 0, fresh: false);
@@ -743,6 +747,11 @@ class FinancialFactsSync {
       if (cached.processed > 0 || cached.remaining > 0) {
         message +=
             ', 고정 공식 원문 재검증 ${cached.processed}건·남은 ${cached.remaining}건(연결·별도 구분별 한 번)';
+      }
+      if (enriched.periods > 0 || enriched.failed > 0) {
+        message +=
+            ', 고정 당기 원문 행 보완 ${enriched.periods}기간·${enriched.facts}금액행'
+            '·실패 ${enriched.failed}기간(전체 공시·주석 수집 아님)';
       }
       if (cached.remaining > 0 && !cancelled) {
         requestResume(
@@ -2870,6 +2879,66 @@ class FinancialFactsSync {
   }
 
   /// A finite raw recomputation, not an additional public/API fetch attempt.
+  Future<({int periods, int facts, int failed})> _enrichStoredExactStatements(
+    Set<int> scopeIds,
+    Map<String, Company> companies,
+  ) async {
+    var periods = 0, facts = 0, failed = 0;
+    final filings = await DartFiling.db.find(
+      session,
+      where: (t) =>
+          t.id.inSet(scopeIds) &
+          t.rceptNo.inSet({'20250320000036', '20220310001159'}),
+    );
+    for (final filing in filings) {
+      if (await IngestJobs.isCancelled(session, jobId)) break;
+      final company = companies[filing.corpCode];
+      final basis = filing.rceptNo == '20250320000036'
+          ? FsDiv.separate
+          : FsDiv.consolidated;
+      if (company == null ||
+          (basis == FsDiv.separate
+                  ? filing.separateStatus
+                  : filing.consolidatedStatus) !=
+              FilingFetchStatus.stored) {
+        continue;
+      }
+      final report = await FinancialReport.db.findFirstRow(
+        session,
+        where: (t) => t.rceptNo.equals(filing.rceptNo) & t.fsDiv.equals(basis),
+      );
+      if (report == null || report.supersededById != null) continue;
+      try {
+        final prepared = await ExactStatementRows.prepare(
+          filing,
+          company,
+          basis,
+        );
+        final added = await ExactStatementEnrichment.append(
+          session,
+          jobId: jobId,
+          report: report,
+          filing: filing,
+          company: company,
+          prepared: prepared,
+        );
+        if (added > 0) {
+          periods++;
+          facts += added;
+        }
+      } catch (e, st) {
+        failed++;
+        session.log(
+          '고정 당기 원문 행 보완 실패: ${filing.rceptNo}',
+          level: LogLevel.warning,
+          exception: e,
+          stackTrace: st,
+        );
+      }
+    }
+    return (periods: periods, facts: facts, failed: failed);
+  }
+
   Future<({int processed, int failed, int stored, int remaining})>
   _replayVerifiedAnnualSourceCache(
     Set<int> scopeIds,

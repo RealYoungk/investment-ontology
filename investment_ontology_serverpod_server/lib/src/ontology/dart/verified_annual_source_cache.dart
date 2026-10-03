@@ -141,6 +141,57 @@ final class VerifiedAnnualSourceCache {
         company.stockCode == null) {
       throw const FormatException('Cached annual scope identity mismatch');
     }
+    return _verifyBound(entry, filing, company, basis);
+  }
+
+  /// Existing reports may be enriched only for these two independently bound
+  /// current-row packages. The normal failed/pending replay gate is unchanged.
+  Future<PublicFinancialHtmlSource> verifyExistingRows(
+    DartFiling filing,
+    Company company,
+    FsDiv basis,
+  ) async {
+    final entry = _entry(filing, basis);
+    final exact =
+        (filing.rceptNo == '20250320000036' && basis == FsDiv.separate) ||
+        (filing.rceptNo == '20220310001159' && basis == FsDiv.consolidated);
+    final report = DartReportName.parse(filing.reportName);
+    if (!exact ||
+        filing.corpCode != entry.corpCode ||
+        company.corpCode != entry.corpCode ||
+        company.name != entry.companyName ||
+        company.stockCode == null ||
+        filing.companyId != company.id ||
+        filing.bsnsYear != entry.year ||
+        filing.reportCode != FinancialReportCode.annual ||
+        report?.kind != DartReportKind.annual ||
+        report?.periodYear != entry.year ||
+        report?.periodMonth != 12 ||
+        (basis == FsDiv.separate
+                ? filing.separateStatus
+                : filing.consolidatedStatus) !=
+            FilingFetchStatus.stored) {
+      throw const FormatException('Existing row enrichment identity mismatch');
+    }
+    final result = await _verifyBound(entry, filing, company, basis);
+    return result.numeric ??
+        (throw const FormatException(
+          'Existing row enrichment needs numeric source',
+        ));
+  }
+
+  Future<
+    ({
+      PublicFinancialHtmlSource? numeric,
+      PublicFinancialHtmlBasisNotApplicable? absence,
+    })
+  >
+  _verifyBound(
+    AnnualSourceCacheEntry entry,
+    DartFiling filing,
+    Company company,
+    FsDiv basis,
+  ) async {
     final rawManifest = await _read('${entry.assetDirectory}/manifest.json');
     if (sha256.convert(rawManifest).toString() != entry.manifestDigest) {
       throw const FormatException('Cached annual manifest digest mismatch');
