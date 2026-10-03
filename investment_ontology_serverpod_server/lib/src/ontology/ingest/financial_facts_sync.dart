@@ -2827,7 +2827,7 @@ class FinancialFactsSync {
             session,
             current.copyWith(
               lastError:
-                  'primarySourceConflict: ${proof.message}; exhausted attempts retained ${current.attempts}',
+                  '${current.lastError ?? ''}; primarySourceConflict: ${proof.message}; exhausted attempts retained ${current.attempts}',
             ),
             transaction: tx,
           );
@@ -2947,7 +2947,7 @@ class FinancialFactsSync {
             session,
             current.copyWith(
               lastError:
-                  'primaryStatementsNotPresented: ${proof.message}; exhausted attempts retained ${current.attempts}',
+                  '${current.lastError ?? ''}; primaryStatementsNotPresented: ${proof.message}; exhausted attempts retained ${current.attempts}',
             ),
             transaction: tx,
           );

@@ -115,6 +115,7 @@ void main() {
                   after.lastError,
                   contains('primarySourceConflict'),
                 );
+                expect(after.lastError, contains(filing.lastError!));
                 for (final audit in audits) {
                   final data = jsonDecode(audit.title);
                   expect(
