@@ -68,5 +68,77 @@
     "sourceDigest": "6399f1770820b859551fe7494c0d5ea58d14ae6857af2f67049cca1fcd2e7329",
     "statementURI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230721000635&dcmNo=9358597&eleId=21&offset=175703&length=86206&dtd=dart3.xsd",
     "statementSHA": "47f6e3f386f66d431ec5e33ce5c688c8096b19ae532854c10cd019b4e542dee5"
+  },
+  {
+    "receipt": "20220322000617",
+    "sourceReceipt": "20220322000512",
+    "corp": "00149594",
+    "name": "한국캐피탈(주)",
+    "year": 2021,
+    "basis": "consolidated",
+    "rule": "located-own-explicit-cfs-absence-v1",
+    "directory": "assets/financial_source_cache/20220322000617-cfs-located-own-absence",
+    "digest": "be4cdb5a1fdd215f2b06b25f8a4505d969360ef575508e71ceec72dcabcbaaef",
+    "absenceLiteral": "2. 연결재무제표 - 해당사항 없음"
+  },
+  {
+    "receipt": "20220421000450",
+    "sourceReceipt": "20220421000448",
+    "corp": "00414540",
+    "name": "대주이엔티(주)",
+    "year": 2021,
+    "basis": "consolidated",
+    "rule": "located-own-explicit-cfs-absence-v1",
+    "directory": "assets/financial_source_cache/20220421000450-cfs-located-own-absence",
+    "digest": "6f43c49351a80f4d892dee1ffffd2437ebdcb552660cdcd5bf386c61edd1cfbd",
+    "absenceLiteral": "2. 연결재무제표 - 해당사항 없습니다."
+  },
+  {
+    "receipt": "20240704000080",
+    "sourceReceipt": "20240704000080",
+    "corp": "00666329",
+    "name": "(주)코나솔",
+    "year": 2023,
+    "basis": "consolidated",
+    "rule": "located-own-explicit-cfs-absence-v1",
+    "directory": "assets/financial_source_cache/20240704000080-cfs-located-own-absence",
+    "digest": "930b9ed5ce08c22f9375379634660d2327d9a062fa069e5d0b1ad228f23b41cc",
+    "absenceLiteral": "2. 연결재무제표 당사는 사업보고서 제출일 현재 해당사항이 없습니다"
+  },
+  {
+    "receipt": "20230331004542",
+    "sourceReceipt": "20230331004538",
+    "corp": "01203312",
+    "name": "주식회사 케이뱅크",
+    "year": 2022,
+    "basis": "consolidated",
+    "rule": "located-own-explicit-cfs-absence-v1",
+    "directory": "assets/financial_source_cache/20230331004542-cfs-located-own-absence",
+    "digest": "0090b7831c0456ff5aa45df4d7af508d676eb2d6724b85b643e462982f4dca04",
+    "absenceLiteral": "2. 연결재무제표 해당사항 없습니다."
+  },
+  {
+    "receipt": "20220318000774",
+    "sourceReceipt": "20220310001176",
+    "corp": "01466832",
+    "name": "(주)라피치",
+    "year": 2021,
+    "basis": "consolidated",
+    "rule": "located-own-explicit-cfs-absence-v1",
+    "directory": "assets/financial_source_cache/20220318000774-cfs-located-own-absence",
+    "digest": "898c1fef84f882aca78edc94b53dc4748a768bc7c478d9e3c97ea99fdbcce508",
+    "absenceLiteral": "2. 연결재무제표 당사는 사업보고서 제출일 현재 해당사항이 없습니다."
+  },
+  {
+    "receipt": "20230721000635",
+    "sourceReceipt": "20230721000635",
+    "corp": "01579020",
+    "name": "(주)아이엠지티",
+    "year": 2022,
+    "basis": "consolidated",
+    "rule": "located-own-explicit-cfs-absence-v1",
+    "directory": "assets/financial_source_cache/20230721000635-cfs-located-own-absence",
+    "digest": "ec713395b2e0df944b9e40addc78c324015f8de29dce00a96e4f9e7c862fb585",
+    "absenceLiteral": "2. 연결재무제표 당사는 사업보고서 기준일 현재 해당사항 없습니다."
   }
 ]

@@ -24,7 +24,7 @@ void main() {
       File('${e.assetDirectory}/manifest.json').readAsStringSync(),
     ) as Map;
     test(
-      '${e.receipt}:${basis.name} actual normal cache current own8 exact cell provenance',
+      '${e.receipt}:${basis.name} actual normal cache finite own scope and exact provenance',
       () async {
         var reads = 0;
         final result = await VerifiedAnnualSourceCache(

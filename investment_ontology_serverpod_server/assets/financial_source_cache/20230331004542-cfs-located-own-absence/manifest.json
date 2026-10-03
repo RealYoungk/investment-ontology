@@ -1,0 +1,42 @@
+{
+  "receipt": "20230331004542",
+  "sourceReceipt": "20230331004538",
+  "corpCode": "01203312",
+  "companyName": "주식회사 케이뱅크",
+  "ownCoverActor": "㈜케이뱅크",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2022,
+  "periodStart": "2022-01-01",
+  "periodEnd": "2022-12-31",
+  "ruleVersion": "located-own-explicit-cfs-absence-v1",
+  "absenceLiteral": "2. 연결재무제표 해당사항 없습니다.",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230331004542",
+      "sha256": "b186cb2954b57679f9fdfa86e5ab26f59683ae7c561ebefbf9193cd6ecc0d48e"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230331004538&dcmNo=9135945&eleId=3&offset=3705&length=4039&dtd=dart3.xsd",
+      "sha256": "a528a9c84a5ac6b87d88996b432621ee2319a9f8b01e9986d3401c5a07cd020d"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230331004538&dcmNo=9135945&eleId=19&offset=203319&length=129&dtd=dart3.xsd",
+      "sha256": "d1427bcc7679e56ef15edd073306fa2e0917a8462d988e20ee40c10556df865e"
+    },
+    {
+      "label": "originalShell",
+      "file": "originalShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230331004538",
+      "sha256": "aa4a8388258f1e6d000035a426e13d9da6c004f92275606c306d158f961a1f0e"
+    }
+  ],
+  "fullStatementCollected": false,
+  "notesVerified": false
+}

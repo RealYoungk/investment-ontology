@@ -100,17 +100,20 @@ void main() {
         }
 
         final first = await run();
+        final legacyCorasol = receipt == '20240704000080';
         final numericCount = profiles
             .where((p) => p['rule'] == LocatedOwnCurrentSource.rule)
             .length;
-        expect(first.updated, numericCount);
+        expect(first.updated, numericCount + (legacyCorasol ? 1 : 0));
         final actual = (await DartFiling.db.findById(session, filing.id!))!;
         for (final basis in FsDiv.values) {
           final matched = profiles
               .where((p) => p['basis'] == basis.name)
               .toList();
           final expected = matched.isEmpty
-              ? FilingFetchStatus.failed
+              ? legacyCorasol && basis == FsDiv.separate
+                    ? FilingFetchStatus.stored
+                    : FilingFetchStatus.failed
               : matched.single['rule'] == 'located-own-explicit-cfs-absence-v1'
               ? FilingFetchStatus.noData
               : FilingFetchStatus.stored;
@@ -121,10 +124,14 @@ void main() {
             expected,
           );
         }
-        if (profiles.length == 1) expect(first.status, IngestStatus.failed);
+        if (profiles.length == 1 && !legacyCorasol)
+          expect(first.status, IngestStatus.failed);
         final reports = await FinancialReport.db.find(session);
-        expect(reports, hasLength(numericCount));
-        expect(await FinancialFact.db.count(session), numericCount * 8);
+        expect(reports, hasLength(numericCount + (legacyCorasol ? 1 : 0)));
+        expect(
+          await FinancialFact.db.count(session),
+          numericCount * 8 + (legacyCorasol ? 7 : 0),
+        );
         for (final profile in profiles) {
           final basis = profile['basis'] == 'consolidated'
               ? FsDiv.consolidated
@@ -214,6 +221,57 @@ void main() {
             'netIncome',
             'operatingCashFlow',
             'capex',
+          });
+        }
+        if (legacyCorasol) {
+          final report = reports.singleWhere((r) => r.fsDiv == FsDiv.separate);
+          expect(report.rceptNo, receipt);
+          expect(report.factCount, 7);
+          final detail = (await endpoints.financial.report(
+            builder,
+            report.id!,
+          ))!;
+          const printed = <String, String>{
+            '자산총계': '42035972141',
+            '부채총계': '25700060987',
+            '자본총계': '16335911154',
+            'Ⅰ. 매출액': '17372009452',
+            'Ⅴ. 영업이익': '-2628301836',
+            'Ⅹ. 당기순이익': '-2795459101',
+            'Ⅰ. 영업활동으로 인한 현금흐름': '-1897300484',
+          };
+          expect(detail.facts, hasLength(7));
+          for (final e in printed.entries) {
+            final f = detail.facts.singleWhere((f) => f.accountName == e.key);
+            expect(f.amount, BigInt.parse(e.value));
+            expect(f.sourceId, report.sourceId);
+            expect(f.fsDiv, FsDiv.separate);
+          }
+          final e = VerifiedAnnualSourceRegistry.find(receipt, FsDiv.separate)!;
+          expect(e.ruleVersion, 'dated-current-column-whole-equity-v1');
+          final own = jsonDecode(
+            File('${e.assetDirectory}/manifest.json').readAsStringSync(),
+          ) as Map;
+          final source = (await Source.db.findById(session, report.sourceId))!;
+          expect(
+            source.url,
+            (own['sources'] as List).singleWhere(
+              (s) => s['label'] == 'ofs',
+            )['url'],
+          );
+          final summary = (await endpoints.financial.summary(
+            builder,
+            company.corpCode,
+            fsDiv: FsDiv.separate,
+          ))!;
+          expect(summary.periods.single.lines.map((l) => l.key).toSet(), {
+            'assets',
+            'liabilities',
+            'equity',
+            'revenue',
+            'operatingIncome',
+            'netIncome',
+            'operatingCashFlow',
           });
         }
         expect(

@@ -220,7 +220,8 @@ final class VerifiedAnnualSourceCache {
     if (sha256.convert(rawManifest).toString() != entry.manifestDigest) {
       throw const FormatException('Cached annual manifest digest mismatch');
     }
-    if (entry.ruleVersion == LocatedOwnCurrentSource.rule) {
+    if (entry.ruleVersion == LocatedOwnCurrentSource.rule ||
+        entry.ruleVersion == LocatedOwnCurrentSource.absenceRule) {
       return LocatedOwnCurrentSource.verify(
         entry: entry,
         company: company,
