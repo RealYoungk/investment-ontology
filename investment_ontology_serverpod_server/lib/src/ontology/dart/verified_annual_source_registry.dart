@@ -56,6 +56,149 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20220302000461',
+      corpCode: '01476219',
+      companyName: '(주)코스텍시스',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20220302000461-cfs-filing-none',
+      manifestDigest:
+          'dd6a2432b8927d844046fc55b0405fa2ec577ef2b76e8340c04f71ea38c8ad5b',
+      ruleVersion: 'exact-own-filing-series-cfs-none-v1',
+      absenceLiteral: '해당사항 없습니다.',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220302000470',
+      corpCode: '01398151',
+      companyName: '(주)밸로프',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20220302000470-cfs-filing-none',
+      manifestDigest:
+          '8f9e80300fbef7fccdeda9bba44fcde82fb44f9ce5ca1433a6a88140e839d464',
+      ruleVersion: 'exact-own-filing-series-cfs-none-v1',
+      absenceLiteral: '해당사항 없습니다.',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220303000358',
+      corpCode: '01408999',
+      companyName: '(주)웨이버스',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20220303000358-cfs-filing-none',
+      manifestDigest:
+          '2dbf5c3e88904c50f38dda91398ed33cc84f675f761ae2089d0d3ab00f62b060',
+      ruleVersion: 'exact-own-filing-series-cfs-none-v1',
+      absenceLiteral: '해당사항 없습니다.',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220307000159',
+      corpCode: '01513440',
+      companyName: '(주)파이버프로',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20220307000159-cfs-filing-none',
+      manifestDigest:
+          'ffae203db0b832bea66316f96307486742559d9a79433e28c10adc772e67cfea',
+      ruleVersion: 'exact-own-filing-series-cfs-none-v1',
+      absenceLiteral: '해당사항 없습니다.',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220308000045',
+      corpCode: '01366000',
+      companyName: '(주)태성',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20220308000045-cfs-filing-none',
+      manifestDigest:
+          '04838279c0afb985f61bd2d5cff85b42cff1e8be27b384acea0e226b11c0cb7a',
+      ruleVersion: 'exact-own-filing-series-cfs-none-v1',
+      absenceLiteral: '해당사항 없습니다.',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220316000323',
+      corpCode: '01407158',
+      companyName: '(주)이노테나',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20220316000323-cfs-filing-none',
+      manifestDigest:
+          'c6ff30ffac68f14099b97928602e2bd2bfa1327d115187f0a16d4b7d7515b814',
+      ruleVersion: 'exact-own-filing-series-cfs-none-v1',
+      absenceLiteral: '해당사항 없습니다.',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220316000610',
+      corpCode: '01407909',
+      companyName: '원텍(주)',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20220316000610-cfs-filing-none',
+      manifestDigest:
+          '7aaa557de8f925f42ece3d0d9c99600cbbc832d79d2f596dbff186853ed52c70',
+      ruleVersion: 'exact-own-filing-series-cfs-none-v1',
+      absenceLiteral: '해당사항 없습니다.',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220316001259',
+      corpCode: '01405585',
+      companyName: '(주)윙스풋',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20220316001259-cfs-filing-none',
+      manifestDigest:
+          'e59666f488b8edc60a8eb7eb05b6cb0befad833897c9afd940db175ae33a1ca2',
+      ruleVersion: 'exact-own-filing-series-cfs-none-v1',
+      absenceLiteral: '해당사항 없습니다.',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220317000590',
+      corpCode: '01505186',
+      companyName: '(주)하이딥',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20220317000590-cfs-filing-none',
+      manifestDigest:
+          '63cc7b15b548909ab15719a60a89315b6b020ea61d2fe2041705a245a45688ba',
+      ruleVersion: 'exact-own-filing-series-cfs-none-v1',
+      absenceLiteral: '해당사항 없습니다.',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220323000337',
+      corpCode: '01390399',
+      companyName: '솔트웨어 주식회사',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20220323000337-cfs-filing-none',
+      manifestDigest:
+          '8dd15c9cef774c32d65b2cc26f96461ad2cb9a11d1c86d40baea13e50d983d63',
+      ruleVersion: 'exact-own-filing-series-cfs-none-v1',
+      absenceLiteral: '해당사항 없습니다.',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250319000477',
+      corpCode: '01518506',
+      companyName: '(주)타조이엔터테인먼트',
+      year: 2024,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20250319000477-cfs-filing-none',
+      manifestDigest:
+          '9798badccd76c66ad7aa0fbbbad7855ff05f37fa2ec134db8138846daca6f723',
+      ruleVersion: 'exact-own-filing-series-cfs-none-v1',
+      absenceLiteral: '해당사항 없습니다.',
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20230321001131',
       corpCode: '01596425',
       companyName: '에스케이스퀘어 주식회사',

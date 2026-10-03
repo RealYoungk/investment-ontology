@@ -3205,9 +3205,20 @@ class FinancialFactsSync {
             'periodStart': absence.periodStart.toIso8601String(),
             'periodEnd': absence.periodEnd.toIso8601String(),
             'evidence': absence.evidence,
+            if (absence.issuerIdentityEvidence?['policy'] ==
+                'exact-own-filing-series-cfs-none-v1') ...{
+              'identityScope': 'official-DART-filing-series-only',
+              'numericFactsCollected': 0,
+              'coreFinancialsVerified': false,
+              'fullFinancialsVerified': false,
+              'fullStatementCollected': false,
+              'jurirContinuityVerified': false,
+              'operatingHistoryContinuityVerified': false,
+            },
             if (absence.issuerIdentityEvidence != null)
               'historicalCompanyIdentity': absence.issuerIdentityEvidence,
-            'note': '공식 원문에 연결 작성 비적용이 명시됨. 원 API 자료없음 상태 보존; 빈 파싱 결과로 부재를 추정하지 않음.',
+            'note':
+                '공식 원문에 연결 작성 비적용이 명시됨. 원 API 자료없음 상태 보존; 빈 파싱 결과로 부재를 추정하지 않음.${absence.issuerIdentityEvidence?['policy'] == 'exact-own-filing-series-cfs-none-v1' ? ' ${absence.issuerIdentityEvidence!["sourceNotice"]}' : ''}',
           }),
         ),
         transaction: transaction,

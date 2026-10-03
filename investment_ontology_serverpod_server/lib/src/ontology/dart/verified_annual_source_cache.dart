@@ -19,6 +19,7 @@ import 'exact_current_row_profiles.dart';
 import 'anymedi_audit_period_source.dart';
 import 'sk_square_short_annual_source.dart';
 import 'sk_square_2022_current_source.dart';
+import 'filing_series_cfs_absence.dart';
 import 'exact_aone_annual_source.dart';
 import 'exact_current_cfs_source.dart';
 import 'db_fy22_whole_current_source.dart';
@@ -1264,6 +1265,33 @@ final class VerifiedAnnualSourceCache {
           rows: rows,
         ),
         absence: null,
+      );
+    }
+    if (entry.ruleVersion == FilingSeriesCfsAbsence.rule) {
+      final uris = <String, Uri>{
+        for (final s in manifest['sources'] as List)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raw = <String, String>{
+        for (final e in uris.entries) e.key: utf8.decode(documents[e.value]!),
+      };
+      if (basis != FsDiv.consolidated || entry.absenceLiteral != '해당사항 없습니다.') {
+        throw const FormatException(
+          'Invalid finite filing-series absence basis/literal',
+        );
+      }
+      return (
+        numeric: null,
+        absence: FilingSeriesCfsAbsence.verify(
+          receipt: entry.receipt,
+          corp: company.corpCode,
+          currentName: company.name,
+          reportName: filing.reportName,
+          start: start,
+          end: end,
+          raw: raw,
+          uris: uris,
+        ),
       );
     }
     if (entry.ruleVersion == SkSquare2022CurrentSource.rule) {
