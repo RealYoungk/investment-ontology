@@ -113,6 +113,11 @@ void main() {
             expect(src.kind, SourceKind.dartReport);
             expect(src.url, main['url']);
             expect(src.reference, receipt);
+            expect(
+              src.title,
+              contains(' · {'),
+              reason: 'Exact compound-source scope must attach to the report Source',
+            );
             final titleScope = jsonDecode(
               src.title.substring(src.title.indexOf(' · {') + 3),
             ) as Map;

@@ -118,10 +118,46 @@ void main() {
           companyName: e.companyName,
           consolidated: e.basis == FsDiv.consolidated,
           source: uris[e.statementLabel],
-          digest:
-              (rows.first['html_provenance'] as Map)['sourceSha256'] as String,
+          digest: r.numeric!.sourceDigest,
         );
         expect(scope?['coreRows'], rows.length);
+        for (final badDigest in [
+          '0' * 64,
+          (rows.first['html_provenance'] as Map)['sourceSha256'] as String,
+        ]) {
+          expect(
+            LsKiwoomCurrentSource.storedScope(
+              rows: rows,
+              receipt: e.receipt,
+              corp: e.corpCode,
+              companyName: e.companyName,
+              consolidated: e.basis == FsDiv.consolidated,
+              source: uris[e.statementLabel],
+              digest: badDigest,
+            ),
+            isNull,
+          );
+        }
+        final badRows = [
+          for (final row in rows) Map<String, dynamic>.from(row),
+        ];
+        badRows.first['html_provenance'] = {
+          ...rows.first['html_provenance'] as Map,
+          'sourceSha256': r.numeric!.sourceDigest,
+        };
+        expect(
+          LsKiwoomCurrentSource.storedScope(
+            rows: badRows,
+            receipt: e.receipt,
+            corp: e.corpCode,
+            companyName: e.companyName,
+            consolidated: e.basis == FsDiv.consolidated,
+            source: uris[e.statementLabel],
+            digest: r.numeric!.sourceDigest,
+          ),
+          isNull,
+        );
+
         expect(
           LsKiwoomCurrentSource.storedScope(
             rows: rows,
@@ -130,9 +166,7 @@ void main() {
             companyName: e.companyName,
             consolidated: e.basis == FsDiv.consolidated,
             source: uris[e.statementLabel],
-            digest:
-                (rows.first['html_provenance'] as Map)['sourceSha256']
-                    as String,
+            digest: r.numeric!.sourceDigest,
           ),
           isNull,
         );
