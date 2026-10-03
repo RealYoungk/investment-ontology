@@ -3,6 +3,8 @@ class: FinancialReportDetail
 fields:
   report: FinancialReport
   source: Source?
+  ### 사실의 실제 출처들. 원본 보고서 출처와 추가 보완 출처를 함께 보존한다.
+  sources: List<Source>?
   facts: List<FinancialFact>
   ### 같은 기업·기간·연결구분의 보고서 (접수번호 순, 이 보고서 포함)
   history: List<FinancialReport>

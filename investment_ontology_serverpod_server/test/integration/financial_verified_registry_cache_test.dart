@@ -306,10 +306,22 @@ void main() {
                   'SHA256:${sha256.convert(utf8.encode('$cover\n$body'))}',
                 ),
               );
-              final facts = await FinancialFact.db.find(
+              final allFacts = await FinancialFact.db.find(
                 session,
                 where: (t) => t.reportId.equals(report.id!),
               );
+              final facts = allFacts
+                  .where((f) => f.sourceId == report.sourceId)
+                  .toList();
+              expect(report.factCount, allFacts.length);
+              if (entry.receipt == '20250320000036' &&
+                  entry.basis == FsDiv.separate) {
+                expect(allFacts, hasLength(124));
+              }
+              if (entry.receipt == '20220310001159' &&
+                  entry.basis == FsDiv.consolidated) {
+                expect(allFacts, hasLength(212));
+              }
               if (entry.ruleVersion ==
                   'db-fy22-exact-self-declared-issuer-v1') {
                 expect(report.bsnsYear, 2022);
@@ -567,7 +579,7 @@ void main() {
                   );
                 }
                 final sql = await session.db.unsafeQuery(
-                  'SELECT ${FinancialAccounts.resolvedIdSql('f')} FROM financial_fact f WHERE f."reportId"=${report.id}',
+                  'SELECT ${FinancialAccounts.resolvedIdSql('f')} FROM financial_fact f WHERE f."reportId"=${report.id} AND f."sourceId"=${report.sourceId}',
                 );
                 expect(sql.where((r) => r[0] != null), hasLength(8));
               }
@@ -605,7 +617,7 @@ void main() {
                   expect(line.accountName, fact.accountName);
                 }
                 final sql = await session.db.unsafeQuery(
-                  'SELECT ${FinancialAccounts.resolvedIdSql('f')} FROM financial_fact f WHERE f."reportId"=${report.id}',
+                  'SELECT ${FinancialAccounts.resolvedIdSql('f')} FROM financial_fact f WHERE f."reportId"=${report.id} AND f."sourceId"=${report.sourceId}',
                 );
                 expect(sql.where((r) => r[0] != null), hasLength(7));
                 final proofAudit = (await Source.db.find(
@@ -682,7 +694,7 @@ void main() {
                   );
                 }
                 final sql = await session.db.unsafeQuery(
-                  'SELECT ${FinancialAccounts.resolvedIdSql('f')} FROM financial_fact f WHERE f."reportId"=${report.id}',
+                  'SELECT ${FinancialAccounts.resolvedIdSql('f')} FROM financial_fact f WHERE f."reportId"=${report.id} AND f."sourceId"=${report.sourceId}',
                 );
                 expect(sql.where((r) => r[0] != null), hasLength(7));
                 final audit = (await Source.db.find(
@@ -745,7 +757,7 @@ void main() {
                   expect(line.accountName, fact.accountName);
                 }
                 final sql = await session.db.unsafeQuery(
-                  'SELECT ${FinancialAccounts.resolvedIdSql('f')} FROM financial_fact f WHERE f."reportId"=${report.id}',
+                  'SELECT ${FinancialAccounts.resolvedIdSql('f')} FROM financial_fact f WHERE f."reportId"=${report.id} AND f."sourceId"=${report.sourceId}',
                 );
                 expect(
                   sql.where((r) => r[0] != null),
@@ -815,7 +827,7 @@ void main() {
                   expect(line.accountName, f.accountName);
                 }
                 final sql = await session.db.unsafeQuery(
-                  'SELECT ${FinancialAccounts.resolvedIdSql('f')} FROM financial_fact f WHERE f."reportId"=${report.id}',
+                  'SELECT ${FinancialAccounts.resolvedIdSql('f')} FROM financial_fact f WHERE f."reportId"=${report.id} AND f."sourceId"=${report.sourceId}',
                 );
                 expect(sql.where((r) => r[0] != null), hasLength(8));
                 expect(

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
@@ -93,13 +95,28 @@ class _FinancialReportPageState extends State<FinancialReportPage> {
     final statement = kinds.contains(_statement)
         ? _statement!
         : kinds.firstOrNull;
-    final hasSeparateSources =
-        (detail.source?.title.startsWith('DART 원문 XBRL 당기 핵심계정 복구') ?? false) &&
-        detail.facts.any((f) => f.sourceId != report.sourceId);
+    final hasSeparateSources = detail.facts.any(
+      (f) => f.sourceId != report.sourceId,
+    );
+    final Map<int, Source> sources = {
+      for (final source in detail.sources ?? <Source>[]) source.id!: source,
+    };
+    final enriched = sources.values.any(
+      (s) => s.title.startsWith('DART 원문 HTML 당기 추가행'),
+    );
     final facts = [
       for (final f in detail.facts)
         if (f.statement == statement) f,
     ];
+    // Original core rows retain their stored ord. Use their new source-bound
+    // coordinates only for presentation alongside the additional printed rows.
+    final coreOrder = financialSourceRowOrder(sources.values);
+    facts.sort((a, b) {
+      final order = (coreOrder[a.id] ?? a.ord ?? 0x7fffffff).compareTo(
+        coreOrder[b.id] ?? b.ord ?? 0x7fffffff,
+      );
+      return order != 0 ? order : a.id!.compareTo(b.id!);
+    });
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(
@@ -158,7 +175,7 @@ class _FinancialReportPageState extends State<FinancialReportPage> {
         const SizedBox(height: AppSpace.md),
         if (hasSeparateSources) ...[
           const AppNotice(
-            message: '당기 핵심계정을 공식 원문 출처로 보완했습니다. 기존 비교기간 행도 보존합니다. 요약 계산에는 현재 출처의 당기 값을 사용하며, 아래 표에서 행별 출처를 구분합니다.',
+            message: '여러 원문 출처의 행을 함께 보존한 보고서입니다. 표의 행별 출처와 아래 출처 기록에서 수집 범위를 확인하세요.',
           ),
           const SizedBox(height: AppSpace.md),
         ],
@@ -166,7 +183,14 @@ class _FinancialReportPageState extends State<FinancialReportPage> {
           facts: facts,
           currentSourceId: report.sourceId,
           showSource: hasSeparateSources,
+          sources: sources,
         ),
+        if (enriched) ...[
+          const SizedBox(height: AppSpace.md),
+          const AppNotice(
+            message: '당기 재무제표에 직접 인쇄된 추가 금액행을 보완했습니다. 주당이익·빈칸·대시는 출처 기록에 보존하며 금액으로 바꾸지 않았습니다. 전체 비교기간·주석 수집을 뜻하지 않습니다.',
+          ),
+        ],
         const SizedBox(height: AppSpace.xl),
         Text(
           detail.source?.title ?? '출처 기록 없음',
@@ -190,6 +214,84 @@ class _FinancialReportPageState extends State<FinancialReportPage> {
             ),
           ),
         ),
+        for (final source in sources.values) _SourceRecord(source: source),
+      ],
+    );
+  }
+}
+
+Map<int, int> financialSourceRowOrder(Iterable<Source> sources) {
+  final order = <int, int>{};
+  for (final source in sources) {
+    if (!source.title.startsWith('DART 원문 HTML 당기 추가행')) continue;
+    final start = source.title.indexOf('{');
+    if (start < 0) continue;
+    try {
+      final payload = jsonDecode(source.title.substring(start));
+      if (payload is! Map || payload['originalCoreCoordinates'] is! List) {
+        continue;
+      }
+      for (final row in payload['originalCoreCoordinates'] as List) {
+        if (row is! Map ||
+            row['factId'] is! int ||
+            row['tableIndex'] is! int ||
+            row['rowIndex'] is! int ||
+            row['columns'] is! List ||
+            (row['columns'] as List).isEmpty ||
+            (row['columns'] as List).first is! int) {
+          continue;
+        }
+        order[row['factId'] as int] =
+            (row['tableIndex'] as int) * 100000 +
+            (row['rowIndex'] as int) * 100 +
+            ((row['columns'] as List).first as int);
+      }
+    } on FormatException {
+      // An unstructured legacy record must not prevent opening the report.
+    }
+  }
+  return order;
+}
+
+class _SourceRecord extends StatelessWidget {
+  const _SourceRecord({required this.source});
+  final Source source;
+
+  @override
+  Widget build(BuildContext context) {
+    final separator = source.title.indexOf(' · {');
+    final title = separator < 0
+        ? source.title
+        : source.title.substring(0, separator);
+    var body = source.title;
+    if (separator >= 0) {
+      try {
+        body = const JsonEncoder.withIndent('  ').convert(
+          jsonDecode(source.title.substring(separator + 3)),
+        );
+      } on FormatException {
+        // Show the preserved record verbatim when it is not structured JSON.
+      }
+    }
+    final uri = Uri.tryParse(source.url ?? '');
+    return ExpansionTile(
+      title: Text('출처 #${source.id} · $title', style: context.typo.body(12.5)),
+      subtitle: Text(
+        '수집 ${formatDateTime(source.retrievedAt)}',
+        style: context.typo.numeric(12, color: context.colors.textSecondary),
+      ),
+      childrenPadding: const EdgeInsets.all(AppSpace.md),
+      expandedCrossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (uri != null &&
+            uri.scheme == 'https' &&
+            uri.host == 'dart.fss.or.kr')
+          AppButton(
+            label: '이 출처의 공식 원문 열기 →',
+            variant: AppButtonVariant.link,
+            onPressed: () => launchUrl(uri),
+          ),
+        SelectableText(body, style: context.typo.body(12)),
       ],
     );
   }
@@ -257,11 +359,13 @@ class _FactTable extends StatelessWidget {
     required this.facts,
     required this.currentSourceId,
     required this.showSource,
+    this.sources = const {},
   });
 
   final List<FinancialFact> facts;
   final int currentSourceId;
   final bool showSource;
+  final Map<int, Source> sources;
 
   @override
   Widget build(BuildContext context) {
@@ -363,9 +467,14 @@ class _FactTable extends StatelessWidget {
                         Tooltip(
                           message: '출처 기록 #${f.sourceId}',
                           child: cell(
-                            f.sourceId == currentSourceId
-                                ? '당기 원문 복구'
-                                : '기존 비교기간',
+                            sources[f.sourceId]?.title.startsWith(
+                                      'DART 원문 HTML 당기 추가행',
+                                    ) ==
+                                    true
+                                ? '추가 금액행 #${f.sourceId}'
+                                : f.sourceId == currentSourceId
+                                ? '기준 원문 #${f.sourceId}'
+                                : '출처 #${f.sourceId}',
                             right: false,
                             width: 150,
                           ),

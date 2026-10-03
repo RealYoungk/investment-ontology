@@ -5,6 +5,7 @@ import 'package:serverpod/serverpod.dart';
 import '../../generated/protocol.dart';
 import '../dart/exact_statement_rows.dart';
 import 'financial_rows.dart';
+import 'financial_collection_scope.dart';
 
 /// Called only by the normal financial collection worker. Original core facts,
 /// report source and all historical/source rows remain immutable.
@@ -72,6 +73,12 @@ abstract final class ExactStatementEnrichment {
         transaction: tx,
         lockMode: LockMode.forShare,
       );
+      final active = await session.db.unsafeQuery(
+        'WITH ${FinancialCollectionScope.cte} SELECT id FROM financial_scope WHERE id=@id',
+        parameters: QueryParameters.named({'id': filing.id!}),
+        transaction: tx,
+      );
+      if (active.isEmpty) return 0;
       if (current == null ||
           currentFiling == null ||
           currentCompany == null ||
@@ -119,9 +126,8 @@ abstract final class ExactStatementEnrichment {
         where: (t) => t.reportId.equals(current.id!),
         transaction: tx,
       );
-      final originalFacts = old
-          .where((f) => f.sourceId == original.id)
-          .toList();
+      final originalFacts = old.where((f) => f.sourceId == original.id).toList()
+        ..sort((a, b) => a.id!.compareTo(b.id!));
       if (originalFacts.length != 8 ||
           prepared.coreRows.length != 8 ||
           originalFacts.any((f) => f.supersededById != null) ||
@@ -162,7 +168,24 @@ abstract final class ExactStatementEnrichment {
       final expectedPayload = {
         ...prepared.payload,
         'originalSourceId': original.id,
+        'originalSourceRetrievedAt': original.retrievedAt.toIso8601String(),
+        'retrievalMethod': 'reviewed-local-original-cache;no-network-fetch',
         'originalFactIds': originalFacts.map((f) => f.id!).toList()..sort(),
+        'originalCoreCoordinates': [
+          for (final f in originalFacts)
+            {
+              'factId': f.id,
+              ...prepared.ledger.singleWhere(
+                (r) =>
+                    r['state'] == 'existing-core' &&
+                    FinancialCodes.statementFromDart(r['statement']) ==
+                        f.statement &&
+                    compact(r['printedLabel'].toString()) ==
+                        compact(f.accountName) &&
+                    r['amount'] == f.amount.toString(),
+              ),
+            },
+        ],
       };
       final title = 'DART 원문 HTML 당기 추가행 · ${jsonEncode(expectedPayload)}';
       if (previous != null &&

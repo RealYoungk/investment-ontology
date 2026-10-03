@@ -133,6 +133,7 @@ final class ExactStatementRows {
             'periodEnd': to,
             'unit': eps ? null : '원',
             'printedTableUnit': '원',
+            'printedUnitEvidence': tables[ti - 1].last.last,
             if (eps) 'nonMonetaryReason': '주당이익 행: 금액 fact 제외; 별도 단위 추정 없음',
             'source': primary.statementSource.toString(),
             'sha256': expectedSha,

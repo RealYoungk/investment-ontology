@@ -237,14 +237,25 @@ class FinancialEndpoint extends Endpoint {
   Future<FinancialReportDetail?> report(Session session, int reportId) async {
     final report = await FinancialReport.db.findById(session, reportId);
     if (report == null) return null;
+    final facts = await FinancialFact.db.find(
+      session,
+      where: (t) => t.reportId.equals(reportId),
+      orderByList: (t) => [t.statement.asc(), t.ord.asc(), t.id.asc()],
+    );
+    final sourceIds = {
+      report.sourceId,
+      for (final fact in facts) fact.sourceId,
+    };
+    final sources = await Source.db.find(
+      session,
+      where: (t) => t.id.inSet(sourceIds),
+      orderBy: (t) => t.id,
+    );
     return FinancialReportDetail(
       report: report,
-      source: await Source.db.findById(session, report.sourceId),
-      facts: await FinancialFact.db.find(
-        session,
-        where: (t) => t.reportId.equals(reportId),
-        orderByList: (t) => [t.statement.asc(), t.ord.asc(), t.id.asc()],
-      ),
+      source: sources.where((s) => s.id == report.sourceId).firstOrNull,
+      sources: sources,
+      facts: facts,
       history: await _history(session, report),
     );
   }
