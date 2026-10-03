@@ -60,7 +60,7 @@ class _VerificationFormKoState extends State<VerificationFormKo> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(widget.title, style: Theme.of(context).textTheme.headlineMedium),
+        Text(widget.title, style: ShadTheme.of(context).textTheme.h3),
         smallGap,
         Text(
           controller.emailController.text,
@@ -95,7 +95,8 @@ class _VerificationFormKoState extends State<VerificationFormKo> {
               textAlign: TextAlign.left,
             ),
             smallGap,
-            ShadInput(
+            ShadInputFormField(
+              label: const Text('인증번호'),
               focusNode: _focusNode,
               controller: controller.verificationCodeController,
               enabled: !controller.isLoading,
@@ -128,17 +129,25 @@ class _VerificationFormKoState extends State<VerificationFormKo> {
         smallGap,
         ListenableBuilder(
           listenable: controller.verificationCodeController,
-          builder: (context, _) => ActionButton(
+          builder: (context, _) => ShadButton(
+            enabled:
+                controller.verificationCodeController.text.length == 8 &&
+                !controller.isLoading,
             onPressed:
                 controller.verificationCodeController.text.length == 8 &&
                     !controller.isLoading
                 ? widget.onCompleted
                 : null,
-            label: texts.verify,
-            isLoading: controller.isLoading,
+            child: controller.isLoading
+                ? const ShadSpinner()
+                : Text(texts.verify),
           ),
         ),
-        BackToSignInButton(controller: controller),
+        ShadButton.ghost(
+          enabled: !controller.isLoading,
+          onPressed: () => controller.navigateTo(EmailFlowScreen.login),
+          child: const Text('로그인으로 돌아가기'),
+        ),
       ],
     );
   }
@@ -209,9 +218,9 @@ class _ResendCodeButtonKoState extends State<_ResendCodeButtonKo> {
   }
 
   String get _label => _remainingSeconds > 0
-      ? '코드를 받지 못하셨나요? 새 코드 보내기 ($_remainingSeconds'
+      ? '새 코드 보내기 ($_remainingSeconds'
             '초 후)'
-      : '코드를 받지 못하셨나요? 새 코드 보내기';
+      : '새 코드 보내기';
 
   @override
   Widget build(BuildContext context) {
