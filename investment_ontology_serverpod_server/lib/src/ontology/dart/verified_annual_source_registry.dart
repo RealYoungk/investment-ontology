@@ -56,6 +56,19 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20250305000164',
+      corpCode: '01205514',
+      companyName: '(주)큐라켐',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20250305000164-ofs-current-seven',
+      manifestDigest:
+          '635e3b65b75a44320179ee8e44ef206fbfa3a2ed52b8309b446044c856d6e71c',
+      ruleVersion: 'curachem-own-current-seven-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20250320001369',
       corpCode: '01353848',
       companyName: '주식회사 이노벡스',

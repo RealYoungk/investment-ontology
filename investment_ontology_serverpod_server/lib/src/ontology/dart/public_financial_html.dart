@@ -1,3 +1,4 @@
+import 'curachem_current_seven_source.dart';
 import 'insurance_current_annual_source.dart';
 import 'known_annual_source_conflict.dart';
 import 'exact_seven_cash_source.dart';
@@ -877,6 +878,20 @@ abstract final class PublicFinancialHtml {
         start: periodStart,
         end: periodEnd,
         consolidated: consolidated,
+      );
+    }
+    if (receipt == CurachemCurrentSevenSource.receipt) {
+      return CurachemCurrentSevenSource.parse(
+        targetReceipt: receipt,
+        companyCode: corpCode,
+        companyName: companyName,
+        consolidated: consolidated,
+        start: periodStart,
+        end: periodEnd,
+        coverSource: coverSource,
+        statementSource: statementSource,
+        cover: coverHtml,
+        body: statementHtml,
       );
     }
     if (PrintedCurrentAnnualSource.matches(receipt, consolidated)) {

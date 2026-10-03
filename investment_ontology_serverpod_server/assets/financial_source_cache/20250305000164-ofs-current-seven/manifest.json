@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "01205514",
+  "receipt": "20250305000164",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2024,
+  "periodStart": "2024-01-01",
+  "periodEnd": "2024-12-31",
+  "ruleVersion": "curachem-own-current-seven-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250305000164",
+      "sha256": "750d69006fd11b4857c9bab470cabc1658f5c7ab7ce91cd45a84c5a49bc39f10"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250305000164&dcmNo=10376227&eleId=1&offset=956&length=4516&dtd=dart4.xsd",
+      "sha256": "b526c93c46ef6c34519ba4b85bc2fbb646b12ad20257decc04d01f2fabc6d9c1"
+    },
+    {
+      "label": "ofs",
+      "file": "ofs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250305000164&dcmNo=10376227&eleId=21&offset=191827&length=61652&dtd=dart4.xsd",
+      "sha256": "e423cd13589997606a42908ff4782e9fc13d11726cddc001bbae4d02bd5c108d"
+    }
+  ],
+  "partialCore7": true,
+  "optionalAccountsNotCollected": [
+    "capex"
+  ],
+  "fullStatementCollected": false,
+  "supportingExplanationOnly": {
+    "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250305000164&dcmNo=10376227&eleId=22&offset=253483&length=117241&dtd=dart4.xsd",
+    "sha256": "c0c815a12bcd43fc27efb08ab090f11da280ed02e687e34f85c310d0851c9be6",
+    "bytes": 134863,
+    "ownShellNode": "5. 재무제표 주석",
+    "HTTP": 1,
+    "file": "supporting-notes.html",
+    "notesVerified": false,
+    "readScopeComplete": false,
+    "amountsNotImported": true
+  },
+  "detailHierarchyComplete": false
+}
