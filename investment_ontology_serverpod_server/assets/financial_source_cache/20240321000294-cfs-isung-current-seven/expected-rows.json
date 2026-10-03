@@ -1,0 +1,4398 @@
+[
+  {
+    "rcept_no": "20240321000294",
+    "corp_code": "01365384",
+    "bsns_year": "2023",
+    "reprt_code": "11011",
+    "fs_div": "CFS",
+    "account_id": null,
+    "account_nm": "자산총계",
+    "account_detail": "-",
+    "ord": "64",
+    "sj_div": "BS",
+    "thstrm_nm": "2023-12-31",
+    "thstrm_amount": "32828392275",
+    "currency": "KRW",
+    "html_provenance": {
+      "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240321000294&dcmNo=9746280&eleId=19&offset=187684&length=91326&dtd=dart4.xsd",
+      "sourceReceipt": "20240321000294",
+      "ruleVersion": "isung-own-cfs-exact-current-seven-v1",
+      "sourceSha256": "b3213e81b4c49e4d0f216dca1566f1ad803603ee0c53cb88c8bb6ebfc17432df",
+      "tableIndex": 1,
+      "rowIndex": 60,
+      "column": 2,
+      "physicalOrd": 64,
+      "printedLabel": "자산총계",
+      "currentCell": "32,828,392,275",
+      "printedUnit": "원",
+      "unitMultiplier": "1",
+      "precisionUnit": "1",
+      "cashDirection": null,
+      "printedSign": "positive",
+      "normalizedSign": "positive",
+      "signNormalization": "none",
+      "sourceCellRewritten": false,
+      "basis": "CFS",
+      "periodStart": "2023-01-01",
+      "periodEnd": "2023-12-31",
+      "partialCore7": true,
+      "currentCore8": false,
+      "wholeNetIncomeExact": true,
+      "fullStatementCollected": false,
+      "fullStatementVerified": false,
+      "allStatementRowsVerified": false,
+      "detailHierarchyComplete": false,
+      "notesVerified": false,
+      "notesReadScopeComplete": false,
+      "optionalAccountsNotCollected": [
+        "capex"
+      ],
+      "uncollectedOptionalAccounts": [
+        "capex"
+      ],
+      "missingAccountReasons": {
+        "capex": "No printed whole PPE acquisition total; individual asset acquisitions are not collected as a whole total."
+      },
+      "FCFSupported": false,
+      "cashFx": "notPrinted; no zero FX fact",
+      "checkedPrintedEquationCount": 15,
+      "fullyNumericEquationCount": 15,
+      "missingTermNotFactZero": true,
+      "numericCellCorrection": false,
+      "genericRoundingTolerance": false,
+      "priorNumericPeriodsCollected": false,
+      "sourceDiscrepancies": [],
+      "printedPLLossMagnitude": {
+        "table": 4,
+        "row": 57,
+        "column": 2,
+        "coefficient": 1,
+        "raw": "1,509,318,876"
+      },
+      "netIncomeSelection": "exactPrintedLossLabelMagnitude",
+      "explicitLossSemantics": {
+        "rule": "Exact current 연결당기순손실 positive magnitude denotes a loss, corroborated by independently signed whole CE and CF; original magnitude unchanged.",
+        "PL": {
+          "table": 4,
+          "row": 57,
+          "column": 2,
+          "coefficient": 1,
+          "raw": "1,509,318,876"
+        },
+        "CE": {
+          "table": 7,
+          "row": 10,
+          "column": 7,
+          "coefficient": 1,
+          "raw": "(1,509,318,876)"
+        },
+        "CF": {
+          "table": 10,
+          "row": 2,
+          "column": 1,
+          "coefficient": 1,
+          "raw": "(1,509,318,876)"
+        },
+        "signedCIS": null,
+        "sourceCellRewrite": false,
+        "sourceCorrectionClaim": false
+      },
+      "supportingPeriodEvidence": {
+        "policy": "isung-own-cfs-exact-current-seven-v1",
+        "flowCaptionPrintedStart": true,
+        "periodStart": "2023-01-01",
+        "periodEnd": "2023-12-31",
+        "scopeProof": {
+          "partialCore7": true,
+          "currentCore8": false,
+          "wholeNetIncomeExact": true,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "detailHierarchyComplete": false,
+          "notesVerified": false,
+          "notesReadScopeComplete": false,
+          "optionalAccountsNotCollected": [
+            "capex"
+          ],
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "missingAccountReasons": {
+            "capex": "No printed whole PPE acquisition total; individual asset acquisitions are not collected as a whole total."
+          },
+          "FCFSupported": false,
+          "cashFx": "notPrinted; no zero FX fact",
+          "checkedPrintedEquationCount": 15,
+          "fullyNumericEquationCount": 15,
+          "missingTermNotFactZero": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "sourceDiscrepancies": [],
+          "printedPLLossMagnitude": {
+            "table": 4,
+            "row": 57,
+            "column": 2,
+            "coefficient": 1,
+            "raw": "1,509,318,876"
+          },
+          "netIncomeSelection": "exactPrintedLossLabelMagnitude",
+          "explicitLossSemantics": {
+            "rule": "Exact current 연결당기순손실 positive magnitude denotes a loss, corroborated by independently signed whole CE and CF; original magnitude unchanged.",
+            "PL": {
+              "table": 4,
+              "row": 57,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,509,318,876"
+            },
+            "CE": {
+              "table": 7,
+              "row": 10,
+              "column": 7,
+              "coefficient": 1,
+              "raw": "(1,509,318,876)"
+            },
+            "CF": {
+              "table": 10,
+              "row": 2,
+              "column": 1,
+              "coefficient": 1,
+              "raw": "(1,509,318,876)"
+            },
+            "signedCIS": null,
+            "sourceCellRewrite": false,
+            "sourceCorrectionClaim": false
+          }
+        },
+        "currentEquationWitnesses": [
+          {
+            "label": "BS",
+            "total": {
+              "table": 1,
+              "row": 60,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "32,828,392,275"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 1,
+                "row": 85,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "20,359,744,746"
+              },
+              {
+                "table": 1,
+                "row": 102,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "12,468,647,529"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "OP",
+            "total": {
+              "table": 4,
+              "row": 33,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "(1,076,026,348)"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 1,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "16,466,985,397"
+              },
+              {
+                "table": 4,
+                "row": 5,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "12,211,713,787"
+              },
+              {
+                "table": 4,
+                "row": 10,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "5,331,297,958"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "explicitLossPretax",
+            "total": {
+              "table": 4,
+              "row": 55,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,274,356,094"
+            },
+            "totalCoefficient": -1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 33,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "(1,076,026,348)"
+              },
+              {
+                "table": 4,
+                "row": 34,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "521,563,018"
+              },
+              {
+                "table": 4,
+                "row": 43,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "719,892,764"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "explicitLossNI",
+            "total": {
+              "table": 4,
+              "row": 57,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,509,318,876"
+            },
+            "totalCoefficient": -1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 55,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "1,274,356,094"
+              },
+              {
+                "table": 4,
+                "row": 56,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "234,962,782"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "explicitLossOwners",
+            "total": {
+              "table": 4,
+              "row": 57,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,509,318,876"
+            },
+            "totalCoefficient": -1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 58,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "981,399,793"
+              },
+              {
+                "table": 4,
+                "row": 59,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(2,490,718,669)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "explicitLossCF",
+            "total": {
+              "table": 4,
+              "row": 57,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,509,318,876"
+            },
+            "totalCoefficient": -1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 2,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(1,509,318,876)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CFO",
+            "total": {
+              "table": 10,
+              "row": 1,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "(1,646,702,373)"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 2,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(1,509,318,876)"
+              },
+              {
+                "table": 10,
+                "row": 3,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "2,646,573,418"
+              },
+              {
+                "table": 10,
+                "row": 18,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(77,172,528)"
+              },
+              {
+                "table": 10,
+                "row": 26,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(2,706,784,387)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CFI",
+            "total": {
+              "table": 10,
+              "row": 49,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "(1,350,238,468)"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 50,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "2,665,341,707"
+              },
+              {
+                "table": 10,
+                "row": 58,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(4,015,580,175)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CFF",
+            "total": {
+              "table": 10,
+              "row": 74,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "4,147,376,550"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 75,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "7,168,986,000"
+              },
+              {
+                "table": 10,
+                "row": 79,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(3,021,609,450)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "cashActivities",
+            "total": {
+              "table": 10,
+              "row": 83,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,150,435,709"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 1,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "(1,646,702,373)"
+              },
+              {
+                "table": 10,
+                "row": 49,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "(1,350,238,468)"
+              },
+              {
+                "table": 10,
+                "row": 74,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "4,147,376,550"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "cashRoll",
+            "total": {
+              "table": 10,
+              "row": 85,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "6,596,837,212"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 84,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "5,446,401,503"
+              },
+              {
+                "table": 10,
+                "row": 83,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "1,150,435,709"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "BScash",
+            "total": {
+              "table": 1,
+              "row": 4,
+              "column": 1,
+              "coefficient": 1,
+              "raw": "6,596,837,212"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 85,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "6,596,837,212"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CEclosing",
+            "total": {
+              "table": 7,
+              "row": 11,
+              "column": 7,
+              "coefficient": 1,
+              "raw": "12,468,647,529"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 1,
+                "row": 102,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "12,468,647,529"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CENI",
+            "total": {
+              "table": 7,
+              "row": 10,
+              "column": 7,
+              "coefficient": 1,
+              "raw": "(1,509,318,876)"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 57,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "1,509,318,876"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CEroll",
+            "total": {
+              "table": 7,
+              "row": 11,
+              "column": 7,
+              "coefficient": 1,
+              "raw": "12,468,647,529"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 7,
+                "row": 7,
+                "column": 7,
+                "coefficient": 1,
+                "raw": "12,223,511,703"
+              },
+              {
+                "table": 7,
+                "row": 8,
+                "column": 7,
+                "coefficient": 1,
+                "raw": "1,699,986,000"
+              },
+              {
+                "table": 7,
+                "row": 9,
+                "column": 7,
+                "coefficient": 1,
+                "raw": "54,468,702"
+              },
+              {
+                "table": 7,
+                "row": 10,
+                "column": 7,
+                "coefficient": 1,
+                "raw": "(1,509,318,876)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          }
+        ]
+      }
+    }
+  },
+  {
+    "rcept_no": "20240321000294",
+    "corp_code": "01365384",
+    "bsns_year": "2023",
+    "reprt_code": "11011",
+    "fs_div": "CFS",
+    "account_id": null,
+    "account_nm": "부채총계",
+    "account_detail": "-",
+    "ord": "89",
+    "sj_div": "BS",
+    "thstrm_nm": "2023-12-31",
+    "thstrm_amount": "20359744746",
+    "currency": "KRW",
+    "html_provenance": {
+      "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240321000294&dcmNo=9746280&eleId=19&offset=187684&length=91326&dtd=dart4.xsd",
+      "sourceReceipt": "20240321000294",
+      "ruleVersion": "isung-own-cfs-exact-current-seven-v1",
+      "sourceSha256": "b3213e81b4c49e4d0f216dca1566f1ad803603ee0c53cb88c8bb6ebfc17432df",
+      "tableIndex": 1,
+      "rowIndex": 85,
+      "column": 2,
+      "physicalOrd": 89,
+      "printedLabel": "부채총계",
+      "currentCell": "20,359,744,746",
+      "printedUnit": "원",
+      "unitMultiplier": "1",
+      "precisionUnit": "1",
+      "cashDirection": null,
+      "printedSign": "positive",
+      "normalizedSign": "positive",
+      "signNormalization": "none",
+      "sourceCellRewritten": false,
+      "basis": "CFS",
+      "periodStart": "2023-01-01",
+      "periodEnd": "2023-12-31",
+      "partialCore7": true,
+      "currentCore8": false,
+      "wholeNetIncomeExact": true,
+      "fullStatementCollected": false,
+      "fullStatementVerified": false,
+      "allStatementRowsVerified": false,
+      "detailHierarchyComplete": false,
+      "notesVerified": false,
+      "notesReadScopeComplete": false,
+      "optionalAccountsNotCollected": [
+        "capex"
+      ],
+      "uncollectedOptionalAccounts": [
+        "capex"
+      ],
+      "missingAccountReasons": {
+        "capex": "No printed whole PPE acquisition total; individual asset acquisitions are not collected as a whole total."
+      },
+      "FCFSupported": false,
+      "cashFx": "notPrinted; no zero FX fact",
+      "checkedPrintedEquationCount": 15,
+      "fullyNumericEquationCount": 15,
+      "missingTermNotFactZero": true,
+      "numericCellCorrection": false,
+      "genericRoundingTolerance": false,
+      "priorNumericPeriodsCollected": false,
+      "sourceDiscrepancies": [],
+      "printedPLLossMagnitude": {
+        "table": 4,
+        "row": 57,
+        "column": 2,
+        "coefficient": 1,
+        "raw": "1,509,318,876"
+      },
+      "netIncomeSelection": "exactPrintedLossLabelMagnitude",
+      "explicitLossSemantics": {
+        "rule": "Exact current 연결당기순손실 positive magnitude denotes a loss, corroborated by independently signed whole CE and CF; original magnitude unchanged.",
+        "PL": {
+          "table": 4,
+          "row": 57,
+          "column": 2,
+          "coefficient": 1,
+          "raw": "1,509,318,876"
+        },
+        "CE": {
+          "table": 7,
+          "row": 10,
+          "column": 7,
+          "coefficient": 1,
+          "raw": "(1,509,318,876)"
+        },
+        "CF": {
+          "table": 10,
+          "row": 2,
+          "column": 1,
+          "coefficient": 1,
+          "raw": "(1,509,318,876)"
+        },
+        "signedCIS": null,
+        "sourceCellRewrite": false,
+        "sourceCorrectionClaim": false
+      },
+      "supportingPeriodEvidence": {
+        "policy": "isung-own-cfs-exact-current-seven-v1",
+        "flowCaptionPrintedStart": true,
+        "periodStart": "2023-01-01",
+        "periodEnd": "2023-12-31",
+        "scopeProof": {
+          "partialCore7": true,
+          "currentCore8": false,
+          "wholeNetIncomeExact": true,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "detailHierarchyComplete": false,
+          "notesVerified": false,
+          "notesReadScopeComplete": false,
+          "optionalAccountsNotCollected": [
+            "capex"
+          ],
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "missingAccountReasons": {
+            "capex": "No printed whole PPE acquisition total; individual asset acquisitions are not collected as a whole total."
+          },
+          "FCFSupported": false,
+          "cashFx": "notPrinted; no zero FX fact",
+          "checkedPrintedEquationCount": 15,
+          "fullyNumericEquationCount": 15,
+          "missingTermNotFactZero": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "sourceDiscrepancies": [],
+          "printedPLLossMagnitude": {
+            "table": 4,
+            "row": 57,
+            "column": 2,
+            "coefficient": 1,
+            "raw": "1,509,318,876"
+          },
+          "netIncomeSelection": "exactPrintedLossLabelMagnitude",
+          "explicitLossSemantics": {
+            "rule": "Exact current 연결당기순손실 positive magnitude denotes a loss, corroborated by independently signed whole CE and CF; original magnitude unchanged.",
+            "PL": {
+              "table": 4,
+              "row": 57,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,509,318,876"
+            },
+            "CE": {
+              "table": 7,
+              "row": 10,
+              "column": 7,
+              "coefficient": 1,
+              "raw": "(1,509,318,876)"
+            },
+            "CF": {
+              "table": 10,
+              "row": 2,
+              "column": 1,
+              "coefficient": 1,
+              "raw": "(1,509,318,876)"
+            },
+            "signedCIS": null,
+            "sourceCellRewrite": false,
+            "sourceCorrectionClaim": false
+          }
+        },
+        "currentEquationWitnesses": [
+          {
+            "label": "BS",
+            "total": {
+              "table": 1,
+              "row": 60,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "32,828,392,275"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 1,
+                "row": 85,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "20,359,744,746"
+              },
+              {
+                "table": 1,
+                "row": 102,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "12,468,647,529"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "OP",
+            "total": {
+              "table": 4,
+              "row": 33,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "(1,076,026,348)"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 1,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "16,466,985,397"
+              },
+              {
+                "table": 4,
+                "row": 5,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "12,211,713,787"
+              },
+              {
+                "table": 4,
+                "row": 10,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "5,331,297,958"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "explicitLossPretax",
+            "total": {
+              "table": 4,
+              "row": 55,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,274,356,094"
+            },
+            "totalCoefficient": -1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 33,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "(1,076,026,348)"
+              },
+              {
+                "table": 4,
+                "row": 34,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "521,563,018"
+              },
+              {
+                "table": 4,
+                "row": 43,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "719,892,764"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "explicitLossNI",
+            "total": {
+              "table": 4,
+              "row": 57,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,509,318,876"
+            },
+            "totalCoefficient": -1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 55,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "1,274,356,094"
+              },
+              {
+                "table": 4,
+                "row": 56,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "234,962,782"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "explicitLossOwners",
+            "total": {
+              "table": 4,
+              "row": 57,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,509,318,876"
+            },
+            "totalCoefficient": -1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 58,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "981,399,793"
+              },
+              {
+                "table": 4,
+                "row": 59,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(2,490,718,669)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "explicitLossCF",
+            "total": {
+              "table": 4,
+              "row": 57,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,509,318,876"
+            },
+            "totalCoefficient": -1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 2,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(1,509,318,876)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CFO",
+            "total": {
+              "table": 10,
+              "row": 1,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "(1,646,702,373)"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 2,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(1,509,318,876)"
+              },
+              {
+                "table": 10,
+                "row": 3,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "2,646,573,418"
+              },
+              {
+                "table": 10,
+                "row": 18,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(77,172,528)"
+              },
+              {
+                "table": 10,
+                "row": 26,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(2,706,784,387)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CFI",
+            "total": {
+              "table": 10,
+              "row": 49,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "(1,350,238,468)"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 50,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "2,665,341,707"
+              },
+              {
+                "table": 10,
+                "row": 58,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(4,015,580,175)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CFF",
+            "total": {
+              "table": 10,
+              "row": 74,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "4,147,376,550"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 75,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "7,168,986,000"
+              },
+              {
+                "table": 10,
+                "row": 79,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(3,021,609,450)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "cashActivities",
+            "total": {
+              "table": 10,
+              "row": 83,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,150,435,709"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 1,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "(1,646,702,373)"
+              },
+              {
+                "table": 10,
+                "row": 49,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "(1,350,238,468)"
+              },
+              {
+                "table": 10,
+                "row": 74,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "4,147,376,550"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "cashRoll",
+            "total": {
+              "table": 10,
+              "row": 85,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "6,596,837,212"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 84,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "5,446,401,503"
+              },
+              {
+                "table": 10,
+                "row": 83,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "1,150,435,709"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "BScash",
+            "total": {
+              "table": 1,
+              "row": 4,
+              "column": 1,
+              "coefficient": 1,
+              "raw": "6,596,837,212"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 85,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "6,596,837,212"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CEclosing",
+            "total": {
+              "table": 7,
+              "row": 11,
+              "column": 7,
+              "coefficient": 1,
+              "raw": "12,468,647,529"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 1,
+                "row": 102,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "12,468,647,529"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CENI",
+            "total": {
+              "table": 7,
+              "row": 10,
+              "column": 7,
+              "coefficient": 1,
+              "raw": "(1,509,318,876)"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 57,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "1,509,318,876"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CEroll",
+            "total": {
+              "table": 7,
+              "row": 11,
+              "column": 7,
+              "coefficient": 1,
+              "raw": "12,468,647,529"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 7,
+                "row": 7,
+                "column": 7,
+                "coefficient": 1,
+                "raw": "12,223,511,703"
+              },
+              {
+                "table": 7,
+                "row": 8,
+                "column": 7,
+                "coefficient": 1,
+                "raw": "1,699,986,000"
+              },
+              {
+                "table": 7,
+                "row": 9,
+                "column": 7,
+                "coefficient": 1,
+                "raw": "54,468,702"
+              },
+              {
+                "table": 7,
+                "row": 10,
+                "column": 7,
+                "coefficient": 1,
+                "raw": "(1,509,318,876)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          }
+        ]
+      }
+    }
+  },
+  {
+    "rcept_no": "20240321000294",
+    "corp_code": "01365384",
+    "bsns_year": "2023",
+    "reprt_code": "11011",
+    "fs_div": "CFS",
+    "account_id": null,
+    "account_nm": "자본총계",
+    "account_detail": "-",
+    "ord": "106",
+    "sj_div": "BS",
+    "thstrm_nm": "2023-12-31",
+    "thstrm_amount": "12468647529",
+    "currency": "KRW",
+    "html_provenance": {
+      "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240321000294&dcmNo=9746280&eleId=19&offset=187684&length=91326&dtd=dart4.xsd",
+      "sourceReceipt": "20240321000294",
+      "ruleVersion": "isung-own-cfs-exact-current-seven-v1",
+      "sourceSha256": "b3213e81b4c49e4d0f216dca1566f1ad803603ee0c53cb88c8bb6ebfc17432df",
+      "tableIndex": 1,
+      "rowIndex": 102,
+      "column": 2,
+      "physicalOrd": 106,
+      "printedLabel": "자본총계",
+      "currentCell": "12,468,647,529",
+      "printedUnit": "원",
+      "unitMultiplier": "1",
+      "precisionUnit": "1",
+      "cashDirection": null,
+      "printedSign": "positive",
+      "normalizedSign": "positive",
+      "signNormalization": "none",
+      "sourceCellRewritten": false,
+      "basis": "CFS",
+      "periodStart": "2023-01-01",
+      "periodEnd": "2023-12-31",
+      "partialCore7": true,
+      "currentCore8": false,
+      "wholeNetIncomeExact": true,
+      "fullStatementCollected": false,
+      "fullStatementVerified": false,
+      "allStatementRowsVerified": false,
+      "detailHierarchyComplete": false,
+      "notesVerified": false,
+      "notesReadScopeComplete": false,
+      "optionalAccountsNotCollected": [
+        "capex"
+      ],
+      "uncollectedOptionalAccounts": [
+        "capex"
+      ],
+      "missingAccountReasons": {
+        "capex": "No printed whole PPE acquisition total; individual asset acquisitions are not collected as a whole total."
+      },
+      "FCFSupported": false,
+      "cashFx": "notPrinted; no zero FX fact",
+      "checkedPrintedEquationCount": 15,
+      "fullyNumericEquationCount": 15,
+      "missingTermNotFactZero": true,
+      "numericCellCorrection": false,
+      "genericRoundingTolerance": false,
+      "priorNumericPeriodsCollected": false,
+      "sourceDiscrepancies": [],
+      "printedPLLossMagnitude": {
+        "table": 4,
+        "row": 57,
+        "column": 2,
+        "coefficient": 1,
+        "raw": "1,509,318,876"
+      },
+      "netIncomeSelection": "exactPrintedLossLabelMagnitude",
+      "explicitLossSemantics": {
+        "rule": "Exact current 연결당기순손실 positive magnitude denotes a loss, corroborated by independently signed whole CE and CF; original magnitude unchanged.",
+        "PL": {
+          "table": 4,
+          "row": 57,
+          "column": 2,
+          "coefficient": 1,
+          "raw": "1,509,318,876"
+        },
+        "CE": {
+          "table": 7,
+          "row": 10,
+          "column": 7,
+          "coefficient": 1,
+          "raw": "(1,509,318,876)"
+        },
+        "CF": {
+          "table": 10,
+          "row": 2,
+          "column": 1,
+          "coefficient": 1,
+          "raw": "(1,509,318,876)"
+        },
+        "signedCIS": null,
+        "sourceCellRewrite": false,
+        "sourceCorrectionClaim": false
+      },
+      "supportingPeriodEvidence": {
+        "policy": "isung-own-cfs-exact-current-seven-v1",
+        "flowCaptionPrintedStart": true,
+        "periodStart": "2023-01-01",
+        "periodEnd": "2023-12-31",
+        "scopeProof": {
+          "partialCore7": true,
+          "currentCore8": false,
+          "wholeNetIncomeExact": true,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "detailHierarchyComplete": false,
+          "notesVerified": false,
+          "notesReadScopeComplete": false,
+          "optionalAccountsNotCollected": [
+            "capex"
+          ],
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "missingAccountReasons": {
+            "capex": "No printed whole PPE acquisition total; individual asset acquisitions are not collected as a whole total."
+          },
+          "FCFSupported": false,
+          "cashFx": "notPrinted; no zero FX fact",
+          "checkedPrintedEquationCount": 15,
+          "fullyNumericEquationCount": 15,
+          "missingTermNotFactZero": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "sourceDiscrepancies": [],
+          "printedPLLossMagnitude": {
+            "table": 4,
+            "row": 57,
+            "column": 2,
+            "coefficient": 1,
+            "raw": "1,509,318,876"
+          },
+          "netIncomeSelection": "exactPrintedLossLabelMagnitude",
+          "explicitLossSemantics": {
+            "rule": "Exact current 연결당기순손실 positive magnitude denotes a loss, corroborated by independently signed whole CE and CF; original magnitude unchanged.",
+            "PL": {
+              "table": 4,
+              "row": 57,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,509,318,876"
+            },
+            "CE": {
+              "table": 7,
+              "row": 10,
+              "column": 7,
+              "coefficient": 1,
+              "raw": "(1,509,318,876)"
+            },
+            "CF": {
+              "table": 10,
+              "row": 2,
+              "column": 1,
+              "coefficient": 1,
+              "raw": "(1,509,318,876)"
+            },
+            "signedCIS": null,
+            "sourceCellRewrite": false,
+            "sourceCorrectionClaim": false
+          }
+        },
+        "currentEquationWitnesses": [
+          {
+            "label": "BS",
+            "total": {
+              "table": 1,
+              "row": 60,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "32,828,392,275"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 1,
+                "row": 85,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "20,359,744,746"
+              },
+              {
+                "table": 1,
+                "row": 102,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "12,468,647,529"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "OP",
+            "total": {
+              "table": 4,
+              "row": 33,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "(1,076,026,348)"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 1,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "16,466,985,397"
+              },
+              {
+                "table": 4,
+                "row": 5,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "12,211,713,787"
+              },
+              {
+                "table": 4,
+                "row": 10,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "5,331,297,958"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "explicitLossPretax",
+            "total": {
+              "table": 4,
+              "row": 55,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,274,356,094"
+            },
+            "totalCoefficient": -1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 33,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "(1,076,026,348)"
+              },
+              {
+                "table": 4,
+                "row": 34,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "521,563,018"
+              },
+              {
+                "table": 4,
+                "row": 43,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "719,892,764"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "explicitLossNI",
+            "total": {
+              "table": 4,
+              "row": 57,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,509,318,876"
+            },
+            "totalCoefficient": -1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 55,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "1,274,356,094"
+              },
+              {
+                "table": 4,
+                "row": 56,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "234,962,782"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "explicitLossOwners",
+            "total": {
+              "table": 4,
+              "row": 57,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,509,318,876"
+            },
+            "totalCoefficient": -1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 58,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "981,399,793"
+              },
+              {
+                "table": 4,
+                "row": 59,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(2,490,718,669)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "explicitLossCF",
+            "total": {
+              "table": 4,
+              "row": 57,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,509,318,876"
+            },
+            "totalCoefficient": -1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 2,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(1,509,318,876)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CFO",
+            "total": {
+              "table": 10,
+              "row": 1,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "(1,646,702,373)"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 2,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(1,509,318,876)"
+              },
+              {
+                "table": 10,
+                "row": 3,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "2,646,573,418"
+              },
+              {
+                "table": 10,
+                "row": 18,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(77,172,528)"
+              },
+              {
+                "table": 10,
+                "row": 26,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(2,706,784,387)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CFI",
+            "total": {
+              "table": 10,
+              "row": 49,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "(1,350,238,468)"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 50,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "2,665,341,707"
+              },
+              {
+                "table": 10,
+                "row": 58,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(4,015,580,175)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CFF",
+            "total": {
+              "table": 10,
+              "row": 74,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "4,147,376,550"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 75,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "7,168,986,000"
+              },
+              {
+                "table": 10,
+                "row": 79,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(3,021,609,450)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "cashActivities",
+            "total": {
+              "table": 10,
+              "row": 83,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,150,435,709"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 1,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "(1,646,702,373)"
+              },
+              {
+                "table": 10,
+                "row": 49,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "(1,350,238,468)"
+              },
+              {
+                "table": 10,
+                "row": 74,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "4,147,376,550"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "cashRoll",
+            "total": {
+              "table": 10,
+              "row": 85,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "6,596,837,212"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 84,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "5,446,401,503"
+              },
+              {
+                "table": 10,
+                "row": 83,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "1,150,435,709"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "BScash",
+            "total": {
+              "table": 1,
+              "row": 4,
+              "column": 1,
+              "coefficient": 1,
+              "raw": "6,596,837,212"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 85,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "6,596,837,212"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CEclosing",
+            "total": {
+              "table": 7,
+              "row": 11,
+              "column": 7,
+              "coefficient": 1,
+              "raw": "12,468,647,529"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 1,
+                "row": 102,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "12,468,647,529"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CENI",
+            "total": {
+              "table": 7,
+              "row": 10,
+              "column": 7,
+              "coefficient": 1,
+              "raw": "(1,509,318,876)"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 57,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "1,509,318,876"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CEroll",
+            "total": {
+              "table": 7,
+              "row": 11,
+              "column": 7,
+              "coefficient": 1,
+              "raw": "12,468,647,529"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 7,
+                "row": 7,
+                "column": 7,
+                "coefficient": 1,
+                "raw": "12,223,511,703"
+              },
+              {
+                "table": 7,
+                "row": 8,
+                "column": 7,
+                "coefficient": 1,
+                "raw": "1,699,986,000"
+              },
+              {
+                "table": 7,
+                "row": 9,
+                "column": 7,
+                "coefficient": 1,
+                "raw": "54,468,702"
+              },
+              {
+                "table": 7,
+                "row": 10,
+                "column": 7,
+                "coefficient": 1,
+                "raw": "(1,509,318,876)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          }
+        ]
+      }
+    }
+  },
+  {
+    "rcept_no": "20240321000294",
+    "corp_code": "01365384",
+    "bsns_year": "2023",
+    "reprt_code": "11011",
+    "fs_div": "CFS",
+    "account_id": null,
+    "account_nm": "I.매출액",
+    "account_detail": "-",
+    "ord": "113",
+    "sj_div": "IS",
+    "thstrm_nm": "2023-01-01~2023-12-31",
+    "thstrm_amount": "16466985397",
+    "currency": "KRW",
+    "html_provenance": {
+      "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240321000294&dcmNo=9746280&eleId=19&offset=187684&length=91326&dtd=dart4.xsd",
+      "sourceReceipt": "20240321000294",
+      "ruleVersion": "isung-own-cfs-exact-current-seven-v1",
+      "sourceSha256": "b3213e81b4c49e4d0f216dca1566f1ad803603ee0c53cb88c8bb6ebfc17432df",
+      "tableIndex": 4,
+      "rowIndex": 1,
+      "column": 2,
+      "physicalOrd": 113,
+      "printedLabel": "I.매출액",
+      "currentCell": "16,466,985,397",
+      "printedUnit": "원",
+      "unitMultiplier": "1",
+      "precisionUnit": "1",
+      "cashDirection": null,
+      "printedSign": "positive",
+      "normalizedSign": "positive",
+      "signNormalization": "none",
+      "sourceCellRewritten": false,
+      "basis": "CFS",
+      "periodStart": "2023-01-01",
+      "periodEnd": "2023-12-31",
+      "partialCore7": true,
+      "currentCore8": false,
+      "wholeNetIncomeExact": true,
+      "fullStatementCollected": false,
+      "fullStatementVerified": false,
+      "allStatementRowsVerified": false,
+      "detailHierarchyComplete": false,
+      "notesVerified": false,
+      "notesReadScopeComplete": false,
+      "optionalAccountsNotCollected": [
+        "capex"
+      ],
+      "uncollectedOptionalAccounts": [
+        "capex"
+      ],
+      "missingAccountReasons": {
+        "capex": "No printed whole PPE acquisition total; individual asset acquisitions are not collected as a whole total."
+      },
+      "FCFSupported": false,
+      "cashFx": "notPrinted; no zero FX fact",
+      "checkedPrintedEquationCount": 15,
+      "fullyNumericEquationCount": 15,
+      "missingTermNotFactZero": true,
+      "numericCellCorrection": false,
+      "genericRoundingTolerance": false,
+      "priorNumericPeriodsCollected": false,
+      "sourceDiscrepancies": [],
+      "printedPLLossMagnitude": {
+        "table": 4,
+        "row": 57,
+        "column": 2,
+        "coefficient": 1,
+        "raw": "1,509,318,876"
+      },
+      "netIncomeSelection": "exactPrintedLossLabelMagnitude",
+      "explicitLossSemantics": {
+        "rule": "Exact current 연결당기순손실 positive magnitude denotes a loss, corroborated by independently signed whole CE and CF; original magnitude unchanged.",
+        "PL": {
+          "table": 4,
+          "row": 57,
+          "column": 2,
+          "coefficient": 1,
+          "raw": "1,509,318,876"
+        },
+        "CE": {
+          "table": 7,
+          "row": 10,
+          "column": 7,
+          "coefficient": 1,
+          "raw": "(1,509,318,876)"
+        },
+        "CF": {
+          "table": 10,
+          "row": 2,
+          "column": 1,
+          "coefficient": 1,
+          "raw": "(1,509,318,876)"
+        },
+        "signedCIS": null,
+        "sourceCellRewrite": false,
+        "sourceCorrectionClaim": false
+      },
+      "supportingPeriodEvidence": {
+        "policy": "isung-own-cfs-exact-current-seven-v1",
+        "flowCaptionPrintedStart": true,
+        "periodStart": "2023-01-01",
+        "periodEnd": "2023-12-31",
+        "scopeProof": {
+          "partialCore7": true,
+          "currentCore8": false,
+          "wholeNetIncomeExact": true,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "detailHierarchyComplete": false,
+          "notesVerified": false,
+          "notesReadScopeComplete": false,
+          "optionalAccountsNotCollected": [
+            "capex"
+          ],
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "missingAccountReasons": {
+            "capex": "No printed whole PPE acquisition total; individual asset acquisitions are not collected as a whole total."
+          },
+          "FCFSupported": false,
+          "cashFx": "notPrinted; no zero FX fact",
+          "checkedPrintedEquationCount": 15,
+          "fullyNumericEquationCount": 15,
+          "missingTermNotFactZero": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "sourceDiscrepancies": [],
+          "printedPLLossMagnitude": {
+            "table": 4,
+            "row": 57,
+            "column": 2,
+            "coefficient": 1,
+            "raw": "1,509,318,876"
+          },
+          "netIncomeSelection": "exactPrintedLossLabelMagnitude",
+          "explicitLossSemantics": {
+            "rule": "Exact current 연결당기순손실 positive magnitude denotes a loss, corroborated by independently signed whole CE and CF; original magnitude unchanged.",
+            "PL": {
+              "table": 4,
+              "row": 57,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,509,318,876"
+            },
+            "CE": {
+              "table": 7,
+              "row": 10,
+              "column": 7,
+              "coefficient": 1,
+              "raw": "(1,509,318,876)"
+            },
+            "CF": {
+              "table": 10,
+              "row": 2,
+              "column": 1,
+              "coefficient": 1,
+              "raw": "(1,509,318,876)"
+            },
+            "signedCIS": null,
+            "sourceCellRewrite": false,
+            "sourceCorrectionClaim": false
+          }
+        },
+        "currentEquationWitnesses": [
+          {
+            "label": "BS",
+            "total": {
+              "table": 1,
+              "row": 60,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "32,828,392,275"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 1,
+                "row": 85,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "20,359,744,746"
+              },
+              {
+                "table": 1,
+                "row": 102,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "12,468,647,529"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "OP",
+            "total": {
+              "table": 4,
+              "row": 33,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "(1,076,026,348)"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 1,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "16,466,985,397"
+              },
+              {
+                "table": 4,
+                "row": 5,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "12,211,713,787"
+              },
+              {
+                "table": 4,
+                "row": 10,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "5,331,297,958"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "explicitLossPretax",
+            "total": {
+              "table": 4,
+              "row": 55,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,274,356,094"
+            },
+            "totalCoefficient": -1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 33,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "(1,076,026,348)"
+              },
+              {
+                "table": 4,
+                "row": 34,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "521,563,018"
+              },
+              {
+                "table": 4,
+                "row": 43,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "719,892,764"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "explicitLossNI",
+            "total": {
+              "table": 4,
+              "row": 57,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,509,318,876"
+            },
+            "totalCoefficient": -1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 55,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "1,274,356,094"
+              },
+              {
+                "table": 4,
+                "row": 56,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "234,962,782"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "explicitLossOwners",
+            "total": {
+              "table": 4,
+              "row": 57,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,509,318,876"
+            },
+            "totalCoefficient": -1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 58,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "981,399,793"
+              },
+              {
+                "table": 4,
+                "row": 59,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(2,490,718,669)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "explicitLossCF",
+            "total": {
+              "table": 4,
+              "row": 57,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,509,318,876"
+            },
+            "totalCoefficient": -1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 2,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(1,509,318,876)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CFO",
+            "total": {
+              "table": 10,
+              "row": 1,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "(1,646,702,373)"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 2,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(1,509,318,876)"
+              },
+              {
+                "table": 10,
+                "row": 3,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "2,646,573,418"
+              },
+              {
+                "table": 10,
+                "row": 18,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(77,172,528)"
+              },
+              {
+                "table": 10,
+                "row": 26,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(2,706,784,387)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CFI",
+            "total": {
+              "table": 10,
+              "row": 49,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "(1,350,238,468)"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 50,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "2,665,341,707"
+              },
+              {
+                "table": 10,
+                "row": 58,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(4,015,580,175)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CFF",
+            "total": {
+              "table": 10,
+              "row": 74,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "4,147,376,550"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 75,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "7,168,986,000"
+              },
+              {
+                "table": 10,
+                "row": 79,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(3,021,609,450)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "cashActivities",
+            "total": {
+              "table": 10,
+              "row": 83,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,150,435,709"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 1,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "(1,646,702,373)"
+              },
+              {
+                "table": 10,
+                "row": 49,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "(1,350,238,468)"
+              },
+              {
+                "table": 10,
+                "row": 74,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "4,147,376,550"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "cashRoll",
+            "total": {
+              "table": 10,
+              "row": 85,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "6,596,837,212"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 84,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "5,446,401,503"
+              },
+              {
+                "table": 10,
+                "row": 83,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "1,150,435,709"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "BScash",
+            "total": {
+              "table": 1,
+              "row": 4,
+              "column": 1,
+              "coefficient": 1,
+              "raw": "6,596,837,212"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 85,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "6,596,837,212"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CEclosing",
+            "total": {
+              "table": 7,
+              "row": 11,
+              "column": 7,
+              "coefficient": 1,
+              "raw": "12,468,647,529"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 1,
+                "row": 102,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "12,468,647,529"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CENI",
+            "total": {
+              "table": 7,
+              "row": 10,
+              "column": 7,
+              "coefficient": 1,
+              "raw": "(1,509,318,876)"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 57,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "1,509,318,876"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CEroll",
+            "total": {
+              "table": 7,
+              "row": 11,
+              "column": 7,
+              "coefficient": 1,
+              "raw": "12,468,647,529"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 7,
+                "row": 7,
+                "column": 7,
+                "coefficient": 1,
+                "raw": "12,223,511,703"
+              },
+              {
+                "table": 7,
+                "row": 8,
+                "column": 7,
+                "coefficient": 1,
+                "raw": "1,699,986,000"
+              },
+              {
+                "table": 7,
+                "row": 9,
+                "column": 7,
+                "coefficient": 1,
+                "raw": "54,468,702"
+              },
+              {
+                "table": 7,
+                "row": 10,
+                "column": 7,
+                "coefficient": 1,
+                "raw": "(1,509,318,876)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          }
+        ]
+      }
+    }
+  },
+  {
+    "rcept_no": "20240321000294",
+    "corp_code": "01365384",
+    "bsns_year": "2023",
+    "reprt_code": "11011",
+    "fs_div": "CFS",
+    "account_id": null,
+    "account_nm": "V.영업이익(손실)",
+    "account_detail": "-",
+    "ord": "145",
+    "sj_div": "IS",
+    "thstrm_nm": "2023-01-01~2023-12-31",
+    "thstrm_amount": "-1076026348",
+    "currency": "KRW",
+    "html_provenance": {
+      "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240321000294&dcmNo=9746280&eleId=19&offset=187684&length=91326&dtd=dart4.xsd",
+      "sourceReceipt": "20240321000294",
+      "ruleVersion": "isung-own-cfs-exact-current-seven-v1",
+      "sourceSha256": "b3213e81b4c49e4d0f216dca1566f1ad803603ee0c53cb88c8bb6ebfc17432df",
+      "tableIndex": 4,
+      "rowIndex": 33,
+      "column": 2,
+      "physicalOrd": 145,
+      "printedLabel": "V.영업이익(손실)",
+      "currentCell": "(1,076,026,348)",
+      "printedUnit": "원",
+      "unitMultiplier": "1",
+      "precisionUnit": "1",
+      "cashDirection": null,
+      "printedSign": "negative",
+      "normalizedSign": "negative",
+      "signNormalization": "none",
+      "sourceCellRewritten": false,
+      "basis": "CFS",
+      "periodStart": "2023-01-01",
+      "periodEnd": "2023-12-31",
+      "partialCore7": true,
+      "currentCore8": false,
+      "wholeNetIncomeExact": true,
+      "fullStatementCollected": false,
+      "fullStatementVerified": false,
+      "allStatementRowsVerified": false,
+      "detailHierarchyComplete": false,
+      "notesVerified": false,
+      "notesReadScopeComplete": false,
+      "optionalAccountsNotCollected": [
+        "capex"
+      ],
+      "uncollectedOptionalAccounts": [
+        "capex"
+      ],
+      "missingAccountReasons": {
+        "capex": "No printed whole PPE acquisition total; individual asset acquisitions are not collected as a whole total."
+      },
+      "FCFSupported": false,
+      "cashFx": "notPrinted; no zero FX fact",
+      "checkedPrintedEquationCount": 15,
+      "fullyNumericEquationCount": 15,
+      "missingTermNotFactZero": true,
+      "numericCellCorrection": false,
+      "genericRoundingTolerance": false,
+      "priorNumericPeriodsCollected": false,
+      "sourceDiscrepancies": [],
+      "printedPLLossMagnitude": {
+        "table": 4,
+        "row": 57,
+        "column": 2,
+        "coefficient": 1,
+        "raw": "1,509,318,876"
+      },
+      "netIncomeSelection": "exactPrintedLossLabelMagnitude",
+      "explicitLossSemantics": {
+        "rule": "Exact current 연결당기순손실 positive magnitude denotes a loss, corroborated by independently signed whole CE and CF; original magnitude unchanged.",
+        "PL": {
+          "table": 4,
+          "row": 57,
+          "column": 2,
+          "coefficient": 1,
+          "raw": "1,509,318,876"
+        },
+        "CE": {
+          "table": 7,
+          "row": 10,
+          "column": 7,
+          "coefficient": 1,
+          "raw": "(1,509,318,876)"
+        },
+        "CF": {
+          "table": 10,
+          "row": 2,
+          "column": 1,
+          "coefficient": 1,
+          "raw": "(1,509,318,876)"
+        },
+        "signedCIS": null,
+        "sourceCellRewrite": false,
+        "sourceCorrectionClaim": false
+      },
+      "supportingPeriodEvidence": {
+        "policy": "isung-own-cfs-exact-current-seven-v1",
+        "flowCaptionPrintedStart": true,
+        "periodStart": "2023-01-01",
+        "periodEnd": "2023-12-31",
+        "scopeProof": {
+          "partialCore7": true,
+          "currentCore8": false,
+          "wholeNetIncomeExact": true,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "detailHierarchyComplete": false,
+          "notesVerified": false,
+          "notesReadScopeComplete": false,
+          "optionalAccountsNotCollected": [
+            "capex"
+          ],
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "missingAccountReasons": {
+            "capex": "No printed whole PPE acquisition total; individual asset acquisitions are not collected as a whole total."
+          },
+          "FCFSupported": false,
+          "cashFx": "notPrinted; no zero FX fact",
+          "checkedPrintedEquationCount": 15,
+          "fullyNumericEquationCount": 15,
+          "missingTermNotFactZero": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "sourceDiscrepancies": [],
+          "printedPLLossMagnitude": {
+            "table": 4,
+            "row": 57,
+            "column": 2,
+            "coefficient": 1,
+            "raw": "1,509,318,876"
+          },
+          "netIncomeSelection": "exactPrintedLossLabelMagnitude",
+          "explicitLossSemantics": {
+            "rule": "Exact current 연결당기순손실 positive magnitude denotes a loss, corroborated by independently signed whole CE and CF; original magnitude unchanged.",
+            "PL": {
+              "table": 4,
+              "row": 57,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,509,318,876"
+            },
+            "CE": {
+              "table": 7,
+              "row": 10,
+              "column": 7,
+              "coefficient": 1,
+              "raw": "(1,509,318,876)"
+            },
+            "CF": {
+              "table": 10,
+              "row": 2,
+              "column": 1,
+              "coefficient": 1,
+              "raw": "(1,509,318,876)"
+            },
+            "signedCIS": null,
+            "sourceCellRewrite": false,
+            "sourceCorrectionClaim": false
+          }
+        },
+        "currentEquationWitnesses": [
+          {
+            "label": "BS",
+            "total": {
+              "table": 1,
+              "row": 60,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "32,828,392,275"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 1,
+                "row": 85,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "20,359,744,746"
+              },
+              {
+                "table": 1,
+                "row": 102,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "12,468,647,529"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "OP",
+            "total": {
+              "table": 4,
+              "row": 33,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "(1,076,026,348)"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 1,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "16,466,985,397"
+              },
+              {
+                "table": 4,
+                "row": 5,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "12,211,713,787"
+              },
+              {
+                "table": 4,
+                "row": 10,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "5,331,297,958"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "explicitLossPretax",
+            "total": {
+              "table": 4,
+              "row": 55,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,274,356,094"
+            },
+            "totalCoefficient": -1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 33,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "(1,076,026,348)"
+              },
+              {
+                "table": 4,
+                "row": 34,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "521,563,018"
+              },
+              {
+                "table": 4,
+                "row": 43,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "719,892,764"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "explicitLossNI",
+            "total": {
+              "table": 4,
+              "row": 57,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,509,318,876"
+            },
+            "totalCoefficient": -1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 55,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "1,274,356,094"
+              },
+              {
+                "table": 4,
+                "row": 56,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "234,962,782"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "explicitLossOwners",
+            "total": {
+              "table": 4,
+              "row": 57,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,509,318,876"
+            },
+            "totalCoefficient": -1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 58,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "981,399,793"
+              },
+              {
+                "table": 4,
+                "row": 59,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(2,490,718,669)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "explicitLossCF",
+            "total": {
+              "table": 4,
+              "row": 57,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,509,318,876"
+            },
+            "totalCoefficient": -1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 2,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(1,509,318,876)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CFO",
+            "total": {
+              "table": 10,
+              "row": 1,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "(1,646,702,373)"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 2,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(1,509,318,876)"
+              },
+              {
+                "table": 10,
+                "row": 3,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "2,646,573,418"
+              },
+              {
+                "table": 10,
+                "row": 18,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(77,172,528)"
+              },
+              {
+                "table": 10,
+                "row": 26,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(2,706,784,387)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CFI",
+            "total": {
+              "table": 10,
+              "row": 49,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "(1,350,238,468)"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 50,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "2,665,341,707"
+              },
+              {
+                "table": 10,
+                "row": 58,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(4,015,580,175)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CFF",
+            "total": {
+              "table": 10,
+              "row": 74,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "4,147,376,550"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 75,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "7,168,986,000"
+              },
+              {
+                "table": 10,
+                "row": 79,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(3,021,609,450)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "cashActivities",
+            "total": {
+              "table": 10,
+              "row": 83,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,150,435,709"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 1,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "(1,646,702,373)"
+              },
+              {
+                "table": 10,
+                "row": 49,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "(1,350,238,468)"
+              },
+              {
+                "table": 10,
+                "row": 74,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "4,147,376,550"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "cashRoll",
+            "total": {
+              "table": 10,
+              "row": 85,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "6,596,837,212"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 84,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "5,446,401,503"
+              },
+              {
+                "table": 10,
+                "row": 83,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "1,150,435,709"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "BScash",
+            "total": {
+              "table": 1,
+              "row": 4,
+              "column": 1,
+              "coefficient": 1,
+              "raw": "6,596,837,212"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 85,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "6,596,837,212"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CEclosing",
+            "total": {
+              "table": 7,
+              "row": 11,
+              "column": 7,
+              "coefficient": 1,
+              "raw": "12,468,647,529"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 1,
+                "row": 102,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "12,468,647,529"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CENI",
+            "total": {
+              "table": 7,
+              "row": 10,
+              "column": 7,
+              "coefficient": 1,
+              "raw": "(1,509,318,876)"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 57,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "1,509,318,876"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CEroll",
+            "total": {
+              "table": 7,
+              "row": 11,
+              "column": 7,
+              "coefficient": 1,
+              "raw": "12,468,647,529"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 7,
+                "row": 7,
+                "column": 7,
+                "coefficient": 1,
+                "raw": "12,223,511,703"
+              },
+              {
+                "table": 7,
+                "row": 8,
+                "column": 7,
+                "coefficient": 1,
+                "raw": "1,699,986,000"
+              },
+              {
+                "table": 7,
+                "row": 9,
+                "column": 7,
+                "coefficient": 1,
+                "raw": "54,468,702"
+              },
+              {
+                "table": 7,
+                "row": 10,
+                "column": 7,
+                "coefficient": 1,
+                "raw": "(1,509,318,876)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          }
+        ]
+      }
+    }
+  },
+  {
+    "rcept_no": "20240321000294",
+    "corp_code": "01365384",
+    "bsns_year": "2023",
+    "reprt_code": "11011",
+    "fs_div": "CFS",
+    "account_id": null,
+    "account_nm": "X.연결당기순손실",
+    "account_detail": "-",
+    "ord": "169",
+    "sj_div": "IS",
+    "thstrm_nm": "2023-01-01~2023-12-31",
+    "thstrm_amount": "-1509318876",
+    "currency": "KRW",
+    "html_provenance": {
+      "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240321000294&dcmNo=9746280&eleId=19&offset=187684&length=91326&dtd=dart4.xsd",
+      "sourceReceipt": "20240321000294",
+      "ruleVersion": "isung-own-cfs-exact-current-seven-v1",
+      "sourceSha256": "b3213e81b4c49e4d0f216dca1566f1ad803603ee0c53cb88c8bb6ebfc17432df",
+      "tableIndex": 4,
+      "rowIndex": 57,
+      "column": 2,
+      "physicalOrd": 169,
+      "printedLabel": "X.연결당기순손실",
+      "currentCell": "1,509,318,876",
+      "printedUnit": "원",
+      "unitMultiplier": "1",
+      "precisionUnit": "1",
+      "cashDirection": null,
+      "printedSign": "positive",
+      "normalizedSign": "negative",
+      "signNormalization": "explicitPrintedLossMagnitudeCorroboratedByCEandCF",
+      "sourceCellRewritten": false,
+      "basis": "CFS",
+      "periodStart": "2023-01-01",
+      "periodEnd": "2023-12-31",
+      "partialCore7": true,
+      "currentCore8": false,
+      "wholeNetIncomeExact": true,
+      "fullStatementCollected": false,
+      "fullStatementVerified": false,
+      "allStatementRowsVerified": false,
+      "detailHierarchyComplete": false,
+      "notesVerified": false,
+      "notesReadScopeComplete": false,
+      "optionalAccountsNotCollected": [
+        "capex"
+      ],
+      "uncollectedOptionalAccounts": [
+        "capex"
+      ],
+      "missingAccountReasons": {
+        "capex": "No printed whole PPE acquisition total; individual asset acquisitions are not collected as a whole total."
+      },
+      "FCFSupported": false,
+      "cashFx": "notPrinted; no zero FX fact",
+      "checkedPrintedEquationCount": 15,
+      "fullyNumericEquationCount": 15,
+      "missingTermNotFactZero": true,
+      "numericCellCorrection": false,
+      "genericRoundingTolerance": false,
+      "priorNumericPeriodsCollected": false,
+      "sourceDiscrepancies": [],
+      "printedPLLossMagnitude": {
+        "table": 4,
+        "row": 57,
+        "column": 2,
+        "coefficient": 1,
+        "raw": "1,509,318,876"
+      },
+      "netIncomeSelection": "exactPrintedLossLabelMagnitude",
+      "explicitLossSemantics": {
+        "rule": "Exact current 연결당기순손실 positive magnitude denotes a loss, corroborated by independently signed whole CE and CF; original magnitude unchanged.",
+        "PL": {
+          "table": 4,
+          "row": 57,
+          "column": 2,
+          "coefficient": 1,
+          "raw": "1,509,318,876"
+        },
+        "CE": {
+          "table": 7,
+          "row": 10,
+          "column": 7,
+          "coefficient": 1,
+          "raw": "(1,509,318,876)"
+        },
+        "CF": {
+          "table": 10,
+          "row": 2,
+          "column": 1,
+          "coefficient": 1,
+          "raw": "(1,509,318,876)"
+        },
+        "signedCIS": null,
+        "sourceCellRewrite": false,
+        "sourceCorrectionClaim": false
+      },
+      "supportingPeriodEvidence": {
+        "policy": "isung-own-cfs-exact-current-seven-v1",
+        "flowCaptionPrintedStart": true,
+        "periodStart": "2023-01-01",
+        "periodEnd": "2023-12-31",
+        "scopeProof": {
+          "partialCore7": true,
+          "currentCore8": false,
+          "wholeNetIncomeExact": true,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "detailHierarchyComplete": false,
+          "notesVerified": false,
+          "notesReadScopeComplete": false,
+          "optionalAccountsNotCollected": [
+            "capex"
+          ],
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "missingAccountReasons": {
+            "capex": "No printed whole PPE acquisition total; individual asset acquisitions are not collected as a whole total."
+          },
+          "FCFSupported": false,
+          "cashFx": "notPrinted; no zero FX fact",
+          "checkedPrintedEquationCount": 15,
+          "fullyNumericEquationCount": 15,
+          "missingTermNotFactZero": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "sourceDiscrepancies": [],
+          "printedPLLossMagnitude": {
+            "table": 4,
+            "row": 57,
+            "column": 2,
+            "coefficient": 1,
+            "raw": "1,509,318,876"
+          },
+          "netIncomeSelection": "exactPrintedLossLabelMagnitude",
+          "explicitLossSemantics": {
+            "rule": "Exact current 연결당기순손실 positive magnitude denotes a loss, corroborated by independently signed whole CE and CF; original magnitude unchanged.",
+            "PL": {
+              "table": 4,
+              "row": 57,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,509,318,876"
+            },
+            "CE": {
+              "table": 7,
+              "row": 10,
+              "column": 7,
+              "coefficient": 1,
+              "raw": "(1,509,318,876)"
+            },
+            "CF": {
+              "table": 10,
+              "row": 2,
+              "column": 1,
+              "coefficient": 1,
+              "raw": "(1,509,318,876)"
+            },
+            "signedCIS": null,
+            "sourceCellRewrite": false,
+            "sourceCorrectionClaim": false
+          }
+        },
+        "currentEquationWitnesses": [
+          {
+            "label": "BS",
+            "total": {
+              "table": 1,
+              "row": 60,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "32,828,392,275"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 1,
+                "row": 85,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "20,359,744,746"
+              },
+              {
+                "table": 1,
+                "row": 102,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "12,468,647,529"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "OP",
+            "total": {
+              "table": 4,
+              "row": 33,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "(1,076,026,348)"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 1,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "16,466,985,397"
+              },
+              {
+                "table": 4,
+                "row": 5,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "12,211,713,787"
+              },
+              {
+                "table": 4,
+                "row": 10,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "5,331,297,958"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "explicitLossPretax",
+            "total": {
+              "table": 4,
+              "row": 55,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,274,356,094"
+            },
+            "totalCoefficient": -1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 33,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "(1,076,026,348)"
+              },
+              {
+                "table": 4,
+                "row": 34,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "521,563,018"
+              },
+              {
+                "table": 4,
+                "row": 43,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "719,892,764"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "explicitLossNI",
+            "total": {
+              "table": 4,
+              "row": 57,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,509,318,876"
+            },
+            "totalCoefficient": -1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 55,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "1,274,356,094"
+              },
+              {
+                "table": 4,
+                "row": 56,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "234,962,782"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "explicitLossOwners",
+            "total": {
+              "table": 4,
+              "row": 57,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,509,318,876"
+            },
+            "totalCoefficient": -1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 58,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "981,399,793"
+              },
+              {
+                "table": 4,
+                "row": 59,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(2,490,718,669)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "explicitLossCF",
+            "total": {
+              "table": 4,
+              "row": 57,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,509,318,876"
+            },
+            "totalCoefficient": -1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 2,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(1,509,318,876)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CFO",
+            "total": {
+              "table": 10,
+              "row": 1,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "(1,646,702,373)"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 2,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(1,509,318,876)"
+              },
+              {
+                "table": 10,
+                "row": 3,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "2,646,573,418"
+              },
+              {
+                "table": 10,
+                "row": 18,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(77,172,528)"
+              },
+              {
+                "table": 10,
+                "row": 26,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(2,706,784,387)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CFI",
+            "total": {
+              "table": 10,
+              "row": 49,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "(1,350,238,468)"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 50,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "2,665,341,707"
+              },
+              {
+                "table": 10,
+                "row": 58,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(4,015,580,175)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CFF",
+            "total": {
+              "table": 10,
+              "row": 74,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "4,147,376,550"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 75,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "7,168,986,000"
+              },
+              {
+                "table": 10,
+                "row": 79,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(3,021,609,450)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "cashActivities",
+            "total": {
+              "table": 10,
+              "row": 83,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,150,435,709"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 1,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "(1,646,702,373)"
+              },
+              {
+                "table": 10,
+                "row": 49,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "(1,350,238,468)"
+              },
+              {
+                "table": 10,
+                "row": 74,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "4,147,376,550"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "cashRoll",
+            "total": {
+              "table": 10,
+              "row": 85,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "6,596,837,212"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 84,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "5,446,401,503"
+              },
+              {
+                "table": 10,
+                "row": 83,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "1,150,435,709"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "BScash",
+            "total": {
+              "table": 1,
+              "row": 4,
+              "column": 1,
+              "coefficient": 1,
+              "raw": "6,596,837,212"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 85,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "6,596,837,212"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CEclosing",
+            "total": {
+              "table": 7,
+              "row": 11,
+              "column": 7,
+              "coefficient": 1,
+              "raw": "12,468,647,529"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 1,
+                "row": 102,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "12,468,647,529"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CENI",
+            "total": {
+              "table": 7,
+              "row": 10,
+              "column": 7,
+              "coefficient": 1,
+              "raw": "(1,509,318,876)"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 57,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "1,509,318,876"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CEroll",
+            "total": {
+              "table": 7,
+              "row": 11,
+              "column": 7,
+              "coefficient": 1,
+              "raw": "12,468,647,529"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 7,
+                "row": 7,
+                "column": 7,
+                "coefficient": 1,
+                "raw": "12,223,511,703"
+              },
+              {
+                "table": 7,
+                "row": 8,
+                "column": 7,
+                "coefficient": 1,
+                "raw": "1,699,986,000"
+              },
+              {
+                "table": 7,
+                "row": 9,
+                "column": 7,
+                "coefficient": 1,
+                "raw": "54,468,702"
+              },
+              {
+                "table": 7,
+                "row": 10,
+                "column": 7,
+                "coefficient": 1,
+                "raw": "(1,509,318,876)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          }
+        ]
+      }
+    }
+  },
+  {
+    "rcept_no": "20240321000294",
+    "corp_code": "01365384",
+    "bsns_year": "2023",
+    "reprt_code": "11011",
+    "fs_div": "CFS",
+    "account_id": null,
+    "account_nm": "I.영업활동으로인한현금흐름",
+    "account_detail": "-",
+    "ord": "193",
+    "sj_div": "CF",
+    "thstrm_nm": "2023-01-01~2023-12-31",
+    "thstrm_amount": "-1646702373",
+    "currency": "KRW",
+    "html_provenance": {
+      "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240321000294&dcmNo=9746280&eleId=19&offset=187684&length=91326&dtd=dart4.xsd",
+      "sourceReceipt": "20240321000294",
+      "ruleVersion": "isung-own-cfs-exact-current-seven-v1",
+      "sourceSha256": "b3213e81b4c49e4d0f216dca1566f1ad803603ee0c53cb88c8bb6ebfc17432df",
+      "tableIndex": 10,
+      "rowIndex": 1,
+      "column": 2,
+      "physicalOrd": 193,
+      "printedLabel": "I.영업활동으로인한현금흐름",
+      "currentCell": "(1,646,702,373)",
+      "printedUnit": "원",
+      "unitMultiplier": "1",
+      "precisionUnit": "1",
+      "cashDirection": null,
+      "printedSign": "negative",
+      "normalizedSign": "negative",
+      "signNormalization": "none",
+      "sourceCellRewritten": false,
+      "basis": "CFS",
+      "periodStart": "2023-01-01",
+      "periodEnd": "2023-12-31",
+      "partialCore7": true,
+      "currentCore8": false,
+      "wholeNetIncomeExact": true,
+      "fullStatementCollected": false,
+      "fullStatementVerified": false,
+      "allStatementRowsVerified": false,
+      "detailHierarchyComplete": false,
+      "notesVerified": false,
+      "notesReadScopeComplete": false,
+      "optionalAccountsNotCollected": [
+        "capex"
+      ],
+      "uncollectedOptionalAccounts": [
+        "capex"
+      ],
+      "missingAccountReasons": {
+        "capex": "No printed whole PPE acquisition total; individual asset acquisitions are not collected as a whole total."
+      },
+      "FCFSupported": false,
+      "cashFx": "notPrinted; no zero FX fact",
+      "checkedPrintedEquationCount": 15,
+      "fullyNumericEquationCount": 15,
+      "missingTermNotFactZero": true,
+      "numericCellCorrection": false,
+      "genericRoundingTolerance": false,
+      "priorNumericPeriodsCollected": false,
+      "sourceDiscrepancies": [],
+      "printedPLLossMagnitude": {
+        "table": 4,
+        "row": 57,
+        "column": 2,
+        "coefficient": 1,
+        "raw": "1,509,318,876"
+      },
+      "netIncomeSelection": "exactPrintedLossLabelMagnitude",
+      "explicitLossSemantics": {
+        "rule": "Exact current 연결당기순손실 positive magnitude denotes a loss, corroborated by independently signed whole CE and CF; original magnitude unchanged.",
+        "PL": {
+          "table": 4,
+          "row": 57,
+          "column": 2,
+          "coefficient": 1,
+          "raw": "1,509,318,876"
+        },
+        "CE": {
+          "table": 7,
+          "row": 10,
+          "column": 7,
+          "coefficient": 1,
+          "raw": "(1,509,318,876)"
+        },
+        "CF": {
+          "table": 10,
+          "row": 2,
+          "column": 1,
+          "coefficient": 1,
+          "raw": "(1,509,318,876)"
+        },
+        "signedCIS": null,
+        "sourceCellRewrite": false,
+        "sourceCorrectionClaim": false
+      },
+      "supportingPeriodEvidence": {
+        "policy": "isung-own-cfs-exact-current-seven-v1",
+        "flowCaptionPrintedStart": true,
+        "periodStart": "2023-01-01",
+        "periodEnd": "2023-12-31",
+        "scopeProof": {
+          "partialCore7": true,
+          "currentCore8": false,
+          "wholeNetIncomeExact": true,
+          "fullStatementCollected": false,
+          "fullStatementVerified": false,
+          "allStatementRowsVerified": false,
+          "detailHierarchyComplete": false,
+          "notesVerified": false,
+          "notesReadScopeComplete": false,
+          "optionalAccountsNotCollected": [
+            "capex"
+          ],
+          "uncollectedOptionalAccounts": [
+            "capex"
+          ],
+          "missingAccountReasons": {
+            "capex": "No printed whole PPE acquisition total; individual asset acquisitions are not collected as a whole total."
+          },
+          "FCFSupported": false,
+          "cashFx": "notPrinted; no zero FX fact",
+          "checkedPrintedEquationCount": 15,
+          "fullyNumericEquationCount": 15,
+          "missingTermNotFactZero": true,
+          "numericCellCorrection": false,
+          "genericRoundingTolerance": false,
+          "priorNumericPeriodsCollected": false,
+          "sourceDiscrepancies": [],
+          "printedPLLossMagnitude": {
+            "table": 4,
+            "row": 57,
+            "column": 2,
+            "coefficient": 1,
+            "raw": "1,509,318,876"
+          },
+          "netIncomeSelection": "exactPrintedLossLabelMagnitude",
+          "explicitLossSemantics": {
+            "rule": "Exact current 연결당기순손실 positive magnitude denotes a loss, corroborated by independently signed whole CE and CF; original magnitude unchanged.",
+            "PL": {
+              "table": 4,
+              "row": 57,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,509,318,876"
+            },
+            "CE": {
+              "table": 7,
+              "row": 10,
+              "column": 7,
+              "coefficient": 1,
+              "raw": "(1,509,318,876)"
+            },
+            "CF": {
+              "table": 10,
+              "row": 2,
+              "column": 1,
+              "coefficient": 1,
+              "raw": "(1,509,318,876)"
+            },
+            "signedCIS": null,
+            "sourceCellRewrite": false,
+            "sourceCorrectionClaim": false
+          }
+        },
+        "currentEquationWitnesses": [
+          {
+            "label": "BS",
+            "total": {
+              "table": 1,
+              "row": 60,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "32,828,392,275"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 1,
+                "row": 85,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "20,359,744,746"
+              },
+              {
+                "table": 1,
+                "row": 102,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "12,468,647,529"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "OP",
+            "total": {
+              "table": 4,
+              "row": 33,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "(1,076,026,348)"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 1,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "16,466,985,397"
+              },
+              {
+                "table": 4,
+                "row": 5,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "12,211,713,787"
+              },
+              {
+                "table": 4,
+                "row": 10,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "5,331,297,958"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "explicitLossPretax",
+            "total": {
+              "table": 4,
+              "row": 55,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,274,356,094"
+            },
+            "totalCoefficient": -1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 33,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "(1,076,026,348)"
+              },
+              {
+                "table": 4,
+                "row": 34,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "521,563,018"
+              },
+              {
+                "table": 4,
+                "row": 43,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "719,892,764"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "explicitLossNI",
+            "total": {
+              "table": 4,
+              "row": 57,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,509,318,876"
+            },
+            "totalCoefficient": -1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 55,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "1,274,356,094"
+              },
+              {
+                "table": 4,
+                "row": 56,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "234,962,782"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "explicitLossOwners",
+            "total": {
+              "table": 4,
+              "row": 57,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,509,318,876"
+            },
+            "totalCoefficient": -1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 58,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "981,399,793"
+              },
+              {
+                "table": 4,
+                "row": 59,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(2,490,718,669)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "explicitLossCF",
+            "total": {
+              "table": 4,
+              "row": 57,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,509,318,876"
+            },
+            "totalCoefficient": -1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 2,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(1,509,318,876)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CFO",
+            "total": {
+              "table": 10,
+              "row": 1,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "(1,646,702,373)"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 2,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(1,509,318,876)"
+              },
+              {
+                "table": 10,
+                "row": 3,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "2,646,573,418"
+              },
+              {
+                "table": 10,
+                "row": 18,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(77,172,528)"
+              },
+              {
+                "table": 10,
+                "row": 26,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(2,706,784,387)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CFI",
+            "total": {
+              "table": 10,
+              "row": 49,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "(1,350,238,468)"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 50,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "2,665,341,707"
+              },
+              {
+                "table": 10,
+                "row": 58,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(4,015,580,175)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CFF",
+            "total": {
+              "table": 10,
+              "row": 74,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "4,147,376,550"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 75,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "7,168,986,000"
+              },
+              {
+                "table": 10,
+                "row": 79,
+                "column": 1,
+                "coefficient": 1,
+                "raw": "(3,021,609,450)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "cashActivities",
+            "total": {
+              "table": 10,
+              "row": 83,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "1,150,435,709"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 1,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "(1,646,702,373)"
+              },
+              {
+                "table": 10,
+                "row": 49,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "(1,350,238,468)"
+              },
+              {
+                "table": 10,
+                "row": 74,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "4,147,376,550"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "cashRoll",
+            "total": {
+              "table": 10,
+              "row": 85,
+              "column": 2,
+              "coefficient": 1,
+              "raw": "6,596,837,212"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 84,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "5,446,401,503"
+              },
+              {
+                "table": 10,
+                "row": 83,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "1,150,435,709"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "BScash",
+            "total": {
+              "table": 1,
+              "row": 4,
+              "column": 1,
+              "coefficient": 1,
+              "raw": "6,596,837,212"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 10,
+                "row": 85,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "6,596,837,212"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CEclosing",
+            "total": {
+              "table": 7,
+              "row": 11,
+              "column": 7,
+              "coefficient": 1,
+              "raw": "12,468,647,529"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 1,
+                "row": 102,
+                "column": 2,
+                "coefficient": 1,
+                "raw": "12,468,647,529"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CENI",
+            "total": {
+              "table": 7,
+              "row": 10,
+              "column": 7,
+              "coefficient": 1,
+              "raw": "(1,509,318,876)"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 4,
+                "row": 57,
+                "column": 2,
+                "coefficient": -1,
+                "raw": "1,509,318,876"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          },
+          {
+            "label": "CEroll",
+            "total": {
+              "table": 7,
+              "row": 11,
+              "column": 7,
+              "coefficient": 1,
+              "raw": "12,468,647,529"
+            },
+            "totalCoefficient": 1,
+            "terms": [
+              {
+                "table": 7,
+                "row": 7,
+                "column": 7,
+                "coefficient": 1,
+                "raw": "12,223,511,703"
+              },
+              {
+                "table": 7,
+                "row": 8,
+                "column": 7,
+                "coefficient": 1,
+                "raw": "1,699,986,000"
+              },
+              {
+                "table": 7,
+                "row": 9,
+                "column": 7,
+                "coefficient": 1,
+                "raw": "54,468,702"
+              },
+              {
+                "table": 7,
+                "row": 10,
+                "column": 7,
+                "coefficient": 1,
+                "raw": "(1,509,318,876)"
+              }
+            ],
+            "residualKRW": 0,
+            "missingTermCount": 0
+          }
+        ]
+      }
+    }
+  }
+]

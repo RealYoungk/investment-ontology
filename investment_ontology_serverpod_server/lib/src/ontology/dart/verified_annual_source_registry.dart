@@ -56,6 +56,31 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20230323000123',
+      corpCode: '01365384',
+      companyName: '이성씨엔아이(주)',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20230323000123-cfs-isung-current-seven',
+      manifestDigest:
+          '3ff8acd6668c882991457d5f0f524cde4231810b792688df746b4563ef1240f6',
+      ruleVersion: 'isung-own-cfs-exact-current-seven-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240321000294',
+      corpCode: '01365384',
+      companyName: '이성씨엔아이(주)',
+      year: 2023,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20240321000294-cfs-isung-current-seven',
+      manifestDigest:
+          'e13ce3610c2599daf28b9b61da0ca74e6b25862da4878cf2f0aa059c2fef54e7',
+      ruleVersion: 'isung-own-cfs-exact-current-seven-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20220321001531',
       corpCode: '00990396',
       companyName: '(주)레드우즈',

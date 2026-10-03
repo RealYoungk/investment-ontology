@@ -1,3 +1,5 @@
+import 'isung_cfs_source_scope.dart';
+
 import 'dart:convert';
 
 import 'ls_kiwoom_source_scope.dart';
@@ -19,7 +21,9 @@ class FinancialSourceScopeNotice extends StatelessWidget {
     try {
       final decoded = jsonDecode(structured);
       if (decoded is Map) {
-        final exact = LsKiwoomSourceScope.message(decoded);
+        final exact =
+            IsungCfsSourceScope.message(decoded) ??
+            LsKiwoomSourceScope.message(decoded);
         if (exact != null) return exact;
       }
       if (decoded is Map &&

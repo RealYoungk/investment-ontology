@@ -1,3 +1,4 @@
+import '../dart/isung_cfs_current_seven_source.dart';
 import '../dart/known_annual_conflict_cache.dart';
 import '../dart/isung_current_seven_source.dart';
 import '../dart/known_annual_source_not_presented.dart';
@@ -298,6 +299,45 @@ class FinancialEndpoint extends Endpoint {
     FinancialReport report,
     String corpCode,
   ) {
+    if (report.fsDiv == FsDiv.consolidated &&
+        IsungCfsCurrentSevenSource.profiles.containsKey(report.rceptNo)) {
+      final profile =
+          IsungCfsCurrentSevenSource.profiles[report.rceptNo] as Map;
+      final body = (profile['sources'] as List).singleWhere(
+        (s) => s['label'] == 'cfs',
+      );
+      if (corpCode != '01365384' ||
+          report.bsnsYear != profile['year'] ||
+          report.fsDiv != FsDiv.consolidated ||
+          report.reportCode != FinancialReportCode.annual ||
+          source.kind != SourceKind.dartReport ||
+          source.url != body['url'] ||
+          source.reference !=
+              'financial-api-noData-source:${report.rceptNo}:consolidated') {
+        return false;
+      }
+      try {
+        final v = jsonDecode(source.title);
+        final expected = IsungCfsCurrentSevenSource.expectedRows(
+          report.rceptNo,
+        );
+        return v is Map &&
+            v['action'] == 'verified-keyless-annual-source-after-api-noData' &&
+            v['targetReceipt'] == report.rceptNo &&
+            v['sourceReceipt'] == report.rceptNo &&
+            v['format'] == 'html' &&
+            v['corpCode'] == corpCode &&
+            v['fsDiv'] == 'consolidated' &&
+            v['reportName'] == report.reportName &&
+            v['coreRows'] == 7 &&
+            v['sha256'] == profile['sourceDigest'] &&
+            jsonEncode(v['coreRowProvenance']) == jsonEncode(expected);
+      } on FormatException {
+        return false;
+      } on TypeError {
+        return false;
+      }
+    }
     if (IsungCurrentSevenSource.profiles.containsKey(report.rceptNo)) {
       final profile = IsungCurrentSevenSource.profiles[report.rceptNo] as Map;
       final body = (profile['sources'] as List).singleWhere(
