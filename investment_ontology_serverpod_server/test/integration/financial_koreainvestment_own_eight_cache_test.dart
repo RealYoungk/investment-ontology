@@ -36,6 +36,17 @@ void main() {
               market: Market.kospi,
             ),
           );
+          // The worker reserves the latest-filing feed independently of financial
+          // dailyBudget. Pin an exhausted synthetic total budget for the API0
+          // cache-recovery contract; no production usage record is modified.
+          await ApiCallUsage.db.insertRow(
+            session,
+            ApiCallUsage(
+              provider: ApiProvider.dart,
+              day: '2026-10-03',
+              calls: 20000,
+            ),
+          );
           final manifest = jsonDecode(
             File('${entry.assetDirectory}/manifest.json').readAsStringSync(),
           );
@@ -92,6 +103,7 @@ void main() {
               sourceCache: cache,
             ).run();
             expect(client.calls, 0);
+            expect((await ApiCallUsage.db.find(session)).single.calls, 20000);
             return (await IngestJob.db.findById(session, job.id!))!;
           }
 
