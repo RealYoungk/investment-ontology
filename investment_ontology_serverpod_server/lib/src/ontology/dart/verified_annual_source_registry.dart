@@ -56,6 +56,19 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20220816002265',
+      corpCode: '00113191',
+      companyName: '코리안리재보험(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220816002265-ofs-koreanre-current-eight',
+      manifestDigest:
+          '136a6500f50bf2167d1f1d83efbcb4e8e96ee2a31b1981587358a2837e71be25',
+      ruleVersion: 'koreanre-2021-own-ofs-current-eight-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20230323001465',
       corpCode: '00113191',
       companyName: '코리안리재보험(주)',

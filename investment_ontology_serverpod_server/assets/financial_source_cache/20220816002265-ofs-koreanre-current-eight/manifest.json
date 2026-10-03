@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20220816002265",
+  "corpCode": "00113191",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "ruleVersion": "koreanre-2021-own-ofs-current-eight-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220816002265",
+      "sha256": "5898591747abf91ad00d8c57bf3905944686d9619791bfd90f88ccdc41af2029"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220816002265&dcmNo=8774338&eleId=3&offset=10993&length=4030&dtd=dart3.xsd",
+      "sha256": "21d52b09a01d06fd217ff443d521d1d4e65590372c99f6e276a990423498de77",
+      "file": "cover.html"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220816002265&dcmNo=8774338&eleId=21&offset=859327&length=85860&dtd=dart3.xsd",
+      "sha256": "e7ba28fad37a754f86587fe37a35778031d387b6e57cac1257540269552d094e",
+      "file": "ofs.html"
+    }
+  ]
+}
