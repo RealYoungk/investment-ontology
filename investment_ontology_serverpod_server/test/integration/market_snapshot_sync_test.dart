@@ -93,6 +93,7 @@ void main() {
     Future<IngestJob> runSync({
       int dailyBudget = 9000,
       DateTime? at,
+      DateTime? from,
       bool cancelled = false,
     }) async {
       final job = await IngestJob.db.insertRow(
@@ -114,7 +115,7 @@ void main() {
         api.client(),
         job.id!,
         dailyBudget: dailyBudget,
-        backfillFrom: DateTime.utc(2026, 9, 16),
+        backfillFrom: from ?? DateTime.utc(2026, 9, 16),
         callInterval: Duration.zero,
         clock: () => at ?? now,
         scheduleResume: (at) async => resumes.add(at),
@@ -471,6 +472,43 @@ void main() {
       expect(job.status, IngestStatus.succeeded);
       expect(job.message, contains('예산'));
       expect(resumes, [DateTime.utc(2026, 9, 17, 15, 10)]);
+    });
+    test('Oct2 empty on weekend remains pending, estimated publication is not a completion or hourly loop', () async {
+      final job = await runSync(
+        at: DateTime.utc(2026, 10, 3, 5),
+        from: DateTime.utc(2026, 10, 2),
+      );
+      expect(await MarketSnapshotDay.db.count(session), 0);
+      expect(await MarketIndexDay.db.count(session), 0);
+      expect(job.message, contains('남은 기준일 1일'));
+      expect(job.message, contains('2026-10-06 13:00 KST'));
+      expect(job.message, contains('실제 공개/입수 보장 아님'));
+      expect(job.message, isNot(contains('1시간 후 재확인')));
+      expect(resumes, isEmpty); // earlier normal daily remains the owner.
+    });
+    test('Oct2 four days later still retries around estimated publication without a false holiday', () async {
+      final job = await runSync(
+        at: DateTime.utc(2026, 10, 6, 3),
+        from: DateTime.utc(2026, 10, 2),
+      );
+      expect(await MarketSnapshotDay.db.count(session), 0);
+      expect(job.message, contains('남은 기준일 2일'));
+      expect(resumes, [DateTime.utc(2026, 10, 6, 4)]);
+    });
+    test('recent index empty after long weekend is pending and retries, never a zero-row index day', () async {
+      api.prices['20261002'] = [price('KR7005930003', '005930', '삼성전자')];
+      await runSync(
+        at: DateTime.utc(2026, 10, 3, 5),
+        from: DateTime.utc(2026, 10, 2),
+      );
+      expect(resumes, isEmpty);
+      final job = await runSync(
+        at: DateTime.utc(2026, 10, 6, 3),
+        from: DateTime.utc(2026, 10, 2),
+      );
+      expect(await MarketIndexDay.db.count(session), 0);
+      expect(job.message, contains('지수 미완료 1일'));
+      expect(resumes, [DateTime.utc(2026, 10, 6, 4)]);
     });
     test(
       'recent empty schedules one hourly retry but does not mark a holiday',
