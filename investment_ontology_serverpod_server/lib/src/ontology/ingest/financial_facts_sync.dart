@@ -1,3 +1,4 @@
+import '../financial/solumix_own_revenue_scope.dart';
 import '../dart/located_own_current_source.dart';
 import '../dart/ls_kiwoom_current_source.dart';
 import '../dart/known_annual_conflict_cache.dart';
@@ -4237,7 +4238,19 @@ class FinancialFactsSync {
       source: originalSource,
       digest: originalDigest,
     );
-    final partialNote = exactLocatedScope != null
+    final exactSolumixScope = SolumixOwnRevenueScope.storedScope(
+      rows: rows,
+      receipt: rceptNo,
+      corp: company.corpCode,
+      companyName: company.name,
+      consolidated: div == FsDiv.consolidated,
+      source: originalSource,
+      digest: originalDigest,
+      reportName: reportName,
+    );
+    final partialNote = exactSolumixScope != null
+        ? ' · ${jsonEncode(exactSolumixScope)}'
+        : exactLocatedScope != null
         ? ' · ${jsonEncode(exactLocatedScope)}'
         : exactLsKiwoomScope != null
         ? ' · ${jsonEncode(exactLsKiwoomScope)}'

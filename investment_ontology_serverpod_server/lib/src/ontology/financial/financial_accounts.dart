@@ -1,3 +1,4 @@
+import 'solumix_own_revenue_scope.dart';
 import '../../generated/protocol.dart';
 import 'financial_comparatives.dart';
 
@@ -224,7 +225,9 @@ abstract final class FinancialAccounts {
         "regexp_replace($unprefixed, '([(]주(석)?[0-9]+(,[0-9]+)*[)]|<주석[0-9]+>)\$', '')";
     final name =
         "CASE WHEN $compact = 'III..영업이익' THEN '영업이익' WHEN $unannotated = '$exactHanyangPrintedProfit' OR $unannotated ~ '$adjustedProfitAnnotation' THEN '당기순이익' ELSE $unannotated END";
-    final cases = <String>[];
+    final cases = <String>[
+      "WHEN ${SolumixOwnRevenueScope.sqlCondition(alias)} THEN 'ifrs-full_Revenue'",
+    ];
     for (final account in all) {
       for (final aliasId in account.accountIds.skip(1)) {
         cases.add(
@@ -233,17 +236,25 @@ abstract final class FinancialAccounts {
       }
       final names = fallbackNames[account.key];
       if (names == null || account.accountIds.isEmpty) continue;
+      final finiteRevenueExclusion = account.key == 'revenue'
+          ? " AND NOT EXISTS (SELECT 1 FROM financial_report bound_report WHERE bound_report.id=$alias.\"reportId\" AND bound_report.\"rceptNo\"='${SolumixOwnRevenueScope.receipt}')"
+          : '';
       final labels = names.map((n) => "'$n'").join(',');
       final statements = account.statements.map((s) => "'${s.name}'").join(',');
       cases.add(
-        "WHEN $alias.\"accountId\" IS NULL AND $alias.statement IN ($statements) AND $name IN ($labels) AND ($name NOT IN ('영업손실','당기순손실','연결당기순손실') OR $alias.amount::numeric <= 0) THEN '${account.accountIds.first}'",
+        "WHEN $alias.\"accountId\" IS NULL AND $alias.statement IN ($statements) AND $name IN ($labels) AND ($name NOT IN ('영업손실','당기순손실','연결당기순손실') OR $alias.amount::numeric <= 0)$finiteRevenueExclusion THEN '${account.accountIds.first}'",
       );
     }
     return 'CASE ${cases.join(' ')} ELSE $alias."accountId" END';
   }
 
   /// 한 보고서의 사실에서 핵심 계정을 고른다. 자본변동표 세부(accountDetail) 행은 쓰지 않는다.
-  static List<FinancialLine> pick(List<FinancialFact> facts) {
+  static List<FinancialLine> pick(
+    List<FinancialFact> facts, {
+    Company? company,
+    FinancialReport? report,
+    Source? source,
+  }) {
     final lines = <FinancialLine>[];
     for (final account in all) {
       FinancialFact? found;
@@ -263,7 +274,10 @@ abstract final class FinancialAccounts {
       }
       if (found == null) {
         final names = fallbackNames[account.key];
-        final candidates = names == null
+        final candidates =
+            names == null ||
+                (account.key == 'revenue' &&
+                    report?.rceptNo == SolumixOwnRevenueScope.receipt)
             ? <FinancialFact>[]
             : facts
                   .where(
@@ -277,6 +291,24 @@ abstract final class FinancialAccounts {
                   )
                   .toList();
         if (candidates.length == 1) found = candidates.single;
+      }
+      if (found == null &&
+          account.key == 'revenue' &&
+          company != null &&
+          report != null &&
+          source != null) {
+        final candidates = facts
+            .where((f) => SolumixOwnRevenueScope.candidate(f, company, report))
+            .toList();
+        if (candidates.length == 1 &&
+            SolumixOwnRevenueScope.validFact(
+              candidates.single,
+              company,
+              report,
+              source,
+            )) {
+          found = candidates.single;
+        }
       }
       if (found == null) continue;
       lines.add(

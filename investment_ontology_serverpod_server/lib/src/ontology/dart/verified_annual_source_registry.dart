@@ -81,6 +81,18 @@ abstract final class VerifiedAnnualSourceRegistry {
     ),
 
     AnnualSourceCacheEntry(
+      receipt: '20220329001197',
+      corpCode: '01118643',
+      companyName: '(주)솔루믹스',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220329001197-ofs-filing-series-eight',
+      manifestDigest:
+          '620e4d09e1142a71bbb54b48272c305111b7a66589a8a64c77f99b0bf2985687',
+      ruleVersion: 'exact-numeric-filing-series-current-eight-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20220321001531',
       corpCode: '00990396',
       companyName: '(주)레드우즈',

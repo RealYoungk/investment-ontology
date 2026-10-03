@@ -1,4 +1,5 @@
 import '../dart/isung_cfs_current_seven_source.dart';
+import '../financial/solumix_own_revenue_scope.dart';
 import '../dart/known_annual_conflict_cache.dart';
 import '../dart/isung_current_seven_source.dart';
 import '../dart/known_annual_source_not_presented.dart';
@@ -175,6 +176,18 @@ class FinancialEndpoint extends Endpoint {
       supersededCounts[row[0] as int] = row[1] as int;
     }
 
+    final exactRevenueSources = <int, Source>{};
+    if (company.corpCode == SolumixOwnRevenueScope.corp) {
+      for (final r in selected.where(
+        (r) => r.rceptNo == SolumixOwnRevenueScope.receipt,
+      )) {
+        final source = await Source.db.findById(session, r.sourceId);
+        if (source != null &&
+            SolumixOwnRevenueScope.validSource(company, r, source)) {
+          exactRevenueSources[r.id!] = source;
+        }
+      }
+    }
     final periods = [
       for (final r in selected)
         FinancialPeriod(
@@ -192,6 +205,9 @@ class FinancialEndpoint extends Endpoint {
           lines: [
             for (final line in FinancialAccounts.pick(
               factsByReport[r.id] ?? const [],
+              company: company,
+              report: r,
+              source: exactRevenueSources[r.id],
             ))
               if (shortIds.contains(r.id) &&
                   line.statement != FinancialStatementKind.balanceSheet)

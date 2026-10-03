@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20220329001197",
+  "corpCode": "01118643",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "ruleVersion": "exact-numeric-filing-series-current-eight-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220329001197",
+      "sha256": "88625eb0bdef0f62a8c32df0c9dc718ba1f8215eedba3a4405c832f96beeb377"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220329001197&dcmNo=8514239&eleId=3&offset=24923&length=4004&dtd=dart3.xsd",
+      "sha256": "cbbd67fb9cb6378c14c955c8959d2fd76ac6222f6983c685ea7ab37568d99357"
+    },
+    {
+      "label": "ofs",
+      "file": "ofs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220329001197&dcmNo=8514239&eleId=23&offset=196007&length=30468&dtd=dart3.xsd",
+      "sha256": "17460bfe190a0b5e1ec650665ec024619db64bc4539f5c690a03a2fb3f53769a"
+    }
+  ],
+  "retrievalProof": "Own direct current8, six fully numeric zero equations. PPE positive printed magnitude is explicitly within negative investing cash outflows. FX printed dash remains unknown, not zero; CFflow incl FX not a fully numeric proof. Filing-series-only identity; no jurir/operating-history continuity/full detail/notes verification."
+}

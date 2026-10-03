@@ -138,6 +138,53 @@ abstract final class FilingSeriesCurrentEightSource {
         'own current equation ${check['name']} contradiction',
       );
     }
+    for (final c in p['core'] as List) {
+      current(c as Map);
+    }
+    final missing = p['printedMissingTermScope'];
+    if (missing is Map) {
+      guard(
+        tables[missing['table'] as int][missing['row'] as int][missing['column']
+                    as int] ==
+                '-' &&
+            missing['numericValue'] == null &&
+            missing['storedAsZero'] == false,
+        'printed FX dash changed',
+      );
+      final direction = p['outflowMagnitudeEvidence'] as Map;
+      final row = tables[direction['table'] as int][direction['row'] as int];
+      guard(
+        jsonEncode(row) == jsonEncode(direction['expected']) &&
+            money(row[direction['column'] as int]).toString() ==
+                direction['signedTotal'],
+        'own negative investing outflow context changed',
+      );
+      final total = (direction['componentRows'] as List)
+          .map((i) => money(tables[10][i as int][2]))
+          .fold(BigInt.zero, (a, b) => a + b);
+      guard(
+        total.toString() == direction['printedMagnitudeComponentSum'] &&
+            total == -money(row[direction['column'] as int]),
+        'own investing magnitude component equation changed',
+      );
+    }
+    return expectedRows(p);
+  }
+
+  /// Canonical verified rows used only after parsing or for exact Source proof comparison.
+  static List<Map<String, dynamic>> expectedRows(Map<String, dynamic> p) {
+    final year = p['year'] as int,
+        receipt = p['receipt'] as String,
+        corpCode = p['corp'] as String,
+        companyName = p['name'] as String;
+    final consolidated = p['basis'] == 'consolidated',
+        statement = p['statement'] as String;
+    final sources = p['sources'] as List;
+    final uris = {
+      for (final s in sources)
+        s['label'] as String: Uri.parse(s['url'] as String),
+    };
+    BigInt current(Map c) => BigInt.parse(c['amount'] as String);
     final multiplier = BigInt.parse(p['multiplier'] as String),
         from = '$year-01-01',
         to = '$year-12-31';
@@ -186,6 +233,10 @@ abstract final class FilingSeriesCurrentEightSource {
             'fullStatementCollected': false,
             'notesVerified': false,
             'detailHierarchyComplete': false,
+            if (p['printedMissingTermScope'] != null)
+              'printedMissingTermScope': p['printedMissingTermScope'],
+            if (p['outflowMagnitudeEvidence'] != null)
+              'outflowMagnitudeEvidence': p['outflowMagnitudeEvidence'],
             'sourceScopeNotice':
                 '원문 제출주체 ${p['printedFilingActor']}, 현재 표시명 $companyName. 해당 DART 공시의 법인코드·제출주체·기간만 검증했으며 과거 영업 이력·법인등록번호 연속성이나 전체 계정·주석 완료를 뜻하지 않습니다.',
             'filingSeriesIdentity': {
