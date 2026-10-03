@@ -131,7 +131,10 @@ void main() {
           }
 
           final first = await run();
-          expect(first.status, IngestStatus.succeeded);
+          // The opposite basis remains exhausted and incomplete.
+          expect(first.status, IngestStatus.failed);
+          expect(first.failed, 0);
+          expect(first.message, contains('재시도 한도에 도달한 미완료 1건'));
           expect(first.updated, 1);
           final after = (await DartFiling.db.findById(session, f.id!))!;
           expect(after.consolidatedStatus, FilingFetchStatus.stored);
@@ -237,7 +240,10 @@ void main() {
           final ledgerBefore = after.toJson();
           final firstReads = reads;
           final replay = await run();
-          expect(replay.status, IngestStatus.succeeded);
+          // The opposite basis remains exhausted and incomplete.
+          expect(replay.status, IngestStatus.failed);
+          expect(replay.failed, 0);
+          expect(replay.message, contains('재시도 한도에 도달한 미완료 1건'));
           expect(replay.updated, 0);
           expect(reads, firstReads);
           expect(
