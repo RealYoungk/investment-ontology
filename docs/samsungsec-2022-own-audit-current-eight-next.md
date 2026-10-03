@@ -33,3 +33,9 @@ report/fact active exclusion and replay idempotency before release.
 Evidence at primary outputs/filing-collection-priority/source-completeness-
 20261003/remaining_source_validation/remaining-core153-next/
 samsungsec2022-cfs-readonly. No DB test or shared/root changes by this agent.
+
+## Normal adapter regression correction
+
+The first normal DB execution preserved failure and wrote zero numeric reports: `verified-source-cache: Unknown cached annual document`. The package guard required label-derived filenames and did not recognize the five independently pinned own-audit documents. Revenue name recognition was not the cause (`영업수익` was already supported); the physical note label remains `소계`.
+
+The adapter now permits only this compiled Samsung rule's exact five label/file pairs. Manifest SHA, raw SHA, URI, issuer, fiscal period, basis, own-audit physical checks and every other rule's filename contract remain unchanged. The normal-cache pure regression calls `verifyRegistered`, rather than only the helper. Six adapter tests plus twelve source tests pass (18 total); altered audit-shell/body/main bytes and unknown manifest filename/label fail closed. Changed-file static analysis: zero issues. No DB test was executed by this agent; parent owns the normal integration validation.

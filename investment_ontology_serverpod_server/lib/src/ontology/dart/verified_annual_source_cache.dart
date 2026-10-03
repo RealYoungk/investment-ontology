@@ -252,7 +252,18 @@ final class VerifiedAnnualSourceCache {
           start: start,
           end: end,
         );
+    final samsungAuditFiles =
+        entry.ruleVersion == SamsungSec2022OwnAuditSource.rule
+        ? const <String, String>{
+            'shell': 'shell.html',
+            'cover': 'cover.html',
+            'auditShell': 'audit-shell.html',
+            'cfs': 'audit-primary.html',
+            'main': 'main-cfs.html',
+          }
+        : const <String, String>{};
     final requiredLabels = {
+      ...samsungAuditFiles.keys,
       if (entry.ruleVersion == AnyMediAuditPeriodSource.rule) ...{
         'audit-shell',
         'audit-opinion',
@@ -277,7 +288,7 @@ final class VerifiedAnnualSourceCache {
       final label = source['label'];
       if (!requiredLabels.contains(label) ||
           !labels.add(label as String) ||
-          source['file'] != '$label.html') {
+          source['file'] != (samsungAuditFiles[label] ?? '$label.html')) {
         throw const FormatException('Unknown cached annual document');
       }
       final uri = Uri.parse(source['url'] as String),
