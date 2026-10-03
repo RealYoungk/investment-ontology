@@ -1,3 +1,4 @@
+import 'filing_series_current_eight_source.dart';
 import 'futuremedicine_own_eight_source.dart';
 import 'located_own_current_source.dart';
 import 'samsungsec_2021_own_audit_source.dart';
@@ -335,6 +336,40 @@ final class VerifiedAnnualSourceCache {
       throw const FormatException('Cached annual package incomplete');
     }
 
+    if (entry.ruleVersion == FilingSeriesCurrentEightSource.rule) {
+      final uris = <String, Uri>{
+        for (final s in manifest['sources'] as List)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raw = <String, String>{
+        for (final e in uris.entries) e.key: utf8.decode(documents[e.value]!),
+      };
+      final rows = FilingSeriesCurrentEightSource.parse(
+        raw: raw,
+        uris: uris,
+        receipt: entry.receipt,
+        corpCode: company.corpCode,
+        companyName: company.name,
+        start: start,
+        end: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raw['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raw[entry.statementLabel]!,
+          statementSource: uris[entry.statementLabel]!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
     if (entry.ruleVersion == FuturemedicineOwnEightSource.rule) {
       final uris = <String, Uri>{
         for (final s in manifest['sources'] as List)

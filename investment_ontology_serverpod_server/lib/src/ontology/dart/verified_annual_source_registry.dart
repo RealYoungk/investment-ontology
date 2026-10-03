@@ -56,6 +56,30 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20220321001531',
+      corpCode: '00990396',
+      companyName: '(주)레드우즈',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220321001531-cfs-filing-series-eight',
+      manifestDigest:
+          '83c50f5dfc9f2ebde910bd0efd5e36ad708206541453ab71ee19f4665198173f',
+      ruleVersion: 'exact-numeric-filing-series-current-eight-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220321000965',
+      corpCode: '01267958',
+      companyName: '주식회사 프로티아',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220321000965-ofs-filing-series-eight',
+      manifestDigest:
+          'f984afc0a2ddcbaa138db2e4a913a3e09afcba730dcaf65cd53210d5ec46daa7',
+      ruleVersion: 'exact-numeric-filing-series-current-eight-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20220302000461',
       corpCode: '01476219',
       companyName: '(주)코스텍시스',
