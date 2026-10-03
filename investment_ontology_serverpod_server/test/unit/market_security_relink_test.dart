@@ -31,6 +31,31 @@ Security security(
 );
 
 void main() {
+  test('existing source conflicts are visible without inferring identity', () {
+    final c = company(1, number: '1243110017841');
+    final conflict = security(670, number: '1243210017841', companyId: 1);
+    expect(
+      MarketSecurityRelink.existingConflicts([c], [conflict]).single.security,
+      same(conflict),
+    );
+    for (final number in ['1243110017841', null, '0000']) {
+      expect(
+        MarketSecurityRelink.existingConflicts(
+          [c],
+          [security(2, number: number, companyId: 1)],
+        ),
+        isEmpty,
+      );
+    }
+    expect(
+      MarketSecurityRelink.existingConflicts(
+        [c],
+        [security(3, companyId: 999)],
+      ),
+      isEmpty,
+    );
+    expect(MarketSecurityRelink.matches([c], [conflict]), isEmpty);
+  });
   test(
     'both unique master identifiers agree; preferred shares link by crno',
     () {

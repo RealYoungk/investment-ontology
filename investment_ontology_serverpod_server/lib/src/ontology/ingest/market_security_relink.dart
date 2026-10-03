@@ -51,6 +51,21 @@ abstract final class MarketSecurityRelink {
     return result;
   }
 
+  /// Existing links are retained, but conflicting source identifiers are not
+  /// silently accepted as completed validation. Missing identifiers are unknown.
+  static List<({Security security, Company company})> existingConflicts(
+    List<Company> companies,
+    List<Security> securities,
+  ) {
+    final byId = {for (final c in companies) c.id: c};
+    return [
+      for (final s in securities)
+        if (byId[s.companyId] case final Company c)
+          if (!MarketSnapshotSync.registrationNumbersAgree(s.crno, c.jurirNo))
+            (security: s, company: c),
+    ];
+  }
+
   static int? companyFor(
     Security s,
     List<Company> companies,
@@ -82,15 +97,18 @@ abstract final class MarketSecurityRelink {
     ),
     securities: await Security.db.find(
       session,
-      where: (t) => t.companyId.equals(null),
       transaction: transaction,
+      lockMode: transaction == null ? null : LockMode.forShare,
     ),
   );
 
-  /// Master completion and startup only enqueue when an actual match exists.
+  /// Enqueue real new matches or unresolved conflicts in existing links.
   static Future<void> requestIfNeeded(Session session) async {
     final rows = await _read(session);
-    if (matches(rows.companies, rows.securities).isEmpty) return;
+    if (matches(rows.companies, rows.securities).isEmpty &&
+        existingConflicts(rows.companies, rows.securities).isEmpty) {
+      return;
+    }
     await IngestJobs.startAndSchedule(
       session,
       kind,
@@ -157,6 +175,7 @@ abstract final class MarketSecurityRelink {
         }
         final rows = await _read(session, transaction: tx);
         final links = matches(rows.companies, rows.securities);
+        final conflicts = existingConflicts(rows.companies, rows.securities);
         var updated = 0;
         for (final s in rows.securities) {
           final basis = links[s.id];
@@ -179,12 +198,19 @@ abstract final class MarketSecurityRelink {
         await IngestJob.db.updateRow(
           session,
           job.copyWith(
-            status: IngestStatus.succeeded,
+            status: conflicts.isEmpty
+                ? IngestStatus.succeeded
+                : IngestStatus.failed,
             finishedAt: DateTime.now().toUtc(),
-            total: links.length,
-            processed: links.length,
+            total: links.length + conflicts.length,
+            processed: links.length + conflicts.length,
+            failed: conflicts.length,
             updated: updated,
-            message: '기존 종목 $updated개 재연결 · 시세 API 호출 없음',
+            message: conflicts.isEmpty
+                ? '기존 종목 $updated개 재연결 · 시세 API 호출 없음'
+                : '기존 종목 $updated개 재연결 · 연결 법인등록번호 충돌 ${conflicts.length}건 미해결 · 시세 API 호출 없음 · '
+                      '${conflicts.take(20).map((v) => 'security=${v.security.id}, company=${v.company.id}, code=${v.security.shortCode}, marketCRNO=${v.security.crno}, DARTjurirNo=${v.company.jurirNo}, marketSource=${v.security.sourceId}, DARTSource=${v.company.profileSourceId}').join('; ')}'
+                      '${conflicts.length > 20 ? ' · 상세 표시는 앞 20건' : ''}',
           ),
           transaction: tx,
         );

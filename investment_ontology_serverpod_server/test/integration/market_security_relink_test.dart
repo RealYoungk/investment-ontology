@@ -146,6 +146,117 @@ void main() {
       );
     });
     tearDown(IngestSchedule.installHooks);
+    test('existing conflict is failed, preserves sources and resolves only after changed evidence', () async {
+      final ds = await Source.db.insertRow(
+        session,
+        Source(
+          kind: SourceKind.dartApi,
+          title: 'DART profile',
+          retrievedAt: DateTime.utc(2026, 9, 17),
+        ),
+      );
+      final c = await Company.db.insertRow(
+        session,
+        Company(
+          corpCode: '00156150',
+          name: 'ExicureHitron',
+          stockCode: '019490',
+          market: Market.kospi,
+          jurirNo: '1243110017841',
+          profileSourceId: ds.id,
+        ),
+      );
+      final sec = await Security.db.insertRow(
+        session,
+        Security(
+          isinCode: 'KR7019490008',
+          shortCode: '019490',
+          name: 'ExicureHitron',
+          crno: '1243210017841',
+          companyId: c.id,
+          linkBasis: SecurityLinkBasis.dartStockCode,
+          sourceId: originalSource.id,
+          lastSeenDate: DateTime.utc(2026, 10, 1),
+        ),
+      );
+      final sources = (await Source.db.find(session))
+          .map((v) => v.toJson())
+          .toList();
+      final original = await counts(), raw = await rawLedgers();
+      await Future.wait([
+        for (var i = 0; i < 6; i++)
+          MarketSecurityRelink.requestIfNeeded(builder.build()),
+      ]);
+      expect(launched, hasLength(1));
+      final id = launched.single;
+      await MarketSnapshotFutureCall().run(session, id);
+      final failed = await job(id);
+      expect(failed.status, IngestStatus.failed);
+      expect(
+        (
+          failed.total,
+          failed.processed,
+          failed.updated,
+          failed.failed,
+          failed.apiCalls,
+        ),
+        (2, 2, 1, 1, 0),
+      );
+      for (final token in [
+        'security=${sec.id}',
+        'company=${c.id}',
+        '019490',
+        '1243210017841',
+        '1243110017841',
+        'marketSource=${originalSource.id}',
+        'DARTSource=${ds.id}',
+      ]) {
+        expect(failed.message, contains(token));
+      }
+      expect(
+        (await Security.db.findById(session, sec.id!))!.toJson(),
+        sec.toJson(),
+      );
+      expect((await Company.db.findById(session, c.id!))!.toJson(), c.toJson());
+      expect(
+        (await Security.db.findById(session, security.id!))!.companyId,
+        company.id,
+      );
+      expect(await counts(), original);
+      expect(await rawLedgers(), raw);
+      expect(
+        (await Source.db.find(session)).map((v) => v.toJson()).toList(),
+        sources,
+      );
+      expect(
+        await sp.FutureCallEntry.db.count(
+          session,
+          where: (t) => t.identifier.equals(MarketSecurityRelink.resumeId),
+        ),
+        0,
+      );
+      await MarketSnapshotFutureCall().run(session, id);
+      expect((await job(id)).toJson(), failed.toJson());
+      // With every safe candidate now linked, conflict alone still schedules.
+      await MarketSecurityRelink.requestIfNeeded(session);
+      expect(launched, hasLength(2));
+      final next = await job(launched.last);
+      // Simulates later source evidence in an isolated fixture; worker never corrects identifiers.
+      await Company.db.updateRow(session, c.copyWith(jurirNo: sec.crno));
+      await MarketSnapshotFutureCall().run(session, next.id!);
+      expect((await job(next.id!)).status, IngestStatus.succeeded);
+      expect((await job(next.id!)).failed, 0);
+      expect(
+        (await Security.db.findById(session, sec.id!))!.toJson(),
+        sec.toJson(),
+      );
+      expect((await job(id)).toJson(), failed.toJson());
+      expect(await rawLedgers(), raw);
+      expect(
+        (await Source.db.find(session)).map((v) => v.toJson()).toList(),
+        sources,
+      );
+    });
     test('registered dispatcher is API0, preserves raw security and market ledgers', () async {
       final before = security.toJson()
         ..remove('companyId')
