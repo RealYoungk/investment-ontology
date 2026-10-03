@@ -27,7 +27,7 @@ void main() {
       endpoints,
     ) {
       test(
-        'API0 stores OFS seven and preserves failed CFS and counters',
+        'API0 stores OFS seven with independently proven CFS state and counters',
         () async {
           final session = builder.asAdmin.build(),
               now = DateTime.utc(2026, 10, 2);
@@ -35,6 +35,20 @@ void main() {
             receipt,
             FsDiv.separate,
           )!;
+          final hasOwnCfsAbsence = receipt == '20230315000894';
+          final cfsAbsence = VerifiedAnnualSourceRegistry.find(
+            receipt,
+            FsDiv.consolidated,
+          );
+          if (hasOwnCfsAbsence) {
+            expect(cfsAbsence!.corpCode, entry.corpCode);
+            expect(cfsAbsence.year, entry.year);
+            expect(cfsAbsence.absenceLiteral, '- 해당사항 없음 -');
+            expect(
+              cfsAbsence.ruleVersion,
+              'own-paragraph-exact-cfs-absence-v1',
+            );
+          }
           await ApiCallUsage.db.insertRow(
             session,
             ApiCallUsage(
@@ -103,7 +117,12 @@ void main() {
           expect((await run()).updated, 1);
           final after = (await DartFiling.db.findById(session, f.id!))!;
           expect(after.separateStatus, FilingFetchStatus.stored);
-          expect(after.consolidatedStatus, FilingFetchStatus.failed);
+          expect(
+            after.consolidatedStatus,
+            hasOwnCfsAbsence
+                ? FilingFetchStatus.noData
+                : FilingFetchStatus.failed,
+          );
           expect(after.attempts, 7);
           expect(after.lastError, contains('attempt=3'));
           final reports = await FinancialReport.db.find(
@@ -111,6 +130,36 @@ void main() {
             where: (t) => t.companyId.equals(c.id!),
           );
           expect(reports, hasLength(1));
+          final absenceSources = await Source.db.find(
+            session,
+            where: (t) => t.reference.equals(
+              'financial-public-basis-not-applicable:$receipt:consolidated',
+            ),
+          );
+          expect(absenceSources, hasLength(hasOwnCfsAbsence ? 1 : 0));
+          if (hasOwnCfsAbsence) {
+            final absenceManifest = jsonDecode(
+              File('${cfsAbsence!.assetDirectory}/manifest.json')
+                  .readAsStringSync(),
+            ) as Map;
+            final cfsBody = (absenceManifest['sources'] as List).singleWhere(
+              (s) => s['label'] == 'cfs',
+            );
+            final absenceSource = absenceSources.single;
+            final absencePayload = jsonDecode(absenceSource.title) as Map;
+            expect(absenceSource.kind, SourceKind.dartReport);
+            expect(absenceSource.url, cfsBody['url']);
+            expect(absencePayload['receipt'], receipt);
+            expect(absencePayload['corpCode'], entry.corpCode);
+            expect(absencePayload['fsDiv'], 'consolidated');
+            expect(absencePayload['evidence'], cfsAbsence.absenceLiteral);
+            expect(absencePayload['periodStart'], '2022-01-01T00:00:00.000Z');
+            expect(absencePayload['periodEnd'], '2022-12-31T00:00:00.000Z');
+            expect(
+              reports.any((r) => r.sourceId == absenceSource.id),
+              isFalse,
+            );
+          }
           final report = reports.single;
           expect(report.fsDiv, FsDiv.separate);
           final detail = (await endpoints.financial.report(
@@ -190,8 +239,8 @@ void main() {
           final coverage = await endpoints.ingest.coverage(builder.asAdmin);
           expect(
             coverage.financialFailedFilings,
-            1,
-          ); // CFS remains unresolved: no filing-complete claim.
+            hasOwnCfsAbsence ? 0 : 1,
+          ); // Confirmed CFS absence does not complete the seven-account OFS.
           final sourceBefore = (await Source.db.find(session))
               .map((x) => x.toJson())
               .toList();
