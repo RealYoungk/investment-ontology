@@ -45,7 +45,7 @@ void main() {
     statement: FinancialStatementKind.comprehensiveIncome,
     accountName: HanwhaOwnNetIncomeScope.label,
     amount: HanwhaOwnNetIncomeScope.amount,
-    periodName: '2022-01-01~2022-12-31',
+    periodName: '당기',
     currency: 'KRW',
     sourceId: 1,
     ord: 72,

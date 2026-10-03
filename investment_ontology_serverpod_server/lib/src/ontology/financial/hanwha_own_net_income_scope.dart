@@ -133,7 +133,7 @@ abstract final class HanwhaOwnNetIncomeScope {
       f.priorQuarterAmount == null &&
       f.beforePriorAmount == null &&
       f.ord == 72 &&
-      f.periodName == '2022-01-01~2022-12-31';
+      f.periodName == '당기';
 
   static bool validStandardApiSource(Company c, FinancialReport r, Source s) =>
       c.id != null &&
@@ -176,7 +176,7 @@ abstract final class HanwhaOwnNetIncomeScope {
               "(r.\"reportName\"=${_quote(n)} AND s.title=${_quote(sourceTitle(n))})",
         )
         .join(' OR ');
-    return '''$f."accountId" IS NULL AND $f."accountName"=${_quote(label)} AND $f.statement='comprehensiveIncome' AND $f.amount::numeric=-23530284903 AND $f.ord=72 AND $f.currency='KRW' AND $f."accountDetail" IS NULL AND $f."supersededById" IS NULL AND $f."bsnsYear"=2022 AND $f."reportCode"='annual' AND $f."fsDiv"='separate' AND $f."cumulativeAmount" IS NULL AND $f."priorAmount" IS NULL AND $f."priorCumulativeAmount" IS NULL AND $f."priorQuarterAmount" IS NULL AND $f."beforePriorAmount" IS NULL AND $f."periodName"='2022-01-01~2022-12-31'
+    return '''$f."accountId" IS NULL AND $f."accountName"=${_quote(label)} AND $f.statement='comprehensiveIncome' AND $f.amount::numeric=-23530284903 AND $f.ord=72 AND $f.currency='KRW' AND $f."accountDetail" IS NULL AND $f."supersededById" IS NULL AND $f."bsnsYear"=2022 AND $f."reportCode"='annual' AND $f."fsDiv"='separate' AND $f."cumulativeAmount" IS NULL AND $f."priorAmount" IS NULL AND $f."priorCumulativeAmount" IS NULL AND $f."priorQuarterAmount" IS NULL AND $f."beforePriorAmount" IS NULL AND $f."periodName"='당기'
       AND EXISTS (SELECT 1 FROM financial_report r JOIN company c ON c.id=r."companyId" JOIN source s ON s.id=r."sourceId" WHERE r.id=$f."reportId" AND c.id=$f."companyId" AND c."corpCode"=${_quote(corp)} AND c.name=${_quote(profile['name'] as String)} AND r."rceptNo"=${_quote(receipt)} AND r."bsnsYear"=2022 AND r."reportCode"='annual' AND r."fsDiv"='separate' AND r."factCount"=8 AND r."supersededById" IS NULL AND r."sourceId"=$f."sourceId" AND s.kind='dartReport' AND s.reference=${_quote(receipt)} AND s.url=${_quote(url)} AND r."reportName" IN ($names) AND ($titles)
         AND (SELECT count(*) FROM financial_fact d WHERE d."reportId"=r.id AND d."sourceId"=s.id AND d."companyId"=c.id AND d."bsnsYear"=r."bsnsYear" AND d."reportCode"=r."reportCode" AND d."fsDiv"=r."fsDiv" AND d."accountId" IS NULL AND d."accountName"=${_quote(label)} AND d.statement='comprehensiveIncome' AND d."accountDetail" IS NULL AND d."supersededById" IS NULL)=1)''';
   }
