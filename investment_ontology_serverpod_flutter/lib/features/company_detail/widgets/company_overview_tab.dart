@@ -1,3 +1,5 @@
+import '../../shareholder_rights/shareholder_rights_card.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
@@ -56,6 +58,10 @@ class CompanyOverviewTab extends StatelessWidget {
             ),
           ],
         ),
+      ),
+      ShareholderRightsCard(
+        key: ValueKey('rights-$dataVersion'),
+        corpCode: detail.company.corpCode,
       ),
       CompanyDataCard(
         child: PriceChart(corpCode: detail.company.corpCode),

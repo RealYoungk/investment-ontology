@@ -1,3 +1,4 @@
+import '../shareholder_rights/shareholder_rights_card.dart';
 import '../research/research_section.dart';
 
 import 'package:flutter/material.dart';
@@ -243,6 +244,11 @@ class _CompanyPageState extends State<CompanyPage> {
               CompanyTab.governance => Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  ShareholderRightsCard(
+                    key: ValueKey('rights-governance-$_version'),
+                    corpCode: widget.corpCode,
+                  ),
+                  const SizedBox(height: AppSpace.xl),
                   GovernanceTab(
                     key: ValueKey('governance-$_version'),
                     corpCode: widget.corpCode,
