@@ -78,13 +78,7 @@ class _RecentDisclosuresState extends State<RecentDisclosures> {
       children: [
         const SectionLabel('최근 어떤 공시가 나왔나요?', accent: true),
         const SizedBox(height: AppSpace.md),
-        Container(
-          padding: const EdgeInsets.all(AppSpace.lg),
-          decoration: BoxDecoration(
-            color: c.surface,
-            border: Border.all(color: c.border),
-            borderRadius: context.shape.borderRadius,
-          ),
+        DataPanel(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [

@@ -1,3 +1,6 @@
+import 'package:investment_ontology_serverpod_flutter/design/components/data_panel.dart';
+import 'package:shad/shad.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -23,13 +26,7 @@ class _PowerComponentsGuideState extends State<PowerComponentsGuide> {
     final c = context.colors, t = context.typo;
     final titles = [if (widget.includeOptical) '광통신 장비', ..._titles];
     final productStep = _step - (widget.includeOptical ? 1 : 0);
-    return Container(
-      padding: const EdgeInsets.all(AppSpace.lg),
-      decoration: BoxDecoration(
-        color: c.surface,
-        border: Border.all(color: c.border),
-        borderRadius: context.shape.borderRadius,
-      ),
+    return DataPanel(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -52,12 +49,14 @@ class _PowerComponentsGuideState extends State<PowerComponentsGuide> {
             runSpacing: AppSpace.sm,
             children: [
               for (var i = 0; i < titles.length; i++)
-                ChoiceChip(
-                  label: Text(
-                    '${i + 1}. ${widget.includeOptical && i == 3 ? '전자부품 고객' : titles[i]}',
+                IntrinsicWidth(
+                  child: ShadToggle.outline(
+                    value: _step == i,
+                    onChanged: (_) => setState(() => _step = i),
+                    child: Text(
+                      '${i + 1}. ${widget.includeOptical && i == 3 ? '전자부품 고객' : titles[i]}',
+                    ),
                   ),
-                  selected: _step == i,
-                  onSelected: (_) => setState(() => _step = i),
                 ),
             ],
           ),

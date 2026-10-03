@@ -22,6 +22,7 @@ import '../features/graph/graph_page.dart';
 import '../features/groups/group_page.dart';
 import '../features/groups/groups_page.dart';
 import '../features/market_map/market_page.dart';
+import '../features/macro/macro_page.dart';
 import '../features/review/review_page.dart';
 import '../features/screen/compare_page.dart';
 import '../features/market_map/industry_discovery_page.dart';
@@ -185,6 +186,13 @@ abstract final class AppRoutes {
             path: '/market',
             pageBuilder: (context, state) =>
                 const NoTransitionPage(child: MarketPage()),
+          ),
+          GoRoute(
+            path: '/market/indicators',
+            pageBuilder: (context, state) => NoTransitionPage(
+              key: const ValueKey('market-indicators'),
+              child: MacroPage(query: state.uri.queryParameters),
+            ),
           ),
           GoRoute(
             path: '/companies',

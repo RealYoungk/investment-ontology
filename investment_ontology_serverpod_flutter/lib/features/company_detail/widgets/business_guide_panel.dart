@@ -159,18 +159,18 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
                   showGrowth: false,
                 )
               else if (_lessonLoading && development == null)
-                const LinearProgressIndicator(minHeight: 2)
+                const ShadProgress(minHeight: 2)
               else if (_failed) ...[
                 Text('제품 설명을 불러오지 못했습니다.', style: t.body(14)),
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: TextButton(
+                  child: ShadButton.ghost(
                     onPressed: _load,
-                    child: const Text('다시 불러오기'),
+                    child: Flexible(child: const Text('다시 불러오기')),
                   ),
                 ),
               ] else if (data == null)
-                const LinearProgressIndicator(minHeight: 2)
+                const ShadProgress(minHeight: 2)
               else if (data.products.isEmpty)
                 Text(switch (data.status) {
                   'no_document' => '제품을 확인할 사업보고서가 아직 수집되지 않았습니다.',
@@ -194,10 +194,12 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
                   runSpacing: AppSpace.sm,
                   children: [
                     for (final (i, product) in data.products.indexed)
-                      ChoiceChip(
-                        label: Text(product.name),
-                        selected: i == _selected,
-                        onSelected: (_) => setState(() => _selected = i),
+                      IntrinsicWidth(
+                        child: ShadToggle.outline(
+                          value: i == _selected,
+                          onChanged: (_) => setState(() => _selected = i),
+                          child: Text(product.name),
+                        ),
                       ),
                   ],
                 ),
@@ -238,13 +240,7 @@ class BusinessProductCard extends StatelessWidget {
     final c = context.colors, t = context.typo;
     final explained = product.explanationKind != 'source_only';
     final circuit = product.key.startsWith('substrate_');
-    return Container(
-      padding: const EdgeInsets.all(AppSpace.lg),
-      decoration: BoxDecoration(
-        color: c.surface,
-        border: Border.all(color: c.border),
-        borderRadius: context.shape.borderRadius,
-      ),
+    return DataPanel(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -273,20 +269,29 @@ class BusinessProductCard extends StatelessWidget {
           ],
           Material(
             color: c.surface,
-            child: ExpansionTile(
+            child: ShadAccordion<int>(
               key: ValueKey(product.key),
-              tilePadding: EdgeInsets.zero,
-              title: Text('이 회사의 제품인 근거', style: t.body(13)),
+              maintainState: false,
               children: [
-                SelectableText(
-                  product.evidence,
-                  style: t.body(13).copyWith(height: 1.7),
-                ),
-                if (rceptNo != null)
-                  _link(
-                    'DART 사업보고서 ↗',
-                    'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=$rceptNo',
+                ShadAccordionItem<int>(
+                  value: 0,
+                  title: Text('이 회사의 제품인 근거', style: t.body(13)),
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SelectableText(
+                        product.evidence,
+                        style: t.body(13).copyWith(height: 1.7),
+                      ),
+                      if (rceptNo != null)
+                        _link(
+                          'DART 사업보고서 ↗',
+                          'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=$rceptNo',
+                        ),
+                    ],
                   ),
+                ),
               ],
             ),
           ),
@@ -304,10 +309,10 @@ class BusinessProductCard extends StatelessWidget {
 
   Widget _link(String label, String url) => Align(
     alignment: Alignment.centerLeft,
-    child: AppButton(
-      label: label,
-      variant: AppButtonVariant.link,
+    child: ShadButton.raw(
       onPressed: () => launchUrl(Uri.parse(url)),
+      variant: ShadButtonVariant.link,
+      child: Flexible(child: Text(label)),
     ),
   );
 }

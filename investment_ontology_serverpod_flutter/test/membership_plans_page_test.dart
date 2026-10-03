@@ -1,3 +1,7 @@
+import 'package:shad/shad.dart';
+
+import 'support/shad_test_host.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -10,15 +14,17 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      MaterialApp(
-        theme: buildAppTheme(ledgerBrand),
-        home: const Scaffold(body: MembershipPlansPage()),
+      shadTestHost(
+        MaterialApp(
+          theme: buildAppTheme(ledgerBrand),
+          home: const Scaffold(body: MembershipPlansPage()),
+        ),
       ),
     );
     await tester.pumpAndSettle();
-    final button = find.widgetWithText(FilledButton, '멤버십 출시 준비 중');
+    final button = find.widgetWithText(ShadButton, '멤버십 출시 준비 중');
     expect(button, findsOneWidget);
-    expect(tester.widget<FilledButton>(button).onPressed, isNull);
+    expect(tester.widget<ShadButton>(button).onPressed, isNull);
   });
 
   testWidgets(
@@ -49,9 +55,11 @@ void main() {
       );
       addTearDown(router.dispose);
       await tester.pumpWidget(
-        MaterialApp.router(
-          theme: buildAppTheme(ledgerBrand),
-          routerConfig: router,
+        shadTestHost(
+          MaterialApp.router(
+            theme: buildAppTheme(ledgerBrand),
+            routerConfig: router,
+          ),
         ),
       );
       await tester.pumpAndSettle();

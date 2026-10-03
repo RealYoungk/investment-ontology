@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/semantics.dart';
 
 import '../../tokens.dart';
 import 'chart_scale.dart';
@@ -139,6 +141,19 @@ class _CategoryChartState extends State<_CategoryChart> {
 
   int? _hovered;
   Offset? _pointer;
+  bool _keyboardFocused = false;
+
+  void _select(int index) => setState(() {
+    _hovered = index.clamp(0, widget.categories.length - 1);
+    _pointer = Offset.zero;
+  });
+
+  String _description(int index) => [
+    widget.categories[index],
+    for (final row in widget.tooltipRows(index))
+      '${row.label}: ${row.value == '—' ? '자료 없음' : row.value}',
+    ?widget.tooltipNote(index),
+  ].join(', ');
 
   @override
   void didUpdateWidget(covariant _CategoryChart oldWidget) {
@@ -202,37 +217,105 @@ class _CategoryChartState extends State<_CategoryChart> {
           }
 
           final hovered = _hovered;
-          return MouseRegion(
-            onHover: (e) => setState(() {
-              _hovered = indexAt(e.localPosition);
-              _pointer = e.localPosition;
+          return Focus(
+            onFocusChange: (focused) => setState(() {
+              _keyboardFocused = focused;
+              if (focused && n > 0) {
+                _hovered ??= n - 1;
+                _pointer = Offset.zero;
+              } else if (!focused) {
+                _hovered = null;
+                _pointer = null;
+              }
             }),
-            onExit: (_) => setState(() => _hovered = null),
-            child: GestureDetector(
-              // 터치에서는 누른 범주를 보여준다.
-              onTapDown: (d) => setState(() {
-                _hovered = indexAt(d.localPosition);
-                _pointer = d.localPosition;
-              }),
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Positioned.fill(
-                    child: CustomPaint(
-                      painter: _ChartPainter(
-                        chart: widget,
-                        plot: plot,
-                        scale: scale,
-                        hovered: hovered,
-                        colors: c,
-                        tickStyle: tickStyle,
-                        labelStyle: t.body(11.5, color: c.textSecondary),
-                      ),
+            onKeyEvent: (_, event) {
+              if (n == 0 || event is! KeyDownEvent) {
+                return KeyEventResult.ignored;
+              }
+              final key = event.logicalKey;
+              if (key == LogicalKeyboardKey.arrowLeft) {
+                _select((_hovered ?? n - 1) - 1);
+              } else if (key == LogicalKeyboardKey.arrowRight) {
+                _select((_hovered ?? 0) + 1);
+              } else if (key == LogicalKeyboardKey.home) {
+                _select(0);
+              } else if (key == LogicalKeyboardKey.end) {
+                _select(n - 1);
+              } else if (key == LogicalKeyboardKey.escape) {
+                setState(() {
+                  _hovered = null;
+                  _pointer = null;
+                });
+              } else {
+                return KeyEventResult.ignored;
+              }
+              return KeyEventResult.handled;
+            },
+            child: Semantics(
+              container: true,
+              label: '${widget.series.map((s) => s.label).join(' · ')} 차트',
+              hint: '좌우 방향키로 기간 이동, Home 첫 기간, End 마지막 기간',
+              value: hovered == null ? '$n개 기간' : _description(hovered),
+              // The chart exposes period actions rather than a synthetic
+              // numeric slider (Flutter Web otherwise displays values 0/1/2).
+              customSemanticsActions: n == 0
+                  ? null
+                  : {
+                      const CustomSemanticsAction(label: '다음 기간'): () =>
+                          _select((_hovered ?? 0) + 1),
+                      const CustomSemanticsAction(label: '이전 기간'): () =>
+                          _select((_hovered ?? n - 1) - 1),
+                    },
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: _keyboardFocused
+                        ? c.accent
+                        : c.background.withValues(alpha: 0),
+                  ),
+                  borderRadius: context.shape.borderRadius,
+                ),
+                child: MouseRegion(
+                  onHover: (e) => setState(() {
+                    _hovered = indexAt(e.localPosition);
+                    _pointer = e.localPosition;
+                  }),
+                  onExit: (_) {
+                    if (!_keyboardFocused) setState(() => _hovered = null);
+                  },
+                  child: GestureDetector(
+                    // 터치에서는 누른 범주를 보여준다.
+                    onTapDown: (d) => setState(() {
+                      _hovered = indexAt(d.localPosition);
+                      _pointer = d.localPosition;
+                    }),
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Positioned.fill(
+                          child: CustomPaint(
+                            painter: _ChartPainter(
+                              chart: widget,
+                              plot: plot,
+                              scale: scale,
+                              hovered: hovered,
+                              colors: c,
+                              tickStyle: tickStyle,
+                              labelStyle: t.body(11.5, color: c.textSecondary),
+                            ),
+                          ),
+                        ),
+                        if (hovered != null && _pointer != null)
+                          _tooltip(
+                            context,
+                            constraints.maxWidth,
+                            plot,
+                            hovered,
+                          ),
+                      ],
                     ),
                   ),
-                  if (hovered != null && _pointer != null)
-                    _tooltip(context, constraints.maxWidth, plot, hovered),
-                ],
+                ),
               ),
             ),
           );
@@ -255,54 +338,60 @@ class _CategoryChartState extends State<_CategoryChart> {
       top: 0,
       width: tipWidth,
       child: IgnorePointer(
-        child: Container(
-          padding: const EdgeInsets.all(AppSpace.sm),
-          decoration: BoxDecoration(
-            color: c.inverse,
-            borderRadius: context.shape.borderRadius,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                widget.categories[index],
-                style: t.body(12, color: c.onInverse, weight: FontWeight.w600),
-              ),
-              const SizedBox(height: 4),
-              for (final row in widget.tooltipRows(index))
-                Padding(
-                  padding: const EdgeInsets.only(top: 2),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: row.color,
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          row.label,
-                          style: t.body(11.5, color: c.onInverse),
-                        ),
-                      ),
-                      Text(
-                        row.value,
-                        style: t.numeric(11.5, color: c.onInverse),
-                      ),
-                    ],
+        child: ExcludeSemantics(
+          child: Container(
+            padding: const EdgeInsets.all(AppSpace.sm),
+            decoration: BoxDecoration(
+              color: c.inverse,
+              borderRadius: context.shape.borderRadius,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  widget.categories[index],
+                  style: t.body(
+                    12,
+                    color: c.onInverse,
+                    weight: FontWeight.w600,
                   ),
                 ),
-              if (widget.tooltipNote(index) case final note?)
-                Padding(
-                  padding: const EdgeInsets.only(top: AppSpace.xs),
-                  child: Text(note, style: t.body(11.5, color: c.onInverse)),
-                ),
-            ],
+                const SizedBox(height: 4),
+                for (final row in widget.tooltipRows(index))
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: row.color,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            row.label,
+                            style: t.body(11.5, color: c.onInverse),
+                          ),
+                        ),
+                        Text(
+                          row.value,
+                          style: t.numeric(11.5, color: c.onInverse),
+                        ),
+                      ],
+                    ),
+                  ),
+                if (widget.tooltipNote(index) case final note?)
+                  Padding(
+                    padding: const EdgeInsets.only(top: AppSpace.xs),
+                    child: Text(note, style: t.body(11.5, color: c.onInverse)),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

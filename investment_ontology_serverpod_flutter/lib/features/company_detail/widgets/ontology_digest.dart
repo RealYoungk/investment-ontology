@@ -150,23 +150,25 @@ class _OntologyDigestState extends State<OntologyDigest> {
             spacing: AppSpace.md,
             children: [
               if (hasGov)
-                AppButton(
-                  label: '지배구조 →',
-                  variant: AppButtonVariant.link,
+                ShadButton.raw(
                   onPressed: () => widget.onOpenTab('governance'),
+                  variant: ShadButtonVariant.link,
+                  child: Flexible(child: Text('지배구조 →')),
                 ),
               if (_group case final g?)
-                AppButton(
-                  label: '${g.anchor.name} 묶음 ${g.members.length}개사 →',
-                  variant: AppButtonVariant.link,
+                ShadButton.raw(
                   onPressed: () =>
                       context.push(AppRoutes.group(widget.corpCode)),
+                  variant: ShadButtonVariant.link,
+                  child: Flexible(
+                    child: Text('${g.anchor.name} 묶음 ${g.members.length}개사 →'),
+                  ),
                 ),
-              AppButton(
-                label: '관계망 →',
-                variant: AppButtonVariant.link,
-                tone: c.accent,
+              ShadButton.raw(
                 onPressed: () => context.go(AppRoutes.graph(widget.corpCode)),
+                variant: ShadButtonVariant.link,
+                foregroundColor: c.accent,
+                child: Flexible(child: Text('관계망 →')),
               ),
             ],
           ),

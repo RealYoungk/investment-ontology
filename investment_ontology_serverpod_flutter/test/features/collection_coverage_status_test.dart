@@ -1,3 +1,5 @@
+import '../support/shad_test_host.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
@@ -49,13 +51,15 @@ void main() {
     (tester) async {
       final v = legacy();
       await tester.pumpWidget(
-        host(
-          Column(
-            children: [
-              MarketCollectionStatus(coverage: v),
-              BusinessCollectionStatus(coverage: v),
-              FinancialCollectionStatus(coverage: v),
-            ],
+        shadTestHost(
+          host(
+            Column(
+              children: [
+                MarketCollectionStatus(coverage: v),
+                BusinessCollectionStatus(coverage: v),
+                FinancialCollectionStatus(coverage: v),
+              ],
+            ),
           ),
         ),
       );
@@ -81,7 +85,9 @@ void main() {
         marketHistoricalPendingDates: 0,
         marketRecentUnconfirmedDates: 1,
       );
-      await tester.pumpWidget(host(MarketCollectionStatus(coverage: v)));
+      await tester.pumpWidget(
+        shadTestHost(host(MarketCollectionStatus(coverage: v))),
+      );
       expect(find.textContaining('2,873'), findsOneWidget);
       expect(find.text('지수 171개'), findsOneWidget);
       expect(find.text('100.0%'), findsNWidgets(2));
@@ -105,12 +111,14 @@ void main() {
         financialFailedFilings: 1,
       );
       await tester.pumpWidget(
-        host(
-          Column(
-            children: [
-              BusinessCollectionStatus(coverage: v),
-              FinancialCollectionStatus(coverage: v),
-            ],
+        shadTestHost(
+          host(
+            Column(
+              children: [
+                BusinessCollectionStatus(coverage: v),
+                FinancialCollectionStatus(coverage: v),
+              ],
+            ),
           ),
         ),
       );

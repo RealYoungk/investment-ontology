@@ -1,3 +1,5 @@
+import '../support/shad_test_host.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -64,12 +66,14 @@ void main() {
     );
     addTearDown(router.dispose);
     await tester.pumpWidget(
-      MaterialApp.router(
-        routerConfig: router,
-        builder: (context, child) => AuthGate(
-          viewer: viewer,
-          signIn: const Scaffold(body: Text('로그인 화면')),
-          child: child!,
+      shadTestHost(
+        MaterialApp.router(
+          routerConfig: router,
+          builder: (context, child) => AuthGate(
+            viewer: viewer,
+            signIn: const Scaffold(body: Text('로그인 화면')),
+            child: child!,
+          ),
         ),
       ),
     );
@@ -83,13 +87,15 @@ void main() {
 
   testWidgets('공개 탐색은 비로그인으로 열리고 관리자 권한은 없다', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
-        home: AuthGate(
-          viewer: viewer,
-          allowAnonymous: true,
-          signIn: const Text('로그인 화면'),
-          child: Builder(
-            builder: (context) => Text(context.isAdmin ? '관리자' : '공개 탐색'),
+      shadTestHost(
+        MaterialApp(
+          home: AuthGate(
+            viewer: viewer,
+            allowAnonymous: true,
+            signIn: const Text('로그인 화면'),
+            child: Builder(
+              builder: (context) => Text(context.isAdmin ? '관리자' : '공개 탐색'),
+            ),
           ),
         ),
       ),

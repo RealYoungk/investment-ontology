@@ -1,9 +1,11 @@
+import '../support/shad_test_host.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:investment_ontology_serverpod_flutter/design/app_theme.dart';
 import 'package:investment_ontology_serverpod_flutter/design/brands/research_desk_brand.dart';
-import 'package:investment_ontology_serverpod_flutter/design/components/app_button.dart';
+import 'package:shad/shad.dart';
 import 'package:investment_ontology_serverpod_flutter/design/tokens.dart';
 
 void main() {
@@ -47,14 +49,25 @@ void main() {
       ),
     );
     await tester.pumpWidget(
-      MaterialApp(
-        theme: buildAppTheme(brand),
-        home: Scaffold(
-          body: Column(
-            children: [
-              AppButton(label: '선택', onPressed: () => count++),
-              const AppButton(label: '비활성', onPressed: null),
-            ],
+      shadTestHost(
+        MaterialApp(
+          theme: buildAppTheme(brand),
+          home: Scaffold(
+            body: Column(
+              children: [
+                ShadButton.raw(
+                  onPressed: () => count++,
+                  variant: ShadButtonVariant.outline,
+                  child: Text('선택'),
+                ),
+                const ShadButton.raw(
+                  onPressed: null,
+                  enabled: false,
+                  variant: ShadButtonVariant.outline,
+                  child: Text('비활성'),
+                ),
+              ],
+            ),
           ),
         ),
       ),

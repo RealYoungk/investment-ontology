@@ -71,8 +71,8 @@ class _BusinessModelGuideState extends State<BusinessModelGuide> {
                 runSpacing: AppSpace.xs,
                 children: [
                   for (final product in lesson.products)
-                    Chip(
-                      label: Text(
+                    ShadBadge.outline(
+                      child: Text(
                         product,
                         style: t.body(12, color: c.textSecondary),
                       ),
@@ -81,24 +81,32 @@ class _BusinessModelGuideState extends State<BusinessModelGuide> {
               ),
               const SizedBox(height: AppSpace.sm),
             ],
-            ExpansionTile(
-              initiallyExpanded: true,
-              tilePadding: EdgeInsets.zero,
-              expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
-              title: Text(
-                '사업모델 이해하기',
-                style: t.body(13, color: c.textSecondary),
-              ),
+            ShadAccordion<int>(
+              maintainState: false,
+              initialValue: 0,
               children: [
-                BusinessModelGuide(
-                  lesson: CompanyOverviewLesson(
-                    summary: '',
-                    products: const [],
-                    models: lesson.models,
-                    hasDocument: lesson.hasDocument,
-                    year: lesson.year,
+                ShadAccordionItem<int>(
+                  value: 0,
+                  title: Text(
+                    '사업모델 이해하기',
+                    style: t.body(13, color: c.textSecondary),
                   ),
-                  showGrowth: false,
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      BusinessModelGuide(
+                        lesson: CompanyOverviewLesson(
+                          summary: '',
+                          products: const [],
+                          models: lesson.models,
+                          hasDocument: lesson.hasDocument,
+                          year: lesson.year,
+                        ),
+                        showGrowth: false,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -152,10 +160,12 @@ class _BusinessModelGuideState extends State<BusinessModelGuide> {
                   runSpacing: AppSpace.xs,
                   children: [
                     for (final (index, item) in lesson.models.indexed)
-                      ChoiceChip(
-                        label: Text(item.label),
-                        selected: index == _selected,
-                        onSelected: (_) => setState(() => _selected = index),
+                      IntrinsicWidth(
+                        child: ShadToggle.outline(
+                          value: index == _selected,
+                          onChanged: (_) => setState(() => _selected = index),
+                          child: Text(item.label),
+                        ),
                       ),
                   ],
                 ),
@@ -184,16 +194,29 @@ class _BusinessModelGuideState extends State<BusinessModelGuide> {
                 style: t.body(14, color: c.textSecondary).copyWith(height: 1.6),
               ),
               if (model.terms.isNotEmpty)
-                ExpansionTile(
-                  tilePadding: EdgeInsets.zero,
-                  childrenPadding: const EdgeInsets.only(bottom: AppSpace.sm),
-                  expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
-                  title: Text(
-                    '용어 이해하기',
-                    style: t.body(13, color: c.textSecondary),
-                  ),
+                ShadAccordion<int>(
+                  maintainState: false,
                   children: [
-                    Text(model.terms, style: t.body(13).copyWith(height: 1.6)),
+                    ShadAccordionItem<int>(
+                      value: 0,
+                      title: Text(
+                        '용어 이해하기',
+                        style: t.body(13, color: c.textSecondary),
+                      ),
+                      padding: EdgeInsets.zero,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpace.sm),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              model.terms,
+                              style: t.body(13).copyWith(height: 1.6),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
             ],

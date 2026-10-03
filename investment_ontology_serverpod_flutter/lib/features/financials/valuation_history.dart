@@ -117,8 +117,15 @@ class _ValuationHistoryState extends State<ValuationHistory> {
   @override
   Widget build(BuildContext context) {
     final history = _history;
-    if (_failed) return AppButton(label: '밸류에이션 추이 다시 불러오기', onPressed: _load);
-    if (history == null) return const LinearProgressIndicator(minHeight: 2);
+    if (_failed) {
+      return ShadButton.raw(
+        onPressed: _load,
+
+        variant: ShadButtonVariant.outline,
+        child: Flexible(child: Text('밸류에이션 추이 다시 불러오기')),
+      );
+    }
+    if (history == null) return const ShadProgress(minHeight: 2);
     if (history.isEmpty) {
       return Text(
         '월별 시가총액 이력 미확보',
@@ -193,29 +200,56 @@ class _ValuationHistoryState extends State<ValuationHistory> {
           ),
         ],
         const SizedBox(height: AppSpace.sm),
-        ExpansionTile(
-          title: const Text('월별 계산 근거'),
+        ShadAccordion<int>(
+          maintainState: false,
           children: [
-            Text(
-              '접수일이 시세일보다 앞선 보관 공시만 사용합니다. 정정 전 자료·누락 종목·양수 분모를 확보하지 못한 구간은 비웁니다. 수집된 종목 범위 기준이며 과거 공시 전체를 복원한 백테스트 자료는 아닙니다.',
-              style: context.typo.body(12, color: context.colors.textMuted),
-            ),
-
-            for (var i = rows.length - 1; i >= 0; i--)
-              ListTile(
-                title: Text(
-                  '${formatDate(rows[i].baseDate)} · ${formatTimes(values[i].value)}',
-                ),
-                subtitle: Text(
-                  values[i].value == null
-                      ? values[i].missing ?? '계산 자료 부족'
-                      : '${values[i].formula}\n${values[i].inputs.map((v) => '${v.label}: ${v.amount == null
-                            ? '미확보'
-                            : v.currency == 'KRW'
-                            ? formatKrw(v.amount)
-                            : '${v.amount} ${v.currency}'} · ${v.basis}').join('\n')}',
-                ),
+            ShadAccordionItem<int>(
+              value: 0,
+              title: const Text('월별 계산 근거'),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '접수일이 시세일보다 앞선 보관 공시만 사용합니다. 정정 전 자료·누락 종목·양수 분모를 확보하지 못한 구간은 비웁니다. 수집된 종목 범위 기준이며 과거 공시 전체를 복원한 백테스트 자료는 아닙니다.',
+                    style: context.typo.body(
+                      12,
+                      color: context.colors.textMuted,
+                    ),
+                  ),
+                  for (var i = rows.length - 1; i >= 0; i--)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpace.md,
+                        vertical: AppSpace.sm,
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${formatDate(rows[i].baseDate)} · ${formatTimes(values[i].value)}',
+                                ),
+                                Text(
+                                  values[i].value == null
+                                      ? values[i].missing ?? '계산 자료 부족'
+                                      : '${values[i].formula}\n${values[i].inputs.map((v) => '${v.label}: ${v.amount == null
+                                            ? '미확보'
+                                            : v.currency == 'KRW'
+                                            ? formatKrw(v.amount)
+                                            : '${v.amount} ${v.currency}'} · ${v.basis}').join('\n')}',
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
               ),
+            ),
           ],
         ),
       ],

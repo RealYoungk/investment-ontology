@@ -1,3 +1,5 @@
+import '../support/shad_test_host.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -63,19 +65,21 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
       Uri? opened;
       await tester.pumpWidget(
-        app(
-          MediaQuery(
-            data: MediaQueryData(
-              size: Size(width, 1800),
-              textScaler: const TextScaler.linear(1.4),
-            ),
-            child: CompanyEventsSection(
-              corpCode: '00126380',
-              loader: (_) async => [
-                filing('[기재정정]자기주식취득결정', 1),
-                filing('유상증자결정', 2),
-              ],
-              openSource: (uri) => opened = uri,
+        shadTestHost(
+          app(
+            MediaQuery(
+              data: MediaQueryData(
+                size: Size(width, 1800),
+                textScaler: const TextScaler.linear(1.4),
+              ),
+              child: CompanyEventsSection(
+                corpCode: '00126380',
+                loader: (_) async => [
+                  filing('[기재정정]자기주식취득결정', 1),
+                  filing('유상증자결정', 2),
+                ],
+                openSource: (uri) => opened = uri,
+              ),
             ),
           ),
         ),
@@ -96,13 +100,15 @@ void main() {
   testWidgets('실패와 미수집을 구별하고 재시도', (tester) async {
     var attempts = 0;
     await tester.pumpWidget(
-      app(
-        CompanyEventsSection(
-          corpCode: '00126380',
-          loader: (_) async {
-            if (attempts++ == 0) throw Exception('offline');
-            return [];
-          },
+      shadTestHost(
+        app(
+          CompanyEventsSection(
+            corpCode: '00126380',
+            loader: (_) async {
+              if (attempts++ == 0) throw Exception('offline');
+              return [];
+            },
+          ),
         ),
       ),
     );
@@ -118,10 +124,10 @@ void main() {
     Future<List<DartDisclosure>> loader(String code) async =>
         code == 'old' ? old.future : [filing('새 기업 분기보고서', 2)];
     await tester.pumpWidget(
-      app(CompanyEventsSection(corpCode: 'old', loader: loader)),
+      shadTestHost(app(CompanyEventsSection(corpCode: 'old', loader: loader))),
     );
     await tester.pumpWidget(
-      app(CompanyEventsSection(corpCode: 'new', loader: loader)),
+      shadTestHost(app(CompanyEventsSection(corpCode: 'new', loader: loader))),
     );
     await tester.pumpAndSettle();
     old.complete([filing('이전 기업 사업보고서', 1)]);
@@ -131,12 +137,14 @@ void main() {
   });
   testWidgets('긴 목록은 더 보기로 확장하고 주제 전환 시 초기화', (tester) async {
     await tester.pumpWidget(
-      app(
-        CompanyEventsSection(
-          corpCode: '00126380',
-          loader: (_) async => [
-            for (var i = 1; i <= 8; i++) filing('유상증자결정 $i', i),
-          ],
+      shadTestHost(
+        app(
+          CompanyEventsSection(
+            corpCode: '00126380',
+            loader: (_) async => [
+              for (var i = 1; i <= 8; i++) filing('유상증자결정 $i', i),
+            ],
+          ),
         ),
       ),
     );

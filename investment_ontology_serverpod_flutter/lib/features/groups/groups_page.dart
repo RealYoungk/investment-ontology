@@ -49,23 +49,32 @@ class _GroupsPageState extends State<GroupsPage> {
               '지분으로 연결된 기업을 함께 살펴보세요.'
               '${groups == null ? '' : ' · ${formatCount(groups.length)}개 묶음'}',
         ),
-        const ExpansionTile(
-          tilePadding: EdgeInsets.zero,
-          title: Text('묶음의 기준'),
+        ShadAccordion<int>(
+          maintainState: false,
           children: [
-            Padding(
-              padding: EdgeInsets.only(bottom: 16),
-              child: Text(
-                '각 기업의 최근 사업보고서에서 법인 최대주주와 경영참여 목적 15% 이상 출자로 연결된 상장사를 묶습니다. 공정위 기업집단 지정과는 다릅니다. 지분 매각·합병 등과 함께 살펴볼 기업을 찾는 용도입니다.',
+            ShadAccordionItem<int>(
+              value: 0,
+              title: Text('묶음의 기준'),
+              padding: EdgeInsets.zero,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 16),
+                    child: Text(
+                      '각 기업의 최근 사업보고서에서 법인 최대주주와 경영참여 목적 15% 이상 출자로 연결된 상장사를 묶습니다. 공정위 기업집단 지정과는 다릅니다. 지분 매각·합병 등과 함께 살펴볼 기업을 찾는 용도입니다.',
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
         ),
         const SizedBox(height: AppSpace.xl),
         if (_error != null)
-          AppNotice(message: '묶음을 불러오지 못했습니다 — $_error')
+          ReadFailureNotice(subject: '묶음', retry: _load)
         else if (groups == null)
-          const LinearProgressIndicator(minHeight: 2)
+          const ShadProgress(minHeight: 2)
         else if (groups.isEmpty)
           Text(
             '아직 묶음이 없습니다. 주요정보(최대주주·타법인출자)가 쌓이면 생깁니다.',

@@ -147,7 +147,7 @@ class _BillingCheckoutPageState extends State<BillingCheckoutPage> {
           const MembershipBenefits(),
           const SizedBox(height: AppSpace.xl),
         ],
-        if (_busy) const LinearProgressIndicator(),
+        if (_busy) const ShadProgress(),
         if (_message != null)
           Text(_message!, style: t.body(14, color: c.textSecondary)),
         if (!_busy && _status != null)
@@ -225,9 +225,12 @@ class _BillingCheckoutPageState extends State<BillingCheckoutPage> {
                   const ServiceLinks(),
                   Material(
                     color: c.surface,
-                    child: CheckboxListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(
+                    child: ShadCheckbox(
+                      value: _accepted,
+                      onChanged: _busy
+                          ? null
+                          : (v) => setState(() => _accepted = v),
+                      label: Text(
                         widget.replaceCard
                             ? '다음 정기결제에 사용할 카드를 변경하는 데 동의합니다.'
                             : _status!.isTest
@@ -235,20 +238,19 @@ class _BillingCheckoutPageState extends State<BillingCheckoutPage> {
                             : '월 2,900원 정기결제와 이용권 약관에 동의합니다.',
                         style: t.body(14),
                       ),
-                      value: _accepted,
-                      onChanged: _busy
-                          ? null
-                          : (v) => setState(() => _accepted = v ?? false),
+                      padding: EdgeInsets.zero,
                     ),
                   ),
-                  FilledButton(
+                  ShadButton(
                     onPressed: _accepted && !_busy ? _start : null,
-                    child: Text(
-                      widget.replaceCard
-                          ? '카드 변경하기'
-                          : _status!.isTest
-                          ? '테스트 카드 등록'
-                          : '월 2,900원 결제하고 시작하기',
+                    child: Flexible(
+                      child: Text(
+                        widget.replaceCard
+                            ? '카드 변경하기'
+                            : _status!.isTest
+                            ? '테스트 카드 등록'
+                            : '월 2,900원 결제하고 시작하기',
+                      ),
                     ),
                   ),
                 ],
@@ -257,14 +259,14 @@ class _BillingCheckoutPageState extends State<BillingCheckoutPage> {
           ),
         const SizedBox(height: AppSpace.lg),
         if (!widget.replaceCard)
-          TextButton.icon(
+          ShadButton.ghost(
             onPressed: () => context.go('/watchlist'),
-            icon: const Icon(Icons.star_outline, size: 18),
-            label: const Text('관심종목으로 돌아가기'),
+            leading: const Icon(Icons.star_outline, size: 18),
+            child: Flexible(child: const Text('관심종목으로 돌아가기')),
           ),
-        TextButton(
+        ShadButton.ghost(
           onPressed: () => context.go('/account'),
-          child: const Text('계정 상태 확인'),
+          child: Flexible(child: const Text('계정 상태 확인')),
         ),
       ],
     );

@@ -28,22 +28,48 @@ class _AccountPageState extends State<AccountPage> {
   void _reload() => setState(() => _load = _fetch());
 
   Future<bool> _confirm(String title, String message) async =>
-      await showDialog<bool>(
+      await showShadDialog<bool>(
         context: context,
-        builder: (dialogContext) => AlertDialog(
-          title: Text(title),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext, false),
-              child: const Text('취소'),
+        builder: (overlayContext) => InheritedTheme.captureAll(
+          context,
+          Builder(
+            builder: (dialogContext) => ShadDialog(
+              closeIcon: Builder(
+                builder: (context) => Semantics(
+                  container: true,
+                  label: '닫기',
+                  button: true,
+                  onTap: () => Navigator.of(context).pop(),
+                  child: ExcludeSemantics(
+                    child: ShadIconButton.ghost(
+                      width: 20,
+                      height: 20,
+                      padding: EdgeInsets.zero,
+                      icon: const Icon(Icons.close, size: 16),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ),
+                ),
+              ),
+              title: Text(title),
+              actions: [
+                ShadButton.ghost(
+                  onPressed: () => Navigator.pop(dialogContext, false),
+                  child: Flexible(child: const Text('취소')),
+                ),
+                ShadButton(
+                  onPressed: () => Navigator.pop(dialogContext, true),
+                  child: Flexible(child: const Text('확인')),
+                ),
+              ],
+              child: Material(
+                type: MaterialType.transparency,
+                child: Text(message),
+              ),
             ),
-            FilledButton(
-              onPressed: () => Navigator.pop(dialogContext, true),
-              child: const Text('확인'),
-            ),
-          ],
+          ),
         ),
+        barrierLabel: '닫기',
       ) ??
       false;
 
@@ -54,8 +80,10 @@ class _AccountPageState extends State<AccountPage> {
       if (mounted) _reload();
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('처리하지 못했습니다. 권한과 연결 상태를 확인해 주세요.')),
+        ShadToaster.of(context).show(
+          ShadToast(
+            description: Text('처리하지 못했습니다. 권한과 연결 상태를 확인해 주세요.'),
+          ),
         );
       }
     } finally {
@@ -81,35 +109,61 @@ class _AccountPageState extends State<AccountPage> {
 
   Future<void> _delete() async {
     final password = TextEditingController();
-    final accepted = await showDialog<bool>(
+    final accepted = await showShadDialog<bool>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('회원 탈퇴'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              '로그인 계정과 인증 정보가 삭제되며 되돌릴 수 없습니다. 공용 기업 데이터는 유지됩니다. 현재 비밀번호를 입력해 주세요.',
+      builder: (overlayContext) => InheritedTheme.captureAll(
+        context,
+        Builder(
+          builder: (dialogContext) => ShadDialog(
+            closeIcon: Builder(
+              builder: (context) => Semantics(
+                container: true,
+                label: '닫기',
+                button: true,
+                onTap: () => Navigator.of(context).pop(),
+                child: ExcludeSemantics(
+                  child: ShadIconButton.ghost(
+                    width: 20,
+                    height: 20,
+                    padding: EdgeInsets.zero,
+                    icon: const Icon(Icons.close, size: 16),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ),
+              ),
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: password,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: '현재 비밀번호'),
+            title: const Text('회원 탈퇴'),
+            actions: [
+              ShadButton.ghost(
+                onPressed: () => Navigator.pop(dialogContext, false),
+                child: Flexible(child: const Text('취소')),
+              ),
+              ShadButton.ghost(
+                onPressed: () => Navigator.pop(dialogContext, true),
+                child: Flexible(child: const Text('탈퇴')),
+              ),
+            ],
+            child: Material(
+              type: MaterialType.transparency,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    '로그인 계정과 인증 정보가 삭제되며 되돌릴 수 없습니다. 공용 기업 데이터는 유지됩니다. 현재 비밀번호를 입력해 주세요.',
+                  ),
+                  const SizedBox(height: 16),
+                  ShadInput(
+                    controller: password,
+                    obscureText: true,
+                    placeholder: Text('현재 비밀번호'),
+                  ),
+                ],
+              ),
             ),
-          ],
+          ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('취소'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('탈퇴'),
-          ),
-        ],
       ),
+      barrierLabel: '닫기',
     );
     final value = password.text;
     // Allow the dialog's exit animation to release the controller first.
@@ -161,12 +215,15 @@ class _AccountPageState extends State<AccountPage> {
               return Column(
                 children: [
                   const Text('계정 정보를 불러오지 못했습니다.'),
-                  TextButton(onPressed: _reload, child: const Text('다시 시도')),
+                  ShadButton.ghost(
+                    onPressed: _reload,
+                    child: Flexible(child: const Text('다시 시도')),
+                  ),
                 ],
               );
             }
             if (!snapshot.hasData) {
-              return const Center(child: CircularProgressIndicator());
+              return const Center(child: ShadSpinner());
             }
             final users = snapshot.data!;
             return Column(
@@ -175,13 +232,7 @@ class _AccountPageState extends State<AccountPage> {
                 for (final user in users)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 16),
-                    child: Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: c.surface,
-                        border: Border.all(color: c.border),
-                        borderRadius: context.shape.borderRadius,
-                      ),
+                    child: DataPanel(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -205,39 +256,90 @@ class _AccountPageState extends State<AccountPage> {
                               spacing: 8,
                               runSpacing: 8,
                               children: [
-                                AppButton(
-                                  label: '결제 내역 · 환불',
+                                ShadButton.raw(
                                   onPressed: _busy
                                       ? null
-                                      : () => showDialog<void>(
+                                      : () => showShadDialog<void>(
                                           context: context,
-                                          builder: (_) =>
-                                              PaymentAdminDialog(user: user),
+                                          builder: (overlayContext) =>
+                                              InheritedTheme.captureAll(
+                                                context,
+                                                Builder(
+                                                  builder: (_) =>
+                                                      PaymentAdminDialog(
+                                                        user: user,
+                                                      ),
+                                                ),
+                                              ),
+                                          barrierLabel: '닫기',
                                         ),
+                                  enabled:
+                                      (_busy
+                                          ? null
+                                          : () => showShadDialog<void>(
+                                              context: context,
+                                              builder: (overlayContext) =>
+                                                  InheritedTheme.captureAll(
+                                                    context,
+                                                    Builder(
+                                                      builder: (_) =>
+                                                          PaymentAdminDialog(
+                                                            user: user,
+                                                          ),
+                                                    ),
+                                                  ),
+                                              barrierLabel: '닫기',
+                                            )) !=
+                                      null,
+                                  variant: ShadButtonVariant.outline,
+                                  child: Flexible(child: Text('결제 내역 · 환불')),
                                 ),
                                 if (user.userId != context.viewer?.userId) ...[
-                                  AppButton(
-                                    label: user.isAdmin
-                                        ? '일반 회원으로 변경'
-                                        : '관리자로 변경',
+                                  ShadButton.raw(
                                     onPressed: _busy
                                         ? null
                                         : () => _access(
                                             user,
                                             admin: !user.isAdmin,
                                           ),
+                                    enabled:
+                                        (_busy
+                                            ? null
+                                            : () => _access(
+                                                user,
+                                                admin: !user.isAdmin,
+                                              )) !=
+                                        null,
+                                    variant: ShadButtonVariant.outline,
+                                    child: Flexible(
+                                      child: Text(
+                                        user.isAdmin ? '일반 회원으로 변경' : '관리자로 변경',
+                                      ),
+                                    ),
                                   ),
-                                  AppButton(
-                                    label: user.blocked ? '정지 해제' : '이용 정지',
+                                  ShadButton.raw(
                                     onPressed: _busy
                                         ? null
                                         : () => _access(
                                             user,
                                             blocked: !user.blocked,
                                           ),
+                                    enabled:
+                                        (_busy
+                                            ? null
+                                            : () => _access(
+                                                user,
+                                                blocked: !user.blocked,
+                                              )) !=
+                                        null,
+                                    variant: ShadButtonVariant.outline,
+                                    child: Flexible(
+                                      child: Text(
+                                        user.blocked ? '정지 해제' : '이용 정지',
+                                      ),
+                                    ),
                                   ),
-                                  AppButton(
-                                    label: '로그인 세션 종료',
+                                  ShadButton.raw(
                                     onPressed: _busy
                                         ? null
                                         : () async {
@@ -253,6 +355,25 @@ class _AccountPageState extends State<AccountPage> {
                                               );
                                             }
                                           },
+                                    enabled:
+                                        (_busy
+                                            ? null
+                                            : () async {
+                                                if (await _confirm(
+                                                  '로그인 세션 종료',
+                                                  '${user.email}\n모든 기기의 로그인 갱신을 차단합니다. 이미 발급된 접근 토큰은 최대 10분간 유효할 수 있습니다.',
+                                                )) {
+                                                  await _run(
+                                                    () => client.account
+                                                        .revokeSessions(
+                                                          userId: user.userId,
+                                                        ),
+                                                  );
+                                                }
+                                              }) !=
+                                        null,
+                                    variant: ShadButtonVariant.outline,
+                                    child: Flexible(child: Text('로그인 세션 종료')),
                                   ),
                                 ] else
                                   Text(
@@ -266,8 +387,7 @@ class _AccountPageState extends State<AccountPage> {
                               spacing: 8,
                               runSpacing: 8,
                               children: [
-                                AppButton(
-                                  label: '비밀번호 재설정',
+                                ShadButton.raw(
                                   onPressed: _busy
                                       ? null
                                       : () => Navigator.of(context).push(
@@ -277,9 +397,22 @@ class _AccountPageState extends State<AccountPage> {
                                             ),
                                           ),
                                         ),
+                                  enabled:
+                                      (_busy
+                                          ? null
+                                          : () => Navigator.of(context).push(
+                                              MaterialPageRoute<void>(
+                                                builder: (_) =>
+                                                    const SignInPage(
+                                                      resetPassword: true,
+                                                    ),
+                                              ),
+                                            )) !=
+                                      null,
+                                  variant: ShadButtonVariant.outline,
+                                  child: Flexible(child: Text('비밀번호 재설정')),
                                 ),
-                                AppButton(
-                                  label: '모든 기기에서 로그아웃',
+                                ShadButton.raw(
                                   onPressed: _busy
                                       ? null
                                       : () async {
@@ -294,12 +427,36 @@ class _AccountPageState extends State<AccountPage> {
                                             });
                                           }
                                         },
+                                  enabled:
+                                      (_busy
+                                          ? null
+                                          : () async {
+                                              if (await _confirm(
+                                                '모든 기기에서 로그아웃',
+                                                '다른 기기의 로그인 갱신을 차단합니다. 이미 발급된 접근 토큰은 최대 10분간 유효할 수 있습니다.',
+                                              )) {
+                                                await _run(() async {
+                                                  await client.account
+                                                      .revokeSessions();
+                                                  await AppAuth.signOut();
+                                                });
+                                              }
+                                            }) !=
+                                      null,
+                                  variant: ShadButtonVariant.outline,
+                                  child: Flexible(child: Text('모든 기기에서 로그아웃')),
                                 ),
-                                AppButton(
-                                  label: '로그아웃',
+                                ShadButton.raw(
                                   onPressed: _busy
                                       ? null
                                       : () => _run(AppAuth.signOut),
+                                  enabled:
+                                      (_busy
+                                          ? null
+                                          : () => _run(AppAuth.signOut)) !=
+                                      null,
+                                  variant: ShadButtonVariant.outline,
+                                  child: Flexible(child: Text('로그아웃')),
                                 ),
                               ],
                             ),
@@ -310,9 +467,10 @@ class _AccountPageState extends State<AccountPage> {
                                 style: t.body(12, color: c.textMuted),
                               )
                             else
-                              TextButton(
+                              ShadButton.ghost(
                                 onPressed: _busy ? null : _delete,
-                                child: const Text('회원 탈퇴'),
+                                enabled: (_busy ? null : _delete) != null,
+                                child: Flexible(child: const Text('회원 탈퇴')),
                               ),
                           ],
                         ],
@@ -323,30 +481,46 @@ class _AccountPageState extends State<AccountPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      TextButton(
+                      ShadButton.ghost(
                         onPressed: _offset == 0
                             ? null
                             : () {
                                 _offset -= 50;
                                 _reload();
                               },
-                        child: const Text('이전'),
+                        enabled:
+                            (_offset == 0
+                                ? null
+                                : () {
+                                    _offset -= 50;
+                                    _reload();
+                                  }) !=
+                            null,
+                        child: Flexible(child: const Text('이전')),
                       ),
-                      TextButton(
+                      ShadButton.ghost(
                         onPressed: users.length < 50
                             ? null
                             : () {
                                 _offset += 50;
                                 _reload();
                               },
-                        child: const Text('다음'),
+                        enabled:
+                            (users.length < 50
+                                ? null
+                                : () {
+                                    _offset += 50;
+                                    _reload();
+                                  }) !=
+                            null,
+                        child: Flexible(child: const Text('다음')),
                       ),
                     ],
                   ),
                 if (!widget.manage && context.isAdmin)
-                  TextButton(
+                  ShadButton.ghost(
                     onPressed: () => context.push('/admin/accounts'),
-                    child: const Text('회원 관리 열기'),
+                    child: Flexible(child: const Text('회원 관리 열기')),
                   ),
               ],
             );

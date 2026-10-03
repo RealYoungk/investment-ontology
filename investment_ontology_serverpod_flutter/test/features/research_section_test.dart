@@ -1,3 +1,7 @@
+import 'package:shad/shad.dart';
+
+import '../support/shad_test_host.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -14,6 +18,66 @@ Widget app(Widget child) => MaterialApp(
   home: Scaffold(body: SingleChildScrollView(child: child)),
 );
 void main() {
+  testWidgets('queued acquisition retries and displays the stored result', (
+    t,
+  ) async {
+    var calls = 0;
+    await t.pumpWidget(
+      shadTestHost(
+        app(
+          ResearchSection(
+            corpCode: '00126380',
+            kinds: const ['treasury'],
+            loader: (_, _) async => jsonEncode(
+              ++calls == 1
+                  ? {
+                      'state': 'collecting',
+                      'retryAfterSeconds': 5,
+                      'message': '수집 대기 중',
+                      'rows': [],
+                    }
+                  : {'state': 'ready', 'rows': []},
+            ),
+          ),
+        ),
+      ),
+    );
+    await t.pumpAndSettle();
+    expect(find.text('수집 대기 중'), findsOneWidget);
+    expect(find.text('수집 범위에 해당 보고가 없습니다.'), findsNothing);
+    await t.pump(const Duration(seconds: 5));
+    await t.pumpAndSettle();
+    expect(calls, 2);
+    expect(find.text('수집 범위에 해당 보고가 없습니다.'), findsOneWidget);
+    await t.pumpWidget(shadTestHost(const SizedBox()));
+  });
+
+  testWidgets('leaving a pending company cancels the retry timer', (t) async {
+    var calls = 0;
+    await t.pumpWidget(
+      shadTestHost(
+        app(
+          ResearchSection(
+            corpCode: '00126380',
+            kinds: const ['treasury'],
+            loader: (_, _) async {
+              calls++;
+              return jsonEncode({
+                'state': 'collecting',
+                'retryAfterSeconds': 5,
+                'rows': [],
+              });
+            },
+          ),
+        ),
+      ),
+    );
+    await t.pumpAndSettle();
+    await t.pumpWidget(shadTestHost(const SizedBox()));
+    await t.pump(const Duration(seconds: 6));
+    expect(calls, 1);
+  });
+
   test('plain wording keeps disposal separate from cancellation', () {
     expect(
       researchPlainTitle({'api': 'tsstkDpDecsn', 'reason': '독립이사 보수 지급'}),
@@ -42,23 +106,25 @@ void main() {
     'normal company view hides management and previews other categories',
     (t) async {
       await t.pumpWidget(
-        app(
-          ResearchSection(
-            corpCode: 'test',
-            kinds: const ['capital', 'treasury'],
-            loader: (_, kind) async => jsonEncode({
-              'state': 'ready',
-              'provider': 'DART',
-              'collectedAt': '2026-10-01',
-              'rows': [
-                {
-                  'date': '2026-01-01',
-                  'api': 'tsstkAqDecsn',
-                  'receipt': '20260101000001',
-                  'shares': '500',
-                },
-              ],
-            }),
+        shadTestHost(
+          app(
+            ResearchSection(
+              corpCode: 'test',
+              kinds: const ['capital', 'treasury'],
+              loader: (_, kind) async => jsonEncode({
+                'state': 'ready',
+                'provider': 'DART',
+                'collectedAt': '2026-10-01',
+                'rows': [
+                  {
+                    'date': '2026-01-01',
+                    'api': 'tsstkAqDecsn',
+                    'receipt': '20260101000001',
+                    'shares': '500',
+                  },
+                ],
+              }),
+            ),
           ),
         ),
       );
@@ -71,16 +137,18 @@ void main() {
 
   testWidgets('unconnected feeds stay behind status disclosure', (t) async {
     await t.pumpWidget(
-      app(
-        ResearchSection(
-          corpCode: '00164779',
-          showManagement: true,
-          kinds: const ['capital', 'consensus'],
-          loader: (_, kind) async => jsonEncode({
-            'state': 'notCollected',
-            'message': 'missing $kind',
-            'rows': [],
-          }),
+      shadTestHost(
+        app(
+          ResearchSection(
+            corpCode: '00164779',
+            showManagement: true,
+            kinds: const ['capital', 'consensus'],
+            loader: (_, kind) async => jsonEncode({
+              'state': 'notCollected',
+              'message': 'missing $kind',
+              'rows': [],
+            }),
+          ),
         ),
       ),
     );
@@ -109,22 +177,26 @@ void main() {
       'rows': [],
     });
     await t.pumpWidget(
-      app(
-        ResearchSection(
-          corpCode: '00126380',
-          kinds: const ['treasury'],
-          loader: load,
+      shadTestHost(
+        app(
+          ResearchSection(
+            corpCode: '00126380',
+            kinds: const ['treasury'],
+            loader: load,
+          ),
         ),
       ),
     );
     await t.pumpAndSettle();
     expect(find.text('missing treasury'), findsOneWidget);
     await t.pumpWidget(
-      app(
-        ResearchSection(
-          corpCode: '00126380',
-          kinds: const ['insiders', 'majorHoldings'],
-          loader: load,
+      shadTestHost(
+        app(
+          ResearchSection(
+            corpCode: '00126380',
+            kinds: const ['insiders', 'majorHoldings'],
+            loader: load,
+          ),
         ),
       ),
     );
@@ -145,9 +217,9 @@ void main() {
         );
         for (final raw in fixture['rows'] as List) {
           final row = Map<String, dynamic>.from(raw as Map);
-          await t.pumpWidget(app(ResearchEventCard(row: row)));
+          await t.pumpWidget(shadTestHost(app(ResearchEventCard(row: row))));
           expect(find.text('공시 원문'), findsNothing);
-          expect(find.byType(LinearProgressIndicator), findsNothing);
+          expect(find.byType(ShadProgress), findsNothing);
           expect(find.textContaining('결정일'), findsNothing);
           await t.ensureVisible(
             find.byKey(ValueKey('conditions-${row['receipt']}')),
@@ -229,16 +301,18 @@ void main() {
     addTearDown(t.view.resetPhysicalSize);
     addTearDown(t.view.resetDevicePixelRatio);
     await t.pumpWidget(
-      app(
-        const ResearchEventCard(
-          row: {
-            'date': '2026-09-01',
-            'reporter': '주주',
-            'holdings': '1000',
-            'change': '-200',
-            'receipt': '20260901000001',
-            'reason': '증여',
-          },
+      shadTestHost(
+        app(
+          const ResearchEventCard(
+            row: {
+              'date': '2026-09-01',
+              'reporter': '주주',
+              'holdings': '1000',
+              'change': '-200',
+              'receipt': '20260901000001',
+              'reason': '증여',
+            },
+          ),
         ),
       ),
     );
@@ -255,19 +329,21 @@ void main() {
     t,
   ) async {
     await t.pumpWidget(
-      app(
-        ResearchSection(
-          corpCode: '00126380',
-          kinds: const ['capital', 'treasury'],
-          loader: (_, k) async => jsonEncode(
-            k == 'capital'
-                ? {'state': 'notCollected', 'message': '수집 전', 'rows': []}
-                : {
-                    'state': 'ready',
-                    'provider': 'DART',
-                    'collectedAt': '2026-09-01',
-                    'rows': [],
-                  },
+      shadTestHost(
+        app(
+          ResearchSection(
+            corpCode: '00126380',
+            kinds: const ['capital', 'treasury'],
+            loader: (_, k) async => jsonEncode(
+              k == 'capital'
+                  ? {'state': 'notCollected', 'message': '수집 전', 'rows': []}
+                  : {
+                      'state': 'ready',
+                      'provider': 'DART',
+                      'collectedAt': '2026-09-01',
+                      'rows': [],
+                    },
+            ),
           ),
         ),
       ),

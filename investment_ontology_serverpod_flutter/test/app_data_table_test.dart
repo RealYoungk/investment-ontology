@@ -1,3 +1,5 @@
+import 'support/shad_test_host.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,13 +11,15 @@ import 'package:investment_ontology_serverpod_flutter/design/components/app_data
 void main() {
   Future<void> pump(WidgetTester tester, Widget child, {double width = 760}) {
     return tester.pumpWidget(
-      MaterialApp(
-        theme: buildAppTheme(ledgerBrand),
-        home: Scaffold(
-          body: Center(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: width),
-              child: Column(children: [child]),
+      shadTestHost(
+        MaterialApp(
+          theme: buildAppTheme(ledgerBrand),
+          home: Scaffold(
+            body: Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: width),
+                child: Column(children: [child]),
+              ),
             ),
           ),
         ),
@@ -100,5 +104,42 @@ void main() {
     expect(table.size.width, greaterThan(400));
     final name = tester.getSize(find.text('에스케이스퀘어 주식회사'));
     expect(name.height, lessThan(30));
+  });
+  testWidgets('긴 원문은 가변 행으로 남고 결측값과 숫자는 의미를 유지한다', (tester) async {
+    final evidence = '원문 근거: 연결 재무제표에 표시된 기간과 단위를 함께 확인합니다. ' * 4;
+    await pump(
+      tester,
+      Builder(
+        builder: (context) => AppDataTable(
+          columns: const [
+            AppColumn('기간', nowrap: true),
+            AppColumn('값', numeric: true),
+            AppColumn('근거', flex: true),
+          ],
+          rows: [
+            AppRow([
+              AppDataTable.text(context, '2025'),
+              AppDataTable.text(context, '1,234,567', numeric: true),
+              AppDataTable.text(context, evidence),
+            ]),
+            AppRow([
+              AppDataTable.text(context, '2026'),
+              AppDataTable.text(context, null, numeric: true),
+              AppDataTable.text(context, '미확보'),
+            ]),
+          ],
+        ),
+      ),
+      width: 390,
+    );
+    final original = tester.widget<Text>(find.text(evidence));
+    expect(original.maxLines, isNull);
+    expect(tester.getSize(find.text(evidence)).height, greaterThan(48));
+    expect(find.text('—'), findsOneWidget);
+    expect(
+      tester.widget<Text>(find.text('1,234,567')).textAlign,
+      TextAlign.right,
+    );
+    expect(tester.takeException(), isNull);
   });
 }

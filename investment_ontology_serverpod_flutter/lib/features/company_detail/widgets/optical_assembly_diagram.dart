@@ -1,3 +1,4 @@
+import 'package:shad/shad.dart';
 import 'package:flutter/material.dart';
 
 import '../../../design/tokens.dart';
@@ -61,10 +62,12 @@ class _OpticalAssemblyDiagramState extends State<OpticalAssemblyDiagram> {
             runSpacing: AppSpace.sm,
             children: [
               for (var i = 0; i < titles.length; i++)
-                ChoiceChip(
-                  label: Text('${i + 1} ${titles[i]}'),
-                  selected: stage == i,
-                  onSelected: (_) => setState(() => stage = i),
+                IntrinsicWidth(
+                  child: ShadToggle.outline(
+                    value: stage == i,
+                    onChanged: (_) => setState(() => stage = i),
+                    child: Text('${i + 1} ${titles[i]}'),
+                  ),
                 ),
             ],
           ),

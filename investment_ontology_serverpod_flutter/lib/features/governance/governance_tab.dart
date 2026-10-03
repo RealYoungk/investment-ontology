@@ -68,13 +68,19 @@ class _GovernanceTabState extends State<GovernanceTab> {
     final t = context.typo;
     final d = _data;
     if (_error != null) {
-      return AppNotice(message: '지배구조를 불러오지 못했습니다 — $_error');
+      return ReadFailureNotice(subject: '지배구조', retry: _load);
     }
-    if (d == null) return const LinearProgressIndicator(minHeight: 2);
+    if (d == null) return const ShadProgress(minHeight: 2);
     if (d.bsnsYear == null) {
-      return Text(
-        '아직 이 기업의 정기보고서 주요정보를 받지 않았습니다.',
-        style: t.body(13, color: c.textMuted),
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            '아직 이 기업의 정기보고서 주요정보를 받지 않았습니다.',
+            style: t.body(13, color: c.textMuted),
+          ),
+          const SizedBox(height: AppSpace.md),
+        ],
       );
     }
     final view = GovernanceView(d);
@@ -95,13 +101,12 @@ class _GovernanceTabState extends State<GovernanceTab> {
                 ),
               ),
               if (d.availableYears.length > 1)
-                DropdownButton<int>(
-                  value: d.bsnsYear,
-                  underline: const SizedBox.shrink(),
-                  items: [
+                AppSelect<int>(
+                  options: Map.fromEntries([
                     for (final year in d.availableYears)
-                      DropdownMenuItem(value: year, child: Text('$year년')),
-                  ],
+                      MapEntry(year, '$year년'),
+                  ]),
+                  value: d.bsnsYear,
                   onChanged: (year) {
                     if (year == null) return;
                     setState(() {
@@ -110,78 +115,109 @@ class _GovernanceTabState extends State<GovernanceTab> {
                     });
                     _load();
                   },
+                  placeholder: '선택',
+                  allowClear: false,
                 ),
             ],
           ),
         ),
         const SizedBox(height: AppSpace.lg),
+        const SizedBox(height: AppSpace.lg),
         OwnershipChangesSection(corpCode: widget.corpCode, compact: true),
         const SizedBox(height: AppSpace.sm),
-        ExpansionTile(
-          title: const Text('주주별 수량·관계 상세'),
+        ShadAccordion<int>(
+          maintainState: false,
           children: [
-            _HolderTable(view: view, onOpen: _open),
-            if (d.minorityRatio != null)
-              Padding(
-                padding: const EdgeInsets.all(AppSpace.md),
-                child: Text(
-                  '소액주주 ${formatRatio(d.minorityRatio)}${d.minorityHolders == null ? '' : ' · ${formatCount(d.minorityHolders!)}명'}',
-                  style: t.body(13),
-                ),
+            ShadAccordionItem<int>(
+              value: 0,
+              title: const Text('주주별 수량·관계 상세'),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _HolderTable(view: view, onOpen: _open),
+                  if (d.minorityRatio != null)
+                    Padding(
+                      padding: const EdgeInsets.all(AppSpace.md),
+                      child: Text(
+                        '소액주주 ${formatRatio(d.minorityRatio)}${d.minorityHolders == null ? '' : ' · ${formatCount(d.minorityHolders!)}명'}',
+                        style: t.body(13),
+                      ),
+                    ),
+                  _Sources(sources: d.sources),
+                ],
               ),
-            _Sources(sources: d.sources),
+            ),
           ],
         ),
         const SizedBox(height: AppSpace.md),
-        ExpansionTile(
-          tilePadding: EdgeInsets.zero,
-          title: const Text('주주·출자 관계망'),
-          children: [
-            Align(
-              alignment: Alignment.centerRight,
-              child: AppButton(
-                label: '관계망에서 더 넓게 보기 →',
-                variant: AppButtonVariant.link,
-                tone: c.accent,
-                onPressed: () => context.go(AppRoutes.graph(widget.corpCode)),
+        CompanyDataCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              CompanySectionHeading('주주·출자 관계망'),
+              const SizedBox(height: AppSpace.md),
+              Align(
+                alignment: Alignment.centerRight,
+                child: ShadButton.raw(
+                  onPressed: () => context.go(AppRoutes.graph(widget.corpCode)),
+                  variant: ShadButtonVariant.link,
+                  foregroundColor: c.accent,
+                  child: Flexible(child: Text('관계망에서 더 넓게 보기 →')),
+                ),
               ),
-            ),
-            GovernanceGraph(
-              center: widget.companyName,
-              left: holders,
-              right: investments,
-              onTap: _open,
-            ),
-            const SizedBox(height: AppSpace.sm),
-            Text(
-              '선 굵기 = 지분율 · 파랑 = 상장사 · 주황 = 인물 · 회색 = 확인되지 않은 이름 · '
-              '점선 = 추정 연결 (지분으로 이어진 기업들의 주주 명단에 같은 이름)',
-              style: t.body(11.5, color: c.textMuted),
-            ),
-          ],
+              GovernanceGraph(
+                center: widget.companyName,
+                left: holders,
+                right: investments,
+                onTap: _open,
+              ),
+              const SizedBox(height: AppSpace.sm),
+              Text(
+                '선 굵기 = 지분율 · 파랑 = 상장사 · 주황 = 인물 · 회색 = 확인되지 않은 이름 · '
+                '점선 = 추정 연결 (지분으로 이어진 기업들의 주주 명단에 같은 이름)',
+                style: t.body(11.5, color: c.textMuted),
+              ),
+            ],
+          ),
         ),
         if (d.investors.isNotEmpty || d.holdings.isNotEmpty) ...[
           const SizedBox(height: AppSpace.md),
-          ExpansionTile(
-            title: const Text('다른 기업 공시에서 확인한 관계'),
-            children: [_ReverseLinks(data: d)],
+          CompanyDataCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const CompanySectionHeading('다른 기업 공시에서 확인한 관계'),
+                const SizedBox(height: AppSpace.md),
+                _ReverseLinks(data: d),
+              ],
+            ),
           ),
         ],
 
         const SizedBox(height: AppSpace.sm),
-        ExpansionTile(
-          title: const Text('경영진 명단'),
-          children: [
-            _ExecutiveTable(
-              executives: d.executives,
-              onOpenPerson: (id) => context.push(AppRoutes.person(id)),
-            ),
-          ],
+        CompanyDataCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              CompanySectionHeading('경영진 명단'),
+              const SizedBox(height: AppSpace.md),
+              _ExecutiveTable(
+                executives: d.executives,
+                onOpenPerson: (id) => context.push(AppRoutes.person(id)),
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: AppSpace.sm),
-        ExpansionTile(
-          title: const Text('다른 회사에 투자한 내역'),
-          children: [_InvestmentTable(view: view, onOpen: _open)],
+        CompanyDataCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              CompanySectionHeading('다른 회사에 투자한 내역'),
+              const SizedBox(height: AppSpace.md),
+              _InvestmentTable(view: view, onOpen: _open),
+            ],
+          ),
         ),
         const SizedBox(height: AppSpace.md),
       ],
@@ -450,14 +486,22 @@ class _ExecutiveTable extends StatelessWidget {
   }
 }
 
-class _InvestmentTable extends StatelessWidget {
+class _InvestmentTable extends StatefulWidget {
   const _InvestmentTable({required this.view, required this.onOpen});
 
   final GovernanceView view;
   final ValueChanged<GovernanceNode> onOpen;
 
   @override
+  State<_InvestmentTable> createState() => _InvestmentTableState();
+}
+
+class _InvestmentTableState extends State<_InvestmentTable> {
+  int _shown = 20;
+  @override
   Widget build(BuildContext context) {
+    final view = widget.view;
+    final onOpen = widget.onOpen;
     final c = context.colors;
     final t = context.typo;
     final rows = view.data.investments;
@@ -483,7 +527,7 @@ class _InvestmentTable extends StatelessWidget {
             AppColumn('대상 순손익', numeric: true),
           ],
           rows: [
-            for (final i in rows)
+            for (final i in rows.take(_shown))
               AppRow(emphasized: i.isTotal, [
                 _link(
                   context,
@@ -539,6 +583,14 @@ class _InvestmentTable extends StatelessWidget {
               ]),
           ],
         ),
+        if (rows.length > _shown)
+          ShadButton.raw(
+            onPressed: () => setState(() => _shown += 20),
+            variant: ShadButtonVariant.link,
+            child: Flexible(
+              child: Text('출자 내역 20개 더 보기 ($_shown/${rows.length})'),
+            ),
+          ),
       ],
     );
   }
@@ -576,10 +628,10 @@ class _Sources extends StatelessWidget {
                   style: t.numeric(11, color: c.textSecondary),
                 ),
                 if (s.url != null)
-                  AppButton(
-                    label: 'DART 공시 →',
-                    variant: AppButtonVariant.link,
+                  ShadButton.raw(
                     onPressed: () => launchUrl(Uri.parse(s.url!)),
+                    variant: ShadButtonVariant.link,
+                    child: Flexible(child: Text('DART 공시 →')),
                   ),
               ],
             ),

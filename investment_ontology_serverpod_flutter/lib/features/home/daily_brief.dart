@@ -1,3 +1,4 @@
+import 'package:shad/shad.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
@@ -5,6 +6,8 @@ import 'package:investment_ontology_serverpod_client/investment_ontology_serverp
 import '../../app/ingest_monitor.dart';
 import '../../client.dart';
 import '../../design/tokens.dart';
+import '../../design/components/data_panel.dart';
+import '../../design/components/read_failure_notice.dart';
 import '../common/formatters.dart';
 
 typedef FilingFeedLoad = Future<List<FilingFeedItem>> Function();
@@ -58,13 +61,7 @@ class _DailyBriefState extends State<DailyBrief> {
   Widget build(BuildContext context) {
     final c = context.colors;
     final t = context.typo;
-    return Container(
-      padding: const EdgeInsets.all(AppSpace.lg),
-      decoration: BoxDecoration(
-        color: c.surface,
-        border: Border.all(color: c.border),
-        borderRadius: context.shape.borderRadius,
-      ),
+    return DataPanel(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -74,9 +71,10 @@ class _DailyBriefState extends State<DailyBrief> {
             spacing: AppSpace.md,
             children: [
               Text('다시 읽어볼 공시', style: t.display(22)),
-              TextButton(
+              ShadButton.ghost(
                 onPressed: _loading ? null : _load,
-                child: const Text('새로고침'),
+                enabled: (_loading ? null : _load) != null,
+                child: Flexible(child: const Text('새로고침')),
               ),
             ],
           ),
@@ -85,27 +83,27 @@ class _DailyBriefState extends State<DailyBrief> {
             style: t.body(12, color: c.textSecondary),
           ),
           const SizedBox(height: AppSpace.md),
-          if (_loading) const LinearProgressIndicator(minHeight: 2),
-          if (_failed)
-            Text(
-              '최근 공시를 불러오지 못했어요. 새로고침으로 다시 시도해 주세요.',
-              style: t.body(13, color: c.textSecondary),
-            ),
+          if (_loading) const ShadProgress(minHeight: 2),
+          if (_failed) ReadFailureNotice(subject: '최근 공시', retry: _load),
           if (!_loading && !_failed && _items?.isEmpty == true)
             Text('수집된 최근 정기보고서가 아직 없습니다.', style: t.body(14)),
           Wrap(
             spacing: AppSpace.sm,
             runSpacing: AppSpace.sm,
             children: [
-              ChoiceChip(
-                label: const Text('전체'),
-                selected: !_correctionsOnly,
-                onSelected: (_) => setState(() => _correctionsOnly = false),
+              IntrinsicWidth(
+                child: ShadToggle.outline(
+                  value: !_correctionsOnly,
+                  onChanged: (_) => setState(() => _correctionsOnly = false),
+                  child: const Text('전체'),
+                ),
               ),
-              ChoiceChip(
-                label: const Text('정정 보고서'),
-                selected: _correctionsOnly,
-                onSelected: (_) => setState(() => _correctionsOnly = true),
+              IntrinsicWidth(
+                child: ShadToggle.outline(
+                  value: _correctionsOnly,
+                  onChanged: (_) => setState(() => _correctionsOnly = true),
+                  child: const Text('정정 보고서'),
+                ),
               ),
             ],
           ),
@@ -166,15 +164,11 @@ class _DailyBriefState extends State<DailyBrief> {
                       style: t.body(11, color: c.onInverse),
                     ),
                     const SizedBox(height: AppSpace.lg),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: c.onInverse,
-                        foregroundColor: c.inverse,
-                      ),
+                    ShadButton.ghost(
                       onPressed: () => context.push(
                         '/company/${first.company.corpCode}?tab=financials',
                       ),
-                      child: const Text('기업 실적 열기 →'),
+                      child: Flexible(child: const Text('기업 실적 열기 →')),
                     ),
                   ],
                 ),
@@ -185,24 +179,43 @@ class _DailyBriefState extends State<DailyBrief> {
                   for (final f in filtered.skip(1).take(5)) ...[
                     Material(
                       color: c.surface,
-                      child: ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(
-                          f.company.name,
-                          style: t.body(15, weight: FontWeight.w600),
-                        ),
-                        subtitle: Text(
-                          '${formatDate(f.receivedDate)} · ${f.reportName}\n${f.reportName.contains('정정') ? '정정 원문 확인' : '보고 기간 실적 확인'} · 재무 ${f.financialStored ? '수집 완료' : '수집 대기'}',
-                          style: t.body(12, color: c.textSecondary),
-                        ),
-                        isThreeLine: true,
-                        trailing: Icon(
-                          Icons.arrow_forward,
-                          color: c.accent,
-                          size: 18,
-                        ),
-                        onTap: () => context.push(
+                      child: ShadButton.ghost(
+                        width: double.infinity,
+                        height: 0,
+                        padding: EdgeInsets.zero,
+                        onPressed: () => context.push(
                           '/company/${f.company.corpCode}?tab=financials',
+                        ),
+                        child: Flexible(
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      f.company.name,
+                                      style: t.body(
+                                        15,
+                                        weight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    Text(
+                                      '${formatDate(f.receivedDate)} · ${f.reportName}\n${f.reportName.contains('정정') ? '정정 원문 확인' : '보고 기간 실적 확인'} · 재무 ${f.financialStored ? '수집 완료' : '수집 대기'}',
+                                      style: t.body(12, color: c.textSecondary),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: AppSpace.sm),
+                              Icon(
+                                LucideIcons.arrowRight,
+                                color: c.accent,
+                                size: 18,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

@@ -10,7 +10,10 @@ import 'app/ingest_monitor.dart';
 import 'app/router.dart';
 import 'client.dart';
 import 'design/app_theme.dart';
-import 'design/brands/research_desk_brand.dart';
+import 'design/shad_theme.dart';
+
+import 'package:shad/shad.dart';
+
 import 'features/auth/app_auth.dart';
 import 'features/auth/auth_gate.dart';
 import 'features/auth/sign_in_page.dart';
@@ -34,7 +37,7 @@ void main() async {
   startMonitorWhenSignedIn();
   // 글꼴을 첫 배치 전에 받는다. 나중에 바뀌면 표가 글꼴 바뀌기 전 폭으로 열을 잰 채 남아
   // 이름 열이 접히고 flex 열만 넓어진다 (헤드리스 캡처에서 확인).
-  final theme = buildAppTheme(researchDeskBrand);
+  final theme = buildAppTheme(serviceBrand);
   await GoogleFonts.pendingFonts();
   runApp(MyApp(theme: theme));
   // Official Flutter web accessibility API: expose the real rendered content
@@ -50,27 +53,33 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: '알파인더',
-      debugShowCheckedModeBanner: false,
-      theme: theme,
-      // 로그인 폼의 텍스트 칸은 한국어로 짰지만, 길게 눌렀을 때 나오는 선택 메뉴(복사·붙여
-      // 넣기 등)는 Flutter의 기본 MaterialLocalizations를 따른다. 이걸 한국어로 두지
-      // 않으면 그 메뉴만 영어로 남는다.
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [Locale('ko')],
-      locale: const Locale('ko'),
-      routerConfig: AppRoutes.router,
-      // 공개 탐색은 비로그인 허용. 개인/관리자 경로는 라우터에서 보호한다.
-      builder: (context, child) => AuthGate(
-        viewer: AppAuth.viewer,
-        allowAnonymous: true,
-        signIn: const SignInPage(),
-        child: child ?? const SizedBox.shrink(),
+    return ShadApp.custom(
+      theme: buildServiceShadTheme(theme),
+      appBuilder: (context) => MaterialApp.router(
+        title: '알파인더',
+        debugShowCheckedModeBanner: false,
+        theme: theme,
+        // 로그인 폼의 텍스트 칸은 한국어로 짰지만, 길게 눌렀을 때 나오는 선택 메뉴(복사·붙여
+        // 넣기 등)는 Flutter의 기본 MaterialLocalizations를 따른다. 이걸 한국어로 두지
+        // 않으면 그 메뉴만 영어로 남는다.
+        localizationsDelegates: const [
+          GlobalShadLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [Locale('ko')],
+        locale: const Locale('ko'),
+        routerConfig: AppRoutes.router,
+        // 공개 탐색은 비로그인 허용. 개인/관리자 경로는 라우터에서 보호한다.
+        builder: (context, child) => ShadAppBuilder(
+          child: AuthGate(
+            viewer: AppAuth.viewer,
+            allowAnonymous: true,
+            signIn: const SignInPage(),
+            child: child ?? const SizedBox.shrink(),
+          ),
+        ),
       ),
     );
   }

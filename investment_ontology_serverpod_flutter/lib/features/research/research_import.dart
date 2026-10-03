@@ -1,3 +1,5 @@
+import 'package:shad/shad.dart';
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -86,49 +88,64 @@ class _ResearchImportState extends State<ResearchImport> {
   @override
   Widget build(BuildContext context) {
     if (!context.isAdmin) return const SizedBox.shrink();
-    return ExpansionTile(
-      title: const Text('공급 자료 연결'),
+    return ShadAccordion<int>(
+      maintainState: false,
       children: [
-        Text(
-          '계약·허용 범위가 확인된 자료만 반입합니다. 숫자는 원·주 단위 문자열, 기준일은 YYYY-MM-DD입니다.',
-          style: context.typo.body(12, color: context.colors.textMuted),
-        ),
-        for (final field in [
-          (_provider, '공급원'),
-          (_url, '출처 HTTPS 주소'),
-          (_rights, '공개 제공 권한 근거'),
-        ])
-          Padding(
-            padding: const EdgeInsets.only(top: AppSpace.sm),
-            child: TextField(
-              controller: field.$1,
-              decoration: InputDecoration(labelText: field.$2),
-            ),
+        ShadAccordionItem<int>(
+          value: 0,
+          title: const Text('공급 자료 연결'),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '계약·허용 범위가 확인된 자료만 반입합니다. 숫자는 원·주 단위 문자열, 기준일은 YYYY-MM-DD입니다.',
+                style: context.typo.body(12, color: context.colors.textMuted),
+              ),
+              for (final field in [
+                (_provider, '공급원'),
+                (_url, '출처 HTTPS 주소'),
+                (_rights, '공개 제공 권한 근거'),
+              ])
+                Padding(
+                  padding: const EdgeInsets.only(top: AppSpace.sm),
+                  child: ShadInput(
+                    placeholder: Text(field.$2),
+                    controller: field.$1,
+                  ),
+                ),
+              Padding(
+                padding: const EdgeInsets.only(top: AppSpace.sm),
+                child: ShadInput(
+                  controller: _payload,
+                  minLines: 4,
+                  maxLines: 10,
+                  onChanged: (_) => setState(() => _count = null),
+                  placeholder: Text('검증할 JSON 배열'),
+                ),
+              ),
+              Wrap(
+                spacing: AppSpace.sm,
+                children: [
+                  ShadButton.ghost(
+                    onPressed: _busy ? null : () => _run(false),
+                    enabled: (_busy ? null : () => _run(false)) != null,
+                    child: Flexible(child: const Text('형식 검증')),
+                  ),
+                  ShadButton(
+                    onPressed: _busy || _count == null
+                        ? null
+                        : () => _run(true),
+                    enabled:
+                        (_busy || _count == null ? null : () => _run(true)) !=
+                        null,
+                    child: Flexible(child: Text(_busy ? '처리 중…' : '검증 자료 저장')),
+                  ),
+                ],
+              ),
+              if (_notice != null) Text(_notice!, style: context.typo.body(12)),
+            ],
           ),
-        Padding(
-          padding: const EdgeInsets.only(top: AppSpace.sm),
-          child: TextField(
-            controller: _payload,
-            minLines: 4,
-            maxLines: 10,
-            onChanged: (_) => setState(() => _count = null),
-            decoration: const InputDecoration(labelText: '검증할 JSON 배열'),
-          ),
         ),
-        Wrap(
-          spacing: AppSpace.sm,
-          children: [
-            TextButton(
-              onPressed: _busy ? null : () => _run(false),
-              child: const Text('형식 검증'),
-            ),
-            FilledButton(
-              onPressed: _busy || _count == null ? null : () => _run(true),
-              child: Text(_busy ? '처리 중…' : '검증 자료 저장'),
-            ),
-          ],
-        ),
-        if (_notice != null) Text(_notice!, style: context.typo.body(12)),
       ],
     );
   }

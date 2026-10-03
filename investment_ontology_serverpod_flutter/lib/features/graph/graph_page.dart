@@ -12,7 +12,6 @@ import '../../design/tokens.dart';
 import '../financials/financial_metrics.dart';
 import '../governance/governance_view.dart';
 import '../review/review_page.dart';
-import 'force_layout.dart';
 
 /// 관계망: 기업을 가운데 두고 지분·출자·임원·승인된 AI 관계를 따라 넓힌 그래프.
 ///
@@ -151,9 +150,9 @@ class _GraphPageState extends State<GraphPage> {
             style: t.body(13, color: c.textMuted),
           )
         else if (_error != null)
-          AppNotice(message: '관계망을 불러오지 못했습니다 — $_error')
+          ReadFailureNotice(subject: '관계망', retry: _load)
         else if (g == null)
-          const LinearProgressIndicator(minHeight: 2)
+          const ShadProgress(minHeight: 2)
         else ...[
           Text(
             '노드 ${g.nodes.length} · 관계 ${g.edges.length}'
@@ -173,13 +172,14 @@ class _GraphPageState extends State<GraphPage> {
                   AnimatedOpacity(
                     duration: AppMotion.fast,
                     opacity: _loading ? 0.5 : 1,
-                    child: _GraphCanvas(
+                    child: ResearchGraphCanvas(
                       key: ValueKey(
                         '${g.centerKey}-${g.nodes.length}-${g.edges.length}',
                       ),
-                      graph: g,
+                      graph: _presentation(g),
                       selected: _selected?.key,
-                      onTap: _tap,
+                      onTap: (node) =>
+                          _tap(g.nodes.firstWhere((n) => n.key == node.key)),
                     ),
                   ),
                   const SizedBox(height: AppSpace.sm),
@@ -240,14 +240,12 @@ class _CompanySearchState extends State<_CompanySearch> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          TextField(
+          ShadInput(
+            placeholder: Text('가운데에 둘 기업'),
+            leading: Icon(Icons.search, size: 20, color: c.textPrimary),
             controller: _controller,
             onChanged: _search,
             style: t.body(14),
-            decoration: InputDecoration(
-              hintText: '가운데에 둘 기업',
-              prefixIcon: Icon(Icons.search, size: 20, color: c.textPrimary),
-            ),
           ),
           for (final item in _results)
             HoverBuilder(
@@ -267,223 +265,6 @@ class _CompanySearchState extends State<_CompanySearch> {
             ),
         ],
       ),
-    );
-  }
-}
-
-class _GraphCanvas extends StatefulWidget {
-  const _GraphCanvas({
-    super.key,
-    required this.graph,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final CompanyGraph graph;
-  final String? selected;
-  final ValueChanged<GraphNode> onTap;
-
-  @override
-  State<_GraphCanvas> createState() => _GraphCanvasState();
-}
-
-class _GraphCanvasState extends State<_GraphCanvas> {
-  static const _height = 680.0;
-  Map<String, Offset>? _pos;
-  double? _width;
-
-  void _layout(double width) {
-    if (_pos != null && _width == width) return;
-    final g = widget.graph;
-    _width = width;
-    _pos = forceLayout(
-      nodes: [for (final n in g.nodes) n.key],
-      depth: {for (final n in g.nodes) n.key: n.depth},
-      edges: [for (final e in g.edges) (e.from, e.to)],
-      center: g.centerKey,
-      size: Size(width, _height),
-    );
-  }
-
-  /// 겹치지 않게 놓을 수 있는 이름의 노드 키. 큰 노드(가운데 먼저)부터 차례로
-  /// 이름 상자를 놓고, 앞서 놓인 상자나 다른 원과 겹치면 그 이름은 뺀다.
-  static Set<String> _placeLabels(
-    CompanyGraph g,
-    Map<String, Offset> pos, {
-    int? limit,
-  }) {
-    final order = [...g.nodes]
-      ..sort((a, b) {
-        if (a.key == g.centerKey) return -1;
-        if (b.key == g.centerKey) return 1;
-        return _radius(b).compareTo(_radius(a));
-      });
-    final circles = [
-      for (final n in g.nodes)
-        if (pos[n.key] case final p?)
-          Rect.fromCircle(center: p, radius: _radius(n)),
-    ];
-    final taken = <Rect>[];
-    final out = <String>{};
-    for (final n in order) {
-      final p = pos[n.key];
-      if (p == null) continue;
-      if (limit != null && out.length >= limit) break;
-      final fontSize = n.kind == 'name' ? 10.0 : 11.5;
-      // 글자 폭 어림: 한글은 글자 크기만큼, 로마자·숫자는 그 절반쯤.
-      var w = 8.0;
-      for (final ch in n.label.runes) {
-        w += ch > 0x2E80 ? fontSize : fontSize * 0.55;
-      }
-      w = math.min(w, 140);
-      final box = Rect.fromLTWH(
-        p.dx - w / 2,
-        p.dy + _radius(n) + 2,
-        w,
-        fontSize + 5,
-      );
-      final isCenter = n.key == g.centerKey;
-      final clash =
-          taken.any((r) => r.overlaps(box)) ||
-          (!isCenter &&
-              circles.any(
-                (c) => c.overlaps(box) && c.center != p,
-              ));
-      if (clash) continue;
-      taken.add(box);
-      out.add(n.key);
-    }
-    return out;
-  }
-
-  /// 시가총액으로 기업 노드 크기를 정한다 (로그 비율).
-  static double _radius(GraphNode n) {
-    if (n.kind == 'name') return 5;
-    if (n.kind == 'person') return 8;
-    final cap = n.marketCap?.toDouble() ?? 0;
-    if (cap <= 0) return 10;
-    return (6 + (math.log(cap) / math.ln10 - 10) * 5).clamp(9, 30);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    final t = context.typo;
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        _layout(constraints.maxWidth);
-        final pos = _pos!;
-        final g = widget.graph;
-        // 이름이 서로 겹치면 못 읽는다. 큰 노드부터 이름을 놓고, 이미 놓인 이름이나
-        // 다른 원과 겹치는 이름은 숨긴다 (눌렀을 때 툴팁·아래 목록에서 본다).
-        // 좁은 화면에서는 그래도 많으니 열 개까지만.
-        final labelled = _placeLabels(
-          g,
-          pos,
-          limit: constraints.maxWidth >= 600 ? null : 10,
-        );
-        return Container(
-          height: _height,
-          decoration: BoxDecoration(
-            color: c.surface,
-            borderRadius: context.shape.borderRadius,
-            border: Border.all(color: c.border),
-          ),
-          child: ClipRect(
-            child: InteractiveViewer(
-              minScale: 0.4,
-              maxScale: 4,
-              boundaryMargin: const EdgeInsets.all(400),
-              child: SizedBox(
-                width: constraints.maxWidth,
-                height: _height,
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: CustomPaint(
-                        painter: _EdgePainter(
-                          edges: g.edges,
-                          pos: pos,
-                          colors: c,
-                        ),
-                      ),
-                    ),
-                    for (final n in g.nodes)
-                      if (pos[n.key] case final p?)
-                        () {
-                          final r = _radius(n);
-                          final isCenter = n.key == g.centerKey;
-                          final selected = n.key == widget.selected;
-                          final fill = isCenter
-                              ? c.inverse
-                              : switch (n.kind) {
-                                  'company' => c.chartSeries1,
-                                  'person' => c.chartSeries2,
-                                  _ => c.chartGrid,
-                                };
-                          return Positioned(
-                            left: p.dx - 70,
-                            top: p.dy - r,
-                            width: 140,
-                            child: Tooltip(
-                              message: [
-                                n.label,
-                                if (n.marketCap != null)
-                                  '시가총액 ${formatKrw(n.marketCap)}',
-                                if (n.kind == 'company') '눌러서 가운데로',
-                                if (n.kind == 'person') '눌러서 인물 보기',
-                              ].join('\n'),
-                              child: HoverBuilder(
-                                onTap: n.kind == 'name'
-                                    ? null
-                                    : () => widget.onTap(n),
-                                builder: (context, hovered) => Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Container(
-                                      width: r * 2,
-                                      height: r * 2,
-                                      decoration: BoxDecoration(
-                                        color: fill,
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: selected || hovered
-                                              ? c.textPrimary
-                                              : c.surface,
-                                          width: selected ? 3 : 1.5,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    if (labelled.contains(n.key))
-                                      Text(
-                                        n.label,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        textAlign: TextAlign.center,
-                                        style: t.body(
-                                          n.kind == 'name' ? 10 : 11.5,
-                                          color: n.kind == 'name'
-                                              ? c.textMuted
-                                              : c.textPrimary,
-                                          weight: isCenter
-                                              ? FontWeight.w700
-                                              : null,
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        }(),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      },
     );
   }
 }
@@ -549,13 +330,7 @@ class _GraphList extends StatelessWidget {
         ..sort((a, b) => (b.$2.weight ?? 0).compareTo(a.$2.weight ?? 0));
     }
 
-    return Container(
-      padding: const EdgeInsets.all(AppSpace.md),
-      decoration: BoxDecoration(
-        color: c.surface,
-        borderRadius: context.shape.borderRadius,
-        border: Border.all(color: c.border),
-      ),
+    return DataPanel(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -610,48 +385,6 @@ class _GraphList extends StatelessWidget {
       ),
     );
   }
-}
-
-class _EdgePainter extends CustomPainter {
-  _EdgePainter({required this.edges, required this.pos, required this.colors});
-
-  final List<GraphEdge> edges;
-  final Map<String, Offset> pos;
-  final AppColors colors;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    for (final e in edges) {
-      final a = pos[e.from], b = pos[e.to];
-      if (a == null || b == null) continue;
-      final color = switch (e.predicate) {
-        RelationPredicate.shareholderOf ||
-        RelationPredicate.investsIn => colors.chartSeries1,
-        RelationPredicate.executiveOf => colors.chartSeries2,
-        _ => colors.success,
-      };
-      final paint = Paint()
-        ..color = color.withValues(alpha: 0.55)
-        ..strokeWidth = 1 + ((e.weight ?? 0).clamp(0, 50) / 50) * 4
-        ..style = PaintingStyle.stroke;
-      if (e.estimated) {
-        final total = (b - a).distance;
-        final dir = (b - a) / total;
-        for (var d = 0.0; d < total; d += 9) {
-          canvas.drawLine(a + dir * d, a + dir * math.min(d + 5, total), paint);
-        }
-      } else {
-        canvas.drawLine(a, b, paint);
-      }
-      // 방향: 목적어 쪽 가까이에 작은 점.
-      final tip = Offset.lerp(a, b, 0.8)!;
-      canvas.drawCircle(tip, 2.5, Paint()..color = color);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _EdgePainter old) =>
-      old.edges != edges || old.pos != pos;
 }
 
 class _Legend extends StatelessWidget {
@@ -757,13 +490,7 @@ class _Selection extends StatelessWidget {
       for (final e in graph.edges)
         if (e.from == node.key || e.to == node.key) e,
     ];
-    return Container(
-      padding: const EdgeInsets.all(AppSpace.md),
-      decoration: BoxDecoration(
-        color: c.surface,
-        borderRadius: context.shape.borderRadius,
-        border: Border.all(color: c.border),
-      ),
+    return DataPanel(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -772,20 +499,20 @@ class _Selection extends StatelessWidget {
               Text(node.label, style: t.body(16, weight: FontWeight.w700)),
               const Spacer(),
               if (node.corpCode != null)
-                AppButton(
-                  label: '기업 상세 →',
-                  variant: AppButtonVariant.link,
-                  tone: c.accent,
+                ShadButton.raw(
                   onPressed: () =>
                       context.push(AppRoutes.company(node.corpCode!)),
+                  variant: ShadButtonVariant.link,
+                  foregroundColor: c.accent,
+                  child: Flexible(child: Text('기업 상세 →')),
                 ),
               if (node.personId != null)
-                AppButton(
-                  label: '인물 →',
-                  variant: AppButtonVariant.link,
-                  tone: c.accent,
+                ShadButton.raw(
                   onPressed: () =>
                       context.push(AppRoutes.person(node.personId!)),
+                  variant: ShadButtonVariant.link,
+                  foregroundColor: c.accent,
+                  child: Flexible(child: Text('인물 →')),
                 ),
             ],
           ),
@@ -804,3 +531,38 @@ class _Selection extends StatelessWidget {
     );
   }
 }
+
+ResearchGraph _presentation(CompanyGraph graph) => ResearchGraph(
+  centerKey: graph.centerKey,
+  nodes: [
+    for (final n in graph.nodes)
+      ResearchGraphNode(
+        key: n.key,
+        kind: n.kind,
+        label: n.label,
+        depth: n.depth,
+        marketCap: n.marketCap?.toDouble(),
+        tooltip: [
+          n.label,
+          if (n.marketCap != null) '시가총액 ${formatKrw(n.marketCap)}',
+          if (n.kind == 'company') '눌러서 가운데로',
+          if (n.kind == 'person') '눌러서 인물 보기',
+        ].join('\n'),
+      ),
+  ],
+  edges: [
+    for (final e in graph.edges)
+      ResearchGraphEdge(
+        from: e.from,
+        to: e.to,
+        weight: e.weight,
+        estimated: e.estimated,
+        kind: switch (e.predicate) {
+          RelationPredicate.shareholderOf ||
+          RelationPredicate.investsIn => ResearchLinkKind.ownership,
+          RelationPredicate.executiveOf => ResearchLinkKind.executive,
+          _ => ResearchLinkKind.business,
+        },
+      ),
+  ],
+);

@@ -12,7 +12,7 @@ import '../../../design/components/adaptive_detail.dart';
 import '../../../design/tokens.dart';
 import '../../financials/financial_metrics.dart';
 
-/// 기업 상세 머리: 이름 · 시장 · 코드 · 업종과 핵심 지표 한 줄.
+/// 기업 상세 머리: 이름 · 개인 액션 · 기본정보 링크와 핵심 지표.
 ///
 /// 지표는 화면에서 원천 값으로 계산한 값이다. 누르면 현재 화면에서 계산식과 입력값을 연다.
 class CompanyHeader extends StatelessWidget {
@@ -47,98 +47,141 @@ class CompanyHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Wrap(
-                spacing: AppSpace.lg,
-                runSpacing: AppSpace.sm,
-                crossAxisAlignment: WrapCrossAlignment.end,
-                children: [
-                  Text(
-                    company.name,
-                    style: t.display(30, color: c.textPrimary),
-                  ),
-                  if (company.nameEng != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
-                      child: Text(
-                        company.nameEng!,
-                        style: t.body(13.5, color: c.textSecondary),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            double textWidth(String text, TextStyle style) {
+              final painter = TextPainter(
+                text: TextSpan(text: text, style: style),
+                textDirection: Directionality.of(context),
+                textScaler: MediaQuery.textScalerOf(context),
+              )..layout();
+              final width = painter.width;
+              painter.dispose();
+              return width;
+            }
+
+            final stackName = constraints.maxWidth < 900;
+            final titleStyle = t.display(
+              stackName ? 26 : 30,
+              color: c.textPrimary,
+            );
+            final actionStyle = t.body(13, weight: FontWeight.w600);
+            final actionWidth =
+                textWidth('관심등록됨', actionStyle) +
+                54 +
+                (onCompare == null
+                    ? 0
+                    : textWidth('기업비교', actionStyle) + 54 + AppSpace.sm);
+            final compact =
+                constraints.maxWidth <
+                textWidth(company.name, titleStyle) + actionWidth + AppSpace.md;
+            final name = stackName
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        company.name,
+                        style: titleStyle,
                       ),
-                    ),
-                ],
-              ),
-            ),
-            if (onCompare != null) ...[
-              const SizedBox(width: AppSpace.md),
-              Tooltip(
-                message: '다른 기업과 비교',
-                child: AppButton(
-                  icon: Icons.business_outlined,
-                  label: '비교',
-                  onPressed: onCompare,
-                ),
-              ),
-            ],
-          ],
-        ),
-        const SizedBox(height: AppSpace.sm),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: WatchlistButton(corpCode: company.corpCode),
+                      if (company.nameEng?.isNotEmpty == true) ...[
+                        const SizedBox(height: AppSpace.xs),
+                        Text(
+                          company.nameEng!,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: t.body(12, color: c.textSecondary),
+                        ),
+                      ],
+                    ],
+                  )
+                : Wrap(
+                    spacing: AppSpace.lg,
+                    runSpacing: AppSpace.sm,
+                    crossAxisAlignment: WrapCrossAlignment.end,
+                    children: [
+                      Text(
+                        company.name,
+                        style: t.display(30, color: c.textPrimary),
+                      ),
+                      if (company.nameEng != null)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 6),
+                          child: Text(
+                            company.nameEng!,
+                            style: t.body(13.5, color: c.textSecondary),
+                          ),
+                        ),
+                    ],
+                  );
+            final actions = Wrap(
+              spacing: AppSpace.sm,
+              runSpacing: AppSpace.sm,
+              alignment: WrapAlignment.end,
+              children: [
+                WatchlistButton(corpCode: company.corpCode, compact: compact),
+                if (onCompare != null)
+                  ShadButton.raw(
+                    onPressed: onCompare,
+
+                    variant: ShadButtonVariant.outline,
+                    size: (compact)
+                        ? ShadButtonSize.sm
+                        : ShadButtonSize.regular,
+                    leading: Icon(Icons.compare_arrows_outlined, size: 16),
+                    child: Flexible(child: Text('기업비교')),
+                  ),
+              ],
+            );
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: name),
+                const SizedBox(width: AppSpace.md),
+                actions,
+              ],
+            );
+          },
         ),
         CompanyBasicInfo(detail: detail),
         const SizedBox(height: AppSpace.sm),
         Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SizedBox(height: AppSpace.md),
-            if (fin?.fsDiv != null)
-              Text(
-                '${fsDivLabel(fin!.fsDiv!)} 기준',
-                style: t.body(12, color: c.textMuted),
-              ),
-            const SizedBox(height: AppSpace.sm),
-            if (fin != null &&
-                fin.availableFsDivs.isNotEmpty &&
-                onBasisChanged != null) ...[
-              Row(
-                children: [
-                  PopupMenuButton<String>(
-                    tooltip: '재무 계산 기준 변경',
-                    initialValue: selectedBasis?.name ?? 'auto',
-                    onSelected: (value) => onBasisChanged!(
-                      value == 'auto' ? null : FsDiv.values.byName(value),
-                    ),
-                    itemBuilder: (context) => [
-                      const PopupMenuItem(value: 'auto', child: Text('자동')),
+            Wrap(
+              spacing: AppSpace.md,
+              runSpacing: AppSpace.xs,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                if (fin?.fsDiv != null)
+                  Text(
+                    '${fsDivLabel(fin!.fsDiv!)} 기준',
+                    style: t.body(12, color: c.textMuted),
+                  ),
+                if (fin != null &&
+                    fin.availableFsDivs.isNotEmpty &&
+                    onBasisChanged != null)
+                  AppSelect<String>(
+                    value: selectedBasis?.name ?? 'auto',
+                    placeholder: '계산 기준',
+                    allowClear: false,
+                    options: {
+                      'auto': '자동',
                       for (final div in fin.availableFsDivs)
-                        PopupMenuItem(
-                          value: div.name,
-                          child: Text(fsDivLabel(div)),
-                        ),
-                    ],
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: AppSpace.xs,
-                      ),
-                      child: Text(
-                        '계산 기준: ${selectedBasis == null ? '자동' : fsDivLabel(selectedBasis!)} ▾',
-                        style: t.body(12, color: c.textMuted),
-                      ),
+                        div.name: fsDivLabel(div),
+                    },
+                    onChanged: (value) => onBasisChanged!(
+                      value == null || value == 'auto'
+                          ? null
+                          : FsDiv.values.byName(value),
                     ),
                   ),
-                  const SizedBox(width: AppSpace.sm),
-                  if (changingBasis)
-                    Text('불러오는 중…', style: t.body(12, color: c.textMuted)),
-                ],
-              ),
-              if (basisError != null)
-                Text(basisError!, style: t.body(12, color: c.textSecondary)),
-              const SizedBox(height: AppSpace.sm),
-            ],
+                if (changingBasis)
+                  Text('불러오는 중…', style: t.body(12, color: c.textMuted)),
+              ],
+            ),
+            if (basisError != null)
+              Text(basisError!, style: t.body(12, color: c.textSecondary)),
+            const SizedBox(height: AppSpace.xs),
             if (hasFinancials)
               _KeyStats(
                 metrics: FinancialView(fin).metrics(),
@@ -224,12 +267,17 @@ class _KeyStatsState extends State<_KeyStats> {
     final unit = key == 'per' || key == 'pbr' ? '배' : '%';
     return Padding(
       padding: const EdgeInsets.only(top: AppSpace.xs),
-      child: Tooltip(
-        message:
-            '${peers.label} · 유효값 ${metric.ranked ?? peers.peerCount}개사 · ${peers.fsDiv == null ? '자동' : fsDivLabel(peers.fsDiv!)} 기준\n평균이 아닌 중앙값입니다. 같은 산업분류이며 직접 경쟁사 비교는 아닙니다.',
-        child: Text(
-          '업종 중앙 ${metric.median!.toStringAsFixed(1)}$unit',
-          style: context.typo.body(11, color: context.colors.textSecondary),
+      child: ShadTooltip(
+        builder: (_) => Text(
+          '${peers.label} · 유효값 ${metric.ranked ?? peers.peerCount}개사 · ${peers.fsDiv == null ? '자동' : fsDivLabel(peers.fsDiv!)} 기준\n평균이 아닌 중앙값입니다. 같은 산업분류이며 직접 경쟁사 비교는 아닙니다.',
+        ),
+        child: Semantics(
+          tooltip:
+              '${peers.label} · 유효값 ${metric.ranked ?? peers.peerCount}개사 · ${peers.fsDiv == null ? '자동' : fsDivLabel(peers.fsDiv!)} 기준\n평균이 아닌 중앙값입니다. 같은 산업분류이며 직접 경쟁사 비교는 아닙니다.',
+          child: Text(
+            '업종 중앙 ${metric.median!.toStringAsFixed(1)}$unit',
+            style: context.typo.body(11, color: context.colors.textSecondary),
+          ),
         ),
       ),
     );
@@ -369,9 +417,9 @@ class _KeyStatsState extends State<_KeyStats> {
         if (hasMore)
           Align(
             alignment: Alignment.centerRight,
-            child: TextButton(
+            child: ShadButton.ghost(
               onPressed: () => setState(() => _showAll = !_showAll),
-              child: Text(_showAll ? '핵심 지표만 보기' : '전체 지표 보기'),
+              child: Flexible(child: Text(_showAll ? '핵심 지표만 보기' : '전체 지표 보기')),
             ),
           ),
       ],

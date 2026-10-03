@@ -30,4 +30,19 @@ void main() {
     ];
     expect(offenders, isEmpty);
   });
+
+  test('디자인 컴포넌트는 서버 DTO·조회·사업 화면을 가져오지 않는다', () {
+    final offenders = Directory('lib/design')
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((f) => f.path.endsWith('.dart'))
+        .where(
+          (f) => RegExp(
+            r'''import ['"][^'"]*(investment_ontology_serverpod_client|features/|client\.dart)''',
+          ).hasMatch(f.readAsStringSync()),
+        )
+        .map((f) => f.path)
+        .toList();
+    expect(offenders, isEmpty);
+  });
 }

@@ -1,3 +1,5 @@
+import '../support/shad_test_host.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -74,7 +76,7 @@ void main() {
       addTearDown(() => tester.binding.setSurfaceSize(null));
       final selected = <String>[];
       await tester.pumpWidget(
-        app((section, _) async => map(section), selected.add),
+        shadTestHost(app((section, _) async => map(section), selected.add)),
       );
       await tester.pumpAndSettle();
       expect(find.text('검증기업0'), findsNothing);
@@ -99,12 +101,12 @@ void main() {
     String suffix = '';
     Future<MarketCapTreemap> loader(String? section, Market? _) async =>
         map(section, suffix: suffix);
-    await tester.pumpWidget(app(loader, (_) {}));
+    await tester.pumpWidget(shadTestHost(app(loader, (_) {})));
     await tester.pumpAndSettle();
     await click(tester, 'C 제조업 →');
     await click(tester, '26 전자 부품, 컴퓨터, 영상, 음향 및 통신장비 제조업 →');
     suffix = '갱신';
-    await tester.pumpWidget(app(loader, (_) {}, version: 1));
+    await tester.pumpWidget(shadTestHost(app(loader, (_) {}, version: 1)));
     await tester.pumpAndSettle();
     expect(find.text('기업 목록 · 시가총액 순'), findsOneWidget);
     expect(find.text('검증기업0갱신 →'), findsOneWidget);
@@ -114,10 +116,12 @@ void main() {
   ) async {
     final pending = Completer<MarketCapTreemap>();
     await tester.pumpWidget(
-      app(
-        (section, _) =>
-            section == null ? Future.value(map(null)) : pending.future,
-        (_) {},
+      shadTestHost(
+        app(
+          (section, _) =>
+              section == null ? Future.value(map(null)) : pending.future,
+          (_) {},
+        ),
       ),
     );
     await tester.pumpAndSettle();

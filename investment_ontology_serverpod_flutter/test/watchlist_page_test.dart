@@ -1,3 +1,7 @@
+import 'package:shad/shad.dart';
+
+import 'support/shad_test_host.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
@@ -43,9 +47,11 @@ void main() {
       store.setOwner('fixture');
       await tester.pump();
       await tester.pumpWidget(
-        MaterialApp(
-          theme: theme,
-          home: Scaffold(body: WatchlistPage(store: store)),
+        shadTestHost(
+          MaterialApp(
+            theme: theme,
+            home: Scaffold(body: WatchlistPage(store: store)),
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -54,7 +60,14 @@ void main() {
       await tester.tap(find.text('종목 0'));
       await tester.pumpAndSettle();
       expect(find.text('첫 기업을 담아보세요'), findsOneWidget);
-      expect(find.byTooltip('알림 설정'), findsNothing);
+      expect(
+        find.byWidgetPredicate(
+          (w) =>
+              (w is Tooltip && w.message == '알림 설정') ||
+              (w is ShadIconButton && w.semanticLabel == '알림 설정'),
+        ),
+        findsNothing,
+      );
       expect(tester.takeException(), isNull);
     },
   );

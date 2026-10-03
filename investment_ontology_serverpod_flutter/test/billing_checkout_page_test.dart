@@ -1,3 +1,7 @@
+import 'package:shad/shad.dart';
+
+import 'support/shad_test_host.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
@@ -8,9 +12,11 @@ import 'package:investment_ontology_serverpod_flutter/features/monetization/bill
 void main() {
   Future<void> pump(WidgetTester tester, BillingCheckoutPage page) async {
     await tester.pumpWidget(
-      MaterialApp(
-        theme: buildAppTheme(ledgerBrand),
-        home: Scaffold(body: page),
+      shadTestHost(
+        MaterialApp(
+          theme: buildAppTheme(ledgerBrand),
+          home: Scaffold(body: page),
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -28,7 +34,8 @@ void main() {
       ),
     );
     expect(find.text('이용권 출시를 준비하고 있습니다. 아직 결제할 수 없습니다.'), findsOneWidget);
-    expect(find.byType(FilledButton), findsNothing);
+    expect(find.widgetWithText(ShadButton, '카드 등록'), findsNothing);
+    expect(find.widgetWithText(ShadButton, '테스트 카드 등록'), findsNothing);
   });
   testWidgets(
     'unaccepted terms cannot launch; SDK failure releases pending state',
@@ -58,11 +65,11 @@ void main() {
           abortCheckout: (v) async => canceled.add(v),
         ),
       );
-      final button = find.widgetWithText(FilledButton, '테스트 카드 등록');
-      expect(tester.widget<FilledButton>(button).onPressed, isNull);
+      final button = find.widgetWithText(ShadButton, '테스트 카드 등록');
+      expect(tester.widget<ShadButton>(button).onPressed, isNull);
       expect(accepted, isEmpty);
-      await tester.ensureVisible(find.byType(CheckboxListTile));
-      await tester.tap(find.byType(CheckboxListTile));
+      await tester.ensureVisible(find.byType(ShadCheckbox));
+      await tester.tap(find.byType(ShadCheckbox));
       await tester.pump();
       await tester.ensureVisible(button);
       await tester.tap(button);
@@ -104,7 +111,8 @@ void main() {
         find.text('멤버십이 적용되었습니다. 관심기업을 20개까지 등록할 수 있습니다.'),
         findsOneWidget,
       );
-      expect(find.byType(FilledButton), findsNothing);
+      expect(find.widgetWithText(ShadButton, '카드 등록'), findsNothing);
+      expect(find.widgetWithText(ShadButton, '테스트 카드 등록'), findsNothing);
     },
   );
   testWidgets('320px checkout remains usable without overflow', (tester) async {

@@ -1,3 +1,5 @@
+import 'package:shad/shad.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -163,28 +165,33 @@ class AppTreemap<T> extends StatelessWidget {
       return [
         Positioned.fromRect(
           rect: inner,
-          child: Tooltip(
-            message: item.tooltip,
+          child: ShadTooltip(
             waitDuration: const Duration(milliseconds: 150),
-            child: HoverBuilder(
-              onTap: item.tappable ? () => onTap(item) : null,
-              builder: (context, hovered) => Container(
-                color: hovered ? c.inverse : c.textSecondary,
-                padding: const EdgeInsets.symmetric(horizontal: 6),
-                alignment: Alignment.topLeft,
-                child: showHeader
-                    ? SizedBox(
-                        height: _headerHeight,
-                        child: _FittedLabel(
-                          text: item.label,
-                          style: t.body(
-                            11.5,
-                            color: c.onInverse,
-                            weight: FontWeight.w600,
+            builder: (_) => Text(item.tooltip),
+            child: Semantics(
+              tooltip: item.tooltip,
+              label: item.label,
+              value: item.detail,
+              child: HoverBuilder(
+                onTap: item.tappable ? () => onTap(item) : null,
+                builder: (context, hovered) => Container(
+                  color: hovered ? c.inverse : c.textSecondary,
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  alignment: Alignment.topLeft,
+                  child: showHeader
+                      ? SizedBox(
+                          height: _headerHeight,
+                          child: _FittedLabel(
+                            text: item.label,
+                            style: t.body(
+                              11.5,
+                              color: c.onInverse,
+                              weight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                      )
-                    : null,
+                        )
+                      : null,
+                ),
               ),
             ),
           ),
@@ -203,24 +210,29 @@ class AppTreemap<T> extends StatelessWidget {
     return [
       Positioned.fromRect(
         rect: inner,
-        child: Tooltip(
-          message: item.tooltip,
+        child: ShadTooltip(
           waitDuration: const Duration(milliseconds: 150),
-          child: HoverBuilder(
-            onTap: item.tappable ? () => onTap(item) : null,
-            builder: (context, hovered) => AnimatedContainer(
-              duration: AppMotion.fast,
-              color: hovered ? c.chartTileHover : c.chartTile,
-              padding: const EdgeInsets.all(5),
-              alignment: Alignment.topLeft,
-              child: inner.width > 36 && inner.height > 20
-                  ? _FittedLabel(
-                      text: item.label,
-                      style: labelStyle,
-                      detail: inner.height > 40 ? item.detail : null,
-                      detailStyle: detailStyle,
-                    )
-                  : null,
+          builder: (_) => Text(item.tooltip),
+          child: Semantics(
+            tooltip: item.tooltip,
+            label: item.label,
+            value: item.detail,
+            child: HoverBuilder(
+              onTap: item.tappable ? () => onTap(item) : null,
+              builder: (context, hovered) => AnimatedContainer(
+                duration: AppMotion.fast,
+                color: hovered ? c.chartTileHover : c.chartTile,
+                padding: const EdgeInsets.all(5),
+                alignment: Alignment.topLeft,
+                child: inner.width > 36 && inner.height > 20
+                    ? _FittedLabel(
+                        text: item.label,
+                        style: labelStyle,
+                        detail: inner.height > 40 ? item.detail : null,
+                        detailStyle: detailStyle,
+                      )
+                    : null,
+              ),
             ),
           ),
         ),

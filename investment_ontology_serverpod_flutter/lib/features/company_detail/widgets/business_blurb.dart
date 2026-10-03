@@ -65,11 +65,12 @@ class _BusinessBlurbState extends State<BusinessBlurb> {
       children: [
         SectionLabel(
           '무엇을 하는 회사인가 · FY${o.bsnsYear}',
-          trailing: AppButton(
-            label: '사업의 내용 $_count절 →',
-            variant: AppButtonVariant.link,
-            tone: c.accent,
+          trailing: ShadButton.raw(
             onPressed: widget.onOpen,
+
+            variant: ShadButtonVariant.link,
+            foregroundColor: c.accent,
+            child: Flexible(child: Text('사업의 내용 $_count절 →')),
           ),
         ),
         const SizedBox(height: AppSpace.lg),
@@ -84,9 +85,11 @@ class _BusinessBlurbState extends State<BusinessBlurb> {
           ),
         Align(
           alignment: Alignment.centerLeft,
-          child: TextButton(
+          child: ShadButton.ghost(
             onPressed: () => setState(() => _expanded = !_expanded),
-            child: Text(_expanded ? '사업 설명 접기' : '사업 설명 전체 읽기'),
+            child: Flexible(
+              child: Text(_expanded ? '사업 설명 접기' : '사업 설명 전체 읽기'),
+            ),
           ),
         ),
         const SizedBox(height: AppSpace.xs),

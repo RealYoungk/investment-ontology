@@ -1,37 +1,31 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' show Material, MaterialType;
+import 'package:flutter/widgets.dart';
+import 'package:shad/shad.dart';
 
-import '../tokens.dart';
-
-/// Short detail on desktop; draggable, independently scrolling detail on phones.
+/// Keep the list mounted; delegate overlay, focus and motion to shad.
 Future<void> showAdaptiveDetail({
   required BuildContext context,
   required WidgetBuilder builder,
-}) {
-  if (MediaQuery.sizeOf(context).width >= 600) {
-    return showDialog<void>(
-      context: context,
-      builder: (context) => Dialog(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 640),
-          child: SingleChildScrollView(child: builder(context)),
-        ),
-      ),
-    );
-  }
-  return showModalBottomSheet<void>(
+}) async {
+  await showShadSheet<void>(
+    useRootNavigator: true,
     context: context,
-    useSafeArea: true,
-    isScrollControlled: true,
-    showDragHandle: true,
-    backgroundColor: context.colors.background,
-    builder: (context) => DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: .75,
-      minChildSize: .35,
-      maxChildSize: .92,
-      builder: (context, controller) => SingleChildScrollView(
-        controller: controller,
-        child: SafeArea(top: false, child: builder(context)),
+    barrierLabel: '상세 닫기',
+    side: MediaQuery.sizeOf(context).width >= 600
+        ? ShadSheetSide.right
+        : ShadSheetSide.bottom,
+    builder: (overlayContext) => InheritedTheme.captureAll(
+      context,
+      Builder(
+        builder: (context) => ShadSheet(
+          // Service detail headers already own an accessible close action.
+          closeIcon: const SizedBox.shrink(),
+          scrollable: true,
+          child: Material(
+            type: MaterialType.transparency,
+            child: builder(context),
+          ),
+        ),
       ),
     ),
   );

@@ -1,3 +1,4 @@
+import 'package:shad/shad.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -54,7 +55,7 @@ Future<void> showMembershipOffer(BuildContext context) async {
     builder: (context) {
       final c = context.colors;
       final t = context.typo;
-      return Dialog(
+      return ShadDialog(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 400),
           child: SingleChildScrollView(
@@ -72,10 +73,10 @@ Future<void> showMembershipOffer(BuildContext context) async {
                           style: t.body(20, weight: FontWeight.w700),
                         ),
                       ),
-                      IconButton(
-                        tooltip: '닫기',
+                      ShadIconButton.ghost(
                         onPressed: () => Navigator.pop(context, false),
                         icon: const Icon(Icons.close),
+                        semanticLabel: '닫기',
                       ),
                     ],
                   ),
@@ -129,15 +130,15 @@ Future<void> showMembershipOffer(BuildContext context) async {
                   const SizedBox(height: AppSpace.lg),
                   SizedBox(
                     height: 48,
-                    child: FilledButton(
+                    child: ShadButton(
                       onPressed: () => Navigator.pop(context, true),
-                      child: const Text('플랜 비교하고 업그레이드'),
+                      child: Flexible(child: const Text('플랜 비교하고 업그레이드')),
                     ),
                   ),
                   const SizedBox(height: AppSpace.sm),
-                  TextButton(
+                  ShadButton.ghost(
                     onPressed: () => Navigator.pop(context, false),
-                    child: const Text('지금은 무료로 이용할게요'),
+                    child: Flexible(child: const Text('지금은 무료로 이용할게요')),
                   ),
                 ],
               ),

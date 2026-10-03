@@ -139,9 +139,13 @@ class _ReviewQueuePageState extends State<ReviewQueuePage> {
     final scope = _showFacts ? 'fact' : 'relation';
     final n = await client.review.applyRecommended(scope);
     if (!mounted) return;
-    ScaffoldMessenger.of(
+    ShadToaster.of(
       context,
-    ).showSnackBar(SnackBar(content: Text('추천대로 ${formatCount(n)}건을 결정했습니다.')));
+    ).show(
+      ShadToast(
+        description: Text('추천대로 ${formatCount(n)}건을 결정했습니다.'),
+      ),
+    );
     await _load();
   }
 
@@ -297,19 +301,22 @@ class _ReviewQueuePageState extends State<ReviewQueuePage> {
                     },
                   ),
                 if (_status == RelationStatus.draft && _recommended > 0)
-                  AppButton(
-                    label: '추천대로 ${formatCount(_recommended)}건 적용',
-                    variant: AppButtonVariant.primary,
+                  ShadButton.raw(
                     onPressed: _applyRecommended,
+
+                    variant: ShadButtonVariant.primary,
+                    child: Flexible(
+                      child: Text('추천대로 ${formatCount(_recommended)}건 적용'),
+                    ),
                   ),
               ],
             ),
             const SizedBox(height: AppSpace.lg),
             if (_error != null)
-              AppNotice(message: '검수 큐를 불러오지 못했습니다 — $_error')
+              ReadFailureNotice(subject: '검수 큐', retry: _load)
             else if (_showFacts) ...[
               if (facts == null)
-                const LinearProgressIndicator(minHeight: 2)
+                const ShadProgress(minHeight: 2)
               else if (facts.items.isEmpty)
                 Text(
                   _status == RelationStatus.draft
@@ -342,7 +349,7 @@ class _ReviewQueuePageState extends State<ReviewQueuePage> {
                   ),
               ],
             ] else if (page == null)
-              const LinearProgressIndicator(minHeight: 2)
+              const ShadProgress(minHeight: 2)
             else if (page.items.isEmpty)
               Text(
                 _status == RelationStatus.draft
@@ -434,7 +441,15 @@ class ReviewCard extends StatelessWidget {
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           node(r.subjectName, item.subjectCorpCode),
-          AppTag(label: predicateLabel(r.predicate), color: c.accent),
+          ShadBadge.raw(
+            variant: ShadBadgeVariant.outline,
+            foregroundColor: c.accent,
+            child: Text(
+              predicateLabel(r.predicate),
+              maxLines: 1,
+              softWrap: false,
+            ),
+          ),
           node(r.objectName, item.objectCorpCode),
           if (r.confidence != null)
             Text(
@@ -518,7 +533,11 @@ class FactCard extends StatelessWidget {
                   ),
             ),
           ),
-          AppTag(label: factKindLabel(f.kind), color: c.accent),
+          ShadBadge.raw(
+            variant: ShadBadgeVariant.outline,
+            foregroundColor: c.accent,
+            child: Text(factKindLabel(f.kind), maxLines: 1, softWrap: false),
+          ),
           Text(f.label, style: t.body(13.5)),
           Text(
             '${formatDecimal(f.value)}${f.unit}',
@@ -613,12 +632,19 @@ class _CardFrame extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  AppTag(
-                    label: rec == RelationStatus.verified ? '추천: 승인' : '추천: 거절',
-                    color: rec == RelationStatus.verified
+                  ShadBadge.raw(
+                    variant: ShadBadgeVariant.primary,
+                    foregroundColor: rec == RelationStatus.verified
                         ? c.success
                         : c.textSecondary,
-                    filled: true,
+                    backgroundColor: rec == RelationStatus.verified
+                        ? c.success
+                        : c.textSecondary.withValues(alpha: 0.12),
+                    child: Text(
+                      rec == RelationStatus.verified ? '추천: 승인' : '추천: 거절',
+                      maxLines: 1,
+                      softWrap: false,
+                    ),
                   ),
                   if (reviewNote case final note?) ...[
                     const SizedBox(width: AppSpace.sm),
@@ -652,35 +678,47 @@ class _CardFrame extends StatelessWidget {
               builder: (context, box) {
                 final actions = <Widget>[
                   if (onDecide != null) ...[
-                    AppButton(
-                      label: '거절 (R)',
-                      variant: AppButtonVariant.link,
+                    ShadButton.raw(
                       onPressed: busy ? null : () => onDecide!(false),
+                      enabled: (busy ? null : () => onDecide!(false)) != null,
+                      variant: ShadButtonVariant.link,
+                      child: Flexible(child: Text('거절 (R)')),
                     ),
                     const SizedBox(width: AppSpace.sm),
-                    AppButton(
-                      label: '승인 (A)',
-                      variant: AppButtonVariant.primary,
+                    ShadButton.raw(
                       onPressed: busy ? null : () => onDecide!(true),
+                      enabled: (busy ? null : () => onDecide!(true)) != null,
+                      variant: ShadButtonVariant.primary,
+                      child: Flexible(child: Text('승인 (A)')),
                     ),
                   ] else ...[
-                    AppTag(
-                      label: switch (status) {
-                        RelationStatus.verified => '승인됨',
-                        RelationStatus.rejected => '거절됨',
-                        RelationStatus.draft => '검수 대기',
-                      },
+                    ShadBadge.raw(
+                      variant: ShadBadgeVariant.outline,
+                      child: Text(
+                        switch (status) {
+                          RelationStatus.verified => '승인됨',
+                          RelationStatus.rejected => '거절됨',
+                          RelationStatus.draft => '검수 대기',
+                        },
+                        maxLines: 1,
+                        softWrap: false,
+                      ),
                     ),
                     // 누가 결정했는지. 사람이 하나씩 누른 것은 표시하지 않는다.
                     if (reviewedBy case final by?) ...[
                       const SizedBox(width: AppSpace.xs),
-                      AppTag(
-                        label: by.startsWith('표 규칙')
-                            ? '표 규칙'
-                            : by.startsWith('추천대로')
-                            ? '추천대로 일괄'
-                            : '원문 대조',
-                        color: c.textMuted,
+                      ShadBadge.raw(
+                        variant: ShadBadgeVariant.outline,
+                        foregroundColor: c.textMuted,
+                        child: Text(
+                          by.startsWith('표 규칙')
+                              ? '표 규칙'
+                              : by.startsWith('추천대로')
+                              ? '추천대로 일괄'
+                              : '원문 대조',
+                          maxLines: 1,
+                          softWrap: false,
+                        ),
                       ),
                     ],
                   ],
@@ -811,21 +849,26 @@ class _EvidenceState extends State<_Evidence> {
         ),
         Row(
           children: [
-            AppButton(
-              label: widget.open
-                  ? '원문 맥락 접기 (C)'
-                  : _loading
-                  ? '원문 맥락 여는 중…'
-                  : '원문 맥락 펼치기 (C)',
-              variant: AppButtonVariant.link,
+            ShadButton.raw(
               onPressed: widget.onToggle,
+
+              variant: ShadButtonVariant.link,
+              child: Flexible(
+                child: Text(
+                  widget.open
+                      ? '원문 맥락 접기 (C)'
+                      : _loading
+                      ? '원문 맥락 여는 중…'
+                      : '원문 맥락 펼치기 (C)',
+                ),
+              ),
             ),
             if (_error != null)
               Expanded(
-                child: Text(
-                  '맥락을 불러오지 못했습니다 — $_error',
-                  style: t.body(11.5, color: c.textMuted),
-                  overflow: TextOverflow.ellipsis,
+                child: ShadButton.ghost(
+                  onPressed: _loading ? null : _load,
+                  enabled: (_loading ? null : _load) != null,
+                  child: Flexible(child: const Text('원문 맥락 다시 불러오기')),
                 ),
               ),
           ],

@@ -123,18 +123,13 @@ class _OwnershipChangesSectionState extends State<OwnershipChangesSection> {
   Widget build(BuildContext context) {
     final c = context.colors, t = context.typo, data = _data;
     if (_failed) {
-      return Column(
-        children: [
-          const AppNotice(message: '주주 추이를 불러오지 못했습니다.'),
-          TextButton(onPressed: _load, child: const Text('다시 시도')),
-        ],
-      );
+      return ReadFailureNotice(subject: '주주 추이', retry: _load);
     }
     if (data == null) {
-      return const LinearProgressIndicator(minHeight: 2);
+      return const ShadProgress(minHeight: 2);
     }
     if (data.isEmpty) {
-      return const AppNotice(message: '이 기업의 주주 보고서가 아직 수집되지 않았습니다.');
+      return const ShadAlert(description: Text('이 기업의 주주 보고서가 아직 수집되지 않았습니다.'));
     }
     final names = <String, ShareholderEntry>{};
     for (final p in data) {
@@ -174,28 +169,31 @@ class _OwnershipChangesSectionState extends State<OwnershipChangesSection> {
               runSpacing: AppSpace.xs,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                ChoiceChip(
-                  label: const Text('지분율'),
-                  selected: _ratio,
-                  onSelected: (_) => setState(() => _ratio = true),
+                IntrinsicWidth(
+                  child: ShadToggle.outline(
+                    value: _ratio,
+                    onChanged: (_) => setState(() => _ratio = true),
+                    child: const Text('지분율'),
+                  ),
                 ),
-                ChoiceChip(
-                  label: const Text('보유 주식 수'),
-                  selected: !_ratio,
-                  onSelected: (_) => setState(() => _ratio = false),
+                IntrinsicWidth(
+                  child: ShadToggle.outline(
+                    value: !_ratio,
+                    onChanged: (_) => setState(() => _ratio = false),
+                    child: const Text('보유 주식 수'),
+                  ),
                 ),
-                DropdownButton<int>(
-                  value: _selected,
-                  items: [
+                AppSelect<int>(
+                  options: Map.fromEntries([
                     for (var i = 0; i < data.length; i++)
-                      DropdownMenuItem(
-                        value: i,
-                        child: Text(ownershipLabel(data[i])),
-                      ),
-                  ],
+                      MapEntry(i, ownershipLabel(data[i])),
+                  ]),
+                  value: _selected,
                   onChanged: (i) {
                     if (i != null) setState(() => _selected = i);
                   },
+                  placeholder: '선택',
+                  allowClear: false,
                 ),
               ],
             ),
@@ -223,68 +221,88 @@ class _OwnershipChangesSectionState extends State<OwnershipChangesSection> {
                 style: t.body(13),
               ),
             ),
-          ExpansionTile(
-            tilePadding: EdgeInsets.zero,
-            title: Text('비교 주주 선택 · ${visible.length}개', style: t.body(13)),
+          ShadAccordion<int>(
+            maintainState: false,
             children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton(
-                  onPressed: () => setState(() => _included = null),
-                  child: const Text('5% 이상으로 초기화'),
+              ShadAccordionItem<int>(
+                value: 0,
+                title: Text('비교 주주 선택 · ${visible.length}개', style: t.body(13)),
+                padding: EdgeInsets.zero,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: ShadButton.ghost(
+                        onPressed: () => setState(() => _included = null),
+                        child: Flexible(child: const Text('5% 이상으로 초기화')),
+                      ),
+                    ),
+                    for (final key in keys)
+                      ShadCheckbox(
+                        value: included.contains(key),
+                        onChanged:
+                            !included.contains(key) && included.length >= 6
+                            ? null
+                            : (value) => setState(() {
+                                _included = {...included};
+                                value == true
+                                    ? _included!.add(key)
+                                    : _included!.remove(key);
+                              }),
+                        label: Text(
+                          '${names[key]!.holderName} · ${names[key]!.stockKind ?? '종류 미표기'}',
+                          style: t.body(12),
+                        ),
+                        padding: EdgeInsets.zero,
+                      ),
+                    Text(
+                      '최대 6개 · 기본은 기간 중 지분율 5% 이상',
+                      style: t.body(11, color: c.textMuted),
+                    ),
+                  ],
                 ),
-              ),
-              for (final key in keys)
-                CheckboxListTile(
-                  contentPadding: EdgeInsets.zero,
-                  dense: true,
-                  title: Text(
-                    '${names[key]!.holderName} · ${names[key]!.stockKind ?? '종류 미표기'}',
-                    style: t.body(12),
-                  ),
-                  value: included.contains(key),
-                  onChanged: !included.contains(key) && included.length >= 6
-                      ? null
-                      : (value) => setState(() {
-                          _included = {...included};
-                          value == true
-                              ? _included!.add(key)
-                              : _included!.remove(key);
-                        }),
-                ),
-              Text(
-                '최대 6개 · 기본은 기간 중 지분율 5% 이상',
-                style: t.body(11, color: c.textMuted),
               ),
             ],
           ),
           if (!widget.compact)
-            ExpansionTile(
-              tilePadding: EdgeInsets.zero,
-              title: Text('출처·집계 기준', style: t.body(12, color: c.textMuted)),
-              expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
+            ShadAccordion<int>(
+              maintainState: false,
               children: [
-                Text(
-                  '최근 5개년 결산과 최신 중간보고서의 최대주주·특수관계인입니다. 전체 주주 명부가 아니며 5%는 화면 표시 기준입니다. 5% 미만도 선택해 비교할 수 있습니다. 같은 공시명·주식 종류를 연결하며, 누락·동명 중복은 빈칸으로 남깁니다. 차트 위에 마우스를 올리거나 터치하면 각 시점의 수치를 볼 수 있습니다.',
-                  style: t.body(12, color: c.textMuted),
-                ),
-                const SizedBox(height: AppSpace.sm),
-                Text(
-                  '비교 시작일은 직전 사업보고서 결산 다음날로 산정합니다. 보유량 증감은 매매 외의 사유로도 발생하며, 지분율은 발행주식 수 변화의 영향도 받습니다.',
-                  style: t.body(12, color: c.textMuted),
-                ),
-                if (selected.rceptNo.isNotEmpty)
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: TextButton(
-                      onPressed: () => launchUrl(
-                        Uri.parse(
-                          'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${selected.rceptNo}',
-                        ),
-                      ),
-                      child: const Text('DART 원문 ↗'),
-                    ),
+                ShadAccordionItem<int>(
+                  value: 0,
+                  title: Text(
+                    '출처·집계 기준',
+                    style: t.body(12, color: c.textMuted),
                   ),
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        '최근 5개년 결산과 최신 중간보고서의 최대주주·특수관계인입니다. 전체 주주 명부가 아니며 5%는 화면 표시 기준입니다. 5% 미만도 선택해 비교할 수 있습니다. 같은 공시명·주식 종류를 연결하며, 누락·동명 중복은 빈칸으로 남깁니다. 차트 위에 마우스를 올리거나 터치하면 각 시점의 수치를 볼 수 있습니다.',
+                        style: t.body(12, color: c.textMuted),
+                      ),
+                      const SizedBox(height: AppSpace.sm),
+                      Text(
+                        '비교 시작일은 직전 사업보고서 결산 다음날로 산정합니다. 보유량 증감은 매매 외의 사유로도 발생하며, 지분율은 발행주식 수 변화의 영향도 받습니다.',
+                        style: t.body(12, color: c.textMuted),
+                      ),
+                      if (selected.rceptNo.isNotEmpty)
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: ShadButton.ghost(
+                            onPressed: () => launchUrl(
+                              Uri.parse(
+                                'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${selected.rceptNo}',
+                              ),
+                            ),
+                            child: Flexible(child: const Text('DART 원문 ↗')),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
               ],
             ),
         ],
@@ -327,58 +345,54 @@ class _OwnershipChart extends StatelessWidget {
           ],
         ),
     ];
-    return Container(
-      margin: const EdgeInsets.only(top: AppSpace.md),
-      padding: const EdgeInsets.all(AppSpace.md),
-      decoration: BoxDecoration(
-        color: c.surface,
-        border: Border.all(color: c.border),
-        borderRadius: context.shape.borderRadius,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ChartLegend(series: series),
-          const SizedBox(height: AppSpace.md),
-          AppLineChart.many(
-            categories: [
-              for (final p in periods)
-                '${p.bsnsYear % 100} ${p.reportCode == FinancialReportCode.annual
-                    ? '결산'
-                    : p.reportCode == FinancialReportCode.halfYear
-                    ? '반기'
-                    : p.reportCode == FinancialReportCode.q1
-                    ? '1Q'
-                    : '3Q'}',
-            ],
-            series: series,
-            formatValue: (v) =>
-                ratio ? '${v.toStringAsFixed(1)}%' : formatCount(v.round()),
-            height: 210,
-          ),
-          const SizedBox(height: AppSpace.sm),
-          Wrap(
-            spacing: AppSpace.lg,
-            runSpacing: AppSpace.xs,
-            children: [
-              for (var i = 0; i < series.length; i++)
-                Text(
-                  compact
-                      ? ownershipAvailableSummary(
-                          names[i].holderName,
-                          series[i].values,
-                          periods,
-                        )
-                      : '${names[i].holderName}  ${series[i].values[selected] == null
-                            ? '—'
-                            : ratio
-                            ? '${series[i].values[selected]!.toStringAsFixed(2)}%'
-                            : '${formatCount(series[i].values[selected]!.round())}주'}',
-                  style: t.body(12, weight: FontWeight.w600),
-                ),
-            ],
-          ),
-        ],
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpace.md),
+      child: DataPanel(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ChartLegend(series: series),
+            const SizedBox(height: AppSpace.md),
+            AppLineChart.many(
+              categories: [
+                for (final p in periods)
+                  '${p.bsnsYear % 100} ${p.reportCode == FinancialReportCode.annual
+                      ? '결산'
+                      : p.reportCode == FinancialReportCode.halfYear
+                      ? '반기'
+                      : p.reportCode == FinancialReportCode.q1
+                      ? '1Q'
+                      : '3Q'}',
+              ],
+              series: series,
+              formatValue: (v) =>
+                  ratio ? '${v.toStringAsFixed(1)}%' : formatCount(v.round()),
+              height: 210,
+            ),
+            const SizedBox(height: AppSpace.sm),
+            Wrap(
+              spacing: AppSpace.lg,
+              runSpacing: AppSpace.xs,
+              children: [
+                for (var i = 0; i < series.length; i++)
+                  Text(
+                    compact
+                        ? ownershipAvailableSummary(
+                            names[i].holderName,
+                            series[i].values,
+                            periods,
+                          )
+                        : '${names[i].holderName}  ${series[i].values[selected] == null
+                              ? '—'
+                              : ratio
+                              ? '${series[i].values[selected]!.toStringAsFixed(2)}%'
+                              : '${formatCount(series[i].values[selected]!.round())}주'}',
+                    style: t.body(12, weight: FontWeight.w600),
+                  ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

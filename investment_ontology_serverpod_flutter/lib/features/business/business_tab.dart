@@ -105,9 +105,9 @@ class _BusinessTabState extends State<BusinessTab> {
     final t = context.typo;
     final content = _content;
     if (_error != null) {
-      return AppNotice(message: '사업의 내용을 불러오지 못했습니다 — $_error');
+      return ReadFailureNotice(subject: '사업의 내용', retry: _load);
     }
-    if (!_loaded) return const LinearProgressIndicator(minHeight: 2);
+    if (!_loaded) return const ShadProgress(minHeight: 2);
     if (content == null) {
       return Text(
         '저장된 사업 원문이 없습니다.',
@@ -211,10 +211,10 @@ class _BusinessTabState extends State<BusinessTab> {
                   style: t.body(12, color: c.textMuted),
                 ),
               ),
-              AppButton(
-                label: _showRaw ? '원문 접기' : '원문 펼치기',
-                variant: AppButtonVariant.link,
+              ShadButton.raw(
                 onPressed: () => setState(() => _showRaw = !_showRaw),
+                variant: ShadButtonVariant.link,
+                child: Flexible(child: Text(_showRaw ? '원문 접기' : '원문 펼치기')),
               ),
             ],
           ),
@@ -231,25 +231,18 @@ class _BusinessTabState extends State<BusinessTab> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     if (widget.sourceOnly && sections.isNotEmpty)
-                      DropdownButtonFormField<int>(
+                      AppSelect<int>(
                         key: ValueKey(content.bsnsYear),
-                        initialValue: _section.clamp(0, sections.length - 1),
-                        isExpanded: true,
-                        decoration: const InputDecoration(labelText: '소제목'),
-                        items: [
+                        options: Map.fromEntries([
                           for (final (i, s) in sections.indexed)
-                            DropdownMenuItem(
-                              value: i,
-                              child: Text(
-                                s.title.isEmpty ? '머리말' : s.title,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                        ],
+                            MapEntry(i, s.title.isEmpty ? '머리말' : s.title),
+                        ]),
+                        value: _section.clamp(0, sections.length - 1),
                         onChanged: (i) {
                           if (i != null) setState(() => _section = i);
                         },
+                        placeholder: '선택',
+                        allowClear: false,
                       )
                     else
                       toc,
@@ -280,10 +273,10 @@ class _BusinessTabState extends State<BusinessTab> {
                   ),
                 ),
                 if (s.url != null)
-                  AppButton(
-                    label: 'DART 공시 →',
-                    variant: AppButtonVariant.link,
+                  ShadButton.raw(
                     onPressed: () => launchUrl(Uri.parse(s.url!)),
+                    variant: ShadButtonVariant.link,
+                    child: Flexible(child: Text('DART 공시 →')),
                   ),
               ],
             ),
@@ -424,55 +417,60 @@ class _DigestState extends State<_Digest> {
           ),
           const SizedBox(height: AppSpace.sm),
           for (final s in sections) ...[
-            Container(
-              padding: const EdgeInsets.all(AppSpace.md),
-              decoration: BoxDecoration(
-                color: c.surface,
-                borderRadius: context.shape.borderRadius,
-                border: Border.all(color: c.border),
-              ),
-              child: ExpansionTile(
-                initiallyExpanded: s == sections.first,
-                maintainState: true,
-                tilePadding: EdgeInsets.zero,
-                expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
-                title: Text(
-                  s.title,
-                  style: t.body(16, weight: FontWeight.w700),
-                ),
+            DataPanel(
+              child: ShadAccordion<int>(
+                maintainState: false,
+                initialValue: (s == sections.first) ? 0 : null,
                 children: [
-                  SelectableText(
-                    s.summary,
-                    style: t.body(16).copyWith(height: 1.8),
-                  ),
-                  const SizedBox(height: AppSpace.xs),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: AppButton(
-                      label: _open.contains(s.id) ? '근거 접기' : '원문 근거',
-                      variant: AppButtonVariant.link,
-                      onPressed: () => setState(() {
-                        _open.contains(s.id!)
-                            ? _open.remove(s.id!)
-                            : _open.add(s.id!);
-                      }),
+                  ShadAccordionItem<int>(
+                    value: 0,
+                    title: Text(
+                      s.title,
+                      style: t.body(16, weight: FontWeight.w700),
+                    ),
+                    padding: EdgeInsets.zero,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SelectableText(
+                          s.summary,
+                          style: t.body(16).copyWith(height: 1.8),
+                        ),
+                        const SizedBox(height: AppSpace.xs),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: ShadButton.raw(
+                            onPressed: () => setState(() {
+                              _open.contains(s.id!)
+                                  ? _open.remove(s.id!)
+                                  : _open.add(s.id!);
+                            }),
+                            variant: ShadButtonVariant.link,
+                            child: Flexible(
+                              child: Text(
+                                _open.contains(s.id) ? '근거 접기' : '원문 근거',
+                              ),
+                            ),
+                          ),
+                        ),
+                        if (_open.contains(s.id))
+                          Container(
+                            margin: const EdgeInsets.only(top: AppSpace.xs),
+                            padding: const EdgeInsets.all(AppSpace.sm),
+                            decoration: BoxDecoration(
+                              color: c.surfaceHover,
+                              borderRadius: context.shape.borderRadius,
+                            ),
+                            child: SelectableText(
+                              s.evidence,
+                              style: t
+                                  .body(12.5, color: c.textSecondary)
+                                  .copyWith(height: 1.6),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
-                  if (_open.contains(s.id))
-                    Container(
-                      margin: const EdgeInsets.only(top: AppSpace.xs),
-                      padding: const EdgeInsets.all(AppSpace.sm),
-                      decoration: BoxDecoration(
-                        color: c.surfaceHover,
-                        borderRadius: context.shape.borderRadius,
-                      ),
-                      child: SelectableText(
-                        s.evidence,
-                        style: t
-                            .body(12.5, color: c.textSecondary)
-                            .copyWith(height: 1.6),
-                      ),
-                    ),
                 ],
               ),
             ),
@@ -539,13 +537,7 @@ class _AiRelationsState extends State<_AiRelations> {
     final c = context.colors;
     final t = context.typo;
     final items = _items ?? const <ReviewItem>[];
-    return Container(
-      padding: const EdgeInsets.all(AppSpace.md),
-      decoration: BoxDecoration(
-        color: c.surface,
-        borderRadius: context.shape.borderRadius,
-        border: Border.all(color: c.border),
-      ),
+    return DataPanel(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -567,7 +559,6 @@ class _AiRelationsState extends State<_AiRelations> {
           if (items.isEmpty)
             Text('아직 없습니다.', style: t.body(13, color: c.textMuted))
           else ...[
-            // 확정된 것은 이름만 묶어서 (해마다 같은 공급처가 되풀이된다).
             _RelationGroups(
               items: [
                 for (final i in items)
@@ -576,7 +567,6 @@ class _AiRelationsState extends State<_AiRelations> {
               corpCode: widget.corpCode,
               onOpenCompany: (code) => context.push(AppRoutes.company(code)),
             ),
-            // 검수 대기는 근거를 봐야 하니 카드로.
             for (final item in items)
               if (item.relation.status == RelationStatus.draft)
                 ReviewCard(
@@ -671,41 +661,46 @@ class _RelationGroups extends StatelessWidget {
             runSpacing: 6,
             children: [
               for (final e in ordered(entry.value))
-                Tooltip(
-                  message:
-                      '${e.value.$1.relation.evidence ?? ''}\n'
-                      'FY${(e.value.$2.toList()..sort()).join(", FY")}',
-                  child: HoverBuilder(
-                    onTap: () {
-                      final item = e.value.$1;
-                      final code = item.subjectCorpCode == corpCode
-                          ? item.objectCorpCode
-                          : item.subjectCorpCode;
-                      if (code != null && code != corpCode) {
-                        onOpenCompany(code);
-                      }
-                    },
-                    builder: (context, hovered) => Text.rich(
-                      TextSpan(
-                        text: e.key,
-                        style: t
-                            .body(
-                              13.5,
-                              color: c.textPrimary,
-                              weight: FontWeight.w500,
-                            )
-                            .copyWith(
-                              decoration: hovered
-                                  ? TextDecoration.underline
-                                  : null,
+                ShadTooltip(
+                  builder: (_) => Text(
+                    '${e.value.$1.relation.evidence ?? ''}\n'
+                    'FY${(e.value.$2.toList()..sort()).join(", FY")}',
+                  ),
+                  child: Semantics(
+                    tooltip:
+                        '${e.value.$1.relation.evidence ?? ''}\n'
+                        'FY${(e.value.$2.toList()..sort()).join(", FY")}',
+                    child: HoverBuilder(
+                      onTap: () {
+                        final item = e.value.$1;
+                        final code = item.subjectCorpCode == corpCode
+                            ? item.objectCorpCode
+                            : item.subjectCorpCode;
+                        if (code != null && code != corpCode) {
+                          onOpenCompany(code);
+                        }
+                      },
+                      builder: (context, hovered) => Text.rich(
+                        TextSpan(
+                          text: e.key,
+                          style: t
+                              .body(
+                                13.5,
+                                color: c.textPrimary,
+                                weight: FontWeight.w500,
+                              )
+                              .copyWith(
+                                decoration: hovered
+                                    ? TextDecoration.underline
+                                    : null,
+                              ),
+                          children: [
+                            TextSpan(
+                              text: share(e.value.$1),
+                              style: t.body(12, color: c.textSecondary),
                             ),
-                        children: [
-                          // 매출처 표에 적힌 매출 비중.
-                          TextSpan(
-                            text: share(e.value.$1),
-                            style: t.body(12, color: c.textSecondary),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -996,13 +991,16 @@ class _DocumentFactsState extends State<_DocumentFacts> {
                     f.asOf == null ? null : formatDate(f.asOf),
                     nowrap: true,
                   ),
-                  Tooltip(
-                    message: f.evidence,
-                    child: Text(
-                      f.evidence,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: t.body(12, color: c.textMuted),
+                  ShadTooltip(
+                    builder: (_) => Text(f.evidence),
+                    child: Semantics(
+                      tooltip: f.evidence,
+                      child: Text(
+                        f.evidence,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: t.body(12, color: c.textMuted),
+                      ),
                     ),
                   ),
                 ]),

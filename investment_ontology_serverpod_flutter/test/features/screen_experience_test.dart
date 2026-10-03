@@ -1,3 +1,6 @@
+import '../support/shad_test_host.dart';
+
+import 'package:shad/shad.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -68,7 +71,7 @@ Future<GoRouter> pumpScreen(
   );
   addTearDown(router.dispose);
   await tester.pumpWidget(
-    MaterialApp.router(theme: theme, routerConfig: router),
+    shadTestHost(MaterialApp.router(theme: theme, routerConfig: router)),
   );
   await tester.pumpAndSettle();
   if (edit) await click(tester, find.text('조건 바꾸기'));
@@ -82,10 +85,10 @@ Future<void> click(WidgetTester tester, Finder finder) async {
 }
 
 Finder field(String label) => find.byWidgetPredicate(
-  (w) => w is TextField && w.decoration?.labelText == label,
+  (w) => w is ShadInput && (w.top as Text?)?.data == label,
 );
 String value(WidgetTester tester, String label) =>
-    tester.widget<TextField>(field(label)).controller!.text;
+    tester.widget<ShadInput>(field(label)).controller!.text;
 Future<void> preset(WidgetTester tester, String title) async {
   await click(tester, find.text(title).first);
 }
@@ -117,7 +120,7 @@ void main() {
     expect(requests.last, (20, 10));
     expect(
       tester
-          .widget<AppButton>(find.widgetWithText(AppButton, '다음 10개'))
+          .widget<ShadButton>(find.widgetWithText(ShadButton, '다음 10개'))
           .onPressed,
       isNull,
     );
@@ -135,10 +138,15 @@ void main() {
     await preset(tester, '돈 잘 버는 회사');
     expect(find.text('ROE 10% 이상'), findsOneWidget);
     expect(find.text('영업이익률 10% 이상'), findsOneWidget);
-    final chip = find.widgetWithText(InputChip, 'ROE 10% 이상');
+    final chip = find.widgetWithText(ShadBadge, 'ROE 10% 이상');
     await tester.ensureVisible(chip);
     await tester.tap(
-      find.descendant(of: chip, matching: find.byTooltip('Delete')),
+      find.descendant(
+        of: chip,
+        matching: find.byWidgetPredicate(
+          (w) => w is ShadIconButton && w.semanticLabel == 'ROE 조건 지우기',
+        ),
+      ),
     );
     await tester.pumpAndSettle();
     expect(
@@ -157,13 +165,13 @@ void main() {
       (filter, {offset = 0, limit = 100}) async => result(1),
       edit: false,
     );
-    expect(find.byType(TextField), findsNothing);
+    expect(find.byType(ShadInput), findsNothing);
     await click(tester, find.text('조건 바꾸기'));
-    expect(find.byType(TextField), findsNWidgets(18));
+    expect(find.byType(ShadInput), findsNWidgets(18));
     await tester.enterText(field('PER 이하'), '12');
     await tester.pumpAndSettle(const Duration(milliseconds: 400));
     await click(tester, find.text('조건 접기'));
-    expect(find.byType(TextField), findsNothing);
+    expect(find.byType(ShadInput), findsNothing);
     await click(tester, find.text('조건 바꾸기'));
     expect(value(tester, 'PER 이하'), '12');
   });
@@ -183,12 +191,12 @@ void main() {
         requests++;
         return result(20);
       }, location: '/screen?market=kosdaq&sort=roe');
-      expect(find.byType(TextField), findsNWidgets(18));
+      expect(find.byType(ShadInput), findsNWidgets(18));
       expect(requests, 1); // No extra preset-count queries.
       await preset(tester, '이익 대비 저렴한 주식');
       expect(value(tester, 'PER 이하'), '12');
       expect(value(tester, 'ROE % 이상'), '10');
-      expect(find.byType(TextField), findsNWidgets(18));
+      expect(find.byType(ShadInput), findsNWidgets(18));
       expect(
         router.routeInformationProvider.value.uri.queryParameters['market'],
         'kosdaq',
@@ -222,7 +230,7 @@ void main() {
       (f, {offset = 0, limit = 100}) async => result(2),
     );
     tester
-        .widget<AppButton>(find.byKey(const ValueKey('preset-volume-surge')))
+        .widget<ShadButton>(find.byKey(const ValueKey('preset-volume-surge')))
         .onPressed!();
     await tester.pumpAndSettle();
     expect(value(tester, '기준일 거래량 만주 이상'), '10');
@@ -251,7 +259,7 @@ void main() {
   testWidgets('연속 배당 프리셋은 새 조건과 기준연도 열을 보여준다', (tester) async {
     await pumpScreen(tester, (f, {offset = 0, limit = 100}) async => result(2));
     tester
-        .widget<AppButton>(
+        .widget<ShadButton>(
           find.byKey(const ValueKey('preset-dividend-history')),
         )
         .onPressed!();
@@ -286,7 +294,7 @@ void main() {
     await tester.enterText(field('PER 이하'), '99');
     // Select directly without waiting for the debounce, as a quick user action.
     tester
-        .widget<AppButton>(find.byKey(const ValueKey('preset-dividend')))
+        .widget<ShadButton>(find.byKey(const ValueKey('preset-dividend')))
         .onPressed!();
     await tester.pumpAndSettle(const Duration(milliseconds: 350));
     expect(
@@ -307,7 +315,7 @@ void main() {
     );
     await tester.enterText(field('PER 이하'), '99');
     tester
-        .widget<AppButton>(find.byKey(const ValueKey('preset-value')))
+        .widget<ShadButton>(find.byKey(const ValueKey('preset-value')))
         .onPressed!();
     await tester.pumpAndSettle(const Duration(milliseconds: 350));
     expect(value(tester, 'PER 이하'), '12');

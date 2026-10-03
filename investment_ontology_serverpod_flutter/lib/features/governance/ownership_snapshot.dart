@@ -61,7 +61,7 @@ class OwnershipSnapshotCard extends StatelessWidget {
             const SizedBox(height: AppSpace.sm),
             Semantics(
               label: '전체 보통주 100% 중 최대주주와 관계인 ${formatRatio(total)}',
-              child: LinearProgressIndicator(
+              child: ShadProgress(
                 value: total / 100,
                 minHeight: 5,
                 color: c.chartSeries1,
@@ -78,27 +78,38 @@ class OwnershipSnapshotCard extends StatelessWidget {
           if (minor.isNotEmpty)
             Material(
               color: c.surface,
-              child: ExpansionTile(
-                tilePadding: EdgeInsets.zero,
-                childrenPadding: EdgeInsets.zero,
-                title: Text(
-                  '소량 보유 관계인 ${minor.length}명',
-                  style: t.body(12, color: c.textSecondary),
-                ),
+              child: ShadAccordion<int>(
+                maintainState: false,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpace.sm),
-                    child: Text(
-                      '지분율이 0.00%로 표시되는 주주는 보유 주식 수로 보여줍니다.',
-                      style: t.body(11, color: c.textMuted),
+                  ShadAccordionItem<int>(
+                    value: 0,
+                    title: Text(
+                      '소량 보유 관계인 ${minor.length}명',
+                      style: t.body(12, color: c.textSecondary),
+                    ),
+                    padding: EdgeInsets.zero,
+                    child: Padding(
+                      padding: EdgeInsets.zero,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: AppSpace.sm),
+                            child: Text(
+                              '지분율이 0.00%로 표시되는 주주는 보유 주식 수로 보여줍니다.',
+                              style: t.body(11, color: c.textMuted),
+                            ),
+                          ),
+                          for (final holder in minor)
+                            _SnapshotHolderRow(
+                              holder: holder,
+                              quantities: snapshotQuantities(data, holder),
+                              comparisonDate: data.shareholderPeriodStart,
+                            ),
+                        ],
+                      ),
                     ),
                   ),
-                  for (final holder in minor)
-                    _SnapshotHolderRow(
-                      holder: holder,
-                      quantities: snapshotQuantities(data, holder),
-                      comparisonDate: data.shareholderPeriodStart,
-                    ),
                 ],
               ),
             ),

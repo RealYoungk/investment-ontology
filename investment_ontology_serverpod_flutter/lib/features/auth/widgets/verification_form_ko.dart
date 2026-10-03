@@ -1,3 +1,5 @@
+import 'package:shad/shad.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -64,7 +66,7 @@ class _VerificationFormKoState extends State<VerificationFormKo> {
           controller.emailController.text,
           style: Theme.of(context).textTheme.titleSmall,
         ),
-        TextButton(
+        ShadButton.ghost(
           onPressed: controller.isLoading
               ? null
               : () => controller.navigateTo(
@@ -72,7 +74,17 @@ class _VerificationFormKoState extends State<VerificationFormKo> {
                       ? EmailFlowScreen.startRegistration
                       : EmailFlowScreen.requestPasswordReset,
                 ),
-          child: const Text('이메일 주소 수정'),
+          enabled:
+              (controller.isLoading
+                  ? null
+                  : () => controller.navigateTo(
+                      controller.currentScreen ==
+                              EmailFlowScreen.verifyRegistration
+                          ? EmailFlowScreen.startRegistration
+                          : EmailFlowScreen.requestPasswordReset,
+                    )) !=
+              null,
+          child: Flexible(child: const Text('이메일 주소 수정')),
         ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -83,10 +95,9 @@ class _VerificationFormKoState extends State<VerificationFormKo> {
               textAlign: TextAlign.left,
             ),
             smallGap,
-            TextField(
+            ShadInput(
               focusNode: _focusNode,
               controller: controller.verificationCodeController,
-              decoration: const InputDecoration(labelText: '인증 코드 (8자리)'),
               enabled: !controller.isLoading,
               keyboardType: TextInputType.number,
               textInputAction: TextInputAction.done,
@@ -107,6 +118,7 @@ class _VerificationFormKoState extends State<VerificationFormKo> {
                   widget.onCompleted();
                 }
               },
+              placeholder: Text('인증 코드 (8자리)'),
             ),
             _ResendCodeButtonKo(
               controller: controller,
@@ -183,8 +195,10 @@ class _ResendCodeButtonKoState extends State<_ResendCodeButtonKo> {
       if (mounted && widget.controller.state != EmailAuthState.error) {
         widget.controller.verificationCodeController.clear();
         _startTimer();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('새 인증 코드를 보냈습니다. 가장 최근 메일을 확인해 주세요.')),
+        ShadToaster.of(context).show(
+          ShadToast(
+            description: Text('새 인증 코드를 보냈습니다. 가장 최근 메일을 확인해 주세요.'),
+          ),
         );
       }
     } catch (_) {
@@ -206,9 +220,10 @@ class _ResendCodeButtonKoState extends State<_ResendCodeButtonKo> {
     return Column(
       children: [
         tinyGap,
-        TextButton(
+        ShadButton.ghost(
           onPressed: isEnabled ? _handleResend : null,
-          child: Text(_label),
+          enabled: (isEnabled ? _handleResend : null) != null,
+          child: Flexible(child: Text(_label)),
         ),
       ],
     );

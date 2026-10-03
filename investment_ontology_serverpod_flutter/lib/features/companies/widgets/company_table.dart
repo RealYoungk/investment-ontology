@@ -38,12 +38,12 @@ class CompanyTable extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Container(height: 2, color: c.borderStrong),
+        Container(height: 1, color: c.border),
         _HeaderRow(compact: compact),
-        Container(height: 1, color: c.borderStrong),
+        Container(height: 1, color: c.border),
         SizedBox(
           height: 2,
-          child: loading ? const LinearProgressIndicator() : null,
+          child: loading ? const ShadProgress() : null,
         ),
         if (p == null)
           const SizedBox(height: 240)
@@ -66,7 +66,7 @@ class CompanyTable extends StatelessWidget {
               ],
             ),
           ),
-        Container(height: 2, color: c.borderStrong),
+        Container(height: 1, color: c.border),
         if (p != null && p.total > 0)
           _Pager(
             total: p.total,
@@ -222,11 +222,16 @@ class _CompanyRow extends StatelessWidget {
                 width: _Col.market,
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: AppTag(
-                    label: marketLabel(item.market),
-                    color: selected && item.market == Market.kospi
+                  child: ShadBadge.raw(
+                    variant: ShadBadgeVariant.outline,
+                    foregroundColor: selected && item.market == Market.kospi
                         ? c.onInverse
                         : marketColor(context, item.market),
+                    child: Text(
+                      marketLabel(item.market),
+                      maxLines: 1,
+                      softWrap: false,
+                    ),
                   ),
                 ),
               ),
@@ -328,23 +333,37 @@ class _Pager extends StatelessWidget {
             style: t.numeric(13, color: context.colors.textSecondary),
           ),
           const Spacer(),
-          AppIconButton(
-            icon: Icons.west,
-            tooltip: '이전 페이지',
-            onPressed: offset > 0
-                ? () => onPage((offset - pageSize).clamp(0, total))
-                : null,
+          ShadTooltip(
+            builder: (_) => Text('이전 페이지'),
+            child: ShadIconButton.outline(
+              onPressed: offset > 0
+                  ? () => onPage((offset - pageSize).clamp(0, total))
+                  : null,
+              enabled:
+                  (offset > 0
+                      ? () => onPage((offset - pageSize).clamp(0, total))
+                      : null) !=
+                  null,
+              icon: Icon(Icons.west, size: 16, semanticLabel: '이전 페이지'),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14),
             child: Text('$page / $pages', style: t.numeric(13)),
           ),
-          AppIconButton(
-            icon: Icons.east,
-            tooltip: '다음 페이지',
-            onPressed: offset + pageSize < total
-                ? () => onPage(offset + pageSize)
-                : null,
+          ShadTooltip(
+            builder: (_) => Text('다음 페이지'),
+            child: ShadIconButton.outline(
+              onPressed: offset + pageSize < total
+                  ? () => onPage(offset + pageSize)
+                  : null,
+              enabled:
+                  (offset + pageSize < total
+                      ? () => onPage(offset + pageSize)
+                      : null) !=
+                  null,
+              icon: Icon(Icons.east, size: 16, semanticLabel: '다음 페이지'),
+            ),
           ),
         ],
       ),

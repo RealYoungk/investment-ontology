@@ -197,21 +197,23 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
             spacing: AppSpace.sm,
             runSpacing: AppSpace.sm,
             children: [
-              AppButton(
-                label: '전체',
-                variant: _query[key] == null
-                    ? AppButtonVariant.primary
-                    : AppButtonVariant.secondary,
+              ShadButton.raw(
                 onPressed: () => _change(key, null),
+
+                variant: _query[key] == null
+                    ? ShadButtonVariant.primary
+                    : ShadButtonVariant.outline,
+                child: Flexible(child: Text('전체')),
               ),
               for (final e in options.entries)
-                AppButton(
-                  label: e.value,
-                  variant: _query[key] == e.key
-                      ? AppButtonVariant.primary
-                      : AppButtonVariant.secondary,
+                ShadButton.raw(
                   onPressed: () =>
                       _change(key, _query[key] == e.key ? null : e.key),
+
+                  variant: _query[key] == e.key
+                      ? ShadButtonVariant.primary
+                      : ShadButtonVariant.outline,
+                  child: Flexible(child: Text(e.value)),
                 ),
             ],
           ),
@@ -232,9 +234,14 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
           const SizedBox(height: AppSpace.md),
           if (_failed) ...[
             const Text('업종을 불러오지 못했어요.'),
-            AppButton(label: '다시 불러오기', onPressed: _load),
+            ShadButton.raw(
+              onPressed: _load,
+
+              variant: ShadButtonVariant.outline,
+              child: Flexible(child: Text('다시 불러오기')),
+            ),
           ] else if (_data == null)
-            const LinearProgressIndicator()
+            const ShadProgress()
           else
             IndustryDirectory(data: _data!),
         ],
@@ -296,19 +303,25 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
           children: [
             Expanded(child: Text(industryName, style: typo.sectionTitle)),
             const SizedBox(width: AppSpace.sm),
-            AppButton(
-              label: '분야 바꾸기',
-              icon: Icons.swap_horiz_rounded,
+            ShadButton.raw(
               onPressed: () => context.go('/industries'),
+              variant: ShadButtonVariant.outline,
+              leading: Icon(Icons.swap_horiz_rounded, size: 16),
+              child: Flexible(child: Text('분야 바꾸기')),
             ),
           ],
         ),
         const SizedBox(height: AppSpace.md),
         if (_failed) ...[
           Text('분류 정보를 불러오지 못했어요.', style: typo.body(14)),
-          AppButton(label: '다시 시도', onPressed: _load),
+          ShadButton.raw(
+            onPressed: _load,
+
+            variant: ShadButtonVariant.outline,
+            child: Flexible(child: Text('다시 시도')),
+          ),
         ] else if (data == null) ...[
-          const LinearProgressIndicator(),
+          const ShadProgress(),
           const SizedBox(height: AppSpace.sm),
           Text('기업을 불러오고 있어요…', style: typo.body(13)),
         ] else ...[
@@ -332,28 +345,33 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
                         children: [
                           SizedBox(
                             width: width,
-                            child: AppButton(
-                              label: '전체 사업',
-                              variant: _query['role'] == null
-                                  ? AppButtonVariant.primary
-                                  : AppButtonVariant.secondary,
+                            child: ShadButton.raw(
                               onPressed: () => _change('role', null),
+
+                              variant: _query['role'] == null
+                                  ? ShadButtonVariant.primary
+                                  : ShadButtonVariant.outline,
+                              child: Flexible(child: Text('전체 사업')),
                             ),
                           ),
                           for (final role in roles.entries)
                             SizedBox(
                               width: width,
-                              child: AppButton(
-                                label:
-                                    activeItems.any((a) => a.role == role.key)
-                                    ? '${role.value} · ${activeItems.where((a) => a.role == role.key).map((a) => a.corpCode).toSet().length}개사'
-                                    : '${role.value} · 근거 확인 전',
-                                variant: _query['role'] == role.key
-                                    ? AppButtonVariant.primary
-                                    : AppButtonVariant.secondary,
+                              child: ShadButton.raw(
                                 onPressed: () => _change(
                                   'role',
                                   _query['role'] == role.key ? null : role.key,
+                                ),
+
+                                variant: _query['role'] == role.key
+                                    ? ShadButtonVariant.primary
+                                    : ShadButtonVariant.outline,
+                                child: Flexible(
+                                  child: Text(
+                                    activeItems.any((a) => a.role == role.key)
+                                        ? '${role.value} · ${activeItems.where((a) => a.role == role.key).map((a) => a.corpCode).toSet().length}개사'
+                                        : '${role.value} · 근거 확인 전',
+                                  ),
                                 ),
                               ),
                             ),
@@ -388,61 +406,101 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
                     'method',
                     'market',
                   ].any(_query.containsKey))
-                    ExpansionTile(
+                    ShadAccordion<int>(
                       key: ValueKey('details-$_query'),
-                      tilePadding: EdgeInsets.zero,
-                      initiallyExpanded: [
-                        'product',
-                        'process',
-                        'target',
-                        'method',
-                        'market',
-                      ].any(_query.containsKey),
-                      title: Text('제품·기술로 좁히기', style: typo.body(13)),
-                      children: [
-                        _filter('product', '세부 분야', {
-                          for (final a in roleItems)
-                            a.productKey: a.productName,
-                        }),
-                        if (_query['process'] != null ||
-                            roleItems.map((a) => a.process).toSet().length > 1)
-                          _filter(
+                      maintainState: false,
+                      initialValue:
+                          ([
+                            'product',
                             'process',
-                            '공정',
-                            values((a) => a.process.isEmpty ? null : a.process),
-                          ),
-                        if (values((a) => a.target).isNotEmpty)
-                          _filter('target', '적용 대상', values((a) => a.target)),
-                        if (values((a) => a.method).isNotEmpty)
-                          _filter('method', '기술 방식', values((a) => a.method)),
-
-                        ExpansionTile(
-                          tilePadding: EdgeInsets.zero,
-                          initiallyExpanded: _query['market'] != null,
-                          title: Text(
-                            '시장 선택',
-                            style: typo.body(13, color: colors.textSecondary),
-                          ),
-                          children: [
-                            _filter('market', '시장', const {
-                              'kospi': '코스피',
-                              'kosdaq': '코스닥',
-                              'konex': '코넥스',
-                            }),
-                          ],
-                        ),
-                        AppButton(
-                          label: '조건 지우기',
-                          variant: AppButtonVariant.link,
-                          onPressed: () => context.go(
-                            Uri(
-                              path: '/industries',
-                              queryParameters: {
-                                'industry': _query['industry']!,
-                                if (_selected.isNotEmpty)
-                                  'codes': _selected.join(','),
-                              },
-                            ).toString(),
+                            'target',
+                            'method',
+                            'market',
+                          ].any(_query.containsKey))
+                          ? 0
+                          : null,
+                      children: [
+                        ShadAccordionItem<int>(
+                          value: 0,
+                          title: Text('제품·기술로 좁히기', style: typo.body(13)),
+                          padding: EdgeInsets.zero,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _filter('product', '세부 분야', {
+                                for (final a in roleItems)
+                                  a.productKey: a.productName,
+                              }),
+                              if (_query['process'] != null ||
+                                  roleItems
+                                          .map((a) => a.process)
+                                          .toSet()
+                                          .length >
+                                      1)
+                                _filter(
+                                  'process',
+                                  '공정',
+                                  values(
+                                    (a) => a.process.isEmpty ? null : a.process,
+                                  ),
+                                ),
+                              if (values((a) => a.target).isNotEmpty)
+                                _filter(
+                                  'target',
+                                  '적용 대상',
+                                  values((a) => a.target),
+                                ),
+                              if (values((a) => a.method).isNotEmpty)
+                                _filter(
+                                  'method',
+                                  '기술 방식',
+                                  values((a) => a.method),
+                                ),
+                              ShadAccordion<int>(
+                                maintainState: false,
+                                initialValue: (_query['market'] != null)
+                                    ? 0
+                                    : null,
+                                children: [
+                                  ShadAccordionItem<int>(
+                                    value: 0,
+                                    title: Text(
+                                      '시장 선택',
+                                      style: typo.body(
+                                        13,
+                                        color: colors.textSecondary,
+                                      ),
+                                    ),
+                                    padding: EdgeInsets.zero,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        _filter('market', '시장', const {
+                                          'kospi': '코스피',
+                                          'kosdaq': '코스닥',
+                                          'konex': '코넥스',
+                                        }),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              ShadButton.raw(
+                                onPressed: () => context.go(
+                                  Uri(
+                                    path: '/industries',
+                                    queryParameters: {
+                                      'industry': _query['industry']!,
+                                      if (_selected.isNotEmpty)
+                                        'codes': _selected.join(','),
+                                    },
+                                  ).toString(),
+                                ),
+                                variant: ShadButtonVariant.link,
+                                child: Flexible(child: Text('조건 지우기')),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -461,17 +519,19 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
                       runSpacing: AppSpace.sm,
                       children: [
                         for (final code in _selected)
-                          AppButton(
-                            label:
-                                '${data.activities.where((a) => a.corpCode == code).firstOrNull?.companyName ?? code} ×',
+                          ShadButton.raw(
                             onPressed: () => _change(
                               'codes',
                               (_selected..remove(code)).join(','),
                             ),
+                            variant: ShadButtonVariant.outline,
+                            child: Flexible(
+                              child: Text(
+                                '${data.activities.where((a) => a.corpCode == code).firstOrNull?.companyName ?? code} ×',
+                              ),
+                            ),
                           ),
-                        AppButton(
-                          label: '${_selected.length}개 기업 비교 →',
-                          variant: AppButtonVariant.primary,
+                        ShadButton.raw(
                           onPressed: _selected.length < 2
                               ? null
                               : () {
@@ -509,6 +569,50 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
                                     ).toString(),
                                   );
                                 },
+                          enabled:
+                              (_selected.length < 2
+                                  ? null
+                                  : () {
+                                      final product = _query['product'];
+                                      final shared =
+                                          product != null &&
+                                          product != 'equipment_unspecified' &&
+                                          !product.startsWith('ksic:') &&
+                                          !product.startsWith('registered:') &&
+                                          !product.startsWith('activity:') &&
+                                          !product.startsWith(
+                                            'kind-registration:',
+                                          ) &&
+                                          _selected.every(
+                                            (code) => filtered.any(
+                                              (a) =>
+                                                  a.corpCode == code &&
+                                                  a.productKey == product,
+                                            ),
+                                          );
+                                      final label = shared
+                                          ? data.activities
+                                                .firstWhere(
+                                                  (a) =>
+                                                      a.productKey == product,
+                                                )
+                                                .productName
+                                          : null;
+                                      context.push(
+                                        Uri(
+                                          path: '/compare',
+                                          queryParameters: {
+                                            'codes': _selected.join(','),
+                                            'industryProduct': ?label,
+                                          },
+                                        ).toString(),
+                                      );
+                                    }) !=
+                              null,
+                          variant: ShadButtonVariant.primary,
+                          child: Flexible(
+                            child: Text('${_selected.length}개 기업 비교 →'),
+                          ),
                         ),
                       ],
                     ),
@@ -524,39 +628,55 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
                     const SizedBox(height: AppSpace.sm),
                   ],
                   if (companies.length > _limit)
-                    AppButton(
-                      label: '기업 10개 더 보기',
+                    ShadButton.raw(
                       onPressed: () => setState(() => _limit += 10),
+                      variant: ShadButtonVariant.outline,
+                      child: Flexible(child: Text('기업 10개 더 보기')),
                     ),
                   if (withoutBusiness.isNotEmpty) ...[
                     const SizedBox(height: AppSpace.lg),
-                    ExpansionTile(
-                      tilePadding: EdgeInsets.zero,
-                      title: Text(
-                        '아직 사업 분류가 없는 기업 · ${withoutBusiness.length}곳',
-                        style: typo.body(13),
-                      ),
+                    ShadAccordion<int>(
+                      maintainState: false,
                       children: [
-                        Text(
-                          '이 분야에 등록된 기업 중 사업을 아직 확인하지 못한 곳이에요. 선택한 사업을 하지 않는다는 뜻은 아니에요.',
-                          style: typo.body(13, color: colors.textSecondary),
+                        ShadAccordionItem<int>(
+                          value: 0,
+                          title: Text(
+                            '아직 사업 분류가 없는 기업 · ${withoutBusiness.length}곳',
+                            style: typo.body(13),
+                          ),
+                          padding: EdgeInsets.zero,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '이 분야에 등록된 기업 중 사업을 아직 확인하지 못한 곳이에요. 선택한 사업을 하지 않는다는 뜻은 아니에요.',
+                                style: typo.body(
+                                  13,
+                                  color: colors.textSecondary,
+                                ),
+                              ),
+                              for (final a in withoutBusiness.take(
+                                _unclassifiedLimit,
+                              ))
+                                ShadButton.raw(
+                                  onPressed: () => context.push(
+                                    '/company/${a.corpCode}?tab=business',
+                                  ),
+                                  variant: ShadButtonVariant.link,
+                                  child: Flexible(child: Text(a.companyName)),
+                                ),
+                              if (withoutBusiness.length > _unclassifiedLimit)
+                                ShadButton.raw(
+                                  onPressed: () =>
+                                      setState(() => _unclassifiedLimit += 10),
+                                  variant: ShadButtonVariant.outline,
+                                  child: Flexible(
+                                    child: Text('미분류 기업 10개 더 보기'),
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
-                        for (final a in withoutBusiness.take(
-                          _unclassifiedLimit,
-                        ))
-                          AppButton(
-                            label: a.companyName,
-                            variant: AppButtonVariant.link,
-                            onPressed: () => context.push(
-                              '/company/${a.corpCode}?tab=business',
-                            ),
-                          ),
-                        if (withoutBusiness.length > _unclassifiedLimit)
-                          AppButton(
-                            label: '미분류 기업 10개 더 보기',
-                            onPressed: () =>
-                                setState(() => _unclassifiedLimit += 10),
-                          ),
                       ],
                     ),
                   ],
@@ -583,36 +703,54 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
             },
           ),
           const SizedBox(height: AppSpace.lg),
-          ExpansionTile(
-            tilePadding: EdgeInsets.zero,
-            title: Text('어떤 기준으로 나눴나요?', style: typo.body(13)),
+          ShadAccordion<int>(
+            maintainState: false,
             children: [
-              Text(
-                '공시로 확인한 제품·서비스를 우선 보여드려요. 공시 분류가 없는 기업은 공식 등록 업종으로 연결하고, 기업에 근거 종류를 표시해요. 등록 업종만으로 세부 제품이나 경쟁 관계가 확인된 것은 아니에요. 공식 GICS 배정은 아니에요.',
-                style: typo.body(13),
-              ),
-              AppButton(
-                label: '참고한 MSCI 분류 원칙',
-                variant: AppButtonVariant.link,
-                onPressed: () => launchUrl(
-                  Uri.parse(
-                    'https://www.msci.com/indexes/documents/methodology/1_MSCI_Global_Industry_Classification_Standard_GICS_Methodology_20250220.pdf',
-                  ),
-                  mode: LaunchMode.externalApplication,
+              ShadAccordionItem<int>(
+                value: 0,
+                title: Text('어떤 기준으로 나눴나요?', style: typo.body(13)),
+                padding: EdgeInsets.zero,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '공시로 확인한 제품·서비스를 우선 보여드려요. 공시 분류가 없는 기업은 공식 등록 업종으로 연결하고, 기업에 근거 종류를 표시해요. 등록 업종만으로 세부 제품이나 경쟁 관계가 확인된 것은 아니에요. 공식 GICS 배정은 아니에요.',
+                      style: typo.body(13),
+                    ),
+                    ShadButton.raw(
+                      onPressed: () => launchUrl(
+                        Uri.parse(
+                          'https://www.msci.com/indexes/documents/methodology/1_MSCI_Global_Industry_Classification_Standard_GICS_Methodology_20250220.pdf',
+                        ),
+                        mode: LaunchMode.externalApplication,
+                      ),
+                      variant: ShadButtonVariant.link,
+                      child: Flexible(child: Text('참고한 MSCI 분류 원칙')),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          ExpansionTile(
-            tilePadding: EdgeInsets.zero,
-            title: Text(
-              '분류 기준과 데이터 범위',
-              style: typo.body(13, color: colors.textSecondary),
-            ),
+          ShadAccordion<int>(
+            maintainState: false,
             children: [
-              Text(
-                '상장사 ${data.listedCompanyCount}곳을 대상으로 사업을 찾아볼 수 있어요. 한국거래소의 주요 제품과 DART 공시를 함께 사용해요.\n제품이 구체적으로 연결되지 않은 경우 등록 업종을 기준으로 묶었어요. 분류 근거에서 실제 제품과 원문을 확인할 수 있어요. 같은 사업군이라도 매출 구성과 고객은 다를 수 있어요.',
-                style: typo.body(12, color: colors.textSecondary),
+              ShadAccordionItem<int>(
+                value: 0,
+                title: Text(
+                  '분류 기준과 데이터 범위',
+                  style: typo.body(13, color: colors.textSecondary),
+                ),
+                padding: EdgeInsets.zero,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '상장사 ${data.listedCompanyCount}곳을 대상으로 사업을 찾아볼 수 있어요. 한국거래소의 주요 제품과 DART 공시를 함께 사용해요.\n제품이 구체적으로 연결되지 않은 경우 등록 업종을 기준으로 묶었어요. 분류 근거에서 실제 제품과 원문을 확인할 수 있어요. 같은 사업군이라도 매출 구성과 고객은 다를 수 있어요.',
+                      style: typo.body(12, color: colors.textSecondary),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -628,10 +766,10 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
     final identity = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppButton(
-          label: a.companyName,
-          variant: AppButtonVariant.link,
+        ShadButton.raw(
           onPressed: () => context.push(AppRoutes.company(a.corpCode)),
+          variant: ShadButtonVariant.link,
+          child: Flexible(child: Text(a.companyName)),
         ),
         if (items.every(
           (item) => item.classificationBasis == 'registered_activity',
@@ -657,13 +795,12 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
       spacing: AppSpace.sm,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        AppButton(
-          label: '근거 보기',
-          variant: AppButtonVariant.link,
+        ShadButton.raw(
           onPressed: () => _showEvidence(items),
+          variant: ShadButtonVariant.link,
+          child: Flexible(child: Text('근거 보기')),
         ),
-        AppButton(
-          label: selected ? '비교에서 빼기' : '비교에 추가',
+        ShadButton.raw(
           onPressed: !selected && _selected.length >= 4
               ? null
               : () {
@@ -671,15 +808,23 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
                   selected ? codes.remove(a.corpCode) : codes.add(a.corpCode);
                   _change('codes', codes.join(','));
                 },
+          enabled:
+              (!selected && _selected.length >= 4
+                  ? null
+                  : () {
+                      final codes = _selected;
+                      selected
+                          ? codes.remove(a.corpCode)
+                          : codes.add(a.corpCode);
+                      _change('codes', codes.join(','));
+                    }) !=
+              null,
+          variant: ShadButtonVariant.outline,
+          child: Flexible(child: Text(selected ? '비교에서 빼기' : '비교에 추가')),
         ),
       ],
     );
-    return Container(
-      padding: const EdgeInsets.all(AppSpace.md),
-      decoration: BoxDecoration(
-        border: Border.all(color: context.colors.border),
-        borderRadius: context.shape.borderRadius,
-      ),
+    return DataPanel(
       child: LayoutBuilder(
         builder: (context, box) {
           if (box.maxWidth < 500) {
@@ -706,81 +851,117 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
   }
 
   void _showEvidence(List<IndustryActivity> items) {
-    showDialog<void>(
+    showShadDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('${items.first.companyName} · 분류 근거'),
-        content: SizedBox(
-          width: 560,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (final item in items) ...[
-                  Text(
-                    item.productName,
-                    style: context.typo.body(14, weight: FontWeight.w600),
+      builder: (overlayContext) => InheritedTheme.captureAll(
+        context,
+        Builder(
+          builder: (context) => ShadDialog(
+            closeIcon: Builder(
+              builder: (context) => Semantics(
+                container: true,
+                label: '닫기',
+                button: true,
+                onTap: () => Navigator.of(context).pop(),
+                child: ExcludeSemantics(
+                  child: ShadIconButton.ghost(
+                    width: 20,
+                    height: 20,
+                    padding: EdgeInsets.zero,
+                    icon: const Icon(Icons.close, size: 16),
+                    onPressed: () => Navigator.of(context).pop(),
                   ),
-                  const SizedBox(height: AppSpace.sm),
-                  if (item.classificationBasis == 'kind_registered')
-                    Text(
-                      '주요 제품은 거래소 원문, 사업군은 등록 업종을 기준으로 연결했어요.',
-                      style: context.typo.body(
-                        12,
-                        color: context.colors.textMuted,
-                      ),
-                    ),
-                  SelectableText(item.evidence, style: context.typo.body(13)),
-                  if (item.classificationBasis?.startsWith('kind_') ?? false)
-                    AppButton(
-                      label: '한국거래소 주요 제품 원문',
-                      variant: AppButtonVariant.link,
-                      onPressed: () => launchUrl(
-                        Uri.https(
-                          'kind.krx.co.kr',
-                          '/corpgeneral/corpList.do',
-                          {'method': 'loadInitPage'},
+                ),
+              ),
+            ),
+            title: Text('${items.first.companyName} · 분류 근거'),
+            actions: [
+              ShadButton.raw(
+                onPressed: () => Navigator.of(context).pop(),
+                variant: ShadButtonVariant.outline,
+                child: Flexible(child: Text('닫기')),
+              ),
+            ],
+            child: Material(
+              type: MaterialType.transparency,
+              child: SizedBox(
+                width: 560,
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (final item in items) ...[
+                        Text(
+                          item.productName,
+                          style: context.typo.body(14, weight: FontWeight.w600),
                         ),
-                        mode: LaunchMode.externalApplication,
-                      ),
-                    ),
-                  if (item.classificationBasis == 'issuer_source')
-                    AppButton(
-                      label: '발행사·운용사 원문',
-                      variant: AppButtonVariant.link,
-                      onPressed: () {
-                        final link = RegExp(r'원문: (https://\S+)')
-                            .firstMatch(item.evidence)
-                            ?.group(1);
-                        if (link != null) {
-                          launchUrl(
-                            Uri.parse(link),
-                            mode: LaunchMode.externalApplication,
-                          );
-                        }
-                      },
-                    ),
-                  if (item.rceptNo.isNotEmpty)
-                    AppButton(
-                      label: '${item.bsnsYear}년 DART 원문',
-                      variant: AppButtonVariant.link,
-                      onPressed: () => launchUrl(
-                        Uri.https('dart.fss.or.kr', '/dsaf001/main.do', {
-                          'rcpNo': item.rceptNo,
-                        }),
-                        mode: LaunchMode.externalApplication,
-                      ),
-                    ),
-                  const SizedBox(height: AppSpace.md),
-                ],
-              ],
+                        const SizedBox(height: AppSpace.sm),
+                        if (item.classificationBasis == 'kind_registered')
+                          Text(
+                            '주요 제품은 거래소 원문, 사업군은 등록 업종을 기준으로 연결했어요.',
+                            style: context.typo.body(
+                              12,
+                              color: context.colors.textMuted,
+                            ),
+                          ),
+                        SelectableText(
+                          item.evidence,
+                          style: context.typo.body(13),
+                        ),
+                        if (item.classificationBasis?.startsWith('kind_') ??
+                            false)
+                          ShadButton.raw(
+                            onPressed: () => launchUrl(
+                              Uri.https(
+                                'kind.krx.co.kr',
+                                '/corpgeneral/corpList.do',
+                                {'method': 'loadInitPage'},
+                              ),
+                              mode: LaunchMode.externalApplication,
+                            ),
+                            variant: ShadButtonVariant.link,
+                            child: Flexible(child: Text('한국거래소 주요 제품 원문')),
+                          ),
+                        if (item.classificationBasis == 'issuer_source')
+                          ShadButton.raw(
+                            onPressed: () {
+                              final link = RegExp(r'원문: (https://\S+)')
+                                  .firstMatch(item.evidence)
+                                  ?.group(1);
+                              if (link != null) {
+                                launchUrl(
+                                  Uri.parse(link),
+                                  mode: LaunchMode.externalApplication,
+                                );
+                              }
+                            },
+                            variant: ShadButtonVariant.link,
+                            child: Flexible(child: Text('발행사·운용사 원문')),
+                          ),
+                        if (item.rceptNo.isNotEmpty)
+                          ShadButton.raw(
+                            onPressed: () => launchUrl(
+                              Uri.https('dart.fss.or.kr', '/dsaf001/main.do', {
+                                'rcpNo': item.rceptNo,
+                              }),
+                              mode: LaunchMode.externalApplication,
+                            ),
+                            variant: ShadButtonVariant.link,
+                            child: Flexible(
+                              child: Text('${item.bsnsYear}년 DART 원문'),
+                            ),
+                          ),
+                        const SizedBox(height: AppSpace.md),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
         ),
-        actions: [
-          AppButton(label: '닫기', onPressed: () => Navigator.of(context).pop()),
-        ],
       ),
+      barrierLabel: '닫기',
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:shad/shad.dart';
 import 'package:flutter/material.dart';
 
 import '../../../design/tokens.dart';
@@ -39,10 +40,12 @@ class _CompanyResearchGuideState extends State<CompanyResearchGuide> {
               runSpacing: AppSpace.sm,
               children: [
                 for (final (i, p) in profile.products.indexed)
-                  ChoiceChip(
-                    label: Text(p.name.split(' · ').first),
-                    selected: i == _selected,
-                    onSelected: (_) => setState(() => _selected = i),
+                  IntrinsicWidth(
+                    child: ShadToggle.outline(
+                      value: i == _selected,
+                      onChanged: (_) => setState(() => _selected = i),
+                      child: Text(p.name.split(' · ').first),
+                    ),
                   ),
               ],
             ),
@@ -60,38 +63,46 @@ class _CompanyResearchGuideState extends State<CompanyResearchGuide> {
             ],
             if (profile.segments.isNotEmpty) ...[
               const SizedBox(height: AppSpace.md),
-              ExpansionTile(
-                tilePadding: EdgeInsets.zero,
-                expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
-                title: Text(
-                  '그 밖의 사업',
-                  style: t.body(13, color: c.textSecondary),
-                ),
+              ShadAccordion<int>(
+                maintainState: false,
                 children: [
-                  for (final s in profile.segments)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: AppSpace.sm,
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: 76,
-                            child: Text(
-                              s.name,
-                              style: t.body(13, weight: FontWeight.w600),
-                            ),
-                          ),
-                          Expanded(
-                            child: Text(
-                              s.body,
-                              style: t.body(13).copyWith(height: 1.5),
-                            ),
-                          ),
-                        ],
-                      ),
+                  ShadAccordionItem<int>(
+                    value: 0,
+                    title: Text(
+                      '그 밖의 사업',
+                      style: t.body(13, color: c.textSecondary),
                     ),
+                    padding: EdgeInsets.zero,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (final s in profile.segments)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: AppSpace.sm,
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  width: 76,
+                                  child: Text(
+                                    s.name,
+                                    style: t.body(13, weight: FontWeight.w600),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    s.body,
+                                    style: t.body(13).copyWith(height: 1.5),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ],

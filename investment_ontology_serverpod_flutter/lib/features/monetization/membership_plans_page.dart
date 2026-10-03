@@ -226,25 +226,23 @@ class MembershipPlanCard extends StatelessWidget {
           SizedBox(
             height: 48,
             child: premium
-                ? FilledButton(
+                ? ShadButton(
                     onPressed: onSelect,
-                    style: FilledButton.styleFrom(
-                      backgroundColor: c.accent,
-                      foregroundColor: c.onAccent,
-                      disabledBackgroundColor: c.accent.withValues(alpha: .6),
-                      disabledForegroundColor: c.onAccent,
-                    ),
-                    child: Text(
-                      current
-                          ? '멤버십 관리'
-                          : onSelect == null
-                          ? '멤버십 출시 준비 중'
-                          : '멤버십으로 업그레이드',
+                    child: Flexible(
+                      child: Text(
+                        current
+                            ? '멤버십 관리'
+                            : onSelect == null
+                            ? '멤버십 출시 준비 중'
+                            : '멤버십으로 업그레이드',
+                      ),
                     ),
                   )
-                : OutlinedButton(
+                : ShadButton.outline(
                     onPressed: onSelect,
-                    child: Text(current ? '무료로 계속 이용하기' : '관심종목으로 돌아가기'),
+                    child: Flexible(
+                      child: Text(current ? '무료로 계속 이용하기' : '관심종목으로 돌아가기'),
+                    ),
                   ),
           ),
           const SizedBox(height: AppSpace.xl),
@@ -389,21 +387,32 @@ class _PlanQuestion extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Material(
     color: context.colors.background,
-    child: ExpansionTile(
-      tilePadding: EdgeInsets.zero,
-      childrenPadding: const EdgeInsets.only(bottom: AppSpace.lg),
-      title: Text(
-        question,
-        style: context.typo.body(14, weight: FontWeight.w600),
-      ),
+    child: ShadAccordion<int>(
+      maintainState: true,
       children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            answer,
-            style: context.typo
-                .body(13, color: context.colors.textSecondary)
-                .copyWith(height: 1.7),
+        ShadAccordionItem<int>(
+          value: 0,
+          title: Text(
+            question,
+            style: context.typo.body(14, weight: FontWeight.w600),
+          ),
+          padding: EdgeInsets.zero,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: AppSpace.lg),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    answer,
+                    style: context.typo
+                        .body(13, color: context.colors.textSecondary)
+                        .copyWith(height: 1.7),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ],

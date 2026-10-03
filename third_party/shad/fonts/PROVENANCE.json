@@ -1,0 +1,42 @@
+{
+  "source": "published shad 0.99.4; unmodified font binaries",
+  "license": "SIL Open Font License 1.1 confirmed in embedded name table; OFL notices retained",
+  "fonts": [
+    {
+      "file": "fonts/Geist[wght].ttf",
+      "sha256": "ab491eb63bca7372be9fa9e7cd511b2fe9d4a602ba59c1e978638ea49cf77461",
+      "published_byte_identical": true,
+      "name_table": {
+        "0": "Copyright 2024 The Geist Project Authors (https://github.com/vercel/geist-font.git)",
+        "1": "Geist",
+        "5": "Version 1.800",
+        "13": "This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: https://openfontlicense.org",
+        "14": "https://openfontlicense.org"
+      }
+    },
+    {
+      "file": "fonts/Inter[opsz,wght].ttf",
+      "sha256": "29160a80ff49ddcab2c97711247e08b1fab27a484a329ce8b813d820dc559031",
+      "published_byte_identical": true,
+      "name_table": {
+        "0": "Copyright 2016 The Inter Project Authors (https://github.com/rsms/inter)",
+        "1": "Inter",
+        "5": "Version 4.001;git-66647c0bb",
+        "13": "This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: https://openfontlicense.org",
+        "14": "https://openfontlicense.org"
+      }
+    },
+    {
+      "file": "fonts/GeistMono[wght].ttf",
+      "sha256": "678ff43c7d3a9b3e971399ea53b3043f98ba51be5a76f4dd6cda61e59a96df05",
+      "published_byte_identical": true,
+      "name_table": {
+        "0": "Copyright 2024 The Geist Project Authors (https://github.com/vercel/geist-font.git)",
+        "1": "Geist Mono",
+        "5": "Version 1.700",
+        "13": "This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: https://openfontlicense.org",
+        "14": "https://openfontlicense.org"
+      }
+    }
+  ]
+}

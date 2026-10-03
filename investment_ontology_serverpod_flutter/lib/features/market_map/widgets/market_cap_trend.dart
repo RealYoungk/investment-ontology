@@ -208,48 +208,61 @@ class _MarketCapTrendState extends State<MarketCapTrend> {
         ),
         Theme(
           data: Theme.of(context).copyWith(dividerColor: c.surface),
-          child: ExpansionTile(
-            tilePadding: EdgeInsets.zero,
-            dense: true,
-            title: Text('기준·출처', style: t.body(11.5, color: c.textSecondary)),
+          child: ShadAccordion<int>(
+            maintainState: false,
             children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  '기준 ${formatDate(last.date)} · ${formatCount(last.securityCount)}개 종목 · 금융위원회 주식시세정보',
-                  style: t.body(12, color: c.textSecondary),
+              ShadAccordionItem<int>(
+                value: 0,
+                title: Text(
+                  '기준·출처',
+                  style: t.body(11.5, color: c.textSecondary),
                 ),
-              ),
-              for (final item in comparisons)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: AppSpace.xs),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 52,
-                        child: Text(item.label, style: t.body(12)),
+                padding: EdgeInsets.zero,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '기준 ${formatDate(last.date)} · ${formatCount(last.securityCount)}개 종목 · 금융위원회 주식시세정보',
+                        style: t.body(12, color: c.textSecondary),
                       ),
-                      Expanded(
-                        child: Text(
-                          item.base == null
-                              ? '비교 자료 부족'
-                              : '${formatDate(item.base!.date)} · ${formatKrw(item.base!.marketCap)}',
-                          style: t.body(12, color: c.textSecondary),
+                    ),
+                    for (final item in comparisons)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppSpace.xs,
+                        ),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 52,
+                              child: Text(item.label, style: t.body(12)),
+                            ),
+                            Expanded(
+                              child: Text(
+                                item.base == null
+                                    ? '비교 자료 부족'
+                                    : '${formatDate(item.base!.date)} · ${formatKrw(item.base!.marketCap)}',
+                                style: t.body(12, color: c.textSecondary),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              Text(
-                '휴장일은 이전 종가를 사용하며 10일 넘게 떨어진 자료는 제외합니다. 상장·폐지로 구성 종목 수가 달라져 지수 수익률과는 다릅니다.',
-                style: t.body(12, color: c.textSecondary),
-              ),
-              const SizedBox(height: AppSpace.sm),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  '차트 ${formatDate(first.date)}–${formatDate(last.date)}${change == null ? '' : ' · 기간 ${change > 0 ? '+' : ''}${change.toStringAsFixed(1)}%'}',
-                  style: t.body(12, color: c.textSecondary),
+                    Text(
+                      '휴장일은 이전 종가를 사용하며 10일 넘게 떨어진 자료는 제외합니다. 상장·폐지로 구성 종목 수가 달라져 지수 수익률과는 다릅니다.',
+                      style: t.body(12, color: c.textSecondary),
+                    ),
+                    const SizedBox(height: AppSpace.sm),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '차트 ${formatDate(first.date)}–${formatDate(last.date)}${change == null ? '' : ' · 기간 ${change > 0 ? '+' : ''}${change.toStringAsFixed(1)}%'}',
+                        style: t.body(12, color: c.textSecondary),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

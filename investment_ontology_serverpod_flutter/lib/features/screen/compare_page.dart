@@ -112,21 +112,52 @@ class _ComparePageState extends State<ComparePage> {
             runSpacing: AppSpace.sm,
             children: [
               for (final row in _rows)
-                InputChip(
-                  label: Text(
-                    row.company.name
-                        .replaceAll('(주)', '')
-                        .replaceAll('주식회사', '')
-                        .trim(),
+                ShadBadge.outline(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: ShadButton.link(
+                          height: 0,
+                          padding: EdgeInsets.zero,
+                          onPressed: () => context.push(
+                            AppRoutes.company(row.company.corpCode),
+                          ),
+                          child: Flexible(
+                            child: Text(
+                              row.company.name
+                                  .replaceAll('(주)', '')
+                                  .replaceAll('주식회사', '')
+                                  .trim(),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Semantics(
+                        container: true,
+                        label: '비교에서 빼기',
+                        button: true,
+                        enabled: true,
+                        onTap: () => _go([
+                          for (final code in widget.corpCodes)
+                            if (code != row.company.corpCode) code,
+                        ]),
+                        child: ExcludeSemantics(
+                          child: ShadIconButton.ghost(
+                            semanticLabel: '비교에서 빼기',
+                            width: 24,
+                            height: 24,
+                            padding: EdgeInsets.zero,
+                            onPressed: () => _go([
+                              for (final code in widget.corpCodes)
+                                if (code != row.company.corpCode) code,
+                            ]),
+                            icon: const Icon(Icons.close, size: 14),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  tooltip: '기업 상세 보기',
-                  onPressed: () =>
-                      context.push(AppRoutes.company(row.company.corpCode)),
-                  onDeleted: () => _go([
-                    for (final code in widget.corpCodes)
-                      if (code != row.company.corpCode) code,
-                  ]),
-                  deleteButtonTooltipMessage: '비교에서 빼기',
                 ),
             ],
           ),
@@ -135,54 +166,69 @@ class _ComparePageState extends State<ComparePage> {
         Theme(
           data: Theme.of(context)
               .copyWith(dividerColor: c.border.withValues(alpha: 0)),
-          child: ExpansionTile(
-            tilePadding: EdgeInsets.zero,
-            expandedCrossAxisAlignment: CrossAxisAlignment.start,
-            expandedAlignment: Alignment.centerLeft,
-            backgroundColor: c.surface.withValues(alpha: 0),
-            collapsedBackgroundColor: c.surface.withValues(alpha: 0),
+          child: ShadAccordion<int>(
             key: ValueKey(widget.corpCodes.length < 2),
-            initiallyExpanded: widget.corpCodes.length < 2,
-            leading: const Icon(Icons.add_circle_outline, size: 20),
-            title: Text('비교 기업 찾기', style: t.body(15, weight: FontWeight.w600)),
-            childrenPadding: const EdgeInsets.only(
-              top: AppSpace.sm,
-              bottom: AppSpace.md,
-            ),
+            maintainState: false,
+            initialValue: (widget.corpCodes.length < 2) ? 0 : null,
             children: [
-              _AddCompany(
-                disabled: widget.corpCodes.length >= maxCompanies,
-                onAdd: (code) {
-                  if (widget.corpCodes.contains(code)) return;
-                  _go([...widget.corpCodes, code]);
-                },
-              ),
-              const SizedBox(height: AppSpace.lg),
-              PeerCandidatesPanel(
-                codes: widget.corpCodes,
-                onAdd: (code) {
-                  if (widget.corpCodes.length >= maxCompanies ||
-                      widget.corpCodes.contains(code)) {
-                    return;
-                  }
-                  _go([...widget.corpCodes, code]);
-                },
+              ShadAccordionItem<int>(
+                value: 0,
+                title: Row(
+                  children: [
+                    const Icon(Icons.add_circle_outline, size: 20),
+                    const SizedBox(width: AppSpace.sm),
+                    Expanded(
+                      child: Text(
+                        '비교 기업 찾기',
+                        style: t.body(15, weight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                ),
+                padding: EdgeInsets.zero,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    top: AppSpace.sm,
+                    bottom: AppSpace.md,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _AddCompany(
+                        disabled: widget.corpCodes.length >= maxCompanies,
+                        onAdd: (code) {
+                          if (widget.corpCodes.contains(code)) return;
+                          _go([...widget.corpCodes, code]);
+                        },
+                      ),
+                      const SizedBox(height: AppSpace.lg),
+                      PeerCandidatesPanel(
+                        codes: widget.corpCodes,
+                        onAdd: (code) {
+                          if (widget.corpCodes.length >= maxCompanies ||
+                              widget.corpCodes.contains(code)) {
+                            return;
+                          }
+                          _go([...widget.corpCodes, code]);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
         ),
         const SizedBox(height: AppSpace.xl),
-        if (_error != null) ...[
-          const AppNotice(message: '비교 데이터를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'),
-          const SizedBox(height: AppSpace.sm),
-          AppButton(label: '비교 다시 불러오기', onPressed: _load),
-        ] else if (widget.corpCodes.isEmpty)
+        if (_error != null)
+          ReadFailureNotice(subject: '비교 데이터', retry: _load)
+        else if (widget.corpCodes.isEmpty)
           Text(
             '위에서 궁금한 회사를 검색해 보세요. 두 곳 이상 고르면 숫자를 나란히 비교할 수 있어요.',
             style: t.body(13, color: c.textMuted),
           )
         else if (_loading && _rows.isEmpty)
-          const LinearProgressIndicator(minHeight: 2)
+          const ShadProgress(minHeight: 2)
         else ...[
           if (_rows.isNotEmpty) _ComparisonCharts(rows: _rows),
           const SizedBox(height: AppSpace.lg),
@@ -259,9 +305,12 @@ class _CompareTable extends StatelessWidget {
           AppRow([
             AppDataTable.text(context, label),
             for (final r in rows)
-              Tooltip(
-                message: screenMetricNote(r, label) ?? '',
-                child: AppDataTable.text(context, value(r), numeric: true),
+              ShadTooltip(
+                builder: (_) => Text(screenMetricNote(r, label) ?? ''),
+                child: Semantics(
+                  tooltip: screenMetricNote(r, label) ?? '',
+                  child: AppDataTable.text(context, value(r), numeric: true),
+                ),
               ),
           ]),
       ],
@@ -322,15 +371,15 @@ class _AddCompanyState extends State<_AddCompany> {
       children: [
         SizedBox(
           width: 320,
-          child: TextField(
+          child: ShadInput(
+            placeholder: Text(
+              widget.disabled ? '네 곳까지 넣을 수 있습니다' : '회사명 · 종목코드',
+            ),
+            leading: Icon(Icons.search, size: 20, color: c.textSecondary),
             controller: _controller,
             enabled: !widget.disabled,
             onChanged: _search,
             style: t.body(14),
-            decoration: InputDecoration(
-              hintText: widget.disabled ? '네 곳까지 넣을 수 있습니다' : '회사명 · 종목코드',
-              prefixIcon: Icon(Icons.search, size: 20, color: c.textSecondary),
-            ),
           ),
         ),
         for (final item in _results)

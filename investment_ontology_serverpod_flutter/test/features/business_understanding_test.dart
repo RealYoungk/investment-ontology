@@ -1,3 +1,5 @@
+import '../support/shad_test_host.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
@@ -92,10 +94,12 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
       await tester.pumpWidget(
-        MaterialApp(
-          theme: buildAppTheme(ledgerBrand),
-          home: const Scaffold(
-            body: SingleChildScrollView(child: SubstrateGuide()),
+        shadTestHost(
+          MaterialApp(
+            theme: buildAppTheme(ledgerBrand),
+            home: const Scaffold(
+              body: SingleChildScrollView(child: SubstrateGuide()),
+            ),
           ),
         ),
       );
@@ -123,21 +127,23 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
       await tester.pumpWidget(
-        MaterialApp(
-          theme: buildAppTheme(ledgerBrand),
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: BusinessProductCard(
-                product: BusinessProduct(
-                  key: 'substrate_aor',
-                  name: 'AOR',
-                  role: '쇼트·돌기를 수리합니다.',
-                  process: '기판 제조 · 수리',
-                  benefit: '수리 가능한 기판의 폐기를 줄입니다.',
-                  evidence: '기판의 쇼트를 수리합니다.',
-                  explanationKind: 'reference_and_filing',
+        shadTestHost(
+          MaterialApp(
+            theme: buildAppTheme(ledgerBrand),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: BusinessProductCard(
+                  product: BusinessProduct(
+                    key: 'substrate_aor',
+                    name: 'AOR',
+                    role: '쇼트·돌기를 수리합니다.',
+                    process: '기판 제조 · 수리',
+                    benefit: '수리 가능한 기판의 폐기를 줄입니다.',
+                    evidence: '기판의 쇼트를 수리합니다.',
+                    explanationKind: 'reference_and_filing',
+                  ),
+                  rceptNo: '20260319000682',
                 ),
-                rceptNo: '20260319000682',
               ),
             ),
           ),

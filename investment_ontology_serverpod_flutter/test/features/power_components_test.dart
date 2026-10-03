@@ -1,3 +1,7 @@
+import 'package:shad/shad.dart';
+
+import '../support/shad_test_host.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
@@ -90,11 +94,13 @@ void main() {
       await tester.binding.setSurfaceSize(Size(width, 1600));
       addTearDown(() => tester.binding.setSurfaceSize(null));
       await tester.pumpWidget(
-        MaterialApp(
-          theme: buildAppTheme(ledgerBrand),
-          home: const Scaffold(
-            body: SingleChildScrollView(
-              child: PowerComponentsGuide(includeOptical: true),
+        shadTestHost(
+          MaterialApp(
+            theme: buildAppTheme(ledgerBrand),
+            home: const Scaffold(
+              body: SingleChildScrollView(
+                child: PowerComponentsGuide(includeOptical: true),
+              ),
             ),
           ),
         ),
@@ -109,7 +115,7 @@ void main() {
       expect(find.text('4 / 4'), findsOneWidget);
       expect(
         tester
-            .widget<FilledButton>(find.widgetWithText(FilledButton, '다음 →'))
+            .widget<ShadButton>(find.widgetWithText(ShadButton, '다음 →'))
             .onPressed,
         isNull,
       );
@@ -124,17 +130,19 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
       await tester.pumpWidget(
-        MaterialApp(
-          theme: buildAppTheme(ledgerBrand),
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: Column(
-                children: [
-                  const PowerComponentsGuide(),
-                  PrintedProductMix(
-                    mix: PowerProductLesson.resolve(profile(), doc())!,
-                  ),
-                ],
+        shadTestHost(
+          MaterialApp(
+            theme: buildAppTheme(ledgerBrand),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const PowerComponentsGuide(),
+                    PrintedProductMix(
+                      mix: PowerProductLesson.resolve(profile(), doc())!,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

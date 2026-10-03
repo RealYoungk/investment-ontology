@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 
 import '../tokens.dart';
+import '../layout.dart';
 
 /// 화면 본문 틀: 세로 스크롤, 가운데 정렬된 최대 폭, 화면 폭에 맞춘 좌우 여백.
-class PageFrame extends StatelessWidget {
+class PageFrame extends StatefulWidget {
   const PageFrame({
     super.key,
     required this.children,
-    this.maxWidth = 1280,
+    this.maxWidth = AppLayout.contentWidth,
     this.controller,
     this.allowLeading = true,
   });
 
   /// 이보다 좁으면 좌우 여백을 줄인다.
-  static const compactBreakpoint = 720.0;
+  static const compactBreakpoint = AppLayout.compact;
 
   final List<Widget> children;
   final double maxWidth;
@@ -22,16 +23,29 @@ class PageFrame extends StatelessWidget {
   /// Do not mount a supplied lead while publisher content is unavailable.
   final bool allowLeading;
 
-  static double gutter(double width) =>
-      width < compactBreakpoint ? AppSpace.lg : AppSpace.xxl;
+  static double gutter(double width) => AppLayout.gutter(width);
+
+  @override
+  State<PageFrame> createState() => _PageFrameState();
+}
+
+class _PageFrameState extends State<PageFrame> {
+  final _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final pad = gutter(constraints.maxWidth);
+        final pad = PageFrame.gutter(constraints.maxWidth);
         return SingleChildScrollView(
-          controller: controller,
+          controller: widget.controller ?? _scrollController,
+          primary: false,
           padding: EdgeInsets.fromLTRB(
             pad,
             AppSpace.xxl,
@@ -40,12 +54,12 @@ class PageFrame extends StatelessWidget {
           ),
           child: Center(
             child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: maxWidth),
+              constraints: BoxConstraints(maxWidth: widget.maxWidth),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (allowLeading) ?PageFrameLeadScope.of(context),
-                  ...children,
+                  if (widget.allowLeading) ?PageFrameLeadScope.of(context),
+                  ...widget.children,
                 ],
               ),
             ),
@@ -80,7 +94,10 @@ class PageHeading extends StatelessWidget {
           Text(eyebrow!, style: t.label(color: c.accent)),
           const SizedBox(height: AppSpace.sm),
         ],
-        Text(title, style: t.display(30, color: c.textPrimary)),
+        Semantics(
+          header: true,
+          child: Text(title, style: t.pageTitle.copyWith(color: c.textPrimary)),
+        ),
         if (subtitle != null) ...[
           const SizedBox(height: AppSpace.sm),
           Text(subtitle!, style: t.body(14, color: c.textSecondary)),

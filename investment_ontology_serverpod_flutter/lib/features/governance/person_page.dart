@@ -44,25 +44,51 @@ class _PersonPageState extends State<PersonPage> {
 
   Future<void> _reject(PersonRole role, Person person) async {
     if (!context.ensureAdmin()) return;
-    final ok = await showDialog<bool>(
+    final ok = await showShadDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('추정 연결 끊기'),
-        content: Text(
-          '${role.companyName} 주주 명단의 "${person.name}"을(를) 이 인물과 같은 사람으로 보지 않습니다. '
-          '다시 계산해도 묶지 않습니다.',
+      builder: (overlayContext) => InheritedTheme.captureAll(
+        context,
+        Builder(
+          builder: (context) => ShadDialog(
+            closeIcon: Builder(
+              builder: (context) => Semantics(
+                container: true,
+                label: '닫기',
+                button: true,
+                onTap: () => Navigator.of(context).pop(),
+                child: ExcludeSemantics(
+                  child: ShadIconButton.ghost(
+                    width: 20,
+                    height: 20,
+                    padding: EdgeInsets.zero,
+                    icon: const Icon(Icons.close, size: 16),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ),
+              ),
+            ),
+            title: const Text('추정 연결 끊기'),
+            actions: [
+              ShadButton.ghost(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Flexible(child: const Text('취소')),
+              ),
+              ShadButton.ghost(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Flexible(child: const Text('끊기')),
+              ),
+            ],
+            child: Material(
+              type: MaterialType.transparency,
+              child: Text(
+                '${role.companyName} 주주 명단의 "${person.name}"을(를) 이 인물과 같은 사람으로 보지 않습니다. '
+                '다시 계산해도 묶지 않습니다.',
+              ),
+            ),
+          ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('취소'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('끊기'),
-          ),
-        ],
       ),
+      barrierLabel: '닫기',
     );
     if (ok != true) return;
     await client.governance.rejectPersonLink(role.corpCode, person.name);
@@ -84,12 +110,14 @@ class _PersonPageState extends State<PersonPage> {
       maxWidth: 1080,
       children: [
         if (!_loaded)
-          const LinearProgressIndicator(minHeight: 2)
+          const ShadProgress(minHeight: 2)
         else if (p == null)
-          Text(
-            _error != null ? '불러오지 못했습니다: $_error' : '인물을 찾을 수 없습니다.',
-            style: t.body(14, color: c.textSecondary),
-          )
+          (_error != null
+              ? ReadFailureNotice(subject: '상세 정보', retry: _load)
+              : Text(
+                  '인물을 찾을 수 없습니다.',
+                  style: t.body(14, color: c.textSecondary),
+                ))
         else ...[
           Text(p.person.name, style: t.display(40, color: c.textPrimary)),
           const SizedBox(height: AppSpace.sm),
@@ -98,20 +126,29 @@ class _PersonPageState extends State<PersonPage> {
             runSpacing: AppSpace.sm,
             children: [
               if (p.person.birthYear != null)
-                AppTag(
-                  label:
-                      '${p.person.birthYear}.${p.person.birthMonth.toString().padLeft(2, '0')}생',
-                  numeric: true,
-                  size: AppTagSize.medium,
+                ShadBadge.raw(
+                  variant: ShadBadgeVariant.outline,
+                  child: Text(
+                    '${p.person.birthYear}.${p.person.birthMonth.toString().padLeft(2, '0')}생',
+                    maxLines: 1,
+                    softWrap: false,
+                  ),
                 ),
               if (p.person.sex != null)
-                AppTag(label: p.person.sex!, size: AppTagSize.medium),
-              AppTag(
-                label: p.person.estimated
-                    ? '추정 인물 (출생년월 없음)'
-                    : '임원 현황의 이름 + 출생년월로 확인',
-                color: p.person.estimated ? c.accent : null,
-                size: AppTagSize.medium,
+                ShadBadge.raw(
+                  variant: ShadBadgeVariant.outline,
+                  child: Text(p.person.sex!, maxLines: 1, softWrap: false),
+                ),
+              ShadBadge.raw(
+                variant: ShadBadgeVariant.outline,
+                foregroundColor: p.person.estimated ? c.accent : null,
+                child: Text(
+                  p.person.estimated
+                      ? '추정 인물 (출생년월 없음)'
+                      : '임원 현황의 이름 + 출생년월로 확인',
+                  maxLines: 1,
+                  softWrap: false,
+                ),
               ),
             ],
           ),
@@ -152,12 +189,12 @@ class _PersonPageState extends State<PersonPage> {
                       spacing: AppSpace.md,
                       runSpacing: AppSpace.xs,
                       children: [
-                        AppButton(
-                          label: r.companyName,
-                          variant: AppButtonVariant.link,
+                        ShadButton.raw(
                           onPressed: () => context.push(
                             AppRoutes.company(r.corpCode, tab: 'governance'),
                           ),
+                          variant: ShadButtonVariant.link,
+                          child: Flexible(child: Text(r.companyName)),
                         ),
                         Text(
                           '${formatRatio(r.weight)}${r.estimated ? ' · 추정 연결' : ''}',
@@ -166,7 +203,7 @@ class _PersonPageState extends State<PersonPage> {
                       ],
                     ),
                     const SizedBox(height: AppSpace.xs),
-                    LinearProgressIndicator(
+                    ShadProgress(
                       value: r.weight! / 100,
                       minHeight: 10,
                       color: r.estimated ? c.chartSeries2 : c.chartSeries1,
@@ -249,11 +286,11 @@ class _PersonPageState extends State<PersonPage> {
                       if (!compact)
                         AppDataTable.text(context, 'FY${r.bsnsYear}'),
                       r.estimated
-                          ? AppButton(
-                              label: '끊기',
-                              variant: AppButtonVariant.link,
-                              tone: c.accent,
+                          ? ShadButton.raw(
                               onPressed: () => _reject(r, p.person),
+                              variant: ShadButtonVariant.link,
+                              foregroundColor: c.accent,
+                              child: Flexible(child: Text('끊기')),
                             )
                           : const SizedBox.shrink(),
                     ]),

@@ -50,16 +50,26 @@ class _FinancialReportPageState extends State<FinancialReportPage> {
           builder: (context, snap) {
             if (snap.connectionState != ConnectionState.done) {
               return const Center(
-                child: CircularProgressIndicator(strokeWidth: 2),
+                child: ShadSpinner(strokeWidth: 2),
               );
             }
             final detail = snap.data;
+            if (snap.hasError) {
+              return Center(
+                child: ReadFailureNotice(
+                  subject: '재무 보고서',
+                  retry: () async {
+                    final future = _fetch();
+                    setState(() => _future = future);
+                    await future;
+                  },
+                ),
+              );
+            }
             if (detail == null) {
               return Center(
                 child: Text(
-                  snap.hasError
-                      ? '불러오지 못했습니다: ${snap.error}'
-                      : '보고서를 찾을 수 없습니다.',
+                  '보고서를 찾을 수 없습니다.',
                   style: context.typo.body(14),
                 ),
               );
@@ -101,12 +111,21 @@ class _FinancialReportPageState extends State<FinancialReportPage> {
         SectionLabel(
           '재무제표 원문 · ${fsDivLabel(report.fsDiv)}',
           accent: true,
-          trailing: IconButton(
-            // 주소로 바로 들어왔으면 돌아갈 화면이 없어 기업 목록으로 간다.
-            onPressed: () =>
+          trailing: Semantics(
+            container: true,
+            label: '닫기',
+            button: true,
+            enabled: true,
+            onTap: () =>
                 context.canPop() ? context.pop() : context.go('/companies'),
-            icon: Icon(Icons.close, color: c.textPrimary),
-            tooltip: '닫기',
+            child: ExcludeSemantics(
+              child: ShadIconButton.ghost(
+                onPressed: () =>
+                    context.canPop() ? context.pop() : context.go('/companies'),
+                icon: Icon(Icons.close, color: c.textPrimary),
+                semanticLabel: '닫기',
+              ),
+            ),
           ),
         ),
         Text(report.reportName, style: t.display(30, color: c.textPrimary)),
@@ -119,9 +138,7 @@ class _FinancialReportPageState extends State<FinancialReportPage> {
         ),
         if (report.supersededById != null) ...[
           const SizedBox(height: AppSpace.md),
-          AppNotice(
-            message: '정정공시로 대체된 보고서입니다. 값은 지우지 않고 보존합니다.',
-          ),
+          ShadAlert(description: Text('정정공시로 대체된 보고서입니다. 값은 지우지 않고 보존합니다.')),
         ],
         const SizedBox(height: AppSpace.lg),
         _History(
@@ -141,8 +158,10 @@ class _FinancialReportPageState extends State<FinancialReportPage> {
           ),
         const SizedBox(height: AppSpace.md),
         if (hasSeparateSources) ...[
-          const AppNotice(
-            message: '당기 핵심계정을 공식 원문 출처로 보완했습니다. 기존 비교기간 행도 보존합니다. 요약 계산에는 현재 출처의 당기 값을 사용하며, 아래 표에서 행별 출처를 구분합니다.',
+          const ShadAlert(
+            description: Text(
+              '당기 핵심계정을 공식 원문 출처로 보완했습니다. 기존 비교기간 행도 보존합니다. 요약 계산에는 현재 출처의 당기 값을 사용하며, 아래 표에서 행별 출처를 구분합니다.',
+            ),
           ),
           const SizedBox(height: AppSpace.md),
         ],
@@ -163,15 +182,15 @@ class _FinancialReportPageState extends State<FinancialReportPage> {
           ),
         Align(
           alignment: Alignment.centerLeft,
-          child: AppButton(
-            label: 'DART 공시 원문 열기 →',
-            variant: AppButtonVariant.link,
-            tone: c.accent,
+          child: ShadButton.raw(
             onPressed: () => launchUrl(
               Uri.parse(
                 'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${report.rceptNo}',
               ),
             ),
+            variant: ShadButtonVariant.link,
+            foregroundColor: c.accent,
+            child: Flexible(child: Text('DART 공시 원문 열기 →')),
           ),
         ),
       ],
@@ -339,28 +358,37 @@ class _FactTable extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      Tooltip(
-                        message: f.accountId ?? '표준계정코드 미사용',
-                        child: cell(f.accountName, right: false, width: 260),
+                      ShadTooltip(
+                        builder: (_) => Text(f.accountId ?? '표준계정코드 미사용'),
+                        child: Semantics(
+                          tooltip: f.accountId ?? '표준계정코드 미사용',
+                          child: cell(f.accountName, right: false, width: 260),
+                        ),
                       ),
                       if (showSource)
-                        Tooltip(
-                          message: '출처 기록 #${f.sourceId}',
-                          child: cell(
-                            f.sourceId == currentSourceId
-                                ? '당기 원문 복구'
-                                : '기존 비교기간',
-                            right: false,
-                            width: 150,
+                        ShadTooltip(
+                          builder: (_) => Text('출처 기록 #${f.sourceId}'),
+                          child: Semantics(
+                            tooltip: '출처 기록 #${f.sourceId}',
+                            child: cell(
+                              f.sourceId == currentSourceId
+                                  ? '당기 원문 복구'
+                                  : '기존 비교기간',
+                              right: false,
+                              width: 150,
+                            ),
                           ),
                         ),
                       if (hasDetail)
                         cell(f.accountDetail ?? '', right: false, width: 260),
                       for (final (_, value) in columns)
                         if (value(f) case final v?)
-                          Tooltip(
-                            message: '${formatCount(v.toInt())}원',
-                            child: cell(formatKrwLong(v.toDouble())),
+                          ShadTooltip(
+                            builder: (_) => Text('${formatCount(v.toInt())}원'),
+                            child: Semantics(
+                              tooltip: '${formatCount(v.toInt())}원',
+                              child: cell(formatKrwLong(v.toDouble())),
+                            ),
                           )
                         else
                           cell('—'),

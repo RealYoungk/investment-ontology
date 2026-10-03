@@ -1,3 +1,4 @@
+import 'package:shad/shad.dart';
 import 'package:flutter/material.dart';
 
 import '../tokens.dart';
@@ -26,14 +27,20 @@ class SectionLabel extends StatelessWidget {
     );
     if (tooltip != null) {
       final tipKey = GlobalKey<TooltipState>();
-      label = Tooltip(
+      label = ShadTooltip(
         key: tipKey,
-        message: tooltip!,
         waitDuration: const Duration(milliseconds: 300),
         showDuration: const Duration(seconds: 6),
-        child: InkWell(
-          onTap: () => tipKey.currentState?.ensureTooltipVisible(),
-          child: label,
+        builder: (_) => Text(tooltip!),
+        child: Semantics(
+          tooltip: tooltip!,
+          child: ShadButton.ghost(
+            height: 0,
+            width: 0,
+            padding: EdgeInsets.zero,
+            onPressed: () => tipKey.currentState?.ensureTooltipVisible(),
+            child: Flexible(child: label),
+          ),
         ),
       );
     }

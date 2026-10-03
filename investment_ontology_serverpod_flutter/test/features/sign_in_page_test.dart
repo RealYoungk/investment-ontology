@@ -1,3 +1,7 @@
+import 'package:shad/shad.dart';
+
+import '../support/shad_test_host.dart';
+
 import 'package:flutter/material.dart';
 import 'package:investment_ontology_serverpod_flutter/features/auth/widgets/login_form_ko.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -22,13 +26,19 @@ void main() {
 
   Future<void> pump(WidgetTester tester) async {
     await tester.pumpWidget(
-      MaterialApp(theme: buildAppTheme(ledgerBrand), home: const SignInPage()),
+      shadTestHost(
+        MaterialApp(
+          theme: buildAppTheme(ledgerBrand),
+          home: const SignInPage(),
+        ),
+      ),
     );
     await tester.pumpAndSettle();
   }
 
   Finder emailField() => find.byWidgetPredicate(
-    (w) => w is TextField && w.decoration?.hintText == 'name@example.com',
+    (w) =>
+        w is ShadInput && (w.placeholder as Text?)?.data == 'name@example.com',
   );
 
   testWidgets('가입 단계와 인증 대상 이메일을 보여주고 주소를 수정할 수 있다', (tester) async {
@@ -42,15 +52,15 @@ void main() {
     expect(find.text('2 인증'), findsOneWidget);
     expect(find.text('reader@example.com'), findsOneWidget);
     expect(find.textContaining('서버 실행 콘솔'), findsNothing);
-    final verify = find.widgetWithText(ElevatedButton, '인증');
+    final verify = find.widgetWithText(ShadButton, '인증');
     if (verify.evaluate().isNotEmpty) {
-      expect(tester.widget<ElevatedButton>(verify).onPressed, isNull);
+      expect(tester.widget<ShadButton>(verify).onPressed, isNull);
     }
     await tester.tap(find.text('이메일 주소 수정'));
     await tester.pump();
     expect(find.text('인증번호 받기'), findsOneWidget);
     expect(controller.emailController.text, 'reader@example.com');
-    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpWidget(shadTestHost(const SizedBox.shrink()));
   });
 
   testWidgets('로그인 화면이 맨 먼저 보이고, 가입 링크가 있다', (tester) async {
@@ -157,6 +167,6 @@ void main() {
       expect(find.text('Password'), findsNothing);
       expect(find.textContaining('Resend'), findsNothing);
     }
-    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpWidget(shadTestHost(const SizedBox.shrink()));
   });
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import '../tokens.dart';
+import '../layout.dart';
 
 /// 표의 열 하나.
 class AppColumn {
@@ -136,7 +137,7 @@ class AppDataTable extends StatelessWidget {
           : BoxConstraints(minWidth: col.minWidth ?? (col.numeric ? 76 : 0)),
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpace.sm,
-        vertical: 7,
+        vertical: AppLayout.tableCellVerticalPadding,
       ),
       alignment: col.numeric ? Alignment.centerRight : Alignment.centerLeft,
       child: col.width != null || col.nowrap
@@ -159,9 +160,10 @@ class AppDataTable extends StatelessWidget {
       children: [
         TableRow(
           decoration: BoxDecoration(
+            color: c.surfaceHover,
             border: Border(
-              top: BorderSide(color: c.borderStrong, width: 1.5),
-              bottom: BorderSide(color: c.borderStrong),
+              top: BorderSide(color: c.border),
+              bottom: BorderSide(color: c.border),
             ),
           ),
           children: [

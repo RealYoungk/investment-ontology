@@ -1,3 +1,7 @@
+import 'package:shad/shad.dart';
+
+import '../support/shad_test_host.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -37,14 +41,16 @@ void main() {
     ValueChanged<String>? add,
   }) async {
     await tester.pumpWidget(
-      MaterialApp(
-        theme: buildAppTheme(ledgerBrand),
-        home: Scaffold(
-          body: SingleChildScrollView(
-            child: PeerCandidatesPanel(
-              codes: codes,
-              loadCandidates: load,
-              onAdd: add ?? (_) {},
+      shadTestHost(
+        MaterialApp(
+          theme: buildAppTheme(ledgerBrand),
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: PeerCandidatesPanel(
+                codes: codes,
+                loadCandidates: load,
+                onAdd: add ?? (_) {},
+              ),
             ),
           ),
         ),
@@ -69,7 +75,13 @@ void main() {
     expect(find.textContaining('원문 후보기업'), findsNothing);
     await tester.tap(find.text('추가'));
     expect(added, '00000002');
-    await tester.tap(find.byTooltip('비교 이유 보기'));
+    await tester.tap(
+      find.byWidgetPredicate(
+        (w) =>
+            (w is Tooltip && w.message == '비교 이유 보기') ||
+            (w is ShadIconButton && w.semanticLabel == '비교 이유 보기'),
+      ),
+    );
     await tester.pumpAndSettle();
     expect(find.textContaining('원문 후보기업'), findsNothing);
     await tester.tap(find.text('공시 근거 보기'));

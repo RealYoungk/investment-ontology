@@ -1,3 +1,4 @@
+import 'package:shad/shad.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/link.dart';
 
@@ -20,9 +21,9 @@ class ServiceLinks extends StatelessWidget {
         Link(
           uri: Uri.https('alfinder.kr', item.path),
           target: LinkTarget.blank,
-          builder: (context, followLink) => TextButton(
+          builder: (context, followLink) => ShadButton.ghost(
             onPressed: followLink,
-            child: Text(item.label),
+            child: Flexible(child: Text(item.label)),
           ),
         ),
     ],
