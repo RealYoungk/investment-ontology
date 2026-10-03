@@ -406,6 +406,43 @@ void main() {
             (await DartFiling.db.findById(session, f.id!))!.separateStatus,
             FilingFetchStatus.stored,
           );
+          // Once the normal enrichment phase has completed, a further worker
+          // pass changes neither the102 facts nor either own financial Source.
+          final completedFacts = facts.map((x) => x.toJson()).toList();
+          final completedSources = [main.toJson(), additionalSource.toJson()];
+          final replayJob = await IngestJob.db.insertRow(
+            session,
+            IngestJob(
+              kind: FinancialFactsSync.kind,
+              status: IngestStatus.running,
+              startedAt: now,
+            ),
+          );
+          final replayClient = SourceClient();
+          await FinancialFactsSync(
+            session,
+            replayClient,
+            replayJob.id!,
+            dailyBudget: 0,
+            clock: () => now,
+            callInterval: Duration.zero,
+          ).run();
+          expect(replayClient.calls, 0);
+          expect(
+            (await IngestJob.db.findById(session, replayJob.id!))!.updated,
+            0,
+          );
+          expect(
+            (await FinancialFact.db.find(
+              session,
+              where: (t) => t.reportId.equals(stored.id!),
+            )).map((x) => x.toJson()).toList(),
+            completedFacts,
+          );
+          expect([
+            (await Source.db.findById(session, main.id!))!.toJson(),
+            (await Source.db.findById(session, additionalSource.id!))!.toJson(),
+          ], completedSources);
           expect([
             (await Source.db.findById(session, source.id!))!.toJson(),
             (await FinancialReport.db.findById(session, prior.id!))!.toJson(),
