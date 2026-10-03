@@ -56,6 +56,18 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20240306000708',
+      corpCode: '01205514',
+      companyName: '(주)큐라켐',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20240306000708-ofs-restated-current-seven',
+      manifestDigest:
+          '37a3a9165e29c118855b4b1bcc629cefb3b02c2079c1c6bf6d214a3010f1fea1',
+      ruleVersion: 'curachem-own-restated-current-seven-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20250331003105',
       corpCode: '00666329',
       companyName: '(주)코나솔',

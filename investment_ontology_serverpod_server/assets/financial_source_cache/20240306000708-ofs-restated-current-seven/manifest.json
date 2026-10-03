@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "01205514",
+  "receipt": "20240306000708",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2023,
+  "periodStart": "2023-01-01",
+  "periodEnd": "2023-12-31",
+  "ruleVersion": "curachem-own-restated-current-seven-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240306000708",
+      "sha256": "a950e46e2a62e41748782092292eff6d7aef76a142f3e61caf6be3324ef3be72"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240306000708&dcmNo=9690467&eleId=1&offset=956&length=4044&dtd=dart4.xsd",
+      "sha256": "b0d82ed890954f97d9b95cd7f1086994741f5769a08a1585fd7e281edafd7a4d"
+    },
+    {
+      "label": "ofs",
+      "file": "ofs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240306000708&dcmNo=9690467&eleId=21&offset=183589&length=61938&dtd=dart4.xsd",
+      "sha256": "65e7498523d663f364a989637fd90ea092f72c727580d89d15bda93c129673be"
+    }
+  ],
+  "partialCore7": true,
+  "optionalAccountsNotCollected": [
+    "capex"
+  ],
+  "fullStatementCollected": false,
+  "comparativeFieldsImported": false
+}

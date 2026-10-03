@@ -116,11 +116,10 @@ void main() {
             BigInt.parse(v.value),
           );
         }
+        expect(summary.periods.single.lines, hasLength(7));
         expect(
-          summary.periods.single.lines
-              .singleWhere((l) => l.key == 'capex')
-              .amount,
-          isNull,
+          summary.periods.single.lines.where((l) => l.key == 'capex'),
+          isEmpty,
         );
         final proof = await Source.db.findFirstRow(
           session,
