@@ -202,13 +202,62 @@ void main() {
             expect(reader.requested, isNot(contains('$receipt:OFS')));
           }
           expect(reader.calls, 0);
-          final stored = (await FinancialReport.db.find(
+          var stored = (await FinancialReport.db.find(
             session,
             where: (t) => t.companyId.equals(company.id!) & t.fsDiv.equals(div),
           )).single;
           final main = (await Source.db.findById(session, stored.sourceId))!;
           expect(main.reference, receipt);
           expect(main.url, p['statement']['url']);
+          if (publicAttempt == 2) {
+            // Cached replay runs before enrichment, then the public recovery
+            // phase creates this report. Its94 exact additional rows become
+            // eligible at the next normal worker pass, not the first pass.
+            final firstCore = await FinancialFact.db.find(
+              session,
+              where: (t) => t.reportId.equals(stored.id!),
+            );
+            expect(firstCore, hasLength(8));
+            expect(stored.factCount, 8);
+            expect(firstCore.every((x) => x.sourceId == main.id), true);
+            final savedCore = firstCore.map((x) => x.toJson()).toList();
+            final originalSource = main.toJson();
+            final followup = await IngestJob.db.insertRow(
+              session,
+              IngestJob(
+                kind: FinancialFactsSync.kind,
+                status: IngestStatus.running,
+                startedAt: now,
+              ),
+            );
+            final followupClient = SourceClient();
+            await FinancialFactsSync(
+              session,
+              followupClient,
+              followup.id!,
+              dailyBudget: 0,
+              clock: () => now,
+              callInterval: Duration.zero,
+            ).run();
+            expect(followupClient.calls, 0);
+            expect(
+              (await IngestJob.db.findById(session, followup.id!))!.updated,
+              0,
+            );
+            stored = (await FinancialReport.db.findById(session, stored.id!))!;
+            expect(
+              (await Source.db.findById(session, main.id!))!.toJson(),
+              originalSource,
+            );
+            expect(
+              (await FinancialFact.db.find(
+                session,
+                where: (t) =>
+                    t.reportId.equals(stored.id!) & t.sourceId.equals(main.id!),
+              )).map((x) => x.toJson()).toList(),
+              savedCore,
+            );
+          }
           final facts = await FinancialFact.db.find(
             session,
             where: (t) => t.reportId.equals(stored.id!),
