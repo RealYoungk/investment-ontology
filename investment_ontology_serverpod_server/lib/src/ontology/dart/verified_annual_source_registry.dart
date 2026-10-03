@@ -56,6 +56,19 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20250331003105',
+      corpCode: '00666329',
+      companyName: '(주)코나솔',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20250331003105-ofs-current-seven',
+      manifestDigest:
+          'c609b371e72beb156fcfd4376bdca763b0dd18b73ad5b0949bd8d2630651cda4',
+      ruleVersion: 'konasol-own-current-seven-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20250305000164',
       corpCode: '01205514',
       companyName: '(주)큐라켐',

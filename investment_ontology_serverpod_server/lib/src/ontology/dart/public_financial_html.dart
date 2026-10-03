@@ -1,3 +1,4 @@
+import 'konasol_current_seven_source.dart';
 import 'curachem_current_seven_source.dart';
 import 'insurance_current_annual_source.dart';
 import 'known_annual_source_conflict.dart';
@@ -878,6 +879,20 @@ abstract final class PublicFinancialHtml {
         start: periodStart,
         end: periodEnd,
         consolidated: consolidated,
+      );
+    }
+    if (receipt == KonasolCurrentSevenSource.receipt) {
+      return KonasolCurrentSevenSource.parse(
+        targetReceipt: receipt,
+        companyCode: corpCode,
+        companyName: companyName,
+        consolidated: consolidated,
+        start: periodStart,
+        end: periodEnd,
+        coverSource: coverSource,
+        statementSource: statementSource,
+        cover: coverHtml,
+        body: statementHtml,
       );
     }
     if (receipt == CurachemCurrentSevenSource.receipt) {

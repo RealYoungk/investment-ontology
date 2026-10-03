@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "00666329",
+  "receipt": "20250331003105",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2024,
+  "periodStart": "2024-01-01",
+  "periodEnd": "2024-12-31",
+  "ruleVersion": "konasol-own-current-seven-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250331003105",
+      "sha256": "0a64932af06d2fa42e0f6eb32278cf64fd210aa80856848c374f5b75961cbb0d"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250331003105&dcmNo=10487194&eleId=1&offset=965&length=4507&dtd=dart4.xsd",
+      "sha256": "b8b51e70c7aed7c30c244bad71365fa4fe1ba9717fea10f37058c720165c9bc8"
+    },
+    {
+      "label": "ofs",
+      "file": "ofs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250331003105&dcmNo=10487194&eleId=21&offset=211750&length=121606&dtd=dart4.xsd",
+      "sha256": "ac34ecf1b77b07d918e6720ab1b5d06fb6da3b4fcb92e94047628e72fed0074f"
+    }
+  ],
+  "partialCore7": true,
+  "optionalAccountsNotCollected": [
+    "capex"
+  ],
+  "fullStatementCollected": false
+}
