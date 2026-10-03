@@ -81,6 +81,20 @@ abstract final class VerifiedAnnualSourceRegistry {
       absenceLiteral: null,
     ),
     AnnualSourceCacheEntry(
+      receipt: '20221027000409',
+      corpCode: '01020269',
+      companyName: '(주) 탈로스',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20221027000409-ofs-own-current-seven',
+      manifestDigest:
+          'a725440ba3ac4a2ca8e0dc0c2ae4221dacf376ecf3840228047e18d1cb6f5406',
+      ruleVersion: 'talos-own-2021-current-seven-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20230718000182',
       corpCode: '01020269',
       companyName: '(주) 탈로스',
