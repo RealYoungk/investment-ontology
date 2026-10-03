@@ -177,5 +177,196 @@ void main() {
         },
       );
     }
+    test('own2021/22 cash contradiction is quarantined, source-backed and immutable', () async {
+      final session = builder.build();
+      addTearDown(session.close);
+      final cache = await Directory.systemTemp.createTemp(
+        'fund-quarantine-db-',
+      );
+      addTearDown(() => cache.delete(recursive: true));
+      final docs =
+          IssuerDocumentsCollector.manifest(
+                File('assets/issuer_documents/verified_fund_documents.json')
+                    .readAsStringSync(),
+              )
+              .where(
+                (d) =>
+                    d['metadata']['corpCode'] == '00600013' &&
+                    {
+                      '2021-12-31',
+                      '2022-12-31',
+                    }.contains(d['metadata']['periodEnd']),
+              )
+              .toList();
+      expect(docs, hasLength(2));
+      await Company.db.insertRow(
+        session,
+        Company(corpCode: '00600013', name: '미래에셋맵스리얼티', market: Market.kospi),
+      );
+      for (final d in docs) {
+        final m = d['metadata'] as Map;
+        await File('${cache.path}/${m['sha256']}.fund.txt').writeAsBytes(
+          File('test/fixtures/issuer_documents/fund_text/${m['periodEnd']}.txt')
+              .readAsBytesSync(),
+        );
+      }
+      final independent = jsonDecode(
+        File(
+          'test/fixtures/issuer_documents/fund_text/independent-current-proof.json',
+        ).readAsStringSync(),
+      ) as List;
+      var gets = 0;
+      final collector = IssuerDocumentsCollector(
+        cache: cache,
+        delay: (_) async {},
+        client: MockClient((request) async {
+          gets++;
+          final d = docs.singleWhere(
+            (d) => d['metadata']['officialUrl'] == request.url.toString(),
+          );
+          final year = (d['metadata']['periodEnd'] as String).substring(0, 4);
+          return http.Response.bytes(
+            File('test/fixtures/issuer_documents/mapps-$year.pdf')
+                .readAsBytesSync(),
+            200,
+            request: request,
+          );
+        }),
+      );
+      addTearDown(collector.client.close);
+      final manifest = jsonEncode({'schemaVersion': 1, 'documents': docs});
+      Future<IssuerDocumentsResult> collect() =>
+          IssuerDocumentsSync.collectAndStore(
+            session,
+            manifestText: manifest,
+            collector: collector,
+            cancelled: () async => false,
+          );
+      final result = await collect();
+      expect(gets, 2);
+      expect(result.hasFailure, false);
+      expect(result.storedDocuments, 2);
+      expect(result.financialPeriodGroups, 0);
+      expect(result.financialQuarantinedPeriodGroups, 2);
+      expect(result.message, contains('펀드 현금 범위 격리 2기간(금액 목록 제외)'));
+      final data = jsonDecode(
+        await endpoints.research.data(
+          builder.asAnonymous,
+          '00600013',
+          'issuerFinancials',
+        ),
+      ) as Map;
+      expect(data['state'], 'ready');
+      expect(data['provider'], 'verified-primary-pdf-text-rule');
+      expect(data['source']['kind'], 'officialFile');
+      expect(data['source']['url'], 'https://re1.miraeasset.com');
+      expect(
+        data['source']['reference'],
+        IssuerFinancialsSync.sourceReference('00600013'),
+      );
+      final sourceProof = jsonDecode(data['source']['title']) as Map;
+      expect(sourceProof['quarantinedPeriodGroups'], 2);
+      expect(sourceProof['wholeFinancialStatementsComplete'], false);
+      final rows = data['rows'] as List;
+      expect(rows, hasLength(2));
+      for (final row in rows) {
+        final m =
+            docs.singleWhere(
+                  (d) => d['metadata']['periodEnd'] == row['periodEnd'],
+                )['metadata']
+                as Map;
+        expect(row['sha256'], m['sha256']);
+        expect(row['officialUrl'], m['officialUrl']);
+        expect(row['periodStart'], m['periodStart']);
+        expect(row['basis'], 'singleFundEntity');
+        expect(row['numericState'], 'pendingCashScope');
+        expect(row['accounts'], isEmpty);
+        final withheld = row['quarantinedAccounts'] as List;
+        expect(withheld, hasLength(7));
+        final expected =
+            independent.singleWhere(
+                  (r) => r['periodEnd'] == row['periodEnd'],
+                )['observations']
+                as List;
+        for (var i = 0; i < 7; i++) {
+          for (final key in [
+            'metric',
+            'accountLabel',
+            'printedAmount',
+            'amountInteger',
+            'pageOrdinal',
+            'lineOrdinal',
+            'rawLine',
+            'amountScope',
+          ]) {
+            expect(
+              withheld[i][key],
+              expected[i][key],
+              reason: '${row['periodEnd']} $i $key',
+            );
+          }
+        }
+        final validation = row['validation'] as Map;
+        expect(validation['notesCashDefinitionContradiction'], true);
+        expect(validation['notesCashDefinitionQuote'], isNotEmpty);
+        expect(
+          BigInt.parse(validation['currentBSCashMinusCF']) != BigInt.zero ||
+              BigInt.parse(validation['comparativeBSCashMinusCF']) !=
+                  BigInt.zero,
+          true,
+        );
+        expect(row['regularReportCode'], isNull);
+        expect(row['xbrlAccountId'], isNull);
+      }
+      final beforeSnapshots = (await ResearchSnapshot.db.find(session))
+          .map((r) => jsonEncode(r.toJson()))
+          .toList();
+      final beforeSources = (await Source.db.find(session))
+          .map((r) => jsonEncode(r.toJson()))
+          .toList();
+      expect(
+        await IssuerDocumentsSync.hasPending(
+          session,
+          cache: cache,
+          manifestText: manifest,
+        ),
+        false,
+        reason:
+            'Quarantine is explicit persisted evidence, not an endless retry',
+      );
+      final replay = await collect();
+      expect(replay.financialPeriodGroups, 0);
+      expect(replay.financialQuarantinedPeriodGroups, 2);
+      expect(gets, 2);
+      expect(
+        (await ResearchSnapshot.db.find(session))
+            .map((r) => jsonEncode(r.toJson()))
+            .toList(),
+        beforeSnapshots,
+      );
+      expect(
+        (await Source.db.find(session))
+            .map((r) => jsonEncode(r.toJson()))
+            .toList(),
+        beforeSources,
+      );
+      await expectLater(
+        endpoints.research.importFeed(
+          builder.asAdmin,
+          '00600013',
+          'issuerFinancials',
+          jsonEncode(rows),
+          'verified-primary-pdf-text-rule',
+          'https://re1.miraeasset.com',
+          IssuerFinancialsSync.sourceReference('00600013'),
+        ),
+        throwsA(isA<IngestException>()),
+      );
+      expect(await FinancialReport.db.count(session), 0);
+      expect(await FinancialFact.db.count(session), 0);
+      expect(await DartFiling.db.count(session), 0);
+      expect(await ApiCallUsage.db.count(session), 0);
+      expect(await BusinessDocument.db.count(session), 0);
+    });
   });
 }
