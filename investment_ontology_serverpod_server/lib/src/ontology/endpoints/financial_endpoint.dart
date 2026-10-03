@@ -23,6 +23,7 @@ class FinancialEndpoint extends Endpoint {
   /// Same five-annual-years/latest-interim target selection as normal ingestion.
   /// Select final revisions before testing status: an older pending correction
   /// must not appear when the active final revision is already complete.
+  /// Failed targets remain outstanding even when automatic retries are blocked.
   static int activePendingFilingCount(Iterable<DartFiling> filings) {
     final rows = filings.toList();
     final ids = FinancialFactsSync.financialScopeIds(rows);
@@ -30,8 +31,6 @@ class FinancialEndpoint extends Endpoint {
         .where(
           (f) =>
               ids.contains(f.id) &&
-              f.attempts >= 0 &&
-              f.attempts < FinancialFactsSync.maxAttempts &&
               (f.consolidatedStatus == FilingFetchStatus.pending ||
                   f.separateStatus == FilingFetchStatus.pending ||
                   f.consolidatedStatus == FilingFetchStatus.failed ||

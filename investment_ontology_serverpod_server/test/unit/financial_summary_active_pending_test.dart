@@ -47,32 +47,47 @@ void main() {
       10,
     ); // full historical filing count remains independent.
   });
-  test('active failed retry remains pending count, exhausted is excluded', () {
-    expect(
-      FinancialEndpoint.activePendingFilingCount([
-        filing(
-          1,
-          2025,
-          FinancialReportCode.annual,
-          status: FilingFetchStatus.failed,
-          attempts: 2,
-        ),
-      ]),
-      1,
-    );
-    expect(
-      FinancialEndpoint.activePendingFilingCount([
-        filing(
-          1,
-          2025,
-          FinancialReportCode.annual,
-          status: FilingFetchStatus.failed,
-          attempts: 3,
-        ),
-      ]),
-      0,
-    );
-  });
+  test(
+    'active failed targets remain outstanding regardless of retry eligibility',
+    () {
+      expect(
+        FinancialEndpoint.activePendingFilingCount([
+          filing(
+            1,
+            2025,
+            FinancialReportCode.annual,
+            status: FilingFetchStatus.failed,
+            attempts: 2,
+          ),
+        ]),
+        1,
+      );
+      expect(
+        FinancialEndpoint.activePendingFilingCount([
+          filing(
+            1,
+            2025,
+            FinancialReportCode.annual,
+            status: FilingFetchStatus.failed,
+            attempts: 3,
+          ),
+        ]),
+        1,
+      );
+      expect(
+        FinancialEndpoint.activePendingFilingCount([
+          filing(
+            1,
+            2025,
+            FinancialReportCode.annual,
+            status: FilingFetchStatus.failed,
+            attempts: -1,
+          ),
+        ]),
+        1,
+      );
+    },
+  );
   test(
     'two annual closing months in same fiscal year remain separate targets',
     () {
