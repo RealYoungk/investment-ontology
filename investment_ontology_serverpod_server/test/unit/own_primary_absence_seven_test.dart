@@ -53,7 +53,23 @@ void main() {
           expect(result.absence, isNull);
           expect(result.numeric, isNotNull);
           expect(result.numeric!.sourceReceipt, e.receipt);
-          expect(result.numeric!.rows.every((r) => r['fs_div'] == 'OFS'), true);
+          // Source-bound profiles preserve the printed OFS basis in provenance;
+          // they do not manufacture a DART API fs_div column.
+          for (final row in result.numeric!.rows) {
+            expect(row['fs_div'], anyOf(isNull, 'OFS'));
+            if (row['fs_div'] == null) {
+              final proof = row['html_provenance'] as Map;
+              expect(proof['basis'], 'OFS');
+              expect(proof['sourceReceipt'], e.receipt);
+              expect(
+                proof['source'],
+                result.numeric!.statementSource.toString(),
+              );
+            }
+          }
+          expect(approvedOfs.basis, FsDiv.separate);
+          expect(result.numeric!.periodStart, DateTime.utc(e.year));
+          expect(result.numeric!.periodEnd, DateTime.utc(e.year, 12, 31));
           expect(result.numeric!.rows.length, inInclusiveRange(7, 8));
         } else {
           expect(
