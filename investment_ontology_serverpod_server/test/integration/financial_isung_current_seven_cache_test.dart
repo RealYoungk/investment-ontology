@@ -10,7 +10,7 @@ import 'package:investment_ontology_serverpod_server/src/ontology/financial/fina
 
 import 'financial_html_company_title_formats_test.dart' show SourceClient;
 import 'auth_test_sessions.dart';
-import 'financial_isung_cfs_current_seven_cache_test.dart' as cfsProof;
+import 'financial_isung_cfs_current_seven_cache_test.dart' as cfs_proof;
 import 'test_tools/serverpod_test_tools.dart';
 
 const exactSevenValues = {
@@ -283,7 +283,7 @@ void main() {
               c.corpCode,
               fsDiv: FsDiv.consolidated,
             ))!;
-            for (final e in cfsProof.exactSevenValues[receipt]!.entries) {
+            for (final e in cfs_proof.exactSevenValues[receipt]!.entries) {
               expect(
                 summary.periods.single.lines
                     .singleWhere((l) => l.key == e.key)
@@ -301,7 +301,7 @@ void main() {
             expect(mapped.where((r) => r[0] != null), hasLength(7));
             expect(
               detail.facts.map((f) => f.accountName),
-              unorderedEquals(cfsProof.rowsNames(receipt)),
+              unorderedEquals(cfs_proof.rowsNames(receipt)),
             );
             final amountSource = await Source.db.findFirstRow(
               session,
