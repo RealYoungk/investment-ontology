@@ -26,3 +26,9 @@ CE 당기초는 원문상 `감사받지 아니한 재무제표`다. 이것은 �
 인쇄 CE roll 및 PL 세부에 남는 천원 잔차(+1,+1,-1)는 고정 원문별 실제 잔차로 기록한다. 핵심 NI 불일치를 반올림으로 허용하지 않는다. 전역 rounding tolerance를 추가하지 않으며 인쇄 숫자도 수정하지 않는다. PPE 총계는 계속 미확보이고 `partialCore7`, `optionalAccountsNotCollected:['capex']`, 미확보 사유, `fullStatementCollected:false`, 세부·주석 전체미검증을 공개 source provenance에 유지한다. 0원 PPE 값은 만들지 않는다.
 
 후속 순수9개 통과와 분석통과. 정상 DB7facts/현재기간/다른basis보존/예산0/멱등성 테스트 작성만 했다.
+
+## 썬테크 2023 CE 인쇄 불일치의 정상 진단
+
+자체 2023 CFS 원문에서 CE 개시3,947,377,903 + 인쇄 변동(-50,000,000,-19,038,159,+7,297,316,+8,560,627,-489,424,042)=3,404,773,645이고 인쇄 기말3,454,773,645와 raw50,000,000 차이가 있다. 자체 BS 기말 및 PL/CE/CF 순손익 자체는 일치한다. CE 통화/단위는 미인쇄이므로 raw numeric 대사로만 기록하며 CE금액의 단위를 원으로 지정하지 않는다. 다음2024 문서의 비교기간은 -50,000,000 행이 없지만 그것으로 자체2023 원문을 덮어쓰지 않는다.
+
+exact URI/SHA/actor/basis/current-year를 만족하는 실제 원문에 한해 `KnownAnnualSourceConflict`를 반환한다. 기존 정상 worker는 failed ledger를 유지하면서 `financial-source-conflict` Source에 실제 인쇄 증거를 기록한다. noData/typedabsence/수치성공으로 전환하지 않는다. 다른 표·회사·기간·URI·SHA에는 적용하지 않는다. 기존 정상 integration 테스트 코호트에 실제 원문 fixture를 추가하여 API0·기존 반대basis Source/수치 보존·failed Source·원문SHA·재실행 유일감사 검증을 작성했다. DB 실행은 하지 않았다. 실제 정상 publicfetch와 parser 및 역방향 pure17개는 통과했다.

@@ -53,7 +53,57 @@ abstract final class KnownAnnualSourceConflicts {
         )
         .toList();
     Map<String, Object> conflict;
-    if (!consolidated) {
+    if (receipt == '20240320001438') {
+      String compact(String x) => x.replaceAll(RegExp(r'\s+'), '');
+      if (rows.length != 229 ||
+          compact(rows[153].single) != '제28기2023년01월01일부터2023년12월31일까지' ||
+          compact(rows[158].first) != '2023.01.01(당기초)' ||
+          compact(rows[164].first) != '2022.12.31(당기말)' ||
+          compact(rows[155].join('|')) !=
+              '과목|자본금|자본잉여금|자본조정|기타포괄손익누계액|이익잉여금|총계') {
+        throw const FormatException(
+          'Pinned Suntech whole CE row/date structure changed',
+        );
+      }
+      BigInt money(String x) => BigInt.parse(
+        x.replaceAll(',', '').replaceAll('(', '-').replaceAll(')', ''),
+      );
+      final opening = money(rows[158].last), closing = money(rows[164].last);
+      final changes = [for (var i = 159; i <= 163; i++) money(rows[i].last)];
+      final roll = opening + changes.fold(BigInt.zero, (a, b) => a + b);
+      final difference = roll - closing;
+      if (difference != BigInt.from(-50000000) ||
+          money(rows[90][2]) != closing ||
+          money(rows[163].last) != money(rows[152][2]) ||
+          money(rows[169][1]) != money(rows[152][2])) {
+        throw const FormatException(
+          'Pinned Suntech current CE conflict proof changed',
+        );
+      }
+      conflict = {
+        'reason': '자체 2023 연결 원문 CE 기초와 인쇄 변동합계가 기말 총계와 50000000 raw 숫자 차이; CE 기말 인쇄연도 2022 및 단위 미인쇄 보존',
+        'openingRow': 158,
+        'closingRow': 164,
+        'printedOpeningLabel': rows[158].first,
+        'printedClosingLabel': rows[164].first,
+        'wholeColumn': 6,
+        'openingRaw': rows[158].last,
+        'closingRaw': rows[164].last,
+        'rawWholeEquityRoll': roll.toString(),
+        'rawWholeEquityRollDifference': difference.toString(),
+        'printedChangeRows': [
+          for (var i = 159; i <= 163; i++)
+            {'row': i, 'label': rows[i].first, 'wholeRaw': rows[i].last},
+        ],
+        'ceUnitPrinted': false,
+        'ceCurrencyAssigned': false,
+        'ceAmountScaleAssigned': false,
+        'closingMatchesOwnBalanceRaw': true,
+        'printedOwnPLAndCENIAndCFNIEqual': true,
+        'numericCellCorrection': false,
+        'noLaterComparativeSubstitution': true,
+      };
+    } else if (!consolidated) {
       final bs = rows.singleWhere(
         (r) => r.isNotEmpty && r.first.replaceAll(RegExp(r'\s'), '') == '자본총계',
       );
@@ -104,6 +154,18 @@ abstract final class KnownAnnualSourceConflicts {
   }
 
   static const _profiles = <String, Map<String, Object>>{
+    '20240320001438': {
+      'corpCode': '00963000',
+      'consolidated': true,
+      'year': 2023,
+      'coverSource': 'https://dart.fss.or.kr/report/viewer.do?rcpNo=20240320001438&dcmNo=9740410&eleId=1&offset=954&length=4592&dtd=dart4.xsd',
+      'statementSource': 'https://dart.fss.or.kr/report/viewer.do?rcpNo=20240320001438&dcmNo=9740410&eleId=19&offset=329275&length=109490&dtd=dart4.xsd',
+      'coverSha256':
+          '779a3a6cff8c09e3ed3660cd48e812803e0ecc623fc20736c8c4887e30734363',
+      'statementSha256':
+          '8a55352ab6ab28b50e276f0e70fee937a739cedf33ddbac8fbd9d09844503a65',
+    },
+
     '20250324000541': {
       'corpCode': "01109690",
       'consolidated': false,
