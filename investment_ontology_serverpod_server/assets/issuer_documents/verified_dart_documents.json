@@ -1,0 +1,465 @@
+{
+  "schemaVersion": 1,
+  "scope": "fixed12 actual DART financial chapters; 9IPOlatest+Brils3 ownaudit; financial values not extracted; split2 not bound",
+  "documents": [
+    {
+      "metadata": {
+        "corpCode": "01564514",
+        "title": "(주)글로벌테크놀로지 증권신고서 재무 절(일부)",
+        "documentType": "securitiesRegistrationStatement",
+        "provider": "DART",
+        "providerReceipt": "20260908000396",
+        "providerDocumentId": null,
+        "periodStart": "2026-01-01",
+        "periodEnd": "2026-06-30",
+        "publishedAt": "2026-09-08",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260908000396&dcmNo=11571139&eleId=38&offset=2570476&length=406508&dtd=dart4.xsd",
+        "sha256": "3a02bab0ebc6d09b57126fd366f05a5480f0558af5106a48b00303e9bd7c66d8",
+        "issuerQuote": "주식회사 글로벌테크놀로지",
+        "periodQuote": "2026년 01월 01일부터 2026년 06월 30일",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": "2026-10-03T03:00:52.841699+00:00",
+        "readScope": "printed issuer and period in actual financial HTML chapter; not complete report",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial chapter and official issuer shell; not whole original",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260908000396",
+        "shellSha256": "a0b4c89ba86e315cc3eb8594d9f57cf86d4f2d7288e55f1a948d4a838d62db9a",
+        "shellCorpCode": "01564514",
+        "node": {
+          "rcpNo": "20260908000396",
+          "dcmNo": "11571139",
+          "eleId": "38",
+          "offset": "2570476",
+          "length": "406508",
+          "dtd": "dart4.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01586923",
+        "title": "주식회사 스카이랩스 증권신고서 재무 절(일부)",
+        "documentType": "securitiesRegistrationStatement",
+        "provider": "DART",
+        "providerReceipt": "20260729000518",
+        "providerDocumentId": null,
+        "periodStart": "2026-01-01",
+        "periodEnd": "2026-06-30",
+        "publishedAt": "2026-07-29",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260729000518&dcmNo=11500718&eleId=38&offset=3776410&length=343977&dtd=dart4.xsd",
+        "sha256": "674d0c699dc8442f40d527ae8629b235531e8e2f1cb885a8eeb2cd8a9d0d4715",
+        "issuerQuote": "주식회사 스카이랩스",
+        "periodQuote": "2026년 1월 1일부터 2026년 06월 30일",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": "2026-10-03T03:00:52.841699+00:00",
+        "readScope": "printed issuer and period in actual financial HTML chapter; not complete report",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial chapter and official issuer shell; not whole original",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260729000518",
+        "shellSha256": "bbd7ce2fa0a7a85e04fd06eed85fb5fb33185f102f4dc7c717f310017aaa554f",
+        "shellCorpCode": "01586923",
+        "node": {
+          "rcpNo": "20260729000518",
+          "dcmNo": "11500718",
+          "eleId": "38",
+          "offset": "3776410",
+          "length": "343977",
+          "dtd": "dart4.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01722066",
+        "title": "빅웨이브로보틱스(주) 증권신고서 재무 절(일부)",
+        "documentType": "securitiesRegistrationStatement",
+        "provider": "DART",
+        "providerReceipt": "20260903000077",
+        "providerDocumentId": null,
+        "periodStart": "2026-01-01",
+        "periodEnd": "2026-06-30",
+        "publishedAt": "2026-09-03",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260903000077&dcmNo=11565099&eleId=38&offset=4255347&length=760771&dtd=dart4.xsd",
+        "sha256": "d39f730351a671b358cac789c9eb67562c607d1ff2885410e53c6c0784048894",
+        "issuerQuote": "빅웨이브로보틱스 주식회사",
+        "periodQuote": "2026년 01월 01일~ 2026년 06월 30일",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": "2026-10-03T03:00:52.841699+00:00",
+        "readScope": "printed issuer and period in actual financial HTML chapter; not complete report",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial chapter and official issuer shell; not whole original",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260903000077",
+        "shellSha256": "1c88a4a0dd3fb6e7563be7f4e2c13b01d4f5c32e5d9f63ae09b4ce5a2def7a93",
+        "shellCorpCode": "01722066",
+        "node": {
+          "rcpNo": "20260903000077",
+          "dcmNo": "11565099",
+          "eleId": "38",
+          "offset": "4255347",
+          "length": "760771",
+          "dtd": "dart4.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01867688",
+        "title": "주식회사 와이즈플래닛컴퍼니 증권신고서 재무 절(일부)",
+        "documentType": "securitiesRegistrationStatement",
+        "provider": "DART",
+        "providerReceipt": "20260903000071",
+        "providerDocumentId": null,
+        "periodStart": "2026-01-01",
+        "periodEnd": "2026-06-30",
+        "publishedAt": "2026-09-03",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260903000071&dcmNo=11565114&eleId=38&offset=1594582&length=688460&dtd=dart4.xsd",
+        "sha256": "bd2bcdef3ec0e9bd420f532f26330606a5386681f5b2026aae160f8efb910fa1",
+        "issuerQuote": "주식회사 와이즈플래닛컴퍼니",
+        "periodQuote": "2026년 01월 01일부터 2026년 06월 30일",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": "2026-10-03T03:00:52.841699+00:00",
+        "readScope": "printed issuer and period in actual financial HTML chapter; not complete report",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial chapter and official issuer shell; not whole original",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260903000071",
+        "shellSha256": "67c32e2934615aa1d1001ba46a3bb75eebe3e79bf4e98adc1d39c7d85ed7222e",
+        "shellCorpCode": "01867688",
+        "node": {
+          "rcpNo": "20260903000071",
+          "dcmNo": "11565114",
+          "eleId": "38",
+          "offset": "1594582",
+          "length": "688460",
+          "dtd": "dart4.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01876251",
+        "title": "네오사피엔스 주식회사 증권신고서 재무 절(일부)",
+        "documentType": "securitiesRegistrationStatement",
+        "provider": "DART",
+        "providerReceipt": "20260907000079",
+        "providerDocumentId": null,
+        "periodStart": "2026-01-01",
+        "periodEnd": "2026-06-30",
+        "publishedAt": "2026-09-07",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260907000079&dcmNo=11568667&eleId=38&offset=2311786&length=742641&dtd=dart4.xsd",
+        "sha256": "d7ff0ae1c16a9c38a8f3c7d90598bb28b991694ca5120629ad69c0464b5ae339",
+        "issuerQuote": "네오사피엔스 주식회사",
+        "periodQuote": "2026년 01월 01일부터 2026년 06월 30일",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": "2026-10-03T03:00:52.841699+00:00",
+        "readScope": "printed issuer and period in actual financial HTML chapter; not complete report",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial chapter and official issuer shell; not whole original",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260907000079",
+        "shellSha256": "4aa2282f5d7ba8a1c7baca6d042c65bdfac6df4e9925e4d068ee808b7ec92026",
+        "shellCorpCode": "01876251",
+        "node": {
+          "rcpNo": "20260907000079",
+          "dcmNo": "11568667",
+          "eleId": "38",
+          "offset": "2311786",
+          "length": "742641",
+          "dtd": "dart4.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "02029258",
+        "title": "한국제17호기업인수목적 주식회사 증권신고서 재무 절(일부)",
+        "documentType": "securitiesRegistrationStatement",
+        "provider": "DART",
+        "providerReceipt": "20260828000997",
+        "providerDocumentId": null,
+        "periodStart": "2026-05-08",
+        "periodEnd": "2026-06-30",
+        "publishedAt": "2026-08-28",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260828000997&dcmNo=11557126&eleId=38&offset=850854&length=101084&dtd=dart4.xsd",
+        "sha256": "73e522c45d096c13dfdaba30eb031b5a00f7e4e89174896795f371dce2517f88",
+        "issuerQuote": "한국제17호기업인수목적 주식회사",
+        "periodQuote": "2026년 5월 8일부터 2026년 6월 30일",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": "2026-10-03T03:00:52.841699+00:00",
+        "readScope": "printed issuer and period in actual financial HTML chapter; not complete report",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial chapter and official issuer shell; not whole original",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260828000997",
+        "shellSha256": "251ca0b0b14a4e37383d36bcd817d39fef05647ca7499bd13dcf1add71578534",
+        "shellCorpCode": "02029258",
+        "node": {
+          "rcpNo": "20260828000997",
+          "dcmNo": "11557126",
+          "eleId": "38",
+          "offset": "850854",
+          "length": "101084",
+          "dtd": "dart4.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "02030166",
+        "title": "엔에이치기업인수목적34호 주식회사 증권신고서 재무 절(일부)",
+        "documentType": "securitiesRegistrationStatement",
+        "provider": "DART",
+        "providerReceipt": "20260729000264",
+        "providerDocumentId": null,
+        "periodStart": "2026-05-06",
+        "periodEnd": "2026-06-30",
+        "publishedAt": "2026-07-29",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260729000264&dcmNo=11499549&eleId=34&offset=734714&length=87993&dtd=dart4.xsd",
+        "sha256": "f890c8a9c090be1a08c46cc78e3295a5597f2e25c3e9252092d13b4bfd75c890",
+        "issuerQuote": "엔에이치기업인수목적34호 주식회사",
+        "periodQuote": "2026년 5월 6일부터 2026년 6월 30일",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": "2026-10-03T03:00:52.841699+00:00",
+        "readScope": "printed issuer and period in actual financial HTML chapter; not complete report",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial chapter and official issuer shell; not whole original",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260729000264",
+        "shellSha256": "ff3c73b9c25c04757a443359524f0ff42d3954d3b04a19f0d4abcf202ab6cc18",
+        "shellCorpCode": "02030166",
+        "node": {
+          "rcpNo": "20260729000264",
+          "dcmNo": "11499549",
+          "eleId": "34",
+          "offset": "734714",
+          "length": "87993",
+          "dtd": "dart4.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "02032155",
+        "title": "케이비제34호기업인수목적(주) 증권신고서 재무 절(일부)",
+        "documentType": "securitiesRegistrationStatement",
+        "provider": "DART",
+        "providerReceipt": "20260824000116",
+        "providerDocumentId": null,
+        "periodStart": "2026-05-26",
+        "periodEnd": "2026-06-30",
+        "publishedAt": "2026-08-24",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260824000116&dcmNo=11547879&eleId=36&offset=936623&length=91749&dtd=dart4.xsd",
+        "sha256": "48c51ca06e3934b0da65a1801bf727d77b7b66dc2f4630386b9f70cb0de8347b",
+        "issuerQuote": "케이비제34호기업인수목적 주식회사",
+        "periodQuote": "2026년 05월 26일부터 2026년 06월 30일",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": "2026-10-03T03:00:52.841699+00:00",
+        "readScope": "printed issuer and period in actual financial HTML chapter; not complete report",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial chapter and official issuer shell; not whole original",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260824000116",
+        "shellSha256": "2c7f59844534b54d9c6b0d9976906ebbc083fe6d7e7a56e16a3efe3090e3d688",
+        "shellCorpCode": "02032155",
+        "node": {
+          "rcpNo": "20260824000116",
+          "dcmNo": "11547879",
+          "eleId": "36",
+          "offset": "936623",
+          "length": "91749",
+          "dtd": "dart4.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01801026",
+        "title": "브릴스 2025 감사보고서 재무 절(일부)",
+        "documentType": "auditReport",
+        "provider": "DART",
+        "providerReceipt": "20260403003880",
+        "providerDocumentId": null,
+        "periodStart": "2025-01-01",
+        "periodEnd": "2025-12-31",
+        "publishedAt": "2026-04-03",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260403003880&dcmNo=11254972&eleId=3&offset=11792&length=288790&dtd=dart4.xsd",
+        "sha256": "c82556c94d8a1348eb89a0949dfe1742547e6b6c1a7d5eb46755a1a7952ccfb4",
+        "issuerQuote": "주식회사 브릴스",
+        "periodQuote": "2025년 1월 1일부터 2025년 12월 31일",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": "2026-10-03T03:00:52.841699+00:00",
+        "readScope": "printed issuer and period in actual financial HTML chapter; not complete report",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial chapter and official issuer shell; not whole original",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260403003880",
+        "shellSha256": "1be9f7dd752a225f5d8a62cf6b555fe974c77d9ed8d9be1802258f45e6080b39",
+        "shellCorpCode": "01801026",
+        "node": {
+          "rcpNo": "20260403003880",
+          "dcmNo": "11254972",
+          "eleId": "3",
+          "offset": "11792",
+          "length": "288790",
+          "dtd": "dart4.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01801026",
+        "title": "브릴스 2024 감사보고서 재무 절(일부)",
+        "documentType": "auditReport",
+        "provider": "DART",
+        "providerReceipt": "20250408002564",
+        "providerDocumentId": null,
+        "periodStart": "2024-01-01",
+        "periodEnd": "2024-12-31",
+        "publishedAt": "2025-04-08",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250408002564&dcmNo=10560426&eleId=3&offset=12940&length=296500&dtd=dart4.xsd",
+        "sha256": "2d244dbe961ac9ef994299fc5e89da0df04f82327cf67b24ecda763250fc84f1",
+        "issuerQuote": "주식회사 브릴스",
+        "periodQuote": "2024년 1월 1일부터 2024년 12월 31일",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": "2026-10-03T03:00:52.841699+00:00",
+        "readScope": "printed issuer and period in actual financial HTML chapter; not complete report",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial chapter and official issuer shell; not whole original",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250408002564",
+        "shellSha256": "1404f7d132f62e1bdd120c21c8313838f9d5ef1435ff5cbc3fe6fbff27e6c254",
+        "shellCorpCode": "01801026",
+        "node": {
+          "rcpNo": "20250408002564",
+          "dcmNo": "10560426",
+          "eleId": "3",
+          "offset": "12940",
+          "length": "296500",
+          "dtd": "dart4.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01801026",
+        "title": "브릴스 2023 감사보고서 재무 절(일부)",
+        "documentType": "auditReport",
+        "provider": "DART",
+        "providerReceipt": "20250326000929",
+        "providerDocumentId": null,
+        "periodStart": "2023-01-01",
+        "periodEnd": "2023-12-31",
+        "publishedAt": "2025-03-26",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250326000929&dcmNo=10462357&eleId=4&offset=59509&length=373575&dtd=dart4.xsd",
+        "sha256": "486fc5e70164998ae8f560668e078f0740bcdb825521352e1975ca583afcaa83",
+        "issuerQuote": "주식회사 브릴스",
+        "periodQuote": "2023년 1월 1일부터 2023년 12월 31일",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": "2026-10-03T03:00:52.841699+00:00",
+        "readScope": "printed issuer and period in actual financial HTML chapter; not complete report",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial chapter and official issuer shell; not whole original",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250326000929",
+        "shellSha256": "a23244b6fd13d98c186ecc0271c097f85a15f62e63aad22292f392b18767dfeb",
+        "shellCorpCode": "01801026",
+        "node": {
+          "rcpNo": "20250326000929",
+          "dcmNo": "10462357",
+          "eleId": "4",
+          "offset": "59509",
+          "length": "373575",
+          "dtd": "dart4.xsd"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01801026",
+        "title": "브릴스 2026 반기 투자설명서 재무 절(일부)",
+        "documentType": "prospectus",
+        "provider": "DART",
+        "providerReceipt": "20260916000240",
+        "providerDocumentId": null,
+        "periodStart": "2026-01-01",
+        "periodEnd": "2026-06-30",
+        "publishedAt": "2026-09-16",
+        "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260916000240&dcmNo=11581402&eleId=36&offset=3288099&length=797472&dtd=dart4.xsd",
+        "sha256": "0b3d08f76ef5b86b555141f9b968e253d85ccf8ad299c5173044babbb26449c3",
+        "issuerQuote": "주식회사 브릴스",
+        "periodQuote": "2026년 1월 1일부터 2026년 6월 30일",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": "2026-10-03T03:00:52.841699+00:00",
+        "readScope": "printed issuer and period in actual financial HTML chapter; not complete report",
+        "periodProof": "printed body dates and issuer; no receipt-date or filename inference",
+        "collectorScope": "exact financial chapter and official issuer shell; not whole original",
+        "shellUrl": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260916000240",
+        "shellSha256": "57a991ae1793933335a00339066e8fb7ccfb5f91e655cd3d470f147fcf6b62ae",
+        "shellCorpCode": "01801026",
+        "node": {
+          "rcpNo": "20260916000240",
+          "dcmNo": "11581402",
+          "eleId": "36",
+          "offset": "3288099",
+          "length": "797472",
+          "dtd": "dart4.xsd"
+        }
+      }
+    }
+  ],
+  "unresolvedCompanies": [
+    "02038566",
+    "02042949"
+  ],
+  "missingOwnAnnualDocuments": {
+    "01801026": [
+      "2021",
+      "2022"
+    ],
+    "01880801": [
+      "2021 six-month own periods",
+      "2022 six-month own periods",
+      "2023 independent publication (audited comparative in2024 exists)"
+    ]
+  }
+}

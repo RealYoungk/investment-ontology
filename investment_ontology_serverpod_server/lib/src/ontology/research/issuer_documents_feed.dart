@@ -1,3 +1,5 @@
+import 'reviewed_dart_issuer_sources.dart';
+
 /// Metadata-only official documents. Never creates financial reports or facts.
 /// Content evidence is prepared offline; this validator is not a PDF parser.
 abstract final class IssuerDocumentsFeed {
@@ -8,6 +10,11 @@ abstract final class IssuerDocumentsFeed {
   };
 
   static Uri officialUrl(String value, String corpCode) {
+    if (ReviewedDartIssuerSources.findUrl(value, corpCode) != null) {
+      return Uri.parse(
+        value,
+      ); // Exact compiled URI, including its reviewed node.
+    }
     final u = Uri.tryParse(value);
     if (u == null ||
         u.scheme != 'https' ||
@@ -76,11 +83,22 @@ abstract final class IssuerDocumentsFeed {
       }
 
       final corp = text('corpCode', 8);
-      if (!hosts.containsKey(corp) || (company != null && company != corp)) {
+      if ((!hosts.containsKey(corp) &&
+              ReviewedDartIssuerSources.findUrl(
+                    '${raw['officialUrl']}',
+                    corp,
+                  ) ==
+                  null) ||
+          (company != null && company != corp)) {
         throw const FormatException('검증 대상 회사 한 곳의 자료만 허용합니다.');
       }
       company = corp;
       officialUrl(text('officialUrl', 1000), corp);
+      if (raw['provider'] == 'DART' ||
+          ReviewedDartIssuerSources.findUrl('${raw['officialUrl']}', corp) !=
+              null) {
+        ReviewedDartIssuerSources.validateMetadata(raw);
+      }
       final start = date('periodStart'), end = date('periodEnd');
       final published = raw['publishedAt'] == null ? null : date('publishedAt');
       if (start.compareTo(end) > 0 ||
@@ -96,8 +114,15 @@ abstract final class IssuerDocumentsFeed {
             'auditReport',
             'assetManagementReport',
             'operatingReport',
+            'securitiesRegistrationStatement',
+            'prospectus',
           }.contains(text('documentType', 50)) ||
-          !{'officialIR', 'KIND'}.contains(text('provider', 20))) {
+          (raw['provider'] != 'DART' &&
+              {
+                'securitiesRegistrationStatement',
+                'prospectus',
+              }.contains(raw['documentType'])) ||
+          !{'officialIR', 'KIND', 'DART'}.contains(text('provider', 20))) {
         throw const FormatException('원문 종류/제공처 오류');
       }
       final receipt = raw['providerReceipt'], doc = raw['providerDocumentId'];

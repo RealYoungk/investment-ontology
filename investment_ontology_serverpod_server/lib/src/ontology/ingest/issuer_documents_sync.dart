@@ -13,6 +13,8 @@ class IssuerDocumentsSync {
   static bool _running = false;
   static const assetPath =
       'assets/issuer_documents/verified_fund_documents.json';
+  static const dartAssetPath =
+      'assets/issuer_documents/verified_dart_documents.json';
   static const reference =
       'official-links-metadata-only;no-redistribution-license-asserted';
 
@@ -35,7 +37,7 @@ class IssuerDocumentsSync {
     try {
       await collectAndStore(
         session,
-        manifestText: await File(assetPath).readAsString(),
+        manifestText: await combinedManifestText(),
         collector: collector,
         cancelled: cancelled,
       );
@@ -51,6 +53,57 @@ class IssuerDocumentsSync {
       collector.client.close();
       _running = false;
     }
+  }
+
+  static Future<String> combinedManifestText() async {
+    final fund = jsonDecode(await File(assetPath).readAsString()) as Map;
+    final dart = jsonDecode(await File(dartAssetPath).readAsString()) as Map;
+    return jsonEncode({
+      ...fund,
+      'documents': [
+        ...(fund['documents'] as List),
+        ...(dart['documents'] as List),
+      ],
+    });
+  }
+
+  /// Read-only startup eligibility. Only the existing scheduled worker collects.
+  static Future<bool> hasPending(Session session) async {
+    final docs = IssuerDocumentsCollector.manifest(
+      await combinedManifestText(),
+    );
+    final groups = <String, List<Map<String, dynamic>>>{};
+    for (final d in docs) {
+      final row = Map<String, dynamic>.from(d['metadata'] as Map);
+      groups.putIfAbsent(row['corpCode'] as String, () => []).add(row);
+    }
+    for (final entry in groups.entries) {
+      final company = await Company.db.findFirstRow(
+        session,
+        where: (t) => t.corpCode.equals(entry.key),
+      );
+      if (company == null) continue;
+      final latest = await ResearchSnapshot.db.findFirstRow(
+        session,
+        where: (t) =>
+            t.companyId.equals(company.id!) & t.kind.equals('issuerDocuments'),
+        orderByList: (t) => [t.createdAt.desc(), t.id.desc()],
+      );
+      if (latest == null ||
+          latest.payload != jsonEncode(entry.value) ||
+          latest.provider != 'reviewed-official-documents') {
+        return true;
+      }
+      final source = await Source.db.findById(session, latest.sourceId);
+      final expected =
+          'https://${Uri.parse(entry.value.first['officialUrl'] as String).host}';
+      if (source?.kind != SourceKind.officialFile ||
+          source?.url != expected ||
+          source?.reference != reference) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /// Internal dependency-injected execution, also exercised in isolated tests.

@@ -31,6 +31,101 @@ void main() {
   String manifest(List<Map<String, dynamic>> d) =>
       jsonEncode({...asset, 'documents': d});
   withServerpod('공식 투자회사 원문 독립 보존', (builder, endpoints) {
+    test('pinned own audit chapter stores metadata, replays without GET and fails closed on partial fetch', () async {
+      final session = builder.build();
+      addTearDown(session.close);
+      final cache = await Directory.systemTemp.createTemp('issuer-dart-db-');
+      addTearDown(() => cache.delete(recursive: true));
+      final allDart = IssuerDocumentsCollector.manifest(
+        File('assets/issuer_documents/verified_dart_documents.json')
+            .readAsStringSync(),
+      );
+      final doc = allDart.singleWhere(
+        (d) =>
+            (d['metadata'] as Map)['corpCode'] == '01801026' &&
+            (d['metadata'] as Map)['periodEnd'] == '2025-12-31',
+      );
+      await Company.db.insertRow(
+        session,
+        Company(corpCode: '01801026', name: '브릴스', market: Market.kosdaq),
+      );
+      final before = [
+        await FinancialReport.db.count(session),
+        await FinancialFact.db.count(session),
+        await DartFiling.db.count(session),
+        await BusinessDocument.db.count(session),
+        await ApiCallUsage.db.count(session),
+      ];
+      var gets = 0;
+      var failBody = true;
+      final collector = IssuerDocumentsCollector(
+        cache: cache,
+        delay: (_) async {},
+        client: MockClient((r) async {
+          gets++;
+          final shell = r.url.toString() == (doc['proof'] as Map)['shellUrl'];
+          if (!shell && failBody) {
+            return http.Response('partial failure', 503, request: r);
+          }
+          return http.Response.bytes(
+            File(
+              'test/fixtures/issuer_documents/dart/brils2025-${shell ? 'shell' : 'financial'}.html',
+            ).readAsBytesSync(),
+            200,
+            request: r,
+          );
+        }),
+      );
+      addTearDown(collector.client.close);
+      Future<void> store() => IssuerDocumentsSync.collectAndStore(
+        session,
+        manifestText: jsonEncode({
+          'schemaVersion': 1,
+          'documents': [doc],
+        }),
+        collector: collector,
+        cancelled: () async => false,
+      );
+      expect(await IssuerDocumentsSync.hasPending(session), isTrue);
+      await expectLater(store(), throwsFormatException);
+      expect(await ResearchSnapshot.db.count(session), 0);
+      failBody = false;
+      await store();
+      final saved = await ResearchSnapshot.db.find(session);
+      expect(saved.length, 1);
+      final sourceCount = await Source.db.count(session);
+      final observations = gets;
+      await store();
+      expect(gets, observations);
+      expect(await Source.db.count(session), sourceCount);
+      expect(
+        (await ResearchSnapshot.db.find(session)).single.id,
+        saved.single.id,
+      );
+      expect(
+        await IssuerDocumentsSync.hasPending(session),
+        isTrue,
+      ); // remaining three own Brils documents are still pending
+      final data = jsonDecode(
+        await endpoints.research.data(
+          builder.asAnonymous,
+          '01801026',
+          'issuerDocuments',
+        ),
+      ) as Map;
+      final row = (data['rows'] as List).single as Map;
+      expect(row['numericState'], 'notExtracted');
+      expect(row['publicContent'], 'linkOnly');
+      expect(row['financialValues'], isNull);
+      expect([
+        await FinancialReport.db.count(session),
+        await FinancialFact.db.count(session),
+        await DartFiling.db.count(session),
+        await BusinessDocument.db.count(session),
+        await ApiCallUsage.db.count(session),
+      ], before);
+    });
+
     test('actual3 PDF bytes → immutable raw snapshots; no financial/body/API mutation; admin boundaries', () async {
       final session = builder.build();
       addTearDown(session.close);

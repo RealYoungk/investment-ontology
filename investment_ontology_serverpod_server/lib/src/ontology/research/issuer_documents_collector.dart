@@ -5,6 +5,7 @@ import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
 
 import 'issuer_documents_feed.dart';
+import 'reviewed_dart_issuer_sources.dart';
 
 /// Fixed, human-read source manifest. No discovery, monetary extraction or DART API.
 class IssuerDocumentsCollector {
@@ -30,6 +31,10 @@ class IssuerDocumentsCollector {
         throw const FormatException('원문 증거 형식 오류');
       }
       final d = Map<String, dynamic>.from(v), proof = d['proof'] as Map;
+      if ((d['metadata'] as Map)['provider'] == 'DART') {
+        ReviewedDartIssuerSources.validateDocument(d);
+        return d;
+      }
       final at = DateTime.tryParse('${proof['downloadedAt']}');
       if (at == null ||
           at.isAfter(DateTime.now().toUtc()) ||
@@ -59,8 +64,50 @@ class IssuerDocumentsCollector {
     required Future<bool> Function() cancelled,
   }) async {
     if (await cancelled()) return false;
-    final m = doc['metadata'] as Map, digest = m['sha256'] as String;
-    final file = File('${cache.path}/$digest.pdf');
+    final m = doc['metadata'] as Map;
+    if (m['provider'] == 'DART') {
+      ReviewedDartIssuerSources.validateDocument(doc);
+      final p = doc['proof'] as Map;
+      if (!await _ensureBytes(
+        Uri.parse(p['shellUrl'] as String),
+        p['shellSha256'] as String,
+        'html',
+        cancelled,
+      )) {
+        return false;
+      }
+      final shell = await File('${cache.path}/${p['shellSha256']}.html')
+          .readAsString();
+      final companies = RegExp(r"openCorpInfo(?:New)?\('(\d{8})'")
+          .allMatches(shell)
+          .map((m) => m[1]!)
+          .toSet();
+      if (companies.length != 1 || companies.single != m['corpCode']) {
+        throw const FormatException('Pinned issuer shell identity changed');
+      }
+      // Both hashes and all shell/node coordinates are compiled pins. No guessed node.
+      return _ensureBytes(
+        Uri.parse(m['officialUrl'] as String),
+        m['sha256'] as String,
+        'html',
+        cancelled,
+      );
+    }
+    final uri = IssuerDocumentsFeed.officialUrl(
+      m['officialUrl'] as String,
+      m['corpCode'] as String,
+    );
+    return _ensureBytes(uri, m['sha256'] as String, 'pdf', cancelled);
+  }
+
+  Future<bool> _ensureBytes(
+    Uri uri,
+    String digest,
+    String extension,
+    Future<bool> Function() cancelled,
+  ) async {
+    if (await cancelled()) return false;
+    final file = File('${cache.path}/$digest.$extension');
     List<int> bytes;
     if (await file.exists()) {
       if (await file.length() > maxBytes) {
@@ -76,10 +123,6 @@ class IssuerDocumentsCollector {
       }
       if (await cancelled()) return false;
       _lastLaunch = DateTime.now();
-      final uri = IssuerDocumentsFeed.officialUrl(
-        m['officialUrl'] as String,
-        m['corpCode'] as String,
-      );
       final request = http.Request('GET', uri)..followRedirects = false;
       final started = DateTime.now();
       final response = await client
@@ -106,7 +149,9 @@ class IssuerDocumentsCollector {
     }
     if (bytes.length < 5 ||
         bytes.length > maxBytes ||
-        ascii.decode(bytes.take(5).toList(), allowInvalid: true) != '%PDF-' ||
+        (extension == 'pdf' &&
+            ascii.decode(bytes.take(5).toList(), allowInvalid: true) !=
+                '%PDF-') ||
         sha256.convert(bytes).toString() != digest) {
       throw const FormatException('검증된 원본 PDF SHA 불일치');
     }
