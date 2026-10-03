@@ -8,6 +8,7 @@ import 'package:crypto/crypto.dart';
 
 import '../../generated/protocol.dart';
 import '../research/issuer_documents_collector.dart';
+import '../research/retrospective_fund_contract.dart';
 import '../research/research_snapshot_store.dart';
 import 'ingest_jobs.dart';
 import 'issuer_financials_sync.dart';
@@ -133,7 +134,12 @@ class IssuerDocumentsSync {
   static DateTime sourceEvidenceAt(Map<String, dynamic> document) {
     final proof = document['proof'] as Map;
     return DateTime.parse(
-      (proof['downloadedAt'] ?? proof['fileSavedAt']) as String,
+      (proof['downloadedAt'] ??
+              proof['fileSavedAt'] ??
+              (RetrospectiveFundContract.supports(document)
+                  ? proof['verifiedAt']
+                  : null))
+          as String,
     );
   }
 

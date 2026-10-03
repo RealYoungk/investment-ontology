@@ -102,7 +102,11 @@ void main() {
               expect(await ResearchSnapshot.db.count(session), 0);
               expect(await Source.db.count(session), 0);
             } else if (mode != 'valid') {
-              expect(result.financialFailedCompanies, 1);
+              expect(
+                result.financialFailedCompanies,
+                1,
+                reason: result.reasons.join("; "),
+              );
               expect(result.hasFailure, true);
               expect(await ResearchSnapshot.db.count(session), 1);
               expect(await Source.db.count(session), 1);
@@ -121,7 +125,11 @@ void main() {
               expect(await ResearchSnapshot.db.count(session), 2);
               expect(gets, 1);
             } else {
-              expect(result.hasFailure, false);
+              expect(
+                result.hasFailure,
+                false,
+                reason: result.reasons.join("; "),
+              );
               expect(result.financialPeriodGroups, 2);
               expect(result.financialQuarantinedPeriodGroups, 1);
               expect(await ResearchSnapshot.db.count(session), 2);

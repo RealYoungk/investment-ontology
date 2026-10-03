@@ -7,18 +7,28 @@ import 'package:investment_ontology_serverpod_server/src/ontology/research/ipo_i
 
 void main() {
   test(
-    '47 exact approved sources retain whole company groups and current IPO',
+    '48 exact approved sources retain whole company groups and current IPO',
     () async {
       final docs = IssuerDocumentsCollector.manifest(
         await IssuerDocumentsSync.combinedManifestText(),
       );
-      expect(docs, hasLength(47));
+      expect(docs, hasLength(48));
       final groups = <String, List<Map<String, dynamic>>>{};
       for (final d in docs) {
         final m = d['metadata'] as Map;
         groups.putIfAbsent(m['corpCode'] as String, () => []).add(d);
       }
       expect(groups, hasLength(12));
+      final retrospective = docs.singleWhere(
+        (d) =>
+            d['metadata']['provider'] == 'officialIR' &&
+            d['metadata']['documentType'] == 'prospectus',
+      );
+      expect(retrospective['proof']['downloadedAt'], isNull);
+      expect(
+        IssuerDocumentsSync.sourceEvidenceAt(retrospective),
+        DateTime.parse(retrospective['proof']['verifiedAt']),
+      );
       for (final rows in groups.values) {
         expect(rows.length, lessThanOrEqualTo(6));
       }
@@ -76,7 +86,7 @@ void main() {
     },
   );
   test(
-    'larger roster never admits unpinned metadata, duplicate or 48th URI',
+    'larger roster never admits unpinned metadata, duplicate or 49th URI',
     () async {
       final original = await IssuerDocumentsSync.combinedManifestText();
       for (final mutation in ['changedFund', 'duplicate', 'extra']) {
