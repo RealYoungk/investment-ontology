@@ -261,6 +261,66 @@ void main() {
           await FinancialFact.db.updateRow(session, target);
         }
       }
+      // A later genuine API report uses its own canonical IDs and API caption.
+      final apiSource = source.copyWith(
+        title: SuntechOwnCfScope.apiTitle,
+        url: SuntechOwnCfScope.apiUrl,
+      );
+      await Source.db.updateRow(session, apiSource);
+      for (final key in SuntechOwnCfScope.keys) {
+        final old = targetFacts[key]!;
+        await FinancialFact.db.updateRow(
+          session,
+          old.copyWith(
+            accountId: key == 'netIncome' ? 'ifrs-full_ProfitLoss' : 'ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities',
+            statement: key == 'netIncome'
+                ? FinancialStatementKind.incomeStatement
+                : FinancialStatementKind.cashFlow,
+            periodName: '제 27 기',
+          ),
+        );
+      }
+      final apiSummary = (await endpoints.financial.summary(
+        builder,
+        c.corpCode,
+        fsDiv: FsDiv.consolidated,
+      ))!;
+      final apiLines = apiSummary.periods.expand((p) => p.lines);
+      for (final key in SuntechOwnCfScope.keys) {
+        final line = apiLines.singleWhere((l) => l.key == key);
+        expect(
+          line.accountId,
+          key == 'netIncome' ? 'ifrs-full_ProfitLoss' : 'ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities',
+        );
+        expect(line.amount, BigInt.parse(SuntechOwnCfScope.cell(key)['value']));
+        final sql = await session.db.unsafeQuery(
+          'SELECT ${FinancialAccounts.resolvedIdSql('f')} FROM financial_fact f WHERE f.id=@id',
+          parameters: QueryParameters.named({'id': targetFacts[key]!.id!}),
+        );
+        expect(sql.single.first, line.accountId);
+      }
+      final apiScreen = await endpoints.screen.list(
+        builder,
+        corpCodes: [c.corpCode],
+      );
+      expect(apiScreen.items.single.netIncome, BigInt.from(-1288353219));
+      expect(apiScreen.items.single.freeCashFlow, BigInt.from(-3163996338));
+      // Merely changing IDs on the HTML Source cannot gain this exception.
+      await Source.db.updateRow(session, source);
+      final invalidSummary = (await endpoints.financial.summary(
+        builder,
+        c.corpCode,
+        fsDiv: FsDiv.consolidated,
+      ))!;
+      expect(
+        invalidSummary.periods
+            .expand((p) => p.lines)
+            .where((l) => SuntechOwnCfScope.keys.contains(l.key)),
+        isEmpty,
+      );
+      for (final old in targetFacts.values) {
+        await FinancialFact.db.updateRow(session, old);
+      }
       await parity(SuntechOwnCfScope.keys);
       expect(
         (await Source.db.findById(session, original.id!))!.toJson(),

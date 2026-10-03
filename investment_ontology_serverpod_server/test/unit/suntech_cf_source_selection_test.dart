@@ -88,6 +88,74 @@ void main() {
         periodName: row['thstrm_nm'],
       ),
   ];
+  test('genuine API Source keeps own canonical NI and PPE; HTML ID mutation rejects', () {
+    final api = s.copyWith(
+      title: SuntechOwnCfScope.apiTitle,
+      url: SuntechOwnCfScope.apiUrl,
+    );
+    final ni = facts()
+        .firstWhere((f) => f.accountName == '1.당기순이익')
+        .copyWith(
+          accountId: 'ifrs-full_ProfitLoss',
+          statement: FinancialStatementKind.incomeStatement,
+          periodName: '제 27 기',
+          amount: BigInt.from(123),
+        );
+    final ppe = facts()
+        .firstWhere((f) => f.accountName == '유형자산의증가')
+        .copyWith(
+          accountId: 'ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities',
+          periodName: '제 27 기',
+          amount: BigInt.from(456),
+        );
+    expect(SuntechOwnCfScope.validApiSource(c, r, api), true);
+    final lines = FinancialAccounts.pick(
+      [ni, ppe],
+      company: c,
+      report: r,
+      source: api,
+    );
+    expect(lines.map((l) => l.key), containsAll(['netIncome', 'capex']));
+    expect(
+      FinancialAccounts.pick(
+        [ni, ppe],
+        company: c,
+        report: r,
+        source: s,
+      ).where((l) => ['netIncome', 'capex'].contains(l.key)),
+      isEmpty,
+    );
+    for (final bad in [
+      api.copyWith(title: '${api.title} drift'),
+      api.copyWith(reference: '0'),
+      api.copyWith(url: SuntechOwnCfScope.url),
+      api.copyWith(kind: SourceKind.manual),
+    ]) {
+      expect(
+        FinancialAccounts.pick(
+          [ni, ppe],
+          company: c,
+          report: r,
+          source: bad,
+        ).where((l) => ['netIncome', 'capex'].contains(l.key)),
+        isEmpty,
+      );
+    }
+    expect(
+      FinancialAccounts.pick(
+        [ni.copyWith(sourceId: 9), ppe.copyWith(companyId: 9)],
+        company: c,
+        report: r,
+        source: api,
+      ),
+      isEmpty,
+    );
+    expect(SuntechOwnCfScope.boundReportSql('f'), contains('NOT (EXISTS'));
+    expect(
+      SuntechOwnCfScope.apiSourceSql('f'),
+      contains(SuntechOwnCfScope.apiTitle),
+    );
+  });
   test('exact own physical eight: CF NI and PPE preserve original statement/name/amount', () async {
     final actual = (await VerifiedAnnualSourceCache(
       readAsset: (p) async => File(p).readAsBytes(),

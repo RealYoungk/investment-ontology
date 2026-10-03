@@ -38,22 +38,14 @@ abstract final class FinancialAccounts {
       'ifrs-full_Revenue',
       'ifrs-full_RevenueFromContractsWithCustomers',
     ], _pl),
-    FinancialAccount(
-      'operatingIncome',
-      '영업이익',
-      [
-        'dart_OperatingIncomeLoss',
-        'ifrs-full_ProfitLossFromOperatingActivities',
-      ],
-      _pl,
-    ),
+    FinancialAccount('operatingIncome', '영업이익', [
+      'dart_OperatingIncomeLoss',
+      'ifrs-full_ProfitLossFromOperatingActivities',
+    ], _pl),
     FinancialAccount('netIncome', '당기순이익', ['ifrs-full_ProfitLoss'], _pl),
-    FinancialAccount(
-      'netIncomeOwners',
-      '지배주주 당기순이익',
-      ['ifrs-full_ProfitLossAttributableToOwnersOfParent'],
-      _pl,
-    ),
+    FinancialAccount('netIncomeOwners', '지배주주 당기순이익', [
+      'ifrs-full_ProfitLossAttributableToOwnersOfParent',
+    ], _pl),
     FinancialAccount('interestDebtIncludingLeases', '이자부채(리스 포함)', [], _bs),
     FinancialAccount('cash', '현금및현금성자산', [
       'ifrs-full_CashAndCashEquivalents',
@@ -76,26 +68,15 @@ abstract final class FinancialAccounts {
     FinancialAccount('assets', '자산총계', ['ifrs-full_Assets'], _bs),
     FinancialAccount('liabilities', '부채총계', ['ifrs-full_Liabilities'], _bs),
     FinancialAccount('equity', '자본총계', ['ifrs-full_Equity'], _bs),
-    FinancialAccount(
-      'equityOwners',
-      '지배주주 자본',
-      ['ifrs-full_EquityAttributableToOwnersOfParent'],
-      _bs,
-    ),
-    FinancialAccount(
-      'operatingCashFlow',
-      '영업활동 현금흐름',
-      ['ifrs-full_CashFlowsFromUsedInOperatingActivities'],
-      _cf,
-    ),
-    FinancialAccount(
-      'capex',
-      '유형자산의 취득',
-      [
-        'ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities',
-      ],
-      _cf,
-    ),
+    FinancialAccount('equityOwners', '지배주주 자본', [
+      'ifrs-full_EquityAttributableToOwnersOfParent',
+    ], _bs),
+    FinancialAccount('operatingCashFlow', '영업활동 현금흐름', [
+      'ifrs-full_CashFlowsFromUsedInOperatingActivities',
+    ], _cf),
+    FinancialAccount('capex', '유형자산의 취득', [
+      'ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities',
+    ], _cf),
   ];
 
   static final Set<String> accountIds = {
@@ -200,10 +181,7 @@ abstract final class FinancialAccounts {
     }
     final clean = name
         .replaceAll(RegExp(r'\s+'), '')
-        .replaceFirst(
-          RegExp(r'^(Vlll|lll|[Ⅰ-ⅫIVXLCDM0-9]+)[.)．]'),
-          '',
-        )
+        .replaceFirst(RegExp(r'^(Vlll|lll|[Ⅰ-ⅫIVXLCDM0-9]+)[.)．]'), '')
         .replaceFirst(
           RegExp(r'(?:\(주(?:석)?[0-9]+(?:,[0-9]+)*\)|<주석[0-9]+>)$'),
           '',
@@ -260,13 +238,24 @@ abstract final class FinancialAccounts {
     FinancialReport? report,
     Source? source,
   }) {
+    final sunApi =
+        company != null &&
+        report != null &&
+        source != null &&
+        SuntechOwnCfScope.validApiSource(company, report, source);
+    if (sunApi) {
+      facts = facts
+          .where((f) => SuntechOwnCfScope.apiFact(f, company, report))
+          .toList();
+    }
     final lines = <FinancialLine>[];
     for (final account in all) {
       FinancialFact? found;
       final sunBound =
           report?.rceptNo == SuntechOwnCfScope.receipt &&
           report?.fsDiv == FsDiv.consolidated &&
-          SuntechOwnCfScope.keys.contains(account.key);
+          SuntechOwnCfScope.keys.contains(account.key) &&
+          !sunApi;
       if (sunBound) {
         if (company == null || report == null || source == null) continue;
         final candidates = facts

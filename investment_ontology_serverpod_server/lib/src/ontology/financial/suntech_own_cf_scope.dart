@@ -126,9 +126,44 @@ abstract final class SuntechOwnCfScope {
       f.priorQuarterAmount == null &&
       f.beforePriorAmount == null &&
       f.periodName == '2024-01-01~2024-12-31';
+  static const apiUrl =
+      'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250317000968';
+  static const apiTitle =
+      'DART 전체 재무제표 (fnlttSinglAcntAll) · 사업보고서 (2024.12) · 연결';
+  static bool validApiSource(Company c, FinancialReport r, Source s) =>
+      c.id != null &&
+      c.corpCode == corp &&
+      c.name == '(주)썬테크' &&
+      r.id != null &&
+      r.companyId == c.id &&
+      r.rceptNo == receipt &&
+      r.bsnsYear == year &&
+      r.reportCode == FinancialReportCode.annual &&
+      r.fsDiv == FsDiv.consolidated &&
+      r.supersededById == null &&
+      r.reportName == reportNames.single &&
+      r.sourceId == s.id &&
+      s.id != null &&
+      s.kind == SourceKind.dartReport &&
+      s.reference == receipt &&
+      s.url == apiUrl &&
+      s.title == apiTitle;
+  static bool apiFact(FinancialFact f, Company c, FinancialReport r) =>
+      f.id != null &&
+      f.reportId == r.id &&
+      f.companyId == c.id &&
+      f.sourceId == r.sourceId &&
+      f.bsnsYear == year &&
+      f.reportCode == FinancialReportCode.annual &&
+      f.fsDiv == FsDiv.consolidated &&
+      f.currency == 'KRW' &&
+      f.supersededById == null &&
+      f.accountDetail == null;
+  static String apiSourceSql(String f) =>
+      "EXISTS (SELECT 1 FROM financial_report ar JOIN company ac ON ac.id=ar.\"companyId\" JOIN source ass ON ass.id=ar.\"sourceId\" WHERE ar.id=$f.\"reportId\" AND ac.id=$f.\"companyId\" AND ac.\"corpCode\"='$corp' AND ac.name='(주)썬테크' AND ar.\"rceptNo\"='$receipt' AND ar.\"bsnsYear\"=2024 AND ar.\"reportCode\"='annual' AND ar.\"fsDiv\"='consolidated' AND ar.\"supersededById\" IS NULL AND ar.\"reportName\"=${_q(reportNames.single)} AND ar.\"sourceId\"=$f.\"sourceId\" AND ass.kind='dartReport' AND ass.reference='$receipt' AND ass.url=${_q(apiUrl)} AND ass.title=${_q(apiTitle)} AND $f.currency='KRW'";
   static String _q(String value) => "'${value.replaceAll("'", "''")}'";
   static String boundReportSql(String f) =>
-      "EXISTS (SELECT 1 FROM financial_report bound_report WHERE bound_report.id=$f.\"reportId\" AND bound_report.\"rceptNo\"='$receipt' AND bound_report.\"fsDiv\"='consolidated')";
+      "NOT (${apiSourceSql(f)}) AND EXISTS (SELECT 1 FROM financial_report bound_report WHERE bound_report.id=$f.\"reportId\" AND bound_report.\"rceptNo\"='$receipt' AND bound_report.\"fsDiv\"='consolidated')";
   static String sqlCondition(String f, String key) {
     if (!keys.contains(key)) throw ArgumentError.value(key);
     final e = cell(key), label = _q(cell(key)['label'] as String);
