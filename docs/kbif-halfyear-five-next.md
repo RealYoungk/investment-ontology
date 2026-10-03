@@ -10,4 +10,4 @@ page15의 `(분기 비교)` 괄호는 상반기 설명·열과 불일치하며 �
 
 기존 KB 자산운용보고서 latest manifest 항목만 실제 금융실적 source로 교체한다. 과거 metadata·privatecache·DBSource는 보존한다. 정상 issuerDocuments→issuerFinancials→공개 읽기 경로이며 FinancialReport/FinancialFact/DartFiling 합성은 없다.
 
-DB4case는 작성만 했고 parent의 DB독점 때문에 미실행이다. 순수 정상경로와 원문 변조 거절·UI·모든 변경 Dart static checks 결과는 원장 로그에 보존한다. 전체 재무 데이터 완료 주장은 하지 않는다.
+통합 후 정상 수집 DB4case(정상·텍스트 누락·변조·취소)가 모두 통과했다. 맥쿼리·KB 및 기존 펀드·Source 범위 UI25case도 모두 통과했다. 순수 정상경로와 원문 변조 거절·UI·모든 변경 Dart static checks 결과는 원장 로그에 보존한다. 전체 재무 데이터 완료 주장은 하지 않는다.
