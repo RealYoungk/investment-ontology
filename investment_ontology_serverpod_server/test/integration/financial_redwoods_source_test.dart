@@ -1,3 +1,6 @@
+import 'package:investment_ontology_serverpod_server/src/ontology/dart/exact_statement_rows.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/ingest/financial_rows.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -210,7 +213,69 @@ void main() {
             session,
             where: (t) => t.reportId.equals(stored.id!),
           );
-          expect(facts, hasLength(8));
+          // Eight original core facts plus94 separately source-verified current
+          // monetary coordinates. The whole-filing/notes claim remains false.
+          expect(facts, hasLength(102));
+          expect(stored.factCount, 102);
+          final coreFacts = facts.where((x) => x.sourceId == main.id).toList();
+          expect(coreFacts, hasLength(8));
+          final details = facts.where((x) => x.sourceId != main.id).toList();
+          expect(details, hasLength(94));
+          final additionalIds = details.map((x) => x.sourceId).toSet();
+          expect(additionalIds, hasLength(1));
+          final additionalSource = (await Source.db.findById(
+            session,
+            additionalIds.single,
+          ))!;
+          final additionalPayload = jsonDecode(
+            additionalSource.title.substring(
+              additionalSource.title.indexOf('{'),
+            ),
+          ) as Map;
+          expect(additionalPayload['additionalMonetaryFacts'], 94);
+          expect(additionalSource.url, p['statement']['url']);
+          expect(additionalPayload['receipt'], receipt);
+          expect(additionalPayload['corpCode'], company.corpCode);
+          expect(additionalPayload['year'], 2024);
+          expect(additionalPayload['basis'], 'separate');
+          expect(additionalPayload['coreRowCount'], 8);
+          expect(additionalPayload['notesCollected'], false);
+          expect(additionalPayload['allStatementRowsVerified'], false);
+          expect(additionalPayload['originalSourceId'], main.id);
+          expect(additionalPayload['fullStatementCollected'], false);
+          final prepared = await ExactStatementRows.prepare(
+            (await DartFiling.db.findById(session, f.id!))!,
+            company,
+            div,
+          );
+          expect(prepared.rows, hasLength(94));
+          expect(additionalPayload['ledger'], prepared.ledger);
+          expect(
+            prepared.primary.sourceDigest,
+            'c63592b1a91cd5bf858bbcde8f9855ca971f2cb0325aa1d7037d1265f22036b4',
+          );
+          final expectedDetails = FinancialRows.toFacts(
+            prepared.rows,
+            reportId: stored.id!,
+            companyId: company.id!,
+            bsnsYear: year,
+            reportCode: FinancialReportCode.annual,
+            fsDiv: div,
+            sourceId: additionalSource.id!,
+          ).facts;
+          for (final expectedFact in expectedDetails) {
+            final actualFact = details.singleWhere(
+              (x) => x.ord == expectedFact.ord,
+            );
+            expect(actualFact.ord, isNotNull);
+            expect(actualFact.statement, expectedFact.statement);
+            expect(actualFact.accountName, expectedFact.accountName);
+            expect(actualFact.accountDetail, expectedFact.accountDetail);
+            expect(actualFact.amount, expectedFact.amount);
+            expect(actualFact.cumulativeAmount, expectedFact.cumulativeAmount);
+            expect(actualFact.sourceId, additionalSource.id);
+            expect(actualFact.fsDiv, div);
+          }
           expect(stored.bsnsYear, 2024);
           expect(stored.reportCode, FinancialReportCode.annual);
           expect(stored.rceptNo, receipt);
@@ -227,12 +292,14 @@ void main() {
             "-684622027",
           ];
           expect(
-            facts.map((f) => f.amount.toString()),
+            coreFacts.map((f) => f.amount.toString()),
             unorderedEquals(expected),
           );
 
           expect(
-            facts.every((x) => x.accountId == null && x.sourceId == main.id),
+            coreFacts.every(
+              (x) => x.accountId == null && x.sourceId == main.id,
+            ),
             true,
           );
           final audits = await Source.db.find(
