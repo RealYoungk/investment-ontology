@@ -34,7 +34,7 @@ Company company(AnnualSourceCacheEntry e) => Company(
 );
 void main() {
   test('compiled receipt plus basis registry has unique audit identities', () {
-    expect(VerifiedAnnualSourceRegistry.entries.length, 268);
+    expect(VerifiedAnnualSourceRegistry.entries.length, 270);
     expect(
       VerifiedAnnualSourceRegistry.entries
           .map((e) => e.auditReference)

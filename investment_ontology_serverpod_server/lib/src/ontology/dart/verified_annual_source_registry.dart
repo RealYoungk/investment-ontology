@@ -56,6 +56,33 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20250320000814',
+      corpCode: '00432102',
+      companyName: '한국투자금융지주(주)',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20250320000814-cfs-koreainvestment-own-current-eight',
+      manifestDigest:
+          'a60166d946232bd1c7618e991095bb424d3a5789e6bfb1b08eebfc410242350b',
+      ruleVersion: 'koreainvestment-2021-2022-own-current-eight-v1',
+      absenceLiteral: null,
+      requiresCashScopeNotes: true,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250320000804',
+      corpCode: '00432102',
+      companyName: '한국투자금융지주(주)',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20250320000804-cfs-koreainvestment-own-current-eight',
+      manifestDigest:
+          '47599cd63b35fcc1e011115a21cfb63ac0510033efb2508243adbc305e6dd6a0',
+      ruleVersion: 'koreainvestment-2021-2022-own-current-eight-v1',
+      absenceLiteral: null,
+      requiresCashScopeNotes: true,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20220316001241',
       corpCode: '00115694',
       companyName: 'DB증권(주)',
