@@ -205,7 +205,10 @@ void main() {
       expect(await ResearchSnapshot.db.count(session), 0);
       failBody = false;
       await store();
-      final saved = await ResearchSnapshot.db.find(session);
+      final saved = await ResearchSnapshot.db.find(
+        session,
+        where: (t) => t.kind.equals('issuerDocuments'),
+      );
       expect(saved.length, 1);
       final ownManifest = jsonEncode({
         'schemaVersion': 1,
@@ -248,7 +251,7 @@ void main() {
         cancelled: () async => false,
       );
       expect(corrupt.failedCompanies, 1);
-      expect(await ResearchSnapshot.db.count(session), 1);
+      expect(await ResearchSnapshot.db.count(session), 2);
       await primary.writeAsBytes(originalBytes);
       final sourceCount = await Source.db.count(session);
       final observations = gets;
@@ -256,7 +259,10 @@ void main() {
       expect(gets, observations);
       expect(await Source.db.count(session), sourceCount);
       expect(
-        (await ResearchSnapshot.db.find(session)).single.id,
+        (await ResearchSnapshot.db.find(
+          session,
+          where: (t) => t.kind.equals('issuerDocuments'),
+        )).single.id,
         saved.single.id,
       );
       expect(
@@ -270,6 +276,23 @@ void main() {
           'issuerDocuments',
         ),
       ) as Map;
+      final numeric = jsonDecode(
+        await endpoints.research.data(
+          builder.asAnonymous,
+          '01801026',
+          'issuerFinancials',
+        ),
+      ) as Map;
+      expect(numeric['state'], 'ready');
+      expect(numeric['provider'], 'verified-primary-html-rule');
+      final numericRow = (numeric['rows'] as List).single as Map;
+      expect(numericRow['basis'], 'OFS');
+      expect(numericRow['periodKind'], 'ownAnnual');
+      expect(numericRow['periodEnd'], '2025-12-31');
+      expect(numericRow['numericState'], 'partialCore');
+      expect(numericRow['regularReportCode'], isNull);
+      expect((numericRow['accounts'] as List).length, 8);
+      expect((numeric['source'] as Map)['kind'], 'officialFile');
       final row = (data['rows'] as List).single as Map;
       expect(row['numericState'], 'notExtracted');
       expect(row['publicContent'], 'linkOnly');
