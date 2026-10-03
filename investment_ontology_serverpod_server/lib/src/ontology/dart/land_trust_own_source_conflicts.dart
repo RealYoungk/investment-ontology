@@ -61,6 +61,11 @@ abstract final class LandTrustOwnSourceConflicts {
     return <String, Object>{
       ...Map<String, Object>.from(p),
       'receipt': receipt,
+      'consolidated': consolidated,
+      'coverSource': p['coverURI'] as String,
+      'statementSource': p['sourceURI'] as String,
+      'coverSha256': p['coverSHA'] as String,
+      'statementSha256': p['sourceSHA'] as String,
       'reason': '한국토지신탁 자체 현재 재무제표 인쇄 현금·자본·숫자표기 불일치; 임의 수정 또는 반올림 허용 없이 보류',
       'periodStart': '${start.year}-01-01',
       'periodEnd': '${end.year}-12-31',

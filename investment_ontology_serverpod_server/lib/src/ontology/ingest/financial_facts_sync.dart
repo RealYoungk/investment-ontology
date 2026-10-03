@@ -1,3 +1,5 @@
+import '../dart/known_annual_conflict_cache.dart';
+
 import 'dart:io';
 
 import '../dart/known_annual_source_not_presented.dart';
@@ -54,14 +56,17 @@ class FinancialFactsSync {
     DateTime Function()? clock,
     VerifiedAnnualSourceCache? sourceCache,
     KnownAnnualNotPresentedCache? negativeSourceCache,
+    KnownAnnualConflictCache? conflictSourceCache,
   }) : dailyBudget = dailyBudget ?? ApiCallBudget.dartFinancialBudget,
        _explicitBudget = dailyBudget != null,
        _clock = clock ?? DateTime.now,
        _sourceCache = sourceCache ?? VerifiedAnnualSourceCache(),
        _negativeSourceCache =
-           negativeSourceCache ?? KnownAnnualNotPresentedCache();
+           negativeSourceCache ?? KnownAnnualNotPresentedCache(),
+       _conflictSourceCache = conflictSourceCache ?? KnownAnnualConflictCache();
 
   final KnownAnnualNotPresentedCache _negativeSourceCache;
+  final KnownAnnualConflictCache _conflictSourceCache;
   static const kind = 'financial_facts';
 
   /// 기업 하나만 받는 수집. 전체 수집과 따로 세어 백필 중에도 돌 수 있다.
@@ -284,6 +289,10 @@ class FinancialFactsSync {
         ),
       );
       final notPresentedClassified = await _classifyNotPresented(
+        scopeIds,
+        companies,
+      );
+      final conflictsClassified = await _classifyKnownConflicts(
         scopeIds,
         companies,
       );
@@ -731,6 +740,9 @@ class FinancialFactsSync {
       if (_periodNameMetadataRepaired > 0) {
         message +=
             ', 동일 원접수·당기 핵심 7계정 검증 후 보고기간 명칭 복구 $_periodNameMetadataRepaired벌(전체 계정값 재검증 아님)';
+      }
+      if (conflictsClassified > 0) {
+        message += ', 원문 불일치 실패 근거 $conflictsClassified건 확인(금액 생성·완료 처리 없음)';
       }
       if (notPresentedClassified > 0) {
         message +=
@@ -2703,6 +2715,129 @@ class FinancialFactsSync {
     return (stored: stored, failed: failed);
   }
 
+  Future<int> _classifyKnownConflicts(
+    Set<int> scopeIds,
+    Map<String, Company> companies,
+  ) async {
+    if (scopeIds.isEmpty) return 0;
+    var classified = 0;
+    for (final filing in await DartFiling.db.find(
+      session,
+      where: (t) =>
+          t.id.inSet(scopeIds) &
+          t.rceptNo.inSet({
+            for (final p in KnownAnnualConflictCache.profiles)
+              p['receipt'] as String,
+          }),
+    )) {
+      final company = companies[filing.corpCode];
+      if (company == null) continue;
+      for (final div in FsDiv.values) {
+        if (KnownAnnualConflictCache.profile(filing, company, div) == null ||
+            await IngestJobs.isCancelled(session, jobId)) {
+          continue;
+        }
+        final ref = 'financial-source-conflict:${filing.rceptNo}:${div.name}';
+        if (await Source.db.findFirstRow(
+              session,
+              where: (t) => t.reference.equals(ref),
+            ) !=
+            null) {
+          continue;
+        }
+        KnownAnnualSourceConflict proof;
+        try {
+          proof = await _conflictSourceCache.verify(filing, company, div);
+        } on FormatException {
+          continue;
+        } on FileSystemException {
+          continue;
+        }
+        classified += await session.db.transaction((tx) async {
+          await session.db.unsafeQuery(
+            'SELECT pg_advisory_xact_lock(hashtext(@ref))',
+            parameters: QueryParameters.named({'ref': ref}),
+            transaction: tx,
+          );
+          await session.db.unsafeQuery(
+            'SELECT id FROM ingest_job WHERE id=@id FOR UPDATE',
+            parameters: QueryParameters.named({'id': jobId}),
+            transaction: tx,
+          );
+          final currentJob = await IngestJob.db.findById(
+            session,
+            jobId,
+            transaction: tx,
+          );
+          if (currentJob == null ||
+              currentJob.status == IngestStatus.cancelled) {
+            return 0;
+          }
+          await session.db.unsafeQuery(
+            'SELECT id FROM dart_filing WHERE id=@id FOR UPDATE',
+            parameters: QueryParameters.named({'id': filing.id!}),
+            transaction: tx,
+          );
+          final current = await DartFiling.db.findById(
+            session,
+            filing.id!,
+            transaction: tx,
+          );
+          if (current == null ||
+              KnownAnnualConflictCache.profile(current, company, div) == null ||
+              await IngestJobs.isCancelled(session, jobId) ||
+              await Source.db.findFirstRow(
+                    session,
+                    where: (t) => t.reference.equals(ref),
+                    transaction: tx,
+                  ) !=
+                  null) {
+            return 0;
+          }
+          final companyFilings = await DartFiling.db.find(
+            session,
+            where: (t) => t.companyId.equals(company.id!),
+            transaction: tx,
+          );
+          if (!financialScopeIds(companyFilings).contains(current.id)) return 0;
+          await Source.db.insertRow(
+            session,
+            Source(
+              kind: SourceKind.dartReport,
+              reference: ref,
+              url: proof.evidence['statementSource'] as String,
+              retrievedAt: _clock().toUtc(),
+              title: jsonEncode({
+                'action': 'verified-primary-source-conflict',
+                'targetReceipt': current.rceptNo,
+                'reportName': current.reportName,
+                'corpCode': company.corpCode,
+                'fsDiv': div.name,
+                'evidence': proof.evidence,
+                'status': 'failed',
+                'financialFactsStored': false,
+                'previousFailure': current.lastError,
+                'priorLedgerFailureBeforeClassification': filing.lastError,
+              }),
+            ),
+            transaction: tx,
+          );
+          await DartFiling.db.updateRow(
+            session,
+            current.copyWith(
+              lastError:
+                  'primarySourceConflict: ${proof.message}; exhausted attempts retained ${current.attempts}',
+            ),
+            transaction: tx,
+          );
+          return 1;
+        });
+      }
+    }
+    return classified;
+  }
+
+  /// Failed primary-source audit only; never creates financial rows.
   Future<int> _classifyNotPresented(
     Set<int> scopeIds,
     Map<String, Company> companies,

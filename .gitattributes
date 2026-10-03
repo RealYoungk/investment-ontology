@@ -24,3 +24,5 @@ investment_ontology_serverpod_server/test/fixtures/market_publication/*.html -te
 
 # Exact source-not-presented independent fixtures retain original bytes.
 investment_ontology_serverpod_server/test/fixtures/kosnine_not_presented/*.html -text whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+
+investment_ontology_serverpod_server/assets/financial_source_cache/known-annual-conflicts/*.html -text

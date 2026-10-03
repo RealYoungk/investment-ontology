@@ -13,6 +13,13 @@ class KnownAnnualSourceConflict extends FormatException {
 }
 
 abstract final class KnownAnnualSourceConflicts {
+  /// Finite independently audited conflict profiles; not numerical fallbacks.
+  static Map<String, Map<String, Object>> get profiles =>
+      Map<String, Map<String, Object>>.unmodifiable({
+        for (final e in _profiles.entries)
+          e.key: Map<String, Object>.unmodifiable(e.value),
+      });
+
   static void verify({
     required String receipt,
     required String corpCode,
