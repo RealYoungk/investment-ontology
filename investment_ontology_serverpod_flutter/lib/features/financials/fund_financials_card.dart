@@ -105,7 +105,7 @@ class FundFinancialsCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(top: AppSpace.md),
       child: ShadAccordion<int>(
-        maintainState: true,
+        maintainState: false,
         children: [
           ShadAccordionItem<int>(
             value: 0,

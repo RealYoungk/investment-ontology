@@ -41,9 +41,12 @@ void main() {
         ),
       );
       await t.pumpAndSettle();
-      expect(find.byType(ShadAccordion), findsOneWidget);
+      expect(
+        find.byWidgetPredicate((widget) => widget is ShadAccordion),
+        findsOneWidget,
+      );
       expect(find.textContaining('상반기 감사상태 미확인 단일 펀드'), findsOneWidget);
-      await t.tap(find.byType(ShadAccordion));
+      await t.tap(find.byWidgetPredicate((widget) => widget is ShadAccordion));
       await t.pumpAndSettle();
       expect(find.textContaining('TTM 미포함'), findsOneWidget);
       expect(find.textContaining('현금흐름표 미인쇄'), findsOneWidget);

@@ -262,7 +262,7 @@ class _IssuerDocumentsStatusState extends State<IssuerDocumentsStatus> {
             ),
             for (final entry in issuerDocumentFunds.entries)
               ShadAccordion<int>(
-                maintainState: true,
+                maintainState: false,
                 children: [
                   ShadAccordionItem<int>(
                     value: 0,

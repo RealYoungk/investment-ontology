@@ -50,9 +50,14 @@ void main() {
         ),
       );
       await t.pumpAndSettle();
-      expect(find.byType(ShadAccordion), findsNWidgets(n));
+      expect(
+        find.byWidgetPredicate((widget) => widget is ShadAccordion),
+        findsNWidgets(n),
+      );
       for (var i = 0; i < n; i++) {
-        final tile = find.byType(ShadAccordion).at(i);
+        final tile = find
+            .byWidgetPredicate((widget) => widget is ShadAccordion)
+            .at(i);
         await t.ensureVisible(tile);
         await t.tap(tile);
         await t.pumpAndSettle();

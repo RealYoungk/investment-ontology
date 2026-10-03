@@ -86,7 +86,7 @@ class StatementConflictNotice extends StatelessWidget {
             ),
           ),
           ShadAccordion<int>(
-            maintainState: true,
+            maintainState: false,
             children: [
               ShadAccordionItem<int>(
                 value: 0,

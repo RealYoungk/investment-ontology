@@ -133,7 +133,7 @@ class _ShareholderRightsCardState extends State<ShareholderRightsCard> {
               for (final row in changes.take(3)) _Change(row: row),
               if (changes.length > 3)
                 ShadAccordion<int>(
-                  maintainState: true,
+                  maintainState: false,
                   children: [
                     ShadAccordionItem<int>(
                       value: 0,
@@ -169,7 +169,7 @@ class _ShareholderRightsCardState extends State<ShareholderRightsCard> {
                   (n['changes'] as List).isNotEmpty,
             ))
               ShadAccordion<int>(
-                maintainState: true,
+                maintainState: false,
                 children: [
                   ShadAccordionItem<int>(
                     value: 0,
@@ -218,7 +218,7 @@ class _ShareholderRightsCardState extends State<ShareholderRightsCard> {
               ),
               for (final row in rows)
                 ShadAccordion<int>(
-                  maintainState: true,
+                  maintainState: false,
                   children: [
                     ShadAccordionItem<int>(
                       value: 0,
@@ -304,7 +304,7 @@ class _Change extends StatelessWidget {
             Text(meaning, style: t.body(13, color: c.textSecondary)),
           ],
           ShadAccordion<int>(
-            maintainState: true,
+            maintainState: false,
             children: [
               ShadAccordionItem<int>(
                 value: 0,

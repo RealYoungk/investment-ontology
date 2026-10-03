@@ -52,7 +52,10 @@ void main() {
         ),
       );
       await t.pumpAndSettle();
-      expect(find.byType(ShadAccordion), findsNWidgets(4));
+      expect(
+        find.byWidgetPredicate((widget) => widget is ShadAccordion),
+        findsNWidgets(4),
+      );
       for (final period in [
         '2025-01-01 ~ 2025-12-31 · 단일 펀드',
         '2024-01-01 ~ 2024-12-31 · 단일 펀드',

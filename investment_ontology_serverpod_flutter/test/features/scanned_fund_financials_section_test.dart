@@ -49,9 +49,14 @@ void main() {
       ),
     );
     await t.pumpAndSettle();
-    expect(find.byType(ShadAccordion), findsNWidgets(5));
+    expect(
+      find.byWidgetPredicate((widget) => widget is ShadAccordion),
+      findsNWidgets(5),
+    );
     for (var i = 0; i < 5; i++) {
-      final tile = find.byType(ShadAccordion).at(i);
+      final tile = find
+          .byWidgetPredicate((widget) => widget is ShadAccordion)
+          .at(i);
       await t.ensureVisible(tile);
       await t.tap(tile);
       await t.pumpAndSettle();

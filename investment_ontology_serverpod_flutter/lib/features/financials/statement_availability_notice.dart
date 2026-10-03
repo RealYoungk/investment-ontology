@@ -124,7 +124,7 @@ class StatementAvailabilityNotice extends StatelessWidget {
         ),
         for (final s in verified)
           ShadAccordion<int>(
-            maintainState: true,
+            maintainState: false,
             children: [
               ShadAccordionItem<int>(
                 value: 0,

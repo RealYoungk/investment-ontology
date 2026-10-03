@@ -12,7 +12,7 @@ class RetrospectiveFundCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final validation = row['validation'] as Map;
     return ShadAccordion<int>(
-      maintainState: true,
+      maintainState: false,
       children: [
         ShadAccordionItem<int>(
           value: 0,
@@ -63,7 +63,7 @@ class RetrospectiveFundCard extends StatelessWidget {
                   ),
                 ),
               ShadAccordion<int>(
-                maintainState: true,
+                maintainState: false,
                 children: [
                   ShadAccordionItem<int>(
                     value: 0,

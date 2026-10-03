@@ -286,7 +286,7 @@ class _SourceRecord extends StatelessWidget {
     }
     final uri = Uri.tryParse(source.url ?? '');
     return ShadAccordion<int>(
-      maintainState: true,
+      maintainState: false,
       children: [
         ShadAccordionItem<int>(
           value: 0,

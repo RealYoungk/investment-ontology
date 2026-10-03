@@ -293,7 +293,7 @@ class _BondTrendsCardState extends State<BondTrendsCard> {
             Material(
               color: c.surface,
               child: ShadAccordion<int>(
-                maintainState: true,
+                maintainState: false,
                 children: [
                   ShadAccordionItem<int>(
                     value: 0,

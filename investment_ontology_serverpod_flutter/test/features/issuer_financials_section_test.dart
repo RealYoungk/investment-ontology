@@ -51,7 +51,10 @@ void main() {
     'actual 40 cells show five honest source periods, both half bases and source links at 320px',
     (t) async {
       await pump(t);
-      expect(find.byType(ShadAccordion), findsNWidgets(5));
+      expect(
+        find.byWidgetPredicate((widget) => widget is ShadAccordion),
+        findsNWidgets(5),
+      );
       expect(find.textContaining('누적 6개월'), findsNWidgets(2));
       expect(
         find.textContaining('2026-01-01 ~ 2026-06-30 · 연결'),
@@ -62,10 +65,12 @@ void main() {
         findsOneWidget,
       );
       expect(find.textContaining('정기보고서 집계·TTM에 포함하지 않습니다'), findsOneWidget);
-      await t.tap(find.byType(ShadAccordion).first);
+      await t.tap(
+        find.byWidgetPredicate((widget) => widget is ShadAccordion).first,
+      );
       await t.pumpAndSettle();
       expect(find.text('DART 원문 재무 절 보기'), findsWidgets);
-      expect(find.byType(Tooltip), findsWidgets);
+      expect(find.byType(ShadTooltip), findsWidgets);
       expect(t.takeException(), isNull);
     },
   );
@@ -86,7 +91,10 @@ void main() {
       expect(find.text('별도 원문 핵심 재무 수집 전입니다.'), findsNothing);
       expect(find.textContaining('불러오지 못했어요'), findsWidgets);
       await pump(t, code: '00139214');
-      expect(find.byType(ShadAccordion), findsNothing);
+      expect(
+        find.byWidgetPredicate((widget) => widget is ShadAccordion),
+        findsNothing,
+      );
       expect(find.text('별도 공식 원문 핵심 재무'), findsNothing);
       expect(t.takeException(), isNull);
     },
@@ -101,7 +109,7 @@ void main() {
         final snapshot = company['snapshot'] as Map;
         await pump(t, code: company['corpCode'], payload: jsonEncode(snapshot));
         expect(
-          find.byType(ShadAccordion),
+          find.byWidgetPredicate((widget) => widget is ShadAccordion),
           findsNWidgets((snapshot['rows'] as List).length),
         );
         if (company['corpCode'].startsWith('020')) {
@@ -112,7 +120,9 @@ void main() {
             company['corpCode'] == '02029258') {
           expect(find.textContaining('원문 의견 미표기'), findsOneWidget);
         }
-        await t.tap(find.byType(ShadAccordion).first);
+        await t.tap(
+          find.byWidgetPredicate((widget) => widget is ShadAccordion).first,
+        );
         await t.pumpAndSettle();
         if (company['corpCode'] == '02029258') {
           expect(find.textContaining('(손실)'), findsWidgets);
