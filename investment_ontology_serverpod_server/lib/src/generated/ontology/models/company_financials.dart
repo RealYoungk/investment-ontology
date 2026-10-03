@@ -95,7 +95,7 @@ abstract class CompanyFinancials
   /// 자동 선택 이유 또는 수동 선택
   String? basisReason;
 
-  /// 원문에서 당기 재무제표를 미제시한 실패의 정확한 출처; 완료·금액 대체 아님
+  /// 원문에서 확인한 당기 미제시·수치 충돌 실패의 정확한 출처; 완료·금액 대체 아님
   List<_i5ra8lvy.Source>? statementAvailabilitySources;
 
   /// Returns a shallow copy of this [CompanyFinancials]

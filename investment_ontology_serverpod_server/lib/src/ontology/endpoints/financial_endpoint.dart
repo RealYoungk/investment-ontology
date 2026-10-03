@@ -1,3 +1,4 @@
+import '../dart/known_annual_conflict_cache.dart';
 import '../dart/isung_current_seven_source.dart';
 import '../dart/known_annual_source_not_presented.dart';
 
@@ -231,23 +232,46 @@ class FinancialEndpoint extends Endpoint {
     for (final f in companyFilings.where(
       (f) =>
           active.contains(f.id) &&
-          f.rceptNo == KnownAnnualSourcesNotPresented.receipt,
+          (f.rceptNo == KnownAnnualSourcesNotPresented.receipt ||
+              KnownAnnualConflictCache.profiles.any(
+                (p) => p['receipt'] == f.rceptNo,
+              )),
     )) {
       for (final div in FsDiv.values) {
-        if (!KnownAnnualNotPresentedCache.eligible(f, company, div)) continue;
-        final source = await Source.db.findFirstRow(
-          session,
-          where: (t) => t.reference.equals(
-            'financial-source-not-presented:${f.rceptNo}:${div.name}',
-          ),
+        final isNotPresented = KnownAnnualNotPresentedCache.eligible(
+          f,
+          company,
+          div,
         );
-        if (source != null &&
-            KnownAnnualSourcesNotPresented.validFailureSource(
-              source,
+        final isConflict =
+            KnownAnnualConflictCache.profile(
               f,
               company,
               div,
-            )) {
+              requireExhausted: false,
+            ) !=
+            null;
+        if (!isNotPresented && !isConflict) continue;
+        final source = await Source.db.findFirstRow(
+          session,
+          where: (t) => t.reference.equals(
+            '${isNotPresented ? 'financial-source-not-presented' : 'financial-source-conflict'}:${f.rceptNo}:${div.name}',
+          ),
+        );
+        if (source != null &&
+            (isNotPresented
+                ? KnownAnnualSourcesNotPresented.validFailureSource(
+                    source,
+                    f,
+                    company,
+                    div,
+                  )
+                : KnownAnnualConflictCache.validFailureSource(
+                    source,
+                    f,
+                    company,
+                    div,
+                  ))) {
           availabilitySources.add(source);
         }
       }

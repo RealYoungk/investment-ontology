@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'statement_conflict_notice.dart';
+
 import 'package:flutter/material.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -94,7 +96,13 @@ class StatementAvailabilityNotice extends StatelessWidget {
       for (final s in sources)
         if (evidence(s, corpCode) != null) s,
     ];
-    if (verified.isEmpty) return const SizedBox.shrink();
+    if (verified.isEmpty) {
+      return StatementConflictNotice(
+        corpCode: corpCode,
+        sources: sources,
+        onOpen: onOpen,
+      );
+    }
     final bases = verified
         .map(
           (s) => jsonDecode(s.title)['fsDiv'] == 'consolidated' ? '연결' : '별도',
@@ -104,6 +112,11 @@ class StatementAvailabilityNotice extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        StatementConflictNotice(
+          corpCode: corpCode,
+          sources: sources,
+          onOpen: onOpen,
+        ),
         AppNotice(
           message:
               '2025년 $bases 당기 재무제표가 원문에서 제시되지 않았습니다. 이 기간은 수집 실패로 남아 있습니다. 비교기간 숫자를 당기로 옮기거나 0으로 채우지 않습니다.',

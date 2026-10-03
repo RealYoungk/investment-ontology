@@ -5,6 +5,7 @@ import 'package:crypto/crypto.dart';
 
 import '../../generated/protocol.dart';
 import 'known_annual_source_conflict.dart';
+import 'known_annual_conflict_evidence.dart';
 import 'land_trust_own_source_conflicts.dart';
 
 /// Exact immutable conflict evidence only. Never yields numerical/noData rows.
@@ -55,11 +56,16 @@ class KnownAnnualConflictCache {
         'statementSha256': e['sourceSHA'],
       },
   ];
-  static Map<String, Object>? profile(DartFiling f, Company c, FsDiv div) {
+  static Map<String, Object>? profile(
+    DartFiling f,
+    Company c,
+    FsDiv div, {
+    bool requireExhausted = true,
+  }) {
     // Preserve legitimate ordinary public retries independently of the general
     // attempt counter. Only exhausted public attempts enter this local audit.
     final error = f.lastError ?? '';
-    if (error.contains('api-noData-annual-public')) {
+    if (requireExhausted && error.contains('api-noData-annual-public')) {
       final attempt = int.tryParse(
         RegExp(r'api-noData-annual-public:attempt=(\d+)')
                 .firstMatch(error)
@@ -80,7 +86,7 @@ class KnownAnnualConflictCache {
           p['consolidated'] == (div == FsDiv.consolidated) &&
           f.reportCode == FinancialReportCode.annual &&
           f.reportName == '사업보고서 (${p['year']}.12)' &&
-          f.attempts >= 3 &&
+          (!requireExhausted || f.attempts >= 3) &&
           (div == FsDiv.consolidated
                   ? f.consolidatedStatus
                   : f.separateStatus) ==
@@ -89,6 +95,50 @@ class KnownAnnualConflictCache {
       }
     }
     return null;
+  }
+
+  static bool validFailureSource(
+    Source source,
+    DartFiling filing,
+    Company company,
+    FsDiv div,
+  ) {
+    final p = profile(filing, company, div, requireExhausted: false);
+    if (p == null ||
+        source.id == null ||
+        source.kind != SourceKind.dartReport ||
+        source.reference !=
+            'financial-source-conflict:${filing.rceptNo}:${div.name}' ||
+        source.url != p['statementSource']) {
+      return false;
+    }
+    try {
+      final j = jsonDecode(source.title);
+      if (j is! Map ||
+          j['action'] != 'verified-primary-source-conflict' ||
+          j['targetReceipt'] != filing.rceptNo ||
+          j['corpCode'] != company.corpCode ||
+          j['fsDiv'] != div.name ||
+          j['reportName'] != filing.reportName ||
+          j['status'] != 'failed' ||
+          j['financialFactsStored'] != false ||
+          j['evidence'] is! Map) {
+        return false;
+      }
+      final e = j['evidence'] as Map;
+      if (e.containsKey('negativeCacheManifestSha256') &&
+          (e['negativeCacheManifestSha256'] != manifestSha ||
+              e['networkRequests'] != 0 ||
+              e['apiCalls'] != 0 ||
+              e['readFromPinnedCache'] != true ||
+              e['collectionComplete'] != false ||
+              e['noData'] != false)) {
+        return false;
+      }
+      return StatementConflictProof.matches('${filing.rceptNo}:${div.name}', e);
+    } on FormatException {
+      return false;
+    }
   }
 
   Future<KnownAnnualSourceConflict> verify(

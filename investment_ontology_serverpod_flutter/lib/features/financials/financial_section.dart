@@ -1,3 +1,4 @@
+import 'statement_conflict_notice.dart';
 import 'statement_availability_notice.dart';
 import 'split_plan_source_registry.dart';
 import 'split_plan_documents_section.dart';
@@ -105,6 +106,11 @@ class _FinancialSectionState extends State<FinancialSection> {
     final c = context.colors;
     final t = context.typo;
     final data = _data;
+    final sourceConflict =
+        data?.statementAvailabilitySources?.any(
+          (s) => StatementConflictNotice.evidence(s, widget.corpCode) != null,
+        ) ??
+        false;
     final sourceNotPresented =
         data?.statementAvailabilitySources?.any(
           (s) =>
@@ -127,6 +133,8 @@ class _FinancialSectionState extends State<FinancialSection> {
                       SplitPlanSourceRegistry.supports(widget.corpCode))
                   ? '정기보고서 API 재무 데이터는 아직 없습니다.'
                   : '아직 재무·시세를 수집하지 않았습니다.'
+            : sourceConflict
+            ? '공식 원문을 확인했지만 당기 수치·기간 표기의 충돌로 재무 숫자를 저장하지 않았습니다.'
             : sourceNotPresented
             ? '공식 원문을 확인했지만 해당 기간의 당기 재무 숫자는 제시되지 않았습니다.'
             : '정기보고서 ${formatCount(data.filingCount)}건 중 '

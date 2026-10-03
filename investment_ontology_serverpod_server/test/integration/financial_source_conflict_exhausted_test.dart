@@ -139,6 +139,22 @@ void main() {
               } else {
                 expect(after.lastError, filing.lastError);
               }
+              final view = await endpoints.financial.summary(
+                builder,
+                company.corpCode,
+              );
+              expect(
+                view!.statementAvailabilitySources,
+                hasLength(superseded ? 0 : expected),
+              );
+              expect(view.periods, isEmpty);
+              expect(view.pendingFilingCount, 1);
+              if (!superseded) {
+                expect(
+                  view.statementAvailabilitySources!.map((s) => s.id).toSet(),
+                  audits.map((s) => s.id).toSet(),
+                );
+              }
               final done = (await IngestJob.db.findById(session, job.id!))!;
               expect(done.updated, 0);
               expect(done.status, IngestStatus.failed);
