@@ -56,6 +56,19 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20220329000107',
+      corpCode: '01436479',
+      companyName: '(주)토마토시스템',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220329000107-cfs-tomato-current-eight',
+      manifestDigest:
+          '3ad13d35469c9b421e1002544ca09270bc9be5beeb3c43b457f6d54b3806a61b',
+      ruleVersion: 'tomato-2021-exact-current-eight-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20230316001454',
       corpCode: '00103176',
       companyName: '흥국화재해상보험(주)',
