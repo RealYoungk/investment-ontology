@@ -95,6 +95,38 @@ void main() {
     payload['corpCode'] = 'wrong';
     expect(FinancialSourceScopeNotice.messageFor(jsonEncode(payload)), isNull);
   });
+  for (final binding in [
+    ('20240306000708', '01205514'),
+    ('20221027000409', '01020269'),
+  ]) {
+    testWidgets(
+      '${binding.$1} scope differentiates printed residuals at 320px',
+      (t) async {
+        await pump(
+          t,
+          jsonEncode({
+            'action': 'verified-keyless-annual-source-after-api-noData',
+            'corpCode': binding.$2,
+            'targetReceipt': binding.$1,
+            'fsDiv': 'separate',
+            'coreRows': 7,
+            'coreRowProvenance': [
+              {
+                'html_provenance': {'partialCore7': true},
+              },
+            ],
+          }),
+        );
+        expect(find.textContaining('FCF와 FCF 수익률은 계산하지 않습니다'), findsOneWidget);
+        if (binding.$1 == '20221027000409') {
+          expect(find.textContaining('1천원 차이'), findsOneWidget);
+          expect(find.textContaining('0과 세부 취득액이 충돌'), findsOneWidget);
+          expect(find.textContaining('연구장비'), findsNothing);
+        }
+        expect(t.takeException(), isNull);
+      },
+    );
+  }
   testWidgets('API response scope is distinct, no all original rows claim', (
     t,
   ) async {

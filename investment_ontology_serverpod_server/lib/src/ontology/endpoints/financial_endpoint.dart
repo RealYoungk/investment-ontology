@@ -3,6 +3,7 @@ import 'dart:convert';
 import '../dart/imgt_explicit_revenue_missing.dart';
 import '../dart/curachem_current_seven_source.dart';
 import '../dart/konasol_current_seven_source.dart';
+import '../dart/curachem_restated_current_seven_source.dart';
 
 import 'package:serverpod/serverpod.dart';
 
@@ -255,10 +256,28 @@ class FinancialEndpoint extends Endpoint {
         KonasolCurrentSevenSource.bodySha,
         "ab9301d36cc45c833ffcff0750b4361d8a560e67f847ab09a4d8a811199d05ff",
       ),
+      CurachemRestatedCurrentSevenSource.receipt: (
+        CurachemRestatedCurrentSevenSource.corp,
+        CurachemRestatedCurrentSevenSource.bodyUri,
+        CurachemRestatedCurrentSevenSource.bodySha,
+        'ab29e1b04ffce6c1604728768cb52cfa01259187b2cb3d93407eb8ca1615d4a7',
+      ),
+      '20221027000409': (
+        '01020269',
+        'https://dart.fss.or.kr/report/viewer.do?rcpNo=20221027000409&dcmNo=8850347&eleId=21&offset=183582&length=68022&dtd=dart3.xsd',
+        '09e57bf14a980f2209851a223e5f8e007fc654463055efc76d620637dc4126b9',
+        'd2abe487a65ac53fb3ad604cad7cd30666df2cb301ee50aebc53b38ad0acf8e9',
+      ),
     }[report.rceptNo];
+    final talos = report.rceptNo == '20221027000409';
+    final year = talos
+        ? 2021
+        : report.rceptNo == CurachemRestatedCurrentSevenSource.receipt
+        ? 2023
+        : 2024;
     if (binding == null ||
         corpCode != binding.$1 ||
-        report.bsnsYear != 2024 ||
+        report.bsnsYear != year ||
         report.fsDiv != FsDiv.separate ||
         report.reportCode != FinancialReportCode.annual ||
         source.url != binding.$2 ||
@@ -288,7 +307,10 @@ class FinancialEndpoint extends Endpoint {
           value['sha256'] != binding.$4) {
         return false;
       }
-      final coordinates = report.rceptNo == CurachemCurrentSevenSource.receipt
+      final coordinates =
+          report.rceptNo == CurachemRestatedCurrentSevenSource.receipt
+          ? [(0, 34), (0, 47), (0, 58), (1, 1), (1, 22), (1, 37), (3, 1)]
+          : report.rceptNo == CurachemCurrentSevenSource.receipt
           ? [(0, 31), (0, 43), (0, 54), (1, 1), (1, 22), (1, 37), (3, 1)]
           : [(1, 70), (1, 92), (1, 107), (3, 2), (3, 46), (3, 72), (7, 2)];
       for (var i = 0; i < rows.length; i++) {
@@ -298,18 +320,20 @@ class FinancialEndpoint extends Endpoint {
         }
         final proof = row['html_provenance'];
         if (proof is! Map ||
-            proof['currentCell'] is! String ||
+            (talos ? proof['printedAmount'] : proof['currentCell'])
+                is! String ||
             row['thstrm_amount'] is! String) {
           return false;
         }
-        final token = (proof['currentCell'] as String)
-            .replaceAll(',', '')
-            .replaceAll(RegExp(r'\s'), '');
+        final token =
+            ((talos ? proof['printedAmount'] : proof['currentCell']) as String)
+                .replaceAll(',', '')
+                .replaceAll(RegExp(r'\s'), '');
         final signed = token.startsWith('(') && token.endsWith(')')
             ? '-${token.substring(1, token.length - 1)}'
             : token;
         if (BigInt.tryParse(signed) == null ||
-            BigInt.tryParse(signed) !=
+            BigInt.tryParse(signed)! * BigInt.from(talos ? 1000 : 1) !=
                 BigInt.tryParse(row['thstrm_amount'] as String)) {
           return false;
         }
@@ -318,18 +342,23 @@ class FinancialEndpoint extends Endpoint {
             proof['fullStatementCollected'] != false ||
             proof['allStatementRowsVerified'] != false ||
             proof['notesReadScopeComplete'] != false ||
-            proof['tableIndex'] != coordinates[i].$1 ||
-            proof['rowIndex'] != coordinates[i].$2 ||
-            proof['column'] !=
-                (report.rceptNo == CurachemCurrentSevenSource.receipt
-                    ? 3
-                    : 1) ||
-            proof['printedUnit'] != '원' ||
-            proof['multiplier'] != '1' ||
+            (!talos &&
+                (proof['tableIndex'] != coordinates[i].$1 ||
+                    proof['rowIndex'] != coordinates[i].$2)) ||
+            (talos &&
+                proof['htmlTrIndex'] != [45, 63, 76, 81, 115, 129, 148][i]) ||
+            (talos ? proof['currentColumn'] : proof['column']) !=
+                (report.rceptNo == KonasolCurrentSevenSource.receipt ? 1 : 3) ||
+            (talos ? proof['unit'] : proof['printedUnit']) !=
+                (talos ? '천원' : '원') ||
+            (talos ? proof['unitMultiplier'] : proof['multiplier']) !=
+                (talos ? '1000' : '1') ||
             proof['printedLabel'] != row['account_nm'] ||
             proof['missingAccountReasons'] is! Map ||
             (proof['missingAccountReasons'] as Map)['capex'] !=
-                (report.rceptNo == CurachemCurrentSevenSource.receipt
+                (talos
+                    ? 'Printed PPE acquisition row is zero but machine/equipment detail is nonzero; no unambiguous whole acquisition total collected.'
+                    : report.rceptNo != KonasolCurrentSevenSource.receipt
                     ? 'No printed whole PPE acquisition total; research-equipment component is not the total.'
                     : 'No printed whole PPE acquisition total; printed acquisition components are not the total.') ||
             proof['detailHierarchyComplete'] != false ||
@@ -338,8 +367,8 @@ class FinancialEndpoint extends Endpoint {
             proof['sourceSha256'] != binding.$3 ||
             proof['basis'] !=
                 (report.fsDiv == FsDiv.separate ? 'OFS' : 'CFS') ||
-            proof['periodStart'] != '${report.bsnsYear}-01-01' ||
-            proof['periodEnd'] != '${report.bsnsYear}-12-31') {
+            proof['periodStart'] != '$year-01-01' ||
+            proof['periodEnd'] != '$year-12-31') {
           return false;
         }
       }

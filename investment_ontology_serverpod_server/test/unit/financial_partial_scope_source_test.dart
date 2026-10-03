@@ -1,4 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
+
+import 'package:crypto/crypto.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/dart/talos_2021_current_seven_source.dart';
 
 import 'package:test/test.dart';
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
@@ -11,7 +15,11 @@ import 'package:investment_ontology_serverpod_server/src/ontology/dart/verified_
 import 'verified_annual_source_registry_test.dart' show filing, company;
 
 void main() {
-  for (final receipt in ['20250331003105', '20250305000164']) {
+  for (final receipt in [
+    '20250331003105',
+    '20250305000164',
+    '20240306000708',
+  ]) {
     test('actual $receipt source profile binds public scope', () async {
       final e = VerifiedAnnualSourceRegistry.find(
         receipt,
@@ -26,10 +34,12 @@ void main() {
       final report = FinancialReport(
         companyId: 1,
         rceptNo: e.receipt,
-        bsnsYear: 2024,
+        bsnsYear: receipt == "20240306000708" ? 2023 : 2024,
         reportCode: FinancialReportCode.annual,
         fsDiv: FsDiv.separate,
-        reportName: '사업보고서 (2024.12)',
+        reportName: receipt == '20240306000708'
+            ? '사업보고서 (2023.12)'
+            : '사업보고서 (2024.12)',
         sourceId: 1,
         factCount: 7,
         fetchedAt: DateTime.utc(2026),
@@ -58,6 +68,83 @@ void main() {
       );
     });
   }
+  test('actual Talos thousand-won profile binds printed residual source', () {
+    const receipt = '20221027000409';
+    final base = 'assets/financial_source_cache/$receipt-ofs-own-current-seven';
+    final raw = {
+      for (final key in ['shell', 'cover', 'ofs'])
+        key: File('$base/$key.html').readAsStringSync(),
+    };
+    final rows = Talos2021CurrentSevenSource.parse(
+      raw: raw,
+      uris: {
+        for (final e in Talos2021CurrentSevenSource.sources.entries)
+          e.key: Uri.parse(e.value.$1),
+      },
+      receipt: receipt,
+      corp: '01020269',
+      start: DateTime.utc(2021),
+      end: DateTime.utc(2021, 12, 31),
+      consolidated: false,
+    );
+    final report = FinancialReport(
+      companyId: 1,
+      rceptNo: receipt,
+      bsnsYear: 2021,
+      reportCode: FinancialReportCode.annual,
+      fsDiv: FsDiv.separate,
+      reportName: '사업보고서 (2021.12)',
+      sourceId: 1,
+      factCount: 7,
+      fetchedAt: DateTime.utc(2026),
+    );
+    final payload = {
+      'action': 'verified-keyless-annual-source-after-api-noData',
+      'targetReceipt': receipt,
+      'sourceReceipt': receipt,
+      'format': 'html',
+      'corpCode': '01020269',
+      'fsDiv': 'separate',
+      'reportName': report.reportName,
+      'sha256': sha256
+          .convert(utf8.encode('${raw['cover']}\n${raw['ofs']}'))
+          .toString(),
+      'coreRows': 7,
+      'coreRowProvenance': rows,
+    };
+    final source = Source(
+      kind: SourceKind.dartReport,
+      reference: 'financial-api-noData-source:$receipt:separate',
+      url: Talos2021CurrentSevenSource.sources['ofs']!.$1,
+      title: jsonEncode(payload),
+      retrievedAt: DateTime.utc(2026),
+    );
+    expect(
+      FinancialEndpoint.validPartialScopeSource(source, report, '01020269'),
+      isTrue,
+    );
+    final original = source.title;
+    for (final key in [
+      'printedAmount',
+      'currentColumn',
+      'htmlTrIndex',
+      'unitMultiplier',
+      'missingAccountReasons',
+    ]) {
+      final copy = jsonDecode(original) as Map<String, dynamic>;
+      copy['coreRowProvenance'][0]['html_provenance'][key] = 'wrong';
+      expect(
+        FinancialEndpoint.validPartialScopeSource(
+          source.copyWith(title: jsonEncode(copy)),
+          report,
+          '01020269',
+        ),
+        isFalse,
+        reason: key,
+      );
+    }
+    expect(source.title, original);
+  });
   test(
     'exact seven source binding rejects wrong identity period and provenance',
     () {
