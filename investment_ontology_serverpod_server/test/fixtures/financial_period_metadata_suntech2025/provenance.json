@@ -1,0 +1,16 @@
+{
+  "cover.html": {
+    "bytes": 4677,
+    "rawSHA256": "0c5c9784d78f754e8509079d4b2e479288c1cef7def0e357ec1d2a6e39c729c4"
+  },
+  "target-shell.html": {
+    "bytes": 46364,
+    "rawSHA256": "8f8dae527c1fe8e1054dc3a4041422c0cefc66b7d15113dc0804d39acdd48256"
+  },
+  "shell.html": {
+    "bytes": 71190,
+    "rawSHA256": "7248880836457be4257db9b004110e1acf72ebf164b7e2364f016266d2099432"
+  },
+  "coverDigestContract": "sha256(UTF8(shellHtml + newline + coverHtml)); distinct from raw coverSHA256",
+  "independentlyComputedCoverDigest": "ae7a3929f5d453d3446b7731e93983bb34cbbc4798f9d169e138690e79c0bcde"
+}

@@ -2142,7 +2142,7 @@ void main() {
       );
     }
 
-    test('fresh metadata batch remaining resumes in thirty seconds despite a first transport failure', () async {
+    test('fresh metadata batch remaining resumes in thirty seconds despite a first invalid metadata response', () async {
       for (var i = 1; i <= 21; i++) {
         final c = await company('9${i.toString().padLeft(7, '0')}');
         await Company.db.updateRow(
@@ -2328,7 +2328,7 @@ void main() {
     for (final halfYear in [false, true]) {
       for (final transportFailure in [false, true]) {
         test(
-          'primary source period anchor half=$halfYear failure=$transportFailure preserves stored full facts without replacement',
+          'primary source period anchor half=$halfYear invalidMetadata=$transportFailure preserves stored full facts without replacement',
           () async {
             final c = (await Company.db.find(session)).single;
             await Company.db.updateRow(
@@ -2446,7 +2446,13 @@ void main() {
             );
             expect(flags.single, [!transportFailure, !transportFailure]);
             if (transportFailure) {
-              expect(scheduled, contains(now.add(const Duration(minutes: 15))));
+              // MetadataOnlyClient throws FormatException('Invalid metadata
+              // response'), not a timeout. Retry the completed rejected cycle
+              // next KST day; all original fact/Source assertions above remain.
+              expect(scheduled, [
+                ApiCallBudget.nextKstMidnight(now)
+                    .add(const Duration(minutes: 10)),
+              ]);
             } else {
               final audit = await Source.db.find(
                 session,

@@ -1,3 +1,5 @@
+import 'financial_period_provenance.dart';
+import '../financial/financial_source_duration.dart';
 import '../financial/hanwha_own_net_income_scope.dart';
 import '../financial/suntech_own_cf_scope.dart';
 import '../financial/solumix_own_revenue_scope.dart';
@@ -6,6 +8,8 @@ import '../dart/ls_kiwoom_current_source.dart';
 import '../dart/known_annual_conflict_cache.dart';
 
 import 'dart:io';
+
+import 'package:crypto/crypto.dart';
 
 import '../dart/known_annual_source_not_presented.dart';
 import '../dart/known_annual_source_conflict.dart';
@@ -331,24 +335,148 @@ class FinancialFactsSync {
         }
       }
       final deferredMetadataTargets = <int>{};
+      final rejectedMetadataTargets = <int>{};
+      final periodMismatchTargets = <int>{};
+      final ownerUriRejectedTargets = <int>{};
+      var metadataPeriodHold = false;
       var metadataAnchored = 0;
       var metadataBatchDeferred = false;
+      var metadataTransientFailure = false;
+      var metadataCycleFailed = false;
+      var metadataCycleComplete = false;
+      String? metadataProgress;
+      DateTime? metadataRetryAt;
       final failedMetadataReceipts = <String>{};
       final attemptedMetadataReceipts = <String>{};
       if (job.status != IngestStatus.cancelled) {
+        // Ledger period ownership can be complete while the original-cover
+        // provenance is missing. Do not retry already verified short periods.
+        final duration = await FinancialSourceDuration.load(
+          session,
+          companyIds: companies.values.map((c) => c.id!).toList(),
+        );
+        final missingDurationReports = duration.blockedReportIds
+            .where((id) => !duration.ranges.containsKey(id))
+            .toList();
         final candidates = await session.db.unsafeQuery(
           'WITH ${FinancialCollectionScope.cte} '
-          'SELECT DISTINCT p.id, r."rceptNo" FROM financial_scope p '
+          'SELECT DISTINCT p.id, r."rceptNo", s.url, r.id FROM financial_scope p '
           'JOIN financial_report r ON r."companyId"=p."companyId" AND r."bsnsYear"=p."bsnsYear" AND r."reportCode"=p."reportCode" '
           'JOIN source s ON s.id=r."sourceId" AND s.reference=r."rceptNo" '
           'WHERE p.id=ANY(@scope) AND p."reportCode" IN (\'annual\',\'halfYear\') '
           'AND substring(r."reportName" from \'[0-9]{4}[.][0-9]{2}\')=p.actual_period '
-          'AND ((p."consolidatedStatus"=\'stored\' AND r."fsDiv"=\'consolidated\' AND NOT p.consolidated_period_stored) OR '
-          '(p."separateStatus"=\'stored\' AND r."fsDiv"=\'separate\' AND NOT p.separate_period_stored)) '
-          'AND EXISTS(SELECT 1 FROM financial_fact v WHERE v."reportId"=r.id AND v."sourceId"=r."sourceId" AND v.amount IS NOT NULL) '
-          'AND NOT EXISTS(SELECT 1 FROM dart_filing a WHERE a."rceptNo"=r."rceptNo") ORDER BY p.id',
-          parameters: QueryParameters.named({'scope': scopeIds.toList()}),
+          'AND r."supersededById" IS NULL AND s.kind=\'dartReport\' '
+          'AND ((p."consolidatedStatus"=\'stored\' AND r."fsDiv"=\'consolidated\') OR '
+          '(p."separateStatus"=\'stored\' AND r."fsDiv"=\'separate\')) '
+          'AND EXISTS(SELECT 1 FROM financial_fact v WHERE v."reportId"=r.id AND v."sourceId"=r."sourceId" '
+          'AND v."companyId"=r."companyId" AND v."bsnsYear"=r."bsnsYear" AND v."reportCode"=r."reportCode" '
+          'AND v."fsDiv"=r."fsDiv" AND v."supersededById" IS NULL AND v.amount IS NOT NULL) '
+          'AND (r.id=ANY(@missingDurationReports) OR '
+          '(((r."fsDiv"=\'consolidated\' AND NOT p.consolidated_period_stored) OR '
+          '(r."fsDiv"=\'separate\' AND NOT p.separate_period_stored)) '
+          'AND NOT EXISTS(SELECT 1 FROM dart_filing a WHERE a."rceptNo"=r."rceptNo"))) ORDER BY p.id',
+          parameters: QueryParameters.named({
+            'scope': scopeIds.toList(),
+            'missingDurationReports': missingDurationReports,
+          }),
         );
+        // Progress belongs to the exact active company/period scope, not a
+        // Source or a filing status. Retain the old ledger history unchanged.
+        final fingerprintRows = await session.db.unsafeQuery(
+          'SELECT DISTINCT "companyId", "corpCode", "bsnsYear", "reportCode", '
+          'substring("reportName" from \'[0-9]{4}[.][0-9]{2}\') '
+          'FROM dart_filing WHERE id=ANY(@ids) ORDER BY 1,2,3,4,5',
+          parameters: QueryParameters.named({'ids': scopeIds.toList()}),
+        );
+        final scopeFingerprint = sha256
+            .convert(
+              utf8.encode(
+                jsonEncode([
+                  corpCode ?? 'all',
+                  companies.values.map((c) => c.id).toList()..sort(),
+                  fingerprintRows,
+                ]),
+              ),
+            )
+            .toString();
+        final history = await IngestJob.db.find(
+          session,
+          where: (t) =>
+              t.kind.equals(corpCode == null ? kind : companyKind) &
+              t.id.notEquals(jobId) &
+              t.message.like('%${MetadataProgress.marker}$scopeFingerprint:%'),
+          orderByList: (t) => [t.id.desc()],
+          limit: 50,
+        );
+        MetadataProgress? previous;
+        for (final h in history) {
+          final p = MetadataProgress.read(h.message, scopeFingerprint);
+          if (p != null) {
+            previous = p;
+            break;
+          }
+        }
+        final missingDurationKeys = <String>{
+          for (final row in candidates)
+            if (missingDurationReports.contains(row[3])) '${row[0]}:${row[1]}',
+        };
+        final unique = <String, List<dynamic>>{};
+        for (final row in candidates) {
+          unique.putIfAbsent('${row[0]}:${row[1]}', () => row);
+        }
+        final ordered = unique.values.toList()
+          ..sort((a, b) {
+            final byId = (a[0] as int).compareTo(b[0] as int);
+            return byId != 0
+                ? byId
+                : (a[1] as String).compareTo(b[1] as String);
+          });
+        final waitingCycle =
+            previous != null &&
+            previous.complete &&
+            previous.retryAt != null &&
+            _clock().toUtc().isBefore(previous.retryAt!);
+        final remainingCandidates = ordered
+            .where(
+              (row) =>
+                  !waitingCycle &&
+                  (previous == null ||
+                      previous.complete ||
+                      previous.after(row[0] as int, row[1] as String)),
+            )
+            .toList();
+        var lastTarget = previous?.target;
+        var lastReceipt = previous?.receipt;
+        metadataCycleFailed =
+            previous != null &&
+            (!previous.complete || waitingCycle) &&
+            previous.failed;
+        metadataTransientFailure =
+            previous != null &&
+            (!previous.complete || waitingCycle) &&
+            previous.transient;
+        metadataPeriodHold =
+            previous != null &&
+            (!previous.complete || waitingCycle) &&
+            previous.periodHold;
+        if (waitingCycle) metadataRetryAt = previous.retryAt;
+        for (final row in ordered) {
+          if (!remainingCandidates.contains(row)) {
+            deferredMetadataTargets.add(row[0] as int);
+            if (waitingCycle && metadataPeriodHold) {
+              rejectedMetadataTargets.add(row[0] as int);
+            }
+          }
+        }
+        final invalidSourceReceipts = <String>{
+          for (final candidate in candidates)
+            if (missingDurationReports.contains(candidate[3]) &&
+                !FinancialPeriodProvenance.sourceUriMatches(
+                  candidate[2] as String?,
+                  candidate[1] as String,
+                ))
+              candidate[1] as String,
+        };
         if (candidates.isNotEmpty) {
           job = await IngestJobs.save(
             session,
@@ -356,11 +484,14 @@ class FinancialFactsSync {
           );
         }
         var metadataRequests = 0;
-        for (final candidate in candidates) {
+        for (final candidate in remainingCandidates) {
           final targetId = candidate[0] as int;
           final metadataReceipt = candidate[1] as String;
-          if (attemptedMetadataReceipts.contains(metadataReceipt)) {
-            if (failedMetadataReceipts.contains(metadataReceipt)) {
+          final metadataKey = '$targetId:$metadataReceipt';
+          if (attemptedMetadataReceipts.contains(metadataKey)) {
+            lastTarget = targetId;
+            lastReceipt = metadataReceipt;
+            if (failedMetadataReceipts.contains(metadataKey)) {
               deferredMetadataTargets.add(targetId);
             }
             continue;
@@ -374,6 +505,8 @@ class FinancialFactsSync {
             job = job.copyWith(status: IngestStatus.cancelled);
             break;
           }
+          lastTarget = targetId;
+          lastReceipt = metadataReceipt;
           final target = (await DartFiling.db.findById(session, targetId))!;
           final company = companies[target.corpCode];
           final parsed = DartReportName.parse(target.reportName);
@@ -385,6 +518,26 @@ class FinancialFactsSync {
               ].contains(parsed.kind)) {
             continue;
           }
+          final originalBeforeFetch = await DartFiling.db.findFirstRow(
+            session,
+            where: (t) => t.rceptNo.equals(metadataReceipt),
+          );
+          if (invalidSourceReceipts.contains(metadataReceipt) ||
+              (originalBeforeFetch != null &&
+                  !FinancialPeriodProvenance.originalMatches(
+                    originalBeforeFetch,
+                    target,
+                  ))) {
+            deferredMetadataTargets.add(targetId);
+            failedMetadataReceipts.add(metadataKey);
+            attemptedMetadataReceipts.add(metadataKey);
+            rejectedMetadataTargets.add(targetId);
+            ownerUriRejectedTargets.add(targetId);
+            session.log(
+              'Source period metadata owner/URI collision; existing rows preserved',
+            );
+            continue;
+          }
           final end = DateTime.utc(
             parsed.periodYear,
             parsed.periodMonth + 1,
@@ -394,7 +547,7 @@ class FinancialFactsSync {
             await Future<void>.delayed(const Duration(seconds: 1));
           }
           metadataRequests++;
-          attemptedMetadataReceipts.add(metadataReceipt);
+          attemptedMetadataReceipts.add(metadataKey);
           PublicFinancialPeriodMetadata metadata;
           try {
             metadata = await dart.fetchAnnualPeriodMetadata(
@@ -411,58 +564,125 @@ class FinancialFactsSync {
               throw const FormatException('Unbound recovered metadata');
             }
           } on PublicFinancialMetadataPeriodMismatch {
-            // Independent actual-cover mismatch may proceed to exact target recovery.
+            // Legacy orphan recovery can proceed to exact target recovery.
+            // Already-stored missing-duration rows must retain their money/ledger
+            // and expose an unconfirmed official-cover period conflict instead.
+            if (missingDurationKeys.contains(metadataKey)) {
+              deferredMetadataTargets.add(targetId);
+              rejectedMetadataTargets.add(targetId);
+              periodMismatchTargets.add(targetId);
+              metadataPeriodHold = true;
+              failedMetadataReceipts.add(metadataKey);
+              session.log(
+                'Official cover closing date differs from stored period; original financial rows preserved',
+              );
+            }
             continue;
           } catch (e) {
             deferredMetadataTargets.add(targetId);
-            failedMetadataReceipts.add(metadataReceipt);
+            failedMetadataReceipts.add(metadataKey);
+            metadataCycleFailed = true;
+            if (e is! FormatException) metadataTransientFailure = true;
             session.log('Source period metadata deferred: ${e.runtimeType}');
             continue;
+          }
+          if (await IngestJobs.isCancelled(session, jobId)) {
+            job = job.copyWith(status: IngestStatus.cancelled);
+            break;
           }
           final sourceName =
               '${parsed.kind == DartReportKind.halfYear ? '반기보고서' : '사업보고서'} (${parsed.periodYear}.${parsed.periodMonth.toString().padLeft(2, '0')})';
           await session.db.transaction((tx) async {
-            await DartFiling.db.insertRow(
+            final existingOriginal = await DartFiling.db.findFirstRow(
               session,
-              DartFiling(
-                rceptNo: metadata.receipt,
-                corpCode: company.corpCode,
-                companyId: company.id,
-                reportName: sourceName,
-                bsnsYear: target.bsnsYear,
-                reportCode: target.reportCode,
-                consolidatedStatus: FilingFetchStatus.pending,
-                separateStatus: FilingFetchStatus.pending,
-                lastError: 'verified-source-cover-metadata: ${target.rceptNo}',
-                discoveredAt: now,
-              ),
+              where: (t) => t.rceptNo.equals(metadata.receipt),
               transaction: tx,
             );
-            await Source.db.insertRow(
+            if (existingOriginal != null) {
+              if (!FinancialPeriodProvenance.originalMatches(
+                existingOriginal,
+                target,
+              )) {
+                throw const FormatException(
+                  'Existing original filing metadata owner/period collision',
+                );
+              }
+              // Preserve statuses, retries, timestamps and original error history.
+            } else {
+              await DartFiling.db.insertRow(
+                session,
+                DartFiling(
+                  rceptNo: metadata.receipt,
+                  corpCode: company.corpCode,
+                  companyId: company.id,
+                  reportName: sourceName,
+                  bsnsYear: target.bsnsYear,
+                  reportCode: target.reportCode,
+                  consolidatedStatus: FilingFetchStatus.pending,
+                  separateStatus: FilingFetchStatus.pending,
+                  lastError:
+                      'verified-source-cover-metadata: ${target.rceptNo}',
+                  discoveredAt: now,
+                ),
+                transaction: tx,
+              );
+            }
+            final anchor = Source(
+              kind: SourceKind.dartReport,
+              reference:
+                  'financial-source-period-anchor:${metadata.receipt}:${target.rceptNo}',
+              url: metadata.coverSource.toString(),
+              retrievedAt: now,
+              title: jsonEncode({
+                'kind': 'verified-source-cover-period-metadata',
+                'sourceReceipt': metadata.receipt,
+                'targetReceipt': target.rceptNo,
+                'corpCode': metadata.corpCode,
+                'shellSource': metadata.shellSource.toString(),
+                'coverSource': metadata.coverSource.toString(),
+                'sha256': metadata.digest,
+                'periodStart': metadata.periodStart.toIso8601String(),
+                'periodEnd': metadata.periodEnd.toIso8601String(),
+                'validationNote': '공식 표지 기간·회사·보고서 종류와 명시 원접수 연결만 검증; 기존 재무 숫자/출처 변경·전체 금액 재검증 없음',
+              }),
+            );
+            final existingAnchors = await Source.db.find(
               session,
-              Source(
-                kind: SourceKind.dartReport,
-                reference:
-                    'financial-source-period-anchor:${metadata.receipt}:${target.rceptNo}',
-                url: metadata.coverSource.toString(),
-                retrievedAt: now,
-                title: jsonEncode({
-                  'kind': 'verified-source-cover-period-metadata',
-                  'sourceReceipt': metadata.receipt,
-                  'targetReceipt': target.rceptNo,
-                  'corpCode': metadata.corpCode,
-                  'shellSource': metadata.shellSource.toString(),
-                  'coverSource': metadata.coverSource.toString(),
-                  'sha256': metadata.digest,
-                  'periodStart': metadata.periodStart.toIso8601String(),
-                  'periodEnd': metadata.periodEnd.toIso8601String(),
-                  'validationNote': '공식 표지 기간·회사·보고서 종류와 명시 원접수 연결만 검증; 기존 재무 숫자/출처 변경·전체 금액 재검증 없음',
-                }),
-              ),
+              where: (t) =>
+                  t.kind.equals(anchor.kind) &
+                  t.reference.equals(anchor.reference),
               transaction: tx,
             );
+            if (!existingAnchors.any(
+              (s) => s.url == anchor.url && s.title == anchor.title,
+            )) {
+              await Source.db.insertRow(session, anchor, transaction: tx);
+            }
           });
           metadataAnchored++;
+        }
+        metadataCycleComplete =
+            !metadataBatchDeferred && job.status != IngestStatus.cancelled;
+        if (metadataCycleComplete &&
+            (metadataCycleFailed || metadataPeriodHold) &&
+            metadataRetryAt == null) {
+          final at = _clock().toUtc();
+          metadataRetryAt = metadataTransientFailure
+              ? at.add(const Duration(minutes: 15))
+              : ApiCallBudget.nextKstMidnight(at)
+                    .add(const Duration(minutes: 10));
+        }
+        if (ordered.isNotEmpty) {
+          metadataProgress = MetadataProgress(
+            scopeFingerprint,
+            lastTarget,
+            lastReceipt,
+            metadataCycleComplete,
+            metadataCycleFailed,
+            transient: metadataTransientFailure,
+            retryAt: metadataRetryAt,
+            periodHold: metadataPeriodHold,
+          ).suffix;
         }
       }
       // Stored ledger status alone is insufficient when same-year annual
@@ -765,16 +985,36 @@ class FinancialFactsSync {
         }
       }
 
-      if (deferredMetadataTargets.isNotEmpty && !cancelled) {
+      final retryableMetadataTargets = deferredMetadataTargets.difference(
+        rejectedMetadataTargets,
+      );
+      if (ownerUriRejectedTargets.isNotEmpty) {
+        message +=
+            ', 기존 원접수 법인·기간/출처 URI 충돌 ${ownerUriRejectedTargets.length}건(숫자·원장 보존, 표지 재시도 예약 안 함)';
+      }
+      if (periodMismatchTargets.isNotEmpty || metadataPeriodHold) {
+        message +=
+            ', 공식 표지 종료일과 저장 보고기간 불일치 ${periodMismatchTargets.isEmpty ? '이전 확인 대상' : '${periodMismatchTargets.length}대상'}'
+            '(기간 증빙 미확정·숫자/원장 보존·표지 재시도 예약 안 함)';
+      }
+      if (!cancelled &&
+          (retryableMetadataTargets.isNotEmpty ||
+              (metadataCycleComplete && metadataCycleFailed))) {
         requestResume(
-          resumeNow.add(
-            metadataBatchDeferred
-                ? const Duration(seconds: 30)
-                : const Duration(minutes: 15),
-          ),
+          metadataBatchDeferred
+              ? resumeNow.add(const Duration(seconds: 30))
+              : metadataRetryAt ??
+                    (metadataTransientFailure
+                        ? resumeNow.add(const Duration(minutes: 15))
+                        : ApiCallBudget.nextKstMidnight(resumeNow)
+                              .add(const Duration(minutes: 10))),
         );
         message +=
-            ', 원접수 표지 확인 20건 묶음 이후 ${deferredMetadataTargets.length}건 다음 실행 재개';
+            ', 원접수 표지 확인 미완료 ${retryableMetadataTargets.length}건 다음 실행 재개 · ${metadataBatchDeferred
+                ? '미시도 묶음 30초 후'
+                : metadataTransientFailure
+                ? '일시 오류 15분 후'
+                : '확인 실패 다음 날'} 정상 재개';
       }
       if (cached.processed > 0 || cached.remaining > 0) {
         message +=
@@ -826,6 +1066,7 @@ class FinancialFactsSync {
       }
       if (feedRows > 0) message += ', 공시 피드 $feedRows건';
       if (only != null) message = '${only.name}: $message';
+      if (metadataProgress != null) message += metadataProgress;
       if (_budgetExhausted &&
           !cancelled &&
           only == null &&
@@ -848,7 +1089,9 @@ class FinancialFactsSync {
         job.copyWith(
           status: cancelled
               ? IngestStatus.cancelled
-              : failed > 0 || exhausted > 0
+              : failed > 0 ||
+                    exhausted > 0 ||
+                    rejectedMetadataTargets.isNotEmpty
               ? IngestStatus.failed
               : IngestStatus.succeeded,
           processed: processed,

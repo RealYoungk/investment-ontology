@@ -13,4 +13,12 @@ void main() {
   test('일반 처리 기록은 유지한다', () {
     expect(safeIngestMessage('100건 완료'), '100건 완료');
   });
+  test('재개 안내는 유지하고 내부 진행 위치는 화면에서 숨긴다', () {
+    const note = '원접수 표지 확인 2건 다음 실행 재개 · 미시도 묶음 30초 후 정상 재개';
+    final scope = List.filled(64, 'a').join();
+    expect(
+      safeIngestMessage('$note · metadata-progress-v1:$scope:eyJ2IjoxfQ=='),
+      note,
+    );
+  });
 }

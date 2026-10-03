@@ -42,6 +42,30 @@ class CloudflareReleaseTests(unittest.TestCase):
         with patch.object(pages,'cli',return_value=value['url']),patch.object(pages,'api',return_value=[value,value]),self.assertRaises(ValueError):
             pages.upload(Path('/artifact'),'b'*40)
 
+    def test_upload_pagination_finds_exact_url_on_later_page(self):
+        value = self.value(); value['environment'] = 'preview'
+        unrelated = {**value, 'url': 'https://other.alfinder-web.pages.dev'}
+        with patch.object(pages, 'cli', return_value=value['url']) as cli, patch.object(
+                pages, 'api', side_effect=[[unrelated] * 25, [value]]) as api:
+            self.assertEqual(pages.upload(Path('/artifact'), 'b' * 40)['id'], value['id'])
+        self.assertEqual(api.call_args_list[0].args, ('/deployments?per_page=25&page=1',))
+        self.assertEqual(api.call_args_list[1].args, ('/deployments?per_page=25&page=2',))
+        cli.assert_called_once()
+
+    def test_upload_rejects_cross_page_ambiguity_and_never_reuploads(self):
+        value = self.value(); value['environment'] = 'preview'
+        unrelated = {**value, 'url': 'https://other.alfinder-web.pages.dev'}
+        for responses in [
+                [[value] + [unrelated] * 24, [value]],
+                [[unrelated] * 25] * pages.DEPLOYMENT_PAGE_LIMIT,
+                [[]], [{'not': 'a list'}], [[None]], [[unrelated] * 26]]:
+            with self.subTest(responses=responses), patch.object(
+                    pages, 'cli', return_value=value['url']) as cli, patch.object(
+                    pages, 'api', side_effect=responses) as api, self.assertRaises(ValueError):
+                pages.upload(Path('/artifact'), 'b' * 40)
+            cli.assert_called_once()
+            self.assertLessEqual(api.call_count, pages.DEPLOYMENT_PAGE_LIMIT)
+
     def test_preview_is_never_a_rollback_target(self):
         value=self.value();value['environment']='preview'
         with patch.object(pages,'api',return_value=value) as api,self.assertRaises(ValueError):

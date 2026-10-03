@@ -26,3 +26,7 @@ investment_ontology_serverpod_server/test/fixtures/market_publication/*.html -te
 investment_ontology_serverpod_server/test/fixtures/kosnine_not_presented/*.html -text whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
 
 investment_ontology_serverpod_server/assets/financial_source_cache/known-annual-conflicts/*.html -text
+
+# Period metadata proofs retain the original, digest-pinned DART bytes.
+investment_ontology_serverpod_server/test/fixtures/financial_period_metadata_suntech2025/*.html -text whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+investment_ontology_serverpod_server/test/fixtures/financial_period_metadata_emt_short/*.html -text whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol

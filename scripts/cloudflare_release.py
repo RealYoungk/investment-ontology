@@ -11,6 +11,8 @@ PROJECT = 'alfinder-web'
 ACCOUNT = '9b9f77379317355dab85693ad96be8d8'
 NODE = '/opt/homebrew/bin/node'
 WRANGLER = '/Users/realyoungk/.npm/_npx/62152447c589c641/node_modules/wrangler/bin/wrangler.js'
+DEPLOYMENTS_PER_PAGE = 25
+DEPLOYMENT_PAGE_LIMIT = 10
 
 
 def cli(*args):
@@ -79,8 +81,20 @@ def upload(directory, commit, production_environment=False):
     if not urls:
         raise ValueError('Could not identify one immutable Pages upload URL')
     # List by explicit URL rather than assuming latest means our upload.
-    values = api('/deployments?per_page=100')
-    matches = [value for value in values if value.get('url') in urls]
+    matches = []
+    for page in range(1, DEPLOYMENT_PAGE_LIMIT + 1):
+        values = api(f'/deployments?per_page={DEPLOYMENTS_PER_PAGE}&page={page}')
+        if (not isinstance(values, list) or len(values) > DEPLOYMENTS_PER_PAGE
+                or any(not isinstance(value, dict) for value in values)):
+            raise ValueError('Invalid Pages deployment-list response; upload outcome requires inspection')
+        matches.extend(value for value in values if value.get('url') in urls)
+        if len(matches) > 1:
+            raise ValueError('Pages upload result is not uniquely bound to the project')
+        if len(values) < DEPLOYMENTS_PER_PAGE:
+            break
+    else:
+        # Do not retry an upload whose outcome is already potentially successful.
+        raise ValueError('Pages deployment lookup exceeded its page limit; inspect the existing upload')
     if len(matches) != 1:
         raise ValueError('Pages upload result is not uniquely bound to the project')
     return deployment(matches[0], 'production' if production_environment else 'preview', commit)
