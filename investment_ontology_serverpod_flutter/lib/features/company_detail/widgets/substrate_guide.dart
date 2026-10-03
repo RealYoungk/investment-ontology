@@ -1,3 +1,5 @@
+import 'package:investment_ontology_serverpod_flutter/design/components/data_panel.dart';
+import 'package:shad/shad.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -19,13 +21,7 @@ class _SubstrateGuideState extends State<SubstrateGuide> {
   @override
   Widget build(BuildContext context) {
     final c = context.colors, t = context.typo;
-    return Container(
-      padding: const EdgeInsets.all(AppSpace.lg),
-      decoration: BoxDecoration(
-        color: c.surface,
-        border: Border.all(color: c.border),
-        borderRadius: context.shape.borderRadius,
-      ),
+    return DataPanel(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -44,10 +40,12 @@ class _SubstrateGuideState extends State<SubstrateGuide> {
             runSpacing: AppSpace.sm,
             children: [
               for (var i = 0; i < titles.length; i++)
-                ChoiceChip(
-                  label: Text('${i + 1}. ${titles[i]}'),
-                  selected: _step == i,
-                  onSelected: (_) => setState(() => _step = i),
+                IntrinsicWidth(
+                  child: ShadToggle.outline(
+                    value: _step == i,
+                    onChanged: (_) => setState(() => _step = i),
+                    child: Text('${i + 1}. ${titles[i]}'),
+                  ),
                 ),
             ],
           ),
@@ -232,11 +230,13 @@ class _SubstrateGuideState extends State<SubstrateGuide> {
   );
   Widget _source(String label, String url) => Align(
     alignment: Alignment.centerLeft,
-    child: TextButton(
+    child: ShadButton.ghost(
       onPressed: () => launchUrl(Uri.parse(url)),
-      child: Text(
-        '$label ↗',
-        style: context.typo.body(11, color: context.colors.textSecondary),
+      child: Flexible(
+        child: Text(
+          '$label ↗',
+          style: context.typo.body(11, color: context.colors.textSecondary),
+        ),
       ),
     ),
   );

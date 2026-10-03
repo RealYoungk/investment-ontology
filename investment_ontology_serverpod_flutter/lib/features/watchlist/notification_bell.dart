@@ -12,8 +12,20 @@ import 'push_platform.dart';
 import 'watchlist_store.dart';
 
 /// Shared account-scoped inbox. The page and bell listen to the same store.
-class NotificationBell extends StatelessWidget {
+class NotificationBell extends StatefulWidget {
   const NotificationBell({super.key});
+  @override
+  State<NotificationBell> createState() => _NotificationBellState();
+}
+
+class _NotificationBellState extends State<NotificationBell> {
+  final _popover = ShadPopoverController();
+  @override
+  void dispose() {
+    _popover.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final store = WatchlistStore.instance;
@@ -21,56 +33,124 @@ class NotificationBell extends StatelessWidget {
       listenable: store,
       builder: (context, _) {
         final unread = store.view?.updates.where((u) => !u.read).length ?? 0;
-        return IconButton(
-          tooltip: unread > 0 ? '알림함 · 읽지 않은 알림 $unread개' : '알림함',
-          icon: Badge(
-            isLabelVisible: unread > 0,
-            label: Text(unread > 99 ? '99+' : '$unread'),
-            child: Icon(
-              Icons.notifications_outlined,
-              color: context.colors.textSecondary,
-              size: 23,
-            ),
+        return ShadPopover(
+          controller: _popover,
+          popover: (_) => InheritedTheme.captureAll(
+            context,
+            _NotificationInbox(onClose: _popover.hide),
           ),
-          onPressed: () {
-            if (store.owner == null) {
-              context.push('/login');
-              return;
-            }
-            store.refresh();
-            if (MediaQuery.sizeOf(context).width < 600) {
-              showModalBottomSheet<void>(
-                context: context,
-                isScrollControlled: true,
-                showDragHandle: true,
-                builder: (_) => const _NotificationInbox(),
-              );
-            } else {
-              final box = context.findRenderObject() as RenderBox;
-              final anchor = box.localToGlobal(Offset.zero);
-              final screen = MediaQuery.sizeOf(context);
-              showGeneralDialog<void>(
-                context: context,
-                barrierDismissible: true,
-                barrierLabel: '알림 닫기',
-                barrierColor: context.colors.surface.withValues(alpha: 0),
-                transitionDuration: const Duration(milliseconds: 120),
-                pageBuilder: (_, _, _) => Stack(
-                  children: [
-                    Positioned(
-                      top: anchor.dy + box.size.height + 8,
-                      right: (screen.width - anchor.dx - box.size.width).clamp(
-                        16.0,
-                        screen.width - 420,
+          child: Semantics(
+            container: true,
+            label: unread > 0 ? '알림함 · 읽지 않은 알림 $unread개' : '알림함',
+            button: true,
+            enabled: true,
+            onTap: () {
+              if (store.owner == null) {
+                context.push('/login');
+                return;
+              }
+              store.refresh();
+              if (MediaQuery.sizeOf(context).width < 600) {
+                showShadSheet<void>(
+                  useRootNavigator: true,
+                  context: context,
+                  side: ShadSheetSide.bottom,
+                  barrierLabel: '알림 닫기',
+                  builder: (_) => InheritedTheme.captureAll(
+                    context,
+                    ShadSheet(
+                      closeIcon: Builder(
+                        builder: (context) => Semantics(
+                          container: true,
+                          label: '닫기',
+                          button: true,
+                          onTap: () => Navigator.of(context).pop(),
+                          child: ExcludeSemantics(
+                            child: ShadIconButton.ghost(
+                              width: 20,
+                              height: 20,
+                              padding: EdgeInsets.zero,
+                              icon: const Icon(LucideIcons.x, size: 16),
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
+                          ),
+                        ),
                       ),
-                      width: 400,
-                      child: const _NotificationInbox(),
+                      child: _NotificationInbox(),
                     ),
+                  ),
+                );
+              } else {
+                _popover.toggle();
+              }
+            },
+            child: ExcludeSemantics(
+              child: ShadIconButton.ghost(
+                width: 36,
+                height: 36,
+                hoverBackgroundColor: ShadTheme.of(context).colorScheme.accent,
+                icon: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Icon(
+                      LucideIcons.bell,
+                      color: context.colors.textSecondary,
+                      size: 20,
+                    ),
+                    if (unread > 0)
+                      Positioned(
+                        top: -8,
+                        right: -10,
+                        child: ShadBadge(
+                          child: Text(unread > 99 ? '99+' : '$unread'),
+                        ),
+                      ),
                   ],
                 ),
-              );
-            }
-          },
+                onPressed: () {
+                  if (store.owner == null) {
+                    context.push('/login');
+                    return;
+                  }
+                  store.refresh();
+                  if (MediaQuery.sizeOf(context).width < 600) {
+                    showShadSheet<void>(
+                      useRootNavigator: true,
+                      context: context,
+                      side: ShadSheetSide.bottom,
+                      barrierLabel: '알림 닫기',
+                      builder: (_) => InheritedTheme.captureAll(
+                        context,
+                        ShadSheet(
+                          closeIcon: Builder(
+                            builder: (context) => Semantics(
+                              container: true,
+                              label: '닫기',
+                              button: true,
+                              onTap: () => Navigator.of(context).pop(),
+                              child: ExcludeSemantics(
+                                child: ShadIconButton.ghost(
+                                  width: 20,
+                                  height: 20,
+                                  padding: EdgeInsets.zero,
+                                  icon: const Icon(LucideIcons.x, size: 16),
+                                  onPressed: () => Navigator.of(context).pop(),
+                                ),
+                              ),
+                            ),
+                          ),
+                          child: _NotificationInbox(),
+                        ),
+                      ),
+                    );
+                  } else {
+                    _popover.toggle();
+                  }
+                },
+                semanticLabel: unread > 0 ? '알림함 · 읽지 않은 알림 $unread개' : '알림함',
+              ),
+            ),
+          ),
         );
       },
     );
@@ -78,7 +158,8 @@ class NotificationBell extends StatelessWidget {
 }
 
 class _NotificationInbox extends StatefulWidget {
-  const _NotificationInbox({this.fullPage = false});
+  const _NotificationInbox({this.fullPage = false, this.onClose});
+  final VoidCallback? onClose;
   final bool fullPage;
   @override
   State<_NotificationInbox> createState() => _NotificationInboxState();
@@ -154,15 +235,35 @@ class _NotificationInboxState extends State<_NotificationInbox> {
       final c = context.colors;
       final t = context.typo;
       if (store.owner == null) {
-        return AlertDialog(
+        return ShadDialog(
+          closeIcon: Builder(
+            builder: (context) => Semantics(
+              container: true,
+              label: '닫기',
+              button: true,
+              onTap: () => Navigator.of(context).pop(),
+              child: ExcludeSemantics(
+                child: ShadIconButton.ghost(
+                  width: 20,
+                  height: 20,
+                  padding: EdgeInsets.zero,
+                  icon: const Icon(LucideIcons.x, size: 16),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
+            ),
+          ),
           title: const Text('알림함'),
-          content: const Text('로그인 후 알림을 확인할 수 있습니다.'),
           actions: [
-            TextButton(
+            ShadButton.ghost(
               onPressed: () => Navigator.pop(context),
-              child: const Text('닫기'),
+              child: Flexible(child: const Text('닫기')),
             ),
           ],
+          child: Material(
+            type: MaterialType.transparency,
+            child: const Text('로그인 후 알림을 확인할 수 있습니다.'),
+          ),
         );
       }
       return Material(
@@ -196,19 +297,41 @@ class _NotificationInboxState extends State<_NotificationInbox> {
                         style: t.body(18, weight: FontWeight.w700),
                       ),
                     ),
-                    IconButton(
-                      tooltip: _settings ? '알림 목록' : '알림 설정',
-                      onPressed: () => setState(() => _settings = !_settings),
-                      icon: Icon(
-                        _settings ? Icons.arrow_back : Icons.settings_outlined,
-                        size: 20,
+                    Semantics(
+                      container: true,
+                      label: _settings ? '알림 목록' : '알림 설정',
+                      button: true,
+                      enabled: true,
+                      onTap: () => setState(() => _settings = !_settings),
+                      child: ExcludeSemantics(
+                        child: ShadIconButton.ghost(
+                          onPressed: () =>
+                              setState(() => _settings = !_settings),
+                          icon: Icon(
+                            _settings
+                                ? LucideIcons.arrowLeft
+                                : LucideIcons.settings,
+                            size: 20,
+                          ),
+                          semanticLabel: _settings ? '알림 목록' : '알림 설정',
+                        ),
                       ),
                     ),
                     if (!widget.fullPage)
-                      IconButton(
-                        tooltip: '알림함 닫기',
-                        onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.close, size: 20),
+                      Semantics(
+                        container: true,
+                        label: '알림함 닫기',
+                        button: true,
+                        enabled: true,
+                        onTap: widget.onClose ?? () => Navigator.pop(context),
+                        child: ExcludeSemantics(
+                          child: ShadIconButton.ghost(
+                            onPressed:
+                                widget.onClose ?? () => Navigator.pop(context),
+                            icon: const Icon(LucideIcons.x, size: 20),
+                            semanticLabel: '알림함 닫기',
+                          ),
+                        ),
                       ),
                   ],
                 ),
@@ -221,7 +344,7 @@ class _NotificationInboxState extends State<_NotificationInbox> {
                       if (store.loading && view == null)
                         const Padding(
                           padding: EdgeInsets.all(AppSpace.xl),
-                          child: Center(child: CircularProgressIndicator()),
+                          child: Center(child: ShadSpinner()),
                         ),
                       if (store.error != null)
                         Padding(
@@ -245,29 +368,14 @@ class _NotificationInboxState extends State<_NotificationInbox> {
                             in (widget.fullPage
                                 ? view.updates
                                 : view.updates.take(10)))
-                          ListTile(
-                            leading: Icon(
-                              update.read
-                                  ? Icons.article_outlined
-                                  : Icons.mark_email_unread_outlined,
-                              color: update.read ? c.textMuted : c.accent,
-                              size: 20,
+                          ShadButton.ghost(
+                            width: double.infinity,
+                            height: 0,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpace.md,
+                              vertical: AppSpace.sm,
                             ),
-                            title: Text(
-                              update.title,
-                              style: t.body(
-                                14,
-                                weight: update.read
-                                    ? FontWeight.w400
-                                    : FontWeight.w600,
-                              ),
-                            ),
-                            subtitle: Text(
-                              '${update.companyName} · DART',
-                              style: t.body(12, color: c.textMuted),
-                            ),
-                            trailing: const Icon(Icons.north_east, size: 16),
-                            onTap: _busy
+                            onPressed: _busy
                                 ? null
                                 : () => _action(() async {
                                     await launchUrl(
@@ -279,50 +387,125 @@ class _NotificationInboxState extends State<_NotificationInbox> {
                                     );
                                     await store.refresh();
                                   }),
+                            child: Flexible(
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    update.read
+                                        ? LucideIcons.fileText
+                                        : LucideIcons.mail,
+                                    color: update.read ? c.textMuted : c.accent,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: AppSpace.sm),
+                                  Expanded(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          update.title,
+                                          style: t.body(
+                                            14,
+                                            weight: update.read
+                                                ? FontWeight.w400
+                                                : FontWeight.w600,
+                                          ),
+                                        ),
+                                        Text(
+                                          '${update.companyName} · DART',
+                                          style: t.body(12, color: c.textMuted),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: AppSpace.sm),
+                                  const Icon(
+                                    LucideIcons.arrowUpRight,
+                                    size: 16,
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                       if (_settings && view != null)
-                        ExpansionTile(
-                          initiallyExpanded: true,
-                          title: Text('기기 알림 설정', style: t.body(14)),
-                          leading: const Icon(Icons.tune, size: 20),
+                        ShadAccordion<int>(
+                          maintainState: false,
+                          initialValue: 0,
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(
-                                AppSpace.lg,
-                                0,
-                                AppSpace.lg,
-                                AppSpace.lg,
+                            ShadAccordionItem<int>(
+                              value: 0,
+                              title: Row(
+                                children: [
+                                  const Icon(
+                                    LucideIcons.slidersHorizontal,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: AppSpace.sm),
+                                  Expanded(
+                                    child: Text('기기 알림 설정', style: t.body(14)),
+                                  ),
+                                ],
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(switch (_push) {
-                                    'unsupported' => '이 브라우저에서는 기기 알림을 지원하지 않습니다. 아이폰은 홈 화면에 추가한 웹 앱에서 설정해 주세요.',
-                                    'denied' => '브라우저 설정에서 알림 권한을 허용해 주세요.',
-                                    'enabled' => '이 기기의 알림이 켜져 있습니다.',
-                                    _ =>
-                                      view.pushConfigured
-                                          ? '허용하면 브라우저를 닫아도 새 공시 알림을 받을 수 있습니다.'
-                                          : '기기 알림 발송 설정을 준비 중입니다. 앱 알림함은 이용할 수 있습니다.',
-                                  }, style: t.body(13, color: c.textSecondary)),
-                                  const SizedBox(height: AppSpace.md),
-                                  FilledButton.icon(
-                                    icon: const Icon(
-                                      Icons.notifications_outlined,
-                                      size: 18,
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                      AppSpace.lg,
+                                      0,
+                                      AppSpace.lg,
+                                      AppSpace.lg,
                                     ),
-                                    label: Text(
-                                      _push == 'enabled'
-                                          ? '이 기기 알림 끄기'
-                                          : '이 기기 알림 켜기',
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          switch (_push) {
+                                            'unsupported' => '이 브라우저에서는 기기 알림을 지원하지 않습니다. 아이폰은 홈 화면에 추가한 웹 앱에서 설정해 주세요.',
+                                            'denied' =>
+                                              '브라우저 설정에서 알림 권한을 허용해 주세요.',
+                                            'enabled' => '이 기기의 알림이 켜져 있습니다.',
+                                            _ =>
+                                              view.pushConfigured
+                                                  ? '허용하면 브라우저를 닫아도 새 공시 알림을 받을 수 있습니다.'
+                                                  : '기기 알림 발송 설정을 준비 중입니다. 앱 알림함은 이용할 수 있습니다.',
+                                          },
+                                          style: t.body(
+                                            13,
+                                            color: c.textSecondary,
+                                          ),
+                                        ),
+                                        const SizedBox(height: AppSpace.md),
+                                        ShadButton(
+                                          enabled:
+                                              !(_busy ||
+                                                  !view.pushConfigured ||
+                                                  _push == 'unsupported' ||
+                                                  _push == 'denied'),
+                                          onPressed:
+                                              _busy ||
+                                                  !view.pushConfigured ||
+                                                  _push == 'unsupported' ||
+                                                  _push == 'denied'
+                                              ? null
+                                              : () => _pushToggle(view),
+                                          leading: const Icon(
+                                            LucideIcons.bell,
+                                            size: 18,
+                                          ),
+                                          child: Flexible(
+                                            child: Text(
+                                              _push == 'enabled'
+                                                  ? '이 기기 알림 끄기'
+                                                  : '이 기기 알림 켜기',
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    onPressed:
-                                        _busy ||
-                                            !view.pushConfigured ||
-                                            _push == 'unsupported' ||
-                                            _push == 'denied'
-                                        ? null
-                                        : () => _pushToggle(view),
                                   ),
                                 ],
                               ),
@@ -341,12 +524,16 @@ class _NotificationInboxState extends State<_NotificationInbox> {
               if (!widget.fullPage && !_settings)
                 Padding(
                   padding: const EdgeInsets.all(AppSpace.sm),
-                  child: TextButton(
+                  child: ShadButton.ghost(
                     onPressed: () {
-                      Navigator.pop(context);
+                      if (widget.onClose != null) {
+                        widget.onClose!();
+                      } else {
+                        Navigator.pop(context);
+                      }
                       context.go('/notifications');
                     },
-                    child: const Text('모두 보기'),
+                    child: Flexible(child: const Text('모두 보기')),
                   ),
                 ),
             ],

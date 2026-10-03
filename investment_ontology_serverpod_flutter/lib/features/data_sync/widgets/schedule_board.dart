@@ -135,16 +135,7 @@ class _DatasetCollectionControlsState extends State<DatasetCollectionControls> {
     final actions = Wrap(
       spacing: AppSpace.md,
       children: [
-        AppButton(
-          label: _busy
-              ? '요청 중…'
-              : running && !companyScoped
-              ? '수집 중단'
-              : widget.dataset == 'market'
-              ? '금융위에서 갱신'
-              : !companyScoped
-              ? 'DART에서 갱신'
-              : '이 기업 DART 갱신',
+        ShadButton.raw(
           onPressed: _busy
               ? null
               : () => _run(() async {
@@ -167,11 +158,49 @@ class _DatasetCollectionControlsState extends State<DatasetCollectionControls> {
                     }
                   }
                 }),
+          enabled:
+              (_busy
+                  ? null
+                  : () => _run(() async {
+                      if (running && !companyScoped) {
+                        await client.ingest.cancel(entry!.lastJob!.id!);
+                      } else {
+                        switch (kind) {
+                          case 'financial_facts':
+                            await client.ingest.startFinancials(
+                              corpCode: corpCode,
+                            );
+                          case 'market_snapshot':
+                            await client.ingest.startMarketSnapshot();
+                          case 'business_documents':
+                            await client.ingest.startBusinessDocuments();
+                          case 'disclosures':
+                            await client.ingest.startDisclosures(
+                              corpCode: corpCode,
+                            );
+                          default:
+                            await client.ingest.startCompanyMaster();
+                        }
+                      }
+                    })) !=
+              null,
+          variant: ShadButtonVariant.outline,
+          child: Flexible(
+            child: Text(
+              _busy
+                  ? '요청 중…'
+                  : running && !companyScoped
+                  ? '수집 중단'
+                  : widget.dataset == 'market'
+                  ? '금융위에서 갱신'
+                  : !companyScoped
+                  ? 'DART에서 갱신'
+                  : '이 기업 DART 갱신',
+            ),
+          ),
         ),
         if (widget.dataset == 'business')
-          AppButton(
-            label: corpCode == null ? '저장 원문 재처리' : '이 기업 원문 재처리',
-            variant: AppButtonVariant.link,
+          ShadButton.raw(
             onPressed: _busy || running
                 ? null
                 : () => _run(() async {
@@ -179,6 +208,19 @@ class _DatasetCollectionControlsState extends State<DatasetCollectionControls> {
                       corpCode: corpCode,
                     );
                   }),
+            enabled:
+                (_busy || running
+                    ? null
+                    : () => _run(() async {
+                        await client.ingest.rebuildProductionFacts(
+                          corpCode: corpCode,
+                        );
+                      })) !=
+                null,
+            variant: ShadButtonVariant.link,
+            child: Flexible(
+              child: Text(corpCode == null ? '저장 원문 재처리' : '이 기업 원문 재처리'),
+            ),
           ),
       ],
     );
@@ -320,10 +362,11 @@ class MarketSecurityRelinkStatus extends StatelessWidget {
         if (onCancel != null && entry.lastJob?.status == IngestStatus.running)
           Align(
             alignment: Alignment.centerLeft,
-            child: AppButton(
-              label: '재연결 중단',
-              variant: AppButtonVariant.link,
+            child: ShadButton.raw(
               onPressed: onCancel,
+              enabled: (onCancel) != null,
+              variant: ShadButtonVariant.link,
+              child: Text('재연결 중단'),
             ),
           ),
       ],
@@ -435,7 +478,7 @@ class _Row extends StatelessWidget {
             ),
           if (running) ...[
             const SizedBox(height: AppSpace.sm),
-            LinearProgressIndicator(value: progress, minHeight: 3),
+            ShadProgress(value: progress, minHeight: 3),
           ],
         ],
       ),

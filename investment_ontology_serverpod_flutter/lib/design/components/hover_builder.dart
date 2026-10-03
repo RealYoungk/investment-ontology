@@ -41,6 +41,7 @@ class _HoverBuilderState extends State<HoverBuilder> {
       child: Semantics(
         button: enabled,
         enabled: enabled,
+        onTap: widget.onTap,
         child: Container(
           decoration: BoxDecoration(
             borderRadius: context.shape.borderRadius,

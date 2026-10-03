@@ -1,3 +1,5 @@
+import '../support/shad_test_host.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
@@ -69,13 +71,15 @@ void main() {
       snapshot(2026, collected: false),
     ];
     await tester.pumpWidget(
-      MaterialApp(
-        theme: buildAppTheme(ledgerBrand),
-        home: Scaffold(
-          body: SingleChildScrollView(
-            child: OwnershipChangesSection(
-              corpCode: '1',
-              loader: (_) async => reports,
+      shadTestHost(
+        MaterialApp(
+          theme: buildAppTheme(ledgerBrand),
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: OwnershipChangesSection(
+                corpCode: '1',
+                loader: (_) async => reports,
+              ),
             ),
           ),
         ),

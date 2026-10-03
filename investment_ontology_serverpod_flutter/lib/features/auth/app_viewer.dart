@@ -1,3 +1,4 @@
+import 'package:shad/shad.dart';
 import 'package:flutter/material.dart';
 
 /// 서버의 `Scope.admin` 이름. 앱은 이 이름으로 역할을 표시만 하고, 막는 것은 서버다.
@@ -122,10 +123,12 @@ extension AdminGuard on BuildContext {
   }
 
   void showPermissionNotice() {
-    ScaffoldMessenger.maybeOf(this)
-      ?..hideCurrentSnackBar()
-      ..showSnackBar(
-        const SnackBar(content: Text(permissionMessage)),
+    ShadToaster.maybeOf(this)
+      ?..hide()
+      ..show(
+        ShadToast(
+          description: Text(permissionMessage),
+        ),
       );
   }
 }

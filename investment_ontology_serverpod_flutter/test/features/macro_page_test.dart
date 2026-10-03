@@ -1,3 +1,7 @@
+import 'package:shad/shad.dart';
+
+import '../support/shad_test_host.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -61,7 +65,7 @@ Future<GoRouter> pump(
   );
   addTearDown(router.dispose);
   await tester.pumpWidget(
-    MaterialApp.router(theme: theme, routerConfig: router),
+    shadTestHost(MaterialApp.router(theme: theme, routerConfig: router)),
   );
   return router;
 }
@@ -73,15 +77,17 @@ void main() {
       final pending = Completer<void>();
       var calls = 0;
       await tester.pumpWidget(
-        MaterialApp(
-          theme: theme,
-          home: Scaffold(
-            body: ReadFailureNotice(
-              subject: '시장 정보',
-              retry: () {
-                calls++;
-                return pending.future;
-              },
+        shadTestHost(
+          MaterialApp(
+            theme: theme,
+            home: Scaffold(
+              body: ReadFailureNotice(
+                subject: '시장 정보',
+                retry: () {
+                  calls++;
+                  return pending.future;
+                },
+              ),
             ),
           ),
         ),
@@ -90,7 +96,7 @@ void main() {
       await tester.pump();
       expect(find.text('다시 불러오는 중…'), findsOneWidget);
       expect(
-        tester.widget<TextButton>(find.byType(TextButton)).onPressed,
+        tester.widget<ShadButton>(find.byType(ShadButton)).onPressed,
         isNull,
       );
       expect(calls, 1);
@@ -98,7 +104,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('다시 불러오기'), findsOneWidget);
       expect(
-        tester.widget<TextButton>(find.byType(TextButton)).onPressed,
+        tester.widget<ShadButton>(find.byType(ShadButton)).onPressed,
         isNotNull,
       );
       expect(tester.takeException(), isNull);

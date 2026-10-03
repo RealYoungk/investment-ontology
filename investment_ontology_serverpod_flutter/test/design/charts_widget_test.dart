@@ -1,6 +1,9 @@
+import '../support/shad_test_host.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:investment_ontology_serverpod_flutter/design/app_theme.dart';
 import 'package:investment_ontology_serverpod_flutter/design/components/components.dart';
@@ -51,6 +54,73 @@ Widget _app(Widget child, {double width = 400}) => MaterialApp(
 );
 
 void main() {
+  testWidgets('차트 키보드 탐색은 기간·결측 이유를 읽고 Escape로 닫는다', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(
+      _app(
+        AppColumnChart(
+          categories: const ['2023', '2024', '2025'],
+          series: const [
+            ChartSeries(
+              label: '합성 매출',
+              color: Color(0xFF2F6DA8),
+              values: [100, null, -20],
+            ),
+          ],
+          categoryNotes: const [null, '공시 미제공', null],
+          formatValue: (value) => '${value.toInt()}원',
+        ),
+      ),
+    );
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pump();
+    expect(find.text('-20원'), findsOneWidget);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+    await tester.pump();
+    expect(find.text('공시 미제공'), findsOneWidget);
+    final chartSemantics = find.byWidgetPredicate(
+      (w) => w is Semantics && w.properties.label == '합성 매출 차트',
+    );
+    expect(tester.getSemantics(chartSemantics).value, contains('자료 없음'));
+    await tester.sendKeyEvent(LogicalKeyboardKey.home);
+    await tester.pump();
+    expect(find.text('100원'), findsOneWidget);
+    await tester.sendKeyEvent(LogicalKeyboardKey.end);
+    await tester.pump();
+    expect(find.text('-20원'), findsOneWidget);
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pump();
+    expect(find.text('-20원'), findsNothing);
+    expect(tester.takeException(), isNull);
+    semantics.dispose();
+  });
+
+  testWidgets('중첩 연구 블록은 카드 하나로 유지하며 320px 긴 근거를 보존한다', (tester) async {
+    await tester.pumpWidget(
+      shadTestHost(
+        _app(
+          const DataPanel(
+            child: Column(
+              children: [
+                CompanySectionHeading(
+                  '연구 섹션',
+                  description: '긴 설명도 주어진 너비 안에서 줄바꿈합니다.',
+                ),
+                DataPanel(
+                  child: Text('원문 근거를 담는 내부 블록. 별도 테두리 박스를 중복하지 않습니다.'),
+                ),
+              ],
+            ),
+          ),
+          width: 320,
+        ),
+      ),
+    );
+    expect(find.byType(ShadCard), findsOneWidget);
+    expect(find.textContaining('원문 근거'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   test(
     'axis gutter contains signed large share counts and reserves plot space',
     () {
@@ -137,7 +207,7 @@ void main() {
       );
 
   testWidgets('혼합 차트: 좁은 화면 터치 상세의 금액·비율과 적자', (tester) async {
-    await tester.pumpWidget(_app(combo(), width: 320));
+    await tester.pumpWidget(shadTestHost(_app(combo(), width: 320)));
     final origin = tester.getTopLeft(find.byType(AppComboChart));
     await tester.tapAt(origin + const Offset(96, 120));
     await tester.pump();
@@ -155,7 +225,7 @@ void main() {
   });
 
   testWidgets('혼합 차트: hover 후 기간을 바꿔도 이전 상세가 남지 않는다', (tester) async {
-    await tester.pumpWidget(_app(combo()));
+    await tester.pumpWidget(shadTestHost(_app(combo())));
     final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
     await gesture.addPointer(location: Offset.zero);
     await gesture.moveTo(
@@ -166,7 +236,9 @@ void main() {
     expect(find.text('40.0%'), findsOneWidget);
     await gesture.removePointer();
 
-    await tester.pumpWidget(_app(combo(short: true, empty: true)));
+    await tester.pumpWidget(
+      shadTestHost(_app(combo(short: true, empty: true))),
+    );
     await tester.pump();
     expect(find.text('40.0%'), findsNothing);
     expect(tester.takeException(), isNull);
@@ -203,7 +275,7 @@ void main() {
       formatLineValue: (v) => '${(v * 100).toStringAsFixed(1)}%',
     );
     expect(chart.secondarySeries!.values, [null, null, -4, .5]);
-    await tester.pumpWidget(_app(chart, width: 320));
+    await tester.pumpWidget(shadTestHost(_app(chart, width: 320)));
     final origin = tester.getTopLeft(find.byType(AppComboChart));
     await tester.tapAt(origin + const Offset(100, 120));
     await tester.pump();
@@ -227,20 +299,22 @@ void main() {
       ),
     ];
     await tester.pumpWidget(
-      _app(
-        Column(
-          children: [
-            const AppColumnChart(
-              categories: ['2023', '2024', '2025'],
-              series: series,
-              formatValue: _fmt,
-            ),
-            AppLineChart(
-              categories: const ['2023', '2024', '2025'],
-              series: series[1],
-              formatValue: _fmt,
-            ),
-          ],
+      shadTestHost(
+        _app(
+          Column(
+            children: [
+              const AppColumnChart(
+                categories: ['2023', '2024', '2025'],
+                series: series,
+                formatValue: _fmt,
+              ),
+              AppLineChart(
+                categories: const ['2023', '2024', '2025'],
+                series: series[1],
+                formatValue: _fmt,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -257,21 +331,23 @@ void main() {
   testWidgets('트리맵: 세로 공간이 있으면 긴 이름을 여러 줄로 모두 표시한다', (tester) async {
     const label = '전자부품 컴퓨터 영상 음향 및 통신장비 제조업';
     await tester.pumpWidget(
-      _app(
-        AppTreemap<String>(
-          height: 180,
-          items: const [
-            TreemapItem(
-              id: '26',
-              label: label,
-              value: 1,
-              tooltip: '공식 중분류',
-              detail: '100조',
-            ),
-          ],
-          onTap: (_) {},
+      shadTestHost(
+        _app(
+          AppTreemap<String>(
+            height: 180,
+            items: const [
+              TreemapItem(
+                id: '26',
+                label: label,
+                value: 1,
+                tooltip: '공식 중분류',
+                detail: '100조',
+              ),
+            ],
+            onTap: (_) {},
+          ),
+          width: 120,
         ),
-        width: 120,
       ),
     );
     await tester.pumpAndSettle();
@@ -289,24 +365,26 @@ void main() {
     const label = '전자부품 컴퓨터 영상 음향 및 통신장비 제조업';
     for (final scale in [1.0, 2.0]) {
       await tester.pumpWidget(
-        _app(
-          MediaQuery(
-            data: MediaQueryData(textScaler: TextScaler.linear(scale)),
-            child: AppTreemap<String>(
-              height: 45 * scale,
-              items: const [
-                TreemapItem(
-                  id: '26',
-                  label: label,
-                  value: 1,
-                  tooltip: '공식 중분류',
-                  detail: '100조',
-                ),
-              ],
-              onTap: (_) {},
+        shadTestHost(
+          _app(
+            MediaQuery(
+              data: MediaQueryData(textScaler: TextScaler.linear(scale)),
+              child: AppTreemap<String>(
+                height: 45 * scale,
+                items: const [
+                  TreemapItem(
+                    id: '26',
+                    label: label,
+                    value: 1,
+                    tooltip: '공식 중분류',
+                    detail: '100조',
+                  ),
+                ],
+                onTap: (_) {},
+              ),
             ),
+            width: 120,
           ),
-          width: 120,
         ),
       );
       await tester.pumpAndSettle();
@@ -324,56 +402,63 @@ void main() {
   testWidgets('트리맵: 두 단계 타일과 누르기', (tester) async {
     TreemapItem<String>? tapped;
     await tester.pumpWidget(
-      _app(
-        AppTreemap<String>(
-          height: 300,
-          onTap: (item) => tapped = item,
-          items: const [
-            TreemapItem(
-              id: 'C',
-              label: 'C 제조업',
-              value: 70,
-              tooltip: 'C',
-              children: [
-                TreemapItem(
-                  id: 'C/26',
-                  label: '전자부품',
-                  detail: '53.2%',
-                  value: 50,
-                  tooltip: '26',
-                ),
-                TreemapItem(id: 'C/21', label: '의약품', value: 20, tooltip: '21'),
-                TreemapItem(
-                  id: 'C/99',
-                  label: '아주 긴 이름의 좁은 세부 업종',
-                  detail: '9.9%',
-                  value: 1,
-                  tooltip: '99',
-                ),
-              ],
-            ),
-            TreemapItem(
-              id: 'J',
-              label: 'J 정보통신업',
-              value: 30,
-              tooltip: 'J',
-              children: [
-                TreemapItem(
-                  id: 'J/63',
-                  label: '정보서비스',
-                  value: 30,
-                  tooltip: '63',
-                ),
-                TreemapItem(
-                  id: '',
-                  label: '그 외',
-                  value: 0.001,
-                  tooltip: '',
-                  tappable: false,
-                ),
-              ],
-            ),
-          ],
+      shadTestHost(
+        _app(
+          AppTreemap<String>(
+            height: 300,
+            onTap: (item) => tapped = item,
+            items: const [
+              TreemapItem(
+                id: 'C',
+                label: 'C 제조업',
+                value: 70,
+                tooltip: 'C',
+                children: [
+                  TreemapItem(
+                    id: 'C/26',
+                    label: '전자부품',
+                    detail: '53.2%',
+                    value: 50,
+                    tooltip: '26',
+                  ),
+                  TreemapItem(
+                    id: 'C/21',
+                    label: '의약품',
+                    value: 20,
+                    tooltip: '21',
+                  ),
+                  TreemapItem(
+                    id: 'C/99',
+                    label: '아주 긴 이름의 좁은 세부 업종',
+                    detail: '9.9%',
+                    value: 1,
+                    tooltip: '99',
+                  ),
+                ],
+              ),
+              TreemapItem(
+                id: 'J',
+                label: 'J 정보통신업',
+                value: 30,
+                tooltip: 'J',
+                children: [
+                  TreemapItem(
+                    id: 'J/63',
+                    label: '정보서비스',
+                    value: 30,
+                    tooltip: '63',
+                  ),
+                  TreemapItem(
+                    id: '',
+                    label: '그 외',
+                    value: 0.001,
+                    tooltip: '',
+                    tappable: false,
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

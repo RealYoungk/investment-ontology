@@ -67,6 +67,25 @@ def require_backend_commit(identity, commit):
         raise ValueError('Running backend OCI revision must match the artifact commit')
 
 
+def require_compatible_backend(identity, commit, source):
+    """Opt-in web-only release: unchanged server/client/deploy and existing locks."""
+    require_backend_commit(identity, source)
+    if run('git', 'merge-base', '--is-ancestor', source, commit) != '':
+        raise ValueError('Backend source must be an ancestor of the web release')
+    paths = ('investment_ontology_serverpod_server',
+             'investment_ontology_serverpod_client', 'deploy/iwinv')
+    if run('git', 'diff', '--name-only', source, commit, '--', *paths):
+        raise ValueError('Web-only release changed backend, client or server deployment sources')
+    def locks(ref):
+        text = run('git', 'show', ref + ':pubspec.lock')
+        packages = text.split('packages:\n', 1)[1].split('sdks:\n', 1)[0]
+        return dict((match.group(1), match.group(0)) for match in
+                    re.finditer(r'^  ([a-zA-Z0-9_]+):\n.*?(?=^  [a-zA-Z0-9_]+:|\Z)', packages, re.M | re.S))
+    old, new = locks(source), locks(commit)
+    if any(new.get(name) != value for name, value in old.items()):
+        raise ValueError('Web-only release changed an existing locked dependency')
+
+
 def fetch(url, data=None):
     request = Request(url, data=data, headers={
         'Cache-Control': 'no-cache', 'Origin': CONFIG['productionUrl'],
@@ -192,7 +211,7 @@ def build_local():
     print(f'Verified artifact: {destination}')
 
 
-def deploy(run_id=None, local=None):
+def deploy(run_id=None, local=None, backend_source=None):
     if local:
         attestation = json.loads((local / 'verification.json').read_text())
         commit = attestation['commit']
@@ -236,7 +255,10 @@ def deploy(run_id=None, local=None):
                            for path in prepared.rglob('*') if path.is_file()}
         previous = production()
         server = backend()
-        require_backend_commit(server, commit)
+        if backend_source:
+            require_compatible_backend(server, commit, backend_source)
+        else:
+            require_backend_commit(server, commit)
         previous['mainJsSha256'] = check_web(previous['url'])
         previous['fileHashes'] = web_hashes(previous['url'])
         check_hashes(CONFIG['productionUrl'], previous['fileHashes'])
@@ -252,7 +274,7 @@ def deploy(run_id=None, local=None):
                   'projectName': pages.PROJECT, 'accountId': pages.ACCOUNT,
                   'commit': commit, 'runId': run_id,
                   'createdUtc': datetime.now(timezone.utc).isoformat(),
-                  'backend': server, 'previous': previous, 'preview': preview,
+                  'backend': server, 'backendSource': backend_source, 'previous': previous, 'preview': preview,
                   'manifest': manifest, 'preparedFiles': prepared_hashes,
                   'status': 'verified-before-production-upload'}
         path = STATE / (preview['id'] + '.json')
@@ -269,7 +291,10 @@ def deploy(run_id=None, local=None):
         require_head(commit)
         if production()['id'] != previous['id'] or backend() != server:
             raise ValueError('Production changed before the final Pages upload')
-        require_backend_commit(backend(), commit)
+        if backend_source:
+            require_compatible_backend(backend(), commit, backend_source)
+        else:
+            require_backend_commit(backend(), commit)
         record['status'] = 'production-upload-requested'
         save(path, record)
         try:
@@ -330,7 +355,9 @@ def main():
     sub = parser.add_subparsers(dest='command', required=True)
     sub.add_parser('status')
     sub.add_parser('build-local')
-    source = sub.add_parser('deploy').add_mutually_exclusive_group(required=True)
+    deployment = sub.add_parser('deploy')
+    deployment.add_argument('--backend-source', help='Explicit unchanged backend source SHA for a web-only release')
+    source = deployment.add_mutually_exclusive_group(required=True)
     source.add_argument('--run', type=int)
     source.add_argument('--local', type=Path)
     sub.add_parser('rollback').add_argument('--record', type=Path, required=True)
@@ -341,7 +368,7 @@ def main():
         if args.command == 'status':
             print(json.dumps({'web': production(), 'backend': backend()}, indent=2))
         elif args.command == 'deploy':
-            deploy(args.run, args.local)
+            deploy(args.run, args.local, args.backend_source)
         elif args.command == 'build-local':
             build_local()
         else:

@@ -48,10 +48,10 @@ class _MacroSnapshotState extends State<MacroSnapshot> {
           spacing: AppSpace.md,
           children: [
             Text('기업을 둘러싼 시장 지표', style: t.body(19, weight: FontWeight.w600)),
-            AppButton(
-              label: '전체 지표와 해석 →',
-              variant: AppButtonVariant.link,
+            ShadButton.raw(
               onPressed: () => context.go(macroLocation()),
+              variant: ShadButtonVariant.link,
+              child: Flexible(child: Text('전체 지표와 해석 →')),
             ),
           ],
         ),

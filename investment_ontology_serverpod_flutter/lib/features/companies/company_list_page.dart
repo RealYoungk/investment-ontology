@@ -225,19 +225,17 @@ class _CompanyListPageState extends State<CompanyListPage> {
       children: [
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 360),
-          child: TextField(
+          child: ShadInput(
+            placeholder: Text('회사명 · 종목코드 · 대표자'),
+            leading: Icon(
+              Icons.search,
+              color: context.colors.textPrimary,
+              size: 20,
+            ),
             controller: _searchController,
             focusNode: _searchFocus,
             onChanged: _onSearchChanged,
             style: context.typo.body(15),
-            decoration: InputDecoration(
-              hintText: '회사명 · 종목코드 · 대표자',
-              prefixIcon: Icon(
-                Icons.search,
-                color: context.colors.textPrimary,
-                size: 20,
-              ),
-            ),
           ),
         ),
         AppToggleGroup<Market?>(
@@ -285,12 +283,13 @@ class _CompanyListPageState extends State<CompanyListPage> {
           onChanged: (s) => _apply(f.copyWith(sort: s)),
         ),
         if (f.hasFilter)
-          AppButton(
-            label: '필터 초기화',
-            icon: Icons.close,
-            variant: AppButtonVariant.link,
-            tone: context.colors.accent,
+          ShadButton.raw(
             onPressed: _clearFilters,
+
+            variant: ShadButtonVariant.link,
+            foregroundColor: context.colors.accent,
+            leading: Icon(Icons.close, size: 16),
+            child: Flexible(child: Text('필터 초기화')),
           ),
       ],
     );

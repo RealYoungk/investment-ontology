@@ -1,3 +1,5 @@
+import '../support/shad_test_host.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -111,14 +113,16 @@ void main() {
       );
       Uri? opened;
       await tester.pumpWidget(
-        MaterialApp(
-          theme: buildAppTheme(ledgerBrand),
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: StatementAvailabilityNotice(
-                corpCode: '00233653',
-                sources: [s],
-                onOpen: (uri) => opened = uri,
+        shadTestHost(
+          MaterialApp(
+            theme: buildAppTheme(ledgerBrand),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: StatementAvailabilityNotice(
+                  corpCode: '00233653',
+                  sources: [s],
+                  onOpen: (uri) => opened = uri,
+                ),
               ),
             ),
           ),
@@ -134,20 +138,22 @@ void main() {
       expect(opened.toString(), s.url);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(
-        MaterialApp(
-          theme: buildAppTheme(ledgerBrand),
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: FinancialSection(
-                corpCode: '00233653',
-                dataVersion: 0,
-                initialData: CompanyFinancials(
+        shadTestHost(
+          MaterialApp(
+            theme: buildAppTheme(ledgerBrand),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: FinancialSection(
                   corpCode: '00233653',
-                  availableFsDivs: [],
-                  periods: [],
-                  filingCount: 1,
-                  pendingFilingCount: 1,
-                  statementAvailabilitySources: [s],
+                  dataVersion: 0,
+                  initialData: CompanyFinancials(
+                    corpCode: '00233653',
+                    availableFsDivs: [],
+                    periods: [],
+                    filingCount: 1,
+                    pendingFilingCount: 1,
+                    statementAvailabilitySources: [s],
+                  ),
                 ),
               ),
             ),

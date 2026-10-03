@@ -1,3 +1,4 @@
+import 'package:shad/shad.dart';
 import 'package:flutter/material.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 
@@ -29,24 +30,24 @@ class _PaymentAdminDialogState extends State<PaymentAdminDialog> {
   Future<void> _refund(BillingPaymentView row) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => ShadDialog(
         title: const Text('전액 환불 확인'),
-        content: Text(
+        actions: [
+          ShadButton.ghost(
+            onPressed: () => Navigator.pop(context, false),
+            child: Flexible(child: const Text('돌아가기')),
+          ),
+          ShadButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Flexible(child: const Text('전액 환불 요청')),
+          ),
+        ],
+        child: Text(
           '${widget.user.email}\n주문 ${row.orderId}\n'
           '${row.amountKrw}원 전액 환불을 요청합니다.\n'
           '고객 문의와 주문을 대조했나요? 현재 결제 주기라면 자동 갱신이 중지되고, '
           '결제사의 취소 확인 후 광고 제거 이용권이 종료됩니다.',
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('돌아가기'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('전액 환불 요청'),
-          ),
-        ],
       ),
     );
     if (confirmed != true || !mounted) return;
@@ -87,9 +88,25 @@ class _PaymentAdminDialogState extends State<PaymentAdminDialog> {
   };
 
   @override
-  Widget build(BuildContext context) => AlertDialog(
+  Widget build(BuildContext context) => ShadDialog(
     title: const Text('결제 내역 · 환불'),
-    content: SizedBox(
+    actions: [
+      ShadButton.ghost(
+        onPressed: _busy
+            ? null
+            : () => setState(
+                () => _load = client.membership.paymentsForAccount(
+                  widget.user.userId,
+                ),
+              ),
+        child: Flexible(child: const Text('새로고침')),
+      ),
+      ShadButton.ghost(
+        onPressed: _busy ? null : () => Navigator.pop(context),
+        child: Flexible(child: const Text('닫기')),
+      ),
+    ],
+    child: SizedBox(
       width: 560,
       child: SingleChildScrollView(
         child: Column(
@@ -106,7 +123,7 @@ class _PaymentAdminDialogState extends State<PaymentAdminDialog> {
               future: _load,
               builder: (context, snapshot) {
                 if (snapshot.hasError) return const Text('내역을 불러오지 못했습니다.');
-                if (!snapshot.hasData) return const CircularProgressIndicator();
+                if (!snapshot.hasData) return const ShadSpinner();
                 if (snapshot.data!.isEmpty) return const Text('결제 내역이 없습니다.');
                 return Column(
                   children: [
@@ -125,10 +142,12 @@ class _PaymentAdminDialogState extends State<PaymentAdminDialog> {
                             ),
                             if (row.status == 'paid' ||
                                 row.status == 'refundRequested')
-                              TextButton(
+                              ShadButton.ghost(
                                 onPressed: _busy ? null : () => _refund(row),
-                                child: Text(
-                                  row.status == 'paid' ? '전액 환불' : '결과 다시 확인',
+                                child: Flexible(
+                                  child: Text(
+                                    row.status == 'paid' ? '전액 환불' : '결과 다시 확인',
+                                  ),
                                 ),
                               ),
                           ],
@@ -142,21 +161,5 @@ class _PaymentAdminDialogState extends State<PaymentAdminDialog> {
         ),
       ),
     ),
-    actions: [
-      TextButton(
-        onPressed: _busy
-            ? null
-            : () => setState(
-                () => _load = client.membership.paymentsForAccount(
-                  widget.user.userId,
-                ),
-              ),
-        child: const Text('새로고침'),
-      ),
-      TextButton(
-        onPressed: _busy ? null : () => Navigator.pop(context),
-        child: const Text('닫기'),
-      ),
-    ],
   );
 }

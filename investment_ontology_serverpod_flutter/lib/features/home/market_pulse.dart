@@ -1,3 +1,4 @@
+import 'package:shad/shad.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
@@ -5,6 +6,7 @@ import 'package:investment_ontology_serverpod_client/investment_ontology_serverp
 import '../../app/ingest_monitor.dart';
 import '../../client.dart';
 import '../../design/tokens.dart';
+import '../../design/components/data_panel.dart';
 import '../common/formatters.dart';
 
 typedef MarketPulseLoad = Future<List<IndexHistory>> Function();
@@ -63,19 +65,19 @@ class _MarketPulseState extends State<MarketPulse> {
           children: [
             Text('시장 한눈에', style: t.body(16, weight: FontWeight.w600)),
             const Spacer(),
-            TextButton(
+            ShadButton.ghost(
               onPressed: () => context.go('/market'),
-              child: const Text('시장 전체 →'),
+              child: Flexible(child: const Text('시장 전체 →')),
             ),
           ],
         ),
         if (_failed)
-          TextButton(
+          ShadButton.ghost(
             onPressed: _load,
-            child: const Text('시장 자료를 불러오지 못했어요 · 다시 시도'),
+            child: Flexible(child: const Text('시장 자료를 불러오지 못했어요 · 다시 시도')),
           )
         else if (items == null)
-          const LinearProgressIndicator(minHeight: 2)
+          const ShadProgress(minHeight: 2)
         else if (items.isEmpty)
           Text('수집된 지수 자료가 아직 없습니다.', style: t.body(13, color: c.textSecondary))
         else
@@ -89,13 +91,7 @@ class _MarketPulseState extends State<MarketPulse> {
                     width: box.maxWidth < 450
                         ? box.maxWidth
                         : (box.maxWidth - AppSpace.md) / 2,
-                    child: Container(
-                      padding: const EdgeInsets.all(AppSpace.lg),
-                      decoration: BoxDecoration(
-                        color: c.surface,
-                        border: Border.all(color: c.border),
-                        borderRadius: context.shape.borderRadius,
-                      ),
+                    child: DataPanel(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -123,6 +119,18 @@ class _MarketPulseState extends State<MarketPulse> {
                             style: t.numeric(27, weight: FontWeight.w600),
                           ),
                           const SizedBox(height: AppSpace.sm),
+                          if (h.dayBase != null) ...[
+                            Text(
+                              '${h.points.last.value - h.dayBase!.value > 0 ? '+' : ''}${formatDecimal(h.points.last.value - h.dayBase!.value)}pt · 전일 대비',
+                              style: t.numeric(
+                                13,
+                                color: c.marketChange(
+                                  h.points.last.value - h.dayBase!.value,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: AppSpace.sm),
+                          ],
                           Text(
                             '${formatDate(h.points.last.date)} 종가 · 전일 대비',
                             style: t.body(11, color: c.textSecondary),
@@ -136,7 +144,7 @@ class _MarketPulseState extends State<MarketPulse> {
           ),
         const SizedBox(height: AppSpace.sm),
         Text(
-          '금융위원회 지수시세정보 · 실시간 시세가 아닙니다.',
+          '금융위원회 지수시세정보 · 다음 영업일 13시 이후 공개되는 일별 종가입니다.',
           style: t.body(11, color: c.textSecondary),
         ),
       ],

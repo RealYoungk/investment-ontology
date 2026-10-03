@@ -46,34 +46,54 @@ class _ThemePageState extends State<ThemePage> {
     if (!context.ensureAdmin()) return;
     final name = TextEditingController(text: d.theme.name);
     final description = TextEditingController(text: d.theme.description ?? '');
-    final ok = await showDialog<bool>(
+    final ok = await showShadDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('테마 고치기'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: name,
-              decoration: const InputDecoration(labelText: '이름'),
+      builder: (overlayContext) => InheritedTheme.captureAll(
+        context,
+        Builder(
+          builder: (context) => ShadDialog(
+            closeIcon: Builder(
+              builder: (context) => Semantics(
+                container: true,
+                label: '닫기',
+                button: true,
+                onTap: () => Navigator.of(context).pop(),
+                child: ExcludeSemantics(
+                  child: ShadIconButton.ghost(
+                    width: 20,
+                    height: 20,
+                    padding: EdgeInsets.zero,
+                    icon: const Icon(Icons.close, size: 16),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ),
+              ),
             ),
-            TextField(
-              controller: description,
-              decoration: const InputDecoration(labelText: '설명'),
+            title: const Text('테마 고치기'),
+            actions: [
+              ShadButton.ghost(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Flexible(child: const Text('취소')),
+              ),
+              ShadButton.ghost(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Flexible(child: const Text('저장')),
+              ),
+            ],
+            child: Material(
+              type: MaterialType.transparency,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ShadInput(controller: name, placeholder: Text('이름')),
+                  ShadInput(controller: description, placeholder: Text('설명')),
+                ],
+              ),
             ),
-          ],
+          ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('취소'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('저장'),
-          ),
-        ],
       ),
+      barrierLabel: '닫기',
     );
     if (ok == true) {
       await client.theme.update(
@@ -87,24 +107,50 @@ class _ThemePageState extends State<ThemePage> {
 
   Future<void> _delete(ThemeDetail d) async {
     if (!context.ensureAdmin()) return;
-    final ok = await showDialog<bool>(
+    final ok = await showShadDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('테마 지우기'),
-        content: Text(
-          '"${d.theme.name}"과 편입 기록 ${d.members.length}건을 지웁니다. 되돌릴 수 없습니다.',
+      builder: (overlayContext) => InheritedTheme.captureAll(
+        context,
+        Builder(
+          builder: (context) => ShadDialog(
+            closeIcon: Builder(
+              builder: (context) => Semantics(
+                container: true,
+                label: '닫기',
+                button: true,
+                onTap: () => Navigator.of(context).pop(),
+                child: ExcludeSemantics(
+                  child: ShadIconButton.ghost(
+                    width: 20,
+                    height: 20,
+                    padding: EdgeInsets.zero,
+                    icon: const Icon(Icons.close, size: 16),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ),
+              ),
+            ),
+            title: const Text('테마 지우기'),
+            actions: [
+              ShadButton.ghost(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Flexible(child: const Text('취소')),
+              ),
+              ShadButton.ghost(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Flexible(child: const Text('지우기')),
+              ),
+            ],
+            child: Material(
+              type: MaterialType.transparency,
+              child: Text(
+                '"${d.theme.name}"과 편입 기록 ${d.members.length}건을 지웁니다. 되돌릴 수 없습니다.',
+              ),
+            ),
+          ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('취소'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('지우기'),
-          ),
-        ],
       ),
+      barrierLabel: '닫기',
     );
     if (ok != true) return;
     await client.theme.delete(widget.themeId);
@@ -122,16 +168,16 @@ class _ThemePageState extends State<ThemePage> {
       children: [
         Align(
           alignment: Alignment.centerLeft,
-          child: AppButton(
-            label: '테마 목록',
-            variant: AppButtonVariant.link,
+          child: ShadButton.raw(
             onPressed: () =>
                 context.canPop() ? context.pop() : context.go('/themes'),
+            variant: ShadButtonVariant.link,
+            child: Flexible(child: Text('테마 목록')),
           ),
         ),
         const SizedBox(height: AppSpace.lg),
         if (!_loaded)
-          const LinearProgressIndicator(minHeight: 2)
+          const ShadProgress(minHeight: 2)
         else if (d == null)
           (_error != null
               ? ReadFailureNotice(subject: '상세 정보', retry: _load)
@@ -146,16 +192,16 @@ class _ThemePageState extends State<ThemePage> {
             children: [
               Text(d.theme.name, style: t.display(40, color: c.textPrimary)),
               if (context.isAdmin) ...[
-                AppButton(
-                  label: '고치기',
-                  variant: AppButtonVariant.link,
+                ShadButton.raw(
                   onPressed: () => _edit(d),
+                  variant: ShadButtonVariant.link,
+                  child: Flexible(child: Text('고치기')),
                 ),
-                AppButton(
-                  label: '지우기',
-                  variant: AppButtonVariant.link,
-                  tone: c.accent,
+                ShadButton.raw(
                   onPressed: () => _delete(d),
+                  variant: ShadButtonVariant.link,
+                  foregroundColor: c.accent,
+                  child: Flexible(child: Text('지우기')),
                 ),
               ],
             ],
@@ -199,7 +245,9 @@ class _ThemePageState extends State<ThemePage> {
           if (context.isAdmin)
             _AddCompany(themeId: widget.themeId, onAdded: _load)
           else
-            const AppNotice(message: '읽기 전용 계정입니다. 기업을 넣고 빼려면 관리자 권한이 필요합니다.'),
+            const ShadAlert(
+              description: Text('읽기 전용 계정입니다. 기업을 넣고 빼려면 관리자 권한이 필요합니다.'),
+            ),
         ],
       ],
     );
@@ -338,9 +386,7 @@ class _Members extends StatelessWidget {
                           formatDate(m.member.createdAt),
                           nowrap: true,
                         ),
-                      AppButton(
-                        label: '빼기',
-                        variant: AppButtonVariant.link,
+                      ShadButton.raw(
                         onPressed: () async {
                           if (!context.ensureAdmin()) return;
                           await client.theme.removeCompany(
@@ -349,6 +395,8 @@ class _Members extends StatelessWidget {
                           );
                           await onChanged();
                         },
+                        variant: ShadButtonVariant.link,
+                        child: Flexible(child: Text('빼기')),
                       ),
                     ]),
                 ],
@@ -423,28 +471,20 @@ class _AddCompanyState extends State<_AddCompany> {
           children: [
             SizedBox(
               width: 280,
-              child: TextField(
+              child: ShadInput(
+                placeholder: Text('회사명 · 종목코드'),
+                leading: Icon(Icons.search, size: 20, color: c.textPrimary),
                 controller: _query,
                 onChanged: _search,
                 style: t.body(14),
-                decoration: InputDecoration(
-                  hintText: '회사명 · 종목코드',
-                  prefixIcon: Icon(
-                    Icons.search,
-                    size: 20,
-                    color: c.textPrimary,
-                  ),
-                ),
               ),
             ),
             SizedBox(
               width: 360,
-              child: TextField(
+              child: ShadInput(
                 controller: _note,
                 style: t.body(14),
-                decoration: const InputDecoration(
-                  hintText: '메모: 왜 이 테마인가 (선택)',
-                ),
+                placeholder: Text('메모: 왜 이 테마인가 (선택)'),
               ),
             ),
           ],
@@ -463,11 +503,11 @@ class _AddCompanyState extends State<_AddCompany> {
                   ),
                 ),
                 Expanded(child: Text(item.name, style: t.body(13.5))),
-                AppButton(
-                  label: '넣기',
-                  variant: AppButtonVariant.link,
-                  tone: c.accent,
+                ShadButton.raw(
                   onPressed: () => _add(item),
+                  variant: ShadButtonVariant.link,
+                  foregroundColor: c.accent,
+                  child: Flexible(child: Text('넣기')),
                 ),
               ],
             ),

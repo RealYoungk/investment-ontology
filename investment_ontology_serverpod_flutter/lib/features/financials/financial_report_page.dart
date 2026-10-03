@@ -53,7 +53,7 @@ class _FinancialReportPageState extends State<FinancialReportPage> {
           builder: (context, snap) {
             if (snap.connectionState != ConnectionState.done) {
               return const Center(
-                child: CircularProgressIndicator(strokeWidth: 2),
+                child: ShadSpinner(strokeWidth: 2),
               );
             }
             final detail = snap.data;
@@ -129,12 +129,21 @@ class _FinancialReportPageState extends State<FinancialReportPage> {
         SectionLabel(
           '재무제표 원문 · ${fsDivLabel(report.fsDiv)}',
           accent: true,
-          trailing: IconButton(
-            // 주소로 바로 들어왔으면 돌아갈 화면이 없어 기업 목록으로 간다.
-            onPressed: () =>
+          trailing: Semantics(
+            container: true,
+            label: '닫기',
+            button: true,
+            enabled: true,
+            onTap: () =>
                 context.canPop() ? context.pop() : context.go('/companies'),
-            icon: Icon(Icons.close, color: c.textPrimary),
-            tooltip: '닫기',
+            child: ExcludeSemantics(
+              child: ShadIconButton.ghost(
+                onPressed: () =>
+                    context.canPop() ? context.pop() : context.go('/companies'),
+                icon: Icon(Icons.close, color: c.textPrimary),
+                semanticLabel: '닫기',
+              ),
+            ),
           ),
         ),
         Text(report.reportName, style: t.display(30, color: c.textPrimary)),
@@ -152,9 +161,7 @@ class _FinancialReportPageState extends State<FinancialReportPage> {
         ],
         if (report.supersededById != null) ...[
           const SizedBox(height: AppSpace.md),
-          AppNotice(
-            message: '정정공시로 대체된 보고서입니다. 값은 지우지 않고 보존합니다.',
-          ),
+          ShadAlert(description: Text('정정공시로 대체된 보고서입니다. 값은 지우지 않고 보존합니다.')),
         ],
         const SizedBox(height: AppSpace.lg),
         _History(
@@ -174,8 +181,10 @@ class _FinancialReportPageState extends State<FinancialReportPage> {
           ),
         const SizedBox(height: AppSpace.md),
         if (hasSeparateSources) ...[
-          const AppNotice(
-            message: '여러 원문 출처의 행을 함께 보존한 보고서입니다. 표의 행별 출처와 아래 출처 기록에서 수집 범위를 확인하세요.',
+          const ShadAlert(
+            description: Text(
+              '여러 원문 출처의 행을 함께 보존한 보고서입니다. 표의 행별 출처와 아래 출처 기록에서 수집 범위를 확인하세요.',
+            ),
           ),
           const SizedBox(height: AppSpace.md),
         ],
@@ -187,8 +196,10 @@ class _FinancialReportPageState extends State<FinancialReportPage> {
         ),
         if (enriched) ...[
           const SizedBox(height: AppSpace.md),
-          const AppNotice(
-            message: '당기 재무제표에 직접 인쇄된 추가 금액행을 보완했습니다. 주당이익·빈칸·대시는 출처 기록에 보존하며 금액으로 바꾸지 않았습니다. 전체 비교기간·주석 수집을 뜻하지 않습니다.',
+          const ShadAlert(
+            description: Text(
+              '당기 재무제표에 직접 인쇄된 추가 금액행을 보완했습니다. 주당이익·빈칸·대시는 출처 기록에 보존하며 금액으로 바꾸지 않았습니다. 전체 비교기간·주석 수집을 뜻하지 않습니다.',
+            ),
           ),
         ],
         const SizedBox(height: AppSpace.xl),
@@ -203,15 +214,15 @@ class _FinancialReportPageState extends State<FinancialReportPage> {
           ),
         Align(
           alignment: Alignment.centerLeft,
-          child: AppButton(
-            label: 'DART 공시 원문 열기 →',
-            variant: AppButtonVariant.link,
-            tone: c.accent,
+          child: ShadButton.raw(
             onPressed: () => launchUrl(
               Uri.parse(
                 'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${report.rceptNo}',
               ),
             ),
+            variant: ShadButtonVariant.link,
+            foregroundColor: c.accent,
+            child: Flexible(child: Text('DART 공시 원문 열기 →')),
           ),
         ),
         for (final source in sources.values) _SourceRecord(source: source),
@@ -274,25 +285,43 @@ class _SourceRecord extends StatelessWidget {
       }
     }
     final uri = Uri.tryParse(source.url ?? '');
-    return ExpansionTile(
-      title: Text('출처 #${source.id} · $title', style: context.typo.body(12.5)),
-      subtitle: Text(
-        '수집 ${formatDateTime(source.retrievedAt)}',
-        style: context.typo.numeric(12, color: context.colors.textSecondary),
-      ),
-      childrenPadding: const EdgeInsets.all(AppSpace.md),
-      expandedCrossAxisAlignment: CrossAxisAlignment.start,
+    return ShadAccordion<int>(
+      maintainState: false,
       children: [
-        FinancialSourceScopeNotice(sourceTitle: source.title),
-        if (uri != null &&
-            uri.scheme == 'https' &&
-            uri.host == 'dart.fss.or.kr')
-          AppButton(
-            label: '이 출처의 공식 원문 열기 →',
-            variant: AppButtonVariant.link,
-            onPressed: () => launchUrl(uri),
+        ShadAccordionItem<int>(
+          value: 0,
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('출처 #${source.id} · $title', style: context.typo.body(12.5)),
+              Text(
+                '수집 ${formatDateTime(source.retrievedAt)}',
+                style: context.typo.numeric(
+                  12,
+                  color: context.colors.textSecondary,
+                ),
+              ),
+            ],
           ),
-        SelectableText(body, style: context.typo.body(12)),
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpace.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FinancialSourceScopeNotice(sourceTitle: source.title),
+                if (uri != null &&
+                    uri.scheme == 'https' &&
+                    uri.host == 'dart.fss.or.kr')
+                  ShadButton.raw(
+                    onPressed: () => launchUrl(uri),
+                    variant: ShadButtonVariant.link,
+                    child: Text('이 출처의 공식 원문 열기 →'),
+                  ),
+                SelectableText(body, style: context.typo.body(12)),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -460,33 +489,42 @@ class _FactTable extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      Tooltip(
-                        message: f.accountId ?? '표준계정코드 미사용',
-                        child: cell(f.accountName, right: false, width: 260),
+                      ShadTooltip(
+                        builder: (_) => Text(f.accountId ?? '표준계정코드 미사용'),
+                        child: Semantics(
+                          tooltip: f.accountId ?? '표준계정코드 미사용',
+                          child: cell(f.accountName, right: false, width: 260),
+                        ),
                       ),
                       if (showSource)
-                        Tooltip(
-                          message: '출처 기록 #${f.sourceId}',
-                          child: cell(
-                            sources[f.sourceId]?.title.startsWith(
-                                      'DART 원문 HTML 당기 추가행',
-                                    ) ==
-                                    true
-                                ? '추가 금액행 #${f.sourceId}'
-                                : f.sourceId == currentSourceId
-                                ? '기준 원문 #${f.sourceId}'
-                                : '출처 #${f.sourceId}',
-                            right: false,
-                            width: 150,
+                        ShadTooltip(
+                          builder: (_) => Text('출처 기록 #${f.sourceId}'),
+                          child: Semantics(
+                            tooltip: '출처 기록 #${f.sourceId}',
+                            child: cell(
+                              sources[f.sourceId]?.title.startsWith(
+                                        'DART 원문 HTML 당기 추가행',
+                                      ) ==
+                                      true
+                                  ? '추가 금액행 #${f.sourceId}'
+                                  : f.sourceId == currentSourceId
+                                  ? '기준 원문 #${f.sourceId}'
+                                  : '출처 #${f.sourceId}',
+                              right: false,
+                              width: 150,
+                            ),
                           ),
                         ),
                       if (hasDetail)
                         cell(f.accountDetail ?? '', right: false, width: 260),
                       for (final (_, value) in columns)
                         if (value(f) case final v?)
-                          Tooltip(
-                            message: '${formatCount(v.toInt())}원',
-                            child: cell(formatKrwLong(v.toDouble())),
+                          ShadTooltip(
+                            builder: (_) => Text('${formatCount(v.toInt())}원'),
+                            child: Semantics(
+                              tooltip: '${formatCount(v.toInt())}원',
+                              child: cell(formatKrwLong(v.toDouble())),
+                            ),
                           )
                         else
                           cell('—'),

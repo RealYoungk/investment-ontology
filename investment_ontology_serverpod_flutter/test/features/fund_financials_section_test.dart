@@ -1,3 +1,7 @@
+import 'package:shad/shad.dart';
+
+import '../support/shad_test_host.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -17,15 +21,17 @@ void main() {
       await t.binding.setSurfaceSize(const Size(320, 820));
       addTearDown(() => t.binding.setSurfaceSize(null));
       await t.pumpWidget(
-        MaterialApp(
-          theme: buildAppTheme(ledgerBrand),
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: IssuerFinancialsSection(
-                  corpCode: '00600013',
-                  loader: (_, _) async => jsonEncode(original),
+        shadTestHost(
+          MaterialApp(
+            theme: buildAppTheme(ledgerBrand),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: IssuerFinancialsSection(
+                    corpCode: '00600013',
+                    loader: (_, _) async => jsonEncode(original),
+                  ),
                 ),
               ),
             ),
@@ -33,11 +39,16 @@ void main() {
         ),
       );
       await t.pumpAndSettle();
-      expect(find.byType(ExpansionTile), findsNWidgets(6));
+      expect(
+        find.byWidgetPredicate((widget) => widget is ShadAccordion),
+        findsNWidgets(6),
+      );
       expect(find.textContaining('자체 6개월 회계연도'), findsOneWidget);
       expect(find.textContaining('현금 범위 불일치로 격리'), findsNWidgets(2));
       for (var i = 0; i < 6; i++) {
-        final tile = find.byType(ExpansionTile).at(i);
+        final tile = find
+            .byWidgetPredicate((widget) => widget is ShadAccordion)
+            .at(i);
         await t.ensureVisible(tile);
         await t.tap(tile);
         await t.pumpAndSettle();

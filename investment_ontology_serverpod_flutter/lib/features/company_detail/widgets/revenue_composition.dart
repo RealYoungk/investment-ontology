@@ -138,13 +138,7 @@ class _RevenueCompositionState extends State<RevenueComposition> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Container(
-          padding: const EdgeInsets.all(AppSpace.md),
-          decoration: BoxDecoration(
-            color: c.surface,
-            border: Border.all(color: c.border),
-            borderRadius: context.shape.borderRadius,
-          ),
+        DataPanel(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -160,13 +154,13 @@ class _RevenueCompositionState extends State<RevenueComposition> {
                 Text('매출 구성을 불러오지 못했습니다.', style: t.body(13)),
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: TextButton(
+                  child: ShadButton.ghost(
                     onPressed: _load,
-                    child: const Text('다시 불러오기'),
+                    child: Flexible(child: const Text('다시 불러오기')),
                   ),
                 ),
               ] else if (rows == null)
-                const LinearProgressIndicator(minHeight: 2)
+                const ShadProgress(minHeight: 2)
               else if (rows.isEmpty && widget.printedMix != null)
                 PrintedProductMix(mix: widget.printedMix!)
               else if (rows.isEmpty)
@@ -226,7 +220,7 @@ class PrintedProductMix extends StatelessWidget {
               const SizedBox(width: AppSpace.md),
               SizedBox(
                 width: 64,
-                child: LinearProgressIndicator(
+                child: ShadProgress(
                   value: row.share / 100,
                   minHeight: 5,
                   color: context.colors.chartSeries1,
@@ -285,17 +279,24 @@ class _RevenueRow extends StatelessWidget {
               Expanded(
                 child: description == null
                     ? label
-                    : Tooltip(message: description, child: label),
+                    : ShadTooltip(
+                        builder: (_) => Text(description),
+                        child: Semantics(tooltip: description, child: label),
+                      ),
               ),
               const SizedBox(width: AppSpace.sm),
               SizedBox(
                 width: wide ? 132 : 112,
-                child: Tooltip(
-                  message: formatSourceAmount(fact.value, fact.unit),
-                  child: Text(
-                    formatUnitAmountCompact(fact.value, fact.unit),
-                    textAlign: TextAlign.right,
-                    style: t.numeric(13),
+                child: ShadTooltip(
+                  builder: (_) =>
+                      Text(formatSourceAmount(fact.value, fact.unit)),
+                  child: Semantics(
+                    tooltip: formatSourceAmount(fact.value, fact.unit),
+                    child: Text(
+                      formatUnitAmountCompact(fact.value, fact.unit),
+                      textAlign: TextAlign.right,
+                      style: t.numeric(13),
+                    ),
                   ),
                 ),
               ),
@@ -305,7 +306,7 @@ class _RevenueRow extends StatelessWidget {
                   width: 100,
                   child: row.share == null
                       ? const SizedBox.shrink()
-                      : LinearProgressIndicator(
+                      : ShadProgress(
                           value: row.share! / 100,
                           minHeight: 5,
                           color: c.chartSeries1,

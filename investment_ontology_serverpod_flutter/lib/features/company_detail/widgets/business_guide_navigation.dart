@@ -1,3 +1,4 @@
+import 'package:shad/shad.dart';
 import 'package:flutter/material.dart';
 
 import '../../../design/tokens.dart';
@@ -22,14 +23,16 @@ class BusinessGuideNavigation extends StatelessWidget {
         style: context.typo.body(12, color: context.colors.textMuted),
       ),
       const Spacer(),
-      TextButton(
+      ShadButton.ghost(
         onPressed: step > 0 ? () => onChanged(step - 1) : null,
-        child: const Text('이전'),
+        enabled: (step > 0 ? () => onChanged(step - 1) : null) != null,
+        child: Flexible(child: const Text('이전')),
       ),
       const SizedBox(width: AppSpace.sm),
-      FilledButton(
+      ShadButton(
         onPressed: step < count - 1 ? () => onChanged(step + 1) : null,
-        child: const Text('다음 →'),
+        enabled: (step < count - 1 ? () => onChanged(step + 1) : null) != null,
+        child: Flexible(child: const Text('다음 →')),
       ),
     ],
   );

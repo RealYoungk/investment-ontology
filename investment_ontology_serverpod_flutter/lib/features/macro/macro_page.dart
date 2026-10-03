@@ -88,10 +88,10 @@ class _MacroPageState extends State<MacroPage> {
     return PageFrame(
       allowLeading: false,
       children: [
-        AppButton(
-          label: '시장으로',
-          variant: AppButtonVariant.link,
+        ShadButton.raw(
           onPressed: () => context.go('/market'),
+          variant: ShadButtonVariant.link,
+          child: Flexible(child: Text('시장으로')),
         ),
         const SizedBox(height: AppSpace.md),
         const PageHeading(
@@ -105,13 +105,13 @@ class _MacroPageState extends State<MacroPage> {
         ),
         const SizedBox(height: AppSpace.xl),
         if (_loading) ...[
-          const LinearProgressIndicator(),
+          const ShadProgress(),
           const SizedBox(height: AppSpace.sm),
           Text('공식 지표 불러오는 중…', style: t.body(13, color: c.textSecondary)),
         ],
         if (_failed) ReadFailureNotice(subject: '시장 지표', retry: _load),
         if (!_loading && !_failed && (data == null || data.isEmpty))
-          const AppNotice(message: '표시할 지표 자료가 없습니다.'),
+          const ShadAlert(description: Text('표시할 지표 자료가 없습니다.')),
         if (data != null && selected != null)
           LayoutBuilder(
             builder: (context, box) {
@@ -163,9 +163,18 @@ class _MacroPageState extends State<MacroPage> {
                     const SizedBox(height: AppSpace.xl),
                     detail,
                     const SizedBox(height: AppSpace.xl),
-                    ExpansionTile(
-                      title: Text('전체 지표 비교', style: t.body(14)),
-                      children: [list],
+                    ShadAccordion<int>(
+                      maintainState: false,
+                      children: [
+                        ShadAccordionItem<int>(
+                          value: 0,
+                          title: Text('전체 지표 비교', style: t.body(14)),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [list],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 );
@@ -362,7 +371,7 @@ class MacroDetail extends StatelessWidget {
         ),
         const SizedBox(height: AppSpace.lg),
         if (series.message != null) ...[
-          AppNotice(message: series.message!),
+          ShadAlert(description: Text(series.message!)),
           const SizedBox(height: AppSpace.md),
         ],
         if (points.length >= 2)
@@ -451,66 +460,84 @@ class MacroDetail extends StatelessWidget {
           runSpacing: AppSpace.sm,
           children: [
             if (company != null) ...[
-              AppButton(
-                label: '이 기업의 사업 확인',
+              ShadButton.raw(
                 onPressed: () => context.push('/company/$company?tab=overview'),
+                variant: ShadButtonVariant.outline,
+                child: Flexible(child: Text('이 기업의 사업 확인')),
               ),
-              AppButton(
-                label: '이 기업의 재무 확인',
+              ShadButton.raw(
                 onPressed: () =>
                     context.push('/company/$company?tab=financials'),
+                variant: ShadButtonVariant.outline,
+                child: Flexible(child: Text('이 기업의 재무 확인')),
               ),
             ] else
-              AppButton(
-                label: '기업 찾아 적용하기',
-                icon: Icons.arrow_forward,
+              ShadButton.raw(
                 onPressed: () => context.go('/companies'),
+                variant: ShadButtonVariant.outline,
+                leading: Icon(Icons.arrow_forward, size: 16),
+                child: Flexible(child: Text('기업 찾아 적용하기')),
               ),
           ],
         ),
         const SizedBox(height: AppSpace.xl),
-        ExpansionTile(
-          tilePadding: EdgeInsets.zero,
-          title: Text('기준·계산·출처', style: t.body(13, color: c.textSecondary)),
+        ShadAccordion<int>(
+          maintainState: false,
           children: [
-            Align(
-              alignment: Alignment.centerLeft,
+            ShadAccordionItem<int>(
+              value: 0,
+              title: Text(
+                '기준·계산·출처',
+                style: t.body(13, color: c.textSecondary),
+              ),
+              padding: EdgeInsets.zero,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(guide.note, style: t.body(12, color: c.textSecondary)),
-                  const SizedBox(height: AppSpace.sm),
-                  Text(
-                    '관측일 ${last == null ? '없음' : formatDate(last.date)} · ${series.source?.title ?? '출처 자료 미확보'}',
-                    style: t.body(12, color: c.textSecondary),
-                  ),
-                  if (series.source != null)
-                    Text(
-                      '수신 ${series.source!.retrievedAt.toLocal()} · 서버 캐시 1시간',
-                      style: t.body(11, color: c.textMuted),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          guide.note,
+                          style: t.body(12, color: c.textSecondary),
+                        ),
+                        const SizedBox(height: AppSpace.sm),
+                        Text(
+                          '관측일 ${last == null ? '없음' : formatDate(last.date)} · ${series.source?.title ?? '출처 자료 미확보'}',
+                          style: t.body(12, color: c.textSecondary),
+                        ),
+                        if (series.source != null)
+                          Text(
+                            '수신 ${series.source!.retrievedAt.toLocal()} · 서버 캐시 1시간',
+                            style: t.body(11, color: c.textMuted),
+                          ),
+                        Text(
+                          series.rate
+                              ? '변화 = 최신 금리 − 비교 금리 (%p)'
+                              : '변화 = (최신 값 ÷ 비교 값 − 1) × 100 (%)',
+                          style: t.body(12, color: c.textSecondary),
+                        ),
+                        Text(
+                          '기간 비교는 최신 관측일에서 해당 일수를 뺀 날짜 이전의 가장 가까운 관측값(7일 이내)을 사용합니다. 차트는 관측된 날짜만 연결합니다.',
+                          style: t.body(12, color: c.textSecondary),
+                        ),
+                        for (final d in {days, 0, 30, 365})
+                          Text(
+                            '${d == 0 ? '직전 관측' : '$d일 비교'} 기준: ${MacroMetrics.base(series.points, d) == null ? '자료 부족' : '${formatDate(MacroMetrics.base(series.points, d)!.date)} · ${MacroMetrics.value(MacroMetrics.base(series.points, d)!.value)}'}',
+                            style: t.body(11, color: c.textMuted),
+                          ),
+                        if (series.source?.url != null)
+                          ShadButton.raw(
+                            onPressed: () =>
+                                launchUrl(Uri.parse(series.source!.url!)),
+                            variant: ShadButtonVariant.link,
+                            child: Flexible(child: Text('공식 원자료 열기 ↗')),
+                          ),
+                      ],
                     ),
-                  Text(
-                    series.rate
-                        ? '변화 = 최신 금리 − 비교 금리 (%p)'
-                        : '변화 = (최신 값 ÷ 비교 값 − 1) × 100 (%)',
-                    style: t.body(12, color: c.textSecondary),
                   ),
-                  Text(
-                    '기간 비교는 최신 관측일에서 해당 일수를 뺀 날짜 이전의 가장 가까운 관측값(7일 이내)을 사용합니다. 차트는 관측된 날짜만 연결합니다.',
-                    style: t.body(12, color: c.textSecondary),
-                  ),
-                  for (final d in {days, 0, 30, 365})
-                    Text(
-                      '${d == 0 ? '직전 관측' : '$d일 비교'} 기준: ${MacroMetrics.base(series.points, d) == null ? '자료 부족' : '${formatDate(MacroMetrics.base(series.points, d)!.date)} · ${MacroMetrics.value(MacroMetrics.base(series.points, d)!.value)}'}',
-                      style: t.body(11, color: c.textMuted),
-                    ),
-                  if (series.source?.url != null)
-                    AppButton(
-                      label: '공식 원자료 열기 ↗',
-                      variant: AppButtonVariant.link,
-                      onPressed: () =>
-                          launchUrl(Uri.parse(series.source!.url!)),
-                    ),
                 ],
               ),
             ),

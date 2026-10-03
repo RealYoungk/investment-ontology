@@ -1,3 +1,7 @@
+import 'package:shad/shad.dart';
+
+import '../support/shad_test_host.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
@@ -48,9 +52,11 @@ void main() {
         ).copyWith(sharesBegin: BigInt.from(100), sharesEnd: BigInt.from(180)),
       ]).copyWith(shareholderPeriodStart: DateTime(2025, 1, 1));
       await tester.pumpWidget(
-        MaterialApp(
-          theme: buildAppTheme(ledgerBrand),
-          home: Scaffold(body: OwnershipSnapshotCard(data: d)),
+        shadTestHost(
+          MaterialApp(
+            theme: buildAppTheme(ledgerBrand),
+            home: Scaffold(body: OwnershipSnapshotCard(data: d)),
+          ),
         ),
       );
       expect(find.text('주요 관계인'), findsOneWidget);
@@ -61,10 +67,12 @@ void main() {
       expect(find.text('2025.01.01보다 80주 증가'), findsOneWidget);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(
-        MaterialApp(
-          theme: buildAppTheme(ledgerBrand),
-          home: Scaffold(
-            body: OwnershipSnapshotCard(data: data(d.shareholders)),
+        shadTestHost(
+          MaterialApp(
+            theme: buildAppTheme(ledgerBrand),
+            home: Scaffold(
+              body: OwnershipSnapshotCard(data: data(d.shareholders)),
+            ),
           ),
         ),
       );
@@ -110,17 +118,19 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
       await tester.pumpWidget(
-        MaterialApp(
-          theme: buildAppTheme(ledgerBrand),
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: OwnershipSnapshotCard(
-                data: data([
-                  holder('최대주주회사', 20),
-                  holder('관계인', 0.1),
-                  holder('우선주보유자', 50, kind: '우선주'),
-                  holder('합계', 20.1, total: true),
-                ]),
+        shadTestHost(
+          MaterialApp(
+            theme: buildAppTheme(ledgerBrand),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: OwnershipSnapshotCard(
+                  data: data([
+                    holder('최대주주회사', 20),
+                    holder('관계인', 0.1),
+                    holder('우선주보유자', 50, kind: '우선주'),
+                    holder('합계', 20.1, total: true),
+                  ]),
+                ),
               ),
             ),
           ),
@@ -130,8 +140,8 @@ void main() {
       expect(find.text('최대주주회사'), findsOneWidget);
       expect(find.text('관계인'), findsOneWidget);
       expect(find.text('우선주보유자'), findsNothing);
-      final bar = tester.widget<LinearProgressIndicator>(
-        find.byType(LinearProgressIndicator),
+      final bar = tester.widget<ShadProgress>(
+        find.byType(ShadProgress),
       );
       expect(bar.value, closeTo(0.201, 0.0001));
       expect(tester.takeException(), isNull);
@@ -139,13 +149,15 @@ void main() {
   }
   testWidgets('missing ownership is not zero ownership', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
-        theme: buildAppTheme(ledgerBrand),
-        home: Scaffold(body: OwnershipSnapshotCard(data: data([]))),
+      shadTestHost(
+        MaterialApp(
+          theme: buildAppTheme(ledgerBrand),
+          home: Scaffold(body: OwnershipSnapshotCard(data: data([]))),
+        ),
       ),
     );
     expect(find.text('—'), findsOneWidget);
-    expect(find.byType(LinearProgressIndicator), findsNothing);
+    expect(find.byType(ShadProgress), findsNothing);
     expect(find.text('보통주 지분율을 확인할 자료가 부족해요.'), findsOneWidget);
   });
 }

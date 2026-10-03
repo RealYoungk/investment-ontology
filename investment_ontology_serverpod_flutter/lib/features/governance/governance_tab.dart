@@ -71,7 +71,7 @@ class _GovernanceTabState extends State<GovernanceTab> {
     if (_error != null) {
       return ReadFailureNotice(subject: '지배구조', retry: _load);
     }
-    if (d == null) return const LinearProgressIndicator(minHeight: 2);
+    if (d == null) return const ShadProgress(minHeight: 2);
     if (d.bsnsYear == null) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -103,13 +103,12 @@ class _GovernanceTabState extends State<GovernanceTab> {
                 ),
               ),
               if (d.availableYears.length > 1)
-                DropdownButton<int>(
-                  value: d.bsnsYear,
-                  underline: const SizedBox.shrink(),
-                  items: [
+                AppSelect<int>(
+                  options: Map.fromEntries([
                     for (final year in d.availableYears)
-                      DropdownMenuItem(value: year, child: Text('$year년')),
-                  ],
+                      MapEntry(year, '$year년'),
+                  ]),
+                  value: d.bsnsYear,
                   onChanged: (year) {
                     if (year == null) return;
                     setState(() {
@@ -118,6 +117,8 @@ class _GovernanceTabState extends State<GovernanceTab> {
                     });
                     _load();
                   },
+                  placeholder: '선택',
+                  allowClear: false,
                 ),
             ],
           ),
@@ -127,19 +128,28 @@ class _GovernanceTabState extends State<GovernanceTab> {
         const SizedBox(height: AppSpace.lg),
         OwnershipChangesSection(corpCode: widget.corpCode, compact: true),
         const SizedBox(height: AppSpace.sm),
-        ExpansionTile(
-          title: const Text('주주별 수량·관계 상세'),
+        ShadAccordion<int>(
+          maintainState: false,
           children: [
-            _HolderTable(view: view, onOpen: _open),
-            if (d.minorityRatio != null)
-              Padding(
-                padding: const EdgeInsets.all(AppSpace.md),
-                child: Text(
-                  '소액주주 ${formatRatio(d.minorityRatio)}${d.minorityHolders == null ? '' : ' · ${formatCount(d.minorityHolders!)}명'}',
-                  style: t.body(13),
-                ),
+            ShadAccordionItem<int>(
+              value: 0,
+              title: const Text('주주별 수량·관계 상세'),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _HolderTable(view: view, onOpen: _open),
+                  if (d.minorityRatio != null)
+                    Padding(
+                      padding: const EdgeInsets.all(AppSpace.md),
+                      child: Text(
+                        '소액주주 ${formatRatio(d.minorityRatio)}${d.minorityHolders == null ? '' : ' · ${formatCount(d.minorityHolders!)}명'}',
+                        style: t.body(13),
+                      ),
+                    ),
+                  _Sources(sources: d.sources),
+                ],
               ),
-            _Sources(sources: d.sources),
+            ),
           ],
         ),
         const SizedBox(height: AppSpace.md),
@@ -151,11 +161,11 @@ class _GovernanceTabState extends State<GovernanceTab> {
               const SizedBox(height: AppSpace.md),
               Align(
                 alignment: Alignment.centerRight,
-                child: AppButton(
-                  label: '관계망에서 더 넓게 보기 →',
-                  variant: AppButtonVariant.link,
-                  tone: c.accent,
+                child: ShadButton.raw(
                   onPressed: () => context.go(AppRoutes.graph(widget.corpCode)),
+                  variant: ShadButtonVariant.link,
+                  foregroundColor: c.accent,
+                  child: Flexible(child: Text('관계망에서 더 넓게 보기 →')),
                 ),
               ),
               GovernanceGraph(
@@ -577,10 +587,12 @@ class _InvestmentTableState extends State<_InvestmentTable> {
           ],
         ),
         if (rows.length > _shown)
-          AppButton(
-            label: '출자 내역 20개 더 보기 ($_shown/${rows.length})',
-            variant: AppButtonVariant.link,
+          ShadButton.raw(
             onPressed: () => setState(() => _shown += 20),
+            variant: ShadButtonVariant.link,
+            child: Flexible(
+              child: Text('출자 내역 20개 더 보기 ($_shown/${rows.length})'),
+            ),
           ),
       ],
     );
@@ -619,10 +631,10 @@ class _Sources extends StatelessWidget {
                   style: t.numeric(11, color: c.textSecondary),
                 ),
                 if (s.url != null)
-                  AppButton(
-                    label: 'DART 공시 →',
-                    variant: AppButtonVariant.link,
+                  ShadButton.raw(
                     onPressed: () => launchUrl(Uri.parse(s.url!)),
+                    variant: ShadButtonVariant.link,
+                    child: Flexible(child: Text('DART 공시 →')),
                   ),
               ],
             ),

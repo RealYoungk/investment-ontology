@@ -1,3 +1,4 @@
+import 'package:shad/shad.dart';
 import 'package:investment_ontology_serverpod_flutter/features/financials/split_plan_source_registry.dart';
 
 import '../../financials/retrospective_fund_contract.dart';
@@ -260,44 +261,59 @@ class _IssuerDocumentsStatusState extends State<IssuerDocumentsStatus> {
               '정기보고서·사업본문·재무 숫자 집계에 포함하지 않습니다. DART 자료는 읽은 재무 장만 보존하며 전체 원문 확보를 뜻하지 않습니다. 분할 대행 원문은 신설회사 자체 연간 보고서와 구분하며 숫자를 추출하지 않습니다. 자체 과거 원문 미확보 기간은 별도 확인 중입니다.',
             ),
             for (final entry in issuerDocumentFunds.entries)
-              ExpansionTile(
-                tilePadding: EdgeInsets.zero,
-                title: Text(entry.value),
-                subtitle: Text(_states[entry.key] ?? '확인 중…'),
+              ShadAccordion<int>(
+                maintainState: false,
                 children: [
-                  for (final row
-                      in _rows[entry.key] ?? <Map<String, dynamic>>[])
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpace.md),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            SplitPlanSourceRegistry.supports(entry.key)
-                                ? '${row['filingActorPrintedName']} 대행 제출 분할 증권신고서'
-                                : row['title'] as String,
-                          ),
-                          Text(
-                            SplitPlanSourceRegistry.supports(entry.key)
-                                ? '제출 ${row['filingDate']} · 계획 ${row['plannedSplitDate']} · 실제 설립 ${row['actualEstablishedDate']}'
-                                : RetrospectiveFundContract.same(
-                                    row,
-                                    RetrospectiveFundContract.data['metadata'],
-                                  )
-                                ? '정정 게시 ${row['publishedAt']} · 과거 표의 범위 ${row['periodStart']} ~ ${row['periodEnd']} (한 회계기간 아님)'
-                                : '${row['periodStart']} ~ ${row['periodEnd']}',
-                          ),
-                          SelectableText(
-                            row['officialUrl'] as String,
-                            style: context.typo.supportingText,
-                          ),
-                          Text(
-                            'SHA-256: ${row['sha256']}',
-                            style: context.typo.supportingText,
-                          ),
-                        ],
-                      ),
+                  ShadAccordionItem<int>(
+                    value: 0,
+                    title: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(entry.value),
+                        Text(_states[entry.key] ?? '확인 중…'),
+                      ],
                     ),
+                    padding: EdgeInsets.zero,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        for (final row
+                            in _rows[entry.key] ?? <Map<String, dynamic>>[])
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: AppSpace.md),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  SplitPlanSourceRegistry.supports(entry.key)
+                                      ? '${row['filingActorPrintedName']} 대행 제출 분할 증권신고서'
+                                      : row['title'] as String,
+                                ),
+                                Text(
+                                  SplitPlanSourceRegistry.supports(entry.key)
+                                      ? '제출 ${row['filingDate']} · 계획 ${row['plannedSplitDate']} · 실제 설립 ${row['actualEstablishedDate']}'
+                                      : RetrospectiveFundContract.same(
+                                          row,
+                                          RetrospectiveFundContract
+                                              .data['metadata'],
+                                        )
+                                      ? '정정 게시 ${row['publishedAt']} · 과거 표의 범위 ${row['periodStart']} ~ ${row['periodEnd']} (한 회계기간 아님)'
+                                      : '${row['periodStart']} ~ ${row['periodEnd']}',
+                                ),
+                                SelectableText(
+                                  row['officialUrl'] as String,
+                                  style: context.typo.supportingText,
+                                ),
+                                Text(
+                                  'SHA-256: ${row['sha256']}',
+                                  style: context.typo.supportingText,
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
           ],

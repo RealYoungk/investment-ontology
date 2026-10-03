@@ -64,7 +64,7 @@ class _ShareholderRightsCardState extends State<ShareholderRightsCard> {
     if (_error != null) {
       return ReadFailureNotice(subject: '정관 변경', retry: _load);
     }
-    if (data == null) return const LinearProgressIndicator(minHeight: 2);
+    if (data == null) return const ShadProgress(minHeight: 2);
     if (data['state'] == 'noCompany') {
       return const SizedBox.shrink();
     }
@@ -132,15 +132,23 @@ class _ShareholderRightsCardState extends State<ShareholderRightsCard> {
               const SizedBox(height: AppSpace.sm),
               for (final row in changes.take(3)) _Change(row: row),
               if (changes.length > 3)
-                ExpansionTile(
-                  tilePadding: EdgeInsets.zero,
-                  expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
-                  title: Text(
-                    '나머지 ${changes.length - 3}개 변경 · 시행일 보기',
-                    style: t.body(13, weight: FontWeight.w600),
-                  ),
+                ShadAccordion<int>(
+                  maintainState: false,
                   children: [
-                    for (final row in changes.skip(3)) _Change(row: row),
+                    ShadAccordionItem<int>(
+                      value: 0,
+                      title: Text(
+                        '나머지 ${changes.length - 3}개 변경 · 시행일 보기',
+                        style: t.body(13, weight: FontWeight.w600),
+                      ),
+                      padding: EdgeInsets.zero,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (final row in changes.skip(3)) _Change(row: row),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               if (proposal?['sourceUrl'] case final String url)
@@ -160,21 +168,29 @@ class _ShareholderRightsCardState extends State<ShareholderRightsCard> {
                   n['receipt'] != proposal?['receipt'] &&
                   (n['changes'] as List).isNotEmpty,
             ))
-              ExpansionTile(
-                tilePadding: EdgeInsets.zero,
-                expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
-                title: Text(
-                  '${notice['filingDate']} 소집공고 · ${(notice['changes'] as List).length}개 조문',
-                  style: t.body(13, weight: FontWeight.w600),
-                ),
+              ShadAccordion<int>(
+                maintainState: false,
                 children: [
-                  for (final row
-                      in (notice['changes'] as List)
-                          .cast<Map<String, dynamic>>())
-                    _Change(row: row),
-                  _SourceLink(
-                    label: '신구조문 대비표 · DART 원문',
-                    url: notice['sourceUrl'] as String,
+                  ShadAccordionItem<int>(
+                    value: 0,
+                    title: Text(
+                      '${notice['filingDate']} 소집공고 · ${(notice['changes'] as List).length}개 조문',
+                      style: t.body(13, weight: FontWeight.w600),
+                    ),
+                    padding: EdgeInsets.zero,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (final row
+                            in (notice['changes'] as List)
+                                .cast<Map<String, dynamic>>())
+                          _Change(row: row),
+                        _SourceLink(
+                          label: '신구조문 대비표 · DART 원문',
+                          url: notice['sourceUrl'] as String,
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -201,22 +217,38 @@ class _ShareholderRightsCardState extends State<ShareholderRightsCard> {
                 style: t.body(11, color: c.textMuted),
               ),
               for (final row in rows)
-                ExpansionTile(
-                  tilePadding: EdgeInsets.zero,
-                  expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
-                  title: Text(
-                    '${row['date']} 정관 변경',
-                    style: t.body(13, weight: FontWeight.w600),
-                  ),
-                  subtitle: Text(
-                    (row['reason'] as String).replaceAll(RegExp(r'\s+'), ' '),
-                    style: t.body(12, color: c.textSecondary),
-                  ),
+                ShadAccordion<int>(
+                  maintainState: false,
                   children: [
-                    Text(row['content'] as String, style: t.body(13)),
-                    const SizedBox(height: AppSpace.sm),
-                    if (history?['sourceUrl'] case final String url)
-                      _SourceLink(label: '변경 이력 공시 원문', url: url),
+                    ShadAccordionItem<int>(
+                      value: 0,
+                      title: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${row['date']} 정관 변경',
+                            style: t.body(13, weight: FontWeight.w600),
+                          ),
+                          Text(
+                            (row['reason'] as String).replaceAll(
+                              RegExp(r'\s+'),
+                              ' ',
+                            ),
+                            style: t.body(12, color: c.textSecondary),
+                          ),
+                        ],
+                      ),
+                      padding: EdgeInsets.zero,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(row['content'] as String, style: t.body(13)),
+                          const SizedBox(height: AppSpace.sm),
+                          if (history?['sourceUrl'] case final String url)
+                            _SourceLink(label: '변경 이력 공시 원문', url: url),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
             ] else if (changes.isEmpty) ...[
@@ -226,10 +258,10 @@ class _ShareholderRightsCardState extends State<ShareholderRightsCard> {
                     : '이 공시의 정관 표는 아직 자동 비교하지 못했습니다.',
                 style: t.body(13, color: c.textSecondary),
               ),
-              AppButton(
-                label: '다시 불러오기',
-                variant: AppButtonVariant.link,
+              ShadButton.raw(
                 onPressed: _load,
+                variant: ShadButtonVariant.link,
+                child: Text('다시 불러오기'),
               ),
             ],
             if (data['historyState'] == 'unavailable' && changes.isNotEmpty)
@@ -271,24 +303,32 @@ class _Change extends StatelessWidget {
             const SizedBox(height: AppSpace.sm),
             Text(meaning, style: t.body(13, color: c.textSecondary)),
           ],
-          ExpansionTile(
-            tilePadding: EdgeInsets.zero,
-            expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
-            title: Text(
-              '변경 전후 원문 · 변경 사유',
-              style: t.body(12, color: c.textSecondary),
-            ),
+          ShadAccordion<int>(
+            maintainState: false,
             children: [
-              _Comparison(
-                before: row['before'] as String,
-                after: row['after'] as String,
+              ShadAccordionItem<int>(
+                value: 0,
+                title: Text(
+                  '변경 전후 원문 · 변경 사유',
+                  style: t.body(12, color: c.textSecondary),
+                ),
+                padding: EdgeInsets.zero,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _Comparison(
+                      before: row['before'] as String,
+                      after: row['after'] as String,
+                    ),
+                    const SizedBox(height: AppSpace.sm),
+                    Text(
+                      '회사 설명: ${row['reason']}',
+                      style: t.body(12, color: c.textSecondary),
+                    ),
+                    const SizedBox(height: AppSpace.sm),
+                  ],
+                ),
               ),
-              const SizedBox(height: AppSpace.sm),
-              Text(
-                '회사 설명: ${row['reason']}',
-                style: t.body(12, color: c.textSecondary),
-              ),
-              const SizedBox(height: AppSpace.sm),
             ],
           ),
           Divider(color: c.border),
@@ -349,11 +389,11 @@ class _SourceLink extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Align(
     alignment: Alignment.centerLeft,
-    child: AppButton(
-      label: '$label →',
-      variant: AppButtonVariant.link,
+    child: ShadButton.raw(
       onPressed: () =>
           launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication),
+      variant: ShadButtonVariant.link,
+      child: Text('$label →'),
     ),
   );
 }

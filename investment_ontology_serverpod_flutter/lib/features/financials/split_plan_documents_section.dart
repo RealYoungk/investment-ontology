@@ -1,3 +1,5 @@
+import 'package:shad/shad.dart';
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -114,12 +116,12 @@ class _State extends State<SplitPlanDocumentsSection> {
               '수집 시 전체 원문 바이트를 검증하고 비공개 보존합니다. 본문 확인 범위: 제출회사와 대행 제출 절. 정기보고서 제출 의무·과거 5개년 원천 부재는 확정하지 않았습니다.',
               style: t.body(12, color: context.colors.textMuted),
             ),
-            TextButton(
+            ShadButton.ghost(
               onPressed: () => launchUrl(
                 Uri.parse(row!['officialUrl'] as String),
                 mode: LaunchMode.externalApplication,
               ),
-              child: const Text('KIND 공식 원문 보기'),
+              child: Flexible(child: const Text('KIND 공식 원문 보기')),
             ),
           ],
         ],

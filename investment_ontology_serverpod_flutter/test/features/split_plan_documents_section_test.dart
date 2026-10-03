@@ -1,3 +1,5 @@
+import '../support/shad_test_host.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -56,18 +58,20 @@ void main() {
         await tester.binding.setSurfaceSize(const Size(320, 820));
         addTearDown(() => tester.binding.setSurfaceSize(null));
         await tester.pumpWidget(
-          MaterialApp(
-            theme: buildAppTheme(ledgerBrand),
-            home: Scaffold(
-              body: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: SplitPlanDocumentsSection(
-                    corpCode: row['corpCode'] as String,
-                    loader: (corp, kind) async {
-                      expect(kind, 'splitPlanDocuments');
-                      return jsonEncode(payload(row));
-                    },
+          shadTestHost(
+            MaterialApp(
+              theme: buildAppTheme(ledgerBrand),
+              home: Scaffold(
+                body: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: SplitPlanDocumentsSection(
+                      corpCode: row['corpCode'] as String,
+                      loader: (corp, kind) async {
+                        expect(kind, 'splitPlanDocuments');
+                        return jsonEncode(payload(row));
+                      },
+                    ),
                   ),
                 ),
               ),
@@ -93,10 +97,12 @@ void main() {
   }
   testWidgets('unknown company never requests split data', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
-        home: SplitPlanDocumentsSection(
-          corpCode: '01801026',
-          loader: (_, _) async => throw StateError('Must not fetch'),
+      shadTestHost(
+        MaterialApp(
+          home: SplitPlanDocumentsSection(
+            corpCode: '01801026',
+            loader: (_, _) async => throw StateError('Must not fetch'),
+          ),
         ),
       ),
     );

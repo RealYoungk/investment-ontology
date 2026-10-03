@@ -1,3 +1,7 @@
+import 'package:shad/shad.dart';
+
+import '../support/shad_test_host.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -58,13 +62,15 @@ void main() {
       );
       addTearDown(router.dispose);
       await tester.pumpWidget(
-        MaterialApp.router(
-          theme: buildAppTheme(ledgerBrand),
-          routerConfig: router,
+        shadTestHost(
+          MaterialApp.router(
+            theme: buildAppTheme(ledgerBrand),
+            routerConfig: router,
+          ),
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.byType(TextField), findsNothing);
+      expect(find.byType(ShadInput), findsNothing);
       await tester.ensureVisible(find.text('제약·바이오 의약품'));
       await tester.tap(find.text('제약·바이오 의약품'));
       await tester.pumpAndSettle();

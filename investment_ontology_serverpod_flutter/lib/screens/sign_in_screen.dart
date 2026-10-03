@@ -1,3 +1,4 @@
+import 'package:shad/shad.dart';
 import 'package:flutter/material.dart';
 import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
 
@@ -43,14 +44,14 @@ class _SignInScreenState extends State<SignInScreen> {
             child: SignInWidget(
               client: client,
               onAuthenticated: () {
-                context.showSnackBar(
+                context.show(
                   message: 'User authenticated.',
                   backgroundColor: colors.primaryContainer,
                   foregroundColor: colors.onPrimaryContainer,
                 );
               },
               onError: (error) {
-                context.showSnackBar(
+                context.show(
                   message: 'Authentication failed: $error',
                   backgroundColor: colors.errorContainer,
                   foregroundColor: colors.onErrorContainer,
@@ -62,16 +63,16 @@ class _SignInScreenState extends State<SignInScreen> {
 }
 
 extension on BuildContext {
-  void showSnackBar({
+  void show({
     required String message,
     required Color backgroundColor,
     required Color foregroundColor,
   }) {
-    ScaffoldMessenger.of(this).showSnackBar(
-      SnackBar(
-        content: Text(message, style: TextStyle(color: foregroundColor)),
-        backgroundColor: backgroundColor,
+    ShadToaster.of(this).show(
+      ShadToast(
+        description: Text(message, style: TextStyle(color: foregroundColor)),
         duration: const Duration(seconds: 5),
+        backgroundColor: backgroundColor,
       ),
     );
   }

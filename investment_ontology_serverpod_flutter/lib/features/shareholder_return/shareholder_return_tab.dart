@@ -110,7 +110,7 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
     if (_error != null) {
       return ReadFailureNotice(subject: '주주환원', retry: _load);
     }
-    if (d == null) return const LinearProgressIndicator(minHeight: 2);
+    if (d == null) return const ShadProgress(minHeight: 2);
 
     final series = dividendSeries(d.dividends);
     // 지금 해의 사업보고서가 아직 없으면 그 해를 빈 칸으로 둔다 (지우지 않는다).
@@ -182,42 +182,53 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
             },
           ),
           if (yield == null)
-            AppNotice(
-              message: '공시 기준 배당수익률 자료가 아직 없습니다. 배당수익률은 주가 대비 배당금의 비율입니다.',
+            ShadAlert(
+              description: Text(
+                '공시 기준 배당수익률 자료가 아직 없습니다. 배당수익률은 주가 대비 배당금의 비율입니다.',
+              ),
             ),
           const SizedBox(height: AppSpace.lg),
-          ExpansionTile(
-            tilePadding: EdgeInsets.zero,
-            title: Text(
-              '배당 수치 전체 보기',
-              style: t.body(14, weight: FontWeight.w600),
-            ),
+          ShadAccordion<int>(
+            maintainState: false,
             children: [
-              AppDataTable(
-                columns: [
-                  const AppColumn('항목'),
-                  for (final y in years.reversed)
-                    AppColumn(
-                      series.any((s) => s.values.containsKey(y))
-                          ? 'FY$y'
-                          : 'FY$y 없음',
-                      numeric: true,
+              ShadAccordionItem<int>(
+                value: 0,
+                title: Text(
+                  '배당 수치 전체 보기',
+                  style: t.body(14, weight: FontWeight.w600),
+                ),
+                padding: EdgeInsets.zero,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppDataTable(
+                      columns: [
+                        const AppColumn('항목'),
+                        for (final y in years.reversed)
+                          AppColumn(
+                            series.any((s) => s.values.containsKey(y))
+                                ? 'FY$y'
+                                : 'FY$y 없음',
+                            numeric: true,
+                          ),
+                      ],
+                      rows: [
+                        for (final s in series)
+                          AppRow([
+                            AppDataTable.text(context, s.label),
+                            for (final y in years.reversed)
+                              AppDataTable.text(
+                                context,
+                                s.values[y] == null
+                                    ? null
+                                    : formatDividendValue(s.values[y], s.unit),
+                                numeric: true,
+                              ),
+                          ]),
+                      ],
                     ),
-                ],
-                rows: [
-                  for (final s in series)
-                    AppRow([
-                      AppDataTable.text(context, s.label),
-                      for (final y in years.reversed)
-                        AppDataTable.text(
-                          context,
-                          s.values[y] == null
-                              ? null
-                              : formatDividendValue(s.values[y], s.unit),
-                          numeric: true,
-                        ),
-                    ]),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
@@ -239,48 +250,57 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
         if (d.treasury.isEmpty)
           Text('자기주식 자료가 없습니다.', style: t.body(13, color: c.textMuted))
         else
-          ExpansionTile(
-            tilePadding: EdgeInsets.zero,
-            title: Text(
-              '자기주식 취득·처분 상세 보기',
-              style: t.body(14, weight: FontWeight.w600),
-            ),
+          ShadAccordion<int>(
+            maintainState: false,
             children: [
-              AppDataTable(
-                columns: const [
-                  AppColumn('취득방법'),
-                  AppColumn(''),
-                  AppColumn(''),
-                  AppColumn('주식 종류'),
-                  AppColumn('기초', numeric: true),
-                  AppColumn('취득', numeric: true),
-                  AppColumn('처분', numeric: true),
-                  AppColumn('소각', numeric: true),
-                  AppColumn('기말', numeric: true),
-                  AppColumn('비고'),
-                ],
-                rows: [
-                  for (final r in d.treasury)
-                    AppRow(emphasized: r.isTotal, [
-                      AppDataTable.text(context, r.method1),
-                      AppDataTable.text(context, r.method2),
-                      AppDataTable.text(context, r.method3),
-                      AppDataTable.text(context, r.stockKind),
-                      for (final v in [
-                        r.sharesBegin,
-                        r.acquired,
-                        r.disposed,
-                        r.retired,
-                        r.sharesEnd,
-                      ])
-                        AppDataTable.text(
-                          context,
-                          v == null ? null : formatCount(v.toInt()),
-                          numeric: true,
-                        ),
-                      AppDataTable.text(context, r.remark),
-                    ]),
-                ],
+              ShadAccordionItem<int>(
+                value: 0,
+                title: Text(
+                  '자기주식 취득·처분 상세 보기',
+                  style: t.body(14, weight: FontWeight.w600),
+                ),
+                padding: EdgeInsets.zero,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppDataTable(
+                      columns: const [
+                        AppColumn('취득방법'),
+                        AppColumn(''),
+                        AppColumn(''),
+                        AppColumn('주식 종류'),
+                        AppColumn('기초', numeric: true),
+                        AppColumn('취득', numeric: true),
+                        AppColumn('처분', numeric: true),
+                        AppColumn('소각', numeric: true),
+                        AppColumn('기말', numeric: true),
+                        AppColumn('비고'),
+                      ],
+                      rows: [
+                        for (final r in d.treasury)
+                          AppRow(emphasized: r.isTotal, [
+                            AppDataTable.text(context, r.method1),
+                            AppDataTable.text(context, r.method2),
+                            AppDataTable.text(context, r.method3),
+                            AppDataTable.text(context, r.stockKind),
+                            for (final v in [
+                              r.sharesBegin,
+                              r.acquired,
+                              r.disposed,
+                              r.retired,
+                              r.sharesEnd,
+                            ])
+                              AppDataTable.text(
+                                context,
+                                v == null ? null : formatCount(v.toInt()),
+                                numeric: true,
+                              ),
+                            AppDataTable.text(context, r.remark),
+                          ]),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -346,30 +366,39 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
           ),
         ),
         const SizedBox(height: AppSpace.xl),
-        ExpansionTile(
-          title: const Text('출처와 집계 기준'),
+        ShadAccordion<int>(
+          maintainState: false,
           children: [
-            Text(
-              '배당수익률은 현재 주가가 아닌 공시 기준입니다. 같은 연도는 해당 사업보고서 값을 우선 사용합니다.',
-              style: t.body(12, color: c.textMuted),
-            ),
-            for (final s in d.sources)
-              Row(
+            ShadAccordionItem<int>(
+              value: 0,
+              title: const Text('출처와 집계 기준'),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Text(
-                      '${s.title} · 접수 ${s.reference ?? ''}',
-                      style: t.body(11.5, color: c.textMuted),
-                    ),
+                  Text(
+                    '배당수익률은 현재 주가가 아닌 공시 기준입니다. 같은 연도는 해당 사업보고서 값을 우선 사용합니다.',
+                    style: t.body(12, color: c.textMuted),
                   ),
-                  if (s.url != null)
-                    AppButton(
-                      label: 'DART →',
-                      variant: AppButtonVariant.link,
-                      onPressed: () => launchUrl(Uri.parse(s.url!)),
+                  for (final s in d.sources)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            '${s.title} · 접수 ${s.reference ?? ''}',
+                            style: t.body(11.5, color: c.textMuted),
+                          ),
+                        ),
+                        if (s.url != null)
+                          ShadButton.raw(
+                            onPressed: () => launchUrl(Uri.parse(s.url!)),
+                            variant: ShadButtonVariant.link,
+                            child: Flexible(child: Text('DART →')),
+                          ),
+                      ],
                     ),
                 ],
               ),
+            ),
           ],
         ),
       ],
@@ -478,7 +507,7 @@ class _StockComposition extends StatelessWidget {
                 const SizedBox(height: AppSpace.md),
                 Semantics(
                   label: '${row.kind} 발행주식 중 자기주식 비중',
-                  child: LinearProgressIndicator(
+                  child: ShadProgress(
                     value: row.treasury!.toDouble() / row.issued!.toDouble(),
                     minHeight: 18,
                     color: c.chartSeries2,

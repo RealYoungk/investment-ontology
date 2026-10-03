@@ -1,3 +1,5 @@
+import '../support/shad_test_host.dart';
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -6,6 +8,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shad/shad.dart';
 import 'package:investment_ontology_serverpod_flutter/design/app_theme.dart';
 import 'package:investment_ontology_serverpod_flutter/design/brands/ledger_brand.dart';
 import 'package:investment_ontology_serverpod_flutter/design/components/charts/app_charts.dart';
@@ -100,15 +103,17 @@ void main() {
           .readAsStringSync();
       const boundary = ValueKey('bond-primary-preview');
       await tester.pumpWidget(
-        MaterialApp(
-          theme: theme,
-          home: Scaffold(
-            body: RepaintBoundary(
-              key: boundary,
-              child: SingleChildScrollView(
-                child: BondTrendsCard(
-                  corpCode: '00147082',
-                  loader: (_) async => source,
+        shadTestHost(
+          MaterialApp(
+            theme: theme,
+            home: Scaffold(
+              body: RepaintBoundary(
+                key: boundary,
+                child: SingleChildScrollView(
+                  child: BondTrendsCard(
+                    corpCode: '00147082',
+                    loader: (_) async => source,
+                  ),
                 ),
               ),
             ),
@@ -151,10 +156,12 @@ void main() {
         await tester.binding.setSurfaceSize(Size(width, 1200));
         addTearDown(() => tester.binding.setSurfaceSize(null));
         await tester.pumpWidget(
-          app(
-            BondTrendsCard(
-              corpCode: '00000001',
-              loader: (_) async => jsonEncode(feed()),
+          shadTestHost(
+            app(
+              BondTrendsCard(
+                corpCode: '00000001',
+                loader: (_) async => jsonEncode(feed()),
+              ),
             ),
           ),
         );
@@ -165,7 +172,12 @@ void main() {
         expect(find.textContaining('보고서 수집 2 / 3'), findsOneWidget);
         final chart = tester.widget<AppLineChart>(find.byType(AppLineChart));
         expect(chart.series.single.values, [100.0, null, 60.0]);
-        await tester.tap(find.byKey(const ValueKey('bond-series-selector')));
+        final selector = find.descendant(
+          of: find.byKey(const ValueKey('bond-series-selector')),
+          matching: find.byWidgetPredicate((widget) => widget is ShadSelect),
+        );
+        await tester.ensureVisible(selector);
+        await tester.tap(selector);
         await tester.pumpAndSettle();
         await tester.tap(find.text('제2회차 · 발행 2023-01-01 · 보통주').last);
         await tester.pumpAndSettle();
@@ -191,13 +203,15 @@ void main() {
   ) async {
     var calls = 0;
     await tester.pumpWidget(
-      app(
-        BondTrendsCard(
-          corpCode: '00000001',
-          loader: (_) async {
-            if (calls++ == 0) throw StateError('offline');
-            return jsonEncode(feed());
-          },
+      shadTestHost(
+        app(
+          BondTrendsCard(
+            corpCode: '00000001',
+            loader: (_) async {
+              if (calls++ == 0) throw StateError('offline');
+              return jsonEncode(feed());
+            },
+          ),
         ),
       ),
     );
@@ -215,8 +229,12 @@ void main() {
     Future<String> load(String code) => code == 'old'
         ? old.future
         : Future.value(jsonEncode(feed(amount: '2000000000')));
-    await tester.pumpWidget(app(BondTrendsCard(corpCode: 'old', loader: load)));
-    await tester.pumpWidget(app(BondTrendsCard(corpCode: 'new', loader: load)));
+    await tester.pumpWidget(
+      shadTestHost(app(BondTrendsCard(corpCode: 'old', loader: load))),
+    );
+    await tester.pumpWidget(
+      shadTestHost(app(BondTrendsCard(corpCode: 'new', loader: load))),
+    );
     await tester.pumpAndSettle();
     old.complete(jsonEncode(feed()));
     await tester.pumpAndSettle();

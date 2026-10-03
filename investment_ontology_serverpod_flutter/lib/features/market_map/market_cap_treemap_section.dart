@@ -147,17 +147,24 @@ class _MarketCapTreemapSectionState extends State<MarketCapTreemapSection> {
           spacing: AppSpace.xs,
           runSpacing: AppSpace.xs,
           children: [
-            AppButton(
-              label: '전체 업종',
-              variant: AppButtonVariant.link,
+            ShadButton.raw(
               onPressed: _section == null ? null : () => _openSection(null),
+              enabled:
+                  (_section == null ? null : () => _openSection(null)) != null,
+              variant: ShadButtonVariant.link,
+              child: Flexible(child: Text('전체 업종')),
             ),
             if (_section != null) ...[
               Icon(Icons.chevron_right, size: 16, color: c.textMuted),
-              AppButton(
-                label: '$_section ${map?.sectionName ?? ''}',
-                variant: AppButtonVariant.link,
+              ShadButton.raw(
                 onPressed: _division == null ? null : () => _openDivision(null),
+                enabled:
+                    (_division == null ? null : () => _openDivision(null)) !=
+                    null,
+                variant: ShadButtonVariant.link,
+                child: Flexible(
+                  child: Text('$_section ${map?.sectionName ?? ''}'),
+                ),
               ),
             ],
             if (division != null) ...[
@@ -173,7 +180,7 @@ class _MarketCapTreemapSectionState extends State<MarketCapTreemapSection> {
         if (_failed)
           MarketLoadNotice(subject: '업종 지도', retry: _load)
         else if (_loading || map == null)
-          const LinearProgressIndicator(minHeight: 2)
+          const ShadProgress(minHeight: 2)
         else if (map.baseDate == null)
           Text('아직 시세를 수집하지 않았습니다.', style: t.body(13, color: c.textMuted))
         else ...[
@@ -243,9 +250,14 @@ class _MarketCapTreemapSectionState extends State<MarketCapTreemapSection> {
             const SizedBox(height: AppSpace.sm),
             Align(
               alignment: Alignment.centerLeft,
-              child: AppButton(
-                label: '더 보기 (${formatCount(nodes.length - _visibleRows)}개 남음)',
+              child: ShadButton.raw(
                 onPressed: () => setState(() => _visibleRows += 30),
+                variant: ShadButtonVariant.outline,
+                child: Flexible(
+                  child: Text(
+                    '더 보기 (${formatCount(nodes.length - _visibleRows)}개 남음)',
+                  ),
+                ),
               ),
             ),
           ],
@@ -387,13 +399,17 @@ class _NodeTable extends StatelessWidget {
         rows: [
           for (final node in nodes)
             AppRow([
-              AppButton(
-                label: companies
-                    ? '${node.name} →'
-                    : '${node.code} ${node.name} →',
-                variant: AppButtonVariant.link,
-                tone: context.colors.accent,
+              ShadButton.raw(
                 onPressed: () => onSelect(node.code),
+                variant: ShadButtonVariant.link,
+                foregroundColor: context.colors.accent,
+                child: Flexible(
+                  child: Text(
+                    companies
+                        ? '${node.name} →'
+                        : '${node.code} ${node.name} →',
+                  ),
+                ),
               ),
               if (!companies && wide)
                 AppDataTable.text(

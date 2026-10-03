@@ -1,0 +1,55 @@
+--- a/lib/src/components/input.dart
++++ b/lib/src/components/input.dart
+@@ -754,6 +754,7 @@
+   @override
+   void didUpdateWidget(ShadInput oldWidget) {
+     super.didUpdateWidget(oldWidget);
++    if (!widget.enabled && oldWidget.enabled) effectiveFocusNode.unfocus();
+     if (widget.focusNode != oldWidget.focusNode) {
+       oldWidget.focusNode?.removeListener(onFocusChange);
+       effectiveFocusNode.addListener(onFocusChange);
+@@ -853,6 +854,18 @@
+   String? get restorationId => widget.restorationId;
+ 
+   EditableTextState? get _editableText => editableTextKey.currentState;
++
++  // Match the framework TextField semantics entry point: initialize an invalid
++  // selection before opening the native editing session.
++  void _requestKeyboardFromSemantics() {
++    if (!effectiveController.selection.isValid) {
++      effectiveController.selection = TextSelection.collapsed(
++        offset: effectiveController.text.length,
++      );
++    }
++    _editableText?.requestKeyboard();
++  }
++
+ 
+   bool get isMultiline => widget.maxLines != 1;
+ 
+@@ -1361,7 +1374,24 @@
+                                                 bucket: bucket,
+                                                 child: Align(
+                                                   alignment: effectiveAlignemnt,
+-                                                  child: editableText,
++                                                  child: Semantics(
++                                                    enabled: widget.enabled,
++                                                    label: widget.top is Text
++                                                        ? (widget.top as Text).data
++                                                        : widget.placeholder is Text
++                                                            ? (widget.placeholder as Text).data
++                                                            : null,
++                                                    onTap: widget.enabled
++                                                        ? _requestKeyboardFromSemantics
++                                                        : null,
++                                                    onFocus: widget.enabled
++                                                        ? _requestKeyboardFromSemantics
++                                                        : null,
++                                                    child: ExcludeFocus(
++                                                      excluding: !widget.enabled,
++                                                      child: editableText,
++                                                    ),
++                                                  ),
+                                                 ),
+                                               ),
+                                             ),

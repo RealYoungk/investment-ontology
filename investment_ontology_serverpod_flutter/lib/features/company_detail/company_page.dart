@@ -194,7 +194,7 @@ class _CompanyPageState extends State<CompanyPage> {
       child: PageFrame(
         children: [
           if (!_loaded)
-            const LinearProgressIndicator(minHeight: 2)
+            const ShadProgress(minHeight: 2)
           else if (detail == null)
             (_error != null
                 ? ReadFailureNotice(subject: '상세 정보', retry: _load)
@@ -347,13 +347,7 @@ class _DisclosureFetchCardState extends State<_DisclosureFetchCard> {
   Widget build(BuildContext context) {
     final c = context.colors;
     final t = context.typo;
-    return Container(
-      padding: const EdgeInsets.all(AppSpace.lg),
-      decoration: BoxDecoration(
-        color: c.surface,
-        borderRadius: context.shape.borderRadius,
-        border: Border.all(color: c.border),
-      ),
+    return DataPanel(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -366,9 +360,13 @@ class _DisclosureFetchCardState extends State<_DisclosureFetchCard> {
             style: t.body(13, color: c.textSecondary),
           ),
           const SizedBox(height: AppSpace.md),
-          AppButton(
-            label: _fetching ? '받는 중…' : '이 기업 주요정보 지금 받기',
+          ShadButton.raw(
             onPressed: _fetching ? null : _fetch,
+            enabled: (_fetching ? null : _fetch) != null,
+            variant: ShadButtonVariant.outline,
+            child: Flexible(
+              child: Text(_fetching ? '받는 중…' : '이 기업 주요정보 지금 받기'),
+            ),
           ),
           if (_message != null) ...[
             const SizedBox(height: AppSpace.xs),

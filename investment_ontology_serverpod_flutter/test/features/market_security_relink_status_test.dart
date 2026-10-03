@@ -1,3 +1,5 @@
+import '../support/shad_test_host.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
@@ -35,7 +37,7 @@ void main() {
   testWidgets('대기 작업은 시세와 구분하며 정상 취소 콜백을 제공한다', (tester) async {
     var cancelled = 0;
     await tester.pumpWidget(
-      page(IngestStatus.running, cancel: () => cancelled++),
+      shadTestHost(page(IngestStatus.running, cancel: () => cancelled++)),
     );
     expect(find.text('기존 종목 재연결 · 시세 API 호출 없음'), findsOneWidget);
     expect(find.text('시장 작업 종료 후 기존 종목 재연결 대기'), findsOneWidget);
@@ -44,7 +46,9 @@ void main() {
     expect(find.text('최근 수집 완료'), findsNothing);
   });
   testWidgets('완료는 시세 완료로 표시하지 않고 취소 버튼을 숨긴다', (tester) async {
-    await tester.pumpWidget(page(IngestStatus.succeeded));
+    await tester.pumpWidget(
+      shadTestHost(page(IngestStatus.succeeded)),
+    );
     expect(find.text('기존 종목 재연결 완료'), findsOneWidget);
     expect(find.text('기존 종목 2개 재연결 · 시세 API 호출 없음'), findsOneWidget);
     expect(find.text('최근 수집 완료'), findsNothing);

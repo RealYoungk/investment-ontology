@@ -1,3 +1,4 @@
+import 'package:shad/shad.dart';
 import 'package:flutter/material.dart';
 
 import '../../design/tokens.dart';
@@ -36,7 +37,7 @@ class IntroFilmPlaceholder extends StatelessWidget {
                   const SizedBox(
                     width: 22,
                     height: 22,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                    child: ShadSpinner(strokeWidth: 2),
                   ),
                   const SizedBox(height: AppSpace.sm),
                 ],

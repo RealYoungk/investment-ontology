@@ -1,3 +1,4 @@
+import 'package:investment_ontology_serverpod_flutter/design/components/app_select.dart';
 import 'package:flutter/material.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 
@@ -71,21 +72,16 @@ class _TreasuryMovementState extends State<TreasuryMovement> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        DropdownButton<int>(
-          isExpanded: true,
-          value: safe,
-          items: [
+        AppSelect<int>(
+          options: Map.fromEntries([
             for (var i = 0; i < widget.rows.length; i++)
               if (treasuryHasValues(widget.rows[i]))
-                DropdownMenuItem(
-                  value: i,
-                  child: Text(
-                    label(widget.rows[i]),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-          ],
+                MapEntry(i, label(widget.rows[i])),
+          ]),
+          value: safe,
           onChanged: (v) => setState(() => _selected = v),
+          placeholder: '선택',
+          allowClear: false,
         ),
         Text(
           'FY${r.bsnsYear} 공시된 실제 수량 · 주',

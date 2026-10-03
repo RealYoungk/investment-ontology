@@ -28,13 +28,7 @@ class CompanyDevelopmentSection extends StatelessWidget {
       children: [
         const SectionLabel('어떤 투자포인트가 있나요?', accent: true),
         const SizedBox(height: AppSpace.md),
-        Container(
-          padding: const EdgeInsets.all(AppSpace.lg),
-          decoration: BoxDecoration(
-            color: c.surface,
-            border: Border.all(color: c.border),
-            borderRadius: context.shape.borderRadius,
-          ),
+        DataPanel(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -49,20 +43,30 @@ class CompanyDevelopmentSection extends StatelessWidget {
               const SizedBox(height: AppSpace.sm),
               Material(
                 color: c.surface,
-                child: ExpansionTile(
-                  tilePadding: EdgeInsets.zero,
-                  expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
-                  childrenPadding: const EdgeInsets.only(bottom: AppSpace.md),
-                  title: Text(
-                    d.contextTitle,
-                    style: t.body(13, color: c.textSecondary),
-                  ),
+                child: ShadAccordion<int>(
+                  maintainState: false,
                   children: [
-                    for (final step in d.contextSteps) ...[
-                      paragraph(step.title, step.body),
-                      const SizedBox(height: AppSpace.md),
-                    ],
-                    paragraph(d.roleTitle, d.role),
+                    ShadAccordionItem<int>(
+                      value: 0,
+                      title: Text(
+                        d.contextTitle,
+                        style: t.body(13, color: c.textSecondary),
+                      ),
+                      padding: EdgeInsets.zero,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpace.md),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            for (final step in d.contextSteps) ...[
+                              paragraph(step.title, step.body),
+                              const SizedBox(height: AppSpace.md),
+                            ],
+                            paragraph(d.roleTitle, d.role),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),

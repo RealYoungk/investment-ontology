@@ -79,9 +79,13 @@ class _CharterCoverageState extends State<_CharterCoverage> {
     final data = _data;
     if (data == null) {
       if (_failed) {
-        return AppButton(label: '정관 확보 현황 조회 실패 · 다시 확인', onPressed: _load);
+        return ShadButton.raw(
+          onPressed: _load,
+          variant: ShadButtonVariant.outline,
+          child: Text('정관 확보 현황 조회 실패 · 다시 확인'),
+        );
       }
-      return const LinearProgressIndicator(minHeight: 2);
+      return const ShadProgress(minHeight: 2);
     }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpace.md),
@@ -164,7 +168,7 @@ class _CoverageState extends State<_Coverage> {
     final v = _coverage;
     final c = context.colors;
     final t = context.typo;
-    if (v == null) return const LinearProgressIndicator(minHeight: 2);
+    if (v == null) return const ShadProgress(minHeight: 2);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -322,133 +326,132 @@ class _Dataset extends StatelessWidget {
       'business' => Icons.factory_outlined,
       _ => Icons.show_chart,
     };
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppSpace.lg),
-      decoration: BoxDecoration(
-        color: c.surface,
-        border: Border.all(color: c.border),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(AppSpace.lg),
-            child: LayoutBuilder(
-              builder: (context, box) {
-                final identity = Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(AppSpace.sm),
-                          decoration: BoxDecoration(
-                            color: c.accent.withValues(alpha: 0.08),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Icon(icon, color: c.accent, size: 22),
-                        ),
-                        const SizedBox(width: AppSpace.md),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                title,
-                                style: t.body(18, weight: FontWeight.w600),
-                              ),
-                              Text(
-                                source,
-                                style: t.body(11, color: c.textMuted),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSpace.md),
-                    Wrap(
-                      spacing: AppSpace.xs,
-                      runSpacing: AppSpace.xs,
-                      children: [
-                        for (final item in items)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpace.sm,
-                              vertical: AppSpace.xs,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: c.border),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              item,
-                              style: t.body(11, color: c.textSecondary),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ],
-                );
-                final metrics = LayoutBuilder(
-                  builder: (context, size) {
-                    if (children.length < 2 || size.maxWidth < 300) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: children,
-                      );
-                    }
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        for (var i = 0; i < children.length; i++) ...[
-                          if (i > 0) const SizedBox(width: AppSpace.lg),
-                          Expanded(child: children[i]),
-                        ],
-                      ],
-                    );
-                  },
-                );
-                if (box.maxWidth < 600) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpace.lg),
+      child: ShadCard(
+        padding: EdgeInsets.zero,
+        width: double.infinity,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(AppSpace.lg),
+              child: LayoutBuilder(
+                builder: (context, box) {
+                  final identity = Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      identity,
-                      const SizedBox(height: AppSpace.lg),
-                      metrics,
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(AppSpace.sm),
+                            decoration: BoxDecoration(
+                              color: c.accent.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(icon, color: c.accent, size: 22),
+                          ),
+                          const SizedBox(width: AppSpace.md),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  title,
+                                  style: t.body(18, weight: FontWeight.w600),
+                                ),
+                                Text(
+                                  source,
+                                  style: t.body(11, color: c.textMuted),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpace.md),
+                      Wrap(
+                        spacing: AppSpace.xs,
+                        runSpacing: AppSpace.xs,
+                        children: [
+                          for (final item in items)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpace.sm,
+                                vertical: AppSpace.xs,
+                              ),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: c.border),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                item,
+                                style: t.body(11, color: c.textSecondary),
+                              ),
+                            ),
+                        ],
+                      ),
                     ],
                   );
-                }
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(flex: 4, child: identity),
-                    const SizedBox(width: AppSpace.xxl),
-                    Expanded(flex: 6, child: metrics),
-                  ],
-                );
-              },
+                  final metrics = LayoutBuilder(
+                    builder: (context, size) {
+                      if (children.length < 2 || size.maxWidth < 300) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: children,
+                        );
+                      }
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          for (var i = 0; i < children.length; i++) ...[
+                            if (i > 0) const SizedBox(width: AppSpace.lg),
+                            Expanded(child: children[i]),
+                          ],
+                        ],
+                      );
+                    },
+                  );
+                  if (box.maxWidth < 600) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        identity,
+                        const SizedBox(height: AppSpace.lg),
+                        metrics,
+                      ],
+                    );
+                  }
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(flex: 4, child: identity),
+                      const SizedBox(width: AppSpace.xxl),
+                      Expanded(flex: 6, child: metrics),
+                    ],
+                  );
+                },
+              ),
             ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              border: Border(top: BorderSide(color: c.border)),
+            Container(
+              decoration: BoxDecoration(
+                border: Border(top: BorderSide(color: c.border)),
+              ),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpace.lg,
+                vertical: AppSpace.sm,
+              ),
+              child: DatasetCollectionControls(dataset: dataset),
             ),
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpace.lg,
-              vertical: AppSpace.sm,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpace.lg),
+              child: DataReference(
+                dataset: dataset,
+                collectionDetail: '$data\n\n$scope\n\n$detail',
+              ),
             ),
-            child: DatasetCollectionControls(dataset: dataset),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpace.lg),
-            child: DataReference(
-              dataset: dataset,
-              collectionDetail: '$data\n\n$scope\n\n$detail',
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -516,10 +519,16 @@ class _Progress extends StatelessWidget {
                 child: Text(label, style: t.body(12, color: c.textSecondary)),
               ),
               if (note != null)
-                Tooltip(
-                  message: note!,
-                  triggerMode: TooltipTriggerMode.tap,
-                  child: Icon(Icons.info_outline, size: 14, color: c.textMuted),
+                ShadTooltip(
+                  builder: (_) => Text(note!),
+                  child: Semantics(
+                    tooltip: note!,
+                    child: Icon(
+                      Icons.info_outline,
+                      size: 14,
+                      color: c.textMuted,
+                    ),
+                  ),
                 ),
               const SizedBox(width: AppSpace.xs),
               Text(
@@ -544,7 +553,7 @@ class _Progress extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpace.sm),
-          LinearProgressIndicator(
+          ShadProgress(
             value: ratio,
             minHeight: 4,
             color: c.accent,

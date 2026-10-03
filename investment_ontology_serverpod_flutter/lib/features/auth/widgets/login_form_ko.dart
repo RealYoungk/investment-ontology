@@ -1,3 +1,4 @@
+import 'package:shad/shad.dart';
 import 'package:flutter/material.dart';
 import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
 
@@ -65,7 +66,17 @@ class _LoginFormKoState extends State<LoginFormKo> {
           const SizedBox(height: 28),
           Text('이메일', style: t.body(13, weight: FontWeight.w600)),
           const SizedBox(height: 8),
-          TextField(
+          ShadInput(
+            placeholder: Text('name@example.com'),
+            bottom: controller.error is InvalidEmailException
+                ? Semantics(
+                    liveRegion: true,
+                    child: Text(
+                      controller.errorMessage ?? '',
+                      style: t.body(12, color: c.marketUp),
+                    ),
+                  )
+                : null,
             key: const ValueKey('login-email'),
             controller: controller.emailController,
             focusNode: _emailFocus,
@@ -81,18 +92,32 @@ class _LoginFormKoState extends State<LoginFormKo> {
             onSubmitted: registration
                 ? (_) => submit()
                 : (_) => _passwordFocus.requestFocus(),
-            decoration: InputDecoration(
-              hintText: 'name@example.com',
-              errorText: controller.error is InvalidEmailException
-                  ? controller.errorMessage
-                  : null,
-            ),
           ),
           if (!registration) ...[
             const SizedBox(height: 20),
             Text('비밀번호', style: t.body(13, weight: FontWeight.w600)),
             const SizedBox(height: 8),
-            TextField(
+            ShadInput(
+              placeholder: Text('비밀번호를 입력해 주세요'),
+              trailing: Semantics(
+                container: true,
+                label: _visible ? '비밀번호 숨기기' : '비밀번호 표시',
+                button: true,
+                enabled: true,
+                onTap: () => setState(() => _visible = !_visible),
+                child: ExcludeSemantics(
+                  child: ShadIconButton.ghost(
+                    onPressed: () => setState(() => _visible = !_visible),
+                    icon: Icon(
+                      _visible
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                      size: 20,
+                    ),
+                    semanticLabel: _visible ? '비밀번호 숨기기' : '비밀번호 표시',
+                  ),
+                ),
+              ),
               key: const ValueKey('login-password'),
               controller: controller.passwordController,
               focusNode: _passwordFocus,
@@ -103,30 +128,24 @@ class _LoginFormKoState extends State<LoginFormKo> {
               enableSuggestions: false,
               textInputAction: TextInputAction.done,
               onSubmitted: (_) => submit(),
-              decoration: InputDecoration(
-                hintText: '비밀번호를 입력해 주세요',
-                suffixIcon: IconButton(
-                  tooltip: _visible ? '비밀번호 숨기기' : '비밀번호 표시',
-                  onPressed: () => setState(() => _visible = !_visible),
-                  icon: Icon(
-                    _visible
-                        ? Icons.visibility_outlined
-                        : Icons.visibility_off_outlined,
-                    size: 20,
-                  ),
-                ),
-              ),
             ),
             const SizedBox(height: 4),
             Align(
               alignment: Alignment.centerRight,
-              child: TextButton(
+              child: ShadButton.ghost(
                 onPressed: controller.isLoading
                     ? null
                     : () => controller.navigateTo(
                         EmailFlowScreen.requestPasswordReset,
                       ),
-                child: const Text('비밀번호 찾기'),
+                enabled:
+                    (controller.isLoading
+                        ? null
+                        : () => controller.navigateTo(
+                            EmailFlowScreen.requestPasswordReset,
+                          )) !=
+                    null,
+                child: Flexible(child: const Text('비밀번호 찾기')),
               ),
             ),
           ] else ...[
@@ -139,21 +158,19 @@ class _LoginFormKoState extends State<LoginFormKo> {
           ],
           SizedBox(
             height: 48,
-            child: FilledButton(
+            child: ShadButton(
               key: const ValueKey('login-submit'),
-              style: FilledButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: context.shape.borderRadius,
-                ),
-              ),
               onPressed: ready ? submit : null,
-              child: controller.isLoading
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(registration ? '인증번호 받기' : '로그인'),
+              enabled: (ready ? submit : null) != null,
+              child: Flexible(
+                child: controller.isLoading
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: ShadSpinner(strokeWidth: 2),
+                      )
+                    : Text(registration ? '인증번호 받기' : '로그인'),
+              ),
             ),
           ),
           const SizedBox(height: 24),
@@ -165,7 +182,7 @@ class _LoginFormKoState extends State<LoginFormKo> {
                 registration ? '이미 계정이 있나요?' : '아직 계정이 없나요?',
                 style: t.body(13, color: c.textSecondary),
               ),
-              TextButton(
+              ShadButton.ghost(
                 onPressed: controller.isLoading
                     ? null
                     : () => controller.navigateTo(
@@ -173,7 +190,16 @@ class _LoginFormKoState extends State<LoginFormKo> {
                             ? EmailFlowScreen.login
                             : EmailFlowScreen.startRegistration,
                       ),
-                child: Text(registration ? '로그인' : '회원가입'),
+                enabled:
+                    (controller.isLoading
+                        ? null
+                        : () => controller.navigateTo(
+                            registration
+                                ? EmailFlowScreen.login
+                                : EmailFlowScreen.startRegistration,
+                          )) !=
+                    null,
+                child: Flexible(child: Text(registration ? '로그인' : '회원가입')),
               ),
             ],
           ),

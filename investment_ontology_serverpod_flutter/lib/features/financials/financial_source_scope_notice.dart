@@ -83,6 +83,6 @@ class FinancialSourceScopeNotice extends StatelessWidget {
     final message = messageFor(sourceTitle);
     return message == null
         ? const SizedBox.shrink()
-        : AppNotice(message: message);
+        : ShadAlert(description: Text(message));
   }
 }

@@ -9,8 +9,13 @@ import 'watchlist_store.dart';
 import '../monetization/membership_offer.dart';
 
 class WatchlistButton extends StatelessWidget {
-  const WatchlistButton({super.key, required this.corpCode});
+  const WatchlistButton({
+    super.key,
+    required this.corpCode,
+    this.compact = false,
+  });
   final String corpCode;
+  final bool compact;
   @override
   Widget build(BuildContext context) {
     final store = WatchlistStore.instance;
@@ -18,43 +23,53 @@ class WatchlistButton extends StatelessWidget {
       listenable: store,
       builder: (context, _) {
         final saved = store.contains(corpCode);
-        return AppButton(
-          label: store.busyCodes.contains(corpCode)
-              ? '저장 중…'
-              : saved
-              ? '관심등록됨'
-              : '관심등록',
-          icon: saved ? Icons.star : Icons.star_border,
-          onPressed: store.busyCodes.contains(corpCode) || store.loading
-              ? null
-              : () async {
-                  if (AppAuth.viewer.value == null) {
-                    context.push(
-                      AppRoutes.login(next: '/watchlist?add=$corpCode'),
+        final label = store.busyCodes.contains(corpCode)
+            ? '저장 중…'
+            : saved
+            ? '관심등록됨'
+            : '관심등록';
+        final icon = saved ? Icons.star : Icons.star_border;
+        final VoidCallback? onPressed =
+            store.busyCodes.contains(corpCode) || store.loading
+            ? null
+            : () async {
+                if (AppAuth.viewer.value == null) {
+                  context.push(
+                    AppRoutes.login(next: '/watchlist?add=$corpCode'),
+                  );
+                  return;
+                }
+                try {
+                  await store.toggle(corpCode);
+                } on WatchlistError catch (e) {
+                  if (context.mounted &&
+                      e.code == 'limit' &&
+                      store.view?.paid == false) {
+                    await showMembershipOffer(context);
+                  } else if (context.mounted) {
+                    ShadToaster.of(context).show(
+                      ShadToast(
+                        description: Text(e.message),
+                      ),
                     );
-                    return;
                   }
-                  try {
-                    await store.toggle(corpCode);
-                  } on WatchlistError catch (e) {
-                    if (context.mounted &&
-                        e.code == 'limit' &&
-                        store.view?.paid == false) {
-                      await showMembershipOffer(context);
-                    } else if (context.mounted) {
-                      ScaffoldMessenger.of(context)
-                          .showSnackBar(SnackBar(content: Text(e.message)));
-                    }
-                  } catch (_) {
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('관심종목 저장에 실패했습니다. 다시 시도해 주세요.'),
-                        ),
-                      );
-                    }
+                } catch (_) {
+                  if (context.mounted) {
+                    ShadToaster.of(context).show(
+                      ShadToast(
+                        description: Text('관심종목 저장에 실패했습니다. 다시 시도해 주세요.'),
+                      ),
+                    );
                   }
-                },
+                }
+              };
+        return ShadButton.raw(
+          onPressed: onPressed,
+
+          variant: ShadButtonVariant.outline,
+          size: (compact) ? ShadButtonSize.sm : ShadButtonSize.regular,
+          leading: Icon(icon, size: 16),
+          child: Flexible(child: Text(label)),
         );
       },
     );

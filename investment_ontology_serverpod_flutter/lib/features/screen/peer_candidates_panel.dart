@@ -79,15 +79,16 @@ class _PeerCandidatesPanelState extends State<PeerCandidatesPanel> {
               style: t.body(12, color: c.textMuted),
             ),
           ),
-          AppButton(
-            label: '다시 시도',
+          ShadButton.raw(
             onPressed: _load,
-            variant: AppButtonVariant.link,
+
+            variant: ShadButtonVariant.link,
+            child: Flexible(child: Text('다시 시도')),
           ),
         ],
       );
     }
-    if (data == null) return const LinearProgressIndicator(minHeight: 2);
+    if (data == null) return const ShadProgress(minHeight: 2);
     final emptyMessage = switch (data.status) {
       'no_document' => '비교에 필요한 최신 공시가 없습니다.',
       'pending' => '공시를 정리하고 있습니다. 검색으로 기업을 추가할 수 있습니다.',
@@ -152,22 +153,36 @@ class _PeerCandidatesPanelState extends State<PeerCandidatesPanel> {
                                     style: t.body(15, weight: FontWeight.w600),
                                   ),
                                 ),
-                                AppIconButton(
-                                  icon: Icons.info_outline,
-                                  tooltip: '비교 이유 보기',
-                                  onPressed: () =>
-                                      _showReason(context, data, candidate),
+                                ShadTooltip(
+                                  builder: (_) => Text('비교 이유 보기'),
+                                  child: Semantics(
+                                    container: true,
+                                    label: '비교 이유 보기',
+                                    button: true,
+                                    enabled: true,
+                                    onTap: () => _showReason(
+                                      context,
+                                      data,
+                                      candidate,
+                                    ),
+                                    child: ExcludeSemantics(
+                                      child: ShadIconButton.outline(
+                                        semanticLabel: '비교 이유 보기',
+                                        onPressed: () => _showReason(
+                                          context,
+                                          data,
+                                          candidate,
+                                        ),
+                                        icon: Icon(
+                                          Icons.info_outline,
+                                          size: 16,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ),
                                 const SizedBox(width: AppSpace.sm),
-                                AppButton(
-                                  icon:
-                                      widget.codes.contains(candidate.corpCode)
-                                      ? Icons.check
-                                      : Icons.add,
-                                  label:
-                                      widget.codes.contains(candidate.corpCode)
-                                      ? '추가됨'
-                                      : '추가',
+                                ShadButton.raw(
                                   onPressed:
                                       widget.codes.length >= 4 ||
                                           widget.codes.contains(
@@ -175,6 +190,30 @@ class _PeerCandidatesPanelState extends State<PeerCandidatesPanel> {
                                           )
                                       ? null
                                       : () => widget.onAdd(candidate.corpCode),
+                                  enabled:
+                                      (widget.codes.length >= 4 ||
+                                              widget.codes.contains(
+                                                candidate.corpCode,
+                                              )
+                                          ? null
+                                          : () => widget.onAdd(
+                                              candidate.corpCode,
+                                            )) !=
+                                      null,
+                                  variant: ShadButtonVariant.outline,
+                                  leading: Icon(
+                                    widget.codes.contains(candidate.corpCode)
+                                        ? Icons.check
+                                        : Icons.add,
+                                    size: 16,
+                                  ),
+                                  child: Flexible(
+                                    child: Text(
+                                      widget.codes.contains(candidate.corpCode)
+                                          ? '추가됨'
+                                          : '추가',
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
@@ -232,113 +271,170 @@ void _showReason(
       .where((s) => !ownKeys.contains(s.key))
       .map((s) => s.label)
       .toList();
-  showDialog<void>(
+  showShadDialog<void>(
     context: context,
-    builder: (context) {
-      final t = context.typo;
-      final c = context.colors;
-      Widget scope(String name, List<String> labels) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppSpace.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(_shortName(name), style: t.body(14, weight: FontWeight.w600)),
-            const SizedBox(height: AppSpace.sm),
-            Text(
-              labels.isEmpty ? '추가로 구분할 제품은 확인되지 않았습니다.' : labels.join(' · '),
-              style: t.body(15, color: c.textSecondary).copyWith(height: 1.6),
-            ),
-          ],
-        ),
-      );
-      return Dialog(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 680),
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpace.xl),
+    builder: (overlayContext) => InheritedTheme.captureAll(
+      context,
+      Builder(
+        builder: (context) {
+          final t = context.typo;
+          final c = context.colors;
+          Widget scope(String name, List<String> labels) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: AppSpace.md),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Row(
-                  children: [
-                    Expanded(child: Text('왜 비교하나요?', style: t.display(24))),
-                    IconButton(
-                      tooltip: '닫기',
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close),
-                    ),
-                  ],
+                Text(
+                  _shortName(name),
+                  style: t.body(14, weight: FontWeight.w600),
                 ),
-                const SizedBox(height: AppSpace.lg),
-                Flexible(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          '${_shortName(data.anchorName)} · ${_shortName(candidate.name)}',
-                          style: t.body(14, color: c.textSecondary),
-                        ),
-                        const SizedBox(height: AppSpace.sm),
-                        Text(
-                          '공통으로 ${candidate.reasons.join(' · ')} 제품군을 다룹니다.',
-                          style: t
-                              .body(18, weight: FontWeight.w600)
-                              .copyWith(height: 1.6),
-                        ),
-                        const SizedBox(height: AppSpace.xl),
-                        Text(
-                          '함께 살펴볼 차이',
-                          style: t.body(16, weight: FontWeight.w600),
-                        ),
-                        scope(data.anchorName, ownExtra),
-                        Divider(color: c.border),
-                        scope(candidate.name, otherExtra),
-                        Text(
-                          '제품이 겹쳐도 주력 사업과 고객, 수익 구조는 다를 수 있습니다. 매출 구성까지 확인한 뒤 밸류에이션을 비교하세요.',
-                          style: t
-                              .body(14, color: c.textSecondary)
-                              .copyWith(height: 1.7),
-                        ),
-                        const SizedBox(height: AppSpace.lg),
-                        ExpansionTile(
-                          tilePadding: EdgeInsets.zero,
-                          title: Text(
-                            '공시 근거 보기',
-                            style: t.body(14, weight: FontWeight.w600),
-                          ),
-                          children: [
-                            _Evidence(
-                              name: data.anchorName,
-                              year: data.bsnsYear!,
-                              receipt: data.rceptNo!,
-                              signals: data.signals,
-                            ),
-                            const SizedBox(height: AppSpace.xl),
-                            _Evidence(
-                              name: candidate.name,
-                              year: candidate.bsnsYear,
-                              receipt: candidate.rceptNo,
-                              signals: candidate.signals,
-                            ),
-                            const SizedBox(height: AppSpace.md),
-                            Text(
-                              '공시에서 확인한 제품만 표시합니다. 표시되지 않은 제품이 없다는 뜻은 아닙니다.',
-                              style: t.body(13, color: c.textMuted),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+                const SizedBox(height: AppSpace.sm),
+                Text(
+                  labels.isEmpty
+                      ? '추가로 구분할 제품은 확인되지 않았습니다.'
+                      : labels.join(' · '),
+                  style: t
+                      .body(15, color: c.textSecondary)
+                      .copyWith(height: 1.6),
                 ),
               ],
             ),
-          ),
-        ),
-      );
-    },
+          );
+          return ShadDialog(
+            closeIcon: Builder(
+              builder: (context) => Semantics(
+                container: true,
+                label: '닫기',
+                button: true,
+                onTap: () => Navigator.of(context).pop(),
+                child: ExcludeSemantics(
+                  child: ShadIconButton.ghost(
+                    width: 20,
+                    height: 20,
+                    padding: EdgeInsets.zero,
+                    icon: const Icon(Icons.close, size: 16),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ),
+              ),
+            ),
+            child: Material(
+              type: MaterialType.transparency,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 680),
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpace.xl),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text('왜 비교하나요?', style: t.display(24)),
+                          ),
+                          Semantics(
+                            container: true,
+                            label: '닫기',
+                            button: true,
+                            enabled: true,
+                            onTap: () => Navigator.pop(context),
+                            child: ExcludeSemantics(
+                              child: ShadIconButton.ghost(
+                                onPressed: () => Navigator.pop(context),
+                                icon: const Icon(Icons.close),
+                                semanticLabel: '닫기',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpace.lg),
+                      Flexible(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Text(
+                                '${_shortName(data.anchorName)} · ${_shortName(candidate.name)}',
+                                style: t.body(14, color: c.textSecondary),
+                              ),
+                              const SizedBox(height: AppSpace.sm),
+                              Text(
+                                '공통으로 ${candidate.reasons.join(' · ')} 제품군을 다룹니다.',
+                                style: t
+                                    .body(18, weight: FontWeight.w600)
+                                    .copyWith(height: 1.6),
+                              ),
+                              const SizedBox(height: AppSpace.xl),
+                              Text(
+                                '함께 살펴볼 차이',
+                                style: t.body(16, weight: FontWeight.w600),
+                              ),
+                              scope(data.anchorName, ownExtra),
+                              Divider(color: c.border),
+                              scope(candidate.name, otherExtra),
+                              Text(
+                                '제품이 겹쳐도 주력 사업과 고객, 수익 구조는 다를 수 있습니다. 매출 구성까지 확인한 뒤 밸류에이션을 비교하세요.',
+                                style: t
+                                    .body(14, color: c.textSecondary)
+                                    .copyWith(height: 1.7),
+                              ),
+                              const SizedBox(height: AppSpace.lg),
+                              ShadAccordion<int>(
+                                maintainState: false,
+                                children: [
+                                  ShadAccordionItem<int>(
+                                    value: 0,
+                                    title: Text(
+                                      '공시 근거 보기',
+                                      style: t.body(
+                                        14,
+                                        weight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    padding: EdgeInsets.zero,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        _Evidence(
+                                          name: data.anchorName,
+                                          year: data.bsnsYear!,
+                                          receipt: data.rceptNo!,
+                                          signals: data.signals,
+                                        ),
+                                        const SizedBox(height: AppSpace.xl),
+                                        _Evidence(
+                                          name: candidate.name,
+                                          year: candidate.bsnsYear,
+                                          receipt: candidate.rceptNo,
+                                          signals: candidate.signals,
+                                        ),
+                                        const SizedBox(height: AppSpace.md),
+                                        Text(
+                                          '공시에서 확인한 제품만 표시합니다. 표시되지 않은 제품이 없다는 뜻은 아닙니다.',
+                                          style: t.body(13, color: c.textMuted),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    ),
+    barrierLabel: '닫기',
   );
 }
 
@@ -373,12 +469,13 @@ class _Evidence extends StatelessWidget {
         ),
       Align(
         alignment: Alignment.centerLeft,
-        child: AppButton(
-          label: '공시 원문',
-          icon: Icons.open_in_new,
+        child: ShadButton.raw(
           onPressed: () => launchUrl(
             Uri.https('dart.fss.or.kr', '/dsaf001/main.do', {'rcpNo': receipt}),
           ),
+          variant: ShadButtonVariant.outline,
+          leading: Icon(Icons.open_in_new, size: 16),
+          child: Flexible(child: Text('공시 원문')),
         ),
       ),
     ],

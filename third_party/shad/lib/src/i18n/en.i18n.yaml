@@ -1,0 +1,30 @@
+timePicker:
+  hours: "Hours"
+  minutes: "Minutes"
+  seconds: "Seconds"
+  period: "Period"
+  periodPlaceholder: "AM"
+
+datePicker:
+  selectDate: "Select date"
+
+input:
+  cut: "Cut"
+  copy: "Copy"
+  paste: "Paste"
+  selectAll: "Select All"
+
+keyboardToolbar:
+  done: "Done"
+
+empty:
+  title: "No results"
+
+command:
+  noResults: "No results found."
+
+pagination:
+  previous: "Previous"
+  next: "Next"
+  morePages: "More pages"
+  page: "Page"

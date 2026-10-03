@@ -1,3 +1,5 @@
+import '../support/shad_test_host.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -143,13 +145,17 @@ void main() {
       await tester.binding.setSurfaceSize(const Size(320, 720));
       addTearDown(() => tester.binding.setSurfaceSize(null));
       await tester.pumpWidget(
-        MaterialApp(
-          theme: buildAppTheme(ledgerBrand),
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: FinancialSourceScopeNotice(sourceTitle: pandoraPayload),
+        shadTestHost(
+          MaterialApp(
+            theme: buildAppTheme(ledgerBrand),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: FinancialSourceScopeNotice(
+                    sourceTitle: pandoraPayload,
+                  ),
+                ),
               ),
             ),
           ),

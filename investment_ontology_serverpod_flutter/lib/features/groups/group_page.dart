@@ -57,16 +57,16 @@ class _GroupPageState extends State<GroupPage> {
       children: [
         Align(
           alignment: Alignment.centerLeft,
-          child: AppButton(
-            label: '지분 묶음 목록',
-            variant: AppButtonVariant.link,
+          child: ShadButton.raw(
             onPressed: () =>
                 context.canPop() ? context.pop() : context.go('/groups'),
+            variant: ShadButtonVariant.link,
+            child: Flexible(child: Text('지분 묶음 목록')),
           ),
         ),
         const SizedBox(height: AppSpace.lg),
         if (!_loaded)
-          const LinearProgressIndicator(minHeight: 2)
+          const ShadProgress(minHeight: 2)
         else if (g == null)
           (_error != null
               ? ReadFailureNotice(subject: '상세 정보', retry: _load)
@@ -86,12 +86,12 @@ class _GroupPageState extends State<GroupPage> {
                 '${g.baseDate == null ? '' : ' · 기준일 ${formatDate(g.baseDate)}'}',
                 style: t.numeric(13, color: c.textSecondary),
               ),
-              AppButton(
-                label: '관계망에서 보기 →',
-                variant: AppButtonVariant.link,
-                tone: c.accent,
+              ShadButton.raw(
                 onPressed: () =>
                     context.push(AppRoutes.graph(g.anchor.corpCode)),
+                variant: ShadButtonVariant.link,
+                foregroundColor: c.accent,
+                child: Flexible(child: Text('관계망에서 보기 →')),
               ),
             ],
           ),
@@ -248,7 +248,7 @@ class _Edges extends StatelessWidget {
               ],
             ),
             const SizedBox(height: AppSpace.xs),
-            LinearProgressIndicator(
+            ShadProgress(
               value: holders.first.held > 0
                   ? (h.held / h.own) / (holders.first.held / holders.first.own)
                   : 0,

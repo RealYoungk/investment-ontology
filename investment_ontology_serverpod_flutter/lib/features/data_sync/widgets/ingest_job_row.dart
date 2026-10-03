@@ -142,15 +142,20 @@ class _JobRowState extends State<IngestJobRow> {
               ),
               Text(_statusText(job), style: t.body(13, color: c.textSecondary)),
               if (_running)
-                AppButton(
-                  label: '취소',
-                  variant: AppButtonVariant.link,
+                ShadButton.raw(
                   onPressed: _cancel,
+
+                  variant: ShadButtonVariant.link,
+                  child: Flexible(child: Text('취소')),
                 )
               else
-                AppButton(
-                  label: _starting ? '요청 중…' : widget.action,
+                ShadButton.raw(
                   onPressed: _starting ? null : _start,
+                  enabled: (_starting ? null : _start) != null,
+                  variant: ShadButtonVariant.outline,
+                  child: Flexible(
+                    child: Text(_starting ? '요청 중…' : widget.action),
+                  ),
                 ),
             ],
           ),
@@ -167,7 +172,7 @@ class _JobRowState extends State<IngestJobRow> {
           ],
           if (_running) ...[
             const SizedBox(height: AppSpace.sm),
-            LinearProgressIndicator(value: progress, minHeight: 3),
+            ShadProgress(value: progress, minHeight: 3),
           ],
           if (_error != null) ...[
             const SizedBox(height: AppSpace.sm),

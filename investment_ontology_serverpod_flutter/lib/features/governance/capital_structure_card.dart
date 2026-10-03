@@ -132,35 +132,47 @@ class _CapitalStructureCardState extends State<CapitalStructureCard> {
     final entries = ((_capital?['entries'] as List?) ?? [])
         .cast<Map<String, dynamic>>();
     if (entries.isEmpty) return const SizedBox.shrink();
-    return ExpansionTile(
-      title: const Text('회차별 물량과 과거 추이'),
+    return ShadAccordion<int>(
+      maintainState: false,
       children: [
-        AppDataTable(
-          columns: const [
-            AppColumn('유형·회차'),
-            AppColumn('대상'),
-            AppColumn('가능 주식 수', numeric: true),
-            AppColumn('전환·행사가', numeric: true),
-          ],
-          rows: [
-            for (final row in entries)
-              AppRow([
-                AppDataTable.text(context, "${row['type']} ${row['series']}"),
-                AppDataTable.text(context, '${row['stockKind']}'),
-                AppDataTable.text(
-                  context,
-                  "${row['shares'] ?? '미확보'}${row['validation'] == 'verified' ? '' : ' · 검산 미완료'}",
-                  numeric: true,
-                ),
-                AppDataTable.text(
-                  context,
-                  "${row['price'] ?? '미확보'} 원",
-                  numeric: true,
-                ),
-              ]),
-          ],
+        ShadAccordionItem<int>(
+          value: 0,
+          title: const Text('회차별 물량과 과거 추이'),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AppDataTable(
+                columns: const [
+                  AppColumn('유형·회차'),
+                  AppColumn('대상'),
+                  AppColumn('가능 주식 수', numeric: true),
+                  AppColumn('전환·행사가', numeric: true),
+                ],
+                rows: [
+                  for (final row in entries)
+                    AppRow([
+                      AppDataTable.text(
+                        context,
+                        "${row['type']} ${row['series']}",
+                      ),
+                      AppDataTable.text(context, '${row['stockKind']}'),
+                      AppDataTable.text(
+                        context,
+                        "${row['shares'] ?? '미확보'}${row['validation'] == 'verified' ? '' : ' · 검산 미완료'}",
+                        numeric: true,
+                      ),
+                      AppDataTable.text(
+                        context,
+                        "${row['price'] ?? '미확보'} 원",
+                        numeric: true,
+                      ),
+                    ]),
+                ],
+              ),
+              BondTrendsCard(corpCode: widget.corpCode),
+            ],
+          ),
         ),
-        BondTrendsCard(corpCode: widget.corpCode),
       ],
     );
   }
@@ -326,19 +338,21 @@ class _CapitalStructureCardState extends State<CapitalStructureCard> {
             ),
             _evidence(context),
             if (_capital?['receipt'] != null)
-              AppButton(
-                label: '공시 원문',
-                variant: AppButtonVariant.link,
+              ShadButton.raw(
                 onPressed: () => launchUrl(
                   Uri.parse(
                     'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${_capital!['receipt']}',
                   ),
                 ),
+                variant: ShadButtonVariant.link,
+                child: Text('공시 원문'),
               ),
             if (context.isAdmin)
-              AppButton(
-                label: _collecting ? '공시 확인 중…' : '최신 공시 물량 수집',
+              ShadButton.raw(
                 onPressed: _collecting ? null : _collect,
+                enabled: (_collecting ? null : _collect) != null,
+                variant: ShadButtonVariant.outline,
+                child: Text(_collecting ? '공시 확인 중…' : '최신 공시 물량 수집'),
               ),
             if (_collectionError != null) Text('수집 실패 · $_collectionError'),
           ],

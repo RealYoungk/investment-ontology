@@ -118,23 +118,32 @@ class _PeerDigestState extends State<PeerDigest> {
           const SizedBox(height: AppSpace.sm),
           Align(
             alignment: Alignment.centerLeft,
-            child: AppButton(
-              label: '이 업종 스크리닝 →',
-              variant: AppButtonVariant.link,
-              tone: c.accent,
+            child: ShadButton.raw(
               onPressed: () => context.push('/screen'),
+              variant: ShadButtonVariant.link,
+              foregroundColor: c.accent,
+              child: Flexible(child: Text('이 업종 스크리닝 →')),
             ),
           ),
-          ExpansionTile(
-            tilePadding: EdgeInsets.zero,
-            title: Text('비교 기준', style: t.body(12, color: c.textMuted)),
+          ShadAccordion<int>(
+            maintainState: false,
             children: [
-              Text(
-                '자동 선택한 재무 기준이 같은 기업끼리 비교합니다. 수동 선택한 상단 지표와 다를 수 있습니다. '
-                '같은 산업분류로 비교하며 5개사 미만이면 상위 업종을 사용합니다. '
-                '직접 경쟁사 목록은 아닙니다. 값이 있는 기업만 순위를 매기며 '
-                'PER·PBR·부채비율은 낮을수록 앞입니다.',
-                style: t.body(11.5, color: c.textMuted),
+              ShadAccordionItem<int>(
+                value: 0,
+                title: Text('비교 기준', style: t.body(12, color: c.textMuted)),
+                padding: EdgeInsets.zero,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '자동 선택한 재무 기준이 같은 기업끼리 비교합니다. 수동 선택한 상단 지표와 다를 수 있습니다. '
+                      '같은 산업분류로 비교하며 5개사 미만이면 상위 업종을 사용합니다. '
+                      '직접 경쟁사 목록은 아닙니다. 값이 있는 기업만 순위를 매기며 '
+                      'PER·PBR·부채비율은 낮을수록 앞입니다.',
+                      style: t.body(11.5, color: c.textMuted),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

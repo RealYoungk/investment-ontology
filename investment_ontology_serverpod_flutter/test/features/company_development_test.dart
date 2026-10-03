@@ -1,3 +1,5 @@
+import '../support/shad_test_host.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:investment_ontology_serverpod_flutter/design/app_theme.dart';
@@ -20,13 +22,15 @@ void main() {
       addTearDown(() => tester.binding.setSurfaceSize(null));
       final development = CompanyDevelopment.forCompany('00317210')!;
       await tester.pumpWidget(
-        MaterialApp(
-          theme: buildAppTheme(ledgerBrand),
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: CompanyDevelopmentSection(development: development),
+        shadTestHost(
+          MaterialApp(
+            theme: buildAppTheme(ledgerBrand),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: CompanyDevelopmentSection(development: development),
+                ),
               ),
             ),
           ),

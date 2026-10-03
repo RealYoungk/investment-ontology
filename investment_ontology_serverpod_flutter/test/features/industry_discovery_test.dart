@@ -1,3 +1,7 @@
+import 'package:shad/shad.dart';
+
+import '../support/shad_test_host.dart';
+
 import 'package:investment_ontology_serverpod_flutter/features/screen/company_discovery_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -118,15 +122,17 @@ void main() {
       );
       addTearDown(router.dispose);
       await tester.pumpWidget(
-        MaterialApp.router(
-          theme: buildAppTheme(ledgerBrand),
-          routerConfig: router,
+        shadTestHost(
+          MaterialApp.router(
+            theme: buildAppTheme(ledgerBrand),
+            routerConfig: router,
+          ),
         ),
       );
       await tester.pumpAndSettle();
       expect(find.text('업종으로 찾기'), findsOneWidget);
       expect(find.text('2개 기업'), findsOneWidget);
-      expect(find.byType(TextField), findsNothing);
+      expect(find.byType(ShadInput), findsNothing);
       expect(find.text('기업00000001'), findsOneWidget);
       expect(find.text('기업00000003'), findsNothing);
       if (width >= 1000) {

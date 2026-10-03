@@ -1,3 +1,5 @@
+import '../support/shad_test_host.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -26,19 +28,21 @@ void main() {
     await t.binding.setSurfaceSize(const Size(320, 820));
     addTearDown(() => t.binding.setSurfaceSize(null));
     await t.pumpWidget(
-      MaterialApp(
-        theme: buildAppTheme(ledgerBrand),
-        home: Scaffold(
-          body: SingleChildScrollView(
-            child: IssuerFinancialsSection(
-              key: ValueKey(data),
-              corpCode: corp,
-              ownAnnual: true,
-              loader: (c, k) async {
-                expect(c, corp);
-                expect(k, 'issuerAnnualFinancials');
-                return data;
-              },
+      shadTestHost(
+        MaterialApp(
+          theme: buildAppTheme(ledgerBrand),
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: IssuerFinancialsSection(
+                key: ValueKey(data),
+                corpCode: corp,
+                ownAnnual: true,
+                loader: (c, k) async {
+                  expect(c, corp);
+                  expect(k, 'issuerAnnualFinancials');
+                  return data;
+                },
+              ),
             ),
           ),
         ),

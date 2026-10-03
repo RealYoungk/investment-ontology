@@ -1,3 +1,7 @@
+import 'package:shad/shad.dart';
+
+import '../support/shad_test_host.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -27,15 +31,17 @@ void main() {
     await t.binding.setSurfaceSize(const Size(320, 820));
     addTearDown(() => t.binding.setSurfaceSize(null));
     await t.pumpWidget(
-      MaterialApp(
-        theme: buildAppTheme(ledgerBrand),
-        home: Scaffold(
-          body: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: IssuerFinancialsSection(
-                corpCode: '00435297',
-                loader: (_, _) async => jsonEncode(payload),
+      shadTestHost(
+        MaterialApp(
+          theme: buildAppTheme(ledgerBrand),
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: IssuerFinancialsSection(
+                  corpCode: '00435297',
+                  loader: (_, _) async => jsonEncode(payload),
+                ),
               ),
             ),
           ),
@@ -43,9 +49,14 @@ void main() {
       ),
     );
     await t.pumpAndSettle();
-    expect(find.byType(ExpansionTile), findsNWidgets(5));
+    expect(
+      find.byWidgetPredicate((widget) => widget is ShadAccordion),
+      findsNWidgets(5),
+    );
     for (var i = 0; i < 5; i++) {
-      final tile = find.byType(ExpansionTile).at(i);
+      final tile = find
+          .byWidgetPredicate((widget) => widget is ShadAccordion)
+          .at(i);
       await t.ensureVisible(tile);
       await t.tap(tile);
       await t.pumpAndSettle();

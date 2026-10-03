@@ -1,3 +1,5 @@
+import 'package:investment_ontology_serverpod_flutter/design/components/data_panel.dart';
+import 'package:shad/shad.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
@@ -68,12 +70,7 @@ class _CompanyPreviewState extends State<CompanyPreview> {
     final c = context.colors;
     final t = context.typo;
     final facts = _facts;
-    return Container(
-      padding: const EdgeInsets.all(AppSpace.lg),
-      decoration: BoxDecoration(
-        color: c.surface,
-        borderRadius: context.shape.borderRadius,
-      ),
+    return DataPanel(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -89,12 +86,12 @@ class _CompanyPreviewState extends State<CompanyPreview> {
           Text('어떤 사업에서 매출이 나올까요?', style: t.body(12, color: c.textSecondary)),
           const SizedBox(height: AppSpace.lg),
           if (_failed)
-            TextButton(
+            ShadButton.ghost(
               onPressed: _load,
-              child: const Text('예시 공시를 불러오지 못했어요 · 재시도'),
+              child: Flexible(child: const Text('예시 공시를 불러오지 못했어요 · 재시도')),
             )
           else if (facts == null)
-            const LinearProgressIndicator(minHeight: 2)
+            const ShadProgress(minHeight: 2)
           else if (facts.isEmpty)
             Text(
               '표시할 부문 매출 자료가 없습니다.',
@@ -139,16 +136,27 @@ class _CompanyPreviewState extends State<CompanyPreview> {
               ),
             Theme(
               data: Theme.of(context).copyWith(dividerColor: c.surface),
-              child: ExpansionTile(
-                dense: true,
-                tilePadding: EdgeInsets.zero,
-                title: Text('공시 근거 펼치기', style: t.body(11, color: c.accent)),
+              child: ShadAccordion<int>(
+                maintainState: false,
                 children: [
-                  Text(
-                    facts.take(4).map((f) => f.evidence).join('\n\n'),
-                    style: t
-                        .body(11, color: c.textSecondary)
-                        .copyWith(height: 1.7),
+                  ShadAccordionItem<int>(
+                    value: 0,
+                    title: Text(
+                      '공시 근거 펼치기',
+                      style: t.body(11, color: c.accent),
+                    ),
+                    padding: EdgeInsets.zero,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          facts.take(4).map((f) => f.evidence).join('\n\n'),
+                          style: t
+                              .body(11, color: c.textSecondary)
+                              .copyWith(height: 1.7),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -159,9 +167,9 @@ class _CompanyPreviewState extends State<CompanyPreview> {
             '부문 간 내부거래 등이 포함될 수 있어 합계를 연결 매출로 표시하지 않습니다.',
             style: t.body(10, color: c.textSecondary),
           ),
-          TextButton(
+          ShadButton.ghost(
             onPressed: () => context.go('/company/00126380'),
-            child: const Text('실제 기업 화면 열기 →'),
+            child: Flexible(child: const Text('실제 기업 화면 열기 →')),
           ),
         ],
       ),

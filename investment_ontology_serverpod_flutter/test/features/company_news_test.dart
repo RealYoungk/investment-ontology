@@ -1,3 +1,5 @@
+import '../support/shad_test_host.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -48,7 +50,7 @@ void main() {
         relatedUrls: [],
       ),
     );
-    await tester.pumpWidget(app('a', (_) async => result));
+    await tester.pumpWidget(shadTestHost(app('a', (_) async => result)));
     await tester.pumpAndSettle();
     expect(find.text('기사 5'), findsNothing);
     await tester.ensureVisible(find.text('소식 더 보기'));
@@ -67,7 +69,7 @@ void main() {
       await tester.binding.setSurfaceSize(Size(width, 900));
       addTearDown(() => tester.binding.setSurfaceSize(null));
       await tester.pumpWidget(
-        app('00317210', (_) async => feed('성호전자 광통신 장비 공급계약 소식')),
+        shadTestHost(app('00317210', (_) async => feed('성호전자 광통신 장비 공급계약 소식'))),
       );
       await tester.pumpAndSettle();
       expect(find.text('기사에서 제공한 검색 요약입니다.'), findsNothing);
@@ -83,9 +85,9 @@ void main() {
     final a = Completer<CompanyNewsFeed>(), b = Completer<CompanyNewsFeed>();
     Future<CompanyNewsFeed> load(String code) =>
         code == 'a' ? a.future : b.future;
-    await tester.pumpWidget(app('a', load));
+    await tester.pumpWidget(shadTestHost(app('a', load)));
     expect(find.text('최근 소식을 불러오는 중…'), findsOneWidget);
-    await tester.pumpWidget(app('b', load));
+    await tester.pumpWidget(shadTestHost(app('b', load)));
     b.complete(feed('새 회사 소식'));
     await tester.pumpAndSettle();
     a.complete(feed('이전 회사 소식'));
@@ -94,16 +96,20 @@ void main() {
     expect(find.text('이전 회사 소식'), findsNothing);
   });
   testWidgets('empty, partial and failure states differ', (tester) async {
-    await tester.pumpWidget(app('a', (_) async => feed('')));
+    await tester.pumpWidget(shadTestHost(app('a', (_) async => feed(''))));
     await tester.pumpAndSettle();
     expect(find.text('검색된 뉴스와 최근 공시가 없습니다.'), findsOneWidget);
     await tester.pumpWidget(
-      app('b', (_) async => feed('공시 소식', status: 'notConfigured')),
+      shadTestHost(
+        app('b', (_) async => feed('공시 소식', status: 'notConfigured')),
+      ),
     );
     await tester.pumpAndSettle();
     expect(find.text('뉴스 연결 준비 중'), findsOneWidget);
     expect(find.text('공시 소식'), findsOneWidget);
-    await tester.pumpWidget(app('c', (_) async => throw Exception('offline')));
+    await tester.pumpWidget(
+      shadTestHost(app('c', (_) async => throw Exception('offline'))),
+    );
     await tester.pumpAndSettle();
     expect(find.text('다시 시도'), findsOneWidget);
   });

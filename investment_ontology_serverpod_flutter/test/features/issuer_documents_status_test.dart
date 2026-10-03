@@ -1,3 +1,5 @@
+import '../support/shad_test_host.dart';
+
 import 'package:investment_ontology_serverpod_flutter/features/financials/split_plan_source_registry.dart';
 
 import 'dart:async';
@@ -145,11 +147,15 @@ void main() {
       final version = ValueNotifier(0);
       addTearDown(version.dispose);
       await t.pumpWidget(
-        app(
-          IssuerDocumentsStatus(
-            dataVersion: version,
-            load: (corp) async =>
-                ready(corp, rows.where((r) => r['corpCode'] == corp).toList()),
+        shadTestHost(
+          app(
+            IssuerDocumentsStatus(
+              dataVersion: version,
+              load: (corp) async => ready(
+                corp,
+                rows.where((r) => r['corpCode'] == corp).toList(),
+              ),
+            ),
           ),
         ),
       );
@@ -173,19 +179,21 @@ void main() {
       final old = <String, Completer<String>>{};
       var first = true;
       await t.pumpWidget(
-        app(
-          IssuerDocumentsStatus(
-            dataVersion: version,
-            load: (corp) {
-              if (first) {
-                return (old[corp] = Completer<String>()).future;
-              }
-              if (corp == '00435297') return Future.value(ready(corp, []));
-              if (corp == '01880801') {
-                return Future.value('{"state":"notCollected","rows":[]}');
-              }
-              return Future.error(StateError('offline'));
-            },
+        shadTestHost(
+          app(
+            IssuerDocumentsStatus(
+              dataVersion: version,
+              load: (corp) {
+                if (first) {
+                  return (old[corp] = Completer<String>()).future;
+                }
+                if (corp == '00435297') return Future.value(ready(corp, []));
+                if (corp == '01880801') {
+                  return Future.value('{"state":"notCollected","rows":[]}');
+                }
+                return Future.error(StateError('offline'));
+              },
+            ),
           ),
         ),
       );

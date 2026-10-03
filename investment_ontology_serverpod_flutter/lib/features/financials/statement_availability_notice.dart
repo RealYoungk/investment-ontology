@@ -117,46 +117,64 @@ class StatementAvailabilityNotice extends StatelessWidget {
           sources: sources,
           onOpen: onOpen,
         ),
-        AppNotice(
-          message:
-              '2025년 $bases 당기 재무제표가 원문에서 제시되지 않았습니다. 이 기간은 수집 실패로 남아 있습니다. 비교기간 숫자를 당기로 옮기거나 0으로 채우지 않습니다.',
+        ShadAlert(
+          description: Text(
+            '2025년 $bases 당기 재무제표가 원문에서 제시되지 않았습니다. 이 기간은 수집 실패로 남아 있습니다. 비교기간 숫자를 당기로 옮기거나 0으로 채우지 않습니다.',
+          ),
         ),
         for (final s in verified)
-          ExpansionTile(
-            title: Text(
-              '${jsonDecode(s.title)['fsDiv'] == 'consolidated' ? '연결' : '별도'} 미제시 근거 · 출처 #${s.id}',
-              style: context.typo.body(12.5),
-            ),
-            childrenPadding: const EdgeInsets.all(AppSpace.md),
-            expandedCrossAxisAlignment: CrossAxisAlignment.start,
+          ShadAccordion<int>(
+            maintainState: false,
             children: [
-              Wrap(
-                spacing: AppSpace.sm,
-                children: [
-                  AppButton(
-                    label: '공식 재무제표 원문',
-                    variant: AppButtonVariant.link,
-                    onPressed: () => open(Uri.parse(s.url!)),
-                  ),
-                  AppButton(
-                    label: '공식 감사첨부',
-                    variant: AppButtonVariant.link,
-                    onPressed: () => open(
-                      Uri.parse(
-                        (evidence(s, corpCode)!['independentAuditEvidence']
-                            as Map)['source'],
+              ShadAccordionItem<int>(
+                value: 0,
+                title: Text(
+                  '${jsonDecode(s.title)['fsDiv'] == 'consolidated' ? '연결' : '별도'} 미제시 근거 · 출처 #${s.id}',
+                  style: context.typo.body(12.5),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpace.md),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Wrap(
+                        spacing: AppSpace.sm,
+                        children: [
+                          ShadButton.raw(
+                            onPressed: () => open(Uri.parse(s.url!)),
+                            variant: ShadButtonVariant.link,
+                            child: Text('공식 재무제표 원문'),
+                          ),
+                          ShadButton.raw(
+                            onPressed: () => open(
+                              Uri.parse(
+                                (evidence(
+                                      s,
+                                      corpCode,
+                                    )!['independentAuditEvidence']
+                                    as Map)['source'],
+                              ),
+                            ),
+                            variant: ShadButtonVariant.link,
+                            child: Text('공식 감사첨부'),
+                          ),
+                        ],
                       ),
-                    ),
+                      Text(
+                        '감사첨부와 재무제표 당기 칸을 확인한 실패 기록입니다. 전체 주석 검증 완료를 뜻하지 않습니다.',
+                        style: context.typo.body(
+                          12,
+                          color: context.colors.textMuted,
+                        ),
+                      ),
+                      SelectableText(
+                        const JsonEncoder.withIndent('  ')
+                            .convert(jsonDecode(s.title)),
+                        style: context.typo.body(12),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              Text(
-                '감사첨부와 재무제표 당기 칸을 확인한 실패 기록입니다. 전체 주석 검증 완료를 뜻하지 않습니다.',
-                style: context.typo.body(12, color: context.colors.textMuted),
-              ),
-              SelectableText(
-                const JsonEncoder.withIndent('  ').convert(jsonDecode(s.title)),
-                style: context.typo.body(12),
+                ),
               ),
             ],
           ),

@@ -1,3 +1,7 @@
+import 'package:shad/shad.dart';
+
+import '../support/shad_test_host.dart';
+
 import 'package:flutter/material.dart';
 import 'package:investment_ontology_serverpod_flutter/design/app_theme.dart';
 import 'package:investment_ontology_serverpod_flutter/design/brands/ledger_brand.dart';
@@ -41,20 +45,22 @@ void main() {
         ).copyWith(label: '수출 · 미주 · 별도'),
       ];
       await tester.pumpWidget(
-        MaterialApp(
-          theme: buildAppTheme(ledgerBrand),
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: BusinessBreakdownPanel(
-                facts: [
-                  ...rows,
-                  for (final f in rows)
-                    f.copyWith(
-                      documentId: 2,
-                      bsnsYear: 2024,
-                      asOf: DateTime.utc(2024, 12, 31),
-                    ),
-                ],
+        shadTestHost(
+          MaterialApp(
+            theme: buildAppTheme(ledgerBrand),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: BusinessBreakdownPanel(
+                  facts: [
+                    ...rows,
+                    for (final f in rows)
+                      f.copyWith(
+                        documentId: 2,
+                        bsnsYear: 2024,
+                        asOf: DateTime.utc(2024, 12, 31),
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -64,7 +70,7 @@ void main() {
       expect(find.text('이익률 -10.0%'), findsOneWidget);
       expect(find.text('60.0%'), findsOneWidget);
       expect(find.text('수출 비중 40.0% · 내수 60.0%'), findsOneWidget);
-      await tester.tap(find.byType(DropdownButton<int>));
+      await tester.tap(find.byType(ShadSelect<int>));
       await tester.pumpAndSettle();
       await tester.tap(find.text('2024년').last);
       await tester.pumpAndSettle();

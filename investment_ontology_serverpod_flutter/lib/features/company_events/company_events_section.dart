@@ -93,13 +93,7 @@ class _CompanyEventsSectionState extends State<CompanyEventsSection> {
       children: [
         const SectionLabel('최근 기업에 어떤 변화가 있었나요?', accent: true),
         const SizedBox(height: AppSpace.md),
-        Container(
-          padding: const EdgeInsets.all(AppSpace.lg),
-          decoration: BoxDecoration(
-            color: c.surface,
-            border: Border.all(color: c.border),
-            borderRadius: context.shape.borderRadius,
-          ),
+        DataPanel(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -107,9 +101,9 @@ class _CompanyEventsSectionState extends State<CompanyEventsSection> {
                 Text('공시를 불러오지 못했습니다.', style: t.body(14)),
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: TextButton(
+                  child: ShadButton.ghost(
                     onPressed: _load,
-                    child: const Text('다시 시도'),
+                    child: Flexible(child: const Text('다시 시도')),
                   ),
                 ),
               ] else if (events == null) ...[
@@ -118,7 +112,7 @@ class _CompanyEventsSectionState extends State<CompanyEventsSection> {
                   style: t.body(13, color: c.textSecondary),
                 ),
                 const SizedBox(height: AppSpace.sm),
-                const LinearProgressIndicator(minHeight: 2),
+                const ShadProgress(minHeight: 2),
               ] else if (events.isEmpty) ...[
                 Text('아직 수집된 공시 이력이 없습니다.', style: t.body(14)),
                 const SizedBox(height: AppSpace.xs),
@@ -141,19 +135,23 @@ class _CompanyEventsSectionState extends State<CompanyEventsSection> {
                   spacing: AppSpace.sm,
                   runSpacing: AppSpace.sm,
                   children: [
-                    ChoiceChip(
-                      label: Text('전체 ${events.length}'),
-                      selected: _topic == null,
-                      onSelected: (_) => _select(null),
+                    IntrinsicWidth(
+                      child: ShadToggle.outline(
+                        value: _topic == null,
+                        onChanged: (_) => _select(null),
+                        child: Text('전체 ${events.length}'),
+                      ),
                     ),
                     for (final topic in FilingTopic.values)
                       if (events.any((e) => e.topic == topic))
-                        ChoiceChip(
-                          label: Text(
-                            '${topic.label} ${events.where((e) => e.topic == topic).length}',
+                        IntrinsicWidth(
+                          child: ShadToggle.outline(
+                            value: _topic == topic,
+                            onChanged: (_) => _select(topic),
+                            child: Text(
+                              '${topic.label} ${events.where((e) => e.topic == topic).length}',
+                            ),
                           ),
-                          selected: _topic == topic,
-                          onSelected: (_) => _select(topic),
                         ),
                   ],
                 ),
@@ -180,10 +178,12 @@ class _CompanyEventsSectionState extends State<CompanyEventsSection> {
                 if (_visible < selected.length)
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: TextButton(
+                    child: ShadButton.ghost(
                       onPressed: () => setState(() => _visible += 12),
-                      child: Text(
-                        '공시 더 보기 · ${selected.length - shown.length}건 남음',
+                      child: Flexible(
+                        child: Text(
+                          '공시 더 보기 · ${selected.length - shown.length}건 남음',
+                        ),
                       ),
                     ),
                   ),
@@ -251,9 +251,24 @@ class _EventRow extends StatelessWidget {
                         formatDate(event.filing.receivedDate),
                         style: t.numeric(12, color: c.textMuted),
                       ),
-                      AppTag(label: event.topic.label),
+                      ShadBadge.raw(
+                        variant: ShadBadgeVariant.outline,
+                        child: Text(
+                          event.topic.label,
+                          maxLines: 1,
+                          softWrap: false,
+                        ),
+                      ),
                       if (event.stage != '공시')
-                        AppTag(label: event.stage, color: tone),
+                        ShadBadge.raw(
+                          variant: ShadBadgeVariant.outline,
+                          foregroundColor: tone,
+                          child: Text(
+                            event.stage,
+                            maxLines: 1,
+                            softWrap: false,
+                          ),
+                        ),
                     ],
                   ),
                   const SizedBox(height: AppSpace.xs),
@@ -278,7 +293,8 @@ class _EventRow extends StatelessWidget {
                         style: t.body(12, color: c.textSecondary),
                       ),
                     ),
-                  TextButton.icon(
+                  ShadButton.ghost(
+                    enabled: !(uri == null),
                     onPressed: uri == null
                         ? null
                         : () {
@@ -291,8 +307,8 @@ class _EventRow extends StatelessWidget {
                               );
                             }
                           },
-                    icon: const Icon(Icons.north_east, size: 14),
-                    label: const Text('공시 원문'),
+                    leading: const Icon(Icons.north_east, size: 14),
+                    child: Flexible(child: const Text('공시 원문')),
                   ),
                 ],
               ),

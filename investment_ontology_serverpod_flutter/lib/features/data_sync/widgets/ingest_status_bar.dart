@@ -152,35 +152,52 @@ class _IngestStatusBarState extends State<IngestStatusBar> {
                 style: context.typo.body(13, color: c.textSecondary),
               ),
               if (!_running)
-                Tooltip(
-                  message:
-                      '평소에는 DART 변경일이 바뀐 기업만 받고, 30일마다 전체를 다시 받아 '
-                      '변경일에 반영되지 않은 변경을 바로잡습니다.',
-                  child: Text(
-                    _fullRefreshText(widget.nextFullRefreshAt),
-                    style: context.typo.body(12.5, color: c.textMuted),
+                ShadTooltip(
+                  builder: (_) => Text(
+                    '평소에는 DART 변경일이 바뀐 기업만 받고, 30일마다 전체를 다시 받아 '
+                    '변경일에 반영되지 않은 변경을 바로잡습니다.',
+                  ),
+                  child: Semantics(
+                    tooltip:
+                        '평소에는 DART 변경일이 바뀐 기업만 받고, 30일마다 전체를 다시 받아 '
+                        '변경일에 반영되지 않은 변경을 바로잡습니다.',
+                    child: Text(
+                      _fullRefreshText(widget.nextFullRefreshAt),
+                      style: context.typo.body(12.5, color: c.textMuted),
+                    ),
                   ),
                 ),
               if (_running)
-                AppButton(
-                  label: '취소',
-                  variant: AppButtonVariant.link,
+                ShadButton.raw(
                   onPressed: _cancel,
+
+                  variant: ShadButtonVariant.link,
+                  child: Flexible(child: Text('취소')),
                 )
               else ...[
-                AppButton(
-                  label: _starting ? '요청 중…' : 'DART에서 수집',
-                  variant: AppButtonVariant.primary,
+                ShadButton.raw(
                   onPressed: _starting ? null : _start,
+                  enabled: (_starting ? null : _start) != null,
+                  variant: ShadButtonVariant.primary,
+                  child: Flexible(
+                    child: Text(_starting ? '요청 중…' : 'DART에서 수집'),
+                  ),
                 ),
                 if (job?.status == IngestStatus.succeeded &&
                     widget.nextFullRefreshAt != null)
-                  Tooltip(
-                    message: '변경일과 관계없이 모든 기업의 개황을 지금 다시 받습니다 (호출 약 4,000건).',
-                    child: AppButton(
-                      label: '전체 다시 받기',
-                      variant: AppButtonVariant.link,
-                      onPressed: _starting ? null : () => _start(force: true),
+                  ShadTooltip(
+                    builder: (_) =>
+                        Text('변경일과 관계없이 모든 기업의 개황을 지금 다시 받습니다 (호출 약 4,000건).'),
+                    child: Semantics(
+                      tooltip: '변경일과 관계없이 모든 기업의 개황을 지금 다시 받습니다 (호출 약 4,000건).',
+                      child: ShadButton.raw(
+                        onPressed: _starting ? null : () => _start(force: true),
+                        enabled:
+                            (_starting ? null : () => _start(force: true)) !=
+                            null,
+                        variant: ShadButtonVariant.link,
+                        child: Flexible(child: Text('전체 다시 받기')),
+                      ),
                     ),
                   ),
               ],
@@ -188,7 +205,7 @@ class _IngestStatusBarState extends State<IngestStatusBar> {
           ),
           if (_running) ...[
             const SizedBox(height: 10),
-            LinearProgressIndicator(value: progress, minHeight: 3),
+            ShadProgress(value: progress, minHeight: 3),
           ],
           if (_error != null) ...[
             const SizedBox(height: 10),

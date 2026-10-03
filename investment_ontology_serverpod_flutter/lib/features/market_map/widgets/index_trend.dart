@@ -12,7 +12,9 @@ import '../../common/formatters.dart';
 /// 시가총액 추이와 달리 종목 구성이 바뀌어도 이어지는 값이다. 두 지수는 눈금이 달라
 /// 나란히 따로 그린다. 지수 자료가 아직 없으면 아무것도 그리지 않는다.
 class IndexTrend extends StatefulWidget {
-  const IndexTrend({super.key});
+  const IndexTrend({super.key, this.load});
+
+  final Future<List<IndexHistory?>> Function(int days)? load;
 
   static const ranges = <({String label, int days})>[
     (label: '1년', days: 365),
@@ -42,10 +44,12 @@ class _IndexTrendState extends State<IndexTrend> {
     final seq = ++_seq;
     setState(() => _failed = false);
     try {
-      final h = await Future.wait([
-        for (final n in IndexTrend.names)
-          client.market.indexHistory(n, days: _days),
-      ]);
+      final h =
+          await (widget.load?.call(_days) ??
+              Future.wait([
+                for (final n in IndexTrend.names)
+                  client.market.indexHistory(n, days: _days),
+              ]));
       if (mounted && seq == _seq) setState(() => _histories = h);
     } catch (_) {
       if (mounted && seq == _seq) setState(() => _failed = true);
@@ -67,7 +71,7 @@ class _IndexTrendState extends State<IndexTrend> {
     final t = context.typo;
     final histories = [
       for (final h in _histories)
-        if (h != null && h.points.length >= 2) h,
+        if (h != null && h.points.isNotEmpty) h,
     ];
     if (histories.isEmpty) return const SizedBox.shrink();
 
@@ -110,6 +114,11 @@ class _IndexTrendState extends State<IndexTrend> {
                 ),
             ],
           ),
+        ),
+        const SizedBox(height: AppSpace.sm),
+        Text(
+          '일별 종가 · 원천 자료는 다음 영업일 13시 이후 공개됩니다.',
+          style: t.body(12, color: c.textSecondary),
         ),
         const SizedBox(height: AppSpace.sm),
         LayoutBuilder(
@@ -174,6 +183,11 @@ class _IndexCard extends StatelessWidget {
           formatDecimal(last.value),
           style: t.numeric(26, weight: FontWeight.w600),
         ),
+        const SizedBox(height: AppSpace.xs),
+        Text(
+          '${formatDate(last.date)} 종가',
+          style: t.body(12, color: c.textSecondary),
+        ),
         const SizedBox(height: AppSpace.md),
         Text('이전 시점 대비', style: t.body(11, color: c.textSecondary)),
         const SizedBox(height: AppSpace.xs),
@@ -195,6 +209,13 @@ class _IndexCard extends StatelessWidget {
                         color: c.marketChange(item.value),
                         weight: FontWeight.w600,
                       ),
+                    ),
+                    const SizedBox(height: AppSpace.xs),
+                    Text(
+                      item.base == null
+                          ? '비교 종가 없음'
+                          : '${last.value - item.base!.value > 0 ? '+' : ''}${formatDecimal(last.value - item.base!.value)}pt',
+                      style: t.numeric(12, color: c.textSecondary),
                     ),
                   ],
                 ),
@@ -218,51 +239,66 @@ class _IndexCard extends StatelessWidget {
         ),
         Theme(
           data: Theme.of(context).copyWith(dividerColor: c.surface),
-          child: ExpansionTile(
-            tilePadding: EdgeInsets.zero,
-            childrenPadding: const EdgeInsets.only(bottom: AppSpace.sm),
-            dense: true,
-            title: Text('기준·출처', style: t.body(11.5, color: c.textSecondary)),
+          child: ShadAccordion<int>(
+            maintainState: false,
             children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  '종가 기준 ${formatDate(last.date)} · 금융위원회 지수시세정보',
-                  style: t.body(12, color: c.textSecondary),
+              ShadAccordionItem<int>(
+                value: 0,
+                title: Text(
+                  '기준·출처',
+                  style: t.body(11.5, color: c.textSecondary),
                 ),
-              ),
-              const SizedBox(height: AppSpace.sm),
-              for (final item in comparisons)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: AppSpace.xs),
-                  child: Row(
+                padding: EdgeInsets.zero,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpace.sm),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(
-                        width: 52,
-                        child: Text(item.label, style: t.body(12)),
-                      ),
-                      Expanded(
+                      Align(
+                        alignment: Alignment.centerLeft,
                         child: Text(
-                          item.base == null
-                              ? '비교 종가 자료 없음'
-                              : '${formatDate(item.base!.date)} · ${formatDecimal(item.base!.value)}',
-                          style: t.numeric(12, color: c.textSecondary),
+                          '종가 기준 ${formatDate(last.date)} · 금융위원회 지수시세정보',
+                          style: t.body(12, color: c.textSecondary),
+                        ),
+                      ),
+                      const SizedBox(height: AppSpace.sm),
+                      for (final item in comparisons)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: AppSpace.xs,
+                          ),
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 52,
+                                child: Text(item.label, style: t.body(12)),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  item.base == null
+                                      ? '비교 종가 자료 없음'
+                                      : '${formatDate(item.base!.date)} · ${formatDecimal(item.base!.value)}',
+                                  style: t.numeric(12, color: c.textSecondary),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      const SizedBox(height: AppSpace.sm),
+                      Text(
+                        '1주·1개월·1년은 기준일에서 거슬러 계산합니다. 휴장일은 이전 종가를 사용하며 10일 넘게 떨어진 자료는 제외합니다. 월말·윤년은 해당 월말로 맞춥니다. 전일 등락률은 원천기관 제공 값입니다.',
+                        style: t.body(12, color: c.textSecondary),
+                      ),
+                      const SizedBox(height: AppSpace.sm),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          '차트 ${formatDate(first.date)}–${formatDate(last.date)}${change == null ? '' : ' · 기간 ${change > 0 ? '+' : ''}${change.toStringAsFixed(1)}%'}',
+                          style: t.body(12, color: c.textSecondary),
                         ),
                       ),
                     ],
                   ),
-                ),
-              const SizedBox(height: AppSpace.sm),
-              Text(
-                '1주·1개월·1년은 기준일에서 거슬러 계산합니다. 휴장일은 이전 종가를 사용하며 10일 넘게 떨어진 자료는 제외합니다. 월말·윤년은 해당 월말로 맞춥니다. 전일 등락률은 원천기관 제공 값입니다.',
-                style: t.body(12, color: c.textSecondary),
-              ),
-              const SizedBox(height: AppSpace.sm),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  '차트 ${formatDate(first.date)}–${formatDate(last.date)}${change == null ? '' : ' · 기간 ${change > 0 ? '+' : ''}${change.toStringAsFixed(1)}%'}',
-                  style: t.body(12, color: c.textSecondary),
                 ),
               ),
             ],

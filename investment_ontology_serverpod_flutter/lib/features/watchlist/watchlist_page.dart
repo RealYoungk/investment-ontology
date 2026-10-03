@@ -32,6 +32,7 @@ class _WatchlistPageState extends State<WatchlistPage>
   String? _selectedCode;
   String? _notice;
   bool _busy = false;
+  final _companyMenus = <String, ShadPopoverController>{};
   bool _adding = false;
   final _query = TextEditingController();
   final _searchFocus = FocusNode();
@@ -128,6 +129,9 @@ class _WatchlistPageState extends State<WatchlistPage>
 
   @override
   void dispose() {
+    for (final menu in _companyMenus.values) {
+      menu.dispose();
+    }
     WidgetsBinding.instance.removeObserver(this);
     _debounce?.cancel();
     _query.dispose();
@@ -209,96 +213,268 @@ class _WatchlistPageState extends State<WatchlistPage>
               ],
             ),
           ),
-          ListTile(
+          Semantics(
             selected: _selectedCode == null,
-            selectedTileColor: c.surfaceHover,
-            leading: Icon(
-              Icons.grid_view_outlined,
-              size: 20,
-              color: _selectedCode == null ? c.accent : c.textMuted,
-            ),
-            title: Text('전체 기업', style: t.body(14, weight: FontWeight.w600)),
-            trailing: Text(
-              '${view.updates.where((u) => !u.read).length}',
-              style: t.body(12, color: c.textMuted),
-            ),
-            onTap: () => setState(() {
-              _selectedCode = null;
-              _mobileUpdates = true;
-            }),
-          ),
-          for (final company in view.companies) ...[
-            ListTile(
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: AppSpace.lg,
-                vertical: AppSpace.sm,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: (_selectedCode == null) ? c.surfaceHover : null,
               ),
-              selected: _selectedCode == company.corpCode,
-              selectedTileColor: c.surfaceHover,
-              title: Text(
-                company.name,
-                style: t.body(15, weight: FontWeight.w600),
-              ),
-              subtitle: Padding(
-                padding: const EdgeInsets.only(top: AppSpace.xs),
-                child: Text(
-                  '${company.stockCode ?? company.corpCode} · ${!company.active
-                      ? '알림 일시 중지'
-                      : !company.monitoringReady
-                      ? '첫 확인 대기'
-                      : company.unreadCount > 0
-                      ? '새 공시 ${company.unreadCount}건'
-                      : '새 공시 없음'}',
-                  style: t.body(
-                    12,
-                    color: company.unreadCount > 0 ? c.accent : c.textMuted,
+              child: ShadButton.ghost(
+                width: double.infinity,
+                height: 0,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpace.md,
+                  vertical: AppSpace.sm,
+                ),
+                onPressed: () => setState(() {
+                  _selectedCode = null;
+                  _mobileUpdates = true;
+                }),
+                child: Flexible(
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.grid_view_outlined,
+                        size: 20,
+                        color: _selectedCode == null ? c.accent : c.textMuted,
+                      ),
+                      const SizedBox(width: AppSpace.sm),
+                      Expanded(
+                        child: Text(
+                          '전체 기업',
+                          style: t.body(14, weight: FontWeight.w600),
+                        ),
+                      ),
+                      const SizedBox(width: AppSpace.sm),
+                      Text(
+                        '${view.updates.where((u) => !u.read).length}',
+                        style: t.body(12, color: c.textMuted),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              onTap: () => setState(() {
-                _selectedCode = company.corpCode;
-                _mobileUpdates = true;
-              }),
-              trailing: PopupMenuButton<String>(
-                tooltip: '${company.name} 관리',
-                enabled: !_busy,
-                onSelected: (value) {
-                  if (value == 'detail') {
-                    context.push(AppRoutes.company(company.corpCode));
-                    return;
-                  }
-                  _action(() async {
-                    if (value == 'remove') {
-                      await store.toggle(company.corpCode);
-                      if (mounted && _selectedCode == company.corpCode) {
-                        setState(() => _selectedCode = null);
-                      }
-                    } else if (value == 'prioritize') {
-                      await client.watchlist.prioritize(company.corpCode);
-                      await store.refresh();
-                    } else {
-                      await client.watchlist.mute(
-                        company.corpCode,
-                        !company.muted,
-                      );
-                      await store.refresh();
-                    }
-                  });
-                },
-                itemBuilder: (_) => [
-                  const PopupMenuItem(value: 'detail', child: Text('기업 상세 보기')),
-                  if (company.active)
-                    PopupMenuItem(
-                      value: 'mute',
-                      child: Text(company.muted ? '기기 알림 켜기' : '기기 알림 끄기'),
+            ),
+          ),
+          for (final company in view.companies) ...[
+            Semantics(
+              selected: _selectedCode == company.corpCode,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: (_selectedCode == company.corpCode)
+                      ? c.surfaceHover
+                      : null,
+                ),
+                child: ShadButton.ghost(
+                  width: double.infinity,
+                  height: 0,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpace.lg,
+                    vertical: AppSpace.sm,
+                  ),
+                  onPressed: () => setState(() {
+                    _selectedCode = company.corpCode;
+                    _mobileUpdates = true;
+                  }),
+                  child: Flexible(
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                company.name,
+                                style: t.body(15, weight: FontWeight.w600),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  top: AppSpace.xs,
+                                ),
+                                child: Text(
+                                  '${company.stockCode ?? company.corpCode} · ${!company.active
+                                      ? '알림 일시 중지'
+                                      : !company.monitoringReady
+                                      ? '첫 확인 대기'
+                                      : company.unreadCount > 0
+                                      ? '새 공시 ${company.unreadCount}건'
+                                      : '새 공시 없음'}',
+                                  style: t.body(
+                                    12,
+                                    color: company.unreadCount > 0
+                                        ? c.accent
+                                        : c.textMuted,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: AppSpace.sm),
+                        ShadContextMenu(
+                          controller: _companyMenus.putIfAbsent(
+                            company.corpCode,
+                            ShadPopoverController.new,
+                          ),
+                          items: [
+                            ShadContextMenuItem(
+                              enabled: !_busy,
+                              onPressed: () => ((value) {
+                                if (value == 'detail') {
+                                  context.push(
+                                    AppRoutes.company(company.corpCode),
+                                  );
+                                  return;
+                                }
+                                _action(() async {
+                                  if (value == 'remove') {
+                                    await store.toggle(company.corpCode);
+                                    if (mounted &&
+                                        _selectedCode == company.corpCode) {
+                                      setState(() => _selectedCode = null);
+                                    }
+                                  } else if (value == 'prioritize') {
+                                    await client.watchlist.prioritize(
+                                      company.corpCode,
+                                    );
+                                    await store.refresh();
+                                  } else {
+                                    await client.watchlist.mute(
+                                      company.corpCode,
+                                      !company.muted,
+                                    );
+                                    await store.refresh();
+                                  }
+                                });
+                              })('detail'),
+                              child: Text('기업 상세 보기'),
+                            ),
+                            if (company.active)
+                              ShadContextMenuItem(
+                                enabled: !_busy,
+                                onPressed: () => ((value) {
+                                  if (value == 'detail') {
+                                    context.push(
+                                      AppRoutes.company(company.corpCode),
+                                    );
+                                    return;
+                                  }
+                                  _action(() async {
+                                    if (value == 'remove') {
+                                      await store.toggle(company.corpCode);
+                                      if (mounted &&
+                                          _selectedCode == company.corpCode) {
+                                        setState(() => _selectedCode = null);
+                                      }
+                                    } else if (value == 'prioritize') {
+                                      await client.watchlist.prioritize(
+                                        company.corpCode,
+                                      );
+                                      await store.refresh();
+                                    } else {
+                                      await client.watchlist.mute(
+                                        company.corpCode,
+                                        !company.muted,
+                                      );
+                                      await store.refresh();
+                                    }
+                                  });
+                                })('mute'),
+                                child: Text(
+                                  company.muted ? '기기 알림 켜기' : '기기 알림 끄기',
+                                ),
+                              ),
+                            if (!company.active)
+                              ShadContextMenuItem(
+                                enabled: !_busy,
+                                onPressed: () => ((value) {
+                                  if (value == 'detail') {
+                                    context.push(
+                                      AppRoutes.company(company.corpCode),
+                                    );
+                                    return;
+                                  }
+                                  _action(() async {
+                                    if (value == 'remove') {
+                                      await store.toggle(company.corpCode);
+                                      if (mounted &&
+                                          _selectedCode == company.corpCode) {
+                                        setState(() => _selectedCode = null);
+                                      }
+                                    } else if (value == 'prioritize') {
+                                      await client.watchlist.prioritize(
+                                        company.corpCode,
+                                      );
+                                      await store.refresh();
+                                    } else {
+                                      await client.watchlist.mute(
+                                        company.corpCode,
+                                        !company.muted,
+                                      );
+                                      await store.refresh();
+                                    }
+                                  });
+                                })('prioritize'),
+                                child: Text('이 기업 알림 활성화'),
+                              ),
+                            ShadContextMenuItem(
+                              enabled: !_busy,
+                              onPressed: () => ((value) {
+                                if (value == 'detail') {
+                                  context.push(
+                                    AppRoutes.company(company.corpCode),
+                                  );
+                                  return;
+                                }
+                                _action(() async {
+                                  if (value == 'remove') {
+                                    await store.toggle(company.corpCode);
+                                    if (mounted &&
+                                        _selectedCode == company.corpCode) {
+                                      setState(() => _selectedCode = null);
+                                    }
+                                  } else if (value == 'prioritize') {
+                                    await client.watchlist.prioritize(
+                                      company.corpCode,
+                                    );
+                                    await store.refresh();
+                                  } else {
+                                    await client.watchlist.mute(
+                                      company.corpCode,
+                                      !company.muted,
+                                    );
+                                    await store.refresh();
+                                  }
+                                });
+                              })('remove'),
+                              child: Text('관심등록 해제'),
+                            ),
+                          ],
+                          child: Semantics(
+                            container: true,
+                            label: '${company.name} 관리',
+                            button: true,
+                            enabled: !_busy,
+                            onTap: (!_busy)
+                                ? () =>
+                                      _companyMenus[company.corpCode]!.toggle()
+                                : null,
+                            child: ExcludeSemantics(
+                              child: ShadIconButton.ghost(
+                                enabled: !_busy,
+                                semanticLabel: '${company.name} 관리',
+                                onPressed: () =>
+                                    _companyMenus[company.corpCode]!.toggle(),
+                                icon: const Icon(Icons.more_vert),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  if (!company.active)
-                    const PopupMenuItem(
-                      value: 'prioritize',
-                      child: Text('이 기업 알림 활성화'),
-                    ),
-                  const PopupMenuItem(value: 'remove', child: Text('관심등록 해제')),
-                ],
+                  ),
+                ),
               ),
             ),
           ],
@@ -310,10 +486,10 @@ class _WatchlistPageState extends State<WatchlistPage>
             ),
           Padding(
             padding: const EdgeInsets.all(AppSpace.sm),
-            child: TextButton.icon(
+            child: ShadButton.ghost(
               onPressed: _openSearch,
-              icon: const Icon(Icons.add, size: 18),
-              label: const Text('종목 추가'),
+              leading: const Icon(Icons.add, size: 18),
+              child: Flexible(child: const Text('종목 추가')),
             ),
           ),
         ],
@@ -351,10 +527,24 @@ class _WatchlistPageState extends State<WatchlistPage>
                         style: t.body(18, weight: FontWeight.w700),
                       ),
                     ),
-                    IconButton(
-                      tooltip: '새로고침',
-                      onPressed: store.loading ? null : store.refresh,
-                      icon: const Icon(Icons.refresh, size: 20),
+                    Semantics(
+                      container: true,
+                      label: '새로고침',
+                      button: true,
+                      enabled: !(store.loading),
+                      onTap: (!(store.loading))
+                          ? store.loading
+                                ? null
+                                : store.refresh
+                          : null,
+                      child: ExcludeSemantics(
+                        child: ShadIconButton.ghost(
+                          enabled: !(store.loading),
+                          onPressed: store.loading ? null : store.refresh,
+                          icon: const Icon(Icons.refresh, size: 20),
+                          semanticLabel: '새로고침',
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -368,19 +558,19 @@ class _WatchlistPageState extends State<WatchlistPage>
                   spacing: AppSpace.sm,
                   runSpacing: AppSpace.sm,
                   children: [
-                    ChoiceChip(
-                      side: BorderSide.none,
-                      showCheckmark: false,
-                      label: const Text('전체'),
-                      selected: !_unreadOnly,
-                      onSelected: (_) => setState(() => _unreadOnly = false),
+                    IntrinsicWidth(
+                      child: ShadToggle.outline(
+                        value: !_unreadOnly,
+                        onChanged: (_) => setState(() => _unreadOnly = false),
+                        child: const Text('전체'),
+                      ),
                     ),
-                    ChoiceChip(
-                      side: BorderSide.none,
-                      showCheckmark: false,
-                      label: const Text('읽지 않음'),
-                      selected: _unreadOnly,
-                      onSelected: (_) => setState(() => _unreadOnly = true),
+                    IntrinsicWidth(
+                      child: ShadToggle.outline(
+                        value: _unreadOnly,
+                        onChanged: (_) => setState(() => _unreadOnly = true),
+                        child: const Text('읽지 않음'),
+                      ),
                     ),
                   ],
                 ),
@@ -399,44 +589,14 @@ class _WatchlistPageState extends State<WatchlistPage>
               ),
             ),
           for (final update in updates) ...[
-            ListTile(
-              contentPadding: const EdgeInsets.symmetric(
+            ShadButton.ghost(
+              width: double.infinity,
+              height: 0,
+              padding: const EdgeInsets.symmetric(
                 horizontal: AppSpace.lg,
                 vertical: AppSpace.md,
               ),
-              leading: Icon(
-                update.read
-                    ? Icons.article_outlined
-                    : Icons.mark_email_unread_outlined,
-                size: 22,
-                color: update.read ? c.textMuted : c.accent,
-              ),
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    update.companyName,
-                    style: t.body(12, color: c.textSecondary),
-                  ),
-                  const SizedBox(height: AppSpace.xs),
-                  Text(
-                    update.title,
-                    style: t.body(
-                      15,
-                      weight: update.read ? FontWeight.w400 : FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-              subtitle: Padding(
-                padding: const EdgeInsets.only(top: AppSpace.sm),
-                child: Text(
-                  '${_date(update.publishedAt)} · DART${update.title.contains('정정') ? ' · 정정 공시' : ''}',
-                  style: t.body(12, color: c.textMuted),
-                ),
-              ),
-              trailing: Icon(Icons.north_east, size: 16, color: c.textMuted),
-              onTap: () => _action(() async {
+              onPressed: () => _action(() async {
                 await launchUrl(
                   Uri.parse(update.url),
                   mode: LaunchMode.externalApplication,
@@ -444,6 +604,56 @@ class _WatchlistPageState extends State<WatchlistPage>
                 await client.watchlist.markRead(update.noticeId);
                 await store.refresh();
               }),
+              child: Flexible(
+                child: Row(
+                  children: [
+                    Icon(
+                      update.read
+                          ? Icons.article_outlined
+                          : Icons.mark_email_unread_outlined,
+                      size: 22,
+                      color: update.read ? c.textMuted : c.accent,
+                    ),
+                    const SizedBox(width: AppSpace.sm),
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                update.companyName,
+                                style: t.body(12, color: c.textSecondary),
+                              ),
+                              const SizedBox(height: AppSpace.xs),
+                              Text(
+                                update.title,
+                                style: t.body(
+                                  15,
+                                  weight: update.read
+                                      ? FontWeight.w400
+                                      : FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: AppSpace.sm),
+                            child: Text(
+                              '${_date(update.publishedAt)} · DART${update.title.contains('정정') ? ' · 정정 공시' : ''}',
+                              style: t.body(12, color: c.textMuted),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: AppSpace.sm),
+                    Icon(Icons.north_east, size: 16, color: c.textMuted),
+                  ],
+                ),
+              ),
             ),
           ],
           Padding(
@@ -458,11 +668,22 @@ class _WatchlistPageState extends State<WatchlistPage>
                     style: t.body(12, color: c.textMuted),
                   ),
                 ),
-                Tooltip(
-                  message: !view.workerEnabled
-                      ? '현재 개발 서버는 자동 수집이 꺼져 있습니다. 뉴스 알림은 기업 매칭 검증 후 제공할 예정입니다.'
-                      : '뉴스 알림은 기업 매칭 검증 후 제공할 예정입니다.',
-                  child: Icon(Icons.info_outline, size: 16, color: c.textMuted),
+                ShadTooltip(
+                  builder: (_) => Text(
+                    !view.workerEnabled
+                        ? '현재 개발 서버는 자동 수집이 꺼져 있습니다. 뉴스 알림은 기업 매칭 검증 후 제공할 예정입니다.'
+                        : '뉴스 알림은 기업 매칭 검증 후 제공할 예정입니다.',
+                  ),
+                  child: Semantics(
+                    tooltip: !view.workerEnabled
+                        ? '현재 개발 서버는 자동 수집이 꺼져 있습니다. 뉴스 알림은 기업 매칭 검증 후 제공할 예정입니다.'
+                        : '뉴스 알림은 기업 매칭 검증 후 제공할 예정입니다.',
+                    child: Icon(
+                      Icons.info_outline,
+                      size: 16,
+                      color: c.textMuted,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -519,17 +740,70 @@ class _WatchlistPageState extends State<WatchlistPage>
     }
 
     if (MediaQuery.sizeOf(context).width < 600) {
-      await showModalBottomSheet<void>(
+      await showShadSheet<void>(
+        useRootNavigator: true,
         context: context,
-        isScrollControlled: true,
-        useSafeArea: true,
-        showDragHandle: true,
-        builder: content,
+        side: ShadSheetSide.bottom,
+        barrierLabel: '검색 닫기',
+        builder: (_) => InheritedTheme.captureAll(
+          context,
+          Builder(
+            builder: (context) => ShadSheet(
+              closeIcon: Builder(
+                builder: (context) => Semantics(
+                  container: true,
+                  label: '닫기',
+                  button: true,
+                  onTap: () => Navigator.of(context).pop(),
+                  child: ExcludeSemantics(
+                    child: ShadIconButton.ghost(
+                      width: 20,
+                      height: 20,
+                      padding: EdgeInsets.zero,
+                      icon: const Icon(Icons.close, size: 16),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ),
+                ),
+              ),
+              scrollable: true,
+              child: content(context),
+            ),
+          ),
+        ),
       );
     } else {
-      await showDialog<void>(
+      await showShadDialog<void>(
         context: context,
-        builder: (context) => Dialog(child: content(context)),
+        builder: (overlayContext) => InheritedTheme.captureAll(
+          context,
+          Builder(
+            builder: (context) => ShadDialog(
+              closeIcon: Builder(
+                builder: (context) => Semantics(
+                  container: true,
+                  label: '닫기',
+                  button: true,
+                  onTap: () => Navigator.of(context).pop(),
+                  child: ExcludeSemantics(
+                    child: ShadIconButton.ghost(
+                      width: 20,
+                      height: 20,
+                      padding: EdgeInsets.zero,
+                      icon: const Icon(Icons.close, size: 16),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ),
+                ),
+              ),
+              child: Material(
+                type: MaterialType.transparency,
+                child: content(context),
+              ),
+            ),
+          ),
+        ),
+        barrierLabel: '닫기',
       );
     }
     releaseSearchKeyboard();
@@ -551,29 +825,35 @@ class _WatchlistPageState extends State<WatchlistPage>
                   style: context.typo.body(16, weight: FontWeight.w700),
                 ),
               ),
-              IconButton(
-                tooltip: '검색 닫기',
-                onPressed: () => Navigator.pop(_searchContext!),
-                icon: const Icon(Icons.close, size: 20),
+              Semantics(
+                container: true,
+                label: '검색 닫기',
+                button: true,
+                enabled: true,
+                onTap: () => Navigator.pop(_searchContext!),
+                child: ExcludeSemantics(
+                  child: ShadIconButton.ghost(
+                    onPressed: () => Navigator.pop(_searchContext!),
+                    icon: const Icon(Icons.close, size: 20),
+                    semanticLabel: '검색 닫기',
+                  ),
+                ),
               ),
             ],
           ),
           const SizedBox(height: AppSpace.sm),
-          TextField(
-            // Native keyboard was requested synchronously by the add button.
+          ShadInput(
             autofocus: true,
             focusNode: _searchFocus,
-            onTapAlwaysCalled: true,
-            onTap: () {
+            onPressedAlwaysCalled: true,
+            controller: _query,
+            onChanged: _search,
+            placeholder: Text('기업명 또는 종목코드 검색'),
+            leading: Icon(Icons.search),
+            onPressed: () {
               _searchFocus.requestFocus();
               SystemChannels.textInput.invokeMethod<void>('TextInput.show');
             },
-            controller: _query,
-            onChanged: _search,
-            decoration: const InputDecoration(
-              hintText: '기업명 또는 종목코드 검색',
-              prefixIcon: Icon(Icons.search),
-            ),
           ),
           if (_searching)
             const Padding(
@@ -590,19 +870,52 @@ class _WatchlistPageState extends State<WatchlistPage>
               child: Text('검색 결과가 없습니다.'),
             ),
           for (final item in _results)
-            ListTile(
-              title: Text(item.name),
-              subtitle: Text(item.stockCode ?? item.corpCode),
-              trailing: IconButton(
-                tooltip: store.contains(item.corpCode) ? '관심등록 해제' : '관심등록',
-                icon: Icon(
-                  store.contains(item.corpCode)
-                      ? Icons.star
-                      : Icons.star_border,
-                ),
-                onPressed: _busy
-                    ? null
-                    : () => _action(() => store.toggle(item.corpCode)),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpace.md,
+                vertical: AppSpace.sm,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(item.name),
+                        Text(item.stockCode ?? item.corpCode),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: AppSpace.sm),
+                  Semantics(
+                    container: true,
+                    label: store.contains(item.corpCode) ? '관심등록 해제' : '관심등록',
+                    button: true,
+                    enabled: !(_busy),
+                    onTap: (!(_busy))
+                        ? _busy
+                              ? null
+                              : () => _action(() => store.toggle(item.corpCode))
+                        : null,
+                    child: ExcludeSemantics(
+                      child: ShadIconButton.ghost(
+                        enabled: !(_busy),
+                        icon: Icon(
+                          store.contains(item.corpCode)
+                              ? Icons.star
+                              : Icons.star_border,
+                        ),
+                        onPressed: _busy
+                            ? null
+                            : () => _action(() => store.toggle(item.corpCode)),
+                        semanticLabel: store.contains(item.corpCode)
+                            ? '관심등록 해제'
+                            : '관심등록',
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
         ],
@@ -637,10 +950,19 @@ class _WatchlistPageState extends State<WatchlistPage>
                 ),
               ),
               const SizedBox(width: AppSpace.sm),
-              IconButton.filled(
-                tooltip: '종목 추가',
-                onPressed: _openSearch,
-                icon: const Icon(Icons.add),
+              Semantics(
+                container: true,
+                label: '종목 추가',
+                button: true,
+                enabled: true,
+                onTap: _openSearch,
+                child: ExcludeSemantics(
+                  child: ShadIconButton.ghost(
+                    onPressed: _openSearch,
+                    icon: const Icon(Icons.add),
+                    semanticLabel: '종목 추가',
+                  ),
+                ),
               ),
             ],
           ),
@@ -693,20 +1015,25 @@ class _WatchlistPageState extends State<WatchlistPage>
                     style: t.body(12, color: c.textMuted),
                   ),
                 ),
-                TextButton(
+                ShadButton.ghost(
                   onPressed: () => context.push('/membership'),
-                  child: Text(view.paid ? '멤버십 관리' : '20개로 늘리기'),
+                  child: Flexible(
+                    child: Text(view.paid ? '멤버십 관리' : '20개로 늘리기'),
+                  ),
                 ),
               ],
             ),
           ] else if (store.loading)
             const Padding(
               padding: EdgeInsets.all(AppSpace.xl),
-              child: Center(child: CircularProgressIndicator()),
+              child: Center(child: ShadSpinner()),
             ),
           if (store.error != null) ...[
             Text(store.error!, style: t.body(13, color: c.textSecondary)),
-            TextButton(onPressed: store.refresh, child: const Text('다시 시도')),
+            ShadButton.ghost(
+              onPressed: store.refresh,
+              child: Flexible(child: const Text('다시 시도')),
+            ),
           ],
           if (_notice != null)
             Padding(

@@ -1,3 +1,7 @@
+import 'package:shad/shad.dart';
+
+import '../support/shad_test_host.dart';
+
 import 'package:investment_ontology_serverpod_flutter/features/company_detail/business/overview_metrics.dart';
 
 import 'dart:convert';
@@ -59,25 +63,27 @@ void main() {
       for (final value in (json['models'] as Map).values) {
         final model = OverviewModel.fromJson(value as Map<String, dynamic>);
         await tester.pumpWidget(
-          MaterialApp(
-            theme: buildAppTheme(ledgerBrand),
-            home: MediaQuery(
-              data: MediaQueryData(
-                size: Size(width, 1100),
-                textScaler: const TextScaler.linear(1.3),
-              ),
-              child: Scaffold(
-                body: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: BusinessModelGuide(
-                      key: ValueKey(model.label),
-                      lesson: CompanyOverviewLesson(
-                        summary: '',
-                        products: const [],
-                        models: [model],
-                        hasDocument: true,
-                        year: 2025,
+          shadTestHost(
+            MaterialApp(
+              theme: buildAppTheme(ledgerBrand),
+              home: MediaQuery(
+                data: MediaQueryData(
+                  size: Size(width, 1100),
+                  textScaler: const TextScaler.linear(1.3),
+                ),
+                child: Scaffold(
+                  body: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: BusinessModelGuide(
+                        key: ValueKey(model.label),
+                        lesson: CompanyOverviewLesson(
+                          summary: '',
+                          products: const [],
+                          models: [model],
+                          hasDocument: true,
+                          year: 2025,
+                        ),
                       ),
                     ),
                   ),
@@ -99,18 +105,20 @@ void main() {
     'switching businesses changes flow and growth explanation together',
     (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          theme: buildAppTheme(ledgerBrand),
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: BusinessModelGuide(
-                lesson: catalog.forCompany('00126380')!,
+        shadTestHost(
+          MaterialApp(
+            theme: buildAppTheme(ledgerBrand),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: BusinessModelGuide(
+                  lesson: catalog.forCompany('00126380')!,
+                ),
               ),
             ),
           ),
         ),
       );
-      await tester.tap(find.widgetWithText(ChoiceChip, '반도체'));
+      await tester.tap(find.widgetWithText(ShadToggle, '반도체'));
       await tester.pumpAndSettle();
       expect(find.text('반도체의 성장 동력'), findsOneWidget);
       expect(find.text('사업 구조 · 반도체'), findsOneWidget);

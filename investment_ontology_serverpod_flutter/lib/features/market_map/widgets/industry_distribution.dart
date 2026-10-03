@@ -135,29 +135,35 @@ class _Segment extends StatelessWidget {
     final fill = selected ? c.accent : base;
     final onFill = selected || depth < 0.5 ? c.onInverse : c.textPrimary;
 
-    return Tooltip(
-      message:
-          '${facet.code} ${facet.name}\n'
-          '${formatCount(facet.count)}개사 · ${(share * 100).toStringAsFixed(1)}%',
+    return ShadTooltip(
       waitDuration: const Duration(milliseconds: 150),
-      child: HoverBuilder(
-        onTap: onTap,
-        builder: (context, hovered) => AnimatedContainer(
-          duration: AppMotion.normal,
-          margin: EdgeInsets.only(right: 2, top: hovered || selected ? 0 : 6),
-          color: fill.withValues(alpha: dimmed ? 0.25 : 1),
-          alignment: Alignment.bottomLeft,
-          padding: const EdgeInsets.only(left: 5, bottom: 4),
-          child: share >= _minLabelShare
-              ? Text(
-                  facet.code,
-                  style: context.typo.numeric(
-                    12,
-                    color: onFill,
-                    weight: FontWeight.w700,
-                  ),
-                )
-              : null,
+      builder: (_) => Text(
+        '${facet.code} ${facet.name}\n'
+        '${formatCount(facet.count)}개사 · ${(share * 100).toStringAsFixed(1)}%',
+      ),
+      child: Semantics(
+        tooltip:
+            '${facet.code} ${facet.name}\n'
+            '${formatCount(facet.count)}개사 · ${(share * 100).toStringAsFixed(1)}%',
+        child: HoverBuilder(
+          onTap: onTap,
+          builder: (context, hovered) => AnimatedContainer(
+            duration: AppMotion.normal,
+            margin: EdgeInsets.only(right: 2, top: hovered || selected ? 0 : 6),
+            color: fill.withValues(alpha: dimmed ? 0.25 : 1),
+            alignment: Alignment.bottomLeft,
+            padding: const EdgeInsets.only(left: 5, bottom: 4),
+            child: share >= _minLabelShare
+                ? Text(
+                    facet.code,
+                    style: context.typo.numeric(
+                      12,
+                      color: onFill,
+                      weight: FontWeight.w700,
+                    ),
+                  )
+                : null,
+          ),
         ),
       ),
     );

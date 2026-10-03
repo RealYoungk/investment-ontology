@@ -1,3 +1,4 @@
+import 'package:shad/shad.dart';
 import 'package:flutter/material.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 
@@ -51,10 +52,19 @@ class MetricFormulaCard extends StatelessWidget {
                 ),
               ),
               if (onClose != null)
-                IconButton(
-                  onPressed: onClose,
-                  icon: Icon(Icons.close, size: 18, color: c.textPrimary),
-                  tooltip: '닫기',
+                Semantics(
+                  container: true,
+                  label: '닫기',
+                  button: true,
+                  enabled: true,
+                  onTap: onClose,
+                  child: ExcludeSemantics(
+                    child: ShadIconButton.ghost(
+                      onPressed: onClose,
+                      icon: Icon(Icons.close, size: 18, color: c.textPrimary),
+                      semanticLabel: '닫기',
+                    ),
+                  ),
                 ),
             ],
           ),
@@ -102,20 +112,27 @@ class MetricFormulaCard extends StatelessWidget {
                       runSpacing: AppSpace.xs,
                       children: [
                         Text(input.label, style: t.body(14)),
-                        Tooltip(
-                          message: input.amount == null
-                              ? '해당 입력값 미확보'
-                              : '${input.amount} ${input.currency}',
-                          child: Text(
+                        ShadTooltip(
+                          builder: (_) => Text(
                             input.amount == null
-                                ? '자료 미확보'
-                                : input.currency == 'KRW'
-                                ? formatUnitAmountCompact(
-                                    input.amount!.toDouble(),
-                                    '원',
-                                  )
+                                ? '해당 입력값 미확보'
                                 : '${input.amount} ${input.currency}',
-                            style: t.numeric(15, weight: FontWeight.w600),
+                          ),
+                          child: Semantics(
+                            tooltip: input.amount == null
+                                ? '해당 입력값 미확보'
+                                : '${input.amount} ${input.currency}',
+                            child: Text(
+                              input.amount == null
+                                  ? '자료 미확보'
+                                  : input.currency == 'KRW'
+                                  ? formatUnitAmountCompact(
+                                      input.amount!.toDouble(),
+                                      '원',
+                                    )
+                                  : '${input.amount} ${input.currency}',
+                              style: t.numeric(15, weight: FontWeight.w600),
+                            ),
                           ),
                         ),
                       ],

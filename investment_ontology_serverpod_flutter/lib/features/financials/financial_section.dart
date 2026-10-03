@@ -122,7 +122,7 @@ class _FinancialSectionState extends State<FinancialSection> {
     if (_loading && data == null) {
       body = const Padding(
         padding: EdgeInsets.symmetric(vertical: AppSpace.lg),
-        child: LinearProgressIndicator(minHeight: 2),
+        child: ShadProgress(minHeight: 2),
       );
     } else if (_error != null) {
       body = ReadFailureNotice(subject: '재무', retry: _load);
@@ -182,8 +182,8 @@ class _FinancialSectionState extends State<FinancialSection> {
     };
     final currency = currencies.firstOrNull ?? 'KRW';
     if (currencies.length > 1) {
-      return AppNotice(
-        message: '${currencies.join("·")} 표시 통화가 달라 추이를 합산하지 않습니다.',
+      return ShadAlert(
+        description: Text('${currencies.join("·")} 표시 통화가 달라 추이를 합산하지 않습니다.'),
       );
     }
 
@@ -207,7 +207,14 @@ class _FinancialSectionState extends State<FinancialSection> {
                 },
               )
             else if (widget.showBasisSelector && data.fsDiv != null)
-              AppTag(label: '${fsDivLabel(data.fsDiv!)}재무제표만 있음'),
+              ShadBadge.raw(
+                variant: ShadBadgeVariant.outline,
+                child: Text(
+                  '${fsDivLabel(data.fsDiv!)}재무제표만 있음',
+                  maxLines: 1,
+                  softWrap: false,
+                ),
+              ),
             AppToggleGroup<_Period>(
               value: _period,
               options: const {_Period.annual: '연간', _Period.quarterly: '분기'},
@@ -506,12 +513,28 @@ class _TrailingChart extends StatelessWidget {
                   style: t.body(13, weight: FontWeight.w600),
                 ),
               ),
-              IconButton(
-                icon: Icon(Icons.info_outline, size: 18, color: c.textMuted),
-                tooltip: '최근 12개월 실적 읽는 법',
-                onPressed: () => showAdaptiveDetail(
+              Semantics(
+                container: true,
+                label: '최근 12개월 실적 읽는 법',
+                button: true,
+                enabled: true,
+                onTap: () => showAdaptiveDetail(
                   context: context,
                   builder: (context) => const _TrailingExplanation(),
+                ),
+                child: ExcludeSemantics(
+                  child: ShadIconButton.ghost(
+                    icon: Icon(
+                      Icons.info_outline,
+                      size: 18,
+                      color: c.textMuted,
+                    ),
+                    onPressed: () => showAdaptiveDetail(
+                      context: context,
+                      builder: (context) => const _TrailingExplanation(),
+                    ),
+                    semanticLabel: '최근 12개월 실적 읽는 법',
+                  ),
                 ),
               ),
             ],
@@ -616,10 +639,19 @@ class _TrailingExplanation extends StatelessWidget {
                   style: t.body(16, weight: FontWeight.w600),
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.close),
-                tooltip: '닫기',
-                onPressed: () => Navigator.of(context).pop(),
+              Semantics(
+                container: true,
+                label: '닫기',
+                button: true,
+                enabled: true,
+                onTap: () => Navigator.of(context).pop(),
+                child: ExcludeSemantics(
+                  child: ShadIconButton.ghost(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.of(context).pop(),
+                    semanticLabel: '닫기',
+                  ),
+                ),
               ),
             ],
           ),
@@ -685,13 +717,30 @@ class _CashFlowChart extends StatelessWidget {
               Expanded(
                 child: Text('현금흐름', style: t.body(13, weight: FontWeight.w600)),
               ),
-              IconButton(
-                icon: Icon(Icons.info_outline, size: 18, color: c.textMuted),
-                tooltip: '현금흐름 읽는 법',
-                onPressed: () => showAdaptiveDetail(
+              Semantics(
+                container: true,
+                label: '현금흐름 읽는 법',
+                button: true,
+                enabled: true,
+                onTap: () => showAdaptiveDetail(
                   context: context,
                   builder: (context) =>
                       _CashFlowExplanation(isQuarterly: isQuarterly),
+                ),
+                child: ExcludeSemantics(
+                  child: ShadIconButton.ghost(
+                    icon: Icon(
+                      Icons.info_outline,
+                      size: 18,
+                      color: c.textMuted,
+                    ),
+                    onPressed: () => showAdaptiveDetail(
+                      context: context,
+                      builder: (context) =>
+                          _CashFlowExplanation(isQuarterly: isQuarterly),
+                    ),
+                    semanticLabel: '현금흐름 읽는 법',
+                  ),
                 ),
               ),
             ],
@@ -785,10 +834,19 @@ class _CashFlowExplanation extends StatelessWidget {
                   style: t.body(16, weight: FontWeight.w600),
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.close),
-                tooltip: '닫기',
-                onPressed: () => Navigator.of(context).pop(),
+              Semantics(
+                container: true,
+                label: '닫기',
+                button: true,
+                enabled: true,
+                onTap: () => Navigator.of(context).pop(),
+                child: ExcludeSemantics(
+                  child: ShadIconButton.ghost(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.of(context).pop(),
+                    semanticLabel: '닫기',
+                  ),
+                ),
               ),
             ],
           ),
@@ -861,67 +919,103 @@ class _FinancialTable extends StatelessWidget {
     final c = context.colors;
     return Material(
       type: MaterialType.transparency,
-      child: ExpansionTile(
-        tilePadding: EdgeInsets.zero,
-        childrenPadding: const EdgeInsets.only(bottom: AppSpace.sm),
-        title: Text(
-          '표로 보기',
-          style: context.typo.body(12, color: c.textSecondary),
-        ),
+      child: ShadAccordion<int>(
+        maintainState: false,
         children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              '$note\n단위: ${currency == 'KRW' ? '백만원' : currency} · —는 해당 기간의 값 미확보 · 금액은 소수 첫째 자리 반올림',
-              style: context.typo.body(11.5, color: c.textMuted),
+          ShadAccordionItem<int>(
+            value: 0,
+            title: Text(
+              '표로 보기',
+              style: context.typo.body(12, color: c.textSecondary),
             ),
-          ),
-          const SizedBox(height: AppSpace.sm),
-          AppDataTable(
-            columns: [
-              const AppColumn('기간', minWidth: 90),
-              for (final column in columns)
-                AppColumn(column, numeric: true, minWidth: 115),
-            ],
-            rows: [
-              for (final (rowIndex, label) in labels.indexed)
-                AppRow([
-                  AppDataTable.text(context, label, nowrap: true),
-                  for (final (columnIndex, value) in values[rowIndex].indexed)
-                    value == null
-                        ? AppDataTable.text(context, null, numeric: true)
-                        : Tooltip(
-                            message: percentColumns.contains(columnIndex)
-                                ? formatPercent(value)
-                                : formatSourceAmount(
-                                    value,
-                                    currency == 'KRW' ? '원' : currency,
+            padding: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: AppSpace.sm),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      '$note\n단위: ${currency == 'KRW' ? '백만원' : currency} · —는 해당 기간의 값 미확보 · 금액은 소수 첫째 자리 반올림',
+                      style: context.typo.body(11.5, color: c.textMuted),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpace.sm),
+                  AppDataTable(
+                    columns: [
+                      const AppColumn('기간', minWidth: 90),
+                      for (final column in columns)
+                        AppColumn(column, numeric: true, minWidth: 115),
+                    ],
+                    rows: [
+                      for (final (rowIndex, label) in labels.indexed)
+                        AppRow([
+                          AppDataTable.text(context, label, nowrap: true),
+                          for (final (columnIndex, value)
+                              in values[rowIndex].indexed)
+                            value == null
+                                ? AppDataTable.text(
+                                    context,
+                                    null,
+                                    numeric: true,
+                                  )
+                                : ShadTooltip(
+                                    builder: (_) => Text(
+                                      percentColumns.contains(columnIndex)
+                                          ? formatPercent(value)
+                                          : formatSourceAmount(
+                                              value,
+                                              currency == 'KRW'
+                                                  ? '원'
+                                                  : currency,
+                                            ),
+                                    ),
+                                    child: Semantics(
+                                      tooltip:
+                                          percentColumns.contains(columnIndex)
+                                          ? formatPercent(value)
+                                          : formatSourceAmount(
+                                              value,
+                                              currency == 'KRW'
+                                                  ? '원'
+                                                  : currency,
+                                            ),
+                                      child: AppDataTable.text(
+                                        context,
+                                        percentColumns.contains(columnIndex)
+                                            ? formatPercent(value)
+                                            : (value /
+                                                      (currency == 'KRW'
+                                                          ? 1000000
+                                                          : 1))
+                                                  .toStringAsFixed(1)
+                                                  .replaceAllMapped(
+                                                    RegExp(
+                                                      r'\B(?=(\d{3})+(?!\d))',
+                                                    ),
+                                                    (_) => ',',
+                                                  ),
+                                        numeric: true,
+                                        nowrap: true,
+                                      ),
+                                    ),
                                   ),
-                            child: AppDataTable.text(
-                              context,
-                              percentColumns.contains(columnIndex)
-                                  ? formatPercent(value)
-                                  : (value / (currency == 'KRW' ? 1000000 : 1))
-                                        .toStringAsFixed(1)
-                                        .replaceAllMapped(
-                                          RegExp(r'\B(?=(\d{3})+(?!\d))'),
-                                          (_) => ',',
-                                        ),
-                              numeric: true,
-                              nowrap: true,
-                            ),
-                          ),
-                ]),
-            ],
-          ),
-          for (final missing in missingNotes)
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                missing,
-                style: context.typo.body(11.5, color: c.textMuted),
+                        ]),
+                    ],
+                  ),
+                  for (final missing in missingNotes)
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        missing,
+                        style: context.typo.body(11.5, color: c.textMuted),
+                      ),
+                    ),
+                ],
               ),
             ),
+          ),
         ],
       ),
     );

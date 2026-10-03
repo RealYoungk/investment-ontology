@@ -1,3 +1,7 @@
+import 'package:shad/shad.dart';
+
+import '../support/shad_test_host.dart';
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -22,22 +26,27 @@ void main() {
       await t.binding.setSurfaceSize(const Size(320, 820));
       addTearDown(() => t.binding.setSurfaceSize(null));
       await t.pumpWidget(
-        MaterialApp(
-          theme: buildAppTheme(ledgerBrand),
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: IssuerFinancialsSection(
-                corpCode: '00435297',
-                loader: (_, _) async => jsonEncode(payload),
+        shadTestHost(
+          MaterialApp(
+            theme: buildAppTheme(ledgerBrand),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: IssuerFinancialsSection(
+                  corpCode: '00435297',
+                  loader: (_, _) async => jsonEncode(payload),
+                ),
               ),
             ),
           ),
         ),
       );
       await t.pumpAndSettle();
-      expect(find.byType(ExpansionTile), findsOneWidget);
+      expect(
+        find.byWidgetPredicate((widget) => widget is ShadAccordion),
+        findsOneWidget,
+      );
       expect(find.textContaining('상반기 비감사 별도'), findsOneWidget);
-      await t.tap(find.byType(ExpansionTile));
+      await t.tap(find.byWidgetPredicate((widget) => widget is ShadAccordion));
       await t.pumpAndSettle();
       expect(find.textContaining('TTM 미포함'), findsOneWidget);
       expect(find.textContaining('현금흐름표 미인쇄'), findsOneWidget);

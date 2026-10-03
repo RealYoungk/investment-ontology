@@ -23,9 +23,17 @@ class _StatusDotState extends State<StatusDot>
     with SingleTickerProviderStateMixin {
   late final _pulse = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 900),
+    duration: AppMotion.statusPulse,
     value: 1,
   );
+  bool _reduceMotion = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _reduceMotion = MediaQuery.disableAnimationsOf(context);
+    _sync();
+  }
 
   @override
   void initState() {
@@ -40,7 +48,7 @@ class _StatusDotState extends State<StatusDot>
   }
 
   void _sync() {
-    if (widget.pulsing) {
+    if (widget.pulsing && !_reduceMotion) {
       _pulse.repeat(reverse: true);
     } else {
       _pulse

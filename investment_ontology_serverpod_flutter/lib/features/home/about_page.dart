@@ -65,9 +65,9 @@ class _AboutPageState extends State<AboutPage> {
                   Text('알파인더', style: t.body(18, weight: FontWeight.w700)),
                   const Spacer(),
                   if (MediaQuery.sizeOf(context).width > 420)
-                    TextButton(
+                    ShadButton.ghost(
                       onPressed: () => context.go('/home'),
-                      child: const Text('홈'),
+                      child: Flexible(child: const Text('홈')),
                     ),
                   const SizedBox(width: AppSpace.sm),
                   JourneyButton(
@@ -203,7 +203,7 @@ class _AboutPageState extends State<AboutPage> {
                       outcome: '제품과 쓰이는 공정, 매출 구성을 함께 읽으며 사업의 구조를 파악하세요.',
                       action: '기업 개요에서 시작',
                       intent: ExploreIntent.overview,
-                      icon: Icons.storefront_outlined,
+                      icon: LucideIcons.store,
                     ),
                     (
                       number: '02',
@@ -212,7 +212,7 @@ class _AboutPageState extends State<AboutPage> {
                       outcome: '매출·이익·현금흐름을 기간별로 살피고 지표의 계산식과 입력값까지 확인하세요.',
                       action: '재무 추이에서 시작',
                       intent: ExploreIntent.financials,
-                      icon: Icons.stacked_line_chart,
+                      icon: LucideIcons.chartLine,
                     ),
                     (
                       number: '03',
@@ -222,7 +222,7 @@ class _AboutPageState extends State<AboutPage> {
                           '직접 고른 기업을 동일 기준의 지표로 비교하고, 차이가 나는 항목을 더 깊게 읽으세요.',
                       action: '기업 비교에서 시작',
                       intent: ExploreIntent.compare,
-                      icon: Icons.compare_arrows,
+                      icon: LucideIcons.arrowLeftRight,
                     ),
                   ]) ...[
                     Divider(color: c.border),
@@ -360,18 +360,32 @@ class _AboutPageState extends State<AboutPage> {
     );
   }
 
-  Widget _faq(String title, String answer) => ExpansionTile(
-    tilePadding: EdgeInsets.zero,
-    childrenPadding: const EdgeInsets.only(bottom: AppSpace.lg),
-    title: Text(title, style: context.typo.body(14, weight: FontWeight.w600)),
+  Widget _faq(String title, String answer) => ShadAccordion<int>(
+    maintainState: false,
     children: [
-      Align(
-        alignment: Alignment.centerLeft,
-        child: Text(
-          answer,
-          style: context.typo
-              .body(14, color: context.colors.textSecondary)
-              .copyWith(height: 1.8),
+      ShadAccordionItem<int>(
+        value: 0,
+        title: Text(
+          title,
+          style: context.typo.body(14, weight: FontWeight.w600),
+        ),
+        padding: EdgeInsets.zero,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: AppSpace.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  answer,
+                  style: context.typo
+                      .body(14, color: context.colors.textSecondary)
+                      .copyWith(height: 1.8),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     ],

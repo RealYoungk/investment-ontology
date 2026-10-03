@@ -141,16 +141,18 @@ class _IssuerFinancialsSectionState extends State<IssuerFinancialsSection> {
             style: context.typo.body(16),
           ),
           const SizedBox(height: AppSpace.sm),
-          AppNotice(
-            message: widget.ownAnnual
-                ? '각 연도 자체 감사보고서의 현재기간만 추출합니다. 일반기업회계기준과 한국채택국제회계기준을 구분하며, 후속 보고서의 비교 숫자로 과거 연도를 덮어쓰지 않습니다. 전체 재무제표·주석·TTM은 미완료입니다.'
-                : '공식 원문의 현재기간 핵심계정 일부입니다. 전체 재무제표·비교기간은 미추출이며 정기보고서 집계·TTM에 포함하지 않습니다. 각 문서의 현재기간만 표시하며, 문서 내 비교기간과 미확인 연간자료는 포함하지 않습니다.',
+          ShadAlert(
+            description: Text(
+              widget.ownAnnual
+                  ? '각 연도 자체 감사보고서의 현재기간만 추출합니다. 일반기업회계기준과 한국채택국제회계기준을 구분하며, 후속 보고서의 비교 숫자로 과거 연도를 덮어쓰지 않습니다. 전체 재무제표·주석·TTM은 미완료입니다.'
+                  : '공식 원문의 현재기간 핵심계정 일부입니다. 전체 재무제표·비교기간은 미추출이며 정기보고서 집계·TTM에 포함하지 않습니다. 각 문서의 현재기간만 표시하며, 문서 내 비교기간과 미확인 연간자료는 포함하지 않습니다.',
+            ),
           ),
           const SizedBox(height: AppSpace.md),
           if (_error != null)
             ReadFailureNotice(subject: '별도 공식 원문 재무', retry: _load)
           else if (rows == null)
-            const LinearProgressIndicator(minHeight: 2)
+            const ShadProgress(minHeight: 2)
           else if (rows.isEmpty)
             Text(
               '별도 원문 핵심 재무 수집 전입니다.',
@@ -338,69 +340,92 @@ class _PeriodCard extends StatelessWidget {
     final annual = row['periodKind'] == 'ownAnnual';
     return Padding(
       padding: const EdgeInsets.only(top: AppSpace.md),
-      child: ExpansionTile(
-        tilePadding: EdgeInsets.zero,
-        title: Text(
-          '${row['periodStart']} ~ ${row['periodEnd']} · ${row['basis'] == 'CFS' ? '연결' : '별도'}',
-          style: context.typo.body(14),
-        ),
-        subtitle: Text(
-          annual
-              ? '자체 감사보고서 · 현재기간${row['accountingStandard'] == null
-                    ? ''
-                    : row['accountingStandard'] == 'KIFRS'
-                    ? ' · 한국채택국제회계기준'
-                    : ' · 일반기업회계기준'}'
-              : '${row['documentType'] == 'prospectus' ? '투자설명서' : '증권신고서'} · ${row['periodKind'] == 'sinceIncorporation' ? '설립일부터 누적' : '반기 누적 6개월'} · ${row['auditStatus'] == 'reviewed'
-                    ? '검토'
-                    : row['auditStatus'] == 'audited'
-                    ? '원문 적정 의견'
-                    : '원문 의견 미표기'}',
-          style: context.typo.body(12, color: context.colors.textSecondary),
-        ),
+      child: ShadAccordion<int>(
+        maintainState: false,
         children: [
-          for (final a in row['accounts'] as List)
-            Tooltip(
-              message: '${a['printedAmount']}원 · 원문 인쇄값',
-              child: KeyValueRow(
-                label: '${a['accountLabel']}',
-                labelWidth: 136,
-                value:
-                    '${formatKrwLong(double.parse(a['amountInteger']))}${a['cashDirection'] == 'outflow'
-                        ? ' (유출)'
-                        : a['incomeDirection'] == 'lossMagnitude'
-                        ? ' (손실)'
-                        : ''}',
-                numeric: true,
-              ),
+          ShadAccordionItem<int>(
+            value: 0,
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${row['periodStart']} ~ ${row['periodEnd']} · ${row['basis'] == 'CFS' ? '연결' : '별도'}',
+                  style: context.typo.body(14),
+                ),
+                Text(
+                  annual
+                      ? '자체 감사보고서 · 현재기간${row['accountingStandard'] == null
+                            ? ''
+                            : row['accountingStandard'] == 'KIFRS'
+                            ? ' · 한국채택국제회계기준'
+                            : ' · 일반기업회계기준'}'
+                      : '${row['documentType'] == 'prospectus' ? '투자설명서' : '증권신고서'} · ${row['periodKind'] == 'sinceIncorporation' ? '설립일부터 누적' : '반기 누적 6개월'} · ${row['auditStatus'] == 'reviewed'
+                            ? '검토'
+                            : row['auditStatus'] == 'audited'
+                            ? '원문 적정 의견'
+                            : '원문 의견 미표기'}',
+                  style: context.typo.body(
+                    12,
+                    color: context.colors.textSecondary,
+                  ),
+                ),
+              ],
             ),
-          if (row['unextractedMetrics'] is List &&
-              (row['unextractedMetrics'] as List).isNotEmpty)
-            Text(
-              row['accountingStandard'] != null
-                  ? '유형자산 전체 취득 총액은 원문 단일 셀로 인쇄되지 않아 추출하지 않았습니다. 세부 취득 내역을 임의 합산하지 않습니다.'
-                  : '매출의 대시 표기와 확인되지 않은 유형자산 취득액은 0으로 채우지 않았습니다.',
-              style: context.typo.body(12, color: context.colors.textMuted),
+            padding: EdgeInsets.zero,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (final a in row['accounts'] as List)
+                  ShadTooltip(
+                    builder: (_) => Text('${a['printedAmount']}원 · 원문 인쇄값'),
+                    child: Semantics(
+                      tooltip: '${a['printedAmount']}원 · 원문 인쇄값',
+                      child: KeyValueRow(
+                        label: '${a['accountLabel']}',
+                        labelWidth: 136,
+                        value:
+                            '${formatKrwLong(double.parse(a['amountInteger']))}${a['cashDirection'] == 'outflow'
+                                ? ' (유출)'
+                                : a['incomeDirection'] == 'lossMagnitude'
+                                ? ' (손실)'
+                                : ''}',
+                        numeric: true,
+                      ),
+                    ),
+                  ),
+                if (row['unextractedMetrics'] is List &&
+                    (row['unextractedMetrics'] as List).isNotEmpty)
+                  Text(
+                    row['accountingStandard'] != null
+                        ? '유형자산 전체 취득 총액은 원문 단일 셀로 인쇄되지 않아 추출하지 않았습니다. 세부 취득 내역을 임의 합산하지 않습니다.'
+                        : '매출의 대시 표기와 확인되지 않은 유형자산 취득액은 0으로 채우지 않았습니다.',
+                    style: context.typo.body(
+                      12,
+                      color: context.colors.textMuted,
+                    ),
+                  ),
+                Text(
+                  '금액은 원문 부호를 유지합니다. 자산·부채·자본은 기말, 손익·현금흐름은 누적입니다.',
+                  style: context.typo.body(12, color: context.colors.textMuted),
+                ),
+                ShadButton.ghost(
+                  onPressed: () => launchUrl(
+                    Uri.parse(row['officialUrl']),
+                    mode: LaunchMode.externalApplication,
+                  ),
+                  child: Flexible(child: const Text('DART 원문 재무 절 보기')),
+                ),
+                if (row['auditOpinionUrl'] != null)
+                  ShadButton.ghost(
+                    onPressed: () => launchUrl(
+                      Uri.parse(row['auditOpinionUrl']),
+                      mode: LaunchMode.externalApplication,
+                    ),
+                    child: Flexible(child: const Text('해당 연도 감사의견 원문 보기')),
+                  ),
+              ],
             ),
-          Text(
-            '금액은 원문 부호를 유지합니다. 자산·부채·자본은 기말, 손익·현금흐름은 누적입니다.',
-            style: context.typo.body(12, color: context.colors.textMuted),
           ),
-          TextButton(
-            onPressed: () => launchUrl(
-              Uri.parse(row['officialUrl']),
-              mode: LaunchMode.externalApplication,
-            ),
-            child: const Text('DART 원문 재무 절 보기'),
-          ),
-          if (row['auditOpinionUrl'] != null)
-            TextButton(
-              onPressed: () => launchUrl(
-                Uri.parse(row['auditOpinionUrl']),
-                mode: LaunchMode.externalApplication,
-              ),
-              child: const Text('해당 연도 감사의견 원문 보기'),
-            ),
         ],
       ),
     );

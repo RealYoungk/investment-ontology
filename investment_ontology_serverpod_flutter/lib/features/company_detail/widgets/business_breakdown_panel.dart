@@ -109,16 +109,15 @@ class _BusinessBreakdownPanelState extends State<BusinessBreakdownPanel> {
         const SizedBox(height: AppSpace.sm),
         Align(
           alignment: Alignment.centerLeft,
-          child: DropdownButton<int>(
-            value: selected,
-            items: [
+          child: AppSelect<int>(
+            options: Map.fromEntries([
               for (final d in documents.entries)
-                DropdownMenuItem(
-                  value: d.key,
-                  child: Text(businessPeriodLabel(d.value)),
-                ),
-            ],
+                MapEntry(d.key, businessPeriodLabel(d.value)),
+            ]),
+            value: selected,
             onChanged: (value) => setState(() => _document = value),
+            placeholder: '선택',
+            allowClear: false,
           ),
         ),
         if (expected != null &&
@@ -181,36 +180,48 @@ class _BusinessBreakdownPanelState extends State<BusinessBreakdownPanel> {
               ),
             ],
           ]),
-        ExpansionTile(
-          title: const Text('연간 추이와 공시 근거'),
+        ShadAccordion<int>(
+          maintainState: false,
           children: [
-            for (final current in [...profits, ...geography])
-              Padding(
-                padding: const EdgeInsets.only(bottom: AppSpace.md),
-                child: OperatingMetricCard(
-                  facts:
-                      facts
-                          .where(
-                            (f) =>
-                                f.kind == current.kind &&
-                                f.label == current.label &&
-                                f.unit == current.unit,
-                          )
-                          .toList()
-                        ..sort(
-                          (a, b) =>
-                              businessFactDate(a)
-                                  .compareTo(businessFactDate(b)),
-                        ),
-                  periods: widget.periods,
-                  latestReport: widget.latestReport,
-                ),
+            ShadAccordionItem<int>(
+              value: 0,
+              title: const Text('연간 추이와 공시 근거'),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (final current in [...profits, ...geography])
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: AppSpace.md),
+                      child: OperatingMetricCard(
+                        facts:
+                            facts
+                                .where(
+                                  (f) =>
+                                      f.kind == current.kind &&
+                                      f.label == current.label &&
+                                      f.unit == current.unit,
+                                )
+                                .toList()
+                              ..sort(
+                                (a, b) =>
+                                    businessFactDate(a)
+                                        .compareTo(businessFactDate(b)),
+                              ),
+                        periods: widget.periods,
+                        latestReport: widget.latestReport,
+                      ),
+                    ),
+                  for (final evidence in rows.map((f) => f.evidence).toSet())
+                    Padding(
+                      padding: const EdgeInsets.all(AppSpace.md),
+                      child: SelectableText(
+                        evidence,
+                        style: context.typo.body(12),
+                      ),
+                    ),
+                ],
               ),
-            for (final evidence in rows.map((f) => f.evidence).toSet())
-              Padding(
-                padding: const EdgeInsets.all(AppSpace.md),
-                child: SelectableText(evidence, style: context.typo.body(12)),
-              ),
+            ),
           ],
         ),
         const SizedBox(height: AppSpace.xl),
@@ -227,21 +238,20 @@ class _BusinessBreakdownPanelState extends State<BusinessBreakdownPanel> {
   }
 
   Widget _card(BuildContext context, String title, List<Widget> children) =>
-      Container(
-        margin: const EdgeInsets.only(top: AppSpace.md),
-        padding: const EdgeInsets.all(AppSpace.lg),
-        decoration: BoxDecoration(
-          color: context.colors.surface,
-          border: Border.all(color: context.colors.border),
-          borderRadius: context.shape.borderRadius,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(title, style: context.typo.body(16, weight: FontWeight.w700)),
-            const SizedBox(height: AppSpace.sm),
-            ...children,
-          ],
+      Padding(
+        padding: const EdgeInsets.only(top: AppSpace.md),
+        child: DataPanel(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                title,
+                style: context.typo.body(16, weight: FontWeight.w700),
+              ),
+              const SizedBox(height: AppSpace.sm),
+              ...children,
+            ],
+          ),
         ),
       );
 

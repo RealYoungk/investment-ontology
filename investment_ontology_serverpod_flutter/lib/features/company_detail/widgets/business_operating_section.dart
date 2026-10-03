@@ -345,10 +345,11 @@ class _BusinessOperatingSectionState extends State<BusinessOperatingSection> {
                 ),
               ),
             ),
-            AppButton(
-              label: '다시 시도',
-              variant: AppButtonVariant.link,
+            ShadButton.raw(
               onPressed: _load,
+
+              variant: ShadButtonVariant.link,
+              child: Flexible(child: Text('다시 시도')),
             ),
           ],
         ),
@@ -455,12 +456,16 @@ class _OperatingMetricsListState extends State<OperatingMetricsList> {
           const SizedBox(height: AppSpace.sm),
           Align(
             alignment: Alignment.centerRight,
-            child: AppButton(
-              label: _expanded
-                  ? '그 밖의 사업 지표 접기'
-                  : '그 밖의 사업 지표 ${secondary.length}개 보기',
-              variant: AppButtonVariant.link,
+            child: ShadButton.raw(
               onPressed: () => setState(() => _expanded = !_expanded),
+              variant: ShadButtonVariant.link,
+              child: Flexible(
+                child: Text(
+                  _expanded
+                      ? '그 밖의 사업 지표 접기'
+                      : '그 밖의 사업 지표 ${secondary.length}개 보기',
+                ),
+              ),
             ),
           ),
           if (_expanded)
@@ -557,11 +562,14 @@ class OperatingMetricCard extends StatelessWidget {
       runSpacing: AppSpace.xs,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        Tooltip(
-          message: formatSourceAmount(latest.value, latest.unit),
-          child: Text(
-            formatUnitAmountCompact(latest.value, latest.unit),
-            style: t.numeric(20, weight: FontWeight.w700),
+        ShadTooltip(
+          builder: (_) => Text(formatSourceAmount(latest.value, latest.unit)),
+          child: Semantics(
+            tooltip: formatSourceAmount(latest.value, latest.unit),
+            child: Text(
+              formatUnitAmountCompact(latest.value, latest.unit),
+              style: t.numeric(20, weight: FontWeight.w700),
+            ),
           ),
         ),
         Text(
@@ -630,13 +638,7 @@ class OperatingMetricCard extends StatelessWidget {
             ],
           )
         : Text('연간 값 미확보', style: t.body(12, color: c.textMuted));
-    return Container(
-      padding: const EdgeInsets.all(AppSpace.lg),
-      decoration: BoxDecoration(
-        color: c.surface,
-        border: Border.all(color: c.border),
-        borderRadius: context.shape.borderRadius,
-      ),
+    return DataPanel(
       child: LayoutBuilder(
         builder: (context, box) {
           if (box.maxWidth >= 620) {

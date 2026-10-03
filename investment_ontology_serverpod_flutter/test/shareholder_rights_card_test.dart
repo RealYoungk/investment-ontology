@@ -1,3 +1,5 @@
+import 'support/shad_test_host.dart';
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -36,13 +38,15 @@ void main() {
   });
   testWidgets('안내문 대신 변경 전후·의미와 원문을 표시한다', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
-        theme: buildAppTheme(ledgerBrand),
-        home: Scaffold(
-          body: SingleChildScrollView(
-            child: ShareholderRightsCard(
-              corpCode: '00126380',
-              load: (_) async => fixture,
+      shadTestHost(
+        MaterialApp(
+          theme: buildAppTheme(ledgerBrand),
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: ShareholderRightsCard(
+                corpCode: '00126380',
+                load: (_) async => fixture,
+              ),
             ),
           ),
         ),
@@ -64,13 +68,15 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(
-      MaterialApp(
-        theme: buildAppTheme(ledgerBrand),
-        home: Scaffold(
-          body: SingleChildScrollView(
-            child: ShareholderRightsCard(
-              corpCode: '00126380',
-              load: (_) async => fixture,
+      shadTestHost(
+        MaterialApp(
+          theme: buildAppTheme(ledgerBrand),
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: ShareholderRightsCard(
+                corpCode: '00126380',
+                load: (_) async => fixture,
+              ),
             ),
           ),
         ),
@@ -95,13 +101,15 @@ void main() {
     data['noticeCount'] = 2;
     data['inspectedCount'] = 1;
     await tester.pumpWidget(
-      MaterialApp(
-        theme: buildAppTheme(ledgerBrand),
-        home: Scaffold(
-          body: SingleChildScrollView(
-            child: ShareholderRightsCard(
-              corpCode: '00159218',
-              load: (_) async => jsonEncode(data),
+      shadTestHost(
+        MaterialApp(
+          theme: buildAppTheme(ledgerBrand),
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: ShareholderRightsCard(
+                corpCode: '00159218',
+                load: (_) async => jsonEncode(data),
+              ),
             ),
           ),
         ),

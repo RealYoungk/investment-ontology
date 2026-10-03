@@ -1,3 +1,5 @@
+import 'support/shad_test_host.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
@@ -26,17 +28,19 @@ void main() {
       var requests = 0;
       var state = 'paid';
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: PaymentAdminDialog(
-              user: user,
-              loadPayments: () async => [row(state)],
-              refundPayment: (id, order) async {
-                expect(id, 42);
-                expect(order, 'alfinder-order-fixture');
-                requests++;
-                state = 'refundRequested';
-              },
+        shadTestHost(
+          MaterialApp(
+            home: Scaffold(
+              body: PaymentAdminDialog(
+                user: user,
+                loadPayments: () async => [row(state)],
+                refundPayment: (id, order) async {
+                  expect(id, 42);
+                  expect(order, 'alfinder-order-fixture');
+                  requests++;
+                  state = 'refundRequested';
+                },
+              ),
             ),
           ),
         ),
@@ -66,11 +70,13 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: PaymentAdminDialog(
-            user: user,
-            loadPayments: () async => [row('refunded')],
+      shadTestHost(
+        MaterialApp(
+          home: Scaffold(
+            body: PaymentAdminDialog(
+              user: user,
+              loadPayments: () async => [row('refunded')],
+            ),
           ),
         ),
       ),

@@ -1,3 +1,5 @@
+import '../support/shad_test_host.dart';
+
 import 'package:investment_ontology_serverpod_flutter/features/financials/financial_section.dart';
 
 import 'dart:convert';
@@ -116,15 +118,17 @@ void main() {
         statementAvailabilitySources: [source(true), source(false)],
       );
       await t.pumpWidget(
-        MaterialApp(
-          theme: buildAppTheme(ledgerBrand),
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: FinancialSection(
-                  corpCode: '00442455',
-                  initialData: data,
+        shadTestHost(
+          MaterialApp(
+            theme: buildAppTheme(ledgerBrand),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: FinancialSection(
+                    corpCode: '00442455',
+                    initialData: data,
+                  ),
                 ),
               ),
             ),
@@ -146,16 +150,18 @@ void main() {
       addTearDown(() => t.binding.setSurfaceSize(null));
       final opened = <Uri>[];
       await t.pumpWidget(
-        MaterialApp(
-          theme: buildAppTheme(ledgerBrand),
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: StatementAvailabilityNotice(
-                  corpCode: '00442455',
-                  sources: [source(true), source(false)],
-                  onOpen: opened.add,
+        shadTestHost(
+          MaterialApp(
+            theme: buildAppTheme(ledgerBrand),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: StatementAvailabilityNotice(
+                    corpCode: '00442455',
+                    sources: [source(true), source(false)],
+                    onOpen: opened.add,
+                  ),
                 ),
               ),
             ),

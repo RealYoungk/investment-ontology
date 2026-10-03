@@ -198,16 +198,16 @@ class _ScreenerPageState extends State<ScreenerPage> {
                         ))
                           Semantics(
                             selected: preset.matches(_f),
-                            child: AppButton(
+                            child: ShadButton.raw(
                               key: ValueKey('preset-${preset.id}'),
-                              label: preset.title,
-                              variant: preset.matches(_f)
-                                  ? AppButtonVariant.primary
-                                  : AppButtonVariant.secondary,
                               onPressed: () {
                                 setState(() => _inputRevision++);
                                 _apply(preset.applyTo(_f));
                               },
+                              variant: preset.matches(_f)
+                                  ? ShadButtonVariant.primary
+                                  : ShadButtonVariant.outline,
+                              child: Flexible(child: Text(preset.title)),
                             ),
                           ),
                       ],
@@ -247,12 +247,17 @@ class _ScreenerPageState extends State<ScreenerPage> {
               spacing: AppSpace.md,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                AppButton(
-                  label: _editingConditions ? '조건 접기' : '조건 바꾸기',
-                  icon: _editingConditions ? Icons.expand_less : Icons.tune,
-                  variant: AppButtonVariant.link,
+                ShadButton.raw(
                   onPressed: () => setState(
                     () => _editingConditions = !_editingConditions,
+                  ),
+                  variant: ShadButtonVariant.link,
+                  leading: Icon(
+                    _editingConditions ? Icons.expand_less : Icons.tune,
+                    size: 16,
+                  ),
+                  child: Flexible(
+                    child: Text(_editingConditions ? '조건 접기' : '조건 바꾸기'),
                   ),
                 ),
                 Text(
@@ -262,20 +267,26 @@ class _ScreenerPageState extends State<ScreenerPage> {
                   style: t.body(12, color: c.textSecondary),
                 ),
                 if (ScreenPreset.matching(_f) case final preset?)
-                  Tooltip(
-                    message: preset.description,
-                    triggerMode: TooltipTriggerMode.tap,
-                    child: const Padding(
-                      padding: EdgeInsets.all(12),
-                      child: Icon(Icons.info_outline, size: 20),
+                  ShadTooltip(
+                    builder: (_) => Text(preset.description),
+                    child: Semantics(
+                      tooltip: preset.description,
+                      child: const Padding(
+                        padding: EdgeInsets.all(12),
+                        child: Icon(Icons.info_outline, size: 20),
+                      ),
                     ),
                   ),
-                const Tooltip(
-                  message: '찾기 예시는 미리 정해 둔 조건이에요. 선택하면 기존 숫자 조건을 바꿔요. 원하는 값으로 수정할 수 있어요. 최신 자료의 연결재무제표를 먼저 사용하고, 자료가 부족하면 가능한 경우 별도재무제표로 보완해요. 조건에 필요한 숫자가 없는 기업은 결과에서 빠져요. 지배주주 값이 없으면 전체 값을 써요. 금융업은 회계 구조가 달라 다른 업종과 단순 비교하기 어려워요.',
-                  triggerMode: TooltipTriggerMode.tap,
-                  child: Padding(
-                    padding: EdgeInsets.all(12),
-                    child: Icon(Icons.help_outline, size: 20),
+                ShadTooltip(
+                  builder: (_) => Text(
+                    '찾기 예시는 미리 정해 둔 조건이에요. 선택하면 기존 숫자 조건을 바꿔요. 원하는 값으로 수정할 수 있어요. 최신 자료의 연결재무제표를 먼저 사용하고, 자료가 부족하면 가능한 경우 별도재무제표로 보완해요. 조건에 필요한 숫자가 없는 기업은 결과에서 빠져요. 지배주주 값이 없으면 전체 값을 써요. 금융업은 회계 구조가 달라 다른 업종과 단순 비교하기 어려워요.',
+                  ),
+                  child: Semantics(
+                    tooltip: '찾기 예시는 미리 정해 둔 조건이에요. 선택하면 기존 숫자 조건을 바꿔요. 원하는 값으로 수정할 수 있어요. 최신 자료의 연결재무제표를 먼저 사용하고, 자료가 부족하면 가능한 경우 별도재무제표로 보완해요. 조건에 필요한 숫자가 없는 기업은 결과에서 빠져요. 지배주주 값이 없으면 전체 값을 써요. 금융업은 회계 구조가 달라 다른 업종과 단순 비교하기 어려워요.',
+                    child: Padding(
+                      padding: EdgeInsets.all(12),
+                      child: Icon(Icons.help_outline, size: 20),
+                    ),
                   ),
                 ),
               ],
@@ -290,15 +301,46 @@ class _ScreenerPageState extends State<ScreenerPage> {
                     _f.location,
                   ).queryParameters.entries)
                     if (_conditionLabels[entry.key] case final label?)
-                      InputChip(
-                        label: Text('${label.$1} ${entry.value}${label.$2}'),
-                        onDeleted: () {
-                          final query = Map<String, String>.from(
-                            Uri.parse(_f.location).queryParameters,
-                          )..remove(entry.key);
-                          setState(() => _inputRevision++);
-                          _apply(ScreenFilter.fromQuery(query));
-                        },
+                      ShadBadge.outline(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                '${label.$1} ${entry.value}${label.$2}',
+                              ),
+                            ),
+                            Semantics(
+                              container: true,
+                              label: '${label.$1} 조건 지우기',
+                              button: true,
+                              enabled: true,
+                              onTap: () {
+                                final query = Map<String, String>.from(
+                                  Uri.parse(_f.location).queryParameters,
+                                )..remove(entry.key);
+                                setState(() => _inputRevision++);
+                                _apply(ScreenFilter.fromQuery(query));
+                              },
+                              child: ExcludeSemantics(
+                                child: ShadIconButton.ghost(
+                                  semanticLabel: '${label.$1} 조건 지우기',
+                                  width: 24,
+                                  height: 24,
+                                  padding: EdgeInsets.zero,
+                                  onPressed: () {
+                                    final query = Map<String, String>.from(
+                                      Uri.parse(_f.location).queryParameters,
+                                    )..remove(entry.key);
+                                    setState(() => _inputRevision++);
+                                    _apply(ScreenFilter.fromQuery(query));
+                                  },
+                                  icon: const Icon(Icons.close, size: 14),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                 ],
               ),
@@ -309,11 +351,7 @@ class _ScreenerPageState extends State<ScreenerPage> {
                     ? '조건 · 비우면 제한 없음'
                     : '조건 ${_f.conditionCount}개 적용',
                 trailing: _f.hasCondition
-                    ? AppButton(
-                        label: '조건 지우기',
-                        icon: Icons.close,
-                        variant: AppButtonVariant.link,
-                        tone: c.accent,
+                    ? ShadButton.raw(
                         onPressed: () {
                           setState(() => _inputRevision++);
                           _apply(
@@ -324,6 +362,10 @@ class _ScreenerPageState extends State<ScreenerPage> {
                             ),
                           );
                         },
+                        variant: ShadButtonVariant.link,
+                        foregroundColor: c.accent,
+                        leading: Icon(Icons.close, size: 16),
+                        child: Flexible(child: Text('조건 지우기')),
                       )
                     : null,
               ),
@@ -535,13 +577,7 @@ class _ScreenerPageState extends State<ScreenerPage> {
           ],
         ),
         const SizedBox(height: AppSpace.lg),
-        Container(
-          padding: const EdgeInsets.all(AppSpace.md),
-          decoration: BoxDecoration(
-            color: c.surface,
-            borderRadius: context.shape.borderRadius,
-            border: Border.all(color: c.border),
-          ),
+        DataPanel(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -580,8 +616,10 @@ class _ScreenerPageState extends State<ScreenerPage> {
                     },
                     onChanged: (m) => _apply(_f.copyWith(market: () => m)),
                   ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
+                  Wrap(
+                    spacing: AppSpace.sm,
+                    runSpacing: AppSpace.sm,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       AppSelect<ScreenSort>(
                         label: '정렬',
@@ -607,7 +645,6 @@ class _ScreenerPageState extends State<ScreenerPage> {
                           ScreenSort.volume: '거래량',
                           ScreenSort.volumeRatio: '평소 대비 거래량',
                         },
-                        // 싼 것·높은 수익성을 먼저 보는 쪽이 자연스럽다.
                         onChanged: (s) {
                           final sort = s ?? ScreenSort.marketCap;
                           _apply(
@@ -637,9 +674,7 @@ class _ScreenerPageState extends State<ScreenerPage> {
               else ...[
                 SizedBox(
                   height: 2,
-                  child: _loading
-                      ? const LinearProgressIndicator(minHeight: 2)
-                      : null,
+                  child: _loading ? const ShadProgress(minHeight: 2) : null,
                 ),
                 const SizedBox(height: AppSpace.sm),
                 if (page != null) _ResultTable(page: page, filter: _f),
@@ -648,11 +683,17 @@ class _ScreenerPageState extends State<ScreenerPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      AppButton(
-                        label: '이전 10개',
+                      ShadButton.raw(
                         onPressed: _loading || _offset == 0
                             ? null
                             : () => _load(offset: _offset - _pageSize),
+                        enabled:
+                            (_loading || _offset == 0
+                                ? null
+                                : () => _load(offset: _offset - _pageSize)) !=
+                            null,
+                        variant: ShadButtonVariant.outline,
+                        child: Flexible(child: Text('이전 10개')),
                       ),
                       const SizedBox(width: AppSpace.md),
                       Text(
@@ -660,13 +701,20 @@ class _ScreenerPageState extends State<ScreenerPage> {
                         style: t.body(13),
                       ),
                       const SizedBox(width: AppSpace.md),
-                      AppButton(
-                        label: '다음 10개',
+                      ShadButton.raw(
                         onPressed:
                             _loading ||
                                 _offset + page.items.length >= page.total
                             ? null
                             : () => _load(offset: _offset + _pageSize),
+                        enabled:
+                            (_loading ||
+                                    _offset + page.items.length >= page.total
+                                ? null
+                                : () => _load(offset: _offset + _pageSize)) !=
+                            null,
+                        variant: ShadButtonVariant.outline,
+                        child: Flexible(child: Text('다음 10개')),
                       ),
                     ],
                   ),
@@ -869,12 +917,15 @@ class _ResultTable extends StatelessWidget {
                       ),
                     )
                   else
-                    Tooltip(
-                      message: screenMetricNote(r, col.$1) ?? '',
-                      child: AppDataTable.text(
-                        context,
-                        col.$2(r),
-                        numeric: true,
+                    ShadTooltip(
+                      builder: (_) => Text(screenMetricNote(r, col.$1) ?? ''),
+                      child: Semantics(
+                        tooltip: screenMetricNote(r, col.$1) ?? '',
+                        child: AppDataTable.text(
+                          context,
+                          col.$2(r),
+                          numeric: true,
+                        ),
                       ),
                     ),
               ]),
@@ -1015,7 +1066,24 @@ class _NumberFieldState extends State<_NumberField> {
     final t = context.typo;
     return SizedBox(
       width: 184,
-      child: TextField(
+      child: ShadInput(
+        top: Text(widget.label),
+        bottom: _inputError == null
+            ? null
+            : Semantics(
+                liveRegion: true,
+                child: Text(_inputError!, style: t.body(12, color: c.marketUp)),
+              ),
+        placeholder: const Text('제한 없음'),
+        trailing: widget.help == null
+            ? null
+            : ShadTooltip(
+                builder: (_) => Text(widget.help!),
+                child: Semantics(
+                  tooltip: widget.help!,
+                  child: Icon(Icons.info_outline, size: 15, color: c.textMuted),
+                ),
+              ),
         controller: _controller,
         focusNode: _focus,
         keyboardType: const TextInputType.numberWithOptions(
@@ -1026,21 +1094,6 @@ class _NumberFieldState extends State<_NumberField> {
           FilteringTextInputFormatter.allow(RegExp(r'[\d.\-]')),
         ],
         style: t.numeric(14),
-        decoration: InputDecoration(
-          isDense: true,
-          labelText: widget.label,
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-          labelStyle: t.body(12, color: c.textSecondary),
-          hintText: '제한 없음',
-          errorText: _inputError,
-          suffixIcon: widget.help == null
-              ? null
-              : Tooltip(
-                  message: widget.help!,
-                  triggerMode: TooltipTriggerMode.tap,
-                  child: Icon(Icons.info_outline, size: 15, color: c.textMuted),
-                ),
-        ),
         onChanged: (v) {
           final text = v.trim();
           final number = double.tryParse(text);

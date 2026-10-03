@@ -1,6 +1,10 @@
 @TestOn('browser')
 library;
 
+import 'package:shad/shad.dart';
+
+import 'support/shad_test_host.dart';
+
 // Browser + real authenticated RPC + isolated PostgreSQL; provider responses are mocked.
 import 'dart:convert';
 import 'dart:async';
@@ -80,19 +84,21 @@ void main() {
       Future<void> refresh() => io(monitor.refresh);
       Future<void> show(BillingCheckoutPage page) async {
         await tester.pumpWidget(
-          MaterialApp(
-            theme: buildAppTheme(ledgerBrand),
-            home: Scaffold(
-              body: ValueListenableBuilder<AppViewer?>(
-                valueListenable: monitor.viewer,
-                builder: (_, viewer, _) => AppViewerScope(
-                  viewer: viewer,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        const AdBanner(config: AdConfig(preview: true)),
-                        page,
-                      ],
+          shadTestHost(
+            MaterialApp(
+              theme: buildAppTheme(ledgerBrand),
+              home: Scaffold(
+                body: ValueListenableBuilder<AppViewer?>(
+                  valueListenable: monitor.viewer,
+                  builder: (_, viewer, _) => AppViewerScope(
+                    viewer: viewer,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          const AdBanner(config: AdConfig(preview: true)),
+                          page,
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -101,7 +107,7 @@ void main() {
           ),
         );
         await waitFor(
-          () => find.byType(LinearProgressIndicator).evaluate().isEmpty,
+          () => find.byType(ShadProgress).evaluate().isEmpty,
         );
       }
 
@@ -130,10 +136,10 @@ void main() {
         ),
       );
       expect(find.byKey(const ValueKey('ad-placement-slot')), findsOneWidget);
-      final start = find.widgetWithText(FilledButton, '테스트 카드 등록');
-      expect(tester.widget<FilledButton>(start).onPressed, isNull);
-      await tester.ensureVisible(find.byType(CheckboxListTile));
-      await tester.tap(find.byType(CheckboxListTile));
+      final start = find.widgetWithText(ShadButton, '테스트 카드 등록');
+      expect(tester.widget<ShadButton>(start).onPressed, isNull);
+      await tester.ensureVisible(find.byType(ShadCheckbox));
+      await tester.tap(find.byType(ShadCheckbox));
       await tester.pump();
       await tester.ensureVisible(start);
       await tester.tap(start);
@@ -245,7 +251,7 @@ void main() {
       source.dispose();
       client.close();
       disposed = true;
-      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpWidget(shadTestHost(const SizedBox.shrink()));
       await tester.pump(const Duration(seconds: 21));
     },
     skip: config.isEmpty,

@@ -1,3 +1,5 @@
+import 'support/shad_test_host.dart';
+
 import 'package:flutter/material.dart';
 import 'package:investment_ontology_serverpod_flutter/features/monetization/ad_content_state.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -85,29 +87,31 @@ void main() {
       const AdContentState(loading: false, failed: true, itemCount: 0),
       const AdContentState(loading: false, failed: true, itemCount: 50),
     ]) {
-      await tester.pumpWidget(app(allowLeading: state.allowsAd));
+      await tester.pumpWidget(shadTestHost(app(allowLeading: state.allowsAd)));
       expect(slot, findsNothing);
       expect(find.byType(AdBanner), findsNothing);
     }
     await tester.pumpWidget(
-      app(
-        allowLeading: const AdContentState(
-          loading: false,
-          failed: false,
-          itemCount: 50,
-        ).allowsAd,
+      shadTestHost(
+        app(
+          allowLeading: const AdContentState(
+            loading: false,
+            failed: false,
+            itemCount: 50,
+          ).allowsAd,
+        ),
       ),
     );
     expect(slot, findsOneWidget);
     // Subsequent refresh/error removes the already mounted platform, not just its label.
-    await tester.pumpWidget(app(allowLeading: false));
+    await tester.pumpWidget(shadTestHost(app(allowLeading: false)));
     expect(find.byType(AdBanner), findsNothing);
     expect(slot, findsNothing);
   });
   testWidgets('visible publisher content keeps the same slot through refresh', (
     tester,
   ) async {
-    await tester.pumpWidget(app());
+    await tester.pumpWidget(shadTestHost(app()));
     final before = tester.element(find.byType(AdBanner));
     const refresh = AdContentState(
       loading: true,
@@ -115,10 +119,10 @@ void main() {
       itemCount: 50,
       contentRemainsVisible: true,
     );
-    await tester.pumpWidget(app(allowLeading: refresh.allowsAd));
+    await tester.pumpWidget(shadTestHost(app(allowLeading: refresh.allowsAd)));
     expect(tester.element(find.byType(AdBanner)), same(before));
     expect(slot, findsOneWidget);
-    await tester.pumpWidget(app());
+    await tester.pumpWidget(shadTestHost(app()));
     expect(tester.element(find.byType(AdBanner)), same(before));
     const failed = AdContentState(
       loading: false,
@@ -126,7 +130,7 @@ void main() {
       itemCount: 50,
       contentRemainsVisible: true,
     );
-    await tester.pumpWidget(app(allowLeading: failed.allowsAd));
+    await tester.pumpWidget(shadTestHost(app(allowLeading: failed.allowsAd)));
     expect(find.byType(AdBanner), findsNothing);
   });
   test('requires valid IDs and opt-in; preview never implies live ads', () {
@@ -181,15 +185,19 @@ void main() {
   testWidgets('restored account requests no ads before entitlement resolves', (
     tester,
   ) async {
-    await tester.pumpWidget(app(viewer: AppViewer.fromScopes('member', {})));
+    await tester.pumpWidget(
+      shadTestHost(app(viewer: AppViewer.fromScopes('member', {}))),
+    );
     expect(slot, findsNothing);
     await tester.pumpWidget(
-      app(viewer: const AppViewer(userId: 'member', isAdmin: false)),
+      shadTestHost(
+        app(viewer: const AppViewer(userId: 'member', isAdmin: false)),
+      ),
     );
     expect(slot, findsOneWidget);
   });
   testWidgets('disabled config reserves no ad space', (tester) async {
-    await tester.pumpWidget(app(config: const AdConfig()));
+    await tester.pumpWidget(shadTestHost(app(config: const AdConfig())));
     expect(slot, findsNothing);
   });
   for (final width in [320.0, 390.0, 768.0, 1440.0]) {
@@ -200,7 +208,7 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
-      await tester.pumpWidget(app(scale: 2));
+      await tester.pumpWidget(shadTestHost(app(scale: 2)));
       expect(slot, findsOneWidget);
       expect(tester.takeException(), isNull);
       final before = tester.getTopLeft(slot).dy;
@@ -216,20 +224,24 @@ void main() {
   testWidgets(
     'paid switch removes slot and membership copy; logout restores free',
     (tester) async {
-      await tester.pumpWidget(app());
+      await tester.pumpWidget(shadTestHost(app()));
       expect(slot, findsOneWidget);
       await tester.pumpWidget(
-        app(viewer: AppViewer.fromScopes('paid', {adFreeScopeName})),
+        shadTestHost(
+          app(viewer: AppViewer.fromScopes('paid', {adFreeScopeName})),
+        ),
       );
       expect(slot, findsNothing);
       expect(find.text('멤버십 이용 중'), findsOneWidget);
       await tester.pumpWidget(
-        app(viewer: const AppViewer(userId: 'free', isAdmin: false)),
+        shadTestHost(
+          app(viewer: const AppViewer(userId: 'free', isAdmin: false)),
+        ),
       );
       expect(slot, findsOneWidget);
       expect(find.text('무료 플랜 · 관심기업 3개'), findsOneWidget);
       expect(find.text('아직 결제할 수 없으며, 요금이 청구되지 않습니다.'), findsOneWidget);
-      await tester.pumpWidget(app());
+      await tester.pumpWidget(shadTestHost(app()));
       expect(slot, findsOneWidget);
     },
   );

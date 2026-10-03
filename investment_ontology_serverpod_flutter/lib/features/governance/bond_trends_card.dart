@@ -153,7 +153,11 @@ class _BondTrendsCardState extends State<BondTrendsCard> {
             Column(
               children: [
                 const Text('전환사채 추이를 불러오지 못했습니다.'),
-                AppButton(label: '다시 불러오기', onPressed: _load),
+                ShadButton.raw(
+                  onPressed: _load,
+                  variant: ShadButtonVariant.outline,
+                  child: Text('다시 불러오기'),
+                ),
               ],
             )
           else if (_data == null)
@@ -200,25 +204,20 @@ class _BondTrendsCardState extends State<BondTrendsCard> {
             ),
             if (choices.isNotEmpty) ...[
               const SizedBox(height: AppSpace.md),
-              DropdownButton<String>(
+              AppSelect<String>(
                 key: const ValueKey('bond-series-selector'),
-                value: selected,
-                isExpanded: true,
-                items: [
-                  const DropdownMenuItem(
-                    value: 'all',
-                    child: Text('전환사채 전체 잔액'),
-                  ),
+                options: Map.fromEntries([
+                  MapEntry('all', '전환사채 전체 잔액'),
                   for (final e in choices.entries)
-                    DropdownMenuItem(
-                      value: e.key,
-                      child: Text(
-                        '${e.value['series']} · 발행 ${e.value['issueDate'] ?? '일자 미확보'} · ${e.value['stockKind']}',
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                    MapEntry(
+                      e.key,
+                      '${e.value['series']} · 발행 ${e.value['issueDate'] ?? '일자 미확보'} · ${e.value['stockKind']}',
                     ),
-                ],
+                ]),
+                value: selected,
                 onChanged: (v) => setState(() => _selected = v ?? 'all'),
+                placeholder: '선택',
+                allowClear: false,
               ),
             ],
             const SizedBox(height: AppSpace.md),
@@ -282,21 +281,32 @@ class _BondTrendsCardState extends State<BondTrendsCard> {
             if (selectedChanges.length > _limit)
               Align(
                 alignment: Alignment.centerLeft,
-                child: AppButton(
-                  label: '이전 변화 더 보기 (${selectedChanges.length - _limit}건)',
-                  variant: AppButtonVariant.link,
+                child: ShadButton.raw(
                   onPressed: () => setState(() => _limit += 12),
+                  variant: ShadButtonVariant.link,
+                  child: Text(
+                    '이전 변화 더 보기 (${selectedChanges.length - _limit}건)',
+                  ),
                 ),
               ),
             const SizedBox(height: AppSpace.md),
             Material(
               color: c.surface,
-              child: ExpansionTile(
-                title: const Text('보고서별 수량과 원문 근거'),
-                tilePadding: EdgeInsets.zero,
+              child: ShadAccordion<int>(
+                maintainState: false,
                 children: [
-                  for (final p in points.reversed)
-                    _source(context, p, selected),
+                  ShadAccordionItem<int>(
+                    value: 0,
+                    title: const Text('보고서별 수량과 원문 근거'),
+                    padding: EdgeInsets.zero,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        for (final p in points.reversed)
+                          _source(context, p, selected),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -310,9 +320,11 @@ class _BondTrendsCardState extends State<BondTrendsCard> {
             const SizedBox(height: AppSpace.md),
             Align(
               alignment: Alignment.centerLeft,
-              child: AppButton(
-                label: _collecting ? '원문 수집 중…' : '전환사채 추이 원문 수집',
+              child: ShadButton.raw(
                 onPressed: _collecting ? null : _collect,
+                enabled: (_collecting ? null : _collect) != null,
+                variant: ShadButtonVariant.outline,
+                child: Text(_collecting ? '원문 수집 중…' : '전환사채 추이 원문 수집'),
               ),
             ),
           ],
@@ -406,10 +418,10 @@ class _BondTrendsCardState extends State<BondTrendsCard> {
               style: context.typo.body(11, color: context.colors.textSecondary),
             ),
           ],
-          AppButton(
-            label: 'DART 원문 · ${p['receipt']}',
-            variant: AppButtonVariant.link,
+          ShadButton.raw(
             onPressed: () => launchUrl(Uri.parse('${p['sourceUrl']}')),
+            variant: ShadButtonVariant.link,
+            child: Text('DART 원문 · ${p['receipt']}'),
           ),
         ],
       ),

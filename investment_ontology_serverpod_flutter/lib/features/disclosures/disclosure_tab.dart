@@ -145,7 +145,7 @@ class _DisclosureTabState extends State<DisclosureTab> {
     if (_error != null) {
       return ReadFailureNotice(subject: '표', retry: _load);
     }
-    if (table == null) return const LinearProgressIndicator(minHeight: 2);
+    if (table == null) return const ShadProgress(minHeight: 2);
     return AnimatedOpacity(
       duration: AppMotion.fast,
       opacity: _loading ? 0.5 : 1,
@@ -229,10 +229,10 @@ class _DisclosureTabState extends State<DisclosureTab> {
                   ),
                 ),
                 if (s.url != null)
-                  AppButton(
-                    label: 'DART 공시 →',
-                    variant: AppButtonVariant.link,
+                  ShadButton.raw(
                     onPressed: () => launchUrl(Uri.parse(s.url!)),
+                    variant: ShadButtonVariant.link,
+                    child: Flexible(child: Text('DART 공시 →')),
                   ),
               ],
             ),

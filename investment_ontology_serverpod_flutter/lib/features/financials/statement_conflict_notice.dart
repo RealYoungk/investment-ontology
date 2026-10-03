@@ -80,48 +80,63 @@ class StatementConflictNotice extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (final s in valid) ...[
-          AppNotice(
-            message:
-                '${evidence(s, corpCode)!['year']}년 ${evidence(s, corpCode)!['consolidated'] == true ? '연결' : '별도'} 원문 수치·기간 표기에 충돌이 있어 수집 실패로 남아 있습니다. 숫자를 임의로 고치거나 비교기간 값·0으로 대체하지 않습니다.',
-          ),
-          ExpansionTile(
-            title: Text(
-              '원문 충돌 근거 · 출처 #${s.id}',
-              style: context.typo.body(12.5),
+          ShadAlert(
+            description: Text(
+              '${evidence(s, corpCode)!['year']}년 ${evidence(s, corpCode)!['consolidated'] == true ? '연결' : '별도'} 원문 수치·기간 표기에 충돌이 있어 수집 실패로 남아 있습니다. 숫자를 임의로 고치거나 비교기간 값·0으로 대체하지 않습니다.',
             ),
-            expandedCrossAxisAlignment: CrossAxisAlignment.start,
-            childrenPadding: const EdgeInsets.all(AppSpace.md),
+          ),
+          ShadAccordion<int>(
+            maintainState: false,
             children: [
-              Text(
-                evidence(s, corpCode)!['reason'] as String,
-                style: context.typo.body(12.5),
-              ),
-              Wrap(
-                spacing: AppSpace.sm,
-                children: [
-                  AppButton(
-                    label: '공식 재무제표 원문',
-                    variant: AppButtonVariant.link,
-                    onPressed: () => open(Uri.parse(s.url!)),
-                  ),
-                  AppButton(
-                    label: '공식 보고기간 표지',
-                    variant: AppButtonVariant.link,
-                    onPressed: () => open(
-                      Uri.parse(
-                        evidence(s, corpCode)!['coverSource'] as String,
+              ShadAccordionItem<int>(
+                value: 0,
+                title: Text(
+                  '원문 충돌 근거 · 출처 #${s.id}',
+                  style: context.typo.body(12.5),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpace.md),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        evidence(s, corpCode)!['reason'] as String,
+                        style: context.typo.body(12.5),
                       ),
-                    ),
+                      Wrap(
+                        spacing: AppSpace.sm,
+                        children: [
+                          ShadButton.raw(
+                            onPressed: () => open(Uri.parse(s.url!)),
+                            variant: ShadButtonVariant.link,
+                            child: Text('공식 재무제표 원문'),
+                          ),
+                          ShadButton.raw(
+                            onPressed: () => open(
+                              Uri.parse(
+                                evidence(s, corpCode)!['coverSource'] as String,
+                              ),
+                            ),
+                            variant: ShadButtonVariant.link,
+                            child: Text('공식 보고기간 표지'),
+                          ),
+                        ],
+                      ),
+                      Text(
+                        '해당 원문의 확인된 충돌 기록입니다. 전체 재무제표·주석 수집 완료 또는 자료 없음 확정을 뜻하지 않습니다.',
+                        style: context.typo.body(
+                          12,
+                          color: context.colors.textMuted,
+                        ),
+                      ),
+                      SelectableText(
+                        const JsonEncoder.withIndent('  ')
+                            .convert(jsonDecode(s.title)),
+                        style: context.typo.body(12),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              Text(
-                '해당 원문의 확인된 충돌 기록입니다. 전체 재무제표·주석 수집 완료 또는 자료 없음 확정을 뜻하지 않습니다.',
-                style: context.typo.body(12, color: context.colors.textMuted),
-              ),
-              SelectableText(
-                const JsonEncoder.withIndent('  ').convert(jsonDecode(s.title)),
-                style: context.typo.body(12),
+                ),
               ),
             ],
           ),

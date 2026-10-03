@@ -52,7 +52,23 @@ class CompanyBasicInfo extends StatelessWidget {
           const SizedBox(height: AppSpace.md),
           LayoutBuilder(
             builder: (context, constraints) {
-              final compact = constraints.maxWidth < 480;
+              final labels = [
+                if (company.homepageUrl?.trim().isNotEmpty == true) '홈페이지',
+                if (company.phone?.trim().isNotEmpty == true) '전화',
+                if (company.address?.trim().isNotEmpty == true) '본사 위치',
+                expanded ? '기본정보 접기' : '기본정보 더보기',
+              ];
+              var requiredWidth = AppSpace.sm * (labels.length - 1);
+              for (final label in labels) {
+                final painter = TextPainter(
+                  text: TextSpan(text: label, style: context.typo.body(12)),
+                  textDirection: Directionality.of(context),
+                  textScaler: MediaQuery.textScalerOf(context),
+                )..layout();
+                requiredWidth += painter.width + 50;
+                painter.dispose();
+              }
+              final compact = constraints.maxWidth < requiredWidth;
               return Wrap(
                 spacing: AppSpace.sm,
                 runSpacing: AppSpace.xs,
@@ -92,26 +108,37 @@ class CompanyBasicInfo extends StatelessWidget {
                       ),
                     ),
                   if (compact)
-                    IconButton(
-                      tooltip: expanded ? '기본정보 접기' : '기본정보 더보기',
-                      onPressed: () => setState(() => expanded = !expanded),
-                      icon: Icon(
-                        expanded ? Icons.expand_less : Icons.info_outline,
+                    Semantics(
+                      container: true,
+                      label: expanded ? '기본정보 접기' : '기본정보 더보기',
+                      button: true,
+                      enabled: true,
+                      onTap: () => setState(() => expanded = !expanded),
+                      child: ExcludeSemantics(
+                        child: ShadIconButton.ghost(
+                          onPressed: () => setState(() => expanded = !expanded),
+                          icon: Icon(
+                            expanded ? Icons.expand_less : Icons.info_outline,
+                          ),
+                          semanticLabel: expanded ? '기본정보 접기' : '기본정보 더보기',
+                          foregroundColor: context.colors.textSecondary,
+                        ),
                       ),
-                      color: context.colors.textSecondary,
                     )
                   else
-                    TextButton.icon(
+                    ShadButton.ghost(
                       onPressed: () => setState(() => expanded = !expanded),
-                      icon: Icon(
+                      leading: Icon(
                         expanded ? Icons.expand_less : Icons.info_outline,
                         size: 18,
                       ),
-                      label: Text(
-                        expanded ? '기본정보 접기' : '기본정보 더보기',
-                        style: context.typo.body(
-                          12,
-                          color: context.colors.textSecondary,
+                      child: Flexible(
+                        child: Text(
+                          expanded ? '기본정보 접기' : '기본정보 더보기',
+                          style: context.typo.body(
+                            12,
+                            color: context.colors.textSecondary,
+                          ),
                         ),
                       ),
                     ),
@@ -156,12 +183,15 @@ class CompanyBasicInfo extends StatelessWidget {
               runSpacing: AppSpace.xs,
               children: [
                 if (company.jurirNo?.trim().isNotEmpty == true)
-                  Tooltip(
-                    message: '인터넷등기소에서 법인등록번호로 검색해 주세요.',
-                    child: _BasicField(
-                      label: '법인등록번호 · 인터넷등기소',
-                      value: company.jurirNo!,
-                      url: 'https://www.iros.go.kr/',
+                  ShadTooltip(
+                    builder: (_) => Text('인터넷등기소에서 법인등록번호로 검색해 주세요.'),
+                    child: Semantics(
+                      tooltip: '인터넷등기소에서 법인등록번호로 검색해 주세요.',
+                      child: _BasicField(
+                        label: '법인등록번호 · 인터넷등기소',
+                        value: company.jurirNo!,
+                        url: 'https://www.iros.go.kr/',
+                      ),
                     ),
                   ),
                 if (company.bizrNo?.trim().isNotEmpty == true)
@@ -173,28 +203,45 @@ class CompanyBasicInfo extends StatelessWidget {
                     ),
                   ),
                 if (detail.industryPath.isNotEmpty)
-                  Tooltip(
-                    message: detail.industryPath
-                        .map((item) => item.name)
-                        .join(' › '),
-                    child: Text(
-                      'KSIC ${detail.industryPath.last.code}',
-                      style: context.typo.body(
-                        11,
-                        color: context.colors.textMuted,
+                  ShadTooltip(
+                    builder: (_) => Text(
+                      detail.industryPath.map((item) => item.name).join(' › '),
+                    ),
+                    child: Semantics(
+                      tooltip: detail.industryPath
+                          .map((item) => item.name)
+                          .join(' › '),
+                      child: Text(
+                        'KSIC ${detail.industryPath.last.code}',
+                        style: context.typo.body(
+                          11,
+                          color: context.colors.textMuted,
+                        ),
                       ),
                     ),
                   ),
               ],
             ),
             if (detail.changes.isNotEmpty)
-              ExpansionTile(
-                tilePadding: EdgeInsets.zero,
-                title: Text(
-                  '기본정보 변경 기록',
-                  style: context.typo.body(11, color: context.colors.textMuted),
-                ),
-                children: [_ChangeHistory(changes: detail.changes)],
+              ShadAccordion<int>(
+                maintainState: false,
+                children: [
+                  ShadAccordionItem<int>(
+                    value: 0,
+                    title: Text(
+                      '기본정보 변경 기록',
+                      style: context.typo.body(
+                        11,
+                        color: context.colors.textMuted,
+                      ),
+                    ),
+                    padding: EdgeInsets.zero,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [_ChangeHistory(changes: detail.changes)],
+                    ),
+                  ),
+                ],
               ),
           ],
         ],
@@ -224,22 +271,36 @@ class _QuickLink extends StatelessWidget {
     return Semantics(
       link: true,
       child: compact
-          ? IconButton(
-              tooltip: '$label · $hint',
-              onPressed: onPressed,
-              icon: Icon(icon),
-              color: context.colors.textSecondary,
+          ? Semantics(
+              container: true,
+              label: '$label · $hint',
+              button: true,
+              enabled: true,
+              onTap: onPressed,
+              child: ExcludeSemantics(
+                child: ShadIconButton.ghost(
+                  onPressed: onPressed,
+                  icon: Icon(icon),
+                  semanticLabel: '$label · $hint',
+                  foregroundColor: context.colors.textSecondary,
+                ),
+              ),
             )
-          : Tooltip(
-              message: hint,
-              child: TextButton.icon(
-                onPressed: onPressed,
-                icon: Icon(icon, size: 18),
-                label: Text(
-                  label,
-                  style: context.typo.body(
-                    12,
-                    color: context.colors.textSecondary,
+          : ShadTooltip(
+              builder: (_) => Text(hint),
+              child: Semantics(
+                tooltip: hint,
+                child: ShadButton.ghost(
+                  onPressed: onPressed,
+                  leading: Icon(icon, size: 18),
+                  child: Flexible(
+                    child: Text(
+                      label,
+                      style: context.typo.body(
+                        12,
+                        color: context.colors.textSecondary,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -283,8 +344,11 @@ class _BasicField extends StatelessWidget {
         else
           Semantics(
             link: true,
-            child: InkWell(
-              onTap: () => launchUrl(
+            child: ShadButton.ghost(
+              height: 0,
+              width: double.infinity,
+              padding: EdgeInsets.zero,
+              onPressed: () => launchUrl(
                 Uri.parse(
                   url!.trim().startsWith('http')
                       ? url!.trim()
@@ -292,9 +356,11 @@ class _BasicField extends StatelessWidget {
                 ),
                 mode: LaunchMode.externalApplication,
               ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: AppSpace.xs),
-                child: text,
+              child: Flexible(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: AppSpace.xs),
+                  child: text,
+                ),
               ),
             ),
           ),

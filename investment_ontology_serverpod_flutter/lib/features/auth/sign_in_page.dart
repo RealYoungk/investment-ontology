@@ -49,9 +49,13 @@ class _SignInPageState extends State<SignInPage> {
 
   void _showError(Object error) {
     if (!mounted) return;
-    ScaffoldMessenger.maybeOf(context)
-      ?..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(koreanAuthErrorMessage(error))));
+    ShadToaster.maybeOf(context)
+      ?..hide()
+      ..show(
+        ShadToast(
+          description: Text(koreanAuthErrorMessage(error)),
+        ),
+      );
   }
 
   @override
@@ -63,7 +67,30 @@ class _SignInPageState extends State<SignInPage> {
       passwordRequirementTexts: koreanPasswordRequirementTexts,
       child: Scaffold(
         appBar: widget.resetPassword
-            ? AppBar(title: const Text('비밀번호 재설정'))
+            ? PreferredSize(
+                preferredSize: const Size.fromHeight(56),
+                child: SafeArea(
+                  child: Row(
+                    children: [
+                      Semantics(
+                        container: true,
+                        label: '이전 화면',
+                        button: true,
+                        enabled: true,
+                        onTap: () => Navigator.of(context).maybePop(),
+                        child: ExcludeSemantics(
+                          child: ShadIconButton.ghost(
+                            semanticLabel: '이전 화면',
+                            onPressed: () => Navigator.of(context).maybePop(),
+                            icon: const Icon(Icons.arrow_back),
+                          ),
+                        ),
+                      ),
+                      const Text('비밀번호 재설정'),
+                    ],
+                  ),
+                ),
+              )
             : null,
         backgroundColor: c.background,
         body: Center(
@@ -84,18 +111,7 @@ class _SignInPageState extends State<SignInPage> {
                     style: t.display(22).copyWith(color: c.accent),
                   ),
                   const SizedBox(height: AppSpace.lg),
-                  Container(
-                    padding: EdgeInsets.all(
-                      MediaQuery.sizeOf(context).width < 480 ? 24 : 32,
-                    ),
-                    decoration: BoxDecoration(
-                      color: c.surface,
-                      borderRadius: context.shape.borderRadius,
-                      border: Border.all(
-                        color: c.border,
-                        width: context.shape.strokeWidth,
-                      ),
-                    ),
+                  DataPanel(
                     child: ListenableBuilder(
                       listenable: _controller,
                       builder: (context, _) => Column(
@@ -119,11 +135,13 @@ class _SignInPageState extends State<SignInPage> {
                     const SizedBox(height: AppSpace.md),
                     Align(
                       alignment: Alignment.center,
-                      child: TextButton(
+                      child: ShadButton.ghost(
                         onPressed: () => context.go('/home'),
-                        child: Text(
-                          '둘러보기',
-                          style: t.body(13, color: c.textSecondary),
+                        child: Flexible(
+                          child: Text(
+                            '둘러보기',
+                            style: t.body(13, color: c.textSecondary),
+                          ),
                         ),
                       ),
                     ),
@@ -199,7 +217,7 @@ class _Notices extends StatelessWidget {
       children: [
         for (final notice in notices) ...[
           const SizedBox(height: AppSpace.md),
-          AppNotice(message: notice),
+          ShadAlert(description: Text(notice)),
         ],
       ],
     );

@@ -180,35 +180,39 @@ class _ResearchSectionState extends State<ResearchSection> {
                                   : context.colors.border,
                             ),
                           ),
-                          child: InkWell(
-                            borderRadius: context.shape.borderRadius,
-                            onTap: () => setState(() {
+                          child: ShadButton.ghost(
+                            height: 0,
+                            width: double.infinity,
+                            padding: EdgeInsets.zero,
+                            onPressed: () => setState(() {
                               _kind = kind;
                               _limit = 5;
                               _series = null;
                               _error = null;
                             }),
-                            child: Padding(
-                              padding: const EdgeInsets.all(AppSpace.md),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    researchLabels[kind]!,
-                                    style: context.typo.body(
-                                      14,
-                                      weight: FontWeight.w600,
+                            child: Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.all(AppSpace.md),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      researchLabels[kind]!,
+                                      style: context.typo.body(
+                                        14,
+                                        weight: FontWeight.w600,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: AppSpace.xs),
-                                  Text(
-                                    researchOverview(kind, _feeds[kind]),
-                                    style: context.typo.body(
-                                      12,
-                                      color: context.colors.textSecondary,
+                                    const SizedBox(height: AppSpace.xs),
+                                    Text(
+                                      researchOverview(kind, _feeds[kind]),
+                                      style: context.typo.body(
+                                        12,
+                                        color: context.colors.textSecondary,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -220,7 +224,7 @@ class _ResearchSectionState extends State<ResearchSection> {
             ),
           const SizedBox(height: AppSpace.md),
           if (feed == null)
-            const LinearProgressIndicator(minHeight: 2)
+            const ShadProgress(minHeight: 2)
           else if (!ready)
             Row(
               children: [
@@ -238,7 +242,10 @@ class _ResearchSectionState extends State<ResearchSection> {
                   'retryLater',
                   'collecting',
                 }.contains(feed['state']))
-                  TextButton(onPressed: _load, child: const Text('다시 시도')),
+                  ShadButton.ghost(
+                    onPressed: _load,
+                    child: Flexible(child: const Text('다시 시도')),
+                  ),
               ],
             )
           else if (rows.isEmpty)
@@ -285,72 +292,96 @@ class _ResearchSectionState extends State<ResearchSection> {
                 ),
               ),
               if (rows.length > _limit)
-                TextButton(
+                ShadButton.ghost(
                   onPressed: () => setState(() => _limit += 20),
-                  child: Text('이전 보고 더 보기 · ${rows.length - _limit}건'),
+                  child: Flexible(
+                    child: Text('이전 보고 더 보기 · ${rows.length - _limit}건'),
+                  ),
                 ),
             ],
           ],
           if (widget.showManagement &&
               (ready || hasUnavailable || context.isAdmin))
-            ExpansionTile(
-              tilePadding: EdgeInsets.zero,
-              title: Text(
-                context.isAdmin ? '출처 · 관리' : '출처 · 자료 상태',
-                style: context.typo.body(12, color: context.colors.textMuted),
-              ),
+            ShadAccordion<int>(
+              maintainState: false,
               children: [
-                if (ready)
-                  Text(
-                    '${feed?['provider']} · 수집 ${feed?['collectedAt'].toString().split('T').first}',
+                ShadAccordionItem<int>(
+                  value: 0,
+                  title: Text(
+                    context.isAdmin ? '출처 · 관리' : '출처 · 자료 상태',
                     style: context.typo.body(
-                      11,
+                      12,
                       color: context.colors.textMuted,
                     ),
                   ),
-                if (hasUnavailable)
-                  TextButton(
-                    onPressed: () => setState(() {
-                      _showUnavailable = !_showUnavailable;
-                      if (!_showUnavailable && !available(_kind)) {
-                        _kind = widget.kinds.firstWhere(
-                          available,
-                          orElse: () => widget.kinds.first,
-                        );
-                      }
-                    }),
-                    child: Text(_showUnavailable ? '미연결 항목 접기' : '미연결 항목 보기'),
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (ready)
+                        Text(
+                          '${feed?['provider']} · 수집 ${feed?['collectedAt'].toString().split('T').first}',
+                          style: context.typo.body(
+                            11,
+                            color: context.colors.textMuted,
+                          ),
+                        ),
+                      if (hasUnavailable)
+                        ShadButton.ghost(
+                          onPressed: () => setState(() {
+                            _showUnavailable = !_showUnavailable;
+                            if (!_showUnavailable && !available(_kind)) {
+                              _kind = widget.kinds.firstWhere(
+                                available,
+                                orElse: () => widget.kinds.first,
+                              );
+                            }
+                          }),
+                          child: Flexible(
+                            child: Text(
+                              _showUnavailable ? '미연결 항목 접기' : '미연결 항목 보기',
+                            ),
+                          ),
+                        ),
+                      if (context.isAdmin &&
+                          {
+                            'insiders',
+                            'majorHoldings',
+                            'capital',
+                            'treasury',
+                            'flows',
+                            'shorts',
+                          }.contains(_kind))
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: ShadButton.ghost(
+                            onPressed: _collecting != null ? null : _collect,
+                            enabled:
+                                (_collecting != null ? null : _collect) != null,
+                            child: Flexible(
+                              child: Text(
+                                _collecting == null ? '자료 수집·갱신' : '수집 중…',
+                              ),
+                            ),
+                          ),
+                        ),
+                      if (context.isAdmin &&
+                          {
+                            'consensus',
+                            'flows',
+                            'shorts',
+                            'program',
+                            'credit',
+                            'lending',
+                          }.contains(_kind))
+                        ResearchImport(
+                          corpCode: widget.corpCode,
+                          kind: _kind,
+                          onSaved: _load,
+                        ),
+                    ],
                   ),
-                if (context.isAdmin &&
-                    {
-                      'insiders',
-                      'majorHoldings',
-                      'capital',
-                      'treasury',
-                      'flows',
-                      'shorts',
-                    }.contains(_kind))
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: _collecting != null ? null : _collect,
-                      child: Text(_collecting == null ? '자료 수집·갱신' : '수집 중…'),
-                    ),
-                  ),
-                if (context.isAdmin &&
-                    {
-                      'consensus',
-                      'flows',
-                      'shorts',
-                      'program',
-                      'credit',
-                      'lending',
-                    }.contains(_kind))
-                  ResearchImport(
-                    corpCode: widget.corpCode,
-                    kind: _kind,
-                    onSaved: _load,
-                  ),
+                ),
               ],
             ),
           if (_error != null)
@@ -408,17 +439,14 @@ class _ResearchSectionState extends State<ResearchSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        DropdownButton<String>(
-          isExpanded: true,
+        AppSelect<String>(
+          options: Map.fromEntries([
+            for (final k in keys) MapEntry(k, _seriesLabel(k)),
+          ]),
           value: selected,
-          items: [
-            for (final k in keys)
-              DropdownMenuItem(
-                value: k,
-                child: Text(_seriesLabel(k), overflow: TextOverflow.ellipsis),
-              ),
-          ],
           onChanged: (v) => setState(() => _series = v),
+          placeholder: '선택',
+          allowClear: false,
         ),
         ChartLegend(series: series),
         AppColumnChart(
@@ -494,47 +522,66 @@ class ResearchEventCard extends StatelessWidget {
         : '${change >= 0 ? '+' : ''}${formatCount(change.round())}주';
     return Material(
       color: context.colors.surface,
-      child: ExpansionTile(
+      child: ShadAccordion<int>(
         key: ValueKey('holding-${row['receipt']}'),
-        tilePadding: const EdgeInsets.symmetric(
-          horizontal: AppSpace.md,
-          vertical: AppSpace.sm,
-        ),
-        childrenPadding: const EdgeInsets.all(AppSpace.md),
-        title: Wrap(
-          spacing: AppSpace.sm,
-          children: [
-            Text(
-              '${row['date']}',
-              style: context.typo.body(12, color: context.colors.textMuted),
-            ),
-            Text(
-              '보고자 ${row['reporter']}',
-              style: context.typo.body(14, weight: FontWeight.w600),
-            ),
-          ],
-        ),
-        subtitle: Text(delta, style: context.typo.body(13)),
+        maintainState: false,
         children: [
-          if (row['api'] == 'majorstock')
-            Text(
-              '보고서의 합산 보유량 · 특별관계자 포함 여부는 원문 확인',
-              style: context.typo.body(12),
+          ShadAccordionItem<int>(
+            value: 0,
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Wrap(
+                  spacing: AppSpace.sm,
+                  children: [
+                    Text(
+                      '${row['date']}',
+                      style: context.typo.body(
+                        12,
+                        color: context.colors.textMuted,
+                      ),
+                    ),
+                    Text(
+                      '보고자 ${row['reporter']}',
+                      style: context.typo.body(14, weight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+                Text(delta, style: context.typo.body(13)),
+              ],
             ),
-          Text(
-            '${holding != null && change != null && holding - change >= 0 ? '${formatCount((holding - change).round())} → ' : ''}${count('holdings')}${n('ratio') == null ? '' : ' · ${n('ratio')}%'}',
-            style: context.typo.body(13),
-          ),
-          if (row['reason'] != null)
-            Text('${row['reason']}', style: context.typo.body(13)),
-          TextButton.icon(
-            onPressed: () => launchUrl(
-              Uri.parse(
-                'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${row['receipt']}',
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpace.md,
+              vertical: AppSpace.sm,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpace.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (row['api'] == 'majorstock')
+                    Text(
+                      '보고서의 합산 보유량 · 특별관계자 포함 여부는 원문 확인',
+                      style: context.typo.body(12),
+                    ),
+                  Text(
+                    '${holding != null && change != null && holding - change >= 0 ? '${formatCount((holding - change).round())} → ' : ''}${count('holdings')}${n('ratio') == null ? '' : ' · ${n('ratio')}%'}',
+                    style: context.typo.body(13),
+                  ),
+                  if (row['reason'] != null)
+                    Text('${row['reason']}', style: context.typo.body(13)),
+                  ShadButton.ghost(
+                    onPressed: () => launchUrl(
+                      Uri.parse(
+                        'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${row['receipt']}',
+                      ),
+                    ),
+                    leading: const Icon(Icons.open_in_new, size: 14),
+                    child: Flexible(child: const Text('공시 원문')),
+                  ),
+                ],
               ),
             ),
-            icon: const Icon(Icons.open_in_new, size: 14),
-            label: const Text('공시 원문'),
           ),
         ],
       ),
@@ -586,123 +633,151 @@ class _DecisionCard extends StatelessWidget {
         : '규모와 목적 보기';
     return Material(
       color: context.colors.surface,
-      child: ExpansionTile(
+      child: ShadAccordion<int>(
         key: ValueKey('conditions-${row['receipt']}'),
-        tilePadding: const EdgeInsets.symmetric(
-          horizontal: AppSpace.md,
-          vertical: AppSpace.sm,
-        ),
-        childrenPadding: const EdgeInsets.all(AppSpace.md),
-        title: LayoutBuilder(
-          builder: (context, constraints) {
-            final event = Text(
-              '${row['label'] ?? researchPlainTitle(row)}',
-              style: context.typo.body(15, weight: FontWeight.w600),
-            );
-            final date = Text(
-              '${row['date']}',
-              style: context.typo.body(12, color: context.colors.textMuted),
-            );
-            return constraints.maxWidth < 420
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [date, event],
-                  )
-                : Row(
-                    children: [
-                      SizedBox(width: 104, child: date),
-                      Expanded(child: event),
-                    ],
-                  );
-          },
-        ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: AppSpace.xs),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (row['label'] != null &&
-                  researchPlainTitle(row) != row['label'])
-                Text(
-                  researchPlainTitle(row),
-                  style: context.typo.body(
-                    12,
-                    color: context.colors.textSecondary,
-                  ),
-                ),
-              Text(
-                summary.isEmpty ? purpose : summary,
-                style: context.typo.body(
-                  12,
-                  color: context.colors.textSecondary,
-                ),
-              ),
-            ],
-          ),
-        ),
+        maintainState: false,
         children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Column(
+          ShadAccordionItem<int>(
+            value: 0,
+            title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (purpose.isNotEmpty) line('목적 · $purpose'),
-                if (n('amount') != null)
-                  line('금액 · ${formatKrwLong(n('amount')!)}'),
-                if (shares != null)
-                  line('$shareLabel ${formatCount(shares.round())}주'),
-                if (row['method'] != null) line('방식 · ${row['method']}'),
-                if (row['stockKind'] != null) line('대상 · ${row['stockKind']}'),
-                if (row['series'] != null) line('${row['series']}회차'),
-                if (n('otherShares') != null)
-                  line('기타주식 ${formatCount(n('otherShares')!.round())}주'),
-                if (n('otherAmount') != null)
-                  line('기타주식 예정금액 ${formatKrwLong(n('otherAmount')!)}'),
-                if (n('conversionPrice') != null)
-                  line(
-                    '${exchange ? '교환가' : '전환·행사가'} ${formatCount(n('conversionPrice')!.round())}원 / 주',
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final event = Text(
+                      '${row['label'] ?? researchPlainTitle(row)}',
+                      style: context.typo.body(15, weight: FontWeight.w600),
+                    );
+                    final date = Text(
+                      '${row['date']}',
+                      style: context.typo.body(
+                        12,
+                        color: context.colors.textMuted,
+                      ),
+                    );
+                    return constraints.maxWidth < 420
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [date, event],
+                          )
+                        : Row(
+                            children: [
+                              SizedBox(width: 104, child: date),
+                              Expanded(child: event),
+                            ],
+                          );
+                  },
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: AppSpace.xs),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (row['label'] != null &&
+                          researchPlainTitle(row) != row['label'])
+                        Text(
+                          researchPlainTitle(row),
+                          style: context.typo.body(
+                            12,
+                            color: context.colors.textSecondary,
+                          ),
+                        ),
+                      Text(
+                        summary.isEmpty ? purpose : summary,
+                        style: context.typo.body(
+                          12,
+                          color: context.colors.textSecondary,
+                        ),
+                      ),
+                    ],
                   ),
-                for (final p in purposes)
-                  line(
-                    '${p['label']} · ${formatKrwLong(double.parse('${p['amount']}'))}',
-                  ),
-                if (equity && n('amount') == null && purposes.isNotEmpty)
-                  line(
-                    '사용 목적별 금액은 DART API 응답 기준입니다. 발행 조건과 정정 사항은 원문에서 확인하세요.',
-                  ),
-                if (before != null && shares != null)
-                  line(
-                    '비율 = 예정 주식 ${formatCount(shares.round())} ÷ 기존 주식 ${formatCount(before.round())}',
-                  ),
-                if (exchange && ratio != null && before == null)
-                  line('기존 주식 대비 비율은 공시 기재 값입니다.'),
-                if (row['maturityDate'] != null)
-                  line(
-                    '만기 ${row['maturityDate']} · 표면금리 ${row['coupon'] ?? '—'}%',
-                  ),
-                if (row['periodStart'] != null || row['periodEnd'] != null)
-                  line(
-                    '예정 기간 ${row['periodStart'] ?? '미확인'} → ${row['periodEnd'] ?? '미확인'}',
-                  ),
-                if (row['paymentDate'] != null)
-                  line('납입 예정일 ${row['paymentDate']}'),
-                if (row['decisionDate'] != null)
-                  line('결정일 ${row['decisionDate']} · 접수일 ${row['date']}'),
-                if (row['reason'] != null) line('${row['reason']}'),
-                line('결정 공시이며 이행 완료를 뜻하지 않습니다. 정정·철회는 원문 확인이 필요합니다.'),
+                ),
               ],
             ),
-          ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton.icon(
-              onPressed: () => launchUrl(
-                Uri.parse(
-                  'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${row['receipt']}',
-                ),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpace.md,
+              vertical: AppSpace.sm,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpace.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (purpose.isNotEmpty) line('목적 · $purpose'),
+                        if (n('amount') != null)
+                          line('금액 · ${formatKrwLong(n('amount')!)}'),
+                        if (shares != null)
+                          line('$shareLabel ${formatCount(shares.round())}주'),
+                        if (row['method'] != null)
+                          line('방식 · ${row['method']}'),
+                        if (row['stockKind'] != null)
+                          line('대상 · ${row['stockKind']}'),
+                        if (row['series'] != null) line('${row['series']}회차'),
+                        if (n('otherShares') != null)
+                          line(
+                            '기타주식 ${formatCount(n('otherShares')!.round())}주',
+                          ),
+                        if (n('otherAmount') != null)
+                          line('기타주식 예정금액 ${formatKrwLong(n('otherAmount')!)}'),
+                        if (n('conversionPrice') != null)
+                          line(
+                            '${exchange ? '교환가' : '전환·행사가'} ${formatCount(n('conversionPrice')!.round())}원 / 주',
+                          ),
+                        for (final p in purposes)
+                          line(
+                            '${p['label']} · ${formatKrwLong(double.parse('${p['amount']}'))}',
+                          ),
+                        if (equity &&
+                            n('amount') == null &&
+                            purposes.isNotEmpty)
+                          line(
+                            '사용 목적별 금액은 DART API 응답 기준입니다. 발행 조건과 정정 사항은 원문에서 확인하세요.',
+                          ),
+                        if (before != null && shares != null)
+                          line(
+                            '비율 = 예정 주식 ${formatCount(shares.round())} ÷ 기존 주식 ${formatCount(before.round())}',
+                          ),
+                        if (exchange && ratio != null && before == null)
+                          line('기존 주식 대비 비율은 공시 기재 값입니다.'),
+                        if (row['maturityDate'] != null)
+                          line(
+                            '만기 ${row['maturityDate']} · 표면금리 ${row['coupon'] ?? '—'}%',
+                          ),
+                        if (row['periodStart'] != null ||
+                            row['periodEnd'] != null)
+                          line(
+                            '예정 기간 ${row['periodStart'] ?? '미확인'} → ${row['periodEnd'] ?? '미확인'}',
+                          ),
+                        if (row['paymentDate'] != null)
+                          line('납입 예정일 ${row['paymentDate']}'),
+                        if (row['decisionDate'] != null)
+                          line(
+                            '결정일 ${row['decisionDate']} · 접수일 ${row['date']}',
+                          ),
+                        if (row['reason'] != null) line('${row['reason']}'),
+                        line('결정 공시이며 이행 완료를 뜻하지 않습니다. 정정·철회는 원문 확인이 필요합니다.'),
+                      ],
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: ShadButton.ghost(
+                      onPressed: () => launchUrl(
+                        Uri.parse(
+                          'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${row['receipt']}',
+                        ),
+                      ),
+                      leading: const Icon(Icons.open_in_new, size: 14),
+                      child: Flexible(child: const Text('공시 원문')),
+                    ),
+                  ),
+                ],
               ),
-              icon: const Icon(Icons.open_in_new, size: 14),
-              label: const Text('공시 원문'),
             ),
           ),
         ],

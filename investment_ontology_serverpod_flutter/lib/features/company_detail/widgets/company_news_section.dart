@@ -120,18 +120,18 @@ class _CompanyNewsSectionState extends State<CompanyNewsSection> {
                 if (_loading) ...[
                   Text('최근 소식을 불러오는 중…', style: t.body(13, color: c.textMuted)),
                   const SizedBox(height: AppSpace.sm),
-                  const LinearProgressIndicator(),
+                  const ShadProgress(),
                 ] else if (widget.loader == null &&
                     AppAuth.viewer.value == null)
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: TextButton(
+                    child: ShadButton.ghost(
                       onPressed: () => context.go(
                         AppRoutes.login(
                           next: AppRoutes.company(widget.corpCode),
                         ),
                       ),
-                      child: const Text('로그인하고 최근 소식 보기'),
+                      child: Flexible(child: const Text('로그인하고 최근 소식 보기')),
                     ),
                   )
                 else if (_failed)
@@ -140,7 +140,10 @@ class _CompanyNewsSectionState extends State<CompanyNewsSection> {
                       Expanded(
                         child: Text('소식을 불러오지 못했습니다.', style: t.body(13)),
                       ),
-                      TextButton(onPressed: _load, child: const Text('다시 시도')),
+                      ShadButton.ghost(
+                        onPressed: _load,
+                        child: Flexible(child: const Text('다시 시도')),
+                      ),
                     ],
                   )
                 else if (feed != null) ...[
@@ -156,9 +159,9 @@ class _CompanyNewsSectionState extends State<CompanyNewsSection> {
                           ),
                           if (feed.newsStatus == 'failed' ||
                               feed.filingStatus == 'failed')
-                            TextButton(
+                            ShadButton.ghost(
                               onPressed: _load,
-                              child: const Text('다시 시도'),
+                              child: Flexible(child: const Text('다시 시도')),
                             ),
                         ],
                       ),
@@ -183,77 +186,113 @@ class _CompanyNewsSectionState extends State<CompanyNewsSection> {
                       ),
                     if (i > 0) Divider(color: c.border, height: AppSpace.sm),
                     if (item.excerpt.isEmpty)
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(
-                          item.title,
-                          style: t.body(14, weight: FontWeight.w600),
-                        ),
-                        subtitle: Text(
-                          '${_date(item.publishedAt)} · ${item.publisher}',
-                          style: t.body(12, color: c.textMuted),
-                        ),
-                        trailing: const Icon(Icons.north_east, size: 16),
-                        onTap: () => launchUrl(
+                      ShadButton.ghost(
+                        width: double.infinity,
+                        height: 0,
+                        padding: EdgeInsets.zero,
+                        onPressed: () => launchUrl(
                           Uri.parse(item.url),
                           mode: LaunchMode.externalApplication,
                         ),
-                      )
-                    else
-                      ExpansionTile(
-                        key: ValueKey('${widget.corpCode}:$i:${item.url}'),
-                        tilePadding: EdgeInsets.zero,
-                        childrenPadding: const EdgeInsets.only(
-                          bottom: AppSpace.sm,
-                        ),
-                        expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
-                        title: Text(
-                          item.title,
-                          style: t
-                              .body(15, weight: FontWeight.w600)
-                              .copyWith(height: 1.45),
-                        ),
-                        subtitle: Padding(
-                          padding: const EdgeInsets.only(top: 6),
+                        child: Flexible(
                           child: Row(
                             children: [
-                              Text(
-                                _date(item.publishedAt),
-                                style: t.body(12, color: c.textMuted),
-                              ),
-                              const SizedBox(width: 8),
-                              Flexible(
-                                child: TextButton(
-                                  style: TextButton.styleFrom(
-                                    minimumSize: Size.zero,
-                                    padding: EdgeInsets.zero,
-                                    tapTargetSize:
-                                        MaterialTapTargetSize.shrinkWrap,
-                                  ),
-                                  onPressed: () => launchUrl(
-                                    Uri.parse(item.url),
-                                    mode: LaunchMode.externalApplication,
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 8,
+                              Expanded(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      item.title,
+                                      style: t.body(
+                                        14,
+                                        weight: FontWeight.w600,
+                                      ),
                                     ),
-                                    child: Text(
-                                      '${item.publisher} ↗',
+                                    Text(
+                                      '${_date(item.publishedAt)} · ${item.publisher}',
                                       style: t.body(12, color: c.textMuted),
                                     ),
-                                  ),
+                                  ],
                                 ),
                               ),
+                              const SizedBox(width: AppSpace.sm),
+                              const Icon(Icons.north_east, size: 16),
                             ],
                           ),
                         ),
+                      )
+                    else
+                      ShadAccordion<int>(
+                        key: ValueKey('${widget.corpCode}:$i:${item.url}'),
+                        maintainState: false,
                         children: [
-                          Text(
-                            item.excerpt,
-                            style: t
-                                .body(13, color: c.textSecondary)
-                                .copyWith(height: 1.6),
+                          ShadAccordionItem<int>(
+                            value: 0,
+                            title: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.title,
+                                  style: t
+                                      .body(15, weight: FontWeight.w600)
+                                      .copyWith(height: 1.45),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 6),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        _date(item.publishedAt),
+                                        style: t.body(12, color: c.textMuted),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Flexible(
+                                        child: ShadButton.ghost(
+                                          onPressed: () => launchUrl(
+                                            Uri.parse(item.url),
+                                            mode:
+                                                LaunchMode.externalApplication,
+                                          ),
+                                          child: Flexible(
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 8,
+                                                  ),
+                                              child: Text(
+                                                '${item.publisher} ↗',
+                                                style: t.body(
+                                                  12,
+                                                  color: c.textMuted,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            padding: EdgeInsets.zero,
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                bottom: AppSpace.sm,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Text(
+                                    item.excerpt,
+                                    style: t
+                                        .body(13, color: c.textSecondary)
+                                        .copyWith(height: 1.6),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -261,9 +300,11 @@ class _CompanyNewsSectionState extends State<CompanyNewsSection> {
                   if (_showAll || items.length < feed.items.length)
                     Align(
                       alignment: Alignment.centerLeft,
-                      child: TextButton(
+                      child: ShadButton.ghost(
                         onPressed: () => setState(() => _showAll = !_showAll),
-                        child: Text(_showAll ? '간략히 보기' : '소식 더 보기'),
+                        child: Flexible(
+                          child: Text(_showAll ? '간략히 보기' : '소식 더 보기'),
+                        ),
                       ),
                     ),
                 ],

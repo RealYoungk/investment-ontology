@@ -1,3 +1,5 @@
+import '../support/shad_test_host.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
@@ -42,13 +44,15 @@ void main() {
         ]),
       ]);
       await tester.pumpWidget(
-        MaterialApp(
-          theme: buildAppTheme(ledgerBrand),
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: FinancialSection(
-                corpCode: value.corpCode,
-                initialData: value,
+        shadTestHost(
+          MaterialApp(
+            theme: buildAppTheme(ledgerBrand),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: FinancialSection(
+                  corpCode: value.corpCode,
+                  initialData: value,
+                ),
               ),
             ),
           ),
@@ -104,13 +108,15 @@ void main() {
         ]),
       ])..pendingFilingCount = 2;
       await tester.pumpWidget(
-        MaterialApp(
-          theme: buildAppTheme(ledgerBrand),
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: FinancialSection(
-                corpCode: value.corpCode,
-                initialData: value,
+        shadTestHost(
+          MaterialApp(
+            theme: buildAppTheme(ledgerBrand),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: FinancialSection(
+                  corpCode: value.corpCode,
+                  initialData: value,
+                ),
               ),
             ),
           ),
@@ -133,13 +139,31 @@ void main() {
       );
       await tester.pump();
       expect(find.text('설비 투자 · 유형자산 취득'), findsOneWidget);
-      await tester.ensureVisible(find.byTooltip('현금흐름 읽는 법'));
-      await tester.tap(find.byTooltip('현금흐름 읽는 법'));
+      await tester.ensureVisible(
+        find.byWidgetPredicate(
+          (w) =>
+              (w is Tooltip && w.message == '현금흐름 읽는 법') ||
+              (w is ShadIconButton && w.semanticLabel == '현금흐름 읽는 법'),
+        ),
+      );
+      await tester.tap(
+        find.byWidgetPredicate(
+          (w) =>
+              (w is Tooltip && w.message == '현금흐름 읽는 법') ||
+              (w is ShadIconButton && w.semanticLabel == '현금흐름 읽는 법'),
+        ),
+      );
       await tester.pumpAndSettle();
       expect(find.text('사업에서 들어온 현금 · 영업활동 현금흐름'), findsOneWidget);
       expect(find.textContaining('음수면 영업에서'), findsOneWidget);
       expect(find.textContaining('빚을 갚거나 배당할 여력'), findsOneWidget);
-      await tester.tap(find.byTooltip('닫기'));
+      await tester.tap(
+        find.byWidgetPredicate(
+          (w) =>
+              (w is Tooltip && w.message == '닫기') ||
+              (w is ShadIconButton && w.semanticLabel == '닫기'),
+        ),
+      );
       await tester.pumpAndSettle();
       expect(find.text('자료 기준·원문'), findsNothing);
       expect(find.text('정기보고서 2건 수집 대기'), findsNothing);
@@ -157,13 +181,15 @@ void main() {
         ]),
     ]);
     await tester.pumpWidget(
-      MaterialApp(
-        theme: buildAppTheme(ledgerBrand),
-        home: Scaffold(
-          body: SingleChildScrollView(
-            child: FinancialSection(
-              corpCode: value.corpCode,
-              initialData: value,
+      shadTestHost(
+        MaterialApp(
+          theme: buildAppTheme(ledgerBrand),
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: FinancialSection(
+                corpCode: value.corpCode,
+                initialData: value,
+              ),
             ),
           ),
         ),
@@ -214,17 +240,19 @@ void main() {
 
     Future<void> pump(CompanyFinancials value) async {
       await tester.pumpWidget(
-        MaterialApp(
-          theme: buildAppTheme(ledgerBrand),
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: CompanyHeader(
-                detail: CompanyDetail(
-                  company: Company(corpCode: value.corpCode, name: '테스트'),
-                  industryPath: [],
-                  changes: [],
+        shadTestHost(
+          MaterialApp(
+            theme: buildAppTheme(ledgerBrand),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: CompanyHeader(
+                  detail: CompanyDetail(
+                    company: Company(corpCode: value.corpCode, name: '테스트'),
+                    industryPath: [],
+                    changes: [],
+                  ),
+                  financials: value,
                 ),
-                financials: value,
               ),
             ),
           ),
@@ -239,7 +267,13 @@ void main() {
     expect(find.text('계산 방법'), findsOneWidget);
     expect(find.text('10.00배'), findsWidgets);
     expect(find.textContaining('연결 기준'), findsWidgets);
-    await tester.tap(find.byTooltip('닫기'));
+    await tester.tap(
+      find.byWidgetPredicate(
+        (w) =>
+            (w is Tooltip && w.message == '닫기') ||
+            (w is ShadIconButton && w.semanticLabel == '닫기'),
+      ),
+    );
     await tester.pumpAndSettle();
 
     await pump(data(FsDiv.separate, 50));

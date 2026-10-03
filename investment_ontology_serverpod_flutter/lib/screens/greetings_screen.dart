@@ -1,3 +1,4 @@
+import 'package:shad/shad.dart';
 import 'package:flutter/material.dart';
 
 import '../client.dart';
@@ -45,23 +46,20 @@ class _GreetingsScreenState extends State<GreetingsScreen> {
         children: [
           if (widget.onSignOut != null) ...[
             const Text('You are connected'),
-            ElevatedButton(
+            ShadButton(
               onPressed: widget.onSignOut,
-              child: const Text('Sign out'),
+              child: Flexible(child: const Text('Sign out')),
             ),
           ],
           const SizedBox(height: 32),
-          TextField(
+          ShadInput(
+            placeholder: Text('Enter your name'),
+            trailing: ShadIconButton.ghost(
+              onPressed: _callHello,
+              icon: const Icon(Icons.send),
+            ),
             controller: _textEditingController,
             onSubmitted: (_) => _callHello(),
-            decoration: InputDecoration(
-              hintText: 'Enter your name',
-              border: const OutlineInputBorder(),
-              suffixIcon: IconButton(
-                onPressed: _callHello,
-                icon: const Icon(Icons.send),
-              ),
-            ),
           ),
           const SizedBox(height: 16),
           ResultDisplay(

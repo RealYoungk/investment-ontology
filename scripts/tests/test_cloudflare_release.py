@@ -183,3 +183,23 @@ class CloudflareReleaseTests(unittest.TestCase):
                 restore.assert_not_called()
 
 if __name__=='__main__':unittest.main()
+
+
+class WebOnlyBackendTests(unittest.TestCase):
+    def test_unchanged_sources_and_existing_locks_only(self):
+        source, commit = 'a' * 40, 'b' * 40
+        identity = 'sha256:' + 'c' * 64 + ' ' + source
+        old = 'packages:\n  serverpod:\n    version: "4.0.0"\nsdks:\n'
+        new = old.replace('sdks:', '  shad:\n    version: "0.99.4"\nsdks:')
+        def command(*args):
+            if args[:2] == ('git', 'show'):
+                return old if args[2].startswith(source) else new
+            return ''
+        with patch.object(release, 'run', side_effect=command):
+            release.require_compatible_backend(identity, commit, source)
+        with patch.object(release, 'run', return_value='server changed'), self.assertRaises(ValueError):
+            release.require_compatible_backend(identity, commit, source)
+        with patch.object(release, 'run', side_effect=lambda *args: old if args[:2] == ('git', 'show') and args[2].startswith(source) else old.replace('4.0.0', '4.1.0') if args[:2] == ('git', 'show') else ''), self.assertRaises(ValueError):
+            release.require_compatible_backend(identity, commit, source)
+        with self.assertRaises(ValueError):
+            release.require_compatible_backend(identity, commit, commit)

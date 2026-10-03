@@ -1,3 +1,5 @@
+import '../support/shad_test_host.dart';
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -11,13 +13,15 @@ void main() {
     await t.binding.setSurfaceSize(const Size(320, 720));
     addTearDown(() => t.binding.setSurfaceSize(null));
     await t.pumpWidget(
-      MaterialApp(
-        theme: buildAppTheme(ledgerBrand),
-        home: Scaffold(
-          body: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: FinancialSourceScopeNotice(sourceTitle: title),
+      shadTestHost(
+        MaterialApp(
+          theme: buildAppTheme(ledgerBrand),
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: FinancialSourceScopeNotice(sourceTitle: title),
+              ),
             ),
           ),
         ),

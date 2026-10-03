@@ -1,3 +1,5 @@
+import '../support/shad_test_host.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -81,13 +83,15 @@ void main() {
         fact(DocumentFactKind.marketShare, '%', 2025).copyWith(label: 'TV'),
       ];
       await tester.pumpWidget(
-        MaterialApp(
-          theme: buildAppTheme(ledgerBrand),
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: OperatingMetricsList(
-                series: [dram, backlog, tv],
-                focus: ['DRAM'],
+        shadTestHost(
+          MaterialApp(
+            theme: buildAppTheme(ledgerBrand),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: OperatingMetricsList(
+                  series: [dram, backlog, tv],
+                  focus: ['DRAM'],
+                ),
               ),
             ),
           ),
@@ -291,9 +295,11 @@ void main() {
         reviewNote: '매출액 기준 · 회사 추정',
       );
       await tester.pumpWidget(
-        MaterialApp(
-          theme: buildAppTheme(ledgerBrand),
-          home: Scaffold(body: OperatingMetricCard(facts: [annual, half])),
+        shadTestHost(
+          MaterialApp(
+            theme: buildAppTheme(ledgerBrand),
+            home: Scaffold(body: OperatingMetricCard(facts: [annual, half])),
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -341,19 +347,21 @@ void main() {
         2024,
       ).copyWith(value: 0, asOf: DateTime.utc(2024, 12, 31));
       await tester.pumpWidget(
-        MaterialApp(
-          theme: buildAppTheme(ledgerBrand),
-          home: Scaffold(
-            body: OperatingMetricCard(
-              facts: [value],
-              periods: [
-                BusinessFactPeriod(
-                  documentId: 99,
-                  bsnsYear: 2026,
-                  reportCode: FinancialReportCode.halfYear,
-                  periodEnd: DateTime.utc(2026, 6, 30),
-                ),
-              ],
+        shadTestHost(
+          MaterialApp(
+            theme: buildAppTheme(ledgerBrand),
+            home: Scaffold(
+              body: OperatingMetricCard(
+                facts: [value],
+                periods: [
+                  BusinessFactPeriod(
+                    documentId: 99,
+                    bsnsYear: 2026,
+                    reportCode: FinancialReportCode.halfYear,
+                    periodEnd: DateTime.utc(2026, 6, 30),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -394,20 +402,22 @@ void main() {
           ).copyWith(label: '시설투자 (첨단공정 증설 및 인프라)'),
         ];
         await tester.pumpWidget(
-          MaterialApp(
-            theme: buildAppTheme(ledgerBrand),
-            home: MediaQuery(
-              data: MediaQueryData(
-                size: Size(width, 1200),
-                textScaler: const TextScaler.linear(1.3),
-              ),
-              child: Scaffold(
-                body: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: OperatingMetricsList(
-                      series: [dram, investment, tv],
-                      focus: const ['DRAM'],
+          shadTestHost(
+            MaterialApp(
+              theme: buildAppTheme(ledgerBrand),
+              home: MediaQuery(
+                data: MediaQueryData(
+                  size: Size(width, 1200),
+                  textScaler: const TextScaler.linear(1.3),
+                ),
+                child: Scaffold(
+                  body: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: OperatingMetricsList(
+                        series: [dram, investment, tv],
+                        focus: const ['DRAM'],
+                      ),
                     ),
                   ),
                 ),
@@ -496,27 +506,29 @@ void main() {
         await tester.binding.setSurfaceSize(Size(width, 1200));
         addTearDown(() => tester.binding.setSurfaceSize(null));
         await tester.pumpWidget(
-          MaterialApp(
-            theme: buildAppTheme(ledgerBrand),
-            home: MediaQuery(
-              data: MediaQueryData(
-                size: Size(width, 1200),
-                textScaler: const TextScaler.linear(1.3),
-              ),
-              child: Scaffold(
-                body: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        CompanyResearchGuide(profile: profile),
-                        OperatingMetricCard(
-                          facts: [
-                            fact(DocumentFactKind.utilization, '%', 2024),
-                            fact(DocumentFactKind.utilization, '%', 2025),
-                          ],
-                        ),
-                      ],
+          shadTestHost(
+            MaterialApp(
+              theme: buildAppTheme(ledgerBrand),
+              home: MediaQuery(
+                data: MediaQueryData(
+                  size: Size(width, 1200),
+                  textScaler: const TextScaler.linear(1.3),
+                ),
+                child: Scaffold(
+                  body: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          CompanyResearchGuide(profile: profile),
+                          OperatingMetricCard(
+                            facts: [
+                              fact(DocumentFactKind.utilization, '%', 2024),
+                              fact(DocumentFactKind.utilization, '%', 2025),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -542,14 +554,16 @@ void main() {
     'compact overview puts issuer explanation ahead of hidden generic business model',
     (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          theme: buildAppTheme(ledgerBrand),
-          home: Scaffold(
-            body: BusinessModelGuide(
-              lesson: samsung,
-              summary: '기업별 사업 설명',
-              compact: true,
-              showGrowth: false,
+        shadTestHost(
+          MaterialApp(
+            theme: buildAppTheme(ledgerBrand),
+            home: Scaffold(
+              body: BusinessModelGuide(
+                lesson: samsung,
+                summary: '기업별 사업 설명',
+                compact: true,
+                showGrowth: false,
+              ),
             ),
           ),
         ),

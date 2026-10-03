@@ -1,3 +1,4 @@
+import 'package:shad/shad.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -23,15 +24,17 @@ class _MembershipCardState extends State<MembershipCard> {
       await client.membership.cancelRenewal();
       await AppAuth.refreshMembership();
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('자동 갱신을 해지했습니다. 이미 결제한 기간까지 광고 없이 이용할 수 있습니다.'),
+      ShadToaster.of(context).show(
+        ShadToast(
+          description: Text('자동 갱신을 해지했습니다. 이미 결제한 기간까지 광고 없이 이용할 수 있습니다.'),
         ),
       );
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('해지 결과를 확인하지 못했습니다. 잠시 후 다시 확인해 주세요.')),
+      ShadToaster.of(context).show(
+        ShadToast(
+          description: Text('해지 결과를 확인하지 못했습니다. 잠시 후 다시 확인해 주세요.'),
+        ),
       );
     } finally {
       if (mounted) setState(() => _canceling = false);
@@ -45,8 +48,11 @@ class _MembershipCardState extends State<MembershipCard> {
       await AppAuth.refreshMembership();
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('갱신 재개를 확인하지 못했습니다.')));
+        ShadToaster.of(context).show(
+          ShadToast(
+            description: Text('갱신 재개를 확인하지 못했습니다.'),
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _canceling = false);
@@ -128,33 +134,35 @@ class _MembershipCardState extends State<MembershipCard> {
                 children: [
                   Text('자동 갱신 해지됨', style: t.body(14, color: c.textSecondary)),
                   if (viewer.paymentAvailable)
-                    TextButton(
+                    ShadButton.ghost(
                       onPressed: _canceling ? null : _resume,
-                      child: const Text('자동 갱신 다시 켜기'),
+                      child: Flexible(child: const Text('자동 갱신 다시 켜기')),
                     ),
                 ],
               )
             else
-              TextButton(
+              ShadButton.ghost(
                 onPressed: _canceling ? null : _cancel,
-                child: Text(_canceling ? '해지 중…' : '자동 갱신 해지'),
+                child: Flexible(child: Text(_canceling ? '해지 중…' : '자동 갱신 해지')),
               ),
           ],
           if (end != null && (viewer?.paymentAvailable ?? false))
-            TextButton(
+            ShadButton.ghost(
               onPressed: () =>
                   context.push('/membership/checkout?card=replace'),
-              child: const Text('결제 카드 변경'),
+              child: Flexible(child: const Text('결제 카드 변경')),
             ),
           const ServiceLinks(),
           if (!adFree) ...[
             const SizedBox(height: AppSpace.sm),
-            FilledButton(
+            ShadButton(
               onPressed: () => context.push('/membership'),
-              child: Text(
-                (viewer?.isTestMembership ?? false)
-                    ? '이용권 테스트'
-                    : '관심기업 20개로 늘리기',
+              child: Flexible(
+                child: Text(
+                  (viewer?.isTestMembership ?? false)
+                      ? '이용권 테스트'
+                      : '관심기업 20개로 늘리기',
+                ),
               ),
             ),
           ],

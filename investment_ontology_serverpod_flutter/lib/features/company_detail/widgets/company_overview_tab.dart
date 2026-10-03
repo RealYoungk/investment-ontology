@@ -51,10 +51,11 @@ class CompanyOverviewTab extends StatelessWidget {
               style: context.typo.body(13, color: context.colors.textSecondary),
             ),
             const SizedBox(height: AppSpace.md),
-            AppButton(
-              label: '시장 지표 살펴보기 →',
+            ShadButton.raw(
               onPressed: () =>
                   context.push(macroLocation(company: detail.company.corpCode)),
+              variant: ShadButtonVariant.outline,
+              child: Flexible(child: Text('시장 지표 살펴보기 →')),
             ),
           ],
         ),

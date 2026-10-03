@@ -1,7 +1,7 @@
+import 'package:shad/shad.dart';
 import 'package:flutter/material.dart';
 
 import '../tokens.dart';
-import 'app_notice.dart';
 
 /// Shared read failure with a guarded, visible manual retry.
 class ReadFailureNotice extends StatefulWidget {
@@ -34,14 +34,17 @@ class _ReadFailureNoticeState extends State<ReadFailureNotice> {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      AppNotice(
-        message: '${widget.subject}를 불러오지 못했어요. 연결 상태를 확인한 뒤 다시 시도해 주세요.',
+      ShadAlert(
+        description: Text(
+          '${widget.subject}를 불러오지 못했어요. 연결 상태를 확인한 뒤 다시 시도해 주세요.',
+        ),
       ),
       const SizedBox(height: AppSpace.sm),
-      TextButton.icon(
+      ShadButton.ghost(
+        enabled: !(_busy),
         onPressed: _busy ? null : _retry,
-        icon: const Icon(Icons.refresh),
-        label: Text(_busy ? '다시 불러오는 중…' : '다시 불러오기'),
+        leading: const Icon(LucideIcons.refreshCw),
+        child: Flexible(child: Text(_busy ? '다시 불러오는 중…' : '다시 불러오기')),
       ),
     ],
   );

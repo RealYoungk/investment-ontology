@@ -1,3 +1,7 @@
+import 'package:shad/shad.dart';
+
+import '../support/shad_test_host.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -33,16 +37,42 @@ Future<void> pumpHome(
   ExploreIntent intent = ExploreIntent.overview,
 }) async {
   await tester.pumpWidget(
-    MaterialApp(
-      theme: theme,
-      home: Scaffold(
-        body: HomePage(search: search, intent: intent, filings: () async => []),
+    shadTestHost(
+      MaterialApp(
+        theme: theme,
+        home: Scaffold(
+          body: HomePage(
+            search: search,
+            intent: intent,
+            filings: () async => [],
+            market: () async => [],
+            macro: () async => [],
+          ),
+        ),
       ),
     ),
   );
 }
 
 void main() {
+  testWidgets('검색 입력과 지우기에서 필드 크기를 유지한다', (tester) async {
+    await pumpHome(tester, (_) async => []);
+    await tester.pumpAndSettle();
+    final emptySize = tester.getSize(field);
+    await tester.enterText(field, '삼성전자');
+    await tester.pump();
+    expect(tester.getSize(field), emptySize);
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(tester.getSize(field), emptySize);
+    await tester.tap(
+      find.byWidgetPredicate(
+        (w) => w is ShadIconButton && w.semanticLabel == '검색어 지우기',
+      ),
+    );
+    await tester.pump();
+    expect(tester.getSize(field), emptySize);
+  });
+
   testWidgets('정정 필터는 실제 보고서명으로 구분하며 수집 대기를 유지한다', (tester) async {
     final rows = [
       FilingFeedItem(
@@ -59,11 +89,13 @@ void main() {
       ),
     ];
     await tester.pumpWidget(
-      MaterialApp(
-        theme: theme,
-        home: Scaffold(
-          body: SingleChildScrollView(
-            child: DailyBrief(load: () async => rows),
+      shadTestHost(
+        MaterialApp(
+          theme: theme,
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: DailyBrief(load: () async => rows),
+            ),
           ),
         ),
       ),
@@ -79,11 +111,13 @@ void main() {
   });
   testWidgets('소개 조회 실패는 기업 수와 공시 예시 수치를 만들어내지 않는다', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
-        theme: theme,
-        home: AboutPage(
-          loadScope: () async => throw Exception('offline'),
-          previewLoad: () async => throw Exception('offline'),
+      shadTestHost(
+        MaterialApp(
+          theme: theme,
+          home: AboutPage(
+            loadScope: () async => throw Exception('offline'),
+            previewLoad: () async => throw Exception('offline'),
+          ),
         ),
       ),
     );
@@ -101,7 +135,7 @@ void main() {
       return [];
     });
     expect(calls, 0);
-    expect(find.text('오늘의 리서치'), findsOneWidget);
+    expect(find.text('한눈에 보기'), findsOneWidget);
     expect(field, findsOneWidget);
     expect(tester.takeException(), isNull);
   });
@@ -119,7 +153,12 @@ void main() {
           GoRoute(
             path: '/home',
             builder: (_, _) => Scaffold(
-              body: HomePage(search: (_) async => [], filings: () async => []),
+              body: HomePage(
+                search: (_) async => [],
+                filings: () async => [],
+                market: () async => [],
+                macro: () async => [],
+              ),
             ),
           ),
           GoRoute(
@@ -134,7 +173,7 @@ void main() {
       );
       addTearDown(router.dispose);
       await tester.pumpWidget(
-        MaterialApp.router(theme: theme, routerConfig: router),
+        shadTestHost(MaterialApp.router(theme: theme, routerConfig: router)),
       );
       final target = find.text(entry.$1);
       await tester.ensureVisible(target);
@@ -160,7 +199,19 @@ void main() {
     await tester.pump();
     expect(find.byKey(const ValueKey('home-result-2')), findsOneWidget);
     expect(find.byKey(const ValueKey('home-result-1')), findsNothing);
-    await tester.tap(find.byTooltip('검색어 지우기'));
+    await tester.ensureVisible(
+      find.byWidgetPredicate(
+        (w) => w is ShadIconButton && w.semanticLabel == '검색어 지우기',
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byWidgetPredicate(
+        (w) =>
+            (w is Tooltip && w.message == '검색어 지우기') ||
+            (w is ShadIconButton && w.semanticLabel == '검색어 지우기'),
+      ),
+    );
     await tester.pump();
     expect(find.byKey(const ValueKey('home-result-2')), findsNothing);
   });
@@ -197,6 +248,7 @@ void main() {
                 intent: intent,
                 filings: () async => [],
                 market: () async => [],
+                macro: () async => [],
                 search: (_) async => [
                   CompanyListItem(corpCode: '00126380', name: '삼성전자'),
                 ],
@@ -215,7 +267,7 @@ void main() {
       );
       addTearDown(router.dispose);
       await tester.pumpWidget(
-        MaterialApp.router(theme: theme, routerConfig: router),
+        shadTestHost(MaterialApp.router(theme: theme, routerConfig: router)),
       );
       await tester.ensureVisible(field);
       await tester.enterText(field, '삼성전자');
@@ -228,7 +280,7 @@ void main() {
       expect(find.text(intent.destination('00126380')), findsOneWidget);
       router.pop();
       await tester.pumpAndSettle();
-      expect(tester.widget<TextField>(field).controller!.text, '삼성전자');
+      expect(tester.widget<ShadInput>(field).controller!.text, '삼성전자');
     });
   }
 
@@ -239,7 +291,12 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
       for (final page in [
-        HomePage(search: (_) async => [], filings: () async => []),
+        HomePage(
+          search: (_) async => [],
+          filings: () async => [],
+          market: () async => [],
+          macro: () async => [],
+        ),
         AboutPage(
           previewLoad: () async => [],
           loadScope: () async =>
@@ -247,14 +304,16 @@ void main() {
         ),
       ]) {
         await tester.pumpWidget(
-          MaterialApp(
-            theme: theme,
-            builder: (context, child) => MediaQuery(
-              data: MediaQuery.of(context)
-                  .copyWith(textScaler: TextScaler.linear(1.3)),
-              child: child!,
+          shadTestHost(
+            MaterialApp(
+              theme: theme,
+              builder: (context, child) => MediaQuery(
+                data: MediaQuery.of(context)
+                    .copyWith(textScaler: TextScaler.linear(1.3)),
+                child: child!,
+              ),
+              home: Scaffold(body: page),
             ),
-            home: Scaffold(body: page),
           ),
         );
         await tester.pumpAndSettle();
@@ -283,7 +342,7 @@ void main() {
     );
     addTearDown(router.dispose);
     await tester.pumpWidget(
-      MaterialApp.router(theme: theme, routerConfig: router),
+      shadTestHost(MaterialApp.router(theme: theme, routerConfig: router)),
     );
     await tester.pumpAndSettle();
     final start = find.text('재무 추이에서 시작');

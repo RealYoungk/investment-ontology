@@ -1,15 +1,17 @@
+import 'package:shad/shad.dart';
 import 'package:flutter/material.dart';
 
 import '../../design/tokens.dart';
+import '../../design/components/data_panel.dart';
 
-/// Native Material interaction keeps the new entry flow keyboard accessible.
+/// Service journey action composed from the upstream Shad button.
 class JourneyButton extends StatelessWidget {
   const JourneyButton({
     super.key,
     required this.label,
     required this.onPressed,
     this.primary = false,
-    this.icon = Icons.arrow_forward,
+    this.icon = LucideIcons.arrowRight,
   });
   final String label;
   final VoidCallback? onPressed;
@@ -18,31 +20,17 @@ class JourneyButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.colors;
-    final style = TextButton.styleFrom(
-      foregroundColor: primary ? c.onInverse : c.textPrimary,
-      backgroundColor: primary ? c.inverse : c.surface,
-      minimumSize: const Size(48, 48),
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpace.lg,
-        vertical: AppSpace.md,
-      ),
-      textStyle: context.typo.body(14, weight: FontWeight.w600),
-      shape: RoundedRectangleBorder(
-        borderRadius: context.shape.borderRadius,
-        side: BorderSide(color: primary ? c.inverse : c.border),
-      ),
-    );
-    return TextButton(
+    return ShadButton.ghost(
       onPressed: onPressed,
-      style: style,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Flexible(child: Text(label)),
-          const SizedBox(width: AppSpace.md),
-          Icon(icon, size: 18),
-        ],
+      child: Flexible(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(child: Text(label)),
+            const SizedBox(width: AppSpace.md),
+            Icon(icon, size: 18),
+          ],
+        ),
       ),
     );
   }
@@ -97,22 +85,16 @@ class ResearchPath extends StatelessWidget {
   final int activeStep;
   final ValueChanged<int>? onStep;
   static const steps = [
-    ('01', '사업을 이해하고', '무엇을 팔고, 어디에서 매출이 나는지', Icons.storefront_outlined),
-    ('02', '변화를 확인하고', '매출과 이익이 어떻게 달라졌는지', Icons.stacked_line_chart),
-    ('03', '비교하며 판단해요', '다른 기업과 무엇이 같고 다른지', Icons.compare_arrows),
+    ('01', '사업을 이해하고', '무엇을 팔고, 어디에서 매출이 나는지', LucideIcons.store),
+    ('02', '변화를 확인하고', '매출과 이익이 어떻게 달라졌는지', LucideIcons.chartLine),
+    ('03', '비교하며 판단해요', '다른 기업과 무엇이 같고 다른지', LucideIcons.arrowLeftRight),
   ];
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     final t = context.typo;
-    return Container(
-      padding: const EdgeInsets.all(AppSpace.xl),
-      decoration: BoxDecoration(
-        color: c.surface,
-        border: Border.all(color: c.border),
-        borderRadius: context.shape.borderRadius,
-      ),
+    return DataPanel(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -131,35 +113,40 @@ class ResearchPath extends StatelessWidget {
               selected: i == activeStep,
               child: Material(
                 color: i == activeStep ? c.accentSubtle : c.surface,
-                child: InkWell(
-                  onTap: onStep == null ? null : () => onStep!(i),
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppSpace.md),
-                    child: Row(
-                      children: [
-                        Icon(
-                          steps[i].$4,
-                          color: i == activeStep ? c.accent : c.textSecondary,
-                          size: 24,
-                        ),
-                        const SizedBox(width: AppSpace.lg),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                steps[i].$2,
-                                style: t.body(17, weight: FontWeight.w600),
-                              ),
-                              const SizedBox(height: AppSpace.xs),
-                              Text(
-                                steps[i].$3,
-                                style: t.body(13, color: c.textSecondary),
-                              ),
-                            ],
+                child: ShadButton.ghost(
+                  height: 0,
+                  width: double.infinity,
+                  padding: EdgeInsets.zero,
+                  onPressed: onStep == null ? null : () => onStep!(i),
+                  child: Flexible(
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppSpace.md),
+                      child: Row(
+                        children: [
+                          Icon(
+                            steps[i].$4,
+                            color: i == activeStep ? c.accent : c.textSecondary,
+                            size: 24,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: AppSpace.lg),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  steps[i].$2,
+                                  style: t.body(17, weight: FontWeight.w600),
+                                ),
+                                const SizedBox(height: AppSpace.xs),
+                                Text(
+                                  steps[i].$3,
+                                  style: t.body(13, color: c.textSecondary),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
