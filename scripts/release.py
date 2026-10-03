@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Deploy successful GitHub Release artifacts, or restore a recorded web release.
 
-Uses existing gh, vercel and SSH login. Never uploads local source or credentials.
+Uses existing gh, Wrangler Cloudflare Pages and SSH login. Never uploads local source or credentials.
 Run `status`, `deploy --run ID`, or `rollback --record PATH`.
 """
 import argparse
@@ -17,6 +17,9 @@ import subprocess
 import tarfile
 import tempfile
 from urllib.request import Request, urlopen
+from urllib.error import HTTPError
+import cloudflare_release as pages
+from prepare_cloudflare_web import prepare
 
 from release_bundle import ROOT, sha256, verify_bundle
 
@@ -38,14 +41,10 @@ def gh_api(path, payload=None):
     return json.loads(result.stdout)
 
 
-def vercel_api(path):
-    return json.loads(run('vercel', 'api', path))
-
-
 def production():
-    project = vercel_api(f"/v9/projects/{CONFIG['projectId']}?teamId={CONFIG['orgId']}")
-    target = project['targets']['production']
-    return {'id': target['id'], 'url': 'https://' + target['url']}
+    if (CONFIG.get('provider'), CONFIG.get('projectName'), CONFIG.get('accountId')) != ('cloudflare-pages', pages.PROJECT, pages.ACCOUNT):
+        raise ValueError('Release configuration must match the current Cloudflare Pages project')
+    return pages.production()
 
 
 def backend():
@@ -75,7 +74,7 @@ def check_web(url, manifest=None, expected_main=None):
     if expected_main and main_hash != expected_main:
         raise ValueError('Served app differs from the expected release')
     if manifest:
-        for name in ('index.html', 'release.json'):
+        for name in ('index.html', 'release.json', 'flutter_bootstrap.js'):
             digest = hashlib.sha256(fetch(url + '/' + name)).hexdigest()
             if digest != manifest['files']['static/' + name]:
                 raise ValueError(f'Served {name} differs from the verified artifact')
@@ -84,7 +83,26 @@ def check_web(url, manifest=None, expected_main=None):
     response = json.loads(fetch(url + '/api/company/overview', b'{}'))
     if not isinstance(response, dict) or not isinstance(response.get('totalListed'), int):
         raise ValueError('Company overview smoke check returned an unexpected response')
+    try:
+        fetch(url + '/api/membership/status', b'{}')
+    except HTTPError as error:
+        error.close()
+        if error.code != 401:
+            raise ValueError('Unauthenticated personal endpoint did not return 401') from None
+    else:
+        raise ValueError('Unauthenticated personal endpoint unexpectedly succeeded')
     return main_hash
+
+
+def web_hashes(url):
+    return {name: hashlib.sha256(fetch(url + '/' + name)).hexdigest()
+            for name in ('main.dart.js', 'index.html', 'release.json', 'flutter_bootstrap.js')}
+
+
+def check_hashes(url, hashes):
+    if set(hashes) != {'main.dart.js', 'index.html', 'release.json', 'flutter_bootstrap.js'} or web_hashes(url) != hashes:
+        raise ValueError('Rollback files differ from the saved release')
+    check_web(url, expected_main=hashes['main.dart.js'])
 
 
 def check_run(candidate):
@@ -187,7 +205,8 @@ def deploy(run_id=None, local=None):
         commit = candidate['head_sha']
     require_head(commit)
     with tempfile.TemporaryDirectory(prefix='alfinder-release-') as temporary:
-        work = Path(temporary)
+        work = Path(temporary) / 'artifact'
+        work.mkdir()
         if local:
             shutil.copytree(local / '.vercel', work / '.vercel')
             shutil.copy2(local / 'manifest.json', work / 'manifest.json')
@@ -201,45 +220,62 @@ def deploy(run_id=None, local=None):
             raise ValueError('Manifest workflow run does not match selected run')
         if manifest['verification'] != ('local' if local else 'github-actions'):
             raise ValueError('Verification origin does not match selected release path')
-        (work / '.vercel/project.json').write_text(json.dumps({
-            key: CONFIG[key] for key in ('projectId', 'orgId', 'projectName')}))
+        # Worker/routes/headers must come from this same committed main checkout.
+        if run('git', 'rev-parse', 'HEAD') != commit or run('git', 'status', '--porcelain', '--untracked-files=no'):
+            raise ValueError('Pages preparation requires the clean artifact main checkout')
+        prepared = Path(temporary) / 'pages'
+        prepare(work, prepared)
+        prepared_hashes = {path.relative_to(prepared).as_posix(): sha256(path)
+                           for path in prepared.rglob('*') if path.is_file()}
         previous = production()
         server = backend()
-        previous['mainJsSha256'] = check_web(CONFIG['productionUrl'])
-        # Deployment is immutable, but does not take over alfinder.kr yet.
-        result = run('vercel', 'deploy', '--prebuilt', '--prod', '--skip-domain', '--yes',
-                     '--meta', 'releaseCommit=' + commit, '--cwd', str(work))
-        try:
-            deployment = json.loads(result)['deployment']
-            target = {'id': deployment['id'], 'url': deployment['url']}
-        except (ValueError, KeyError):
-            urls = re.findall(r'https://[a-z0-9-]+\.vercel\.app', result)
-            if not urls:
-                raise ValueError('Could not identify the immutable deployment URL')
-            detail = vercel_api(f"/v13/deployments/{urls[-1].split('//')[1]}?teamId={CONFIG['orgId']}")
-            target = {'id': detail['id'], 'url': 'https://' + detail['url']}
-        check_web(target['url'], manifest)
+        previous['mainJsSha256'] = check_web(previous['url'])
+        previous['fileHashes'] = web_hashes(previous['url'])
+        check_hashes(CONFIG['productionUrl'], previous['fileHashes'])
+        preview = pages.upload(prepared, commit)
+        check_web(preview['url'], manifest)
         require_head(commit)
         if production()['id'] != previous['id'] or backend() != server:
-            raise ValueError('Production changed during verification; refusing to replace it')
-        record = {'schemaVersion': 1, 'commit': commit, 'runId': run_id,
+            raise ValueError('Production changed during preview verification')
+        if prepared_hashes != {path.relative_to(prepared).as_posix(): sha256(path)
+                               for path in prepared.rglob('*') if path.is_file()}:
+            raise ValueError('Prepared Pages upload changed after preview verification')
+        record = {'schemaVersion': 2, 'provider': 'cloudflare-pages',
+                  'projectName': pages.PROJECT, 'accountId': pages.ACCOUNT,
+                  'commit': commit, 'runId': run_id,
                   'createdUtc': datetime.now(timezone.utc).isoformat(),
-                  'backend': server, 'previous': previous, 'deployment': target,
-                  'manifest': manifest, 'status': 'verified-before-promotion'}
-        path = STATE / (target['id'] + '.json')
-        save(path, record)  # Recovery target is durable BEFORE changing the domain.
+                  'backend': server, 'previous': previous, 'preview': preview,
+                  'manifest': manifest, 'preparedFiles': prepared_hashes,
+                  'status': 'verified-before-production-upload'}
+        path = STATE / (preview['id'] + '.json')
+        save(path, record)  # Durable recovery target BEFORE the production upload.
         gh_deployment = gh_api('deployments', {
             'ref': commit, 'environment': 'production-web', 'auto_merge': False,
             'required_contexts': [], 'description': 'Verified Release artifact',
-            'payload': {'vercel': target, 'previous': previous, 'runId': run_id,
+            'payload': {'cloudflarePreview': preview, 'previous': previous, 'runId': run_id,
                         'backend': server, 'mainJsSha256': manifest['mainJsSha256']},
         })
         record['githubDeploymentId'] = gh_deployment['id']
         save(path, record)
-        run('vercel', 'promote', target['url'], '--yes', '--scope', CONFIG['orgId'], '--cwd', str(work))
-        record['status'] = 'promoted-verification-pending'
+        # Upload the identical verified package to production. Pages does not promote previews.
+        require_head(commit)
+        if production()['id'] != previous['id'] or backend() != server:
+            raise ValueError('Production changed before the final Pages upload')
+        record['status'] = 'production-upload-requested'
         save(path, record)
         try:
+            target = pages.upload(prepared, commit, production_environment=True)
+        except Exception:
+            record['status'] = 'production-upload-outcome-unknown'
+            save(path, record)
+            raise
+        record['deployment'] = target
+        record['status'] = 'production-uploaded-verification-pending'
+        save(path, record)
+        try:
+            if production()['id'] != target['id'] or backend() != server:
+                raise ValueError('Production/backend differs after upload')
+            check_web(target['url'], manifest)
             check_web(CONFIG['productionUrl'], manifest)
         except Exception:
             record['status'] = 'production-verification-failed'
@@ -257,16 +293,22 @@ def deploy(run_id=None, local=None):
 
 def rollback(path):
     record = json.loads(path.read_text())
+    if record.get('provider') != 'cloudflare-pages' or record.get('projectName') != pages.PROJECT or record.get('accountId') != pages.ACCOUNT:
+        raise ValueError('Rollback requires a Cloudflare Pages release record for this project')
+    if 'deployment' not in record:
+        raise ValueError('Production upload outcome is unknown; identify the exact current deployment before rollback')
     if production()['id'] != record['deployment']['id']:
         raise ValueError('This record is not for the current deployment')
     if backend() != record['backend']:
         raise ValueError('Backend changed; compatibility must be checked before rollback')
     old = record['previous']
-    check_web(old['url'], expected_main=old['mainJsSha256'])
+    check_hashes(old['url'], old['fileHashes'])
     if production()['id'] != record['deployment']['id'] or backend() != record['backend']:
         raise ValueError('Production changed during rollback verification')
-    run('vercel', 'promote', old['url'], '--yes', '--scope', CONFIG['orgId'])
-    check_web(CONFIG['productionUrl'], expected_main=old['mainJsSha256'])
+    restored = pages.rollback(old)
+    if restored['id'] != old['id'] or production()['id'] != old['id']:
+        raise ValueError('Pages rollback did not restore the recorded production deployment')
+    check_hashes(CONFIG['productionUrl'], old['fileHashes'])
     record['status'] = 'rolled-back'
     save(path, record)
     if record.get('githubDeploymentId'):

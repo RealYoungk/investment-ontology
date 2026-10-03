@@ -1,4 +1,4 @@
-# Cloudflare Pages 이전 준비
+# Cloudflare Pages 운영 배포
 
 2026-10-01: 프런트엔드는 Cloudflare Pages Free, API·DB·정기결제 작업은 기존 iwinv Serverpod를 유지한다. alfinder.kr은 Cloudflare Pages로 전환 완료했다. 당시 Active·SSL·인증 API와 파일 체크섬은 output/cloudflare/migration-production-state.json에 기록되어 있다. 2026-10-01 이번 조회에서도 운영 release.json과 GitHub main은 7f7ae217이다. 아래 DNS 대기 기록은 이전 이력이다. 광고 송출과 실결제는 비활성이다.
 
@@ -52,3 +52,15 @@ AdSense에서 alfinder.kr이 실제로 ‘준비됨’으로 바뀌고, 새 호�
 2026-10-01 확인: Pages 프로젝트 alfinder-web 생성·64개 파일 배포. 실제 API 공개 overview 200, 비로그인 membership/status 401, ads.txt 200. Cloudflare ExecutionContext가 테스트용 HTTP 클라이언트 인자로 잘못 전달되던 문제를 수정하고 5번째 회귀 검증을 추가했다. AdSense 사이트 승인 상태는 ‘준비 중’, ads.txt는 ‘승인됨’이다. Gabia 원본 DNS 6개를 보존하고 Cloudflare에 모두 복사했다. Cloudflare NS는 johnny.ns.cloudflare.com / meg.ns.cloudflare.com이며 가비아에서 두 NS로 설정 완료를 확인했고 Cloudflare 활성화 및 DNS 전파를 기다린다. 현재 alfinder.kr의 authoritative NS는 아직 Gabia다.
 
 최신 승인 전 검증·활성화·롤백은 [monetization-preapproval-verification.md](monetization-preapproval-verification.md)를 따른다.
+
+## 2026-10-03 기본 배포 스크립트
+
+`python3 scripts/release.py deploy --run <성공한 Release ID>` 또는 `deploy --local <clean-main 검증 산출물>`의 대상은 현재 운영 프로젝트 **Cloudflare Pages `alfinder-web`**이다. `deploy/release-project.json`의 계정·프로젝트를 따른다. Vercel 프로젝트 조회·업로드·promote는 실행하지 않는다. `.vercel/output/static`은 기존 검증 산출물의 디렉터리 이름으로만 유지한다.
+
+검증한 앱 산출물을 동일 커밋의 깨끗한 main 체크아웃에서 `prepare_cloudflare_web.py`로 패키징한다. 기존 Wrangler 로그인과 설치된 Node/Wrangler만 사용하며 설치·로그인 변경은 하지 않는다. 다른 설치 경로는 `ALFINDER_NODE`, `ALFINDER_WRANGLER`로 지정한다. 인증 토큰은 배포 실행 때 CLI에서 메모리로 받아 공식 Cloudflare API의 Authorization 헤더에만 전달하고 출력·배포 기록·업로드에 넣지 않는다.
+
+별도 `release-preview-<commit>` 브랜치로 먼저 업로드한 뒤 SHA4(`main.dart.js`, `index.html`, `release.json`, `flutter_bootstrap.js`), 공개 기업 API, 비로그인 개인 API 401을 확인한다. main 이동·운영 배포 변경·백엔드 이미지/소스 revision 변경·패키지 파일 변조가 있으면 운영 업로드를 중단한다. Pages 미리보기는 promote/rollback 대상이 아니므로, 검증한 **동일 패키지**를 main production에 다시 업로드한다. 변경 전 production ID·URL·SHA4·백엔드와 미리보기·패키지 SHA를 먼저 영구 기록한다. 운영 업로드 뒤 immutable URL과 alfinder.kr을 재검증한다.
+
+`rollback --record <기록.json>`은 이 계정·프로젝트의 Cloudflare 기록만 허용한다. 현재 production ID와 백엔드가 기록과 일치하고 이전 production의 SHA4/API/401이 맞아야 공식 rollback API를 호출한다. 이전 Vercel 기록과 preview는 거절한다. 업로드 결과가 불명확하면 자동 재업로드/자동 롤백하지 않는다. 기록의 이전 production을 보존하고 실제 현재 deployment ID를 먼저 확인한다.
+
+스크립트 단위 테스트는 실제 Pages 배포와 인증 브라우저 검증의 대체가 아니다. 로그인·결제 기능 개통은 기존 실제 브라우저 검증 기준을 별도로 따른다. 공식 제한: [Pages rollback](https://developers.cloudflare.com/pages/configuration/rollbacks/) 및 [rollback API](https://developers.cloudflare.com/api/resources/pages/subresources/projects/subresources/deployments/methods/rollback/).
