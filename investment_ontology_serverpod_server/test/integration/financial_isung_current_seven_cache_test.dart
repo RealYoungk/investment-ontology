@@ -10,6 +10,7 @@ import 'package:investment_ontology_serverpod_server/src/ontology/financial/fina
 
 import 'financial_html_company_title_formats_test.dart' show SourceClient;
 import 'auth_test_sessions.dart';
+import 'financial_isung_cfs_current_seven_cache_test.dart' as cfsProof;
 import 'test_tools/serverpod_test_tools.dart';
 
 const exactSevenValues = {
@@ -51,7 +52,7 @@ void main() {
       endpoints,
     ) {
       test(
-        'API0 stores OFS seven and preserves unapproved CFS and counters',
+        'API0 stores independent CFS and OFS seven with immutable raw evidence',
         () async {
           final session = builder.asAdmin.build(),
               now = DateTime.utc(2026, 10, 2);
@@ -143,22 +144,22 @@ void main() {
           }
 
           final first = await run();
-          // The opposite basis remains exhausted and incomplete.
-          expect(first.status, IngestStatus.failed);
+          // Both independently approved own bases are stored.
+          expect(first.status, IngestStatus.succeeded);
           expect(first.failed, 0);
-          expect(first.message, contains('재시도 한도에 도달한 미완료 1건'));
-          expect(first.updated, 1);
+          expect(first.message, isNot(contains('재시도 한도에 도달한 미완료 1건')));
+          expect(first.updated, 2);
           final after = (await DartFiling.db.findById(session, f.id!))!;
           expect(after.separateStatus, FilingFetchStatus.stored);
-          expect(after.consolidatedStatus, FilingFetchStatus.failed);
+          expect(after.consolidatedStatus, FilingFetchStatus.stored);
           expect(after.attempts, 7);
           expect(after.lastError, contains('attempt=3'));
           final reports = await FinancialReport.db.find(
             session,
             where: (t) => t.companyId.equals(c.id!),
           );
-          expect(reports, hasLength(1));
-          final report = reports.single;
+          expect(reports, hasLength(2));
+          final report = reports.singleWhere((r) => r.fsDiv == FsDiv.separate);
           expect(report.fsDiv, FsDiv.separate);
           final detail = (await endpoints.financial.report(
             builder,
@@ -237,11 +238,143 @@ void main() {
             (await Source.db.findById(session, correctionSource.id!))!.toJson(),
             correctionBefore,
           );
+          {
+            final entry = VerifiedAnnualSourceRegistry.find(
+              receipt,
+              FsDiv.consolidated,
+            )!;
+            expect(entry.ruleVersion, 'isung-own-cfs-exact-current-seven-v1');
+            final report = reports.singleWhere(
+              (r) => r.fsDiv == FsDiv.consolidated,
+            );
+            expect(report.fsDiv, FsDiv.consolidated);
+            expect(report.bsnsYear, entry.year);
+            expect(report.rceptNo, entry.receipt);
+            expect(report.reportCode, FinancialReportCode.annual);
+            expect(report.invalidAmountCount, 0);
+            final detail = (await endpoints.financial.report(
+              builder,
+              report.id!,
+            ))!;
+            expect(detail.facts, hasLength(7));
+            expect(
+              detail.facts.every(
+                (x) => x.accountId == null && x.sourceId == detail.source!.id,
+              ),
+              true,
+            );
+            final manifest = jsonDecode(
+              File('${entry.assetDirectory}/manifest.json').readAsStringSync(),
+            );
+            final expectedUri = (manifest['sources'] as List).singleWhere(
+              (x) => x['label'] == 'cfs',
+            )['url'];
+            expect(detail.source!.url, expectedUri);
+            final audit = await Source.db.findFirstRow(
+              session,
+              where: (t) => t.reference.equals(
+                'financial-api-noData-source:$receipt:consolidated',
+              ),
+            );
+            expect(audit, isNotNull);
+            expect(audit!.url, expectedUri);
+            final summary = (await endpoints.financial.summary(
+              builder,
+              c.corpCode,
+              fsDiv: FsDiv.consolidated,
+            ))!;
+            for (final e in cfsProof.exactSevenValues[receipt]!.entries) {
+              expect(
+                summary.periods.single.lines
+                    .singleWhere((l) => l.key == e.key)
+                    .amount,
+                BigInt.parse(e.value),
+              );
+            }
+            expect(
+              summary.periods.single.lines.where((l) => l.key == 'capex'),
+              isEmpty,
+            );
+            final mapped = await session.db.unsafeQuery(
+              'SELECT ${FinancialAccounts.resolvedIdSql('f')} FROM financial_fact f WHERE f."reportId"=${report.id}',
+            );
+            expect(mapped.where((r) => r[0] != null), hasLength(7));
+            expect(
+              detail.facts.map((f) => f.accountName),
+              unorderedEquals(cfsProof.rowsNames(receipt)),
+            );
+            final amountSource = await Source.db.findFirstRow(
+              session,
+              where: (t) => t.reference.equals(
+                'financial-api-noData-source:${entry.receipt}:consolidated',
+              ),
+            );
+            final amountPayload = jsonDecode(amountSource!.title);
+            expect(amountPayload['coreRows'], 7);
+            final evidence = jsonDecode(
+              File('${entry.assetDirectory}/current-evidence.json')
+                  .readAsStringSync(),
+            );
+            expect(amountPayload['sha256'], evidence['sourceDigest']);
+            final niRow = (amountPayload['coreRowProvenance'] as List)
+                .singleWhere(
+                  (r) => (r['account_nm'] as String).contains('연결당기순손실'),
+                );
+            expect(
+              detail.facts
+                  .singleWhere((f) => f.accountName.contains('연결당기순손실'))
+                  .statement,
+              entry.year == 2022
+                  ? FinancialStatementKind.comprehensiveIncome
+                  : FinancialStatementKind.incomeStatement,
+            );
+            expect(
+              niRow['html_provenance']['currentCell'],
+              entry.year == 2022 ? '(1,637,586,127)' : '1,509,318,876',
+            );
+            expect(niRow['html_provenance']['sourceCellRewritten'], false);
+            final proof =
+                amountPayload['coreRowProvenance'][0]['html_provenance']['supportingPeriodEvidence']['scopeProof'];
+            expect(proof['partialCore7'], true);
+            expect(
+              proof['checkedPrintedEquationCount'],
+              entry.year == 2022 ? 16 : 15,
+            );
+            expect(proof['notesVerified'], false);
+            expect(proof['optionalAccountsNotCollected'], ['capex']);
+            expect(proof['fullStatementCollected'], false);
+            expect(proof['FCFSupported'], false);
+            expect(proof['allStatementRowsVerified'], false);
+            expect(proof['fullStatementVerified'], false);
+            expect(proof['priorNumericPeriodsCollected'], false);
+            expect(detail.report.factCount, 7);
+            expect(detail.facts.every((f) => f.ord != null), true);
+            expect(
+              amountPayload['coreRowProvenance'].every(
+                (dynamic x) => x['html_provenance']['source'] == expectedUri,
+              ),
+              true,
+            );
+            expect(
+              amountPayload['coreRowProvenance'].every(
+                (dynamic x) =>
+                    x['html_provenance']['fullStatementCollected'] == false,
+              ),
+              true,
+            );
+
+            expect(
+              detail.source!.id,
+              isNot(
+                reports.singleWhere((r) => r.fsDiv == FsDiv.separate).sourceId,
+              ),
+            );
+          }
           final coverage = await endpoints.ingest.coverage(builder.asAdmin);
           expect(
             coverage.financialFailedFilings,
-            1,
-          ); // Own CFS is not approved: no filing-complete claim.
+            0,
+          ); // Both own basis contracts stored; still partial seven, not all rows.
           final sourceBefore = (await Source.db.find(session))
               .map((x) => x.toJson())
               .toList();
@@ -253,10 +386,10 @@ void main() {
           final ledgerBefore = after.toJson();
           final firstReads = reads;
           final replay = await run();
-          // The opposite basis remains exhausted and incomplete.
-          expect(replay.status, IngestStatus.failed);
+          // Both independently approved own bases are stored.
+          expect(replay.status, IngestStatus.succeeded);
           expect(replay.failed, 0);
-          expect(replay.message, contains('재시도 한도에 도달한 미완료 1건'));
+          expect(replay.message, isNot(contains('재시도 한도에 도달한 미완료 1건')));
           expect(replay.updated, 0);
           expect(reads, firstReads);
           expect(
