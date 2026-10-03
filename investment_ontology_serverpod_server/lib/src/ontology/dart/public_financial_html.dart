@@ -1,3 +1,4 @@
+import 'known_annual_source_not_presented.dart';
 import 'curachem_restated_current_seven_source.dart';
 import 'konasol_current_seven_source.dart';
 import 'curachem_current_seven_source.dart';
@@ -843,6 +844,17 @@ abstract final class PublicFinancialHtml {
     // Opt-in proof inspection only; this does not authorize six-core storage.
     bool allowSourceVerifiedPartialCore = false,
   }) {
+    KnownAnnualSourcesNotPresented.verify(
+      receipt: receipt,
+      corpCode: corpCode,
+      consolidated: consolidated,
+      start: periodStart,
+      end: periodEnd,
+      coverSource: coverSource,
+      statementSource: statementSource,
+      coverHtml: coverHtml,
+      statementHtml: statementHtml,
+    );
     KnownAnnualSourceConflicts.verify(
       receipt: receipt,
       corpCode: corpCode,

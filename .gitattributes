@@ -21,3 +21,6 @@ investment_ontology_serverpod_server/test/fixtures/issuer_documents/dart/*.html 
 
 # Official publication schedule evidence retains pinned original bytes.
 investment_ontology_serverpod_server/test/fixtures/market_publication/*.html -text whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+
+# Exact source-not-presented independent fixtures retain original bytes.
+investment_ontology_serverpod_server/test/fixtures/kosnine_not_presented/*.html -text whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol

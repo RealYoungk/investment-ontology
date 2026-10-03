@@ -1,0 +1,15 @@
+{
+  "receipt": "20260324000091",
+  "corpCode": "00442455",
+  "year": 2025,
+  "rule": "kosnine-current-not-presented-v1",
+  "scope": "failed-only; no amount facts; not basis absence",
+  "files": {
+    "cover": "6627761e4da2452fb5dfd8aca725b0f8c7fb1c48018f9de8cef1935b2c6208e6",
+    "cfs": "415e32d72cf2a6f1a9f3fb2f0504cae4f583fe3472fa4c307bd6329d8770d295",
+    "ofs": "7a4f64c579187db2da4c1a8bc06ad52a56e626eb402fbaea7b19dabc633e8234",
+    "shell": "675cc555b5fac5fa56ce8f66eb59abb26c95e3be223c5c38669a11436bde22b2",
+    "cfs-audit": "ae1ebbd050fe6a75c9130d369958e4eae2c6809b2a70b236917abfae932b5385",
+    "ofs-audit": "c4453dcd957706779fdc99de6ce60d6a6c1e3097f73ffc3c19842f962ba0350c"
+  }
+}
