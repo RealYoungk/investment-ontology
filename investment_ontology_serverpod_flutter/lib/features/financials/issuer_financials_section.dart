@@ -8,6 +8,7 @@ import '../../design/components/components.dart';
 import '../../design/tokens.dart';
 import 'financial_metrics.dart' show formatKrwLong;
 import 'issuer_financial_source_registry.dart';
+import 'own_annual_financial_source_registry.dart';
 
 /// Stored alternate-source current observations; never substitutes regular reports.
 class IssuerFinancialsSection extends StatefulWidget {
@@ -16,8 +17,10 @@ class IssuerFinancialsSection extends StatefulWidget {
     required this.corpCode,
     this.dataVersion = 0,
     this.loader,
+    this.ownAnnual = false,
   });
   final String corpCode;
+  final bool ownAnnual;
   final int dataVersion;
   final Future<String> Function(String, String)? loader;
   @override
@@ -39,14 +42,18 @@ class _IssuerFinancialsSectionState extends State<IssuerFinancialsSection> {
   void didUpdateWidget(covariant IssuerFinancialsSection oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.corpCode != widget.corpCode ||
-        oldWidget.dataVersion != widget.dataVersion) {
+        oldWidget.dataVersion != widget.dataVersion ||
+        oldWidget.ownAnnual != widget.ownAnnual) {
       _load();
     }
   }
 
+  bool get _supported => widget.ownAnnual
+      ? OwnAnnualFinancialSourceRegistry.supportsCorp(widget.corpCode)
+      : IssuerFinancialSourceRegistry.supportsCorp(widget.corpCode);
   Future<void> _load() async {
     final request = ++_request;
-    if (!IssuerFinancialSourceRegistry.supportsCorp(widget.corpCode)) return;
+    if (!_supported) return;
     setState(() {
       _rows = null;
       _error = null;
@@ -55,22 +62,37 @@ class _IssuerFinancialsSectionState extends State<IssuerFinancialsSection> {
       final value = jsonDecode(
         await (widget.loader ?? client.research.data)(
           widget.corpCode,
-          'issuerFinancials',
+          widget.ownAnnual ? 'issuerAnnualFinancials' : 'issuerFinancials',
         ),
       ) as Map;
       if (!{'ready', 'notCollected'}.contains(value['state'])) {
         throw const FormatException('Alternate financial read state failed');
       }
       if (value['state'] == 'ready' &&
-          (value['provider'] != 'verified-primary-html-rule' ||
+          (value['provider'] !=
+                  (widget.ownAnnual
+                      ? 'verified-own-annual-html-rule'
+                      : 'verified-primary-html-rule') ||
               value['source'] is! Map ||
               value['source']['kind'] != 'officialFile' ||
               value['source']['url'] != 'https://dart.fss.or.kr')) {
         throw const FormatException('Alternate snapshot source mismatch');
       }
       final rows = value['state'] == 'ready'
-          ? validateIssuerFinancialRows(value['rows'])
+          ? validateIssuerFinancialRows(
+              value['rows'],
+              ownAnnual: widget.ownAnnual,
+            )
           : <Map<String, dynamic>>[];
+      if (rows.any((r) => r['corpCode'] != widget.corpCode)) {
+        throw const FormatException('Alternate response issuer mismatch');
+      }
+      if (widget.ownAnnual &&
+          value['state'] == 'ready' &&
+          value['source']['reference'] !=
+              'source-bound-own-annual-core;no-api-report-or-xbrl-assertion') {
+        throw const FormatException('Own annual source reference mismatch');
+      }
       if (!mounted || request != _request) return;
       setState(() => _rows = rows);
     } catch (e) {
@@ -80,7 +102,7 @@ class _IssuerFinancialsSectionState extends State<IssuerFinancialsSection> {
 
   @override
   Widget build(BuildContext context) {
-    if (!IssuerFinancialSourceRegistry.supportsCorp(widget.corpCode)) {
+    if (!_supported) {
       return const SizedBox.shrink();
     }
     final rows = _rows;
@@ -89,10 +111,15 @@ class _IssuerFinancialsSectionState extends State<IssuerFinancialsSection> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('별도 공식 원문 핵심 재무', style: context.typo.body(16)),
+          Text(
+            widget.ownAnnual ? '자체 연간 감사 원문 · 핵심 재무' : '별도 공식 원문 핵심 재무',
+            style: context.typo.body(16),
+          ),
           const SizedBox(height: AppSpace.sm),
-          const AppNotice(
-            message: '공식 원문의 현재기간 핵심계정 일부입니다. 전체 재무제표·비교기간은 미추출이며 정기보고서 집계·TTM에 포함하지 않습니다. 각 문서의 현재기간만 표시하며, 문서 내 비교기간과 미확인 연간자료는 포함하지 않습니다.',
+          AppNotice(
+            message: widget.ownAnnual
+                ? '각 연도 자체 감사보고서의 현재기간만 추출합니다. 일반기업회계기준과 한국채택국제회계기준을 구분하며, 후속 보고서의 비교 숫자로 과거 연도를 덮어쓰지 않습니다. 전체 재무제표·주석·TTM은 미완료입니다.'
+                : '공식 원문의 현재기간 핵심계정 일부입니다. 전체 재무제표·비교기간은 미추출이며 정기보고서 집계·TTM에 포함하지 않습니다. 각 문서의 현재기간만 표시하며, 문서 내 비교기간과 미확인 연간자료는 포함하지 않습니다.',
           ),
           const SizedBox(height: AppSpace.md),
           if (_error != null)
@@ -104,26 +131,42 @@ class _IssuerFinancialsSectionState extends State<IssuerFinancialsSection> {
               '별도 원문 핵심 재무 수집 전입니다.',
               style: context.typo.body(13, color: context.colors.textMuted),
             )
-          else
+          else ...[
+            if (widget.ownAnnual)
+              Text(
+                [
+                  for (final year in [2021, 2022, 2023, 2024, 2025])
+                    '$year: ${rows.any((r) => (r["periodEnd"] as String).startsWith("$year")) ? "자체 원문 핵심계정" : "자체 원문 미확인"}',
+                ].join(' · '),
+                style: context.typo.body(12),
+              ),
             for (final row in rows) _PeriodCard(row: row),
+          ],
         ],
       ),
     );
   }
 }
 
-List<Map<String, dynamic>> validateIssuerFinancialRows(dynamic raw) {
+List<Map<String, dynamic>> validateIssuerFinancialRows(
+  dynamic raw, {
+  bool ownAnnual = false,
+}) {
   if (raw is! List || raw.isEmpty || raw.length > 5) {
     throw const FormatException('Missing alternate financial rows');
   }
   final seen = <String>{};
   final rows = raw.map((value) {
     final row = Map<String, dynamic>.from(value as Map);
-    final matches = IssuerFinancialSourceRegistry.rows.where(
-      (r) =>
-          r['corpCode'] == row['corpCode'] &&
-          r['providerReceipt'] == row['providerReceipt'],
-    );
+    final matches =
+        (ownAnnual
+                ? OwnAnnualFinancialSourceRegistry.rows
+                : IssuerFinancialSourceRegistry.rows)
+            .where(
+              (r) =>
+                  r['corpCode'] == row['corpCode'] &&
+                  r['providerReceipt'] == row['providerReceipt'],
+            );
     if (matches.length != 1) {
       throw const FormatException('Unsupported alternate numeric issuer');
     }
@@ -138,6 +181,11 @@ List<Map<String, dynamic>> validateIssuerFinancialRows(dynamic raw) {
           'documentType',
           'periodKind',
           'auditStatus',
+          if (ownAnnual) ...[
+            'accountingStandard',
+            'auditOpinionUrl',
+            'auditOpinionSha256',
+          ],
         ].any((k) => row[k] != pin[k]) ||
         !(pin['bases'] as List).contains(row['basis']) ||
         row['numericState'] != 'partialCore' ||
@@ -187,7 +235,11 @@ class _PeriodCard extends StatelessWidget {
         ),
         subtitle: Text(
           annual
-              ? '자체 감사보고서 · 현재기간'
+              ? '자체 감사보고서 · 현재기간${row['accountingStandard'] == null
+                    ? ''
+                    : row['accountingStandard'] == 'KIFRS'
+                    ? ' · 한국채택국제회계기준'
+                    : ' · 일반기업회계기준'}'
               : '${row['documentType'] == 'prospectus' ? '투자설명서' : '증권신고서'} · ${row['periodKind'] == 'sinceIncorporation' ? '설립일부터 누적' : '반기 누적 6개월'} · ${row['auditStatus'] == 'reviewed'
                     ? '검토'
                     : row['auditStatus'] == 'audited'
@@ -214,7 +266,9 @@ class _PeriodCard extends StatelessWidget {
           if (row['unextractedMetrics'] is List &&
               (row['unextractedMetrics'] as List).isNotEmpty)
             Text(
-              '매출의 대시 표기와 확인되지 않은 유형자산 취득액은 0으로 채우지 않았습니다.',
+              row['accountingStandard'] != null
+                  ? '유형자산 전체 취득 총액은 원문 단일 셀로 인쇄되지 않아 추출하지 않았습니다. 세부 취득 내역을 임의 합산하지 않습니다.'
+                  : '매출의 대시 표기와 확인되지 않은 유형자산 취득액은 0으로 채우지 않았습니다.',
               style: context.typo.body(12, color: context.colors.textMuted),
             ),
           Text(
@@ -228,6 +282,14 @@ class _PeriodCard extends StatelessWidget {
             ),
             child: const Text('DART 원문 재무 절 보기'),
           ),
+          if (row['auditOpinionUrl'] != null)
+            TextButton(
+              onPressed: () => launchUrl(
+                Uri.parse(row['auditOpinionUrl']),
+                mode: LaunchMode.externalApplication,
+              ),
+              child: const Text('해당 연도 감사의견 원문 보기'),
+            ),
         ],
       ),
     );

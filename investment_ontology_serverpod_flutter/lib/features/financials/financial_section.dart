@@ -132,6 +132,11 @@ class _FinancialSectionState extends State<FinancialSection> {
           corpCode: widget.corpCode,
           dataVersion: widget.dataVersion,
         ),
+        IssuerFinancialsSection(
+          corpCode: widget.corpCode,
+          dataVersion: widget.dataVersion,
+          ownAnnual: true,
+        ),
       ],
     );
   }

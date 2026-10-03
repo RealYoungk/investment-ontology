@@ -9,6 +9,7 @@ import '../dart/dart_api_key.dart';
 import '../dart/dart_client.dart';
 import '../ingest/api_call_budget.dart';
 import '../ingest/issuer_financials_sync.dart';
+import '../ingest/own_annual_financials_sync.dart';
 import '../research/research_feed.dart';
 import '../research/research_snapshot_store.dart';
 import '../research/issuer_documents_feed.dart';
@@ -139,6 +140,8 @@ class ResearchEndpoint extends Endpoint {
             'collecting' => '다른 공시 수집이 진행 중입니다. 잠시 후 다시 확인합니다.',
             'retryLater' => '공시 수집을 완료하지 못했습니다. 잠시 후 다시 시도합니다.',
             _ => switch (kind) {
+              'issuerAnnualFinancials' =>
+                '자체 연간 감사 원문 핵심재무 수집 전입니다. 전체 재무제표와 구분합니다.',
               'issuerFinancials' => '대체 공식 원문 핵심 재무 수집 전입니다. 정기 API 집계와 분리합니다.',
               'issuerDocuments' => '공식 원문 문서 수집 전입니다. 재무 계정은 추출하지 않습니다.',
               'consensus' => '공개 제공이 허용된 컨센서스 공급원을 아직 연결하지 않았습니다.',
@@ -159,6 +162,16 @@ class ResearchEndpoint extends Endpoint {
           source?.url != 'https://dart.fss.or.kr' ||
           source?.reference != IssuerFinancialsSync.reference ||
           snapshot.provider != IssuerFinancialsSync.provider) {
+        throw IngestException(message: '별도 재무 출처 연결 검증 실패');
+      }
+    }
+    if (kind == 'issuerAnnualFinancials') {
+      final rows = ResearchFeed.validate(kind, jsonDecode(snapshot.payload));
+      if (rows.any((r) => r['corpCode'] != corpCode) ||
+          source?.kind != SourceKind.officialFile ||
+          source?.url != 'https://dart.fss.or.kr' ||
+          source?.reference != OwnAnnualFinancialsSync.reference ||
+          snapshot.provider != OwnAnnualFinancialsSync.provider) {
         throw IngestException(message: '별도 재무 출처 연결 검증 실패');
       }
     }
@@ -198,7 +211,7 @@ class ResearchEndpoint extends Endpoint {
     String rightsReference,
   ) async {
     OntologyAccess.requireAdmin(session);
-    if (kind == 'issuerFinancials') {
+    if ({'issuerFinancials', 'issuerAnnualFinancials'}.contains(kind)) {
       throw IngestException(message: '별도 재무 숫자는 정상 서버 원문 파서만 저장합니다.');
     }
     final c = await _company(session, corpCode);

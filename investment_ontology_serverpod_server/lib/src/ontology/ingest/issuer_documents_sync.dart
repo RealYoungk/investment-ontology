@@ -9,16 +9,21 @@ import '../research/issuer_documents_collector.dart';
 import '../research/research_snapshot_store.dart';
 import 'ingest_jobs.dart';
 import 'issuer_financials_sync.dart';
+import 'own_annual_financials_sync.dart';
 
 class IssuerDocumentsResult {
   int storedCompanies = 0, storedDocuments = 0, failedCompanies = 0;
   int financialPeriodGroups = 0, financialFailedCompanies = 0;
+  int ownAnnualPeriodGroups = 0, ownAnnualFailedCompanies = 0;
   bool cancelled = false, setupFailed = false;
   bool get hasFailure =>
-      setupFailed || failedCompanies > 0 || financialFailedCompanies > 0;
+      setupFailed ||
+      failedCompanies > 0 ||
+      financialFailedCompanies > 0 ||
+      ownAnnualFailedCompanies > 0;
   final reasons = <String>[];
   String get message =>
-      '공식 별도 원문: 회사 보존 $storedCompanies · 문서 보존 $storedDocuments · 회사 실패 $failedCompanies · 준비 실패 ${setupFailed ? 1 : 0} · 원문 메타데이터 숫자 미추출 · 별도 핵심재무 기간·basis $financialPeriodGroups · 별도 재무 회사 실패 $financialFailedCompanies${cancelled ? ' · 취소' : ''}${reasons.isEmpty ? '' : ' · ${reasons.join('; ')}'}';
+      '공식 별도 원문: 회사 보존 $storedCompanies · 문서 보존 $storedDocuments · 회사 실패 $failedCompanies · 준비 실패 ${setupFailed ? 1 : 0} · 원문 메타데이터 숫자 미추출 · 별도 핵심재무 기간·basis $financialPeriodGroups · 별도 재무 회사 실패 $financialFailedCompanies · 자체 연간 핵심재무 기간·basis $ownAnnualPeriodGroups · 자체 연간 재무 회사 실패 $ownAnnualFailedCompanies${cancelled ? ' · 취소' : ''}${reasons.isEmpty ? '' : ' · ${reasons.join('; ')}'}';
 }
 
 /// Internal scheduled worker. Stores raw metadata only, without touching body or
@@ -202,6 +207,16 @@ class IssuerDocumentsSync {
       )) {
         return true;
       }
+      if (await OwnAnnualFinancialsSync.pending(
+        session,
+        company,
+        cache,
+        docs
+            .where((d) => (d['metadata'] as Map)['corpCode'] == entry.key)
+            .toList(),
+      )) {
+        return true;
+      }
     }
     return false;
   }
@@ -289,6 +304,27 @@ class IssuerDocumentsSync {
           result.reasons.add('${entry.key}: 별도 핵심재무 검증 실패 (${e.runtimeType})');
           session.log(
             '별도 핵심 재무 실패 ${entry.key}',
+            level: LogLevel.warning,
+            exception: e,
+            stackTrace: st,
+          );
+        }
+        try {
+          result.ownAnnualPeriodGroups += await OwnAnnualFinancialsSync.store(
+            session,
+            company,
+            collector.cache,
+            entry.value,
+            cancelled,
+          );
+        } catch (e, st) {
+          if (await cancelled()) return result..cancelled = true;
+          result.ownAnnualFailedCompanies++;
+          result.reasons.add(
+            '${entry.key}: 자체 연간 핵심재무 검증 실패 (${e.runtimeType})',
+          );
+          session.log(
+            '자체 연간 재무 실패 ${entry.key}',
             level: LogLevel.warning,
             exception: e,
             stackTrace: st,
