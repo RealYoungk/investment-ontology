@@ -64,3 +64,6 @@ AdSense에서 alfinder.kr이 실제로 ‘준비됨’으로 바뀌고, 새 호�
 `rollback --record <기록.json>`은 이 계정·프로젝트의 Cloudflare 기록만 허용한다. 현재 production ID와 백엔드가 기록과 일치하고 이전 production의 SHA4/API/401이 맞아야 공식 rollback API를 호출한다. 이전 Vercel 기록과 preview는 거절한다. 업로드 결과가 불명확하면 자동 재업로드/자동 롤백하지 않는다. 기록의 이전 production을 보존하고 실제 현재 deployment ID를 먼저 확인한다.
 
 스크립트 단위 테스트는 실제 Pages 배포와 인증 브라우저 검증의 대체가 아니다. 로그인·결제 기능 개통은 기존 실제 브라우저 검증 기준을 별도로 따른다. 공식 제한: [Pages rollback](https://developers.cloudflare.com/pages/configuration/rollbacks/) 및 [rollback API](https://developers.cloudflare.com/api/resources/pages/subresources/projects/subresources/deployments/methods/rollback/).
+
+배포 artifact의 전체 40자리 commit과 실행 중 backend 이미지의 `org.opencontainers.image.revision`이 정확히 일치해야 한다. 누락·축약·다른 revision은 preview 업로드 전에 거부하고 production 업로드 직전에도 재확인한다. 따라서 해당 commit의 backend를 먼저 배포한다.
+검증 요청은 `User-Agent: alfinder-release/1.0`을 명시하며 Origin·Cache-Control·SHA4·401 검증은 유지한다. 기본 Python User-Agent가 운영 Pages에서 403을 받는 경우도 성공으로 처리하지 않는다.

@@ -107,7 +107,7 @@ class CloudflareReleaseTests(unittest.TestCase):
             # Real prepare rejects nested output: verify orchestration is separate.
             self.assertNotIn(source,destination.parents)
             destination.mkdir();(destination/'main.dart.js').write_text('sealed')
-        for scenario in ['preview-fails','production-changed','package-changed','success']:
+        for scenario in ['backend-stale','preview-fails','production-changed','package-changed','success']:
             fail_preview=scenario=='preview-fails'
             with self.subTest(scenario=scenario),tempfile.TemporaryDirectory() as directory,contextlib.ExitStack() as stack:
                 state=Path(directory)
@@ -117,7 +117,7 @@ class CloudflareReleaseTests(unittest.TestCase):
                 stack.enter_context(patch.object(release,'unpack'))
                 stack.enter_context(patch.object(release,'verify_bundle',return_value=manifest))
                 stack.enter_context(patch.object(release,'prepare',side_effect=prepare))
-                stack.enter_context(patch.object(release,'backend',return_value='exact-image-and-revision'))
+                stack.enter_context(patch.object(release,'backend',return_value='sha256:'+'a'*64+' '+('c'*40 if scenario=='backend-stale' else commit)))
                 stack.enter_context(patch.object(release,'web_hashes',return_value={'main.dart.js':'c'*64}))
                 stack.enter_context(patch.object(release,'check_hashes'))
                 stack.enter_context(patch.object(release,'production',side_effect=[dict(previous),dict(target) if scenario=='production-changed' else dict(previous),dict(previous),dict(target)]))
@@ -143,7 +143,7 @@ class CloudflareReleaseTests(unittest.TestCase):
                 stack.enter_context(contextlib.redirect_stdout(io.StringIO()))
                 if scenario!='success':
                     with self.assertRaises(ValueError):release.deploy(run_id=5)
-                    self.assertEqual(uploader.call_count,1)
+                    self.assertEqual(uploader.call_count,0 if scenario=='backend-stale' else 1)
                     self.assertEqual(list(state.iterdir()),[])
                 else:
                     release.deploy(run_id=5)
@@ -152,6 +152,27 @@ class CloudflareReleaseTests(unittest.TestCase):
                     self.assertEqual(durable['status'],'success')
                     self.assertEqual(durable['deployment']['id'],'target')
                     self.assertEqual(durable['provider'],'cloudflare-pages')
+
+    def test_fetch_declares_release_user_agent_and_keeps_origin_cache_headers(self):
+        from unittest.mock import MagicMock
+        response = MagicMock()
+        response.__enter__.return_value.read.return_value = b'public'
+        with patch.object(release, 'urlopen', return_value=response) as opener:
+            self.assertEqual(release.fetch('https://example/main.dart.js'), b'public')
+        request = opener.call_args.args[0]
+        self.assertEqual(request.get_header('User-agent'), 'alfinder-release/1.0')
+        self.assertEqual(request.get_header('Origin'), release.CONFIG['productionUrl'])
+        self.assertEqual(request.get_header('Cache-control'), 'no-cache')
+
+    def test_backend_revision_requires_exact_artifact_commit(self):
+        commit = 'b' * 40
+        image = 'sha256:' + 'a' * 64
+        release.require_backend_commit(image + ' ' + commit, commit)
+        for identity in [image, image + ' <no value>', image + ' ' + 'c' * 40,
+                         image + ' ' + commit[:7], image + ' ' + commit + ' extra',
+                         image + ' ' + commit + '\n' + image + ' ' + commit]:
+            with self.subTest(identity=identity), self.assertRaises(ValueError):
+                release.require_backend_commit(identity, commit)
 
     def test_legacy_and_unknown_outcome_records_do_not_invoke_rollback(self):
         with tempfile.TemporaryDirectory() as directory:

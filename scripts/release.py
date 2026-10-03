@@ -60,10 +60,17 @@ def backend():
     return result
 
 
+def require_backend_commit(identity, commit):
+    """Require the running immutable image to declare this exact artifact source."""
+    if not re.fullmatch(r'[0-9a-f]{40}', commit) or not re.fullmatch(
+            r'sha256:[0-9a-f]{64} ' + re.escape(commit), identity):
+        raise ValueError('Running backend OCI revision must match the artifact commit')
+
+
 def fetch(url, data=None):
     request = Request(url, data=data, headers={
         'Cache-Control': 'no-cache', 'Origin': CONFIG['productionUrl'],
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json', 'User-Agent': 'alfinder-release/1.0',
     })
     with urlopen(request, timeout=60) as response:
         return response.read()
@@ -229,6 +236,7 @@ def deploy(run_id=None, local=None):
                            for path in prepared.rglob('*') if path.is_file()}
         previous = production()
         server = backend()
+        require_backend_commit(server, commit)
         previous['mainJsSha256'] = check_web(previous['url'])
         previous['fileHashes'] = web_hashes(previous['url'])
         check_hashes(CONFIG['productionUrl'], previous['fileHashes'])
@@ -261,6 +269,7 @@ def deploy(run_id=None, local=None):
         require_head(commit)
         if production()['id'] != previous['id'] or backend() != server:
             raise ValueError('Production changed before the final Pages upload')
+        require_backend_commit(backend(), commit)
         record['status'] = 'production-upload-requested'
         save(path, record)
         try:
