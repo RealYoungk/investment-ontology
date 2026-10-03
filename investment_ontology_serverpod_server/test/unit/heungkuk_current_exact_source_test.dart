@@ -111,6 +111,21 @@ void main() {
           expect(p['unit'], '백만원');
           final cash = p['cashScopeProof'] as Map;
           expect(cash['priorNote43CashConflict'], e.year == 2021);
+          final note6 = cash['note6CashScope'] as Map;
+          expect(note6['currentComponentSumResidualPrintedMillion'], 0);
+          expect(note6['priorCashConflict'], e.year == 2021);
+          final classification =
+              cash['currentNote43VsNote6Classification'] as Map;
+          expect(classification['aggregateCashDifferencePrintedMillion'], 0);
+          expect(
+            classification['bankDepositDifferencePrintedMillion'],
+            e.year == 2022 ? 1 : 0,
+          );
+          expect(
+            classification['otherDepositDifferencePrintedMillion'],
+            e.year == 2022 ? -1 : 0,
+          );
+          expect(classification['roundingAssumed'], false);
           expect(
             cash['priorNote43DifferencePrintedMillion'],
             e.year == 2021 ? 1 : 0,

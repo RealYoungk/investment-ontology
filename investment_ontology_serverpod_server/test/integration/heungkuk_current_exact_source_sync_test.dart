@@ -167,7 +167,17 @@ void main() {
         expect(provenance['numericCoreRows'], 8);
         expect(provenance['networkRequests'], 0);
         expect(provenance['apiCalls'], 0);
-        final originalProof = jsonDecode(source.title) as Map;
+        final originalSource = (await Source.db.find(
+          s,
+          where: (t) => t.reference.equals(
+            'financial-api-noData-source:${e.receipt}:OFS',
+          ),
+        )).single;
+        expect(originalSource.url, source.url);
+        final originalProof = jsonDecode(originalSource.title) as Map;
+        expect(originalProof['corpCode'], e.corpCode);
+        expect(originalProof['targetReceipt'], e.receipt);
+        expect(originalProof['fsDiv'], 'OFS');
         final rowProofs = originalProof['coreRowProvenance'] as List;
         expect(rowProofs, hasLength(8));
         for (final rowProof in rowProofs) {
@@ -182,6 +192,21 @@ void main() {
             e.year == 2021 ? 1 : 0,
           );
           expect(cash['genericRoundingTolerance'], false);
+          final note6 = cash['note6CashScope'] as Map;
+          expect(note6['currentComponentSumResidualPrintedMillion'], 0);
+          expect(note6['priorCashConflict'], e.year == 2021);
+          final classification =
+              cash['currentNote43VsNote6Classification'] as Map;
+          expect(classification['aggregateCashDifferencePrintedMillion'], 0);
+          expect(
+            classification['bankDepositDifferencePrintedMillion'],
+            e.year == 2022 ? 1 : 0,
+          );
+          expect(
+            classification['otherDepositDifferencePrintedMillion'],
+            e.year == 2022 ? -1 : 0,
+          );
+          expect(classification['roundingAssumed'], false);
         }
       }
       expect(await FinancialFact.db.find(s), hasLength(16));
