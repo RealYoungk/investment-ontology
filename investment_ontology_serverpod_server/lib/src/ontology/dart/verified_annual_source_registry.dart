@@ -56,6 +56,35 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20220316001241',
+      corpCode: '00115694',
+      companyName: 'DB증권(주)',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20220316001241-cfs-own-eight',
+      manifestDigest:
+          'f90c62084920b8f2671f1b3fb900338a77cdf93c6ccbdc02497e4eb654661bb3',
+      ruleVersion: 'db-yuanta-own-current-eight-v1',
+      absenceLiteral: null,
+      requiresIssuerOverview: true,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20230314000094',
+      corpCode: '00117601',
+      companyName: '유안타증권(주)',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20230314000094-cfs-own-eight',
+      manifestDigest:
+          '461a81ad8fb9fa68d6cd4a6d43ba10f082bbc4da66398ad476f329eb65e03983',
+      ruleVersion: 'db-yuanta-own-current-eight-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20220310000784',
       corpCode: '00104856',
       companyName: '삼성증권(주)',

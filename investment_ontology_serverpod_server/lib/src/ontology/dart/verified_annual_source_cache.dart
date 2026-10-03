@@ -1,4 +1,5 @@
 import 'samsungsec_2021_own_audit_source.dart';
+import 'db_yuanta_own_eight_source.dart';
 import 'samsungsec_2022_own_audit_source.dart';
 import 'koreanre_2021_own_ofs_source.dart';
 import 'koreanre_2022_current_eight_source.dart';
@@ -652,6 +653,42 @@ final class VerifiedAnnualSourceCache {
           coverSource: uris['cover']!,
           statementHtml: raws[basis == FsDiv.consolidated ? 'cfs' : 'ofs']!,
           statementSource: uris[basis == FsDiv.consolidated ? 'cfs' : 'ofs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == DbYuantaOwnEightSource.rule) {
+      final src = manifest['sources'] as List;
+      final uris = <String, Uri>{
+        for (final s in src)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raws = <String, String>{
+        for (final s in src)
+          s['label'] as String: utf8.decode(documents[uris[s['label']]]!),
+      };
+      final rows = DbYuantaOwnEightSource.parse(
+        receipt: entry.receipt,
+        corpCode: company.corpCode,
+        companyName: company.name,
+        consolidated: basis == FsDiv.consolidated,
+        start: start,
+        end: end,
+        raw: raws,
+        uris: uris,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raws['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raws['cfs']!,
+          statementSource: uris['cfs']!,
           periodStart: start,
           periodEnd: end,
           rows: rows,
