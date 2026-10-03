@@ -283,6 +283,7 @@ class _SourceRecord extends StatelessWidget {
       childrenPadding: const EdgeInsets.all(AppSpace.md),
       expandedCrossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        FinancialSourceScopeNotice(sourceTitle: source.title),
         if (uri != null &&
             uri.scheme == 'https' &&
             uri.host == 'dart.fss.or.kr')

@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import '../dart/imgt_explicit_revenue_missing.dart';
+import '../dart/curachem_current_seven_source.dart';
 
 import 'package:serverpod/serverpod.dart';
 
@@ -233,6 +236,67 @@ class FinancialEndpoint extends Endpoint {
     );
   }
 
+  static bool validPartialScopeSource(
+    Source source,
+    FinancialReport report,
+    String corpCode,
+  ) {
+    if (corpCode != CurachemCurrentSevenSource.corp ||
+        report.rceptNo != CurachemCurrentSevenSource.receipt ||
+        report.bsnsYear != 2024 ||
+        report.fsDiv != FsDiv.separate ||
+        report.reportCode != FinancialReportCode.annual ||
+        source.url != CurachemCurrentSevenSource.bodyUri ||
+        source.kind != SourceKind.dartReport ||
+        source.reference !=
+            'financial-api-noData-source:${report.rceptNo}:${report.fsDiv.name}') {
+      return false;
+    }
+    try {
+      final value = jsonDecode(source.title);
+      if (value is! Map ||
+          value['action'] !=
+              'verified-keyless-annual-source-after-api-noData' ||
+          value['targetReceipt'] != report.rceptNo ||
+          value['corpCode'] != corpCode ||
+          value['fsDiv'] != report.fsDiv.name ||
+          value['reportName'] != report.reportName) {
+        return false;
+      }
+      final rows = value['coreRowProvenance'];
+      if (rows is! List ||
+          rows.isEmpty ||
+          value['coreRows'] != rows.length ||
+          rows.length != 7 ||
+          value['sha256'] != CurachemCurrentSevenSource.bodySha) {
+        return false;
+      }
+      for (final row in rows) {
+        if (row is! Map) {
+          return false;
+        }
+        final proof = row['html_provenance'];
+        if (proof is! Map ||
+            proof['partialCore7'] != true ||
+            proof['detailHierarchyComplete'] != false ||
+            proof['notesVerified'] != false ||
+            proof['source'] != source.url ||
+            proof['sourceSha256'] != value['sha256'] ||
+            proof['basis'] !=
+                (report.fsDiv == FsDiv.separate ? 'OFS' : 'CFS') ||
+            proof['periodStart'] != '${report.bsnsYear}-01-01' ||
+            proof['periodEnd'] != '${report.bsnsYear}-12-31') {
+          return false;
+        }
+      }
+      return true;
+    } on FormatException {
+      {
+        return false;
+      }
+    }
+  }
+
   /// 재무 보고서 원문 표와 같은 기간의 정정 이력.
   Future<FinancialReportDetail?> report(Session session, int reportId) async {
     final report = await FinancialReport.db.findById(session, reportId);
@@ -246,6 +310,23 @@ class FinancialEndpoint extends Endpoint {
       report.sourceId,
       for (final fact in facts) fact.sourceId,
     };
+    final partialScopeSource = await Source.db.findFirstRow(
+      session,
+      where: (t) => t.reference.equals(
+        'financial-api-noData-source:${report.rceptNo}:${report.fsDiv.name}',
+      ),
+    );
+    if (partialScopeSource != null) {
+      final company = await Company.db.findById(session, report.companyId);
+      if (company != null &&
+          validPartialScopeSource(
+            partialScopeSource,
+            report,
+            company.corpCode,
+          )) {
+        sourceIds.add(partialScopeSource.id!);
+      }
+    }
     final sources = await Source.db.find(
       session,
       where: (t) => t.id.inSet(sourceIds),

@@ -53,6 +53,25 @@ CompanyFinancials financials(List<FinancialPeriod> periods, {BigInt? cap}) =>
     );
 
 void main() {
+  test('seven core accounts without PPE total keep FCF and yield unknown', () {
+    final view = FinancialView(
+      financials([
+        period(2024, FinancialReportCode.annual, [
+          line('revenue', 1000),
+          line('operatingProfit', 100),
+          line('netIncome', 80),
+          line('assets', 2000),
+          line('liabilities', 500),
+          line('equity', 1500),
+          line('operatingCashFlow', 120),
+        ]),
+      ], cap: BigInt.from(5000)),
+    );
+    final metrics = {for (final metric in view.metrics()) metric.key: metric};
+    expect(metrics['freeCashFlow']!.derived.value, isNull);
+    expect(metrics['fcfYield']!.derived.value, isNull);
+    expect(metrics['freeCashFlow']!.derived.missing, contains('유형자산'));
+  });
   test('latest uses actual closing month rather than FY or later correction receipt', () {
     final march = period(2026, FinancialReportCode.annual, [
       line('revenue', 300),

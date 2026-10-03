@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:investment_ontology_serverpod_flutter/design/app_theme.dart';
@@ -37,6 +39,40 @@ void main() {
     final box = t.renderObject<RenderBox>(find.textContaining('핵심계정 일부'));
     expect(box.size.width, lessThanOrEqualTo(288));
     expect(box.size.height, greaterThan(40));
+  });
+  testWidgets('seven-account provenance explains missing capex at 320px', (
+    t,
+  ) async {
+    await pump(
+      t,
+      jsonEncode({
+        'coreRows': 7,
+        'action': 'verified-keyless-annual-source-after-api-noData',
+        'corpCode': '01205514',
+        'targetReceipt': '20250305000164',
+        'fsDiv': 'separate',
+        'coreRowProvenance': [
+          {
+            'html_provenance': {
+              'partialCore7': true,
+              'detailHierarchyComplete': false,
+              'notesVerified': false,
+              'missingAccountReasons': {
+                'capex': 'No printed whole PPE acquisition total',
+              },
+            },
+          },
+        ],
+      }),
+    );
+    expect(find.textContaining('유형자산 취득 총액은 미확보'), findsOneWidget);
+    expect(find.textContaining('FCF와 FCF 수익률은 계산하지 않습니다'), findsOneWidget);
+    expect(find.textContaining('주석은 검증을 마치지'), findsOneWidget);
+    expect(t.takeException(), isNull);
+    expect(
+      FinancialSourceScopeNotice.messageFor(jsonEncode({'coreRows': 7})),
+      isNull,
+    );
   });
   testWidgets('API response scope is distinct, no all original rows claim', (
     t,
