@@ -1,3 +1,5 @@
+import '../dart/isung_current_seven_source.dart';
+
 import 'dart:convert';
 
 import '../dart/imgt_explicit_revenue_missing.dart';
@@ -243,6 +245,40 @@ class FinancialEndpoint extends Endpoint {
     FinancialReport report,
     String corpCode,
   ) {
+    if (IsungCurrentSevenSource.profiles.containsKey(report.rceptNo)) {
+      final profile = IsungCurrentSevenSource.profiles[report.rceptNo] as Map;
+      final body = (profile['sources'] as List).singleWhere(
+        (s) => s['label'] == 'ofs',
+      );
+      if (corpCode != '01365384' ||
+          report.bsnsYear != profile['year'] ||
+          report.fsDiv != FsDiv.separate ||
+          report.reportCode != FinancialReportCode.annual ||
+          source.kind != SourceKind.dartReport ||
+          source.url != body['url'] ||
+          source.reference !=
+              'financial-api-noData-source:${report.rceptNo}:separate') {
+        return false;
+      }
+      try {
+        final v = jsonDecode(source.title);
+        final expected = IsungCurrentSevenSource.expectedRows(report.rceptNo);
+        return v is Map &&
+            v['action'] == 'verified-keyless-annual-source-after-api-noData' &&
+            v['targetReceipt'] == report.rceptNo &&
+            v['sourceReceipt'] == report.rceptNo &&
+            v['format'] == 'html' &&
+            v['corpCode'] == corpCode &&
+            v['fsDiv'] == 'separate' &&
+            v['reportName'] == report.reportName &&
+            v['coreRows'] == 7 &&
+            jsonEncode(v['coreRowProvenance']) == jsonEncode(expected);
+      } on FormatException {
+        return false;
+      } on TypeError {
+        return false;
+      }
+    }
     final binding = {
       CurachemCurrentSevenSource.receipt: (
         CurachemCurrentSevenSource.corp,

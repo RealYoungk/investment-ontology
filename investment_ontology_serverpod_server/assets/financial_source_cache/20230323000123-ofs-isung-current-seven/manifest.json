@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20230323000123",
+  "corpCode": "01365384",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2022,
+  "periodStart": "2022-01-01",
+  "periodEnd": "2022-12-31",
+  "ruleVersion": "isung-own-exact-current-seven-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230323000123",
+      "sha256": "80383f46f27fce4d59187153ace0abc2454acce4e5bf2d428d03d5d4223457f5"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230323000123&dcmNo=9093262&eleId=1&offset=803&length=4029&dtd=dart3.xsd",
+      "sha256": "3a5c8225d46a7144352cfe78bac1ce670cac63d153344583ea20a817de3c59d0",
+      "file": "cover.html"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230323000123&dcmNo=9093262&eleId=21&offset=500303&length=77189&dtd=dart3.xsd",
+      "sha256": "f749ca8162d96f5729bc54ba5e4d7621d3bee61c1e0a8c4dc341a956b6e7ea54",
+      "file": "ofs.html"
+    }
+  ]
+}

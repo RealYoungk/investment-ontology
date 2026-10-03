@@ -56,6 +56,31 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20230323000123',
+      corpCode: '01365384',
+      companyName: '이성씨엔아이(주)',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230323000123-ofs-isung-current-seven',
+      manifestDigest:
+          '03fb467a20cd31cff824a752d0a4cff8ddd20e5583fa05b338f0638310cfd9a0',
+      ruleVersion: 'isung-own-exact-current-seven-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240321000294',
+      corpCode: '01365384',
+      companyName: '이성씨엔아이(주)',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20240321000294-ofs-isung-current-seven',
+      manifestDigest:
+          '090d65eac4dc9efb7229afbe90ea378586eec647e9b51323a3e85b67f83573ff',
+      ruleVersion: 'isung-own-exact-current-seven-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20220329000107',
       corpCode: '01436479',
       companyName: '(주)토마토시스템',
