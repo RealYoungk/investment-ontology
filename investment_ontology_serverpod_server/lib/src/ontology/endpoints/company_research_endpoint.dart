@@ -159,9 +159,9 @@ class ResearchEndpoint extends Endpoint {
       final rows = ResearchFeed.validate(kind, jsonDecode(snapshot.payload));
       if (rows.any((r) => r['corpCode'] != corpCode) ||
           source?.kind != SourceKind.officialFile ||
-          source?.url != 'https://dart.fss.or.kr' ||
-          source?.reference != IssuerFinancialsSync.reference ||
-          snapshot.provider != IssuerFinancialsSync.provider) {
+          source?.url != IssuerFinancialsSync.sourceUrl(corpCode) ||
+          source?.reference != IssuerFinancialsSync.sourceReference(corpCode) ||
+          snapshot.provider != IssuerFinancialsSync.sourceProvider(corpCode)) {
         throw IngestException(message: '별도 재무 출처 연결 검증 실패');
       }
     }

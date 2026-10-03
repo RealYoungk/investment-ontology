@@ -7,6 +7,7 @@ import '../../generated/protocol.dart';
 import '../research/issuer_financials_html.dart';
 import '../research/ipo_issuer_financials_html.dart';
 import '../research/issuer_financials_feed.dart';
+import '../research/fund_financials_text.dart';
 import '../research/research_snapshot_store.dart';
 
 /// Internal normal business worker only. No generated financial reports/facts.
@@ -17,10 +18,12 @@ abstract final class IssuerFinancialsSync {
       'source-bound-partial-current-core;no-api-report-or-xbrl-assertion';
   static bool supports(Map<String, dynamic> doc) =>
       IssuerFinancialsHtml.supports(doc) ||
-      IpoIssuerFinancialsHtml.supports(doc);
+      IpoIssuerFinancialsHtml.supports(doc) ||
+      FundFinancialsText.supports(doc);
   static bool supportsCorp(String code) =>
       code == IssuerFinancialsHtml.corp ||
-      IpoIssuerFinancialsHtml.supportsCorp(code);
+      IpoIssuerFinancialsHtml.supportsCorp(code) ||
+      FundFinancialsText.supportsCorp(code);
   static Future<List<Map<String, dynamic>>> rows(
     Directory cache,
     List<Map<String, dynamic>> documents,
@@ -28,6 +31,17 @@ abstract final class IssuerFinancialsSync {
     final rows = <Map<String, dynamic>>[];
     for (final d in documents.where(supports)) {
       final m = d['metadata'] as Map, p = d['proof'] as Map;
+      if (FundFinancialsText.supports(d)) {
+        final pdf = File('${cache.path}/${m['sha256']}.pdf');
+        final text = File('${cache.path}/${m['sha256']}.fund.txt');
+        if (await pdf.length() > 20 * 1024 * 1024 ||
+            await text.length() > 4 * 1024 * 1024) {
+          throw const FormatException('Fund private cache size bound');
+        }
+        FundFinancialsText.verifyPdf(m, await pdf.readAsBytes());
+        rows.add(FundFinancialsText.parseText(m, await text.readAsBytes()));
+        continue;
+      }
       for (final name in ['${m['sha256']}.html', '${p['shellSha256']}.html']) {
         if (await File('${cache.path}/$name').length() > 20 * 1024 * 1024) {
           throw const FormatException('Financial cache size bound');
@@ -53,8 +67,9 @@ abstract final class IssuerFinancialsSync {
     Company company,
     Directory cache,
     List<Map<String, dynamic>> documents,
-    Future<bool> Function() cancelled,
-  ) async {
+    Future<bool> Function() cancelled, {
+    void Function(int)? onQuarantined,
+  }) async {
     if (!supportsCorp(company.corpCode) || await cancelled()) {
       return 0;
     }
@@ -70,12 +85,36 @@ abstract final class IssuerFinancialsSync {
       company,
       kind,
       parsed,
-      provider,
-      'https://dart.fss.or.kr',
-      reference,
+      sourceProvider(company.corpCode),
+      sourceUrl(company.corpCode),
+      sourceReference(company.corpCode),
       SourceKind.officialFile,
       sourceTitle: jsonEncode({
         'kind': 'partial-primary-issuer-financials',
+        'retrievalMethod':
+            'verified-local-original-cache;no-request-time-extraction',
+        'sourceDocuments': parsed
+            .map(
+              (r) => {
+                for (final k in [
+                  'corpCode',
+                  'officialUrl',
+                  'sha256',
+                  'periodStart',
+                  'periodEnd',
+                  'basis',
+                  'categorySchema',
+                  'extractedTextSha256',
+                  'extractionTool',
+                  'numericState',
+                ])
+                  if (r.containsKey(k)) k: r[k],
+              },
+            )
+            .toList(),
+        'quarantinedPeriodGroups': parsed
+            .where((r) => r['numericState'] == 'pendingCashScope')
+            .length,
         'parsers': parsed.map((r) => r['parserVersion']).toSet().toList(),
         'actualOwnDocuments': documents.where(supports).length,
         'periodBasisGroups': parsed.length,
@@ -90,8 +129,24 @@ abstract final class IssuerFinancialsSync {
       }),
       cancelled: cancelled,
     );
-    return parsed.length;
+    final quarantined = parsed
+        .where((r) => r['numericState'] == 'pendingCashScope')
+        .length;
+    onQuarantined?.call(quarantined);
+    return parsed.length - quarantined;
   }
+
+  static String sourceProvider(String corp) =>
+      FundFinancialsText.supportsCorp(corp)
+      ? 'verified-primary-pdf-text-rule'
+      : provider;
+  static String sourceUrl(String corp) => FundFinancialsText.supportsCorp(corp)
+      ? 'https://re1.miraeasset.com'
+      : 'https://dart.fss.or.kr';
+  static String sourceReference(String corp) =>
+      FundFinancialsText.supportsCorp(corp)
+      ? 'source-bound-partial-printed-fund;cash-quarantine;no-regular-api-or-xbrl'
+      : reference;
 
   static Future<bool> pending(
     Session session,
@@ -111,13 +166,13 @@ abstract final class IssuerFinancialsSync {
       );
       if (latest == null ||
           latest.payload != jsonEncode(expected) ||
-          latest.provider != provider) {
+          latest.provider != sourceProvider(company.corpCode)) {
         return true;
       }
       final source = await Source.db.findById(session, latest.sourceId);
       return source?.kind != SourceKind.officialFile ||
-          source?.url != 'https://dart.fss.or.kr' ||
-          source?.reference != reference;
+          source?.url != sourceUrl(company.corpCode) ||
+          source?.reference != sourceReference(company.corpCode);
     } on FormatException {
       return true;
     } on FileSystemException {

@@ -15,6 +15,7 @@ class IssuerDocumentsResult {
   int storedCompanies = 0, storedDocuments = 0, failedCompanies = 0;
   int financialPeriodGroups = 0, financialFailedCompanies = 0;
   int ownAnnualPeriodGroups = 0, ownAnnualFailedCompanies = 0;
+  int financialQuarantinedPeriodGroups = 0;
   bool cancelled = false, setupFailed = false;
   bool get hasFailure =>
       setupFailed ||
@@ -23,7 +24,7 @@ class IssuerDocumentsResult {
       ownAnnualFailedCompanies > 0;
   final reasons = <String>[];
   String get message =>
-      '공식 별도 원문: 회사 보존 $storedCompanies · 문서 보존 $storedDocuments · 회사 실패 $failedCompanies · 준비 실패 ${setupFailed ? 1 : 0} · 원문 메타데이터 숫자 미추출 · 별도 핵심재무 기간·basis $financialPeriodGroups · 별도 재무 회사 실패 $financialFailedCompanies · 자체 연간 핵심재무 기간·basis $ownAnnualPeriodGroups · 자체 연간 재무 회사 실패 $ownAnnualFailedCompanies${cancelled ? ' · 취소' : ''}${reasons.isEmpty ? '' : ' · ${reasons.join('; ')}'}';
+      '공식 별도 원문: 회사 보존 $storedCompanies · 문서 보존 $storedDocuments · 회사 실패 $failedCompanies · 준비 실패 ${setupFailed ? 1 : 0} · 원문 메타데이터 숫자 미추출 · 별도 핵심재무 기간·basis $financialPeriodGroups · 별도 재무 회사 실패 $financialFailedCompanies · 자체 연간 핵심재무 기간·basis $ownAnnualPeriodGroups · 자체 연간 재무 회사 실패 $ownAnnualFailedCompanies · 펀드 현금 범위 격리 $financialQuarantinedPeriodGroups기간(금액 목록 제외)${cancelled ? ' · 취소' : ''}${reasons.isEmpty ? '' : ' · ${reasons.join('; ')}'}';
 }
 
 /// Internal scheduled worker. Stores raw metadata only, without touching body or
@@ -297,6 +298,8 @@ class IssuerDocumentsSync {
             collector.cache,
             entry.value,
             cancelled,
+            onQuarantined: (count) =>
+                result.financialQuarantinedPeriodGroups += count,
           );
         } catch (e, st) {
           if (await cancelled()) return result..cancelled = true;

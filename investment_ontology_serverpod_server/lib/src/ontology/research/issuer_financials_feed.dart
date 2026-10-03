@@ -1,10 +1,17 @@
 import 'issuer_financials_html.dart';
+import 'fund_financials_text.dart';
 import 'ipo_issuer_financials_html.dart';
 import 'reviewed_dart_issuer_sources.dart';
 
 /// Only immutable internal source-parser observations; external import is blocked.
 abstract final class IssuerFinancialsFeed {
   static List<Map<String, dynamic>> validate(dynamic input) {
+    if (input is List &&
+        input.isNotEmpty &&
+        input.first is Map &&
+        input.first['categorySchema'] == FundFinancialsText.category) {
+      return FundFinancialsText.validateRows(input);
+    }
     if (input is! List || input.isEmpty || input.length > 5) {
       throw const FormatException('Partial issuer financial rows required');
     }

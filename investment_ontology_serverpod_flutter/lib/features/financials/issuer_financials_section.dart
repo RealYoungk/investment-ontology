@@ -9,6 +9,7 @@ import '../../design/tokens.dart';
 import 'financial_metrics.dart' show formatKrwLong;
 import 'issuer_financial_source_registry.dart';
 import 'own_annual_financial_source_registry.dart';
+import 'fund_financials_card.dart';
 
 /// Stored alternate-source current observations; never substitutes regular reports.
 class IssuerFinancialsSection extends StatefulWidget {
@@ -72,10 +73,15 @@ class _IssuerFinancialsSectionState extends State<IssuerFinancialsSection> {
           (value['provider'] !=
                   (widget.ownAnnual
                       ? 'verified-own-annual-html-rule'
+                      : widget.corpCode == '00600013'
+                      ? 'verified-primary-pdf-text-rule'
                       : 'verified-primary-html-rule') ||
               value['source'] is! Map ||
               value['source']['kind'] != 'officialFile' ||
-              value['source']['url'] != 'https://dart.fss.or.kr')) {
+              value['source']['url'] !=
+                  (widget.corpCode == '00600013'
+                      ? 'https://re1.miraeasset.com'
+                      : 'https://dart.fss.or.kr'))) {
         throw const FormatException('Alternate snapshot source mismatch');
       }
       final rows = value['state'] == 'ready'
@@ -140,7 +146,11 @@ class _IssuerFinancialsSectionState extends State<IssuerFinancialsSection> {
                 ].join(' · '),
                 style: context.typo.body(12),
               ),
-            for (final row in rows) _PeriodCard(row: row),
+            for (final row in rows)
+              if (row['categorySchema'] == 'printedFundCategories')
+                FundFinancialsCard(row: row)
+              else
+                _PeriodCard(row: row),
           ],
         ],
       ),
@@ -152,6 +162,13 @@ List<Map<String, dynamic>> validateIssuerFinancialRows(
   dynamic raw, {
   bool ownAnnual = false,
 }) {
+  if (!ownAnnual &&
+      raw is List &&
+      raw.isNotEmpty &&
+      raw.first is Map &&
+      raw.first['categorySchema'] == 'printedFundCategories') {
+    return validateFundFinancialRows(raw);
+  }
   if (raw is! List || raw.isEmpty || raw.length > 5) {
     throw const FormatException('Missing alternate financial rows');
   }

@@ -171,5 +171,5 @@ abstract final class IssuerFinancialSourceRegistry {
     },
   ];
   static bool supportsCorp(String code) =>
-      rows.any((r) => r['corpCode'] == code);
+      code == '00600013' || rows.any((r) => r['corpCode'] == code);
 }
