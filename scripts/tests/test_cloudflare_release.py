@@ -34,7 +34,7 @@ class CloudflareReleaseTests(unittest.TestCase):
 
     def test_upload_binds_immutable_url_not_branch_alias_or_latest(self):
         value=self.value(); value['environment']='preview'
-        with patch.object(pages,'cli',return_value='https://abcdef.alfinder-web.pages.dev\nhttps://release-preview.alfinder-web.pages.dev') as cli,patch.object(pages,'api',return_value=[value]):
+        with patch.object(pages,'cli',return_value='https://abcdef.alfinder-web.pages.dev\nhttps://release-preview.alfinder-web.pages.dev') as cli,patch.object(pages,'api',side_effect=[[value], [], [], []]):
             self.assertEqual(pages.upload(Path('/artifact'),'b'*40)['id'],value['id'])
             args=cli.call_args.args
             self.assertIn('release-preview-'+'b'*40,args)
@@ -203,3 +203,13 @@ class WebOnlyBackendTests(unittest.TestCase):
             release.require_compatible_backend(identity, commit, source)
         with self.assertRaises(ValueError):
             release.require_compatible_backend(identity, commit, commit)
+
+
+class DeploymentPaginationTests(unittest.TestCase):
+    def test_upload_queries_four_valid_pages_and_binds_returned_url(self):
+        value = CloudflareReleaseTests().value()
+        value['environment'] = 'preview'
+        with patch.object(pages, 'cli', return_value=value['url']), patch.object(pages, 'api', side_effect=[[], [value], [], []]) as api:
+            result = pages.upload(Path('/artifact'), 'b' * 40)
+        self.assertEqual(result['id'], value['id'])
+        self.assertEqual([call.args[0] for call in api.call_args_list], [f'/deployments?per_page=25&page={page}' for page in range(1, 5)])
