@@ -239,7 +239,10 @@ void main() {
             fetchedAt: now,
           ),
         );
-        Future<void> parity(bool accepted) async {
+        Future<void> parity(
+          bool accepted, {
+          bool sourceLedgerIneligible = false,
+        }) async {
           final summary = (await endpoints.financial.summary(
             builder,
             c.corpCode,
@@ -264,14 +267,17 @@ void main() {
             builder,
             corpCodes: [c.corpCode],
           );
-          if (accepted) {
-            expect(page.items, hasLength(1));
-            expect(page.items.single.revenue, SolumixOwnRevenueScope.amount);
+          if (sourceLedgerIneligible) {
+            // FinancialBasis requires a dartReport source with this receipt.
+            // With this sole report excluded, the company has no screen row.
+            expect(accepted, isFalse);
+            expect(page.items, isEmpty);
           } else {
-            // Invalid Source may make the entire report ineligible. A remaining
-            // company row must still never expose unverified revenue.
-            expect(page.items.length, lessThanOrEqualTo(1));
-            expect(page.items.every((r) => r.revenue == null), true);
+            expect(page.items, hasLength(1));
+            expect(
+              page.items.single.revenue,
+              accepted ? SolumixOwnRevenueScope.amount : null,
+            );
           }
         }
 
@@ -289,7 +295,10 @@ void main() {
               bad.kind = SourceKind.manual;
           }
           await Source.db.updateRow(session, bad);
-          await parity(false);
+          await parity(
+            false,
+            sourceLedgerIneligible: drift == 'reference' || drift == 'kind',
+          );
           await Source.db.updateRow(session, source);
         }
         final originalCompany = c.copyWith();
