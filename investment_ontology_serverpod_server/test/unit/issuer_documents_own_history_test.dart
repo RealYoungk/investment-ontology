@@ -64,6 +64,11 @@ void main() {
         expect(d['metadata']['financialValues'], isNull);
       }
       expect(docs.where(IpoIssuerFinancialsHtml.supports), hasLength(8));
+      final futureIpo = jsonDecode(
+        jsonEncode(docs.firstWhere(IpoIssuerFinancialsHtml.supports)),
+      ) as Map<String, dynamic>;
+      futureIpo['metadata']['providerReceipt'] = '20261003000001';
+      expect(IpoIssuerFinancialsHtml.supports(futureIpo), isFalse);
     },
   );
   test(

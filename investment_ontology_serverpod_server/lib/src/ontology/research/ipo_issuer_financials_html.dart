@@ -11,10 +11,21 @@ abstract final class IpoIssuerFinancialsHtml {
   static const version = 'ipo-eight-current-statements-v1';
   static bool supportsCorp(String code) =>
       IpoFinancialsProfiles.rows.any((p) => p['corpCode'] == code);
+  static const _receipts = {
+    '20260908000396',
+    '20260729000518',
+    '20260903000077',
+    '20260903000071',
+    '20260907000079',
+    '20260828000997',
+    '20260729000264',
+    '20260824000116',
+  };
   static bool supports(Map<String, dynamic> d) =>
       supportsCorp('${(d['metadata'] as Map?)?['corpCode']}') &&
       (d['metadata'] as Map?)?['documentType'] ==
-          'securitiesRegistrationStatement';
+          'securitiesRegistrationStatement' &&
+      _receipts.contains((d['metadata'] as Map?)?['providerReceipt']);
   static List<Map<String, dynamic>> _profiles(String code) =>
       IpoFinancialsProfiles.rows.where((p) => p['corpCode'] == code).toList();
   static String _dateText(String s) =>
