@@ -1,3 +1,4 @@
+import 'exact_aone_annual_source.dart';
 import 'exact_current_cfs_source.dart';
 import 'db_fy22_whole_current_source.dart';
 import 'db_fy22_exact_issuer_identity.dart';
@@ -565,6 +566,42 @@ final class VerifiedAnnualSourceCache {
           coverSource: coverUri,
           statementHtml: statement,
           statementSource: statementUri,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == ExactAoneAnnualSource.rule) {
+      final sourceMaps = (manifest['sources'] as List).cast<Map>();
+      final uriByLabel = <String, Uri>{
+        for (final s in sourceMaps)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final rawByLabel = <String, String>{
+        for (final s in sourceMaps)
+          s['label'] as String: utf8.decode(documents[uriByLabel[s['label']]]!),
+      };
+      final rows = ExactAoneAnnualSource.parse(
+        receipt: entry.receipt,
+        corpCode: company.corpCode,
+        companyName: company.name,
+        consolidated: basis == FsDiv.consolidated,
+        start: start,
+        end: end,
+        raw: rawByLabel,
+        uris: uriByLabel,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: rawByLabel['cover']!,
+          coverSource: uriByLabel['cover']!,
+          statementHtml: rawByLabel['ofs']!,
+          statementSource: uriByLabel['ofs']!,
           periodStart: start,
           periodEnd: end,
           rows: rows,

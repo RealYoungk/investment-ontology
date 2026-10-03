@@ -56,6 +56,59 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20250320000036',
+      corpCode: '00614089',
+      companyName: '주식회사 에이원큐브텍',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20250320000036-ofs-exact-aone',
+      manifestDigest:
+          'f2a6ed5faf13f6e80b5d8ffe097a89d72a9876e4cb64a6e45314227920da2b53',
+      ruleVersion: 'exact-aone-current-ofs-eight-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240318000135',
+      corpCode: '00614089',
+      companyName: '주식회사 에이원큐브텍',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20240318000135-ofs-exact-aone',
+      manifestDigest:
+          'cfcda8dce0afe1bd492e4e7a4fdd0e358feea47b812b161d975f14e903541c3f',
+      ruleVersion: 'exact-aone-current-ofs-eight-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230321000015',
+      corpCode: '00614089',
+      companyName: '주식회사 에이원큐브텍',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20230321000015-ofs-exact-aone',
+      manifestDigest:
+          '243fc77518c8676883eda7f597806ca810453f8f7e64e3327298a0f239e2319c',
+      ruleVersion: 'exact-aone-current-ofs-eight-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220330000851',
+      corpCode: '00614089',
+      companyName: '주식회사 에이원큐브텍',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20220330000851-ofs-exact-aone',
+      manifestDigest:
+          'd9930d510c64d9cf8dde5538e97914c8f39795d7f9a48c41099036d555e71bf4',
+      ruleVersion: 'exact-aone-current-ofs-eight-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20250321001653',
       corpCode: '00886792',
       companyName: '(주)루켄테크놀러지스',
