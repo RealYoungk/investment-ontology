@@ -374,6 +374,7 @@ class _TopBar extends StatelessWidget {
                 ),
               ),
             ),
+          if (!desktop) const SizedBox(width: AppSpace.sm),
           if (desktop) ...[
             Image.asset(
               'assets/brand/alfinder-logo.png',
