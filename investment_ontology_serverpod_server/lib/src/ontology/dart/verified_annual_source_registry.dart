@@ -56,6 +56,33 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20250321000195',
+      corpCode: '00861100',
+      companyName: '아이케이세미콘(주)',
+      year: 2024,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20250321000195-cfs-exact-current',
+      manifestDigest:
+          '4d80f931b42026f0b513d13f53a4b9312319558168f1026815ea7f5df00e3ad3',
+      ruleVersion: 'exact-current-cfs-seven-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250424000405',
+      corpCode: '00756163',
+      companyName: '(주)볼빅',
+      year: 2024,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20250424000405-cfs-exact-current',
+      manifestDigest:
+          '82ab650b7aa78e9f609c654a98bf8503ce58ff9f46f08ac29817d7f7b06430c2',
+      ruleVersion: 'exact-current-cfs-seven-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20230316001545',
       corpCode: '00110893',
       companyName: '대신증권(주)',

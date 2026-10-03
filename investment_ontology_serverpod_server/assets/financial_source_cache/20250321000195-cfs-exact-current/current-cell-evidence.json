@@ -1,0 +1,121 @@
+{
+  "rows": [
+    {
+      "role": "assets",
+      "rowIndex": 21,
+      "column": 1,
+      "printedLabel": "자 산 총 계",
+      "printedAmount": "16,904,779,486",
+      "amountKRW": "16904779486",
+      "row": [
+        "자 산 총 계",
+        "16,904,779,486",
+        "15,460,641,263",
+        "14,294,231,303"
+      ],
+      "kind": "BS"
+    },
+    {
+      "role": "liabilities",
+      "rowIndex": 35,
+      "column": 1,
+      "printedLabel": "부 채 총 계",
+      "printedAmount": "2,937,845,473",
+      "amountKRW": "2937845473",
+      "row": [
+        "부 채 총 계",
+        "2,937,845,473",
+        "2,855,164,806",
+        "2,912,384,309"
+      ],
+      "kind": "BS"
+    },
+    {
+      "role": "equity",
+      "rowIndex": 44,
+      "column": 1,
+      "printedLabel": "자 본 총 계",
+      "printedAmount": "13,966,934,013",
+      "amountKRW": "13966934013",
+      "row": [
+        "자 본 총 계",
+        "13,966,934,013",
+        "12,605,476,457",
+        "11,381,846,994"
+      ],
+      "kind": "BS"
+    },
+    {
+      "role": "revenue",
+      "rowIndex": 51,
+      "column": 1,
+      "printedLabel": "Ⅰ.매출액",
+      "printedAmount": "17,881,249,596",
+      "amountKRW": "17881249596",
+      "row": [
+        "Ⅰ.매출액",
+        "17,881,249,596",
+        "15,686,924,803",
+        "21,395,093,801"
+      ],
+      "kind": "CIS"
+    },
+    {
+      "role": "operatingIncome",
+      "rowIndex": 55,
+      "column": 1,
+      "printedLabel": "Ⅳ.영업이익",
+      "printedAmount": "2,020,669,940",
+      "amountKRW": "2020669940",
+      "row": [
+        "Ⅳ.영업이익",
+        "2,020,669,940",
+        "2,033,294,374",
+        "3,965,036,946"
+      ],
+      "kind": "CIS"
+    },
+    {
+      "role": "netIncome",
+      "rowIndex": 62,
+      "column": 1,
+      "printedLabel": "Ⅵ.당기순이익",
+      "printedAmount": "2,091,695,276",
+      "amountKRW": "2091695276",
+      "row": [
+        "Ⅵ.당기순이익",
+        "2,091,695,276",
+        "1,831,764,246",
+        "3,023,335,863"
+      ],
+      "kind": "CIS"
+    },
+    {
+      "role": "operatingCashFlow",
+      "rowIndex": 118,
+      "column": 1,
+      "printedLabel": "영업활동으로인한현금흐름",
+      "printedAmount": "2,136,469,599",
+      "amountKRW": "2136469599",
+      "row": [
+        "영업활동으로인한현금흐름",
+        "2,136,469,599",
+        "2,831,371,230",
+        "2,298,763,049"
+      ],
+      "kind": "CF"
+    }
+  ],
+  "checks": {
+    "balance": 0,
+    "wholeNI": 0,
+    "closingEquity": 0,
+    "equityRoll": 0,
+    "activity": 0,
+    "cashRoll": 0,
+    "currentBSCash": 0,
+    "priorBSCash": 0,
+    "priorActivity": 0,
+    "priorCashRoll": 0
+  }
+}

@@ -1,0 +1,13 @@
+# IK/Volvik FY2024 consolidated source recovery
+
+Two own-receipt sources are added to the immutable registry (216 → 218), independently of the already registered separate statements. The actual same-receipt shell, cover, and unique `2. 연결재무제표` viewer node bind the consolidated body to the issuer. All three source coordinates and raw SHA256 values are compiled and rechecked. IK's body does not print its issuer name: the source evidence explicitly records that limitation and the directly verified shell-cover-node chain. Volvik prints its issuer and subsidiaries on all four primary/CE tables. Neither profile relaxes general heading, issuer, period, unit, or partial-six policy.
+
+Both sources print the current full 2024 calendar year and each of BS/PL/CE/CF prints won units. Direct seven values, whole-company CE profit/equity and change roll, prior BS equity, current and comparative CF activity sums, FX/cash rolls, and BS cash agree exactly. Volvik's blank/NCI dash cells and IK's NCI dash cells are never stored as zero. No opposite basis or historical value is substituted. The helper emits the seven printed names with `account_id=null`, raw-cell coordinates and provenance, `fullStatementCollected=false`, and capex explicitly uncollected. This is partial core-account recovery, not all statement-row recovery.
+
+Sources:
+- IK: corp00861100 / receipt20250321000195 / dcm10442352 / CFS ele19, offset186651, length60050; raw CFS SHA431bb6dc80646d7f9e478b5503c85a14e128b32ec2404e066479763a6639a7c6.
+- Volvik: corp00756163 / receipt20250424000405 / dcm10613838 / CFS ele21, offset304688, length126469; raw CFS SHAf71745416abcf62f4637a3d21dd4499ddd93e345b56acaf205b9d82f1259851e. The printed submission date is March18 while the correction receipt is April24; the printed cover remains unchanged.
+
+Independent evidence: primary-root `outputs/filing-collection-priority/source-completeness-20261003/remaining_source_validation/ik-volvik-independent-proof.json` plus actual re-parsed rows. Ten integer differences per basis are zero, with original row text and coordinates preserved. No new remote GET, API call, or database write was used for this source validation.
+
+Validation: focused pure tests19 passed; packaged registry tests3 passed; focused analyze reported no issues; dart format and git diff --check passed. Initial pure failure (wrong cover date grammar and a generation-script duplicate registry entry) was fixed against the actual raw sources and failure logs retained. Normal queue/database integration tests are prepared but have NOT been run because root owns the DB slot. No production deployment or stored-period completion is claimed by this commit.

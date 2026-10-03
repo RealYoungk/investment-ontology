@@ -1,3 +1,4 @@
+import 'exact_current_cfs_source.dart';
 import 'db_fy22_whole_current_source.dart';
 import 'db_fy22_exact_issuer_identity.dart';
 import 'woori_investment_2021_source.dart';
@@ -214,6 +215,40 @@ final class VerifiedAnnualSourceCache {
     }
     if (documents.length != documentCount || labels.length != documentCount) {
       throw const FormatException('Cached annual package incomplete');
+    }
+    if (entry.ruleVersion == ExactCurrentCfsSource.rule) {
+      final uris = <String, Uri>{
+        for (final s in manifest['sources'] as List)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raw = <String, String>{
+        for (final s in uris.entries) s.key: utf8.decode(documents[s.value]!),
+      };
+      final rows = ExactCurrentCfsSource.parse(
+        receipt: entry.receipt,
+        corpCode: company.corpCode,
+        companyName: company.name,
+        consolidated: basis == FsDiv.consolidated,
+        start: start,
+        end: end,
+        raw: raw,
+        uris: uris,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raw['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raw['cfs']!,
+          statementSource: uris['cfs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
     }
     if (entry.ruleVersion == Daishin2022ExactSource.rule) {
       final src = manifest['sources'] as List;
