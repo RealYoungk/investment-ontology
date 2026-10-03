@@ -357,7 +357,10 @@ void main() {
               bad.reportName = '사업보고서 (2022.12)';
           }
           await FinancialReport.db.updateRow(session, bad);
-          await parity(false);
+          await parity(
+            false,
+            sourceLedgerIneligible: {'year', 'receipt', 'name'}.contains(drift),
+          );
           await FinancialReport.db.updateRow(session, report);
         }
         final duplicate = await FinancialFact.db.insertRow(
