@@ -106,104 +106,102 @@ class _SignInPageState extends State<SignInPage> {
                     double.infinity,
                   ),
                 ),
-                child: IntrinsicHeight(
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: Center(
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 440),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Semantics(
-                                  label: '알파인더 홈',
-                                  button: true,
-                                  child: ShadButton.ghost(
-                                    onPressed: () => context.go('/home'),
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: AppSpace.sm,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const SizedBox(height: AppSpace.lg),
+                    Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 440),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Semantics(
+                              label: '알파인더 홈',
+                              button: true,
+                              child: ShadButton.ghost(
+                                onPressed: () => context.go('/home'),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: AppSpace.sm,
+                                ),
+                                height: 64,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Image.asset(
+                                      'assets/brand/alfinder-logo.png',
+                                      width: 48,
+                                      height: 48,
+                                      fit: BoxFit.contain,
+                                      excludeFromSemantics: true,
                                     ),
-                                    height: 64,
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Image.asset(
-                                          'assets/brand/alfinder-logo.png',
-                                          width: 48,
-                                          height: 48,
-                                          fit: BoxFit.contain,
-                                          excludeFromSemantics: true,
-                                        ),
-                                        const SizedBox(width: AppSpace.sm),
-                                        Text('알파인더', style: t.display(24)),
-                                      ],
+                                    const SizedBox(width: AppSpace.sm),
+                                    Text('알파인더', style: t.display(24)),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: AppSpace.sm),
+                            Text(
+                              '좋은 기업을 찾는 투자 리서치',
+                              textAlign: TextAlign.center,
+                              style: t.body(13, color: c.textSecondary),
+                            ),
+                            const SizedBox(height: AppSpace.xl),
+                            ShadCard(
+                              padding: EdgeInsets.all(
+                                MediaQuery.sizeOf(context).width < 480
+                                    ? AppSpace.lg
+                                    : AppSpace.xl,
+                              ),
+                              child: ListenableBuilder(
+                                listenable: _controller,
+                                builder: (context, _) => Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    _RegistrationProgress(
+                                      screen: _controller.currentScreen,
                                     ),
-                                  ),
-                                ),
-                                const SizedBox(height: AppSpace.sm),
-                                Text(
-                                  '좋은 기업을 찾는 투자 리서치',
-                                  textAlign: TextAlign.center,
-                                  style: t.body(13, color: c.textSecondary),
-                                ),
-                                const SizedBox(height: AppSpace.xl),
-                                ShadCard(
-                                  padding: EdgeInsets.all(
-                                    MediaQuery.sizeOf(context).width < 480
-                                        ? AppSpace.lg
-                                        : AppSpace.xl,
-                                  ),
-                                  child: ListenableBuilder(
-                                    listenable: _controller,
-                                    builder: (context, _) => Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.stretch,
-                                      children: [
-                                        _RegistrationProgress(
-                                          screen: _controller.currentScreen,
-                                        ),
-                                        _AuthFlowScreen(
-                                          controller: _controller,
-                                        ),
-                                      ],
+                                    _AuthFlowScreen(
+                                      controller: _controller,
                                     ),
-                                  ),
+                                  ],
                                 ),
-                                ListenableBuilder(
-                                  listenable: _controller,
-                                  builder: (context, _) => _Notices(
-                                    screen: _controller.currentScreen,
-                                  ),
-                                ),
-                                if (!widget.resetPassword) ...[
-                                  const SizedBox(height: AppSpace.md),
-                                  Align(
-                                    alignment: Alignment.center,
-                                    child: ShadButton.ghost(
-                                      onPressed: () => context.go('/home'),
-                                      child: Flexible(
-                                        child: Text(
-                                          '회원가입 없이 둘러보기',
-                                          style: t.body(
-                                            13,
-                                            color: c.textSecondary,
-                                          ),
-                                        ),
+                              ),
+                            ),
+                            ListenableBuilder(
+                              listenable: _controller,
+                              builder: (context, _) => _Notices(
+                                screen: _controller.currentScreen,
+                              ),
+                            ),
+                            if (!widget.resetPassword) ...[
+                              const SizedBox(height: AppSpace.md),
+                              Align(
+                                alignment: Alignment.center,
+                                child: ShadButton.ghost(
+                                  onPressed: () => context.go('/home'),
+                                  child: Flexible(
+                                    child: Text(
+                                      '회원가입 없이 둘러보기',
+                                      style: t.body(
+                                        13,
+                                        color: c.textSecondary,
                                       ),
                                     ),
                                   ),
-                                ],
-                              ],
-                            ),
-                          ),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
-                      const SizedBox(height: AppSpace.xl),
-                      const ServiceFooter(compact: true),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: AppSpace.xl),
+                    const ServiceFooter(compact: true),
+                  ],
                 ),
               ),
             );

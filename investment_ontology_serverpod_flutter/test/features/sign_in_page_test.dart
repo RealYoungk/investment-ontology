@@ -36,9 +36,9 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Finder emailField() => find.byWidgetPredicate(
-    (w) =>
-        w is ShadInput && (w.placeholder as Text?)?.data == 'name@example.com',
+  Finder emailField() => find.descendant(
+    of: find.byKey(const ValueKey('login-email')),
+    matching: find.byType(EditableText),
   );
 
   testWidgets('가입 단계와 인증 대상 이메일을 보여주고 주소를 수정할 수 있다', (tester) async {
@@ -66,7 +66,7 @@ void main() {
   testWidgets('로그인 화면이 맨 먼저 보이고, 가입 링크가 있다', (tester) async {
     await pump(tester);
 
-    expect(find.text('이메일로 알파인더에 로그인하세요.'), findsOneWidget);
+    expect(find.text('관심기업과 공시를 이어서 확인하세요.'), findsOneWidget);
     expect(find.text('로그인'), findsNWidgets(2));
     expect(find.text('비밀번호'), findsOneWidget);
     expect(find.text('아직 계정이 없나요?'), findsOneWidget);
@@ -87,7 +87,7 @@ void main() {
     await tester.tap(find.text('회원가입'));
     await tester.pumpAndSettle();
 
-    expect(find.text('이메일로 알파인더에 로그인하세요.'), findsNothing);
+    expect(find.text('관심기업과 공시를 이어서 확인하세요.'), findsNothing);
     expect(find.text('인증번호 받기'), findsOneWidget);
     // 새 계정은 읽기 전용이라는 안내는 가입 단계에서만 보인다.
     expect(find.text(readOnlyAccountNotice), findsNothing);
@@ -95,7 +95,7 @@ void main() {
     await tester.tap(find.text('로그인'));
     await tester.pumpAndSettle();
 
-    expect(find.text('이메일로 알파인더에 로그인하세요.'), findsOneWidget);
+    expect(find.text('관심기업과 공시를 이어서 확인하세요.'), findsOneWidget);
     expect(find.text(readOnlyAccountNotice), findsNothing);
   });
 
@@ -107,13 +107,13 @@ void main() {
     await tester.tap(find.text('비밀번호 찾기'));
     await tester.pumpAndSettle();
 
-    expect(find.text('비밀번호 재설정'), findsOneWidget);
-    expect(find.text('재설정 메일 보내기'), findsOneWidget);
+    expect(find.text('가입한 이메일로 인증번호를 보내드립니다.'), findsOneWidget);
+    expect(find.text('인증번호 받기'), findsOneWidget);
 
-    await tester.tap(find.text('로그인 화면으로 돌아가기'));
+    await tester.tap(find.text('로그인'));
     await tester.pumpAndSettle();
 
-    expect(find.text('이메일로 알파인더에 로그인하세요.'), findsOneWidget);
+    expect(find.text('관심기업과 공시를 이어서 확인하세요.'), findsOneWidget);
   });
 
   testWidgets('잘못된 이메일을 적으면 한국어 안내가 뜬다', (tester) async {
