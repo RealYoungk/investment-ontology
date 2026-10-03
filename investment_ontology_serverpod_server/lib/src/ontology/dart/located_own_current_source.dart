@@ -303,7 +303,27 @@ abstract final class LocatedOwnCurrentSource {
       );
       return (
         numeric: null,
-        absence: PublicFinancialHtmlBasisNotApplicable(
+        absence: _LocatedOwnBasisAbsence(
+          identityEvidence: {
+            'kind': 'exact-own-shell-cover-actor-period-only',
+            'policy': 'exact-own-filing-series-cfs-none-v1',
+            'identityScope': 'official-DART-filing-series-only',
+            'ownCoverActor': m['ownCoverActor'] as String,
+            'ownShellCorpProof': company.corpCode,
+            'jurirContinuityVerified': 'false',
+            'operatingHistoryContinuityVerified': 'false',
+            'sourceNotice':
+                '현재 표기 ${company.name}와 자체 공시 표지 ${m['ownCoverActor']}를 같은 공식 DART 기업고유번호의 이 공시 구간에 한해 연결했습니다. 법인번호·사업 연속성을 검증한 회사명 별칭이 아니며 재무 숫자를 수집하지 않았습니다.',
+            'receipt': sourceReceipt,
+            'targetReceipt': entry.receipt,
+            'corpCode': company.corpCode,
+            'currentName': company.name,
+            'printedName': m['ownCoverActor'] as String,
+            'coverSource': uris['cover'].toString(),
+            'coverSha256': sha['cover']!,
+            'ownShellSource': uris[ownLabel].toString(),
+            'ownShellSha256': sha[ownLabel]!,
+          },
           sourceReceipt: sourceReceipt,
           corpCode: company.corpCode,
           companyName: company.name,
@@ -447,4 +467,25 @@ abstract final class LocatedOwnCurrentSource {
       absence: null,
     );
   }
+}
+
+final class _LocatedOwnBasisAbsence
+    extends PublicFinancialHtmlBasisNotApplicable {
+  _LocatedOwnBasisAbsence({
+    required Map<String, String> identityEvidence,
+    required super.sourceReceipt,
+    required super.corpCode,
+    required super.companyName,
+    required super.reportName,
+    required super.periodStart,
+    required super.periodEnd,
+    required super.coverSource,
+    required super.statementSource,
+    required super.coverHtml,
+    required super.statementHtml,
+    required super.evidence,
+  }) : _identityEvidence = Map.unmodifiable(identityEvidence);
+  final Map<String, String> _identityEvidence;
+  @override
+  Map<String, String> get issuerIdentityEvidence => _identityEvidence;
 }

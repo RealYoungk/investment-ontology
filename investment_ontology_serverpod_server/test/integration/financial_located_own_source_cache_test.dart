@@ -124,8 +124,9 @@ void main() {
             expected,
           );
         }
-        if (profiles.length == 1 && !legacyCorasol)
+        if (profiles.length == 1 && !legacyCorasol) {
           expect(first.status, IngestStatus.failed);
+        }
         final reports = await FinancialReport.db.find(session);
         expect(reports, hasLength(numericCount + (legacyCorasol ? 1 : 0)));
         expect(
@@ -150,6 +151,43 @@ void main() {
             expect(payload['receipt'], manifest['sourceReceipt']);
             expect(payload['corpCode'], company.corpCode);
             expect(payload['evidence'], entry.absenceLiteral);
+            expect(
+              payload['historicalCompanyIdentity']['printedName'],
+              manifest['ownCoverActor'],
+            );
+            expect(
+              payload['historicalCompanyIdentity']['targetReceipt'],
+              receipt,
+            );
+            expect(
+              payload['historicalCompanyIdentity']['policy'],
+              'exact-own-filing-series-cfs-none-v1',
+            );
+            expect(
+              payload['historicalCompanyIdentity']['ownCoverActor'],
+              manifest['ownCoverActor'],
+            );
+            expect(
+              payload['historicalCompanyIdentity']['currentName'],
+              company.name,
+            );
+            expect(
+              payload['historicalCompanyIdentity']['ownShellCorpProof'],
+              company.corpCode,
+            );
+            expect(
+              payload['identityScope'],
+              'official-DART-filing-series-only',
+            );
+            expect(payload['numericFactsCollected'], 0);
+            expect(payload['coreFinancialsVerified'], false);
+            expect(payload['fullFinancialsVerified'], false);
+            expect(payload['jurirContinuityVerified'], false);
+            expect(payload['operatingHistoryContinuityVerified'], false);
+            expect(
+              payload['note'],
+              contains(manifest['ownCoverActor'] as String),
+            );
             expect(
               source.url,
               (manifest['sources'] as List).singleWhere(
