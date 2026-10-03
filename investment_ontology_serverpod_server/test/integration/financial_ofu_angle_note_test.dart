@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:serverpod/serverpod.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/financial/financial_accounts.dart';
 import 'package:http/testing.dart';
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
@@ -196,6 +199,10 @@ void main() {
             "SELECT amount FROM financial_fact f WHERE f.\"reportId\" = ${reports.single.id} AND ${FinancialAccounts.resolvedIdSql('f')} = 'ifrs-full_CashFlowsFromUsedInOperatingActivities'",
           );
           expect(sqlCfo.single.first.toString(), '3746384242');
+          final labelTemplate = (await FinancialFact.db.find(
+            session,
+            where: (t) => t.reportId.equals(reports.single.id!),
+          )).first;
           for (final printed in [
             '매출액<주석14>',
             '매출<주석14>액',
@@ -205,7 +212,19 @@ void main() {
             '매출액<주석14>(주석1)',
           ]) {
             final mapped = await session.db.unsafeQuery(
-              "SELECT ${FinancialAccounts.resolvedIdSql('f')} FROM (VALUES ('$printed', NULL::text, 'comprehensiveIncome'::text, 1::numeric)) f(\"accountName\", \"accountId\", statement, amount)",
+              'SELECT ${FinancialAccounts.resolvedIdSql('f')} FROM jsonb_populate_record(NULL::financial_fact, @fact::jsonb) f',
+              parameters: QueryParameters.named({
+                'fact': jsonEncode(
+                  labelTemplate
+                      .copyWith(
+                        accountName: printed,
+                        accountId: null,
+                        statement: FinancialStatementKind.comprehensiveIncome,
+                        amount: BigInt.one,
+                      )
+                      .toJson(),
+                ),
+              }),
             );
             expect(
               mapped.single.first,
