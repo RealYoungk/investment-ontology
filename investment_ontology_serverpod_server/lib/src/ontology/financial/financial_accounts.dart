@@ -1,3 +1,4 @@
+import 'suntech_own_cf_scope.dart';
 import 'solumix_own_revenue_scope.dart';
 import '../../generated/protocol.dart';
 import 'financial_comparatives.dart';
@@ -226,6 +227,10 @@ abstract final class FinancialAccounts {
     final name =
         "CASE WHEN $compact = 'III..영업이익' THEN '영업이익' WHEN $unannotated = '$exactHanyangPrintedProfit' OR $unannotated ~ '$adjustedProfitAnnotation' THEN '당기순이익' ELSE $unannotated END";
     final cases = <String>[
+      "WHEN ${SuntechOwnCfScope.sqlCondition(alias, 'netIncome')} THEN 'ifrs-full_ProfitLoss'",
+      "WHEN ${SuntechOwnCfScope.sqlCondition(alias, 'capex')} THEN 'ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities'",
+      "WHEN ${SuntechOwnCfScope.boundReportSql(alias)} AND ($alias.\"accountId\" IN ('ifrs-full_ProfitLoss','ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities') OR $name IN ('당기순이익','당기순손실','연결당기순이익','연결당기순손실','유형자산의증가')) THEN NULL",
+
       "WHEN ${SolumixOwnRevenueScope.sqlCondition(alias)} THEN 'ifrs-full_Revenue'",
     ];
     for (final account in all) {
@@ -258,8 +263,33 @@ abstract final class FinancialAccounts {
     final lines = <FinancialLine>[];
     for (final account in all) {
       FinancialFact? found;
+      final sunBound =
+          report?.rceptNo == SuntechOwnCfScope.receipt &&
+          report?.fsDiv == FsDiv.consolidated &&
+          SuntechOwnCfScope.keys.contains(account.key);
+      if (sunBound) {
+        if (company == null || report == null || source == null) continue;
+        final candidates = facts
+            .where(
+              (f) =>
+                  SuntechOwnCfScope.candidate(account.key, f, company, report),
+            )
+            .toList();
+        if (candidates.length != 1 ||
+            !SuntechOwnCfScope.validFact(
+              account.key,
+              candidates.single,
+              company,
+              report,
+              source,
+            )) {
+          continue;
+        }
+        found = candidates.single;
+      }
       search:
       for (final id in account.accountIds) {
+        if (sunBound) break;
         for (final statement in account.statements) {
           for (final f in facts) {
             if (f.accountId == id &&

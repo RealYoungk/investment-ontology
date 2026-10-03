@@ -1,3 +1,4 @@
+import 'suntech_own_cf_scope.dart';
 import 'financial_accounts.dart';
 import 'financial_comparatives.dart';
 
@@ -102,6 +103,7 @@ abstract final class FinancialBasis {
               'ifrs-full_PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities') AND f.statement='cashFlow'
             OR f.resolved_id IN ('ifrs-full_Revenue','dart_OperatingIncomeLoss','ifrs-full_ProfitLoss',
               'ifrs-full_ProfitLossAttributableToOwnersOfParent') AND f.statement IN ('incomeStatement','comprehensiveIncome')
+            OR f.resolved_id='ifrs-full_ProfitLoss' AND f.statement='cashFlow' AND (${SuntechOwnCfScope.sqlCondition('f', 'netIncome')})
           ) THEN true ELSE false END
         ORDER BY f."reportId",f.resolved_id,(f."accountId" IS NULL),(f."accountId" IS DISTINCT FROM f.resolved_id),CASE f.statement WHEN 'incomeStatement' THEN 0 ELSE 1 END,f.id
       ), basis_currency AS (

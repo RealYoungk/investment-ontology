@@ -1,3 +1,4 @@
+import '../financial/suntech_own_cf_scope.dart';
 import '../financial/solumix_own_revenue_scope.dart';
 import '../dart/located_own_current_source.dart';
 import '../dart/ls_kiwoom_current_source.dart';
@@ -4248,7 +4249,19 @@ class FinancialFactsSync {
       digest: originalDigest,
       reportName: reportName,
     );
-    final partialNote = exactSolumixScope != null
+    final exactSuntechScope = SuntechOwnCfScope.storedScope(
+      rows: rows,
+      receipt: rceptNo,
+      corp: company.corpCode,
+      companyName: company.name,
+      consolidated: div == FsDiv.consolidated,
+      source: originalSource,
+      digest: originalDigest,
+      reportName: reportName,
+    );
+    final partialNote = exactSuntechScope != null
+        ? ' · ${jsonEncode(exactSuntechScope)}'
+        : exactSolumixScope != null
         ? ' · ${jsonEncode(exactSolumixScope)}'
         : exactLocatedScope != null
         ? ' · ${jsonEncode(exactLocatedScope)}'

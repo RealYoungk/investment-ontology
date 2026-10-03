@@ -1,3 +1,4 @@
+import '../financial/suntech_own_cf_scope.dart';
 import '../dart/isung_cfs_current_seven_source.dart';
 import '../financial/solumix_own_revenue_scope.dart';
 import '../dart/located_own_current_source.dart';
@@ -185,6 +186,17 @@ class FinancialEndpoint extends Endpoint {
         final source = await Source.db.findById(session, r.sourceId);
         if (source != null &&
             SolumixOwnRevenueScope.validSource(company, r, source)) {
+          exactRevenueSources[r.id!] = source;
+        }
+      }
+    }
+    if (company.corpCode == SuntechOwnCfScope.corp) {
+      for (final r in selected.where(
+        (r) => r.rceptNo == SuntechOwnCfScope.receipt,
+      )) {
+        final source = await Source.db.findById(session, r.sourceId);
+        if (source != null &&
+            SuntechOwnCfScope.validSource(company, r, source)) {
           exactRevenueSources[r.id!] = source;
         }
       }

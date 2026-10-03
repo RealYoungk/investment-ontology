@@ -1,3 +1,4 @@
+import 'suntech_cf_current_eight_source.dart';
 import 'isung_cfs_current_seven_source.dart';
 import 'filing_series_current_eight_source.dart';
 import 'futuremedicine_own_eight_source.dart';
@@ -634,6 +635,41 @@ final class VerifiedAnnualSourceCache {
           coverSource: uris['cover']!,
           statementHtml: raws['ofs']!,
           statementSource: uris['ofs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
+    }
+    if (entry.ruleVersion == SuntechCfCurrentEightSource.rule) {
+      final src = manifest['sources'] as List;
+      final uris = <String, Uri>{
+        for (final s in src)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raws = <String, String>{
+        for (final s in src)
+          s['label'] as String: utf8.decode(documents[uris[s['label']]]!),
+      };
+      final rows = SuntechCfCurrentEightSource.parse(
+        raw: raws,
+        uris: uris,
+        receipt: entry.receipt,
+        corp: company.corpCode,
+        start: start,
+        end: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raws['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raws['cfs']!,
+          statementSource: uris['cfs']!,
           periodStart: start,
           periodEnd: end,
           rows: rows,

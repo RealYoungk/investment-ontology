@@ -80,6 +80,19 @@ abstract final class VerifiedAnnualSourceRegistry {
       absenceLiteral: null,
     ),
     AnnualSourceCacheEntry(
+      receipt: '20250317000968',
+      corpCode: '00963000',
+      companyName: '(주)썬테크',
+      year: 2024,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20250317000968-cfs-suntech-current-eight',
+      manifestDigest:
+          'bc48fe37cbc2c91d0dd2298b8d43ac340f4528c30dcf15e28de6768ef3194ccf',
+      ruleVersion: 'suntech-2024-own-cfs-source-aware-eight-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20230323000123',
       corpCode: '01365384',
       companyName: '이성씨엔아이(주)',

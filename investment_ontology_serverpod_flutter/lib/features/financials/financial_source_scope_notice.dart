@@ -1,3 +1,4 @@
+import 'suntech_cf_source_scope.dart';
 import 'isung_cfs_source_scope.dart';
 import 'located_own_seven_source_scope.dart';
 
@@ -23,6 +24,7 @@ class FinancialSourceScopeNotice extends StatelessWidget {
       final decoded = jsonDecode(structured);
       if (decoded is Map) {
         final exact =
+            SuntechCfSourceScope.message(decoded) ??
             IsungCfsSourceScope.message(decoded) ??
             LocatedOwnSevenSourceScope.message(decoded) ??
             LsKiwoomSourceScope.message(decoded);
