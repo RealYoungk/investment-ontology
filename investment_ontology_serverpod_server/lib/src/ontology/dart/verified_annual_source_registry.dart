@@ -56,6 +56,45 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20230315000894',
+      corpCode: '00162416',
+      companyName: '한양증권(주)',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20230315000894-cfs-own-paragraph-none',
+      manifestDigest:
+          '3b8f9ab6eb1e64f8afb7bd2fd76816d36dea8569e6b6a2c9bd336cd471225e8d',
+      ruleVersion: 'own-paragraph-exact-cfs-absence-v1',
+      absenceLiteral: '- 해당사항 없음 -',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220315001266',
+      corpCode: '00162416',
+      companyName: '한양증권(주)',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20220315001266-cfs-own-paragraph-none',
+      manifestDigest:
+          '6b527f50eb965c45d7998730cdbe5555e9bff789277525ce1cd0086fa2ea4362',
+      ruleVersion: 'own-paragraph-exact-cfs-absence-v1',
+      absenceLiteral: '- 해당사항 없음 -',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220322001090',
+      corpCode: '01023822',
+      companyName: '(주)메디젠휴먼케어',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20220322001090-cfs-own-paragraph-none',
+      manifestDigest:
+          'fcee5a79d11c362644c7b3a7e16019ff0c5b816ab923349f379390435673830a',
+      ruleVersion: 'own-paragraph-exact-cfs-absence-v1',
+      absenceLiteral: '당기 연결대상 종속회사의 폐업으로 해당사항 없습니다.',
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20240306000708',
       corpCode: '01205514',
       companyName: '(주)큐라켐',

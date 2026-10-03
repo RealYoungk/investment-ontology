@@ -1,3 +1,4 @@
+import 'own_paragraph_cfs_absence.dart';
 import 'bon_linked_audit_current_proof.dart';
 import 'exact_cover_executive_role.dart';
 import 'pureun_exact_basis_absence.dart';
@@ -610,6 +611,16 @@ class PublicFinancialHtmlFetcher {
         statementSource: statementSource,
         body: statementHtml,
       );
+      final ownParagraphNone = OwnParagraphCfsAbsence.evidence(
+        receipt: sourceReceipt,
+        corp: corpCode,
+        start: periodStart,
+        end: periodEnd,
+        coverSource: coverSource,
+        cover: coverHtml,
+        statementSource: statementSource,
+        body: statementHtml,
+      );
       final exactPureunNone = PureunExactBasisAbsence.matches(
         receipt: sourceReceipt,
         corp: corpCode,
@@ -622,7 +633,7 @@ class PublicFinancialHtmlFetcher {
         statementSource: statementSource,
         body: statementHtml,
       );
-      if (exactTableNone || exactPureunNone) {
+      if (exactTableNone || exactPureunNone || ownParagraphNone != null) {
         throw PublicFinancialHtmlBasisNotApplicable(
           sourceReceipt: sourceReceipt,
           corpCode: corpCode,
@@ -634,9 +645,9 @@ class PublicFinancialHtmlFetcher {
           statementSource: statementSource,
           coverHtml: coverHtml,
           statementHtml: statementHtml,
-          evidence: exactPureunNone
-              ? PureunExactBasisAbsence.evidence
-              : '해당사항없음',
+          evidence:
+              ownParagraphNone ??
+              (exactPureunNone ? PureunExactBasisAbsence.evidence : '해당사항없음'),
           issuerProof: issuerProof,
         );
       }
