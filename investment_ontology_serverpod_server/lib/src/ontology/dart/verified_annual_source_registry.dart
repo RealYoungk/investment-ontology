@@ -56,6 +56,46 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20250320001369',
+      corpCode: '01353848',
+      companyName: '주식회사 이노벡스',
+      year: 2024,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20250320001369-cfs-own-printed-none',
+      manifestDigest:
+          'c0d020197108422b23f4c6900c1c4fe123e4f5b7ac11d79f716203fc9a4eb289',
+      ruleVersion: 'innovex-own-primary-cfs-printed-absence-v1',
+      absenceLiteral: '해당사항없음',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240320001279',
+      corpCode: '01353848',
+      companyName: '주식회사 이노벡스',
+      year: 2023,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20240320001279-cfs-own-printed-none',
+      manifestDigest:
+          '24f002eee247d4bda86c8013ace99ac9cdda9399fd64f357218d5b4978264981',
+      ruleVersion: 'innovex-own-primary-cfs-printed-absence-v1',
+      absenceLiteral: '해당사항없음',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230321001331',
+      corpCode: '01353848',
+      companyName: '주식회사 이노벡스',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20230321001331-cfs-own-printed-none',
+      manifestDigest:
+          '6677422d2b01cb10d4efe542818820f04dbd05eecd309b7b8f69a8dbff7a7f8b',
+      ruleVersion: 'innovex-own-primary-cfs-printed-absence-v1',
+      absenceLiteral: '해당사항없음',
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20240409003743',
       corpCode: '01022142',
       companyName: "엠디바이스 주식회사",

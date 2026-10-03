@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20250320001369",
+  "corpCode": "01353848",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2024,
+  "periodStart": "2024-01-01",
+  "periodEnd": "2024-12-31",
+  "ruleVersion": "innovex-own-primary-cfs-printed-absence-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250320001369",
+      "sha256": "882517b939bd1a09dee7da0ed3d9873c5c34bd731a6e4dfd6637a5f01faa6b41"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250320001369&dcmNo=10439334&eleId=1&offset=955&length=4504&dtd=dart4.xsd",
+      "sha256": "0257aa67edc3db8174fc6049aa2a752f6ff4a4c1de0ce31dac751dd798fca83e"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250320001369&dcmNo=10439334&eleId=19&offset=202135&length=445&dtd=dart4.xsd",
+      "sha256": "133d0fd797042ecc262d10b277faa717e93c0fd0dd9f00a3712caf840d74ac64"
+    }
+  ],
+  "absenceEvidence": "해당사항없음",
+  "retrievalProof": "Own complete CFS body exact printed absence; own issuer/annual calendar cover and unique shell nodes pinned. No numeric report or opposite-basis transplant; original raw unchanged. No new HTTP/API/DB."
+}
