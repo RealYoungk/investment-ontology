@@ -11,19 +11,14 @@ import 'financial_html_company_title_formats_test.dart' show SourceClient;
 import 'test_tools/serverpod_test_tools.dart';
 
 void main() {
-  withServerpod('Talos own 2021 current seven', (
-    builder,
-    endpoints,
-  ) {
+  withServerpod('Talos own 2021 current seven', (builder, endpoints) {
     test(
       'normal own current seven keeps missing PPE and replays without API',
       () async {
         final s = builder.asAdmin.build();
         final now = DateTime.utc(2026, 10, 3);
         final entries = VerifiedAnnualSourceRegistry.entries
-            .where(
-              (e) => e.ruleVersion == 'talos-own-2021-current-seven-v1',
-            )
+            .where((e) => e.ruleVersion == 'talos-own-2021-current-seven-v1')
             .toList();
         expect(entries, hasLength(1));
         final company = await Company.db.insertRow(
@@ -89,7 +84,29 @@ void main() {
             s,
             where: (t) => t.rceptNo.equals(e.receipt),
           )).single;
-          expect(filing.consolidatedStatus, FilingFetchStatus.failed);
+          expect(filing.consolidatedStatus, FilingFetchStatus.noData);
+          final ownCfs = VerifiedAnnualSourceRegistry.find(
+            e.receipt,
+            FsDiv.consolidated,
+          )!;
+          final absenceSource = (await Source.db.find(
+            s,
+            where: (t) => t.reference.equals(
+              'financial-public-basis-not-applicable:${e.receipt}:consolidated',
+            ),
+          )).single;
+          final ownCfsManifest = jsonDecode(
+            File('${ownCfs.assetDirectory}/manifest.json').readAsStringSync(),
+          ) as Map;
+          final ownCfsBody = (ownCfsManifest['sources'] as List).singleWhere(
+            (v) => v['label'] == 'cfs',
+          );
+          expect(absenceSource.url, ownCfsBody['url']);
+          final absenceAudit = jsonDecode(absenceSource.title) as Map;
+          expect(absenceAudit['fsDiv'], 'consolidated');
+          expect(absenceAudit['receipt'], e.receipt);
+          expect(absenceAudit['corpCode'], e.corpCode);
+          expect(absenceAudit['evidence'], ownCfs.absenceLiteral);
           expect(filing.separateStatus, FilingFetchStatus.stored);
           expect(filing.attempts, 3);
           expect(filing.lastError, contains('attempt=3'));
