@@ -8,6 +8,7 @@ import '../research/issuer_financials_html.dart';
 import '../research/ipo_issuer_financials_html.dart';
 import '../research/issuer_financials_feed.dart';
 import '../research/fund_financials_text.dart';
+import '../research/infrastructure_fund_financials.dart';
 import '../research/research_snapshot_store.dart';
 
 /// Internal normal business worker only. No generated financial reports/facts.
@@ -19,11 +20,13 @@ abstract final class IssuerFinancialsSync {
   static bool supports(Map<String, dynamic> doc) =>
       IssuerFinancialsHtml.supports(doc) ||
       IpoIssuerFinancialsHtml.supports(doc) ||
-      FundFinancialsText.supports(doc);
+      FundFinancialsText.supports(doc) ||
+      InfrastructureFundFinancials.supports(doc);
   static bool supportsCorp(String code) =>
       code == IssuerFinancialsHtml.corp ||
       IpoIssuerFinancialsHtml.supportsCorp(code) ||
-      FundFinancialsText.supportsCorp(code);
+      FundFinancialsText.supportsCorp(code) ||
+      InfrastructureFundFinancials.supportsCorp(code);
   static Future<List<Map<String, dynamic>>> rows(
     Directory cache,
     List<Map<String, dynamic>> documents,
@@ -31,6 +34,21 @@ abstract final class IssuerFinancialsSync {
     final rows = <Map<String, dynamic>>[];
     for (final d in documents.where(supports)) {
       final m = d['metadata'] as Map, p = d['proof'] as Map;
+      if (InfrastructureFundFinancials.supports(d)) {
+        final pdf = File('${cache.path}/${m['sha256']}.pdf'),
+            raw = File('${cache.path}/${m['sha256']}.infrastructure.raw.txt');
+        if (await pdf.length() > 20 * 1024 * 1024 ||
+            await raw.length() > 4 * 1024 * 1024) {
+          throw const FormatException(
+            'Infrastructure private cache size bound',
+          );
+        }
+        InfrastructureFundFinancials.verifyPdf(m, await pdf.readAsBytes());
+        rows.add(
+          InfrastructureFundFinancials.parseRaw(m, await raw.readAsBytes()),
+        );
+        continue;
+      }
       if (FundFinancialsText.supports(d)) {
         final pdf = File('${cache.path}/${m['sha256']}.pdf');
         final text = File('${cache.path}/${m['sha256']}.fund.txt');
@@ -106,6 +124,10 @@ abstract final class IssuerFinancialsSync {
                   'categorySchema',
                   'extractedTextSha256',
                   'extractionTool',
+                  'rawTextSha256',
+                  'decodedTextSha256',
+                  'decodedPages',
+                  'textTransformation',
                   'numericState',
                 ])
                   if (r.containsKey(k)) k: r[k],
@@ -137,14 +159,21 @@ abstract final class IssuerFinancialsSync {
   }
 
   static String sourceProvider(String corp) =>
-      FundFinancialsText.supportsCorp(corp)
+      (FundFinancialsText.supportsCorp(corp) ||
+          InfrastructureFundFinancials.supportsCorp(corp))
       ? 'verified-primary-pdf-text-rule'
       : provider;
-  static String sourceUrl(String corp) => FundFinancialsText.supportsCorp(corp)
+  static String sourceUrl(String corp) => corp == '00435297'
+      ? 'https://www.mkif.com'
+      : corp == '01880801'
+      ? 'https://kbif.co.kr'
+      : FundFinancialsText.supportsCorp(corp)
       ? 'https://re1.miraeasset.com'
       : 'https://dart.fss.or.kr';
   static String sourceReference(String corp) =>
-      FundFinancialsText.supportsCorp(corp)
+      InfrastructureFundFinancials.supportsCorp(corp)
+      ? 'source-bound-partial-printed-infrastructure-fund;no-regular-api-or-xbrl'
+      : FundFinancialsText.supportsCorp(corp)
       ? 'source-bound-partial-printed-fund;cash-quarantine;no-regular-api-or-xbrl'
       : reference;
 

@@ -111,6 +111,10 @@ class FundFinancialsCard extends StatelessWidget {
           style: context.typo.body(12, color: context.colors.textSecondary),
         ),
         children: [
+          if (row['categorySchema'] == 'printedInfrastructureFundCategories')
+            const AppNotice(
+              message: '지정된 재무 페이지의 인쇄 금액 일부입니다. 주석과 전체 글꼴은 검증하지 않았습니다. 현금 명칭의 동등성을 추정하지 않으며 일반 기업의 영업현금흐름·TTM으로 합산하지 않습니다.',
+            ),
           if (quarantine)
             AppNotice(
               message:
@@ -130,7 +134,9 @@ class FundFinancialsCard extends StatelessWidget {
                 ),
               ),
           Text(
-            '운용수익·자산운용 현금흐름·부동산 취득은 펀드 원문 항목입니다. 산업 매출·영업현금흐름·유형자산 취득 또는 TTM으로 변환하지 않습니다.',
+            row['categorySchema'] == 'printedInfrastructureFundCategories'
+                ? '운용수익·자산운용 현금흐름·대출금 및 지분 취득은 펀드 원문 항목입니다. 산업 매출·영업현금흐름·유형자산 취득 또는 TTM으로 변환하지 않습니다.'
+                : '운용수익·자산운용 현금흐름·부동산 취득은 펀드 원문 항목입니다. 산업 매출·영업현금흐름·유형자산 취득 또는 TTM으로 변환하지 않습니다.',
             style: context.typo.body(12, color: context.colors.textMuted),
           ),
           TextButton(

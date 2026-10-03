@@ -10,6 +10,7 @@ import 'financial_metrics.dart' show formatKrwLong;
 import 'issuer_financial_source_registry.dart';
 import 'own_annual_financial_source_registry.dart';
 import 'fund_financials_card.dart';
+import 'infrastructure_fund_financials_validator.dart';
 
 /// Stored alternate-source current observations; never substitutes regular reports.
 class IssuerFinancialsSection extends StatefulWidget {
@@ -73,14 +74,26 @@ class _IssuerFinancialsSectionState extends State<IssuerFinancialsSection> {
           (value['provider'] !=
                   (widget.ownAnnual
                       ? 'verified-own-annual-html-rule'
-                      : widget.corpCode == '00600013'
+                      : {
+                          '00600013',
+                          '00435297',
+                          '01880801',
+                        }.contains(widget.corpCode)
                       ? 'verified-primary-pdf-text-rule'
                       : 'verified-primary-html-rule') ||
               value['source'] is! Map ||
               value['source']['kind'] != 'officialFile' ||
               value['source']['url'] !=
-                  (widget.corpCode == '00600013'
-                      ? 'https://re1.miraeasset.com'
+                  ({
+                        '00600013',
+                        '00435297',
+                        '01880801',
+                      }.contains(widget.corpCode)
+                      ? {
+                          '00600013': 'https://re1.miraeasset.com',
+                          '00435297': 'https://www.mkif.com',
+                          '01880801': 'https://kbif.co.kr',
+                        }[widget.corpCode]
                       : 'https://dart.fss.or.kr'))) {
         throw const FormatException('Alternate snapshot source mismatch');
       }
@@ -147,7 +160,10 @@ class _IssuerFinancialsSectionState extends State<IssuerFinancialsSection> {
                 style: context.typo.body(12),
               ),
             for (final row in rows)
-              if (row['categorySchema'] == 'printedFundCategories')
+              if ({
+                'printedFundCategories',
+                'printedInfrastructureFundCategories',
+              }.contains(row['categorySchema']))
                 FundFinancialsCard(row: row)
               else
                 _PeriodCard(row: row),
@@ -164,6 +180,12 @@ List<Map<String, dynamic>> validateIssuerFinancialRows(
 }) {
   if (!ownAnnual &&
       raw is List &&
+      raw.isNotEmpty &&
+      raw.first is Map &&
+      raw.first['categorySchema'] == 'printedInfrastructureFundCategories') {
+    return validateInfrastructureFundRows(raw);
+  }
+  if (raw is List &&
       raw.isNotEmpty &&
       raw.first is Map &&
       raw.first['categorySchema'] == 'printedFundCategories') {
