@@ -149,10 +149,15 @@ class IssuerDocumentsSync {
         };
         for (final entry in files.entries) {
           final file = File('${cache.path}/${entry.key}');
-          if (!await file.exists() ||
-              await file.length() > IssuerDocumentsCollector.maxBytes ||
-              sha256.convert(await file.readAsBytes()).toString() !=
-                  entry.value) {
+          try {
+            if (!await file.exists() ||
+                await file.length() > IssuerDocumentsCollector.maxBytes ||
+                sha256.convert(await file.readAsBytes()).toString() !=
+                    entry.value) {
+              return true;
+            }
+          } on FileSystemException {
+            // Missing/unreadable cache is pending work, not a server boot error.
             return true;
           }
         }
