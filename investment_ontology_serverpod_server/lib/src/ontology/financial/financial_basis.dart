@@ -72,6 +72,7 @@ abstract final class FinancialBasis {
         SELECT f.id,f."reportId",f."companyId",f."bsnsYear",f."reportCode",f."fsDiv",
           f.statement,f."accountId",f."accountName",f."accountDetail",f."supersededById",
           f.currency,f.amount,f."cumulativeAmount",f."priorCumulativeAmount",f."priorQuarterAmount",
+          f."sourceId",f.ord,f."periodName",f."priorAmount",f."beforePriorAmount",
           r.candidate_year, r.candidate_code, ${FinancialAccounts.resolvedIdSql('f')} AS resolved_id
         FROM needed_reports r
         JOIN financial_fact f ON f."reportId"=r.id
