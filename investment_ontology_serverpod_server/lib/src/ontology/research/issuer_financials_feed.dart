@@ -2,6 +2,7 @@ import 'issuer_financials_html.dart';
 import 'fund_financials_text.dart';
 import 'infrastructure_fund_financials.dart';
 import 'scanned_fund_financials.dart';
+import 'retrospective_fund_contract.dart';
 import 'ipo_issuer_financials_html.dart';
 import 'reviewed_dart_issuer_sources.dart';
 
@@ -16,11 +17,19 @@ abstract final class IssuerFinancialsFeed {
               {
                 InfrastructureFundFinancials.category,
                 ScannedFundFinancials.category,
+                RetrospectiveFundContract.category,
               }.contains(r['categorySchema']),
         )) {
       if (input.length > 5 ||
           input.map((r) => r['corpCode']).toSet().length != 1 ||
-          input.map((r) => r['officialUrl']).toSet().length != input.length) {
+          input
+                  .map(
+                    (r) =>
+                        '${r['officialUrl']}|${r['periodStart']}|${r['periodEnd']}',
+                  )
+                  .toSet()
+                  .length !=
+              input.length) {
         throw const FormatException(
           'Exact same-issuer bounded fund sources required',
         );
@@ -30,12 +39,19 @@ abstract final class IssuerFinancialsFeed {
             (r) => r['categorySchema'] == InfrastructureFundFinancials.category,
           )
           .toList();
+      final retrospective = input
+          .where(
+            (r) => r['categorySchema'] == RetrospectiveFundContract.category,
+          )
+          .toList();
       final scans = input
           .where((r) => r['categorySchema'] == ScannedFundFinancials.category)
           .toList();
       return [
         if (text.isNotEmpty) ...InfrastructureFundFinancials.validateRows(text),
         if (scans.isNotEmpty) ...ScannedFundFinancials.validateRows(scans),
+        if (retrospective.isNotEmpty)
+          ...RetrospectiveFundContract.validateRows(retrospective),
       ];
     }
     if (input is List &&

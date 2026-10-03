@@ -12,6 +12,8 @@ import 'own_annual_financial_source_registry.dart';
 import 'fund_financials_card.dart';
 import 'infrastructure_fund_financials_validator.dart';
 import 'scanned_fund_financials_validator.dart';
+import 'retrospective_fund_contract.dart';
+import 'retrospective_fund_card.dart';
 
 /// Stored alternate-source current observations; never substitutes regular reports.
 class IssuerFinancialsSection extends StatefulWidget {
@@ -165,8 +167,11 @@ class _IssuerFinancialsSectionState extends State<IssuerFinancialsSection> {
                 'printedFundCategories',
                 'printedInfrastructureFundCategories',
                 'printedScannedFundCategories',
+                RetrospectiveFundContract.category,
               }.contains(row['categorySchema']))
-                FundFinancialsCard(row: row)
+                row['categorySchema'] == RetrospectiveFundContract.category
+                    ? RetrospectiveFundCard(row: row)
+                    : FundFinancialsCard(row: row)
               else
                 _PeriodCard(row: row),
           ],
@@ -189,13 +194,24 @@ List<Map<String, dynamic>> validateIssuerFinancialRows(
             {
               'printedInfrastructureFundCategories',
               'printedScannedFundCategories',
+              RetrospectiveFundContract.category,
             }.contains(r['categorySchema']),
       )) {
     if (raw.length > 5 ||
         raw.map((r) => r['corpCode']).toSet().length != 1 ||
-        raw.map((r) => r['officialUrl']).toSet().length != raw.length) {
+        raw
+                .map(
+                  (r) =>
+                      '${r['officialUrl']}|${r['periodStart']}|${r['periodEnd']}',
+                )
+                .toSet()
+                .length !=
+            raw.length) {
       throw const FormatException('Bound same-issuer fund years required');
     }
+    final retrospective = raw
+        .where((r) => r['categorySchema'] == RetrospectiveFundContract.category)
+        .toList();
     final text = raw
             .where(
               (r) =>
@@ -208,6 +224,8 @@ List<Map<String, dynamic>> validateIssuerFinancialRows(
     return [
       if (text.isNotEmpty) ...validateInfrastructureFundRows(text),
       if (scans.isNotEmpty) ...validateScannedFundRows(scans),
+      if (retrospective.isNotEmpty)
+        ...RetrospectiveFundContract.validateRows(retrospective),
     ]..sort((a, b) => '${b['periodEnd']}'.compareTo('${a['periodEnd']}'));
   }
   if (raw is List &&

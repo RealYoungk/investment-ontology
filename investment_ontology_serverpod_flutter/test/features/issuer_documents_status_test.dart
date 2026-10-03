@@ -158,7 +158,7 @@ void main() {
         find.text('서버 보존: 과거 감사 원문 12개 · 최신 투자회사 원문 3/3 · 전체 15개'),
         findsOneWidget,
       );
-      expect(find.textContaining('2021~2023 자체 원문 미확보'), findsOneWidget);
+      expect(find.textContaining('2021~2023 당해 감사보고서 원문 미확보'), findsOneWidget);
       await t.tap(find.text('맥쿼리인프라'));
       await t.pumpAndSettle();
       expect(find.text('2025-01-01 ~ 2025-12-31'), findsOneWidget);

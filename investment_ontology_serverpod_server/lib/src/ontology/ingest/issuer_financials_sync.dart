@@ -10,6 +10,7 @@ import '../research/issuer_financials_feed.dart';
 import '../research/fund_financials_text.dart';
 import '../research/infrastructure_fund_financials.dart';
 import '../research/scanned_fund_financials.dart';
+import '../research/retrospective_fund_financials.dart';
 
 import 'package:crypto/crypto.dart';
 
@@ -26,7 +27,8 @@ abstract final class IssuerFinancialsSync {
       IpoIssuerFinancialsHtml.supports(doc) ||
       FundFinancialsText.supports(doc) ||
       InfrastructureFundFinancials.supports(doc) ||
-      ScannedFundFinancials.supports(doc);
+      ScannedFundFinancials.supports(doc) ||
+      RetrospectiveFundFinancials.supports(doc);
   static bool supportsCorp(String code) =>
       code == IssuerFinancialsHtml.corp ||
       IpoIssuerFinancialsHtml.supportsCorp(code) ||
@@ -39,6 +41,21 @@ abstract final class IssuerFinancialsSync {
     final rows = <Map<String, dynamic>>[];
     for (final d in documents.where(supports)) {
       final m = d['metadata'] as Map, p = d['proof'] as Map;
+      if (RetrospectiveFundFinancials.supports(d)) {
+        final pdf = File('${cache.path}/${m['sha256']}.pdf');
+        final text = File('${cache.path}/${m['sha256']}.retrospective.txt');
+        if (await pdf.length() > 20 * 1024 * 1024 ||
+            await text.length() > 4 * 1024 * 1024) {
+          throw const FormatException(
+            'Retrospective private source size bound',
+          );
+        }
+        RetrospectiveFundFinancials.verifyPdf(await pdf.readAsBytes());
+        rows.addAll(
+          RetrospectiveFundFinancials.parse(await text.readAsBytes()),
+        );
+        continue;
+      }
       if (ScannedFundFinancials.supports(d)) {
         final profile = ScannedFundFinancials.profile(m)!;
         final pdf = File('${cache.path}/${m['sha256']}.pdf');
@@ -127,6 +144,25 @@ abstract final class IssuerFinancialsSync {
         'Numeric snapshot company/source binding mismatch',
       );
     }
+    final quarantinedRows = parsed
+        .where((r) => r['numericState'] == 'pendingCashScope')
+        .length;
+    final excludedPeriods = parsed
+        .expand(
+          (r) => (r['excludedFiscalPeriods'] as List? ?? []).map(
+            (v) => '${r['corpCode']}|${v['periodStart']}|${v['periodEnd']}',
+          ),
+        )
+        .toSet();
+    final excludedCashQuarantines = parsed
+        .expand(
+          (r) => (r['excludedFiscalPeriods'] as List? ?? [])
+              .where((v) => v['quarantinedStatement'] == 'CF')
+              .map(
+                (v) => '${r['corpCode']}|${v['periodStart']}|${v['periodEnd']}',
+              ),
+        )
+        .toSet();
     await ResearchSnapshotStore.store(
       session,
       company,
@@ -163,16 +199,30 @@ abstract final class IssuerFinancialsSync {
                   'pipeline',
                   'sourcePages',
                   'visualReadScope',
+                  'publishedAt',
+                  'sourceRole',
+                  'sourceCoveredPeriodStart',
+                  'sourceCoveredPeriodEnd',
+                  'sourceConflicts',
+                  'excludedFiscalPeriods',
+                  'sourceReadScope',
+                  'standaloneOwnAuditRetrieved',
                 ])
                   if (r.containsKey(k)) k: r[k],
               },
             )
             .toList(),
-        'quarantinedPeriodGroups': parsed
-            .where((r) => r['numericState'] == 'pendingCashScope')
-            .length,
+        'quarantinedPeriodGroups':
+            quarantinedRows + excludedCashQuarantines.length,
+        'excludedFiscalPeriodGroups': excludedPeriods.length,
         'parsers': parsed.map((r) => r['parserVersion']).toSet().toList(),
-        'actualOwnDocuments': documents.where(supports).length,
+        'actualOwnDocuments': documents
+            .where(supports)
+            .where((d) => !RetrospectiveFundFinancials.supports(d))
+            .length,
+        'retrospectiveSourceDocuments': documents
+            .where(RetrospectiveFundFinancials.supports)
+            .length,
         'periodBasisGroups': parsed.length,
         'primaryAccountsPerGroup': parsed
             .map((r) => (r['accounts'] as List).length)
@@ -185,11 +235,8 @@ abstract final class IssuerFinancialsSync {
       }),
       cancelled: cancelled,
     );
-    final quarantined = parsed
-        .where((r) => r['numericState'] == 'pendingCashScope')
-        .length;
-    onQuarantined?.call(quarantined);
-    return parsed.length - quarantined;
+    onQuarantined?.call(quarantinedRows + excludedCashQuarantines.length);
+    return parsed.length - quarantinedRows;
   }
 
   static String sourceProvider(String corp) =>

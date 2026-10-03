@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "scope": "fixed reviewed 12 annual PDFs plus latest document for each of 3 funds; no automatic discovery",
+  "scope": "fixed reviewed 12 annual PDFs plus latest document for each of 3 funds and one retrospective corrected prospectus; no automatic discovery",
   "missingAnnualDocuments": {
     "01880801": [
       2021,
@@ -382,6 +382,33 @@
         "downloadedAt": "2026-10-02T03:45:16.973203+00:00",
         "readScope": "text cover p1",
         "periodProof": "printed PDF cover, no filename inference"
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01880801",
+        "title": "[정정]투자설명서(집합투자증권-회사형)",
+        "documentType": "prospectus",
+        "provider": "officialIR",
+        "providerReceipt": null,
+        "providerDocumentId": null,
+        "periodStart": "2021-07-01",
+        "periodEnd": "2023-12-31",
+        "publishedAt": "2024-11-15",
+        "officialUrl": "https://kbif.co.kr/upload/2024/11/20241115105341013630.pdf",
+        "sha256": "f156281de6902b32ca7773eaad4cb5ba3b03869cffea9edba81371cb7f9f7e8a",
+        "issuerQuote": "케이비발해인프라투융자회사",
+        "periodQuote": "제35기(2023.01.01~2023.12.31) / 제34기(2022.07.01~2022.12.31) / 제33기(2022.01.01~2022.06.30) / 제32기(2021.07.01~2021.12.31)",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": null,
+        "verifiedAt": "2026-10-03T05:07:28.578065+00:00",
+        "evidenceOrigin": "exact-local-original-from-official-source;downloadTimestampNotClaimed",
+        "readScope": "text and visual physical pages 265-269; correction date p1",
+        "periodProof": "printed audited fiscal terms 35/34/33/32; source range not fiscal duration"
       }
     }
   ]

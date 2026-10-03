@@ -10,16 +10,16 @@ import 'package:investment_ontology_serverpod_server/src/ontology/research/issue
 void main() {
   final source = File('assets/issuer_documents/verified_fund_documents.json')
       .readAsStringSync();
-  test('actual 12 annual plus 3 latest retain amounts null and independent provider IDs', () {
+  test('actual 12 annual plus 3 latest and 1 exact retrospective source retain amounts null and independent provider IDs', () {
     final rows = IssuerDocumentsCollector.manifest(source)
         .map((d) => d['metadata'] as Map)
         .toList();
-    expect(rows, hasLength(15));
+    expect(rows, hasLength(16));
     expect(
       rows.where((r) => '${r['periodEnd']}'.startsWith('2026')),
       hasLength(3),
     );
-    expect(rows.where((r) => r['corpCode'] == '01880801'), hasLength(3));
+    expect(rows.where((r) => r['corpCode'] == '01880801'), hasLength(4));
     for (final r in rows) {
       expect(r['financialValues'], isNull);
       expect(r['numericState'], 'notExtracted');

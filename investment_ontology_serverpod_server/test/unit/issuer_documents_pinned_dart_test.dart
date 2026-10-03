@@ -14,12 +14,12 @@ void main() {
   Map<String, dynamic> row() =>
       Map<String, dynamic>.from((jsonDecode(text)['documents'] as List).first);
   test(
-    'normal47 actualtype partialsource and no numerical promotion',
+    'normal48 actualtype partialsource and no numerical promotion',
     () async {
       final docs = IssuerDocumentsCollector.manifest(
         await IssuerDocumentsSync.combinedManifestText(),
       );
-      expect(docs, hasLength(47));
+      expect(docs, hasLength(48));
       final dart = docs
           .where((d) => d['metadata']['provider'] == 'DART')
           .toList();

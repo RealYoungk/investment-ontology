@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'issuer_documents_feed.dart';
 import 'reviewed_dart_issuer_sources.dart';
 import 'reviewed_fund_issuer_metadata.dart';
+import 'retrospective_fund_contract.dart';
 
 /// Fixed, human-read source manifest. No discovery, monetary extraction or DART API.
 class IssuerDocumentsCollector {
@@ -38,6 +39,7 @@ class IssuerDocumentsCollector {
         ReviewedDartIssuerSources.validateDocument(d);
         return d;
       }
+      if (RetrospectiveFundContract.supports(d)) return d;
       final at = DateTime.tryParse('${proof['downloadedAt']}');
       if (at == null ||
           at.isAfter(DateTime.now().toUtc()) ||

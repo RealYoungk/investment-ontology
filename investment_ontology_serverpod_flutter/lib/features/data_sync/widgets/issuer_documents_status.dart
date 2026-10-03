@@ -1,5 +1,7 @@
 import 'package:investment_ontology_serverpod_flutter/features/financials/split_plan_source_registry.dart';
 
+import '../../financials/retrospective_fund_contract.dart';
+
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -102,10 +104,14 @@ List<Map<String, dynamic>> issuerDocumentRows(String raw, String corp) {
         r['financialValues'] != null ||
         r['publicContent'] != 'linkOnly' ||
         !{
-          'auditReport',
-          'assetManagementReport',
-          'operatingReport',
-        }.contains(r['documentType']) ||
+              'auditReport',
+              'assetManagementReport',
+              'operatingReport',
+            }.contains(r['documentType']) &&
+            !RetrospectiveFundContract.same(
+              r,
+              RetrospectiveFundContract.data['metadata'],
+            ) ||
         !{'officialIR', 'KIND'}.contains(r['provider']) ||
         !RegExp(r'^[0-9a-f]{64}$').hasMatch(r['sha256']?.toString() ?? '') ||
         u == null ||
@@ -248,7 +254,7 @@ class _IssuerDocumentsStatusState extends State<IssuerDocumentsStatus> {
               '서버 보존: 과거 감사 원문 $historical개 · 최신 투자회사 원문 $latest/3 · 전체 ${rows.length}개',
             ),
             const Text(
-              'KB발해인프라 2021~2023 자체 원문 미확보(결산기간별 확인 중) · 재무 숫자 추출 대기',
+              'KB발해인프라 2021~2023 당해 감사보고서 원문 미확보 · 2024-11-15 정정 투자설명서의 과거 상세표는 별도 출처입니다. 재무 탭에서 별도 수집 상태와 원문 충돌·누락을 확인합니다.',
             ),
             const Text(
               '정기보고서·사업본문·재무 숫자 집계에 포함하지 않습니다. DART 자료는 읽은 재무 장만 보존하며 전체 원문 확보를 뜻하지 않습니다. 분할 대행 원문은 신설회사 자체 연간 보고서와 구분하며 숫자를 추출하지 않습니다. 자체 과거 원문 미확보 기간은 별도 확인 중입니다.',
@@ -274,6 +280,11 @@ class _IssuerDocumentsStatusState extends State<IssuerDocumentsStatus> {
                           Text(
                             SplitPlanSourceRegistry.supports(entry.key)
                                 ? '제출 ${row['filingDate']} · 계획 ${row['plannedSplitDate']} · 실제 설립 ${row['actualEstablishedDate']}'
+                                : RetrospectiveFundContract.same(
+                                    row,
+                                    RetrospectiveFundContract.data['metadata'],
+                                  )
+                                ? '정정 게시 ${row['publishedAt']} · 과거 표의 범위 ${row['periodStart']} ~ ${row['periodEnd']} (한 회계기간 아님)'
                                 : '${row['periodStart']} ~ ${row['periodEnd']}',
                           ),
                           SelectableText(
