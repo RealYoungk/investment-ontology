@@ -105,7 +105,7 @@ void main() {
 
         final first = await run();
         // The same receipt has an independently approved OFS core7 package.
-        final legacyCorasol = receipt == '20230314001218';
+        final approvedOppositeOfs = receipt == '20230314001218';
         expect(first.status, IngestStatus.succeeded);
         final numericCount = profiles
             .where(
@@ -115,14 +115,14 @@ void main() {
                   p['rule'] == LocatedOwnCurrentSource.printedLossRule,
             )
             .length;
-        expect(first.updated, numericCount + (legacyCorasol ? 1 : 0));
+        expect(first.updated, numericCount + (approvedOppositeOfs ? 1 : 0));
         final actual = (await DartFiling.db.findById(session, filing.id!))!;
         for (final basis in FsDiv.values) {
           final matched = profiles
               .where((p) => p['basis'] == basis.name)
               .toList();
           final expected = matched.isEmpty
-              ? legacyCorasol && basis == FsDiv.separate
+              ? approvedOppositeOfs && basis == FsDiv.separate
                     ? FilingFetchStatus.stored
                     : FilingFetchStatus.failed
               : matched.single['rule'] == 'located-own-explicit-cfs-absence-v1'
@@ -135,11 +135,14 @@ void main() {
             expected,
           );
         }
-        if (profiles.length == 1 && !legacyCorasol) {
+        if (profiles.length == 1 && !approvedOppositeOfs) {
           expect(first.status, IngestStatus.failed);
         }
         final reports = await FinancialReport.db.find(session);
-        expect(reports, hasLength(numericCount + (legacyCorasol ? 1 : 0)));
+        expect(
+          reports,
+          hasLength(numericCount + (approvedOppositeOfs ? 1 : 0)),
+        );
         expect(
           await FinancialFact.db.count(session),
           profiles
@@ -154,7 +157,7 @@ void main() {
                             ? 7
                             : 8),
                   ) +
-              (legacyCorasol ? 7 : 0),
+              (approvedOppositeOfs ? 7 : 0),
         );
         for (final profile in profiles) {
           final basis = profile['basis'] == 'consolidated'
@@ -404,7 +407,7 @@ void main() {
             if (!partial) 'capex',
           });
         }
-        if (legacyCorasol) {
+        if (approvedOppositeOfs) {
           final report = reports.singleWhere((r) => r.fsDiv == FsDiv.separate);
           expect(report.rceptNo, receipt);
           expect(report.factCount, 7);
@@ -413,13 +416,13 @@ void main() {
             report.id!,
           ))!;
           const printed = <String, String>{
-            '자산총계': '42035972141',
-            '부채총계': '25700060987',
-            '자본총계': '16335911154',
-            'Ⅰ. 매출액': '17372009452',
-            'Ⅴ. 영업이익': '-2628301836',
-            'Ⅹ. 당기순이익': '-2795459101',
-            'Ⅰ. 영업활동으로 인한 현금흐름': '-1897300484',
+            '자 산 총 계': '20186911158337',
+            '부 채 총 계': '19938637637708',
+            '자 본 총 계': '248273520629',
+            'I. 영업수익': '8021999088535',
+            'III. 영업이익': '326922757112',
+            'VIII. 당기순이익': '302102769216',
+            'I. 영업활동으로 인한 현금흐름': '159666572692',
           };
           expect(detail.facts, hasLength(7));
           for (final e in printed.entries) {
@@ -429,7 +432,7 @@ void main() {
             expect(f.fsDiv, FsDiv.separate);
           }
           final e = VerifiedAnnualSourceRegistry.find(receipt, FsDiv.separate)!;
-          expect(e.ruleVersion, 'dated-current-column-whole-equity-v1');
+          expect(e.ruleVersion, 'verified-current-period-whole-annual-v1');
           final own = jsonDecode(
             File('${e.assetDirectory}/manifest.json').readAsStringSync(),
           ) as Map;
