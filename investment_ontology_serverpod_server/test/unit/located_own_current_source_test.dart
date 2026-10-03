@@ -473,7 +473,7 @@ void main() {
             ),
             throwsFormatException,
           );
-          if (e.receipt != '20230314000692') {
+          if (!{'20230314000692', '20230314001218'}.contains(e.receipt)) {
             await expectLater(
               cache.verifyRegistered(
                 filing(e),

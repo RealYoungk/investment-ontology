@@ -56,6 +56,19 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20230314001218',
+      corpCode: '00135917',
+      companyName: '한화손해보험(주)',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20230314001218-cfs-located-own-seven',
+      manifestDigest:
+          'a04db728ed2220f5a1cedf0caafcddddfec9b6f4140cd4296a200bbfab4e8a4f',
+      ruleVersion: 'located-own-current-seven-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20230314000604',
       corpCode: '00148610',
       companyName: '한화투자증권(주)',
