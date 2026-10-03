@@ -1,3 +1,5 @@
+import '../research/split_plan_documents.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -143,6 +145,8 @@ class ResearchEndpoint extends Endpoint {
               'issuerAnnualFinancials' =>
                 '자체 연간 감사 원문 핵심재무 수집 전입니다. 전체 재무제표와 구분합니다.',
               'issuerFinancials' => '대체 공식 원문 핵심 재무 수집 전입니다. 정기 API 집계와 분리합니다.',
+              'splitPlanDocuments' =>
+                '분할 대행 제출 원문 보존 전입니다. 신설회사 자체 재무자료와 구분합니다.',
               'issuerDocuments' => '공식 원문 문서 수집 전입니다. 재무 계정은 추출하지 않습니다.',
               'consensus' => '공개 제공이 허용된 컨센서스 공급원을 아직 연결하지 않았습니다.',
               'insiders' || 'majorHoldings' => 'DART 보유변동 보고 수집 전입니다.',
@@ -155,6 +159,16 @@ class ResearchEndpoint extends Endpoint {
       }
     }
     final source = await Source.db.findById(session, snapshot.sourceId);
+    if (kind == SplitPlanDocuments.kind) {
+      final rows = ResearchFeed.validate(kind, jsonDecode(snapshot.payload));
+      if (rows.any((r) => r['corpCode'] != corpCode) ||
+          source?.kind != SourceKind.officialFile ||
+          source?.url != 'https://kind.krx.co.kr' ||
+          source?.reference != SplitPlanDocuments.reference ||
+          snapshot.provider != SplitPlanDocuments.provider) {
+        throw IngestException(message: '분할 대행 제출 출처 연결 검증 실패');
+      }
+    }
     if (kind == 'issuerFinancials') {
       final rows = ResearchFeed.validate(kind, jsonDecode(snapshot.payload));
       if (rows.any((r) => r['corpCode'] != corpCode) ||
@@ -211,7 +225,11 @@ class ResearchEndpoint extends Endpoint {
     String rightsReference,
   ) async {
     OntologyAccess.requireAdmin(session);
-    if ({'issuerFinancials', 'issuerAnnualFinancials'}.contains(kind)) {
+    if ({
+      'issuerFinancials',
+      'issuerAnnualFinancials',
+      'splitPlanDocuments',
+    }.contains(kind)) {
       throw IngestException(message: '별도 재무 숫자는 정상 서버 원문 파서만 저장합니다.');
     }
     final c = await _company(session, corpCode);

@@ -1,3 +1,6 @@
+import 'split_plan_source_registry.dart';
+import 'split_plan_documents_section.dart';
+
 import 'package:flutter/material.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 
@@ -113,7 +116,8 @@ class _FinancialSectionState extends State<FinancialSection> {
     } else if (data == null || (data.periods.isEmpty && data.market == null)) {
       body = Text(
         data == null || data.filingCount == 0
-            ? IssuerFinancialSourceRegistry.supportsCorp(widget.corpCode)
+            ? (IssuerFinancialSourceRegistry.supportsCorp(widget.corpCode) ||
+                      SplitPlanSourceRegistry.supports(widget.corpCode))
                   ? '정기보고서 API 재무 데이터는 아직 없습니다.'
                   : '아직 재무·시세를 수집하지 않았습니다.'
             : '정기보고서 ${formatCount(data.filingCount)}건 중 '
@@ -128,6 +132,10 @@ class _FinancialSectionState extends State<FinancialSection> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         body,
+        SplitPlanDocumentsSection(
+          corpCode: widget.corpCode,
+          dataVersion: widget.dataVersion,
+        ),
         IssuerFinancialsSection(
           corpCode: widget.corpCode,
           dataVersion: widget.dataVersion,

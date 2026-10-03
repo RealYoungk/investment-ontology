@@ -1,3 +1,5 @@
+import 'split_plan_documents.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -122,6 +124,26 @@ class IssuerDocumentsCollector {
       m['corpCode'] as String,
     );
     return _ensureBytes(uri, m['sha256'] as String, 'pdf', cancelled);
+  }
+
+  /// Separate compiled delegated filings; never relaxes the own-issuer parser.
+  Future<bool> ensureSplit(
+    Map<String, dynamic> row, {
+    required Future<bool> Function() cancelled,
+  }) async {
+    SplitPlanDocuments.validate([row]);
+    final ok = await _ensureBytes(
+      Uri.parse(row['officialUrl'] as String),
+      row['sha256'] as String,
+      'html',
+      cancelled,
+    );
+    if (!ok) return false;
+    SplitPlanDocuments.verifyBytes(
+      row,
+      await File('${cache.path}/${row['sha256']}.html').readAsBytes(),
+    );
+    return true;
   }
 
   Future<bool> _ensureBytes(

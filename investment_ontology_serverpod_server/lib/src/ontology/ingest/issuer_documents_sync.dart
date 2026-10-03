@@ -1,3 +1,5 @@
+import 'split_plan_documents_sync.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -16,15 +18,17 @@ class IssuerDocumentsResult {
   int financialPeriodGroups = 0, financialFailedCompanies = 0;
   int ownAnnualPeriodGroups = 0, ownAnnualFailedCompanies = 0;
   int financialQuarantinedPeriodGroups = 0;
+  int splitDocuments = 0, splitFailedCompanies = 0;
   bool cancelled = false, setupFailed = false;
   bool get hasFailure =>
       setupFailed ||
+      splitFailedCompanies > 0 ||
       failedCompanies > 0 ||
       financialFailedCompanies > 0 ||
       ownAnnualFailedCompanies > 0;
   final reasons = <String>[];
   String get message =>
-      '공식 별도 원문: 회사 보존 $storedCompanies · 문서 보존 $storedDocuments · 회사 실패 $failedCompanies · 준비 실패 ${setupFailed ? 1 : 0} · 원문 메타데이터 숫자 미추출 · 별도 핵심재무 기간·basis $financialPeriodGroups · 별도 재무 회사 실패 $financialFailedCompanies · 자체 연간 핵심재무 기간·basis $ownAnnualPeriodGroups · 자체 연간 재무 회사 실패 $ownAnnualFailedCompanies · 펀드 현금 범위 격리 $financialQuarantinedPeriodGroups기간(금액 목록 제외)${cancelled ? ' · 취소' : ''}${reasons.isEmpty ? '' : ' · ${reasons.join('; ')}'}';
+      '분할 대행 원문 보존 $splitDocuments · 분할 원문 회사 실패 $splitFailedCompanies · 공식 별도 원문: 회사 보존 $storedCompanies · 문서 보존 $storedDocuments · 회사 실패 $failedCompanies · 준비 실패 ${setupFailed ? 1 : 0} · 원문 메타데이터 숫자 미추출 · 별도 핵심재무 기간·basis $financialPeriodGroups · 별도 재무 회사 실패 $financialFailedCompanies · 자체 연간 핵심재무 기간·basis $ownAnnualPeriodGroups · 자체 연간 재무 회사 실패 $ownAnnualFailedCompanies · 펀드 현금 범위 격리 $financialQuarantinedPeriodGroups기간(금액 목록 제외)${cancelled ? ' · 취소' : ''}${reasons.isEmpty ? '' : ' · ${reasons.join('; ')}'}';
 }
 
 /// Internal scheduled worker. Stores raw metadata only, without touching body or
@@ -57,12 +61,25 @@ class IssuerDocumentsSync {
     _running = true;
     final collector = IssuerDocumentsCollector(cache: Directory(cachePath));
     try {
-      return await collectAndStore(
+      final result = await collectAndStore(
         session,
         manifestText: await combinedManifestText(),
         collector: collector,
         cancelled: cancelled,
       );
+      if (result.cancelled || await cancelled()) {
+        return result..cancelled = true;
+      }
+      final split = await SplitPlanDocumentsSync.collect(
+        session,
+        collector,
+        cancelled,
+      );
+      result.splitDocuments = split.stored;
+      result.splitFailedCompanies = split.failed;
+      result.cancelled = split.cancelled;
+      result.reasons.addAll(split.reasons);
+      return result;
     } catch (e, st) {
       // Counts remain separate from regular business-body period counts.
       session.log(
@@ -219,7 +236,9 @@ class IssuerDocumentsSync {
         return true;
       }
     }
-    return false;
+    return manifestText == null
+        ? SplitPlanDocumentsSync.pending(session, cache)
+        : false;
   }
 
   /// Internal dependency-injected execution, also exercised in isolated tests.

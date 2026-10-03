@@ -1,3 +1,5 @@
+import 'package:investment_ontology_serverpod_flutter/features/financials/split_plan_source_registry.dart';
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -39,7 +41,7 @@ void main() {
   test(
     'all thirty-two pinned DART chapters require exact own issuer metadata',
     () {
-      expect(issuerDocumentFunds.length, 12);
+      expect(issuerDocumentFunds.length, 14);
       expect(reviewedDartIssuerMetadata.length, 32);
       for (final row in reviewedDartIssuerMetadata) {
         final corp = row['corpCode'] as String;
@@ -68,7 +70,9 @@ void main() {
   test('actual fifteen metadata rows preserve twelve annual and three latest documents', () {
     final rows = actualRows();
     expect(rows.length, 15);
-    for (final corp in issuerDocumentFunds.keys) {
+    for (final corp in issuerDocumentFunds.keys.where(
+      (c) => !SplitPlanSourceRegistry.supports(c),
+    )) {
       final own = rows.where((r) => r['corpCode'] == corp).toList();
       expect(issuerDocumentRows(ready(corp, own), corp), own);
     }
@@ -110,6 +114,26 @@ void main() {
       throwsFormatException,
     );
   });
+  test(
+    'split2 data page keeps source actor and excludes regular/numeric history',
+    () {
+      for (final row in SplitPlanSourceRegistry.rows) {
+        final input = jsonEncode({
+          'state': 'ready',
+          'provider': 'verified-delegated-split-plan',
+          'source': {
+            'kind': 'officialFile',
+            'url': 'https://kind.krx.co.kr',
+            'reference': 'parent-submitted-split-plan;link-only;no-own-period-or-numeric-assertion',
+          },
+          'rows': [row],
+        });
+        expect(issuerDocumentRows(input, row['corpCode'] as String), [row]);
+        expect(row.containsKey('periodStart'), false);
+        expect(row['annualPeriodCount'], 0);
+      }
+    },
+  );
   testWidgets(
     '320px shows honest independent counts and missing historical years',
     (t) async {
@@ -170,7 +194,7 @@ void main() {
       await t.pumpAndSettle();
       expect(find.text('저장된 문서 없음'), findsOneWidget);
       expect(find.text('서버 수집 전'), findsOneWidget);
-      expect(find.text('원문 상태 확인 실패'), findsNWidgets(10));
+      expect(find.text('원문 상태 확인 실패'), findsNWidgets(12));
       for (final entry in old.entries) {
         entry.value.complete(
           ready(

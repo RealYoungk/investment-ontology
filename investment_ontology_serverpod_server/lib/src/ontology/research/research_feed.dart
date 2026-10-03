@@ -1,3 +1,4 @@
+import 'split_plan_documents.dart';
 import 'issuer_documents_feed.dart';
 import 'issuer_financials_feed.dart';
 import 'own_annual_financials_html.dart';
@@ -8,6 +9,7 @@ import 'own_annual_financials_html.dart';
 abstract final class ResearchFeed {
   static const kinds = {
     'issuerDocuments',
+    'splitPlanDocuments',
     'issuerFinancials',
     'issuerAnnualFinancials',
     'consensus',
@@ -59,6 +61,9 @@ abstract final class ResearchFeed {
   }
 
   static List<Map<String, dynamic>> validate(String kind, dynamic input) {
+    if (kind == SplitPlanDocuments.kind) {
+      return SplitPlanDocuments.validate(input);
+    }
     if (kind == 'issuerDocuments') return IssuerDocumentsFeed.validate(input);
     if (kind == 'issuerFinancials') return IssuerFinancialsFeed.validate(input);
     if (kind == 'issuerAnnualFinancials') {
