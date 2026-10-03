@@ -54,6 +54,7 @@ class IssuerDocumentsCollector {
     final roster = <Map>[
       ...ReviewedDartIssuerSources.documents.map((d) => d['metadata'] as Map),
       ...ReviewedFundIssuerMetadata.documents,
+      RetrospectiveFundContract.data['metadata'] as Map,
     ];
     final wholeRoster =
         docs.length <= roster.length &&
