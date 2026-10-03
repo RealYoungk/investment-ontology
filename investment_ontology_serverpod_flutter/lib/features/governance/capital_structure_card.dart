@@ -12,21 +12,46 @@ import '../../design/components/components.dart';
 import '../../design/tokens.dart';
 import '../common/formatters.dart';
 import '../auth/app_viewer.dart';
-import '../research/research_section.dart';
 import 'bond_trends_card.dart';
 
-/// Constant holdings, same share class, all entered new shares issued.
-double? dilutedOwnership(double held, double issued, double additional) {
-  if (!held.isFinite ||
-      !issued.isFinite ||
-      !additional.isFinite ||
-      held < 0 ||
-      issued <= 0 ||
-      held > issued ||
-      additional < 0) {
+/// Relative ownership reduction with unchanged holdings; no personal input needed.
+double? maximumOwnershipDilution(BigInt? issued, BigInt? additional) {
+  if (additional == null || additional < BigInt.zero) return null;
+  if (additional == BigInt.zero) return 0;
+  if (issued == null || issued <= BigInt.zero) return null;
+  return additional.toDouble() / (issued + additional).toDouble() * 100;
+}
+
+/// Only a complete, verified same-class CB/BW disclosure supports a maximum.
+BigInt? disclosedNewShares(Map<String, dynamic>? data, String kind) {
+  if (data?['state'] != 'ready') return null;
+  final states = data!['states'] as Map? ?? {};
+  if (![
+    'CB',
+    'BW',
+  ].every((type) => ['verified', 'none'].contains(states[type]))) {
     return null;
   }
-  return held / (issued + additional) * 100;
+  final entries = (data['entries'] as List? ?? []).cast<Map<String, dynamic>>();
+  String normalize(Object? value) =>
+      '$value'.replaceAll(' ', '').replaceAll('주식', '주');
+  var total = BigInt.zero;
+  for (final row in entries.where((r) => ['CB', 'BW'].contains(r['type']))) {
+    if (row['validation'] != 'verified') return null;
+    if (!['보통주', '우선주'].contains(normalize(row['stockKind']))) return null;
+    final shares = BigInt.tryParse('${row['shares']}');
+    if (shares == null || shares < BigInt.zero) return null;
+    if (normalize(row['stockKind']) == normalize(kind)) total += shares;
+  }
+  for (final type in ['CB', 'BW']) {
+    if (states[type] == 'verified' && !entries.any((r) => r['type'] == type)) {
+      return null;
+    }
+    if (states[type] == 'none' && entries.any((r) => r['type'] == type)) {
+      return null;
+    }
+  }
+  return total;
 }
 
 class CapitalStructureCard extends StatefulWidget {
@@ -44,9 +69,6 @@ class _CapitalStructureCardState extends State<CapitalStructureCard> {
   bool _failed = false;
   bool _loaded = false;
   int _request = 0;
-  final _held = TextEditingController();
-  final _additional = TextEditingController();
-  String? _kind;
   @override
   void initState() {
     super.initState();
@@ -106,83 +128,39 @@ class _CapitalStructureCardState extends State<CapitalStructureCard> {
     }
   }
 
-  Widget _overhang(BuildContext context) {
-    final c = context.colors, t = context.typo;
-    final data = _capital;
-    final entries = ((data?['entries'] as List?) ?? [])
+  Widget _evidence(BuildContext context) {
+    final entries = ((_capital?['entries'] as List?) ?? [])
         .cast<Map<String, dynamic>>();
-    final states = (data?['states'] as Map?) ?? {};
-    String stateLabel(String type) => switch (states[type]) {
-      'verified' => '수량 검산 통과',
-      'none' => '해당 없음 공시',
-      'partial' => '일부 미확인·검산 불일치',
-      _ => '미확보',
-    };
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    if (entries.isEmpty) return const SizedBox.shrink();
+    return ExpansionTile(
+      title: const Text('회차별 물량과 과거 추이'),
       children: [
-        const CompanySectionHeading('CB·BW·EB 잔여 물량'),
-        Text(
-          '기준일: ${data?['periodEnd'] ?? '미확보'} · 기준일 이후 행사·상환은 반영되지 않습니다.',
-          style: t.body(12, color: c.textSecondary),
+        AppDataTable(
+          columns: const [
+            AppColumn('유형·회차'),
+            AppColumn('대상'),
+            AppColumn('가능 주식 수', numeric: true),
+            AppColumn('전환·행사가', numeric: true),
+          ],
+          rows: [
+            for (final row in entries)
+              AppRow([
+                AppDataTable.text(context, "${row['type']} ${row['series']}"),
+                AppDataTable.text(context, '${row['stockKind']}'),
+                AppDataTable.text(
+                  context,
+                  "${row['shares'] ?? '미확보'}${row['validation'] == 'verified' ? '' : ' · 검산 미완료'}",
+                  numeric: true,
+                ),
+                AppDataTable.text(
+                  context,
+                  "${row['price'] ?? '미확보'} 원",
+                  numeric: true,
+                ),
+              ]),
+          ],
         ),
-        for (final type in ['CB', 'BW', 'EB'])
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: AppSpace.xs),
-            child: Text('$type · ${stateLabel(type)}'),
-          ),
-        if (entries.isNotEmpty)
-          AppDataTable(
-            columns: const [
-              AppColumn('유형·회차'),
-              AppColumn('대상 주식'),
-              AppColumn('미상환 잔액'),
-              AppColumn('전환·행사가'),
-              AppColumn('가능 주식 수'),
-              AppColumn('검산·기간'),
-            ],
-            rows: [
-              for (final r in entries)
-                AppRow([
-                  AppDataTable.text(context, "${r['type']} ${r['series']}"),
-                  AppDataTable.text(context, r['stockKind'].toString()),
-                  AppDataTable.text(
-                    context,
-                    "${r['balance']} ${r['unit'] ?? '단위 미확인'}",
-                  ),
-                  AppDataTable.text(context, "${r['price'] ?? '미확보'} 원"),
-                  AppDataTable.text(context, "${r['shares']} 주"),
-                  AppDataTable.text(
-                    context,
-                    "${r['validation'] == 'verified'
-                        ? '검산 통과'
-                        : r['validation'] == 'mismatch'
-                        ? '수량 불일치'
-                        : '검산 미확인'} · ${r['exercisePeriod'] ?? '기간 미확보'}",
-                  ),
-                ]),
-            ],
-          ),
-        Text(
-          'CB·BW는 대상 주식 종류별로 확인합니다. EB는 기존 주식 교환 물량으로 신주 희석에 합산하지 않습니다. 미확보는 물량이 없다는 뜻이 아닙니다.',
-          style: t.body(12, color: c.textSecondary),
-        ),
-        if (data?['receipt'] != null)
-          AppButton(
-            label: '기준 보고서 원문',
-            variant: AppButtonVariant.link,
-            onPressed: () => launchUrl(
-              Uri.parse(
-                'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${data!['receipt']}',
-              ),
-            ),
-          ),
-        if (context.isAdmin)
-          AppButton(
-            label: _collecting ? '원문 확인 중…' : '최신 정기보고서 잔여 물량 수집',
-            onPressed: _collecting ? null : _collect,
-          ),
-        if (_collectionError != null) Text('수집 실패 · $_collectionError'),
+        BondTrendsCard(corpCode: widget.corpCode),
       ],
     );
   }
@@ -195,9 +173,6 @@ class _CapitalStructureCardState extends State<CapitalStructureCard> {
       _capital = null;
       _loaded = false;
       _failed = false;
-      _kind = null;
-      _held.clear();
-      _additional.clear();
       _load();
     }
   }
@@ -206,17 +181,12 @@ class _CapitalStructureCardState extends State<CapitalStructureCard> {
   void dispose() {
     _request++;
     IngestMonitor.instance.dataVersion.removeListener(_load);
-    _held.dispose();
-    _additional.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final t = context.typo, c = context.colors;
-    final samePeriod = ((_capital?['stocks'] as List?) ?? []).any(
-      (r) => r['issued'] != null,
-    );
     final rows =
         _data?.stockTotals
             .where(
@@ -227,172 +197,191 @@ class _CapitalStructureCardState extends State<CapitalStructureCard> {
             )
             .toList() ??
         <StockTotalRow>[];
-    final selected =
-        rows.where((r) => r.kind == _kind).firstOrNull ?? rows.firstOrNull;
-    double? number(String s) => double.tryParse(s.replaceAll(',', '').trim());
-    final held = number(_held.text), additional = number(_additional.text);
-    final issued = selected?.issued?.toDouble();
-    final after = held == null || issued == null || additional == null
-        ? null
-        : dilutedOwnership(held, issued, additional);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        CompanyDataCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const CompanySectionHeading('주식 수와 잠재 희석'),
-              const SizedBox(height: AppSpace.sm),
-              if (_failed)
-                ReadFailureNotice(subject: '주식 수', retry: _load)
-              else if (!_loaded)
-                const Text('주식 총수 자료를 확인 중입니다.')
-              else if (rows.isEmpty)
-                const Text('발행주식 수 미확보 · 희석률을 계산할 기준 수량이 없습니다.')
-              else ...[
-                Text(
-                  '주식 총수 · ${samePeriod ? _capital!['periodEnd'] : 'FY${_data!.stockTotalYear}'} · 수량 단위: 주',
-                  style: t.body(12, color: c.textSecondary),
-                ),
-                const SizedBox(height: AppSpace.sm),
-                AppDataTable(
-                  columns: const [
-                    AppColumn('종류'),
-                    AppColumn('발행주식', numeric: true),
-                    AppColumn('발행 가능한 총수', numeric: true),
-                    AppColumn('자기주식', numeric: true),
-                  ],
-                  rows: [
-                    for (final r in rows)
-                      AppRow([
-                        AppDataTable.text(context, r.kind),
-                        for (final v in [r.issued, r.authorized, r.treasury])
-                          AppDataTable.text(
-                            context,
-                            v == null ? '미확보' : formatCount(v.toInt()),
-                            numeric: true,
-                          ),
-                      ]),
-                  ],
-                ),
-                const SizedBox(height: AppSpace.sm),
-                Text(
-                  '발행 가능한 총수는 정관상 한도이며 발행 계획이 아닙니다.',
-                  style: t.body(12, color: c.textSecondary),
-                ),
-                const SizedBox(height: AppSpace.lg),
-                const CompanySectionHeading('내 지분 변화 계산'),
-                Text(
-                  '미상환 CB·BW 등에서 확인한 추가 신주 수를 입력하세요. 공시 기준 수량을 사용하는 가정 계산입니다.',
-                  style: t.body(12, color: c.textSecondary),
-                ),
-                const SizedBox(height: AppSpace.sm),
-                if (_capital?['state'] == 'ready' && samePeriod) ...[
-                  AppButton(
-                    label: '확인된 CB·BW 물량으로 계산',
-                    onPressed: () {
-                      final entries = (_capital!['entries'] as List)
-                          .cast<Map<String, dynamic>>();
-                      final candidates = entries.where(
-                        (r) =>
-                            ['CB', 'BW'].contains(r['type']) &&
-                            r['validation'] == 'verified' &&
-                            r['stockKind']
-                                .toString()
-                                .replaceAll(' ', '')
-                                .contains(
-                                  selected!.kind
-                                      .replaceAll(' ', '')
-                                      .replaceAll('주식', '주'),
-                                ),
-                      );
-                      final total = candidates.fold<BigInt>(
-                        BigInt.zero,
-                        (sum, r) => sum + BigInt.parse(r['shares'] as String),
-                      );
-                      setState(() => _additional.text = total.toString());
-                    },
-                  ),
-                  Text(
-                    '검산 통과한 같은 종류의 주식만 반영합니다. CB·BW 항목이 미확보 또는 불일치이면 전체 물량과 최대 희석률은 미확정입니다.',
-                    style: t.body(12, color: c.textSecondary),
-                  ),
-                ],
-                if (rows.length > 1)
-                  DropdownButton<String>(
-                    value: selected!.kind,
-                    isExpanded: true,
-                    items: [
-                      for (final r in rows)
-                        DropdownMenuItem(value: r.kind, child: Text(r.kind)),
-                    ],
-                    onChanged: (v) => setState(() => _kind = v),
-                  ),
-                Wrap(
-                  spacing: AppSpace.md,
-                  runSpacing: AppSpace.sm,
-                  children: [
-                    SizedBox(
-                      width: 220,
-                      child: TextField(
-                        controller: _held,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          labelText: '내 보유 주식 수',
-                          suffixText: '주',
+    final snapshotStocks = ((_capital?['stocks'] as List?) ?? [])
+        .cast<Map<String, dynamic>>();
+    final states = _capital?['states'] as Map? ?? {};
+    final allMissing = ![
+      'CB',
+      'BW',
+      'EB',
+    ].any((type) => ['verified', 'none', 'partial'].contains(states[type]));
+    return CompanyDataCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const CompanySectionHeading('앞으로 주식이 얼마나 늘어날 수 있나?'),
+          const SizedBox(height: AppSpace.sm),
+          if (_failed)
+            ReadFailureNotice(subject: '주식 수', retry: _load)
+          else if (!_loaded)
+            const Text('공시 자료를 확인 중입니다.')
+          else ...[
+            Text(
+              '공시 기준 · ${_capital?['periodEnd'] ?? 'FY${_data?.stockTotalYear ?? '미확보'}'}',
+              style: t.body(12, color: c.textSecondary),
+            ),
+            const SizedBox(height: AppSpace.md),
+            if (allMissing) ...[
+              Text(
+                '추가 발행 가능 물량 미확보',
+                style: t.body(18, weight: FontWeight.w600),
+              ),
+              const SizedBox(height: AppSpace.xs),
+              Text(
+                'CB·BW 공시가 아직 확보되지 않아 최대 희석률을 계산할 수 없습니다.',
+                style: t.body(13, color: c.textSecondary),
+              ),
+            ] else
+              for (final stock in rows) ...[
+                Builder(
+                  builder: (context) {
+                    final additional = disclosedNewShares(_capital, stock.kind);
+                    final snapshot = snapshotStocks
+                        .where((r) => r['kind'] == stock.kind)
+                        .firstOrNull;
+                    final issued = BigInt.tryParse('${snapshot?['issued']}');
+                    final dilution = maximumOwnershipDilution(
+                      issued,
+                      additional,
+                    );
+                    return Wrap(
+                      spacing: AppSpace.xl,
+                      runSpacing: AppSpace.md,
+                      children: [
+                        _metric(
+                          context,
+                          '${stock.kind} 추가 발행 가능',
+                          additional == null
+                              ? '미확정'
+                              : '${formatCount(additional.toInt())}주',
                         ),
-                        onChanged: (_) => setState(() {}),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 220,
-                      child: TextField(
-                        controller: _additional,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          labelText: '추가 발행 가정 수량',
-                          suffixText: '주',
+                        _metric(
+                          context,
+                          '기존 주주의 최대 희석',
+                          dilution == null
+                              ? '계산 불가'
+                              : '${dilution.toStringAsFixed(2)}%',
                         ),
-                        onChanged: (_) => setState(() {}),
-                      ),
-                    ),
-                  ],
+                      ],
+                    );
+                  },
                 ),
                 const SizedBox(height: AppSpace.md),
-                if (after != null) ...[
-                  Text(
-                    '${(held! / issued! * 100).toStringAsFixed(4)}% → ${after.toStringAsFixed(4)}%',
-                    style: t.numeric(24, weight: FontWeight.w600),
-                  ),
-                  Text(
-                    '기존 지분 대비 ${(additional! / (issued + additional) * 100).toStringAsFixed(2)}% 감소 · 보유 수량 유지 가정',
-                    style: t.body(13),
-                  ),
-                ] else if (_held.text.isNotEmpty || _additional.text.isNotEmpty)
-                  const Text('보유 수량은 발행주식 이하, 추가 수량은 0 이상의 숫자로 입력하세요.'),
-                Text(
-                  '계산: 보유 주식 ÷ (기존 발행주식 + 추가 신주). EB는 기존 주식 교환이므로 신주 수에 더하지 않습니다. 전환가 조정·행사·상환과 기준일 이후 주식 수 변동은 별도로 확인해야 합니다.',
-                  style: t.body(12, color: c.textSecondary),
-                ),
               ],
-              const SizedBox(height: AppSpace.lg),
-              for (final source in _data?.sources ?? <Source>[])
-                if (source.url != null && source.title.contains('주식의 총수'))
-                  AppButton(
-                    label: '주식 총수 원문 · ${source.reference ?? ''}',
-                    variant: AppButtonVariant.link,
-                    onPressed: () => launchUrl(Uri.parse(source.url!)),
+            if (!allMissing)
+              Text(
+                '공시된 CB·BW가 모두 전환·행사되는 경우입니다. 실제 발행이 확정된 수량은 아닙니다.',
+                style: t.body(12, color: c.textSecondary),
+              ),
+            const SizedBox(height: AppSpace.md),
+            Wrap(
+              spacing: AppSpace.md,
+              runSpacing: AppSpace.xs,
+              children: [
+                for (final type in ['CB', 'BW', 'EB'])
+                  Text(
+                    '$type · ${_typeQuantity(type, states)}',
+                    style: t.body(13, color: c.textSecondary),
                   ),
-              _overhang(context),
-            ],
-          ),
-        ),
-        const SizedBox(height: AppSpace.md),
-        BondTrendsCard(corpCode: widget.corpCode),
-        const SizedBox(height: AppSpace.md),
-        ResearchSection(corpCode: widget.corpCode, kinds: const ['capital']),
-      ],
+              ],
+            ),
+            if (!allMissing)
+              Text(
+                'EB는 기존 주식을 교환하므로 신주 희석에서 제외합니다.',
+                style: t.body(12, color: c.textSecondary),
+              ),
+            const SizedBox(height: AppSpace.lg),
+            const CompanySectionHeading('현재 주식 수와 정관 한도'),
+            if (rows.isEmpty)
+              const Text('주식 수 미확보')
+            else
+              AppDataTable(
+                columns: const [
+                  AppColumn('종류'),
+                  AppColumn('발행주식', numeric: true),
+                  AppColumn('정관상 발행 한도', numeric: true),
+                ],
+                rows: [
+                  for (final row in rows)
+                    AppRow([
+                      AppDataTable.text(context, row.kind),
+                      AppDataTable.text(
+                        context,
+                        formatCount(row.issued!.toInt()),
+                        numeric: true,
+                      ),
+                      AppDataTable.text(
+                        context,
+                        row.authorized == null
+                            ? '미확보'
+                            : formatCount(row.authorized!.toInt()),
+                        numeric: true,
+                      ),
+                    ]),
+                ],
+              ),
+            Text(
+              '정관 한도는 발행 계획이 아닙니다.${snapshotStocks.isEmpty ? ' · 주식 수 FY${_data?.stockTotalYear ?? '미확보'} 기준' : ''}',
+              style: t.body(12, color: c.textSecondary),
+            ),
+            _evidence(context),
+            if (_capital?['receipt'] != null)
+              AppButton(
+                label: '공시 원문',
+                variant: AppButtonVariant.link,
+                onPressed: () => launchUrl(
+                  Uri.parse(
+                    'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${_capital!['receipt']}',
+                  ),
+                ),
+              ),
+            if (context.isAdmin)
+              AppButton(
+                label: _collecting ? '공시 확인 중…' : '최신 공시 물량 수집',
+                onPressed: _collecting ? null : _collect,
+              ),
+            if (_collectionError != null) Text('수집 실패 · $_collectionError'),
+          ],
+        ],
+      ),
     );
   }
+
+  String _typeQuantity(String type, Map states) {
+    if (states[type] == 'none') return '없음';
+    if (states[type] != 'verified') {
+      return states[type] == 'partial' ? '일부 미확인' : '미확보';
+    }
+    final entries = ((_capital?['entries'] as List?) ?? [])
+        .cast<Map<String, dynamic>>()
+        .where((r) => r['type'] == type)
+        .toList();
+    if (entries.isEmpty) return '미확정';
+    var total = BigInt.zero;
+    for (final entry in entries) {
+      final shares = BigInt.tryParse('${entry['shares']}');
+      if (entry['validation'] != 'verified' ||
+          shares == null ||
+          shares < BigInt.zero) {
+        return '미확정';
+      }
+      total += shares;
+    }
+    return '${formatCount(total.toInt())}주';
+  }
+
+  Widget _metric(BuildContext context, String label, String value) => SizedBox(
+    width: 250,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: context.typo.body(13, color: context.colors.textSecondary),
+        ),
+        const SizedBox(height: AppSpace.xs),
+        Text(value, style: context.typo.numeric(24, weight: FontWeight.w600)),
+      ],
+    ),
+  );
 }
