@@ -9,7 +9,7 @@ import unittest
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from check_cache import CheckCache, cacheable, environment_key
+from check_cache import CheckCache, cacheable, check_environment, environment_key
 
 
 class CacheTest(unittest.TestCase):
@@ -148,6 +148,20 @@ class CacheTest(unittest.TestCase):
 
 
 class PolicyTest(unittest.TestCase):
+    def test_macos_hook_defaults_match_cli_but_preserve_explicit_overrides(self):
+        def response(command, **kwargs):
+            return '/tool/git-core\n' if command[0] == 'git' else '/tool/sdk\n'
+        cli = {'PATH': '/bin'}
+        hook = {'PATH': '/tool/git-core:/bin', 'GIT_EXEC_PATH': '/tool/git-core',
+                'SDKROOT': '/tool/sdk', 'CPATH': '/usr/local/include',
+                'LIBRARY_PATH': '/usr/local/lib', 'MANPATH': '/tool/man'}
+        with patch('check_cache.sys.platform', 'darwin'), patch('check_cache.subprocess.check_output', side_effect=response):
+            self.assertEqual(environment_key(check_environment('.', cli)),
+                             environment_key(check_environment('.', hook)))
+            custom = check_environment('.', dict(cli, SDKROOT='/custom/sdk', CPATH='/custom/include'))
+        self.assertEqual(custom['SDKROOT'], '/custom/sdk')
+        self.assertEqual(custom['CPATH'], '/custom/include')
+
     def test_setup_builds_browser_checks_and_unknown_commands_are_uncached(self):
         for command in [('flutter', 'pub', 'get', '--enforce-lockfile'),
                         ('flutter', 'build', 'web'),

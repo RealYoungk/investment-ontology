@@ -126,6 +126,9 @@ class CheckCache:
             raise ValueError('Check cache entries must not be symlinks')
         with lock.open('a') as handle:
             fcntl.flock(handle, fcntl.LOCK_EX)
+            if not self.clean() or self.inputs(command, directory) != inputs:
+                execute(command, cwd, self.env)
+                return {'command': list(command), 'directory': directory, 'origin': 'executed'}
             try:
                 saved = json.loads(record.read_text())
                 age = time.time() - saved['completedAt']
