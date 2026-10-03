@@ -104,8 +104,9 @@ void main() {
         }
 
         final first = await run();
-        // The same receipt has an independently approved OFS core8 package.
+        // The same receipt has an independently approved OFS core7 package.
         final legacyCorasol = receipt == '20230314001218';
+        expect(first.status, IngestStatus.succeeded);
         final numericCount = profiles
             .where(
               (p) =>
@@ -153,7 +154,7 @@ void main() {
                             ? 7
                             : 8),
                   ) +
-              (legacyCorasol ? 8 : 0),
+              (legacyCorasol ? 7 : 0),
         );
         for (final profile in profiles) {
           final basis = profile['basis'] == 'consolidated'

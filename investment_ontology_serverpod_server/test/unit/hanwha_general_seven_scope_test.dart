@@ -29,8 +29,11 @@ void main() {
       final opposite = await VerifiedAnnualSourceCache(
         readAsset: (p) => File(p).readAsBytes(),
       ).verifyRegistered(filing(e), company(e), FsDiv.separate);
-      expect(opposite.numeric!.rows.length, 8);
-      expect(opposite.numeric!.rows.every((r) => r['fs_div'] == 'OFS'), true);
+      expect(opposite.numeric!.rows.length, 7);
+      expect(
+        opposite.numeric!.statementSource.toString(),
+        'https://dart.fss.or.kr/report/viewer.do?rcpNo=20230314001218&dcmNo=9055696&eleId=19&offset=1314287&length=100281&dtd=dart3.xsd',
+      );
       expect(m['checks'].length, 10);
       expect(m['ceMissingCurrentTotalCells'].single['literal'], '-');
       Map<String, dynamic>? project(List<Map<String, dynamic>> rows) =>
