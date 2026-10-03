@@ -40,6 +40,7 @@ import '../ontology/endpoints/account_endpoint.dart' as _io2i71g8;
 import '../ontology/endpoints/ai_endpoint.dart' as _iadofkda;
 import '../ontology/endpoints/bond_endpoint.dart' as _iuax3zj5;
 import '../ontology/endpoints/capital_endpoint.dart' as _idxbctvq;
+import '../ontology/endpoints/charter_endpoint.dart' as _ivo40lq7;
 import '../ontology/endpoints/company_endpoint.dart' as _itnisr3u;
 import '../ontology/endpoints/company_news_endpoint.dart' as _ij4mm9jr;
 import '../ontology/endpoints/company_research_endpoint.dart' as _iqx60vuh;
@@ -104,6 +105,12 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'capital',
+          null,
+        ),
+      'charter': _ivo40lq7.CharterEndpoint()
+        ..initialize(
+          server,
+          'charter',
           null,
         ),
       'company': _itnisr3u.CompanyEndpoint()
@@ -851,6 +858,71 @@ class Endpoints extends _is.EndpointDispatch {
                 Map<String, dynamic> params,
               ) async =>
                   (endpoints['capital'] as _idxbctvq.CapitalEndpoint).collect(
+                    session,
+                    params['corpCode'],
+                  ),
+        ),
+      },
+    );
+    connectors['charter'] = _is.EndpointConnector(
+      name: 'charter',
+      endpoint: endpoints['charter']!,
+      methodConnectors: {
+        'startCollection': _is.MethodConnector(
+          name: 'startCollection',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['charter'] as _ivo40lq7.CharterEndpoint)
+                  .startCollection(session),
+        ),
+        'advanceCollection': _is.MethodConnector(
+          name: 'advanceCollection',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['charter'] as _ivo40lq7.CharterEndpoint)
+                  .advanceCollection(session),
+        ),
+        'collectionStatus': _is.MethodConnector(
+          name: 'collectionStatus',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['charter'] as _ivo40lq7.CharterEndpoint)
+                  .collectionStatus(session),
+        ),
+        'collectionCoverage': _is.MethodConnector(
+          name: 'collectionCoverage',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['charter'] as _ivo40lq7.CharterEndpoint)
+                  .collectionCoverage(session),
+        ),
+        'summary': _is.MethodConnector(
+          name: 'summary',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['charter'] as _ivo40lq7.CharterEndpoint).summary(
                     session,
                     params['corpCode'],
                   ),

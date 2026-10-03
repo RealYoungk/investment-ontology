@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 
@@ -9,6 +11,7 @@ import '../../design/tokens.dart';
 import 'widgets/data_reference.dart';
 import 'widgets/issuer_documents_status.dart';
 import 'widgets/schedule_board.dart';
+import 'widgets/ingest_job_row.dart';
 
 /// 데이터: 원천별 수집 상태와 실행 버튼.
 class DataPage extends StatefulWidget {
@@ -26,7 +29,100 @@ class _DataPageState extends State<DataPage> {
       PageHeading(title: '데이터', subtitle: '수집된 자료와 자동 갱신 상태를 확인합니다.'),
       SizedBox(height: AppSpace.section),
       ScheduleBoard(child: _Coverage()),
+      SizedBox(height: AppSpace.section),
+      _CharterCoverage(),
+      _CharterCollection(),
     ],
+  );
+}
+
+class _CharterCoverage extends StatefulWidget {
+  const _CharterCoverage();
+  @override
+  State<_CharterCoverage> createState() => _CharterCoverageState();
+}
+
+class _CharterCoverageState extends State<_CharterCoverage> {
+  Map<String, dynamic>? _data;
+  bool _failed = false;
+  @override
+  void initState() {
+    super.initState();
+    IngestMonitor.instance.dataVersion.addListener(_load);
+    _load();
+  }
+
+  @override
+  void dispose() {
+    IngestMonitor.instance.dataVersion.removeListener(_load);
+    super.dispose();
+  }
+
+  Future<void> _load() async {
+    try {
+      final value = jsonDecode(
+        await client.charter.collectionCoverage(),
+      ) as Map<String, dynamic>;
+      if (mounted) {
+        setState(() {
+          _data = value;
+          _failed = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _failed = true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final data = _data;
+    if (data == null) {
+      if (_failed) {
+        return AppButton(label: '정관 확보 현황 조회 실패 · 다시 확인', onPressed: _load);
+      }
+      return const LinearProgressIndicator(minHeight: 2);
+    }
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpace.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '정관 원문 누적 확보 · ${formatCount(data['storedNotices'] as int)} / ${formatCount(data['expectedNotices'] as int)}건',
+            style: context.typo.body(15),
+          ),
+          const SizedBox(height: AppSpace.xs),
+          Text(
+            '대상 ${formatCount(data['companies'] as int)}개사 · 비교표 ${formatCount(data['companiesWithComparisons'] as int)}개사 · 공고 없음 ${formatCount(data['companiesWithoutNotice'] as int)}개사 · 미확보 ${formatCount(data['missingNotices'] as int)}건 · 목록 미확인 ${(data['unindexedCompanies'] as List).length}개사',
+            style: context.typo.body(13, color: context.colors.textSecondary),
+          ),
+          Text(
+            '${data['fromDate']} ~ ${data['toDate']} 소집공고 기준 · 비교표 미추출은 정관 변경이 없다는 뜻이 아닙니다.',
+            style: context.typo.body(12, color: context.colors.textMuted),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CharterCollection extends StatelessWidget {
+  const _CharterCollection();
+  @override
+  Widget build(BuildContext context) => IngestJobRow(
+    kind: 'charter_notices',
+    label: '전체 상장사 정관 변경 · 소집공고 원문',
+    action: '전체 수집 · 실패 건 재시도',
+    start: () async {
+      var job = await client.charter.startCollection();
+      while (job.status == IngestStatus.running) {
+        final next = await client.charter.advanceCollection();
+        if (next == null || next.processed == job.processed) break;
+        job = next;
+      }
+      return job;
+    },
   );
 }
 
