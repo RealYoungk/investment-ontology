@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20220310000784",
+  "corpCode": "00104856",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "ruleVersion": "samsungsec-2021-own-audit-current-eight-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220310000784",
+      "sha256": "7568672805ae99f6cdef510a7b750d4dd604f399e8cec26b990f60d67a9e590c"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220310000784&dcmNo=8449469&eleId=1&offset=797&length=4046&dtd=dart3.xsd",
+      "sha256": "9e4f81c41e270054ffbbde06af4d67da55912c0de9207d7790e5bc81f3fb9b40",
+      "file": "cover.html"
+    },
+    {
+      "label": "auditShell",
+      "file": "audit-shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220310000784&dcmNo=8449468",
+      "sha256": "3747d6131ba278ea0b7301caaac996d17d6b2ce08d3b71001aa553384b38c947"
+    },
+    {
+      "label": "cfs",
+      "file": "audit-primary.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220310000784&dcmNo=8449468&eleId=3&offset=12192&length=998276&dtd=dart3.xsd",
+      "sha256": "3931b510d6ef15f057e461ae5a8d6d82db62251f11eebe7a31419efc663937ac"
+    },
+    {
+      "label": "main",
+      "file": "main-cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220310000784&dcmNo=8449469&eleId=17&offset=647607&length=73435&dtd=dart3.xsd",
+      "sha256": "0c7c38e40682cd987d76b585e88abf03487031abfc337319276e82fad2a292d7"
+    }
+  ]
+}

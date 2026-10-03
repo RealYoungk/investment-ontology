@@ -46,7 +46,7 @@ void main() {
         isEmpty,
       );
     }
-    for (final name in ['(9)유형자산의취득', '(8)유형자산의취득 참고', '(8)사용권자산의취득']) {
+    for (final name in ['(10)유형자산의취득', '(8)유형자산의취득 참고', '(8)사용권자산의취득']) {
       expect(
         FinancialAccounts.pick([row.copyWith(accountName: name)]),
         isEmpty,

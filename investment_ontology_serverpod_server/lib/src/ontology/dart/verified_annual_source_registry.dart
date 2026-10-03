@@ -56,6 +56,31 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20220310000784',
+      corpCode: '00104856',
+      companyName: '삼성증권(주)',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20220310000784-cfs-samsungsec-own-audit-current-eight',
+      manifestDigest:
+          '5325d1a15f98adad044e1af6ed1145b3d1350e26b0d6bee3e1727f37262ef3e7',
+      ruleVersion: 'samsungsec-2021-own-audit-current-eight-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220310000784',
+      corpCode: '00104856',
+      companyName: '삼성증권(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220310000784-ofs-samsungsec-own-audit-current-eight',
+      manifestDigest:
+          '6c45fe0383b24e6052c72ca86b1861cdeb2421be1d9cafbcab294075e65d0df0',
+      ruleVersion: 'samsungsec-2021-own-audit-current-eight-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20230309000572',
       corpCode: '00104856',
       companyName: '삼성증권(주)',

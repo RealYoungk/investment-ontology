@@ -34,7 +34,7 @@ Company company(AnnualSourceCacheEntry e) => Company(
 );
 void main() {
   test('compiled receipt plus basis registry has unique audit identities', () {
-    expect(VerifiedAnnualSourceRegistry.entries.length, 264);
+    expect(VerifiedAnnualSourceRegistry.entries.length, 266);
     expect(
       VerifiedAnnualSourceRegistry.entries
           .map((e) => e.auditReference)
@@ -70,8 +70,10 @@ void main() {
                             'exact-anymedi-current-ofs-audit-period-eight-v1'
                         ? 3
                         : 0) +
-                    (e.ruleVersion ==
-                            'samsungsec-2022-own-audit-current-eight-v1'
+                    ((e.ruleVersion ==
+                                'samsungsec-2022-own-audit-current-eight-v1' ||
+                            e.ruleVersion ==
+                                'samsungsec-2021-own-audit-current-eight-v1')
                         ? 2
                         : 0) +
                     (e.requiresIssuerOverview ? 1 : 0) +
@@ -101,7 +103,8 @@ void main() {
               .toString(),
           e.manifestDigest,
         );
-        if (e.ruleVersion == 'samsungsec-2022-own-audit-current-eight-v1') {
+        if (e.ruleVersion == 'samsungsec-2022-own-audit-current-eight-v1' ||
+            e.ruleVersion == 'samsungsec-2021-own-audit-current-eight-v1') {
           expect(
             [
               for (final source in manifest['sources'])
@@ -111,8 +114,8 @@ void main() {
               ['shell', 'shell.html'],
               ['cover', 'cover.html'],
               ['auditShell', 'audit-shell.html'],
-              ['cfs', 'audit-primary.html'],
-              ['main', 'main-cfs.html'],
+              [e.statementLabel, 'audit-primary.html'],
+              ['main', 'main-${e.statementLabel}.html'],
             ],
           );
         }
