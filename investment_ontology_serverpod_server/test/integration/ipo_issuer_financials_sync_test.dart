@@ -6,6 +6,7 @@ import 'package:http/testing.dart';
 import 'package:test/test.dart';
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/ingest/issuer_documents_sync.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/ingest/issuer_financials_sync.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/research/issuer_documents_collector.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/research/ipo_issuer_financials_html.dart';
 
@@ -120,6 +121,18 @@ void main() {
           throwsA(isA<IngestException>()),
         );
       }
+      final counterpartCompany = await Company.db.findFirstRow(
+        session,
+        where: (t) =>
+            t.corpCode.equals((docs[1]['metadata'] as Map)['corpCode']),
+      );
+      await expectLater(
+        IssuerFinancialsSync.store(session, counterpartCompany!, cache, [
+          docs.first,
+        ], () async => false),
+        throwsFormatException,
+      );
+      expect(await ResearchSnapshot.db.count(session), 16);
       expect(directCells, 82);
       expect(
         await IssuerDocumentsSync.hasPending(

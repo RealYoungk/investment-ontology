@@ -60,6 +60,11 @@ abstract final class IssuerFinancialsSync {
     }
     final parsed = await rows(cache, documents);
     if (parsed.isEmpty || await cancelled()) return 0;
+    if (parsed.any((r) => r['corpCode'] != company.corpCode)) {
+      throw const FormatException(
+        'Numeric snapshot company/source binding mismatch',
+      );
+    }
     await ResearchSnapshotStore.store(
       session,
       company,
@@ -98,6 +103,7 @@ abstract final class IssuerFinancialsSync {
     try {
       final expected = await rows(cache, documents);
       if (expected.isEmpty) return false;
+      if (expected.any((r) => r['corpCode'] != company.corpCode)) return true;
       final latest = await ResearchSnapshot.db.findFirstRow(
         session,
         where: (t) => t.companyId.equals(company.id!) & t.kind.equals(kind),
