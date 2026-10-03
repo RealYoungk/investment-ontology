@@ -17,7 +17,7 @@ MAX_AGE = 7 * 24 * 60 * 60
 # Checkout/run labels do not change a check's inputs. CI itself is retained.
 METADATA = {'PWD', 'OLDPWD', 'SHLVL', '_', 'ALFINDER_BUILD_COMMIT',
             'GITHUB_SHA', 'GITHUB_RUN_ID', 'ALFINDER_CHECK_CACHE',
-            'ALFINDER_CHECK_CACHE_DIR'}
+            'ALFINDER_CHECK_CACHE_DIR', 'MANPATH', 'GIT_EXEC_PATH'}
 
 
 def digest(value):
@@ -38,6 +38,22 @@ def execute(command, cwd, env):
     subprocess.run(command, cwd=cwd, env=env, check=True)
 
 
+def check_environment(root, env):
+    """Match macOS xcrun's Git-hook defaults without discarding overrides."""
+    env = dict(env)
+    if sys.platform == 'darwin':
+        helper = subprocess.check_output(['git', '--exec-path'], cwd=root,
+                                         env=env, text=True).strip()
+        paths = env.get('PATH', '').split(os.pathsep)
+        env['PATH'] = os.pathsep.join([helper, *[p for p in paths if p != helper]])
+        if 'SDKROOT' not in env:
+            env['SDKROOT'] = subprocess.check_output(
+                ['xcrun', '--show-sdk-path'], cwd=root, env=env, text=True).strip()
+        env.setdefault('CPATH', '/usr/local/include')
+        env.setdefault('LIBRARY_PATH', '/usr/local/lib')
+    return env
+
+
 def cacheable(command, directory):
     command = tuple(command)
     if directory == '.':
@@ -56,7 +72,7 @@ def cacheable(command, directory):
 class CheckCache:
     def __init__(self, root, env=None, cache_dir=None):
         self.root = Path(root).resolve()
-        self.env = dict(os.environ if env is None else env)
+        self.env = check_environment(self.root, os.environ if env is None else env)
         self.directory = Path(cache_dir or self.env.get('ALFINDER_CHECK_CACHE_DIR')
                               or Path.home() / '.cache/alfinder/checks-v1').expanduser()
         self.runtime = None
@@ -68,10 +84,16 @@ class CheckCache:
             for name, command in [('flutter', ['flutter', '--version', '--machine']),
                                   ('dart', ['dart', '--version']),
                                   ('node', ['node', '--version']),
-                                  ('bash', ['bash', '--version'])]:
+                                  ('bash', ['bash', '--version']),
+                                  ('git', ['git', '--version'])]:
                 versions[name] = subprocess.check_output(
                     command, cwd=self.root, env=self.env, text=True,
                     stderr=subprocess.STDOUT).strip()
+            if sys.platform == 'darwin':
+                for name, command in [('sdk', ['xcrun', '--show-sdk-version']),
+                                      ('clang', ['xcrun', 'clang', '--version'])]:
+                    versions[name] = subprocess.check_output(
+                        command, cwd=self.root, env=self.env, text=True).strip()
             self.runtime = digest(versions)
         return self.runtime
 

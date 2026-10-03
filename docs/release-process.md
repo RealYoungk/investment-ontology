@@ -21,6 +21,9 @@ Flutter·Dart·Node·Bash·Python 버전과 OS, 실행 환경 해시가 모두 �
 7일 이내의 성공 결과를 로컬에서 재사용한다. 커밋 SHA 대신 tree를 비교하므로
 파일 내용이 같은 PR 커밋과 병합 커밋, 서로 다른 임시 clone 사이에서도 재사용한다.
 선택한 서버 테스트와 전체 서버 테스트는 서로 대체하지 않는다.
+macOS는 Git 훅이 자동 주입하는 Git helper PATH와 기본 SDKROOT·CPATH·LIBRARY_PATH를
+두 실행 경로에 동일하게 적용한다. 명시한 컴파일 환경값은 보존하며 캐시 키에 포함한다.
+Git·Clang·SDK 버전도 검사한다. 문서 검색 경로 MANPATH는 검사 입력에서 제외한다.
 
 저장 위치는 `~/.cache/alfinder/checks-v1`이고 현재 사용자만 접근한다.
 원본 환경값·비밀번호는 기록하지 않으며 성공한 검사만 원자적으로 저장한다.
