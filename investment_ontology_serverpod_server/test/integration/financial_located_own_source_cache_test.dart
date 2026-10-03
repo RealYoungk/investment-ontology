@@ -1,3 +1,5 @@
+import 'package:investment_ontology_serverpod_server/src/ontology/endpoints/financial_endpoint.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -103,7 +105,11 @@ void main() {
         final first = await run();
         final legacyCorasol = receipt == '20240704000080';
         final numericCount = profiles
-            .where((p) => p['rule'] == LocatedOwnCurrentSource.rule)
+            .where(
+              (p) =>
+                  p['rule'] == LocatedOwnCurrentSource.rule ||
+                  p['rule'] == LocatedOwnCurrentSource.partialRule,
+            )
             .length;
         expect(first.updated, numericCount + (legacyCorasol ? 1 : 0));
         final actual = (await DartFiling.db.findById(session, filing.id!))!;
@@ -132,7 +138,19 @@ void main() {
         expect(reports, hasLength(numericCount + (legacyCorasol ? 1 : 0)));
         expect(
           await FinancialFact.db.count(session),
-          numericCount * 8 + (legacyCorasol ? 7 : 0),
+          profiles
+                  .where(
+                    (p) => p['rule'] != LocatedOwnCurrentSource.absenceRule,
+                  )
+                  .fold<int>(
+                    0,
+                    (n, p) =>
+                        n +
+                        (p['rule'] == LocatedOwnCurrentSource.partialRule
+                            ? 7
+                            : 8),
+                  ) +
+              (legacyCorasol ? 7 : 0),
         );
         for (final profile in profiles) {
           final basis = profile['basis'] == 'consolidated'
@@ -201,16 +219,59 @@ void main() {
           }
           final report = reports.singleWhere((r) => r.fsDiv == basis);
           expect(report.rceptNo, manifest['sourceReceipt']);
-          expect(report.factCount, 8);
+          final partial =
+              entry.ruleVersion == LocatedOwnCurrentSource.partialRule;
+          final count = partial ? 7 : 8;
+          expect(report.factCount, count);
           final detail = (await endpoints.financial.report(
             builder,
             report.id!,
           ))!;
-          expect(detail.facts, hasLength(8));
+          expect(detail.facts, hasLength(count));
           final source = (await Source.db.findById(session, report.sourceId))!;
           final payload = jsonDecode(source.title.split(' · ').last) as Map;
           expect(payload['targetReceipt'], receipt);
           expect(payload['sourceReceipt'], manifest['sourceReceipt']);
+          expect(payload['coreRows'], count);
+          if (partial) {
+            final scopeSource = (await Source.db.findFirstRow(
+              session,
+              where: (s) => s.reference.equals(
+                'financial-api-noData-source:$receipt:${basis.name}',
+              ),
+            ))!;
+            expect(
+              FinancialEndpoint.validPartialScopeSource(
+                scopeSource,
+                report,
+                company.corpCode,
+              ),
+              true,
+            );
+            expect(detail.sources!.map((s) => s.id), contains(scopeSource.id));
+            expect(
+              FinancialEndpoint.validPartialScopeSource(
+                scopeSource.copyWith(
+                  title: scopeSource.title.replaceFirst('원', '천원'),
+                ),
+                report,
+                company.corpCode,
+              ),
+              false,
+            );
+          }
+          if (partial) {
+            expect(payload['partialCore7'], true);
+            expect(payload['currentCore8'], false);
+            expect(payload['missingRequiredAccounts'], ['capex']);
+            expect(payload['missingAccountReasons'], {
+              'capex': LocatedOwnCurrentSource.capexMissingReason,
+            });
+            expect(
+              detail.facts.where((f) => f.accountName.contains('유형자산의취득')),
+              isEmpty,
+            );
+          }
           final core = manifest['core'] as List;
           for (var i = 0; i < core.length; i++) {
             final c = core[i] as Map;
@@ -241,6 +302,19 @@ void main() {
             expect(provenance['rowIndex'], c['row']);
             expect(provenance['fullStatementVerified'], false);
             expect(provenance['detailEnrichmentApproved'], false);
+            expect(provenance['currentCore8'], !partial);
+            if (partial) {
+              expect(provenance['coreAccountsProvided'], 7);
+              expect(provenance['missingRequiredAccounts'], ['capex']);
+              expect(provenance['missingAccountReasons'], {
+                'capex': LocatedOwnCurrentSource.capexMissingReason,
+              });
+              expect(
+                provenance['ownCurrentPeriodProof'],
+                manifest['ownCurrentPeriodProof'],
+              );
+              expect(provenance['syntheticCapex'], false);
+            }
             expect(provenance['periodStart'], manifest['periodStart']);
             expect(provenance['periodEnd'], manifest['periodEnd']);
             if (manifest['supportingNoteScope'] != null) {
@@ -279,7 +353,7 @@ void main() {
             'operatingIncome',
             'netIncome',
             'operatingCashFlow',
-            'capex',
+            if (!partial) 'capex',
           });
         }
         if (legacyCorasol) {

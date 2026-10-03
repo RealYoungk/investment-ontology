@@ -93,6 +93,52 @@ abstract final class VerifiedAnnualSourceRegistry {
       absenceLiteral: null,
     ),
     AnnualSourceCacheEntry(
+      receipt: '20220322000802',
+      corpCode: '01116344',
+      companyName: '이비테크(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20220322000802-ofs-located-own-seven',
+      manifestDigest:
+          '2485e6e119aa1b2a9d17bb177d2b33d5246ac0cef4aa3d6c7bb392c8684f344d',
+      ruleVersion: 'located-own-current-seven-v1',
+      absenceLiteral: null,
+      declaredPeriodStart: '2021-01-01',
+      declaredPeriodEnd: '2021-12-31',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250429000919',
+      corpCode: '01366824',
+      companyName: '(주)제이엠멀티',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20250429000919-ofs-located-own-seven',
+      manifestDigest:
+          'de0e64e1faf02a7dc3b8c48f4ae8e914cb2609daef747f712b60fab643ced49f',
+      ruleVersion: 'located-own-current-seven-v1',
+      absenceLiteral: null,
+      declaredPeriodStart: '2024-01-01',
+      declaredPeriodEnd: '2024-12-31',
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240424000570',
+      corpCode: '01366824',
+      companyName: '(주)제이엠멀티',
+      year: 2023,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20240424000570-cfs-located-own-seven',
+      manifestDigest:
+          'c29444e8944b07fc0c821a63ff93967082ccf6cd25c1a50a13b19d696dff1d58',
+      ruleVersion: 'located-own-current-seven-v1',
+      absenceLiteral: null,
+      declaredPeriodStart: '2023-01-01',
+      declaredPeriodEnd: '2023-12-31',
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20220321001531',
       corpCode: '00990396',
       companyName: '(주)레드우즈',

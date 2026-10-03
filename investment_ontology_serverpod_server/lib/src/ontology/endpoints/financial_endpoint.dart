@@ -1,5 +1,6 @@
 import '../dart/isung_cfs_current_seven_source.dart';
 import '../financial/solumix_own_revenue_scope.dart';
+import '../dart/located_own_current_source.dart';
 import '../dart/known_annual_conflict_cache.dart';
 import '../dart/isung_current_seven_source.dart';
 import '../dart/known_annual_source_not_presented.dart';
@@ -353,6 +354,13 @@ class FinancialEndpoint extends Endpoint {
       } on TypeError {
         return false;
       }
+    }
+    if (LocatedOwnCurrentSource.recordedPartialScope(
+      source,
+      report,
+      corpCode,
+    )) {
+      return true;
     }
     if (IsungCurrentSevenSource.profiles.containsKey(report.rceptNo)) {
       final profile = IsungCurrentSevenSource.profiles[report.rceptNo] as Map;

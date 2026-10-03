@@ -20,6 +20,8 @@ void main() {
       profile['receipt'] as String,
       basis,
     )!;
+    final partial = e.ruleVersion == LocatedOwnCurrentSource.partialRule;
+    final count = partial ? 7 : 8;
     final m = jsonDecode(
       File('${e.assetDirectory}/manifest.json').readAsStringSync(),
     ) as Map;
@@ -87,7 +89,79 @@ void main() {
           result.numeric!.correctionReceipt,
           m['sourceReceipt'] == e.receipt ? null : e.receipt,
         );
-        expect(result.numeric!.rows, hasLength(8));
+        expect(result.numeric!.rows, hasLength(count));
+        if (partial) {
+          final report = FinancialReport(
+            id: 1,
+            companyId: 1,
+            bsnsYear: e.year,
+            reportCode: FinancialReportCode.annual,
+            fsDiv: basis,
+            rceptNo: e.receipt,
+            reportName: filing(e).reportName,
+            sourceId: 1,
+            fetchedAt: DateTime.utc(2026),
+            factCount: 7,
+          );
+          final payload = <String, dynamic>{
+            'action': 'verified-keyless-annual-source-after-api-noData',
+            'targetReceipt': e.receipt,
+            'sourceReceipt': e.receipt,
+            'corpCode': e.corpCode,
+            'reportName': report.reportName,
+            'fsDiv': basis.name,
+            'format': 'html',
+            'sha256': result.numeric!.sourceDigest,
+            'coreRows': 7,
+            'coreRowProvenance': result.numeric!.rows,
+          };
+          Source scoped(Map value) => Source(
+            kind: SourceKind.dartReport,
+            reference: 'financial-api-noData-source:${e.receipt}:${basis.name}',
+            url: result.numeric!.statementSource.toString(),
+            title: jsonEncode(value),
+            retrievedAt: DateTime.utc(2026),
+          );
+          expect(
+            LocatedOwnCurrentSource.recordedPartialScope(
+              scoped(payload),
+              report,
+              e.corpCode,
+            ),
+            true,
+          );
+          expect(
+            LocatedOwnCurrentSource.recordedPartialScope(
+              scoped({...payload, 'sha256': 'changed'}),
+              report,
+              e.corpCode,
+            ),
+            false,
+          );
+          final altered = jsonDecode(jsonEncode(payload)) as Map;
+          altered['coreRowProvenance'][0]['html_provenance']['currentColumn'] =
+              99;
+          expect(
+            LocatedOwnCurrentSource.recordedPartialScope(
+              scoped(altered),
+              report,
+              e.corpCode,
+            ),
+            false,
+          );
+          altered['coreRowProvenance'][0]['html_provenance']['currentColumn'] =
+              m['core'][0]['column'];
+          altered['coreRowProvenance'][0]['thstrm_amount'] = '0';
+          expect(
+            LocatedOwnCurrentSource.recordedPartialScope(
+              scoped(altered),
+              report,
+              e.corpCode,
+            ),
+            false,
+          );
+        }
+
         final facts = [
           for (final r in result.numeric!.rows)
             FinancialFact(
@@ -115,7 +189,7 @@ void main() {
           'operatingIncome',
           'netIncome',
           'operatingCashFlow',
-          'capex',
+          if (!partial) 'capex',
         });
         expect(
           LocatedOwnCurrentSource.storedScope(
@@ -142,7 +216,7 @@ void main() {
           isNull,
         );
 
-        for (var i = 0; i < 8; i++) {
+        for (var i = 0; i < count; i++) {
           final row = result.numeric!.rows[i], c = m['core'][i] as Map;
           final provenance = row['html_provenance'] as Map;
           expect(row['account_nm'], c['label']);
@@ -162,6 +236,19 @@ void main() {
           expect(provenance['tableIndex'], c['table']);
           expect(provenance['rowIndex'], c['row']);
           expect(provenance['fullStatementVerified'], false);
+          expect(provenance['currentCore8'], !partial);
+          if (partial) {
+            expect(provenance['partialCore7'], true);
+            expect(provenance['missingRequiredAccounts'], ['capex']);
+            expect(provenance['missingAccountReasons'], {
+              'capex': LocatedOwnCurrentSource.capexMissingReason,
+            });
+            expect(provenance['syntheticCapex'], false);
+            expect(
+              provenance['ownCurrentPeriodProof'],
+              m['ownCurrentPeriodProof'],
+            );
+          }
           expect(provenance['periodStart'], m['periodStart']);
           expect(provenance['periodEnd'], m['periodEnd']);
           if (m['supportingNoteScope'] != null) {
@@ -196,12 +283,14 @@ void main() {
           ),
           true,
         );
-        if (profile['requiresOwnNotes'] == true) {
+        if (profile['requiresOwnNotes'] == true || partial) {
           expect(
             LocatedOwnCurrentSource.sourceEligible(
               receipt: e.receipt,
               corp: e.corpCode,
-              basis: FsDiv.consolidated,
+              basis: basis == FsDiv.consolidated
+                  ? FsDiv.separate
+                  : FsDiv.consolidated,
               start: e.periodStart,
               end: e.periodEnd,
               sourceReceipt: m['sourceReceipt'] as String,
@@ -222,7 +311,7 @@ void main() {
         }
       },
     );
-    if (profile['requiresOwnNotes'] == true) {
+    if (profile['requiresOwnNotes'] == true || partial) {
       test(
         '${e.receipt}:${basis.name} actual cache rejects wrong period and other basis',
         () async {
@@ -238,7 +327,11 @@ void main() {
             throwsFormatException,
           );
           await expectLater(
-            cache.verifyRegistered(filing(e), company(e), FsDiv.consolidated),
+            cache.verifyRegistered(
+              filing(e),
+              company(e),
+              basis == FsDiv.consolidated ? FsDiv.separate : FsDiv.consolidated,
+            ),
             throwsFormatException,
           );
         },
