@@ -11,8 +11,8 @@ void main() {
   final entries = VerifiedAnnualSourceRegistry.entries.where(
     (e) => e.ruleVersion == 'own-paragraph-exact-cfs-absence-v1',
   );
-  test('three actual own annual consolidated absence packages', () {
-    expect(entries.length, 3);
+  test('four actual own annual consolidated absence packages', () {
+    expect(entries.length, 4);
   });
   for (final e in entries) {
     test('${e.receipt} actual original body yields typed absence', () async {
@@ -23,7 +23,7 @@ void main() {
       );
       expect(result.numeric, isNull);
       final a = result.absence!;
-      expect(a.evidence, contains('해당사항'));
+      expect(a.evidence, e.absenceLiteral);
       expect(a.corpCode, e.corpCode);
       expect(a.sourceReceipt, e.receipt);
       expect(a.periodStart, DateTime.utc(e.year));

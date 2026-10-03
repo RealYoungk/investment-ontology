@@ -56,6 +56,20 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20250321001155',
+      corpCode: '01680131',
+      companyName: '(주)아이오바이오',
+      year: 2024,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20250321001155-cfs-own-paragraph-none',
+      manifestDigest:
+          '55fa1085480e4857514a898c8a0ce4eeef88858509b756dbff7e4d865a946dfd',
+      ruleVersion: 'own-paragraph-exact-cfs-absence-v1',
+      absenceLiteral: '당사는 현재 일반기업회계기준 결산법인으로 연결대상 종속회사가 없습니다. 세부사항은 재무제표 주석 21. 특수관계자 거래를 참조하십시오.',
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20230315000894',
       corpCode: '00162416',
       companyName: '한양증권(주)',

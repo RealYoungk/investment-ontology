@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 
-/// Three complete own CFS paragraphs; no generalized absence phrase grammar.
+/// Four complete own CFS paragraphs; no generalized absence phrase grammar.
 abstract final class OwnParagraphCfsAbsence {
   static final profiles = (jsonDecode(r'''[
   {
@@ -37,6 +37,17 @@ abstract final class OwnParagraphCfsAbsence {
     "bodySHA": "2bf98686981732719946a412799230aee4b9429c6fc20fcb737b11f602ee8391",
     "issuer": "주식회사메디젠휴먼케어",
     "evidence": "당기 연결대상 종속회사의 폐업으로 해당사항 없습니다."
+  },
+  {
+    "receipt": "20250321001155",
+    "corp": "01680131",
+    "year": 2024,
+    "cover": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001155&dcmNo=10446634&eleId=1&offset=957&length=4522&dtd=dart4.xsd",
+    "coverSHA": "9199e01dfabc60d516b2a25284251a5519098bb6565349b8898d21de69089521",
+    "body": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001155&dcmNo=10446634&eleId=19&offset=281452&length=299&dtd=dart4.xsd",
+    "bodySHA": "07513e54895f549cb619ae80d32df9429a2abdb7a307e4a0d385de3894c9f621",
+    "issuer": "주식회사아이오바이오",
+    "evidence": "당사는 현재 일반기업회계기준 결산법인으로 연결대상 종속회사가 없습니다. 세부사항은 재무제표 주석 21. 특수관계자 거래를 참조하십시오."
   }
 ]''') as List).cast<Map<String, dynamic>>();
   static String compact(String v) =>

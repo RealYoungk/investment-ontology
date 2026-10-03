@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20250321001155",
+  "corpCode": "01680131",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2024,
+  "periodStart": "2024-01-01",
+  "periodEnd": "2024-12-31",
+  "ruleVersion": "own-paragraph-exact-cfs-absence-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250321001155",
+      "sha256": "4262cd67a960db6089c61b263de81b798daf29c4b259fd2689eaacbb3a0cc0d4"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001155&dcmNo=10446634&eleId=1&offset=957&length=4522&dtd=dart4.xsd",
+      "sha256": "9199e01dfabc60d516b2a25284251a5519098bb6565349b8898d21de69089521"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001155&dcmNo=10446634&eleId=19&offset=281452&length=299&dtd=dart4.xsd",
+      "sha256": "07513e54895f549cb619ae80d32df9429a2abdb7a307e4a0d385de3894c9f621"
+    }
+  ],
+  "absenceEvidence": "당사는 현재 일반기업회계기준 결산법인으로 연결대상 종속회사가 없습니다. 세부사항은 재무제표 주석 21. 특수관계자 거래를 참조하십시오.",
+  "numericFinancialReportCreated": false
+}
