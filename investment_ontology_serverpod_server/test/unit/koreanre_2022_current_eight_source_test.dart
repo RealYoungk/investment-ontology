@@ -1,0 +1,161 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:test/test.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/dart/koreanre_2022_current_eight_source.dart';
+
+void main() {
+  for (final basis in ['cfs', 'ofs']) {
+    final dir =
+        'assets/financial_source_cache/20230323001465-$basis-koreanre-current-eight';
+    final profile =
+        KoreanRe2022CurrentEightSource.profiles[basis] as Map<String, dynamic>;
+    final uris = <String, Uri>{
+      for (final s in profile['sources'] as List)
+        s['label'] as String: Uri.parse(s['url'] as String),
+    };
+    final raw = <String, String>{
+      for (final s in profile['sources'] as List)
+        s['label'] as String: File('$dir/${s['file']}').readAsStringSync(),
+    };
+    List<Map<String, dynamic>> parse({
+      Map<String, String>? input,
+      Map<String, Uri>? links,
+      String corp = '00113191',
+      String receipt = '20230323001465',
+      DateTime? start,
+      DateTime? end,
+      bool? consolidated,
+    }) => KoreanRe2022CurrentEightSource.parse(
+      raw: input ?? raw,
+      uris: links ?? uris,
+      receipt: receipt,
+      corp: corp,
+      start: start ?? DateTime.utc(2022),
+      end: end ?? DateTime.utc(2022, 12, 31),
+      consolidated: consolidated ?? (basis == 'cfs'),
+    );
+    test('$basis actual current8 and separate profit definitions', () {
+      final rows = parse();
+      expect(rows.length, 8);
+      expect(
+        rows.map((r) => r['thstrm_amount']),
+        basis == 'cfs'
+            ? [
+                '14978130247913',
+                '12158675801078',
+                '2819454446835',
+                '12579058185247',
+                '192529552593',
+                '157856566876',
+                '1306505751548',
+                '1525269811',
+              ]
+            : [
+                '14636016260752',
+                '11750407058096',
+                '2885609202656',
+                '12385865398827',
+                '212022730424',
+                '175248933538',
+                '1292880695999',
+                '1448710547',
+              ],
+      );
+      expect(
+        rows[5]['html_provenance']['multiLineProfitDefinitions'],
+        profile['profitDefinitions'],
+      );
+      expect(
+        rows[5]['html_provenance']['currentCell'],
+        profile['core'][5]['printed'],
+      );
+      expect(
+        rows[5]['html_provenance']['selectedPrintedLine'],
+        profile['profitDefinitions']['NI'],
+      );
+      expect(
+        rows.every(
+          (r) =>
+              r['account_id'] == null &&
+              r['ord'] is String &&
+              r['fs_div'] == basis.toUpperCase(),
+        ),
+        true,
+      );
+      expect(
+        rows.every(
+          (r) =>
+              r['html_provenance']['fullStatementCollected'] == false &&
+              r['html_provenance']['notesVerified'] == false,
+        ),
+        true,
+      );
+    });
+    test(
+      '$basis packaged proof unchanged',
+      () => expect(
+        profile,
+        jsonDecode(File('$dir/current-evidence.json').readAsStringSync()),
+      ),
+    );
+    test(
+      '$basis changed own current amount rejected',
+      () => expect(
+        () => parse(
+          input: {
+            ...raw,
+            basis: raw[basis]!
+                .replaceFirst('157,856,566,876', '157,856,566,877')
+                .replaceFirst('175,248,933,538', '175,248,933,539'),
+          },
+        ),
+        throwsFormatException,
+      ),
+    );
+    test(
+      '$basis same-name wrongcorp rejected',
+      () => expect(() => parse(corp: '00113190'), throwsFormatException),
+    );
+    test(
+      '$basis wrong own receipt rejected',
+      () =>
+          expect(() => parse(receipt: '20230323001466'), throwsFormatException),
+    );
+    test(
+      '$basis current year transplanted rejected',
+      () => expect(
+        () => parse(start: DateTime.utc(2021), end: DateTime.utc(2021, 12, 31)),
+        throwsFormatException,
+      ),
+    );
+    test(
+      '$basis opposite body cannot be reused',
+      () => expect(
+        () => parse(consolidated: basis != 'cfs'),
+        throwsFormatException,
+      ),
+    );
+    test(
+      '$basis source URI changed rejected',
+      () => expect(
+        () => parse(
+          links: {
+            ...uris,
+            basis: Uri.parse(
+              'https://dart.fss.or.kr/report/viewer.do?rcpNo=20230323001466',
+            ),
+          },
+        ),
+        throwsFormatException,
+      ),
+    );
+    test(
+      '$basis absent raw source rejected',
+      () => expect(
+        () => parse(input: {...raw}..remove('cover')),
+        throwsFormatException,
+      ),
+    );
+  }
+}
