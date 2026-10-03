@@ -19,8 +19,11 @@ class FinancialSourceScopeNotice extends StatelessWidget {
       if (decoded is Map &&
           decoded['action'] ==
               'verified-keyless-annual-source-after-api-noData' &&
-          decoded['corpCode'] == '01205514' &&
-          decoded['targetReceipt'] == '20250305000164' &&
+          const {
+                '20250305000164': '01205514',
+                '20250331003105': '00666329',
+              }[decoded['targetReceipt']] ==
+              decoded['corpCode'] &&
           decoded['fsDiv'] == 'separate' &&
           decoded['coreRows'] == 7) {
         final provenance = decoded['coreRowProvenance'];
@@ -33,7 +36,7 @@ class FinancialSourceScopeNotice extends StatelessWidget {
                   (row['html_provenance'] as Map)['partialCore7'] == true,
             );
         if (seven) {
-          return '공식 원문에서 핵심 7개 계정을 검증해 수집했습니다. 세부 계정 전체와 주석은 검증을 마치지 않았습니다. 유형자산 취득 총액은 미확보입니다. 연구장비 취득 일부를 전체 설비투자로 대신하지 않으며, FCF와 FCF 수익률은 계산하지 않습니다.';
+          return '공식 원문에서 핵심 7개 계정을 검증해 수집했습니다. 세부 계정 전체와 주석은 검증을 마치지 않았습니다. 유형자산 취득 총액은 미확보입니다. 일부 자산 취득액을 전체 설비투자로 대신하지 않으며, FCF와 FCF 수익률은 계산하지 않습니다.';
         }
       }
     } on FormatException {

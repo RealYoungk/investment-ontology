@@ -74,6 +74,27 @@ void main() {
       isNull,
     );
   });
+  testWidgets('Konasol bound scope wraps and wrong issuer is rejected', (
+    t,
+  ) async {
+    final payload = <String, dynamic>{
+      'action': 'verified-keyless-annual-source-after-api-noData',
+      'corpCode': '00666329',
+      'targetReceipt': '20250331003105',
+      'fsDiv': 'separate',
+      'coreRows': 7,
+      'coreRowProvenance': [
+        {
+          'html_provenance': {'partialCore7': true},
+        },
+      ],
+    };
+    await pump(t, jsonEncode(payload));
+    expect(find.textContaining('유형자산 취득 총액은 미확보'), findsOneWidget);
+    expect(t.takeException(), isNull);
+    payload['corpCode'] = 'wrong';
+    expect(FinancialSourceScopeNotice.messageFor(jsonEncode(payload)), isNull);
+  });
   testWidgets('API response scope is distinct, no all original rows claim', (
     t,
   ) async {

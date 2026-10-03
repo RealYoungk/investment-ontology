@@ -127,9 +127,12 @@ void main() {
             'financial-api-noData-source:${e.receipt}:separate',
           ),
         );
-        final payload = jsonDecode(proof!.title) as Map;
+        final sourceTitleBefore = proof!.title;
+        expect(detail.sources!.any((s) => s.id == proof.id), true);
+        final payload = jsonDecode(proof.title) as Map;
         expect(payload['coreRows'], 7);
-        for (final p in payload['coreRowProvenance'] as List) {
+        for (final row in payload['coreRowProvenance'] as List) {
+          final p = row['html_provenance'];
           expect(p['partialCore7'], true);
           expect(p['fullStatementCollected'], false);
           expect(p['detailHierarchyComplete'], false);
@@ -137,6 +140,10 @@ void main() {
           expect(p['uncollectedOptionalAccounts'], ['capex']);
         }
         expect((await run()).updated, 0);
+        expect(
+          (await Source.db.findById(session, proof.id!))!.title,
+          sourceTitleBefore,
+        );
         expect(
           await FinancialFact.db.count(
             session,
