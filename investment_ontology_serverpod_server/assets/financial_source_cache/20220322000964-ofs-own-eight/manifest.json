@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20220322000964",
+  "corpCode": "01185867",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "ruleVersion": "futuremedicine-own-2021-eight-independent-ce-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220322000964",
+      "sha256": "9b68308f5c5948fd44391d187f6fa763146a8e3656238e89327c835b5c951936",
+      "file": "shell.html"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000964&dcmNo=8492716&eleId=1&offset=794&length=4087&dtd=dart3.xsd",
+      "sha256": "e2c871b9d537eb40220ce7df44a37b06234cff699cee77f23013dd2a81d0c7f6",
+      "file": "cover.html"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000964&dcmNo=8492716&eleId=21&offset=465973&length=43286&dtd=dart3.xsd",
+      "sha256": "460d512e22527ab39b6fb46cd5f4c224f60248ff2f946cc3f3a900ed1c64bcb4",
+      "file": "ofs.html"
+    }
+  ],
+  "retrievalProof": "Owncurrent8 and7 independent primary checks; no CF NI printed or fabricated; full detail rows/notes not verified"
+}

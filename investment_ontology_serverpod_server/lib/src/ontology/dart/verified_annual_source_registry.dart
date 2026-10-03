@@ -69,6 +69,33 @@ abstract final class VerifiedAnnualSourceRegistry {
       absenceLiteral: null,
     ),
     AnnualSourceCacheEntry(
+      receipt: '20220322000964',
+      corpCode: '01185867',
+      companyName: '퓨쳐메디신 주식회사',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20220322000964-ofs-own-eight',
+      manifestDigest:
+          '436f26baa31f6e2bf8002844dc87958f29ea2def4a6d311060bee0e448893998',
+      ruleVersion: 'futuremedicine-own-2021-eight-independent-ce-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220308000292',
+      corpCode: '00124805',
+      companyName: '(주)푸른저축은행',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20220308000292-cfs-own-absence',
+      manifestDigest:
+          'af1a45b86f80aaf5d867c60cf5ba01f4437522508059fa9661ecbb7e27ea7667',
+      ruleVersion: 'pureun-exact-colon-primary-none-v1',
+      absenceLiteral: ': 해당사항 없음',
+      requiresIssuerOverview: true,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20220324000600',
       corpCode: '00296290',
       companyName: '키움증권(주)',
