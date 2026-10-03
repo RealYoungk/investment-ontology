@@ -207,11 +207,49 @@ void main() {
           );
           final payload = jsonDecode(amountSource!.title);
           expect(payload['coreRows'], 8);
-          for (final p in payload['coreRowProvenance'] as List) {
+          final provenanceRows = payload['coreRowProvenance'] as List;
+          expect(provenanceRows, hasLength(8));
+          for (final core in profile['core'] as List) {
+            final rawRow = provenanceRows.singleWhere(
+              (p) => p['account_nm'] == core['label'],
+            ) as Map;
+            expect(rawRow['thstrm_amount'], core['value']);
+            expect(rawRow['currency'], 'KRW');
+            final p = rawRow['html_provenance'] as Map;
             expect(p['printedUnit'], '원');
+            expect(p['unitMultiplier'], '1');
+            expect(p['precisionUnit'], '1');
             expect(p['fullStatementCollected'], false);
+            expect(p['allStatementRowsVerified'], false);
             expect(p['notesVerified'], false);
+            expect(p['notesReadScopeComplete'], false);
             expect(p['crossPrecisionEqualityClaim'], false);
+            expect(p['roundingCauseClaim'], false);
+            expect(p['cashScopePrimaryOwnWon'], true);
+            expect(p['cashScopeOwnNotePrintedMillion'], true);
+            expect(p['sourceReceipt'], receipt);
+            expect(p['basis'], 'CFS');
+            expect(p['ruleVersion'], KoreaInvestmentOwnEightSource.rule);
+            expect(p['periodStart'], '${entry.year}-01-01');
+            expect(p['periodEnd'], '${entry.year}-12-31');
+            expect(p['literalFlowMonth'], '012');
+            expect(p['sourceBoundDecimalMonth'], 12);
+            expect(p['tableIndex'], core['table']);
+            expect(p['rowIndex'], core['row']);
+            expect(p['column'], core['column']);
+            expect(p['physicalOrd'], core['physicalOrd']);
+            expect(p['printedLabel'], core['label']);
+            expect(p['currentCell'], core['printed']);
+            final primary = (profile['sources'] as List).singleWhere(
+              (v) => v['label'] == 'cfs',
+            );
+            expect(p['source'], primary['url']);
+            expect(p['sourceSha256'], primary['sha256']);
+            final note = p['cashNoteScopeWitness'] as Map;
+            expect(note['noteSumResidualPrintedMillion'], 0);
+            expect(note['precisionNotice'], contains('No exact equality'));
+            final supporting = p['supportingPeriodEvidence'] as Map;
+            expect(supporting['currentEquationWitnesses'], profile['checks']);
           }
           expect(
             (await Source.db.findById(session, correction.id!))!.toJson(),
