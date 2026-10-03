@@ -75,8 +75,9 @@ void main() {
             }
           }
           expect(actual['amount'], expected['amount'], reason: '$i amount');
-          if (expected['valueAsOf'] != null)
+          if (expected['valueAsOf'] != null) {
             expect(actual['valueAsOf'], expected['valueAsOf']);
+          }
         }
         final converted = FinancialRows.toFacts(
           result.rows,
@@ -129,10 +130,11 @@ void main() {
             );
             expect(cell['printedCurrentCells'], contains(term['raw']));
             expect(cell['amount'], term['amount']);
-            if (cell['amount'] != null)
+            if (cell['amount'] != null) {
               residual +=
                   BigInt.parse(cell['amount'] as String) *
                   BigInt.from(term['coefficient'] as int);
+            }
           }
           expect(residual, BigInt.zero, reason: check['name'] as String);
           expect(check['residual'], '0');
@@ -209,11 +211,12 @@ void main() {
           );
           expect(proof['subtotalResidualExcludingInvalidCell'], '333333');
         }
-        if (proof['receipt'] == '20250321001653')
+        if (proof['receipt'] == '20250321001653') {
           expect(
             proof['printedCfCapitalIncreaseVersusCeIncreaseResidual'],
             '4000',
           );
+        }
       }
       for (final receipt in ['20220330000851', '20240318000135']) {
         for (final basis in FsDiv.values) {
