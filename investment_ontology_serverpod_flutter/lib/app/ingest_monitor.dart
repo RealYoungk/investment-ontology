@@ -34,6 +34,7 @@ class IngestMonitor {
     'market_snapshot',
     'market_security_relink',
     'business_documents',
+    'charter_notices',
     'disclosures',
     'disclosures_company',
     'ai_extraction',

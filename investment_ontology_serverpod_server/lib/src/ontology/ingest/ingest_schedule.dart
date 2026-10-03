@@ -14,6 +14,7 @@ import 'issuer_documents_sync.dart';
 import 'market_snapshot_sync.dart';
 import 'market_security_relink.dart';
 import 'ingest_hooks.dart';
+import 'charter_hooks.dart';
 import '../peers/peer_catalog.dart';
 
 /// 수집 FutureCall 예약.
@@ -55,6 +56,10 @@ abstract final class IngestSchedule {
     installHooks();
     final r = await IngestJobs.recoverInterrupted(session);
     final soon = DateTime.now().toUtc().add(const Duration(seconds: 10));
+    if (r.orphaned.contains('charter_notices')) {
+      final job = await IngestJobs.latest(session, 'charter_notices');
+      if (job != null) await charterContinue(session, job.id!, soon);
+    }
     for (final (kind, resumeId, resume) in [
       (CompanyMasterSync.kind, companyMasterResumeId, companyMasterResume),
       (FinancialFactsSync.kind, financialsResumeId, financialsResume),
@@ -335,6 +340,7 @@ abstract final class IngestSchedule {
 
   /// 엔드포인트·FutureCall이 쓰는 예약 함수를 등록한다.
   static void installHooks() {
+    CharterHooks.continueAt = charterContinue;
     IngestHooks.companyMasterResume = companyMasterResume;
     IngestHooks.companyMasterNow = companyMasterNow;
     IngestHooks.financialsNow = financialsNow;
@@ -349,5 +355,17 @@ abstract final class IngestSchedule {
     IngestHooks.disclosuresForCompanyNow = disclosuresForCompanyNow;
     IngestHooks.disclosures = disclosuresResume;
     IngestHooks.aiExtractionNow = aiExtractionNow;
+  }
+
+  static Future<void> charterContinue(
+    Session session,
+    int jobId,
+    DateTime at,
+  ) async {
+    await session.serverpod.futureCalls.cancel('charter_notices_continue');
+    await session.serverpod.futureCalls
+        .callAtTime(at, identifier: 'charter_notices_continue')
+        .charter
+        .run();
   }
 }

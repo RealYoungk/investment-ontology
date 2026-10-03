@@ -625,6 +625,52 @@ class EndpointCapital extends _isc.EndpointRef {
   );
 }
 
+/// Public read-only acquisition from receipt-bound official charter sections.
+/// No AI, shared-data writes, arbitrary URLs, or authentication overrides.
+/// {@category Endpoint}
+class EndpointCharter extends _isc.EndpointRef {
+  EndpointCharter(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'charter';
+
+  _ida.Future<_i1paap7y.IngestJob> startCollection() =>
+      caller.callServerEndpoint<_i1paap7y.IngestJob>(
+        'charter',
+        'startCollection',
+        {},
+      );
+
+  /// Explicit authenticated continuation for development servers with workers off.
+  _ida.Future<_i1paap7y.IngestJob?> advanceCollection() =>
+      caller.callServerEndpoint<_i1paap7y.IngestJob?>(
+        'charter',
+        'advanceCollection',
+        {},
+      );
+
+  _ida.Future<_i1paap7y.IngestJob?> collectionStatus() =>
+      caller.callServerEndpoint<_i1paap7y.IngestJob?>(
+        'charter',
+        'collectionStatus',
+        {},
+      );
+
+  /// Actual source coverage, rather than treating job completion as full data.
+  _ida.Future<String> collectionCoverage() => caller.callServerEndpoint<String>(
+    'charter',
+    'collectionCoverage',
+    {},
+  );
+
+  _ida.Future<String> summary(String corpCode) =>
+      caller.callServerEndpoint<String>(
+        'charter',
+        'summary',
+        {'corpCode': corpCode},
+      );
+}
+
 /// 상장사 조회.
 /// {@category Endpoint}
 class EndpointCompany extends _isc.EndpointRef {
@@ -1936,6 +1982,7 @@ class Client extends _isc.ServerpodClientShared {
     ai = EndpointAi(this);
     bond = EndpointBond(this);
     capital = EndpointCapital(this);
+    charter = EndpointCharter(this);
     company = EndpointCompany(this);
     companyNews = EndpointCompanyNews(this);
     research = EndpointResearch(this);
@@ -1970,6 +2017,8 @@ class Client extends _isc.ServerpodClientShared {
   late final EndpointBond bond;
 
   late final EndpointCapital capital;
+
+  late final EndpointCharter charter;
 
   late final EndpointCompany company;
 
@@ -2018,6 +2067,7 @@ class Client extends _isc.ServerpodClientShared {
     'ai': ai,
     'bond': bond,
     'capital': capital,
+    'charter': charter,
     'company': company,
     'companyNews': companyNews,
     'research': research,

@@ -157,7 +157,11 @@ class _JobRowState extends State<IngestJobRow> {
           if (job?.message != null && !_running) ...[
             const SizedBox(height: AppSpace.xs),
             Text(
-              safeIngestMessage(job!.message!),
+              job!.kind == 'charter_notices' &&
+                      job.status == IngestStatus.succeeded &&
+                      job.failed == 0
+                  ? '전체 대상 원문 확인 완료 · 미확보 0건'
+                  : safeIngestMessage(job.message!),
               style: t.body(12, color: c.textMuted),
             ),
           ],

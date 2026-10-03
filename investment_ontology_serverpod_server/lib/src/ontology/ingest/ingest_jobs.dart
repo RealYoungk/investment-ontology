@@ -99,6 +99,7 @@ abstract final class IngestJobs {
 
   /// 수집 종류 → FutureCall 이름 앞부분 (생성된 이름은 `<앞부분><메서드>FutureCall`).
   static const _futureCallPrefixes = {
+    'charter_notices': 'Charter',
     'financial_facts': 'FinancialFacts',
     'financial_facts_company': 'FinancialFacts',
     'market_snapshot': 'MarketSnapshot',
@@ -112,6 +113,9 @@ abstract final class IngestJobs {
   /// FutureCall 예약이 [jobId] 작업을 실행하는 것인지. `run(jobId)`·`runCompany(jobId, …)`는
   /// 인자를 `{"jobId": …}`로 저장한다. 매일·이어받기 예약(`resume`)은 인자가 없어 해당하지 않는다.
   static bool _runsJob(sp.FutureCallEntry entry, IngestJob job) {
+    if (job.kind == 'charter_notices' && entry.name == 'CharterRunFutureCall') {
+      return true;
+    }
     final prefix = _futureCallPrefixes[job.kind];
     final data = entry.serializedObject;
     if (prefix == null || data == null || !entry.name.startsWith(prefix)) {

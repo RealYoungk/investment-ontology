@@ -16,6 +16,7 @@ import 'package:clock/clock.dart' as _io0w16m8;
 import 'package:serverpod/serverpod.dart' as _is;
 import '../ontology/ai/ai_extraction_future_call.dart' as _ifdlgs52;
 import '../ontology/billing/billing_future_call.dart' as _ih3pebim;
+import '../ontology/ingest/charter_future_call.dart' as _iywhlupy;
 import '../ontology/ingest/company_master_future_call.dart' as _iouuus1c;
 import '../ontology/ingest/disclosure_future_call.dart' as _itvp2mss;
 import '../ontology/ingest/financial_facts_future_call.dart' as _iqtu3y45;
@@ -83,6 +84,7 @@ class FutureCalls extends _is.FutureCallDispatch<_FutureCallRef> {
       'AiExtractionRunFutureCall': AiExtractionRunFutureCall(),
       'BillingRunFutureCall': BillingRunFutureCall(),
       'BillingScanFutureCall': BillingScanFutureCall(),
+      'CharterRunFutureCall': CharterRunFutureCall(),
       'CompanyMasterResumeFutureCall': CompanyMasterResumeFutureCall(),
       'CompanyMasterRetryFutureCall': CompanyMasterRetryFutureCall(),
       'CompanyMasterRunFutureCall': CompanyMasterRunFutureCall(),
@@ -227,6 +229,8 @@ class _FutureCallRef {
 
   late final billing = _BillingFutureCallDispatcher(_invokeFutureCall);
 
+  late final charter = _CharterFutureCallDispatcher(_invokeFutureCall);
+
   late final companyMaster = _CompanyMasterFutureCallDispatcher(
     _invokeFutureCall,
   );
@@ -279,6 +283,19 @@ class _BillingFutureCallDispatcher {
   Future<void> scan() {
     return _invokeFutureCall(
       'BillingScanFutureCall',
+      null,
+    );
+  }
+}
+
+class _CharterFutureCallDispatcher {
+  _CharterFutureCallDispatcher(this._invokeFutureCall);
+
+  final _InvokeFutureCall _invokeFutureCall;
+
+  Future<void> run() {
+    return _invokeFutureCall(
+      'CharterRunFutureCall',
       null,
     );
   }
@@ -489,6 +506,17 @@ class BillingScanFutureCall extends _is.FutureCall
     _is.SerializableModel? object,
   ) async {
     await _ih3pebim.BillingFutureCall().scan(session);
+  }
+}
+
+class CharterRunFutureCall extends _is.FutureCall
+    implements _is.InvokableFutureCall {
+  @override
+  _ida.Future<void> invoke(
+    _is.Session session,
+    _is.SerializableModel? object,
+  ) async {
+    await _iywhlupy.CharterFutureCall().run(session);
   }
 }
 
