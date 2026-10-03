@@ -11,6 +11,7 @@ import 'issuer_financial_source_registry.dart';
 import 'own_annual_financial_source_registry.dart';
 import 'fund_financials_card.dart';
 import 'infrastructure_fund_financials_validator.dart';
+import 'scanned_fund_financials_validator.dart';
 
 /// Stored alternate-source current observations; never substitutes regular reports.
 class IssuerFinancialsSection extends StatefulWidget {
@@ -163,6 +164,7 @@ class _IssuerFinancialsSectionState extends State<IssuerFinancialsSection> {
               if ({
                 'printedFundCategories',
                 'printedInfrastructureFundCategories',
+                'printedScannedFundCategories',
               }.contains(row['categorySchema']))
                 FundFinancialsCard(row: row)
               else
@@ -181,9 +183,32 @@ List<Map<String, dynamic>> validateIssuerFinancialRows(
   if (!ownAnnual &&
       raw is List &&
       raw.isNotEmpty &&
-      raw.first is Map &&
-      raw.first['categorySchema'] == 'printedInfrastructureFundCategories') {
-    return validateInfrastructureFundRows(raw);
+      raw.every(
+        (r) =>
+            r is Map &&
+            {
+              'printedInfrastructureFundCategories',
+              'printedScannedFundCategories',
+            }.contains(r['categorySchema']),
+      )) {
+    if (raw.length > 5 ||
+        raw.map((r) => r['corpCode']).toSet().length != 1 ||
+        raw.map((r) => r['officialUrl']).toSet().length != raw.length) {
+      throw const FormatException('Bound same-issuer fund years required');
+    }
+    final text = raw
+            .where(
+              (r) =>
+                  r['categorySchema'] == 'printedInfrastructureFundCategories',
+            )
+            .toList(),
+        scans = raw
+            .where((r) => r['categorySchema'] == 'printedScannedFundCategories')
+            .toList();
+    return [
+      if (text.isNotEmpty) ...validateInfrastructureFundRows(text),
+      if (scans.isNotEmpty) ...validateScannedFundRows(scans),
+    ]..sort((a, b) => '${b['periodEnd']}'.compareTo('${a['periodEnd']}'));
   }
   if (raw is List &&
       raw.isNotEmpty &&

@@ -9,6 +9,10 @@ import '../research/ipo_issuer_financials_html.dart';
 import '../research/issuer_financials_feed.dart';
 import '../research/fund_financials_text.dart';
 import '../research/infrastructure_fund_financials.dart';
+import '../research/scanned_fund_financials.dart';
+
+import 'package:crypto/crypto.dart';
+
 import '../research/research_snapshot_store.dart';
 
 /// Internal normal business worker only. No generated financial reports/facts.
@@ -21,7 +25,8 @@ abstract final class IssuerFinancialsSync {
       IssuerFinancialsHtml.supports(doc) ||
       IpoIssuerFinancialsHtml.supports(doc) ||
       FundFinancialsText.supports(doc) ||
-      InfrastructureFundFinancials.supports(doc);
+      InfrastructureFundFinancials.supports(doc) ||
+      ScannedFundFinancials.supports(doc);
   static bool supportsCorp(String code) =>
       code == IssuerFinancialsHtml.corp ||
       IpoIssuerFinancialsHtml.supportsCorp(code) ||
@@ -34,6 +39,30 @@ abstract final class IssuerFinancialsSync {
     final rows = <Map<String, dynamic>>[];
     for (final d in documents.where(supports)) {
       final m = d['metadata'] as Map, p = d['proof'] as Map;
+      if (ScannedFundFinancials.supports(d)) {
+        final profile = ScannedFundFinancials.profile(m)!;
+        final pdf = File('${cache.path}/${m['sha256']}.pdf');
+        final sidecar = File('${cache.path}/${m['sha256']}.scanned-ocr.json');
+        if (await pdf.length() > 20 * 1024 * 1024 ||
+            await sidecar.length() > 4 * 1024 * 1024) {
+          throw const FormatException('Scanned private source size bound');
+        }
+        ScannedFundFinancials.verifyPdf(m, await pdf.readAsBytes());
+        for (final page in profile['sourcePages'] as List) {
+          final image = File(
+            '${cache.path}/${m['sha256']}.p${(page['pageOrdinal'] as int).toString().padLeft(2, '0')}.png',
+          );
+          if (await image.length() > 20 * 1024 * 1024 ||
+              sha256.convert(await image.readAsBytes()).toString() !=
+                  page['imageSha256']) {
+            throw const FormatException(
+              'Exact private PDF page image required',
+            );
+          }
+        }
+        rows.add(ScannedFundFinancials.parse(m, await sidecar.readAsBytes()));
+        continue;
+      }
       if (InfrastructureFundFinancials.supports(d)) {
         final pdf = File('${cache.path}/${m['sha256']}.pdf'),
             raw = File('${cache.path}/${m['sha256']}.infrastructure.raw.txt');
@@ -129,6 +158,11 @@ abstract final class IssuerFinancialsSync {
                   'decodedPages',
                   'textTransformation',
                   'numericState',
+                  'sidecarSha256',
+                  'acceptedSeparatorGrammar',
+                  'pipeline',
+                  'sourcePages',
+                  'visualReadScope',
                 ])
                   if (r.containsKey(k)) k: r[k],
               },

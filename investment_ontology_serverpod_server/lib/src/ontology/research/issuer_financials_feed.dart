@@ -1,6 +1,7 @@
 import 'issuer_financials_html.dart';
 import 'fund_financials_text.dart';
 import 'infrastructure_fund_financials.dart';
+import 'scanned_fund_financials.dart';
 import 'ipo_issuer_financials_html.dart';
 import 'reviewed_dart_issuer_sources.dart';
 
@@ -9,10 +10,33 @@ abstract final class IssuerFinancialsFeed {
   static List<Map<String, dynamic>> validate(dynamic input) {
     if (input is List &&
         input.isNotEmpty &&
-        input.first is Map &&
-        input.first['categorySchema'] ==
-            InfrastructureFundFinancials.category) {
-      return InfrastructureFundFinancials.validateRows(input);
+        input.every(
+          (r) =>
+              r is Map &&
+              {
+                InfrastructureFundFinancials.category,
+                ScannedFundFinancials.category,
+              }.contains(r['categorySchema']),
+        )) {
+      if (input.length > 5 ||
+          input.map((r) => r['corpCode']).toSet().length != 1 ||
+          input.map((r) => r['officialUrl']).toSet().length != input.length) {
+        throw const FormatException(
+          'Exact same-issuer bounded fund sources required',
+        );
+      }
+      final text = input
+          .where(
+            (r) => r['categorySchema'] == InfrastructureFundFinancials.category,
+          )
+          .toList();
+      final scans = input
+          .where((r) => r['categorySchema'] == ScannedFundFinancials.category)
+          .toList();
+      return [
+        if (text.isNotEmpty) ...InfrastructureFundFinancials.validateRows(text),
+        if (scans.isNotEmpty) ...ScannedFundFinancials.validateRows(scans),
+      ];
     }
     if (input is List &&
         input.isNotEmpty &&
