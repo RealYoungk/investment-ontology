@@ -132,6 +132,9 @@ abstract final class FinancialAccounts {
     'depreciation': ['감가상각비'],
     'amortisation': ['무형자산상각비'],
     'netIncome': [
+      // Pinned Daishin FY2021 own whole NI; independently equal to CE and CF.
+      '당기연결순손익',
+      '당기순이익(대손준비금반영후조정이익당기:178,664백만원전기:175,386백만원)',
       // Exact Heungkuk FY2021/22 current whole NI, equal to own CE total.
       '당기순이익(대손준비금반영후조정이익당기:138,148백만원전기:54,202백만원)(비상위험준비금반영후조정이익당기:134,462백만원전기:51,465백만원)',
       '당기순이익(대손준비금반영후조정이익당기:54,202백만원전기:13,888백만원)(비상위험준비금반영후조정이익당기:51,465백만원전기:12,242백만원)',

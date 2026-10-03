@@ -572,6 +572,34 @@ abstract final class VerifiedAnnualSourceRegistry {
     ),
 
     AnnualSourceCacheEntry(
+      receipt: '20220516001812',
+      corpCode: '00110893',
+      companyName: '대신증권(주)',
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20220516001812-cfs-daishin2021',
+      manifestDigest:
+          '71448e5cc95fe129bc60ca2cd402a6ea02eb944aa4e3b78207e59cfcf3ee500d',
+      ruleVersion: 'daishin-2021-cfs-exact-cash-scope-eight-v1',
+      absenceLiteral: null,
+      requiresCashScopeNotes: true,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220516001812',
+      corpCode: '00110893',
+      companyName: '대신증권(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20220516001812-ofs-daishin2021',
+      manifestDigest:
+          'e1b54a7d01eec3df7c9a5e104156b68258b844ae698d0cc88a75871733b90035',
+      ruleVersion: 'daishin-2021-ofs-exact-cash-scope-eight-v1',
+      absenceLiteral: null,
+      requiresCashScopeNotes: true,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20230316001545',
       corpCode: '00110893',
       companyName: '대신증권(주)',
