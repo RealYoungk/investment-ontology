@@ -1,0 +1,11 @@
+# SK Square first short annual CFS
+
+Receipt `20220317000691`, corp `01596425`, prints its first annual period 2021-11-01 through 2021-12-31, following split establishment. The own cover and four flow captions independently state that interval. A source-pinned registry entry declares these exact dates; Jan1 is rejected. Own official shell corp identity and unique cover/CFS six-coordinate nodes, source URI and three raw digests are checked.
+
+Eight current accounts are directly read from bound raw cells in five statements printed in 백만원, converted with the explicitly verified multiplier 1,000,000. Whole CE NI is 363,156 million won; parent subtotal 375,204 is preserved separately and never substituted. Seven current-only checks are exact: BS identity, whole NI/closing equity/current movement roll, printed three activities, printed FX plus opening cash roll, and BS cash equality. No prior annual CF column exists, and no prior close is invented. PPE acquisition prints positive 52,124 within the outflow group; the printed positive sign is retained.
+
+The first annual period is 61 days. The pure test uses the package's actual rows and the normal `FinancialSourceDuration.validate` source/audit contract to obtain `2021.11.01 ~ 2021.12.31 (61일)`, `isShort=true`. Existing metric guards suppress 12-month calculations for that exact short annual period. Root must verify the normal DB store, source/audit persistence, summary period label, counters/replay and comparison exclusions before deploying this next cohort. No DB runner was started by this agent.
+
+Partial eight-account scope remains explicit; all-statement collection and verification are false. The unapproved OFS basis has printed revenue dash, which remains unavailable; no zero is manufactured.
+
+Validation: pure11 passed, static analysis0, formatting0. The first pure fixture omitted FinancialFact IDs and failed inside FinancialAccounts.pick; the corrected fixture adds normal persisted IDs without altering parser or source evidence. Both logs are preserved in primary ignored `outputs/filing-collection-priority/source-completeness-20261003/remaining_source_validation/` (`pure226-sk.log`, `pure226-sk-final.log`, `analyze226.log`).

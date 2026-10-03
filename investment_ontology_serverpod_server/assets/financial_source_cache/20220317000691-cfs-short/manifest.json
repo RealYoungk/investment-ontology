@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20220317000691",
+  "corpCode": "01596425",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2021,
+  "periodStart": "2021-11-01",
+  "periodEnd": "2021-12-31",
+  "ruleVersion": "sk-square-first-short-annual-current-eight-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220317000691",
+      "sha256": "8890ca600323b14b6e7df6cf85f63b7e94580e75a46ffbb425c5a4602f1bd628"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000691&dcmNo=8470820&eleId=1&offset=796&length=4042&dtd=dart3.xsd",
+      "sha256": "7ad148b828301d61a3cd27de716032b13b5167b7d549c18349bcf0cd33f1bcf3"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000691&dcmNo=8470820&eleId=19&offset=290308&length=41853&dtd=dart3.xsd",
+      "sha256": "7e02ea0e2641dfa03326c2c85abfecfb5e81ab64697054adc03be28971db23e9"
+    }
+  ],
+  "retrievalProof": "Own first annual split-establishment report; cover+four flow captions explicitly2021Nov1-Dec31. Exact own shell corp+cover+CFS coordinates/SHA, current whole NI/CE/cash/BS seven checks zero in printed millionwon. No comparative prior financial period exists; no Jan1 fabrication. Partial8 current accounts."
+}
