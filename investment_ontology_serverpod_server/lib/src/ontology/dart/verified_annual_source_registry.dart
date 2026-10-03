@@ -239,6 +239,67 @@ abstract final class VerifiedAnnualSourceRegistry {
       requiresIssuerOverview: true,
     ),
     AnnualSourceCacheEntry(
+      receipt: '20251021000231',
+      corpCode: '01035942',
+      companyName: '(주)메디안디노스틱',
+      year: 2024,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20251021000231-cfs-located-own-current',
+      manifestDigest:
+          '89f834093957526744792ed3d9880d603bb806622e8db6644a1d07237bd6fda7',
+      ruleVersion: 'located-own-current-eight-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20251021000231',
+      corpCode: '01035942',
+      companyName: '(주)메디안디노스틱',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20251021000231-ofs-located-own-current',
+      manifestDigest:
+          '0e1f76876409477f5da88a2c4cb134527d4b6ea91cb00a79590f67a2431225f9',
+      ruleVersion: 'located-own-current-eight-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230321001535',
+      corpCode: '00990396',
+      companyName: '(주)레드우즈',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20230321001535-cfs-located-own-current',
+      manifestDigest:
+          '3275bc2ffae06e0f76fd36bf9fb002c126dd179720f9addd65fb3a22d91e25ee',
+      ruleVersion: 'located-own-current-eight-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230321001535',
+      corpCode: '00990396',
+      companyName: '(주)레드우즈',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230321001535-ofs-located-own-current',
+      manifestDigest:
+          '610751dd98b52d5dc3cc393700e57b92d7c120a67bcdfa200a26510f058d13b0',
+      ruleVersion: 'located-own-current-eight-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230721000635',
+      corpCode: '01579020',
+      companyName: '(주)아이엠지티',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230721000635-ofs-located-own-current',
+      manifestDigest:
+          'd7e5b8b4e832c153c4762e900393e7cc71bb6c43af223990874465b8123425dc',
+      ruleVersion: 'located-own-current-eight-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20220324000600',
       corpCode: '00296290',
       companyName: '키움증권(주)',

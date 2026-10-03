@@ -34,7 +34,7 @@ Company company(AnnualSourceCacheEntry e) => Company(
 );
 void main() {
   test('compiled receipt plus basis registry has unique audit identities', () {
-    expect(VerifiedAnnualSourceRegistry.entries.length, 289);
+    expect(VerifiedAnnualSourceRegistry.entries.length, 294);
     expect(
       VerifiedAnnualSourceRegistry.entries
           .map((e) => e.auditReference)
@@ -63,7 +63,15 @@ void main() {
         final result = await cache.verifyRegistered(f, company(e), e.basis);
         expect(
           reads,
-          e.ruleVersion.startsWith('header18-linked-')
+          e.ruleVersion.startsWith('located-own-')
+              ? 1 +
+                    (jsonDecode(
+                              File('${e.assetDirectory}/manifest.json')
+                                  .readAsStringSync(),
+                            )['sources']
+                            as List)
+                        .length
+              : e.ruleVersion.startsWith('header18-linked-')
               ? (e.absenceLiteral == null ? 8 : 5)
               : 4 +
                     (e.ruleVersion ==
@@ -139,7 +147,9 @@ void main() {
           );
           expect(
             a.sourceReceipt,
-            e.ruleVersion == Header18LinkedPrimarySource.absenceRule
+            e.ruleVersion == 'located-own-explicit-cfs-absence-v1'
+                ? manifest['sourceReceipt']
+                : e.ruleVersion == Header18LinkedPrimarySource.absenceRule
                 ? Header18LinkedPrimarySource.originalFor(e.receipt, e.basis)
                 : e.receipt,
           );
@@ -151,7 +161,9 @@ void main() {
           final n = result.numeric!;
           expect(
             n.sourceReceipt,
-            e.ruleVersion == Header18LinkedPrimarySource.primaryRule
+            e.ruleVersion == 'located-own-current-eight-v1'
+                ? manifest['sourceReceipt']
+                : e.ruleVersion == Header18LinkedPrimarySource.primaryRule
                 ? Header18LinkedPrimarySource
                       .profiles['${e.receipt}:${e.statementLabel}']!['money']
                 : e.ruleVersion == 'linked-correction-audit-immutable-v1'

@@ -1,3 +1,4 @@
+import '../dart/located_own_current_source.dart';
 import '../dart/ls_kiwoom_current_source.dart';
 import '../dart/known_annual_conflict_cache.dart';
 
@@ -3469,7 +3470,16 @@ class FinancialFactsSync {
                 ) &&
                 numeric.sourceReceipt ==
                     LinkedCorrectionAuditSource.originalFor(current.rceptNo);
-            if (!linkedPrimary && !linkedAudit) {
+            if (!linkedPrimary &&
+                !linkedAudit &&
+                !LocatedOwnCurrentSource.sourceEligible(
+                  receipt: current.rceptNo,
+                  corp: currentCompany.corpCode,
+                  basis: entry.basis,
+                  start: numeric.periodStart,
+                  end: numeric.periodEnd,
+                  sourceReceipt: numeric.sourceReceipt,
+                )) {
               throw const FormatException(
                 'Cached numeric original receipt unverified',
               );
@@ -4218,7 +4228,18 @@ class FinancialFactsSync {
       source: originalSource,
       digest: originalDigest,
     );
-    final partialNote = exactLsKiwoomScope != null
+    final exactLocatedScope = LocatedOwnCurrentSource.storedScope(
+      rows: rows,
+      receipt: rceptNo,
+      corp: company.corpCode,
+      companyName: company.name,
+      consolidated: div == FsDiv.consolidated,
+      source: originalSource,
+      digest: originalDigest,
+    );
+    final partialNote = exactLocatedScope != null
+        ? ' · ${jsonEncode(exactLocatedScope)}'
+        : exactLsKiwoomScope != null
         ? ' · ${jsonEncode(exactLsKiwoomScope)}'
         : explicitMissingRevenue
         ? ' · ${ImgtExplicitRevenueMissing.note}'

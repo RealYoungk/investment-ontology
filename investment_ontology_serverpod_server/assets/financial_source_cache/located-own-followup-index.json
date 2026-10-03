@@ -1,0 +1,72 @@
+[
+  {
+    "receipt": "20251021000231",
+    "corp": "01035942",
+    "name": "(주)메디안디노스틱",
+    "year": 2024,
+    "basis": "consolidated",
+    "sourceReceipt": "20251021000220",
+    "rule": "located-own-current-eight-v1",
+    "directory": "assets/financial_source_cache/20251021000231-cfs-located-own-current",
+    "digest": "89f834093957526744792ed3d9880d603bb806622e8db6644a1d07237bd6fda7",
+    "sourceDigest": "af7790fe62b3c89d67613def1dd07b61542b616906cda689705f0079810af315",
+    "statementURI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20251021000220&dcmNo=10846771&eleId=21&offset=331848&length=55177&dtd=dart4.xsd",
+    "statementSHA": "2ae8f77e5bd1ec4800b0474160a2cab19b4574ed1959f5e493d2e7008b0d649b"
+  },
+  {
+    "receipt": "20251021000231",
+    "corp": "01035942",
+    "name": "(주)메디안디노스틱",
+    "year": 2024,
+    "basis": "separate",
+    "sourceReceipt": "20251021000220",
+    "rule": "located-own-current-eight-v1",
+    "directory": "assets/financial_source_cache/20251021000231-ofs-located-own-current",
+    "digest": "0e1f76876409477f5da88a2c4cb134527d4b6ea91cb00a79590f67a2431225f9",
+    "sourceDigest": "9614693495143ef8753ff583ee665bf338d86e6591fb604059fb2f370871b2c4",
+    "statementURI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20251021000220&dcmNo=10846771&eleId=23&offset=675311&length=48682&dtd=dart4.xsd",
+    "statementSHA": "49c2d2d7f8134f479e63e645beb2960e557e22084b301da097bb9ba789e4bcdb"
+  },
+  {
+    "receipt": "20230321001535",
+    "corp": "00990396",
+    "name": "(주)레드우즈",
+    "year": 2022,
+    "basis": "consolidated",
+    "sourceReceipt": "20230321001515",
+    "rule": "located-own-current-eight-v1",
+    "directory": "assets/financial_source_cache/20230321001535-cfs-located-own-current",
+    "digest": "3275bc2ffae06e0f76fd36bf9fb002c126dd179720f9addd65fb3a22d91e25ee",
+    "sourceDigest": "4729421e346acef6528e18ad0f9e7dffc0122c9859b235a771be5c53e10843cc",
+    "statementURI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230321001515&dcmNo=9085914&eleId=19&offset=139791&length=55959&dtd=dart3.xsd",
+    "statementSHA": "8cdeea8ef47694259dafe6a208c2ee043319f5b6db875f385f0c87c8d49ab850"
+  },
+  {
+    "receipt": "20230321001535",
+    "corp": "00990396",
+    "name": "(주)레드우즈",
+    "year": 2022,
+    "basis": "separate",
+    "sourceReceipt": "20230321001515",
+    "rule": "located-own-current-eight-v1",
+    "directory": "assets/financial_source_cache/20230321001535-ofs-located-own-current",
+    "digest": "610751dd98b52d5dc3cc393700e57b92d7c120a67bcdfa200a26510f058d13b0",
+    "sourceDigest": "d63c01a407500235270f6fd366eac9239bd8636f28c74140679de2660a4e6535",
+    "statementURI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230321001515&dcmNo=9085914&eleId=21&offset=498919&length=48967&dtd=dart3.xsd",
+    "statementSHA": "45052061e6962b918f8a9f20acc4b0548039583e95b61f645359f38b2b4a229b"
+  },
+  {
+    "receipt": "20230721000635",
+    "corp": "01579020",
+    "name": "(주)아이엠지티",
+    "year": 2022,
+    "basis": "separate",
+    "sourceReceipt": "20230721000635",
+    "rule": "located-own-current-eight-v1",
+    "directory": "assets/financial_source_cache/20230721000635-ofs-located-own-current",
+    "digest": "d7e5b8b4e832c153c4762e900393e7cc71bb6c43af223990874465b8123425dc",
+    "sourceDigest": "6399f1770820b859551fe7494c0d5ea58d14ae6857af2f67049cca1fcd2e7329",
+    "statementURI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230721000635&dcmNo=9358597&eleId=21&offset=175703&length=86206&dtd=dart3.xsd",
+    "statementSHA": "47f6e3f386f66d431ec5e33ce5c688c8096b19ae532854c10cd019b4e542dee5"
+  }
+]

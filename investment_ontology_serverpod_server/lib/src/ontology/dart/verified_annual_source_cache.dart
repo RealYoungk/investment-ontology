@@ -1,4 +1,5 @@
 import 'futuremedicine_own_eight_source.dart';
+import 'located_own_current_source.dart';
 import 'samsungsec_2021_own_audit_source.dart';
 import 'db_yuanta_own_eight_source.dart';
 import 'koreainvestment_own_eight_source.dart';
@@ -218,6 +219,15 @@ final class VerifiedAnnualSourceCache {
     final rawManifest = await _read('${entry.assetDirectory}/manifest.json');
     if (sha256.convert(rawManifest).toString() != entry.manifestDigest) {
       throw const FormatException('Cached annual manifest digest mismatch');
+    }
+    if (entry.ruleVersion == LocatedOwnCurrentSource.rule) {
+      return LocatedOwnCurrentSource.verify(
+        entry: entry,
+        company: company,
+        filing: filing,
+        rawManifest: rawManifest,
+        read: _read,
+      );
     }
     if (entry.ruleVersion == Header18LinkedPrimarySource.primaryRule ||
         entry.ruleVersion == Header18LinkedPrimarySource.absenceRule) {
