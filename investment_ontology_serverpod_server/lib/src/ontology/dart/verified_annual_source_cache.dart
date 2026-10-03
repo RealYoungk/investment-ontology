@@ -1,3 +1,4 @@
+import 'talos_2022_exact_source.dart';
 import 'exact_current_row_profiles.dart';
 import 'anymedi_audit_period_source.dart';
 import 'sk_square_short_annual_source.dart';
@@ -278,6 +279,40 @@ final class VerifiedAnnualSourceCache {
     }
     if (documents.length != documentCount || labels.length != documentCount) {
       throw const FormatException('Cached annual package incomplete');
+    }
+
+    if (entry.ruleVersion == Talos2022ExactSource.rule) {
+      final uris = <String, Uri>{
+        for (final s in manifest['sources'] as List)
+          s['label'] as String: Uri.parse(s['url'] as String),
+      };
+      final raw = <String, String>{
+        for (final e in uris.entries) e.key: utf8.decode(documents[e.value]!),
+      };
+      final rows = Talos2022ExactSource.parse(
+        raw: raw,
+        uris: uris,
+        receipt: entry.receipt,
+        corp: company.corpCode,
+        start: start,
+        end: end,
+        consolidated: basis == FsDiv.consolidated,
+      );
+      return (
+        numeric: PublicFinancialHtmlSource(
+          sourceReceipt: entry.receipt,
+          correctionReceipt: null,
+          correctionSource: null,
+          coverHtml: raw['cover']!,
+          coverSource: uris['cover']!,
+          statementHtml: raw['ofs']!,
+          statementSource: uris['ofs']!,
+          periodStart: start,
+          periodEnd: end,
+          rows: rows,
+        ),
+        absence: null,
+      );
     }
     if (entry.ruleVersion == ExactCurrentCfsSource.rule) {
       final uris = <String, Uri>{

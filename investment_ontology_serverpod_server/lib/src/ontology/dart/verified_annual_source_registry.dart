@@ -69,6 +69,20 @@ abstract final class VerifiedAnnualSourceRegistry {
       absenceLiteral: null,
     ),
     AnnualSourceCacheEntry(
+      receipt: '20230718000182',
+      corpCode: '01020269',
+      companyName: '(주) 탈로스',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20230718000182-ofs-own-current-eight',
+      manifestDigest:
+          'bd814b209cf1fd966c90a9c1a93f0dc9e9b693087b08acaef7add72a3278d656',
+      ruleVersion: 'talos-own-2022-current-eight-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20250305000164',
       corpCode: '01205514',
       companyName: '(주)큐라켐',
