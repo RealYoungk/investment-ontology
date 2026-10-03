@@ -94,8 +94,12 @@ void main() {
           return (await IngestJob.db.findById(session, j.id!))!;
         }
 
+        final approvedOppositeAbsence = receipt == '20220321000965';
+        final expectedJobStatus = approvedOppositeAbsence
+            ? IngestStatus.succeeded
+            : IngestStatus.failed;
         final first = await run();
-        expect(first.status, IngestStatus.failed);
+        expect(first.status, expectedJobStatus);
         expect(first.updated, 1);
         final after = (await DartFiling.db.findById(session, f.id!))!;
         expect(after.attempts, 7);
@@ -109,8 +113,23 @@ void main() {
           basis == FsDiv.separate
               ? after.consolidatedStatus
               : after.separateStatus,
-          FilingFetchStatus.failed,
+          approvedOppositeAbsence
+              ? FilingFetchStatus.noData
+              : FilingFetchStatus.failed,
         );
+        if (approvedOppositeAbsence) {
+          final absence = await Source.db.findFirstRow(
+            session,
+            where: (t) => t.reference.equals(
+              'financial-public-basis-not-applicable:$receipt:consolidated',
+            ),
+          );
+          expect(absence, isNotNull);
+          expect(
+            jsonDecode(absence!.title)['evidence'],
+            contains('연결대상 종속회사가 존재하지 않으므로'),
+          );
+        }
         final reports = await FinancialReport.db.find(session);
         expect(reports, hasLength(1));
         {
@@ -193,7 +212,7 @@ void main() {
         expect(
           (await endpoints.ingest.coverage(builder.asAdmin))
               .financialFailedFilings,
-          1,
+          approvedOppositeAbsence ? 0 : 1,
         );
         final sources = (await Source.db.find(
           session,
@@ -205,7 +224,7 @@ void main() {
         )).map((x) => x.toJson()).toList();
         final replay = await run();
         expect(replay.updated, 0);
-        expect(replay.status, IngestStatus.failed);
+        expect(replay.status, expectedJobStatus);
         expect(
           (await Source.db.find(
             session,
