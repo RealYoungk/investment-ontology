@@ -56,6 +56,97 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20230718000182',
+      corpCode: '01020269',
+      companyName: "(주) 탈로스",
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20230718000182-cfs-own-explicit-none',
+      manifestDigest:
+          '0277431671cf4b34cc7bcffd452bdf8100fe55281629f0c5bc74a01761748138',
+      ruleVersion: 'own-primary-cfs-explicit-absence-v1',
+      absenceLiteral: "※ 해당사항 없습니다.",
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20221027000409',
+      corpCode: '01020269',
+      companyName: "(주) 탈로스",
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20221027000409-cfs-own-explicit-none',
+      manifestDigest:
+          '3ea191fea78f5de386c2d268b723ecc994220984c669f0c4a68c800d9cdee87c',
+      ruleVersion: 'own-primary-cfs-explicit-absence-v1',
+      absenceLiteral: "※ 해당사항 없습니다.",
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20250319000021',
+      corpCode: '01063237',
+      companyName: "(주)플럼라인생명과학",
+      year: 2024,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20250319000021-cfs-own-explicit-none',
+      manifestDigest:
+          '46fa9af7d54c65d0851fa41f3a36bd7e28024f32f336aae9200a2cd6e993ea26',
+      ruleVersion: 'own-primary-cfs-explicit-absence-v1',
+      absenceLiteral: "보고서 제출일 현재 해당사항 없습니다.",
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240320000847',
+      corpCode: '01063237',
+      companyName: "(주)플럼라인생명과학",
+      year: 2023,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20240320000847-cfs-own-explicit-none',
+      manifestDigest:
+          '7df479d1ad32912f2796b4c2028611378df4f4471eed895091f441727dc488a0',
+      ruleVersion: 'own-primary-cfs-explicit-absence-v1',
+      absenceLiteral: "보고서 제출일 현재 해당사항 없습니다.",
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230322000720',
+      corpCode: '01063237',
+      companyName: "(주)플럼라인생명과학",
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20230322000720-cfs-own-explicit-none',
+      manifestDigest:
+          'e708ed6783f0dfeed3dec959fdfe4980494c7bd21d0de25cbc3373fe44c6801c',
+      ruleVersion: 'own-primary-cfs-explicit-absence-v1',
+      absenceLiteral: "보고서 제출일 현재 해당사항 없습니다.",
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220321001470',
+      corpCode: '01063237',
+      companyName: "(주)플럼라인생명과학",
+      year: 2021,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20220321001470-cfs-own-explicit-none',
+      manifestDigest:
+          '929657b2e5b233476d19417381a7d18f4b1f8c2f429dbb8228911fb97372aac8',
+      ruleVersion: 'own-primary-cfs-explicit-absence-v1',
+      absenceLiteral: "보고서 제출일 현재 해당사항 없습니다.",
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20240401003353',
+      corpCode: '01497373',
+      companyName: "주식회사 아이엠비디엑스",
+      year: 2023,
+      basis: FsDiv.consolidated,
+      assetDirectory:
+          'assets/financial_source_cache/20240401003353-cfs-own-explicit-none',
+      manifestDigest:
+          'd99ba2c3e3d15872c1e98e0293a3ab35b6a28eaf87018195459b90549aa560e6',
+      ruleVersion: 'own-primary-cfs-explicit-absence-v1',
+      absenceLiteral: "당사는 연결재무제표 작성대상법인에 해당하지 않습니다.",
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20230103000440',
       corpCode: '01507810',
       companyName: '애니메디솔루션(주)',

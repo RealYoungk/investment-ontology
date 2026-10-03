@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20220321001470",
+  "corpCode": "01063237",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "ruleVersion": "own-primary-cfs-explicit-absence-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220321001470",
+      "sha256": "10dee1802df045a5fdd097df261f3e9804ec4403550ea0343521d5e338442043"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220321001470&dcmNo=8487485&eleId=1&offset=800&length=4011&dtd=dart3.xsd",
+      "sha256": "96bc429075624d87a081ea282562ce29e45f24e815787fe8198c51bdbfcb85ab"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220321001470&dcmNo=8487485&eleId=19&offset=191398&length=149&dtd=dart3.xsd",
+      "sha256": "f6853a3ea71efdc169bc61863a7d5a7d638d77042d59de25bd0408f69b89cee7"
+    }
+  ],
+  "retrievalProof": "Own cover printed fiscal interval, own shell corp plus unique cover/CFS nodes and all actual URI/SHA checked independently. Whole own CFS body has explicit absence, unchanged default parser returns typed absence. No numeric report, no OFS transplant, no synthetic API noData; all own cached raw, newGET/API/DB0.",
+  "absenceEvidence": "보고서 제출일 현재 해당사항 없습니다."
+}
