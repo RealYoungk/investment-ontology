@@ -21,6 +21,8 @@ void main() {
       basis,
     )!;
     final partial = e.ruleVersion == LocatedOwnCurrentSource.partialRule;
+    final printedLoss =
+        e.ruleVersion == LocatedOwnCurrentSource.printedLossRule;
     final count = partial ? 7 : 8;
     final m = jsonDecode(
       File('${e.assetDirectory}/manifest.json').readAsStringSync(),
@@ -234,16 +236,43 @@ void main() {
           isNull,
         );
 
+        if (printedLoss) {
+          final changed = jsonDecode(jsonEncode(result.numeric!.rows)) as List;
+          Map<String, dynamic>? scoped(List list) =>
+              LocatedOwnCurrentSource.storedScope(
+                rows: [for (final r in list) Map<String, dynamic>.from(r)],
+                receipt: result.numeric!.sourceReceipt,
+                corp: e.corpCode,
+                companyName: e.companyName,
+                consolidated: false,
+                source: result.numeric!.statementSource,
+                digest: result.numeric!.sourceDigest,
+              );
+          changed[4]['thstrm_amount'] = '1541424780';
+          expect(scoped(changed), isNull);
+          changed[4]['thstrm_amount'] = '-1541424780';
+          changed[4]['html_provenance']['currentColumn'] = 99;
+          expect(scoped(changed), isNull);
+          changed[4]['html_provenance']['currentColumn'] =
+              m['core'][4]['column'];
+          changed[4]['html_provenance']['signNormalization'] = 'none';
+          expect(scoped(changed), isNull);
+        }
         for (var i = 0; i < count; i++) {
           final row = result.numeric!.rows[i], c = m['core'][i] as Map;
           final provenance = row['html_provenance'] as Map;
           expect(row['account_nm'], c['label']);
           expect(
             row['thstrm_amount'],
-            (c['literal'] as String)
-                .replaceAll(',', '')
-                .replaceAll('(', '-')
-                .replaceAll(')', ''),
+            (printedLoss &&
+                        c['signNormalization'] ==
+                            'explicitPrintedLossMagnitudeCorroborated'
+                    ? '-'
+                    : '') +
+                (c['literal'] as String)
+                    .replaceAll(',', '')
+                    .replaceAll('(', '-')
+                    .replaceAll(')', ''),
           );
           expect(row['rcept_no'], m['sourceReceipt']);
           expect(
@@ -255,6 +284,21 @@ void main() {
           expect(provenance['rowIndex'], c['row']);
           expect(provenance['fullStatementVerified'], false);
           expect(provenance['currentCore8'], !partial);
+          if (printedLoss) {
+            expect(provenance['signNormalization'], c['signNormalization']);
+            expect(provenance['derivedSignedAmount'], row['thstrm_amount']);
+            expect(
+              provenance['ownIssuerFilingSeriesEvidence'],
+              m['ownIssuerFilingSeriesEvidence'],
+            );
+            expect(
+              provenance['sourceRawAnomalies'],
+              m['unverifiedNonCoreCells'],
+            );
+            expect(provenance['sourceCellRewritten'], false);
+            expect(provenance['printedFxDashIsNumericZero'], false);
+            expect(provenance['sourceMainEquationCount'], 18);
+          }
           if (partial) {
             expect(provenance['partialCore7'], true);
             expect(provenance['missingRequiredAccounts'], ['capex']);
@@ -301,7 +345,7 @@ void main() {
           ),
           true,
         );
-        if (profile['requiresOwnNotes'] == true || partial) {
+        if (profile['requiresOwnNotes'] == true || partial || printedLoss) {
           expect(
             LocatedOwnCurrentSource.sourceEligible(
               receipt: e.receipt,
@@ -329,7 +373,7 @@ void main() {
         }
       },
     );
-    if (profile['requiresOwnNotes'] == true || partial) {
+    if (profile['requiresOwnNotes'] == true || partial || printedLoss) {
       test(
         '${e.receipt}:${basis.name} actual cache rejects wrong period and other basis',
         () async {

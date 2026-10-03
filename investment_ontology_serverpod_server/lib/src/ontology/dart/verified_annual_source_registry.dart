@@ -91,6 +91,18 @@ abstract final class VerifiedAnnualSourceRegistry {
       ruleVersion: 'suntech-2024-own-cfs-source-aware-eight-v1',
       absenceLiteral: null,
     ),
+    AnnualSourceCacheEntry(
+      receipt: '20250407004339',
+      corpCode: '01118643',
+      companyName: '(주)솔루믹스',
+      year: 2024,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20250407004339-ofs-located-own-loss-eight',
+      manifestDigest:
+          '615bc8f19c7d862d4a94756b632665666d9c225117f009e435adeee7aa8116d9',
+      ruleVersion: 'located-own-printed-loss-current-eight-v1',
+      absenceLiteral: null,
+    ),
 
     AnnualSourceCacheEntry(
       receipt: '20230323000123',

@@ -34,7 +34,7 @@ Company company(AnnualSourceCacheEntry e) => Company(
 );
 void main() {
   test('compiled receipt plus basis registry has unique audit identities', () {
-    expect(VerifiedAnnualSourceRegistry.entries.length, 313);
+    expect(VerifiedAnnualSourceRegistry.entries.length, 314);
     expect(
       VerifiedAnnualSourceRegistry.entries
           .map((e) => e.auditReference)
@@ -161,7 +161,9 @@ void main() {
           final n = result.numeric!;
           expect(
             n.sourceReceipt,
-            e.ruleVersion == 'located-own-current-eight-v1'
+            (e.ruleVersion == 'located-own-current-eight-v1' ||
+                    e.ruleVersion ==
+                        'located-own-printed-loss-current-eight-v1')
                 ? manifest['sourceReceipt']
                 : e.ruleVersion == Header18LinkedPrimarySource.primaryRule
                 ? Header18LinkedPrimarySource

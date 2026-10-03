@@ -108,7 +108,8 @@ void main() {
             .where(
               (p) =>
                   p['rule'] == LocatedOwnCurrentSource.rule ||
-                  p['rule'] == LocatedOwnCurrentSource.partialRule,
+                  p['rule'] == LocatedOwnCurrentSource.partialRule ||
+                  p['rule'] == LocatedOwnCurrentSource.printedLossRule,
             )
             .length;
         expect(first.updated, numericCount + (legacyCorasol ? 1 : 0));
@@ -219,6 +220,8 @@ void main() {
           }
           final report = reports.singleWhere((r) => r.fsDiv == basis);
           expect(report.rceptNo, manifest['sourceReceipt']);
+          final printedLoss =
+              entry.ruleVersion == LocatedOwnCurrentSource.printedLossRule;
           final partial =
               entry.ruleVersion == LocatedOwnCurrentSource.partialRule;
           final count = partial ? 7 : 8;
@@ -286,10 +289,15 @@ void main() {
             expect(
               fact.amount,
               BigInt.parse(
-                (c['literal'] as String)
-                    .replaceAll(',', '')
-                    .replaceAll('(', '-')
-                    .replaceAll(')', ''),
+                (printedLoss &&
+                            c['signNormalization'] ==
+                                'explicitPrintedLossMagnitudeCorroborated'
+                        ? '-'
+                        : '') +
+                    (c['literal'] as String)
+                        .replaceAll(',', '')
+                        .replaceAll('(', '-')
+                        .replaceAll(')', ''),
               ),
             );
             expect(fact.sourceId, source.id);
@@ -303,6 +311,21 @@ void main() {
             expect(provenance['fullStatementVerified'], false);
             expect(provenance['detailEnrichmentApproved'], false);
             expect(provenance['currentCore8'], !partial);
+            if (printedLoss) {
+              expect(provenance['signNormalization'], c['signNormalization']);
+              expect(provenance['derivedSignedAmount'], fact.amount.toString());
+              expect(provenance['sourceCellRewritten'], false);
+              expect(
+                provenance['ownIssuerFilingSeriesEvidence'],
+                manifest['ownIssuerFilingSeriesEvidence'],
+              );
+              expect(
+                provenance['sourceRawAnomalies'],
+                manifest['unverifiedNonCoreCells'],
+              );
+              expect(provenance['printedFxDashIsNumericZero'], false);
+              expect(provenance['sourceMainEquationCount'], 18);
+            }
             if (partial) {
               expect(provenance['coreAccountsProvided'], 7);
               expect(provenance['missingRequiredAccounts'], ['capex']);

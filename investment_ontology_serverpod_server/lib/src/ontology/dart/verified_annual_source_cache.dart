@@ -224,6 +224,7 @@ final class VerifiedAnnualSourceCache {
       throw const FormatException('Cached annual manifest digest mismatch');
     }
     if (entry.ruleVersion == LocatedOwnCurrentSource.rule ||
+        entry.ruleVersion == LocatedOwnCurrentSource.printedLossRule ||
         entry.ruleVersion == LocatedOwnCurrentSource.partialRule ||
         entry.ruleVersion == LocatedOwnCurrentSource.absenceRule) {
       return LocatedOwnCurrentSource.verify(
