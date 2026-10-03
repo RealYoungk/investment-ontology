@@ -143,7 +143,8 @@ void main() {
         );
         final payload = jsonDecode(proof!.title) as Map;
         expect(payload['coreRows'], 7);
-        for (final p in payload['coreRowProvenance'] as List) {
+        for (final row in payload['coreRowProvenance'] as List) {
+          final p = row['html_provenance'];
           expect(p['partialCore7'], true);
           expect(p['fullStatementCollected'], false);
           expect(p['detailHierarchyComplete'], false);
