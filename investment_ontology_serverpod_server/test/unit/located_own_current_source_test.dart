@@ -159,6 +159,30 @@ void main() {
             ),
             false,
           );
+          if (profile['requiresBoundedUnverifiedNotes'] == true) {
+            final falseClaim = jsonDecode(jsonEncode(payload)) as Map;
+            falseClaim['coreRowProvenance'][0]['html_provenance']['ownNoteDisagreements'][0]['residual'] =
+                0;
+            expect(
+              LocatedOwnCurrentSource.recordedPartialScope(
+                scoped(falseClaim),
+                report,
+                e.corpCode,
+              ),
+              false,
+            );
+            final notesClaim = jsonDecode(jsonEncode(payload)) as Map;
+            notesClaim['coreRowProvenance'][0]['html_provenance']['notesVerified'] =
+                true;
+            expect(
+              LocatedOwnCurrentSource.recordedPartialScope(
+                scoped(notesClaim),
+                report,
+                e.corpCode,
+              ),
+              false,
+            );
+          }
           final altered = jsonDecode(jsonEncode(payload)) as Map;
           altered['coreRowProvenance'][0]['html_provenance']['currentColumn'] =
               99;
@@ -361,6 +385,28 @@ void main() {
             expect(provenance['crossPrecisionEqualityClaim'], false);
             expect(provenance['roundingCauseInferred'], false);
             expect(provenance['notesVerified'], false);
+          }
+          if (profile['requiresBoundedUnverifiedNotes'] == true) {
+            expect(
+              provenance['supportingUnverifiedNoteSource'],
+              profile['noteURI'],
+            );
+            expect(
+              provenance['supportingUnverifiedNoteSha256'],
+              profile['noteSHA'],
+            );
+            expect(
+              provenance['ownNoteDisagreements'],
+              m['ownNoteDisagreements'],
+            );
+            expect(
+              provenance['ownNoteCrossPrecisionResiduals'],
+              m['ownNoteCrossPrecisionResiduals'],
+            );
+            expect(provenance['independentCFNetIncomePrinted'], false);
+            expect(provenance['independentCFNetIncomeExact'], false);
+            expect(provenance['mainNetIncomePLCEExact'], true);
+            expect(provenance['unresolvedOwnNoteDetailConflict'], true);
           }
           expect(provenance['detailEnrichmentApproved'], false);
           expect(

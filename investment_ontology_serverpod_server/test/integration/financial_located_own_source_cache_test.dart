@@ -309,6 +309,28 @@ void main() {
             expect(provenance['tableIndex'], c['table']);
             expect(provenance['rowIndex'], c['row']);
             expect(provenance['fullStatementVerified'], false);
+            if (profile['requiresBoundedUnverifiedNotes'] == true) {
+              expect(
+                provenance['supportingUnverifiedNoteSource'],
+                profile['noteURI'],
+              );
+              expect(
+                provenance['supportingUnverifiedNoteSha256'],
+                profile['noteSHA'],
+              );
+              expect(
+                provenance['ownNoteDisagreements'],
+                manifest['ownNoteDisagreements'],
+              );
+              expect(
+                provenance['ownNoteCrossPrecisionResiduals'],
+                manifest['ownNoteCrossPrecisionResiduals'],
+              );
+              expect(provenance['independentCFNetIncomePrinted'], false);
+              expect(provenance['independentCFNetIncomeExact'], false);
+              expect(provenance['mainNetIncomePLCEExact'], true);
+              expect(provenance['unresolvedOwnNoteDetailConflict'], true);
+            }
             expect(provenance['detailEnrichmentApproved'], false);
             expect(provenance['currentCore8'], !partial);
             if (printedLoss) {

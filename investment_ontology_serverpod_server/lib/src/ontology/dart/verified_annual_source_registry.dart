@@ -104,6 +104,20 @@ abstract final class VerifiedAnnualSourceRegistry {
       absenceLiteral: null,
     ),
     AnnualSourceCacheEntry(
+      receipt: '20260323001293',
+      corpCode: '00541862',
+      companyName: '(주)판도라티비',
+      year: 2025,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20260323001293-ofs-located-own-seven',
+      manifestDigest:
+          '0e00d65b64e8815caca8dbcb96e10e412c8899ea52232729c44c7cddabd06542',
+      ruleVersion: 'located-own-current-seven-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20250407004339',
       corpCode: '01118643',
       companyName: '(주)솔루믹스',

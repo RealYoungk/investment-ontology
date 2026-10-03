@@ -601,5 +601,724 @@
         "signNormalization": "none"
       }
     ]
+  },
+  {
+    "receipt": "20260323001293",
+    "sourceReceipt": "20260323001293",
+    "corp": "00541862",
+    "name": "(주)판도라티비",
+    "year": 2025,
+    "basis": "separate",
+    "rule": "located-own-current-seven-v1",
+    "directory": "assets/financial_source_cache/20260323001293-ofs-located-own-seven",
+    "digest": "0e00d65b64e8815caca8dbcb96e10e412c8899ea52232729c44c7cddabd06542",
+    "sourceDigest": "4768abd1f044566489b2e05794e422b920f50ad4f525d90436285c24f5ac7341",
+    "statementURI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323001293&dcmNo=11166834&eleId=21&offset=578017&length=44326&dtd=dart4.xsd",
+    "statementSHA": "e2ee5952f63fafc3ebfbb65034aa053dbaa250b5edc550b29d5359a3a510b9d5",
+    "periodStart": "2025-01-01",
+    "periodEnd": "2025-12-31",
+    "coverPeriodTokens": [
+      "2025년01월01일",
+      "2025년12월31일"
+    ],
+    "requiresBoundedUnverifiedNotes": true,
+    "noteURI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323001293&dcmNo=11166834&eleId=22&offset=622347&length=322014&dtd=dart4.xsd",
+    "noteSHA": "8f9edcc77d8009e9a6cce2a1e228b33834050842b8aa80cca2ed1d40c30f2a82",
+    "ownNoteDisagreements": [
+      {
+        "label": "generation",
+        "column": 1,
+        "total": {
+          "table": 183,
+          "row": 31,
+          "column": 1,
+          "label": "영업으로부터창출된현금",
+          "literal": "(1,738,775)"
+        },
+        "terms": [
+          {
+            "table": 183,
+            "row": 1,
+            "column": 1,
+            "label": "당기순손익",
+            "literal": "(247,983)",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 2,
+            "column": 1,
+            "label": "조정:",
+            "literal": "969,524",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 20,
+            "column": 1,
+            "label": "운전자본의변동",
+            "literal": "(2,460,315)",
+            "coefficient": 1
+          }
+        ],
+        "omittedPrintedDashCells": [],
+        "residual": -1,
+        "unit": "천원",
+        "dashIsNumericFact": false
+      },
+      {
+        "label": "adjustments",
+        "column": 1,
+        "total": {
+          "table": 183,
+          "row": 2,
+          "column": 1,
+          "label": "조정:",
+          "literal": "969,524"
+        },
+        "terms": [
+          {
+            "table": 183,
+            "row": 3,
+            "column": 1,
+            "label": "감가상각비",
+            "literal": "279,319",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 4,
+            "column": 1,
+            "label": "대손상각비",
+            "literal": "38,879",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 5,
+            "column": 1,
+            "label": "무형자산상각비",
+            "literal": "25,260",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 6,
+            "column": 1,
+            "label": "외화환산손실",
+            "literal": "15,071",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 7,
+            "column": 1,
+            "label": "이자비용",
+            "literal": "219,657",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 8,
+            "column": 1,
+            "label": "당기손익-공정가치측정금융자산평가손실",
+            "literal": "4,294",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 9,
+            "column": 1,
+            "label": "당기손익-공정가치측정금융자산처분손실",
+            "literal": "33,013",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 10,
+            "column": 1,
+            "label": "무형자산처분손실",
+            "literal": "200",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 11,
+            "column": 1,
+            "label": "무형자산손상차손",
+            "literal": "469,371",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 12,
+            "column": 1,
+            "label": "종속기업투자감액손실",
+            "literal": "500,000",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 13,
+            "column": 1,
+            "label": "외화환산이익",
+            "literal": "(51,319)",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 14,
+            "column": 1,
+            "label": "이자수익",
+            "literal": "(60,033)",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 15,
+            "column": 1,
+            "label": "배당금수익",
+            "literal": "(452,620)",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 16,
+            "column": 1,
+            "label": "당기손익-공정가치측정금융자산평가이익",
+            "literal": "(44,539)",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 17,
+            "column": 1,
+            "label": "당기손익-공정가치측정금융자산처분이익",
+            "literal": "(6,943)",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 18,
+            "column": 1,
+            "label": "무형자산처분이익",
+            "literal": "(86)",
+            "coefficient": 1
+          }
+        ],
+        "omittedPrintedDashCells": [
+          {
+            "table": 183,
+            "row": 19,
+            "column": 1,
+            "label": "기타",
+            "literal": "-"
+          }
+        ],
+        "residual": 0,
+        "unit": "천원",
+        "dashIsNumericFact": false
+      },
+      {
+        "label": "workingCapital",
+        "column": 1,
+        "total": {
+          "table": 183,
+          "row": 20,
+          "column": 1,
+          "label": "운전자본의변동",
+          "literal": "(2,460,315)"
+        },
+        "terms": [
+          {
+            "table": 183,
+            "row": 21,
+            "column": 1,
+            "label": "매출채권의증감",
+            "literal": "(2,566,790)",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 22,
+            "column": 1,
+            "label": "미수금의증감",
+            "literal": "43,248",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 23,
+            "column": 1,
+            "label": "선급금의증감",
+            "literal": "(3,753)",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 24,
+            "column": 1,
+            "label": "선급비용의증감",
+            "literal": "21,348",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 25,
+            "column": 1,
+            "label": "매입채무의증감",
+            "literal": "29",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 26,
+            "column": 1,
+            "label": "미지급금의증감",
+            "literal": "11,231",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 27,
+            "column": 1,
+            "label": "예수금의증감",
+            "literal": "2,098",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 28,
+            "column": 1,
+            "label": "선수금의증감",
+            "literal": "(715)",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 29,
+            "column": 1,
+            "label": "미지급비용의증감",
+            "literal": "(2,212)",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 30,
+            "column": 1,
+            "label": "선수수익의증감",
+            "literal": "35,200",
+            "coefficient": 1
+          }
+        ],
+        "omittedPrintedDashCells": [],
+        "residual": 1,
+        "unit": "천원",
+        "dashIsNumericFact": false
+      },
+      {
+        "label": "generation",
+        "column": 2,
+        "total": {
+          "table": 183,
+          "row": 31,
+          "column": 2,
+          "label": "영업으로부터창출된현금",
+          "literal": "780,210"
+        },
+        "terms": [
+          {
+            "table": 183,
+            "row": 1,
+            "column": 2,
+            "label": "당기순손익",
+            "literal": "1,727,119",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 2,
+            "column": 2,
+            "label": "조정:",
+            "literal": "339,272",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 20,
+            "column": 2,
+            "label": "운전자본의변동",
+            "literal": "(1,286,181)",
+            "coefficient": 1
+          }
+        ],
+        "omittedPrintedDashCells": [],
+        "residual": 0,
+        "unit": "천원",
+        "dashIsNumericFact": false
+      },
+      {
+        "label": "adjustments",
+        "column": 2,
+        "total": {
+          "table": 183,
+          "row": 2,
+          "column": 2,
+          "label": "조정:",
+          "literal": "339,272"
+        },
+        "terms": [
+          {
+            "table": 183,
+            "row": 3,
+            "column": 2,
+            "label": "감가상각비",
+            "literal": "492,679",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 4,
+            "column": 2,
+            "label": "대손상각비",
+            "literal": "926,959",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 5,
+            "column": 2,
+            "label": "무형자산상각비",
+            "literal": "80,972",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 7,
+            "column": 2,
+            "label": "이자비용",
+            "literal": "70,086",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 8,
+            "column": 2,
+            "label": "당기손익-공정가치측정금융자산평가손실",
+            "literal": "17,687",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 11,
+            "column": 2,
+            "label": "무형자산손상차손",
+            "literal": "58,990",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 13,
+            "column": 2,
+            "label": "외화환산이익",
+            "literal": "(244,487)",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 14,
+            "column": 2,
+            "label": "이자수익",
+            "literal": "(220,792)",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 15,
+            "column": 2,
+            "label": "배당금수익",
+            "literal": "(721,047)",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 16,
+            "column": 2,
+            "label": "당기손익-공정가치측정금융자산평가이익",
+            "literal": "(81,039)",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 19,
+            "column": 2,
+            "label": "기타",
+            "literal": "(40,735)",
+            "coefficient": 1
+          }
+        ],
+        "omittedPrintedDashCells": [
+          {
+            "table": 183,
+            "row": 6,
+            "column": 2,
+            "label": "외화환산손실",
+            "literal": "-"
+          },
+          {
+            "table": 183,
+            "row": 9,
+            "column": 2,
+            "label": "당기손익-공정가치측정금융자산처분손실",
+            "literal": "-"
+          },
+          {
+            "table": 183,
+            "row": 10,
+            "column": 2,
+            "label": "무형자산처분손실",
+            "literal": "-"
+          },
+          {
+            "table": 183,
+            "row": 12,
+            "column": 2,
+            "label": "종속기업투자감액손실",
+            "literal": "-"
+          },
+          {
+            "table": 183,
+            "row": 17,
+            "column": 2,
+            "label": "당기손익-공정가치측정금융자산처분이익",
+            "literal": "-"
+          },
+          {
+            "table": 183,
+            "row": 18,
+            "column": 2,
+            "label": "무형자산처분이익",
+            "literal": "-"
+          }
+        ],
+        "residual": -1,
+        "unit": "천원",
+        "dashIsNumericFact": false
+      },
+      {
+        "label": "workingCapital",
+        "column": 2,
+        "total": {
+          "table": 183,
+          "row": 20,
+          "column": 2,
+          "label": "운전자본의변동",
+          "literal": "(1,286,181)"
+        },
+        "terms": [
+          {
+            "table": 183,
+            "row": 21,
+            "column": 2,
+            "label": "매출채권의증감",
+            "literal": "(1,375,292)",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 22,
+            "column": 2,
+            "label": "미수금의증감",
+            "literal": "114,357",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 23,
+            "column": 2,
+            "label": "선급금의증감",
+            "literal": "9,466",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 24,
+            "column": 2,
+            "label": "선급비용의증감",
+            "literal": "(1,039)",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 25,
+            "column": 2,
+            "label": "매입채무의증감",
+            "literal": "(17,977)",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 26,
+            "column": 2,
+            "label": "미지급금의증감",
+            "literal": "(4,802)",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 27,
+            "column": 2,
+            "label": "예수금의증감",
+            "literal": "992",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 28,
+            "column": 2,
+            "label": "선수금의증감",
+            "literal": "715",
+            "coefficient": 1
+          },
+          {
+            "table": 183,
+            "row": 29,
+            "column": 2,
+            "label": "미지급비용의증감",
+            "literal": "(12,603)",
+            "coefficient": 1
+          }
+        ],
+        "omittedPrintedDashCells": [
+          {
+            "table": 183,
+            "row": 30,
+            "column": 2,
+            "label": "선수수익의증감",
+            "literal": "-"
+          }
+        ],
+        "residual": 2,
+        "unit": "천원",
+        "dashIsNumericFact": false
+      }
+    ],
+    "ownNoteCrossPrecisionResiduals": [
+      {
+        "label": "currentNI_mainWon_minusNoteThousand",
+        "main": {
+          "table": 4,
+          "row": 12,
+          "column": 3,
+          "label": "Ⅵ.당기순이익(손실)",
+          "literal": "(247,983,169)",
+          "value": -247983169,
+          "key": "netIncome",
+          "kind": "CIS"
+        },
+        "note": {
+          "table": 183,
+          "row": 1,
+          "column": 1,
+          "label": "당기순손익",
+          "literal": "(247,983)"
+        },
+        "notePrintedUnit": "천원",
+        "noteUnitMultiplier": 1000,
+        "residual": -169
+      },
+      {
+        "label": "currentGeneratedCash_mainWon_minusNoteThousand",
+        "main": {
+          "table": 10,
+          "row": 2,
+          "column": 2,
+          "label": "영업으로부터창출된현금흐름",
+          "literal": "(1,738,775,092)"
+        },
+        "note": {
+          "table": 183,
+          "row": 31,
+          "column": 1,
+          "label": "영업으로부터창출된현금",
+          "literal": "(1,738,775)"
+        },
+        "notePrintedUnit": "천원",
+        "noteUnitMultiplier": 1000,
+        "residual": -92
+      }
+    ],
+    "coreCells": [
+      {
+        "table": 1,
+        "row": 15,
+        "column": 2,
+        "label": "자산총계",
+        "literal": "24,269,242,057",
+        "value": 24269242057,
+        "key": "assets",
+        "kind": "BS"
+      },
+      {
+        "table": 1,
+        "row": 26,
+        "column": 2,
+        "label": "부채총계",
+        "literal": "9,899,013,382",
+        "value": 9899013382,
+        "key": "liabilities",
+        "kind": "BS"
+      },
+      {
+        "table": 1,
+        "row": 33,
+        "column": 2,
+        "label": "자본총계",
+        "literal": "14,370,228,675",
+        "value": 14370228675,
+        "key": "equity",
+        "kind": "BS"
+      },
+      {
+        "table": 4,
+        "row": 1,
+        "column": 3,
+        "label": "Ⅰ.매출액",
+        "literal": "4,006,707,694",
+        "value": 4006707694,
+        "key": "revenue",
+        "kind": "CIS"
+      },
+      {
+        "table": 4,
+        "row": 5,
+        "column": 3,
+        "label": "Ⅳ.영업이익(손실)",
+        "literal": "451,405,935",
+        "value": 451405935,
+        "key": "operatingIncome",
+        "kind": "CIS"
+      },
+      {
+        "table": 4,
+        "row": 12,
+        "column": 3,
+        "label": "Ⅵ.당기순이익(손실)",
+        "literal": "(247,983,169)",
+        "value": -247983169,
+        "key": "netIncome",
+        "kind": "CIS"
+      },
+      {
+        "table": 10,
+        "row": 1,
+        "column": 2,
+        "label": "Ⅰ.영업활동으로인한현금흐름",
+        "literal": "(1,357,231,951)",
+        "value": -1357231951,
+        "key": "operatingCashFlow",
+        "kind": "CF"
+      }
+    ]
   }
 ]
