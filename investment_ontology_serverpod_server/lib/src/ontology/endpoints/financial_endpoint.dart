@@ -1,4 +1,5 @@
 import '../dart/isung_current_seven_source.dart';
+import '../dart/known_annual_source_not_presented.dart';
 
 import 'dart:convert';
 
@@ -225,6 +226,33 @@ class FinancialEndpoint extends Endpoint {
           );
     final pending = activePendingFilingCount(companyFilings);
 
+    final active = FinancialFactsSync.financialScopeIds(companyFilings);
+    final availabilitySources = <Source>[];
+    for (final f in companyFilings.where(
+      (f) =>
+          active.contains(f.id) &&
+          f.rceptNo == KnownAnnualSourcesNotPresented.receipt,
+    )) {
+      for (final div in FsDiv.values) {
+        if (!KnownAnnualNotPresentedCache.eligible(f, company, div)) continue;
+        final source = await Source.db.findFirstRow(
+          session,
+          where: (t) => t.reference.equals(
+            'financial-source-not-presented:${f.rceptNo}:${div.name}',
+          ),
+        );
+        if (source != null &&
+            KnownAnnualSourcesNotPresented.validFailureSource(
+              source,
+              f,
+              company,
+              div,
+            )) {
+          availabilitySources.add(source);
+        }
+      }
+    }
+
     return CompanyFinancials(
       corpCode: corpCode,
       fsDiv: chosen,
@@ -237,6 +265,7 @@ class FinancialEndpoint extends Endpoint {
       market: await _marketCap(session, company.id!),
       filingCount: filingCount,
       pendingFilingCount: pending,
+      statementAvailabilitySources: availabilitySources,
     );
   }
 

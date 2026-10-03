@@ -10,6 +10,8 @@ normal fallback에해당원문이도달하면별도 `financial-source-not-presen
 
 기존 운영ledger는attempts3의고갈건이므로normal FinancialFactsSync.run에서별도negative-evidence cache를검증한다. 활성scope의exactreceipt/corp/2025annual/failed/attempt>=3 basis만대상이다. manifest와원문6개byteSHA를모두검증하고API/HTTP호출없이분류한다. Source+실패reason갱신은advisorylock/jobrowlock/filingrowlock/최신scope재검사transaction으로원자적이다. failed상태/기존attempt수/금액/기존Source는그대로다. 반복실행은Source존재를확인하여cache읽기/추가쓰기0이다. jobmessage의분류건수만별도로명시하고updated=0을유지한다. cache누락/변조는실패상태를유지하고숫자나완료를만들지않는다.
 
-CompanyFinancials 공개DTO와generated파일은수정하지않았다. 현재summary는실패Source를전달하는필드가없다. 따라서이번커밋을UI원문미제시사유공개완료로주장하지않는다. 정상Serverpod watcher생성경로가열리면별도optional Source목록과exact-scope notice를추가할수있다.
+CompanyFinancials에optional `statementAvailabilitySources: List<Source>?`를추가했다. 정상primary Serverpod watcher가생성한server/client CompanyFinancials2파일만복사했으며generated코드를직접작성하거나forcegenerate하지않았다. 공개summary는현재activefailedledger/corp/basis/receipt/period/exactURL·SHA/미제시proof와일치하는Source만전달한다. UI는2025해당basis원문미제시와수집실패유지를설명하고공식재무제표·감사첨부링크/immutableJSON을제공한다. 320px에서도안내와출처를검증한다. unknown/foreign/sourceConflict/noData/전체검증claim을미제시Source로인정하지않는다.
+
+Generated2파일과.spy의primary동일SHA는외부영구artifact generated-company-financials-provenance.json에보존했다. server/client 각각nonempty/empty/nullSources실제JSONroundtrip검증을수행했다. DB회귀의정상worker→비로그인summary→failedSources/숫자0검사는작성만했으며아직실행하지않았다. 이후속의운영배포나Sourceclassification실행을완료했다고주장하지않는다.
 
 순수원문/cache검증5 PASS,기존sourceConflict순수10 PASS(통합12 PASS에서새2포함). normalAPI0실패감사Source idempotency/opposite보고서·Source·금액불변/attemptcap회귀4cases(normalfallback2+고갈분류·stale-scope2)는작성만했고DB실행하지않았다. 실제원문5fixture와negative-runtime-cache6원문은cover/CFS/OFS 및사전독립감사본문2개,HTTPshell이아니다.

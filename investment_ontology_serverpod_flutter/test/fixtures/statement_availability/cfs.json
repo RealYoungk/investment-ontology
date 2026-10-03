@@ -1,0 +1,30 @@
+{
+  "action": "verified-primary-statements-not-presented",
+  "targetReceipt": "20260324000091",
+  "reportName": "사업보고서 (2025.12)",
+  "corpCode": "00442455",
+  "fsDiv": "consolidated",
+  "evidence": {
+    "receipt": "20260324000091",
+    "corpCode": "00442455",
+    "year": 2025,
+    "consolidated": true,
+    "periodStart": "2025-01-01",
+    "periodEnd": "2025-12-31",
+    "statementSource": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260324000091&dcmNo=11171060&eleId=19&offset=202225&length=131779&dtd=dart4.xsd",
+    "statementSha256": "415e32d72cf2a6f1a9f3fb2f0504cae4f583fe3472fa4c307bd6329d8770d295",
+    "currentNumericCells": 0,
+    "printedUnit": "원",
+    "currentColumn": 1,
+    "financialFactsStored": false,
+    "basisNotApplicable": false,
+    "collectionComplete": false,
+    "notesVerified": false,
+    "independentAuditEvidence": {
+      "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260324000091&dcmNo=11171059&eleId=3&offset=7797&length=5144&dtd=dart4.xsd",
+      "sha256": "ae1ebbd050fe6a75c9130d369958e4eae2c6809b2a70b236917abfae932b5385"
+    }
+  },
+  "status": "failed",
+  "financialFactsStored": false
+}

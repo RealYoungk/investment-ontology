@@ -30,6 +30,77 @@ abstract final class KnownAnnualSourcesNotPresented {
     false: '7a4f64c579187db2da4c1a8bc06ad52a56e626eb402fbaea7b19dabc633e8234',
   };
 
+  static bool validFailureSource(
+    Source source,
+    DartFiling filing,
+    Company company,
+    FsDiv div,
+  ) {
+    if (!KnownAnnualNotPresentedCache.eligible(filing, company, div) ||
+        source.kind != SourceKind.dartReport ||
+        source.reference !=
+            'financial-source-not-presented:${filing.rceptNo}:${div.name}' ||
+        source.url != sources[div == FsDiv.consolidated]) {
+      return false;
+    }
+    try {
+      final j = jsonDecode(source.title);
+      if (j is! Map) return false;
+      final e = j['evidence'];
+      if (e is! Map) return false;
+      final cfs = div == FsDiv.consolidated;
+      final audit = e['independentAuditEvidence'];
+      return j['action'] == 'verified-primary-statements-not-presented' &&
+          j['targetReceipt'] == receipt &&
+          j['corpCode'] == corpCode &&
+          j['fsDiv'] == div.name &&
+          j['reportName'] == filing.reportName &&
+          j['status'] == 'failed' &&
+          j['financialFactsStored'] == false &&
+          e['receipt'] == receipt &&
+          e['corpCode'] == corpCode &&
+          e['year'] == 2025 &&
+          e['consolidated'] == cfs &&
+          e['periodStart'] == '2025-01-01' &&
+          e['periodEnd'] == '2025-12-31' &&
+          e['coverSource'] == coverSource &&
+          e['statementSource'] == sources[cfs] &&
+          e['coverSha256'] == coverSha &&
+          e['statementSha256'] == hashes[cfs] &&
+          e['printedUnit'] == '원' &&
+          e['currentColumn'] == 1 &&
+          e['currentTerm'] == '제 25 기' &&
+          jsonEncode(e['comparativeColumnsNotUsed']) == '[2,3]' &&
+          jsonEncode(e['statementScope']) == '["BS","CIS","CE","CF"]' &&
+          e['currentNumericCells'] == 0 &&
+          e['financialFactsStored'] == false &&
+          e['basisNotApplicable'] == false &&
+          e['collectionComplete'] == false &&
+          e['notesVerified'] == false &&
+          e['fullStatementCollected'] != true &&
+          e['auditAttachmentFetchedThisRun'] == false &&
+          (e['negativeCacheManifestSha256'] == null ||
+              e['negativeCacheManifestSha256'] ==
+                  KnownAnnualNotPresentedCache.manifestSha) &&
+          audit is Map &&
+          audit['reviewedAheadOfTime'] == true &&
+          audit['printedEvidence'] ==
+              (cfs
+                  ? '회사의 경영진은 2025년 12월 31일로 종료되는 연결재무제표를 제시하지 아니함에 따라 동 재무제표를 첨부하지 아니합니다.'
+                  : '회사의 경영진은 2025년 12월 31일로 종료되는 재무제표를 제시하지 아니함에 따라 동 재무제표를 첨부하지 아니합니다.') &&
+          audit['sha256'] ==
+              KnownAnnualNotPresentedCache.pins[cfs
+                  ? 'cfs-audit'
+                  : 'ofs-audit'] &&
+          audit['source'] ==
+              (cfs
+                  ? 'https://dart.fss.or.kr/report/viewer.do?rcpNo=20260324000091&dcmNo=11171059&eleId=3&offset=7797&length=5144&dtd=dart4.xsd'
+                  : 'https://dart.fss.or.kr/report/viewer.do?rcpNo=20260324000091&dcmNo=11171058&eleId=3&offset=8601&length=5761&dtd=dart4.xsd');
+    } on FormatException {
+      return false;
+    }
+  }
+
   static void verify({
     required String receipt,
     required String corpCode,

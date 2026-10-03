@@ -16,6 +16,7 @@ import 'package:serverpod/serverpod.dart' as _is;
 import '../../ontology/models/company_market_cap.dart' as _itup2ouf;
 import '../../ontology/models/financial_period.dart' as _idrk0nnp;
 import '../../ontology/models/fs_div.dart' as _igqrlzji;
+import '../../ontology/models/source.dart' as _i5ra8lvy;
 
 /// 기업 상세의 재무·시세. 파생 지표는 담지 않고 화면에서 원천 값으로 계산한다.
 abstract class CompanyFinancials
@@ -29,6 +30,7 @@ abstract class CompanyFinancials
     required this.filingCount,
     required this.pendingFilingCount,
     this.basisReason,
+    this.statementAvailabilitySources,
   });
 
   factory CompanyFinancials({
@@ -40,6 +42,7 @@ abstract class CompanyFinancials
     required int filingCount,
     required int pendingFilingCount,
     String? basisReason,
+    List<_i5ra8lvy.Source>? statementAvailabilitySources,
   }) = _CompanyFinancialsImpl;
 
   factory CompanyFinancials.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -63,6 +66,12 @@ abstract class CompanyFinancials
       filingCount: jsonSerialization['filingCount'] as int,
       pendingFilingCount: jsonSerialization['pendingFilingCount'] as int,
       basisReason: jsonSerialization['basisReason'] as String?,
+      statementAvailabilitySources:
+          jsonSerialization['statementAvailabilitySources'] == null
+          ? null
+          : _i4yshtjp.Protocol().deserialize<List<_i5ra8lvy.Source>>(
+              jsonSerialization['statementAvailabilitySources'],
+            ),
     );
   }
 
@@ -86,6 +95,9 @@ abstract class CompanyFinancials
   /// 자동 선택 이유 또는 수동 선택
   String? basisReason;
 
+  /// 원문에서 당기 재무제표를 미제시한 실패의 정확한 출처; 완료·금액 대체 아님
+  List<_i5ra8lvy.Source>? statementAvailabilitySources;
+
   /// Returns a shallow copy of this [CompanyFinancials]
   /// with some or all fields replaced by the given arguments.
   @_is.useResult
@@ -98,6 +110,7 @@ abstract class CompanyFinancials
     int? filingCount,
     int? pendingFilingCount,
     String? basisReason,
+    List<_i5ra8lvy.Source>? statementAvailabilitySources,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -111,6 +124,10 @@ abstract class CompanyFinancials
       'filingCount': filingCount,
       'pendingFilingCount': pendingFilingCount,
       if (basisReason != null) 'basisReason': basisReason,
+      if (statementAvailabilitySources != null)
+        'statementAvailabilitySources': statementAvailabilitySources?.toJson(
+          valueToJson: (v) => v.toJson(),
+        ),
     };
   }
 
@@ -126,6 +143,10 @@ abstract class CompanyFinancials
       'filingCount': filingCount,
       'pendingFilingCount': pendingFilingCount,
       if (basisReason != null) 'basisReason': basisReason,
+      if (statementAvailabilitySources != null)
+        'statementAvailabilitySources': statementAvailabilitySources?.toJson(
+          valueToJson: (v) => v.toJsonForProtocol(),
+        ),
     };
   }
 
@@ -147,6 +168,7 @@ class _CompanyFinancialsImpl extends CompanyFinancials {
     required int filingCount,
     required int pendingFilingCount,
     String? basisReason,
+    List<_i5ra8lvy.Source>? statementAvailabilitySources,
   }) : super._(
          corpCode: corpCode,
          fsDiv: fsDiv,
@@ -156,6 +178,7 @@ class _CompanyFinancialsImpl extends CompanyFinancials {
          filingCount: filingCount,
          pendingFilingCount: pendingFilingCount,
          basisReason: basisReason,
+         statementAvailabilitySources: statementAvailabilitySources,
        );
 
   /// Returns a shallow copy of this [CompanyFinancials]
@@ -171,6 +194,7 @@ class _CompanyFinancialsImpl extends CompanyFinancials {
     int? filingCount,
     int? pendingFilingCount,
     Object? basisReason = _Undefined,
+    Object? statementAvailabilitySources = _Undefined,
   }) {
     return CompanyFinancials(
       corpCode: corpCode ?? this.corpCode,
@@ -184,6 +208,12 @@ class _CompanyFinancialsImpl extends CompanyFinancials {
       filingCount: filingCount ?? this.filingCount,
       pendingFilingCount: pendingFilingCount ?? this.pendingFilingCount,
       basisReason: basisReason is String? ? basisReason : this.basisReason,
+      statementAvailabilitySources:
+          statementAvailabilitySources is List<_i5ra8lvy.Source>?
+          ? statementAvailabilitySources
+          : this.statementAvailabilitySources
+                ?.map((e0) => e0.copyWith())
+                .toList(),
     );
   }
 }
