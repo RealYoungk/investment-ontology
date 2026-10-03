@@ -21,6 +21,11 @@ void main() {
       ('20220310001159', FsDiv.consolidated, 204),
       ('20230321000015', FsDiv.separate, 115),
       ('20220310001159', FsDiv.separate, 174),
+      ('20240320001114', FsDiv.separate, 103),
+      ('20250314001145', FsDiv.separate, 91),
+      ('20250321000964', FsDiv.separate, 166),
+      ('20250321001653', FsDiv.consolidated, 105),
+      ('20250321001825', FsDiv.separate, 94),
     ]) {
       for (final scenario in [
         'normal-worker-idempotent',

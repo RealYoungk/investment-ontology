@@ -1,3 +1,4 @@
+import 'exact_current_row_profiles.dart';
 import 'anymedi_audit_period_source.dart';
 import 'sk_square_short_annual_source.dart';
 import 'exact_aone_annual_source.dart';
@@ -144,7 +145,7 @@ final class VerifiedAnnualSourceCache {
     return _verifyBound(entry, filing, company, basis);
   }
 
-  /// Existing reports may be enriched only for these two independently bound
+  /// Existing reports may be enriched only for these independently bound
   /// current-row packages. The normal failed/pending replay gate is unchanged.
   Future<PublicFinancialHtmlSource> verifyExistingRows(
     DartFiling filing,
@@ -156,7 +157,8 @@ final class VerifiedAnnualSourceCache {
         (const {'20250320000036', '20230321000015'}.contains(filing.rceptNo) &&
             basis == FsDiv.separate) ||
         (filing.rceptNo == '20220310001159' &&
-            (basis == FsDiv.consolidated || basis == FsDiv.separate));
+            (basis == FsDiv.consolidated || basis == FsDiv.separate)) ||
+        ExactCurrentRowProfiles.find(filing.rceptNo, basis) != null;
     final report = DartReportName.parse(filing.reportName);
     if (!exact ||
         filing.corpCode != entry.corpCode ||

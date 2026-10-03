@@ -4,9 +4,10 @@ import 'package:crypto/crypto.dart';
 
 import '../../generated/protocol.dart';
 import 'public_financial_html_fetch.dart';
+import 'exact_current_row_profiles.dart';
 import 'verified_annual_source_cache.dart';
 
-/// A source-coordinate ledger for four exact current primary statement sources.
+/// A source-coordinate ledger for nine exact current primary statement sources.
 /// Whole filing/notes and historical comparative coverage are not asserted.
 final class ExactStatementRows {
   ExactStatementRows._(
@@ -39,12 +40,14 @@ final class ExactStatementRows {
     '20250320000036',
     '20230321000015',
     '20220310001159',
+    ...ExactCurrentRowProfiles.receipts,
   };
   static bool eligible(String receipt, FsDiv basis) =>
       (const {'20250320000036', '20230321000015'}.contains(receipt) &&
           basis == FsDiv.separate) ||
       (receipt == '20220310001159' &&
-          (basis == FsDiv.consolidated || basis == FsDiv.separate));
+          (basis == FsDiv.consolidated || basis == FsDiv.separate)) ||
+      ExactCurrentRowProfiles.find(receipt, basis) != null;
 
   static Future<ExactStatementRows> prepare(
     DartFiling filing,
@@ -57,19 +60,22 @@ final class ExactStatementRows {
     }
     final primary = await VerifiedAnnualSourceCache(readAsset: readAsset)
         .verifyExistingRows(filing, company, basis);
+    final extra = ExactCurrentRowProfiles.find(filing.rceptNo, basis);
     final aone = filing.rceptNo != '20220310001159';
     final samsungSeparate = !aone && basis == FsDiv.separate;
-    final expectedSha = switch (filing.rceptNo) {
-      '20230321000015' =>
-        '076f4b6fdde741e5532978dd718877fc76f4a5259a176f2eeffe29e70fe9748a',
-      '20250320000036' =>
-        '3d6e6c42e2ca18af9e0bdc9c141c659ed6b5ebcbb0afd6b3a02f41024a91d117',
-      '20220310001159' when samsungSeparate =>
-        '05d682e305415fba8d7a09d782d3a9185b93417db830a59bf0f03cb652138aa2',
-      '20220310001159' =>
-        '48a5a3b134b1f86a9fe8d06322c28095d9ec497164703fcd50be06918b6badc6',
-      _ => throw const FormatException('Unapproved exact row digest'),
-    };
+    final expectedSha =
+        extra?.sha ??
+        switch (filing.rceptNo) {
+          '20230321000015' =>
+            '076f4b6fdde741e5532978dd718877fc76f4a5259a176f2eeffe29e70fe9748a',
+          '20250320000036' =>
+            '3d6e6c42e2ca18af9e0bdc9c141c659ed6b5ebcbb0afd6b3a02f41024a91d117',
+          '20220310001159' when samsungSeparate =>
+            '05d682e305415fba8d7a09d782d3a9185b93417db830a59bf0f03cb652138aa2',
+          '20220310001159' =>
+            '48a5a3b134b1f86a9fe8d06322c28095d9ec497164703fcd50be06918b6badc6',
+          _ => throw const FormatException('Unapproved exact row digest'),
+        };
     if (sha256.convert(utf8.encode(primary.statementHtml)).toString() !=
         expectedSha) {
       throw const FormatException('Exact row body digest mismatch');
@@ -90,40 +96,43 @@ final class ExactStatementRows {
             )
             .toList();
     if (tables.length !=
-        (aone
-            ? 16
-            : samsungSeparate
-            ? 10
-            : 8)) {
+        (extra?.tableCount ??
+            (aone
+                ? 16
+                : samsungSeparate
+                ? 10
+                : 8))) {
       throw const FormatException('Exact row table layout mismatch');
     }
-    final mappings = switch (filing.rceptNo) {
-      '20230321000015' => [
-        ('BS', 3, 1, 46, [2]),
-        ('CIS', 7, 1, 25, [2]),
-        ('SCE', 11, 15, 22, [1, 2, 3, 4, 5]),
-        ('CF', 15, 1, 80, [1]),
-      ],
-      '20250320000036' => [
-        ('BS', 3, 1, 39, [2]),
-        ('CIS', 7, 1, 24, [2]),
-        ('SCE', 11, 13, 18, [1, 2, 3, 4, 5]),
-        ('CF', 15, 1, 77, [1]),
-      ],
-      '20220310001159' when samsungSeparate => [
-        ('BS', 1, 1, 40, [1, 2]),
-        ('CIS', 3, 1, 56, [1, 2]),
-        ('SCE', 5, 19, 28, [1, 2, 3, 4, 5, 6]),
-        ('CF', 7, 1, 88, [1, 2]),
-      ],
-      '20220310001159' => [
-        ('BS', 1, 1, 43, [1, 2]),
-        ('CIS', 3, 1, 69, [1, 2]),
-        ('SCE', 5, 24, 35, [1, 2, 3, 4, 5, 6, 7]),
-        ('CF', 7, 1, 90, [1, 2]),
-      ],
-      _ => throw const FormatException('Unapproved exact row mapping'),
-    };
+    final mappings =
+        extra?.mappings ??
+        switch (filing.rceptNo) {
+          '20230321000015' => [
+            ('BS', 3, 1, 46, [2]),
+            ('CIS', 7, 1, 25, [2]),
+            ('SCE', 11, 15, 22, [1, 2, 3, 4, 5]),
+            ('CF', 15, 1, 80, [1]),
+          ],
+          '20250320000036' => [
+            ('BS', 3, 1, 39, [2]),
+            ('CIS', 7, 1, 24, [2]),
+            ('SCE', 11, 13, 18, [1, 2, 3, 4, 5]),
+            ('CF', 15, 1, 77, [1]),
+          ],
+          '20220310001159' when samsungSeparate => [
+            ('BS', 1, 1, 40, [1, 2]),
+            ('CIS', 3, 1, 56, [1, 2]),
+            ('SCE', 5, 19, 28, [1, 2, 3, 4, 5, 6]),
+            ('CF', 7, 1, 88, [1, 2]),
+          ],
+          '20220310001159' => [
+            ('BS', 1, 1, 43, [1, 2]),
+            ('CIS', 3, 1, 69, [1, 2]),
+            ('SCE', 5, 24, 35, [1, 2, 3, 4, 5, 6, 7]),
+            ('CF', 7, 1, 90, [1, 2]),
+          ],
+          _ => throw const FormatException('Unapproved exact row mapping'),
+        };
     final rows = <Map<String, dynamic>>[], ledger = <Map<String, dynamic>>[];
     final consumedCore = <int>{};
     final from = '${filing.bsnsYear}-01-01', to = '${filing.bsnsYear}-12-31';
@@ -132,17 +141,45 @@ final class ExactStatementRows {
       if (table.length != end) {
         throw const FormatException('Exact row count changed');
       }
-      final details = aone || samsungSeparate
-          ? table.first.skip(1).toList()
-          : [
-              for (var col = 1; col <= 7; col++)
-                col <= 5
-                    ? '${table[0][1]} > ${table[1][col - 1]}'
-                    : table[0][col == 6 ? 2 : 3],
-            ];
+      final details =
+          extra?.ceDetails ??
+          (aone || samsungSeparate
+              ? table.first.skip(1).toList()
+              : [
+                  for (var col = 1; col <= 7; col++)
+                    col <= 5
+                        ? '${table[0][1]} > ${table[1][col - 1]}'
+                        : table[0][col == 6 ? 2 : 3],
+                ]);
       for (var ri = first; ri < end; ri++) {
         final raw = table[ri];
         final label = raw.first;
+        if (extra?.labelOnlyRows.contains((ti, ri)) ?? false) {
+          if (raw.length != 1) {
+            throw const FormatException('Exact label-only row layout mismatch');
+          }
+          ledger.add({
+            'statement': kind,
+            'tableIndex': ti,
+            'rowIndex': ri,
+            'columns': <int>[],
+            'printedLabel': label,
+            'rawRow': raw,
+            'currentHeader': table.first,
+            'printedCurrentCells': <String>[],
+            'basis': basis.name,
+            'periodStart': from,
+            'periodEnd': to,
+            'unit': '원',
+            'printedTableUnit': '원',
+            'printedUnitEvidence': tables[ti - 1].last.last,
+            'source': primary.statementSource.toString(),
+            'sha256': expectedSha,
+            'state': 'structural-label-only',
+            'amount': null,
+          });
+          continue;
+        }
         final selected = [for (final col in columns) raw[col]];
         final eps = kind == 'CIS' && label.contains('주당');
         // Each CE component is a separate directly printed coordinate.
