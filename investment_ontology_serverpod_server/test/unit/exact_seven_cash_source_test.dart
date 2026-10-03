@@ -106,31 +106,51 @@ void main() {
       'name',
       'basis',
     ]) {
-      test('$receipt wrong $bad rejected', () async {
-        final f = filing(entry);
-        Company? c;
-        var basis = FsDiv.separate;
-        switch (bad) {
-          case 'corp':
-            f.corpCode = '00000000';
-          case 'year':
-            f.bsnsYear = 2023;
-          case 'kind':
-            f.reportCode = FinancialReportCode.halfYear;
-          case 'period':
-            f.reportName = '사업보고서 (2022.06)';
-          case 'receipt':
-            f.rceptNo = '20230323001438';
-          case 'name':
-            c = company(entry).copyWith(name: '다른회사');
-          case 'basis':
-            basis = FsDiv.consolidated;
-        }
-        await expectLater(
-          verify(target: f, owner: c, basis: basis),
-          throwsFormatException,
-        );
-      });
+      test(
+        bad == 'basis' && receipt == '20230315000894'
+            ? '$receipt independent CFS absence never borrows OFS numbers'
+            : '$receipt wrong $bad rejected',
+        () async {
+          final f = filing(entry);
+          Company? c;
+          var basis = FsDiv.separate;
+          switch (bad) {
+            case 'corp':
+              f.corpCode = '00000000';
+            case 'year':
+              f.bsnsYear = 2023;
+            case 'kind':
+              f.reportCode = FinancialReportCode.halfYear;
+            case 'period':
+              f.reportName = '사업보고서 (2022.06)';
+            case 'receipt':
+              f.rceptNo = '20230323001438';
+            case 'name':
+              c = company(entry).copyWith(name: '다른회사');
+            case 'basis':
+              basis = FsDiv.consolidated;
+          }
+          if (bad == 'basis' && receipt == '20230315000894') {
+            final result = await verify(target: f, owner: c, basis: basis);
+            expect(result.numeric, isNull);
+            final absence = result.absence!;
+            final opposite = VerifiedAnnualSourceRegistry.find(
+              receipt,
+              FsDiv.consolidated,
+            )!;
+            expect(absence.corpCode, opposite.corpCode);
+            expect(absence.periodStart, opposite.periodStart);
+            expect(absence.periodEnd, opposite.periodEnd);
+            expect(absence.sourceReceipt, opposite.receipt);
+            expect(absence.evidence, opposite.absenceLiteral);
+          } else {
+            await expectLater(
+              verify(target: f, owner: c, basis: basis),
+              throwsFormatException,
+            );
+          }
+        },
+      );
     }
     test(
       '$receipt unit/period/NI/CE-only/current amount mutations rejected',
