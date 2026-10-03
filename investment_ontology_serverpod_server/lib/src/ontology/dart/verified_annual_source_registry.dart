@@ -56,6 +56,30 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20230314000692',
+      corpCode: '00113359',
+      companyName: '교보증권(주)',
+      year: 2022,
+      basis: FsDiv.consolidated,
+      assetDirectory: 'assets/financial_source_cache/20230314000692-cfs-located-own-current',
+      manifestDigest:
+          'c39465856e5876afe991b17687ac86c4a1222c07f431c5dc5284afdca9db2c4b',
+      ruleVersion: 'located-own-current-eight-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20230314000692',
+      corpCode: '00113359',
+      companyName: '교보증권(주)',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230314000692-ofs-located-own-current',
+      manifestDigest:
+          '4123cbe5ea35fd6ef275aa10696b3ef88b40a8fc9b8eaea6173fdb09b1a706ed',
+      ruleVersion: 'located-own-current-eight-v1',
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20230323000123',
       corpCode: '01365384',
       companyName: '이성씨엔아이(주)',

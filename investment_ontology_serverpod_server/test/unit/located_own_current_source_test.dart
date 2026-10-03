@@ -313,7 +313,7 @@ void main() {
               end: e.periodEnd,
               sourceReceipt: m['sourceReceipt'] as String,
             ),
-            false,
+            e.receipt == '20230314000692',
           );
           expect(
             LocatedOwnCurrentSource.sourceEligible(
@@ -344,14 +344,33 @@ void main() {
             ),
             throwsFormatException,
           );
-          await expectLater(
-            cache.verifyRegistered(
-              filing(e),
-              company(e),
-              basis == FsDiv.consolidated ? FsDiv.separate : FsDiv.consolidated,
-            ),
-            throwsFormatException,
-          );
+          if (e.receipt != '20230314000692') {
+            await expectLater(
+              cache.verifyRegistered(
+                filing(e),
+                company(e),
+                basis == FsDiv.consolidated
+                    ? FsDiv.separate
+                    : FsDiv.consolidated,
+              ),
+              throwsFormatException,
+            );
+          } else {
+            // Both bases have independent own packages; passing the requested
+            // entry with the other basis must still reject, not another valid package.
+            await expectLater(
+              LocatedOwnCurrentSource.verify(
+                entry: e,
+                company: company(e),
+                filing: filing(e),
+                rawManifest: File(
+                  '${VerifiedAnnualSourceRegistry.find(e.receipt, basis == FsDiv.consolidated ? FsDiv.separate : FsDiv.consolidated)!.assetDirectory}/manifest.json',
+                ).readAsBytesSync(),
+                read: (p) => File(p).readAsBytes(),
+              ),
+              throwsFormatException,
+            );
+          }
         },
       );
     }
