@@ -10,6 +10,7 @@ import 'disclosure_sync.dart';
 import 'company_master_sync.dart';
 import 'financial_facts_sync.dart';
 import 'ingest_jobs.dart';
+import 'issuer_documents_sync.dart';
 import 'market_snapshot_sync.dart';
 import 'market_security_relink.dart';
 import 'ingest_hooks.dart';
@@ -97,6 +98,18 @@ abstract final class IngestSchedule {
       }
     }
     await resumeMissingLatestMarket(session);
+    final businessLatest = await IngestJobs.latest(
+      session,
+      DisclosureSync.businessKind,
+    );
+    if (IssuerDocumentsSync.canResumeAtStartup(
+          latestStatus: businessLatest?.status,
+          rerunning: r.rerunning.contains(DisclosureSync.businessKind),
+          queued: await _scheduled(session, businessDocumentsResumeId),
+        ) &&
+        await IssuerDocumentsSync.hasPending(session)) {
+      await businessDocumentsResume(session, soon);
+    }
     await ensureDaily(session);
     await PeerProfiles.backfill(session);
     await BusinessProfiles.backfill(session);

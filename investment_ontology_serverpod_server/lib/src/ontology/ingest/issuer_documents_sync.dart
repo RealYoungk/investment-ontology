@@ -67,6 +67,16 @@ class IssuerDocumentsSync {
     });
   }
 
+  static bool canResumeAtStartup({
+    required IngestStatus? latestStatus,
+    required bool rerunning,
+    required bool queued,
+  }) =>
+      !rerunning &&
+      !queued &&
+      latestStatus != IngestStatus.cancelled &&
+      latestStatus != IngestStatus.running;
+
   /// Read-only startup eligibility. Only the existing scheduled worker collects.
   static Future<bool> hasPending(Session session) async {
     final docs = IssuerDocumentsCollector.manifest(
