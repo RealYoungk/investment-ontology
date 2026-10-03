@@ -23,8 +23,13 @@ void main() {
       DartFiling f, {
       bool tamper = false,
       FsDiv basis = FsDiv.separate,
+      bool onlySeparateSources = false,
     }) => VerifiedAnnualSourceCache(
       readAsset: (path) async {
+        if (onlySeparateSources &&
+            !path.startsWith('${entry.assetDirectory}/')) {
+          throw const FormatException('Opposite-basis source is unavailable');
+        }
         final bytes = File(path).readAsBytesSync();
         return tamper && path.endsWith('ofs.html') ? [...bytes, 32] : bytes;
       },
@@ -105,9 +110,13 @@ void main() {
       ),
     );
     test(
-      '$receipt never reuses OFS for CFS',
+      '$receipt never reuses OFS for CFS when only OFS sources exist',
       () => expect(
-        () => verify(filing(entry), basis: FsDiv.consolidated),
+        () => verify(
+          filing(entry),
+          basis: FsDiv.consolidated,
+          onlySeparateSources: true,
+        ),
         throwsA(isA<FormatException>()),
       ),
     );
