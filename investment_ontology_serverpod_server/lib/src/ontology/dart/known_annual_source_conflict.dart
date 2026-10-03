@@ -1,3 +1,5 @@
+import 'land_trust_own_source_conflicts.dart';
+
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
@@ -22,6 +24,20 @@ abstract final class KnownAnnualSourceConflicts {
     required String coverHtml,
     required String statementHtml,
   }) {
+    final landEvidence = LandTrustOwnSourceConflicts.evidence(
+      receipt: receipt,
+      corpCode: corpCode,
+      consolidated: consolidated,
+      start: start,
+      end: end,
+      coverSource: coverSource,
+      statementSource: statementSource,
+      coverHtml: coverHtml,
+      statementHtml: statementHtml,
+    );
+    if (landEvidence != null) {
+      throw KnownAnnualSourceConflict(landEvidence);
+    }
     final profile = _profiles[receipt];
     if (profile == null ||
         profile['corpCode'] != corpCode ||
