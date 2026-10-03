@@ -96,8 +96,10 @@ class FundFinancialsCard extends StatelessWidget {
   final Map<String, dynamic> row;
   @override
   Widget build(BuildContext context) {
-    final halfYear =
-            row['categorySchema'] == 'printedUnauditedHalfYearFundCategories',
+    final halfYear = {
+          'printedUnauditedHalfYearFundCategories',
+          'printedAuditUnverifiedHalfYearFundCategories',
+        }.contains(row['categorySchema']),
         quarantine = row['numericState'] == 'pendingCashScope',
         v = row['validation'] as Map;
     return Padding(
@@ -110,13 +112,23 @@ class FundFinancialsCard extends StatelessWidget {
         ),
         subtitle: Text(
           halfYear
-              ? '상반기 비감사 별도 · 인쇄 5계정 · 정기 반기보고서 대체 아님'
+              ? '상반기 ${row['auditStatus'] == 'unaudited' ? '비감사 별도' : '감사상태 미확인 단일 펀드'} · 인쇄 ${(row['accounts'] as List).length}계정 · 정기 반기보고서 대체 아님'
               : '${row['periodKind'] == 'ownSixMonthFiscalYear' ? '자체 6개월 회계연도' : '자체 12개월 회계연도'} · ${quarantine ? '현금 범위 불일치로 격리' : '펀드 인쇄 계정 일부'} · 감사의견 미추출',
           style: context.typo.body(12, color: context.colors.textSecondary),
         ),
         children: [
           if (halfYear) ...[
             AppNotice(message: '${row['completenessNote']}'),
+            for (final discrepancy
+                in row['sourceDiscrepancies'] as List? ?? const [])
+              AppNotice(message: '${discrepancy['reason']}'),
+            for (final excluded
+                in row['excludedComparatives'] as List? ?? const [])
+              Text(
+                '${excluded['printedAmount'] == null ? '' : '${excluded['printedAmount']} ${row['printedUnit']} · '}${excluded['reason']}',
+                style: context.typo.body(12, color: context.colors.textMuted),
+              ),
+
             for (final missing in row['unextractedMetrics'] as List)
               Text(
                 '${missing['reason']}',

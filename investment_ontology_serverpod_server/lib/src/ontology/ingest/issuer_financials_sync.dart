@@ -1,3 +1,4 @@
+import '../research/kbif_halfyear_five.dart';
 import '../research/mkif_halfyear_five.dart';
 
 import 'dart:convert';
@@ -25,6 +26,7 @@ abstract final class IssuerFinancialsSync {
   static const reference =
       'source-bound-partial-current-core;no-api-report-or-xbrl-assertion';
   static bool supports(Map<String, dynamic> doc) =>
+      KbifHalfYearFive.supports(doc) ||
       MkifHalfYearFive.supports(doc) ||
       IssuerFinancialsHtml.supports(doc) ||
       IpoIssuerFinancialsHtml.supports(doc) ||
@@ -44,6 +46,19 @@ abstract final class IssuerFinancialsSync {
     final rows = <Map<String, dynamic>>[];
     for (final d in documents.where(supports)) {
       final m = d['metadata'] as Map, p = d['proof'] as Map;
+      if (KbifHalfYearFive.supports(d)) {
+        final pdf = await File('${cache.path}/${m['sha256']}.pdf')
+            .readAsBytes();
+        KbifHalfYearFive.verifyPdf(m, pdf);
+        rows.add(
+          KbifHalfYearFive.parseRaw(
+            m,
+            await File('${cache.path}/${m['sha256']}.halfyear-results.txt')
+                .readAsBytes(),
+          ),
+        );
+        continue;
+      }
       if (MkifHalfYearFive.supports(d)) {
         final pdf = await File('${cache.path}/${m['sha256']}.pdf')
             .readAsBytes();

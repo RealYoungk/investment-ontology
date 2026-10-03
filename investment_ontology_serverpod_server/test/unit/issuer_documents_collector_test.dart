@@ -31,11 +31,16 @@ void main() {
       )['periodStart'],
       '2026-01-01',
     );
+    final kb = rows.singleWhere(
+      (r) => r['corpCode'] == '01880801' && r['periodEnd'] == '2026-06-30',
+    );
+    expect(kb['documentType'], 'operatingReport');
+    expect(kb['periodStart'], '2026-01-01');
+    expect(kb['providerReceipt'], isNull);
+    expect(kb['providerDocumentId'], isNull);
     expect(
-      rows.singleWhere(
-        (r) => r['providerReceipt'] == '20260731001211',
-      )['providerDocumentId'],
-      '20260729002004',
+      kb['officialUrl'],
+      'https://kbif.co.kr/upload/2026/7/20260731043629001933.pdf',
     );
   });
   test('future acquisition evidence and financial promotion reject', () {

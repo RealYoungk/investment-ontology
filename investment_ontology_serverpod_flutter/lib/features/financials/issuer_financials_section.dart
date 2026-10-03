@@ -1,3 +1,4 @@
+import 'kbif_halfyear_five_validator.dart';
 import 'mkif_halfyear_five_validator.dart';
 
 import 'dart:convert';
@@ -168,6 +169,7 @@ class _IssuerFinancialsSectionState extends State<IssuerFinancialsSection> {
               if ({
                 'printedFundCategories',
                 'printedInfrastructureFundCategories',
+                KbifHalfYearFiveValidator.category,
                 MkifHalfYearFiveValidator.category,
                 'printedScannedFundCategories',
                 RetrospectiveFundContract.category,
@@ -196,6 +198,7 @@ List<Map<String, dynamic>> validateIssuerFinancialRows(
             r is Map &&
             {
               'printedInfrastructureFundCategories',
+              KbifHalfYearFiveValidator.category,
               MkifHalfYearFiveValidator.category,
               'printedScannedFundCategories',
               RetrospectiveFundContract.category,
@@ -226,6 +229,17 @@ List<Map<String, dynamic>> validateIssuerFinancialRows(
             .where((r) => r['categorySchema'] == 'printedScannedFundCategories')
             .toList();
     return [
+      if (raw.any(
+        (r) => r['categorySchema'] == KbifHalfYearFiveValidator.category,
+      ))
+        ...KbifHalfYearFiveValidator.validateRows(
+          raw
+              .where(
+                (r) =>
+                    r['categorySchema'] == KbifHalfYearFiveValidator.category,
+              )
+              .toList(),
+        ),
       if (raw.any(
         (r) => r['categorySchema'] == MkifHalfYearFiveValidator.category,
       ))

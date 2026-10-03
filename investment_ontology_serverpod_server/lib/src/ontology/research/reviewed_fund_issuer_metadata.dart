@@ -308,5 +308,25 @@ abstract final class ReviewedFundIssuerMetadata {
       "financialValues": null,
       "publicContent": "linkOnly",
     },
+    {
+      "corpCode": "01880801",
+      "title": "KB발해인프라 2026년 상반기 회계상 재무실적",
+      "documentType": "operatingReport",
+      "provider": "officialIR",
+      "providerReceipt": null,
+      "providerDocumentId": null,
+      "periodStart": "2026-01-01",
+      "periodEnd": "2026-06-30",
+      "publishedAt": "2026-07-31",
+      "officialUrl":
+          "https://kbif.co.kr/upload/2026/7/20260731043629001933.pdf",
+      "sha256":
+          "a96534db3ab73fd7145cd8c05b7f8194edd885e4547417cc57fb59dbe651da61",
+      "issuerQuote": "KB발해인프라투융자회사",
+      "periodQuote": "2026년 상반기",
+      "numericState": "notExtracted",
+      "financialValues": null,
+      "publicContent": "linkOnly",
+    },
   ];
 }

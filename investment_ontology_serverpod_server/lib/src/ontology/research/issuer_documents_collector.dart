@@ -1,3 +1,4 @@
+import 'kbif_halfyear_five.dart';
 import 'mkif_halfyear_five.dart';
 import 'split_plan_documents.dart';
 
@@ -42,6 +43,21 @@ class IssuerDocumentsCollector {
       }
       if (RetrospectiveFundContract.supports(d)) return d;
       final at = DateTime.tryParse('${proof['downloadedAt']}');
+      if (KbifHalfYearFive.supports(d)) {
+        if (at == null ||
+            at.isAfter(DateTime.now().toUtc()) ||
+            proof['readScope'] !=
+                'own issuer p1; own appendix p13 BS and p15 cumulative accounting PL only' ||
+            proof['periodProof'] !=
+                'printed own 2026 H1 columns; accounting versus tax separated; audit status unprinted' ||
+            proof['sourceReadScope'] !=
+                'partialFinancialResultsOnly;CECFnotPrinted;notRegularHalfYearReport') {
+          throw const FormatException(
+            'Exact own half-year appendix reading proof required',
+          );
+        }
+        return d;
+      }
       if (MkifHalfYearFive.supports(d)) {
         if (at == null ||
             at.isAfter(DateTime.now().toUtc()) ||
