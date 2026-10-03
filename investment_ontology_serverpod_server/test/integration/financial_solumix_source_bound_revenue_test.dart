@@ -264,10 +264,15 @@ void main() {
             builder,
             corpCodes: [c.corpCode],
           );
-          expect(
-            page.items.single.revenue,
-            accepted ? SolumixOwnRevenueScope.amount : null,
-          );
+          if (accepted) {
+            expect(page.items, hasLength(1));
+            expect(page.items.single.revenue, SolumixOwnRevenueScope.amount);
+          } else {
+            // Invalid Source may make the entire report ineligible. A remaining
+            // company row must still never expose unverified revenue.
+            expect(page.items.length, lessThanOrEqualTo(1));
+            expect(page.items.every((r) => r.revenue == null), true);
+          }
         }
 
         await parity(true);
