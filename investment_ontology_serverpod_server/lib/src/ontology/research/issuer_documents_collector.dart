@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 
 import 'issuer_documents_feed.dart';
 import 'reviewed_dart_issuer_sources.dart';
+import 'reviewed_fund_issuer_metadata.dart';
 
 /// Fixed, human-read source manifest. No discovery, monetary extraction or DART API.
 class IssuerDocumentsCollector {
@@ -44,7 +45,27 @@ class IssuerDocumentsCollector {
       }
       return d;
     }).toList();
-    if (docs.isEmpty || docs.length > 30) {
+    // Untrusted/subset manifests keep their old 30-document boundary. The only
+    // larger input is the exact approved roster (or its pinned subset), collected by company.
+    final roster = <Map>[
+      ...ReviewedDartIssuerSources.documents.map((d) => d['metadata'] as Map),
+      ...ReviewedFundIssuerMetadata.documents,
+    ];
+    final wholeRoster =
+        docs.length <= roster.length &&
+        docs.map((d) => (d['metadata'] as Map)['officialUrl']).toSet().length ==
+            docs.length &&
+        docs.every((d) {
+          final m = d['metadata'] as Map;
+          return roster.any(
+            (r) =>
+                r.length == m.length &&
+                r.entries.every(
+                  (e) => jsonEncode(m[e.key]) == jsonEncode(e.value),
+                ),
+          );
+        });
+    if (docs.isEmpty || (docs.length > 30 && !wholeRoster)) {
       throw const FormatException('원문 목록 한도 오류');
     }
     final groups = <String, List<Map<String, dynamic>>>{};
@@ -53,6 +74,9 @@ class IssuerDocumentsCollector {
       groups.putIfAbsent('${m['corpCode']}', () => []).add(m);
     }
     for (final rows in groups.values) {
+      if (rows.length > 6) {
+        throw const FormatException('회사별 승인 원문은 최대 6개입니다.');
+      }
       IssuerDocumentsFeed.validate(rows);
     }
     return docs;

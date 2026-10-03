@@ -36,32 +36,35 @@ Widget app(Widget child) => MaterialApp(
   home: Scaffold(body: SingleChildScrollView(child: child)),
 );
 void main() {
-  test('all twelve pinned DART chapters require exact own issuer metadata', () {
-    expect(issuerDocumentFunds.length, 12);
-    expect(reviewedDartIssuerMetadata.length, 12);
-    for (final row in reviewedDartIssuerMetadata) {
-      final corp = row['corpCode'] as String;
-      expect(issuerDocumentRows(ready(corp, [row]), corp), [row]);
-      for (final change in [
-        {'provider': 'officialIR'},
-        {'periodStart': '2021-01-01'},
-        {'sha256': '0' * 64},
-        {'publicContent': 'fullText'},
-        {'officialUrl': '${row['officialUrl']}&extra=1'},
-        {'numericState': 'complete'},
-      ]) {
-        expect(
-          () => issuerDocumentRows(
-            ready(corp, [
-              {...row, ...change},
-            ]),
-            corp,
-          ),
-          throwsFormatException,
-        );
+  test(
+    'all thirty-two pinned DART chapters require exact own issuer metadata',
+    () {
+      expect(issuerDocumentFunds.length, 12);
+      expect(reviewedDartIssuerMetadata.length, 32);
+      for (final row in reviewedDartIssuerMetadata) {
+        final corp = row['corpCode'] as String;
+        expect(issuerDocumentRows(ready(corp, [row]), corp), [row]);
+        for (final change in [
+          {'provider': 'officialIR'},
+          {'periodStart': '2099-01-01'},
+          {'sha256': '0' * 64},
+          {'publicContent': 'fullText'},
+          {'officialUrl': '${row['officialUrl']}&extra=1'},
+          {'numericState': 'complete'},
+        ]) {
+          expect(
+            () => issuerDocumentRows(
+              ready(corp, [
+                {...row, ...change},
+              ]),
+              corp,
+            ),
+            throwsFormatException,
+          );
+        }
       }
-    }
-  });
+    },
+  );
   test('actual fifteen metadata rows preserve twelve annual and three latest documents', () {
     final rows = actualRows();
     expect(rows.length, 15);

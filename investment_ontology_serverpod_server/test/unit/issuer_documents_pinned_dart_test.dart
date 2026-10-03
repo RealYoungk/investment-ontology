@@ -14,20 +14,20 @@ void main() {
   Map<String, dynamic> row() =>
       Map<String, dynamic>.from((jsonDecode(text)['documents'] as List).first);
   test(
-    'normal27 actualtype partialsource and no numerical promotion',
+    'normal47 actualtype partialsource and no numerical promotion',
     () async {
       final docs = IssuerDocumentsCollector.manifest(
         await IssuerDocumentsSync.combinedManifestText(),
       );
-      expect(docs, hasLength(27));
+      expect(docs, hasLength(47));
       final dart = docs
           .where((d) => d['metadata']['provider'] == 'DART')
           .toList();
-      expect(dart, hasLength(12));
+      expect(dart, hasLength(32));
       expect(dart.map((d) => d['metadata']['corpCode']).toSet(), hasLength(9));
       expect(
         dart.where((d) => d['metadata']['documentType'] == 'auditReport'),
-        hasLength(3),
+        hasLength(23),
       );
       for (final d in dart) {
         final m = d['metadata'] as Map;

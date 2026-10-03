@@ -12,7 +12,9 @@ abstract final class IpoIssuerFinancialsHtml {
   static bool supportsCorp(String code) =>
       IpoFinancialsProfiles.rows.any((p) => p['corpCode'] == code);
   static bool supports(Map<String, dynamic> d) =>
-      supportsCorp('${(d['metadata'] as Map?)?['corpCode']}');
+      supportsCorp('${(d['metadata'] as Map?)?['corpCode']}') &&
+      (d['metadata'] as Map?)?['documentType'] ==
+          'securitiesRegistrationStatement';
   static List<Map<String, dynamic>> _profiles(String code) =>
       IpoFinancialsProfiles.rows.where((p) => p['corpCode'] == code).toList();
   static String _dateText(String s) =>
