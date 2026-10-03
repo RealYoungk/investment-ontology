@@ -112,8 +112,9 @@ class FundFinancialsCard extends StatelessWidget {
         ),
         children: [
           if (row['categorySchema'] == 'printedScannedFundCategories')
-            const AppNotice(
-              message: '원본 스캔 PDF의 당기 항목 일부입니다. 두 OCR의 숫자·부호와 3자리 천단위 구분자를 검증한 정수를 표시하며 원시 OCR은 보존합니다. 주석·전체 재무제표는 미검증입니다.',
+            AppNotice(
+              message:
+                  '원본 스캔 PDF의 당기 항목 일부입니다. 두 OCR의 숫자·부호와 3자리 천단위 구분자를 검증한 정수를 표시하며 원시 OCR은 보존합니다. 모든 항목이 숫자인 검산 ${v['fullyNumericEquationCount']}개, 인쇄 대시·빈칸을 제외한 부분합 검산 ${v['missingWitnessSubtotalCount']}개입니다. 누락 표시는 0원 금액이나 완전한 등식 검증으로 취급하지 않습니다. 주석·전체 재무제표는 미검증입니다.',
             ),
           if (row['categorySchema'] == 'printedInfrastructureFundCategories')
             const AppNotice(

@@ -258,10 +258,19 @@ abstract final class ScannedFundFinancials {
         ...Map<String, dynamic>.from(bound),
         'difference': '0',
         'missingTerms': missing,
+        'equationScope': missing == 0
+            ? 'fullyNumericPrintedEquation'
+            : 'printedSubtotalWithMissingNonAmountWitness',
       });
     }
     return {
       'checks': checks,
+      'fullyNumericEquationCount': checks
+          .where((c) => c['missingTerms'] == 0)
+          .length,
+      'missingWitnessSubtotalCount': checks
+          .where((c) => (c['missingTerms'] as int) > 0)
+          .length,
       'cells': cells,
       'printedMissingCEComponents': p['printedMissingCEComponents'],
       'cashScope':

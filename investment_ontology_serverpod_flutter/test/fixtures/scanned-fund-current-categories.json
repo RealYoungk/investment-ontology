@@ -415,7 +415,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "BS_other_assets",
@@ -443,7 +444,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "BS_asset_total",
@@ -461,7 +463,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "BS_operating_liabilities",
@@ -479,7 +482,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "BS_other_liabilities",
@@ -507,7 +511,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "BS_liability_total",
@@ -525,7 +530,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "BS_equity_total",
@@ -543,7 +549,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "BS_liability_equity_total",
@@ -561,7 +568,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "BS_identity",
@@ -574,7 +582,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "PL_income",
@@ -597,7 +606,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "PL_expenses",
@@ -630,7 +640,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "PL_pretax",
@@ -648,7 +659,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "PL_printed_pretax_equals_net_no_tax_amount_fact",
@@ -661,7 +673,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CF_asset_in",
@@ -694,7 +707,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 1
+            "missingTerms": 1,
+            "equationScope": "printedSubtotalWithMissingNonAmountWitness"
           },
           {
             "name": "CF_asset_out",
@@ -747,7 +761,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 1
+            "missingTerms": 1,
+            "equationScope": "printedSubtotalWithMissingNonAmountWitness"
           },
           {
             "name": "CF_asset_net",
@@ -765,7 +780,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CF_finance_in",
@@ -788,7 +804,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CF_finance_out",
@@ -826,7 +843,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CF_finance_net",
@@ -844,7 +862,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CF_activities",
@@ -862,7 +881,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CF_roll",
@@ -880,7 +900,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CF_printed_BS_cash_number_only_not_equivalence",
@@ -893,7 +914,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CE_component_0",
@@ -911,7 +933,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CE_component_1",
@@ -924,7 +947,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CE_component_2",
@@ -937,7 +961,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CE_component_3",
@@ -950,7 +975,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CE_component_4",
@@ -963,7 +989,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CE_component_5",
@@ -981,7 +1008,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CE_component_roll_0",
@@ -1004,7 +1032,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CE_component_BS_0",
@@ -1017,7 +1046,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CE_component_roll_1",
@@ -1040,7 +1070,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CE_component_BS_1",
@@ -1053,7 +1084,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CE_component_roll_2",
@@ -1086,7 +1118,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CE_component_BS_2",
@@ -1099,7 +1132,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CE_printed_profit_equals_PL",
@@ -1112,9 +1146,12 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           }
         ],
+        "fullyNumericEquationCount": 33,
+        "missingWitnessSubtotalCount": 2,
         "cells": {
           "operatingAssets": {
             "key": "operatingAssets",
@@ -4666,7 +4703,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "BS_other_assets",
@@ -4694,7 +4732,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "BS_asset_total",
@@ -4712,7 +4751,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "BS_operating_liabilities",
@@ -4730,7 +4770,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "BS_other_liabilities",
@@ -4758,7 +4799,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "BS_liability_total",
@@ -4776,7 +4818,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "BS_equity_total",
@@ -4794,7 +4837,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "BS_liability_equity_total",
@@ -4812,7 +4856,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "BS_identity",
@@ -4825,7 +4870,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "PL_income",
@@ -4848,7 +4894,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "PL_expenses",
@@ -4881,7 +4928,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "PL_pretax",
@@ -4899,7 +4947,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "PL_printed_pretax_equals_net_no_tax_amount_fact",
@@ -4912,7 +4961,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CF_asset_in",
@@ -4940,7 +4990,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CF_asset_out",
@@ -4988,7 +5039,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CF_asset_net",
@@ -5006,7 +5058,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CF_finance_in",
@@ -5024,7 +5077,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CF_finance_out",
@@ -5062,7 +5116,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 1
+            "missingTerms": 1,
+            "equationScope": "printedSubtotalWithMissingNonAmountWitness"
           },
           {
             "name": "CF_finance_net",
@@ -5080,7 +5135,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CF_activities",
@@ -5098,7 +5154,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CF_roll",
@@ -5116,7 +5173,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CF_printed_BS_cash_number_only_not_equivalence",
@@ -5129,7 +5187,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CE_component_0",
@@ -5147,7 +5206,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CE_component_1",
@@ -5160,7 +5220,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CE_component_2",
@@ -5173,7 +5234,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CE_component_3",
@@ -5191,7 +5253,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CE_component_roll_0",
@@ -5204,7 +5267,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CE_component_BS_0",
@@ -5217,7 +5281,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CE_component_roll_1",
@@ -5240,7 +5305,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CE_component_BS_1",
@@ -5253,7 +5319,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CE_component_roll_2",
@@ -5276,7 +5343,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CE_component_BS_2",
@@ -5289,7 +5357,8 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           },
           {
             "name": "CE_printed_profit_equals_PL",
@@ -5302,9 +5371,12 @@
               }
             ],
             "difference": "0",
-            "missingTerms": 0
+            "missingTerms": 0,
+            "equationScope": "fullyNumericPrintedEquation"
           }
         ],
+        "fullyNumericEquationCount": 32,
+        "missingWitnessSubtotalCount": 1,
         "cells": {
           "operatingAssets": {
             "key": "operatingAssets",

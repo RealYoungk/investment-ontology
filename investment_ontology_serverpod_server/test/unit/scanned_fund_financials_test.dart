@@ -43,6 +43,14 @@ void main() {
         }
         expect(row['validation']['checks'].length, proof['checks'].length);
         expect(
+          row['validation']['fullyNumericEquationCount'],
+          row['periodEnd'] == '2021-12-31' ? 33 : 32,
+        );
+        expect(
+          row['validation']['missingWitnessSubtotalCount'],
+          row['periodEnd'] == '2021-12-31' ? 2 : 1,
+        );
+        expect(
           (row['validation']['checks'] as List).every(
             (c) => c['difference'] == '0',
           ),
