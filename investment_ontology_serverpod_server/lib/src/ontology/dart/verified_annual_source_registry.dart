@@ -56,6 +56,32 @@ final class AnnualSourceCacheEntry {
 abstract final class VerifiedAnnualSourceRegistry {
   static const entries = <AnnualSourceCacheEntry>[
     AnnualSourceCacheEntry(
+      receipt: '20230316001454',
+      corpCode: '00103176',
+      companyName: '흥국화재해상보험(주)',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20230316001454-ofs-own-current-cash-eight',
+      manifestDigest:
+          '6f7bb37849ba5dc34ed0f3acd03eaf1b8a1b49a29b5b110c754a4c82be0bcefe',
+      ruleVersion: 'heungkuk-2022-own-current-cash-eight-v1',
+      requiresCashScopeNotes: true,
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
+      receipt: '20220317001158',
+      corpCode: '00103176',
+      companyName: '흥국화재해상보험(주)',
+      year: 2021,
+      basis: FsDiv.separate,
+      assetDirectory: 'assets/financial_source_cache/20220317001158-ofs-own-current-cash-eight',
+      manifestDigest:
+          '6e20875417ac559174b4e1df9a1f3d8b6270befc36bfb799a57a2def9498a847',
+      ruleVersion: 'heungkuk-2021-own-current-cash-eight-v1',
+      requiresCashScopeNotes: true,
+      absenceLiteral: null,
+    ),
+    AnnualSourceCacheEntry(
       receipt: '20220329001197',
       corpCode: '01118643',
       companyName: '(주)솔루믹스',

@@ -132,6 +132,9 @@ abstract final class FinancialAccounts {
     'depreciation': ['감가상각비'],
     'amortisation': ['무형자산상각비'],
     'netIncome': [
+      // Exact Heungkuk FY2021/22 current whole NI, equal to own CE total.
+      '당기순이익(대손준비금반영후조정이익당기:138,148백만원전기:54,202백만원)(비상위험준비금반영후조정이익당기:134,462백만원전기:51,465백만원)',
+      '당기순이익(대손준비금반영후조정이익당기:54,202백만원전기:13,888백만원)(비상위험준비금반영후조정이익당기:51,465백만원전기:12,242백만원)',
       // Exact NH FY2021 OFS whole NI, independently equal to CE total.
       '당기순이익(대손준비금반영후조정이익:당기:782,640백만원,전기:484,955백만원,전전기:418,256백만원)',
       '당기순이익(대손준비금반영후조정이익당기:87,133백만원전기:178,664백만원)',
@@ -164,7 +167,7 @@ abstract final class FinancialAccounts {
       '분기순이익',
     ],
     'operatingIncome': ['영업이익(손실)', '영업손익(손실)', '영업이익', '영업손익', '영업손실'],
-    'capex': ['유형자산의취득', '유형자산취득'],
+    'capex': ['유형자산의취득', '유형자산취득', '(7)유형자산의취득'],
   };
 
   static const _lossNames = ['영업손실', '당기순손실', '연결당기순손실'];
