@@ -1,8 +1,17 @@
+import 'split_plan_documents.dart';
+import 'issuer_documents_feed.dart';
+import 'issuer_financials_feed.dart';
+import 'own_annual_financials_html.dart';
+
 /// Versioned, deliberately narrow interchange contract for licensed feeds.
 /// Money is decimal strings in base currency, quantities are integer strings.
 /// Ratios are calculated from these inputs, never supplied as opaque scores.
 abstract final class ResearchFeed {
   static const kinds = {
+    'issuerDocuments',
+    'splitPlanDocuments',
+    'issuerFinancials',
+    'issuerAnnualFinancials',
     'consensus',
     'flows',
     'shorts',
@@ -52,6 +61,14 @@ abstract final class ResearchFeed {
   }
 
   static List<Map<String, dynamic>> validate(String kind, dynamic input) {
+    if (kind == SplitPlanDocuments.kind) {
+      return SplitPlanDocuments.validate(input);
+    }
+    if (kind == 'issuerDocuments') return IssuerDocumentsFeed.validate(input);
+    if (kind == 'issuerFinancials') return IssuerFinancialsFeed.validate(input);
+    if (kind == 'issuerAnnualFinancials') {
+      return OwnAnnualFinancialsHtml.validateRows(input);
+    }
     if (!kinds.contains(kind)) throw const FormatException('지원하지 않는 자료 종류');
     if (input is! List || input.length > 5000) {
       throw const FormatException('rows는 최대 5,000개 배열이어야 합니다.');

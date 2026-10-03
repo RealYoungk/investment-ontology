@@ -38,6 +38,9 @@ import '../auth/jwt_refresh_endpoint.dart' as _inwq3ztq;
 import '../greetings/greeting_endpoint.dart' as _il624ik7;
 import '../ontology/endpoints/account_endpoint.dart' as _io2i71g8;
 import '../ontology/endpoints/ai_endpoint.dart' as _iadofkda;
+import '../ontology/endpoints/bond_endpoint.dart' as _iuax3zj5;
+import '../ontology/endpoints/capital_endpoint.dart' as _idxbctvq;
+import '../ontology/endpoints/charter_endpoint.dart' as _ivo40lq7;
 import '../ontology/endpoints/company_endpoint.dart' as _itnisr3u;
 import '../ontology/endpoints/company_news_endpoint.dart' as _ij4mm9jr;
 import '../ontology/endpoints/company_research_endpoint.dart' as _iqx60vuh;
@@ -48,8 +51,10 @@ import '../ontology/endpoints/graph_endpoint.dart' as _ixdq71x8;
 import '../ontology/endpoints/group_endpoint.dart' as _i8zm50hy;
 import '../ontology/endpoints/industry_endpoint.dart' as _ihimn963;
 import '../ontology/endpoints/ingest_endpoint.dart' as _icbircc0;
+import '../ontology/endpoints/macro_endpoint.dart' as _ii38wwy2;
 import '../ontology/endpoints/market_endpoint.dart' as _iaw7fzks;
 import '../ontology/endpoints/membership_endpoint.dart' as _i4hwwhem;
+import '../ontology/endpoints/membership_offer_endpoint.dart' as _ilgl7tj9;
 import '../ontology/endpoints/review_endpoint.dart' as _i9uttt4a;
 import '../ontology/endpoints/screen_endpoint.dart' as _ilgabfhk;
 import '../ontology/endpoints/theme_endpoint.dart' as _iqaca509;
@@ -88,6 +93,24 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'ai',
+          null,
+        ),
+      'bond': _iuax3zj5.BondEndpoint()
+        ..initialize(
+          server,
+          'bond',
+          null,
+        ),
+      'capital': _idxbctvq.CapitalEndpoint()
+        ..initialize(
+          server,
+          'capital',
+          null,
+        ),
+      'charter': _ivo40lq7.CharterEndpoint()
+        ..initialize(
+          server,
+          'charter',
           null,
         ),
       'company': _itnisr3u.CompanyEndpoint()
@@ -150,6 +173,12 @@ class Endpoints extends _is.EndpointDispatch {
           'ingest',
           null,
         ),
+      'macro': _ii38wwy2.MacroEndpoint()
+        ..initialize(
+          server,
+          'macro',
+          null,
+        ),
       'market': _iaw7fzks.MarketEndpoint()
         ..initialize(
           server,
@@ -160,6 +189,12 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'membership',
+          null,
+        ),
+      'membershipOffer': _ilgl7tj9.MembershipOfferEndpoint()
+        ..initialize(
+          server,
+          'membershipOffer',
           null,
         ),
       'review': _i9uttt4a.ReviewEndpoint()
@@ -740,6 +775,157 @@ class Endpoints extends _is.EndpointDispatch {
                 params['answer'],
                 model: params['model'],
               ),
+        ),
+      },
+    );
+    connectors['bond'] = _is.EndpointConnector(
+      name: 'bond',
+      endpoint: endpoints['bond']!,
+      methodConnectors: {
+        'trends': _is.MethodConnector(
+          name: 'trends',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['bond'] as _iuax3zj5.BondEndpoint).trends(
+                session,
+                params['corpCode'],
+              ),
+        ),
+        'collect': _is.MethodConnector(
+          name: 'collect',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['bond'] as _iuax3zj5.BondEndpoint).collect(
+                session,
+                params['corpCode'],
+              ),
+        ),
+      },
+    );
+    connectors['capital'] = _is.EndpointConnector(
+      name: 'capital',
+      endpoint: endpoints['capital']!,
+      methodConnectors: {
+        'summary': _is.MethodConnector(
+          name: 'summary',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['capital'] as _idxbctvq.CapitalEndpoint).summary(
+                    session,
+                    params['corpCode'],
+                  ),
+        ),
+        'collect': _is.MethodConnector(
+          name: 'collect',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['capital'] as _idxbctvq.CapitalEndpoint).collect(
+                    session,
+                    params['corpCode'],
+                  ),
+        ),
+      },
+    );
+    connectors['charter'] = _is.EndpointConnector(
+      name: 'charter',
+      endpoint: endpoints['charter']!,
+      methodConnectors: {
+        'startCollection': _is.MethodConnector(
+          name: 'startCollection',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['charter'] as _ivo40lq7.CharterEndpoint)
+                  .startCollection(session),
+        ),
+        'advanceCollection': _is.MethodConnector(
+          name: 'advanceCollection',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['charter'] as _ivo40lq7.CharterEndpoint)
+                  .advanceCollection(session),
+        ),
+        'collectionStatus': _is.MethodConnector(
+          name: 'collectionStatus',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['charter'] as _ivo40lq7.CharterEndpoint)
+                  .collectionStatus(session),
+        ),
+        'collectionCoverage': _is.MethodConnector(
+          name: 'collectionCoverage',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['charter'] as _ivo40lq7.CharterEndpoint)
+                  .collectionCoverage(session),
+        ),
+        'summary': _is.MethodConnector(
+          name: 'summary',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['charter'] as _ivo40lq7.CharterEndpoint).summary(
+                    session,
+                    params['corpCode'],
+                  ),
         ),
       },
     );
@@ -1793,6 +1979,22 @@ class Endpoints extends _is.EndpointDispatch {
         ),
       },
     );
+    connectors['macro'] = _is.EndpointConnector(
+      name: 'macro',
+      endpoint: endpoints['macro']!,
+      methodConnectors: {
+        'overview': _is.MethodConnector(
+          name: 'overview',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['macro'] as _ii38wwy2.MacroEndpoint)
+                  .overview(session),
+        ),
+      },
+    );
     connectors['market'] = _is.EndpointConnector(
       name: 'market',
       endpoint: endpoints['market']!,
@@ -1999,6 +2201,11 @@ class Endpoints extends _is.EndpointDispatch {
               type: _is.getType<String>(),
               nullable: false,
             ),
+            'expectedAmountKrw': _is.ParameterDescription(
+              name: 'expectedAmountKrw',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
           },
           call:
               (
@@ -2009,6 +2216,7 @@ class Endpoints extends _is.EndpointDispatch {
                       .beginCheckout(
                         session,
                         params['acceptedTestTerms'],
+                        expectedAmountKrw: params['expectedAmountKrw'],
                       ),
         ),
         'beginCardReplacement': _is.MethodConnector(
@@ -2098,6 +2306,24 @@ class Endpoints extends _is.EndpointDispatch {
               ) async =>
                   (endpoints['membership'] as _i4hwwhem.MembershipEndpoint)
                       .cancelRenewal(session),
+        ),
+      },
+    );
+    connectors['membershipOffer'] = _is.EndpointConnector(
+      name: 'membershipOffer',
+      endpoint: endpoints['membershipOffer']!,
+      methodConnectors: {
+        'offer': _is.MethodConnector(
+          name: 'offer',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['membershipOffer']
+                          as _ilgl7tj9.MembershipOfferEndpoint)
+                      .offer(session),
         ),
       },
     );

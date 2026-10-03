@@ -9,7 +9,7 @@ import 'package:serverpod_auth_idp_server/core.dart';
 import 'package:test/test.dart';
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/billing/membership_ledger.dart';
-import 'package:investment_ontology_serverpod_server/src/ontology/billing/billing_sandbox_config.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/billing/billing_provider_config.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/billing/subscription_rules.dart';
 
 import 'test_tools/serverpod_test_tools.dart';
@@ -88,8 +88,8 @@ void main() {
                 'paymentKey': 'payment-$id',
                 'type': 'BILLING',
                 'currency': 'KRW',
-                'totalAmount': 2900,
-                'balanceAmount': 2900,
+                'totalAmount': body['amount'],
+                'balanceAmount': body['amount'],
                 'status': 'DONE',
               };
             }
@@ -133,6 +133,7 @@ void main() {
             request.response.headers.contentType = ContentType(
               'application',
               'javascript',
+              charset: 'utf-8',
             );
             if (request.uri.path == '/ad_loader.js') {
               request.response.write(

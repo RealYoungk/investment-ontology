@@ -1,0 +1,46 @@
+{
+  "rows": [
+    {
+      "printedLabel": "자       산       총       계",
+      "amount": "341382574000000",
+      "unit": "백만원",
+      "printedAmount": "341382574"
+    },
+    {
+      "printedLabel": "부       채       총       계",
+      "amount": "301757207000000",
+      "unit": "백만원",
+      "printedAmount": "301757207"
+    },
+    {
+      "printedLabel": "자       본       총       계",
+      "amount": "39625367000000",
+      "unit": "백만원",
+      "printedAmount": "39625367"
+    },
+    {
+      "printedLabel": "Ⅰ. 영업수익",
+      "amount": "35079078000000",
+      "unit": "백만원",
+      "printedAmount": "35079078"
+    },
+    {
+      "printedLabel": "Ⅲ. 영업이익",
+      "amount": "1701023000000",
+      "unit": "백만원",
+      "printedAmount": "1701023"
+    },
+    {
+      "printedLabel": "Ⅷ. 당기연결순이익",
+      "amount": "1597702000000",
+      "unit": "백만원",
+      "printedAmount": "1597702"
+    },
+    {
+      "printedLabel": "Ⅰ.영업활동으로부터의 현금흐름",
+      "amount": "2547531000000",
+      "unit": "백만원",
+      "printedAmount": "2547531"
+    }
+  ]
+}

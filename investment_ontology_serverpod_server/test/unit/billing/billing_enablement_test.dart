@@ -1,4 +1,4 @@
-import 'package:investment_ontology_serverpod_server/src/ontology/billing/billing_sandbox_config.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/billing/billing_provider_config.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -22,6 +22,9 @@ void main() {
   );
 
   const ready = {
+    'ALFINDER_BILLING_PROVIDER': 'portone',
+    'PORTONE_CONTRACT_PG': 'kcp_v2',
+    'PORTONE_LIVE_CHANNEL_VERIFIED': 'true',
     'ALFINDER_BILLING_LIVE_ENABLED': 'true',
     'ALFINDER_PG_BILLING_APPROVED': 'true',
     'ALFINDER_BILLING_PRIVACY_READY': 'true',

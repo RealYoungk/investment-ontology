@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "01563667",
+  "receipt": "20250328001780",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2024,
+  "periodStart": "2024-01-01",
+  "periodEnd": "2024-12-31",
+  "ruleVersion": "dozn-exact-cover-ce-cash-corroboration-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250328001780",
+      "sha256": "f3636c12ec045e904e10e3cbe0386e142afc5a80255452c3be2477990df4e327"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250328001780&dcmNo=10474522&eleId=1&offset=950&length=4543&dtd=dart4.xsd",
+      "sha256": "e8bc263ff9e02446abb967017bd2459d352fa7518b3591cb4c5890c7d08d3b80"
+    },
+    {
+      "label": "ofs",
+      "file": "ofs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250328001780&dcmNo=10474522&eleId=21&offset=558030&length=53877&dtd=dart4.xsd",
+      "sha256": "e11debec5b65e7752c4fbfee9d2d92fe4b7d3879c5108ddf3bca19d1bc348e10"
+    }
+  ],
+  "retrievalProof": "공식原문 표지 연간기간·기수·CE연초연말·BS자본·CIS순손익·CF현금 rollforward 교차검증. flow 표제는 시작일을 직접 인쇄하지 않음."
+}

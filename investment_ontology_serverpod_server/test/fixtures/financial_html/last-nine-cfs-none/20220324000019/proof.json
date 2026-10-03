@@ -1,0 +1,64 @@
+{
+  "id": 29672,
+  "name": "(주)씨알푸드",
+  "market": "konex",
+  "stockCode": "236030",
+  "corpCode": "01085187",
+  "rceptNo": "20220324000019",
+  "reportName": "사업보고서 (2021.12)",
+  "actual_period": "2021.12",
+  "bsnsYear": 2021,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 1,
+  "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 1,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220324000019",
+      "sha256": "1ba0940a6fb1e9a153e87857c7932303d3d98698615ae44f9470d7d305a86218"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220324000019&dcmNo=8500481&eleId=1&offset=793&length=4027&dtd=dart3.xsd",
+      "sha256": "993a5b95bcb7e8322277f7a6dce98673570598d892b4910fd0042ed3d6a950c3"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220324000019&dcmNo=8500481&eleId=19&offset=193139&length=133&dtd=dart3.xsd",
+      "sha256": "1868e7bd0213c420c8ae3ca6044dc72a62aaf7ae945c59813f698370ba7a1ee1"
+    }
+  ],
+  "shellCorpIds": [
+    "01085187"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20220324000019",
+        "dcmNo": "8500481",
+        "eleId": "1",
+        "offset": "793",
+        "length": "4027",
+        "dtd": "dart3.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20220324000019",
+        "dcmNo": "8500481",
+        "eleId": "19",
+        "offset": "193139",
+        "length": "133",
+        "dtd": "dart3.xsd"
+      }
+    }
+  ]
+}

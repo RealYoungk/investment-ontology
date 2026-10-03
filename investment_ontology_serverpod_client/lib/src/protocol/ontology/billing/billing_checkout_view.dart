@@ -18,12 +18,26 @@ abstract class BillingCheckoutView
     required this.state,
     required this.customerKey,
     required this.clientKey,
-  });
+    String? provider,
+    this.storeId,
+    this.channelKey,
+    this.issueId,
+    int? amountKrw,
+    String? priceVersion,
+  }) : provider = provider ?? 'toss',
+       amountKrw = amountKrw ?? 2900,
+       priceVersion = priceVersion ?? 'legacy-2900';
 
   factory BillingCheckoutView({
     required String state,
     required String customerKey,
     required String clientKey,
+    String? provider,
+    String? storeId,
+    String? channelKey,
+    String? issueId,
+    int? amountKrw,
+    String? priceVersion,
   }) = _BillingCheckoutViewImpl;
 
   factory BillingCheckoutView.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -31,6 +45,12 @@ abstract class BillingCheckoutView
       state: jsonSerialization['state'] as String,
       customerKey: jsonSerialization['customerKey'] as String,
       clientKey: jsonSerialization['clientKey'] as String,
+      provider: jsonSerialization['provider'] as String?,
+      storeId: jsonSerialization['storeId'] as String?,
+      channelKey: jsonSerialization['channelKey'] as String?,
+      issueId: jsonSerialization['issueId'] as String?,
+      amountKrw: jsonSerialization['amountKrw'] as int?,
+      priceVersion: jsonSerialization['priceVersion'] as String?,
     );
   }
 
@@ -40,6 +60,18 @@ abstract class BillingCheckoutView
 
   String clientKey;
 
+  String provider;
+
+  String? storeId;
+
+  String? channelKey;
+
+  String? issueId;
+
+  int amountKrw;
+
+  String priceVersion;
+
   /// Returns a shallow copy of this [BillingCheckoutView]
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
@@ -47,6 +79,12 @@ abstract class BillingCheckoutView
     String? state,
     String? customerKey,
     String? clientKey,
+    String? provider,
+    String? storeId,
+    String? channelKey,
+    String? issueId,
+    int? amountKrw,
+    String? priceVersion,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -55,6 +93,12 @@ abstract class BillingCheckoutView
       'state': state,
       'customerKey': customerKey,
       'clientKey': clientKey,
+      'provider': provider,
+      if (storeId != null) 'storeId': storeId,
+      if (channelKey != null) 'channelKey': channelKey,
+      if (issueId != null) 'issueId': issueId,
+      'amountKrw': amountKrw,
+      'priceVersion': priceVersion,
     };
   }
 
@@ -65,6 +109,12 @@ abstract class BillingCheckoutView
       'state': state,
       'customerKey': customerKey,
       'clientKey': clientKey,
+      'provider': provider,
+      if (storeId != null) 'storeId': storeId,
+      if (channelKey != null) 'channelKey': channelKey,
+      if (issueId != null) 'issueId': issueId,
+      'amountKrw': amountKrw,
+      'priceVersion': priceVersion,
     };
   }
 
@@ -74,15 +124,29 @@ abstract class BillingCheckoutView
   }
 }
 
+class _Undefined {}
+
 class _BillingCheckoutViewImpl extends BillingCheckoutView {
   _BillingCheckoutViewImpl({
     required String state,
     required String customerKey,
     required String clientKey,
+    String? provider,
+    String? storeId,
+    String? channelKey,
+    String? issueId,
+    int? amountKrw,
+    String? priceVersion,
   }) : super._(
          state: state,
          customerKey: customerKey,
          clientKey: clientKey,
+         provider: provider,
+         storeId: storeId,
+         channelKey: channelKey,
+         issueId: issueId,
+         amountKrw: amountKrw,
+         priceVersion: priceVersion,
        );
 
   /// Returns a shallow copy of this [BillingCheckoutView]
@@ -93,11 +157,23 @@ class _BillingCheckoutViewImpl extends BillingCheckoutView {
     String? state,
     String? customerKey,
     String? clientKey,
+    String? provider,
+    Object? storeId = _Undefined,
+    Object? channelKey = _Undefined,
+    Object? issueId = _Undefined,
+    int? amountKrw,
+    String? priceVersion,
   }) {
     return BillingCheckoutView(
       state: state ?? this.state,
       customerKey: customerKey ?? this.customerKey,
       clientKey: clientKey ?? this.clientKey,
+      provider: provider ?? this.provider,
+      storeId: storeId is String? ? storeId : this.storeId,
+      channelKey: channelKey is String? ? channelKey : this.channelKey,
+      issueId: issueId is String? ? issueId : this.issueId,
+      amountKrw: amountKrw ?? this.amountKrw,
+      priceVersion: priceVersion ?? this.priceVersion,
     );
   }
 }

@@ -1,0 +1,610 @@
+[
+  {
+    "printedLabel": "자 산 총 계",
+    "amount": "88224255509099",
+    "rawEvidence": {
+      "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230309000772&dcmNo=9045617&eleId=17&offset=361888&length=142757&dtd=dart3.xsd",
+      "tableIndex": 1,
+      "printedLabel": "자 산 총 계",
+      "currentColumn": 1,
+      "currentColumnSpan": 2,
+      "currentHeader": "제73(당)기 기말",
+      "printedCurrentCells": [
+        "",
+        "88,224,255,509,099"
+      ],
+      "basis": "CFS",
+      "unit": "원",
+      "unitMultiplier": "1",
+      "normalizedUnit": "원",
+      "periodStart": "2022-01-01",
+      "periodEnd": "2022-12-31",
+      "wholeCoreProof": {
+        "rule": "whole-core-independent-ce-v1",
+        "corpCode": "00139214",
+        "receipt": "20230309000772",
+        "basis": "CFS",
+        "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230309000772&dcmNo=9045617&eleId=17&offset=361888&length=142757&dtd=dart3.xsd",
+        "bodySha256": "11753ade08bda21c48249add001cb5accb4fb56b1505631ef1a954bd2be248fc",
+        "sourceDigest": "01d3bae11fcf72953aefb7d51b941044c026148621ca20837d378919156122ca",
+        "periodStart": "2022-01-01",
+        "periodEnd": "2022-12-31",
+        "wholeCE": {
+          "tableIndex": 5,
+          "wholeColumn": 7,
+          "rawHeader": [
+            "과 목",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "비지배지분",
+            "총 계"
+          ],
+          "printedProfitCells": [
+            "2. 연결당기순이익",
+            "-",
+            "-",
+            "-",
+            "-",
+            "1,280,094,347,172",
+            "3,607,669,212",
+            "1,283,702,016,384"
+          ],
+          "printedClosingCells": [
+            "VI. 2022년 12월 31일(당기말)",
+            "26,473,418,500",
+            "939,233,350,327",
+            "(1,487,219,924,864)",
+            "495,480,581,006",
+            "11,039,553,800,759",
+            "28,027,770,756",
+            "11,041,548,996,484"
+          ],
+          "wholeProfit": "1283702016384",
+          "closingEquity": "11041548996484",
+          "unit": "원",
+          "currentStartLabel": "V. 2022년 01월 01일(당기초)",
+          "currentEndLabel": "VI. 2022년 12월 31일(당기말)"
+        },
+        "primaryBlankHeaders": [],
+        "printedProfitAnnotation": true,
+        "wholeCfsHierarchy": "own-parent-components5-nci6-whole-total7",
+        "uncollectedOptional": []
+      }
+    }
+  },
+  {
+    "printedLabel": "부 채 총 계",
+    "amount": "77182706512615",
+    "rawEvidence": {
+      "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230309000772&dcmNo=9045617&eleId=17&offset=361888&length=142757&dtd=dart3.xsd",
+      "tableIndex": 1,
+      "printedLabel": "부 채 총 계",
+      "currentColumn": 1,
+      "currentColumnSpan": 2,
+      "currentHeader": "제73(당)기 기말",
+      "printedCurrentCells": [
+        "",
+        "77,182,706,512,615"
+      ],
+      "basis": "CFS",
+      "unit": "원",
+      "unitMultiplier": "1",
+      "normalizedUnit": "원",
+      "periodStart": "2022-01-01",
+      "periodEnd": "2022-12-31",
+      "wholeCoreProof": {
+        "rule": "whole-core-independent-ce-v1",
+        "corpCode": "00139214",
+        "receipt": "20230309000772",
+        "basis": "CFS",
+        "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230309000772&dcmNo=9045617&eleId=17&offset=361888&length=142757&dtd=dart3.xsd",
+        "bodySha256": "11753ade08bda21c48249add001cb5accb4fb56b1505631ef1a954bd2be248fc",
+        "sourceDigest": "01d3bae11fcf72953aefb7d51b941044c026148621ca20837d378919156122ca",
+        "periodStart": "2022-01-01",
+        "periodEnd": "2022-12-31",
+        "wholeCE": {
+          "tableIndex": 5,
+          "wholeColumn": 7,
+          "rawHeader": [
+            "과 목",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "비지배지분",
+            "총 계"
+          ],
+          "printedProfitCells": [
+            "2. 연결당기순이익",
+            "-",
+            "-",
+            "-",
+            "-",
+            "1,280,094,347,172",
+            "3,607,669,212",
+            "1,283,702,016,384"
+          ],
+          "printedClosingCells": [
+            "VI. 2022년 12월 31일(당기말)",
+            "26,473,418,500",
+            "939,233,350,327",
+            "(1,487,219,924,864)",
+            "495,480,581,006",
+            "11,039,553,800,759",
+            "28,027,770,756",
+            "11,041,548,996,484"
+          ],
+          "wholeProfit": "1283702016384",
+          "closingEquity": "11041548996484",
+          "unit": "원",
+          "currentStartLabel": "V. 2022년 01월 01일(당기초)",
+          "currentEndLabel": "VI. 2022년 12월 31일(당기말)"
+        },
+        "primaryBlankHeaders": [],
+        "printedProfitAnnotation": true,
+        "wholeCfsHierarchy": "own-parent-components5-nci6-whole-total7",
+        "uncollectedOptional": []
+      }
+    }
+  },
+  {
+    "printedLabel": "자 본 총 계",
+    "amount": "11041548996484",
+    "rawEvidence": {
+      "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230309000772&dcmNo=9045617&eleId=17&offset=361888&length=142757&dtd=dart3.xsd",
+      "tableIndex": 1,
+      "printedLabel": "자 본 총 계",
+      "currentColumn": 1,
+      "currentColumnSpan": 2,
+      "currentHeader": "제73(당)기 기말",
+      "printedCurrentCells": [
+        "",
+        "11,041,548,996,484"
+      ],
+      "basis": "CFS",
+      "unit": "원",
+      "unitMultiplier": "1",
+      "normalizedUnit": "원",
+      "periodStart": "2022-01-01",
+      "periodEnd": "2022-12-31",
+      "wholeCoreProof": {
+        "rule": "whole-core-independent-ce-v1",
+        "corpCode": "00139214",
+        "receipt": "20230309000772",
+        "basis": "CFS",
+        "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230309000772&dcmNo=9045617&eleId=17&offset=361888&length=142757&dtd=dart3.xsd",
+        "bodySha256": "11753ade08bda21c48249add001cb5accb4fb56b1505631ef1a954bd2be248fc",
+        "sourceDigest": "01d3bae11fcf72953aefb7d51b941044c026148621ca20837d378919156122ca",
+        "periodStart": "2022-01-01",
+        "periodEnd": "2022-12-31",
+        "wholeCE": {
+          "tableIndex": 5,
+          "wholeColumn": 7,
+          "rawHeader": [
+            "과 목",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "비지배지분",
+            "총 계"
+          ],
+          "printedProfitCells": [
+            "2. 연결당기순이익",
+            "-",
+            "-",
+            "-",
+            "-",
+            "1,280,094,347,172",
+            "3,607,669,212",
+            "1,283,702,016,384"
+          ],
+          "printedClosingCells": [
+            "VI. 2022년 12월 31일(당기말)",
+            "26,473,418,500",
+            "939,233,350,327",
+            "(1,487,219,924,864)",
+            "495,480,581,006",
+            "11,039,553,800,759",
+            "28,027,770,756",
+            "11,041,548,996,484"
+          ],
+          "wholeProfit": "1283702016384",
+          "closingEquity": "11041548996484",
+          "unit": "원",
+          "currentStartLabel": "V. 2022년 01월 01일(당기초)",
+          "currentEndLabel": "VI. 2022년 12월 31일(당기말)"
+        },
+        "primaryBlankHeaders": [],
+        "printedProfitAnnotation": true,
+        "wholeCfsHierarchy": "own-parent-components5-nci6-whole-total7",
+        "uncollectedOptional": []
+      }
+    }
+  },
+  {
+    "printedLabel": "I. 영업수익",
+    "amount": "25784423160935",
+    "rawEvidence": {
+      "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230309000772&dcmNo=9045617&eleId=17&offset=361888&length=142757&dtd=dart3.xsd",
+      "tableIndex": 3,
+      "printedLabel": "I. 영업수익",
+      "currentColumn": 1,
+      "currentColumnSpan": 2,
+      "currentHeader": "제73(당)기 기말",
+      "printedCurrentCells": [
+        "",
+        "25,784,423,160,935"
+      ],
+      "basis": "CFS",
+      "unit": "원",
+      "unitMultiplier": "1",
+      "normalizedUnit": "원",
+      "periodStart": "2022-01-01",
+      "periodEnd": "2022-12-31",
+      "wholeCoreProof": {
+        "rule": "whole-core-independent-ce-v1",
+        "corpCode": "00139214",
+        "receipt": "20230309000772",
+        "basis": "CFS",
+        "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230309000772&dcmNo=9045617&eleId=17&offset=361888&length=142757&dtd=dart3.xsd",
+        "bodySha256": "11753ade08bda21c48249add001cb5accb4fb56b1505631ef1a954bd2be248fc",
+        "sourceDigest": "01d3bae11fcf72953aefb7d51b941044c026148621ca20837d378919156122ca",
+        "periodStart": "2022-01-01",
+        "periodEnd": "2022-12-31",
+        "wholeCE": {
+          "tableIndex": 5,
+          "wholeColumn": 7,
+          "rawHeader": [
+            "과 목",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "비지배지분",
+            "총 계"
+          ],
+          "printedProfitCells": [
+            "2. 연결당기순이익",
+            "-",
+            "-",
+            "-",
+            "-",
+            "1,280,094,347,172",
+            "3,607,669,212",
+            "1,283,702,016,384"
+          ],
+          "printedClosingCells": [
+            "VI. 2022년 12월 31일(당기말)",
+            "26,473,418,500",
+            "939,233,350,327",
+            "(1,487,219,924,864)",
+            "495,480,581,006",
+            "11,039,553,800,759",
+            "28,027,770,756",
+            "11,041,548,996,484"
+          ],
+          "wholeProfit": "1283702016384",
+          "closingEquity": "11041548996484",
+          "unit": "원",
+          "currentStartLabel": "V. 2022년 01월 01일(당기초)",
+          "currentEndLabel": "VI. 2022년 12월 31일(당기말)"
+        },
+        "primaryBlankHeaders": [],
+        "printedProfitAnnotation": true,
+        "wholeCfsHierarchy": "own-parent-components5-nci6-whole-total7",
+        "uncollectedOptional": []
+      }
+    }
+  },
+  {
+    "printedLabel": "lll. 영업이익",
+    "amount": "1606141482182",
+    "rawEvidence": {
+      "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230309000772&dcmNo=9045617&eleId=17&offset=361888&length=142757&dtd=dart3.xsd",
+      "tableIndex": 3,
+      "printedLabel": "lll. 영업이익",
+      "currentColumn": 1,
+      "currentColumnSpan": 2,
+      "currentHeader": "제73(당)기 기말",
+      "printedCurrentCells": [
+        "",
+        "1,606,141,482,182"
+      ],
+      "basis": "CFS",
+      "unit": "원",
+      "unitMultiplier": "1",
+      "normalizedUnit": "원",
+      "periodStart": "2022-01-01",
+      "periodEnd": "2022-12-31",
+      "wholeCoreProof": {
+        "rule": "whole-core-independent-ce-v1",
+        "corpCode": "00139214",
+        "receipt": "20230309000772",
+        "basis": "CFS",
+        "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230309000772&dcmNo=9045617&eleId=17&offset=361888&length=142757&dtd=dart3.xsd",
+        "bodySha256": "11753ade08bda21c48249add001cb5accb4fb56b1505631ef1a954bd2be248fc",
+        "sourceDigest": "01d3bae11fcf72953aefb7d51b941044c026148621ca20837d378919156122ca",
+        "periodStart": "2022-01-01",
+        "periodEnd": "2022-12-31",
+        "wholeCE": {
+          "tableIndex": 5,
+          "wholeColumn": 7,
+          "rawHeader": [
+            "과 목",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "비지배지분",
+            "총 계"
+          ],
+          "printedProfitCells": [
+            "2. 연결당기순이익",
+            "-",
+            "-",
+            "-",
+            "-",
+            "1,280,094,347,172",
+            "3,607,669,212",
+            "1,283,702,016,384"
+          ],
+          "printedClosingCells": [
+            "VI. 2022년 12월 31일(당기말)",
+            "26,473,418,500",
+            "939,233,350,327",
+            "(1,487,219,924,864)",
+            "495,480,581,006",
+            "11,039,553,800,759",
+            "28,027,770,756",
+            "11,041,548,996,484"
+          ],
+          "wholeProfit": "1283702016384",
+          "closingEquity": "11041548996484",
+          "unit": "원",
+          "currentStartLabel": "V. 2022년 01월 01일(당기초)",
+          "currentEndLabel": "VI. 2022년 12월 31일(당기말)"
+        },
+        "primaryBlankHeaders": [],
+        "printedProfitAnnotation": true,
+        "wholeCfsHierarchy": "own-parent-components5-nci6-whole-total7",
+        "uncollectedOptional": []
+      }
+    }
+  },
+  {
+    "printedLabel": "X. 연결당기순이익 (대손준비금 반영후 조정이익 당기: 1,286,459,104,950 원 전기: 1,102,587,788,630 원) (비상위험준비금 반영후 조정이익 당기: 1,172,476,244,914 원 전기: 1,012,161,774,153 원)",
+    "amount": "1283702016384",
+    "rawEvidence": {
+      "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230309000772&dcmNo=9045617&eleId=17&offset=361888&length=142757&dtd=dart3.xsd",
+      "tableIndex": 3,
+      "printedLabel": "X. 연결당기순이익 (대손준비금 반영후 조정이익 당기: 1,286,459,104,950 원 전기: 1,102,587,788,630 원) (비상위험준비금 반영후 조정이익 당기: 1,172,476,244,914 원 전기: 1,012,161,774,153 원)",
+      "currentColumn": 1,
+      "currentColumnSpan": 2,
+      "currentHeader": "제73(당)기 기말",
+      "printedCurrentCells": [
+        "",
+        "1,283,702,016,384"
+      ],
+      "basis": "CFS",
+      "unit": "원",
+      "unitMultiplier": "1",
+      "normalizedUnit": "원",
+      "periodStart": "2022-01-01",
+      "periodEnd": "2022-12-31",
+      "wholeCoreProof": {
+        "rule": "whole-core-independent-ce-v1",
+        "corpCode": "00139214",
+        "receipt": "20230309000772",
+        "basis": "CFS",
+        "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230309000772&dcmNo=9045617&eleId=17&offset=361888&length=142757&dtd=dart3.xsd",
+        "bodySha256": "11753ade08bda21c48249add001cb5accb4fb56b1505631ef1a954bd2be248fc",
+        "sourceDigest": "01d3bae11fcf72953aefb7d51b941044c026148621ca20837d378919156122ca",
+        "periodStart": "2022-01-01",
+        "periodEnd": "2022-12-31",
+        "wholeCE": {
+          "tableIndex": 5,
+          "wholeColumn": 7,
+          "rawHeader": [
+            "과 목",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "비지배지분",
+            "총 계"
+          ],
+          "printedProfitCells": [
+            "2. 연결당기순이익",
+            "-",
+            "-",
+            "-",
+            "-",
+            "1,280,094,347,172",
+            "3,607,669,212",
+            "1,283,702,016,384"
+          ],
+          "printedClosingCells": [
+            "VI. 2022년 12월 31일(당기말)",
+            "26,473,418,500",
+            "939,233,350,327",
+            "(1,487,219,924,864)",
+            "495,480,581,006",
+            "11,039,553,800,759",
+            "28,027,770,756",
+            "11,041,548,996,484"
+          ],
+          "wholeProfit": "1283702016384",
+          "closingEquity": "11041548996484",
+          "unit": "원",
+          "currentStartLabel": "V. 2022년 01월 01일(당기초)",
+          "currentEndLabel": "VI. 2022년 12월 31일(당기말)"
+        },
+        "primaryBlankHeaders": [],
+        "printedProfitAnnotation": true,
+        "wholeCfsHierarchy": "own-parent-components5-nci6-whole-total7",
+        "uncollectedOptional": []
+      }
+    }
+  },
+  {
+    "printedLabel": "I. 영업활동으로 인한 현금흐름",
+    "amount": "398976804127",
+    "rawEvidence": {
+      "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230309000772&dcmNo=9045617&eleId=17&offset=361888&length=142757&dtd=dart3.xsd",
+      "tableIndex": 7,
+      "printedLabel": "I. 영업활동으로 인한 현금흐름",
+      "currentColumn": 1,
+      "currentColumnSpan": 2,
+      "currentHeader": "제73(당)기",
+      "printedCurrentCells": [
+        "",
+        "398,976,804,127"
+      ],
+      "basis": "CFS",
+      "unit": "원",
+      "unitMultiplier": "1",
+      "normalizedUnit": "원",
+      "periodStart": "2022-01-01",
+      "periodEnd": "2022-12-31",
+      "wholeCoreProof": {
+        "rule": "whole-core-independent-ce-v1",
+        "corpCode": "00139214",
+        "receipt": "20230309000772",
+        "basis": "CFS",
+        "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230309000772&dcmNo=9045617&eleId=17&offset=361888&length=142757&dtd=dart3.xsd",
+        "bodySha256": "11753ade08bda21c48249add001cb5accb4fb56b1505631ef1a954bd2be248fc",
+        "sourceDigest": "01d3bae11fcf72953aefb7d51b941044c026148621ca20837d378919156122ca",
+        "periodStart": "2022-01-01",
+        "periodEnd": "2022-12-31",
+        "wholeCE": {
+          "tableIndex": 5,
+          "wholeColumn": 7,
+          "rawHeader": [
+            "과 목",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "비지배지분",
+            "총 계"
+          ],
+          "printedProfitCells": [
+            "2. 연결당기순이익",
+            "-",
+            "-",
+            "-",
+            "-",
+            "1,280,094,347,172",
+            "3,607,669,212",
+            "1,283,702,016,384"
+          ],
+          "printedClosingCells": [
+            "VI. 2022년 12월 31일(당기말)",
+            "26,473,418,500",
+            "939,233,350,327",
+            "(1,487,219,924,864)",
+            "495,480,581,006",
+            "11,039,553,800,759",
+            "28,027,770,756",
+            "11,041,548,996,484"
+          ],
+          "wholeProfit": "1283702016384",
+          "closingEquity": "11041548996484",
+          "unit": "원",
+          "currentStartLabel": "V. 2022년 01월 01일(당기초)",
+          "currentEndLabel": "VI. 2022년 12월 31일(당기말)"
+        },
+        "primaryBlankHeaders": [],
+        "printedProfitAnnotation": true,
+        "wholeCfsHierarchy": "own-parent-components5-nci6-whole-total7",
+        "uncollectedOptional": []
+      }
+    }
+  },
+  {
+    "printedLabel": "유형자산의 취득",
+    "amount": "42802554028",
+    "rawEvidence": {
+      "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230309000772&dcmNo=9045617&eleId=17&offset=361888&length=142757&dtd=dart3.xsd",
+      "tableIndex": 7,
+      "printedLabel": "유형자산의 취득",
+      "currentColumn": 1,
+      "currentColumnSpan": 2,
+      "currentHeader": "제73(당)기",
+      "printedCurrentCells": [
+        "42,802,554,028",
+        ""
+      ],
+      "basis": "CFS",
+      "unit": "원",
+      "unitMultiplier": "1",
+      "normalizedUnit": "원",
+      "periodStart": "2022-01-01",
+      "periodEnd": "2022-12-31",
+      "wholeCoreProof": {
+        "rule": "whole-core-independent-ce-v1",
+        "corpCode": "00139214",
+        "receipt": "20230309000772",
+        "basis": "CFS",
+        "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230309000772&dcmNo=9045617&eleId=17&offset=361888&length=142757&dtd=dart3.xsd",
+        "bodySha256": "11753ade08bda21c48249add001cb5accb4fb56b1505631ef1a954bd2be248fc",
+        "sourceDigest": "01d3bae11fcf72953aefb7d51b941044c026148621ca20837d378919156122ca",
+        "periodStart": "2022-01-01",
+        "periodEnd": "2022-12-31",
+        "wholeCE": {
+          "tableIndex": 5,
+          "wholeColumn": 7,
+          "rawHeader": [
+            "과 목",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "지배기업 소유주지분",
+            "비지배지분",
+            "총 계"
+          ],
+          "printedProfitCells": [
+            "2. 연결당기순이익",
+            "-",
+            "-",
+            "-",
+            "-",
+            "1,280,094,347,172",
+            "3,607,669,212",
+            "1,283,702,016,384"
+          ],
+          "printedClosingCells": [
+            "VI. 2022년 12월 31일(당기말)",
+            "26,473,418,500",
+            "939,233,350,327",
+            "(1,487,219,924,864)",
+            "495,480,581,006",
+            "11,039,553,800,759",
+            "28,027,770,756",
+            "11,041,548,996,484"
+          ],
+          "wholeProfit": "1283702016384",
+          "closingEquity": "11041548996484",
+          "unit": "원",
+          "currentStartLabel": "V. 2022년 01월 01일(당기초)",
+          "currentEndLabel": "VI. 2022년 12월 31일(당기말)"
+        },
+        "primaryBlankHeaders": [],
+        "printedProfitAnnotation": true,
+        "wholeCfsHierarchy": "own-parent-components5-nci6-whole-total7",
+        "uncollectedOptional": []
+      }
+    }
+  }
+]

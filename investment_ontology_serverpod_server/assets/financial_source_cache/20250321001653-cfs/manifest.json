@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20250321001653",
+  "corpCode": "00886792",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2024,
+  "periodStart": "2024-01-01",
+  "periodEnd": "2024-12-31",
+  "ruleVersion": "verified-current-period-whole-annual-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250321001653",
+      "sha256": "1732b809b038763e18126c2ffb00f37f8ec03dcd9904a2d8e1cce8c60c1da4aa"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001653&dcmNo=10449285&eleId=1&offset=956&length=4568&dtd=dart4.xsd",
+      "sha256": "9fe8be2b4798f6e1d0a7936d4a82fa9b7c1b4bdde10f6e48aeff13e2ce758576"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001653&dcmNo=10449285&eleId=19&offset=299229&length=58169&dtd=dart4.xsd",
+      "sha256": "d828c8db802a4c6ebff53a6ef24d076f9598d5dd6886517ad134c8ca74f5390b"
+    }
+  ],
+  "retrievalProof": "Own shell/cover/basis node exact URI+SHA and direct8 actual printed cells. Independently checked BS identity, whole CE NI/closing/movements, current+prior CF activity/roll/BS cash and priorclose-currentopen: eleven integer differences zero. Partial eight accounts only; all statement rows uncollected."
+}

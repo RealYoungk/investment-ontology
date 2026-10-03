@@ -1,4 +1,3 @@
-import 'package:shad/shad.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';

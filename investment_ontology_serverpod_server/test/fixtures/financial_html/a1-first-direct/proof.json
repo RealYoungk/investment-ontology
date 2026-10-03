@@ -1,0 +1,29 @@
+{
+  "receipt": "20260316001360",
+  "corpCode": "00614089",
+  "companyName": "주식회사 에이원큐브텍",
+  "printedCoverName": "주식회사 에이원알폼",
+  "bsnsYear": 2025,
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260316001360",
+      "sha256": "4dc3fd285fffa20f2aead5032e1e9db694286f228caa13a817e73da023b3ea29"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260316001360&dcmNo=11128543&eleId=1&offset=968&length=4513&dtd=dart4.xsd",
+      "sha256": "e1203df5783f5aff916d739181bb6d53e7082acac33191b5243862bf87cb5fb2"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260316001360&dcmNo=11128543&eleId=21&offset=246061&length=100422&dtd=dart4.xsd",
+      "sha256": "1285b005f9f4f023453d26a74868965ce1e106f99abe5531c7a517fd427eedb9"
+    },
+    {
+      "label": "overview",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260316001360&dcmNo=11128543&eleId=3&offset=7910&length=111725&dtd=dart4.xsd",
+      "sha256": "500978c93eb2caf800805c5ddf056b7d1cddcf9eaf158abc901e9541539745ee"
+    }
+  ]
+}

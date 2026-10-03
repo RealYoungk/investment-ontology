@@ -21,8 +21,15 @@ abstract class MembershipView
     bool? paymentAvailable,
     this.termsVersion,
     bool? isTest,
+    int? currentPriceKrw,
+    this.appliedPriceKrw,
+    this.nextChargeUtc,
+    this.graceThroughUtc,
+    bool? priceProtected,
   }) : paymentAvailable = paymentAvailable ?? false,
-       isTest = isTest ?? false;
+       isTest = isTest ?? false,
+       currentPriceKrw = currentPriceKrw ?? 4900,
+       priceProtected = priceProtected ?? false;
 
   factory MembershipView({
     required bool adFree,
@@ -31,6 +38,11 @@ abstract class MembershipView
     bool? paymentAvailable,
     String? termsVersion,
     bool? isTest,
+    int? currentPriceKrw,
+    int? appliedPriceKrw,
+    DateTime? nextChargeUtc,
+    DateTime? graceThroughUtc,
+    bool? priceProtected,
   }) = _MembershipViewImpl;
 
   factory MembershipView.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -53,6 +65,23 @@ abstract class MembershipView
       isTest: jsonSerialization['isTest'] == null
           ? null
           : _isc.BoolJsonExtension.fromJson(jsonSerialization['isTest']),
+      currentPriceKrw: jsonSerialization['currentPriceKrw'] as int?,
+      appliedPriceKrw: jsonSerialization['appliedPriceKrw'] as int?,
+      nextChargeUtc: jsonSerialization['nextChargeUtc'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(
+              jsonSerialization['nextChargeUtc'],
+            ),
+      graceThroughUtc: jsonSerialization['graceThroughUtc'] == null
+          ? null
+          : _isc.DateTimeJsonExtension.fromJson(
+              jsonSerialization['graceThroughUtc'],
+            ),
+      priceProtected: jsonSerialization['priceProtected'] == null
+          ? null
+          : _isc.BoolJsonExtension.fromJson(
+              jsonSerialization['priceProtected'],
+            ),
     );
   }
 
@@ -68,6 +97,16 @@ abstract class MembershipView
 
   bool isTest;
 
+  int currentPriceKrw;
+
+  int? appliedPriceKrw;
+
+  DateTime? nextChargeUtc;
+
+  DateTime? graceThroughUtc;
+
+  bool priceProtected;
+
   /// Returns a shallow copy of this [MembershipView]
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
@@ -78,6 +117,11 @@ abstract class MembershipView
     bool? paymentAvailable,
     String? termsVersion,
     bool? isTest,
+    int? currentPriceKrw,
+    int? appliedPriceKrw,
+    DateTime? nextChargeUtc,
+    DateTime? graceThroughUtc,
+    bool? priceProtected,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -89,6 +133,11 @@ abstract class MembershipView
       'paymentAvailable': paymentAvailable,
       if (termsVersion != null) 'termsVersion': termsVersion,
       'isTest': isTest,
+      'currentPriceKrw': currentPriceKrw,
+      if (appliedPriceKrw != null) 'appliedPriceKrw': appliedPriceKrw,
+      if (nextChargeUtc != null) 'nextChargeUtc': nextChargeUtc?.toJson(),
+      if (graceThroughUtc != null) 'graceThroughUtc': graceThroughUtc?.toJson(),
+      'priceProtected': priceProtected,
     };
   }
 
@@ -102,6 +151,11 @@ abstract class MembershipView
       'paymentAvailable': paymentAvailable,
       if (termsVersion != null) 'termsVersion': termsVersion,
       'isTest': isTest,
+      'currentPriceKrw': currentPriceKrw,
+      if (appliedPriceKrw != null) 'appliedPriceKrw': appliedPriceKrw,
+      if (nextChargeUtc != null) 'nextChargeUtc': nextChargeUtc?.toJson(),
+      if (graceThroughUtc != null) 'graceThroughUtc': graceThroughUtc?.toJson(),
+      'priceProtected': priceProtected,
     };
   }
 
@@ -121,6 +175,11 @@ class _MembershipViewImpl extends MembershipView {
     bool? paymentAvailable,
     String? termsVersion,
     bool? isTest,
+    int? currentPriceKrw,
+    int? appliedPriceKrw,
+    DateTime? nextChargeUtc,
+    DateTime? graceThroughUtc,
+    bool? priceProtected,
   }) : super._(
          adFree: adFree,
          paidThroughUtc: paidThroughUtc,
@@ -128,6 +187,11 @@ class _MembershipViewImpl extends MembershipView {
          paymentAvailable: paymentAvailable,
          termsVersion: termsVersion,
          isTest: isTest,
+         currentPriceKrw: currentPriceKrw,
+         appliedPriceKrw: appliedPriceKrw,
+         nextChargeUtc: nextChargeUtc,
+         graceThroughUtc: graceThroughUtc,
+         priceProtected: priceProtected,
        );
 
   /// Returns a shallow copy of this [MembershipView]
@@ -141,6 +205,11 @@ class _MembershipViewImpl extends MembershipView {
     bool? paymentAvailable,
     Object? termsVersion = _Undefined,
     bool? isTest,
+    int? currentPriceKrw,
+    Object? appliedPriceKrw = _Undefined,
+    Object? nextChargeUtc = _Undefined,
+    Object? graceThroughUtc = _Undefined,
+    bool? priceProtected,
   }) {
     return MembershipView(
       adFree: adFree ?? this.adFree,
@@ -151,6 +220,17 @@ class _MembershipViewImpl extends MembershipView {
       paymentAvailable: paymentAvailable ?? this.paymentAvailable,
       termsVersion: termsVersion is String? ? termsVersion : this.termsVersion,
       isTest: isTest ?? this.isTest,
+      currentPriceKrw: currentPriceKrw ?? this.currentPriceKrw,
+      appliedPriceKrw: appliedPriceKrw is int?
+          ? appliedPriceKrw
+          : this.appliedPriceKrw,
+      nextChargeUtc: nextChargeUtc is DateTime?
+          ? nextChargeUtc
+          : this.nextChargeUtc,
+      graceThroughUtc: graceThroughUtc is DateTime?
+          ? graceThroughUtc
+          : this.graceThroughUtc,
+      priceProtected: priceProtected ?? this.priceProtected,
     );
   }
 }

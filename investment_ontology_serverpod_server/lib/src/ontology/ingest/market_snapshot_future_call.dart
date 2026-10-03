@@ -5,9 +5,17 @@ import '../data_go_kr/data_go_kr_service_key.dart';
 import 'ingest_jobs.dart';
 import 'ingest_hooks.dart';
 import 'market_snapshot_sync.dart';
+import 'market_security_relink.dart';
+import '../../generated/protocol.dart';
 
 class MarketSnapshotFutureCall extends FutureCall {
   Future<void> run(Session session, int jobId) async {
+    final job = await IngestJob.db.findById(session, jobId);
+    if (job?.kind == MarketSecurityRelink.kind) {
+      await MarketSecurityRelink.run(session, jobId);
+      return;
+    }
+    if (job?.kind != MarketSnapshotSync.kind) return;
     final key = DataGoKrServiceKey.read(session);
     if (key == null) {
       await IngestJobs.fail(session, jobId, '공공데이터포털 서비스키가 설정되지 않았습니다.');

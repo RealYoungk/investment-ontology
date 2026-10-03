@@ -1,3 +1,4 @@
+import 'capital_structure_card.dart';
 import '../ownership_changes/ownership_changes_section.dart';
 
 import 'package:flutter/material.dart';
@@ -80,6 +81,7 @@ class _GovernanceTabState extends State<GovernanceTab> {
             style: t.body(13, color: c.textMuted),
           ),
           const SizedBox(height: AppSpace.md),
+          CapitalStructureCard(corpCode: widget.corpCode),
         ],
       );
     }
@@ -122,6 +124,7 @@ class _GovernanceTabState extends State<GovernanceTab> {
           ),
         ),
         const SizedBox(height: AppSpace.lg),
+        CapitalStructureCard(corpCode: widget.corpCode),
         const SizedBox(height: AppSpace.lg),
         OwnershipChangesSection(corpCode: widget.corpCode, compact: true),
         const SizedBox(height: AppSpace.sm),

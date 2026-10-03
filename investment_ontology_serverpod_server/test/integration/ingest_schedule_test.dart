@@ -25,6 +25,70 @@ void main() {
       }),
     );
 
+    test('successful regular business job still schedules exactly one pending own-source resume', () async {
+      await Company.db.insertRow(
+        session,
+        Company(corpCode: '01801026', name: '브릴스', market: Market.kosdaq),
+      );
+      await IngestJob.db.insertRow(
+        session,
+        IngestJob(
+          kind: 'business_documents',
+          status: IngestStatus.succeeded,
+          startedAt: DateTime.now().toUtc(),
+          finishedAt: DateTime.now().toUtc(),
+        ),
+      );
+      final sources = await Source.db.count(session);
+      await IngestSchedule.onServerStart(session);
+      await IngestSchedule.onServerStart(session);
+      final resumes = await sp.FutureCallEntry.db.find(
+        session,
+        where: (t) =>
+            t.identifier.equals(IngestSchedule.businessDocumentsResumeId),
+      );
+      expect(resumes.length, 1);
+      expect(resumes.single.name, 'DisclosureResumeBusinessFutureCall');
+      expect(await ResearchSnapshot.db.count(session), 0);
+      expect(
+        await Source.db.count(session),
+        sources,
+        reason: 'startup only schedules; no source collection',
+      );
+    });
+    test(
+      'cancelled business job keeps pending own-source collection stopped',
+      () async {
+        await sp.FutureCallEntry.db.deleteWhere(
+          session,
+          where: (t) =>
+              t.identifier.equals(IngestSchedule.businessDocumentsResumeId),
+        );
+        await Company.db.insertRow(
+          session,
+          Company(corpCode: '01801026', name: '브릴스', market: Market.kosdaq),
+        );
+        await IngestJob.db.insertRow(
+          session,
+          IngestJob(
+            kind: 'business_documents',
+            status: IngestStatus.cancelled,
+            startedAt: DateTime.now().toUtc(),
+            finishedAt: DateTime.now().toUtc(),
+          ),
+        );
+        await IngestSchedule.onServerStart(session);
+        expect(
+          await sp.FutureCallEntry.db.count(
+            session,
+            where: (t) =>
+                t.identifier.equals(IngestSchedule.businessDocumentsResumeId),
+          ),
+          0,
+        );
+      },
+    );
+
     test('재시도 예약 없이 남은 실패는 시작 시 한 번만 복구 예약한다', () async {
       final session = sessionBuilder.build();
       await IngestJob.db.insertRow(

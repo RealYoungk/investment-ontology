@@ -1,3 +1,5 @@
+import '../support/shad_test_host.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,20 +12,22 @@ void main() {
     (tester) async {
       var destination = '';
       await tester.pumpWidget(
-        ShadApp(
-          home: Scaffold(
-            body: AppNavigationMenu(
-              entries: [
-                NavigationEntry(
-                  label: '홈',
-                  selected: true,
-                  onPressed: () => destination = 'home',
-                ),
-                NavigationEntry(
-                  label: '시장',
-                  onPressed: () => destination = 'market',
-                ),
-              ],
+        shadTestHost(
+          ShadApp(
+            home: Scaffold(
+              body: AppNavigationMenu(
+                entries: [
+                  NavigationEntry(
+                    label: '홈',
+                    selected: true,
+                    onPressed: () => destination = 'home',
+                  ),
+                  NavigationEntry(
+                    label: '시장',
+                    onPressed: () => destination = 'market',
+                  ),
+                ],
+              ),
             ),
           ),
         ),

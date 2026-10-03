@@ -88,6 +88,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _idevncao;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/investment_theme.dart'
     as _izhmhfon;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/macro_series_view.dart'
+    as _ijzi50sx;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/market.dart'
     as _iamn97sz;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/market_cap_point.dart'
@@ -575,6 +577,100 @@ class EndpointAi extends _isc.EndpointRef {
   );
 }
 
+/// {@category Endpoint}
+class EndpointBond extends _isc.EndpointRef {
+  EndpointBond(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'bond';
+
+  /// Public, stored-only read. Missing final corrections remain visible gaps.
+  _ida.Future<String> trends(String corpCode) =>
+      caller.callServerEndpoint<String>(
+        'bond',
+        'trends',
+        {'corpCode': corpCode},
+      );
+
+  /// Resume at most six reports per call; shared writes always require admin.
+  /// Does not widen the financial collection scope or start a global backfill.
+  _ida.Future<String> collect(String corpCode) =>
+      caller.callServerEndpoint<String>(
+        'bond',
+        'collect',
+        {'corpCode': corpCode},
+      );
+}
+
+/// {@category Endpoint}
+class EndpointCapital extends _isc.EndpointRef {
+  EndpointCapital(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'capital';
+
+  /// Public, stored-only read. Current report supersedes older snapshots.
+  _ida.Future<String> summary(String corpCode) =>
+      caller.callServerEndpoint<String>(
+        'capital',
+        'summary',
+        {'corpCode': corpCode},
+      );
+
+  /// Explicit administrator collection: one latest report, public source only.
+  _ida.Future<int> collect(String corpCode) => caller.callServerEndpoint<int>(
+    'capital',
+    'collect',
+    {'corpCode': corpCode},
+  );
+}
+
+/// Public read-only acquisition from receipt-bound official charter sections.
+/// No AI, shared-data writes, arbitrary URLs, or authentication overrides.
+/// {@category Endpoint}
+class EndpointCharter extends _isc.EndpointRef {
+  EndpointCharter(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'charter';
+
+  _ida.Future<_i1paap7y.IngestJob> startCollection() =>
+      caller.callServerEndpoint<_i1paap7y.IngestJob>(
+        'charter',
+        'startCollection',
+        {},
+      );
+
+  /// Explicit authenticated continuation for development servers with workers off.
+  _ida.Future<_i1paap7y.IngestJob?> advanceCollection() =>
+      caller.callServerEndpoint<_i1paap7y.IngestJob?>(
+        'charter',
+        'advanceCollection',
+        {},
+      );
+
+  _ida.Future<_i1paap7y.IngestJob?> collectionStatus() =>
+      caller.callServerEndpoint<_i1paap7y.IngestJob?>(
+        'charter',
+        'collectionStatus',
+        {},
+      );
+
+  /// Actual source coverage, rather than treating job completion as full data.
+  _ida.Future<String> collectionCoverage() => caller.callServerEndpoint<String>(
+    'charter',
+    'collectionCoverage',
+    {},
+  );
+
+  _ida.Future<String> summary(String corpCode) =>
+      caller.callServerEndpoint<String>(
+        'charter',
+        'summary',
+        {'corpCode': corpCode},
+      );
+}
+
 /// 상장사 조회.
 /// {@category Endpoint}
 class EndpointCompany extends _isc.EndpointRef {
@@ -649,7 +745,8 @@ class EndpointCompanyNews extends _isc.EndpointRef {
       );
 }
 
-/// Public reads of stored source-backed data. Every collection/import is admin-only.
+/// Public source-backed reads populate missing DART cache entries.
+/// Explicit collection/import remains admin-only.
 /// {@category Endpoint}
 class EndpointResearch extends _isc.EndpointRef {
   EndpointResearch(_isc.EndpointCaller caller) : super(caller);
@@ -1181,6 +1278,22 @@ class EndpointIngest extends _isc.EndpointRef {
       );
 }
 
+/// Public official market context, read from direct sources with bounded caching.
+/// {@category Endpoint}
+class EndpointMacro extends _isc.EndpointRef {
+  EndpointMacro(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'macro';
+
+  _ida.Future<List<_ijzi50sx.MacroSeriesView>> overview() =>
+      caller.callServerEndpoint<List<_ijzi50sx.MacroSeriesView>>(
+        'macro',
+        'overview',
+        {},
+      );
+}
+
 /// 시세 조회.
 /// {@category Endpoint}
 class EndpointMarket extends _isc.EndpointRef {
@@ -1308,11 +1421,15 @@ class EndpointMembership extends _isc.EndpointRef {
       );
 
   _ida.Future<_ieebiau0.BillingCheckoutView> beginCheckout(
-    String acceptedTestTerms,
-  ) => caller.callServerEndpoint<_ieebiau0.BillingCheckoutView>(
+    String acceptedTestTerms, {
+    int? expectedAmountKrw,
+  }) => caller.callServerEndpoint<_ieebiau0.BillingCheckoutView>(
     'membership',
     'beginCheckout',
-    {'acceptedTestTerms': acceptedTestTerms},
+    {
+      'acceptedTestTerms': acceptedTestTerms,
+      'expectedAmountKrw': expectedAmountKrw,
+    },
   );
 
   _ida.Future<_ieebiau0.BillingCheckoutView> beginCardReplacement(
@@ -1353,6 +1470,22 @@ class EndpointMembership extends _isc.EndpointRef {
     'cancelRenewal',
     {},
   );
+}
+
+/// Public pricing only; account entitlements stay on MembershipEndpoint.
+/// {@category Endpoint}
+class EndpointMembershipOffer extends _isc.EndpointRef {
+  EndpointMembershipOffer(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'membershipOffer';
+
+  _ida.Future<_iwrn1kmb.MembershipView> offer() =>
+      caller.callServerEndpoint<_iwrn1kmb.MembershipView>(
+        'membershipOffer',
+        'offer',
+        {},
+      );
 }
 
 /// AI 관계 검수 큐: 근거 인용을 보고 승인(verified)·거절(rejected)한다.
@@ -1847,6 +1980,9 @@ class Client extends _isc.ServerpodClientShared {
     greeting = EndpointGreeting(this);
     account = EndpointAccount(this);
     ai = EndpointAi(this);
+    bond = EndpointBond(this);
+    capital = EndpointCapital(this);
+    charter = EndpointCharter(this);
     company = EndpointCompany(this);
     companyNews = EndpointCompanyNews(this);
     research = EndpointResearch(this);
@@ -1857,8 +1993,10 @@ class Client extends _isc.ServerpodClientShared {
     group = EndpointGroup(this);
     industry = EndpointIndustry(this);
     ingest = EndpointIngest(this);
+    macro = EndpointMacro(this);
     market = EndpointMarket(this);
     membership = EndpointMembership(this);
+    membershipOffer = EndpointMembershipOffer(this);
     review = EndpointReview(this);
     screen = EndpointScreen(this);
     theme = EndpointTheme(this);
@@ -1875,6 +2013,12 @@ class Client extends _isc.ServerpodClientShared {
   late final EndpointAccount account;
 
   late final EndpointAi ai;
+
+  late final EndpointBond bond;
+
+  late final EndpointCapital capital;
+
+  late final EndpointCharter charter;
 
   late final EndpointCompany company;
 
@@ -1896,9 +2040,13 @@ class Client extends _isc.ServerpodClientShared {
 
   late final EndpointIngest ingest;
 
+  late final EndpointMacro macro;
+
   late final EndpointMarket market;
 
   late final EndpointMembership membership;
+
+  late final EndpointMembershipOffer membershipOffer;
 
   late final EndpointReview review;
 
@@ -1917,6 +2065,9 @@ class Client extends _isc.ServerpodClientShared {
     'greeting': greeting,
     'account': account,
     'ai': ai,
+    'bond': bond,
+    'capital': capital,
+    'charter': charter,
     'company': company,
     'companyNews': companyNews,
     'research': research,
@@ -1927,8 +2078,10 @@ class Client extends _isc.ServerpodClientShared {
     'group': group,
     'industry': industry,
     'ingest': ingest,
+    'macro': macro,
     'market': market,
     'membership': membership,
+    'membershipOffer': membershipOffer,
     'review': review,
     'screen': screen,
     'theme': theme,

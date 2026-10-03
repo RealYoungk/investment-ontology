@@ -1,0 +1,2163 @@
+{
+  "receipt": "20251021000231",
+  "corpCode": "01035942",
+  "companyName": "(주)메디안디노스틱",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2024,
+  "periodStart": "2024-01-01",
+  "periodEnd": "2024-12-31",
+  "ruleVersion": "located-own-current-eight-v1",
+  "sourceReceipt": "20251021000220",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20251021000231",
+      "sha256": "1249b213a39489ad9584e4729f6f031a232eddbcce7ffb259d725b7ed24063b5"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20251021000220&dcmNo=10846771&eleId=3&offset=12478&length=4523&dtd=dart4.xsd",
+      "sha256": "a9ba314ea8ce975840fac15ff850987852f2bc75c76bdf3f6f482e3b63ed836e"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20251021000220&dcmNo=10846771&eleId=21&offset=331848&length=55177&dtd=dart4.xsd",
+      "sha256": "2ae8f77e5bd1ec4800b0474160a2cab19b4574ed1959f5e493d2e7008b0d649b"
+    },
+    {
+      "label": "originalShell",
+      "file": "originalShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20251021000220",
+      "sha256": "fc561da8fa993b900f9d583e99f15facc9cb9c41969f0d2efab0e9f62339d222"
+    }
+  ],
+  "tables": [
+    [
+      [
+        "연결재무상태표"
+      ],
+      [
+        "제26기:2024년12월31일현재"
+      ],
+      [
+        "제25기:2023년12월31일현재"
+      ],
+      [
+        "제24기:2022년12월31일현재"
+      ],
+      [
+        "주식회사메디안디노스틱과그종속기업",
+        "(단위:원)"
+      ]
+    ],
+    [
+      [
+        "과목",
+        "주석",
+        "제26기",
+        "제25기"
+      ],
+      [
+        "자산",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Ⅰ.유동자산",
+        "",
+        "14,476,915,942",
+        "13,698,445,824"
+      ],
+      [
+        "현금및현금성자산",
+        "6,7,8,9",
+        "4,707,752,296",
+        "4,655,666,997"
+      ],
+      [
+        "당기손익-공정가치측정금융자산",
+        "6,7,8,10",
+        "-",
+        "-"
+      ],
+      [
+        "매출채권",
+        "6,7,8,11",
+        "2,367,759,779",
+        "1,431,975,592"
+      ],
+      [
+        "재고자산",
+        "14",
+        "2,451,081,376",
+        "2,852,199,344"
+      ],
+      [
+        "기타금융자산",
+        "6,7,8,12",
+        "4,814,585,504",
+        "4,377,707,051"
+      ],
+      [
+        "기타유동자산",
+        "13",
+        "135,736,987",
+        "380,896,840"
+      ],
+      [
+        "Ⅱ.비유동자산",
+        "",
+        "8,187,572,478",
+        "8,025,426,428"
+      ],
+      [
+        "사용권자산",
+        "15",
+        "113,294,255",
+        "65,923,016"
+      ],
+      [
+        "유형자산",
+        "16,36",
+        "6,825,575,402",
+        "7,103,831,557"
+      ],
+      [
+        "무형자산",
+        "17,36",
+        "216,389,854",
+        "239,483,686"
+      ],
+      [
+        "기타비유동금융자산",
+        "6,7,8,12",
+        "104,050,497",
+        "41,343,226"
+      ],
+      [
+        "기타비유동자산",
+        "13",
+        "104,452,955",
+        "158,153,783"
+      ],
+      [
+        "이연법인세자산",
+        "31",
+        "823,809,515",
+        "416,691,160"
+      ],
+      [
+        "자산총계",
+        "",
+        "22,664,488,420",
+        "21,723,872,252"
+      ],
+      [
+        "부채",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Ⅰ.유동부채",
+        "",
+        "1,786,204,291",
+        "2,419,423,234"
+      ],
+      [
+        "매입채무",
+        "6,7,8,18",
+        "215,210,846",
+        "522,386,845"
+      ],
+      [
+        "단기차입금",
+        "6,7,8,20,33",
+        "600,000,000",
+        "1,100,000,000"
+      ],
+      [
+        "기타금융부채",
+        "6,7,8,15,18",
+        "534,318,925",
+        "520,507,031"
+      ],
+      [
+        "기타부채",
+        "19",
+        "436,674,520",
+        "276,529,358"
+      ],
+      [
+        "미지급법인세",
+        "",
+        "-",
+        "-"
+      ],
+      [
+        "Ⅱ.비유동부채",
+        "",
+        "520,959,188",
+        "182,732,734"
+      ],
+      [
+        "장기차입금",
+        "6,7,8,21,33",
+        "500,000,000",
+        "150,000,000"
+      ],
+      [
+        "기타비유동금융부채",
+        "6,7,8,15,18",
+        "20,959,188",
+        "32,732,734"
+      ],
+      [
+        "부채총계",
+        "",
+        "2,307,163,479",
+        "2,602,155,968"
+      ],
+      [
+        "자본",
+        "",
+        "",
+        ""
+      ],
+      [
+        "지배기업의소유지분",
+        "",
+        "20,357,324,941",
+        "19,121,716,284"
+      ],
+      [
+        "Ⅰ.자본금",
+        "1,23",
+        "1,083,767,000",
+        "1,083,767,000"
+      ],
+      [
+        "Ⅱ.자본잉여금",
+        "23",
+        "6,822,801,421",
+        "6,822,801,421"
+      ],
+      [
+        "Ⅲ.자본조정",
+        "24",
+        "(789,514,817)",
+        "(823,162,474)"
+      ],
+      [
+        "Ⅳ.이익잉여금",
+        "25",
+        "13,240,271,337",
+        "12,038,310,337"
+      ],
+      [
+        "비지배지분",
+        "",
+        "-",
+        "-"
+      ],
+      [
+        "자본총계",
+        "",
+        "20,357,324,941",
+        "19,121,716,284"
+      ],
+      [
+        "부채와자본총계",
+        "",
+        "22,664,488,420",
+        "21,723,872,252"
+      ]
+    ],
+    [
+      [
+        "연결포괄손익계산서"
+      ],
+      [
+        "제26기:2024년01월01일부터2024년12월31일까지"
+      ],
+      [
+        "제25기:2023년01월01일부터2023년12월31일까지"
+      ],
+      [
+        "제24기:2022년01월01일부터2022년12월31일까지"
+      ],
+      [
+        "주식회사메디안디노스틱과그종속기업",
+        "(단위:원)"
+      ]
+    ],
+    [
+      [
+        "과목",
+        "주석",
+        "제26기",
+        "제25기"
+      ],
+      [
+        "Ⅰ.매출액",
+        "26,36",
+        "12,194,441,370",
+        "11,885,802,150"
+      ],
+      [
+        "Ⅱ.매출원가",
+        "28",
+        "5,709,524,340",
+        "6,703,010,399"
+      ],
+      [
+        "Ⅲ.매출총이익",
+        "",
+        "6,484,917,030",
+        "5,182,791,751"
+      ],
+      [
+        "판매비와관리비",
+        "27,28",
+        "6,129,347,733",
+        "6,401,418,793"
+      ],
+      [
+        "매출채권손상차손(환입)",
+        "8,11,28",
+        "(67,934,577)",
+        "32,014,715"
+      ],
+      [
+        "Ⅳ.영업이익",
+        "",
+        "423,503,874",
+        "(1,250,641,757)"
+      ],
+      [
+        "기타수익",
+        "29",
+        "8,586,383",
+        "2,720,782"
+      ],
+      [
+        "기타비용",
+        "29",
+        "42,388,425",
+        "246,976,101"
+      ],
+      [
+        "금융수익",
+        "8,30",
+        "466,895,912",
+        "330,230,281"
+      ],
+      [
+        "금융비용",
+        "8,30",
+        "61,755,099",
+        "102,495,426"
+      ],
+      [
+        "Ⅴ.법인세비용차감전순이익(손실)",
+        "",
+        "794,842,645",
+        "(1,267,162,221)"
+      ],
+      [
+        "법인세비용(수익)",
+        "31",
+        "(407,118,355)",
+        "101,964,221"
+      ],
+      [
+        "Ⅵ.당기순이익(손실)",
+        "",
+        "1,201,961,000",
+        "(1,369,126,442)"
+      ],
+      [
+        "Ⅶ.기타포괄손익",
+        "",
+        "",
+        ""
+      ],
+      [
+        "후속적으로당기손익으로재분류되는항목:",
+        "",
+        "",
+        ""
+      ],
+      [
+        "-해외사업환산손익",
+        "",
+        "33,647,657",
+        "4,909,690"
+      ],
+      [
+        "Ⅷ.당기총포괄손익",
+        "",
+        "1,235,608,657",
+        "(1,364,216,752)"
+      ],
+      [
+        "Ⅸ.주당이익",
+        "32",
+        "",
+        ""
+      ],
+      [
+        "기본주당순손익",
+        "",
+        "730",
+        "(831)"
+      ],
+      [
+        "희석주당순손익",
+        "",
+        "730",
+        "(831)"
+      ]
+    ],
+    [
+      [
+        "연결자본변동표"
+      ],
+      [
+        "제26기:2024년01월01일부터2024년12월31일까지"
+      ],
+      [
+        "제25기:2023년01월01일부터2023년12월31일까지"
+      ],
+      [
+        "제24기:2022년01월01일부터2022년12월31일까지"
+      ],
+      [
+        "주식회사메디안디노스틱과그종속기업",
+        "(단위:원)"
+      ]
+    ],
+    [
+      [
+        "과목",
+        "지배기업소유주지분",
+        "비지배지분",
+        "총계"
+      ],
+      [
+        "자본금",
+        "자본잉여금",
+        "자본조정",
+        "이익잉여금"
+      ],
+      [
+        "2023.1.1(전기초)",
+        "1,083,767,000",
+        "6,811,383,276",
+        "(816,654,019)",
+        "13,407,436,779",
+        "-",
+        "20,485,933,036"
+      ],
+      [
+        "주식기준보상거래",
+        "-",
+        "11,418,145",
+        "(11,418,145)",
+        "-",
+        "-",
+        "-"
+      ],
+      [
+        "당기순이익",
+        "-",
+        "-",
+        "-",
+        "(1,369,126,442)",
+        "-",
+        "(1,369,126,442)"
+      ],
+      [
+        "해외사업환산손익",
+        "-",
+        "-",
+        "4,909,690",
+        "",
+        "-",
+        "4,909,690"
+      ],
+      [
+        "2023.12.31(전기말)",
+        "1,083,767,000",
+        "6,822,801,421",
+        "(823,162,474)",
+        "12,038,310,337",
+        "-",
+        "19,121,716,284"
+      ],
+      [
+        "2024.1.1(당기초)",
+        "1,083,767,000",
+        "6,822,801,421",
+        "(823,162,474)",
+        "12,038,310,337",
+        "-",
+        "19,121,716,284"
+      ],
+      [
+        "주식기준보상거래",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-"
+      ],
+      [
+        "당기순이익",
+        "-",
+        "-",
+        "-",
+        "1,201,961,000",
+        "-",
+        "1,201,961,000"
+      ],
+      [
+        "해외사업환산손익",
+        "-",
+        "-",
+        "33,647,657",
+        "",
+        "-",
+        "33,647,657"
+      ],
+      [
+        "2024.12.31(당기말)",
+        "1,083,767,000",
+        "6,822,801,421",
+        "(789,514,817)",
+        "13,240,271,337",
+        "-",
+        "20,357,324,941"
+      ]
+    ],
+    [
+      [
+        "연결현금흐름표"
+      ],
+      [
+        "제26기:2024년01월01일부터2024년12월31일까지"
+      ],
+      [
+        "제25기:2023년01월01일부터2023년12월31일까지"
+      ],
+      [
+        "제24기:2022년01월01일부터2022년12월31일까지"
+      ],
+      [
+        "주식회사메디안디노스틱과그종속기업",
+        "(단위:원)"
+      ]
+    ],
+    [
+      [
+        "과목",
+        "주석",
+        "제26(당)기",
+        "제25기"
+      ],
+      [
+        "I.영업활동으로인한현금흐름",
+        "",
+        "",
+        "573,772,425",
+        "",
+        "1,083,226,331"
+      ],
+      [
+        "1.영업에서창출된현금",
+        "35",
+        "415,215,531",
+        "",
+        "1,009,397,926",
+        ""
+      ],
+      [
+        "(1)당기순손익",
+        "",
+        "1,201,961,000",
+        "",
+        "(1,369,126,442)",
+        ""
+      ],
+      [
+        "(2)조정",
+        "",
+        "(508,118,788)",
+        "",
+        "(620,826,129)",
+        ""
+      ],
+      [
+        "(3)영업활동으로인한자산ㆍ부채의변동",
+        "",
+        "(278,626,681)",
+        "",
+        "2,999,350,497",
+        ""
+      ],
+      [
+        "2.이자의수취",
+        "",
+        "196,601,908",
+        "",
+        "117,926,026",
+        ""
+      ],
+      [
+        "3.이자의지급",
+        "",
+        "(25,603,324)",
+        "",
+        "(23,261,781)",
+        ""
+      ],
+      [
+        "4.법인세의지급",
+        "",
+        "(12,441,690)",
+        "",
+        "(20,835,840)",
+        ""
+      ],
+      [
+        "II.투자활동으로인한현금흐름",
+        "",
+        "",
+        "(617,346,960)",
+        "",
+        "(1,798,621,018)"
+      ],
+      [
+        "1.투자활동으로인한현금유입액",
+        "",
+        "11,236,868,296",
+        "",
+        "11,022,581,536",
+        ""
+      ],
+      [
+        "당기손익-공정가치측정금융자산의감소",
+        "",
+        "3,030,747,402",
+        "",
+        "4,012,507,670",
+        ""
+      ],
+      [
+        "단기금융상품의감소",
+        "",
+        "8,035,782,682",
+        "",
+        "6,912,285,119",
+        ""
+      ],
+      [
+        "유형자산의처분",
+        "",
+        "15,650,364",
+        "",
+        "20,000",
+        ""
+      ],
+      [
+        "종업원대여금의감소",
+        "",
+        "151,687,848",
+        "",
+        "84,640,897",
+        ""
+      ],
+      [
+        "보증금의감소",
+        "",
+        "3,000,000",
+        "",
+        "13,127,850",
+        ""
+      ],
+      [
+        "2.투자활동으로인한현금유출액",
+        "",
+        "(11,854,215,256)",
+        "",
+        "(12,821,202,554)",
+        ""
+      ],
+      [
+        "단기금융상품의증가",
+        "",
+        "8,535,966,982",
+        "",
+        "8,912,300,666",
+        ""
+      ],
+      [
+        "당기손익-공정가치측정금융자산의증가",
+        "",
+        "3,000,000,000",
+        "",
+        "3,000,000,000",
+        ""
+      ],
+      [
+        "보증금의증가",
+        "",
+        "40,000,000",
+        "",
+        "2,411,820",
+        ""
+      ],
+      [
+        "유형자산의취득",
+        "",
+        "177,497,854",
+        "",
+        "772,098,368",
+        ""
+      ],
+      [
+        "무형자산의취득",
+        "",
+        "5,750,420",
+        "",
+        "19,391,700",
+        ""
+      ],
+      [
+        "종업원대여금의증가",
+        "",
+        "95,000,000",
+        "",
+        "115,000,000",
+        ""
+      ],
+      [
+        "III.재무활동으로인한현금흐름",
+        "",
+        "",
+        "37,749,060",
+        "",
+        "644,549,398"
+      ],
+      [
+        "1.재무활동으로인한현금유입액",
+        "",
+        "784,177,156",
+        "",
+        "709,427,630",
+        ""
+      ],
+      [
+        "정부보조금의수령",
+        "",
+        "284,177,156",
+        "",
+        "709,427,630",
+        ""
+      ],
+      [
+        "장기차입금의증가",
+        "",
+        "500,000,000",
+        "",
+        "-",
+        ""
+      ],
+      [
+        "2.재무활동으로인한현금유출액",
+        "",
+        "(746,428,096)",
+        "",
+        "(64,878,232)",
+        ""
+      ],
+      [
+        "리스부채의상환",
+        "",
+        "96,428,096",
+        "",
+        "64,878,232",
+        ""
+      ],
+      [
+        "단기차입금의상환",
+        "",
+        "500,000,000",
+        "",
+        "-",
+        ""
+      ],
+      [
+        "장기차입금의상환",
+        "",
+        "150,000,000",
+        "",
+        "",
+        ""
+      ],
+      [
+        "IV.현금및현금성자산의증가(감소)(I+II+III)",
+        "",
+        "",
+        "(5,825,475)",
+        "",
+        "(70,845,289)"
+      ],
+      [
+        "V.기초의현금및현금성자산",
+        "",
+        "",
+        "4,655,666,997",
+        "",
+        "4,731,292,202"
+      ],
+      [
+        "VI.현금및현금성자산의환율변동효과",
+        "",
+        "",
+        "57,910,774",
+        "",
+        "(4,779,916)"
+      ],
+      [
+        "VII.기말의현금및현금성자산",
+        "",
+        "",
+        "4,707,752,296",
+        "",
+        "4,655,666,997"
+      ]
+    ]
+  ],
+  "core": [
+    {
+      "table": 1,
+      "row": 16,
+      "column": 2,
+      "label": "자산총계",
+      "literal": "22,664,488,420",
+      "kind": "BS",
+      "key": "assets",
+      "magnitude": false
+    },
+    {
+      "table": 1,
+      "row": 27,
+      "column": 2,
+      "label": "부채총계",
+      "literal": "2,307,163,479",
+      "kind": "BS",
+      "key": "liabilities",
+      "magnitude": false
+    },
+    {
+      "table": 1,
+      "row": 35,
+      "column": 2,
+      "label": "자본총계",
+      "literal": "20,357,324,941",
+      "kind": "BS",
+      "key": "equity",
+      "magnitude": false
+    },
+    {
+      "table": 3,
+      "row": 1,
+      "column": 2,
+      "label": "Ⅰ.매출액",
+      "literal": "12,194,441,370",
+      "kind": "CIS",
+      "key": "revenue",
+      "magnitude": false
+    },
+    {
+      "table": 3,
+      "row": 6,
+      "column": 2,
+      "label": "Ⅳ.영업이익",
+      "literal": "423,503,874",
+      "kind": "CIS",
+      "key": "operatingIncome",
+      "magnitude": false
+    },
+    {
+      "table": 3,
+      "row": 13,
+      "column": 2,
+      "label": "Ⅵ.당기순이익(손실)",
+      "literal": "1,201,961,000",
+      "kind": "CIS",
+      "key": "netIncome",
+      "magnitude": false
+    },
+    {
+      "table": 7,
+      "row": 1,
+      "column": 3,
+      "label": "I.영업활동으로인한현금흐름",
+      "literal": "573,772,425",
+      "kind": "CF",
+      "key": "operatingCashFlow",
+      "magnitude": false
+    },
+    {
+      "table": 7,
+      "row": 20,
+      "column": 2,
+      "label": "유형자산의취득",
+      "literal": "177,497,854",
+      "kind": "CF",
+      "key": "capex",
+      "magnitude": true
+    }
+  ],
+  "checks": [
+    {
+      "label": "BS current assets",
+      "total": {
+        "table": 1,
+        "row": 2,
+        "column": 2,
+        "label": "Ⅰ.유동자산",
+        "literal": "14,476,915,942"
+      },
+      "terms": [
+        {
+          "table": 1,
+          "row": 3,
+          "column": 2,
+          "label": "현금및현금성자산",
+          "literal": "4,707,752,296",
+          "coefficient": 1
+        },
+        {
+          "table": 1,
+          "row": 4,
+          "column": 2,
+          "label": "당기손익-공정가치측정금융자산",
+          "literal": "-",
+          "coefficient": 1
+        },
+        {
+          "table": 1,
+          "row": 5,
+          "column": 2,
+          "label": "매출채권",
+          "literal": "2,367,759,779",
+          "coefficient": 1
+        },
+        {
+          "table": 1,
+          "row": 6,
+          "column": 2,
+          "label": "재고자산",
+          "literal": "2,451,081,376",
+          "coefficient": 1
+        },
+        {
+          "table": 1,
+          "row": 7,
+          "column": 2,
+          "label": "기타금융자산",
+          "literal": "4,814,585,504",
+          "coefficient": 1
+        },
+        {
+          "table": 1,
+          "row": 8,
+          "column": 2,
+          "label": "기타유동자산",
+          "literal": "135,736,987",
+          "coefficient": 1
+        }
+      ],
+      "missingTermCount": 1,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "BS noncurrent assets",
+      "total": {
+        "table": 1,
+        "row": 9,
+        "column": 2,
+        "label": "Ⅱ.비유동자산",
+        "literal": "8,187,572,478"
+      },
+      "terms": [
+        {
+          "table": 1,
+          "row": 10,
+          "column": 2,
+          "label": "사용권자산",
+          "literal": "113,294,255",
+          "coefficient": 1
+        },
+        {
+          "table": 1,
+          "row": 11,
+          "column": 2,
+          "label": "유형자산",
+          "literal": "6,825,575,402",
+          "coefficient": 1
+        },
+        {
+          "table": 1,
+          "row": 12,
+          "column": 2,
+          "label": "무형자산",
+          "literal": "216,389,854",
+          "coefficient": 1
+        },
+        {
+          "table": 1,
+          "row": 13,
+          "column": 2,
+          "label": "기타비유동금융자산",
+          "literal": "104,050,497",
+          "coefficient": 1
+        },
+        {
+          "table": 1,
+          "row": 14,
+          "column": 2,
+          "label": "기타비유동자산",
+          "literal": "104,452,955",
+          "coefficient": 1
+        },
+        {
+          "table": 1,
+          "row": 15,
+          "column": 2,
+          "label": "이연법인세자산",
+          "literal": "823,809,515",
+          "coefficient": 1
+        }
+      ],
+      "missingTermCount": 0,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "BS assets",
+      "total": {
+        "table": 1,
+        "row": 16,
+        "column": 2,
+        "label": "자산총계",
+        "literal": "22,664,488,420"
+      },
+      "terms": [
+        {
+          "table": 1,
+          "row": 2,
+          "column": 2,
+          "label": "Ⅰ.유동자산",
+          "literal": "14,476,915,942",
+          "coefficient": 1
+        },
+        {
+          "table": 1,
+          "row": 9,
+          "column": 2,
+          "label": "Ⅱ.비유동자산",
+          "literal": "8,187,572,478",
+          "coefficient": 1
+        }
+      ],
+      "missingTermCount": 0,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "BS current liabilities",
+      "total": {
+        "table": 1,
+        "row": 18,
+        "column": 2,
+        "label": "Ⅰ.유동부채",
+        "literal": "1,786,204,291"
+      },
+      "terms": [
+        {
+          "table": 1,
+          "row": 19,
+          "column": 2,
+          "label": "매입채무",
+          "literal": "215,210,846",
+          "coefficient": 1
+        },
+        {
+          "table": 1,
+          "row": 20,
+          "column": 2,
+          "label": "단기차입금",
+          "literal": "600,000,000",
+          "coefficient": 1
+        },
+        {
+          "table": 1,
+          "row": 21,
+          "column": 2,
+          "label": "기타금융부채",
+          "literal": "534,318,925",
+          "coefficient": 1
+        },
+        {
+          "table": 1,
+          "row": 22,
+          "column": 2,
+          "label": "기타부채",
+          "literal": "436,674,520",
+          "coefficient": 1
+        },
+        {
+          "table": 1,
+          "row": 23,
+          "column": 2,
+          "label": "미지급법인세",
+          "literal": "-",
+          "coefficient": 1
+        }
+      ],
+      "missingTermCount": 1,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "BS noncurrent liabilities",
+      "total": {
+        "table": 1,
+        "row": 24,
+        "column": 2,
+        "label": "Ⅱ.비유동부채",
+        "literal": "520,959,188"
+      },
+      "terms": [
+        {
+          "table": 1,
+          "row": 25,
+          "column": 2,
+          "label": "장기차입금",
+          "literal": "500,000,000",
+          "coefficient": 1
+        },
+        {
+          "table": 1,
+          "row": 26,
+          "column": 2,
+          "label": "기타비유동금융부채",
+          "literal": "20,959,188",
+          "coefficient": 1
+        }
+      ],
+      "missingTermCount": 0,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "BS liabilities",
+      "total": {
+        "table": 1,
+        "row": 27,
+        "column": 2,
+        "label": "부채총계",
+        "literal": "2,307,163,479"
+      },
+      "terms": [
+        {
+          "table": 1,
+          "row": 18,
+          "column": 2,
+          "label": "Ⅰ.유동부채",
+          "literal": "1,786,204,291",
+          "coefficient": 1
+        },
+        {
+          "table": 1,
+          "row": 24,
+          "column": 2,
+          "label": "Ⅱ.비유동부채",
+          "literal": "520,959,188",
+          "coefficient": 1
+        }
+      ],
+      "missingTermCount": 0,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "BS equity",
+      "total": {
+        "table": 1,
+        "row": 35,
+        "column": 2,
+        "label": "자본총계",
+        "literal": "20,357,324,941"
+      },
+      "terms": [
+        {
+          "table": 1,
+          "row": 30,
+          "column": 2,
+          "label": "Ⅰ.자본금",
+          "literal": "1,083,767,000",
+          "coefficient": 1
+        },
+        {
+          "table": 1,
+          "row": 31,
+          "column": 2,
+          "label": "Ⅱ.자본잉여금",
+          "literal": "6,822,801,421",
+          "coefficient": 1
+        },
+        {
+          "table": 1,
+          "row": 32,
+          "column": 2,
+          "label": "Ⅲ.자본조정",
+          "literal": "(789,514,817)",
+          "coefficient": 1
+        },
+        {
+          "table": 1,
+          "row": 33,
+          "column": 2,
+          "label": "Ⅳ.이익잉여금",
+          "literal": "13,240,271,337",
+          "coefficient": 1
+        },
+        {
+          "table": 1,
+          "row": 34,
+          "column": 2,
+          "label": "비지배지분",
+          "literal": "-",
+          "coefficient": 1
+        }
+      ],
+      "missingTermCount": 1,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "BS A=L+E",
+      "total": {
+        "table": 1,
+        "row": 16,
+        "column": 2,
+        "label": "자산총계",
+        "literal": "22,664,488,420"
+      },
+      "terms": [
+        {
+          "table": 1,
+          "row": 27,
+          "column": 2,
+          "label": "부채총계",
+          "literal": "2,307,163,479",
+          "coefficient": 1
+        },
+        {
+          "table": 1,
+          "row": 35,
+          "column": 2,
+          "label": "자본총계",
+          "literal": "20,357,324,941",
+          "coefficient": 1
+        }
+      ],
+      "missingTermCount": 0,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "PL gross",
+      "total": {
+        "table": 3,
+        "row": 3,
+        "column": 2,
+        "label": "Ⅲ.매출총이익",
+        "literal": "6,484,917,030"
+      },
+      "terms": [
+        {
+          "table": 3,
+          "row": 1,
+          "column": 2,
+          "label": "Ⅰ.매출액",
+          "literal": "12,194,441,370",
+          "coefficient": 1
+        },
+        {
+          "table": 3,
+          "row": 2,
+          "column": 2,
+          "label": "Ⅱ.매출원가",
+          "literal": "5,709,524,340",
+          "coefficient": -1
+        }
+      ],
+      "missingTermCount": 0,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "PL operating",
+      "total": {
+        "table": 3,
+        "row": 6,
+        "column": 2,
+        "label": "Ⅳ.영업이익",
+        "literal": "423,503,874"
+      },
+      "terms": [
+        {
+          "table": 3,
+          "row": 3,
+          "column": 2,
+          "label": "Ⅲ.매출총이익",
+          "literal": "6,484,917,030",
+          "coefficient": 1
+        },
+        {
+          "table": 3,
+          "row": 4,
+          "column": 2,
+          "label": "판매비와관리비",
+          "literal": "6,129,347,733",
+          "coefficient": -1
+        },
+        {
+          "table": 3,
+          "row": 5,
+          "column": 2,
+          "label": "매출채권손상차손(환입)",
+          "literal": "(67,934,577)",
+          "coefficient": -1
+        }
+      ],
+      "missingTermCount": 0,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "PL pretax",
+      "total": {
+        "table": 3,
+        "row": 11,
+        "column": 2,
+        "label": "Ⅴ.법인세비용차감전순이익(손실)",
+        "literal": "794,842,645"
+      },
+      "terms": [
+        {
+          "table": 3,
+          "row": 6,
+          "column": 2,
+          "label": "Ⅳ.영업이익",
+          "literal": "423,503,874",
+          "coefficient": 1
+        },
+        {
+          "table": 3,
+          "row": 7,
+          "column": 2,
+          "label": "기타수익",
+          "literal": "8,586,383",
+          "coefficient": 1
+        },
+        {
+          "table": 3,
+          "row": 8,
+          "column": 2,
+          "label": "기타비용",
+          "literal": "42,388,425",
+          "coefficient": -1
+        },
+        {
+          "table": 3,
+          "row": 9,
+          "column": 2,
+          "label": "금융수익",
+          "literal": "466,895,912",
+          "coefficient": 1
+        },
+        {
+          "table": 3,
+          "row": 10,
+          "column": 2,
+          "label": "금융비용",
+          "literal": "61,755,099",
+          "coefficient": -1
+        }
+      ],
+      "missingTermCount": 0,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "PL NI",
+      "total": {
+        "table": 3,
+        "row": 13,
+        "column": 2,
+        "label": "Ⅵ.당기순이익(손실)",
+        "literal": "1,201,961,000"
+      },
+      "terms": [
+        {
+          "table": 3,
+          "row": 11,
+          "column": 2,
+          "label": "Ⅴ.법인세비용차감전순이익(손실)",
+          "literal": "794,842,645",
+          "coefficient": 1
+        },
+        {
+          "table": 3,
+          "row": 12,
+          "column": 2,
+          "label": "법인세비용(수익)",
+          "literal": "(407,118,355)",
+          "coefficient": -1
+        }
+      ],
+      "missingTermCount": 0,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "CE NI=whole PL NI",
+      "total": {
+        "table": 5,
+        "row": 9,
+        "column": 6,
+        "label": "당기순이익",
+        "literal": "1,201,961,000"
+      },
+      "terms": [
+        {
+          "table": 3,
+          "row": 13,
+          "column": 2,
+          "label": "Ⅵ.당기순이익(손실)",
+          "literal": "1,201,961,000",
+          "coefficient": 1
+        }
+      ],
+      "missingTermCount": 0,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "CF NI=whole PL NI",
+      "total": {
+        "table": 7,
+        "row": 3,
+        "column": 2,
+        "label": "(1)당기순손익",
+        "literal": "1,201,961,000"
+      },
+      "terms": [
+        {
+          "table": 3,
+          "row": 13,
+          "column": 2,
+          "label": "Ⅵ.당기순이익(손실)",
+          "literal": "1,201,961,000",
+          "coefficient": 1
+        }
+      ],
+      "missingTermCount": 0,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "CE closing=BS equity",
+      "total": {
+        "table": 5,
+        "row": 11,
+        "column": 6,
+        "label": "2024.12.31(당기말)",
+        "literal": "20,357,324,941"
+      },
+      "terms": [
+        {
+          "table": 1,
+          "row": 35,
+          "column": 2,
+          "label": "자본총계",
+          "literal": "20,357,324,941",
+          "coefficient": 1
+        }
+      ],
+      "missingTermCount": 0,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "CE opening=own priorBS",
+      "total": {
+        "table": 5,
+        "row": 7,
+        "column": 6,
+        "label": "2024.1.1(당기초)",
+        "literal": "19,121,716,284"
+      },
+      "terms": [
+        {
+          "table": 1,
+          "row": 35,
+          "column": 3,
+          "label": "자본총계",
+          "literal": "19,121,716,284",
+          "coefficient": 1
+        }
+      ],
+      "missingTermCount": 0,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "CE closing primitives",
+      "total": {
+        "table": 5,
+        "row": 11,
+        "column": 6,
+        "label": "2024.12.31(당기말)",
+        "literal": "20,357,324,941"
+      },
+      "terms": [
+        {
+          "table": 5,
+          "row": 11,
+          "column": 1,
+          "label": "2024.12.31(당기말)",
+          "literal": "1,083,767,000",
+          "coefficient": 1
+        },
+        {
+          "table": 5,
+          "row": 11,
+          "column": 2,
+          "label": "2024.12.31(당기말)",
+          "literal": "6,822,801,421",
+          "coefficient": 1
+        },
+        {
+          "table": 5,
+          "row": 11,
+          "column": 3,
+          "label": "2024.12.31(당기말)",
+          "literal": "(789,514,817)",
+          "coefficient": 1
+        },
+        {
+          "table": 5,
+          "row": 11,
+          "column": 4,
+          "label": "2024.12.31(당기말)",
+          "literal": "13,240,271,337",
+          "coefficient": 1
+        },
+        {
+          "table": 5,
+          "row": 11,
+          "column": 5,
+          "label": "2024.12.31(당기말)",
+          "literal": "-",
+          "coefficient": 1
+        }
+      ],
+      "missingTermCount": 1,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "CE currentmovement",
+      "total": {
+        "table": 5,
+        "row": 11,
+        "column": 6,
+        "label": "2024.12.31(당기말)",
+        "literal": "20,357,324,941"
+      },
+      "terms": [
+        {
+          "table": 5,
+          "row": 7,
+          "column": 6,
+          "label": "2024.1.1(당기초)",
+          "literal": "19,121,716,284",
+          "coefficient": 1
+        },
+        {
+          "table": 5,
+          "row": 8,
+          "column": 6,
+          "label": "주식기준보상거래",
+          "literal": "-",
+          "coefficient": 1
+        },
+        {
+          "table": 5,
+          "row": 9,
+          "column": 6,
+          "label": "당기순이익",
+          "literal": "1,201,961,000",
+          "coefficient": 1
+        },
+        {
+          "table": 5,
+          "row": 10,
+          "column": 6,
+          "label": "해외사업환산손익",
+          "literal": "33,647,657",
+          "coefficient": 1
+        }
+      ],
+      "missingTermCount": 1,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "PL TCI",
+      "total": {
+        "table": 3,
+        "row": 17,
+        "column": 2,
+        "label": "Ⅷ.당기총포괄손익",
+        "literal": "1,235,608,657"
+      },
+      "terms": [
+        {
+          "table": 3,
+          "row": 13,
+          "column": 2,
+          "label": "Ⅵ.당기순이익(손실)",
+          "literal": "1,201,961,000",
+          "coefficient": 1
+        },
+        {
+          "table": 3,
+          "row": 16,
+          "column": 2,
+          "label": "-해외사업환산손익",
+          "literal": "33,647,657",
+          "coefficient": 1
+        }
+      ],
+      "missingTermCount": 0,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "CE OCI=PL OCI",
+      "total": {
+        "table": 5,
+        "row": 10,
+        "column": 6,
+        "label": "해외사업환산손익",
+        "literal": "33,647,657"
+      },
+      "terms": [
+        {
+          "table": 3,
+          "row": 16,
+          "column": 2,
+          "label": "-해외사업환산손익",
+          "literal": "33,647,657",
+          "coefficient": 1
+        }
+      ],
+      "missingTermCount": 0,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "CF generated",
+      "total": {
+        "table": 7,
+        "row": 2,
+        "column": 2,
+        "label": "1.영업에서창출된현금",
+        "literal": "415,215,531"
+      },
+      "terms": [
+        {
+          "table": 7,
+          "row": 3,
+          "column": 2,
+          "label": "(1)당기순손익",
+          "literal": "1,201,961,000",
+          "coefficient": 1
+        },
+        {
+          "table": 7,
+          "row": 4,
+          "column": 2,
+          "label": "(2)조정",
+          "literal": "(508,118,788)",
+          "coefficient": 1
+        },
+        {
+          "table": 7,
+          "row": 5,
+          "column": 2,
+          "label": "(3)영업활동으로인한자산ㆍ부채의변동",
+          "literal": "(278,626,681)",
+          "coefficient": 1
+        }
+      ],
+      "missingTermCount": 0,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "CF CFO",
+      "total": {
+        "table": 7,
+        "row": 1,
+        "column": 3,
+        "label": "I.영업활동으로인한현금흐름",
+        "literal": "573,772,425"
+      },
+      "terms": [
+        {
+          "table": 7,
+          "row": 2,
+          "column": 2,
+          "label": "1.영업에서창출된현금",
+          "literal": "415,215,531",
+          "coefficient": 1
+        },
+        {
+          "table": 7,
+          "row": 6,
+          "column": 2,
+          "label": "2.이자의수취",
+          "literal": "196,601,908",
+          "coefficient": 1
+        },
+        {
+          "table": 7,
+          "row": 7,
+          "column": 2,
+          "label": "3.이자의지급",
+          "literal": "(25,603,324)",
+          "coefficient": 1
+        },
+        {
+          "table": 7,
+          "row": 8,
+          "column": 2,
+          "label": "4.법인세의지급",
+          "literal": "(12,441,690)",
+          "coefficient": 1
+        }
+      ],
+      "missingTermCount": 0,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "CF inflows",
+      "total": {
+        "table": 7,
+        "row": 10,
+        "column": 2,
+        "label": "1.투자활동으로인한현금유입액",
+        "literal": "11,236,868,296"
+      },
+      "terms": [
+        {
+          "table": 7,
+          "row": 11,
+          "column": 2,
+          "label": "당기손익-공정가치측정금융자산의감소",
+          "literal": "3,030,747,402",
+          "coefficient": 1
+        },
+        {
+          "table": 7,
+          "row": 12,
+          "column": 2,
+          "label": "단기금융상품의감소",
+          "literal": "8,035,782,682",
+          "coefficient": 1
+        },
+        {
+          "table": 7,
+          "row": 13,
+          "column": 2,
+          "label": "유형자산의처분",
+          "literal": "15,650,364",
+          "coefficient": 1
+        },
+        {
+          "table": 7,
+          "row": 14,
+          "column": 2,
+          "label": "종업원대여금의감소",
+          "literal": "151,687,848",
+          "coefficient": 1
+        },
+        {
+          "table": 7,
+          "row": 15,
+          "column": 2,
+          "label": "보증금의감소",
+          "literal": "3,000,000",
+          "coefficient": 1
+        }
+      ],
+      "missingTermCount": 0,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "CF outflows",
+      "total": {
+        "table": 7,
+        "row": 16,
+        "column": 2,
+        "label": "2.투자활동으로인한현금유출액",
+        "literal": "(11,854,215,256)"
+      },
+      "terms": [
+        {
+          "table": 7,
+          "row": 17,
+          "column": 2,
+          "label": "단기금융상품의증가",
+          "literal": "8,535,966,982",
+          "coefficient": -1
+        },
+        {
+          "table": 7,
+          "row": 18,
+          "column": 2,
+          "label": "당기손익-공정가치측정금융자산의증가",
+          "literal": "3,000,000,000",
+          "coefficient": -1
+        },
+        {
+          "table": 7,
+          "row": 19,
+          "column": 2,
+          "label": "보증금의증가",
+          "literal": "40,000,000",
+          "coefficient": -1
+        },
+        {
+          "table": 7,
+          "row": 20,
+          "column": 2,
+          "label": "유형자산의취득",
+          "literal": "177,497,854",
+          "coefficient": -1
+        },
+        {
+          "table": 7,
+          "row": 21,
+          "column": 2,
+          "label": "무형자산의취득",
+          "literal": "5,750,420",
+          "coefficient": -1
+        },
+        {
+          "table": 7,
+          "row": 22,
+          "column": 2,
+          "label": "종업원대여금의증가",
+          "literal": "95,000,000",
+          "coefficient": -1
+        }
+      ],
+      "missingTermCount": 0,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "CF CFI",
+      "total": {
+        "table": 7,
+        "row": 9,
+        "column": 3,
+        "label": "II.투자활동으로인한현금흐름",
+        "literal": "(617,346,960)"
+      },
+      "terms": [
+        {
+          "table": 7,
+          "row": 10,
+          "column": 2,
+          "label": "1.투자활동으로인한현금유입액",
+          "literal": "11,236,868,296",
+          "coefficient": 1
+        },
+        {
+          "table": 7,
+          "row": 16,
+          "column": 2,
+          "label": "2.투자활동으로인한현금유출액",
+          "literal": "(11,854,215,256)",
+          "coefficient": 1
+        }
+      ],
+      "missingTermCount": 0,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "CF CFFin",
+      "total": {
+        "table": 7,
+        "row": 24,
+        "column": 2,
+        "label": "1.재무활동으로인한현금유입액",
+        "literal": "784,177,156"
+      },
+      "terms": [
+        {
+          "table": 7,
+          "row": 25,
+          "column": 2,
+          "label": "정부보조금의수령",
+          "literal": "284,177,156",
+          "coefficient": 1
+        },
+        {
+          "table": 7,
+          "row": 26,
+          "column": 2,
+          "label": "장기차입금의증가",
+          "literal": "500,000,000",
+          "coefficient": 1
+        }
+      ],
+      "missingTermCount": 0,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "CF CFFout",
+      "total": {
+        "table": 7,
+        "row": 27,
+        "column": 2,
+        "label": "2.재무활동으로인한현금유출액",
+        "literal": "(746,428,096)"
+      },
+      "terms": [
+        {
+          "table": 7,
+          "row": 28,
+          "column": 2,
+          "label": "리스부채의상환",
+          "literal": "96,428,096",
+          "coefficient": -1
+        },
+        {
+          "table": 7,
+          "row": 29,
+          "column": 2,
+          "label": "단기차입금의상환",
+          "literal": "500,000,000",
+          "coefficient": -1
+        },
+        {
+          "table": 7,
+          "row": 30,
+          "column": 2,
+          "label": "장기차입금의상환",
+          "literal": "150,000,000",
+          "coefficient": -1
+        }
+      ],
+      "missingTermCount": 0,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "CF CFF",
+      "total": {
+        "table": 7,
+        "row": 23,
+        "column": 3,
+        "label": "III.재무활동으로인한현금흐름",
+        "literal": "37,749,060"
+      },
+      "terms": [
+        {
+          "table": 7,
+          "row": 24,
+          "column": 2,
+          "label": "1.재무활동으로인한현금유입액",
+          "literal": "784,177,156",
+          "coefficient": 1
+        },
+        {
+          "table": 7,
+          "row": 27,
+          "column": 2,
+          "label": "2.재무활동으로인한현금유출액",
+          "literal": "(746,428,096)",
+          "coefficient": 1
+        }
+      ],
+      "missingTermCount": 0,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "CF I+II+III",
+      "total": {
+        "table": 7,
+        "row": 31,
+        "column": 3,
+        "label": "IV.현금및현금성자산의증가(감소)(I+II+III)",
+        "literal": "(5,825,475)"
+      },
+      "terms": [
+        {
+          "table": 7,
+          "row": 1,
+          "column": 3,
+          "label": "I.영업활동으로인한현금흐름",
+          "literal": "573,772,425",
+          "coefficient": 1
+        },
+        {
+          "table": 7,
+          "row": 9,
+          "column": 3,
+          "label": "II.투자활동으로인한현금흐름",
+          "literal": "(617,346,960)",
+          "coefficient": 1
+        },
+        {
+          "table": 7,
+          "row": 23,
+          "column": 3,
+          "label": "III.재무활동으로인한현금흐름",
+          "literal": "37,749,060",
+          "coefficient": 1
+        }
+      ],
+      "missingTermCount": 0,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "CF cashroll+FX",
+      "total": {
+        "table": 7,
+        "row": 34,
+        "column": 3,
+        "label": "VII.기말의현금및현금성자산",
+        "literal": "4,707,752,296"
+      },
+      "terms": [
+        {
+          "table": 7,
+          "row": 32,
+          "column": 3,
+          "label": "V.기초의현금및현금성자산",
+          "literal": "4,655,666,997",
+          "coefficient": 1
+        },
+        {
+          "table": 7,
+          "row": 31,
+          "column": 3,
+          "label": "IV.현금및현금성자산의증가(감소)(I+II+III)",
+          "literal": "(5,825,475)",
+          "coefficient": 1
+        },
+        {
+          "table": 7,
+          "row": 33,
+          "column": 3,
+          "label": "VI.현금및현금성자산의환율변동효과",
+          "literal": "57,910,774",
+          "coefficient": 1
+        }
+      ],
+      "missingTermCount": 0,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "CFcash=BS",
+      "total": {
+        "table": 7,
+        "row": 34,
+        "column": 3,
+        "label": "VII.기말의현금및현금성자산",
+        "literal": "4,707,752,296"
+      },
+      "terms": [
+        {
+          "table": 1,
+          "row": 3,
+          "column": 2,
+          "label": "현금및현금성자산",
+          "literal": "4,707,752,296",
+          "coefficient": 1
+        }
+      ],
+      "missingTermCount": 0,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    },
+    {
+      "label": "CFopening=priorBS",
+      "total": {
+        "table": 7,
+        "row": 32,
+        "column": 3,
+        "label": "V.기초의현금및현금성자산",
+        "literal": "4,655,666,997"
+      },
+      "terms": [
+        {
+          "table": 1,
+          "row": 3,
+          "column": 3,
+          "label": "현금및현금성자산",
+          "literal": "4,655,666,997",
+          "coefficient": 1
+        }
+      ],
+      "missingTermCount": 0,
+      "residual": 0,
+      "nullDashNeverFactZero": true
+    }
+  ],
+  "sourceDetailAnomalies": [],
+  "fullStatementCollected": false,
+  "notesVerified": false,
+  "detailHierarchyVerified": true,
+  "detailEnrichmentApproved": false,
+  "summaryPrecisionSourceNotUsed": false,
+  "ownCoverActor": "주식회사메디안디노스틱"
+}

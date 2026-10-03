@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "01085442",
+  "receipt": "20220429000083",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "ruleVersion": "primary-historical-issuer-whole-seven-v1",
+  "sources": [
+    {
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220429000083",
+      "sha256": "9e0665404f7fcea1ddec79b2301b988779d611c301484320fb03174afb3cd9c1",
+      "file": "shell.html",
+      "label": "shell"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220429000083&dcmNo=8638873&eleId=3&offset=4125&length=4068&dtd=dart3.xsd",
+      "sha256": "ebc39aeb3d40a14f0adc57bfcbae9b2884c6d3f0cb5c2ed84134aff0f31f594a",
+      "file": "cover.html",
+      "label": "cover"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220429000083&dcmNo=8638873&eleId=23&offset=613603&length=88984&dtd=dart3.xsd",
+      "sha256": "8fb3dd6584a7bbadfd90721df50306a832b5a197b0352cb18eae29933bdf7ead",
+      "file": "ofs.html",
+      "label": "ofs"
+    }
+  ],
+  "retrievalProof": "동일 공식 접수 원문의 정확한 회사·별도·기간 및 직접 핵심계정. 기간·금액 교정 없음."
+}

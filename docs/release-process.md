@@ -2,13 +2,14 @@
 
 ## 현재 운영 방식
 
-프런트는 Vercel, Serverpod와 DB는 iwinv에서 운영한다. 호스팅 이전은 하지 않는다.
+프런트는 **Cloudflare Pages `alfinder-web`**, Serverpod·DB·정기 작업은 **iwinv**에서 운영한다.
+프런트 이전은 완료했으며 현재 배포 설정은 `deploy/release-project.json`과 [Cloudflare 운영 문서](cloudflare-pages.md)를 따른다.
 `main`에 push하면 **Release** 워크플로가 분석·포맷·서버/Flutter 테스트·웹 빌드를 수행하고
 커밋별 `web-release-<SHA>` 결과물을 30일간 보관한다. PR도 검증하지만 PR 결과물은 운영 배포할 수 없다.
 
 운영 반영은 아래 배포 명령으로 실행한다. **push가 곧바로 운영을 바꾸지는 않는다.**
 아직 개발 중인 기능을 자동 공개하지 않으면서 GitHub 검증과 배포 결과물을 일치시키기 위한 구성이다.
-GitHub에 Vercel 토큰이나 서버 SSH 개인키를 저장하지 않는다. 기존 로컬 gh·Vercel·SSH 인증을 사용한다.
+GitHub에 Cloudflare 토큰이나 서버 SSH 개인키를 저장하지 않는다. 기존 로컬 gh·Wrangler·SSH 인증과 설치된 Node/Wrangler를 사용한다. 인증 토큰은 공식 API 요청에만 전달하고 출력·배포 기록에 저장하지 않는다.
 
 ## 배포
 
@@ -17,9 +18,9 @@ GitHub에 Vercel 토큰이나 서버 SSH 개인키를 저장하지 않는다. �
 아래 **로컬 검증 경로**를 사용할 수 있으며 이를 GitHub Actions 통과로 표시하지 않는다.
 기존 Analyze/Format/Tests를 Release 하나로 통합해 같은 테스트와 빌드를 중복 실행하지 않는다.
 
-1. 완료한 변경을 커밋하고 `main`에 반영한다. 배포되지 않은 서버 기능에 의존하는 프런트는 먼저 올리지 않는다.
+1. 완료한 변경을 커밋하고 `main`에 반영한다. 해당 커밋의 iwinv 백엔드를 먼저 배포한다. 실행 중 이미지의 `org.opencontainers.image.revision`은 프런트 산출물의 전체 40자리 커밋 SHA와 정확히 일치해야 한다.
 2. GitHub Actions의 **Release**가 성공한 실행 ID를 확인한다.
-3. 저장소 루트에서 실행한다 (Python 3.12 이상, gh, Vercel CLI 필요).
+3. 저장소 루트에서 실행한다 (Python 3.12 이상, gh, 기존 Node/Wrangler와 SSH 인증 필요). 동일 커밋의 깨끗한 main 체크아웃에서 실행한다.
 
    ```bash
    python3 scripts/release.py status
@@ -27,15 +28,22 @@ GitHub에 Vercel 토큰이나 서버 SSH 개인키를 저장하지 않는다. �
    python3 scripts/release.py deploy --run <성공한-실행-ID>
    ```
 
-배포 도구는 현재 main의 성공한 Release만 허용한다. GitHub 결과물의 커밋/파일 체크섬을 확인하고,
-별도 Vercel 주소에 올린 뒤 HTML·release.json·앱 파일과 공개 조회 API를 검사한다.
-검증 도중 main, 운영 배포, 서버 이미지가 바뀌면 운영 전환을 중단한다.
-운영 전환 전 복구 기록을 먼저 저장하며, 전환 후 같은 검사를 실제 도메인에 수행한다.
-이 검사는 HTTP/파일/API smoke 검사다. 새 화면의 실제 브라우저 조작 검증을 대신하지 않는다.
+배포 도구는 현재 main의 성공한 Release만 허용한다. 산출물 커밋·파일 체크섬과 깨끗한 main을 확인하고,
+`prepare_cloudflare_web.py`로 같은 커밋의 Worker·라우트·헤더를 포함해 패키징한다.
+`.vercel/output/static`은 기존 산출물 디렉터리 이름이며 Vercel 배포를 뜻하지 않는다.
+
+운영 백엔드의 정확한 revision을 확인한 뒤 별도 Pages 미리보기 브랜치에 업로드한다.
+SHA4(`main.dart.js`, `index.html`, `release.json`, `flutter_bootstrap.js`), 공개 기업 API,
+비로그인 개인 API 401을 검사한다. 검증 요청의 Origin·Cache-Control·User-Agent도 유지한다.
+main·운영 배포·백엔드 이미지/revision·검증 패키지가 바뀌면 운영 업로드를 중단한다.
+Pages 미리보기는 promote 대상이 아니므로 검증한 동일 패키지를 production에 다시 업로드한다.
+업로드 직전에도 backend revision==artifact commit을 재확인하고,
+업로드 후 immutable 주소와 `alfinder.kr` 모두에서 같은 검사를 수행한다.
+이 검사는 HTTP/파일/API smoke 검사이며 새 화면의 실제 브라우저 조작 검증을 대신하지 않는다.
 
 - `https://alfinder.kr/release.json`: 실제 배포한 Git 커밋, 트리, GitHub 실행 ID, 앱 SHA256
 - GitHub Deployments의 `production-web`: 배포 커밋·이전 배포·실행 링크
-- `output/releases/dpl_*.json`: 로컬 상세 기록과 복구 정보 (gitignore 대상)
+- `output/releases/<미리보기-deployment-ID>.json`: 운영 변경 전에 저장하는 production ID·URL·SHA4·백엔드, 미리보기와 패키지 해시 및 복구 기록 (gitignore 대상)
 
 운영 반영 후 기능 변경에 맞는 데스크톱/모바일 흐름을 브라우저로 확인한다.
 직접 `flutter build` 후 기존 `prepare_public_web.py`만 실행한 결과는 검증된 릴리스로 간주하지 않는다.
@@ -61,13 +69,18 @@ Flutter 3.47.5와 Python 3.12 이상이 설치된 릴리스 맥에서 실행한�
 python3 scripts/release.py rollback --record output/releases/<배포-ID>.json
 ```
 
-기록한 배포가 지금 운영 중인지, 서버 이미지가 그때와 같은지 확인한 후 이전 배포를 사전 검사하고
-Vercel 도메인을 이전 배포로 돌린다. 새로 빌드하지 않는다. DB와 서버는 변경하지 않는다.
-서버가 바뀌었으면 자동 복구를 막고 API 호환성을 먼저 확인한다.
-이전 Vercel 배포가 삭제되면 복구할 수 없으므로 복구 대상 배포를 삭제하지 않는다.
+현재 Cloudflare 계정·프로젝트의 배포 기록만 허용한다. 기록한 production ID가 지금 운영 중인지,
+백엔드 이미지·revision이 기록과 같은지 확인한 후 이전 production의 SHA4·공개 API·비로그인 API 401을 검사한다.
+검사 도중 운영이나 백엔드가 바뀌지 않았는지 다시 확인하고 공식 Pages rollback API로 이전 production을 복원한다.
+새로 빌드하지 않으며 DB와 백엔드는 변경하지 않는다. 복원 후 실제 도메인의 파일/API를 다시 검사한다.
 
-로컬 기록이 없을 때는 GitHub Deployments의 payload에서 이전 배포 ID/주소·체크섬·서버 이미지를
-조회할 수 있다. 당시 서버 이미지와 API 호환성을 확인한 뒤 수동 promote한다.
+백엔드가 바뀌었으면 자동 복구를 막고 API 호환성을 먼저 확인한다.
+이전 production 배포를 삭제하면 복구할 수 없으므로 보존한다. Vercel 기록과 Pages 미리보기는 복구 대상으로 허용하지 않는다.
+운영 업로드 결과가 불명확하면 자동 재업로드·롤백하지 않고 실제 현재 deployment ID부터 확인한다.
+
+로컬 기록이 없으면 GitHub Deployments payload에서 이전 production ID·주소·체크섬·백엔드를 조사한다.
+이는 바로 롤백할 권한이나 검증된 복구 기록의 대체가 아니다. 실제 현재 상태와 이전 패키지·API 호환성을 확인하고
+복구 근거를 보존한 뒤 현재 Cloudflare의 정식 복구 경로를 사용한다.
 
 ## 서버 배포와 DB
 

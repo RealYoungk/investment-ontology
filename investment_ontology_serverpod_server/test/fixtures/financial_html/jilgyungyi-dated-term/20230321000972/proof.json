@@ -1,0 +1,64 @@
+{
+  "id": 38069,
+  "name": "(주)질경이",
+  "market": "konex",
+  "stockCode": "233990",
+  "corpCode": "01063556",
+  "rceptNo": "20230321000972",
+  "reportName": "사업보고서 (2022.12)",
+  "actual_period": "2022.12",
+  "bsnsYear": 2022,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 1,
+  "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 1,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230321000972",
+      "sha256": "2fb5ed476c68357ac5e2988221a3b7ad2f544accc804db5a2a813585a695f79e"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230321000972&dcmNo=9082268&eleId=1&offset=798&length=4073&dtd=dart3.xsd",
+      "sha256": "49d1df22f97805715c740c134afede1724961f7f324d0bb0e51b9f13f4f0080e"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230321000972&dcmNo=9082268&eleId=19&offset=142981&length=42001&dtd=dart3.xsd",
+      "sha256": "18936134b280110e0180e6e6534e21f23756de44ab547785400eabe76c9bd939"
+    }
+  ],
+  "shellCorpIds": [
+    "01063556"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20230321000972",
+        "dcmNo": "9082268",
+        "eleId": "1",
+        "offset": "798",
+        "length": "4073",
+        "dtd": "dart3.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20230321000972",
+        "dcmNo": "9082268",
+        "eleId": "19",
+        "offset": "142981",
+        "length": "42001",
+        "dtd": "dart3.xsd"
+      }
+    }
+  ]
+}

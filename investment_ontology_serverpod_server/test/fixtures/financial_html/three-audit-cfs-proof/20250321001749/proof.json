@@ -1,0 +1,64 @@
+{
+  "id": 11617,
+  "name": "(주)케이씨산업",
+  "market": "konex",
+  "stockCode": "112190",
+  "corpCode": "00366517",
+  "rceptNo": "20250321001749",
+  "reportName": "사업보고서 (2024.12)",
+  "actual_period": "2024.12",
+  "bsnsYear": 2024,
+  "reportCode": "annual",
+  "consolidatedStatus": "noData",
+  "separateStatus": "failed",
+  "attempts": 2,
+  "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": false,
+  "public_attempts": 2,
+  "reviewedBasis": "ofs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250321001749",
+      "sha256": "21ba2d9c70e69ea23810af4590f690fb0ebf2ba90ef9a12408dcd9d1a1cd50d4"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001749&dcmNo=10449824&eleId=1&offset=956&length=4515&dtd=dart4.xsd",
+      "sha256": "20eb000cbd59f04578d34ad8f51da88e8d2236467f7778d654ee5c6a656dabac"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001749&dcmNo=10449824&eleId=21&offset=241569&length=67634&dtd=dart4.xsd",
+      "sha256": "aa986020d2aaba957cf3d006512df249ebb64ed8f06be787e035ebbc8dc2d6e9"
+    }
+  ],
+  "shellCorpIds": [
+    "00366517"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20250321001749",
+        "dcmNo": "10449824",
+        "eleId": "1",
+        "offset": "956",
+        "length": "4515",
+        "dtd": "dart4.xsd"
+      }
+    },
+    {
+      "label": "4. 재무제표",
+      "coords": {
+        "rcpNo": "20250321001749",
+        "dcmNo": "10449824",
+        "eleId": "21",
+        "offset": "241569",
+        "length": "67634",
+        "dtd": "dart4.xsd"
+      }
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "00148610",
+  "receipt": "20220315001273",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "ruleVersion": "verified-current-period-whole-annual-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220315001273",
+      "sha256": "03ab59dcf35b690272da2783fbbe89e7d0b7d11c85c3e69223fe407045e17fe9"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220315001273&dcmNo=8462599&eleId=1&offset=795&length=4009&dtd=dart3.xsd",
+      "sha256": "bdff226d3d675efa90d56daae0e7951beb7ade8c72ffa4f70ad72b955735ed6b"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220315001273&dcmNo=8462599&eleId=17&offset=716518&length=87854&dtd=dart3.xsd",
+      "sha256": "f1d4c78f6035c297e565022690e04ae3b1ef4134f8992942cbb82c764ae4e265"
+    }
+  ],
+  "retrievalProof": {
+    "corpus": "core50-source-corpus",
+    "externalGets": 0,
+    "originalReceiptPreserved": true,
+    "ownWholeCECrosschecked": true
+  }
+}

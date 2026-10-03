@@ -11,6 +11,9 @@ fields:
   termsVersion: String?
   acceptedAtUtc: DateTime?
   issueIdempotencyKey: String
+  amountKrw: int, default=2900
+  priceVersion: String, default='legacy-2900'
+  provider: String, default='toss'
 indexes:
   billing_checkout_state_idx:
     fields: stateHash

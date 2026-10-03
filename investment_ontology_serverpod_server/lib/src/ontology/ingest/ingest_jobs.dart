@@ -64,6 +64,16 @@ abstract final class IngestJobs {
   /// 취소를 실행 중으로 덮어쓰지 않는다.
   static Future<IngestJob?> claim(Session session, int jobId) =>
       session.db.transaction((tx) async {
+        // A resumed price job must not begin during DB-only security linking.
+        // Acquire the same start lock before taking its row lock.
+        final before = await IngestJob.db.findById(
+          session,
+          jobId,
+          transaction: tx,
+        );
+        if (before?.kind == 'market_snapshot') {
+          await lockKind(session, 'market_snapshot', tx);
+        }
         final job = await IngestJob.db.findById(
           session,
           jobId,
@@ -89,9 +99,11 @@ abstract final class IngestJobs {
 
   /// 수집 종류 → FutureCall 이름 앞부분 (생성된 이름은 `<앞부분><메서드>FutureCall`).
   static const _futureCallPrefixes = {
+    'charter_notices': 'Charter',
     'financial_facts': 'FinancialFacts',
     'financial_facts_company': 'FinancialFacts',
     'market_snapshot': 'MarketSnapshot',
+    'market_security_relink': 'MarketSnapshot',
     'disclosures': 'Disclosure',
     'business_documents': 'Disclosure',
     'disclosures_company': 'Disclosure',
@@ -101,6 +113,9 @@ abstract final class IngestJobs {
   /// FutureCall 예약이 [jobId] 작업을 실행하는 것인지. `run(jobId)`·`runCompany(jobId, …)`는
   /// 인자를 `{"jobId": …}`로 저장한다. 매일·이어받기 예약(`resume`)은 인자가 없어 해당하지 않는다.
   static bool _runsJob(sp.FutureCallEntry entry, IngestJob job) {
+    if (job.kind == 'charter_notices' && entry.name == 'CharterRunFutureCall') {
+      return true;
+    }
     final prefix = _futureCallPrefixes[job.kind];
     final data = entry.serializedObject;
     if (prefix == null || data == null || !entry.name.startsWith(prefix)) {
@@ -172,11 +187,7 @@ abstract final class IngestJobs {
     bool fullRefresh = false,
   }) => session.db.transaction((tx) async {
     // 결과(void)는 읽지 않는다. 잠금은 트랜잭션이 끝날 때 풀린다.
-    await session.db.unsafeExecute(
-      'SELECT pg_advisory_xact_lock($_startLockNamespace, hashtext(@kind))',
-      parameters: QueryParameters.named({'kind': kind}),
-      transaction: tx,
-    );
+    await lockKind(session, kind, tx);
     final existing = await running(session, kind, transaction: tx);
     if (existing != null) return (job: existing, created: false);
     final job = await IngestJob.db.insertRow(
@@ -191,6 +202,19 @@ abstract final class IngestJobs {
     );
     return (job: job, created: true);
   });
+
+  /// Shared with the DB-only relink transaction; retain one lock order.
+  static Future<void> lockKind(
+    Session session,
+    String kind,
+    Transaction tx,
+  ) async {
+    await session.db.unsafeExecute(
+      'SELECT pg_advisory_xact_lock($_startLockNamespace, hashtext(@kind))',
+      parameters: QueryParameters.named({'kind': kind}),
+      transaction: tx,
+    );
+  }
 
   /// 새 작업을 만들고 [schedule]로 실행을 예약한다. 이미 실행 중이면 예약하지 않고 그 작업을
   /// 돌려준다 (엔드포인트의 "이미 실행 중이면 그 작업을 돌려준다").

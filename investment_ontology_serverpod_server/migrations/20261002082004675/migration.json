@@ -1,0 +1,175 @@
+{
+  "__className__": "serverpod.DatabaseMigration",
+  "actions": [
+    {
+      "__className__": "serverpod.DatabaseMigrationAction",
+      "type": "alterTable",
+      "alterTable": {
+        "__className__": "serverpod.TableMigration",
+        "name": "billing_checkout",
+        "schema": "public",
+        "addColumns": [
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "amountKrw",
+            "fieldName": "amountKrw",
+            "columnType": 6,
+            "isNullable": false,
+            "columnDefault": "2900",
+            "dartType": "int"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "priceVersion",
+            "fieldName": "priceVersion",
+            "columnType": 0,
+            "isNullable": false,
+            "columnDefault": "'legacy-2900'",
+            "dartType": "String"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "provider",
+            "fieldName": "provider",
+            "columnType": 0,
+            "isNullable": false,
+            "columnDefault": "'toss'",
+            "dartType": "String"
+          }
+        ],
+        "deleteColumns": [],
+        "modifyColumns": [],
+        "addIndexes": [],
+        "deleteIndexes": [],
+        "addForeignKeys": [],
+        "deleteForeignKeys": [],
+        "warnings": []
+      }
+    },
+    {
+      "__className__": "serverpod.DatabaseMigrationAction",
+      "type": "alterTable",
+      "alterTable": {
+        "__className__": "serverpod.TableMigration",
+        "name": "billing_payment_attempt",
+        "schema": "public",
+        "addColumns": [
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "amountKrw",
+            "fieldName": "amountKrw",
+            "columnType": 6,
+            "isNullable": false,
+            "columnDefault": "2900",
+            "dartType": "int"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "priceVersion",
+            "fieldName": "priceVersion",
+            "columnType": 0,
+            "isNullable": false,
+            "columnDefault": "'legacy-2900'",
+            "dartType": "String"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "provider",
+            "fieldName": "provider",
+            "columnType": 0,
+            "isNullable": false,
+            "columnDefault": "'toss'",
+            "dartType": "String"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "retryCount",
+            "fieldName": "retryCount",
+            "columnType": 6,
+            "isNullable": false,
+            "columnDefault": "0",
+            "dartType": "int"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "chargeStartedUtc",
+            "fieldName": "chargeStartedUtc",
+            "columnType": 4,
+            "isNullable": true,
+            "dartType": "DateTime?"
+          }
+        ],
+        "deleteColumns": [],
+        "modifyColumns": [],
+        "addIndexes": [],
+        "deleteIndexes": [],
+        "addForeignKeys": [],
+        "deleteForeignKeys": [],
+        "warnings": []
+      }
+    },
+    {
+      "__className__": "serverpod.DatabaseMigrationAction",
+      "type": "alterTable",
+      "alterTable": {
+        "__className__": "serverpod.TableMigration",
+        "name": "billing_subscription",
+        "schema": "public",
+        "addColumns": [
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "priceKrw",
+            "fieldName": "priceKrw",
+            "columnType": 6,
+            "isNullable": false,
+            "columnDefault": "2900",
+            "dartType": "int"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "priceVersion",
+            "fieldName": "priceVersion",
+            "columnType": 0,
+            "isNullable": false,
+            "columnDefault": "'legacy-2900'",
+            "dartType": "String"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "provider",
+            "fieldName": "provider",
+            "columnType": 0,
+            "isNullable": false,
+            "columnDefault": "'toss'",
+            "dartType": "String"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "graceThroughUtc",
+            "fieldName": "graceThroughUtc",
+            "columnType": 4,
+            "isNullable": true,
+            "dartType": "DateTime?"
+          },
+          {
+            "__className__": "serverpod.ColumnDefinition",
+            "name": "retryAfterUtc",
+            "fieldName": "retryAfterUtc",
+            "columnType": 4,
+            "isNullable": true,
+            "dartType": "DateTime?"
+          }
+        ],
+        "deleteColumns": [],
+        "modifyColumns": [],
+        "addIndexes": [],
+        "deleteIndexes": [],
+        "addForeignKeys": [],
+        "deleteForeignKeys": [],
+        "warnings": []
+      }
+    }
+  ],
+  "warnings": [],
+  "migrationApiVersion": 1
+}

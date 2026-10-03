@@ -1,0 +1,3953 @@
+{
+  "corpCode": "01880801",
+  "state": "ready",
+  "provider": "verified-primary-pdf-text-rule",
+  "sourceRef": "source-bound-partial-printed-infrastructure-fund;no-regular-api-or-xbrl",
+  "rows": [
+    {
+      "corpCode": "01880801",
+      "categorySchema": "printedRetrospectiveProspectusFundCategories",
+      "documentType": "prospectus",
+      "provider": "officialIR",
+      "providerReceipt": null,
+      "officialUrl": "https://kbif.co.kr/upload/2024/11/20241115105341013630.pdf",
+      "sha256": "f156281de6902b32ca7773eaad4cb5ba3b03869cffea9edba81371cb7f9f7e8a",
+      "publishedAt": "2024-11-15",
+      "sourceRole": "retrospectiveCorrectedProspectus",
+      "sourceCoveredPeriodStart": "2021-07-01",
+      "sourceCoveredPeriodEnd": "2023-12-31",
+      "periodStart": "2023-01-01",
+      "periodEnd": "2023-12-31",
+      "periodKind": "ownTwelveMonthFiscalYear",
+      "fiscalTerm": 35,
+      "printedColumnOrdinal": 1,
+      "basis": "singleFundEntity",
+      "auditStatus": "prospectusReportsUnqualifiedOpinion;standaloneAuditNotRetrieved",
+      "auditorReportedByProspectus": "이지회계법인",
+      "observationRole": "ownFiscalPeriodInLaterProspectus",
+      "currency": "KRW",
+      "printedUnit": "원",
+      "precisionUnit": "1",
+      "numericState": "partialPrintedRetrospectiveDetailedCategoriesWithSourceConflicts",
+      "publicContent": "sourceLinkAndValues",
+      "parserVersion": "kbif-corrected-retrospective-detail-v1",
+      "extractedBy": "exactImmutablePdfTextRule",
+      "extractedTextSha256": "88532c45b922fbdfceff829be44eb35fd3c90e8ade38897005003eb9142a9e10",
+      "extractionTool": "pdftotext 26.02.0 -layout -enc UTF-8",
+      "sourceReadScope": "physicalPages265-269;correctionDatePage1;noNotes",
+      "fullStatementCollected": false,
+      "wholeDocumentReviewed": false,
+      "notesVerified": false,
+      "standaloneOwnAuditRetrieved": false,
+      "regularReportCode": null,
+      "xbrlAccountId": null,
+      "ttmEligible": false,
+      "accounts": [
+        {
+          "metric": "assets",
+          "cellKey": "266:21:1",
+          "amountScope": "stockAtPeriodEnd",
+          "cashDirection": null,
+          "pageOrdinal": 266,
+          "lineOrdinal": 21,
+          "accountLabel": "자산총계",
+          "rawLine": "자산총계             846,027,021,424    869,525,618,242   835,871,777,680    887,575,693,921    949,987,837,175",
+          "tokenOrdinal": 1,
+          "characterSpan": [
+            36,
+            51
+          ],
+          "printedAmount": "869,525,618,242",
+          "amountInteger": "869525618242",
+          "amountRole": "directPrintedDetailedTableToken",
+          "periodStart": "2023-12-31",
+          "periodEnd": "2023-12-31",
+          "currency": "KRW",
+          "printedUnit": "원",
+          "precisionUnit": "1"
+        },
+        {
+          "metric": "liabilities",
+          "cellKey": "266:33:1",
+          "amountScope": "stockAtPeriodEnd",
+          "cashDirection": null,
+          "pageOrdinal": 266,
+          "lineOrdinal": 33,
+          "accountLabel": "부채총계",
+          "rawLine": "부채총계              62,448,471,899     74,665,552,878    70,186,106,180    112,819,961,721    109,665,185,397",
+          "tokenOrdinal": 1,
+          "characterSpan": [
+            37,
+            51
+          ],
+          "printedAmount": "74,665,552,878",
+          "amountInteger": "74665552878",
+          "amountRole": "directPrintedDetailedTableToken",
+          "periodStart": "2023-12-31",
+          "periodEnd": "2023-12-31",
+          "currency": "KRW",
+          "printedUnit": "원",
+          "precisionUnit": "1"
+        },
+        {
+          "metric": "equity",
+          "cellKey": "266:39:1",
+          "amountScope": "stockAtPeriodEnd",
+          "cashDirection": null,
+          "pageOrdinal": 266,
+          "lineOrdinal": 39,
+          "accountLabel": "자본총계",
+          "rawLine": "자본총계             783,578,549,525    794,860,065,364   765,685,671,500    774,755,732,200    840,322,651,778",
+          "tokenOrdinal": 1,
+          "characterSpan": [
+            36,
+            51
+          ],
+          "printedAmount": "794,860,065,364",
+          "amountInteger": "794860065364",
+          "amountRole": "directPrintedDetailedTableToken",
+          "periodStart": "2023-12-31",
+          "periodEnd": "2023-12-31",
+          "currency": "KRW",
+          "printedUnit": "원",
+          "precisionUnit": "1"
+        },
+        {
+          "metric": "fundOperatingIncome",
+          "cellKey": "267:7:1",
+          "amountScope": "ownFiscalDuration",
+          "cashDirection": null,
+          "pageOrdinal": 267,
+          "lineOrdinal": 7,
+          "accountLabel": "I. 운용수익",
+          "rawLine": "I. 운용수익               31,245,121,229    329,166,717,768        46,601,986,492     54,117,798,745       51,041,087,810",
+          "tokenOrdinal": 1,
+          "characterSpan": [
+            40,
+            55
+          ],
+          "printedAmount": "329,166,717,768",
+          "amountInteger": "329166717768",
+          "amountRole": "directPrintedDetailedTableToken",
+          "periodStart": "2023-01-01",
+          "periodEnd": "2023-12-31",
+          "currency": "KRW",
+          "printedUnit": "원",
+          "precisionUnit": "1"
+        },
+        {
+          "metric": "netProfit",
+          "cellKey": "267:17:1",
+          "amountScope": "ownFiscalDuration",
+          "cashDirection": null,
+          "pageOrdinal": 267,
+          "lineOrdinal": 17,
+          "accountLabel": "III. 당기순이익",
+          "rawLine": "III. 당기순이익            26,876,870,248    118,208,383,548        41,891,173,725     50,600,335,541       47,329,125,637",
+          "tokenOrdinal": 1,
+          "characterSpan": [
+            40,
+            55
+          ],
+          "printedAmount": "118,208,383,548",
+          "amountInteger": "118208383548",
+          "amountRole": "directPrintedDetailedTableToken",
+          "periodStart": "2023-01-01",
+          "periodEnd": "2023-12-31",
+          "currency": "KRW",
+          "printedUnit": "원",
+          "precisionUnit": "1"
+        },
+        {
+          "metric": "assetManagementCashFlow",
+          "cellKey": "268:38:1",
+          "amountScope": "ownFiscalDuration",
+          "cashDirection": null,
+          "pageOrdinal": 268,
+          "lineOrdinal": 38,
+          "accountLabel": "I. 자산운용활동으로 인한 현금흐름",
+          "rawLine": "I. 자산운용활동으로 인한 현금흐름      43,304,231,230       88,946,524,156     46,887,895,533    55,251,576,367        51,966,210,394",
+          "tokenOrdinal": 1,
+          "characterSpan": [
+            46,
+            60
+          ],
+          "printedAmount": "88,946,524,156",
+          "amountInteger": "88946524156",
+          "amountRole": "directPrintedDetailedTableToken",
+          "periodStart": "2023-01-01",
+          "periodEnd": "2023-12-31",
+          "currency": "KRW",
+          "printedUnit": "원",
+          "precisionUnit": "1"
+        }
+      ],
+      "sourceConflicts": [
+        {
+          "period": "2022H1",
+          "accountLabel": "자산총계",
+          "summary": {
+            "pageOrdinal": 265,
+            "lineOrdinal": 29,
+            "rawLine": "자산총계            846,027,021,424   869,525,618,242    835,871,777,680    889,152,491,338     872,371,858,839",
+            "printedAmount": "889,152,491,338"
+          },
+          "detailed": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 21,
+            "accountLabel": "자산총계",
+            "rawLine": "자산총계             846,027,021,424    869,525,618,242   835,871,777,680    887,575,693,921    949,987,837,175",
+            "tokenOrdinal": 3,
+            "characterSpan": [
+              73,
+              88
+            ],
+            "printedAmount": "887,575,693,921"
+          }
+        },
+        {
+          "period": "2021H2",
+          "accountLabel": "자산총계",
+          "summary": {
+            "pageOrdinal": 265,
+            "lineOrdinal": 29,
+            "rawLine": "자산총계            846,027,021,424   869,525,618,242    835,871,777,680    889,152,491,338     872,371,858,839",
+            "printedAmount": "872,371,858,839"
+          },
+          "detailed": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 21,
+            "accountLabel": "자산총계",
+            "rawLine": "자산총계             846,027,021,424    869,525,618,242   835,871,777,680    887,575,693,921    949,987,837,175",
+            "tokenOrdinal": 4,
+            "characterSpan": [
+              92,
+              107
+            ],
+            "printedAmount": "949,987,837,175"
+          }
+        },
+        {
+          "period": "2023",
+          "accountLabel": "부채총계",
+          "summary": {
+            "pageOrdinal": 265,
+            "lineOrdinal": 30,
+            "rawLine": "부채총계             62,448,471,899    60,800,000,000     60,800,000,000     45,157,071,844      30,587,857,366",
+            "printedAmount": "60,800,000,000"
+          },
+          "detailed": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 33,
+            "accountLabel": "부채총계",
+            "rawLine": "부채총계              62,448,471,899     74,665,552,878    70,186,106,180    112,819,961,721    109,665,185,397",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              37,
+              51
+            ],
+            "printedAmount": "74,665,552,878"
+          }
+        },
+        {
+          "period": "2022H2",
+          "accountLabel": "부채총계",
+          "summary": {
+            "pageOrdinal": 265,
+            "lineOrdinal": 30,
+            "rawLine": "부채총계             62,448,471,899    60,800,000,000     60,800,000,000     45,157,071,844      30,587,857,366",
+            "printedAmount": "60,800,000,000"
+          },
+          "detailed": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 33,
+            "accountLabel": "부채총계",
+            "rawLine": "부채총계              62,448,471,899     74,665,552,878    70,186,106,180    112,819,961,721    109,665,185,397",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              55,
+              69
+            ],
+            "printedAmount": "70,186,106,180"
+          }
+        },
+        {
+          "period": "2022H1",
+          "accountLabel": "부채총계",
+          "summary": {
+            "pageOrdinal": 265,
+            "lineOrdinal": 30,
+            "rawLine": "부채총계             62,448,471,899    60,800,000,000     60,800,000,000     45,157,071,844      30,587,857,366",
+            "printedAmount": "45,157,071,844"
+          },
+          "detailed": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 33,
+            "accountLabel": "부채총계",
+            "rawLine": "부채총계              62,448,471,899     74,665,552,878    70,186,106,180    112,819,961,721    109,665,185,397",
+            "tokenOrdinal": 3,
+            "characterSpan": [
+              73,
+              88
+            ],
+            "printedAmount": "112,819,961,721"
+          }
+        },
+        {
+          "period": "2021H2",
+          "accountLabel": "부채총계",
+          "summary": {
+            "pageOrdinal": 265,
+            "lineOrdinal": 30,
+            "rawLine": "부채총계             62,448,471,899    60,800,000,000     60,800,000,000     45,157,071,844      30,587,857,366",
+            "printedAmount": "30,587,857,366"
+          },
+          "detailed": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 33,
+            "accountLabel": "부채총계",
+            "rawLine": "부채총계              62,448,471,899     74,665,552,878    70,186,106,180    112,819,961,721    109,665,185,397",
+            "tokenOrdinal": 4,
+            "characterSpan": [
+              92,
+              107
+            ],
+            "printedAmount": "109,665,185,397"
+          }
+        },
+        {
+          "period": "2022H1",
+          "accountLabel": "자본총계",
+          "summary": {
+            "pageOrdinal": 265,
+            "lineOrdinal": 33,
+            "rawLine": "자본총계            783,578,549,525   794,860,065,364    765,685,671,500    843,995,419,494     841,784,001,473",
+            "printedAmount": "843,995,419,494"
+          },
+          "detailed": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 39,
+            "accountLabel": "자본총계",
+            "rawLine": "자본총계             783,578,549,525    794,860,065,364   765,685,671,500    774,755,732,200    840,322,651,778",
+            "tokenOrdinal": 3,
+            "characterSpan": [
+              73,
+              88
+            ],
+            "printedAmount": "774,755,732,200"
+          }
+        },
+        {
+          "period": "2021H2",
+          "accountLabel": "자본총계",
+          "summary": {
+            "pageOrdinal": 265,
+            "lineOrdinal": 33,
+            "rawLine": "자본총계            783,578,549,525   794,860,065,364    765,685,671,500    843,995,419,494     841,784,001,473",
+            "printedAmount": "841,784,001,473"
+          },
+          "detailed": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 39,
+            "accountLabel": "자본총계",
+            "rawLine": "자본총계             783,578,549,525    794,860,065,364   765,685,671,500    774,755,732,200    840,322,651,778",
+            "tokenOrdinal": 4,
+            "characterSpan": [
+              92,
+              107
+            ],
+            "printedAmount": "840,322,651,778"
+          }
+        },
+        {
+          "period": "2022H1",
+          "accountLabel": "운용수익",
+          "summary": {
+            "pageOrdinal": 265,
+            "lineOrdinal": 35,
+            "rawLine": "운용수익              31,245,121,22   329,166,717,768     46,601,986,492     46,791,452,795     32,425,398,438",
+            "printedAmount": "46,791,452,795"
+          },
+          "detailed": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 7,
+            "accountLabel": "I. 운용수익",
+            "rawLine": "I. 운용수익               31,245,121,229    329,166,717,768        46,601,986,492     54,117,798,745       51,041,087,810",
+            "tokenOrdinal": 3,
+            "characterSpan": [
+              82,
+              96
+            ],
+            "printedAmount": "54,117,798,745"
+          }
+        },
+        {
+          "period": "2021H2",
+          "accountLabel": "운용수익",
+          "summary": {
+            "pageOrdinal": 265,
+            "lineOrdinal": 35,
+            "rawLine": "운용수익              31,245,121,22   329,166,717,768     46,601,986,492     46,791,452,795     32,425,398,438",
+            "printedAmount": "32,425,398,438"
+          },
+          "detailed": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 7,
+            "accountLabel": "I. 운용수익",
+            "rawLine": "I. 운용수익               31,245,121,229    329,166,717,768        46,601,986,492     54,117,798,745       51,041,087,810",
+            "tokenOrdinal": 4,
+            "characterSpan": [
+              103,
+              117
+            ],
+            "printedAmount": "51,041,087,810"
+          }
+        },
+        {
+          "period": "2022H1",
+          "accountLabel": "운용비용",
+          "summary": {
+            "pageOrdinal": 265,
+            "lineOrdinal": 36,
+            "rawLine": "운용비용              4,368,250,981   210,958,334,220      4,710,812,767      3,148,390,352      3,707,899,817",
+            "printedAmount": "3,148,390,352"
+          },
+          "detailed": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 10,
+            "accountLabel": "II. 운용비용",
+            "rawLine": "II. 운용비용               4,368,250,981    210,958,334,220         4,710,812,767      3,517,463,204        3,711,962,173",
+            "tokenOrdinal": 3,
+            "characterSpan": [
+              83,
+              96
+            ],
+            "printedAmount": "3,517,463,204"
+          }
+        },
+        {
+          "period": "2021H2",
+          "accountLabel": "운용비용",
+          "summary": {
+            "pageOrdinal": 265,
+            "lineOrdinal": 36,
+            "rawLine": "운용비용              4,368,250,981   210,958,334,220      4,710,812,767      3,148,390,352      3,707,899,817",
+            "printedAmount": "3,707,899,817"
+          },
+          "detailed": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 10,
+            "accountLabel": "II. 운용비용",
+            "rawLine": "II. 운용비용               4,368,250,981    210,958,334,220         4,710,812,767      3,517,463,204        3,711,962,173",
+            "tokenOrdinal": 4,
+            "characterSpan": [
+              104,
+              117
+            ],
+            "printedAmount": "3,711,962,173"
+          }
+        }
+      ],
+      "excludedFiscalPeriods": [
+        {
+          "periodStart": "2022-01-01",
+          "periodEnd": "2022-06-30",
+          "periodKind": "ownSixMonthFiscalYear",
+          "reason": "detailedCEAbsentInReviewedSection",
+          "accounts": []
+        },
+        {
+          "periodStart": "2021-07-01",
+          "periodEnd": "2021-12-31",
+          "periodKind": "ownSixMonthFiscalYear",
+          "reason": "CFfinancingOutflowComponentMismatchAndDetailedCEAbsent",
+          "quarantinedStatement": "CF",
+          "failurePrintedTotal": "(47,315,830,159)",
+          "failurePrintedComponents": [
+            "43,643,062,443",
+            "3,672,767,716",
+            "-",
+            "3,672,767,716"
+          ],
+          "failureDifferenceInteger": "3672767716",
+          "failureSourceCells": {
+            "total": {
+              "pageOrdinal": 269,
+              "lineOrdinal": 10,
+              "accountLabel": "2. 재무활동 현금유출액",
+              "rawLine": "2. 재무활동 현금유출액                       (91,179,745,238)        (84,575,734,958)   (154,598,465,541)      (153,696,045,215)     (47,315,830,159)",
+              "tokenOrdinal": 4,
+              "characterSpan": [
+                124,
+                140
+              ],
+              "printedAmount": "(47,315,830,159)"
+            },
+            "components": [
+              {
+                "pageOrdinal": 269,
+                "lineOrdinal": 11,
+                "accountLabel": "가. 분배금 유출액",
+                "rawLine": "가. 분배금 유출액                            46,349,428,451         76,019,243,025         84,728,404,841      47,329,125,637       43,643,062,443",
+                "tokenOrdinal": 4,
+                "characterSpan": [
+                  125,
+                  139
+                ],
+                "printedAmount": "43,643,062,443"
+              },
+              {
+                "pageOrdinal": 269,
+                "lineOrdinal": 12,
+                "accountLabel": "나. 초과이익분배금 지급",
+                "rawLine": "나. 초과이익분배금 지급                          4,030,316,787          8,556,491,933          9,070,060,700      65,566,919,578         3,672,767,716",
+                "tokenOrdinal": 4,
+                "characterSpan": [
+                  127,
+                  140
+                ],
+                "printedAmount": "3,672,767,716"
+              },
+              {
+                "pageOrdinal": 269,
+                "lineOrdinal": 13,
+                "accountLabel": "다. 사채의 상환액",
+                "rawLine": "다. 사채의 상환액                                         -                       -        20,000,000,000                    -                    -",
+                "tokenOrdinal": 4,
+                "characterSpan": [
+                  139,
+                  140
+                ],
+                "printedAmount": "-"
+              },
+              {
+                "pageOrdinal": 269,
+                "lineOrdinal": 14,
+                "accountLabel": "라. 차입금 상환액",
+                "rawLine": "라. 차입금 상환액                            40,800,000,000                       -        40,800,000,000      40,800,000,000         3,672,767,716",
+                "tokenOrdinal": 4,
+                "characterSpan": [
+                  127,
+                  140
+                ],
+                "printedAmount": "3,672,767,716"
+              }
+            ]
+          },
+          "accounts": []
+        }
+      ],
+      "validation": {
+        "cells": {
+          "266:11:1": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 11,
+            "accountLabel": "I. 운용자산",
+            "rawLine": "I. 운용자산          844,169,037,806    868,192,467,890   834,998,357,798    886,533,490,241    948,750,052,208",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              36,
+              51
+            ],
+            "printedAmount": "868,192,467,890"
+          },
+          "266:12:1": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 12,
+            "accountLabel": "(1) 현금및예치금",
+            "rawLine": "(1) 현금및예치금         7,964,336,713     15,039,850,721    10,669,061,523     57,579,631,531    115,224,100,379",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              37,
+              51
+            ],
+            "printedAmount": "15,039,850,721"
+          },
+          "266:14:1": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 14,
+            "accountLabel": "(2) 유가증권",
+            "rawLine": "(2) 유가증권         231,187,384,538    231,187,384,538   433,672,265,019    433,672,265,019    433,672,265,019",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              36,
+              51
+            ],
+            "printedAmount": "231,187,384,538"
+          },
+          "266:16:1": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 16,
+            "accountLabel": "(3) 대출채권",
+            "rawLine": "(3) 대출채권         605,017,316,555    621,965,232,631   390,657,031,256    395,281,593,691    399,853,686,810",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              36,
+              51
+            ],
+            "printedAmount": "621,965,232,631"
+          },
+          "266:18:1": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 18,
+            "accountLabel": "II. 기타자산",
+            "rawLine": "II. 기타자산           1,857,983,618      1,333,150,352      873,419,882       1,042,203,680      1,237,784,967",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              38,
+              51
+            ],
+            "printedAmount": "1,333,150,352"
+          },
+          "266:19:1": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 19,
+            "accountLabel": "1. 미수이자",
+            "rawLine": "1. 미수이자             789,608,759        683,966,843       873,419,882       1,042,203,680      1,237,784,967",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              39,
+              50
+            ],
+            "printedAmount": "683,966,843"
+          },
+          "266:20:1": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 20,
+            "accountLabel": "2. 선급이자",
+            "rawLine": "2. 선급이자            1,068,374,859       649,183,509                   -                  -                  -",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              39,
+              50
+            ],
+            "printedAmount": "649,183,509"
+          },
+          "266:21:1": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 21,
+            "accountLabel": "자산총계",
+            "rawLine": "자산총계             846,027,021,424    869,525,618,242   835,871,777,680    887,575,693,921    949,987,837,175",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              36,
+              51
+            ],
+            "printedAmount": "869,525,618,242"
+          },
+          "266:23:1": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 23,
+            "accountLabel": "I. 차입부채",
+            "rawLine": "I. 차입부채           60,800,000,000     60,800,000,000    60,800,000,000     60,800,000,000     60,800,000,000",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              37,
+              51
+            ],
+            "printedAmount": "60,800,000,000"
+          },
+          "266:24:1": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 24,
+            "accountLabel": "1. 사채",
+            "rawLine": "1. 사채            20,000,000,000      20,000,000,000    20,000,000,000     20,000,000,000     20,000,000,000",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              37,
+              51
+            ],
+            "printedAmount": "20,000,000,000"
+          },
+          "266:25:1": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 25,
+            "accountLabel": "2. 차입금",
+            "rawLine": "2. 차입금           40,800,000,000      40,800,000,000    40,800,000,000     40,800,000,000     40,800,000,000",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              37,
+              51
+            ],
+            "printedAmount": "40,800,000,000"
+          },
+          "266:26:1": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 26,
+            "accountLabel": "II. 기타부채",
+            "rawLine": "II. 기타부채           1,648,471,899     13,865,552,878     9,386,106,180     52,019,961,721     48,865,185,397",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              37,
+              51
+            ],
+            "printedAmount": "13,865,552,878"
+          },
+          "266:27:1": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 27,
+            "accountLabel": "1. 자산보관보수미지급금",
+            "rawLine": "1. 자산보관보수미지급금        40,490,810         40,116,268        40,178,598         40,586,860         43,916,707",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              40,
+              50
+            ],
+            "printedAmount": "40,116,268"
+          },
+          "266:28:1": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 28,
+            "accountLabel": "2. 자산운용보수미지급금",
+            "rawLine": "2. 자산운용보수미지급금      1,315,952,753      1,303,780,087     1,305,805,921      1,319,074,388      1,427,294,557",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              38,
+              51
+            ],
+            "printedAmount": "1,303,780,087"
+          },
+          "266:29:1": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 29,
+            "accountLabel": "3. 일반사무보수미지급금",
+            "rawLine": "3. 일반사무보수미지급금        40,490,810         40,116,268        40,178,598         40,586,860         43,916,707",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              40,
+              50
+            ],
+            "printedAmount": "40,116,268"
+          },
+          "266:30:1": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 30,
+            "accountLabel": "4. 미지급이익분배금",
+            "rawLine": "4. 미지급이익분배금                     -    12,221,359,151     7,763,104,425     50,600,335,541     47,329,125,637",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              37,
+              51
+            ],
+            "printedAmount": "12,221,359,151"
+          },
+          "266:31:1": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 31,
+            "accountLabel": "5. 미지급이자",
+            "rawLine": "5. 미지급이자            249,753,426        252,657,534       229,315,068         12,273,972         13,808,219",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              39,
+              50
+            ],
+            "printedAmount": "252,657,534"
+          },
+          "266:32:1": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 32,
+            "accountLabel": "6. 기타미지급금",
+            "rawLine": "6. 기타미지급금             1,784,100          7,523,570         7,523,570          7,104,100          7,123,570",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              41,
+              50
+            ],
+            "printedAmount": "7,523,570"
+          },
+          "266:33:1": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 33,
+            "accountLabel": "부채총계",
+            "rawLine": "부채총계              62,448,471,899     74,665,552,878    70,186,106,180    112,819,961,721    109,665,185,397",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              37,
+              51
+            ],
+            "printedAmount": "74,665,552,878"
+          },
+          "266:39:1": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 39,
+            "accountLabel": "자본총계",
+            "rawLine": "자본총계             783,578,549,525    794,860,065,364   765,685,671,500    774,755,732,200    840,322,651,778",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              36,
+              51
+            ],
+            "printedAmount": "794,860,065,364"
+          },
+          "266:35:1": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 35,
+            "accountLabel": "I. 자본금",
+            "rawLine": "I. 자본금           753,098,862,780    757,129,179,567   765,685,671,500    774,755,732,200    840,322,651,778",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              36,
+              51
+            ],
+            "printedAmount": "757,129,179,567"
+          },
+          "266:37:1": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 37,
+            "accountLabel": "II. 이익잉여금",
+            "rawLine": "II. 이익잉여금         30,479,686,745     37,730,885,797                  -                  -                  -",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              37,
+              51
+            ],
+            "printedAmount": "37,730,885,797"
+          },
+          "267:7:1": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 7,
+            "accountLabel": "I. 운용수익",
+            "rawLine": "I. 운용수익               31,245,121,229    329,166,717,768        46,601,986,492     54,117,798,745       51,041,087,810",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              40,
+              55
+            ],
+            "printedAmount": "329,166,717,768"
+          },
+          "267:8:1": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 8,
+            "accountLabel": "1. 이자수익",
+            "rawLine": "1. 이자수익               31,245,121,229     88,950,951,490        46,601,986,492     54,117,798,745       51,041,087,810",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              41,
+              55
+            ],
+            "printedAmount": "88,950,951,490"
+          },
+          "267:9:1": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 9,
+            "accountLabel": "2. 대출채권평가이익",
+            "rawLine": "2. 대출채권평가이익                        -    240,215,766,278                      -                  -                    -",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              40,
+              55
+            ],
+            "printedAmount": "240,215,766,278"
+          },
+          "267:10:1": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 10,
+            "accountLabel": "II. 운용비용",
+            "rawLine": "II. 운용비용               4,368,250,981    210,958,334,220         4,710,812,767      3,517,463,204        3,711,962,173",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              40,
+              55
+            ],
+            "printedAmount": "210,958,334,220"
+          },
+          "267:11:1": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 11,
+            "accountLabel": "1. 이자비용",
+            "rawLine": "1. 이자비용                1,562,199,335      2,890,279,503         1,529,594,520         715,864,109        634,303,561",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              42,
+              55
+            ],
+            "printedAmount": "2,890,279,503"
+          },
+          "267:12:1": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 12,
+            "accountLabel": "2. 자산보관보수",
+            "rawLine": "2. 자산보관보수                80,402,693        156,946,096            79,542,695           80,261,126         86,833,135",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              43,
+              54
+            ],
+            "printedAmount": "156,946,096"
+          },
+          "267:13:1": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 13,
+            "accountLabel": "3. 자산운용보수",
+            "rawLine": "3. 자산운용보수              2,613,090,360      5,100,753,694         2,585,140,474      2,608,489,533        2,822,079,862",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              42,
+              55
+            ],
+            "printedAmount": "5,100,753,694"
+          },
+          "267:14:1": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 14,
+            "accountLabel": "4. 일반사무보수",
+            "rawLine": "4. 일반사무보수                80,402,693        156,946,096            79,542,695           80,261,126         86,833,135",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              43,
+              54
+            ],
+            "printedAmount": "156,946,096"
+          },
+          "267:15:1": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 15,
+            "accountLabel": "5. 기타비용",
+            "rawLine": "5. 기타비용                  32,155,900        168,528,350           436,992,383           32,587,310         81,912,480",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              43,
+              54
+            ],
+            "printedAmount": "168,528,350"
+          },
+          "267:16:1": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 16,
+            "accountLabel": "6. 유가증권평가손실",
+            "rawLine": "6. 유가증권평가손실                        -    202,484,880,481                      -                  -                    -",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              40,
+              55
+            ],
+            "printedAmount": "202,484,880,481"
+          },
+          "267:17:1": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 17,
+            "accountLabel": "III. 당기순이익",
+            "rawLine": "III. 당기순이익            26,876,870,248    118,208,383,548        41,891,173,725     50,600,335,541       47,329,125,637",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              40,
+              55
+            ],
+            "printedAmount": "118,208,383,548"
+          },
+          "268:39:1": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 39,
+            "accountLabel": "1. 자산운용활동 현금유입액",
+            "rawLine": "1. 자산운용활동 현금유입액          48,087,395,389       98,047,969,432     51,395,332,725    58,885,473,151        55,656,122,208",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              46,
+              60
+            ],
+            "printedAmount": "98,047,969,432"
+          },
+          "268:40:1": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 40,
+            "accountLabel": "가. 이자수입 유입액",
+            "rawLine": "가. 이자수입 유입액              30,709,377,321       63,291,933,292     34,017,314,655    41,507,455,082        38,278,104,138",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              46,
+              60
+            ],
+            "printedAmount": "63,291,933,292"
+          },
+          "268:41:1": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 41,
+            "accountLabel": "나. 장기대여금의 회수",
+            "rawLine": "나. 장기대여금의 회수             17,378,018,068       34,756,036,140     17,378,018,070    17,378,018,069        17,378,018,070",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              46,
+              60
+            ],
+            "printedAmount": "34,756,036,140"
+          },
+          "268:42:1": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 42,
+            "accountLabel": "2. 자산운용활동 현금유출액",
+            "rawLine": "2. 자산운용활동 현금유출액          (4,783,164,159)      (9,101,445,276)    (4,507,437,192)    (3,633,896,784)      (3,689,911,814)",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              46,
+              61
+            ],
+            "printedAmount": "(9,101,445,276)"
+          },
+          "268:43:1": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 43,
+            "accountLabel": "가. 자산운용보수 유출액",
+            "rawLine": "가. 자산운용보수 유출액             2,600,917,694        5,102,779,528      2,598,408,941      2,716,709,702        2,814,333,860",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              47,
+              60
+            ],
+            "printedAmount": "5,102,779,528"
+          },
+          "268:44:1": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 44,
+            "accountLabel": "나. 자산보관보수 유출액",
+            "rawLine": "나. 자산보관보수 유출액                80,028,151          157,008,426         79,950,957        83,590,973           86,594,801",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              49,
+              60
+            ],
+            "printedAmount": "157,008,426"
+          },
+          "268:45:1": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 45,
+            "accountLabel": "다. 일반사무보수 유출액",
+            "rawLine": "다. 일반사무보수 유출액                80,028,151          157,008,426         79,950,957        83,590,973           86,594,801",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              49,
+              60
+            ],
+            "printedAmount": "157,008,426"
+          },
+          "269:4:1": {
+            "pageOrdinal": 269,
+            "lineOrdinal": 4,
+            "accountLabel": "라. 이자비용 유출액",
+            "rawLine": "라. 이자비용 유출액                            1,984,294,793          3,516,120,546          1,312,553,424        717,398,356           620,495,342",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              62,
+              75
+            ],
+            "printedAmount": "3,516,120,546"
+          },
+          "269:5:1": {
+            "pageOrdinal": 269,
+            "lineOrdinal": 5,
+            "accountLabel": "마. 기타비용 유출액",
+            "rawLine": "마. 기타비용 유출액                                37,895,370           168,528,350            436,572,913          32,606,780           81,893,010",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              64,
+              75
+            ],
+            "printedAmount": "168,528,350"
+          },
+          "268:38:1": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 38,
+            "accountLabel": "I. 자산운용활동으로 인한 현금흐름",
+            "rawLine": "I. 자산운용활동으로 인한 현금흐름      43,304,231,230       88,946,524,156     46,887,895,533    55,251,576,367        51,966,210,394",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              46,
+              60
+            ],
+            "printedAmount": "88,946,524,156"
+          },
+          "269:7:1": {
+            "pageOrdinal": 269,
+            "lineOrdinal": 7,
+            "accountLabel": "1. 재무활동 현금유입액",
+            "rawLine": "1. 재무활동 현금유입액                         40,800,000,000                       -        60,800,000,000      40,800,000,000       60,800,000,000",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              75,
+              76
+            ],
+            "printedAmount": "-"
+          },
+          "269:8:1": {
+            "pageOrdinal": 269,
+            "lineOrdinal": 8,
+            "accountLabel": "가. 사채의 발행",
+            "rawLine": "가. 사채의 발행                                          -                       -        20,000,000,000                    -      20,000,000,000",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              75,
+              76
+            ],
+            "printedAmount": "-"
+          },
+          "269:9:1": {
+            "pageOrdinal": 269,
+            "lineOrdinal": 9,
+            "accountLabel": "나. 차입금 유입액",
+            "rawLine": "나. 차입금 유입액                            40,800,000,000                       -        40,800,000,000      40,800,000,000       40,800,000,000",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              75,
+              76
+            ],
+            "printedAmount": "-"
+          },
+          "269:10:1": {
+            "pageOrdinal": 269,
+            "lineOrdinal": 10,
+            "accountLabel": "2. 재무활동 현금유출액",
+            "rawLine": "2. 재무활동 현금유출액                       (91,179,745,238)        (84,575,734,958)   (154,598,465,541)      (153,696,045,215)     (47,315,830,159)",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              60,
+              76
+            ],
+            "printedAmount": "(84,575,734,958)"
+          },
+          "269:11:1": {
+            "pageOrdinal": 269,
+            "lineOrdinal": 11,
+            "accountLabel": "가. 분배금 유출액",
+            "rawLine": "가. 분배금 유출액                            46,349,428,451         76,019,243,025         84,728,404,841      47,329,125,637       43,643,062,443",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              61,
+              75
+            ],
+            "printedAmount": "76,019,243,025"
+          },
+          "269:12:1": {
+            "pageOrdinal": 269,
+            "lineOrdinal": 12,
+            "accountLabel": "나. 초과이익분배금 지급",
+            "rawLine": "나. 초과이익분배금 지급                          4,030,316,787          8,556,491,933          9,070,060,700      65,566,919,578         3,672,767,716",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              62,
+              75
+            ],
+            "printedAmount": "8,556,491,933"
+          },
+          "269:13:1": {
+            "pageOrdinal": 269,
+            "lineOrdinal": 13,
+            "accountLabel": "다. 사채의 상환액",
+            "rawLine": "다. 사채의 상환액                                         -                       -        20,000,000,000                    -                    -",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              75,
+              76
+            ],
+            "printedAmount": "-"
+          },
+          "269:14:1": {
+            "pageOrdinal": 269,
+            "lineOrdinal": 14,
+            "accountLabel": "라. 차입금 상환액",
+            "rawLine": "라. 차입금 상환액                            40,800,000,000                       -        40,800,000,000      40,800,000,000         3,672,767,716",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              75,
+              76
+            ],
+            "printedAmount": "-"
+          },
+          "269:6:1": {
+            "pageOrdinal": 269,
+            "lineOrdinal": 6,
+            "accountLabel": "II. 재무활동으로 인한 현금흐름",
+            "rawLine": "II. 재무활동으로 인한 현금흐름                  (50,379,745,238)        (84,575,734,958)       (93,798,465,541)   (112,896,045,215)      13,484,169,841",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              60,
+              76
+            ],
+            "printedAmount": "(84,575,734,958)"
+          },
+          "269:15:1": {
+            "pageOrdinal": 269,
+            "lineOrdinal": 15,
+            "accountLabel": "III. 현금의 증가 ( I + II )",
+            "rawLine": "III. 현금의 증가 ( I + II )               (7,075,514,008)          4,370,789,198        (46,910,570,008)    (57,644,468,848)      65,450,380,235",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              62,
+              75
+            ],
+            "printedAmount": "4,370,789,198"
+          },
+          "269:17:1": {
+            "pageOrdinal": 269,
+            "lineOrdinal": 17,
+            "accountLabel": "V. 기말의 현금",
+            "rawLine": "V. 기말의 현금                              7,964,336,713         15,039,850,721         10,669,061,523      57,579,631,531      115,224,100,379",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              61,
+              75
+            ],
+            "printedAmount": "15,039,850,721"
+          },
+          "269:16:1": {
+            "pageOrdinal": 269,
+            "lineOrdinal": 16,
+            "accountLabel": "IV. 기초의 현금",
+            "rawLine": "IV. 기초의 현금                            15,039,850,721         10,669,061,523         57,579,631,531     115,224,100,379       49,773,720,144",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              61,
+              75
+            ],
+            "printedAmount": "10,669,061,523"
+          },
+          "266:13:1": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 13,
+            "accountLabel": "1. 현금및현금성자산",
+            "rawLine": "1. 현금및현금성자산        7,964,336,713     15,039,850,721    10,669,061,523     57,579,631,531    115,224,100,379",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              37,
+              51
+            ],
+            "printedAmount": "15,039,850,721"
+          },
+          "CE:0:0": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 22,
+            "accountLabel": "2023.01.01(당기 초)",
+            "rawLine": "2023.01.01(당기 초)                       765,685,671,500                                            765,685,671,500",
+            "componentOrdinal": 0,
+            "characterSpan": [
+              39,
+              54
+            ],
+            "printedAmount": "765,685,671,500",
+            "missingRole": null
+          },
+          "CE:0:1": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 22,
+            "accountLabel": "2023.01.01(당기 초)",
+            "rawLine": "2023.01.01(당기 초)                       765,685,671,500                                            765,685,671,500",
+            "componentOrdinal": 1,
+            "characterSpan": null,
+            "printedAmount": null,
+            "missingRole": "printedBlankNotAmountFact"
+          },
+          "CE:0:2": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 22,
+            "accountLabel": "2023.01.01(당기 초)",
+            "rawLine": "2023.01.01(당기 초)                       765,685,671,500                                            765,685,671,500",
+            "componentOrdinal": 2,
+            "characterSpan": [
+              98,
+              113
+            ],
+            "printedAmount": "765,685,671,500",
+            "missingRole": null
+          },
+          "CE:1:0": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 23,
+            "accountLabel": "당기순이익",
+            "rawLine": "당기순이익                                                               118,208,383,548               118,208,383,548",
+            "componentOrdinal": 0,
+            "characterSpan": null,
+            "printedAmount": null,
+            "missingRole": "printedBlankNotAmountFact"
+          },
+          "CE:1:1": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 23,
+            "accountLabel": "당기순이익",
+            "rawLine": "당기순이익                                                               118,208,383,548               118,208,383,548",
+            "componentOrdinal": 1,
+            "characterSpan": [
+              68,
+              83
+            ],
+            "printedAmount": "118,208,383,548",
+            "missingRole": null
+          },
+          "CE:1:2": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 23,
+            "accountLabel": "당기순이익",
+            "rawLine": "당기순이익                                                               118,208,383,548               118,208,383,548",
+            "componentOrdinal": 2,
+            "characterSpan": [
+              98,
+              113
+            ],
+            "printedAmount": "118,208,383,548",
+            "missingRole": null
+          },
+          "CE:2:0": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 24,
+            "accountLabel": "현금분배금",
+            "rawLine": "현금분배금                                  (8,556,491,933)             (80,477,497,751)               (89,033,989,684)",
+            "componentOrdinal": 0,
+            "characterSpan": [
+              39,
+              54
+            ],
+            "printedAmount": "(8,556,491,933)",
+            "missingRole": null
+          },
+          "CE:2:1": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 24,
+            "accountLabel": "현금분배금",
+            "rawLine": "현금분배금                                  (8,556,491,933)             (80,477,497,751)               (89,033,989,684)",
+            "componentOrdinal": 1,
+            "characterSpan": [
+              67,
+              83
+            ],
+            "printedAmount": "(80,477,497,751)",
+            "missingRole": null
+          },
+          "CE:2:2": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 24,
+            "accountLabel": "현금분배금",
+            "rawLine": "현금분배금                                  (8,556,491,933)             (80,477,497,751)               (89,033,989,684)",
+            "componentOrdinal": 2,
+            "characterSpan": [
+              98,
+              114
+            ],
+            "printedAmount": "(89,033,989,684)",
+            "missingRole": null
+          },
+          "CE:3:0": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 27,
+            "accountLabel": "2023.12.31(당기 말)",
+            "rawLine": "2023.12.31(당기 말)                       757,129,179,567               37,730,885,797               794,860,065,364",
+            "componentOrdinal": 0,
+            "characterSpan": [
+              39,
+              54
+            ],
+            "printedAmount": "757,129,179,567",
+            "missingRole": null
+          },
+          "CE:3:1": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 27,
+            "accountLabel": "2023.12.31(당기 말)",
+            "rawLine": "2023.12.31(당기 말)                       757,129,179,567               37,730,885,797               794,860,065,364",
+            "componentOrdinal": 1,
+            "characterSpan": [
+              69,
+              83
+            ],
+            "printedAmount": "37,730,885,797",
+            "missingRole": null
+          },
+          "CE:3:2": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 27,
+            "accountLabel": "2023.12.31(당기 말)",
+            "rawLine": "2023.12.31(당기 말)                       757,129,179,567               37,730,885,797               794,860,065,364",
+            "componentOrdinal": 2,
+            "characterSpan": [
+              98,
+              113
+            ],
+            "printedAmount": "794,860,065,364",
+            "missingRole": null
+          }
+        },
+        "checks": [
+          {
+            "name": "BS operating assets",
+            "lhs": "266:11:1",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "266:12:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "266:14:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "266:16:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "BS other assets",
+            "lhs": "266:18:1",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "266:19:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "266:20:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "BS assets",
+            "lhs": "266:21:1",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "266:11:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "266:18:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "BS loan liabilities",
+            "lhs": "266:23:1",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "266:24:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "266:25:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "BS other liabilities",
+            "lhs": "266:26:1",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "266:27:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "266:28:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "266:29:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "266:30:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "266:31:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "266:32:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "BS liabilities",
+            "lhs": "266:33:1",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "266:23:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "266:26:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "BS equity",
+            "lhs": "266:39:1",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "266:35:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "266:37:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "BS identity",
+            "lhs": "266:21:1",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "266:33:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "266:39:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "PL income",
+            "lhs": "267:7:1",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "267:8:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "267:9:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "PL expenses",
+            "lhs": "267:10:1",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "267:11:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "267:12:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "267:13:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "267:14:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "267:15:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "267:16:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "PL NI",
+            "lhs": "267:17:1",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "267:7:1"
+              },
+              {
+                "coefficient": -1,
+                "cellKey": "267:10:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "CF management inflows",
+            "lhs": "268:39:1",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "268:40:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "268:41:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "CF management outflows",
+            "lhs": "268:42:1",
+            "terms": [
+              {
+                "coefficient": -1,
+                "cellKey": "268:43:1"
+              },
+              {
+                "coefficient": -1,
+                "cellKey": "268:44:1"
+              },
+              {
+                "coefficient": -1,
+                "cellKey": "268:45:1"
+              },
+              {
+                "coefficient": -1,
+                "cellKey": "269:4:1"
+              },
+              {
+                "coefficient": -1,
+                "cellKey": "269:5:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "CF management total",
+            "lhs": "268:38:1",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "268:39:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "268:42:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "CF financing inflows",
+            "lhs": "269:7:1",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "269:8:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "269:9:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 2,
+            "leftIsMissing": true,
+            "equationScope": "printedSubtotalWithMissingNonAmountWitness"
+          },
+          {
+            "name": "CF financing outflows",
+            "lhs": "269:10:1",
+            "terms": [
+              {
+                "coefficient": -1,
+                "cellKey": "269:11:1"
+              },
+              {
+                "coefficient": -1,
+                "cellKey": "269:12:1"
+              },
+              {
+                "coefficient": -1,
+                "cellKey": "269:13:1"
+              },
+              {
+                "coefficient": -1,
+                "cellKey": "269:14:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 2,
+            "leftIsMissing": false,
+            "equationScope": "printedSubtotalWithMissingNonAmountWitness"
+          },
+          {
+            "name": "CF financing total",
+            "lhs": "269:6:1",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "269:7:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "269:10:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 1,
+            "leftIsMissing": false,
+            "equationScope": "printedSubtotalWithMissingNonAmountWitness"
+          },
+          {
+            "name": "CF cash change",
+            "lhs": "269:15:1",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "268:38:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "269:6:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "CF cash roll",
+            "lhs": "269:17:1",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "269:16:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "269:15:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "CF BS cash numeric crosscheck",
+            "lhs": "269:17:1",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "266:13:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "CE component sum 0",
+            "lhs": "CE:0:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "CE:0:0"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "CE:0:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 1,
+            "leftIsMissing": false,
+            "equationScope": "printedSubtotalWithMissingNonAmountWitness"
+          },
+          {
+            "name": "CE component sum 1",
+            "lhs": "CE:1:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "CE:1:0"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "CE:1:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 1,
+            "leftIsMissing": false,
+            "equationScope": "printedSubtotalWithMissingNonAmountWitness"
+          },
+          {
+            "name": "CE component sum 2",
+            "lhs": "CE:2:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "CE:2:0"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "CE:2:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "CE component sum 3",
+            "lhs": "CE:3:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "CE:3:0"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "CE:3:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "CE roll 0",
+            "lhs": "CE:3:0",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "CE:0:0"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "CE:1:0"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "CE:2:0"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 1,
+            "leftIsMissing": false,
+            "equationScope": "printedSubtotalWithMissingNonAmountWitness"
+          },
+          {
+            "name": "CE roll 1",
+            "lhs": "CE:3:1",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "CE:0:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "CE:1:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "CE:2:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 1,
+            "leftIsMissing": false,
+            "equationScope": "printedSubtotalWithMissingNonAmountWitness"
+          },
+          {
+            "name": "CE roll 2",
+            "lhs": "CE:3:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "CE:0:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "CE:1:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "CE:2:2"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "CE BS close 0",
+            "lhs": "CE:3:0",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "266:35:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "CE BS close 1",
+            "lhs": "CE:3:1",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "266:37:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "CE BS close 2",
+            "lhs": "CE:3:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "266:39:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "CE PL profit",
+            "lhs": "CE:1:1",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "267:17:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          }
+        ],
+        "fullyNumericEquationCount": 24,
+        "missingWitnessSubtotalCount": 7,
+        "missingWitnessesAreAmountFacts": false,
+        "completeStatementsVerified": false
+      }
+    },
+    {
+      "corpCode": "01880801",
+      "categorySchema": "printedRetrospectiveProspectusFundCategories",
+      "documentType": "prospectus",
+      "provider": "officialIR",
+      "providerReceipt": null,
+      "officialUrl": "https://kbif.co.kr/upload/2024/11/20241115105341013630.pdf",
+      "sha256": "f156281de6902b32ca7773eaad4cb5ba3b03869cffea9edba81371cb7f9f7e8a",
+      "publishedAt": "2024-11-15",
+      "sourceRole": "retrospectiveCorrectedProspectus",
+      "sourceCoveredPeriodStart": "2021-07-01",
+      "sourceCoveredPeriodEnd": "2023-12-31",
+      "periodStart": "2022-07-01",
+      "periodEnd": "2022-12-31",
+      "periodKind": "ownSixMonthFiscalYear",
+      "fiscalTerm": 34,
+      "printedColumnOrdinal": 2,
+      "basis": "singleFundEntity",
+      "auditStatus": "prospectusReportsUnqualifiedOpinion;standaloneAuditNotRetrieved",
+      "auditorReportedByProspectus": "이지회계법인",
+      "observationRole": "ownFiscalPeriodInLaterProspectus",
+      "currency": "KRW",
+      "printedUnit": "원",
+      "precisionUnit": "1",
+      "numericState": "partialPrintedRetrospectiveDetailedCategoriesWithSourceConflicts",
+      "publicContent": "sourceLinkAndValues",
+      "parserVersion": "kbif-corrected-retrospective-detail-v1",
+      "extractedBy": "exactImmutablePdfTextRule",
+      "extractedTextSha256": "88532c45b922fbdfceff829be44eb35fd3c90e8ade38897005003eb9142a9e10",
+      "extractionTool": "pdftotext 26.02.0 -layout -enc UTF-8",
+      "sourceReadScope": "physicalPages265-269;correctionDatePage1;noNotes",
+      "fullStatementCollected": false,
+      "wholeDocumentReviewed": false,
+      "notesVerified": false,
+      "standaloneOwnAuditRetrieved": false,
+      "regularReportCode": null,
+      "xbrlAccountId": null,
+      "ttmEligible": false,
+      "accounts": [
+        {
+          "metric": "assets",
+          "cellKey": "266:21:2",
+          "amountScope": "stockAtPeriodEnd",
+          "cashDirection": null,
+          "pageOrdinal": 266,
+          "lineOrdinal": 21,
+          "accountLabel": "자산총계",
+          "rawLine": "자산총계             846,027,021,424    869,525,618,242   835,871,777,680    887,575,693,921    949,987,837,175",
+          "tokenOrdinal": 2,
+          "characterSpan": [
+            54,
+            69
+          ],
+          "printedAmount": "835,871,777,680",
+          "amountInteger": "835871777680",
+          "amountRole": "directPrintedDetailedTableToken",
+          "periodStart": "2022-12-31",
+          "periodEnd": "2022-12-31",
+          "currency": "KRW",
+          "printedUnit": "원",
+          "precisionUnit": "1"
+        },
+        {
+          "metric": "liabilities",
+          "cellKey": "266:33:2",
+          "amountScope": "stockAtPeriodEnd",
+          "cashDirection": null,
+          "pageOrdinal": 266,
+          "lineOrdinal": 33,
+          "accountLabel": "부채총계",
+          "rawLine": "부채총계              62,448,471,899     74,665,552,878    70,186,106,180    112,819,961,721    109,665,185,397",
+          "tokenOrdinal": 2,
+          "characterSpan": [
+            55,
+            69
+          ],
+          "printedAmount": "70,186,106,180",
+          "amountInteger": "70186106180",
+          "amountRole": "directPrintedDetailedTableToken",
+          "periodStart": "2022-12-31",
+          "periodEnd": "2022-12-31",
+          "currency": "KRW",
+          "printedUnit": "원",
+          "precisionUnit": "1"
+        },
+        {
+          "metric": "equity",
+          "cellKey": "266:39:2",
+          "amountScope": "stockAtPeriodEnd",
+          "cashDirection": null,
+          "pageOrdinal": 266,
+          "lineOrdinal": 39,
+          "accountLabel": "자본총계",
+          "rawLine": "자본총계             783,578,549,525    794,860,065,364   765,685,671,500    774,755,732,200    840,322,651,778",
+          "tokenOrdinal": 2,
+          "characterSpan": [
+            54,
+            69
+          ],
+          "printedAmount": "765,685,671,500",
+          "amountInteger": "765685671500",
+          "amountRole": "directPrintedDetailedTableToken",
+          "periodStart": "2022-12-31",
+          "periodEnd": "2022-12-31",
+          "currency": "KRW",
+          "printedUnit": "원",
+          "precisionUnit": "1"
+        },
+        {
+          "metric": "fundOperatingIncome",
+          "cellKey": "267:7:2",
+          "amountScope": "ownFiscalDuration",
+          "cashDirection": null,
+          "pageOrdinal": 267,
+          "lineOrdinal": 7,
+          "accountLabel": "I. 운용수익",
+          "rawLine": "I. 운용수익               31,245,121,229    329,166,717,768        46,601,986,492     54,117,798,745       51,041,087,810",
+          "tokenOrdinal": 2,
+          "characterSpan": [
+            63,
+            77
+          ],
+          "printedAmount": "46,601,986,492",
+          "amountInteger": "46601986492",
+          "amountRole": "directPrintedDetailedTableToken",
+          "periodStart": "2022-07-01",
+          "periodEnd": "2022-12-31",
+          "currency": "KRW",
+          "printedUnit": "원",
+          "precisionUnit": "1"
+        },
+        {
+          "metric": "netProfit",
+          "cellKey": "267:17:2",
+          "amountScope": "ownFiscalDuration",
+          "cashDirection": null,
+          "pageOrdinal": 267,
+          "lineOrdinal": 17,
+          "accountLabel": "III. 당기순이익",
+          "rawLine": "III. 당기순이익            26,876,870,248    118,208,383,548        41,891,173,725     50,600,335,541       47,329,125,637",
+          "tokenOrdinal": 2,
+          "characterSpan": [
+            63,
+            77
+          ],
+          "printedAmount": "41,891,173,725",
+          "amountInteger": "41891173725",
+          "amountRole": "directPrintedDetailedTableToken",
+          "periodStart": "2022-07-01",
+          "periodEnd": "2022-12-31",
+          "currency": "KRW",
+          "printedUnit": "원",
+          "precisionUnit": "1"
+        },
+        {
+          "metric": "assetManagementCashFlow",
+          "cellKey": "268:38:2",
+          "amountScope": "ownFiscalDuration",
+          "cashDirection": null,
+          "pageOrdinal": 268,
+          "lineOrdinal": 38,
+          "accountLabel": "I. 자산운용활동으로 인한 현금흐름",
+          "rawLine": "I. 자산운용활동으로 인한 현금흐름      43,304,231,230       88,946,524,156     46,887,895,533    55,251,576,367        51,966,210,394",
+          "tokenOrdinal": 2,
+          "characterSpan": [
+            65,
+            79
+          ],
+          "printedAmount": "46,887,895,533",
+          "amountInteger": "46887895533",
+          "amountRole": "directPrintedDetailedTableToken",
+          "periodStart": "2022-07-01",
+          "periodEnd": "2022-12-31",
+          "currency": "KRW",
+          "printedUnit": "원",
+          "precisionUnit": "1"
+        }
+      ],
+      "sourceConflicts": [
+        {
+          "period": "2022H1",
+          "accountLabel": "자산총계",
+          "summary": {
+            "pageOrdinal": 265,
+            "lineOrdinal": 29,
+            "rawLine": "자산총계            846,027,021,424   869,525,618,242    835,871,777,680    889,152,491,338     872,371,858,839",
+            "printedAmount": "889,152,491,338"
+          },
+          "detailed": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 21,
+            "accountLabel": "자산총계",
+            "rawLine": "자산총계             846,027,021,424    869,525,618,242   835,871,777,680    887,575,693,921    949,987,837,175",
+            "tokenOrdinal": 3,
+            "characterSpan": [
+              73,
+              88
+            ],
+            "printedAmount": "887,575,693,921"
+          }
+        },
+        {
+          "period": "2021H2",
+          "accountLabel": "자산총계",
+          "summary": {
+            "pageOrdinal": 265,
+            "lineOrdinal": 29,
+            "rawLine": "자산총계            846,027,021,424   869,525,618,242    835,871,777,680    889,152,491,338     872,371,858,839",
+            "printedAmount": "872,371,858,839"
+          },
+          "detailed": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 21,
+            "accountLabel": "자산총계",
+            "rawLine": "자산총계             846,027,021,424    869,525,618,242   835,871,777,680    887,575,693,921    949,987,837,175",
+            "tokenOrdinal": 4,
+            "characterSpan": [
+              92,
+              107
+            ],
+            "printedAmount": "949,987,837,175"
+          }
+        },
+        {
+          "period": "2023",
+          "accountLabel": "부채총계",
+          "summary": {
+            "pageOrdinal": 265,
+            "lineOrdinal": 30,
+            "rawLine": "부채총계             62,448,471,899    60,800,000,000     60,800,000,000     45,157,071,844      30,587,857,366",
+            "printedAmount": "60,800,000,000"
+          },
+          "detailed": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 33,
+            "accountLabel": "부채총계",
+            "rawLine": "부채총계              62,448,471,899     74,665,552,878    70,186,106,180    112,819,961,721    109,665,185,397",
+            "tokenOrdinal": 1,
+            "characterSpan": [
+              37,
+              51
+            ],
+            "printedAmount": "74,665,552,878"
+          }
+        },
+        {
+          "period": "2022H2",
+          "accountLabel": "부채총계",
+          "summary": {
+            "pageOrdinal": 265,
+            "lineOrdinal": 30,
+            "rawLine": "부채총계             62,448,471,899    60,800,000,000     60,800,000,000     45,157,071,844      30,587,857,366",
+            "printedAmount": "60,800,000,000"
+          },
+          "detailed": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 33,
+            "accountLabel": "부채총계",
+            "rawLine": "부채총계              62,448,471,899     74,665,552,878    70,186,106,180    112,819,961,721    109,665,185,397",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              55,
+              69
+            ],
+            "printedAmount": "70,186,106,180"
+          }
+        },
+        {
+          "period": "2022H1",
+          "accountLabel": "부채총계",
+          "summary": {
+            "pageOrdinal": 265,
+            "lineOrdinal": 30,
+            "rawLine": "부채총계             62,448,471,899    60,800,000,000     60,800,000,000     45,157,071,844      30,587,857,366",
+            "printedAmount": "45,157,071,844"
+          },
+          "detailed": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 33,
+            "accountLabel": "부채총계",
+            "rawLine": "부채총계              62,448,471,899     74,665,552,878    70,186,106,180    112,819,961,721    109,665,185,397",
+            "tokenOrdinal": 3,
+            "characterSpan": [
+              73,
+              88
+            ],
+            "printedAmount": "112,819,961,721"
+          }
+        },
+        {
+          "period": "2021H2",
+          "accountLabel": "부채총계",
+          "summary": {
+            "pageOrdinal": 265,
+            "lineOrdinal": 30,
+            "rawLine": "부채총계             62,448,471,899    60,800,000,000     60,800,000,000     45,157,071,844      30,587,857,366",
+            "printedAmount": "30,587,857,366"
+          },
+          "detailed": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 33,
+            "accountLabel": "부채총계",
+            "rawLine": "부채총계              62,448,471,899     74,665,552,878    70,186,106,180    112,819,961,721    109,665,185,397",
+            "tokenOrdinal": 4,
+            "characterSpan": [
+              92,
+              107
+            ],
+            "printedAmount": "109,665,185,397"
+          }
+        },
+        {
+          "period": "2022H1",
+          "accountLabel": "자본총계",
+          "summary": {
+            "pageOrdinal": 265,
+            "lineOrdinal": 33,
+            "rawLine": "자본총계            783,578,549,525   794,860,065,364    765,685,671,500    843,995,419,494     841,784,001,473",
+            "printedAmount": "843,995,419,494"
+          },
+          "detailed": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 39,
+            "accountLabel": "자본총계",
+            "rawLine": "자본총계             783,578,549,525    794,860,065,364   765,685,671,500    774,755,732,200    840,322,651,778",
+            "tokenOrdinal": 3,
+            "characterSpan": [
+              73,
+              88
+            ],
+            "printedAmount": "774,755,732,200"
+          }
+        },
+        {
+          "period": "2021H2",
+          "accountLabel": "자본총계",
+          "summary": {
+            "pageOrdinal": 265,
+            "lineOrdinal": 33,
+            "rawLine": "자본총계            783,578,549,525   794,860,065,364    765,685,671,500    843,995,419,494     841,784,001,473",
+            "printedAmount": "841,784,001,473"
+          },
+          "detailed": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 39,
+            "accountLabel": "자본총계",
+            "rawLine": "자본총계             783,578,549,525    794,860,065,364   765,685,671,500    774,755,732,200    840,322,651,778",
+            "tokenOrdinal": 4,
+            "characterSpan": [
+              92,
+              107
+            ],
+            "printedAmount": "840,322,651,778"
+          }
+        },
+        {
+          "period": "2022H1",
+          "accountLabel": "운용수익",
+          "summary": {
+            "pageOrdinal": 265,
+            "lineOrdinal": 35,
+            "rawLine": "운용수익              31,245,121,22   329,166,717,768     46,601,986,492     46,791,452,795     32,425,398,438",
+            "printedAmount": "46,791,452,795"
+          },
+          "detailed": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 7,
+            "accountLabel": "I. 운용수익",
+            "rawLine": "I. 운용수익               31,245,121,229    329,166,717,768        46,601,986,492     54,117,798,745       51,041,087,810",
+            "tokenOrdinal": 3,
+            "characterSpan": [
+              82,
+              96
+            ],
+            "printedAmount": "54,117,798,745"
+          }
+        },
+        {
+          "period": "2021H2",
+          "accountLabel": "운용수익",
+          "summary": {
+            "pageOrdinal": 265,
+            "lineOrdinal": 35,
+            "rawLine": "운용수익              31,245,121,22   329,166,717,768     46,601,986,492     46,791,452,795     32,425,398,438",
+            "printedAmount": "32,425,398,438"
+          },
+          "detailed": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 7,
+            "accountLabel": "I. 운용수익",
+            "rawLine": "I. 운용수익               31,245,121,229    329,166,717,768        46,601,986,492     54,117,798,745       51,041,087,810",
+            "tokenOrdinal": 4,
+            "characterSpan": [
+              103,
+              117
+            ],
+            "printedAmount": "51,041,087,810"
+          }
+        },
+        {
+          "period": "2022H1",
+          "accountLabel": "운용비용",
+          "summary": {
+            "pageOrdinal": 265,
+            "lineOrdinal": 36,
+            "rawLine": "운용비용              4,368,250,981   210,958,334,220      4,710,812,767      3,148,390,352      3,707,899,817",
+            "printedAmount": "3,148,390,352"
+          },
+          "detailed": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 10,
+            "accountLabel": "II. 운용비용",
+            "rawLine": "II. 운용비용               4,368,250,981    210,958,334,220         4,710,812,767      3,517,463,204        3,711,962,173",
+            "tokenOrdinal": 3,
+            "characterSpan": [
+              83,
+              96
+            ],
+            "printedAmount": "3,517,463,204"
+          }
+        },
+        {
+          "period": "2021H2",
+          "accountLabel": "운용비용",
+          "summary": {
+            "pageOrdinal": 265,
+            "lineOrdinal": 36,
+            "rawLine": "운용비용              4,368,250,981   210,958,334,220      4,710,812,767      3,148,390,352      3,707,899,817",
+            "printedAmount": "3,707,899,817"
+          },
+          "detailed": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 10,
+            "accountLabel": "II. 운용비용",
+            "rawLine": "II. 운용비용               4,368,250,981    210,958,334,220         4,710,812,767      3,517,463,204        3,711,962,173",
+            "tokenOrdinal": 4,
+            "characterSpan": [
+              104,
+              117
+            ],
+            "printedAmount": "3,711,962,173"
+          }
+        }
+      ],
+      "excludedFiscalPeriods": [
+        {
+          "periodStart": "2022-01-01",
+          "periodEnd": "2022-06-30",
+          "periodKind": "ownSixMonthFiscalYear",
+          "reason": "detailedCEAbsentInReviewedSection",
+          "accounts": []
+        },
+        {
+          "periodStart": "2021-07-01",
+          "periodEnd": "2021-12-31",
+          "periodKind": "ownSixMonthFiscalYear",
+          "reason": "CFfinancingOutflowComponentMismatchAndDetailedCEAbsent",
+          "quarantinedStatement": "CF",
+          "failurePrintedTotal": "(47,315,830,159)",
+          "failurePrintedComponents": [
+            "43,643,062,443",
+            "3,672,767,716",
+            "-",
+            "3,672,767,716"
+          ],
+          "failureDifferenceInteger": "3672767716",
+          "failureSourceCells": {
+            "total": {
+              "pageOrdinal": 269,
+              "lineOrdinal": 10,
+              "accountLabel": "2. 재무활동 현금유출액",
+              "rawLine": "2. 재무활동 현금유출액                       (91,179,745,238)        (84,575,734,958)   (154,598,465,541)      (153,696,045,215)     (47,315,830,159)",
+              "tokenOrdinal": 4,
+              "characterSpan": [
+                124,
+                140
+              ],
+              "printedAmount": "(47,315,830,159)"
+            },
+            "components": [
+              {
+                "pageOrdinal": 269,
+                "lineOrdinal": 11,
+                "accountLabel": "가. 분배금 유출액",
+                "rawLine": "가. 분배금 유출액                            46,349,428,451         76,019,243,025         84,728,404,841      47,329,125,637       43,643,062,443",
+                "tokenOrdinal": 4,
+                "characterSpan": [
+                  125,
+                  139
+                ],
+                "printedAmount": "43,643,062,443"
+              },
+              {
+                "pageOrdinal": 269,
+                "lineOrdinal": 12,
+                "accountLabel": "나. 초과이익분배금 지급",
+                "rawLine": "나. 초과이익분배금 지급                          4,030,316,787          8,556,491,933          9,070,060,700      65,566,919,578         3,672,767,716",
+                "tokenOrdinal": 4,
+                "characterSpan": [
+                  127,
+                  140
+                ],
+                "printedAmount": "3,672,767,716"
+              },
+              {
+                "pageOrdinal": 269,
+                "lineOrdinal": 13,
+                "accountLabel": "다. 사채의 상환액",
+                "rawLine": "다. 사채의 상환액                                         -                       -        20,000,000,000                    -                    -",
+                "tokenOrdinal": 4,
+                "characterSpan": [
+                  139,
+                  140
+                ],
+                "printedAmount": "-"
+              },
+              {
+                "pageOrdinal": 269,
+                "lineOrdinal": 14,
+                "accountLabel": "라. 차입금 상환액",
+                "rawLine": "라. 차입금 상환액                            40,800,000,000                       -        40,800,000,000      40,800,000,000         3,672,767,716",
+                "tokenOrdinal": 4,
+                "characterSpan": [
+                  127,
+                  140
+                ],
+                "printedAmount": "3,672,767,716"
+              }
+            ]
+          },
+          "accounts": []
+        }
+      ],
+      "validation": {
+        "cells": {
+          "266:11:2": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 11,
+            "accountLabel": "I. 운용자산",
+            "rawLine": "I. 운용자산          844,169,037,806    868,192,467,890   834,998,357,798    886,533,490,241    948,750,052,208",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              54,
+              69
+            ],
+            "printedAmount": "834,998,357,798"
+          },
+          "266:12:2": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 12,
+            "accountLabel": "(1) 현금및예치금",
+            "rawLine": "(1) 현금및예치금         7,964,336,713     15,039,850,721    10,669,061,523     57,579,631,531    115,224,100,379",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              55,
+              69
+            ],
+            "printedAmount": "10,669,061,523"
+          },
+          "266:14:2": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 14,
+            "accountLabel": "(2) 유가증권",
+            "rawLine": "(2) 유가증권         231,187,384,538    231,187,384,538   433,672,265,019    433,672,265,019    433,672,265,019",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              54,
+              69
+            ],
+            "printedAmount": "433,672,265,019"
+          },
+          "266:16:2": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 16,
+            "accountLabel": "(3) 대출채권",
+            "rawLine": "(3) 대출채권         605,017,316,555    621,965,232,631   390,657,031,256    395,281,593,691    399,853,686,810",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              54,
+              69
+            ],
+            "printedAmount": "390,657,031,256"
+          },
+          "266:18:2": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 18,
+            "accountLabel": "II. 기타자산",
+            "rawLine": "II. 기타자산           1,857,983,618      1,333,150,352      873,419,882       1,042,203,680      1,237,784,967",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              57,
+              68
+            ],
+            "printedAmount": "873,419,882"
+          },
+          "266:19:2": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 19,
+            "accountLabel": "1. 미수이자",
+            "rawLine": "1. 미수이자             789,608,759        683,966,843       873,419,882       1,042,203,680      1,237,784,967",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              57,
+              68
+            ],
+            "printedAmount": "873,419,882"
+          },
+          "266:20:2": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 20,
+            "accountLabel": "2. 선급이자",
+            "rawLine": "2. 선급이자            1,068,374,859       649,183,509                   -                  -                  -",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              69,
+              70
+            ],
+            "printedAmount": "-"
+          },
+          "266:21:2": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 21,
+            "accountLabel": "자산총계",
+            "rawLine": "자산총계             846,027,021,424    869,525,618,242   835,871,777,680    887,575,693,921    949,987,837,175",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              54,
+              69
+            ],
+            "printedAmount": "835,871,777,680"
+          },
+          "266:23:2": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 23,
+            "accountLabel": "I. 차입부채",
+            "rawLine": "I. 차입부채           60,800,000,000     60,800,000,000    60,800,000,000     60,800,000,000     60,800,000,000",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              55,
+              69
+            ],
+            "printedAmount": "60,800,000,000"
+          },
+          "266:24:2": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 24,
+            "accountLabel": "1. 사채",
+            "rawLine": "1. 사채            20,000,000,000      20,000,000,000    20,000,000,000     20,000,000,000     20,000,000,000",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              55,
+              69
+            ],
+            "printedAmount": "20,000,000,000"
+          },
+          "266:25:2": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 25,
+            "accountLabel": "2. 차입금",
+            "rawLine": "2. 차입금           40,800,000,000      40,800,000,000    40,800,000,000     40,800,000,000     40,800,000,000",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              55,
+              69
+            ],
+            "printedAmount": "40,800,000,000"
+          },
+          "266:26:2": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 26,
+            "accountLabel": "II. 기타부채",
+            "rawLine": "II. 기타부채           1,648,471,899     13,865,552,878     9,386,106,180     52,019,961,721     48,865,185,397",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              56,
+              69
+            ],
+            "printedAmount": "9,386,106,180"
+          },
+          "266:27:2": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 27,
+            "accountLabel": "1. 자산보관보수미지급금",
+            "rawLine": "1. 자산보관보수미지급금        40,490,810         40,116,268        40,178,598         40,586,860         43,916,707",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              58,
+              68
+            ],
+            "printedAmount": "40,178,598"
+          },
+          "266:28:2": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 28,
+            "accountLabel": "2. 자산운용보수미지급금",
+            "rawLine": "2. 자산운용보수미지급금      1,315,952,753      1,303,780,087     1,305,805,921      1,319,074,388      1,427,294,557",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              56,
+              69
+            ],
+            "printedAmount": "1,305,805,921"
+          },
+          "266:29:2": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 29,
+            "accountLabel": "3. 일반사무보수미지급금",
+            "rawLine": "3. 일반사무보수미지급금        40,490,810         40,116,268        40,178,598         40,586,860         43,916,707",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              58,
+              68
+            ],
+            "printedAmount": "40,178,598"
+          },
+          "266:30:2": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 30,
+            "accountLabel": "4. 미지급이익분배금",
+            "rawLine": "4. 미지급이익분배금                     -    12,221,359,151     7,763,104,425     50,600,335,541     47,329,125,637",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              56,
+              69
+            ],
+            "printedAmount": "7,763,104,425"
+          },
+          "266:31:2": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 31,
+            "accountLabel": "5. 미지급이자",
+            "rawLine": "5. 미지급이자            249,753,426        252,657,534       229,315,068         12,273,972         13,808,219",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              57,
+              68
+            ],
+            "printedAmount": "229,315,068"
+          },
+          "266:32:2": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 32,
+            "accountLabel": "6. 기타미지급금",
+            "rawLine": "6. 기타미지급금             1,784,100          7,523,570         7,523,570          7,104,100          7,123,570",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              59,
+              68
+            ],
+            "printedAmount": "7,523,570"
+          },
+          "266:33:2": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 33,
+            "accountLabel": "부채총계",
+            "rawLine": "부채총계              62,448,471,899     74,665,552,878    70,186,106,180    112,819,961,721    109,665,185,397",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              55,
+              69
+            ],
+            "printedAmount": "70,186,106,180"
+          },
+          "266:39:2": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 39,
+            "accountLabel": "자본총계",
+            "rawLine": "자본총계             783,578,549,525    794,860,065,364   765,685,671,500    774,755,732,200    840,322,651,778",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              54,
+              69
+            ],
+            "printedAmount": "765,685,671,500"
+          },
+          "266:35:2": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 35,
+            "accountLabel": "I. 자본금",
+            "rawLine": "I. 자본금           753,098,862,780    757,129,179,567   765,685,671,500    774,755,732,200    840,322,651,778",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              54,
+              69
+            ],
+            "printedAmount": "765,685,671,500"
+          },
+          "266:37:2": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 37,
+            "accountLabel": "II. 이익잉여금",
+            "rawLine": "II. 이익잉여금         30,479,686,745     37,730,885,797                  -                  -                  -",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              69,
+              70
+            ],
+            "printedAmount": "-"
+          },
+          "267:7:2": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 7,
+            "accountLabel": "I. 운용수익",
+            "rawLine": "I. 운용수익               31,245,121,229    329,166,717,768        46,601,986,492     54,117,798,745       51,041,087,810",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              63,
+              77
+            ],
+            "printedAmount": "46,601,986,492"
+          },
+          "267:8:2": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 8,
+            "accountLabel": "1. 이자수익",
+            "rawLine": "1. 이자수익               31,245,121,229     88,950,951,490        46,601,986,492     54,117,798,745       51,041,087,810",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              63,
+              77
+            ],
+            "printedAmount": "46,601,986,492"
+          },
+          "267:9:2": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 9,
+            "accountLabel": "2. 대출채권평가이익",
+            "rawLine": "2. 대출채권평가이익                        -    240,215,766,278                      -                  -                    -",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              77,
+              78
+            ],
+            "printedAmount": "-"
+          },
+          "267:10:2": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 10,
+            "accountLabel": "II. 운용비용",
+            "rawLine": "II. 운용비용               4,368,250,981    210,958,334,220         4,710,812,767      3,517,463,204        3,711,962,173",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              64,
+              77
+            ],
+            "printedAmount": "4,710,812,767"
+          },
+          "267:11:2": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 11,
+            "accountLabel": "1. 이자비용",
+            "rawLine": "1. 이자비용                1,562,199,335      2,890,279,503         1,529,594,520         715,864,109        634,303,561",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              64,
+              77
+            ],
+            "printedAmount": "1,529,594,520"
+          },
+          "267:12:2": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 12,
+            "accountLabel": "2. 자산보관보수",
+            "rawLine": "2. 자산보관보수                80,402,693        156,946,096            79,542,695           80,261,126         86,833,135",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              66,
+              76
+            ],
+            "printedAmount": "79,542,695"
+          },
+          "267:13:2": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 13,
+            "accountLabel": "3. 자산운용보수",
+            "rawLine": "3. 자산운용보수              2,613,090,360      5,100,753,694         2,585,140,474      2,608,489,533        2,822,079,862",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              64,
+              77
+            ],
+            "printedAmount": "2,585,140,474"
+          },
+          "267:14:2": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 14,
+            "accountLabel": "4. 일반사무보수",
+            "rawLine": "4. 일반사무보수                80,402,693        156,946,096            79,542,695           80,261,126         86,833,135",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              66,
+              76
+            ],
+            "printedAmount": "79,542,695"
+          },
+          "267:15:2": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 15,
+            "accountLabel": "5. 기타비용",
+            "rawLine": "5. 기타비용                  32,155,900        168,528,350           436,992,383           32,587,310         81,912,480",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              65,
+              76
+            ],
+            "printedAmount": "436,992,383"
+          },
+          "267:16:2": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 16,
+            "accountLabel": "6. 유가증권평가손실",
+            "rawLine": "6. 유가증권평가손실                        -    202,484,880,481                      -                  -                    -",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              77,
+              78
+            ],
+            "printedAmount": "-"
+          },
+          "267:17:2": {
+            "pageOrdinal": 267,
+            "lineOrdinal": 17,
+            "accountLabel": "III. 당기순이익",
+            "rawLine": "III. 당기순이익            26,876,870,248    118,208,383,548        41,891,173,725     50,600,335,541       47,329,125,637",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              63,
+              77
+            ],
+            "printedAmount": "41,891,173,725"
+          },
+          "268:39:2": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 39,
+            "accountLabel": "1. 자산운용활동 현금유입액",
+            "rawLine": "1. 자산운용활동 현금유입액          48,087,395,389       98,047,969,432     51,395,332,725    58,885,473,151        55,656,122,208",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              65,
+              79
+            ],
+            "printedAmount": "51,395,332,725"
+          },
+          "268:40:2": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 40,
+            "accountLabel": "가. 이자수입 유입액",
+            "rawLine": "가. 이자수입 유입액              30,709,377,321       63,291,933,292     34,017,314,655    41,507,455,082        38,278,104,138",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              65,
+              79
+            ],
+            "printedAmount": "34,017,314,655"
+          },
+          "268:41:2": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 41,
+            "accountLabel": "나. 장기대여금의 회수",
+            "rawLine": "나. 장기대여금의 회수             17,378,018,068       34,756,036,140     17,378,018,070    17,378,018,069        17,378,018,070",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              65,
+              79
+            ],
+            "printedAmount": "17,378,018,070"
+          },
+          "268:42:2": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 42,
+            "accountLabel": "2. 자산운용활동 현금유출액",
+            "rawLine": "2. 자산운용활동 현금유출액          (4,783,164,159)      (9,101,445,276)    (4,507,437,192)    (3,633,896,784)      (3,689,911,814)",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              65,
+              80
+            ],
+            "printedAmount": "(4,507,437,192)"
+          },
+          "268:43:2": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 43,
+            "accountLabel": "가. 자산운용보수 유출액",
+            "rawLine": "가. 자산운용보수 유출액             2,600,917,694        5,102,779,528      2,598,408,941      2,716,709,702        2,814,333,860",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              66,
+              79
+            ],
+            "printedAmount": "2,598,408,941"
+          },
+          "268:44:2": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 44,
+            "accountLabel": "나. 자산보관보수 유출액",
+            "rawLine": "나. 자산보관보수 유출액                80,028,151          157,008,426         79,950,957        83,590,973           86,594,801",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              69,
+              79
+            ],
+            "printedAmount": "79,950,957"
+          },
+          "268:45:2": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 45,
+            "accountLabel": "다. 일반사무보수 유출액",
+            "rawLine": "다. 일반사무보수 유출액                80,028,151          157,008,426         79,950,957        83,590,973           86,594,801",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              69,
+              79
+            ],
+            "printedAmount": "79,950,957"
+          },
+          "269:4:2": {
+            "pageOrdinal": 269,
+            "lineOrdinal": 4,
+            "accountLabel": "라. 이자비용 유출액",
+            "rawLine": "라. 이자비용 유출액                            1,984,294,793          3,516,120,546          1,312,553,424        717,398,356           620,495,342",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              85,
+              98
+            ],
+            "printedAmount": "1,312,553,424"
+          },
+          "269:5:2": {
+            "pageOrdinal": 269,
+            "lineOrdinal": 5,
+            "accountLabel": "마. 기타비용 유출액",
+            "rawLine": "마. 기타비용 유출액                                37,895,370           168,528,350            436,572,913          32,606,780           81,893,010",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              87,
+              98
+            ],
+            "printedAmount": "436,572,913"
+          },
+          "268:38:2": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 38,
+            "accountLabel": "I. 자산운용활동으로 인한 현금흐름",
+            "rawLine": "I. 자산운용활동으로 인한 현금흐름      43,304,231,230       88,946,524,156     46,887,895,533    55,251,576,367        51,966,210,394",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              65,
+              79
+            ],
+            "printedAmount": "46,887,895,533"
+          },
+          "269:7:2": {
+            "pageOrdinal": 269,
+            "lineOrdinal": 7,
+            "accountLabel": "1. 재무활동 현금유입액",
+            "rawLine": "1. 재무활동 현금유입액                         40,800,000,000                       -        60,800,000,000      40,800,000,000       60,800,000,000",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              84,
+              98
+            ],
+            "printedAmount": "60,800,000,000"
+          },
+          "269:8:2": {
+            "pageOrdinal": 269,
+            "lineOrdinal": 8,
+            "accountLabel": "가. 사채의 발행",
+            "rawLine": "가. 사채의 발행                                          -                       -        20,000,000,000                    -      20,000,000,000",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              84,
+              98
+            ],
+            "printedAmount": "20,000,000,000"
+          },
+          "269:9:2": {
+            "pageOrdinal": 269,
+            "lineOrdinal": 9,
+            "accountLabel": "나. 차입금 유입액",
+            "rawLine": "나. 차입금 유입액                            40,800,000,000                       -        40,800,000,000      40,800,000,000       40,800,000,000",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              84,
+              98
+            ],
+            "printedAmount": "40,800,000,000"
+          },
+          "269:10:2": {
+            "pageOrdinal": 269,
+            "lineOrdinal": 10,
+            "accountLabel": "2. 재무활동 현금유출액",
+            "rawLine": "2. 재무활동 현금유출액                       (91,179,745,238)        (84,575,734,958)   (154,598,465,541)      (153,696,045,215)     (47,315,830,159)",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              79,
+              96
+            ],
+            "printedAmount": "(154,598,465,541)"
+          },
+          "269:11:2": {
+            "pageOrdinal": 269,
+            "lineOrdinal": 11,
+            "accountLabel": "가. 분배금 유출액",
+            "rawLine": "가. 분배금 유출액                            46,349,428,451         76,019,243,025         84,728,404,841      47,329,125,637       43,643,062,443",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              84,
+              98
+            ],
+            "printedAmount": "84,728,404,841"
+          },
+          "269:12:2": {
+            "pageOrdinal": 269,
+            "lineOrdinal": 12,
+            "accountLabel": "나. 초과이익분배금 지급",
+            "rawLine": "나. 초과이익분배금 지급                          4,030,316,787          8,556,491,933          9,070,060,700      65,566,919,578         3,672,767,716",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              85,
+              98
+            ],
+            "printedAmount": "9,070,060,700"
+          },
+          "269:13:2": {
+            "pageOrdinal": 269,
+            "lineOrdinal": 13,
+            "accountLabel": "다. 사채의 상환액",
+            "rawLine": "다. 사채의 상환액                                         -                       -        20,000,000,000                    -                    -",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              84,
+              98
+            ],
+            "printedAmount": "20,000,000,000"
+          },
+          "269:14:2": {
+            "pageOrdinal": 269,
+            "lineOrdinal": 14,
+            "accountLabel": "라. 차입금 상환액",
+            "rawLine": "라. 차입금 상환액                            40,800,000,000                       -        40,800,000,000      40,800,000,000         3,672,767,716",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              84,
+              98
+            ],
+            "printedAmount": "40,800,000,000"
+          },
+          "269:6:2": {
+            "pageOrdinal": 269,
+            "lineOrdinal": 6,
+            "accountLabel": "II. 재무활동으로 인한 현금흐름",
+            "rawLine": "II. 재무활동으로 인한 현금흐름                  (50,379,745,238)        (84,575,734,958)       (93,798,465,541)   (112,896,045,215)      13,484,169,841",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              83,
+              99
+            ],
+            "printedAmount": "(93,798,465,541)"
+          },
+          "269:15:2": {
+            "pageOrdinal": 269,
+            "lineOrdinal": 15,
+            "accountLabel": "III. 현금의 증가 ( I + II )",
+            "rawLine": "III. 현금의 증가 ( I + II )               (7,075,514,008)          4,370,789,198        (46,910,570,008)    (57,644,468,848)      65,450,380,235",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              83,
+              99
+            ],
+            "printedAmount": "(46,910,570,008)"
+          },
+          "269:17:2": {
+            "pageOrdinal": 269,
+            "lineOrdinal": 17,
+            "accountLabel": "V. 기말의 현금",
+            "rawLine": "V. 기말의 현금                              7,964,336,713         15,039,850,721         10,669,061,523      57,579,631,531      115,224,100,379",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              84,
+              98
+            ],
+            "printedAmount": "10,669,061,523"
+          },
+          "269:16:2": {
+            "pageOrdinal": 269,
+            "lineOrdinal": 16,
+            "accountLabel": "IV. 기초의 현금",
+            "rawLine": "IV. 기초의 현금                            15,039,850,721         10,669,061,523         57,579,631,531     115,224,100,379       49,773,720,144",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              84,
+              98
+            ],
+            "printedAmount": "57,579,631,531"
+          },
+          "266:13:2": {
+            "pageOrdinal": 266,
+            "lineOrdinal": 13,
+            "accountLabel": "1. 현금및현금성자산",
+            "rawLine": "1. 현금및현금성자산        7,964,336,713     15,039,850,721    10,669,061,523     57,579,631,531    115,224,100,379",
+            "tokenOrdinal": 2,
+            "characterSpan": [
+              55,
+              69
+            ],
+            "printedAmount": "10,669,061,523"
+          },
+          "CE:0:0": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 16,
+            "accountLabel": "2022.07.01(전기 초)",
+            "rawLine": "2022.07.01(전기 초)                       774,755,732,200                                            774,755,732,200",
+            "componentOrdinal": 0,
+            "characterSpan": [
+              39,
+              54
+            ],
+            "printedAmount": "774,755,732,200",
+            "missingRole": null
+          },
+          "CE:0:1": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 16,
+            "accountLabel": "2022.07.01(전기 초)",
+            "rawLine": "2022.07.01(전기 초)                       774,755,732,200                                            774,755,732,200",
+            "componentOrdinal": 1,
+            "characterSpan": null,
+            "printedAmount": null,
+            "missingRole": "printedBlankNotAmountFact"
+          },
+          "CE:0:2": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 16,
+            "accountLabel": "2022.07.01(전기 초)",
+            "rawLine": "2022.07.01(전기 초)                       774,755,732,200                                            774,755,732,200",
+            "componentOrdinal": 2,
+            "characterSpan": [
+              98,
+              113
+            ],
+            "printedAmount": "774,755,732,200",
+            "missingRole": null
+          },
+          "CE:1:0": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 17,
+            "accountLabel": "당기순이익",
+            "rawLine": "당기순이익                                                                41,891,173,725                   41,891,173,725",
+            "componentOrdinal": 0,
+            "characterSpan": null,
+            "printedAmount": null,
+            "missingRole": "printedBlankNotAmountFact"
+          },
+          "CE:1:1": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 17,
+            "accountLabel": "당기순이익",
+            "rawLine": "당기순이익                                                                41,891,173,725                   41,891,173,725",
+            "componentOrdinal": 1,
+            "characterSpan": [
+              69,
+              83
+            ],
+            "printedAmount": "41,891,173,725",
+            "missingRole": null
+          },
+          "CE:1:2": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 17,
+            "accountLabel": "당기순이익",
+            "rawLine": "당기순이익                                                                41,891,173,725                   41,891,173,725",
+            "componentOrdinal": 2,
+            "characterSpan": [
+              102,
+              116
+            ],
+            "printedAmount": "41,891,173,725",
+            "missingRole": null
+          },
+          "CE:2:0": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 18,
+            "accountLabel": "현금분배금",
+            "rawLine": "현금분배금                                  (9,070,060,700)             (41,891,173,725)               (50,961,234,425)",
+            "componentOrdinal": 0,
+            "characterSpan": [
+              39,
+              54
+            ],
+            "printedAmount": "(9,070,060,700)",
+            "missingRole": null
+          },
+          "CE:2:1": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 18,
+            "accountLabel": "현금분배금",
+            "rawLine": "현금분배금                                  (9,070,060,700)             (41,891,173,725)               (50,961,234,425)",
+            "componentOrdinal": 1,
+            "characterSpan": [
+              67,
+              83
+            ],
+            "printedAmount": "(41,891,173,725)",
+            "missingRole": null
+          },
+          "CE:2:2": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 18,
+            "accountLabel": "현금분배금",
+            "rawLine": "현금분배금                                  (9,070,060,700)             (41,891,173,725)               (50,961,234,425)",
+            "componentOrdinal": 2,
+            "characterSpan": [
+              98,
+              114
+            ],
+            "printedAmount": "(50,961,234,425)",
+            "missingRole": null
+          },
+          "CE:3:0": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 21,
+            "accountLabel": "2022.12.31(전기 말)",
+            "rawLine": "2022.12.31(전기 말)                       765,685,671,500                                            765,685,671,500",
+            "componentOrdinal": 0,
+            "characterSpan": [
+              39,
+              54
+            ],
+            "printedAmount": "765,685,671,500",
+            "missingRole": null
+          },
+          "CE:3:1": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 21,
+            "accountLabel": "2022.12.31(전기 말)",
+            "rawLine": "2022.12.31(전기 말)                       765,685,671,500                                            765,685,671,500",
+            "componentOrdinal": 1,
+            "characterSpan": null,
+            "printedAmount": null,
+            "missingRole": "printedBlankNotAmountFact"
+          },
+          "CE:3:2": {
+            "pageOrdinal": 268,
+            "lineOrdinal": 21,
+            "accountLabel": "2022.12.31(전기 말)",
+            "rawLine": "2022.12.31(전기 말)                       765,685,671,500                                            765,685,671,500",
+            "componentOrdinal": 2,
+            "characterSpan": [
+              98,
+              113
+            ],
+            "printedAmount": "765,685,671,500",
+            "missingRole": null
+          }
+        },
+        "checks": [
+          {
+            "name": "BS operating assets",
+            "lhs": "266:11:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "266:12:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "266:14:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "266:16:2"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "BS other assets",
+            "lhs": "266:18:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "266:19:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "266:20:2"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 1,
+            "leftIsMissing": false,
+            "equationScope": "printedSubtotalWithMissingNonAmountWitness"
+          },
+          {
+            "name": "BS assets",
+            "lhs": "266:21:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "266:11:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "266:18:2"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "BS loan liabilities",
+            "lhs": "266:23:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "266:24:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "266:25:2"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "BS other liabilities",
+            "lhs": "266:26:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "266:27:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "266:28:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "266:29:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "266:30:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "266:31:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "266:32:2"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "BS liabilities",
+            "lhs": "266:33:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "266:23:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "266:26:2"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "BS equity",
+            "lhs": "266:39:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "266:35:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "266:37:2"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 1,
+            "leftIsMissing": false,
+            "equationScope": "printedSubtotalWithMissingNonAmountWitness"
+          },
+          {
+            "name": "BS identity",
+            "lhs": "266:21:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "266:33:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "266:39:2"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "PL income",
+            "lhs": "267:7:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "267:8:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "267:9:2"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 1,
+            "leftIsMissing": false,
+            "equationScope": "printedSubtotalWithMissingNonAmountWitness"
+          },
+          {
+            "name": "PL expenses",
+            "lhs": "267:10:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "267:11:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "267:12:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "267:13:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "267:14:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "267:15:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "267:16:2"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 1,
+            "leftIsMissing": false,
+            "equationScope": "printedSubtotalWithMissingNonAmountWitness"
+          },
+          {
+            "name": "PL NI",
+            "lhs": "267:17:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "267:7:2"
+              },
+              {
+                "coefficient": -1,
+                "cellKey": "267:10:2"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "CF management inflows",
+            "lhs": "268:39:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "268:40:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "268:41:2"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "CF management outflows",
+            "lhs": "268:42:2",
+            "terms": [
+              {
+                "coefficient": -1,
+                "cellKey": "268:43:2"
+              },
+              {
+                "coefficient": -1,
+                "cellKey": "268:44:2"
+              },
+              {
+                "coefficient": -1,
+                "cellKey": "268:45:2"
+              },
+              {
+                "coefficient": -1,
+                "cellKey": "269:4:2"
+              },
+              {
+                "coefficient": -1,
+                "cellKey": "269:5:2"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "CF management total",
+            "lhs": "268:38:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "268:39:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "268:42:2"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "CF financing inflows",
+            "lhs": "269:7:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "269:8:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "269:9:2"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "CF financing outflows",
+            "lhs": "269:10:2",
+            "terms": [
+              {
+                "coefficient": -1,
+                "cellKey": "269:11:2"
+              },
+              {
+                "coefficient": -1,
+                "cellKey": "269:12:2"
+              },
+              {
+                "coefficient": -1,
+                "cellKey": "269:13:2"
+              },
+              {
+                "coefficient": -1,
+                "cellKey": "269:14:2"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "CF financing total",
+            "lhs": "269:6:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "269:7:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "269:10:2"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "CF cash change",
+            "lhs": "269:15:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "268:38:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "269:6:2"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "CF cash roll",
+            "lhs": "269:17:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "269:16:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "269:15:2"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "CF BS cash numeric crosscheck",
+            "lhs": "269:17:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "266:13:2"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "CE component sum 0",
+            "lhs": "CE:0:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "CE:0:0"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "CE:0:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 1,
+            "leftIsMissing": false,
+            "equationScope": "printedSubtotalWithMissingNonAmountWitness"
+          },
+          {
+            "name": "CE component sum 1",
+            "lhs": "CE:1:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "CE:1:0"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "CE:1:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 1,
+            "leftIsMissing": false,
+            "equationScope": "printedSubtotalWithMissingNonAmountWitness"
+          },
+          {
+            "name": "CE component sum 2",
+            "lhs": "CE:2:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "CE:2:0"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "CE:2:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "CE component sum 3",
+            "lhs": "CE:3:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "CE:3:0"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "CE:3:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 1,
+            "leftIsMissing": false,
+            "equationScope": "printedSubtotalWithMissingNonAmountWitness"
+          },
+          {
+            "name": "CE roll 0",
+            "lhs": "CE:3:0",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "CE:0:0"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "CE:1:0"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "CE:2:0"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 1,
+            "leftIsMissing": false,
+            "equationScope": "printedSubtotalWithMissingNonAmountWitness"
+          },
+          {
+            "name": "CE roll 1",
+            "lhs": "CE:3:1",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "CE:0:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "CE:1:1"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "CE:2:1"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 1,
+            "leftIsMissing": true,
+            "equationScope": "printedSubtotalWithMissingNonAmountWitness"
+          },
+          {
+            "name": "CE roll 2",
+            "lhs": "CE:3:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "CE:0:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "CE:1:2"
+              },
+              {
+                "coefficient": 1,
+                "cellKey": "CE:2:2"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "CE BS close 0",
+            "lhs": "CE:3:0",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "266:35:2"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "CE BS close 1",
+            "lhs": "CE:3:1",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "266:37:2"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 1,
+            "leftIsMissing": true,
+            "equationScope": "printedSubtotalWithMissingNonAmountWitness"
+          },
+          {
+            "name": "CE BS close 2",
+            "lhs": "CE:3:2",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "266:39:2"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          },
+          {
+            "name": "CE PL profit",
+            "lhs": "CE:1:1",
+            "terms": [
+              {
+                "coefficient": 1,
+                "cellKey": "267:17:2"
+              }
+            ],
+            "difference": "0",
+            "missingTerms": 0,
+            "leftIsMissing": false,
+            "equationScope": "fullyNumericPrintedEquation"
+          }
+        ],
+        "fullyNumericEquationCount": 21,
+        "missingWitnessSubtotalCount": 10,
+        "missingWitnessesAreAmountFacts": false,
+        "completeStatementsVerified": false
+      }
+    }
+  ],
+  "source": {
+    "kind": "officialFile",
+    "url": "https://kbif.co.kr"
+  }
+}

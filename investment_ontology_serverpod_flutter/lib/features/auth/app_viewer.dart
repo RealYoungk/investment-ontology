@@ -17,6 +17,11 @@ class AppViewer {
     this.cancelAtPeriodEnd = false,
     this.paymentAvailable = false,
     this.isTestMembership = false,
+    this.currentPriceKrw = 4900,
+    this.appliedPriceKrw,
+    this.priceProtected = false,
+    this.graceThroughUtc,
+    this.nextChargeUtc,
   });
 
   AppViewer.fromScopes(this.userId, Set<String> scopeNames)
@@ -26,7 +31,12 @@ class AppViewer {
       paidThroughUtc = null,
       cancelAtPeriodEnd = false,
       paymentAvailable = false,
-      isTestMembership = false;
+      isTestMembership = false,
+      currentPriceKrw = 4900,
+      appliedPriceKrw = null,
+      priceProtected = false,
+      graceThroughUtc = null,
+      nextChargeUtc = null;
 
   final String userId;
   final bool isAdmin;
@@ -41,6 +51,11 @@ class AppViewer {
   final bool cancelAtPeriodEnd;
   final bool paymentAvailable;
   final bool isTestMembership;
+  final int currentPriceKrw;
+  final int? appliedPriceKrw;
+  final bool priceProtected;
+  final DateTime? graceThroughUtc;
+  final DateTime? nextChargeUtc;
 
   String get roleLabel => isAdmin ? '관리자' : '읽기 전용';
 
@@ -54,7 +69,12 @@ class AppViewer {
       other.paidThroughUtc == paidThroughUtc &&
       other.cancelAtPeriodEnd == cancelAtPeriodEnd &&
       other.paymentAvailable == paymentAvailable &&
-      other.isTestMembership == isTestMembership;
+      other.isTestMembership == isTestMembership &&
+      other.currentPriceKrw == currentPriceKrw &&
+      other.appliedPriceKrw == appliedPriceKrw &&
+      other.priceProtected == priceProtected &&
+      other.graceThroughUtc == graceThroughUtc &&
+      other.nextChargeUtc == nextChargeUtc;
 
   @override
   int get hashCode => Object.hash(
@@ -66,6 +86,11 @@ class AppViewer {
     cancelAtPeriodEnd,
     paymentAvailable,
     isTestMembership,
+    currentPriceKrw,
+    appliedPriceKrw,
+    priceProtected,
+    graceThroughUtc,
+    nextChargeUtc,
   );
 }
 

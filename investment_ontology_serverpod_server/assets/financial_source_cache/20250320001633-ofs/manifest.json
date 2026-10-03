@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "01188730",
+  "receipt": "20250320001633",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2024,
+  "periodStart": "2024-01-01",
+  "periodEnd": "2024-12-31",
+  "ruleVersion": "sk-signet-direct-rename-event-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250320001633",
+      "sha256": "1871e674e5287a4b2405e1e659ae8271c22838ae615972f44e4e602c9e1040c4",
+      "file": "shell.html"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250320001633&dcmNo=10440936&eleId=1&offset=958&length=4511&dtd=dart4.xsd",
+      "sha256": "397be826b3698513bf845fe91851584fc70520480c1763c9638c778c9e40d3b6",
+      "file": "cover.html"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250320001633&dcmNo=10440936&eleId=21&offset=556438&length=95968&dtd=dart4.xsd",
+      "sha256": "72602a99390b6e61aafd1b1da710ce5aeb6432c390e0f6d279c0753ba24a58a2",
+      "file": "ofs.html"
+    },
+    {
+      "label": "overview",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250320001633&dcmNo=10440936&eleId=3&offset=6025&length=107581&dtd=dart4.xsd",
+      "sha256": "a350546f0cff89de029bbd01ff2cfbad1f002d4d3e348e57afec67dbdfa5fc26",
+      "file": "overview.html"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+# 유엑스엔 FY2023 현재 별도 핵심 원문
+
+Receipt 20240320001200, own issuer 01396931; private compiled source manifest `7115fb95870841a5e141a677e40f1179beac5902f6f455c397a5bade8e3a147a`. Source bytes retain original shell/cover/OFS. Current eight only, no historical numeric rows, no whole-statement or note completeness claim.
+
+The BS prints current 2023, prior 2022 closing and prior 2022 opening headers. The repeated prior year made the generic current-header parser ambiguous. Current column is exactly the first money column. The PL title itself prints “제12(당)기 2023년 12월 31일 현재” rather than a flow date range. This anomaly remains verbatim in every stored row's Source provenance. The own annual cover prints Jan1–Dec31, the own CE and CF independently print that exact range, and current PL net loss equals current CE and CF net loss -14,009,326,289 won. This is a receipt-bound annual-period contract; no general date tolerance or source rewrite.
+
+Exact current checks: BS assets=liabilities+equity and subtotal totals; PL revenue−cost=gross, gross−SG&A=operating loss, finance and other subtotals and pretax/tax/NI/OCI; CE opening and current movements=closing=BS equity; current NI PL=CE=CF; CFO intermediate/total; investment and financing totals; cashflows+FX=delta, opening+delta=closing=BS cash. PPE acquisition prints positive 1,197,626,910 within the negative cash-outflow section and matches the outflow sum; retain printed sign and section meaning, store positive CAPEX spending.
+
+Prior FY2022 comparisons expressly say “감사받지 아니한 재무제표”; use only opening witnesses for current reconciliation, never substitute into own FY2022 history. Existing failure/retry history and opposite consolidated noData remain intact. Normal internal worker uses the existing compiled source recovery path; request endpoints never perform fetch/extraction.
+
+Read-only exclusions from the same review: 유니포인트2023 PL prints reversed year range and PL/CE comprehensive amounts need classification reconciliation; 대주2023 has a printed CE loss sign and separate BS/CE retained earnings discrepancy; 유엑스엔2022 current BS cash does not reconcile with CF and subtotal rows; 아이엠지티2024 current PL NI differs from CE/CF by 1천원. None is converted to successful facts or source absence.

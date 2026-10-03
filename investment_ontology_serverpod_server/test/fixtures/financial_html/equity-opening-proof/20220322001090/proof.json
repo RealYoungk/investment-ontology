@@ -1,0 +1,38 @@
+{
+  "cfs": "failed",
+  "ofs": "failed",
+  "corp": "01023822",
+  "name": "(주)메디젠휴먼케어",
+  "year": 2021,
+  "error": "api-noData-annual-public:attempt=3; public annual source verification failed: FormatException: Annual primary core missing or balance mismatch",
+  "receipt": "20220322001090",
+  "attempts": 3,
+  "reportCode": "annual",
+  "reportName": "[기재정정]사업보고서 (2021.12)",
+  "actualPeriod": "2021.12",
+  "cfsPeriodStored": false,
+  "ofsPeriodStored": false,
+  "path": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/core50-source-corpus/20220322001090/ofs.html",
+  "cover": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/core50-source-corpus/20220322001090/cover.html",
+  "shell": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/core50-source-corpus/20220322001090/shell.html",
+  "coverUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322001090&dcmNo=8493406&eleId=3&offset=62502&length=4036&dtd=dart3.xsd",
+  "ofsUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322001090&dcmNo=8493406&eleId=23&offset=235189&length=65213&dtd=dart3.xsd",
+  "sources": [
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322001090&dcmNo=8493406&eleId=3&offset=62502&length=4036&dtd=dart3.xsd",
+      "sha256": "b78a96c11d83a6444724062589c330652d9c745536ecd5c48c276be8af868058"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322001090&dcmNo=8493406&eleId=21&offset=234899&length=149&dtd=dart3.xsd",
+      "sha256": "2bf98686981732719946a412799230aee4b9429c6fc20fcb737b11f602ee8391"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322001090&dcmNo=8493406&eleId=23&offset=235189&length=65213&dtd=dart3.xsd",
+      "sha256": "7923097a4d384c0178063a6fd3498c2a355c8c431c33a04f0713811fdd0f3e9c"
+    }
+  ],
+  "gets": 4
+}

@@ -1,3 +1,5 @@
+import '../unit/public_financial_html_plumline_attachment_add_test.dart'
+    as plum;
 import '../unit/public_financial_html_cfs_none_literals_test.dart'
     as literal_fixture;
 
@@ -267,6 +269,27 @@ class ExactPublicOriginalClient extends AttachmentOriginalClient {
       source: Uri.parse(
         'https://dart.fss.or.kr/pdf/download/ifrs.do?rcp_no=$receipt',
       ),
+    );
+  }
+}
+
+class PlumlineHtmlClient extends SuntechHtmlClient {
+  @override
+  Future<PublicFinancialHtmlSource> fetchAnnualHtml(
+    String receipt, {
+    required String reportName,
+    required String corpCode,
+    required String companyName,
+    required int bsnsYear,
+    required DateTime periodEnd,
+    required bool consolidated,
+  }) async {
+    if (consolidated) throw const FormatException('Unverified CFS');
+    return plum.plumFetch(
+      receipt: receipt,
+      corp: corpCode,
+      name: reportName,
+      year: bsnsYear,
     );
   }
 }
@@ -2624,6 +2647,71 @@ void main() {
       );
     });
 
+    test('Plumline attachment-add queue stores exact current OFS seven and immutable API attempts', () async {
+      final base = (await Company.db.find(session)).single;
+      final c = await Company.db.updateRow(
+        session,
+        base.copyWith(
+          corpCode: '01063237',
+          name: '(주)플럼라인생명과학',
+          fiscalMonth: 12,
+        ),
+      );
+      final f = await DartFiling.db.insertRow(
+        session,
+        DartFiling(
+          rceptNo: '20260323000673',
+          corpCode: c.corpCode,
+          companyId: c.id,
+          reportName: '[첨부추가]사업보고서 (2025.12)',
+          bsnsYear: 2025,
+          reportCode: FinancialReportCode.annual,
+          consolidatedStatus: FilingFetchStatus.stored,
+          separateStatus: FilingFetchStatus.failed,
+          attempts: 3,
+          lastError: 'api-noData-annual-public:attempt=2',
+          discoveredAt: now,
+        ),
+      );
+      final j = await IngestJob.db.insertRow(
+        session,
+        IngestJob(
+          kind: FinancialFactsSync.kind,
+          status: IngestStatus.running,
+          startedAt: now,
+        ),
+      );
+      final reader = PlumlineHtmlClient();
+      await FinancialFactsSync(
+        session,
+        reader,
+        j.id!,
+        dailyBudget: 0,
+        clock: () => now,
+        callInterval: Duration.zero,
+      ).run();
+      expect(reader.numericCalls, 0);
+      final report = (await FinancialReport.db.find(session)).single;
+      expect(report.rceptNo, f.rceptNo);
+      expect(report.bsnsYear, 2025);
+      expect(report.fsDiv, FsDiv.separate);
+      final facts = await FinancialFact.db.find(
+        session,
+        where: (t) => t.reportId.equals(report.id!),
+      );
+      expect(facts, hasLength(7));
+      expect(
+        facts.every((v) => v.accountId == null && v.currency == 'KRW'),
+        true,
+      );
+      final source = (await Source.db.findById(session, report.sourceId))!;
+      expect(source.reference, f.rceptNo);
+      expect(source.url, contains('rcpNo=20260323000673'));
+      expect(source.url, contains('dcmNo=11163121'));
+      final done = (await DartFiling.db.findById(session, f.id!))!;
+      expect(done.separateStatus, FilingFetchStatus.stored);
+      expect(done.attempts, 3);
+    });
     test('Suntech exact queue priority precedes ten generic annuals without resetting attempts or source identity', () async {
       final base = (await Company.db.find(session)).single;
       final company = await Company.db.updateRow(

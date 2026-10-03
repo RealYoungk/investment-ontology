@@ -1,0 +1,85 @@
+{
+  "rule": "independent-raw-tr-td-extraction-no-parser",
+  "rows": [
+    {
+      "printedLabel": "자산총계",
+      "currentCell": "18,339,211,337",
+      "currentColumn": 1,
+      "amount": "18339211337",
+      "comparisonCells": [
+        "26,434,937,073",
+        "33,211,615,354"
+      ]
+    },
+    {
+      "printedLabel": "부채총계",
+      "currentCell": "19,531,951,794",
+      "currentColumn": 1,
+      "amount": "19531951794",
+      "comparisonCells": [
+        "21,052,262,542",
+        "24,402,081,472"
+      ]
+    },
+    {
+      "printedLabel": "자본총계",
+      "currentCell": "(1,192,740,457)",
+      "currentColumn": 1,
+      "amount": "-1192740457",
+      "comparisonCells": [
+        "5,382,674,531",
+        "8,809,533,882"
+      ]
+    },
+    {
+      "printedLabel": "Ⅰ.매출액",
+      "currentCell": "8,903,613,451",
+      "currentColumn": 1,
+      "amount": "8903613451",
+      "comparisonCells": [
+        "11,714,545,498",
+        "8,618,063,417"
+      ]
+    },
+    {
+      "printedLabel": "Ⅴ.영업이익(손실)",
+      "currentCell": "(1,058,880,846)",
+      "currentColumn": 1,
+      "amount": "-1058880846",
+      "comparisonCells": [
+        "(377,164,687)",
+        "(619,956,689)"
+      ]
+    },
+    {
+      "printedLabel": "Ⅹ.당기순이익(손실)",
+      "currentCell": "(6,575,414,988)",
+      "currentColumn": 1,
+      "amount": "-6575414988",
+      "comparisonCells": [
+        "(3,426,859,351)",
+        "(1,806,505,985)"
+      ]
+    },
+    {
+      "printedLabel": "Ⅰ.영업활동으로인한현금흐름",
+      "currentCell": "1,344,959,647",
+      "currentColumn": 1,
+      "amount": "1344959647",
+      "comparisonCells": [
+        "260,663,527",
+        "(3,640,228,594)"
+      ]
+    },
+    {
+      "printedLabel": "유형자산의취득",
+      "currentCell": "13,651,002",
+      "currentColumn": 1,
+      "amount": "13651002",
+      "comparisonCells": [
+        "3,793,547",
+        "1,790,000"
+      ]
+    }
+  ]
+}

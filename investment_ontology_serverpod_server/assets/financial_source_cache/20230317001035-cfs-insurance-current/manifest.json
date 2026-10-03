@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "00112332",
+  "receipt": "20230317001035",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2022,
+  "periodStart": "2022-01-01",
+  "periodEnd": "2022-12-31",
+  "ruleVersion": "exact-insurance-current-annual-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230317001035",
+      "sha256": "5b9b0a97b2d1f3b9634e632ef37d41207f2ef1fa59c31510cd69f3465f93a54c"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230317001035&dcmNo=9072303&eleId=1&offset=814&length=4048&dtd=dart3.xsd",
+      "sha256": "0c9476860867f6785a9259c6c6cecf05a452fe53ee2a12630e795cc33bc05074"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230317001035&dcmNo=9072303&eleId=17&offset=213995&length=72061&dtd=dart3.xsd",
+      "sha256": "88de0f5f704d9be085525d55cf39d4401fb2ccbe02218728b0b292ee86c11121"
+    }
+  ],
+  "retrievalProof": "직접 인쇄 전체7, 각표 단위/연간기간, CE 전체 NI/E와 CF·BS 양끝현금 검산. 미인쇄 환율행 0 추정 없음."
+}

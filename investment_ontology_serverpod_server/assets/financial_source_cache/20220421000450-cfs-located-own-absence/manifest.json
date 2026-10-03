@@ -1,0 +1,42 @@
+{
+  "receipt": "20220421000450",
+  "sourceReceipt": "20220421000448",
+  "corpCode": "00414540",
+  "companyName": "대주이엔티(주)",
+  "ownCoverActor": "대주이엔티주식회사",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "ruleVersion": "located-own-explicit-cfs-absence-v1",
+  "absenceLiteral": "2. 연결재무제표 - 해당사항 없습니다.",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220421000450",
+      "sha256": "d22f0dfc839b086dc53004f93d9ced66c5db07686f814d06c2292886ddf917e7"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220421000448&dcmNo=8628201&eleId=3&offset=21362&length=4033&dtd=dart3.xsd",
+      "sha256": "7ee86e2f1a326d29ef770f224583993f95cf1e7171cdcf879e2324330dc95296"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220421000448&dcmNo=8628201&eleId=21&offset=200303&length=140&dtd=dart3.xsd",
+      "sha256": "8de6d33d669d778216c3930cca689cb14ffd3b53756e6a130facf4c5792c14c3"
+    },
+    {
+      "label": "originalShell",
+      "file": "originalShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220421000448",
+      "sha256": "150f6041b13e2c3a21952d230d53b0bb94a14bc62cfbf621975da15027197fd4"
+    }
+  ],
+  "fullStatementCollected": false,
+  "notesVerified": false
+}

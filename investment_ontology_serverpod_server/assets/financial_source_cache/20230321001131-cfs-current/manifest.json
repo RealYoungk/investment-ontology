@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20230321001131",
+  "corpCode": "01596425",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2022,
+  "periodStart": "2022-01-01",
+  "periodEnd": "2022-12-31",
+  "ruleVersion": "sk-square-2022-own-current-eight-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230321001131",
+      "sha256": "be93c42f0250fec1c27a5748abfbcb04c00f12b36ee010867b89a2371b26cb22"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230321001131&dcmNo=9083269&eleId=1&offset=804&length=4043&dtd=dart3.xsd",
+      "sha256": "cf54d9c1b05093577f93ec97e1977364b33116ae1fbe0ab4367035b5936d3425"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230321001131&dcmNo=9083269&eleId=19&offset=314017&length=69790&dtd=dart3.xsd",
+      "sha256": "47ba2f0e2b7109d0b94c5f1cf1dc0de8492f2836def05ce809eb0560e56fd508"
+    }
+  ],
+  "retrievalProof": "Exact own annual cover/shell/main; current eight direct cells and fifteen same-unit whole-entity equations. Notes and detail hierarchy not verified; prior comparative facts excluded."
+}

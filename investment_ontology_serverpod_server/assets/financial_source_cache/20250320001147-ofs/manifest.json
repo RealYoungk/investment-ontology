@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20250320001147",
+  "corpCode": "00663289",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2024,
+  "periodStart": "2024-01-01",
+  "periodEnd": "2024-12-31",
+  "ruleVersion": "verified-current-period-whole-annual-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250320001147",
+      "sha256": "e113d96351ba6354d6fc6c3b50a4919072d209ceb0e7508265efe2377c1081d1"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250320001147&dcmNo=10437663&eleId=1&offset=951&length=4493&dtd=dart4.xsd",
+      "sha256": "7f2a183423937a35c5e370db61332e30b74bd8ce04088f7aa6f80c436bb18add"
+    },
+    {
+      "label": "ofs",
+      "file": "ofs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250320001147&dcmNo=10437663&eleId=21&offset=239456&length=90707&dtd=dart4.xsd",
+      "sha256": "c83eba9a4c538074049effac9302e0b3680bb594ab925ab14f455b926e9027bf"
+    }
+  ],
+  "retrievalProof": "Official same receipt shell, cover, OFS primary body; directly printed current whole accounts and independent whole CE, no missing revenue or inferred amount."
+}

@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "00990396",
+  "receipt": "20250321001825",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2024,
+  "periodStart": "2024-01-01",
+  "periodEnd": "2024-12-31",
+  "ruleVersion": "same-receipt-audit-immutable-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250321001825",
+      "sha256": "823435d92599722683943aba9ab9e8d05f00039b4639c5ae949768f6337f451f",
+      "file": "shell.html"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001825&dcmNo=10450233&eleId=1&offset=941&length=4572&dtd=dart4.xsd",
+      "sha256": "696165e71f7637724caa97c6111151161e02b825778dfe10c9e20ba00ad0925a",
+      "file": "cover.html"
+    },
+    {
+      "label": "overview",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001825&dcmNo=10450233&eleId=3&offset=6086&length=136321&dtd=dart4.xsd",
+      "sha256": "b7d7ee5bbf7a5cb19a3f09700be69d6dcb2f55db9e6174205d4587eb71102da1",
+      "file": "overview.html"
+    },
+    {
+      "label": "auditShell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250321001825&dcmNo=10450232",
+      "file": "auditShell.html",
+      "sha256": "d32f8c204641b32d9e2ab7f70619cbfc6bf3adc54619490a8ecab1711c0c29fd"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001825&dcmNo=10450232&eleId=3&offset=11140&length=410842&dtd=dart4.xsd",
+      "file": "cfs.html",
+      "sha256": "ba4464ec6f7ac21b6627e95aae17fc8051809fc70399df985d2dcc5916dacf48"
+    }
+  ],
+  "retrievalProof": "원접수 고유 연결감사보고서 첨부; 전체7/BS/CE 직접 일치. 본문 CE 라벨 수정 없음."
+}

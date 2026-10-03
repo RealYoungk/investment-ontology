@@ -1,0 +1,64 @@
+{
+  "id": 34602,
+  "name": "(주)썬테크",
+  "market": "konex",
+  "stockCode": "217320",
+  "corpCode": "00963000",
+  "rceptNo": "20220930000228",
+  "reportName": "[기재정정]사업보고서 (2021.12)",
+  "actual_period": "2021.12",
+  "bsnsYear": 2021,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 1,
+  "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 1,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220930000228",
+      "sha256": "dad8d2f415e8c573f7a895c6ae9b187fbc580858392b048a3c767a7b0ffe59e2"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220930000228&dcmNo=8823469&eleId=3&offset=12243&length=4010&dtd=dart3.xsd",
+      "sha256": "cf60dd50418209398287d41c7a119ef174cf7770ff81b1ecb34d35bee801d1de"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220930000228&dcmNo=8823469&eleId=21&offset=380617&length=137&dtd=dart3.xsd",
+      "sha256": "fe6e51edb083b907a83d0fcf00376b08ee984afd3b8737066ca19f1d7610815a"
+    }
+  ],
+  "shellCorpIds": [
+    "00963000"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20220930000228",
+        "dcmNo": "8823469",
+        "eleId": "3",
+        "offset": "12243",
+        "length": "4010",
+        "dtd": "dart3.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20220930000228",
+        "dcmNo": "8823469",
+        "eleId": "21",
+        "offset": "380617",
+        "length": "137",
+        "dtd": "dart3.xsd"
+      }
+    }
+  ]
+}

@@ -72,3 +72,7 @@ outputs/metric-source-audit/
 
 # Reproducible read-only financial audit snapshots (large source corpus).
 outputs/financial-followup-2026-10-01/
+
+# Payment and Cloudflare runtime state; examples contain no credentials.
+.wrangler/
+deploy/iwinv/runtime/

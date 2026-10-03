@@ -1,0 +1,64 @@
+{
+  "id": 37683,
+  "name": "큐캐피탈파트너스(주)",
+  "market": "kosdaq",
+  "stockCode": "016600",
+  "corpCode": "00267942",
+  "rceptNo": "20230317001056",
+  "reportName": "사업보고서 (2022.12)",
+  "actual_period": "2022.12",
+  "bsnsYear": 2022,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 2,
+  "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 2,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230317001056",
+      "sha256": "254d040e3554b897519d5f83751a3edd76a31a58fe3286736371d828fbc80a0c"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230317001056&dcmNo=9072435&eleId=1&offset=814&length=4030&dtd=dart3.xsd",
+      "sha256": "fcfa8bf48717e9e29bf55e81e214af8c837a2884d5bdb238ea62268a3951f206"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230317001056&dcmNo=9072435&eleId=17&offset=145293&length=128&dtd=dart3.xsd",
+      "sha256": "a4b5511b01a8d571eee593083c2c53445f8362558948f96edcf5d8386765aeea"
+    }
+  ],
+  "shellCorpIds": [
+    "00267942"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20230317001056",
+        "dcmNo": "9072435",
+        "eleId": "1",
+        "offset": "814",
+        "length": "4030",
+        "dtd": "dart3.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20230317001056",
+        "dcmNo": "9072435",
+        "eleId": "17",
+        "offset": "145293",
+        "length": "128",
+        "dtd": "dart3.xsd"
+      }
+    }
+  ]
+}

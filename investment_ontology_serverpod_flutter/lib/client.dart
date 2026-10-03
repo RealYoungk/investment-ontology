@@ -5,6 +5,7 @@ import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
 import 'package:serverpod_flutter/serverpod_flutter.dart';
 
 import 'features/auth/rejected_refresh_handler.dart';
+import 'network/resilient_client.dart';
 
 // When you are running the app on a physical device, you need to set the
 // server URL to the IP address of your computer. You can find the IP
@@ -63,7 +64,7 @@ late final Client client;
 
 Future<void> initializeClient() async {
   client =
-      Client(
+      ResilientClient(
           await serverUrl,
           onFailedCall: (context, error, stackTrace) async {
             await handleRejectedRefresh(

@@ -24,6 +24,149 @@ FinancialFact fact(
 );
 
 void main() {
+  test('printed (8) capex label uses finite CF fallback and SQL mirror', () {
+    const label = '(8)유형자산의취득';
+    final row = fact(
+      label,
+      statement: FinancialStatementKind.cashFlow,
+    ).copyWith(amount: BigInt.parse('14057193562'));
+    final line = FinancialAccounts.pick([row]).single;
+    expect(line.key, 'capex');
+    expect(line.amount, row.amount);
+    expect(line.accountName, label);
+    expect(line.factId, row.id);
+    expect(line.accountId, isNull);
+    final sql = FinancialAccounts.resolvedIdSql('f');
+    expect(sql, contains("'(8)유형자산의취득'"));
+    expect(sql, contains("f.statement IN ('cashFlow')"));
+    for (final statement in FinancialStatementKind.values) {
+      if (statement == FinancialStatementKind.cashFlow) continue;
+      expect(
+        FinancialAccounts.pick([row.copyWith(statement: statement)]),
+        isEmpty,
+      );
+    }
+    for (final name in ['(10)유형자산의취득', '(8)유형자산의취득 참고', '(8)사용권자산의취득']) {
+      expect(
+        FinancialAccounts.pick([row.copyWith(accountName: name)]),
+        isEmpty,
+      );
+      expect(sql, isNot(contains("'$name'")));
+    }
+    expect(
+      FinancialAccounts.pick([row.copyWith(accountDetail: 'segment')]),
+      isEmpty,
+    );
+    expect(
+      FinancialAccounts.pick([row.copyWith(accountId: 'unapproved-ID')]),
+      isEmpty,
+    );
+  });
+  test('exact whole current profit label retains raw name and SQL mirror', () {
+    final row = fact('IX. 당기순손익')
+        .copyWith(amount: BigInt.parse('144126968419'));
+    final line = FinancialAccounts.pick([row]).single;
+    expect(line.key, 'netIncome');
+    expect(line.amount, row.amount);
+    expect(line.accountName, row.accountName);
+    expect(FinancialAccounts.resolvedIdSql('f'), contains("'당기순손익'"));
+    for (final bad in ['부문당기순손익', '지배기업당기순손익', '중단영업당기순손익', '당기순손익 참고']) {
+      expect(FinancialAccounts.pick([fact(bad)]), isEmpty);
+    }
+    expect(
+      FinancialAccounts.pick([
+        row.copyWith(statement: FinancialStatementKind.cashFlow),
+      ]),
+      isEmpty,
+    );
+    expect(
+      FinancialAccounts.pick([row.copyWith(accountDetail: 'segment')]),
+      isEmpty,
+    );
+  });
+
+  test('whole profit double adjustment label uses cell value and finite SQL mirror', () {
+    const label =
+        'Vlll. 당기순이익 (대손준비금 반영후 조정이익 당기: 1,144,141,987,193원 전기: 1,070,462,117,853원)(비상위험준비금 반영후 조정이익 당기: 1,030,159,127,157원 전기: 980,036,103,376원)';
+    final row = fact(label).copyWith(amount: BigInt.parse('1141384898627'));
+    final line = FinancialAccounts.pick([row]).single;
+    expect(line.key, 'netIncome');
+    expect(line.accountName, label);
+    expect(line.amount, row.amount);
+    expect(
+      FinancialAccounts.resolvedIdSql('f'),
+      contains(FinancialAccounts.adjustedProfitAnnotation),
+    );
+    for (final bad in [
+      label.replaceFirst('비상위험', '기타'),
+      '$label 참고',
+      label.replaceFirst('원 전기', '달러 전기'),
+      label.replaceFirst('당기순이익', '조정이익'),
+      label.replaceFirst('Vlll.', 'Vllll.'),
+    ]) {
+      expect(FinancialAccounts.pick([fact(bad)]), isEmpty);
+    }
+    expect(
+      FinancialAccounts.pick([
+        row.copyWith(statement: FinancialStatementKind.cashFlow),
+      ]),
+      isEmpty,
+    );
+    expect(
+      FinancialAccounts.pick([row.copyWith(accountDetail: 'segment')]),
+      isEmpty,
+    );
+  });
+
+  test('exact whole CFO 순현금흐름 alias preserves raw name and SQL mirror', () {
+    final row = fact(
+      '영업활동으로 인한 순현금흐름',
+      statement: FinancialStatementKind.cashFlow,
+    );
+    expect(FinancialAccounts.pick([row]).single.key, 'operatingCashFlow');
+    expect(FinancialAccounts.resolvedIdSql('f'), contains("'영업활동으로인한순현금흐름'"));
+    expect(FinancialAccounts.pick([fact(row.accountName)]), isEmpty);
+    expect(
+      FinancialAccounts.pick([row.copyWith(accountDetail: 'segment')]),
+      isEmpty,
+    );
+    expect(FinancialAccounts.pick([row, row.copyWith(id: 2)]), isEmpty);
+    expect(
+      FinancialAccounts.pick([row.copyWith(accountName: '영업활동으로 인한 순현금흐름 주석')]),
+      isEmpty,
+    );
+  });
+
+  test(
+    'printed whole cash outflow exact alias preserves source and SQL mirror',
+    () {
+      final row = fact(
+        '영업활동으로부터의 순현금유출',
+        statement: FinancialStatementKind.cashFlow,
+      );
+      final line = FinancialAccounts.pick([row]).single;
+      expect(line.key, 'operatingCashFlow');
+      expect(line.accountName, row.accountName);
+      expect(line.accountId, isNull);
+      expect(
+        FinancialAccounts.resolvedIdSql('f'),
+        contains("'영업활동으로부터의순현금유출'"),
+      );
+      expect(FinancialAccounts.pick([fact(row.accountName)]), isEmpty);
+      expect(
+        FinancialAccounts.pick([row.copyWith(accountDetail: 'segment')]),
+        isEmpty,
+      );
+      expect(FinancialAccounts.pick([row, row.copyWith(id: 2)]), isEmpty);
+      expect(
+        FinancialAccounts.pick([
+          row.copyWith(accountName: '영업활동으로부터의 순현금유출 주석'),
+        ]),
+        isEmpty,
+      );
+    },
+  );
+
   test(
     'whole mixed profit/loss labels preserve signs and SQL exact mirror',
     () {

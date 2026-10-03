@@ -1,0 +1,46 @@
+{
+  "rows": [
+    {
+      "printedLabel": "자     산     총      계",
+      "amount": "41997269886566",
+      "unit": "원",
+      "printedAmount": "41997269886566"
+    },
+    {
+      "printedLabel": "부     채     총      계",
+      "amount": "40095124685106",
+      "unit": "원",
+      "printedAmount": "40095124685106"
+    },
+    {
+      "printedLabel": "자     본     총      계",
+      "amount": "1902145201460",
+      "unit": "원",
+      "printedAmount": "1902145201460"
+    },
+    {
+      "printedLabel": "Ⅰ. 영업수익",
+      "amount": "3532862611620",
+      "unit": "원",
+      "printedAmount": "3532862611620"
+    },
+    {
+      "printedLabel": "Ⅲ. 영업이익",
+      "amount": "106513879839",
+      "unit": "원",
+      "printedAmount": "106513879839"
+    },
+    {
+      "printedLabel": "Ⅷ. 당기순이익      (대손준비금 반영후 조정이익      당기: 75,781,712,981원, 전기: 77,699,663,310원)",
+      "amount": "79085296201",
+      "unit": "원",
+      "printedAmount": "79085296201"
+    },
+    {
+      "printedLabel": "Ⅰ. 영업활동으로 인한 현금흐름",
+      "amount": "100472972348",
+      "unit": "원",
+      "printedAmount": "100472972348"
+    }
+  ]
+}

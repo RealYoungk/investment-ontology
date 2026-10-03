@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "01229240",
+  "receipt": "20240401000698",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2023,
+  "periodStart": "2023-01-01",
+  "periodEnd": "2023-12-31",
+  "ruleVersion": "same-receipt-audit-immutable-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240401000698",
+      "sha256": "39c32ff140ef3cdc6b1244ce6dcf8f43e78f469c25cf2121371b1311dcc5411e"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240401000698&dcmNo=9793407&eleId=1&offset=967&length=4053&dtd=dart4.xsd",
+      "sha256": "3073cfe0761f9ea5224fa6ff486a367068686f2c1285696bdae4dfc46a7e2ee4"
+    },
+    {
+      "label": "auditShell",
+      "file": "auditShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240401000698&dcmNo=9792565",
+      "sha256": "7c575bd4df3018309680e8f001ba619ff89e8571e9bd0ad475fe2457c406a784"
+    },
+    {
+      "label": "ofs",
+      "file": "ofs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240401000698&dcmNo=9792565&eleId=3&offset=11206&length=268957&dtd=dart4.xsd",
+      "sha256": "d556b6da379c326f2608417f64cd14db5744e23341d04b5daad00c9f05f2967c"
+    }
+  ],
+  "retrievalProof": "same-receipt explicit att family; exact audited primary8; main CIS printed endyear conflict not corrected"
+}

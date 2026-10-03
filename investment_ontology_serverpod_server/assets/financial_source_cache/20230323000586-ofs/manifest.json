@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "01507810",
+  "receipt": "20230323000586",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2022,
+  "periodStart": "2022-01-01",
+  "periodEnd": "2022-12-31",
+  "ruleVersion": "animedi-exact-ce-separator-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230323000586",
+      "sha256": "9458de3b534dae48584dca078ee5e167a28c1cb7607d166af01a2a30112e4418"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230323000586&dcmNo=9094927&eleId=1&offset=815&length=4034&dtd=dart3.xsd",
+      "sha256": "22f8dc95c169929dd843fa69ddf6b4e5b0a7e5a41aa5d7c7d3c703615c1851bd"
+    },
+    {
+      "label": "ofs",
+      "file": "ofs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230323000586&dcmNo=9094927&eleId=21&offset=253919&length=67454&dtd=dart3.xsd",
+      "sha256": "3dd48711cce059e53b3aa369cf58a90a067af4ed34237fdce00d13e61e38da89"
+    }
+  ]
+}

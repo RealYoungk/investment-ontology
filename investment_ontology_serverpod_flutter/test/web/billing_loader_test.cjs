@@ -14,7 +14,7 @@ function env(protocol='http:') {
     document:{createElement:()=>({remove(){this.removed=true;}}), head:{appendChild:s=>scripts.push(s)}},
     setTimeout:fn=>{timers.set(++id,fn);return id;}, clearTimeout:i=>timers.delete(i)});
   function install() { window.TossPayments=key=>({payment:({customerKey})=>({requestBillingAuth:async opts=>calls.push({key,customerKey,opts})})}); }
-  return {window,scripts,timers,calls,replacements,install};
+  return {window,scripts,timers,calls,replacements,install,location};
 }
 test('no SDK request before an explicit valid checkout',async()=>{
   const e=env(); assert.equal(e.scripts.length,0);
@@ -47,4 +47,50 @@ test('SDK timeout removes script and permits retry',async()=>{
   assert.equal(e.scripts[0].removed,true);
   const retry=e.window.alfinderBilling.start('test_ck_fixture','customer','state');
   e.install();e.scripts[1].onload();await retry;assert.equal(e.calls.length,1);
+});
+
+test('PortOne registers CARD only and redirects account-bound state with key',async()=>{
+  const e=env(); let opts; let redirected;
+  e.location.assign=url=>{redirected=new URL(url);};
+  e.window.PortOne={requestIssueBillingKey:async value=>{opts=value; return {billingKey:'opaque-key'};}};
+  await e.window.alfinderBilling.start('portone','customer','nonce','portone','store','channel','issue');
+  assert.equal(e.scripts.length,0); assert.equal(opts.billingKeyMethod,'CARD');
+  assert.equal(opts.storeId,'store'); assert.equal(opts.channelKey,'channel');
+  assert.equal(opts.customer.customerId,'customer'); assert.equal(opts.issueId,'issue');
+  assert.equal(opts.amount,undefined);
+  assert.equal(redirected.origin,'http://localhost:9110');
+  assert.equal(redirected.searchParams.get('state'),'nonce');
+  assert.equal(redirected.searchParams.get('authKey'),'opaque-key');
+});
+test('PortOne error does not redirect or claim purchase success',async()=>{
+  const e=env(); e.location.assign=()=>assert.fail('must not redirect');
+  e.window.PortOne={requestIssueBillingKey:async()=>({code:'USER_CANCEL'})};
+  await assert.rejects(e.window.alfinderBilling.start('portone','customer','nonce','portone','store','channel','issue'));
+});
+
+test('PortOne redirect mode may leave without a promise result',async()=>{
+  const e=env('https:');e.location.href+='?card=replace';let opts;
+  e.window.PortOne={requestIssueBillingKey:async value=>{opts=value;return undefined;}};
+  e.location.assign=()=>assert.fail('SDK owns this redirect');
+  await e.window.alfinderBilling.start('portone','customer','nonce','portone','store','channel','issue');
+  assert.equal(new URL(opts.redirectUrl).searchParams.get('card'),'replace');
+  assert.equal(new URL(opts.redirectUrl).searchParams.get('state'),'nonce');
+});
+test('PortOne timeout removes failed script and permits a fresh load',async()=>{
+  const e=env(); const start=()=>e.window.alfinderBilling.start('portone','customer','nonce','portone','store','channel','issue');
+  const first=start();for(const fn of [...e.timers.values()])fn();await assert.rejects(first);
+  assert.equal(e.scripts[0].removed,true);
+  const second=start();e.window.PortOne={requestIssueBillingKey:async()=>undefined};e.scripts[1].onload();await second;
+});
+test('PortOne loader detects missing SDK and shares concurrent downloads',async()=>{
+  const e=env(); const start=()=>e.window.alfinderBilling.start('portone','customer','nonce','portone','store','channel','issue');
+  const a=start(),b=start();assert.equal(e.scripts.length,1);
+  e.scripts[0].onload();await assert.rejects(a);await assert.rejects(b);
+  const retry=start();e.window.PortOne={requestIssueBillingKey:async()=>undefined};e.scripts[1].onload();await retry;
+});
+test('production HTTP and unsupported providers never load payment scripts',async()=>{
+  const e=env();e.location.href='http://alfinder.kr/membership/checkout';
+  await assert.rejects(e.window.alfinderBilling.start('portone','customer','nonce','portone','store','channel','issue'));
+  await assert.rejects(e.window.alfinderBilling.start('test_ck_fixture','customer','nonce','unknown'));
+  assert.equal(e.scripts.length,0);
 });

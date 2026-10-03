@@ -1,0 +1,11 @@
+# Pandora FY2025 OFS own-current partial seven
+
+Receipt 20260323001293 / corporation 00541862. This finite contract preserves seven directly printed current-period KRW accounts and their physical coordinates. Twenty main statement checks are exact, including PL net income against CE and the current cash-flow roll-forward. The BS stale ordinal caption is retained; own cover, PL/CE/CF dates and CE opening/closing independently bind 2025-01-01–2025-12-31. No generic date relaxation is permitted.
+
+Whole PPE acquisition is not printed in the reviewed main scope: CAPEX remains missing, FCF is not calculated, currentCore8/fullStatementVerified/notesVerified/detailEnrichmentApproved remain false. Independent CF net income is unprinted and unverified; PL–CE net income is exact. These are separate claims.
+
+Own note34 is pinned to its original URI and SHA256 8f9edcc77d8009e9a6cce2a1e228b33834050842b8aa80cca2ed1d40c30f2a82. Its independently recomputed current generation −1 thousand KRW/current WC +1 thousand KRW, prior adjustment −1 thousand KRW/prior WC +2 thousand KRW are unresolved printed differences. Main-won minus note-thousand converted values are NI −169 KRW and generated cash −92 KRW. Raw literals, distinct units and these exact discrepancies are preserved and displayed publicly. No cause, rounding tolerance, balancing facts, or numeric rewrites are inferred. Printed dashes are not numeric facts. Notes serve bounded provenance only, not verified full-note or independent-CF-NI evidence.
+
+Validation in isolated codex/solumix2024-own-eight: complete located-source pure family 145 PASS; actual cache/pick/tamper/registry subset 25 PASS; composed Flutter scope/notice suite 18 PASS including independently built 320px widget; changed source/test static analysis zero issues. Normal queue/API0/source correction/replay integration test is written for this receipt, not executed by this agent. No DB, external fetch, generated code, production writes, or deployment.
+
+Logs: output/pandora25-own-seven. An initial final UI command referenced a nonexistent Isung filename; its load failure is preserved, corrected to the actual isung_cfs_source_scope_test.dart and all 18 cases passed. Existing original source bytes were not modified during tests.

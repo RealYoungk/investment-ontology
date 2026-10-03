@@ -1,7 +1,8 @@
+import '../research/split_plan_documents.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:crypto/crypto.dart';
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
@@ -9,16 +10,76 @@ import '../auth/ontology_access.dart';
 import '../dart/dart_api_key.dart';
 import '../dart/dart_client.dart';
 import '../ingest/api_call_budget.dart';
+import '../ingest/issuer_financials_sync.dart';
+import '../ingest/own_annual_financials_sync.dart';
 import '../research/research_feed.dart';
+import '../research/research_snapshot_store.dart';
+import '../research/issuer_documents_feed.dart';
 import '../research/dart_research.dart';
 import '../research/kis_research_client.dart';
 
-/// Public reads of stored source-backed data. Every collection/import is admin-only.
+/// Public source-backed reads populate missing DART cache entries.
+/// Explicit collection/import remains admin-only.
 class ResearchEndpoint extends Endpoint {
   @override
   bool get requireLogin => false;
   static final _busy = <String>{};
   static KisResearchClient? _kis;
+  static final _retryAfter = <String, DateTime>{};
+  static final _loading = <String, Future<int>>{};
+
+  Future<String?> _fillMissing(
+    Session session,
+    String corpCode,
+    String kind,
+  ) async {
+    if (!DartResearch.apis.containsKey(kind)) return null;
+    if (DartApiKey.read(session) == null) return 'notConfigured';
+    final lock = '$corpCode/$kind';
+    final now = DateTime.now().toUtc();
+    _retryAfter.removeWhere((_, until) => !until.isAfter(now));
+    if (await ApiCallBudget.reached(
+      session,
+      ApiProvider.dart,
+      ApiCallBudget.dartDailyLimit - 100,
+    )) {
+      return 'budgetExhausted';
+    }
+    if (_retryAfter.containsKey(lock)) return 'retryLater';
+    final existing = _loading[lock];
+    if (existing != null) {
+      // The originating request owns its Session and completes the cache write.
+      try {
+        await existing;
+        return null;
+      } catch (_) {
+        return 'retryLater';
+      }
+    }
+    if (_loading.isNotEmpty || _busy.contains(lock)) return 'collecting';
+    // Concurrent reads share this request-owned acquisition.
+    // ignore: unawaited_futures
+    final pending = _collect(session, corpCode, kind, onDemand: true);
+    _loading[lock] = pending;
+    try {
+      await pending;
+      return null;
+    } catch (e) {
+      if (_retryAfter.length >= 512) _retryAfter.remove(_retryAfter.keys.first);
+      _retryAfter[lock] = DateTime.now().toUtc().add(
+        const Duration(minutes: 5),
+      );
+      session.log(
+        'DART research cache fill failed: $corpCode/$kind (${e.runtimeType})',
+        level: LogLevel.warning,
+      );
+      return 'retryLater';
+    } finally {
+      // Completed above; removal does not start another asynchronous operation.
+      // ignore: unawaited_futures
+      _loading.remove(lock);
+    }
+  }
 
   Future<Company> _company(Session session, String corpCode) async {
     if (!RegExp(r'^\d{8}$').hasMatch(corpCode)) {
@@ -54,18 +115,80 @@ class ResearchEndpoint extends Endpoint {
       });
     }
     if (snapshot == null) {
-      return jsonEncode({
-        'state': 'notCollected',
-        'message': switch (kind) {
-          'consensus' => '공개 제공이 허용된 컨센서스 공급원을 아직 연결하지 않았습니다.',
-          'insiders' || 'majorHoldings' => 'DART 보유변동 보고 수집 전입니다.',
-          'capital' || 'treasury' => '최근 5년 주요사항보고서 수집 전입니다.',
-          _ => '수급·공매도 API 설정과 서비스 제공 권한 확인 후 수집할 수 있습니다.',
-        },
-        'rows': [],
-      });
+      final state = await _fillMissing(session, corpCode, kind);
+      if (state == null && DartResearch.apis.containsKey(kind)) {
+        snapshot = await ResearchSnapshot.db.findFirstRow(
+          session,
+          where: (t) => t.companyId.equals(company.id!) & t.kind.equals(kind),
+          orderByList: (t) => [t.createdAt.desc(), t.id.desc()],
+        );
+      }
+      if (snapshot == null) {
+        return jsonEncode({
+          'retryAfterSeconds': state == 'budgetExhausted'
+              ? ApiCallBudget.nextKstMidnight(DateTime.now())
+                        .difference(DateTime.now().toUtc())
+                        .inSeconds +
+                    5
+              : state == 'collecting'
+              ? 5
+              : state == 'retryLater'
+              ? 300
+              : null,
+          'state': state ?? 'notCollected',
+          'message': switch (state) {
+            'notConfigured' => 'DART 연결 설정이 없어 수집을 시작하지 못했습니다.',
+            'budgetExhausted' => '오늘 DART 수집 한도를 소진했습니다. 내일 조회 시 다시 수집합니다.',
+            'collecting' => '다른 공시 수집이 진행 중입니다. 잠시 후 다시 확인합니다.',
+            'retryLater' => '공시 수집을 완료하지 못했습니다. 잠시 후 다시 시도합니다.',
+            _ => switch (kind) {
+              'issuerAnnualFinancials' =>
+                '자체 연간 감사 원문 핵심재무 수집 전입니다. 전체 재무제표와 구분합니다.',
+              'issuerFinancials' => '대체 공식 원문 핵심 재무 수집 전입니다. 정기 API 집계와 분리합니다.',
+              'splitPlanDocuments' =>
+                '분할 대행 제출 원문 보존 전입니다. 신설회사 자체 재무자료와 구분합니다.',
+              'issuerDocuments' => '공식 원문 문서 수집 전입니다. 재무 계정은 추출하지 않습니다.',
+              'consensus' => '공개 제공이 허용된 컨센서스 공급원을 아직 연결하지 않았습니다.',
+              'insiders' || 'majorHoldings' => 'DART 보유변동 보고 수집 전입니다.',
+              'capital' || 'treasury' => '최근 5년 주요사항보고서 수집 전입니다.',
+              _ => '수급·공매도 API 설정과 서비스 제공 권한 확인 후 수집할 수 있습니다.',
+            },
+          },
+          'rows': [],
+        });
+      }
     }
     final source = await Source.db.findById(session, snapshot.sourceId);
+    if (kind == SplitPlanDocuments.kind) {
+      final rows = ResearchFeed.validate(kind, jsonDecode(snapshot.payload));
+      if (rows.any((r) => r['corpCode'] != corpCode) ||
+          source?.kind != SourceKind.officialFile ||
+          source?.url != 'https://kind.krx.co.kr' ||
+          source?.reference != SplitPlanDocuments.reference ||
+          snapshot.provider != SplitPlanDocuments.provider) {
+        throw IngestException(message: '분할 대행 제출 출처 연결 검증 실패');
+      }
+    }
+    if (kind == 'issuerFinancials') {
+      final rows = ResearchFeed.validate(kind, jsonDecode(snapshot.payload));
+      if (rows.any((r) => r['corpCode'] != corpCode) ||
+          source?.kind != SourceKind.officialFile ||
+          source?.url != IssuerFinancialsSync.sourceUrl(corpCode) ||
+          source?.reference != IssuerFinancialsSync.sourceReference(corpCode) ||
+          snapshot.provider != IssuerFinancialsSync.sourceProvider(corpCode)) {
+        throw IngestException(message: '별도 재무 출처 연결 검증 실패');
+      }
+    }
+    if (kind == 'issuerAnnualFinancials') {
+      final rows = ResearchFeed.validate(kind, jsonDecode(snapshot.payload));
+      if (rows.any((r) => r['corpCode'] != corpCode) ||
+          source?.kind != SourceKind.officialFile ||
+          source?.url != 'https://dart.fss.or.kr' ||
+          source?.reference != OwnAnnualFinancialsSync.reference ||
+          snapshot.provider != OwnAnnualFinancialsSync.provider) {
+        throw IngestException(message: '별도 재무 출처 연결 검증 실패');
+      }
+    }
     return jsonEncode({
       'state': 'ready',
       'provider': snapshot.provider,
@@ -102,6 +225,13 @@ class ResearchEndpoint extends Endpoint {
     String rightsReference,
   ) async {
     OntologyAccess.requireAdmin(session);
+    if ({
+      'issuerFinancials',
+      'issuerAnnualFinancials',
+      'splitPlanDocuments',
+    }.contains(kind)) {
+      throw IngestException(message: '별도 재무 숫자는 정상 서버 원문 파서만 저장합니다.');
+    }
     final c = await _company(session, corpCode);
     final rows = _rows(kind, payload);
     if (provider.trim().isEmpty ||
@@ -109,6 +239,28 @@ class ResearchEndpoint extends Endpoint {
         rightsReference.trim().isEmpty ||
         rightsReference.length > 500) {
       throw IngestException(message: '공급원과 공개 제공 권한의 근거를 입력하세요.');
+    }
+    if (kind == 'issuerDocuments') {
+      if (rows.any((r) => r['corpCode'] != corpCode)) {
+        throw IngestException(message: '원문 메타데이터의 회사가 다릅니다.');
+      }
+      final root = Uri.tryParse(sourceUrl);
+      if (root == null ||
+          root.scheme != 'https' ||
+          root.host != IssuerDocumentsFeed.hosts[corpCode] ||
+          root.hasPort ||
+          RegExp(r'^https://[^/]+:').hasMatch(sourceUrl) ||
+          root.userInfo.isNotEmpty ||
+          root.hasQuery ||
+          root.hasFragment) {
+        throw IngestException(message: '공식 회사의 HTTPS 목록 주소가 필요합니다.');
+      }
+      if (rightsReference !=
+          'official-links-metadata-only;no-redistribution-license-asserted') {
+        throw IngestException(
+          message: '원본 재배포 권한을 주장하지 않는 링크·메타데이터 공개 계약이 필요합니다.',
+        );
+      }
     }
     final uri = Uri.tryParse(sourceUrl);
     if (uri?.scheme != 'https' ||
@@ -119,7 +271,7 @@ class ResearchEndpoint extends Endpoint {
       throw IngestException(message: '출처는 인증정보·쿼리가 없는 HTTPS 주소로 입력하세요.');
     }
     await _checkSecurities(session, c, rows);
-    return _store(
+    return ResearchSnapshotStore.store(
       session,
       c,
       kind,
@@ -146,75 +298,6 @@ class ResearchEndpoint extends Endpoint {
     )) {
       throw IngestException(message: '자료에 해당 기업 소속이 아닌 종목코드가 있습니다.');
     }
-  }
-
-  Future<int> _store(
-    Session session,
-    Company c,
-    String kind,
-    List<Map<String, dynamic>> rows,
-    String provider,
-    String url,
-    String reference,
-    SourceKind sourceKind,
-  ) async {
-    final payload = jsonEncode(rows);
-    final digest = sha256
-        .convert(utf8.encode('$provider|$url|$reference|$payload'))
-        .toString();
-    return session.db.transaction((tx) async {
-      // Serialize same-company writers, retaining previous batches for audit.
-      await session.db.unsafeQuery(
-        'SELECT id FROM company WHERE id = @id FOR UPDATE',
-        parameters: QueryParameters.named({'id': c.id!}),
-        transaction: tx,
-      );
-      final latest = await ResearchSnapshot.db.findFirstRow(
-        session,
-        where: (t) => t.companyId.equals(c.id!) & t.kind.equals(kind),
-        orderByList: (t) => [t.createdAt.desc(), t.id.desc()],
-        transaction: tx,
-      );
-      final previousSource = latest == null
-          ? null
-          : await Source.db.findById(session, latest.sourceId, transaction: tx);
-      if (latest?.payload == payload &&
-          latest?.provider == provider &&
-          previousSource?.url == url &&
-          previousSource?.reference == reference) {
-        return latest!.id!;
-      }
-      final now = DateTime.now().toUtc();
-      // Reverting to an older payload is a new observation, not a stale return.
-      final observationDigest = sha256
-          .convert(utf8.encode('$digest|${latest?.id ?? 0}'))
-          .toString();
-      final source = await Source.db.insertRow(
-        session,
-        Source(
-          kind: sourceKind,
-          title: '$provider · $kind',
-          reference: reference,
-          url: url,
-          retrievedAt: now,
-        ),
-        transaction: tx,
-      );
-      final result = await ResearchSnapshot.db.insertRow(
-        session,
-        ResearchSnapshot(
-          companyId: c.id!,
-          kind: kind,
-          provider: provider,
-          payload: payload,
-          sourceId: source.id!,
-          digest: observationDigest,
-          createdAt: now,
-        ),
-        transaction: tx,
-      );
-      return result.id!;
-    });
   }
 
   /// Cursor-based batches cover the listed universe without a long HTTP request.
@@ -275,6 +358,20 @@ class ResearchEndpoint extends Endpoint {
 
   Future<int> collect(Session session, String corpCode, String kind) async {
     OntologyAccess.requireAdmin(session);
+    return _collect(session, corpCode, kind);
+  }
+
+  // Only server-selected DART APIs are reachable from the public cache path.
+  // User payloads, URLs, force refreshes, batches and KIS are never accepted there.
+  Future<int> _collect(
+    Session session,
+    String corpCode,
+    String kind, {
+    bool onDemand = false,
+  }) async {
+    final budget = onDemand
+        ? ApiCallBudget.dartDailyLimit - 100
+        : ApiCallBudget.dartDisclosureBudget;
     if (!DartResearch.apis.containsKey(kind) &&
         !{'flows', 'shorts'}.contains(kind)) {
       throw IngestException(message: '자동 수집 대상이 아닙니다.');
@@ -293,11 +390,7 @@ class ResearchEndpoint extends Endpoint {
         if (key == null) {
           throw IngestException(message: 'DART API 키가 설정되지 않았습니다.');
         }
-        if (await ApiCallBudget.reached(
-          session,
-          ApiProvider.dart,
-          ApiCallBudget.dartDisclosureBudget,
-        )) {
+        if (await ApiCallBudget.reached(session, ApiProvider.dart, budget)) {
           throw IngestException(message: '오늘 DART 수집 예산을 소진했습니다.');
         }
         final dart = DartClient(key);
@@ -311,7 +404,7 @@ class ResearchEndpoint extends Endpoint {
             if (await ApiCallBudget.reached(
               session,
               ApiProvider.dart,
-              ApiCallBudget.dartDisclosureBudget,
+              budget,
             )) {
               throw IngestException(
                 message: '오늘 DART 수집 예산을 소진했습니다. 기존 자료는 유지됩니다.',
@@ -335,7 +428,7 @@ class ResearchEndpoint extends Endpoint {
           rows.sort(
             (a, b) => (a['date'] as String).compareTo(b['date'] as String),
           );
-          return await _store(
+          return await ResearchSnapshotStore.store(
             session,
             c,
             kind,
@@ -379,7 +472,7 @@ class ResearchEndpoint extends Endpoint {
         );
       }
       if (securities.isEmpty) throw IngestException(message: '연결된 종목이 없습니다.');
-      return await _store(
+      return await ResearchSnapshotStore.store(
         session,
         c,
         kind,

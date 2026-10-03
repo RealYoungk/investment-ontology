@@ -1,3 +1,5 @@
+import '../ingest/latest_business_body_coverage.dart';
+
 import 'dart:convert';
 
 import 'package:serverpod/protocol.dart' as sp;
@@ -22,6 +24,7 @@ import '../ingest/market_collection_coverage.dart';
 import '../ingest/ingest_jobs.dart';
 import '../ingest/ingest_hooks.dart';
 import '../ingest/market_snapshot_sync.dart';
+import '../ingest/market_security_relink.dart';
 
 /// 외부 원천 수집 제어.
 ///
@@ -229,16 +232,7 @@ class IngestEndpoint extends Endpoint {
         (SELECT count(DISTINCT "companyId") FROM business_digest_section),
         (SELECT count(*) FROM latest_period lp
           JOIN dart_filing f ON f.id=lp.id
-          WHERE EXISTS (
-            SELECT 1 FROM dart_filing_section s
-            JOIN disclosure_report r ON r."companyId"=s."companyId"
-              AND r."bsnsYear"=s."bsnsYear" AND r."reportCode"=f."reportCode"
-              AND r.section='businessContent'
-            JOIN business_document b ON b."reportId"=r.id
-            WHERE s."filingId"=f.id AND s.section='businessContent'
-              AND s.status='stored' AND b."companyId"=f."companyId"
-              AND b."rceptNo"=f."rceptNo"
-          )),
+          WHERE ${LatestBusinessBodyCoverage.existsSql('f')}),
         (SELECT count(*) FROM financial_scope WHERE
           ("consolidatedStatus"='stored' AND consolidated_period_stored)
           OR ("separateStatus"='stored' AND separate_period_stored)),
@@ -321,6 +315,13 @@ class IngestEndpoint extends Endpoint {
         '매일 18:00',
         'market_snapshot_daily',
         'market_snapshot_resume',
+      ),
+      (
+        MarketSecurityRelink.kind,
+        '기존 종목 재연결',
+        '기업 기본정보 변경 후 · 시세 API 호출 없음',
+        'market_security_relink_now',
+        MarketSecurityRelink.resumeId,
       ),
       (
         FinancialFactsSync.kind,

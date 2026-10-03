@@ -1,0 +1,38 @@
+{
+  "cfs": "noData",
+  "ofs": "failed",
+  "corp": "01116380",
+  "name": "(주)씨앤에스링크",
+  "year": 2023,
+  "error": "api-noData-annual-public:attempt=3; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "receipt": "20240321000503",
+  "attempts": 3,
+  "reportCode": "annual",
+  "reportName": "사업보고서 (2023.12)",
+  "actualPeriod": "2023.12",
+  "cfsPeriodStored": false,
+  "ofsPeriodStored": false,
+  "path": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/full-period-recovery/20240321000503/ofs.html",
+  "cover": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/full-period-recovery/20240321000503/cover.html",
+  "shell": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/full-period-recovery/20240321000503/shell.html",
+  "coverUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240321000503&dcmNo=9746987&eleId=1&offset=968&length=4149&dtd=dart4.xsd",
+  "ofsUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240321000503&dcmNo=9746987&eleId=21&offset=286511&length=67420&dtd=dart4.xsd",
+  "sources": [
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240321000503&dcmNo=9746987&eleId=1&offset=968&length=4149&dtd=dart4.xsd",
+      "sha256": "86369d881884161ff0e03f2434fdde91dc17086a8b85b1aef6a5f69fc717e77e"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240321000503&dcmNo=9746987&eleId=19&offset=286167&length=158&dtd=dart4.xsd",
+      "sha256": "810a964976fc84f50f7e476d1a5f46ec695ef696a980699e4df5ab3ea31ff5fc"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240321000503&dcmNo=9746987&eleId=21&offset=286511&length=67420&dtd=dart4.xsd",
+      "sha256": "2a2f388d2a577e528030ad1eeebfa7d5c4eb88ffd65ccecfc6178221821dd33a"
+    }
+  ],
+  "gets": 4
+}

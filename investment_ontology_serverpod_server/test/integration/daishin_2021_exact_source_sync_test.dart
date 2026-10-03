@@ -1,0 +1,225 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:test/test.dart';
+import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/dart/daishin_2021_exact_source.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/dart/verified_annual_source_registry.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/financial/financial_accounts.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/ingest/financial_facts_sync.dart';
+
+import 'auth_test_sessions.dart';
+import 'financial_html_company_title_formats_test.dart' show SourceClient;
+import 'test_tools/serverpod_test_tools.dart';
+
+void main() {
+  withServerpod('Daishin FY2021 two own cash scope bases', (
+    builder,
+    endpoints,
+  ) {
+    test('normal exact own two bases restore current8 with API budget exhausted and idempotent source proofs', () async {
+      final s = builder.asAdmin.build();
+      final now = DateTime.utc(2026, 10, 3);
+      final entries = VerifiedAnnualSourceRegistry.entries
+          .where((e) => Daishin2021ExactSource.supports(e.ruleVersion))
+          .toList();
+      expect(entries, hasLength(2));
+      final company = await Company.db.insertRow(
+        s,
+        Company(
+          corpCode: '00110893',
+          name: '대신증권(주)',
+          stockCode: '003540',
+          fiscalMonth: 12,
+          market: Market.kospi,
+        ),
+      );
+      await ApiCallUsage.db.insertRow(
+        s,
+        ApiCallUsage(
+          provider: ApiProvider.dart,
+          day: '2026-10-03',
+          calls: 20000,
+        ),
+      );
+      for (final e in entries.take(1)) {
+        await DartFiling.db.insertRow(
+          s,
+          DartFiling(
+            companyId: company.id,
+            corpCode: company.corpCode,
+            rceptNo: e.receipt,
+            reportName: '사업보고서 (${e.year}.12)',
+            bsnsYear: e.year,
+            reportCode: FinancialReportCode.annual,
+            consolidatedStatus: FilingFetchStatus.failed,
+            separateStatus: FilingFetchStatus.failed,
+            attempts: 3,
+            lastError: 'api-noData-annual-public:attempt=3; public annual source verification failed: cash scope',
+            discoveredAt: now,
+          ),
+        );
+      }
+      Future<void> run() async {
+        final job = await IngestJob.db.insertRow(
+          s,
+          IngestJob(
+            kind: FinancialFactsSync.kind,
+            status: IngestStatus.running,
+            startedAt: now,
+          ),
+        );
+        final client = SourceClient();
+        await FinancialFactsSync(
+          s,
+          client,
+          job.id!,
+          dailyBudget: 0,
+          clock: () => now,
+          callInterval: Duration.zero,
+        ).run();
+        expect(client.calls, 0);
+      }
+
+      await run();
+      for (final e in entries) {
+        final f = (await DartFiling.db.find(
+          s,
+          where: (t) => t.rceptNo.equals(e.receipt),
+        )).single;
+        expect(f.consolidatedStatus, FilingFetchStatus.stored);
+        expect(f.separateStatus, FilingFetchStatus.stored);
+        expect(f.attempts, 3);
+        expect(f.lastError, contains('attempt=3'));
+        final report = (await FinancialReport.db.find(
+          s,
+          where: (t) => t.rceptNo.equals(e.receipt) & t.fsDiv.equals(e.basis),
+        )).single;
+        expect(report.fsDiv, e.basis);
+        expect(report.bsnsYear, e.year);
+        final source = (await Source.db.findById(s, report.sourceId))!;
+        final manifest = jsonDecode(
+          File('${e.assetDirectory}/manifest.json').readAsStringSync(),
+        ) as Map;
+        expect(source.kind, SourceKind.dartReport);
+        expect(
+          source.url,
+          (manifest['sources'] as List).singleWhere(
+            (r) =>
+                r['label'] == (e.basis == FsDiv.consolidated ? 'cfs' : 'ofs'),
+          )['url'],
+        );
+        expect(source.reference, e.receipt);
+        final facts = await FinancialFact.db.find(
+          s,
+          where: (t) => t.reportId.equals(report.id!),
+        );
+        expect(facts, hasLength(8));
+        expect(
+          facts.every((v) => v.sourceId == source.id && v.amount != null),
+          true,
+        );
+        final lines = FinancialAccounts.pick(facts);
+        expect(
+          lines.where(
+            (v) => [
+              'assets',
+              'liabilities',
+              'equity',
+              'revenue',
+              'operatingIncome',
+              'netIncome',
+              'operatingCashFlow',
+              'capex',
+            ].contains(v.key),
+          ),
+          hasLength(8),
+        );
+        expect(
+          facts.map((v) => v.amount.toString()).toSet(),
+          e.basis == FsDiv.consolidated
+              ? {
+                  '22763241909000',
+                  '20110035373000',
+                  '2653206536000',
+                  '3635331998000',
+                  '885548890000',
+                  '615822762000',
+                  '-1402568980000',
+                  '22046693000',
+                }
+              : {
+                  '15138810188000',
+                  '13112533710000',
+                  '2026276478000',
+                  '2432183746000',
+                  '281812111000',
+                  '178657494000',
+                  '143066240000',
+                  '20151542000',
+                },
+        );
+        final provenance = jsonDecode(
+          (await Source.db.find(
+            s,
+            where: (t) => t.reference.equals(e.auditReference),
+          )).single.title,
+        ) as Map;
+        expect(provenance['status'], 'completed-source-numeric');
+        expect(provenance['manifestDigest'], e.manifestDigest);
+        expect(provenance['ruleVersion'], e.ruleVersion);
+        expect(provenance['numericCoreRows'], 8);
+        expect(provenance['networkRequests'], 0);
+        expect(provenance['apiCalls'], 0);
+        final originalSource = (await Source.db.find(
+          s,
+          where: (t) => t.reference.equals(
+            'financial-api-noData-source:${e.receipt}:${e.basis.name}',
+          ),
+        )).single;
+        expect(originalSource.url, source.url);
+        final originalProof = jsonDecode(originalSource.title) as Map;
+        expect(originalProof['corpCode'], e.corpCode);
+        expect(originalProof['targetReceipt'], e.receipt);
+        expect(originalProof['fsDiv'], e.basis.name);
+        final rowProofs = originalProof['coreRowProvenance'] as List;
+        expect(rowProofs, hasLength(8));
+        for (final rowProof in rowProofs) {
+          final detail = rowProof['html_provenance'] as Map;
+          expect(detail['fullStatementCollected'], false);
+          expect(detail['fullNotesVerified'], false);
+          expect(detail['priorFactsExtracted'], 0);
+          expect(detail['unit'], '천원');
+          final cash = detail['cashScopeProof'] as Map;
+          expect(cash['numericCellCorrection'], false);
+          expect(cash['currentAndPriorPrintedComponentsVerified'], true);
+          expect(
+            cash['notesSha256'],
+            (manifest['sources'] as List).singleWhere(
+              (v) => v['label'] == 'notes',
+            )['sha256'],
+          );
+          if (e.basis == FsDiv.separate) {
+            expect(detail['preservedClassificationDifferences'], isNotEmpty);
+          }
+        }
+      }
+      expect(await FinancialFact.db.find(s), hasLength(16));
+      expect(await FinancialReport.db.find(s), hasLength(2));
+      final sources = [for (final v in await Source.db.find(s)) v.toJson()];
+      final facts = [
+        for (final v in await FinancialFact.db.find(s)) v.toJson(),
+      ];
+      final filings = [for (final v in await DartFiling.db.find(s)) v.toJson()];
+      await run();
+      expect([for (final v in await Source.db.find(s)) v.toJson()], sources);
+      expect([
+        for (final v in await FinancialFact.db.find(s)) v.toJson(),
+      ], facts);
+      expect([
+        for (final v in await DartFiling.db.find(s)) v.toJson(),
+      ], filings);
+      expect((await ApiCallUsage.db.find(s)).single.calls, 20000);
+    });
+  });
+}

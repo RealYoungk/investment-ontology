@@ -1,7 +1,7 @@
 # Flutter & Serverpod project
 
 This project is a Flutter app (frontend) backed by a Serverpod server (backend). Always build the app's backend with Serverpod.
-User decision confirmed 2026-10-01: shared company data remains publicly readable; personal account features require Serverpod email authentication, and mutations require Scope.admin via OntologyAccess. Encourage signup through personal features. See docs/access-control.md. Never bypass account or mutation checks for local use or tests; use authentication overrides in isolated tests.
+User decision confirmed 2026-10-01: shared company data remains publicly readable; personal account features require Serverpod email authentication, and mutations require Scope.admin via OntologyAccess. Encourage signup through personal features. See docs/access-control.md. User decision 2026-10-02: public research.data may fill missing DART source caches with fixed server-selected APIs under the shared daily budget; explicit collect/import/batch mutations still require admin. Never bypass account or mutation checks for local use or tests; use authentication overrides in isolated tests.
 
 ## Agent skills
 

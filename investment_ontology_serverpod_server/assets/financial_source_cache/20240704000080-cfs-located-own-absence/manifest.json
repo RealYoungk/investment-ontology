@@ -1,0 +1,36 @@
+{
+  "receipt": "20240704000080",
+  "sourceReceipt": "20240704000080",
+  "corpCode": "00666329",
+  "companyName": "(주)코나솔",
+  "ownCoverActor": "주식회사코나솔",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2023,
+  "periodStart": "2023-01-01",
+  "periodEnd": "2023-12-31",
+  "ruleVersion": "located-own-explicit-cfs-absence-v1",
+  "absenceLiteral": "2. 연결재무제표 당사는 사업보고서 제출일 현재 해당사항이 없습니다",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240704000080",
+      "sha256": "775b09bd0ed293bed1ddd0a4085f7ae65ca0ac16f1a5e3589fcce21cb4b8ae22"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240704000080&dcmNo=10014925&eleId=3&offset=38296&length=4029&dtd=dart4.xsd",
+      "sha256": "8df59775889bb299b70d0619f968785bbb97e2c4c29749091039e39f31cb2094"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240704000080&dcmNo=10014925&eleId=21&offset=434489&length=159&dtd=dart4.xsd",
+      "sha256": "e2d4fc51c6d7eca7bec5d8ca6f72a80033b74aa7bd71f8a30601dfe7975bb4d2"
+    }
+  ],
+  "fullStatementCollected": false,
+  "notesVerified": false
+}

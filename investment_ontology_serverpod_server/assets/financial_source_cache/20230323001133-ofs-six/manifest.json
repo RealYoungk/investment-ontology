@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20230323001133",
+  "corpCode": "01185867",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2022,
+  "periodStart": "2022-01-01",
+  "periodEnd": "2022-12-31",
+  "ruleVersion": "source-six-with-unavailable-whole-revenue-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230323001133",
+      "sha256": "ac96a6f7878de0c7a8ce8910270921f1f9f55161fd05f87eff8f4788f646b102",
+      "file": "shell.html"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230323001133&dcmNo=9097566&eleId=1&offset=794&length=4070&dtd=dart3.xsd",
+      "sha256": "7d4cbd529724cd06639413b023349c79303d406a46940383a1e5e1ac7a4de8ea",
+      "file": "cover.html"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230323001133&dcmNo=9097566&eleId=21&offset=465053&length=42509&dtd=dart3.xsd",
+      "sha256": "367fa929cdfd26d512075873222c64cc74a08cfeb285d0a3d8468d9e587effd4",
+      "file": "ofs.html"
+    }
+  ],
+  "retrievalProof": "정확 owncorp·표지·현재 BS/CIS/CF 6개 직접수치/단위와 독립 CE 전체순손익·기말자본 일치. 총매출은 없거나 당기 dash라 원문미확보 상태를 유지하며 합산/0/비교연도 대체를 하지 않음."
+}

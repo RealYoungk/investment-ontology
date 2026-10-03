@@ -101,13 +101,14 @@ class _BillingCheckoutPageState extends State<BillingCheckoutPage> {
     });
     String? pendingState;
     try {
-      final checkout =
-          await (widget.beginCheckout ??
-              (widget.replaceCard
-                  ? client.membership.beginCardReplacement
-                  : client.membership.beginCheckout))(
-            _status!.termsVersion!,
-          );
+      final checkout = widget.beginCheckout != null
+          ? await widget.beginCheckout!(_status!.termsVersion!)
+          : widget.replaceCard
+          ? await client.membership.beginCardReplacement(_status!.termsVersion!)
+          : await client.membership.beginCheckout(
+              _status!.termsVersion!,
+              expectedAmountKrw: _status!.currentPriceKrw,
+            );
       pendingState = checkout.state;
       await (widget.launch ?? openBilling)(checkout);
     } catch (_) {
@@ -125,6 +126,16 @@ class _BillingCheckoutPageState extends State<BillingCheckoutPage> {
         });
       }
     }
+  }
+
+  String get _price {
+    final amount = widget.replaceCard
+        ? (_status?.appliedPriceKrw ?? _status?.currentPriceKrw ?? 4900)
+        : (_status?.currentPriceKrw ?? 4900);
+    return amount.toString().replaceAllMapped(
+      RegExp(r'(\d)(?=(\d{3})+$)'),
+      (m) => '${m[1]},',
+    );
   }
 
   @override
@@ -169,7 +180,7 @@ class _BillingCheckoutPageState extends State<BillingCheckoutPage> {
                   TextSpan(
                     children: [
                       TextSpan(
-                        text: '2,900',
+                        text: _price,
                         style: t.numeric(36, weight: FontWeight.w700),
                       ),
                       TextSpan(
@@ -218,8 +229,8 @@ class _BillingCheckoutPageState extends State<BillingCheckoutPage> {
                 else ...[
                   Text(
                     widget.replaceCard
-                        ? '카드를 바꿔도 이용 기간과 해지 상태는 유지됩니다. 카드 변경으로 추가 결제하지 않습니다.'
-                        : '카드 등록 후 첫 2,900원을 결제하고 매월 같은 기준일에 자동 갱신합니다. 해당 날짜가 없는 달은 말일입니다. 계정에서 갱신 해지할 수 있고 이미 결제한 기간까지 이용합니다. 현재 기간 안에 이메일로 환불 요청하면 해당 회차 전액을 환불하고 이용권과 다음 갱신을 종료합니다.',
+                        ? '카드를 바꿔도 가입 당시 가격, 이용 기간과 해지 상태는 유지됩니다. 카드 변경으로 추가 결제하지 않습니다.'
+                        : '카드 등록 후 첫 $_price원을 결제하고 구독을 유지하는 동안 가입 가격으로 매월 자동 갱신합니다. 새 기능도 같은 멤버십에 포함됩니다. 기간 종료 후 재가입하면 당시 신규 가격이 적용됩니다. 해당 날짜가 없는 달은 말일입니다. 계정에서 갱신 해지할 수 있고 이미 결제한 기간까지 이용합니다. 현재 기간 안에 이메일로 환불 요청하면 해당 회차 전액을 환불하고 이용권과 다음 갱신을 종료합니다.',
                     style: t.body(14, color: c.textSecondary),
                   ),
                   const ServiceLinks(),
@@ -234,8 +245,8 @@ class _BillingCheckoutPageState extends State<BillingCheckoutPage> {
                         widget.replaceCard
                             ? '다음 정기결제에 사용할 카드를 변경하는 데 동의합니다.'
                             : _status!.isTest
-                            ? '카드 등록과 2,900원 자동결제 테스트에 동의합니다.'
-                            : '월 2,900원 정기결제와 이용권 약관에 동의합니다.',
+                            ? '카드 등록과 $_price원 자동결제 테스트에 동의합니다.'
+                            : '월 $_price원 정기결제와 이용권 약관에 동의합니다.',
                         style: t.body(14),
                       ),
                       padding: EdgeInsets.zero,
@@ -249,7 +260,7 @@ class _BillingCheckoutPageState extends State<BillingCheckoutPage> {
                             ? '카드 변경하기'
                             : _status!.isTest
                             ? '테스트 카드 등록'
-                            : '월 2,900원 결제하고 시작하기',
+                            : '월 $_price원 결제하고 시작하기',
                       ),
                     ),
                   ),

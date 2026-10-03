@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 
@@ -7,7 +9,9 @@ import '../common/formatters.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
 import 'widgets/data_reference.dart';
+import 'widgets/issuer_documents_status.dart';
 import 'widgets/schedule_board.dart';
+import 'widgets/ingest_job_row.dart';
 
 /// 데이터: 원천별 수집 상태와 실행 버튼.
 class DataPage extends StatefulWidget {
@@ -22,14 +26,107 @@ class _DataPageState extends State<DataPage> {
   Widget build(BuildContext context) => const PageFrame(
     maxWidth: 1120,
     children: [
-      PageHeading(
-        title: '데이터',
-        subtitle: '수집된 자료와 자동 갱신 상태를 확인합니다.',
-      ),
+      PageHeading(title: '데이터', subtitle: '수집된 자료와 자동 갱신 상태를 확인합니다.'),
       SizedBox(height: AppSpace.section),
       ScheduleBoard(child: _Coverage()),
       SizedBox(height: AppSpace.section),
+      _CharterCoverage(),
+      _CharterCollection(),
     ],
+  );
+}
+
+class _CharterCoverage extends StatefulWidget {
+  const _CharterCoverage();
+  @override
+  State<_CharterCoverage> createState() => _CharterCoverageState();
+}
+
+class _CharterCoverageState extends State<_CharterCoverage> {
+  Map<String, dynamic>? _data;
+  bool _failed = false;
+  @override
+  void initState() {
+    super.initState();
+    IngestMonitor.instance.dataVersion.addListener(_load);
+    _load();
+  }
+
+  @override
+  void dispose() {
+    IngestMonitor.instance.dataVersion.removeListener(_load);
+    super.dispose();
+  }
+
+  Future<void> _load() async {
+    try {
+      final value = jsonDecode(
+        await client.charter.collectionCoverage(),
+      ) as Map<String, dynamic>;
+      if (mounted) {
+        setState(() {
+          _data = value;
+          _failed = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _failed = true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final data = _data;
+    if (data == null) {
+      if (_failed) {
+        return ShadButton.raw(
+          onPressed: _load,
+          variant: ShadButtonVariant.outline,
+          child: Text('정관 확보 현황 조회 실패 · 다시 확인'),
+        );
+      }
+      return const ShadProgress(minHeight: 2);
+    }
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpace.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '정관 원문 누적 확보 · ${formatCount(data['storedNotices'] as int)} / ${formatCount(data['expectedNotices'] as int)}건',
+            style: context.typo.body(15),
+          ),
+          const SizedBox(height: AppSpace.xs),
+          Text(
+            '대상 ${formatCount(data['companies'] as int)}개사 · 비교표 ${formatCount(data['companiesWithComparisons'] as int)}개사 · 공고 없음 ${formatCount(data['companiesWithoutNotice'] as int)}개사 · 미확보 ${formatCount(data['missingNotices'] as int)}건 · 목록 미확인 ${(data['unindexedCompanies'] as List).length}개사',
+            style: context.typo.body(13, color: context.colors.textSecondary),
+          ),
+          Text(
+            '${data['fromDate']} ~ ${data['toDate']} 소집공고 기준 · 비교표 미추출은 정관 변경이 없다는 뜻이 아닙니다.',
+            style: context.typo.body(12, color: context.colors.textMuted),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CharterCollection extends StatelessWidget {
+  const _CharterCollection();
+  @override
+  Widget build(BuildContext context) => IngestJobRow(
+    kind: 'charter_notices',
+    label: '전체 상장사 정관 변경 · 소집공고 원문',
+    action: '전체 수집 · 실패 건 재시도',
+    start: () async {
+      var job = await client.charter.startCollection();
+      while (job.status == IngestStatus.running) {
+        final next = await client.charter.advanceCollection();
+        if (next == null || next.processed == job.processed) break;
+        job = next;
+      }
+      return job;
+    },
   );
 }
 
@@ -170,6 +267,7 @@ class _CoverageState extends State<_Coverage> {
           detail: '정해진 표 구조·산술 검산을 통과한 결과를 저장합니다. 본문이 있어도 표 형식이나 검증 조건이 맞지 않으면 지표가 없을 수 있습니다. 항목별 추출 건수와 성공률은 현재 이 화면에서 집계하지 않습니다. 수동·AI 요약 작업은 보류 중입니다.',
           children: [BusinessCollectionStatus(coverage: v)],
         ),
+        const IssuerDocumentsStatus(),
         _Dataset(
           dataset: 'market',
 
@@ -578,7 +676,7 @@ class FinancialCollectionStatus extends StatelessWidget {
             style: context.typo.body(12, color: context.colors.textSecondary),
           ),
         Text(
-          '실제 결산월의 숫자와 원접수 출처가 연결된 보고서만 저장 건수에 포함합니다.',
+          '실제 결산월·원접수 출처와 연결된 금액 계정이 하나 이상 있는 보고서 수입니다. 연결·별도 중 한 기준의 자료만 있어도 포함하며, 전체 계정이나 핵심7개 확보율이 아닙니다.',
           style: context.typo.body(11, color: context.colors.textMuted),
         ),
         Text(
@@ -630,7 +728,7 @@ class BusinessCollectionStatus extends StatelessWidget {
             label: '최신 접수 본문 확보',
             done: latest,
             total: v.listedCompanies,
-            note: '기업별 최신 정기보고서 접수번호와 일치하는 본문입니다. 첨부 정정의 이전 접수 본문과 다른 기간 본문은 이 수에 포함하지 않습니다.',
+            note: '기업별 최신 정기보고서 본문 또는 첨부 정정에 공식 연결된 같은 기간의 원본문입니다. 연결 근거가 없는 이전 접수와 다른 기간 본문은 포함하지 않습니다.',
           )
         else
           const _Summary(label: '최신 접수 본문 확보', value: '집계 대기', unit: ''),

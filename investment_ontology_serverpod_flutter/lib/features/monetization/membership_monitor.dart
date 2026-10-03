@@ -60,6 +60,11 @@ class MembershipMonitor {
         cancelAtPeriodEnd: status.cancelAtPeriodEnd,
         paymentAvailable: status.paymentAvailable,
         isTestMembership: status.isTest,
+        currentPriceKrw: status.currentPriceKrw,
+        appliedPriceKrw: status.appliedPriceKrw,
+        priceProtected: status.priceProtected,
+        graceThroughUtc: status.graceThroughUtc,
+        nextChargeUtc: status.nextChargeUtc,
       );
       if (paid) {
         _scheduleExpiry(account, end);
@@ -84,6 +89,11 @@ class MembershipMonitor {
     cancelAtPeriodEnd: account.cancelAtPeriodEnd,
     paymentAvailable: account.paymentAvailable,
     isTestMembership: account.isTestMembership,
+    currentPriceKrw: account.currentPriceKrw,
+    appliedPriceKrw: account.appliedPriceKrw,
+    priceProtected: account.priceProtected,
+    graceThroughUtc: account.graceThroughUtc,
+    nextChargeUtc: account.nextChargeUtc,
   );
 
   void _scheduleExpiry(AppViewer account, DateTime end) {

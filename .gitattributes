@@ -5,3 +5,24 @@ investment_ontology_serverpod_server/migrations/** linguist-generated=true
 investment_ontology_serverpod_client/lib/src/protocol/** linguist-generated=true
 investment_ontology_serverpod_server/assets/ksic/*.json linguist-generated=true
 pubspec.lock linguist-generated=true
+
+investment_ontology_serverpod_server/test/fixtures/financial_html/spac-explicit-revenue-null/**/*.html -text
+
+investment_ontology_serverpod_server/assets/financial_source_cache/20230315000997-ofs/*.html -text
+investment_ontology_serverpod_server/assets/financial_source_cache/20230308000311-ofs/*.html -text
+
+# Official financial HTML is byte-pinned source evidence; preserve its original
+# line endings and whitespace instead of treating it as authored code.
+investment_ontology_serverpod_server/assets/financial_source_cache/**/*.html -text whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+investment_ontology_serverpod_server/test/fixtures/financial_html/**/*.html -text whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+
+# Reviewed issuer HTML fixtures must retain their pinned official bytes.
+investment_ontology_serverpod_server/test/fixtures/issuer_documents/dart/*.html -text whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+
+# Official publication schedule evidence retains pinned original bytes.
+investment_ontology_serverpod_server/test/fixtures/market_publication/*.html -text whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+
+# Exact source-not-presented independent fixtures retain original bytes.
+investment_ontology_serverpod_server/test/fixtures/kosnine_not_presented/*.html -text whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+
+investment_ontology_serverpod_server/assets/financial_source_cache/known-annual-conflicts/*.html -text

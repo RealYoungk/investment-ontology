@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "00231664",
+  "receipt": "20230322000851",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2022,
+  "periodStart": "2022-01-01",
+  "periodEnd": "2022-12-31",
+  "ruleVersion": "exact-insurance-current-annual-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230322000851",
+      "sha256": "f07619857e5e0647624e657d3334cbb0cd988155db1ef90d210939e5aac59bb0"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230322000851&dcmNo=9089941&eleId=1&offset=801&length=4051&dtd=dart3.xsd",
+      "sha256": "6e5479b884063b1ede7b8e3558ff7a6ec30984e77194e4375ac48e713c911525"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230322000851&dcmNo=9089941&eleId=17&offset=157957&length=60522&dtd=dart3.xsd",
+      "sha256": "025057bfce37b0b65a0b577d98ef682a5e382b383e3f5c36a419ca4ca7bfe6bf"
+    }
+  ],
+  "retrievalProof": "직접 원문 전체7·각표 직접 인쇄단위/기간·CE 전체 NI/E 및 CF/BS 당기·전기현금 검산; 숫자 대체/주석 조정값 사용 없음."
+}

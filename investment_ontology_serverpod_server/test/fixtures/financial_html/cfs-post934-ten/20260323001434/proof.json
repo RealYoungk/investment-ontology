@@ -1,0 +1,64 @@
+{
+  "id": 22081,
+  "name": "(주)에피바이오텍",
+  "market": "konex",
+  "stockCode": "446440",
+  "corpCode": "01281541",
+  "rceptNo": "20260323001434",
+  "reportName": "사업보고서 (2025.12)",
+  "actual_period": "2025.12",
+  "bsnsYear": 2025,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 2,
+  "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 2,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260323001434",
+      "sha256": "fc1ae75bad644f41d5d33e16b8608b6042c512a28e8260e1e72be02a31f93878"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323001434&dcmNo=11167714&eleId=1&offset=968&length=4544&dtd=dart4.xsd",
+      "sha256": "e2cc9fb1466aaf745601e218f1e43d92eb870d3663e3a7241c14b73e3bba7149"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323001434&dcmNo=11167714&eleId=19&offset=208296&length=219&dtd=dart4.xsd",
+      "sha256": "61e125db5accfbf39527f8dd6a1fd60027171810203b17e86101f39d7f0d6e63"
+    }
+  ],
+  "shellCorpIds": [
+    "01281541"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20260323001434",
+        "dcmNo": "11167714",
+        "eleId": "1",
+        "offset": "968",
+        "length": "4544",
+        "dtd": "dart4.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20260323001434",
+        "dcmNo": "11167714",
+        "eleId": "19",
+        "offset": "208296",
+        "length": "219",
+        "dtd": "dart4.xsd"
+      }
+    }
+  ]
+}

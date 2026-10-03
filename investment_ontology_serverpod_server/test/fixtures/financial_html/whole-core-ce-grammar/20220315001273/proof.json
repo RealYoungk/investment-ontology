@@ -1,0 +1,38 @@
+{
+  "cfs": "stored",
+  "ofs": "failed",
+  "corp": "00148610",
+  "name": "한화투자증권(주)",
+  "year": 2021,
+  "error": "api-noData-annual-public:attempt=3; public annual source verification failed: FormatException: Annual primary core missing or balance mismatch",
+  "receipt": "20220315001273",
+  "attempts": 3,
+  "reportCode": "annual",
+  "reportName": "[첨부추가]사업보고서 (2021.12)",
+  "actualPeriod": "2021.12",
+  "cfsPeriodStored": true,
+  "ofsPeriodStored": false,
+  "path": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/core50-source-corpus/20220315001273/ofs.html",
+  "cover": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/core50-source-corpus/20220315001273/cover.html",
+  "shell": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/core50-source-corpus/20220315001273/shell.html",
+  "coverUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220315001273&dcmNo=8462599&eleId=1&offset=795&length=4009&dtd=dart3.xsd",
+  "ofsUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220315001273&dcmNo=8462599&eleId=19&offset=1575901&length=79236&dtd=dart3.xsd",
+  "sources": [
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220315001273&dcmNo=8462599&eleId=1&offset=795&length=4009&dtd=dart3.xsd",
+      "sha256": "bdff226d3d675efa90d56daae0e7951beb7ade8c72ffa4f70ad72b955735ed6b"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220315001273&dcmNo=8462599&eleId=17&offset=716518&length=87854&dtd=dart3.xsd",
+      "sha256": "f1d4c78f6035c297e565022690e04ae3b1ef4134f8992942cbb82c764ae4e265"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220315001273&dcmNo=8462599&eleId=19&offset=1575901&length=79236&dtd=dart3.xsd",
+      "sha256": "1a0dceecaf6cf7081e0547eb853730a3dcf5c5a317791b8643c80935efb6f396"
+    }
+  ],
+  "gets": 4
+}

@@ -1,0 +1,41 @@
+{
+  "cfs": "failed",
+  "ofs": "failed",
+  "corp": "00677334",
+  "name": "(주)아하",
+  "year": 2021,
+  "error": "api-noData-annual-public:attempt=3; source-annual-period-reclassified; public annual source verification failed: FormatException: Exact annual legal issuer corroboration failed",
+  "receipt": "20210629000260",
+  "attempts": 3,
+  "reportCode": "annual",
+  "reportName": "[기재정정]사업보고서 (2021.03)",
+  "actualPeriod": "2021.03",
+  "cfsPeriodStored": false,
+  "ofsPeriodStored": false,
+  "sources": [
+    {
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20210629000260",
+      "sha256": "cd7b3a9fa1baa1c732fa4def7d9dc9ad92889d05f4a485d32b1169d9b6cab586",
+      "file": "shell.html",
+      "label": "shell"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20210629000260&dcmNo=8124457&eleId=3&offset=2918&length=4024&dtd=dart3.xsd",
+      "sha256": "9b93aea12df265145243404460e996191cf839a32d973687cdb3277e079f8857",
+      "file": "cover.html",
+      "label": "cover"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20210629000260&dcmNo=8124457&eleId=5&offset=7437&length=80499&dtd=dart3.xsd",
+      "sha256": "28c54f9a5734d1998575de22dec22f9383c91d48ccc020cd7758c27f74824d71",
+      "file": "overview.html",
+      "label": "overview"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20210629000260&dcmNo=8124457&eleId=18&offset=170062&length=97250&dtd=dart3.xsd",
+      "sha256": "83e1aed4f6358eabefe8d1f776906dda2d33e650bee5c425a16023dc4d28846d",
+      "file": "ofs.html",
+      "label": "ofs"
+    }
+  ]
+}

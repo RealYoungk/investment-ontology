@@ -1,0 +1,11 @@
+# Korea Investment Holdings own FY2021/FY2022 CFS
+
+Exact own corrected annual receipts 20250320000804/20250320000814, corp00432102, CFS only. Eight direct current accounts remain primary printed won. Primary14 finite identities per source are exact; own note4 component subtotal is independently exact in printed million won. No precision tolerance, rounding-cause inference or forced equality across units. Whole NI remains separate from parent NI. Raw core labels and physical coordinates are retained.
+
+Four immutable documents per receipt: own shell, cover, CFS and same own receipt CFS note body. Normal registry/cache dispatcher is source-bound; SHA/URI/whole primary physical grid/current headers/cash note4 grid/subtotal/own shell company and statement chain remain guarded. Literal flow month `012` is retained and interpreted as decimal12 only for these exact sources; current CE closing explicitly prints own2021/2022.12.31 and own BS/PL/cover/current fiscal ordinal independently bind the period. No general date parser changes.
+
+Full statement and full notes verification remain false. Own cash note million precision and primary won precision are explicit in row provenance; exact source discrepancies are not erased. No Generic6 rules or opposite basis were altered. No later comparative or other issuer source was used.
+
+Validation: 45 bounded pure tests passed (two actual cache profiles, SHA tamper, helper issuer/basis/date, registry identity/state refusals and uniqueness). Six changed Dart files analyzed without issues, formatted. Original8 copied raw document SHA values are unchanged; logs output/koreainvestment-own-eight. Earlier pure run exposed an entity-decoding mismatch for quote-bearing footnote cells; finite helper HTML compact decoder was corrected without modifying originals.
+
+Normal integration test file is written only: financial_koreainvestment_own_eight_cache_test.dart two receipt cases, API0/current8/rawSource/per-cell-provenance, opposite failed, correction Source preservation, superseded report exclusion, all8 summary, replay.updated0 and failure status retained. No DB executed by agent; parent must run after exclusive full gate releases its slot. Candidate registry266 based frozen264; Samsung21 other isolated commit is separate and parent must reconcile combined count.

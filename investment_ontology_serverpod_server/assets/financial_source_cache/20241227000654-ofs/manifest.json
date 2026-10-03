@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "01109690",
+  "receipt": "20241227000654",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2023,
+  "periodStart": "2023-01-01",
+  "periodEnd": "2023-12-31",
+  "ruleVersion": "primary-historical-issuer-whole-seven-v1",
+  "sources": [
+    {
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20241227000654",
+      "sha256": "7c8cf27012a192412477a830f717eb818819b947fca73c06440a899fedbd137e",
+      "file": "shell.html",
+      "label": "shell"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20241227000654&dcmNo=10246350&eleId=3&offset=158706&length=4345&dtd=dart4.xsd",
+      "sha256": "6fbb1a4728d6963002312c5f013862120415a57413d3620abe69790a73fd3417",
+      "file": "cover.html",
+      "label": "cover"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20241227000654&dcmNo=10246350&eleId=23&offset=323478&length=53995&dtd=dart4.xsd",
+      "sha256": "265e10a712c952eb36e7b9a468f5e457ff218425fd57ccaa7180f8041b300716",
+      "file": "ofs.html",
+      "label": "ofs"
+    }
+  ],
+  "retrievalProof": "동일 공식 접수·회사·실제 연간기간·전체회사 직접 핵심계정 및 회계식 검증. 해당 고정 접수만 회사명 증거 옵트인. 숫자/기간/기존Source 변경 없음."
+}

@@ -28,6 +28,18 @@ ai:
   - submit:
   - submitDigest:
   - submitFacts:
+bond:
+  - trends:
+  - collect:
+capital:
+  - summary:
+  - collect:
+charter:
+  - startCollection:
+  - advanceCollection:
+  - collectionStatus:
+  - collectionCoverage:
+  - summary:
 company:
   - overview:
   - divisions:
@@ -85,6 +97,8 @@ ingest:
   - schedule:
   - latestOfKinds:
   - rebuildProductionFacts:
+macro:
+  - overview:
 market:
   - companyCapHistory:
   - industryTreemap:
@@ -101,6 +115,8 @@ membership:
   - completeCheckout:
   - abortCheckout:
   - cancelRenewal:
+membershipOffer:
+  - offer:
 review:
   - list:
   - decide:

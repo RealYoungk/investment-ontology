@@ -329,6 +329,7 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
                     AppDataTable(
                       columns: const [
                         AppColumn('구분', flex: true),
+                        AppColumn('발행 가능한 총수', numeric: true),
                         AppColumn('발행주식의 총수', numeric: true),
                         AppColumn('자기주식수', numeric: true, flex: true),
                         AppColumn('유통주식수', numeric: true, flex: true),
@@ -340,6 +341,7 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
                             [
                               AppDataTable.text(context, r.kind),
                               for (final v in [
+                                r.authorized,
                                 r.issued,
                                 r.treasury,
                                 r.outstanding,
@@ -352,6 +354,10 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
                             ],
                           ),
                       ],
+                    ),
+                    Text(
+                      '발행 가능한 총수는 정관상 한도입니다. 추가 발행 예정 물량이나 현재 CB·BW 잔액을 뜻하지 않습니다.',
+                      style: t.body(12, color: c.textSecondary),
                     ),
                   ],
                 ),

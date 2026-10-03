@@ -1,3 +1,5 @@
+import 'market_publication_timing.dart';
+
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
@@ -96,6 +98,15 @@ class MarketSnapshotSync {
     return (d == null || d.isEmpty || RegExp(r'^0+$').hasMatch(d)) ? null : d;
   }
 
+  /// A stock-code fallback may fill a missing number, never contradict one.
+  static bool registrationNumbersAgree(
+    String? securityCrno,
+    String? companyCrno,
+  ) {
+    final security = digits(securityCrno), company = digits(companyCrno);
+    return security == null || company == null || security == company;
+  }
+
   /// ISIN의 발행체 코드. 국내 주식 ISIN은 `KR7` + 발행체 5자리 + 종목 구분 + … 이다.
   static String? isinIssuer(String isin) =>
       RegExp(r'^KR7[0-9A-Z]{9}$').hasMatch(isin) ? isin.substring(3, 8) : null;
@@ -158,8 +169,13 @@ class MarketSnapshotSync {
           );
           if (items == null) break;
           if (items.isEmpty &&
-              today.difference(date) <= publishGrace &&
-              !today.difference(date).isNegative) {
+              !today.difference(date).isNegative &&
+              (today.difference(date) <= publishGrace ||
+                  (!await _hasLaterDay(date) &&
+                      MarketPublicationTiming.withinExpectedResponseWindow(
+                        date,
+                        now,
+                      )))) {
             _recentEmptyDates.add(date);
           }
           if (items.isNotEmpty) {
@@ -238,6 +254,12 @@ class MarketSnapshotSync {
         }
       }
 
+      // A master can arrive after its security and price days. Reuse saved
+      // identifiers without fetching prices or replacing their source.
+      if (!cancelled && !await IngestJobs.isCancelled(session, jobId)) {
+        linked += await _linkExistingSecurities(securities);
+      }
+
       final remaining = await _pendingPriceDates(targetDates);
       final priceDays = await MarketSnapshotDay.db.find(
         session,
@@ -269,22 +291,28 @@ class MarketSnapshotSync {
           client.calls < _allowance &&
           _recentEmptyDates.isNotEmpty &&
           scheduleResume != null) {
-        final at = now.add(const Duration(hours: 1));
+        final at = MarketPublicationTiming.retryAt(now, _recentEmptyDates);
+        message +=
+            ' · ${MarketPublicationTiming.estimateMessage(now, _recentEmptyDates)}';
         var dailyAt = DateTime.utc(today.year, today.month, today.day, 9);
         if (!dailyAt.isAfter(now)) {
           dailyAt = dailyAt.add(const Duration(days: 1));
         }
         const retryNote = '최근 미확보 기준일 1시간 후 재확인';
+        const publicationRetryNote = '공개예상시각 이후 재확인 예약';
         final recentRetries = await IngestJob.db.count(
           session,
           where: (t) =>
               t.kind.equals(kind) &
               (t.startedAt >= now.subtract(const Duration(days: 1))) &
-              t.message.like('%$retryNote%'),
+              (t.message.like('%$retryNote%') |
+                  t.message.like('%$publicationRetryNote%')),
         );
         if (at.isBefore(dailyAt) && recentRetries < 24) {
           await scheduleResume!(at);
-          message += ' · $retryNote';
+          message += at == now.add(const Duration(hours: 1))
+              ? ' · $retryNote'
+              : ' · $publicationRetryNote(입수 보장 아님)';
         }
       }
       if (failures.isNotEmpty) message += ' · 실패 예시: ${failures.join(' / ')}';
@@ -521,7 +549,12 @@ class MarketSnapshotSync {
         // Empty index responses do not establish publication or holiday status.
         if (items.isEmpty) {
           final age = kstDate(_clock().toUtc()).difference(day.baseDate);
-          if (!age.isNegative && age <= publishGrace) {
+          if (!age.isNegative &&
+              (age <= publishGrace ||
+                  MarketPublicationTiming.withinExpectedResponseWindow(
+                    day.baseDate,
+                    _clock().toUtc(),
+                  ))) {
             _recentEmptyDates.add(day.baseDate);
           }
           continue;
@@ -624,6 +657,68 @@ class MarketSnapshotSync {
     });
   }
 
+  /// Link only unlinked saved securities. Duplicate or conflicting master
+  /// identifiers remain unlinked; original security/price sources are kept.
+  Future<int> _linkExistingSecurities(
+    Map<String, Security> securities,
+  ) => session.db.transaction((tx) async {
+    final companies = await Company.db.find(
+      session,
+      where: (t) => t.market.inSet({Market.kospi, Market.kosdaq, Market.konex}),
+      transaction: tx,
+    );
+    final byId = {for (final company in companies) company.id!: company};
+    final byCrno = <String, Set<int>>{};
+    final byCode = <String, Set<int>>{};
+    for (final company in companies) {
+      final crno = digits(company.jurirNo);
+      if (crno != null) (byCrno[crno] ??= {}).add(company.id!);
+      final code = company.stockCode;
+      if (code != null) (byCode[code] ??= {}).add(company.id!);
+    }
+    final updates = <Security>[];
+    for (final security in await Security.db.find(
+      session,
+      where: (t) => t.companyId.equals(null),
+      transaction: tx,
+    )) {
+      final crno = digits(security.crno);
+      final crnoMatches = crno == null ? null : byCrno[crno];
+      final codeMatches = byCode[security.shortCode];
+      if ((crnoMatches?.length ?? 0) > 1 || (codeMatches?.length ?? 0) > 1) {
+        continue;
+      }
+      final byNumber = crnoMatches?.singleOrNull;
+      final byStock = codeMatches?.singleOrNull;
+      if (byNumber != null && byStock != null && byNumber != byStock) {
+        continue;
+      }
+      final companyId = byNumber ?? byStock;
+      if (companyId == null ||
+          !registrationNumbersAgree(security.crno, byId[companyId]?.jurirNo)) {
+        continue;
+      }
+      updates.add(
+        security.copyWith(
+          companyId: companyId,
+          linkBasis: byNumber != null
+              ? SecurityLinkBasis.crno
+              : SecurityLinkBasis.dartStockCode,
+        ),
+      );
+    }
+    if (updates.isNotEmpty) {
+      for (final updated in await Security.db.update(
+        session,
+        updates,
+        transaction: tx,
+      )) {
+        securities[updated.isinCode] = updated;
+      }
+    }
+    return updates.length;
+  });
+
   /// 법인등록번호로 잇지 못한 종목을 DART 종목코드, 그다음 ISIN 발행체 코드로 잇는다.
   ///
   /// 상장종목정보에는 우선주가 없어(2026-09-16 기준 시세 2,871종목 중 115종목) 법인등록번호가
@@ -632,6 +727,7 @@ class MarketSnapshotSync {
     Map<String, Security> securities,
     Map<String, int> byStockCode, {
     required Transaction transaction,
+    required Map<int, String?> registrationNumbers,
   }) async {
     final updates = <String, Security>{};
     void link(Security s, int companyId, SecurityLinkBasis basis) {
@@ -646,6 +742,7 @@ class MarketSnapshotSync {
       }
       final byCode = byStockCode[s.shortCode];
       if (byCode != null &&
+          registrationNumbersAgree(s.crno, registrationNumbers[byCode]) &&
           (s.companyId != byCode ||
               s.linkBasis != SecurityLinkBasis.dartStockCode)) {
         link(s, byCode, SecurityLinkBasis.dartStockCode);
@@ -670,7 +767,12 @@ class MarketSnapshotSync {
       }
       final candidates = issuers[isinIssuer(s.isinCode)];
       // 한 발행체 코드가 여러 기업에 걸리면 추측하지 않는다.
-      if (candidates != null && candidates.length == 1) {
+      if (candidates != null &&
+          candidates.length == 1 &&
+          registrationNumbersAgree(
+            s.crno,
+            registrationNumbers[candidates.single],
+          )) {
         if (s.companyId != candidates.single ||
             s.linkBasis != SecurityLinkBasis.isinIssuer) {
           link(s, candidates.single, SecurityLinkBasis.isinIssuer);
@@ -784,7 +886,14 @@ class MarketSnapshotSync {
           securities[s.isinCode] = s;
         }
       }
-      await _linkRemaining(securities, byStockCode, transaction: tx);
+      await _linkRemaining(
+        securities,
+        byStockCode,
+        transaction: tx,
+        registrationNumbers: {
+          for (final company in listed) company.id!: company.jurirNo,
+        },
+      );
       return securities.values.where((s) => s.companyId != null).length;
     });
   }

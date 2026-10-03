@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20240319000287",
+  "corpCode": "00321204",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2023,
+  "periodStart": "2023-01-01",
+  "periodEnd": "2023-12-31",
+  "ruleVersion": "primary-historical-issuer-whole-seven-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240319000287",
+      "sha256": "2692781552bfa633a2b39fdd9d6b0fb43c58406233eabb335ddabb4151767bd5",
+      "file": "shell.html"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240319000287&dcmNo=9729336&eleId=1&offset=955&length=4076&dtd=dart4.xsd",
+      "sha256": "6ca9a73a83f863bd055167f4f4a8712edf0bf4f0e7f213ffc1231ab63772abcf",
+      "file": "cover.html"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240319000287&dcmNo=9729336&eleId=21&offset=614458&length=108017&dtd=dart4.xsd",
+      "sha256": "332dfcf581c292e23e37eaaed5008ca97e83ec6e0a27a4e0c820526cdc921eff",
+      "file": "ofs.html"
+    }
+  ],
+  "retrievalProof": "동일 원접수 공식 shell·표지·OFS 실제 HTML을 원형 고정. 고유 owncorp/6좌표/표지 실제기간/4개 재무표 직접 발행인·whole7/BSCE 검증."
+}

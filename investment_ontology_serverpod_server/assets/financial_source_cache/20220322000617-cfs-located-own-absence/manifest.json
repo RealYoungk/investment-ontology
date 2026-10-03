@@ -1,0 +1,42 @@
+{
+  "receipt": "20220322000617",
+  "sourceReceipt": "20220322000512",
+  "corpCode": "00149594",
+  "companyName": "한국캐피탈(주)",
+  "ownCoverActor": "한국캐피탈주식회사",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "ruleVersion": "located-own-explicit-cfs-absence-v1",
+  "absenceLiteral": "2. 연결재무제표 - 해당사항 없음",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220322000617",
+      "sha256": "25c6b72d9d9e3fc97496caea58e5722f8c69fadbce638891b2979ee4f91cedc6"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000512&dcmNo=8490121&eleId=1&offset=809&length=4036&dtd=dart3.xsd",
+      "sha256": "5e4271f536f5ecc839dc57cf80b92619afac18cb97b1d60deff0502f795c6678"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000512&dcmNo=8490121&eleId=17&offset=189909&length=129&dtd=dart3.xsd",
+      "sha256": "bb5361d17f427856b9e5af6adcc6e781ce2cfba4e3f004ad2db04b04958c6114"
+    },
+    {
+      "label": "originalShell",
+      "file": "originalShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220322000512",
+      "sha256": "bff2c59e432436ae21bf6cfbc5ef3792964231f9bc2d62a4d14f900a2952f2c3"
+    }
+  ],
+  "fullStatementCollected": false,
+  "notesVerified": false
+}

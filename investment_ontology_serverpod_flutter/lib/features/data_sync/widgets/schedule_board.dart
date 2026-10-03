@@ -124,6 +124,9 @@ class _DatasetCollectionControlsState extends State<DatasetCollectionControls> {
       _ => 'company_master',
     };
     final entry = data?.entries?.where((e) => e.kind == kind).firstOrNull;
+    final relink = data?.entries
+        ?.where((e) => e.kind == 'market_security_relink')
+        .firstOrNull;
     final running = entry?.lastJob?.status == IngestStatus.running;
     final corpCode = GoRouterState.of(context).uri.queryParameters['corpCode'];
     final companyScoped =
@@ -247,6 +250,19 @@ class _DatasetCollectionControlsState extends State<DatasetCollectionControls> {
             );
           },
         ),
+        if (widget.dataset == 'market' && relink?.lastJob != null)
+          MarketSecurityRelinkStatus(
+            entry: relink!,
+            now: data!.now,
+            onCancel:
+                !_busy &&
+                    context.isAdmin &&
+                    relink.lastJob?.status == IngestStatus.running
+                ? () => _run(() async {
+                    await client.ingest.cancel(relink.lastJob!.id!);
+                  })
+                : null,
+          ),
         if (widget.dataset == 'business')
           Text(
             '공시 주요정보 28종과 별도로 원문을 수집합니다.',
@@ -314,6 +330,50 @@ class DatasetRunHistory extends StatelessWidget {
   }
 }
 
+/// Read-only market-link state shares the global monitor and schedule response.
+/// Counts here describe saved-security links, never historical price coverage.
+class MarketSecurityRelinkStatus extends StatelessWidget {
+  const MarketSecurityRelinkStatus({
+    required this.entry,
+    required this.now,
+    this.onCancel,
+    super.key,
+  });
+  final IngestScheduleEntry entry;
+  final DateTime now;
+  final VoidCallback? onCancel;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: AppSpace.md),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          '기존 종목 재연결 · 시세 API 호출 없음',
+          style: context.typo.body(12, weight: FontWeight.w600),
+        ),
+        _Row(entry: entry, now: now),
+        if (entry.lastJob?.message case final message?)
+          Text(
+            safeIngestMessage(message),
+            style: context.typo.body(12, color: context.colors.textSecondary),
+          ),
+        if (onCancel != null && entry.lastJob?.status == IngestStatus.running)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: ShadButton.raw(
+              onPressed: onCancel,
+              enabled: (onCancel) != null,
+              variant: ShadButtonVariant.link,
+              child: Text('재연결 중단'),
+            ),
+          ),
+      ],
+    ),
+  );
+}
+
 class _Row extends StatelessWidget {
   const _Row({required this.entry, required this.now});
 
@@ -330,11 +390,19 @@ class _Row extends StatelessWidget {
 
     final partial = job?.failed != null && job!.failed > 0;
     final (String state, Color color) = running
-        ? ('수집 중', c.accent)
+        ? (
+            entry.kind == 'market_security_relink' ? '재연결 중 · 대기' : '수집 중',
+            c.accent,
+          )
         : failed || partial
         ? ('일부 실패 · 확인 필요', c.accent)
         : job?.status == IngestStatus.succeeded
-        ? ('최근 수집 완료', c.accent)
+        ? (
+            entry.kind == 'market_security_relink'
+                ? '기존 종목 재연결 완료'
+                : '최근 수집 완료',
+            c.accent,
+          )
         : job?.status == IngestStatus.cancelled
         ? ('수집 취소됨', c.textMuted)
         : ('아직 수집 전', c.textMuted);

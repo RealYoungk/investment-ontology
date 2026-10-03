@@ -9,6 +9,7 @@ cleanup() { if [[ -n "${billing_fixture_pid:-}" ]]; then kill "$billing_fixture_
 trap cleanup EXIT
 export ALFINDER_BROWSER_FIXTURE="$billing_fixture"
 export ALFINDER_BILLING_SANDBOX_ENABLED=true
+export ALFINDER_BILLING_PROVIDER=toss
 export TOSS_TEST_SECRET_KEY=test_sk_fixture TOSS_TEST_CLIENT_KEY=test_ck_fixture
 export BILLING_ENCRYPTION_KEY=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
 bash scripts/test-server.sh test/integration/billing_browser_fixture_test.dart > /tmp/alfinder-browser-fixture.log 2>&1 &

@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20250320000814",
+  "corpCode": "00432102",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2022,
+  "periodStart": "2022-01-01",
+  "periodEnd": "2022-12-31",
+  "ruleVersion": "koreainvestment-2021-2022-own-current-eight-v1",
+  "sources": [
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250320000814&dcmNo=10435371&eleId=19&offset=1079526&length=57346&dtd=dart4.xsd",
+      "sha256": "3d1ee9a99a2323d44f566f6d7ca698ad2a76695c9c4411422b167bb5c5b487c6"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250320000814&dcmNo=10435371&eleId=3&offset=277519&length=4471&dtd=dart4.xsd",
+      "sha256": "c69e60e3717b49321ccc722e47a1e8c871153d3719e6bec663f19b7a7ff0cb8e"
+    },
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250320000814",
+      "sha256": "c0f3757f6d9d1af89d234daf7272d35784fca30b5003c709fa3c65aea2db7735"
+    },
+    {
+      "label": "notes",
+      "file": "notes.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250320000814&dcmNo=10435371&eleId=20&offset=1136876&length=1967479&dtd=dart4.xsd",
+      "sha256": "31e7b08b0c73fca9e79c8784080b51846218045ac1ffcd1f6eb590b70580bd64"
+    }
+  ]
+}

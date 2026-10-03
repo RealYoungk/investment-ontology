@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20220308000292",
+  "corpCode": "00124805",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "ruleVersion": "pureun-exact-colon-primary-none-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220308000292",
+      "sha256": "5b5e1b14eb3d91370410bfe494fa101f77eb8c217476fc1c1ee129c5a874499c",
+      "file": "shell.html"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220308000292&dcmNo=8445080&eleId=1&offset=811&length=4036&dtd=dart3.xsd",
+      "sha256": "26baec5f40bbc13a62f3beeae66fe5dfe2f6171ba61b1af343c3cc48aa061cd3",
+      "file": "cover.html"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220308000292&dcmNo=8445080&eleId=17&offset=139044&length=142&dtd=dart3.xsd",
+      "sha256": "cf005f3305904d45d46b12c425f201e2154565a66d0b6fa55eff4f68f02426ae",
+      "file": "cfs.html"
+    },
+    {
+      "label": "overview",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220308000292&dcmNo=8445080&eleId=3&offset=5361&length=49159&dtd=dart3.xsd",
+      "sha256": "a727902d7006ba4a67e9f6ef6a62d862e20ad57d68a6b147b5ef838f7392486e",
+      "file": "overview.html"
+    }
+  ],
+  "retrievalProof": "Entire own CFS literal2. 연결재무제표 : 해당사항없음; own cover/shell/corp/annual2021 pinned. Ownoverview self-declareslegal푸른상호저축은행 andshort(주)푸른저축은행. No OFS numbers/revenue guard changed."
+}

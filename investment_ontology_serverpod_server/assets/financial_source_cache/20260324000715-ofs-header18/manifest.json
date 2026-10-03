@@ -1,0 +1,54 @@
+{
+  "targetReceipt": "20260324000715",
+  "originalReceipt": "20260323000900",
+  "numericSourceReceipt": "20260323000900",
+  "corpCode": "00929228",
+  "companyName": "(주)엔에스컴퍼니",
+  "basis": "ofs",
+  "year": 2025,
+  "periodStart": "2025-01-01",
+  "periodEnd": "2025-12-31",
+  "kind": "annual",
+  "ruleVersion": "header18-linked-direct-whole-v1",
+  "sources": [
+    {
+      "label": "targetShell",
+      "file": "targetShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260324000715",
+      "sha256": "a4e50cda1b921a4fd563f0961d8d0d9dc70632de4a4e959e80e5a11eecc594d4"
+    },
+    {
+      "label": "originalShell",
+      "file": "originalShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260323000900",
+      "sha256": "97449b25bdde79372a6ef1e4f46f33d19db86554ca9da312432816ec7957a74f"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323000900&dcmNo=11164290&eleId=1&offset=968&length=4515&dtd=dart4.xsd",
+      "sha256": "1cbe4ac7ada97608576372fc7e5fe80412d52164c7cd39d5c288348417a799f2"
+    },
+    {
+      "label": "primary",
+      "file": "primary.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323000900&dcmNo=11164290&eleId=21&offset=443348&length=69102&dtd=dart4.xsd",
+      "sha256": "a63c732113d20916273d486d1b2a9a35c5a64175ea43c4060e83edb9b8a5fdf3"
+    },
+    {
+      "label": "auditShell",
+      "file": "auditShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260323000900&dcmNo=11164289",
+      "sha256": "ae215ddfd6c44497784561bc3ec7b4dcf3a4622a270d2164b89bbfd93e26e17a"
+    },
+    {
+      "label": "audit",
+      "file": "audit.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323000900&dcmNo=11164289&eleId=3&offset=18554&length=462234&dtd=dart4.xsd",
+      "sha256": "a3b484baa475401b23fcd45ce06306f7086ab4e5ee163c42c0eb11822b5e21cb"
+    }
+  ],
+  "sourceRole": "original_primary_with_current_audit_witness",
+  "scopeNote": "Candidate assets only; not active registry or operational completion",
+  "expectedRowsSha256": "e1f039ab4c47ecb93036a59c65d45708d87c8d1bcac165a46f1bbae53afdba3c"
+}

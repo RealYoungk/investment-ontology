@@ -1,3 +1,11 @@
+import 'own_paragraph_cfs_absence.dart';
+import 'bon_linked_audit_current_proof.dart';
+import 'exact_cover_executive_role.dart';
+import 'pureun_exact_basis_absence.dart';
+import 'primary_historical_issuer.dart';
+import 'innovex_exact_basis_absence.dart';
+import 'same_receipt_audit_source.dart';
+import 'linked_correction_audit_source.dart';
 import 'public_issuer_legal_name.dart';
 import 'bnk_six_core_profile.dart';
 import 'verified_historical_company_identity.dart';
@@ -23,6 +31,7 @@ class PublicFinancialHtmlSource {
     required this.periodEnd,
     required this.rows,
     this.issuerProof,
+    this.primaryIssuerProof,
   });
 
   final String sourceReceipt;
@@ -36,6 +45,7 @@ class PublicFinancialHtmlSource {
   final DateTime periodEnd;
   final List<Map<String, dynamic>> rows;
   final PublicIssuerLegalName? issuerProof;
+  final PrimaryHistoricalIssuer? primaryIssuerProof;
 
   String get sourceDigest =>
       sha256.convert(utf8.encode('$coverHtml\n$statementHtml')).toString();
@@ -74,11 +84,11 @@ class PublicFinancialHtmlBasisNotApplicable extends FormatException {
   final String evidence;
   final PublicIssuerLegalName? issuerProof;
   Map<String, String>? get issuerIdentityEvidence {
-    final names = RegExp(r'회사명:(.*?)(?:공동)?대표이사:')
+    final names = ExactCoverExecutiveRole.names(coverHtml)
         .allMatches(coverHtml.replaceAll(RegExp(r'<[^>]+>|\s+|&nbsp;'), ''))
         .toList();
     if (names.length != 1) return null;
-    return issuerProof?.verify(
+    final legal = issuerProof?.verify(
       receipt: sourceReceipt,
       corpCode: corpCode,
       masterName: companyName,
@@ -88,6 +98,17 @@ class PublicFinancialHtmlBasisNotApplicable extends FormatException {
       periodStart: periodStart,
       periodEnd: periodEnd,
     );
+    return legal ??
+        VerifiedHistoricalCompanyIdentity.evidence(
+          receipt: sourceReceipt,
+          corpCode: corpCode,
+          currentName: companyName,
+          printedName: names.single.group(1)!,
+          periodEnd: periodEnd,
+          consolidated: true,
+          coverSource: coverSource,
+          coverHtml: coverHtml,
+        );
   }
 
   String? get correctionReceipt => null;
@@ -135,6 +156,8 @@ class PublicFinancialHtmlFetcher {
     required int bsnsYear,
     required DateTime periodEnd,
     required bool consolidated,
+    bool allowPrimaryHistoricalIssuer = false,
+    bool allowSourceVerifiedPartialCore = false,
   }) => _fetch(
     receipt,
     reportName: reportName,
@@ -145,6 +168,8 @@ class PublicFinancialHtmlFetcher {
     consolidated: consolidated,
     halfYear: false,
     exactAnnual: true,
+    allowPrimaryHistoricalIssuer: allowPrimaryHistoricalIssuer,
+    allowSourceVerifiedPartialCore: allowSourceVerifiedPartialCore,
   );
 
   /// Exact-receipt half-year HTML. This never follows a prior annual report.
@@ -177,11 +202,13 @@ class PublicFinancialHtmlFetcher {
     required bool consolidated,
     required bool halfYear,
     bool exactAnnual = false,
+    bool allowPrimaryHistoricalIssuer = false,
+    bool allowSourceVerifiedPartialCore = false,
   }) async {
     if (!RegExp(r'^\d{14}$').hasMatch(correctionReceipt) ||
         !RegExp(r'^\d{8}$').hasMatch(corpCode) ||
         !(exactAnnual
-            ? RegExp(r'^(?:\[기재정정\])?사업보고서\s*\(\d{4}\.\d{2}\)$')
+            ? RegExp(r'^(?:\[(?:기재정정|첨부추가)\])?사업보고서\s*\(\d{4}\.\d{2}\)$')
                       .hasMatch(reportName) &&
                   reportName.endsWith(
                     '(${periodEnd.year}.${periodEnd.month.toString().padLeft(2, '0')})',
@@ -258,6 +285,25 @@ class PublicFinancialHtmlFetcher {
     var sourceReceipt = correctionReceipt;
     var originalSource = correctionSource;
     var shell = correctionShell;
+    if (exactAnnual &&
+        LinkedCorrectionAuditSource.eligible(
+          receipt: correctionReceipt,
+          corpCode: corpCode,
+          consolidated: consolidated,
+          start: DateTime.utc(bsnsYear),
+          end: periodEnd,
+        )) {
+      sourceReceipt = LinkedCorrectionAuditSource.verifyTarget(
+        correctionShell,
+        receipt: correctionReceipt,
+      );
+      originalSource = shellUri(sourceReceipt);
+      shell = await get(originalSource, referer: correctionSource);
+      LinkedCorrectionAuditSource.verifyOriginal(
+        shell,
+        receipt: correctionReceipt,
+      );
+    }
     var dcm = document(shell, sourceReceipt);
     if (!halfYear && !exactAnnual) {
       final family = RegExp(
@@ -340,7 +386,7 @@ class PublicFinancialHtmlFetcher {
     }
 
     final coverSource = node(halfYear ? '반기보고서' : '사업보고서');
-    final statementSource = node(
+    var statementSource = node(
       halfYear
           ? 'III.재무에관한사항'
           : consolidated
@@ -381,10 +427,12 @@ class PublicFinancialHtmlFetcher {
       throw const FormatException('Declared source end mismatch');
     }
     PublicIssuerLegalName? issuerProof;
+    PrimaryHistoricalIssuer? primaryIssuerProof;
+    String? primaryStatement;
     if (exactAnnual) {
       String normalize(String name) =>
           name.replaceAll(RegExp(r'\(주\)|㈜|주식회사|\s+'), '');
-      final printedNames = RegExp(r'회사명:(.*?)(?:공동)?대표이사:')
+      final printedNames = ExactCoverExecutiveRole.names(coverHtml)
           .allMatches(text)
           .toList();
       if (printedNames.length != 1 ||
@@ -414,37 +462,123 @@ class PublicFinancialHtmlFetcher {
                 coverHtml: coverHtml,
               ) ==
               null) {
-        final overviewSource = node('I.회사의개요');
-        final overviewHtml = await get(overviewSource, referer: originalSource);
-        issuerProof = PublicIssuerLegalName(
-          shellHtml: shell,
-          shellSource: originalSource,
-          overviewHtml: overviewHtml,
-          overviewSource: overviewSource,
+        final usesLinkedAudit = SameReceiptAuditSource.eligible(
+          receipt: sourceReceipt,
+          corpCode: corpCode,
+          consolidated: consolidated,
+          start: periodStart,
+          end: periodEnd,
         );
-        if (issuerProof.verify(
-              receipt: sourceReceipt,
-              corpCode: corpCode,
-              masterName: companyName,
-              printedName: printedName,
-              coverSource: coverSource,
-              coverHtml: coverHtml,
-              periodStart: periodStart,
-              periodEnd: periodEnd,
-            ) ==
-            null) {
-          throw const FormatException(
-            'Exact annual legal issuer corroboration failed',
+        if (allowPrimaryHistoricalIssuer && !usesLinkedAudit) {
+          primaryStatement = await get(
+            statementSource,
+            referer: originalSource,
           );
+        }
+        final candidate = PrimaryHistoricalIssuer(
+          shell: shell,
+          shellSource: originalSource,
+        );
+        if (primaryStatement != null &&
+            candidate.verify(
+                  receipt: sourceReceipt,
+                  corp: corpCode,
+                  consolidated: consolidated,
+                  coverSource: coverSource,
+                  cover: coverHtml,
+                  statementSource: statementSource,
+                  statement: primaryStatement,
+                  start: periodStart,
+                  end: periodEnd,
+                ) !=
+                null) {
+          primaryIssuerProof = candidate;
+        } else {
+          final overviewSource = node('I.회사의개요');
+          final overviewHtml = await get(
+            overviewSource,
+            referer: originalSource,
+          );
+          issuerProof = PublicIssuerLegalName(
+            shellHtml: shell,
+            shellSource: originalSource,
+            overviewHtml: overviewHtml,
+            overviewSource: overviewSource,
+          );
+          if (issuerProof.verify(
+                receipt: sourceReceipt,
+                corpCode: corpCode,
+                masterName: companyName,
+                printedName: printedName,
+                coverSource: coverSource,
+                coverHtml: coverHtml,
+                periodStart: periodStart,
+                periodEnd: periodEnd,
+              ) ==
+              null) {
+            throw const FormatException(
+              'Exact annual legal issuer corroboration failed',
+            );
+          }
         }
       }
     }
-    final statementHtml = await get(statementSource, referer: originalSource);
+    if (exactAnnual &&
+        SameReceiptAuditSource.eligible(
+          receipt: sourceReceipt,
+          corpCode: corpCode,
+          consolidated: consolidated,
+          start: periodStart,
+          end: periodEnd,
+        )) {
+      primaryStatement = null;
+      primaryIssuerProof = null;
+      final auditShellSource = SameReceiptAuditSource.auditShell(
+        sourceReceipt,
+        shell,
+      );
+      final auditShell = await get(auditShellSource, referer: originalSource);
+      statementSource = SameReceiptAuditSource.statement(
+        sourceReceipt,
+        auditShell,
+      );
+    }
+    final statementHtml =
+        primaryStatement ?? await get(statementSource, referer: originalSource);
     if (exactAnnual && consolidated) {
-      const explicitStatements = [
+      final explicitStatements = [
+        if (sourceReceipt == '20230320000571' &&
+            corpCode == '01267958' &&
+            bsnsYear == 2022 &&
+            periodStart == DateTime.utc(2022) &&
+            periodEnd.year == 2022 &&
+            periodEnd.month == 12 &&
+            periodEnd.day == 31)
+          '당사는 연결대상 종속회사가 존재하지 않으므로, 한국채택국제회계기준의 주된 재무제표인 연결기준의 재무정보를 기재하지 않습니다.',
+        if (sourceReceipt == '20230317000589' &&
+            corpCode == '01113499' &&
+            bsnsYear == 2022 &&
+            periodStart == DateTime.utc(2022) &&
+            periodEnd.year == 2022 &&
+            periodEnd.month == 12 &&
+            periodEnd.day == 31)
+          '당사는 사업보고서 제출기준일 현재 해당사항 없습니다.',
+        if (sourceReceipt == '20220317001218' &&
+            corpCode == '01113499' &&
+            bsnsYear == 2021 &&
+            periodStart == DateTime.utc(2021) &&
+            periodEnd == DateTime.utc(2021, 12, 31))
+          '당사는 사업보고서 제출기준일 현재 해당사항 없습니다.',
+        '※ 해당사항 없습니다.',
+        '당사는 연결재무제표 작성대상법인에 해당하지 않습니다.',
+        '"해당사항 없습니다."',
+        '상기 내역과 관련하여 본 보고서 제출 기준일 현재 해당사항 없습니다.',
+        '보고서 제출일 현재 해당사항 없습니다.',
+        '※ 당사는 주식회사의 외부감사에 관한 법률 제1조의2에 의한 연결재무제표 작성대상 법인이 아닙니다.',
         '당사는 연결재무제표 작성법인이 아니므로 해당사항이 없습니다.',
         '해당사항 없습니다.',
         '해당사항이 없습니다.',
+        '*해당사항이 없습니다.',
         '당사는 사업보고서 제출일 현재 해당사항이 없습니다.',
         '공시서류작성기준일 현재 해당사항이 없습니다.',
         '해당사항 없음.',
@@ -460,10 +594,74 @@ class PublicFinancialHtmlFetcher {
         '당사는 본 보고서 작성기준일 현재 해당사항 없습니다.',
         '당사는 보고서 작성기준일 현재 해당사항이 없습니다.',
         '- 보고서 작성 기준일 현재 해당사항 없습니다.',
+        '당사는 보고서 작성기준일 현재 해당사항 없습니다.',
+        '-. 사업보고서 작성기준일 현재 해당사항 없습니다.',
+        '당사는 사업보고서 작성 기준일 현재 해당사항 없습니다.',
+        '당사는 사업보고서 작성 기준일 현재 해당사항이 없습니다.',
+        '당사는 연결재무제표 대상 법인이 아닙니다.',
+        '당사는 작성기준일 현재 해당 사항이 없습니다.',
+        '※ 해당사항 없음.',
+        '당사는 본 보고서 제출일 현재 해당사항 없습니다.',
+        '- 연결재무제표 작성대상이 아닙니다.',
+        '해당사항 없습니다',
+        '"해당사항 없음"',
+        '당사는 보고서 제출일 현재 해당사항이 없습니다.',
+        '"해당사항 없습니다"',
+        '보고서 작성기준일 현재 해당사항이 없습니다.',
         '- 해당사항 없습니다.',
         '- 해당사항이 없습니다.',
         '- 당사는 사업보고서 작성기준일 현재 해당사항 없습니다.',
       ];
+      final exactTableNone = InnovexExactBasisAbsence.matches(
+        receipt: sourceReceipt,
+        corp: corpCode,
+        start: periodStart,
+        end: periodEnd,
+        coverSource: coverSource,
+        cover: coverHtml,
+        statementSource: statementSource,
+        body: statementHtml,
+      );
+      final ownParagraphNone = OwnParagraphCfsAbsence.evidence(
+        receipt: sourceReceipt,
+        corp: corpCode,
+        start: periodStart,
+        end: periodEnd,
+        coverSource: coverSource,
+        cover: coverHtml,
+        statementSource: statementSource,
+        body: statementHtml,
+      );
+      final exactPureunNone = PureunExactBasisAbsence.matches(
+        receipt: sourceReceipt,
+        corp: corpCode,
+        shellSource: originalSource,
+        shell: shell,
+        start: periodStart,
+        end: periodEnd,
+        coverSource: coverSource,
+        cover: coverHtml,
+        statementSource: statementSource,
+        body: statementHtml,
+      );
+      if (exactTableNone || exactPureunNone || ownParagraphNone != null) {
+        throw PublicFinancialHtmlBasisNotApplicable(
+          sourceReceipt: sourceReceipt,
+          corpCode: corpCode,
+          companyName: companyName,
+          reportName: reportName,
+          periodStart: periodStart,
+          periodEnd: periodEnd,
+          coverSource: coverSource,
+          statementSource: statementSource,
+          coverHtml: coverHtml,
+          statementHtml: statementHtml,
+          evidence:
+              ownParagraphNone ??
+              (exactPureunNone ? PureunExactBasisAbsence.evidence : '해당사항없음'),
+          issuerProof: issuerProof,
+        );
+      }
       final body = RegExp(
         r'<body\b[^>]*>(.*?)</body>',
         caseSensitive: false,
@@ -518,7 +716,9 @@ class PublicFinancialHtmlFetcher {
         : PublicFinancialHtml.parse;
     final rows = exactAnnual
         ? PublicFinancialHtml.parseStandardAnnual(
+            allowSourceVerifiedPartialCore: allowSourceVerifiedPartialCore,
             issuerProof: issuerProof,
+            primaryIssuerProof: primaryIssuerProof,
             coverHtml: coverHtml,
             statementHtml: statementHtml,
             coverSource: coverSource,
@@ -542,10 +742,38 @@ class PublicFinancialHtmlFetcher {
             periodEnd: periodEnd,
             consolidated: consolidated,
           );
+    final witnessUri = exactAnnual
+        ? LinkedCorrectionAuditSource.witnessUri(correctionReceipt)
+        : null;
+    if (witnessUri != null) {
+      final witness = await get(witnessUri, referer: correctionSource);
+      final proof = BonLinkedAuditCurrentProof.verify(
+        targetReceipt: correctionReceipt,
+        sourceReceipt: sourceReceipt,
+        corpCode: corpCode,
+        consolidated: consolidated,
+        start: periodStart,
+        end: periodEnd,
+        source: statementSource,
+        sourceBody: statementHtml,
+        targetSource: witnessUri,
+        targetBody: witness,
+        rows: rows,
+      );
+      for (final row in rows) {
+        (row['html_provenance']
+                as Map<String, dynamic>)['linkedTargetWholeCoreComparison'] =
+            proof;
+      }
+    }
     return PublicFinancialHtmlSource(
       sourceReceipt: sourceReceipt,
-      correctionReceipt: halfYear || exactAnnual ? null : correctionReceipt,
-      correctionSource: halfYear || exactAnnual ? null : correctionSource,
+      correctionReceipt: sourceReceipt != correctionReceipt
+          ? correctionReceipt
+          : (halfYear || exactAnnual ? null : correctionReceipt),
+      correctionSource: sourceReceipt != correctionReceipt
+          ? correctionSource
+          : (halfYear || exactAnnual ? null : correctionSource),
       coverHtml: coverHtml,
       coverSource: coverSource,
       statementHtml: statementHtml,
@@ -554,6 +782,7 @@ class PublicFinancialHtmlFetcher {
       periodEnd: periodEnd,
       rows: rows,
       issuerProof: issuerProof,
+      primaryIssuerProof: primaryIssuerProof,
     );
   }
 }

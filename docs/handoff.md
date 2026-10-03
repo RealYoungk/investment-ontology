@@ -872,6 +872,7 @@ XBRL이 없는 명시 첨부정정은 공식 양쪽 viewer의 기업코드와 �
 `codex/watchlist-notifications` (main 기반 분리 워크트리)에 개인 관심종목, 무료 3개/유료 20개, 공시 알림함과 Web Push를 구현했다. 자세한 동작·설정·미포함 항목은 `docs/watchlist-notifications-plan.md` 참조. 뉴스는 동명 일반명사 회귀 필터를 강화했고 뉴스 푸시는 보류했다. 운영 자동 수집은 DART 키와 futureCall 실행, 기기 알림은 VAPID 키 및 사용자 권한이 필요하다. 기존 작업 브랜치를 전환하거나 stash하지 않았다.
 
 로컬 검증에서 CLI 4.0.3이 `serverpod_test` 4.0.0에 없는 `ephemeralDatabase` 인자를 생성했다. 프로젝트와 같은 4.0.0 CLI를 사용해 생성/실행하면 해결된다. 생성 파일을 손으로 수정하지 않는다. 원래 전역 CLI는 변경하지 않았다.
+
 ### 2026-10-02 AdSense 거절 사유 대응
 
 실제 이메일·Sites 화면에서 alfinder.kr은 `주의 필요 / 게시자 콘텐츠가 없는 화면에 Google 게재 광고`(12:11 KST). 초기 로딩 HTML/기본 접근성 DOM에 읽을 본문이 부족한 상태와 데이터 상태에 무관한 광고 lead를 확인했다. 공개 HTML 리서치 안내·자료, Flutter 공식 웹 접근성 기본 활성화, 정상 본문 때만 광고 lead 마운트, robots/sitemap을 준비했다. Google 판단의 유일한 원인이라고 단정하지 않는다. 실광고·실결제 OFF 유지. 전체 검증·운영 배포·재심사 제출의 완료 여부와 증거는 `adsense-review-remediation-2026-10-02.md` 최신 항목을 따른다.
@@ -885,4 +886,22 @@ XBRL이 없는 명시 첨부정정은 공식 양쪽 viewer의 기업코드와 �
 공식 영상 전체 한국어 자막과 최신 사이트 연결/정책 문서를 대조했다. 루트 안내 글 강제 진입은 공식 요구가 아니므로 기존 앱 홈 진입으로 복원; /start는 선택적 리서치 링크로 유지. no-JS/로딩 지연 접근 경로 보완, ads.txt·메타·공식 loader 게시자 ID 유지. 실제 광고/PG 활성화와 개인/관리 인증은 변경하지 않는다. 최종 검증·배포 증거는 outputs/monetization-preapproval-01a0f73f/video-compliance/에 기록한다.
 
 ## 2026-10-03 shad 및 홈 릴리스
-shad 0.99.4 기반 UI 전환, 실제 홈 시장/관심기업/공시/종목 발굴, Lucide 홈·셸 아이콘, 검색 로딩·입력 크기 보정을 릴리스 체크아웃에 분리했다. 거시지표 공개 읽기 API만 서버에 추가하며 결제 가격/결제사·정관·채권·네트워크 변경은 제외했다. 운영 배포 상태는 docs/design-system/shad/release-2026-10-03.md에서 확인한다. 통합검색 기록 수집은 설계만 있고 활성화하지 않았다.
+shad 0.99.4 기반 UI 전환, 실제 홈 시장/관심기업/공시/종목 발굴, Lucide 홈·셸 아이콘, 검색 로딩·입력 크기 보정을 릴리스 체크아웃에 분리했다. 최신 main의 거시지표·결제·정관·채권·네트워크 기능을 보존해 UI를 연결했다. 이번 배포에서 서버는 교체하지 않는다. 운영 배포 상태는 docs/design-system/shad/release-2026-10-03.md에서 확인한다. 통합검색 기록 수집은 설계만 있고 활성화하지 않았다.
+## 2026-10-02 서비스 소개 영상 준비 상태
+
+`/about`의 2.4MB MP4는 전체 blob 다운로드 후 video.src를 연결한다. 저속 운영 브라우저에서 readyState=0/src 없음과 영상 영역의 초기 흰 배경을 확인했다. 포스터가 도착하면 다운로드 중에도 이미지가 표시되므로 페이지 전체의 흰 화면이나 영상 크기만을 유일한 원인으로 단정하지 않는다.
+
+영상 영역에 Flutter 포스터와 로딩 안내를 덮고, metadata만이 아니라 loadeddata/seeked/canplay에서 readyState >= HAVE_CURRENT_DATA 및 seeking 해제 후 공개한다. 30초 대기 또는 HTTP/미디어 오류에는 spinner를 멈추고 미리보기 안내를 유지한다. 늦게 준비되면 정상 영상으로 회복하며 화면 해제 시 fetch·타이머·리스너·blob URL을 정리한다. 소개 문구·탐색 버튼은 영상과 독립적으로 계속 사용할 수 있다. 전체 blob 방식은 스크롤로 임의 프레임을 탐색하는 기존 동작을 보존하기 위해 유지했다.
+
+격리 정적 빌드에서 영상 12초 지연→준비 완료, HTTP 503 미리보기 유지 및 관련 Flutter 20개 테스트 확인. 최종 검증/운영 증거는 기본 저장소 `outputs/about-video-readiness/`에 보존한다. 실제 광고/결제 설정, 서버·DB는 이 변경 범위에 포함하지 않는다.
+
+## Macro and read recovery release 2026-10-02
+Official FRED macro indicators, beginner definitions and read-only bounded retries; docs/macro-indicators.md and docs/request-recovery.md. No new DB migration.
+
+## 2026-10-02 조회 기업의 공시 우선 수집
+
+사용자 요청으로 research.data의 DART 네 항목은 미수집 때 원천을 조회해 출처와 함께 저장한다. 기존 저장값과 빈 성공 응답은 재사용한다. 동일 요청 공유·한 항목 동시 수집·실패5분·공유 장부19,900회 제한과 KST 자정 재시도를 적용했다. 수집 대기/실패/한도 소진/설정 미완료를 화면에 구분한다. 명시적 collect/import/batch의 관리자 검사는 유지한다. 전 기업 자동 research 배치 및 기존 스냅샷 자동 갱신은 별도 과제다. 구현·당일 운영 상태·검증은 docs/research-on-demand-2026-10-02.md. 배포 성공은 릴리스 기록 및 공개 API 증거로 확인한다.
+
+## 2026-10-03 운영 배포 경로 일치
+
+프런트엔드는 이미 Cloudflare Pages `alfinder-web`으로 이전되어 있으며, Vercel 조회 404를 서버/데이터 장애로 해석하지 않는다. `scripts/release.py`의 status/deploy/rollback을 Pages 경로로 맞췄다. 성공한 최신 main·봉인 산출물·동일 커밋 깨끗한 준비·미리보기 SHA4/API/401·운영 상태/백엔드 변경 차단·production 이전 기록·실제운영 재검증은 유지한다. Pages는 preview를 promote하지 않으므로 동일 패키지를 production에 재업로드하고, rollback은 이전 production만 허용한다. 구현 테스트와 실제 배포는 구분하며 이번 스크립트 변경 자체는 배포하지 않았다. [운영 절차](cloudflare-pages.md) 참조.

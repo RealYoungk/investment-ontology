@@ -1,0 +1,64 @@
+{
+  "id": 21867,
+  "name": "(주)티엘엔지니어링",
+  "market": "konex",
+  "stockCode": "413300",
+  "corpCode": "01583953",
+  "rceptNo": "20260323000750",
+  "reportName": "사업보고서 (2025.12)",
+  "actual_period": "2025.12",
+  "bsnsYear": 2025,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 2,
+  "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 2,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260323000750",
+      "sha256": "8cd6d3a00aa70990a9d32a7bfd84faa94e52fcafc48605212283b1784046ec68"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323000750&dcmNo=11163512&eleId=1&offset=966&length=5100&dtd=dart4.xsd",
+      "sha256": "db008343ac0eedaa029d65db0375a5fadbe6a3a588747160fb8aeb93781b0108"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323000750&dcmNo=11163512&eleId=19&offset=248117&length=212&dtd=dart4.xsd",
+      "sha256": "18feb67d13c0133dc57f6e61f53b6def7359f9298cf13930e806f531cc971e7e"
+    }
+  ],
+  "shellCorpIds": [
+    "01583953"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20260323000750",
+        "dcmNo": "11163512",
+        "eleId": "1",
+        "offset": "966",
+        "length": "5100",
+        "dtd": "dart4.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20260323000750",
+        "dcmNo": "11163512",
+        "eleId": "19",
+        "offset": "248117",
+        "length": "212",
+        "dtd": "dart4.xsd"
+      }
+    }
+  ]
+}

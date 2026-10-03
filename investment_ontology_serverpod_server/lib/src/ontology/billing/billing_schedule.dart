@@ -3,7 +3,7 @@ import 'package:serverpod/serverpod.dart';
 import 'package:serverpod/protocol.dart' as sp;
 
 import '../../generated/future_calls.dart';
-import 'billing_sandbox_config.dart';
+import 'billing_provider_config.dart';
 
 /// Only lib/server.dart imports this generated-dispatcher-dependent file.
 abstract final class BillingSchedule {

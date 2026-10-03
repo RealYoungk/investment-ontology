@@ -369,17 +369,21 @@ void main() {
     );
   });
   test(
-    'actual Pureun identity does not waive incomplete whole core',
-    () => expect(
-      () => actualIssuerRows('20230315000460'),
-      throwsA(
-        isA<FormatException>().having(
-          (e) => e.message,
-          'core guard',
-          'Annual primary core missing or balance mismatch',
+    'actual Pureun exact source yields partial six without aggregate revenue',
+    () {
+      final rows = actualIssuerRows('20230315000460');
+      expect(rows, hasLength(6));
+      expect(rows.map((r) => r['thstrm_amount']), contains('20081583946'));
+      expect(
+        rows.every(
+          (r) =>
+              r['html_provenance']['pureunSixCore']['missingRequiredAccounts']
+                  .single ==
+              'revenue',
         ),
-      ),
-    ),
+        isTrue,
+      );
+    },
   );
   test(
     'wrong issuer overview scope rejects',

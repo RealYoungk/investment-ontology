@@ -1,0 +1,643 @@
+{
+  "receipt": "20220317000713",
+  "corpCode": "00148993",
+  "year": 2021,
+  "basis": "consolidated",
+  "rawPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/rare-shape-source-corpus/20220317000713/cfs.html",
+  "rawSHA256": "5288be65cbc6388214c4f5150a2f29ae9b1833a28120afee8459da45cedca898",
+  "sourceURI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000713&dcmNo=8470948&eleId=19&offset=550686&length=76023&dtd=dart3.xsd",
+  "coverPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/rare-shape-source-corpus/20220317000713/cover.html",
+  "coverURI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000713&dcmNo=8470948&eleId=1&offset=797&length=4039&dtd=dart3.xsd",
+  "numericAccepted": false,
+  "fullStatementVerified": false,
+  "strictParsedCoreRowsNotIndependentApproval": [
+    {
+      "rcept_no": "20220317000713",
+      "corp_code": "00148993",
+      "bsns_year": "2021",
+      "reprt_code": "11011",
+      "account_id": null,
+      "account_nm": "자산총계",
+      "account_detail": "-",
+      "sj_div": "BS",
+      "thstrm_nm": "2021-12-31",
+      "thstrm_amount": "4236298193122",
+      "currency": "KRW",
+      "html_provenance": {
+        "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000713&dcmNo=8470948&eleId=19&offset=550686&length=76023&dtd=dart3.xsd",
+        "tableIndex": 1,
+        "printedLabel": "자산총계",
+        "signRule": "printed-numeric-sign",
+        "printedAmountBeforeSignRule": "4236298193122",
+        "printedCurrentCells": [
+          "4,236,298,193,122"
+        ],
+        "currentColumn": 2,
+        "currentColumnSpan": 1,
+        "currentHeader": "제 107(당) 기말",
+        "basis": "CFS",
+        "unit": "원",
+        "unitMultiplier": "1",
+        "printedAmount": "4236298193122",
+        "normalizedUnit": "원",
+        "periodStart": "2021-01-01",
+        "periodEnd": "2021-12-31"
+      }
+    },
+    {
+      "rcept_no": "20220317000713",
+      "corp_code": "00148993",
+      "bsns_year": "2021",
+      "reprt_code": "11011",
+      "account_id": null,
+      "account_nm": "부채총계",
+      "account_detail": "-",
+      "sj_div": "BS",
+      "thstrm_nm": "2021-12-31",
+      "thstrm_amount": "3148923131403",
+      "currency": "KRW",
+      "html_provenance": {
+        "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000713&dcmNo=8470948&eleId=19&offset=550686&length=76023&dtd=dart3.xsd",
+        "tableIndex": 1,
+        "printedLabel": "부채총계",
+        "signRule": "printed-numeric-sign",
+        "printedAmountBeforeSignRule": "3148923131403",
+        "printedCurrentCells": [
+          "3,148,923,131,403"
+        ],
+        "currentColumn": 2,
+        "currentColumnSpan": 1,
+        "currentHeader": "제 107(당) 기말",
+        "basis": "CFS",
+        "unit": "원",
+        "unitMultiplier": "1",
+        "printedAmount": "3148923131403",
+        "normalizedUnit": "원",
+        "periodStart": "2021-01-01",
+        "periodEnd": "2021-12-31"
+      }
+    },
+    {
+      "rcept_no": "20220317000713",
+      "corp_code": "00148993",
+      "bsns_year": "2021",
+      "reprt_code": "11011",
+      "account_id": null,
+      "account_nm": "자본총계",
+      "account_detail": "-",
+      "sj_div": "BS",
+      "thstrm_nm": "2021-12-31",
+      "thstrm_amount": "1087375061719",
+      "currency": "KRW",
+      "html_provenance": {
+        "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000713&dcmNo=8470948&eleId=19&offset=550686&length=76023&dtd=dart3.xsd",
+        "tableIndex": 1,
+        "printedLabel": "자본총계",
+        "signRule": "printed-numeric-sign",
+        "printedAmountBeforeSignRule": "1087375061719",
+        "printedCurrentCells": [
+          "1,087,375,061,719"
+        ],
+        "currentColumn": 2,
+        "currentColumnSpan": 1,
+        "currentHeader": "제 107(당) 기말",
+        "basis": "CFS",
+        "unit": "원",
+        "unitMultiplier": "1",
+        "printedAmount": "1087375061719",
+        "normalizedUnit": "원",
+        "periodStart": "2021-01-01",
+        "periodEnd": "2021-12-31"
+      }
+    },
+    {
+      "rcept_no": "20220317000713",
+      "corp_code": "00148993",
+      "bsns_year": "2021",
+      "reprt_code": "11011",
+      "account_id": null,
+      "account_nm": "매출액",
+      "account_detail": "-",
+      "sj_div": "CIS",
+      "thstrm_nm": "2021-01-01~2021-12-31",
+      "thstrm_amount": "2192007504681",
+      "currency": "KRW",
+      "html_provenance": {
+        "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000713&dcmNo=8470948&eleId=19&offset=550686&length=76023&dtd=dart3.xsd",
+        "tableIndex": 3,
+        "printedLabel": "매출액",
+        "signRule": "printed-numeric-sign",
+        "printedAmountBeforeSignRule": "2192007504681",
+        "printedCurrentCells": [
+          "2,192,007,504,681"
+        ],
+        "currentColumn": 2,
+        "currentColumnSpan": 1,
+        "currentHeader": "제 107(당) 기",
+        "basis": "CFS",
+        "unit": "원",
+        "unitMultiplier": "1",
+        "printedAmount": "2192007504681",
+        "normalizedUnit": "원",
+        "periodStart": "2021-01-01",
+        "periodEnd": "2021-12-31"
+      }
+    },
+    {
+      "rcept_no": "20220317000713",
+      "corp_code": "00148993",
+      "bsns_year": "2021",
+      "reprt_code": "11011",
+      "account_id": null,
+      "account_nm": "영업이익",
+      "account_detail": "-",
+      "sj_div": "CIS",
+      "thstrm_nm": "2021-01-01~2021-12-31",
+      "thstrm_amount": "188406599612",
+      "currency": "KRW",
+      "html_provenance": {
+        "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000713&dcmNo=8470948&eleId=19&offset=550686&length=76023&dtd=dart3.xsd",
+        "tableIndex": 3,
+        "printedLabel": "영업이익",
+        "signRule": "printed-numeric-sign",
+        "printedAmountBeforeSignRule": "188406599612",
+        "printedCurrentCells": [
+          "188,406,599,612"
+        ],
+        "currentColumn": 2,
+        "currentColumnSpan": 1,
+        "currentHeader": "제 107(당) 기",
+        "basis": "CFS",
+        "unit": "원",
+        "unitMultiplier": "1",
+        "printedAmount": "188406599612",
+        "normalizedUnit": "원",
+        "periodStart": "2021-01-01",
+        "periodEnd": "2021-12-31"
+      }
+    },
+    {
+      "rcept_no": "20220317000713",
+      "corp_code": "00148993",
+      "bsns_year": "2021",
+      "reprt_code": "11011",
+      "account_id": null,
+      "account_nm": "당기순이익",
+      "account_detail": "-",
+      "sj_div": "CIS",
+      "thstrm_nm": "2021-01-01~2021-12-31",
+      "thstrm_amount": "67355184309",
+      "currency": "KRW",
+      "html_provenance": {
+        "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000713&dcmNo=8470948&eleId=19&offset=550686&length=76023&dtd=dart3.xsd",
+        "tableIndex": 3,
+        "printedLabel": "당기순이익",
+        "signRule": "printed-numeric-sign",
+        "printedAmountBeforeSignRule": "67355184309",
+        "printedCurrentCells": [
+          "67,355,184,309"
+        ],
+        "currentColumn": 2,
+        "currentColumnSpan": 1,
+        "currentHeader": "제 107(당) 기",
+        "basis": "CFS",
+        "unit": "원",
+        "unitMultiplier": "1",
+        "printedAmount": "67355184309",
+        "normalizedUnit": "원",
+        "periodStart": "2021-01-01",
+        "periodEnd": "2021-12-31"
+      }
+    },
+    {
+      "rcept_no": "20220317000713",
+      "corp_code": "00148993",
+      "bsns_year": "2021",
+      "reprt_code": "11011",
+      "account_id": null,
+      "account_nm": "영업활동으로 인한 순현금흐름액",
+      "account_detail": "-",
+      "sj_div": "CF",
+      "thstrm_nm": "2021-01-01~2021-12-31",
+      "thstrm_amount": "608989211710",
+      "currency": "KRW",
+      "html_provenance": {
+        "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000713&dcmNo=8470948&eleId=19&offset=550686&length=76023&dtd=dart3.xsd",
+        "tableIndex": 7,
+        "printedLabel": "영업활동으로 인한 순현금흐름액",
+        "signRule": "printed-numeric-sign",
+        "printedAmountBeforeSignRule": "608989211710",
+        "printedCurrentCells": [
+          "608,989,211,710"
+        ],
+        "currentColumn": 1,
+        "currentColumnSpan": 1,
+        "currentHeader": "제 107(당) 기",
+        "basis": "CFS",
+        "unit": "원",
+        "unitMultiplier": "1",
+        "printedAmount": "608989211710",
+        "normalizedUnit": "원",
+        "periodStart": "2021-01-01",
+        "periodEnd": "2021-12-31"
+      }
+    },
+    {
+      "rcept_no": "20220317000713",
+      "corp_code": "00148993",
+      "bsns_year": "2021",
+      "reprt_code": "11011",
+      "account_id": null,
+      "account_nm": "유형자산의 취득",
+      "account_detail": "-",
+      "sj_div": "CF",
+      "thstrm_nm": "2021-01-01~2021-12-31",
+      "thstrm_amount": "-135128052057",
+      "currency": "KRW",
+      "html_provenance": {
+        "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000713&dcmNo=8470948&eleId=19&offset=550686&length=76023&dtd=dart3.xsd",
+        "tableIndex": 7,
+        "printedLabel": "유형자산의 취득",
+        "signRule": "printed-numeric-sign",
+        "printedAmountBeforeSignRule": "-135128052057",
+        "printedCurrentCells": [
+          "(135,128,052,057)"
+        ],
+        "currentColumn": 1,
+        "currentColumnSpan": 1,
+        "currentHeader": "제 107(당) 기",
+        "basis": "CFS",
+        "unit": "원",
+        "unitMultiplier": "1",
+        "printedAmount": "-135128052057",
+        "normalizedUnit": "원",
+        "periodStart": "2021-01-01",
+        "periodEnd": "2021-12-31"
+      }
+    }
+  ],
+  "independentChecks": {
+    "BSidentity": 0,
+    "wholeNI": 0,
+    "closingEquity": 0,
+    "openingEquity": 0,
+    "CECurrentRoll": 0,
+    "currentActivityAndFX": 0,
+    "currentCashRoll": 0,
+    "currentBSCash": 0,
+    "priorBSCash": 0,
+    "priorActivityAndFX": 0,
+    "priorCashRoll": 0
+  },
+  "CEWholeColumn": 9,
+  "CEChangeRows": [
+    113,
+    115,
+    116,
+    117,
+    118,
+    121,
+    123,
+    124
+  ],
+  "CEExcludedAggregateRows": [
+    119,
+    120
+  ],
+  "CESubtotalExplanation": "Rows119OCIsubtotal and120totalcomprehensive repeat rows113+115..118 and are excluded, no dash zero converted.",
+  "candidateConclusion": "direct8 current annual CFS positive after independently checked BS/wholeCE/CF/current+prior cash; source identity chain still needs exact own shell+cover attachment audit before registration",
+  "originalRows": [
+    {
+      "rowIndex": 0,
+      "row": [
+        "제 107 (당) 기 2021년 12월 31일 현재"
+      ]
+    },
+    {
+      "rowIndex": 6,
+      "row": [
+        "현금및현금성자산",
+        "6",
+        "476,020,981,941",
+        "266,139,295,663"
+      ]
+    },
+    {
+      "rowIndex": 26,
+      "row": [
+        "자산총계",
+        "",
+        "4,236,298,193,122",
+        "3,904,980,586,600"
+      ]
+    },
+    {
+      "rowIndex": 46,
+      "row": [
+        "부채총계",
+        "",
+        "3,148,923,131,403",
+        "2,844,595,889,181"
+      ]
+    },
+    {
+      "rowIndex": 56,
+      "row": [
+        "자본총계",
+        "",
+        "1,087,375,061,719",
+        "1,060,384,697,419"
+      ]
+    },
+    {
+      "rowIndex": 58,
+      "row": [
+        "제 107(당) 기 2021년 1월 1일부터 2021년 12월 31일까지"
+      ]
+    },
+    {
+      "rowIndex": 74,
+      "row": [
+        "당기순이익",
+        "",
+        "67,355,184,309",
+        "107,691,606,832"
+      ]
+    },
+    {
+      "rowIndex": 93,
+      "row": [
+        "제 107(당) 기 2021년 1월 1일부터 2021년 12월 31일까지"
+      ]
+    },
+    {
+      "rowIndex": 112,
+      "row": [
+        "2021년 1월 1일(당기초)",
+        "118,387,875,000",
+        "562,711,817,869",
+        "(101,398,096,590)",
+        "(672,445,769,666)",
+        "394,633,000,000",
+        "191,001,283,672",
+        "492,890,110,285",
+        "567,494,587,134",
+        "1,060,384,697,419"
+      ]
+    },
+    {
+      "rowIndex": 113,
+      "row": [
+        "당기 순이익",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "32,620,793,186",
+        "32,620,793,186",
+        "34,734,391,123",
+        "67,355,184,309"
+      ]
+    },
+    {
+      "rowIndex": 115,
+      "row": [
+        "해외사업장 환산외환차이",
+        "-",
+        "-",
+        "-",
+        "109,074,738",
+        "-",
+        "-",
+        "109,074,738",
+        "124,715,715",
+        "233,790,453"
+      ]
+    },
+    {
+      "rowIndex": 116,
+      "row": [
+        "지분법자 본 변동",
+        "-",
+        "-",
+        "-",
+        "(15,046,164)",
+        "-",
+        "-",
+        "(15,046,164)",
+        "(2,033,865)",
+        "(17,080,029)"
+      ]
+    },
+    {
+      "rowIndex": 117,
+      "row": [
+        "기타포괄손익-공정가치 측정금융자산평가손익",
+        "-",
+        "-",
+        "-",
+        "(4,498,840)",
+        "-",
+        "-",
+        "(4,498,840)",
+        "-",
+        "(4,498,840)"
+      ]
+    },
+    {
+      "rowIndex": 118,
+      "row": [
+        "순확정급여부채의 재측정요소",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "652,015,994",
+        "652,015,994",
+        "914,712,922",
+        "1,566,728,916"
+      ]
+    },
+    {
+      "rowIndex": 121,
+      "row": [
+        "배당금의 지급",
+        "-",
+        "-",
+        "-",
+        "-",
+        "-",
+        "(8,409,583,900)",
+        "(8,409,583,900)",
+        "(25,330,994,850)",
+        "(33,740,578,750)"
+      ]
+    },
+    {
+      "rowIndex": 123,
+      "row": [
+        "자기주식의 변동",
+        "-",
+        "(577,771,749)",
+        "1,135,607,216",
+        "(589,640,979)",
+        "-",
+        "-",
+        "(31,805,512)",
+        "-",
+        "(31,805,512)"
+      ]
+    },
+    {
+      "rowIndex": 124,
+      "row": [
+        "자기주식의 취득",
+        "-",
+        "-",
+        "(3,839,692,504)",
+        "-",
+        "-",
+        "-",
+        "(3,839,692,504)",
+        "(4,531,683,743)",
+        "(8,371,376,247)"
+      ]
+    },
+    {
+      "rowIndex": 119,
+      "row": [
+        "소계",
+        "-",
+        "-",
+        "-",
+        "89,529,734",
+        "-",
+        "652,015,994",
+        "741,545,728",
+        "1,037,394,772",
+        "1,778,940,500"
+      ]
+    },
+    {
+      "rowIndex": 120,
+      "row": [
+        "총포괄손익",
+        "-",
+        "-",
+        "-",
+        "89,529,734",
+        "-",
+        "33,272,809,180",
+        "33,362,338,914",
+        "35,771,785,895",
+        "69,134,124,809"
+      ]
+    },
+    {
+      "rowIndex": 126,
+      "row": [
+        "2021년 12월 31일(당기말)",
+        "118,387,875,000",
+        "562,134,046,120",
+        "(104,102,181,878)",
+        "(672,540,704,734)",
+        "398,509,000,000",
+        "211,583,332,775",
+        "513,971,367,283",
+        "573,403,694,436",
+        "1,087,375,061,719"
+      ]
+    },
+    {
+      "rowIndex": 127,
+      "row": [
+        "제 107(당) 기 2021년 1월 1일부터 2021년 12월 31일까지"
+      ]
+    },
+    {
+      "rowIndex": 190,
+      "row": [
+        "영업활동으로 인한 순현금흐름액",
+        "608,989,211,710",
+        "365,645,952,376"
+      ]
+    },
+    {
+      "rowIndex": 211,
+      "row": [
+        "투자활동으로 인한 순현금흐름액",
+        "(299,328,833,821)",
+        "(157,256,537,978)"
+      ]
+    },
+    {
+      "rowIndex": 222,
+      "row": [
+        "재무활동으로 인한 순현금흐름액",
+        "(100,631,934,637)",
+        "(104,395,829,660)"
+      ]
+    },
+    {
+      "rowIndex": 223,
+      "row": [
+        "IV.외화표시 현금및현금성자산의 환율변동효과",
+        "853,243,026",
+        "(4,894,842,306)"
+      ]
+    },
+    {
+      "rowIndex": 224,
+      "row": [
+        "V.현금및현금성자산의 증가",
+        "209,881,686,278",
+        "99,098,742,432"
+      ]
+    },
+    {
+      "rowIndex": 225,
+      "row": [
+        "VI.기초의 현금및현금성자산",
+        "266,139,295,663",
+        "167,040,553,231"
+      ]
+    },
+    {
+      "rowIndex": 226,
+      "row": [
+        "VII.기말의 현금및현금성자산",
+        "476,020,981,941",
+        "266,139,295,663"
+      ]
+    }
+  ],
+  "ownShellCorpCodes": [
+    "00148993"
+  ],
+  "uniqueCfsNode": {
+    "rcpNo": "20220317000713",
+    "dcmNo": "8470948",
+    "eleId": "19",
+    "offset": "550686",
+    "length": "76023",
+    "dtd": "dart3.xsd"
+  },
+  "shellSHA256": "b9bae37ee0db73f12aba6c3733afad4b4a0685560c7a549adf6ff3d78b87db5c",
+  "sources": [
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000713&dcmNo=8470948&eleId=1&offset=797&length=4039&dtd=dart3.xsd",
+      "sha256": "7eaa23143bc4b32d78ca82c8bb5da52d4b1d44624ec392272a1d34a1c1b41ce0"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317000713&dcmNo=8470948&eleId=19&offset=550686&length=76023&dtd=dart3.xsd",
+      "sha256": "5288be65cbc6388214c4f5150a2f29ae9b1833a28120afee8459da45cedca898"
+    }
+  ],
+  "coverPrintedText": "사 업 보 고 서 (제 107 기) 사업연도 2021년 01월 01일 부터 2021년 12월 31일 까지 금융위원회 한국거래소 귀중 2022년 3월 17일 제출대상법인 유형 : 주권상장법인 면제사유발생 : 해당사항 없음 회 사 명 : 하이트진로홀딩스 주식회사 대 표 이 사 : 김 인 규 본 점 소 재 지 : 서울시 강남구 영동대로 714(청담동) (전 화) 02-520-3113 (홈페이지) http://hitejinroholdings.com 작 성 책 임 자 : (직 책) 팀장 (성 명) 조 영 익 (전 화) 02-520-3113",
+  "statementIssuerAndPeriodPrefix": "2. 연결재무제표 연 결 재 무 상 태 표 제 107 (당) 기 2021년 12월 31일 현재 제 106 (전) 기 2020년 12월 31일 현재 하이트진로홀딩스 주식회사와 그 종속기업 (단위 : 원) 과 목 주석 제 107(당) 기말 제 106(전) 기말 자산 유동자산 현금및현금성자산 6 476,020,981,941 266,139,295,663 매출채권및기타채권(유동) 7, 34, 35 347,943,325,424 346,357,006,785 당기법인세자산 442,870,948 584,491,702 기타금융자산(유동) 8, 34 230,768,848,052 50,752,170,643 재고자산 10 190,633,236,468 189,394,047,724 기타유동자산 9 73,010,591,652 64,621,931,595 유동자산합계 1,318,819,854,485 917,848,944,112 비유동자산 매출채권및기타채권(비유동) 7 10,285,828,370 13,125,164,600 기타포괄손익-공정가치측정금융자산 11 3,289,164,877 3,420,744,085 당기손익-공정가치측정금융자산 12 14,500,078,404 14,506,503,156 관계기업및공동기업투자 13, 34, 35 8,483,916,724 12,216,907,219 기타금융자산(비유동) 8, 34 25,124,424,240 32,117,438,53",
+  "sourcePositiveScope": "Exact direct8/annual/wholeCE/cash/own source chain; no all-row verification"
+}

@@ -1,0 +1,83 @@
+[
+  {
+    "receipt": "20250324000541",
+    "corpCode": "01109690",
+    "name": "도부(주)",
+    "reportName": "사업보고서 (2024.12)",
+    "basis": "ofs",
+    "sources": [
+      {
+        "label": "cover",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250324000541&dcmNo=10453838&eleId=1&offset=955&length=4572&dtd=dart4.xsd",
+        "sha256": "d1ce204fe71edcbaf822117d9d2d52b103d9559004ac9c2d2385d0b54f379b82",
+        "actualSha256": "d1ce204fe71edcbaf822117d9d2d52b103d9559004ac9c2d2385d0b54f379b82",
+        "matchesAcquisitionLedger": true,
+        "file": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/core50-source-corpus/20250324000541/cover.html"
+      },
+      {
+        "label": "ofs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250324000541&dcmNo=10453838&eleId=21&offset=542179&length=62162&dtd=dart4.xsd",
+        "sha256": "7e8d331b085aa3df62ded276a617b80d456085d77c0ab32c6df3da653de67e6a",
+        "actualSha256": "7e8d331b085aa3df62ded276a617b80d456085d77c0ab32c6df3da653de67e6a",
+        "matchesAcquisitionLedger": true,
+        "file": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/core50-source-corpus/20250324000541/ofs.html"
+      }
+    ],
+    "defaultParser": "accepted8",
+    "defaultMockFetcher": "accepted8",
+    "DBStoreRun": false
+  },
+  {
+    "receipt": "20220322000964",
+    "corpCode": "01185867",
+    "name": "퓨쳐메디신 주식회사",
+    "reportName": "사업보고서 (2021.12)",
+    "basis": "cfs",
+    "sources": [
+      {
+        "label": "cover",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000964&dcmNo=8492716&eleId=1&offset=794&length=4087&dtd=dart3.xsd",
+        "sha256": "e2c871b9d537eb40220ce7df44a37b06234cff699cee77f23013dd2a81d0c7f6",
+        "actualSha256": "e2c871b9d537eb40220ce7df44a37b06234cff699cee77f23013dd2a81d0c7f6",
+        "matchesAcquisitionLedger": true,
+        "file": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/core50-source-corpus/20220322000964/cover.html"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000964&dcmNo=8492716&eleId=19&offset=213973&length=47229&dtd=dart3.xsd",
+        "sha256": "8add3792568e83399c5ca5f41a10efbcd840ecd1b0f51252a4421b7feaa48d87",
+        "actualSha256": "8add3792568e83399c5ca5f41a10efbcd840ecd1b0f51252a4421b7feaa48d87",
+        "matchesAcquisitionLedger": true,
+        "file": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/core50-source-corpus/20220322000964/cfs.html"
+      }
+    ],
+    "defaultParser": "accepted8",
+    "defaultMockFetcher": "accepted8",
+    "DBStoreRun": false
+  },
+  {
+    "receipt": "20240320001438",
+    "corpCode": "00963000",
+    "name": "(주)썬테크",
+    "reportName": "사업보고서 (2023.12)",
+    "basis": "cfs",
+    "sources": [
+      {
+        "label": "cover",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240320001438&dcmNo=9740410&eleId=1&offset=954&length=4592&dtd=dart4.xsd",
+        "sha256": "779a3a6cff8c09e3ed3660cd48e812803e0ecc623fc20736c8c4887e30734363",
+        "file": "test/fixtures/financial_html/known-conflicts/20240320001438/cover.html",
+        "actualSha256": "779a3a6cff8c09e3ed3660cd48e812803e0ecc623fc20736c8c4887e30734363",
+        "matchesAcquisitionLedger": true
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240320001438&dcmNo=9740410&eleId=19&offset=329275&length=109490&dtd=dart4.xsd",
+        "sha256": "8a55352ab6ab28b50e276f0e70fee937a739cedf33ddbac8fbd9d09844503a65",
+        "file": "test/fixtures/financial_html/known-conflicts/20240320001438/cfs.html",
+        "actualSha256": "8a55352ab6ab28b50e276f0e70fee937a739cedf33ddbac8fbd9d09844503a65",
+        "matchesAcquisitionLedger": true
+      }
+    ]
+  }
+]

@@ -1,0 +1,54 @@
+{
+  "targetReceipt": "20220322000265",
+  "originalReceipt": "20220321001430",
+  "numericSourceReceipt": "20220321001430",
+  "corpCode": "01396931",
+  "companyName": "주식회사 유엑스엔",
+  "basis": "ofs",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "kind": "annual",
+  "ruleVersion": "header18-linked-direct-whole-v1",
+  "sources": [
+    {
+      "label": "targetShell",
+      "file": "targetShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220322000265",
+      "sha256": "bceafcf885dd58bae900c9f0951f0d2078060cc8cdf2b1453db079a5ecbafa23"
+    },
+    {
+      "label": "originalShell",
+      "file": "originalShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220321001430",
+      "sha256": "e42046b41b98cd1c248c875df490612324dc4ed84666058822376f38012a139e"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220321001430&dcmNo=8487172&eleId=1&offset=798&length=4030&dtd=dart3.xsd",
+      "sha256": "fd7f9d5313aef4901e73b1aac51852792fc9d92535de264f6ce507098de962fd"
+    },
+    {
+      "label": "primary",
+      "file": "primary.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220321001430&dcmNo=8487172&eleId=21&offset=365321&length=81375&dtd=dart3.xsd",
+      "sha256": "bb929531276cbd27fc0a4e408f6c2d873e26c5ced3810fe3134dcad99291e9b9"
+    },
+    {
+      "label": "auditShell",
+      "file": "auditShell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220321001430&dcmNo=8487171",
+      "sha256": "7d83be310f1ab62e87b217fd919a1153dd0b158dc553974150afe3e7437504bb"
+    },
+    {
+      "label": "audit",
+      "file": "audit.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220321001430&dcmNo=8487171&eleId=3&offset=10707&length=280333&dtd=dart3.xsd",
+      "sha256": "6ba91ca87535d582a4df4f698367348055168bf28d400c5cd35c86b48ff57260"
+    }
+  ],
+  "sourceRole": "same_receipt_audit",
+  "scopeNote": "Candidate assets only; not active registry or operational completion",
+  "expectedRowsSha256": "4ee48344d171048fcdf45d9fd37872083652a662fe5f13133beda89354266e6c"
+}

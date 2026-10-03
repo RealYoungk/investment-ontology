@@ -1,0 +1,1928 @@
+[
+  {
+    "corpCode": "01801026",
+    "documentType": "auditReport",
+    "actualProviderReceipt": "20260403003880",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260403003880&dcmNo=11254972&eleId=3&offset=11792&length=288790&dtd=dart4.xsd",
+    "sourceSha256": "c82556c94d8a1348eb89a0949dfe1742547e6b6c1a7d5eb46755a1a7952ccfb4",
+    "sourcePeriodStart": "2025-01-01",
+    "sourcePeriodEnd": "2025-12-31",
+    "observationRole": "ownAuditedAnnualCurrent",
+    "basis": "OFS",
+    "metric": "assets",
+    "sourceAccountLabel": "자산총계",
+    "printedAmount": "63,989,067,834",
+    "decimalIntegerFromPrintedCell": "63989067834",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "stockAtPeriodEnd",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 6,
+      "rowOrdinalZeroBased": 16,
+      "cellOrdinalZeroBased": 2,
+      "header": [
+        "과 목",
+        "주석",
+        "제11(당) 기말",
+        "제10(전) 기말"
+      ],
+      "row": [
+        "자산총계",
+        "",
+        "63,989,067,834",
+        "44,148,389,402"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "auditReport",
+    "actualProviderReceipt": "20260403003880",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260403003880&dcmNo=11254972&eleId=3&offset=11792&length=288790&dtd=dart4.xsd",
+    "sourceSha256": "c82556c94d8a1348eb89a0949dfe1742547e6b6c1a7d5eb46755a1a7952ccfb4",
+    "sourcePeriodStart": "2025-01-01",
+    "sourcePeriodEnd": "2025-12-31",
+    "observationRole": "ownAuditedAnnualCurrent",
+    "basis": "OFS",
+    "metric": "liabilities",
+    "sourceAccountLabel": "부채총계",
+    "printedAmount": "29,254,213,419",
+    "decimalIntegerFromPrintedCell": "29254213419",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "stockAtPeriodEnd",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 6,
+      "rowOrdinalZeroBased": 30,
+      "cellOrdinalZeroBased": 2,
+      "header": [
+        "과 목",
+        "주석",
+        "제11(당) 기말",
+        "제10(전) 기말"
+      ],
+      "row": [
+        "부채총계",
+        "",
+        "29,254,213,419",
+        "33,192,034,675"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "auditReport",
+    "actualProviderReceipt": "20260403003880",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260403003880&dcmNo=11254972&eleId=3&offset=11792&length=288790&dtd=dart4.xsd",
+    "sourceSha256": "c82556c94d8a1348eb89a0949dfe1742547e6b6c1a7d5eb46755a1a7952ccfb4",
+    "sourcePeriodStart": "2025-01-01",
+    "sourcePeriodEnd": "2025-12-31",
+    "observationRole": "ownAuditedAnnualCurrent",
+    "basis": "OFS",
+    "metric": "equity",
+    "sourceAccountLabel": "자본총계",
+    "printedAmount": "34,734,854,415",
+    "decimalIntegerFromPrintedCell": "34734854415",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "stockAtPeriodEnd",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 6,
+      "rowOrdinalZeroBased": 35,
+      "cellOrdinalZeroBased": 2,
+      "header": [
+        "과 목",
+        "주석",
+        "제11(당) 기말",
+        "제10(전) 기말"
+      ],
+      "row": [
+        "자본총계",
+        "",
+        "34,734,854,415",
+        "10,956,354,727"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "auditReport",
+    "actualProviderReceipt": "20260403003880",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260403003880&dcmNo=11254972&eleId=3&offset=11792&length=288790&dtd=dart4.xsd",
+    "sourceSha256": "c82556c94d8a1348eb89a0949dfe1742547e6b6c1a7d5eb46755a1a7952ccfb4",
+    "sourcePeriodStart": "2025-01-01",
+    "sourcePeriodEnd": "2025-12-31",
+    "observationRole": "ownAuditedAnnualCurrent",
+    "basis": "OFS",
+    "metric": "revenue",
+    "sourceAccountLabel": "I. 매출",
+    "printedAmount": "23,759,233,406",
+    "decimalIntegerFromPrintedCell": "23759233406",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "cumulativeWholeReportedPeriod",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 9,
+      "rowOrdinalZeroBased": 1,
+      "cellOrdinalZeroBased": 2,
+      "header": [
+        "과 목",
+        "주석",
+        "제 11(당) 기",
+        "제 10(전) 기"
+      ],
+      "row": [
+        "I. 매출",
+        "7,24",
+        "23,759,233,406",
+        "18,732,130,090"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "auditReport",
+    "actualProviderReceipt": "20260403003880",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260403003880&dcmNo=11254972&eleId=3&offset=11792&length=288790&dtd=dart4.xsd",
+    "sourceSha256": "c82556c94d8a1348eb89a0949dfe1742547e6b6c1a7d5eb46755a1a7952ccfb4",
+    "sourcePeriodStart": "2025-01-01",
+    "sourcePeriodEnd": "2025-12-31",
+    "observationRole": "ownAuditedAnnualCurrent",
+    "basis": "OFS",
+    "metric": "operatingProfit",
+    "sourceAccountLabel": "V. 영업이익(손실)",
+    "printedAmount": "2,430,332,220",
+    "decimalIntegerFromPrintedCell": "2430332220",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "cumulativeWholeReportedPeriod",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 9,
+      "rowOrdinalZeroBased": 5,
+      "cellOrdinalZeroBased": 2,
+      "header": [
+        "과 목",
+        "주석",
+        "제 11(당) 기",
+        "제 10(전) 기"
+      ],
+      "row": [
+        "V. 영업이익(손실)",
+        "7",
+        "2,430,332,220",
+        "(1,445,577,545)"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "auditReport",
+    "actualProviderReceipt": "20260403003880",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260403003880&dcmNo=11254972&eleId=3&offset=11792&length=288790&dtd=dart4.xsd",
+    "sourceSha256": "c82556c94d8a1348eb89a0949dfe1742547e6b6c1a7d5eb46755a1a7952ccfb4",
+    "sourcePeriodStart": "2025-01-01",
+    "sourcePeriodEnd": "2025-12-31",
+    "observationRole": "ownAuditedAnnualCurrent",
+    "basis": "OFS",
+    "metric": "netProfit",
+    "sourceAccountLabel": "XII. 당기순이익(손실)",
+    "printedAmount": "1,743,923,790",
+    "decimalIntegerFromPrintedCell": "1743923790",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "cumulativeWholeReportedPeriod",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 9,
+      "rowOrdinalZeroBased": 12,
+      "cellOrdinalZeroBased": 2,
+      "header": [
+        "과 목",
+        "주석",
+        "제 11(당) 기",
+        "제 10(전) 기"
+      ],
+      "row": [
+        "XII. 당기순이익(손실)",
+        "",
+        "1,743,923,790",
+        "(3,351,437,938)"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "auditReport",
+    "actualProviderReceipt": "20260403003880",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260403003880&dcmNo=11254972&eleId=3&offset=11792&length=288790&dtd=dart4.xsd",
+    "sourceSha256": "c82556c94d8a1348eb89a0949dfe1742547e6b6c1a7d5eb46755a1a7952ccfb4",
+    "sourcePeriodStart": "2025-01-01",
+    "sourcePeriodEnd": "2025-12-31",
+    "observationRole": "ownAuditedAnnualCurrent",
+    "basis": "OFS",
+    "metric": "operatingCashFlow",
+    "sourceAccountLabel": "Ⅰ. 영업활동으로 인한 현금흐름",
+    "printedAmount": "(4,870,641,299)",
+    "decimalIntegerFromPrintedCell": "-4870641299",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "cumulativeWholeReportedPeriod",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 15,
+      "rowOrdinalZeroBased": 1,
+      "cellOrdinalZeroBased": 2,
+      "header": [
+        "과 목",
+        "주석",
+        "제 11(당) 기",
+        "제 10(전) 기"
+      ],
+      "row": [
+        "Ⅰ. 영업활동으로 인한 현금흐름",
+        "",
+        "(4,870,641,299)",
+        "(1,336,842,981)"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "auditReport",
+    "actualProviderReceipt": "20260403003880",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260403003880&dcmNo=11254972&eleId=3&offset=11792&length=288790&dtd=dart4.xsd",
+    "sourceSha256": "c82556c94d8a1348eb89a0949dfe1742547e6b6c1a7d5eb46755a1a7952ccfb4",
+    "sourcePeriodStart": "2025-01-01",
+    "sourcePeriodEnd": "2025-12-31",
+    "observationRole": "ownAuditedAnnualCurrent",
+    "basis": "OFS",
+    "metric": "propertyPlantEquipmentAcquisitions",
+    "sourceAccountLabel": "유형자산의 취득",
+    "printedAmount": "3,130,335,705",
+    "decimalIntegerFromPrintedCell": "3130335705",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "cumulativeWholeReportedPeriod",
+    "cashDirection": "outflow",
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 15,
+      "rowOrdinalZeroBased": 20,
+      "cellOrdinalZeroBased": 2,
+      "header": [
+        "과 목",
+        "주석",
+        "제 11(당) 기",
+        "제 10(전) 기"
+      ],
+      "row": [
+        "유형자산의 취득",
+        "",
+        "3,130,335,705",
+        "31,946,882,515"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "auditReport",
+    "actualProviderReceipt": "20250408002564",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250408002564&dcmNo=10560426&eleId=3&offset=12940&length=296500&dtd=dart4.xsd",
+    "sourceSha256": "2d244dbe961ac9ef994299fc5e89da0df04f82327cf67b24ecda763250fc84f1",
+    "sourcePeriodStart": "2024-01-01",
+    "sourcePeriodEnd": "2024-12-31",
+    "observationRole": "ownAuditedAnnualCurrent",
+    "basis": "OFS",
+    "metric": "assets",
+    "sourceAccountLabel": "자산총계",
+    "printedAmount": "44,148,389,402",
+    "decimalIntegerFromPrintedCell": "44148389402",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "stockAtPeriodEnd",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 6,
+      "rowOrdinalZeroBased": 15,
+      "cellOrdinalZeroBased": 2,
+      "header": [
+        "과 목",
+        "주석",
+        "제10(당) 기말",
+        "제9(전) 기말"
+      ],
+      "row": [
+        "자산총계",
+        "",
+        "44,148,389,402",
+        "14,913,507,383"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "auditReport",
+    "actualProviderReceipt": "20250408002564",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250408002564&dcmNo=10560426&eleId=3&offset=12940&length=296500&dtd=dart4.xsd",
+    "sourceSha256": "2d244dbe961ac9ef994299fc5e89da0df04f82327cf67b24ecda763250fc84f1",
+    "sourcePeriodStart": "2024-01-01",
+    "sourcePeriodEnd": "2024-12-31",
+    "observationRole": "ownAuditedAnnualCurrent",
+    "basis": "OFS",
+    "metric": "liabilities",
+    "sourceAccountLabel": "부채총계",
+    "printedAmount": "33,192,034,675",
+    "decimalIntegerFromPrintedCell": "33192034675",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "stockAtPeriodEnd",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 6,
+      "rowOrdinalZeroBased": 32,
+      "cellOrdinalZeroBased": 2,
+      "header": [
+        "과 목",
+        "주석",
+        "제10(당) 기말",
+        "제9(전) 기말"
+      ],
+      "row": [
+        "부채총계",
+        "",
+        "33,192,034,675",
+        "12,187,091,024"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "auditReport",
+    "actualProviderReceipt": "20250408002564",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250408002564&dcmNo=10560426&eleId=3&offset=12940&length=296500&dtd=dart4.xsd",
+    "sourceSha256": "2d244dbe961ac9ef994299fc5e89da0df04f82327cf67b24ecda763250fc84f1",
+    "sourcePeriodStart": "2024-01-01",
+    "sourcePeriodEnd": "2024-12-31",
+    "observationRole": "ownAuditedAnnualCurrent",
+    "basis": "OFS",
+    "metric": "equity",
+    "sourceAccountLabel": "자본총계",
+    "printedAmount": "10,956,354,727",
+    "decimalIntegerFromPrintedCell": "10956354727",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "stockAtPeriodEnd",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 6,
+      "rowOrdinalZeroBased": 37,
+      "cellOrdinalZeroBased": 2,
+      "header": [
+        "과 목",
+        "주석",
+        "제10(당) 기말",
+        "제9(전) 기말"
+      ],
+      "row": [
+        "자본총계",
+        "",
+        "10,956,354,727",
+        "2,726,416,359"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "auditReport",
+    "actualProviderReceipt": "20250408002564",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250408002564&dcmNo=10560426&eleId=3&offset=12940&length=296500&dtd=dart4.xsd",
+    "sourceSha256": "2d244dbe961ac9ef994299fc5e89da0df04f82327cf67b24ecda763250fc84f1",
+    "sourcePeriodStart": "2024-01-01",
+    "sourcePeriodEnd": "2024-12-31",
+    "observationRole": "ownAuditedAnnualCurrent",
+    "basis": "OFS",
+    "metric": "revenue",
+    "sourceAccountLabel": "I. 매출",
+    "printedAmount": "18,732,130,090",
+    "decimalIntegerFromPrintedCell": "18732130090",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "cumulativeWholeReportedPeriod",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 9,
+      "rowOrdinalZeroBased": 1,
+      "cellOrdinalZeroBased": 2,
+      "header": [
+        "과 목",
+        "주석",
+        "제 10(당) 기",
+        "제 9(전) 기"
+      ],
+      "row": [
+        "I. 매출",
+        "7,23",
+        "18,732,130,090",
+        "15,707,657,705"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "auditReport",
+    "actualProviderReceipt": "20250408002564",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250408002564&dcmNo=10560426&eleId=3&offset=12940&length=296500&dtd=dart4.xsd",
+    "sourceSha256": "2d244dbe961ac9ef994299fc5e89da0df04f82327cf67b24ecda763250fc84f1",
+    "sourcePeriodStart": "2024-01-01",
+    "sourcePeriodEnd": "2024-12-31",
+    "observationRole": "ownAuditedAnnualCurrent",
+    "basis": "OFS",
+    "metric": "operatingProfit",
+    "sourceAccountLabel": "V. 영업이익",
+    "printedAmount": "(1,445,577,545)",
+    "decimalIntegerFromPrintedCell": "-1445577545",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "cumulativeWholeReportedPeriod",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 9,
+      "rowOrdinalZeroBased": 5,
+      "cellOrdinalZeroBased": 2,
+      "header": [
+        "과 목",
+        "주석",
+        "제 10(당) 기",
+        "제 9(전) 기"
+      ],
+      "row": [
+        "V. 영업이익",
+        "7",
+        "(1,445,577,545)",
+        "2,853,373,379"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "auditReport",
+    "actualProviderReceipt": "20250408002564",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250408002564&dcmNo=10560426&eleId=3&offset=12940&length=296500&dtd=dart4.xsd",
+    "sourceSha256": "2d244dbe961ac9ef994299fc5e89da0df04f82327cf67b24ecda763250fc84f1",
+    "sourcePeriodStart": "2024-01-01",
+    "sourcePeriodEnd": "2024-12-31",
+    "observationRole": "ownAuditedAnnualCurrent",
+    "basis": "OFS",
+    "metric": "netProfit",
+    "sourceAccountLabel": "XII. 당기순이익 (손실)",
+    "printedAmount": "(3,351,437,938)",
+    "decimalIntegerFromPrintedCell": "-3351437938",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "cumulativeWholeReportedPeriod",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 9,
+      "rowOrdinalZeroBased": 12,
+      "cellOrdinalZeroBased": 2,
+      "header": [
+        "과 목",
+        "주석",
+        "제 10(당) 기",
+        "제 9(전) 기"
+      ],
+      "row": [
+        "XII. 당기순이익 (손실)",
+        "",
+        "(3,351,437,938)",
+        "2,267,065,410"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "auditReport",
+    "actualProviderReceipt": "20250408002564",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250408002564&dcmNo=10560426&eleId=3&offset=12940&length=296500&dtd=dart4.xsd",
+    "sourceSha256": "2d244dbe961ac9ef994299fc5e89da0df04f82327cf67b24ecda763250fc84f1",
+    "sourcePeriodStart": "2024-01-01",
+    "sourcePeriodEnd": "2024-12-31",
+    "observationRole": "ownAuditedAnnualCurrent",
+    "basis": "OFS",
+    "metric": "operatingCashFlow",
+    "sourceAccountLabel": "Ⅰ. 영업활동으로 인한 현금흐름",
+    "printedAmount": "(1,336,842,981)",
+    "decimalIntegerFromPrintedCell": "-1336842981",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "cumulativeWholeReportedPeriod",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 15,
+      "rowOrdinalZeroBased": 1,
+      "cellOrdinalZeroBased": 2,
+      "header": [
+        "과 목",
+        "주석",
+        "제 10(당) 기",
+        "제 9(전) 기"
+      ],
+      "row": [
+        "Ⅰ. 영업활동으로 인한 현금흐름",
+        "",
+        "(1,336,842,981)",
+        "794,043,811"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "auditReport",
+    "actualProviderReceipt": "20250408002564",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250408002564&dcmNo=10560426&eleId=3&offset=12940&length=296500&dtd=dart4.xsd",
+    "sourceSha256": "2d244dbe961ac9ef994299fc5e89da0df04f82327cf67b24ecda763250fc84f1",
+    "sourcePeriodStart": "2024-01-01",
+    "sourcePeriodEnd": "2024-12-31",
+    "observationRole": "ownAuditedAnnualCurrent",
+    "basis": "OFS",
+    "metric": "propertyPlantEquipmentAcquisitions",
+    "sourceAccountLabel": "유형자산의 취득",
+    "printedAmount": "(31,946,882,515)",
+    "decimalIntegerFromPrintedCell": "-31946882515",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "cumulativeWholeReportedPeriod",
+    "cashDirection": "outflow",
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 15,
+      "rowOrdinalZeroBased": 19,
+      "cellOrdinalZeroBased": 2,
+      "header": [
+        "과 목",
+        "주석",
+        "제 10(당) 기",
+        "제 9(전) 기"
+      ],
+      "row": [
+        "유형자산의 취득",
+        "",
+        "(31,946,882,515)",
+        "(1,550,089,525)"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "auditReport",
+    "actualProviderReceipt": "20250326000929",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250326000929&dcmNo=10462357&eleId=4&offset=59509&length=373575&dtd=dart4.xsd",
+    "sourceSha256": "486fc5e70164998ae8f560668e078f0740bcdb825521352e1975ca583afcaa83",
+    "sourcePeriodStart": "2023-01-01",
+    "sourcePeriodEnd": "2023-12-31",
+    "observationRole": "ownAuditedAnnualCurrent",
+    "basis": "OFS",
+    "metric": "assets",
+    "sourceAccountLabel": "자산총계",
+    "printedAmount": "14,913,507,383",
+    "decimalIntegerFromPrintedCell": "14913507383",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "stockAtPeriodEnd",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 6,
+      "rowOrdinalZeroBased": 14,
+      "cellOrdinalZeroBased": 2,
+      "header": [
+        "과 목",
+        "주석",
+        "제9(당) 기말",
+        "제8(전) 기말 (감사받지 않음)",
+        "제8(전) 기초 (감사받지 않음)"
+      ],
+      "row": [
+        "자산총계",
+        "",
+        "14,913,507,383",
+        "12,111,166,845",
+        "2,407,854,820"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "auditReport",
+    "actualProviderReceipt": "20250326000929",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250326000929&dcmNo=10462357&eleId=4&offset=59509&length=373575&dtd=dart4.xsd",
+    "sourceSha256": "486fc5e70164998ae8f560668e078f0740bcdb825521352e1975ca583afcaa83",
+    "sourcePeriodStart": "2023-01-01",
+    "sourcePeriodEnd": "2023-12-31",
+    "observationRole": "ownAuditedAnnualCurrent",
+    "basis": "OFS",
+    "metric": "liabilities",
+    "sourceAccountLabel": "부채총계",
+    "printedAmount": "12,187,091,024",
+    "decimalIntegerFromPrintedCell": "12187091024",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "stockAtPeriodEnd",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 6,
+      "rowOrdinalZeroBased": 30,
+      "cellOrdinalZeroBased": 2,
+      "header": [
+        "과 목",
+        "주석",
+        "제9(당) 기말",
+        "제8(전) 기말 (감사받지 않음)",
+        "제8(전) 기초 (감사받지 않음)"
+      ],
+      "row": [
+        "부채총계",
+        "",
+        "12,187,091,024",
+        "11,383,521,925",
+        "2,445,677,273"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "auditReport",
+    "actualProviderReceipt": "20250326000929",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250326000929&dcmNo=10462357&eleId=4&offset=59509&length=373575&dtd=dart4.xsd",
+    "sourceSha256": "486fc5e70164998ae8f560668e078f0740bcdb825521352e1975ca583afcaa83",
+    "sourcePeriodStart": "2023-01-01",
+    "sourcePeriodEnd": "2023-12-31",
+    "observationRole": "ownAuditedAnnualCurrent",
+    "basis": "OFS",
+    "metric": "equity",
+    "sourceAccountLabel": "자본총계",
+    "printedAmount": "2,726,416,359",
+    "decimalIntegerFromPrintedCell": "2726416359",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "stockAtPeriodEnd",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 6,
+      "rowOrdinalZeroBased": 35,
+      "cellOrdinalZeroBased": 2,
+      "header": [
+        "과 목",
+        "주석",
+        "제9(당) 기말",
+        "제8(전) 기말 (감사받지 않음)",
+        "제8(전) 기초 (감사받지 않음)"
+      ],
+      "row": [
+        "자본총계",
+        "",
+        "2,726,416,359",
+        "727,644,920",
+        "(37,822,453)"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "auditReport",
+    "actualProviderReceipt": "20250326000929",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250326000929&dcmNo=10462357&eleId=4&offset=59509&length=373575&dtd=dart4.xsd",
+    "sourceSha256": "486fc5e70164998ae8f560668e078f0740bcdb825521352e1975ca583afcaa83",
+    "sourcePeriodStart": "2023-01-01",
+    "sourcePeriodEnd": "2023-12-31",
+    "observationRole": "ownAuditedAnnualCurrent",
+    "basis": "OFS",
+    "metric": "revenue",
+    "sourceAccountLabel": "I. 매출",
+    "printedAmount": "15,707,657,705",
+    "decimalIntegerFromPrintedCell": "15707657705",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "cumulativeWholeReportedPeriod",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 9,
+      "rowOrdinalZeroBased": 1,
+      "cellOrdinalZeroBased": 2,
+      "header": [
+        "과 목",
+        "주석",
+        "제 9(당) 기",
+        "제 8(전) 기 (감사받지 않음)"
+      ],
+      "row": [
+        "I. 매출",
+        "7,23",
+        "15,707,657,705",
+        "5,986,784,325"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "auditReport",
+    "actualProviderReceipt": "20250326000929",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250326000929&dcmNo=10462357&eleId=4&offset=59509&length=373575&dtd=dart4.xsd",
+    "sourceSha256": "486fc5e70164998ae8f560668e078f0740bcdb825521352e1975ca583afcaa83",
+    "sourcePeriodStart": "2023-01-01",
+    "sourcePeriodEnd": "2023-12-31",
+    "observationRole": "ownAuditedAnnualCurrent",
+    "basis": "OFS",
+    "metric": "operatingProfit",
+    "sourceAccountLabel": "V. 영업이익",
+    "printedAmount": "2,853,373,379",
+    "decimalIntegerFromPrintedCell": "2853373379",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "cumulativeWholeReportedPeriod",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 9,
+      "rowOrdinalZeroBased": 5,
+      "cellOrdinalZeroBased": 2,
+      "header": [
+        "과 목",
+        "주석",
+        "제 9(당) 기",
+        "제 8(전) 기 (감사받지 않음)"
+      ],
+      "row": [
+        "V. 영업이익",
+        "",
+        "2,853,373,379",
+        "94,517,109"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "auditReport",
+    "actualProviderReceipt": "20250326000929",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250326000929&dcmNo=10462357&eleId=4&offset=59509&length=373575&dtd=dart4.xsd",
+    "sourceSha256": "486fc5e70164998ae8f560668e078f0740bcdb825521352e1975ca583afcaa83",
+    "sourcePeriodStart": "2023-01-01",
+    "sourcePeriodEnd": "2023-12-31",
+    "observationRole": "ownAuditedAnnualCurrent",
+    "basis": "OFS",
+    "metric": "netProfit",
+    "sourceAccountLabel": "XII. 당기순이익",
+    "printedAmount": "2,267,065,410",
+    "decimalIntegerFromPrintedCell": "2267065410",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "cumulativeWholeReportedPeriod",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 9,
+      "rowOrdinalZeroBased": 12,
+      "cellOrdinalZeroBased": 2,
+      "header": [
+        "과 목",
+        "주석",
+        "제 9(당) 기",
+        "제 8(전) 기 (감사받지 않음)"
+      ],
+      "row": [
+        "XII. 당기순이익",
+        "",
+        "2,267,065,410",
+        "685,432,998"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "auditReport",
+    "actualProviderReceipt": "20250326000929",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250326000929&dcmNo=10462357&eleId=4&offset=59509&length=373575&dtd=dart4.xsd",
+    "sourceSha256": "486fc5e70164998ae8f560668e078f0740bcdb825521352e1975ca583afcaa83",
+    "sourcePeriodStart": "2023-01-01",
+    "sourcePeriodEnd": "2023-12-31",
+    "observationRole": "ownAuditedAnnualCurrent",
+    "basis": "OFS",
+    "metric": "operatingCashFlow",
+    "sourceAccountLabel": "Ⅰ. 영업활동으로 인한 현금흐름",
+    "printedAmount": "794,043,811",
+    "decimalIntegerFromPrintedCell": "794043811",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "cumulativeWholeReportedPeriod",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 15,
+      "rowOrdinalZeroBased": 1,
+      "cellOrdinalZeroBased": 2,
+      "header": [
+        "과 목",
+        "주석",
+        "제 9(당) 기",
+        "제 8(전) 기 (감사받지 않음)"
+      ],
+      "row": [
+        "Ⅰ. 영업활동으로 인한 현금흐름",
+        "",
+        "794,043,811",
+        "440,671,325"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "auditReport",
+    "actualProviderReceipt": "20250326000929",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250326000929&dcmNo=10462357&eleId=4&offset=59509&length=373575&dtd=dart4.xsd",
+    "sourceSha256": "486fc5e70164998ae8f560668e078f0740bcdb825521352e1975ca583afcaa83",
+    "sourcePeriodStart": "2023-01-01",
+    "sourcePeriodEnd": "2023-12-31",
+    "observationRole": "ownAuditedAnnualCurrent",
+    "basis": "OFS",
+    "metric": "propertyPlantEquipmentAcquisitions",
+    "sourceAccountLabel": "유형자산의 취득",
+    "printedAmount": "(1,550,089,525)",
+    "decimalIntegerFromPrintedCell": "-1550089525",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "cumulativeWholeReportedPeriod",
+    "cashDirection": "outflow",
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 15,
+      "rowOrdinalZeroBased": 18,
+      "cellOrdinalZeroBased": 2,
+      "header": [
+        "과 목",
+        "주석",
+        "제 9(당) 기",
+        "제 8(전) 기 (감사받지 않음)"
+      ],
+      "row": [
+        "유형자산의 취득",
+        "",
+        "(1,550,089,525)",
+        "(2,601,322,633)"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "prospectus",
+    "actualProviderReceipt": "20260916000240",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260916000240&dcmNo=11581402&eleId=36&offset=3288099&length=797472&dtd=dart4.xsd",
+    "sourceSha256": "0b3d08f76ef5b86b555141f9b968e253d85ccf8ad299c5173044babbb26449c3",
+    "sourcePeriodStart": "2026-01-01",
+    "sourcePeriodEnd": "2026-06-30",
+    "observationRole": "ownIPOCurrentReviewedHalfYear",
+    "basis": "CFS",
+    "metric": "assets",
+    "sourceAccountLabel": "자산총계",
+    "printedAmount": "77,328,443,557",
+    "decimalIntegerFromPrintedCell": "77328443557",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "stockAtPeriodEnd",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 1,
+      "rowOrdinalZeroBased": 14,
+      "cellOrdinalZeroBased": 1,
+      "header": [
+        "구분",
+        "제12기 (2026년6월말)",
+        "제11기 (2025년12월말)",
+        "제10기 (2024년12월말)",
+        "제9기 (2023년12월말)"
+      ],
+      "row": [
+        "자산총계",
+        "77,328,443,557",
+        "63,989,067,834",
+        "44,148,389,402",
+        "14,913,507,383"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "prospectus",
+    "actualProviderReceipt": "20260916000240",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260916000240&dcmNo=11581402&eleId=36&offset=3288099&length=797472&dtd=dart4.xsd",
+    "sourceSha256": "0b3d08f76ef5b86b555141f9b968e253d85ccf8ad299c5173044babbb26449c3",
+    "sourcePeriodStart": "2026-01-01",
+    "sourcePeriodEnd": "2026-06-30",
+    "observationRole": "ownIPOCurrentReviewedHalfYear",
+    "basis": "CFS",
+    "metric": "liabilities",
+    "sourceAccountLabel": "부채총계",
+    "printedAmount": "31,625,140,299",
+    "decimalIntegerFromPrintedCell": "31625140299",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "stockAtPeriodEnd",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 1,
+      "rowOrdinalZeroBased": 17,
+      "cellOrdinalZeroBased": 1,
+      "header": [
+        "구분",
+        "제12기 (2026년6월말)",
+        "제11기 (2025년12월말)",
+        "제10기 (2024년12월말)",
+        "제9기 (2023년12월말)"
+      ],
+      "row": [
+        "부채총계",
+        "31,625,140,299",
+        "29,254,213,419",
+        "33,192,034,675",
+        "12,187,091,024"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "prospectus",
+    "actualProviderReceipt": "20260916000240",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260916000240&dcmNo=11581402&eleId=36&offset=3288099&length=797472&dtd=dart4.xsd",
+    "sourceSha256": "0b3d08f76ef5b86b555141f9b968e253d85ccf8ad299c5173044babbb26449c3",
+    "sourcePeriodStart": "2026-01-01",
+    "sourcePeriodEnd": "2026-06-30",
+    "observationRole": "ownIPOCurrentReviewedHalfYear",
+    "basis": "CFS",
+    "metric": "equity",
+    "sourceAccountLabel": "자본총계",
+    "printedAmount": "45,703,303,258",
+    "decimalIntegerFromPrintedCell": "45703303258",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "stockAtPeriodEnd",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 1,
+      "rowOrdinalZeroBased": 23,
+      "cellOrdinalZeroBased": 1,
+      "header": [
+        "구분",
+        "제12기 (2026년6월말)",
+        "제11기 (2025년12월말)",
+        "제10기 (2024년12월말)",
+        "제9기 (2023년12월말)"
+      ],
+      "row": [
+        "자본총계",
+        "45,703,303,258",
+        "34,734,854,415",
+        "10,956,354,727",
+        "2,726,416,359"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "prospectus",
+    "actualProviderReceipt": "20260916000240",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260916000240&dcmNo=11581402&eleId=36&offset=3288099&length=797472&dtd=dart4.xsd",
+    "sourceSha256": "0b3d08f76ef5b86b555141f9b968e253d85ccf8ad299c5173044babbb26449c3",
+    "sourcePeriodStart": "2026-01-01",
+    "sourcePeriodEnd": "2026-06-30",
+    "observationRole": "ownIPOCurrentReviewedHalfYear",
+    "basis": "CFS",
+    "metric": "revenue",
+    "sourceAccountLabel": "매출액",
+    "printedAmount": "13,657,091,709",
+    "decimalIntegerFromPrintedCell": "13657091709",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "cumulativeWholeReportedPeriod",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 1,
+      "rowOrdinalZeroBased": 25,
+      "cellOrdinalZeroBased": 1,
+      "header": [
+        "구분",
+        "제12기 (2026년6월말)",
+        "제11기 (2025년12월말)",
+        "제10기 (2024년12월말)",
+        "제9기 (2023년12월말)"
+      ],
+      "row": [
+        "매출액",
+        "13,657,091,709",
+        "23,759,233,406",
+        "18,732,130,090",
+        "15,707,657,705"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "prospectus",
+    "actualProviderReceipt": "20260916000240",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260916000240&dcmNo=11581402&eleId=36&offset=3288099&length=797472&dtd=dart4.xsd",
+    "sourceSha256": "0b3d08f76ef5b86b555141f9b968e253d85ccf8ad299c5173044babbb26449c3",
+    "sourcePeriodStart": "2026-01-01",
+    "sourcePeriodEnd": "2026-06-30",
+    "observationRole": "ownIPOCurrentReviewedHalfYear",
+    "basis": "CFS",
+    "metric": "operatingProfit",
+    "sourceAccountLabel": "영업이익(손실)",
+    "printedAmount": "841,203,861",
+    "decimalIntegerFromPrintedCell": "841203861",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "cumulativeWholeReportedPeriod",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 1,
+      "rowOrdinalZeroBased": 26,
+      "cellOrdinalZeroBased": 1,
+      "header": [
+        "구분",
+        "제12기 (2026년6월말)",
+        "제11기 (2025년12월말)",
+        "제10기 (2024년12월말)",
+        "제9기 (2023년12월말)"
+      ],
+      "row": [
+        "영업이익(손실)",
+        "841,203,861",
+        "2,430,332,220",
+        "(1,445,577,545)",
+        "2,853,373,379"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "prospectus",
+    "actualProviderReceipt": "20260916000240",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260916000240&dcmNo=11581402&eleId=36&offset=3288099&length=797472&dtd=dart4.xsd",
+    "sourceSha256": "0b3d08f76ef5b86b555141f9b968e253d85ccf8ad299c5173044babbb26449c3",
+    "sourcePeriodStart": "2026-01-01",
+    "sourcePeriodEnd": "2026-06-30",
+    "observationRole": "ownIPOCurrentReviewedHalfYear",
+    "basis": "CFS",
+    "metric": "netProfit",
+    "sourceAccountLabel": "당기순이익(손실)",
+    "printedAmount": "910,570,808",
+    "decimalIntegerFromPrintedCell": "910570808",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "cumulativeWholeReportedPeriod",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 1,
+      "rowOrdinalZeroBased": 27,
+      "cellOrdinalZeroBased": 1,
+      "header": [
+        "구분",
+        "제12기 (2026년6월말)",
+        "제11기 (2025년12월말)",
+        "제10기 (2024년12월말)",
+        "제9기 (2023년12월말)"
+      ],
+      "row": [
+        "당기순이익(손실)",
+        "910,570,808",
+        "1,743,923,790",
+        "(3,351,437,938)",
+        "2,267,065,410"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "prospectus",
+    "actualProviderReceipt": "20260916000240",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260916000240&dcmNo=11581402&eleId=36&offset=3288099&length=797472&dtd=dart4.xsd",
+    "sourceSha256": "0b3d08f76ef5b86b555141f9b968e253d85ccf8ad299c5173044babbb26449c3",
+    "sourcePeriodStart": "2026-01-01",
+    "sourcePeriodEnd": "2026-06-30",
+    "observationRole": "ownIPOCurrentReviewedHalfYear",
+    "basis": "CFS",
+    "metric": "operatingCashFlow",
+    "sourceAccountLabel": "I. 영업활동으로 인한 현금흐름",
+    "printedAmount": "(3,987,721,356)",
+    "decimalIntegerFromPrintedCell": "-3987721356",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "cumulativeWholeReportedPeriod",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 15,
+      "rowOrdinalZeroBased": 1,
+      "cellOrdinalZeroBased": 1,
+      "header": [
+        "과 목",
+        "2026연도 반기 (제12기)",
+        "2025연도 반기 (제11기)",
+        "2025연도 (제11기)",
+        "2024연도 (제10기)",
+        "2023연도 (제9기)"
+      ],
+      "row": [
+        "I. 영업활동으로 인한 현금흐름",
+        "(3,987,721,356)",
+        "(4,371,841,914)",
+        "(4,870,641,299)",
+        "(1,336,842,981)",
+        "794,043,811"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "prospectus",
+    "actualProviderReceipt": "20260916000240",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260916000240&dcmNo=11581402&eleId=36&offset=3288099&length=797472&dtd=dart4.xsd",
+    "sourceSha256": "0b3d08f76ef5b86b555141f9b968e253d85ccf8ad299c5173044babbb26449c3",
+    "sourcePeriodStart": "2026-01-01",
+    "sourcePeriodEnd": "2026-06-30",
+    "observationRole": "ownIPOCurrentReviewedHalfYear",
+    "basis": "CFS",
+    "metric": "propertyPlantEquipmentAcquisitions",
+    "sourceAccountLabel": "유형자산의 취득",
+    "printedAmount": "696,840,669",
+    "decimalIntegerFromPrintedCell": "696840669",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "cumulativeWholeReportedPeriod",
+    "cashDirection": "outflow",
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 15,
+      "rowOrdinalZeroBased": 22,
+      "cellOrdinalZeroBased": 1,
+      "header": [
+        "과 목",
+        "2026연도 반기 (제12기)",
+        "2025연도 반기 (제11기)",
+        "2025연도 (제11기)",
+        "2024연도 (제10기)",
+        "2023연도 (제9기)"
+      ],
+      "row": [
+        "유형자산의 취득",
+        "696,840,669",
+        "2,309,889,734",
+        "3,130,335,705",
+        "31,946,882,515",
+        "1,550,089,525"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "prospectus",
+    "actualProviderReceipt": "20260916000240",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260916000240&dcmNo=11581402&eleId=36&offset=3288099&length=797472&dtd=dart4.xsd",
+    "sourceSha256": "0b3d08f76ef5b86b555141f9b968e253d85ccf8ad299c5173044babbb26449c3",
+    "sourcePeriodStart": "2026-01-01",
+    "sourcePeriodEnd": "2026-06-30",
+    "observationRole": "ownIPOCurrentReviewedHalfYear",
+    "basis": "OFS",
+    "metric": "assets",
+    "sourceAccountLabel": "자산총계",
+    "printedAmount": "77,474,097,700",
+    "decimalIntegerFromPrintedCell": "77474097700",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "stockAtPeriodEnd",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 3,
+      "rowOrdinalZeroBased": 14,
+      "cellOrdinalZeroBased": 1,
+      "header": [
+        "구분",
+        "제12기 (2026년6월말)",
+        "제11기 (2025년12월말)",
+        "제10기 (2024년12월말)",
+        "제9기 (2023년12월말)"
+      ],
+      "row": [
+        "자산총계",
+        "77,474,097,700",
+        "63,989,067,834",
+        "44,148,389,402",
+        "14,913,507,383"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "prospectus",
+    "actualProviderReceipt": "20260916000240",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260916000240&dcmNo=11581402&eleId=36&offset=3288099&length=797472&dtd=dart4.xsd",
+    "sourceSha256": "0b3d08f76ef5b86b555141f9b968e253d85ccf8ad299c5173044babbb26449c3",
+    "sourcePeriodStart": "2026-01-01",
+    "sourcePeriodEnd": "2026-06-30",
+    "observationRole": "ownIPOCurrentReviewedHalfYear",
+    "basis": "OFS",
+    "metric": "liabilities",
+    "sourceAccountLabel": "부채총계",
+    "printedAmount": "31,625,140,299",
+    "decimalIntegerFromPrintedCell": "31625140299",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "stockAtPeriodEnd",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 3,
+      "rowOrdinalZeroBased": 17,
+      "cellOrdinalZeroBased": 1,
+      "header": [
+        "구분",
+        "제12기 (2026년6월말)",
+        "제11기 (2025년12월말)",
+        "제10기 (2024년12월말)",
+        "제9기 (2023년12월말)"
+      ],
+      "row": [
+        "부채총계",
+        "31,625,140,299",
+        "29,254,213,419",
+        "33,192,034,675",
+        "12,187,091,024"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "prospectus",
+    "actualProviderReceipt": "20260916000240",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260916000240&dcmNo=11581402&eleId=36&offset=3288099&length=797472&dtd=dart4.xsd",
+    "sourceSha256": "0b3d08f76ef5b86b555141f9b968e253d85ccf8ad299c5173044babbb26449c3",
+    "sourcePeriodStart": "2026-01-01",
+    "sourcePeriodEnd": "2026-06-30",
+    "observationRole": "ownIPOCurrentReviewedHalfYear",
+    "basis": "OFS",
+    "metric": "equity",
+    "sourceAccountLabel": "자본총계",
+    "printedAmount": "45,848,957,401",
+    "decimalIntegerFromPrintedCell": "45848957401",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "stockAtPeriodEnd",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 3,
+      "rowOrdinalZeroBased": 23,
+      "cellOrdinalZeroBased": 1,
+      "header": [
+        "구분",
+        "제12기 (2026년6월말)",
+        "제11기 (2025년12월말)",
+        "제10기 (2024년12월말)",
+        "제9기 (2023년12월말)"
+      ],
+      "row": [
+        "자본총계",
+        "45,848,957,401",
+        "34,734,854,415",
+        "10,956,354,727",
+        "2,726,416,359"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "prospectus",
+    "actualProviderReceipt": "20260916000240",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260916000240&dcmNo=11581402&eleId=36&offset=3288099&length=797472&dtd=dart4.xsd",
+    "sourceSha256": "0b3d08f76ef5b86b555141f9b968e253d85ccf8ad299c5173044babbb26449c3",
+    "sourcePeriodStart": "2026-01-01",
+    "sourcePeriodEnd": "2026-06-30",
+    "observationRole": "ownIPOCurrentReviewedHalfYear",
+    "basis": "OFS",
+    "metric": "revenue",
+    "sourceAccountLabel": "매출액",
+    "printedAmount": "13,657,091,709",
+    "decimalIntegerFromPrintedCell": "13657091709",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "cumulativeWholeReportedPeriod",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 3,
+      "rowOrdinalZeroBased": 25,
+      "cellOrdinalZeroBased": 1,
+      "header": [
+        "구분",
+        "제12기 (2026년6월말)",
+        "제11기 (2025년12월말)",
+        "제10기 (2024년12월말)",
+        "제9기 (2023년12월말)"
+      ],
+      "row": [
+        "매출액",
+        "13,657,091,709",
+        "23,759,233,406",
+        "18,732,130,090",
+        "15,707,657,705"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "prospectus",
+    "actualProviderReceipt": "20260916000240",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260916000240&dcmNo=11581402&eleId=36&offset=3288099&length=797472&dtd=dart4.xsd",
+    "sourceSha256": "0b3d08f76ef5b86b555141f9b968e253d85ccf8ad299c5173044babbb26449c3",
+    "sourcePeriodStart": "2026-01-01",
+    "sourcePeriodEnd": "2026-06-30",
+    "observationRole": "ownIPOCurrentReviewedHalfYear",
+    "basis": "OFS",
+    "metric": "operatingProfit",
+    "sourceAccountLabel": "영업이익(손실)",
+    "printedAmount": "986,334,380",
+    "decimalIntegerFromPrintedCell": "986334380",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "cumulativeWholeReportedPeriod",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 3,
+      "rowOrdinalZeroBased": 26,
+      "cellOrdinalZeroBased": 1,
+      "header": [
+        "구분",
+        "제12기 (2026년6월말)",
+        "제11기 (2025년12월말)",
+        "제10기 (2024년12월말)",
+        "제9기 (2023년12월말)"
+      ],
+      "row": [
+        "영업이익(손실)",
+        "986,334,380",
+        "2,430,332,220",
+        "(1,445,577,545)",
+        "2,853,373,379"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "prospectus",
+    "actualProviderReceipt": "20260916000240",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260916000240&dcmNo=11581402&eleId=36&offset=3288099&length=797472&dtd=dart4.xsd",
+    "sourceSha256": "0b3d08f76ef5b86b555141f9b968e253d85ccf8ad299c5173044babbb26449c3",
+    "sourcePeriodStart": "2026-01-01",
+    "sourcePeriodEnd": "2026-06-30",
+    "observationRole": "ownIPOCurrentReviewedHalfYear",
+    "basis": "OFS",
+    "metric": "netProfit",
+    "sourceAccountLabel": "당기순이익(손실)",
+    "printedAmount": "1,055,701,327",
+    "decimalIntegerFromPrintedCell": "1055701327",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "cumulativeWholeReportedPeriod",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 3,
+      "rowOrdinalZeroBased": 27,
+      "cellOrdinalZeroBased": 1,
+      "header": [
+        "구분",
+        "제12기 (2026년6월말)",
+        "제11기 (2025년12월말)",
+        "제10기 (2024년12월말)",
+        "제9기 (2023년12월말)"
+      ],
+      "row": [
+        "당기순이익(손실)",
+        "1,055,701,327",
+        "1,743,923,790",
+        "(3,351,437,938)",
+        "2,267,065,410"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "prospectus",
+    "actualProviderReceipt": "20260916000240",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260916000240&dcmNo=11581402&eleId=36&offset=3288099&length=797472&dtd=dart4.xsd",
+    "sourceSha256": "0b3d08f76ef5b86b555141f9b968e253d85ccf8ad299c5173044babbb26449c3",
+    "sourcePeriodStart": "2026-01-01",
+    "sourcePeriodEnd": "2026-06-30",
+    "observationRole": "ownIPOCurrentReviewedHalfYear",
+    "basis": "OFS",
+    "metric": "operatingCashFlow",
+    "sourceAccountLabel": "I. 영업활동으로 인한 현금흐름",
+    "printedAmount": "(4,007,874,666)",
+    "decimalIntegerFromPrintedCell": "-4007874666",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "cumulativeWholeReportedPeriod",
+    "cashDirection": null,
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 173,
+      "rowOrdinalZeroBased": 1,
+      "cellOrdinalZeroBased": 1,
+      "header": [
+        "과 목",
+        "2026연도 반기 (제12기)",
+        "2025연도 반기 (제11기)",
+        "2025연도 (제11기)",
+        "2024연도 (제10기)",
+        "2023연도 (제9기)"
+      ],
+      "row": [
+        "I. 영업활동으로 인한 현금흐름",
+        "(4,007,874,666)",
+        "(4,371,841,914)",
+        "(4,870,641,299)",
+        "(1,336,842,981)",
+        "794,043,811"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  },
+  {
+    "corpCode": "01801026",
+    "documentType": "prospectus",
+    "actualProviderReceipt": "20260916000240",
+    "financialApiRceptNo": null,
+    "regularReportCode": null,
+    "financialFactAccountId": null,
+    "officialUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260916000240&dcmNo=11581402&eleId=36&offset=3288099&length=797472&dtd=dart4.xsd",
+    "sourceSha256": "0b3d08f76ef5b86b555141f9b968e253d85ccf8ad299c5173044babbb26449c3",
+    "sourcePeriodStart": "2026-01-01",
+    "sourcePeriodEnd": "2026-06-30",
+    "observationRole": "ownIPOCurrentReviewedHalfYear",
+    "basis": "OFS",
+    "metric": "propertyPlantEquipmentAcquisitions",
+    "sourceAccountLabel": "유형자산의 취득",
+    "printedAmount": "681,821,369",
+    "decimalIntegerFromPrintedCell": "681821369",
+    "currency": "KRW",
+    "printedUnit": "원",
+    "precisionUnit": "1",
+    "statementScope": "cumulativeWholeReportedPeriod",
+    "cashDirection": "outflow",
+    "normalization": "printedSignPreserved; no invented XBRL ID; acquisition outflow direction separate",
+    "proof": {
+      "tableOrdinalZeroBased": 173,
+      "rowOrdinalZeroBased": 23,
+      "cellOrdinalZeroBased": 1,
+      "header": [
+        "과 목",
+        "2026연도 반기 (제12기)",
+        "2025연도 반기 (제11기)",
+        "2025연도 (제11기)",
+        "2024연도 (제10기)",
+        "2023연도 (제9기)"
+      ],
+      "row": [
+        "유형자산의 취득",
+        "681,821,369",
+        "2,309,889,734",
+        "3,130,335,705",
+        "31,946,882,515",
+        "1,550,089,525"
+      ]
+    },
+    "checks": {
+      "actorPeriodRead": true,
+      "currentColumnMatched": true,
+      "sameBasis": true,
+      "automatedPosting": false
+    }
+  }
+]

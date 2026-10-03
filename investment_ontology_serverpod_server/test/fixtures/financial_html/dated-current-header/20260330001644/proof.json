@@ -1,0 +1,80 @@
+{
+  "cfs": "failed",
+  "ofs": "failed",
+  "corp": "00669450",
+  "name": "(주)바이오프로테크",
+  "year": 2025,
+  "error": "api-noData-annual-public:attempt=3; public annual source verification failed: FormatException: Ambiguous annual current header",
+  "receipt": "20260330001644",
+  "attempts": 3,
+  "reportCode": "annual",
+  "reportName": "[기재정정]사업보고서 (2025.12)",
+  "actualPeriod": "2025.12",
+  "cfsPeriodStored": false,
+  "ofsPeriodStored": false,
+  "snapshotNote": "과거241건 목록이며 현재238건의 개별 상태와 구분",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260330001644",
+      "sha256": "f4fbac4e9bdc11419f8a30db5451a4fd2aae88f6f25cd72b1ba4e21771839e13",
+      "bytes": 72298
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001644&dcmNo=11198054&eleId=3&offset=32857&length=4529&dtd=dart4.xsd",
+      "sha256": "0692f68913cd411e68d697ce975abc80d7f9c952c17fcb2df5d5e1eb10b22a00",
+      "bytes": 4786
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001644&dcmNo=11198054&eleId=21&offset=442208&length=55984&dtd=dart4.xsd",
+      "sha256": "b1872bcd4fb2daf66bf3c69e7e6e751ab9e7a3678ed2260354797c0361110a98",
+      "bytes": 51484
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260330001644&dcmNo=11198054&eleId=23&offset=1093177&length=54041&dtd=dart4.xsd",
+      "sha256": "b41e04e9fa08eca6c78f303c99366473ea36fe1ddc8399bce8866408023a6d7d",
+      "bytes": 52289
+    }
+  ],
+  "ownCorpIds": [
+    "00669450"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20260330001644",
+        "dcmNo": "11198054",
+        "eleId": "3",
+        "offset": "32857",
+        "length": "4529",
+        "dtd": "dart4.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20260330001644",
+        "dcmNo": "11198054",
+        "eleId": "21",
+        "offset": "442208",
+        "length": "55984",
+        "dtd": "dart4.xsd"
+      }
+    },
+    {
+      "label": "4. 재무제표",
+      "coords": {
+        "rcpNo": "20260330001644",
+        "dcmNo": "11198054",
+        "eleId": "23",
+        "offset": "1093177",
+        "length": "54041",
+        "dtd": "dart4.xsd"
+      }
+    }
+  ]
+}

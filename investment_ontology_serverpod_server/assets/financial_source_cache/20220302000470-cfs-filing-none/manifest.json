@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20220302000470",
+  "corpCode": "01398151",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "ruleVersion": "exact-own-filing-series-cfs-none-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220302000470",
+      "sha256": "32570f7f80d270c488608d9948517617e3772eb148024d528f8ed475df93b94c"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220302000470&dcmNo=8436809&eleId=1&offset=796&length=4013&dtd=dart3.xsd",
+      "sha256": "4a5d453f3943c09e0e4cc830e43403a955b5e10748110d39e1b8b57626d3c7ef"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220302000470&dcmNo=8436809&eleId=19&offset=77277&length=138&dtd=dart3.xsd",
+      "sha256": "585a32252f1b4ffa74fe6978fa61aef40b429577aecc1047aaea745b4ba32b45"
+    }
+  ],
+  "retrievalProof": "Exact DART own filing series: shell self corp/current name, same original family cover historical actor and declared full fiscal period, complete own CFS paragraph. No jurir/operating-history continuity and no numeric facts claimed."
+}

@@ -1,0 +1,64 @@
+{
+  "id": 46345,
+  "name": "(주)볼빅",
+  "market": "konex",
+  "stockCode": "206950",
+  "corpCode": "00756163",
+  "rceptNo": "20250806000052",
+  "reportName": "[기재정정]사업보고서 (2021.12)",
+  "actual_period": "2021.12",
+  "bsnsYear": 2021,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 2,
+  "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 2,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250806000052",
+      "sha256": "303de21cd341c7d9cabf24bbf280df035888713e25cda6aa98055b96f99e5f1c"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250806000052&dcmNo=10750366&eleId=3&offset=85333&length=4480&dtd=dart4.xsd",
+      "sha256": "aca4ed18e4c199a702897c4bcfbb6989911cfd4a25f90cf2fd737506b678bde0"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250806000052&dcmNo=10750366&eleId=21&offset=768178&length=246&dtd=dart4.xsd",
+      "sha256": "b852afaf734ce47b307b6d4d1c53bda516cd17ac5160fa70cc528e9197390be7"
+    }
+  ],
+  "shellCorpIds": [
+    "00756163"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20250806000052",
+        "dcmNo": "10750366",
+        "eleId": "3",
+        "offset": "85333",
+        "length": "4480",
+        "dtd": "dart4.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20250806000052",
+        "dcmNo": "10750366",
+        "eleId": "21",
+        "offset": "768178",
+        "length": "246",
+        "dtd": "dart4.xsd"
+      }
+    }
+  ]
+}

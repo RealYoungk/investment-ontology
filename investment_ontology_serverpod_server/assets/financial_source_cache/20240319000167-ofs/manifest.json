@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "00978075",
+  "receipt": "20240319000167",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2023,
+  "periodStart": "2023-01-01",
+  "periodEnd": "2023-12-31",
+  "ruleVersion": "primary-historical-issuer-whole-seven-v1",
+  "sources": [
+    {
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240319000167",
+      "sha256": "aa8c9c0529057f0d7b4b582961871c0e2163e672c0f17dc01eca36609c7ecd6e",
+      "file": "shell.html",
+      "label": "shell"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240319000167&dcmNo=9728927&eleId=1&offset=968&length=4196&dtd=dart4.xsd",
+      "sha256": "a5172977645f21fd61c8023a9db70197080e4e283c9eb29cdb767c611265a92b",
+      "file": "cover.html",
+      "label": "cover"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240319000167&dcmNo=9728927&eleId=19&offset=155636&length=55675&dtd=dart4.xsd",
+      "sha256": "362dd7c900848153fb969eb0b8b5ea4e1730de000e2ffb660b71c5ceebbfb8a9",
+      "file": "ofs.html",
+      "label": "ofs"
+    }
+  ],
+  "retrievalProof": "동일 공식 접수·회사·실제 연간기간·전체회사 직접 핵심계정 및 회계식 검증. 해당 고정 접수만 회사명 증거 옵트인. 숫자/기간/기존Source 변경 없음."
+}

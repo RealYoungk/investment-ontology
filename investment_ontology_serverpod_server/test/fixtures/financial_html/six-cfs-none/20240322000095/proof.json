@@ -1,0 +1,64 @@
+{
+  "id": 2032,
+  "name": "주식회사 타스컴",
+  "market": "konex",
+  "stockCode": "336040",
+  "corpCode": "01118139",
+  "rceptNo": "20240322000095",
+  "reportName": "사업보고서 (2023.12)",
+  "actual_period": "2023.12",
+  "bsnsYear": 2023,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 2,
+  "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 2,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240322000095",
+      "sha256": "820b182cfba2fe146dddfc3ca301bf6922de63a4151793ae1b1c1af297b9761a"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240322000095&dcmNo=9757088&eleId=1&offset=956&length=4046&dtd=dart4.xsd",
+      "sha256": "1e950a0fa0c905e299b9047b709dcdfb504f3f87756b780eb36d0300ee2437f9"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240322000095&dcmNo=9757088&eleId=19&offset=330415&length=170&dtd=dart4.xsd",
+      "sha256": "4d76a8c7b46a899a9dd28c2c879a0c9cbabc82815eb51d8b43bcf3dfdca7ab73"
+    }
+  ],
+  "shellCorpIds": [
+    "01118139"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20240322000095",
+        "dcmNo": "9757088",
+        "eleId": "1",
+        "offset": "956",
+        "length": "4046",
+        "dtd": "dart4.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20240322000095",
+        "dcmNo": "9757088",
+        "eleId": "19",
+        "offset": "330415",
+        "length": "170",
+        "dtd": "dart4.xsd"
+      }
+    }
+  ]
+}

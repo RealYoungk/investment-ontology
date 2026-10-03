@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20230314000094",
+  "corpCode": "00117601",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2022,
+  "periodStart": "2022-01-01",
+  "periodEnd": "2022-12-31",
+  "ruleVersion": "db-yuanta-own-current-eight-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230314000094",
+      "sha256": "7f2742be020d5951edd7cacd905f72db2bd65f3c927218fe30ae7e4426bd7b92",
+      "file": "shell.html"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230314000094&dcmNo=9052207&eleId=1&offset=800&length=4023&dtd=dart3.xsd",
+      "sha256": "b7161f473afff7886d4df804829d65c50f5c5aacc31b11cec02f7832c37d752f",
+      "file": "cover.html"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230314000094&dcmNo=9052207&eleId=17&offset=515162&length=220378&dtd=dart3.xsd",
+      "sha256": "ecb0d4a04708d7bcb9808afd83a4c1614b17ed1c0255d265679217a87e507397",
+      "file": "cfs.html"
+    }
+  ],
+  "retrievalProof": "8 current core cells and 8 independent bounded current equations; full details/notes not verified"
+}

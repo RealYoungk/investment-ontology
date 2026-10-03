@@ -1,0 +1,154 @@
+[
+  {
+    "cfs": "failed",
+    "ofs": "failed",
+    "corp": "00139214",
+    "name": "삼성화재해상보험(주)",
+    "year": 2021,
+    "error": "api-noData-annual-public:attempt=3; public annual source verification failed: FormatException: Dated punctuation supporting actual date ambiguous",
+    "receipt": "20220310001159",
+    "attempts": 3,
+    "reportCode": "annual",
+    "reportName": "사업보고서 (2021.12)",
+    "actualPeriod": "2021.12",
+    "cfsPeriodStored": false,
+    "ofsPeriodStored": false,
+    "path": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/rare-shape-source-corpus/20220310001159/ofs.html",
+    "cover": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/rare-shape-source-corpus/20220310001159/cover.html",
+    "shell": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/rare-shape-source-corpus/20220310001159/shell.html",
+    "coverUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220310001159&dcmNo=8450801&eleId=1&offset=812&length=4017&dtd=dart3.xsd",
+    "ofsUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220310001159&dcmNo=8450801&eleId=19&offset=1563418&length=132549&dtd=dart3.xsd",
+    "sources": [
+      {
+        "label": "cover",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220310001159&dcmNo=8450801&eleId=1&offset=812&length=4017&dtd=dart3.xsd",
+        "sha256": "c1b7dce39f4c357f4c5462e0ae8c6198d1ff38d6befc087dd81d200a2b999c9c"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220310001159&dcmNo=8450801&eleId=17&offset=422472&length=145689&dtd=dart3.xsd",
+        "sha256": "48a5a3b134b1f86a9fe8d06322c28095d9ec497164703fcd50be06918b6badc6"
+      },
+      {
+        "label": "ofs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220310001159&dcmNo=8450801&eleId=19&offset=1563418&length=132549&dtd=dart3.xsd",
+        "sha256": "05d682e305415fba8d7a09d782d3a9185b93417db830a59bf0f03cb652138aa2"
+      }
+    ],
+    "gets": 4
+  },
+  {
+    "cfs": "failed",
+    "ofs": "failed",
+    "corp": "00139214",
+    "name": "삼성화재해상보험(주)",
+    "year": 2022,
+    "error": "api-noData-annual-public:attempt=3; public annual source verification failed: FormatException: Dated punctuation supporting actual date ambiguous",
+    "receipt": "20230309000772",
+    "attempts": 3,
+    "reportCode": "annual",
+    "reportName": "사업보고서 (2022.12)",
+    "actualPeriod": "2022.12",
+    "cfsPeriodStored": false,
+    "ofsPeriodStored": false,
+    "path": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/rare-shape-source-corpus/20230309000772/ofs.html",
+    "cover": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/rare-shape-source-corpus/20230309000772/cover.html",
+    "shell": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/rare-shape-source-corpus/20230309000772/shell.html",
+    "coverUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230309000772&dcmNo=9045617&eleId=1&offset=804&length=4016&dtd=dart3.xsd",
+    "ofsUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230309000772&dcmNo=9045617&eleId=19&offset=1541561&length=128862&dtd=dart3.xsd",
+    "sources": [
+      {
+        "label": "cover",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230309000772&dcmNo=9045617&eleId=1&offset=804&length=4016&dtd=dart3.xsd",
+        "sha256": "aab061362165c3709952c35344299ec58ed61ea2cd7199a4473d097b840f3629"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230309000772&dcmNo=9045617&eleId=17&offset=361888&length=142757&dtd=dart3.xsd",
+        "sha256": "11753ade08bda21c48249add001cb5accb4fb56b1505631ef1a954bd2be248fc"
+      },
+      {
+        "label": "ofs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230309000772&dcmNo=9045617&eleId=19&offset=1541561&length=128862&dtd=dart3.xsd",
+        "sha256": "7456ed21899fab7a00d05a4ef73fc3a7541e0a1e585cc8d17d3dbfb78e1a8834"
+      }
+    ],
+    "gets": 4
+  },
+  {
+    "cfs": "noData",
+    "ofs": "failed",
+    "corp": "00442631",
+    "name": "태양기계(주)",
+    "year": 2022,
+    "error": "api-noData-annual-public:attempt=3; public annual source verification failed: FormatException: Dated punctuation supporting actual date ambiguous",
+    "receipt": "20230322000366",
+    "attempts": 3,
+    "reportCode": "annual",
+    "reportName": "사업보고서 (2022.12)",
+    "actualPeriod": "2022.12",
+    "cfsPeriodStored": false,
+    "ofsPeriodStored": false,
+    "path": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/rare-shape-source-corpus/20230322000366/ofs.html",
+    "cover": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/rare-shape-source-corpus/20230322000366/cover.html",
+    "shell": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/rare-shape-source-corpus/20230322000366/shell.html",
+    "coverUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230322000366&dcmNo=9087550&eleId=1&offset=799&length=4048&dtd=dart3.xsd",
+    "ofsUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230322000366&dcmNo=9087550&eleId=21&offset=169907&length=129639&dtd=dart3.xsd",
+    "sources": [
+      {
+        "label": "cover",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230322000366&dcmNo=9087550&eleId=1&offset=799&length=4048&dtd=dart3.xsd",
+        "sha256": "692ae6a2806b3287ce95c975b0626928756bde1327f270a7054ef65932fa063c"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230322000366&dcmNo=9087550&eleId=19&offset=169496&length=200&dtd=dart3.xsd",
+        "sha256": "1d903043e688df592dd11ef8408e620c63dd6089107fc72a414598e4c7d080d9"
+      },
+      {
+        "label": "ofs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230322000366&dcmNo=9087550&eleId=21&offset=169907&length=129639&dtd=dart3.xsd",
+        "sha256": "dba167808accffc02c9355ceb0dde000ae52845679244709450d4ab0c72feeff"
+      }
+    ],
+    "gets": 4
+  },
+  {
+    "cfs": "noData",
+    "ofs": "failed",
+    "corp": "01352575",
+    "name": "바이오텐(주)",
+    "year": 2022,
+    "error": "api-noData-annual-public:attempt=3; public annual source verification failed: FormatException: Dated punctuation supporting actual date ambiguous",
+    "receipt": "20231018000215",
+    "attempts": 3,
+    "reportCode": "annual",
+    "reportName": "사업보고서 (2022.12)",
+    "actualPeriod": "2022.12",
+    "cfsPeriodStored": false,
+    "ofsPeriodStored": false,
+    "path": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/rare-shape-source-corpus/20231018000215/ofs.html",
+    "cover": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/rare-shape-source-corpus/20231018000215/cover.html",
+    "shell": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/rare-shape-source-corpus/20231018000215/shell.html",
+    "coverUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20231018000215&dcmNo=9462875&eleId=1&offset=799&length=4022&dtd=dart3.xsd",
+    "ofsUrl": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20231018000215&dcmNo=9462875&eleId=21&offset=216923&length=86261&dtd=dart3.xsd",
+    "sources": [
+      {
+        "label": "cover",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20231018000215&dcmNo=9462875&eleId=1&offset=799&length=4022&dtd=dart3.xsd",
+        "sha256": "6175ff31c6c6a54ab1c24879739b056aacf89559abd8ba9cbd6b29b8bb95a640"
+      },
+      {
+        "label": "cfs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20231018000215&dcmNo=9462875&eleId=19&offset=216600&length=156&dtd=dart3.xsd",
+        "sha256": "c6007075ea895469c96e53f1e8a0ed33f4defdb873518934bdcc58b9c01c0cd1"
+      },
+      {
+        "label": "ofs",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20231018000215&dcmNo=9462875&eleId=21&offset=216923&length=86261&dtd=dart3.xsd",
+        "sha256": "6e5cb1a93b5591d60dd8ce05a9407030255fc5765a8cc494b7485e759c4a1561"
+      }
+    ],
+    "gets": 4
+  }
+]

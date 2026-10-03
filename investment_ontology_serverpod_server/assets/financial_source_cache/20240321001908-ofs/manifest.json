@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "00991225",
+  "receipt": "20240321001908",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2023,
+  "periodStart": "2023-01-01",
+  "periodEnd": "2023-12-31",
+  "ruleVersion": "verified-current-period-whole-annual-v1",
+  "sources": [
+    {
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240321001908",
+      "sha256": "5490cb19d049bfd69ee3eb42c683123f0f62f27bf6143e6e8e125aedbf23d11c",
+      "file": "shell.html",
+      "label": "shell"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240321001908&dcmNo=9755088&eleId=1&offset=964&length=4037&dtd=dart4.xsd",
+      "sha256": "8ce265eb796913c4834bfbc793e3198979bcd704e4c57a55132d1066e6ade99b",
+      "file": "cover.html",
+      "label": "cover"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240321001908&dcmNo=9755088&eleId=21&offset=171919&length=67320&dtd=dart4.xsd",
+      "sha256": "b0db31e47bcc93fd015248030fcb5415fc1b637cf09aac2aca080e0c86a30213",
+      "file": "ofs.html",
+      "label": "ofs"
+    }
+  ],
+  "retrievalProof": "flow 표제는 말일 현재만 인쇄. 표지 연간 시작/끝·현재연도 CE 시작/끝·전체NI/E·BS·CF 현금 rollforward 독립 대조. flow 시작일 인쇄 주장 없음."
+}

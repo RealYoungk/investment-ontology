@@ -1,3 +1,5 @@
+import '../support/shad_test_host.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:investment_ontology_serverpod_flutter/design/components/charts/app_sparkline.dart';
@@ -15,14 +17,16 @@ void main() {
         [double.nan, 4],
       ]) {
         await t.pumpWidget(
-          MaterialApp(
-            home: Center(
-              child: SizedBox(
-                width: 150,
-                child: AppSparkline(
-                  values: values,
-                  color: Colors.blue,
-                  description: '국채 수익률 · 합성 추이',
+          shadTestHost(
+            MaterialApp(
+              home: Center(
+                child: SizedBox(
+                  width: 150,
+                  child: AppSparkline(
+                    values: values,
+                    color: Colors.blue,
+                    description: '국채 수익률 · 합성 추이',
+                  ),
                 ),
               ),
             ),

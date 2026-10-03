@@ -1,0 +1,64 @@
+{
+  "id": 29364,
+  "name": "(주)유니포인트",
+  "market": "konex",
+  "stockCode": "121060",
+  "corpCode": "00445869",
+  "rceptNo": "20220322000703",
+  "reportName": "사업보고서 (2021.12)",
+  "actual_period": "2021.12",
+  "bsnsYear": 2021,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 1,
+  "lastError": "api-noData-annual-public:attempt=1; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 1,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220322000703",
+      "sha256": "f33edefeb52402f6e1ef9d82967dcc8928637d25e4d20aa878603231e53a4e03"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000703&dcmNo=8491100&eleId=1&offset=805&length=4045&dtd=dart3.xsd",
+      "sha256": "9c35a2458d8bb27118ab485477d3a535c963d188ad5040e73f823feafa29b559"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000703&dcmNo=8491100&eleId=19&offset=178934&length=129&dtd=dart3.xsd",
+      "sha256": "bb5361d17f427856b9e5af6adcc6e781ce2cfba4e3f004ad2db04b04958c6114"
+    }
+  ],
+  "shellCorpIds": [
+    "00445869"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20220322000703",
+        "dcmNo": "8491100",
+        "eleId": "1",
+        "offset": "805",
+        "length": "4045",
+        "dtd": "dart3.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20220322000703",
+        "dcmNo": "8491100",
+        "eleId": "19",
+        "offset": "178934",
+        "length": "129",
+        "dtd": "dart3.xsd"
+      }
+    }
+  ]
+}

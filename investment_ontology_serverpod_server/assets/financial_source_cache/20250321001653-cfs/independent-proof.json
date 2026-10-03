@@ -1,0 +1,335 @@
+{
+  "receipt": "20250321001653",
+  "corpCode": "00886792",
+  "name": "(주)루켄테크놀러지스",
+  "bsnsYear": 2024,
+  "basis": "consolidated",
+  "reportName": "사업보고서 (2024.12)",
+  "classification": "이 감사에서 원문 위치/검산 근거 미매핑 — 원천 부재는 미확정",
+  "final27": false,
+  "numericAccepted": false,
+  "fullOriginalIndependentReview": false,
+  "newOwnSourceNodeBound": true,
+  "diagnosticAssumedTwelveMonthStart": "2024-01-01T00:00:00.000Z",
+  "diagnosticReportTitlePeriodEnd": "2024-12-31T00:00:00.000Z",
+  "actualOriginalStartStillRequiresEvidence": true,
+  "source": {
+    "path": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/header-api40-source-ledger-20261003/20250321001653/cfs.html",
+    "sha256": "d828c8db802a4c6ebff53a6ef24d076f9598d5dd6886517ad134c8ca74f5390b",
+    "sourceURI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001653&dcmNo=10449285&eleId=19&offset=299229&length=58169&dtd=dart4.xsd",
+    "coverPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/header-api40-source-ledger-20261003/20250321001653/cover.html",
+    "coverURI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001653&dcmNo=10449285&eleId=1&offset=956&length=4568&dtd=dart4.xsd",
+    "shellPath": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/header-api40-source-ledger-20261003/20250321001653/shell.html"
+  },
+  "sources": [
+    {
+      "file": "cfs.html",
+      "path": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/header-api40-source-ledger-20261003/20250321001653/cfs.html",
+      "sha256": "d828c8db802a4c6ebff53a6ef24d076f9598d5dd6886517ad134c8ca74f5390b"
+    },
+    {
+      "file": "cover.html",
+      "path": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/header-api40-source-ledger-20261003/20250321001653/cover.html",
+      "sha256": "9fe8be2b4798f6e1d0a7936d4a82fa9b7c1b4bdde10f6e48aeff13e2ce758576"
+    },
+    {
+      "file": "shell.html",
+      "path": "/Users/realyoungk/investment-ontology/outputs/filing-collection-priority/header-api40-source-ledger-20261003/20250321001653/shell.html",
+      "sha256": "1732b809b038763e18126c2ffb00f37f8ec03dcd9904a2d8e1cce8c60c1da4aa"
+    }
+  ],
+  "direct8": [
+    {
+      "role": "assets",
+      "rowIndex": 25,
+      "columnStart": 1,
+      "rawRow": [
+        "자 산 총 계",
+        "46,006,071,967",
+        "47,243,009,874",
+        "53,255,329,209"
+      ],
+      "amountKRW": "46006071967"
+    },
+    {
+      "role": "liabilities",
+      "rowIndex": 41,
+      "columnStart": 1,
+      "rawRow": [
+        "부 채 총 계",
+        "31,947,979,234",
+        "30,967,235,092",
+        "39,148,146,478"
+      ],
+      "amountKRW": "31947979234"
+    },
+    {
+      "role": "equity",
+      "rowIndex": 49,
+      "columnStart": 1,
+      "rawRow": [
+        "자 본 총 계",
+        "14,058,092,733",
+        "16,275,774,782",
+        "14,107,182,731"
+      ],
+      "amountKRW": "14058092733"
+    },
+    {
+      "role": "revenue",
+      "rowIndex": 57,
+      "columnStart": 1,
+      "rawRow": [
+        "I. 매출액",
+        "20,983,316,634",
+        "38,497,084,033",
+        "26,498,928,603"
+      ],
+      "amountKRW": "20983316634"
+    },
+    {
+      "role": "operating",
+      "rowIndex": 61,
+      "columnStart": 1,
+      "rawRow": [
+        "V. 영업이익(손실)",
+        "(3,355,051,725)",
+        "1,685,284,948",
+        "(1,850,192,212)"
+      ],
+      "amountKRW": "-3355051725"
+    },
+    {
+      "role": "netIncome",
+      "rowIndex": 69,
+      "columnStart": 1,
+      "rawRow": [
+        "VIII. 당기순이익(손실)",
+        "(3,316,524,852)",
+        "2,288,873,239",
+        "(2,637,045,186)"
+      ],
+      "amountKRW": "-3316524852"
+    },
+    {
+      "role": "cfo",
+      "rowIndex": 128,
+      "columnStart": 1,
+      "rawRow": [
+        "Ⅰ. 영업활동으로 인한 현금흐름",
+        "4,267,505,178",
+        "1,374,477,656",
+        "(2,339,968,168)"
+      ],
+      "amountKRW": "4267505178"
+    },
+    {
+      "role": "capex",
+      "rowIndex": 146,
+      "columnStart": 1,
+      "rawRow": [
+        "유형자산의 취득",
+        "(521,957,113)",
+        "(5,076,174,938)",
+        "(1,202,564,052)"
+      ],
+      "amountKRW": "-521957113"
+    }
+  ],
+  "CE": {
+    "opening": {
+      "rowIndex": 112,
+      "row": [
+        "2024.1.1(당기초)",
+        "5,494,968,000",
+        "33,466,106,019",
+        "6,782,450,141",
+        "(29,467,749,378)",
+        "-",
+        "16,275,774,782"
+      ]
+    },
+    "NI": {
+      "rowIndex": 114,
+      "row": [
+        "당기순손실",
+        "-",
+        "-",
+        "-",
+        "(3,316,524,852)",
+        "-",
+        "(3,316,524,852)"
+      ]
+    },
+    "closing": {
+      "rowIndex": 121,
+      "row": [
+        "2024.12.31(당기말)",
+        "5,578,301,000",
+        "34,382,769,019",
+        "6,788,471,947",
+        "(32,691,449,233)",
+        "-",
+        "14,058,092,733"
+      ]
+    },
+    "wholeColumn": 6,
+    "movementRows": [
+      {
+        "rowIndex": 114,
+        "row": [
+          "당기순손실",
+          "-",
+          "-",
+          "-",
+          "(3,316,524,852)",
+          "-",
+          "(3,316,524,852)"
+        ]
+      },
+      {
+        "rowIndex": 116,
+        "row": [
+          "확정급여제도의 재측정요소",
+          "-",
+          "-",
+          "-",
+          "92,824,997",
+          "-",
+          "92,824,997"
+        ]
+      },
+      {
+        "rowIndex": 117,
+        "row": [
+          "해외사업환산손익",
+          "-",
+          "-",
+          "6,021,806",
+          "-",
+          "-",
+          "6,021,806"
+        ]
+      },
+      {
+        "rowIndex": 120,
+        "row": [
+          "유상증자",
+          "83,333,000",
+          "916,663,000",
+          "-",
+          "-",
+          "-",
+          "999,996,000"
+        ]
+      }
+    ],
+    "excludedSubtotals": [
+      {
+        "rowIndex": 118,
+        "row": [
+          "총포괄손익 계",
+          "-",
+          "-",
+          "6,021,806",
+          "(3,223,699,855)",
+          "-",
+          "(3,217,678,049)"
+        ]
+      }
+    ]
+  },
+  "cash": {
+    "BS": [
+      "현금및현금성자산",
+      "1,602,548,808",
+      "195,934,447",
+      "302,219,903"
+    ],
+    "rows": [
+      {
+        "rowIndex": 128,
+        "row": [
+          "Ⅰ. 영업활동으로 인한 현금흐름",
+          "4,267,505,178",
+          "1,374,477,656",
+          "(2,339,968,168)"
+        ]
+      },
+      {
+        "rowIndex": 136,
+        "row": [
+          "Ⅱ. 투자활동으로 인한 현금흐름",
+          "(3,341,422,656)",
+          "(640,214,182)",
+          "282,976,215"
+        ]
+      },
+      {
+        "rowIndex": 156,
+        "row": [
+          "Ⅲ. 재무활동으로 인한 현금흐름",
+          "470,518,879",
+          "(839,613,280)",
+          "1,349,690,019"
+        ]
+      },
+      {
+        "rowIndex": 164,
+        "row": [
+          "Ⅳ. 현금및현금성자산의 환율변동효과",
+          "10,012,960",
+          "(935,650)",
+          "(565,101)"
+        ]
+      },
+      {
+        "rowIndex": 165,
+        "row": [
+          "Ⅴ. 현금및현금성자산의 증가(감소)",
+          "1,406,614,361",
+          "(106,285,456)",
+          "(707,867,035)"
+        ]
+      },
+      {
+        "rowIndex": 166,
+        "row": [
+          "Ⅵ. 기초 현금및현금성자산",
+          "195,934,447",
+          "302,219,903",
+          "1,010,086,938"
+        ]
+      },
+      {
+        "rowIndex": 167,
+        "row": [
+          "Ⅶ. 기말 현금및현금성자산",
+          "1,602,548,808",
+          "195,934,447",
+          "302,219,903"
+        ]
+      }
+    ],
+    "currentColumn": 1,
+    "priorColumn": 2
+  },
+  "differences": {
+    "balance": 0,
+    "wholeNI": 0,
+    "closingEquity": 0,
+    "equityRoll": 0,
+    "currentActivity": 0,
+    "currentCashRoll": 0,
+    "currentBSCash": 0,
+    "priorActivity": 0,
+    "priorCashRoll": 0,
+    "priorBSCash": 0,
+    "priorClosingCurrentOpening": 0
+  },
+  "sourcePositiveCore8": true,
+  "fullStatementCollected": false,
+  "newGET": 0,
+  "DB": 0,
+  "API": 0
+}

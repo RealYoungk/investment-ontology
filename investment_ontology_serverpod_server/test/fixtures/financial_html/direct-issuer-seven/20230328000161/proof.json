@@ -1,0 +1,51 @@
+{
+  "receipt": "20230328000161",
+  "corpCode": "01315042",
+  "companyName": "(주)시선에이아이",
+  "bsnsYear": 2022,
+  "basis": "ofs",
+  "shellCorpIds": [
+    "01315042"
+  ],
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230328000161",
+      "sha256": "4eb0888dd921cd86c226e37c8f6845bdebbf305d9da3b192bb410f1e7e98a1c0"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230328000161&dcmNo=9107520&eleId=3&offset=68972&length=4035&dtd=dart3.xsd",
+      "sha256": "4b07b798a585689b102478a7fe0173c66227c46964887de59b92dd39fd154d20"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230328000161&dcmNo=9107520&eleId=23&offset=301468&length=49491&dtd=dart3.xsd",
+      "sha256": "2f15442bda47a04b59fcf39140edca0a0ccab928e131aab5effafbb800a0f33d"
+    },
+    {
+      "label": "overview",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230328000161&dcmNo=9107520&eleId=5&offset=73520&length=72287&dtd=dart3.xsd",
+      "sha256": "5db56b6304c7f5be3090edc7754010e40e5596faa901fb3864398ec9d23b5e82"
+    }
+  ],
+  "printedCoverName": "주식회사씨유박스",
+  "actualDates": [
+    "2022-01-01",
+    "2022-12-31"
+  ],
+  "overviewNode": {
+    "text": "I. 회사의 개요",
+    "id": "5",
+    "rcpNo": "20230328000161",
+    "dcmNo": "9107520",
+    "eleId": "5",
+    "offset": "73520",
+    "length": "72287",
+    "dtd": "dart3.xsd",
+    "tocNo": "5",
+    "atocId": ""
+  },
+  "overviewSource": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230328000161&dcmNo=9107520&eleId=5&offset=73520&length=72287&dtd=dart3.xsd",
+  "overviewSha256": "5db56b6304c7f5be3090edc7754010e40e5596faa901fb3864398ec9d23b5e82"
+}

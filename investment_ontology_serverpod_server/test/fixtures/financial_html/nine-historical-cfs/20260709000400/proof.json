@@ -1,0 +1,64 @@
+{
+  "id": 25280,
+  "name": "(주)이엠티",
+  "market": "konex",
+  "stockCode": "232530",
+  "corpCode": "00925967",
+  "rceptNo": "20260709000400",
+  "reportName": "사업보고서 (2026.03)",
+  "actual_period": "2026.03",
+  "bsnsYear": 2026,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 2,
+  "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 2,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260709000400",
+      "sha256": "8e5e83374a4330efe18252253670d156c26b5da5591f5f230c51358b4e3754d9"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260709000400&dcmNo=11470039&eleId=1&offset=951&length=4480&dtd=dart4.xsd",
+      "sha256": "d5e837f0af2e628ec2576ebdb2a2619254df86744687b41227e46598f3bf9516"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260709000400&dcmNo=11470039&eleId=19&offset=108752&length=177&dtd=dart4.xsd",
+      "sha256": "52563dd26b247a5825a7bf52d860ba0a6f5e151b9a83ced964809620824471b8"
+    }
+  ],
+  "shellCorpIds": [
+    "00925967"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20260709000400",
+        "dcmNo": "11470039",
+        "eleId": "1",
+        "offset": "951",
+        "length": "4480",
+        "dtd": "dart4.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20260709000400",
+        "dcmNo": "11470039",
+        "eleId": "19",
+        "offset": "108752",
+        "length": "177",
+        "dtd": "dart4.xsd"
+      }
+    }
+  ]
+}

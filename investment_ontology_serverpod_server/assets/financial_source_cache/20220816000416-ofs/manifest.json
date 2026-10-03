@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20220816000416",
+  "corpCode": "01188730",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "ruleVersion": "two-historical-issuer-whole-annual-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220816000416",
+      "sha256": "4fd3b20621d5a26593e9095c8cada9e0ab6fc6aec7c961a41b440ead9e6b8cdb",
+      "file": "shell.html"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220816000416&dcmNo=8768116&eleId=3&offset=4445&length=4018&dtd=dart3.xsd",
+      "sha256": "0a421d3cc8f069bed67bdfbe86b33ab51011f90c5c2ab16edb4744b479b20d92",
+      "file": "cover.html"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220816000416&dcmNo=8768116&eleId=23&offset=197860&length=102524&dtd=dart3.xsd",
+      "sha256": "78bb417fecc9440e52e1e1d83bbb05bda0d6b6d74b9253e2b5145678dd8914cf",
+      "file": "ofs.html"
+    },
+    {
+      "label": "overview",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220816000416&dcmNo=8768116&eleId=5&offset=8985&length=96807&dtd=dart3.xsd",
+      "sha256": "427c00d4ea8d7aa6c14338953bfe179443a20d1b424589db458ffa766b6560cd",
+      "file": "overview.html"
+    }
+  ],
+  "retrievalProof": "정확 원접수 owncorp/표지/개요 직접 당시명 및 OFS whole7/BS·CE 당기전체 일치. 현재사업 매핑 없음."
+}

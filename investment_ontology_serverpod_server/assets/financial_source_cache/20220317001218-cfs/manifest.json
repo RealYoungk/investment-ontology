@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20220317001218",
+  "corpCode": "01113499",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "ruleVersion": "two-historical-issuer-pure-none-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220317001218",
+      "sha256": "b1df2b79cde4fb26f80d713127f96b28215eb7481105074537d5e7fe9a476ad5",
+      "file": "shell.html"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317001218&dcmNo=8473959&eleId=1&offset=806&length=4303&dtd=dart3.xsd",
+      "sha256": "cb728172f36470ac3dfef74e3322921313b620553386a5eb0ac92cfffc2f335c",
+      "file": "cover.html"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317001218&dcmNo=8473959&eleId=19&offset=514339&length=157&dtd=dart3.xsd",
+      "sha256": "af4a993aca4d79af22fadd256cb8c4b84aa6053051b45342c111fc14ffba6271",
+      "file": "cfs.html"
+    },
+    {
+      "label": "overview",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220317001218&dcmNo=8473959&eleId=3&offset=5611&length=140797&dtd=dart3.xsd",
+      "sha256": "23aba25acbee35d068db80ec511e0a92be175f7673a92a1706720b897d40ad05",
+      "file": "overview.html"
+    }
+  ],
+  "retrievalProof": "고유 CFS source의 직접 비작성 literal. 숫자 수집 완료와 별도 상태."
+}

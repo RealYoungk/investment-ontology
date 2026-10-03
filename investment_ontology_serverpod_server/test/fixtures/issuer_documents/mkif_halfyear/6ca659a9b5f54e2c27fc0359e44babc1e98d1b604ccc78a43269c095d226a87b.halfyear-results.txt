@@ -1,0 +1,401 @@
+ Macquarie Korea Infrastructure Fund
+
+
+
+
+ 18th Floor, Unit A, Centropolis   Telephone   +822 3705 8500
+ 26, Ujeongguk-ro, Jongno-gu       Fax         +822 3705 8596
+ Seoul 03161                       Internet    www.macquarie.com/mkif
+ KOREA
+
+
+
+
+29 July 2026
+
+
+
+                             MACQUARIE KOREA INFRASTRUCTURE FUND
+                    REPORTS 1H 2026 FINANCIAL RESULTS AND ASSET PERFORMANCE
+
+Macquarie Korea Infrastructure Fund (“MKIF”) today announced its financial results and asset
+performance for the six months ended 30 June 2026 (the “Period”).
+
+Highlights for the Period include:
+
+ MKIF Board of Directors today approved total distribution of KRW 167.6 billion (KRW 350 per share)
+  for the first half of 2026 in line with the interim distribution guidance disclosed on 15 June 2026. The
+  distribution for the first half of 2026 will be paid in cash on 28 August 2026 to the shareholders
+  registered to MKIF’s shareholder register on the record date of 30 June 2026.
+
+ On a non-consolidated basis, MKIF recorded revenue of KRW 260.0 billion and net income of KRW
+  225.0 billion for the Period. Revenue and net income decreased by 6.1% and 7.6% respectively
+  compared with the previous corresponding period (“pcp”). Revenue and net income decreased
+  mainly due to lower dividend income, driven by (i) the absence of the one-off dividend income
+  recognized in 2025 upon the corporate dissolution of the Baekyang Tunnel Private Investment
+  Project entities, and (ii) a decrease in dividends from Soojungsan Investment Co., Ltd. in connection
+  with the planned return of share capital to its shareholders.
+
+ On a weighted average basis 1, 12 operating toll road assets delivered a traffic volume increase of
+  0.5% for the Period over pcp.
+
+ Key operational highlights of BNCT Co., Ltd. (“BNCT”), the operator of Busan New Port Phase 2-3,
+  during the Period are summarized below.
+        - BNCT handled 1.31 million TEUs, a decrease of 2.5% over pcp.
+        - Revenue increased by 1.8% over pcp to KRW 81.2 billion.
+        - EBITDA increased by 0.1% over pcp to KRW 35.2 billion, recording an EBITDA margin of 43.3%.
+        - Although volume declined, revenue and EBITDA increased slightly due to an improved volume
+          mix and ancillary revenue.
+
+ Key operational highlights of city gas business operators - Haeyang Energy Co., Ltd. (“HY”),
+  Seorabeol City Gas Co., Ltd. (“SRB”) and CNCITY Energy Co., Ltd. (“CNCITY”) - are summarized
+  below.
+
+
+
+
+1. On a weighted average basis based on revenue size and MKIF’s ownership stake in each project company
+
+
+
+                                                                                                          1
+       - HY
+                Sales volume decreased by 2.1% over pcp to 453 million m3.
+                Revenue decreased by 5.7% over pcp to KRW 409.5 billion.
+                EBITDA increased by 6.3% over pcp to KRW 35.6 billion.
+                While sales volume decreased due to higher average temperatures, improved yield effect led
+                 to an increase in EBITDA.
+
+       - SRB
+                Sales volume increased by 1.0% over pcp to 114 million m3.
+                Revenue decreased by 3.8% over pcp to KRW 102.8 billion.
+                EBITDA increased by 13.9% over pcp to KRW 9.0 billion.
+                EBITDA increased due to higher industrial sales volumes and reduced expenses.
+
+       - CNCITY
+                Sales volume decreased by 3.8% over pcp to 382 million m3.
+                Revenue decreased by 5.8% over pcp to KRW 386.1 billion.
+                EBITDA decreased by 4.9% over pcp to KRW 33.3 billion.
+                Sales volume decreased due to higher average temperatures and an increased proportion of
+                 steam usage by certain industrial customers. The decline in EBITDA was further driven by a
+                 shift in the recognition of certain expenses from the second half to the first half of the year.
+                While the increased proportion of steam usage by certain customers resulted in lower city
+                 gas sales volumes, it had a positive impact on steam sales volumes at Daejeon Combined
+                 Heat & Power Plant Co., Ltd. (“DJCP”), a wholly owned subsidiary of CNCTY. Accordingly,
+                 the overall impact on a consolidated basis was neutral (DJCP’s 1H 2026 EBITDA increased
+                 by 56.9% to KRW 13.1bn from KRW 8.3bn in 1H 2025).
+
+ Key operational highlights of Hanam Data Center, which MKIF has invested via Green Digital Infra
+  Co., Ltd. (“GDI”), are summarized below.
+       - GDI has signed the rent agreements that commit the tenant to use 99% of the target IT load of
+         25.44MW, and the mechanical, electrical and plumbing works were completed in 2Q 2025. The
+         operational ramp-up is in progress and GDI expects to generate full contracted rent revenue
+         corresponding to the target IT load after the operational ramp-up is completed in mid-2027.
+       - During the Period, GDI generated revenue of KRW 25.9 billion and EBITDA of KRW 12.3 billion,
+         an increase of 73.0% and 126.5% over pcp, respectively. The increases in revenue and EBITDA
+         were attributable to the continued operational ramp-up.
+
+ On 30 June 2026, the financial position of MKIF is as follows:
+       - Proportionately consolidated cash balance 2 of KRW 422.9 billion.
+       - The external debt 3 weighted average maturity is 4.9 years 4.
+       - Proportionately consolidated gearing ratio 5 of 26.9%.
+       - MKIF domestic credit rating remains unchanged at AA0 6.
+
+
+
+
+2. Proportionately consolidated MKIF cash and cash equivalents (inclusive of MKIF cash and cash equivalents of KRW 18.5bn)
+3. External debt of the underlying project companies is defined as the total drawn debt of the underlying project companies minus:
+   (i) borrowings from MKIF and underlying project companies; (ii) borrowing from third parties with the same and/or subordinated
+   term as MKIF’s; (iii) borrowing of which default risk and redemption obligation have been transferred to the relevant authority as
+   a result of restructuring
+4. Average remaining maturity of external debt of the underlying project companies based on MKIF equity ownership
+5. Proportionately consolidated MKIF net debt / (proportionately consolidated MKIF net debt + average MKIF market capitalization
+   for the previous 3 months)
+6. Credit rating provided by Korea Ratings, NICE Investors Service, and Korea Investors Service in Jun 2026 for the corporate
+   bonds issued by MKIF
+
+
+
+                                                                                                                                    2
+A major update related to MKIF and its assets for the Period includes:
+
+Amendment to the Act on Public-Private Partnerships in Infrastructure
+
+ On 19 February 2026, the Act on Public-Private Partnerships in Infrastructure (the “PPP Act”) was
+  amended, and on 14 April 2026, the Enforcement Decree of the PPP Act was also amended
+  (collectively, the “Amendments”). The key changes under the Amendments relevant to MKIF are
+  as follows:
+
+          Key Amendments*                  Before Amendment                  Post Amendment
+
+                                          Permitted to borrow or           Permitted to borrow or
+    Increase in borrowing limit             issue bonds up to                issue bonds up to
+                                           30% of share capital            100% of share capital
+
+    Expansion of investment                 Must invest 100% in          Must invest 90% or more in
+    mandate                                infrastructure projects         infrastructure projects
+
+  (*) Key amendments applicable to publicly offered collective investment vehicles specializing in
+      infrastructure under the PPP Act
+
+
+ As a result of the Amendments, MKIF’s statutory borrowing limit has increased from
+  approximately KRW 1.0 trillion (30% of KRW 3.3 trillion in share capital) to approximately KRW
+  3.3 trillion (100% of approximately KRW 3.3 trillion in share capital). MKIF plans to implement an
+  optimized capital strategy taking into account the size of future investments, MKIF’s financial
+  soundness, and market conditions.
+
+
+
+
+                                                                                                       3
+Appendix 1. Financial Results
+
+
+STATEMENT OF FINANCIAL POSITION1
+As at 30 June 2026 and 31 December 2025
+
+                                                                                                              (Unit: KRW million)
+                                                                                    30 June 2026           31 December 2025
+Assets
+    Investment Assets                                                                      4,588,555                     4,624,689
+   Cash & deposits                                                                             18,493                       24,885
+   Loans receivable2                                                                       2,408,426                     2,439,151
+   Equity securities2                                                                      2,161,636                     2,160,653
+    Others                                                                                    936,837                      856,101
+   Interest receivables2                                                                      932,589                      851,623
+   Other receivables                                                                                  -                              -
+   Deferred costs, net                                                                          2,129                         2,386
+    Prepayment                                                                                  2,119                         2,092
+Total Assets                                                                               5,525,392                     5,480,790
+Liabilities
+   Bond                                                                                       350,400                      349,723
+    Long-term debt                                                                            109,000                      107,000
+   Management fee payable                                                                      11,580                       12,082
+   Other liabilities                                                                            4,969                         5,601
+Total Liabilities                                                                             475,949                      474,406
+Shareholders’ Equity
+    Share Capital                                                                          3,297,209                     3,297,209
+    Retained earnings (losses) from valuation gains & losses2                              1,590,795                     1,590,795
+    Retained earnings (losses) excl. valuation gains & losses                                 161,439                      118,380
+Total Shareholders’ Equity                                                                 5,049,443                     5,006,384
+Total Liabilities and Shareholders’ Equity                                                 5,525,392                     5,480,790
+1. 31 Dec 2025 figures are audited, non-consolidated basis and 30 Jun 2026 figures are unaudited, non-consolidated basis
+2. Pursuant to the Financial Investment Services and Capital Markets Act and the resolution by the internal appraisal committee of
+   Macquarie Korea Asset Management Co., Ltd., MKIF has decided to determine the fair value of its investment assets (loans,
+   equity securities, interest receivables) based on valuations provided by an external professional institution, which will be
+   conducted at least once a year starting from 31 Dec 2025. This represents a change from the previous method of determining
+   fair value primarily based on acquisition cost. And valuation gains or losses, as well as related retained earnings (or
+   accumulated losses) arising from the change in fair value determination method, have been appropriately reflected in the
+   respective income statement and balance sheet. Investment assets for the Period reflect the valuations provided by an external
+   professional institution as of 31 December 2025, with adjustments to include accrued interest and dividend income and
+   additional investments, and to exclude interest or dividends received, principal repayments, or returns of capital during the
+   period until 30 Jun 2026.
+
+
+
+
+                                                                                                                                4
+STATEMENT OF INCOME (CUMULATIVE)1
+For the six months ended 30 June 2026 (“1H 2026”) and 30 June 2025 (“1H 2025”)
+
+                                                                                                            (Unit: KRW million)
+                                                                       1H 2026                 1H 2025              Change %
+Revenue                                                                260,021                 276,905                   (6.1%)
+    Interest income                                                    140,362                 140,323
+    Dividend income2,3                                                 119,649                 136,582
+    Other income                                                               8                        -
+    Disposal profits (losses)4                                                 2                        -
+Expenses                                                                 34,971                  33,367                       4.8%
+    Management fee                                                       23,353                  23,442
+    Interest expense                                                      9,335                   7,742
+    Other expenses                                                        2,283                   2,183
+Net Income                                                             225,050                 243,538                   (7.6%)
+EPS (KRW)                                                                   470                     509                  (7.6%)
+1. Unaudited, non-consolidated
+2. 1H 2026: KRW 63.0bn from Cheonan-Nonsan Expressway Co., Ltd.; KRW 31.3bn from New Airport Hiway Co., Ltd.; KRW
+   15.0bn from Kwangju Ring Road Company, Ltd.; KRW 4bn from Soojungsan Investment Co., Ltd.; KRW 4.1bn from CNCITY
+   Energy Co., Ltd.; KRW 2.2bn from Woomyunsan Infraway Co., Ltd.
+   1H 2025: KRW 54.0bn from Cheonan-Nonsan Expressway Co., Ltd.; KRW 24.1bn from New Airport Hiway Co., Ltd.; KRW
+   12.0bn from Kwangju Ring Road Company, Ltd.;KRW 18.5bn from Soojungsan Investment Co., Ltd.; KRW 4.1bn from CNCITY
+   Energy Co., Ltd.; KRW 2.1bn from Woomyunsan Infraway Co., Ltd.; KRW 21.7bn from BYTL ABS SPC
+3. A decrease in dividend income in 1H 2026 was attributable to (i) the absence of the one-off dividend income arising from the
+   corporate dissolution of the Baekyang Tunnel Private Investment Project entities and (ii) a decrease in dividends from
+   Soojungsan Investment Co., Ltd. in connection with the planned return of share capital to its shareholders
+4. 1H 2026: one-off disposal gain of KRW 2mn from the liquidation of BYTL Ltd.
+
+
+
+STATEMENT OF INCOME (QUARTERLY)1
+For the three months ended 30 June 2026 (“2Q 2026”) and 30 June 2025 (“2Q 2025”)
+
+                                                                       2Q 2026                 2Q 2025              Change %
+Revenue                                                                  70,677                  77,740                  (9.1%)
+    Interest income                                                      70,670                  70,640
+    Dividend income2,3                                                          -                 7,100
+    Other income                                                               6                        -
+    Disposal profits (losses)4                                                 1                        -
+Expenses                                                                 17,384                  16,853                       3.2%
+    Management fee                                                       11,580                  12,115
+    Interest expense                                                      4,731                   3,644
+    Other expenses                                                        1,073                   1,094
+Net Income                                                               53,293                  60,887                 (12.5%)
+EPS (KRW)                                                                   111                     127                 (12.5%)
+1. Unaudited, non-consolidated
+2. 2Q 2025: KRW 7.1bn from BYTL ABS SPC
+3. A decrease in dividend income in 2Q 2026 was attributable to the absence of the one-off dividend income arising from the
+   corporate dissolution of the Baekyang Tunnel Private Investment Project entities
+4. 2Q 2026: one-off disposal gain of KRW 1mn from the liquidation of BYTL Ltd.
+
+
+
+
+                                                                                                                                 5
+Appendix 2. Asset Performance – Toll Roads
+
+On a weighted average basis1, traffic volume increased by 0.5% for the Period compared with the pcp.
+Highlights for the Period include:
+          Traffic volumes for most toll road assets declined in 2Q 2026 due to a sharp increase in oil
+           prices, driven by disruptions to oil transportation through the Strait of Hormuz following the
+           outbreak of conflict in the Middle East in February 2026.
+          For the Incheon International Airport Expressway2 and BNP the 2nd Rear Road, the recent
+           operational commencement of the competing roads has resulted in a meaningful decrease in
+           traffic volumes. Each project company is currently undertaking the relevant procedures,
+           including consultation with the competent authorities, to address potential compensation for
+           revenue losses in accordance with the terms of the respective concession agreements.
+
+Traffic revenue of toll road asset companies is calculated based on respective traffic volume, actual toll
+fare and traffic volume mix. Total revenue of these companies is calculated by combining traffic revenue
+and support payments received from respective competent authority in connection with minimum
+revenue guarantee3, cost compensation3 and/or toll freeze compensation.
+
+                                                              1H 2026                  2Q 2026
+                        Asset                                                                              MKIF Portfolio %5
+                                                            Volume (%)4              Volume (%)4
+   Gwangju 2nd Beltway, Section 1                              (2.4%)                   (4.7%)                      3%
+   Incheon International Airport Expressway                   (17.0%)                  (19.3%)                      2%
+   Soojungsan Tunnel                                           (2.5%)                   (2.7%)                      1%
+   Cheonan-Nonsan Expressway                                   (0.1%)                   (0.9%)                      7%
+   Woomyunsan Tunnel                                           (1.7%)                    2.9%                       1%
+   Gwangju 2nd Beltway, Section 3-1                            0.1%                     (1.8%)                      1%
+   Machang Bridge                                              0.8%                     (1.0%)                      4%
+   Yongin-Seoul Expressway                                     0.7%                     (1.1%)                      5%
+   Seoul-Chuncheon Highway                                     2.4%                      1.0%                       5%
+   Incheon Grand Bridge                                        8.5%                      7.3%                      10%
+   BNP the 2nd Rear Road                                       (7.1%)                   (7.0%)                      4%
+   Incheon-Gimpo Expressway                                    2.8%                      1.5%                       4%
+   Weighted Average1                                           0.5%                     (0.8%)
+1. On a weighted average basis based on revenue size of and MKIF’s equity ownership stake in each project company (assumed
+   full investment of committed amounts)
+2. Traffic volume of the Incheon International Airport Expressway decreased substantially due to its proximity to a competing road
+   that commenced operations in 2026
+3. Gwangju 2nd Beltway Section 1 & 3-1, Soojungsan Tunnel, and Machang Bridge receive support payments from government if
+   their toll revenue or cash flow in a given period is less than specified amount under concession agreement
+4. Percentage change from pcp, based on average daily traffic volume
+5. Based on MKIF investment amount on 30 June 2026 (assumes full investment of committed amounts)
+
+
+
+
+                                                                                                                                6
+Appendix 3. Asset Performance – Container Port (BNCT)1
+
+                                                      First Half1                                           Quarterly1
+
+                                                                       Change over                                           Change over
+                                      1H 2026          1H 2025                             2Q 2026           2Q 2025
+                                                                          pcp                                                   pcp
+   Volume (TEU million)                      1.31              1.35            (2.5%)              0.66              0.66              (0.6%)
+   Revenue (KRW billion)                     81.2              79.8             1.8%               41.7              40.4               3.3%
+   EBITDA (KRW billion)2                     35.2              35.2             0.1%               18.6              18.3               1.4%
+   EBITDA margin                           43.3%             44.1%           (0.8%p)             44.5%             45.3%           (0.8%p)
+1. Unaudited figures
+2. Although volume declined, revenue and EBITDA increased slightly due to an improved volume mix and ancillary revenue.
+
+Appendix 4. Asset Performance – City Gas Business1
+
+HY
+                                                      First Half1                                           Quarterly1
+
+                                                                       Change over                                           Change over
+                                      1H 2026          1H 2025                             2Q 2026           2Q 2025
+                                                                          pcp                                                   pcp
+   Volume (million m3)                        453               463            (2.1%)               148               153              (3.3%)
+   Revenue (KRW billion)2                   409.5             434.2            (5.7%)             139.4             144.1              (3.3%)
+   EBITDA (KRW billion)                      35.6              33.5             6.3%               18.0              17.5               2.9%
+   Pipeline length                      2,600km           2,573km               1.1%          2,600km           2,573km                 1.1%
+
+
+SRB
+                                                      First Half1                                           Quarterly1
+
+                                                                       Change over                                           Change over
+                                      1H 2026          1H 2025                             2Q 2026           2Q 2025
+                                                                          pcp                                                   pcp
+   Volume (million m3)                        114               113             1.0%                 42                40               5.0%
+   Revenue (KRW billion)2                   102.8             106.9            (3.8%)              39.2              37.8               3.7%
+   EBITDA (KRW billion)                       9.0                7.9           13.9%                 3.9               3.4             15.1%
+   Pipeline length                        659km              642km              2.6%             659km            642km                 2.6%
+
+CNCITY
+                                                      First Half1                                           Quarterly1
+
+                                                                       Change over                                           Change over
+                                      1H 2026          1H 2025                             2Q 2026           2Q 2025
+                                                                          pcp                                                   pcp
+   Volume (million m3)                        382               397            (3.8%)               102               113          (10.0%)
+   Revenue (KRW billion)2                   386.1             409.9            (5.8%)             106.3             116.4              (8.7%)
+   EBITDA (KRW billion)3                     33.3              35.0            (4.9%)                2.8               6.3         (55.9%)
+   Pipeline length                      1,800km           1,785km               0.8%          1,800km           1,785km                 0.8%
+
+1. Unaudited figures
+2. Revenue is mostly impacted by sales volume, KOGAS wholesale tariff and retail distribution tariff. Average wholesale tariff is
+   adjusted to reflect the change in natural gas price, and such adjustment impacts both revenue & cost of goods sold
+3. HY: While sales volume decreased due to higher average temperatures, improved yield effect led to an increase in EBITDA
+   SRB: EBITDA increased due to higher industrial sales volumes and reduced expenses
+   CNCITY: Sales volume decreased due to higher average temperatures and an increased proportion of steam usage by certain
+   industrial customers. The decline in EBITDA was further driven by a shift in the recognition of certain expenses from the second
+   half to the first half of the year. While the increased proportion of steam usage by certain customers resulted in lower city gas
+   sales volumes, it had a positive impact on steam sales volumes at Daejeon Combined Heat & Power Plant Co., Ltd., a wholly
+   owned subsidiary of CNCTY. Accordingly, the overall impact on CNCITY was neutral on a consolidated basis.
+
+
+
+
+                                                                                                                                  7
+For further information, please contact:
+
+Jinwook Park                                                          Jang-Young (Kevin) You
+Division Director                                                     Associate Director
+Macquarie Korea Asset Management Co., Ltd.                            Macquarie Korea Asset Management Co., Ltd.
++ 82 2 3705 8516                                                      + 82 2 3705 8565
+jinwook.park@macquarie.com                                            kevin.you@macquarie.com
+
+This release is not an offer or solicitation for sale of the securities of MKIF in the United States or in any jurisdiction where any offer,
+sale or solicitation in respect of such securities is not permitted. Securities may not be offered or sold in the United States absent
+registration or an exemption from registration under the U.S. Securities Act of 1933 and the US Investment Company Act of 1940,
+as amended (the “Act”), or in any jurisdiction where such offer or sale is not permitted. The securities of MKIF have not been
+registered under the Act, and may not be offered or sold in the United States absent registration or exemption from registration
+under the Act. There will be no public offer of the securities in the United States.
+Not for distribution in the United States or in any jurisdiction where any offer, sale or solicitation in respect of the
+contemplated securities is not permitted.
+
+This release does not take into account the investment objectives, financial situation and particular needs of the investor. Before
+making an investment in MKIF, the investor or prospective investor should consider whether such an investment is appropriate to
+their particular investment needs, objectives and financial circumstances and consult an investment adviser if necessary.
+
+MKIF or Macquarie Korea Asset Management Co., Ltd. (MKAM) is not an authorised deposit-taking institution for the purposes of
+the Banking Act 1959 (Commonwealth of Australia). The obligations of this entity do not represent deposits or other liabilities of
+Macquarie Bank Limited ABN 46 008 583 542 (MBL). MBL does not guarantee or otherwise provide assurance in respect of the
+obligations of these entities.
+
+Investments in MKIF are subject to investment risk, including possible delays in repayment or loss of income and/or capital
+investment. Neither MKIF, nor any member of the Macquarie Group companies, including MKAM, guarantees the performance of
+MKIF, the repayment of capital or the payment of a particular rate of return on MKIF securities.
+
+
+
+
+                                                                                                                                          8
+

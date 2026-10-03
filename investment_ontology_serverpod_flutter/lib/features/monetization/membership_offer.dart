@@ -117,7 +117,7 @@ Future<void> showMembershipOffer(BuildContext context) async {
                         ),
                         const SizedBox(height: AppSpace.lg),
                         Text(
-                          '월 2,900원',
+                          '가입 가격을 유지하는 월간 멤버십',
                           style: t.numeric(20, weight: FontWeight.w600),
                         ),
                         Text(

@@ -1,0 +1,51 @@
+{
+  "receipt": "20240319000287",
+  "corpCode": "00321204",
+  "companyName": "지에이이노더스(주)",
+  "bsnsYear": 2023,
+  "basis": "ofs",
+  "shellCorpIds": [
+    "00321204"
+  ],
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240319000287",
+      "sha256": "2692781552bfa633a2b39fdd9d6b0fb43c58406233eabb335ddabb4151767bd5"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240319000287&dcmNo=9729336&eleId=1&offset=955&length=4076&dtd=dart4.xsd",
+      "sha256": "6ca9a73a83f863bd055167f4f4a8712edf0bf4f0e7f213ffc1231ab63772abcf"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240319000287&dcmNo=9729336&eleId=21&offset=614458&length=108017&dtd=dart4.xsd",
+      "sha256": "332dfcf581c292e23e37eaaed5008ca97e83ec6e0a27a4e0c820526cdc921eff"
+    },
+    {
+      "label": "overview",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240319000287&dcmNo=9729336&eleId=3&offset=5547&length=66186&dtd=dart4.xsd",
+      "sha256": "40ed169c1a6ab0bd1ce62e8510c57438b40833f8617f93907714d7e8738122db"
+    }
+  ],
+  "printedCoverName": "관악산업주식회사",
+  "actualDates": [
+    "2023-01-01",
+    "2023-12-31"
+  ],
+  "overviewNode": {
+    "text": "I. 회사의 개요",
+    "id": "3",
+    "rcpNo": "20240319000287",
+    "dcmNo": "9729336",
+    "eleId": "3",
+    "offset": "5547",
+    "length": "66186",
+    "dtd": "dart4.xsd",
+    "tocNo": "3",
+    "atocId": "3"
+  },
+  "overviewSource": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240319000287&dcmNo=9729336&eleId=3&offset=5547&length=66186&dtd=dart4.xsd",
+  "overviewSha256": "40ed169c1a6ab0bd1ce62e8510c57438b40833f8617f93907714d7e8738122db"
+}

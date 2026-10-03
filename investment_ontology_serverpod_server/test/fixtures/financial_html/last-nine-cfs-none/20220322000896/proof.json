@@ -1,0 +1,64 @@
+{
+  "id": 29423,
+  "name": "인바이츠바이오코아(주)",
+  "market": "konex",
+  "stockCode": "216400",
+  "corpCode": "00537221",
+  "rceptNo": "20220322000896",
+  "reportName": "사업보고서 (2021.12)",
+  "actual_period": "2021.12",
+  "bsnsYear": 2021,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 2,
+  "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 2,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220322000896",
+      "sha256": "51c0a2c0471c82c6e688b55cfb42e17bc246a561044602c3b8f7fbef7677c345"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000896&dcmNo=8492358&eleId=1&offset=812&length=4046&dtd=dart3.xsd",
+      "sha256": "68f0c49c135396a5b6dffdeec7b5fb1749ff4776fbd76b825ac59cf28c893137"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000896&dcmNo=8492358&eleId=19&offset=323858&length=151&dtd=dart3.xsd",
+      "sha256": "ee048080fb60b827302366125e8216baa25e91a56ce29f203b97b378f1a0b39e"
+    }
+  ],
+  "shellCorpIds": [
+    "00537221"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20220322000896",
+        "dcmNo": "8492358",
+        "eleId": "1",
+        "offset": "812",
+        "length": "4046",
+        "dtd": "dart3.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20220322000896",
+        "dcmNo": "8492358",
+        "eleId": "19",
+        "offset": "323858",
+        "length": "151",
+        "dtd": "dart3.xsd"
+      }
+    }
+  ]
+}

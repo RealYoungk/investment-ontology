@@ -1,0 +1,8 @@
+{
+  "id": 987,
+  "kind": "dartReport",
+  "reference": "financial-source-conflict:20220322000964:consolidated",
+  "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000964&dcmNo=8492716&eleId=19&offset=213973&length=47229&dtd=dart3.xsd",
+  "retrievedAt": "2026-10-03T00:00:00.000Z",
+  "title": "{\"action\": \"verified-primary-source-conflict\", \"targetReceipt\": \"20220322000964\", \"corpCode\": \"01185867\", \"fsDiv\": \"consolidated\", \"reportName\": \"사업보고서 (2021.12)\", \"status\": \"failed\", \"financialFactsStored\": false, \"evidence\": {\"corpCode\": \"01185867\", \"consolidated\": true, \"year\": 2021, \"coverSource\": \"https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000964&dcmNo=8492716&eleId=1&offset=794&length=4087&dtd=dart3.xsd\", \"statementSource\": \"https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000964&dcmNo=8492716&eleId=19&offset=213973&length=47229&dtd=dart3.xsd\", \"coverSha256\": \"e2c871b9d537eb40220ce7df44a37b06234cff699cee77f23013dd2a81d0c7f6\", \"statementSha256\": \"8add3792568e83399c5ca5f41a10efbcd840ecd1b0f51252a4421b7feaa48d87\", \"reason\": \"독립 연결 자본변동표 당기말의 인쇄 연도 202는 보고기간 2021을 증명하지 못함\", \"printedClosingLabel\": \"202.12.31 (당기말)\", \"wholeEquity\": \"7,178,098,852\", \"unit\": \"원\", \"parentColumn\": 5, \"nonControllingColumn\": 6, \"wholeColumn\": 7, \"receipt\": \"20220322000964\", \"periodStart\": \"2021-01-01\", \"periodEnd\": \"2021-12-31\", \"financialFactsStored\": false}}"
+}

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "01262023",
+  "receipt": "20260323000661",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2025,
+  "periodStart": "2025-01-01",
+  "periodEnd": "2025-12-31",
+  "ruleVersion": "exact-annual-cache-registry-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260323000661",
+      "sha256": "e16c6566ecf360f8bd35fed5dba35fb7ab88fdedcf2adc3add65eb0fae5c6b06"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323000661&dcmNo=11163088&eleId=1&offset=965&length=4537&dtd=dart4.xsd",
+      "sha256": "0e107dc5461d167b5dd2559687f93a46412bd65075335996cfc907a6721cbb97"
+    },
+    {
+      "label": "ofs",
+      "file": "ofs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323000661&dcmNo=11163088&eleId=21&offset=200508&length=78783&dtd=dart4.xsd",
+      "sha256": "5ed79bcc4fc53adf8e7a07d859fd2f9102b13a3355d7c9165baebbf7a155488a"
+    }
+  ],
+  "retrievalProof": "official-exact-shell-cover-ofs; reviewed fixture rootloc-year-term; no opposite-basis reuse"
+}

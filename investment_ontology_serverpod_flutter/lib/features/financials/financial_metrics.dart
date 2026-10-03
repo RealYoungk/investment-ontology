@@ -880,7 +880,9 @@ class FinancialView {
             currency: line(p, key)?.currency ?? 'KRW',
           ),
         ],
-        missing: a == null ? '${p.bsnsYear} 연간 $label 계정 없음' : null,
+        missing:
+            line(p, key)?.unavailableReason ??
+            (a == null ? '${p.bsnsYear} 연간 $label 계정 없음' : null),
       );
     }
     final prevAnnual = period(p.bsnsYear - 1, FinancialReportCode.annual);

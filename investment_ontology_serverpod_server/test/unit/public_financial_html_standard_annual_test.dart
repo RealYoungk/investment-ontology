@@ -48,6 +48,34 @@ void main() {
     );
   }
 
+  test('signed cell padding preserves exact negative values without joining digits', () {
+    final e = reviewed.cast<Map>().first;
+    final original = html(e['receipt'], '${e['basis']}-statement');
+    final padded = original.replaceAllMapped(
+      RegExp(r'\((\d{1,3}(?:,\d{3})+)\)'),
+      (m) => '- ${m[1]}',
+    );
+    expect(padded, isNot(original));
+    final baseline = parse(e), rows = parse(e, body: padded);
+    expect(
+      rows.map((r) => r['thstrm_amount']).toList(),
+      baseline.map((r) => r['thstrm_amount']).toList(),
+    );
+    final negative = baseline.firstWhere(
+      (r) => (r['thstrm_amount'] as String).startsWith('-'),
+    );
+    final printed =
+        (negative['html_provenance'] as Map)['printedCurrentCells'].first
+            as String;
+    final originalDigits = printed
+        .trim()
+        .replaceAll(RegExp(r'[()-]'), '')
+        .trim();
+    final broken = padded.replaceAll('- $originalDigits', '- 1 000');
+    expect(broken, isNot(padded));
+    expect(() => parse(e, body: broken), throwsFormatException);
+  });
+
   test(
     'actual EMT 90-day annual current amounts and interval remain exact',
     () {

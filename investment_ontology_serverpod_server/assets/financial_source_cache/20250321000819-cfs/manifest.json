@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "00929228",
+  "receipt": "20250321000819",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2024,
+  "periodStart": "2024-01-01",
+  "periodEnd": "2024-12-31",
+  "ruleVersion": "exact-annual-cache-registry-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20250321000819",
+      "sha256": "483e9f5b02b76d49a50f07bd13066b4213826af0d620fa0e95dd7e0d327b6431"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321000819&dcmNo=10444895&eleId=1&offset=954&length=4589&dtd=dart4.xsd",
+      "sha256": "dea40f89f5f179c2b1cee7a146a9626730ebe3883db41c7c77fdfd0f9183a5ad"
+    },
+    {
+      "label": "cfs",
+      "file": "cfs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321000819&dcmNo=10444895&eleId=19&offset=431752&length=185&dtd=dart4.xsd",
+      "sha256": "795cce1a6e556d4728c705a743b03fee29b915cc4374ca1d40b4b014b9cf0c81"
+    }
+  ],
+  "retrievalProof": "official-exact-shell-cover-cfs; reviewed fixture five-cfs-explicit-none/20250321000819; no opposite-basis reuse"
+}

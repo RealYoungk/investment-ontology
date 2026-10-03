@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "00978075",
+  "receipt": "20221026000437",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "ruleVersion": "historical-issuer-cfs-none-own-ofs-v1",
+  "sources": [
+    {
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20221026000437",
+      "sha256": "beb4bfd8122017359800cd1fa020e74ddea253345e0518f3d41898fd819cca7a",
+      "file": "shell.html",
+      "label": "shell"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20221026000437&dcmNo=8849132&eleId=3&offset=10379&length=4045&dtd=dart3.xsd",
+      "sha256": "4a7d31b0297bc787c9967754463eb2ee4844930c3337b51e053eda23c1f75af3",
+      "file": "cover.html",
+      "label": "cover"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20221026000437&dcmNo=8849132&eleId=19&offset=117481&length=181&dtd=dart3.xsd",
+      "sha256": "01bf747d233872009d2f559036c9957ac4175eb7130e3dcd34e8012a35ffcc4b",
+      "file": "cfs.html",
+      "label": "cfs"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20221026000437&dcmNo=8849132&eleId=5&offset=14938&length=57264&dtd=dart3.xsd",
+      "sha256": "45db599446b1f8eff55d489b43f092d197cc05455434ebe1ee25eecc163e2192",
+      "file": "overview.html",
+      "label": "overview"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20221026000437&dcmNo=8849132&eleId=21&offset=117854&length=52406&dtd=dart3.xsd",
+      "sha256": "e4f17a8a79ec95d89de0e509bfd901da267b4d243daa7e4632106bb9960055f1",
+      "file": "issuer-ofs.html",
+      "label": "issuer-ofs"
+    }
+  ],
+  "retrievalProof": "동일 공식 접수의 별도 whole7~8 직접표 명칭을 신원 witness로만 검증. CFS 전체절은 exact 순수 비적용 문구. OFS 숫자를 CFS로 전환하거나 현재마스터로 당시 상호를 변경하지 않음."
+}

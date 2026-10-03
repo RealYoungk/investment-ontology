@@ -93,10 +93,12 @@ void main() {
             worker.run(builder.build(), sub.id!, at: now),
             worker.run(builder.build(), sub.id!, at: now),
           ]);
-          expect(requests.map((r) => r.headers['Idempotency-Key']).toSet(), {
+          final charges = requests.where((r) => r.method == 'POST').toList();
+          expect(charges, hasLength(1));
+          expect(charges.map((r) => r.headers['Idempotency-Key']).toSet(), {
             attempt.idempotencyKey,
           });
-          expect(requests.map((r) => jsonDecode(r.body)['orderId']).toSet(), {
+          expect(charges.map((r) => jsonDecode(r.body)['orderId']).toSet(), {
             attempt.orderId,
           });
           expect(

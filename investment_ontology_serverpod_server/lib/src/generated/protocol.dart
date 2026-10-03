@@ -41,6 +41,8 @@ import 'package:investment_ontology_serverpod_server/src/generated/ontology/mode
     as _irm0258u;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/investment_theme.dart'
     as _in6y0ur2;
+import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/macro_series_view.dart'
+    as _ikb4l1o7;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/market_cap_point.dart'
     as _ihep8lzy;
 import 'package:investment_ontology_serverpod_server/src/generated/ontology/models/ownership_snapshot.dart'
@@ -161,6 +163,7 @@ import 'ontology/models/ingest_schedule_entry.dart' as _ilyxu1av;
 import 'ontology/models/ingest_status.dart' as _imojj26x;
 import 'ontology/models/investment_entry.dart' as _i9p8kpm7;
 import 'ontology/models/investment_theme.dart' as _i57inxpq;
+import 'ontology/models/macro_series_view.dart' as _id0q6lal;
 import 'ontology/models/market.dart' as _iyzzhewo;
 import 'ontology/models/market_cap_node.dart' as _i1tskjhh;
 import 'ontology/models/market_cap_point.dart' as _igdvszti;
@@ -308,6 +311,7 @@ export 'ontology/models/ingest_schedule_entry.dart';
 export 'ontology/models/ingest_status.dart';
 export 'ontology/models/investment_entry.dart';
 export 'ontology/models/investment_theme.dart';
+export 'ontology/models/macro_series_view.dart';
 export 'ontology/models/market.dart';
 export 'ontology/models/market_cap_node.dart';
 export 'ontology/models/market_cap_point.dart';
@@ -605,6 +609,27 @@ class Protocol extends _is.DatabaseSerializationManager {
           isNullable: false,
           dartType: 'String',
         ),
+        _isp.ColumnDefinition(
+          name: 'amountKrw',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '2900',
+        ),
+        _isp.ColumnDefinition(
+          name: 'priceVersion',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+          columnDefault: '\'legacy-2900\'',
+        ),
+        _isp.ColumnDefinition(
+          name: 'provider',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+          columnDefault: '\'toss\'',
+        ),
       ],
       foreignKeys: [
         _isp.ForeignKeyDefinition(
@@ -695,6 +720,46 @@ class Protocol extends _is.DatabaseSerializationManager {
           columnType: _isp.ColumnType.timestampWithoutTimeZone,
           isNullable: false,
           dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: 'amountKrw',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '2900',
+        ),
+        _isp.ColumnDefinition(
+          name: 'priceVersion',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+          columnDefault: '\'legacy-2900\'',
+        ),
+        _isp.ColumnDefinition(
+          name: 'provider',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+          columnDefault: '\'toss\'',
+        ),
+        _isp.ColumnDefinition(
+          name: 'retryCount',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
+          name: 'chargeStartedUtc',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'failedOrderIds',
+          columnType: _isp.ColumnType.json,
+          isNullable: true,
+          dartType: 'List<String>?',
         ),
       ],
       foreignKeys: [
@@ -839,6 +904,52 @@ class Protocol extends _is.DatabaseSerializationManager {
           isNullable: false,
           dartType: 'int',
           columnDefault: '0',
+        ),
+        _isp.ColumnDefinition(
+          name: 'priceLocked',
+          columnType: _isp.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'false',
+        ),
+        _isp.ColumnDefinition(
+          name: 'priceKrw',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+          columnDefault: '2900',
+        ),
+        _isp.ColumnDefinition(
+          name: 'priceVersion',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+          columnDefault: '\'legacy-2900\'',
+        ),
+        _isp.ColumnDefinition(
+          name: 'provider',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+          columnDefault: '\'toss\'',
+        ),
+        _isp.ColumnDefinition(
+          name: 'graceThroughUtc',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'retryAfterUtc',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'billingPausedUtc',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
         ),
       ],
       foreignKeys: [],
@@ -6373,6 +6484,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _i57inxpq.InvestmentTheme) {
       return _i57inxpq.InvestmentTheme.fromJson(data) as T;
     }
+    if (t == _id0q6lal.MacroSeriesView) {
+      return _id0q6lal.MacroSeriesView.fromJson(data) as T;
+    }
     if (t == _iyzzhewo.Market) {
       return _iyzzhewo.Market.fromJson(data) as T;
     }
@@ -6948,6 +7062,10 @@ class Protocol extends _is.DatabaseSerializationManager {
       return (data != null ? _i57inxpq.InvestmentTheme.fromJson(data) : null)
           as T;
     }
+    if (t == _is.getType<_id0q6lal.MacroSeriesView?>()) {
+      return (data != null ? _id0q6lal.MacroSeriesView.fromJson(data) : null)
+          as T;
+    }
     if (t == _is.getType<_iyzzhewo.Market?>()) {
       return (data != null ? _iyzzhewo.Market.fromJson(data) : null) as T;
     }
@@ -7180,6 +7298,15 @@ class Protocol extends _is.DatabaseSerializationManager {
               : null)
           as T;
     }
+    if (t == List<String>) {
+      return (data as List).map((e) => deserialize<String>(e)).toList() as T;
+    }
+    if (t == _is.getType<List<String>?>()) {
+      return (data != null
+              ? (data as List).map((e) => deserialize<String>(e)).toList()
+              : null)
+          as T;
+    }
     if (t == List<_inylkhjt.BusinessSection>) {
       return (data as List)
               .map((e) => deserialize<_inylkhjt.BusinessSection>(e))
@@ -7300,9 +7427,6 @@ class Protocol extends _is.DatabaseSerializationManager {
               .map((e) => deserialize<_iiky47zh.CompanyNewsItem>(e))
               .toList()
           as T;
-    }
-    if (t == List<String>) {
-      return (data as List).map((e) => deserialize<String>(e)).toList() as T;
     }
     if (t == List<_i0csqxj4.CompanyListItem>) {
       return (data as List)
@@ -7547,6 +7671,12 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == List<String>) {
       return (data as List).map((e) => deserialize<String>(e)).toList() as T;
     }
+    if (t == List<_ikb4l1o7.MacroSeriesView>) {
+      return (data as List)
+              .map((e) => deserialize<_ikb4l1o7.MacroSeriesView>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_i8ke3qsu.CompanyMarketCap>) {
       return (data as List)
               .map((e) => deserialize<_i8ke3qsu.CompanyMarketCap>(e))
@@ -7713,6 +7843,7 @@ class Protocol extends _is.DatabaseSerializationManager {
       _imojj26x.IngestStatus => 'IngestStatus',
       _i9p8kpm7.InvestmentEntry => 'InvestmentEntry',
       _i57inxpq.InvestmentTheme => 'InvestmentTheme',
+      _id0q6lal.MacroSeriesView => 'MacroSeriesView',
       _iyzzhewo.Market => 'Market',
       _i1tskjhh.MarketCapNode => 'MarketCapNode',
       _igdvszti.MarketCapPoint => 'MarketCapPoint',
@@ -7979,6 +8110,8 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'InvestmentEntry';
       case _i57inxpq.InvestmentTheme():
         return 'InvestmentTheme';
+      case _id0q6lal.MacroSeriesView():
+        return 'MacroSeriesView';
       case _iyzzhewo.Market():
         return 'Market';
       case _i1tskjhh.MarketCapNode():
@@ -8422,6 +8555,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'InvestmentTheme') {
       return deserialize<_i57inxpq.InvestmentTheme>(data['data']);
+    }
+    if (dataClassName == 'MacroSeriesView') {
+      return deserialize<_id0q6lal.MacroSeriesView>(data['data']);
     }
     if (dataClassName == 'Market') {
       return deserialize<_iyzzhewo.Market>(data['data']);

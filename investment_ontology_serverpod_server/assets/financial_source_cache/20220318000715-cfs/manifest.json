@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20220318000715",
+  "corpCode": "01065785",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "ruleVersion": "verified-current-period-whole-annual-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220318000715",
+      "sha256": "fc840fb49b7fda6f7f7a8f7925c5d0aa5eb9bfe78ccf2335863eeb2f68df512c",
+      "file": "shell.html"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220318000715&dcmNo=8477481&eleId=1&offset=798&length=4017&dtd=dart3.xsd",
+      "sha256": "05ecd7a58563c6e5caeb2d159bb9cecce60be22842556e4d0a06858ebf6a311c",
+      "file": "cover.html"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220318000715&dcmNo=8477481&eleId=19&offset=424663&length=55601&dtd=dart3.xsd",
+      "sha256": "c9c15ca8f048d7f4dbb8e24855a53627b88f2a009a9cc9f481424ed47a3709b9",
+      "file": "cfs.html"
+    }
+  ],
+  "retrievalProof": "정확 owncorp/표지/당기 연결 whole8 직접 행. CE 전체 총계열 순손실 -7516838106 및 자본 -462593520과 primary PL/BS 일치. 부모/NCI 값 재사용 없음. OFS 매출대시·부분6 미지원은 변경하지 않음."
+}

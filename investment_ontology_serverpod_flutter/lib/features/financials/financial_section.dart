@@ -1,3 +1,8 @@
+import 'statement_conflict_notice.dart';
+import 'statement_availability_notice.dart';
+import 'split_plan_source_registry.dart';
+import 'split_plan_documents_section.dart';
+
 import 'package:flutter/material.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 
@@ -8,6 +13,8 @@ import '../../design/tokens.dart';
 import '../common/formatters.dart';
 import 'financial_metrics.dart';
 import 'metric_profile.dart';
+import 'issuer_financials_section.dart';
+import 'issuer_financial_source_registry.dart';
 
 String _financialAmount(double value, String currency) => currency == 'KRW'
     ? formatKrwShort(value)
@@ -99,6 +106,17 @@ class _FinancialSectionState extends State<FinancialSection> {
     final c = context.colors;
     final t = context.typo;
     final data = _data;
+    final sourceConflict =
+        data?.statementAvailabilitySources?.any(
+          (s) => StatementConflictNotice.evidence(s, widget.corpCode) != null,
+        ) ??
+        false;
+    final sourceNotPresented =
+        data?.statementAvailabilitySources?.any(
+          (s) =>
+              StatementAvailabilityNotice.evidence(s, widget.corpCode) != null,
+        ) ??
+        false;
 
     Widget body;
     if (_loading && data == null) {
@@ -111,7 +129,14 @@ class _FinancialSectionState extends State<FinancialSection> {
     } else if (data == null || (data.periods.isEmpty && data.market == null)) {
       body = Text(
         data == null || data.filingCount == 0
-            ? '아직 재무·시세를 수집하지 않았습니다.'
+            ? (IssuerFinancialSourceRegistry.supportsCorp(widget.corpCode) ||
+                      SplitPlanSourceRegistry.supports(widget.corpCode))
+                  ? '정기보고서 API 재무 데이터는 아직 없습니다.'
+                  : '아직 재무·시세를 수집하지 않았습니다.'
+            : sourceConflict
+            ? '공식 원문을 확인했지만 당기 수치·기간 표기의 충돌로 재무 숫자를 저장하지 않았습니다.'
+            : sourceNotPresented
+            ? '공식 원문을 확인했지만 해당 기간의 당기 재무 숫자는 제시되지 않았습니다.'
             : '정기보고서 ${formatCount(data.filingCount)}건 중 '
                   '${formatCount(data.pendingFilingCount)}건을 아직 받지 않았습니다.',
         style: t.body(13, color: c.textMuted),
@@ -120,7 +145,30 @@ class _FinancialSectionState extends State<FinancialSection> {
       body = _content(context, FinancialView(data));
     }
 
-    return body;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (data != null)
+          StatementAvailabilityNotice(
+            corpCode: widget.corpCode,
+            sources: data.statementAvailabilitySources ?? const [],
+          ),
+        body,
+        SplitPlanDocumentsSection(
+          corpCode: widget.corpCode,
+          dataVersion: widget.dataVersion,
+        ),
+        IssuerFinancialsSection(
+          corpCode: widget.corpCode,
+          dataVersion: widget.dataVersion,
+        ),
+        IssuerFinancialsSection(
+          corpCode: widget.corpCode,
+          dataVersion: widget.dataVersion,
+          ownAnnual: true,
+        ),
+      ],
+    );
   }
 
   Widget _content(BuildContext context, FinancialView view) {
@@ -667,10 +715,7 @@ class _CashFlowChart extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text(
-                  '현금흐름',
-                  style: t.body(13, weight: FontWeight.w600),
-                ),
+                child: Text('현금흐름', style: t.body(13, weight: FontWeight.w600)),
               ),
               Semantics(
                 container: true,

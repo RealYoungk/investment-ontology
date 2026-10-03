@@ -1,7 +1,25 @@
+import '../financial/hanwha_own_net_income_scope.dart';
+import '../financial/suntech_own_cf_scope.dart';
+import '../financial/solumix_own_revenue_scope.dart';
+import '../dart/located_own_current_source.dart';
+import '../dart/ls_kiwoom_current_source.dart';
+import '../dart/known_annual_conflict_cache.dart';
+
+import 'dart:io';
+
+import '../dart/known_annual_source_not_presented.dart';
+import '../dart/known_annual_source_conflict.dart';
+import '../dart/exact_statement_rows.dart';
+import 'exact_statement_enrichment.dart';
+import '../dart/imgt_explicit_revenue_missing.dart';
 import '../dart/verified_annual_source_cache.dart';
+import '../dart/linked_correction_audit_source.dart';
+import '../dart/header18_linked_primary_source.dart';
+import '../dart/verified_annual_source_registry.dart';
 import '../dart/verified_half_basis_absence.dart';
 import '../financial/financial_accounts.dart';
 import '../dart/bnk_six_core_profile.dart';
+import '../dart/pureun_six_core_profile.dart';
 
 import 'dart:math';
 import 'dart:convert';
@@ -42,11 +60,18 @@ class FinancialFactsSync {
     this.corpCode,
     DateTime Function()? clock,
     VerifiedAnnualSourceCache? sourceCache,
+    KnownAnnualNotPresentedCache? negativeSourceCache,
+    KnownAnnualConflictCache? conflictSourceCache,
   }) : dailyBudget = dailyBudget ?? ApiCallBudget.dartFinancialBudget,
        _explicitBudget = dailyBudget != null,
        _clock = clock ?? DateTime.now,
-       _sourceCache = sourceCache ?? VerifiedAnnualSourceCache();
+       _sourceCache = sourceCache ?? VerifiedAnnualSourceCache(),
+       _negativeSourceCache =
+           negativeSourceCache ?? KnownAnnualNotPresentedCache(),
+       _conflictSourceCache = conflictSourceCache ?? KnownAnnualConflictCache();
 
+  final KnownAnnualNotPresentedCache _negativeSourceCache;
+  final KnownAnnualConflictCache _conflictSourceCache;
   static const kind = 'financial_facts';
 
   /// 기업 하나만 받는 수집. 전체 수집과 따로 세어 백필 중에도 돌 수 있다.
@@ -267,6 +292,14 @@ class FinancialFactsSync {
               t.companyId.inSet({for (final c in companies.values) c.id!}) &
               t.reportCode.notEquals(null),
         ),
+      );
+      final notPresentedClassified = await _classifyNotPresented(
+        scopeIds,
+        companies,
+      );
+      final conflictsClassified = await _classifyKnownConflicts(
+        scopeIds,
+        companies,
       );
       // A prior interim query used the canonical fiscal-end year as the API
       // year. Retry that precise latest-scope noData once with the report-end
@@ -533,11 +566,13 @@ class FinancialFactsSync {
         );
       }
       final cached = job.status == IngestStatus.cancelled
-          ? (processed: 0, failed: 0, stored: 0)
+          ? (processed: 0, failed: 0, stored: 0, remaining: 0)
           : await _replayVerifiedAnnualSourceCache(scopeIds, companies);
       processed += cached.processed;
       failed += cached.failed;
       stored += cached.stored;
+      final enriched = await _enrichStoredExactStatements(scopeIds, companies);
+      failed += enriched.failed;
       final halfPublic = !_hasAllowance && job.status != IngestStatus.cancelled
           ? await _recoverPendingHalfXbrl(scopeIds, companies)
           : (stored: 0, failed: 0, processed: 0, remaining: 0, fresh: false);
@@ -711,6 +746,13 @@ class FinancialFactsSync {
         message +=
             ', 동일 원접수·당기 핵심 7계정 검증 후 보고기간 명칭 복구 $_periodNameMetadataRepaired벌(전체 계정값 재검증 아님)';
       }
+      if (conflictsClassified > 0) {
+        message += ', 원문 불일치 실패 근거 $conflictsClassified건 확인(금액 생성·완료 처리 없음)';
+      }
+      if (notPresentedClassified > 0) {
+        message +=
+            ', 당기 원문 미제시 실패 근거 $notPresentedClassified건 확인(금액 생성·완료 처리 없음)';
+      }
       if (metadataAnchored > 0) {
         message += ', 공식 원접수 표지 기간 연결 $metadataAnchored건(숫자 변경 없음)';
       }
@@ -734,6 +776,24 @@ class FinancialFactsSync {
         message +=
             ', 원접수 표지 확인 20건 묶음 이후 ${deferredMetadataTargets.length}건 다음 실행 재개';
       }
+      if (cached.processed > 0 || cached.remaining > 0) {
+        message +=
+            ', 고정 공식 원문 재검증 ${cached.processed}건·남은 ${cached.remaining}건(연결·별도 구분별 한 번)';
+      }
+      if (enriched.periods > 0 || enriched.failed > 0) {
+        message +=
+            ', 고정 당기 원문 행 보완 ${enriched.periods}기간·${enriched.facts}금액행'
+            '·실패 ${enriched.failed}기간(전체 공시·주석 수집 아님)';
+      }
+      if (cached.remaining > 0 && !cancelled) {
+        requestResume(
+          resumeNow.add(
+            cached.stored > 0 || (cached.processed > 0 && cached.failed == 0)
+                ? const Duration(seconds: 30)
+                : const Duration(minutes: 15),
+          ),
+        );
+      }
       if (annualPublic.processed > 0 || annualPublic.remaining > 0) {
         message +=
             ', API 자료없음 연간 원문 확인 ${annualPublic.processed}건·남은 ${annualPublic.remaining}건(핵심계정 부분 수집)';
@@ -743,6 +803,7 @@ class FinancialFactsSync {
           resumeNow.add(
             annualPublic.fresh ||
                     annualPublic.stored > 0 ||
+                    (annualPublic.processed > 0 && annualPublic.failed == 0) ||
                     cached.stored > 0 ||
                     metadataBatchDeferred
                 ? const Duration(seconds: 30)
@@ -1084,6 +1145,52 @@ class FinancialFactsSync {
   /// attempts never gain priority. Existing API/ledger attempt counters remain.
   static const _verifiedDurationSourceFixtures =
       <String, ({String corp, int year, Set<String> bases})>{
+        '20240401000698': (corp: '01229240', year: 2023, bases: {'OFS'}),
+        '20220315000038': (corp: '01035942', year: 2021, bases: {'CFS'}),
+        '20220328001074': (corp: '01118139', year: 2021, bases: {'CFS'}),
+        '20220324000019': (corp: '01085187', year: 2021, bases: {'CFS'}),
+        '20220323000615': (corp: '01365384', year: 2021, bases: {'CFS'}),
+        '20220322000927': (corp: '00145190', year: 2021, bases: {'CFS'}),
+        '20220322000896': (corp: '00537221', year: 2021, bases: {'CFS'}),
+        '20220322000703': (corp: '00445869', year: 2021, bases: {'CFS'}),
+        '20220322000302': (corp: '00156910', year: 2021, bases: {'CFS'}),
+        '20220318000876': (corp: '00886792', year: 2021, bases: {'CFS'}),
+        '20220318000845': (corp: '00407036', year: 2021, bases: {'CFS'}),
+        '20260709000400': (corp: '00925967', year: 2026, bases: {'CFS'}),
+        '20250806000052': (corp: '00756163', year: 2021, bases: {'CFS'}),
+        '20221004000119': (corp: '01060735', year: 2021, bases: {'CFS'}),
+        '20220930000228': (corp: '00963000', year: 2021, bases: {'CFS'}),
+        '20220919000208': (corp: '01146220', year: 2021, bases: {'CFS'}),
+        '20220616000321': (corp: '01524507', year: 2021, bases: {'CFS'}),
+        '20220602000449': (corp: '00531078', year: 2021, bases: {'CFS'}),
+        '20220411001806': (corp: '00976615', year: 2021, bases: {'CFS'}),
+        '20220330001266': (corp: '01351080', year: 2021, bases: {'CFS'}),
+        '20220315001280': (corp: '00340096', year: 2021, bases: {'OFS'}),
+        '20230315001270': (corp: '00340096', year: 2022, bases: {'OFS'}),
+        '20240320001438': (corp: '00963000', year: 2023, bases: {'OFS'}),
+        '20250317000968': (corp: '00963000', year: 2024, bases: {'OFS'}),
+        '20260804000177': (corp: '01872459', year: 2025, bases: {'CFS', 'OFS'}),
+        '20260316001360': (corp: '00614089', year: 2025, bases: {'OFS'}),
+        '20260323000673': (corp: '01063237', year: 2025, bases: {'OFS'}),
+        '20250321000751': (corp: '01020269', year: 2024, bases: {'CFS'}),
+        '20250321000101': (corp: '01867749', year: 2024, bases: {'CFS'}),
+        '20250320001652': (corp: '01118139', year: 2024, bases: {'CFS'}),
+        '20240322000131': (corp: '00867034', year: 2023, bases: {'CFS', 'OFS'}),
+        '20240322000095': (corp: '01118139', year: 2023, bases: {'CFS'}),
+        '20240320001618': (corp: '01060735', year: 2023, bases: {'CFS'}),
+        '20240320000976': (corp: '01466832', year: 2023, bases: {'CFS'}),
+        '20231120000719': (corp: '01085187', year: 2022, bases: {'CFS'}),
+        '20230718000394': (corp: '00450931', year: 2022, bases: {'CFS'}),
+        '20230717000306': (corp: '01466832', year: 2022, bases: {'CFS'}),
+        '20230323001556': (corp: '00886792', year: 2022, bases: {'CFS'}),
+        '20230323001499': (corp: '00145190', year: 2022, bases: {'CFS'}),
+        '20230317000395': (corp: '01101254', year: 2022, bases: {'CFS'}),
+        '20230317001056': (corp: '00267942', year: 2022, bases: {'CFS'}),
+        '20230321001490': (corp: '01060735', year: 2022, bases: {'CFS'}),
+        '20230321001529': (corp: '01118139', year: 2022, bases: {'CFS'}),
+        '20230322001276': (corp: '00302236', year: 2022, bases: {'CFS'}),
+        '20230321000800': (corp: '00445869', year: 2022, bases: {'CFS'}),
+        '20230321000691': (corp: '00156910', year: 2022, bases: {'CFS'}),
         '20250710000060': (corp: '00445869', year: 2024, bases: {'CFS'}),
         '20250321001022': (corp: '01023822', year: 2024, bases: {'CFS'}),
         '20250321001939': (corp: '01156795', year: 2024, bases: {'CFS'}),
@@ -1097,13 +1204,59 @@ class FinancialFactsSync {
         '20220819000262': (corp: '00450931', year: 2021, bases: {'OFS'}),
         '20250331002057': (corp: '01229240', year: 2024, bases: {'CFS', 'OFS'}),
         '20250321001451': (corp: '00541862', year: 2024, bases: {'CFS'}),
-        '20250326000875': (corp: '01085187', year: 2024, bases: {'OFS'}),
+        '20240409003743': (corp: '01022142', year: 2022, bases: {'OFS'}),
+        '20230714000369': (corp: '00565215', year: 2022, bases: {'OFS'}),
+        '20240814001895': (corp: '01022142', year: 2023, bases: {'OFS'}),
+        '20241104000113': (corp: '01518506', year: 2023, bases: {'OFS'}),
+        '20230328000161': (corp: '01315042', year: 2022, bases: {'OFS'}),
+        '20240808000099': (corp: '00565215', year: 2023, bases: {'OFS'}),
+        '20230323000665': (corp: '01026616', year: 2022, bases: {'OFS'}),
+        '20250320001369': (corp: '01353848', year: 2024, bases: {'OFS'}),
+        '20260323000238': (corp: '01867749', year: 2025, bases: {'CFS'}),
+        '20260323001434': (corp: '01281541', year: 2025, bases: {'CFS'}),
+        '20260323000522': (corp: '01156795', year: 2025, bases: {'CFS'}),
+        '20260323000750': (corp: '01583953', year: 2025, bases: {'CFS'}),
+        '20260324001035': (corp: '01023822', year: 2025, bases: {'CFS'}),
+        '20260323000081': (corp: '01345724', year: 2025, bases: {'CFS'}),
+        '20260320000168': (corp: '01363924', year: 2025, bases: {'CFS'}),
+        '20260323001181': (corp: '01396931', year: 2025, bases: {'CFS'}),
+        '20260319000875': (corp: '01060735', year: 2025, bases: {'CFS'}),
+        '20260327001816': (corp: '01085187', year: 2025, bases: {'CFS'}),
+        '20250326000875': (corp: '01085187', year: 2024, bases: {'CFS', 'OFS'}),
         '20250409000365': (corp: '00925967', year: 2024, bases: {'OFS'}),
         '20250407003814': (corp: '01119651', year: 2024, bases: {'CFS'}),
         '20220316000721': (corp: '00337296', year: 2021, bases: {'OFS'}),
         '20220322000487': (corp: '00521433', year: 2021, bases: {'OFS'}),
         '20220321000166': (corp: '01117422', year: 2021, bases: {'OFS'}),
+        '20260330001850': (corp: '01579020', year: 2025, bases: {'CFS', 'OFS'}),
+        '20230315000997': (corp: '01601222', year: 2022, bases: {'OFS'}),
+        '20230308000311': (corp: '01476219', year: 2022, bases: {'OFS'}),
+        '20250328001780': (corp: '01563667', year: 2024, bases: {'CFS', 'OFS'}),
+        '20230320000571': (corp: '01267958', year: 2022, bases: {'CFS', 'OFS'}),
+        '20250319000477': (corp: '01518506', year: 2024, bases: {'OFS'}),
+        '20260326000605': (corp: '01139497', year: 2025, bases: {'OFS'}),
+        '20240320000531': (corp: '00663289', year: 2023, bases: {'OFS'}),
+        '20250318000507': (corp: '01281541', year: 2024, bases: {'OFS'}),
+        '20250321001749': (corp: '00366517', year: 2024, bases: {'OFS'}),
+        '20250407004206': (corp: '00414540', year: 2024, bases: {'OFS'}),
+        '20260309001820': (corp: '01205514', year: 2025, bases: {'OFS'}),
+        '20240321000933': (corp: '01206717', year: 2023, bases: {'CFS'}),
+        '20260320000871': (corp: '01065785', year: 2025, bases: {'CFS', 'OFS'}),
+        '20230317000589': (corp: '01113499', year: 2022, bases: {'CFS', 'OFS'}),
+        '20250321001825': (corp: '00990396', year: 2024, bases: {'CFS', 'OFS'}),
+        '20260316001455': (corp: '00445869', year: 2025, bases: {'OFS'}),
+        '20260326000677': (corp: '01290132', year: 2025, bases: {'OFS'}),
+        '20220331002887': (corp: '01366824', year: 2021, bases: {'OFS'}),
+        '20230427000895': (corp: '01366824', year: 2022, bases: {'OFS'}),
+        '20220331003444': (corp: '01085026', year: 2021, bases: {'CFS'}),
+        '20250328002132': (corp: '01396931', year: 2024, bases: {'OFS'}),
+        '20240320001359': (corp: '01281541', year: 2023, bases: {'OFS'}),
+        '20240704000080': (corp: '00666329', year: 2023, bases: {'OFS'}),
+        '20260323000759': (corp: '00886792', year: 2025, bases: {'CFS', 'OFS'}),
+        '20260330001644': (corp: '00669450', year: 2025, bases: {'CFS', 'OFS'}),
+        '20260327001807': (corp: '01018617', year: 2025, bases: {'CFS'}),
         '20230320001037': (corp: '00296290', year: 2022, bases: {'CFS'}),
+        '20230321000972': (corp: '01063556', year: 2022, bases: {'CFS'}),
         '20260323000876': (corp: '01352575', year: 2025, bases: {'OFS'}),
         '20260323000661': (corp: '01262023', year: 2025, bases: {'OFS'}),
         '20260323000763': (corp: '01119651', year: 2025, bases: {'CFS'}),
@@ -1158,7 +1311,12 @@ class FinancialFactsSync {
         filing.bsnsYear != proof.year ||
         name?.kind != DartReportKind.annual ||
         name?.periodYear != proof.year ||
-        name?.periodMonth != 12 ||
+        name?.periodMonth !=
+            switch (filing.rceptNo) {
+              '20260709000400' => 3,
+              '20220602000449' => 9,
+              _ => 12,
+            } ||
         _annualPublicAttempts(filing) >= 3) {
       return false;
     }
@@ -1219,7 +1377,8 @@ class FinancialFactsSync {
     // queue order only: existing per-period attempts and failed-basis gates stay.
     const verifiedParserReceipts = <String, Set<String>>{
       '20230309000759': {'OFS'},
-      '20250320001633': {'OFS'},
+      '20230315000460': {'OFS'},
+      '20250320001633': {'CFS', 'OFS'},
       '20260318000509': {'OFS'},
       '20260617000188': {'OFS'},
       '20260731000744': {'OFS'},
@@ -1238,6 +1397,8 @@ class FinancialFactsSync {
       '20260331001824': {'CFS'},
       '20260323001144': {'CFS'},
       '20240320001370': {'CFS', 'OFS'},
+      '20230317000589': {'CFS', 'OFS'},
+      '20250321001825': {'CFS', 'OFS'},
       '20260316001455': {'OFS'},
       '20260319000105': {'CFS', 'OFS'},
       '20260319000677': {'OFS'},
@@ -1256,6 +1417,10 @@ class FinancialFactsSync {
       }
       if (f.rceptNo == BnkSixCoreProfile.receipt &&
           f.corpCode != BnkSixCoreProfile.corpCode) {
+        return false;
+      }
+      if (f.rceptNo == PureunSixCoreProfile.receipt &&
+          f.corpCode != PureunSixCoreProfile.corpCode) {
         return false;
       }
       final bases = verifiedParserReceipts[f.rceptNo];
@@ -1375,10 +1540,10 @@ class FinancialFactsSync {
       failed += result.failed ? 1 : 0;
       processed++;
       attempted.add(f.id!);
-      final anySuccess =
-          updated.consolidatedStatus == FilingFetchStatus.stored ||
-          updated.separateStatus == FilingFetchStatus.stored;
-      consecutiveFailures = anySuccess ? 0 : consecutiveFailures + 1;
+      // Only this attempt's stored values or verified completion are progress.
+      // A report already stored in the other basis cannot clear this failure.
+      final progressed = result.stored > 0 || !result.failed;
+      consecutiveFailures = progressed ? 0 : consecutiveFailures + 1;
     }
     var remaining = 0;
     var fresh = false;
@@ -2246,9 +2411,27 @@ class FinancialFactsSync {
                   periodEnd: end,
                   consolidated: div == FsDiv.consolidated,
                 );
-                if (html.sourceReceipt != filing.rceptNo ||
-                    html.correctionReceipt != null ||
-                    html.correctionSource != null ||
+                final verifiedLinkedAudit =
+                    LinkedCorrectionAuditSource.eligible(
+                      receipt: filing.rceptNo,
+                      corpCode: company.corpCode,
+                      consolidated: div == FsDiv.consolidated,
+                      start: html.periodStart,
+                      end: html.periodEnd,
+                    ) &&
+                    html.sourceReceipt ==
+                        LinkedCorrectionAuditSource.originalFor(
+                          filing.rceptNo,
+                        ) &&
+                    html.correctionReceipt == filing.rceptNo &&
+                    html.correctionSource ==
+                        Uri.parse(
+                          'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${filing.rceptNo}',
+                        );
+                if ((!verifiedLinkedAudit &&
+                        (html.sourceReceipt != filing.rceptNo ||
+                            html.correctionReceipt != null ||
+                            html.correctionSource != null)) ||
                     html.periodEnd != end) {
                   throw const FormatException(
                     'Exact annual HTML source identity mismatch',
@@ -2260,7 +2443,7 @@ class FinancialFactsSync {
                   statementHtml: html.statementHtml,
                   coverSource: html.coverSource,
                   statementSource: html.statementSource,
-                  receipt: filing.rceptNo,
+                  receipt: html.sourceReceipt,
                   corpCode: company.corpCode,
                   companyName: company.name,
                   periodStart: html.periodStart,
@@ -2271,8 +2454,14 @@ class FinancialFactsSync {
                   rows: rows,
                   source: html.statementSource,
                   digest: html.sourceDigest,
-                  sourceFiling: filing,
-                  correctionSource: null,
+                  sourceFiling: verifiedLinkedAudit
+                      ? await _verifiedAttachmentSource(
+                          filing,
+                          company,
+                          html.sourceReceipt,
+                        )
+                      : filing,
+                  correctionSource: html.correctionSource,
                   format: 'html',
                   coverSource: html.coverSource,
                 );
@@ -2307,6 +2496,22 @@ class FinancialFactsSync {
                   verifiedBasisNotApplicable = absence;
                 }
               } catch (sourceError) {
+                if (sourceError is KnownAnnualSourceNotPresented) {
+                  await _recordKnownSourceNotPresented(
+                    filing,
+                    company,
+                    div,
+                    sourceError,
+                  );
+                }
+                if (sourceError is KnownAnnualSourceConflict) {
+                  await _recordKnownSourceConflict(
+                    filing,
+                    company,
+                    div,
+                    sourceError,
+                  );
+                }
                 final detail = sourceError is FormatException
                     ? sourceError.message.toString().replaceAll(
                         RegExp(r'[\r\n\x00-\x1f]'),
@@ -2430,6 +2635,23 @@ class FinancialFactsSync {
               );
             }
             if (saved.status == FilingFetchStatus.stored &&
+                (filing.rceptNo == LinkedCorrectionAuditSource.target ||
+                    filing.rceptNo == LinkedCorrectionAuditSource.bonTarget) &&
+                fallback.sourceFiling.rceptNo ==
+                    LinkedCorrectionAuditSource.originalFor(filing.rceptNo)) {
+              await _recordVerifiedAnnualNumericSource(
+                fallback.sourceFiling,
+                company,
+                div,
+                sourceReceipt: fallback.sourceFiling.rceptNo,
+                source: fallback.source,
+                format: fallback.format,
+                digest: fallback.digest,
+                rows: fallback.rows,
+                coverSource: fallback.coverSource,
+              );
+            }
+            if (saved.status == FilingFetchStatus.stored &&
                 fallback.correctionSource != null) {
               final marker =
                   'verified-attachment-source:${filing.rceptNo}->${fallback.sourceFiling.rceptNo}';
@@ -2498,6 +2720,365 @@ class FinancialFactsSync {
     return (stored: stored, failed: failed);
   }
 
+  Future<int> _classifyKnownConflicts(
+    Set<int> scopeIds,
+    Map<String, Company> companies,
+  ) async {
+    if (scopeIds.isEmpty) return 0;
+    var classified = 0;
+    for (final filing in await DartFiling.db.find(
+      session,
+      where: (t) =>
+          t.id.inSet(scopeIds) &
+          t.rceptNo.inSet({
+            for (final p in KnownAnnualConflictCache.profiles)
+              p['receipt'] as String,
+          }),
+    )) {
+      final company = companies[filing.corpCode];
+      if (company == null) continue;
+      for (final div in FsDiv.values) {
+        if (KnownAnnualConflictCache.profile(filing, company, div) == null ||
+            await IngestJobs.isCancelled(session, jobId)) {
+          continue;
+        }
+        final ref = 'financial-source-conflict:${filing.rceptNo}:${div.name}';
+        if (await Source.db.findFirstRow(
+              session,
+              where: (t) => t.reference.equals(ref),
+            ) !=
+            null) {
+          continue;
+        }
+        KnownAnnualSourceConflict proof;
+        try {
+          proof = await _conflictSourceCache.verify(filing, company, div);
+        } on FormatException {
+          continue;
+        } on FileSystemException {
+          continue;
+        }
+        classified += await session.db.transaction((tx) async {
+          await session.db.unsafeQuery(
+            'SELECT pg_advisory_xact_lock(hashtext(@ref))',
+            parameters: QueryParameters.named({'ref': ref}),
+            transaction: tx,
+          );
+          await session.db.unsafeQuery(
+            'SELECT id FROM ingest_job WHERE id=@id FOR UPDATE',
+            parameters: QueryParameters.named({'id': jobId}),
+            transaction: tx,
+          );
+          final currentJob = await IngestJob.db.findById(
+            session,
+            jobId,
+            transaction: tx,
+          );
+          if (currentJob == null ||
+              currentJob.status == IngestStatus.cancelled) {
+            return 0;
+          }
+          await session.db.unsafeQuery(
+            'SELECT id FROM dart_filing WHERE id=@id FOR UPDATE',
+            parameters: QueryParameters.named({'id': filing.id!}),
+            transaction: tx,
+          );
+          final current = await DartFiling.db.findById(
+            session,
+            filing.id!,
+            transaction: tx,
+          );
+          if (current == null ||
+              KnownAnnualConflictCache.profile(current, company, div) == null ||
+              await IngestJobs.isCancelled(session, jobId) ||
+              await Source.db.findFirstRow(
+                    session,
+                    where: (t) => t.reference.equals(ref),
+                    transaction: tx,
+                  ) !=
+                  null) {
+            return 0;
+          }
+          final companyFilings = await DartFiling.db.find(
+            session,
+            where: (t) => t.companyId.equals(company.id!),
+            transaction: tx,
+          );
+          if (!financialScopeIds(companyFilings).contains(current.id)) return 0;
+          await Source.db.insertRow(
+            session,
+            Source(
+              kind: SourceKind.dartReport,
+              reference: ref,
+              url: proof.evidence['statementSource'] as String,
+              retrievedAt: _clock().toUtc(),
+              title: jsonEncode({
+                'action': 'verified-primary-source-conflict',
+                'targetReceipt': current.rceptNo,
+                'reportName': current.reportName,
+                'corpCode': company.corpCode,
+                'fsDiv': div.name,
+                'evidence': proof.evidence,
+                'status': 'failed',
+                'financialFactsStored': false,
+                'previousFailure': current.lastError,
+                'priorLedgerFailureBeforeClassification': filing.lastError,
+              }),
+            ),
+            transaction: tx,
+          );
+          await DartFiling.db.updateRow(
+            session,
+            current.copyWith(
+              lastError:
+                  '${current.lastError ?? ''}; primarySourceConflict: ${proof.message}; exhausted attempts retained ${current.attempts}',
+            ),
+            transaction: tx,
+          );
+          return 1;
+        });
+      }
+    }
+    return classified;
+  }
+
+  /// Failed primary-source audit only; never creates financial rows.
+  Future<int> _classifyNotPresented(
+    Set<int> scopeIds,
+    Map<String, Company> companies,
+  ) async {
+    final company = companies[KnownAnnualSourcesNotPresented.corpCode];
+    if (company == null || scopeIds.isEmpty) return 0;
+    var classified = 0;
+    for (final filing in await DartFiling.db.find(
+      session,
+      where: (t) =>
+          t.id.inSet(scopeIds) &
+          t.rceptNo.equals(KnownAnnualSourcesNotPresented.receipt),
+    )) {
+      for (final div in FsDiv.values) {
+        if (!KnownAnnualNotPresentedCache.eligible(filing, company, div) ||
+            await IngestJobs.isCancelled(session, jobId)) {
+          continue;
+        }
+        final ref =
+            'financial-source-not-presented:${filing.rceptNo}:${div.name}';
+        if (await Source.db.findFirstRow(
+              session,
+              where: (t) => t.reference.equals(ref),
+            ) !=
+            null) {
+          continue;
+        }
+        KnownAnnualSourceNotPresented proof;
+        try {
+          proof = await _negativeSourceCache.verify(filing, company, div);
+        } on FormatException {
+          continue;
+        } on FileSystemException {
+          continue;
+        }
+        classified += await session.db.transaction((tx) async {
+          await session.db.unsafeQuery(
+            'SELECT pg_advisory_xact_lock(hashtext(@ref))',
+            parameters: QueryParameters.named({'ref': ref}),
+            transaction: tx,
+          );
+          await session.db.unsafeQuery(
+            'SELECT id FROM ingest_job WHERE id=@id FOR UPDATE',
+            parameters: QueryParameters.named({'id': jobId}),
+            transaction: tx,
+          );
+          final currentJob = await IngestJob.db.findById(
+            session,
+            jobId,
+            transaction: tx,
+          );
+          if (currentJob == null ||
+              currentJob.status == IngestStatus.cancelled) {
+            return 0;
+          }
+          await session.db.unsafeQuery(
+            'SELECT id FROM dart_filing WHERE id=@id FOR UPDATE',
+            parameters: QueryParameters.named({'id': filing.id!}),
+            transaction: tx,
+          );
+          final current = await DartFiling.db.findById(
+            session,
+            filing.id!,
+            transaction: tx,
+          );
+          if (current == null ||
+              !KnownAnnualNotPresentedCache.eligible(current, company, div) ||
+              await IngestJobs.isCancelled(session, jobId) ||
+              await Source.db.findFirstRow(
+                    session,
+                    where: (t) => t.reference.equals(ref),
+                    transaction: tx,
+                  ) !=
+                  null) {
+            return 0;
+          }
+          final companyFilings = await DartFiling.db.find(
+            session,
+            where: (t) => t.companyId.equals(company.id!),
+            transaction: tx,
+          );
+          if (!financialScopeIds(companyFilings).contains(current.id)) return 0;
+          await Source.db.insertRow(
+            session,
+            Source(
+              kind: SourceKind.dartReport,
+              reference: ref,
+              url: proof.evidence['statementSource'] as String,
+              retrievedAt: _clock().toUtc(),
+              title: jsonEncode({
+                'action': 'verified-primary-statements-not-presented',
+                'targetReceipt': current.rceptNo,
+                'reportName': current.reportName,
+                'corpCode': company.corpCode,
+                'fsDiv': div.name,
+                'evidence': proof.evidence,
+                'status': 'failed',
+                'financialFactsStored': false,
+                'previousFailure': current.lastError,
+                'priorLedgerFailureBeforeClassification': filing.lastError,
+              }),
+            ),
+            transaction: tx,
+          );
+          await DartFiling.db.updateRow(
+            session,
+            current.copyWith(
+              lastError:
+                  '${current.lastError ?? ''}; primaryStatementsNotPresented: ${proof.message}; exhausted attempts retained ${current.attempts}',
+            ),
+            transaction: tx,
+          );
+          return 1;
+        });
+      }
+    }
+    return classified;
+  }
+
+  /// Failed primary-source audit only; never creates financial rows.
+  Future<void> _recordKnownSourceNotPresented(
+    DartFiling filing,
+    Company company,
+    FsDiv div,
+    KnownAnnualSourceNotPresented conflict,
+  ) async {
+    final proof = conflict.evidence;
+    final period = DartReportName.parse(filing.reportName);
+    if (proof['receipt'] != filing.rceptNo ||
+        proof['corpCode'] != company.corpCode ||
+        proof['year'] != filing.bsnsYear ||
+        proof['consolidated'] != (div == FsDiv.consolidated) ||
+        filing.reportCode != FinancialReportCode.annual ||
+        period == null ||
+        period.periodYear != proof['year'] ||
+        period.periodMonth != 12 ||
+        await IngestJobs.isCancelled(session, jobId)) {
+      return;
+    }
+    final reference =
+        'financial-source-not-presented:${filing.rceptNo}:${div.name}';
+    await session.db.transaction((tx) async {
+      await session.db.unsafeQuery(
+        'SELECT pg_advisory_xact_lock(hashtext(@ref))',
+        parameters: QueryParameters.named({'ref': reference}),
+        transaction: tx,
+      );
+      if (await Source.db.findFirstRow(
+            session,
+            where: (t) => t.reference.equals(reference),
+            transaction: tx,
+          ) !=
+          null) {
+        return;
+      }
+      await Source.db.insertRow(
+        session,
+        Source(
+          kind: SourceKind.dartReport,
+          reference: reference,
+          url: conflict.evidence['statementSource'] as String,
+          retrievedAt: _clock().toUtc(),
+          title: jsonEncode({
+            'action': 'verified-primary-statements-not-presented',
+            'targetReceipt': filing.rceptNo,
+            'reportName': filing.reportName,
+            'corpCode': company.corpCode,
+            'fsDiv': div.name,
+            'evidence': conflict.evidence,
+            'status': 'failed',
+            'financialFactsStored': false,
+          }),
+        ),
+        transaction: tx,
+      );
+    });
+  }
+
+  /// Failed primary-source audit only; never creates financial rows.
+  Future<void> _recordKnownSourceConflict(
+    DartFiling filing,
+    Company company,
+    FsDiv div,
+    KnownAnnualSourceConflict conflict,
+  ) async {
+    final proof = conflict.evidence;
+    final period = DartReportName.parse(filing.reportName);
+    if (proof['receipt'] != filing.rceptNo ||
+        proof['corpCode'] != company.corpCode ||
+        proof['year'] != filing.bsnsYear ||
+        proof['consolidated'] != (div == FsDiv.consolidated) ||
+        filing.reportCode != FinancialReportCode.annual ||
+        period == null ||
+        period.periodYear != proof['year'] ||
+        period.periodMonth != 12 ||
+        await IngestJobs.isCancelled(session, jobId)) {
+      return;
+    }
+    final reference = 'financial-source-conflict:${filing.rceptNo}:${div.name}';
+    await session.db.transaction((tx) async {
+      await session.db.unsafeQuery(
+        'SELECT pg_advisory_xact_lock(hashtext(@ref))',
+        parameters: QueryParameters.named({'ref': reference}),
+        transaction: tx,
+      );
+      if (await Source.db.findFirstRow(
+            session,
+            where: (t) => t.reference.equals(reference),
+            transaction: tx,
+          ) !=
+          null) {
+        return;
+      }
+      await Source.db.insertRow(
+        session,
+        Source(
+          kind: SourceKind.dartReport,
+          reference: reference,
+          url: conflict.evidence['statementSource'] as String,
+          retrievedAt: _clock().toUtc(),
+          title: jsonEncode({
+            'action': 'verified-primary-source-conflict',
+            'targetReceipt': filing.rceptNo,
+            'reportName': filing.reportName,
+            'corpCode': company.corpCode,
+            'fsDiv': div.name,
+            'evidence': conflict.evidence,
+            'status': 'failed',
+            'financialFactsStored': false,
+          }),
+        ),
+        transaction: tx,
+      );
+    });
+  }
+
   /// Reuses the exact same typed source-evidence store as normal HTTP recovery.
   Future<void> _recordVerifiedAnnualNumericSource(
     DartFiling filing,
@@ -2551,9 +3132,34 @@ class FinancialFactsSync {
               'uncollectedOptionalAccounts': ['capex'],
               'missingReason': '해당 정확원문 전체 손익표에 매출 총액 행 없음; 합산·0 대체 없음',
             },
+            if (PureunSixCoreProfile.storedProof(
+              rows,
+              sourceDigest: digest,
+              sourceUrl: source.toString(),
+              companyCode: company.corpCode,
+              targetReceipt: filing.rceptNo,
+              basis: div.name,
+              year: filing.bsnsYear!,
+              reportName: filing.reportName,
+            )) ...{
+              'missingRequiredAccounts': ['revenue'],
+              'uncollectedOptionalAccounts': ['capex'],
+              'missingReason': '해당 정확원문 전체 손익표에 매출 총액 행 없음; 합산·0 대체 없음',
+            },
             'coreRowProvenance': [
               for (final row in rows)
                 {
+                  if (row['html_provenance'] is Map &&
+                      (row['html_provenance'] as Map)['partialCoreRule'] ==
+                          ImgtExplicitRevenueMissing.ruleFor(
+                            filing.rceptNo,
+                          )) ...{
+                    'rcept_no': row['rcept_no'],
+                    'corp_code': row['corp_code'],
+                    'bsns_year': row['bsns_year'],
+                    'reprt_code': row['reprt_code'],
+                    'sj_div': row['sj_div'],
+                  },
                   'account_nm': row['account_nm'],
                   'account_id': row['account_id'],
                   'thstrm_amount': row['thstrm_amount'],
@@ -2603,9 +3209,20 @@ class FinancialFactsSync {
             'periodStart': absence.periodStart.toIso8601String(),
             'periodEnd': absence.periodEnd.toIso8601String(),
             'evidence': absence.evidence,
+            if (absence.issuerIdentityEvidence?['policy'] ==
+                'exact-own-filing-series-cfs-none-v1') ...{
+              'identityScope': 'official-DART-filing-series-only',
+              'numericFactsCollected': 0,
+              'coreFinancialsVerified': false,
+              'fullFinancialsVerified': false,
+              'fullStatementCollected': false,
+              'jurirContinuityVerified': false,
+              'operatingHistoryContinuityVerified': false,
+            },
             if (absence.issuerIdentityEvidence != null)
               'historicalCompanyIdentity': absence.issuerIdentityEvidence,
-            'note': '공식 원문에 연결 작성 비적용이 명시됨. 원 API 자료없음 상태 보존; 빈 파싱 결과로 부재를 추정하지 않음.',
+            'note':
+                '공식 원문에 연결 작성 비적용이 명시됨. 원 API 자료없음 상태 보존; 빈 파싱 결과로 부재를 추정하지 않음.${absence.issuerIdentityEvidence?['policy'] == 'exact-own-filing-series-cfs-none-v1' ? ' ${absence.issuerIdentityEvidence!["sourceNotice"]}' : ''}',
           }),
         ),
         transaction: transaction,
@@ -2614,37 +3231,100 @@ class FinancialFactsSync {
   }
 
   /// A finite raw recomputation, not an additional public/API fetch attempt.
-  Future<({int processed, int failed, int stored})>
+  Future<({int periods, int facts, int failed})> _enrichStoredExactStatements(
+    Set<int> scopeIds,
+    Map<String, Company> companies,
+  ) async {
+    var periods = 0, facts = 0, failed = 0;
+    final filings = await DartFiling.db.find(
+      session,
+      where: (t) =>
+          t.id.inSet(scopeIds) & t.rceptNo.inSet(ExactStatementRows.receipts),
+    );
+    for (final filing in filings) {
+      if (await IngestJobs.isCancelled(session, jobId)) break;
+      final company = companies[filing.corpCode];
+      for (final basis in FsDiv.values.where(
+        (basis) => ExactStatementRows.eligible(filing.rceptNo, basis),
+      )) {
+        if (await IngestJobs.isCancelled(session, jobId)) break;
+        if (company == null ||
+            (basis == FsDiv.separate
+                    ? filing.separateStatus
+                    : filing.consolidatedStatus) !=
+                FilingFetchStatus.stored) {
+          continue;
+        }
+        final report = await FinancialReport.db.findFirstRow(
+          session,
+          where: (t) =>
+              t.rceptNo.equals(filing.rceptNo) & t.fsDiv.equals(basis),
+        );
+        if (report == null || report.supersededById != null) continue;
+        try {
+          final prepared = await ExactStatementRows.prepare(
+            filing,
+            company,
+            basis,
+          );
+          final added = await ExactStatementEnrichment.append(
+            session,
+            jobId: jobId,
+            report: report,
+            filing: filing,
+            company: company,
+            prepared: prepared,
+          );
+          if (added > 0) {
+            periods++;
+            facts += added;
+          }
+        } catch (e, st) {
+          failed++;
+          session.log(
+            '고정 당기 원문 행 보완 실패: ${filing.rceptNo}',
+            level: LogLevel.warning,
+            exception: e,
+            stackTrace: st,
+          );
+        }
+      }
+    }
+    return (periods: periods, facts: facts, failed: failed);
+  }
+
+  Future<({int processed, int failed, int stored, int remaining})>
   _replayVerifiedAnnualSourceCache(
     Set<int> scopeIds,
     Map<String, Company> companies,
   ) async {
-    if (await IngestJobs.isCancelled(session, jobId) ||
-        (corpCode != null &&
-            !{
-              VerifiedAnnualSourceCache.corpCode,
-              VerifiedAnnualSourceCache.pimCorpCode,
-            }.contains(corpCode))) {
-      return (processed: 0, failed: 0, stored: 0);
+    if (await IngestJobs.isCancelled(session, jobId)) {
+      return (processed: 0, failed: 0, stored: 0, remaining: 0);
     }
-    final candidates = await DartFiling.db.find(
+    final entries = VerifiedAnnualSourceRegistry.entries
+        .where((e) => corpCode == null || e.corpCode == corpCode)
+        .toList();
+    final filings = await DartFiling.db.find(
       session,
       where: (t) =>
           t.id.inSet(scopeIds) &
-          t.rceptNo.inSet({
-            VerifiedAnnualSourceCache.receipt,
-            VerifiedAnnualSourceCache.pimReceipt,
-          }),
+          t.rceptNo.inSet(entries.map((e) => e.receipt).toSet()),
     );
+    final candidates = [
+      for (final filing in filings)
+        for (final entry in entries)
+          if (entry.receipt == filing.rceptNo) (filing: filing, entry: entry),
+    ];
     var processed = 0, failed = 0, stored = 0, consecutiveFailures = 0;
-    for (final f in candidates) {
+    for (final candidate in candidates) {
+      final f = candidate.filing, entry = candidate.entry;
       if (processed >= 10 ||
           consecutiveFailures >= 6 ||
           await IngestJobs.isCancelled(session, jobId)) {
         break;
       }
-      if (!VerifiedAnnualSourceCache.eligibleAny(f)) continue;
-      final auditReference = VerifiedAnnualSourceCache.referenceFor(f);
+      if (!VerifiedAnnualSourceCache.eligibleFor(f, entry)) continue;
+      final auditReference = entry.auditReference;
       final company = companies[f.corpCode];
       if (company == null) continue;
       final outcome = await session.db.transaction((tx) async {
@@ -2683,7 +3363,7 @@ class FinancialFactsSync {
         if (current == null ||
             currentCompany == null ||
             active.isEmpty ||
-            !VerifiedAnnualSourceCache.eligibleAny(current) ||
+            !VerifiedAnnualSourceCache.eligibleFor(current, entry) ||
             current.companyId != currentCompany.id ||
             currentCompany.corpCode != current.corpCode) {
           return 'skipped';
@@ -2696,8 +3376,7 @@ class FinancialFactsSync {
           final existing = await FinancialReport.db.findFirstRow(
             session,
             where: (t) =>
-                t.rceptNo.equals(current.rceptNo) &
-                t.fsDiv.equals(FsDiv.consolidated),
+                t.rceptNo.equals(current.rceptNo) & t.fsDiv.equals(entry.basis),
             transaction: tx,
           );
           if (existing != null) {
@@ -2705,11 +3384,11 @@ class FinancialFactsSync {
               'Cached source conflicts with existing CFS report',
             );
           }
-          if (VerifiedAnnualSourceCache.isPim(current)) {
+          if (entry.absenceLiteral == null) {
             final orphan = await Source.db.findFirstRow(
               session,
               where: (t) => t.reference.equals(
-                'financial-api-noData-source:${current.rceptNo}:consolidated',
+                'financial-api-noData-source:${current.rceptNo}:${entry.basis.name}',
               ),
               transaction: tx,
             );
@@ -2718,15 +3397,26 @@ class FinancialFactsSync {
                 'Cached numeric source conflicts with existing period audit',
               );
             }
-            numeric = await _sourceCache.verifyPim(current, currentCompany);
+            numeric = (await _sourceCache.verifyRegistered(
+              current,
+              currentCompany,
+              entry.basis,
+            )).numeric;
+            if (numeric != null) {
+              _rejectUnapprovedGenericPartialCore(numeric.rows);
+            }
           } else {
-            verified = await _sourceCache.verify(current, currentCompany);
+            verified = (await _sourceCache.verifyRegistered(
+              current,
+              currentCompany,
+              entry.basis,
+            )).absence;
           }
           if (verified != null) {
             final existingAudits = await Source.db.find(
               session,
               where: (t) => t.reference.equals(
-                'financial-public-basis-not-applicable:${current.rceptNo}:consolidated',
+                'financial-public-basis-not-applicable:${current.rceptNo}:${entry.basis.name}',
               ),
               transaction: tx,
             );
@@ -2742,7 +3432,7 @@ class FinancialFactsSync {
                   audit.url != verified.statementSource.toString() ||
                   payload['receipt'] != verified.sourceReceipt ||
                   payload['corpCode'] != verified.corpCode ||
-                  payload['fsDiv'] != FsDiv.consolidated.name ||
+                  payload['fsDiv'] != entry.basis.name ||
                   payload['periodStart'] !=
                       verified.periodStart.toIso8601String() ||
                   payload['periodEnd'] !=
@@ -2763,10 +3453,51 @@ class FinancialFactsSync {
         }
         if (await IngestJobs.isCancelled(session, jobId)) return 'skipped';
         if (numeric != null) {
+          var numericFiling = current;
+          if (numeric.sourceReceipt != current.rceptNo) {
+            final linkedPrimary = Header18LinkedPrimarySource.sourceEligible(
+              receipt: current.rceptNo,
+              corp: currentCompany.corpCode,
+              basis: entry.basis,
+              start: numeric.periodStart,
+              end: numeric.periodEnd,
+              sourceReceipt: numeric.sourceReceipt,
+            );
+            final linkedAudit =
+                LinkedCorrectionAuditSource.eligible(
+                  receipt: current.rceptNo,
+                  corpCode: currentCompany.corpCode,
+                  consolidated: entry.basis == FsDiv.consolidated,
+                  start: numeric.periodStart,
+                  end: numeric.periodEnd,
+                ) &&
+                numeric.sourceReceipt ==
+                    LinkedCorrectionAuditSource.originalFor(current.rceptNo);
+            if (!linkedPrimary &&
+                !linkedAudit &&
+                !LocatedOwnCurrentSource.sourceEligible(
+                  receipt: current.rceptNo,
+                  corp: currentCompany.corpCode,
+                  basis: entry.basis,
+                  start: numeric.periodStart,
+                  end: numeric.periodEnd,
+                  sourceReceipt: numeric.sourceReceipt,
+                )) {
+              throw const FormatException(
+                'Cached numeric original receipt unverified',
+              );
+            }
+            numericFiling = await _verifiedAttachmentSource(
+              current,
+              currentCompany,
+              numeric.sourceReceipt,
+              transaction: tx,
+            );
+          }
           final stored = await _store(
-            current,
+            numericFiling,
             currentCompany,
-            FsDiv.consolidated,
+            entry.basis,
             numeric.rows,
             originalSource: numeric.statementSource,
             originalDigest: numeric.sourceDigest,
@@ -2781,7 +3512,7 @@ class FinancialFactsSync {
           await _recordVerifiedAnnualNumericSource(
             current,
             currentCompany,
-            FsDiv.consolidated,
+            entry.basis,
             sourceReceipt: numeric.sourceReceipt,
             source: numeric.statementSource,
             format: 'html',
@@ -2790,6 +3521,20 @@ class FinancialFactsSync {
             coverSource: numeric.coverSource,
             transaction: tx,
           );
+          if (numericFiling.rceptNo != current.rceptNo) {
+            await _recordVerifiedAnnualNumericSource(
+              numericFiling,
+              currentCompany,
+              entry.basis,
+              sourceReceipt: numeric.sourceReceipt,
+              source: numeric.statementSource,
+              format: 'html',
+              digest: numeric.sourceDigest,
+              rows: numeric.rows,
+              coverSource: numeric.coverSource,
+              transaction: tx,
+            );
+          }
           _htmlCoreRecovered++;
         }
         final status = numeric != null
@@ -2807,11 +3552,11 @@ class FinancialFactsSync {
             title: jsonEncode({
               'action': 'one-time-immutable-official-source-cache-revalidation',
               'status': status,
-              'manifestDigest': VerifiedAnnualSourceCache.digestFor(current),
-              'ruleVersion': VerifiedAnnualSourceCache.ruleFor(current),
+              'manifestDigest': entry.manifestDigest,
+              'ruleVersion': entry.ruleVersion,
               'receipt': current.rceptNo,
               'corpCode': current.corpCode,
-              'fsDiv': FsDiv.consolidated.name,
+              'fsDiv': entry.basis.name,
               'publicAttemptPreserved': _annualPublicAttempts(current),
               'generalAttemptPreserved': current.attempts,
               'reportName': current.reportName,
@@ -2843,7 +3588,12 @@ class FinancialFactsSync {
           await DartFiling.db.updateRow(
             session,
             current.copyWith(
-              consolidatedStatus: FilingFetchStatus.stored,
+              consolidatedStatus: entry.basis == FsDiv.consolidated
+                  ? FilingFetchStatus.stored
+                  : current.consolidatedStatus,
+              separateStatus: entry.basis == FsDiv.separate
+                  ? FilingFetchStatus.stored
+                  : current.separateStatus,
               checkedAt: _clock().toUtc(),
             ),
             transaction: tx,
@@ -2851,14 +3601,19 @@ class FinancialFactsSync {
         } else if (verified != null) {
           await _storeVerifiedBasisAbsence(
             current,
-            FsDiv.consolidated,
+            entry.basis,
             verified,
             transaction: tx,
           );
           await DartFiling.db.updateRow(
             session,
             current.copyWith(
-              consolidatedStatus: FilingFetchStatus.noData,
+              consolidatedStatus: entry.basis == FsDiv.consolidated
+                  ? FilingFetchStatus.noData
+                  : current.consolidatedStatus,
+              separateStatus: entry.basis == FsDiv.separate
+                  ? FilingFetchStatus.noData
+                  : current.separateStatus,
               checkedAt: _clock().toUtc(),
             ),
             transaction: tx,
@@ -2885,17 +3640,70 @@ class FinancialFactsSync {
         consecutiveFailures = 0;
       }
     }
-    return (processed: processed, failed: failed, stored: stored);
+    var remaining = 0;
+    if (!await IngestJobs.isCancelled(session, jobId)) {
+      final active = await session.db.unsafeQuery(
+        'WITH ${FinancialCollectionScope.cte} SELECT id FROM financial_scope',
+      );
+      final activeIds = {for (final row in active) row[0] as int};
+      for (final candidate in candidates) {
+        if (!activeIds.contains(candidate.filing.id)) continue;
+        final current = await DartFiling.db.findById(
+          session,
+          candidate.filing.id!,
+        );
+        final company = current?.companyId == null
+            ? null
+            : await Company.db.findById(session, current!.companyId!);
+        if (current != null &&
+            company != null &&
+            company.corpCode == current.corpCode &&
+            company.stockCode != null &&
+            companies.containsKey(current.corpCode) &&
+            VerifiedAnnualSourceCache.eligibleFor(current, candidate.entry) &&
+            await Source.db.findFirstRow(
+                  session,
+                  where: (t) =>
+                      t.reference.equals(candidate.entry.auditReference),
+                ) ==
+                null) {
+          remaining++;
+        }
+      }
+    }
+    return (
+      processed: processed,
+      failed: failed,
+      stored: stored,
+      remaining: remaining,
+    );
   }
 
   Future<DartFiling> _verifiedAttachmentSource(
     DartFiling target,
     Company company,
-    String receipt,
-  ) async {
+    String receipt, {
+    Transaction? transaction,
+  }) async {
+    if (transaction != null) {
+      await session.db.unsafeQuery(
+        'SELECT pg_advisory_xact_lock(hashtextextended(@receipt,0))',
+        parameters: QueryParameters.named({'receipt': receipt}),
+        transaction: transaction,
+      );
+      final all = await DartFiling.db.find(
+        session,
+        where: (t) => t.rceptNo.equals(receipt),
+        transaction: transaction,
+      );
+      if (all.length > 1) {
+        throw const FormatException('Ambiguous original receipt ledger');
+      }
+    }
     final existing = await DartFiling.db.findFirstRow(
       session,
       where: (t) => t.rceptNo.equals(receipt),
+      transaction: transaction,
     );
     if (existing != null) {
       if (existing.companyId != company.id ||
@@ -2923,6 +3731,7 @@ class FinancialFactsSync {
         separateStatus: FilingFetchStatus.pending,
         lastError: 'official-attachment-source:${target.rceptNo}',
       ),
+      transaction: transaction,
     );
   }
 
@@ -3200,6 +4009,24 @@ class FinancialFactsSync {
       ) >
       0;
 
+  // Generic six-core parsing remains inspectable, but its storage metadata
+  // contract is not approved. Existing separately approved partial profiles
+  // have distinct proof markers and are unaffected.
+  static void _rejectUnapprovedGenericPartialCore(
+    List<Map<String, dynamic>> rows,
+  ) {
+    for (final row in rows) {
+      final provenance = row['html_provenance'];
+      final proof = provenance is Map ? provenance['partialCoreProof'] : null;
+      if (proof is Map &&
+          proof['rule'] == 'source-six-with-unavailable-whole-revenue-v1') {
+        throw const FormatException(
+          'Generic six-core source storage pending approved partial metadata; collection remains incomplete',
+        );
+      }
+    }
+  }
+
   /// 응답을 저장한다. 같은 접수번호·구분을 이미 저장했으면 넣지 않는다.
   Future<({FilingFetchStatus status, bool inserted})> _store(
     DartFiling filing,
@@ -3215,6 +4042,7 @@ class FinancialFactsSync {
     if (rows == null || rows.isEmpty) {
       return (status: FilingFetchStatus.noData, inserted: false);
     }
+    _rejectUnapprovedGenericPartialCore(rows);
     final rceptNos = {
       for (final r in rows) ?DartValues.text(r['rcept_no']),
     };
@@ -3385,7 +4213,76 @@ class FinancialFactsSync {
     final partialCore =
         originalSource != null &&
         rows.any((r) => r['xbrl_partial_core'] == true);
-    final partialNote = partialCore
+    final explicitMissingRevenue =
+        originalFormat == 'html' &&
+        ImgtExplicitRevenueMissing.rowsProof(
+          rows,
+          company.corpCode,
+          rceptNo,
+          div,
+          originalSource,
+        );
+    final exactLsKiwoomScope = LsKiwoomCurrentSource.storedScope(
+      rows: rows,
+      receipt: rceptNo,
+      corp: company.corpCode,
+      companyName: company.name,
+      consolidated: div == FsDiv.consolidated,
+      source: originalSource,
+      digest: originalDigest,
+    );
+    final exactLocatedScope = LocatedOwnCurrentSource.storedScope(
+      rows: rows,
+      receipt: rceptNo,
+      corp: company.corpCode,
+      companyName: company.name,
+      consolidated: div == FsDiv.consolidated,
+      source: originalSource,
+      digest: originalDigest,
+    );
+    final exactSolumixScope = SolumixOwnRevenueScope.storedScope(
+      rows: rows,
+      receipt: rceptNo,
+      corp: company.corpCode,
+      companyName: company.name,
+      consolidated: div == FsDiv.consolidated,
+      source: originalSource,
+      digest: originalDigest,
+      reportName: reportName,
+    );
+    final exactSuntechScope = SuntechOwnCfScope.storedScope(
+      rows: rows,
+      receipt: rceptNo,
+      corp: company.corpCode,
+      companyName: company.name,
+      consolidated: div == FsDiv.consolidated,
+      source: originalSource,
+      digest: originalDigest,
+      reportName: reportName,
+    );
+    final exactHanwhaScope = HanwhaOwnNetIncomeScope.storedScope(
+      rows: rows,
+      receipt: rceptNo,
+      corp: company.corpCode,
+      companyName: company.name,
+      consolidated: div == FsDiv.consolidated,
+      source: originalSource,
+      digest: originalDigest,
+      reportName: reportName,
+    );
+    final partialNote = exactHanwhaScope != null
+        ? ' · ${jsonEncode(exactHanwhaScope)}'
+        : exactSuntechScope != null
+        ? ' · ${jsonEncode(exactSuntechScope)}'
+        : exactSolumixScope != null
+        ? ' · ${jsonEncode(exactSolumixScope)}'
+        : exactLocatedScope != null
+        ? ' · ${jsonEncode(exactLocatedScope)}'
+        : exactLsKiwoomScope != null
+        ? ' · ${jsonEncode(exactLsKiwoomScope)}'
+        : explicitMissingRevenue
+        ? ' · ${ImgtExplicitRevenueMissing.note}'
+        : partialCore
         ? ' · 부분 핵심계정 · 당기순손익 미확보 · '
               '${rows.firstWhere((r) => r['xbrl_partial_core'] == true)['xbrl_collection_note']}'
         : '';
@@ -3409,7 +4306,11 @@ class FinancialFactsSync {
               ? '${originalFormat == 'half-xbrl'
                     ? 'DART 원문 XBRL 반기 부분 핵심7계정(손익3개월·누적6개월)'
                     : originalFormat == 'html'
-                    ? (BnkSixCoreProfile.storedProof(rows, sourceDigest: originalDigest ?? '', sourceUrl: originalSource.toString(), companyCode: company.corpCode, targetReceipt: rceptNo, basis: div.name, year: bsnsYear, reportName: reportName) ? BnkSixCoreProfile.title : 'DART 원문 HTML 부분 핵심계정(실제 인쇄 계정명, XBRL 계정 ID 미제공)')
+                    ? (BnkSixCoreProfile.storedProof(rows, sourceDigest: originalDigest ?? '', sourceUrl: originalSource.toString(), companyCode: company.corpCode, targetReceipt: rceptNo, basis: div.name, year: bsnsYear, reportName: reportName)
+                          ? BnkSixCoreProfile.title
+                          : PureunSixCoreProfile.storedProof(rows, sourceDigest: originalDigest ?? '', sourceUrl: originalSource.toString(), companyCode: company.corpCode, targetReceipt: rceptNo, basis: div.name, year: bsnsYear, reportName: reportName)
+                          ? PureunSixCoreProfile.title
+                          : 'DART 원문 HTML 부분 핵심계정(실제 인쇄 계정명, XBRL 계정 ID 미제공)')
                     : 'DART 원문 XBRL 핵심계정'} · $reportName · ${FinancialCodes.fsDivName(div)} · SHA256:$originalDigest$partialNote'
               : 'DART 전체 재무제표 (fnlttSinglAcntAll) · $reportName · '
                     '${FinancialCodes.fsDivName(div)}',

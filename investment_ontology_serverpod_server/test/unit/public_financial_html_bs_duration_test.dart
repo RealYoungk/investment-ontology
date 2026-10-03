@@ -142,7 +142,6 @@ void main() {
     ('20260309001820', '01205514', '큐라켐', 2025),
     ('20250321000725', '01262023', '루트락', 2024),
     ('20250318000780', '01060735', '로지스몬', 2024),
-    ('20250407004206', '00414540', '대주이엔티', 2024),
   ]) {
     test(
       'actual conflicting term/date/unit stays rejected ${x.$1}',
@@ -158,4 +157,13 @@ void main() {
       ),
     );
   }
+  test('actual undated Daeju primary captions require independent dated whole equity', () {
+    final result = rows('20250407004206', '00414540', '대주이엔티', 2024);
+    expect(result.length, 8);
+    final evidence =
+        result.first['html_provenance']['supportingPeriodEvidence'];
+    expect(evidence['periodStart'], '2024-01-01');
+    expect(evidence['periodEnd'], '2024-12-31');
+    expect(evidence['mode'], 'separate-independent-printed-equity-period-v1');
+  });
 }

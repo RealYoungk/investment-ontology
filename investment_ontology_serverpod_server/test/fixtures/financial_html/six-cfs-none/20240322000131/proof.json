@@ -1,0 +1,64 @@
+{
+  "id": 2033,
+  "name": "(주)듀켐바이오",
+  "market": "kosdaq",
+  "stockCode": "176750",
+  "corpCode": "00867034",
+  "rceptNo": "20240322000131",
+  "reportName": "[기재정정]사업보고서 (2023.12)",
+  "actual_period": "2023.12",
+  "bsnsYear": 2023,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 2,
+  "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 2,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240322000131",
+      "sha256": "00193c1cd0c13319b8adaa8a2ffb5d83dcf5cfb115ddc4f1c7c644210b46c05d"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240322000131&dcmNo=9757094&eleId=3&offset=8929&length=4068&dtd=dart4.xsd",
+      "sha256": "6688dfb4457c6f86c37beb961a3ad0ac139bc0e14fa03590fd80e75413f85a44"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240322000131&dcmNo=9757094&eleId=21&offset=286334&length=141&dtd=dart4.xsd",
+      "sha256": "bb5361d17f427856b9e5af6adcc6e781ce2cfba4e3f004ad2db04b04958c6114"
+    }
+  ],
+  "shellCorpIds": [
+    "00867034"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20240322000131",
+        "dcmNo": "9757094",
+        "eleId": "3",
+        "offset": "8929",
+        "length": "4068",
+        "dtd": "dart4.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20240322000131",
+        "dcmNo": "9757094",
+        "eleId": "21",
+        "offset": "286334",
+        "length": "141",
+        "dtd": "dart4.xsd"
+      }
+    }
+  ]
+}

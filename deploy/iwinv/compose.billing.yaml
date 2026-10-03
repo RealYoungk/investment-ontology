@@ -1,0 +1,6 @@
+# Optional billing overlay. Base deployment remains usable without credentials.
+# Copy billing.env.example to runtime/billing.env (chmod 600), then preflight.
+services:
+  server:
+    env_file:
+      - ./runtime/billing.env

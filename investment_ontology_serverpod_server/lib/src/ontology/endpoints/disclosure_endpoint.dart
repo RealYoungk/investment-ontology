@@ -185,6 +185,7 @@ class DisclosureEndpoint extends Endpoint {
                 return StockTotalRow(
                   kind: DisclosureValues.displayName(f['se']),
                   issued: DisclosureValues.integer(f['istc_totqy']),
+                  authorized: DisclosureValues.integer(f['isu_stock_totqy']),
                   treasury: DisclosureValues.integer(f['tesstk_co']),
                   outstanding: DisclosureValues.integer(f['distb_stock_co']),
                 );

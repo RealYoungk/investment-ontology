@@ -1,0 +1,64 @@
+{
+  "id": 29281,
+  "name": "에스비아이인베스트먼트(주)",
+  "market": "kosdaq",
+  "stockCode": "019550",
+  "corpCode": "00156910",
+  "rceptNo": "20220322000302",
+  "reportName": "사업보고서 (2021.12)",
+  "actual_period": "2021.12",
+  "bsnsYear": 2021,
+  "reportCode": "annual",
+  "consolidatedStatus": "failed",
+  "separateStatus": "stored",
+  "attempts": 2,
+  "lastError": "api-noData-annual-public:attempt=2; public annual source verification failed: FormatException: Annual current statement title period mismatch",
+  "consolidated_period_stored": false,
+  "separate_period_stored": true,
+  "public_attempts": 2,
+  "reviewedBasis": "cfs",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220322000302",
+      "sha256": "5ed6473049ca6d11d54f10e518c580ef2f9a9304eeddc37e42d195a561c14b1a"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000302&dcmNo=8489122&eleId=1&offset=811&length=4045&dtd=dart3.xsd",
+      "sha256": "ca8c8dd33fc5b3af405ee966fdf67cf9d1878881b288bbb7b724ce00dbf56b42"
+    },
+    {
+      "label": "cfs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220322000302&dcmNo=8489122&eleId=17&offset=117427&length=141&dtd=dart3.xsd",
+      "sha256": "12d1a88583ba72e77d6d5acd8aa4e8520073b31e5367396cb04f42ce74920820"
+    }
+  ],
+  "shellCorpIds": [
+    "00156910"
+  ],
+  "selectedNodes": [
+    {
+      "label": "사 업 보 고 서",
+      "coords": {
+        "rcpNo": "20220322000302",
+        "dcmNo": "8489122",
+        "eleId": "1",
+        "offset": "811",
+        "length": "4045",
+        "dtd": "dart3.xsd"
+      }
+    },
+    {
+      "label": "2. 연결재무제표",
+      "coords": {
+        "rcpNo": "20220322000302",
+        "dcmNo": "8489122",
+        "eleId": "17",
+        "offset": "117427",
+        "length": "141",
+        "dtd": "dart3.xsd"
+      }
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "corpCode": "00321204",
+  "receipt": "20230321000275",
+  "basis": "consolidated",
+  "kind": "annual",
+  "year": 2022,
+  "periodStart": "2022-01-01",
+  "periodEnd": "2022-12-31",
+  "ruleVersion": "first-direct-issuer-exact-seven-v1",
+  "sources": [
+    {
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230321000275",
+      "sha256": "5e1eed43c999908cf40f66417f5cfa58b117fc0a8d602e1c234ae81f005d5ace",
+      "file": "shell.html",
+      "label": "shell"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230321000275&dcmNo=9078865&eleId=1&offset=799&length=4081&dtd=dart3.xsd",
+      "sha256": "ebeea7ff9bfeeffe14672cf2485e4a50796fe15102adbc966918822bb0b781d5",
+      "file": "cover.html",
+      "label": "cover"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230321000275&dcmNo=9078865&eleId=3&offset=5364&length=58603&dtd=dart3.xsd",
+      "sha256": "96bbc5ac83eaff8f740bacf659c12462caa6ff69eb611de39504b4aeefb0eb6a",
+      "file": "overview.html",
+      "label": "overview"
+    },
+    {
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230321000275&dcmNo=9078865&eleId=19&offset=190227&length=105381&dtd=dart3.xsd",
+      "sha256": "c2fa0c2baeeb3af6aa6d43d325e0b068c7c2fd18c19875b51c53a5ed033056a0",
+      "file": "cfs.html",
+      "label": "cfs"
+    }
+  ],
+  "retrievalProof": "동일 공식 접수·회사·실제 연간기간·전체회사 직접 핵심계정 및 회계식 검증. 해당 고정 접수만 회사명 증거 옵트인. 숫자/기간/기존Source 변경 없음."
+}

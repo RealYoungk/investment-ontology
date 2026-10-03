@@ -1,0 +1,417 @@
+{
+  "schemaVersion": 1,
+  "scope": "fixed five annual years plus latest own financial-results source for MKIF; other approved fund sources and exact retrospective source; no historical interim expansion",
+  "missingAnnualDocuments": {
+    "01880801": [
+      2021,
+      2022,
+      2023
+    ]
+  },
+  "documents": [
+    {
+      "metadata": {
+        "corpCode": "00435297",
+        "title": "맥쿼리한국인프라투융자회사 재무제표",
+        "documentType": "auditReport",
+        "provider": "officialIR",
+        "providerReceipt": null,
+        "providerDocumentId": null,
+        "periodStart": "2025-01-01",
+        "periodEnd": "2025-12-31",
+        "publishedAt": null,
+        "officialUrl": "https://www.mkif.com/assets/mkif/ko-kr/investor-centre/public-filings-and-reports/2026/mkif-2025-audit-report-kor.pdf",
+        "sha256": "b7519b0f6b331668ef66c468b075b9a02f81c17dc1f6cce46d327e95d221ad27",
+        "issuerQuote": "맥쿼리한국인프라투융자회사",
+        "periodQuote": "제 27 기 : 2025년 1월 1일부터 2025년 12월 31일까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": "2026-10-02T04:02:28.734670+00:00",
+        "readScope": "text cover p1",
+        "periodProof": "printed PDF cover, no filename inference"
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "00435297",
+        "title": "맥쿼리한국인프라투융자회사 재무제표",
+        "documentType": "auditReport",
+        "provider": "officialIR",
+        "providerReceipt": null,
+        "providerDocumentId": null,
+        "periodStart": "2024-01-01",
+        "periodEnd": "2024-12-31",
+        "publishedAt": null,
+        "officialUrl": "https://www.mkif.com/assets/mkif/ko-kr/investor-centre/public-filings-and-reports/2025/mkif-audit-report-2024-kor.pdf",
+        "sha256": "05a44739edba964f111900dccad7bb5ceae5cf186defa67314433fd348a36693",
+        "issuerQuote": "맥쿼리한국인프라투융자회사",
+        "periodQuote": "제 26 기 : 2024년 1월 1일부터 2024년 12월 31일까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": "2026-10-02T04:02:31.589837+00:00",
+        "readScope": "text cover p1",
+        "periodProof": "printed PDF cover, no filename inference"
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "00435297",
+        "title": "맥쿼리한국인프라투융자회사 재무제표",
+        "documentType": "auditReport",
+        "provider": "officialIR",
+        "providerReceipt": null,
+        "providerDocumentId": null,
+        "periodStart": "2023-01-01",
+        "periodEnd": "2023-12-31",
+        "publishedAt": null,
+        "officialUrl": "https://www.mkif.com/assets/mkif/ko-kr/investor-centre/public-filings-and-reports/2024/mkif-audit-report-2023-kor.pdf",
+        "sha256": "15ef94d0f6e539bd3766d53045c25867c45f89d50af50174f27ee7118c917279",
+        "issuerQuote": "맥쿼리한국인프라투융자회사",
+        "periodQuote": "제 25 기 : 2023년 1월 1일부터 2023년 12월 31일까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": "2026-10-02T04:02:33.377830+00:00",
+        "readScope": "visual cover p1",
+        "periodProof": "printed PDF cover, no filename inference"
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "00435297",
+        "title": "맥쿼리한국인프라투융자회사 재무제표",
+        "documentType": "auditReport",
+        "provider": "officialIR",
+        "providerReceipt": null,
+        "providerDocumentId": null,
+        "periodStart": "2022-01-01",
+        "periodEnd": "2022-12-31",
+        "publishedAt": null,
+        "officialUrl": "https://www.mkif.com/assets/mkif/ko-kr/investor-centre/public-filings-and-reports/2022/mkif-audit-report-2022-kor.pdf",
+        "sha256": "405c6c1c095b213c82579f20845c232bc17ad36b6cf781d7a035b127ad5fb144",
+        "issuerQuote": "맥쿼리한국인프라투융자회사",
+        "periodQuote": "제 24 기 : 2022년 1월 1일부터 2022년 12월 31일까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": "2026-10-02T04:02:34.763021+00:00",
+        "readScope": "visual cover p1",
+        "periodProof": "printed PDF cover, no filename inference"
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "00435297",
+        "title": "맥쿼리한국인프라투융자회사 재무제표",
+        "documentType": "auditReport",
+        "provider": "officialIR",
+        "providerReceipt": null,
+        "providerDocumentId": null,
+        "periodStart": "2021-01-01",
+        "periodEnd": "2021-12-31",
+        "publishedAt": null,
+        "officialUrl": "https://www.mkif.com/assets/mkif/ko-kr/investor-centre/public-filings-and-reports/2022/mkif-audit-report-2021-kor.pdf",
+        "sha256": "ac11a3f45b8ea20fbd473d9b6dab0645a8c3a9321dc044fafc0251f293305ddc",
+        "issuerQuote": "맥쿼리한국인프라투융자회사",
+        "periodQuote": "제 23 기 : 2021년 1월 1일부터 2021년 12월 31일까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": "2026-10-02T04:02:37.013823+00:00",
+        "readScope": "visual cover p1",
+        "periodProof": "printed PDF cover, no filename inference"
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "00600013",
+        "title": "미래에셋맵스리얼티부동산공모투자회사 재무제표",
+        "documentType": "auditReport",
+        "provider": "officialIR",
+        "providerReceipt": null,
+        "providerDocumentId": null,
+        "periodStart": "2025-01-01",
+        "periodEnd": "2025-12-31",
+        "publishedAt": "2026-02-27",
+        "officialUrl": "https://re1.miraeasset.com/upload/1772173727740.pdf",
+        "sha256": "d315de58f63837cd1412cb8d35aca1c454ed4f3e1d14cd8d56b81ab09e8138a3",
+        "issuerQuote": "미래에셋맵스리얼티부동산공모투자회사",
+        "periodQuote": "제 19 기 2025년 1월 1일부터 2025년 12월 31일까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": "2026-10-02T03:58:07.535438+00:00",
+        "readScope": "text cover p1",
+        "periodProof": "printed PDF cover, no filename inference"
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "00600013",
+        "title": "미래에셋맵스 아시아퍼시픽 부동산공모 1호 투자회사 재무제표",
+        "documentType": "auditReport",
+        "provider": "officialIR",
+        "providerReceipt": null,
+        "providerDocumentId": null,
+        "periodStart": "2024-01-01",
+        "periodEnd": "2024-12-31",
+        "publishedAt": "2025-02-25",
+        "officialUrl": "https://re1.miraeasset.com/upload/1740467312745.pdf",
+        "sha256": "891a8e673f12d5e5da0c69ee4cbf94ed5093d9436f290ef1f738aa5daf2ff41d",
+        "issuerQuote": "미래에셋맵스 아시아퍼시픽 부동산공모 1호 투자회사",
+        "periodQuote": "제 18 기 2024년 1월 1일부터 2024년 12월 31일까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": "2026-10-02T03:58:08.971340+00:00",
+        "readScope": "text cover p1",
+        "periodProof": "printed PDF cover, no filename inference"
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "00600013",
+        "title": "미래에셋맵스 아시아퍼시픽 부동산공모 1호 투자회사 재무제표",
+        "documentType": "auditReport",
+        "provider": "officialIR",
+        "providerReceipt": null,
+        "providerDocumentId": null,
+        "periodStart": "2023-01-01",
+        "periodEnd": "2023-12-31",
+        "publishedAt": "2024-02-23",
+        "officialUrl": "https://re1.miraeasset.com/upload/1708668217667.pdf",
+        "sha256": "8aa0d8ff68ebf6ce99516ee13a07da4242d084d32d456178d8669797bdad9846",
+        "issuerQuote": "미래에셋맵스 아시아퍼시픽 부동산공모 1호 투자회사",
+        "periodQuote": "제 17 기 2023년 1월 1일부터 2023년 12월 31일까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": "2026-10-02T03:58:10.148618+00:00",
+        "readScope": "text cover p1",
+        "periodProof": "printed PDF cover, no filename inference"
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "00600013",
+        "title": "미래에셋맵스 아시아퍼시픽 부동산공모 1호 투자회사 재무제표",
+        "documentType": "auditReport",
+        "provider": "officialIR",
+        "providerReceipt": null,
+        "providerDocumentId": null,
+        "periodStart": "2022-01-01",
+        "periodEnd": "2022-12-31",
+        "publishedAt": "2023-02-20",
+        "officialUrl": "https://re1.miraeasset.com/upload/1676855602555.pdf",
+        "sha256": "29140b8f661670b1a9b13ce10f1ac78bdc180b4aec4bd42ca579dfd41a83b42d",
+        "issuerQuote": "미래에셋맵스 아시아퍼시픽 부동산공모 1호 투자회사",
+        "periodQuote": "제 16 기 2022년 1월 1일부터 2022년 12월 31일까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": "2026-10-02T03:58:11.315233+00:00",
+        "readScope": "text cover p1",
+        "periodProof": "printed PDF cover, no filename inference"
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "00600013",
+        "title": "미래에셋맵스 아시아퍼시픽 부동산공모 1호 투자회사 재무제표",
+        "documentType": "auditReport",
+        "provider": "officialIR",
+        "providerReceipt": null,
+        "providerDocumentId": null,
+        "periodStart": "2021-01-01",
+        "periodEnd": "2021-12-31",
+        "publishedAt": "2022-03-21",
+        "officialUrl": "https://re1.miraeasset.com/upload/1647825339156.pdf",
+        "sha256": "955936b7393e00999cc291f54e11c102a7554a15c4d5721f2c5f403b185df74c",
+        "issuerQuote": "미래에셋맵스 아시아퍼시픽 부동산공모 1호 투자회사",
+        "periodQuote": "제 15 기 2021년 1월 1일부터 2021년 12월 31일까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": "2026-10-02T03:58:12.601638+00:00",
+        "readScope": "text cover p1",
+        "periodProof": "printed PDF cover, no filename inference"
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01880801",
+        "title": "케이비발해인프라투융자회사 재무제표 감사보고서",
+        "documentType": "auditReport",
+        "provider": "KIND",
+        "providerReceipt": "20260130001376",
+        "providerDocumentId": null,
+        "periodStart": "2025-01-01",
+        "periodEnd": "2025-12-31",
+        "publishedAt": "2026-01-30",
+        "officialUrl": "https://kbif.co.kr/upload/2026/1/20260130045455021398.pdf",
+        "sha256": "9334d1203787d6729eee9aac88f4856fb953617208945498476ed250cce4ec2d",
+        "issuerQuote": "케이비발해인프라투융자회사",
+        "periodQuote": "제 37 기 2025년 1월 1일 부터 2025년 12월 31일 까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": "2026-10-02T04:04:06.463957+00:00",
+        "readScope": "visual cover p1",
+        "periodProof": "printed PDF cover, no filename inference"
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01880801",
+        "title": "케이비발해인프라투융자회사 재무제표 감사보고서",
+        "documentType": "auditReport",
+        "provider": "KIND",
+        "providerReceipt": "20250207001315",
+        "providerDocumentId": null,
+        "periodStart": "2024-01-01",
+        "periodEnd": "2024-12-31",
+        "publishedAt": "2025-02-07",
+        "officialUrl": "https://kbif.co.kr/upload/2025/2/20250207060323006759.pdf",
+        "sha256": "63dcf50d2e1de5dc8c8165d08535c0642a2f35906b899eb1d391ea46da3b4a5d",
+        "issuerQuote": "케이비발해인프라투융자회사",
+        "periodQuote": "제 36 기 2024년 1월 1일 부터 2024년 12월 31일 까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": "2026-10-02T04:04:08.982490+00:00",
+        "readScope": "text cover p1",
+        "periodProof": "printed PDF cover, no filename inference"
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "00600013",
+        "title": "미래에셋맵스리얼티부동산공모투자회사 재무제표 감사보고서",
+        "documentType": "auditReport",
+        "provider": "officialIR",
+        "providerReceipt": null,
+        "providerDocumentId": null,
+        "periodStart": "2026-01-01",
+        "periodEnd": "2026-06-30",
+        "publishedAt": "2026-09-30",
+        "officialUrl": "https://re1.miraeasset.com/upload/1790753607631.pdf",
+        "sha256": "d1eecb3ce270eba3051280df4c1fa831922b940712d40cd1ef5ac75c71f8da3c",
+        "issuerQuote": "미래에셋맵스리얼티부동산공모투자회사",
+        "periodQuote": "제 20 기 2026년 1월 1일부터 2026년 6월 30일까지",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": "2026-10-02T03:45:16.973203+00:00",
+        "readScope": "text cover p1",
+        "periodProof": "printed PDF cover, no filename inference"
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01880801",
+        "title": "[정정]투자설명서(집합투자증권-회사형)",
+        "documentType": "prospectus",
+        "provider": "officialIR",
+        "providerReceipt": null,
+        "providerDocumentId": null,
+        "periodStart": "2021-07-01",
+        "periodEnd": "2023-12-31",
+        "publishedAt": "2024-11-15",
+        "officialUrl": "https://kbif.co.kr/upload/2024/11/20241115105341013630.pdf",
+        "sha256": "f156281de6902b32ca7773eaad4cb5ba3b03869cffea9edba81371cb7f9f7e8a",
+        "issuerQuote": "케이비발해인프라투융자회사",
+        "periodQuote": "제35기(2023.01.01~2023.12.31) / 제34기(2022.07.01~2022.12.31) / 제33기(2022.01.01~2022.06.30) / 제32기(2021.07.01~2021.12.31)",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": null,
+        "verifiedAt": "2026-10-03T05:07:28.578065+00:00",
+        "evidenceOrigin": "exact-local-original-from-official-source;downloadTimestampNotClaimed",
+        "readScope": "text and visual physical pages 265-269; correction date p1",
+        "periodProof": "printed audited fiscal terms 35/34/33/32; source range not fiscal duration"
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "00435297",
+        "title": "MKIF 2026년 상반기 비감사 별도 재무실적",
+        "documentType": "operatingReport",
+        "provider": "officialIR",
+        "providerReceipt": null,
+        "providerDocumentId": null,
+        "periodStart": "2026-01-01",
+        "periodEnd": "2026-06-30",
+        "publishedAt": "2026-07-29",
+        "officialUrl": "https://www.mkif.com/assets/mkif/en/investor-centre/public-filings-and-reports/2026/ir-release-2607-1h-2026-financial-traffic-results-eng.pdf",
+        "sha256": "6ca659a9b5f54e2c27fc0359e44babc1e98d1b604ccc78a43269c095d226a87b",
+        "issuerQuote": "Macquarie Korea Infrastructure Fund",
+        "periodQuote": "For the six months ended 30 June 2026",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "readScope": "own issuer p1; own financial appendix p4 BS and p5 cumulative PL only",
+        "periodProof": "printed own six months ended 30 June 2026; unaudited non-consolidated",
+        "sourceReadScope": "partialFinancialResultsOnly;CECFnotPrinted;notRegularHalfYearReport",
+        "downloadedAt": "2026-10-03T05:46:24.070090+00:00"
+      }
+    },
+    {
+      "metadata": {
+        "corpCode": "01880801",
+        "title": "KB발해인프라 2026년 상반기 회계상 재무실적",
+        "documentType": "operatingReport",
+        "provider": "officialIR",
+        "providerReceipt": null,
+        "providerDocumentId": null,
+        "periodStart": "2026-01-01",
+        "periodEnd": "2026-06-30",
+        "publishedAt": "2026-07-31",
+        "officialUrl": "https://kbif.co.kr/upload/2026/7/20260731043629001933.pdf",
+        "sha256": "a96534db3ab73fd7145cd8c05b7f8194edd885e4547417cc57fb59dbe651da61",
+        "issuerQuote": "KB발해인프라투융자회사",
+        "periodQuote": "2026년 상반기",
+        "numericState": "notExtracted",
+        "financialValues": null,
+        "publicContent": "linkOnly"
+      },
+      "proof": {
+        "downloadedAt": "2026-10-03T05:52:11.635077Z",
+        "readScope": "own issuer p1; own appendix p13 BS and p15 cumulative accounting PL only",
+        "periodProof": "printed own 2026 H1 columns; accounting versus tax separated; audit status unprinted",
+        "sourceReadScope": "partialFinancialResultsOnly;CECFnotPrinted;notRegularHalfYearReport"
+      }
+    }
+  ]
+}

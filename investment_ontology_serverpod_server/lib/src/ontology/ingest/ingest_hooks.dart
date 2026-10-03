@@ -23,6 +23,8 @@ abstract final class IngestHooks {
   static ResumeScheduler? financialsResume;
   static JobLauncher? marketSnapshotNow;
   static ResumeScheduler? marketSnapshotResume;
+  static Future<void> Function(Session session, int jobId, DateTime at)?
+  marketSecurityRelinkLater;
   static JobLauncher? businessDocumentsNow;
   static ResumeScheduler? businessDocumentsResume;
   static JobLauncher? disclosuresNow;

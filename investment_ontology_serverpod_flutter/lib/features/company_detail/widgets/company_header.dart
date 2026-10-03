@@ -192,10 +192,7 @@ class CompanyHeader extends StatelessWidget {
                 fsDiv: fin.fsDiv,
               )
             else
-              Text(
-                '수집된 재무·시세가 없습니다.',
-                style: t.body(13, color: c.textMuted),
-              ),
+              Text('수집된 재무·시세가 없습니다.', style: t.body(13, color: c.textMuted)),
           ],
         ),
       ],

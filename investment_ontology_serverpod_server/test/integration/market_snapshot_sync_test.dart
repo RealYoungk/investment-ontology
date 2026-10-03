@@ -93,6 +93,7 @@ void main() {
     Future<IngestJob> runSync({
       int dailyBudget = 9000,
       DateTime? at,
+      DateTime? from,
       bool cancelled = false,
     }) async {
       final job = await IngestJob.db.insertRow(
@@ -114,7 +115,7 @@ void main() {
         api.client(),
         job.id!,
         dailyBudget: dailyBudget,
-        backfillFrom: DateTime.utc(2026, 9, 16),
+        backfillFrom: from ?? DateTime.utc(2026, 9, 16),
         callInterval: Duration.zero,
         clock: () => at ?? now,
         scheduleResume: (at) async => resumes.add(at),
@@ -137,6 +138,95 @@ void main() {
       );
     });
 
+    test('saved contradictory CRNO is not linked by stock code; counters remain zero', () async {
+      final company = (await Company.db.find(session)).single;
+      await Company.db.updateRow(
+        session,
+        company.copyWith(stockCode: '005930'),
+      );
+      final source = await Source.db.insertRow(
+        session,
+        Source(
+          kind: SourceKind.dataGoKrApi,
+          title: 'saved price',
+          retrievedAt: now,
+        ),
+      );
+      final security = await Security.db.insertRow(
+        session,
+        Security(
+          isinCode: 'KR7005930003',
+          shortCode: '005930',
+          name: '삼성전자',
+          crno: '9999999999999',
+          sourceId: source.id,
+          lastSeenDate: DateTime.utc(2026, 9, 16),
+        ),
+      );
+      final before = security.toJson();
+      final j = await runSync(dailyBudget: 0);
+      expect(
+        (await Security.db.findById(session, security.id!))!.toJson(),
+        before,
+      );
+      expect(
+        (await Source.db.findById(session, source.id!))!.toJson(),
+        source.toJson(),
+      );
+      expect(j.message, contains('기업 연결 종목 0개'));
+      expect(j.apiCalls, 0);
+      expect(j.updated, 0);
+      expect(api.priceCalls, isEmpty);
+      expect(api.listedCalls, isEmpty);
+      expect(await MarketSnapshot.db.count(session), 0);
+      expect(await MarketSnapshotDay.db.count(session), 0);
+      expect(await MarketIndexSnapshot.db.count(session), 0);
+      expect(await MarketIndexDay.db.count(session), 0);
+    });
+    test(
+      'fresh listing cannot bypass contradictory CRNO through code or ISIN',
+      () async {
+        final company = (await Company.db.find(session)).single;
+        await Company.db.updateRow(
+          session,
+          company.copyWith(stockCode: '005930'),
+        );
+        api.prices['20260916'] = [
+          price('KR7005930003', '005930', '삼성전자'),
+          price('KR7005931001', '005935', '삼성전자우'),
+        ];
+        api.listed['20260916'] = [
+          {
+            'srtnCd': 'A005930',
+            'isinCd': 'KR7005930003',
+            'itmsNm': '삼성전자',
+            'mrktCtg': 'KOSPI',
+            'crno': '9999999999999',
+            'corpNm': '삼성전자',
+          },
+          {
+            'srtnCd': 'A005935',
+            'isinCd': 'KR7005931001',
+            'itmsNm': '삼성전자우',
+            'mrktCtg': 'KOSPI',
+            'crno': '1301110006246',
+            'corpNm': '삼성전자',
+          },
+        ];
+        final j = await runSync();
+        final rows = await Security.db.find(session);
+        expect(
+          rows.singleWhere((s) => s.shortCode == '005930').companyId,
+          isNull,
+        );
+        expect(
+          rows.singleWhere((s) => s.shortCode == '005935').companyId,
+          company.id,
+        );
+        expect(j.message, contains('기업 연결 종목 1개'));
+        expect(await MarketSnapshot.db.count(session), 2);
+      },
+    );
     test('기준일 시세와 종목을 저장하고, 상장종목 정보로 기업에 잇는다', () async {
       // 9/16부터 어제(9/16)까지 하루만 대상.
       api.prices['20260916'] = [
@@ -382,6 +472,43 @@ void main() {
       expect(job.status, IngestStatus.succeeded);
       expect(job.message, contains('예산'));
       expect(resumes, [DateTime.utc(2026, 9, 17, 15, 10)]);
+    });
+    test('Oct2 empty on weekend remains pending, estimated publication is not a completion or hourly loop', () async {
+      final job = await runSync(
+        at: DateTime.utc(2026, 10, 3, 5),
+        from: DateTime.utc(2026, 10, 2),
+      );
+      expect(await MarketSnapshotDay.db.count(session), 0);
+      expect(await MarketIndexDay.db.count(session), 0);
+      expect(job.message, contains('남은 기준일 1일'));
+      expect(job.message, contains('2026-10-06 13:00 KST'));
+      expect(job.message, contains('실제 공개/입수 보장 아님'));
+      expect(job.message, isNot(contains('1시간 후 재확인')));
+      expect(resumes, isEmpty); // earlier normal daily remains the owner.
+    });
+    test('Oct2 four days later still retries around estimated publication without a false holiday', () async {
+      final job = await runSync(
+        at: DateTime.utc(2026, 10, 6, 3),
+        from: DateTime.utc(2026, 10, 2),
+      );
+      expect(await MarketSnapshotDay.db.count(session), 0);
+      expect(job.message, contains('남은 기준일 2일'));
+      expect(resumes, [DateTime.utc(2026, 10, 6, 4)]);
+    });
+    test('recent index empty after long weekend is pending and retries, never a zero-row index day', () async {
+      api.prices['20261002'] = [price('KR7005930003', '005930', '삼성전자')];
+      await runSync(
+        at: DateTime.utc(2026, 10, 3, 5),
+        from: DateTime.utc(2026, 10, 2),
+      );
+      expect(resumes, isEmpty);
+      final job = await runSync(
+        at: DateTime.utc(2026, 10, 6, 3),
+        from: DateTime.utc(2026, 10, 2),
+      );
+      expect(await MarketIndexDay.db.count(session), 0);
+      expect(job.message, contains('지수 미완료 1일'));
+      expect(resumes, [DateTime.utc(2026, 10, 6, 4)]);
     });
     test(
       'recent empty schedules one hourly retry but does not mark a holiday',

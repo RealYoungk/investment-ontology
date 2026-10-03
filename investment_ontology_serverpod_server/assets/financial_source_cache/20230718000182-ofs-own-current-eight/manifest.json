@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20230718000182",
+  "corpCode": "01020269",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2022,
+  "periodStart": "2022-01-01",
+  "periodEnd": "2022-12-31",
+  "ruleVersion": "talos-own-2022-current-eight-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230718000182",
+      "sha256": "f41e4924df3fabc6126e47577c02718ee62df8d100936f073d304b975b1d5002"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230718000182&dcmNo=9352642&eleId=3&offset=17145&length=4026&dtd=dart3.xsd",
+      "sha256": "1d01d38a28db1f20e4149df54ff7087c435a019b0558c82aab0826105e6e3d96"
+    },
+    {
+      "label": "ofs",
+      "file": "ofs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230718000182&dcmNo=9352642&eleId=23&offset=195816&length=31745&dtd=dart3.xsd",
+      "sha256": "b41f1ddaa94bb3a0443217b02de4103a89e8201dd609d9e4f3348ce7a3d7f0c3"
+    }
+  ]
+}

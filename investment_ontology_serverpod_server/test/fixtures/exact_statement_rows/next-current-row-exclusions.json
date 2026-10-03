@@ -1,0 +1,188 @@
+[
+  {
+    "package": "20260323001088-ofs",
+    "receipt": "20260323001088",
+    "corpCode": "00991225",
+    "basis": "separate",
+    "periodStart": "2025-01-01",
+    "periodEnd": "2025-12-31",
+    "URI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260323001088&dcmNo=11165467&eleId=21&offset=150434&length=66097&dtd=dart4.xsd",
+    "SHA256": "54451573f3405f4584b72b7db6981feafcc1844270fea4bf0f255df8d14ac1bf",
+    "approvedForCurrentRowEnrichment": false,
+    "fullStatementCollected": false,
+    "proof": [
+      {
+        "coordinate": [
+          3,
+          35,
+          1
+        ],
+        "label": "무형자산상각비",
+        "raw": "(주석18)"
+      },
+      {
+        "coordinate": [
+          3,
+          12,
+          1
+        ],
+        "label": "Ⅳ. 판매비와관리비",
+        "raw": "1,714,671,703"
+      }
+    ],
+    "status": "printed-current-cell-invalid;missing-numerical-proof",
+    "subtotalResidualExcludingInvalidCell": "333333",
+    "noInferredAmountStored": true
+  },
+  {
+    "package": "20250321001653-ofs",
+    "receipt": "20250321001653",
+    "corpCode": "00886792",
+    "basis": "separate",
+    "periodStart": "2024-01-01",
+    "periodEnd": "2024-12-31",
+    "URI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001653&dcmNo=10449285&eleId=21&offset=715884&length=49841&dtd=dart4.xsd",
+    "SHA256": "8c0502e47ccd9f3f0a58431baebed17387174bde470f5a5be2114211f009ec84",
+    "approvedForCurrentRowEnrichment": false,
+    "fullStatementCollected": false,
+    "proof": [
+      {
+        "coordinate": [
+          7,
+          31,
+          1
+        ],
+        "label": "유동성장기차입금의 차입",
+        "raw": "(1,789,276,000)"
+      },
+      {
+        "coordinate": [
+          7,
+          32,
+          1
+        ],
+        "label": "유동성장기차입금의 상환",
+        "raw": "999,996,000"
+      },
+      {
+        "coordinate": [
+          7,
+          33,
+          1
+        ],
+        "label": "유상증자",
+        "raw": "1,000,000,000"
+      },
+      {
+        "coordinate": [
+          5,
+          24,
+          5
+        ],
+        "label": "유상증자",
+        "raw": "999,996,000"
+      }
+    ],
+    "status": "printed-current-cash-label-and-cross-statement-contradiction",
+    "printedCfCapitalIncreaseVersusCeIncreaseResidual": "4000",
+    "noOppositeBasisTransplant": true
+  },
+  {
+    "package": "20250318000656-ofs",
+    "receipt": "20250318000656",
+    "corpCode": "00978075",
+    "basis": "separate",
+    "periodStart": "2024-01-01",
+    "periodEnd": "2024-12-31",
+    "URI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250318000656&dcmNo=10420032&eleId=19&offset=135164&length=61421&dtd=dart4.xsd",
+    "SHA256": "6f9fffe25a56b6cbbc144858451a502bf2ab8d2b03258679ad7bbb7ffcf07ba4",
+    "approvedForCurrentRowEnrichment": false,
+    "fullStatementCollected": false,
+    "proof": [
+      {
+        "coordinate": [
+          3,
+          8,
+          3
+        ],
+        "label": "Ⅲ. 영업손실",
+        "raw": "3,343,493,269"
+      }
+    ],
+    "status": "current-literal-loss-cell-not-compatible-with-existing-normalized-core-contract;not-general-source-unavailable",
+    "wouldRequireSeparateExactSemanticContract": true,
+    "outOfScopePriorCePrintedError": {
+      "coordinates": [
+        {
+          "coordinate": [
+            5,
+            5,
+            5
+          ],
+          "label": "당기순이익(손실)",
+          "raw": "(2,600,262,943)"
+        },
+        {
+          "coordinate": [
+            5,
+            5,
+            6
+          ],
+          "label": "당기순이익(손실)",
+          "raw": "(2,600,236,873)"
+        }
+      ],
+      "residual": "26070"
+    }
+  },
+  {
+    "package": "20240319000167-ofs",
+    "receipt": "20240319000167",
+    "corpCode": "00978075",
+    "basis": "separate",
+    "periodStart": "2023-01-01",
+    "periodEnd": "2023-12-31",
+    "URI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240319000167&dcmNo=9728927&eleId=19&offset=155636&length=55675&dtd=dart4.xsd",
+    "SHA256": "362dd7c900848153fb969eb0b8b5ea4e1730de000e2ffb660b71c5ceebbfb8a9",
+    "approvedForCurrentRowEnrichment": false,
+    "fullStatementCollected": false,
+    "proof": [
+      {
+        "coordinate": [
+          3,
+          6,
+          3
+        ],
+        "label": "Ⅲ. 영업손실",
+        "raw": "2,537,939,403"
+      }
+    ],
+    "status": "current-literal-loss-cell-not-compatible-with-existing-normalized-core-contract;not-general-source-unavailable",
+    "wouldRequireSeparateExactSemanticContract": true
+  },
+  {
+    "package": "20250321000195-cfs-exact-current",
+    "receipt": "20250321000195",
+    "corpCode": "00861100",
+    "basis": "consolidated",
+    "periodStart": "2024-01-01",
+    "periodEnd": "2024-12-31",
+    "URI": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321000195&dcmNo=10442352&eleId=19&offset=186651&length=60050&dtd=dart4.xsd",
+    "SHA256": "431bb6dc80646d7f9e478b5503c85a14e128b32ec2404e066479763a6639a7c6",
+    "approvedForCurrentRowEnrichment": false,
+    "fullStatementCollected": false,
+    "proof": [
+      {
+        "coordinate": [
+          7,
+          21,
+          1
+        ],
+        "label": "유형자산의증가",
+        "raw": "(67,633,613)"
+      }
+    ],
+    "status": "own-verified-core-seven;eight-core-append-contract-unapproved",
+    "nextPath": "Requires independent source-bound seven-core row enrichment design, never implicit eighth metric."
+  }
+]

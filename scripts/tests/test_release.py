@@ -96,7 +96,7 @@ class ReleaseGuardTests(unittest.TestCase):
     def test_backend_change_prevents_rollback(self):
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / 'record.json'
-            path.write_text(json.dumps({'deployment': {'id': 'current'}, 'backend': 'old'}))
+            path.write_text(json.dumps({'provider':'cloudflare-pages','projectName':release.pages.PROJECT,'accountId':release.pages.ACCOUNT,'deployment': {'id': 'current'}, 'backend': 'old'}))
             with patch.object(release, 'production', return_value={'id': 'current'}), \
                  patch.object(release, 'backend', return_value='new'), \
                  patch.object(release, 'run') as command:
@@ -107,7 +107,7 @@ class ReleaseGuardTests(unittest.TestCase):
     def test_foreign_production_prevents_rollback(self):
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / 'record.json'
-            path.write_text(json.dumps({'deployment': {'id': 'old'}}))
+            path.write_text(json.dumps({'provider':'cloudflare-pages','projectName':release.pages.PROJECT,'accountId':release.pages.ACCOUNT,'deployment': {'id': 'old'}}))
             with patch.object(release, 'production', return_value={'id': 'new'}), \
                  patch.object(release, 'run') as command:
                 with self.assertRaises(ValueError):

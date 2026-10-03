@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20220715000446",
+  "corpCode": "00231664",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2021,
+  "periodStart": "2021-01-01",
+  "periodEnd": "2021-12-31",
+  "ruleVersion": "woori-investment-2021-whole7-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "file": "shell.html",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20220715000446",
+      "sha256": "068408136e62d677a4ecb4acc00b771faee9acd71e483d053970cd8882771674"
+    },
+    {
+      "label": "cover",
+      "file": "cover.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220715000446&dcmNo=8736849&eleId=3&offset=9861&length=4036&dtd=dart3.xsd",
+      "sha256": "c1d7749d7bc2c8b26d471ffe71704774d59806a51795f2a59a7af1032822e975"
+    },
+    {
+      "label": "ofs",
+      "file": "ofs.html",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20220715000446&dcmNo=8736849&eleId=21&offset=689805&length=56024&dtd=dart3.xsd",
+      "sha256": "474695664a66d22af81dfd008309e5f7625cf432ad22fed9856bc3f6c380cb5d"
+    }
+  ],
+  "retrievalProof": "직접 whole7·4표 unit·현재열·BS/CE 전체·CF활동합·증감·기초기말·BS 비교현금 대조. OFS FX dash 미기재 보존, 0 추정 없음."
+}
