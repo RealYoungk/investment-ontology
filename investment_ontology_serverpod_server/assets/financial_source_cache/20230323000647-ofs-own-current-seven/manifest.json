@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20230323000647",
+  "corpCode": "01116380",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2022,
+  "periodStart": "2022-01-01",
+  "periodEnd": "2022-12-31",
+  "ruleVersion": "cnslink-2022-own-current-seven-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20230323000647",
+      "sha256": "ba19e4130cf45066e2d5864ab49652b6afb1568702fe78bf2f74ec11b04692ac",
+      "file": "shell.html"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230323000647&dcmNo=9095234&eleId=1&offset=812&length=4139&dtd=dart3.xsd",
+      "sha256": "6ad2c352783751ae583878b849fa180825e4c3fdc46c68371db190f613f12701",
+      "file": "cover.html"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20230323000647&dcmNo=9095234&eleId=21&offset=261990&length=75159&dtd=dart3.xsd",
+      "sha256": "a06702b4cbabc5205391b6ac36820b85d7ed1836c97548737df1fb28578eac81",
+      "file": "ofs.html"
+    }
+  ]
+}

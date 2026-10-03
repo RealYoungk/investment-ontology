@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "receipt": "20240321000933",
+  "corpCode": "01206717",
+  "basis": "separate",
+  "kind": "annual",
+  "year": 2023,
+  "periodStart": "2023-01-01",
+  "periodEnd": "2023-12-31",
+  "ruleVersion": "micronx-2023-own-current-seven-v1",
+  "sources": [
+    {
+      "label": "shell",
+      "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20240321000933",
+      "sha256": "e0470da3b22112b61938dc66725e2db2e530392b80824b806e3aca97146bd397",
+      "file": "shell.html"
+    },
+    {
+      "label": "cover",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240321000933&dcmNo=9748926&eleId=1&offset=952&length=4096&dtd=dart4.xsd",
+      "sha256": "f9b3ac9d9bf3ef514f8f8383fc465522a6a748c631c7a68fbc2a902c35a1b99b",
+      "file": "cover.html"
+    },
+    {
+      "label": "ofs",
+      "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20240321000933&dcmNo=9748926&eleId=21&offset=532559&length=76012&dtd=dart4.xsd",
+      "sha256": "bd134689b385e2cecac4838f2ba81a134a3c6464494293732146ea5e00d53748",
+      "file": "ofs.html"
+    }
+  ]
+}

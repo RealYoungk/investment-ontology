@@ -210,6 +210,34 @@ abstract final class VerifiedAnnualSourceRegistry {
     ),
 
     AnnualSourceCacheEntry(
+      receipt: '20230323000647',
+      corpCode: '01116380',
+      companyName: '(주)씨앤에스링크',
+      year: 2022,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20230323000647-ofs-own-current-seven',
+      manifestDigest:
+          '05bb9d65f1d5c358a1d99b5f1a21c37073e9f882240cbc066aafb18cd2c6aad9',
+      ruleVersion: 'cnslink-2022-own-current-seven-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
+      receipt: '20240321000933',
+      corpCode: '01206717',
+      companyName: '(주)마이크로엔엑스',
+      year: 2023,
+      basis: FsDiv.separate,
+      assetDirectory:
+          'assets/financial_source_cache/20240321000933-ofs-own-current-seven',
+      manifestDigest:
+          '84dd325f1cdccd853cf5a51cb9f1f81149b5ac3d4cadddc9bf1a8475f2a35948',
+      ruleVersion: 'micronx-2023-own-current-seven-v1',
+      absenceLiteral: null,
+    ),
+
+    AnnualSourceCacheEntry(
       receipt: '20240320001200',
       corpCode: '01396931',
       companyName: '주식회사 유엑스엔',
