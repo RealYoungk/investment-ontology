@@ -1,3 +1,4 @@
+import 'package:crypto/crypto.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/exact_statement_rows.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/ingest/financial_rows.dart';
 
@@ -301,8 +302,15 @@ void main() {
           expect(additionalPayload['ledger'], prepared.ledger);
           expect(
             prepared.primary.sourceDigest,
+            '13efea4f9b3310b161d2e4e8c42c15657ef695876e83b2f28e9c2feae1ca0b30',
+          );
+          expect(
+            sha256
+                .convert(utf8.encode(prepared.primary.statementHtml))
+                .toString(),
             'c63592b1a91cd5bf858bbcde8f9855ca971f2cb0325aa1d7037d1265f22036b4',
           );
+          expect(additionalPayload['sha256'], prepared.primary.sourceDigest);
           final expectedDetails = FinancialRows.toFacts(
             prepared.rows,
             reportId: stored.id!,
