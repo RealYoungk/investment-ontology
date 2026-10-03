@@ -66,13 +66,30 @@ void main() {
       expect(() => verify(f), throwsA(isA<FormatException>()));
     });
   }
-  test(
-    'wrong basis does not select OFS package',
-    () => expect(
-      () => verify(filing(entry), basis: FsDiv.consolidated),
-      throwsA(isA<FormatException>()),
-    ),
-  );
+  test('opposite basis selects its independently approved source', () async {
+    final opposite = VerifiedAnnualSourceRegistry.find(
+      entry.receipt,
+      FsDiv.consolidated,
+    )!;
+    final result = await verify(filing(entry), basis: FsDiv.consolidated);
+    expect(result!.numeric, isNotNull);
+    expect(opposite.manifestDigest, isNot(entry.manifestDigest));
+    expect(
+      result.numeric!.statementSource.toString(),
+      'https://dart.fss.or.kr/report/viewer.do?rcpNo=20250321001653&dcmNo=10449285&eleId=19&offset=299229&length=58169&dtd=dart4.xsd',
+    );
+    final separate = await verify(filing(entry));
+    expect(
+      result.numeric!.statementSource,
+      isNot(separate!.numeric!.statementSource),
+    );
+    expect(
+      result.numeric!.rows.every(
+        (row) => (row['html_provenance'] as Map)['basis'] == 'CFS',
+      ),
+      isTrue,
+    );
+  });
   test(
     'immutable raw source tamper rejected',
     () => expect(
