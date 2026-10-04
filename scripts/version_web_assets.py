@@ -1,5 +1,6 @@
 """Give application entrypoints content-addressed URLs across deployments."""
 import hashlib
+import re
 from pathlib import Path
 
 
@@ -17,6 +18,6 @@ def version_entrypoints(static: Path):
     (static / bootstrap_name).write_text(text)
     index = static / 'index.html'
     html = index.read_text()
-    if 'src="flutter_bootstrap.js"' not in html:
+    if not re.search(r'src="/?flutter_bootstrap\.js"', html):
         raise ValueError('Flutter bootstrap script was not found')
-    index.write_text(html.replace('src="flutter_bootstrap.js"', 'src="' + bootstrap_name + '"'))
+    index.write_text(re.sub(r'src="/?flutter_bootstrap\.js"', 'src="/' + bootstrap_name + '"', html))
