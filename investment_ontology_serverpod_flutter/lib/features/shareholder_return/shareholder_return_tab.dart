@@ -70,9 +70,10 @@ String formatDividendValue(double? v, String? unit) {
 
 /// 기업 상세의 주주환원 탭: 배당 추이 · 자기주식 · 주식 총수.
 class ShareholderReturnTab extends StatefulWidget {
-  const ShareholderReturnTab({super.key, required this.corpCode});
+  const ShareholderReturnTab({super.key, required this.corpCode, this.loader});
 
   final String corpCode;
+  final Future<ShareholderReturn?> Function(String)? loader;
 
   @override
   State<ShareholderReturnTab> createState() => _ShareholderReturnTabState();
@@ -90,7 +91,9 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
 
   Future<void> _load() async {
     try {
-      final data = await client.disclosure.shareholderReturn(widget.corpCode);
+      final data = await (widget.loader ?? client.disclosure.shareholderReturn)(
+        widget.corpCode,
+      );
       if (mounted) {
         setState(() {
           _data = data;
@@ -113,11 +116,14 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
     if (d == null) return const ShadProgress(minHeight: 2);
 
     final series = dividendSeries(d.dividends);
-    // 지금 해의 사업보고서가 아직 없으면 그 해를 빈 칸으로 둔다 (지우지 않는다).
-    final thisYear = DateTime.now().year;
+    // 실제 공시 표의 당기·전기·전전기만 표시한다. 미공시 올해를 빈 차트 칸으로 만들지 않는다.
     final years = {
       for (final s in series) ...s.values.keys,
-      if (series.any((s) => s.values.isNotEmpty)) thisYear,
+      for (final entry in d.dividends) ...[
+        entry.bsnsYear,
+        entry.bsnsYear - 1,
+        entry.bsnsYear - 2,
+      ],
     }.toList()..sort();
     DividendSeries? find(bool Function(DividendSeries s) test) =>
         series.where(test).firstOrNull;
@@ -131,6 +137,22 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
     );
     final payout = find((s) => s.item.contains('현금배당성향'));
 
+    bool hasValues(DividendSeries? value) =>
+        value != null && value.values.values.any((v) => v != null);
+    final emptyDividendMetrics = [
+      if (!hasValues(dps)) '주당 현금배당금',
+      if (!hasValues(yield)) '배당수익률',
+      if (!hasValues(payout)) '배당성향',
+    ];
+    final treasuryHasValues = d.treasury.any(
+      (r) => [
+        r.sharesBegin,
+        r.acquired,
+        r.disposed,
+        r.retired,
+        r.sharesEnd,
+      ].any((v) => v != null),
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -140,27 +162,27 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
           LayoutBuilder(
             builder: (context, box) {
               final trends = <Widget>[
-                if (yield != null)
+                if (hasValues(yield))
                   _Trend(
                     title: '배당수익률 · 주가 대비 (공시 기준)',
                     help: '주당 현금배당금 ÷ 주가 × 100입니다. 아래 값과 추이는 공시 당시 기준이며 최신 주가로 계산한 수익률은 아닙니다.',
                     years: years,
-                    series: yield,
+                    series: yield!,
                     color: c.chartSeries3,
                   ),
-                if (dps != null)
+                if (hasValues(dps))
                   _Trend(
                     title: '한 주당 받은 현금배당',
                     years: years,
-                    series: dps,
+                    series: dps!,
                     color: c.chartSeries1,
                     bars: true,
                   ),
-                if (payout != null)
+                if (hasValues(payout))
                   _Trend(
                     title: '배당성향 · 이익 대비',
                     years: years,
-                    series: payout,
+                    series: payout!,
                     color: c.chartSeries2,
                   ),
               ];
@@ -181,10 +203,12 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
               );
             },
           ),
-          if (yield == null)
-            ShadAlert(
-              description: Text(
-                '공시 기준 배당수익률 자료가 아직 없습니다. 배당수익률은 주가 대비 배당금의 비율입니다.',
+          if (emptyDividendMetrics.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: AppSpace.sm),
+              child: Text(
+                '${emptyDividendMetrics.join(' · ')}: 수집한 배당 공시 표에 수치가 표시되지 않았습니다. 미배당 등으로 해당하지 않을 수 있어, 빈 차트 대신 원문에서 확인할 수 있습니다. 공시의 빈 값은 0으로 해석하지 않습니다.',
+                style: t.body(13, color: c.textSecondary).copyWith(height: 1.6),
               ),
             ),
           const SizedBox(height: AppSpace.lg),
@@ -233,22 +257,26 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
             ],
           ),
         ],
-        const SizedBox(height: AppSpace.section),
-        CompanyDataCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              CompanySectionHeading(
-                '자기주식${d.treasuryYear == null ? '' : ' · ${d.treasuryYear}년'}',
-                help: '취득은 회사가 자기 주식을 사들이는 것, 처분은 팔거나 이전하는 것, 소각은 주식을 없애는 것입니다. 처분과 소각은 다릅니다.\n\n이 차트는 해당 기간의 실제 보유량 변화를 보여줍니다.',
-              ),
-              const SizedBox(height: AppSpace.md),
-              TreasuryMovement(rows: d.treasury),
-            ],
+        SizedBox(height: treasuryHasValues ? AppSpace.section : AppSpace.lg),
+        if (treasuryHasValues)
+          CompanyDataCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                CompanySectionHeading(
+                  '자기주식${d.treasuryYear == null ? '' : ' · ${d.treasuryYear}년'}',
+                  help: '취득은 회사가 자기 주식을 사들이는 것, 처분은 팔거나 이전하는 것, 소각은 주식을 없애는 것입니다. 처분과 소각은 다릅니다.\n\n이 차트는 해당 기간의 실제 보유량 변화를 보여줍니다.',
+                ),
+                const SizedBox(height: AppSpace.md),
+                TreasuryMovement(rows: d.treasury),
+              ],
+            ),
           ),
-        ),
-        if (d.treasury.isEmpty)
-          Text('자기주식 자료가 없습니다.', style: t.body(13, color: c.textMuted))
+        if (!treasuryHasValues)
+          Text(
+            '자기주식 취득·처분: 표시할 수량 내역이 없습니다. 해당사항 없음 또는 미수집 여부는 아래 공시 원문에서 확인할 수 있습니다.',
+            style: t.body(13, color: c.textMuted),
+          )
         else
           ShadAccordion<int>(
             maintainState: false,
@@ -304,13 +332,13 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
               ),
             ],
           ),
-        const SizedBox(height: AppSpace.section),
+        SizedBox(height: treasuryHasValues ? AppSpace.section : AppSpace.lg),
         CompanyDataCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               CompanySectionHeading(
-                '회사에 남아 있는 자기주식${d.stockTotalYear == null ? '' : ' · FY${d.stockTotalYear}'}',
+                '주식 수 현황${d.stockTotalYear == null ? '' : ' · FY${d.stockTotalYear}'}',
               ),
               const SizedBox(height: AppSpace.sm),
               if (d.stockTotals.isEmpty)
@@ -318,46 +346,53 @@ class _ShareholderReturnTabState extends State<ShareholderReturnTab> {
               else ...[
                 _StockComposition(rows: d.stockTotals),
                 const SizedBox(height: AppSpace.md),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                ShadAccordion<int>(
                   children: [
-                    Text(
-                      '주식 수량 상세 보기',
-                      style: t.body(14, weight: FontWeight.w600),
-                    ),
-                    const SizedBox(height: AppSpace.sm),
-                    AppDataTable(
-                      columns: const [
-                        AppColumn('구분', flex: true),
-                        AppColumn('발행 가능한 총수', numeric: true),
-                        AppColumn('발행주식의 총수', numeric: true),
-                        AppColumn('자기주식수', numeric: true, flex: true),
-                        AppColumn('유통주식수', numeric: true, flex: true),
-                      ],
-                      rows: [
-                        for (final r in d.stockTotals)
-                          AppRow(
-                            emphasized: r.kind.replaceAll(' ', '') == '합계',
-                            [
-                              AppDataTable.text(context, r.kind),
-                              for (final v in [
-                                r.authorized,
-                                r.issued,
-                                r.treasury,
-                                r.outstanding,
-                              ])
-                                AppDataTable.text(
-                                  context,
-                                  v == null ? null : formatCount(v.toInt()),
-                                  numeric: true,
+                    ShadAccordionItem<int>(
+                      value: 0,
+                      title: const Text('주식 수량 상세 보기'),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SizedBox(height: AppSpace.sm),
+                          AppDataTable(
+                            columns: const [
+                              AppColumn('구분', flex: true),
+                              AppColumn('발행 가능한 총수', numeric: true),
+                              AppColumn('발행주식의 총수', numeric: true),
+                              AppColumn('자기주식수', numeric: true, flex: true),
+                              AppColumn('유통주식수', numeric: true, flex: true),
+                            ],
+                            rows: [
+                              for (final r in d.stockTotals)
+                                AppRow(
+                                  emphasized:
+                                      r.kind.replaceAll(' ', '') == '합계',
+                                  [
+                                    AppDataTable.text(context, r.kind),
+                                    for (final v in [
+                                      r.authorized,
+                                      r.issued,
+                                      r.treasury,
+                                      r.outstanding,
+                                    ])
+                                      AppDataTable.text(
+                                        context,
+                                        v == null
+                                            ? null
+                                            : formatCount(v.toInt()),
+                                        numeric: true,
+                                      ),
+                                  ],
                                 ),
                             ],
                           ),
-                      ],
-                    ),
-                    Text(
-                      '발행 가능한 총수는 정관상 한도입니다. 추가 발행 예정 물량이나 현재 CB·BW 잔액을 뜻하지 않습니다.',
-                      style: t.body(12, color: c.textSecondary),
+                          Text(
+                            '발행 가능한 총수는 정관상 한도입니다. 추가 발행 예정 물량이나 현재 CB·BW 잔액을 뜻하지 않습니다.',
+                            style: t.body(12, color: c.textSecondary),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -523,7 +558,9 @@ class _StockComposition extends StatelessWidget {
             ),
           ),
         Text(
-          '자기주식 보유는 소각과 다릅니다. 취득·처분·소각 수량은 상세 자료에서 구분해 확인하세요.',
+          valid.isEmpty
+              ? '자기주식 비중을 계산할 수치가 공시 표에 없습니다. 발행·유통주식 수는 상세 표에서 확인할 수 있습니다.'
+              : '자기주식 보유는 소각과 다릅니다. 취득·처분·소각 수량은 상세 자료에서 구분해 확인하세요.',
           style: t.body(12, color: c.textSecondary),
         ),
       ],

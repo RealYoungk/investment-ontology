@@ -36,7 +36,11 @@ def compute(data):
  ev=add([cap,debt,minority,cash],[1,1,1,-1]) if scale else None
  def growth(k):
   before=periods.get((last['bsnsYear']-1,last['reportCode'])) if last else None
-  r=ratio(ttm(k),ttm(k,before))
+  past=val(before,k,True)
+  current_line=line(last,k)
+  if past is None and current_line and not current_line.get('priorSameUnavailableReason') and current_line.get('priorSameCumulativeAmount') is not None:
+   past=(D(current_line['priorSameCumulativeAmount']),current_line.get('currency') or 'KRW')
+  r=ratio(val(last,k,True),past)
   return r-1 if r is not None else None
  mask=0
  for k,bit in [('revenue',1),('operatingIncome',2),('netIncome',4),('operatingCashFlow',8),('capex',16)]:

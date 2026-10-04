@@ -18,6 +18,29 @@ Widget app(Widget child) => MaterialApp(
   home: Scaffold(body: SingleChildScrollView(child: child)),
 );
 void main() {
+  for (final width in [320.0, 1045.0]) {
+    testWidgets('four disclosure choices stay compact at $width', (t) async {
+      await t.binding.setSurfaceSize(Size(width, 844));
+      addTearDown(() => t.binding.setSurfaceSize(null));
+      await t.pumpWidget(
+        shadTestHost(
+          app(
+            ResearchSection(
+              corpCode: 'fixture',
+              kinds: const ['capital', 'treasury', 'insiders', 'majorHoldings'],
+              loader: (_, _) async =>
+                  jsonEncode({'state': 'ready', 'rows': []}),
+            ),
+          ),
+        ),
+      );
+      await t.pumpAndSettle();
+      expect(find.text('수집 범위에서 해당 공시가 없어요'), findsNothing);
+      expect(find.text('수집 범위에 해당 보고가 없습니다.'), findsOneWidget);
+      expect(t.getSize(find.byType(ShadTabs<String>)).height, lessThan(70));
+      expect(t.takeException(), isNull);
+    });
+  }
   testWidgets('queued acquisition retries and displays the stored result', (
     t,
   ) async {
@@ -103,7 +126,7 @@ void main() {
     expect(overview, isNot(contains('100원')));
   });
   testWidgets(
-    'normal company view hides management and previews other categories',
+    'normal company view shows one summary and switches compact categories',
     (t) async {
       await t.pumpWidget(
         shadTestHost(
@@ -129,7 +152,10 @@ void main() {
         ),
       );
       await t.pumpAndSettle();
-      expect(find.textContaining('500주 · 수집 1건'), findsNWidgets(2));
+      expect(find.textContaining('500주 · 수집 1건'), findsOneWidget);
+      await t.tap(find.text('자사주'));
+      await t.pumpAndSettle();
+      expect(find.textContaining('500주 · 수집 1건'), findsOneWidget);
       expect(find.text('출처 · 자료 상태'), findsNothing);
       expect(find.text('자료 수집·갱신'), findsNothing);
     },

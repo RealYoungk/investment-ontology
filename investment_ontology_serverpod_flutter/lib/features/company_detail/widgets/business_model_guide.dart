@@ -83,7 +83,6 @@ class _BusinessModelGuideState extends State<BusinessModelGuide> {
             ],
             ShadAccordion<int>(
               maintainState: false,
-              initialValue: 0,
               children: [
                 ShadAccordionItem<int>(
                   value: 0,
@@ -104,6 +103,7 @@ class _BusinessModelGuideState extends State<BusinessModelGuide> {
                           year: lesson.year,
                         ),
                         showGrowth: false,
+                        framed: false,
                       ),
                     ],
                   ),
@@ -260,12 +260,8 @@ class _BusinessFlow extends StatelessWidget {
     final c = context.colors, t = context.typo;
     Widget stage(int index) {
       final step = model.flow[index];
-      return Container(
-        padding: const EdgeInsets.all(AppSpace.md),
-        decoration: BoxDecoration(
-          color: c.surfaceHover,
-          borderRadius: context.shape.borderRadius,
-        ),
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: AppSpace.sm),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

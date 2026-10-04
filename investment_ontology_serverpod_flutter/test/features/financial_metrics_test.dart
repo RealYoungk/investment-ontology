@@ -53,6 +53,93 @@ CompanyFinancials financials(List<FinancialPeriod> periods, {BigInt? cap}) =>
     );
 
 void main() {
+  test(
+    'Acryl growth uses comparison column without a prior interim filing',
+    () {
+      final view = FinancialView(
+        financials([
+          period(2025, FinancialReportCode.annual, [
+            line('revenue', 13312020352),
+          ]),
+          period(2026, FinancialReportCode.halfYear, [
+            line(
+              'revenue',
+              5473699582,
+              cumulative: 12047351414,
+            ).copyWith(priorSameCumulativeAmount: BigInt.from(4827787392)),
+          ]),
+        ]),
+      );
+      final metric = view.metrics().firstWhere((m) => m.key == 'revenueGrowth');
+      expect(
+        metric.derived.value,
+        closeTo(12047351414 / 4827787392 - 1, 1e-12),
+      );
+      expect(metric.display, '149.5%');
+      expect(metric.derived.formula, contains('2026 반기 누적 ÷ 2025 반기 누적'));
+      expect(metric.derived.inputs.last.basis, contains('전년 동기 비교열'));
+      expect(view.trailing('revenue', '매출액').value, 20531584374);
+    },
+  );
+  test(
+    'own same-period filing wins and growth does not require a TTM base',
+    () {
+      final view = FinancialView(
+        financials([
+          period(2025, FinancialReportCode.halfYear, [
+            line('revenue', 20, cumulative: 40),
+          ]),
+          period(2026, FinancialReportCode.halfYear, [
+            line(
+              'revenue',
+              30,
+              cumulative: 60,
+            ).copyWith(priorSameCumulativeAmount: BigInt.from(30)),
+          ]),
+        ]),
+      );
+      expect(view.trailing('revenue', '매출액').value, isNull);
+      expect(
+        view
+            .metrics()
+            .firstWhere((m) => m.key == 'revenueGrowth')
+            .derived
+            .value,
+        0.5,
+      );
+    },
+  );
+  test(
+    'growth rejects missing, nonpositive and mixed-currency comparison bases',
+    () {
+      for (final previous in [null, 0, -10, 40]) {
+        final view = FinancialView(
+          financials([
+            if (previous == 40)
+              period(2025, FinancialReportCode.halfYear, [
+                line('revenue', 20, cumulative: 40).copyWith(currency: 'USD'),
+              ]),
+            period(2026, FinancialReportCode.halfYear, [
+              line('revenue', 30, cumulative: 60).copyWith(
+                priorSameCumulativeAmount: previous == null
+                    ? null
+                    : BigInt.from(previous),
+              ),
+            ]),
+          ]),
+        );
+        final value = view
+            .metrics()
+            .firstWhere((m) => m.key == 'revenueGrowth')
+            .derived;
+        expect(value.value, isNull);
+        expect(value.missing, isNotEmpty);
+        if (previous == null) expect(value.missing, contains('2025 반기 누적'));
+        if (previous == 40) expect(value.missing, contains('통화 불일치'));
+      }
+    },
+  );
+
   test('seven core accounts without PPE total keep FCF and yield unknown', () {
     final view = FinancialView(
       financials([

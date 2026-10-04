@@ -1,14 +1,15 @@
 import '../../generated/protocol.dart';
 import '../peers/peer_rules.dart';
+import 'current_product_rows.dart';
 
 /// Versioned, reusable product explanations. Company attribution always needs
 /// its own product-heading AND adjacent operating-description evidence.
 /// No company identifiers, customer lists, forecasts or automatic AI summaries.
 abstract final class BusinessProductRules {
   // Product vocabulary updates invalidate the stored explanations as well.
-  static const version = 30000 + PeerRules.version;
+  static const version = 40000 + PeerRules.version;
   static final _excluded = RegExp(
-    r'경쟁|타사|개발\s*중|개발\s*예정|출시\s*예정|계획|목표|종속회사|자회사',
+    r'경쟁|타사|개발\s*중|개발\s*예정|출시\s*예정|계획|목표|종속회사|자회사|파이프라인|임상',
   );
   static final _catalog =
       <
@@ -53,6 +54,7 @@ abstract final class BusinessProductRules {
 
   static List<BusinessProduct> parse(String text) {
     final result = <BusinessProduct>[];
+    final currentRows = CurrentProductRows.parse(text);
     var inProducts = false;
     final lines = text.split('\n');
     for (var i = 0; i < lines.length; i++) {
@@ -60,6 +62,9 @@ abstract final class BusinessProductRules {
       if (line.startsWith('##')) {
         inProducts = RegExp(r'주요\s*제품|주요\s*상품').hasMatch(line);
         continue;
+      }
+      if (RegExp(r'파이프라인|pipeline', caseSensitive: false).hasMatch(line)) {
+        inProducts = false;
       }
       if (!inProducts ||
           line.contains('|') ||
@@ -117,9 +122,15 @@ abstract final class BusinessProductRules {
     }
     // Broader product vocabulary remains useful even without a process template.
     // Never infer an equipment role merely from its target's industry name.
-    for (final signal in PeerRules.parse(
-      text,
-    ).where((s) => s.key.startsWith('product/'))) {
+    for (final signal
+        in PeerRules.parse(
+          text,
+        ).where(
+          (s) =>
+              s.key.startsWith('product/') &&
+              !s.key.startsWith('product/exact/') &&
+              currentRows.any((p) => p.evidence == s.evidence),
+        )) {
       final reference = switch (signal.key) {
         'product/mlcc' => (
           '전하를 저장했다가 공급하고 전자회로의 노이즈를 줄이는 부품입니다.',
@@ -138,7 +149,9 @@ abstract final class BusinessProductRules {
       result.add(
         BusinessProduct(
           key: signal.key,
-          name: signal.label,
+          name: currentRows
+              .firstWhere((p) => p.evidence == signal.evidence)
+              .name,
           role: reference?.$1 ?? '',
           process: reference?.$2 ?? '',
           benefit: reference?.$3 ?? '',
@@ -149,6 +162,15 @@ abstract final class BusinessProductRules {
               : 'reference_and_filing',
         ),
       );
+    }
+    for (final product in currentRows) {
+      if (!result.any(
+        (p) =>
+            CurrentProductRows.normalize(p.name) ==
+            CurrentProductRows.normalize(product.name),
+      )) {
+        result.add(product);
+      }
     }
     result.addAll(_supportingRevenue(text));
     return result;

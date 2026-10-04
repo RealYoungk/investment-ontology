@@ -27,7 +27,7 @@ class CompanyOverviewTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final main = [
+    final business = <Widget>[
       BusinessGuidePanel(
         corpCode: detail.company.corpCode,
         latestReport: latestReport,
@@ -37,6 +37,10 @@ class CompanyOverviewTab extends StatelessWidget {
         dataVersion: dataVersion,
         latestReport: latestReport,
       ),
+    ];
+    final contextPanels = <Widget>[
+      CompanyDataCard(child: PriceChart(corpCode: detail.company.corpCode)),
+      CompanyNewsSection(corpCode: detail.company.corpCode),
       CompanyDataCard(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,17 +68,30 @@ class CompanyOverviewTab extends StatelessWidget {
         key: ValueKey('rights-$dataVersion'),
         corpCode: detail.company.corpCode,
       ),
-      CompanyDataCard(
-        child: PriceChart(corpCode: detail.company.corpCode),
-      ),
-      const SizedBox(height: AppSpace.sm),
-      CompanyNewsSection(corpCode: detail.company.corpCode),
     ];
-    return Column(
+    Widget section(List<Widget> children) => Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        ...main,
+        for (final (i, child) in children.indexed) ...[
+          if (i > 0) const SizedBox(height: AppSpace.lg),
+          child,
+        ],
       ],
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 1100) {
+          return section([...business, ...contextPanels]);
+        }
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(flex: 7, child: section(business)),
+            const SizedBox(width: AppSpace.xl),
+            Expanded(flex: 4, child: section(contextPanels)),
+          ],
+        );
+      },
     );
   }
 }

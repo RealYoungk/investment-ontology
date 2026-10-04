@@ -1,12 +1,13 @@
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/business/business_profiles.dart';
 import 'package:serverpod/serverpod.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/endpoints/disclosure_endpoint.dart';
 import 'package:test/test.dart';
 
-import 'test_tools/serverpod_test_tools.dart';
+import '../support/storage_test_server.dart';
 
 void main() {
-  withServerpod('Stored business understanding', (builder, endpoints) {
+  withStorageServerpod('Stored business understanding', (builder, endpoints) {
     late Session session;
     var seq = 0;
     Future<BusinessDocument> document(
@@ -15,6 +16,8 @@ void main() {
       int? year,
       Market market = Market.kosdaq,
       String? industry,
+      FinancialReportCode reportCode = FinancialReportCode.annual,
+      String? reportName,
     }) async {
       final company =
           await Company.db.findFirstRow(
@@ -46,12 +49,28 @@ void main() {
           section: DartSection.businessContent,
           rceptNo: receipt,
           bsnsYear: year ?? DateTime.now().year - 1,
-          reportCode: FinancialReportCode.annual,
+          reportCode: reportCode,
           rowCount: 1,
           sourceId: source.id!,
           fetchedAt: DateTime.now().toUtc(),
         ),
       );
+      if (reportName != null) {
+        await DartFiling.db.insertRow(
+          session,
+          DartFiling(
+            rceptNo: receipt,
+            corpCode: code,
+            companyId: company.id,
+            reportName: reportName,
+            bsnsYear: report.bsnsYear,
+            reportCode: reportCode,
+            consolidatedStatus: FilingFetchStatus.pending,
+            separateStatus: FilingFetchStatus.pending,
+            discoveredAt: DateTime.now().toUtc(),
+          ),
+        );
+      }
       return BusinessDocument.db.insertRow(
         session,
         BusinessDocument(
@@ -122,6 +141,136 @@ void main() {
         expect(await BusinessProfiles.backfill(session), 1);
       },
     );
+    test('latest interim supersedes annual for product display without changing annual peers', () async {
+      final y = DateTime.now().year;
+      final old = await document(
+        '00000006',
+        product,
+        year: y - 1,
+        reportName: '사업보고서 (${y - 1}.12)',
+      );
+      await BusinessProfiles.store(session, old);
+      final latest = await document(
+        '00000006',
+        '## 2. 주요 제품\n제품명 | 설명\n신제품 | 운영 솔루션',
+        year: y,
+        reportCode: FinancialReportCode.halfYear,
+        reportName: '반기보고서 ($y.06)',
+      );
+      expect(
+        (await BusinessProfiles.read(session, '00000006')).status,
+        'pending',
+      );
+      expect(await BusinessProfiles.backfill(session), 1);
+      final result = await BusinessProfiles.read(session, '00000006');
+      expect(result.products.single.name, '신제품');
+      expect(result.rceptNo, latest.rceptNo);
+      expect(result.reportCode, FinancialReportCode.halfYear);
+      expect(result.reportName, '반기보고서 ($y.06)');
+    });
+    test('known newer filing without a body hides old products; delayed old corrections never outrank newer periods', () async {
+      final y = DateTime.now().year;
+      final old = await document(
+        '00000007',
+        product,
+        year: y - 1,
+        reportName: '사업보고서 (${y - 1}.12)',
+      );
+      await BusinessProfiles.store(session, old);
+      await DartFiling.db.insertRow(
+        session,
+        DartFiling(
+          rceptNo: '99999999999998',
+          corpCode: '00000007',
+          companyId: old.companyId,
+          reportName: '반기보고서 ($y.06)',
+          bsnsYear: y,
+          reportCode: FinancialReportCode.halfYear,
+          consolidatedStatus: FilingFetchStatus.pending,
+          separateStatus: FilingFetchStatus.pending,
+          discoveredAt: DateTime.now().toUtc(),
+        ),
+      );
+      await DartFiling.db.insertRow(
+        session,
+        DartFiling(
+          rceptNo: '99999999999999',
+          corpCode: '00000007',
+          companyId: old.companyId,
+          reportName: '[기재정정]사업보고서 (${y - 1}.12)',
+          bsnsYear: y - 1,
+          reportCode: FinancialReportCode.annual,
+          consolidatedStatus: FilingFetchStatus.pending,
+          separateStatus: FilingFetchStatus.pending,
+          discoveredAt: DateTime.now().toUtc(),
+        ),
+      );
+      final result = await BusinessProfiles.read(session, '00000007');
+      expect(result.status, 'pending');
+      expect(result.products, isEmpty);
+      expect(result.rceptNo, '99999999999998');
+      expect(await BusinessProfiles.backfill(session), 0);
+    });
+    test('body selection follows latest period and explicit history never falls back', () async {
+      final y = DateTime.now().year;
+      final annual = await document(
+        '00000008',
+        product,
+        year: y - 1,
+        reportName: '사업보고서 (${y - 1}.12)',
+      );
+      final half = await document(
+        '00000008',
+        product,
+        year: y,
+        reportCode: FinancialReportCode.halfYear,
+        reportName: '반기보고서 ($y.06)',
+      );
+      final endpoint = DisclosureEndpoint();
+      expect(
+        (await endpoint.businessContent(session, '00000008'))?.rceptNo,
+        half.rceptNo,
+      );
+      expect(
+        (await endpoint.businessContent(
+          session,
+          '00000008',
+          bsnsYear: y - 1,
+        ))?.rceptNo,
+        annual.rceptNo,
+      );
+      expect(
+        await endpoint.businessContent(session, '00000008', bsnsYear: 2000),
+        isNull,
+      );
+      await DartFiling.db.insertRow(
+        session,
+        DartFiling(
+          rceptNo: '99999999999997',
+          corpCode: '00000008',
+          companyId: half.companyId,
+          reportName: '분기보고서 ($y.09)',
+          bsnsYear: y,
+          reportCode: FinancialReportCode.q3,
+          consolidatedStatus: FilingFetchStatus.pending,
+          separateStatus: FilingFetchStatus.pending,
+          discoveredAt: DateTime.now().toUtc(),
+        ),
+      );
+      expect(await endpoint.businessContent(session, '00000008'), isNull);
+      expect(
+        await endpoint.businessContent(session, '00000008', bsnsYear: y),
+        isNull,
+      );
+      expect(
+        (await endpoint.businessContent(
+          session,
+          '00000008',
+          bsnsYear: y - 1,
+        ))?.rceptNo,
+        annual.rceptNo,
+      );
+    });
     test(
       'holding companies and stale documents cannot inherit subsidiary roles',
       () async {

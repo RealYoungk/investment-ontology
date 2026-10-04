@@ -203,67 +203,94 @@ class _OwnershipChangesSectionState extends State<OwnershipChangesSection> {
                 : '${ownershipDate(selected.periodStart)} → ${ownershipDate(selected.periodEnd)}${selected.collected ? '' : ' · 미수집'}',
             style: t.body(12, color: c.textSecondary),
           ),
-          if (visible.isNotEmpty)
-            _OwnershipChart(
-              names: [for (final key in visible) names[key]!],
-              periods: data,
-              selected: _selected,
-              ratio: _ratio,
-              compact: widget.compact,
-            )
-          else
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: AppSpace.md),
-              child: Text(
-                defaults.isEmpty
-                    ? '5% 이상 주주가 없습니다. 비교할 주주를 선택하세요.'
-                    : '비교할 주주를 선택하세요.',
-                style: t.body(13),
-              ),
-            ),
-          ShadAccordion<int>(
-            maintainState: false,
-            children: [
-              ShadAccordionItem<int>(
-                value: 0,
-                title: Text('비교 주주 선택 · ${visible.length}개', style: t.body(13)),
-                padding: EdgeInsets.zero,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: ShadButton.ghost(
-                        onPressed: () => setState(() => _included = null),
-                        child: Flexible(child: const Text('5% 이상으로 초기화')),
-                      ),
+          const SizedBox(height: AppSpace.md),
+          DataPanel(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (visible.isNotEmpty)
+                  _OwnershipChart(
+                    names: [for (final key in visible) names[key]!],
+                    periods: data,
+                    selected: _selected,
+                    ratio: _ratio,
+                    compact: widget.compact,
+                  )
+                else
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: AppSpace.md),
+                    child: Text(
+                      defaults.isEmpty
+                          ? '5% 이상 주주가 없습니다. 비교할 주주를 선택하세요.'
+                          : '비교할 주주를 선택하세요.',
+                      style: t.body(13),
                     ),
-                    for (final key in keys)
-                      ShadCheckbox(
-                        value: included.contains(key),
-                        onChanged:
-                            !included.contains(key) && included.length >= 6
-                            ? null
-                            : (value) => setState(() {
-                                _included = {...included};
-                                value == true
-                                    ? _included!.add(key)
-                                    : _included!.remove(key);
-                              }),
-                        label: Text(
-                          '${names[key]!.holderName} · ${names[key]!.stockKind ?? '종류 미표기'}',
-                          style: t.body(12),
-                        ),
-                        padding: EdgeInsets.zero,
-                      ),
+                  ),
+                const SizedBox(height: AppSpace.md),
+                Wrap(
+                  spacing: AppSpace.md,
+                  runSpacing: AppSpace.sm,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
                     Text(
-                      '최대 6개 · 기본은 기간 중 지분율 5% 이상',
+                      '비교 주주 · ${visible.length}/6',
+                      style: t.body(13, weight: FontWeight.w600),
+                    ),
+                    ShadButton.ghost(
+                      size: ShadButtonSize.sm,
+                      onPressed: () => setState(() => _included = null),
+                      child: const Text('5% 이상으로 초기화'),
+                    ),
+                    Text(
+                      '기간 중 5% 이상 기본 선택',
                       style: t.body(11, color: c.textMuted),
                     ),
                   ],
                 ),
-              ),
-            ],
+                const SizedBox(height: AppSpace.sm),
+                LayoutBuilder(
+                  builder: (context, box) => Wrap(
+                    spacing: AppSpace.xl,
+                    runSpacing: AppSpace.md,
+                    children: [
+                      for (final key in keys)
+                        ConstrainedBox(
+                          constraints: BoxConstraints(maxWidth: box.maxWidth),
+                          child: IntrinsicWidth(
+                            child: ShadCheckbox(
+                              value: included.contains(key),
+                              onChanged:
+                                  !included.contains(key) &&
+                                      included.length >= 6
+                                  ? null
+                                  : (value) => setState(() {
+                                      _included = {...included};
+                                      value == true
+                                          ? _included!.add(key)
+                                          : _included!.remove(key);
+                                    }),
+                              label: Text(
+                                widget.compact && included.contains(key)
+                                    ? ownershipAvailableSummary(
+                                        '${names[key]!.holderName} · ${names[key]!.stockKind ?? '종류 미표기'}',
+                                        [
+                                          for (final p in data)
+                                            historyRow(p, key)?.ratioEnd,
+                                        ],
+                                        data,
+                                      )
+                                    : '${names[key]!.holderName} · ${names[key]!.stockKind ?? '종류 미표기'}',
+                                style: t.body(12).copyWith(height: 1.6),
+                              ),
+                              padding: EdgeInsets.zero,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
           if (!widget.compact)
             ShadAccordion<int>(
@@ -370,27 +397,28 @@ class _OwnershipChart extends StatelessWidget {
               height: 210,
             ),
             const SizedBox(height: AppSpace.sm),
-            Wrap(
-              spacing: AppSpace.lg,
-              runSpacing: AppSpace.xs,
-              children: [
-                for (var i = 0; i < series.length; i++)
-                  Text(
-                    compact
-                        ? ownershipAvailableSummary(
-                            names[i].holderName,
-                            series[i].values,
-                            periods,
-                          )
-                        : '${names[i].holderName}  ${series[i].values[selected] == null
-                              ? '—'
-                              : ratio
-                              ? '${series[i].values[selected]!.toStringAsFixed(2)}%'
-                              : '${formatCount(series[i].values[selected]!.round())}주'}',
-                    style: t.body(12, weight: FontWeight.w600),
-                  ),
-              ],
-            ),
+            if (!compact)
+              Wrap(
+                spacing: AppSpace.lg,
+                runSpacing: AppSpace.xs,
+                children: [
+                  for (var i = 0; i < series.length; i++)
+                    Text(
+                      compact
+                          ? ownershipAvailableSummary(
+                              names[i].holderName,
+                              series[i].values,
+                              periods,
+                            )
+                          : '${names[i].holderName}  ${series[i].values[selected] == null
+                                ? '—'
+                                : ratio
+                                ? '${series[i].values[selected]!.toStringAsFixed(2)}%'
+                                : '${formatCount(series[i].values[selected]!.round())}주'}',
+                      style: t.body(12, weight: FontWeight.w600),
+                    ),
+                ],
+              ),
           ],
         ),
       ),

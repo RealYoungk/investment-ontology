@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import '../business/business_profiles.dart';
+import '../business/latest_business_report.dart';
 
 import 'package:serverpod/serverpod.dart';
 
@@ -112,20 +113,35 @@ class DisclosureEndpoint extends Endpoint {
   }) async {
     final company = await _company(session, corpCode);
     if (company == null) return null;
-    final reports = await _reports(
-      session,
-      company.id!,
-      section: DartSection.businessContent,
+    final selector = bsnsYear == null
+        ? LatestBusinessReport.sql
+        : LatestBusinessReport.sql.replaceFirst(
+            ') p ORDER BY',
+            ') p WHERE p."bsnsYear"=@year ORDER BY',
+          );
+    final rows = await session.db.unsafeQuery(
+      'SELECT latest."documentId" FROM ($selector) latest WHERE latest."companyId"=@id',
+      parameters: QueryParameters.named({
+        'id': company.id!,
+        'year': ?bsnsYear,
+      }),
     );
-    if (reports.isEmpty) return null;
-    final report =
-        reports.where((r) => r.bsnsYear == bsnsYear).firstOrNull ??
-        reports.first;
-    final doc = await BusinessDocument.db.findFirstRow(
+    final id = rows.firstOrNull?.first as int?;
+    final doc = id == null
+        ? null
+        : await BusinessDocument.db.findById(session, id);
+    final report = doc == null
+        ? null
+        : await DisclosureReport.db.findById(session, doc.reportId);
+    final reports = await DisclosureReport.db.find(
       session,
-      where: (t) => t.reportId.equals(report.id!),
+      where: (t) =>
+          t.companyId.equals(company.id!) &
+          t.section.equals(DartSection.businessContent) &
+          t.supersededById.equals(null),
+      orderByList: (t) => [t.bsnsYear.desc(), t.rceptNo.desc()],
     );
-    if (doc == null) return null;
+    if (doc == null || report == null) return null;
     return BusinessContent(
       bsnsYear: doc.bsnsYear,
       rceptNo: doc.rceptNo,
@@ -135,12 +151,12 @@ class DisclosureEndpoint extends Endpoint {
           BusinessSection(title: s.title, text: s.text),
       ],
       charCount: doc.charCount,
-      years: [for (final r in reports) r.bsnsYear],
+      years: {for (final r in reports) r.bsnsYear}.toList(),
       source: await Source.db.findById(session, report.sourceId),
     );
   }
 
-  /// 배당(사업보고서마다 당기·전기·전전기) · 가장 최근 자기주식 · 주식 총수.
+  /// 연간 배당(사업보고서마다 당기·전기·전전기) · 가장 최근 자기주식 · 주식 총수.
   Future<ShareholderReturn?> shareholderReturn(
     Session session,
     String corpCode,
