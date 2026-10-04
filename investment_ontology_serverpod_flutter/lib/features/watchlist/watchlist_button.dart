@@ -4,6 +4,7 @@ import 'package:investment_ontology_serverpod_client/investment_ontology_serverp
 
 import '../../app/router.dart';
 import '../../design/components/components.dart';
+import '../../design/tokens.dart';
 import '../auth/app_auth.dart';
 import 'watchlist_store.dart';
 import '../monetization/membership_offer.dart';
@@ -28,7 +29,7 @@ class WatchlistButton extends StatelessWidget {
             : saved
             ? '관심등록됨'
             : '관심등록';
-        final icon = saved ? Icons.star : Icons.star_border;
+        const icon = LucideIcons.star;
         final VoidCallback? onPressed =
             store.busyCodes.contains(corpCode) || store.loading
             ? null
@@ -64,11 +65,16 @@ class WatchlistButton extends StatelessWidget {
                 }
               };
         return ShadButton.raw(
+          enabled: onPressed != null,
           onPressed: onPressed,
 
           variant: ShadButtonVariant.outline,
           size: (compact) ? ShadButtonSize.sm : ShadButtonSize.regular,
-          leading: Icon(icon, size: 16),
+          leading: Icon(
+            icon,
+            size: 16,
+            color: saved ? context.colors.accent : context.colors.textMuted,
+          ),
           child: Flexible(child: Text(label)),
         );
       },

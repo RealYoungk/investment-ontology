@@ -146,11 +146,9 @@ class _WatchlistPageState extends State<WatchlistPage>
     return '${d.year}.${d.month.toString().padLeft(2, '0')}.${d.day.toString().padLeft(2, '0')}';
   }
 
-  Widget _panel(Widget child) => Material(
-    color: context.colors.surface,
-    shape: RoundedRectangleBorder(
-      borderRadius: context.shape.borderRadius,
-    ),
+  Widget _panel(Widget child) => ShadCard(
+    padding: EdgeInsets.zero,
+    width: double.infinity,
     clipBehavior: Clip.antiAlias,
     child: child,
   );
@@ -234,7 +232,7 @@ class _WatchlistPageState extends State<WatchlistPage>
                   child: Row(
                     children: [
                       Icon(
-                        Icons.grid_view_outlined,
+                        LucideIcons.layoutGrid,
                         size: 20,
                         color: _selectedCode == null ? c.accent : c.textMuted,
                       ),
@@ -466,7 +464,7 @@ class _WatchlistPageState extends State<WatchlistPage>
                                 semanticLabel: '${company.name} 관리',
                                 onPressed: () =>
                                     _companyMenus[company.corpCode]!.toggle(),
-                                icon: const Icon(Icons.more_vert),
+                                icon: const Icon(LucideIcons.ellipsisVertical),
                               ),
                             ),
                           ),
@@ -480,7 +478,7 @@ class _WatchlistPageState extends State<WatchlistPage>
           ],
           if (view.companies.isEmpty)
             _empty(
-              Icons.star_outline,
+              LucideIcons.star,
               '첫 기업을 담아보세요',
               '계속 살펴볼 기업을 관심종목에 추가하세요.',
             ),
@@ -488,7 +486,7 @@ class _WatchlistPageState extends State<WatchlistPage>
             padding: const EdgeInsets.all(AppSpace.sm),
             child: ShadButton.ghost(
               onPressed: _openSearch,
-              leading: const Icon(Icons.add, size: 18),
+              leading: const Icon(LucideIcons.plus, size: 18),
               child: Flexible(child: const Text('종목 추가')),
             ),
           ),
@@ -541,7 +539,7 @@ class _WatchlistPageState extends State<WatchlistPage>
                         child: ShadIconButton.ghost(
                           enabled: !(store.loading),
                           onPressed: store.loading ? null : store.refresh,
-                          icon: const Icon(Icons.refresh, size: 20),
+                          icon: const Icon(LucideIcons.refreshCw, size: 20),
                           semanticLabel: '새로고침',
                         ),
                       ),
@@ -581,7 +579,7 @@ class _WatchlistPageState extends State<WatchlistPage>
             Padding(
               padding: const EdgeInsets.symmetric(vertical: AppSpace.xl),
               child: _empty(
-                Icons.inbox_outlined,
+                LucideIcons.inbox,
                 _unreadOnly ? '읽지 않은 공시가 없습니다' : '새 공시가 오면 여기에 모아드려요',
                 view.companies.isEmpty
                     ? '기업을 추가하면 업데이트를 확인할 수 있습니다.'
@@ -608,9 +606,7 @@ class _WatchlistPageState extends State<WatchlistPage>
                 child: Row(
                   children: [
                     Icon(
-                      update.read
-                          ? Icons.article_outlined
-                          : Icons.mark_email_unread_outlined,
+                      update.read ? LucideIcons.fileText : LucideIcons.mail,
                       size: 22,
                       color: update.read ? c.textMuted : c.accent,
                     ),
@@ -650,7 +646,11 @@ class _WatchlistPageState extends State<WatchlistPage>
                       ),
                     ),
                     const SizedBox(width: AppSpace.sm),
-                    Icon(Icons.north_east, size: 16, color: c.textMuted),
+                    Icon(
+                      LucideIcons.arrowUpRight,
+                      size: 16,
+                      color: c.textMuted,
+                    ),
                   ],
                 ),
               ),
@@ -660,7 +660,7 @@ class _WatchlistPageState extends State<WatchlistPage>
             padding: const EdgeInsets.all(AppSpace.md),
             child: Row(
               children: [
-                Icon(Icons.schedule, size: 14, color: c.textMuted),
+                Icon(LucideIcons.clock, size: 14, color: c.textMuted),
                 const SizedBox(width: AppSpace.sm),
                 Expanded(
                   child: Text(
@@ -679,7 +679,7 @@ class _WatchlistPageState extends State<WatchlistPage>
                         ? '현재 개발 서버는 자동 수집이 꺼져 있습니다. 뉴스 알림은 기업 매칭 검증 후 제공할 예정입니다.'
                         : '뉴스 알림은 기업 매칭 검증 후 제공할 예정입니다.',
                     child: Icon(
-                      Icons.info_outline,
+                      LucideIcons.info,
                       size: 16,
                       color: c.textMuted,
                     ),
@@ -749,23 +749,7 @@ class _WatchlistPageState extends State<WatchlistPage>
           context,
           Builder(
             builder: (context) => ShadSheet(
-              closeIcon: Builder(
-                builder: (context) => Semantics(
-                  container: true,
-                  label: '닫기',
-                  button: true,
-                  onTap: () => Navigator.of(context).pop(),
-                  child: ExcludeSemantics(
-                    child: ShadIconButton.ghost(
-                      width: 20,
-                      height: 20,
-                      padding: EdgeInsets.zero,
-                      icon: const Icon(Icons.close, size: 16),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ),
-                ),
-              ),
+              closeIcon: const SizedBox.shrink(),
               scrollable: true,
               child: content(context),
             ),
@@ -779,23 +763,7 @@ class _WatchlistPageState extends State<WatchlistPage>
           context,
           Builder(
             builder: (context) => ShadDialog(
-              closeIcon: Builder(
-                builder: (context) => Semantics(
-                  container: true,
-                  label: '닫기',
-                  button: true,
-                  onTap: () => Navigator.of(context).pop(),
-                  child: ExcludeSemantics(
-                    child: ShadIconButton.ghost(
-                      width: 20,
-                      height: 20,
-                      padding: EdgeInsets.zero,
-                      icon: const Icon(Icons.close, size: 16),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ),
-                ),
-              ),
+              closeIcon: const SizedBox.shrink(),
               child: Material(
                 type: MaterialType.transparency,
                 child: content(context),
@@ -834,7 +802,7 @@ class _WatchlistPageState extends State<WatchlistPage>
                 child: ExcludeSemantics(
                   child: ShadIconButton.ghost(
                     onPressed: () => Navigator.pop(_searchContext!),
-                    icon: const Icon(Icons.close, size: 20),
+                    icon: const Icon(LucideIcons.x, size: 20),
                     semanticLabel: '검색 닫기',
                   ),
                 ),
@@ -849,7 +817,7 @@ class _WatchlistPageState extends State<WatchlistPage>
             controller: _query,
             onChanged: _search,
             placeholder: Text('기업명 또는 종목코드 검색'),
-            leading: Icon(Icons.search),
+            leading: Icon(LucideIcons.search),
             onPressed: () {
               _searchFocus.requestFocus();
               SystemChannels.textInput.invokeMethod<void>('TextInput.show');
@@ -892,6 +860,7 @@ class _WatchlistPageState extends State<WatchlistPage>
                     container: true,
                     label: store.contains(item.corpCode) ? '관심등록 해제' : '관심등록',
                     button: true,
+                    toggled: store.contains(item.corpCode),
                     enabled: !(_busy),
                     onTap: (!(_busy))
                         ? _busy
@@ -902,9 +871,10 @@ class _WatchlistPageState extends State<WatchlistPage>
                       child: ShadIconButton.ghost(
                         enabled: !(_busy),
                         icon: Icon(
-                          store.contains(item.corpCode)
-                              ? Icons.star
-                              : Icons.star_border,
+                          LucideIcons.star,
+                          color: store.contains(item.corpCode)
+                              ? context.colors.accent
+                              : context.colors.textMuted,
                         ),
                         onPressed: _busy
                             ? null
@@ -959,7 +929,7 @@ class _WatchlistPageState extends State<WatchlistPage>
                 child: ExcludeSemantics(
                   child: ShadIconButton.ghost(
                     onPressed: _openSearch,
-                    icon: const Icon(Icons.add),
+                    icon: const Icon(LucideIcons.plus),
                     semanticLabel: '종목 추가',
                   ),
                 ),
@@ -974,22 +944,27 @@ class _WatchlistPageState extends State<WatchlistPage>
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      SegmentedButton<bool>(
-                        segments: [
-                          ButtonSegment(
-                            value: false,
-                            label: Text('종목 ${view.companies.length}'),
-                            icon: const Icon(Icons.star_outline),
+                      Wrap(
+                        spacing: AppSpace.sm,
+                        runSpacing: AppSpace.sm,
+                        children: [
+                          IntrinsicWidth(
+                            child: ShadToggle.outline(
+                              value: !_mobileUpdates,
+                              onChanged: (_) =>
+                                  setState(() => _mobileUpdates = false),
+                              child: Text('종목 ${view.companies.length}'),
+                            ),
                           ),
-                          const ButtonSegment(
-                            value: true,
-                            label: Text('업데이트'),
-                            icon: Icon(Icons.article_outlined),
+                          IntrinsicWidth(
+                            child: ShadToggle.outline(
+                              value: _mobileUpdates,
+                              onChanged: (_) =>
+                                  setState(() => _mobileUpdates = true),
+                              child: const Text('업데이트'),
+                            ),
                           ),
                         ],
-                        selected: {_mobileUpdates},
-                        onSelectionChanged: (value) =>
-                            setState(() => _mobileUpdates = value.single),
                       ),
                       const SizedBox(height: AppSpace.lg),
                       if (_mobileUpdates) _feed(view) else _companies(view),
