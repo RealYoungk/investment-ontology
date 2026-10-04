@@ -87,13 +87,11 @@ class _MacroSnapshotState extends State<MacroSnapshot> {
                             s,
                             MacroMetrics.base(s.points, 0),
                           );
-                          return Container(
+                          return ShadCard(
                             padding: const EdgeInsets.all(AppSpace.lg),
-                            decoration: BoxDecoration(
-                              color: hovered ? c.surfaceHover : c.surface,
-                              border: Border.all(color: c.border),
-                              borderRadius: context.shape.borderRadius,
-                            ),
+                            backgroundColor: hovered
+                                ? c.surfaceHover
+                                : c.surface,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -109,7 +107,7 @@ class _MacroSnapshotState extends State<MacroSnapshot> {
                                       ),
                                     ),
                                     Icon(
-                                      Icons.chevron_right,
+                                      LucideIcons.chevronRight,
                                       size: 18,
                                       color: c.textMuted,
                                     ),

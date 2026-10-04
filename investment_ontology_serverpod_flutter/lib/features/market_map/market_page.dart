@@ -72,13 +72,16 @@ class _MarketPageState extends State<MarketPage> {
 
   Future<void> _loadDivisions() async {
     final section = _section;
+    final market = _market;
     if (section == null) {
       setState(() => _divisions = const []);
       return;
     }
     try {
-      final d = await client.company.divisions(section, market: _market);
-      if (mounted && section == _section) setState(() => _divisions = d);
+      final d = await client.company.divisions(section, market: market);
+      if (mounted && section == _section && market == _market) {
+        setState(() => _divisions = d);
+      }
     } catch (_) {
       // 대분류 분포는 그대로 보여준다.
     }
@@ -113,7 +116,7 @@ class _MarketPageState extends State<MarketPage> {
           failed: _failed,
           selected: _market,
           onSelect: (m) {
-            setState(() => _market = _market == m ? null : m);
+            setState(() => _market = m);
             _loadDivisions();
           },
         ),
@@ -122,19 +125,23 @@ class _MarketPageState extends State<MarketPage> {
           MarketLoadNotice(subject: '시장 정보', retry: _loadOverview),
         ],
         const SizedBox(height: AppSpace.section),
+        DataPanel(
+          child: ValueListenableBuilder<int>(
+            valueListenable: IngestMonitor.instance.dataVersion,
+            builder: (context, version, _) =>
+                IndexTrend(key: ValueKey('index-trend-$version')),
+          ),
+        ),
+        const SizedBox(height: AppSpace.section),
         const MacroSnapshot(),
         const SizedBox(height: AppSpace.section),
         ValueListenableBuilder<int>(
           valueListenable: IngestMonitor.instance.dataVersion,
-          builder: (context, version, _) =>
-              IndexTrend(key: ValueKey('index-trend-$version')),
-        ),
-        const SizedBox(height: AppSpace.section),
-        ValueListenableBuilder<int>(
-          valueListenable: IngestMonitor.instance.dataVersion,
-          builder: (context, version, _) => MarketCapTrend(
-            key: ValueKey('cap-trend-$version-${_market?.name}'),
-            market: _market,
+          builder: (context, version, _) => DataPanel(
+            child: MarketCapTrend(
+              key: ValueKey('cap-trend-$version-${_market?.name}'),
+              market: _market,
+            ),
           ),
         ),
         const SizedBox(height: AppSpace.section),
@@ -142,29 +149,33 @@ class _MarketPageState extends State<MarketPage> {
         const SizedBox(height: AppSpace.section),
         ValueListenableBuilder<int>(
           valueListenable: IngestMonitor.instance.dataVersion,
-          builder: (context, version, _) => MarketCapTreemapSection(
-            dataVersion: version,
-            market: _market,
-            onSelectCompany: (corpCode) =>
-                context.push(AppRoutes.company(corpCode)),
+          builder: (context, version, _) => DataPanel(
+            child: MarketCapTreemapSection(
+              dataVersion: version,
+              market: _market,
+              onSelectCompany: (corpCode) =>
+                  context.push(AppRoutes.company(corpCode)),
+            ),
           ),
         ),
         const SizedBox(height: AppSpace.section),
         if (overview != null && overview.bySection.isNotEmpty) ...[
-          IndustryDistribution(
-            revision: overview.industryRevision,
-            sections: overview.bySection,
-            divisions: _divisions,
-            selectedSection: _section,
-            selectedDivision: null,
-            onSelectSection: (code) {
-              setState(() {
-                _section = _section == code ? null : code;
-                _divisions = const [];
-              });
-              _loadDivisions();
-            },
-            onSelectDivision: (code) => _openCompanies(division: code),
+          DataPanel(
+            child: IndustryDistribution(
+              revision: overview.industryRevision,
+              sections: overview.bySection,
+              divisions: _divisions,
+              selectedSection: _section,
+              selectedDivision: null,
+              onSelectSection: (code) {
+                setState(() {
+                  _section = _section == code ? null : code;
+                  _divisions = const [];
+                });
+                _loadDivisions();
+              },
+              onSelectDivision: (code) => _openCompanies(division: code),
+            ),
           ),
           if (_section != null) ...[
             const SizedBox(height: AppSpace.sm),
@@ -199,6 +210,7 @@ class _RecentFilings extends StatefulWidget {
 
 class _RecentFilingsState extends State<_RecentFilings> {
   List<FilingFeedItem>? _items;
+  int _sequence = 0;
 
   @override
   void initState() {
@@ -220,12 +232,14 @@ class _RecentFilingsState extends State<_RecentFilings> {
   }
 
   Future<void> _load() async {
+    final sequence = ++_sequence;
+    setState(() => _items = null);
     try {
       final items = await client.disclosure.recentFilings(
         market: widget.market,
         limit: 12,
       );
-      if (mounted) setState(() => _items = items);
+      if (mounted && sequence == _sequence) setState(() => _items = items);
     } catch (_) {}
   }
 
@@ -235,97 +249,103 @@ class _RecentFilingsState extends State<_RecentFilings> {
     final t = context.typo;
     final items = _items;
     if (items == null || items.isEmpty) return const SizedBox.shrink();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        SectionLabel(
-          '최근 정기보고서',
-          accent: true,
-          trailing: Text(
-            '사업·반기·분기보고서 · 접수일 순',
-            style: t.body(12, color: c.textMuted),
+    return DataPanel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SectionLabel(
+            '최근 정기보고서',
+            accent: true,
+            trailing: Text(
+              '사업·반기·분기보고서 · 접수일 순',
+              style: t.body(12, color: c.textMuted),
+            ),
           ),
-        ),
-        const SizedBox(height: AppSpace.sm),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            // 좁은 화면에서는 접수일·보고서를 기업 이름 아래로 접는다.
-            final compact = constraints.maxWidth < 700;
-            Widget name(FilingFeedItem f) => HoverBuilder(
-              onTap: () => context.push(AppRoutes.company(f.company.corpCode)),
-              builder: (context, hovered) => Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    f.company.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: t
-                        .body(13.5, color: c.accent, weight: FontWeight.w600)
-                        .copyWith(
-                          decoration: hovered ? TextDecoration.underline : null,
-                          decorationColor: c.accent,
-                        ),
-                  ),
-                  if (compact)
+          const SizedBox(height: AppSpace.sm),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              // 좁은 화면에서는 접수일·보고서를 기업 이름 아래로 접는다.
+              final compact = constraints.maxWidth < 700;
+              Widget name(FilingFeedItem f) => HoverBuilder(
+                onTap: () =>
+                    context.push(AppRoutes.company(f.company.corpCode)),
+                builder: (context, hovered) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      '${formatDate(f.receivedDate)} · ${f.reportName}'
-                      '${f.marketCap == null ? '' : ' · ${formatKrw(f.marketCap)}'}',
+                      f.company.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: t.body(11.5, color: c.textSecondary),
+                      style: t
+                          .body(13.5, color: c.accent, weight: FontWeight.w600)
+                          .copyWith(
+                            decoration: hovered
+                                ? TextDecoration.underline
+                                : null,
+                            decorationColor: c.accent,
+                          ),
                     ),
-                ],
-              ),
-            );
-            // 열이 몇 개 없어 왼쪽에 몰려 보이지 않게 폭을 다 쓴다 (기업·보고서 열이 남는 폭을 가져간다).
-            return AppDataTable(
-              expand: true,
-              columns: [
-                // 날짜는 고정 폭 — 내용 폭 재기가 몇 px 모자라 끝 글자가 잘린다.
-                if (!compact) const AppColumn('접수일', width: 100),
-                const AppColumn('기업', flex: true),
-                if (!compact) const AppColumn('보고서', flex: true, nowrap: true),
-                if (!compact)
-                  const AppColumn('시가총액', numeric: true, nowrap: true),
-                const AppColumn('재무'),
-              ],
-              rows: [
-                for (final f in items)
-                  AppRow([
-                    if (!compact)
-                      AppDataTable.text(
-                        context,
-                        formatDate(f.receivedDate),
-                        nowrap: true,
-                      ),
-                    name(f),
-                    if (!compact) AppDataTable.text(context, f.reportName),
-                    if (!compact)
-                      AppDataTable.text(
-                        context,
-                        f.marketCap == null
-                            ? null
-                            : formatKrwShort(f.marketCap!.toDouble()),
-                        numeric: true,
-                      ),
-                    ShadBadge.raw(
-                      variant: ShadBadgeVariant.outline,
-                      foregroundColor: f.financialStored
-                          ? c.success
-                          : c.textMuted,
-                      child: Text(
-                        f.financialStored ? '받음' : '대기',
+                    if (compact)
+                      Text(
+                        '${formatDate(f.receivedDate)} · ${f.reportName}'
+                        '${f.marketCap == null ? '' : ' · ${formatKrw(f.marketCap)}'}',
                         maxLines: 1,
-                        softWrap: false,
+                        overflow: TextOverflow.ellipsis,
+                        style: t.body(11.5, color: c.textSecondary),
                       ),
-                    ),
-                  ]),
-              ],
-            );
-          },
-        ),
-      ],
+                  ],
+                ),
+              );
+              // 열이 몇 개 없어 왼쪽에 몰려 보이지 않게 폭을 다 쓴다 (기업·보고서 열이 남는 폭을 가져간다).
+              return AppDataTable(
+                expand: true,
+                columns: [
+                  // 날짜는 고정 폭 — 내용 폭 재기가 몇 px 모자라 끝 글자가 잘린다.
+                  if (!compact) const AppColumn('접수일', width: 100),
+                  const AppColumn('기업', flex: true),
+                  if (!compact)
+                    const AppColumn('보고서', flex: true, nowrap: true),
+                  if (!compact)
+                    const AppColumn('시가총액', numeric: true, nowrap: true),
+                  const AppColumn('재무'),
+                ],
+                rows: [
+                  for (final f in items)
+                    AppRow([
+                      if (!compact)
+                        AppDataTable.text(
+                          context,
+                          formatDate(f.receivedDate),
+                          nowrap: true,
+                        ),
+                      name(f),
+                      if (!compact) AppDataTable.text(context, f.reportName),
+                      if (!compact)
+                        AppDataTable.text(
+                          context,
+                          f.marketCap == null
+                              ? null
+                              : formatKrwShort(f.marketCap!.toDouble()),
+                          numeric: true,
+                        ),
+                      ShadBadge.raw(
+                        variant: ShadBadgeVariant.outline,
+                        foregroundColor: f.financialStored
+                            ? c.success
+                            : c.textMuted,
+                        child: Text(
+                          f.financialStored ? '받음' : '대기',
+                          maxLines: 1,
+                          softWrap: false,
+                        ),
+                      ),
+                    ]),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }
