@@ -26,10 +26,10 @@ class _DataPageState extends State<DataPage> {
   Widget build(BuildContext context) => const PageFrame(
     maxWidth: 1120,
     children: [
-      PageHeading(title: '데이터', subtitle: '수집된 자료와 자동 갱신 상태를 확인합니다.'),
-      SizedBox(height: AppSpace.section),
+      PageHeading(title: '데이터 관리', subtitle: '원천별 확보 범위와 자동 갱신 상태를 확인합니다.'),
+      SizedBox(height: AppSpace.xl),
       ScheduleBoard(child: _Coverage()),
-      SizedBox(height: AppSpace.section),
+      SizedBox(height: AppSpace.xl),
       _CharterCoverage(),
       _CharterCollection(),
     ],
@@ -140,6 +140,7 @@ class _Coverage extends StatefulWidget {
 
 class _CoverageState extends State<_Coverage> {
   IngestCoverage? _coverage;
+  bool _failed = false;
 
   @override
   void initState() {
@@ -157,9 +158,14 @@ class _CoverageState extends State<_Coverage> {
   Future<void> _load() async {
     try {
       final v = await client.ingest.coverage();
-      if (mounted) setState(() => _coverage = v);
+      if (mounted) {
+        setState(() {
+          _coverage = v;
+          _failed = false;
+        });
+      }
     } catch (_) {
-      // 위쪽 서버 연결 오류 표시로 충분하다.
+      if (mounted) setState(() => _failed = true);
     }
   }
 
@@ -168,27 +174,69 @@ class _CoverageState extends State<_Coverage> {
     final v = _coverage;
     final c = context.colors;
     final t = context.typo;
-    if (v == null) return const ShadProgress(minHeight: 2);
+    if (v == null) {
+      if (_failed) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const ShadAlert.destructive(
+              title: Text('수집 현황 조회 실패'),
+              description: Text('연결 상태를 확인한 뒤 다시 시도해 주세요.'),
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: ShadButton.outline(
+                onPressed: _load,
+                child: const Text('다시 시도'),
+              ),
+            ),
+          ],
+        );
+      }
+      return const ShadProgress(minHeight: 2);
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Wrap(
-          spacing: AppSpace.xxl,
-          runSpacing: AppSpace.lg,
-          children: [
-            _Summary(
-              label: '등록된 상장사',
-              value: formatCount(v.listedCompanies),
-              unit: '개사',
-            ),
-            _Summary(
-              label: '오늘 DART 호출',
-              value: formatCount(v.dartCallsToday),
-              unit: '/ ${formatCount(v.dartDailyLimit)}회',
-            ),
-          ],
+        ShadCard(
+          width: double.infinity,
+          title: const Text('수집 요약'),
+          child: LayoutBuilder(
+            builder: (context, box) {
+              final summaries = [
+                _Summary(
+                  label: '등록된 상장사',
+                  value: formatCount(v.listedCompanies),
+                  unit: '개사',
+                ),
+                _Summary(
+                  label: '오늘 DART 호출',
+                  value: formatCount(v.dartCallsToday),
+                  unit: '/ ${formatCount(v.dartDailyLimit)}회',
+                ),
+              ];
+              if (box.maxWidth < 300) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    summaries[0],
+                    const SizedBox(height: AppSpace.lg),
+                    summaries[1],
+                  ],
+                );
+              }
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: summaries[0]),
+                  const SizedBox(width: AppSpace.lg),
+                  Expanded(child: summaries[1]),
+                ],
+              );
+            },
+          ),
         ),
-        const SizedBox(height: AppSpace.section),
+        const SizedBox(height: AppSpace.xl),
         const SectionLabel('수집 데이터', accent: true),
         const SizedBox(height: AppSpace.md),
         _Dataset(
@@ -210,6 +258,7 @@ class _CoverageState extends State<_Coverage> {
         ),
         _Dataset(
           dataset: 'financial',
+          details: FinancialCollectionStatus(coverage: v),
           title: '재무제표',
           source: 'DART 재무 API · 공시 원문 보완',
           data: '사업·반기·분기보고서의 연결·별도 계정과 금액을 수집합니다. API 기간이 어긋난 보고서는 원문의 검증된 핵심 계정으로 보완하며, 부분 자료와 미확보 계정은 출처에 기록합니다.',
@@ -231,7 +280,6 @@ class _CoverageState extends State<_Coverage> {
                   note:
                       '미완료(대기·실패) ${formatCount(v.filingsPending)}건 · 연간 5개년과 최신 중간보고서 대상만 집계합니다. 아직 발견하지 못한 보고서는 분모에 포함되지 않습니다.',
                 ),
-                FinancialCollectionStatus(coverage: v),
               ],
             ),
           ],
@@ -298,6 +346,7 @@ class _Dataset extends StatelessWidget {
     required this.scope,
     required this.detail,
     this.children = const [],
+    this.details,
   });
 
   final String title;
@@ -307,11 +356,15 @@ class _Dataset extends StatelessWidget {
   final String scope;
   final String detail;
   final List<Widget> children;
+  final Widget? details;
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     final t = context.typo;
+    final panelPadding = AppLayout.panelPadding(
+      MediaQuery.sizeOf(context).width,
+    );
     final items = switch (dataset) {
       'company' => ['기업명', '종목코드', '업종'],
       'financial' => ['손익', '재무상태', '현금흐름'],
@@ -320,11 +373,11 @@ class _Dataset extends StatelessWidget {
       _ => ['주가', '시가총액', '지수'],
     };
     final icon = switch (dataset) {
-      'company' => Icons.business_outlined,
-      'financial' => Icons.account_balance_outlined,
-      'disclosure' => Icons.hub_outlined,
-      'business' => Icons.factory_outlined,
-      _ => Icons.show_chart,
+      'company' => LucideIcons.building2,
+      'financial' => LucideIcons.landmark,
+      'disclosure' => LucideIcons.network,
+      'business' => LucideIcons.factory,
+      _ => LucideIcons.chartLine,
     };
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpace.lg),
@@ -335,7 +388,7 @@ class _Dataset extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
-              padding: const EdgeInsets.all(AppSpace.lg),
+              padding: EdgeInsets.all(panelPadding),
               child: LayoutBuilder(
                 builder: (context, box) {
                   final identity = Column(
@@ -343,14 +396,7 @@ class _Dataset extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          Container(
-                            padding: const EdgeInsets.all(AppSpace.sm),
-                            decoration: BoxDecoration(
-                              color: c.accent.withValues(alpha: 0.08),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Icon(icon, color: c.accent, size: 22),
-                          ),
+                          Icon(icon, color: c.accent, size: 22),
                           const SizedBox(width: AppSpace.md),
                           Expanded(
                             child: Column(
@@ -375,76 +421,77 @@ class _Dataset extends StatelessWidget {
                         runSpacing: AppSpace.xs,
                         children: [
                           for (final item in items)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: AppSpace.sm,
-                                vertical: AppSpace.xs,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: c.border),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                item,
-                                style: t.body(11, color: c.textSecondary),
-                              ),
-                            ),
+                            ShadBadge.outline(child: Text(item)),
                         ],
                       ),
                     ],
                   );
                   final metrics = LayoutBuilder(
                     builder: (context, size) {
-                      if (children.length < 2 || size.maxWidth < 300) {
+                      if (children.length < 2 || size.maxWidth < 640) {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: children,
+                          children: [
+                            for (var i = 0; i < children.length; i++) ...[
+                              if (i > 0) const SizedBox(height: AppSpace.md),
+                              children[i],
+                            ],
+                          ],
                         );
                       }
                       return Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           for (var i = 0; i < children.length; i++) ...[
-                            if (i > 0) const SizedBox(width: AppSpace.lg),
+                            if (i > 0) const SizedBox(width: AppSpace.xl),
                             Expanded(child: children[i]),
                           ],
                         ],
                       );
                     },
                   );
-                  if (box.maxWidth < 600) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                  if (dataset == 'company' && box.maxWidth >= 600) {
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        identity,
-                        const SizedBox(height: AppSpace.lg),
-                        metrics,
+                        Expanded(child: identity),
+                        const SizedBox(width: AppSpace.xl),
+                        SizedBox(width: 260, child: metrics),
                       ],
                     );
                   }
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Expanded(flex: 4, child: identity),
-                      const SizedBox(width: AppSpace.xxl),
-                      Expanded(flex: 6, child: metrics),
+                      identity,
+                      const SizedBox(height: AppSpace.lg),
+                      metrics,
+                      if (details != null) ...[
+                        const SizedBox(height: AppSpace.md),
+                        details!,
+                      ],
                     ],
                   );
                 },
               ),
             ),
-            Container(
-              decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: c.border)),
-              ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpace.lg,
-                vertical: AppSpace.sm,
+            const ShadSeparator.horizontal(margin: EdgeInsets.zero),
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                panelPadding,
+                AppSpace.md,
+                panelPadding,
+                0,
               ),
               child: DatasetCollectionControls(dataset: dataset),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpace.lg),
+              padding: EdgeInsets.fromLTRB(
+                panelPadding,
+                0,
+                panelPadding,
+                AppSpace.sm,
+              ),
               child: DataReference(
                 dataset: dataset,
                 collectionDetail: '$data\n\n$scope\n\n$detail',
@@ -524,7 +571,7 @@ class _Progress extends StatelessWidget {
                   child: Semantics(
                     tooltip: note!,
                     child: Icon(
-                      Icons.info_outline,
+                      LucideIcons.info,
                       size: 14,
                       color: c.textMuted,
                     ),
@@ -670,11 +717,23 @@ class FinancialCollectionStatus extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (final (label, count) in counts)
-          Text(
-            count == null ? '$label · 집계 대기' : '$label ${formatCount(count)}건',
-            style: context.typo.body(12, color: context.colors.textSecondary),
-          ),
+        Wrap(
+          spacing: AppSpace.lg,
+          runSpacing: AppSpace.xs,
+          children: [
+            for (final (label, count) in counts)
+              Text(
+                count == null
+                    ? '$label · 집계 대기'
+                    : '$label ${formatCount(count)}건',
+                style: context.typo.body(
+                  12,
+                  color: context.colors.textSecondary,
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: AppSpace.sm),
         Text(
           '실제 결산월·원접수 출처와 연결된 금액 계정이 하나 이상 있는 보고서 수입니다. 연결·별도 중 한 기준의 자료만 있어도 포함하며, 전체 계정이나 핵심7개 확보율이 아닙니다.',
           style: context.typo.body(11, color: context.colors.textMuted),
