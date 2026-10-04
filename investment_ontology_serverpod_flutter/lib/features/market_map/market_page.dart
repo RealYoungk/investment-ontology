@@ -134,23 +134,24 @@ class _MarketPageState extends State<MarketPage> {
         const SizedBox(height: AppSpace.section),
         const MacroSnapshot(),
         const SizedBox(height: AppSpace.section),
-        MarketSummary(
-          showHeading: false,
-          overview: overview,
-          failed: _failed,
-          selected: _market,
-          onSelect: (m) {
-            setState(() => _market = m);
-            _loadDivisions();
-          },
-        ),
-        const SizedBox(height: AppSpace.lg),
         ValueListenableBuilder<int>(
           valueListenable: IngestMonitor.instance.dataVersion,
           builder: (context, version, _) => DataPanel(
             child: MarketCapTrend(
-              key: ValueKey('cap-trend-$version-${_market?.name}'),
+              key: ValueKey('cap-trend-$version'),
               market: _market,
+              controls: MarketSummary(
+                showHeading: false,
+                showScopeNote: false,
+                alignment: WrapAlignment.end,
+                overview: overview,
+                failed: _failed,
+                selected: _market,
+                onSelect: (m) {
+                  setState(() => _market = m);
+                  _loadDivisions();
+                },
+              ),
             ),
           ),
         ),
