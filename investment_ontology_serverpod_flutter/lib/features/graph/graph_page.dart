@@ -16,10 +16,18 @@ import '../review/review_page.dart';
 /// 관계망: 기업을 가운데 두고 지분·출자·임원·승인된 AI 관계를 따라 넓힌 그래프.
 ///
 /// 기업 노드를 누르면 그 기업이 가운데로 온다. 인물은 인물 페이지로 간다.
+typedef GraphFetch = Future<CompanyGraph> Function(
+  String corpCode, {
+  required int depth,
+  required int maxNodes,
+  required bool includeNames,
+});
+
 class GraphPage extends StatefulWidget {
-  const GraphPage({super.key, this.corpCode});
+  const GraphPage({super.key, this.corpCode, this.fetch});
 
   final String? corpCode;
+  final GraphFetch? fetch;
 
   @override
   State<GraphPage> createState() => _GraphPageState();
@@ -72,7 +80,7 @@ class _GraphPageState extends State<GraphPage> {
     final seq = ++_seq;
     setState(() => _loading = true);
     try {
-      final g = await client.graph.neighborhood(
+      final g = await (widget.fetch ?? client.graph.neighborhood)(
         code,
         depth: _depth,
         maxNodes: _maxNodes,
@@ -99,65 +107,77 @@ class _GraphPageState extends State<GraphPage> {
     final t = context.typo;
     final g = _graph;
     return PageFrame(
-      maxWidth: 1400,
+      maxWidth: AppLayout.contentWidth,
       children: [
         const PageHeading(
           title: '관계망',
-          subtitle:
-              '기업을 가운데 두고 주주·출자·임원 관계와 사업보고서 본문에서 읽은 관계(공급·매출·경쟁)를 따라 넓힙니다. '
-              '기업을 누르면 그 기업이 가운데로 옵니다. 각 기업의 가장 최근 사업보고서 기준입니다.',
+          subtitle: '기업을 검색하고 주주·출자·임원·사업 관계를 따라 탐색하세요. 각 기업의 최신 사업보고서 기준입니다.',
         ),
         const SizedBox(height: AppSpace.lg),
-        Wrap(
-          spacing: AppSpace.lg,
-          runSpacing: AppSpace.sm,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            const _CompanySearch(),
-            AppToggleGroup<int>(
-              label: '단계',
-              value: _depth,
-              options: const {1: '1', 2: '2', 3: '3'},
-              onChanged: (d) {
-                setState(() => _depth = d);
-                _load();
-              },
-            ),
-            AppToggleGroup<int>(
-              label: '노드',
-              value: _maxNodes,
-              options: const {40: '40', 80: '80', 160: '160'},
-              onChanged: (n) {
-                setState(() => _maxNodes = n);
-                _load();
-              },
-            ),
-            AppToggleGroup<bool>(
-              label: '비상장·해외 법인',
-              value: _names,
-              options: const {false: '숨기기', true: '보이기'},
-              onChanged: (v) {
-                setState(() => _names = v);
-                _load();
-              },
-            ),
-          ],
+        DataPanel(
+          child: Wrap(
+            spacing: AppSpace.lg,
+            runSpacing: AppSpace.sm,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              const _CompanySearch(),
+              AppToggleGroup<int>(
+                label: '단계',
+                value: _depth,
+                options: const {1: '1', 2: '2', 3: '3'},
+                onChanged: (d) {
+                  setState(() => _depth = d);
+                  _load();
+                },
+              ),
+              AppToggleGroup<int>(
+                label: '노드',
+                value: _maxNodes,
+                options: const {40: '40', 80: '80', 160: '160'},
+                onChanged: (n) {
+                  setState(() => _maxNodes = n);
+                  _load();
+                },
+              ),
+              ShadSwitch(
+                value: _names,
+                label: const Text('비상장·해외 법인 포함'),
+                onChanged: (v) {
+                  setState(() => _names = v);
+                  _load();
+                },
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: AppSpace.lg),
         if (widget.corpCode == null)
-          Text(
-            '위에서 기업을 찾아 가운데에 두세요.',
-            style: t.body(13, color: c.textMuted),
+          const ShadAlert(
+            icon: Icon(LucideIcons.network),
+            title: Text('어떤 기업과 연결되어 있을까요?'),
+            description: Text(
+              '위에서 기업을 검색하면 관계망을 볼 수 있습니다. 기업을 누르면 그 기업을 중심으로 다시 탐색합니다.',
+            ),
           )
         else if (_error != null)
           ReadFailureNotice(subject: '관계망', retry: _load)
         else if (g == null)
           const ShadProgress(minHeight: 2)
         else ...[
-          Text(
-            '노드 ${g.nodes.length} · 관계 ${g.edges.length}'
-            '${g.truncated ? ' · 노드 수 제한으로 약한 관계 일부를 뺐습니다' : ''}',
-            style: t.body(12, color: c.textMuted),
+          Wrap(
+            spacing: AppSpace.sm,
+            runSpacing: AppSpace.sm,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              ShadBadge.secondary(child: Text('노드 ${g.nodes.length}')),
+              ShadBadge.secondary(child: Text('관계 ${g.edges.length}')),
+              if (_loading) const Text('관계망 갱신 중…'),
+              if (g.truncated)
+                Text(
+                  '노드 수 제한으로 약한 관계 일부를 뺐습니다',
+                  style: t.body(12, color: c.textMuted),
+                ),
+            ],
           ),
           const SizedBox(height: AppSpace.sm),
           LayoutBuilder(
@@ -210,6 +230,9 @@ class _CompanySearchState extends State<_CompanySearch> {
   final _controller = TextEditingController();
   List<CompanyListItem> _results = const [];
   Timer? _debounce;
+  int _seq = 0;
+  bool _loading = false;
+  bool _failed = false;
 
   @override
   void dispose() {
@@ -220,13 +243,23 @@ class _CompanySearchState extends State<_CompanySearch> {
 
   void _search(String q) {
     _debounce?.cancel();
+    final seq = ++_seq;
+    final query = q.trim();
+    setState(() {
+      _results = const [];
+      _loading = query.isNotEmpty;
+      _failed = false;
+    });
+    if (query.isEmpty) return;
     _debounce = Timer(const Duration(milliseconds: 250), () async {
-      if (q.trim().isEmpty) {
-        setState(() => _results = const []);
-        return;
+      try {
+        final page = await client.company.list(query: query, limit: 6);
+        if (mounted && seq == _seq) setState(() => _results = page.items);
+      } catch (_) {
+        if (mounted && seq == _seq) setState(() => _failed = true);
+      } finally {
+        if (mounted && seq == _seq) setState(() => _loading = false);
       }
-      final page = await client.company.list(query: q.trim(), limit: 6);
-      if (mounted) setState(() => _results = page.items);
     });
   }
 
@@ -235,32 +268,57 @@ class _CompanySearchState extends State<_CompanySearch> {
     final c = context.colors;
     final t = context.typo;
     return SizedBox(
-      width: 300,
+      width: math.min(300, MediaQuery.sizeOf(context).width - 64),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
+          Text('중심 기업', style: t.label(color: c.textSecondary)),
+          const SizedBox(height: AppSpace.xs),
           ShadInput(
-            placeholder: Text('가운데에 둘 기업'),
-            leading: Icon(Icons.search, size: 20, color: c.textPrimary),
+            placeholder: const Text('기업 이름 검색'),
+            leading: Icon(LucideIcons.search, size: 18, color: c.textMuted),
             controller: _controller,
             onChanged: _search,
             style: t.body(14),
           ),
+          if (_loading)
+            const Padding(
+              padding: EdgeInsets.only(top: AppSpace.sm),
+              child: Text('검색 중…'),
+            )
+          else if (_failed)
+            const Padding(
+              padding: EdgeInsets.only(top: AppSpace.sm),
+              child: Text('검색하지 못했습니다. 다시 입력해 주세요.'),
+            )
+          else if (_controller.text.trim().isNotEmpty && _results.isEmpty)
+            const Padding(
+              padding: EdgeInsets.only(top: AppSpace.sm),
+              child: Text('검색 결과가 없습니다.'),
+            ),
           for (final item in _results)
-            HoverBuilder(
-              onTap: () {
+            ShadButton.ghost(
+              width: double.infinity,
+              mainAxisAlignment: MainAxisAlignment.start,
+              onPressed: () {
+                _debounce?.cancel();
+                ++_seq;
                 _controller.clear();
-                setState(() => _results = const []);
+                setState(() {
+                  _results = const [];
+                  _loading = false;
+                  _failed = false;
+                });
                 context.go(AppRoutes.graph(item.corpCode));
               },
-              builder: (context, hovered) => Container(
-                color: hovered ? c.surfaceHover : c.surface,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpace.sm,
-                  vertical: 6,
+              child: Expanded(
+                child: Text(
+                  item.name,
+                  textAlign: TextAlign.start,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                child: Text(item.name, style: t.body(13)),
               ),
             ),
         ],
@@ -341,10 +399,11 @@ class _GraphList extends StatelessWidget {
             SectionLabel('${entry.key} ${entry.value.length}'),
             const SizedBox(height: 4),
             for (final (other, edge, direct) in entry.value.take(30))
-              HoverBuilder(
-                onTap: () => onTap(other),
-                builder: (context, hovered) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5),
+              ShadButton.ghost(
+                width: double.infinity,
+                height: null,
+                onPressed: () => onTap(other),
+                child: Expanded(
                   child: Row(
                     children: [
                       Expanded(
@@ -352,6 +411,7 @@ class _GraphList extends StatelessWidget {
                           direct
                               ? other.label
                               : '${byKey[edge.from]?.label} → ${byKey[edge.to]?.label}',
+                          textAlign: TextAlign.start,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: t.body(
@@ -496,8 +556,12 @@ class _Selection extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(node.label, style: t.body(16, weight: FontWeight.w700)),
-              const Spacer(),
+              Expanded(
+                child: Text(
+                  node.label,
+                  style: t.body(16, weight: FontWeight.w700),
+                ),
+              ),
               if (node.corpCode != null)
                 ShadButton.raw(
                   onPressed: () =>
