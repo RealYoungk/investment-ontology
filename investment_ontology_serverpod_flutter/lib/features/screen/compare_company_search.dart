@@ -92,7 +92,7 @@ class _CompareCompanySearchState extends State<CompareCompanySearch> {
     return Align(
       alignment: Alignment.centerLeft,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 640),
+        constraints: const BoxConstraints(maxWidth: double.infinity),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -207,7 +207,7 @@ class _CompareCompanySearchState extends State<CompareCompanySearch> {
         const checkWidth = 56.0;
         const codeWidth = 88.0;
         return SizedBox(
-          height: 64 * (_results.length + 1).toDouble(),
+          height: 48 * (_results.length + 1).toDouble(),
           child: ShadTable(
             primary: false,
             columnCount: headers.length,
@@ -220,9 +220,9 @@ class _CompareCompanySearchState extends State<CompareCompanySearch> {
                   ? codeWidth
                   : box.maxWidth - checkWidth - (narrow ? 0 : codeWidth),
             ),
-            rowSpanExtent: (_) => const FixedTableSpanExtent(64),
+            rowSpanExtent: (_) => const FixedTableSpanExtent(48),
             header: (context, column) => ShadTableCell.header(
-              height: 64,
+              height: 48,
               child: Text(headers[column], style: t.label()),
             ),
             builder: (context, vicinity) {
@@ -230,7 +230,7 @@ class _CompareCompanySearchState extends State<CompareCompanySearch> {
               final selected = widget.selectedCodes.contains(item.corpCode);
               final enabled = selected || !_full;
               return ShadTableCell(
-                height: 64,
+                height: 48,
                 child: vicinity.column == 0
                     ? Semantics(
                         label: '${item.name} 비교 선택',

@@ -126,48 +126,83 @@ class _ComparePageState extends State<ComparePage> {
           ),
           const SizedBox(height: AppSpace.md),
         ],
-        if (widget.corpCodes.isNotEmpty) ...[
-          Wrap(
-            spacing: AppSpace.sm,
-            runSpacing: AppSpace.sm,
-            children: [
-              for (final code in widget.corpCodes)
-                _SelectedCompany(
-                  code: code,
-                  name: _rows
-                      .where((r) => r.company.corpCode == code)
-                      .firstOrNull
-                      ?.company
-                      .name,
-                  onRemove: () =>
-                      _go(widget.corpCodes.where((c) => c != code).toList()),
+        LayoutBuilder(
+          builder: (context, box) {
+            final beside = box.maxWidth >= 900 && widget.corpCodes.isNotEmpty;
+            final searchWidth = beside
+                ? (box.maxWidth - AppSpace.lg) * 0.58
+                : box.maxWidth;
+            return Wrap(
+              spacing: AppSpace.lg,
+              runSpacing: AppSpace.lg,
+              children: [
+                SizedBox(
+                  width: searchWidth,
+                  child: DataPanel(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (widget.corpCodes.isNotEmpty) ...[
+                          Wrap(
+                            spacing: AppSpace.sm,
+                            runSpacing: AppSpace.sm,
+                            children: [
+                              for (final code in widget.corpCodes)
+                                _SelectedCompany(
+                                  code: code,
+                                  name: _rows
+                                      .where((r) => r.company.corpCode == code)
+                                      .firstOrNull
+                                      ?.company
+                                      .name,
+                                  onRemove: () => _go(
+                                    widget.corpCodes
+                                        .where((c) => c != code)
+                                        .toList(),
+                                  ),
+                                ),
+                            ],
+                          ),
+                          const SizedBox(height: AppSpace.lg),
+                        ],
+                        CompareCompanySearch(
+                          key: const ValueKey('compare-company-search'),
+                          selectedCodes: widget.corpCodes,
+                          onRemove: (code) => _go(
+                            widget.corpCodes.where((c) => c != code).toList(),
+                          ),
+                          onAdd: (code) {
+                            if (widget.corpCodes.length >= maxCompanies ||
+                                widget.corpCodes.contains(code)) {
+                              return;
+                            }
+                            _go([...widget.corpCodes, code]);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-            ],
-          ),
-          const SizedBox(height: AppSpace.lg),
-        ],
-        CompareCompanySearch(
-          key: const ValueKey('compare-company-search'),
-          selectedCodes: widget.corpCodes,
-          onRemove: (code) =>
-              _go(widget.corpCodes.where((c) => c != code).toList()),
-          onAdd: (code) {
-            if (widget.corpCodes.length >= maxCompanies ||
-                widget.corpCodes.contains(code)) {
-              return;
-            }
-            _go([...widget.corpCodes, code]);
-          },
-        ),
-        const SizedBox(height: AppSpace.lg),
-        PeerCandidatesPanel(
-          codes: widget.corpCodes,
-          onAdd: (code) {
-            if (widget.corpCodes.length >= maxCompanies ||
-                widget.corpCodes.contains(code)) {
-              return;
-            }
-            _go([...widget.corpCodes, code]);
+                if (widget.corpCodes.isNotEmpty)
+                  SizedBox(
+                    width: beside
+                        ? box.maxWidth - searchWidth - AppSpace.lg
+                        : box.maxWidth,
+                    child: DataPanel(
+                      child: PeerCandidatesPanel(
+                        codes: widget.corpCodes,
+                        onAdd: (code) {
+                          if (widget.corpCodes.length >= maxCompanies ||
+                              widget.corpCodes.contains(code)) {
+                            return;
+                          }
+                          _go([...widget.corpCodes, code]);
+                        },
+                      ),
+                    ),
+                  ),
+              ],
+            );
           },
         ),
         const SizedBox(height: AppSpace.xl),
