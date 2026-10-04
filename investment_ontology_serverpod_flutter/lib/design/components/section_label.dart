@@ -11,19 +11,23 @@ class SectionLabel extends StatelessWidget {
     this.accent = false,
     this.trailing,
     this.tooltip,
+    this.style,
   });
 
   final String text;
   final bool accent;
   final Widget? trailing;
   final String? tooltip;
+  final TextStyle? style;
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     Widget label = Text(
       text,
-      style: context.typo.label(color: accent ? c.accent : c.textSecondary),
+      style:
+          style ??
+          context.typo.label(color: accent ? c.accent : c.textSecondary),
     );
     if (tooltip != null) {
       final tipKey = GlobalKey<TooltipState>();

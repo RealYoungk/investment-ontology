@@ -14,11 +14,17 @@ class MarketSummary extends StatelessWidget {
     required this.onSelect,
     this.failed = false,
     this.showHeading = true,
+    this.showScopeNote = true,
+    this.alignment = WrapAlignment.start,
   });
 
   final Overview? overview;
   final bool failed;
   final bool showHeading;
+  final bool showScopeNote;
+  final WrapAlignment alignment;
+
+  static const scopeNote = '시장 선택은 시가총액·업종 지도·최근 정기보고서에 적용됩니다.';
   final Market? selected;
   final ValueChanged<Market?> onSelect;
 
@@ -41,6 +47,7 @@ class MarketSummary extends StatelessWidget {
           ),
         if (showHeading) const SizedBox(height: AppSpace.md),
         Wrap(
+          alignment: alignment,
           spacing: AppSpace.sm,
           runSpacing: AppSpace.sm,
           children: [
@@ -82,11 +89,12 @@ class MarketSummary extends StatelessWidget {
               ),
           ],
         ),
-        const SizedBox(height: AppSpace.sm),
-        Text(
-          '시장 선택은 시가총액·업종 지도·최근 정기보고서에 적용됩니다.',
-          style: context.typo.body(12, color: context.colors.textMuted),
-        ),
+        if (showScopeNote) const SizedBox(height: AppSpace.sm),
+        if (showScopeNote)
+          Text(
+            scopeNote,
+            style: context.typo.body(12, color: context.colors.textMuted),
+          ),
       ],
     );
   }
