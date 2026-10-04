@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
@@ -10,6 +8,7 @@ import '../../design/components/components.dart';
 import '../../design/tokens.dart';
 import '../financials/financial_metrics.dart';
 import 'peer_candidates_panel.dart';
+import 'compare_company_search.dart';
 
 /// 기업 비교: 두세 곳을 나란히 놓고 같은 잣대로 본다.
 ///
@@ -66,6 +65,9 @@ class _ComparePageState extends State<ComparePage> {
     setState(() {
       _loading = true;
       _error = null;
+      _rows = _rows
+          .where((r) => widget.corpCodes.contains(r.company.corpCode))
+          .toList();
     });
     try {
       final page = await client.screen.list(
@@ -87,8 +89,22 @@ class _ComparePageState extends State<ComparePage> {
     }
   }
 
-  void _go(List<String> codes) =>
-      context.go(AppRoutes.compare(codes.take(maxCompanies).toList()));
+  void _go(List<String> codes) {
+    final route = Uri.parse(
+      AppRoutes.compare(codes.take(maxCompanies).toList()),
+    );
+    context.go(
+      route
+          .replace(
+            queryParameters: {
+              ...route.queryParameters,
+              if (widget.discoveryProduct != null)
+                'industryProduct': widget.discoveryProduct!,
+            },
+          )
+          .toString(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +113,10 @@ class _ComparePageState extends State<ComparePage> {
     return PageFrame(
       children: [
         const PageHeading(title: '기업 비교'),
+        Text(
+          '최대 4개 기업의 실적과 밸류에이션을 같은 기준으로 비교합니다.',
+          style: t.body(13, color: c.textSecondary),
+        ),
         const SizedBox(height: AppSpace.lg),
         if (widget.discoveryProduct case final String product) ...[
           Text('탐색 기준: $product', style: t.body(14, weight: FontWeight.w600)),
@@ -106,120 +126,56 @@ class _ComparePageState extends State<ComparePage> {
           ),
           const SizedBox(height: AppSpace.md),
         ],
-        if (_rows.isNotEmpty) ...[
+        if (widget.corpCodes.isNotEmpty) ...[
           Wrap(
             spacing: AppSpace.sm,
             runSpacing: AppSpace.sm,
             children: [
-              for (final row in _rows)
-                ShadBadge.outline(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Flexible(
-                        child: ShadButton.link(
-                          height: 0,
-                          padding: EdgeInsets.zero,
-                          onPressed: () => context.push(
-                            AppRoutes.company(row.company.corpCode),
-                          ),
-                          child: Flexible(
-                            child: Text(
-                              row.company.name
-                                  .replaceAll('(주)', '')
-                                  .replaceAll('주식회사', '')
-                                  .trim(),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Semantics(
-                        container: true,
-                        label: '비교에서 빼기',
-                        button: true,
-                        enabled: true,
-                        onTap: () => _go([
-                          for (final code in widget.corpCodes)
-                            if (code != row.company.corpCode) code,
-                        ]),
-                        child: ExcludeSemantics(
-                          child: ShadIconButton.ghost(
-                            semanticLabel: '비교에서 빼기',
-                            width: 24,
-                            height: 24,
-                            padding: EdgeInsets.zero,
-                            onPressed: () => _go([
-                              for (final code in widget.corpCodes)
-                                if (code != row.company.corpCode) code,
-                            ]),
-                            icon: const Icon(Icons.close, size: 14),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+              for (final code in widget.corpCodes)
+                _SelectedCompany(
+                  code: code,
+                  name: _rows
+                      .where((r) => r.company.corpCode == code)
+                      .firstOrNull
+                      ?.company
+                      .name,
+                  onRemove: () =>
+                      _go(widget.corpCodes.where((c) => c != code).toList()),
                 ),
             ],
           ),
-          const SizedBox(height: AppSpace.md),
+          const SizedBox(height: AppSpace.lg),
         ],
-        Theme(
-          data: Theme.of(context)
-              .copyWith(dividerColor: c.border.withValues(alpha: 0)),
-          child: ShadAccordion<int>(
-            key: ValueKey(widget.corpCodes.length < 2),
-            maintainState: false,
-            initialValue: (widget.corpCodes.length < 2) ? 0 : null,
-            children: [
-              ShadAccordionItem<int>(
-                value: 0,
-                title: Row(
-                  children: [
-                    const Icon(Icons.add_circle_outline, size: 20),
-                    const SizedBox(width: AppSpace.sm),
-                    Expanded(
-                      child: Text(
-                        '비교 기업 찾기',
-                        style: t.body(15, weight: FontWeight.w600),
-                      ),
-                    ),
-                  ],
-                ),
-                padding: EdgeInsets.zero,
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    top: AppSpace.sm,
-                    bottom: AppSpace.md,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _AddCompany(
-                        disabled: widget.corpCodes.length >= maxCompanies,
-                        onAdd: (code) {
-                          if (widget.corpCodes.contains(code)) return;
-                          _go([...widget.corpCodes, code]);
-                        },
-                      ),
-                      const SizedBox(height: AppSpace.lg),
-                      PeerCandidatesPanel(
-                        codes: widget.corpCodes,
-                        onAdd: (code) {
-                          if (widget.corpCodes.length >= maxCompanies ||
-                              widget.corpCodes.contains(code)) {
-                            return;
-                          }
-                          _go([...widget.corpCodes, code]);
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
+        CompareCompanySearch(
+          selectedCodes: widget.corpCodes,
+          onRemove: (code) =>
+              _go(widget.corpCodes.where((c) => c != code).toList()),
+          onAdd: (code) {
+            if (widget.corpCodes.length >= maxCompanies ||
+                widget.corpCodes.contains(code)) {
+              return;
+            }
+            _go([...widget.corpCodes, code]);
+          },
+        ),
+        const SizedBox(height: AppSpace.lg),
+        PeerCandidatesPanel(
+          codes: widget.corpCodes,
+          onAdd: (code) {
+            if (widget.corpCodes.length >= maxCompanies ||
+                widget.corpCodes.contains(code)) {
+              return;
+            }
+            _go([...widget.corpCodes, code]);
+          },
         ),
         const SizedBox(height: AppSpace.xl),
+        if (_loading && _rows.isNotEmpty) ...[
+          const ShadProgress(minHeight: 2),
+          const SizedBox(height: AppSpace.sm),
+          Text('비교 데이터 갱신 중…', style: t.body(12, color: c.textSecondary)),
+          const SizedBox(height: AppSpace.md),
+        ],
         if (_error != null)
           ReadFailureNotice(subject: '비교 데이터', retry: _load)
         else if (widget.corpCodes.isEmpty)
@@ -228,11 +184,26 @@ class _ComparePageState extends State<ComparePage> {
             style: t.body(13, color: c.textMuted),
           )
         else if (_loading && _rows.isEmpty)
-          const ShadProgress(minHeight: 2)
+          const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ShadProgress(minHeight: 2),
+              SizedBox(height: AppSpace.sm),
+              Text('비교 데이터 불러오는 중…'),
+            ],
+          )
         else ...[
+          if (!_loading && _rows.length < widget.corpCodes.length)
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppSpace.md),
+              child: Text(
+                '일부 기업은 비교에 필요한 재무·시세 자료가 없습니다. 선택 목록에서 뺄 수 있습니다.',
+                style: t.body(13, color: c.textSecondary),
+              ),
+            ),
           if (_rows.isNotEmpty) _ComparisonCharts(rows: _rows),
           const SizedBox(height: AppSpace.lg),
-          CompanyDataCard(
+          DataPanel(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -318,110 +289,6 @@ class _CompareTable extends StatelessWidget {
   }
 }
 
-/// 기업을 찾아 비교에 넣는다.
-class _AddCompany extends StatefulWidget {
-  const _AddCompany({required this.onAdd, required this.disabled});
-
-  final ValueChanged<String> onAdd;
-  final bool disabled;
-
-  @override
-  State<_AddCompany> createState() => _AddCompanyState();
-}
-
-class _AddCompanyState extends State<_AddCompany> {
-  final _controller = TextEditingController();
-  List<CompanyListItem> _results = const [];
-  Timer? _debounce;
-
-  @override
-  void dispose() {
-    _debounce?.cancel();
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _search(String q) {
-    _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 250), () async {
-      final query = q.trim();
-      if (query.isEmpty) {
-        setState(() => _results = const []);
-        return;
-      }
-      try {
-        final page = await client.company.list(
-          query: query,
-          sort: CompanySort.marketCap,
-          limit: 6,
-        );
-        if (mounted && _controller.text.trim() == query) {
-          setState(() => _results = page.items);
-        }
-      } catch (_) {}
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    final t = context.typo;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: 320,
-          child: ShadInput(
-            placeholder: Text(
-              widget.disabled ? '네 곳까지 넣을 수 있습니다' : '회사명 · 종목코드',
-            ),
-            leading: Icon(Icons.search, size: 20, color: c.textSecondary),
-            controller: _controller,
-            enabled: !widget.disabled,
-            onChanged: _search,
-            style: t.body(14),
-          ),
-        ),
-        for (final item in _results)
-          HoverBuilder(
-            onTap: () {
-              widget.onAdd(item.corpCode);
-              _controller.clear();
-              setState(() => _results = const []);
-            },
-            builder: (context, hovered) => Container(
-              width: 320,
-              color: hovered ? c.surfaceHover : c.surface.withValues(alpha: 0),
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpace.sm,
-                vertical: 7,
-              ),
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 64,
-                    child: Text(
-                      item.stockCode ?? '',
-                      style: t.numeric(12, color: c.textSecondary),
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      item.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: t.body(13.5),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
 class _ComparisonCharts extends StatelessWidget {
   const _ComparisonCharts({required this.rows});
   final List<ScreenRow> rows;
@@ -459,7 +326,7 @@ class _ComparisonCharts extends StatelessWidget {
                 for (final (title, unit, value) in metrics)
                   SizedBox(
                     width: width,
-                    child: CompanyDataCard(
+                    child: DataPanel(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
@@ -488,4 +355,53 @@ class _ComparisonCharts extends StatelessWidget {
       },
     );
   }
+}
+
+class _SelectedCompany extends StatelessWidget {
+  const _SelectedCompany({
+    required this.code,
+    required this.name,
+    required this.onRemove,
+  });
+  final String code;
+  final String? name;
+  final VoidCallback onRemove;
+  @override
+  Widget build(BuildContext context) => ShadBadge.outline(
+    padding: const EdgeInsets.only(left: AppSpace.md, right: AppSpace.xs),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Flexible(
+          child: ShadButton.link(
+            height: 32,
+            padding: EdgeInsets.zero,
+            onPressed: () => context.push(AppRoutes.company(code)),
+            child: Flexible(
+              child: Text(
+                name?.replaceAll('(주)', '').replaceAll('주식회사', '').trim() ??
+                    code,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: AppSpace.xs),
+        Semantics(
+          container: true,
+          label: '${name ?? code} 비교에서 빼기',
+          button: true,
+          onTap: onRemove,
+          child: ExcludeSemantics(
+            child: ShadIconButton.ghost(
+              width: 32,
+              height: 32,
+              padding: EdgeInsets.zero,
+              onPressed: onRemove,
+              icon: const Icon(LucideIcons.x, size: 14),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
 }
