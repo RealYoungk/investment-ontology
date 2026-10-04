@@ -112,19 +112,26 @@ void main() {
       );
     }, edit: false);
     expect(requests.last, (0, 10));
+    expect(find.byType(ShadPagination), findsOneWidget);
     expect(find.byKey(const ValueKey('preset-volume-surge')), findsOneWidget);
     expect(find.byType(DropdownButtonFormField<String>), findsNothing);
-    await click(tester, find.text('다음 10개'));
+    await click(tester, find.text('다음'));
     expect(requests.last, (10, 10));
-    await click(tester, find.text('다음 10개'));
+    await click(
+      tester,
+      find.descendant(
+        of: find.byType(ShadPagination),
+        matching: find.text('3'),
+      ),
+    );
     expect(requests.last, (20, 10));
     expect(
       tester
-          .widget<ShadButton>(find.widgetWithText(ShadButton, '다음 10개'))
+          .widget<ShadButton>(find.widgetWithText(ShadButton, '다음'))
           .onPressed,
       isNull,
     );
-    await click(tester, find.text('이전 10개'));
+    await click(tester, find.text('이전'));
     expect(requests.last, (10, 10));
     await preset(tester, '돈 잘 버는 회사');
     expect(requests.last, (0, 10));
@@ -176,7 +183,7 @@ void main() {
     expect(value(tester, 'PER 이하'), '12');
   });
 
-  for (final width in [390.0, 1440.0]) {
+  for (final width in [320.0, 390.0, 768.0, 1440.0]) {
     testWidgets('입력칸을 유지하고 프리셋이 값을 채운다 ${width.toInt()}px', (tester) async {
       tester.view.physicalSize = Size(width, 1100);
       tester.view.devicePixelRatio = 1;
@@ -266,6 +273,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(value(tester, '확인된 연속 배당 년 이상'), '3');
     expect(value(tester, '배당성향 % 이하'), '70');
+    await tester.ensureVisible(find.byType(ShadTable));
+    for (var i = 0; i < 8 && find.text('배당 기준연도').evaluate().isEmpty; i++) {
+      await tester.drag(find.byType(ShadTable), const Offset(-160, 0));
+      await tester.pumpAndSettle();
+    }
     expect(find.text('배당 기준연도'), findsOneWidget);
     expect(find.text('연속 배당(년)'), findsOneWidget);
   });
