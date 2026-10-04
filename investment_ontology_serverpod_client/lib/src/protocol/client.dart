@@ -96,6 +96,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _i140v7gk;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/market_cap_treemap.dart'
     as _ifex1fnm;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/new_company_view.dart'
+    as _iodca1gh;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ontology_relation.dart'
     as _isup83mn;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/overview.dart'
@@ -1301,6 +1303,14 @@ class EndpointMarket extends _isc.EndpointRef {
 
   @override
   String get name => 'market';
+
+  /// First observed companies, not official IPO dates. Reads stored data only.
+  _ida.Future<List<_iodca1gh.NewCompanyView>> newCompanies() =>
+      caller.callServerEndpoint<List<_iodca1gh.NewCompanyView>>(
+        'market',
+        'newCompanies',
+        {},
+      );
 
   /// Monthly raw company capitalization, bounded to five years.
   /// All observed share classes are included; a missing quote leaves a gap.

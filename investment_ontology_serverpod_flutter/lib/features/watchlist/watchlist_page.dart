@@ -838,54 +838,61 @@ class _WatchlistPageState extends State<WatchlistPage>
               child: Text('검색 결과가 없습니다.'),
             ),
           for (final item in _results)
-            Padding(
+            ShadButton.ghost(
+              backgroundColor: store.contains(item.corpCode)
+                  ? context.colors.accentSubtle
+                  : null,
+              hoverBackgroundColor: store.contains(item.corpCode)
+                  ? context.colors.accentSubtle
+                  : null,
+              width: double.infinity,
+              height: 0,
               padding: const EdgeInsets.symmetric(
                 horizontal: AppSpace.md,
                 vertical: AppSpace.sm,
               ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(item.name),
-                        Text(item.stockCode ?? item.corpCode),
-                      ],
+              enabled: !_busy,
+              onPressed: _busy
+                  ? null
+                  : () => _action(() => store.toggle(item.corpCode)),
+              child: Flexible(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(item.name),
+                          Text(item.stockCode ?? item.corpCode),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: AppSpace.sm),
-                  Semantics(
-                    container: true,
-                    label: store.contains(item.corpCode) ? '관심등록 해제' : '관심등록',
-                    button: true,
-                    toggled: store.contains(item.corpCode),
-                    enabled: !(_busy),
-                    onTap: (!(_busy))
-                        ? _busy
-                              ? null
-                              : () => _action(() => store.toggle(item.corpCode))
-                        : null,
-                    child: ExcludeSemantics(
-                      child: ShadIconButton.ghost(
-                        enabled: !(_busy),
-                        icon: Icon(
+                    const SizedBox(width: AppSpace.sm),
+                    if (store.contains(item.corpCode)) ...[
+                      Text(
+                        '등록됨',
+                        style: context.typo.body(
+                          12,
+                          weight: FontWeight.w600,
+                          color: context.colors.accent,
+                        ),
+                      ),
+                      const SizedBox(width: AppSpace.sm),
+                    ],
+                    Semantics(
+                      label: store.contains(item.corpCode) ? '관심등록 해제' : '관심등록',
+                      child: ExcludeSemantics(
+                        child: Icon(
                           LucideIcons.star,
                           color: store.contains(item.corpCode)
                               ? context.colors.accent
                               : context.colors.textMuted,
                         ),
-                        onPressed: _busy
-                            ? null
-                            : () => _action(() => store.toggle(item.corpCode)),
-                        semanticLabel: store.contains(item.corpCode)
-                            ? '관심등록 해제'
-                            : '관심등록',
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
         ],

@@ -5,6 +5,7 @@ import 'package:serverpod/serverpod.dart';
 import '../../generated/protocol.dart';
 import '../dart/dart_values.dart';
 import '../data_go_kr/data_go_kr_client.dart';
+import '../market/new_observations.dart';
 import 'api_call_budget.dart';
 import 'ingest_jobs.dart';
 
@@ -370,16 +371,23 @@ class MarketSnapshotSync {
   }
 
   /// 모든 페이지를 받는다. 도중에 예산이 떨어지면 null.
+  bool _observationPagesComplete = false;
+
   Future<List<Map<String, dynamic>>?> _allPages(
     Future<DataGoKrPage> Function(int page) fetch,
   ) async {
     final items = <Map<String, dynamic>>[];
+    _observationPagesComplete = false;
     for (var page = 1; ; page++) {
       if (!_hasAllowance) return null;
       final result = await fetch(page);
       await Future<void>.delayed(callInterval);
       items.addAll(result.items);
-      if (result.items.isEmpty || result.isLast) return items;
+      if (result.items.isEmpty || result.isLast) {
+        _observationPagesComplete =
+            result.isLast && items.length == result.totalCount;
+        return items;
+      }
     }
   }
 
@@ -389,6 +397,27 @@ class MarketSnapshotSync {
     Map<String, Security> securities,
   ) async {
     final ymd = DartValues.formatYmd(date);
+    final previous = await MarketSnapshotDay.db.findFirstRow(
+      session,
+      where: (t) => (t.rowCount > 0) & (t.baseDate < date),
+      orderBy: (t) => t.baseDate.desc(),
+    );
+    DateTime? latestKnownDate;
+    for (final security in securities.values) {
+      if (latestKnownDate == null ||
+          security.lastSeenDate.isAfter(latestKnownDate)) {
+        latestKnownDate = security.lastSeenDate;
+      }
+    }
+    final recordObservation =
+        _observationPagesComplete &&
+        canRecordObservation(
+          date: date,
+          previousDate: previous?.baseDate,
+          latestKnownDate: latestKnownDate,
+          previousCount: previous?.rowCount ?? 0,
+          currentCount: items.length,
+        );
     await session.db.transaction((tx) async {
       final source = await Source.db.insertRow(
         session,
@@ -421,6 +450,8 @@ class MarketSnapshotSync {
             name: name,
             market: market,
             lastSeenDate: date,
+            firstObservedDate: recordObservation ? date : null,
+            firstObservedSourceId: recordObservation ? source.id : null,
             sourceId: source.id,
           );
         } else if (date.isAfter(current.lastSeenDate)) {

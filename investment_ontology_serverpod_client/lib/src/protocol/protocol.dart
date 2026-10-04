@@ -45,6 +45,8 @@ import 'package:investment_ontology_serverpod_client/src/protocol/ontology/model
     as _ijzi50sx;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/market_cap_point.dart'
     as _i140v7gk;
+import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/new_company_view.dart'
+    as _iodca1gh;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/ownership_snapshot.dart'
     as _iz9gjubn;
 import 'package:investment_ontology_serverpod_client/src/protocol/ontology/models/person_hit.dart'
@@ -151,6 +153,7 @@ import 'ontology/models/market_index_day.dart' as _ihawso0m;
 import 'ontology/models/market_index_snapshot.dart' as _i9c8jqc3;
 import 'ontology/models/market_snapshot.dart' as _ibhowe7d;
 import 'ontology/models/market_snapshot_day.dart' as _i3renazk;
+import 'ontology/models/new_company_view.dart' as _ivtwhw6z;
 import 'ontology/models/ontology_relation.dart' as _iejnlir1;
 import 'ontology/models/overview.dart' as _iz31wbgv;
 import 'ontology/models/ownership_snapshot.dart' as _ilc2cd4p;
@@ -290,6 +293,7 @@ export 'ontology/models/market_index_day.dart';
 export 'ontology/models/market_index_snapshot.dart';
 export 'ontology/models/market_snapshot.dart';
 export 'ontology/models/market_snapshot_day.dart';
+export 'ontology/models/new_company_view.dart';
 export 'ontology/models/ontology_relation.dart';
 export 'ontology/models/overview.dart';
 export 'ontology/models/ownership_snapshot.dart';
@@ -646,6 +650,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _i3renazk.MarketSnapshotDay) {
       return _i3renazk.MarketSnapshotDay.fromJson(data) as T;
+    }
+    if (t == _ivtwhw6z.NewCompanyView) {
+      return _ivtwhw6z.NewCompanyView.fromJson(data) as T;
     }
     if (t == _iejnlir1.OntologyRelation) {
       return _iejnlir1.OntologyRelation.fromJson(data) as T;
@@ -1151,6 +1158,10 @@ class Protocol extends _isc.SerializationManager {
       return (data != null ? _i3renazk.MarketSnapshotDay.fromJson(data) : null)
           as T;
     }
+    if (t == _isc.getType<_ivtwhw6z.NewCompanyView?>()) {
+      return (data != null ? _ivtwhw6z.NewCompanyView.fromJson(data) : null)
+          as T;
+    }
     if (t == _isc.getType<_iejnlir1.OntologyRelation?>()) {
       return (data != null ? _iejnlir1.OntologyRelation.fromJson(data) : null)
           as T;
@@ -1365,6 +1376,20 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_icm1zoh2.Source>) {
+      return (data as List)
+              .map((e) => deserialize<_icm1zoh2.Source>(e))
+              .toList()
+          as T;
+    }
+    if (t == _isc.getType<List<_icm1zoh2.Source>?>()) {
+      return (data != null
+              ? (data as List)
+                    .map((e) => deserialize<_icm1zoh2.Source>(e))
+                    .toList()
+              : null)
+          as T;
+    }
     if (t == List<_itljah4k.ShareholderEntry>) {
       return (data as List)
               .map((e) => deserialize<_itljah4k.ShareholderEntry>(e))
@@ -1398,12 +1423,6 @@ class Protocol extends _isc.SerializationManager {
     if (t == List<_i9gy9ys0.Person>) {
       return (data as List)
               .map((e) => deserialize<_i9gy9ys0.Person>(e))
-              .toList()
-          as T;
-    }
-    if (t == List<_icm1zoh2.Source>) {
-      return (data as List)
-              .map((e) => deserialize<_icm1zoh2.Source>(e))
               .toList()
           as T;
     }
@@ -1701,6 +1720,12 @@ class Protocol extends _isc.SerializationManager {
               .toList()
           as T;
     }
+    if (t == List<_iodca1gh.NewCompanyView>) {
+      return (data as List)
+              .map((e) => deserialize<_iodca1gh.NewCompanyView>(e))
+              .toList()
+          as T;
+    }
     if (t == List<_idnoq35n.CompanyMarketCap>) {
       return (data as List)
               .map((e) => deserialize<_idnoq35n.CompanyMarketCap>(e))
@@ -1854,6 +1879,7 @@ class Protocol extends _isc.SerializationManager {
       _i9c8jqc3.MarketIndexSnapshot => 'MarketIndexSnapshot',
       _ibhowe7d.MarketSnapshot => 'MarketSnapshot',
       _i3renazk.MarketSnapshotDay => 'MarketSnapshotDay',
+      _ivtwhw6z.NewCompanyView => 'NewCompanyView',
       _iejnlir1.OntologyRelation => 'OntologyRelation',
       _iz31wbgv.Overview => 'Overview',
       _ilc2cd4p.OwnershipSnapshot => 'OwnershipSnapshot',
@@ -2101,6 +2127,8 @@ class Protocol extends _isc.SerializationManager {
         return 'MarketSnapshot';
       case _i3renazk.MarketSnapshotDay():
         return 'MarketSnapshotDay';
+      case _ivtwhw6z.NewCompanyView():
+        return 'NewCompanyView';
       case _iejnlir1.OntologyRelation():
         return 'OntologyRelation';
       case _iz31wbgv.Overview():
@@ -2491,6 +2519,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'MarketSnapshotDay') {
       return deserialize<_i3renazk.MarketSnapshotDay>(data['data']);
+    }
+    if (dataClassName == 'NewCompanyView') {
+      return deserialize<_ivtwhw6z.NewCompanyView>(data['data']);
     }
     if (dataClassName == 'OntologyRelation') {
       return deserialize<_iejnlir1.OntologyRelation>(data['data']);

@@ -1999,6 +1999,16 @@ class Endpoints extends _is.EndpointDispatch {
       name: 'market',
       endpoint: endpoints['market']!,
       methodConnectors: {
+        'newCompanies': _is.MethodConnector(
+          name: 'newCompanies',
+          params: {},
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['market'] as _iaw7fzks.MarketEndpoint)
+                  .newCompanies(session),
+        ),
         'companyCapHistory': _is.MethodConnector(
           name: 'companyCapHistory',
           params: {

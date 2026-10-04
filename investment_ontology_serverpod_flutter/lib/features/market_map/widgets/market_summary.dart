@@ -13,10 +13,12 @@ class MarketSummary extends StatelessWidget {
     required this.selected,
     required this.onSelect,
     this.failed = false,
+    this.showHeading = true,
   });
 
   final Overview? overview;
   final bool failed;
+  final bool showHeading;
   final Market? selected;
   final ValueChanged<Market?> onSelect;
 
@@ -28,15 +30,16 @@ class MarketSummary extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        PageHeading(
-          title: '시장',
-          subtitle: overview == null
-              ? failed
-                    ? '시장 요약을 불러오지 못했어요'
-                    : '시장 요약 불러오는 중…'
-              : '국내 상장 ${formatCount(overview!.totalListed)}개사',
-        ),
-        const SizedBox(height: AppSpace.md),
+        if (showHeading)
+          PageHeading(
+            title: '시장',
+            subtitle: overview == null
+                ? failed
+                      ? '시장 요약을 불러오지 못했어요'
+                      : '시장 요약 불러오는 중…'
+                : '국내 상장 ${formatCount(overview!.totalListed)}개사',
+          ),
+        if (showHeading) const SizedBox(height: AppSpace.md),
         Wrap(
           spacing: AppSpace.sm,
           runSpacing: AppSpace.sm,

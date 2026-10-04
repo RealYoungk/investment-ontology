@@ -490,7 +490,10 @@ class _HomeDashboardState extends State<HomeDashboard> {
                   () => context.go('/watchlist'),
                 ),
             ]),
-            if (store.owner == null) ...[
+            if (store.owner == null ||
+                (!store.loading &&
+                    store.error == null &&
+                    companies.isEmpty)) ...[
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: AppSpace.xl),
                 child: Column(
@@ -502,11 +505,18 @@ class _HomeDashboardState extends State<HomeDashboard> {
                     ),
                     const SizedBox(height: AppSpace.md),
                     Text(
-                      '내가 지켜보는 기업을 한곳에',
+                      store.owner == null
+                          ? '내가 지켜보는 기업을 한곳에'
+                          : '첫 관심기업을 추가해 보세요',
+                      textAlign: TextAlign.center,
                       style: context.typo.body(16, weight: FontWeight.w600),
                     ),
                     const SizedBox(height: AppSpace.sm),
-                    note('로그인하면 관심기업과 새 공시를 볼 수 있습니다.'),
+                    note(
+                      store.owner == null
+                          ? '로그인하면 관심기업과 새 공시를 볼 수 있습니다.'
+                          : '관심기업을 담으면 새 공시를 한곳에서 볼 수 있습니다.',
+                    ),
                     const SizedBox(height: AppSpace.lg),
                     ShadButton(
                       onPressed: () => context.go('/watchlist'),
@@ -515,7 +525,9 @@ class _HomeDashboardState extends State<HomeDashboard> {
                         horizontal: AppSpace.lg,
                       ),
                       trailing: const Icon(LucideIcons.arrowRight, size: 18),
-                      child: const Text('관심기업 시작하기'),
+                      child: Text(
+                        store.owner == null ? '관심기업 시작하기' : '관심기업 추가하기',
+                      ),
                     ),
                   ],
                 ),
@@ -529,7 +541,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
                 child: const Text('다시 확인'),
               ),
             ] else if (companies.isEmpty)
-              note('관심기업을 담으면 새 공시를 함께 볼 수 있습니다.')
+              note('관심기업 불러오는 중…')
             else
               for (final company in companies.take(5))
                 Padding(

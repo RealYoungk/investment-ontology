@@ -452,7 +452,7 @@ class _Account extends StatelessWidget {
           child: ExcludeSemantics(
             child: ShadIconButton.ghost(
               icon: Icon(
-                LucideIcons.circleUserRound,
+                LucideIcons.userRound,
                 color: context.colors.textSecondary,
                 size: 24,
               ),
