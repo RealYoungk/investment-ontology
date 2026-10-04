@@ -80,39 +80,10 @@ class _IndexTrendState extends State<IndexTrend> {
       children: [
         SectionLabel(
           '지수 추이',
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final r in IndexTrend.ranges)
-                Padding(
-                  padding: const EdgeInsets.only(left: 6),
-                  child: HoverBuilder(
-                    onTap: () => _pick(r.days),
-                    builder: (context, hovered) => Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: r.days == _days
-                            ? c.accentSubtle
-                            : (hovered ? c.surfaceHover : null),
-                        borderRadius: context.shape.borderRadius,
-                      ),
-                      child: Text(
-                        r.label,
-                        style: t.body(
-                          12,
-                          color: r.days == _days ? c.accent : c.textSecondary,
-                          weight: r.days == _days
-                              ? FontWeight.w600
-                              : FontWeight.w400,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-            ],
+          trailing: AppToggleGroup<int>(
+            value: _days,
+            onChanged: _pick,
+            options: {for (final r in IndexTrend.ranges) r.days: r.label},
           ),
         ),
         const SizedBox(height: AppSpace.sm),
@@ -191,36 +162,47 @@ class _IndexCard extends StatelessWidget {
         const SizedBox(height: AppSpace.md),
         Text('이전 시점 대비', style: t.body(11, color: c.textSecondary)),
         const SizedBox(height: AppSpace.xs),
-        Row(
-          children: [
-            for (final item in comparisons)
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(item.label, style: t.body(12, color: c.textSecondary)),
-                    const SizedBox(height: AppSpace.xs),
-                    Text(
-                      item.value == null
-                          ? '자료 부족'
-                          : '${item.value! > 0 ? '+' : ''}${item.value!.toStringAsFixed(2)}%',
-                      style: t.numeric(
-                        13,
-                        color: c.marketChange(item.value),
-                        weight: FontWeight.w600,
+        LayoutBuilder(
+          builder: (context, box) => Wrap(
+            spacing: AppSpace.sm,
+            runSpacing: AppSpace.md,
+            children: [
+              for (final item in comparisons)
+                SizedBox(
+                  width:
+                      (box.maxWidth -
+                          AppSpace.sm * (box.maxWidth < 400 ? 1 : 3)) /
+                      (box.maxWidth < 400 ? 2 : 4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.label,
+                        style: t.body(12, color: c.textSecondary),
                       ),
-                    ),
-                    const SizedBox(height: AppSpace.xs),
-                    Text(
-                      item.base == null
-                          ? '비교 종가 없음'
-                          : '${last.value - item.base!.value > 0 ? '+' : ''}${formatDecimal(last.value - item.base!.value)}pt',
-                      style: t.numeric(12, color: c.textSecondary),
-                    ),
-                  ],
+                      const SizedBox(height: AppSpace.xs),
+                      Text(
+                        item.value == null
+                            ? '자료 부족'
+                            : '${item.value! > 0 ? '+' : ''}${item.value!.toStringAsFixed(2)}%',
+                        style: t.numeric(
+                          13,
+                          color: c.marketChange(item.value),
+                          weight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpace.xs),
+                      Text(
+                        item.base == null
+                            ? '비교 종가 없음'
+                            : '${last.value - item.base!.value > 0 ? '+' : ''}${formatDecimal(last.value - item.base!.value)}pt',
+                        style: t.numeric(12, color: c.textSecondary),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
         const SizedBox(height: AppSpace.md),
         AppLineChart(
