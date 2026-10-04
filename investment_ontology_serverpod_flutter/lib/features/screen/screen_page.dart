@@ -149,6 +149,27 @@ class _ScreenerPageState extends State<ScreenerPage> {
     }
   }
 
+  static const _sortLabels = <ScreenSort, String>{
+    ScreenSort.marketCap: '시가총액',
+    ScreenSort.per: 'PER',
+    ScreenSort.pbr: 'PBR',
+    ScreenSort.roe: 'ROE',
+    ScreenSort.operatingMargin: '영업이익률',
+    ScreenSort.revenueGrowth: '매출 성장률',
+    ScreenSort.operatingIncomeGrowth: '영업이익 성장률',
+    ScreenSort.debtRatio: '부채비율',
+    ScreenSort.dividendYield: '배당수익률',
+    ScreenSort.fcfYield: 'FCF 수익률',
+    ScreenSort.return3m: '3개월 주가',
+    ScreenSort.return12m: '12개월 주가',
+    ScreenSort.bandPosition: '52주 최저에 가까운',
+    ScreenSort.avgTradingValue: '거래대금',
+    ScreenSort.dividendPayout: '배당성향',
+    ScreenSort.dividendYears: '확인된 연속 배당',
+    ScreenSort.volume: '거래량',
+    ScreenSort.volumeRatio: '평소 대비 거래량',
+  };
+
   static const _conditionLabels = <String, (String, String)>{
     'per': ('PER', '배 이하'),
     'pbr': ('PBR', '배 이하'),
@@ -253,7 +274,9 @@ class _ScreenerPageState extends State<ScreenerPage> {
                   ),
                   variant: ShadButtonVariant.link,
                   leading: Icon(
-                    _editingConditions ? Icons.expand_less : Icons.tune,
+                    _editingConditions
+                        ? LucideIcons.chevronUp
+                        : LucideIcons.slidersHorizontal,
                     size: 16,
                   ),
                   child: Flexible(
@@ -273,7 +296,7 @@ class _ScreenerPageState extends State<ScreenerPage> {
                       tooltip: preset.description,
                       child: const Padding(
                         padding: EdgeInsets.all(12),
-                        child: Icon(Icons.info_outline, size: 20),
+                        child: Icon(LucideIcons.info, size: 20),
                       ),
                     ),
                   ),
@@ -285,7 +308,7 @@ class _ScreenerPageState extends State<ScreenerPage> {
                     tooltip: '찾기 예시는 미리 정해 둔 조건이에요. 선택하면 기존 숫자 조건을 바꿔요. 원하는 값으로 수정할 수 있어요. 최신 자료의 연결재무제표를 먼저 사용하고, 자료가 부족하면 가능한 경우 별도재무제표로 보완해요. 조건에 필요한 숫자가 없는 기업은 결과에서 빠져요. 지배주주 값이 없으면 전체 값을 써요. 금융업은 회계 구조가 달라 다른 업종과 단순 비교하기 어려워요.',
                     child: Padding(
                       padding: EdgeInsets.all(12),
-                      child: Icon(Icons.help_outline, size: 20),
+                      child: Icon(LucideIcons.circleHelp, size: 20),
                     ),
                   ),
                 ),
@@ -335,7 +358,7 @@ class _ScreenerPageState extends State<ScreenerPage> {
                                     setState(() => _inputRevision++);
                                     _apply(ScreenFilter.fromQuery(query));
                                   },
-                                  icon: const Icon(Icons.close, size: 14),
+                                  icon: const Icon(LucideIcons.x, size: 14),
                                 ),
                               ),
                             ),
@@ -364,7 +387,7 @@ class _ScreenerPageState extends State<ScreenerPage> {
                         },
                         variant: ShadButtonVariant.link,
                         foregroundColor: c.accent,
-                        leading: Icon(Icons.close, size: 16),
+                        leading: Icon(LucideIcons.x, size: 16),
                         child: Flexible(child: Text('조건 지우기')),
                       )
                     : null,
@@ -606,63 +629,85 @@ class _ScreenerPageState extends State<ScreenerPage> {
                 alignment: WrapAlignment.spaceBetween,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  AppToggleGroup<Market?>(
-                    label: '시장',
-                    value: _f.market,
-                    options: const {
-                      null: '전체',
-                      Market.kospi: 'KOSPI',
-                      Market.kosdaq: 'KOSDAQ',
-                    },
-                    onChanged: (m) => _apply(_f.copyWith(market: () => m)),
+                  Wrap(
+                    spacing: AppSpace.sm,
+                    runSpacing: AppSpace.sm,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      const Text('시장'),
+                      for (final entry in const <Market?, String>{
+                        null: '전체',
+                        Market.kospi: 'KOSPI',
+                        Market.kosdaq: 'KOSDAQ',
+                      }.entries)
+                        IntrinsicWidth(
+                          child: ShadToggle(
+                            value: _f.market == entry.key,
+                            onChanged: (selected) {
+                              if (selected) {
+                                _apply(_f.copyWith(market: () => entry.key));
+                              }
+                            },
+                            child: Text(entry.value),
+                          ),
+                        ),
+                    ],
                   ),
                   Wrap(
                     spacing: AppSpace.sm,
                     runSpacing: AppSpace.sm,
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      AppSelect<ScreenSort>(
-                        label: '정렬',
-                        placeholder: '시가총액',
-                        allLabel: '시가총액',
-                        value: _f.sort == ScreenSort.marketCap ? null : _f.sort,
-                        options: const {
-                          ScreenSort.per: 'PER',
-                          ScreenSort.pbr: 'PBR',
-                          ScreenSort.roe: 'ROE',
-                          ScreenSort.operatingMargin: '영업이익률',
-                          ScreenSort.revenueGrowth: '매출 성장률',
-                          ScreenSort.operatingIncomeGrowth: '영업이익 성장률',
-                          ScreenSort.debtRatio: '부채비율',
-                          ScreenSort.dividendYield: '배당수익률',
-                          ScreenSort.fcfYield: 'FCF 수익률',
-                          ScreenSort.return3m: '3개월 주가',
-                          ScreenSort.return12m: '12개월 주가',
-                          ScreenSort.bandPosition: '52주 최저에 가까운',
-                          ScreenSort.avgTradingValue: '거래대금',
-                          ScreenSort.dividendPayout: '배당성향',
-                          ScreenSort.dividendYears: '확인된 연속 배당',
-                          ScreenSort.volume: '거래량',
-                          ScreenSort.volumeRatio: '평소 대비 거래량',
-                        },
+                      ShadSelect<ScreenSort>(
+                        initialValue: _f.sort,
+                        minWidth: 160,
+                        maxWidth: 260,
+                        maxHeight: 420,
+                        selectedOptionBuilder: (_, value) =>
+                            Text(_sortLabels[value]!),
+                        options: [
+                          for (final entry in _sortLabels.entries)
+                            ShadOption(
+                              value: entry.key,
+                              child: Text(entry.value),
+                            ),
+                        ],
                         onChanged: (s) {
-                          final sort = s ?? ScreenSort.marketCap;
+                          if (s == null) return;
                           _apply(
                             _f.copyWith(
-                              sort: sort,
+                              sort: s,
                               ascending:
-                                  sort == ScreenSort.per ||
-                                  sort == ScreenSort.pbr ||
-                                  sort == ScreenSort.dividendPayout,
+                                  s == ScreenSort.per ||
+                                  s == ScreenSort.pbr ||
+                                  s == ScreenSort.dividendPayout,
                             ),
                           );
                         },
                       ),
                       const SizedBox(width: AppSpace.sm),
-                      AppToggleGroup<bool>(
-                        value: _f.ascending,
-                        options: const {false: '큰 순', true: '작은 순'},
-                        onChanged: (v) => _apply(_f.copyWith(ascending: v)),
+                      Wrap(
+                        spacing: AppSpace.sm,
+                        runSpacing: AppSpace.sm,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          const Text('정렬 방향'),
+                          for (final entry in const <bool, String>{
+                            false: '큰 순',
+                            true: '작은 순',
+                          }.entries)
+                            IntrinsicWidth(
+                              child: ShadToggle(
+                                value: _f.ascending == entry.key,
+                                onChanged: (selected) {
+                                  if (selected) {
+                                    _apply(_f.copyWith(ascending: entry.key));
+                                  }
+                                },
+                                child: Text(entry.value),
+                              ),
+                            ),
+                        ],
                       ),
                     ],
                   ),
@@ -680,43 +725,18 @@ class _ScreenerPageState extends State<ScreenerPage> {
                 if (page != null) _ResultTable(page: page, filter: _f),
                 if (page != null && page.total > _pageSize) ...[
                   const SizedBox(height: AppSpace.md),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ShadButton.raw(
-                        onPressed: _loading || _offset == 0
-                            ? null
-                            : () => _load(offset: _offset - _pageSize),
-                        enabled:
-                            (_loading || _offset == 0
-                                ? null
-                                : () => _load(offset: _offset - _pageSize)) !=
-                            null,
-                        variant: ShadButtonVariant.outline,
-                        child: Flexible(child: Text('이전 10개')),
-                      ),
-                      const SizedBox(width: AppSpace.md),
-                      Text(
-                        '${_offset ~/ _pageSize + 1} / ${(page.total / _pageSize).ceil()}',
-                        style: t.body(13),
-                      ),
-                      const SizedBox(width: AppSpace.md),
-                      ShadButton.raw(
-                        onPressed:
-                            _loading ||
-                                _offset + page.items.length >= page.total
-                            ? null
-                            : () => _load(offset: _offset + _pageSize),
-                        enabled:
-                            (_loading ||
-                                    _offset + page.items.length >= page.total
-                                ? null
-                                : () => _load(offset: _offset + _pageSize)) !=
-                            null,
-                        variant: ShadButtonVariant.outline,
-                        child: Flexible(child: Text('다음 10개')),
-                      ),
-                    ],
+                  LayoutBuilder(
+                    builder: (context, box) => ShadPagination(
+                      page: _offset ~/ _pageSize + 1,
+                      pageCount: (page.total / _pageSize).ceil(),
+                      enabled: !_loading,
+                      previousLabel: const Text('이전'),
+                      nextLabel: const Text('다음'),
+                      siblingCount: box.maxWidth < 600 ? 0 : 1,
+                      boundaryCount: box.maxWidth < 600 ? 0 : 1,
+                      onPageChanged: (value) =>
+                          _load(offset: (value - 1) * _pageSize),
+                    ),
                   ),
                 ],
               ],
@@ -786,9 +806,9 @@ class _ResultTable extends StatelessWidget {
     final c = context.colors;
     final t = context.typo;
     if (page.items.isEmpty) {
-      return Text(
-        '이 조건에 맞는 기업이 아직 없어요. 조건을 줄이거나 숫자 범위를 넓혀보세요.',
-        style: t.body(13, color: c.textMuted),
+      return const ShadEmpty(
+        title: Text('조건에 맞는 기업이 없어요'),
+        description: Text('조건을 줄이거나 숫자 범위를 넓혀보세요.'),
       );
     }
     String? fixed(double? v, int digits) => v?.toStringAsFixed(digits);
@@ -879,57 +899,76 @@ class _ResultTable extends StatelessWidget {
           for (final col in columns)
             if (keep.contains(col.$1)) col,
         ];
-        return AppDataTable(
-          columns: [
-            for (final col in shown)
-              col.$1 == '기업'
-                  ? AppColumn(
-                      col.$1,
-                      width: narrow ? nameWidth : null,
-                      flex: true,
-                    )
-                  : AppColumn(col.$1, numeric: true),
-          ],
-          rows: [
-            for (final r in page.items)
-              AppRow([
-                for (final col in shown)
-                  if (col.$1 == '기업')
-                    HoverBuilder(
-                      onTap: () =>
-                          context.push(AppRoutes.company(r.company.corpCode)),
-                      builder: (context, hovered) => Text(
-                        '${r.company.name}${r.fsDiv == FsDiv.separate ? ' · 별도' : ''}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: t
-                            .body(
+        // Numeric rows are single-line; source explanations remain in tooltips.
+        // The outer page owns vertical scrolling, the table only scrolls horizontally.
+        const metricWidth = _columnWidth;
+        final companyWidth = narrow
+            ? nameWidth
+            : (box.maxWidth - (shown.length - 1) * metricWidth).clamp(
+                _nameWidth,
+                double.infinity,
+              );
+        return SizedBox(
+          height: 56 + page.items.length * 56.0,
+          child: ShadTable(
+            primary: false,
+            pinnedColumnCount: 1,
+            verticalScrollPhysics: const NeverScrollableScrollPhysics(),
+            columnCount: shown.length,
+            rowCount: page.items.length,
+            columnSpanExtent: (column) => FixedTableSpanExtent(
+              column == 0 ? companyWidth : metricWidth,
+            ),
+            rowSpanExtent: (_) => const FixedTableSpanExtent(56),
+            header: (context, column) => ShadTableCell.header(
+              alignment: column == 0
+                  ? Alignment.centerLeft
+                  : Alignment.centerRight,
+              child: Text(shown[column].$1, style: t.label()),
+            ),
+            builder: (context, vicinity) {
+              final row = page.items[vicinity.row];
+              final col = shown[vicinity.column];
+              final note = screenMetricNote(row, col.$1);
+              return ShadTableCell(
+                height: 56,
+                alignment: vicinity.column == 0
+                    ? Alignment.centerLeft
+                    : Alignment.centerRight,
+                child: vicinity.column == 0
+                    ? ShadButton.link(
+                        width: double.infinity,
+                        padding: EdgeInsets.zero,
+                        onPressed: () => context.push(
+                          AppRoutes.company(row.company.corpCode),
+                        ),
+                        child: Expanded(
+                          child: Text(
+                            col.$2(row) ?? '—',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: t.body(
                               13.5,
                               color: c.accent,
                               weight: FontWeight.w600,
-                            )
-                            .copyWith(
-                              decoration: hovered
-                                  ? TextDecoration.underline
-                                  : null,
-                              decorationColor: c.accent,
                             ),
-                      ),
-                    )
-                  else
-                    ShadTooltip(
-                      builder: (_) => Text(screenMetricNote(r, col.$1) ?? ''),
-                      child: Semantics(
-                        tooltip: screenMetricNote(r, col.$1) ?? '',
-                        child: AppDataTable.text(
-                          context,
-                          col.$2(r),
-                          numeric: true,
+                          ),
+                        ),
+                      )
+                    : ShadTooltip(
+                        builder: (_) => Text(note ?? ''),
+                        child: Semantics(
+                          tooltip: note ?? '',
+                          child: Text(
+                            col.$2(row) ?? '—',
+                            style: t.numeric(13),
+                            textAlign: TextAlign.right,
+                          ),
                         ),
                       ),
-                    ),
-              ]),
-          ],
+              );
+            },
+          ),
         );
       },
     );
@@ -1081,7 +1120,7 @@ class _NumberFieldState extends State<_NumberField> {
                 builder: (_) => Text(widget.help!),
                 child: Semantics(
                   tooltip: widget.help!,
-                  child: Icon(Icons.info_outline, size: 15, color: c.textMuted),
+                  child: Icon(LucideIcons.info, size: 15, color: c.textMuted),
                 ),
               ),
         controller: _controller,

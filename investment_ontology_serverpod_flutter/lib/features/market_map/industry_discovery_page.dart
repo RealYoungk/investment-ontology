@@ -306,7 +306,7 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
             ShadButton.raw(
               onPressed: () => context.go('/industries'),
               variant: ShadButtonVariant.outline,
-              leading: Icon(Icons.swap_horiz_rounded, size: 16),
+              leading: Icon(LucideIcons.arrowLeftRight, size: 16),
               child: Flexible(child: Text('분야 바꾸기')),
             ),
           ],
@@ -868,7 +868,7 @@ class _IndustryDiscoveryPageState extends State<IndustryDiscoveryPage> {
                     width: 20,
                     height: 20,
                     padding: EdgeInsets.zero,
-                    icon: const Icon(Icons.close, size: 16),
+                    icon: const Icon(LucideIcons.x, size: 16),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ),
