@@ -18,8 +18,12 @@ class CompanyTable extends StatelessWidget {
     required this.pageSize,
     required this.onSelect,
     required this.onPage,
+    this.sort,
+    this.onSort,
   });
 
+  final CompanySort? sort;
+  final ValueChanged<CompanySort>? onSort;
   final CompanyPage? page;
   final bool loading;
 
@@ -33,273 +37,234 @@ class CompanyTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.colors;
     final p = page;
+    final rowHeight = compact ? 72.0 : 64.0;
+    final headers = compact
+        ? ['회사명', '시가총액']
+        : ['NO', '종목', '회사명', '시장', '시가총액', '업종 (KSIC)', '대표자', '결산', '설립일'];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Container(height: 1, color: c.border),
-        _HeaderRow(compact: compact),
-        Container(height: 1, color: c.border),
-        SizedBox(
-          height: 2,
-          child: loading ? const ShadProgress() : null,
-        ),
-        if (p == null)
-          const SizedBox(height: 240)
-        else if (p.items.isEmpty)
-          const _EmptyState()
-        else
-          AnimatedOpacity(
-            duration: AppMotion.fast,
-            opacity: loading ? 0.55 : 1,
-            child: Column(
-              children: [
-                for (final (i, item) in p.items.indexed)
-                  _CompanyRow(
-                    item: item,
-                    index: offset + i + 1,
-                    compact: compact,
-                    selected: selected == item.corpCode,
-                    onTap: () => onSelect(item.corpCode),
-                  ),
-              ],
+        if (compact && onSort != null) ...[
+          Align(
+            alignment: Alignment.centerRight,
+            child: AppSelect<CompanySort>(
+              label: '정렬',
+              placeholder: '시가총액순',
+              allowClear: false,
+              value: sort,
+              options: const {
+                CompanySort.marketCap: '시가총액순',
+                CompanySort.name: '가나다순',
+                CompanySort.stockCode: '종목코드순',
+                CompanySort.establishedDate: '설립 오래된 순',
+              },
+              onChanged: (value) {
+                if (value != null) onSort!(value);
+              },
             ),
           ),
-        Container(height: 1, color: c.border),
+          const SizedBox(height: AppSpace.sm),
+        ],
+        if (loading) const ShadProgress(),
+        if (p == null)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 72),
+            child: Center(child: Text('기업 목록 불러오는 중…')),
+          )
+        else if (p.items.isEmpty)
+          const ShadEmpty(
+            title: Text('해당하는 기업이 없습니다'),
+            description: Text('검색어를 바꾸거나 시장·업종 필터를 초기화해 보세요.'),
+          )
+        else
+          LayoutBuilder(
+            builder: (context, box) {
+              // All rows fit the outer page: the table never owns vertical wheel scrolling.
+              const fixedWidths = [48.0, 88.0, 88.0, 160.0, 140.0, 64.0, 112.0];
+              final flexibleWidth =
+                  (box.maxWidth -
+                      fixedWidths.fold<double>(
+                        0,
+                        (sum, width) => sum + width,
+                      )) /
+                  2;
+              final widths = compact
+                  ? [box.maxWidth - 144, 144.0]
+                  : [
+                      48.0,
+                      88.0,
+                      flexibleWidth,
+                      88.0,
+                      160.0,
+                      flexibleWidth,
+                      140.0,
+                      64.0,
+                      112.0,
+                    ];
+              return SizedBox(
+                height: 48 + p.items.length * rowHeight,
+                child: ShadTable(
+                  primary: false,
+                  verticalScrollPhysics: const NeverScrollableScrollPhysics(),
+                  horizontalScrollPhysics: const NeverScrollableScrollPhysics(),
+                  columnCount: headers.length,
+                  rowCount: p.items.length,
+                  columnSpanExtent: (column) =>
+                      FixedTableSpanExtent(widths[column]),
+                  rowSpanExtent: (row) =>
+                      FixedTableSpanExtent(row == 0 ? 48 : rowHeight),
+                  header: (context, column) {
+                    final columnSort = compact
+                        ? (column == 0
+                              ? CompanySort.name
+                              : CompanySort.marketCap)
+                        : switch (column) {
+                            1 => CompanySort.stockCode,
+                            2 => CompanySort.name,
+                            4 => CompanySort.marketCap,
+                            8 => CompanySort.establishedDate,
+                            _ => null,
+                          };
+                    final active = columnSort != null && columnSort == sort;
+                    return ShadTableCell.header(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpace.sm,
+                      ),
+                      alignment: column == (compact ? 1 : 4)
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
+                      child: columnSort != null && onSort != null
+                          ? ShadTooltip(
+                              builder: (_) =>
+                                  Text('${headers[column]} 기준으로 정렬'),
+                              child: ShadButton.ghost(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                ),
+                                onPressed: () => onSort!(columnSort),
+                                trailing: Icon(
+                                  active
+                                      ? (columnSort == CompanySort.marketCap
+                                            ? LucideIcons.arrowDown
+                                            : LucideIcons.arrowUp)
+                                      : LucideIcons.arrowUpDown,
+                                  size: 14,
+                                  color: active
+                                      ? context.colors.accent
+                                      : context.colors.textSecondary,
+                                ),
+                                child: Text(
+                                  headers[column],
+                                  style: active
+                                      ? context.typo.body(
+                                          13,
+                                          weight: FontWeight.w700,
+                                          color: context.colors.accent,
+                                        )
+                                      : null,
+                                ),
+                              ),
+                            )
+                          : Text(headers[column]),
+                    );
+                  },
+                  onRowTap: (row) {
+                    if (row > 0) onSelect(p.items[row - 1].corpCode);
+                  },
+                  builder: (context, vicinity) {
+                    final item = p.items[vicinity.row];
+                    final column = vicinity.column;
+                    final cap = item.marketCap == null
+                        ? '—'
+                        : formatKrw(item.marketCap);
+                    final name = ShadButton.ghost(
+                      height: compact ? 56 : 40,
+                      width: double.infinity,
+                      padding: EdgeInsets.zero,
+                      onPressed: () => onSelect(item.corpCode),
+                      child: Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: context.typo.body(
+                                14,
+                                weight: FontWeight.w600,
+                              ),
+                            ),
+                            if (compact)
+                              Text(
+                                '${item.stockCode ?? '—'} · ${marketLabel(item.market)}',
+                                style: context.typo.numeric(
+                                  11.5,
+                                  color: context.colors.textSecondary,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    );
+                    final values = compact
+                        ? [item.name, cap]
+                        : [
+                            '${offset + vicinity.row + 1}',
+                            item.stockCode ?? '—',
+                            item.name,
+                            marketLabel(item.market),
+                            cap,
+                            '${item.sectionCode == null ? '' : '${item.sectionCode} '}${item.industryName ?? item.industryCode ?? '—'}',
+                            item.ceoName ?? '—',
+                            item.fiscalMonth == null
+                                ? '—'
+                                : '${item.fiscalMonth}월',
+                            formatDate(item.establishedDate),
+                          ];
+                    final numeric = compact
+                        ? column == 1
+                        : [0, 1, 4, 7, 8].contains(column);
+                    return ShadTableCell(
+                      height: rowHeight,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpace.sm,
+                      ),
+                      alignment: column == (compact ? 1 : 4)
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
+                      child: column == (compact ? 0 : 2)
+                          ? name
+                          : !compact && column == 3
+                          ? ShadBadge.outline(child: Text(values[column]))
+                          : Text(
+                              values[column],
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: numeric
+                                  ? context.typo.numeric(13)
+                                  : context.typo.body(
+                                      13,
+                                      color: context.colors.textSecondary,
+                                    ),
+                            ),
+                    );
+                  },
+                ),
+              );
+            },
+          ),
         if (p != null && p.total > 0)
           _Pager(
             total: p.total,
             offset: offset,
             pageSize: pageSize,
             onPage: onPage,
+            loading: loading,
           ),
       ],
-    );
-  }
-}
-
-/// 열 너비. 가변 열(회사명·업종)은 flex.
-abstract final class _Col {
-  static const index = 52.0;
-  static const code = 86.0;
-  static const market = 70.0;
-  static const cap = 120.0;
-  static const ceo = 150.0;
-  static const month = 56.0;
-  static const established = 104.0;
-  static const nameFlex = 5;
-  static const industryFlex = 5;
-}
-
-class _HeaderRow extends StatelessWidget {
-  const _HeaderRow({required this.compact});
-
-  final bool compact;
-
-  @override
-  Widget build(BuildContext context) {
-    final style = context.typo.label(color: context.colors.textPrimary);
-    Widget fixed(String text, double width, {bool end = false}) => SizedBox(
-      width: width,
-      child: Text(
-        text,
-        style: style,
-        textAlign: end ? TextAlign.end : TextAlign.start,
-      ),
-    );
-    Widget flex(String text, int flex) => Expanded(
-      flex: flex,
-      child: Text(text, style: style),
-    );
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        vertical: 10,
-        horizontal: AppSpace.sm,
-      ),
-      child: Row(
-        children: [
-          if (!compact) fixed('NO', _Col.index),
-          if (!compact) fixed('종목', _Col.code),
-          flex('회사명', _Col.nameFlex),
-          if (!compact) fixed('시장', _Col.market),
-          fixed('시가총액', _Col.cap, end: true),
-          if (!compact) ...[
-            const SizedBox(width: AppSpace.lg),
-            flex('업종 (KSIC)', _Col.industryFlex),
-            fixed('대표자', _Col.ceo),
-            fixed('결산', _Col.month, end: true),
-            fixed('설립일', _Col.established, end: true),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _CompanyRow extends StatelessWidget {
-  const _CompanyRow({
-    required this.item,
-    required this.index,
-    required this.compact,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final CompanyListItem item;
-  final int index;
-  final bool compact;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    final t = context.typo;
-    final fg = selected ? c.onInverse : c.textPrimary;
-    final soft = selected ? c.border : c.textSecondary;
-
-    return HoverBuilder(
-      onTap: onTap,
-      builder: (context, hovered) => AnimatedContainer(
-        duration: AppMotion.fast,
-        decoration: BoxDecoration(
-          color: selected
-              ? c.inverse
-              : hovered
-              ? c.surfaceHover
-              : Colors.transparent,
-          border: Border(bottom: BorderSide(color: c.border, width: 0.8)),
-        ),
-        padding: const EdgeInsets.symmetric(
-          vertical: 11,
-          horizontal: AppSpace.sm,
-        ),
-        child: Row(
-          children: [
-            if (!compact)
-              SizedBox(
-                width: _Col.index,
-                child: Text(
-                  '$index',
-                  style: t.numeric(
-                    11.5,
-                    color: selected ? c.border : c.textMuted,
-                  ),
-                ),
-              ),
-            if (!compact)
-              SizedBox(
-                width: _Col.code,
-                child: Text(
-                  item.stockCode ?? '—',
-                  style: t.numeric(13.5, color: fg, weight: FontWeight.w600),
-                ),
-              ),
-            Expanded(
-              flex: _Col.nameFlex,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: t.body(15, color: fg, weight: FontWeight.w600),
-                  ),
-                  // 좁은 화면: 종목코드·시장 열 대신 이름 아래에 적는다.
-                  if (compact)
-                    Text(
-                      '${item.stockCode ?? '—'} · ${marketLabel(item.market)}',
-                      style: t.numeric(11.5, color: fg),
-                    ),
-                ],
-              ),
-            ),
-            if (!compact)
-              SizedBox(
-                width: _Col.market,
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: ShadBadge.raw(
-                    variant: ShadBadgeVariant.outline,
-                    foregroundColor: selected && item.market == Market.kospi
-                        ? c.onInverse
-                        : marketColor(context, item.market),
-                    child: Text(
-                      marketLabel(item.market),
-                      maxLines: 1,
-                      softWrap: false,
-                    ),
-                  ),
-                ),
-              ),
-            SizedBox(
-              width: _Col.cap,
-              child: Text(
-                item.marketCap == null ? '—' : formatKrw(item.marketCap),
-                textAlign: TextAlign.end,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: t.numeric(13, color: fg, weight: FontWeight.w600),
-              ),
-            ),
-            if (!compact) ...[
-              const SizedBox(width: AppSpace.lg),
-              Expanded(
-                flex: _Col.industryFlex,
-                child: Text.rich(
-                  TextSpan(
-                    children: [
-                      if (item.sectionCode != null)
-                        TextSpan(
-                          text: '${item.sectionCode} ',
-                          style: t.numeric(
-                            11.5,
-                            color: selected ? c.accentSubtle : c.accent,
-                            weight: FontWeight.w700,
-                          ),
-                        ),
-                      TextSpan(
-                        text: item.industryName ?? item.industryCode ?? '—',
-                        style: t.body(13.5, color: soft),
-                      ),
-                    ],
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              SizedBox(
-                width: _Col.ceo,
-                child: Text(
-                  item.ceoName ?? '—',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: t.body(13.5, color: soft),
-                ),
-              ),
-              SizedBox(
-                width: _Col.month,
-                child: Text(
-                  item.fiscalMonth == null ? '—' : '${item.fiscalMonth}월',
-                  textAlign: TextAlign.end,
-                  style: t.body(13, color: soft),
-                ),
-              ),
-              SizedBox(
-                width: _Col.established,
-                child: Text(
-                  formatDate(item.establishedDate),
-                  textAlign: TextAlign.end,
-                  style: t.numeric(12.5, color: soft),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
     );
   }
 }
@@ -310,8 +275,10 @@ class _Pager extends StatelessWidget {
     required this.offset,
     required this.pageSize,
     required this.onPage,
+    required this.loading,
   });
 
+  final bool loading;
   final int total;
   final int offset;
   final int pageSize;
@@ -326,69 +293,26 @@ class _Pager extends StatelessWidget {
     final pages = (total / pageSize).ceil();
     return Padding(
       padding: const EdgeInsets.only(top: 14),
-      child: Row(
+      child: Wrap(
+        spacing: AppSpace.sm,
+        runSpacing: AppSpace.sm,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           Text(
             '${formatCount(from)}–${formatCount(to)} / ${formatCount(total)}개사',
             style: t.numeric(13, color: context.colors.textSecondary),
           ),
-          const Spacer(),
-          ShadTooltip(
-            builder: (_) => Text('이전 페이지'),
-            child: ShadIconButton.outline(
-              onPressed: offset > 0
-                  ? () => onPage((offset - pageSize).clamp(0, total))
-                  : null,
-              enabled:
-                  (offset > 0
-                      ? () => onPage((offset - pageSize).clamp(0, total))
-                      : null) !=
-                  null,
-              icon: Icon(Icons.west, size: 16, semanticLabel: '이전 페이지'),
+          LayoutBuilder(
+            builder: (context, box) => ShadPagination(
+              page: page,
+              pageCount: pages,
+              enabled: !loading,
+              previousLabel: const Text('이전'),
+              nextLabel: const Text('다음'),
+              siblingCount: box.maxWidth < 600 ? 0 : 1,
+              boundaryCount: box.maxWidth < 600 ? 0 : 1,
+              onPageChanged: (value) => onPage((value - 1) * pageSize),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            child: Text('$page / $pages', style: t.numeric(13)),
-          ),
-          ShadTooltip(
-            builder: (_) => Text('다음 페이지'),
-            child: ShadIconButton.outline(
-              onPressed: offset + pageSize < total
-                  ? () => onPage(offset + pageSize)
-                  : null,
-              enabled:
-                  (offset + pageSize < total
-                      ? () => onPage(offset + pageSize)
-                      : null) !=
-                  null,
-              icon: Icon(Icons.east, size: 16, semanticLabel: '다음 페이지'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _EmptyState extends StatelessWidget {
-  const _EmptyState();
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 72),
-      child: Column(
-        children: [
-          Text(
-            '해당하는 기업이 없습니다',
-            style: context.typo.display(22, color: c.textSecondary),
-          ),
-          const SizedBox(height: AppSpace.sm),
-          Text(
-            '아직 수집 전이라면 위의 “DART에서 수집”을 눌러주세요.',
-            style: context.typo.body(13, color: c.textMuted),
           ),
         ],
       ),

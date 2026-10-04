@@ -25,7 +25,7 @@ class CompanyListPage extends StatefulWidget {
 }
 
 class _CompanyListPageState extends State<CompanyListPage> {
-  static const _pageSize = 50;
+  static const _pageSize = 20;
 
   Overview? _overview;
   List<FacetCount> _divisions = const [];
@@ -154,7 +154,6 @@ class _CompanyListPageState extends State<CompanyListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final o = _overview;
     return LayoutBuilder(
       builder: (context, constraints) {
         final compact = constraints.maxWidth < 980;
@@ -168,14 +167,9 @@ class _CompanyListPageState extends State<CompanyListPage> {
             itemCount: _page?.items.length ?? 0,
           ).allowsAd,
           children: [
-            PageHeading(
-              title: '기업',
-              subtitle: o == null
-                  ? '불러오는 중…'
-                  : '국내 상장 ${formatCount(o.totalListed)}개사 · 출처 DART 기업개황',
-            ),
+            const PageHeading(title: '기업'),
             const SizedBox(height: AppSpace.xl),
-            _buildToolbar(context),
+            DataPanel(child: _buildToolbar(context)),
             const SizedBox(height: AppSpace.md),
             if (_error != null) ...[
               ReadFailureNotice(
@@ -187,22 +181,13 @@ class _CompanyListPageState extends State<CompanyListPage> {
               ),
               const SizedBox(height: AppSpace.md),
             ],
-            if (_page != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: AppSpace.sm),
-                child: Text(
-                  '${formatCount(_page!.total)}개사',
-                  style: context.typo.numeric(
-                    12.5,
-                    color: context.colors.textSecondary,
-                  ),
-                ),
-              ),
             CompanyTable(
               page: _page,
               loading: _loading,
               compact: compact,
               selected: null,
+              sort: _filter.sort,
+              onSort: (sort) => _apply(_filter.copyWith(sort: sort)),
               offset: _offset,
               pageSize: _pageSize,
               onSelect: (corpCode) => context.push(AppRoutes.company(corpCode)),
@@ -218,79 +203,99 @@ class _CompanyListPageState extends State<CompanyListPage> {
   Widget _buildToolbar(BuildContext context) {
     final f = _filter;
     final sections = _overview?.bySection ?? const <FacetCount>[];
-    return Wrap(
-      spacing: AppSpace.lg,
-      runSpacing: AppSpace.md,
-      crossAxisAlignment: WrapCrossAlignment.center,
+    Widget group(String label, Widget child) => Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 360),
-          child: ShadInput(
-            placeholder: Text('회사명 · 종목코드 · 대표자'),
-            leading: Icon(
-              Icons.search,
-              color: context.colors.textPrimary,
-              size: 20,
+        Text(
+          label,
+          style: context.typo.label(color: context.colors.textSecondary),
+        ),
+        const SizedBox(height: AppSpace.sm),
+        child,
+      ],
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Wrap(
+          spacing: AppSpace.md,
+          runSpacing: AppSpace.sm,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 360),
+              child: ShadInput(
+                placeholder: const Text('회사명 · 종목코드 · 대표자'),
+                leading: const Icon(LucideIcons.search, size: 20),
+                controller: _searchController,
+                focusNode: _searchFocus,
+                onChanged: _onSearchChanged,
+                style: context.typo.body(15),
+              ),
             ),
-            controller: _searchController,
-            focusNode: _searchFocus,
-            onChanged: _onSearchChanged,
-            style: context.typo.body(15),
-          ),
+            if (f.hasFilter)
+              ShadButton.ghost(
+                onPressed: _clearFilters,
+                leading: const Icon(LucideIcons.x, size: 16),
+                child: const Text('필터 초기화'),
+              ),
+          ],
         ),
-        AppToggleGroup<Market?>(
-          label: '시장',
-          value: f.market,
-          options: const {
-            null: '전체',
-            Market.kospi: 'KOSPI',
-            Market.kosdaq: 'KOSDAQ',
-            Market.konex: 'KONEX',
-          },
-          onChanged: (m) => _apply(f.copyWith(market: () => m)),
+        const SizedBox(height: AppSpace.lg),
+        Wrap(
+          spacing: AppSpace.xl,
+          runSpacing: AppSpace.lg,
+          crossAxisAlignment: WrapCrossAlignment.start,
+          children: [
+            group(
+              '시장',
+              AppToggleGroup<Market?>(
+                value: f.market,
+                options: const {
+                  null: '전체',
+                  Market.kospi: 'KOSPI',
+                  Market.kosdaq: 'KOSDAQ',
+                  Market.konex: 'KONEX',
+                },
+                onChanged: (m) => _apply(f.copyWith(market: () => m)),
+              ),
+            ),
+            group(
+              '업종',
+              Wrap(
+                spacing: AppSpace.sm,
+                runSpacing: AppSpace.sm,
+                children: [
+                  AppSelect<String>(
+                    placeholder: '대분류 전체',
+                    allLabel: '대분류 전체',
+                    value: f.section,
+                    options: {
+                      for (final s in sections)
+                        s.code: '${s.code} ${s.name} (${formatCount(s.count)})',
+                    },
+                    onChanged: (code) =>
+                        _apply(f.copyWith(section: () => code)),
+                  ),
+                  if (f.section != null)
+                    AppSelect<String>(
+                      placeholder: '중분류 전체',
+                      allLabel: '중분류 전체',
+                      value: f.division,
+                      options: {
+                        for (final d in _divisions)
+                          d.code:
+                              '${d.code} ${d.name} (${formatCount(d.count)})',
+                      },
+                      onChanged: (code) =>
+                          _apply(f.copyWith(division: () => code)),
+                    ),
+                ],
+              ),
+            ),
+          ],
         ),
-        AppSelect<String>(
-          label: '업종',
-          placeholder: '대분류 전체',
-          allLabel: '대분류 전체',
-          value: f.section,
-          options: {
-            for (final s in sections)
-              s.code: '${s.code} ${s.name} (${formatCount(s.count)})',
-          },
-          onChanged: (code) => _apply(f.copyWith(section: () => code)),
-        ),
-        if (f.section != null)
-          AppSelect<String>(
-            placeholder: '중분류 전체',
-            allLabel: '중분류 전체',
-            value: f.division,
-            options: {
-              for (final d in _divisions)
-                d.code: '${d.code} ${d.name} (${formatCount(d.count)})',
-            },
-            onChanged: (code) => _apply(f.copyWith(division: () => code)),
-          ),
-        AppToggleGroup<CompanySort>(
-          label: '정렬',
-          value: f.sort,
-          options: const {
-            CompanySort.marketCap: '시가총액',
-            CompanySort.name: '가나다',
-            CompanySort.stockCode: '종목코드',
-            CompanySort.establishedDate: '설립 오래된',
-          },
-          onChanged: (s) => _apply(f.copyWith(sort: s)),
-        ),
-        if (f.hasFilter)
-          ShadButton.raw(
-            onPressed: _clearFilters,
-
-            variant: ShadButtonVariant.link,
-            foregroundColor: context.colors.accent,
-            leading: Icon(Icons.close, size: 16),
-            child: Flexible(child: Text('필터 초기화')),
-          ),
       ],
     );
   }
