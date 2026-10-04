@@ -269,9 +269,9 @@ class _DatasetCollectionControlsState extends State<DatasetCollectionControls> {
             style: context.typo.body(11, color: context.colors.textMuted),
           ),
         if (_error != null)
-          Text(
-            _error!,
-            style: context.typo.body(12, color: context.colors.textSecondary),
+          ShadAlert.destructive(
+            title: const Text('수집 요청 실패'),
+            description: Text(_error!),
           ),
       ],
     );
@@ -435,19 +435,19 @@ class _Row extends StatelessWidget {
             children: [
               Icon(
                 running
-                    ? Icons.sync
+                    ? LucideIcons.refreshCw
                     : failed || partial
-                    ? Icons.error_outline
+                    ? LucideIcons.circleAlert
                     : job?.status == IngestStatus.succeeded
-                    ? Icons.check_circle_outline
-                    : Icons.schedule,
+                    ? LucideIcons.circleCheck
+                    : LucideIcons.clock,
                 size: 16,
                 color: color,
               ),
-              Text(
-                state,
-                style: t.body(12, weight: FontWeight.w600, color: color),
-              ),
+              if (failed || partial)
+                ShadBadge.destructive(child: Text(state))
+              else
+                ShadBadge.secondary(child: Text(state)),
               if (!running && job != null)
                 Text(
                   formatDateTime(job.finishedAt ?? job.startedAt),

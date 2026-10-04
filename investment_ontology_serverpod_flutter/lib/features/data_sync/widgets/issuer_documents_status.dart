@@ -238,85 +238,86 @@ class _IssuerDocumentsStatusState extends State<IssuerDocumentsStatus> {
         .length;
     return Material(
       type: MaterialType.transparency,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: AppSpace.lg),
-        padding: const EdgeInsets.all(AppSpace.lg),
-        decoration: BoxDecoration(
-          border: Border.all(color: context.colors.border),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('공식 별도 원문', style: context.typo.sectionTitle),
-            const SizedBox(height: AppSpace.sm),
-            const Text('투자회사·신규 상장회사 14곳 · 공식 별도 원문(분할 대행 제출 2곳 포함)'),
-            Text(
-              '서버 보존: 과거 감사 원문 $historical개 · 최신 투자회사 원문 $latest/3 · 전체 ${rows.length}개',
-            ),
-            const Text(
-              'KB발해인프라 2021~2023 당해 감사보고서 원문 미확보 · 2024-11-15 정정 투자설명서의 과거 상세표는 별도 출처입니다. 재무 탭에서 별도 수집 상태와 원문 충돌·누락을 확인합니다.',
-            ),
-            const Text(
-              '정기보고서·사업본문·재무 숫자 집계에 포함하지 않습니다. DART 자료는 읽은 재무 장만 보존하며 전체 원문 확보를 뜻하지 않습니다. 분할 대행 원문은 신설회사 자체 연간 보고서와 구분하며 숫자를 추출하지 않습니다. 자체 과거 원문 미확보 기간은 별도 확인 중입니다.',
-            ),
-            for (final entry in issuerDocumentFunds.entries)
-              ShadAccordion<int>(
-                maintainState: false,
-                children: [
-                  ShadAccordionItem<int>(
-                    value: 0,
-                    title: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(entry.value),
-                        Text(_states[entry.key] ?? '확인 중…'),
-                      ],
-                    ),
-                    padding: EdgeInsets.zero,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        for (final row
-                            in _rows[entry.key] ?? <Map<String, dynamic>>[])
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: AppSpace.md),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  SplitPlanSourceRegistry.supports(entry.key)
-                                      ? '${row['filingActorPrintedName']} 대행 제출 분할 증권신고서'
-                                      : row['title'] as String,
-                                ),
-                                Text(
-                                  SplitPlanSourceRegistry.supports(entry.key)
-                                      ? '제출 ${row['filingDate']} · 계획 ${row['plannedSplitDate']} · 실제 설립 ${row['actualEstablishedDate']}'
-                                      : RetrospectiveFundContract.same(
-                                          row,
-                                          RetrospectiveFundContract
-                                              .data['metadata'],
-                                        )
-                                      ? '정정 게시 ${row['publishedAt']} · 과거 표의 범위 ${row['periodStart']} ~ ${row['periodEnd']} (한 회계기간 아님)'
-                                      : '${row['periodStart']} ~ ${row['periodEnd']}',
-                                ),
-                                SelectableText(
-                                  row['officialUrl'] as String,
-                                  style: context.typo.supportingText,
-                                ),
-                                Text(
-                                  'SHA-256: ${row['sha256']}',
-                                  style: context.typo.supportingText,
-                                ),
-                              ],
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: AppSpace.lg),
+        child: ShadCard(
+          width: double.infinity,
+          padding: const EdgeInsets.all(AppSpace.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('공식 별도 원문', style: context.typo.sectionTitle),
+              const SizedBox(height: AppSpace.sm),
+              const Text('투자회사·신규 상장회사 14곳 · 공식 별도 원문(분할 대행 제출 2곳 포함)'),
+              Text(
+                '서버 보존: 과거 감사 원문 $historical개 · 최신 투자회사 원문 $latest/3 · 전체 ${rows.length}개',
               ),
-          ],
+              const Text(
+                'KB발해인프라 2021~2023 당해 감사보고서 원문 미확보 · 2024-11-15 정정 투자설명서의 과거 상세표는 별도 출처입니다. 재무 탭에서 별도 수집 상태와 원문 충돌·누락을 확인합니다.',
+              ),
+              const Text(
+                '정기보고서·사업본문·재무 숫자 집계에 포함하지 않습니다. DART 자료는 읽은 재무 장만 보존하며 전체 원문 확보를 뜻하지 않습니다. 분할 대행 원문은 신설회사 자체 연간 보고서와 구분하며 숫자를 추출하지 않습니다. 자체 과거 원문 미확보 기간은 별도 확인 중입니다.',
+              ),
+              for (final entry in issuerDocumentFunds.entries)
+                ShadAccordion<int>(
+                  maintainState: false,
+                  children: [
+                    ShadAccordionItem<int>(
+                      value: 0,
+                      title: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(entry.value),
+                          Text(_states[entry.key] ?? '확인 중…'),
+                        ],
+                      ),
+                      padding: EdgeInsets.zero,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          for (final row
+                              in _rows[entry.key] ?? <Map<String, dynamic>>[])
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                bottom: AppSpace.md,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    SplitPlanSourceRegistry.supports(entry.key)
+                                        ? '${row['filingActorPrintedName']} 대행 제출 분할 증권신고서'
+                                        : row['title'] as String,
+                                  ),
+                                  Text(
+                                    SplitPlanSourceRegistry.supports(entry.key)
+                                        ? '제출 ${row['filingDate']} · 계획 ${row['plannedSplitDate']} · 실제 설립 ${row['actualEstablishedDate']}'
+                                        : RetrospectiveFundContract.same(
+                                            row,
+                                            RetrospectiveFundContract
+                                                .data['metadata'],
+                                          )
+                                        ? '정정 게시 ${row['publishedAt']} · 과거 표의 범위 ${row['periodStart']} ~ ${row['periodEnd']} (한 회계기간 아님)'
+                                        : '${row['periodStart']} ~ ${row['periodEnd']}',
+                                  ),
+                                  SelectableText(
+                                    row['officialUrl'] as String,
+                                    style: context.typo.supportingText,
+                                  ),
+                                  Text(
+                                    'SHA-256: ${row['sha256']}',
+                                    style: context.typo.supportingText,
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+            ],
+          ),
         ),
       ),
     );

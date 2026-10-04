@@ -1,4 +1,3 @@
-import 'package:investment_ontology_serverpod_flutter/design/components/app_select.dart';
 import 'package:shad/shad.dart';
 
 import 'dart:convert';
@@ -89,43 +88,25 @@ class _DataReferenceState extends State<DataReference> {
                         ),
                         const SizedBox(height: AppSpace.lg),
                         if (_panel == 0) ...[
-                          AppSelect<int>(
-                            options: Map.fromEntries([
+                          ShadSelect<int>(
+                            initialValue: _endpoint,
+                            selectedOptionBuilder: (_, i) =>
+                                Text(endpoints[i]['label'] as String),
+                            options: [
                               for (var i = 0; i < endpoints.length; i++)
-                                MapEntry(i, endpoints[i]['label'] as String),
-                            ]),
-                            value: _endpoint,
+                                ShadOption(
+                                  value: i,
+                                  child: Text(endpoints[i]['label'] as String),
+                                ),
+                            ],
                             onChanged: (i) {
                               if (i != null) setState(() => _endpoint = i);
                             },
-                            placeholder: '선택',
-                            allowClear: false,
                           ),
                           const SizedBox(height: AppSpace.md),
-                          Container(
-                            padding: const EdgeInsets.all(AppSpace.md),
-                            decoration: BoxDecoration(
-                              color: c.accent.withValues(alpha: 0.05),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'GET',
-                                  style: t.body(
-                                    12,
-                                    weight: FontWeight.w600,
-                                    color: c.accent,
-                                  ),
-                                ),
-                                const SizedBox(height: AppSpace.xs),
-                                SelectableText(
-                                  api['url'] as String,
-                                  style: t.body(13),
-                                ),
-                              ],
-                            ),
+                          ShadAlert(
+                            title: const Text('GET'),
+                            description: SelectableText(api['url'] as String),
                           ),
                           const SizedBox(height: AppSpace.md),
                           Text(
@@ -152,23 +133,29 @@ class _DataReferenceState extends State<DataReference> {
                             style: t.body(11, color: c.textMuted),
                           ),
                         ] else if (_panel == 1) ...[
-                          AppSelect<int>(
-                            options: Map.fromEntries([
+                          ShadSelect<int>(
+                            initialValue: _schema,
+                            selectedOptionBuilder: (_, i) => Text(
+                              (schemas[i]['file'] as String).replaceAll(
+                                '.spy.yaml',
+                                '',
+                              ),
+                            ),
+                            options: [
                               for (var i = 0; i < schemas.length; i++)
-                                MapEntry(
-                                  i,
-                                  (schemas[i]['file'] as String).replaceAll(
-                                    '.spy.yaml',
-                                    '',
+                                ShadOption(
+                                  value: i,
+                                  child: Text(
+                                    (schemas[i]['file'] as String).replaceAll(
+                                      '.spy.yaml',
+                                      '',
+                                    ),
                                   ),
                                 ),
-                            ]),
-                            value: _schema,
+                            ],
                             onChanged: (i) {
                               if (i != null) setState(() => _schema = i);
                             },
-                            placeholder: '선택',
-                            allowClear: false,
                           ),
                           const SizedBox(height: AppSpace.md),
                           Text(

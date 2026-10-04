@@ -21,11 +21,20 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage> {
   late Future<List<AccountView>> _load = _fetch();
   bool _busy = false;
+  String _query = '';
+  late final Future<bool> _mailConfigured = widget.manage
+      ? client.account.mailConfigured()
+      : Future.value(false);
   int _offset = 0;
   Future<List<AccountView>> _fetch() async => widget.manage
       ? client.account.list(offset: _offset)
       : [await client.account.me()];
-  void _reload() => setState(() => _load = _fetch());
+  void _reload() {
+    final next = _fetch();
+    setState(() {
+      _load = next;
+    });
+  }
 
   Future<bool> _confirm(String title, String message) async =>
       await showShadDialog<bool>(
@@ -45,7 +54,7 @@ class _AccountPageState extends State<AccountPage> {
                       width: 20,
                       height: 20,
                       padding: EdgeInsets.zero,
-                      icon: const Icon(Icons.close, size: 16),
+                      icon: const Icon(LucideIcons.x, size: 16),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                   ),
@@ -126,7 +135,7 @@ class _AccountPageState extends State<AccountPage> {
                     width: 20,
                     height: 20,
                     padding: EdgeInsets.zero,
-                    icon: const Icon(Icons.close, size: 16),
+                    icon: const Icon(LucideIcons.x, size: 16),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ),
@@ -185,36 +194,53 @@ class _AccountPageState extends State<AccountPage> {
     return PageFrame(
       maxWidth: 900,
       children: [
-        Text(widget.manage ? '회원 관리' : '내 계정', style: t.display(28)),
-        const SizedBox(height: 12),
-        Text(
-          widget.manage ? '회원 권한과 이용 상태를 관리합니다.' : '로그인 정보와 계정 보안을 관리합니다.',
-          style: t.body(14, color: c.textSecondary),
+        PageHeading(
+          title: widget.manage ? '회원 관리' : '내 계정',
+          subtitle: widget.manage
+              ? '회원 권한과 이용 상태를 관리합니다.'
+              : '로그인 정보와 계정 보안을 관리합니다.',
         ),
-        const SizedBox(height: 28),
+        const SizedBox(height: AppSpace.xl),
         if (!widget.manage) const MembershipCard(),
         if (widget.manage)
           FutureBuilder<bool>(
-            future: client.account.mailConfigured(),
+            future: _mailConfigured,
             builder: (context, snapshot) => Padding(
-              padding: const EdgeInsets.only(bottom: 20),
-              child: Text(
-                snapshot.hasData
-                    ? (snapshot.data!
-                          ? '인증 메일 · 발송 설정됨 (수신 테스트 필요)'
-                          : '인증 메일 · 발신 도메인과 메일 발송 키 설정이 필요합니다. 가입·재설정 메일은 아직 보낼 수 없습니다.')
-                    : '인증 메일 설정 확인 중',
-                style: t.body(13, color: c.textSecondary),
+              padding: const EdgeInsets.only(bottom: AppSpace.lg),
+              child: ShadAlert(
+                icon: const Icon(LucideIcons.mail),
+                title: const Text('인증 메일'),
+                description: Text(
+                  snapshot.hasError
+                      ? '설정 조회 실패 · 연결 상태를 확인해 주세요.'
+                      : snapshot.hasData
+                      ? (snapshot.data!
+                            ? '발송 설정됨 · 실제 수신 테스트가 필요합니다.'
+                            : '발신 도메인과 메일 발송 키 설정이 필요합니다. 가입·재설정 메일은 아직 보낼 수 없습니다.')
+                      : '설정 확인 중…',
+                ),
               ),
             ),
           ),
+        if (widget.manage) ...[
+          ShadInput(
+            placeholder: const Text('현재 페이지에서 이메일 검색'),
+            leading: const Icon(LucideIcons.search, size: 18),
+            onChanged: (value) =>
+                setState(() => _query = value.trim().toLowerCase()),
+          ),
+          const SizedBox(height: AppSpace.lg),
+        ],
         FutureBuilder<List<AccountView>>(
           future: _load,
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               return Column(
                 children: [
-                  const Text('계정 정보를 불러오지 못했습니다.'),
+                  const ShadAlert.destructive(
+                    title: Text('계정 정보를 불러오지 못했습니다.'),
+                    description: Text('권한과 연결 상태를 확인한 뒤 다시 시도해 주세요.'),
+                  ),
                   ShadButton.ghost(
                     onPressed: _reload,
                     child: Flexible(child: const Text('다시 시도')),
@@ -225,14 +251,63 @@ class _AccountPageState extends State<AccountPage> {
             if (!snapshot.hasData) {
               return const Center(child: ShadSpinner());
             }
-            final users = snapshot.data!;
+            final pageUsers = snapshot.data!;
+            final users = pageUsers
+                .where(
+                  (user) =>
+                      !widget.manage ||
+                      user.email.toLowerCase().contains(_query),
+                )
+                .toList();
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                if (widget.manage) ...[
+                  Wrap(
+                    spacing: AppSpace.sm,
+                    runSpacing: AppSpace.sm,
+                    children: [
+                      ShadBadge.secondary(
+                        child: Text(
+                          pageUsers.isEmpty
+                              ? '현재 페이지 0명'
+                              : '조회 ${_offset + 1}–${_offset + pageUsers.length} · ${pageUsers.length}명',
+                        ),
+                      ),
+                      ShadBadge.outline(
+                        child: Text(
+                          '관리자 ${pageUsers.where((u) => u.isAdmin).length}명',
+                        ),
+                      ),
+                      ShadBadge.outline(
+                        child: Text(
+                          '이용 정지 ${pageUsers.where((u) => u.blocked).length}명',
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpace.lg),
+                  if (users.isEmpty)
+                    ShadAlert(
+                      icon: const Icon(LucideIcons.users),
+                      title: Text(
+                        _query.isEmpty
+                            ? '등록된 회원이 없습니다.'
+                            : '현재 페이지에 검색 결과가 없습니다.',
+                      ),
+                      description: const Text('검색은 현재 조회한 최대 50명의 회원에 적용됩니다.'),
+                    ),
+                ],
                 for (final user in users)
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: DataPanel(
+                    padding: const EdgeInsets.only(bottom: AppSpace.lg),
+                    child: ShadCard(
+                      width: double.infinity,
+                      padding: EdgeInsets.all(
+                        AppLayout.panelPadding(
+                          MediaQuery.sizeOf(context).width,
+                        ),
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -241,16 +316,33 @@ class _AccountPageState extends State<AccountPage> {
                             style: t.body(17, weight: FontWeight.w600),
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            '${user.isAdmin ? '관리자' : '일반 회원'}${user.blocked ? ' · 이용 정지' : ''}',
-                            style: t.body(13, color: c.textSecondary),
+                          Wrap(
+                            spacing: AppSpace.sm,
+                            runSpacing: AppSpace.sm,
+                            children: [
+                              ShadBadge.secondary(
+                                child: Text(user.isAdmin ? '관리자' : '일반 회원'),
+                              ),
+                              if (user.blocked)
+                                const ShadBadge.destructive(
+                                  child: Text('이용 정지'),
+                                )
+                              else
+                                const ShadBadge.outline(child: Text('이용 가능')),
+                              if (user.userId == context.viewer?.userId)
+                                const ShadBadge.outline(child: Text('내 계정')),
+                            ],
                           ),
                           const SizedBox(height: 8),
                           Text(
                             '가입일 ${user.createdAt.toLocal().toIso8601String().split('T').first}',
                             style: t.body(12, color: c.textMuted),
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: AppSpace.lg),
+                          const ShadSeparator.horizontal(
+                            margin: EdgeInsets.zero,
+                          ),
+                          const SizedBox(height: AppSpace.lg),
                           if (widget.manage)
                             Wrap(
                               spacing: 8,
@@ -496,24 +588,29 @@ class _AccountPageState extends State<AccountPage> {
                                     _reload();
                                   }) !=
                             null,
-                        child: Flexible(child: const Text('이전')),
+                        leading: const Icon(LucideIcons.chevronLeft, size: 16),
+                        child: const Text('이전'),
                       ),
                       ShadButton.ghost(
-                        onPressed: users.length < 50
+                        onPressed: pageUsers.length < 50
                             ? null
                             : () {
                                 _offset += 50;
                                 _reload();
                               },
                         enabled:
-                            (users.length < 50
+                            (pageUsers.length < 50
                                 ? null
                                 : () {
                                     _offset += 50;
                                     _reload();
                                   }) !=
                             null,
-                        child: Flexible(child: const Text('다음')),
+                        trailing: const Icon(
+                          LucideIcons.chevronRight,
+                          size: 16,
+                        ),
+                        child: const Text('다음'),
                       ),
                     ],
                   ),
