@@ -147,6 +147,7 @@ class _ComparePageState extends State<ComparePage> {
           const SizedBox(height: AppSpace.lg),
         ],
         CompareCompanySearch(
+          key: const ValueKey('compare-company-search'),
           selectedCodes: widget.corpCodes,
           onRemove: (code) =>
               _go(widget.corpCodes.where((c) => c != code).toList()),
