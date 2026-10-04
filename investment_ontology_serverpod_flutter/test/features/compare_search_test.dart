@@ -9,6 +9,8 @@ import 'package:investment_ontology_serverpod_flutter/design/app_theme.dart';
 import 'package:investment_ontology_serverpod_flutter/design/brands/research_desk_brand.dart';
 import 'package:investment_ontology_serverpod_flutter/features/screen/compare_company_search.dart';
 
+import 'package:investment_ontology_serverpod_flutter/features/screen/compare_page.dart';
+
 import '../support/shad_test_host.dart';
 
 void main() {
@@ -36,6 +38,40 @@ void main() {
     );
   }
 
+  testWidgets('first selection and last removal preserve search state', (
+    tester,
+  ) async {
+    Future<void> page(List<String> codes) => tester.pumpWidget(
+      shadTestHost(
+        MaterialApp(
+          theme: buildAppTheme(researchDeskBrand),
+          home: Scaffold(body: ComparePage(corpCodes: codes)),
+        ),
+      ),
+    );
+    await page([]);
+    await tester.enterText(find.byType(EditableText), '삼성');
+    await tester.pump();
+    final controller = tester
+        .widget<EditableText>(find.byType(EditableText))
+        .controller;
+    await page(['00126380']);
+    await tester.pump();
+    expect(
+      tester.widget<EditableText>(find.byType(EditableText)).controller,
+      same(controller),
+    );
+    expect(controller.text, '삼성');
+    await page([]);
+    await tester.pump();
+    expect(
+      tester.widget<EditableText>(find.byType(EditableText)).controller,
+      same(controller),
+    );
+    expect(controller.text, '삼성');
+    await tester.tap(find.bySemanticsLabel('검색어 지우기'));
+    await tester.pump();
+  });
   testWidgets(
     'loading is immediate, stale results cannot replace latest query, clear cancels pending',
     (tester) async {
