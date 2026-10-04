@@ -1192,7 +1192,14 @@ void main() {
         sessionBuilder,
         samsung,
       );
-      expect(content!.bsnsYear, 2025);
+      expect(content!.bsnsYear, 2026);
+      expect(content.rceptNo, half);
+      final annualContent = await endpoints.disclosure.businessContent(
+        sessionBuilder,
+        samsung,
+        bsnsYear: 2025,
+      );
+      expect(annualContent!.rceptNo, rSamsung);
       final facts = await endpoints.disclosure.factTrends(
         sessionBuilder,
         samsung,
