@@ -8,6 +8,7 @@ import '../../design/components/components.dart';
 import '../../design/tokens.dart';
 import '../financials/financial_metrics.dart';
 import 'peer_candidates_panel.dart';
+import 'compare_metrics_table.dart';
 import 'compare_company_search.dart';
 
 /// 기업 비교: 두세 곳을 나란히 놓고 같은 잣대로 본다.
@@ -300,26 +301,15 @@ class _CompareTable extends StatelessWidget {
             '${r.bsnsYear} ${r.reportCode == null ? '' : reportCodeLabel(r.reportCode!)}',
       ),
     ];
-    return AppDataTable(
-      columns: [
-        const AppColumn('지표', nowrap: true),
-        // 기업 열이 남는 폭을 똑같이 나눠 가진다.
-        for (final r in rows)
-          AppColumn(r.company.name, numeric: true, minWidth: 150, flex: true),
-      ],
-      rows: [
+    return CompareMetricsTable(
+      companies: [for (final r in rows) r.company.name],
+      metrics: [
         for (final (label, value) in metrics)
-          AppRow([
-            AppDataTable.text(context, label),
-            for (final r in rows)
-              ShadTooltip(
-                builder: (_) => Text(screenMetricNote(r, label) ?? ''),
-                child: Semantics(
-                  tooltip: screenMetricNote(r, label) ?? '',
-                  child: AppDataTable.text(context, value(r), numeric: true),
-                ),
-              ),
-          ]),
+          CompareMetricRow(
+            label: label,
+            values: [for (final r in rows) value(r)],
+            notes: [for (final r in rows) screenMetricNote(r, label)],
+          ),
       ],
     );
   }
