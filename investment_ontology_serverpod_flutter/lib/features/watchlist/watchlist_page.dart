@@ -11,6 +11,7 @@ import '../../client.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
 import 'watchlist_store.dart';
+import 'update_destination.dart';
 import 'search_keyboard.dart';
 import '../monetization/membership_offer.dart';
 
@@ -296,8 +297,8 @@ class _WatchlistPageState extends State<WatchlistPage>
                                       : !company.monitoringReady
                                       ? '첫 확인 대기'
                                       : company.unreadCount > 0
-                                      ? '새 공시 ${company.unreadCount}건'
-                                      : '새 공시 없음'}',
+                                      ? '새 소식 ${company.unreadCount}건'
+                                      : '새 소식 없음'}',
                                   style: t.body(
                                     12,
                                     color: company.unreadCount > 0
@@ -548,7 +549,7 @@ class _WatchlistPageState extends State<WatchlistPage>
                 ),
                 const SizedBox(height: AppSpace.xs),
                 Text(
-                  '관심 기업의 새 공시를 한곳에서 확인하세요.',
+                  '관심 기업의 공시와 작성자 투자 관점 업데이트를 확인하세요.',
                   style: t.body(13, color: c.textSecondary),
                 ),
                 const SizedBox(height: AppSpace.md),
@@ -580,7 +581,7 @@ class _WatchlistPageState extends State<WatchlistPage>
               padding: const EdgeInsets.symmetric(vertical: AppSpace.xl),
               child: _empty(
                 LucideIcons.inbox,
-                _unreadOnly ? '읽지 않은 공시가 없습니다' : '새 공시가 오면 여기에 모아드려요',
+                _unreadOnly ? '읽지 않은 소식이 없습니다' : '새 소식이 오면 여기에 모아드려요',
                 view.companies.isEmpty
                     ? '기업을 추가하면 업데이트를 확인할 수 있습니다.'
                     : '처음 확인한 공시는 기준으로 삼고, 이후 새 공시부터 보여드립니다.',
@@ -595,10 +596,15 @@ class _WatchlistPageState extends State<WatchlistPage>
                 vertical: AppSpace.md,
               ),
               onPressed: () => _action(() async {
-                await launchUrl(
-                  Uri.parse(update.url),
-                  mode: LaunchMode.externalApplication,
-                );
+                final path = investmentNotePath(update.url);
+                if (path != null) {
+                  context.push(path);
+                } else {
+                  await launchUrl(
+                    Uri.parse(update.url),
+                    mode: LaunchMode.externalApplication,
+                  );
+                }
                 await client.watchlist.markRead(update.noticeId);
                 await store.refresh();
               }),
@@ -638,7 +644,7 @@ class _WatchlistPageState extends State<WatchlistPage>
                           Padding(
                             padding: const EdgeInsets.only(top: AppSpace.sm),
                             child: Text(
-                              '${_date(update.publishedAt)} · DART${update.title.contains('정정') ? ' · 정정 공시' : ''}',
+                              '${_date(update.publishedAt)} · ${updateSourceLabel(update.url)}${update.title.contains('정정') ? ' · 정정 공시' : ''}',
                               style: t.body(12, color: c.textMuted),
                             ),
                           ),

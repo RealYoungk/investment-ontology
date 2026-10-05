@@ -44,6 +44,7 @@ const _destinations = [
   _Destination('기업 비교', '/compare'),
   _Destination('관계망', '/graph'),
   _Destination('관심종목', '/watchlist', matches: ['/notifications']),
+  _Destination('투자 관점', '/insights'),
 ];
 
 /// 모든 화면을 감싸는 틀: 맨 위 메뉴(시장 · 기업 · 스크리너 · 관계망 · 데이터) + 본문.
@@ -208,6 +209,7 @@ class _DeskNavigationState extends State<_DeskNavigation> {
     LucideIcons.arrowLeftRight,
     LucideIcons.network,
     LucideIcons.star,
+    LucideIcons.bookOpen,
   ];
   @override
   void dispose() {

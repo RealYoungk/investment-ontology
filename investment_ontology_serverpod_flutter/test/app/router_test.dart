@@ -60,6 +60,9 @@ void main() {
     expect(login.path, '/login');
     expect(AppRoutes.afterLogin(login.queryParameters['next']), company);
     expect(AppRoutes.afterLogin('/account'), '/account');
+    expect(AppRoutes.afterLogin('/insights/12'), '/insights/12');
+    expect(AppRoutes.afterLogin('/insights/12?preview=true'), '/insights/12');
+    expect(AppRoutes.afterLogin('//evil.example/insights/12'), '/home');
     for (final next in [
       null,
       '//evil.example/company/00317210',

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
+import '../../design/premium_style.dart';
 import '../auth/app_auth.dart';
 import 'membership_availability.dart';
 import '../../client.dart';
@@ -58,7 +59,7 @@ class _MembershipPlansPageState extends State<MembershipPlansPage> {
         const SizedBox(height: AppSpace.md),
         LayoutBuilder(
           builder: (context, box) => Text(
-            '먼저 가입할수록,\n더 좋은 가격으로.',
+            '좋은 기업을 넘어,\n판단의 근거까지.',
             textAlign: TextAlign.center,
             style: t
                 .display(box.maxWidth < 600 ? 32 : 44, color: c.textPrimary)
@@ -67,7 +68,7 @@ class _MembershipPlansPageState extends State<MembershipPlansPage> {
         ),
         const SizedBox(height: AppSpace.md),
         Text(
-          '새로운 기능이 더해질수록 신규 가입 요금도 올라갑니다.\n지금 가입한 요금으로, 앞으로 추가되는 기능까지 이용하세요.',
+          '선별된 탑픽, 깊이 있는 투자 논리, 날짜별 후속 기록.\n알파인더 멤버십으로 리서치의 흐름을 이어가세요.',
           textAlign: TextAlign.center,
           style: t.body(15, color: c.textSecondary).copyWith(height: 1.6),
         ),
@@ -140,7 +141,7 @@ class _MembershipPlansPageState extends State<MembershipPlansPage> {
         const SizedBox(height: AppSpace.md),
         const _PlanQuestion(
           question: '무료로도 기업 정보를 볼 수 있나요?',
-          answer: '네. 기업 정보, 재무, 스크리너와 관계망은 무료로 탐색할 수 있습니다. 멤버십에서는 관심기업 등록 한도가 3개에서 20개로 늘어나고 광고가 제거됩니다.',
+          answer: '네. 기업 정보, 재무, 스크리너와 관계망은 무료로 탐색할 수 있으며 공개된 관심종목 소개도 읽을 수 있습니다. 하나의 멤버십으로 탑픽·상세 투자 관점과 후속 글을 읽고, 관심기업을 20개까지 등록하며 광고를 제거할 수 있습니다. 콘텐츠는 작성자가 확인한 글부터 공개합니다.',
         ),
         const _PlanQuestion(
           question: '공시와 뉴스 알림은 어떻게 제공되나요?',
@@ -187,26 +188,36 @@ class MembershipPlanCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final t = context.typo;
+    final foreground = premium ? PremiumStyle.light : c.textPrimary;
+    final secondary = premium ? PremiumStyle.muted : c.textSecondary;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpace.xl),
-      decoration: BoxDecoration(
-        color: premium ? c.accentSubtle : c.surface,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: premium ? c.accent : c.border,
-          width: premium ? 1.5 : 1,
-        ),
-      ),
+      decoration: premium
+          ? PremiumStyle.decoration()
+          : BoxDecoration(
+              color: c.surface,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: c.border),
+            ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (premium) ...[
+            Text(
+              'ALFINDER / MEMBERSHIP',
+              style: t
+                  .body(11, color: PremiumStyle.gold, weight: FontWeight.w600)
+                  .copyWith(letterSpacing: 1.4),
+            ),
+            const SizedBox(height: AppSpace.lg),
+          ],
           Row(
             children: [
               Expanded(
                 child: Text(
                   premium ? '멤버십' : '무료',
-                  style: t.body(24, weight: FontWeight.w700),
+                  style: t.body(24, weight: FontWeight.w700, color: foreground),
                 ),
               ),
               Container(
@@ -215,7 +226,7 @@ class MembershipPlanCard extends StatelessWidget {
                   vertical: 5,
                 ),
                 decoration: BoxDecoration(
-                  color: premium ? c.accent : c.surfaceHover,
+                  color: premium ? PremiumStyle.gold : c.surfaceHover,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -226,7 +237,7 @@ class MembershipPlanCard extends StatelessWidget {
                       : '기본 플랜',
                   style: t.body(
                     11,
-                    color: premium ? c.onAccent : c.textSecondary,
+                    color: premium ? PremiumStyle.ink : c.textSecondary,
                     weight: FontWeight.w600,
                   ),
                 ),
@@ -236,7 +247,7 @@ class MembershipPlanCard extends StatelessWidget {
           const SizedBox(height: AppSpace.sm),
           Text(
             premium ? '여러 기업을 꾸준히 살펴보는 분께' : '핵심 기업부터 가볍게 시작하는 분께',
-            style: t.body(13, color: c.textSecondary),
+            style: t.body(13, color: secondary),
           ),
           const SizedBox(height: AppSpace.xl),
           Text.rich(
@@ -249,11 +260,15 @@ class MembershipPlanCard extends StatelessWidget {
                           (m) => '${m[1]},',
                         )
                       : '0',
-                  style: t.numeric(40, weight: FontWeight.w700),
+                  style: t.numeric(
+                    40,
+                    weight: FontWeight.w700,
+                    color: foreground,
+                  ),
                 ),
                 TextSpan(
                   text: ' 원 / 월',
-                  style: t.body(14, color: c.textSecondary),
+                  style: t.body(14, color: secondary),
                 ),
               ],
             ),
@@ -261,18 +276,22 @@ class MembershipPlanCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             premium ? '얼리버드 · 부가세 포함 · 매월 자동 갱신' : '기간 제한 없이 무료',
-            style: t.body(12, color: c.textMuted),
+            style: t.body(12, color: secondary),
           ),
           if (premium) ...[
             const SizedBox(height: AppSpace.sm),
             Text(
               '구독을 유지하면 가입 가격 그대로',
-              style: t.body(13, color: c.accent, weight: FontWeight.w600),
+              style: t.body(
+                13,
+                color: premium ? PremiumStyle.gold : c.accent,
+                weight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: AppSpace.xs),
             Text(
               '앞으로 추가되는 기능도 가입한 요금으로 이용',
-              style: t.body(12, color: c.textSecondary),
+              style: t.body(12, color: secondary),
             ),
           ],
           const SizedBox(height: AppSpace.lg),
@@ -280,6 +299,11 @@ class MembershipPlanCard extends StatelessWidget {
             height: 48,
             child: premium
                 ? ShadButton(
+                    backgroundColor: PremiumStyle.gold,
+                    hoverBackgroundColor: PremiumStyle.gold.withValues(
+                      alpha: .9,
+                    ),
+                    foregroundColor: PremiumStyle.ink,
                     onPressed: onSelect,
                     child: Flexible(
                       child: Text(
@@ -302,7 +326,9 @@ class MembershipPlanCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(AppSpace.md),
             decoration: BoxDecoration(
-              color: c.surface,
+              color: premium
+                  ? PremiumStyle.light.withValues(alpha: .07)
+                  : c.surface,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
@@ -310,7 +336,7 @@ class MembershipPlanCard extends StatelessWidget {
                 Icon(
                   Icons.bookmarks_outlined,
                   size: 24,
-                  color: premium ? c.accent : c.textSecondary,
+                  color: premium ? PremiumStyle.gold : c.textSecondary,
                 ),
                 const SizedBox(width: AppSpace.md),
                 Expanded(
@@ -319,12 +345,16 @@ class MembershipPlanCard extends StatelessWidget {
                     children: [
                       Text(
                         '나의 관심기업',
-                        style: t.body(12, color: c.textSecondary),
+                        style: t.body(12, color: secondary),
                       ),
                       const SizedBox(height: 3),
                       Text(
                         premium ? '최대 20개' : '최대 3개',
-                        style: t.body(22, weight: FontWeight.w700),
+                        style: t.body(
+                          22,
+                          weight: FontWeight.w700,
+                          color: foreground,
+                        ),
                       ),
                     ],
                   ),
@@ -335,17 +365,23 @@ class MembershipPlanCard extends StatelessWidget {
           const SizedBox(height: AppSpace.lg),
           Text(
             premium ? '무료 플랜의 모든 기능에 더해' : '투자 리서치의 기본을 함께',
-            style: t.body(12, weight: FontWeight.w600, color: c.textSecondary),
+            style: t.body(12, weight: FontWeight.w600, color: secondary),
           ),
           const SizedBox(height: AppSpace.sm),
           for (final item
               in premium
                   ? [
+                      '탑픽 · 상세 투자 관점 · 날짜별 후속 글',
                       '관심기업 17개 추가 등록',
                       '광고 없이 기업 정보에 집중',
                       '등록한 20개 기업의 새 공시 모아보기',
                     ]
-                  : ['기업 정보 · 재무 · 스크리너 탐색', '관심기업 3개 저장', '관심기업의 새 공시 모아보기'])
+                  : [
+                      '기업 정보 · 재무 · 스크리너 탐색',
+                      '공개된 관심종목 소개',
+                      '관심기업 3개 저장',
+                      '관심기업의 새 공시 모아보기',
+                    ])
             Padding(
               padding: const EdgeInsets.symmetric(vertical: AppSpace.sm),
               child: Row(
@@ -354,11 +390,16 @@ class MembershipPlanCard extends StatelessWidget {
                   Icon(
                     Icons.check_rounded,
                     size: 18,
-                    color: premium ? c.accent : c.textSecondary,
+                    color: premium ? PremiumStyle.gold : c.textSecondary,
                   ),
                   const SizedBox(width: AppSpace.sm),
                   Expanded(
-                    child: Text(item, style: t.body(13).copyWith(height: 1.45)),
+                    child: Text(
+                      item,
+                      style: t
+                          .body(13, color: foreground)
+                          .copyWith(height: 1.45),
+                    ),
                   ),
                 ],
               ),
@@ -385,6 +426,8 @@ class _PlanComparison extends StatelessWidget {
         children: [
           for (final row in const [
             ['기능', '무료', '멤버십'],
+            ['관심종목 소개', '제공', '제공'],
+            ['탑픽 · 상세 관점 · 후속 글', '—', '공개 콘텐츠 제공'],
             ['관심기업 등록', '3개', '20개'],
             ['광고', '표시', '제거'],
             ['기업 · 재무 탐색', '제공', '제공'],

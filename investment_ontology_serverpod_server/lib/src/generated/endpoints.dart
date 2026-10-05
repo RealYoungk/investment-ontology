@@ -51,6 +51,7 @@ import '../ontology/endpoints/graph_endpoint.dart' as _ixdq71x8;
 import '../ontology/endpoints/group_endpoint.dart' as _i8zm50hy;
 import '../ontology/endpoints/industry_endpoint.dart' as _ihimn963;
 import '../ontology/endpoints/ingest_endpoint.dart' as _icbircc0;
+import '../ontology/endpoints/investment_notes_endpoint.dart' as _i2cfmec4;
 import '../ontology/endpoints/macro_endpoint.dart' as _ii38wwy2;
 import '../ontology/endpoints/market_endpoint.dart' as _iaw7fzks;
 import '../ontology/endpoints/membership_endpoint.dart' as _i4hwwhem;
@@ -171,6 +172,12 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'ingest',
+          null,
+        ),
+      'investmentNotes': _i2cfmec4.InvestmentNotesEndpoint()
+        ..initialize(
+          server,
+          'investmentNotes',
           null,
         ),
       'macro': _ii38wwy2.MacroEndpoint()
@@ -1976,6 +1983,135 @@ class Endpoints extends _is.EndpointDispatch {
                     session,
                     corpCode: params['corpCode'],
                   ),
+        ),
+      },
+    );
+    connectors['investmentNotes'] = _is.EndpointConnector(
+      name: 'investmentNotes',
+      endpoint: endpoints['investmentNotes']!,
+      methodConnectors: {
+        'list': _is.MethodConnector(
+          name: 'list',
+          params: {
+            'corpCode': _is.ParameterDescription(
+              name: 'corpCode',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
+            'offset': _is.ParameterDescription(
+              name: 'offset',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['investmentNotes']
+                          as _i2cfmec4.InvestmentNotesEndpoint)
+                      .list(
+                        session,
+                        corpCode: params['corpCode'],
+                        offset: params['offset'],
+                      ),
+        ),
+        'detail': _is.MethodConnector(
+          name: 'detail',
+          params: {
+            'articleId': _is.ParameterDescription(
+              name: 'articleId',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['investmentNotes']
+                          as _i2cfmec4.InvestmentNotesEndpoint)
+                      .detail(
+                        session,
+                        params['articleId'],
+                      ),
+        ),
+        'importDraft': _is.MethodConnector(
+          name: 'importDraft',
+          params: {
+            'payload': _is.ParameterDescription(
+              name: 'payload',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+            'articleId': _is.ParameterDescription(
+              name: 'articleId',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['investmentNotes']
+                          as _i2cfmec4.InvestmentNotesEndpoint)
+                      .importDraft(
+                        session,
+                        params['payload'],
+                        articleId: params['articleId'],
+                      ),
+        ),
+        'preview': _is.MethodConnector(
+          name: 'preview',
+          params: {
+            'articleId': _is.ParameterDescription(
+              name: 'articleId',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['investmentNotes']
+                          as _i2cfmec4.InvestmentNotesEndpoint)
+                      .preview(
+                        session,
+                        params['articleId'],
+                      ),
+        ),
+        'publish': _is.MethodConnector(
+          name: 'publish',
+          params: {
+            'articleId': _is.ParameterDescription(
+              name: 'articleId',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+            'approvedDigest': _is.ParameterDescription(
+              name: 'approvedDigest',
+              type: _is.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['investmentNotes']
+                          as _i2cfmec4.InvestmentNotesEndpoint)
+                      .publish(
+                        session,
+                        params['articleId'],
+                        params['approvedDigest'],
+                      ),
         ),
       },
     );

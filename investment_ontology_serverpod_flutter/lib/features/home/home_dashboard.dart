@@ -666,6 +666,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
               runSpacing: AppSpace.sm,
               children: [
                 for (final entry in [
+                  ('관심종목 · 탑픽', '/insights'),
                   ('자동차', '/companies?section=C&division=30'),
                   ('매출이 늘어난 기업', '/screen?rgrow=10'),
                   ('이익을 남기는 기업', '/screen?margin=10'),

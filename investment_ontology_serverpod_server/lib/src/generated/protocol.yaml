@@ -97,6 +97,12 @@ ingest:
   - schedule:
   - latestOfKinds:
   - rebuildProductionFacts:
+investmentNotes:
+  - list:
+  - detail:
+  - importDraft:
+  - preview:
+  - publish:
 macro:
   - overview:
 market:

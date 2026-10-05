@@ -10,6 +10,7 @@ import '../../design/tokens.dart';
 import '../../design/components/components.dart';
 import 'push_platform.dart';
 import 'watchlist_store.dart';
+import 'update_destination.dart';
 
 /// Shared account-scoped inbox. The page and bell listen to the same store.
 class NotificationBell extends StatefulWidget {
@@ -378,10 +379,15 @@ class _NotificationInboxState extends State<_NotificationInbox> {
                             onPressed: _busy
                                 ? null
                                 : () => _action(() async {
-                                    await launchUrl(
-                                      Uri.parse(update.url),
-                                      mode: LaunchMode.externalApplication,
-                                    );
+                                    final path = investmentNotePath(update.url);
+                                    if (path != null) {
+                                      context.push(path);
+                                    } else {
+                                      await launchUrl(
+                                        Uri.parse(update.url),
+                                        mode: LaunchMode.externalApplication,
+                                      );
+                                    }
                                     await client.watchlist.markRead(
                                       update.noticeId,
                                     );
@@ -414,7 +420,7 @@ class _NotificationInboxState extends State<_NotificationInbox> {
                                           ),
                                         ),
                                         Text(
-                                          '${update.companyName} · DART',
+                                          '${update.companyName} · ${updateSourceLabel(update.url)}',
                                           style: t.body(12, color: c.textMuted),
                                         ),
                                       ],
@@ -470,7 +476,7 @@ class _NotificationInboxState extends State<_NotificationInbox> {
                                             'enabled' => '이 기기의 알림이 켜져 있습니다.',
                                             _ =>
                                               view.pushConfigured
-                                                  ? '허용하면 브라우저를 닫아도 새 공시 알림을 받을 수 있습니다.'
+                                                  ? '허용하면 브라우저를 닫아도 공시와 투자 관점 업데이트 알림을 받을 수 있습니다.'
                                                   : '기기 알림 발송 설정을 준비 중입니다. 앱 알림함은 이용할 수 있습니다.',
                                           },
                                           style: t.body(

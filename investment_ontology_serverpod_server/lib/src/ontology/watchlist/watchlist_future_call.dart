@@ -151,8 +151,10 @@ class WatchlistFutureCall extends FutureCall {
             notice.eventId,
           );
           final response = await WebPushSender.send(session, sub, {
-            'title': '관심종목 새 공시',
-            'body': event!.title,
+            'title': event!.receipt.startsWith('investment-note-')
+                ? '관심기업 투자 관점 업데이트'
+                : '관심종목 새 공시',
+            'body': event.title,
             'path': '/watchlist',
             'tag': 'filing-${event.receipt}',
           });

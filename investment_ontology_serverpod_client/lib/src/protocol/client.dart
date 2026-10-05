@@ -889,7 +889,7 @@ class EndpointDisclosure extends _isc.EndpointRef {
     },
   );
 
-  /// 배당(사업보고서마다 당기·전기·전전기) · 가장 최근 자기주식 · 주식 총수.
+  /// 연간 배당(사업보고서마다 당기·전기·전전기) · 가장 최근 자기주식 · 주식 총수.
   _ida.Future<_ir6fk3mk.ShareholderReturn?> shareholderReturn(
     String corpCode,
   ) => caller.callServerEndpoint<_ir6fk3mk.ShareholderReturn?>(
@@ -1278,6 +1278,65 @@ class EndpointIngest extends _isc.EndpointRef {
         'rebuildProductionFacts',
         {'corpCode': corpCode},
       );
+}
+
+/// Server-authorized reader projection and admin-only authored publication.
+/// {@category Endpoint}
+class EndpointInvestmentNotes extends _isc.EndpointRef {
+  EndpointInvestmentNotes(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'investmentNotes';
+
+  _ida.Future<String> list({
+    String? corpCode,
+    required int offset,
+  }) => caller.callServerEndpoint<String>(
+    'investmentNotes',
+    'list',
+    {
+      'corpCode': corpCode,
+      'offset': offset,
+    },
+  );
+
+  _ida.Future<String> detail(int articleId) =>
+      caller.callServerEndpoint<String>(
+        'investmentNotes',
+        'detail',
+        {'articleId': articleId},
+      );
+
+  _ida.Future<String> importDraft(
+    String payload, {
+    int? articleId,
+  }) => caller.callServerEndpoint<String>(
+    'investmentNotes',
+    'importDraft',
+    {
+      'payload': payload,
+      'articleId': articleId,
+    },
+  );
+
+  _ida.Future<String> preview(int articleId) =>
+      caller.callServerEndpoint<String>(
+        'investmentNotes',
+        'preview',
+        {'articleId': articleId},
+      );
+
+  _ida.Future<void> publish(
+    int articleId,
+    String approvedDigest,
+  ) => caller.callServerEndpoint<void>(
+    'investmentNotes',
+    'publish',
+    {
+      'articleId': articleId,
+      'approvedDigest': approvedDigest,
+    },
+  );
 }
 
 /// Public official market context, read from direct sources with bounded caching.
@@ -2003,6 +2062,7 @@ class Client extends _isc.ServerpodClientShared {
     group = EndpointGroup(this);
     industry = EndpointIndustry(this);
     ingest = EndpointIngest(this);
+    investmentNotes = EndpointInvestmentNotes(this);
     macro = EndpointMacro(this);
     market = EndpointMarket(this);
     membership = EndpointMembership(this);
@@ -2050,6 +2110,8 @@ class Client extends _isc.ServerpodClientShared {
 
   late final EndpointIngest ingest;
 
+  late final EndpointInvestmentNotes investmentNotes;
+
   late final EndpointMacro macro;
 
   late final EndpointMarket market;
@@ -2088,6 +2150,7 @@ class Client extends _isc.ServerpodClientShared {
     'group': group,
     'industry': industry,
     'ingest': ingest,
+    'investmentNotes': investmentNotes,
     'macro': macro,
     'market': market,
     'membership': membership,

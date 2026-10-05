@@ -51,6 +51,7 @@ List<SearchDestination> searchDestinations(String query) {
     (title: '기업 비교', detail: '재무 수익성 밸류에이션 비교', location: '/compare'),
     (title: '관계망', detail: '주주 임원 고객 공급 출자 연결', location: '/graph'),
     (title: '관심종목', detail: '관심기업 즐겨찾기 워치리스트', location: '/watchlist'),
+    (title: '투자 관점', detail: '관심종목 소개 탑픽 투자 근거 후속 기록', location: '/insights'),
     (title: '알림함', detail: '알림 새소식 공시', location: '/notifications'),
     (title: '서비스 소개', detail: '사용법 도움말 출처', location: '/about'),
   ];
