@@ -174,56 +174,81 @@ class CompanyHeader extends StatelessWidget {
         ),
         CompanyBasicInfo(detail: detail),
         const SizedBox(height: AppSpace.lg),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Wrap(
-              spacing: AppSpace.md,
-              runSpacing: AppSpace.xs,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                if (fin?.fsDiv != null)
-                  Text(
-                    '${fsDivLabel(fin!.fsDiv!)} 기준',
-                    style: t.body(12, color: c.textMuted),
-                  ),
-                if (fin != null &&
-                    fin.availableFsDivs.isNotEmpty &&
-                    onBasisChanged != null)
-                  AppSelect<String>(
-                    value: selectedBasis?.name ?? 'auto',
-                    placeholder: '계산 기준',
-                    allowClear: false,
-                    options: {
-                      'auto': '자동',
-                      for (final div in fin.availableFsDivs)
-                        div.name: fsDivLabel(div),
-                    },
-                    onChanged: (value) => onBasisChanged!(
-                      value == null || value == 'auto'
-                          ? null
-                          : FsDiv.values.byName(value),
-                    ),
-                  ),
-                if (changingBasis)
-                  Text('불러오는 중…', style: t.body(12, color: c.textMuted)),
-              ],
-            ),
-            if (basisError != null)
-              Text(basisError!, style: t.body(12, color: c.textSecondary)),
-            const SizedBox(height: AppSpace.xs),
-            if (hasFinancials)
-              _KeyStats(
-                metrics: FinancialView(fin).metrics(),
-                industryCode: company.industryCode,
-                companyName: company.name,
-                basisReason: fin.basisReason,
-                corpCode: company.corpCode,
-                fsDiv: fin.fsDiv,
-              )
-            else
-              Text('수집된 재무·시세가 없습니다.', style: t.body(13, color: c.textMuted)),
-          ],
+        DataPanel(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              LayoutBuilder(
+                builder: (context, box) {
+                  final heading = Text(
+                    '핵심 지표',
+                    style: t.body(14, weight: FontWeight.w600),
+                  );
+                  final basis = Wrap(
+                    spacing: AppSpace.md,
+                    runSpacing: AppSpace.xs,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      if (fin?.fsDiv != null)
+                        Text(
+                          '${fsDivLabel(fin!.fsDiv!)} 기준',
+                          style: t.body(12, color: c.textMuted),
+                        ),
+                      if (fin != null &&
+                          fin.availableFsDivs.isNotEmpty &&
+                          onBasisChanged != null)
+                        AppSelect<String>(
+                          value: selectedBasis?.name ?? 'auto',
+                          placeholder: '계산 기준',
+                          allowClear: false,
+                          options: {
+                            'auto': '자동',
+                            for (final div in fin.availableFsDivs)
+                              div.name: fsDivLabel(div),
+                          },
+                          onChanged: (value) => onBasisChanged!(
+                            value == null || value == 'auto'
+                                ? null
+                                : FsDiv.values.byName(value),
+                          ),
+                        ),
+                      if (changingBasis)
+                        Text('불러오는 중…', style: t.body(12, color: c.textMuted)),
+                    ],
+                  );
+                  return box.maxWidth < 560
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            heading,
+                            const SizedBox(height: AppSpace.sm),
+                            basis,
+                          ],
+                        )
+                      : Row(
+                          children: [
+                            Expanded(child: heading),
+                            basis,
+                          ],
+                        );
+                },
+              ),
+              if (basisError != null)
+                Text(basisError!, style: t.body(12, color: c.textSecondary)),
+              const SizedBox(height: AppSpace.md),
+              if (hasFinancials)
+                _KeyStats(
+                  metrics: FinancialView(fin).metrics(),
+                  industryCode: company.industryCode,
+                  companyName: company.name,
+                  basisReason: fin.basisReason,
+                  corpCode: company.corpCode,
+                  fsDiv: fin.fsDiv,
+                )
+              else
+                Text('수집된 재무·시세가 없습니다.', style: t.body(13, color: c.textMuted)),
+            ],
+          ),
         ),
       ],
     );
@@ -342,100 +367,112 @@ class _KeyStatsState extends State<_KeyStats> {
         DataPanel(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final columns = constraints.maxWidth < 600
+              final columns = constraints.maxWidth < 560
                   ? 2
-                  : constraints.maxWidth < 960
+                  : constraints.maxWidth < 1040
                   ? 3
                   : 6;
-              final cell =
-                  (constraints.maxWidth - AppSpace.md * (columns - 1)) /
-                  columns;
-              return Wrap(
-                spacing: AppSpace.md,
-                runSpacing: AppSpace.lg,
-                children: [
-                  for (final m in metrics)
-                    HoverBuilder(
-                      onTap: () => showAdaptiveDetail(
-                        context: context,
-                        builder: (detailContext) => MetricFormulaCard(
-                          metric: m,
-                          fsDiv: widget.fsDiv,
-                          basisReason: widget.basisReason,
-                          framed: MediaQuery.sizeOf(detailContext).width >= 600,
-                          onClose: () => Navigator.of(detailContext).pop(),
-                        ),
+              Widget metricCell(DerivedMetric m) => HoverBuilder(
+                onTap: () => showAdaptiveDetail(
+                  context: context,
+                  builder: (detailContext) => MetricFormulaCard(
+                    metric: m,
+                    fsDiv: widget.fsDiv,
+                    basisReason: widget.basisReason,
+                    framed: MediaQuery.sizeOf(detailContext).width >= 600,
+                    onClose: () => Navigator.of(detailContext).pop(),
+                  ),
+                ),
+                builder: (context, hovered) => AnimatedContainer(
+                  duration: AppMotion.fast,
+                  constraints: const BoxConstraints(minHeight: 120),
+                  padding: const EdgeInsets.all(AppSpace.lg),
+                  decoration: BoxDecoration(
+                    color: hovered ? c.surfaceHover : null,
+                    borderRadius: context.shape.borderRadius,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        m.label,
+                        style: t.body(12, color: c.textSecondary),
                       ),
-                      builder: (context, hovered) => AnimatedContainer(
-                        duration: AppMotion.fast,
-                        width: cell,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: AppSpace.sm,
-                        ),
-                        decoration: BoxDecoration(
-                          color: hovered ? c.surfaceHover : null,
-                          borderRadius: context.shape.borderRadius,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              m.label,
-                              style: t.body(12, color: c.textSecondary),
+                      const SizedBox(height: AppSpace.xs),
+                      if (m.derived.value != null)
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            m.display,
+                            maxLines: 1,
+                            style: t.numeric(
+                              24,
+                              color: m.derived.value == null
+                                  ? c.textMuted
+                                  : c.textPrimary,
+                              weight: FontWeight.w600,
                             ),
-                            const SizedBox(height: AppSpace.xs),
-                            if (m.derived.value != null)
-                              FittedBox(
-                                fit: BoxFit.scaleDown,
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  m.display,
-                                  maxLines: 1,
-                                  style: t.numeric(
-                                    24,
-                                    color: m.derived.value == null
-                                        ? c.textMuted
-                                        : c.textPrimary,
-                                    weight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            if (m.derived.value == null)
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  top: AppSpace.xs,
-                                ),
-                                child: Text(
-                                  m.derived.missing ?? '계산에 필요한 자료 부족',
-                                  style: t.body(12, color: c.textSecondary),
-                                ),
-                              )
-                            else
-                              _benchmark(context, m.key),
-                            if (const {
-                                  'revenueGrowth',
-                                  'profitGrowth',
-                                }.contains(m.key) &&
-                                m.derived.value != null &&
-                                m.derived.inputs.isNotEmpty)
-                              Text(
-                                '${m.derived.inputs.first.label.replaceFirst(RegExp(r'^.*당기 '), '')} · 전년 동기 대비',
-                                style: t.body(11, color: c.textSecondary),
-                              ),
-                            if (const {
-                                  'cash',
-                                  'shortTermDeposits',
-                                  'cashAndDeposits',
-                                }.contains(m.key) &&
-                                m.derived.inputs.isNotEmpty)
-                              Text(
-                                '${m.derived.inputs.first.basis.split(' · ').first} 기말',
-                                style: t.body(11, color: c.textSecondary),
-                              ),
-                          ],
+                          ),
                         ),
+                      if (m.derived.value == null)
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            top: AppSpace.xs,
+                          ),
+                          child: Text(
+                            m.derived.missing ?? '계산에 필요한 자료 부족',
+                            style: t.body(12, color: c.textSecondary),
+                          ),
+                        )
+                      else
+                        _benchmark(context, m.key),
+                      if (const {
+                            'revenueGrowth',
+                            'profitGrowth',
+                          }.contains(m.key) &&
+                          m.derived.value != null &&
+                          m.derived.inputs.isNotEmpty)
+                        Text(
+                          '${m.derived.inputs.first.label.replaceFirst(RegExp(r'^.*당기 '), '')} · 전년 동기 대비',
+                          style: t.body(11, color: c.textSecondary),
+                        ),
+                      if (const {
+                            'cash',
+                            'shortTermDeposits',
+                            'cashAndDeposits',
+                          }.contains(m.key) &&
+                          m.derived.inputs.isNotEmpty)
+                        Text(
+                          '${m.derived.inputs.first.basis.split(' · ').first} 기말',
+                          style: t.body(11, color: c.textSecondary),
+                        ),
+                    ],
+                  ),
+                ),
+              );
+              return Column(
+                children: [
+                  for (
+                    var start = 0;
+                    start < metrics.length;
+                    start += columns
+                  ) ...[
+                    IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (var column = 0; column < columns; column++) ...[
+                            Expanded(
+                              child: start + column < metrics.length
+                                  ? metricCell(metrics[start + column])
+                                  : const SizedBox.shrink(),
+                            ),
+                          ],
+                        ],
                       ),
                     ),
+                  ],
                 ],
               );
             },
@@ -445,6 +482,7 @@ class _KeyStatsState extends State<_KeyStats> {
           Align(
             alignment: Alignment.centerRight,
             child: ShadButton.ghost(
+              size: ShadButtonSize.sm,
               onPressed: () => setState(() => _showAll = !_showAll),
               child: Flexible(child: Text(_showAll ? '핵심 지표만 보기' : '전체 지표 보기')),
             ),

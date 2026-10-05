@@ -228,9 +228,12 @@ class _CompanyPageState extends State<CompanyPage> {
               basisError: _basisError,
             ),
             const SizedBox(height: AppSpace.lg),
+            const ShadSeparator.horizontal(),
+            const SizedBox(height: AppSpace.lg),
             Align(
               alignment: Alignment.centerLeft,
               child: AppTabBar<CompanyTab>(
+                fitContent: true,
                 tabs: tabs,
                 value: tab,
                 onChanged: (tab) => Router.neglect(
