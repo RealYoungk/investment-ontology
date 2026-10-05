@@ -58,8 +58,6 @@ class CompanyPage extends StatefulWidget {
 }
 
 class _CompanyPageState extends State<CompanyPage> {
-  late CompanyTab _tab = widget.initialTab;
-
   CompanyDetail? _detail;
   CompanyFinancials? _financials;
   List<DisclosureSectionInfo> _sections = const [];
@@ -111,7 +109,21 @@ class _CompanyPageState extends State<CompanyPage> {
     }
   }
 
-  /// 계산식을 펼친 지표. 머리의 지표를 누르면 재무 탭에서 그 계산식을 연다.
+  @override
+  void didUpdateWidget(covariant CompanyPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.corpCode != widget.corpCode) {
+      _detail = null;
+      _financials = null;
+      _sections = const [];
+      _error = null;
+      _loaded = false;
+      _fsDiv = null;
+      _changingBasis = false;
+      _basisError = null;
+      _load();
+    }
+  }
 
   @override
   void initState() {
@@ -178,7 +190,9 @@ class _CompanyPageState extends State<CompanyPage> {
     final t = context.typo;
     final detail = _detail;
     final tabs = _tabs;
-    final tab = tabs.containsKey(_tab) ? _tab : CompanyTab.overview;
+    final tab = tabs.containsKey(widget.initialTab)
+        ? widget.initialTab
+        : CompanyTab.overview;
 
     return ExpansionTileTheme(
       data: ExpansionTileThemeData(
@@ -219,9 +233,15 @@ class _CompanyPageState extends State<CompanyPage> {
               child: AppTabBar<CompanyTab>(
                 tabs: tabs,
                 value: tab,
-                onChanged: (tab) => setState(() {
-                  _tab = tab;
-                }),
+                onChanged: (tab) => Router.neglect(
+                  context,
+                  () => context.replace(
+                    AppRoutes.company(
+                      widget.corpCode,
+                      tab: tab == CompanyTab.overview ? null : tab.name,
+                    ),
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: AppSpace.xl),

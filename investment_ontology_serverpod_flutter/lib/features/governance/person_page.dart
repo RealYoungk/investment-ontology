@@ -26,6 +26,7 @@ class _PersonPageState extends State<PersonPage> {
   PersonProfile? _profile;
   Object? _error;
   bool _loaded = false;
+  int _loadSequence = 0;
 
   @override
   void initState() {
@@ -33,12 +34,28 @@ class _PersonPageState extends State<PersonPage> {
     _load();
   }
 
+  @override
+  void didUpdateWidget(covariant PersonPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.personId != widget.personId) {
+      _profile = null;
+      _error = null;
+      _loaded = false;
+      _load();
+    }
+  }
+
   Future<void> _load() async {
+    final sequence = ++_loadSequence;
     try {
       final p = await client.governance.person(widget.personId);
-      if (mounted) setState(() => (_profile = p, _loaded = true));
+      if (mounted && sequence == _loadSequence) {
+        setState(() => (_profile = p, _loaded = true));
+      }
     } catch (e) {
-      if (mounted) setState(() => (_error = e, _loaded = true));
+      if (mounted && sequence == _loadSequence) {
+        setState(() => (_error = e, _loaded = true));
+      }
     }
   }
 
