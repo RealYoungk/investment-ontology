@@ -123,8 +123,11 @@ class _ScreenerPageState extends State<ScreenerPage> {
 
   void _applySoon(ScreenFilter next) {
     _debounce?.cancel();
-    _pending = next;
-    _debounce = Timer(const Duration(milliseconds: 300), () => _apply(next));
+    _pending = next.copyWith(presetIds: const []);
+    _debounce = Timer(
+      const Duration(milliseconds: 300),
+      () => _apply(next.copyWith(presetIds: const [])),
+    );
   }
 
   Future<void> _load({int offset = 0}) async {
@@ -204,6 +207,11 @@ class _ScreenerPageState extends State<ScreenerPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text('어떤 회사를 찾고 있나요?', style: t.sectionTitle),
+            const SizedBox(height: AppSpace.xs),
+            Text(
+              '여러 개 선택하면 모든 조건을 만족하는 기업을 찾아요.',
+              style: t.body(12, color: c.textSecondary),
+            ),
             const SizedBox(height: AppSpace.md),
             for (final group in screenPresetGroups)
               Padding(
@@ -223,7 +231,7 @@ class _ScreenerPageState extends State<ScreenerPage> {
                               key: ValueKey('preset-${preset.id}'),
                               onPressed: () {
                                 setState(() => _inputRevision++);
-                                _apply(preset.applyTo(_f));
+                                _apply(preset.toggle(_f));
                               },
                               variant: preset.matches(_f)
                                   ? ShadButtonVariant.primary
@@ -302,10 +310,10 @@ class _ScreenerPageState extends State<ScreenerPage> {
                   ),
                 ShadTooltip(
                   builder: (_) => Text(
-                    '찾기 예시는 미리 정해 둔 조건이에요. 선택하면 기존 숫자 조건을 바꿔요. 원하는 값으로 수정할 수 있어요. 최신 자료의 연결재무제표를 먼저 사용하고, 자료가 부족하면 가능한 경우 별도재무제표로 보완해요. 조건에 필요한 숫자가 없는 기업은 결과에서 빠져요. 지배주주 값이 없으면 전체 값을 써요. 금융업은 회계 구조가 달라 다른 업종과 단순 비교하기 어려워요.',
+                    '찾기 예시는 미리 정해 둔 조건이에요. 여러 개를 선택하면 모두 만족해야 해요. 같은 지표는 더 엄격한 기준을 적용하고, 다시 누르면 해제해요. 원하는 값으로 수정할 수 있어요. 최신 자료의 연결재무제표를 먼저 사용하고, 자료가 부족하면 가능한 경우 별도재무제표로 보완해요. 조건에 필요한 숫자가 없는 기업은 결과에서 빠져요. 지배주주 값이 없으면 전체 값을 써요. 금융업은 회계 구조가 달라 다른 업종과 단순 비교하기 어려워요.',
                   ),
                   child: Semantics(
-                    tooltip: '찾기 예시는 미리 정해 둔 조건이에요. 선택하면 기존 숫자 조건을 바꿔요. 원하는 값으로 수정할 수 있어요. 최신 자료의 연결재무제표를 먼저 사용하고, 자료가 부족하면 가능한 경우 별도재무제표로 보완해요. 조건에 필요한 숫자가 없는 기업은 결과에서 빠져요. 지배주주 값이 없으면 전체 값을 써요. 금융업은 회계 구조가 달라 다른 업종과 단순 비교하기 어려워요.',
+                    tooltip: '찾기 예시는 미리 정해 둔 조건이에요. 여러 개를 선택하면 모두 만족해야 해요. 같은 지표는 더 엄격한 기준을 적용하고, 다시 누르면 해제해요. 원하는 값으로 수정할 수 있어요. 최신 자료의 연결재무제표를 먼저 사용하고, 자료가 부족하면 가능한 경우 별도재무제표로 보완해요. 조건에 필요한 숫자가 없는 기업은 결과에서 빠져요. 지배주주 값이 없으면 전체 값을 써요. 금융업은 회계 구조가 달라 다른 업종과 단순 비교하기 어려워요.',
                     child: Padding(
                       padding: EdgeInsets.all(12),
                       child: Icon(LucideIcons.circleHelp, size: 20),
@@ -343,7 +351,10 @@ class _ScreenerPageState extends State<ScreenerPage> {
                                   Uri.parse(_f.location).queryParameters,
                                 )..remove(entry.key);
                                 setState(() => _inputRevision++);
-                                _apply(ScreenFilter.fromQuery(query));
+                                _apply(
+                                  ScreenFilter.fromQuery(query)
+                                      .copyWith(presetIds: const []),
+                                );
                               },
                               child: ExcludeSemantics(
                                 child: ShadIconButton.ghost(
@@ -356,7 +367,10 @@ class _ScreenerPageState extends State<ScreenerPage> {
                                       Uri.parse(_f.location).queryParameters,
                                     )..remove(entry.key);
                                     setState(() => _inputRevision++);
-                                    _apply(ScreenFilter.fromQuery(query));
+                                    _apply(
+                                      ScreenFilter.fromQuery(query)
+                                          .copyWith(presetIds: const []),
+                                    );
                                   },
                                   icon: const Icon(LucideIcons.x, size: 14),
                                 ),
