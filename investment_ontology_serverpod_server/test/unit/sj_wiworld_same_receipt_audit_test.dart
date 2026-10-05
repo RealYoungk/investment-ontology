@@ -1,3 +1,5 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -46,7 +48,7 @@ void main() {
           docs['cover']['url']: File('$dir/cover.html').readAsBytesSync(),
           proof['url']: File('$noneDir/cfs.html').readAsBytesSync(),
         };
-        final reader = PublicFinancialHtmlFetcher(
+        final reader = fastFinancialHtmlFetcher(
           MockClient((r) async {
             final bytes = files[r.url.toString()];
             if (bytes == null) throw const FormatException('Unbound fixture');

@@ -1,3 +1,5 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -169,7 +171,7 @@ void main() {
           s['url']: File('$dir/${s['file']}').readAsBytesSync(),
       };
       final source =
-          await PublicFinancialHtmlFetcher(
+          await fastFinancialHtmlFetcher(
             MockClient((req) async {
               requested.add(req.url.toString());
               final bytes = docs[req.url.toString()];
@@ -211,7 +213,7 @@ void main() {
       };
       expect(
         () =>
-            PublicFinancialHtmlFetcher(
+            fastFinancialHtmlFetcher(
               MockClient(
                 (req) async => http.Response.bytes(
                   docs[req.url.toString()]!,

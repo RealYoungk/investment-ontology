@@ -1,3 +1,5 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -32,7 +34,7 @@ List<Map<String, dynamic>> parseActual(
   consolidated: cfs,
 );
 Future<PublicFinancialHtmlSource> fetchAngio() =>
-    PublicFinancialHtmlFetcher(
+    fastFinancialHtmlFetcher(
       MockClient((req) async {
         const r = '20260318000962';
         final name = req.url.path == '/dsaf001/main.do'

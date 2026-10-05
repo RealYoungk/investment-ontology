@@ -1,3 +1,5 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
@@ -31,7 +33,7 @@ class JilgyungyiQueueClient extends SourceClient {
     if (receipt != '20230321000972' || !consolidated) {
       throw const FormatException('Unverified generic fixture');
     }
-    return PublicFinancialHtmlFetcher(
+    return fastFinancialHtmlFetcher(
       MockClient((request) async {
         publicUris.add(request.url);
         final label = [

@@ -1,3 +1,5 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -7,7 +9,6 @@ import 'package:http/testing.dart';
 import 'package:test/test.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_issuer_legal_name.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_financial_html.dart';
-import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_financial_html_fetch.dart';
 
 const directory = 'test/fixtures/financial_html/a1-first-direct';
 String raw(String name) => File('$directory/$name.html').readAsStringSync();
@@ -79,7 +80,7 @@ void main() {
       for (final s in meta()['sources'] as List) s['url']: raw(s['label']),
     };
     final result =
-        await PublicFinancialHtmlFetcher(
+        await fastFinancialHtmlFetcher(
           MockClient((r) async {
             expect(r.url.queryParameters.containsKey('crtfc_key'), false);
             final body = files[r.url.toString()];

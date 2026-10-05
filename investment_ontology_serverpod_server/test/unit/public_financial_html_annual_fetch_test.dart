@@ -1,3 +1,5 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -31,7 +33,7 @@ void main() {
             ? DateTime.utc(2026, 6, 30)
             : DateTime.utc(receipt == '20250324000440' ? 2024 : 2025, 12, 31));
     var viewers = 0;
-    return PublicFinancialHtmlFetcher(
+    return fastFinancialHtmlFetcher(
       MockClient((r) async {
         requests.add(r);
         expect(r.url.host, 'dart.fss.or.kr');

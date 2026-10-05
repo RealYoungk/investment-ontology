@@ -1,3 +1,5 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -24,7 +26,7 @@ Future<PublicFinancialHtmlSource> fetchConflict(
   String? corp,
   bool? cfs,
 }) {
-  return PublicFinancialHtmlFetcher(
+  return fastFinancialHtmlFetcher(
     MockClient((r) async {
       if (r.url.toString() ==
           'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${e['receipt']}') {

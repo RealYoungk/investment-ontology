@@ -1,3 +1,5 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'dart:io';
 import 'dart:convert';
 
@@ -41,7 +43,7 @@ List<Map<String, dynamic>> parse({
   consolidated: consolidated,
 );
 Future<PublicFinancialHtmlSource> fetch() =>
-    PublicFinancialHtmlFetcher(
+    fastFinancialHtmlFetcher(
       MockClient((request) async {
         final label = [
           'shell',

@@ -1,9 +1,10 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'dart:io';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_financial_html_fetch.dart';
 
 import 'package:test/test.dart';
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
@@ -52,7 +53,7 @@ void main() {
           );
         });
         await expectLater(
-          PublicFinancialHtmlFetcher(client).fetchAnnual(
+          fastFinancialHtmlFetcher(client).fetchAnnual(
             receipt,
             reportName: filing(entry).reportName,
             corpCode: entry.corpCode,

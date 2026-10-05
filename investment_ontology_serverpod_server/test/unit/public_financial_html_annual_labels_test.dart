@@ -1,3 +1,5 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'dart:io';
 import 'dart:convert';
 
@@ -191,7 +193,7 @@ void main() {
           );
         });
         await expectLater(
-          PublicFinancialHtmlFetcher(client).fetchAnnual(
+          fastFinancialHtmlFetcher(client).fetchAnnual(
             rec,
             reportName: e['reportName'],
             corpCode: e['corpCode'],

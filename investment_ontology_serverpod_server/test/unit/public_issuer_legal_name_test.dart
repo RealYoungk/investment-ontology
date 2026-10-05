@@ -1,6 +1,7 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_financial_html_fetch.dart';
 
 import 'dart:convert';
 import 'dart:io';
@@ -75,7 +76,7 @@ void main() {
   test('exact annual transport adds only source-bound overview and reparses actual seven core', () async {
     const rec = '20251124000372';
     final calls = <String>[];
-    final fetcher = PublicFinancialHtmlFetcher(
+    final fetcher = fastFinancialHtmlFetcher(
       MockClient((request) async {
         final matches = [
           'shell',
@@ -124,7 +125,7 @@ void main() {
   test('transport issuer failure does not fetch numeric statement or become noData', () async {
     const rec = '20251124000372';
     final calls = <String>[];
-    final fetcher = PublicFinancialHtmlFetcher(
+    final fetcher = fastFinancialHtmlFetcher(
       MockClient((request) async {
         final label = [
           'shell',

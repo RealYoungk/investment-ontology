@@ -1,3 +1,5 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -41,7 +43,7 @@ class ThreeAuditClient extends SourceClient {
         ).readAsBytesSync(),
         cfs['url']: File('$dir/cfs.html').readAsBytesSync(),
       };
-      return PublicFinancialHtmlFetcher(
+      return fastFinancialHtmlFetcher(
         MockClient((req) async {
           final raw = files[req.url.toString()];
           if (raw == null) throw const FormatException('Unbound CFS source');
@@ -79,7 +81,7 @@ class ThreeAuditClient extends SourceClient {
       p['statement']['url']: File('$dir/${consolidated ? 'cfs' : 'ofs'}.html')
           .readAsBytesSync(),
     };
-    return PublicFinancialHtmlFetcher(
+    return fastFinancialHtmlFetcher(
       MockClient((r) async {
         final b = files[r.url.toString()];
         if (b == null) throw const FormatException('Unbound source');

@@ -1,3 +1,5 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'dart:io';
 import 'dart:convert';
 
@@ -32,7 +34,7 @@ class KiwoomQueueClient extends SourceClient {
     if (receipt != '20230320001037' || !consolidated) {
       throw const FormatException('Unverified generic fixture');
     }
-    return PublicFinancialHtmlFetcher(
+    return fastFinancialHtmlFetcher(
       MockClient((request) async {
         publicUris.add(request.url);
         final label = [

@@ -1,3 +1,5 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -44,7 +46,7 @@ Future<PublicFinancialHtmlSource> actual(
 }) {
   final c = cases[i];
   var views = 0;
-  return PublicFinancialHtmlFetcher(
+  return fastFinancialHtmlFetcher(
     MockClient((r) async {
       expect(r.url.host, 'dart.fss.or.kr');
       expect(r.url.queryParameters.containsKey('crtfc_key'), false);

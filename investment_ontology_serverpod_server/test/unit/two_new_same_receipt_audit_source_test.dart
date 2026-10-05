@@ -1,3 +1,5 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -5,7 +7,6 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:test/test.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_financial_html.dart';
-import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_financial_html_fetch.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/same_receipt_audit_source.dart';
 
 void main() {
@@ -120,7 +121,7 @@ void main() {
           s['url']: File('$dir/${s['file']}').readAsBytesSync(),
       };
       final source =
-          await PublicFinancialHtmlFetcher(
+          await fastFinancialHtmlFetcher(
             MockClient((req) async {
               requested.add(req.url.toString());
               final bytes = docs[req.url.toString()];

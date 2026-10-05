@@ -1,3 +1,5 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -71,7 +73,7 @@ class CoreFiftyThreeClient extends SourceClient {
       for (final row in manifest['sources'])
         row['url']: File('$dir/${row['file']}').readAsBytesSync(),
     };
-    return PublicFinancialHtmlFetcher(
+    return fastFinancialHtmlFetcher(
       MockClient((r) async {
         final b = files[r.url.toString()];
         if (b == null) throw FormatException('Unbound source ${r.url}');

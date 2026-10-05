@@ -1,3 +1,5 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -52,7 +54,7 @@ class SkCfsClient extends SourceClient {
       p['statement']['url']: File('$dir/${consolidated ? 'cfs' : 'ofs'}.html')
           .readAsBytesSync(),
     };
-    return PublicFinancialHtmlFetcher(
+    return fastFinancialHtmlFetcher(
       MockClient((r) async {
         final b = files[r.url.toString()];
         if (b == null) throw const FormatException('Unbound source');

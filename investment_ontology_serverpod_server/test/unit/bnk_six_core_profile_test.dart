@@ -1,9 +1,10 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'dart:io';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_financial_html_fetch.dart';
 
 import 'package:test/test.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/bnk_six_core_profile.dart';
@@ -60,7 +61,7 @@ void main() {
           request: r,
         );
       });
-      final result = await PublicFinancialHtmlFetcher(client).fetchAnnual(
+      final result = await fastFinancialHtmlFetcher(client).fetchAnnual(
         BnkSixCoreProfile.receipt,
         reportName: '사업보고서 (2022.12)',
         corpCode: BnkSixCoreProfile.corpCode,

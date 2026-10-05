@@ -1,3 +1,5 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -24,7 +26,7 @@ Future<PublicFinancialHtmlSource> actual(
 }) {
   final c = cases()[index];
   var viewers = 0;
-  return PublicFinancialHtmlFetcher(
+  return fastFinancialHtmlFetcher(
     MockClient(
       (r) async => http.Response.bytes(
         utf8.encode(
@@ -227,7 +229,7 @@ void main() {
         ) as List).singleWhere((x) => x['rceptNo'] == receipt);
         var viewers = 0;
         await expectLater(
-          PublicFinancialHtmlFetcher(
+          fastFinancialHtmlFetcher(
             MockClient(
               (r) async => http.Response.bytes(
                 utf8.encode(

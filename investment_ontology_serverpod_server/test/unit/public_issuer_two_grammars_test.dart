@@ -1,3 +1,5 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -6,7 +8,6 @@ import 'package:http/testing.dart';
 import 'package:test/test.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_issuer_legal_name.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_financial_html.dart';
-import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_financial_html_fetch.dart';
 
 const root = 'test/fixtures/financial_html/legal-two-grammars';
 String raw(String r, String n) => File('$root/$r/$n.html').readAsStringSync();
@@ -81,7 +82,7 @@ void main() {
     test(
       '$r runtime fetch revalidates official identity without extra domains',
       () async {
-        final fetcher = PublicFinancialHtmlFetcher(
+        final fetcher = fastFinancialHtmlFetcher(
           MockClient((request) async {
             final label = [
               'shell',

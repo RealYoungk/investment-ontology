@@ -1,3 +1,5 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -20,7 +22,7 @@ Future<PublicFinancialHtmlSource> fetch(
   String? cover,
   bool cfs = true,
 }) =>
-    PublicFinancialHtmlFetcher(
+    fastFinancialHtmlFetcher(
       MockClient((req) async {
         final n = req.url.path == '/dsaf001/main.do'
             ? 'shell'

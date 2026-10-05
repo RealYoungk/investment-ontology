@@ -1,3 +1,4 @@
+import '../support/financial_html_test_clock.dart';
 import '../unit/public_financial_html_plumline_attachment_add_test.dart'
     as plum;
 import '../unit/public_financial_html_cfs_none_literals_test.dart'
@@ -364,7 +365,7 @@ class SuntechHtmlClient extends AttachmentOriginalClient {
       );
     });
     try {
-      return await PublicFinancialHtmlFetcher(mock).fetchAttachmentAnnual(
+      return await fastFinancialHtmlFetcher(mock).fetchAttachmentAnnual(
         receipt,
         reportName: reportName,
         corpCode: corpCode,

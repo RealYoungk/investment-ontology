@@ -122,11 +122,34 @@ class PublicFinancialHtmlBasisNotApplicable extends FormatException {
 /// Company IDs come from each official shell; dates come from the actual cover.
 /// No account IDs, date ranges, or amounts are inferred by this transport.
 class PublicFinancialHtmlFetcher {
-  PublicFinancialHtmlFetcher(this.client);
+  PublicFinancialHtmlFetcher(this.client) : _timing = _networkTiming;
+
+  /// Injects only the request cadence clock for isolated transport tests.
+  PublicFinancialHtmlFetcher.withTimingForTesting(
+    this.client, {
+    required FinancialHtmlRequestTiming timing,
+  }) : _timing = timing; // ignore: prefer_initializing_formals
+
+  /// Replays already byte-verified documents without network throttling.
+  /// This constructor owns a closed document transport: unknown URLs and
+  /// excess requests fail instead of falling back to HTTP. Callers must verify
+  /// the package's identity and digests before supplying the documents.
+  PublicFinancialHtmlFetcher.pinnedDocuments(
+    Map<Uri, List<int>> documents, {
+    required int maxRequests,
+  }) : client = _PinnedFinancialHtmlClient(documents, maxRequests: maxRequests),
+       _timing = null;
+
   final http.Client client;
 
+  int get pinnedRequestCount => switch (client) {
+    _PinnedFinancialHtmlClient pinned => pinned.requests,
+    _ => throw StateError('Not a pinned document transport'),
+  };
+
   // Reserve starts across exact-annual instances, including call boundaries.
-  static DateTime? _nextAnnualRequestAt;
+  static final _networkTiming = FinancialHtmlRequestTiming._network();
+  final FinancialHtmlRequestTiming? _timing;
 
   Future<PublicFinancialHtmlSource> fetchAttachmentAnnual(
     String receipt, {
@@ -224,18 +247,10 @@ class PublicFinancialHtmlFetcher {
     String? cookie;
     var requested = false;
     Future<String> get(Uri uri, {Uri? referer}) async {
-      if (exactAnnual) {
-        final now = DateTime.now();
-        final reserved = _nextAnnualRequestAt;
-        final start = reserved != null && reserved.isAfter(now)
-            ? reserved
-            : now;
-        _nextAnnualRequestAt = start.add(const Duration(seconds: 1));
-        final delay = start.difference(now);
-        if (delay > Duration.zero) await Future<void>.delayed(delay);
-      } else if (requested) {
-        await Future<void>.delayed(const Duration(seconds: 1));
-      }
+      await _timing?.beforeRequest(
+        exactAnnual: exactAnnual,
+        requested: requested,
+      );
       requested = true;
       final response = await client
           .get(
@@ -784,5 +799,65 @@ class PublicFinancialHtmlFetcher {
       issuerProof: issuerProof,
       primaryIssuerProof: primaryIssuerProof,
     );
+  }
+}
+
+/// No socket, injectable client, or network fallback exists in this transport.
+class _PinnedFinancialHtmlClient extends http.BaseClient {
+  _PinnedFinancialHtmlClient(
+    Map<Uri, List<int>> documents, {
+    required this.maxRequests,
+  }) : documents = Map.unmodifiable(documents);
+
+  final int maxRequests;
+  final Map<Uri, List<int>> documents;
+  int requests = 0;
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    final bytes = documents[request.url];
+    if (request.method != 'GET' || bytes == null || ++requests > maxRequests) {
+      throw const FormatException('Unpinned cached annual source request');
+    }
+    return http.StreamedResponse(
+      Stream.value(bytes),
+      200,
+      headers: {'content-type': 'text/html; charset=utf-8'},
+      request: request,
+    );
+  }
+}
+
+/// Reserves request starts independently of HTTP parsing and timeout timers.
+/// Normal fetchers share the real clock; tests may advance an isolated clock.
+class FinancialHtmlRequestTiming {
+  FinancialHtmlRequestTiming._network()
+    : _now = DateTime.now,
+      _wait = Future<void>.delayed;
+
+  FinancialHtmlRequestTiming.forTesting({
+    required DateTime Function() now,
+    required Future<void> Function(Duration) wait,
+  }) : _now = now, // ignore: prefer_initializing_formals
+       _wait = wait; // ignore: prefer_initializing_formals
+
+  final DateTime Function() _now;
+  final Future<void> Function(Duration) _wait;
+  DateTime? _nextAnnualRequestAt;
+
+  Future<void> beforeRequest({
+    required bool exactAnnual,
+    required bool requested,
+  }) async {
+    if (exactAnnual) {
+      final now = _now();
+      final reserved = _nextAnnualRequestAt;
+      final start = reserved != null && reserved.isAfter(now) ? reserved : now;
+      _nextAnnualRequestAt = start.add(const Duration(seconds: 1));
+      final delay = start.difference(now);
+      if (delay > Duration.zero) await _wait(delay);
+    } else if (requested) {
+      await _wait(const Duration(seconds: 1));
+    }
   }
 }

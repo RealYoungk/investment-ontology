@@ -1,3 +1,5 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -42,7 +44,7 @@ class QueueClient extends SourceClient {
       throw const FormatException('Unverified queue source');
     }
     if ({'20260330001331', '20260319001111'}.contains(receipt)) {
-      return PublicFinancialHtmlFetcher(
+      return fastFinancialHtmlFetcher(
         MockClient((request) async {
           final label = [
             'shell',
