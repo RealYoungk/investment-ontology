@@ -258,6 +258,15 @@ class _CompanyPageState extends State<CompanyPage> {
                     latestReport: _financials?.periods.lastOrNull,
                     dataVersion: _version,
                   ),
+                  const SizedBox(height: AppSpace.lg),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: ShadButton.outline(
+                      onPressed: () =>
+                          context.push('/insights?company=${widget.corpCode}'),
+                      child: const Text('투자 관점 · 후속 기록'),
+                    ),
+                  ),
                   if (_sections.isEmpty) ...[
                     const SizedBox(height: AppSpace.section),
                     _DisclosureFetchCard(

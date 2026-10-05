@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../design/tokens.dart';
-import 'intro_film_surface_stub.dart'
-    if (dart.library.js_interop) 'intro_film_surface_web.dart';
+import 'intro_motion_surface.dart';
 
 /// A single scroll owner; the film pins inside a long section without trapping input.
 class IntroFilm extends StatefulWidget {
@@ -53,7 +52,9 @@ class _IntroFilmState extends State<IntroFilm> {
     );
     final travel = reduced ? 0.0 : height * 1.8;
     final pinned = _offset.clamp(0.0, travel);
-    final progress = travel == 0 ? .98 : (pinned / travel).clamp(0.0, 1.0);
+    final progress = travel == 0
+        ? 1.0
+        : introMotionProgress((pinned / travel).clamp(0.0, 1.0));
     final chapter = progress < .3
         ? 0
         : progress < .65
@@ -81,7 +82,24 @@ class _IntroFilmState extends State<IntroFilm> {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  FilmSurface(progress: progress, reduced: reduced),
+                  ColoredBox(color: c.accentSubtle),
+                  Positioned(
+                    top: height * .30,
+                    bottom: 106,
+                    left: compact ? 12 : 48,
+                    right: compact ? 12 : 48,
+                    child: TweenAnimationBuilder<double>(
+                      tween: Tween<double>(begin: progress, end: progress),
+                      duration: reduced
+                          ? Duration.zero
+                          : const Duration(milliseconds: 320),
+                      curve: Curves.easeOutCubic,
+                      builder: (context, value, _) => IntroMotionSurface(
+                        progress: value,
+                        reduced: reduced,
+                      ),
+                    ),
+                  ),
                   IgnorePointer(
                     child: DecoratedBox(
                       decoration: BoxDecoration(
@@ -168,7 +186,7 @@ class _IntroFilmState extends State<IntroFilm> {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          reduced ? '연결 구조를 표현한 영상' : '스크롤하며 연결을 따라가세요 ↓',
+                          reduced ? '정보의 연결 구조' : '스크롤하며 연결을 따라가세요 ↓',
                           style: context.typo.body(11, color: c.textSecondary),
                         ),
                         const SizedBox(height: 4),
@@ -187,4 +205,16 @@ class _IntroFilmState extends State<IntroFilm> {
       ),
     );
   }
+}
+
+/// Hold each completed composition before the next transition. The page keeps
+/// its original scroll length; no wheel/touch interception or snapping.
+double introMotionProgress(double scrollProgress) {
+  final p = scrollProgress.clamp(0.0, 1.0);
+  if (p <= .14) return 0;
+  if (p < .40) return .62 * Curves.easeInOutCubic.transform((p - .14) / .26);
+  if (p <= .60) return .62;
+  if (p < .84)
+    return .62 + .38 * Curves.easeInOutCubic.transform((p - .60) / .24);
+  return 1;
 }

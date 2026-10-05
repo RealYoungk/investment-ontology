@@ -1,3 +1,6 @@
+import '../features/investment_notes/investment_notes_page.dart';
+import '../features/investment_notes/investment_note_page.dart';
+
 import 'package:flutter/foundation.dart';
 
 import '../design/design_gallery.dart';
@@ -93,6 +96,12 @@ abstract final class AppRoutes {
           ? '/watchlist?add=$code'
           : '/watchlist';
     }
+    if (saved != null &&
+        !saved.hasScheme &&
+        !saved.hasAuthority &&
+        RegExp(r'^/insights(?:/[1-9][0-9]*)?$').hasMatch(saved.path)) {
+      return saved.path;
+    }
     final uri = Uri.tryParse(next ?? '');
     if (uri != null &&
         !uri.hasScheme &&
@@ -162,6 +171,20 @@ abstract final class AppRoutes {
           builder: (context, state, child) =>
               AppShell(location: state.uri, child: child),
           routes: [
+            GoRoute(
+              path: '/insights',
+              builder: (_, state) => InvestmentNotesPage(
+                corpCode: state.uri.queryParameters['company'],
+              ),
+            ),
+            GoRoute(
+              path: '/insights/:articleId',
+              builder: (_, state) => InvestmentNotePage(
+                articleId:
+                    int.tryParse(state.pathParameters['articleId'] ?? '') ?? 0,
+                preview: state.uri.queryParameters['preview'] == 'true',
+              ),
+            ),
             GoRoute(
               path: '/notifications',
               builder: (_, _) => const NotificationsPage(),
