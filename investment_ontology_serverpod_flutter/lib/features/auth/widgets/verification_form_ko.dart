@@ -96,6 +96,8 @@ class _VerificationFormKoState extends State<VerificationFormKo> {
             ),
             smallGap,
             ShadInputFormField(
+              constraints: const BoxConstraints(minHeight: 48),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               label: const Text('인증번호'),
               focusNode: _focusNode,
               controller: controller.verificationCodeController,
@@ -130,6 +132,7 @@ class _VerificationFormKoState extends State<VerificationFormKo> {
         ListenableBuilder(
           listenable: controller.verificationCodeController,
           builder: (context, _) => ShadButton(
+            height: 48,
             enabled:
                 controller.verificationCodeController.text.length == 8 &&
                 !controller.isLoading,

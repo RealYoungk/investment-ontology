@@ -40,6 +40,8 @@ class _PasswordSetupKoState extends State<PasswordSetupKo> {
             ),
             smallGap,
             ShadInputFormField(
+              constraints: const BoxConstraints(minHeight: 48),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               label: Text(reset ? texts.newPasswordLabel : texts.passwordLabel),
               obscureText: !_visible,
               autofillHints: const [AutofillHints.newPassword],
@@ -70,7 +72,7 @@ class _PasswordSetupKoState extends State<PasswordSetupKo> {
                     onPressed: () => setState(() => _visible = !_visible),
                     icon: Icon(
                       _visible ? LucideIcons.eye : LucideIcons.eyeOff,
-                      size: 18,
+                      size: 20,
                     ),
                   ),
                 ),
@@ -87,6 +89,7 @@ class _PasswordSetupKoState extends State<PasswordSetupKo> {
             ],
             smallGap,
             ShadButton(
+              height: 48,
               enabled: requirements.isValid(password) && !controller.isLoading,
               onPressed: requirements.isValid(password) && !controller.isLoading
                   ? (reset
