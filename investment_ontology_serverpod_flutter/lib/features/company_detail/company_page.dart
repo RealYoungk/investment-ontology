@@ -214,12 +214,15 @@ class _CompanyPageState extends State<CompanyPage> {
               basisError: _basisError,
             ),
             const SizedBox(height: AppSpace.lg),
-            AppTabBar<CompanyTab>(
-              tabs: tabs,
-              value: tab,
-              onChanged: (tab) => setState(() {
-                _tab = tab;
-              }),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: AppTabBar<CompanyTab>(
+                tabs: tabs,
+                value: tab,
+                onChanged: (tab) => setState(() {
+                  _tab = tab;
+                }),
+              ),
             ),
             const SizedBox(height: AppSpace.xl),
             switch (tab) {

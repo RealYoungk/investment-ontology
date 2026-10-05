@@ -11,6 +11,50 @@ import 'package:investment_ontology_serverpod_flutter/features/financials/financ
 import 'financial_metrics_test.dart' as fixtures;
 
 void main() {
+  for (final width in [320.0, 390.0, 768.0, 1045.0, 1440.0]) {
+    testWidgets('interim growth shows its period at $width', (tester) async {
+      await tester.binding.setSurfaceSize(Size(width, 1000));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      final data = fixtures.financials([
+        fixtures.period(2025, FinancialReportCode.annual, [
+          fixtures.line('revenue', 13312020352),
+          fixtures.line('netIncome', -100),
+        ]),
+        fixtures.period(2026, FinancialReportCode.halfYear, [
+          fixtures
+              .line('revenue', 5473699582, cumulative: 12047351414)
+              .copyWith(priorSameCumulativeAmount: BigInt.from(4827787392)),
+          fixtures
+              .line('netIncome', -50, cumulative: -100)
+              .copyWith(priorSameCumulativeAmount: BigInt.from(-100)),
+        ]),
+      ], cap: BigInt.from(150800000000));
+      await tester.pumpWidget(
+        shadTestHost(
+          MaterialApp(
+            theme: buildAppTheme(ledgerBrand),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: CompanyHeader(
+                  detail: CompanyDetail(
+                    company: Company(corpCode: '01829819', name: '(주)아크릴'),
+                    industryPath: [],
+                    changes: [],
+                  ),
+                  financials: data,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('149.5%'), findsOneWidget);
+      expect(find.text('반기 누적 · 전년 동기 대비'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   for (final width in [390.0, 1280.0]) {
     testWidgets(
       'missing metrics show reasons without dash placeholders at $width',

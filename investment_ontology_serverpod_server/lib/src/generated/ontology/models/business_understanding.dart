@@ -14,6 +14,7 @@ import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart
     as _i4yshtjp;
 import 'package:serverpod/serverpod.dart' as _is;
 import '../../ontology/models/business_product.dart' as _inhnrb3l;
+import '../../ontology/models/financial_report_code.dart' as _i6mbh8k5;
 
 abstract class BusinessUnderstanding
     implements _is.SerializableModel, _is.ProtocolSerialization {
@@ -24,6 +25,8 @@ abstract class BusinessUnderstanding
     this.rceptNo,
     this.computedAt,
     required this.ruleVersion,
+    this.reportCode,
+    this.reportName,
   });
 
   factory BusinessUnderstanding({
@@ -33,6 +36,8 @@ abstract class BusinessUnderstanding
     String? rceptNo,
     DateTime? computedAt,
     required int ruleVersion,
+    _i6mbh8k5.FinancialReportCode? reportCode,
+    String? reportName,
   }) = _BusinessUnderstandingImpl;
 
   factory BusinessUnderstanding.fromJson(
@@ -50,6 +55,12 @@ abstract class BusinessUnderstanding
           ? null
           : _is.DateTimeJsonExtension.fromJson(jsonSerialization['computedAt']),
       ruleVersion: jsonSerialization['ruleVersion'] as int,
+      reportCode: jsonSerialization['reportCode'] == null
+          ? null
+          : _i6mbh8k5.FinancialReportCode.fromJson(
+              (jsonSerialization['reportCode'] as String),
+            ),
+      reportName: jsonSerialization['reportName'] as String?,
     );
   }
 
@@ -65,6 +76,10 @@ abstract class BusinessUnderstanding
 
   int ruleVersion;
 
+  _i6mbh8k5.FinancialReportCode? reportCode;
+
+  String? reportName;
+
   /// Returns a shallow copy of this [BusinessUnderstanding]
   /// with some or all fields replaced by the given arguments.
   @_is.useResult
@@ -75,6 +90,8 @@ abstract class BusinessUnderstanding
     String? rceptNo,
     DateTime? computedAt,
     int? ruleVersion,
+    _i6mbh8k5.FinancialReportCode? reportCode,
+    String? reportName,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -86,6 +103,8 @@ abstract class BusinessUnderstanding
       if (rceptNo != null) 'rceptNo': rceptNo,
       if (computedAt != null) 'computedAt': computedAt?.toJson(),
       'ruleVersion': ruleVersion,
+      if (reportCode != null) 'reportCode': reportCode?.toJson(),
+      if (reportName != null) 'reportName': reportName,
     };
   }
 
@@ -99,6 +118,8 @@ abstract class BusinessUnderstanding
       if (rceptNo != null) 'rceptNo': rceptNo,
       if (computedAt != null) 'computedAt': computedAt?.toJson(),
       'ruleVersion': ruleVersion,
+      if (reportCode != null) 'reportCode': reportCode?.toJson(),
+      if (reportName != null) 'reportName': reportName,
     };
   }
 
@@ -118,6 +139,8 @@ class _BusinessUnderstandingImpl extends BusinessUnderstanding {
     String? rceptNo,
     DateTime? computedAt,
     required int ruleVersion,
+    _i6mbh8k5.FinancialReportCode? reportCode,
+    String? reportName,
   }) : super._(
          status: status,
          products: products,
@@ -125,6 +148,8 @@ class _BusinessUnderstandingImpl extends BusinessUnderstanding {
          rceptNo: rceptNo,
          computedAt: computedAt,
          ruleVersion: ruleVersion,
+         reportCode: reportCode,
+         reportName: reportName,
        );
 
   /// Returns a shallow copy of this [BusinessUnderstanding]
@@ -138,6 +163,8 @@ class _BusinessUnderstandingImpl extends BusinessUnderstanding {
     Object? rceptNo = _Undefined,
     Object? computedAt = _Undefined,
     int? ruleVersion,
+    Object? reportCode = _Undefined,
+    Object? reportName = _Undefined,
   }) {
     return BusinessUnderstanding(
       status: status ?? this.status,
@@ -146,6 +173,10 @@ class _BusinessUnderstandingImpl extends BusinessUnderstanding {
       rceptNo: rceptNo is String? ? rceptNo : this.rceptNo,
       computedAt: computedAt is DateTime? ? computedAt : this.computedAt,
       ruleVersion: ruleVersion ?? this.ruleVersion,
+      reportCode: reportCode is _i6mbh8k5.FinancialReportCode?
+          ? reportCode
+          : this.reportCode,
+      reportName: reportName is String? ? reportName : this.reportName,
     );
   }
 }

@@ -1,3 +1,4 @@
+import '../../common/formatters.dart';
 import 'company_basic_info.dart';
 import '../../watchlist/watchlist_button.dart';
 import '../../financials/metric_profile.dart';
@@ -47,6 +48,25 @@ class CompanyHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        Wrap(
+          spacing: AppSpace.sm,
+          runSpacing: AppSpace.xs,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            ShadBadge.secondary(child: Text(marketLabel(company.market))),
+            if (company.stockCode?.isNotEmpty == true)
+              Text(
+                company.stockCode!,
+                style: t.numeric(12, color: c.textSecondary),
+              ),
+            if (detail.industryPath.isNotEmpty)
+              Text(
+                detail.industryPath.last.name,
+                style: t.body(12, color: c.textSecondary),
+              ),
+          ],
+        ),
+        const SizedBox(height: AppSpace.md),
         LayoutBuilder(
           builder: (context, constraints) {
             double textWidth(String text, TextStyle style) {
@@ -132,6 +152,16 @@ class CompanyHeader extends StatelessWidget {
                   ),
               ],
             );
+            if (constraints.maxWidth < 600) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  name,
+                  const SizedBox(height: AppSpace.md),
+                  actions,
+                ],
+              );
+            }
             return Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -143,7 +173,7 @@ class CompanyHeader extends StatelessWidget {
           },
         ),
         CompanyBasicInfo(detail: detail),
-        const SizedBox(height: AppSpace.sm),
+        const SizedBox(height: AppSpace.lg),
         Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -309,22 +339,20 @@ class _KeyStatsState extends State<_KeyStats> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Container(
-          decoration: BoxDecoration(
-            border: Border(
-              top: BorderSide(color: c.border),
-              bottom: BorderSide(color: c.border),
-            ),
-          ),
+        DataPanel(
           child: LayoutBuilder(
             builder: (context, constraints) {
               final columns = constraints.maxWidth < 600
                   ? 2
-                  : constraints.maxWidth < 1100
+                  : constraints.maxWidth < 960
                   ? 3
                   : 6;
-              final cell = constraints.maxWidth / columns;
+              final cell =
+                  (constraints.maxWidth - AppSpace.md * (columns - 1)) /
+                  columns;
               return Wrap(
+                spacing: AppSpace.md,
+                runSpacing: AppSpace.lg,
                 children: [
                   for (final m in metrics)
                     HoverBuilder(
@@ -341,20 +369,12 @@ class _KeyStatsState extends State<_KeyStats> {
                       builder: (context, hovered) => AnimatedContainer(
                         duration: AppMotion.fast,
                         width: cell,
-                        padding: const EdgeInsets.fromLTRB(
-                          AppSpace.sm,
-                          AppSpace.md,
-                          AppSpace.lg,
-                          AppSpace.md,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppSpace.sm,
                         ),
                         decoration: BoxDecoration(
-                          color: hovered ? c.surfaceHover : Colors.transparent,
-                          border: Border(
-                            bottom: BorderSide(
-                              color: Colors.transparent,
-                              width: 3,
-                            ),
-                          ),
+                          color: hovered ? c.surfaceHover : null,
+                          borderRadius: context.shape.borderRadius,
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -372,7 +392,7 @@ class _KeyStatsState extends State<_KeyStats> {
                                   m.display,
                                   maxLines: 1,
                                   style: t.numeric(
-                                    20,
+                                    24,
                                     color: m.derived.value == null
                                         ? c.textMuted
                                         : c.textPrimary,
@@ -392,6 +412,16 @@ class _KeyStatsState extends State<_KeyStats> {
                               )
                             else
                               _benchmark(context, m.key),
+                            if (const {
+                                  'revenueGrowth',
+                                  'profitGrowth',
+                                }.contains(m.key) &&
+                                m.derived.value != null &&
+                                m.derived.inputs.isNotEmpty)
+                              Text(
+                                '${m.derived.inputs.first.label.replaceFirst(RegExp(r'^.*당기 '), '')} · 전년 동기 대비',
+                                style: t.body(11, color: c.textSecondary),
+                              ),
                             if (const {
                                   'cash',
                                   'shortTermDeposits',

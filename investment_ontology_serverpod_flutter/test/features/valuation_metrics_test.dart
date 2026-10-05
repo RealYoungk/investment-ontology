@@ -186,7 +186,7 @@ void main() {
     expect(m['evEbitda']!.derived.missing, contains('차입금'));
     expect(m['peg']!.derived.value, isNull);
   });
-  test('TTM growth aligns prior interim rather than using earlier annual or quarter', () {
+  test('growth compares matching cumulative periods without requiring two TTM windows', () {
     final m = calculate([
       f.period(2023, FinancialReportCode.annual, [f.line('revenue', 800)]),
       f.period(2024, FinancialReportCode.halfYear, [
@@ -197,9 +197,12 @@ void main() {
         f.line('revenue', 20, cumulative: 600),
       ]),
     ]);
-    // 2025 TTM 1200 vs 2024 TTM 800 +400 - missing 2023 H1.
-    expect(m['revenueGrowth']!.derived.value, isNull);
-    expect(m['revenueGrowth']!.derived.missing, contains('2023 반기'));
+    // H1 cumulative 600 / 400; neither quarter-only nor annual totals.
+    expect(m['revenueGrowth']!.derived.value, .5);
+    expect(
+      m['revenueGrowth']!.derived.formula,
+      contains('2025 반기 누적 ÷ 2024 반기 누적'),
+    );
   });
   test('annual growth 20%, loss/zero bases are not growth, incomplete data not loss', () {
     final m = calculate([

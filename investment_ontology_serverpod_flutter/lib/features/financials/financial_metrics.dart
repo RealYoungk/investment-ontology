@@ -1137,25 +1137,68 @@ class FinancialView {
     }
 
     DerivedValue growth(String key, String label) {
-      final now = trailing(key, label);
       final p = latest;
-      final same = p == null ? null : period(p.bsnsYear - 1, p.reportCode);
-      final pastPeriods = same == null
-          ? <FinancialPeriod>[]
-          : data.periods.take(data.periods.indexOf(same) + 1).toList();
-      final before = same == null
-          ? DerivedValue(
-              value: null,
-              formula: '',
-              inputs: const [],
-              missing: '전년 같은 시점의 $label 자료 부족',
-            )
-          : FinancialView(data.copyWith(periods: pastPeriods))
-                .trailing(key, label);
-      return combine('$label 성장률 = (최근 12개월 ÷ 전년 같은 시점 12개월 − 1) × 100', [
-        now,
-        before,
-      ], (v) => v[0] / v[1] - 1).copyPositiveBase(before, label);
+      if (p == null) {
+        return DerivedValue(
+          value: null,
+          formula: '$label 성장률',
+          inputs: const [],
+          missing: '재무 자료 없음',
+        );
+      }
+      final same = period(p.bsnsYear - 1, p.reportCode);
+      final currentLine = line(p, key);
+      final previousLine = _priorSameLine(p, key);
+      final current = cumulative(p, key);
+      final previous = _priorSame(p, key);
+      final periodLabel = p.reportCode == FinancialReportCode.annual
+          ? '연간'
+          : '${reportCodeLabel(p.reportCode)} 누적';
+      final shortReason =
+          _shortAnnualReason(p, '성장률') ?? _shortAnnualReason(same, '성장률');
+      final now = DerivedValue(
+        value: shortReason == null ? current?.toDouble() : null,
+        formula: '${p.bsnsYear} $periodLabel $label',
+        inputs: [
+          MetricInput(
+            '$label 당기 $periodLabel',
+            current,
+            basis(p),
+            currency: currentLine?.currency ?? 'KRW',
+          ),
+        ],
+        missing:
+            shortReason ??
+            currentLine?.unavailableReason ??
+            (current == null
+                ? '${p.bsnsYear} $periodLabel $label 누적값 없음'
+                : null),
+      );
+      final before = DerivedValue(
+        value: shortReason == null ? previous?.toDouble() : null,
+        formula: '${p.bsnsYear - 1} $periodLabel $label',
+        inputs: [
+          MetricInput(
+            '$label 전년 동기 $periodLabel',
+            previous,
+            cumulative(same, key) != null
+                ? basis(same!)
+                : '${basis(p)} · 전년 동기 비교열',
+            currency: previousLine?.currency ?? 'KRW',
+          ),
+        ],
+        missing:
+            shortReason ??
+            (previous == null
+                ? currentLine?.priorSameUnavailableReason ??
+                      '${p.bsnsYear - 1} $periodLabel $label 누적값 없음 · ${p.bsnsYear} 공시의 비교열도 미확보'
+                : null),
+      );
+      return combine(
+        '$label 성장률 = (${p.bsnsYear} $periodLabel ÷ ${p.bsnsYear - 1} $periodLabel − 1) × 100',
+        [now, before],
+        (v) => v[0] / v[1] - 1,
+      ).copyPositiveBase(before, label);
     }
 
     final salesGrowth = growth('revenue', '매출액');

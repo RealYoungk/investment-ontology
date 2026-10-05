@@ -101,7 +101,7 @@ const metricDescriptions = <String, String>{
   'evEbitda': '부채·현금을 반영한 가격과 감가상각 전 이익',
   'evOperating': '부채·현금을 반영한 기업가치 대비 영업이익',
   'evSales': '부채·현금을 반영한 기업가치 대비 매출',
-  'revenueGrowth': '최근 12개월 매출의 전년 대비 변화',
+  'revenueGrowth': '최근 공시 누적 매출의 전년 동기 대비 변화',
   'profitGrowth': '최근 12개월 순이익의 전년 대비 변화',
   'roe': '자기자본이 벌어들이는 이익',
   'roa': '전체 자산이 벌어들이는 이익',

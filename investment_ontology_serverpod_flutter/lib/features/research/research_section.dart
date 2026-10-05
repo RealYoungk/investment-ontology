@@ -156,72 +156,31 @@ class _ResearchSectionState extends State<ResearchSection> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (visibleKinds.length > 1 || _showUnavailable)
-            LayoutBuilder(
-              builder: (context, box) {
-                final width = box.maxWidth < 500
-                    ? box.maxWidth
-                    : (box.maxWidth - AppSpace.sm) / 2;
-                return Wrap(
-                  spacing: AppSpace.sm,
-                  runSpacing: AppSpace.sm,
-                  children: [
-                    for (final kind in visibleKinds)
-                      SizedBox(
-                        width: width,
-                        child: Material(
-                          color: kind == _kind
-                              ? context.colors.surface
-                              : context.colors.background,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: context.shape.borderRadius,
-                            side: BorderSide(
-                              color: kind == _kind
-                                  ? context.colors.accent
-                                  : context.colors.border,
-                            ),
-                          ),
-                          child: ShadButton.ghost(
-                            height: 0,
-                            width: double.infinity,
-                            padding: EdgeInsets.zero,
-                            onPressed: () => setState(() {
-                              _kind = kind;
-                              _limit = 5;
-                              _series = null;
-                              _error = null;
-                            }),
-                            child: Flexible(
-                              child: Padding(
-                                padding: const EdgeInsets.all(AppSpace.md),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      researchLabels[kind]!,
-                                      style: context.typo.body(
-                                        14,
-                                        weight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    const SizedBox(height: AppSpace.xs),
-                                    Text(
-                                      researchOverview(kind, _feeds[kind]),
-                                      style: context.typo.body(
-                                        12,
-                                        color: context.colors.textSecondary,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                );
-              },
+            ShadTabs<String>(
+              value: _kind,
+              scrollable: true,
+              expandTabs: false,
+              onChanged: (kind) => setState(() {
+                _kind = kind;
+                _limit = 5;
+                _series = null;
+                _error = null;
+              }),
+              tabs: [
+                for (final kind in visibleKinds)
+                  ShadTab<String>(
+                    value: kind,
+                    child: Text(researchLabels[kind]!),
+                  ),
+              ],
             ),
+          if (ready && rows.isNotEmpty) ...[
+            const SizedBox(height: AppSpace.md),
+            Text(
+              researchOverview(_kind, feed),
+              style: context.typo.body(12, color: context.colors.textSecondary),
+            ),
+          ],
           const SizedBox(height: AppSpace.md),
           if (feed == null)
             const ShadProgress(minHeight: 2)

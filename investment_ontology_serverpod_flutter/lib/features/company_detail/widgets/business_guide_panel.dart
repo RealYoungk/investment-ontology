@@ -6,14 +6,12 @@ import '../../../client.dart';
 import '../../../design/components/components.dart';
 import '../../../design/tokens.dart';
 import 'revenue_composition.dart';
+import '../../financials/financial_metrics.dart' show reportCodeLabel;
 import '../business/overview_catalog.dart';
 import 'business_model_guide.dart';
 import 'substrate_guide.dart';
 import '../business/power_product_lesson.dart';
 import 'power_components_guide.dart';
-import '../business/company_development.dart';
-import 'company_development_section.dart';
-import 'company_research_guide.dart';
 
 /// Every issuer uses the same stored profile contract and explicit coverage states.
 class BusinessGuidePanel extends StatefulWidget {
@@ -33,7 +31,6 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
   CompanyOverviewLesson? _lesson;
   bool _lessonLoading = true;
   PowerProductLesson? _powerLesson;
-  String? _issuerSummary;
   bool _failed = false;
   int _seq = 0, _selected = 0;
   @override
@@ -45,7 +42,10 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
   @override
   void didUpdateWidget(covariant BusinessGuidePanel oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.corpCode != widget.corpCode) _load();
+    if (oldWidget.corpCode != widget.corpCode ||
+        oldWidget.latestReport?.rceptNo != widget.latestReport?.rceptNo) {
+      _load();
+    }
   }
 
   Future<void> _load() async {
@@ -55,16 +55,23 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
       _lesson = null;
       _lessonLoading = true;
       _powerLesson = null;
-      _issuerSummary = null;
       _failed = false;
       _selected = 0;
     });
     _loadLesson(seq);
-    _loadSummary(seq);
     try {
       final data = await client.disclosure.understanding(widget.corpCode);
-      if (mounted && seq == _seq) setState(() => _data = data);
+      if (mounted && seq == _seq) {
+        // Frontend/backend may be deployed separately. The retired pipeline
+        // rule must never be revived by a legacy response during rollout.
+        setState(
+          () => _data = data.ruleVersion < 40000
+              ? data.copyWith(status: 'pending', products: [])
+              : data,
+        );
+      }
       if (data.status == 'ready' &&
+          data.ruleVersion >= 40000 &&
           data.products.any((p) => p.name.toUpperCase().contains('SMPS'))) {
         // Optional local lesson: a failed source fetch must not hide the profile.
         try {
@@ -85,22 +92,6 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
     }
   }
 
-  Future<void> _loadSummary(int seq) async {
-    try {
-      final sections = await client.disclosure.digest(widget.corpCode);
-      final overview = sections
-          .where((s) => s.kind == BusinessDigestKind.overview)
-          .firstOrNull;
-      if (mounted && seq == _seq) {
-        setState(
-          () => _issuerSummary = overview?.summary.split('\n').first.trim(),
-        );
-      }
-    } catch (_) {
-      // Confirmed product names remain usable if the optional digest is absent.
-    }
-  }
-
   Future<void> _loadLesson(int seq) async {
     CompanyOverviewLesson? lesson;
     try {
@@ -110,7 +101,15 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
     }
     if (mounted && seq == _seq) {
       setState(() {
-        _lesson = lesson;
+        _lesson = lesson == null
+            ? null
+            : CompanyOverviewLesson(
+                summary: '',
+                products: const [],
+                models: lesson.models,
+                hasDocument: lesson.hasDocument,
+                year: null,
+              );
         _lessonLoading = false;
       });
     }
@@ -120,12 +119,6 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
   Widget build(BuildContext context) {
     final c = context.colors, t = context.typo;
     final data = _data;
-    final research = _lesson?.research;
-    final development =
-        CompanyDevelopment.forCompany(widget.corpCode) ??
-        (research != null && research.covers(widget.latestReport)
-            ? research.development
-            : null);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -135,32 +128,7 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
             children: [
               const CompanySectionHeading('사업의 내용'),
               const SizedBox(height: AppSpace.md),
-              if (research != null || development != null) ...[
-                Text(
-                  research?.summary ?? _issuerSummary ?? _lesson?.summary ?? '',
-                  style: t
-                      .body(16, weight: FontWeight.w600)
-                      .copyWith(height: 1.6),
-                ),
-                const SizedBox(height: AppSpace.xl),
-              ],
-              if (development != null) ...[
-                CompanyDevelopmentSection(development: development),
-                const SizedBox(height: AppSpace.xl),
-              ],
-              if (research != null)
-                CompanyResearchGuide(profile: research)
-              else if (_lesson != null && development == null)
-                BusinessModelGuide(
-                  lesson: _lesson!,
-                  summary: _issuerSummary,
-                  compact: true,
-                  framed: false,
-                  showGrowth: false,
-                )
-              else if (_lessonLoading && development == null)
-                const ShadProgress(minHeight: 2)
-              else if (_failed) ...[
+              if (_failed) ...[
                 Text('제품 설명을 불러오지 못했습니다.', style: t.body(14)),
                 Align(
                   alignment: Alignment.centerLeft,
@@ -173,9 +141,9 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
                 const ShadProgress(minHeight: 2)
               else if (data.products.isEmpty)
                 Text(switch (data.status) {
-                  'no_document' => '제품을 확인할 사업보고서가 아직 수집되지 않았습니다.',
-                  'pending' => '수집한 공시에서 제품 정보를 정리하고 있습니다.',
-                  'stale' => '최근 사업보고서가 없어 제품 설명을 갱신하지 못했습니다.',
+                  'no_document' => '제품을 확인할 정기보고서가 아직 수집되지 않았습니다.',
+                  'pending' => '최신 정기보고서 본문 수집·제품 정보 갱신 대기 중입니다.',
+                  'stale' => '최근 정기보고서가 없어 제품 설명을 갱신하지 못했습니다.',
                   _ => '공시는 있지만 제품과 용도를 자동으로 연결하지 못했습니다. 사업 원문에서 확인할 수 있습니다.',
                 }, style: t.body(14, color: c.textSecondary))
               else if (_powerLesson != null) ...[
@@ -195,10 +163,20 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
                   children: [
                     for (final (i, product) in data.products.indexed)
                       IntrinsicWidth(
-                        child: ShadToggle.outline(
-                          value: i == _selected,
-                          onChanged: (_) => setState(() => _selected = i),
-                          child: Text(product.name),
+                        child: ShadButton.ghost(
+                          onPressed: () => setState(() => _selected = i),
+                          child: Text(
+                            product.name,
+                            style: t.body(
+                              14,
+                              weight: i == _selected
+                                  ? FontWeight.w600
+                                  : FontWeight.w400,
+                              color: i == _selected
+                                  ? c.accent
+                                  : c.textSecondary,
+                            ),
+                          ),
                         ),
                       ),
                   ],
@@ -210,10 +188,34 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
                 ),
                 const SizedBox(height: AppSpace.sm),
                 Text(
-                  '회사 제품 확인: FY${data.bsnsYear} 사업보고서 · 공정 설명은 제품 원리이며 회사별 성능 보증은 아닙니다.',
+                  '${data.reportName ?? '${data.bsnsYear} ${data.reportCode == null ? '정기보고서' : reportCodeLabel(data.reportCode!)}'} · 규칙 추출',
                   style: t.body(11, color: c.textMuted),
                 ),
               ],
+              if (data != null && data.rceptNo != null)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: ShadButton.ghost(
+                    onPressed: () => launchUrl(
+                      Uri.parse(
+                        'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${data.rceptNo}',
+                      ),
+                    ),
+                    child: Text(
+                      '${data.reportName ?? '${data.bsnsYear} 정기보고서'} 원문',
+                    ),
+                  ),
+                ),
+              if (_lesson != null) ...[
+                const SizedBox(height: AppSpace.lg),
+                BusinessModelGuide(
+                  lesson: _lesson!,
+                  compact: true,
+                  framed: false,
+                  showGrowth: false,
+                ),
+              ] else if (_lessonLoading)
+                const ShadProgress(minHeight: 2),
             ],
           ),
         ),
@@ -263,7 +265,7 @@ class BusinessProductCard extends StatelessWidget {
             Text(product.name, style: t.body(19, weight: FontWeight.w700)),
             const SizedBox(height: AppSpace.sm),
             Text(
-              '제품은 공시에서 확인했습니다. 쓰이는 공정과 고객의 사용 목적은 아직 연결되지 않았습니다.',
+              product.role.isNotEmpty ? product.role : '제품명은 공시 표에서 확인했습니다.',
               style: t.body(14, color: c.textSecondary).copyWith(height: 1.7),
             ),
           ],
@@ -286,7 +288,7 @@ class BusinessProductCard extends StatelessWidget {
                       ),
                       if (rceptNo != null)
                         _link(
-                          'DART 사업보고서 ↗',
+                          'DART 정기보고서 ↗',
                           'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=$rceptNo',
                         ),
                     ],

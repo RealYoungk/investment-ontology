@@ -62,33 +62,44 @@ void main() {
     expect(find.text('제25조 임기는 3년을 초과하지 못한다.'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
-  testWidgets('390px에서 비교를 세로로 표시하고 넘치지 않는다', (tester) async {
-    tester.view.physicalSize = const Size(390, 1200);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-    await tester.pumpWidget(
-      shadTestHost(
-        MaterialApp(
-          theme: buildAppTheme(ledgerBrand),
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: ShareholderRightsCard(
-                corpCode: '00126380',
-                load: (_) async => fixture,
+  for (final width in [320.0, 1045.0]) {
+    testWidgets('${width.toInt()}px에서 원문 비교를 읽고 접을 수 있다', (tester) async {
+      tester.view.physicalSize = Size(width, 1200);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(
+        shadTestHost(
+          MaterialApp(
+            theme: buildAppTheme(ledgerBrand),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: ShareholderRightsCard(
+                  corpCode: '00126380',
+                  load: (_) async => fixture,
+                ),
               ),
             ),
           ),
         ),
-      ),
-    );
-    await tester.pumpAndSettle();
-    expect(
-      tester.getTopLeft(find.text('임기는 3년 이내')).dy,
-      greaterThan(tester.getTopLeft(find.text('임기는 3년')).dy),
-    );
-    expect(tester.takeException(), isNull);
-  });
+      );
+      await tester.pumpAndSettle();
+      if (width < 600) {
+        expect(
+          tester.getTopLeft(find.text('임기는 3년 이내')).dy,
+          greaterThan(tester.getTopLeft(find.text('임기는 3년')).dy),
+        );
+      }
+      await tester.tap(find.text('변경 전후 원문 · 변경 사유'));
+      await tester.pumpAndSettle();
+      expect(find.text('제25조 임기는 3년으로 한다.'), findsOneWidget);
+      expect(find.text('제25조 임기는 3년을 초과하지 못한다.'), findsOneWidget);
+      await tester.tap(find.text('변경 전후 원문 · 변경 사유'));
+      await tester.pumpAndSettle();
+      expect(find.text('제25조 임기는 3년으로 한다.'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+  }
   testWidgets('DART HTML 비교표와 부분 확보 상태를 PDF 페이지 없이 표시한다', (tester) async {
     final data = jsonDecode(fixture) as Map<String, dynamic>;
     final proposal = data['proposal'] as Map<String, dynamic>;

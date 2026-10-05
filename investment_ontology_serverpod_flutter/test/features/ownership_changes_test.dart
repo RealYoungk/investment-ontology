@@ -1,5 +1,7 @@
 import '../support/shad_test_host.dart';
 
+import 'package:shad/shad.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
@@ -59,6 +61,41 @@ void main() {
     s.shareholders.add(row());
     expect(historyRow(s, ownershipKey(row())), isNull);
   });
+  for (final width in [320.0, 1045.0]) {
+    testWidgets(
+      'compact comparison is visible and switches without accordion at $width',
+      (tester) async {
+        await tester.binding.setSurfaceSize(Size(width, 1000));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+        await tester.pumpWidget(
+          shadTestHost(
+            MaterialApp(
+              theme: buildAppTheme(ledgerBrand),
+              home: Scaffold(
+                body: SingleChildScrollView(
+                  child: OwnershipChangesSection(
+                    corpCode: 'fixture',
+                    compact: true,
+                    loader: (_) async => [snapshot(2024), snapshot(2025)],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('비교 주주 · 1/6'), findsOneWidget);
+        expect(find.byType(ShadCheckbox), findsOneWidget);
+        expect(find.textContaining('9.00% → 9.00%'), findsOneWidget);
+        await tester.ensureVisible(find.byType(ShadCheckbox));
+        await tester.tap(find.byType(ShadCheckbox));
+        await tester.pumpAndSettle();
+        expect(find.text('비교 주주 · 0/6'), findsOneWidget);
+        expect(find.text('비교할 주주를 선택하세요.'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
   testWidgets('five years plus missing latest interim are visible on mobile', (
     tester,
   ) async {

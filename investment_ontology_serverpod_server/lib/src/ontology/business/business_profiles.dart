@@ -1,7 +1,7 @@
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
-import '../peers/peer_catalog.dart';
+import 'latest_business_report.dart';
 import 'business_product_rules.dart';
 
 abstract final class BusinessProfiles {
@@ -36,9 +36,12 @@ abstract final class BusinessProfiles {
   static Future<int> backfill(Session session) async {
     final rows = await session.db.unsafeQuery(
       '''
-      SELECT latest.id FROM (${PeerProfiles.latestSql}) latest
-      LEFT JOIN business_profile p ON p."documentId"=latest.id
-      WHERE p.id IS NULL OR p."ruleVersion" <> @version
+      SELECT latest."documentId" FROM (${LatestBusinessReport.sql}) latest
+      JOIN company c ON c.id=latest."companyId"
+      LEFT JOIN business_profile p ON p."documentId"=latest."documentId"
+      WHERE latest."documentId" IS NOT NULL
+        AND (c."industryCode" IS NULL OR c."industryCode" <> '64992')
+        AND (p.id IS NULL OR p."ruleVersion" <> @version)
     ''',
       parameters: QueryParameters.named({
         'version': BusinessProductRules.version,
@@ -60,12 +63,12 @@ abstract final class BusinessProfiles {
       throw ArgumentError('기업 코드 형식 오류');
     }
     final rows = await session.db.unsafeQuery('''
-      SELECT d."bsnsYear", d."rceptNo", p.products, p."ruleVersion", p."computedAt"
-      FROM (${PeerProfiles.latestSql}) latest
+      SELECT latest."bsnsYear", latest."rceptNo", p.products, p."ruleVersion", p."computedAt", latest."reportCode", latest."reportName"
+      FROM (${LatestBusinessReport.sql}) latest
       JOIN company c ON c.id=latest."companyId"
-      JOIN business_document d ON d.id=latest.id
-      LEFT JOIN business_profile p ON p."documentId"=d.id
+      LEFT JOIN business_profile p ON p."documentId"=latest."documentId"
       WHERE c."corpCode"=@code
+        AND (c."industryCode" IS NULL OR c."industryCode" <> '64992')
     ''', parameters: QueryParameters.named({'code': corpCode}));
     final row = rows.firstOrNull;
     final stale = row != null && (row[0] as int) < DateTime.now().year - 2;
@@ -95,6 +98,10 @@ abstract final class BusinessProfiles {
       rceptNo: row?[1] as String?,
       computedAt: row?[4] as DateTime?,
       ruleVersion: BusinessProductRules.version,
+      reportCode: row == null
+          ? null
+          : FinancialReportCode.values.byName(row[5] as String),
+      reportName: row?[6] as String?,
     );
   }
 }

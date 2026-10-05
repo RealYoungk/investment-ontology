@@ -6,3 +6,5 @@ fields:
   rceptNo: String?
   computedAt: DateTime?
   ruleVersion: int
+  reportCode: FinancialReportCode?
+  reportName: String?

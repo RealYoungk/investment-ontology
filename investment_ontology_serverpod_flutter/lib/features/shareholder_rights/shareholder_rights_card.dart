@@ -137,11 +137,14 @@ class _ShareholderRightsCardState extends State<ShareholderRightsCard> {
                   children: [
                     ShadAccordionItem<int>(
                       value: 0,
+                      separator: const SizedBox.shrink(),
                       title: Text(
                         '나머지 ${changes.length - 3}개 변경 · 시행일 보기',
                         style: t.body(13, weight: FontWeight.w600),
                       ),
-                      padding: EdgeInsets.zero,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSpace.sm,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
@@ -173,11 +176,12 @@ class _ShareholderRightsCardState extends State<ShareholderRightsCard> {
                 children: [
                   ShadAccordionItem<int>(
                     value: 0,
+                    separator: const SizedBox.shrink(),
                     title: Text(
                       '${notice['filingDate']} 소집공고 · ${(notice['changes'] as List).length}개 조문',
                       style: t.body(13, weight: FontWeight.w600),
                     ),
-                    padding: EdgeInsets.zero,
+                    padding: const EdgeInsets.symmetric(vertical: AppSpace.sm),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -210,18 +214,20 @@ class _ShareholderRightsCardState extends State<ShareholderRightsCard> {
                 style: t.body(11, color: c.textMuted),
               ),
             if (rows.isNotEmpty) ...[
-              const SizedBox(height: AppSpace.md),
+              const SizedBox(height: AppSpace.xl),
               Text('공시에 기록된 변경 이력', style: t.body(14, weight: FontWeight.w600)),
               Text(
                 '${data['reportName'] ?? ''} 기준',
                 style: t.body(11, color: c.textMuted),
               ),
+              const SizedBox(height: AppSpace.md),
               for (final row in rows)
                 ShadAccordion<int>(
                   maintainState: false,
                   children: [
                     ShadAccordionItem<int>(
                       value: 0,
+                      separator: const SizedBox.shrink(),
                       title: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -229,6 +235,7 @@ class _ShareholderRightsCardState extends State<ShareholderRightsCard> {
                             '${row['date']} 정관 변경',
                             style: t.body(13, weight: FontWeight.w600),
                           ),
+                          const SizedBox(height: AppSpace.xs),
                           Text(
                             (row['reason'] as String).replaceAll(
                               RegExp(r'\s+'),
@@ -238,7 +245,9 @@ class _ShareholderRightsCardState extends State<ShareholderRightsCard> {
                           ),
                         ],
                       ),
-                      padding: EdgeInsets.zero,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSpace.sm,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
@@ -282,18 +291,25 @@ class _Change extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.typo, c = context.colors;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpace.md),
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: c.border)),
+      ),
+      padding: const EdgeInsets.symmetric(vertical: AppSpace.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(row['topic'] as String, style: t.body(11, color: c.textMuted)),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: ShadBadge.secondary(child: Text(row['topic'] as String)),
+          ),
+          const SizedBox(height: AppSpace.sm),
           Text(
             row['title'] as String,
-            style: t.body(16, weight: FontWeight.w600),
+            style: t.body(18, weight: FontWeight.w600),
           ),
           if (row['beforeShort'] != null && row['afterShort'] != null) ...[
-            const SizedBox(height: AppSpace.sm),
+            const SizedBox(height: AppSpace.lg),
             _Comparison(
               before: row['beforeShort'] as String,
               after: row['afterShort'] as String,
@@ -301,26 +317,32 @@ class _Change extends StatelessWidget {
           ],
           if (row['meaning'] case final String meaning) ...[
             const SizedBox(height: AppSpace.sm),
-            Text(meaning, style: t.body(13, color: c.textSecondary)),
+            Text(
+              meaning,
+              style: t.body(14, color: c.textSecondary).copyWith(height: 1.6),
+            ),
           ],
+          const SizedBox(height: AppSpace.md),
           ShadAccordion<int>(
             maintainState: false,
             children: [
               ShadAccordionItem<int>(
                 value: 0,
+                separator: const SizedBox.shrink(),
                 title: Text(
                   '변경 전후 원문 · 변경 사유',
                   style: t.body(12, color: c.textSecondary),
                 ),
-                padding: EdgeInsets.zero,
+                padding: const EdgeInsets.symmetric(vertical: AppSpace.sm),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     _Comparison(
                       before: row['before'] as String,
                       after: row['after'] as String,
+                      detailed: true,
                     ),
-                    const SizedBox(height: AppSpace.sm),
+                    const SizedBox(height: AppSpace.lg),
                     Text(
                       '회사 설명: ${row['reason']}',
                       style: t.body(12, color: c.textSecondary),
@@ -331,7 +353,6 @@ class _Change extends StatelessWidget {
               ),
             ],
           ),
-          Divider(color: c.border),
         ],
       ),
     );
@@ -339,47 +360,65 @@ class _Change extends StatelessWidget {
 }
 
 class _Comparison extends StatelessWidget {
-  const _Comparison({required this.before, required this.after});
+  const _Comparison({
+    required this.before,
+    required this.after,
+    this.detailed = false,
+  });
   final String before, after;
+  final bool detailed;
   @override
-  Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, box) {
-      final width = box.maxWidth >= 600
-          ? (box.maxWidth - AppSpace.md) / 2
-          : box.maxWidth;
-      Widget side(String label, String value) => SizedBox(
-        width: width,
-        child: Container(
-          padding: const EdgeInsets.all(AppSpace.md),
-          decoration: BoxDecoration(
+  Widget build(BuildContext context) => Container(
+    padding: detailed ? const EdgeInsets.all(AppSpace.lg) : EdgeInsets.zero,
+    decoration: detailed
+        ? BoxDecoration(
             color: context.colors.surfaceHover,
             borderRadius: context.shape.borderRadius,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: context.typo.body(11, color: context.colors.textMuted),
-              ),
-              const SizedBox(height: AppSpace.xs),
-              SelectableText(
-                value.replaceAllMapped(
-                  RegExp(r'([가-힣0-9])\n([가-힣0-9])'),
-                  (m) => '${m[1]}${m[2]}',
+          )
+        : null,
+    child: LayoutBuilder(
+      builder: (context, box) {
+        final width = box.maxWidth >= 600
+            ? (box.maxWidth - AppSpace.xl) / 2
+            : box.maxWidth;
+        Widget side(String label, String value) => SizedBox(
+          width: width,
+          child: Padding(
+            padding: const EdgeInsets.only(right: AppSpace.sm),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: context.typo.body(11, color: context.colors.textMuted),
                 ),
-                style: context.typo.body(13),
-              ),
-            ],
+                const SizedBox(height: AppSpace.xs),
+                SelectableText(
+                  value.replaceAllMapped(
+                    RegExp(r'([가-힣0-9])\n([가-힣0-9])'),
+                    (m) => '${m[1]}${m[2]}',
+                  ),
+                  style: context.typo
+                      .body(
+                        14,
+                        weight: !detailed && label == '개정안'
+                            ? FontWeight.w600
+                            : FontWeight.w400,
+                      )
+                      .copyWith(height: 1.6),
+                ),
+              ],
+            ),
           ),
-        ),
-      );
-      return Wrap(
-        spacing: AppSpace.md,
-        runSpacing: AppSpace.sm,
-        children: [side('변경 전', before), side('개정안', after)],
-      );
-    },
+        );
+        final comparison = Wrap(
+          spacing: AppSpace.xl,
+          runSpacing: AppSpace.lg,
+          children: [side('변경 전', before), side('개정안', after)],
+        );
+        return comparison;
+      },
+    ),
   );
 }
 
@@ -393,7 +432,9 @@ class _SourceLink extends StatelessWidget {
       onPressed: () =>
           launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication),
       variant: ShadButtonVariant.link,
-      child: Text('$label →'),
+      width: double.infinity,
+      expands: true,
+      child: Text('$label →', textAlign: TextAlign.left),
     ),
   );
 }
