@@ -214,7 +214,8 @@ double introMotionProgress(double scrollProgress) {
   if (p <= .14) return 0;
   if (p < .40) return .62 * Curves.easeInOutCubic.transform((p - .14) / .26);
   if (p <= .60) return .62;
-  if (p < .84)
+  if (p < .84) {
     return .62 + .38 * Curves.easeInOutCubic.transform((p - .60) / .24);
+  }
   return 1;
 }
