@@ -1,3 +1,5 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -51,7 +53,7 @@ class SjWiworldAuditClient extends SourceClient {
     final noneDir = 'test/fixtures/financial_html/sj-wiworld-cfs-none/$receipt';
     final none = jsonDecode(File('$noneDir/proof.json').readAsStringSync());
     files[none['url']] = File('$noneDir/cfs.html').readAsBytesSync();
-    return PublicFinancialHtmlFetcher(
+    return fastFinancialHtmlFetcher(
       MockClient((r) async {
         final b = files[r.url.toString()];
         if (b == null) throw const FormatException('Unbound source');

@@ -1,6 +1,7 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_financial_html_fetch.dart';
 
 import 'dart:io';
 import 'dart:convert';
@@ -42,7 +43,7 @@ void main() {
     if (c['corp'] != '01429220') {
       test('normal exact transport ${c['receipt']}', () async {
         final fetched = <String>[];
-        final f = PublicFinancialHtmlFetcher(
+        final f = fastFinancialHtmlFetcher(
           MockClient((r) async {
             fetched.add(r.url.toString());
             final label = [

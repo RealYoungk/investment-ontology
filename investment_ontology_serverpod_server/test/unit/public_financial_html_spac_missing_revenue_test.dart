@@ -1,3 +1,5 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -6,7 +8,6 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:test/test.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_financial_html.dart';
-import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_financial_html_fetch.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/public_issuer_legal_name.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/imgt_explicit_revenue_missing.dart';
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
@@ -123,7 +124,7 @@ void main() {
           );
         });
         final p = proof(r);
-        final result = await PublicFinancialHtmlFetcher(client).fetchAnnual(
+        final result = await fastFinancialHtmlFetcher(client).fetchAnnual(
           r,
           reportName: '사업보고서 (2022.12)',
           corpCode: p['corpCode'],

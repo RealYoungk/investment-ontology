@@ -1,3 +1,5 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:crypto/crypto.dart';
@@ -54,7 +56,7 @@ void main() {
   test(
     'own CFS pure section verifies not-applicable without numeric inference',
     () async {
-      final loader = PublicFinancialHtmlFetcher(
+      final loader = fastFinancialHtmlFetcher(
         MockClient((req) async {
           final source = (meta['sources'] as List).singleWhere(
             (s) => s['url'] == req.url.toString(),
@@ -91,7 +93,7 @@ void main() {
     test(
       'not-applicable inference rejects context or numbers: $mutation',
       () async {
-        final loader = PublicFinancialHtmlFetcher(
+        final loader = fastFinancialHtmlFetcher(
           MockClient((req) async {
             final source = (meta['sources'] as List).singleWhere(
               (s) => s['url'] == req.url.toString(),
@@ -132,7 +134,7 @@ void main() {
     'normal official transport retains historical cover and exact raw core',
     () async {
       final fetched = <Uri>[];
-      final loader = PublicFinancialHtmlFetcher(
+      final loader = fastFinancialHtmlFetcher(
         MockClient((req) async {
           final source = (meta['sources'] as List).singleWhere(
             (s) => s['url'] == req.url.toString(),

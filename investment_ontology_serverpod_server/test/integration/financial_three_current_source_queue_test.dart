@@ -1,3 +1,5 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'dart:io';
 import 'dart:convert';
 
@@ -64,7 +66,7 @@ class ThreeSourceClient extends SourceClient {
     }
     final c = matching.single;
     final proof = jsonDecode(File('${c.$5}/proof.json').readAsStringSync());
-    return PublicFinancialHtmlFetcher(
+    return fastFinancialHtmlFetcher(
       MockClient((request) async {
         publicUris.add(request.url);
         final source = (proof['sources'] as List).singleWhere(

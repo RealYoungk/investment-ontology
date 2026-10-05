@@ -1,3 +1,5 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -26,7 +28,7 @@ void main() {
           ? utf8.encode(overview)
           : bytes;
     }
-    return PublicFinancialHtmlFetcher(
+    return fastFinancialHtmlFetcher(
       MockClient((r) async {
         final bytes = docs[r.url.toString()];
         if (bytes == null) throw const FormatException('Unbound source');

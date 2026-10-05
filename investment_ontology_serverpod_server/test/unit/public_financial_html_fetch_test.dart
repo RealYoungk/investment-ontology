@@ -1,3 +1,5 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -26,7 +28,7 @@ void main() {
     String corpCode = '00677334',
   }) {
     var viewer = 0;
-    return PublicFinancialHtmlFetcher(
+    return fastFinancialHtmlFetcher(
       MockClient((r) async {
         requests.add(r);
         expect(r.url.host, 'dart.fss.or.kr');
@@ -233,7 +235,7 @@ void main() {
       String reportName = '반기보고서 (2026.06)',
     }) {
       var viewers = 0;
-      return PublicFinancialHtmlFetcher(
+      return fastFinancialHtmlFetcher(
         MockClient((r) async {
           requests.add(r);
           expect(r.url.host, 'dart.fss.or.kr');

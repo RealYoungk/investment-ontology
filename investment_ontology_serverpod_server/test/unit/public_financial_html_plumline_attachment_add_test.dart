@@ -1,3 +1,5 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -15,7 +17,7 @@ Future<PublicFinancialHtmlSource> plumFetch({
   int year = 2025,
 }) {
   var viewers = 0;
-  return PublicFinancialHtmlFetcher(
+  return fastFinancialHtmlFetcher(
     MockClient((r) async {
       final file = r.url.path == '/dsaf001/main.do'
           ? 'shell.html'

@@ -42,7 +42,6 @@ import 'sk_signet_identity.dart';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
-import 'package:http/http.dart' as http;
 
 import '../../generated/protocol.dart';
 import 'nh_2021_exact_source.dart';
@@ -1583,9 +1582,12 @@ final class VerifiedAnnualSourceCache {
         ),
       );
     }
-    final client = _PinnedRawClient(documents, maxRequests: documentCount);
+    final fetcher = PublicFinancialHtmlFetcher.pinnedDocuments(
+      documents,
+      maxRequests: documentCount,
+    );
     try {
-      final numeric = await PublicFinancialHtmlFetcher(client).fetchAnnual(
+      final numeric = await fetcher.fetchAnnual(
         entry.receipt,
         reportName: filing.reportName,
         corpCode: company.corpCode,
@@ -1599,7 +1601,7 @@ final class VerifiedAnnualSourceCache {
             entry.ruleVersion == 'source-six-with-unavailable-whole-revenue-v1',
       );
       if (entry.absenceLiteral != null ||
-          client.requests != documentCount ||
+          fetcher.pinnedRequestCount != documentCount ||
           numeric.sourceReceipt !=
               (correctionAudit
                   ? LinkedCorrectionAuditSource.originalFor(entry.receipt)
@@ -1681,7 +1683,7 @@ final class VerifiedAnnualSourceCache {
     } on PublicFinancialHtmlBasisNotApplicable catch (absence) {
       if (entry.absenceLiteral == null ||
           basis != FsDiv.consolidated ||
-          client.requests != documentCount ||
+          fetcher.pinnedRequestCount != documentCount ||
           absence.sourceReceipt != entry.receipt ||
           absence.corpCode != entry.corpCode ||
           absence.periodStart != start ||
@@ -1692,27 +1694,7 @@ final class VerifiedAnnualSourceCache {
       }
       return (numeric: null, absence: absence);
     } finally {
-      client.close();
+      fetcher.client.close();
     }
-  }
-}
-
-class _PinnedRawClient extends http.BaseClient {
-  _PinnedRawClient(this.documents, {this.maxRequests = 3});
-  final int maxRequests;
-  final Map<Uri, List<int>> documents;
-  int requests = 0;
-  @override
-  Future<http.StreamedResponse> send(http.BaseRequest request) async {
-    final bytes = documents[request.url];
-    if (request.method != 'GET' || bytes == null || ++requests > maxRequests) {
-      throw const FormatException('Unpinned cached annual source request');
-    }
-    return http.StreamedResponse(
-      Stream.value(bytes),
-      200,
-      headers: {'content-type': 'text/html; charset=utf-8'},
-      request: request,
-    );
   }
 }

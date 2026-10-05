@@ -1,3 +1,5 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -39,7 +41,7 @@ void main() {
             request: request,
           );
         });
-        final fetch = PublicFinancialHtmlFetcher(client).fetchAnnual(
+        final fetch = fastFinancialHtmlFetcher(client).fetchAnnual(
           receipt,
           reportName: '사업보고서 (2024.12)',
           corpCode: corp,

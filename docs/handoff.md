@@ -905,3 +905,17 @@ Official FRED macro indicators, beginner definitions and read-only bounded retri
 ## 2026-10-03 운영 배포 경로 일치
 
 프런트엔드는 이미 Cloudflare Pages `alfinder-web`으로 이전되어 있으며, Vercel 조회 404를 서버/데이터 장애로 해석하지 않는다. `scripts/release.py`의 status/deploy/rollback을 Pages 경로로 맞췄다. 성공한 최신 main·봉인 산출물·동일 커밋 깨끗한 준비·미리보기 SHA4/API/401·운영 상태/백엔드 변경 차단·production 이전 기록·실제운영 재검증은 유지한다. Pages는 preview를 promote하지 않으므로 동일 패키지를 production에 재업로드하고, rollback은 이전 production만 허용한다. 구현 테스트와 실제 배포는 구분하며 이번 스크립트 변경 자체는 배포하지 않았다. [운영 절차](cloudflare-pages.md) 참조.
+
+
+## 2026-10-06 서버 원문 캐시 검증 속도 개선
+
+로컬 원문 캐시가 실제 DART용 요청당 1초 제한을 적용받던 문제를 수정했다. 해시·회사·기간·기준 검증 후 닫힌 바이트 맵만 읽는 pinnedDocuments transport를 사용하며 일반 HTTP 조회의 제한은 유지한다. 기존 470개 테스트 파일·317개 원문 검사·DB 저장 검사를 그대로 유지하고 transport 회귀 4개를 추가했다. 기준 커밋 6b99f52의 격리본에서 동일 registry 4,943개 비교 14분 9초→2분 15초(84.1% 감소), 전체 471개 파일/19개 묶음/10,205개 통과(기본 skip 2개), 24분 31초. 다른 채팅의 dirty 변경과 4.0.0 비호환 generated test tools는 변경하지 않았으며 그 작업 폴더 전체의 통과나 운영 배포를 주장하지 않는다. 상세와 재현 근거: [서버 테스트 성능 개선](server-test-performance-2026-10-06.md), output/server-test-performance/summary.json.
+
+
+### 2026-10-06 가짜 HTTP 테스트의 가상 요청 시계
+
+- `FinancialHtmlRequestTiming`에 cadence만 분리하고 기본 조회기는 공유 실제 시계/1초 예약 유지. 테스트 helper는 MockClient만 받으며 가상 시간을 진행한다. 일반 클라이언트 실제 간격 smoke test 유지.
+- 67개 fixture 테스트 파일의 생성 호출/import만 교체(포맷 포함), 이전 471개 테스트 파일의 검증 토큰 보존 확인. 간격 회귀 3개 추가.
+- 이전 격리 snapshot 기준 full server gate: 472개 파일·19묶음·10,208 통과·기존 skip2, 11분38초. 이전24분31초 대비12분53초(52.5%) 단축, 단일 실행 비교.
+- 격리 snapshot 전체 분석 통과. 원래 dirty checkout의 다른 변경/생성 코드 호환성 문제는 포함하지 않음. 배포는 수행하지 않음.
+- 근거: `docs/server-test-performance-2026-10-06.md`, `output/server-test-virtual-clock/`.

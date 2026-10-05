@@ -1,3 +1,5 @@
+import '../support/financial_html_test_clock.dart';
+
 import 'package:crypto/crypto.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/dart/exact_statement_rows.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/ingest/financial_rows.dart';
@@ -37,7 +39,7 @@ class RedwoodsClient extends SourceClient {
       for (final row in manifest['sources'])
         row['url']: File('$dir/${row['file']}').readAsBytesSync(),
     };
-    return PublicFinancialHtmlFetcher(
+    return fastFinancialHtmlFetcher(
       MockClient((r) async {
         final b = files[r.url.toString()];
         if (b == null) throw const FormatException('Unbound source');
