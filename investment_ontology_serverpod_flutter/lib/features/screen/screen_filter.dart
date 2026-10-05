@@ -5,6 +5,7 @@ import 'package:investment_ontology_serverpod_client/investment_ontology_serverp
 class ScreenFilter {
   const ScreenFilter({
     this.market,
+    this.presetIds = const [],
     this.perMax,
     this.pbrMax,
     this.roeMin,
@@ -48,6 +49,13 @@ class ScreenFilter {
     }
 
     return ScreenFilter(
+      presetIds:
+          (q['presets'] ?? '')
+              .split(',')
+              .where((id) => id.isNotEmpty)
+              .toSet()
+              .toList()
+            ..sort(),
       market: switch (q['market']) {
         'kospi' => Market.kospi,
         'kosdaq' => Market.kosdaq,
@@ -79,6 +87,7 @@ class ScreenFilter {
   }
 
   final Market? market;
+  final List<String> presetIds;
   final double? perMax;
   final double? pbrMax;
   final double? roeMin;
@@ -128,6 +137,7 @@ class ScreenFilter {
   ].whereType<double>().length;
 
   ScreenFilter copyWith({
+    List<String>? presetIds,
     Market? Function()? market,
     double? Function()? perMax,
     double? Function()? pbrMax,
@@ -151,6 +161,7 @@ class ScreenFilter {
     ScreenSort? sort,
     bool? ascending,
   }) => ScreenFilter(
+    presetIds: presetIds ?? this.presetIds,
     market: market == null ? this.market : market(),
     perMax: perMax == null ? this.perMax : perMax(),
     pbrMax: pbrMax == null ? this.pbrMax : pbrMax(),
@@ -184,6 +195,7 @@ class ScreenFilter {
 
   String get location {
     final q = <String, String>{
+      if (presetIds.isNotEmpty) 'presets': presetIds.join(','),
       if (market case final m?) 'market': m.name,
       if (perMax case final v?) 'per': _trim(v),
       if (pbrMax case final v?) 'pbr': _trim(v),
@@ -217,6 +229,7 @@ class ScreenFilter {
   @override
   bool operator ==(Object other) =>
       other is ScreenFilter &&
+      other.presetIds.join(',') == presetIds.join(',') &&
       other.market == market &&
       other.perMax == perMax &&
       other.pbrMax == pbrMax &&
@@ -241,6 +254,7 @@ class ScreenFilter {
 
   @override
   int get hashCode => Object.hashAll([
+    presetIds.join(','),
     market,
     perMax,
     pbrMax,
