@@ -23,16 +23,22 @@ class FinancialReportPage extends StatefulWidget {
 }
 
 class _FinancialReportPageState extends State<FinancialReportPage> {
-  late int _reportId = widget.reportId;
   late Future<FinancialReportDetail?> _future = _fetch();
   FinancialStatementKind? _statement;
 
-  Future<FinancialReportDetail?> _fetch() => client.financial.report(_reportId);
+  Future<FinancialReportDetail?> _fetch() =>
+      client.financial.report(widget.reportId);
 
-  void _open(int reportId) => setState(() {
-    _reportId = reportId;
-    _future = _fetch();
-  });
+  @override
+  void didUpdateWidget(covariant FinancialReportPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.reportId != widget.reportId) _future = _fetch();
+  }
+
+  void _open(int reportId) => Router.neglect(
+    context,
+    () => context.replace('/reports/$reportId'),
+  );
 
   static String statementLabel(FinancialStatementKind k) => switch (k) {
     FinancialStatementKind.balanceSheet => '재무상태표',

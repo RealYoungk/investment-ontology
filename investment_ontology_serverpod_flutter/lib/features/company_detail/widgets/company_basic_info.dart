@@ -14,6 +14,14 @@ class CompanyBasicInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final company = detail.company;
+    final address = company.address
+        ?.replaceAll(
+          RegExp(r'&nbsp;?|&#160;?|&#x0*a0;?', caseSensitive: false),
+          ' ',
+        )
+        .replaceAll('\u00a0', ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
     final fields = <Widget>[
       _BasicField(
         label: '시장',
@@ -55,7 +63,7 @@ class CompanyBasicInfo extends StatelessWidget {
               final labels = [
                 if (company.homepageUrl?.trim().isNotEmpty == true) '홈페이지',
                 if (company.phone?.trim().isNotEmpty == true) '전화',
-                if (company.address?.trim().isNotEmpty == true) '본사 위치',
+                if (address?.isNotEmpty == true) '본사 위치',
                 expanded ? '기본정보 접기' : '기본정보 더보기',
               ];
               var requiredWidth = AppSpace.sm * (labels.length - 1);
@@ -97,14 +105,14 @@ class CompanyBasicInfo extends StatelessWidget {
                         path: company.phone!.replaceAll(RegExp(r'[^0-9+]'), ''),
                       ),
                     ),
-                  if (company.address?.trim().isNotEmpty == true)
+                  if (address?.isNotEmpty == true)
                     _QuickLink(
                       label: '본사 위치',
                       icon: Icons.location_on_outlined,
                       compact: compact,
-                      hint: company.address!,
+                      hint: address!,
                       uri: Uri.parse(
-                        'https://map.naver.com/p/search/${Uri.encodeComponent(company.address!.trim())}',
+                        'https://map.naver.com/p/search/${Uri.encodeComponent(address)}',
                       ),
                     ),
                   if (compact)
@@ -168,13 +176,13 @@ class CompanyBasicInfo extends StatelessWidget {
                 );
               },
             ),
-            if (company.address?.trim().isNotEmpty == true) ...[
+            if (address?.isNotEmpty == true) ...[
               const SizedBox(height: AppSpace.md),
               _BasicField(
                 label: '주소 · 네이버지도',
-                value: company.address!,
+                value: address!,
                 url:
-                    'https://map.naver.com/p/search/${Uri.encodeComponent(company.address!.trim())}',
+                    'https://map.naver.com/p/search/${Uri.encodeComponent(address)}',
               ),
             ],
             const SizedBox(height: AppSpace.md),
