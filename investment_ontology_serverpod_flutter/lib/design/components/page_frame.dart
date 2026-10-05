@@ -58,8 +58,19 @@ class _PageFrameState extends State<PageFrame> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (widget.allowLeading) ?PageFrameLeadScope.of(context),
-                  ...widget.children,
+                  if (widget.allowLeading)
+                    if (PageFrameLeadScope.of(context) case final leading?)
+                      RepaintBoundary(child: leading),
+                  // A scroll offset must not repaint every chart and card in
+                  // the page. Keep section display lists independently reusable.
+                  for (final child in widget.children)
+                    if (child is SizedBox && child.child == null)
+                      child
+                    else
+                      RepaintBoundary(
+                        key: child.key == null ? null : ValueKey(child.key),
+                        child: child,
+                      ),
                 ],
               ),
             ),
