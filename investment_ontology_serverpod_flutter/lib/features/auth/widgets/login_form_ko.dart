@@ -83,6 +83,7 @@ class _LoginFormKoState extends State<LoginFormKo> {
             ),
             const SizedBox(height: AppSpace.lg),
             ShadInputFormField(
+              constraints: const BoxConstraints(minHeight: 48),
               label: const Text('이메일'),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               placeholder: const Text('이메일 주소'),
@@ -111,6 +112,7 @@ class _LoginFormKoState extends State<LoginFormKo> {
             if (!emailOnly) ...[
               const SizedBox(height: AppSpace.lg),
               ShadInputFormField(
+                constraints: const BoxConstraints(minHeight: 48),
                 label: const Text('비밀번호'),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -184,6 +186,7 @@ class _LoginFormKoState extends State<LoginFormKo> {
             SizedBox(
               height: 48,
               child: ShadButton(
+                height: 48,
                 key: const ValueKey('login-submit'),
                 onPressed: ready ? submit : null,
                 enabled: (ready ? submit : null) != null,

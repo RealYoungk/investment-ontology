@@ -7,9 +7,76 @@ import 'package:investment_ontology_serverpod_flutter/features/auth/widgets/logi
 import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
 import 'package:shad/shad.dart';
 
+import 'package:investment_ontology_serverpod_flutter/features/auth/widgets/verification_form_ko.dart';
+import 'package:investment_ontology_serverpod_flutter/features/auth/widgets/password_setup_ko.dart';
+
+import 'package:investment_ontology_serverpod_flutter/features/auth/auth_localization_ko.dart';
+
 import '../support/shad_test_host.dart';
 
 void main() {
+  for (final width in [320.0, 390.0, 768.0]) {
+    testWidgets('auth controls share dimensions at $width px', (tester) async {
+      tester.view.physicalSize = Size(width, 1000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final controller = EmailAuthController(
+        client: Client('http://localhost:1/'),
+      );
+      addTearDown(controller.dispose);
+      final forms = <Widget>[
+        LoginFormKo(controller: controller),
+        LoginFormKo(controller: controller, registration: true),
+        LoginFormKo(controller: controller, reset: true),
+        VerificationFormKo(
+          controller: controller,
+          title: '이메일 인증',
+          onCompleted: () {},
+        ),
+        PasswordSetupKo(controller: controller),
+        PasswordSetupKo(controller: controller, reset: true),
+      ];
+      for (final form in forms) {
+        await tester.pumpWidget(
+          shadTestHost(
+            MaterialApp(
+              theme: buildAppTheme(serviceBrand),
+              home: Scaffold(
+                body: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: SignInLocalizationProvider(
+                      email: koreanEmailSignInTexts,
+                      passwordRequirementTexts: koreanPasswordRequirementTexts,
+                      child: form,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.pump(const Duration(milliseconds: 600));
+        final primary = find.byWidgetPredicate(
+          (widget) =>
+              widget is ShadButton &&
+              widget.variant == ShadButtonVariant.primary,
+        );
+        expect(primary, findsOneWidget);
+        final buttonSize = tester.getSize(primary);
+        expect(buttonSize.height, 48);
+        for (final input in find.byType(ShadInput).evaluate()) {
+          final inputSize = tester.getSize(find.byWidget(input.widget));
+          expect(inputSize.height, 48);
+          expect(inputSize.width, buttonSize.width);
+        }
+        expect(tester.takeException(), isNull);
+      }
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+  }
+
   for (final mode in ['login', 'registration', 'reset']) {
     testWidgets('$mode: 320px input and return navigation', (tester) async {
       tester.view.physicalSize = const Size(320, 900);
