@@ -95,6 +95,78 @@ void main() {
     semantics.dispose();
   });
 
+  testWidgets('터치 상세는 다시 누르기·바깥 누르기로 닫고 가로 드래그로 이동한다', (tester) async {
+    await tester.pumpWidget(
+      _app(
+        AppLineChart(
+          categories: const ['2023', '2024', '2025'],
+          series: const ChartSeries(
+            label: '합성',
+            color: Color(0xFF2F6DA8),
+            values: [101, 202, 303],
+          ),
+          formatValue: (v) => '${v.toInt()}원',
+        ),
+        width: 320,
+      ),
+    );
+    final origin = tester.getTopLeft(find.byType(AppLineChart));
+    final first = origin + const Offset(80, 120);
+    await tester.tapAt(first);
+    await tester.pump();
+    expect(find.text('101원'), findsOneWidget);
+    await tester.tapAt(first);
+    await tester.pump();
+    expect(find.text('101원'), findsNothing);
+    final gesture = await tester.startGesture(first);
+    await gesture.moveBy(const Offset(30, 0));
+    await gesture.moveTo(origin + const Offset(290, 120));
+    await gesture.up();
+    await tester.pump();
+    expect(find.text('303원'), findsOneWidget);
+    await tester.tapAt(const Offset(500, 400));
+    await tester.pump();
+    expect(find.text('303원'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('차트 위의 세로 드래그는 페이지를 스크롤하고 상세를 열지 않는다', (tester) async {
+    final controller = ScrollController();
+    await tester.pumpWidget(
+      _app(
+        SingleChildScrollView(
+          controller: controller,
+          child: Column(
+            children: [
+              const SizedBox(height: 100),
+              AppLineChart(
+                categories: const ['2023', '2024', '2025'],
+                series: const ChartSeries(
+                  label: '합성',
+                  color: Color(0xFF2F6DA8),
+                  values: [101, 202, 303],
+                ),
+                formatValue: (v) => '${v.toInt()}원',
+              ),
+              const SizedBox(height: 1200),
+            ],
+          ),
+        ),
+        width: 320,
+      ),
+    );
+    await tester.dragFrom(
+      tester.getCenter(find.byType(AppLineChart)),
+      const Offset(0, -100),
+    );
+    await tester.pumpAndSettle();
+    expect(controller.offset, greaterThan(0));
+    expect(find.text('202원'), findsNothing);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+    controller.dispose();
+  });
+
   testWidgets('중첩 연구 블록은 카드 하나로 유지하며 320px 긴 근거를 보존한다', (tester) async {
     await tester.pumpWidget(
       shadTestHost(
