@@ -254,7 +254,7 @@ class _CategoryChartState extends State<_CategoryChart> {
             child: Semantics(
               container: true,
               label: '${widget.series.map((s) => s.label).join(' · ')} 차트',
-              hint: '좌우 방향키로 기간 이동, Home 첫 기간, End 마지막 기간',
+              hint: '눌러 상세 보기, 다시 누르거나 바깥을 눌러 닫기, 가로 드래그 또는 좌우 방향키로 기간 이동, Home 첫 기간, End 마지막 기간',
               value: hovered == null ? '$n개 기간' : _description(hovered),
               // The chart exposes period actions rather than a synthetic
               // numeric slider (Flutter Web otherwise displays values 0/1/2).
@@ -275,44 +275,69 @@ class _CategoryChartState extends State<_CategoryChart> {
                   ),
                   borderRadius: context.shape.borderRadius,
                 ),
-                child: MouseRegion(
-                  onHover: (e) => setState(() {
-                    _hovered = indexAt(e.localPosition);
-                    _pointer = e.localPosition;
+                child: TapRegion(
+                  onTapOutside: (_) => setState(() {
+                    _hovered = null;
+                    _pointer = null;
                   }),
-                  onExit: (_) {
-                    if (!_keyboardFocused) setState(() => _hovered = null);
-                  },
-                  child: GestureDetector(
-                    // 터치에서는 누른 범주를 보여준다.
-                    onTapDown: (d) => setState(() {
-                      _hovered = indexAt(d.localPosition);
-                      _pointer = d.localPosition;
+                  child: MouseRegion(
+                    onHover: (e) => setState(() {
+                      _hovered = indexAt(e.localPosition);
+                      _pointer = e.localPosition;
                     }),
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        Positioned.fill(
-                          child: CustomPaint(
-                            painter: _ChartPainter(
-                              chart: widget,
-                              plot: plot,
-                              scale: scale,
-                              hovered: hovered,
-                              colors: c,
-                              tickStyle: tickStyle,
-                              labelStyle: t.body(11.5, color: c.textSecondary),
+                    onExit: (_) {
+                      if (!_keyboardFocused) setState(() => _hovered = null);
+                    },
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      // Select only after a completed tap, so vertical scrolling
+                      // does not open a detail. Horizontal drag owns scrubbing.
+                      onTapUp: (d) => setState(() {
+                        final index = indexAt(d.localPosition);
+                        _hovered = index == _hovered ? null : index;
+                        _pointer = _hovered == null ? null : d.localPosition;
+                      }),
+                      onHorizontalDragStart: (d) => setState(() {
+                        _hovered = indexAt(d.localPosition);
+                        _pointer = d.localPosition;
+                      }),
+                      onHorizontalDragUpdate: (d) => setState(() {
+                        _hovered = indexAt(
+                          Offset(
+                            d.localPosition.dx.clamp(plot.left, plot.right),
+                            d.localPosition.dy,
+                          ),
+                        );
+                        _pointer = d.localPosition;
+                      }),
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Positioned.fill(
+                            child: CustomPaint(
+                              painter: _ChartPainter(
+                                chart: widget,
+                                plot: plot,
+                                scale: scale,
+                                hovered: hovered,
+                                colors: c,
+                                tickStyle: tickStyle,
+                                labelStyle: t.body(
+                                  11.5,
+                                  color: c.textSecondary,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                        if (hovered != null && _pointer != null)
-                          _tooltip(
-                            context,
-                            constraints.maxWidth,
-                            plot,
-                            hovered,
-                          ),
-                      ],
+                          if (hovered != null && _pointer != null)
+                            _tooltip(
+                              context,
+                              constraints.maxWidth,
+                              plot,
+                              hovered,
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
