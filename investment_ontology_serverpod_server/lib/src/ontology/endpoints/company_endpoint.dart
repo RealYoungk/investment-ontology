@@ -1,3 +1,5 @@
+import '../presentation/company_presentation.dart';
+
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
@@ -98,12 +100,24 @@ class CompanyEndpoint extends Endpoint {
         })).caps;
         all.sort((a, b) {
           final ca = caps[a.id], cb = caps[b.id];
-          if (ca == null && cb == null) return a.name.compareTo(b.name);
+          if (ca == null && cb == null) {
+            return a.displayName.compareTo(b.displayName);
+          }
           if (ca == null) return 1;
           if (cb == null) return -1;
           return cb.compareTo(ca);
         });
         rows = all.skip(offset).take(limit).toList();
+      } else if (order == CompanySort.name) {
+        final all = await Company.db.find(session, where: where);
+        all.sort((a, b) {
+          final result = a.displayName.compareTo(b.displayName);
+          return result != 0 ? result : a.corpCode.compareTo(b.corpCode);
+        });
+        rows = all.skip(offset).take(limit).toList();
+        caps = (await MarketCaps.latest(session, {
+          for (final c in rows) c.id!,
+        })).caps;
       } else {
         rows = await Company.db.find(
           session,
@@ -138,7 +152,7 @@ class CompanyEndpoint extends Endpoint {
           if (relevance != 0) return relevance;
         }
         final comparison = switch (order) {
-          CompanySort.name => a.name.compareTo(b.name),
+          CompanySort.name => a.displayName.compareTo(b.displayName),
           CompanySort.stockCode => (a.stockCode ?? '').compareTo(
             b.stockCode ?? '',
           ),
@@ -153,7 +167,9 @@ class CompanyEndpoint extends Endpoint {
                       ? -1
                       : caps[b.id]!.compareTo(caps[a.id]!)),
         };
-        return comparison != 0 ? comparison : a.name.compareTo(b.name);
+        return comparison != 0
+            ? comparison
+            : a.displayName.compareTo(b.displayName);
       });
       rows = all.skip(offset).take(limit).toList();
     }
@@ -171,7 +187,7 @@ class CompanyEndpoint extends Endpoint {
         for (final c in rows)
           CompanyListItem(
             corpCode: c.corpCode,
-            name: c.name,
+            name: c.displayName,
             stockCode: c.stockCode,
             market: c.market,
             industryCode: c.industryCode,
@@ -390,6 +406,7 @@ abstract final class CompanySearch {
     var best = 99;
     for (final name in {
       normalize(company.name),
+      normalize(company.displayName),
       _spokenName(company.name),
     }) {
       for (final spelling in {name, name.replaceAll('에스', '애스')}) {
@@ -515,6 +532,12 @@ abstract final class CompanySearch {
   static int? _directRank(Company company, String query) {
     final q = normalize(query);
     if (q.isEmpty) return null;
+    final display = normalize(company.displayName);
+    final stock = normalize(company.stockName ?? '');
+    if (display == q || stock == q) return 0;
+    if (display.startsWith(q) || (stock.isNotEmpty && stock.startsWith(q))) {
+      return 1;
+    }
     final name = normalize(company.name);
     final code = company.stockCode ?? '';
     if (name == q || code == q) return 0;

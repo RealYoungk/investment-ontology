@@ -1,0 +1,53 @@
+[
+  {
+    "stockCode": "000660",
+    "displayName": "SK하이닉스",
+    "pageUrl": "https://www.skhynix.com/company/UI-FR-CP0402/",
+    "imageUrl": "https://mis-prod-koce-skhynixhomepage-cdn-01-ep.azureedge.net/img/content/img_ci01.png",
+    "retrievedAt": "2026-10-07",
+    "filename": "000660.webp",
+    "sha256": "3fea1bcba09c5e01c9ba5bd1f60c389cfb1d6d0a5ec4cc43b716c85ec542f593",
+    "bytes": 6704
+  },
+  {
+    "stockCode": "005930",
+    "displayName": "삼성전자",
+    "pageUrl": "https://www.samsung.com/us/about-us/brand-identity/logo/",
+    "imageUrl": "https://www.samsung.com/etc.clientlibs/samsung/clientlibs/consumer/global/clientlib-common/resources/images/logo-square-letter.png",
+    "retrievedAt": "2026-10-07",
+    "filename": "005930.webp",
+    "sha256": "f0983bc464f2c11fbee1b222aa26d40ac2f059b29cb3b362853939a810123f38",
+    "bytes": 3316
+  },
+  {
+    "stockCode": "005380",
+    "displayName": "현대자동차",
+    "pageUrl": "https://www.hyundai.com/worldwide/en/",
+    "imageUrl": "https://www.hyundai.com/etc/designs/hyundai/ww/en/images/common/logo.png",
+    "retrievedAt": "2026-10-07",
+    "filename": "005380.webp",
+    "sha256": "b363536a264696c5a710a13cc303b4527fb432bb8bb47467dec396092cb61431",
+    "bytes": 3368
+  },
+  {
+    "stockCode": "035420",
+    "displayName": "NAVER",
+    "pageUrl": "https://www.navercorp.com/",
+    "imageUrl": "https://www.navercorp.com/img/pc/logo-type-green.png",
+    "retrievedAt": "2026-10-07",
+    "filename": "035420.webp",
+    "sha256": "6a0c341a69a8d6b430e08dfe77d5ff95aaeff00c7533fad0f0c4ec441e374cbe",
+    "bytes": 3278
+  },
+  {
+    "stockCode": "059090",
+    "corpCode": "00366942",
+    "displayName": "미코",
+    "pageUrl": "https://www.mico.kr/kr/",
+    "imageUrl": "https://www.mico.kr/images/common/logo_250814.png",
+    "retrievedAt": "2026-10-07",
+    "filename": "059090.webp",
+    "sha256": "8eee42080c0aa36dccc5a9f1f667d5da2a2ed5edc675df154605701fc0e3453b",
+    "bytes": 644
+  }
+]

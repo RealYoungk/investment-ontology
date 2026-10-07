@@ -1,3 +1,5 @@
+import '../../design/components/company_logo.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -23,8 +25,10 @@ class CompareMetricsTable extends StatefulWidget {
     super.key,
     required this.companies,
     required this.metrics,
+    this.corpCodes = const [],
   });
   final List<String> companies;
+  final List<String> corpCodes;
   final List<CompareMetricRow> metrics;
 
   @override
@@ -69,8 +73,14 @@ class _CompareMetricsTableState extends State<CompareMetricsTable> {
 
         final headerHeight = widget.companies.fold<double>(
           48,
-          (height, name) =>
-              math.max(height, textHeight(name, headerStyle, columnWidth)),
+          (height, name) => math.max(
+            height,
+            textHeight(
+              name,
+              headerStyle,
+              columnWidth - (widget.corpCodes.isEmpty ? 0 : 32),
+            ),
+          ),
         );
         final heights = [
           for (final metric in widget.metrics)
@@ -91,6 +101,7 @@ class _CompareMetricsTableState extends State<CompareMetricsTable> {
           bool numeric = false,
           String? note,
           String? semanticLabel,
+          String? corpCode,
         }) {
           final content = Container(
             width: width,
@@ -101,11 +112,19 @@ class _CompareMetricsTableState extends State<CompareMetricsTable> {
               color: header ? c.surfaceHover : null,
               border: Border(bottom: BorderSide(color: c.border, width: 0.8)),
             ),
-            child: Text(
-              text,
-              style: style,
-              textAlign: numeric ? TextAlign.right : TextAlign.left,
-            ),
+            child: corpCode == null
+                ? Text(
+                    text,
+                    style: style,
+                    textAlign: numeric ? TextAlign.right : TextAlign.left,
+                  )
+                : Row(
+                    children: [
+                      CompanyLogo(name: text, corpCode: corpCode, size: 24),
+                      const SizedBox(width: AppSpace.sm),
+                      Expanded(child: Text(text, style: style)),
+                    ],
+                  ),
           );
           return Semantics(
             label: semanticLabel,
@@ -161,13 +180,17 @@ class _CompareMetricsTableState extends State<CompareMetricsTable> {
                         children: [
                           Row(
                             children: [
-                              for (final name in widget.companies)
+                              for (final (index, name)
+                                  in widget.companies.indexed)
                                 cell(
                                   name,
                                   columnWidth,
                                   headerHeight,
                                   headerStyle,
                                   header: true,
+                                  corpCode: index < widget.corpCodes.length
+                                      ? widget.corpCodes[index]
+                                      : null,
                                 ),
                             ],
                           ),

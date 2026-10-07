@@ -1,3 +1,5 @@
+import '../../design/components/company_logo.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -547,11 +549,22 @@ class _HomeDashboardState extends State<HomeDashboard> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: AppSpace.sm),
                   child: ShadButton.ghost(
+                    height: 0,
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppSpace.sm,
+                    ),
                     onPressed: () =>
                         context.push('/company/${company.corpCode}'),
                     child: Flexible(
                       child: Row(
                         children: [
+                          CompanyLogo(
+                            name: company.name,
+                            stockCode: company.stockCode,
+                            corpCode: company.corpCode,
+                          ),
+                          const SizedBox(width: AppSpace.sm),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,

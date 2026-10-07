@@ -16,6 +16,10 @@ import '../financials/financial_section.dart';
 import '../governance/governance_tab.dart';
 import '../shareholder_return/shareholder_return_tab.dart';
 import 'widgets/company_header.dart';
+import 'widgets/collapsing_company_frame.dart';
+import '../watchlist/watchlist_button.dart';
+import '../common/formatters.dart';
+import '../financials/financial_metrics.dart';
 import 'widgets/company_overview_tab.dart';
 
 enum CompanyTab {
@@ -58,6 +62,10 @@ class CompanyPage extends StatefulWidget {
 }
 
 class _CompanyPageState extends State<CompanyPage> {
+  final _titleAnchor = GlobalKey();
+  final _actionsAnchor = GlobalKey();
+  final _codeAnchor = GlobalKey();
+  final _priceAnchor = GlobalKey();
   CompanyDetail? _detail;
   CompanyFinancials? _financials;
   List<DisclosureSectionInfo> _sections = const [];
@@ -194,6 +202,23 @@ class _CompanyPageState extends State<CompanyPage> {
         ? widget.initialTab
         : CompanyTab.overview;
 
+    final navigation = Align(
+      alignment: Alignment.centerLeft,
+      child: AppTabBar<CompanyTab>(
+        fitContent: true,
+        tabs: tabs,
+        value: tab,
+        onChanged: (tab) => Router.neglect(
+          context,
+          () => context.replace(
+            AppRoutes.company(
+              widget.corpCode,
+              tab: tab == CompanyTab.overview ? null : tab.name,
+            ),
+          ),
+        ),
+      ),
+    );
     return ExpansionTileTheme(
       data: ExpansionTileThemeData(
         tilePadding: const EdgeInsets.symmetric(horizontal: AppSpace.md),
@@ -205,7 +230,82 @@ class _CompanyPageState extends State<CompanyPage> {
         shape: Border(bottom: BorderSide(color: c.border)),
         collapsedShape: Border(bottom: BorderSide(color: c.border)),
       ),
-      child: PageFrame(
+      child: CollapsingCompanyFrame(
+        corpCode: detail?.company.corpCode,
+        titleAnchor: _titleAnchor,
+        sourceAnchors: [_codeAnchor, _priceAnchor],
+        name: detail?.company.displayName ?? '',
+        code: detail?.company.stockCode ?? '',
+        marketLabel: detail == null ? '' : marketLabel(detail.company.market),
+        marketCap: _financials?.market?.marketCap == null
+            ? ''
+            : formatKrw(_financials!.market!.marketCap),
+        price: _financials?.market?.securities
+            .where((q) => q.shortCode == detail?.company.stockCode)
+            .firstOrNull
+            ?.closePrice
+            ?.toInt(),
+        actionsAnchor: _actionsAnchor,
+        actionsBuilder: detail == null
+            ? null
+            : (context, progress) => Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  WatchlistButton(
+                    corpCode: widget.corpCode,
+                    compact: true,
+                    labelProgress: 1 - progress,
+                  ),
+                  const SizedBox(width: AppSpace.sm),
+                  ShadButton.outline(
+                    size: ShadButtonSize.sm,
+                    onPressed: () =>
+                        context.push(AppRoutes.compare([widget.corpCode])),
+                    leading: const Icon(
+                      Icons.compare_arrows_outlined,
+                      size: 16,
+                    ),
+                    child: ClipRect(
+                      child: Align(
+                        widthFactor: 1 - progress,
+                        child: Opacity(
+                          opacity: 1 - progress,
+                          child: const Text('기업비교'),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+        navigation: navigation,
+        header: detail == null
+            ? const SizedBox.shrink()
+            : CompanyHeader(
+                titleAnchor: _titleAnchor,
+                actionsAnchor: _actionsAnchor,
+                codeAnchor: _codeAnchor,
+                priceAnchor: _priceAnchor,
+                identityOnly: true,
+                detail: detail,
+                onCompare: () =>
+                    context.push(AppRoutes.compare([widget.corpCode])),
+                financials: _financials,
+                onBasisChanged: _changeBasis,
+                changingBasis: _changingBasis,
+                selectedBasis: _fsDiv,
+                basisError: _basisError,
+              ),
+        metrics: detail == null
+            ? null
+            : CompanyHeader(
+                metricsOnly: true,
+                detail: detail,
+                financials: _financials,
+                onBasisChanged: _changeBasis,
+                changingBasis: _changingBasis,
+                selectedBasis: _fsDiv,
+                basisError: _basisError,
+              ),
         children: [
           if (!_loaded)
             const ShadProgress(minHeight: 2)
@@ -217,37 +317,6 @@ class _CompanyPageState extends State<CompanyPage> {
                     style: t.body(14, color: c.textSecondary),
                   ))
           else ...[
-            CompanyHeader(
-              detail: detail,
-              onCompare: () =>
-                  context.push(AppRoutes.compare([widget.corpCode])),
-              financials: _financials,
-              onBasisChanged: _changeBasis,
-              changingBasis: _changingBasis,
-              selectedBasis: _fsDiv,
-              basisError: _basisError,
-            ),
-            const SizedBox(height: AppSpace.lg),
-            const ShadSeparator.horizontal(),
-            const SizedBox(height: AppSpace.lg),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: AppTabBar<CompanyTab>(
-                fitContent: true,
-                tabs: tabs,
-                value: tab,
-                onChanged: (tab) => Router.neglect(
-                  context,
-                  () => context.replace(
-                    AppRoutes.company(
-                      widget.corpCode,
-                      tab: tab == CompanyTab.overview ? null : tab.name,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: AppSpace.xl),
             switch (tab) {
               CompanyTab.overview => Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -287,7 +356,7 @@ class _CompanyPageState extends State<CompanyPage> {
                   GovernanceTab(
                     key: ValueKey('governance-$_version'),
                     corpCode: widget.corpCode,
-                    companyName: detail.company.name,
+                    companyName: detail.company.displayName,
                   ),
                 ],
               ),
@@ -324,7 +393,7 @@ class _CompanyPageState extends State<CompanyPage> {
                 children: [
                   FinancialSection(
                     industryCode: detail.company.industryCode,
-                    companyName: detail.company.name,
+                    companyName: detail.company.displayName,
                     key: const ValueKey('financials'),
                     dataVersion: _version,
                     corpCode: widget.corpCode,

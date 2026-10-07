@@ -1,3 +1,5 @@
+import '../../design/components/company_logo.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -957,15 +959,27 @@ class _ResultTable extends StatelessWidget {
                           AppRoutes.company(row.company.corpCode),
                         ),
                         child: Expanded(
-                          child: Text(
-                            col.$2(row) ?? '—',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: t.body(
-                              13.5,
-                              color: c.accent,
-                              weight: FontWeight.w600,
-                            ),
+                          child: Row(
+                            children: [
+                              CompanyLogo(
+                                name: row.company.name,
+                                corpCode: row.company.corpCode,
+                                size: 24,
+                              ),
+                              const SizedBox(width: AppSpace.sm),
+                              Expanded(
+                                child: Text(
+                                  col.$2(row) ?? '—',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: t.body(
+                                    13.5,
+                                    color: c.accent,
+                                    weight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       )

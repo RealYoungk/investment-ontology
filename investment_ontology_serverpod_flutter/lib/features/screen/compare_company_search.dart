@@ -1,3 +1,5 @@
+import '../../design/components/company_logo.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -253,21 +255,37 @@ class _CompareCompanySearchState extends State<CompareCompanySearch> {
                       )
                     : ShadTooltip(
                         builder: (_) => Text(item.name),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Row(
                           children: [
-                            Text(
-                              item.name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: t.body(14),
+                            CompanyLogo(
+                              name: item.name,
+                              stockCode: item.stockCode,
+                              corpCode: item.corpCode,
+                              size: 28,
                             ),
-                            if (narrow)
-                              Text(
-                                item.stockCode ?? '종목코드 없음',
-                                style: t.numeric(12, color: c.textSecondary),
+                            const SizedBox(width: AppSpace.sm),
+                            Expanded(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item.name,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: t.body(14),
+                                  ),
+                                  if (narrow)
+                                    Text(
+                                      item.stockCode ?? '종목코드 없음',
+                                      style: t.numeric(
+                                        12,
+                                        color: c.textSecondary,
+                                      ),
+                                    ),
+                                ],
                               ),
+                            ),
                           ],
                         ),
                       ),

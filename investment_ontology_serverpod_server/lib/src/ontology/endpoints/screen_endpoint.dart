@@ -1,3 +1,5 @@
+import '../presentation/company_display_name.dart';
+
 import 'dart:io' show stderr;
 
 import 'package:serverpod/serverpod.dart';
@@ -532,7 +534,7 @@ class ScreenEndpoint extends Endpoint {
         FROM dividend_report dr LEFT JOIN dividend_entry d ON d."reportId" = dr.id
         GROUP BY dr."companyId", dr."bsnsYear"
       ), metrics AS (
-        SELECT c.id, c."corpCode", c.name, c.market, l.y, l.fs, l.code, l.reason, cap.cap, bc.currency AS reporting_currency,
+        SELECT c.id, c."corpCode", CASE WHEN c."stockCode" = '000660' THEN 'SK하이닉스' WHEN c."stockCode" = '035420' THEN 'NAVER' ELSE COALESCE(NULLIF(NULLIF(TRIM(c."stockName"), ''), '-'), c.name) END AS name, c.market, l.y, l.fs, l.code, l.reason, cap.cap, bc.currency AS reporting_currency,
           max(t.v) FILTER (WHERE t.acc = 'ifrs-full_Revenue') AS revenue,
           max(t.v) FILTER (WHERE t.acc = 'dart_OperatingIncomeLoss') AS op,
           coalesce(max(t.v) FILTER (WHERE l.fs='consolidated' AND t.acc='ifrs-full_ProfitLossAttributableToOwnersOfParent'),
@@ -696,7 +698,7 @@ class ScreenEndpoint extends Endpoint {
             company: CompanyRef(
               id: r[0] as int,
               corpCode: r[1] as String,
-              name: r[2] as String,
+              name: companyDisplayName(name: r[2] as String),
               market: r[3] == null ? null : Market.values.byName('${r[3]}'),
             ),
             bsnsYear: r[4] as int,

@@ -24,6 +24,7 @@ environment:
 resolution: workspace
 
 dependencies:
+  flutter_svg: 2.3.0
   shad:
     path: ../third_party/shad
   serverpod_auth_idp_client: 4.0.0
@@ -84,6 +85,8 @@ flutter:
     - assets/config.json
     - assets/overview/companies.json
     - assets/brand/alfinder-logo.png
+    - assets/company_logos/
+    - assets/company_icons/
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a

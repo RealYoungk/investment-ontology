@@ -360,7 +360,9 @@ class _ComparisonCharts extends StatelessWidget {
                           Text(unit, style: t.body(12, color: c.textSecondary)),
                           const SizedBox(height: AppSpace.md),
                           AppColumnChart(
-                            categories: [for (final r in rows) r.company.name],
+                            categories: [
+                              for (final r in rows) r.company.name,
+                            ],
                             series: [
                               ChartSeries(
                                 label: unit,

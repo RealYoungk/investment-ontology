@@ -1,3 +1,5 @@
+import '../presentation/company_presentation.dart';
+
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
@@ -29,7 +31,7 @@ class ThemeEndpoint extends Endpoint {
                   session,
                   where: (t) => t.id.inSet(companyIds),
                 ))
-        c.id!: c.name,
+        c.id!: c.displayName,
     };
     final summaries = [
       for (final theme in themes)
@@ -155,7 +157,7 @@ class ThemeEndpoint extends Endpoint {
                 company: CompanyRef(
                   id: c.id!,
                   corpCode: c.corpCode,
-                  name: c.name,
+                  name: c.displayName,
                   market: c.market,
                 ),
                 industryName: industries[c.industryCode],

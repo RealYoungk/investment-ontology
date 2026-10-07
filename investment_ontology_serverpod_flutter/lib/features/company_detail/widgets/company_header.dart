@@ -1,3 +1,4 @@
+import '../../../design/components/company_logo.dart';
 import '../../common/formatters.dart';
 import 'company_basic_info.dart';
 import '../../watchlist/watchlist_button.dart';
@@ -26,8 +27,18 @@ class CompanyHeader extends StatelessWidget {
     this.basisError,
     this.selectedBasis,
     this.onCompare,
+    this.titleAnchor,
+    this.actionsAnchor,
+    this.codeAnchor,
+    this.priceAnchor,
+    this.capAnchor,
+    this.identityOnly = false,
+    this.metricsOnly = false,
   });
 
+  final bool identityOnly, metricsOnly;
+  final GlobalKey? actionsAnchor;
+  final GlobalKey? titleAnchor, codeAnchor, priceAnchor, capAnchor;
   final VoidCallback? onCompare;
   final ValueChanged<FsDiv?>? onBasisChanged;
   final FsDiv? selectedBasis;
@@ -48,208 +59,288 @@ class CompanyHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Wrap(
-          spacing: AppSpace.sm,
-          runSpacing: AppSpace.xs,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            ShadBadge.secondary(child: Text(marketLabel(company.market))),
-            if (company.stockCode?.isNotEmpty == true)
-              Text(
-                company.stockCode!,
-                style: t.numeric(12, color: c.textSecondary),
-              ),
-            if (detail.industryPath.isNotEmpty)
-              Text(
-                detail.industryPath.last.name,
-                style: t.body(12, color: c.textSecondary),
-              ),
-          ],
-        ),
-        const SizedBox(height: AppSpace.md),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            double textWidth(String text, TextStyle style) {
-              final painter = TextPainter(
-                text: TextSpan(text: text, style: style),
-                textDirection: Directionality.of(context),
-                textScaler: MediaQuery.textScalerOf(context),
-              )..layout();
-              final width = painter.width;
-              painter.dispose();
-              return width;
-            }
+        if (!metricsOnly) ...[
+          LayoutBuilder(
+            builder: (context, constraints) {
+              double textWidth(String text, TextStyle style) {
+                final painter = TextPainter(
+                  text: TextSpan(text: text, style: style),
+                  textDirection: Directionality.of(context),
+                  textScaler: MediaQuery.textScalerOf(context),
+                )..layout();
+                final width = painter.width;
+                painter.dispose();
+                return width;
+              }
 
-            final stackName = constraints.maxWidth < 900;
-            final titleStyle = t.display(
-              stackName ? 26 : 30,
-              color: c.textPrimary,
-            );
-            final actionStyle = t.body(13, weight: FontWeight.w600);
-            final actionWidth =
-                textWidth('관심등록됨', actionStyle) +
-                54 +
-                (onCompare == null
-                    ? 0
-                    : textWidth('기업비교', actionStyle) + 54 + AppSpace.sm);
-            final compact =
-                constraints.maxWidth <
-                textWidth(company.name, titleStyle) + actionWidth + AppSpace.md;
-            final name = stackName
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        company.name,
-                        style: titleStyle,
-                      ),
-                      if (company.nameEng?.isNotEmpty == true) ...[
-                        const SizedBox(height: AppSpace.xs),
-                        Text(
-                          company.nameEng!,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: t.body(12, color: c.textSecondary),
-                        ),
-                      ],
-                    ],
-                  )
-                : Wrap(
-                    spacing: AppSpace.lg,
-                    runSpacing: AppSpace.sm,
-                    crossAxisAlignment: WrapCrossAlignment.end,
-                    children: [
-                      Text(
-                        company.name,
-                        style: t.display(30, color: c.textPrimary),
-                      ),
-                      if (company.nameEng != null)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 6),
+              final stackName = constraints.maxWidth < 900;
+              final titleStyle = t.display(
+                stackName ? 26 : 30,
+                color: c.textPrimary,
+              );
+              final actionStyle = t.body(13, weight: FontWeight.w600);
+              final actionWidth =
+                  textWidth('관심등록됨', actionStyle) +
+                  54 +
+                  (onCompare == null
+                      ? 0
+                      : textWidth('기업비교', actionStyle) + 54 + AppSpace.sm);
+              final compact =
+                  constraints.maxWidth <
+                  textWidth(company.displayName, titleStyle) +
+                      actionWidth +
+                      48 +
+                      AppSpace.md * 2;
+              final name = stackName
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Opacity(
+                          opacity: titleAnchor == null ? 1 : 0,
                           child: Text(
-                            company.nameEng!,
-                            style: t.body(13.5, color: c.textSecondary),
+                            company.displayName,
+                            key: titleAnchor,
+                            style: titleStyle,
                           ),
                         ),
-                    ],
-                  );
-            final actions = Wrap(
-              spacing: AppSpace.sm,
-              runSpacing: AppSpace.sm,
-              alignment: WrapAlignment.end,
-              children: [
-                WatchlistButton(corpCode: company.corpCode, compact: compact),
-                if (onCompare != null)
-                  ShadButton.raw(
-                    onPressed: onCompare,
-
-                    variant: ShadButtonVariant.outline,
-                    size: (compact)
-                        ? ShadButtonSize.sm
-                        : ShadButtonSize.regular,
-                    leading: Icon(Icons.compare_arrows_outlined, size: 16),
-                    child: Flexible(child: Text('기업비교')),
-                  ),
-              ],
-            );
-            if (constraints.maxWidth < 600) {
-              return Column(
+                        if (company.nameEng?.isNotEmpty == true) ...[
+                          const SizedBox(height: AppSpace.xs),
+                          Text(
+                            company.nameEng!,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: t.body(12, color: c.textSecondary),
+                          ),
+                        ],
+                      ],
+                    )
+                  : Wrap(
+                      spacing: AppSpace.lg,
+                      runSpacing: AppSpace.sm,
+                      crossAxisAlignment: WrapCrossAlignment.end,
+                      children: [
+                        Opacity(
+                          opacity: titleAnchor == null ? 1 : 0,
+                          child: Text(
+                            company.displayName,
+                            key: titleAnchor,
+                            style: t.display(30, color: c.textPrimary),
+                          ),
+                        ),
+                        if (company.nameEng != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 6),
+                            child: Text(
+                              company.nameEng!,
+                              style: t.body(13.5, color: c.textSecondary),
+                            ),
+                          ),
+                      ],
+                    );
+              final identity = Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  name,
-                  const SizedBox(height: AppSpace.md),
+                  Opacity(
+                    opacity: titleAnchor == null ? 1 : 0,
+                    child: CompanyLogo(
+                      name: company.displayName,
+                      stockCode: company.stockCode,
+                      corpCode: company.corpCode,
+                      size: 48,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpace.md),
+                  Expanded(child: name),
+                ],
+              );
+              final actions = Opacity(
+                opacity: actionsAnchor == null ? 1 : 0,
+                child: KeyedSubtree(
+                  key: actionsAnchor,
+                  child: Wrap(
+                    spacing: AppSpace.sm,
+                    runSpacing: AppSpace.sm,
+                    alignment: WrapAlignment.end,
+                    children: [
+                      WatchlistButton(
+                        corpCode: company.corpCode,
+                        compact: compact,
+                      ),
+                      if (onCompare != null)
+                        ShadButton.raw(
+                          onPressed: onCompare,
+
+                          variant: ShadButtonVariant.outline,
+                          size: (compact)
+                              ? ShadButtonSize.sm
+                              : ShadButtonSize.regular,
+                          leading: Icon(
+                            Icons.compare_arrows_outlined,
+                            size: 16,
+                          ),
+                          child: Flexible(child: Text('기업비교')),
+                        ),
+                    ],
+                  ),
+                ),
+              );
+              if (constraints.maxWidth < 600) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    identity,
+                    const SizedBox(height: AppSpace.md),
+                    actions,
+                  ],
+                );
+              }
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: identity),
+                  const SizedBox(width: AppSpace.md),
                   actions,
                 ],
               );
-            }
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: name),
-                const SizedBox(width: AppSpace.md),
-                actions,
-              ],
-            );
-          },
-        ),
-        CompanyBasicInfo(detail: detail),
-        const SizedBox(height: AppSpace.lg),
-        DataPanel(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            },
+          ),
+          const SizedBox(height: AppSpace.md),
+          Wrap(
+            spacing: AppSpace.sm,
+            runSpacing: AppSpace.xs,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              LayoutBuilder(
-                builder: (context, box) {
-                  final heading = Text(
-                    '핵심 지표',
-                    style: t.body(14, weight: FontWeight.w600),
-                  );
-                  final basis = Wrap(
-                    spacing: AppSpace.md,
-                    runSpacing: AppSpace.xs,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      if (fin?.fsDiv != null)
-                        Text(
-                          '${fsDivLabel(fin!.fsDiv!)} 기준',
-                          style: t.body(12, color: c.textMuted),
-                        ),
-                      if (fin != null &&
-                          fin.availableFsDivs.isNotEmpty &&
-                          onBasisChanged != null)
-                        AppSelect<String>(
-                          value: selectedBasis?.name ?? 'auto',
-                          placeholder: '계산 기준',
-                          allowClear: false,
-                          options: {
-                            'auto': '자동',
-                            for (final div in fin.availableFsDivs)
-                              div.name: fsDivLabel(div),
-                          },
-                          onChanged: (value) => onBasisChanged!(
-                            value == null || value == 'auto'
-                                ? null
-                                : FsDiv.values.byName(value),
-                          ),
-                        ),
-                      if (changingBasis)
-                        Text('불러오는 중…', style: t.body(12, color: c.textMuted)),
-                    ],
-                  );
-                  return box.maxWidth < 560
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            heading,
-                            const SizedBox(height: AppSpace.sm),
-                            basis,
-                          ],
-                        )
-                      : Row(
-                          children: [
-                            Expanded(child: heading),
-                            basis,
-                          ],
-                        );
-                },
-              ),
-              if (basisError != null)
-                Text(basisError!, style: t.body(12, color: c.textSecondary)),
-              const SizedBox(height: AppSpace.md),
-              if (hasFinancials)
-                _KeyStats(
-                  metrics: FinancialView(fin).metrics(),
-                  industryCode: company.industryCode,
-                  companyName: company.name,
-                  basisReason: fin.basisReason,
-                  corpCode: company.corpCode,
-                  fsDiv: fin.fsDiv,
-                )
-              else
-                Text('수집된 재무·시세가 없습니다.', style: t.body(13, color: c.textMuted)),
+              ShadBadge.secondary(child: Text(marketLabel(company.market))),
+              if (company.stockCode?.isNotEmpty == true)
+                Opacity(
+                  opacity: codeAnchor == null ? 1 : 0,
+                  child: ShadBadge.secondary(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    child: Text(
+                      company.stockCode!,
+                      key: codeAnchor,
+                      style: t.numeric(12, color: c.textSecondary),
+                    ),
+                  ),
+                ),
+              if (detail.industryPath.isNotEmpty)
+                ShadBadge.secondary(child: Text(detail.industryPath.last.name)),
+              if (priceAnchor != null && fin?.market != null)
+                Opacity(
+                  opacity: 0,
+                  child: ShadBadge.secondary(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    child: Text(
+                      fin!.market!.securities
+                                  .where(
+                                    (q) => q.shortCode == company.stockCode,
+                                  )
+                                  .firstOrNull
+                                  ?.closePrice ==
+                              null
+                          ? '—'
+                          : '${formatCount(fin.market!.securities.where((q) => q.shortCode == company.stockCode).first.closePrice!.toInt())}원',
+                      key: priceAnchor,
+                      style: t.numeric(13, weight: FontWeight.w600),
+                    ),
+                  ),
+                ),
             ],
           ),
-        ),
+          const SizedBox(height: AppSpace.md),
+          CompanyBasicInfo(detail: detail),
+          const SizedBox(height: AppSpace.lg),
+        ],
+        if (!identityOnly)
+          DataPanel(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                LayoutBuilder(
+                  builder: (context, box) {
+                    final heading = Text(
+                      '핵심 지표',
+                      style: t.body(14, weight: FontWeight.w600),
+                    );
+                    final basis = Wrap(
+                      spacing: AppSpace.md,
+                      runSpacing: AppSpace.xs,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        if (fin?.fsDiv != null)
+                          Text(
+                            '${fsDivLabel(fin!.fsDiv!)} 기준',
+                            style: t.body(12, color: c.textMuted),
+                          ),
+                        if (fin != null &&
+                            fin.availableFsDivs.isNotEmpty &&
+                            onBasisChanged != null)
+                          AppSelect<String>(
+                            value: selectedBasis?.name ?? 'auto',
+                            placeholder: '계산 기준',
+                            allowClear: false,
+                            options: {
+                              'auto': '자동',
+                              for (final div in fin.availableFsDivs)
+                                div.name: fsDivLabel(div),
+                            },
+                            onChanged: (value) => onBasisChanged!(
+                              value == null || value == 'auto'
+                                  ? null
+                                  : FsDiv.values.byName(value),
+                            ),
+                          ),
+                        if (changingBasis)
+                          Text(
+                            '불러오는 중…',
+                            style: t.body(12, color: c.textMuted),
+                          ),
+                      ],
+                    );
+                    return box.maxWidth < 560
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              heading,
+                              const SizedBox(height: AppSpace.sm),
+                              basis,
+                            ],
+                          )
+                        : Row(
+                            children: [
+                              Expanded(child: heading),
+                              basis,
+                            ],
+                          );
+                  },
+                ),
+                if (basisError != null)
+                  Text(basisError!, style: t.body(12, color: c.textSecondary)),
+                const SizedBox(height: AppSpace.md),
+                if (hasFinancials)
+                  _KeyStats(
+                    capAnchor: capAnchor,
+                    metrics: FinancialView(fin).metrics(),
+                    industryCode: company.industryCode,
+                    companyName: company.displayName,
+                    basisReason: fin.basisReason,
+                    corpCode: company.corpCode,
+                    fsDiv: fin.fsDiv,
+                  )
+                else
+                  Text(
+                    '수집된 재무·시세가 없습니다.',
+                    style: t.body(13, color: c.textMuted),
+                  ),
+              ],
+            ),
+          ),
       ],
     );
   }
@@ -257,6 +348,7 @@ class CompanyHeader extends StatelessWidget {
 
 class _KeyStats extends StatefulWidget {
   const _KeyStats({
+    this.capAnchor,
     required this.metrics,
     required this.corpCode,
     required this.fsDiv,
@@ -265,6 +357,7 @@ class _KeyStats extends StatefulWidget {
     required this.basisReason,
   });
 
+  final GlobalKey? capAnchor;
   final String corpCode;
   final FsDiv? fsDiv;
   final List<DerivedMetric> metrics;
@@ -403,15 +496,22 @@ class _KeyStatsState extends State<_KeyStats> {
                         FittedBox(
                           fit: BoxFit.scaleDown,
                           alignment: Alignment.centerLeft,
-                          child: Text(
-                            m.display,
-                            maxLines: 1,
-                            style: t.numeric(
-                              24,
-                              color: m.derived.value == null
-                                  ? c.textMuted
-                                  : c.textPrimary,
-                              weight: FontWeight.w600,
+                          child: Opacity(
+                            opacity:
+                                m.label == '시가총액' && widget.capAnchor != null
+                                ? 0
+                                : 1,
+                            child: Text(
+                              m.display,
+                              key: m.label == '시가총액' ? widget.capAnchor : null,
+                              maxLines: 1,
+                              style: t.numeric(
+                                24,
+                                color: m.derived.value == null
+                                    ? c.textMuted
+                                    : c.textPrimary,
+                                weight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ),

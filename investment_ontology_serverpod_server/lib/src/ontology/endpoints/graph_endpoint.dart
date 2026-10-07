@@ -1,3 +1,5 @@
+import '../presentation/company_presentation.dart';
+
 import 'package:serverpod/serverpod.dart';
 
 import '../../generated/protocol.dart';
@@ -169,7 +171,8 @@ class GraphEndpoint extends Endpoint {
             kind: n.kind,
             depth: n.depth,
             label: switch (n.kind) {
-              'company' => companies[int.parse(key.substring(1))]?.name ?? key,
+              'company' =>
+                companies[int.parse(key.substring(1))]?.displayName ?? key,
               'person' => persons[int.parse(key.substring(1))]?.name ?? key,
               _ => labels[key] ?? key.substring(1),
             },

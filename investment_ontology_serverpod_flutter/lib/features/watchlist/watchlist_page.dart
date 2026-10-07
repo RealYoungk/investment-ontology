@@ -1,3 +1,5 @@
+import '../../design/components/company_logo.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -278,6 +280,12 @@ class _WatchlistPageState extends State<WatchlistPage>
                   child: Flexible(
                     child: Row(
                       children: [
+                        CompanyLogo(
+                          name: company.name,
+                          stockCode: company.stockCode,
+                          corpCode: company.corpCode,
+                        ),
+                        const SizedBox(width: AppSpace.sm),
                         Expanded(
                           child: Column(
                             mainAxisSize: MainAxisSize.min,

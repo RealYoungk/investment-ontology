@@ -1,3 +1,5 @@
+import '../presentation/company_presentation.dart';
+
 import 'dart:convert';
 
 import 'package:serverpod/serverpod.dart';
@@ -461,7 +463,7 @@ class GovernanceEndpoint extends Endpoint {
             CompanyRef(
               id: c.id!,
               corpCode: c.corpCode,
-              name: c.name,
+              name: c.displayName,
               market: c.market,
             ),
         ];

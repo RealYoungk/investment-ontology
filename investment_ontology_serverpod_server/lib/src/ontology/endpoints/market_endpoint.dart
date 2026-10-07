@@ -1,3 +1,4 @@
+import '../presentation/company_presentation.dart';
 import '../market/comparison_date.dart';
 import '../market/company_cap_history.dart';
 
@@ -63,7 +64,7 @@ class MarketEndpoint extends Endpoint {
       result.add(
         NewCompanyView(
           corpCode: company.corpCode,
-          name: company.name,
+          name: company.displayName,
           stockCode: company.stockCode,
           market: company.market,
           observedDate: date,
@@ -505,7 +506,7 @@ class MarketEndpoint extends Endpoint {
   static MarketCapNode _companyNode(Company company, BigInt cap) =>
       MarketCapNode(
         code: company.corpCode,
-        name: company.name,
+        name: company.displayName,
         marketCap: cap,
         companyCount: 1,
         market: company.market,

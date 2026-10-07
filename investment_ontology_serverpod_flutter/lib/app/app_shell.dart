@@ -1,3 +1,4 @@
+import '../design/components/company_logo.dart';
 import '../features/search/search_catalog.dart';
 import '../design/components/navigation_menu.dart';
 
@@ -628,6 +629,13 @@ class _HitList extends StatelessWidget {
           row(
             onTap: () => onCompany(item),
             children: [
+              CompanyLogo(
+                name: item.name,
+                stockCode: item.stockCode,
+                corpCode: item.corpCode,
+                size: 28,
+              ),
+              const SizedBox(width: AppSpace.sm),
               SizedBox(
                 width: 64,
                 child: Text(

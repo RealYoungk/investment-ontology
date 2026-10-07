@@ -1,3 +1,5 @@
+import '../../../design/components/company_logo.dart';
+
 import 'package:flutter/material.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 
@@ -184,27 +186,40 @@ class CompanyTable extends StatelessWidget {
                       padding: EdgeInsets.zero,
                       onPressed: () => onSelect(item.corpCode),
                       child: Expanded(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Row(
                           children: [
-                            Text(
-                              item.name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: context.typo.body(
-                                14,
-                                weight: FontWeight.w600,
+                            CompanyLogo(
+                              name: item.name,
+                              stockCode: item.stockCode,
+                              corpCode: item.corpCode,
+                              size: 28,
+                            ),
+                            const SizedBox(width: AppSpace.sm),
+                            Expanded(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item.name,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: context.typo.body(
+                                      14,
+                                      weight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  if (compact)
+                                    Text(
+                                      '${item.stockCode ?? '—'} · ${marketLabel(item.market)}',
+                                      style: context.typo.numeric(
+                                        11.5,
+                                        color: context.colors.textSecondary,
+                                      ),
+                                    ),
+                                ],
                               ),
                             ),
-                            if (compact)
-                              Text(
-                                '${item.stockCode ?? '—'} · ${marketLabel(item.market)}',
-                                style: context.typo.numeric(
-                                  11.5,
-                                  color: context.colors.textSecondary,
-                                ),
-                              ),
                           ],
                         ),
                       ),

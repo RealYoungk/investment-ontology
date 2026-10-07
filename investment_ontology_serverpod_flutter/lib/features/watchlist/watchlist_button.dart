@@ -14,9 +14,11 @@ class WatchlistButton extends StatelessWidget {
     super.key,
     required this.corpCode,
     this.compact = false,
+    this.labelProgress = 1,
   });
   final String corpCode;
   final bool compact;
+  final double labelProgress;
   @override
   Widget build(BuildContext context) {
     final store = WatchlistStore.instance;
@@ -75,7 +77,12 @@ class WatchlistButton extends StatelessWidget {
             size: 16,
             color: saved ? context.colors.accent : context.colors.textMuted,
           ),
-          child: Flexible(child: Text(label)),
+          child: ClipRect(
+            child: Align(
+              widthFactor: labelProgress,
+              child: Opacity(opacity: labelProgress, child: Text(label)),
+            ),
+          ),
         );
       },
     );
