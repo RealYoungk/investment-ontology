@@ -433,7 +433,7 @@ class _SourceLink extends StatelessWidget {
           launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication),
       variant: ShadButtonVariant.link,
       padding: EdgeInsets.zero,
-      child: Text('$label →', textAlign: TextAlign.left),
+      child: Flexible(child: Text('$label →', textAlign: TextAlign.left)),
     ),
   );
 }
