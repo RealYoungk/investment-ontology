@@ -310,7 +310,7 @@ class _CategoryChartState extends State<_CategoryChart> {
                       // does not open a detail. Horizontal drag owns scrubbing.
                       onTapUp: (d) => setState(() {
                         final index = indexAt(d.localPosition);
-                        _hovered = index;
+                        _hovered = index == _hovered ? null : index;
                         _pointer = _hovered == null ? null : d.localPosition;
                       }),
                       onHorizontalDragStart: (d) => setState(() {
