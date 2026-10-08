@@ -11,15 +11,16 @@ import '../../client.dart';
 import '../../design/components/components.dart';
 import '../../design/tokens.dart';
 import '../auth/app_viewer.dart';
-import '../business/business_tab.dart';
+import '../watchlist/watchlist_button.dart';
+import '../common/formatters.dart';
+import '../financials/financial_metrics.dart';
+import 'widgets/company_news_section.dart';
+import 'widgets/price_chart.dart';
 import '../financials/financial_section.dart';
 import '../governance/governance_tab.dart';
 import '../shareholder_return/shareholder_return_tab.dart';
 import 'widgets/company_header.dart';
 import 'widgets/collapsing_company_frame.dart';
-import '../watchlist/watchlist_button.dart';
-import '../common/formatters.dart';
-import '../financials/financial_metrics.dart';
 import 'widgets/company_overview_tab.dart';
 
 enum CompanyTab {
@@ -51,7 +52,7 @@ class CompanyPage extends StatefulWidget {
   const CompanyPage({
     super.key,
     required this.corpCode,
-    this.initialTab = CompanyTab.overview,
+    this.initialTab = CompanyTab.business,
   });
 
   final String corpCode;
@@ -185,11 +186,11 @@ class _CompanyPageState extends State<CompanyPage> {
 
   /// 데이터가 있는 탭만.
   Map<CompanyTab, String> get _tabs => {
-    CompanyTab.overview: '개요',
+    CompanyTab.business: '사업',
     CompanyTab.financials: '재무',
     if (_has(_governanceSections)) CompanyTab.governance: '지배구조',
     if (_has(_returnSections)) CompanyTab.returns: '주주환원',
-    CompanyTab.disclosures: '공시',
+    CompanyTab.disclosures: '소식·공시',
   };
 
   @override
@@ -200,7 +201,7 @@ class _CompanyPageState extends State<CompanyPage> {
     final tabs = _tabs;
     final tab = tabs.containsKey(widget.initialTab)
         ? widget.initialTab
-        : CompanyTab.overview;
+        : CompanyTab.business;
 
     final navigation = Align(
       alignment: Alignment.centerLeft,
@@ -213,7 +214,7 @@ class _CompanyPageState extends State<CompanyPage> {
           () => context.replace(
             AppRoutes.company(
               widget.corpCode,
-              tab: tab == CompanyTab.overview ? null : tab.name,
+              tab: tab == CompanyTab.business ? null : tab.name,
             ),
           ),
         ),
@@ -318,33 +319,6 @@ class _CompanyPageState extends State<CompanyPage> {
                   ))
           else ...[
             switch (tab) {
-              CompanyTab.overview => Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  CompanyOverviewTab(
-                    key: ValueKey(_version),
-                    detail: detail,
-                    latestReport: _financials?.periods.lastOrNull,
-                    dataVersion: _version,
-                  ),
-                  const SizedBox(height: AppSpace.lg),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: ShadButton.outline(
-                      onPressed: () =>
-                          context.push('/insights?company=${widget.corpCode}'),
-                      child: const Text('투자 관점 · 후속 기록'),
-                    ),
-                  ),
-                  if (_sections.isEmpty) ...[
-                    const SizedBox(height: AppSpace.section),
-                    _DisclosureFetchCard(
-                      corpCode: widget.corpCode,
-                      onDone: _load,
-                    ),
-                  ],
-                ],
-              ),
               CompanyTab.governance => Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -372,6 +346,8 @@ class _CompanyPageState extends State<CompanyPage> {
               CompanyTab.disclosures => Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  CompanyNewsSection(corpCode: widget.corpCode),
+                  const SizedBox(height: AppSpace.xl),
                   ResearchSection(
                     corpCode: widget.corpCode,
                     kinds: const [
@@ -383,14 +359,18 @@ class _CompanyPageState extends State<CompanyPage> {
                   ),
                 ],
               ),
-              CompanyTab.business => BusinessTab(
-                key: const ValueKey('business'),
+              CompanyTab.overview || CompanyTab.business => CompanyOverviewTab(
+                key: ValueKey('business-$_version'),
+                detail: detail,
+                latestReport: _financials?.periods.lastOrNull,
                 dataVersion: _version,
-                corpCode: widget.corpCode,
+                businessDetail: true,
               ),
               CompanyTab.financials => Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  CompanyDataCard(child: PriceChart(corpCode: widget.corpCode)),
+                  const SizedBox(height: AppSpace.xl),
                   FinancialSection(
                     industryCode: detail.company.industryCode,
                     companyName: detail.company.displayName,

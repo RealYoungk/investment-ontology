@@ -257,7 +257,10 @@ void main() {
           discoveredAt: DateTime.now().toUtc(),
         ),
       );
-      expect(await endpoint.businessContent(session, '00000008'), isNull);
+      final fallback = await endpoint.businessContent(session, '00000008');
+      expect(fallback!.rceptNo, half.rceptNo);
+      expect(fallback.title, contains('이전 저장 보고서'));
+      expect(fallback.title, contains('$y.09'));
       expect(
         await endpoint.businessContent(session, '00000008', bsnsYear: y),
         isNull,
@@ -292,5 +295,45 @@ void main() {
         );
       },
     );
+
+    test('missing latest body returns explicitly labelled stored source; requested year stays strict', () async {
+      final doc = await document(
+        '01999991',
+        product,
+        year: 2025,
+        reportName: '사업보고서 (2025.12)',
+      );
+      await DartFiling.db.insertRow(
+        session,
+        DartFiling(
+          companyId: doc.companyId,
+          corpCode: '01999991',
+          rceptNo: '20260814009999',
+          reportName: '반기보고서 (2026.06)',
+          bsnsYear: 2026,
+          reportCode: FinancialReportCode.halfYear,
+          consolidatedStatus: FilingFetchStatus.pending,
+          separateStatus: FilingFetchStatus.pending,
+          discoveredAt: DateTime.now().toUtc(),
+        ),
+      );
+      final endpoint = DisclosureEndpoint();
+      final fallback = await endpoint.businessContent(session, '01999991');
+      expect(fallback, isNotNull);
+      expect(fallback!.bsnsYear, 2025);
+      expect(fallback.rceptNo, doc.rceptNo);
+      expect(fallback.title, contains('이전 저장 보고서'));
+      expect(fallback.title, contains('2026.06'));
+      final historical = await endpoint.businessContent(
+        session,
+        '01999991',
+        bsnsYear: 2025,
+      );
+      expect(historical!.title, '사업의 내용');
+      expect(
+        await endpoint.businessContent(session, '01999991', bsnsYear: 2026),
+        isNull,
+      );
+    });
   });
 }

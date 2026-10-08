@@ -7,6 +7,53 @@ import 'package:investment_ontology_serverpod_server/src/ontology/business/curre
 
 void main() {
   test(
+    'MiCo and Samsung latest filing snapshots retain evidence and purposes',
+    () {
+      for (final code in ['00366942', '00126380']) {
+        final fixture = jsonDecode(
+          File('test/fixtures/business_products/$code.json').readAsStringSync(),
+        ) as Map;
+        final text = fixture['text'] as String;
+        final products = BusinessProductRules.parse(text);
+        expect(products.length, greaterThanOrEqualTo(2));
+        expect(products.every((p) => text.contains(p.evidence)), isTrue);
+        expect(products.any((p) => p.name.contains('내부거래')), isFalse);
+        if (code == '00366942') {
+          expect(
+            products.where((p) => p.role.isNotEmpty).length,
+            greaterThanOrEqualTo(2),
+          );
+          expect(products.first.role, contains('lifetime 향상'));
+        }
+      }
+    },
+  );
+
+  test('two-row period headers preserve the printed product purpose column', () {
+    const text =
+        '## 2. 주요 제품 및 서비스\n사업부문 | 매출유형 | 품목 | 구체적 용도 | 제28기 2분기 | 제27기\n매출액 | 비율 | 매출액 | 비율\n반도체 | 제품 | Heater, ESC | 반도체 장비 부품 | 100 | 50% | 200 | 60%';
+    final products = CurrentProductRows.parse(text);
+    expect(products.single.name, 'Heater, ESC');
+    expect(products.single.role, '반도체 장비 부품');
+    expect(text.contains(products.single.evidence), isTrue);
+  });
+
+  test('printed purpose headers supply explanations without inference', () {
+    for (final header in ['주요 용도', '용도', '기능', '제품 특성', '특징']) {
+      final text = '## 2. 주요 제품 및 서비스\n제품명 | $header\n검사기 | 표면 결함 검사';
+      final products = CurrentProductRows.parse(text);
+      expect(products.single.role, '표면 결함 검사');
+      expect(text.contains(products.single.evidence), isTrue);
+    }
+  });
+  test('one printed product family does not become duplicate catalog cards', () {
+    const text =
+        '## 2. 주요 제품 및 서비스\n부문 | 주요 제품 | 매출액\nDS | DRAM, NAND Flash | 100\n기타 | 부문간 내부거래 제거 등 | -10';
+    final products = BusinessProductRules.parse(text);
+    expect(products.map((p) => p.name), ['DRAM, NAND Flash']);
+  });
+
+  test(
     'family/detail columns keep printed names and safely carry merged families',
     () {
       const text = '''## 2. 주요 제품 및 서비스

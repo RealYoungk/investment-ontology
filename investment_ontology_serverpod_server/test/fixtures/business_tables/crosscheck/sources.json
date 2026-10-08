@@ -1,0 +1,130 @@
+[
+  {
+    "fixture": "samsung-derivatives",
+    "corpCode": "00126380",
+    "rceptNo": "20260814003699",
+    "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814003699",
+    "sha256": "9a92fb6450a8f65f0abe9bdfa770c15d49af6fd121b96ecf8a0c3de16fd05d1a",
+    "sourceSnapshot": "outputs/business-table-crosscheck/00126380.json"
+  },
+  {
+    "fixture": "hyundai-materials",
+    "corpCode": "00164742",
+    "rceptNo": "20260814003521",
+    "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814003521",
+    "sha256": "b2f6f2a464484facc2d7a74573378812d598b3bcd0de5a4c490970209e273db7",
+    "sourceSnapshot": "outputs/business-table-crosscheck/00164742.json"
+  },
+  {
+    "fixture": "hyundai-prices",
+    "corpCode": "00164742",
+    "rceptNo": "20260814003521",
+    "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814003521",
+    "sha256": "30646d3463669d5842f6afe28c156d604d1de5303243cbfefbc118238dc6aa85",
+    "sourceSnapshot": "outputs/business-table-crosscheck/00164742.json"
+  },
+  {
+    "fixture": "construction-materials",
+    "corpCode": "00164478",
+    "rceptNo": "20260814003360",
+    "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814003360",
+    "sha256": "5192be017512a381f21abb1eb7ea1eea2b197bb8d894943ec46f2da0b2f698e3",
+    "sourceSnapshot": "outputs/business-table-crosscheck/00164478.json"
+  },
+  {
+    "fixture": "construction-prices",
+    "corpCode": "00164478",
+    "rceptNo": "20260814003360",
+    "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814003360",
+    "sha256": "11aa61db6663888efa0ddf07e79678ae2187b4c630285487df474eb33dada279",
+    "sourceSnapshot": "outputs/business-table-crosscheck/00164478.json"
+  },
+  {
+    "fixture": "posco-materials",
+    "corpCode": "00155319",
+    "rceptNo": "20260814000957",
+    "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814000957",
+    "sha256": "68198bf341c81ce7e94d6789302bc838e9f5330c15bb1a6db2fcaabc92f1fa42",
+    "sourceSnapshot": "outputs/business-table-crosscheck/00155319.json"
+  },
+  {
+    "fixture": "posco-prices",
+    "corpCode": "00155319",
+    "rceptNo": "20260814000957",
+    "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814000957",
+    "sha256": "5e56c494b611e26df0bf58f12aa0f6e5e450a29bde88da47eb33fd9500179267",
+    "sourceSnapshot": "outputs/business-table-crosscheck/00155319.json"
+  },
+  {
+    "fixture": "posco-product-prices",
+    "corpCode": "00155319",
+    "rceptNo": "20260814000957",
+    "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814000957",
+    "sha256": "b2133c374c0231c9bf45073a3cf6d62f58a7dc5b1ce9f7942b9479711e368066",
+    "sourceSnapshot": "outputs/business-table-crosscheck/00155319.json"
+  },
+  {
+    "fixture": "posco-investment",
+    "corpCode": "00155319",
+    "rceptNo": "20260814000957",
+    "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814000957",
+    "sha256": "5d7fac58cbde9196497d7125fb06dd63205b4daccac2d8480bc2fa4cc9574252",
+    "sourceSnapshot": "outputs/business-table-crosscheck/00155319.json"
+  },
+  {
+    "fixture": "posco-million-currency",
+    "corpCode": "00155319",
+    "rceptNo": "20260814000957",
+    "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814000957",
+    "sha256": "071ca177c7a0522f87dd1f1b663bb2ddeea074abddee9236c2b874939f6b4a99",
+    "sourceSnapshot": "outputs/business-table-crosscheck/00155319.json"
+  },
+  {
+    "fixture": "posco-thousand-currency",
+    "corpCode": "00155319",
+    "rceptNo": "20260814000957",
+    "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814000957",
+    "sha256": "8109b3c5998565f88847a60f6ff9885d0eccd2bea157ade25c7557d551633b3b",
+    "sourceSnapshot": "outputs/business-table-crosscheck/00155319.json"
+  },
+  {
+    "fixture": "lg-materials",
+    "corpCode": "00356361",
+    "rceptNo": "20260814002655",
+    "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814002655",
+    "sha256": "2fbdd3f7cc12be308e46b36b5361b62dc1bae0915d76416b76a9eac73002be86",
+    "sourceSnapshot": "outputs/business-table-crosscheck/00356361.json"
+  },
+  {
+    "fixture": "lg-prices",
+    "corpCode": "00356361",
+    "rceptNo": "20260814002655",
+    "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814002655",
+    "sha256": "7e906abc21be5ab984f6ed78a2d18c8656192c5b56f800331b418ca56d559453",
+    "sourceSnapshot": "outputs/business-table-crosscheck/00356361.json"
+  },
+  {
+    "fixture": "lg-derivatives",
+    "corpCode": "00356361",
+    "rceptNo": "20260814002655",
+    "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814002655",
+    "sha256": "b162db9060e5e3605a0bb3ffb0717b1f8c7e662b30a99c46d63a3ba106118999",
+    "sourceSnapshot": "outputs/business-table-crosscheck/00356361.json"
+  },
+  {
+    "fixture": "hynix-inputs",
+    "corpCode": "00164779",
+    "rceptNo": "20260814003509",
+    "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814003509",
+    "sha256": "494d1e23396883df4e6fff24bb1c3fd09f110548cb824c6e69f37c6bbaf91c9a",
+    "sourceSnapshot": "outputs/business-table-crosscheck/00164779.json"
+  },
+  {
+    "fixture": "hynix-investment",
+    "corpCode": "00164779",
+    "rceptNo": "20260814003509",
+    "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814003509",
+    "sha256": "e250598598f6f42d63d25da06d96c8285ae4a6fc701cbea5c0f65fcca6ad4d4f",
+    "sourceSnapshot": "outputs/business-table-crosscheck/00164779.json"
+  }
+]

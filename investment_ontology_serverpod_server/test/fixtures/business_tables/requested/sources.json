@@ -1,0 +1,101 @@
+[
+  {
+    "name": "gigavis-material",
+    "corpCode": "00765569",
+    "sourceLines": [
+      84,
+      92
+    ],
+    "sha256": "bbccb11c8e47a4503b898ae19b378e54121d544b431c0149d3f10650d3a3ba48",
+    "receipt": "20260814003218",
+    "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814003218"
+  },
+  {
+    "name": "gigavis-investment",
+    "corpCode": "00765569",
+    "sourceLines": [
+      113,
+      117
+    ],
+    "sha256": "bf3404bdf2098026e5799b2861b95a28b3879f7b7d111ca34e6e47146e783403",
+    "receipt": "20260814003218",
+    "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814003218"
+  },
+  {
+    "name": "qrt-projects",
+    "corpCode": "01033591",
+    "sourceLines": [
+      156,
+      161
+    ],
+    "sha256": "01c399bc5177c5808c6bb53d72b8b849048bce16faa7a4115642abd86f7e6011",
+    "receipt": "20260318001686",
+    "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318001686"
+  },
+  {
+    "name": "sphere-material",
+    "corpCode": "01336762",
+    "sourceLines": [
+      111,
+      115
+    ],
+    "sha256": "fccf2dccc2e3cc8af8cf874361aad3eb848148d03952a16ef4dd0a4e19fc1813",
+    "receipt": "20260318000877",
+    "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318000877"
+  },
+  {
+    "name": "sphere-projects",
+    "corpCode": "01336762",
+    "sourceLines": [
+      200,
+      216
+    ],
+    "sha256": "1639b18905f3bd463f15b44b8c283d7933745b1f5f182b7b27f1e535af7a722b",
+    "receipt": "20260318000877",
+    "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260318000877"
+  },
+  {
+    "name": "sunic-material",
+    "corpCode": "00327819",
+    "sourceLines": [
+      18,
+      28
+    ],
+    "sha256": "1f6b42c616a0cdb59c28846fa53340d3bfcfc4e14e604d4b230f26e79f049748",
+    "receipt": "20260320001146",
+    "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260320001146"
+  },
+  {
+    "name": "mico-tube",
+    "corpCode": "00366942",
+    "sourceLines": [
+      45,
+      48
+    ],
+    "receipt": "20260323001611",
+    "sha256": "dd55a0ccf4b67561e7baa85362ce228464e12d1a8d4d94899d37fccc25d44e3b",
+    "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260323001611"
+  },
+  {
+    "name": "sunic-contract",
+    "corpCode": "00327819",
+    "sourceLines": [
+      198,
+      208
+    ],
+    "receipt": "20260320001146",
+    "sha256": "3abc843145767b9afde463c5d44793ab6c77ed48c4d596b35a03b64189fe4bd6",
+    "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260320001146"
+  },
+  {
+    "name": "gigavis-sensitivity",
+    "corpCode": "00765569",
+    "sourceLines": [
+      192,
+      199
+    ],
+    "receipt": "20260814003218",
+    "sha256": "886218a80c5237e71ffdba93337665e3a0c702dfb377587bffd728e28828ce43",
+    "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814003218"
+  }
+]

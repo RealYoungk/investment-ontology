@@ -24,6 +24,18 @@ class ChartSeries {
   final bool isDashed;
 }
 
+/// Categorical colors: keep categories distinct instead of repeating three colors.
+List<Color> categoricalChartColors(BuildContext context) => [
+  context.colors.chartSeries1,
+  context.colors.chartSeries2,
+  context.colors.chartSeries3,
+  const Color(0xFF007D75),
+  const Color(0xFF9B6500),
+  const Color(0xFFB23879),
+  const Color(0xFF536631),
+  const Color(0xFF545D70),
+];
+
 /// 계열 범례. 계열이 둘 이상일 때 쓴다 (글자는 본문색, 색은 옆 견본이 나타낸다).
 class ChartLegend extends StatelessWidget {
   const ChartLegend({super.key, required this.series});
@@ -99,11 +111,13 @@ abstract class _CategoryChart extends StatefulWidget {
     required this.height,
     this.formatCategory,
     this.maxAxisLabels,
+    this.categoryNoun = '기간',
   });
 
   final List<String> categories;
   final String Function(String)? formatCategory;
   final int? maxAxisLabels;
+  final String categoryNoun;
   final List<ChartSeries> series;
 
   /// 눈금·툴팁 값 표시.
@@ -255,7 +269,9 @@ class _CategoryChartState extends State<_CategoryChart> {
               container: true,
               label: '${widget.series.map((s) => s.label).join(' · ')} 차트',
               hint: '눌러 상세 보기, 다시 누르거나 바깥을 눌러 닫기, 가로 드래그 또는 좌우 방향키로 기간 이동, Home 첫 기간, End 마지막 기간',
-              value: hovered == null ? '$n개 기간' : _description(hovered),
+              value: hovered == null
+                  ? '$n개 ${widget.categoryNoun}'
+                  : _description(hovered),
               // The chart exposes period actions rather than a synthetic
               // numeric slider (Flutter Web otherwise displays values 0/1/2).
               customSemanticsActions: n == 0
@@ -294,7 +310,7 @@ class _CategoryChartState extends State<_CategoryChart> {
                       // does not open a detail. Horizontal drag owns scrubbing.
                       onTapUp: (d) => setState(() {
                         final index = indexAt(d.localPosition);
-                        _hovered = index == _hovered ? null : index;
+                        _hovered = index;
                         _pointer = _hovered == null ? null : d.localPosition;
                       }),
                       onHorizontalDragStart: (d) => setState(() {
@@ -575,6 +591,7 @@ class AppColumnChart extends _CategoryChart {
     this.showMissingMarkers = false,
     super.formatCategory,
     super.maxAxisLabels,
+    super.categoryNoun,
     super.height = 200,
   });
 

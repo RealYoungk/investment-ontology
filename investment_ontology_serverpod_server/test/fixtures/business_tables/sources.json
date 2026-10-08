@@ -1,0 +1,29 @@
+[
+  {
+    "fixture": "biologics-materials.txt",
+    "company": "samsung-biologics",
+    "rceptNo": "20260814003375",
+    "bsnsYear": 2026,
+    "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814003375",
+    "sha256": "9b999fc5e81fe6fdec24a168fa754d38c6a3c98ecb9c1aad44481ba9ae97ed74",
+    "origin": "Excerpt of stored public businessContent snapshot; no edited amounts."
+  },
+  {
+    "fixture": "cmtx-sales.txt",
+    "company": "cmtx",
+    "rceptNo": "20260323000962",
+    "bsnsYear": 2025,
+    "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260323000962",
+    "sha256": "8ffdc8e31224d79036a75e6abd2326c2aa9ae7a3964f373636a5ea4bb278415b",
+    "origin": "Excerpt of stored public businessContent snapshot; no edited amounts."
+  },
+  {
+    "fixture": "cmtx-research.txt",
+    "company": "cmtx",
+    "rceptNo": "20260323000962",
+    "bsnsYear": 2025,
+    "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260323000962",
+    "sha256": "916bee40e04e04ff7d79625db0a3fe1a2f6c995d32bf104af069dd71869257e6",
+    "origin": "Excerpt of stored public businessContent snapshot; no edited amounts."
+  }
+]

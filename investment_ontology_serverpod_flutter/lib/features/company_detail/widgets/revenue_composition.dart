@@ -1,3 +1,5 @@
+import 'revenue_trends.dart';
+
 import 'package:flutter/material.dart';
 import 'package:investment_ontology_serverpod_client/investment_ontology_serverpod_client.dart';
 
@@ -91,7 +93,11 @@ class RevenueComposition extends StatefulWidget {
     required this.corpCode,
     this.products = const [],
     this.printedMix,
+    this.showTrends = true,
+    this.compact = false,
   });
+  final bool compact;
+  final bool showTrends;
   final String corpCode;
   final List<BusinessProduct> products;
   final PowerProductLesson? printedMix;
@@ -101,6 +107,7 @@ class RevenueComposition extends StatefulWidget {
 
 class _RevenueCompositionState extends State<RevenueComposition> {
   List<DocumentFact>? _rows;
+  List<DocumentFact> _history = [];
   bool _failed = false;
   int _seq = 0;
   @override
@@ -119,12 +126,16 @@ class _RevenueCompositionState extends State<RevenueComposition> {
     final seq = ++_seq;
     setState(() {
       _rows = null;
+      _history = [];
       _failed = false;
     });
     try {
       final facts = await client.disclosure.factTrends(widget.corpCode);
       if (mounted && seq == _seq) {
-        setState(() => _rows = latestRevenueFacts(facts));
+        setState(() {
+          _rows = latestRevenueFacts(facts);
+          _history = facts;
+        });
       }
     } catch (_) {
       if (mounted && seq == _seq) setState(() => _failed = true);
@@ -175,7 +186,49 @@ class _RevenueCompositionState extends State<RevenueComposition> {
                 ),
                 const SizedBox(height: AppSpace.sm),
                 for (final fact in rows)
-                  _RevenueRow(fact: fact, products: widget.products),
+                  if (widget.compact)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSpace.sm,
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              revenuePresentation(fact).label
+                                  .split(' · ')
+                                  .first,
+                              style: t.body(14),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 3,
+                            child: LinearProgressIndicator(
+                              value:
+                                  ((revenuePresentation(fact).share ?? 0) / 100)
+                                      .clamp(0, 1),
+                              minHeight: 8,
+                              color: c.chartSeries1,
+                              backgroundColor: c.chartGrid,
+                            ),
+                          ),
+                          const SizedBox(width: AppSpace.md),
+                          SizedBox(
+                            width: 55,
+                            child: Text(
+                              revenuePresentation(fact).share == null
+                                  ? '—'
+                                  : '${revenuePresentation(fact).share!.toStringAsFixed(1)}%',
+                              textAlign: TextAlign.end,
+                              style: t.numeric(14),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    _RevenueRow(fact: fact, products: widget.products),
                 if (rows.any((r) => revenuePresentation(r).share == null) ||
                     rows.fold<double>(
                           0,
@@ -183,10 +236,23 @@ class _RevenueCompositionState extends State<RevenueComposition> {
                         ) <
                         99)
                   Text('일부 항목만 확인됨', style: t.body(11, color: c.textMuted)),
+                if (rows.fold<double>(
+                      0,
+                      (s, r) => s + (revenuePresentation(r).share ?? 0),
+                    ) >
+                    101)
+                  Text(
+                    revenueCoverageNote(rows),
+                    style: t.body(12, color: c.textSecondary),
+                  ),
               ],
             ],
           ),
         ),
+        if (_history.isNotEmpty) ...[
+          const SizedBox(height: AppSpace.md),
+          if (widget.showTrends) RevenueTrends(facts: _history),
+        ],
       ],
     );
   }
@@ -268,7 +334,9 @@ class _RevenueRow extends StatelessWidget {
       builder: (context, constraints) {
         final wide = constraints.maxWidth >= 500;
         final label = Text(
-          product?.name ?? row.label,
+          parts.first,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
           style: t.body(13, weight: FontWeight.w600),
         );
         return Padding(
@@ -278,7 +346,25 @@ class _RevenueRow extends StatelessWidget {
             children: [
               Expanded(
                 child: description == null
-                    ? label
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          label,
+                          if (parts.length > 1)
+                            ShadAccordion<int>(
+                              children: [
+                                ShadAccordionItem<int>(
+                                  value: 0,
+                                  title: Text('제품·용도 보기', style: t.body(12)),
+                                  child: Text(
+                                    parts.skip(1).join(' · '),
+                                    style: t.body(12),
+                                  ),
+                                ),
+                              ],
+                            ),
+                        ],
+                      )
                     : ShadTooltip(
                         builder: (_) => Text(description),
                         child: Semantics(tooltip: description, child: label),

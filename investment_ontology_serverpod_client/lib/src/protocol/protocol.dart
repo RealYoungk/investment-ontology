@@ -80,6 +80,9 @@ import 'ontology/models/business_fact_period.dart' as _i1cpvxoo;
 import 'ontology/models/business_product.dart' as _i3peg7yx;
 import 'ontology/models/business_profile.dart' as _iegef18i;
 import 'ontology/models/business_section.dart' as _inylkhjt;
+import 'ontology/models/business_table_insight.dart' as _i0vnq5ds;
+import 'ontology/models/business_table_measure.dart' as _ia821tg8;
+import 'ontology/models/business_table_record.dart' as _i5mz554b;
 import 'ontology/models/business_understanding.dart' as _iwkhf8pb;
 import 'ontology/models/company.dart' as _ipen255x;
 import 'ontology/models/company_change.dart' as _isfozywu;
@@ -220,6 +223,9 @@ export 'ontology/models/business_fact_period.dart';
 export 'ontology/models/business_product.dart';
 export 'ontology/models/business_profile.dart';
 export 'ontology/models/business_section.dart';
+export 'ontology/models/business_table_insight.dart';
+export 'ontology/models/business_table_measure.dart';
+export 'ontology/models/business_table_record.dart';
 export 'ontology/models/business_understanding.dart';
 export 'ontology/models/company.dart';
 export 'ontology/models/company_change.dart';
@@ -431,6 +437,15 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _inylkhjt.BusinessSection) {
       return _inylkhjt.BusinessSection.fromJson(data) as T;
+    }
+    if (t == _i0vnq5ds.BusinessTableInsight) {
+      return _i0vnq5ds.BusinessTableInsight.fromJson(data) as T;
+    }
+    if (t == _ia821tg8.BusinessTableMeasure) {
+      return _ia821tg8.BusinessTableMeasure.fromJson(data) as T;
+    }
+    if (t == _i5mz554b.BusinessTableRecord) {
+      return _i5mz554b.BusinessTableRecord.fromJson(data) as T;
     }
     if (t == _iwkhf8pb.BusinessUnderstanding) {
       return _iwkhf8pb.BusinessUnderstanding.fromJson(data) as T;
@@ -868,6 +883,24 @@ class Protocol extends _isc.SerializationManager {
     }
     if (t == _isc.getType<_inylkhjt.BusinessSection?>()) {
       return (data != null ? _inylkhjt.BusinessSection.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_i0vnq5ds.BusinessTableInsight?>()) {
+      return (data != null
+              ? _i0vnq5ds.BusinessTableInsight.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _isc.getType<_ia821tg8.BusinessTableMeasure?>()) {
+      return (data != null
+              ? _ia821tg8.BusinessTableMeasure.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _isc.getType<_i5mz554b.BusinessTableRecord?>()) {
+      return (data != null
+              ? _i5mz554b.BusinessTableRecord.fromJson(data)
+              : null)
           as T;
     }
     if (t == _isc.getType<_iwkhf8pb.BusinessUnderstanding?>()) {
@@ -1348,9 +1381,38 @@ class Protocol extends _isc.SerializationManager {
     if (t == List<int>) {
       return (data as List).map((e) => deserialize<int>(e)).toList() as T;
     }
+    if (t == List<_i0vnq5ds.BusinessTableInsight>) {
+      return (data as List)
+              .map((e) => deserialize<_i0vnq5ds.BusinessTableInsight>(e))
+              .toList()
+          as T;
+    }
+    if (t == _isc.getType<List<_i0vnq5ds.BusinessTableInsight>?>()) {
+      return (data != null
+              ? (data as List)
+                    .map((e) => deserialize<_i0vnq5ds.BusinessTableInsight>(e))
+                    .toList()
+              : null)
+          as T;
+    }
     if (t == List<_i3peg7yx.BusinessProduct>) {
       return (data as List)
               .map((e) => deserialize<_i3peg7yx.BusinessProduct>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<String>) {
+      return (data as List).map((e) => deserialize<String>(e)).toList() as T;
+    }
+    if (t == List<_i5mz554b.BusinessTableRecord>) {
+      return (data as List)
+              .map((e) => deserialize<_i5mz554b.BusinessTableRecord>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_ia821tg8.BusinessTableMeasure>) {
+      return (data as List)
+              .map((e) => deserialize<_ia821tg8.BusinessTableMeasure>(e))
               .toList()
           as T;
     }
@@ -1467,9 +1529,6 @@ class Protocol extends _isc.SerializationManager {
               .map((e) => deserialize<_iiky47zh.CompanyNewsItem>(e))
               .toList()
           as T;
-    }
-    if (t == List<String>) {
-      return (data as List).map((e) => deserialize<String>(e)).toList() as T;
     }
     if (t == List<_i0csqxj4.CompanyListItem>) {
       return (data as List)
@@ -1806,6 +1865,9 @@ class Protocol extends _isc.SerializationManager {
       _i3peg7yx.BusinessProduct => 'BusinessProduct',
       _iegef18i.BusinessProfile => 'BusinessProfile',
       _inylkhjt.BusinessSection => 'BusinessSection',
+      _i0vnq5ds.BusinessTableInsight => 'BusinessTableInsight',
+      _ia821tg8.BusinessTableMeasure => 'BusinessTableMeasure',
+      _i5mz554b.BusinessTableRecord => 'BusinessTableRecord',
       _iwkhf8pb.BusinessUnderstanding => 'BusinessUnderstanding',
       _ipen255x.Company => 'Company',
       _isfozywu.CompanyChange => 'CompanyChange',
@@ -1981,6 +2043,12 @@ class Protocol extends _isc.SerializationManager {
         return 'BusinessProfile';
       case _inylkhjt.BusinessSection():
         return 'BusinessSection';
+      case _i0vnq5ds.BusinessTableInsight():
+        return 'BusinessTableInsight';
+      case _ia821tg8.BusinessTableMeasure():
+        return 'BusinessTableMeasure';
+      case _i5mz554b.BusinessTableRecord():
+        return 'BusinessTableRecord';
       case _iwkhf8pb.BusinessUnderstanding():
         return 'BusinessUnderstanding';
       case _ipen255x.Company():
@@ -2300,6 +2368,15 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'BusinessSection') {
       return deserialize<_inylkhjt.BusinessSection>(data['data']);
+    }
+    if (dataClassName == 'BusinessTableInsight') {
+      return deserialize<_i0vnq5ds.BusinessTableInsight>(data['data']);
+    }
+    if (dataClassName == 'BusinessTableMeasure') {
+      return deserialize<_ia821tg8.BusinessTableMeasure>(data['data']);
+    }
+    if (dataClassName == 'BusinessTableRecord') {
+      return deserialize<_i5mz554b.BusinessTableRecord>(data['data']);
     }
     if (dataClassName == 'BusinessUnderstanding') {
       return deserialize<_iwkhf8pb.BusinessUnderstanding>(data['data']);

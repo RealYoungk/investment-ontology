@@ -8,6 +8,7 @@ import '../api_secret.dart';
 import '../dart/dart_api_key.dart';
 import '../ingest/api_call_budget.dart';
 import '../news/company_news_service.dart';
+import '../news/google_news_service.dart';
 
 class CompanyNewsEndpoint extends Endpoint {
   @override
@@ -38,8 +39,11 @@ class CompanyNewsEndpoint extends Endpoint {
     final key = '$corpCode:${id != null && secret != null}:${dartKey != null}';
     return _service.read(key, () async {
       final now = DateTime.now().toUtc();
-      final newsClient = http.Client(), filingClient = http.Client();
+      final newsClient = http.Client(),
+          filingClient = http.Client(),
+          googleClient = http.Client();
       var newsStatus = 'ok', filingStatus = 'ok';
+      var googleSucceeded = false;
       final items = <CompanyNewsItem>[];
       try {
         await Future.wait([
@@ -65,6 +69,31 @@ class CompanyNewsEndpoint extends Endpoint {
               );
             } catch (_) {
               newsStatus = 'failed';
+            }
+          }(),
+          () async {
+            try {
+              final name = (company.stockName ?? company.name)
+                  .replaceAll(RegExp(r'주식회사|\(주\)|㈜'), '')
+                  .trim();
+              items.addAll(
+                await GoogleNewsService.read(
+                  googleClient,
+                  name,
+                  now,
+                  stockCode: company.stockCode,
+                  ceoName: company.ceoName,
+                ),
+              );
+              googleSucceeded = true;
+              session.log(
+                'Company news RSS fetched for $corpCode: ${items.where((i) => i.publisher != 'DART').length} articles',
+              );
+            } catch (error) {
+              session.log(
+                'Company news RSS unavailable for $corpCode: ${error.runtimeType}',
+              );
+              // NAVER remains available when the supplementary RSS fails.
             }
           }(),
           () async {
@@ -143,17 +172,20 @@ class CompanyNewsEndpoint extends Endpoint {
         ]);
       } finally {
         newsClient.close();
+        googleClient.close();
         filingClient.close();
       }
       return CompanyNewsFeed(
         items: [
-          ...items.where((item) => item.publisher != 'DART'),
+          ...CompanyNewsService.organize(
+            items.where((item) => item.publisher != 'DART').toList(),
+          ),
           ...CompanyNewsService.organize(
             items.where((item) => item.publisher == 'DART').toList(),
           ).take(5),
         ],
         fetchedAt: DateTime.now().toUtc(),
-        newsStatus: newsStatus,
+        newsStatus: googleSucceeded ? 'ok' : newsStatus,
         filingStatus: filingStatus,
       );
     });

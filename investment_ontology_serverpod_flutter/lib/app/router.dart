@@ -335,7 +335,7 @@ abstract final class AppRoutes {
                 initialTab:
                     CompanyTab.values
                         .asNameMap()[state.uri.queryParameters['tab']] ??
-                    CompanyTab.overview,
+                    CompanyTab.business,
               ),
             ),
             GoRoute(

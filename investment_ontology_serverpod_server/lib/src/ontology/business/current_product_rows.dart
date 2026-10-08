@@ -50,18 +50,40 @@ abstract final class CurrentProductRows {
       final cells = raw.split('|').map((c) => c.trim()).toList();
       final names = cells.map(normalize).toList();
       final index = names.indexWhere((c) => _name.hasMatch(c));
-      if (index >= 0) {
+      if (index >= 0 && (header == null || index == nameColumn)) {
         header = cells;
         nameColumn = index;
         detailColumn = names.indexWhere(
           (c) => c == '세부제품' || c == '세부상품' || c == '세부서비스',
         );
         descriptionColumn = names.indexWhere(
-          (c) => c == '설명' || c == '제품설명' || c == '서비스설명',
+          (c) => const {
+            '설명',
+            '제품설명',
+            '서비스설명',
+            '주요용도',
+            '구체적용도',
+            '용도',
+            '기능',
+            '제품특성',
+            '특징',
+          }.contains(c),
         );
         blocked = blocked || _notCurrent.hasMatch(raw);
         group = '';
         continue;
+      }
+      // Filings often put two amount/share subcolumns beneath each period.
+      // Keep product/purpose positions from the first header, expand only years.
+      if (header != null &&
+          names.every((c) => const {'매출액', '비율', '금액', '비중'}.contains(c))) {
+        final periods = header.reversed
+            .takeWhile((c) => RegExp(r'\d.*(기|년)|20\d{2}').hasMatch(c))
+            .length;
+        if (periods > 0 && cells.length == periods * 2) {
+          header = [...header.take(header.length - periods), ...cells];
+          continue;
+        }
       }
       if (blocked ||
           header == null ||
@@ -96,7 +118,8 @@ abstract final class CurrentProductRows {
       final identity = normalize(label);
       if (identity.isEmpty ||
           label.length > 90 ||
-          RegExp(r'합계|총계|기타|구분|매출액|매출비중|^[-\d,.%\s]+$').hasMatch(label)) {
+          RegExp(r'합계|총계|기타|구분|매출액|매출비중|내부거래|연결조정|^[-\d,.%\s]+$')
+              .hasMatch(label)) {
         continue;
       }
       if (products.any((p) => normalize(p.name) == identity)) continue;

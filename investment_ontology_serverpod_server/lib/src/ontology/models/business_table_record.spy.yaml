@@ -1,0 +1,4 @@
+class: BusinessTableRecord
+fields:
+  label: String
+  cells: List<String>

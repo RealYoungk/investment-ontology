@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:investment_ontology_serverpod_server/src/ontology/news/google_news_service.dart';
 import 'package:test/test.dart';
 import 'package:investment_ontology_serverpod_server/src/generated/protocol.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/news/company_news_service.dart';
@@ -27,6 +28,28 @@ CompanyNewsFeed feed(DateTime now, {String status = 'ok'}) => CompanyNewsFeed(
   filingStatus: 'ok',
 );
 void main() {
+  test(
+    'Google RSS preserves publishers, rejects homonyms and stale stories',
+    () async {
+      final result = await GoogleNewsService.read(
+        MockClient((r) async {
+          expect(r.url.host, 'news.google.com');
+          return http.Response(
+            '<rss><channel><item><title>미코, 발전설비 기업 인수 - 언론사A</title><source>언론사A</source><link>https://news.google.com/rss/articles/test</link><pubDate>Tue, 06 Oct 2026 09:00:00 GMT</pubDate></item><item><title>미코 엄마 김지연</title><link>https://example.com/celebrity</link><pubDate>Tue, 06 Oct 2026 09:00:00 GMT</pubDate></item></channel></rss>',
+            200,
+            headers: {'content-type': 'application/xml; charset=utf-8'},
+          );
+        }),
+        '미코',
+        DateTime.utc(2026, 10, 7),
+      );
+      expect(result, hasLength(1));
+      expect(result.single.title, '미코, 발전설비 기업 인수');
+      expect(result.single.publisher, '언론사A');
+      expect(result.single.excerpt, isEmpty);
+    },
+  );
+
   test(
     'Naver sends server credentials, parses excerpts and drops unrelated companies',
     () async {

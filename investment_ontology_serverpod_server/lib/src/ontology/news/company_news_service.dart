@@ -32,7 +32,7 @@ class CompanyNewsService {
         .get(
           Uri.https('naverapihub.apigw.ntruss.com', '/search/v1/news', {
             'query': '"$name"',
-            'display': '10',
+            'display': '50',
             'sort': 'date',
           }),
           headers: {
@@ -73,7 +73,7 @@ class CompanyNewsService {
           excerpt: excerpt,
           url: url,
           publishedAt: date,
-          category: '',
+          category: category(title),
           publisher: Uri.parse(url).host.replaceFirst('www.', ''),
           relatedUrls: [],
         ),

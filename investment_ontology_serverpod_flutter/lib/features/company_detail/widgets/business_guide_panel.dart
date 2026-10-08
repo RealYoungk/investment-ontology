@@ -6,6 +6,8 @@ import '../../../client.dart';
 import '../../../design/components/components.dart';
 import '../../../design/tokens.dart';
 import 'revenue_composition.dart';
+import 'business_table_insights_panel.dart';
+import 'business_structure.dart';
 import '../../financials/financial_metrics.dart' show reportCodeLabel;
 import '../business/overview_catalog.dart';
 import 'business_model_guide.dart';
@@ -19,7 +21,9 @@ class BusinessGuidePanel extends StatefulWidget {
     super.key,
     required this.corpCode,
     this.latestReport,
+    this.summary = false,
   });
+  final bool summary;
   final String corpCode;
   final FinancialPeriod? latestReport;
   @override
@@ -28,6 +32,9 @@ class BusinessGuidePanel extends StatefulWidget {
 
 class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
   BusinessUnderstanding? _data;
+  BusinessContent? _content;
+  bool _contentLoading = true;
+  bool _contentFailed = false;
   CompanyOverviewLesson? _lesson;
   bool _lessonLoading = true;
   PowerProductLesson? _powerLesson;
@@ -52,6 +59,9 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
     final seq = ++_seq;
     setState(() {
       _data = null;
+      _content = null;
+      _contentLoading = true;
+      _contentFailed = false;
       _lesson = null;
       _lessonLoading = true;
       _powerLesson = null;
@@ -59,6 +69,7 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
       _selected = 0;
     });
     _loadLesson(seq);
+    _loadContent(seq);
     try {
       final data = await client.disclosure.understanding(widget.corpCode);
       if (mounted && seq == _seq) {
@@ -70,25 +81,33 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
               : data,
         );
       }
-      if (data.status == 'ready' &&
-          data.ruleVersion >= 40000 &&
-          data.products.any((p) => p.name.toUpperCase().contains('SMPS'))) {
-        // Optional local lesson: a failed source fetch must not hide the profile.
-        try {
-          final content = await client.disclosure.businessContent(
-            widget.corpCode,
-          );
-          if (mounted && seq == _seq) {
-            setState(
-              () => _powerLesson = PowerProductLesson.resolve(data, content),
-            );
-          }
-        } catch (_) {
-          // Keep the original product cards and revenue fetch available.
-        }
+      if (mounted && seq == _seq && _content != null) {
+        setState(
+          () => _powerLesson = PowerProductLesson.resolve(data, _content),
+        );
       }
     } catch (_) {
       if (mounted && seq == _seq) setState(() => _failed = true);
+    }
+  }
+
+  Future<void> _loadContent(int seq) async {
+    try {
+      final content = await client.disclosure.businessContent(widget.corpCode);
+      if (!mounted || seq != _seq) return;
+      setState(() {
+        _content = content;
+        if (_data != null && content != null) {
+          _powerLesson = PowerProductLesson.resolve(_data!, content);
+        }
+        _contentLoading = false;
+      });
+    } catch (_) {
+      if (!mounted || seq != _seq) return;
+      setState(() {
+        _contentFailed = true;
+        _contentLoading = false;
+      });
     }
   }
 
@@ -119,6 +138,10 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
   Widget build(BuildContext context) {
     final c = context.colors, t = context.typo;
     final data = _data;
+    final structure = _content == null
+        ? <BusinessStructureItem>[]
+        : businessStructureItems(_content!);
+    final receipt = _content?.rceptNo ?? data?.rceptNo;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -126,96 +149,135 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const CompanySectionHeading('사업의 내용'),
+              CompanySectionHeading(
+                '사업 구조',
+                trailing: receipt == null
+                    ? null
+                    : ShadButton.ghost(
+                        onPressed: () => launchUrl(
+                          Uri.parse(
+                            'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=$receipt',
+                          ),
+                        ),
+                        child: const Text('DART ↗'),
+                      ),
+                help: '원문의 사업부문·제품·용도·연결회사 표를 연결합니다. 금액은 아래 매출 구성과 사업 지표에서 확인할 수 있습니다. 사업 구분과 실제 매출 발생 여부는 다를 수 있습니다.',
+              ),
               const SizedBox(height: AppSpace.md),
-              if (_failed) ...[
-                Text('제품 설명을 불러오지 못했습니다.', style: t.body(14)),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: ShadButton.ghost(
-                    onPressed: _load,
-                    child: Flexible(child: const Text('다시 불러오기')),
-                  ),
-                ),
-              ] else if (data == null)
+              if (_contentLoading)
                 const ShadProgress(minHeight: 2)
-              else if (data.products.isEmpty)
-                Text(switch (data.status) {
-                  'no_document' => '제품을 확인할 정기보고서가 아직 수집되지 않았습니다.',
-                  'pending' => '최신 정기보고서 본문 수집·제품 정보 갱신 대기 중입니다.',
-                  'stale' => '최근 정기보고서가 없어 제품 설명을 갱신하지 못했습니다.',
-                  _ => '공시는 있지만 제품과 용도를 자동으로 연결하지 못했습니다. 사업 원문에서 확인할 수 있습니다.',
-                }, style: t.body(14, color: c.textSecondary))
-              else if (_powerLesson != null) ...[
-                PowerComponentsGuide(
-                  includeOptical: widget.corpCode == '00317210',
+              else if (_contentFailed) ...[
+                Text('사업 본문을 불러오지 못했습니다.', style: t.body(14)),
+                ShadButton.ghost(
+                  onPressed: _load,
+                  child: const Text('본문 다시 불러오기'),
                 ),
-              ] else if (data.products.any(
-                (p) => p.key == 'substrate_aoi',
-              )) ...[
-                const SubstrateGuide(),
-              ] else ...[
-                Text('공시에서 확인한 제품', style: t.body(20, weight: FontWeight.w700)),
-                const SizedBox(height: AppSpace.sm),
-                Wrap(
-                  spacing: AppSpace.sm,
-                  runSpacing: AppSpace.sm,
-                  children: [
-                    for (final (i, product) in data.products.indexed)
-                      IntrinsicWidth(
-                        child: ShadButton.ghost(
-                          onPressed: () => setState(() => _selected = i),
-                          child: Text(
-                            product.name,
-                            style: t.body(
-                              14,
-                              weight: i == _selected
-                                  ? FontWeight.w600
-                                  : FontWeight.w400,
-                              color: i == _selected
-                                  ? c.accent
-                                  : c.textSecondary,
+              ],
+              if (structure.isNotEmpty)
+                widget.summary
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          for (final item in structure)
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                bottom: AppSpace.sm,
+                              ),
+                              child: Text(
+                                '${item.segment} · ${(item.products.isNotEmpty ? item.products : item.services).join(" · ")}',
+                                style: t.body(14),
+                              ),
+                            ),
+                        ],
+                      )
+                    : BusinessStructureOverview(
+                        items: structure,
+                        content: _content!,
+                      )
+              else ...[
+                if (_failed) ...[
+                  Text('제품 설명을 불러오지 못했습니다.', style: t.body(14)),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: ShadButton.ghost(
+                      onPressed: _load,
+                      child: Flexible(child: const Text('다시 불러오기')),
+                    ),
+                  ),
+                ] else if (data == null)
+                  const ShadProgress(minHeight: 2)
+                else if (data.products.isEmpty)
+                  Text(switch (data.status) {
+                    'no_document' => '제품을 확인할 정기보고서가 아직 수집되지 않았습니다.',
+                    'pending' =>
+                      _content != null
+                          ? '본문은 수집됐으며 제품 표 추출 결과는 갱신 대기 중입니다.'
+                          : '최신 정기보고서 본문 수집·제품 정보 갱신 대기 중입니다.',
+                    'stale' => '최근 정기보고서가 없어 제품 설명을 갱신하지 못했습니다.',
+                    _ => '공시는 있지만 제품과 용도를 자동으로 연결하지 못했습니다. 사업 원문에서 확인할 수 있습니다.',
+                  }, style: t.body(14, color: c.textSecondary))
+                else if (_powerLesson != null) ...[
+                  PowerComponentsGuide(
+                    includeOptical: widget.corpCode == '00317210',
+                  ),
+                ] else if (data.products.any(
+                  (p) => p.key == 'substrate_aoi',
+                )) ...[
+                  const SubstrateGuide(),
+                ] else ...[
+                  Text(
+                    '공시에서 확인한 제품',
+                    style: t.body(20, weight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: AppSpace.sm),
+                  Wrap(
+                    spacing: AppSpace.sm,
+                    runSpacing: AppSpace.sm,
+                    children: [
+                      for (final (i, product) in data.products.indexed)
+                        IntrinsicWidth(
+                          child: ShadButton.ghost(
+                            onPressed: () => setState(() => _selected = i),
+                            child: Text(
+                              product.name,
+                              style: t.body(
+                                14,
+                                weight: i == _selected
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
+                                color: i == _selected
+                                    ? c.accent
+                                    : c.textSecondary,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: AppSpace.md),
-                BusinessProductCard(
-                  product: data.products[_selected],
-                  rceptNo: data.rceptNo,
-                ),
-                const SizedBox(height: AppSpace.sm),
-                Text(
-                  '${data.reportName ?? '${data.bsnsYear} ${data.reportCode == null ? '정기보고서' : reportCodeLabel(data.reportCode!)}'} · 규칙 추출',
-                  style: t.body(11, color: c.textMuted),
-                ),
-              ],
-              if (data != null && data.rceptNo != null)
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: ShadButton.ghost(
-                    onPressed: () => launchUrl(
-                      Uri.parse(
-                        'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${data.rceptNo}',
-                      ),
-                    ),
-                    child: Text(
-                      '${data.reportName ?? '${data.bsnsYear} 정기보고서'} 원문',
-                    ),
+                    ],
                   ),
-                ),
-              if (_lesson != null) ...[
-                const SizedBox(height: AppSpace.lg),
-                BusinessModelGuide(
-                  lesson: _lesson!,
-                  compact: true,
-                  framed: false,
-                  showGrowth: false,
-                ),
-              ] else if (_lessonLoading)
-                const ShadProgress(minHeight: 2),
+                  const SizedBox(height: AppSpace.md),
+                  BusinessProductCard(
+                    product: data.products[_selected],
+                    rceptNo: data.rceptNo,
+                  ),
+                  const SizedBox(height: AppSpace.sm),
+                  Text(
+                    '${data.reportName ?? '${data.bsnsYear} ${data.reportCode == null ? '정기보고서' : reportCodeLabel(data.reportCode!)}'} · 규칙 추출',
+                    style: t.body(11, color: c.textMuted),
+                  ),
+                ],
+              ],
+              if (structure.isEmpty) ...[
+                if (_lesson != null) ...[
+                  const SizedBox(height: AppSpace.lg),
+                  BusinessModelGuide(
+                    lesson: _lesson!,
+                    compact: true,
+                    framed: false,
+                    showGrowth: false,
+                  ),
+                ] else if (_lessonLoading)
+                  const ShadProgress(minHeight: 2),
+              ],
             ],
           ),
         ),
@@ -225,8 +287,25 @@ class _BusinessGuidePanelState extends State<BusinessGuidePanel> {
             corpCode: widget.corpCode,
             products: data?.products ?? const [],
             printedMix: _powerLesson,
+            showTrends: !widget.summary,
           ),
         const SizedBox(height: AppSpace.xl),
+        if (_content?.title.startsWith('이전 저장 보고서 ·') == true) ...[
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: AppSpace.md),
+            child: Text(
+              '${_content!.title} · 아래 표는 ${_content!.source?.title ?? '${_content!.bsnsYear} 저장 보고서'} 기준입니다.',
+              style: t.body(13, color: c.textSecondary),
+            ),
+          ),
+        ],
+        if (!widget.summary && (_content?.tableInsights?.isNotEmpty ?? false))
+          BusinessTableInsightsPanel(
+            insights: _content!.tableInsights!,
+            rceptNo: _content!.rceptNo,
+            corpCode: widget.corpCode,
+            latest: _content!,
+          ),
       ],
     );
   }

@@ -1,3 +1,5 @@
+import '../presentation/company_presentation.dart';
+
 import 'dart:convert';
 
 import '../business/business_profiles.dart';
@@ -10,7 +12,9 @@ import '../market/market_caps.dart';
 import '../dart/dart_sections.dart';
 import '../dart/dart_values.dart';
 import '../disclosure/business_text.dart';
+import '../disclosure/business_table_insights.dart';
 import '../disclosure/investment_facts.dart';
+import '../disclosure/interim_rnd_facts.dart';
 import '../disclosure/disclosure_values.dart';
 
 /// 정기보고서 주요정보 조회: 항목 목록 · 원문 표 · 주주환원.
@@ -120,13 +124,30 @@ class DisclosureEndpoint extends Endpoint {
             ') p WHERE p."bsnsYear"=@year ORDER BY',
           );
     final rows = await session.db.unsafeQuery(
-      'SELECT latest."documentId" FROM ($selector) latest WHERE latest."companyId"=@id',
+      'SELECT latest."documentId", latest."reportName" FROM ($selector) latest WHERE latest."companyId"=@id',
       parameters: QueryParameters.named({
         'id': company.id!,
         'year': ?bsnsYear,
       }),
     );
-    final id = rows.firstOrNull?.first as int?;
+    var id = rows.firstOrNull?.first as int?;
+    final latestReportName = rows.firstOrNull?[1] as String?;
+    var isFallback = false;
+    if (id == null && bsnsYear == null && rows.isNotEmpty) {
+      final available = await session.db.unsafeQuery(
+        '''SELECT d.id FROM business_document d
+          JOIN disclosure_report r ON r.id=d."reportId"
+            AND r."companyId"=d."companyId" AND r."rceptNo"=d."rceptNo"
+          WHERE d."companyId"=@id AND r.section='businessContent'
+            AND r."supersededById" IS NULL
+          ORDER BY coalesce(r."settlementDate", make_date(r."bsnsYear"::int, CASE r."reportCode" WHEN 'annual' THEN 12 WHEN 'q3' THEN 9 WHEN 'halfYear' THEN 6 ELSE 3 END, 1)) DESC, CASE r."reportCode"
+            WHEN 'annual' THEN 4 WHEN 'q3' THEN 3 WHEN 'halfYear' THEN 2 ELSE 1 END DESC,
+            r."rceptNo" DESC LIMIT 1''',
+        parameters: QueryParameters.named({'id': company.id!}),
+      );
+      id = available.firstOrNull?.first as int?;
+      isFallback = id != null;
+    }
     final doc = id == null
         ? null
         : await BusinessDocument.db.findById(session, id);
@@ -145,7 +166,9 @@ class DisclosureEndpoint extends Endpoint {
     return BusinessContent(
       bsnsYear: doc.bsnsYear,
       rceptNo: doc.rceptNo,
-      title: doc.title,
+      title: isFallback
+          ? '이전 저장 보고서 · 최신 ${latestReportName ?? '정기보고서'} 본문 수집 대기'
+          : doc.title,
       sections: [
         for (final s in BusinessText.sections(doc.text))
           BusinessSection(title: s.title, text: s.text),
@@ -153,6 +176,16 @@ class DisclosureEndpoint extends Endpoint {
       charCount: doc.charCount,
       years: {for (final r in reports) r.bsnsYear}.toList(),
       source: await Source.db.findById(session, report.sourceId),
+      tableInsights: BusinessTableInsights.parse(
+        doc.text,
+        reportPeriod:
+            '${doc.bsnsYear} ${switch (report.reportCode) {
+              FinancialReportCode.annual => '연간',
+              FinancialReportCode.halfYear => '반기',
+              FinancialReportCode.q1 => '1분기',
+              FinancialReportCode.q3 => '3분기 누적',
+            }}',
+      ),
     );
   }
 
@@ -384,12 +417,39 @@ class DisclosureEndpoint extends Endpoint {
         best[key] = f;
       }
     }
+    // Interim R&D is validated from stored source without DB mutations.
+    final interim = <DocumentFact>[];
+    final activeReports = {
+      for (final r in reports)
+        if (r.supersededById == null) r.id!: r,
+    };
+    final newest = byDocument.values.toList()
+      ..sort((a, b) => b.rceptNo.compareTo(a.rceptNo));
+    if (newest.isNotEmpty) {
+      final doc = newest.first;
+      final report = activeReports[doc.reportId];
+      if (report != null && report.reportCode != FinancialReportCode.annual) {
+        final projected = await InterimRndFacts.read(session, doc, report);
+        interim.addAll(
+          projected.where(
+            (f) => !best.values.any(
+              (existing) =>
+                  existing.kind == f.kind &&
+                  existing.label == f.label &&
+                  existing.unit == f.unit &&
+                  existing.asOf == f.asOf,
+            ),
+          ),
+        );
+      }
+    }
     final keep = {for (final f in best.values) f.id};
     return [
       for (final f in valid)
         if (keep.contains(f.id) &&
             !InvestmentFacts.redundantRoundedTotal(f, valid))
           f,
+      ...interim,
     ];
   }
 
@@ -479,7 +539,7 @@ class DisclosureEndpoint extends Endpoint {
             company: CompanyRef(
               id: c.id!,
               corpCode: c.corpCode,
-              name: c.name,
+              name: c.displayName,
               market: c.market,
             ),
             rceptNo: f.rceptNo,

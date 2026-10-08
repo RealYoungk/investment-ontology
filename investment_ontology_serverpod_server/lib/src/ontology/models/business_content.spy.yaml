@@ -8,3 +8,5 @@ fields:
   charCount: int
   years: List<int>
   source: Source?
+  ### 추가 표 규칙으로 읽은 원재료·판매경로·계획·계약·위험 정보. 이전 서버 응답과 호환.
+  tableInsights: List<BusinessTableInsight>?

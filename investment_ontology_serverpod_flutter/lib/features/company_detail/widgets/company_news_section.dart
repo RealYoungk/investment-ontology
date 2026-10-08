@@ -13,7 +13,13 @@ import '../../auth/app_auth.dart';
 typedef CompanyNewsLoader = Future<CompanyNewsFeed> Function(String corpCode);
 
 class CompanyNewsSection extends StatefulWidget {
-  const CompanyNewsSection({super.key, required this.corpCode, this.loader});
+  const CompanyNewsSection({
+    super.key,
+    required this.corpCode,
+    this.loader,
+    this.compact = false,
+  });
+  final bool compact;
   final String corpCode;
   final CompanyNewsLoader? loader;
   @override
@@ -89,6 +95,11 @@ class _CompanyNewsSectionState extends State<CompanyNewsSection> {
     final feed = _feed;
     final items = feed == null
         ? <CompanyNewsItem>[]
+        : widget.compact
+        ? [
+            ...feed.items.where((item) => item.publisher != 'DART').take(2),
+            ...feed.items.where((item) => item.publisher == 'DART').take(1),
+          ]
         : _showAll
         ? feed.items
         : [
@@ -180,45 +191,54 @@ class _CompanyNewsSectionState extends State<CompanyNewsSection> {
                           vertical: AppSpace.sm,
                         ),
                         child: Text(
-                          item.publisher == 'DART' ? '최근 공시' : 'NAVER 뉴스 검색',
+                          item.publisher == 'DART' ? '최근 공시' : '뉴스',
                           style: t.body(14, weight: FontWeight.w700),
                         ),
                       ),
-                    if (i > 0) Divider(color: c.border, height: AppSpace.sm),
-                    if (item.excerpt.isEmpty)
-                      ShadButton.ghost(
-                        width: double.infinity,
-                        height: 0,
-                        padding: EdgeInsets.zero,
-                        onPressed: () => launchUrl(
+                    if (i > 0 &&
+                        item.publisher == 'DART' &&
+                        items[i - 1].publisher != 'DART')
+                      Divider(color: c.border, height: AppSpace.lg)
+                    else if (i > 0)
+                      const SizedBox(height: AppSpace.sm),
+                    if (widget.compact || item.excerpt.isEmpty)
+                      HoverBuilder(
+                        onTap: () => launchUrl(
                           Uri.parse(item.url),
                           mode: LaunchMode.externalApplication,
                         ),
-                        child: Flexible(
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item.title,
-                                      style: t.body(
-                                        14,
-                                        weight: FontWeight.w600,
+                        builder: (context, hovered) => Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: AppSpace.sm,
+                          ),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item.title,
+                                        style: t.body(
+                                          14,
+                                          weight: FontWeight.w600,
+                                        ),
                                       ),
-                                    ),
-                                    Text(
-                                      '${_date(item.publishedAt)} · ${item.publisher}',
-                                      style: t.body(12, color: c.textMuted),
-                                    ),
-                                  ],
+                                      Text(
+                                        '${_date(item.publishedAt)} · ${item.publisher}',
+                                        style: t.body(12, color: c.textMuted),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: AppSpace.sm),
-                              const Icon(Icons.north_east, size: 16),
-                            ],
+                                const SizedBox(width: AppSpace.sm),
+                                const Icon(Icons.north_east, size: 16),
+                              ],
+                            ),
                           ),
                         ),
                       )
@@ -229,6 +249,7 @@ class _CompanyNewsSectionState extends State<CompanyNewsSection> {
                         children: [
                           ShadAccordionItem<int>(
                             value: 0,
+                            separator: const SizedBox.shrink(),
                             title: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -297,7 +318,8 @@ class _CompanyNewsSectionState extends State<CompanyNewsSection> {
                         ],
                       ),
                   ],
-                  if (_showAll || items.length < feed.items.length)
+                  if (!widget.compact &&
+                      (_showAll || items.length < feed.items.length))
                     Align(
                       alignment: Alignment.centerLeft,
                       child: ShadButton.ghost(
