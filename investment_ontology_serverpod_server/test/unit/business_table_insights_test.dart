@@ -4,6 +4,16 @@ import 'package:test/test.dart';
 import 'package:investment_ontology_serverpod_server/src/ontology/disclosure/business_table_insights.dart';
 
 void main() {
+  test('same material name stays separate by explicit subsidiary', () {
+    const text =
+        "## 3. 원재료 및 생산설비\n냉난방 부문 (회사명 : 오텍캐리어)\n나. 주요 원재료 가격\n(단위 : 원)\n품목 | 2026년 | 2025년\n철판 | 10 | 20\n냉동냉장 부문 (회사명 : 씨알케이)\n나. 주요 원재료 가격\n(단위 : 원)\n품목 | 2026년 | 2025년\n철판 | 30 | 40";
+    final tables = BusinessTableInsights.parse(text, reportPeriod: '2026 반기');
+    final names = tables.expand((t) => t.measures).map((m) => m.label).toSet();
+    expect(names, hasLength(2));
+    expect(names.any((n) => n.contains('냉난방부문')), isTrue);
+    expect(names.any((n) => n.contains('냉동냉장부문')), isTrue);
+  });
+
   test('MiCo repeated ratio headers inherit their own preceding period', () {
     const text = '''## 주요 원재료 현황
 [단위 : 백만원]

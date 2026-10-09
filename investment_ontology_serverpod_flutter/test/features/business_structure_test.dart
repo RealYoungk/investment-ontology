@@ -18,6 +18,24 @@ BusinessContent content(String text) => BusinessContent(
   years: [2026],
 );
 void main() {
+  test(
+    'material inputs never become products and merged product rows survive',
+    () {
+      final c = content(
+        '사업부문 | 매출유형 | 품목 | 구체적용도 | 매출액\n특장차 | 제품 | 냉동탑 | 수송 | 10\n제품 | 구급차 | 응급 | 20',
+      );
+      c.sections.add(
+        BusinessSection(
+          title: '3. 원재료 및 생산설비',
+          text: '사업부문 | 매입유형 | 품목 | 구체적용도 | 매입액\n특장차부문 | 원재료 | 샤시 | 기본차 | 30',
+        ),
+      );
+      final rows = businessStructureItems(c);
+      expect(rows, hasLength(1));
+      expect(rows.single.products, ['냉동탑', '구급차']);
+    },
+  );
+
   for (final width in [320.0, 913.0]) {
     testWidgets('roles and evidence expand without overflow at $width', (
       tester,

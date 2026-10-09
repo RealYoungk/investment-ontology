@@ -21,6 +21,9 @@ List<BusinessStructureItem> businessStructureItems(BusinessContent content) {
   String key(String text) =>
       text.replaceAll(RegExp(r'\([^)]*\)'), '').replaceAll(RegExp(r'\s+'), '');
   for (final section in content.sections) {
+    if (!RegExp(r'사업의\s*개요|주요\s*(제품|상품|서비스)').hasMatch(section.title)) {
+      continue;
+    }
     final lines = section.text.split('\n');
     for (var i = 0; i < lines.length; i++) {
       final header = lines[i].split('|').map((s) => s.trim()).toList();
@@ -53,6 +56,15 @@ List<BusinessStructureItem> businessStructureItems(BusinessContent content) {
             companyIndex == 1 &&
             serviceIndex == 2 &&
             segment != null) {
+          cells = [segment, ...cells];
+        }
+        if (segment != null &&
+            productIndex >= 0 &&
+            useIndex >= 0 &&
+            header.length - cells.length == 1 &&
+            segmentIndex == 0 &&
+            productIndex == 2 &&
+            key(header[1]) == '매출유형') {
           cells = [segment, ...cells];
         }
         // A second header expands year columns into amount/share pairs.
