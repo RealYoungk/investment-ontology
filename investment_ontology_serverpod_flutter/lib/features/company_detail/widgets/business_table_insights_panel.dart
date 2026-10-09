@@ -42,7 +42,16 @@ class BusinessTableInsightsPanel extends StatefulWidget {
 class _BusinessTableInsightsPanelState
     extends State<BusinessTableInsightsPanel> {
   final Map<int, bool> _shares = {};
-  List<BusinessTableInsight> get insights => widget.insights;
+  List<BusinessTableInsight> get insights {
+    if (corpCode == null || latest == null) return widget.insights;
+    // History loads every table matching this topic/title. Rendering one history
+    // per source table repeats the same merged chart and its source evidence.
+    final seen = <(String, String)>{};
+    return widget.insights
+        .where((table) => seen.add((table.topic, table.title)))
+        .toList();
+  }
+
   String get rceptNo => widget.rceptNo;
   String? get corpCode => widget.corpCode;
   BusinessContent? get latest => widget.latest;
