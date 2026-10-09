@@ -80,6 +80,10 @@ abstract final class OrderFacts {
     })?
     total;
 
+    String? tableScope;
+    String? currentScope;
+    var hasTotals = false;
+    final nonTotals = <String>{};
     String? lastLabel;
     var continuation = 1;
     // 한 문서에 수주 표가 여럿이면(부문마다) 합계가 겹친다 — "합계 (2)"로 가른다.
@@ -95,8 +99,9 @@ abstract final class OrderFacts {
     void flush() {
       if (inTable && unit.isNotEmpty) {
         if (total case final t?) {
+          hasTotals = true;
           out.add((
-            label: unique('합계'),
+            label: unique(tableScope == null ? '합계' : '$tableScope · 합계'),
             total: t.total,
             delivered: t.delivered,
             backlog: t.backlog,
@@ -107,8 +112,10 @@ abstract final class OrderFacts {
             rows.map((r) => r.label).toSet().length == rows.length) {
           // 합계 줄 없이 줄이 많거나 이름이 겹치면(프로젝트별 표) 계열 이름을 붙일 수 없다.
           for (final r in rows) {
+            final label = unique(r.label);
+            nonTotals.add(label);
             out.add((
-              label: unique(r.label),
+              label: label,
               total: r.total,
               delivered: r.delivered,
               backlog: r.backlog,
@@ -129,6 +136,19 @@ abstract final class OrderFacts {
     for (var i = 0; i < lines.length; i++) {
       final line = lines[i].trim();
       if (line.isEmpty) continue;
+      if (line.startsWith('## ') || RegExp(r'^\[[^\]]+\]$').hasMatch(line)) {
+        flush();
+        currentScope = null;
+      }
+      // Explicit company/segment heading, never the table's position number.
+      if (!line.contains('|') && RegExp(r'회사명\s*[:：]').hasMatch(line)) {
+        flush();
+        currentScope = line
+            .split(RegExp(r'\(?회사명\s*[:：]'))
+            .first
+            .replaceAll(RegExp(r'\[[^\]]+\]|\s+'), '')
+            .trim();
+      }
       final u = _unitLine.firstMatch(line);
       if (u != null) {
         lastUnit = u.group(1)!.trim();
@@ -140,6 +160,7 @@ abstract final class OrderFacts {
         // 공사명·현장명이 있는 표는 프로젝트별 상세라 회사 전체 값이 아니다 (발주처 칸은 표준 표에도 있다).
         if (_projectTable.hasMatch(line)) continue;
         inTable = true;
+        tableScope = currentScope;
         flow = header == _HeaderKind.flow;
         unit = i - lastUnitAt <= unitDistance ? _pickUnit(lastUnit) : '';
         lastUnit = null;
@@ -222,8 +243,8 @@ abstract final class OrderFacts {
     flush();
     // 합계 표가 하나라도 있으면, 합계 없는 표의 줄(자회사·부문의 한 줄짜리 표)은 그 회사 값이
     // 아닐 때가 많다 — 합계만 남긴다. 합계 표가 없는 작은 회사는 줄마다 그대로 둔다.
-    if (out.any((r) => r.label.startsWith('합계'))) {
-      out.removeWhere((r) => !r.label.startsWith('합계'));
+    if (hasTotals) {
+      out.removeWhere((r) => nonTotals.contains(r.label));
     }
     return out;
   }

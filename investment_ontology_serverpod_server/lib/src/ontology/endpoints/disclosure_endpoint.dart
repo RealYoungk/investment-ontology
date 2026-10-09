@@ -14,6 +14,7 @@ import '../dart/dart_values.dart';
 import '../disclosure/business_text.dart';
 import '../disclosure/business_table_insights.dart';
 import '../disclosure/investment_facts.dart';
+import '../disclosure/order_facts.dart';
 import '../disclosure/interim_rnd_facts.dart';
 import '../disclosure/disclosure_values.dart';
 
@@ -70,9 +71,14 @@ class DisclosureEndpoint extends Endpoint {
       where: (t) => t.reportId.equals(report.id!),
       orderBy: (t) => t.ord,
     );
-    final decoded = [
-      for (final r in rows) (r, jsonDecode(r.rowJson) as Map<String, dynamic>),
-    ];
+    final seenRows = <String>{};
+    final decoded = <(DisclosureRow, Map<String, dynamic>)>[];
+    for (final r in rows) {
+      final fields = jsonDecode(r.rowJson) as Map<String, dynamic>;
+      final keys = fields.keys.toList()..sort();
+      final identity = jsonEncode({for (final k in keys) k: fields[k]});
+      if (seenRows.add(identity)) decoded.add((r, fields));
+    }
     final fields = <String>[];
     for (final (_, f) in decoded) {
       for (final k in f.keys) {
@@ -212,6 +218,20 @@ class DisclosureEndpoint extends Endpoint {
             where: (t) => t.reportId.inSet(dividendReports),
             orderByList: (t) => [t.bsnsYear.desc(), t.ord.asc()],
           );
+    final seenDividends = <String>{};
+    dividends.removeWhere(
+      (e) => !seenDividends.add(
+        jsonEncode([
+          e.reportId,
+          e.item,
+          e.unit,
+          e.stockKind,
+          e.current,
+          e.prior,
+          e.beforePrior,
+        ]),
+      ),
+    );
     final treasuryReport = latest(DartSection.treasuryStock);
     final treasury = treasuryReport == null
         ? <TreasuryStockEntry>[]
@@ -390,9 +410,24 @@ class DisclosureEndpoint extends Endpoint {
       for (final d in documents)
         if (active.contains(d.reportId)) d.id!: d,
     };
-    final valid = all
-        .where((f) => byDocument.containsKey(f.documentId))
-        .toList();
+    final orderLabels = {
+      for (final doc in byDocument.values) doc.id!: OrderFacts.parse(doc.text),
+    };
+    final valid = all.where((f) => byDocument.containsKey(f.documentId)).map((
+      f,
+    ) {
+      if (!{
+        DocumentFactKind.orderTotal,
+        DocumentFactKind.orderDelivered,
+        DocumentFactKind.orderBacklog,
+      }.contains(f.kind)) {
+        return f;
+      }
+      final matches = orderLabels[f.documentId]!
+          .where((r) => r.evidence == f.evidence)
+          .toList();
+      return matches.length == 1 ? f.copyWith(label: matches.single.label) : f;
+    }).toList();
     // 같은 항목·같은 해의 값이 여러 보고서에 있으면(표가 당기·전기·전전기를 나란히 적고,
     // 회사는 재작성한다) 그 해의 보고서 값을 쓴다 — 없으면 가장 가까운 해의 보고서.
     final best = <String, DocumentFact>{};

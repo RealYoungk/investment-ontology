@@ -3,6 +3,20 @@ import 'package:test/test.dart';
 
 /// 실제 사업보고서 표 모양으로 확인한다.
 void main() {
+  test('explicit company scope survives changing table order', () {
+    const a =
+        '특장차량 부문 (회사명 : 오텍)\n(단위 : 백만원)\n품목 | 수주총액 | 기납품액 | 수주잔고\n합계 | 100 | 40 | 60';
+    const b =
+        '냉동냉장 부문 (회사명 : 씨알케이)\n(단위 : 백만원)\n품목 | 수주총액 | 기납품액 | 수주잔고\n합계 | 200 | 50 | 150';
+    final first = OrderFacts.parse('$a\n$b');
+    final reverse = OrderFacts.parse('$b\n$a');
+    expect(
+      {for (final r in first) r.label: r.backlog},
+      {for (final r in reverse) r.label: r.backlog},
+    );
+    expect(first.map((r) => r.label), everyElement(contains('부문')));
+  });
+
   test('GigaVis current-order header is supported only when the balance equation reconciles', () {
     const table =
         "(단위 : 백만원)\n품목 | 당기수주 | 납품액 | 수주잔고\n반도체 기판 검사 및 수리장비 | 55,735 | 42,169 | 13,566";

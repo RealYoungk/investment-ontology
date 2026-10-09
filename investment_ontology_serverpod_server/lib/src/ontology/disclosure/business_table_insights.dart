@@ -363,6 +363,9 @@ abstract final class BusinessTableInsights {
           !heading.contains('|')) {
         subsection = heading;
       }
+      if (!heading.contains('|') && RegExp(r'회사명\s*[:：]').hasMatch(heading)) {
+        entity = heading.replaceAll(RegExp(r'\s+'), ' ').trim();
+      }
       if (heading.contains('■') && heading.split('■').last.isNotEmpty) {
         entity = heading
             .split('■')
@@ -852,7 +855,15 @@ abstract final class BusinessTableInsights {
           title: title(topic),
           columns: header,
           rows: records,
-          measures: measures,
+          measures: [
+            for (final m in measures)
+              entity == null
+                  ? m
+                  : m.copyWith(
+                      label:
+                          '${entity.split(RegExp(r'\(?회사명\s*[:：]')).first.replaceAll(RegExp(r'\[[^\]]+\]|\s+'), '')} · ${m.label}',
+                    ),
+          ],
           evidence: evidence,
           validation: '명시된 열·원문 값 구조화 · 합계/비율 검산 미수행',
           scope: [
